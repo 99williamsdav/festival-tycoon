@@ -5,7 +5,7 @@ Implementation began 7 September 2026. Update rows only when work actually occur
 | Brief | Status | Implementation / evidence | Open checks |
 |---|---|---|---|
 | M0.01 | Accepted | [Toolchain, projects, tests, Windows export and launch evidence](results/M0.01.md) | None |
-| M0.02 | Not started | None | All |
+| M0.02 | Accepted | [Deterministic clock, IDs, commands, PRNG streams, hashing and independent review](results/M0.02.md) | None |
 | M0.03 | Not started | None | All |
 | M0.04 | Not started | None | All |
 | M0.05 | Not started | None | All |

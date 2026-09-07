@@ -33,6 +33,14 @@ The runner must print exactly:
 festival-tycoon-smoke|build=0.0.1-m0.01|seed=0|checksum=0000000000000000
 ```
 
+M0.02 adds a separate deterministic-session fixture without changing the M0.01 default smoke contract:
+
+```powershell
+.\tools\run-deterministic-fixture.ps1
+```
+
+The fixture runs the same seeded session as one 400-tick batch and as repeating 1/7/32-tick batches, prints their canonical SHA-256 hashes, and reports whether the results are equivalent and repeatable.
+
 To reproduce the clean-build acceptance check, close Godot and run:
 
 ```powershell
