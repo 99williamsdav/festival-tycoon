@@ -1,0 +1,11 @@
+<Project Sdk="MSTest.Sdk/4.4.0">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Festival.Tests</AssemblyName>
+    <RootNamespace>Festival.Tests</RootNamespace>
+    <TestingExtensionsProfile>None</TestingExtensionsProfile>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Festival.Simulation\Festival.Simulation.csproj" />
+  </ItemGroup>
+</Project>

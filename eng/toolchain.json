@@ -1,0 +1,17 @@
+{
+  "dotnetSdk": "8.0.417",
+  "targetFramework": "net8.0",
+  "testFramework": {
+    "name": "MSTest.Sdk",
+    "version": "4.4.0"
+  },
+  "godot": {
+    "version": "4.7.2",
+    "edition": ".NET",
+    "platform": "Windows x86_64",
+    "editorUrl": "https://downloads.godotengine.org/?flavor=stable&platform=windows.64&slug=mono_win64.zip&version=4.7.2",
+    "editorSha256": "A2A48473A7414C5F19FAB690518CAEBB738C09EF9601F6BD2388676A7F53B3C0",
+    "templatesUrl": "https://downloads.godotengine.org/?flavor=stable&platform=templates&slug=mono_export_templates.tpz&version=4.7.2",
+    "templatesSha256": "92F8681E349EF1F90891B792DA95E3B2B0BD1ED610B78018C58FEB2D87E15A9D"
+  }
+}

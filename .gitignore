@@ -15,3 +15,19 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# .NET generated output
+**/bin/
+**/obj/
+
+# Reproducible local toolchain and build artifacts
+.tools/
+artifacts/
+
+# .NET generated output
+**/bin/
+**/obj/
+
+# Reproducible local toolchain and build artifacts
+.tools/
+artifacts/
