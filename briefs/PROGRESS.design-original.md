@@ -1,0 +1,18 @@
+# Foundation progress
+
+Briefs authored 7 September 2026. Implementation has not started. Update rows only when work actually occurs; detailed evidence belongs in a linked results file as described in [README.md](README.md).
+
+| Brief | Status | Implementation / evidence | Open checks |
+|---|---|---|---|
+| M0.01 | Not started | None | All |
+| M0.02 | Not started | None | All |
+| M0.03 | Not started | None | All |
+| M0.04 | Not started | None | All |
+| M0.05 | Not started | None | All |
+| M0.06 | Not started | None | All |
+| M0.07 | Not started | None | All |
+| M0.08 | Not started | None | All |
+| M0.09 | Not started | None | All |
+| M0.10 | Not started | None | All |
+
+For each completed task, record changed files, exact verification commands, observed results, reviewer/QA identity and limitations in its results file. Do not replace failures or unavailable checks with an unqualified completion claim.
