@@ -20,3 +20,10 @@ public readonly record struct CommandId(ulong Value) : IComparable<CommandId>
 
     public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
 }
+
+public readonly record struct TransactionId(ulong Value) : IComparable<TransactionId>
+{
+    public int CompareTo(TransactionId other) => Value.CompareTo(other.Value);
+
+    public override string ToString() => Value.ToString(CultureInfo.InvariantCulture);
+}

@@ -5,7 +5,7 @@ namespace Festival.Simulation;
 
 internal static class CanonicalStateHasher
 {
-    private const int SchemaVersion = 1;
+    private const int SchemaVersion = 2;
 
     public static string Compute(GameSession session)
     {
@@ -30,6 +30,49 @@ internal static class CanonicalStateHasher
             writer.Write(pair.Value.Value);
             writer.Write(pair.Value.RemainingTicks);
             writer.Write(pair.Value.HasExpired);
+        }
+
+        writer.Write(session.Wallets.Count);
+        foreach (var pair in session.Wallets)
+        {
+            writer.Write(pair.Key.Value);
+            writer.Write(pair.Value.CashPennies);
+        }
+
+        writer.Write(session.FestivalFinances.Count);
+        foreach (var pair in session.FestivalFinances)
+        {
+            writer.Write(pair.Key.Value);
+            writer.Write(pair.Value.CashPennies);
+        }
+
+        writer.Write(session.OwnedStocks.Count);
+        foreach (var pair in session.OwnedStocks)
+        {
+            writer.Write(pair.Key.Value);
+            writer.Write(pair.Value.OwnerId.Value);
+            writer.Write(pair.Value.Quantity);
+            writer.Write(pair.Value.UnitCostBasisPennies);
+        }
+
+        writer.Write(session.Transactions.Count);
+        foreach (var transaction in session.Transactions)
+        {
+            writer.Write(transaction.Id.Value);
+            writer.Write(transaction.CommandId.Value);
+            writer.Write(transaction.Tick);
+            writer.Write(transaction.BuyerId.Value);
+            writer.Write(transaction.FestivalId.Value);
+            writer.Write(transaction.ServiceId.Value);
+            writer.Write(transaction.Quantity);
+            writer.Write(transaction.UnitPricePennies);
+            writer.Write(transaction.Entries.Count);
+            foreach (var entry in transaction.Entries)
+            {
+                writer.Write(entry.OwnerId.Value);
+                writer.Write((int)entry.Account);
+                writer.Write(entry.AmountPennies);
+            }
         }
 
         writer.Write(session.AcceptedCommandIds.Count);

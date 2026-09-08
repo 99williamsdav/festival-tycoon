@@ -24,6 +24,10 @@ public enum CommandReasonCode
     UnknownTarget = 6,
     InvalidParameter = 7,
     UnknownCommand = 8,
+    DuplicateTransaction = 9,
+    UnknownOwner = 10,
+    InsufficientFunds = 11,
+    OutOfStock = 12,
 }
 
 public abstract record SessionCommand;
@@ -35,6 +39,26 @@ public sealed record CreateFixtureRecordCommand(int InitialValue, int ExpiresAft
 public sealed record ChangeFixtureValueCommand(int NewValue) : SessionCommand;
 
 public sealed record SetPausedCommand(bool IsPaused) : SessionCommand;
+
+/// <summary>Development fixture: creates one guest wallet for M0.04 verification.</summary>
+public sealed record CreateGuestWalletCommand(long OpeningCashPennies) : SessionCommand;
+
+/// <summary>Development fixture: creates one festival cash owner for M0.04 verification.</summary>
+public sealed record CreateFestivalFinanceCommand(long OpeningCashPennies) : SessionCommand;
+
+/// <summary>Development fixture: creates festival-owned service stock for M0.04 verification.</summary>
+public sealed record CreateOwnedStockCommand(EntityId OwnerId, int Quantity, int UnitCostBasisPennies) : SessionCommand;
+
+/// <summary>
+/// Atomically transfers guest cash, festival cash and owned stock and records a balanced ledger transaction.
+/// TargetId on the envelope is the service whose stock is sold.
+/// </summary>
+public sealed record PurchaseItemCommand(
+    TransactionId TransactionId,
+    EntityId BuyerId,
+    EntityId FestivalId,
+    long UnitPricePennies,
+    int Quantity) : SessionCommand;
 
 public sealed record CommandEnvelope(
     CommandId CommandId,

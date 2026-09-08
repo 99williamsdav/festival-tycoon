@@ -32,4 +32,31 @@ if (args is ["--scenario", "deterministic-session"])
     return;
 }
 
+if (args is ["--scenario", "atomic-purchase"])
+{
+    var fixture = AtomicPurchaseFixture.Create(stockQuantity: 1, unitCostBasisPennies: 120);
+    var before = fixture.Session.CaptureSnapshot();
+    var sale = fixture.Session.Execute(AtomicPurchaseFixture.PurchaseEnvelope(
+        fixture, new CommandId(6), new TransactionId(1), fixture.PrimaryBuyerId));
+    var after = fixture.Session.CaptureSnapshot();
+    var insufficient = fixture.Session.Execute(AtomicPurchaseFixture.PurchaseEnvelope(
+        fixture, new CommandId(7), new TransactionId(2), fixture.PrimaryBuyerId));
+    var empty = fixture.Session.Execute(AtomicPurchaseFixture.PurchaseEnvelope(
+        fixture, new CommandId(7), new TransactionId(2), fixture.CompetingBuyerId));
+
+    Console.WriteLine("scenario=atomic-purchase price_p=300 quantity=1 unit_cost_p=120");
+    Console.WriteLine($"before buyer_p={before.Wallets.Single(item => item.OwnerId == fixture.PrimaryBuyerId).CashPennies} festival_p={before.FestivalFinances.Single().CashPennies} stock={before.OwnedStocks.Single().Quantity} ledger={before.Transactions.Count}");
+    Console.WriteLine($"sale accepted={sale.IsAccepted} reason={sale.ReasonCode}");
+    Console.WriteLine($"after buyer_p={after.Wallets.Single(item => item.OwnerId == fixture.PrimaryBuyerId).CashPennies} festival_p={after.FestivalFinances.Single().CashPennies} stock={after.OwnedStocks.Single().Quantity} ledger={after.Transactions.Count}");
+    foreach (var entry in after.Transactions.Single().Entries)
+    {
+        Console.WriteLine($"entry owner={entry.OwnerId} account={entry.Account} amount_p={entry.AmountPennies}");
+    }
+    Console.WriteLine($"balanced={after.Transactions.Single().IsBalanced}");
+    Console.WriteLine($"insufficient accepted={insufficient.IsAccepted} reason={insufficient.ReasonCode}");
+    Console.WriteLine($"empty accepted={empty.IsAccepted} reason={empty.ReasonCode}");
+    Environment.ExitCode = sale.IsAccepted && !insufficient.IsAccepted && !empty.IsAccepted && after.Transactions.Single().IsBalanced ? 0 : 1;
+    return;
+}
+
 Console.WriteLine(ToolchainSmoke.GetFixedResult());

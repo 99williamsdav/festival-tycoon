@@ -16,6 +16,10 @@ public sealed record SessionSnapshot(
     ulong NextEntityId,
     ulong NextSubmissionSequence,
     IReadOnlyList<FixtureRecordSnapshot> FixtureRecords,
+    IReadOnlyList<WalletSnapshot> Wallets,
+    IReadOnlyList<FestivalFinanceSnapshot> FestivalFinances,
+    IReadOnlyList<OwnedStockSnapshot> OwnedStocks,
+    IReadOnlyList<TransactionRecord> Transactions,
     string AuthoritativeHash);
 
 public sealed record SessionEvent(long Tick, string EventType, EntityId EntityId);
