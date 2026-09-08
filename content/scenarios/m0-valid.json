@@ -1,0 +1,39 @@
+{
+  "schemaVersion": 1,
+  "catalogueVersion": 1,
+  "services": [
+    { "id": "service.water", "version": 1, "durationTicks": 120, "pricePennies": 0, "stock": 100 }
+  ],
+  "scenarios": [
+    {
+      "id": "scenario.single-agent", "version": 1, "width": 8, "height": 8,
+      "blockedCells": [],
+      "locations": [
+        { "id": "spawn.gate", "kind": "spawn", "x": 0, "y": 3, "required": true },
+        { "id": "target.water", "kind": "target", "x": 6, "y": 3, "required": true }
+      ],
+      "agentSeed": 101, "agentCount": 1, "serviceId": "service.water"
+    },
+    {
+      "id": "scenario.fifty-agents", "version": 1, "width": 16, "height": 12,
+      "blockedCells": [],
+      "locations": [
+        { "id": "spawn.gate", "kind": "spawn", "x": 0, "y": 5, "required": true },
+        { "id": "target.water", "kind": "target", "x": 14, "y": 5, "required": true }
+      ],
+      "agentSeed": 5050, "agentCount": 50, "serviceId": "service.water"
+    },
+    {
+      "id": "scenario.blocked-passage", "version": 1, "width": 9, "height": 7,
+      "blockedCells": [
+        { "x": 4, "y": 0 }, { "x": 4, "y": 1 }, { "x": 4, "y": 2 },
+        { "x": 4, "y": 4 }, { "x": 4, "y": 5 }, { "x": 4, "y": 6 }
+      ],
+      "locations": [
+        { "id": "spawn.west", "kind": "spawn", "x": 1, "y": 3, "required": true },
+        { "id": "target.east", "kind": "target", "x": 7, "y": 3, "required": true }
+      ],
+      "agentSeed": 303, "agentCount": 1, "serviceId": "service.water"
+    }
+  ]
+}

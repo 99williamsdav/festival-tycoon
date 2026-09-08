@@ -1,5 +1,18 @@
+using Festival.ContentAdapter;
 using Festival.Simulation;
 using Festival.Simulation.Fixtures;
+
+if (args is ["--content-catalogue", var validPath, var invalidPath])
+{
+    var valid = JsonContentAdapter.LoadFile(validPath);
+    var invalid = JsonContentAdapter.LoadFile(invalidPath);
+    Console.WriteLine($"valid.file={Path.GetFileName(validPath)} success={valid.IsSuccess} hash={valid.Catalogue?.ContentHash ?? "none"}");
+    Console.WriteLine($"valid.scenarios={valid.Catalogue?.Scenarios.Count ?? 0} services={valid.Catalogue?.Services.Count ?? 0}");
+    Console.WriteLine($"invalid.file={Path.GetFileName(invalidPath)} success={invalid.IsSuccess} diagnostics={invalid.Diagnostics.Count}");
+    foreach (var diagnostic in invalid.Diagnostics) Console.WriteLine(diagnostic);
+    Environment.ExitCode = valid.IsSuccess && !invalid.IsSuccess ? 0 : 1;
+    return;
+}
 
 if (args is ["--scenario", "deterministic-session"])
 {

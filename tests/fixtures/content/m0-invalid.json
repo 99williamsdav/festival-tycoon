@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 99,
+  "catalogueVersion": 1,
+  "services": [
+    { "id": "service.bad", "version": 1, "durationTicks": 0, "pricePennies": -1, "stock": -5 },
+    { "id": "service.bad", "version": 1, "durationTicks": 10, "pricePennies": 0, "stock": 1 }
+  ],
+  "scenarios": [
+    {
+      "id": "scenario.bad", "version": 1, "width": 0, "height": -1,
+      "blockedCells": [{ "x": 1, "y": 1 }],
+      "locations": [
+        { "id": "spawn.bad", "kind": "spawn", "x": 2, "y": 2, "required": true },
+        { "id": "target.bad", "kind": "target", "x": 2, "y": 2, "required": true }
+      ],
+      "agentSeed": 1, "agentCount": -1, "serviceId": "service.missing"
+    }
+  ]
+}

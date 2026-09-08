@@ -1,12 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputType>Exe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
-    <AssemblyName>Festival.Runner</AssemblyName>
-    <RootNamespace>Festival.Runner</RootNamespace>
+    <AssemblyName>Festival.ContentAdapter</AssemblyName>
+    <RootNamespace>Festival.ContentAdapter</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Festival.Simulation\Festival.Simulation.csproj" />
-    <ProjectReference Include="..\Festival.ContentAdapter\Festival.ContentAdapter.csproj" />
   </ItemGroup>
 </Project>
