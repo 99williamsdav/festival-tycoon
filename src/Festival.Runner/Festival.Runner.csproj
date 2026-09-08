@@ -8,5 +8,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Festival.Simulation\Festival.Simulation.csproj" />
     <ProjectReference Include="..\Festival.ContentAdapter\Festival.ContentAdapter.csproj" />
+    <ProjectReference Include="..\Festival.Persistence\Festival.Persistence.csproj" />
   </ItemGroup>
 </Project>

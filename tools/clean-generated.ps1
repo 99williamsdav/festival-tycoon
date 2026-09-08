@@ -10,6 +10,8 @@ $targets = @(
     (Join-Path $repoRoot 'game\obj'),
     (Join-Path $repoRoot 'src\Festival.ContentAdapter\bin'),
     (Join-Path $repoRoot 'src\Festival.ContentAdapter\obj'),
+    (Join-Path $repoRoot 'src\Festival.Persistence\bin'),
+    (Join-Path $repoRoot 'src\Festival.Persistence\obj'),
     (Join-Path $repoRoot 'src\Festival.Runner\bin'),
     (Join-Path $repoRoot 'src\Festival.Runner\obj'),
     (Join-Path $repoRoot 'src\Festival.Simulation\bin'),

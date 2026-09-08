@@ -8,6 +8,12 @@
           "Festival.Simulation": "[1.0.0, )"
         }
       },
+      "festival.persistence": {
+        "type": "Project",
+        "dependencies": {
+          "Festival.Simulation": "[1.0.0, )"
+        }
+      },
       "festival.simulation": {
         "type": "Project"
       }

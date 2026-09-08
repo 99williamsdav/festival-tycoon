@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <AssemblyName>Festival.Persistence</AssemblyName>
+    <RootNamespace>Festival.Persistence</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Festival.Simulation\Festival.Simulation.csproj" />
+  </ItemGroup>
+</Project>

@@ -1,6 +1,76 @@
 using Festival.ContentAdapter;
+using Festival.Persistence;
 using Festival.Simulation;
 using Festival.Simulation.Fixtures;
+
+var saveCompatibility = new SaveCompatibility(
+    "0.0.1-m0.05",
+    "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9",
+    "m0-rules-v1");
+
+if (args is ["--save-roundtrip", var saveDirectory, var slotId])
+{
+    var fixture = AtomicPurchaseFixture.Create(stockQuantity: 3);
+    fixture.Session.AdvanceTicks(10);
+    fixture.Session.NextRandom(RandomStreamId.Demand);
+    var firstSale = fixture.Session.Execute(AtomicPurchaseFixture.PurchaseEnvelope(
+        fixture, new CommandId(6), new TransactionId(1), fixture.PrimaryBuyerId));
+    var midHash = fixture.Session.CaptureSnapshot().AuthoritativeHash;
+    var saved = SaveFileAdapter.SaveSlot(saveDirectory, slotId, new SaveWriteRequest(
+        fixture.Session, saveCompatibility, "manual-demo", DateTimeOffset.UtcNow));
+    var loaded = SaveFileAdapter.LoadSlot(saveDirectory, slotId, saveCompatibility);
+    if (!saved.IsSuccess || !loaded.IsSuccess)
+    {
+        Console.Error.WriteLine(saved.Error ?? loaded.Error);
+        Environment.ExitCode = 1;
+        return;
+    }
+
+    var loadedMidHash = loaded.Session!.CaptureSnapshot().AuthoritativeHash;
+    var resumedFixture = fixture with { Session = loaded.Session! };
+    var randomMatches = fixture.Session.NextRandom(RandomStreamId.Weather) == loaded.Session!.NextRandom(RandomStreamId.Weather);
+    var originalSecond = fixture.Session.Execute(AtomicPurchaseFixture.PurchaseEnvelope(
+        fixture, new CommandId(7), new TransactionId(2), fixture.ExactCashBuyerId));
+    var resumedSecond = loaded.Session.Execute(AtomicPurchaseFixture.PurchaseEnvelope(
+        resumedFixture, new CommandId(7), new TransactionId(2), fixture.ExactCashBuyerId));
+    fixture.Session.AdvanceTicks(25);
+    loaded.Session.AdvanceTicks(25);
+    var originalFinal = fixture.Session.CaptureSnapshot().AuthoritativeHash;
+    var resumedFinal = loaded.Session.CaptureSnapshot().AuthoritativeHash;
+
+    var slotPath = SaveFileAdapter.ResolveSlotPath(saveDirectory, slotId);
+    var corruptPath = Path.Combine(saveDirectory, "corrupt-copy" + SaveFileAdapter.FileExtension);
+    var corruptBytes = File.ReadAllBytes(slotPath);
+    corruptBytes[corruptBytes.Length / 2] ^= 0x5A;
+    File.WriteAllBytes(corruptPath, corruptBytes);
+    var corrupt = SaveFileAdapter.LoadFile(corruptPath, saveCompatibility);
+
+    Console.WriteLine($"scenario=save-roundtrip slot={slotId} format=gzip-json-v1");
+    Console.WriteLine($"first_sale={firstSale.IsAccepted} save={saved.IsSuccess} load={loaded.IsSuccess}");
+    Console.WriteLine($"mid_hash={midHash} loaded_hash={loadedMidHash} equal={midHash == loadedMidHash}");
+    Console.WriteLine($"random_continuation={randomMatches} second_original={originalSecond.IsAccepted} second_resumed={resumedSecond.IsAccepted}");
+    Console.WriteLine($"original_final={originalFinal} resumed_final={resumedFinal} equal={originalFinal == resumedFinal}");
+    Console.WriteLine($"transactions={string.Join(',', loaded.Session.Transactions.Select(item => item.Id.Value))}");
+    Console.WriteLine($"corrupt_load={corrupt.IsSuccess} error={corrupt.Error}");
+    Environment.ExitCode = originalFinal == resumedFinal && randomMatches && !corrupt.IsSuccess ? 0 : 1;
+    return;
+}
+
+if (args is ["--write-save-fixture", var fixturePath])
+{
+    var fixture = AtomicPurchaseFixture.Create(stockQuantity: 1);
+    _ = fixture.Session.Execute(AtomicPurchaseFixture.PurchaseEnvelope(
+        fixture, new CommandId(6), new TransactionId(1), fixture.PrimaryBuyerId));
+    _ = fixture.Session.Execute(new CommandEnvelope(
+        new CommandId(7), fixture.Session.CampaignId, fixture.Session.Phase, fixture.Session.CurrentTick,
+        fixture.Session.NextSubmissionSequence, null, new SetPausedCommand(true)));
+    var result = SaveFileAdapter.SaveFile(fixturePath, new SaveWriteRequest(
+        fixture.Session, saveCompatibility, "nonpersonal-test-fixture", new DateTimeOffset(2026, 9, 8, 0, 0, 0, TimeSpan.Zero)));
+    Console.WriteLine($"fixture={Path.GetFileName(fixturePath)} saved={result.IsSuccess} hash={fixture.Session.CaptureSnapshot().AuthoritativeHash}");
+    if (!result.IsSuccess) Console.Error.WriteLine(result.Error);
+    Environment.ExitCode = result.IsSuccess ? 0 : 1;
+    return;
+}
 
 if (args is ["--content-catalogue", var validPath, var invalidPath])
 {

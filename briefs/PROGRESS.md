@@ -8,7 +8,7 @@ Implementation began 7 September 2026. Update rows only when work actually occur
 | M0.02 | Accepted | [Deterministic clock, IDs, commands, PRNG streams, hashing and independent review](results/M0.02.md) | None |
 | M0.03 | Accepted | [Versioned content schema, validation, canonical hash, fixtures, tests and independent review](results/M0.03.md) | None |
 | M0.04 | Accepted | [Atomic purchase, balanced ledger, stock accounting, idempotency tests and independent review](results/M0.04.md) | None |
-| M0.05 | Not started | None | All |
+| M0.05 | Accepted | [Versioned gzip saves, complete DTO mapping, checksum, migration gate, atomic replacement, backup, recovery tests and independent review](results/M0.05.md) | None |
 | M0.06 | Not started | None | All |
 | M0.07 | Not started | None | All |
 | M0.08 | Not started | None | All |

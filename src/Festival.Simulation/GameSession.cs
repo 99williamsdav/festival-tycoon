@@ -218,8 +218,181 @@ public sealed class GameSession
             CanonicalStateHasher.Compute(this));
     }
 
+    public SessionPersistenceSnapshot CapturePersistenceSnapshot() => new(
+        CampaignId.Value,
+        CampaignSeed,
+        Pcg32Random.AlgorithmVersion,
+        (int)Phase,
+        CurrentTick,
+        IsPaused,
+        NextEntityId,
+        NextSubmissionSequence,
+        _fixtureRecords.Values.Select(item => new PersistedFixtureRecord(item.Id.Value, item.Value, item.RemainingTicks, item.HasExpired)).ToArray(),
+        _acceptedCommandIds.Select(item => item.Value).ToArray(),
+        _appliedCommands.Select(item => new PersistedAppliedCommand(item.CommandId.Value, item.Tick, item.SubmissionSequence, item.CommandType, item.TargetId?.Value)).ToArray(),
+        _randomStreams.Select(pair => new PersistedRandomStream((int)pair.Key, pair.Value.State, pair.Value.Increment)).ToArray(),
+        _wallets.Values.Select(item => new PersistedWallet(item.OwnerId.Value, item.CashPennies)).ToArray(),
+        _festivalFinances.Values.Select(item => new PersistedFestivalFinance(item.OwnerId.Value, item.CashPennies)).ToArray(),
+        _ownedStocks.Values.Select(item => new PersistedOwnedStock(item.ServiceId.Value, item.OwnerId.Value, item.Quantity, item.UnitCostBasisPennies)).ToArray(),
+        _transactionIds.Select(item => item.Value).ToArray(),
+        _transactions.Select(item => new PersistedTransaction(
+            item.Id.Value,
+            item.CommandId.Value,
+            item.Tick,
+            item.BuyerId.Value,
+            item.FestivalId.Value,
+            item.ServiceId.Value,
+            item.Quantity,
+            item.UnitPricePennies,
+            item.Entries.Select(entry => new PersistedLedgerEntry(entry.OwnerId.Value, (int)entry.Account, entry.AmountPennies)).ToArray())).ToArray(),
+        CanonicalStateHasher.Compute(this));
+
+    public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
+    {
+        ArgumentNullException.ThrowIfNull(snapshot);
+        var error = ValidatePersistenceSnapshot(snapshot);
+        if (error is not null)
+        {
+            return SessionRestoreResult.Failure(error);
+        }
+
+        var session = new GameSession(snapshot.CampaignSeed, new CampaignId(snapshot.CampaignId))
+        {
+            Phase = (SessionPhase)snapshot.Phase,
+            CurrentTick = snapshot.CurrentTick,
+            IsPaused = snapshot.IsPaused,
+            NextEntityId = snapshot.NextEntityId,
+            NextSubmissionSequence = snapshot.NextSubmissionSequence,
+        };
+        session._fixtureRecords.Clear();
+        foreach (var item in snapshot.FixtureRecords)
+            session._fixtureRecords.Add(new EntityId(item.Id), new FixtureRecordState { Id = new EntityId(item.Id), Value = item.Value, RemainingTicks = item.RemainingTicks, HasExpired = item.HasExpired });
+        session._acceptedCommandIds.Clear();
+        foreach (var id in snapshot.AcceptedCommandIds) session._acceptedCommandIds.Add(new CommandId(id));
+        session._appliedCommands.Clear();
+        foreach (var item in snapshot.AppliedCommands)
+            session._appliedCommands.Add(new AppliedCommand(new CommandId(item.CommandId), item.Tick, item.SubmissionSequence, item.CommandType, item.TargetId is { } target ? new EntityId(target) : null));
+        session._randomStreams.Clear();
+        foreach (var item in snapshot.RandomStreams)
+            session._randomStreams.Add((RandomStreamId)item.StreamId, new Pcg32Random(item.State, item.Increment));
+        session._wallets.Clear();
+        foreach (var item in snapshot.Wallets)
+            session._wallets.Add(new EntityId(item.OwnerId), new WalletState { OwnerId = new EntityId(item.OwnerId), CashPennies = item.CashPennies });
+        session._festivalFinances.Clear();
+        foreach (var item in snapshot.FestivalFinances)
+            session._festivalFinances.Add(new EntityId(item.OwnerId), new FestivalFinanceState { OwnerId = new EntityId(item.OwnerId), CashPennies = item.CashPennies });
+        session._ownedStocks.Clear();
+        foreach (var item in snapshot.OwnedStocks)
+            session._ownedStocks.Add(new EntityId(item.ServiceId), new OwnedStockState { ServiceId = new EntityId(item.ServiceId), OwnerId = new EntityId(item.OwnerId), Quantity = item.Quantity, UnitCostBasisPennies = item.UnitCostBasisPennies });
+        session._transactionIds.Clear();
+        foreach (var id in snapshot.CompletedTransactionIds) session._transactionIds.Add(new TransactionId(id));
+        session._transactions.Clear();
+        foreach (var item in snapshot.Transactions)
+            session._transactions.Add(new TransactionRecord(
+                new TransactionId(item.Id), new CommandId(item.CommandId), item.Tick, new EntityId(item.BuyerId),
+                new EntityId(item.FestivalId), new EntityId(item.ServiceId), item.Quantity, item.UnitPricePennies,
+                item.Entries.Select(entry => new LedgerEntry(new EntityId(entry.OwnerId), (LedgerAccountType)entry.Account, entry.AmountPennies))));
+
+        var actualHash = CanonicalStateHasher.Compute(session);
+        return string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)
+            ? SessionRestoreResult.Success(session)
+            : SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");
+    }
+
+    private static string? ValidatePersistenceSnapshot(SessionPersistenceSnapshot snapshot)
+    {
+        if (!Enum.IsDefined(typeof(SessionPhase), snapshot.Phase)) return $"Unknown session phase {snapshot.Phase}.";
+        if (!string.Equals(snapshot.RandomAlgorithmVersion, Pcg32Random.AlgorithmVersion, StringComparison.Ordinal))
+            return $"Random algorithm '{snapshot.RandomAlgorithmVersion}' is incompatible; expected '{Pcg32Random.AlgorithmVersion}'.";
+        if (snapshot.CurrentTick < 0) return "Current tick cannot be negative.";
+        if (snapshot.NextEntityId == 0) return "Next entity ID must be positive.";
+        if (string.IsNullOrWhiteSpace(snapshot.AuthoritativeHash)) return "Authoritative hash is required.";
+        if (snapshot.FixtureRecords is null || snapshot.AcceptedCommandIds is null || snapshot.AppliedCommands is null ||
+            snapshot.RandomStreams is null || snapshot.Wallets is null || snapshot.FestivalFinances is null ||
+            snapshot.OwnedStocks is null || snapshot.CompletedTransactionIds is null || snapshot.Transactions is null)
+            return "Every v1 authoritative collection must be present.";
+        if (snapshot.FixtureRecords.Any(item => item is null) || snapshot.AppliedCommands.Any(item => item is null) ||
+            snapshot.RandomStreams.Any(item => item is null) || snapshot.Wallets.Any(item => item is null) ||
+            snapshot.FestivalFinances.Any(item => item is null) || snapshot.OwnedStocks.Any(item => item is null) ||
+            snapshot.Transactions.Any(item => item is null)) return "Authoritative collections cannot contain null records.";
+        if (!StrictlyIncreasing(snapshot.FixtureRecords.Select(item => item.Id)) || !StrictlyIncreasing(snapshot.AcceptedCommandIds) ||
+            !StrictlyIncreasing(snapshot.RandomStreams.Select(item => (ulong)item.StreamId)) || !StrictlyIncreasing(snapshot.Wallets.Select(item => item.OwnerId)) ||
+            !StrictlyIncreasing(snapshot.FestivalFinances.Select(item => item.OwnerId)) || !StrictlyIncreasing(snapshot.OwnedStocks.Select(item => item.ServiceId)) ||
+            !StrictlyIncreasing(snapshot.CompletedTransactionIds)) return "ID-keyed authoritative collections must be sorted and unique.";
+        var expectedStreams = Enum.GetValues<RandomStreamId>().Select(item => (int)item).ToArray();
+        if (!snapshot.RandomStreams.Select(item => item.StreamId).SequenceEqual(expectedStreams) || snapshot.RandomStreams.Any(item => (item.Increment & 1UL) == 0))
+            return $"Random streams must contain each {Pcg32Random.AlgorithmVersion} stream exactly once with an odd increment.";
+        if (snapshot.NextSubmissionSequence != (ulong)snapshot.AppliedCommands.Length || snapshot.AppliedCommands.Where((item, index) => item.SubmissionSequence != (ulong)index).Any())
+            return "Applied command sequences must be contiguous and match next submission sequence.";
+        if (!snapshot.AppliedCommands.Select(item => item.CommandId).Order().SequenceEqual(snapshot.AcceptedCommandIds))
+            return "Accepted command IDs must exactly match applied commands.";
+        if (snapshot.FixtureRecords.Any(item => item.Id == 0 || item.RemainingTicks < 0)) return "Fixture record identity/progress is invalid.";
+        if (snapshot.Wallets.Any(item => item.OwnerId == 0 || item.CashPennies < 0) || snapshot.FestivalFinances.Any(item => item.OwnerId == 0 || item.CashPennies < 0))
+            return "Wallet and festival cash owners must be present with nonnegative cash.";
+        var festivalIds = snapshot.FestivalFinances.Select(item => item.OwnerId).ToHashSet();
+        if (snapshot.OwnedStocks.Any(item => item.ServiceId == 0 || !festivalIds.Contains(item.OwnerId) || item.Quantity < 0 || item.UnitCostBasisPennies < 0))
+            return "Owned stock must have a valid festival owner and nonnegative quantity/cost basis.";
+        var entityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.Wallets.Select(item => item.OwnerId))
+            .Concat(snapshot.FestivalFinances.Select(item => item.OwnerId)).Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).ToArray();
+        if (entityIds.Distinct().Count() != entityIds.Length || entityIds.Any(id => id >= snapshot.NextEntityId))
+            return "Entity IDs must be unique and lower than the next entity ID.";
+        var knownEntities = entityIds.ToHashSet();
+        if (snapshot.AppliedCommands.Any(item => item.CommandId == 0 || item.Tick < 0 || item.Tick > snapshot.CurrentTick ||
+            string.IsNullOrWhiteSpace(item.CommandType) || (item.TargetId is { } target && !knownEntities.Contains(target))))
+            return "Applied commands contain invalid identities, ticks, types or targets.";
+        if (!snapshot.Transactions.Select(item => item.Id).Order().SequenceEqual(snapshot.CompletedTransactionIds))
+            return "Completed transaction IDs must exactly match transaction records in accepted order.";
+        var accepted = snapshot.AcceptedCommandIds.ToHashSet();
+        var wallets = snapshot.Wallets.Select(item => item.OwnerId).ToHashSet();
+        var stocks = snapshot.OwnedStocks.ToDictionary(item => item.ServiceId);
+        foreach (var item in snapshot.Transactions)
+        {
+            if (item.Id == 0 || !accepted.Contains(item.CommandId) || !wallets.Contains(item.BuyerId) || !festivalIds.Contains(item.FestivalId) ||
+                !stocks.TryGetValue(item.ServiceId, out var stock) || stock.OwnerId != item.FestivalId || item.Quantity <= 0 || item.UnitPricePennies <= 0 ||
+                item.Tick < 0 || item.Tick > snapshot.CurrentTick || item.Entries is null || item.Entries.Any(entry => entry is null) ||
+                item.Entries.Sum(entry => (decimal)entry.AmountPennies) != 0m)
+                return $"Transaction {item.Id} has invalid identities, amounts or unbalanced entries.";
+            if (item.Entries.Any(entry => !Enum.IsDefined(typeof(LedgerAccountType), entry.Account))) return $"Transaction {item.Id} has an unknown ledger account.";
+            var applied = snapshot.AppliedCommands.SingleOrDefault(command => command.CommandId == item.CommandId);
+            if (applied is null || applied.CommandType != nameof(PurchaseItemCommand) || applied.TargetId != item.ServiceId)
+                return $"Transaction {item.Id} does not resolve to its accepted purchase command.";
+            if (!TryCalculateTotal(item.UnitPricePennies, item.Quantity, out var saleTotal) ||
+                !TryCalculateTotal(stock.UnitCostBasisPennies, item.Quantity, out var inventoryCost))
+                return $"Transaction {item.Id} totals exceed the supported integer-penny range.";
+            var expectedEntries = new PersistedLedgerEntry[]
+            {
+                new(item.BuyerId, (int)LedgerAccountType.CashAsset, -saleTotal),
+                new(item.BuyerId, (int)LedgerAccountType.GuestSpending, saleTotal),
+                new(item.FestivalId, (int)LedgerAccountType.CashAsset, saleTotal),
+                new(item.FestivalId, (int)LedgerAccountType.SalesRevenue, -saleTotal),
+                new(item.FestivalId, (int)LedgerAccountType.CostOfGoodsSold, inventoryCost),
+                new(item.FestivalId, (int)LedgerAccountType.InventoryAsset, -inventoryCost),
+            };
+            if (!item.Entries.SequenceEqual(expectedEntries)) return $"Transaction {item.Id} ledger entries do not match its sale and stock cost.";
+        }
+        return null;
+    }
+
+    private static bool StrictlyIncreasing(IEnumerable<ulong> values)
+    {
+        var first = true;
+        var previous = 0UL;
+        foreach (var value in values)
+        {
+            if (!first && value <= previous) return false;
+            first = false;
+            previous = value;
+        }
+        return true;
+    }
+
     private CommandResult? ValidateEnvelope(CommandEnvelope envelope)
     {
+        if (envelope.CommandId.Value == 0)
+        {
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Command ID must be nonzero.");
+        }
+
         if (_acceptedCommandIds.Contains(envelope.CommandId))
         {
             return CommandResult.Rejected(CommandReasonCode.DuplicateCommand, "Command ID was already accepted.");
