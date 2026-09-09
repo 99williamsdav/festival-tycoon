@@ -1,0 +1,34 @@
+{
+  "triangles": 7978,
+  "materials": 1,
+  "nodes": 2,
+  "palette": {
+    "LWF_Limestone": "#8F856D",
+    "LWF_LimestoneLight": "#B4A17C",
+    "LWF_Brick": "#9B6348",
+    "LWF_Oak": "#795331",
+    "LWF_OakLight": "#936D42",
+    "LWF_TimberDark": "#503A27",
+    "LWF_Slate": "#47483F",
+    "LWF_SlateLight": "#505047",
+    "LWF_PaintedSage": "#687B59",
+    "LWF_Iron": "#39453F",
+    "LWF_StoneWarm": "#AA9874",
+    "LWF_StonePale": "#B4A582",
+    "LWF_StoneWeathered": "#96886A",
+    "LWF_Moss": "#646744"
+  },
+  "bounds_blender": [
+    [
+      -10.464285850524902,
+      -6.706666946411133,
+      0.0
+    ],
+    [
+      10.464285850524902,
+      6.706666946411133,
+      11.133333206176758
+    ]
+  ],
+  "asset": "lwf_large_barn_v1"
+}

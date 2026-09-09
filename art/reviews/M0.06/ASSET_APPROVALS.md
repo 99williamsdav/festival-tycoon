@@ -1,0 +1,16 @@
+# M0.06 asset approval register
+
+Mandatory sequence: one asset at a time. Both coordinator and user must explicitly approve that asset before work starts on the next. Silence and approval of another asset are not approval. Status changes follow explicit coordinator messages. No game integration is authorized by this register.
+
+| Order | Asset/version | Coordinator review | User approval | Technical verification | Notes |
+| --- | --- | --- | --- | --- | --- |
+| 1 | Small storage barn — lwf_barn_v2 | Approved — 8 Sep 2026 | Approved — 8 Sep 2026 | Blender reopen and Godot 4.7.2 editor import passed | Permanent storage/equipment barn; approved visual baseline. Approval recorded from coordinator's explicit message. Preserve v1/v2 history. |
+| 2 | Large convertible barn v1 | Approved — 9 Sep 2026 | Approved — 9 Sep 2026 | Passed — 9 Sep 2026: Blender reopen/GLB reimport and standard Godot 4.7.2 editor import; six final renders inspected | Explicit user approval relayed by coordinator. Non-blocking art-direction note: user had hoped it would be a little more rustic; preserve this direction for future work. |
+| 3 | Farmhouse/office v1 | Approved — 9 Sep 2026 | Approved — 9 Sep 2026 | Passed — 9 Sep 2026: Blender reopen/GLB reimport and Godot 4.7.2 standard editor import; six renders inspected | farmhouse-v1/README.md. Explicit user approval relayed by coordinator. V1 is the approved starting version; later visual variants may represent upgrades or natural level progression (non-blocking future direction). Stay stopped: trailer stage requires a new explicit coordinator assignment after its design direction is decided. |
+| 4 | Trailer stage | Not started | Not started | Not started | Await preceding dual approval and explicit assignment. |
+| 5 | Service point | Not started | Not started | Not started | Await preceding dual approval and explicit assignment. |
+| 6 | Hedge modules | Not started | Not started | Not started | Await preceding dual approval and explicit assignment. |
+| 7 | Farm gate | Not started | Not started | Not started | Await preceding dual approval and explicit assignment. |
+| 8 | Field/track treatment | Not started | Not started | Not started | Await preceding dual approval and explicit assignment. |
+
+The interrupted full-kit turn only inspected files. No partial kit outputs were found at resumption.
