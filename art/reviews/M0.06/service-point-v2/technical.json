@@ -1,0 +1,56 @@
+{
+  "asset": "Generic service point v2",
+  "triangles": 2066,
+  "nodes": 4,
+  "surfaces": 4,
+  "materials": 1,
+  "palette_size": [
+    64,
+    64
+  ],
+  "bounds_blender": [
+    [
+      -2.065000057220459,
+      -1.8962500095367432,
+      0.0
+    ],
+    [
+      2.065000057220459,
+      1.8962500095367432,
+      3.0889196395874023
+    ]
+  ],
+  "parts": {
+    "LWF_ServicePoint_Shell": 1600,
+    "LWF_ServicePoint_Counter": 288,
+    "LWF_ServicePoint_Awning": 66,
+    "LWF_ServicePoint_Signage": 112
+  },
+  "units": "metres",
+  "customer_direction": "Blender -Y / Godot +Z",
+  "staff_door": "rear, Blender +Y / Godot -Z",
+  "shell_footprint_m": [
+    3.8,
+    2.5
+  ],
+  "counter_top_m": 1.165,
+  "hatch_clear_size_m": [
+    2.46,
+    1.01
+  ],
+  "verification": {
+    "blender_4_1_1_reopen": "passed: four meshes, applied transforms, single UV layer",
+    "glb_reimport": "passed: four meshes and embedded 64x64 palette",
+    "godot_4_7_2_standard_editor_import": "passed",
+    "godot_instantiation": "passed: 2066 triangles, four surfaces, one textured material",
+    "renders": "six final 1920x1080 images, 35 degrees downward, visually inspected",
+    "notes": "Sandbox log/certificate-store warnings did not prevent verification. No game integration."
+  },
+  "bounds_godot_position": [-2.065, 0, -1.89625],
+  "bounds_godot_size": [4.13, 3.08892, 3.7925],
+  "placement_shift": [
+    -0.0,
+    0.13124996423721313,
+    -0.0
+  ]
+}
