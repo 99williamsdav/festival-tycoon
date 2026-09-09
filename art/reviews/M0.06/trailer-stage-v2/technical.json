@@ -1,0 +1,62 @@
+{
+  "triangles": 3852,
+  "materials": 1,
+  "nodes": 4,
+  "surfaces": 4,
+  "palette": [
+    "30342E",
+    "41483C",
+    "687B59",
+    "87916C",
+    "795331",
+    "96744D",
+    "AD946F",
+    "C0AD88",
+    "D2C5A4",
+    "E1D3B1",
+    "9B6348",
+    "594738",
+    "505047",
+    "B4AC95",
+    "E6B96F",
+    "39453F"
+  ],
+  "bounds_blender": [
+    [
+      -4.952499866485596,
+      -2.4573006629943848,
+      2.7939677238464355e-08
+    ],
+    [
+      4.952500343322754,
+      2.4573004245758057,
+      2.1994998455047607
+    ]
+  ],
+  "parts": {
+    "LWF_TrailerStage_Base": 3068,
+    "LWF_TrailerStage_Access": 316,
+    "LWF_TrailerStage_Rails": 180,
+    "LWF_TrailerStage_Fittings": 288
+  },
+  "units": "metres",
+  "audience_direction": "Blender -Y / Godot +Z",
+  "nominal_operational_footprint_m": [
+    10,
+    5
+  ],
+  "deck_height_m": 1.1995,
+  "canopy_present": false,
+  "hidden_canopy_dependency": false,
+  "revision": "Canopy fabric, all canopy supports and suspended lamps removed. Rain cover deferred; v1 preserved.",
+  "bounds_godot_position": [-4.9525, 0.0, -2.4573],
+  "bounds_godot_size": [9.905001, 2.1995, 4.914601],
+  "verification": {
+    "blender_4_1_1_reopen": "passed: four parts, applied transforms, one UV layer, no canopy object",
+    "glb_reimport": "passed: four meshes, embedded 64x64 palette",
+    "godot_4_7_2_standard_editor_import": "passed",
+    "godot_instantiation": "passed: four nodes, four surfaces, one textured material, 3852 triangles, no canopy node",
+    "renders": "six 1920x1080 final renders visually inspected; orthographic 35 degrees downward",
+    "notes": "Sandbox log/certificate-store warnings did not prevent validation. No game integration."
+  }
+}

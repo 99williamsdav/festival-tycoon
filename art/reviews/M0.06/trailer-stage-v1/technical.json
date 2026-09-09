@@ -1,0 +1,62 @@
+{
+  "triangles": 4368,
+  "materials": 1,
+  "nodes": 5,
+  "surfaces": 5,
+  "palette": [
+    "30342E",
+    "41483C",
+    "687B59",
+    "87916C",
+    "795331",
+    "96744D",
+    "AD946F",
+    "C0AD88",
+    "D2C5A4",
+    "E1D3B1",
+    "9B6348",
+    "594738",
+    "505047",
+    "B4AC95",
+    "E6B96F",
+    "39453F"
+  ],
+  "bounds_blender": [
+    [
+      -4.952499866485596,
+      -2.4573006629943848,
+      2.7939677238464355e-08
+    ],
+    [
+      4.952500343322754,
+      2.4573004245758057,
+      3.9694998264312744
+    ]
+  ],
+  "parts": {
+    "LWF_TrailerStage_Base": 3068,
+    "LWF_TrailerStage_Canopy": 316,
+    "LWF_TrailerStage_Access": 316,
+    "LWF_TrailerStage_Rails": 180,
+    "LWF_TrailerStage_Fittings": 488
+  },
+  "units": "metres",
+  "audience_direction": "Blender -Y / Godot +Z",
+  "nominal_operational_footprint_m": [
+    10,
+    5
+  ],
+  "deck_height_m": 1.1995,
+  "bounds_godot_position": [-4.9525, 0.0, -2.4573],
+  "bounds_godot_size": [9.905001, 3.9695, 4.914601],
+  "verification": {
+    "blender_version": "4.1.1",
+    "blender_reopen": "passed: five parts, applied transforms, one UV layer",
+    "glb_reimport": "passed: five meshes, one embedded 64x64 palette material",
+    "godot_version": "4.7.2.stable.mono.official.ed1daf0bf",
+    "godot_standard_editor_import": "passed in isolated project",
+    "godot_instantiation": "passed: 4368 triangles, five meshes, five surfaces, one textured material",
+    "renders": "six final 1920x1080 renders visually inspected, 35 degree downward orthographic camera",
+    "notes": "Sandbox log and certificate-store warnings did not prevent import or instantiation. No game integration performed."
+  }
+}
