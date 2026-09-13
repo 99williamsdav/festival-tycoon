@@ -1,0 +1,64 @@
+{
+  "asset": "Inherited farm gate v1",
+  "opening_width_m": 4.0,
+  "closed_placement": {
+    "posts_origin": [
+      0,
+      0,
+      0
+    ],
+    "leaf_hinge_origin": [
+      -1.65,
+      0,
+      0
+    ],
+    "leaf_rotation_deg": 0
+  },
+  "demonstrated_open_rotation_deg": 72,
+  "components": [
+    {
+      "name": "lwf_farm_gate_posts_v1",
+      "triangles": 152,
+      "vertices": 96,
+      "bounds_blender": [
+        [
+          -1.9900000095367432,
+          -0.2150000035762787,
+          0.0
+        ],
+        [
+          1.9900000095367432,
+          0.17000000178813934,
+          1.625
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_farm_gate_posts_v1.glb"
+    },
+    {
+      "name": "lwf_farm_gate_leaf_v1",
+      "triangles": 188,
+      "vertices": 120,
+      "bounds_blender": [
+        [
+          -0.029999999329447746,
+          -0.23000000417232513,
+          0.25
+        ],
+        [
+          3.4200000762939453,
+          0.06538265943527222,
+          1.3300000429153442
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_farm_gate_leaf_v1.glb"
+    }
+  ],
+  "leaf_pivot": "local origin (0,0,0), hinge axis +Z; geometry extends +X",
+  "materials_per_component": 1,
+  "surfaces_per_component": 1,
+  "palette_size": [
+    96,
+    8
+  ],
+  "ownership_boundary": "visual/pickable presentation only; identity, state, collision, navigation, traversal, interaction, and rotation are simulation-owned"
+}
