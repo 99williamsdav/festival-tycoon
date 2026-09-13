@@ -1,0 +1,367 @@
+{
+  "asset": "Modular hedgerow kit v1",
+  "grid_m": 0.5,
+  "runtime_deliverables": 8,
+  "source_file": "assets/source/environment/lwf_hedge_kit_v1.blend",
+  "materials_per_module": 1,
+  "surfaces_per_module": 1,
+  "palette": [
+    "536438",
+    "5D6D3F",
+    "667748",
+    "70804E",
+    "7A8959",
+    "465830",
+    "3C492D",
+    "71624B",
+    "4E4537",
+    "87935E",
+    "596A3E",
+    "68784A",
+    "607143",
+    "73824F",
+    "455333",
+    "8A805F"
+  ],
+  "palette_size": [
+    64,
+    64
+  ],
+  "modules": [
+    {
+      "name": "lwf_hedge_straight_2m_v1",
+      "kind": "straight",
+      "nominal_length_m": 2,
+      "connection_start_blender": [
+        0,
+        0,
+        0
+      ],
+      "connection_end_blender": [
+        2,
+        0,
+        0
+      ],
+      "terminal_tip_blender": null,
+      "end_tangent_blender": [
+        1,
+        0,
+        0
+      ],
+      "triangles": 308,
+      "bounds_blender": [
+        [
+          0.0,
+          -0.5,
+          0.0
+        ],
+        [
+          2.0,
+          0.5,
+          1.7277251482009888
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_hedge_straight_2m_v1.glb"
+    },
+    {
+      "name": "lwf_hedge_straight_4m_a_v1",
+      "kind": "straight",
+      "nominal_length_m": 4,
+      "connection_start_blender": [
+        0,
+        0,
+        0
+      ],
+      "connection_end_blender": [
+        4,
+        0,
+        0
+      ],
+      "terminal_tip_blender": null,
+      "end_tangent_blender": [
+        1,
+        0,
+        0
+      ],
+      "triangles": 648,
+      "bounds_blender": [
+        [
+          0.0,
+          -0.4867400825023651,
+          0.0
+        ],
+        [
+          4.0,
+          0.49251431226730347,
+          1.7187857627868652
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_hedge_straight_4m_a_v1.glb"
+    },
+    {
+      "name": "lwf_hedge_straight_4m_b_v1",
+      "kind": "straight",
+      "nominal_length_m": 4,
+      "connection_start_blender": [
+        0,
+        0,
+        0
+      ],
+      "connection_end_blender": [
+        4,
+        0,
+        0
+      ],
+      "terminal_tip_blender": null,
+      "end_tangent_blender": [
+        1,
+        0,
+        0
+      ],
+      "triangles": 648,
+      "bounds_blender": [
+        [
+          0.0,
+          -0.5,
+          0.0
+        ],
+        [
+          4.0,
+          0.5,
+          1.708274245262146
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_hedge_straight_4m_b_v1.glb"
+    },
+    {
+      "name": "lwf_hedge_straight_8m_a_v1",
+      "kind": "straight",
+      "nominal_length_m": 8,
+      "connection_start_blender": [
+        0,
+        0,
+        0
+      ],
+      "connection_end_blender": [
+        8,
+        0,
+        0
+      ],
+      "terminal_tip_blender": null,
+      "end_tangent_blender": [
+        1,
+        0,
+        0
+      ],
+      "triangles": 1296,
+      "bounds_blender": [
+        [
+          0.0,
+          -0.5,
+          0.0
+        ],
+        [
+          8.0,
+          0.5,
+          1.7595897912979126
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_hedge_straight_8m_a_v1.glb"
+    },
+    {
+      "name": "lwf_hedge_straight_8m_b_v1",
+      "kind": "straight",
+      "nominal_length_m": 8,
+      "connection_start_blender": [
+        0,
+        0,
+        0
+      ],
+      "connection_end_blender": [
+        8,
+        0,
+        0
+      ],
+      "terminal_tip_blender": null,
+      "end_tangent_blender": [
+        1,
+        0,
+        0
+      ],
+      "triangles": 1296,
+      "bounds_blender": [
+        [
+          0.0,
+          -0.5,
+          0.0
+        ],
+        [
+          8.0,
+          0.5,
+          1.7525784969329834
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_hedge_straight_8m_b_v1.glb"
+    },
+    {
+      "name": "lwf_hedge_corner_90_v1",
+      "kind": "corner",
+      "nominal_length_m": null,
+      "connection_start_blender": [
+        0,
+        0,
+        0
+      ],
+      "connection_end_blender": [
+        1,
+        1,
+        0
+      ],
+      "terminal_tip_blender": null,
+      "end_tangent_blender": [
+        0,
+        1,
+        0
+      ],
+      "triangles": 232,
+      "bounds_blender": [
+        [
+          0.0,
+          -0.4699999988079071,
+          0.0
+        ],
+        [
+          1.4700000286102295,
+          1.0,
+          1.7099909782409668
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_hedge_corner_90_v1.glb"
+    },
+    {
+      "name": "lwf_hedge_end_cap_v1",
+      "kind": "cap",
+      "nominal_length_m": 0.5,
+      "connection_start_blender": [
+        0,
+        0,
+        0
+      ],
+      "connection_end_blender": null,
+      "terminal_tip_blender": [
+        0.5,
+        0,
+        0
+      ],
+      "end_tangent_blender": [
+        1,
+        0,
+        0
+      ],
+      "triangles": 148,
+      "bounds_blender": [
+        [
+          0.0,
+          -0.4699999988079071,
+          0.0
+        ],
+        [
+          0.5,
+          0.4699999988079071,
+          1.6699999570846558
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_hedge_end_cap_v1.glb"
+    },
+    {
+      "name": "lwf_hedge_gate_end_v1",
+      "kind": "gate",
+      "nominal_length_m": 1,
+      "connection_start_blender": [
+        0,
+        0,
+        0
+      ],
+      "connection_end_blender": null,
+      "terminal_tip_blender": [
+        1,
+        0,
+        0
+      ],
+      "end_tangent_blender": [
+        1,
+        0,
+        0
+      ],
+      "triangles": 148,
+      "bounds_blender": [
+        [
+          0.0,
+          -0.48875001072883606,
+          0.0
+        ],
+        [
+          1.0,
+          0.48875001072883606,
+          1.6699999570846558
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_hedge_gate_end_v1.glb"
+    }
+  ],
+  "connection_section_yz_blender": [
+    [
+      -0.25,
+      0.11
+    ],
+    [
+      -0.4,
+      0.34
+    ],
+    [
+      -0.47,
+      0.78
+    ],
+    [
+      -0.44,
+      1.21
+    ],
+    [
+      -0.31,
+      1.52
+    ],
+    [
+      -0.12,
+      1.67
+    ],
+    [
+      0.12,
+      1.67
+    ],
+    [
+      0.31,
+      1.52
+    ],
+    [
+      0.44,
+      1.21
+    ],
+    [
+      0.47,
+      0.78
+    ],
+    [
+      0.4,
+      0.34
+    ],
+    [
+      0.25,
+      0.11
+    ]
+  ],
+  "notes": [
+    "Every GLB contains one independently placeable mesh at local origin.",
+    "Straight/corner mating sections identical; dimensions include foliage but not review copies.",
+    "End cap and gate end have one start connector only. Gate ends placed tips4m apart in review."
+  ]
+}
