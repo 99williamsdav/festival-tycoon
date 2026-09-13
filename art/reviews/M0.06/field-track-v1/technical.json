@@ -1,0 +1,58 @@
+{
+  "asset": "Prototype field and inherited vehicle-track treatment v1",
+  "grid_m": 0.5,
+  "components": [
+    {
+      "name": "lwf_field_grass_tile_8m_v1",
+      "triangles": 32,
+      "vertices": 25,
+      "bounds_blender": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          8.0,
+          8.0,
+          0.04600000008940697
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_field_grass_tile_8m_v1.glb"
+    },
+    {
+      "name": "lwf_vehicle_track_straight_8x4m_v1",
+      "triangles": 128,
+      "vertices": 81,
+      "bounds_blender": [
+        [
+          0.0,
+          -2.0,
+          0.01600000075995922
+        ],
+        [
+          8.0,
+          2.0,
+          0.02500000037252903
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_vehicle_track_straight_8x4m_v1.glb"
+    }
+  ],
+  "materials_per_component": 1,
+  "surfaces_per_component": 1,
+  "palette_size": [
+    96,
+    8
+  ],
+  "grass_seam": "all four boundary loops lie exactly at Z=0 and coordinates 0/8m",
+  "track_seam": "start/end cross-sections are identical at X=0/8m; nominal width 4m",
+  "track_review_connection": "track rotated 90 degrees through approved 4m gate",
+  "state_reference": [
+    "healthy grass",
+    "lightly worn/dry grass",
+    "exposed dirt",
+    "wet mud"
+  ],
+  "ownership_boundary": "simulation owns base surface, wear, moisture, drainage, slope, contamination, hardening, desire paths and mud"
+}
