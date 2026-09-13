@@ -1,0 +1,93 @@
+{
+  "asset": "Generic towable food van v1",
+  "future_use": "not M0.06 integration scope",
+  "body_dimensions_m": [
+    4.2,
+    2.2,
+    2.75
+  ],
+  "overall_with_towbar_length_m": 5.85,
+  "component_placements_blender": {
+    "chassis": [
+      0,
+      0,
+      0
+    ],
+    "serving_flap_hinge": [
+      2.15,
+      -1.17,
+      2.25
+    ],
+    "fascia": [
+      2.15,
+      -1.18,
+      2.49
+    ]
+  },
+  "serving_flap_pivot": "local origin at top-centre hinge; local X rotation axis",
+  "review_open_rotation_deg": -105,
+  "review_closed_rotation_deg": 0,
+  "components": [
+    {
+      "name": "lwf_food_van_chassis_v1",
+      "vertices": 236,
+      "triangles": 376,
+      "bounds_blender": [
+        [
+          -1.2599999904632568,
+          -1.5,
+          0.0
+        ],
+        [
+          4.590000152587891,
+          1.2799999713897705,
+          2.75
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_food_van_chassis_v1.glb"
+    },
+    {
+      "name": "lwf_food_van_serving_flap_v1",
+      "vertices": 16,
+      "triangles": 24,
+      "bounds_blender": [
+        [
+          -1.340000033378601,
+          -0.17499999701976776,
+          -1.090000033378601
+        ],
+        [
+          1.340000033378601,
+          0.04500000178813934,
+          0.0
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_food_van_serving_flap_v1.glb"
+    },
+    {
+      "name": "lwf_food_van_fascia_v1",
+      "vertices": 16,
+      "triangles": 24,
+      "bounds_blender": [
+        [
+          -1.375,
+          -0.05000000074505806,
+          -0.20000000298023224
+        ],
+        [
+          1.375,
+          0.05000000074505806,
+          0.20000000298023224
+        ]
+      ],
+      "runtime_file": "assets/runtime/environment/lwf_food_van_fascia_v1.glb"
+    }
+  ],
+  "materials_per_component": 1,
+  "surfaces_per_component": 1,
+  "palette_size": [
+    96,
+    8
+  ],
+  "ownership_boundary": "simulation owns vendor identity, cuisine/menu, capacity, stock, pricing, queue/service anchor, condition, interaction and open/closed state"
+}
