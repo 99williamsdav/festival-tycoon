@@ -194,6 +194,28 @@ public sealed class NavigationTests
         Assert.IsTrue(RouteCost(grid, result.Path) < 20_000, "The selected path must cost less than the direct all-grass route.");
     }
 
+    [TestMethod]
+    public void IndividuallyRoundedLowCostEdgesRetainOptimalElevenCostRoute()
+    {
+        var random = new Random(741);
+        var costs = new int[10, 10];
+        for (var patch = 0; patch < 5; patch++)
+        for (var z = 0; z < 10; z++)
+        for (var x = 0; x < 10; x++)
+            costs[x, z] = random.Next(100) < 30 ? 2 : 1;
+
+        var terrain = new List<TerrainCellOverride>();
+        for (var z = 0; z < 10; z++)
+        for (var x = 0; x < 10; x++)
+            terrain.Add(new TerrainCellOverride(new GridCell(x + 10, z + 10), GroundSurface.VehicleTrack, true, costs[x, z]));
+
+        var grid = new TraversalGrid(terrain);
+        var result = DeterministicPathfinder.FindPath(grid, new GridCell(10, 10), new GridCell(19, 19));
+        Assert.IsTrue(result.Found);
+        Assert.AreEqual(11, RouteCost(grid, result.Path),
+            "The heuristic must round minimum costs per edge exactly as actual path edges are rounded.");
+    }
+
     private static long SquaredDistance(NavigationAgentSnapshot left, NavigationAgentSnapshot right)
     {
         var dx = right.XMillimetres - left.XMillimetres;

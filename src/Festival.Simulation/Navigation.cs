@@ -130,7 +130,11 @@ public static class DeterministicPathfinder
     private static int Heuristic(GridCell from, GridCell to, int minimumCost)
     {
         var dx = Math.Abs(from.X - to.X); var dz = Math.Abs(from.Z - to.Z);
-        return (1414 * Math.Min(dx, dz) + 1000 * Math.Abs(dx - dz)) * minimumCost / 1000;
+        var diagonalSteps = Math.Min(dx, dz);
+        var orthogonalSteps = Math.Abs(dx - dz);
+        var minimumDiagonalEdgeCost = 1414 * minimumCost / 1000;
+        var minimumOrthogonalEdgeCost = 1000 * minimumCost / 1000;
+        return diagonalSteps * minimumDiagonalEdgeCost + orthogonalSteps * minimumOrthogonalEdgeCost;
     }
 
     private static IReadOnlyList<GridCell> Reconstruct(IReadOnlyDictionary<GridCell, GridCell> cameFrom, GridCell current)
