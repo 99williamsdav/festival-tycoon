@@ -10,7 +10,9 @@ public static class NavigationFixture
     {
         var session = new GameSession(20260914, new CampaignId(20260914));
         var gate = TraversalGrid.WorldToCell(0, 30_000);
-        var service = TraversalGrid.WorldToCell(4_000, 18_000);
+        var servicePoint = LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.service-point");
+        var service = TraversalGrid.WorldToCell(
+            checked((int)(servicePoint.XMetres * 1000)), checked((int)(servicePoint.ZMetres * 1000)));
         var initialized = session.Execute(new CommandEnvelope(
             new CommandId(1), session.CampaignId, session.Phase, session.CurrentTick,
             session.NextSubmissionSequence, null,

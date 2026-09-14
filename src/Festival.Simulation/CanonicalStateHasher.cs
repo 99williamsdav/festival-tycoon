@@ -128,7 +128,8 @@ internal static class CanonicalStateHasher
                 if (agent.Destination is { } destination) { writer.Write(destination.X); writer.Write(destination.Z); }
                 writer.Write(agent.Route.Count);
                 foreach (var cell in agent.Route) { writer.Write(cell.X); writer.Write(cell.Z); }
-                writer.Write(agent.RouteIndex); writer.Write(agent.SegmentProgressMicrometres);
+                writer.Write(agent.RouteIndex); writer.Write(agent.SegmentOriginXMillimetres); writer.Write(agent.SegmentOriginZMillimetres);
+                writer.Write(agent.SegmentProgressMicrometres);
                 writer.Write(agent.MovementRemainder); writer.Write(agent.LastSearchExpandedNodes);
             }
         }

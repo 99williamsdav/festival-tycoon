@@ -39,6 +39,7 @@ public sealed partial class GameSession
         _navigationAgents.Add(id, new NavigationAgentState
         {
             Id = id, XMillimetres = position.XMillimetres, ZMillimetres = position.ZMillimetres,
+            SegmentOriginXMillimetres = position.XMillimetres, SegmentOriginZMillimetres = position.ZMillimetres,
             Action = AgentNavigationAction.Idle,
         });
         return id;
@@ -52,6 +53,8 @@ public sealed partial class GameSession
         agent.Destination = command.Destination;
         agent.Route = search.Path.ToList();
         agent.RouteIndex = search.Found && search.Path.Count > 1 ? 1 : 0;
+        agent.SegmentOriginXMillimetres = agent.XMillimetres;
+        agent.SegmentOriginZMillimetres = agent.ZMillimetres;
         agent.SegmentProgressMicrometres = 0;
         agent.MovementRemainder = 0;
         agent.LastSearchExpandedNodes = search.ExpandedNodes;
@@ -72,11 +75,11 @@ public sealed partial class GameSession
 
             while (allowance > 0 && agent.Action == AgentNavigationAction.Travelling)
             {
-                var from = TraversalGrid.CellCentre(agent.Route[agent.RouteIndex - 1]);
+                var from = (XMillimetres: agent.SegmentOriginXMillimetres, ZMillimetres: agent.SegmentOriginZMillimetres);
                 var to = TraversalGrid.CellCentre(agent.Route[agent.RouteIndex]);
                 var dx = to.XMillimetres - from.XMillimetres;
                 var dz = to.ZMillimetres - from.ZMillimetres;
-                var segmentLength = dx == 0 || dz == 0 ? 500_000 : 707_107;
+                var segmentLength = checked((int)IntegerSquareRoot((long)dx * dx * 1_000_000L + (long)dz * dz * 1_000_000L));
                 var remaining = segmentLength - agent.SegmentProgressMicrometres;
                 var consumed = Math.Min(allowance, remaining);
                 agent.SegmentProgressMicrometres += consumed;
@@ -86,6 +89,8 @@ public sealed partial class GameSession
                 {
                     agent.XMillimetres = to.XMillimetres;
                     agent.ZMillimetres = to.ZMillimetres;
+                    agent.SegmentOriginXMillimetres = to.XMillimetres;
+                    agent.SegmentOriginZMillimetres = to.ZMillimetres;
                     agent.RouteIndex++;
                     agent.SegmentProgressMicrometres = 0;
                     if (agent.RouteIndex >= agent.Route.Count)
@@ -106,7 +111,8 @@ public sealed partial class GameSession
 
     private NavigationAgentSnapshot[] CaptureNavigationAgents() => _navigationAgents.Values.Select(agent => new NavigationAgentSnapshot(
         agent.Id, agent.XMillimetres, agent.ZMillimetres, agent.Action, agent.Destination,
-        agent.Route.ToArray(), agent.RouteIndex, agent.SegmentProgressMicrometres,
+        agent.Route.ToArray(), agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
+        agent.SegmentProgressMicrometres,
         agent.MovementRemainder, agent.LastSearchExpandedNodes)).ToArray();
 
     private PersistedTraversalGrid? CaptureTraversalGrid() => _traversalGrid is null ? null : new PersistedTraversalGrid(
@@ -120,7 +126,8 @@ public sealed partial class GameSession
             agent.Id.Value, agent.XMillimetres, agent.ZMillimetres, (int)agent.Action,
             agent.Destination?.X, agent.Destination?.Z,
             agent.Route.Select(cell => new PersistedGridCell(cell.X, cell.Z)).ToArray(),
-            agent.RouteIndex, agent.SegmentProgressMicrometres, agent.MovementRemainder,
+            agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
+            agent.SegmentProgressMicrometres, agent.MovementRemainder,
             agent.LastSearchExpandedNodes)).ToArray();
 
     private void RestoreNavigation(PersistedTraversalGrid? grid, PersistedNavigationAgent[]? agents)
@@ -139,7 +146,8 @@ public sealed partial class GameSession
                 Action = (AgentNavigationAction)item.Action,
                 Destination = item.DestinationX is { } x && item.DestinationZ is { } z ? new GridCell(x, z) : null,
                 Route = item.Route.Select(cell => new GridCell(cell.X, cell.Z)).ToList(),
-                RouteIndex = item.RouteIndex, SegmentProgressMicrometres = item.SegmentProgressMicrometres,
+                RouteIndex = item.RouteIndex, SegmentOriginXMillimetres = item.SegmentOriginXMillimetres,
+                SegmentOriginZMillimetres = item.SegmentOriginZMillimetres, SegmentProgressMicrometres = item.SegmentProgressMicrometres,
                 MovementRemainder = item.MovementRemainder, LastSearchExpandedNodes = item.LastSearchExpandedNodes,
             });
         }
@@ -166,5 +174,20 @@ public sealed partial class GameSession
                 return $"Navigation agent {item.Id} travelling route is incomplete.";
         }
         return null;
+    }
+
+    private static long IntegerSquareRoot(long value)
+    {
+        if (value <= 0) return 0;
+        long low = 0;
+        long high = 1;
+        while (high <= value / high) high *= 2;
+        while (low + 1 < high)
+        {
+            var middle = low + (high - low) / 2;
+            if (middle <= value / middle) low = middle;
+            else high = middle;
+        }
+        return low;
     }
 }

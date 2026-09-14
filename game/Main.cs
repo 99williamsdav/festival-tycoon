@@ -39,6 +39,7 @@ public partial class Main : Node
     private Vector3 _presentationTo;
     private int _navigationCaptureStage;
     private int _navigationArrivalFrames;
+    private int _navigationPresentedFrames;
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -379,6 +380,7 @@ public partial class Main : Node
 
     private void AdvanceNavigationPresentation(double delta)
     {
+        _navigationPresentedFrames++;
         // Wall time only schedules fixed authoritative ticks; it never enters simulation state.
         _navigationTickDebt += delta * 80.0;
         var ticks = Math.Min((int)_navigationTickDebt, 16);
@@ -394,11 +396,11 @@ public partial class Main : Node
 
         var agent = _session.CaptureSnapshot().NavigationAgents.Single();
         _hashLabel.Text = $"ATTENDEE AI  {agent.Action.ToString().ToUpperInvariant()}\nTICK {_session.CurrentTick}  HASH {_session.CaptureSnapshot().AuthoritativeHash[..12]}";
-        if (_navigationCaptureStage == 0 && _session.CurrentTick >= 12) CaptureNavigation("start");
-        else if (_navigationCaptureStage == 1 && _session.CurrentTick >= 200) CaptureNavigation("mid");
+        if (_navigationCaptureStage == 0 && _navigationPresentedFrames >= 12) CaptureNavigation("start");
+        else if (_navigationCaptureStage == 1 && _session.CurrentTick >= 1400) CaptureNavigation("mid");
         if (agent.Action != AgentNavigationAction.Arrived) return;
         _navigationArrivalFrames++;
-        if (_navigationCaptureStage == 2) CaptureNavigation("arrived");
+        if (_navigationCaptureStage == 2 && _navigationArrivalFrames >= 2) CaptureNavigation("arrived");
         if (_navigationArrivalFrames < 8) return;
 
         var renderedHash = _session.CaptureSnapshot().AuthoritativeHash;

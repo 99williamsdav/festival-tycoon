@@ -23,6 +23,7 @@ public sealed record PersistedTraversalGrid(int Width, int Depth, int CellSizeMi
 public sealed record PersistedNavigationAgent(
     ulong Id, int XMillimetres, int ZMillimetres, int Action,
     int? DestinationX, int? DestinationZ, PersistedGridCell[] Route, int RouteIndex,
+    int SegmentOriginXMillimetres, int SegmentOriginZMillimetres,
     int SegmentProgressMicrometres, int MovementRemainder, int LastSearchExpandedNodes);
 
 /// <summary>Explicit v1 persistence DTO for all authoritative state through M0.07.</summary>

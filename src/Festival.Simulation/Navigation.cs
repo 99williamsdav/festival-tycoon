@@ -41,6 +41,8 @@ public sealed class TraversalGrid
     }
 
     public IReadOnlyDictionary<GridCell, TerrainCellOverride> Overrides => _overrides;
+    public int MinimumWalkableCostPermille => Math.Min(1000,
+        _overrides.Values.Where(item => item.IsWalkable).Select(item => item.CostPermille).DefaultIfEmpty(1000).Min());
     public bool Contains(GridCell cell) => cell.X is >= 0 and < Width && cell.Z is >= 0 and < Depth;
     public TerrainCellReadModel Get(GridCell cell)
     {
@@ -80,12 +82,13 @@ public static class DeterministicPathfinder
         var cameFrom = new Dictionary<GridCell, GridCell>();
         var gScore = new Dictionary<GridCell, int> { [start] = 0 };
         var expanded = 0;
+        var minimumCost = grid.MinimumWalkableCostPermille;
 
         while (open.Count > 0 && expanded < TraversalGrid.Width * TraversalGrid.Depth)
         {
             var bestIndex = 0;
             for (var index = 1; index < open.Count; index++)
-                if (Compare(open[index], open[bestIndex], target, gScore) < 0) bestIndex = index;
+                if (Compare(open[index], open[bestIndex], target, gScore, minimumCost) < 0) bestIndex = index;
             var current = open[bestIndex];
             open.RemoveAt(bestIndex);
             openSet.Remove(current);
@@ -96,7 +99,7 @@ public static class DeterministicPathfinder
             foreach (var (dx, dz, baseCost) in Neighbours)
             {
                 var neighbour = new GridCell(current.X + dx, current.Z + dz);
-                if (!grid.Contains(neighbour) || !grid.Get(neighbour).IsWalkable || closed.Contains(neighbour)) continue;
+                if (!grid.Contains(neighbour) || !grid.Get(neighbour).IsWalkable) continue;
                 if (dx != 0 && dz != 0 &&
                     (!grid.Get(new GridCell(current.X + dx, current.Z)).IsWalkable ||
                      !grid.Get(new GridCell(current.X, current.Z + dz)).IsWalkable)) continue;
@@ -106,15 +109,16 @@ public static class DeterministicPathfinder
                 if (gScore.TryGetValue(neighbour, out var known) && tentative >= known) continue;
                 cameFrom[neighbour] = current;
                 gScore[neighbour] = tentative;
+                closed.Remove(neighbour);
                 if (openSet.Add(neighbour)) open.Add(neighbour);
             }
         }
         return new PathSearchResult(false, Array.Empty<GridCell>(), expanded);
     }
 
-    private static int Compare(GridCell left, GridCell right, GridCell target, IReadOnlyDictionary<GridCell, int> scores)
+    private static int Compare(GridCell left, GridCell right, GridCell target, IReadOnlyDictionary<GridCell, int> scores, int minimumCost)
     {
-        var leftH = Heuristic(left, target); var rightH = Heuristic(right, target);
+        var leftH = Heuristic(left, target, minimumCost); var rightH = Heuristic(right, target, minimumCost);
         var comparison = (scores[left] + leftH).CompareTo(scores[right] + rightH);
         if (comparison != 0) return comparison;
         comparison = leftH.CompareTo(rightH);
@@ -123,10 +127,10 @@ public static class DeterministicPathfinder
         return comparison != 0 ? comparison : left.X.CompareTo(right.X);
     }
 
-    private static int Heuristic(GridCell from, GridCell to)
+    private static int Heuristic(GridCell from, GridCell to, int minimumCost)
     {
         var dx = Math.Abs(from.X - to.X); var dz = Math.Abs(from.Z - to.Z);
-        return 1414 * Math.Min(dx, dz) + 1000 * Math.Abs(dx - dz);
+        return (1414 * Math.Min(dx, dz) + 1000 * Math.Abs(dx - dz)) * minimumCost / 1000;
     }
 
     private static IReadOnlyList<GridCell> Reconstruct(IReadOnlyDictionary<GridCell, GridCell> cameFrom, GridCell current)
@@ -141,6 +145,7 @@ public static class DeterministicPathfinder
 public sealed record NavigationAgentSnapshot(
     EntityId Id, int XMillimetres, int ZMillimetres, AgentNavigationAction Action,
     GridCell? Destination, IReadOnlyList<GridCell> Route, int RouteIndex,
+    int SegmentOriginXMillimetres, int SegmentOriginZMillimetres,
     int SegmentProgressMicrometres, int MovementRemainder, int LastSearchExpandedNodes);
 
 internal sealed class NavigationAgentState
@@ -152,6 +157,8 @@ internal sealed class NavigationAgentState
     public GridCell? Destination { get; set; }
     public List<GridCell> Route { get; set; } = [];
     public int RouteIndex { get; set; }
+    public int SegmentOriginXMillimetres { get; set; }
+    public int SegmentOriginZMillimetres { get; set; }
     public int SegmentProgressMicrometres { get; set; }
     public int MovementRemainder { get; set; }
     public int LastSearchExpandedNodes { get; set; }
