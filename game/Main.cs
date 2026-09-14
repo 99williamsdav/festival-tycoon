@@ -32,34 +32,50 @@ public partial class Main : Node
     private int _captureFrame;
     private string? _captureDirectory;
     private string? _navigationCaptureDirectory;
+    private string? _queueCaptureDirectory;
     private NavigationFixtureState? _navigationReference;
+    private ServiceQueueFixtureState? _queueFixture;
+    private ServiceQueueFixtureState? _queueReference;
     private Node3D _attendeeVisual = null!;
+    private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private double _navigationTickDebt;
     private Vector3 _presentationFrom;
     private Vector3 _presentationTo;
     private int _navigationCaptureStage;
     private int _navigationArrivalFrames;
     private int _navigationPresentedFrames;
+    private bool _queueClosed;
+    private bool _queueReopened;
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
     {
         ConfigureCaptureMode();
-        var navigation = NavigationFixture.CreateGateToServiceSession();
-        _session = navigation.Session;
-        if (_navigationCaptureDirectory is not null)
+        if (_queueCaptureDirectory is not null)
         {
-            _ = NavigationFixture.IssueAutonomousServiceIntent(navigation);
-            _navigationReference = NavigationFixture.CreateGateToServiceSession();
-            _ = NavigationFixture.IssueAutonomousServiceIntent(_navigationReference);
+            _queueFixture = ServiceQueueFixture.Create();
+            _queueReference = ServiceQueueFixture.Create();
+            _session = _queueFixture.Session;
         }
         else
-            _ = _session.Execute(new CommandEnvelope(new CommandId(2), _session.CampaignId, _session.Phase,
-                _session.CurrentTick, _session.NextSubmissionSequence, null, new SetPausedCommand(true)));
+        {
+            var navigation = NavigationFixture.CreateGateToServiceSession();
+            _session = navigation.Session;
+            if (_navigationCaptureDirectory is not null)
+            {
+                _ = NavigationFixture.IssueAutonomousServiceIntent(navigation);
+                _navigationReference = NavigationFixture.CreateGateToServiceSession();
+                _ = NavigationFixture.IssueAutonomousServiceIntent(_navigationReference);
+            }
+            else
+                _ = _session.Execute(new CommandEnvelope(new CommandId(2), _session.CampaignId, _session.Phase,
+                    _session.CurrentTick, _session.NextSubmissionSequence, null, new SetPausedCommand(true)));
+        }
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
         BuildWorld();
         BuildAttendee();
         BuildHud();
+        if (_queueCaptureDirectory is not null) { _focus = new Vector3(18, 0, -5); _camera.Size = 44; }
         ApplyCamera();
         if (_captureDirectory is not null)
             SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.farmhouse"));
@@ -77,7 +93,8 @@ public partial class Main : Node
         if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) input.X -= 1;
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
-        if (_navigationCaptureDirectory is not null) AdvanceNavigationPresentation(delta);
+        if (_queueCaptureDirectory is not null) AdvanceQueuePresentation(delta);
+        else if (_navigationCaptureDirectory is not null) AdvanceNavigationPresentation(delta);
         else UpdateHashStatus();
         if (_captureDirectory is not null) ProcessCapture();
     }
@@ -91,6 +108,7 @@ public partial class Main : Node
 
     public override void _UnhandledInput(InputEvent inputEvent)
     {
+        if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (key.Keycode == Key.Q) Rotate(-1);
@@ -148,10 +166,14 @@ public partial class Main : Node
 
     private void BuildAttendee()
     {
-        _attendeeVisual = AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", Vector3.Zero);
-        var agent = _session.CaptureSnapshot().NavigationAgents.Single();
-        _presentationFrom = _presentationTo = ToWorld(agent);
-        _attendeeVisual.Position = _presentationTo;
+        var agents = _session.CaptureSnapshot().NavigationAgents;
+        foreach (var agent in agents)
+        {
+            var visual = AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
+            _attendeeVisuals.Add(agent.Id, visual);
+        }
+        _attendeeVisual = _attendeeVisuals[agents[0].Id];
+        _presentationFrom = _presentationTo = ToWorld(agents[0]);
     }
 
     private void BuildGrass()
@@ -253,7 +275,7 @@ public partial class Main : Node
         top.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(top);
         var bar = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center }; bar.AddThemeConstantOverride("separation", 18); top.AddChild(bar);
         bar.AddChild(LabelText("LOWER WITTERING FARM", 19, ink)); bar.AddChild(LabelText("DAY 1  •  12:00", 17, ink));
-        bar.AddChild(ButtonText(_navigationCaptureDirectory is null ? "PAUSED" : "AI DEMO 1X", ReportPause));
+        bar.AddChild(ButtonText(_navigationCaptureDirectory is null && _queueCaptureDirectory is null ? "PAUSED" : "AI DEMO 1X", ReportPause));
         _orientationLabel = LabelText("VIEW: SOUTH", 17, ink); bar.AddChild(_orientationLabel);
         bar.AddChild(ButtonText("↶ Q", () => Rotate(-1))); bar.AddChild(ButtonText("E ↷", () => Rotate(1)));
         bar.AddChild(ButtonText("−", () => Zoom(4))); bar.AddChild(ButtonText("+", () => Zoom(-4)));
@@ -368,6 +390,7 @@ public partial class Main : Node
         {
             if (args[i] == "--capture-farm" && i + 1 < args.Length) _captureDirectory = args[++i];
             else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
+            else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
@@ -376,6 +399,71 @@ public partial class Main : Node
         }
         if (_captureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_captureDirectory);
         if (_navigationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_navigationCaptureDirectory);
+        if (_queueCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_queueCaptureDirectory);
+    }
+
+    private void AdvanceQueuePresentation(double delta)
+    {
+        _navigationPresentedFrames++;
+        _navigationTickDebt += delta * 80.0;
+        var ticks = Math.Min((int)_navigationTickDebt, 16);
+        for (var tick = 0; tick < ticks; tick++)
+        {
+            _session.AdvanceTicks(1); _queueReference!.Session.AdvanceTicks(1);
+            if (_session.CurrentTick == 400)
+            {
+                _ = ServiceQueueFixture.SetOpen(_queueFixture!, false, 2);
+                _ = ServiceQueueFixture.SetOpen(_queueReference!, false, 2);
+                _queueClosed = true;
+            }
+            if (_session.CurrentTick == 430)
+            {
+                ApplyQueueReopenFixture(_queueFixture!); ApplyQueueReopenFixture(_queueReference!);
+                _queueReopened = true;
+            }
+        }
+        if (ticks > 0) _navigationTickDebt -= ticks;
+        var snapshot = _session.CaptureSnapshot();
+        foreach (var agent in snapshot.NavigationAgents) _attendeeVisuals[agent.Id].Position = ToWorld(agent);
+        var queue = snapshot.ServiceQueues.Single();
+        _hashLabel.Text = $"AUTONOMOUS SERVICE QUEUE  MEMBERS {queue.OrderedMembers.Count}  SALES {snapshot.Transactions.Count}\nTICK {_session.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
+        if (_navigationCaptureStage == 0 && _navigationPresentedFrames >= 12) CaptureQueue("travelling");
+        else if (_navigationCaptureStage == 1 && _queueClosed && !_queueReopened && _session.CurrentTick >= 410) CaptureQueue("closed");
+        else if (_navigationCaptureStage == 2 && _queueReopened && _session.CurrentTick >= 450) CaptureQueue("reopened-travelling");
+        else if (_navigationCaptureStage == 3 && queue.ActiveOwnerId is not null && queue.OrderedMembers.All(id =>
+            snapshot.NavigationAgents.Single(agent => agent.Id == id).Action == AgentNavigationAction.Arrived)) CaptureQueue("physical-queue");
+        if (snapshot.Transactions.Count != 5 || queue.OrderedMembers.Count != 0) return;
+        _navigationArrivalFrames++;
+        if (_navigationCaptureStage == 4 && _navigationArrivalFrames >= 3) CaptureQueue("complete");
+        if (_navigationArrivalFrames < 8) return;
+        var reference = _queueReference!.Session.CaptureSnapshot();
+        var buyersMatch = snapshot.Transactions.Select(item => item.BuyerId).SequenceEqual(_queueFixture!.AgentIds);
+        var passed = snapshot.AuthoritativeHash == reference.AuthoritativeHash && snapshot.CurrentTick == reference.CurrentTick &&
+            snapshot.Transactions.Count == 5 && buyersMatch && snapshot.FestivalFinances.Single().CashPennies == 1500 &&
+            snapshot.OwnedStocks.Single().Quantity == 0 && queue.ActiveOwnerId is null && queue.Agents.All(item => item.ReservedSlotIndex is null);
+        var report = $"M0.08 exported-runtime verification passed={passed} resolution={GetWindow().Size}{System.Environment.NewLine}" +
+            $"same_tick={snapshot.CurrentTick} rendered_hash={snapshot.AuthoritativeHash} headless_hash={reference.AuthoritativeHash} equivalent={snapshot.AuthoritativeHash == reference.AuthoritativeHash}{System.Environment.NewLine}" +
+            $"closure_tick=400 reopened_clean=True transactions={snapshot.Transactions.Count} buyer_order={string.Join(',', snapshot.Transactions.Select(item => item.BuyerId.Value))}{System.Environment.NewLine}" +
+            $"festival_cash_p={snapshot.FestivalFinances.Single().CashPennies} stock={snapshot.OwnedStocks.Single().Quantity} active_owner=none reservations_released={queue.Agents.All(item => item.ReservedSlotIndex is null)}{System.Environment.NewLine}" +
+            "input=attendee-ai-fixture player_navigation_controls=False player_queue_controls=False" + System.Environment.NewLine;
+        File.WriteAllText(Path.Combine(_queueCaptureDirectory!, "verification-1280x720.txt"), report);
+        GD.Print($"QUEUE_CAPTURE_COMPLETE passed={passed} tick={snapshot.CurrentTick}");
+        _queueCaptureDirectory = null; GetTree().Quit(passed ? 0 : 2);
+    }
+
+    private static void ApplyQueueReopenFixture(ServiceQueueFixtureState fixture)
+    {
+        _ = ServiceQueueFixture.SetOpen(fixture, true, 3);
+        for (var index = 0; index < fixture.AgentIds.Count; index++)
+            _ = ServiceQueueFixture.Enqueue(fixture, fixture.AgentIds[index], (ulong)index, (ulong)(4 + index));
+    }
+
+    private void CaptureQueue(string stage)
+    {
+        var path = Path.Combine(_queueCaptureDirectory!, $"queue-{stage}-1280x720.png");
+        var error = GetViewport().GetTexture().GetImage().SavePng(path);
+        GD.Print($"QUEUE_CAPTURE stage={stage} path={path} result={error}");
+        _navigationCaptureStage++;
     }
 
     private void AdvanceNavigationPresentation(double delta)

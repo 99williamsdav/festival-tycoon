@@ -5,14 +5,16 @@ namespace Festival.Simulation;
 
 internal static class CanonicalStateHasher
 {
-    private const int SchemaVersion = 2;
+    private const int PreviousSchemaVersion = 2;
+    private const int QueueSchemaVersion = 3;
 
     public static string Compute(GameSession session)
     {
         using var memory = new MemoryStream();
         using var writer = new BinaryWriter(memory, Encoding.UTF8, leaveOpen: true);
 
-        writer.Write(SchemaVersion);
+        var includesQueues = session.ServiceQueues.Count > 0;
+        writer.Write(includesQueues ? QueueSchemaVersion : PreviousSchemaVersion);
         writer.Write(GameSession.TickDurationMilliseconds);
         writer.Write(Pcg32Random.AlgorithmVersion);
         writer.Write(session.CampaignId.Value);
@@ -131,6 +133,29 @@ internal static class CanonicalStateHasher
                 writer.Write(agent.RouteIndex); writer.Write(agent.SegmentOriginXMillimetres); writer.Write(agent.SegmentOriginZMillimetres);
                 writer.Write(agent.SegmentProgressMicrometres);
                 writer.Write(agent.MovementRemainder); writer.Write(agent.LastSearchExpandedNodes);
+            }
+        }
+
+
+        if (includesQueues)
+        {
+            writer.Write(session.ServiceQueues.Count);
+            foreach (var queue in session.ServiceQueues.Values)
+            {
+                writer.Write(queue.Id.Value); writer.Write(queue.FestivalId.Value); writer.Write(queue.ServiceId.Value);
+                writer.Write(queue.IsOpen); writer.Write(queue.UnitPricePennies); writer.Write(queue.ServiceDurationTicks);
+                writer.Write(queue.OrderedMembers.Count); foreach (var id in queue.OrderedMembers) writer.Write(id.Value);
+                writer.Write(queue.ActiveOwnerId.HasValue); if (queue.ActiveOwnerId is { } owner) writer.Write(owner.Value);
+                writer.Write(queue.RemainingServiceTicks); writer.Write(queue.CompletionSequence);
+                writer.Write(queue.QueueSlots.Count); foreach (var cell in queue.QueueSlots) { writer.Write(cell.X); writer.Write(cell.Z); }
+                writer.Write(queue.ExitCells.Count); foreach (var cell in queue.ExitCells) { writer.Write(cell.X); writer.Write(cell.Z); }
+                writer.Write(queue.Agents.Count);
+                foreach (var agent in queue.Agents.Values)
+                {
+                    writer.Write(agent.AgentId.Value); writer.Write((int)agent.Action); writer.Write(agent.ReservedSlotIndex.HasValue);
+                    if (agent.ReservedSlotIndex is { } slot) writer.Write(slot);
+                    writer.Write(agent.ExitIndex); writer.Write(agent.ArrivalSequence);
+                }
             }
         }
 

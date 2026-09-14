@@ -132,6 +132,25 @@ public sealed partial class GameSession
                 ApplyAgentDestination(affectedTarget!.Value, destination);
                 break;
 
+            case InitializeServiceQueueFixtureCommand initializeQueue:
+                affectedTarget = ApplyInitializeServiceQueue(initializeQueue);
+                break;
+
+            case SetServiceQueueOpenCommand open:
+                affectedTarget = envelope.TargetId;
+                ApplySetServiceQueueOpen(affectedTarget!.Value, open.IsOpen);
+                break;
+
+            case EnqueueServiceQueueAgentCommand enqueue:
+                affectedTarget = envelope.TargetId;
+                ApplyEnqueueServiceQueueAgent(affectedTarget!.Value, enqueue);
+                break;
+
+            case AbandonServiceQueueCommand abandon:
+                affectedTarget = envelope.TargetId;
+                ApplyAbandonServiceQueueAgent(affectedTarget!.Value, abandon.AgentId);
+                break;
+
             default:
                 return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported.");
         }
@@ -174,6 +193,7 @@ public sealed partial class GameSession
                 }
             }
             AdvanceNavigation(events);
+            AdvanceServiceQueues(events);
         }
 
         return new AdvanceResult(CaptureSnapshot(), events);
@@ -226,6 +246,7 @@ public sealed partial class GameSession
             ownedStocks,
             _transactions.ToArray(),
             CaptureNavigationAgents(),
+            CaptureServiceQueues(),
             CanonicalStateHasher.Compute(this));
     }
 
@@ -260,6 +281,7 @@ public sealed partial class GameSession
         {
             TraversalGrid = CaptureTraversalGrid(),
             NavigationAgents = CapturePersistedNavigationAgents(),
+            ServiceQueues = CapturePersistedServiceQueues(),
         };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
@@ -309,6 +331,7 @@ public sealed partial class GameSession
                 item.Entries.Select(entry => new LedgerEntry(new EntityId(entry.OwnerId), (LedgerAccountType)entry.Account, entry.AmountPennies))));
 
         session.RestoreNavigation(snapshot.TraversalGrid, snapshot.NavigationAgents);
+        session.RestoreServiceQueues(snapshot.ServiceQueues);
 
         var actualHash = CanonicalStateHasher.Compute(session);
         return string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)
@@ -351,12 +374,18 @@ public sealed partial class GameSession
             return "Owned stock must have a valid festival owner and nonnegative quantity/cost basis.";
         var navigationError = ValidatePersistedNavigation(snapshot.TraversalGrid, snapshot.NavigationAgents);
         if (navigationError is not null) return navigationError;
-        var entityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.Wallets.Select(item => item.OwnerId))
-            .Concat(snapshot.FestivalFinances.Select(item => item.OwnerId)).Concat(snapshot.OwnedStocks.Select(item => item.ServiceId))
-            .Concat((snapshot.NavigationAgents ?? []).Select(item => item.Id)).ToArray();
-        if (entityIds.Distinct().Count() != entityIds.Length || entityIds.Any(id => id >= snapshot.NextEntityId))
-            return "Entity IDs must be unique and lower than the next entity ID.";
-        var knownEntities = entityIds.ToHashSet();
+        var queueError = ValidatePersistedServiceQueues(snapshot.ServiceQueues, snapshot);
+        if (queueError is not null) return queueError;
+        var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
+            .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();
+        if (ownedEntityIds.Distinct().Count() != ownedEntityIds.Length || ownedEntityIds.Any(id => id >= snapshot.NextEntityId))
+            return "Standalone entity IDs must be unique and lower than the next entity ID.";
+        var walletIdsForIdentity = snapshot.Wallets.Select(item => item.OwnerId).ToArray();
+        var navigationIdsForIdentity = (snapshot.NavigationAgents ?? []).Select(item => item.Id).ToArray();
+        if (walletIdsForIdentity.Concat(navigationIdsForIdentity).Any(id => id >= snapshot.NextEntityId) ||
+            walletIdsForIdentity.Any(id => ownedEntityIds.Contains(id)) || navigationIdsForIdentity.Any(id => ownedEntityIds.Contains(id)))
+            return "Agent IDs must be lower than the next entity ID and distinct from standalone entities.";
+        var knownEntities = ownedEntityIds.Concat(walletIdsForIdentity).Concat(navigationIdsForIdentity).ToHashSet();
         if (snapshot.AppliedCommands.Any(item => item.CommandId == 0 || item.Tick < 0 || item.Tick > snapshot.CurrentTick ||
             string.IsNullOrWhiteSpace(item.CommandType) || (item.TargetId is { } target && !knownEntities.Contains(target))))
             return "Applied commands contain invalid identities, ticks, types or targets.";
@@ -457,6 +486,10 @@ public sealed partial class GameSession
             PurchaseItemCommand purchase => ValidatePurchase(envelope.TargetId, purchase),
             InitializeNavigationFixtureCommand initialize => ValidateInitializeNavigation(envelope.TargetId, initialize),
             SetAgentDestinationCommand destination => ValidateAgentDestination(envelope.TargetId, destination),
+            InitializeServiceQueueFixtureCommand initialize => ValidateInitializeServiceQueue(envelope.TargetId, initialize),
+            SetServiceQueueOpenCommand => ValidateServiceQueueTarget(envelope.TargetId),
+            EnqueueServiceQueueAgentCommand enqueue => ValidateEnqueueServiceQueueAgent(envelope.TargetId, enqueue),
+            AbandonServiceQueueCommand abandon => ValidateAbandonServiceQueueAgent(envelope.TargetId, abandon),
             CreateFixtureRecordCommand or ChangeFixtureValueCommand or SetPausedCommand or
                 CreateGuestWalletCommand or CreateFestivalFinanceCommand or CreateOwnedStockCommand => null,
             _ => CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported."),

@@ -156,4 +156,19 @@ if (args is ["--scenario", "single-agent-navigation"])
     return;
 }
 
+if (args is ["--scenario", "physical-service-queue"])
+{
+    var fixture = ServiceQueueFixture.Create();
+    var initial = fixture.Session.CaptureSnapshot();
+    ServiceQueueFixture.AdvanceUntilResolved(fixture.Session);
+    var final = fixture.Session.CaptureSnapshot();
+    Console.WriteLine($"scenario=physical-service-queue agents={fixture.AgentIds.Count} price_p={ServiceQueueFixture.DefaultPricePennies} duration_ticks={ServiceQueueFixture.DefaultServiceDurationTicks}");
+    Console.WriteLine($"initial_order={string.Join(',', initial.ServiceQueues.Single().OrderedMembers.Select(id => id.Value))} reservations={string.Join(',', initial.ServiceQueues.Single().Agents.Select(item => item.ReservedSlotIndex))}");
+    Console.WriteLine($"transactions={final.Transactions.Count} buyers={string.Join(',', final.Transactions.Select(item => item.BuyerId.Value))}");
+    Console.WriteLine($"festival_cash_p={final.FestivalFinances.Single().CashPennies} stock={final.OwnedStocks.Single().Quantity} queue={final.ServiceQueues.Single().OrderedMembers.Count} hash={final.AuthoritativeHash}");
+    Environment.ExitCode = final.Transactions.Count == 5 && final.FestivalFinances.Single().CashPennies == 1_500 &&
+        final.OwnedStocks.Single().Quantity == 0 && final.ServiceQueues.Single().OrderedMembers.Count == 0 ? 0 : 1;
+    return;
+}
+
 Console.WriteLine(ToolchainSmoke.GetFixedResult());

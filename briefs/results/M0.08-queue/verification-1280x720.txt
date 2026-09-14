@@ -1,0 +1,5 @@
+M0.08 exported-runtime verification passed=True resolution=(1280, 720)
+same_tick=3946 rendered_hash=5877637af591a8626d95d3cd46198607041a0d71b807095f6ea91028fb219155 headless_hash=5877637af591a8626d95d3cd46198607041a0d71b807095f6ea91028fb219155 equivalent=True
+closure_tick=400 reopened_clean=True transactions=5 buyer_order=4,5,6,7,8
+festival_cash_p=1500 stock=0 active_owner=none reservations_released=True
+input=attendee-ai-fixture player_navigation_controls=False player_queue_controls=False

@@ -60,6 +60,27 @@ public sealed record PurchaseItemCommand(
     long UnitPricePennies,
     int Quantity) : SessionCommand;
 
+/// <summary>Development fixture: creates the bounded M0.08 autonomous service-queue scenario.</summary>
+public sealed record InitializeServiceQueueFixtureCommand(
+    IReadOnlyList<GridCell> Starts,
+    IReadOnlyList<GridCell> QueueSlots,
+    IReadOnlyList<GridCell> ExitCells,
+    IReadOnlyList<TerrainCellOverride> Terrain,
+    IReadOnlyList<long> OpeningCashPennies,
+    int StockQuantity,
+    int UnitCostBasisPennies,
+    long UnitPricePennies,
+    int ServiceDurationTicks) : SessionCommand;
+
+/// <summary>Development fixture: changes facility availability; never directs an attendee.</summary>
+public sealed record SetServiceQueueOpenCommand(bool IsOpen) : SessionCommand;
+
+/// <summary>Internal attendee-AI fixture command, not a player queue control.</summary>
+public sealed record EnqueueServiceQueueAgentCommand(EntityId AgentId, ulong ArrivalSequence) : SessionCommand;
+
+/// <summary>Internal attendee-AI fixture command, not a player movement control.</summary>
+public sealed record AbandonServiceQueueCommand(EntityId AgentId) : SessionCommand;
+
 public sealed record CommandEnvelope(
     CommandId CommandId,
     CampaignId CampaignId,
