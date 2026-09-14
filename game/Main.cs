@@ -13,6 +13,8 @@ public partial class Main : Node
     private const float PanLimit = 24f;
     private readonly Dictionary<ulong, FarmObjectReadModel> _pickRegistry = [];
     private readonly Dictionary<string, Node3D> _visualRegistry = new(StringComparer.Ordinal);
+    private readonly List<Node3D> _grassVisuals = [];
+    private readonly List<Node3D> _trackVisuals = [];
     private Camera3D _camera = null!;
     private Vector3 _focus = Vector3.Zero;
     private int _orientation;
@@ -25,6 +27,7 @@ public partial class Main : Node
     private GameSession _session = null!;
     private string _pausedHash = "";
     private bool _middleDragging;
+    private Node3D _gateLeafCollider = null!;
     private int _captureFrame;
     private string? _captureDirectory;
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
@@ -48,6 +51,7 @@ public partial class Main : Node
 
     public override void _Process(double delta)
     {
+        if (_middleDragging && !Input.IsMouseButtonPressed(MouseButton.Middle)) _middleDragging = false;
         var input = Vector2.Zero;
         if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up)) input.Y -= 1;
         if (Input.IsKeyPressed(Key.S) || Input.IsKeyPressed(Key.Down)) input.Y += 1;
@@ -56,6 +60,13 @@ public partial class Main : Node
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
         UpdateHashStatus();
         if (_captureDirectory is not null) ProcessCapture();
+    }
+
+    public override void _Input(InputEvent inputEvent)
+    {
+        // Release must be observed before a HUD Control consumes the mouse event.
+        if (inputEvent is InputEventMouseButton { ButtonIndex: MouseButton.Middle, Pressed: false })
+            _middleDragging = false;
     }
 
     public override void _UnhandledInput(InputEvent inputEvent)
@@ -119,15 +130,20 @@ public partial class Main : Node
     {
         for (var x = -4; x < 4; x++)
         for (var z = -4; z < 4; z++)
-            AddAsset("res://assets/environment/lwf_field_grass_tile_8m_v1.glb", new Vector3(x * 8, 0, z * 8));
+        {
+            // Imported bounds are local X 0..8, Z -8..0. The +8 Z origin offset
+            // therefore covers world -32..32 instead of leaving the north edge bare.
+            _grassVisuals.Add(AddAsset("res://assets/environment/lwf_field_grass_tile_8m_v1.glb", new Vector3(x * 8, 0, (z + 1) * 8)));
+        }
     }
 
     private void BuildTrack()
     {
-        for (var z = -3; z < 4; z++)
+        for (var z = -3; z <= 4; z++)
         {
             var track = AddAsset("res://assets/environment/lwf_vehicle_track_straight_8x4m_v1.glb", new Vector3(0, 0.052f, z * 8));
             track.RotationDegrees = new Vector3(0, 90, 0);
+            _trackVisuals.Add(track);
         }
     }
 
@@ -166,8 +182,20 @@ public partial class Main : Node
         body.AddChild(InstantiateAsset(path));
         if (item.Kind == FarmObjectKind.Gate)
         {
+            _gateLeafCollider = new StaticBody3D
+            {
+                Position = new Vector3(-1.65f, 0, 0),
+                RotationDegrees = new Vector3(0, 72, 0),
+            };
+            body.AddChild(_gateLeafCollider);
             var leaf = InstantiateAsset("res://assets/environment/lwf_farm_gate_leaf_v1.glb");
-            leaf.Position = new Vector3(-1.65f, 0, 0); leaf.RotationDegrees = new Vector3(0, 72, 0); body.AddChild(leaf);
+            _gateLeafCollider.AddChild(leaf);
+            _gateLeafCollider.AddChild(new CollisionShape3D
+            {
+                Position = new Vector3(1.695f, 0.79f, 0.08f),
+                Shape = new BoxShape3D { Size = new Vector3(3.5f, 1.1f, 0.36f) },
+            });
+            _pickRegistry.Add(_gateLeafCollider.GetInstanceId(), item);
         }
         body.AddChild(new CollisionShape3D
         {
@@ -345,11 +373,15 @@ public partial class Main : Node
         foreach (var id in new[] { "farm.farmhouse", "farm.main-gate", "farm.service-point" })
         {
             var visual = _visualRegistry[id];
-            Pick(_camera.UnprojectPosition(visual.GlobalPosition + new Vector3(0, 1, 0)));
+            var pickTarget = id == "farm.main-gate"
+                ? _gateLeafCollider.ToGlobal(new Vector3(1.695f, 0.79f, 0.08f))
+                : visual.GlobalPosition + new Vector3(0, 1, 0);
+            Pick(_camera.UnprojectPosition(pickTarget));
             var resolved = _selected?.StableId;
             var correct = resolved == id;
             passed &= correct;
-            lines.Add($"pick expected={id} resolved={resolved ?? "none"} correct={correct}");
+            var target = id == "farm.main-gate" ? "visible-open-leaf" : "visible-object";
+            lines.Add($"pick target={target} expected={id} resolved={resolved ?? "none"} correct={correct}");
         }
 
         Pick(new Vector2(2, GetWindow().Size.Y - 2));
@@ -374,11 +406,42 @@ public partial class Main : Node
         passed &= minBounded && maxBounded && panBounded;
         lines.Add($"zoom_min_bounded={minBounded} zoom_max_bounded={maxBounded} pan_bounded={panBounded}");
 
+        var grassBounds = GetCombinedMeshBounds(_grassVisuals);
+        var trackBounds = GetCombinedMeshBounds(_trackVisuals);
+        var grassSupportsBoundary = grassBounds.Position.X <= -31.9f && grassBounds.End.X >= 31.9f &&
+            grassBounds.Position.Z <= -31.9f && grassBounds.End.Z >= 31.9f;
+        var trackReachesGate = trackBounds.Position.Z <= -31.9f && trackBounds.End.Z >= 31.9f &&
+            trackBounds.Position.X <= 0 && trackBounds.End.X >= 0;
+        passed &= grassSupportsBoundary && trackReachesGate;
+        lines.Add($"grass_bounds_x={grassBounds.Position.X:0.###}..{grassBounds.End.X:0.###} grass_bounds_z={grassBounds.Position.Z:0.###}..{grassBounds.End.Z:0.###} supports_boundary={grassSupportsBoundary}");
+        lines.Add($"track_bounds_z={trackBounds.Position.Z:0.###}..{trackBounds.End.Z:0.###} reaches_gate_z30={trackReachesGate}");
+
+        _middleDragging = true;
+        _Input(new InputEventMouseButton { ButtonIndex = MouseButton.Middle, Pressed = false });
+        var middleReleaseCleared = !_middleDragging;
+        passed &= middleReleaseCleared;
+        lines.Add($"middle_release_before_gui_clears_drag={middleReleaseCleared}");
+
         var currentHash = _session.CaptureSnapshot().AuthoritativeHash;
         var hashUnchanged = currentHash == _pausedHash && _session.IsPaused;
         passed &= hashUnchanged;
         lines.Add($"paused={_session.IsPaused} hash_before={_pausedHash} hash_after={currentHash} unchanged={hashUnchanged}");
         lines.Insert(0, $"M0.06 exported-runtime verification passed={passed} resolution={GetWindow().Size}");
         return (passed, string.Join(System.Environment.NewLine, lines) + System.Environment.NewLine);
+    }
+
+    private static Aabb GetCombinedMeshBounds(IEnumerable<Node3D> roots)
+    {
+        var hasBounds = false;
+        var combined = new Aabb();
+        foreach (var root in roots)
+        foreach (var child in root.FindChildren("*", "MeshInstance3D", true, false))
+        {
+            if (child is not MeshInstance3D mesh || mesh.Mesh is null) continue;
+            var worldBounds = mesh.GlobalTransform * mesh.GetAabb();
+            combined = hasBounds ? combined.Merge(worldBounds) : worldBounds;
+            hasBounds = true;
+        }
+        return combined;
     }
 }
