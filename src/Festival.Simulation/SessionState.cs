@@ -20,6 +20,7 @@ public sealed record SessionSnapshot(
     IReadOnlyList<FestivalFinanceSnapshot> FestivalFinances,
     IReadOnlyList<OwnedStockSnapshot> OwnedStocks,
     IReadOnlyList<TransactionRecord> Transactions,
+    IReadOnlyList<NavigationAgentSnapshot> NavigationAgents,
     string AuthoritativeHash);
 
 public sealed record SessionEvent(long Tick, string EventType, EntityId EntityId);

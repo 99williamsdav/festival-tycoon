@@ -107,6 +107,32 @@ internal static class CanonicalStateHasher
             writer.Write(pair.Value.Increment);
         }
 
+        if (session.TraversalGrid is not null)
+        {
+            writer.Write("navigation-v1");
+            writer.Write(TraversalGrid.Width);
+            writer.Write(TraversalGrid.Depth);
+            writer.Write(TraversalGrid.CellSizeMillimetres);
+            writer.Write(session.TraversalGrid.Overrides.Count);
+            foreach (var item in session.TraversalGrid.Overrides.Values)
+            {
+                writer.Write(item.Cell.X); writer.Write(item.Cell.Z); writer.Write((int)item.Surface);
+                writer.Write(item.IsWalkable); writer.Write(item.CostPermille);
+                writer.Write(item.ElevationMillimetres); writer.Write(item.SlopePermille);
+            }
+            writer.Write(session.NavigationAgents.Count);
+            foreach (var agent in session.NavigationAgents.Values)
+            {
+                writer.Write(agent.Id.Value); writer.Write(agent.XMillimetres); writer.Write(agent.ZMillimetres);
+                writer.Write((int)agent.Action); writer.Write(agent.Destination.HasValue);
+                if (agent.Destination is { } destination) { writer.Write(destination.X); writer.Write(destination.Z); }
+                writer.Write(agent.Route.Count);
+                foreach (var cell in agent.Route) { writer.Write(cell.X); writer.Write(cell.Z); }
+                writer.Write(agent.RouteIndex); writer.Write(agent.SegmentProgressMicrometres);
+                writer.Write(agent.MovementRemainder); writer.Write(agent.LastSearchExpandedNodes);
+            }
+        }
+
         writer.Flush();
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();

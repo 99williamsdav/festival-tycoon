@@ -1,6 +1,6 @@
 namespace Festival.Simulation;
 
-public sealed class GameSession
+public sealed partial class GameSession
 {
     public const int TickDurationMilliseconds = 250;
 
@@ -123,6 +123,15 @@ public sealed class GameSession
                 ApplyPurchase(envelope, affectedTarget!.Value, purchase);
                 break;
 
+            case InitializeNavigationFixtureCommand initializeNavigation:
+                affectedTarget = ApplyInitializeNavigation(initializeNavigation);
+                break;
+
+            case SetAgentDestinationCommand destination:
+                affectedTarget = envelope.TargetId;
+                ApplyAgentDestination(affectedTarget!.Value, destination);
+                break;
+
             default:
                 return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported.");
         }
@@ -164,6 +173,7 @@ public sealed class GameSession
                     events.Add(new SessionEvent(CurrentTick, "fixture_record_expired", record.Id));
                 }
             }
+            AdvanceNavigation(events);
         }
 
         return new AdvanceResult(CaptureSnapshot(), events);
@@ -215,6 +225,7 @@ public sealed class GameSession
             festivalFinances,
             ownedStocks,
             _transactions.ToArray(),
+            CaptureNavigationAgents(),
             CanonicalStateHasher.Compute(this));
     }
 
@@ -245,7 +256,11 @@ public sealed class GameSession
             item.Quantity,
             item.UnitPricePennies,
             item.Entries.Select(entry => new PersistedLedgerEntry(entry.OwnerId.Value, (int)entry.Account, entry.AmountPennies)).ToArray())).ToArray(),
-        CanonicalStateHasher.Compute(this));
+        CanonicalStateHasher.Compute(this))
+        {
+            TraversalGrid = CaptureTraversalGrid(),
+            NavigationAgents = CapturePersistedNavigationAgents(),
+        };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
     {
@@ -293,6 +308,8 @@ public sealed class GameSession
                 new EntityId(item.FestivalId), new EntityId(item.ServiceId), item.Quantity, item.UnitPricePennies,
                 item.Entries.Select(entry => new LedgerEntry(new EntityId(entry.OwnerId), (LedgerAccountType)entry.Account, entry.AmountPennies))));
 
+        session.RestoreNavigation(snapshot.TraversalGrid, snapshot.NavigationAgents);
+
         var actualHash = CanonicalStateHasher.Compute(session);
         return string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)
             ? SessionRestoreResult.Success(session)
@@ -332,8 +349,11 @@ public sealed class GameSession
         var festivalIds = snapshot.FestivalFinances.Select(item => item.OwnerId).ToHashSet();
         if (snapshot.OwnedStocks.Any(item => item.ServiceId == 0 || !festivalIds.Contains(item.OwnerId) || item.Quantity < 0 || item.UnitCostBasisPennies < 0))
             return "Owned stock must have a valid festival owner and nonnegative quantity/cost basis.";
+        var navigationError = ValidatePersistedNavigation(snapshot.TraversalGrid, snapshot.NavigationAgents);
+        if (navigationError is not null) return navigationError;
         var entityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.Wallets.Select(item => item.OwnerId))
-            .Concat(snapshot.FestivalFinances.Select(item => item.OwnerId)).Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).ToArray();
+            .Concat(snapshot.FestivalFinances.Select(item => item.OwnerId)).Concat(snapshot.OwnedStocks.Select(item => item.ServiceId))
+            .Concat((snapshot.NavigationAgents ?? []).Select(item => item.Id)).ToArray();
         if (entityIds.Distinct().Count() != entityIds.Length || entityIds.Any(id => id >= snapshot.NextEntityId))
             return "Entity IDs must be unique and lower than the next entity ID.";
         var knownEntities = entityIds.ToHashSet();
@@ -435,6 +455,8 @@ public sealed class GameSession
             CreateOwnedStockCommand create when !_festivalFinances.ContainsKey(create.OwnerId) =>
                 CommandResult.Rejected(CommandReasonCode.UnknownOwner, "Stock owner does not exist."),
             PurchaseItemCommand purchase => ValidatePurchase(envelope.TargetId, purchase),
+            InitializeNavigationFixtureCommand initialize => ValidateInitializeNavigation(envelope.TargetId, initialize),
+            SetAgentDestinationCommand destination => ValidateAgentDestination(envelope.TargetId, destination),
             CreateFixtureRecordCommand or ChangeFixtureValueCommand or SetPausedCommand or
                 CreateGuestWalletCommand or CreateFestivalFinanceCommand or CreateOwnedStockCommand => null,
             _ => CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported."),

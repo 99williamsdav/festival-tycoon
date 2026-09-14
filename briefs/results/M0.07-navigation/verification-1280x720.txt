@@ -1,0 +1,5 @@
+M0.07 exported-runtime verification passed=True resolution=(1280, 720)
+same_tick=466 rendered_hash=0f0ce7e9d720d346d0a4fb3402344a0246a77394437f42bf7ceb585fcf240863 headless_hash=0f0ce7e9d720d346d0a4fb3402344a0246a77394437f42bf7ceb585fcf240863 equivalent=True
+arrival_action=Arrived position_mm=4250,18250
+blocked_target=155,78 action=NoRoute expanded=0 no_teleport=True
+presentation_interpolation=visual-only authoritative_source=integer-millimetre-read-state input=attendee-ai-fixture

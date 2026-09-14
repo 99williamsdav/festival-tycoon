@@ -1,4 +1,5 @@
 using Festival.Simulation;
+using Festival.Simulation.Fixtures;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -30,16 +31,33 @@ public partial class Main : Node
     private Node3D _gateLeafCollider = null!;
     private int _captureFrame;
     private string? _captureDirectory;
+    private string? _navigationCaptureDirectory;
+    private NavigationFixtureState? _navigationReference;
+    private Node3D _attendeeVisual = null!;
+    private double _navigationTickDebt;
+    private Vector3 _presentationFrom;
+    private Vector3 _presentationTo;
+    private int _navigationCaptureStage;
+    private int _navigationArrivalFrames;
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
     {
         ConfigureCaptureMode();
-        _session = new GameSession(606, new CampaignId(606));
-        _ = _session.Execute(new CommandEnvelope(new CommandId(1), _session.CampaignId, _session.Phase,
-            _session.CurrentTick, _session.NextSubmissionSequence, null, new SetPausedCommand(true)));
+        var navigation = NavigationFixture.CreateGateToServiceSession();
+        _session = navigation.Session;
+        if (_navigationCaptureDirectory is not null)
+        {
+            _ = NavigationFixture.IssueAutonomousServiceIntent(navigation);
+            _navigationReference = NavigationFixture.CreateGateToServiceSession();
+            _ = NavigationFixture.IssueAutonomousServiceIntent(_navigationReference);
+        }
+        else
+            _ = _session.Execute(new CommandEnvelope(new CommandId(2), _session.CampaignId, _session.Phase,
+                _session.CurrentTick, _session.NextSubmissionSequence, null, new SetPausedCommand(true)));
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
         BuildWorld();
+        BuildAttendee();
         BuildHud();
         ApplyCamera();
         if (_captureDirectory is not null)
@@ -58,7 +76,8 @@ public partial class Main : Node
         if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) input.X -= 1;
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
-        UpdateHashStatus();
+        if (_navigationCaptureDirectory is not null) AdvanceNavigationPresentation(delta);
+        else UpdateHashStatus();
         if (_captureDirectory is not null) ProcessCapture();
     }
 
@@ -124,6 +143,14 @@ public partial class Main : Node
         AddChild(_highlight);
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 62, Current = true };
         AddChild(_camera);
+    }
+
+    private void BuildAttendee()
+    {
+        _attendeeVisual = AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", Vector3.Zero);
+        var agent = _session.CaptureSnapshot().NavigationAgents.Single();
+        _presentationFrom = _presentationTo = ToWorld(agent);
+        _attendeeVisual.Position = _presentationTo;
     }
 
     private void BuildGrass()
@@ -225,7 +252,7 @@ public partial class Main : Node
         top.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(top);
         var bar = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center }; bar.AddThemeConstantOverride("separation", 18); top.AddChild(bar);
         bar.AddChild(LabelText("LOWER WITTERING FARM", 19, ink)); bar.AddChild(LabelText("DAY 1  •  12:00", 17, ink));
-        bar.AddChild(ButtonText("PAUSED", ReportPause));
+        bar.AddChild(ButtonText(_navigationCaptureDirectory is null ? "PAUSED" : "AI DEMO 1X", ReportPause));
         _orientationLabel = LabelText("VIEW: SOUTH", 17, ink); bar.AddChild(_orientationLabel);
         bar.AddChild(ButtonText("↶ Q", () => Rotate(-1))); bar.AddChild(ButtonText("E ↷", () => Rotate(1)));
         bar.AddChild(ButtonText("−", () => Zoom(4))); bar.AddChild(ButtonText("+", () => Zoom(-4)));
@@ -339,6 +366,7 @@ public partial class Main : Node
         for (var i = 0; i < args.Length; i++)
         {
             if (args[i] == "--capture-farm" && i + 1 < args.Length) _captureDirectory = args[++i];
+            else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
@@ -346,7 +374,70 @@ public partial class Main : Node
             }
         }
         if (_captureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_captureDirectory);
+        if (_navigationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_navigationCaptureDirectory);
     }
+
+    private void AdvanceNavigationPresentation(double delta)
+    {
+        // Wall time only schedules fixed authoritative ticks; it never enters simulation state.
+        _navigationTickDebt += delta * 80.0;
+        var ticks = Math.Min((int)_navigationTickDebt, 16);
+        if (ticks > 0)
+        {
+            _presentationFrom = ToWorld(_session.CaptureSnapshot().NavigationAgents.Single());
+            _session.AdvanceTicks(ticks);
+            for (var tick = 0; tick < ticks; tick++) _navigationReference!.Session.AdvanceTicks(1);
+            _navigationTickDebt -= ticks;
+            _presentationTo = ToWorld(_session.CaptureSnapshot().NavigationAgents.Single());
+        }
+        _attendeeVisual.Position = _presentationFrom.Lerp(_presentationTo, (float)Math.Clamp(_navigationTickDebt, 0, 1));
+
+        var agent = _session.CaptureSnapshot().NavigationAgents.Single();
+        _hashLabel.Text = $"ATTENDEE AI  {agent.Action.ToString().ToUpperInvariant()}\nTICK {_session.CurrentTick}  HASH {_session.CaptureSnapshot().AuthoritativeHash[..12]}";
+        if (_navigationCaptureStage == 0 && _session.CurrentTick >= 12) CaptureNavigation("start");
+        else if (_navigationCaptureStage == 1 && _session.CurrentTick >= 200) CaptureNavigation("mid");
+        if (agent.Action != AgentNavigationAction.Arrived) return;
+        _navigationArrivalFrames++;
+        if (_navigationCaptureStage == 2) CaptureNavigation("arrived");
+        if (_navigationArrivalFrames < 8) return;
+
+        var renderedHash = _session.CaptureSnapshot().AuthoritativeHash;
+        var referenceHash = _navigationReference!.Session.CaptureSnapshot().AuthoritativeHash;
+        var blockedCell = _session.TraversalGrid!.Overrides.Values.First(item => !item.IsWalkable).Cell;
+        var before = (agent.XMillimetres, agent.ZMillimetres);
+        var renderedBlocked = IssueBlockedTarget(_session, agent.Id, blockedCell, 3);
+        var referenceBlocked = IssueBlockedTarget(_navigationReference.Session, agent.Id, blockedCell, 3);
+        var blockedAgent = _session.CaptureSnapshot().NavigationAgents.Single();
+        var sameTickEquivalent = _session.CurrentTick == _navigationReference.Session.CurrentTick && renderedHash == referenceHash;
+        var noTeleport = before == (blockedAgent.XMillimetres, blockedAgent.ZMillimetres);
+        var passed = sameTickEquivalent && renderedBlocked.IsAccepted && referenceBlocked.IsAccepted &&
+            blockedAgent.Action == AgentNavigationAction.NoRoute && noTeleport;
+        var report = $"M0.07 exported-runtime verification passed={passed} resolution={GetWindow().Size}{System.Environment.NewLine}" +
+            $"same_tick={_session.CurrentTick} rendered_hash={renderedHash} headless_hash={referenceHash} equivalent={sameTickEquivalent}{System.Environment.NewLine}" +
+            $"arrival_action={agent.Action} position_mm={before.Item1},{before.Item2}{System.Environment.NewLine}" +
+            $"blocked_target={blockedCell.X},{blockedCell.Z} action={blockedAgent.Action} expanded={blockedAgent.LastSearchExpandedNodes} no_teleport={noTeleport}{System.Environment.NewLine}" +
+            "presentation_interpolation=visual-only authoritative_source=integer-millimetre-read-state input=attendee-ai-fixture" + System.Environment.NewLine;
+        File.WriteAllText(Path.Combine(_navigationCaptureDirectory!, "verification-1280x720.txt"), report);
+        GD.Print($"NAVIGATION_CAPTURE_COMPLETE passed={passed} tick={_session.CurrentTick}");
+        _navigationCaptureDirectory = null;
+        GetTree().Quit(passed ? 0 : 2);
+    }
+
+    private void CaptureNavigation(string stage)
+    {
+        var path = Path.Combine(_navigationCaptureDirectory!, $"navigation-{stage}-1280x720.png");
+        var error = GetViewport().GetTexture().GetImage().SavePng(path);
+        GD.Print($"NAVIGATION_CAPTURE stage={stage} path={path} result={error}");
+        _navigationCaptureStage++;
+    }
+
+    private static CommandResult IssueBlockedTarget(GameSession session, EntityId agentId, GridCell cell, ulong commandId) =>
+        session.Execute(new CommandEnvelope(new CommandId(commandId), session.CampaignId, session.Phase,
+            session.CurrentTick, session.NextSubmissionSequence, agentId,
+            new SetAgentDestinationCommand(cell, "fixture.blocked-target")));
+
+    private static Vector3 ToWorld(NavigationAgentSnapshot agent) =>
+        new(agent.XMillimetres / 1000f, 0.04f, agent.ZMillimetres / 1000f);
 
     private void ProcessCapture()
     {

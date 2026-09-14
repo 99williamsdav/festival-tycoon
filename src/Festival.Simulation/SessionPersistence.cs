@@ -17,8 +17,15 @@ public sealed record PersistedTransaction(
     int Quantity,
     long UnitPricePennies,
     PersistedLedgerEntry[] Entries);
+public sealed record PersistedGridCell(int X, int Z);
+public sealed record PersistedTerrainCell(int X, int Z, int Surface, bool IsWalkable, int CostPermille, int ElevationMillimetres, int SlopePermille);
+public sealed record PersistedTraversalGrid(int Width, int Depth, int CellSizeMillimetres, PersistedTerrainCell[] Cells);
+public sealed record PersistedNavigationAgent(
+    ulong Id, int XMillimetres, int ZMillimetres, int Action,
+    int? DestinationX, int? DestinationZ, PersistedGridCell[] Route, int RouteIndex,
+    int SegmentProgressMicrometres, int MovementRemainder, int LastSearchExpandedNodes);
 
-/// <summary>Explicit v1 persistence DTO for all authoritative M0.05 simulation state.</summary>
+/// <summary>Explicit v1 persistence DTO for all authoritative state through M0.07.</summary>
 public sealed record SessionPersistenceSnapshot(
     ulong CampaignId,
     ulong CampaignSeed,
@@ -37,7 +44,14 @@ public sealed record SessionPersistenceSnapshot(
     PersistedOwnedStock[] OwnedStocks,
     ulong[] CompletedTransactionIds,
     PersistedTransaction[] Transactions,
-    string AuthoritativeHash);
+    string AuthoritativeHash)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PersistedTraversalGrid? TraversalGrid { get; init; }
+
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PersistedNavigationAgent[]? NavigationAgents { get; init; }
+}
 
 public sealed record SessionRestoreResult(GameSession? Session, string? Error)
 {

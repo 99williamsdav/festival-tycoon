@@ -10,7 +10,7 @@ Implementation began 7 September 2026. Update rows only when work actually occur
 | M0.04 | Accepted | [Atomic purchase, balanced ledger, stock accounting, idempotency tests and independent review](results/M0.04.md) | None |
 | M0.05 | Accepted | [Versioned gzip saves, complete DTO mapping, checksum, migration gate, atomic replacement, backup, recovery tests and independent review](results/M0.05.md) | None |
 | M0.06 | Accepted | [Fixed Lower Wittering Farm scene/read model, approved art integration, stable-ID picking, four-view camera, persistent HUD, Windows screenshots, automated/runtime evidence and independent review](results/M0.06.md) | None |
-| M0.07 | Not started | None | All |
+| M0.07 | Implemented—verification pending | [Static deterministic traversal, AI-owned attendee movement, persistence/hash coverage, tests and exported-runtime evidence](results/M0.07.md) | Independent acceptance review pending; physical input/manual pace feel not exercised |
 | M0.08 | Not started | None | All |
 | M0.09 | Not started | None | All |
 | M0.10 | Not started | None | All |

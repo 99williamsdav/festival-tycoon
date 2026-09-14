@@ -129,4 +129,31 @@ if (args is ["--scenario", "atomic-purchase"])
     return;
 }
 
+if (args is ["--scenario", "single-agent-navigation"])
+{
+    var fixture = NavigationFixture.CreateGateToServiceSession();
+    var intent = NavigationFixture.IssueAutonomousServiceIntent(fixture);
+    var initial = fixture.Session.CaptureSnapshot().NavigationAgents.Single();
+    var ticks = 0;
+    while (fixture.Session.CaptureSnapshot().NavigationAgents.Single().Action == AgentNavigationAction.Travelling && ticks < 10_000)
+    {
+        fixture.Session.AdvanceTicks(1);
+        ticks++;
+    }
+    var arrived = fixture.Session.CaptureSnapshot();
+    var blocked = fixture.Session.TraversalGrid!.Overrides.Values.First(item => !item.IsWalkable).Cell;
+    var blockedResult = fixture.Session.Execute(new CommandEnvelope(
+        new CommandId(3), fixture.Session.CampaignId, fixture.Session.Phase, fixture.Session.CurrentTick,
+        fixture.Session.NextSubmissionSequence, fixture.AgentId,
+        new SetAgentDestinationCommand(blocked, "fixture.blocked-target")));
+    var noRoute = fixture.Session.CaptureSnapshot().NavigationAgents.Single();
+
+    Console.WriteLine($"scenario=single-agent-navigation intent={intent.IsAccepted} start={initial.XMillimetres},{initial.ZMillimetres}");
+    Console.WriteLine($"arrival action={arrived.NavigationAgents.Single().Action} ticks={ticks} position={arrived.NavigationAgents.Single().XMillimetres},{arrived.NavigationAgents.Single().ZMillimetres} hash={arrived.AuthoritativeHash}");
+    Console.WriteLine($"blocked accepted={blockedResult.IsAccepted} action={noRoute.Action} expanded={noRoute.LastSearchExpandedNodes} position={noRoute.XMillimetres},{noRoute.ZMillimetres}");
+    Environment.ExitCode = intent.IsAccepted && arrived.NavigationAgents.Single().Action == AgentNavigationAction.Arrived &&
+        blockedResult.IsAccepted && noRoute.Action == AgentNavigationAction.NoRoute ? 0 : 1;
+    return;
+}
+
 Console.WriteLine(ToolchainSmoke.GetFixedResult());
