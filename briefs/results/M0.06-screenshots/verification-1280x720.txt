@@ -1,0 +1,8 @@
+M0.06 exported-runtime verification passed=True resolution=(1280, 720)
+pick expected=farm.farmhouse resolved=farm.farmhouse correct=True
+pick expected=farm.main-gate resolved=farm.main-gate correct=True
+pick expected=farm.service-point resolved=farm.service-point correct=True
+empty_selection_cleared=True
+selection_retained_four_rotations=True id=farm.farmhouse
+zoom_min_bounded=True zoom_max_bounded=True pan_bounded=True
+paused=True hash_before=c87a649be7b5b55396aec60ac42854d7a4271d9d2981d3d88d41e547643f73f1 hash_after=c87a649be7b5b55396aec60ac42854d7a4271d9d2981d3d88d41e547643f73f1 unchanged=True

@@ -9,7 +9,7 @@ Implementation began 7 September 2026. Update rows only when work actually occur
 | M0.03 | Accepted | [Versioned content schema, validation, canonical hash, fixtures, tests and independent review](results/M0.03.md) | None |
 | M0.04 | Accepted | [Atomic purchase, balanced ledger, stock accounting, idempotency tests and independent review](results/M0.04.md) | None |
 | M0.05 | Accepted | [Versioned gzip saves, complete DTO mapping, checksum, migration gate, atomic replacement, backup, recovery tests and independent review](results/M0.05.md) | None |
-| M0.06 | Not started | None | All |
+| M0.06 | Implemented—verification pending | [Fixed Lower Wittering Farm scene/read model, approved art integration, stable-ID picking, four-view camera, persistent HUD, Windows screenshots and automated/runtime evidence](results/M0.06.md) | Independent review; manual pointer-feel QA unavailable on this host |
 | M0.07 | Not started | None | All |
 | M0.08 | Not started | None | All |
 | M0.09 | Not started | None | All |
