@@ -1,0 +1,34 @@
+{
+  "asset": "Generic attendee placeholder v1",
+  "purpose": "M0.07 autonomous-navigation visible attendee prerequisite",
+  "revision": "neutral hair and face readability pass",
+  "rigged": false,
+  "mesh_count": 1,
+  "triangles": 236,
+  "vertices": 148,
+  "runtime_vertices": 496,
+  "bounds_blender": [
+    [
+      -0.4057038724422455,
+      -0.14800000190734863,
+      -2.98023217215615e-10
+    ],
+    [
+      0.4057038724422455,
+      0.2004999965429306,
+      1.75
+    ]
+  ],
+  "height_m": 1.7500000002980232,
+  "origin": "local (0,0,0) between planted feet at ground level",
+  "forward_axis_blender": "+Y",
+  "forward_axis_godot": "-Z",
+  "materials": 1,
+  "surfaces": 1,
+  "palette_size": [
+    96,
+    8
+  ],
+  "ownership_boundary": "simulation owns stable identity, position, facing, action, destination, movement and interpolation; mesh is presentation only",
+  "provenance": "original procedural/project-authored geometry and palette; no downloaded mesh, texture, or copied character design"
+}
