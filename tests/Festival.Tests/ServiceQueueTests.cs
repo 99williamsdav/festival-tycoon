@@ -249,6 +249,72 @@ public sealed class ServiceQueueTests
     }
 
     [TestMethod]
+    public void ServiceExitOwnershipProtectsDestinationUntilArrivalThenAcceptedIntentRoundTrips()
+    {
+        var fixture = ServiceQueueFixture.Create();
+        var agentId = fixture.AgentIds[0];
+        Assert.IsTrue(ServiceQueueFixture.Abandon(fixture, agentId, 2).IsAccepted);
+
+        var protectedRetarget = fixture.Session.Execute(new CommandEnvelope(new CommandId(3), fixture.Session.CampaignId,
+            fixture.Session.Phase, fixture.Session.CurrentTick, fixture.Session.NextSubmissionSequence, agentId,
+            new SetAgentDestinationCommand(new GridCell(100, 180), "ai.other-intent")));
+        Assert.IsFalse(protectedRetarget.IsAccepted);
+
+        for (var tick = 0; tick < 10_000 && fixture.Session.CaptureSnapshot().ServiceQueues.Single().Agents
+                 .Single(item => item.AgentId == agentId).OwnsExitReservation; tick++)
+            fixture.Session.AdvanceTicks(1);
+        Assert.IsFalse(fixture.Session.CaptureSnapshot().ServiceQueues.Single().Agents
+            .Single(item => item.AgentId == agentId).OwnsExitReservation, "Exit ownership must be released on physical arrival.");
+
+        var acceptedRetarget = fixture.Session.Execute(new CommandEnvelope(new CommandId(4), fixture.Session.CampaignId,
+            fixture.Session.Phase, fixture.Session.CurrentTick, fixture.Session.NextSubmissionSequence, agentId,
+            new SetAgentDestinationCommand(new GridCell(100, 180), "ai.other-intent")));
+        Assert.IsTrue(acceptedRetarget.IsAccepted);
+        var persisted = fixture.Session.CapturePersistenceSnapshot();
+        var restored = GameSession.Restore(persisted);
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        Assert.AreEqual(fixture.Session.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
+    }
+
+    [TestMethod]
+    public void WrongServiceIntentAtCompletionCancelsWithoutPaymentAndProgresses()
+    {
+        var fixture = ServiceQueueFixture.Create(durationTicks: 1);
+        while (fixture.Session.CaptureSnapshot().ServiceQueues.Single().RemainingServiceTicks != 1) fixture.Session.AdvanceTicks(1);
+        var owner = fixture.Session.CaptureSnapshot().ServiceQueues.Single().ActiveOwnerId!.Value;
+        SetProperty(PrivateEntry(fixture.Session, "_navigationAgents", owner), "IntentId", "ai.other-intent");
+
+        fixture.Session.AdvanceTicks(1);
+        var cancelled = fixture.Session.CaptureSnapshot();
+        Assert.AreEqual(0, cancelled.Transactions.Count);
+        var ownerState = cancelled.ServiceQueues.Single().Agents.Single(item => item.AgentId == owner);
+        Assert.AreEqual(ServiceQueueAgentAction.Abandoned, ownerState.Action);
+        Assert.IsTrue(ownerState.OwnsExitReservation);
+        Assert.IsNull(cancelled.ServiceQueues.Single().ActiveOwnerId);
+        ServiceQueueFixture.AdvanceUntilResolved(fixture.Session);
+        Assert.AreEqual(4, fixture.Session.Transactions.Count);
+        Assert.IsFalse(fixture.Session.Transactions.Any(item => item.BuyerId == owner));
+    }
+
+    [TestMethod]
+    public void RestoreRejectsDuplicateActiveExitOwnershipWithFreshAuthoritativeHash()
+    {
+        var fixture = ServiceQueueFixture.Create();
+        Assert.IsTrue(ServiceQueueFixture.SetOpen(fixture, false, 2).IsAccepted);
+        var queueState = PrivateEntry(fixture.Session, "_serviceQueues");
+        var agents = (IEnumerable)queueState.GetType().GetProperty("Agents")!.GetValue(queueState)!;
+        var entries = agents.Cast<object>().ToArray();
+        var first = entries[0].GetType().GetProperty("Value")!.GetValue(entries[0])!;
+        var second = entries[1].GetType().GetProperty("Value")!.GetValue(entries[1])!;
+        SetProperty(second, "ExitIndex", first.GetType().GetProperty("ExitIndex")!.GetValue(first)!);
+
+        var rehashed = fixture.Session.CapturePersistenceSnapshot();
+        var restored = GameSession.Restore(rehashed);
+        Assert.IsFalse(restored.IsSuccess);
+        StringAssert.Contains(restored.Error!, "duplicate active exit reservations");
+    }
+
+    [TestMethod]
     public void MalformedQueueCrossFieldsAreRejectedBeforeHashReconstruction()
     {
         var closedFixture = ActiveFixture();

@@ -159,7 +159,7 @@ internal static class CanonicalStateHasher
                 {
                     writer.Write(agent.AgentId.Value); writer.Write((int)agent.Action); writer.Write(agent.ReservedSlotIndex.HasValue);
                     if (agent.ReservedSlotIndex is { } slot) writer.Write(slot);
-                    writer.Write(agent.ExitIndex); writer.Write(agent.AdmissionTick); writer.Write(agent.ArrivalSequence);
+                    writer.Write(agent.ExitIndex); writer.Write(agent.OwnsExitReservation); writer.Write(agent.AdmissionTick); writer.Write(agent.ArrivalSequence);
                 }
             }
         }

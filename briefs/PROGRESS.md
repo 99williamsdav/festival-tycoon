@@ -11,7 +11,7 @@ Implementation began 7 September 2026. Update rows only when work actually occur
 | M0.05 | Accepted | [Versioned gzip saves, complete DTO mapping, checksum, migration gate, atomic replacement, backup, recovery tests and independent review](results/M0.05.md) | None |
 | M0.06 | Accepted | [Fixed Lower Wittering Farm scene/read model, approved art integration, stable-ID picking, four-view camera, persistent HUD, Windows screenshots, automated/runtime evidence and independent review](results/M0.06.md) | None |
 | M0.07 | Accepted | [Static deterministic traversal, continuous AI retargeting, optimal terrain-cost A*, persistence/hash coverage, around-barn demonstration and review-repair evidence](results/M0.07.md) | None |
-| M0.08 | Implemented—verification pending | [Autonomous physical queue, reviewed ownership/clearance repairs, timed atomic purchases, strict persistence, tests and departure-complete exported evidence](results/M0.08.md) | Independent re-review and subjective live observation |
+| M0.08 | Implemented—verification pending | [Autonomous physical queue, hardened service/exit ownership, timed atomic purchases, strict persistence, tests and departure-complete exported evidence](results/M0.08.md) | Independent re-review and subjective live observation |
 | M0.09 | Not started | None | All |
 | M0.10 | Not started | None | All |
 
