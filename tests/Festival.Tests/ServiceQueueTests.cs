@@ -315,6 +315,43 @@ public sealed class ServiceQueueTests
     }
 
     [TestMethod]
+    public void RestoreRejectsDuplicateFutureExitAssignmentsBeforeAnyDeparture()
+    {
+        var fixture = ServiceQueueFixture.Create();
+        var attendee5 = fixture.AgentIds[1];
+        var queueState = PrivateEntry(fixture.Session, "_serviceQueues");
+        var agents = queueState.GetType().GetProperty("Agents")!.GetValue(queueState)!;
+        var attendee5State = agents.GetType().GetProperty("Item")!.GetValue(agents, [attendee5])!;
+        SetProperty(attendee5State, "ExitIndex", 0);
+
+        var rehashed = fixture.Session.CapturePersistenceSnapshot();
+        var restored = GameSession.Restore(rehashed);
+        Assert.IsFalse(restored.IsSuccess);
+        StringAssert.Contains(restored.Error!, "duplicate deterministic exit assignments");
+    }
+
+    [TestMethod]
+    public void WrongFrontIntentBeforeServiceAbandonsAndRemainingQueueCompletes()
+    {
+        var fixture = ServiceQueueFixture.Create(durationTicks: 1);
+        var invalidFront = fixture.AgentIds[0];
+        SetProperty(PrivateEntry(fixture.Session, "_navigationAgents", invalidFront), "IntentId", "ai.other-intent");
+
+        ServiceQueueFixture.AdvanceUntilResolved(fixture.Session);
+        var resolved = fixture.Session.CaptureSnapshot();
+        var invalidState = resolved.ServiceQueues.Single().Agents.Single(item => item.AgentId == invalidFront);
+        Assert.AreEqual(ServiceQueueAgentAction.Abandoned, invalidState.Action);
+        Assert.AreEqual(4, resolved.Transactions.Count);
+        Assert.IsFalse(resolved.Transactions.Any(item => item.BuyerId == invalidFront));
+        CollectionAssert.AreEqual(fixture.AgentIds.Skip(1).ToArray(), resolved.Transactions.Select(item => item.BuyerId).ToArray());
+
+        ServiceQueueFixture.AdvanceUntilDeparted(fixture);
+        Assert.IsTrue(ServiceQueueFixture.AllAtExit(fixture));
+        Assert.IsFalse(fixture.Session.CaptureSnapshot().ServiceQueues.Single().Agents
+            .Single(item => item.AgentId == invalidFront).OwnsExitReservation);
+    }
+
+    [TestMethod]
     public void MalformedQueueCrossFieldsAreRejectedBeforeHashReconstruction()
     {
         var closedFixture = ActiveFixture();

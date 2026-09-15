@@ -186,6 +186,9 @@ public sealed partial class GameSession
     {
         foreach (var queue in _serviceQueues.Values)
         {
+            var assignedExitIndices = queue.Agents.Values.Select(item => item.ExitIndex).ToArray();
+            if (assignedExitIndices.Distinct().Count() != assignedExitIndices.Length)
+                throw new InvalidOperationException("Service queue cannot have duplicate fixed exit assignments.");
             var activeExitIndices = queue.Agents.Values.Where(item => item.OwnsExitReservation).Select(item => item.ExitIndex).ToArray();
             if (activeExitIndices.Distinct().Count() != activeExitIndices.Length)
                 throw new InvalidOperationException("Service queue cannot have duplicate active exit reservations.");
@@ -213,8 +216,13 @@ public sealed partial class GameSession
             var frontNavigation = _navigationAgents[frontId];
             if (queue.ActiveOwnerId is null)
             {
-                if (frontNavigation.Action != AgentNavigationAction.Arrived || frontNavigation.Destination != queue.QueueSlots[0] ||
-                    frontNavigation.IntentId != "ai.service-queue") continue;
+                if (frontNavigation.Destination != queue.QueueSlots[0] || frontNavigation.IntentId != "ai.service-queue")
+                {
+                    ReleaseQueueMember(queue, frontId, ServiceQueueAgentAction.Abandoned, depart: true);
+                    events.Add(new SessionEvent(CurrentTick, "service_cancelled_invalid_intent", frontId));
+                    continue;
+                }
+                if (frontNavigation.Action != AgentNavigationAction.Arrived) continue;
                 queue.ActiveOwnerId = frontId;
                 queue.RemainingServiceTicks = queue.ServiceDurationTicks;
                 queue.Agents[frontId].Action = ServiceQueueAgentAction.InService;
@@ -416,6 +424,9 @@ public sealed partial class GameSession
             if (reservedSlots.Distinct().Count() != reservedSlots.Length) return $"Service queue {queue.Id} has duplicate physical slot reservations.";
             var ownedExits = queue.Agents.Where(agent => agent.OwnsExitReservation).Select(agent => agent.ExitIndex).ToArray();
             if (ownedExits.Distinct().Count() != ownedExits.Length) return $"Service queue {queue.Id} has duplicate active exit reservations.";
+            var assignedExits = queue.Agents.Select(agent => agent.ExitIndex).ToArray();
+            if (assignedExits.Distinct().Count() != assignedExits.Length)
+                return $"Service queue {queue.Id} has duplicate deterministic exit assignments.";
             for (var index = 0; index < queue.OrderedMembers.Length; index++)
             {
                 var agent = queue.Agents.Single(item => item.AgentId == queue.OrderedMembers[index]);
