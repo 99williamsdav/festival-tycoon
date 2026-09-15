@@ -55,7 +55,9 @@ public partial class Main : Node
     private FiftyAgentFoundationFixtureState? _foundationReference;
     private readonly FoundationClock _foundationClock = new();
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private long _nextAutosaveTick;
+    private RealTimeAutosaveScheduler _autosaveScheduler = null!;
+    private long _autosaveGeneration;
+    private int _autosaveWrites;
     private int _foundationCaptureStage;
     private string _saveStatus = "READY";
     private string _manualSaveHash = "";
@@ -84,11 +86,12 @@ public partial class Main : Node
     public override void _Ready()
     {
         ConfigureCaptureMode();
-        _nextAutosaveTick = AutosaveRotation.NextDeadline(0, AutosaveCadenceTicks);
+        _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null ?
+            RealTimeAutosaveScheduler.ProductionCadenceSeconds : 2);
         if (_foundationCaptureDirectory is not null || (_captureDirectory is null && _navigationCaptureDirectory is null && _queueCaptureDirectory is null))
         {
             _foundationFixture = FiftyAgentFoundationFixture.Create();
-            _foundationReference = FiftyAgentFoundationFixture.Create();
+            if (_foundationCaptureDirectory is not null) _foundationReference = FiftyAgentFoundationFixture.Create();
             _session = _foundationFixture.Session;
         }
         else if (_queueCaptureDirectory is not null)
@@ -525,8 +528,6 @@ public partial class Main : Node
     }
 
     private string SaveDirectory => ProjectSettings.GlobalizePath("user://saves");
-    private long AutosaveCadenceTicks => _foundationCaptureDirectory is null ? AutosaveRotation.CadenceTicks : AutosaveRotation.CaptureFixtureCadenceTicks;
-
     private void ManualSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));
@@ -551,7 +552,7 @@ public partial class Main : Node
             _foundationClock.IsPaused = _session.IsPaused; _foundationClock.RequestedSpeed = _session.RequestedSpeed;
             _foundationClock.ResetBoundary();
             _foundationPresentation.Reset(_session.CaptureSnapshot());
-            _nextAutosaveTick = AutosaveRotation.NextDeadline(_session.CurrentTick, AutosaveCadenceTicks);
+            _autosaveScheduler.Rebase();
             _manualRestoreVerified = _manualSaveHash.Length > 0 && _session.CaptureSnapshot().AuthoritativeHash == _manualSaveHash;
             _selectionRetainedAfterLoad = selectedBeforeLoad is { } selected && _session.CaptureSnapshot().NavigationAgents.Any(item => item.Id == selected) && _selectedAttendeeId == selected;
             _saveStatus = "LOADED";
@@ -564,19 +565,19 @@ public partial class Main : Node
     {
         var cap = _foundationCaptureDirectory is not null && _foundationCaptureStage == 3 ? 2 : FoundationClock.MaximumTicksPerFrame;
         var ticks = _foundationClock.Schedule(delta, cap);
-        if (ticks > 0)
+        for (var tick = 0; tick < ticks; tick++)
         {
-            _session.AdvanceTicks(ticks);
-            if (_foundationCaptureDirectory is not null) _foundationReference!.Session.AdvanceTicks(ticks);
+            _session.AdvanceTicks(1);
+            if (_foundationCaptureDirectory is not null) _foundationReference!.Session.AdvanceTicks(1);
+            _foundationPresentation.Advance(_session.CaptureSnapshot());
         }
-        if (_session.CurrentTick >= _nextAutosaveTick)
+        if (_autosaveScheduler.Advance(delta))
         {
-            var saved = AutosaveRotation.Save(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, AutosaveCadenceTicks);
+            var saved = AutosaveRotation.Save(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
             _saveStatus = saved.IsSuccess ? "AUTOSAVED" : "AUTOSAVE ERROR";
-            _nextAutosaveTick = AutosaveRotation.NextDeadline(_session.CurrentTick, AutosaveCadenceTicks);
+            if (saved.IsSuccess) { _autosaveGeneration++; _autosaveWrites++; }
         }
         var snapshot = _session.CaptureSnapshot();
-        if (ticks > 0) _foundationPresentation.Advance(snapshot);
         foreach (var agent in snapshot.NavigationAgents)
         {
             var sample = _foundationPresentation.Sample(agent.Id, _foundationClock.InterpolationFraction);
@@ -586,7 +587,7 @@ public partial class Main : Node
         var queue = snapshot.ServiceQueues.Single();
         var counts = FoundationDiagnostics.Count(snapshot);
         var clockStatus = _session.IsPaused ? "PAUSED • CAMERA / INSPECT / SAVE ACTIVE" : $"REQUEST {(int)_session.RequestedSpeed}×  ATTAINED {_foundationClock.AttainedSpeed:0.00}×  {(_foundationClock.IsOverloaded ? "⚠ REDUCED" : "ON TARGET")}";
-        _hashLabel.Text = $"M0 FOUNDATION • 50 AUTONOMOUS ATTENDEES\nTRAVELLING {counts.Travelling}  WAITING {counts.Waiting}  IN SERVICE {counts.InService}  SERVED {counts.Served}  FAILED {counts.Failed}\n{clockStatus}  {_saveStatus}\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
+        _hashLabel.Text = $"M0 FOUNDATION • 50 AUTONOMOUS ATTENDEES\nTRAVELLING {counts.Travelling}  QUEUED {counts.QueueMembers}  WAITING {counts.Waiting}  IN SERVICE {counts.InService}\nSERVED {counts.Served}  FAILED {counts.Failed}  {clockStatus}  {_saveStatus}\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
         if (_foundationCaptureDirectory is not null) ProcessFoundationCapture(snapshot, queue);
     }
 
@@ -663,14 +664,14 @@ public partial class Main : Node
             var reference = _foundationReference!.Session.CaptureSnapshot();
             var parity = snapshot.AuthoritativeHash == reference.AuthoritativeHash;
             var autosaves = Enumerable.Range(0, 3).Count(i => File.Exists(SaveFileAdapter.ResolveSlotPath(SaveDirectory, $"autosave-{i}")));
-            var passed = snapshot.Transactions.Count == 50 && queue.OrderedMembers.Count == 0 && failedCount(queue) == 0 && parity && restoredExact && autosaves == 3 &&
+            var passed = snapshot.Transactions.Count == 50 && queue.OrderedMembers.Count == 0 && failedCount(queue) == 0 && parity && restoredExact && autosaves == 3 && _autosaveWrites >= 3 &&
                 _pauseVerified && _pauseInputRouteVerified && _attendeePickVerified && _overloadObserved;
             passed &= _selectionRetainedAfterLoad && _pressureInputVerified;
             var report = $"M0.09 exported-runtime verification passed={passed} resolution={GetWindow().Size}{System.Environment.NewLine}" +
                 $"tick={snapshot.CurrentTick} transactions={snapshot.Transactions.Count} queue={queue.OrderedMembers.Count} failed={failedCount(queue)} festival_cash_p={snapshot.FestivalFinances.Single().CashPennies} stock={snapshot.OwnedStocks.Single().Quantity}{System.Environment.NewLine}" +
                 $"rendered_hash={snapshot.AuthoritativeHash} headless_hash={reference.AuthoritativeHash} parity={parity}{System.Environment.NewLine}" +
-                $"manual_save_restore={restoredExact} autosave_slots={autosaves} autosave_cadence_ticks={AutosaveCadenceTicks} requested=4x completion_attained={_foundationClock.AttainedSpeed:0.000}x pressure_attained={_pressureAttained:0.000}x pressure_debt_ticks={_pressureDebt:0.###} pressure_work_max_ms={_maximumPressureWorkMilliseconds:0.###} overload_reported={_overloadObserved}{System.Environment.NewLine}" +
-                $"pause_hash_frozen_camera_rotated={_pauseVerified} shared_pause_input_route={_pauseInputRouteVerified} attendee_pick_event={_attendeePickVerified} selected_attendee_retained={_selectionRetainedAfterLoad} pressure_input_latency_ms={_pressureInputLatencyMilliseconds:0.###} pressure_input_responsive={_pressureInputVerified} palette_assignment=ordinal_modulo_10 player_attendee_controls=false fixture_only=true" + System.Environment.NewLine;
+                $"manual_save_restore={restoredExact} autosave_slots={autosaves} autosave_writes={_autosaveWrites} autosave_cadence_real_seconds={_autosaveScheduler.CadenceSeconds:0.###} requested=4x completion_attained={_foundationClock.AttainedSpeed:0.000}x pressure_attained={_pressureAttained:0.000}x pressure_debt_ticks={_pressureDebt:0.###} pressure_work_max_ms={_maximumPressureWorkMilliseconds:0.###} overload_reported={_overloadObserved}{System.Environment.NewLine}" +
+                $"pause_hash_frozen_camera_rotated={_pauseVerified} shared_pause_input_route={_pauseInputRouteVerified} attendee_pick_event={_attendeePickVerified} selected_attendee_retained={_selectionRetainedAfterLoad} shared_action_call_ms={_pressureInputLatencyMilliseconds:0.###} shared_action_responsive={_pressureInputVerified} os_event_latency_measured=false palette_assignment=ordinal_modulo_10 player_attendee_controls=false fixture_only=true" + System.Environment.NewLine;
             File.WriteAllText(Path.Combine(_foundationCaptureDirectory!, "verification-1280x720.txt"), report);
             GD.Print($"FOUNDATION_CAPTURE_COMPLETE passed={passed} tick={snapshot.CurrentTick}");
             _foundationCaptureDirectory = null; GetTree().Quit(passed ? 0 : 2);

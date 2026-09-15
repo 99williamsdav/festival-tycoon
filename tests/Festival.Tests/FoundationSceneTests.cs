@@ -13,6 +13,9 @@ public sealed class FoundationSceneTests
     public void FiftyAutonomousAttendees_AllPurchaseAndDepartWithoutReservations()
     {
         var fixture = FiftyAgentFoundationFixture.Create();
+        var consecutiveBelowTwoHundred = new Dictionary<(EntityId, EntityId), int>();
+        var maximumConsecutiveBelowTwoHundred = 0;
+        var reproPairMaximum = 0;
         while (!FiftyAgentFoundationFixture.AllCompleted(fixture))
         {
             fixture.Session.AdvanceTicks(1);
@@ -21,8 +24,21 @@ public sealed class FoundationSceneTests
                 $"Exact attendee overlap at tick {tick.CurrentTick}.");
             Assert.IsTrue(tick.NavigationAgents.All(item => fixture.Session.TraversalGrid!.Get(TraversalGrid.WorldToCell(item.XMillimetres, item.ZMillimetres)).IsWalkable),
                 $"Blocked-cell crossing at tick {tick.CurrentTick}.");
+            foreach (var left in tick.NavigationAgents)
+            foreach (var right in tick.NavigationAgents.Where(item => item.Id.CompareTo(left.Id) > 0))
+            {
+                var dx = (long)right.XMillimetres - left.XMillimetres;
+                var dz = (long)right.ZMillimetres - left.ZMillimetres;
+                var pair = (left.Id, right.Id);
+                var consecutive = dx * dx + dz * dz < 40_000 ? consecutiveBelowTwoHundred.GetValueOrDefault(pair) + 1 : 0;
+                consecutiveBelowTwoHundred[pair] = consecutive;
+                maximumConsecutiveBelowTwoHundred = Math.Max(maximumConsecutiveBelowTwoHundred, consecutive);
+                if (left.Id == new EntityId(20) && right.Id == new EntityId(21)) reproPairMaximum = Math.Max(reproPairMaximum, consecutive);
+            }
             Assert.IsTrue(tick.CurrentTick < 30_000, "Persistent stacking/deadlock exceeded the fixture budget.");
         }
+        Assert.IsTrue(maximumConsecutiveBelowTwoHundred <= 2, $"Near-superposition persisted for {maximumConsecutiveBelowTwoHundred} ticks.");
+        Assert.IsTrue(reproPairMaximum <= 2, $"IDs 20/21 remained compressed for {reproPairMaximum} ticks.");
         var snapshot = fixture.Session.CaptureSnapshot();
         Assert.AreEqual(50, snapshot.Transactions.Count);
         Assert.AreEqual(15_000L, snapshot.FestivalFinances.Single().CashPennies);
@@ -108,23 +124,82 @@ public sealed class FoundationSceneTests
         var initial = fixture.Session.CaptureSnapshot();
         var counts = FoundationDiagnostics.Count(initial);
         Assert.AreEqual(50, counts.Travelling);
-        Assert.AreEqual(49, counts.Waiting);
+        Assert.AreEqual(50, counts.QueueMembers);
+        Assert.AreEqual(0, counts.Waiting);
         Assert.AreEqual(0, counts.InService);
         Assert.AreEqual(0, counts.Served);
 
+        FoundationDiagnosticCounts physical;
+        do
+        {
+            fixture.Session.AdvanceTicks(1);
+            physical = FoundationDiagnostics.Count(fixture.Session.CaptureSnapshot());
+        } while (physical.Waiting == 0 && fixture.Session.CurrentTick < 2_000);
+        Assert.IsTrue(physical.Waiting > 0);
+        Assert.IsTrue(physical.QueueMembers >= physical.Waiting + physical.InService);
+        Assert.IsTrue(physical.Travelling < 50);
+
         var interpolator = new FoundationPresentationInterpolator();
-        interpolator.Reset(initial);
-        var hash = initial.AuthoritativeHash;
-        fixture.Session.AdvanceTicks(4);
-        var current = fixture.Session.CaptureSnapshot();
-        interpolator.Advance(current);
-        var id = current.NavigationAgents[0].Id;
+        var start = fixture.Session.CaptureSnapshot();
+        interpolator.Reset(start);
+        var hash = start.AuthoritativeHash;
+        SessionSnapshot previous = start;
+        SessionSnapshot current = start;
+        for (var tick = 0; tick < 4; tick++)
+        {
+            fixture.Session.AdvanceTicks(1);
+            previous = current;
+            current = fixture.Session.CaptureSnapshot();
+            interpolator.Advance(current);
+        }
+        var id = current.NavigationAgents.First(item =>
+        {
+            var prior = previous.NavigationAgents.Single(value => value.Id == item.Id);
+            return prior.XMillimetres != item.XMillimetres || prior.ZMillimetres != item.ZMillimetres;
+        }).Id;
         var midpoint = interpolator.Sample(id, 0.5);
         Assert.AreNotEqual(hash, current.AuthoritativeHash);
         Assert.AreEqual(current.AuthoritativeHash, fixture.Session.CaptureSnapshot().AuthoritativeHash, "Presentation sampling changed authoritative state.");
+        var previousAgent = previous.NavigationAgents.Single(item => item.Id == id);
+        var currentAgent = current.NavigationAgents.Single(item => item.Id == id);
+        Assert.AreEqual((previousAgent.XMillimetres + currentAgent.XMillimetres) / 2.0, midpoint.XMillimetres, 0.001);
+        Assert.AreEqual((previousAgent.ZMillimetres + currentAgent.ZMillimetres) / 2.0, midpoint.ZMillimetres, 0.001);
         interpolator.Reset(current);
         Assert.AreEqual((double)current.NavigationAgents[0].XMillimetres, interpolator.Sample(id, 0).XMillimetres);
         Assert.IsTrue(midpoint != interpolator.Sample(id, 0));
+
+        fixture.Session.AdvanceTicks(3);
+        var discontinuous = fixture.Session.CaptureSnapshot();
+        interpolator.Advance(discontinuous);
+        Assert.AreEqual((double)discontinuous.NavigationAgents.Single(item => item.Id == id).XMillimetres, interpolator.Sample(id, 0.5).XMillimetres);
+
+        var turning = NavigationFixture.CreateGateToServiceSession();
+        Assert.IsTrue(NavigationFixture.IssueAutonomousServiceIntent(turning).IsAccepted);
+        var turningInterpolator = new FoundationPresentationInterpolator();
+        var turnPrevious = turning.Session.CaptureSnapshot();
+        turningInterpolator.Reset(turnPrevious);
+        (int X, int Z)? priorVector = null;
+        var observedTurn = false;
+        for (var tick = 0; tick < 2_000 && !observedTurn; tick++)
+        {
+            turning.Session.AdvanceTicks(1);
+            var turnCurrent = turning.Session.CaptureSnapshot();
+            turningInterpolator.Advance(turnCurrent);
+            var beforeAgent = turnPrevious.NavigationAgents.Single();
+            var afterAgent = turnCurrent.NavigationAgents.Single();
+            var vector = (afterAgent.XMillimetres - beforeAgent.XMillimetres, afterAgent.ZMillimetres - beforeAgent.ZMillimetres);
+            if (priorVector is { } prior && vector != (0, 0) && prior != (0, 0) &&
+                (long)prior.X * vector.Item2 != (long)prior.Z * vector.Item1)
+            {
+                var atTurn = turningInterpolator.Sample(afterAgent.Id, 0.5);
+                Assert.AreEqual((beforeAgent.XMillimetres + afterAgent.XMillimetres) / 2.0, atTurn.XMillimetres, 0.001);
+                Assert.AreEqual((beforeAgent.ZMillimetres + afterAgent.ZMillimetres) / 2.0, atTurn.ZMillimetres, 0.001);
+                observedTurn = true;
+            }
+            if (vector != (0, 0)) priorVector = vector;
+            turnPrevious = turnCurrent;
+        }
+        Assert.IsTrue(observedTurn, "The presentation regression did not exercise a route turn.");
     }
 
     [TestMethod]
@@ -136,18 +211,33 @@ public sealed class FoundationSceneTests
             var fixture = FiftyAgentFoundationFixture.Create();
             for (var index = 0; index < 4; index++)
             {
-                fixture.Session.AdvanceTicks((int)AutosaveRotation.CaptureFixtureCadenceTicks);
-                Assert.IsTrue(AutosaveRotation.Save(directory, fixture.Session, Compatibility, DateTimeOffset.UtcNow, AutosaveRotation.CaptureFixtureCadenceTicks).IsSuccess);
+                fixture.Session.AdvanceTicks(10);
+                Assert.IsTrue(AutosaveRotation.Save(directory, fixture.Session, Compatibility, DateTimeOffset.UtcNow, index).IsSuccess);
             }
             Assert.AreEqual(3, Directory.GetFiles(directory, "autosave-*.ftsave").Length);
-            File.WriteAllBytes(SaveFileAdapter.ResolveSlotPath(directory, AutosaveRotation.SlotForTick(fixture.Session.CurrentTick, AutosaveRotation.CaptureFixtureCadenceTicks)), [1,2,3]);
+            File.WriteAllBytes(SaveFileAdapter.ResolveSlotPath(directory, AutosaveRotation.SlotForGeneration(3)), [1,2,3]);
             var recovered = AutosaveRotation.LoadNewestValid(directory, Compatibility);
             Assert.IsTrue(recovered.IsSuccess, recovered.Error);
             Assert.IsTrue(recovered.Session!.CurrentTick < fixture.Session.CurrentTick);
-            Assert.AreEqual(24_000, AutosaveRotation.NextDeadline(0));
-            Assert.AreEqual(48_000, AutosaveRotation.NextDeadline(24_001));
-            Assert.AreEqual(800, AutosaveRotation.NextDeadline(100, AutosaveRotation.CaptureFixtureCadenceTicks));
-            Assert.AreEqual(3_200, AutosaveRotation.NextDeadline(2_401, AutosaveRotation.CaptureFixtureCadenceTicks));
+
+            var oneX = new RealTimeAutosaveScheduler();
+            var fourX = new RealTimeAutosaveScheduler();
+            var paused = new RealTimeAutosaveScheduler();
+            var overloaded = new RealTimeAutosaveScheduler();
+            Assert.IsFalse(oneX.Advance(299)); Assert.IsTrue(oneX.Advance(1));
+            Assert.IsFalse(fourX.Advance(150)); Assert.IsTrue(fourX.Advance(150));
+            Assert.IsTrue(paused.Advance(300), "Pause must not suppress real-time autosave.");
+            Assert.IsTrue(overloaded.Advance(1_200), "A delayed/overloaded frame must schedule one safe write.");
+            Assert.IsFalse(overloaded.Advance(0), "A delayed frame must not burst multiple saves.");
+            overloaded.Rebase();
+            Assert.IsFalse(overloaded.Advance(299), "Load rebase must prevent immediate slot churn.");
+            Assert.IsTrue(overloaded.Advance(1));
+            var forwardLoad = new RealTimeAutosaveScheduler(10);
+            var backwardLoad = new RealTimeAutosaveScheduler(10);
+            Assert.IsFalse(forwardLoad.Advance(9)); forwardLoad.Rebase(); // loaded session tick may be ahead
+            Assert.IsFalse(backwardLoad.Advance(9)); backwardLoad.Rebase(); // or behind
+            Assert.IsFalse(forwardLoad.Advance(9)); Assert.IsTrue(forwardLoad.Advance(1));
+            Assert.IsFalse(backwardLoad.Advance(9)); Assert.IsTrue(backwardLoad.Advance(1));
         }
         finally { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
     }

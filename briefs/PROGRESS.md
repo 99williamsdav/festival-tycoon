@@ -12,7 +12,7 @@ Implementation began 7 September 2026. Update rows only when work actually occur
 | M0.06 | Accepted | [Fixed Lower Wittering Farm scene/read model, approved art integration, stable-ID picking, four-view camera, persistent HUD, Windows screenshots, automated/runtime evidence and independent review](results/M0.06.md) | None |
 | M0.07 | Accepted | [Static deterministic traversal, continuous AI retargeting, optimal terrain-cost A*, persistence/hash coverage, around-barn demonstration and review-repair evidence](results/M0.07.md) | None |
 | M0.08 | Accepted | [Autonomous physical queue, hardened service/exit ownership, duplicate future-exit rejection, invalid-front-intent cleanup, timed atomic purchases, 66 passing tests and departure-complete exported evidence](results/M0.08.md) | None |
-| M0.09 | Implemented—verification pending | [Astra-reviewed/repaired fifty-attendee separation, interpolation, time controls, stable inspection, save/load, production rotating autosaves, 72 passing tests and exported stress evidence](results/M0.09.md) | Final independent acceptance review and subjective hands-on feel |
+| M0.09 | Implemented—verification pending | [Astra-refined 300 mm crowd separation, physical waiting diagnostics, consecutive-tick interpolation, real-time rotating autosaves, stable inspection/save-load, 72 passing tests and exported stress evidence](results/M0.09.md) | Final independent acceptance review and subjective hands-on feel |
 | M0.10 | Not started | None | All |
 
 For each completed task, record changed files, exact verification commands, observed results, reviewer/QA identity and limitations in its results file. Do not replace failures or unavailable checks with an unqualified completion claim.

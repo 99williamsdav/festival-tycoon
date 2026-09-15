@@ -54,19 +54,30 @@ public static class AttendeePaletteAssignment
     public static int FromStableId(EntityId id) => (int)(id.Value % PaletteCount);
 }
 
-public sealed record FoundationDiagnosticCounts(int Travelling, int Waiting, int InService, int Served, int Failed);
+public sealed record FoundationDiagnosticCounts(int Travelling, int QueueMembers, int Waiting, int InService, int Served, int Failed);
 
 public static class FoundationDiagnostics
 {
     public static FoundationDiagnosticCounts Count(SessionSnapshot snapshot)
     {
         var queue = snapshot.ServiceQueues.Single();
+        var navigation = snapshot.NavigationAgents.ToDictionary(item => item.Id);
+        var physicallyWaiting = queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Waiting &&
+            item.ReservedSlotIndex is { } slot && navigation[item.AgentId].Action == AgentNavigationAction.Arrived &&
+            IsAtSlot(navigation[item.AgentId], queue.QueueSlots[slot]));
         return new(
             snapshot.NavigationAgents.Count(item => item.Action == AgentNavigationAction.Travelling),
-            queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Waiting),
+            queue.OrderedMembers.Count,
+            physicallyWaiting,
             queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.InService),
             snapshot.Transactions.Count,
             queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed));
+    }
+
+    private static bool IsAtSlot(NavigationAgentSnapshot agent, GridCell slot)
+    {
+        var centre = TraversalGrid.CellCentre(slot);
+        return agent.XMillimetres == centre.XMillimetres && agent.ZMillimetres == centre.ZMillimetres;
     }
 }
 
@@ -74,20 +85,23 @@ public static class FoundationDiagnostics
 public sealed class FoundationPresentationInterpolator
 {
     private readonly Dictionary<EntityId, ((int X, int Z) Previous, (int X, int Z) Current)> _positions = [];
+    private long _currentTick = -1;
 
     public void Reset(SessionSnapshot snapshot)
     {
         _positions.Clear();
         foreach (var agent in snapshot.NavigationAgents)
             _positions.Add(agent.Id, ((agent.XMillimetres, agent.ZMillimetres), (agent.XMillimetres, agent.ZMillimetres)));
+        _currentTick = snapshot.CurrentTick;
     }
 
     public void Advance(SessionSnapshot snapshot)
     {
-        if (snapshot.NavigationAgents.Count != _positions.Count || snapshot.NavigationAgents.Any(item => !_positions.ContainsKey(item.Id)))
+        if (snapshot.CurrentTick != _currentTick + 1 || snapshot.NavigationAgents.Count != _positions.Count || snapshot.NavigationAgents.Any(item => !_positions.ContainsKey(item.Id)))
         { Reset(snapshot); return; }
         foreach (var agent in snapshot.NavigationAgents)
             _positions[agent.Id] = (_positions[agent.Id].Current, (agent.XMillimetres, agent.ZMillimetres));
+        _currentTick = snapshot.CurrentTick;
     }
 
     public (double XMillimetres, double ZMillimetres) Sample(EntityId id, double fraction)
@@ -97,4 +111,31 @@ public sealed class FoundationPresentationInterpolator
         return (value.Previous.X + (value.Current.X - value.Previous.X) * amount,
             value.Previous.Z + (value.Current.Z - value.Previous.Z) * amount);
     }
+}
+
+/// <summary>Presentation-side monotonic real-time cadence, independent of simulation speed and pause.</summary>
+public sealed class RealTimeAutosaveScheduler
+{
+    public const double ProductionCadenceSeconds = 300;
+    private double _elapsedSeconds;
+    public double CadenceSeconds { get; }
+
+    public RealTimeAutosaveScheduler(double cadenceSeconds = ProductionCadenceSeconds)
+    {
+        if (cadenceSeconds <= 0 || double.IsNaN(cadenceSeconds) || double.IsInfinity(cadenceSeconds))
+            throw new ArgumentOutOfRangeException(nameof(cadenceSeconds));
+        CadenceSeconds = cadenceSeconds;
+    }
+
+    public bool Advance(double elapsedRealSeconds)
+    {
+        if (elapsedRealSeconds < 0 || double.IsNaN(elapsedRealSeconds) || double.IsInfinity(elapsedRealSeconds))
+            throw new ArgumentOutOfRangeException(nameof(elapsedRealSeconds));
+        _elapsedSeconds += elapsedRealSeconds;
+        if (_elapsedSeconds < CadenceSeconds) return false;
+        _elapsedSeconds = 0; // one safe-boundary write; never burst after a delayed frame
+        return true;
+    }
+
+    public void Rebase() => _elapsedSeconds = 0;
 }

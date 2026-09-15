@@ -4,9 +4,9 @@ public sealed partial class GameSession
 {
     public const int WalkingSpeedMillimetresPerFestivalSecond = 120;
     private const int RouteProgressMicrometresPerTick = 30_000;
-    // Prototype compression radius: intentionally below the 500 mm traversal-cell spacing so
-    // adjacent queue slots remain reachable while exact stacking is prevented.
-    public const int SeparationRadiusMillimetres = 10;
+    // Prototype centre clearance: below the 500 mm queue-slot spacing, but large enough to
+    // prevent sustained near-superposition while still allowing compressed single-file flow.
+    public const int SeparationRadiusMillimetres = 300;
     private readonly SortedDictionary<EntityId, NavigationAgentState> _navigationAgents = [];
     private TraversalGrid? _traversalGrid;
 
@@ -79,8 +79,8 @@ public sealed partial class GameSession
 
         // Resolve proposals together against stationary and already accepted occupancy through
         // the spatial index. Remaining-corridor progress then stable ID is the deterministic tie.
-        // A tiny same-cell lateral offset prevents exact stacking without pretending to model a
-        // full body radius; the route/progress remains authoritative and converges next tick.
+        // A deterministic lateral offset preserves route progress while giving proposals a
+        // meaningful prototype centre clearance. This is steering/yielding, not body physics.
         var occupied = new SpatialNeighbourIndex();
         foreach (var agent in _navigationAgents.Values.Where(item => !backups.ContainsKey(item.Id)))
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
@@ -154,7 +154,7 @@ public sealed partial class GameSession
         var lateralX = dz == 0 ? 0 : Math.Sign(dz);
         var lateralZ = dx == 0 ? (lateralX == 0 ? 1 : 0) : -Math.Sign(dx);
         var preferred = (agent.Id.Value & 1UL) == 0 ? 1 : -1;
-        for (var distance = SeparationRadiusMillimetres; distance <= 100; distance += SeparationRadiusMillimetres)
+        for (var distance = SeparationRadiusMillimetres; distance <= 1_200; distance += SeparationRadiusMillimetres)
         foreach (var side in new[] { preferred, -preferred })
         {
             var x = agent.XMillimetres + lateralX * distance * side;
