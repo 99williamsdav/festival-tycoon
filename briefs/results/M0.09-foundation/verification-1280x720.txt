@@ -1,0 +1,5 @@
+M0.09 exported-runtime verification passed=True resolution=(1280, 720)
+tick=5002 transactions=50 queue=0 failed=0 festival_cash_p=15000 stock=0
+rendered_hash=52e74a67ee76edbecff531504a4d56ba62d92d41ca33ba1a8c64d12a7815d695 headless_hash=52e74a67ee76edbecff531504a4d56ba62d92d41ca33ba1a8c64d12a7815d695 parity=True
+manual_save_restore=True autosave_slots=3 requested=4x completion_attained=4.095x pressure_attained=0.898x pressure_debt_ticks=82.946 overload_reported=True
+pause_hash_frozen_camera_rotated=True palette_assignment=ordinal_modulo_10 player_attendee_controls=false fixture_only=true

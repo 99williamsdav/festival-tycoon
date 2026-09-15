@@ -1,5 +1,6 @@
 using Festival.Simulation;
 using Festival.Simulation.Fixtures;
+using Festival.Persistence;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -33,6 +34,7 @@ public partial class Main : Node
     private string? _captureDirectory;
     private string? _navigationCaptureDirectory;
     private string? _queueCaptureDirectory;
+    private string? _foundationCaptureDirectory;
     private NavigationFixtureState? _navigationReference;
     private ServiceQueueFixtureState? _queueFixture;
     private ServiceQueueFixtureState? _queueReference;
@@ -47,12 +49,35 @@ public partial class Main : Node
     private bool _queueClosed;
     private bool _queueReopened;
     private int _queuePurchaseFrames;
+    private FiftyAgentFoundationFixtureState? _foundationFixture;
+    private FiftyAgentFoundationFixtureState? _foundationReference;
+    private readonly FoundationClock _foundationClock = new();
+    private long _nextAutosaveTick = AutosaveRotation.CadenceTicks;
+    private int _foundationCaptureStage;
+    private string _saveStatus = "READY";
+    private string _manualSaveHash = "";
+    private bool _manualRestoreVerified;
+    private int _manualMutationTicks;
+    private bool _overloadObserved;
+    private double _pressureAttained;
+    private double _pressureDebt;
+    private int _completionFrames;
+    private int _pauseCaptureFrames;
+    private string _pauseHash = "";
+    private bool _pauseVerified;
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-m0.09", "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9", "m0-rules-v1");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
     {
         ConfigureCaptureMode();
-        if (_queueCaptureDirectory is not null)
+        if (_foundationCaptureDirectory is not null || (_captureDirectory is null && _navigationCaptureDirectory is null && _queueCaptureDirectory is null))
+        {
+            _foundationFixture = FiftyAgentFoundationFixture.Create();
+            _foundationReference = FiftyAgentFoundationFixture.Create();
+            _session = _foundationFixture.Session;
+        }
+        else if (_queueCaptureDirectory is not null)
         {
             _queueFixture = ServiceQueueFixture.Create();
             _queueReference = ServiceQueueFixture.Create();
@@ -76,7 +101,7 @@ public partial class Main : Node
         BuildWorld();
         BuildAttendee();
         BuildHud();
-        if (_queueCaptureDirectory is not null) { _focus = new Vector3(18, 0, -5); _camera.Size = 44; }
+        if (_queueCaptureDirectory is not null || _foundationFixture is not null) { _focus = new Vector3(10, 0, 4); _camera.Size = 58; }
         ApplyCamera();
         if (_captureDirectory is not null)
             SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.farmhouse"));
@@ -94,7 +119,8 @@ public partial class Main : Node
         if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) input.X -= 1;
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
-        if (_queueCaptureDirectory is not null) AdvanceQueuePresentation(delta);
+        if (_foundationFixture is not null) AdvanceFoundationPresentation(delta);
+        else if (_queueCaptureDirectory is not null) AdvanceQueuePresentation(delta);
         else if (_navigationCaptureDirectory is not null) AdvanceNavigationPresentation(delta);
         else UpdateHashStatus();
         if (_captureDirectory is not null) ProcessCapture();
@@ -109,7 +135,7 @@ public partial class Main : Node
 
     public override void _UnhandledInput(InputEvent inputEvent)
     {
-        if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null) return;
+        if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (key.Keycode == Key.Q) Rotate(-1);
@@ -171,6 +197,14 @@ public partial class Main : Node
         foreach (var agent in agents)
         {
             var visual = AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
+            if (_foundationFixture is not null)
+            {
+                var ordinal = Array.IndexOf(_foundationFixture.AgentIds.ToArray(), agent.Id);
+                var palette = AttendeePaletteAssignment.FromOrdinal(ordinal) + 1;
+                var material = GD.Load<Material>($"res://assets/characters/colourways/palette-{palette:00}.tres");
+                foreach (var child in visual.FindChildren("*", "MeshInstance3D", true, false))
+                    if (child is MeshInstance3D mesh) mesh.MaterialOverride = material;
+            }
             _attendeeVisuals.Add(agent.Id, visual);
         }
         _attendeeVisual = _attendeeVisuals[agents[0].Id];
@@ -276,7 +310,16 @@ public partial class Main : Node
         top.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(top);
         var bar = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center }; bar.AddThemeConstantOverride("separation", 18); top.AddChild(bar);
         bar.AddChild(LabelText("LOWER WITTERING FARM", 19, ink)); bar.AddChild(LabelText("DAY 1  •  12:00", 17, ink));
-        bar.AddChild(ButtonText(_navigationCaptureDirectory is null && _queueCaptureDirectory is null ? "PAUSED" : "AI DEMO 1X", ReportPause));
+        if (_foundationFixture is not null)
+        {
+            bar.AddChild(ButtonText("PAUSE", ToggleFoundationPause));
+            bar.AddChild(ButtonText("1×", () => SetFoundationSpeed(RequestedSpeed.OneX)));
+            bar.AddChild(ButtonText("2×", () => SetFoundationSpeed(RequestedSpeed.TwoX)));
+            bar.AddChild(ButtonText("4×", () => SetFoundationSpeed(RequestedSpeed.FourX)));
+            bar.AddChild(ButtonText("SAVE", ManualSave));
+            bar.AddChild(ButtonText("LOAD", ManualLoad));
+        }
+        else bar.AddChild(ButtonText(_navigationCaptureDirectory is null && _queueCaptureDirectory is null ? "PAUSED" : "AI DEMO 1X", ReportPause));
         _orientationLabel = LabelText("VIEW: SOUTH", 17, ink); bar.AddChild(_orientationLabel);
         bar.AddChild(ButtonText("↶ Q", () => Rotate(-1))); bar.AddChild(ButtonText("E ↷", () => Rotate(1)));
         bar.AddChild(ButtonText("−", () => Zoom(4))); bar.AddChild(ButtonText("+", () => Zoom(-4)));
@@ -392,6 +435,7 @@ public partial class Main : Node
             if (args[i] == "--capture-farm" && i + 1 < args.Length) _captureDirectory = args[++i];
             else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
+            else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
@@ -401,6 +445,135 @@ public partial class Main : Node
         if (_captureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_captureDirectory);
         if (_navigationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_navigationCaptureDirectory);
         if (_queueCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_queueCaptureDirectory);
+        if (_foundationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_foundationCaptureDirectory);
+    }
+
+    private void SetFoundationSpeed(RequestedSpeed speed)
+    {
+        _session.RequestSpeed(speed); _foundationClock.RequestedSpeed = speed; _foundationClock.ResetMeasurement();
+        GD.Print($"FOUNDATION_SPEED requested={(int)speed}x");
+    }
+
+    private void ToggleFoundationPause()
+    {
+        var paused = !_session.IsPaused;
+        _ = _session.Execute(new CommandEnvelope(new CommandId(900_000UL + _session.NextSubmissionSequence), _session.CampaignId,
+            _session.Phase, _session.CurrentTick, _session.NextSubmissionSequence, null, new SetPausedCommand(paused)));
+        _foundationClock.IsPaused = paused;
+        GD.Print($"FOUNDATION_PAUSE paused={paused}");
+    }
+
+    private string SaveDirectory => ProjectSettings.GlobalizePath("user://saves");
+
+    private void ManualSave()
+    {
+        var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));
+        _saveStatus = result.IsSuccess ? "SAVED" : "SAVE ERROR";
+        if (result.IsSuccess) _manualSaveHash = _session.CaptureSnapshot().AuthoritativeHash;
+        GD.Print($"FOUNDATION_MANUAL_SAVE success={result.IsSuccess} tick={_session.CurrentTick}");
+    }
+
+    private void ManualLoad()
+    {
+        var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-foundation", _saveCompatibility);
+        if (result.IsSuccess)
+        {
+            _session = result.Session!;
+            _foundationFixture = _foundationFixture! with { Session = _session };
+            if (_foundationCaptureDirectory is not null)
+            {
+                var reference = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-foundation", _saveCompatibility);
+                if (reference.IsSuccess) _foundationReference = _foundationReference! with { Session = reference.Session! };
+            }
+            _foundationClock.IsPaused = _session.IsPaused; _foundationClock.RequestedSpeed = _session.RequestedSpeed;
+            _manualRestoreVerified = _manualSaveHash.Length > 0 && _session.CaptureSnapshot().AuthoritativeHash == _manualSaveHash;
+            _saveStatus = "LOADED";
+        }
+        else _saveStatus = "LOAD ERROR";
+        GD.Print($"FOUNDATION_MANUAL_LOAD success={result.IsSuccess} tick={_session.CurrentTick}");
+    }
+
+    private void AdvanceFoundationPresentation(double delta)
+    {
+        var cap = _foundationCaptureDirectory is not null && _foundationCaptureStage == 3 ? 2 : FoundationClock.MaximumTicksPerFrame;
+        var ticks = _foundationClock.Schedule(delta, cap);
+        if (ticks > 0)
+        {
+            _session.AdvanceTicks(ticks);
+            _foundationReference!.Session.AdvanceTicks(ticks);
+        }
+        if (_session.CurrentTick >= _nextAutosaveTick)
+        {
+            var saved = AutosaveRotation.Save(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow);
+            _saveStatus = saved.IsSuccess ? "AUTOSAVED" : "AUTOSAVE ERROR";
+            _nextAutosaveTick += AutosaveRotation.CadenceTicks;
+        }
+        var snapshot = _session.CaptureSnapshot();
+        foreach (var agent in snapshot.NavigationAgents) _attendeeVisuals[agent.Id].Position = ToWorld(agent);
+        var queue = snapshot.ServiceQueues.Single();
+        var travelling = snapshot.NavigationAgents.Count(item => item.Action == AgentNavigationAction.Travelling);
+        var failed = queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed);
+        var clockStatus = _session.IsPaused ? "PAUSED • CAMERA / INSPECT / SAVE ACTIVE" : $"REQUEST {(int)_session.RequestedSpeed}×  ATTAINED {_foundationClock.AttainedSpeed:0.00}×  {(_foundationClock.IsOverloaded ? "⚠ REDUCED" : "ON TARGET")}";
+        _hashLabel.Text = $"M0 FOUNDATION • 50 AUTONOMOUS ATTENDEES\nTRAVELLING {travelling}  WAITING {queue.OrderedMembers.Count}  SERVED {snapshot.Transactions.Count}  FAILED {failed}\n{clockStatus}  {_saveStatus}\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
+        if (_foundationCaptureDirectory is not null) ProcessFoundationCapture(snapshot, queue);
+    }
+
+    private void ProcessFoundationCapture(SessionSnapshot snapshot, ServiceQueueSnapshot queue)
+    {
+        if (_foundationCaptureStage == 0 && snapshot.CurrentTick >= 250) CaptureFoundation("busy-approach");
+        else if (_foundationCaptureStage == 1 && queue.ActiveOwnerId is not null)
+        {
+            if (_pauseCaptureFrames == 0)
+            {
+                ToggleFoundationPause(); _pauseHash = _session.CaptureSnapshot().AuthoritativeHash;
+                Rotate(1); _camera.Size = 72; ApplyCamera(); _pauseCaptureFrames = 3; return;
+            }
+            if (--_pauseCaptureFrames > 0) return;
+            _pauseVerified = _session.IsPaused && _session.CaptureSnapshot().AuthoritativeHash == _pauseHash && _orientation == 1;
+            CaptureFoundation("paused-inspection");
+        }
+        else if (_foundationCaptureStage == 2)
+        {
+            ToggleFoundationPause(); ManualSave(); SetFoundationSpeed(RequestedSpeed.FourX); _manualMutationTicks = 12; CaptureFoundation("save-load-diagnostics");
+        }
+        else if (_foundationCaptureStage == 3 && _manualMutationTicks > 0)
+        {
+            _manualMutationTicks--;
+            if (_manualMutationTicks <= 0)
+            {
+                _overloadObserved |= _foundationClock.IsOverloaded;
+                _pressureAttained = _foundationClock.AttainedSpeed;
+                _pressureDebt = _foundationClock.DebtTicks;
+                ManualLoad(); SetFoundationSpeed(RequestedSpeed.FourX); CaptureFoundation("overloaded-reduced-speed");
+            }
+        }
+        else if (_foundationCaptureStage == 4 && FiftyAgentFoundationFixture.AllCompleted(_foundationFixture!))
+        {
+            if (++_completionFrames < 3) return;
+            CaptureFoundation("complete");
+            var restoredExact = _manualRestoreVerified;
+            var reference = _foundationReference!.Session.CaptureSnapshot();
+            var parity = snapshot.AuthoritativeHash == reference.AuthoritativeHash;
+            var autosaves = Enumerable.Range(0, 3).Count(i => File.Exists(SaveFileAdapter.ResolveSlotPath(SaveDirectory, $"autosave-{i}")));
+            var passed = snapshot.Transactions.Count == 50 && queue.OrderedMembers.Count == 0 && failedCount(queue) == 0 && parity && restoredExact && autosaves == 3;
+            var report = $"M0.09 exported-runtime verification passed={passed} resolution={GetWindow().Size}{System.Environment.NewLine}" +
+                $"tick={snapshot.CurrentTick} transactions={snapshot.Transactions.Count} queue={queue.OrderedMembers.Count} failed={failedCount(queue)} festival_cash_p={snapshot.FestivalFinances.Single().CashPennies} stock={snapshot.OwnedStocks.Single().Quantity}{System.Environment.NewLine}" +
+                $"rendered_hash={snapshot.AuthoritativeHash} headless_hash={reference.AuthoritativeHash} parity={parity}{System.Environment.NewLine}" +
+                $"manual_save_restore={restoredExact} autosave_slots={autosaves} requested=4x completion_attained={_foundationClock.AttainedSpeed:0.000}x pressure_attained={_pressureAttained:0.000}x pressure_debt_ticks={_pressureDebt:0.###} overload_reported={_overloadObserved}{System.Environment.NewLine}" +
+                $"pause_hash_frozen_camera_rotated={_pauseVerified} palette_assignment=ordinal_modulo_10 player_attendee_controls=false fixture_only=true" + System.Environment.NewLine;
+            File.WriteAllText(Path.Combine(_foundationCaptureDirectory!, "verification-1280x720.txt"), report);
+            GD.Print($"FOUNDATION_CAPTURE_COMPLETE passed={passed} tick={snapshot.CurrentTick}");
+            _foundationCaptureDirectory = null; GetTree().Quit(passed ? 0 : 2);
+        }
+        static int failedCount(ServiceQueueSnapshot value) => value.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed);
+    }
+
+    private void CaptureFoundation(string stage)
+    {
+        var path = Path.Combine(_foundationCaptureDirectory!, $"foundation-{stage}-1280x720.png");
+        var error = GetViewport().GetTexture().GetImage().SavePng(path);
+        GD.Print($"FOUNDATION_CAPTURE stage={stage} path={path} result={error}");
+        _foundationCaptureStage++;
     }
 
     private void AdvanceQueuePresentation(double delta)

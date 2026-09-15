@@ -4,6 +4,9 @@ public sealed partial class GameSession
 {
     public const int WalkingSpeedMillimetresPerFestivalSecond = 120;
     private const int RouteProgressMicrometresPerTick = 30_000;
+    // Prototype compression radius: intentionally below the 500 mm traversal-cell spacing so
+    // adjacent queue slots remain reachable while exact stacking is prevented.
+    public const int SeparationRadiusMillimetres = 10;
     private readonly SortedDictionary<EntityId, NavigationAgentState> _navigationAgents = [];
     private TraversalGrid? _traversalGrid;
 
@@ -66,13 +69,41 @@ public sealed partial class GameSession
     private void AdvanceNavigation(List<SessionEvent> events)
     {
         if (_traversalGrid is null) return;
-        foreach (var agent in _navigationAgents.Values)
+        var moving = _navigationAgents.Values.Where(item => item.Action == AgentNavigationAction.Travelling).ToArray();
+        var backups = moving.ToDictionary(item => item.Id, MovementBackup.Capture);
+        var arrived = new HashSet<EntityId>();
+        foreach (var agent in moving)
         {
-            if (agent.Action != AgentNavigationAction.Travelling) continue;
-            var terrainCost = _traversalGrid.Get(agent.Route[agent.RouteIndex]).CostPermille;
+            if (AdvanceAgentOneTick(agent)) arrived.Add(agent.Id);
+        }
+
+        // Resolve proposals together from prior occupancy. Agents closest to completing their
+        // corridor win a tie, then stable ID. A rejected proposal simply retains its exact prior
+        // movement state, so saving and replay require no hidden steering state.
+        // Destination slots are distinct grid cells. Only simultaneous moving proposals need
+        // arbitration; stationary queue/service occupants must not deadlock a legal corridor.
+        var occupied = new List<(int XMillimetres, int ZMillimetres)>();
+        foreach (var agent in moving.OrderBy(item => item.Route.Count - item.RouteIndex).ThenBy(item => item.Id))
+        {
+            var conflicts = occupied.Any(position => DistanceSquared(agent.XMillimetres, agent.ZMillimetres, position.XMillimetres, position.ZMillimetres) <
+                (long)SeparationRadiusMillimetres * SeparationRadiusMillimetres);
+            if (conflicts)
+            {
+                backups[agent.Id].Restore(agent);
+                arrived.Remove(agent.Id);
+            }
+            occupied.Add((agent.XMillimetres, agent.ZMillimetres));
+        }
+        foreach (var id in arrived.Order()) events.Add(new SessionEvent(CurrentTick, "navigation_arrived", id));
+    }
+
+    private bool AdvanceAgentOneTick(NavigationAgentState agent)
+    {
+            var terrainCost = _traversalGrid!.Get(agent.Route[agent.RouteIndex]).CostPermille;
             var numerator = checked(RouteProgressMicrometresPerTick * 1000 + agent.MovementRemainder);
             var allowance = numerator / terrainCost;
             agent.MovementRemainder = numerator % terrainCost;
+            var arrived = false;
 
             while (allowance > 0 && agent.Action == AgentNavigationAction.Travelling)
             {
@@ -98,7 +129,7 @@ public sealed partial class GameSession
                     {
                         agent.RouteIndex = agent.Route.Count - 1;
                         agent.Action = AgentNavigationAction.Arrived;
-                        events.Add(new SessionEvent(CurrentTick, "navigation_arrived", agent.Id));
+                        arrived = true;
                     }
                 }
                 else
@@ -107,6 +138,24 @@ public sealed partial class GameSession
                     agent.ZMillimetres = from.ZMillimetres + (int)((long)dz * agent.SegmentProgressMicrometres / segmentLength);
                 }
             }
+            return arrived;
+    }
+
+    private static long DistanceSquared(int leftX, int leftZ, int rightX, int rightZ) =>
+        (long)(leftX - rightX) * (leftX - rightX) + (long)(leftZ - rightZ) * (leftZ - rightZ);
+
+    private sealed record MovementBackup(
+        int X, int Z, AgentNavigationAction Action, int RouteIndex, int OriginX, int OriginZ,
+        int Progress, int Remainder)
+    {
+        public static MovementBackup Capture(NavigationAgentState agent) => new(agent.XMillimetres, agent.ZMillimetres,
+            agent.Action, agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
+            agent.SegmentProgressMicrometres, agent.MovementRemainder);
+        public void Restore(NavigationAgentState agent)
+        {
+            agent.XMillimetres = X; agent.ZMillimetres = Z; agent.Action = Action; agent.RouteIndex = RouteIndex;
+            agent.SegmentOriginXMillimetres = OriginX; agent.SegmentOriginZMillimetres = OriginZ;
+            agent.SegmentProgressMicrometres = Progress; agent.MovementRemainder = Remainder;
         }
     }
 

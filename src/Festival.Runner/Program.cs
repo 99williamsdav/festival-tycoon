@@ -173,4 +173,36 @@ if (args is ["--scenario", "physical-service-queue"])
     return;
 }
 
+if (args is ["--scenario", "fifty-agent-foundation"])
+{
+    var fixture = FiftyAgentFoundationFixture.Create();
+    var minimumSeparation = long.MaxValue;
+    var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+    while (!FiftyAgentFoundationFixture.AllCompleted(fixture) && fixture.Session.CurrentTick < 30_000)
+    {
+        fixture.Session.AdvanceTicks(1);
+        if (fixture.Session.CurrentTick % 20 != 0) continue;
+        var agents = fixture.Session.CaptureSnapshot().NavigationAgents;
+        var index = new SpatialNeighbourIndex(agents);
+        foreach (var agent in agents)
+        foreach (var other in index.Query(agent.XMillimetres, agent.ZMillimetres, 1_000).Where(id => id.CompareTo(agent.Id) > 0))
+        {
+            var value = agents.Single(item => item.Id == other);
+            var dx = (long)value.XMillimetres - agent.XMillimetres;
+            var dz = (long)value.ZMillimetres - agent.ZMillimetres;
+            minimumSeparation = Math.Min(minimumSeparation, dx * dx + dz * dz);
+        }
+    }
+    stopwatch.Stop();
+    var snapshot = fixture.Session.CaptureSnapshot();
+    var queue = snapshot.ServiceQueues.Single();
+    var blocked = snapshot.NavigationAgents.Count(agent => !fixture.Session.TraversalGrid!.Get(TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres)).IsWalkable);
+    Console.WriteLine($"scenario=fifty-agent-foundation agents={snapshot.NavigationAgents.Count} ticks={snapshot.CurrentTick} elapsed_ms={stopwatch.ElapsedMilliseconds}");
+    Console.WriteLine($"transactions={snapshot.Transactions.Count} festival_cash_p={snapshot.FestivalFinances.Single().CashPennies} stock={snapshot.OwnedStocks.Single().Quantity} queue={queue.OrderedMembers.Count}");
+    Console.WriteLine($"completed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Completed)} failed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed)} blocked_cells={blocked} min_sampled_separation_mm={(minimumSeparation == long.MaxValue ? 0 : (long)Math.Sqrt(minimumSeparation))}");
+    Console.WriteLine($"hash={snapshot.AuthoritativeHash}");
+    Environment.ExitCode = FiftyAgentFoundationFixture.AllCompleted(fixture) && blocked == 0 ? 0 : 1;
+    return;
+}
+
 Console.WriteLine(ToolchainSmoke.GetFixedResult());
