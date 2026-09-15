@@ -1,0 +1,81 @@
+{
+  "asset": "Generic attendee colourways v1",
+  "purpose": "M0.09 50-attendee gameplay tracking",
+  "base_source": "assets/source/characters/lwf_generic_attendee_v1.blend",
+  "base_runtime": "assets/runtime/characters/lwf_generic_attendee_v1.glb",
+  "base_sha256": {
+    "source_before": "A7087CF5F7EF644A3117E9B841FD90BD1C802771412E0EB56A49E3A76B67DCE2",
+    "source_after": "A7087CF5F7EF644A3117E9B841FD90BD1C802771412E0EB56A49E3A76B67DCE2",
+    "runtime_before": "D16EC421374D79DB0C3F2927C9C7A4A2854D3E3CD436A43CFA79A5766970DE2B",
+    "runtime_after": "D16EC421374D79DB0C3F2927C9C7A4A2854D3E3CD436A43CFA79A5766970DE2B"
+  },
+  "palette_ids": [
+    "palette-01",
+    "palette-02",
+    "palette-03",
+    "palette-04",
+    "palette-05",
+    "palette-06",
+    "palette-07",
+    "palette-08",
+    "palette-09",
+    "palette-10"
+  ],
+  "palette_names": [
+    "sage-clay",
+    "ochre-navy",
+    "brick-stone",
+    "blue-rust",
+    "plum-sand",
+    "cream-forest",
+    "teal-charcoal",
+    "rose-denim",
+    "sky-brown",
+    "rust-olive"
+  ],
+  "assignment": "palette index = stable attendee ordinal/id modulo 10 (normalize negative numeric IDs before modulo if applicable)",
+  "source_mesh_datablocks": 1,
+  "source_variant_objects": 10,
+  "runtime_geometry_copies": 0,
+  "runtime_material_resources": 10,
+  "runtime_palette_textures": 10,
+  "texture_size": [
+    96,
+    8
+  ],
+  "texture_format": "PNG RGBA; nearest filtering recommended",
+  "base_mesh_materials": 1,
+  "base_mesh_surfaces": 1,
+  "triangles": 236,
+  "authored_vertices": 148,
+  "runtime_split_vertices": 496,
+  "bounds_blender": [
+    [
+      -0.4057038724,
+      -0.1480000019,
+      -3e-10
+    ],
+    [
+      0.4057038724,
+      0.2004999965,
+      1.75
+    ]
+  ],
+  "height_m": 1.75,
+  "origin": "local (0,0,0) between planted feet at ground level",
+  "forward_axis_blender": "+Y",
+  "forward_axis_godot": "-Z",
+  "transforms": "identity location/rotation/scale",
+  "rigged": false,
+  "animations": 0,
+  "collision": false,
+  "navigation": false,
+  "ai": false,
+  "root_motion": false,
+  "ownership_boundary": "presentation-only palette resources; simulation owns stable identity, position, facing, action, destination, movement and interpolation",
+  "verification": {
+    "blender": "Blender 4.1.1 source reopen passed: ten identity-transform objects share exactly one 148-vertex/236-triangle mesh; ten object-linked palette materials; exact approved bounds; no armature or actions.",
+    "godot": "Godot 4.7.2 standard editor import passed for the approved base GLB and all ten 96 x 8 palette textures/material resources; ten fresh base-scene instances accepted their material overrides with one mesh, one surface, 236 triangles and the expected axis-converted AABB. Host certificate-store, user-log and editor-settings warnings did not prevent validation."
+  },
+  "provenance": "derived solely from the approved project-authored generic attendee mesh and packed palette; no downloaded assets or geometry"
+}
