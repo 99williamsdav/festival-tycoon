@@ -14,6 +14,7 @@ public partial class Main : Node
     private const float MaxZoom = 82f;
     private const float PanLimit = 24f;
     private readonly Dictionary<ulong, FarmObjectReadModel> _pickRegistry = [];
+    private readonly Dictionary<ulong, EntityId> _attendeePickRegistry = [];
     private readonly Dictionary<string, Node3D> _visualRegistry = new(StringComparer.Ordinal);
     private readonly List<Node3D> _grassVisuals = [];
     private readonly List<Node3D> _trackVisuals = [];
@@ -21,6 +22,7 @@ public partial class Main : Node
     private Vector3 _focus = Vector3.Zero;
     private int _orientation;
     private FarmObjectReadModel? _selected;
+    private EntityId? _selectedAttendeeId;
     private MeshInstance3D _highlight = null!;
     private Label _orientationLabel = null!;
     private Label _inspectorTitle = null!;
@@ -52,7 +54,8 @@ public partial class Main : Node
     private FiftyAgentFoundationFixtureState? _foundationFixture;
     private FiftyAgentFoundationFixtureState? _foundationReference;
     private readonly FoundationClock _foundationClock = new();
-    private long _nextAutosaveTick = AutosaveRotation.CadenceTicks;
+    private readonly FoundationPresentationInterpolator _foundationPresentation = new();
+    private long _nextAutosaveTick;
     private int _foundationCaptureStage;
     private string _saveStatus = "READY";
     private string _manualSaveHash = "";
@@ -63,14 +66,25 @@ public partial class Main : Node
     private double _pressureDebt;
     private int _completionFrames;
     private int _pauseCaptureFrames;
+    private int _pausePickFrames;
+    private bool _pauseCapturePrepared;
     private string _pauseHash = "";
     private bool _pauseVerified;
+    private bool _pauseInputRouteVerified;
+    private bool _attendeePickVerified;
+    private bool _saveCapturePrepared;
+    private int _saveCaptureFrames;
+    private double _maximumPressureWorkMilliseconds;
+    private bool _selectionRetainedAfterLoad;
+    private bool _pressureInputVerified;
+    private double _pressureInputLatencyMilliseconds;
     private readonly SaveCompatibility _saveCompatibility = new("0.0.1-m0.09", "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9", "m0-rules-v1");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
     {
         ConfigureCaptureMode();
+        _nextAutosaveTick = AutosaveRotation.NextDeadline(0, AutosaveCadenceTicks);
         if (_foundationCaptureDirectory is not null || (_captureDirectory is null && _navigationCaptureDirectory is null && _queueCaptureDirectory is null))
         {
             _foundationFixture = FiftyAgentFoundationFixture.Create();
@@ -100,6 +114,7 @@ public partial class Main : Node
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
         BuildWorld();
         BuildAttendee();
+        if (_foundationFixture is not null) _foundationPresentation.Reset(_session.CaptureSnapshot());
         BuildHud();
         if (_queueCaptureDirectory is not null || _foundationFixture is not null) { _focus = new Vector3(10, 0, 4); _camera.Size = 58; }
         ApplyCamera();
@@ -140,7 +155,10 @@ public partial class Main : Node
         {
             if (key.Keycode == Key.Q) Rotate(-1);
             else if (key.Keycode == Key.E) Rotate(1);
-            else if (key.Keycode == Key.Space) ReportPause();
+            else if (key.Keycode == Key.Space)
+            {
+                if (_foundationFixture is not null) HandleFoundationPauseInput(); else ReportPause();
+            }
         }
         else if (inputEvent is InputEventMouseButton mouse)
         {
@@ -204,6 +222,14 @@ public partial class Main : Node
                 var material = GD.Load<Material>($"res://assets/characters/colourways/palette-{palette:00}.tres");
                 foreach (var child in visual.FindChildren("*", "MeshInstance3D", true, false))
                     if (child is MeshInstance3D mesh) mesh.MaterialOverride = material;
+                var pickBody = new StaticBody3D { CollisionLayer = 1, CollisionMask = 1 };
+                pickBody.AddChild(new CollisionShape3D
+                {
+                    Position = new Vector3(0, 0.85f, 0),
+                    Shape = new CapsuleShape3D { Radius = 0.38f, Height = 1.7f },
+                });
+                visual.AddChild(pickBody);
+                _attendeePickRegistry.Add(pickBody.GetInstanceId(), agent.Id);
             }
             _attendeeVisuals.Add(agent.Id, visual);
         }
@@ -308,11 +334,12 @@ public partial class Main : Node
         var top = new PanelContainer(); top.SetAnchorsPreset(Control.LayoutPreset.TopWide);
         top.OffsetLeft = 16; top.OffsetTop = 16; top.OffsetRight = -16; top.OffsetBottom = 76;
         top.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(top);
-        var bar = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center }; bar.AddThemeConstantOverride("separation", 18); top.AddChild(bar);
-        bar.AddChild(LabelText("LOWER WITTERING FARM", 19, ink)); bar.AddChild(LabelText("DAY 1  •  12:00", 17, ink));
+        var bar = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        bar.AddThemeConstantOverride("separation", _foundationFixture is null ? 18 : 7); top.AddChild(bar);
+        bar.AddChild(LabelText(_foundationFixture is null ? "LOWER WITTERING FARM" : "LOWER WITTERING", 19, ink)); bar.AddChild(LabelText("DAY 1  •  12:00", 17, ink));
         if (_foundationFixture is not null)
         {
-            bar.AddChild(ButtonText("PAUSE", ToggleFoundationPause));
+            bar.AddChild(ButtonText("PAUSE", HandleFoundationPauseInput));
             bar.AddChild(ButtonText("1×", () => SetFoundationSpeed(RequestedSpeed.OneX)));
             bar.AddChild(ButtonText("2×", () => SetFoundationSpeed(RequestedSpeed.TwoX)));
             bar.AddChild(ButtonText("4×", () => SetFoundationSpeed(RequestedSpeed.FourX)));
@@ -386,11 +413,14 @@ public partial class Main : Node
         var result = _camera.GetWorld3D().DirectSpaceState.IntersectRay(query);
         if (!result.ContainsKey("collider")) { ClearSelection(); return; }
         var collider = result["collider"].AsGodotObject() as CollisionObject3D;
-        if (collider is not null && _pickRegistry.TryGetValue(collider.GetInstanceId(), out var item)) SelectObject(item); else ClearSelection();
+        if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
+        else if (collider is not null && _pickRegistry.TryGetValue(collider.GetInstanceId(), out var item)) SelectObject(item);
+        else ClearSelection();
     }
 
     private void SelectObject(FarmObjectReadModel item)
     {
+        _selectedAttendeeId = null;
         _selected = item;
         var radius = item.Kind switch
         {
@@ -408,8 +438,31 @@ public partial class Main : Node
 
     private void ClearSelection()
     {
-        _selected = null; _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
+        _selected = null; _selectedAttendeeId = null; _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
         _inspectorBody.Text = "Click a building, gate, stage or service point.\nClick empty ground to clear."; GD.Print("FARM_SELECTION_CLEARED");
+    }
+
+    private void SelectAttendee(EntityId id)
+    {
+        _selected = null; _selectedAttendeeId = id;
+        _highlight.Position = _attendeeVisuals[id].Position + new Vector3(0, 0.08f, 0);
+        _highlight.Scale = new Vector3(0.7f, 1, 0.7f); _highlight.Visible = true;
+        RefreshAttendeeInspector();
+        GD.Print($"ATTENDEE_SELECTED id={id.Value} orientation={OrientationNames[_orientation]}");
+    }
+
+    private void RefreshAttendeeInspector()
+    {
+        if (_selectedAttendeeId is not { } id) return;
+        var snapshot = _session.CaptureSnapshot();
+        var navigation = snapshot.NavigationAgents.Single(item => item.Id == id);
+        var queue = snapshot.ServiceQueues.Single();
+        var queueAgent = queue.Agents.Single(item => item.AgentId == id);
+        var ordinal = Array.IndexOf(_foundationFixture!.AgentIds.ToArray(), id);
+        var service = queue.ActiveOwnerId == id ? $"Active • {queue.RemainingServiceTicks} ticks" : "None";
+        _highlight.Position = _attendeeVisuals[id].Position + new Vector3(0, 0.08f, 0);
+        _inspectorTitle.Text = $"Attendee {id.Value}";
+        _inspectorBody.Text = $"PALETTE  {(AttendeePaletteAssignment.FromOrdinal(ordinal) + 1):00}\nACTION  {navigation.Action}\nINTENT  {navigation.IntentId ?? "None"}\nQUEUE  {queueAgent.Action}\nSERVICE  {service}\nPOSITION  {navigation.XMillimetres / 1000.0:0.00} m, {navigation.ZMillimetres / 1000.0:0.00} m\nREAD-ONLY • AUTONOMOUS";
     }
 
     private static string DisplayKind(FarmObjectKind kind) => kind switch
@@ -454,6 +507,14 @@ public partial class Main : Node
         GD.Print($"FOUNDATION_SPEED requested={(int)speed}x");
     }
 
+    private void HandleFoundationPauseInput()
+    {
+        _pauseInputRouteVerified = true;
+        ToggleFoundationPause();
+        _foundationClock.ResetBoundary();
+        _foundationPresentation.Reset(_session.CaptureSnapshot());
+    }
+
     private void ToggleFoundationPause()
     {
         var paused = !_session.IsPaused;
@@ -464,6 +525,7 @@ public partial class Main : Node
     }
 
     private string SaveDirectory => ProjectSettings.GlobalizePath("user://saves");
+    private long AutosaveCadenceTicks => _foundationCaptureDirectory is null ? AutosaveRotation.CadenceTicks : AutosaveRotation.CaptureFixtureCadenceTicks;
 
     private void ManualSave()
     {
@@ -475,6 +537,7 @@ public partial class Main : Node
 
     private void ManualLoad()
     {
+        var selectedBeforeLoad = _selectedAttendeeId;
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-foundation", _saveCompatibility);
         if (result.IsSuccess)
         {
@@ -486,7 +549,11 @@ public partial class Main : Node
                 if (reference.IsSuccess) _foundationReference = _foundationReference! with { Session = reference.Session! };
             }
             _foundationClock.IsPaused = _session.IsPaused; _foundationClock.RequestedSpeed = _session.RequestedSpeed;
+            _foundationClock.ResetBoundary();
+            _foundationPresentation.Reset(_session.CaptureSnapshot());
+            _nextAutosaveTick = AutosaveRotation.NextDeadline(_session.CurrentTick, AutosaveCadenceTicks);
             _manualRestoreVerified = _manualSaveHash.Length > 0 && _session.CaptureSnapshot().AuthoritativeHash == _manualSaveHash;
+            _selectionRetainedAfterLoad = selectedBeforeLoad is { } selected && _session.CaptureSnapshot().NavigationAgents.Any(item => item.Id == selected) && _selectedAttendeeId == selected;
             _saveStatus = "LOADED";
         }
         else _saveStatus = "LOAD ERROR";
@@ -500,21 +567,26 @@ public partial class Main : Node
         if (ticks > 0)
         {
             _session.AdvanceTicks(ticks);
-            _foundationReference!.Session.AdvanceTicks(ticks);
+            if (_foundationCaptureDirectory is not null) _foundationReference!.Session.AdvanceTicks(ticks);
         }
         if (_session.CurrentTick >= _nextAutosaveTick)
         {
-            var saved = AutosaveRotation.Save(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow);
+            var saved = AutosaveRotation.Save(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, AutosaveCadenceTicks);
             _saveStatus = saved.IsSuccess ? "AUTOSAVED" : "AUTOSAVE ERROR";
-            _nextAutosaveTick += AutosaveRotation.CadenceTicks;
+            _nextAutosaveTick = AutosaveRotation.NextDeadline(_session.CurrentTick, AutosaveCadenceTicks);
         }
         var snapshot = _session.CaptureSnapshot();
-        foreach (var agent in snapshot.NavigationAgents) _attendeeVisuals[agent.Id].Position = ToWorld(agent);
+        if (ticks > 0) _foundationPresentation.Advance(snapshot);
+        foreach (var agent in snapshot.NavigationAgents)
+        {
+            var sample = _foundationPresentation.Sample(agent.Id, _foundationClock.InterpolationFraction);
+            _attendeeVisuals[agent.Id].Position = new Vector3((float)(sample.XMillimetres / 1000), 0.04f, (float)(sample.ZMillimetres / 1000));
+        }
+        RefreshAttendeeInspector();
         var queue = snapshot.ServiceQueues.Single();
-        var travelling = snapshot.NavigationAgents.Count(item => item.Action == AgentNavigationAction.Travelling);
-        var failed = queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed);
+        var counts = FoundationDiagnostics.Count(snapshot);
         var clockStatus = _session.IsPaused ? "PAUSED • CAMERA / INSPECT / SAVE ACTIVE" : $"REQUEST {(int)_session.RequestedSpeed}×  ATTAINED {_foundationClock.AttainedSpeed:0.00}×  {(_foundationClock.IsOverloaded ? "⚠ REDUCED" : "ON TARGET")}";
-        _hashLabel.Text = $"M0 FOUNDATION • 50 AUTONOMOUS ATTENDEES\nTRAVELLING {travelling}  WAITING {queue.OrderedMembers.Count}  SERVED {snapshot.Transactions.Count}  FAILED {failed}\n{clockStatus}  {_saveStatus}\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
+        _hashLabel.Text = $"M0 FOUNDATION • 50 AUTONOMOUS ATTENDEES\nTRAVELLING {counts.Travelling}  WAITING {counts.Waiting}  IN SERVICE {counts.InService}  SERVED {counts.Served}  FAILED {counts.Failed}\n{clockStatus}  {_saveStatus}\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
         if (_foundationCaptureDirectory is not null) ProcessFoundationCapture(snapshot, queue);
     }
 
@@ -523,21 +595,57 @@ public partial class Main : Node
         if (_foundationCaptureStage == 0 && snapshot.CurrentTick >= 250) CaptureFoundation("busy-approach");
         else if (_foundationCaptureStage == 1 && queue.ActiveOwnerId is not null)
         {
-            if (_pauseCaptureFrames == 0)
+            if (!_pauseCapturePrepared)
             {
-                ToggleFoundationPause(); _pauseHash = _session.CaptureSnapshot().AuthoritativeHash;
-                Rotate(1); _camera.Size = 72; ApplyCamera(); _pauseCaptureFrames = 3; return;
+                HandleFoundationPauseInput(); _pauseHash = _session.CaptureSnapshot().AuthoritativeHash;
+                Rotate(1); _camera.Size = 72; ApplyCamera(); _pauseCaptureFrames = 3; _pauseCapturePrepared = true; return;
             }
             if (--_pauseCaptureFrames > 0) return;
+            if (_pausePickFrames == 0)
+            {
+                // Exercise the same ray-pick route as a real click. Crowding can put another
+                // attendee in front of the requested one, so success means any stable attendee
+                // collider was resolved through Pick rather than selecting by ID directly.
+                foreach (var attendeeId in _foundationFixture!.AgentIds)
+                {
+                    Pick(_camera.UnprojectPosition(_attendeeVisuals[attendeeId].GlobalPosition + new Vector3(0, 0.85f, 0)));
+                    if (_selectedAttendeeId.HasValue) break;
+                }
+                _attendeePickVerified = _selectedAttendeeId.HasValue;
+                _pausePickFrames = 2;
+                return;
+            }
+            if (--_pausePickFrames > 0) return;
             _pauseVerified = _session.IsPaused && _session.CaptureSnapshot().AuthoritativeHash == _pauseHash && _orientation == 1;
             CaptureFoundation("paused-inspection");
         }
         else if (_foundationCaptureStage == 2)
         {
-            ToggleFoundationPause(); ManualSave(); SetFoundationSpeed(RequestedSpeed.FourX); _manualMutationTicks = 12; CaptureFoundation("save-load-diagnostics");
+            if (!_saveCapturePrepared)
+            {
+                HandleFoundationPauseInput(); ManualSave();
+                _manualMutationTicks = 12; _saveCaptureFrames = 3; _saveCapturePrepared = true; return;
+            }
+            if (--_saveCaptureFrames > 0) return;
+            CaptureFoundation("save-load-diagnostics");
+            SetFoundationSpeed(RequestedSpeed.FourX);
         }
         else if (_foundationCaptureStage == 3 && _manualMutationTicks > 0)
         {
+            if (_manualMutationTicks == 12)
+            {
+                var inputTimer = System.Diagnostics.Stopwatch.StartNew();
+                Rotate(1); Rotate(-1);
+                inputTimer.Stop();
+                _pressureInputLatencyMilliseconds = inputTimer.Elapsed.TotalMilliseconds;
+                _pressureInputVerified = _pressureInputLatencyMilliseconds < 50 && _selectedAttendeeId.HasValue;
+            }
+            var pressure = System.Diagnostics.Stopwatch.StartNew();
+            ulong work = 0;
+            while (pressure.ElapsedMilliseconds < 18) work = unchecked(work * 6364136223846793005UL + 1442695040888963407UL);
+            pressure.Stop();
+            GC.KeepAlive(work);
+            _maximumPressureWorkMilliseconds = Math.Max(_maximumPressureWorkMilliseconds, pressure.Elapsed.TotalMilliseconds);
             _manualMutationTicks--;
             if (_manualMutationTicks <= 0)
             {
@@ -555,12 +663,14 @@ public partial class Main : Node
             var reference = _foundationReference!.Session.CaptureSnapshot();
             var parity = snapshot.AuthoritativeHash == reference.AuthoritativeHash;
             var autosaves = Enumerable.Range(0, 3).Count(i => File.Exists(SaveFileAdapter.ResolveSlotPath(SaveDirectory, $"autosave-{i}")));
-            var passed = snapshot.Transactions.Count == 50 && queue.OrderedMembers.Count == 0 && failedCount(queue) == 0 && parity && restoredExact && autosaves == 3;
+            var passed = snapshot.Transactions.Count == 50 && queue.OrderedMembers.Count == 0 && failedCount(queue) == 0 && parity && restoredExact && autosaves == 3 &&
+                _pauseVerified && _pauseInputRouteVerified && _attendeePickVerified && _overloadObserved;
+            passed &= _selectionRetainedAfterLoad && _pressureInputVerified;
             var report = $"M0.09 exported-runtime verification passed={passed} resolution={GetWindow().Size}{System.Environment.NewLine}" +
                 $"tick={snapshot.CurrentTick} transactions={snapshot.Transactions.Count} queue={queue.OrderedMembers.Count} failed={failedCount(queue)} festival_cash_p={snapshot.FestivalFinances.Single().CashPennies} stock={snapshot.OwnedStocks.Single().Quantity}{System.Environment.NewLine}" +
                 $"rendered_hash={snapshot.AuthoritativeHash} headless_hash={reference.AuthoritativeHash} parity={parity}{System.Environment.NewLine}" +
-                $"manual_save_restore={restoredExact} autosave_slots={autosaves} requested=4x completion_attained={_foundationClock.AttainedSpeed:0.000}x pressure_attained={_pressureAttained:0.000}x pressure_debt_ticks={_pressureDebt:0.###} overload_reported={_overloadObserved}{System.Environment.NewLine}" +
-                $"pause_hash_frozen_camera_rotated={_pauseVerified} palette_assignment=ordinal_modulo_10 player_attendee_controls=false fixture_only=true" + System.Environment.NewLine;
+                $"manual_save_restore={restoredExact} autosave_slots={autosaves} autosave_cadence_ticks={AutosaveCadenceTicks} requested=4x completion_attained={_foundationClock.AttainedSpeed:0.000}x pressure_attained={_pressureAttained:0.000}x pressure_debt_ticks={_pressureDebt:0.###} pressure_work_max_ms={_maximumPressureWorkMilliseconds:0.###} overload_reported={_overloadObserved}{System.Environment.NewLine}" +
+                $"pause_hash_frozen_camera_rotated={_pauseVerified} shared_pause_input_route={_pauseInputRouteVerified} attendee_pick_event={_attendeePickVerified} selected_attendee_retained={_selectionRetainedAfterLoad} pressure_input_latency_ms={_pressureInputLatencyMilliseconds:0.###} pressure_input_responsive={_pressureInputVerified} palette_assignment=ordinal_modulo_10 player_attendee_controls=false fixture_only=true" + System.Environment.NewLine;
             File.WriteAllText(Path.Combine(_foundationCaptureDirectory!, "verification-1280x720.txt"), report);
             GD.Print($"FOUNDATION_CAPTURE_COMPLETE passed={passed} tick={snapshot.CurrentTick}");
             _foundationCaptureDirectory = null; GetTree().Quit(passed ? 0 : 2);

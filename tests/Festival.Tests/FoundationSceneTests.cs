@@ -13,7 +13,16 @@ public sealed class FoundationSceneTests
     public void FiftyAutonomousAttendees_AllPurchaseAndDepartWithoutReservations()
     {
         var fixture = FiftyAgentFoundationFixture.Create();
-        FiftyAgentFoundationFixture.AdvanceUntilCompleted(fixture);
+        while (!FiftyAgentFoundationFixture.AllCompleted(fixture))
+        {
+            fixture.Session.AdvanceTicks(1);
+            var tick = fixture.Session.CaptureSnapshot();
+            Assert.AreEqual(tick.NavigationAgents.Count, tick.NavigationAgents.Select(item => (item.XMillimetres, item.ZMillimetres)).Distinct().Count(),
+                $"Exact attendee overlap at tick {tick.CurrentTick}.");
+            Assert.IsTrue(tick.NavigationAgents.All(item => fixture.Session.TraversalGrid!.Get(TraversalGrid.WorldToCell(item.XMillimetres, item.ZMillimetres)).IsWalkable),
+                $"Blocked-cell crossing at tick {tick.CurrentTick}.");
+            Assert.IsTrue(tick.CurrentTick < 30_000, "Persistent stacking/deadlock exceeded the fixture budget.");
+        }
         var snapshot = fixture.Session.CaptureSnapshot();
         Assert.AreEqual(50, snapshot.Transactions.Count);
         Assert.AreEqual(15_000L, snapshot.FestivalFinances.Single().CashPennies);
@@ -86,6 +95,36 @@ public sealed class FoundationSceneTests
             reversed.Query(first.XMillimetres, first.ZMillimetres, 2_000).ToArray());
         CollectionAssert.AreEqual(Enumerable.Range(0, 50).Select(AttendeePaletteAssignment.FromOrdinal).ToArray(),
             Enumerable.Range(0, 5).SelectMany(_ => Enumerable.Range(0, 10)).ToArray());
+
+        var boundary = new SpatialNeighbourIndex(new[] { Agent(1, 999, 999), Agent(2, 1_001, 1_001), Agent(3, -1, -1) });
+        CollectionAssert.AreEqual(new[] { new EntityId(1), new EntityId(2) }, boundary.Query(1_000, 1_000, 2).ToArray());
+        CollectionAssert.AreEqual(new[] { new EntityId(3) }, boundary.Query(-1, -1, 0).ToArray());
+    }
+
+    [TestMethod]
+    public void DiagnosticsCountPhysicalActionsAndInterpolationIsCosmeticAndResettable()
+    {
+        var fixture = FiftyAgentFoundationFixture.Create();
+        var initial = fixture.Session.CaptureSnapshot();
+        var counts = FoundationDiagnostics.Count(initial);
+        Assert.AreEqual(50, counts.Travelling);
+        Assert.AreEqual(49, counts.Waiting);
+        Assert.AreEqual(0, counts.InService);
+        Assert.AreEqual(0, counts.Served);
+
+        var interpolator = new FoundationPresentationInterpolator();
+        interpolator.Reset(initial);
+        var hash = initial.AuthoritativeHash;
+        fixture.Session.AdvanceTicks(4);
+        var current = fixture.Session.CaptureSnapshot();
+        interpolator.Advance(current);
+        var id = current.NavigationAgents[0].Id;
+        var midpoint = interpolator.Sample(id, 0.5);
+        Assert.AreNotEqual(hash, current.AuthoritativeHash);
+        Assert.AreEqual(current.AuthoritativeHash, fixture.Session.CaptureSnapshot().AuthoritativeHash, "Presentation sampling changed authoritative state.");
+        interpolator.Reset(current);
+        Assert.AreEqual((double)current.NavigationAgents[0].XMillimetres, interpolator.Sample(id, 0).XMillimetres);
+        Assert.IsTrue(midpoint != interpolator.Sample(id, 0));
     }
 
     [TestMethod]
@@ -97,15 +136,22 @@ public sealed class FoundationSceneTests
             var fixture = FiftyAgentFoundationFixture.Create();
             for (var index = 0; index < 4; index++)
             {
-                fixture.Session.AdvanceTicks((int)AutosaveRotation.CadenceTicks);
-                Assert.IsTrue(AutosaveRotation.Save(directory, fixture.Session, Compatibility, DateTimeOffset.UtcNow).IsSuccess);
+                fixture.Session.AdvanceTicks((int)AutosaveRotation.CaptureFixtureCadenceTicks);
+                Assert.IsTrue(AutosaveRotation.Save(directory, fixture.Session, Compatibility, DateTimeOffset.UtcNow, AutosaveRotation.CaptureFixtureCadenceTicks).IsSuccess);
             }
             Assert.AreEqual(3, Directory.GetFiles(directory, "autosave-*.ftsave").Length);
-            File.WriteAllBytes(SaveFileAdapter.ResolveSlotPath(directory, AutosaveRotation.SlotForTick(fixture.Session.CurrentTick)), [1,2,3]);
+            File.WriteAllBytes(SaveFileAdapter.ResolveSlotPath(directory, AutosaveRotation.SlotForTick(fixture.Session.CurrentTick, AutosaveRotation.CaptureFixtureCadenceTicks)), [1,2,3]);
             var recovered = AutosaveRotation.LoadNewestValid(directory, Compatibility);
             Assert.IsTrue(recovered.IsSuccess, recovered.Error);
             Assert.IsTrue(recovered.Session!.CurrentTick < fixture.Session.CurrentTick);
+            Assert.AreEqual(24_000, AutosaveRotation.NextDeadline(0));
+            Assert.AreEqual(48_000, AutosaveRotation.NextDeadline(24_001));
+            Assert.AreEqual(800, AutosaveRotation.NextDeadline(100, AutosaveRotation.CaptureFixtureCadenceTicks));
+            Assert.AreEqual(3_200, AutosaveRotation.NextDeadline(2_401, AutosaveRotation.CaptureFixtureCadenceTicks));
         }
         finally { if (Directory.Exists(directory)) Directory.Delete(directory, true); }
     }
+
+    private static NavigationAgentSnapshot Agent(ulong id, int x, int z) => new(new EntityId(id), x, z,
+        AgentNavigationAction.Idle, null, Array.Empty<GridCell>(), 0, x, z, 0, 0, 0, null);
 }

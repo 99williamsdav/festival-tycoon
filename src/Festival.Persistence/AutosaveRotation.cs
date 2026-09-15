@@ -6,13 +6,20 @@ namespace Festival.Persistence;
 public static class AutosaveRotation
 {
     public const int SlotCount = 3;
-    // Every 200 festival seconds (50 real seconds at 1x).
-    public const long CadenceTicks = 800;
+    // Five real minutes at 1x (80 authoritative ticks per real second).
+    public const long CadenceTicks = 24_000;
+    public const long CaptureFixtureCadenceTicks = 800;
 
-    public static string SlotForTick(long tick) => $"autosave-{Math.Abs(tick / CadenceTicks) % SlotCount}";
+    public static long NextDeadline(long currentTick, long cadenceTicks = CadenceTicks)
+    {
+        if (currentTick < 0 || cadenceTicks <= 0) throw new ArgumentOutOfRangeException();
+        return checked((currentTick / cadenceTicks + 1) * cadenceTicks);
+    }
 
-    public static SaveOperationResult Save(string directory, GameSession session, SaveCompatibility compatibility, DateTimeOffset now) =>
-        SaveFileAdapter.SaveSlot(directory, SlotForTick(session.CurrentTick), new SaveWriteRequest(session, compatibility, "autosave", now));
+    public static string SlotForTick(long tick, long cadenceTicks = CadenceTicks) => $"autosave-{Math.Abs(tick / cadenceTicks) % SlotCount}";
+
+    public static SaveOperationResult Save(string directory, GameSession session, SaveCompatibility compatibility, DateTimeOffset now, long cadenceTicks = CadenceTicks) =>
+        SaveFileAdapter.SaveSlot(directory, SlotForTick(session.CurrentTick, cadenceTicks), new SaveWriteRequest(session, compatibility, "autosave", now));
 
     public static SaveLoadResult LoadNewestValid(string directory, SaveCompatibility compatibility)
     {

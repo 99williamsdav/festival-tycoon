@@ -177,11 +177,11 @@ if (args is ["--scenario", "fifty-agent-foundation"])
 {
     var fixture = FiftyAgentFoundationFixture.Create();
     var minimumSeparation = long.MaxValue;
+    var exactOverlapPairTicks = 0;
     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
     while (!FiftyAgentFoundationFixture.AllCompleted(fixture) && fixture.Session.CurrentTick < 30_000)
     {
         fixture.Session.AdvanceTicks(1);
-        if (fixture.Session.CurrentTick % 20 != 0) continue;
         var agents = fixture.Session.CaptureSnapshot().NavigationAgents;
         var index = new SpatialNeighbourIndex(agents);
         foreach (var agent in agents)
@@ -190,7 +190,9 @@ if (args is ["--scenario", "fifty-agent-foundation"])
             var value = agents.Single(item => item.Id == other);
             var dx = (long)value.XMillimetres - agent.XMillimetres;
             var dz = (long)value.ZMillimetres - agent.ZMillimetres;
-            minimumSeparation = Math.Min(minimumSeparation, dx * dx + dz * dz);
+            var squared = dx * dx + dz * dz;
+            minimumSeparation = Math.Min(minimumSeparation, squared);
+            if (squared == 0) exactOverlapPairTicks++;
         }
     }
     stopwatch.Stop();
@@ -199,9 +201,9 @@ if (args is ["--scenario", "fifty-agent-foundation"])
     var blocked = snapshot.NavigationAgents.Count(agent => !fixture.Session.TraversalGrid!.Get(TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres)).IsWalkable);
     Console.WriteLine($"scenario=fifty-agent-foundation agents={snapshot.NavigationAgents.Count} ticks={snapshot.CurrentTick} elapsed_ms={stopwatch.ElapsedMilliseconds}");
     Console.WriteLine($"transactions={snapshot.Transactions.Count} festival_cash_p={snapshot.FestivalFinances.Single().CashPennies} stock={snapshot.OwnedStocks.Single().Quantity} queue={queue.OrderedMembers.Count}");
-    Console.WriteLine($"completed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Completed)} failed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed)} blocked_cells={blocked} min_sampled_separation_mm={(minimumSeparation == long.MaxValue ? 0 : (long)Math.Sqrt(minimumSeparation))}");
+    Console.WriteLine($"completed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Completed)} failed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed)} blocked_cells={blocked} min_every_tick_separation_mm={(minimumSeparation == long.MaxValue ? 0 : (long)Math.Sqrt(minimumSeparation))} exact_overlap_pair_ticks={exactOverlapPairTicks}");
     Console.WriteLine($"hash={snapshot.AuthoritativeHash}");
-    Environment.ExitCode = FiftyAgentFoundationFixture.AllCompleted(fixture) && blocked == 0 ? 0 : 1;
+    Environment.ExitCode = FiftyAgentFoundationFixture.AllCompleted(fixture) && blocked == 0 && exactOverlapPairTicks == 0 ? 0 : 1;
     return;
 }
 

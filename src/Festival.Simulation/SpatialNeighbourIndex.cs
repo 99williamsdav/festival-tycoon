@@ -6,14 +6,22 @@ public sealed class SpatialNeighbourIndex
     public const int BucketSizeMillimetres = 1_000;
     private readonly SortedDictionary<(int X, int Z), List<(EntityId Id, int X, int Z)>> _buckets = [];
 
+    public SpatialNeighbourIndex() { }
+
     public SpatialNeighbourIndex(IEnumerable<NavigationAgentSnapshot> agents)
     {
         foreach (var agent in agents.OrderBy(item => item.Id))
         {
-            var key = Bucket(agent.XMillimetres, agent.ZMillimetres);
-            if (!_buckets.TryGetValue(key, out var bucket)) _buckets.Add(key, bucket = []);
-            bucket.Add((agent.Id, agent.XMillimetres, agent.ZMillimetres));
+            Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         }
+    }
+
+    public void Add(EntityId id, int xMillimetres, int zMillimetres)
+    {
+        var key = Bucket(xMillimetres, zMillimetres);
+        if (!_buckets.TryGetValue(key, out var bucket)) _buckets.Add(key, bucket = []);
+        bucket.Add((id, xMillimetres, zMillimetres));
+        bucket.Sort((left, right) => left.Id.CompareTo(right.Id));
     }
 
     public IReadOnlyList<EntityId> Query(int xMillimetres, int zMillimetres, int radiusMillimetres)

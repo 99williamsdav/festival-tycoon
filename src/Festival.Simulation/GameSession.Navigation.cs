@@ -77,22 +77,25 @@ public sealed partial class GameSession
             if (AdvanceAgentOneTick(agent)) arrived.Add(agent.Id);
         }
 
-        // Resolve proposals together from prior occupancy. Agents closest to completing their
-        // corridor win a tie, then stable ID. A rejected proposal simply retains its exact prior
-        // movement state, so saving and replay require no hidden steering state.
-        // Destination slots are distinct grid cells. Only simultaneous moving proposals need
-        // arbitration; stationary queue/service occupants must not deadlock a legal corridor.
-        var occupied = new List<(int XMillimetres, int ZMillimetres)>();
+        // Resolve proposals together against stationary and already accepted occupancy through
+        // the spatial index. Remaining-corridor progress then stable ID is the deterministic tie.
+        // A tiny same-cell lateral offset prevents exact stacking without pretending to model a
+        // full body radius; the route/progress remains authoritative and converges next tick.
+        var occupied = new SpatialNeighbourIndex();
+        foreach (var agent in _navigationAgents.Values.Where(item => !backups.ContainsKey(item.Id)))
+            occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         foreach (var agent in moving.OrderBy(item => item.Route.Count - item.RouteIndex).ThenBy(item => item.Id))
         {
-            var conflicts = occupied.Any(position => DistanceSquared(agent.XMillimetres, agent.ZMillimetres, position.XMillimetres, position.ZMillimetres) <
-                (long)SeparationRadiusMillimetres * SeparationRadiusMillimetres);
-            if (conflicts)
+            if (HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres) &&
+                !TryApplySeparationOffset(agent, backups[agent.Id], occupied))
             {
                 backups[agent.Id].Restore(agent);
                 arrived.Remove(agent.Id);
+                if (HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres) &&
+                    !TryApplySeparationOffset(agent, backups[agent.Id], occupied))
+                    throw new InvalidOperationException($"No deterministic non-overlapping movement position exists for attendee {agent.Id}.");
             }
-            occupied.Add((agent.XMillimetres, agent.ZMillimetres));
+            occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         }
         foreach (var id in arrived.Order()) events.Add(new SessionEvent(CurrentTick, "navigation_arrived", id));
     }
@@ -141,8 +144,28 @@ public sealed partial class GameSession
             return arrived;
     }
 
-    private static long DistanceSquared(int leftX, int leftZ, int rightX, int rightZ) =>
-        (long)(leftX - rightX) * (leftX - rightX) + (long)(leftZ - rightZ) * (leftZ - rightZ);
+    private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z) =>
+        occupied.Query(x, z, SeparationRadiusMillimetres - 1).Count > 0;
+
+    private bool TryApplySeparationOffset(NavigationAgentState agent, MovementBackup backup, SpatialNeighbourIndex occupied)
+    {
+        var dx = agent.XMillimetres - backup.X;
+        var dz = agent.ZMillimetres - backup.Z;
+        var lateralX = dz == 0 ? 0 : Math.Sign(dz);
+        var lateralZ = dx == 0 ? (lateralX == 0 ? 1 : 0) : -Math.Sign(dx);
+        var preferred = (agent.Id.Value & 1UL) == 0 ? 1 : -1;
+        for (var distance = SeparationRadiusMillimetres; distance <= 100; distance += SeparationRadiusMillimetres)
+        foreach (var side in new[] { preferred, -preferred })
+        {
+            var x = agent.XMillimetres + lateralX * distance * side;
+            var z = agent.ZMillimetres + lateralZ * distance * side;
+            var cell = TraversalGrid.WorldToCell(x, z);
+            if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable || HasConflict(occupied, x, z)) continue;
+            agent.XMillimetres = x; agent.ZMillimetres = z;
+            return true;
+        }
+        return false;
+    }
 
     private sealed record MovementBackup(
         int X, int Z, AgentNavigationAction Action, int RouteIndex, int OriginX, int OriginZ,
