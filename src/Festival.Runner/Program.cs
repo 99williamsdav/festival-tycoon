@@ -180,6 +180,10 @@ if (args is ["--scenario", "fifty-agent-foundation"])
     var exactOverlapPairTicks = 0;
     var belowTwoHundredRuns = new Dictionary<(EntityId, EntityId), int>();
     var maximumConsecutiveBelowTwoHundred = 0;
+    var previousPositions = fixture.Session.CaptureSnapshot().NavigationAgents.ToDictionary(item => item.Id);
+    var blockedSweptSegments = 0;
+    var maximumStepMillimetres = 0L;
+    var reproSweepLegal = false;
     var stopwatch = System.Diagnostics.Stopwatch.StartNew();
     while (!FiftyAgentFoundationFixture.AllCompleted(fixture) && fixture.Session.CurrentTick < 30_000)
     {
@@ -187,6 +191,16 @@ if (args is ["--scenario", "fifty-agent-foundation"])
         var agents = fixture.Session.CaptureSnapshot().NavigationAgents;
         var index = new SpatialNeighbourIndex(agents);
         var belowTwoHundredThisTick = new HashSet<(EntityId, EntityId)>();
+        foreach (var agent in agents)
+        {
+            var previous = previousPositions[agent.Id];
+            var dx = (long)agent.XMillimetres - previous.XMillimetres;
+            var dz = (long)agent.ZMillimetres - previous.ZMillimetres;
+            maximumStepMillimetres = Math.Max(maximumStepMillimetres, (long)Math.Sqrt(dx * dx + dz * dz));
+            var legal = TraversalSweep.IsWalkable(fixture.Session.TraversalGrid!, previous.XMillimetres, previous.ZMillimetres, agent.XMillimetres, agent.ZMillimetres);
+            if (!legal) blockedSweptSegments++;
+            if (fixture.Session.CurrentTick == 792 && agent.Id == new EntityId(21)) reproSweepLegal = legal;
+        }
         foreach (var agent in agents)
         foreach (var other in index.Query(agent.XMillimetres, agent.ZMillimetres, 1_000).Where(id => id.CompareTo(agent.Id) > 0))
         {
@@ -206,6 +220,7 @@ if (args is ["--scenario", "fifty-agent-foundation"])
             }
         }
         foreach (var pair in belowTwoHundredRuns.Keys.Where(pair => !belowTwoHundredThisTick.Contains(pair)).ToArray()) belowTwoHundredRuns[pair] = 0;
+        previousPositions = agents.ToDictionary(item => item.Id);
     }
     stopwatch.Stop();
     var snapshot = fixture.Session.CaptureSnapshot();
@@ -213,9 +228,9 @@ if (args is ["--scenario", "fifty-agent-foundation"])
     var blocked = snapshot.NavigationAgents.Count(agent => !fixture.Session.TraversalGrid!.Get(TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres)).IsWalkable);
     Console.WriteLine($"scenario=fifty-agent-foundation agents={snapshot.NavigationAgents.Count} ticks={snapshot.CurrentTick} elapsed_ms={stopwatch.ElapsedMilliseconds}");
     Console.WriteLine($"transactions={snapshot.Transactions.Count} festival_cash_p={snapshot.FestivalFinances.Single().CashPennies} stock={snapshot.OwnedStocks.Single().Quantity} queue={queue.OrderedMembers.Count}");
-    Console.WriteLine($"completed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Completed)} failed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed)} blocked_cells={blocked} min_every_tick_separation_mm={(minimumSeparation == long.MaxValue ? 0 : (long)Math.Sqrt(minimumSeparation))} exact_overlap_pair_ticks={exactOverlapPairTicks} max_consecutive_below_200mm_ticks={maximumConsecutiveBelowTwoHundred}");
+    Console.WriteLine($"completed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Completed)} failed={queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed)} blocked_cells={blocked} blocked_swept_segments={blockedSweptSegments} repro_tick792_id21_sweep_legal={reproSweepLegal} max_step_mm={maximumStepMillimetres} min_every_tick_separation_mm={(minimumSeparation == long.MaxValue ? 0 : (long)Math.Sqrt(minimumSeparation))} exact_overlap_pair_ticks={exactOverlapPairTicks} max_consecutive_below_200mm_ticks={maximumConsecutiveBelowTwoHundred}");
     Console.WriteLine($"hash={snapshot.AuthoritativeHash}");
-    Environment.ExitCode = FiftyAgentFoundationFixture.AllCompleted(fixture) && blocked == 0 && exactOverlapPairTicks == 0 && maximumConsecutiveBelowTwoHundred <= 2 ? 0 : 1;
+    Environment.ExitCode = FiftyAgentFoundationFixture.AllCompleted(fixture) && blocked == 0 && blockedSweptSegments == 0 && reproSweepLegal && exactOverlapPairTicks == 0 && maximumConsecutiveBelowTwoHundred <= 2 ? 0 : 1;
     return;
 }
 

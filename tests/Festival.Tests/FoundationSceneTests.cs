@@ -16,6 +16,7 @@ public sealed class FoundationSceneTests
         var consecutiveBelowTwoHundred = new Dictionary<(EntityId, EntityId), int>();
         var maximumConsecutiveBelowTwoHundred = 0;
         var reproPairMaximum = 0;
+        var previousPositions = fixture.Session.CaptureSnapshot().NavigationAgents.ToDictionary(item => item.Id);
         while (!FiftyAgentFoundationFixture.AllCompleted(fixture))
         {
             fixture.Session.AdvanceTicks(1);
@@ -24,6 +25,20 @@ public sealed class FoundationSceneTests
                 $"Exact attendee overlap at tick {tick.CurrentTick}.");
             Assert.IsTrue(tick.NavigationAgents.All(item => fixture.Session.TraversalGrid!.Get(TraversalGrid.WorldToCell(item.XMillimetres, item.ZMillimetres)).IsWalkable),
                 $"Blocked-cell crossing at tick {tick.CurrentTick}.");
+            foreach (var agent in tick.NavigationAgents)
+            {
+                var previous = previousPositions[agent.Id];
+                Assert.IsTrue(TraversalSweep.IsWalkable(fixture.Session.TraversalGrid!, previous.XMillimetres, previous.ZMillimetres,
+                    agent.XMillimetres, agent.ZMillimetres), $"Blocked swept segment at tick {tick.CurrentTick} for attendee {agent.Id}.");
+                if (tick.CurrentTick == 792 && agent.Id == new EntityId(21))
+                {
+                    Assert.IsTrue(TraversalSweep.IsWalkable(fixture.Session.TraversalGrid!, previous.XMillimetres, previous.ZMillimetres,
+                        agent.XMillimetres, agent.ZMillimetres), "Exact tick-792 attendee-21 avoidance regression crossed blocked cell (142,138).");
+                    Assert.AreNotEqual(((6_450, 5_028), (7_050, 4_998)),
+                        ((previous.XMillimetres, previous.ZMillimetres), (agent.XMillimetres, agent.ZMillimetres)),
+                        "The exact formerly illegal tick-792 attendee-21 segment reappeared.");
+                }
+            }
             foreach (var left in tick.NavigationAgents)
             foreach (var right in tick.NavigationAgents.Where(item => item.Id.CompareTo(left.Id) > 0))
             {
@@ -36,6 +51,7 @@ public sealed class FoundationSceneTests
                 if (left.Id == new EntityId(20) && right.Id == new EntityId(21)) reproPairMaximum = Math.Max(reproPairMaximum, consecutive);
             }
             Assert.IsTrue(tick.CurrentTick < 30_000, "Persistent stacking/deadlock exceeded the fixture budget.");
+            previousPositions = tick.NavigationAgents.ToDictionary(item => item.Id);
         }
         Assert.IsTrue(maximumConsecutiveBelowTwoHundred <= 2, $"Near-superposition persisted for {maximumConsecutiveBelowTwoHundred} ticks.");
         Assert.IsTrue(reproPairMaximum <= 2, $"IDs 20/21 remained compressed for {reproPairMaximum} ticks.");
@@ -208,17 +224,39 @@ public sealed class FoundationSceneTests
         var directory = Path.Combine(Path.GetTempPath(), "festival-m009-" + Guid.NewGuid().ToString("N"));
         try
         {
-            var fixture = FiftyAgentFoundationFixture.Create();
-            for (var index = 0; index < 4; index++)
-            {
-                fixture.Session.AdvanceTicks(10);
-                Assert.IsTrue(AutosaveRotation.Save(directory, fixture.Session, Compatibility, DateTimeOffset.UtcNow, index).IsSuccess);
-            }
+            var olderHighTick = FiftyAgentFoundationFixture.Create();
+            olderHighTick.Session.AdvanceTicks(1_000);
+            var time = new DateTimeOffset(2026, 9, 15, 12, 0, 0, TimeSpan.Zero);
+            Assert.IsTrue(AutosaveRotation.Save(directory, olderHighTick.Session, Compatibility, time, 0).IsSuccess);
+            var rolledBack = FiftyAgentFoundationFixture.Create();
+            rolledBack.Session.AdvanceTicks(10);
+            Assert.IsTrue(AutosaveRotation.Save(directory, rolledBack.Session, Compatibility, time.AddSeconds(1), 1).IsSuccess);
+            rolledBack.Session.AdvanceTicks(10);
+            Assert.IsTrue(AutosaveRotation.Save(directory, rolledBack.Session, Compatibility, time.AddSeconds(1), 2).IsSuccess);
             Assert.AreEqual(3, Directory.GetFiles(directory, "autosave-*.ftsave").Length);
+            var newestAfterRestart = AutosaveRotation.LoadNewestValid(directory, Compatibility);
+            Assert.IsTrue(newestAfterRestart.IsSuccess, newestAfterRestart.Error);
+            Assert.AreEqual(20, newestAfterRestart.Session!.CurrentTick, "Rollback recovery must follow autosave chronology, not highest simulation tick.");
+            Assert.AreEqual(3, AutosaveRotation.NextGeneration(directory, Compatibility));
+
+            rolledBack.Session.AdvanceTicks(10);
+            Assert.IsTrue(AutosaveRotation.Save(directory, rolledBack.Session, Compatibility, time.AddSeconds(2), 3).IsSuccess);
             File.WriteAllBytes(SaveFileAdapter.ResolveSlotPath(directory, AutosaveRotation.SlotForGeneration(3)), [1,2,3]);
             var recovered = AutosaveRotation.LoadNewestValid(directory, Compatibility);
             Assert.IsTrue(recovered.IsSuccess, recovered.Error);
-            Assert.IsTrue(recovered.Session!.CurrentTick < fixture.Session.CurrentTick);
+            Assert.AreEqual(20, recovered.Session!.CurrentTick, "Corrupt newest generation must fall back to the prior successful autosave.");
+
+            var legacyDirectory = Path.Combine(directory, "legacy");
+            Assert.IsTrue(SaveFileAdapter.SaveSlot(legacyDirectory, "autosave-0", new SaveWriteRequest(
+                olderHighTick.Session, Compatibility, "autosave", time)).IsSuccess);
+            Assert.IsTrue(SaveFileAdapter.SaveSlot(legacyDirectory, "autosave-1", new SaveWriteRequest(
+                rolledBack.Session, Compatibility, "autosave", time.AddSeconds(1))).IsSuccess);
+            Assert.AreEqual(30, AutosaveRotation.LoadNewestValid(legacyDirectory, Compatibility).Session!.CurrentTick,
+                "Legacy slots without generation metadata fall back to persisted timestamp, not simulation tick.");
+            Assert.IsTrue(SaveFileAdapter.SaveSlot(legacyDirectory, "autosave-2", new SaveWriteRequest(
+                olderHighTick.Session, Compatibility, "autosave", time.AddSeconds(1))).IsSuccess);
+            Assert.AreEqual(1_000, AutosaveRotation.LoadNewestValid(legacyDirectory, Compatibility).Session!.CurrentTick,
+                "Equal-time legacy ties use descending slot path deterministically.");
 
             var oneX = new RealTimeAutosaveScheduler();
             var fourX = new RealTimeAutosaveScheduler();

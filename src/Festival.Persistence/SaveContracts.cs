@@ -14,7 +14,8 @@ public sealed record SaveHeaderV1(
     string TimestampUtc,
     int Phase,
     string Purpose,
-    string PayloadChecksum);
+    string PayloadChecksum,
+    long? SaveSequence = null);
 
 public sealed record SaveEnvelopeV1(SaveHeaderV1 Header, SessionPersistenceSnapshot Payload);
 
@@ -22,7 +23,8 @@ public sealed record SaveWriteRequest(
     GameSession Session,
     SaveCompatibility Compatibility,
     string Purpose,
-    DateTimeOffset TimestampUtc);
+    DateTimeOffset TimestampUtc,
+    long? SaveSequence = null);
 
 public sealed record SaveOperationResult(bool IsSuccess, string? Error, string? Path)
 {

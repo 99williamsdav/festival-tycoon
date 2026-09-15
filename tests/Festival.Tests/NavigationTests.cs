@@ -22,6 +22,28 @@ public sealed class NavigationTests
     }
 
     [TestMethod]
+    public void ExactSupercoverRejectsBlockedCrossingsBoundariesAndDiagonalCorners()
+    {
+        var blockedMiddle = new TraversalGrid(new[] { new TerrainCellOverride(new GridCell(11, 10), GroundSurface.Grass, false) });
+        var from = TraversalGrid.CellCentre(new GridCell(10, 10));
+        var to = TraversalGrid.CellCentre(new GridCell(12, 10));
+        Assert.IsFalse(TraversalSweep.IsWalkable(blockedMiddle, from.XMillimetres, from.ZMillimetres, to.XMillimetres, to.ZMillimetres));
+
+        var cornerGrid = new TraversalGrid(new[]
+        {
+            new TerrainCellOverride(new GridCell(11, 10), GroundSurface.Grass, false),
+            new TerrainCellOverride(new GridCell(10, 11), GroundSurface.Grass, false),
+        });
+        var diagonal = TraversalGrid.CellCentre(new GridCell(11, 11));
+        Assert.IsFalse(TraversalSweep.IsWalkable(cornerGrid, from.XMillimetres, from.ZMillimetres, diagonal.XMillimetres, diagonal.ZMillimetres));
+        Assert.IsTrue(TraversalSweep.IsWalkable(new TraversalGrid(), from.XMillimetres, from.ZMillimetres, diagonal.XMillimetres, diagonal.ZMillimetres));
+
+        var boundaryX = TraversalGrid.OriginMillimetres + 11 * TraversalGrid.CellSizeMillimetres;
+        Assert.IsFalse(TraversalSweep.IsWalkable(blockedMiddle, boundaryX, from.ZMillimetres, boundaryX, to.ZMillimetres),
+            "A segment on a blocked cell boundary belongs to the conservative supercover.");
+    }
+
+    [TestMethod]
     public void UnreachableTargetIsBoundedNoRouteAndDoesNotTeleport()
     {
         var fixture = NavigationFixture.CreateGateToServiceSession();

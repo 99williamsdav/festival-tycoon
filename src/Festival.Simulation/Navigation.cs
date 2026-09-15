@@ -61,6 +61,67 @@ public sealed class TraversalGrid
          OriginMillimetres + cell.Z * CellSizeMillimetres + CellSizeMillimetres / 2);
 }
 
+/// <summary>Exact integer supercover validation for a world-space movement segment.</summary>
+public static class TraversalSweep
+{
+    public static bool IsWalkable(TraversalGrid grid, int fromX, int fromZ, int toX, int toZ)
+    {
+        var size = TraversalGrid.CellSizeMillimetres;
+        var origin = TraversalGrid.OriginMillimetres;
+        var minCellX = FloorDiv(Math.Min(fromX, toX) - origin, size) - 1;
+        var maxCellX = FloorDiv(Math.Max(fromX, toX) - origin, size) + 1;
+        var minCellZ = FloorDiv(Math.Min(fromZ, toZ) - origin, size) - 1;
+        var maxCellZ = FloorDiv(Math.Max(fromZ, toZ) - origin, size) + 1;
+        for (var z = minCellZ; z <= maxCellZ; z++)
+        for (var x = minCellX; x <= maxCellX; x++)
+        {
+            var cell = new GridCell(x, z);
+            var left = origin + x * size;
+            var top = origin + z * size;
+            if (!IntersectsClosedRectangle(fromX, fromZ, toX, toZ, left, top, left + size, top + size)) continue;
+            if (!grid.Contains(cell) || !grid.Get(cell).IsWalkable) return false;
+        }
+        return true;
+    }
+
+    private static int FloorDiv(int value, int divisor)
+    {
+        var quotient = value / divisor;
+        return value < 0 && value % divisor != 0 ? quotient - 1 : quotient;
+    }
+
+    private static bool IntersectsClosedRectangle(int ax, int az, int bx, int bz, int left, int top, int right, int bottom)
+    {
+        if (Inside(ax, az, left, top, right, bottom) || Inside(bx, bz, left, top, right, bottom)) return true;
+        return Intersects(ax, az, bx, bz, left, top, right, top) ||
+            Intersects(ax, az, bx, bz, right, top, right, bottom) ||
+            Intersects(ax, az, bx, bz, right, bottom, left, bottom) ||
+            Intersects(ax, az, bx, bz, left, bottom, left, top);
+    }
+
+    private static bool Inside(int x, int z, int left, int top, int right, int bottom) =>
+        x >= left && x <= right && z >= top && z <= bottom;
+
+    private static bool Intersects(int ax, int az, int bx, int bz, int cx, int cz, int dx, int dz)
+    {
+        var abC = Cross(ax, az, bx, bz, cx, cz);
+        var abD = Cross(ax, az, bx, bz, dx, dz);
+        var cdA = Cross(cx, cz, dx, dz, ax, az);
+        var cdB = Cross(cx, cz, dx, dz, bx, bz);
+        if (((abC > 0 && abD < 0) || (abC < 0 && abD > 0)) && ((cdA > 0 && cdB < 0) || (cdA < 0 && cdB > 0))) return true;
+        return abC == 0 && OnSegment(ax, az, bx, bz, cx, cz) ||
+            abD == 0 && OnSegment(ax, az, bx, bz, dx, dz) ||
+            cdA == 0 && OnSegment(cx, cz, dx, dz, ax, az) ||
+            cdB == 0 && OnSegment(cx, cz, dx, dz, bx, bz);
+    }
+
+    private static long Cross(int ax, int az, int bx, int bz, int px, int pz) =>
+        (long)(bx - ax) * (pz - az) - (long)(bz - az) * (px - ax);
+
+    private static bool OnSegment(int ax, int az, int bx, int bz, int px, int pz) =>
+        px >= Math.Min(ax, bx) && px <= Math.Max(ax, bx) && pz >= Math.Min(az, bz) && pz <= Math.Max(az, bz);
+}
+
 public sealed record PathSearchResult(bool Found, IReadOnlyList<GridCell> Path, int ExpandedNodes);
 
 public static class DeterministicPathfinder

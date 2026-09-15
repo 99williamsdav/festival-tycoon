@@ -110,6 +110,8 @@ public static partial class SaveFileAdapter
             if (string.IsNullOrWhiteSpace(envelope.Header.BuildId) || string.IsNullOrWhiteSpace(envelope.Header.Purpose) ||
                 !DateTimeOffset.TryParse(envelope.Header.TimestampUtc, out _))
                 return SaveLoadResult.Failure("Save header requires a build ID, purpose and valid UTC timestamp.");
+            if (envelope.Header.SaveSequence is < 0)
+                return SaveLoadResult.Failure("Save header sequence cannot be negative.");
             if (!string.Equals(envelope.Header.ContentHash, expected.ContentHash, StringComparison.Ordinal))
                 return SaveLoadResult.Failure($"Content hash mismatch: save '{envelope.Header.ContentHash}', expected '{expected.ContentHash}'. Explicit migration or matching content is required.");
             if (!string.Equals(envelope.Header.RulesetHash, expected.RulesetHash, StringComparison.Ordinal))
@@ -152,7 +154,8 @@ public static partial class SaveFileAdapter
             request.TimestampUtc.ToUniversalTime().ToString("O"),
             payload.Phase,
             request.Purpose,
-            ComputePayloadChecksum(payload));
+            ComputePayloadChecksum(payload),
+            request.SaveSequence);
         return new SaveEnvelopeV1(header, payload);
     }
 

@@ -88,6 +88,7 @@ public partial class Main : Node
         ConfigureCaptureMode();
         _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null ?
             RealTimeAutosaveScheduler.ProductionCadenceSeconds : 2);
+        _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
         if (_foundationCaptureDirectory is not null || (_captureDirectory is null && _navigationCaptureDirectory is null && _queueCaptureDirectory is null))
         {
             _foundationFixture = FiftyAgentFoundationFixture.Create();

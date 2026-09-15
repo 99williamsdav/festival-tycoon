@@ -86,7 +86,8 @@ public sealed partial class GameSession
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         foreach (var agent in moving.OrderBy(item => item.Route.Count - item.RouteIndex).ThenBy(item => item.Id))
         {
-            if (HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres) &&
+            if ((!TraversalSweep.IsWalkable(_traversalGrid, backups[agent.Id].X, backups[agent.Id].Z, agent.XMillimetres, agent.ZMillimetres) ||
+                 HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres)) &&
                 !TryApplySeparationOffset(agent, backups[agent.Id], occupied))
             {
                 backups[agent.Id].Restore(agent);
@@ -160,7 +161,8 @@ public sealed partial class GameSession
             var x = agent.XMillimetres + lateralX * distance * side;
             var z = agent.ZMillimetres + lateralZ * distance * side;
             var cell = TraversalGrid.WorldToCell(x, z);
-            if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable || HasConflict(occupied, x, z)) continue;
+            if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable ||
+                !TraversalSweep.IsWalkable(_traversalGrid, backup.X, backup.Z, x, z) || HasConflict(occupied, x, z)) continue;
             agent.XMillimetres = x; agent.ZMillimetres = z;
             return true;
         }
