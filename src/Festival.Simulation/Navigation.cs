@@ -150,7 +150,7 @@ public sealed record NavigationAgentSnapshot(
     EntityId Id, int XMillimetres, int ZMillimetres, AgentNavigationAction Action,
     GridCell? Destination, IReadOnlyList<GridCell> Route, int RouteIndex,
     int SegmentOriginXMillimetres, int SegmentOriginZMillimetres,
-    int SegmentProgressMicrometres, int MovementRemainder, int LastSearchExpandedNodes);
+    int SegmentProgressMicrometres, int MovementRemainder, int LastSearchExpandedNodes, string? IntentId);
 
 internal sealed class NavigationAgentState
 {
@@ -166,4 +166,5 @@ internal sealed class NavigationAgentState
     public int SegmentProgressMicrometres { get; set; }
     public int MovementRemainder { get; set; }
     public int LastSearchExpandedNodes { get; set; }
+    public string? IntentId { get; set; }
 }

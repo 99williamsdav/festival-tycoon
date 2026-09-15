@@ -46,6 +46,7 @@ public partial class Main : Node
     private int _navigationPresentedFrames;
     private bool _queueClosed;
     private bool _queueReopened;
+    private int _queuePurchaseFrames;
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -433,18 +434,23 @@ public partial class Main : Node
         else if (_navigationCaptureStage == 3 && queue.ActiveOwnerId is not null && queue.OrderedMembers.All(id =>
             snapshot.NavigationAgents.Single(agent => agent.Id == id).Action == AgentNavigationAction.Arrived)) CaptureQueue("physical-queue");
         if (snapshot.Transactions.Count != 5 || queue.OrderedMembers.Count != 0) return;
+        _queuePurchaseFrames++;
+        if (_navigationCaptureStage == 4 && _queuePurchaseFrames >= 3) CaptureQueue("purchases-complete");
+        var allDeparted = ServiceQueueFixture.AllAtExit(_queueFixture!);
+        if (!allDeparted) return;
         _navigationArrivalFrames++;
-        if (_navigationCaptureStage == 4 && _navigationArrivalFrames >= 3) CaptureQueue("complete");
+        if (_navigationCaptureStage == 5 && _navigationArrivalFrames >= 3) CaptureQueue("departure-complete");
         if (_navigationArrivalFrames < 8) return;
         var reference = _queueReference!.Session.CaptureSnapshot();
         var buyersMatch = snapshot.Transactions.Select(item => item.BuyerId).SequenceEqual(_queueFixture!.AgentIds);
         var passed = snapshot.AuthoritativeHash == reference.AuthoritativeHash && snapshot.CurrentTick == reference.CurrentTick &&
             snapshot.Transactions.Count == 5 && buyersMatch && snapshot.FestivalFinances.Single().CashPennies == 1500 &&
-            snapshot.OwnedStocks.Single().Quantity == 0 && queue.ActiveOwnerId is null && queue.Agents.All(item => item.ReservedSlotIndex is null);
+            snapshot.OwnedStocks.Single().Quantity == 0 && queue.ActiveOwnerId is null && queue.Agents.All(item => item.ReservedSlotIndex is null) &&
+            allDeparted && ServiceQueueFixture.AllAtExit(_queueReference!);
         var report = $"M0.08 exported-runtime verification passed={passed} resolution={GetWindow().Size}{System.Environment.NewLine}" +
             $"same_tick={snapshot.CurrentTick} rendered_hash={snapshot.AuthoritativeHash} headless_hash={reference.AuthoritativeHash} equivalent={snapshot.AuthoritativeHash == reference.AuthoritativeHash}{System.Environment.NewLine}" +
             $"closure_tick=400 reopened_clean=True transactions={snapshot.Transactions.Count} buyer_order={string.Join(',', snapshot.Transactions.Select(item => item.BuyerId.Value))}{System.Environment.NewLine}" +
-            $"festival_cash_p={snapshot.FestivalFinances.Single().CashPennies} stock={snapshot.OwnedStocks.Single().Quantity} active_owner=none reservations_released={queue.Agents.All(item => item.ReservedSlotIndex is null)}{System.Environment.NewLine}" +
+            $"festival_cash_p={snapshot.FestivalFinances.Single().CashPennies} stock={snapshot.OwnedStocks.Single().Quantity} active_owner=none reservations_released={queue.Agents.All(item => item.ReservedSlotIndex is null)} all_departed={allDeparted}{System.Environment.NewLine}" +
             "input=attendee-ai-fixture player_navigation_controls=False player_queue_controls=False" + System.Environment.NewLine;
         File.WriteAllText(Path.Combine(_queueCaptureDirectory!, "verification-1280x720.txt"), report);
         GD.Print($"QUEUE_CAPTURE_COMPLETE passed={passed} tick={snapshot.CurrentTick}");
@@ -455,7 +461,7 @@ public partial class Main : Node
     {
         _ = ServiceQueueFixture.SetOpen(fixture, true, 3);
         for (var index = 0; index < fixture.AgentIds.Count; index++)
-            _ = ServiceQueueFixture.Enqueue(fixture, fixture.AgentIds[index], (ulong)index, (ulong)(4 + index));
+            _ = ServiceQueueFixture.Enqueue(fixture, fixture.AgentIds[index], fixture.Session.NextSubmissionSequence, (ulong)(4 + index));
     }
 
     private void CaptureQueue(string stage)

@@ -143,7 +143,7 @@ public sealed partial class GameSession
 
             case EnqueueServiceQueueAgentCommand enqueue:
                 affectedTarget = envelope.TargetId;
-                ApplyEnqueueServiceQueueAgent(affectedTarget!.Value, enqueue);
+                ApplyEnqueueServiceQueueAgent(affectedTarget!.Value, enqueue, CurrentTick, envelope.SubmissionSequence);
                 break;
 
             case AbandonServiceQueueCommand abandon:
@@ -485,10 +485,10 @@ public sealed partial class GameSession
                 CommandResult.Rejected(CommandReasonCode.UnknownOwner, "Stock owner does not exist."),
             PurchaseItemCommand purchase => ValidatePurchase(envelope.TargetId, purchase),
             InitializeNavigationFixtureCommand initialize => ValidateInitializeNavigation(envelope.TargetId, initialize),
-            SetAgentDestinationCommand destination => ValidateAgentDestination(envelope.TargetId, destination),
+            SetAgentDestinationCommand destination => ValidateQueueProtectedDestination(envelope.TargetId) ?? ValidateAgentDestination(envelope.TargetId, destination),
             InitializeServiceQueueFixtureCommand initialize => ValidateInitializeServiceQueue(envelope.TargetId, initialize),
             SetServiceQueueOpenCommand => ValidateServiceQueueTarget(envelope.TargetId),
-            EnqueueServiceQueueAgentCommand enqueue => ValidateEnqueueServiceQueueAgent(envelope.TargetId, enqueue),
+            EnqueueServiceQueueAgentCommand enqueue => ValidateEnqueueServiceQueueAgent(envelope.TargetId, enqueue, envelope.SubmissionSequence),
             AbandonServiceQueueCommand abandon => ValidateAbandonServiceQueueAgent(envelope.TargetId, abandon),
             CreateFixtureRecordCommand or ChangeFixtureValueCommand or SetPausedCommand or
                 CreateGuestWalletCommand or CreateFestivalFinanceCommand or CreateOwnedStockCommand => null,

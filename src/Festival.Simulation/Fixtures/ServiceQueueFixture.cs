@@ -13,17 +13,18 @@ public static class ServiceQueueFixture
 
     public static ServiceQueueFixtureState Create(
         IReadOnlyList<long>? cash = null, int stock = 5, int durationTicks = DefaultServiceDurationTicks,
-        IReadOnlyList<GridCell>? starts = null)
+        IReadOnlyList<GridCell>? starts = null, IReadOnlyList<TerrainCellOverride>? terrain = null,
+        IReadOnlyList<GridCell>? slots = null)
     {
         var session = new GameSession(20260915, new CampaignId(20260915));
         var serviceObject = LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.service-point");
         var service = TraversalGrid.WorldToCell((int)(serviceObject.XMetres * 1000), (int)(serviceObject.ZMetres * 1000));
-        var queueSlots = Enumerable.Range(0, 5).Select(index => new GridCell(service.X - index * 3, service.Z + index * 2)).ToArray();
+        var queueSlots = slots ?? Enumerable.Range(0, 5).Select(index => new GridCell(service.X - index * 3, service.Z + index * 2)).ToArray();
         var gate = TraversalGrid.WorldToCell(0, 30_000);
         var startCells = starts ?? Enumerable.Range(0, 5).Select(index => new GridCell(gate.X - 4 + index * 2, gate.Z - index)).ToArray();
         var exits = Enumerable.Range(0, 5).Select(index => new GridCell(gate.X - 4 + index * 2, gate.Z + 4 + index)).ToArray();
         var command = new InitializeServiceQueueFixtureCommand(
-            startCells, queueSlots, exits, NavigationFixture.CreateLowerWitteringTerrain(),
+            startCells, queueSlots, exits, terrain ?? NavigationFixture.CreateLowerWitteringTerrain(),
             cash ?? Enumerable.Repeat(500L, 5).ToArray(), stock, 120, DefaultPricePennies, durationTicks);
         var result = session.Execute(Envelope(session, new CommandId(1), null, command));
         if (!result.IsAccepted || result.TargetId is null) throw new InvalidOperationException(result.Message);
@@ -47,6 +48,24 @@ public static class ServiceQueueFixture
         var ticks = 0;
         while (session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Count > 0 && ticks++ < maximumTicks) session.AdvanceTicks(1);
         if (ticks >= maximumTicks) throw new InvalidOperationException("Queue fixture did not resolve within its deterministic tick budget.");
+    }
+
+    public static void AdvanceUntilDeparted(ServiceQueueFixtureState fixture, int maximumTicks = 10_000)
+    {
+        var ticks = 0;
+        while (!AllAtExit(fixture) && ticks++ < maximumTicks) fixture.Session.AdvanceTicks(1);
+        if (ticks >= maximumTicks) throw new InvalidOperationException("Queue attendees did not all reach their deterministic exits.");
+    }
+
+    public static bool AllAtExit(ServiceQueueFixtureState fixture)
+    {
+        var snapshot = fixture.Session.CaptureSnapshot();
+        var queue = snapshot.ServiceQueues.Single();
+        return queue.Agents.All(item =>
+        {
+            var nav = snapshot.NavigationAgents.Single(agent => agent.Id == item.AgentId);
+            return nav.Action == AgentNavigationAction.Arrived && nav.Destination == queue.ExitCells[item.ExitIndex];
+        });
     }
 
     private static CommandEnvelope Envelope(GameSession session, CommandId commandId, EntityId? target, SessionCommand command) =>

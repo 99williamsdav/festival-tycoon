@@ -133,6 +133,11 @@ internal static class CanonicalStateHasher
                 writer.Write(agent.RouteIndex); writer.Write(agent.SegmentOriginXMillimetres); writer.Write(agent.SegmentOriginZMillimetres);
                 writer.Write(agent.SegmentProgressMicrometres);
                 writer.Write(agent.MovementRemainder); writer.Write(agent.LastSearchExpandedNodes);
+                if (includesQueues)
+                {
+                    writer.Write(agent.IntentId is not null);
+                    if (agent.IntentId is not null) writer.Write(agent.IntentId);
+                }
             }
         }
 
@@ -146,7 +151,7 @@ internal static class CanonicalStateHasher
                 writer.Write(queue.IsOpen); writer.Write(queue.UnitPricePennies); writer.Write(queue.ServiceDurationTicks);
                 writer.Write(queue.OrderedMembers.Count); foreach (var id in queue.OrderedMembers) writer.Write(id.Value);
                 writer.Write(queue.ActiveOwnerId.HasValue); if (queue.ActiveOwnerId is { } owner) writer.Write(owner.Value);
-                writer.Write(queue.RemainingServiceTicks); writer.Write(queue.CompletionSequence);
+                writer.Write(queue.RemainingServiceTicks); writer.Write(queue.CompletionSequence); writer.Write(queue.NeedsReassignment);
                 writer.Write(queue.QueueSlots.Count); foreach (var cell in queue.QueueSlots) { writer.Write(cell.X); writer.Write(cell.Z); }
                 writer.Write(queue.ExitCells.Count); foreach (var cell in queue.ExitCells) { writer.Write(cell.X); writer.Write(cell.Z); }
                 writer.Write(queue.Agents.Count);
@@ -154,7 +159,7 @@ internal static class CanonicalStateHasher
                 {
                     writer.Write(agent.AgentId.Value); writer.Write((int)agent.Action); writer.Write(agent.ReservedSlotIndex.HasValue);
                     if (agent.ReservedSlotIndex is { } slot) writer.Write(slot);
-                    writer.Write(agent.ExitIndex); writer.Write(agent.ArrivalSequence);
+                    writer.Write(agent.ExitIndex); writer.Write(agent.AdmissionTick); writer.Write(agent.ArrivalSequence);
                 }
             }
         }

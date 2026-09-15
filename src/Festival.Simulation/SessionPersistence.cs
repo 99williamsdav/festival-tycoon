@@ -24,14 +24,14 @@ public sealed record PersistedNavigationAgent(
     ulong Id, int XMillimetres, int ZMillimetres, int Action,
     int? DestinationX, int? DestinationZ, PersistedGridCell[] Route, int RouteIndex,
     int SegmentOriginXMillimetres, int SegmentOriginZMillimetres,
-    int SegmentProgressMicrometres, int MovementRemainder, int LastSearchExpandedNodes);
-public sealed record PersistedQueueAgent(ulong AgentId, int Action, int? ReservedSlotIndex, int ExitIndex, ulong ArrivalSequence);
+    int SegmentProgressMicrometres, int MovementRemainder, int LastSearchExpandedNodes, string? IntentId);
+public sealed record PersistedQueueAgent(ulong AgentId, int Action, int? ReservedSlotIndex, int ExitIndex, long AdmissionTick, ulong ArrivalSequence);
 public sealed record PersistedServiceQueue(
     ulong Id, ulong FestivalId, ulong ServiceId, bool IsOpen, long UnitPricePennies, int ServiceDurationTicks,
-    ulong[] OrderedMembers, ulong? ActiveOwnerId, int RemainingServiceTicks, ulong CompletionSequence,
+    ulong[] OrderedMembers, ulong? ActiveOwnerId, int RemainingServiceTicks, ulong CompletionSequence, bool NeedsReassignment,
     PersistedGridCell[] QueueSlots, PersistedGridCell[] ExitCells, PersistedQueueAgent[] Agents);
 
-/// <summary>Explicit v1 persistence DTO for all authoritative state through M0.07.</summary>
+/// <summary>Explicit v1 persistence DTO for all authoritative state through M0.08.</summary>
 public sealed record SessionPersistenceSnapshot(
     ulong CampaignId,
     ulong CampaignSeed,

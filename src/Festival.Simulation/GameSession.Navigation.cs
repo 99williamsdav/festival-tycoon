@@ -58,6 +58,7 @@ public sealed partial class GameSession
         agent.SegmentProgressMicrometres = 0;
         agent.MovementRemainder = 0;
         agent.LastSearchExpandedNodes = search.ExpandedNodes;
+        agent.IntentId = command.IntentId;
         agent.Action = !search.Found ? AgentNavigationAction.NoRoute
             : search.Path.Count == 1 ? AgentNavigationAction.Arrived : AgentNavigationAction.Travelling;
     }
@@ -113,7 +114,7 @@ public sealed partial class GameSession
         agent.Id, agent.XMillimetres, agent.ZMillimetres, agent.Action, agent.Destination,
         agent.Route.ToArray(), agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
         agent.SegmentProgressMicrometres,
-        agent.MovementRemainder, agent.LastSearchExpandedNodes)).ToArray();
+        agent.MovementRemainder, agent.LastSearchExpandedNodes, agent.IntentId)).ToArray();
 
     private PersistedTraversalGrid? CaptureTraversalGrid() => _traversalGrid is null ? null : new PersistedTraversalGrid(
         TraversalGrid.Width, TraversalGrid.Depth, TraversalGrid.CellSizeMillimetres,
@@ -128,7 +129,7 @@ public sealed partial class GameSession
             agent.Route.Select(cell => new PersistedGridCell(cell.X, cell.Z)).ToArray(),
             agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
             agent.SegmentProgressMicrometres, agent.MovementRemainder,
-            agent.LastSearchExpandedNodes)).ToArray();
+            agent.LastSearchExpandedNodes, agent.IntentId)).ToArray();
 
     private void RestoreNavigation(PersistedTraversalGrid? grid, PersistedNavigationAgent[]? agents)
     {
@@ -148,7 +149,7 @@ public sealed partial class GameSession
                 Route = item.Route.Select(cell => new GridCell(cell.X, cell.Z)).ToList(),
                 RouteIndex = item.RouteIndex, SegmentOriginXMillimetres = item.SegmentOriginXMillimetres,
                 SegmentOriginZMillimetres = item.SegmentOriginZMillimetres, SegmentProgressMicrometres = item.SegmentProgressMicrometres,
-                MovementRemainder = item.MovementRemainder, LastSearchExpandedNodes = item.LastSearchExpandedNodes,
+                MovementRemainder = item.MovementRemainder, LastSearchExpandedNodes = item.LastSearchExpandedNodes, IntentId = item.IntentId,
             });
         }
     }
