@@ -117,6 +117,64 @@ public sealed class FoundationSceneTests
     }
 
     [TestMethod]
+    public void AbsentPhysicalModeMigratesFoundationButExplicitFalsePreservesLegacyFixture()
+    {
+        var foundation = FiftyAgentFoundationFixture.Create();
+        while (foundation.Session.CurrentTick < 1262) foundation.Session.AdvanceTicks(1);
+        var snapshot = foundation.Session.CapturePersistenceSnapshot();
+        var legacyHash = ComputeQueueCompatibilityHash(foundation.Session, includePhysicalMode: false);
+        var absentMode = snapshot with
+        {
+            ServiceQueues = snapshot.ServiceQueues!.Select(queue => queue with { PhysicalArrivalAdmission = null }).ToArray(),
+            AuthoritativeHash = legacyHash,
+        };
+        var jsonOptions = new System.Text.Json.JsonSerializerOptions
+        {
+            PropertyNamingPolicy = System.Text.Json.JsonNamingPolicy.CamelCase,
+            DefaultIgnoreCondition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull,
+        };
+        var json = System.Text.Json.JsonSerializer.Serialize(absentMode, jsonOptions);
+        Assert.IsFalse(json.Contains("physicalArrivalAdmission", StringComparison.Ordinal));
+        var serializedLegacy = System.Text.Json.JsonSerializer.Deserialize<SessionPersistenceSnapshot>(json, jsonOptions)!;
+        Assert.AreEqual(SaveFileAdapter.ComputePayloadChecksum(absentMode), SaveFileAdapter.ComputePayloadChecksum(serializedLegacy));
+        var migrated = GameSession.Restore(serializedLegacy);
+        Assert.IsTrue(migrated.IsSuccess, migrated.Error);
+        var migratedSession = migrated.Session!;
+        var migratedQueue = migratedSession.CaptureSnapshot().ServiceQueues.Single();
+        Assert.IsTrue(migratedQueue.PhysicalArrivalAdmission);
+        var wrapper = new ServiceQueueFixtureState(migratedSession, migratedQueue.Id, migratedQueue.FestivalId, migratedQueue.ServiceId,
+            migratedQueue.Agents.Select(item => item.AgentId).ToArray(), migratedQueue.QueueSlots);
+        Assert.IsTrue(ServiceQueueFixture.SetOpen(wrapper, false, 80).IsAccepted);
+        Assert.IsTrue(ServiceQueueFixture.SetOpen(wrapper, true, 81).IsAccepted);
+        var attendee4 = new EntityId(4);
+        Assert.IsTrue(ServiceQueueFixture.Enqueue(wrapper, attendee4, migratedSession.NextSubmissionSequence, 82).IsAccepted);
+        var remote = migratedSession.CaptureSnapshot().ServiceQueues.Single();
+        Assert.IsFalse(remote.OrderedMembers.Contains(attendee4));
+        Assert.IsNull(remote.Agents.Single(item => item.AgentId == attendee4).ReservedSlotIndex);
+        Assert.AreEqual(ServiceQueueAgentAction.ApproachingQueue, remote.Agents.Single(item => item.AgentId == attendee4).Action);
+        while (!migratedSession.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee4)) migratedSession.AdvanceTicks(1);
+        var physicallyReadmitted = migratedSession.CaptureSnapshot().ServiceQueues.Single();
+        Assert.IsNotNull(physicallyReadmitted.Agents.Single(item => item.AgentId == attendee4).ReservedSlotIndex);
+        Assert.IsTrue(physicallyReadmitted.Agents.Single(item => item.AgentId == attendee4).ArrivalSequence < physicallyReadmitted.NextArrivalSequence);
+
+        var legacy = ServiceQueueFixture.Create();
+        var legacySnapshot = legacy.Session.CapturePersistenceSnapshot();
+        var explicitJson = System.Text.Json.JsonSerializer.Serialize(legacySnapshot, jsonOptions);
+        StringAssert.Contains(explicitJson, "\"physicalArrivalAdmission\":false");
+        var restoredLegacy = GameSession.Restore(System.Text.Json.JsonSerializer.Deserialize<SessionPersistenceSnapshot>(explicitJson, jsonOptions)!);
+        Assert.IsTrue(restoredLegacy.IsSuccess, restoredLegacy.Error);
+        var restoredQueue = restoredLegacy.Session!.CaptureSnapshot().ServiceQueues.Single();
+        Assert.IsFalse(restoredQueue.PhysicalArrivalAdmission);
+        var legacyWrapper = new ServiceQueueFixtureState(restoredLegacy.Session, restoredQueue.Id, restoredQueue.FestivalId,
+            restoredQueue.ServiceId, restoredQueue.Agents.Select(item => item.AgentId).ToArray(), restoredQueue.QueueSlots);
+        var legacyAgent = restoredQueue.OrderedMembers[0];
+        Assert.IsTrue(ServiceQueueFixture.Abandon(legacyWrapper, legacyAgent, 90).IsAccepted);
+        Assert.IsTrue(ServiceQueueFixture.Enqueue(legacyWrapper, legacyAgent, restoredLegacy.Session.NextSubmissionSequence, 91).IsAccepted);
+        Assert.IsTrue(restoredLegacy.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(legacyAgent),
+            "Explicit legacy fixture mode must retain its accepted immediate fixture rejoin behavior.");
+    }
+
+    [TestMethod]
     public void PhysicalArrivalDeterminesQueueOrderAndTieBreakIsStable()
     {
         var fixture = FiftyAgentFoundationFixture.Create();
@@ -424,5 +482,12 @@ public sealed class FoundationSceneTests
         var field = typeof(GameSession).GetField("_serviceQueues", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         var entry = ((System.Collections.IEnumerable)field.GetValue(session)!).Cast<object>().Single();
         return entry.GetType().GetProperty("Value")!.GetValue(entry)!;
+    }
+
+    private static string ComputeQueueCompatibilityHash(GameSession session, bool includePhysicalMode)
+    {
+        var type = typeof(GameSession).Assembly.GetType("Festival.Simulation.CanonicalStateHasher")!;
+        var method = type.GetMethod("ComputeQueueCompatibility", System.Reflection.BindingFlags.Static | System.Reflection.BindingFlags.NonPublic)!;
+        return (string)method.Invoke(null, [session, includePhysicalMode])!;
     }
 }

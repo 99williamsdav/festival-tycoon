@@ -427,7 +427,7 @@ public sealed partial class GameSession
         queue.Agents.Values.Select(agent => new PersistedQueueAgent(agent.AgentId.Value, (int)agent.Action, agent.ReservedSlotIndex, agent.ExitIndex, agent.OwnsExitReservation, agent.AdmissionTick, agent.ArrivalSequence)).ToArray(),
         queue.NextArrivalSequence, queue.PhysicalArrivalAdmission)).ToArray();
 
-    private void RestoreServiceQueues(PersistedServiceQueue[]? queues)
+    private void RestoreServiceQueues(PersistedServiceQueue[]? queues, PersistedNavigationAgent[]? navigation)
     {
         _serviceQueues.Clear();
         foreach (var item in queues ?? [])
@@ -439,7 +439,7 @@ public sealed partial class GameSession
                 ActiveOwnerId = item.ActiveOwnerId is { } owner ? new EntityId(owner) : null,
                 RemainingServiceTicks = item.RemainingServiceTicks, CompletionSequence = item.CompletionSequence, NeedsReassignment = item.NeedsReassignment,
                 NextArrivalSequence = item.NextArrivalSequence == 0 ? 1 : item.NextArrivalSequence,
-                PhysicalArrivalAdmission = item.PhysicalArrivalAdmission,
+                PhysicalArrivalAdmission = ResolvePhysicalArrivalMode(item, navigation),
             };
             queue.OrderedMembers.AddRange(item.OrderedMembers.Select(id => new EntityId(id)));
             queue.QueueSlots.AddRange(item.QueueSlots.Select(cell => new GridCell(cell.X, cell.Z)));
@@ -488,7 +488,8 @@ public sealed partial class GameSession
                     (queue.NextArrivalSequence > 1 && agent.ArrivalSequence >= queue.NextArrivalSequence) ||
                     agent.ExitIndex < 0 || agent.ExitIndex >= queue.ExitCells.Length || agent.ReservedSlotIndex is < 0 || agent.ReservedSlotIndex >= queue.QueueSlots.Length))
                 return $"Service queue {queue.Id} has invalid attendee or slot ownership.";
-            if (queue.PhysicalArrivalAdmission)
+            var physicalArrivalAdmission = ResolvePhysicalArrivalMode(queue, snapshot.NavigationAgents);
+            if (physicalArrivalAdmission)
             {
                 var allocated = queue.Agents.Where(agent => agent.ArrivalSequence != 0).Select(agent => agent.ArrivalSequence).ToArray();
                 if (queue.NextArrivalSequence == 0 || allocated.Distinct().Count() != allocated.Length ||
@@ -566,5 +567,15 @@ public sealed partial class GameSession
             }
         }
         return null;
+    }
+
+    private static bool ResolvePhysicalArrivalMode(PersistedServiceQueue queue, PersistedNavigationAgent[]? navigation)
+    {
+        if (queue.PhysicalArrivalAdmission is { } explicitMode) return explicitMode;
+        var navigationById = (navigation ?? []).ToDictionary(agent => agent.Id);
+        return queue.NextArrivalSequence > 1 ||
+            queue.Agents.Any(agent => agent.Action == (int)ServiceQueueAgentAction.ApproachingQueue) ||
+            queue.Agents.Any(agent => navigationById.TryGetValue(agent.AgentId, out var nav) &&
+                nav.WalkingSpeedPermille is not 0 and not 1_000);
     }
 }

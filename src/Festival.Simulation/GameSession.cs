@@ -331,12 +331,17 @@ public sealed partial class GameSession
                 item.Entries.Select(entry => new LedgerEntry(new EntityId(entry.OwnerId), (LedgerAccountType)entry.Account, entry.AmountPennies))));
 
         session.RestoreNavigation(snapshot.TraversalGrid, snapshot.NavigationAgents);
-        session.RestoreServiceQueues(snapshot.ServiceQueues);
+        session.RestoreServiceQueues(snapshot.ServiceQueues, snapshot.NavigationAgents);
 
         var actualHash = CanonicalStateHasher.Compute(session);
-        return string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)
-            ? SessionRestoreResult.Success(session)
-            : SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");
+        if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
+        if (snapshot.ServiceQueues is { Length: > 0 })
+        {
+            var modeWasAbsent = snapshot.ServiceQueues.Any(queue => queue.PhysicalArrivalAdmission is null);
+            var compatibilityHash = CanonicalStateHasher.ComputeQueueCompatibility(session, includePhysicalQueueMode: !modeWasAbsent);
+            if (string.Equals(compatibilityHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
+        }
+        return SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");
     }
 
     private static string? ValidatePersistenceSnapshot(SessionPersistenceSnapshot snapshot)

@@ -1,5 +1,5 @@
 M0.09 exported-runtime verification passed=True resolution=(1280, 720)
-tick=6561 transactions=50 queue=0 failed=0 festival_cash_p=15000 stock=0
-rendered_hash=5a22b2ef46958f16d0e59b151c6726855ff549882dca413d07326249c406d063 headless_hash=5a22b2ef46958f16d0e59b151c6726855ff549882dca413d07326249c406d063 parity=True
-manual_save_restore=True autosave_slots=3 autosave_writes=16 autosave_cadence_real_seconds=2 requested=4x completion_attained=3.999x pressure_attained=0.847x pressure_debt_ticks=89.549 pressure_work_max_ms=18 overload_reported=True
+tick=6557 transactions=50 queue=0 failed=0 festival_cash_p=15000 stock=0
+rendered_hash=cc3b7a940edb1eb540571625c1716b7db401564c7ab48ec97e270d2787576402 headless_hash=cc3b7a940edb1eb540571625c1716b7db401564c7ab48ec97e270d2787576402 parity=True
+manual_save_restore=True autosave_slots=3 autosave_writes=16 autosave_cadence_real_seconds=2 requested=4x completion_attained=4.001x pressure_attained=0.910x pressure_debt_ticks=81.777 pressure_work_max_ms=18.007 overload_reported=True
 pause_hash_frozen_camera_rotated=True shared_pause_input_route=True attendee_pick_event=True selected_attendee_retained=True shared_action_call_ms=0.011 shared_action_responsive=True os_event_latency_measured=false palette_assignment=ordinal_modulo_10 player_attendee_controls=false fixture_only=true

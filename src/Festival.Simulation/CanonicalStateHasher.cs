@@ -7,14 +7,19 @@ internal static class CanonicalStateHasher
 {
     private const int PreviousSchemaVersion = 2;
     private const int QueueSchemaVersion = 3;
+    private const int PhysicalQueueModeSchemaVersion = 4;
 
-    public static string Compute(GameSession session)
+    public static string Compute(GameSession session) => Compute(session, PhysicalQueueModeSchemaVersion, includePhysicalQueueMode: true);
+    internal static string ComputeQueueCompatibility(GameSession session, bool includePhysicalQueueMode) =>
+        Compute(session, QueueSchemaVersion, includePhysicalQueueMode);
+
+    private static string Compute(GameSession session, int queueSchemaVersion, bool includePhysicalQueueMode)
     {
         using var memory = new MemoryStream();
         using var writer = new BinaryWriter(memory, Encoding.UTF8, leaveOpen: true);
 
         var includesQueues = session.ServiceQueues.Count > 0;
-        writer.Write(includesQueues ? QueueSchemaVersion : PreviousSchemaVersion);
+        writer.Write(includesQueues ? queueSchemaVersion : PreviousSchemaVersion);
         writer.Write(GameSession.TickDurationMilliseconds);
         writer.Write(Pcg32Random.AlgorithmVersion);
         writer.Write(session.CampaignId.Value);
@@ -154,7 +159,7 @@ internal static class CanonicalStateHasher
                 writer.Write(queue.ActiveOwnerId.HasValue); if (queue.ActiveOwnerId is { } owner) writer.Write(owner.Value);
                 writer.Write(queue.RemainingServiceTicks); writer.Write(queue.CompletionSequence); writer.Write(queue.NeedsReassignment);
                 writer.Write(queue.NextArrivalSequence);
-                writer.Write(queue.PhysicalArrivalAdmission);
+                if (includePhysicalQueueMode) writer.Write(queue.PhysicalArrivalAdmission);
                 writer.Write(queue.QueueSlots.Count); foreach (var cell in queue.QueueSlots) { writer.Write(cell.X); writer.Write(cell.Z); }
                 writer.Write(queue.ExitCells.Count); foreach (var cell in queue.ExitCells) { writer.Write(cell.X); writer.Write(cell.Z); }
                 writer.Write(queue.Agents.Count);
