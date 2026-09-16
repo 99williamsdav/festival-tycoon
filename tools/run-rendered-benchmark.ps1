@@ -14,7 +14,18 @@ $exe = Join-Path $repoRoot 'artifacts\windows\FestivalTycoon.exe'
 if (Test-Path -LiteralPath $output) { Remove-Item -LiteralPath $output -Force }
 $process = $null
 try {
-    $process = Start-Process -FilePath $exe -ArgumentList @('--', '--benchmark-launch', $Agents, $Passage, $output) -PassThru -WindowStyle Hidden
+    $startInfo = [Diagnostics.ProcessStartInfo]::new()
+    $startInfo.FileName = $exe
+    $startInfo.WorkingDirectory = $repoRoot
+    $startInfo.UseShellExecute = $false
+    $startInfo.CreateNoWindow = $true
+    $startInfo.WindowStyle = [Diagnostics.ProcessWindowStyle]::Hidden
+    foreach ($argument in @('--', '--benchmark-launch', [string]$Agents, $Passage, $output)) {
+        $startInfo.ArgumentList.Add($argument)
+    }
+    $process = [Diagnostics.Process]::new()
+    $process.StartInfo = $startInfo
+    if (-not $process.Start()) { throw 'Rendered benchmark process did not start.' }
     $deadline = (Get-Date).AddSeconds($TimeoutSeconds)
     while (-not (Test-Path -LiteralPath $output) -and -not $process.HasExited -and (Get-Date) -lt $deadline) {
         Start-Sleep -Milliseconds 250

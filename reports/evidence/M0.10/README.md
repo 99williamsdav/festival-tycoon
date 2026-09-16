@@ -9,6 +9,7 @@ All JSON files are direct `Festival.Runner --benchmark` output. Timing is machin
 - `rendered-1200-wide-timeout.txt`: exported launch timeout; no rendered frame was obtained.
 - `rendered-50-wide-1280x720.txt` and `.png`: required exported 50-agent early-frame launch capture.
 - `rendered-500-wide-1280x720.txt` and `.png`: successful highest-feasible exported early-frame launch capture. The 500 image was inspected; it shows the farm/HUD disclosure before attendees enter the visible farm, so it is not a steady-state crowd capture.
+- `rendered-timeout-cleanup-test.txt`: bounded helper checks proving exact argument preservation for an evidence path containing spaces and exact-child cleanup after a one-second timeout.
 
 Primary commands:
 
