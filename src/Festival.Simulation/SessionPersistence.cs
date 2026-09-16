@@ -24,12 +24,14 @@ public sealed record PersistedNavigationAgent(
     ulong Id, int XMillimetres, int ZMillimetres, int Action,
     int? DestinationX, int? DestinationZ, PersistedGridCell[] Route, int RouteIndex,
     int SegmentOriginXMillimetres, int SegmentOriginZMillimetres,
-    int SegmentProgressMicrometres, int MovementRemainder, int LastSearchExpandedNodes, string? IntentId);
+    int SegmentProgressMicrometres, int MovementRemainder, int LastSearchExpandedNodes, string? IntentId,
+    int WalkingSpeedPermille = 1_000);
 public sealed record PersistedQueueAgent(ulong AgentId, int Action, int? ReservedSlotIndex, int ExitIndex, bool OwnsExitReservation, long AdmissionTick, ulong ArrivalSequence);
 public sealed record PersistedServiceQueue(
     ulong Id, ulong FestivalId, ulong ServiceId, bool IsOpen, long UnitPricePennies, int ServiceDurationTicks,
     ulong[] OrderedMembers, ulong? ActiveOwnerId, int RemainingServiceTicks, ulong CompletionSequence, bool NeedsReassignment,
-    PersistedGridCell[] QueueSlots, PersistedGridCell[] ExitCells, PersistedQueueAgent[] Agents);
+    PersistedGridCell[] QueueSlots, PersistedGridCell[] ExitCells, PersistedQueueAgent[] Agents,
+    ulong NextArrivalSequence = 1);
 
 /// <summary>Explicit v1 persistence DTO for all authoritative state through M0.08.</summary>
 public sealed record SessionPersistenceSnapshot(

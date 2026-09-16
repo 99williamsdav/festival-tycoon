@@ -16,13 +16,15 @@ public static class FiftyAgentFoundationFixture
         var grid = new TraversalGrid(terrain);
         var used = new HashSet<GridCell>();
         var starts = PickWalkable(grid, used, 50, x => 108 + x % 20 * 2, x => 184 + x / 20 * 2);
-        // One cell-spaced physical line: compact enough to read as a queue, while every
-        // attendee owns a distinct reservation and compaction never reverses service order.
-        var slots = PickWalkable(grid, used, 50, x => 158 - x, _ => 116);
+        // The counter is centred at grid 186,118. Start 2.5 m west of it (just outside the
+        // service-point footprint) and snake a compact, readable admission/queue line nearby.
+        var slots = PickWalkable(grid, used, 50,
+            x => 181 - 2 * (x / 10 % 2 == 0 ? x % 10 : 9 - x % 10),
+            x => 118 + x / 10 * 2);
         var exits = PickWalkable(grid, used, 50, x => 104 + x % 25 * 2, x => 188 + x / 25 * 2);
         var command = new InitializeServiceQueueFixtureCommand(
             starts, slots, exits, terrain, Enumerable.Repeat(500L, AgentCount).ToArray(),
-            AgentCount, 120, ServiceQueueFixture.DefaultPricePennies, ServiceDurationTicks);
+            AgentCount, 120, ServiceQueueFixture.DefaultPricePennies, ServiceDurationTicks, PhysicalArrivalAdmission: true);
         var session = new GameSession(20260915, new CampaignId(20260915));
         var result = session.Execute(new CommandEnvelope(new CommandId(1), session.CampaignId, session.Phase,
             session.CurrentTick, session.NextSubmissionSequence, null, command));

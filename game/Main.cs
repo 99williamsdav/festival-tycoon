@@ -405,8 +405,10 @@ public partial class Main : Node
 
     private void Pan(Vector2 amount)
     {
-        var angle = Mathf.DegToRad(_orientation * 90);
-        _focus += new Vector3(Mathf.Cos(angle), 0, -Mathf.Sin(angle)) * amount.X + new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle)) * amount.Y;
+        // Pan in screen axes, including the camera's 45-degree isometric yaw.
+        // amount.X is screen-right and amount.Y is screen-down.
+        var world = CameraControlMath.ScreenPanToWorld(_orientation, amount.X, amount.Y);
+        _focus += new Vector3((float)world.X, 0, (float)world.Z);
         _focus.X = Mathf.Clamp(_focus.X, -PanLimit, PanLimit); _focus.Z = Mathf.Clamp(_focus.Z, -PanLimit, PanLimit); ApplyCamera();
     }
 
@@ -534,7 +536,7 @@ public partial class Main : Node
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));
         _saveStatus = result.IsSuccess ? "SAVED" : "SAVE ERROR";
         if (result.IsSuccess) _manualSaveHash = _session.CaptureSnapshot().AuthoritativeHash;
-        GD.Print($"FOUNDATION_MANUAL_SAVE success={result.IsSuccess} tick={_session.CurrentTick}");
+        GD.Print($"FOUNDATION_MANUAL_SAVE success={result.IsSuccess} tick={_session.CurrentTick} error={result.Error ?? "none"}");
     }
 
     private void ManualLoad()
@@ -559,7 +561,7 @@ public partial class Main : Node
             _saveStatus = "LOADED";
         }
         else _saveStatus = "LOAD ERROR";
-        GD.Print($"FOUNDATION_MANUAL_LOAD success={result.IsSuccess} tick={_session.CurrentTick}");
+        GD.Print($"FOUNDATION_MANUAL_LOAD success={result.IsSuccess} tick={_session.CurrentTick} error={result.Error ?? "none"}");
     }
 
     private void AdvanceFoundationPresentation(double delta)

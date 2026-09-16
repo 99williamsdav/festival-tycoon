@@ -10,6 +10,50 @@ public sealed class FoundationSceneTests
     private static readonly SaveCompatibility Compatibility = new("m0.09-tests", "content", "rules");
 
     [TestMethod]
+    public void CameraKeyboardPanIsScreenRelativeAtEveryRotation()
+    {
+        for (var orientation = 0; orientation < 4; orientation++)
+        {
+            var up = CameraControlMath.ScreenPanToWorld(orientation, 0, -1);
+            var down = CameraControlMath.ScreenPanToWorld(orientation, 0, 1);
+            var left = CameraControlMath.ScreenPanToWorld(orientation, -1, 0);
+            var right = CameraControlMath.ScreenPanToWorld(orientation, 1, 0);
+            Assert.AreEqual(-up.X, down.X, 0.000001); Assert.AreEqual(-up.Z, down.Z, 0.000001);
+            Assert.AreEqual(-left.X, right.X, 0.000001); Assert.AreEqual(-left.Z, right.Z, 0.000001);
+            Assert.AreEqual(0d, up.X * right.X + up.Z * right.Z, 0.000001);
+        }
+    }
+
+    [TestMethod]
+    public void PhysicalArrivalDeterminesQueueOrderAndTieBreakIsStable()
+    {
+        var fixture = FiftyAgentFoundationFixture.Create();
+        var initial = fixture.Session.CaptureSnapshot();
+        Assert.AreEqual(0, initial.ServiceQueues.Single().OrderedMembers.Count);
+        Assert.IsTrue(initial.ServiceQueues.Single().Agents.All(item => item.Action == ServiceQueueAgentAction.ApproachingQueue));
+        CollectionAssert.AreEqual(new[] { 850, 900, 950, 1000, 1050, 1100, 1150 },
+            initial.NavigationAgents.Take(7).Select(item => item.WalkingSpeedPermille).ToArray());
+        while (fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Count < 2) fixture.Session.AdvanceTicks(1);
+        var admitted = fixture.Session.CaptureSnapshot().ServiceQueues.Single();
+        Assert.IsTrue(admitted.OrderedMembers.All(id => admitted.Agents.Single(item => item.AgentId == id).AdmissionTick > 0));
+        Assert.IsTrue(GameSession.CompareAdmission(10, 20, new EntityId(8), 10, 20, new EntityId(9)) < 0);
+        Assert.IsTrue(GameSession.CompareAdmission(10, 21, new EntityId(1), 10, 20, new EntityId(99)) > 0);
+
+        var race = new GameSession(77, new CampaignId(77));
+        var create = race.Execute(new CommandEnvelope(new CommandId(1), race.CampaignId, race.Phase,
+            race.CurrentTick, race.NextSubmissionSequence, null, new InitializeServiceQueueFixtureCommand(
+                [new GridCell(100, 100), new GridCell(118, 102)],
+                [new GridCell(120, 100), new GridCell(120, 102)],
+                [new GridCell(90, 90), new GridCell(92, 90)], [], [500L, 500L], 2, 120, 300, 4,
+                PhysicalArrivalAdmission: true)));
+        Assert.IsTrue(create.IsAccepted, create.Message);
+        var raceAgents = race.CaptureSnapshot().ServiceQueues.Single().Agents.Select(item => item.AgentId).ToArray();
+        while (race.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Count == 0) race.AdvanceTicks(1);
+        Assert.AreEqual(raceAgents[1], race.CaptureSnapshot().ServiceQueues.Single().OrderedMembers[0],
+            "The later-listed, faster/nearer attendee must physically arrive and join before the earlier-listed distant attendee.");
+    }
+
+    [TestMethod]
     public void FiftyAutonomousAttendees_AllPurchaseAndDepartWithoutReservations()
     {
         var fixture = FiftyAgentFoundationFixture.Create();
@@ -140,7 +184,7 @@ public sealed class FoundationSceneTests
         var initial = fixture.Session.CaptureSnapshot();
         var counts = FoundationDiagnostics.Count(initial);
         Assert.AreEqual(50, counts.Travelling);
-        Assert.AreEqual(50, counts.QueueMembers);
+        Assert.AreEqual(0, counts.QueueMembers, "Approaching attendees must not remotely reserve queue membership.");
         Assert.AreEqual(0, counts.Waiting);
         Assert.AreEqual(0, counts.InService);
         Assert.AreEqual(0, counts.Served);

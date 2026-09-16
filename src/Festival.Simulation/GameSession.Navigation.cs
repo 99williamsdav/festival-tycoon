@@ -4,6 +4,7 @@ public sealed partial class GameSession
 {
     public const int WalkingSpeedMillimetresPerFestivalSecond = 120;
     private const int RouteProgressMicrometresPerTick = 30_000;
+    private static readonly int[] WalkingSpeedPermillePattern = [850, 900, 950, 1_000, 1_050, 1_100, 1_150];
     // Prototype centre clearance: below the 500 mm queue-slot spacing, but large enough to
     // prevent sustained near-superposition while still allowing compressed single-file flow.
     public const int SeparationRadiusMillimetres = 300;
@@ -12,6 +13,9 @@ public sealed partial class GameSession
 
     public TraversalGrid? TraversalGrid => _traversalGrid;
     internal IReadOnlyDictionary<EntityId, NavigationAgentState> NavigationAgents => _navigationAgents;
+
+    /// <summary>Stable, replay-safe prototype variation of -15% through +15%; identity-derived, so no extra save field is required.</summary>
+    public static int GetWalkingSpeedPermille(EntityId id) => WalkingSpeedPermillePattern[(int)((id.Value - 1) % (ulong)WalkingSpeedPermillePattern.Length)];
 
     private CommandResult? ValidateInitializeNavigation(EntityId? targetId, InitializeNavigationFixtureCommand command)
     {
@@ -82,19 +86,37 @@ public sealed partial class GameSession
         // A deterministic lateral offset preserves route progress while giving proposals a
         // meaningful prototype centre clearance. This is steering/yielding, not body physics.
         var occupied = new SpatialNeighbourIndex();
+        var priorMovingOccupancy = new SpatialNeighbourIndex(moving.Select(agent =>
+        {
+            var prior = backups[agent.Id];
+            return new NavigationAgentSnapshot(agent.Id, prior.X, prior.Z, prior.Action, null, [], 0,
+                prior.X, prior.Z, 0, 0, 0, null, agent.WalkingSpeedPermille);
+        }));
         foreach (var agent in _navigationAgents.Values.Where(item => !backups.ContainsKey(item.Id)))
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         foreach (var agent in moving.OrderBy(item => item.Route.Count - item.RouteIndex).ThenBy(item => item.Id))
         {
-            if ((!TraversalSweep.IsWalkable(_traversalGrid, backups[agent.Id].X, backups[agent.Id].Z, agent.XMillimetres, agent.ZMillimetres) ||
-                 HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres)) &&
-                !TryApplySeparationOffset(agent, backups[agent.Id], occupied))
+            var proposalConflicts = !TraversalSweep.IsWalkable(_traversalGrid, backups[agent.Id].X, backups[agent.Id].Z, agent.XMillimetres, agent.ZMillimetres) ||
+                HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres) ||
+                HasConflict(priorMovingOccupancy, agent.XMillimetres, agent.ZMillimetres, agent.Id);
+            // An arrival must be at its exact authoritative destination. Lateral yielding is
+            // valid only in transit; otherwise service could begin from an offset position.
+            if (proposalConflicts)
             {
-                backups[agent.Id].Restore(agent);
-                arrived.Remove(agent.Id);
-                if (HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres) &&
-                    !TryApplySeparationOffset(agent, backups[agent.Id], occupied))
-                    throw new InvalidOperationException($"No deterministic non-overlapping movement position exists for attendee {agent.Id}.");
+                var destination = agent.Destination;
+                var intent = agent.IntentId;
+                if (!arrived.Contains(agent.Id) && destination is { } target && intent is not null &&
+                    TryApplySeparationOffset(agent, backups[agent.Id], occupied, priorMovingOccupancy))
+                {
+                    // The offset is authoritative movement, so rebase route interpolation at
+                    // the accepted position instead of snapping back to the old segment next tick.
+                    ApplyAgentDestination(agent.Id, new SetAgentDestinationCommand(target, intent));
+                }
+                else
+                {
+                    backups[agent.Id].Restore(agent);
+                    arrived.Remove(agent.Id);
+                }
             }
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         }
@@ -104,9 +126,10 @@ public sealed partial class GameSession
     private bool AdvanceAgentOneTick(NavigationAgentState agent)
     {
             var terrainCost = _traversalGrid!.Get(agent.Route[agent.RouteIndex]).CostPermille;
-            var numerator = checked(RouteProgressMicrometresPerTick * 1000 + agent.MovementRemainder);
-            var allowance = numerator / terrainCost;
-            agent.MovementRemainder = numerator % terrainCost;
+            var effectiveCost = checked(terrainCost * 1000);
+            var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * 1000 + agent.MovementRemainder);
+            var allowance = checked((int)(numerator / effectiveCost));
+            agent.MovementRemainder = checked((int)(numerator % effectiveCost));
             var arrived = false;
 
             while (allowance > 0 && agent.Action == AgentNavigationAction.Travelling)
@@ -148,14 +171,18 @@ public sealed partial class GameSession
     private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z) =>
         occupied.Query(x, z, SeparationRadiusMillimetres - 1).Count > 0;
 
-    private bool TryApplySeparationOffset(NavigationAgentState agent, MovementBackup backup, SpatialNeighbourIndex occupied)
+    private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z, EntityId except) =>
+        occupied.Query(x, z, SeparationRadiusMillimetres - 1).Any(id => id != except);
+
+    private bool TryApplySeparationOffset(NavigationAgentState agent, MovementBackup backup, SpatialNeighbourIndex occupied,
+        SpatialNeighbourIndex priorMovingOccupancy)
     {
         var dx = agent.XMillimetres - backup.X;
         var dz = agent.ZMillimetres - backup.Z;
         var lateralX = dz == 0 ? 0 : Math.Sign(dz);
         var lateralZ = dx == 0 ? (lateralX == 0 ? 1 : 0) : -Math.Sign(dx);
         var preferred = (agent.Id.Value & 1UL) == 0 ? 1 : -1;
-        for (var distance = SeparationRadiusMillimetres; distance <= 1_200; distance += SeparationRadiusMillimetres)
+        for (var distance = SeparationRadiusMillimetres; distance <= 600; distance += SeparationRadiusMillimetres)
         foreach (var side in new[] { preferred, -preferred })
         {
             var x = agent.XMillimetres + lateralX * distance * side;
@@ -163,6 +190,7 @@ public sealed partial class GameSession
             var cell = TraversalGrid.WorldToCell(x, z);
             if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable ||
                 !TraversalSweep.IsWalkable(_traversalGrid, backup.X, backup.Z, x, z) || HasConflict(occupied, x, z)) continue;
+            if (HasConflict(priorMovingOccupancy, x, z, agent.Id)) continue;
             agent.XMillimetres = x; agent.ZMillimetres = z;
             return true;
         }
@@ -188,7 +216,7 @@ public sealed partial class GameSession
         agent.Id, agent.XMillimetres, agent.ZMillimetres, agent.Action, agent.Destination,
         agent.Route.ToArray(), agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
         agent.SegmentProgressMicrometres,
-        agent.MovementRemainder, agent.LastSearchExpandedNodes, agent.IntentId)).ToArray();
+        agent.MovementRemainder, agent.LastSearchExpandedNodes, agent.IntentId, agent.WalkingSpeedPermille)).ToArray();
 
     private PersistedTraversalGrid? CaptureTraversalGrid() => _traversalGrid is null ? null : new PersistedTraversalGrid(
         TraversalGrid.Width, TraversalGrid.Depth, TraversalGrid.CellSizeMillimetres,
@@ -203,7 +231,7 @@ public sealed partial class GameSession
             agent.Route.Select(cell => new PersistedGridCell(cell.X, cell.Z)).ToArray(),
             agent.RouteIndex, agent.SegmentOriginXMillimetres, agent.SegmentOriginZMillimetres,
             agent.SegmentProgressMicrometres, agent.MovementRemainder,
-            agent.LastSearchExpandedNodes, agent.IntentId)).ToArray();
+            agent.LastSearchExpandedNodes, agent.IntentId, agent.WalkingSpeedPermille)).ToArray();
 
     private void RestoreNavigation(PersistedTraversalGrid? grid, PersistedNavigationAgent[]? agents)
     {
@@ -224,6 +252,7 @@ public sealed partial class GameSession
                 RouteIndex = item.RouteIndex, SegmentOriginXMillimetres = item.SegmentOriginXMillimetres,
                 SegmentOriginZMillimetres = item.SegmentOriginZMillimetres, SegmentProgressMicrometres = item.SegmentProgressMicrometres,
                 MovementRemainder = item.MovementRemainder, LastSearchExpandedNodes = item.LastSearchExpandedNodes, IntentId = item.IntentId,
+                WalkingSpeedPermille = item.WalkingSpeedPermille == 0 ? 1_000 : item.WalkingSpeedPermille,
             });
         }
     }
@@ -243,7 +272,8 @@ public sealed partial class GameSession
         {
             if (item.Route.Any(cell => !restored.Contains(new GridCell(cell.X, cell.Z)) || !restored.Get(new GridCell(cell.X, cell.Z)).IsWalkable))
                 return $"Navigation agent {item.Id} route enters an invalid or blocked cell.";
-            if (item.RouteIndex < 0 || (item.Route.Length > 0 && item.RouteIndex >= item.Route.Length) || item.SegmentProgressMicrometres < 0 || item.MovementRemainder < 0 || item.LastSearchExpandedNodes < 0)
+            if (item.RouteIndex < 0 || (item.Route.Length > 0 && item.RouteIndex >= item.Route.Length) || item.SegmentProgressMicrometres < 0 || item.MovementRemainder < 0 || item.LastSearchExpandedNodes < 0 ||
+                item.WalkingSpeedPermille != 0 && item.WalkingSpeedPermille is < 850 or > 1_150)
                 return $"Navigation agent {item.Id} movement progress is invalid.";
             if (item.Action == (int)AgentNavigationAction.Travelling && (item.Route.Length < 2 || item.RouteIndex < 1))
                 return $"Navigation agent {item.Id} travelling route is incomplete.";

@@ -70,7 +70,8 @@ public sealed record InitializeServiceQueueFixtureCommand(
     int StockQuantity,
     int UnitCostBasisPennies,
     long UnitPricePennies,
-    int ServiceDurationTicks) : SessionCommand;
+    int ServiceDurationTicks,
+    bool PhysicalArrivalAdmission = false) : SessionCommand;
 
 /// <summary>Development fixture: changes facility availability; never directs an attendee.</summary>
 public sealed record SetServiceQueueOpenCommand(bool IsOpen) : SessionCommand;
