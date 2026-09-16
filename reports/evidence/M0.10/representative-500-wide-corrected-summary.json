@@ -1,0 +1,23 @@
+{
+  "Agents": 500,
+  "Passage": "wide",
+  "MeasurementSource": "legacy-units-headless-500-wide-1x.json",
+  "WarmupTicks": 600,
+  "MeasurementTicks": 1200,
+  "AllDeclaredWavesActiveAtMeasurementStart": true,
+  "TickMeanMs": 115.55406825,
+  "TickP50Ms": 55.3543,
+  "TickP95Ms": 413.9295,
+  "TickP99Ms": 671.0446,
+  "ProductionOneXTicksPerSecond": 80,
+  "UnpacedGameSpeedCapacity": 0.1081744692273091,
+  "ProcessPeakWorkingSetBytes": null,
+  "PeakMemoryStatus": "Unverified",
+  "Completed": 500,
+  "Backlog": 0,
+  "RouteFailures": 0,
+  "ReleasedReservations": true,
+  "FinalControllerTick": 7870,
+  "AuthoritativeHash": "bb48a340037b0ac25396e82d121e9d3153a4505c59adcdd88d14f5873d0b4c8f",
+  "RequestedAttainedSpeedStatus": "Unverified; source loop was unpaced"
+}

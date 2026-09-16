@@ -259,10 +259,12 @@ static BenchmarkReport RunBenchmark(int agents, BenchmarkPassage passage, int re
     var initialization = Stopwatch.StartNew();
     var fixture = CrowdBenchmarkFixture.Create(agents, passage);
     initialization.Stop();
-    var warmupTicks = agents >= 1200 ? 4 : 200;
+    var warmupTicks = agents >= 1200 ? 4 : CrowdBenchmarkMeasurement.RepresentativeWarmupTicks;
     var measurementTicks = agents >= 1200 ? 12 : 300;
     Console.Error.WriteLine($"benchmark phase=warmup agents={agents} passage={passage} ticks={warmupTicks}");
     for (var i = 0; i < warmupTicks; i++) fixture.AdvanceOneTick();
+    var activeSessionsAtMeasurementStart = fixture.ActiveSessionCount;
+    var activeAgentsAtMeasurementStart = fixture.ActiveAgentCount;
     var samples = new List<double>(measurementTicks);
     var timer = new Stopwatch();
     var process = Process.GetCurrentProcess();
@@ -273,6 +275,8 @@ static BenchmarkReport RunBenchmark(int agents, BenchmarkPassage passage, int re
         if ((i & 63) == 0) { process.Refresh(); peakBytes = Math.Max(peakBytes, process.WorkingSet64); }
     }
     var measurementCompleted = fixture.Completed;
+    var activeSessionsAtMeasurementEnd = fixture.ActiveSessionCount;
+    var activeAgentsAtMeasurementEnd = fixture.ActiveAgentCount;
     Console.Error.WriteLine($"benchmark phase=measured agents={agents} tick={fixture.ControllerTick} completed={measurementCompleted}");
     var completionLimit = agents >= 1200 ? fixture.ControllerTick : 20_000;
     while (!fixture.AllCompleted && fixture.ControllerTick < completionLimit)
@@ -280,23 +284,24 @@ static BenchmarkReport RunBenchmark(int agents, BenchmarkPassage passage, int re
         fixture.AdvanceOneTick();
         if (fixture.ControllerTick % 1000 == 0) Console.Error.WriteLine($"benchmark phase=completion tick={fixture.ControllerTick} completed={fixture.Completed}");
     }
-    process.Refresh(); peakBytes = Math.Max(peakBytes, process.WorkingSet64);
+    process.Refresh(); peakBytes = Math.Max(peakBytes, process.PeakWorkingSet64);
     samples.Sort();
     double Percentile(double p) => samples[Math.Clamp((int)Math.Ceiling(samples.Count * p) - 1, 0, samples.Count - 1)];
     var average = samples.Average();
-    var targetTickMs = GameSession.TickDurationMilliseconds / (double)requestedSpeed;
     return new BenchmarkReport(agents, passage.ToString().ToLowerInvariant(), requestedSpeed, CrowdBenchmarkFixture.Seed,
         ToolchainSmoke.BuildVersion, "m0-rules-v1", RuntimeInformation.OSDescription, RuntimeInformation.FrameworkDescription,
         Environment.ProcessorCount, GC.GetGCMemoryInfo().TotalAvailableMemoryBytes, warmupTicks, measurementTicks,
-        initialization.Elapsed.TotalMilliseconds, average, Percentile(.5), Percentile(.95), Percentile(.99), targetTickMs / average * requestedSpeed,
-        peakBytes, measurementCompleted, fixture.Completed, fixture.Backlog, fixture.RouteFailures,
+        activeSessionsAtMeasurementStart, activeAgentsAtMeasurementStart, activeSessionsAtMeasurementEnd, activeAgentsAtMeasurementEnd,
+        initialization.Elapsed.TotalMilliseconds, average, Percentile(.5), Percentile(.95), Percentile(.99),
+        CrowdBenchmarkMeasurement.GameSpeedCapacity(average), peakBytes, measurementCompleted, fixture.Completed, fixture.Backlog, fixture.RouteFailures,
         fixture.TotalAgents - fixture.Completed, 0, fixture.AllCompleted && fixture.Reserved == 0,
         fixture.AllCompleted, fixture.ControllerTick, fixture.CompositeHash());
 }
 
 sealed record BenchmarkReport(int Agents, string Passage, int RequestedSpeed, ulong Seed, string Build, string Ruleset,
     string OS, string Runtime, int LogicalProcessors, long AvailableMemoryBytes, int WarmupTicks, int MeasurementTicks,
-    double InitializationMs, double TickMeanMs, double TickP50Ms, double TickP95Ms, double TickP99Ms, double AttainedSpeed,
-    long PeakWorkingSetBytes, int CompletedDuringMeasurement, int Completed, int Backlog, int RouteFailures,
+    int ActiveSessionsAtMeasurementStart, int ActiveAgentsAtMeasurementStart, int ActiveSessionsAtMeasurementEnd, int ActiveAgentsAtMeasurementEnd,
+    double InitializationMs, double TickMeanMs, double TickP50Ms, double TickP95Ms, double TickP99Ms, double UnpacedGameSpeedCapacity,
+    long ProcessPeakWorkingSetBytes, int CompletedDuringMeasurement, int Completed, int Backlog, int RouteFailures,
     int StuckOrUnfinished, int AssistedRecoveries, bool ReleasedReservations, bool FullScenarioCompleted,
     long FinalControllerTick, string AuthoritativeHash);

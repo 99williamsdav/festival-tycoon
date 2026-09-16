@@ -1,4 +1,4 @@
 M0.10 exported benchmark launched=True agents=50 passage=wide resolution=(1280, 720)
-rendered_frames=25 frame_p50_ms=16.667 frame_p95_ms=16.949 frame_p99_ms=16.99 fps_p50=60
-controller_tick=30 completed=0 backlog=0 route_failures=0 hash=f41eedee659529c036578b1cb4b938585fff71648614e361b159d2f549faf020
+rendered_frames=25 frame_p50_ms=16.667 frame_p95_ms=16.943 frame_p99_ms=17.39 fps_p50=60
+controller_tick=30 active_sessions=1 active_agents=6 completed=0 backlog=0 route_failures=0 hash=f41eedee659529c036578b1cb4b938585fff71648614e361b159d2f549faf020
 presentation=one-visible-destination other-destinations=off-camera-same-authoritative-logic no-despawn=True

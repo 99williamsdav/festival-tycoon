@@ -1,0 +1,5 @@
+command=.\tools\run-rendered-benchmark.ps1 -Agents 50 -Passage wide -TimeoutSeconds 1 -EvidenceDirectory reports\evidence\M0.10\timeout-test
+expected_timeout=True
+exact_child_terminated=True
+remaining_FestivalTycoon_processes=0
+evidence_written=False

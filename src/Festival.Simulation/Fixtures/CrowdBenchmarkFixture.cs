@@ -16,6 +16,9 @@ public sealed class CrowdBenchmarkFixture
     public long ControllerTick { get; private set; }
     public int TotalAgents { get; }
     public BenchmarkPassage Passage { get; }
+    public int ActiveSessionCount => Waves.Count(wave => wave.StartTick <= ControllerTick);
+    public int ActiveAgentCount => Waves.Where(wave => wave.StartTick <= ControllerTick)
+        .Sum(wave => wave.Session.CaptureSnapshot().NavigationAgents.Count);
 
     private CrowdBenchmarkFixture(int totalAgents, BenchmarkPassage passage, IReadOnlyList<CrowdBenchmarkWave> waves)
     { TotalAgents = totalAgents; Passage = passage; Waves = waves; }
@@ -70,4 +73,13 @@ public sealed class CrowdBenchmarkFixture
             .Where(z => z < openMin || z > openMax)
             .Select(z => new TerrainCellOverride(new GridCell(128, z), GroundSurface.Grass, false)).ToArray();
     }
+}
+
+public static class CrowdBenchmarkMeasurement
+{
+    public const int RepresentativeWarmupTicks = 600;
+
+    /// <summary>Unpaced compute capacity relative to the production 80-tick/second 1x clock.</summary>
+    public static double GameSpeedCapacity(double meanTickMilliseconds) =>
+        meanTickMilliseconds <= 0 ? double.PositiveInfinity : 1000d / (FoundationClock.OneXTickRate * meanTickMilliseconds);
 }

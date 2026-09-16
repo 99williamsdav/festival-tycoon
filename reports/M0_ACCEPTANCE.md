@@ -1,29 +1,34 @@
 # M0 foundation acceptance
 
-Overall outcome: **Conditional / performance gate failed at promised ceiling**. The deterministic, financial, save, camera and 50-agent foundations pass. The original 1,200 full-fidelity performance target does not.
+Overall outcome: **Fail at the promised crowd/performance ceiling**. Functional, deterministic, financial, save and camera foundations pass; representative rendered performance and ceiling memory remain unverified where stated.
 
 | IMPLEMENTATION_PLAN §3 requirement | Status | Evidence |
 |---|---|---|
 | Documented clean build/export, no editor-only setup | Pass | [M0.01](../briefs/results/M0.01.md), [M0.10](../briefs/results/M0.10.md) |
-| Same seed + commands produce same checksum | Pass | [M0.02](../briefs/results/M0.02.md); M0.10 paired hashes |
-| Halfway save resumes to same final checksum | Pass | [M0.05](../briefs/results/M0.05.md), [M0.09](../briefs/results/M0.09.md) |
-| Pause freezes authoritative progress; camera remains usable | Pass | [M0.09](../briefs/results/M0.09.md) |
-| 1×/4× identical at identical simulation ticks | Pass | M0.09 regression plus M0.10 50/200 paired hashes |
-| Wallet transfer conserves money | Pass | [M0.04](../briefs/results/M0.04.md) |
-| Queue reservation/lifecycle survives save/load | Pass | [M0.08](../briefs/results/M0.08.md), [M0.09](../briefs/results/M0.09.md) |
-| Camera rotates 90°; selection stable through four views | Pass | [M0.06](../briefs/results/M0.06.md) and camera-relative corrective tests |
-| Static grid, deterministic pathing, separation, no fence crossing | Pass at accepted fixtures | [M0.07](../briefs/results/M0.07.md), [M0.09](../briefs/results/M0.09.md) |
-| 50 rendered attendees gate→physical queue→service | Pass | [M0.09](../briefs/results/M0.09.md) |
-| Multiple benchmark destinations and narrow/wide variants | Pass | [M0.10](../briefs/results/M0.10.md) |
-| 50/200/500/1,200 performance measured | Pass as measurement obligation | M0.10; 1,200 explicitly diagnostic/incomplete |
-| Intended 1,200-agent scale plausible at target | **Fail** | 500 already averages 115.6 ms/tick; 1,200 initialization/warm-up structurally excessive |
-| 1,200 at ≥30 rendered FPS at 1× | **Fail** | Exported launch timed out after 217 seconds without producing a frame |
-| 4× useful acceleration without skipped ticks | Pass at 50; **Fail at 200/500** | 200 attained 3.25×; explicit 500 requested-4× run attained 0.73×, while preserving hashes |
-| Simulation CPU under 8 ms average at ceiling | **Fail** | 200/500 mean and high percentiles exceed target |
-| Peak process memory under 2 GB | Pass on measured machine | Approximately 53–63 MB headless working set |
-| No duplicated reservations; completed scenarios reconcile sales | Pass through 500 | All completed agents produced one sale; zero final reservations/failures/recovery |
+| Same seed + commands produce same checksum | Pass | M0.02 and M0.10 repeated hashes |
+| Halfway save resumes to same final checksum | Pass | M0.05/M0.09 plus repaired regression run |
+| Pause freezes authoritative progress; camera remains usable | Pass | M0.09 |
+| 1×/4× identical at identical simulation ticks | Pass | M0.09 authoritative regression |
+| Wallet transfer conserves money | Pass | M0.04 |
+| Queue reservation/lifecycle survives save/load | Pass | M0.08/M0.09 |
+| Camera rotates 90°; selection remains stable | Pass | M0.06/M0.09 |
+| Static grid, deterministic pathing, separation, no fence crossing in accepted fixtures | Pass | M0.07/M0.09 |
+| 50 rendered attendees gate→physical queue→service | Pass | M0.09 exported foundation evidence |
+| Multiple benchmark destinations and narrow/wide variants exist | Pass | M0.10 fixture/tests; sessions are isolated |
+| Same benchmark configuration has stable authoritative output | Pass | M0.10 tests and retained hashes |
+| Wide fixture improves controlled completion without changing demand/stock | Pass | Deterministic fixture only; width can also shorten individual routes |
+| Completed scenarios reconcile sales/reservations without despawn | Pass | 50/200/500 functional completion evidence |
+| 50/200 representative headless measurement | Pass | All sessions/agents active at both sample boundaries |
+| 500 representative headless measurement | Pass | Legacy 600+1200 active-population window, units corrected |
+| 1,200 representative measurement | Unverified | Only bounded pre-arrival diagnostic; normal warm-up structurally excessive |
+| Intended 1,200 full-fidelity scale plausible at target | Fail | 200/500 unpaced capacity already below game 1×; 1,200 produced no exported frame |
+| 1,200 at ≥30 rendered FPS at 1× | Fail | Export launch timed out after 217 seconds without a frame |
+| Requested/attained representative rendered 1×/4× below ceiling | Unverified | Existing 50/500 captures are early/pre-arrival; headless loop is unpaced |
+| 4× useful acceleration at the crowd ceiling without skipped ticks | Fail | Even 200 unpaced compute capacity is only 0.245–0.270× game 1× |
+| Simulation CPU under 8 ms average per rendered frame at ceiling | Unverified | No representative ceiling frame sample; this target is not per tick |
+| Peak process memory under 2 GB at ceiling | Unverified | True process peak passes at 50/200 only; old 500/1,200 samples are invalid for this gate |
 | No Godot references in simulation library | Pass | Project boundary/build evidence |
-| Valid versioned save header and migration behavior | Pass | [M0.05](../briefs/results/M0.05.md), M0.09 presence-aware migration |
-| Low-poly readability / atmosphere | Partially verified | Four-view/screenshots pass technical inspection; subjective polish remains playtest work |
+| Valid versioned save header and migration behavior | Pass | M0.05/M0.09 |
+| Low-poly readability / atmosphere | Unverified | Existing visuals are technical captures; subjective stakeholder/playtest gate remains |
 
-Decision carried forward: target 200 full-fidelity attendees near term, keep 500 as an optimization stress fixture, and retain 1,200 as an eventual perceived crowd ambition requiring a separately approved architecture/optimization brief. This recommendation does not rewrite the original gate result.
+Current supported recommendation: retain the accepted 50-attendee foundation as the evidenced baseline. Use 200 and 500 only as optimization/stress fixtures until a representative rendered scheduler benchmark proves otherwise. Preserve 1,200 as a future perceived-crowd goal requiring separately approved optimization/LOD work.

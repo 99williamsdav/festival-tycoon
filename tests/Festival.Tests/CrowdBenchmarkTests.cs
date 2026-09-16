@@ -17,6 +17,26 @@ public sealed class CrowdBenchmarkTests
     }
 
     [TestMethod]
+    public void CapacityUsesProductionEightyTickPerSecondClockUnits()
+    {
+        Assert.AreEqual(1d, CrowdBenchmarkMeasurement.GameSpeedCapacity(12.5), 0.000_001);
+        Assert.AreEqual(0.5d, CrowdBenchmarkMeasurement.GameSpeedCapacity(25), 0.000_001);
+        Assert.AreEqual(4d, CrowdBenchmarkMeasurement.GameSpeedCapacity(3.125), 0.000_001);
+    }
+
+    [TestMethod]
+    public void RepresentativeWindowBeginsOnlyAfterEveryWaveAndAgentIsActive()
+    {
+        var fixture = CrowdBenchmarkFixture.Create(50, BenchmarkPassage.Wide);
+        while (fixture.ControllerTick < CrowdBenchmarkMeasurement.RepresentativeWarmupTicks) fixture.AdvanceOneTick();
+        Assert.AreEqual(CrowdBenchmarkFixture.DestinationCount, fixture.ActiveSessionCount);
+        Assert.AreEqual(50, fixture.ActiveAgentCount);
+        for (var tick = 0; tick < 300; tick++) fixture.AdvanceOneTick();
+        Assert.AreEqual(CrowdBenchmarkFixture.DestinationCount, fixture.ActiveSessionCount);
+        Assert.AreEqual(50, fixture.ActiveAgentCount);
+    }
+
+    [TestMethod]
     public void WideControlledPassageCompletesSameDemandSoonerWithoutFailuresOrRecovery()
     {
         var narrow = CrowdBenchmarkFixture.Create(50, BenchmarkPassage.Narrow);

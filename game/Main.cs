@@ -539,7 +539,7 @@ public partial class Main : Node
         double P(double p) => ordered[Math.Clamp((int)Math.Ceiling(ordered.Length * p) - 1, 0, ordered.Length - 1)];
         var report = $"M0.10 exported benchmark launched=True agents={fixture.TotalAgents} passage={fixture.Passage.ToString().ToLowerInvariant()} resolution={GetWindow().Size}{System.Environment.NewLine}" +
             $"rendered_frames={ordered.Length} frame_p50_ms={P(.5):0.###} frame_p95_ms={P(.95):0.###} frame_p99_ms={P(.99):0.###} fps_p50={1000/P(.5):0.###}{System.Environment.NewLine}" +
-            $"controller_tick={fixture.ControllerTick} completed={fixture.Completed} backlog={fixture.Backlog} route_failures={fixture.RouteFailures} hash={fixture.CompositeHash()}{System.Environment.NewLine}" +
+            $"controller_tick={fixture.ControllerTick} active_sessions={fixture.ActiveSessionCount} active_agents={fixture.ActiveAgentCount} completed={fixture.Completed} backlog={fixture.Backlog} route_failures={fixture.RouteFailures} hash={fixture.CompositeHash()}{System.Environment.NewLine}" +
             "presentation=one-visible-destination other-destinations=off-camera-same-authoritative-logic no-despawn=True" + System.Environment.NewLine;
         File.WriteAllText(_benchmarkOutputPath!, report);
         GetViewport().GetTexture().GetImage().SavePng(Path.ChangeExtension(_benchmarkOutputPath!, ".png"));
