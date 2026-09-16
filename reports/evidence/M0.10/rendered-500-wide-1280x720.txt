@@ -1,0 +1,4 @@
+M0.10 exported benchmark launched=True agents=500 passage=wide resolution=(1280, 720)
+rendered_frames=25 frame_p50_ms=16.667 frame_p95_ms=16.852 frame_p99_ms=141.385 fps_p50=60
+controller_tick=30 completed=0 backlog=0 route_failures=0 hash=1e5dacd5e9a6908c0fb00d21328b866b90ff84d33b4bf951391c1acf4908fa1f
+presentation=one-visible-destination other-destinations=off-camera-same-authoritative-logic no-despawn=True

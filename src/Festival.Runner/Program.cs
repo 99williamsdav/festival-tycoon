@@ -2,11 +2,28 @@ using Festival.ContentAdapter;
 using Festival.Persistence;
 using Festival.Simulation;
 using Festival.Simulation.Fixtures;
+using System.Diagnostics;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 
 var saveCompatibility = new SaveCompatibility(
     "0.0.1-m0.05",
     "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9",
     "m0-rules-v1");
+
+if (args.Length >= 5 && args[0] == "--benchmark")
+{
+    var agents = int.Parse(args[1]);
+    var passage = Enum.Parse<BenchmarkPassage>(args[2], ignoreCase: true);
+    var speed = int.Parse(args[3]);
+    var output = args[4];
+    var run = RunBenchmark(agents, passage, speed);
+    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
+    File.WriteAllText(output, JsonSerializer.Serialize(run, new JsonSerializerOptions { WriteIndented = true }));
+    Console.WriteLine(JsonSerializer.Serialize(run));
+    Environment.ExitCode = run.Completed == agents && run.RouteFailures == 0 && run.ReleasedReservations ? 0 : 2;
+    return;
+}
 
 if (args is ["--save-roundtrip", var saveDirectory, var slotId])
 {
@@ -236,3 +253,50 @@ if (args is ["--scenario", "fifty-agent-foundation"])
 }
 
 Console.WriteLine(ToolchainSmoke.GetFixedResult());
+
+static BenchmarkReport RunBenchmark(int agents, BenchmarkPassage passage, int requestedSpeed)
+{
+    var initialization = Stopwatch.StartNew();
+    var fixture = CrowdBenchmarkFixture.Create(agents, passage);
+    initialization.Stop();
+    var warmupTicks = agents >= 1200 ? 4 : 200;
+    var measurementTicks = agents >= 1200 ? 12 : 300;
+    Console.Error.WriteLine($"benchmark phase=warmup agents={agents} passage={passage} ticks={warmupTicks}");
+    for (var i = 0; i < warmupTicks; i++) fixture.AdvanceOneTick();
+    var samples = new List<double>(measurementTicks);
+    var timer = new Stopwatch();
+    var process = Process.GetCurrentProcess();
+    var peakBytes = process.WorkingSet64;
+    for (var i = 0; i < measurementTicks; i++)
+    {
+        timer.Restart(); fixture.AdvanceOneTick(); timer.Stop(); samples.Add(timer.Elapsed.TotalMilliseconds);
+        if ((i & 63) == 0) { process.Refresh(); peakBytes = Math.Max(peakBytes, process.WorkingSet64); }
+    }
+    var measurementCompleted = fixture.Completed;
+    Console.Error.WriteLine($"benchmark phase=measured agents={agents} tick={fixture.ControllerTick} completed={measurementCompleted}");
+    var completionLimit = agents >= 1200 ? fixture.ControllerTick : 20_000;
+    while (!fixture.AllCompleted && fixture.ControllerTick < completionLimit)
+    {
+        fixture.AdvanceOneTick();
+        if (fixture.ControllerTick % 1000 == 0) Console.Error.WriteLine($"benchmark phase=completion tick={fixture.ControllerTick} completed={fixture.Completed}");
+    }
+    process.Refresh(); peakBytes = Math.Max(peakBytes, process.WorkingSet64);
+    samples.Sort();
+    double Percentile(double p) => samples[Math.Clamp((int)Math.Ceiling(samples.Count * p) - 1, 0, samples.Count - 1)];
+    var average = samples.Average();
+    var targetTickMs = GameSession.TickDurationMilliseconds / (double)requestedSpeed;
+    return new BenchmarkReport(agents, passage.ToString().ToLowerInvariant(), requestedSpeed, CrowdBenchmarkFixture.Seed,
+        ToolchainSmoke.BuildVersion, "m0-rules-v1", RuntimeInformation.OSDescription, RuntimeInformation.FrameworkDescription,
+        Environment.ProcessorCount, GC.GetGCMemoryInfo().TotalAvailableMemoryBytes, warmupTicks, measurementTicks,
+        initialization.Elapsed.TotalMilliseconds, average, Percentile(.5), Percentile(.95), Percentile(.99), targetTickMs / average * requestedSpeed,
+        peakBytes, measurementCompleted, fixture.Completed, fixture.Backlog, fixture.RouteFailures,
+        fixture.TotalAgents - fixture.Completed, 0, fixture.AllCompleted && fixture.Reserved == 0,
+        fixture.AllCompleted, fixture.ControllerTick, fixture.CompositeHash());
+}
+
+sealed record BenchmarkReport(int Agents, string Passage, int RequestedSpeed, ulong Seed, string Build, string Ruleset,
+    string OS, string Runtime, int LogicalProcessors, long AvailableMemoryBytes, int WarmupTicks, int MeasurementTicks,
+    double InitializationMs, double TickMeanMs, double TickP50Ms, double TickP95Ms, double TickP99Ms, double AttainedSpeed,
+    long PeakWorkingSetBytes, int CompletedDuringMeasurement, int Completed, int Backlog, int RouteFailures,
+    int StuckOrUnfinished, int AssistedRecoveries, bool ReleasedReservations, bool FullScenarioCompleted,
+    long FinalControllerTick, string AuthoritativeHash);

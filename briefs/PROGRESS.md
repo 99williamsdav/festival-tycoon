@@ -13,6 +13,6 @@ Implementation began 7 September 2026. Update rows only when work actually occur
 | M0.07 | Accepted | [Static deterministic traversal, continuous AI retargeting, optimal terrain-cost A*, persistence/hash coverage, around-barn demonstration and review-repair evidence](results/M0.07.md) | None |
 | M0.08 | Accepted | [Autonomous physical queue, hardened service/exit ownership, duplicate future-exit rejection, invalid-front-intent cleanup, timed atomic purchases, 66 passing tests and departure-complete exported evidence](results/M0.08.md) | None |
 | M0.09 | Accepted + corrective follow-up | [Arrival-based queueing/rejoin lifecycle, presence-aware save migration, connected counter layout, view-relative controls, deterministic walking-speed variation, 79 passing tests and exported stress evidence](results/M0.09.md) | None |
-| M0.10 | Not started | None | All |
+| M0.10 | Measured — performance gate failed at ceiling | [50/200/500 functional results, bounded 1,200 structural-fail evidence, rendered export launch and complete M0 acceptance matrix](results/M0.10.md) | 1,200 full-fidelity and 200/500 4× performance targets fail; optimization follow-up required before claiming scale |
 
 For each completed task, record changed files, exact verification commands, observed results, reviewer/QA identity and limitations in its results file. Do not replace failures or unavailable checks with an unqualified completion claim.

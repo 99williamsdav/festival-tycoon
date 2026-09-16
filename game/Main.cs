@@ -52,6 +52,10 @@ public partial class Main : Node
     private bool _queueReopened;
     private int _queuePurchaseFrames;
     private FiftyAgentFoundationFixtureState? _foundationFixture;
+    private CrowdBenchmarkFixture? _benchmarkFixture;
+    private string? _benchmarkOutputPath;
+    private int _benchmarkFrames;
+    private readonly List<double> _benchmarkFrameMilliseconds = [];
     private FiftyAgentFoundationFixtureState? _foundationReference;
     private readonly FoundationClock _foundationClock = new();
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
@@ -89,7 +93,11 @@ public partial class Main : Node
         _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null ?
             RealTimeAutosaveScheduler.ProductionCadenceSeconds : 2);
         _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
-        if (_foundationCaptureDirectory is not null || (_captureDirectory is null && _navigationCaptureDirectory is null && _queueCaptureDirectory is null))
+        if (_benchmarkFixture is not null)
+        {
+            _session = _benchmarkFixture.Waves[0].Session;
+        }
+        else if (_foundationCaptureDirectory is not null || (_captureDirectory is null && _navigationCaptureDirectory is null && _queueCaptureDirectory is null))
         {
             _foundationFixture = FiftyAgentFoundationFixture.Create();
             if (_foundationCaptureDirectory is not null) _foundationReference = FiftyAgentFoundationFixture.Create();
@@ -138,7 +146,8 @@ public partial class Main : Node
         if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) input.X -= 1;
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
-        if (_foundationFixture is not null) AdvanceFoundationPresentation(delta);
+        if (_benchmarkFixture is not null) AdvanceRenderedBenchmark(delta);
+        else if (_foundationFixture is not null) AdvanceFoundationPresentation(delta);
         else if (_queueCaptureDirectory is not null) AdvanceQueuePresentation(delta);
         else if (_navigationCaptureDirectory is not null) AdvanceNavigationPresentation(delta);
         else UpdateHashStatus();
@@ -495,6 +504,13 @@ public partial class Main : Node
             else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
+            else if (args[i] == "--benchmark-launch" && i + 3 < args.Length)
+            {
+                var agents = int.Parse(args[++i]);
+                var passage = Enum.Parse<BenchmarkPassage>(args[++i], true);
+                _benchmarkOutputPath = ProjectSettings.GlobalizePath(args[++i]);
+                _benchmarkFixture = CrowdBenchmarkFixture.Create(agents, passage);
+            }
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
@@ -505,6 +521,29 @@ public partial class Main : Node
         if (_navigationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_navigationCaptureDirectory);
         if (_queueCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_queueCaptureDirectory);
         if (_foundationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_foundationCaptureDirectory);
+        if (_benchmarkOutputPath is not null) DirAccess.MakeDirRecursiveAbsolute(Path.GetDirectoryName(_benchmarkOutputPath)!);
+    }
+
+    private void AdvanceRenderedBenchmark(double delta)
+    {
+        var fixture = _benchmarkFixture!;
+        _benchmarkFrameMilliseconds.Add(delta * 1000);
+        fixture.AdvanceOneTick();
+        _benchmarkFrames++;
+        var snapshot = fixture.Waves[0].Session.CaptureSnapshot();
+        foreach (var agent in snapshot.NavigationAgents)
+            if (_attendeeVisuals.TryGetValue(agent.Id, out var visual)) visual.Position = ToWorld(agent);
+        _hashLabel.Text = $"M0.10 RENDERED BENCHMARK • {fixture.TotalAgents} TOTAL\nVISIBLE DESTINATION {snapshot.NavigationAgents.Count} • OFF-CAMERA LOGIC IDENTICAL\nFRAME {_benchmarkFrames} TICK {fixture.ControllerTick} HASH {fixture.CompositeHash()[..12]}";
+        if (_benchmarkFrames < 30) return;
+        var ordered = _benchmarkFrameMilliseconds.Skip(5).Order().ToArray();
+        double P(double p) => ordered[Math.Clamp((int)Math.Ceiling(ordered.Length * p) - 1, 0, ordered.Length - 1)];
+        var report = $"M0.10 exported benchmark launched=True agents={fixture.TotalAgents} passage={fixture.Passage.ToString().ToLowerInvariant()} resolution={GetWindow().Size}{System.Environment.NewLine}" +
+            $"rendered_frames={ordered.Length} frame_p50_ms={P(.5):0.###} frame_p95_ms={P(.95):0.###} frame_p99_ms={P(.99):0.###} fps_p50={1000/P(.5):0.###}{System.Environment.NewLine}" +
+            $"controller_tick={fixture.ControllerTick} completed={fixture.Completed} backlog={fixture.Backlog} route_failures={fixture.RouteFailures} hash={fixture.CompositeHash()}{System.Environment.NewLine}" +
+            "presentation=one-visible-destination other-destinations=off-camera-same-authoritative-logic no-despawn=True" + System.Environment.NewLine;
+        File.WriteAllText(_benchmarkOutputPath!, report);
+        GetViewport().GetTexture().GetImage().SavePng(Path.ChangeExtension(_benchmarkOutputPath!, ".png"));
+        GD.Print(report); GetTree().Quit(0);
     }
 
     private void SetFoundationSpeed(RequestedSpeed speed)
