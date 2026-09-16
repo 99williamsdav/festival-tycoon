@@ -22,7 +22,8 @@ public sealed record ServiceQueueSnapshot(
     EntityId? ActiveOwnerId, int RemainingServiceTicks, ulong CompletionSequence,
     bool NeedsReassignment,
     IReadOnlyList<GridCell> QueueSlots, IReadOnlyList<GridCell> ExitCells,
-    IReadOnlyList<ServiceQueueAgentSnapshot> Agents, ulong NextArrivalSequence = 1);
+    IReadOnlyList<ServiceQueueAgentSnapshot> Agents, ulong NextArrivalSequence = 1,
+    bool PhysicalArrivalAdmission = false);
 
 internal sealed class ServiceQueueAgentState
 {
@@ -49,6 +50,7 @@ internal sealed class ServiceQueueState
     public ulong CompletionSequence { get; set; }
     public bool NeedsReassignment { get; set; }
     public ulong NextArrivalSequence { get; set; } = 1;
+    public bool PhysicalArrivalAdmission { get; init; }
     public List<GridCell> QueueSlots { get; } = [];
     public List<GridCell> ExitCells { get; } = [];
     public SortedDictionary<EntityId, ServiceQueueAgentState> Agents { get; } = [];
@@ -91,6 +93,7 @@ public sealed partial class GameSession
         {
             Id = queueId, FestivalId = festivalId, ServiceId = serviceId, IsOpen = true,
             UnitPricePennies = command.UnitPricePennies, ServiceDurationTicks = command.ServiceDurationTicks,
+            PhysicalArrivalAdmission = command.PhysicalArrivalAdmission,
         };
         queue.QueueSlots.AddRange(command.QueueSlots);
         queue.ExitCells.AddRange(command.ExitCells);
@@ -142,17 +145,11 @@ public sealed partial class GameSession
         var targetError = ValidateServiceQueueTarget(targetId);
         if (targetError is not null) return targetError;
         var queue = _serviceQueues[targetId!.Value];
-        if (command.ArrivalSequence != submissionSequence)
+        if (!queue.PhysicalArrivalAdmission && command.ArrivalSequence != submissionSequence)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Queue admission sequence must be the authoritative command submission sequence.");
         if (!queue.IsOpen || !queue.Agents.TryGetValue(command.AgentId, out var agent) ||
             queue.OrderedMembers.Contains(command.AgentId) || agent.Action is ServiceQueueAgentAction.Departing or ServiceQueueAgentAction.Completed)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Attendee is not eligible to join this open queue.");
-        if (agent.Action == ServiceQueueAgentAction.ApproachingQueue)
-        {
-            var navigation = _navigationAgents[command.AgentId];
-            if (navigation.Action != AgentNavigationAction.Arrived || navigation.IntentId != "ai.service-approach")
-                return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Attendee cannot join before physically arriving at queue admission.");
-        }
         return null;
     }
 
@@ -163,6 +160,13 @@ public sealed partial class GameSession
         // A valid rejoin explicitly transfers navigation ownership from the exit
         // lifecycle back to the logical queue lifecycle.
         agent.OwnsExitReservation = false;
+        if (queue.PhysicalArrivalAdmission)
+        {
+            agent.ReservedSlotIndex = null;
+            agent.Action = ServiceQueueAgentAction.ApproachingQueue;
+            SetDestinationDirect(command.AgentId, queue.QueueSlots[agent.ExitIndex], "ai.service-approach");
+            return;
+        }
         agent.AdmissionTick = admissionTick;
         agent.ArrivalSequence = submissionSequence;
         agent.Action = ServiceQueueAgentAction.TravellingToQueue;
@@ -236,6 +240,14 @@ public sealed partial class GameSession
                     }
                     else if (navigation.Action == AgentNavigationAction.Arrived && navigation.IntentId == "ai.service-approach")
                     {
+                        if (queue.NextArrivalSequence == ulong.MaxValue)
+                        {
+                            approaching.Action = ServiceQueueAgentAction.Failed;
+                            approaching.OwnsExitReservation = true;
+                            SetDestinationDirect(approaching.AgentId, queue.ExitCells[approaching.ExitIndex], "ai.service-exit");
+                            events.Add(new SessionEvent(CurrentTick, "service_queue_sequence_exhausted", approaching.AgentId));
+                            continue;
+                        }
                         approaching.AdmissionTick = CurrentTick;
                         approaching.ArrivalSequence = queue.NextArrivalSequence++;
                         approaching.Action = ServiceQueueAgentAction.TravellingToQueue;
@@ -405,7 +417,7 @@ public sealed partial class GameSession
         queue.OrderedMembers.ToArray(), queue.ActiveOwnerId, queue.RemainingServiceTicks, queue.CompletionSequence, queue.NeedsReassignment,
         queue.QueueSlots.ToArray(), queue.ExitCells.ToArray(), queue.Agents.Values.Select(agent => new ServiceQueueAgentSnapshot(
             agent.AgentId, agent.Action, agent.ReservedSlotIndex, agent.ExitIndex, agent.OwnsExitReservation, agent.AdmissionTick, agent.ArrivalSequence)).ToArray(),
-        queue.NextArrivalSequence)).ToArray();
+        queue.NextArrivalSequence, queue.PhysicalArrivalAdmission)).ToArray();
 
     private PersistedServiceQueue[]? CapturePersistedServiceQueues() => _serviceQueues.Count == 0 ? null : _serviceQueues.Values.Select(queue => new PersistedServiceQueue(
         queue.Id.Value, queue.FestivalId.Value, queue.ServiceId.Value, queue.IsOpen, queue.UnitPricePennies, queue.ServiceDurationTicks,
@@ -413,7 +425,7 @@ public sealed partial class GameSession
         queue.QueueSlots.Select(cell => new PersistedGridCell(cell.X, cell.Z)).ToArray(),
         queue.ExitCells.Select(cell => new PersistedGridCell(cell.X, cell.Z)).ToArray(),
         queue.Agents.Values.Select(agent => new PersistedQueueAgent(agent.AgentId.Value, (int)agent.Action, agent.ReservedSlotIndex, agent.ExitIndex, agent.OwnsExitReservation, agent.AdmissionTick, agent.ArrivalSequence)).ToArray(),
-        queue.NextArrivalSequence)).ToArray();
+        queue.NextArrivalSequence, queue.PhysicalArrivalAdmission)).ToArray();
 
     private void RestoreServiceQueues(PersistedServiceQueue[]? queues)
     {
@@ -427,6 +439,7 @@ public sealed partial class GameSession
                 ActiveOwnerId = item.ActiveOwnerId is { } owner ? new EntityId(owner) : null,
                 RemainingServiceTicks = item.RemainingServiceTicks, CompletionSequence = item.CompletionSequence, NeedsReassignment = item.NeedsReassignment,
                 NextArrivalSequence = item.NextArrivalSequence == 0 ? 1 : item.NextArrivalSequence,
+                PhysicalArrivalAdmission = item.PhysicalArrivalAdmission,
             };
             queue.OrderedMembers.AddRange(item.OrderedMembers.Select(id => new EntityId(id)));
             queue.QueueSlots.AddRange(item.QueueSlots.Select(cell => new GridCell(cell.X, cell.Z)));
@@ -475,6 +488,13 @@ public sealed partial class GameSession
                     (queue.NextArrivalSequence > 1 && agent.ArrivalSequence >= queue.NextArrivalSequence) ||
                     agent.ExitIndex < 0 || agent.ExitIndex >= queue.ExitCells.Length || agent.ReservedSlotIndex is < 0 || agent.ReservedSlotIndex >= queue.QueueSlots.Length))
                 return $"Service queue {queue.Id} has invalid attendee or slot ownership.";
+            if (queue.PhysicalArrivalAdmission)
+            {
+                var allocated = queue.Agents.Where(agent => agent.ArrivalSequence != 0).Select(agent => agent.ArrivalSequence).ToArray();
+                if (queue.NextArrivalSequence == 0 || allocated.Distinct().Count() != allocated.Length ||
+                    allocated.Any(sequence => sequence >= queue.NextArrivalSequence))
+                    return $"Service queue {queue.Id} has duplicate, stale or exhausted physical-arrival sequencing.";
+            }
             if (!queue.IsOpen && (queue.OrderedMembers.Length != 0 || queue.ActiveOwnerId is not null || queue.RemainingServiceTicks != 0 ||
                 queue.NeedsReassignment || queue.Agents.Any(agent => agent.ReservedSlotIndex is not null)))
                 return $"Closed service queue {queue.Id} must have no members, owner, timer or physical reservations.";

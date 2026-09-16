@@ -12,6 +12,9 @@ public sealed class FoundationSceneTests
     [TestMethod]
     public void CameraKeyboardPanIsScreenRelativeAtEveryRotation()
     {
+        var rootHalf = Math.Sqrt(0.5);
+        var expectedUp = new[] { (-rootHalf, -rootHalf), (-rootHalf, rootHalf), (rootHalf, rootHalf), (rootHalf, -rootHalf) };
+        var expectedRight = new[] { (rootHalf, -rootHalf), (-rootHalf, -rootHalf), (-rootHalf, rootHalf), (rootHalf, rootHalf) };
         for (var orientation = 0; orientation < 4; orientation++)
         {
             var up = CameraControlMath.ScreenPanToWorld(orientation, 0, -1);
@@ -21,7 +24,96 @@ public sealed class FoundationSceneTests
             Assert.AreEqual(-up.X, down.X, 0.000001); Assert.AreEqual(-up.Z, down.Z, 0.000001);
             Assert.AreEqual(-left.X, right.X, 0.000001); Assert.AreEqual(-left.Z, right.Z, 0.000001);
             Assert.AreEqual(0d, up.X * right.X + up.Z * right.Z, 0.000001);
+            Assert.AreEqual(expectedUp[orientation].Item1, up.X, 0.000001);
+            Assert.AreEqual(expectedUp[orientation].Item2, up.Z, 0.000001);
+            Assert.AreEqual(expectedRight[orientation].Item1, right.X, 0.000001);
+            Assert.AreEqual(expectedRight[orientation].Item2, right.Z, 0.000001);
         }
+    }
+
+    [TestMethod]
+    public void PhysicalRejoinApproachesRemotelyThenAllocatesFreshUniqueSequenceOnArrival()
+    {
+        var fixture = FiftyAgentFoundationFixture.Create();
+        var attendee16 = new EntityId(16);
+        while (!fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee16)) fixture.Session.AdvanceTicks(1);
+        Assert.AreEqual(1262, fixture.Session.CurrentTick, "Keep the independent review's first-admission reproduction exact.");
+        var admitted = fixture.Session.CaptureSnapshot().ServiceQueues.Single();
+        var oldSequence = admitted.Agents.Single(item => item.AgentId == attendee16).ArrivalSequence;
+        Assert.IsTrue(ServiceQueueFixture.Abandon(new ServiceQueueFixtureState(fixture.Session, fixture.QueueId,
+            fixture.FestivalId, fixture.ServiceId, fixture.AgentIds, admitted.QueueSlots), attendee16, 2).IsAccepted);
+        var requestSequence = fixture.Session.NextSubmissionSequence;
+        Assert.IsTrue(ServiceQueueFixture.Enqueue(new ServiceQueueFixtureState(fixture.Session, fixture.QueueId,
+            fixture.FestivalId, fixture.ServiceId, fixture.AgentIds, admitted.QueueSlots), attendee16, requestSequence, 3).IsAccepted);
+        var approaching = fixture.Session.CaptureSnapshot().ServiceQueues.Single();
+        var remote = approaching.Agents.Single(item => item.AgentId == attendee16);
+        Assert.IsFalse(approaching.OrderedMembers.Contains(attendee16));
+        Assert.IsNull(remote.ReservedSlotIndex);
+        Assert.AreEqual(ServiceQueueAgentAction.ApproachingQueue, remote.Action);
+        Assert.AreEqual("ai.service-approach", fixture.Session.CaptureSnapshot().NavigationAgents.Single(item => item.Id == attendee16).IntentId);
+
+        while (!fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee16)) fixture.Session.AdvanceTicks(1);
+        var rejoined = fixture.Session.CaptureSnapshot().ServiceQueues.Single();
+        var newSequence = rejoined.Agents.Single(item => item.AgentId == attendee16).ArrivalSequence;
+        Assert.IsTrue(newSequence > oldSequence);
+        Assert.IsTrue(newSequence < rejoined.NextArrivalSequence);
+        var attendee17Sequence = rejoined.Agents.Single(item => item.AgentId == new EntityId(17)).ArrivalSequence;
+        Assert.AreNotEqual(attendee17Sequence, newSequence, "Attendee 16 rejoin must not duplicate attendee 17's automatic sequence.");
+        Assert.AreEqual(rejoined.Agents.Where(item => item.ArrivalSequence != 0).Select(item => item.ArrivalSequence).Distinct().Count(),
+            rejoined.Agents.Count(item => item.ArrivalSequence != 0));
+        Assert.IsTrue(GameSession.Restore(fixture.Session.CapturePersistenceSnapshot()).IsSuccess);
+    }
+
+    [TestMethod]
+    public void CloseReopenRejoinUsesPhysicalArrivalCounterAndRestores()
+    {
+        var fixture = FiftyAgentFoundationFixture.Create();
+        var attendee4 = new EntityId(4);
+        while (!fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee4)) fixture.Session.AdvanceTicks(1);
+        var wrapper = new ServiceQueueFixtureState(fixture.Session, fixture.QueueId, fixture.FestivalId, fixture.ServiceId,
+            fixture.AgentIds, fixture.Session.CaptureSnapshot().ServiceQueues.Single().QueueSlots);
+        Assert.IsTrue(ServiceQueueFixture.SetOpen(wrapper, false, 2).IsAccepted);
+        Assert.IsTrue(ServiceQueueFixture.SetOpen(wrapper, true, 3).IsAccepted);
+        Assert.IsTrue(ServiceQueueFixture.Enqueue(wrapper, attendee4, fixture.Session.NextSubmissionSequence, 4).IsAccepted);
+        Assert.IsFalse(fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee4));
+        while (!fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee4)) fixture.Session.AdvanceTicks(1);
+        var queue = fixture.Session.CaptureSnapshot().ServiceQueues.Single();
+        Assert.IsTrue(queue.Agents.Single(item => item.AgentId == attendee4).ArrivalSequence < queue.NextArrivalSequence);
+        Assert.IsTrue(GameSession.Restore(fixture.Session.CapturePersistenceSnapshot()).IsSuccess);
+    }
+
+    [TestMethod]
+    public void PhysicalArrivalSequenceRejectsDuplicateAndStalePersistenceAndFailsClosedAtExhaustion()
+    {
+        var duplicate = FiftyAgentFoundationFixture.Create();
+        while (duplicate.Session.CaptureSnapshot().ServiceQueues.Single().Agents.Count(item => item.ArrivalSequence != 0) < 2)
+            duplicate.Session.AdvanceTicks(1);
+        var duplicateQueue = PrivateQueue(duplicate.Session);
+        var agentStates = ((System.Collections.IEnumerable)duplicateQueue.GetType().GetProperty("Agents")!.GetValue(duplicateQueue)!)
+            .Cast<object>().Select(entry => entry.GetType().GetProperty("Value")!.GetValue(entry)!).ToArray();
+        var allocated = agentStates.Where(state => (ulong)state.GetType().GetProperty("ArrivalSequence")!.GetValue(state)! != 0).Take(2).ToArray();
+        var firstSequence = (ulong)allocated[0].GetType().GetProperty("ArrivalSequence")!.GetValue(allocated[0])!;
+        allocated[1].GetType().GetProperty("ArrivalSequence")!.SetValue(allocated[1], firstSequence);
+        var duplicateRestore = GameSession.Restore(duplicate.Session.CapturePersistenceSnapshot());
+        Assert.IsFalse(duplicateRestore.IsSuccess);
+        StringAssert.Contains(duplicateRestore.Error!, "duplicate, stale or exhausted");
+
+        var stale = FiftyAgentFoundationFixture.Create();
+        while (stale.Session.CaptureSnapshot().ServiceQueues.Single().Agents.All(item => item.ArrivalSequence == 0)) stale.Session.AdvanceTicks(1);
+        var staleQueue = PrivateQueue(stale.Session);
+        var allocatedSequence = stale.Session.CaptureSnapshot().ServiceQueues.Single().Agents.First(item => item.ArrivalSequence != 0).ArrivalSequence;
+        staleQueue.GetType().GetProperty("NextArrivalSequence")!.SetValue(staleQueue, allocatedSequence);
+        var staleRestore = GameSession.Restore(stale.Session.CapturePersistenceSnapshot());
+        Assert.IsFalse(staleRestore.IsSuccess);
+        StringAssert.Contains(staleRestore.Error!, "duplicate, stale or exhausted");
+
+        var exhausted = FiftyAgentFoundationFixture.Create();
+        PrivateQueue(exhausted.Session).GetType().GetProperty("NextArrivalSequence")!.SetValue(PrivateQueue(exhausted.Session), ulong.MaxValue);
+        while (exhausted.Session.CaptureSnapshot().ServiceQueues.Single().Agents.All(item => item.Action != ServiceQueueAgentAction.Failed))
+            exhausted.Session.AdvanceTicks(1);
+        var exhaustedSnapshot = exhausted.Session.CaptureSnapshot().ServiceQueues.Single();
+        Assert.AreEqual(ulong.MaxValue, exhaustedSnapshot.NextArrivalSequence);
+        Assert.IsTrue(exhaustedSnapshot.Agents.Any(item => item.Action == ServiceQueueAgentAction.Failed));
     }
 
     [TestMethod]
@@ -326,4 +418,11 @@ public sealed class FoundationSceneTests
 
     private static NavigationAgentSnapshot Agent(ulong id, int x, int z) => new(new EntityId(id), x, z,
         AgentNavigationAction.Idle, null, Array.Empty<GridCell>(), 0, x, z, 0, 0, 0, null);
+
+    private static object PrivateQueue(GameSession session)
+    {
+        var field = typeof(GameSession).GetField("_serviceQueues", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var entry = ((System.Collections.IEnumerable)field.GetValue(session)!).Cast<object>().Single();
+        return entry.GetType().GetProperty("Value")!.GetValue(entry)!;
+    }
 }

@@ -154,6 +154,7 @@ internal static class CanonicalStateHasher
                 writer.Write(queue.ActiveOwnerId.HasValue); if (queue.ActiveOwnerId is { } owner) writer.Write(owner.Value);
                 writer.Write(queue.RemainingServiceTicks); writer.Write(queue.CompletionSequence); writer.Write(queue.NeedsReassignment);
                 writer.Write(queue.NextArrivalSequence);
+                writer.Write(queue.PhysicalArrivalAdmission);
                 writer.Write(queue.QueueSlots.Count); foreach (var cell in queue.QueueSlots) { writer.Write(cell.X); writer.Write(cell.Z); }
                 writer.Write(queue.ExitCells.Count); foreach (var cell in queue.ExitCells) { writer.Write(cell.X); writer.Write(cell.Z); }
                 writer.Write(queue.Agents.Count);

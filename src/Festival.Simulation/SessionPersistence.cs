@@ -31,7 +31,7 @@ public sealed record PersistedServiceQueue(
     ulong Id, ulong FestivalId, ulong ServiceId, bool IsOpen, long UnitPricePennies, int ServiceDurationTicks,
     ulong[] OrderedMembers, ulong? ActiveOwnerId, int RemainingServiceTicks, ulong CompletionSequence, bool NeedsReassignment,
     PersistedGridCell[] QueueSlots, PersistedGridCell[] ExitCells, PersistedQueueAgent[] Agents,
-    ulong NextArrivalSequence = 1);
+    ulong NextArrivalSequence = 1, bool PhysicalArrivalAdmission = false);
 
 /// <summary>Explicit v1 persistence DTO for all authoritative state through M0.08.</summary>
 public sealed record SessionPersistenceSnapshot(
