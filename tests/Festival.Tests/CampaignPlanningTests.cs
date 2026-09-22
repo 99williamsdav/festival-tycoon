@@ -1,3 +1,5 @@
+using System.IO.Compression;
+using System.Text.Json;
 using Festival.Persistence;
 using Festival.Simulation;
 using Festival.Simulation.Fixtures;
@@ -8,6 +10,7 @@ namespace Festival.Tests;
 public sealed class CampaignPlanningTests
 {
     private static readonly SaveCompatibility Compatibility = new("m1-test-build", "content-catalogue-v1-d7e759", "m1-rules-v1");
+    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNamingPolicy = JsonNamingPolicy.CamelCase };
 
     [TestMethod]
     public void CampaignCreationUsesFixedFarmLoanForecastAndDeterministicCosmetics()
@@ -168,9 +171,165 @@ public sealed class CampaignPlanningTests
         });
     }
 
+    [TestMethod]
+    public void CommitmentConfirmedAtW7IsDueNextAdvancePersistsAndCannotRemainConfirmedAtOpening()
+    {
+        WithTemporaryDirectory(directory =>
+        {
+            var session = GameSession.CreateCampaign(7007);
+            Assert.IsTrue(Advance(directory, session, 0, 1).IsSuccess); // W8 -> W7 with no commitment.
+            Assert.AreEqual(7, session.CaptureSnapshot().Campaign!.PlanningWeek);
+            Assert.IsTrue(SaveFileAdapter.SaveSlot(directory, "before-confirm", Request(session, 1)).IsSuccess);
+            session = SaveFileAdapter.LoadSlot(directory, "before-confirm", Compatibility).Session!;
+
+            var confirm = Envelope(session, 2, new ConfirmPlanningCommitmentCommand(CampaignDefaults.BasicAdministrationCommitmentId));
+            Assert.IsTrue(session.Execute(confirm).IsAccepted);
+            var commitment = session.CaptureSnapshot().Campaign!.Commitments.Single();
+            Assert.AreEqual(7, commitment.ConfirmedInWeek);
+            Assert.AreEqual(7, commitment.DueOnAdvanceFromWeek);
+            Assert.AreEqual(4_000, session.GetWeekAdvancePreview().DuePayments.Single().AmountPennies);
+            Assert.AreEqual(CommandReasonCode.DuplicateCommand, session.Execute(confirm).ReasonCode);
+            Assert.AreEqual(CommandReasonCode.AlreadyCommitted,
+                session.Execute(Envelope(session, 3, new ConfirmPlanningCommitmentCommand(CampaignDefaults.BasicAdministrationCommitmentId))).ReasonCode);
+
+            Assert.IsTrue(SaveFileAdapter.SaveSlot(directory, "confirmed", Request(session, 2)).IsSuccess);
+            session = SaveFileAdapter.LoadSlot(directory, "confirmed", Compatibility).Session!;
+            var payment = Advance(directory, session, 3, 3);
+            Assert.IsTrue(payment.IsSuccess, payment.Message);
+            Assert.AreEqual(4_000, payment.Digest!.Payments.Single().AmountPennies);
+            Assert.AreEqual(7, payment.Digest.FromWeek);
+            Assert.AreEqual(PlanningCommitmentStatus.Paid, session.CaptureSnapshot().Campaign!.Commitments.Single().Status);
+            Assert.AreEqual(76_000, session.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+            Assert.IsTrue(SaveFileAdapter.SaveSlot(directory, "after-payment", Request(session, 3)).IsSuccess);
+            session = SaveFileAdapter.LoadSlot(directory, "after-payment", Compatibility).Session!;
+
+            for (var generation = 4; session.Phase == SessionPhase.Planning; generation++)
+                Assert.IsTrue(Advance(directory, session, generation, (ulong)generation).IsSuccess);
+            Assert.AreEqual(SessionPhase.OpeningCheck, session.Phase);
+            Assert.AreEqual(PlanningCommitmentStatus.Paid, session.CaptureSnapshot().Campaign!.Commitments.Single().Status);
+            Assert.AreEqual(1, session.CaptureSnapshot().Campaign!.LedgerTransactions.Count(item => item.Reason == "Basic administration and cover"));
+        });
+    }
+
+    [TestMethod]
+    public void CommitmentConfirmedAtW1PreviewsAndPaysOnOpeningAdvance()
+    {
+        WithTemporaryDirectory(directory =>
+        {
+            var session = GameSession.CreateCampaign(1001);
+            for (var generation = 0; generation < 7; generation++)
+                Assert.IsTrue(Advance(directory, session, generation, (ulong)(generation + 1)).IsSuccess);
+            Assert.AreEqual(1, session.CaptureSnapshot().Campaign!.PlanningWeek);
+            Assert.IsTrue(session.Execute(Envelope(session, 8,
+                new ConfirmPlanningCommitmentCommand(CampaignDefaults.BasicAdministrationCommitmentId))).IsAccepted);
+            var preview = session.GetWeekAdvancePreview();
+            Assert.AreEqual(1, preview.FromWeek);
+            Assert.AreEqual(SessionPhase.OpeningCheck, preview.PhaseAfter);
+            Assert.AreEqual(4_000, preview.DuePayments.Single().AmountPennies);
+            Assert.IsTrue(SaveFileAdapter.SaveSlot(directory, "w1-confirmed", Request(session, 8)).IsSuccess);
+            session = SaveFileAdapter.LoadSlot(directory, "w1-confirmed", Compatibility).Session!;
+
+            var result = Advance(directory, session, 9, 9);
+            Assert.IsTrue(result.IsSuccess, result.Message);
+            Assert.AreEqual(SessionPhase.OpeningCheck, session.Phase);
+            Assert.AreEqual(1, result.Digest!.FromWeek);
+            Assert.AreEqual(4_000, result.Digest.Payments.Single().AmountPennies);
+            Assert.AreEqual(PlanningCommitmentStatus.Paid, session.CaptureSnapshot().Campaign!.Commitments.Single().Status);
+        });
+    }
+
+    [TestMethod]
+    public void PlanningAndOpeningCheckRejectAuthoritativeTickProgressButStillAcceptBoundaryCommandsAndSave()
+    {
+        WithTemporaryDirectory(directory =>
+        {
+            var session = GameSession.CreateCampaign(8800);
+            var planningHash = session.CaptureSnapshot().AuthoritativeHash;
+            var result = session.AdvanceTicks(10_000);
+            Assert.AreEqual(0, result.Events.Count);
+            Assert.AreEqual(0, session.CurrentTick);
+            Assert.AreEqual(planningHash, session.CaptureSnapshot().AuthoritativeHash);
+            Assert.IsTrue(session.Execute(Envelope(session, 1,
+                new ConfirmPlanningCommitmentCommand(CampaignDefaults.BasicAdministrationCommitmentId))).IsAccepted);
+            Assert.IsTrue(SaveFileAdapter.SaveSlot(directory, "stopped-boundary", Request(session, 0)).IsSuccess);
+
+            for (var generation = 0; session.Phase == SessionPhase.Planning; generation++)
+                Assert.IsTrue(Advance(directory, session, generation, (ulong)(generation + 2)).IsSuccess);
+            var openingHash = session.CaptureSnapshot().AuthoritativeHash;
+            session.AdvanceTicks(10_000);
+            Assert.AreEqual(0, session.CurrentTick);
+            Assert.AreEqual(openingHash, session.CaptureSnapshot().AuthoritativeHash);
+        });
+    }
+
+    [TestMethod]
+    public void MalformedNestedCampaignSaveRecordsReturnStructuredFailuresWithoutMutatingSource()
+    {
+        WithTemporaryDirectory(directory =>
+        {
+            var session = GameSession.CreateCampaign(3030);
+            Assert.IsTrue(session.Execute(Envelope(session, 1,
+                new ConfirmPlanningCommitmentCommand(CampaignDefaults.BasicAdministrationCommitmentId))).IsAccepted);
+            Assert.IsTrue(Advance(directory, session, 0, 2).IsSuccess);
+            var sourceHash = session.CaptureSnapshot().AuthoritativeHash;
+            var good = session.CapturePersistenceSnapshot();
+            var campaign = good.CampaignPlanning!;
+            var digest = campaign.WeeklyDigests.Single();
+
+            var malformed = new[]
+            {
+                good with { CampaignPlanning = campaign with { WeeklyDigests = [digest with { Payments = [null!] }] } },
+                good with { CampaignPlanning = campaign with { WeeklyDigests = [digest with { Warnings = [null!] }] } },
+                good with { CampaignPlanning = campaign with { WeeklyDigests = [digest with { Payments = [new PersistedWeeklyPayment("", "Bad", 4_000)] }] } },
+                good with { CampaignPlanning = campaign with { LedgerTransactions = [campaign.LedgerTransactions[0] with { Entries = [null!] }] } },
+            };
+
+            foreach (var snapshot in malformed)
+            {
+                var restored = GameSession.Restore(snapshot);
+                Assert.IsFalse(restored.IsSuccess);
+                Assert.IsFalse(string.IsNullOrWhiteSpace(restored.Error));
+            }
+            Assert.AreEqual(sourceHash, session.CaptureSnapshot().AuthoritativeHash);
+
+            var path = Path.Combine(directory, "malformed-nested.ftsave");
+            WriteEnvelope(path, malformed[0]);
+            var loaded = SaveFileAdapter.LoadFile(path, Compatibility);
+            Assert.IsFalse(loaded.IsSuccess);
+            StringAssert.Contains(loaded.Error!, "Authoritative payload validation failed");
+            StringAssert.Contains(loaded.Error!, "weekly digest");
+            Assert.AreEqual(sourceHash, session.CaptureSnapshot().AuthoritativeHash);
+        });
+    }
+
     private static CommandEnvelope Envelope(GameSession session, ulong commandId, SessionCommand command) =>
         new(new CommandId(commandId), session.CampaignId, session.Phase, session.CurrentTick,
             session.NextSubmissionSequence, null, command);
+
+    private static PlanningAdvanceResult Advance(string directory, GameSession session, long generation, ulong commandId) =>
+        PlanningAdvanceCoordinator.Advance(directory, session, Compatibility, DateTimeOffset.UnixEpoch.AddMinutes(generation), generation,
+            Envelope(session, commandId, new AdvancePlanningWeekCommand()));
+
+    private static SaveWriteRequest Request(GameSession session, int minute) =>
+        new(session, Compatibility, "test", DateTimeOffset.UnixEpoch.AddMinutes(minute));
+
+    private static void WriteEnvelope(string path, SessionPersistenceSnapshot payload)
+    {
+        var header = new SaveHeaderV1(
+            SaveFileAdapter.FormatId,
+            SaveMigrationPipeline.CurrentSchemaVersion,
+            Compatibility.BuildId,
+            Compatibility.ContentHash,
+            Compatibility.RulesetHash,
+            payload.CampaignId,
+            DateTimeOffset.UnixEpoch.ToString("O"),
+            payload.Phase,
+            "malformed-test",
+            SaveFileAdapter.ComputePayloadChecksum(payload));
+        using var file = File.Create(path);
+        using var gzip = new GZipStream(file, CompressionLevel.SmallestSize);
+        JsonSerializer.Serialize(gzip, new SaveEnvelopeV1(header, payload), JsonOptions);
+    }
 
     private static void WithTemporaryDirectory(Action<string> action)
     {

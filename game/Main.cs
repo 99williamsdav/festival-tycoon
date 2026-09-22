@@ -574,7 +574,9 @@ public partial class Main : Node
         _campaignTopPanel.AddThemeStyleboxOverride("panel", PaperStyle(CampaignPaletteColor(campaign.Palette)));
         var commitment = campaign.Commitments.Single();
         _campaignCommitmentLabel.Text = $"BASIC ADMINISTRATION AND COVER\n£40 • {commitment.Status.ToString().ToUpperInvariant()}\n" +
-            (commitment.Status == PlanningCommitmentStatus.Paid ? "Paid once on the W8 advance." : "Payment is due on the next manual Advance Week.");
+            (commitment.Status == PlanningCommitmentStatus.Paid ? $"Paid once on the W{commitment.DueOnAdvanceFromWeek} advance." :
+                commitment.Status == PlanningCommitmentStatus.Confirmed ? $"Confirmed in W{commitment.ConfirmedInWeek}; due on this W{commitment.DueOnAdvanceFromWeek} advance." :
+                "Confirm now to pay on the next manual Advance Week.");
         _campaignCommitButton.Disabled = commitment.Status != PlanningCommitmentStatus.Available;
         _campaignAdvanceButton.Disabled = snapshot.Phase != SessionPhase.Planning;
         var preview = snapshot.Phase == SessionPhase.Planning ? _session.GetWeekAdvancePreview() : null;

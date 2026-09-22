@@ -9,11 +9,13 @@ internal static class CanonicalStateHasher
     private const int QueueSchemaVersion = 3;
     private const int PhysicalQueueModeSchemaVersion = 4;
 
-    public static string Compute(GameSession session) => Compute(session, PhysicalQueueModeSchemaVersion, includePhysicalQueueMode: true);
+    public static string Compute(GameSession session) => Compute(session, PhysicalQueueModeSchemaVersion, includePhysicalQueueMode: true, includeCommitmentConfirmationWeek: true);
     internal static string ComputeQueueCompatibility(GameSession session, bool includePhysicalQueueMode) =>
-        Compute(session, QueueSchemaVersion, includePhysicalQueueMode);
+        Compute(session, QueueSchemaVersion, includePhysicalQueueMode, includeCommitmentConfirmationWeek: true);
+    internal static string ComputeCampaignCompatibility(GameSession session) =>
+        Compute(session, PhysicalQueueModeSchemaVersion, includePhysicalQueueMode: true, includeCommitmentConfirmationWeek: false);
 
-    private static string Compute(GameSession session, int queueSchemaVersion, bool includePhysicalQueueMode)
+    private static string Compute(GameSession session, int queueSchemaVersion, bool includePhysicalQueueMode, bool includeCommitmentConfirmationWeek)
     {
         using var memory = new MemoryStream();
         using var writer = new BinaryWriter(memory, Encoding.UTF8, leaveOpen: true);
@@ -195,6 +197,11 @@ internal static class CanonicalStateHasher
                 writer.Write(item.AmountPennies);
                 writer.Write(item.DueOnAdvanceFromWeek);
                 writer.Write((int)item.Status);
+                if (includeCommitmentConfirmationWeek)
+                {
+                    writer.Write(item.ConfirmedInWeek.HasValue);
+                    if (item.ConfirmedInWeek.HasValue) writer.Write(item.ConfirmedInWeek.Value);
+                }
             }
             writer.Write(campaign.LedgerTransactions.Count);
             foreach (var transaction in campaign.LedgerTransactions)

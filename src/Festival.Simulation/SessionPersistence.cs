@@ -34,7 +34,10 @@ public sealed record PersistedServiceQueue(
     ulong NextArrivalSequence = 1,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? PhysicalArrivalAdmission = null);
-public sealed record PersistedPlanningCommitment(string Id, string DisplayName, long AmountPennies, int DueOnAdvanceFromWeek, int Status);
+public sealed record PersistedPlanningCommitment(
+    string Id, string DisplayName, long AmountPennies, int DueOnAdvanceFromWeek, int Status,
+    [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    int? ConfirmedInWeek = null);
 public sealed record PersistedPlanningLedgerTransaction(ulong Id, string Reason, int PlanningWeek, PersistedLedgerEntry[] Entries);
 public sealed record PersistedWeeklyPayment(string CommitmentId, string DisplayName, long AmountPennies);
 public sealed record PersistedWeeklyDigest(

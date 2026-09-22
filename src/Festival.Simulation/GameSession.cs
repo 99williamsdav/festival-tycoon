@@ -189,7 +189,7 @@ public sealed partial class GameSession
     public AdvanceResult AdvanceTicks(int count)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(count);
-        if (IsPaused || count == 0)
+        if (IsPaused || count == 0 || Phase is SessionPhase.Planning or SessionPhase.OpeningCheck)
         {
             return new AdvanceResult(CaptureSnapshot(), Array.Empty<SessionEvent>());
         }
@@ -362,6 +362,11 @@ public sealed partial class GameSession
         {
             var modeWasAbsent = snapshot.ServiceQueues.Any(queue => queue.PhysicalArrivalAdmission is null);
             var compatibilityHash = CanonicalStateHasher.ComputeQueueCompatibility(session, includePhysicalQueueMode: !modeWasAbsent);
+            if (string.Equals(compatibilityHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
+        }
+        if (snapshot.CampaignPlanning is not null)
+        {
+            var compatibilityHash = CanonicalStateHasher.ComputeCampaignCompatibility(session);
             if (string.Equals(compatibilityHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
         }
         return SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");

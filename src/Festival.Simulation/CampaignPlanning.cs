@@ -54,7 +54,8 @@ public sealed record PlanningCommitmentSnapshot(
     string DisplayName,
     long AmountPennies,
     int DueOnAdvanceFromWeek,
-    PlanningCommitmentStatus Status);
+    PlanningCommitmentStatus Status,
+    int? ConfirmedInWeek = null);
 
 public sealed record PlanningLedgerTransactionSnapshot(
     ulong Id,
@@ -230,7 +231,12 @@ public sealed partial class GameSession
     {
         var index = _campaignPlanning!.Commitments.FindIndex(item => item.Id == command.CommitmentId);
         var commitment = _campaignPlanning.Commitments[index];
-        _campaignPlanning.Commitments[index] = commitment with { Status = PlanningCommitmentStatus.Confirmed };
+        _campaignPlanning.Commitments[index] = commitment with
+        {
+            Status = PlanningCommitmentStatus.Confirmed,
+            ConfirmedInWeek = _campaignPlanning.PlanningWeek,
+            DueOnAdvanceFromWeek = _campaignPlanning.PlanningWeek,
+        };
     }
 
     private void ApplyDismissTip(DismissCampaignTipCommand command) => _campaignPlanning!.DismissedTipIds.Add(command.TipId);
@@ -291,7 +297,7 @@ public sealed partial class GameSession
             loan.RemainingEditions,
             loan.InterestBasisPoints,
             _campaignPlanning.Commitments.Select(item => new PersistedPlanningCommitment(
-                item.Id, item.DisplayName, item.AmountPennies, item.DueOnAdvanceFromWeek, (int)item.Status)).ToArray(),
+                item.Id, item.DisplayName, item.AmountPennies, item.DueOnAdvanceFromWeek, (int)item.Status, item.ConfirmedInWeek)).ToArray(),
             _campaignPlanning.LedgerTransactions.Select(item => new PersistedPlanningLedgerTransaction(
                 item.Id, item.Reason, item.PlanningWeek,
                 item.Entries.Select(entry => new PersistedLedgerEntry(entry.OwnerId.Value, (int)entry.Account, entry.AmountPennies)).ToArray())).ToArray(),
@@ -323,7 +329,8 @@ public sealed partial class GameSession
                 persisted.LoanInterestBasisPoints),
         };
         _campaignPlanning.Commitments.AddRange(persisted.Commitments.Select(item => new PlanningCommitmentSnapshot(
-            item.Id, item.DisplayName, item.AmountPennies, item.DueOnAdvanceFromWeek, (PlanningCommitmentStatus)item.Status)));
+            item.Id, item.DisplayName, item.AmountPennies, item.DueOnAdvanceFromWeek, (PlanningCommitmentStatus)item.Status,
+            item.ConfirmedInWeek ?? (item.Status == (int)PlanningCommitmentStatus.Available ? null : item.DueOnAdvanceFromWeek))));
         _campaignPlanning.LedgerTransactions.AddRange(persisted.LedgerTransactions.Select(item => new PlanningLedgerTransactionSnapshot(
             item.Id, item.Reason, item.PlanningWeek,
             item.Entries.Select(entry => new LedgerEntry(new EntityId(entry.OwnerId), (LedgerAccountType)entry.Account, entry.AmountPennies)).ToArray())));
@@ -355,7 +362,10 @@ public sealed partial class GameSession
             return "Campaign planning collections must be present and contain no null records.";
         if (campaign.Commitments.Select(item => item.Id).Distinct(StringComparer.Ordinal).Count() != campaign.Commitments.Length ||
             campaign.Commitments.Any(item => string.IsNullOrWhiteSpace(item.Id) || string.IsNullOrWhiteSpace(item.DisplayName) || item.AmountPennies <= 0 ||
-                item.DueOnAdvanceFromWeek is < 1 or > 8 || !Enum.IsDefined(typeof(PlanningCommitmentStatus), item.Status)))
+                item.DueOnAdvanceFromWeek is < 1 or > 8 || !Enum.IsDefined(typeof(PlanningCommitmentStatus), item.Status) ||
+                item.ConfirmedInWeek is < 1 or > 8 ||
+                item.Status == (int)PlanningCommitmentStatus.Available && item.ConfirmedInWeek is not null ||
+                item.Status != (int)PlanningCommitmentStatus.Available && item.ConfirmedInWeek is not null && item.ConfirmedInWeek != item.DueOnAdvanceFromWeek))
             return "Campaign commitment state is invalid.";
         if (!campaign.LedgerTransactions.Select(item => item.Id).SequenceEqual(Enumerable.Range(1, campaign.LedgerTransactions.Length).Select(value => (ulong)value)) ||
             campaign.LedgerTransactions.Any(item => string.IsNullOrWhiteSpace(item.Reason) || item.PlanningWeek is < 1 or > 8 || item.Entries is null ||
@@ -364,7 +374,10 @@ public sealed partial class GameSession
             return "Campaign ledger transactions must be contiguous, valid and balanced.";
         if (campaign.WeeklyDigests.Length != 8 - campaign.PlanningWeek || campaign.WeeklyDigests.Where((item, index) =>
                 item.FromWeek != 8 - index || item.ToWeek != 7 - index || item.Payments is null || item.Warnings is null ||
-                item.CashPennies < 0 || item.OutstandingDebtPennies < 0 || !Enum.IsDefined(typeof(SessionPhase), item.PhaseAfter)).Any())
+                item.CashPennies < 0 || item.OutstandingDebtPennies < 0 || !Enum.IsDefined(typeof(SessionPhase), item.PhaseAfter) ||
+                item.Payments.Any(payment => payment is null || string.IsNullOrWhiteSpace(payment.CommitmentId) ||
+                    string.IsNullOrWhiteSpace(payment.DisplayName) || payment.AmountPennies <= 0) ||
+                item.Warnings.Any(string.IsNullOrWhiteSpace)).Any())
             return "Campaign weekly digest history is not a contiguous factual planning sequence.";
         if (campaign.DismissedTipIds.Any(string.IsNullOrWhiteSpace) ||
             !campaign.DismissedTipIds.SequenceEqual(campaign.DismissedTipIds.Order(StringComparer.Ordinal)) ||
