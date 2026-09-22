@@ -2,6 +2,10 @@
 
 Bounded assignments implement M0 sequentially. These are implementation instructions, not completed work. Begin with M0.01 and do not proceed until its implementation and evidence are accepted.
 
+M1 planning drafts are indexed separately in [M1 — first playable](M1/README.md). They are review material only until the foundational choices in that index are explicitly approved.
+
+M1 planning drafts are indexed separately in [M1 — first playable](M1/README.md). They are review material only until the foundational choices in that index are explicitly approved.
+
 ## How to use
 
 Give a coding agent access to the whole repository, then assign the selected brief. A brief without its referenced specifications is not complete context. Each agent must inspect prior implementation and evidence before extending it.
