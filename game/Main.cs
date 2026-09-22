@@ -60,11 +60,15 @@ public partial class Main : Node
     private SharedWorldFeasibilityFixtureState? _sharedWorldFixture;
     private string? _sharedWorldOutputPath;
     private readonly FoundationClock _sharedWorldClock = new();
-    private readonly List<double> _sharedFrameMilliseconds = [];
+    private readonly List<double> _sharedWallFrameMilliseconds = [];
+    private readonly List<double> _sharedEngineDeltaMilliseconds = [];
     private readonly List<double> _sharedWorkMilliseconds = [];
     private int _sharedMeasurementFrames;
     private int _sharedMeasurementStage;
     private long _sharedRepresentativeTick;
+    private long _sharedMeasurementStartTick;
+    private long _sharedWallStartTimestamp;
+    private long _sharedWallPreviousTimestamp;
     private double _sharedSaveMilliseconds;
     private double _sharedLoadMilliseconds;
     private bool _sharedRestoreExact;
@@ -588,7 +592,17 @@ public partial class Main : Node
             if (!_sharedRestoreExact) { GetTree().Quit(2); return; }
             _session = loaded.Session!; _sharedWorldFixture = fixture = fixture with { Session = _session };
             _sharedWorldClock.RequestedSpeed = RequestedSpeed.OneX; _sharedWorldClock.ResetBoundary(); _sharedMeasurementStage = 1;
-            _sharedFrameMilliseconds.Clear(); _sharedWorkMilliseconds.Clear();
+            ResetSharedMeasurementWindow();
+            return;
+        }
+
+        // Arm only after one clean post-restore presentation frame. Save/load and its engine
+        // delta therefore cannot contaminate either callback intervals or attained speed.
+        if (_sharedWallPreviousTimestamp == 0)
+        {
+            PresentSharedWorld();
+            _sharedMeasurementStartTick = _session.CurrentTick;
+            _sharedWallStartTimestamp = _sharedWallPreviousTimestamp = Stopwatch.GetTimestamp();
             return;
         }
 
@@ -596,7 +610,11 @@ public partial class Main : Node
         var ticks = _sharedWorldClock.Schedule(delta);
         for (var tick = 0; tick < ticks; tick++) _session.AdvanceTicks(1);
         PresentSharedWorld(); work.Stop();
-        _sharedFrameMilliseconds.Add(delta * 1000); _sharedWorkMilliseconds.Add(work.Elapsed.TotalMilliseconds); _sharedMeasurementFrames++;
+        var wallNow = Stopwatch.GetTimestamp();
+        _sharedWallFrameMilliseconds.Add(Stopwatch.GetElapsedTime(_sharedWallPreviousTimestamp, wallNow).TotalMilliseconds);
+        _sharedWallPreviousTimestamp = wallNow;
+        _sharedEngineDeltaMilliseconds.Add(delta * 1000);
+        _sharedWorkMilliseconds.Add(work.Elapsed.TotalMilliseconds); _sharedMeasurementFrames++;
         if (_sharedMeasurementFrames < 90) return;
         var requested = _sharedWorldClock.RequestedSpeed;
         WriteSharedRenderedResult(requested, requested == RequestedSpeed.FourX);
@@ -606,7 +624,7 @@ public partial class Main : Node
             if (!loaded.IsSuccess) { GetTree().Quit(2); return; }
             _session = loaded.Session!; _sharedWorldFixture = fixture with { Session = _session };
             _sharedWorldClock.RequestedSpeed = RequestedSpeed.FourX; _sharedWorldClock.ResetBoundary();
-            _sharedFrameMilliseconds.Clear(); _sharedWorkMilliseconds.Clear(); _sharedMeasurementFrames = 0; _sharedMeasurementStage = 2;
+            ResetSharedMeasurementWindow(); _sharedMeasurementStage = 2;
             return;
         }
         GetTree().Quit(0);
@@ -618,26 +636,41 @@ public partial class Main : Node
         foreach (var agent in snapshot.NavigationAgents)
             if (_attendeeVisuals.TryGetValue(agent.Id, out var visual)) visual.Position = ToWorld(agent);
         var queued = snapshot.ServiceQueues.Sum(queue => queue.OrderedMembers.Count);
-        _hashLabel.Text = $"M1.00 SHARED WORLD • 50 PEOPLE • 3 DESTINATIONS\nACTIVE {snapshot.NavigationAgents.Count}  QUEUED {queued}  SERVED {snapshot.Transactions.Count}\nREQUEST {(int)_sharedWorldClock.RequestedSpeed}×  ATTAINED {_sharedWorldClock.AttainedSpeed:0.00}×\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
+        _hashLabel.Text = $"M1.00 SHARED WORLD • 50 PEOPLE • 3 DESTINATIONS\nACTIVE {snapshot.NavigationAgents.Count}  QUEUED {queued}  SERVED {snapshot.Transactions.Count}\nREQUEST {(int)_sharedWorldClock.RequestedSpeed}×  SCHEDULER-DELTA {_sharedWorldClock.AttainedSpeed:0.00}×\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
+    }
+
+    private void ResetSharedMeasurementWindow()
+    {
+        _sharedWallFrameMilliseconds.Clear(); _sharedEngineDeltaMilliseconds.Clear(); _sharedWorkMilliseconds.Clear();
+        _sharedMeasurementFrames = 0; _sharedMeasurementStartTick = 0; _sharedWallStartTimestamp = 0; _sharedWallPreviousTimestamp = 0;
     }
 
     private void WriteSharedRenderedResult(RequestedSpeed speed, bool final)
     {
-        var frames = _sharedFrameMilliseconds.Order().ToArray();
+        var frames = _sharedWallFrameMilliseconds.Order().ToArray();
+        var engineDeltas = _sharedEngineDeltaMilliseconds.Order().ToArray();
         var work = _sharedWorkMilliseconds.Order().ToArray();
         double P(double[] values, double p) => values[Math.Clamp((int)Math.Ceiling(values.Length * p) - 1, 0, values.Length - 1)];
         var path = Path.Combine(Path.GetDirectoryName(_sharedWorldOutputPath!)!, $"shared-world-{(int)speed}x.json");
         var snapshot = _session.CaptureSnapshot();
+        var wallElapsedSeconds = Stopwatch.GetElapsedTime(_sharedWallStartTimestamp, _sharedWallPreviousTimestamp).TotalSeconds;
+        var measuredTicks = snapshot.CurrentTick - _sharedMeasurementStartTick;
+        var wallAttainedSpeed = measuredTicks / (FoundationClock.OneXTickRate * wallElapsedSeconds);
         var interacting = snapshot.ServiceQueues.SelectMany(queue => queue.Agents)
             .Count(agent => agent.Action is not ServiceQueueAgentAction.Completed and not ServiceQueueAgentAction.Failed);
         var result = new
         {
-            RequestedSpeed = (int)speed, AttainedSpeed = _sharedWorldClock.AttainedSpeed, Frames = frames.Length,
-            FrameMeanMs = frames.Average(), WorkMeanMs = work.Average(),
-            FrameP50Ms = P(frames, .5), FrameP95Ms = P(frames, .95), FrameP99Ms = P(frames, .99),
+            RequestedSpeed = (int)speed, WallAttainedSpeed = wallAttainedSpeed,
+            SchedulerEngineDeltaAttainedSpeed = _sharedWorldClock.AttainedSpeed,
+            SampleFrames = frames.Length, SampleTicks = measuredTicks, WallElapsedSeconds = wallElapsedSeconds,
+            MeasurementStartTick = _sharedMeasurementStartTick, MeasurementEndTick = snapshot.CurrentTick,
+            WallFrameMeanMs = frames.Average(), WallFrameP50Ms = P(frames, .5),
+            WallFrameP95Ms = P(frames, .95), WallFrameP99Ms = P(frames, .99),
+            EngineDeltaMeanMs = engineDeltas.Average(), EngineDeltaP95Ms = P(engineDeltas, .95),
+            WorkMeanMs = work.Average(),
             WorkP50Ms = P(work, .5), WorkP95Ms = P(work, .95), WorkP99Ms = P(work, .99),
             RepresentativePopulation = snapshot.NavigationAgents.Count == SharedWorldFeasibilityFixture.AgentCount,
-            RepresentativeStartTick = _sharedRepresentativeTick, EndTick = snapshot.CurrentTick,
+            RepresentativeBoundaryTick = _sharedRepresentativeTick,
             ActiveAgents = snapshot.NavigationAgents.Count, InteractingAgents = interacting, Destinations = snapshot.ServiceQueues.Count,
             SaveMs = _sharedSaveMilliseconds, LoadMs = _sharedLoadMilliseconds, RestoreExact = _sharedRestoreExact,
             ProcessPeakWorkingSetBytes = Process.GetCurrentProcess().PeakWorkingSet64, Hash = snapshot.AuthoritativeHash,
