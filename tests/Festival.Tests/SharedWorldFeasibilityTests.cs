@@ -65,6 +65,81 @@ public sealed class SharedWorldFeasibilityTests
     }
 
     [TestMethod]
+    public void MalformedMultiQueueCollectionsAndGlobalDuplicatesRejectWithoutThrowing()
+    {
+        var persisted = SharedWorldFeasibilityFixture.Create().Session.CapturePersistenceSnapshot();
+        foreach (var malformedQueue in new[]
+        {
+            persisted.ServiceQueues![0] with { Agents = null! },
+            persisted.ServiceQueues[0] with { QueueSlots = null! },
+            persisted.ServiceQueues[0] with { ExitCells = null! },
+            persisted.ServiceQueues[0] with { OrderedMembers = null! },
+        })
+        {
+            var queues = persisted.ServiceQueues.ToArray(); queues[0] = malformedQueue;
+            var result = GameSession.Restore(persisted with { ServiceQueues = queues });
+            Assert.IsFalse(result.IsSuccess);
+            StringAssert.Contains(result.Error!, "invalid identity, configuration or collections");
+        }
+
+        var duplicateAgentQueues = persisted.ServiceQueues!.ToArray();
+        duplicateAgentQueues[1] = duplicateAgentQueues[1] with
+        {
+            Agents = duplicateAgentQueues[1].Agents.Append(duplicateAgentQueues[0].Agents[0]).OrderBy(agent => agent.AgentId).ToArray(),
+        };
+        var duplicateAgent = GameSession.Restore(persisted with { ServiceQueues = duplicateAgentQueues });
+        Assert.IsFalse(duplicateAgent.IsSuccess);
+        StringAssert.Contains(duplicateAgent.Error!, "more than one service destination");
+
+        foreach (var duplicateExit in new[] { false, true })
+        {
+            var queues = persisted.ServiceQueues.ToArray();
+            queues[1] = duplicateExit
+                ? queues[1] with { ExitCells = [queues[0].ExitCells[0], .. queues[1].ExitCells.Skip(1)] }
+                : queues[1] with { QueueSlots = [queues[0].QueueSlots[0], .. queues[1].QueueSlots.Skip(1)] };
+            var result = GameSession.Restore(persisted with { ServiceQueues = queues });
+            Assert.IsFalse(result.IsSuccess);
+            StringAssert.Contains(result.Error!, "globally distinct");
+        }
+    }
+
+    [TestMethod]
+    public void RetargetCapacityRequiresPairedSlotsAndExitsAndRoundTripsUnequalSafeShape()
+    {
+        var terrain = NavigationFixture.CreateLowerWitteringTerrain();
+        var grid = new TraversalGrid(terrain);
+        var cells = Enumerable.Range(0, TraversalGrid.Width * TraversalGrid.Depth)
+            .Select(index => new GridCell(index % TraversalGrid.Width, index / TraversalGrid.Width))
+            .Where(cell => grid.Get(cell).IsWalkable).Take(12).ToArray();
+        var session = new GameSession(44, new CampaignId(44));
+        CommandResult Initialize(CommandId id, GridCell start, GridCell[] slots, GridCell[] exits) => session.Execute(new CommandEnvelope(
+            id, session.CampaignId, session.Phase, session.CurrentTick, session.NextSubmissionSequence, null,
+            new InitializeServiceQueueFixtureCommand([start], slots, exits, terrain, [500], 3, 120, 300, 10, true)));
+
+        var source = Initialize(new CommandId(1), cells[0], [cells[1]], [cells[2]]);
+        Assert.IsTrue(source.IsAccepted, source.Message);
+        var beforeInvalid = session.CaptureSnapshot().AuthoritativeHash;
+        var invalid = Initialize(new CommandId(2), cells[3], [cells[4]], [cells[5], cells[6]]);
+        Assert.IsFalse(invalid.IsAccepted);
+        Assert.AreEqual(beforeInvalid, session.CaptureSnapshot().AuthoritativeHash, "Rejected incoherent capacity must not mutate state.");
+
+        var destination = Initialize(new CommandId(3), cells[3], [cells[4], cells[7], cells[8]], [cells[5], cells[6]]);
+        Assert.IsTrue(destination.IsAccepted, destination.Message);
+        var sourceAgent = session.CaptureSnapshot().ServiceQueues.Single(queue => queue.Id == source.TargetId).Agents.Single().AgentId;
+        var retarget = session.Execute(new CommandEnvelope(new CommandId(4), session.CampaignId, session.Phase,
+            session.CurrentTick, session.NextSubmissionSequence, source.TargetId,
+            new RetargetServiceQueueAgentFixtureCommand(sourceAgent, destination.TargetId!.Value)));
+        Assert.IsTrue(retarget.IsAccepted, retarget.Message);
+        var destinationSnapshot = session.CaptureSnapshot().ServiceQueues.Single(queue => queue.Id == destination.TargetId);
+        var moved = destinationSnapshot.Agents.Single(agent => agent.AgentId == sourceAgent);
+        Assert.IsTrue(moved.ExitIndex < destinationSnapshot.ExitCells.Count && moved.ExitIndex < destinationSnapshot.QueueSlots.Count);
+
+        var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
+    }
+
+    [TestMethod]
     public void SharedWorldCompletesWithSafeSweepsAndReconciledOwnership()
     {
         var fixture = SharedWorldFeasibilityFixture.Create();

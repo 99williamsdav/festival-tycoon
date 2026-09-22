@@ -69,7 +69,8 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Service-queue fixture requires no target and must be assembled at tick zero.");
         if (command.Starts is null || command.QueueSlots is null || command.ExitCells is null || command.Terrain is null || command.OpeningCashPennies is null ||
             command.Starts.Count != command.OpeningCashPennies.Count || command.ExitCells.Count < command.Starts.Count || command.Starts.Count == 0 ||
-            command.QueueSlots.Count < command.Starts.Count || command.StockQuantity < 0 || command.UnitCostBasisPennies < 0 ||
+            command.QueueSlots.Count < command.Starts.Count || command.QueueSlots.Count < command.ExitCells.Count ||
+            command.StockQuantity < 0 || command.UnitCostBasisPennies < 0 ||
             command.UnitPricePennies <= 0 || command.ServiceDurationTicks <= 0)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Queue fixture needs matching starts, wallets and exits, enough physical slots, and valid stock/price/duration.");
         TraversalGrid grid;
@@ -201,9 +202,10 @@ public sealed partial class GameSession
         if (sourceQueueId is null || !_serviceQueues.TryGetValue(sourceQueueId.Value, out var source) ||
             !_serviceQueues.TryGetValue(command.DestinationQueueId, out var destination))
             return CommandResult.Rejected(CommandReasonCode.UnknownTarget, "Source and destination service queues must exist.");
+        var pairedCapacity = Math.Min(destination.QueueSlots.Count, destination.ExitCells.Count);
         if (sourceQueueId.Value == command.DestinationQueueId || !destination.IsOpen ||
             !source.Agents.TryGetValue(command.AgentId, out var agent) || agent.Action != ServiceQueueAgentAction.ApproachingQueue ||
-            destination.Agents.ContainsKey(command.AgentId) || destination.Agents.Count >= destination.ExitCells.Count)
+            destination.Agents.ContainsKey(command.AgentId) || destination.Agents.Count >= pairedCapacity)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Only an unadmitted approaching attendee can retarget to an open destination with capacity.");
         return null;
     }
@@ -214,7 +216,8 @@ public sealed partial class GameSession
         var destination = _serviceQueues[command.DestinationQueueId];
         source.Agents.Remove(command.AgentId);
         var assigned = destination.Agents.Values.Select(item => item.ExitIndex).ToHashSet();
-        var exitIndex = Enumerable.Range(0, destination.ExitCells.Count).First(index => !assigned.Contains(index));
+        var pairedCapacity = Math.Min(destination.QueueSlots.Count, destination.ExitCells.Count);
+        var exitIndex = Enumerable.Range(0, pairedCapacity).First(index => !assigned.Contains(index));
         destination.Agents.Add(command.AgentId, new ServiceQueueAgentState
         {
             AgentId = command.AgentId,
@@ -495,6 +498,11 @@ public sealed partial class GameSession
     private static string? ValidatePersistedServiceQueues(PersistedServiceQueue[]? queues, SessionPersistenceSnapshot snapshot)
     {
         if (queues is null) return null; // M0.05-M0.07 saves migrate by absence to no queue state.
+        foreach (var queue in queues)
+        {
+            if (queue.OrderedMembers is null || queue.QueueSlots is null || queue.ExitCells is null || queue.Agents is null)
+                return $"Service queue {queue.Id} has invalid identity, configuration or collections.";
+        }
         if (!StrictlyIncreasing(queues.Select(item => item.Id))) return "Service queues must have sorted unique IDs.";
         var crossQueueAgentOwnership = queues.SelectMany((queue, queueIndex) =>
             queue.Agents.Select(agent => (queueIndex, agent.AgentId)));
@@ -518,8 +526,8 @@ public sealed partial class GameSession
         {
             if (queue.Id == 0 || !festivalIds.Contains(queue.FestivalId) || !serviceIds.Contains(queue.ServiceId) || queue.UnitPricePennies <= 0 ||
                 queue.ServiceDurationTicks <= 0 || queue.RemainingServiceTicks < 0 || queue.RemainingServiceTicks > queue.ServiceDurationTicks ||
-                queue.OrderedMembers is null || queue.QueueSlots is null || queue.ExitCells is null || queue.Agents is null ||
-                !StrictlyIncreasing(queue.Agents.Select(agent => agent.AgentId)) || queue.QueueSlots.Length < queue.Agents.Length || queue.ExitCells.Length < queue.Agents.Length)
+                !StrictlyIncreasing(queue.Agents.Select(agent => agent.AgentId)) || queue.QueueSlots.Length < queue.Agents.Length ||
+                queue.ExitCells.Length < queue.Agents.Length || queue.QueueSlots.Length < queue.ExitCells.Length)
                 return $"Service queue {queue.Id} has invalid identity, configuration or collections.";
             var queueCells = queue.QueueSlots.Select(cell => new GridCell(cell.X, cell.Z)).ToArray();
             var exitCells = queue.ExitCells.Select(cell => new GridCell(cell.X, cell.Z)).ToArray();
