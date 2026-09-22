@@ -172,6 +172,66 @@ internal static class CanonicalStateHasher
             }
         }
 
+        if (session.CampaignPlanningState is { } campaign)
+        {
+            // Festival name and palette are deliberately absent: TECHNICAL_SPEC treats them
+            // as cosmetic save state. The payload checksum still covers both values.
+            writer.Write("campaign-planning-v1");
+            writer.Write(campaign.SiteId);
+            writer.Write(campaign.SiteSeed);
+            writer.Write(campaign.EditionNumber);
+            writer.Write(campaign.PlanningWeek);
+            writer.Write(campaign.FinanceOwnerId.Value);
+            writer.Write(campaign.Loan.OpeningPrincipalPennies);
+            writer.Write(campaign.Loan.OutstandingPrincipalPennies);
+            writer.Write(campaign.Loan.PrincipalDueAtSettlementPennies);
+            writer.Write(campaign.Loan.InterestDueAtSettlementPennies);
+            writer.Write(campaign.Loan.RemainingEditions);
+            writer.Write(campaign.Loan.InterestBasisPoints);
+            writer.Write(campaign.Commitments.Count);
+            foreach (var item in campaign.Commitments)
+            {
+                writer.Write(item.Id);
+                writer.Write(item.AmountPennies);
+                writer.Write(item.DueOnAdvanceFromWeek);
+                writer.Write((int)item.Status);
+            }
+            writer.Write(campaign.LedgerTransactions.Count);
+            foreach (var transaction in campaign.LedgerTransactions)
+            {
+                writer.Write(transaction.Id);
+                writer.Write(transaction.Reason);
+                writer.Write(transaction.PlanningWeek);
+                writer.Write(transaction.Entries.Count);
+                foreach (var entry in transaction.Entries)
+                {
+                    writer.Write(entry.OwnerId.Value);
+                    writer.Write((int)entry.Account);
+                    writer.Write(entry.AmountPennies);
+                }
+            }
+            writer.Write(campaign.WeeklyDigests.Count);
+            foreach (var digest in campaign.WeeklyDigests)
+            {
+                writer.Write(digest.FromWeek);
+                writer.Write(digest.ToWeek);
+                writer.Write((int)digest.PhaseAfter);
+                writer.Write(digest.Payments.Count);
+                foreach (var payment in digest.Payments)
+                {
+                    writer.Write(payment.CommitmentId);
+                    writer.Write(payment.AmountPennies);
+                }
+                writer.Write(digest.RemainingCommitments);
+                writer.Write(digest.CashPennies);
+                writer.Write(digest.OutstandingDebtPennies);
+                writer.Write(digest.Warnings.Count);
+                foreach (var warning in digest.Warnings) writer.Write(warning);
+            }
+            writer.Write(campaign.DismissedTipIds.Count);
+            foreach (var tipId in campaign.DismissedTipIds) writer.Write(tipId);
+        }
+
         writer.Flush();
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();

@@ -59,6 +59,23 @@ public partial class Main : Node
     private string? _benchmarkOutputPath;
     private SharedWorldFeasibilityFixtureState? _sharedWorldFixture;
     private string? _sharedWorldOutputPath;
+    private string? _campaignCaptureDirectory;
+    private int _campaignCaptureFrame;
+    private int _campaignCaptureStage;
+    private bool _campaignDuplicateRejected;
+    private bool _campaignSaveReloadExact;
+    private double _campaignMaximumInteractionMilliseconds;
+    private double _campaignMaximumAdvanceMilliseconds;
+    private string _campaignUiStatus = "Ready";
+    private Label _campaignIdentityLabel = null!;
+    private Label _campaignFinanceLabel = null!;
+    private Label _campaignCommitmentLabel = null!;
+    private Label _campaignDigestLabel = null!;
+    private PanelContainer _campaignTopPanel = null!;
+    private LineEdit _campaignNameEdit = null!;
+    private OptionButton _campaignPaletteOption = null!;
+    private Button _campaignCommitButton = null!;
+    private Button _campaignAdvanceButton = null!;
     private readonly FoundationClock _sharedWorldClock = new();
     private readonly List<double> _sharedWallFrameMilliseconds = [];
     private readonly List<double> _sharedEngineDeltaMilliseconds = [];
@@ -102,7 +119,7 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-m0.09", "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9", "m0-rules-v1");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-m1.01", "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9", "m0-rules-v1");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -119,7 +136,7 @@ public partial class Main : Node
         {
             _session = _benchmarkFixture.Waves[0].Session;
         }
-        else if (_foundationCaptureDirectory is not null || (_captureDirectory is null && _navigationCaptureDirectory is null && _queueCaptureDirectory is null))
+        else if (_foundationCaptureDirectory is not null)
         {
             _foundationFixture = FiftyAgentFoundationFixture.Create();
             if (_foundationCaptureDirectory is not null) _foundationReference = FiftyAgentFoundationFixture.Create();
@@ -131,7 +148,7 @@ public partial class Main : Node
             _queueReference = ServiceQueueFixture.Create();
             _session = _queueFixture.Session;
         }
-        else
+        else if (_captureDirectory is not null || _navigationCaptureDirectory is not null)
         {
             var navigation = NavigationFixture.CreateGateToServiceSession();
             _session = navigation.Session;
@@ -145,9 +162,13 @@ public partial class Main : Node
                 _ = _session.Execute(new CommandEnvelope(new CommandId(2), _session.CampaignId, _session.Phase,
                     _session.CurrentTick, _session.NextSubmissionSequence, null, new SetPausedCommand(true)));
         }
+        else
+        {
+            _session = GameSession.CreateCampaign(20260922);
+        }
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
         BuildWorld();
-        BuildAttendee();
+        if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();
         if (_sharedWorldFixture is not null) BuildSharedWorldServiceMarkers();
         if (_foundationFixture is not null) _foundationPresentation.Reset(_session.CaptureSnapshot());
         BuildHud();
@@ -174,8 +195,9 @@ public partial class Main : Node
         else if (_foundationFixture is not null) AdvanceFoundationPresentation(delta);
         else if (_queueCaptureDirectory is not null) AdvanceQueuePresentation(delta);
         else if (_navigationCaptureDirectory is not null) AdvanceNavigationPresentation(delta);
-        else UpdateHashStatus();
+        else if (_session.CaptureCampaignPlanningSnapshot() is null) UpdateHashStatus();
         if (_captureDirectory is not null) ProcessCapture();
+        if (_campaignCaptureDirectory is not null) ProcessCampaignCapture();
     }
 
     public override void _Input(InputEvent inputEvent)
@@ -187,7 +209,7 @@ public partial class Main : Node
 
     public override void _UnhandledInput(InputEvent inputEvent)
     {
-        if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null) return;
+        if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null || _campaignCaptureDirectory is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (key.Keycode == Key.Q) Rotate(-1);
@@ -384,6 +406,11 @@ public partial class Main : Node
 
     private void BuildHud()
     {
+        if (_session.CaptureCampaignPlanningSnapshot() is not null)
+        {
+            BuildCampaignHud();
+            return;
+        }
         var layer = new CanvasLayer(); AddChild(layer);
         var ink = new Color("29352c");
         var top = new PanelContainer(); top.SetAnchorsPreset(Control.LayoutPreset.TopWide);
@@ -425,6 +452,149 @@ public partial class Main : Node
         var helpLabel = LabelText("PAN  WASD / ARROWS / MIDDLE-DRAG    ZOOM  WHEEL / + −\nROTATE  Q E / BUTTONS    SELECT  LEFT CLICK    PAUSE  SPACE", 14, ink);
         helpLabel.HorizontalAlignment = HorizontalAlignment.Center; helpLabel.VerticalAlignment = VerticalAlignment.Center; help.AddChild(helpLabel);
     }
+
+    private void BuildCampaignHud()
+    {
+        var layer = new CanvasLayer(); AddChild(layer);
+        var ink = new Color("29352c");
+        var cream = new Color("f5e9c9");
+
+        _campaignTopPanel = new PanelContainer();
+        _campaignTopPanel.SetAnchorsPreset(Control.LayoutPreset.TopWide);
+        _campaignTopPanel.OffsetLeft = 16; _campaignTopPanel.OffsetTop = 16;
+        _campaignTopPanel.OffsetRight = -16; _campaignTopPanel.OffsetBottom = 86;
+        layer.AddChild(_campaignTopPanel);
+        var topBar = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        topBar.AddThemeConstantOverride("separation", 22); _campaignTopPanel.AddChild(topBar);
+        _campaignIdentityLabel = LabelText("", 20, ink); topBar.AddChild(_campaignIdentityLabel);
+        _campaignFinanceLabel = LabelText("", 16, ink); topBar.AddChild(_campaignFinanceLabel);
+        topBar.AddChild(ButtonText("SAVE", CampaignManualSave));
+        topBar.AddChild(ButtonText("LOAD", CampaignManualLoad));
+
+        var planner = new PanelContainer();
+        planner.SetAnchorsPreset(Control.LayoutPreset.LeftWide);
+        planner.OffsetLeft = 16; planner.OffsetTop = 102; planner.OffsetRight = 398; planner.OffsetBottom = -16;
+        planner.AddThemeStyleboxOverride("panel", PaperStyle(cream)); layer.AddChild(planner);
+        var plannerMargin = new MarginContainer();
+        foreach (var key in new[] { "margin_left", "margin_right", "margin_top", "margin_bottom" }) plannerMargin.AddThemeConstantOverride(key, 18);
+        planner.AddChild(plannerMargin);
+        var plannerBox = new VBoxContainer(); plannerBox.AddThemeConstantOverride("separation", 12); plannerMargin.AddChild(plannerBox);
+        plannerBox.AddChild(LabelText("CAMPAIGN DESK  •  INHERITED FARM", 14, new Color("6f5937")));
+        plannerBox.AddChild(LabelText("Festival name", 14, ink));
+        _campaignNameEdit = new LineEdit { CustomMinimumSize = new Vector2(0, 40) };
+        _campaignNameEdit.TextSubmitted += _ => CampaignRename(); plannerBox.AddChild(_campaignNameEdit);
+        plannerBox.AddChild(ButtonText("RENAME", CampaignRename));
+        plannerBox.AddChild(LabelText("Paper tab colour", 14, ink));
+        _campaignPaletteOption = new OptionButton { CustomMinimumSize = new Vector2(0, 40) };
+        foreach (var value in Enum.GetValues<FestivalPalette>()) _campaignPaletteOption.AddItem(value.ToString());
+        _campaignPaletteOption.ItemSelected += CampaignPaletteSelected; plannerBox.AddChild(_campaignPaletteOption);
+        plannerBox.AddChild(new HSeparator());
+        _campaignCommitmentLabel = LabelText("", 15, ink); _campaignCommitmentLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        plannerBox.AddChild(_campaignCommitmentLabel);
+        _campaignCommitButton = ButtonText("CONFIRM £40", CampaignConfirmCommitment); plannerBox.AddChild(_campaignCommitButton);
+        plannerBox.AddChild(new HSeparator());
+        _campaignAdvanceButton = ButtonText("ADVANCE WEEK", CampaignAdvanceWeek); plannerBox.AddChild(_campaignAdvanceButton);
+
+        var digest = new PanelContainer();
+        digest.SetAnchorsPreset(Control.LayoutPreset.RightWide);
+        digest.OffsetLeft = -438; digest.OffsetTop = 102; digest.OffsetRight = -16; digest.OffsetBottom = -16;
+        digest.AddThemeStyleboxOverride("panel", PaperStyle(cream)); layer.AddChild(digest);
+        var digestMargin = new MarginContainer();
+        foreach (var key in new[] { "margin_left", "margin_right", "margin_top", "margin_bottom" }) digestMargin.AddThemeConstantOverride(key, 18);
+        digest.AddChild(digestMargin);
+        var digestBox = new VBoxContainer(); digestBox.AddThemeConstantOverride("separation", 12); digestMargin.AddChild(digestBox);
+        digestBox.AddChild(LabelText("WEEKLY PREVIEW / DIGEST", 14, new Color("6f5937")));
+        _campaignDigestLabel = LabelText("", 16, ink); _campaignDigestLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        digestBox.AddChild(_campaignDigestLabel);
+        digestBox.AddChild(new Control { SizeFlagsVertical = Control.SizeFlags.ExpandFill });
+        _hashLabel = LabelText("", 12, new Color("47603b")); _hashLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart; digestBox.AddChild(_hashLabel);
+        RefreshCampaignHud();
+    }
+
+    private void CampaignRename()
+    {
+        try { _session.RenameFestival(_campaignNameEdit.Text); _campaignUiStatus = "Festival renamed"; }
+        catch (ArgumentException exception) { _campaignUiStatus = exception.Message; }
+        RefreshCampaignHud();
+    }
+
+    private void CampaignPaletteSelected(long index)
+    {
+        _session.SelectPalette((FestivalPalette)index); _campaignUiStatus = $"Palette set to {(FestivalPalette)index}"; RefreshCampaignHud();
+    }
+
+    private void CampaignConfirmCommitment()
+    {
+        var result = _session.Execute(CampaignEnvelope(new ConfirmPlanningCommitmentCommand(CampaignDefaults.BasicAdministrationCommitmentId)));
+        _campaignUiStatus = result.IsAccepted ? "£40 scheduled for next Advance Week" : $"Rejected: {result.Message}";
+        if (result.ReasonCode == CommandReasonCode.AlreadyCommitted) _campaignDuplicateRejected = true;
+        RefreshCampaignHud();
+    }
+
+    private void CampaignAdvanceWeek()
+    {
+        if (_session.Phase != SessionPhase.Planning) { _campaignUiStatus = "Opening Check reached; planning cannot advance again."; RefreshCampaignHud(); return; }
+        var result = PlanningAdvanceCoordinator.Advance(
+            SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration,
+            CampaignEnvelope(new AdvancePlanningWeekCommand()));
+        _campaignUiStatus = result.IsSuccess ? "Autosaved • " + result.Digest!.Summary : result.Message;
+        if (result.IsSuccess) _autosaveGeneration++;
+        RefreshCampaignHud();
+    }
+
+    private void CampaignManualSave()
+    {
+        var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-campaign", new SaveWriteRequest(
+            _session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));
+        _campaignUiStatus = result.IsSuccess ? "Campaign saved" : result.Error ?? "Save failed"; RefreshCampaignHud();
+    }
+
+    private void CampaignManualLoad()
+    {
+        var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-campaign", _saveCompatibility);
+        if (result.IsSuccess) { _session = result.Session!; _campaignUiStatus = "Campaign loaded"; }
+        else _campaignUiStatus = result.Error ?? "Load failed";
+        RefreshCampaignHud();
+    }
+
+    private CommandEnvelope CampaignEnvelope(SessionCommand command) => new(
+        new CommandId(1_010_000UL + _session.NextSubmissionSequence), _session.CampaignId, _session.Phase,
+        _session.CurrentTick, _session.NextSubmissionSequence, null, command);
+
+    private void RefreshCampaignHud()
+    {
+        var snapshot = _session.CaptureSnapshot();
+        var campaign = snapshot.Campaign!;
+        var finance = snapshot.FestivalFinances.Single(item => item.OwnerId == campaign.FinanceOwnerId);
+        var phase = snapshot.Phase == SessionPhase.Planning ? $"PLANNING W{campaign.PlanningWeek}" : "OPENING CHECK";
+        _campaignIdentityLabel.Text = $"{campaign.FestivalName.ToUpperInvariant()}  •  {phase}";
+        _campaignFinanceLabel.Text = $"CASH £{finance.CashPennies / 100m:0}  •  DEBT £{campaign.Loan.OutstandingPrincipalPennies / 100m:0}  •  SETTLEMENT £{(campaign.Loan.PrincipalDueAtSettlementPennies + campaign.Loan.InterestDueAtSettlementPennies) / 100m:0}";
+        if (!_campaignNameEdit.HasFocus()) _campaignNameEdit.Text = campaign.FestivalName;
+        _campaignPaletteOption.Selected = (int)campaign.Palette;
+        _campaignTopPanel.AddThemeStyleboxOverride("panel", PaperStyle(CampaignPaletteColor(campaign.Palette)));
+        var commitment = campaign.Commitments.Single();
+        _campaignCommitmentLabel.Text = $"BASIC ADMINISTRATION AND COVER\n£40 • {commitment.Status.ToString().ToUpperInvariant()}\n" +
+            (commitment.Status == PlanningCommitmentStatus.Paid ? "Paid once on the W8 advance." : "Payment is due on the next manual Advance Week.");
+        _campaignCommitButton.Disabled = commitment.Status != PlanningCommitmentStatus.Available;
+        _campaignAdvanceButton.Disabled = snapshot.Phase != SessionPhase.Planning;
+        var preview = snapshot.Phase == SessionPhase.Planning ? _session.GetWeekAdvancePreview() : null;
+        var previewText = preview is null ? "No further planning advance. Review the opening warnings." :
+            $"NEXT: W{preview.FromWeek} → {(preview.PhaseAfter == SessionPhase.OpeningCheck ? "OPENING CHECK" : $"W{preview.FromWeek - 1}")}\n" +
+            $"Known payment: {(preview.DuePayments.Count == 0 ? "none" : $"£{preview.DuePayments.Sum(item => item.AmountPennies) / 100m:0}")}\n" +
+            $"Cash after: £{preview.CashAfterPennies / 100m:0}\n\nSettlement forecast\nPrincipal £{preview.PrincipalDueAtSettlementPennies / 100m:0}\nInterest £{preview.InterestDueAtSettlementPennies / 100m:0}\nNot paid weekly.";
+        var lastDigest = campaign.WeeklyDigests.LastOrDefault();
+        _campaignDigestLabel.Text = $"{previewText}\n\nSTATUS\n{_campaignUiStatus}" + (lastDigest is null ? "" : $"\n\nLAST DIGEST\n{lastDigest.Summary}");
+        _hashLabel.Text = $"FIXED SITE  LOWER WITTERING FARM\nSEED {snapshot.CampaignSeed}  SITE SEED {campaign.SiteSeed}\nGAMEPLAY HASH {snapshot.AuthoritativeHash[..16]}\nName/palette are cosmetic save state.";
+    }
+
+    private static Color CampaignPaletteColor(FestivalPalette palette) => palette switch
+    {
+        FestivalPalette.Meadow => new Color("dfe8c4"),
+        FestivalPalette.Marigold => new Color("f1d28a"),
+        FestivalPalette.Berry => new Color("dfb7c5"),
+        FestivalPalette.River => new Color("bcd9db"),
+        _ => new Color("f5e9c9"),
+    };
 
     private static StyleBoxFlat PaperStyle(Color color) => new()
     {
@@ -546,6 +716,7 @@ public partial class Main : Node
             else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
+            else if (args[i] == "--capture-campaign" && i + 1 < args.Length) _campaignCaptureDirectory = args[++i];
             else if (args[i] == "--benchmark-launch" && i + 3 < args.Length)
             {
                 var agents = int.Parse(args[++i]);
@@ -568,8 +739,70 @@ public partial class Main : Node
         if (_navigationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_navigationCaptureDirectory);
         if (_queueCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_queueCaptureDirectory);
         if (_foundationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_foundationCaptureDirectory);
+        if (_campaignCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_campaignCaptureDirectory);
         if (_benchmarkOutputPath is not null) DirAccess.MakeDirRecursiveAbsolute(Path.GetDirectoryName(_benchmarkOutputPath)!);
         if (_sharedWorldOutputPath is not null) DirAccess.MakeDirRecursiveAbsolute(Path.GetDirectoryName(_sharedWorldOutputPath)!);
+    }
+
+    private void ProcessCampaignCapture()
+    {
+        _campaignCaptureFrame++;
+        if (_campaignCaptureStage == 0 && _campaignCaptureFrame >= 12)
+        {
+            CaptureCampaign("created");
+            var interaction = Stopwatch.StartNew();
+            _campaignNameEdit.Text = "Wittering Paper Lanterns"; CampaignRename();
+            _campaignPaletteOption.Select((int)FestivalPalette.Berry); CampaignPaletteSelected((int)FestivalPalette.Berry);
+            CampaignConfirmCommitment(); CampaignConfirmCommitment();
+            interaction.Stop(); _campaignMaximumInteractionMilliseconds = interaction.Elapsed.TotalMilliseconds;
+            _campaignCaptureStage = 1; _campaignCaptureFrame = 0;
+            return;
+        }
+        if (_campaignCaptureStage == 1 && _campaignCaptureFrame >= 8)
+        {
+            CaptureCampaign("commitment-preview");
+            var hash = _session.CaptureSnapshot().AuthoritativeHash;
+            CampaignManualSave(); CampaignManualLoad();
+            _campaignSaveReloadExact = _session.CaptureSnapshot().AuthoritativeHash == hash;
+            _campaignCaptureStage = 2; _campaignCaptureFrame = 0;
+            return;
+        }
+        if (_campaignCaptureStage == 2 && _campaignCaptureFrame >= 4 && _session.Phase == SessionPhase.Planning)
+        {
+            var advance = Stopwatch.StartNew(); CampaignAdvanceWeek(); advance.Stop();
+            _campaignMaximumAdvanceMilliseconds = Math.Max(_campaignMaximumAdvanceMilliseconds, advance.Elapsed.TotalMilliseconds);
+            _campaignCaptureFrame = 0;
+            return;
+        }
+        if (_campaignCaptureStage != 2 || _session.Phase != SessionPhase.OpeningCheck || _campaignCaptureFrame < 8) return;
+        CaptureCampaign("opening-check");
+        var snapshot = _session.CaptureSnapshot();
+        var campaign = snapshot.Campaign!;
+        var autosaves = Enumerable.Range(0, AutosaveRotation.SlotCount)
+            .Count(i => File.Exists(SaveFileAdapter.ResolveSlotPath(SaveDirectory, $"autosave-{i}")));
+        var paid = campaign.LedgerTransactions.Count(item => item.Reason == "Basic administration and cover");
+        var passed = snapshot.Phase == SessionPhase.OpeningCheck && campaign.PlanningWeek == 0 && snapshot.CurrentTick == 0 &&
+            snapshot.FestivalFinances.Single().CashPennies == 76_000 && campaign.Loan.OutstandingPrincipalPennies == 80_000 &&
+            campaign.Loan.PrincipalDueAtSettlementPennies + campaign.Loan.InterestDueAtSettlementPennies == 22_400 &&
+            campaign.WeeklyDigests.Count == 8 && paid == 1 && campaign.LedgerTransactions.All(item => item.IsBalanced) &&
+            _campaignDuplicateRejected && _campaignSaveReloadExact && autosaves == 3 &&
+            _campaignMaximumInteractionMilliseconds < 100 && _campaignMaximumAdvanceMilliseconds < 2_000;
+        var report = $"M1.01 exported-runtime verification passed={passed} resolution={GetWindow().Size}{System.Environment.NewLine}" +
+            $"festival={campaign.FestivalName} palette={campaign.Palette} site={campaign.SiteId} seed={snapshot.CampaignSeed} site_seed={campaign.SiteSeed}{System.Environment.NewLine}" +
+            $"phase={snapshot.Phase} planning_week={campaign.PlanningWeek} manual_advances={campaign.WeeklyDigests.Count} authoritative_ticks={snapshot.CurrentTick}{System.Environment.NewLine}" +
+            $"cash_p={snapshot.FestivalFinances.Single().CashPennies} debt_p={campaign.Loan.OutstandingPrincipalPennies} settlement_principal_p={campaign.Loan.PrincipalDueAtSettlementPennies} settlement_interest_p={campaign.Loan.InterestDueAtSettlementPennies}{System.Environment.NewLine}" +
+            $"commitment_paid_transactions={paid} all_ledger_balanced={campaign.LedgerTransactions.All(item => item.IsBalanced)} duplicate_confirmation_rejected={_campaignDuplicateRejected}{System.Environment.NewLine}" +
+            $"save_reload_exact={_campaignSaveReloadExact} autosave_slots={autosaves} interaction_max_ms={_campaignMaximumInteractionMilliseconds:0.###} advance_max_ms={_campaignMaximumAdvanceMilliseconds:0.###} normal_planning_responsive={_campaignMaximumInteractionMilliseconds < 100 && _campaignMaximumAdvanceMilliseconds < 2_000}{System.Environment.NewLine}" +
+            $"hash={snapshot.AuthoritativeHash} stable60_target_unchanged=true stable60_m1_00=Fail os_input_latency=Unverified m1_11_final_gate=true no_live_crowd=true{System.Environment.NewLine}";
+        File.WriteAllText(Path.Combine(_campaignCaptureDirectory!, "verification-1280x720.txt"), report);
+        GD.Print(report); _campaignCaptureDirectory = null; GetTree().Quit(passed ? 0 : 2);
+    }
+
+    private void CaptureCampaign(string stage)
+    {
+        var path = Path.Combine(_campaignCaptureDirectory!, $"campaign-{stage}-1280x720.png");
+        var error = GetViewport().GetTexture().GetImage().SavePng(path);
+        GD.Print($"CAMPAIGN_CAPTURE stage={stage} path={path} result={error}");
     }
 
     private void AdvanceSharedWorldFeasibility(double delta)

@@ -34,6 +34,18 @@ public sealed record PersistedServiceQueue(
     ulong NextArrivalSequence = 1,
     [property: System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     bool? PhysicalArrivalAdmission = null);
+public sealed record PersistedPlanningCommitment(string Id, string DisplayName, long AmountPennies, int DueOnAdvanceFromWeek, int Status);
+public sealed record PersistedPlanningLedgerTransaction(ulong Id, string Reason, int PlanningWeek, PersistedLedgerEntry[] Entries);
+public sealed record PersistedWeeklyPayment(string CommitmentId, string DisplayName, long AmountPennies);
+public sealed record PersistedWeeklyDigest(
+    int FromWeek, int ToWeek, int PhaseAfter, PersistedWeeklyPayment[] Payments,
+    int RemainingCommitments, long CashPennies, long OutstandingDebtPennies, string[] Warnings);
+public sealed record PersistedCampaignPlanning(
+    string FestivalName, int Palette, string SiteId, ulong SiteSeed, int EditionNumber, int PlanningWeek, ulong FinanceOwnerId,
+    long LoanOpeningPrincipalPennies, long LoanOutstandingPrincipalPennies, long LoanPrincipalDueAtSettlementPennies,
+    long LoanInterestDueAtSettlementPennies, int LoanRemainingEditions, int LoanInterestBasisPoints,
+    PersistedPlanningCommitment[] Commitments, PersistedPlanningLedgerTransaction[] LedgerTransactions,
+    PersistedWeeklyDigest[] WeeklyDigests, string[] DismissedTipIds);
 
 /// <summary>Explicit v1 persistence DTO for all authoritative state through M0.08.</summary>
 public sealed record SessionPersistenceSnapshot(
@@ -64,6 +76,9 @@ public sealed record SessionPersistenceSnapshot(
 
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PersistedServiceQueue[]? ServiceQueues { get; init; }
+
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PersistedCampaignPlanning? CampaignPlanning { get; init; }
 }
 
 public sealed record SessionRestoreResult(GameSession? Session, string? Error)

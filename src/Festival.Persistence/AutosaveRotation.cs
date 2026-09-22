@@ -12,8 +12,14 @@ public static class AutosaveRotation
         return $"autosave-{generation % SlotCount}";
     }
 
-    public static SaveOperationResult Save(string directory, GameSession session, SaveCompatibility compatibility, DateTimeOffset now, long generation) =>
-        SaveFileAdapter.SaveSlot(directory, SlotForGeneration(generation), new SaveWriteRequest(session, compatibility, "autosave", now, generation));
+    public static SaveOperationResult Save(
+        string directory,
+        GameSession session,
+        SaveCompatibility compatibility,
+        DateTimeOffset now,
+        long generation,
+        Action<SaveFailurePoint>? failureInjector = null) =>
+        SaveFileAdapter.SaveSlot(directory, SlotForGeneration(generation), new SaveWriteRequest(session, compatibility, "autosave", now, generation), failureInjector);
 
     public static long NextGeneration(string directory, SaveCompatibility compatibility)
     {

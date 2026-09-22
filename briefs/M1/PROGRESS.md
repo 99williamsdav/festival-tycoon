@@ -5,7 +5,7 @@ Planning package status: **Approved 22 September 2026.** M1.00 measurement is ac
 | Brief | Status | Evidence | Open decision/check |
 |---|---|---|---|
 | M1.00 | Accepted measurement — progression gate failed; temporary progression exception recorded | [Shared-world feasibility result](../results/M1.00.md) | Stable 60 FPS failed and OS input responsiveness is Unverified; targets unchanged and renewed measurement remains required |
-| M1.01 | Not started — authorized | None | Carry forward campaign/time/£800 worked-example defaults and record exact content revision |
+| M1.01 | Implemented — verification pending | [Campaign shell, eight planning weeks, finance, saves and 1280×720 UI evidence](../results/M1.01.md) | Independent acceptance review; stable 60 FPS remains failed and OS input latency remains Unverified under the temporary exception |
 | M1.02 | Not started | None | None beyond accepted predecessors |
 | M1.03 | Not started | None | None beyond accepted predecessors |
 | M1.04 | Not started | None | Asset reuse only; no new art yet |

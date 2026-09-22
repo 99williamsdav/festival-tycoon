@@ -4,6 +4,8 @@ public enum SessionPhase
 {
     Live = 1,
     Egress = 2,
+    Planning = 3,
+    OpeningCheck = 4,
 }
 
 public enum RequestedSpeed
@@ -28,6 +30,7 @@ public enum CommandReasonCode
     UnknownOwner = 10,
     InsufficientFunds = 11,
     OutOfStock = 12,
+    AlreadyCommitted = 13,
 }
 
 public abstract record SessionCommand;
@@ -39,6 +42,12 @@ public sealed record CreateFixtureRecordCommand(int InitialValue, int ExpiresAft
 public sealed record ChangeFixtureValueCommand(int NewValue) : SessionCommand;
 
 public sealed record SetPausedCommand(bool IsPaused) : SessionCommand;
+
+public sealed record ConfirmPlanningCommitmentCommand(string CommitmentId) : SessionCommand;
+
+public sealed record AdvancePlanningWeekCommand : SessionCommand;
+
+public sealed record DismissCampaignTipCommand(string TipId) : SessionCommand;
 
 /// <summary>Development fixture: creates one guest wallet for M0.04 verification.</summary>
 public sealed record CreateGuestWalletCommand(long OpeningCashPennies) : SessionCommand;

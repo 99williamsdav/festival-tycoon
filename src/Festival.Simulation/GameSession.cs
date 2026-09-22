@@ -89,6 +89,21 @@ public sealed partial class GameSession
                 IsPaused = pause.IsPaused;
                 break;
 
+            case ConfirmPlanningCommitmentCommand commitment:
+                affectedTarget = null;
+                ApplyConfirmPlanningCommitment(commitment);
+                break;
+
+            case AdvancePlanningWeekCommand:
+                affectedTarget = null;
+                ApplyAdvancePlanningWeek();
+                break;
+
+            case DismissCampaignTipCommand dismiss:
+                affectedTarget = null;
+                ApplyDismissTip(dismiss);
+                break;
+
             case CreateGuestWalletCommand createGuest:
                 affectedTarget = new EntityId(NextEntityId++);
                 _wallets.Add(affectedTarget.Value, new WalletState
@@ -252,7 +267,8 @@ public sealed partial class GameSession
             _transactions.ToArray(),
             CaptureNavigationAgents(),
             CaptureServiceQueues(),
-            CanonicalStateHasher.Compute(this));
+            CanonicalStateHasher.Compute(this),
+            CaptureCampaignPlanningSnapshot());
     }
 
     public SessionPersistenceSnapshot CapturePersistenceSnapshot() => new(
@@ -287,6 +303,7 @@ public sealed partial class GameSession
             TraversalGrid = CaptureTraversalGrid(),
             NavigationAgents = CapturePersistedNavigationAgents(),
             ServiceQueues = CapturePersistedServiceQueues(),
+            CampaignPlanning = CapturePersistedCampaignPlanning(),
         };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
@@ -337,6 +354,7 @@ public sealed partial class GameSession
 
         session.RestoreNavigation(snapshot.TraversalGrid, snapshot.NavigationAgents);
         session.RestoreServiceQueues(snapshot.ServiceQueues, snapshot.NavigationAgents);
+        session.RestoreCampaignPlanning(snapshot.CampaignPlanning);
 
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
@@ -386,6 +404,8 @@ public sealed partial class GameSession
         if (navigationError is not null) return navigationError;
         var queueError = ValidatePersistedServiceQueues(snapshot.ServiceQueues, snapshot);
         if (queueError is not null) return queueError;
+        var campaignError = ValidatePersistedCampaignPlanning(snapshot.CampaignPlanning, snapshot);
+        if (campaignError is not null) return campaignError;
         var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
             .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();
         if (ownedEntityIds.Distinct().Count() != ownedEntityIds.Length || ownedEntityIds.Any(id => id >= snapshot.NextEntityId))
@@ -485,6 +505,9 @@ public sealed partial class GameSession
                 CommandResult.Rejected(CommandReasonCode.UnknownTarget, "Fixture target does not exist."),
             SetPausedCommand when envelope.TargetId is not null =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Pause command does not accept a target."),
+            ConfirmPlanningCommitmentCommand commitment => ValidateConfirmPlanningCommitment(envelope.TargetId, commitment),
+            AdvancePlanningWeekCommand => ValidateAdvancePlanningWeek(envelope.TargetId),
+            DismissCampaignTipCommand dismiss => ValidateDismissCampaignTip(envelope.TargetId, dismiss),
             CreateGuestWalletCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Guest setup requires no target and nonnegative opening cash."),
             CreateFestivalFinanceCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>
@@ -505,6 +528,49 @@ public sealed partial class GameSession
                 CreateGuestWalletCommand or CreateFestivalFinanceCommand or CreateOwnedStockCommand => null,
             _ => CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported."),
         };
+    }
+
+    public CommandResult? ValidateCommand(CommandEnvelope envelope) => ValidateEnvelope(envelope);
+
+    private CommandResult? ValidateConfirmPlanningCommitment(EntityId? targetId, ConfirmPlanningCommitmentCommand command)
+    {
+        if (targetId is not null || Phase != SessionPhase.Planning || _campaignPlanning is null)
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Commitments can be confirmed only during campaign planning.");
+        var commitment = _campaignPlanning.Commitments.SingleOrDefault(item => item.Id == command.CommitmentId);
+        if (commitment is null)
+            return CommandResult.Rejected(CommandReasonCode.UnknownTarget, "Planning commitment does not exist.");
+        if (commitment.Status != PlanningCommitmentStatus.Available)
+            return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Planning commitment is already confirmed or paid.");
+        var cash = _festivalFinances[_campaignPlanning.FinanceOwnerId].CashPennies;
+        var reserved = _campaignPlanning.Commitments
+            .Where(item => item.Status == PlanningCommitmentStatus.Confirmed)
+            .Sum(item => item.AmountPennies);
+        if (cash - reserved < commitment.AmountPennies)
+            return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, "Festival cash is insufficient for this commitment.");
+        return null;
+    }
+
+    private CommandResult? ValidateAdvancePlanningWeek(EntityId? targetId)
+    {
+        if (targetId is not null || Phase != SessionPhase.Planning || _campaignPlanning is null || _campaignPlanning.PlanningWeek is < 1 or > 8)
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Advance Week is available only during Planning W8 through W1.");
+        var due = _campaignPlanning.Commitments
+            .Where(item => item.Status == PlanningCommitmentStatus.Confirmed && item.DueOnAdvanceFromWeek == _campaignPlanning.PlanningWeek)
+            .Sum(item => item.AmountPennies);
+        if (_festivalFinances[_campaignPlanning.FinanceOwnerId].CashPennies < due)
+            return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, "Festival cash is insufficient for payments due on this advance.");
+        return null;
+    }
+
+    private CommandResult? ValidateDismissCampaignTip(EntityId? targetId, DismissCampaignTipCommand command)
+    {
+        if (targetId is not null || _campaignPlanning is null)
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "This session has no campaign tip state.");
+        if (string.IsNullOrWhiteSpace(command.TipId) || command.TipId.Length > 80)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Tip ID must contain 1-80 characters.");
+        if (_campaignPlanning.DismissedTipIds.Contains(command.TipId))
+            return CommandResult.Rejected(CommandReasonCode.DuplicateCommand, "Tip was already dismissed.");
+        return null;
     }
 
     private CommandResult? ValidatePurchase(EntityId? serviceId, PurchaseItemCommand purchase)

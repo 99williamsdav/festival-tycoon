@@ -1,0 +1,7 @@
+M1.01 exported-runtime verification passed=True resolution=(1280, 720)
+festival=Wittering Paper Lanterns palette=Berry site=site.lower-wittering-farm seed=20260922 site_seed=5507752146908627278
+phase=OpeningCheck planning_week=0 manual_advances=8 authoritative_ticks=0
+cash_p=76000 debt_p=80000 settlement_principal_p=16000 settlement_interest_p=6400
+commitment_paid_transactions=1 all_ledger_balanced=True duplicate_confirmation_rejected=True
+save_reload_exact=True autosave_slots=3 interaction_max_ms=4.417 advance_max_ms=14.109 normal_planning_responsive=True
+hash=704f17d6b8939bb93e0e13e1439547c96b65dde1860d9a1db6b6165e26611b2b stable60_target_unchanged=true stable60_m1_00=Fail os_input_latency=Unverified m1_11_final_gate=true no_live_crowd=true

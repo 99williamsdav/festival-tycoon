@@ -9,6 +9,8 @@ public enum LedgerAccountType
     SalesRevenue = 3,
     CostOfGoodsSold = 4,
     GuestSpending = 5,
+    LoanPrincipalLiability = 6,
+    AdministrationExpense = 7,
 }
 
 /// <summary>

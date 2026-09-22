@@ -22,7 +22,8 @@ public sealed record SessionSnapshot(
     IReadOnlyList<TransactionRecord> Transactions,
     IReadOnlyList<NavigationAgentSnapshot> NavigationAgents,
     IReadOnlyList<ServiceQueueSnapshot> ServiceQueues,
-    string AuthoritativeHash);
+    string AuthoritativeHash,
+    CampaignPlanningSnapshot? Campaign = null);
 
 public sealed record SessionEvent(long Tick, string EventType, EntityId EntityId);
 
