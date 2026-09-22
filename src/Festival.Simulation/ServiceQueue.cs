@@ -65,28 +65,35 @@ public sealed partial class GameSession
 
     private CommandResult? ValidateInitializeServiceQueue(EntityId? targetId, InitializeServiceQueueFixtureCommand command)
     {
-        if (targetId is not null || _traversalGrid is not null || _serviceQueues.Count != 0)
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Service-queue fixture requires an empty navigation/queue session and no target.");
+        if (targetId is not null || CurrentTick != 0)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Service-queue fixture requires no target and must be assembled at tick zero.");
         if (command.Starts is null || command.QueueSlots is null || command.ExitCells is null || command.Terrain is null || command.OpeningCashPennies is null ||
-            command.Starts.Count != command.OpeningCashPennies.Count || command.Starts.Count != command.ExitCells.Count || command.Starts.Count == 0 ||
+            command.Starts.Count != command.OpeningCashPennies.Count || command.ExitCells.Count < command.Starts.Count || command.Starts.Count == 0 ||
             command.QueueSlots.Count < command.Starts.Count || command.StockQuantity < 0 || command.UnitCostBasisPennies < 0 ||
             command.UnitPricePennies <= 0 || command.ServiceDurationTicks <= 0)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Queue fixture needs matching starts, wallets and exits, enough physical slots, and valid stock/price/duration.");
         TraversalGrid grid;
         try { grid = new TraversalGrid(command.Terrain); }
         catch (ArgumentException exception) { return CommandResult.Rejected(CommandReasonCode.InvalidParameter, exception.Message); }
+        if (_traversalGrid is not null && !_traversalGrid.Overrides.SequenceEqual(grid.Overrides))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Additional service destinations must use the existing shared traversal world.");
         var allCells = command.Starts.Concat(command.QueueSlots).Concat(command.ExitCells).ToArray();
         if (allCells.Distinct().Count() != allCells.Length || allCells.Any(cell => !grid.Contains(cell) || !grid.Get(cell).IsWalkable) || command.OpeningCashPennies.Any(value => value < 0))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Queue fixture cells must be unique, walkable and in bounds; cash cannot be negative.");
+        var occupiedCells = _serviceQueues.Values.SelectMany(queue => queue.QueueSlots.Concat(queue.ExitCells))
+            .Concat(_navigationAgents.Values.Select(agent => TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres))).ToHashSet();
+        if (allCells.Any(occupiedCells.Contains))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Shared-world service destinations require globally distinct starts, queue slots and exits.");
         return null;
     }
 
     private EntityId ApplyInitializeServiceQueue(InitializeServiceQueueFixtureCommand command)
     {
-        _traversalGrid = new TraversalGrid(command.Terrain);
+        _traversalGrid ??= new TraversalGrid(command.Terrain);
         var queueId = new EntityId(NextEntityId++);
-        var festivalId = new EntityId(NextEntityId++);
-        _festivalFinances.Add(festivalId, new FestivalFinanceState { OwnerId = festivalId, CashPennies = 0 });
+        var festivalId = _serviceQueues.Count == 0 ? new EntityId(NextEntityId++) : _serviceQueues.Values.First().FestivalId;
+        if (!_festivalFinances.ContainsKey(festivalId))
+            _festivalFinances.Add(festivalId, new FestivalFinanceState { OwnerId = festivalId, CashPennies = 0 });
         var serviceId = new EntityId(NextEntityId++);
         _ownedStocks.Add(serviceId, new OwnedStockState { ServiceId = serviceId, OwnerId = festivalId, Quantity = command.StockQuantity, UnitCostBasisPennies = command.UnitCostBasisPennies });
         var queue = new ServiceQueueState
@@ -187,6 +194,36 @@ public sealed partial class GameSession
     {
         var queue = _serviceQueues[queueId];
         ReleaseQueueMember(queue, agentId, ServiceQueueAgentAction.Abandoned, depart: true);
+    }
+
+    private CommandResult? ValidateRetargetServiceQueueAgentFixture(EntityId? sourceQueueId, RetargetServiceQueueAgentFixtureCommand command)
+    {
+        if (sourceQueueId is null || !_serviceQueues.TryGetValue(sourceQueueId.Value, out var source) ||
+            !_serviceQueues.TryGetValue(command.DestinationQueueId, out var destination))
+            return CommandResult.Rejected(CommandReasonCode.UnknownTarget, "Source and destination service queues must exist.");
+        if (sourceQueueId.Value == command.DestinationQueueId || !destination.IsOpen ||
+            !source.Agents.TryGetValue(command.AgentId, out var agent) || agent.Action != ServiceQueueAgentAction.ApproachingQueue ||
+            destination.Agents.ContainsKey(command.AgentId) || destination.Agents.Count >= destination.ExitCells.Count)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Only an unadmitted approaching attendee can retarget to an open destination with capacity.");
+        return null;
+    }
+
+    private void ApplyRetargetServiceQueueAgentFixture(EntityId sourceQueueId, RetargetServiceQueueAgentFixtureCommand command)
+    {
+        var source = _serviceQueues[sourceQueueId];
+        var destination = _serviceQueues[command.DestinationQueueId];
+        source.Agents.Remove(command.AgentId);
+        var assigned = destination.Agents.Values.Select(item => item.ExitIndex).ToHashSet();
+        var exitIndex = Enumerable.Range(0, destination.ExitCells.Count).First(index => !assigned.Contains(index));
+        destination.Agents.Add(command.AgentId, new ServiceQueueAgentState
+        {
+            AgentId = command.AgentId,
+            Action = ServiceQueueAgentAction.ApproachingQueue,
+            ExitIndex = exitIndex,
+            AdmissionTick = CurrentTick,
+            ArrivalSequence = 0,
+        });
+        SetDestinationDirect(command.AgentId, destination.QueueSlots[exitIndex], "ai.service-approach");
     }
 
     private void ApplySetServiceQueueOpen(EntityId queueId, bool isOpen)
@@ -459,6 +496,14 @@ public sealed partial class GameSession
     {
         if (queues is null) return null; // M0.05-M0.07 saves migrate by absence to no queue state.
         if (!StrictlyIncreasing(queues.Select(item => item.Id))) return "Service queues must have sorted unique IDs.";
+        var crossQueueAgentOwnership = queues.SelectMany((queue, queueIndex) =>
+            queue.Agents.Select(agent => (queueIndex, agent.AgentId)));
+        if (crossQueueAgentOwnership.GroupBy(item => item.AgentId).Any(group => group.Select(item => item.queueIndex).Distinct().Count() > 1))
+            return "An attendee cannot belong to more than one service destination.";
+        var crossQueueCells = queues.SelectMany((queue, queueIndex) => queue.QueueSlots.Concat(queue.ExitCells)
+            .Select(cell => (queueIndex, Cell: new GridCell(cell.X, cell.Z))));
+        if (crossQueueCells.GroupBy(item => item.Cell).Any(group => group.Select(item => item.queueIndex).Distinct().Count() > 1))
+            return "Shared-world service queue and exit cells must be globally distinct.";
         var walletIds = snapshot.Wallets.Select(item => item.OwnerId).ToHashSet();
         var navigation = (snapshot.NavigationAgents ?? []).ToDictionary(item => item.Id);
         var festivalIds = snapshot.FestivalFinances.Select(item => item.OwnerId).ToHashSet();
@@ -474,7 +519,7 @@ public sealed partial class GameSession
             if (queue.Id == 0 || !festivalIds.Contains(queue.FestivalId) || !serviceIds.Contains(queue.ServiceId) || queue.UnitPricePennies <= 0 ||
                 queue.ServiceDurationTicks <= 0 || queue.RemainingServiceTicks < 0 || queue.RemainingServiceTicks > queue.ServiceDurationTicks ||
                 queue.OrderedMembers is null || queue.QueueSlots is null || queue.ExitCells is null || queue.Agents is null ||
-                !StrictlyIncreasing(queue.Agents.Select(agent => agent.AgentId)) || queue.QueueSlots.Length < queue.Agents.Length || queue.ExitCells.Length != queue.Agents.Length)
+                !StrictlyIncreasing(queue.Agents.Select(agent => agent.AgentId)) || queue.QueueSlots.Length < queue.Agents.Length || queue.ExitCells.Length < queue.Agents.Length)
                 return $"Service queue {queue.Id} has invalid identity, configuration or collections.";
             var queueCells = queue.QueueSlots.Select(cell => new GridCell(cell.X, cell.Z)).ToArray();
             var exitCells = queue.ExitCells.Select(cell => new GridCell(cell.X, cell.Z)).ToArray();

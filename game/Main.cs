@@ -5,6 +5,9 @@ using Godot;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Diagnostics;
+using System.Linq;
+using System.Text.Json;
 
 namespace Festival.Game;
 
@@ -54,6 +57,17 @@ public partial class Main : Node
     private FiftyAgentFoundationFixtureState? _foundationFixture;
     private CrowdBenchmarkFixture? _benchmarkFixture;
     private string? _benchmarkOutputPath;
+    private SharedWorldFeasibilityFixtureState? _sharedWorldFixture;
+    private string? _sharedWorldOutputPath;
+    private readonly FoundationClock _sharedWorldClock = new();
+    private readonly List<double> _sharedFrameMilliseconds = [];
+    private readonly List<double> _sharedWorkMilliseconds = [];
+    private int _sharedMeasurementFrames;
+    private int _sharedMeasurementStage;
+    private long _sharedRepresentativeTick;
+    private double _sharedSaveMilliseconds;
+    private double _sharedLoadMilliseconds;
+    private bool _sharedRestoreExact;
     private int _benchmarkFrames;
     private readonly List<double> _benchmarkFrameMilliseconds = [];
     private FiftyAgentFoundationFixtureState? _foundationReference;
@@ -93,7 +107,11 @@ public partial class Main : Node
         _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null ?
             RealTimeAutosaveScheduler.ProductionCadenceSeconds : 2);
         _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
-        if (_benchmarkFixture is not null)
+        if (_sharedWorldFixture is not null)
+        {
+            _session = _sharedWorldFixture.Session;
+        }
+        else if (_benchmarkFixture is not null)
         {
             _session = _benchmarkFixture.Waves[0].Session;
         }
@@ -126,9 +144,10 @@ public partial class Main : Node
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
         BuildWorld();
         BuildAttendee();
+        if (_sharedWorldFixture is not null) BuildSharedWorldServiceMarkers();
         if (_foundationFixture is not null) _foundationPresentation.Reset(_session.CaptureSnapshot());
         BuildHud();
-        if (_queueCaptureDirectory is not null || _foundationFixture is not null) { _focus = new Vector3(10, 0, 4); _camera.Size = 58; }
+        if (_queueCaptureDirectory is not null || _foundationFixture is not null || _sharedWorldFixture is not null) { _focus = new Vector3(10, 0, 4); _camera.Size = 58; }
         ApplyCamera();
         if (_captureDirectory is not null)
             SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.farmhouse"));
@@ -146,7 +165,8 @@ public partial class Main : Node
         if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) input.X -= 1;
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
-        if (_benchmarkFixture is not null) AdvanceRenderedBenchmark(delta);
+        if (_sharedWorldFixture is not null) AdvanceSharedWorldFeasibility(delta);
+        else if (_benchmarkFixture is not null) AdvanceRenderedBenchmark(delta);
         else if (_foundationFixture is not null) AdvanceFoundationPresentation(delta);
         else if (_queueCaptureDirectory is not null) AdvanceQueuePresentation(delta);
         else if (_navigationCaptureDirectory is not null) AdvanceNavigationPresentation(delta);
@@ -163,7 +183,7 @@ public partial class Main : Node
 
     public override void _UnhandledInput(InputEvent inputEvent)
     {
-        if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null) return;
+        if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (key.Keycode == Key.Q) Rotate(-1);
@@ -228,9 +248,10 @@ public partial class Main : Node
         foreach (var agent in agents)
         {
             var visual = AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
-            if (_foundationFixture is not null)
+            if (_foundationFixture is not null || _sharedWorldFixture is not null)
             {
-                var ordinal = Array.IndexOf(_foundationFixture.AgentIds.ToArray(), agent.Id);
+                var ids = _sharedWorldFixture?.AgentIds ?? _foundationFixture!.AgentIds;
+                var ordinal = Array.IndexOf(ids.ToArray(), agent.Id);
                 var palette = AttendeePaletteAssignment.FromOrdinal(ordinal) + 1;
                 var material = GD.Load<Material>($"res://assets/characters/colourways/palette-{palette:00}.tres");
                 foreach (var child in visual.FindChildren("*", "MeshInstance3D", true, false))
@@ -338,6 +359,23 @@ public partial class Main : Node
     {
         var packed = GD.Load<PackedScene>(path) ?? throw new InvalidOperationException($"Missing farm asset: {path}");
         return packed.Instantiate<Node3D>();
+    }
+
+    private void BuildSharedWorldServiceMarkers()
+    {
+        for (var index = 0; index < _sharedWorldFixture!.ServiceVisualCells.Count; index++)
+        {
+            var centre = TraversalGrid.CellCentre(_sharedWorldFixture.ServiceVisualCells[index]);
+            if (index != 1)
+                AddAsset("res://assets/environment/lwf_service_point_v2.glb",
+                    new Vector3(centre.XMillimetres / 1000f, 0, centre.ZMillimetres / 1000f));
+            var label = new Label3D
+            {
+                Text = $"SERVICE {index + 1}", Position = new Vector3(centre.XMillimetres / 1000f, 3.6f, centre.ZMillimetres / 1000f),
+                FontSize = 44, OutlineSize = 8, Modulate = new Color("f5e9c9"), OutlineModulate = new Color("29352c"), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+            };
+            AddChild(label);
+        }
     }
 
     private void BuildHud()
@@ -511,6 +549,11 @@ public partial class Main : Node
                 _benchmarkOutputPath = ProjectSettings.GlobalizePath(args[++i]);
                 _benchmarkFixture = CrowdBenchmarkFixture.Create(agents, passage);
             }
+            else if (args[i] == "--m1-feasibility-launch" && i + 1 < args.Length)
+            {
+                _sharedWorldOutputPath = ProjectSettings.GlobalizePath(args[++i]);
+                _sharedWorldFixture = SharedWorldFeasibilityFixture.Create();
+            }
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
@@ -522,6 +565,89 @@ public partial class Main : Node
         if (_queueCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_queueCaptureDirectory);
         if (_foundationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_foundationCaptureDirectory);
         if (_benchmarkOutputPath is not null) DirAccess.MakeDirRecursiveAbsolute(Path.GetDirectoryName(_benchmarkOutputPath)!);
+        if (_sharedWorldOutputPath is not null) DirAccess.MakeDirRecursiveAbsolute(Path.GetDirectoryName(_sharedWorldOutputPath)!);
+    }
+
+    private void AdvanceSharedWorldFeasibility(double delta)
+    {
+        var fixture = _sharedWorldFixture!;
+        if (_sharedMeasurementStage == 0)
+        {
+            for (var tick = 0; tick < FoundationClock.MaximumTicksPerFrame && !SharedWorldFeasibilityFixture.IsRepresentativeActiveState(fixture); tick++)
+                _session.AdvanceTicks(1);
+            PresentSharedWorld();
+            if (!SharedWorldFeasibilityFixture.IsRepresentativeActiveState(fixture)) return;
+            _sharedRepresentativeTick = _session.CurrentTick;
+            var hash = _session.CaptureSnapshot().AuthoritativeHash;
+            var timer = Stopwatch.StartNew();
+            var saved = SaveFileAdapter.SaveSlot(SaveDirectory, "m1-shared-world", new SaveWriteRequest(_session, _saveCompatibility, "m1-feasibility", DateTimeOffset.UtcNow));
+            timer.Stop(); _sharedSaveMilliseconds = timer.Elapsed.TotalMilliseconds;
+            timer.Restart(); var loaded = SaveFileAdapter.LoadSlot(SaveDirectory, "m1-shared-world", _saveCompatibility); timer.Stop();
+            _sharedLoadMilliseconds = timer.Elapsed.TotalMilliseconds;
+            _sharedRestoreExact = saved.IsSuccess && loaded.IsSuccess && loaded.Session!.CaptureSnapshot().AuthoritativeHash == hash;
+            if (!_sharedRestoreExact) { GetTree().Quit(2); return; }
+            _session = loaded.Session!; _sharedWorldFixture = fixture = fixture with { Session = _session };
+            _sharedWorldClock.RequestedSpeed = RequestedSpeed.OneX; _sharedWorldClock.ResetBoundary(); _sharedMeasurementStage = 1;
+            _sharedFrameMilliseconds.Clear(); _sharedWorkMilliseconds.Clear();
+            return;
+        }
+
+        var work = Stopwatch.StartNew();
+        var ticks = _sharedWorldClock.Schedule(delta);
+        for (var tick = 0; tick < ticks; tick++) _session.AdvanceTicks(1);
+        PresentSharedWorld(); work.Stop();
+        _sharedFrameMilliseconds.Add(delta * 1000); _sharedWorkMilliseconds.Add(work.Elapsed.TotalMilliseconds); _sharedMeasurementFrames++;
+        if (_sharedMeasurementFrames < 90) return;
+        var requested = _sharedWorldClock.RequestedSpeed;
+        WriteSharedRenderedResult(requested, requested == RequestedSpeed.FourX);
+        if (requested == RequestedSpeed.OneX)
+        {
+            var loaded = SaveFileAdapter.LoadSlot(SaveDirectory, "m1-shared-world", _saveCompatibility);
+            if (!loaded.IsSuccess) { GetTree().Quit(2); return; }
+            _session = loaded.Session!; _sharedWorldFixture = fixture with { Session = _session };
+            _sharedWorldClock.RequestedSpeed = RequestedSpeed.FourX; _sharedWorldClock.ResetBoundary();
+            _sharedFrameMilliseconds.Clear(); _sharedWorkMilliseconds.Clear(); _sharedMeasurementFrames = 0; _sharedMeasurementStage = 2;
+            return;
+        }
+        GetTree().Quit(0);
+    }
+
+    private void PresentSharedWorld()
+    {
+        var snapshot = _session.CaptureSnapshot();
+        foreach (var agent in snapshot.NavigationAgents)
+            if (_attendeeVisuals.TryGetValue(agent.Id, out var visual)) visual.Position = ToWorld(agent);
+        var queued = snapshot.ServiceQueues.Sum(queue => queue.OrderedMembers.Count);
+        _hashLabel.Text = $"M1.00 SHARED WORLD • 50 PEOPLE • 3 DESTINATIONS\nACTIVE {snapshot.NavigationAgents.Count}  QUEUED {queued}  SERVED {snapshot.Transactions.Count}\nREQUEST {(int)_sharedWorldClock.RequestedSpeed}×  ATTAINED {_sharedWorldClock.AttainedSpeed:0.00}×\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
+    }
+
+    private void WriteSharedRenderedResult(RequestedSpeed speed, bool final)
+    {
+        var frames = _sharedFrameMilliseconds.Order().ToArray();
+        var work = _sharedWorkMilliseconds.Order().ToArray();
+        double P(double[] values, double p) => values[Math.Clamp((int)Math.Ceiling(values.Length * p) - 1, 0, values.Length - 1)];
+        var path = Path.Combine(Path.GetDirectoryName(_sharedWorldOutputPath!)!, $"shared-world-{(int)speed}x.json");
+        var snapshot = _session.CaptureSnapshot();
+        var interacting = snapshot.ServiceQueues.SelectMany(queue => queue.Agents)
+            .Count(agent => agent.Action is not ServiceQueueAgentAction.Completed and not ServiceQueueAgentAction.Failed);
+        var result = new
+        {
+            RequestedSpeed = (int)speed, AttainedSpeed = _sharedWorldClock.AttainedSpeed, Frames = frames.Length,
+            FrameMeanMs = frames.Average(), WorkMeanMs = work.Average(),
+            FrameP50Ms = P(frames, .5), FrameP95Ms = P(frames, .95), FrameP99Ms = P(frames, .99),
+            WorkP50Ms = P(work, .5), WorkP95Ms = P(work, .95), WorkP99Ms = P(work, .99),
+            RepresentativePopulation = snapshot.NavigationAgents.Count == SharedWorldFeasibilityFixture.AgentCount,
+            RepresentativeStartTick = _sharedRepresentativeTick, EndTick = snapshot.CurrentTick,
+            ActiveAgents = snapshot.NavigationAgents.Count, InteractingAgents = interacting, Destinations = snapshot.ServiceQueues.Count,
+            SaveMs = _sharedSaveMilliseconds, LoadMs = _sharedLoadMilliseconds, RestoreExact = _sharedRestoreExact,
+            ProcessPeakWorkingSetBytes = Process.GetCurrentProcess().PeakWorkingSet64, Hash = snapshot.AuthoritativeHash,
+        };
+        File.WriteAllText(path, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
+        if (final)
+        {
+            GetViewport().GetTexture().GetImage().SavePng(Path.ChangeExtension(_sharedWorldOutputPath!, ".png"));
+            File.WriteAllText(_sharedWorldOutputPath!, "M1.00 shared-world rendered feasibility completed; see adjacent 1x/4x JSON evidence." + System.Environment.NewLine);
+        }
     }
 
     private void AdvanceRenderedBenchmark(double delta)

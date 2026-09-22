@@ -151,6 +151,11 @@ public sealed partial class GameSession
                 ApplyAbandonServiceQueueAgent(affectedTarget!.Value, abandon.AgentId);
                 break;
 
+            case RetargetServiceQueueAgentFixtureCommand retarget:
+                affectedTarget = retarget.DestinationQueueId;
+                ApplyRetargetServiceQueueAgentFixture(envelope.TargetId!.Value, retarget);
+                break;
+
             default:
                 return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported.");
         }
@@ -495,6 +500,7 @@ public sealed partial class GameSession
             SetServiceQueueOpenCommand => ValidateServiceQueueTarget(envelope.TargetId),
             EnqueueServiceQueueAgentCommand enqueue => ValidateEnqueueServiceQueueAgent(envelope.TargetId, enqueue, envelope.SubmissionSequence),
             AbandonServiceQueueCommand abandon => ValidateAbandonServiceQueueAgent(envelope.TargetId, abandon),
+            RetargetServiceQueueAgentFixtureCommand retarget => ValidateRetargetServiceQueueAgentFixture(envelope.TargetId, retarget),
             CreateFixtureRecordCommand or ChangeFixtureValueCommand or SetPausedCommand or
                 CreateGuestWalletCommand or CreateFestivalFinanceCommand or CreateOwnedStockCommand => null,
             _ => CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported."),

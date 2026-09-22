@@ -1,6 +1,6 @@
 # M1 — first playable planning index
 
-Status: **Approved implementation plan — no M1 brief started yet.** These briefs narrow `IMPLEMENTATION_PLAN.md` §4; they do not replace the product, technical or balance specifications. Use the shared execution/evidence rules in [`briefs/README.md`](../README.md).
+Status: **Approved implementation plan — M1.00 measured; hard gate failed and M1.01 is blocked.** These briefs narrow `IMPLEMENTATION_PLAN.md` §4; they do not replace the product, technical or balance specifications. Use the shared execution/evidence rules in [`briefs/README.md`](../README.md).
 
 ## Foundation choice and carried-forward rules
 

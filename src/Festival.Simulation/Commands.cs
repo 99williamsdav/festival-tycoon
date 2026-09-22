@@ -82,6 +82,9 @@ public sealed record EnqueueServiceQueueAgentCommand(EntityId AgentId, ulong Arr
 /// <summary>Internal attendee-AI fixture command, not a player movement control.</summary>
 public sealed record AbandonServiceQueueCommand(EntityId AgentId) : SessionCommand;
 
+/// <summary>Development attendee-AI fixture command: changes an unadmitted physical service intention.</summary>
+public sealed record RetargetServiceQueueAgentFixtureCommand(EntityId AgentId, EntityId DestinationQueueId) : SessionCommand;
+
 public sealed record CommandEnvelope(
     CommandId CommandId,
     CampaignId CampaignId,

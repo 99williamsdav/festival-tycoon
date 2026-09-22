@@ -25,6 +25,16 @@ if (args.Length >= 5 && args[0] == "--benchmark")
     return;
 }
 
+if (args is ["--m1-feasibility", var m1Output])
+{
+    var report = RunSharedWorldFeasibility();
+    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(m1Output))!);
+    File.WriteAllText(m1Output, JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
+    Console.WriteLine(JsonSerializer.Serialize(report));
+    Environment.ExitCode = report.FunctionallyComplete && report.RouteFailures == 0 && report.ReleasedReservations ? 0 : 2;
+    return;
+}
+
 if (args is ["--save-roundtrip", var saveDirectory, var slotId])
 {
     var fixture = AtomicPurchaseFixture.Create(stockQuantity: 3);
@@ -298,6 +308,51 @@ static BenchmarkReport RunBenchmark(int agents, BenchmarkPassage passage, int re
         fixture.AllCompleted, fixture.ControllerTick, fixture.CompositeHash());
 }
 
+static SharedWorldFeasibilityReport RunSharedWorldFeasibility()
+{
+    var process = Process.GetCurrentProcess();
+    var allocatedBefore = GC.GetTotalAllocatedBytes(true);
+    var initialization = Stopwatch.StartNew();
+    var fixture = SharedWorldFeasibilityFixture.Create();
+    initialization.Stop();
+    while (!SharedWorldFeasibilityFixture.IsRepresentativeActiveState(fixture) && fixture.Session.CurrentTick < 5_000)
+        fixture.Session.AdvanceTicks(1);
+    var representativeStartTick = fixture.Session.CurrentTick;
+    var representative = SharedWorldFeasibilityFixture.IsRepresentativeActiveState(fixture);
+    var samples = new List<double>(300);
+    var timer = new Stopwatch();
+    for (var tick = 0; tick < 300; tick++)
+    {
+        timer.Restart(); fixture.Session.AdvanceTicks(1); timer.Stop(); samples.Add(timer.Elapsed.TotalMilliseconds);
+    }
+    samples.Sort();
+    double Percentile(double value) => samples[Math.Clamp((int)Math.Ceiling(samples.Count * value) - 1, 0, samples.Count - 1)];
+    var mean = samples.Average();
+    var mixedHash = fixture.Session.CaptureSnapshot().AuthoritativeHash;
+    var persistenceTimer = Stopwatch.StartNew();
+    var persisted = fixture.Session.CapturePersistenceSnapshot();
+    persistenceTimer.Stop();
+    var restoreTimer = Stopwatch.StartNew();
+    var restored = GameSession.Restore(persisted);
+    restoreTimer.Stop();
+    if (!restored.IsSuccess) throw new InvalidOperationException(restored.Error);
+    var restoredHash = restored.Session!.CaptureSnapshot().AuthoritativeHash;
+    SharedWorldFeasibilityFixture.AdvanceUntilCompleted(fixture);
+    process.Refresh();
+    var final = fixture.Session.CaptureSnapshot();
+    return new SharedWorldFeasibilityReport(
+        SharedWorldFeasibilityFixture.AgentCount, final.ServiceQueues.Count, true, representative,
+        representativeStartTick, 300, initialization.Elapsed.TotalMilliseconds,
+        mean, Percentile(.5), Percentile(.95), Percentile(.99),
+        CrowdBenchmarkMeasurement.GameSpeedCapacity(mean), process.PeakWorkingSet64,
+        GC.GetTotalAllocatedBytes(false) - allocatedBefore, persistenceTimer.Elapsed.TotalMilliseconds,
+        restoreTimer.Elapsed.TotalMilliseconds, mixedHash == restoredHash,
+        final.Transactions.Count, final.ServiceQueues.SelectMany(queue => queue.Agents).Count(agent => agent.Action == ServiceQueueAgentAction.Failed),
+        final.ServiceQueues.Sum(queue => queue.OrderedMembers.Count),
+        final.ServiceQueues.All(queue => queue.Agents.All(agent => agent.ReservedSlotIndex is null && !agent.OwnsExitReservation)),
+        SharedWorldFeasibilityFixture.AllCompleted(fixture), fixture.Session.CurrentTick, final.AuthoritativeHash);
+}
+
 sealed record BenchmarkReport(int Agents, string Passage, int RequestedSpeed, ulong Seed, string Build, string Ruleset,
     string OS, string Runtime, int LogicalProcessors, long AvailableMemoryBytes, int WarmupTicks, int MeasurementTicks,
     int ActiveSessionsAtMeasurementStart, int ActiveAgentsAtMeasurementStart, int ActiveSessionsAtMeasurementEnd, int ActiveAgentsAtMeasurementEnd,
@@ -305,3 +360,12 @@ sealed record BenchmarkReport(int Agents, string Passage, int RequestedSpeed, ul
     long ProcessPeakWorkingSetBytes, int CompletedDuringMeasurement, int Completed, int Backlog, int RouteFailures,
     int StuckOrUnfinished, int AssistedRecoveries, bool ReleasedReservations, bool FullScenarioCompleted,
     long FinalControllerTick, string AuthoritativeHash);
+
+sealed record SharedWorldFeasibilityReport(
+    int Agents, int Destinations, bool SingleSharedWorld, bool RepresentativePopulation,
+    long RepresentativeStartTick, int MeasurementTicks, double InitializationMs,
+    double TickMeanMs, double TickP50Ms, double TickP95Ms, double TickP99Ms,
+    double UnpacedGameSpeedCapacity, long ProcessPeakWorkingSetBytes, long AllocatedBytes,
+    double PersistenceCaptureMs, double PersistenceRestoreMs, bool RestoreHashEqual,
+    int CompletedServices, int RouteFailures, int Backlog, bool ReleasedReservations,
+    bool FunctionallyComplete, long FinalTick, string AuthoritativeHash);
