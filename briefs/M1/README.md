@@ -1,10 +1,12 @@
 # M1 — first playable planning index
 
-Status: **Approved implementation plan — M1.00 measured; hard gate failed and M1.01 is blocked.** These briefs narrow `IMPLEMENTATION_PLAN.md` §4; they do not replace the product, technical or balance specifications. Use the shared execution/evidence rules in [`briefs/README.md`](../README.md).
+Status: **Approved implementation plan — M1.00 measured; M1.01 progression temporarily authorized despite the recorded gate failure.** These briefs narrow `IMPLEMENTATION_PLAN.md` §4; they do not replace the product, technical or balance specifications. Use the shared execution/evidence rules in [`briefs/README.md`](../README.md).
 
 ## Foundation choice and carried-forward rules
 
 **Approved 22 September 2026:** the [bounded M1 crowd exception](CROWD_DECISION.md) permits M1.00 to proceed with 20–50 full-fidelity people only if the early one-world 50-person feasibility gate meets the existing targets or returns to the user with measured options. It does not repair M0, lower future targets or approve a new crowd architecture.
+
+**Temporary progression exception approved 22 September 2026:** M1.01 may proceed after M1.00 even though stable 60 FPS failed and OS input latency remains Unverified. The 50-person target and technical targets are unchanged; representative performance is remeasured as behaviour grows, and M1.11 remains the final gate.
 
 The following are carried-forward specification rules rather than new approval questions: one person/ticket/wallet and identical off-camera logic; the 80-authoritative-ticks/real-second 1× clock; eight manual planning weeks; the existing £800 starter-loan worked example and inherited farm; and provisional reuse of approved art under [ASSET_GAPS.md](ASSET_GAPS.md). A separate settlement-insufficiency choice is intentionally deferred until before M1.10, where it first owns behaviour: simple terminal receivership with the final report/save preserved, or explicit extra scope for one fixed rescue contract. No earlier brief may invent credit/bailouts or block opening merely because of a financial warning.
 

@@ -23,3 +23,7 @@ If any feasibility target is missed, stop before M1.01. Profile first and return
 ## Recorded decision
 
 Proceed with M1.00 under the hard-stop terms above. This approval applies only to the bounded 20–50 scope and early shared-world feasibility gate; it does not approve M1.10's later settlement-insufficiency choice or any dependent M1 implementation before M1.00 is accepted.
+
+## Temporary post-M1.00 progression exception
+
+**Approved 22 September 2026:** after accepting M1.00's truthful measurement result, the user authorized M1.01 to proceed under a bounded temporary exception. The 50-person target is unchanged. The stable-60-FPS result remains **Fail** and OS input latency during save/report work remains **Unverified**. Representative performance must be remeasured in proportion to added behaviour as M1 grows, and M1.11 remains the final multi-seed rendered acceptance gate. This exception does not authorize a lower target, a different crowd architecture, simulation LOD, aggregation or a reduced authoritative clock.
