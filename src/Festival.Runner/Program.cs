@@ -48,6 +48,16 @@ if (args is ["--scale-diagnostic", var populationText, var layoutText, var seedT
     return;
 }
 
+if (args is ["--scale-contention-trace", var traceOutput])
+{
+    var report = RunScaleContentionTrace();
+    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(traceOutput))!);
+    File.WriteAllText(traceOutput, JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
+    Console.WriteLine(JsonSerializer.Serialize(report));
+    Environment.ExitCode = report.FunctionallyComplete ? 0 : 2;
+    return;
+}
+
 if (args is ["--save-roundtrip", var saveDirectory, var slotId])
 {
     var fixture = AtomicPurchaseFixture.Create(stockQuantity: 3);
@@ -478,6 +488,82 @@ static ScaleDiagnosticReport RunScaleDiagnostic(int population, ScaleDiagnosticL
         "Headless unpaced diagnostic. No rendered frame pacing or OS input latency measured.");
 }
 
+static ScaleContentionTraceReport RunScaleContentionTrace()
+{
+    const int population = 100;
+    const int sustainedTicks = 32;
+    const int maximumTick = 25_000;
+    var fixture = ScaleDiagnosticFixture.Create(population, 20260923, ScaleDiagnosticLayout.Representative);
+    var ages = new Dictionary<EntityId, int>();
+    var previousPositions = new Dictionary<EntityId, (int X, int Z)>();
+    var history = new Queue<IReadOnlyList<ScaleContentionAgentObservation>>();
+    EntityId? first = null;
+    long firstTick = 0;
+    IReadOnlyList<ScaleContentionAgentObservation> trace = [];
+    IReadOnlyList<ScaleContentionAgentObservation> context = [];
+
+    while (fixture.Session.CurrentTick < maximumTick)
+    {
+        var snapshot = fixture.Session.AdvanceTicks(1).Snapshot;
+        var observations = CaptureContentionObservations(snapshot);
+        history.Enqueue(observations);
+        while (history.Count > sustainedTicks + 1) history.Dequeue();
+        foreach (var observation in observations.Where(item => item.NavigationAction == AgentNavigationAction.Travelling))
+        {
+            var progressed = previousPositions.TryGetValue(observation.AgentId, out var previous) &&
+                (observation.XMillimetres != previous.X || observation.ZMillimetres != previous.Z);
+            ages[observation.AgentId] = progressed ? 0 : ages.GetValueOrDefault(observation.AgentId) + 1;
+            previousPositions[observation.AgentId] = (observation.XMillimetres, observation.ZMillimetres);
+            if (first is null && ages[observation.AgentId] >= sustainedTicks)
+            {
+                first = observation.AgentId;
+                firstTick = snapshot.CurrentTick;
+                trace = history.SelectMany(items => items.Where(item => item.AgentId == first.Value)).ToArray();
+                context = observations.Where(item =>
+                {
+                    var dx = item.XMillimetres - observation.XMillimetres;
+                    var dz = item.ZMillimetres - observation.ZMillimetres;
+                    return (long)dx * dx + (long)dz * dz <= 1_000_000;
+                }).ToArray();
+            }
+        }
+        if (first is not null) break;
+    }
+
+    while (fixture.Session.CurrentTick < maximumTick &&
+        fixture.Session.CaptureSnapshot().ServiceQueues.SelectMany(queue => queue.Agents)
+            .Any(agent => agent.Action is not ServiceQueueAgentAction.Failed and not ServiceQueueAgentAction.Completed))
+        fixture.Session.AdvanceTicks(1);
+
+    var final = fixture.Session.CaptureSnapshot();
+    var queueAgents = final.ServiceQueues.SelectMany(queue => queue.Agents).ToArray();
+    var complete = final.Transactions.Count == population &&
+        queueAgents.All(agent => agent.Action == ServiceQueueAgentAction.Completed) &&
+        final.ServiceQueues.All(queue => queue.OrderedMembers.Count == 0 && queue.ActiveOwnerId is null) &&
+        queueAgents.All(agent => agent.ReservedSlotIndex is null && !agent.OwnsExitReservation);
+    return new ScaleContentionTraceReport(population, "representative", 20260923, sustainedTicks,
+        first?.Value, firstTick, trace, context, final.CurrentTick, final.Transactions.Count, complete,
+        final.AuthoritativeHash,
+        "Non-authoritative trace: sustained means 32 consecutive travelling ticks with no authoritative position change; route index, next waypoint, destination, queue state and ownership are recorded to distinguish obstacle detours and queue transitions.");
+}
+
+static IReadOnlyList<ScaleContentionAgentObservation> CaptureContentionObservations(SessionSnapshot snapshot)
+{
+    var queues = snapshot.ServiceQueues
+        .SelectMany(queue => queue.Agents.Select(agent => (queue, agent)))
+        .ToDictionary(pair => pair.agent.AgentId);
+    return snapshot.NavigationAgents.Select(agent =>
+    {
+        queues.TryGetValue(agent.Id, out var membership);
+        var queueIndex = membership.queue?.OrderedMembers.ToList().IndexOf(agent.Id) ?? -1;
+        return new ScaleContentionAgentObservation(snapshot.CurrentTick, agent.Id, agent.XMillimetres, agent.ZMillimetres,
+            TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres), agent.Action, agent.Destination,
+            agent.RouteIndex, agent.RouteIndex >= 0 && agent.RouteIndex < agent.Route.Count ? agent.Route[agent.RouteIndex] : null,
+            agent.IntentId, membership.queue?.Id, membership.agent?.Action, membership.agent?.ReservedSlotIndex,
+            queueIndex, membership.queue?.ActiveOwnerId);
+    }).ToArray();
+}
+
 static bool AdvanceUntil(ScaleDiagnosticFixtureState fixture,
     Func<ScaleDiagnosticFixtureState, bool> predicate, int maximumTick)
 {
@@ -593,6 +679,18 @@ sealed record ScaleDiagnosticProgressReport(
     int SchemaVersion, int Population, string Layout, ulong Seed, string Build, string Ruleset,
     string SourceRevision, string SourceDiffFingerprint, string Phase, long CurrentTick,
     int Transactions, IReadOnlyList<ScaleDiagnosticWindowReport> Windows, string Limitations);
+
+sealed record ScaleContentionTraceReport(
+    int Population, string Layout, ulong Seed, int SustainedThresholdTicks,
+    ulong? FirstAgentId, long FirstSustainedTick, IReadOnlyList<ScaleContentionAgentObservation> Trace,
+    IReadOnlyList<ScaleContentionAgentObservation> NearbyContextAtTrigger,
+    long FinalTick, int Transactions, bool FunctionallyComplete, string AuthoritativeHash, string Definition);
+
+sealed record ScaleContentionAgentObservation(
+    long Tick, EntityId AgentId, int XMillimetres, int ZMillimetres, GridCell Cell,
+    AgentNavigationAction NavigationAction, GridCell? Destination, int RouteIndex, GridCell? NextRouteCell,
+    string? IntentId, EntityId? QueueId, ServiceQueueAgentAction? QueueAction, int? ReservedSlotIndex,
+    int QueueOrderIndex, EntityId? ActiveOwnerId);
 
 sealed record ScaleDiagnosticWindowReport(
     string Name, long StartTick, long EndTick, int Ticks, bool AllDeclaredAgentsActive,

@@ -1,0 +1,1397 @@
+{
+  "Population": 100,
+  "Layout": "representative",
+  "Seed": 20260923,
+  "SustainedThresholdTicks": 32,
+  "FirstAgentId": 64,
+  "FirstSustainedTick": 828,
+  "Trace": [
+    {
+      "Tick": 796,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 797,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 798,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 799,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 800,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 801,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 802,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 803,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 804,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 805,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 806,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 807,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 808,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 809,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 810,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 811,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 812,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 813,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 814,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 815,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 816,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 817,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 818,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 819,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 820,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 821,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 822,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 823,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 824,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 825,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 826,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 827,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    }
+  ],
+  "NearbyContextAtTrigger": [
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 13
+      },
+      "XMillimetres": 6018,
+      "ZMillimetres": 6404,
+      "Cell": {
+        "X": 140,
+        "Z": 140
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 182,
+        "Z": 101
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 140,
+        "Z": 140
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 1
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 14
+      },
+      "XMillimetres": 6501,
+      "ZMillimetres": 7271,
+      "Cell": {
+        "X": 141,
+        "Z": 142
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 180,
+        "Z": 83
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 1
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 19
+      },
+      "XMillimetres": 5963,
+      "ZMillimetres": 6937,
+      "Cell": {
+        "X": 139,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 180,
+        "Z": 93
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 140,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 1
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 28
+      },
+      "XMillimetres": 6276,
+      "ZMillimetres": 7724,
+      "Cell": {
+        "X": 140,
+        "Z": 143
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 91
+      },
+      "RouteIndex": 16,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 142
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 1
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 29
+      },
+      "XMillimetres": 6764,
+      "ZMillimetres": 6351,
+      "Cell": {
+        "X": 141,
+        "Z": 140
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 93
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 140
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 1
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 41
+      },
+      "XMillimetres": 6762,
+      "ZMillimetres": 7440,
+      "Cell": {
+        "X": 141,
+        "Z": 142
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 182,
+        "Z": 113
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 142
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 50
+      },
+      "XMillimetres": 5814,
+      "ZMillimetres": 7686,
+      "Cell": {
+        "X": 139,
+        "Z": 143
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 180,
+        "Z": 111
+      },
+      "RouteIndex": 36,
+      "NextRouteCell": {
+        "X": 140,
+        "Z": 142
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 52
+      },
+      "XMillimetres": 6615,
+      "ZMillimetres": 6045,
+      "Cell": {
+        "X": 141,
+        "Z": 140
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 180,
+        "Z": 115
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 139
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 63
+      },
+      "XMillimetres": 6752,
+      "ZMillimetres": 7757,
+      "Cell": {
+        "X": 141,
+        "Z": 143
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 117
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 143
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 64
+      },
+      "XMillimetres": 6481,
+      "ZMillimetres": 6947,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 178,
+        "Z": 119
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 72
+      },
+      "XMillimetres": 6357,
+      "ZMillimetres": 6643,
+      "Cell": {
+        "X": 140,
+        "Z": 141
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 176,
+        "Z": 115
+      },
+      "RouteIndex": 2,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 140
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 38
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 79
+      },
+      "XMillimetres": 5683,
+      "ZMillimetres": 6491,
+      "Cell": {
+        "X": 139,
+        "Z": 140
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 187,
+        "Z": 142
+      },
+      "RouteIndex": 1,
+      "NextRouteCell": {
+        "X": 140,
+        "Z": 140
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 73
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    },
+    {
+      "Tick": 828,
+      "AgentId": {
+        "Value": 106
+      },
+      "XMillimetres": 6750,
+      "ZMillimetres": 7085,
+      "Cell": {
+        "X": 141,
+        "Z": 142
+      },
+      "NavigationAction": 1,
+      "Destination": {
+        "X": 173,
+        "Z": 137
+      },
+      "RouteIndex": 2,
+      "NextRouteCell": {
+        "X": 141,
+        "Z": 141
+      },
+      "IntentId": "ai.service-approach",
+      "QueueId": {
+        "Value": 73
+      },
+      "QueueAction": 0,
+      "ReservedSlotIndex": null,
+      "QueueOrderIndex": -1,
+      "ActiveOwnerId": null
+    }
+  ],
+  "FinalTick": 22314,
+  "Transactions": 100,
+  "FunctionallyComplete": true,
+  "AuthoritativeHash": "e687cfc3de84dbed846edd4c6eddec47de0093758d88839a0cb7a7274203bc0b",
+  "Definition": "Non-authoritative trace: sustained means 32 consecutive travelling ticks with no authoritative position change; route index, next waypoint, destination, queue state and ownership are recorded to distinguish obstacle detours and queue transitions."
+}
