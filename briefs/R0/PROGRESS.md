@@ -8,6 +8,7 @@ Package status: **R0.00 and S0.00 accepted. S0.01 and S0.02 stopped — architec
 | S0.00 | Accepted diagnostic — 200 headless target miss | [Result and evidence](../results/S0.00.md) | Authorize targeted architecture spike or make an explicit product decision; rendered deliberately not run |
 | S0.01 | Stopped — decision needed | [Two rejected Stage 1 trials and stop evidence](../results/S0.01.md) | Select a different movement architecture; Stage 2 was not started |
 | S0.02 | Stopped — negative result; decision needed | [Trace, two rejected prototypes and stop evidence](../results/S0.02.md) | Select another architecture or make an explicit product decision; prototype reverted |
+| S0.03 | Design review complete — choices pending | [Architecture proposal](S0.03-movement-architecture-review.md) | Approve sequencing, physical-motion contract and infeasible-layout policy before implementation |
 | R0.01 | Not started — paused for scale investigation | None | Population architecture evidence, tier counts, exact schedule, persistence, offers and failed-edition carryover decisions |
 | R0.02 | Not started | None | Equipment chain and each required asset/proxy |
 | R0.03 | Not started | None | Medical chain and each required asset/proxy |
