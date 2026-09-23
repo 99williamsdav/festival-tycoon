@@ -1,0 +1,97 @@
+{
+  "asset": "Compact towable generator with integrated breaker panel v1",
+  "purpose": "R0.02 equipment causal chain first asset concept",
+  "runtime_variants": [
+    "normal",
+    "overloaded",
+    "isolated",
+    "fault"
+  ],
+  "source_meshes": 5,
+  "one_runtime_base_plus_state_mesh_per_glb": true,
+  "palette_size": [
+    192,
+    8
+  ],
+  "front_axis_blender": "-Y",
+  "front_axis_godot": "+Z",
+  "hitch_axis_blender": "+X",
+  "origin": "ground centered under housing",
+  "state_readability": {
+    "normal": "single upright green tile, two gauge bars, breaker up",
+    "overloaded": "two raised amber flags, full gauge, breaker up",
+    "isolated": "folded grey tile, empty gauge, breaker down",
+    "fault": "raised red warning block with exclamation mark, full gauge, breaker tripped"
+  },
+  "scope_exclusions": [
+    "fuel system",
+    "cable network",
+    "sound rig",
+    "maintenance role",
+    "exclusion marker",
+    "AI",
+    "collision",
+    "navigation",
+    "animation",
+    "gameplay integration"
+  ],
+  "provenance": "original procedural/project-authored geometry and palette; stage asset used only as review context",
+  "triangles_per_variant": {
+    "normal": 752,
+    "overloaded": 788,
+    "isolated": 740,
+    "fault": 824
+  },
+  "bounds_blender": {
+    "normal": [
+      [
+        -1.0,
+        -0.8015000224113464,
+        0.0
+      ],
+      [
+        1.684999942779541,
+        0.8015000224113464,
+        1.7300000190734863
+      ]
+    ],
+    "overloaded": [
+      [
+        -1.0,
+        -0.8015000224113464,
+        0.0
+      ],
+      [
+        1.684999942779541,
+        0.8015000224113464,
+        1.7949999570846558
+      ]
+    ],
+    "isolated": [
+      [
+        -1.0,
+        -0.8015000224113464,
+        0.0
+      ],
+      [
+        1.684999942779541,
+        0.8015000224113464,
+        1.5475000143051147
+      ]
+    ],
+    "fault": [
+      [
+        -1.0,
+        -0.8015000224113464,
+        0.0
+      ],
+      [
+        1.684999942779541,
+        0.8015000224113464,
+        1.840000033378601
+      ]
+    ]
+  },
+  "verification_blender": "Blender 4.1.1 source reopen and all four GLB reimports passed; five authored meshes, two per runtime GLB, identity transforms, one material/UV per mesh, embedded palette, triangle counts and grounded bounds checked",
+  "verification_godot": "Godot 4.7.2 standard editor import and instantiation passed for all four GLBs: two MeshInstance3D nodes and one surface per mesh, embedded 192x8 palette, expected triangle counts and grounded AABB. Local certificate-store and editor-settings warnings did not prevent import or instantiation."
+}
