@@ -35,6 +35,19 @@ if (args is ["--m1-feasibility", var m1Output])
     return;
 }
 
+if (args is ["--scale-diagnostic", var populationText, var layoutText, var seedText, var scaleOutput,
+    var sourceRevision, var sourceFingerprint])
+{
+    var report = RunScaleDiagnostic(int.Parse(populationText),
+        Enum.Parse<ScaleDiagnosticLayout>(layoutText, ignoreCase: true), ulong.Parse(seedText),
+        scaleOutput, sourceRevision, sourceFingerprint);
+    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(scaleOutput))!);
+    File.WriteAllText(scaleOutput, JsonSerializer.Serialize(report, new JsonSerializerOptions { WriteIndented = true }));
+    Console.WriteLine(JsonSerializer.Serialize(report));
+    Environment.ExitCode = report.CorrectnessPassed && report.Windows.All(window => window.AllDeclaredAgentsActive) ? 0 : 2;
+    return;
+}
+
 if (args is ["--save-roundtrip", var saveDirectory, var slotId])
 {
     var fixture = AtomicPurchaseFixture.Create(stockQuantity: 3);
@@ -396,6 +409,158 @@ static SharedWorldFeasibilityReport RunSharedWorldFeasibility()
         SharedWorldFeasibilityFixture.AllCompleted(fixture), fixture.Session.CurrentTick, final.AuthoritativeHash);
 }
 
+static ScaleDiagnosticReport RunScaleDiagnostic(int population, ScaleDiagnosticLayout layout, ulong seed,
+    string output, string sourceRevision, string sourceFingerprint)
+{
+    const int windowTicks = 120;
+    var boundaryTickLimit = population == 200 ? 60_000 : 25_000;
+    var probe = new ScaleDiagnosticProbe();
+    var initialization = Stopwatch.StartNew();
+    var fixture = ScaleDiagnosticFixture.Create(population, seed, layout, probe);
+    initialization.Stop();
+    var initial = fixture.Session.CaptureSnapshot();
+    var windows = new List<ScaleDiagnosticWindowReport>();
+    windows.Add(MeasureScaleWindow("arrival", fixture, probe, windowTicks));
+    WriteScaleProgress(output, population, layout, seed, sourceRevision, sourceFingerprint, "arrival-complete", fixture, windows);
+
+    var serviceBoundaryReached = AdvanceUntil(fixture, ScaleDiagnosticFixture.HasCongestedServiceState, boundaryTickLimit);
+    if (serviceBoundaryReached) windows.Add(MeasureScaleWindow("congested-service", fixture, probe, windowTicks));
+    WriteScaleProgress(output, population, layout, seed, sourceRevision, sourceFingerprint, "service-window-complete", fixture, windows);
+
+    // Three completed purchases are enough to exercise accumulated ledgers while the deliberately
+    // distant exits keep every declared attendee in an active (non-completed) lifecycle.
+    var lateTransactionTarget = 3;
+    var lateBoundaryReached = AdvanceUntil(fixture,
+        state => state.Session.Transactions.Count >= lateTransactionTarget &&
+            ScaleDiagnosticFixture.AllDeclaredAgentsPresentAndActive(state), boundaryTickLimit);
+    if (lateBoundaryReached) windows.Add(MeasureScaleWindow("early-transactions", fixture, probe, windowTicks));
+    WriteScaleProgress(output, population, layout, seed, sourceRevision, sourceFingerprint, "transaction-window-complete", fixture, windows);
+
+    var boundarySnapshot = fixture.Session.CaptureSnapshot();
+    var persistence = fixture.Session.CapturePersistenceSnapshot();
+    var restored = GameSession.Restore(persistence);
+    var restoreHashEqual = restored.IsSuccess &&
+        restored.Session!.CaptureSnapshot().AuthoritativeHash == boundarySnapshot.AuthoritativeHash;
+
+    while (fixture.Session.CurrentTick < boundaryTickLimit &&
+        fixture.Session.CaptureSnapshot().ServiceQueues.SelectMany(queue => queue.Agents)
+            .Any(agent => agent.Action is not ServiceQueueAgentAction.Failed and not ServiceQueueAgentAction.Completed))
+    {
+        fixture.Session.AdvanceTicks(1);
+        if (fixture.Session.CurrentTick % 1_000 == 0)
+            WriteScaleProgress(output, population, layout, seed, sourceRevision, sourceFingerprint,
+                "completion", fixture, windows);
+    }
+
+    var final = fixture.Session.CaptureSnapshot();
+    var queueAgents = final.ServiceQueues.SelectMany(queue => queue.Agents).ToArray();
+    var noFailures = queueAgents.All(agent => agent.Action != ServiceQueueAgentAction.Failed);
+    var noBacklog = final.ServiceQueues.All(queue => queue.OrderedMembers.Count == 0 && queue.ActiveOwnerId is null);
+    var released = queueAgents.All(agent => agent.ReservedSlotIndex is null && !agent.OwnsExitReservation);
+    var completed = final.Transactions.Count == population && queueAgents.All(agent => agent.Action == ServiceQueueAgentAction.Completed);
+    var walletsReconciled = final.Wallets.Count == population &&
+        final.Wallets.Sum(wallet => wallet.CashPennies) == population * 200L;
+    var salesReconciled = final.FestivalFinances.Single().CashPennies == population * ServiceQueueFixture.DefaultPricePennies &&
+        final.OwnedStocks.Sum(stock => stock.Quantity) == population * 3 - population;
+    var correctness = serviceBoundaryReached && lateBoundaryReached && restoreHashEqual && noFailures &&
+        noBacklog && released && completed && walletsReconciled && salesReconciled;
+    var structuralOverload = windows.Any(window => window.TickMeanMs >= 12.5);
+    var slowTailOverload = windows.Any(window => window.TickP99Ms >= 12.5);
+    return new ScaleDiagnosticReport(2, population, layout.ToString().ToLowerInvariant(), seed,
+        ToolchainSmoke.BuildVersion, "s0.00-diagnostic-v2", sourceRevision, sourceFingerprint, RuntimeInformation.OSDescription,
+        RuntimeInformation.FrameworkDescription, Environment.ProcessorCount,
+        initialization.Elapsed.TotalMilliseconds, initial.NavigationAgents.Count, initial.Wallets.Count,
+        initial.ServiceQueues.Count, fixture.RetargetCount, windowTicks, windows,
+        serviceBoundaryReached, lateBoundaryReached, lateTransactionTarget, restoreHashEqual,
+        final.CurrentTick, final.Transactions.Count, completed, noFailures, noBacklog, released,
+        walletsReconciled, salesReconciled, correctness, structuralOverload, slowTailOverload,
+        Process.GetCurrentProcess().PeakWorkingSet64, final.AuthoritativeHash,
+        "Headless unpaced diagnostic. No rendered frame pacing or OS input latency measured.");
+}
+
+static bool AdvanceUntil(ScaleDiagnosticFixtureState fixture,
+    Func<ScaleDiagnosticFixtureState, bool> predicate, int maximumTick)
+{
+    while (fixture.Session.CurrentTick < maximumTick)
+    {
+        if (predicate(fixture)) return true;
+        fixture.Session.AdvanceTicks(1);
+    }
+    return predicate(fixture);
+}
+
+static ScaleDiagnosticWindowReport MeasureScaleWindow(string name, ScaleDiagnosticFixtureState fixture,
+    ScaleDiagnosticProbe probe, int ticks)
+{
+    var allActive = IsActiveScaleSnapshot(fixture.Session.CaptureSnapshot(), fixture.Population);
+    var before = probe.Capture();
+    var allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
+    var gc0 = GC.CollectionCount(0); var gc1 = GC.CollectionCount(1); var gc2 = GC.CollectionCount(2);
+    var samples = new double[ticks];
+    SessionSnapshot? last = null;
+    var timer = new Stopwatch();
+    for (var index = 0; index < ticks; index++)
+    {
+        timer.Restart(); var advanced = fixture.Session.AdvanceTicks(1); timer.Stop();
+        samples[index] = timer.Elapsed.TotalMilliseconds;
+        last = advanced.Snapshot;
+        allActive &= IsActiveScaleSnapshot(advanced.Snapshot, fixture.Population);
+    }
+    var allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
+    var after = probe.Capture();
+    Array.Sort(samples);
+    double Percentile(double value) => samples[Math.Clamp((int)Math.Ceiling(samples.Length * value) - 1, 0, samples.Length - 1)];
+    double Delta(double end, double start) => Math.Max(0, end - start);
+    var routeMs = Delta(after.RouteSearchMs, before.RouteSearchMs);
+    var navigationInclusive = Delta(after.NavigationInclusiveMs, before.NavigationInclusiveMs);
+    var queueInclusive = Delta(after.QueueInclusiveMs, before.QueueInclusiveMs);
+    var snapshotInclusive = Delta(after.SnapshotInclusiveMs, before.SnapshotInclusiveMs);
+    var hashMs = Delta(after.HashMs, before.HashMs);
+    var navigationRoute = Delta(after.NavigationRouteSearchMs, before.NavigationRouteSearchMs);
+    var queueRoute = Delta(after.QueueRouteSearchMs, before.QueueRouteSearchMs);
+    var measuredTotal = samples.Sum();
+    var navigationExclusive = navigationInclusive - navigationRoute;
+    var queueExclusive = queueInclusive - queueRoute;
+    var snapshotExclusive = snapshotInclusive - hashMs;
+    var accounted = routeMs + navigationExclusive + queueExclusive + snapshotExclusive + hashMs;
+    var reconciliationDelta = measuredTotal - accounted;
+    var negativeTolerance = Math.Max(0.25, measuredTotal * 0.01);
+    if (navigationExclusive < -negativeTolerance || queueExclusive < -negativeTolerance ||
+        snapshotExclusive < -negativeTolerance || reconciliationDelta < -negativeTolerance)
+        throw new InvalidOperationException($"Diagnostic category reconciliation exceeded tolerance: {reconciliationDelta:0.###} ms.");
+    return new ScaleDiagnosticWindowReport(name, last!.CurrentTick - ticks + 1, last.CurrentTick, ticks,
+        allActive, last.NavigationAgents.Count, last.ServiceQueues.Sum(queue => queue.OrderedMembers.Count),
+        last.Transactions.Count, samples.Average(), Percentile(.5), Percentile(.95), Percentile(.99),
+        1000d / (80d * samples.Average()), measuredTotal, routeMs, navigationExclusive,
+        queueExclusive, snapshotExclusive, hashMs, reconciliationDelta,
+        after.RouteSearches - before.RouteSearches, after.AvoidanceRouteSearches - before.AvoidanceRouteSearches,
+        after.ExpandedNodes - before.ExpandedNodes, after.AvoidanceExpandedNodes - before.AvoidanceExpandedNodes,
+        after.QueueReassignments - before.QueueReassignments, after.BlockedAgentTicks - before.BlockedAgentTicks,
+        after.MaximumBlockedAgentAgeTicks, after.CurrentlyBlockedAgents, allocated,
+        GC.CollectionCount(0) - gc0, GC.CollectionCount(1) - gc1, GC.CollectionCount(2) - gc2);
+}
+
+static bool IsActiveScaleSnapshot(SessionSnapshot snapshot, int population)
+{
+    var queueAgents = snapshot.ServiceQueues.SelectMany(queue => queue.Agents).ToArray();
+    return snapshot.NavigationAgents.Count == population && snapshot.Wallets.Count == population &&
+        queueAgents.Length == population && queueAgents.Select(agent => agent.AgentId).Distinct().Count() == population &&
+        snapshot.NavigationAgents.All(agent => agent.Action != AgentNavigationAction.Idle) &&
+        queueAgents.All(agent => agent.Action is not ServiceQueueAgentAction.Failed and not ServiceQueueAgentAction.Completed);
+}
+
+static void WriteScaleProgress(string output, int population, ScaleDiagnosticLayout layout, ulong seed,
+    string sourceRevision, string sourceFingerprint, string phase, ScaleDiagnosticFixtureState fixture,
+    IReadOnlyList<ScaleDiagnosticWindowReport> windows)
+{
+    Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
+    var progress = new ScaleDiagnosticProgressReport(2, population, layout.ToString().ToLowerInvariant(), seed,
+        ToolchainSmoke.BuildVersion, "s0.00-diagnostic-v2", sourceRevision, sourceFingerprint,
+        phase, fixture.Session.CurrentTick, fixture.Session.Transactions.Count, windows,
+        "Partial checkpoint; a wall-time timeout may stop the exact child before final reconciliation.");
+    File.WriteAllText(output, JsonSerializer.Serialize(progress, new JsonSerializerOptions { WriteIndented = true }));
+}
+
 sealed record BenchmarkReport(int Agents, string Passage, int RequestedSpeed, ulong Seed, string Build, string Ruleset,
     string OS, string Runtime, int LogicalProcessors, long AvailableMemoryBytes, int WarmupTicks, int MeasurementTicks,
     int ActiveSessionsAtMeasurementStart, int ActiveAgentsAtMeasurementStart, int ActiveSessionsAtMeasurementEnd, int ActiveAgentsAtMeasurementEnd,
@@ -412,3 +577,29 @@ sealed record SharedWorldFeasibilityReport(
     double PersistenceCaptureMs, double PersistenceRestoreMs, bool RestoreHashEqual,
     int CompletedServices, int RouteFailures, int Backlog, bool ReleasedReservations,
     bool FunctionallyComplete, long FinalTick, string AuthoritativeHash);
+
+sealed record ScaleDiagnosticReport(
+    int SchemaVersion, int Population, string Layout, ulong Seed, string Build, string Ruleset,
+    string SourceRevision, string SourceDiffFingerprint, string OS, string Runtime,
+    int LogicalProcessors, double InitializationMs, int InitialNavigationAgents, int InitialWallets,
+    int Destinations, int RetargetCount, int WindowTicks, IReadOnlyList<ScaleDiagnosticWindowReport> Windows,
+    bool ServiceBoundaryReached, bool LateBoundaryReached, int LateTransactionTarget, bool RestoreHashEqual,
+    long FinalTick, int Transactions, bool FunctionallyComplete, bool NoRouteFailures, bool NoBacklog,
+    bool ReleasedReservations, bool WalletsReconciled, bool SalesReconciled, bool CorrectnessPassed,
+    bool StructuralOverloadAtOneX, bool SlowTailOverloadAtOneX, long ProcessPeakWorkingSetBytes,
+    string AuthoritativeHash, string Limitations);
+
+sealed record ScaleDiagnosticProgressReport(
+    int SchemaVersion, int Population, string Layout, ulong Seed, string Build, string Ruleset,
+    string SourceRevision, string SourceDiffFingerprint, string Phase, long CurrentTick,
+    int Transactions, IReadOnlyList<ScaleDiagnosticWindowReport> Windows, string Limitations);
+
+sealed record ScaleDiagnosticWindowReport(
+    string Name, long StartTick, long EndTick, int Ticks, bool AllDeclaredAgentsActive,
+    int ActivePopulation, int QueueBacklog, int Transactions, double TickMeanMs, double TickP50Ms,
+    double TickP95Ms, double TickP99Ms, double UnpacedOneXCapacity, double MeasuredTotalMs,
+    double RouteSearchMs, double MovementAndSeparationExclusiveMs, double QueueExclusiveMs,
+    double SnapshotExclusiveMs, double HashMs, double UnattributedHarnessAndTickMs,
+    long PathSearches, long AvoidancePathSearches, long ExpandedNodes, long AvoidanceExpandedNodes,
+    long QueueReassignments, long BlockedAgentTicks, int MaximumBlockedAgentAgeTicks,
+    int BlockedAgentsAtEnd, long AllocatedBytes, int Gen0Collections, int Gen1Collections, int Gen2Collections);

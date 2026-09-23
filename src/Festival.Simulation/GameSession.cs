@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Festival.Simulation;
 
 public sealed partial class GameSession
@@ -13,6 +15,9 @@ public sealed partial class GameSession
     private readonly SortedDictionary<EntityId, OwnedStockState> _ownedStocks = [];
     private readonly SortedSet<TransactionId> _transactionIds = [];
     private readonly List<TransactionRecord> _transactions = [];
+
+    /// <summary>Optional development-only measurement sink; never hashed or persisted.</summary>
+    public ScaleDiagnosticProbe? ScaleDiagnosticProbe { get; set; }
 
     public GameSession(ulong campaignSeed, CampaignId? campaignId = null)
     {
@@ -227,8 +232,15 @@ public sealed partial class GameSession
                     events.Add(new SessionEvent(CurrentTick, "fixture_record_expired", record.Id));
                 }
             }
+            var navigationStart = Stopwatch.GetTimestamp();
+            ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.Navigation);
             AdvanceNavigation(events);
+            ScaleDiagnosticProbe?.AddNavigation(Stopwatch.GetTimestamp() - navigationStart);
+            var queueStart = Stopwatch.GetTimestamp();
+            ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.Queue);
             AdvanceServiceQueues(events);
+            ScaleDiagnosticProbe?.AddQueue(Stopwatch.GetTimestamp() - queueStart);
+            ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.None);
         }
 
         return new AdvanceResult(CaptureSnapshot(), events);
@@ -248,6 +260,8 @@ public sealed partial class GameSession
 
     public SessionSnapshot CaptureSnapshot()
     {
+        var snapshotStart = Stopwatch.GetTimestamp();
+        ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.Snapshot);
         var records = _fixtureRecords.Values
             .Select(record => new FixtureRecordSnapshot(
                 record.Id,
@@ -266,7 +280,10 @@ public sealed partial class GameSession
             .Select(stock => new OwnedStockSnapshot(stock.ServiceId, stock.OwnerId, stock.Quantity, stock.UnitCostBasisPennies))
             .ToArray();
 
-        return new SessionSnapshot(
+        var hashStart = Stopwatch.GetTimestamp();
+        var hash = CanonicalStateHasher.Compute(this);
+        ScaleDiagnosticProbe?.AddHash(Stopwatch.GetTimestamp() - hashStart);
+        var snapshot = new SessionSnapshot(
             CampaignId,
             CampaignSeed,
             Phase,
@@ -282,9 +299,12 @@ public sealed partial class GameSession
             _transactions.ToArray(),
             CaptureNavigationAgents(),
             CaptureServiceQueues(),
-            CanonicalStateHasher.Compute(this),
+            hash,
             CaptureCampaignPlanningSnapshot(),
             CaptureLifecycleSnapshot());
+        ScaleDiagnosticProbe?.AddSnapshot(Stopwatch.GetTimestamp() - snapshotStart);
+        ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.None);
+        return snapshot;
     }
 
     public SessionPersistenceSnapshot CapturePersistenceSnapshot() => new(

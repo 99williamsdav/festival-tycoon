@@ -433,6 +433,7 @@ public sealed partial class GameSession
             if (queued.ReservedSlotIndex == index && _navigationAgents[id].Destination == queue.QueueSlots[index]) continue;
             queued.ReservedSlotIndex = index;
             queued.Action = index == 0 ? ServiceQueueAgentAction.TravellingToQueue : ServiceQueueAgentAction.Waiting;
+            ScaleDiagnosticProbe?.AddQueueReassignment();
             SetDestinationDirect(id, queue.QueueSlots[index], "ai.service-queue");
         }
     }

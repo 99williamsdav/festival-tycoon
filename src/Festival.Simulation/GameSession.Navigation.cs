@@ -1,3 +1,5 @@
+using System.Diagnostics;
+
 namespace Festival.Simulation;
 
 public sealed partial class GameSession
@@ -52,11 +54,13 @@ public sealed partial class GameSession
         return id;
     }
 
-    private void ApplyAgentDestination(EntityId agentId, SetAgentDestinationCommand command)
+    private void ApplyAgentDestination(EntityId agentId, SetAgentDestinationCommand command, bool avoidanceReplan = false)
     {
         var agent = _navigationAgents[agentId];
         var start = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
+        var searchStart = Stopwatch.GetTimestamp();
         var search = DeterministicPathfinder.FindPath(_traversalGrid!, start, command.Destination);
+        ScaleDiagnosticProbe?.AddRouteSearch(Stopwatch.GetTimestamp() - searchStart, search.ExpandedNodes, avoidanceReplan);
         agent.Destination = command.Destination;
         agent.Route = search.Path.ToList();
         agent.RouteIndex = search.Found && search.Path.Count > 1 ? 1 : 0;
@@ -110,14 +114,17 @@ public sealed partial class GameSession
                 {
                     // The offset is authoritative movement, so rebase route interpolation at
                     // the accepted position instead of snapping back to the old segment next tick.
-                    ApplyAgentDestination(agent.Id, new SetAgentDestinationCommand(target, intent));
+                    ApplyAgentDestination(agent.Id, new SetAgentDestinationCommand(target, intent), avoidanceReplan: true);
+                    ScaleDiagnosticProbe?.RecordProgress(agent.Id);
                 }
                 else
                 {
                     backups[agent.Id].Restore(agent);
                     arrived.Remove(agent.Id);
+                    ScaleDiagnosticProbe?.RecordBlocked(agent.Id);
                 }
             }
+            else ScaleDiagnosticProbe?.RecordProgress(agent.Id);
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         }
         foreach (var id in arrived.Order()) events.Add(new SessionEvent(CurrentTick, "navigation_arrived", id));

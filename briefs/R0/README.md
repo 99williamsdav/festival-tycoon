@@ -1,6 +1,8 @@
 # R0 — survival-campaign prototype
 
-Status: **Design package only; all briefs Not started.** [ROGUELIKE_DESIGN.md](../../ROGUELIKE_DESIGN.md) is the active product authority. Do not implement a brief until the user approves every **PROPOSED** choice it owns.
+Status: **R0.00 accepted; later gameplay briefs Not started.** [ROGUELIKE_DESIGN.md](../../ROGUELIKE_DESIGN.md) is the active product authority. Do not implement a brief until the user approves every **PROPOSED** choice it owns.
+
+Scale gate: R0.00 and the [S0.00 — population architecture diagnostic](S0.00-scale-diagnostic.md) are accepted. Representative 200 completed functionally but missed arrival mean/tail targets; congested 200 timed out after valid timed windows. A targeted avoidance-routing/snapshot-publication spike is recommended; 200 rendered support is not established. R0.01 remains paused pending that spike or an explicit product decision. The approved early-tier weekend playtest target is about 10 real minutes including ordinary preparation and pauses; exact day lengths remain tunable.
 
 R0 proves the smallest persistent failure/retry/success campaign using the existing farm, deterministic simulation and 50-person maximum. It does not promise fun at R0.00 and does not recreate the old first-playable roadmap.
 
@@ -45,4 +47,4 @@ R0 proves the smallest persistent failure/retry/success campaign using the exist
 
 ## Next decision checklist
 
-For R0.00 only: approve/amend the exact atomic transaction/save ordering for a fixture-only loop: first death freezes, one casualty/failure/hearing is saved, one fixture Favour creates one same-tier retry, and one fixture safe outcome advances. Guests, staff and performers are already approved protected roles. Tier counts/weekend length remain labelled fixture values; real carryover, Favour economy and rewards belong to R0.01/R0.05/R0.06.
+Review the S0.00 measurements and architecture recommendation before resuming R0.01. R0.00's fixture outcome ordering is already accepted. The ten-minute early-tier playtest target is approved; exact day lengths, tier counts and carryover remain decisions for R0.01. Real Favour economy and rewards belong to R0.05/R0.06.
