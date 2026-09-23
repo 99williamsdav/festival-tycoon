@@ -17,6 +17,7 @@ $sourceFiles = @(
     'src/Festival.Simulation/ServiceQueue.cs',
     'src/Festival.Simulation/Fixtures/ScaleDiagnosticFixture.cs',
     'src/Festival.Simulation/ScaleDiagnosticProbe.cs'
+    'src/Festival.Simulation/SessionState.cs'
 )
 $sourceHashes = $sourceFiles | ForEach-Object { git -C $repo hash-object $_ }
 $fingerprint = ($sourceHashes | git hash-object --stdin).Trim()

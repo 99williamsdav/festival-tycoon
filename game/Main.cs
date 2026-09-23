@@ -94,6 +94,8 @@ public partial class Main : Node
     private FiftyAgentFoundationFixtureState? _foundationReference;
     private readonly FoundationClock _foundationClock = new();
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
+    private string _foundationPublishedHash = "";
+    private long _foundationPublishedHashTick = -1;
     private RealTimeAutosaveScheduler _autosaveScheduler = null!;
     private long _autosaveGeneration;
     private int _autosaveWrites;
@@ -167,6 +169,8 @@ public partial class Main : Node
             _session = GameSession.CreateCampaign(20260922);
         }
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
+        _foundationPublishedHash = _pausedHash;
+        _foundationPublishedHashTick = _session.CurrentTick;
         BuildWorld();
         if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();
         if (_sharedWorldFixture is not null) BuildSharedWorldServiceMarkers();
@@ -680,12 +684,12 @@ public partial class Main : Node
         GD.Print($"ATTENDEE_SELECTED id={id.Value} orientation={OrientationNames[_orientation]}");
     }
 
-    private void RefreshAttendeeInspector()
+    private void RefreshAttendeeInspector(SessionObservation? supplied = null)
     {
         if (_selectedAttendeeId is not { } id) return;
-        var snapshot = _session.CaptureSnapshot();
-        var navigation = snapshot.NavigationAgents.Single(item => item.Id == id);
-        var queue = snapshot.ServiceQueues.Single();
+        var observation = supplied ?? _session.CaptureObservation();
+        var navigation = observation.NavigationAgents.Single(item => item.Id == id);
+        var queue = observation.ServiceQueues.Single();
         var queueAgent = queue.Agents.Single(item => item.AgentId == id);
         var ordinal = Array.IndexOf(_foundationFixture!.AgentIds.ToArray(), id);
         var service = queue.ActiveOwnerId == id ? $"Active • {queue.RemainingServiceTicks} ticks" : "None";
@@ -987,10 +991,13 @@ public partial class Main : Node
             }
             _foundationClock.IsPaused = _session.IsPaused; _foundationClock.RequestedSpeed = _session.RequestedSpeed;
             _foundationClock.ResetBoundary();
-            _foundationPresentation.Reset(_session.CaptureSnapshot());
+            var loadedSnapshot = _session.CaptureSnapshot();
+            _foundationPresentation.Reset(loadedSnapshot);
+            _foundationPublishedHash = loadedSnapshot.AuthoritativeHash;
+            _foundationPublishedHashTick = loadedSnapshot.CurrentTick;
             _autosaveScheduler.Rebase();
-            _manualRestoreVerified = _manualSaveHash.Length > 0 && _session.CaptureSnapshot().AuthoritativeHash == _manualSaveHash;
-            _selectionRetainedAfterLoad = selectedBeforeLoad is { } selected && _session.CaptureSnapshot().NavigationAgents.Any(item => item.Id == selected) && _selectedAttendeeId == selected;
+            _manualRestoreVerified = _manualSaveHash.Length > 0 && loadedSnapshot.AuthoritativeHash == _manualSaveHash;
+            _selectionRetainedAfterLoad = selectedBeforeLoad is { } selected && loadedSnapshot.NavigationAgents.Any(item => item.Id == selected) && _selectedAttendeeId == selected;
             _saveStatus = "LOADED";
         }
         else _saveStatus = "LOAD ERROR";
@@ -1001,11 +1008,13 @@ public partial class Main : Node
     {
         var cap = _foundationCaptureDirectory is not null && _foundationCaptureStage == 3 ? 2 : FoundationClock.MaximumTicksPerFrame;
         var ticks = _foundationClock.Schedule(delta, cap);
+        var observation = _session.CaptureObservation();
         for (var tick = 0; tick < ticks; tick++)
         {
-            _session.AdvanceTicks(1);
-            if (_foundationCaptureDirectory is not null) _foundationReference!.Session.AdvanceTicks(1);
-            _foundationPresentation.Advance(_session.CaptureSnapshot());
+            _session.AdvanceWithoutSnapshot(1);
+            if (_foundationCaptureDirectory is not null) _foundationReference!.Session.AdvanceWithoutSnapshot(1);
+            observation = _session.CaptureObservation();
+            _foundationPresentation.Advance(observation);
         }
         if (_autosaveScheduler.Advance(delta))
         {
@@ -1013,18 +1022,22 @@ public partial class Main : Node
             _saveStatus = saved.IsSuccess ? "AUTOSAVED" : "AUTOSAVE ERROR";
             if (saved.IsSuccess) { _autosaveGeneration++; _autosaveWrites++; }
         }
-        var snapshot = _session.CaptureSnapshot();
-        foreach (var agent in snapshot.NavigationAgents)
+        foreach (var agent in observation.NavigationAgents)
         {
             var sample = _foundationPresentation.Sample(agent.Id, _foundationClock.InterpolationFraction);
             _attendeeVisuals[agent.Id].Position = new Vector3((float)(sample.XMillimetres / 1000), 0.04f, (float)(sample.ZMillimetres / 1000));
         }
-        RefreshAttendeeInspector();
-        var queue = snapshot.ServiceQueues.Single();
-        var counts = FoundationDiagnostics.Count(snapshot);
+        RefreshAttendeeInspector(observation);
+        var counts = FoundationDiagnostics.Count(observation);
         var clockStatus = _session.IsPaused ? "PAUSED • CAMERA / INSPECT / SAVE ACTIVE" : $"REQUEST {(int)_session.RequestedSpeed}×  ATTAINED {_foundationClock.AttainedSpeed:0.00}×  {(_foundationClock.IsOverloaded ? "⚠ REDUCED" : "ON TARGET")}";
-        _hashLabel.Text = $"M0 FOUNDATION • 50 AUTONOMOUS ATTENDEES\nTRAVELLING {counts.Travelling}  QUEUED {counts.QueueMembers}  WAITING {counts.Waiting}  IN SERVICE {counts.InService}\nSERVED {counts.Served}  FAILED {counts.Failed}  {clockStatus}  {_saveStatus}\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
-        if (_foundationCaptureDirectory is not null) ProcessFoundationCapture(snapshot, queue);
+        if (_foundationCaptureDirectory is not null || observation.CurrentTick - _foundationPublishedHashTick >= 80)
+        {
+            var published = _session.CaptureSnapshot();
+            _foundationPublishedHash = published.AuthoritativeHash;
+            _foundationPublishedHashTick = published.CurrentTick;
+            if (_foundationCaptureDirectory is not null) ProcessFoundationCapture(published, published.ServiceQueues.Single());
+        }
+        _hashLabel.Text = $"M0 FOUNDATION • 50 AUTONOMOUS ATTENDEES\nTRAVELLING {counts.Travelling}  QUEUED {counts.QueueMembers}  WAITING {counts.Waiting}  IN SERVICE {counts.InService}\nSERVED {counts.Served}  FAILED {counts.Failed}  {clockStatus}  {_saveStatus}\nTICK {observation.CurrentTick}  HASH@{_foundationPublishedHashTick} {_foundationPublishedHash[..12]}";
     }
 
     private void ProcessFoundationCapture(SessionSnapshot snapshot, ServiceQueueSnapshot queue)

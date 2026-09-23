@@ -433,7 +433,7 @@ static ScaleDiagnosticReport RunScaleDiagnostic(int population, ScaleDiagnosticL
     windows.Add(MeasureScaleWindow("arrival", fixture, probe, windowTicks));
     WriteScaleProgress(output, population, layout, seed, sourceRevision, sourceFingerprint, "arrival-complete", fixture, windows);
 
-    var serviceBoundaryReached = AdvanceUntil(fixture, ScaleDiagnosticFixture.HasCongestedServiceState, boundaryTickLimit);
+    var serviceBoundaryReached = AdvanceUntil(fixture, observation => HasCongestedServiceState(observation), boundaryTickLimit);
     if (serviceBoundaryReached) windows.Add(MeasureScaleWindow("congested-service", fixture, probe, windowTicks));
     WriteScaleProgress(output, population, layout, seed, sourceRevision, sourceFingerprint, "service-window-complete", fixture, windows);
 
@@ -441,8 +441,8 @@ static ScaleDiagnosticReport RunScaleDiagnostic(int population, ScaleDiagnosticL
     // distant exits keep every declared attendee in an active (non-completed) lifecycle.
     var lateTransactionTarget = 3;
     var lateBoundaryReached = AdvanceUntil(fixture,
-        state => state.Session.Transactions.Count >= lateTransactionTarget &&
-            ScaleDiagnosticFixture.AllDeclaredAgentsPresentAndActive(state), boundaryTickLimit);
+        observation => observation.TransactionCount >= lateTransactionTarget &&
+            IsActiveScaleObservation(observation, fixture.Population), boundaryTickLimit);
     if (lateBoundaryReached) windows.Add(MeasureScaleWindow("early-transactions", fixture, probe, windowTicks));
     WriteScaleProgress(output, population, layout, seed, sourceRevision, sourceFingerprint, "transaction-window-complete", fixture, windows);
 
@@ -452,11 +452,13 @@ static ScaleDiagnosticReport RunScaleDiagnostic(int population, ScaleDiagnosticL
     var restoreHashEqual = restored.IsSuccess &&
         restored.Session!.CaptureSnapshot().AuthoritativeHash == boundarySnapshot.AuthoritativeHash;
 
+    var completionObservation = fixture.Session.CaptureObservation();
     while (fixture.Session.CurrentTick < boundaryTickLimit &&
-        fixture.Session.CaptureSnapshot().ServiceQueues.SelectMany(queue => queue.Agents)
+        completionObservation.ServiceQueues.SelectMany(queue => queue.Agents)
             .Any(agent => agent.Action is not ServiceQueueAgentAction.Failed and not ServiceQueueAgentAction.Completed))
     {
-        fixture.Session.AdvanceTicks(1);
+        fixture.Session.AdvanceWithoutSnapshot(1);
+        completionObservation = fixture.Session.CaptureObservation();
         if (fixture.Session.CurrentTick % 1_000 == 0)
             WriteScaleProgress(output, population, layout, seed, sourceRevision, sourceFingerprint,
                 "completion", fixture, windows);
@@ -476,8 +478,8 @@ static ScaleDiagnosticReport RunScaleDiagnostic(int population, ScaleDiagnosticL
         noBacklog && released && completed && walletsReconciled && salesReconciled;
     var structuralOverload = windows.Any(window => window.TickMeanMs >= 12.5);
     var slowTailOverload = windows.Any(window => window.TickP99Ms >= 12.5);
-    return new ScaleDiagnosticReport(2, population, layout.ToString().ToLowerInvariant(), seed,
-        ToolchainSmoke.BuildVersion, "s0.00-diagnostic-v2", sourceRevision, sourceFingerprint, RuntimeInformation.OSDescription,
+    return new ScaleDiagnosticReport(3, population, layout.ToString().ToLowerInvariant(), seed,
+        ToolchainSmoke.BuildVersion, "s0.05-observation-v1", sourceRevision, sourceFingerprint, RuntimeInformation.OSDescription,
         RuntimeInformation.FrameworkDescription, Environment.ProcessorCount,
         initialization.Elapsed.TotalMilliseconds, initial.NavigationAgents.Count, initial.Wallets.Count,
         initial.ServiceQueues.Count, fixture.RetargetCount, windowTicks, windows,
@@ -485,7 +487,7 @@ static ScaleDiagnosticReport RunScaleDiagnostic(int population, ScaleDiagnosticL
         final.CurrentTick, final.Transactions.Count, completed, noFailures, noBacklog, released,
         walletsReconciled, salesReconciled, correctness, structuralOverload, slowTailOverload,
         Process.GetCurrentProcess().PeakWorkingSet64, final.AuthoritativeHash,
-        "Headless unpaced diagnostic. No rendered frame pacing or OS input latency measured.");
+        "Headless unpaced diagnostic. Timed ticks include compact every-person invariant observation; no rendered frame pacing or OS input latency measured.");
 }
 
 static ScaleContentionTraceReport RunScaleContentionTrace()
@@ -565,32 +567,34 @@ static IReadOnlyList<ScaleContentionAgentObservation> CaptureContentionObservati
 }
 
 static bool AdvanceUntil(ScaleDiagnosticFixtureState fixture,
-    Func<ScaleDiagnosticFixtureState, bool> predicate, int maximumTick)
+    Func<SessionObservation, bool> predicate, int maximumTick)
 {
+    var observation = fixture.Session.CaptureObservation();
     while (fixture.Session.CurrentTick < maximumTick)
     {
-        if (predicate(fixture)) return true;
-        fixture.Session.AdvanceTicks(1);
+        if (predicate(observation)) return true;
+        fixture.Session.AdvanceWithoutSnapshot(1);
+        observation = fixture.Session.CaptureObservation();
     }
-    return predicate(fixture);
+    return predicate(observation);
 }
 
 static ScaleDiagnosticWindowReport MeasureScaleWindow(string name, ScaleDiagnosticFixtureState fixture,
     ScaleDiagnosticProbe probe, int ticks)
 {
-    var allActive = IsActiveScaleSnapshot(fixture.Session.CaptureSnapshot(), fixture.Population);
+    var allActive = IsActiveScaleObservation(fixture.Session.CaptureObservation(), fixture.Population);
     var before = probe.Capture();
     var allocatedBefore = GC.GetAllocatedBytesForCurrentThread();
     var gc0 = GC.CollectionCount(0); var gc1 = GC.CollectionCount(1); var gc2 = GC.CollectionCount(2);
     var samples = new double[ticks];
-    SessionSnapshot? last = null;
+    SessionObservation? last = null;
     var timer = new Stopwatch();
     for (var index = 0; index < ticks; index++)
     {
-        timer.Restart(); var advanced = fixture.Session.AdvanceTicks(1); timer.Stop();
+        timer.Restart(); fixture.Session.AdvanceWithoutSnapshot(1); var observation = fixture.Session.CaptureObservation(); timer.Stop();
         samples[index] = timer.Elapsed.TotalMilliseconds;
-        last = advanced.Snapshot;
-        allActive &= IsActiveScaleSnapshot(advanced.Snapshot, fixture.Population);
+        last = observation;
+        allActive &= IsActiveScaleObservation(observation, fixture.Population);
     }
     var allocated = GC.GetAllocatedBytesForCurrentThread() - allocatedBefore;
     var after = probe.Capture();
@@ -602,13 +606,14 @@ static ScaleDiagnosticWindowReport MeasureScaleWindow(string name, ScaleDiagnost
     var queueInclusive = Delta(after.QueueInclusiveMs, before.QueueInclusiveMs);
     var snapshotInclusive = Delta(after.SnapshotInclusiveMs, before.SnapshotInclusiveMs);
     var hashMs = Delta(after.HashMs, before.HashMs);
+    var observationMs = Delta(after.ObservationMs, before.ObservationMs);
     var navigationRoute = Delta(after.NavigationRouteSearchMs, before.NavigationRouteSearchMs);
     var queueRoute = Delta(after.QueueRouteSearchMs, before.QueueRouteSearchMs);
     var measuredTotal = samples.Sum();
     var navigationExclusive = navigationInclusive - navigationRoute;
     var queueExclusive = queueInclusive - queueRoute;
     var snapshotExclusive = snapshotInclusive - hashMs;
-    var accounted = routeMs + navigationExclusive + queueExclusive + snapshotExclusive + hashMs;
+    var accounted = routeMs + navigationExclusive + queueExclusive + snapshotExclusive + hashMs + observationMs;
     var reconciliationDelta = measuredTotal - accounted;
     var negativeTolerance = Math.Max(0.25, measuredTotal * 0.01);
     if (navigationExclusive < -negativeTolerance || queueExclusive < -negativeTolerance ||
@@ -616,9 +621,9 @@ static ScaleDiagnosticWindowReport MeasureScaleWindow(string name, ScaleDiagnost
         throw new InvalidOperationException($"Diagnostic category reconciliation exceeded tolerance: {reconciliationDelta:0.###} ms.");
     return new ScaleDiagnosticWindowReport(name, last!.CurrentTick - ticks + 1, last.CurrentTick, ticks,
         allActive, last.NavigationAgents.Count, last.ServiceQueues.Sum(queue => queue.OrderedMembers.Count),
-        last.Transactions.Count, samples.Average(), Percentile(.5), Percentile(.95), Percentile(.99),
+        last.TransactionCount, samples.Average(), Percentile(.5), Percentile(.95), Percentile(.99),
         1000d / (80d * samples.Average()), measuredTotal, routeMs, navigationExclusive,
-        queueExclusive, snapshotExclusive, hashMs, reconciliationDelta,
+        queueExclusive, snapshotExclusive, hashMs, observationMs, reconciliationDelta,
         after.RouteSearches - before.RouteSearches, after.AvoidanceRouteSearches - before.AvoidanceRouteSearches,
         after.ExpandedNodes - before.ExpandedNodes, after.AvoidanceExpandedNodes - before.AvoidanceExpandedNodes,
         after.QueueReassignments - before.QueueReassignments, after.BlockedAgentTicks - before.BlockedAgentTicks,
@@ -626,22 +631,38 @@ static ScaleDiagnosticWindowReport MeasureScaleWindow(string name, ScaleDiagnost
         GC.CollectionCount(0) - gc0, GC.CollectionCount(1) - gc1, GC.CollectionCount(2) - gc2);
 }
 
-static bool IsActiveScaleSnapshot(SessionSnapshot snapshot, int population)
+static bool IsActiveScaleObservation(SessionObservation observation, int population)
 {
-    var queueAgents = snapshot.ServiceQueues.SelectMany(queue => queue.Agents).ToArray();
-    return snapshot.NavigationAgents.Count == population && snapshot.Wallets.Count == population &&
-        queueAgents.Length == population && queueAgents.Select(agent => agent.AgentId).Distinct().Count() == population &&
-        snapshot.NavigationAgents.All(agent => agent.Action != AgentNavigationAction.Idle) &&
-        queueAgents.All(agent => agent.Action is not ServiceQueueAgentAction.Failed and not ServiceQueueAgentAction.Completed);
+    var queueAgents = observation.ServiceQueues.SelectMany(queue => queue.Agents).ToArray();
+    var navigationIds = observation.NavigationAgents.Select(agent => agent.Id).ToHashSet();
+    var queueAgentIds = queueAgents.Select(agent => agent.AgentId).ToHashSet();
+    return observation.NavigationAgents.Count == population && observation.WalletCount == population &&
+        navigationIds.Count == population && queueAgents.Length == population && queueAgentIds.Count == population &&
+        navigationIds.SetEquals(queueAgentIds) &&
+        observation.NavigationAgents.All(agent => agent.Action != AgentNavigationAction.Idle) &&
+        queueAgents.All(agent => agent.Action is not ServiceQueueAgentAction.Failed and not ServiceQueueAgentAction.Completed) &&
+        observation.ServiceQueues.All(queue =>
+            queue.OrderedMembers.Count == queue.OrderedMembers.Distinct().Count() &&
+            queue.OrderedMembers.All(queueAgentIds.Contains) &&
+            queue.Agents.Where(agent => agent.ReservedSlotIndex is not null).Select(agent => agent.ReservedSlotIndex).Distinct().Count() ==
+                queue.Agents.Count(agent => agent.ReservedSlotIndex is not null) &&
+            queue.Agents.Where(agent => agent.OwnsExitReservation).Select(agent => agent.ExitIndex).Distinct().Count() ==
+                queue.Agents.Count(agent => agent.OwnsExitReservation) &&
+            (queue.ActiveOwnerId is null || queue.Agents.Any(agent =>
+                agent.AgentId == queue.ActiveOwnerId && agent.Action == ServiceQueueAgentAction.InService)));
 }
+
+static bool HasCongestedServiceState(SessionObservation observation) =>
+    observation.TransactionCount == 0 &&
+    observation.ServiceQueues.All(queue => queue.OrderedMembers.Count > 0 || queue.ActiveOwnerId is not null);
 
 static void WriteScaleProgress(string output, int population, ScaleDiagnosticLayout layout, ulong seed,
     string sourceRevision, string sourceFingerprint, string phase, ScaleDiagnosticFixtureState fixture,
     IReadOnlyList<ScaleDiagnosticWindowReport> windows)
 {
     Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(output))!);
-    var progress = new ScaleDiagnosticProgressReport(2, population, layout.ToString().ToLowerInvariant(), seed,
-        ToolchainSmoke.BuildVersion, "s0.00-diagnostic-v2", sourceRevision, sourceFingerprint,
+    var progress = new ScaleDiagnosticProgressReport(3, population, layout.ToString().ToLowerInvariant(), seed,
+        ToolchainSmoke.BuildVersion, "s0.05-observation-v1", sourceRevision, sourceFingerprint,
         phase, fixture.Session.CurrentTick, fixture.Session.Transactions.Count, windows,
         "Partial checkpoint; a wall-time timeout may stop the exact child before final reconciliation.");
     File.WriteAllText(output, JsonSerializer.Serialize(progress, new JsonSerializerOptions { WriteIndented = true }));
@@ -697,7 +718,7 @@ sealed record ScaleDiagnosticWindowReport(
     int ActivePopulation, int QueueBacklog, int Transactions, double TickMeanMs, double TickP50Ms,
     double TickP95Ms, double TickP99Ms, double UnpacedOneXCapacity, double MeasuredTotalMs,
     double RouteSearchMs, double MovementAndSeparationExclusiveMs, double QueueExclusiveMs,
-    double SnapshotExclusiveMs, double HashMs, double UnattributedHarnessAndTickMs,
+    double SnapshotExclusiveMs, double HashMs, double ObservationMs, double UnattributedHarnessAndTickMs,
     long PathSearches, long AvoidancePathSearches, long ExpandedNodes, long AvoidanceExpandedNodes,
     long QueueReassignments, long BlockedAgentTicks, int MaximumBlockedAgentAgeTicks,
     int BlockedAgentsAtEnd, long AllocatedBytes, int Gen0Collections, int Gen1Collections, int Gen2Collections);

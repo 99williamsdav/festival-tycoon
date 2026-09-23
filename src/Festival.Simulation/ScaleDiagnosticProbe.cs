@@ -18,6 +18,7 @@ public sealed class ScaleDiagnosticProbe
     public long QueueStopwatchTicks { get; private set; }
     public long SnapshotStopwatchTicks { get; private set; }
     public long HashStopwatchTicks { get; private set; }
+    public long ObservationStopwatchTicks { get; private set; }
     public long RouteSearches { get; private set; }
     public long AvoidanceRouteSearches { get; private set; }
     public long ExpandedNodes { get; private set; }
@@ -33,6 +34,7 @@ public sealed class ScaleDiagnosticProbe
     internal void AddQueue(long ticks) => QueueStopwatchTicks += ticks;
     internal void AddSnapshot(long ticks) => SnapshotStopwatchTicks += ticks;
     internal void AddHash(long ticks) => HashStopwatchTicks += ticks;
+    internal void AddObservation(long ticks) => ObservationStopwatchTicks += ticks;
     internal void AddRouteSearch(long ticks, int expandedNodes, bool avoidance)
     {
         RouteSearchStopwatchTicks += ticks;
@@ -60,12 +62,12 @@ public sealed class ScaleDiagnosticProbe
         ToMilliseconds(HashStopwatchTicks), ToMilliseconds(NavigationRouteSearchStopwatchTicks),
         ToMilliseconds(QueueRouteSearchStopwatchTicks), RouteSearches, AvoidanceRouteSearches,
         ExpandedNodes, AvoidanceExpandedNodes, QueueReassignments, BlockedAgentTicks,
-        MaximumBlockedAgentAgeTicks, CurrentlyBlockedAgents);
+        MaximumBlockedAgentAgeTicks, CurrentlyBlockedAgents, ToMilliseconds(ObservationStopwatchTicks));
 
     private static double ToMilliseconds(long ticks) => ticks * 1000d / Stopwatch.Frequency;
 }
 
-internal enum DiagnosticPhase { None, Navigation, Queue, Snapshot }
+internal enum DiagnosticPhase { None, Navigation, Queue, Snapshot, Observation }
 
 public sealed record ScaleDiagnosticProbeSnapshot(
     double RouteSearchMs, double NavigationInclusiveMs, double QueueInclusiveMs,
@@ -73,4 +75,4 @@ public sealed record ScaleDiagnosticProbeSnapshot(
     double QueueRouteSearchMs, long RouteSearches,
     long AvoidanceRouteSearches, long ExpandedNodes, long AvoidanceExpandedNodes,
     long QueueReassignments, long BlockedAgentTicks, int MaximumBlockedAgentAgeTicks,
-    int CurrentlyBlockedAgents);
+    int CurrentlyBlockedAgents, double ObservationMs);

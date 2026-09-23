@@ -208,11 +208,18 @@ public sealed partial class GameSession
 
     public AdvanceResult AdvanceTicks(int count)
     {
+        var events = AdvanceAuthoritativeTicks(count);
+        return new AdvanceResult(CaptureSnapshot(), events);
+    }
+
+    /// <summary>Advances authoritative state without constructing or hashing a public snapshot.</summary>
+    public IReadOnlyList<SessionEvent> AdvanceWithoutSnapshot(int count) => AdvanceAuthoritativeTicks(count);
+
+    private IReadOnlyList<SessionEvent> AdvanceAuthoritativeTicks(int count)
+    {
         ArgumentOutOfRangeException.ThrowIfNegative(count);
         if (IsPaused || count == 0 || Phase is SessionPhase.Planning or SessionPhase.OpeningCheck || IsLifecycleEditionFrozen())
-        {
-            return new AdvanceResult(CaptureSnapshot(), Array.Empty<SessionEvent>());
-        }
+            return Array.Empty<SessionEvent>();
 
         var events = new List<SessionEvent>();
         for (var index = 0; index < count; index++)
@@ -243,7 +250,7 @@ public sealed partial class GameSession
             ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.None);
         }
 
-        return new AdvanceResult(CaptureSnapshot(), events);
+        return events;
     }
 
     public uint NextRandom(RandomStreamId streamId) => _randomStreams[streamId].NextUInt32();
@@ -305,6 +312,34 @@ public sealed partial class GameSession
         ScaleDiagnosticProbe?.AddSnapshot(Stopwatch.GetTimestamp() - snapshotStart);
         ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.None);
         return snapshot;
+    }
+
+    public SessionObservation CaptureObservation()
+    {
+        var observationStart = Stopwatch.GetTimestamp();
+        ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.Observation);
+        var observation = new SessionObservation(
+            CurrentTick,
+            _navigationAgents.Values.Select(agent => new NavigationObservation(
+                agent.Id, agent.XMillimetres, agent.ZMillimetres, agent.Action, agent.IntentId)).ToArray(),
+            _serviceQueues.Values.Select(queue => new QueueObservation(
+                queue.Id, queue.OrderedMembers.ToArray(), queue.ActiveOwnerId, queue.RemainingServiceTicks,
+                queue.Agents.Values.Select(agent => new QueueAgentObservation(
+                    agent.AgentId, agent.Action, agent.ReservedSlotIndex, agent.ExitIndex, agent.OwnsExitReservation,
+                    agent.ReservedSlotIndex is { } slot && IsAtQueueSlot(queue, agent.AgentId, slot))).ToArray())).ToArray(),
+            _wallets.Count,
+            _transactions.Count);
+        ScaleDiagnosticProbe?.AddObservation(Stopwatch.GetTimestamp() - observationStart);
+        ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.None);
+        return observation;
+    }
+
+    private bool IsAtQueueSlot(ServiceQueueState queue, EntityId agentId, int slot)
+    {
+        if ((uint)slot >= (uint)queue.QueueSlots.Count || !_navigationAgents.TryGetValue(agentId, out var navigation) ||
+            navigation.Action != AgentNavigationAction.Arrived) return false;
+        var centre = TraversalGrid.CellCentre(queue.QueueSlots[slot]);
+        return navigation.XMillimetres == centre.XMillimetres && navigation.ZMillimetres == centre.ZMillimetres;
     }
 
     public SessionPersistenceSnapshot CapturePersistenceSnapshot() => new(

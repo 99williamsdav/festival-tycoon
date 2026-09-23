@@ -1,6 +1,6 @@
 # R0 progress
 
-Package status: **R0.00, S0.00 and S0.04 (P1) accepted. S0.01 and S0.02 stopped; P2 publication and P3 traffic-kernel proof remain ahead. R0.01 gameplay remains paused.** The early-tier weekend playtest target is approximately 10 real minutes including ordinary preparation and pauses; its exact festival-minute schedule remains tunable. Later decision gates remain unapproved.
+Package status: **R0.00, S0.00, S0.04 (P1) and S0.05 (P2) accepted. S0.01 and S0.02 stopped; P3 traffic-kernel proof remains ahead. R0.01 gameplay remains paused.** The early-tier weekend playtest target is approximately 10 real minutes including ordinary preparation and pauses; its exact festival-minute schedule remains tunable. Later decision gates remain unapproved.
 
 | Brief | Status | Evidence | Gate before start |
 |---|---|---|---|
@@ -10,6 +10,7 @@ Package status: **R0.00, S0.00 and S0.04 (P1) accepted. S0.01 and S0.02 stopped;
 | S0.02 | Stopped — negative result; decision needed | [Trace, two rejected prototypes and stop evidence](../results/S0.02.md) | Select another architecture or make an explicit product decision; prototype reverted |
 | S0.03 | Design review approved | [Architecture proposal](S0.03-movement-architecture-review.md) | P1 exact-result pathfinder work approved; physical-motion proof follows separately |
 | S0.04 | Accepted — P1 exact-result pathfinder | [Exactness, 100/200 timing and bounded completion evidence](../results/S0.04.md) | P2/P3 remain separate; no supported-capacity claim |
+| S0.05 | Accepted — P2 publication | [Result and evidence](../results/S0.05.md) | P3 remains separate; no supported-capacity claim |
 | R0.01 | Not started — paused for scale investigation | None | Population architecture evidence, tier counts, exact schedule, persistence, offers and failed-edition carryover decisions |
 | R0.02 | Not started | None | Equipment chain and each required asset/proxy |
 | R0.03 | Not started | None | Medical chain and each required asset/proxy |

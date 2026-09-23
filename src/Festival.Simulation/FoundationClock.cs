@@ -74,6 +74,18 @@ public static class FoundationDiagnostics
             queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed));
     }
 
+    public static FoundationDiagnosticCounts Count(SessionObservation observation)
+    {
+        var queue = observation.ServiceQueues.Single();
+        return new(
+            observation.NavigationAgents.Count(item => item.Action == AgentNavigationAction.Travelling),
+            queue.OrderedMembers.Count,
+            queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Waiting && item.IsAtReservedSlot),
+            queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.InService),
+            observation.TransactionCount,
+            queue.Agents.Count(item => item.Action == ServiceQueueAgentAction.Failed));
+    }
+
     private static bool IsAtSlot(NavigationAgentSnapshot agent, GridCell slot)
     {
         var centre = TraversalGrid.CellCentre(slot);
@@ -88,20 +100,32 @@ public sealed class FoundationPresentationInterpolator
     private long _currentTick = -1;
 
     public void Reset(SessionSnapshot snapshot)
+        => Reset(snapshot.CurrentTick, snapshot.NavigationAgents.Select(item =>
+            new NavigationObservation(item.Id, item.XMillimetres, item.ZMillimetres, item.Action, item.IntentId)).ToArray());
+
+    public void Reset(SessionObservation observation) => Reset(observation.CurrentTick, observation.NavigationAgents);
+
+    private void Reset(long currentTick, IReadOnlyList<NavigationObservation> agents)
     {
         _positions.Clear();
-        foreach (var agent in snapshot.NavigationAgents)
+        foreach (var agent in agents)
             _positions.Add(agent.Id, ((agent.XMillimetres, agent.ZMillimetres), (agent.XMillimetres, agent.ZMillimetres)));
-        _currentTick = snapshot.CurrentTick;
+        _currentTick = currentTick;
     }
 
     public void Advance(SessionSnapshot snapshot)
+        => Advance(snapshot.CurrentTick, snapshot.NavigationAgents.Select(item =>
+            new NavigationObservation(item.Id, item.XMillimetres, item.ZMillimetres, item.Action, item.IntentId)).ToArray());
+
+    public void Advance(SessionObservation observation) => Advance(observation.CurrentTick, observation.NavigationAgents);
+
+    private void Advance(long currentTick, IReadOnlyList<NavigationObservation> agents)
     {
-        if (snapshot.CurrentTick != _currentTick + 1 || snapshot.NavigationAgents.Count != _positions.Count || snapshot.NavigationAgents.Any(item => !_positions.ContainsKey(item.Id)))
-        { Reset(snapshot); return; }
-        foreach (var agent in snapshot.NavigationAgents)
+        if (currentTick != _currentTick + 1 || agents.Count != _positions.Count || agents.Any(item => !_positions.ContainsKey(item.Id)))
+        { Reset(currentTick, agents); return; }
+        foreach (var agent in agents)
             _positions[agent.Id] = (_positions[agent.Id].Current, (agent.XMillimetres, agent.ZMillimetres));
-        _currentTick = snapshot.CurrentTick;
+        _currentTick = currentTick;
     }
 
     public (double XMillimetres, double ZMillimetres) Sample(EntityId id, double fraction)
