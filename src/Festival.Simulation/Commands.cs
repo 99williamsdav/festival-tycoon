@@ -31,6 +31,10 @@ public enum CommandReasonCode
     InsufficientFunds = 11,
     OutOfStock = 12,
     AlreadyCommitted = 13,
+    EditionFrozen = 14,
+    UnprotectedSubject = 15,
+    AlreadySettled = 16,
+    InsufficientFavour = 17,
 }
 
 public abstract record SessionCommand;
@@ -48,6 +52,15 @@ public sealed record ConfirmPlanningCommitmentCommand(string CommitmentId) : Ses
 public sealed record AdvancePlanningWeekCommand : SessionCommand;
 
 public sealed record DismissCampaignTipCommand(string TipId) : SessionCommand;
+
+/// <summary>Headless R0.00 fixture only: injects simultaneous terminal subjects; the first protected subject wins.</summary>
+public sealed record ForceFixtureDeathsCommand(IReadOnlyList<string> SubjectPersonIds) : SessionCommand;
+
+/// <summary>Headless R0.00 fixture only: spends the one fixture-labelled Favour and creates a same-tier retry.</summary>
+public sealed record SpendFixtureFavourCommand : SessionCommand;
+
+/// <summary>Headless R0.00 fixture only: settles the active attempt safely and advances one fixture tier.</summary>
+public sealed record ForceFixtureSafeCompletionCommand : SessionCommand;
 
 /// <summary>Development fixture: creates one guest wallet for M0.04 verification.</summary>
 public sealed record CreateGuestWalletCommand(long OpeningCashPennies) : SessionCommand;

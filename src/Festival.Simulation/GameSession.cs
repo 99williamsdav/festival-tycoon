@@ -104,6 +104,21 @@ public sealed partial class GameSession
                 ApplyDismissTip(dismiss);
                 break;
 
+            case ForceFixtureDeathsCommand deaths:
+                affectedTarget = null;
+                ApplyForceFixtureDeaths(deaths);
+                break;
+
+            case SpendFixtureFavourCommand:
+                affectedTarget = null;
+                ApplySpendFixtureFavour();
+                break;
+
+            case ForceFixtureSafeCompletionCommand:
+                affectedTarget = null;
+                ApplyForceFixtureSafeCompletion();
+                break;
+
             case CreateGuestWalletCommand createGuest:
                 affectedTarget = new EntityId(NextEntityId++);
                 _wallets.Add(affectedTarget.Value, new WalletState
@@ -189,7 +204,7 @@ public sealed partial class GameSession
     public AdvanceResult AdvanceTicks(int count)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(count);
-        if (IsPaused || count == 0 || Phase is SessionPhase.Planning or SessionPhase.OpeningCheck)
+        if (IsPaused || count == 0 || Phase is SessionPhase.Planning or SessionPhase.OpeningCheck || IsLifecycleEditionFrozen())
         {
             return new AdvanceResult(CaptureSnapshot(), Array.Empty<SessionEvent>());
         }
@@ -268,7 +283,8 @@ public sealed partial class GameSession
             CaptureNavigationAgents(),
             CaptureServiceQueues(),
             CanonicalStateHasher.Compute(this),
-            CaptureCampaignPlanningSnapshot());
+            CaptureCampaignPlanningSnapshot(),
+            CaptureLifecycleSnapshot());
     }
 
     public SessionPersistenceSnapshot CapturePersistenceSnapshot() => new(
@@ -304,6 +320,7 @@ public sealed partial class GameSession
             NavigationAgents = CapturePersistedNavigationAgents(),
             ServiceQueues = CapturePersistedServiceQueues(),
             CampaignPlanning = CapturePersistedCampaignPlanning(),
+            Lifecycle = CapturePersistedLifecycle(),
         };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
@@ -355,6 +372,7 @@ public sealed partial class GameSession
         session.RestoreNavigation(snapshot.TraversalGrid, snapshot.NavigationAgents);
         session.RestoreServiceQueues(snapshot.ServiceQueues, snapshot.NavigationAgents);
         session.RestoreCampaignPlanning(snapshot.CampaignPlanning);
+        session.RestoreLifecycle(snapshot.Lifecycle);
 
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
@@ -411,6 +429,8 @@ public sealed partial class GameSession
         if (queueError is not null) return queueError;
         var campaignError = ValidatePersistedCampaignPlanning(snapshot.CampaignPlanning, snapshot);
         if (campaignError is not null) return campaignError;
+        var lifecycleError = ValidatePersistedLifecycle(snapshot.Lifecycle);
+        if (lifecycleError is not null) return lifecycleError;
         var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
             .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();
         if (ownedEntityIds.Distinct().Count() != ownedEntityIds.Length || ownedEntityIds.Any(id => id >= snapshot.NextEntityId))
@@ -502,6 +522,9 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.OutOfOrderSubmission, "Command submission sequence is not next.");
         }
 
+        var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
+        if (lifecycleFrozen is not null) return lifecycleFrozen;
+
         return envelope.Command switch
         {
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>
@@ -513,6 +536,9 @@ public sealed partial class GameSession
             ConfirmPlanningCommitmentCommand commitment => ValidateConfirmPlanningCommitment(envelope.TargetId, commitment),
             AdvancePlanningWeekCommand => ValidateAdvancePlanningWeek(envelope.TargetId),
             DismissCampaignTipCommand dismiss => ValidateDismissCampaignTip(envelope.TargetId, dismiss),
+            ForceFixtureDeathsCommand deaths => ValidateForceFixtureDeaths(envelope.TargetId, deaths),
+            SpendFixtureFavourCommand => ValidateSpendFixtureFavour(envelope.TargetId),
+            ForceFixtureSafeCompletionCommand => ValidateForceFixtureSafeCompletion(envelope.TargetId),
             CreateGuestWalletCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Guest setup requires no target and nonnegative opening cash."),
             CreateFestivalFinanceCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>

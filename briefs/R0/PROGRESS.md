@@ -1,10 +1,10 @@
 # R0 progress
 
-Package status: **Design prepared; implementation not authorized.** Approval of the pivot does not approve rows marked as decision gates.
+Package status: **R0.00 accepted.** Later decision gates remain unapproved.
 
 | Brief | Status | Evidence | Gate before start |
 |---|---|---|---|
-| R0.00 | Not started | None | Exact fixture terminal/settlement transaction and save semantics |
+| R0.00 | Accepted | [Result and evidence](../results/R0.00.md) | Approved: first death freezes and saves one hearing; one fixture Favour creates one same-tier retry; one fixture safe completion advances once |
 | R0.01 | Not started | None | Tier/time, persistence, offers and failed-edition carryover decisions |
 | R0.02 | Not started | None | Equipment chain and each required asset/proxy |
 | R0.03 | Not started | None | Medical chain and each required asset/proxy |

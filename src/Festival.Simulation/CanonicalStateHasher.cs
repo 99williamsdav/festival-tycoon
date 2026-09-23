@@ -239,6 +239,57 @@ internal static class CanonicalStateHasher
             foreach (var tipId in campaign.DismissedTipIds) writer.Write(tipId);
         }
 
+        if (session.LifecycleState is { } lifecycle)
+        {
+            writer.Write("r0-lifecycle-fixture-v1");
+            writer.Write(lifecycle.FixtureLabel);
+            writer.Write(lifecycle.CurrentTierId);
+            writer.Write(lifecycle.FixtureTierOrdinal);
+            writer.Write(lifecycle.CurrentAttemptId);
+            writer.Write(lifecycle.NextAttemptId);
+            writer.Write(lifecycle.NextCasualtyId);
+            writer.Write(lifecycle.NextHearingId);
+            writer.Write(lifecycle.FixtureFavourBalance);
+            writer.Write(lifecycle.ProtectedPeople.Count);
+            foreach (var person in lifecycle.ProtectedPeople.Values)
+            {
+                writer.Write(person.PersonId);
+                writer.Write((int)person.Role);
+            }
+            writer.Write(lifecycle.Attempts.Count);
+            foreach (var attempt in lifecycle.Attempts)
+            {
+                writer.Write(attempt.AttemptId);
+                writer.Write(attempt.TierId);
+                writer.Write((int)attempt.Status);
+                writer.Write(attempt.OutcomeTransactionId is not null);
+                if (attempt.OutcomeTransactionId is not null) writer.Write(attempt.OutcomeTransactionId);
+            }
+            writer.Write(lifecycle.Casualties.Count);
+            foreach (var casualty in lifecycle.Casualties)
+            {
+                writer.Write(casualty.CasualtyId);
+                writer.Write(casualty.AttemptId);
+                writer.Write(casualty.PersonId);
+                writer.Write((int)casualty.Role);
+                writer.Write(casualty.Cause);
+                writer.Write(casualty.Tick);
+                writer.Write(casualty.TransactionId);
+            }
+            writer.Write(lifecycle.Hearings.Count);
+            foreach (var hearing in lifecycle.Hearings)
+            {
+                writer.Write(hearing.HearingId);
+                writer.Write(hearing.AttemptId);
+                writer.Write((int)hearing.Status);
+                writer.Write(hearing.CreatedTransactionId);
+                writer.Write(hearing.ResolutionTransactionId is not null);
+                if (hearing.ResolutionTransactionId is not null) writer.Write(hearing.ResolutionTransactionId);
+            }
+            writer.Write(lifecycle.CompletedOutcomeTransactionIds.Count);
+            foreach (var id in lifecycle.CompletedOutcomeTransactionIds) writer.Write(id);
+        }
+
         writer.Flush();
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();

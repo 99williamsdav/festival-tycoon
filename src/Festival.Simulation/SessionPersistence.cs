@@ -49,6 +49,15 @@ public sealed record PersistedCampaignPlanning(
     long LoanInterestDueAtSettlementPennies, int LoanRemainingEditions, int LoanInterestBasisPoints,
     PersistedPlanningCommitment[] Commitments, PersistedPlanningLedgerTransaction[] LedgerTransactions,
     PersistedWeeklyDigest[] WeeklyDigests, string[] DismissedTipIds);
+public sealed record PersistedProtectedPerson(string PersonId, int Role);
+public sealed record PersistedEditionAttempt(ulong AttemptId, string TierId, int Status, string? OutcomeTransactionId);
+public sealed record PersistedCasualty(ulong CasualtyId, ulong AttemptId, string PersonId, int Role, string Cause, long Tick, string TransactionId);
+public sealed record PersistedCouncilHearing(ulong HearingId, ulong AttemptId, int Status, string CreatedTransactionId, string? ResolutionTransactionId);
+public sealed record PersistedLifecycle(
+    string FixtureLabel, string CurrentTierId, int FixtureTierOrdinal, ulong CurrentAttemptId,
+    ulong NextAttemptId, ulong NextCasualtyId, ulong NextHearingId, int FixtureFavourBalance,
+    PersistedProtectedPerson[] ProtectedPeople, PersistedEditionAttempt[] Attempts, PersistedCasualty[] Casualties,
+    PersistedCouncilHearing[] Hearings, string[] CompletedOutcomeTransactionIds);
 
 /// <summary>Explicit v1 persistence DTO for all authoritative state through M0.08.</summary>
 public sealed record SessionPersistenceSnapshot(
@@ -82,6 +91,9 @@ public sealed record SessionPersistenceSnapshot(
 
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PersistedCampaignPlanning? CampaignPlanning { get; init; }
+
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PersistedLifecycle? Lifecycle { get; init; }
 }
 
 public sealed record SessionRestoreResult(GameSession? Session, string? Error)

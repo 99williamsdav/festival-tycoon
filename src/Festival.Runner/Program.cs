@@ -129,6 +129,49 @@ if (args is ["--scenario", "deterministic-session"])
     return;
 }
 
+if (args is ["--scenario", "r0-lifecycle"])
+{
+    var directory = Path.Combine(Path.GetTempPath(), $"festival-r000-runner-{Guid.NewGuid():N}");
+    Directory.CreateDirectory(directory);
+    try
+    {
+        var compatibility = new SaveCompatibility("0.0.1-r0.00", "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9", "r0.00-fixture-rules-v1");
+        var session = GameSession.CreateR000LifecycleFixture(20260923);
+        Console.WriteLine($"scenario=r0-lifecycle seed={session.CampaignSeed} label=\"{session.CaptureSnapshot().Lifecycle!.FixtureLabel}\"");
+        Console.WriteLine($"boundary=active tier={session.CaptureSnapshot().Lifecycle!.CurrentTierId} attempt={session.CaptureSnapshot().Lifecycle!.CurrentAttemptId} hash={session.CaptureSnapshot().AuthoritativeHash}");
+        var commands = new SessionCommand[]
+        {
+            new ForceFixtureDeathsCommand(["fixture-guest", "fixture-performer"]),
+            new SpendFixtureFavourCommand(),
+            new ForceFixtureSafeCompletionCommand(),
+        };
+        var names = new[] { "hearing", "same-tier-retry", "safe-tier-advance" };
+        var passed = true;
+        for (var index = 0; index < commands.Length; index++)
+        {
+            var command = new CommandEnvelope(new CommandId((ulong)index + 1), session.CampaignId, session.Phase,
+                session.CurrentTick, session.NextSubmissionSequence, null, commands[index]);
+            var result = LifecycleTransitionCoordinator.Apply(directory, session, compatibility,
+                DateTimeOffset.UnixEpoch.AddMinutes(index), index, command);
+            passed &= result.IsSuccess;
+            if (!result.IsSuccess) { Console.Error.WriteLine(result.Message); break; }
+            session = result.Session;
+            var lifecycle = session.CaptureSnapshot().Lifecycle!;
+            Console.WriteLine($"boundary={names[index]} tier={lifecycle.CurrentTierId} attempt={lifecycle.CurrentAttemptId} favour={lifecycle.FixtureFavourBalance} casualties={lifecycle.Casualties.Count} hearings={lifecycle.Hearings.Count} hash={session.CaptureSnapshot().AuthoritativeHash}");
+        }
+        var final = session.CaptureSnapshot().Lifecycle!;
+        Console.WriteLine($"transactions={string.Join(',', final.CompletedOutcomeTransactionIds)}");
+        Console.WriteLine($"attempts={string.Join(',', final.Attempts.Select(item => $"{item.AttemptId}:{item.TierId}:{item.Status}"))}");
+        Environment.ExitCode = passed && final.Casualties.Count == 1 && final.Hearings.Count == 1 &&
+            final.FixtureFavourBalance == 0 && final.FixtureTierOrdinal == 2 ? 0 : 1;
+    }
+    finally
+    {
+        Directory.Delete(directory, recursive: true);
+    }
+    return;
+}
+
 if (args is ["--scenario", "atomic-purchase"])
 {
     var fixture = AtomicPurchaseFixture.Create(stockQuantity: 1, unitCostBasisPennies: 120);
