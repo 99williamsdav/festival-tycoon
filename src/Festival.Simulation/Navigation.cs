@@ -1,3 +1,5 @@
+using System.Buffers;
+
 namespace Festival.Simulation;
 
 public readonly record struct GridCell(int X, int Z) : IComparable<GridCell>
@@ -137,50 +139,127 @@ public static class DeterministicPathfinder
         if (!grid.Contains(start) || !grid.Contains(target) || !grid.Get(start).IsWalkable || !grid.Get(target).IsWalkable)
             return new PathSearchResult(false, Array.Empty<GridCell>(), 0);
 
-        var open = new List<GridCell> { start };
-        var openSet = new HashSet<GridCell> { start };
-        var closed = new HashSet<GridCell>();
-        var cameFrom = new Dictionary<GridCell, GridCell>();
-        var gScore = new Dictionary<GridCell, int> { [start] = 0 };
-        var expanded = 0;
+        const int cellCount = TraversalGrid.Width * TraversalGrid.Depth;
+        var scores = ArrayPool<int>.Shared.Rent(cellCount);
+        var cameFrom = ArrayPool<int>.Shared.Rent(cellCount);
+        var heap = ArrayPool<int>.Shared.Rent(cellCount);
+        var heapIndices = ArrayPool<int>.Shared.Rent(cellCount);
+        var states = ArrayPool<byte>.Shared.Rent(cellCount);
         var minimumCost = grid.MinimumWalkableCostPermille;
-
-        while (open.Count > 0 && expanded < TraversalGrid.Width * TraversalGrid.Depth)
+        try
         {
-            var bestIndex = 0;
-            for (var index = 1; index < open.Count; index++)
-                if (Compare(open[index], open[bestIndex], target, gScore, minimumCost) < 0) bestIndex = index;
-            var current = open[bestIndex];
-            open.RemoveAt(bestIndex);
-            openSet.Remove(current);
-            if (current == target) return new PathSearchResult(true, Reconstruct(cameFrom, current), expanded);
-            closed.Add(current);
-            expanded++;
+            Array.Fill(scores, int.MaxValue, 0, cellCount);
+            Array.Fill(cameFrom, -1, 0, cellCount);
+            Array.Fill(heapIndices, -1, 0, cellCount);
+            Array.Clear(states, 0, cellCount);
+            var startIndex = ToIndex(start);
+            scores[startIndex] = 0;
+            heap[0] = startIndex;
+            heapIndices[startIndex] = 0;
+            states[startIndex] = 1;
+            var heapCount = 1;
+            var expanded = 0;
 
-            foreach (var (dx, dz, baseCost) in Neighbours)
+            while (heapCount > 0 && expanded < cellCount)
             {
-                var neighbour = new GridCell(current.X + dx, current.Z + dz);
-                if (!grid.Contains(neighbour) || !grid.Get(neighbour).IsWalkable) continue;
-                if (dx != 0 && dz != 0 &&
-                    (!grid.Get(new GridCell(current.X + dx, current.Z)).IsWalkable ||
-                     !grid.Get(new GridCell(current.X, current.Z + dz)).IsWalkable)) continue;
-                var terrain = grid.Get(neighbour);
-                var stepCost = checked(baseCost * terrain.CostPermille / 1000);
-                var tentative = checked(gScore[current] + stepCost);
-                if (gScore.TryGetValue(neighbour, out var known) && tentative >= known) continue;
-                cameFrom[neighbour] = current;
-                gScore[neighbour] = tentative;
-                closed.Remove(neighbour);
-                if (openSet.Add(neighbour)) open.Add(neighbour);
+                var currentIndex = Pop(heap, heapIndices, ref heapCount, target, scores, minimumCost);
+                states[currentIndex] = 2;
+                var current = FromIndex(currentIndex);
+                if (current == target) return new PathSearchResult(true, Reconstruct(cameFrom, currentIndex), expanded);
+                expanded++;
+
+                foreach (var (dx, dz, baseCost) in Neighbours)
+                {
+                    var neighbour = new GridCell(current.X + dx, current.Z + dz);
+                    if (!grid.Contains(neighbour) || !grid.Get(neighbour).IsWalkable) continue;
+                    if (dx != 0 && dz != 0 &&
+                        (!grid.Get(new GridCell(current.X + dx, current.Z)).IsWalkable ||
+                         !grid.Get(new GridCell(current.X, current.Z + dz)).IsWalkable)) continue;
+                    var terrain = grid.Get(neighbour);
+                    var stepCost = checked(baseCost * terrain.CostPermille / 1000);
+                    var tentative = checked(scores[currentIndex] + stepCost);
+                    var neighbourIndex = ToIndex(neighbour);
+                    if (states[neighbourIndex] != 0 && tentative >= scores[neighbourIndex]) continue;
+                    cameFrom[neighbourIndex] = currentIndex;
+                    scores[neighbourIndex] = tentative;
+                    if (states[neighbourIndex] == 1)
+                    {
+                        // Although g decreased, the reference's unchecked signed (g + h) can
+                        // wrap across int.MaxValue and move the total priority in either direction.
+                        var repairedIndex = SiftUp(heap, heapIndices, heapIndices[neighbourIndex], target, scores, minimumCost);
+                        SiftDown(heap, heapIndices, heapCount, repairedIndex, target, scores, minimumCost);
+                    }
+                    else
+                    {
+                        states[neighbourIndex] = 1;
+                        heap[heapCount] = neighbourIndex;
+                        heapIndices[neighbourIndex] = heapCount;
+                        SiftUp(heap, heapIndices, heapCount++, target, scores, minimumCost);
+                    }
+                }
             }
+            return new PathSearchResult(false, Array.Empty<GridCell>(), expanded);
         }
-        return new PathSearchResult(false, Array.Empty<GridCell>(), expanded);
+        finally
+        {
+            ArrayPool<int>.Shared.Return(scores);
+            ArrayPool<int>.Shared.Return(cameFrom);
+            ArrayPool<int>.Shared.Return(heap);
+            ArrayPool<int>.Shared.Return(heapIndices);
+            ArrayPool<byte>.Shared.Return(states);
+        }
     }
 
-    private static int Compare(GridCell left, GridCell right, GridCell target, IReadOnlyDictionary<GridCell, int> scores, int minimumCost)
+    private static int Pop(int[] heap, int[] heapIndices, ref int count, GridCell target, int[] scores, int minimumCost)
     {
+        var result = heap[0];
+        heapIndices[result] = -1;
+        count--;
+        if (count == 0) return result;
+        heap[0] = heap[count];
+        heapIndices[heap[0]] = 0;
+        SiftDown(heap, heapIndices, count, 0, target, scores, minimumCost);
+        return result;
+    }
+
+    private static int SiftUp(int[] heap, int[] heapIndices, int index, GridCell target, int[] scores, int minimumCost)
+    {
+        while (index > 0)
+        {
+            var parent = (index - 1) / 2;
+            if (Compare(heap[index], heap[parent], target, scores, minimumCost) >= 0) return index;
+            Swap(heap, heapIndices, index, parent);
+            index = parent;
+        }
+        return index;
+    }
+
+    private static void SiftDown(int[] heap, int[] heapIndices, int count, int index, GridCell target, int[] scores, int minimumCost)
+    {
+        while (true)
+        {
+            var left = index * 2 + 1;
+            if (left >= count) return;
+            var right = left + 1;
+            var best = right < count && Compare(heap[right], heap[left], target, scores, minimumCost) < 0 ? right : left;
+            if (Compare(heap[best], heap[index], target, scores, minimumCost) >= 0) return;
+            Swap(heap, heapIndices, index, best);
+            index = best;
+        }
+    }
+
+    private static void Swap(int[] heap, int[] heapIndices, int left, int right)
+    {
+        (heap[left], heap[right]) = (heap[right], heap[left]);
+        heapIndices[heap[left]] = left;
+        heapIndices[heap[right]] = right;
+    }
+
+    private static int Compare(int leftIndex, int rightIndex, GridCell target, int[] scores, int minimumCost)
+    {
+        var left = FromIndex(leftIndex); var right = FromIndex(rightIndex);
         var leftH = Heuristic(left, target, minimumCost); var rightH = Heuristic(right, target, minimumCost);
-        var comparison = (scores[left] + leftH).CompareTo(scores[right] + rightH);
+        var comparison = (scores[leftIndex] + leftH).CompareTo(scores[rightIndex] + rightH);
         if (comparison != 0) return comparison;
         comparison = leftH.CompareTo(rightH);
         if (comparison != 0) return comparison;
@@ -198,13 +277,16 @@ public static class DeterministicPathfinder
         return diagonalSteps * minimumDiagonalEdgeCost + orthogonalSteps * minimumOrthogonalEdgeCost;
     }
 
-    private static IReadOnlyList<GridCell> Reconstruct(IReadOnlyDictionary<GridCell, GridCell> cameFrom, GridCell current)
+    private static IReadOnlyList<GridCell> Reconstruct(int[] cameFrom, int current)
     {
-        var path = new List<GridCell> { current };
-        while (cameFrom.TryGetValue(current, out var previous)) { current = previous; path.Add(current); }
+        var path = new List<GridCell> { FromIndex(current) };
+        while (cameFrom[current] >= 0) { current = cameFrom[current]; path.Add(FromIndex(current)); }
         path.Reverse();
         return path;
     }
+
+    private static int ToIndex(GridCell cell) => cell.Z * TraversalGrid.Width + cell.X;
+    private static GridCell FromIndex(int index) => new(index % TraversalGrid.Width, index / TraversalGrid.Width);
 }
 
 public sealed record NavigationAgentSnapshot(

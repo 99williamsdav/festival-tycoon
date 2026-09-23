@@ -13,6 +13,7 @@ $sourceFiles = @(
     'src/Festival.Runner/Program.cs',
     'src/Festival.Simulation/GameSession.cs',
     'src/Festival.Simulation/GameSession.Navigation.cs',
+    'src/Festival.Simulation/Navigation.cs',
     'src/Festival.Simulation/ServiceQueue.cs',
     'src/Festival.Simulation/Fixtures/ScaleDiagnosticFixture.cs',
     'src/Festival.Simulation/ScaleDiagnosticProbe.cs'
