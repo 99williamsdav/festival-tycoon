@@ -1,10 +1,10 @@
 # Foundation implementation briefs
 
+> **Routing update (23 September 2026):** M0 and M1 material below is preserved evidence/history. The active product authority is [ROGUELIKE_DESIGN.md](../ROGUELIKE_DESIGN.md); new work is indexed at [R0 — survival-campaign prototype](R0/README.md). Do not continue M1 or use the blanket old `GAME_DESIGN_SPEC.md` authority rule for pivot work.
+
 Bounded assignments implement M0 sequentially. These are implementation instructions, not completed work. Begin with M0.01 and do not proceed until its implementation and evidence are accepted.
 
-M1 planning drafts are indexed separately in [M1 — first playable](M1/README.md). They are review material only until the foundational choices in that index are explicitly approved.
-
-M1 planning drafts are indexed separately in [M1 — first playable](M1/README.md). They are review material only until the foundational choices in that index are explicitly approved.
+The paused [M1 — first playable](M1/README.md) and its results remain available for implementation/evidence history.
 
 ## How to use
 
@@ -18,7 +18,7 @@ Accept each result using its checks and short demonstration before assigning the
 
 ## Shared execution rules
 
-1. The full product rules live in `GAME_DESIGN_SPEC.md`; architecture in `TECHNICAL_SPEC.md`; numeric defaults in `CONTENT_AND_BALANCE.md`. A brief narrows current implementation scope; it does not change future product requirements. Historical discovery notes are not a competing task list.
+1. For R0, product rules live in `ROGUELIKE_DESIGN.md` and the assigned R0 brief; compatible architecture remains in `TECHNICAL_SPEC.md`. `GAME_DESIGN_SPEC.md`, `CONTENT_AND_BALANCE.md` and M1 are historical inputs where the pivot conflicts. Historical discovery notes are not a competing task list.
 2. Preserve user changes and inspect existing code before adding new abstractions. Build on previous briefs' actual interfaces. The suggested repository layout is guidance; do not move working code solely for cosmetic conformity.
 3. Hold the key requirements: one simulated person per ticket/wallet, pure simulation independent of Godot presentation, reproducible same-build behaviour, no duplicate money/stock/reservations, saved authoritative state, low-poly farm direction, fixed camera rotations and persistent overlays.
 4. Engine/C# choice is the current implementation baseline. Exact tick rate, navigation strategy and tuning values are engineering proposals to validate. Start with specified defaults; record measured reasons for changes and update relevant contracts/tests. Do not casually substitute an engine, population multiplier or core product behaviour.

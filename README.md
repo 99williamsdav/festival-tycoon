@@ -1,6 +1,14 @@
 # Festival Tycoon
 
-Festival Tycoon is a Windows x64, offline festival-management game. M0.01 provides the reproducible .NET/Godot foundation only: a pure simulation library, a fixed smoke runner, architecture tests, and an empty Godot shell that displays its build identity.
+## Current direction
+
+The active product is the persistent-farm survival/roguelike campaign defined in [ROGUELIKE_DESIGN.md](ROGUELIKE_DESIGN.md). The docs-only [R0 prototype package](briefs/R0/README.md) is prepared but **Not started**; its proposed tier, timing, economy, Favour, closure and reward choices require the listed user decisions before their owning brief.
+
+The implemented repository foundation is retained: deterministic simulation/save/finance, farm/camera/assets, physical queues and the M1.01 planning shell. [M1.01 remains Implemented — verification pending](briefs/results/M1.01.md). The old annual tycoon design and M1 roadmap are paused in place as references; do not implement them in parallel.
+
+The 50-person M1.00 exception remains explicit: measured mean was about 61.45 FPS, strict 60 FPS tail pacing failed, attained speed was about 0.99×/3.95×, and OS input latency was **Unverified**. See [the result](briefs/results/M1.00.md); 50 is not evidence for a larger practical crowd.
+
+Festival Tycoon is a Windows x64, offline festival-management game. The commands below use the reproducible .NET/Godot toolchain established in M0.01; the repository has since progressed beyond that original empty-shell milestone.
 
 ## Prerequisites
 

@@ -1,5 +1,7 @@
 # M1 progress
 
+> **SUPERSEDED / PAUSED FOR REFERENCE (23 September 2026):** This table records the state at the pivot. M1.01 remains **Implemented — verification pending** in repository status. No later M1 brief is active; see [R0 progress](../R0/PROGRESS.md).
+
 Planning package status: **Approved 22 September 2026.** M1.00 measurement is accepted. A temporary exception now permits M1.01 progression while preserving the stable-60-FPS failure, Unverified OS input latency, 50-person target and final M1.11 gate.
 
 | Brief | Status | Evidence | Open decision/check |

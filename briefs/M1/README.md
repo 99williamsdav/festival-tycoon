@@ -1,5 +1,7 @@
 # M1 — first playable planning index
 
+> **SUPERSEDED / PAUSED FOR REFERENCE (23 September 2026):** Do not continue this sequence. Use the [R0 survival-campaign index](../R0/README.md). Preserve M1.00/M1.01 implementation and evidence; remaining briefs are archived plans, not authorization.
+
 Status: **Approved implementation plan — M1.00 measured; M1.01 progression temporarily authorized despite the recorded gate failure.** These briefs narrow `IMPLEMENTATION_PLAN.md` §4; they do not replace the product, technical or balance specifications. Use the shared execution/evidence rules in [`briefs/README.md`](../README.md).
 
 ## Foundation choice and carried-forward rules

@@ -1,5 +1,7 @@
 # Festival Tycoon — Complete Game Design Specification
 
+> **SUPERSEDED / PAUSED FOR REFERENCE (23 September 2026):** [ROGUELIKE_DESIGN.md](ROGUELIKE_DESIGN.md) replaces this document where campaign, victory, failure, attendance or progression conflict. Unchanged system/design material remains reference only unless adopted by an R0 brief. Do not implement the old annual campaign in parallel.
+
 Version 1.0 • 6 September 2026 • Working title, not final branding
 
 ## 0. Authority and reading order

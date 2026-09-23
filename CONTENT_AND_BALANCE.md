@@ -1,5 +1,7 @@
 # Festival Tycoon — Initial Content and Balance Catalogue
 
+> **HISTORICAL BALANCE INPUT (23 September 2026):** Values below were authored for the paused annual-tycoon design. They are not silently approved for the roguelike economy. R0 may reuse a value only when its brief identifies and validates it under [ROGUELIKE_DESIGN.md](ROGUELIKE_DESIGN.md).
+
 Version 1.0 • These are explicit starting values for implementation and playtesting, not validated balance. All rates use festival time unless labelled otherwise. Full game behaviour is defined in [GAME_DESIGN_SPEC.md](GAME_DESIGN_SPEC.md).
 
 ## 1. Scale and units

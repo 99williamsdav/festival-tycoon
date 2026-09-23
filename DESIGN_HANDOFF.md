@@ -1,10 +1,12 @@
 # Festival Tycoon
 
+> **SUPERSEDED / PAUSED FOR REFERENCE (23 September 2026):** The annual prestige-tycoon handoff below is not the active product plan. Use [ROGUELIKE_DESIGN.md](ROGUELIKE_DESIGN.md) and [R0 briefs](briefs/R0/README.md). Preserve this text as design history; `TECHNICAL_SPEC.md` still applies where the pivot does not conflict.
+
 A British-inspired festival-management simulation: inherit a farm, take a loan, stage a tiny event, then build a legendary festival through music, money, mud and individual-driven chaos.
 
 ## Developer-ready design handoff
 
-The design phase is complete for initial implementation. No game code has been created yet. Read in this order:
+Historical handoff follows. Its statement that no game code exists is no longer current repository status. Read it only as the archived alternative:
 
 1. [Game design specification](GAME_DESIGN_SPEC.md) — complete player experience, annual loop and interconnected game rules.
 2. [Technical specification](TECHNICAL_SPEC.md) — engine decision, architecture, data contracts, deterministic simulation, navigation and saves.

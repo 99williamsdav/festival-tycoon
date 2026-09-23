@@ -1,5 +1,7 @@
 # Festival Tycoon — Developer Handoff and Acceptance Plan
 
+> **SUPERSEDED / PAUSED FOR REFERENCE (23 September 2026):** This M0–M5 annual-tycoon roadmap is archived in place. Current implementation planning begins at [R0](briefs/R0/README.md) under [ROGUELIKE_DESIGN.md](ROGUELIKE_DESIGN.md). Historic milestones/results remain evidence, not an active queue.
+
 Version 1.0 • 6 September 2026
 
 ## 1. Starting brief for the developer / coding agent
