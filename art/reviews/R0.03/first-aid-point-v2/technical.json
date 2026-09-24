@@ -1,0 +1,37 @@
+{
+  "asset": "Pop-up first-aid tent v2",
+  "purpose": "R0.03 first-aid revision approval candidate; square green event tent, not a hospital or sales stall",
+  "parts_triangles": {
+    "LWF_FirstAidV2_PopupFrame": 108,
+    "LWF_FirstAidV2_GreenWalls": 120,
+    "LWF_FirstAidV2_PeakedCanopy": 64,
+    "LWF_FirstAidV2_RoofCross": 4,
+    "LWF_FirstAidV2_ResponseApproach": 24
+  },
+  "triangles": 320,
+  "nodes": 5,
+  "palette_size": [
+    192,
+    8
+  ],
+  "units": "metres",
+  "origin": "ground-centred under tent",
+  "entrance_direction": "Blender -Y / Godot +Z",
+  "response": "open central front and visual approach pad; staff routes and treatment remain simulation-owned",
+  "reference": "reference photograph informed only square pop-up silhouette, green fabric and peaked roof; no photo asset, logo, text, people or vehicle reused",
+  "provenance": "original project-authored procedural geometry and palette; water point, attendee and v1 tent are review-only context",
+  "bounds_blender": [
+    [
+      -1.6825000047683716,
+      -2.440000057220459,
+      0.0
+    ],
+    [
+      1.6825000047683716,
+      1.6825000047683716,
+      2.8125
+    ]
+  ],
+  "verification_blender": "Blender 4.1.1 source reopen and GLB reimport passed: five valid meshes, 320 triangles, one UV/material per mesh, 192x8 embedded palette, matched bounds, grounded origin, no armature.",
+  "verification_godot": "Godot 4.7.2 isolated standard editor import and instantiation passed: five MeshInstance3D nodes, 320 triangles, one surface and embedded 192x8 palette on each; non-blocking local certificate-store and user-directory warnings."
+}
