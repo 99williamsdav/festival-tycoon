@@ -1,0 +1,266 @@
+{
+  "passed": true,
+  "mode": "escalate",
+  "roundTrip": true,
+  "latestAutosaveExact": true,
+  "ticks": 7200,
+  "wallSeconds": 90.5333543,
+  "attainedSpeed": 0.9941087535734883,
+  "people": 43,
+  "samples": 5380,
+  "frameP50": 16.6769,
+  "frameP95": 17.3701,
+  "frameP99": 18.2846,
+  "frameMax": 260.8608,
+  "peakMemoryBytes": 334200832,
+  "equipment": {
+    "Version": 1,
+    "XMillimetres": -5750,
+    "ZMillimetres": 15250,
+    "LoadPercent": 120,
+    "Condition": 3000,
+    "Stage": 5,
+    "WarningTick": 2400,
+    "WarningAcknowledged": false,
+    "Response": "No response",
+    "WorkerId": 45,
+    "JobStage": 0,
+    "JobDispatchedTick": -1,
+    "RepairStartedTick": -1,
+    "Evidence": [
+      {
+        "Id": "equipment:load",
+        "Tick": 0,
+        "Description": "Stage sound and lights demand 120% of safe capacity; condition 80%. Free load shedding and emergency cutoff available; maintenance contract offered before opening."
+      },
+      {
+        "Id": "equipment:warning",
+        "Tick": 2400,
+        "Description": "GENERATOR OVERLOAD: 120% load, condition 70%. Shed load, isolate or complete maintenance. Dangerous fault in 45 seconds; lethal eligibility no sooner than 60 seconds at 1\u00D7."
+      },
+      {
+        "Id": "equipment:fault",
+        "Tick": 6000,
+        "Description": "Dangerous generator fault: 120% load, condition 30%. Cutoff or shedding still prevents death. Unfinished maintenance is not protection."
+      },
+      {
+        "Id": "equipment:death",
+        "Tick": 7200,
+        "Description": "Generator overload killed Guest 01 (Guest) at (-2750,14250) near unit (-5750,15250); load 120%; condition 30%; warning tick 2400, acknowledged False; response: No response; job None."
+      }
+    ]
+  },
+  "lifecycle": {
+    "FixtureLabel": "R0.02 equipment lifecycle; hearing only, no Favour economy",
+    "CurrentTierId": "tier-2",
+    "FixtureTierOrdinal": 2,
+    "CurrentAttemptId": 1,
+    "FixtureFavourBalance": 0,
+    "ProtectedPeople": [
+      {
+        "PersonId": "Alex Reed",
+        "Role": 3
+      },
+      {
+        "PersonId": "Casey Vale",
+        "Role": 2
+      },
+      {
+        "PersonId": "Guest 01",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 02",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 03",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 04",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 05",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 06",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 07",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 08",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 09",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 10",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 11",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 12",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 13",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 14",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 15",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 16",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 17",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 18",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 19",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 20",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 21",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 22",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 23",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 24",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 25",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 26",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 27",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 28",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 29",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 30",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 31",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 32",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 33",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 34",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 35",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 36",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 37",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 38",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 39",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 40",
+        "Role": 1
+      },
+      {
+        "PersonId": "Morgan Finch",
+        "Role": 2
+      }
+    ],
+    "Attempts": [
+      {
+        "AttemptId": 1,
+        "TierId": "tier-2",
+        "Status": 2,
+        "OutcomeTransactionId": "equipment-death:20260922:1"
+      }
+    ],
+    "Casualties": [
+      {
+        "CasualtyId": 1,
+        "AttemptId": 1,
+        "PersonId": "Guest 01",
+        "Role": 1,
+        "Cause": "Generator overload killed Guest 01 (Guest) at (-2750,14250) near unit (-5750,15250); load 120%; condition 30%; warning tick 2400, acknowledged False; response: No response; job None.",
+        "Tick": 7200,
+        "TransactionId": "equipment-death:20260922:1"
+      }
+    ],
+    "Hearings": [
+      {
+        "HearingId": 1,
+        "AttemptId": 1,
+        "Status": 1,
+        "CreatedTransactionId": "equipment-hearing:20260922:1",
+        "ResolutionTransactionId": null
+      }
+    ],
+    "CompletedOutcomeTransactionIds": [
+      "equipment-death:20260922:1",
+      "equipment-hearing:20260922:1"
+    ]
+  }
+}

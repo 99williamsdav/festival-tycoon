@@ -1,0 +1,2623 @@
+{
+  "passed": false,
+  "screenshotsEnabled": false,
+  "ordinaryAutosavesEnabled": true,
+  "durationSeconds": 60.0578038,
+  "ticks": 2829,
+  "attainedSpeed": 0.5888077445815626,
+  "people": 43,
+  "frameCount": 512,
+  "focusedFrames": 512,
+  "unfocusedFrames": 0,
+  "p50": 6.2531,
+  "p95": 263.8109,
+  "p99": 265.7028,
+  "max": 350.9707,
+  "over33Ms": 232,
+  "over100Ms": 231,
+  "maintenanceCompleted": false,
+  "saveBlocked": false,
+  "peakWorkingSetBytes": 327786496,
+  "engineVersion": "4.7.2-stable (official)",
+  "renderer": "Compatibility/OpenGL",
+  "size": "(1280, 720)",
+  "equipment": {
+    "Version": 1,
+    "XMillimetres": -5750,
+    "ZMillimetres": 15250,
+    "LoadPercent": 120,
+    "Condition": 7000,
+    "Stage": 1,
+    "WarningTick": 2400,
+    "WarningAcknowledged": false,
+    "Response": "Maintenance dispatched; travel and 20-second repair must finish before escalation",
+    "WorkerId": 45,
+    "JobStage": 2,
+    "JobDispatchedTick": 2403,
+    "RepairStartedTick": 2630,
+    "Evidence": [
+      {
+        "Id": "equipment:load",
+        "Tick": 0,
+        "Description": "Stage sound and lights demand 120% of safe capacity; condition 80%. Free load shedding and emergency cutoff available; maintenance contract offered before opening."
+      },
+      {
+        "Id": "equipment:warning",
+        "Tick": 2400,
+        "Description": "GENERATOR OVERLOAD: 120% load, condition 70%. Shed load, isolate or complete maintenance. Dangerous fault in 45 seconds; lethal eligibility no sooner than 60 seconds at 1\u00D7."
+      },
+      {
+        "Id": "equipment:dispatch",
+        "Tick": 2403,
+        "Description": "Maintenance dispatched; travel and 20-second repair must finish before escalation"
+      },
+      {
+        "Id": "equipment:repair-start",
+        "Tick": 2630,
+        "Description": "Morgan arrived at the breaker panel; 20 real seconds of repair work required at 1\u00D7."
+      }
+    ]
+  },
+  "frames": [
+    {
+      "Milliseconds": 269.191,
+      "Tick": 11,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4291,
+      "Tick": 14,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 0.9743,
+      "Tick": 14,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 232.1652,
+      "Tick": 26,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6938,
+      "Tick": 27,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.0437,
+      "Tick": 39,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6114,
+      "Tick": 40,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 260.2541,
+      "Tick": 52,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7644,
+      "Tick": 53,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.1175,
+      "Tick": 53,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.4182,
+      "Tick": 64,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.4966,
+      "Tick": 65,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 253.6629,
+      "Tick": 76,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7351,
+      "Tick": 78,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 259.5185,
+      "Tick": 89,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 4.5819,
+      "Tick": 90,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 0.9745,
+      "Tick": 90,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.257,
+      "Tick": 101,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 254.1041,
+      "Tick": 112,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 260.0857,
+      "Tick": 122,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6196,
+      "Tick": 123,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.0203,
+      "Tick": 123,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 247.916,
+      "Tick": 134,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 265.7028,
+      "Tick": 146,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.0683,
+      "Tick": 156,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5665,
+      "Tick": 157,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.1287,
+      "Tick": 158,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.0783,
+      "Tick": 170,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5866,
+      "Tick": 170,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 249.5708,
+      "Tick": 182,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2776,
+      "Tick": 182,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.1493,
+      "Tick": 183,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.892,
+      "Tick": 195,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5659,
+      "Tick": 196,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 247.9755,
+      "Tick": 207,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5412,
+      "Tick": 208,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 0.9713,
+      "Tick": 208,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.1743,
+      "Tick": 220,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5475,
+      "Tick": 221,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 259.4272,
+      "Tick": 232,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.4146,
+      "Tick": 232,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0558,
+      "Tick": 233,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.1418,
+      "Tick": 244,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.01,
+      "Tick": 255,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.3236,
+      "Tick": 266,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3182,
+      "Tick": 267,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.0492,
+      "Tick": 267,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 243.0368,
+      "Tick": 279,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6567,
+      "Tick": 280,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 260.5001,
+      "Tick": 292,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5201,
+      "Tick": 293,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.4937,
+      "Tick": 294,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 254.6304,
+      "Tick": 305,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7874,
+      "Tick": 306,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.5069,
+      "Tick": 317,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5326,
+      "Tick": 318,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 260.8024,
+      "Tick": 330,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5498,
+      "Tick": 331,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1593,
+      "Tick": 331,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 258.56,
+      "Tick": 343,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3517,
+      "Tick": 344,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.1507,
+      "Tick": 356,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0873,
+      "Tick": 358,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.7292,
+      "Tick": 358,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.2702,
+      "Tick": 370,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.3924,
+      "Tick": 370,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.3888,
+      "Tick": 382,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.3876,
+      "Tick": 382,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 8.543,
+      "Tick": 383,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 254.0611,
+      "Tick": 395,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.3987,
+      "Tick": 395,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 248.689,
+      "Tick": 407,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.4425,
+      "Tick": 407,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.5007,
+      "Tick": 408,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 241.9995,
+      "Tick": 420,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2597,
+      "Tick": 421,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.6296,
+      "Tick": 432,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.3721,
+      "Tick": 432,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.7794,
+      "Tick": 433,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.4089,
+      "Tick": 444,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 266.1706,
+      "Tick": 455,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 252.3396,
+      "Tick": 465,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.526,
+      "Tick": 466,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.4458,
+      "Tick": 467,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.2896,
+      "Tick": 479,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.4391,
+      "Tick": 479,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.5734,
+      "Tick": 490,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5263,
+      "Tick": 491,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.9994,
+      "Tick": 491,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.9702,
+      "Tick": 502,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0923,
+      "Tick": 503,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.3377,
+      "Tick": 514,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5511,
+      "Tick": 515,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.2959,
+      "Tick": 515,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 245.4513,
+      "Tick": 526,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5542,
+      "Tick": 527,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.2438,
+      "Tick": 539,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.4612,
+      "Tick": 540,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.5939,
+      "Tick": 540,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 243.5294,
+      "Tick": 552,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5705,
+      "Tick": 552,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.2984,
+      "Tick": 564,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6198,
+      "Tick": 566,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.2531,
+      "Tick": 566,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.3546,
+      "Tick": 578,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0261,
+      "Tick": 578,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 259.4431,
+      "Tick": 590,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5223,
+      "Tick": 590,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.408,
+      "Tick": 591,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 258.1953,
+      "Tick": 603,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.9737,
+      "Tick": 613,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 251.126,
+      "Tick": 624,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6582,
+      "Tick": 624,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.535,
+      "Tick": 625,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.0832,
+      "Tick": 636,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6431,
+      "Tick": 636,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.312,
+      "Tick": 637,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.4846,
+      "Tick": 648,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5673,
+      "Tick": 648,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.5636,
+      "Tick": 660,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.8208,
+      "Tick": 662,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.0563,
+      "Tick": 662,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.7101,
+      "Tick": 674,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6383,
+      "Tick": 674,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.0439,
+      "Tick": 686,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.8643,
+      "Tick": 686,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.9527,
+      "Tick": 698,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2971,
+      "Tick": 698,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.4399,
+      "Tick": 710,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1744,
+      "Tick": 710,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.2364,
+      "Tick": 721,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4988,
+      "Tick": 722,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 248.5924,
+      "Tick": 734,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3515,
+      "Tick": 734,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.6313,
+      "Tick": 735,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.4428,
+      "Tick": 747,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4946,
+      "Tick": 747,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0614,
+      "Tick": 748,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 241.3742,
+      "Tick": 759,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3443,
+      "Tick": 759,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 259.3337,
+      "Tick": 770,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9887,
+      "Tick": 771,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1486,
+      "Tick": 771,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.9111,
+      "Tick": 783,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3469,
+      "Tick": 784,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 248.9608,
+      "Tick": 796,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.784,
+      "Tick": 798,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.9069,
+      "Tick": 798,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.2892,
+      "Tick": 809,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4399,
+      "Tick": 810,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.0672,
+      "Tick": 822,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.4689,
+      "Tick": 823,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.791,
+      "Tick": 823,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.3031,
+      "Tick": 835,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 250.8959,
+      "Tick": 846,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.6161,
+      "Tick": 856,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0172,
+      "Tick": 857,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1459,
+      "Tick": 858,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 243.5328,
+      "Tick": 870,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 249.9869,
+      "Tick": 880,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 250.9693,
+      "Tick": 891,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.9659,
+      "Tick": 892,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0502,
+      "Tick": 892,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 241.5762,
+      "Tick": 904,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 260.9334,
+      "Tick": 915,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 266.2218,
+      "Tick": 925,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3872,
+      "Tick": 926,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.6155,
+      "Tick": 926,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 251.655,
+      "Tick": 937,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7698,
+      "Tick": 938,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 250.1038,
+      "Tick": 949,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9734,
+      "Tick": 950,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0747,
+      "Tick": 950,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.7707,
+      "Tick": 962,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2357,
+      "Tick": 963,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.7657,
+      "Tick": 975,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1518,
+      "Tick": 976,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 248.1027,
+      "Tick": 988,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9074,
+      "Tick": 990,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.0172,
+      "Tick": 1002,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 3.0439,
+      "Tick": 1003,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.8213,
+      "Tick": 1015,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1559,
+      "Tick": 1016,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.1266,
+      "Tick": 1027,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1273,
+      "Tick": 1027,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.8086,
+      "Tick": 1028,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.6402,
+      "Tick": 1040,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9428,
+      "Tick": 1041,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.2794,
+      "Tick": 1052,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9949,
+      "Tick": 1053,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1718,
+      "Tick": 1054,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.3132,
+      "Tick": 1066,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.6456,
+      "Tick": 1066,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 248.9776,
+      "Tick": 1078,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.336,
+      "Tick": 1078,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 7.0279,
+      "Tick": 1079,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 254.5601,
+      "Tick": 1091,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.4887,
+      "Tick": 1091,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.9393,
+      "Tick": 1103,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5457,
+      "Tick": 1103,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.4746,
+      "Tick": 1103,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 243.9589,
+      "Tick": 1115,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 253.3621,
+      "Tick": 1126,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 265.1023,
+      "Tick": 1136,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.021,
+      "Tick": 1136,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.857,
+      "Tick": 1137,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.9313,
+      "Tick": 1148,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9998,
+      "Tick": 1148,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 249.4457,
+      "Tick": 1160,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0932,
+      "Tick": 1160,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.9039,
+      "Tick": 1161,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 254.5803,
+      "Tick": 1172,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3695,
+      "Tick": 1172,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.3237,
+      "Tick": 1184,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.8167,
+      "Tick": 1184,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.8109,
+      "Tick": 1196,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4092,
+      "Tick": 1198,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.9929,
+      "Tick": 1198,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.3432,
+      "Tick": 1210,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.4964,
+      "Tick": 1220,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 251.2298,
+      "Tick": 1230,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9776,
+      "Tick": 1231,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.9172,
+      "Tick": 1231,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 253.1937,
+      "Tick": 1243,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2079,
+      "Tick": 1243,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 250.0836,
+      "Tick": 1255,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6564,
+      "Tick": 1255,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.8364,
+      "Tick": 1256,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 240.5444,
+      "Tick": 1268,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9606,
+      "Tick": 1269,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.1676,
+      "Tick": 1280,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7514,
+      "Tick": 1281,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.3157,
+      "Tick": 1282,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.0367,
+      "Tick": 1293,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0986,
+      "Tick": 1294,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.5904,
+      "Tick": 1305,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2743,
+      "Tick": 1306,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.9006,
+      "Tick": 1306,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.1122,
+      "Tick": 1317,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.3805,
+      "Tick": 1328,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 251.6968,
+      "Tick": 1339,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7507,
+      "Tick": 1339,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.7571,
+      "Tick": 1339,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.0272,
+      "Tick": 1350,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 251.3971,
+      "Tick": 1361,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.2104,
+      "Tick": 1372,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9741,
+      "Tick": 1372,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1204,
+      "Tick": 1372,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 254.4965,
+      "Tick": 1384,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.8513,
+      "Tick": 1385,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.2364,
+      "Tick": 1396,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4642,
+      "Tick": 1397,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.84,
+      "Tick": 1398,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.7891,
+      "Tick": 1410,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1498,
+      "Tick": 1410,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 249.6758,
+      "Tick": 1422,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6333,
+      "Tick": 1422,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.3156,
+      "Tick": 1423,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.7855,
+      "Tick": 1435,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4662,
+      "Tick": 1435,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.3719,
+      "Tick": 1447,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9438,
+      "Tick": 1447,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.903,
+      "Tick": 1448,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.9785,
+      "Tick": 1460,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.9118,
+      "Tick": 1461,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.2002,
+      "Tick": 1472,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 3.0537,
+      "Tick": 1472,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.29,
+      "Tick": 1473,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 254.622,
+      "Tick": 1484,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.8827,
+      "Tick": 1494,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.1993,
+      "Tick": 1506,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.636,
+      "Tick": 1506,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.9405,
+      "Tick": 1507,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 252.5356,
+      "Tick": 1519,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.5522,
+      "Tick": 1519,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.4216,
+      "Tick": 1531,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0274,
+      "Tick": 1531,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.6843,
+      "Tick": 1531,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 241.7745,
+      "Tick": 1543,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7379,
+      "Tick": 1543,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.1484,
+      "Tick": 1554,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7458,
+      "Tick": 1555,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.0443,
+      "Tick": 1567,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2382,
+      "Tick": 1568,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0677,
+      "Tick": 1568,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 244.1744,
+      "Tick": 1580,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.979,
+      "Tick": 1582,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 260.477,
+      "Tick": 1594,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1225,
+      "Tick": 1594,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.4182,
+      "Tick": 1595,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.017,
+      "Tick": 1607,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6096,
+      "Tick": 1607,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.7082,
+      "Tick": 1619,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2412,
+      "Tick": 1619,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1412,
+      "Tick": 1620,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.5711,
+      "Tick": 1631,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9776,
+      "Tick": 1631,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 260.9725,
+      "Tick": 1642,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.8486,
+      "Tick": 1643,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.1611,
+      "Tick": 1654,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.5029,
+      "Tick": 1655,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.0263,
+      "Tick": 1655,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 243.1209,
+      "Tick": 1666,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4869,
+      "Tick": 1667,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.095,
+      "Tick": 1679,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2329,
+      "Tick": 1680,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0342,
+      "Tick": 1680,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 243.1035,
+      "Tick": 1692,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2597,
+      "Tick": 1692,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 248.9741,
+      "Tick": 1704,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0925,
+      "Tick": 1704,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.6353,
+      "Tick": 1705,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.3072,
+      "Tick": 1716,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.29,
+      "Tick": 1718,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 248.2586,
+      "Tick": 1729,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.7831,
+      "Tick": 1730,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.3918,
+      "Tick": 1730,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.8469,
+      "Tick": 1742,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0158,
+      "Tick": 1743,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 249.3988,
+      "Tick": 1755,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2301,
+      "Tick": 1756,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.016,
+      "Tick": 1756,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.068,
+      "Tick": 1768,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4695,
+      "Tick": 1770,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.7896,
+      "Tick": 1782,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.6677,
+      "Tick": 1782,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.3307,
+      "Tick": 1783,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.3591,
+      "Tick": 1795,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2,
+      "Tick": 1795,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 259.6956,
+      "Tick": 1807,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2499,
+      "Tick": 1807,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.5985,
+      "Tick": 1818,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3937,
+      "Tick": 1819,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0562,
+      "Tick": 1819,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 254.5738,
+      "Tick": 1831,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5882,
+      "Tick": 1832,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 249.441,
+      "Tick": 1844,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4972,
+      "Tick": 1846,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0153,
+      "Tick": 1846,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.3165,
+      "Tick": 1857,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.8091,
+      "Tick": 1858,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.424,
+      "Tick": 1870,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9792,
+      "Tick": 1871,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.2813,
+      "Tick": 1871,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 252.1798,
+      "Tick": 1883,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2435,
+      "Tick": 1883,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.8451,
+      "Tick": 1895,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.978,
+      "Tick": 1895,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 248.6879,
+      "Tick": 1907,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 3.155,
+      "Tick": 1907,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.7747,
+      "Tick": 1908,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.2758,
+      "Tick": 1920,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3239,
+      "Tick": 1920,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 247.7107,
+      "Tick": 1932,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0336,
+      "Tick": 1932,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1855,
+      "Tick": 1933,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 252.8265,
+      "Tick": 1944,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2512,
+      "Tick": 1946,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.6831,
+      "Tick": 1958,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.8755,
+      "Tick": 1958,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.7922,
+      "Tick": 1959,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.9172,
+      "Tick": 1971,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.7122,
+      "Tick": 1982,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 250.303,
+      "Tick": 1991,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1102,
+      "Tick": 1991,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.2424,
+      "Tick": 1992,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 254.3973,
+      "Tick": 2003,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.8422,
+      "Tick": 2003,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.7226,
+      "Tick": 2015,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.8316,
+      "Tick": 2015,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.6318,
+      "Tick": 2015,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.4838,
+      "Tick": 2026,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.5827,
+      "Tick": 2027,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 247.4723,
+      "Tick": 2038,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.095,
+      "Tick": 2039,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.8255,
+      "Tick": 2039,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 241.0171,
+      "Tick": 2050,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7334,
+      "Tick": 2051,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 248.5943,
+      "Tick": 2062,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7112,
+      "Tick": 2063,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.9932,
+      "Tick": 2063,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.9061,
+      "Tick": 2075,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3113,
+      "Tick": 2076,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.8069,
+      "Tick": 2088,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.143,
+      "Tick": 2090,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.0052,
+      "Tick": 2102,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7679,
+      "Tick": 2102,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 249.7789,
+      "Tick": 2114,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0221,
+      "Tick": 2114,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0834,
+      "Tick": 2115,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.0009,
+      "Tick": 2127,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 249.0696,
+      "Tick": 2138,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 252.4604,
+      "Tick": 2148,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.5751,
+      "Tick": 2149,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.3384,
+      "Tick": 2150,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 243.0554,
+      "Tick": 2162,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3929,
+      "Tick": 2162,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.8376,
+      "Tick": 2174,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2774,
+      "Tick": 2174,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1662,
+      "Tick": 2175,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.203,
+      "Tick": 2187,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.8916,
+      "Tick": 2187,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 250.5685,
+      "Tick": 2199,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2818,
+      "Tick": 2199,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0071,
+      "Tick": 2200,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 253.2718,
+      "Tick": 2212,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.3653,
+      "Tick": 2212,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.3172,
+      "Tick": 2224,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.772,
+      "Tick": 2224,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.4073,
+      "Tick": 2225,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.2946,
+      "Tick": 2236,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.912,
+      "Tick": 2247,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7624,
+      "Tick": 2248,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1506,
+      "Tick": 2248,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.1894,
+      "Tick": 2260,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 251.2278,
+      "Tick": 2271,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.4788,
+      "Tick": 2282,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9507,
+      "Tick": 2282,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1874,
+      "Tick": 2283,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.7926,
+      "Tick": 2295,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.6283,
+      "Tick": 2295,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 259.5653,
+      "Tick": 2307,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.6163,
+      "Tick": 2307,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.9084,
+      "Tick": 2308,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.1063,
+      "Tick": 2320,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.6172,
+      "Tick": 2321,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.6835,
+      "Tick": 2332,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.959,
+      "Tick": 2333,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.2557,
+      "Tick": 2334,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.4152,
+      "Tick": 2345,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0835,
+      "Tick": 2346,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.0552,
+      "Tick": 2357,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7983,
+      "Tick": 2358,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1944,
+      "Tick": 2358,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 243.2923,
+      "Tick": 2369,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 252.816,
+      "Tick": 2380,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 249.3076,
+      "Tick": 2391,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.465,
+      "Tick": 2391,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0606,
+      "Tick": 2392,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 319.0045,
+      "Tick": 2403,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 63.4818,
+      "Tick": 2413,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 136.131,
+      "Tick": 2424,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1873,
+      "Tick": 2424,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.4966,
+      "Tick": 2424,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.1731,
+      "Tick": 2436,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.0264,
+      "Tick": 2447,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.2077,
+      "Tick": 2458,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7467,
+      "Tick": 2458,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.4397,
+      "Tick": 2459,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.413,
+      "Tick": 2471,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.8803,
+      "Tick": 2471,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 259.9726,
+      "Tick": 2483,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4052,
+      "Tick": 2483,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.8726,
+      "Tick": 2483,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.2273,
+      "Tick": 2495,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.4814,
+      "Tick": 2506,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.5517,
+      "Tick": 2516,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9915,
+      "Tick": 2517,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.641,
+      "Tick": 2518,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.673,
+      "Tick": 2530,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1734,
+      "Tick": 2530,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 263.2785,
+      "Tick": 2542,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3147,
+      "Tick": 2542,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.0997,
+      "Tick": 2543,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 252.2554,
+      "Tick": 2555,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1068,
+      "Tick": 2555,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.5556,
+      "Tick": 2566,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7053,
+      "Tick": 2567,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 258.227,
+      "Tick": 2579,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3827,
+      "Tick": 2580,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.4409,
+      "Tick": 2580,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 255.5524,
+      "Tick": 2592,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0962,
+      "Tick": 2593,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 259.8496,
+      "Tick": 2604,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.4309,
+      "Tick": 2604,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 257.6589,
+      "Tick": 2616,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2153,
+      "Tick": 2618,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 350.9707,
+      "Tick": 2630,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.687,
+      "Tick": 2638,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.1599,
+      "Tick": 2638,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 161.3712,
+      "Tick": 2649,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9286,
+      "Tick": 2650,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 258.1556,
+      "Tick": 2662,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.7443,
+      "Tick": 2662,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 6.2481,
+      "Tick": 2663,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 252.0256,
+      "Tick": 2675,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 1.9708,
+      "Tick": 2675,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.2534,
+      "Tick": 2687,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 3.0533,
+      "Tick": 2687,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 259.7449,
+      "Tick": 2698,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.486,
+      "Tick": 2699,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 262.7808,
+      "Tick": 2710,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3189,
+      "Tick": 2711,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.9338,
+      "Tick": 2711,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 252.1188,
+      "Tick": 2723,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3757,
+      "Tick": 2723,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 250.9497,
+      "Tick": 2735,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.2027,
+      "Tick": 2736,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.534,
+      "Tick": 2736,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 256.7082,
+      "Tick": 2748,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.0901,
+      "Tick": 2749,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 261.0551,
+      "Tick": 2760,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.1695,
+      "Tick": 2761,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.5345,
+      "Tick": 2762,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 243.0908,
+      "Tick": 2774,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 251.3129,
+      "Tick": 2784,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.4489,
+      "Tick": 2795,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 2.3616,
+      "Tick": 2795,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 5.3661,
+      "Tick": 2796,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 242.9866,
+      "Tick": 2808,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 265.1299,
+      "Tick": 2819,
+      "Focused": true
+    },
+    {
+      "Milliseconds": 264.1522,
+      "Tick": 2829,
+      "Focused": true
+    }
+  ]
+}

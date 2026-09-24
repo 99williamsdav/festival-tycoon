@@ -1,0 +1,17 @@
+passed=True
+tier=2
+people=42
+admitted=42
+departed=42
+newestAutosaveExact=True
+ticks=39068
+liveWallSeconds=533.224
+scriptedAttemptWallSeconds=534.259
+attainedSpeed=0.915843
+frameMs=n=26423;mean=20.103;p50=16.681;p95=17.340;p99=255.178;max=355.899
+movingFrameMs=n=618;mean=37.939;p50=16.698;p95=259.658;p99=264.221;max=269.251
+workMs=n=26443;mean=0.245;p50=0.141;p95=0.681;p99=1.953;max=102.335
+peakWorkingSetBytes=323010560
+status=Finished
+message=Finished boundary autosaved.
+Scripted preparation; no human decision or pause time included. One bounded 1x run, not a general capacity claim.

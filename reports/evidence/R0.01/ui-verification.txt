@@ -1,0 +1,7 @@
+passed=True
+restoreExact=True
+people=22
+tick=127
+meanFrameMs=16.681
+maxFrameMs=21.042
+Measurement: short runtime smoke only; not a capacity or complete-attempt pacing claim.

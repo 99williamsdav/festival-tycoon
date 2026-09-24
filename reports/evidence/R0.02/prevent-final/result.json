@@ -1,0 +1,250 @@
+{
+  "passed": true,
+  "mode": "prevent",
+  "roundTrip": true,
+  "latestAutosaveExact": false,
+  "ticks": 4262,
+  "wallSeconds": 92.2238046,
+  "attainedSpeed": 0.5776708110348334,
+  "people": 43,
+  "samples": 766,
+  "frameP50": 6.2035,
+  "frameP95": 264.0958,
+  "frameP99": 266.2405,
+  "frameMax": 360.5548,
+  "peakMemoryBytes": 335798272,
+  "equipment": {
+    "Version": 1,
+    "XMillimetres": -5750,
+    "ZMillimetres": 15250,
+    "LoadPercent": 80,
+    "Condition": 9500,
+    "Stage": 3,
+    "WarningTick": 2400,
+    "WarningAcknowledged": false,
+    "Response": "Physical repair completed and load balanced to 80%",
+    "WorkerId": 45,
+    "JobStage": 3,
+    "JobDispatchedTick": 2417,
+    "RepairStartedTick": 2644,
+    "Evidence": [
+      {
+        "Id": "equipment:load",
+        "Tick": 0,
+        "Description": "Stage sound and lights demand 120% of safe capacity; condition 80%. Free load shedding and emergency cutoff available; maintenance contract offered before opening."
+      },
+      {
+        "Id": "equipment:warning",
+        "Tick": 2400,
+        "Description": "GENERATOR OVERLOAD: 120% load, condition 70%. Shed load, isolate or complete maintenance. Dangerous fault in 45 seconds; lethal eligibility no sooner than 60 seconds at 1\u00D7."
+      },
+      {
+        "Id": "equipment:dispatch",
+        "Tick": 2417,
+        "Description": "Maintenance dispatched; travel and 20-second repair must finish before escalation"
+      },
+      {
+        "Id": "equipment:repair-start",
+        "Tick": 2644,
+        "Description": "Morgan arrived at the breaker panel; 20 real seconds of repair work required at 1\u00D7."
+      },
+      {
+        "Id": "equipment:repair-complete",
+        "Tick": 4244,
+        "Description": "Physical repair completed and load balanced to 80%"
+      }
+    ]
+  },
+  "lifecycle": {
+    "FixtureLabel": "R0.02 equipment lifecycle; hearing only, no Favour economy",
+    "CurrentTierId": "tier-2",
+    "FixtureTierOrdinal": 2,
+    "CurrentAttemptId": 1,
+    "FixtureFavourBalance": 0,
+    "ProtectedPeople": [
+      {
+        "PersonId": "Alex Reed",
+        "Role": 3
+      },
+      {
+        "PersonId": "Casey Vale",
+        "Role": 2
+      },
+      {
+        "PersonId": "Guest 01",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 02",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 03",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 04",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 05",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 06",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 07",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 08",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 09",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 10",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 11",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 12",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 13",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 14",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 15",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 16",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 17",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 18",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 19",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 20",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 21",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 22",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 23",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 24",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 25",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 26",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 27",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 28",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 29",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 30",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 31",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 32",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 33",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 34",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 35",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 36",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 37",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 38",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 39",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 40",
+        "Role": 1
+      },
+      {
+        "PersonId": "Morgan Finch",
+        "Role": 2
+      }
+    ],
+    "Attempts": [
+      {
+        "AttemptId": 1,
+        "TierId": "tier-2",
+        "Status": 1,
+        "OutcomeTransactionId": null
+      }
+    ],
+    "Casualties": [],
+    "Hearings": [],
+    "CompletedOutcomeTransactionIds": []
+  }
+}

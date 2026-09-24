@@ -1,8 +1,8 @@
 # R0 — survival-campaign prototype
 
-Status: **R0.00 accepted; later gameplay briefs Not started.** [ROGUELIKE_DESIGN.md](../../ROGUELIKE_DESIGN.md) is the active product authority. Do not implement a brief until the user approves every **PROPOSED** choice it owns.
+Status: **R0.00–R0.02 accepted within their stated bounds. R0.02a is implemented but verification remains pending; its intermittent frame-pacing risk remains open while we finish the playable show review. Later incident briefs are not started.** [ROGUELIKE_DESIGN.md](../../ROGUELIKE_DESIGN.md) is the active product authority. Do not implement a brief until the user approves every **PROPOSED** choice it owns.
 
-Scale gate: R0.00 and the [S0.00 — population architecture diagnostic](S0.00-scale-diagnostic.md) are accepted. Representative 200 completed functionally but missed arrival mean/tail targets; congested 200 timed out after valid timed windows. [S0.01 — crowd architecture spike](S0.01-crowd-architecture-spike.md) and [S0.02 — contention ownership spike](S0.02-contention-ownership-spike.md) stopped after faster or ownership-based movement trials failed bounded completion; their authoritative source changes were reverted. A new movement architecture decision is needed, and 200 rendered support is not established. R0.01 remains paused. The approved early-tier weekend playtest target is about 10 real minutes including ordinary preparation and pauses; exact day lengths remain tunable.
+Scale gate: R0.00 and the [S0.00 — population architecture diagnostic](S0.00-scale-diagnostic.md) are accepted. Representative 200 completed functionally but missed arrival mean/tail targets; congested 200 timed out after valid timed windows. [S0.01 — crowd architecture spike](S0.01-crowd-architecture-spike.md) and [S0.02 — contention ownership spike](S0.02-contention-ownership-spike.md) stopped after faster or ownership-based movement trials failed bounded completion; their authoritative source changes were reverted. S0.06/S0.07 isolated traffic-kernel proofs are stopped and P3 is parked, not accepted. R0.01 uses existing small-crowd production movement within 50 active people. S0.08's full exported 42-person run attained 0.999× speed but recorded a rare unexplained 604 ms hitch and save pauses; strict stable 60 FPS and 200 rendered support are not established. The user accepted these hitches provisionally on 23 September 2026 to continue to R0.02, not as a fix or capacity claim. The approved early-tier weekend playtest target is about 10 real minutes including ordinary preparation and pauses; exact day lengths remain tunable and human pacing is unverified.
 
 R0 proves the smallest persistent failure/retry/success campaign using the existing farm, deterministic simulation and 50-person maximum. It does not promise fun at R0.00 and does not recreate the old first-playable roadmap.
 
@@ -11,7 +11,8 @@ R0 proves the smallest persistent failure/retry/success campaign using the exist
 | 1 | [R0.00](R0.00-lifecycle-kernel.md) | Fixture death → hearing → spend/retry → fixture safe outcome/advance | Existing M0/M1.01 foundations | exact terminal/settlement transaction and save semantics |
 | 2 | [R0.01](R0.01-preparation-persistence.md) | Persistent farm, meaningful offers, fixed roster, music expectations and guaranteed counters | R0.00 | tier counts/time, owned/rented/contact and failed-carryover rules |
 | 3 | [R0.02](R0.02-equipment-chain.md) | Equipment warning can be prevented or become attributable death | R0.01 | exact equipment chain; asset/proxy approval |
-| 4 | [R0.03](R0.03-medical-chain.md) | Needs/exposure warning can be prevented or become attributable death | R0.02 | exact medical chain; asset/proxy approval |
+| 3a | [R0.02a](R0.02a-live-performance.md) | Booked band plays; autonomous audience gathers, listens and reacts | R0.02 | band/audio asset approval, measured 50-person-bound crowd route |
+| 4 | [R0.03](R0.03-medical-chain.md) | Needs/exposure warning can be prevented or become attributable death | R0.02a | exact medical chain; asset/proxy approval |
 | 5 | [R0.04](R0.04-disorder-chain.md) | Pressure/argument can be de-escalated or become attributable death | R0.03 | exact disorder chain; asset/proxy approval |
 | 6 | [R0.05](R0.05-hearing-retry.md) | Failure → hearing → Favour spend → viable same-tier retry | R0.04 | retry floor, first/community Favour, safe-closure cost |
 | 7 | [R0.06](R0.06-success-tier-gate.md) | Safe Tier 1 → reward → fixed Tier 2; final integrated gate | R0.05 | reward floor, quality, scoring, victory/endless boundary |
@@ -35,11 +36,11 @@ R0 proves the smallest persistent failure/retry/success campaign using the exist
 | M1.00 shared-world feasibility | **Retained evidence/foundation.** Its strict-60-FPS failure and **Unverified** OS input latency remain visible. |
 | M1.01 campaign weeks/finance | **Reworked.** Reuse identity, farm, finance, planning and save code; the eight-week annual product loop is not the new campaign authority. |
 | M1.02 offers/demand/tickets | **Reworked** into bounded seed-stable offers and fixed mandatory tier rosters; no voluntary attendance sizing. |
-| M1.03 programme/stage | **Reworked** in R0.01 into small meaningful act choices whose music fit affects satisfaction/risk; spatial listening and audio sophistication are deferred. No independent lineup promise victory gate. |
+| M1.03 programme/stage | **Reworked** in R0.01 into small meaningful act choices; R0.02a is planned to add one fixed live set, spatial listening and basic positional audio. Full timetable and lineup systems remain deferred. |
 | M1.04 placement/egress | **Retained later** where incident routes/closures need it; no broad construction slice in R0. |
 | M1.05 services/vendors/stock | **Reworked** into persistent/rented counters and owned stock; broad vendor economy deferred. |
 | M1.06 attendees/admission/needs | **Reworked** into fixed roster arrivals/departures and survival/quality. |
-| M1.07 stage listening | **Partly reworked** in R0.01 as a minimal actual music-fit → satisfaction/risk effect. Spatial listening, missed-act pathing and audio sophistication are deferred. |
+| M1.07 stage listening | **Planned rework** in R0.02a as one autonomous audience and live-set slice. Full missed-act attribution, queue abandonment, multi-act scheduling and rich sound propagation remain deferred. |
 | M1.08 weather/ground | **Deferred** beyond R0 unless one approved incident explicitly owns a minimal condition. |
 | M1.09 staff/incidents | **Split/reworked** across R0.02–R0.04 with lethal causal fairness requirements. |
 | M1.10 lifecycle/debrief | **Replaced** by R0.00, R0.05 and R0.06. |
@@ -47,4 +48,4 @@ R0 proves the smallest persistent failure/retry/success campaign using the exist
 
 ## Next decision checklist
 
-Review the S0.00 measurements and architecture recommendation before resuming R0.01. R0.00's fixture outcome ordering is already accepted. The ten-minute early-tier playtest target is approved; exact day lengths, tier counts and carryover remain decisions for R0.01. Real Favour economy and rewards belong to R0.05/R0.06.
+R0.01 start decisions are recorded in its brief; keep P3 parked and do not infer a capacity claim from the 50-active-person prototype boundary. R0.00's fixture outcome ordering is already accepted. The ten-minute early-tier playtest target is approved; exact day lengths are tunable through playtesting. Real Favour economy and rewards belong to R0.05/R0.06.

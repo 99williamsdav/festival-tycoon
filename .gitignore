@@ -24,6 +24,9 @@ mono_crash.*.json
 .tools/
 artifacts/
 
+# Local Windows Performance Recorder traces are multi-gigabyte diagnostics.
+reports/evidence/**/*.etl
+
 # .NET generated output
 **/bin/
 **/obj/
