@@ -1,0 +1,50 @@
+{
+  "asset": "Free drinking-water refill point v1",
+  "purpose": "R0.03 first asset approval candidate, not a sales stall",
+  "parts_triangles": {
+    "LWF_FreeWater_Frame": 144,
+    "LWF_FreeWater_Reservoir": 108,
+    "LWF_FreeWater_TwinTaps": 296,
+    "LWF_FreeWater_Roof": 84,
+    "LWF_FreeWater_ApproachApron": 36
+  },
+  "triangles": 668,
+  "nodes": 5,
+  "palette_size": [
+    192,
+    8
+  ],
+  "units": "metres",
+  "origin": "ground-centred under stand",
+  "customer_direction": "Blender -Y / Godot +Z",
+  "fill_positions": 2,
+  "tap_centres_m": [
+    [
+      -0.5,
+      -0.31,
+      1.05
+    ],
+    [
+      0.5,
+      -0.31,
+      1.05
+    ]
+  ],
+  "visual_approach": "front apron to y=-1.60; two loose visual fill pads, no obstruction or queue reservation geometry",
+  "ownership": "simulation owns identity, free-water need/service, queue slots, routes and operational state; asset is presentation only",
+  "provenance": "original procedural/project-authored geometry and palette; service kiosk and attendee are review-only context; no downloaded assets",
+  "bounds_blender": [
+    [
+      -1.274999976158142,
+      -1.600000023841858,
+      0.0
+    ],
+    [
+      1.274999976158142,
+      0.75,
+      2.177500009536743
+    ]
+  ],
+  "verification_blender": "Blender 4.1.1 source reopen and GLB reimport passed: five meshes, 668 triangles, one UV/material per mesh, 192x8 embedded palette, matched bounds, grounded origin, no armature.",
+  "verification_godot": "Godot 4.7.2 isolated standard editor import and instantiation passed: five MeshInstance3D nodes, 668 triangles, one surface and embedded 192x8 palette on each; non-blocking local certificate-store and user-directory warnings."
+}
