@@ -1,0 +1,36 @@
+{
+  "asset": "Modular medic vest cue v1",
+  "purpose": "R0.03 third asset checkpoint, one medic visual cue",
+  "parts_triangles": {
+    "LWF_Medic_Vest": 96,
+    "LWF_Medic_WhiteCross": 48
+  },
+  "triangles": 144,
+  "nodes": 2,
+  "palette_size": [
+    96,
+    8
+  ],
+  "compatible_body": "approved generic attendee v1, unchanged; GLB contains vest and white crosses only",
+  "body_height_m": 1.75,
+  "origin": "shared feet-centred origin with attendee",
+  "forward_blender": "+Y",
+  "forward_godot": "-Z",
+  "ownership": "simulation owns stable person identity, route, dispatch and treatment; vest is presentation-only",
+  "rig_animation": "none; follows existing attendee presentation transform",
+  "provenance": "original procedural/project-authored accessory geometry and palette; approved attendee and first-aid tent are review-only context",
+  "bounds_blender": [
+    [
+      -0.25,
+      -0.2290000021457672,
+      0.8475000262260437
+    ],
+    [
+      0.25,
+      0.27399998903274536,
+      1.3819999694824219
+    ]
+  ],
+  "verification_blender": "Blender 4.1.1 source reopen and GLB reimport passed: two accessory-only meshes, 144 triangles, one UV/material per mesh, 96x8 embedded palette, matched bounds, no armature or animation; original attendee mesh excluded.",
+  "verification_godot": "Godot 4.7.2 isolated standard editor import and instantiation passed: approved attendee base has one mesh and overlay has two, 144 accessory triangles, embedded 96x8 palette and no skeleton. Non-blocking local certificate-store and user-directory warnings."
+}
