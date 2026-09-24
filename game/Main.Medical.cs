@@ -15,6 +15,7 @@ public partial class Main
     private string _medicalCaptureMode = "prevent";
     private int _medicalCaptureFrame;
     private Label3D? _medicalWorldAlert;
+    private Label3D? _waterServiceCue;
 
     private void BuildMedicalWorld()
     {
@@ -33,6 +34,11 @@ public partial class Main
             FontSize = 52, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
             Modulate = new Color("e8a34d") };
         AddChild(_medicalWorldAlert);
+        _waterServiceCue = new Label3D { Text = "TAP READY • ONE AT A TIME",
+            Position = At(GameSession.MedicalWaterCell) + new Vector3(0, 1.75f, 2.0f),
+            FontSize = 43, PixelSize = .008f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+            Modulate = new Color("fff5d8") };
+        AddChild(_waterServiceCue);
     }
 
     private void BuildMedicalControls(VBoxContainer box)
@@ -79,6 +85,10 @@ public partial class Main
         if (_medicalSummary is null || _session.CaptureMedical() is not { } m) return;
         var target = m.Needs.Single(item => item.AgentId == m.AtRiskGuestId);
         var selected = m.Needs.Single(item => item.AgentId == MedicalSelectedGuest());
+        var refill = m.WaterOwnerId is { } owner
+            ? $"Guest {Array.FindIndex(m.Needs, item => item.AgentId == owner) + 1:00} refilling " +
+              $"{(GameSession.MedicalWaterServiceTicks - m.WaterRemainingTicks) * 100 / GameSession.MedicalWaterServiceTicks}% • {m.WaterRemainingTicks / 80m:0.0}s left"
+            : "tap ready • one at a time";
         string Remaining(long dueTick) => $"{Math.Max(0, dueTick - _session.CurrentTick) / 80m:0.0}s";
         var clock = m.Stage switch
         {
@@ -93,8 +103,8 @@ public partial class Main
             : m.ResponseStage == MedicalResponseStage.Travelling ? "Medic travelling • treatment begins on arrival" : m.Response;
         _medicalSummary.Text = $"HOT • FREE WATER • FIRST AID\n" +
             $"Guest 20: {m.Stage} • thirst {target.Thirst / 100m:0}% • heat {target.HeatExposure / 100m:0}%\n" +
-            $"Water queue {m.WaterQueue.Length} • refill {GameSession.MedicalWaterServiceTicks / 80m:0}s • medic {m.ResponseStage}\n" +
-            $"Clock: {clock}\n{treatment}\n" +
+            $"Water queue {m.WaterQueue.Length} • {refill}\nMedic {m.ResponseStage} • Clock: {clock}\n" +
+            $"{treatment}\n" +
             $"Selected: {selected.Intent} • {selected.Reason}";
         foreach (var (action, button) in _medicalButtons)
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new MedicalCommand(selected.AgentId, action))) is not null;
@@ -107,6 +117,9 @@ public partial class Main
             MedicalStage.Treated or MedicalStage.Removed => "MEDICAL • SAFE",
             _ => "HOT"
         };
+        if (_waterServiceCue is not null) _waterServiceCue.Text = m.WaterOwnerId is null
+            ? "TAP READY • ONE AT A TIME"
+            : $"REFILLING {(GameSession.MedicalWaterServiceTicks - m.WaterRemainingTicks) * 100 / GameSession.MedicalWaterServiceTicks}%";
     }
 
     private void ProcessMedicalCapture()
@@ -120,18 +133,11 @@ public partial class Main
         {
             _session.AdvanceWithoutSnapshot(2_000);
             _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
-            _focus = new Vector3(1, 0, 15); _camera.Size = 35; ApplyCamera(); RefreshPreparationHud();
+            RefreshPreparationHud();
             GD.Print($"MEDICAL_CAPTURE warning={_session.CaptureMedical()?.Stage} queue={_session.CaptureMedical()?.WaterQueue.Length}");
         }
-        if (_medicalCaptureFrame == 10)
-        {
-            _orientation = 2; _focus = new Vector3(4, 0, 12); _camera.Size = 24; ApplyCamera();
-        }
         if (_medicalCaptureFrame == 12)
-        {
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "water-queue.png"));
-            _orientation = 0; _focus = new Vector3(1, 0, 15); _camera.Size = 35; ApplyCamera();
-        }
         if (_medicalCaptureFrame == 16)
         {
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "warning.png"));

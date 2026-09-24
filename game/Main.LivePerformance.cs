@@ -42,6 +42,7 @@ public partial class Main
         _crowdBoo?.Stop();
         _crowdCheer?.Stop();
         _bandEntryApplause?.Stop();
+        ResetIncidentAudioPresentation();
         _booFadeSeconds = 0;
         if (_liveSetCue is not null) _liveSetCue.Text = "STAGE • awaiting booking";
         if (_stageWorldCue is not null)
@@ -132,7 +133,10 @@ public partial class Main
             $"POSITION  {navigation.XMillimetres / 1000.0:0.00} m, {navigation.ZMillimetres / 1000.0:0.00} m\n" +
             $"Admitted {person.Admitted} • satisfaction {person.Satisfaction / 100m:0.00}%\n" +
             (need is null ? "" : $"HOT • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n" +
-                $"INTENT {need.Intent} • {need.Reason}\n") + detail;
+                $"INTENT {need.Intent} • {need.Reason}\n" +
+                (medical!.WaterOwnerId == id.Value
+                    ? $"REFILL {(GameSession.MedicalWaterServiceTicks - medical.WaterRemainingTicks) * 100 / GameSession.MedicalWaterServiceTicks}% • {medical.WaterRemainingTicks / 80m:0.0}s left\n"
+                    : "")) + detail;
     }
 
     private void EnsureStageDrumKit()
@@ -304,7 +308,7 @@ public partial class Main
     {
         _stageMuted = !_stageMuted;
         if (_stageAudioBus >= 0) AudioServer.SetBusMute(_stageAudioBus, _stageMuted);
-        if (_stageMuteButton is not null) _stageMuteButton.Text = _stageMuted ? "UNMUTE STAGE" : "MUTE STAGE";
+        if (_stageMuteButton is not null) _stageMuteButton.Text = _stageMuted ? "UNMUTE AUDIO" : "MUTE AUDIO";
     }
 
     private void ProcessLivePerformanceCapture()

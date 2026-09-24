@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace Festival.Simulation;
 
 public enum MedicalStage { Clear, Distress, Collapsed, Critical, Treated, Removed, Terminal }
-public enum MedicalIntent { WatchShow, SeekWater, Rest, AwaitMedic, Leaving, Collapsed }
+public enum MedicalIntent { WatchShow, SeekWater, Rest, AwaitMedic, Leaving, Collapsed, Refilling }
 public enum MedicalResponseStage { None, Travelling, Treating, Removing, Completed }
 public enum MedicalAction { GuideToWater, GuideToRest, DispatchMedic, SafeRemove, ReturnToShow }
 public sealed record MedicalCommand(ulong GuestId, MedicalAction Action) : SessionCommand;
@@ -26,13 +26,21 @@ public sealed partial class GameSession
     public const int MedicalTreatmentTicks = 480;        // 6 real seconds after physical arrival.
     public const int MedicalDistressThirst = 9_000;
     public const int MedicalDistressHeat = 8_000;
-    public static readonly GridCell MedicalWaterCell = new(136, 148);   // (4.25, 10.25) m; west of the large barn.
+    public static readonly GridCell MedicalWaterCell = new(120, 150);   // (-3.75, 11.25) m; open field east of the stage.
     public static readonly GridCell MedicalTentCell = new(119, 172);    // (-4.25, 22.25) m; north of the audience.
     public static readonly GridCell MedicalMedicCell = new(122, 164);   // (-2.75, 18.25) m.
     public static readonly GridCell MedicalRestCell = new(119, 178);    // (-4.25, 25.25) m.
     public static readonly GridCell MedicalExitCell = new(128, 186);    // (0.25, 29.25) m.
-    private static readonly GridCell[] WaterSlots = Enumerable.Range(0, 10)
-        .Select(index => new GridCell(135 + index % 2 * 2, 153 + index / 2 * 4)).ToArray();
+    // A compact, staggered waiting patch with at least 1.5 m between standing centres.
+    // Slot zero alone owns the tap. The approved visual is presentation, not a navmesh.
+    private static readonly GridCell[] WaterSlots =
+    [
+        new(120, 155), new(117, 158), new(123, 158), new(120, 161), new(125, 161),
+        new(115, 161), new(118, 164), new(124, 164), new(113, 164), new(127, 164)
+    ];
+    public static GridCell MedicalQueueSlot(int index) => WaterSlots[index];
+    private bool MedicalQueueExcludesListening(GridCell cell) => _medical is not null &&
+        WaterSlots.Any(slot => Math.Abs(cell.X - slot.X) <= 2 && Math.Abs(cell.Z - slot.Z) <= 2);
 
     private MedicalSnapshot? _medical;
     private bool MedicalOwnsNavigation(ulong id) => _medical is { } m &&
@@ -64,7 +72,7 @@ public sealed partial class GameSession
             index == 19 ? 7_500 : 2_500, MedicalIntent.WatchShow,
             index == 19 ? "Strong act interest outweighs early water trip" : "Water need below show preference",
             -MedicalDecisionCooldownTicks, null, -1)).ToArray();
-        session._medical = new(1, true, medicId, atRisk, needs, [], null, 0,
+        session._medical = new(2, true, medicId, atRisk, needs, [], null, 0,
             MedicalStage.Clear, MedicalResponseStage.None, -1, -1, -1, -1, "No response",
             [new("medical:hot", 0, "Fixed Hot scenario; free water and a baseline medic are available before opening.")]);
         return session;
@@ -264,7 +272,7 @@ public sealed partial class GameSession
             foreach (var need in m.Needs)
             {
                 var person = p.People.Single(item => item.AgentId == need.AgentId);
-                if (!person.Admitted || need.Intent is MedicalIntent.Rest or MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed ||
+                if (!person.Admitted || need.Intent is MedicalIntent.Rest or MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed or MedicalIntent.Refilling ||
                     m.Stage is MedicalStage.Collapsed or MedicalStage.Critical && need.AgentId == m.AtRiskGuestId ||
                     CurrentTick - need.LastDecisionTick < MedicalDecisionCooldownTicks) continue;
                 var nav = _navigationAgents[new(need.AgentId)];
@@ -292,7 +300,13 @@ public sealed partial class GameSession
             var first = m.WaterQueue[0];
             var atTap = _navigationAgents[new(first)] is { Action: AgentNavigationAction.Arrived, Destination: { } destination } && destination == WaterSlots[0];
             if (m.WaterOwnerId is null && atTap)
+            {
                 _medical = m = m with { WaterOwnerId = first, WaterRemainingTicks = MedicalWaterServiceTicks };
+                SetNeed(first, item => item with { Intent = MedicalIntent.Refilling,
+                    Reason = "Refilling at the free tap after physical arrival; relief follows completed service" });
+                MedicalEvent("medical:refill-start", $"Guest {first} started a {MedicalWaterServiceTicks}-tick free refill at the tap.");
+                m = _medical!;
+            }
             if (m.WaterOwnerId == first && atTap)
             {
                 _medical = m = m with { WaterRemainingTicks = m.WaterRemainingTicks - 1 };
@@ -402,7 +416,7 @@ public sealed partial class GameSession
     private static string? ValidatePersistedMedical(MedicalSnapshot? m, SessionPersistenceSnapshot s)
     {
         if (m is null) return null;
-        if (s.Preparation is not { } p || m.Version != 1 || !m.IsHot || m.Needs is null || m.WaterQueue is null ||
+        if (s.Preparation is not { } p || m.Version != 2 || !m.IsHot || m.Needs is null || m.WaterQueue is null ||
             m.Evidence is null || m.Needs.Length != p.Tier * 20 ||
             !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Select(item => item.AgentId)) ||
             !p.People.Any(item => item.AgentId == m.MedicId && item.Name == "Riley Hart" && item.Role == ProtectedPersonRole.Staff) ||
@@ -413,6 +427,9 @@ public sealed partial class GameSession
             m.Needs.Any(item => item.QueueSlot is not null && !m.WaterQueue.Contains(item.AgentId)) ||
             m.WaterOwnerId is { } owner && (m.WaterQueue.Length == 0 || m.WaterQueue[0] != owner) ||
             m.WaterRemainingTicks is < 0 or > MedicalWaterServiceTicks ||
+            m.WaterOwnerId is null && (m.WaterRemainingTicks != 0 || m.Needs.Any(item => item.Intent == MedicalIntent.Refilling)) ||
+            m.WaterOwnerId is { } activeOwner && (m.WaterRemainingTicks == 0 ||
+                m.Needs.Single(item => item.AgentId == activeOwner).Intent != MedicalIntent.Refilling) ||
             !Enum.IsDefined(m.Stage) || !Enum.IsDefined(m.ResponseStage) ||
             m.WarningTick > s.CurrentTick || m.CollapseTick > s.CurrentTick || m.CriticalTick > s.CurrentTick ||
             m.Stage == MedicalStage.Terminal && (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Length != 1) ||

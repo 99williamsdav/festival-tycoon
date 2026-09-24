@@ -115,7 +115,8 @@ public sealed partial class GameSession
             listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
             var start = _navigationAgents[new(listener.AgentId)];
             var startCell = TraversalGrid.WorldToCell(start.XMillimetres, start.ZMillimetres);
-            var options = ListeningPlaces().Where(cell => !reserved.Contains(cell) && _traversalGrid!.Get(cell).IsWalkable)
+            var options = ListeningPlaces().Where(cell => !reserved.Contains(cell) && _traversalGrid!.Get(cell).IsWalkable &&
+                !MedicalQueueExcludesListening(cell))
                 .Select(cell => (Cell: cell, Score: PlaceScore(listener, cell, startCell, reserved)))
                 .OrderBy(item => item.Score).ThenBy(item => item.Cell).Take(8);
             foreach (var option in options)

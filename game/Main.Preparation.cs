@@ -66,7 +66,7 @@ public partial class Main
         }));
         controls.AddChild(ButtonText("SAVE", PreparationSave));
         controls.AddChild(ButtonText("LOAD", PreparationLoad));
-        _stageMuteButton = ButtonText("MUTE STAGE", ToggleStageMute); box.AddChild(_stageMuteButton);
+        _stageMuteButton = ButtonText("MUTE AUDIO", ToggleStageMute); box.AddChild(_stageMuteButton);
         controls.AddChild(ButtonText("RETRY SAVE", () => { _preparationSaveBlocked = false; _preparationMessage = "Retrying pending boundary."; RefreshPreparationHud(); }));
         var rosterPanel = new PanelContainer { Position = new Vector2(rightPanelX, 16), Size = new Vector2(400, 380) };
         rosterPanel.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(rosterPanel);
@@ -212,6 +212,7 @@ public partial class Main
         }
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceLivePerformancePresentation(delta);
+        AdvanceIncidentAudioPresentation();
         ProcessLivePerformanceCapture();
         if (_autosaveScheduler.Advance(delta))
         {

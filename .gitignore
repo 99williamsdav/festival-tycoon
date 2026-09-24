@@ -24,6 +24,13 @@ mono_crash.*.json
 .tools/
 artifacts/
 
+# R0.03 water v2 is an unapproved local candidate. Keep its source, review
+# package and trial renders available for review but out of routine commits.
+/assets/source/environment/lwf_free_water_point_v2.blend
+/assets/runtime/environment/lwf_free_water_point_v2.glb
+/art/reviews/R0.03/free-water-point-v2/
+/reports/evidence/R0.03-followup-v2/
+
 # Local Windows Performance Recorder traces are multi-gigabyte diagnostics.
 reports/evidence/**/*.etl
 

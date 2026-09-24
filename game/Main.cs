@@ -121,8 +121,8 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.03-hot-medical-v5",
-        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-hot-medical-v5");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.03-hot-medical-v6",
+        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-hot-medical-v6");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -176,6 +176,8 @@ public partial class Main : Node
         _foundationPublishedHash = _pausedHash;
         _foundationPublishedHashTick = _session.CurrentTick;
         BuildWorld();
+        if (DisplayServer.GetName() != "headless")
+            DisplayServer.SetIcon(GD.Load<Texture2D>("res://assets/branding/festival-tycoon-stage-sun-icon.png").GetImage());
         if (_session.CaptureMedical() is not null) BuildMedicalWorld();
         if (_session.CaptureEquipment() is not null) EnsureStageDrumKit();
         if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();

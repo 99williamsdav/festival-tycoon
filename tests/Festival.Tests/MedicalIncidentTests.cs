@@ -243,4 +243,60 @@ public sealed class MedicalIncidentTests
         Assert.AreNotEqual(MedicalStage.Treated, s.CaptureMedical()!.Stage);
         Assert.AreEqual(1, s.CaptureMedical()!.Evidence.Count(item => item.Id == "medical:treatment-interrupted"));
     }
+
+    [TestMethod]
+    public void StaggeredWaterSlotsHaveClearanceAndWalkableRoutes()
+    {
+        var s = Started();
+        var slots = Enumerable.Range(0, 10).Select(GameSession.MedicalQueueSlot).ToArray();
+        Assert.AreEqual(slots.Length, slots.Distinct().Count());
+        for (var i = 0; i < slots.Length; i++)
+        for (var j = i + 1; j < slots.Length; j++)
+        {
+            var dx = slots[i].X - slots[j].X;
+            var dz = slots[i].Z - slots[j].Z;
+            Assert.IsTrue(dx * dx + dz * dz >= 9, $"Slots {i} and {j} overlap standing clearance.");
+        }
+        var savedGrid = s.CapturePersistenceSnapshot().TraversalGrid!;
+        var grid = new TraversalGrid(savedGrid.Cells.Select(item => new TerrainCellOverride(
+            new(item.X, item.Z), (GroundSurface)item.Surface, item.IsWalkable,
+            item.CostPermille, item.ElevationMillimetres, item.SlopePermille)));
+        foreach (var slot in slots)
+        {
+            Assert.IsTrue(grid.Get(slot).IsWalkable, $"Water slot {slot} is blocked.");
+            Assert.IsTrue(DeterministicPathfinder.FindPath(grid, new GridCell(122, 190), slot).Found,
+                $"Water slot {slot} has no entrance route.");
+        }
+    }
+
+    [TestMethod]
+    public void RefillOwnsOneTapAndReliefWaitsForPhysicalServiceAcrossRestore()
+    {
+        var s = Started();
+        while (s.CaptureMedical()!.WaterOwnerId is null && s.CurrentTick < 2_000)
+            s.AdvanceWithoutSnapshot(1);
+        var started = s.CaptureMedical()!;
+        Assert.IsNotNull(started.WaterOwnerId);
+        var owner = started.WaterOwnerId.Value;
+        Assert.AreEqual(owner, started.WaterQueue[0]);
+        Assert.AreEqual(MedicalIntent.Refilling, started.Needs.Single(item => item.AgentId == owner).Intent);
+        Assert.IsTrue(started.WaterRemainingTicks is > 0 and < GameSession.MedicalWaterServiceTicks);
+        var thirst = started.Needs.Single(item => item.AgentId == owner).Thirst;
+        s = Restored(s);
+        var half = Math.Max(1, s.CaptureMedical()!.WaterRemainingTicks / 2);
+        s.AdvanceWithoutSnapshot(half);
+        var midway = s.CaptureMedical()!;
+        Assert.AreEqual(owner, midway.WaterOwnerId);
+        Assert.AreEqual(MedicalIntent.Refilling, midway.Needs.Single(item => item.AgentId == owner).Intent);
+        Assert.IsTrue(midway.Needs.Single(item => item.AgentId == owner).Thirst >= thirst);
+        Assert.AreEqual(-1L, midway.Needs.Single(item => item.AgentId == owner).LastWaterTick);
+        s = Restored(s);
+        s.AdvanceWithoutSnapshot(s.CaptureMedical()!.WaterRemainingTicks);
+        var completed = s.CaptureMedical()!;
+        Assert.IsFalse(completed.WaterQueue.Contains(owner));
+        Assert.AreEqual(1_500, completed.Needs.Single(item => item.AgentId == owner).Thirst);
+        Assert.AreEqual(s.CurrentTick, completed.Needs.Single(item => item.AgentId == owner).LastWaterTick);
+        Assert.AreEqual(1, completed.Evidence.Count(item => item.Id == "medical:water" && item.Description.Contains($"Guest {owner}")));
+        Restored(s);
+    }
 }
