@@ -43,6 +43,14 @@ public partial class Main
         _crowdCheer?.Stop();
         _bandEntryApplause?.Stop();
         _booFadeSeconds = 0;
+        if (_liveSetCue is not null) _liveSetCue.Text = "STAGE • awaiting booking";
+        if (_stageWorldCue is not null)
+        {
+            _stageWorldCue.Text = "SET READY";
+            _stageWorldCue.Modulate = new Color("f7e4a4");
+        }
+        if (_stageLights is not null)
+            foreach (var light in _stageLights) light.LightEnergy = 0;
     }
 
     private void UpdatePersonFacing(EntityId id, Node3D visual, Vector3 position,
@@ -88,7 +96,12 @@ public partial class Main
     private void RefreshLivePerformanceHud()
     {
         var live = _session.CaptureLivePerformance();
-        if (live is null || _liveSetCue is null) return;
+        if (_liveSetCue is null) return;
+        if (live is null)
+        {
+            _liveSetCue.Text = "STAGE • awaiting booking";
+            return;
+        }
         var listeners = live.Listeners.Count(item => item.AtPlace);
         var elapsed = live.StartedTick < 0 ? 0 : Math.Min(GameSession.LiveSetDurationTicks, _session.CurrentTick - live.StartedTick);
         _liveSetCue.Text = live.Stage == LiveSetStage.BeforeSet
