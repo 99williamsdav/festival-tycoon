@@ -1,0 +1,59 @@
+{
+  "asset": "Modular guitarist/front-person prototype v1",
+  "purpose": "R0.02a first live-performance asset approval checkpoint",
+  "body_meshes": 4,
+  "guitar_kit_meshes": 4,
+  "parts_triangles": {
+    "LWF_Guitarist_Body": 120,
+    "LWF_Performer_Hair": 12,
+    "LWF_Performer_IdleLeftArm": 56,
+    "LWF_Performer_IdleRightArm": 56,
+    "LWF_Guitarist_AcousticGuitar": 264,
+    "LWF_Guitar_LeatherStrap": 12,
+    "LWF_Guitar_FrettingArm": 56,
+    "LWF_Guitarist_StrummingArm": 56
+  },
+  "body_triangles": 244,
+  "guitar_kit_triangles": 388,
+  "palette_size": [
+    192,
+    8
+  ],
+  "height_m": 1.75,
+  "origin": "ground between feet, shared body and guitar-kit scene origin",
+  "forward_blender": "+Y",
+  "forward_godot": "-Z",
+  "attachment": "guitar kit and body GLBs share origin; hide body IdleLeftArm and IdleRightArm nodes and show guitar kit when set starts; reverse at set end; one persistent performer identity",
+  "variation": "Hair is a separate mesh; 192x8 palette cells permit outfit, skin and hair recolouring without changing body geometry",
+  "animation": "StrumLoop_24fps_17frames: 17 frames at 24 fps, right playing arm rotation only; no root motion; idle arms are separate pivotable objects",
+  "ownership": "one simulation performer ID owns travel, stage position and set state; presentation swaps idle/playing arm visibility and attaches guitar kit to same actor",
+  "provenance": "original procedural/project-authored geometry and palette; stage and attendee GLBs are review-only context",
+  "bounds_blender": {
+    "body": [
+      [
+        -0.40203893184661865,
+        -0.1550000011920929,
+        0.0
+      ],
+      [
+        0.40203893184661865,
+        0.2004999965429306,
+        1.75
+      ]
+    ],
+    "kit": [
+      [
+        -0.6922352910041809,
+        -0.07070489972829819,
+        0.6499999761581421
+      ],
+      [
+        0.4334770143032074,
+        0.4490448832511902,
+        1.370457649230957
+      ]
+    ]
+  },
+  "verification_blender": "Blender 4.1.1 source reopen and two GLB reimports passed: body and kit each four meshes, expected triangle counts and bounds, one embedded 192x8 palette, no armature, no body animation, kit strum action, grounded 1.75m body.",
+  "verification_godot": "Godot 4.7.2 standard editor import and instantiation passed for both GLBs: four MeshInstance3D nodes each, 244 body triangles, 388 kit triangles, embedded 192x8 palettes, and one StrumLoop animation in the kit. Local certificate-store/editor-settings warnings did not prevent import or instantiation."
+}
