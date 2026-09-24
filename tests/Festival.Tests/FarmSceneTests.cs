@@ -10,6 +10,9 @@ public sealed class FarmSceneTests
     {
         var scene = LowerWitteringFarmScenario.CreateReadModel();
         Assert.AreEqual("scenario.lower-wittering-farm", scene.ScenarioId);
+        Assert.AreEqual(64, LowerWitteringFarmScenario.ContentCompatibilityHash.Length);
+        Assert.AreNotEqual("d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9",
+            LowerWitteringFarmScenario.ContentCompatibilityHash);
         Assert.AreEqual(6, scene.Objects.Count);
         Assert.AreEqual(scene.Objects.Count, scene.Objects.Select(item => item.StableId).Distinct(StringComparer.Ordinal).Count());
         Assert.IsTrue(scene.Objects.All(item => Math.Abs(item.XMetres) <= scene.SiteWidthMetres / 2));

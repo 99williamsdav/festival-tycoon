@@ -11,6 +11,7 @@ public enum LedgerAccountType
     GuestSpending = 5,
     LoanPrincipalLiability = 6,
     AdministrationExpense = 7,
+    EquipmentAsset = 8,
 }
 
 /// <summary>

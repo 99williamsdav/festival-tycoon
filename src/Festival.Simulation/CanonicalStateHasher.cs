@@ -290,6 +290,21 @@ internal static class CanonicalStateHasher
             foreach (var id in lifecycle.CompletedOutcomeTransactionIds) writer.Write(id);
         }
 
+        if (session.PreparationCanonicalJson is { } preparation)
+        {
+            writer.Write("r0-preparation-v1");
+            writer.Write(preparation);
+        }
+        if (session.EquipmentCanonicalJson is { } equipment)
+        {
+            writer.Write("r0-equipment-v2");
+            writer.Write(equipment);
+        }
+        if (session.LivePerformanceCanonicalJson is { } livePerformance)
+        {
+            writer.Write("r0-live-performance-v2");
+            writer.Write(livePerformance);
+        }
         writer.Flush();
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();

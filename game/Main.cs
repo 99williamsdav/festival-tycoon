@@ -13,7 +13,7 @@ namespace Festival.Game;
 
 public partial class Main : Node
 {
-    private const float MinZoom = 38f;
+    private const float MinZoom = 18f;
     private const float MaxZoom = 82f;
     private const float PanLimit = 24f;
     private readonly Dictionary<ulong, FarmObjectReadModel> _pickRegistry = [];
@@ -121,7 +121,8 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-m1.01", "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9", "m0-rules-v1");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.02a-preshow-v4",
+        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-live-preshow-v4");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -166,18 +167,24 @@ public partial class Main : Node
         }
         else
         {
-            _session = GameSession.CreateCampaign(20260922);
+            _session = _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
+                _equipmentCaptureDirectory is not null || _preparationCaptureDirectory is null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
+                GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier);
         }
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
         _foundationPublishedHash = _pausedHash;
         _foundationPublishedHashTick = _session.CurrentTick;
         BuildWorld();
+        if (_session.CaptureEquipment() is not null) EnsureStageDrumKit();
         if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();
         if (_sharedWorldFixture is not null) BuildSharedWorldServiceMarkers();
         if (_foundationFixture is not null) _foundationPresentation.Reset(_session.CaptureSnapshot());
         BuildHud();
         if (_queueCaptureDirectory is not null || _foundationFixture is not null || _sharedWorldFixture is not null) { _focus = new Vector3(10, 0, 4); _camera.Size = 58; }
+        if (_session.CaptureEquipment() is not null) { _focus = new Vector3(-16, 0, 11); _camera.Size = 32; }
         ApplyCamera();
+        if ((OS.GetCmdlineUserArgs().Length == 0 || _startSplashCapturePath is not null) &&
+            _session.CaptureEquipment() is not null) BuildStartSplash();
         if (_captureDirectory is not null)
             SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.farmhouse"));
         var version = Engine.GetVersionInfo()["string"].AsString();
@@ -187,6 +194,7 @@ public partial class Main : Node
 
     public override void _Process(double delta)
     {
+        if (_equipmentPerformanceOutput is not null) _equipmentCallbackStarted = Stopwatch.GetTimestamp();
         if (_middleDragging && !Input.IsMouseButtonPressed(MouseButton.Middle)) _middleDragging = false;
         var input = Vector2.Zero;
         if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up)) input.Y -= 1;
@@ -194,7 +202,8 @@ public partial class Main : Node
         if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) input.X -= 1;
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
-        if (_sharedWorldFixture is not null) AdvanceSharedWorldFeasibility(delta);
+        if (_session.CapturePreparation() is not null) AdvancePreparationPresentation(delta);
+        else if (_sharedWorldFixture is not null) AdvanceSharedWorldFeasibility(delta);
         else if (_benchmarkFixture is not null) AdvanceRenderedBenchmark(delta);
         else if (_foundationFixture is not null) AdvanceFoundationPresentation(delta);
         else if (_queueCaptureDirectory is not null) AdvanceQueuePresentation(delta);
@@ -202,10 +211,15 @@ public partial class Main : Node
         else if (_session.CaptureCampaignPlanningSnapshot() is null) UpdateHashStatus();
         if (_captureDirectory is not null) ProcessCapture();
         if (_campaignCaptureDirectory is not null) ProcessCampaignCapture();
+        if (_preparationProfileOutput is not null) FinishPreparationProfileFrame();
+        if (_equipmentCaptureDirectory is not null) ProcessEquipmentCapture();
+        if (_equipmentPerformanceOutput is not null) ProcessEquipmentPerformanceCheck();
+        ProcessStartSplashCapture();
     }
 
     public override void _Input(InputEvent inputEvent)
     {
+        if (_startSplash is not null) return;
         // Release must be observed before a HUD Control consumes the mouse event.
         if (inputEvent is InputEventMouseButton { ButtonIndex: MouseButton.Middle, Pressed: false })
             _middleDragging = false;
@@ -220,7 +234,9 @@ public partial class Main : Node
             else if (key.Keycode == Key.E) Rotate(1);
             else if (key.Keycode == Key.Space)
             {
-                if (_foundationFixture is not null) HandleFoundationPauseInput(); else ReportPause();
+                if (_session.CapturePreparation() is not null)
+                { _session.Execute(CampaignEnvelope(new SetPausedCommand(!_session.IsPaused))); RefreshPreparationHud(); }
+                else if (_foundationFixture is not null) HandleFoundationPauseInput(); else ReportPause();
             }
         }
         else if (inputEvent is InputEventMouseButton mouse)
@@ -277,7 +293,9 @@ public partial class Main : Node
         var agents = _session.CaptureSnapshot().NavigationAgents;
         foreach (var agent in agents)
         {
-            var visual = AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
+            var performer = _session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value);
+            var visual = AddAsset(performer?.Role == ProtectedPersonRole.Performer ? PerformerBodyPath(performer.Name) :
+                "res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
             if (_foundationFixture is not null || _sharedWorldFixture is not null)
             {
                 var ids = _sharedWorldFixture?.AgentIds ?? _foundationFixture!.AgentIds;
@@ -295,7 +313,26 @@ public partial class Main : Node
                 visual.AddChild(pickBody);
                 _attendeePickRegistry.Add(pickBody.GetInstanceId(), agent.Id);
             }
+            else if (_session.CapturePreparation() is not null)
+            {
+                var pickBody = new StaticBody3D { CollisionLayer = 1, CollisionMask = 1 };
+                pickBody.AddChild(new CollisionShape3D { Position = new Vector3(0, 0.85f, 0),
+                    Shape = new CapsuleShape3D { Radius = 0.38f, Height = 1.7f } });
+                visual.AddChild(pickBody);
+                _attendeePickRegistry.Add(pickBody.GetInstanceId(), agent.Id);
+            }
             _attendeeVisuals.Add(agent.Id, visual);
+            if (_session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value) is { Role: not ProtectedPersonRole.Guest } role)
+            {
+                var cue = new MeshInstance3D
+                {
+                    Mesh = new BoxMesh { Size = new Vector3(0.20f, 0.12f, 0.05f) },
+                    Position = new Vector3(0, 1.25f, 0.20f),
+                    MaterialOverride = new StandardMaterial3D { AlbedoColor = role.Name == "Morgan Finch" ? new Color("6acfd1") : role.Role == ProtectedPersonRole.Staff ? new Color("ffd166") : new Color("aa88dd") }
+                };
+                visual.AddChild(cue);
+                if (role.Name == "Morgan Finch") visual.AddChild(new Label3D { Text = "MORGAN\nMAINTENANCE", Position = new Vector3(0, 2.1f, 0), FontSize = 36, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
+            }
         }
         _attendeeVisual = _attendeeVisuals[agents[0].Id];
         _presentationFrom = _presentationTo = ToWorld(agents[0]);
@@ -410,6 +447,7 @@ public partial class Main : Node
 
     private void BuildHud()
     {
+        if (_session.CapturePreparation() is not null) { BuildPreparationHud(); return; }
         if (_session.CaptureCampaignPlanningSnapshot() is not null)
         {
             BuildCampaignHud();
@@ -689,6 +727,11 @@ public partial class Main : Node
         if (_selectedAttendeeId is not { } id) return;
         var observation = supplied ?? _session.CaptureObservation();
         var navigation = observation.NavigationAgents.Single(item => item.Id == id);
+        if (_session.CapturePreparation() is { } preparation)
+        {
+            RefreshLivePersonInspector(id, navigation, preparation);
+            return;
+        }
         var queue = observation.ServiceQueues.Single();
         var queueAgent = queue.Agents.Single(item => item.AgentId == id);
         var ordinal = Array.IndexOf(_foundationFixture!.AgentIds.ToArray(), id);
@@ -723,6 +766,64 @@ public partial class Main : Node
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-campaign" && i + 1 < args.Length) _campaignCaptureDirectory = args[++i];
+            else if (args[i] == "--capture-preparation" && i + 1 < args.Length) _preparationCaptureDirectory = args[++i];
+            else if (args[i] == "--capture-live-performance" && i + 1 < args.Length) _liveCaptureDirectory = args[++i];
+            else if (args[i] == "--capture-start-splash" && i + 1 < args.Length) _startSplashCapturePath = args[++i];
+            else if (args[i] == "--measure-live-performance" && i + 2 < args.Length)
+            {
+                _liveMeasurementTier = int.Parse(args[++i]);
+                if (_liveMeasurementTier is < 1 or > 2) throw new ArgumentOutOfRangeException(nameof(_liveMeasurementTier));
+                _equipmentPerformanceOutput = args[++i];
+                Directory.CreateDirectory(Path.GetDirectoryName(_equipmentPerformanceOutput)!);
+            }
+            else if (args[i] == "--measure-live-performance-capped" && i + 2 < args.Length)
+            {
+                _liveMeasurementTier = int.Parse(args[++i]);
+                if (_liveMeasurementTier is < 1 or > 2) throw new ArgumentOutOfRangeException(nameof(_liveMeasurementTier));
+                _equipmentPerformanceOutput = args[++i];
+                _equipmentCappedDiagnostic = true;
+                Directory.CreateDirectory(Path.GetDirectoryName(_equipmentPerformanceOutput)!);
+            }
+            else if (args[i] == "--diagnose-native-render-timing" && i + 1 < args.Length)
+            {
+                _liveMeasurementTier = 2;
+                _nativeTimingControlDiagnostic = true;
+                _equipmentPerformanceOutput = args[++i];
+                Directory.CreateDirectory(Path.GetDirectoryName(_equipmentPerformanceOutput)!);
+            }
+            else if (args[i] == "--capture-equipment" && i + 2 < args.Length)
+            {
+                _equipmentCaptureMode = args[++i];
+                _equipmentCaptureDirectory = args[++i];
+                Directory.CreateDirectory(_equipmentCaptureDirectory);
+            }
+            else if (args[i] == "--check-equipment-performance" && i + 1 < args.Length)
+            {
+                _equipmentPerformanceOutput = args[++i];
+                Directory.CreateDirectory(Path.GetDirectoryName(_equipmentPerformanceOutput)!);
+            }
+            else if (args[i] == "--diagnose-equipment-vsync" && i + 1 < args.Length)
+            {
+                _equipmentVsyncDiagnostic = true;
+                _equipmentPerformanceOutput = args[++i];
+                Directory.CreateDirectory(Path.GetDirectoryName(_equipmentPerformanceOutput)!);
+            }
+            else if (args[i] == "--diagnose-equipment-capped" && i + 1 < args.Length)
+            {
+                _equipmentCappedDiagnostic = true;
+                _equipmentPerformanceOutput = args[++i];
+                Directory.CreateDirectory(Path.GetDirectoryName(_equipmentPerformanceOutput)!);
+            }
+            else if (args[i] == "--measure-preparation" && i + 1 < args.Length) _preparationMeasurementTier = int.Parse(args[++i]);
+            else if (args[i] == "--profile-preparation" && i + 2 < args.Length)
+            {
+                _preparationProfileCapture = args[++i] == "capture";
+                _preparationProfileOutput = args[++i];
+                _preparationCaptureDirectory = Path.GetDirectoryName(_preparationProfileOutput);
+                _preparationMeasurementTier = 2;
+            }
+            else if (args[i] == "--profile-departure") _preparationProfileDeparture = true;
+            else if (args[i] == "--profile-full-attempt") _preparationProfileFullAttempt = true;
             else if (args[i] == "--benchmark-launch" && i + 3 < args.Length)
             {
                 var agents = int.Parse(args[++i]);

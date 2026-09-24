@@ -6,14 +6,21 @@ config_version=5
 config/name="Festival Tycoon"
 run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
+run/max_fps=58
+boot_splash/bg_color=Color(0.078, 0.149, 0.188, 1)
+boot_splash/image="res://assets/branding/lwf-festival-tycoon-logo-v1.png"
+boot_splash/stretch_mode=1
+boot_splash/minimum_display_time=700
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=720
-window/size/window_width_override=1280
-window/size/window_height_override=720
+window/size/viewport_width=1600
+window/size/viewport_height=900
+window/size/window_width_override=1600
+window/size/window_height_override=900
+window/size/mode=2
 window/stretch/mode="canvas_items"
+window/vsync/vsync_mode=1
 
 [dotnet]
 

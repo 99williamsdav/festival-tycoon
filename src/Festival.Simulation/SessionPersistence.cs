@@ -94,6 +94,13 @@ public sealed record SessionPersistenceSnapshot(
 
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PersistedLifecycle? Lifecycle { get; init; }
+
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PreparationSnapshot? Preparation { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public EquipmentSnapshot? Equipment { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public LivePerformanceSnapshot? LivePerformance { get; init; }
 }
 
 public sealed record SessionRestoreResult(GameSession? Session, string? Error)

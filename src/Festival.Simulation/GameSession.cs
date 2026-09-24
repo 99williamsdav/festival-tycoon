@@ -73,6 +73,18 @@ public sealed partial class GameSession
         EntityId? affectedTarget;
         switch (envelope.Command)
         {
+            case EquipmentCommand equipment:
+                affectedTarget = null;
+                ApplyEquipmentCommand(equipment);
+                break;
+            case AcceptPreparationOfferCommand offer:
+                affectedTarget = null;
+                ApplyPreparationOffer(offer);
+                break;
+            case StartPreparedEditionCommand:
+                affectedTarget = null;
+                ApplyStartPreparedEdition();
+                break;
             case CreateFixtureRecordCommand create:
                 affectedTarget = new EntityId(NextEntityId);
                 _fixtureRecords.Add(affectedTarget.Value, new FixtureRecordState
@@ -218,13 +230,17 @@ public sealed partial class GameSession
     private IReadOnlyList<SessionEvent> AdvanceAuthoritativeTicks(int count)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(count);
-        if (IsPaused || count == 0 || Phase is SessionPhase.Planning or SessionPhase.OpeningCheck || IsLifecycleEditionFrozen())
+        if (IsPaused || count == 0 || Phase is SessionPhase.Planning or SessionPhase.OpeningCheck || IsLifecycleEditionFrozen() ||
+            _preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished)
             return Array.Empty<SessionEvent>();
 
         var events = new List<SessionEvent>();
         for (var index = 0; index < count; index++)
         {
             CurrentTick++;
+            // A terminal hazard freezes before any other work at this tick.
+            AdvanceEquipment();
+            if (IsLifecycleEditionFrozen()) break;
             foreach (var record in _fixtureRecords.Values)
             {
                 if (record.HasExpired || record.RemainingTicks <= 0)
@@ -248,6 +264,9 @@ public sealed partial class GameSession
             AdvanceServiceQueues(events);
             ScaleDiagnosticProbe?.AddQueue(Stopwatch.GetTimestamp() - queueStart);
             ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.None);
+            AdvancePreparation();
+            AdvanceLivePerformance();
+            if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished) break;
         }
 
         return events;
@@ -376,6 +395,9 @@ public sealed partial class GameSession
             ServiceQueues = CapturePersistedServiceQueues(),
             CampaignPlanning = CapturePersistedCampaignPlanning(),
             Lifecycle = CapturePersistedLifecycle(),
+            Preparation = CapturePreparation(),
+            Equipment = CaptureEquipment(),
+            LivePerformance = CaptureLivePerformance(),
         };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
@@ -428,6 +450,11 @@ public sealed partial class GameSession
         session.RestoreServiceQueues(snapshot.ServiceQueues, snapshot.NavigationAgents);
         session.RestoreCampaignPlanning(snapshot.CampaignPlanning);
         session.RestoreLifecycle(snapshot.Lifecycle);
+        session._equipment = snapshot.Equipment is null ? null : snapshot.Equipment with { Evidence = snapshot.Equipment.Evidence.ToArray() };
+        session._preparation = snapshot.Preparation is null ? null : System.Text.Json.JsonSerializer.Deserialize<PreparationSnapshot>(
+            System.Text.Json.JsonSerializer.Serialize(snapshot.Preparation));
+        session._livePerformance = snapshot.LivePerformance is null ? null : System.Text.Json.JsonSerializer.Deserialize<LivePerformanceSnapshot>(
+            System.Text.Json.JsonSerializer.Serialize(snapshot.LivePerformance));
 
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
@@ -486,6 +513,12 @@ public sealed partial class GameSession
         if (campaignError is not null) return campaignError;
         var lifecycleError = ValidatePersistedLifecycle(snapshot.Lifecycle);
         if (lifecycleError is not null) return lifecycleError;
+        var preparationError = ValidatePersistedPreparation(snapshot.Preparation, snapshot);
+        if (preparationError is not null) return preparationError;
+        var equipmentError = ValidatePersistedEquipment(snapshot.Equipment, snapshot);
+        if (equipmentError is not null) return equipmentError;
+        var livePerformanceError = ValidatePersistedLivePerformance(snapshot.LivePerformance, snapshot);
+        if (livePerformanceError is not null) return livePerformanceError;
         var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
             .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();
         if (ownedEntityIds.Distinct().Count() != ownedEntityIds.Length || ownedEntityIds.Any(id => id >= snapshot.NextEntityId))
@@ -579,9 +612,15 @@ public sealed partial class GameSession
 
         var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
         if (lifecycleFrozen is not null) return lifecycleFrozen;
+        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
+        if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished)
+            return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
 
         return envelope.Command switch
         {
+            EquipmentCommand equipment => ValidateEquipmentCommand(envelope.TargetId, equipment),
+            AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture creation requires no target and a positive expiry."),
             ChangeFixtureValueCommand when envelope.TargetId is null || !_fixtureRecords.ContainsKey(envelope.TargetId.Value) =>

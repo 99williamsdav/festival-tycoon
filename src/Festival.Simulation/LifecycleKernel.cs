@@ -231,7 +231,8 @@ public sealed partial class GameSession
             lifecycle.CompletedOutcomeTransactionIds is null || lifecycle.ProtectedPeople.Any(item => item is null) ||
             lifecycle.Attempts.Any(item => item is null) || lifecycle.Casualties.Any(item => item is null) || lifecycle.Hearings.Any(item => item is null))
             return "Lifecycle authoritative collections must be present and contain no null records.";
-        if (lifecycle.ProtectedPeople.Length != 3 ||
+        var equipmentLifecycle = lifecycle.FixtureLabel == "R0.02 equipment lifecycle; hearing only, no Favour economy";
+        if ((!equipmentLifecycle && lifecycle.ProtectedPeople.Length != 3 || equipmentLifecycle && lifecycle.ProtectedPeople.Length is < 22 or > 50) ||
             !lifecycle.ProtectedPeople.Select(item => item.PersonId).SequenceEqual(lifecycle.ProtectedPeople.Select(item => item.PersonId).Order(StringComparer.Ordinal)) ||
             lifecycle.ProtectedPeople.Select(item => item.PersonId).Distinct(StringComparer.Ordinal).Count() != lifecycle.ProtectedPeople.Length ||
             lifecycle.ProtectedPeople.Any(item => string.IsNullOrWhiteSpace(item.PersonId) || !Enum.IsDefined(typeof(ProtectedPersonRole), item.Role)) ||
@@ -266,7 +267,8 @@ public sealed partial class GameSession
             .Order(StringComparer.Ordinal).ToArray();
         if (!lifecycle.CompletedOutcomeTransactionIds.SequenceEqual(expectedTransactions) || expectedTransactions.Distinct(StringComparer.Ordinal).Count() != expectedTransactions.Length)
             return "Lifecycle completed transaction IDs must exactly match terminal, hearing, Favour and safe outcomes.";
-        if (lifecycle.FixtureFavourBalance == 0 != lifecycle.Hearings.Any(item => (HearingStatus)item.Status == HearingStatus.FavourSpent))
+        if (equipmentLifecycle ? lifecycle.FixtureFavourBalance != 0 || lifecycle.Hearings.Any(item => item.ResolutionTransactionId is not null) :
+            lifecycle.FixtureFavourBalance == 0 != lifecycle.Hearings.Any(item => (HearingStatus)item.Status == HearingStatus.FavourSpent))
             return "Fixture Favour balance must reconcile with the single hearing spend.";
         return null;
     }

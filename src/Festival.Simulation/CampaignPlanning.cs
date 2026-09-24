@@ -349,8 +349,8 @@ public sealed partial class GameSession
             campaign.EditionNumber != 1 || campaign.PlanningWeek is < 0 or > 8 || campaign.FinanceOwnerId == 0 ||
             !snapshot.FestivalFinances.Any(item => item.OwnerId == campaign.FinanceOwnerId))
             return "Campaign identity, inherited site, edition, week or finance owner is invalid.";
-        if (snapshot.Phase == (int)SessionPhase.Planning && campaign.PlanningWeek is < 1 or > 8 ||
-            snapshot.Phase == (int)SessionPhase.OpeningCheck && campaign.PlanningWeek != 0)
+        if (snapshot.Preparation is null && (snapshot.Phase == (int)SessionPhase.Planning && campaign.PlanningWeek is < 1 or > 8 ||
+            snapshot.Phase == (int)SessionPhase.OpeningCheck && campaign.PlanningWeek != 0))
             return "Campaign phase and planning week are inconsistent.";
         if (campaign.LoanOpeningPrincipalPennies != CampaignDefaults.OpeningLoanPrincipalPennies ||
             campaign.LoanOutstandingPrincipalPennies < 0 || campaign.LoanOutstandingPrincipalPennies > campaign.LoanOpeningPrincipalPennies ||
