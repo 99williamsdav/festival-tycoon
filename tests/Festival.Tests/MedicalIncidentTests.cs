@@ -1,0 +1,246 @@
+using Festival.Simulation;
+using System.Reflection;
+
+namespace Festival.Tests;
+
+[TestClass]
+public sealed class MedicalIncidentTests
+{
+    private static CommandResult Send(GameSession s, SessionCommand command) => s.Execute(new(
+        new CommandId(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase, s.CurrentTick,
+        s.NextSubmissionSequence, null, command));
+
+    private static CommandResult SendTo(GameSession s, ulong id, SessionCommand command) => s.Execute(new(
+        new CommandId(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase, s.CurrentTick,
+        s.NextSubmissionSequence, new EntityId(id), command));
+
+    private static GameSession Started(ulong seed = 20260922, int tier = 1)
+    {
+        var s = GameSession.CreateMedicalCampaign(seed, tier);
+        foreach (var offer in new[] { "act.folk", "staff.steward", "equipment.buy" })
+            Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(offer)).IsAccepted);
+        Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
+        return s;
+    }
+
+    private static GameSession Restored(GameSession s)
+    {
+        var loaded = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(loaded.IsSuccess, loaded.Error);
+        Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, loaded.Session!.CaptureSnapshot().AuthoritativeHash);
+        return loaded.Session;
+    }
+
+    [TestMethod]
+    public void UntreatedHotScenarioHasCausalWarningCollapseCriticalAndOneDeath()
+    {
+        var s = Started();
+        s.AdvanceWithoutSnapshot(6_200);
+        var m = s.CaptureMedical()!;
+        Console.WriteLine($"stage={m.Stage} warning={m.WarningTick} collapse={m.CollapseTick} critical={m.CriticalTick} tick={s.CurrentTick} queue={m.WaterQueue.Length}");
+        foreach (var item in m.Evidence) Console.WriteLine($"{item.Tick} {item.Id} {item.Description}");
+        Assert.AreEqual(MedicalStage.Terminal, m.Stage);
+        Assert.AreEqual(1, s.CaptureLifecycleSnapshot()!.Casualties.Count);
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void EarlyFreeWaterAndTimelyMedicAreCounterfactualPreventions()
+    {
+        foreach (var action in new[] { MedicalAction.GuideToWater, MedicalAction.DispatchMedic, MedicalAction.SafeRemove, MedicalAction.GuideToRest })
+        {
+            var s = Started();
+            var target = s.CaptureMedical()!.AtRiskGuestId;
+            if (action is MedicalAction.DispatchMedic or MedicalAction.SafeRemove)
+            {
+                while (s.CaptureMedical()!.Stage != MedicalStage.Distress && s.CurrentTick < 4_000)
+                    s.AdvanceWithoutSnapshot(1);
+                Assert.AreEqual(MedicalStage.Distress, s.CaptureMedical()!.Stage);
+            }
+            Assert.IsTrue(Send(s, new MedicalCommand(target, action)).IsAccepted, action.ToString());
+            if (action == MedicalAction.SafeRemove)
+            {
+                var interrupted = Send(s, new MedicalCommand(target, MedicalAction.GuideToWater));
+                Assert.IsFalse(interrupted.IsAccepted);
+                StringAssert.Contains(interrupted.Message, "response owns this guest");
+            }
+            s = Restored(s);
+            s.AdvanceWithoutSnapshot(6_200 - checked((int)s.CurrentTick));
+            Console.WriteLine($"action={action} stage={s.CaptureMedical()!.Stage} response={s.CaptureMedical()!.Response} tick={s.CurrentTick}");
+            if (s.CaptureMedical()!.Stage == MedicalStage.Terminal)
+            {
+                foreach (var item in s.CaptureMedical()!.Evidence) Console.WriteLine($"{item.Tick} {item.Id} {item.Description}");
+                var nav = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == s.CaptureMedical()!.MedicId);
+                Console.WriteLine($"medic nav={nav.Action} intent={nav.IntentId} destination={nav.Destination} position={nav.XMillimetres},{nav.ZMillimetres}");
+            }
+            Assert.AreEqual(0, s.CaptureLifecycleSnapshot()!.Casualties.Count);
+            Assert.IsTrue(s.CaptureMedical()!.Stage is MedicalStage.Clear or MedicalStage.Treated or MedicalStage.Removed);
+            if (action == MedicalAction.SafeRemove)
+                Assert.IsTrue(s.CapturePreparation()!.People.Single(item => item.AgentId == target).Departed);
+            if (action == MedicalAction.DispatchMedic)
+                Assert.AreEqual(MedicalIntent.WatchShow, s.CaptureMedical()!.Needs.Single(item => item.AgentId == target).Intent);
+            Restored(s);
+        }
+    }
+
+    [TestMethod]
+    public void QueueAbandonmentReassignsReservationsAndDoesNotTransferWater()
+    {
+        var s = Started();
+        s.AdvanceWithoutSnapshot(1_200);
+        var before = s.CaptureMedical()!;
+        Assert.IsTrue(before.WaterQueue.Length >= 2);
+        var leaver = before.WaterQueue[0];
+        Assert.IsTrue(Send(s, new MedicalCommand(leaver, MedicalAction.ReturnToShow)).IsAccepted);
+        var after = s.CaptureMedical()!;
+        Assert.IsFalse(after.WaterQueue.Contains(leaver));
+        Assert.IsFalse(after.WaterOwnerId == leaver);
+        Assert.AreEqual(before.WaterQueue.Length - 1, after.WaterQueue.Length);
+        for (var index = 0; index < after.WaterQueue.Length; index++)
+            Assert.AreEqual(index, after.Needs.Single(item => item.AgentId == after.WaterQueue[index]).QueueSlot);
+        Assert.AreEqual(-1L, after.Needs.Single(item => item.AgentId == leaver).LastWaterTick);
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void WarningTravelTreatmentAndCriticalRestoreWithoutChangingOutcome()
+    {
+        var untreated = Started();
+        while (untreated.CaptureMedical()!.Stage == MedicalStage.Clear && untreated.CurrentTick < 4_000)
+            untreated.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalStage.Distress, untreated.CaptureMedical()!.Stage);
+        untreated = Restored(untreated);
+        var warningTick = untreated.CaptureMedical()!.WarningTick;
+        var treated = Restored(untreated);
+        Assert.IsTrue(Send(treated, new MedicalCommand(treated.CaptureMedical()!.AtRiskGuestId, MedicalAction.DispatchMedic)).IsAccepted);
+        Assert.AreEqual(MedicalResponseStage.Travelling, treated.CaptureMedical()!.ResponseStage);
+        var busy = Send(treated, new MedicalCommand(treated.CaptureMedical()!.AtRiskGuestId, MedicalAction.DispatchMedic));
+        Assert.IsFalse(busy.IsAccepted);
+        StringAssert.Contains(busy.Message, "already owns this response");
+        treated = Restored(treated);
+        while (treated.CaptureMedical()!.ResponseStage == MedicalResponseStage.Travelling &&
+               treated.CaptureMedical()!.Stage != MedicalStage.Terminal &&
+               treated.CurrentTick < warningTick + GameSession.MedicalCollapseDelayTicks + GameSession.MedicalDeathDelayTicks)
+            treated.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalResponseStage.Treating, treated.CaptureMedical()!.ResponseStage);
+        treated = Restored(treated);
+        treated.AdvanceWithoutSnapshot(GameSession.MedicalTreatmentTicks + 1);
+        Assert.AreEqual(MedicalStage.Treated, treated.CaptureMedical()!.Stage);
+        Assert.AreEqual(0, treated.CaptureLifecycleSnapshot()!.Casualties.Count);
+
+        while ((untreated.CaptureMedical()!.Stage is MedicalStage.Distress or MedicalStage.Collapsed) && untreated.CurrentTick < 6_000)
+            untreated.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalStage.Critical, untreated.CaptureMedical()!.Stage);
+        untreated = Restored(untreated);
+        Assert.AreEqual(warningTick + GameSession.MedicalCollapseDelayTicks + GameSession.MedicalCriticalDelayTicks,
+            untreated.CaptureMedical()!.CriticalTick);
+        untreated.AdvanceWithoutSnapshot(GameSession.MedicalDeathDelayTicks);
+        Assert.AreEqual(MedicalStage.Terminal, untreated.CaptureMedical()!.Stage);
+        var frozenHash = untreated.CaptureSnapshot().AuthoritativeHash;
+        var frozenTick = untreated.CurrentTick;
+        untreated.AdvanceWithoutSnapshot(100);
+        Assert.AreEqual(frozenTick, untreated.CurrentTick);
+        Assert.AreEqual(frozenHash, untreated.CaptureSnapshot().AuthoritativeHash);
+        Assert.AreEqual(1, untreated.CaptureMedical()!.Evidence.Count(item => item.Id == "medical:death"));
+        Assert.AreEqual(1, untreated.CaptureLifecycleSnapshot()!.Casualties.Count);
+    }
+
+    [TestMethod]
+    public void BlockedMedicApproachGivesActionableCauseBeforeCommandAcceptance()
+    {
+        var s = Started();
+        s.AdvanceWithoutSnapshot(2_000);
+        var medical = s.CaptureMedical()!;
+        Assert.AreEqual(MedicalStage.Distress, medical.Stage);
+        var patient = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == medical.AtRiskGuestId);
+        var cell = TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres);
+        var field = typeof(GameSession).GetField("_traversalGrid", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var grid = (TraversalGrid)field.GetValue(s)!;
+        var overrides = grid.Overrides.Values.ToDictionary(item => item.Cell);
+        foreach (var (dx, dz) in new (int X, int Z)[] { (4, 0), (-4, 0), (0, 4), (0, -4),
+                     (3, 2), (-3, 2), (3, -2), (-3, -2), (2, 3), (-2, 3), (2, -3), (-2, -3) })
+        {
+            var blocked = new GridCell(cell.X + dx, cell.Z + dz);
+            overrides[blocked] = new TerrainCellOverride(blocked, GroundSurface.Grass, false);
+        }
+        field.SetValue(s, new TraversalGrid(overrides.Values));
+        var envelope = new CommandEnvelope(new CommandId(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase,
+            s.CurrentTick, s.NextSubmissionSequence, null, new MedicalCommand(medical.AtRiskGuestId, MedicalAction.DispatchMedic));
+        var result = s.ValidateCommand(envelope);
+        Assert.IsNotNull(result);
+        StringAssert.Contains(result.Message, "cannot reach a walkable position");
+    }
+
+    [TestMethod]
+    public void OwnedResponseRejectsPatientAndMedicRetargetsWithoutQueueLeak()
+    {
+        var s = Started();
+        s.AdvanceWithoutSnapshot(2_000);
+        var m = s.CaptureMedical()!;
+        Assert.IsTrue(Send(s, new MedicalCommand(m.AtRiskGuestId, MedicalAction.DispatchMedic)).IsAccepted);
+        Assert.IsFalse(s.CaptureMedical()!.WaterQueue.Contains(m.AtRiskGuestId));
+        var hash = s.CaptureSnapshot().AuthoritativeHash;
+        foreach (var action in new[] { MedicalAction.GuideToWater, MedicalAction.GuideToRest,
+                     MedicalAction.ReturnToShow, MedicalAction.SafeRemove })
+        {
+            var rejected = Send(s, new MedicalCommand(m.AtRiskGuestId, action));
+            Assert.IsFalse(rejected.IsAccepted, action.ToString());
+            StringAssert.Contains(rejected.Message, "response owns this guest");
+        }
+        foreach (var id in new[] { m.AtRiskGuestId, m.MedicId })
+        {
+            var rejected = SendTo(s, id, new SetAgentDestinationCommand(GameSession.MedicalExitCell, "fixture.retarget"));
+            Assert.IsFalse(rejected.IsAccepted);
+            StringAssert.Contains(rejected.Message, "unavailable in prepared editions");
+        }
+        Assert.AreEqual(hash, s.CaptureSnapshot().AuthoritativeHash);
+        s.AdvanceWithoutSnapshot(2_000);
+        Assert.AreEqual(MedicalStage.Treated, s.CaptureMedical()!.Stage);
+        Assert.IsFalse(s.CaptureMedical()!.WaterQueue.Contains(m.AtRiskGuestId));
+    }
+
+    [TestMethod]
+    public void OrdinaryGuestCannotEnterUnsupportedRestHold()
+    {
+        var s = Started();
+        var m = s.CaptureMedical()!;
+        var ordinary = m.Needs.First(item => item.AgentId != m.AtRiskGuestId).AgentId;
+        var hash = s.CaptureSnapshot().AuthoritativeHash;
+        var rejected = Send(s, new MedicalCommand(ordinary, MedicalAction.GuideToRest));
+        Assert.IsFalse(rejected.IsAccepted);
+        StringAssert.Contains(rejected.Message, "guide other guests to free water");
+        Assert.AreEqual(hash, s.CaptureSnapshot().AuthoritativeHash);
+        Assert.AreNotEqual(MedicalIntent.Rest, s.CaptureMedical()!.Needs.Single(item => item.AgentId == ordinary).Intent);
+    }
+
+    [TestMethod]
+    public void TreatmentCannotCompleteAfterPhysicalSeparation()
+    {
+        var s = Started();
+        s.AdvanceWithoutSnapshot(2_000);
+        var target = s.CaptureMedical()!.AtRiskGuestId;
+        Assert.IsTrue(Send(s, new MedicalCommand(target, MedicalAction.DispatchMedic)).IsAccepted);
+        while (s.CaptureMedical()!.ResponseStage == MedicalResponseStage.Travelling && s.CurrentTick < 4_000)
+            s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalResponseStage.Treating, s.CaptureMedical()!.ResponseStage);
+        var treatmentHash = s.CaptureSnapshot().AuthoritativeHash;
+        foreach (var action in new[] { MedicalAction.GuideToWater, MedicalAction.GuideToRest, MedicalAction.ReturnToShow })
+        {
+            var rejected = Send(s, new MedicalCommand(target, action));
+            Assert.IsFalse(rejected.IsAccepted);
+            StringAssert.Contains(rejected.Message, "response owns this guest");
+        }
+        Assert.AreEqual(treatmentHash, s.CaptureSnapshot().AuthoritativeHash);
+
+        // Inject a one-tick physical separation to prove elapsed time cannot finish remotely.
+        var field = typeof(GameSession).GetField("_navigationAgents", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var agents = field.GetValue(s)!;
+        var patient = agents.GetType().GetProperty("Item")!.GetValue(agents, [new EntityId(target)])!;
+        var position = patient.GetType().GetProperty("XMillimetres")!;
+        position.SetValue(patient, (int)position.GetValue(patient)! + 10_000);
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalResponseStage.None, s.CaptureMedical()!.ResponseStage);
+        Assert.AreNotEqual(MedicalStage.Treated, s.CaptureMedical()!.Stage);
+        Assert.AreEqual(1, s.CaptureMedical()!.Evidence.Count(item => item.Id == "medical:treatment-interrupted"));
+    }
+}

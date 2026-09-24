@@ -165,7 +165,7 @@ public sealed partial class GameSession
             e.JobStage is MaintenanceStage.Repairing or MaintenanceStage.Completed && (e.RepairStartedTick < e.JobDispatchedTick || e.RepairStartedTick > s.CurrentTick) ||
             e.WarningTick < -1 || e.WarningTick > s.CurrentTick || e.WarningAcknowledged && e.WarningTick < 0 ||
             e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick != p.StartedTick + EquipmentWarningDelayTicks ||
-            (e.Stage == EquipmentStage.Terminal) != (p.Status == PreparationStatus.Failed) ||
+            (e.Stage == EquipmentStage.Terminal) != (p.Status == PreparationStatus.Failed && s.Medical?.Stage != MedicalStage.Terminal) ||
             p.Status != PreparationStatus.Preparing && s.Lifecycle is null)
             return "Equipment warning, response ownership or lifecycle invalid.";
         if (e.Evidence[0].Id != "equipment:load" || e.Evidence[0].Tick != 0 ||
@@ -180,7 +180,7 @@ public sealed partial class GameSession
         if (p.Status == PreparationStatus.Preparing && s.Lifecycle is not null ||
             s.Lifecycle is { } lifecycle && (lifecycle.FixtureLabel != "R0.02 equipment lifecycle; hearing only, no Favour economy" ||
                 !lifecycle.ProtectedPeople.Select(item => (item.PersonId, item.Role)).SequenceEqual(p.People.OrderBy(item => item.Name, StringComparer.Ordinal).Select(item => (item.Name, (int)item.Role))) ||
-                lifecycle.Casualties.Length != (e.Stage == EquipmentStage.Terminal ? 1 : 0)))
+                lifecycle.Casualties.Length != (e.Stage == EquipmentStage.Terminal || s.Medical?.Stage == MedicalStage.Terminal ? 1 : 0)))
             return "Equipment lifecycle must protect the exact physical roster.";
         return null;
     }

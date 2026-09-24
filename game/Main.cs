@@ -121,8 +121,8 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.02a-preshow-v4",
-        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-live-preshow-v4");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.03-hot-medical-v5",
+        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-hot-medical-v5");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -168,6 +168,7 @@ public partial class Main : Node
         else
         {
             _session = _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
+                _medicalCaptureDirectory is not null || OS.GetCmdlineUserArgs().Length == 0 ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _preparationCaptureDirectory is null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier);
         }
@@ -175,6 +176,7 @@ public partial class Main : Node
         _foundationPublishedHash = _pausedHash;
         _foundationPublishedHashTick = _session.CurrentTick;
         BuildWorld();
+        if (_session.CaptureMedical() is not null) BuildMedicalWorld();
         if (_session.CaptureEquipment() is not null) EnsureStageDrumKit();
         if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();
         if (_sharedWorldFixture is not null) BuildSharedWorldServiceMarkers();
@@ -214,6 +216,7 @@ public partial class Main : Node
         if (_preparationProfileOutput is not null) FinishPreparationProfileFrame();
         if (_equipmentCaptureDirectory is not null) ProcessEquipmentCapture();
         if (_equipmentPerformanceOutput is not null) ProcessEquipmentPerformanceCheck();
+        ProcessMedicalCapture();
         ProcessStartSplashCapture();
     }
 
@@ -322,7 +325,9 @@ public partial class Main : Node
                 _attendeePickRegistry.Add(pickBody.GetInstanceId(), agent.Id);
             }
             _attendeeVisuals.Add(agent.Id, visual);
-            if (_session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value) is { Role: not ProtectedPersonRole.Guest } role)
+            if (performer?.Name == "Riley Hart")
+                visual.AddChild(InstantiateAsset("res://assets/characters/lwf_medic_vest_cue_v1.glb"));
+            if (_session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value) is { Role: not ProtectedPersonRole.Guest, Name: not "Riley Hart" } role)
             {
                 var cue = new MeshInstance3D
                 {
@@ -769,6 +774,12 @@ public partial class Main : Node
             else if (args[i] == "--capture-preparation" && i + 1 < args.Length) _preparationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-live-performance" && i + 1 < args.Length) _liveCaptureDirectory = args[++i];
             else if (args[i] == "--capture-start-splash" && i + 1 < args.Length) _startSplashCapturePath = args[++i];
+            else if (args[i] == "--capture-medical" && i + 2 < args.Length)
+            {
+                _medicalCaptureMode = args[++i];
+                _medicalCaptureDirectory = args[++i];
+                Directory.CreateDirectory(_medicalCaptureDirectory);
+            }
             else if (args[i] == "--measure-live-performance" && i + 2 < args.Length)
             {
                 _liveMeasurementTier = int.Parse(args[++i]);

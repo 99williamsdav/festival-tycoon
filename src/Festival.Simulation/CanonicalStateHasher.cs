@@ -305,6 +305,11 @@ internal static class CanonicalStateHasher
             writer.Write("r0-live-performance-v2");
             writer.Write(livePerformance);
         }
+        if (session.MedicalCanonicalJson is { } medical)
+        {
+            writer.Write("r0-medical-v1");
+            writer.Write(medical);
+        }
         writer.Flush();
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();

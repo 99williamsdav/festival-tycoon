@@ -47,7 +47,10 @@ public partial class Main
         _preparationSummary = LabelText("", 15, ink);
         _preparationSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _preparationSummary.CustomMinimumSize = new Vector2(370, 140); _preparationSummary.MaxLinesVisible = 9; box.AddChild(_preparationSummary);
-        if (_session.CaptureEquipment() is not null) BuildEquipmentControls(box);
+        if (_session.CaptureMedical() is not null)
+            box.AddChild(LabelText("GENERATOR • safe 80% baseline", 13, ink));
+        else if (_session.CaptureEquipment() is not null) BuildEquipmentControls(box);
+        if (_session.CaptureMedical() is not null) BuildMedicalControls(box);
         foreach (var offer in _session.GetPreparationOffers().OrderBy(item => item.Category == "maintenance" ? 0 : 1))
         {
             var button = ButtonText($"{offer.Name}  £{offer.PricePennies / 100m:0}", () => PreparationAccept(offer.Id));
@@ -69,7 +72,8 @@ public partial class Main
         rosterPanel.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(rosterPanel);
         _preparationPeople = LabelText("", 15, ink); _preparationPeople.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _preparationPeople.CustomMinimumSize = new Vector2(380, 340); rosterPanel.AddChild(_preparationPeople);
-        var inspector = new PanelContainer { Position = new Vector2(rightPanelX, _session.CaptureEquipment() is null ? 440 : 525), Size = new Vector2(400, _session.CaptureEquipment() is null ? 250 : 165) };
+        var inspector = new PanelContainer { Position = new Vector2(rightPanelX, _session.CaptureMedical() is not null ? 475 : _session.CaptureEquipment() is null ? 440 : 525),
+            Size = new Vector2(400, _session.CaptureMedical() is not null ? 300 : _session.CaptureEquipment() is null ? 250 : 165) };
         inspector.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(inspector);
         var detail = new VBoxContainer(); inspector.AddChild(detail);
         _inspectorTitle = LabelText("Inspect the persistent farm", 18, ink); detail.AddChild(_inspectorTitle);
@@ -158,6 +162,7 @@ public partial class Main
             (_session.CaptureEquipment() is null ? "\n\nNo lethal chains or success rewards in this preparation slice." : "\n\nEquipment chain active. Every person is protected; no Favour/reward economy yet.");
         RefreshLivePerformanceHud();
         RefreshEquipmentControls();
+        RefreshMedicalControls();
     }
 
     private void AdvancePreparationPresentation(double delta)

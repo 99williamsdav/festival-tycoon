@@ -101,6 +101,8 @@ public sealed record SessionPersistenceSnapshot(
     public EquipmentSnapshot? Equipment { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public LivePerformanceSnapshot? LivePerformance { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public MedicalSnapshot? Medical { get; init; }
 }
 
 public sealed record SessionRestoreResult(GameSession? Session, string? Error)

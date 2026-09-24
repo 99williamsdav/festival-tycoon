@@ -111,7 +111,7 @@ public sealed partial class GameSession
         {
             var listener = listeners[index];
             if (listener.Place is not null || CurrentTick - listener.LastDecisionTick < 800 ||
-                !p.People.Any(item => item.AgentId == listener.AgentId && item.Admitted)) continue;
+                !p.People.Any(item => item.AgentId == listener.AgentId && item.Admitted && !item.Departed)) continue;
             listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
             var start = _navigationAgents[new(listener.AgentId)];
             var startCell = TraversalGrid.WorldToCell(start.XMillimetres, start.ZMillimetres);
@@ -124,7 +124,8 @@ public sealed partial class GameSession
                 if (!route.Found) continue;
                 reserved.Add(option.Cell);
                 listeners[index] = listener with { Place = option.Cell };
-                ApplyAgentDestination(new(listener.AgentId), new(option.Cell, "performance.listen"));
+                if (!MedicalOwnsNavigation(listener.AgentId))
+                    ApplyAgentDestination(new(listener.AgentId), new(option.Cell, "performance.listen"));
                 break;
             }
         }
@@ -138,6 +139,7 @@ public sealed partial class GameSession
             // The prior tick's state earns one tick. A set starting, a new arrival,
             // or restored power cannot award an entire second at this boundary.
             if (live.Stage == LiveSetStage.Live && hasPower && listener.AtPlace && atPlace &&
+                !p.People.Any(item => item.AgentId == listener.AgentId && item.Departed) &&
                 CurrentTick > live.StartedTick && CurrentTick <= live.StartedTick + LiveSetDurationTicks)
             {
                 var listenedTicks = listener.ListenedTicks + 1;

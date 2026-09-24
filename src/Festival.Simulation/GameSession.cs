@@ -203,6 +203,11 @@ public sealed partial class GameSession
                 ApplyRetargetServiceQueueAgentFixture(envelope.TargetId!.Value, retarget);
                 break;
 
+            case MedicalCommand medical:
+                affectedTarget = new EntityId(medical.GuestId);
+                ApplyMedicalCommand(medical);
+                break;
+
             default:
                 return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported.");
         }
@@ -266,6 +271,7 @@ public sealed partial class GameSession
             ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.None);
             AdvancePreparation();
             AdvanceLivePerformance();
+            AdvanceMedical();
             if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished) break;
         }
 
@@ -398,6 +404,7 @@ public sealed partial class GameSession
             Preparation = CapturePreparation(),
             Equipment = CaptureEquipment(),
             LivePerformance = CaptureLivePerformance(),
+            Medical = CaptureMedical(),
         };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
@@ -455,6 +462,8 @@ public sealed partial class GameSession
             System.Text.Json.JsonSerializer.Serialize(snapshot.Preparation));
         session._livePerformance = snapshot.LivePerformance is null ? null : System.Text.Json.JsonSerializer.Deserialize<LivePerformanceSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.LivePerformance));
+        session._medical = snapshot.Medical is null ? null : System.Text.Json.JsonSerializer.Deserialize<MedicalSnapshot>(
+            System.Text.Json.JsonSerializer.Serialize(snapshot.Medical));
 
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
@@ -519,6 +528,8 @@ public sealed partial class GameSession
         if (equipmentError is not null) return equipmentError;
         var livePerformanceError = ValidatePersistedLivePerformance(snapshot.LivePerformance, snapshot);
         if (livePerformanceError is not null) return livePerformanceError;
+        var medicalError = ValidatePersistedMedical(snapshot.Medical, snapshot);
+        if (medicalError is not null) return medicalError;
         var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
             .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();
         if (ownedEntityIds.Distinct().Count() != ownedEntityIds.Length || ownedEntityIds.Any(id => id >= snapshot.NextEntityId))
@@ -612,7 +623,7 @@ public sealed partial class GameSession
 
         var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
         if (lifecycleFrozen is not null) return lifecycleFrozen;
-        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand))
+        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished)
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -620,6 +631,7 @@ public sealed partial class GameSession
         return envelope.Command switch
         {
             EquipmentCommand equipment => ValidateEquipmentCommand(envelope.TargetId, equipment),
+            MedicalCommand medical => ValidateMedicalCommand(envelope.TargetId, medical),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture creation requires no target and a positive expiry."),

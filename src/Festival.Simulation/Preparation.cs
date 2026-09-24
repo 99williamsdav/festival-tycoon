@@ -165,6 +165,18 @@ public sealed partial class GameSession
             }
             _traversalGrid = new TraversalGrid(terrain.Values);
         }
+        if (_medical is not null)
+        {
+            var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
+            foreach (var (centre, radius) in new[] { (MedicalWaterCell, 3), (MedicalTentCell, 3) })
+            for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
+            for (var x = centre.X - radius; x <= centre.X + radius; x++)
+            {
+                var cell = new GridCell(x, z);
+                terrain[cell] = new(cell, GroundSurface.Grass, false);
+            }
+            _traversalGrid = new TraversalGrid(terrain.Values);
+        }
         for (var index = 0; index < p.People.Length; index++)
         {
             var person = p.People[index];
@@ -218,7 +230,8 @@ public sealed partial class GameSession
         if (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedWeekendTicks && transitionAtStart)
         {
             for (var index = 0; index < people.Length; index++)
-                ApplyAgentDestination(new(people[index].AgentId), new(PreparedStart(index), "edition.departure"));
+                if (!people[index].Departed)
+                    ApplyAgentDestination(new(people[index].AgentId), new(PreparedStart(index), "edition.departure"));
             _preparation = p with { Status = PreparationStatus.Departing };
             Phase = SessionPhase.Egress;
         }
@@ -255,13 +268,15 @@ public sealed partial class GameSession
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null)
             return "Preparation header or collections invalid.";
         var maintenance = snapshot.Equipment?.WorkerId is not null ? 1 : 0;
-        if (p.People.Length != p.Tier * 20 + 4 + maintenance || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != p.Tier * 20 ||
-            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != 3 ||
+        var medic = snapshot.Medical is null ? 0 : 1;
+        if (p.People.Length != p.Tier * 20 + 4 + maintenance + medic || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != p.Tier * 20 ||
+            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != 3 ||
             p.People.Any(item => item.AgentId == 0 || item.AgentId >= snapshot.NextEntityId || string.IsNullOrWhiteSpace(item.Name) || item.ExpectedGenre is < 0 or > 1 ||
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
             p.People.Select(item => item.AgentId).Distinct().Count() != p.People.Length)
             return "Fixed protected roster invalid.";
-        var factory = snapshot.Equipment is null ? CreatePreparedCampaign(snapshot.CampaignSeed, p.Tier) : CreateEquipmentCampaign(snapshot.CampaignSeed, p.Tier);
+        var factory = snapshot.Medical is not null ? CreateMedicalCampaign(snapshot.CampaignSeed, p.Tier) :
+            snapshot.Equipment is null ? CreatePreparedCampaign(snapshot.CampaignSeed, p.Tier) : CreateEquipmentCampaign(snapshot.CampaignSeed, p.Tier);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })
             if (list.Any(string.IsNullOrWhiteSpace) || !list.SequenceEqual(list.Distinct().Order(StringComparer.Ordinal))) return "Preparation collections must be sorted and unique.";
@@ -289,7 +304,7 @@ public sealed partial class GameSession
         if (p.Status == PreparationStatus.Preparing && (snapshot.Phase != (int)SessionPhase.OpeningCheck || (snapshot.NavigationAgents?.Length ?? 0) != 0 || p.People.Any(item => item.Admitted || item.Departed)) ||
             p.Status is PreparationStatus.Running or PreparationStatus.Failed && snapshot.Phase != (int)SessionPhase.Live ||
             p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.Phase != (int)SessionPhase.Egress ||
-            p.Status == PreparationStatus.Failed && !p.FixtureOutcomesEnabled && snapshot.Equipment?.Stage != EquipmentStage.Terminal ||
+            p.Status == PreparationStatus.Failed && !p.FixtureOutcomesEnabled && snapshot.Equipment?.Stage != EquipmentStage.Terminal && snapshot.Medical?.Stage != MedicalStage.Terminal ||
             p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => offers[id].Category == "staff")) ||
             p.Status == PreparationStatus.Finished && p.People.Any(item => !item.Departed))
             return "Preparation phase and protected-person progress disagree.";

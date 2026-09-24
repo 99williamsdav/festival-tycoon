@@ -115,6 +115,8 @@ public partial class Main
     {
         var person = preparation.People.Single(item => item.AgentId == id.Value);
         var live = _session.CaptureLivePerformance();
+        var medical = _session.CaptureMedical();
+        var need = medical?.Needs.SingleOrDefault(item => item.AgentId == id.Value);
         var listening = live?.Listeners.SingleOrDefault(item => item.AgentId == id.Value);
         var performer = live?.Performers.SingleOrDefault(item => item.AgentId == id.Value);
         var detail = listening is not null
@@ -128,7 +130,9 @@ public partial class Main
         _inspectorTitle.Text = $"{person.Name} • {person.Role}";
         _inspectorBody.Text = $"{navigation.Action} • {navigation.IntentId}\n" +
             $"POSITION  {navigation.XMillimetres / 1000.0:0.00} m, {navigation.ZMillimetres / 1000.0:0.00} m\n" +
-            $"Admitted {person.Admitted} • satisfaction {person.Satisfaction / 100m:0.00}%\n{detail}";
+            $"Admitted {person.Admitted} • satisfaction {person.Satisfaction / 100m:0.00}%\n" +
+            (need is null ? "" : $"HOT • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n" +
+                $"INTENT {need.Intent} • {need.Reason}\n") + detail;
     }
 
     private void EnsureStageDrumKit()
