@@ -1,0 +1,58 @@
+{
+  "asset": "Modular drummer prototype v1",
+  "purpose": "R0.02a third band-member asset approval checkpoint",
+  "body_meshes": 4,
+  "drum_kit_meshes": 4,
+  "parts_triangles": {
+    "LWF_Drummer_Body": 120,
+    "LWF_Drummer_Hair": 24,
+    "LWF_Drummer_IdleLeftArm": 56,
+    "LWF_Drummer_IdleRightArm": 56,
+    "LWF_Drummer_DrumShells": 316,
+    "LWF_Drummer_CymbalsHardware": 180,
+    "LWF_Drummer_LeftPlayingArm": 48,
+    "LWF_Drummer_RightPlayingArm": 48
+  },
+  "body_triangles": 256,
+  "drum_kit_triangles": 592,
+  "palette_size": [
+    192,
+    8
+  ],
+  "height_m": 1.75,
+  "origin": "ground between feet, shared body and drum-kit origin",
+  "forward_blender": "+Y",
+  "forward_godot": "-Z",
+  "attachment": "one persistent performer; neutral body and idle arms during travel; attach drum kit, hide idle arms and play drumming arms at set start; reverse at set end",
+  "animation": "two subtle 17-frame, 24fps alternating arm/stick cues, no root motion or rig",
+  "ownership": "simulation owns person ID, travel, stage slot and set timing; presentation only",
+  "provenance": "body derived from approved project-authored guitarist body GLB; new project-authored hair, compact drums, cymbals, stands, arms, sticks and palette; stage/guitarist/bassist are review-only context",
+  "bounds_blender": {
+    "body": [
+      [
+        -0.40203893184661865,
+        -0.1875,
+        0.0
+      ],
+      [
+        0.40203893184661865,
+        0.2004999965429306,
+        1.75
+      ]
+    ],
+    "kit": [
+      [
+        -0.800000011920929,
+        -0.059054553508758545,
+        0.019999995827674866
+      ],
+      [
+        0.8299999833106995,
+        0.9300000071525574,
+        1.3764177560806274
+      ]
+    ]
+  },
+  "verification_blender": "Blender 4.1.1 source reopen and GLB reimports passed: four meshes per export, 256 body and 592 kit triangles, matched bounds, grounded 1.75m body, 192x8 palette, no armature or body animation, two arm/stick actions in kit.",
+  "verification_godot": "Godot 4.7.2 isolated standard import and instantiation passed: four MeshInstance3D nodes per GLB, 256 body and 592 kit triangles, embedded 192x8 palette, no Skeleton3D, body without AnimationPlayer and kit with DrumLoop_Left_24fps_17frames and DrumLoop_Right_24fps_17frames. Non-blocking local user-directory and certificate warnings occurred."
+}
