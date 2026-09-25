@@ -232,10 +232,10 @@ public partial class Main
             UpdatePersonFacing(agent.Id, visual, renderedPosition, agent.Action,
                 watching.Contains(agent.Id), onStage.Contains(agent.Id), delta);
         }
+        AdvanceLivePerformancePresentation(delta);
         AdvanceMedicalCuePresentation();
         AdvanceDisorderCuePresentation();
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
-        AdvanceLivePerformancePresentation(delta);
         AdvanceIncidentAudioPresentation();
         ProcessLivePerformanceCapture();
         if (_autosaveScheduler.Advance(delta))

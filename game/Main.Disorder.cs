@@ -30,9 +30,14 @@ public partial class Main
     private Button? _securityPostWorkerButton;
     private readonly DisorderCuePlanner _disorderCuePlanner = new();
     private readonly Dictionary<ulong, Label3D> _disorderCueLabels = [];
+    private readonly HashSet<ulong> _fightShaking = [];
 
     private void ResetDisorderCuePresentation()
     {
+        foreach (var id in _fightShaking)
+            if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual))
+                visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y, 0);
+        _fightShaking.Clear();
         foreach (var label in _disorderCueLabels.Values) label.QueueFree();
         _disorderCueLabels.Clear();
         var disorder = _session.CaptureDisorder();
@@ -52,6 +57,7 @@ public partial class Main
     private void AdvanceDisorderCuePresentation()
     {
         if (_session.CaptureDisorder() is not { } disorder) return;
+        AdvanceFightShakePresentation(disorder);
         foreach (var label in _disorderCueLabels.Values) label.Visible = false;
         var medical = _session.CaptureMedical();
         var cues = _disorderCuePlanner.Observe(disorder, medical, _session.CurrentTick);
@@ -79,6 +85,28 @@ public partial class Main
                 _ => new Color("ffe4a1")
             };
             label.Visible = true;
+        }
+    }
+
+    private void AdvanceFightShakePresentation(DisorderSnapshot disorder)
+    {
+        var fighting = disorder.People.Where(person => person.Stage == DisorderStage.Fight)
+            .Select(person => person.AgentId).ToHashSet();
+        foreach (var id in _fightShaking.Except(fighting))
+            if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual))
+                visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y, 0);
+        _fightShaking.Clear();
+        var time = (float)((_session.CurrentTick + _foundationClock.InterpolationFraction) / 80.0);
+        foreach (var id in fighting)
+        {
+            if (!_attendeeVisuals.TryGetValue(new EntityId(id), out var visual)) continue;
+            var phase = time * Mathf.Tau * 5.5f + id * 0.83f;
+            // A small pose-only jostle. Navigation, queue order and fight state stay authoritative.
+            visual.Position += new Vector3(Mathf.Sin(phase) * .09f, 0,
+                Mathf.Sin(phase * 1.3f) * .055f);
+            visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y,
+                Mathf.Sin(phase * .75f) * .055f);
+            _fightShaking.Add(id);
         }
     }
 
@@ -374,7 +402,8 @@ public partial class Main
             if (!_disorderCueLabels.Values.Any(item => item.Visible && item.Text is
                 "What the hell?!" or "This is ridiculous!" or "It's an outrage!" or "FFS!" or "Grrrr!" or "Hurry up!" or "This queue is ridiculous!"))
                 throw new InvalidOperationException("Complaint shout was not anchored visibly to a person.");
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "complaint-32.png"));
+            if (DisplayServer.GetName() != "headless")
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "complaint-32.png"));
             var selected = _selectedAttendeeId!.Value;
             Pick(_camera.UnprojectPosition(_attendeeVisuals[selected].Position + new Vector3(0, .9f, 0)));
             if (_selectedAttendeeId != selected)
@@ -394,7 +423,8 @@ public partial class Main
         {
             if (!_disorderCueLabels.Values.Any(item => item.Visible && item.Text == "ARGUMENT"))
                 throw new InvalidOperationException("Argument was not visibly labelled over its person.");
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "argument-32.png"));
+            if (DisplayServer.GetName() != "headless")
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "argument-32.png"));
         }
         if (_disorderCaptureFrame == 14)
         {
@@ -422,10 +452,12 @@ public partial class Main
             if (fighter.OpponentId is not { } opponentId ||
                 !_disorderCueLabels[fighter.AgentId].Visible || !_disorderCueLabels[opponentId].Visible ||
                 _disorderCueLabels[fighter.AgentId].Text != "FIGHT" || _disorderCueLabels[opponentId].Text != "FIGHT" ||
+                !_fightShaking.Contains(fighter.AgentId) || !_fightShaking.Contains(opponentId) ||
                 !_inspectorBody.Text.Contains("COUNTERPART", StringComparison.Ordinal))
-                throw new InvalidOperationException("Fight pair or counterpart inspector was not visible.");
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "fight-pair-32.png"));
-            GD.Print("DISORDER_SIGNAL verified=complaint-argument-fight person-anchored pair=both zoom=32");
+                throw new InvalidOperationException("Fight pair, shake or counterpart inspector was not visible.");
+            if (DisplayServer.GetName() != "headless")
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "fight-pair-32.png"));
+            GD.Print("DISORDER_SIGNAL verified=complaint-argument-fight person-anchored pair=both shake=both zoom=32");
             GetTree().Quit();
         }
     }
