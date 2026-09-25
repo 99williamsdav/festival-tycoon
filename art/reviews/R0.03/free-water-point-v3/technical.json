@@ -1,0 +1,32 @@
+{
+  "asset": "Simple drinking-water standpipe v3",
+  "purpose": "R0.03 water-point revision; one functional tap and clear DRINKING WATER sign",
+  "parts_triangles": {
+    "LWF_FreeWaterV3_ConcreteFoot": 12,
+    "LWF_FreeWaterV3_OneTapStandpipe": 272,
+    "LWF_FreeWaterV3_SignBoard": 24,
+    "LWF_FreeWaterV3_Text_DRINKING": 1132,
+    "LWF_FreeWaterV3_Text_WATER": 540
+  },
+  "triangles": 1980,
+  "nodes": 5,
+  "palette_size": [
+    80,
+    8
+  ],
+  "units": "metres",
+  "origin": "ground-centred under pipe",
+  "customer_direction": "Blender -Y / Godot +Z",
+  "service_positions": 1,
+  "tap_outlet_m": [
+    0,
+    -0.27,
+    0.8075
+  ],
+  "visual_approach": "front is open; no separate pad, queue marker, counter or basin",
+  "ownership": "simulation owns free service, hydration, person identity, queues, route and operational state; presentation only",
+  "provenance": "fresh project-authored procedural geometry and sign lettering; approved attendee is review-only context; no downloaded models or textures",
+  "bounds_blender": [[-0.550000011920929, -0.31565070152282715, 0.0], [0.550000011920929, 0.23000000417232513, 1.909999966621399]],
+  "verification_blender": "Blender 4.1.1 source reopen and GLB reimport passed: five mesh nodes, 1980 triangles, one material per mesh, matched bounds, grounded origin and one service position.",
+  "verification_godot": "Godot 4.7.2 imported and instantiated the GLB in an isolated project: five mesh nodes, 1980 triangles, three palette-textured meshes and two cream-lettering meshes. Process exited 0; local certificate-store and user-directory warnings were non-blocking."
+}
