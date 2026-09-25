@@ -344,7 +344,17 @@ public sealed partial class GameSession
         var d = _disorder!;
         if (d.ResponseTargetId is not { } targetId || d.SecurityIncapacitated) return;
         var target = d.People.Single(item => item.AgentId == targetId);
-        if (target.Stage == DisorderStage.Fight && d.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming)
+        var targetNeed = _medical!.Needs.Single(item => item.AgentId == targetId);
+        if (target.Stage == DisorderStage.Injured || targetNeed.Stage is MedicalStage.Collapsed or MedicalStage.Critical)
+        {
+            _disorder = d with { ResponseStage = SecurityResponseStage.Completed, ResponseTargetId = null,
+                Response = "Security response ended; injured person is now owned by medical response" };
+            DisorderEvent("security:medical-handoff", targetId, d.SecurityId, target.Pressure, _disorder.Response);
+            return;
+        }
+        if (target.Stage == DisorderStage.Fight &&
+            (d.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming ||
+             d.ResponseStage == SecurityResponseStage.Confronting && target.OpponentId != d.SecurityId))
         {
             _disorder = d with { ResponseStage = SecurityResponseStage.Completed, ResponseTargetId = null,
                 Response = "Target entered a separate confrontation before security could calm them" };
@@ -400,10 +410,21 @@ public sealed partial class GameSession
         if (d.ResponseStage == SecurityResponseStage.Confronting && d.ResponseTargetId is { } aggressorId)
         {
             var aggressor = d.People.Single(item => item.AgentId == aggressorId);
-            if (aggressor.Stage != DisorderStage.Fight && aggressor.Pressure >= DisorderFightEligiblePressure &&
+            var person = _preparation!.People.Single(item => item.AgentId == aggressorId);
+            if (aggressor.Stage == DisorderStage.Argument && aggressor.OpponentId == d.SecurityId &&
+                person.Admitted && !person.Departed &&
+                _medical!.Needs.Single(item => item.AgentId == aggressorId).Stage is not (MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Treated) &&
+                aggressor.Pressure >= DisorderFightEligiblePressure &&
                 CurrentTick >= d.ResponseStartedTick + DisorderConfrontationTicks)
             {
                 BeginDisorderFight(aggressorId, d.SecurityId, "security:confrontation");
+            }
+            else if (aggressor.Stage is not (DisorderStage.Argument or DisorderStage.Fight) ||
+                     aggressor.Stage == DisorderStage.Argument && aggressor.OpponentId != d.SecurityId)
+            {
+                _disorder = d with { ResponseStage = SecurityResponseStage.Completed, ResponseTargetId = null,
+                    Response = "Security confrontation ownership ended; target is no longer in its eligible argument" };
+                DisorderEvent("security:stand-down", aggressorId, d.SecurityId, aggressor.Pressure, _disorder.Response);
             }
         }
     }

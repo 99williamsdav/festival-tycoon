@@ -425,4 +425,63 @@ public sealed class DisorderIncidentTests
         Assert.AreEqual(0, session.CaptureMedical()!.Needs.Count(item =>
             (item.AgentId == initiator || item.AgentId == opponent) && item.Stage == MedicalStage.Collapsed));
     }
+
+    [TestMethod]
+    public void FailedCalmingThenGuestInjuryCannotRestartStaleSecurityFight()
+    {
+        var reproduced = false;
+        var pickOpponent = typeof(GameSession).GetMethod("FindDisorderOpponent", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var beginFight = typeof(GameSession).GetMethod("BeginDisorderFight", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        for (ulong seed = 41; seed < 81 && !reproduced; seed++)
+        {
+            var session = Started(seed);
+            Assert.IsTrue(Send(session, new MedicalCommand(session.CaptureMedical()!.AtRiskGuestId, MedicalAction.GuideToRest)).IsAccepted);
+            while (session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && session.CurrentTick < 4_000)
+                session.AdvanceWithoutSnapshot(1);
+            Assert.IsTrue(Send(session, new EquipmentCommand(EquipmentAction.Isolate)).IsAccepted);
+            while (!session.CaptureDisorder()!.People.Any(item => item.Grievance == DisorderGrievance.MusicCutoff &&
+                   item.Stage == DisorderStage.Complaint) && session.CurrentTick < 4_000 &&
+                   session.CapturePreparation()!.Status == PreparationStatus.Running)
+                session.AdvanceWithoutSnapshot(1);
+            if (session.CapturePreparation()!.Status != PreparationStatus.Running) continue;
+            var target = session.CaptureDisorder()!.People.First(item => item.Grievance == DisorderGrievance.MusicCutoff &&
+                item.Stage == DisorderStage.Complaint).AgentId;
+            field.SetValue(session, session.CaptureDisorder()! with { CalmingSkill = 3_500 });
+            if (!Send(session, new DisorderCommand(DisorderAction.DispatchSecurity, target)).IsAccepted) continue;
+            while (session.CaptureDisorder()!.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming &&
+                   session.CurrentTick < 5_000 && session.CapturePreparation()!.Status == PreparationStatus.Running)
+                session.AdvanceWithoutSnapshot(1);
+            if (session.CaptureDisorder()!.ResponseStage != SecurityResponseStage.Confronting) continue;
+            Assert.IsTrue(session.CaptureDisorder()!.Evidence.Any(item => item.Id == "security:calm-failed"));
+            var opponent = (ulong?)pickOpponent.Invoke(session, [target]);
+            if (opponent is null) continue;
+            beginFight.Invoke(session, [target, opponent.Value, "fixture:guest-after-failed-calm"]);
+            session = Restored(session);
+            session.AdvanceWithoutSnapshot(8);
+            Assert.AreEqual(SecurityResponseStage.Completed, session.CaptureDisorder()!.ResponseStage);
+            Assert.IsNull(session.CaptureDisorder()!.ResponseTargetId);
+            Assert.IsTrue(session.CaptureDisorder()!.Evidence.Any(item => item.Id == "security:too-late"));
+            session.AdvanceWithoutSnapshot(GameSession.DisorderConfrontationTicks);
+            var origin = session.CaptureDisorder()!.Incidents.Last();
+            if (origin.VictimId != target) continue;
+            var collapseTick = session.CaptureMedical()!.Needs.Single(item => item.AgentId == target).CollapseTick;
+            Assert.AreEqual(DisorderStage.Injured, session.CaptureDisorder()!.People.Single(item => item.AgentId == target).Stage);
+            session = Restored(session);
+            session.AdvanceWithoutSnapshot(160);
+            Assert.AreEqual(DisorderStage.Injured, session.CaptureDisorder()!.People.Single(item => item.AgentId == target).Stage);
+            Assert.AreEqual(collapseTick, session.CaptureMedical()!.Needs.Single(item => item.AgentId == target).CollapseTick);
+            Assert.IsFalse(session.CaptureDisorder()!.Incidents.Any(item => item.OpponentId == session.CaptureDisorder()!.SecurityId));
+            while (session.CapturePreparation()!.Status == PreparationStatus.Running &&
+                   session.CurrentTick < collapseTick + GameSession.DisorderInjuryDeathTicks + 1)
+                session.AdvanceWithoutSnapshot(1);
+            Assert.AreEqual(PreparationStatus.Failed, session.CapturePreparation()!.Status);
+            Assert.AreEqual(session.CapturePreparation()!.People.Single(item => item.AgentId == target).Name,
+                session.CaptureLifecycleSnapshot()!.Casualties.Single().PersonId);
+            Restored(session);
+            Console.WriteLine($"stale-security regression seed={seed} injury={collapseTick} deadline={session.CurrentTick}");
+            reproduced = true;
+        }
+        Assert.IsTrue(reproduced, "Bounded fixture must reach failed calming, separate guest injury and its preserved deadline.");
+    }
 }
