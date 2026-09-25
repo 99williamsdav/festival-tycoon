@@ -147,8 +147,8 @@ public sealed partial class GameSession
         if (command.Action == DisorderAction.CloseWater)
         {
             _disorder = d with { WaterClosed = true };
-            foreach (var id in _medical!.WaterQueue.Concat(_medical.WaterOverflow)
-                         .Concat(_medical.Needs.Where(item => item.Intent == MedicalIntent.SeekWater).Select(item => item.AgentId))
+            foreach (var id in WaterPoints().SelectMany(point => point.Queue.Concat(point.Overflow))
+                         .Concat(_medical!.Needs.Where(item => item.Intent == MedicalIntent.SeekWater).Select(item => item.AgentId))
                          .Distinct().ToArray())
             {
                 LeaveWater(id, "Water service closed safely", reroute: false);
@@ -243,8 +243,8 @@ public sealed partial class GameSession
                 }
                 continue;
             }
-            var inWaterLine = !d.WaterClosed && (_medical.WaterQueue.Contains(person.AgentId) ||
-                _medical.WaterOverflow.Contains(person.AgentId));
+            var inWaterLine = !d.WaterClosed && WaterPoints().Any(point =>
+                point.Queue.Contains(person.AgentId) || point.Overflow.Contains(person.AgentId));
             var joined = inWaterLine ? person.QueueJoinedTick < 0 ? CurrentTick : person.QueueJoinedTick : -1;
             var need = _medical.Needs.Single(item => item.AgentId == person.AgentId);
             var listener = _livePerformance?.Listeners.SingleOrDefault(item => item.AgentId == person.AgentId);
@@ -552,7 +552,8 @@ public sealed partial class GameSession
             d.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting &&
                 (d.ResponseTargetId is null || !d.People.Any(item => item.AgentId == d.ResponseTargetId)) ||
             d.SecurityIncapacitated != (medical.Needs.Single(item => item.AgentId == d.SecurityId).Stage == MedicalStage.Collapsed) ||
-            d.WaterClosed && (medical.WaterQueue.Length > 0 || medical.WaterOverflow.Length > 0 || medical.WaterOwnerId is not null) ||
+            d.WaterClosed && (medical.WaterQueue.Length > 0 || medical.WaterOverflow.Length > 0 || medical.WaterOwnerId is not null ||
+                medical.ExtraWaterPoints.Any(point => point.Queue.Length > 0 || point.Overflow.Length > 0 || point.OwnerId is not null)) ||
             d.People.Any(item => item is null || item.Temperament is < 2_000 or > 8_000 ||
                 item.QueueToleranceTicks is < 320 or > 1_120 || item.Pressure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Grievance) || !Enum.IsDefined(item.Stage) ||

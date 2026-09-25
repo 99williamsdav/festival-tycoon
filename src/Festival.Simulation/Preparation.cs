@@ -18,10 +18,13 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public bool CommunityFavourClaimed { get; init; }
     public bool RetryEconomyFixtureEnabled { get; init; }
     public ulong? MaintenanceWorkerId { get; init; }
+    public string[] ExtraWaterSiteIds { get; init; } = [];
+    public bool WaterTowerOwned { get; init; }
 }
 public sealed record AcceptPreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record StartPreparedEditionCommand : SessionCommand;
 public sealed record CommitCommunityWaterShareCommand : SessionCommand;
+public sealed record ApplyWaterFoundationEffectCommand(string EffectId) : SessionCommand;
 
 public sealed partial class GameSession
 {
@@ -42,7 +45,7 @@ public sealed partial class GameSession
             p.StockConsumed, _ownedStocks[new(p.StockId)].Quantity, 60);
 
     public string? CommunityWaterShareDisclosure => _preparation is null || _medical is null ? null :
-        "Share the free-water tap with the neighbouring community for this weekend. Drinking relief is capped at 12 thirst units/tick per person (ordinary rates: 8, 12, 16 or 20); faster drinkers take longer and queues may grow. Honour the full weekend to earn 1 Council Favour, once per campaign.";
+        "Share free water with the neighbouring community for this weekend. Personal drinking relief is capped at 12 thirst units/tick before any owned tower's +4 bonus (ordinary rates: 8, 12, 16 or 20); faster drinkers take longer and queues may grow. Honour the full weekend to earn 1 Council Favour, once per campaign.";
     public bool CommunityWaterShareActive => _preparation is { Status: PreparationStatus.Running or PreparationStatus.Departing } p && p.CommunityShareAttempt == p.Attempt;
 
     private CommandResult? ValidateCommunityWaterShare(EntityId? target)
@@ -55,6 +58,33 @@ public sealed partial class GameSession
     }
 
     private void ApplyCommunityWaterShare() => _preparation = _preparation! with { CommunityShareAttempt = _preparation.Attempt };
+
+    private CommandResult? ValidateWaterFoundationEffect(EntityId? target, ApplyWaterFoundationEffectCommand command)
+    {
+        if (target is not null || _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p)
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Water foundations can be placed only during Hot-weekend preparation.");
+        if (command.EffectId == "water.tower")
+            return p.WaterTowerOwned ? CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Water tower already owned.") : null;
+        if (!ExtraWaterSites.Any(site => site.Id == command.EffectId))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown bounded water site.");
+        if (p.ExtraWaterSiteIds.Contains(command.EffectId))
+            return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This standpipe is already placed.");
+        return null;
+    }
+
+    private void ApplyWaterFoundationEffect(ApplyWaterFoundationEffectCommand command)
+    {
+        var p = _preparation!;
+        if (command.EffectId == "water.tower")
+            _preparation = p with { WaterTowerOwned = true };
+        else
+        {
+            var site = ExtraWaterSites.Single(item => item.Id == command.EffectId);
+            _preparation = p with { ExtraWaterSiteIds = p.ExtraWaterSiteIds.Append(site.Id).Order(StringComparer.Ordinal).ToArray() };
+            _medical = _medical! with { ExtraWaterPoints = _medical.ExtraWaterPoints.Append(new WaterPointState(site.Id, site.Cell, [], [], null, 0))
+                .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
+        }
+    }
 
     public static GameSession CreatePreparedCampaign(ulong seed, int tier = 1, bool fixtureOutcomesEnabled = false)
     {
@@ -193,12 +223,24 @@ public sealed partial class GameSession
         if (_medical is not null)
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
-            foreach (var (centre, radius) in new[] { (MedicalWaterCell, 3), (MedicalTentCell, 3) })
+            foreach (var (centre, radius) in new[] { (MedicalWaterCell, 3), (MedicalTentCell, 3) }
+                         .Concat(_medical.ExtraWaterPoints.Select(point => (point.Cell, 3))))
             for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
             for (var x = centre.X - radius; x <= centre.X + radius; x++)
             {
                 var cell = new GridCell(x, z);
                 terrain[cell] = new(cell, GroundSurface.Grass, false);
+            }
+            if (p.WaterTowerOwned)
+            {
+                // The approved 3.5 m reservation is a fixed farmhouse-side obstacle,
+                // not a plumbing/flow simulation or another drinker location.
+                for (var z = WaterTowerCell.Z - 3; z <= WaterTowerCell.Z + 3; z++)
+                for (var x = WaterTowerCell.X - 3; x <= WaterTowerCell.X + 3; x++)
+                {
+                    var cell = new GridCell(x, z);
+                    terrain[cell] = new(cell, GroundSurface.Grass, false);
+                }
             }
             _traversalGrid = new TraversalGrid(terrain.Values);
         }
@@ -307,6 +349,9 @@ public sealed partial class GameSession
         _livePerformance = null;
         _equipment = baseline._equipment;
         _medical = baseline._medical;
+        if (_medical is not null)
+            _medical = _medical with { ExtraWaterPoints = p.ExtraWaterSiteIds.Select(id => ExtraWaterSites.Single(site => site.Id == id))
+                .Select(site => new WaterPointState(site.Id, site.Cell, [], [], null, 0)).ToArray() };
         _disorder = baseline._disorder;
         _preparation = p with
         {
@@ -324,6 +369,9 @@ public sealed partial class GameSession
             p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != CampaignDefaults.OpeningCashPennies || p.StockConsumed < 0 ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||
+            p.ExtraWaterSiteIds is null || !p.ExtraWaterSiteIds.SequenceEqual(p.ExtraWaterSiteIds.Distinct().Order(StringComparer.Ordinal)) ||
+            p.ExtraWaterSiteIds.Any(id => !ExtraWaterSites.Any(site => site.Id == id)) ||
+            (p.WaterTowerOwned || p.ExtraWaterSiteIds.Length > 0) && snapshot.Medical is null ||
             p.CommunityShareAttempt < 0 || p.CommunityShareAttempt > p.Attempt || p.CommunityShareAttempt > 0 && snapshot.Medical is null ||
             p.CommunityFavourClaimed != (p.CommunityShareAttempt == p.Attempt && p.Status == PreparationStatus.Finished) ||
             p.RetryEconomyFixtureEnabled && (p.FixtureOutcomesEnabled || snapshot.Equipment is null || snapshot.Medical is not null || snapshot.Disorder is not null) ||

@@ -1,0 +1,5 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=63fe34dc9234cd8e445c45a27583b2a1d727e33cf9c0de22fa99c54e4a4a27ad
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated

@@ -12,6 +12,8 @@ public partial class Main
     private Label? _medicalSummary;
     private readonly System.Collections.Generic.Dictionary<MedicalAction, Button> _medicalButtons = [];
     private string? _medicalCaptureDirectory;
+    private string? _waterFoundationCaptureDirectory;
+    private int _waterFoundationCaptureFrame;
     private string _medicalCaptureMode = "prevent";
     private int _medicalCaptureFrame;
     private ulong _medicalCaptureWaterCueId;
@@ -22,9 +24,13 @@ public partial class Main
     private GridContainer? _medicalActionInspector;
     private ProgressBar? _medicalThirstBar;
     private ProgressBar? _medicalHeatBar;
-    private enum MedicalFacility { Water, FirstAid }
-    private readonly System.Collections.Generic.Dictionary<ulong, MedicalFacility> _medicalFacilityPicks = [];
+    private enum MedicalFacility { Water, FirstAid, WaterTower }
+    private readonly System.Collections.Generic.Dictionary<ulong, (MedicalFacility Facility, string? WaterPointId)> _medicalFacilityPicks = [];
+    private readonly System.Collections.Generic.Dictionary<string, (Node3D Visual, StaticBody3D Pick)> _extraWaterVisuals = [];
+    private Node3D? _waterTowerVisual;
+    private StaticBody3D? _waterTowerPick;
     private MedicalFacility? _selectedMedicalFacility;
+    private string _selectedWaterPointId = "water.main";
 
     private void BuildMedicalWorld()
     {
@@ -38,10 +44,130 @@ public partial class Main
         var waterPosition = At(GameSession.MedicalWaterCell) + new Vector3(0, 0, 1.9f);
         AddAsset("res://assets/environment/lwf_free_water_point_v4.glb", waterPosition);
         AddAsset("res://assets/environment/lwf_first_aid_point_v2.glb", At(GameSession.MedicalTentCell));
-        RegisterMedicalPick(MedicalFacility.Water, waterPosition + new Vector3(0, 1.05f, 0), new Vector3(2.3f, 2.1f, 1.1f));
-        RegisterMedicalPick(MedicalFacility.FirstAid, At(GameSession.MedicalTentCell) + new Vector3(0, 1.35f, 0), new Vector3(3.5f, 2.7f, 3.5f));
+        RegisterMedicalPick(MedicalFacility.Water, "water.main", waterPosition + new Vector3(0, 1.05f, 0), new Vector3(2.3f, 2.1f, 1.1f));
+        RegisterMedicalPick(MedicalFacility.FirstAid, null, At(GameSession.MedicalTentCell) + new Vector3(0, 1.35f, 0), new Vector3(3.5f, 2.7f, 3.5f));
         AddChild(new Label3D { Text = "FIRST AID", Position = At(GameSession.MedicalTentCell) + new Vector3(0, 3.1f, 0),
             FontSize = 45, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
+        SyncExtraWaterWorld();
+    }
+
+    private void ProcessWaterFoundationCapture()
+    {
+        if (_waterFoundationCaptureDirectory is null) return;
+        if (++_waterFoundationCaptureFrame == 5)
+        {
+            _focus = new Vector3(-12.3f, 0, -14f); _camera.Size = 22f; ApplyCamera();
+            Pick(_camera.UnprojectPosition(new Vector3(-12.3f, 2.75f, -14f)));
+            if (_selectedMedicalFacility != MedicalFacility.WaterTower)
+                throw new InvalidOperationException("Water tower pick fixture did not select the approved tower.");
+        }
+        if (_waterFoundationCaptureFrame == 9)
+        {
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_waterFoundationCaptureDirectory, "tower-selected.png"));
+            GD.Print("WATER_FOUNDATION_CAPTURE tower-selected owned=True +4=True");
+            var west = GameSession.ExtraWaterSites.Single(site => site.Id == "water.west").Cell;
+            var centre = TraversalGrid.CellCentre(west);
+            _focus = new Vector3(centre.XMillimetres / 1000f + 5f, 0, centre.ZMillimetres / 1000f + 5f);
+            _camera.Size = 27f; ApplyCamera();
+            Pick(_camera.UnprojectPosition(new Vector3(centre.XMillimetres / 1000f, 1.05f,
+                centre.ZMillimetres / 1000f + 1.9f)));
+            if (_selectedMedicalFacility != MedicalFacility.Water || _selectedWaterPointId != "water.west")
+                throw new InvalidOperationException("West standpipe pick fixture did not select its own inspector.");
+        }
+        if (_waterFoundationCaptureFrame == 13)
+        {
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_waterFoundationCaptureDirectory, "west-tap-selected.png"));
+            GD.Print($"WATER_FOUNDATION_CAPTURE west-tap-selected points={_session.CaptureWaterPoints().Count} layout={string.Join(',', _session.CapturePreparation()!.ExtraWaterSiteIds)}");
+            PrepareWaterFoundationLiveFixture();
+        }
+        if (_waterFoundationCaptureFrame == 18)
+        {
+            if (_session.CaptureWaterPoints().Count(point => point.OwnerId is not null) != 2)
+                throw new InvalidOperationException("Two-tap rendered fixture did not reach simultaneous drinkers.");
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_waterFoundationCaptureDirectory, "two-taps-live.png"));
+            GD.Print($"WATER_FOUNDATION_CAPTURE two-taps-live owners={string.Join(',', _session.CaptureWaterPoints().Where(point => point.OwnerId is not null).Select(point => point.Id))}");
+            // In-memory equivalent of loading an older layout while the west tap was selected.
+            SelectMedicalFacility(MedicalFacility.Water, "water.west");
+            _session = GameSession.CreateMedicalCampaign(20260922);
+            ClearSelection(); SyncExtraWaterWorld(); RefreshPreparationHud();
+            if (_selectedMedicalFacility is not null || _selectedWaterPointId != "water.main" ||
+                _extraWaterVisuals.Count != 0 || _waterTowerVisual is not null || _highlight.Visible)
+                throw new InvalidOperationException("Older-layout load fixture retained stale water selection or visuals.");
+            GD.Print("WATER_FOUNDATION_CAPTURE old-layout-selection-cleared=True");
+            _waterFoundationCaptureDirectory = null;
+            GetTree().Quit();
+        }
+    }
+
+    private void PrepareWaterFoundationLiveFixture()
+    {
+        // Render-only deterministic fixture: two guests begin beside distinct approved taps.
+        foreach (var offer in new[] { "act.folk", "staff.steward", "equipment.buy" })
+            if (!_session.Execute(CampaignEnvelope(new AcceptPreparationOfferCommand(offer))).IsAccepted)
+                throw new InvalidOperationException("Water foundation fixture booking failed.");
+        if (!_session.Execute(CampaignEnvelope(new StartPreparedEditionCommand())).IsAccepted)
+            throw new InvalidOperationException("Water foundation fixture start failed.");
+        var ids = _session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest)
+            .Take(2).Select(person => person.AgentId).ToArray();
+        var agents = _session.GetType().GetField("_navigationAgents", System.Reflection.BindingFlags.Instance |
+            System.Reflection.BindingFlags.NonPublic)!.GetValue(_session)!;
+        var cells = new[] { GameSession.MedicalQueueSlot(0),
+            new GridCell(GameSession.ExtraWaterSites.Single(site => site.Id == "water.west").Cell.X,
+                GameSession.ExtraWaterSites.Single(site => site.Id == "water.west").Cell.Z + 5) };
+        for (var index = 0; index < ids.Length; index++)
+        {
+            var agent = agents.GetType().GetProperty("Item")!.GetValue(agents, [new EntityId(ids[index])])!;
+            var centre = TraversalGrid.CellCentre(cells[index]);
+            foreach (var (name, value) in new[] { ("XMillimetres", centre.XMillimetres), ("ZMillimetres", centre.ZMillimetres),
+                         ("SegmentOriginXMillimetres", centre.XMillimetres), ("SegmentOriginZMillimetres", centre.ZMillimetres) })
+                agent.GetType().GetProperty(name)!.SetValue(agent, value);
+            if (!_session.Execute(CampaignEnvelope(new MedicalCommand(ids[index], MedicalAction.GuideToWater))).IsAccepted)
+                throw new InvalidOperationException("Water foundation fixture guide failed.");
+        }
+        for (var tick = 0; tick < 150 && _session.CaptureWaterPoints().Count(point => point.OwnerId is not null) < 2; tick++)
+            _session.AdvanceWithoutSnapshot(1);
+        if (_session.CaptureWaterPoints().Count(point => point.OwnerId is not null) != 2)
+            throw new InvalidOperationException("Water foundation fixture did not acquire two tap owners.");
+        BuildAttendee();
+        _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
+        _focus = new Vector3(-20f, 0, 0); _camera.Size = 29f; ApplyCamera();
+        ClearSelection();
+        RefreshPreparationHud();
+    }
+
+    private void SyncExtraWaterWorld()
+    {
+        if (_session.CaptureMedical() is null) return;
+        var points = _session.CaptureWaterPoints().Where(point => point.Id != "water.main").ToArray();
+        foreach (var stale in _extraWaterVisuals.Keys.Except(points.Select(point => point.Id)).ToArray())
+        {
+            var pair = _extraWaterVisuals[stale];
+            _medicalFacilityPicks.Remove(pair.Pick.GetInstanceId());
+            pair.Visual.QueueFree(); pair.Pick.QueueFree(); _extraWaterVisuals.Remove(stale);
+        }
+        foreach (var point in points)
+        {
+            if (_extraWaterVisuals.ContainsKey(point.Id)) continue;
+            var centre = TraversalGrid.CellCentre(point.Cell);
+            var position = new Vector3(centre.XMillimetres / 1000f, 0, centre.ZMillimetres / 1000f + 1.9f);
+            var visual = AddAsset("res://assets/environment/lwf_free_water_point_v4.glb", position);
+            var pick = RegisterMedicalPick(MedicalFacility.Water, point.Id, position + new Vector3(0, 1.05f, 0), new Vector3(2.3f, 2.1f, 1.1f));
+            _extraWaterVisuals.Add(point.Id, (visual, pick));
+        }
+        var owned = _session.CapturePreparation()!.WaterTowerOwned;
+        if (owned && _waterTowerVisual is null)
+        {
+            var position = new Vector3(-12.3f, 0, -14f);
+            _waterTowerVisual = AddAsset("res://assets/environment/lwf_water_tower_prototype_v1.glb", position);
+            _waterTowerPick = RegisterMedicalPick(MedicalFacility.WaterTower, null,
+                position + new Vector3(0, 2.75f, 0), new Vector3(3.5f, 5.5f, 3.5f));
+        }
+        else if (!owned && _waterTowerVisual is not null)
+        {
+            _medicalFacilityPicks.Remove(_waterTowerPick!.GetInstanceId());
+            _waterTowerVisual.QueueFree(); _waterTowerPick.QueueFree();
+            _waterTowerVisual = null; _waterTowerPick = null;
+        }
     }
 
     private void ResetMedicalCuePresentation()
@@ -78,26 +204,33 @@ public partial class Main
         }
     }
 
-    private void RegisterMedicalPick(MedicalFacility facility, Vector3 position, Vector3 size)
+    private StaticBody3D RegisterMedicalPick(MedicalFacility facility, string? waterPointId, Vector3 position, Vector3 size)
     {
         var body = new StaticBody3D { Position = position, CollisionLayer = 1, CollisionMask = 0 };
         body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size } });
         AddChild(body);
-        _medicalFacilityPicks.Add(body.GetInstanceId(), facility);
+        _medicalFacilityPicks.Add(body.GetInstanceId(), (facility, waterPointId));
+        return body;
     }
 
-    private void SelectMedicalFacility(MedicalFacility facility)
+    private void SelectMedicalFacility(MedicalFacility facility, string? waterPointId = null)
     {
         ClearSecurityPostSelection();
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = facility;
+        if (facility == MedicalFacility.Water) _selectedWaterPointId = waterPointId ?? "water.main";
         RefreshSatisfactionBar(null);
         RefreshStagePowerAction();
         RefreshMedicalNeedBars(null);
         RefreshMedicalActionInspector();
-        var cell = facility == MedicalFacility.Water ? GameSession.MedicalWaterCell : GameSession.MedicalTentCell;
+        var cell = facility switch
+        {
+            MedicalFacility.Water => _session.CaptureWaterPoints().Single(point => point.Id == _selectedWaterPointId).Cell,
+            MedicalFacility.WaterTower => GameSession.WaterTowerCell,
+            _ => GameSession.MedicalTentCell
+        };
         var centre = TraversalGrid.CellCentre(cell);
         _highlight.Position = new Vector3(centre.XMillimetres / 1000f, .08f, centre.ZMillimetres / 1000f);
-        var radius = facility == MedicalFacility.Water ? 2.5f : 4f;
+        var radius = facility == MedicalFacility.Water ? 2.5f : facility == MedicalFacility.WaterTower ? 3.5f : 4f;
         _highlight.Scale = new Vector3(radius, 1, radius); _highlight.Visible = true;
         RefreshMedicalFacilityInspector();
         GD.Print($"MEDICAL_FACILITY_SELECTED type={facility}");
@@ -138,11 +271,19 @@ public partial class Main
         var people = _session.CapturePreparation()!.People;
         if (facility == MedicalFacility.Water)
         {
-            _inspectorTitle.Text = "Free water • WATER";
-            var owner = m.WaterOwnerId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
-            _inspectorBody.Text = $"FREE • no stock or payment\nQUEUE  {m.WaterQueue.Length}/10 • VISIBLE TAIL  {m.WaterOverflow.Length}\n" +
-                $"DRINKING  {owner}\nPACE  {(m.WaterOwnerId is { } drinker ? _session.EffectiveMedicalDrinkThirstPerTickFor(drinker).ToString() : _session.CommunityWaterShareActive ? "8–12" : "8–20")} thirst/tick • varies by person{(_session.CommunityWaterShareActive ? " • shared with neighbours (cap 12)" : "")}\n" +
+            var point = _session.CaptureWaterPoints().Single(item => item.Id == _selectedWaterPointId);
+            _inspectorTitle.Text = $"Free water • {point.Id}";
+            var owner = point.OwnerId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
+            var tower = _session.CapturePreparation()!.WaterTowerOwned;
+            _inspectorBody.Text = $"FREE • no stock or payment\nQUEUE  {point.Queue.Length}/10 • VISIBLE TAIL  {point.Overflow.Length}\n" +
+                $"DRINKING  {owner}\nPACE  {(point.OwnerId is { } drinker ? _session.EffectiveMedicalDrinkThirstPerTickFor(drinker).ToString() : _session.CommunityWaterShareActive ? tower ? "12–16" : "8–12" : tower ? "12–24" : "8–20")} thirst/tick • varies by person{(_session.CommunityWaterShareActive ? " • Council share caps baseline at 12" : "")}{(tower ? " • tower +4" : "")}\n" +
                 "Select a person for GUIDE TO WATER in their inspector.";
+        }
+        else if (facility == MedicalFacility.WaterTower)
+        {
+            _inspectorTitle.Text = "Water tower • owned";
+            _inspectorBody.Text = "Approved farmyard tower • durable property\n+4 thirst relief per tick for every drinker at every tap. " +
+                "Council sharing still caps the personal baseline at 12 before this bonus. No additional tap or shared-pressure penalty.";
         }
         else
         {
@@ -222,10 +363,10 @@ public partial class Main
     {
         if (_medicalSummary is null || _session.CaptureMedical() is not { } m) return;
         var target = m.Needs.Single(item => item.AgentId == m.AtRiskGuestId);
-        var drinking = m.WaterOwnerId is { } owner
-            ? $"{_session.CapturePreparation()!.People.Single(item => item.AgentId == owner).Name} drinking • " +
-              $"thirst {m.Needs.Single(item => item.AgentId == owner).Thirst / 100m:0}% • {m.WaterDrinkTicks / 80m:0.0}s"
-            : "tap ready • one at a time";
+        var points = _session.CaptureWaterPoints();
+        var active = points.Where(point => point.OwnerId is not null).ToArray();
+        var drinking = active.Length == 0 ? $"{points.Count} taps ready • one drinker per tap" :
+            string.Join(", ", active.Select(point => $"{point.Id}: {_session.CapturePreparation()!.People.Single(person => person.AgentId == point.OwnerId).Name}"));
         string Remaining(long dueTick) => $"{Math.Max(0, dueTick - _session.CurrentTick) / 80m:0.0}s";
         var clock = m.Stage switch
         {
@@ -240,7 +381,7 @@ public partial class Main
             : m.ResponseStage == MedicalResponseStage.Travelling ? "Medic travelling • treatment begins on arrival" : StewardWording(m.Response);
         _medicalSummary.Text = $"HOT • FREE WATER • FIRST AID\n" +
             $"Guest 20: {m.Stage} • thirst {target.Thirst / 100m:0}% • heat {target.HeatExposure / 100m:0}%\n" +
-            $"Water queue {m.WaterQueue.Length} + tail {m.WaterOverflow.Length} • {drinking}\nMedic {m.ResponseStage} • Clock: {clock}\n" +
+            $"Water {points.Count} taps • queue {points.Sum(point => point.Queue.Length)} + tail {points.Sum(point => point.Overflow.Length)} • {drinking}\nMedic {m.ResponseStage} • Clock: {clock}\n" +
             $"{treatment}\nPerson actions are in the selected person's inspector.";
         RefreshMedicalActionInspector();
         RefreshMedicalFacilityInspector();

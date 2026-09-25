@@ -17,6 +17,8 @@ public partial class Main
     private readonly Dictionary<string, Button> _offerButtons = [];
     private Button _preparationStart = null!;
     private Button? _communityShareButton;
+    private Label? _waterFoundationHeading;
+    private readonly Dictionary<string, Button> _waterFoundationButtons = [];
     private Label? _communityShareInfo;
     private string _preparationMessage = "Choose one act and one worker. Equipment and stock are optional.";
     private string? _preparationCaptureDirectory;
@@ -72,6 +74,21 @@ public partial class Main
             _communityShareButton = ButtonText("SHARE FREE WATER • THIS WEEKEND", () => CommitEquipmentAction(new CommitCommunityWaterShareCommand()));
             _communityShareButton.TooltipText = disclosure;
             box.AddChild(_communityShareButton);
+        }
+        if (_session.CaptureMedical() is not null)
+        {
+            _waterFoundationHeading = LabelText("FREE WATER • PLACE BEFORE OPENING", 14, ink);
+            box.AddChild(_waterFoundationHeading);
+            foreach (var site in GameSession.ExtraWaterSites)
+            {
+                var siteId = site.Id;
+                var button = ButtonText($"PLACE STANDPIPE • {siteId.Split('.')[1].ToUpperInvariant()}",
+                    () => CommitEquipmentAction(new ApplyWaterFoundationEffectCommand(siteId)));
+                _waterFoundationButtons.Add(siteId, button); box.AddChild(button);
+            }
+            var tower = ButtonText("BUILD WATER TOWER • +4 PERSONAL RELIEF", () =>
+                CommitEquipmentAction(new ApplyWaterFoundationEffectCommand("water.tower")));
+            _waterFoundationButtons.Add("water.tower", tower); box.AddChild(tower);
         }
         _preparationStart = ButtonText("START FIXED ROSTER", PreparationStart); box.AddChild(_preparationStart);
         var controls = new HBoxContainer(); box.AddChild(controls);
@@ -153,6 +170,8 @@ public partial class Main
         {
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null; ClearSecurityPostSelection(); _session = result.Session;
+            ClearSelection();
+            SyncExtraWaterWorld();
             RefreshMedicalNeedBars(null);
             ResetLivePerformancePresentation();
             if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();
@@ -186,9 +205,15 @@ public partial class Main
             _communityShareButton.Visible = p.Status == PreparationStatus.Preparing;
             _communityShareButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new CommitCommunityWaterShareCommand())) is not null;
             _communityShareInfo!.Text = p.CommunityShareAttempt == 0 ? _session.CommunityWaterShareDisclosure! :
-                $"SHARING COMMITTED • weekend attempt {p.CommunityShareAttempt}. Tap cap 12 thirst units/tick for faster drinkers; queues may grow. " +
+                $"SHARING COMMITTED • weekend attempt {p.CommunityShareAttempt}. Personal baseline cap 12 thirst units/tick for faster drinkers before tower +4; queues may grow. " +
                 (p.CommunityFavourClaimed ? "1 Council Favour awarded after the full weekend." : "1 Council Favour only after the full weekend is honoured.");
         }
+        foreach (var (id, button) in _waterFoundationButtons)
+        {
+            button.Visible = p.Status == PreparationStatus.Preparing;
+            button.Disabled = _session.ValidateCommand(CampaignEnvelope(new ApplyWaterFoundationEffectCommand(id))) is not null;
+        }
+        if (_waterFoundationHeading is not null) _waterFoundationHeading.Visible = p.Status == PreparationStatus.Preparing;
         _preparationSummary.TooltipText = _preparationMessage;
         var examples = p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Take(2)
             .Concat(p.People.Where(item => item.Role != ProtectedPersonRole.Guest));

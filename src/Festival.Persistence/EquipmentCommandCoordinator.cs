@@ -8,7 +8,7 @@ public static class EquipmentCommandCoordinator
         SaveCompatibility compatibility, DateTimeOffset now, long generation, Action<SaveFailurePoint>? failureInjector = null)
     {
         if (session.CaptureEquipment() is null || command is not (EquipmentCommand or AcceptPreparationOfferCommand or
-                CommitCommunityWaterShareCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
+                CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return new(false, session, null, "An equipment, preparation or Council hearing action is required.");
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         if (!restored.IsSuccess) return new(false, session, null, restored.Error);

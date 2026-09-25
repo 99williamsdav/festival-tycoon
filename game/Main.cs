@@ -176,7 +176,7 @@ public partial class Main : Node
         else
         {
             _session = _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
-                _hearingCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
+                _hearingCaptureDirectory is not null || _waterFoundationCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _disorderCaptureDirectory is not null || OS.GetCmdlineUserArgs().Length == 0 ? GameSession.CreateDisorderCampaign(20260922) :
                 _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _preparationCaptureDirectory is null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
@@ -192,6 +192,12 @@ public partial class Main : Node
             _session.AdvanceWithoutSnapshot(6_200);
             if (_session.PreparedStatus != PreparationStatus.Failed)
                 throw new InvalidOperationException("Hearing capture did not reach a fatal medical incident.");
+        }
+        if (_waterFoundationCaptureDirectory is not null)
+        {
+            foreach (var effect in new[] { "water.west", "water.east", "water.tower" })
+                if (!_session.Execute(CampaignEnvelope(new ApplyWaterFoundationEffectCommand(effect))).IsAccepted)
+                    throw new InvalidOperationException($"Water foundation capture effect {effect} was rejected.");
         }
         _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
@@ -247,6 +253,7 @@ public partial class Main : Node
         if (_equipmentCaptureDirectory is not null) ProcessEquipmentCapture();
         if (_equipmentPerformanceOutput is not null) ProcessEquipmentPerformanceCheck();
         ProcessMedicalCapture();
+        ProcessWaterFoundationCapture();
         ProcessDisorderCapture();
         ProcessHearingCapture();
         ProcessStartSplashCapture();
@@ -765,7 +772,8 @@ public partial class Main : Node
         var collider = result["collider"].AsGodotObject() as CollisionObject3D;
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
         else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
-        else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility)) SelectMedicalFacility(medicalFacility);
+        else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility))
+            SelectMedicalFacility(medicalFacility.Facility, medicalFacility.WaterPointId);
         else if (collider is not null && _pickRegistry.TryGetValue(collider.GetInstanceId(), out var item)) SelectObject(item);
         else ClearSelection();
     }
@@ -799,7 +807,8 @@ public partial class Main : Node
     {
         ClearSecurityPostSelection();
         RefreshMedicalNeedBars(null);
-        _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
+        _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _selectedWaterPointId = "water.main";
+        _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
         RefreshStagePowerAction();
         RefreshSatisfactionBar(null);
         RefreshMedicalActionInspector();
@@ -916,6 +925,11 @@ public partial class Main : Node
             {
                 _hearingCaptureDirectory = args[++i];
                 Directory.CreateDirectory(_hearingCaptureDirectory);
+            }
+            else if (args[i] == "--capture-r005a-water" && i + 1 < args.Length)
+            {
+                _waterFoundationCaptureDirectory = args[++i];
+                Directory.CreateDirectory(_waterFoundationCaptureDirectory);
             }
             else if (args[i] == "--capture-preparation" && i + 1 < args.Length) _preparationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-live-performance" && i + 1 < args.Length) _liveCaptureDirectory = args[++i];

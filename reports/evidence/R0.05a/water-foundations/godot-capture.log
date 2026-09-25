@@ -1,0 +1,15 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=ea817e5dec5e5628615683e1ab4b0be48e62676c7749a51fe09afee96b95f992
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+MEDICAL_FACILITY_SELECTED type=WaterTower
+WATER_FOUNDATION_CAPTURE tower-selected owned=True +4=True
+MEDICAL_FACILITY_SELECTED type=Water
+WATER_FOUNDATION_CAPTURE west-tap-selected points=3 layout=water.east,water.west
+FARM_SELECTION_CLEARED
+WATER_FOUNDATION_CAPTURE two-taps-live owners=water.main,water.west
+MEDICAL_FACILITY_SELECTED type=Water
+FARM_SELECTION_CLEARED
+WATER_FOUNDATION_CAPTURE old-layout-selection-cleared=True
