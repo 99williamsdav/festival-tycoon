@@ -22,6 +22,32 @@ public sealed class DisorderCuePlanner
     private long _lastObservedTick = -1;
     private bool _initialized;
 
+    public static ulong? CurrentOpponentId(DisorderSnapshot disorder, DisorderPerson person)
+    {
+        if (person.OpponentId is not { } otherId) return null;
+        if (person.Stage == DisorderStage.Fight)
+        {
+            if (otherId == disorder.SecurityId) return otherId;
+            return disorder.People.Any(item => item.AgentId == otherId && item.Stage == DisorderStage.Fight &&
+                item.OpponentId == person.AgentId) ? otherId : null;
+        }
+        if (person.Stage != DisorderStage.Argument) return null;
+        if (otherId == disorder.SecurityId)
+            return !disorder.SecurityIncapacitated && disorder.ResponseStage == SecurityResponseStage.Confronting &&
+                disorder.ResponseTargetId == person.AgentId ? otherId : null;
+        // Guest arguments have no assigned pair before a fight; reciprocal IDs
+        // here can only be history retained after an earlier confrontation.
+        return null;
+    }
+
+    public static string CurrentCounterpartInspectorLine(DisorderSnapshot disorder, DisorderPerson person,
+        Func<ulong, string> name, Func<ulong, string?> position)
+    {
+        if (CurrentOpponentId(disorder, person) is not { } id) return "COUNTERPART not established\n";
+        var at = position(id);
+        return $"COUNTERPART {name(id)}{(at is null ? "" : $" • {at}")}\n";
+    }
+
     public void Reset(DisorderSnapshot? disorder, long tick)
     {
         _previous.Clear(); _active.Clear(); _lastPersonShout.Clear(); _pending.Clear();
@@ -44,10 +70,8 @@ public sealed class DisorderCuePlanner
         var paired = new HashSet<ulong>();
         foreach (var person in disorder.People.OrderBy(item => item.AgentId))
         {
-            if (person.Stage is not (DisorderStage.Argument or DisorderStage.Fight) || person.OpponentId is not { } otherId) continue;
+            if (CurrentOpponentId(disorder, person) is not { } otherId) continue;
             var securityOpponent = otherId == disorder.SecurityId;
-            if (!securityOpponent && (!people.TryGetValue(otherId, out var other) ||
-                person.Stage == DisorderStage.Fight && (other.Stage != DisorderStage.Fight || other.OpponentId != person.AgentId))) continue;
             if (!urgentMedical.Contains(person.AgentId))
                 cues.Add(new(person.AgentId, person.Stage == DisorderStage.Fight ? "FIGHT" : "ARGUMENT",
                     person.Stage == DisorderStage.Fight ? DisorderCueKind.Fight : DisorderCueKind.Argument));
