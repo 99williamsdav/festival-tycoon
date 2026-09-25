@@ -1,4 +1,5 @@
 using Festival.Simulation;
+using Festival.Persistence;
 using System.Reflection;
 
 namespace Festival.Tests;
@@ -6,6 +7,51 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class R005HearingRetryTests
 {
+    [TestMethod]
+    public void NormalUiCoordinatorPersistsWaterChoiceAndHearingDecision()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), "festival-r005-ui-" + Guid.NewGuid());
+        var compatibility = new SaveCompatibility("r005-test", "r005", "v1");
+        try
+        {
+            var session = GameSession.CreateMedicalCampaign(20260922);
+            var shared = EquipmentCommandCoordinator.Execute(directory, session, new CommitCommunityWaterShareCommand(), compatibility, DateTimeOffset.UtcNow, 1);
+            Assert.IsTrue(shared.IsSuccess, shared.Error);
+            session = shared.Session;
+            Assert.AreEqual(1, session.CapturePreparation()!.CommunityShareAttempt);
+            Book(session, buyRig: false, buyStock: false);
+            session.AdvanceWithoutSnapshot(6_200);
+            Assert.AreEqual(PreparationStatus.Failed, session.PreparedStatus);
+            var conceded = EquipmentCommandCoordinator.Execute(directory, session, new ConcedeCouncilHearingCommand(), compatibility, DateTimeOffset.UtcNow, 2);
+            Assert.IsTrue(conceded.IsSuccess, conceded.Error);
+            Assert.AreEqual(HearingStatus.Conceded, conceded.Session.CaptureLifecycleSnapshot()!.Hearings[^1].Status);
+            var loaded = AutosaveRotation.LoadNewestValid(directory, compatibility);
+            Assert.IsTrue(loaded.IsSuccess, loaded.Error);
+            Assert.AreEqual(conceded.Session.CaptureSnapshot().AuthoritativeHash, loaded.Session!.CaptureSnapshot().AuthoritativeHash);
+        }
+        finally
+        {
+            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [TestMethod]
+    public void PostDeathConcedeEndsCampaignWithoutSpendingFavourAndCannotRepeat()
+    {
+        var session = GameSession.CreateEquipmentCampaign(2);
+        Book(session, buyRig: false, buyStock: false);
+        session.AdvanceWithoutSnapshot(7_200);
+        Assert.AreEqual(PreparationStatus.Failed, session.PreparedStatus);
+        Assert.IsTrue(Send(session, new ConcedeCouncilHearingCommand()).IsAccepted);
+        Assert.AreEqual(HearingStatus.Conceded, session.CaptureLifecycleSnapshot()!.Hearings[^1].Status);
+        Assert.AreEqual(1, session.CaptureLifecycleSnapshot()!.FixtureFavourBalance);
+        Assert.IsFalse(Send(session, new ConcedeCouncilHearingCommand()).IsAccepted);
+        Assert.IsFalse(Send(session, new SpendCouncilFavourCommand()).IsAccepted);
+        session = Restored(session);
+        Assert.AreEqual(HearingStatus.Conceded, session.CaptureLifecycleSnapshot()!.Hearings[^1].Status);
+        Assert.IsFalse(Send(session, new ConcedeCouncilHearingCommand()).IsAccepted);
+    }
+
     private static CommandResult Send(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase,
         session.CurrentTick, session.NextSubmissionSequence, null, command));
@@ -60,6 +106,7 @@ public sealed class R005HearingRetryTests
         Assert.AreEqual(2, session.CaptureLifecycleSnapshot()!.Casualties.Count);
         Assert.AreEqual(2, session.CaptureLifecycleSnapshot()!.Hearings.Count);
         Assert.AreEqual(0, session.CaptureLifecycleSnapshot()!.FixtureFavourBalance);
+        Assert.AreEqual(HearingStatus.LostNoFavour, session.CaptureLifecycleSnapshot()!.Hearings[^1].Status);
         Assert.IsFalse(Send(session, new SpendCouncilFavourCommand()).IsAccepted);
         Restored(session);
     }

@@ -159,6 +159,7 @@ public sealed partial class GameSession
             var hearing = $"equipment-hearing:{CampaignId.Value}:{attempt.AttemptId}";
             lifecycle.Hearings.Add(new(lifecycle.NextHearingId++, attempt.AttemptId, HearingStatus.Open, hearing, null));
             lifecycle.CompletedOutcomeTransactionIds.Add(hearing);
+            ResolveNoFavourHearing();
             _preparation = p with { Status = PreparationStatus.Failed, Rentals = [], WorkContracts = [] };
             FinishLivePerformance();
         }

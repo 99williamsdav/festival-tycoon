@@ -106,6 +106,7 @@ public partial class Main
         BuildDisorderActionInspector();
         BuildStagePowerAction(detail);
         BuildSecurityPostInspectorAction(detail);
+        BuildHearingHud(layer);
         RefreshPreparationHud();
     }
 
@@ -134,14 +135,14 @@ public partial class Main
         _autosaveGeneration++; _session = candidate.Session;
         ResetLivePerformancePresentation();
         BuildAttendee(); _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
-        _preparationMessage = "Autosaved. Every protected person now walks into the field.";
+        _preparationMessage = "Autosaved. Everyone now walks into the field.";
         RefreshPreparationHud();
     }
 
     private void PreparationSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-preparation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));
-        _preparationMessage = result.IsSuccess ? "Preparation / live edition saved." : result.Error!;
+        _preparationMessage = result.IsSuccess ? "Preparation / live weekend saved." : result.Error!;
         RefreshPreparationHud();
     }
 
@@ -159,7 +160,7 @@ public partial class Main
             _preparationSaveBlocked = false;
             _preparationMessage = "Loaded with the same offers, ownership and physical roster.";
         }
-        else _preparationMessage = result.Error ?? "Save is not a prepared edition.";
+        else _preparationMessage = result.Error ?? "Save is not a prepared weekend.";
         RefreshPreparationHud();
     }
 
@@ -191,16 +192,17 @@ public partial class Main
         _preparationSummary.TooltipText = _preparationMessage;
         var examples = p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Take(2)
             .Concat(p.People.Where(item => item.Role != ProtectedPersonRole.Guest));
-        _preparationPeople.Text = "FIXED PROTECTED ROSTER\n" +
+        _preparationPeople.Text = "FIXED WEEKEND ROSTER\n" +
             $"Arrived {p.People.Count(item => item.Admitted)}/{p.People.Length} • departed {p.People.Count(item => item.Departed)}/{p.People.Length}\n\n" +
             string.Join("\n\n", examples.Select(item => $"[{(item.Name == "Jordan Hale" ? "STEWARD" : item.Role.ToString().ToUpperInvariant())}] {item.Name}\n" +
                 (item.Role == ProtectedPersonRole.Guest ? $"expects {(item.ExpectedGenre == 0 ? "folk" : "punk")} • satisfaction {item.Satisfaction / 100m:0}% • music risk {item.MusicRisk / 100m:0}%" : "Protected • physical arrival and departure"))) +
-            (_session.CaptureEquipment() is null ? "\n\nNo lethal chains or success rewards in this preparation slice." : "\n\nEquipment chain active. Every person is protected; fatal hearings are recorded.");
+            (_session.CaptureEquipment() is null ? "\n\nNo lethal chains or success rewards in this preparation slice." : "\n\nEquipment chain active. Fatal hearings are recorded.");
         RefreshLivePerformanceHud();
         RefreshEquipmentControls();
         RefreshMedicalControls();
         RefreshDisorderControls();
         RefreshStagePowerAction();
+        RefreshHearingHud();
     }
 
     private void AdvancePreparationPresentation(double delta)

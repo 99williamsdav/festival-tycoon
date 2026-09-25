@@ -62,6 +62,9 @@ public sealed record SpendFixtureFavourCommand : SessionCommand;
 /// <summary>Resolve a real fatal hearing by spending one Council Favour on a same-tier weekend retry.</summary>
 public sealed record SpendCouncilFavourCommand : SessionCommand;
 
+/// <summary>After a fatal weekend, end the campaign without spending a Council Favour.</summary>
+public sealed record ConcedeCouncilHearingCommand : SessionCommand;
+
 
 /// <summary>Headless R0.00 fixture only: settles the active attempt safely and advances one fixture tier.</summary>
 public sealed record ForceFixtureSafeCompletionCommand : SessionCommand;

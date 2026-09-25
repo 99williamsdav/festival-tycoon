@@ -18,6 +18,8 @@ public enum HearingStatus
 {
     Open = 1,
     FavourSpent = 2,
+    Conceded = 3,
+    LostNoFavour = 4,
 }
 
 public sealed record ProtectedPersonSnapshot(string PersonId, ProtectedPersonRole Role);
@@ -134,6 +136,36 @@ public sealed partial class GameSession
         return null;
     }
 
+    private CommandResult? ValidateConcedeCouncilHearing(EntityId? targetId)
+    {
+        if (targetId is not null || _preparation is not { Status: PreparationStatus.Failed } ||
+            _lifecycle is null || _lifecycle.FixtureLabel is not (RealLifecycleLabel or RetryEconomyFixtureLabel))
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "A fatal Council hearing is required.");
+        return _lifecycle.Hearings.Count > 0 && _lifecycle.Hearings[^1].Status == HearingStatus.Open
+            ? null
+            : CommandResult.Rejected(CommandReasonCode.AlreadySettled, "This hearing is already resolved.");
+    }
+
+    private void ApplyConcedeCouncilHearing()
+    {
+        var lifecycle = _lifecycle!;
+        var hearing = lifecycle.Hearings[^1];
+        var transactionId = $"council-concede:{CampaignId.Value}:{hearing.HearingId}";
+        lifecycle.Hearings[^1] = hearing with { Status = HearingStatus.Conceded, ResolutionTransactionId = transactionId };
+        lifecycle.CompletedOutcomeTransactionIds.Add(transactionId);
+    }
+
+    private void ResolveNoFavourHearing()
+    {
+        var lifecycle = _lifecycle!;
+        if (lifecycle.FixtureLabel is not (RealLifecycleLabel or RetryEconomyFixtureLabel) || lifecycle.FixtureFavourBalance != 0)
+            return;
+        var hearing = lifecycle.Hearings[^1];
+        var transactionId = $"council-no-favour:{CampaignId.Value}:{hearing.HearingId}";
+        lifecycle.Hearings[^1] = hearing with { Status = HearingStatus.LostNoFavour, ResolutionTransactionId = transactionId };
+        lifecycle.CompletedOutcomeTransactionIds.Add(transactionId);
+    }
+
     private CommandResult? ValidateForceFixtureSafeCompletion(EntityId? targetId)
     {
         if (targetId is not null || _lifecycle is null)
@@ -203,7 +235,7 @@ public sealed partial class GameSession
 
     private CommandResult? ValidateLifecycleFrozenCommand(SessionCommand command)
     {
-        if (!IsLifecycleEditionFrozen() || command is SpendFixtureFavourCommand or SpendCouncilFavourCommand) return null;
+        if (!IsLifecycleEditionFrozen() || command is SpendFixtureFavourCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand) return null;
         return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is frozen after its first terminal outcome.");
     }
 
@@ -293,7 +325,7 @@ public sealed partial class GameSession
             lifecycle.NextHearingId != (ulong)lifecycle.Hearings.Length + 1 || lifecycle.Hearings.Any(item =>
                 !attempts.TryGetValue(item.AttemptId, out var attempt) || (EditionAttemptStatus)attempt.Status != EditionAttemptStatus.Failed ||
                 !Enum.IsDefined(typeof(HearingStatus), item.Status) || string.IsNullOrWhiteSpace(item.CreatedTransactionId) ||
-                ((HearingStatus)item.Status == HearingStatus.FavourSpent) != (item.ResolutionTransactionId is not null)))
+                ((HearingStatus)item.Status != HearingStatus.Open) != (item.ResolutionTransactionId is not null)))
             return "Lifecycle hearings must be contiguous and correspond one-to-one with failed attempts.";
         if (lifecycle.Casualties.Length != lifecycle.Hearings.Length ||
             !lifecycle.Casualties.Select(item => item.AttemptId).SequenceEqual(lifecycle.Hearings.Select(item => item.AttemptId)))

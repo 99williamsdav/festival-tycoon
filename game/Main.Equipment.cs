@@ -62,7 +62,7 @@ public partial class Main
             (e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? $"GENERATOR OVERLOAD • {left / 80m:0.0}s to lethal eligibility at 1×\n" : e.Stage == EquipmentStage.Normal ? "Visible load exceeds capacity before any alarm.\n" : "Unit made safe; no further escalation.\n") +
             $"{e.Response}\nMaintenance: {e.JobStage}. Repair needs arrival + 20s.";
         if (e.Stage == EquipmentStage.Terminal)
-            _equipmentSummary.Text = "EDITION FROZEN • COUNCIL HEARING\n" + StewardWording(_session.CaptureLifecycleSnapshot()!.Casualties.Single().Cause) + "\nHearing saved. Retry/Favour gameplay is not part of this slice.";
+            _equipmentSummary.Text = "WEEKEND ENDED • COUNCIL HEARING\n" + StewardWording(_session.CaptureLifecycleSnapshot()!.Casualties.Last().Cause) + "\nThe hearing has been saved.";
         if (_equipmentCaptureMode == "escalate" && _equipmentCaptureDirectory is not null)
             _equipmentSummary.Text = "LABELLED IGNORED-RESPONSE FIXTURE\n" + _equipmentSummary.Text;
         foreach (var (action, button) in _equipmentButtons)

@@ -136,6 +136,11 @@ public sealed partial class GameSession
                 ApplySpendCouncilFavour();
                 break;
 
+            case ConcedeCouncilHearingCommand:
+                affectedTarget = null;
+                ApplyConcedeCouncilHearing();
+                break;
+
             case CommitCommunityWaterShareCommand:
                 affectedTarget = null;
                 ApplyCommunityWaterShare();
@@ -644,9 +649,9 @@ public sealed partial class GameSession
 
         var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
         if (lifecycleFrozen is not null) return lifecycleFrozen;
-        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or SpendCouncilFavourCommand or CommitCommunityWaterShareCommand))
+        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
-        if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not SpendCouncilFavourCommand)
+        if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
 
         return envelope.Command switch
@@ -667,6 +672,7 @@ public sealed partial class GameSession
             ForceFixtureDeathsCommand deaths => ValidateForceFixtureDeaths(envelope.TargetId, deaths),
             SpendFixtureFavourCommand => ValidateSpendFixtureFavour(envelope.TargetId),
             SpendCouncilFavourCommand => ValidateSpendCouncilFavour(envelope.TargetId),
+            ConcedeCouncilHearingCommand => ValidateConcedeCouncilHearing(envelope.TargetId),
             CommitCommunityWaterShareCommand => ValidateCommunityWaterShare(envelope.TargetId),
             ForceFixtureSafeCompletionCommand => ValidateForceFixtureSafeCompletion(envelope.TargetId),
             CreateGuestWalletCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>

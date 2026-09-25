@@ -195,7 +195,7 @@ public partial class Main
             $"RESPONSE  {d.ResponseStage} • target {target}\n{StewardWording(d.Response)}\n" +
             "Select an affected guest to DISPATCH STEWARD or use SAFE EGRESS in their inspector. " +
             (workerAvailable ? "Select Jordan here if he needs medical help. " :
-                "Jordan can be selected after the edition starts and his physical visual exists. ") +
+                "Jordan can be selected after the weekend starts and his physical visual exists. ") +
             "Stewards do not teleport or guarantee de-escalation.";
     }
 
