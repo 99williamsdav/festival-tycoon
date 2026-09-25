@@ -138,7 +138,7 @@ public partial class Main
                 $"INTENT {need.Intent} • {need.Reason}\n" +
                 (medical!.WaterOwnerId == id.Value
                     ? $"DRINKING • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n"
-                    : "")) + detail;
+                    : "")) + DisorderPersonInspectorText(id.Value) + detail;
     }
 
     private void EnsureStageDrumKit()

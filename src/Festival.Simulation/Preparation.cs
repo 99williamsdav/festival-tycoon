@@ -269,13 +269,15 @@ public sealed partial class GameSession
             return "Preparation header or collections invalid.";
         var maintenance = snapshot.Equipment?.WorkerId is not null ? 1 : 0;
         var medic = snapshot.Medical is null ? 0 : 1;
-        if (p.People.Length != p.Tier * 20 + 4 + maintenance + medic || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != p.Tier * 20 ||
-            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != 3 ||
+        var security = snapshot.Disorder is null ? 0 : 1;
+        if (p.People.Length != p.Tier * 20 + 4 + maintenance + medic + security || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != p.Tier * 20 ||
+            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic + security || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != 3 ||
             p.People.Any(item => item.AgentId == 0 || item.AgentId >= snapshot.NextEntityId || string.IsNullOrWhiteSpace(item.Name) || item.ExpectedGenre is < 0 or > 1 ||
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
             p.People.Select(item => item.AgentId).Distinct().Count() != p.People.Length)
             return "Fixed protected roster invalid.";
-        var factory = snapshot.Medical is not null ? CreateMedicalCampaign(snapshot.CampaignSeed, p.Tier) :
+        var factory = snapshot.Disorder is not null ? CreateDisorderCampaign(snapshot.CampaignSeed, p.Tier) :
+            snapshot.Medical is not null ? CreateMedicalCampaign(snapshot.CampaignSeed, p.Tier) :
             snapshot.Equipment is null ? CreatePreparedCampaign(snapshot.CampaignSeed, p.Tier) : CreateEquipmentCampaign(snapshot.CampaignSeed, p.Tier);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })
@@ -304,7 +306,7 @@ public sealed partial class GameSession
         if (p.Status == PreparationStatus.Preparing && (snapshot.Phase != (int)SessionPhase.OpeningCheck || (snapshot.NavigationAgents?.Length ?? 0) != 0 || p.People.Any(item => item.Admitted || item.Departed)) ||
             p.Status is PreparationStatus.Running or PreparationStatus.Failed && snapshot.Phase != (int)SessionPhase.Live ||
             p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.Phase != (int)SessionPhase.Egress ||
-            p.Status == PreparationStatus.Failed && !p.FixtureOutcomesEnabled && snapshot.Equipment?.Stage != EquipmentStage.Terminal && snapshot.Medical?.Stage != MedicalStage.Terminal ||
+            p.Status == PreparationStatus.Failed && !p.FixtureOutcomesEnabled && snapshot.Equipment?.Stage != EquipmentStage.Terminal && snapshot.Medical?.Stage != MedicalStage.Terminal && snapshot.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death" ||
             p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => offers[id].Category == "staff")) ||
             p.Status == PreparationStatus.Finished && p.People.Any(item => !item.Departed))
             return "Preparation phase and protected-person progress disagree.";

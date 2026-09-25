@@ -307,8 +307,13 @@ internal static class CanonicalStateHasher
         }
         if (session.MedicalCanonicalJson is { } medical)
         {
-            writer.Write("r0-medical-v5");
+            writer.Write(session.DisorderCanonicalJson is null ? "r0-medical-v5" : "r0-medical-v6");
             writer.Write(medical);
+        }
+        if (session.DisorderCanonicalJson is { } disorder)
+        {
+            writer.Write("r0-disorder-v1");
+            writer.Write(disorder);
         }
         writer.Flush();
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))

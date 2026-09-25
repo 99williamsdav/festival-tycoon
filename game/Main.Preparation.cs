@@ -52,6 +52,7 @@ public partial class Main
             box.AddChild(LabelText("GENERATOR • safe 80% baseline", 13, ink));
         else if (_session.CaptureEquipment() is not null) BuildEquipmentControls(box);
         if (_session.CaptureMedical() is not null) BuildMedicalControls(box);
+        if (_session.CaptureDisorder() is not null) BuildDisorderControls(box);
         foreach (var offer in _session.GetPreparationOffers().OrderBy(item => item.Category == "maintenance" ? 0 : 1))
         {
             var button = ButtonText($"{offer.Name}  £{offer.PricePennies / 100m:0}", () => PreparationAccept(offer.Id));
@@ -79,12 +80,15 @@ public partial class Main
         var inspector = new PanelContainer { Position = new Vector2(rightPanelX, _session.CaptureMedical() is not null ? 405 : _session.CaptureEquipment() is null ? 440 : 525),
             Size = new Vector2(400, _session.CaptureMedical() is not null ? 460 : _session.CaptureEquipment() is null ? 250 : 165) };
         inspector.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(inspector);
-        var detail = new VBoxContainer(); inspector.AddChild(detail);
+        var inspectorScroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, _session.CaptureMedical() is not null ? 440 : 145) };
+        inspector.AddChild(inspectorScroll);
+        var detail = new VBoxContainer { CustomMinimumSize = new Vector2(375, 0) }; inspectorScroll.AddChild(detail);
         _inspectorTitle = LabelText("Inspect the persistent farm", 18, ink); detail.AddChild(_inspectorTitle);
         BuildMedicalNeedBars(detail);
         _inspectorBody = LabelText("Click a building to inspect its retained identity.\nAll guests and workers remain protected people.", 14, ink);
         _inspectorBody.AutowrapMode = TextServer.AutowrapMode.WordSmart; detail.AddChild(_inspectorBody);
         BuildMedicalActionInspector(detail);
+        BuildDisorderActionInspector();
         RefreshPreparationHud();
     }
 
@@ -170,6 +174,7 @@ public partial class Main
         RefreshLivePerformanceHud();
         RefreshEquipmentControls();
         RefreshMedicalControls();
+        RefreshDisorderControls();
     }
 
     private void AdvancePreparationPresentation(double delta)

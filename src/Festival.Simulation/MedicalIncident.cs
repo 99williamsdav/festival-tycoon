@@ -6,7 +6,7 @@ public enum MedicalStage { Clear, Distress, Collapsed, Critical, Treated, Remove
 public enum MedicalIntent { WatchShow, SeekWater, Rest, AwaitMedic, Leaving, Collapsed, Drinking }
 public enum MedicalResponseStage { None, Travelling, Treating, Removing, Completed }
 public enum MedicalAction { GuideToWater, GuideToRest, DispatchMedic, SafeRemove, ReturnToShow }
-public enum MedicalNeedProfile { Guest, Performer }
+public enum MedicalNeedProfile { Guest, Performer, Staff }
 public sealed record MedicalCommand(ulong GuestId, MedicalAction Action) : SessionCommand;
 public sealed record MedicalNeed(ulong AgentId, int Thirst, int HeatExposure, MedicalIntent Intent,
     string Reason, long LastDecisionTick, int? QueueSlot, long LastWaterTick,
@@ -145,7 +145,8 @@ public sealed partial class GameSession
         var need = m.Needs.SingleOrDefault(item => item.AgentId == command.GuestId);
         if (need is null)
             return CommandResult.Rejected(CommandReasonCode.UnknownTarget, "The selected person has no medical needs in this edition.");
-        var patientStage = need.Profile == MedicalNeedProfile.Guest && command.GuestId == m.AtRiskGuestId ? m.Stage : need.Stage;
+        var patientStage = need.Stage is MedicalStage.Collapsed or MedicalStage.Critical ? need.Stage :
+            need.Profile == MedicalNeedProfile.Guest && command.GuestId == m.AtRiskGuestId ? m.Stage : need.Stage;
         if (m.Stage == MedicalStage.Terminal || patientStage is MedicalStage.Treated or MedicalStage.Removed or MedicalStage.Terminal)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This medical incident has settled.");
         if (command.GuestId == m.ResponsePatientId && command.Action != MedicalAction.DispatchMedic &&
@@ -175,6 +176,8 @@ public sealed partial class GameSession
         if (command.Action == MedicalAction.GuideToWater && need.Intent != MedicalIntent.SeekWater && !m.WaterQueue.Contains(command.GuestId) &&
             m.WaterQueue.Length == WaterSlots.Length && m.WaterOverflow.Length == WaterOverflowSlots.Length)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "The free-water line and its visible overflow tail are full.");
+        if (command.Action == MedicalAction.GuideToWater && _disorder?.WaterClosed == true)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Free water is closed; use rest, medical help or safe egress.");
         if (command.Action == MedicalAction.GuideToWater && need.Intent != MedicalIntent.SeekWater && !m.WaterQueue.Contains(command.GuestId) &&
             !MedicalRouteExists(command.GuestId, MedicalQueueApproach(m.WaterQueue.Length, m.WaterOverflow.Length)))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "No walkable route to free water; clear the path or choose first aid/rest.");
@@ -218,7 +221,8 @@ public sealed partial class GameSession
         var patientCell = TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres);
         ApplyAgentDestination(id, new(patientCell, "medical.await-medic"));
         SetNeed(command.GuestId, item => item with {
-            Intent = (item.AgentId == m.AtRiskGuestId ? m.Stage : item.Stage) is MedicalStage.Collapsed or MedicalStage.Critical
+            Intent = (item.Stage is MedicalStage.Collapsed or MedicalStage.Critical ||
+                item.AgentId == m.AtRiskGuestId && m.Stage is MedicalStage.Collapsed or MedicalStage.Critical)
                 ? MedicalIntent.Collapsed : MedicalIntent.AwaitMedic,
             Reason = "Awaiting physically dispatched medic", QueueSlot = null });
         // A medic cannot occupy the patient's cell. Reserve a walkable response
@@ -240,6 +244,17 @@ public sealed partial class GameSession
 
     private void SeekWater(ulong id, string reason)
     {
+        if (_disorder?.WaterClosed == true)
+        {
+            var need = _medical!.Needs.Single(item => item.AgentId == id);
+            if (id == _medical.AtRiskGuestId || need.Profile == MedicalNeedProfile.Performer)
+            {
+                SetNeed(id, item => item with { Intent = MedicalIntent.Rest,
+                    Reason = "Water service closed; physically seeking first-aid rest" });
+                ApplyAgentDestination(new(id), new(MedicalRestCell, "disorder.water-closure-rest"));
+            }
+            return;
+        }
         var m = _medical!;
         if (m.WaterQueue.Contains(id) || m.Needs.Any(item => item.AgentId == id && item.Intent == MedicalIntent.SeekWater)) return;
         if (m.WaterQueue.Length == WaterSlots.Length && m.WaterOverflow.Length == WaterOverflowSlots.Length)
@@ -405,7 +420,8 @@ public sealed partial class GameSession
             foreach (var need in m.Needs)
             {
                 var person = p.People.Single(item => item.AgentId == need.AgentId);
-                if (!person.Admitted || need.Intent is MedicalIntent.Rest or MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed or MedicalIntent.Drinking ||
+                if (!person.Admitted || need.Profile == MedicalNeedProfile.Staff ||
+                    need.Intent is MedicalIntent.Rest or MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed or MedicalIntent.Drinking ||
                     (m.Stage is MedicalStage.Collapsed or MedicalStage.Critical && need.AgentId == m.AtRiskGuestId) ||
                     need.Stage is MedicalStage.Collapsed or MedicalStage.Critical ||
                     CurrentTick - need.LastDecisionTick < MedicalDecisionCooldownTicks) continue;
@@ -617,10 +633,12 @@ public sealed partial class GameSession
     private static string? ValidatePersistedMedical(MedicalSnapshot? m, SessionPersistenceSnapshot s)
     {
         if (m is null) return null;
-        if (s.Preparation is not { } p || m.Version != 5 || !m.IsHot || m.Needs is null || m.WaterQueue is null || m.WaterOverflow is null ||
-            m.Evidence is null || m.Needs.Length != p.Tier * 20 + 3 ||
-            !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role is ProtectedPersonRole.Guest or ProtectedPersonRole.Performer).Select(item => item.AgentId)) ||
-            m.Needs.Any(item => item.Profile != (p.People.Single(person => person.AgentId == item.AgentId).Role == ProtectedPersonRole.Performer ? MedicalNeedProfile.Performer : MedicalNeedProfile.Guest)) ||
+        if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || !m.IsHot || m.Needs is null || m.WaterQueue is null || m.WaterOverflow is null ||
+            m.Evidence is null || m.Needs.Length != p.Tier * 20 + 3 + (s.Disorder is null ? 0 : 1) ||
+            !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role is ProtectedPersonRole.Guest or ProtectedPersonRole.Performer ||
+                item.AgentId == s.Disorder?.SecurityId).Select(item => item.AgentId)) ||
+            m.Needs.Any(item => item.Profile != (p.People.Single(person => person.AgentId == item.AgentId).Role == ProtectedPersonRole.Performer ? MedicalNeedProfile.Performer :
+                item.AgentId == s.Disorder?.SecurityId ? MedicalNeedProfile.Staff : MedicalNeedProfile.Guest)) ||
             !p.People.Any(item => item.AgentId == m.MedicId && item.Name == "Riley Hart" && item.Role == ProtectedPersonRole.Staff) ||
             m.AtRiskGuestId != m.Needs[19].AgentId || m.Needs.Any(item => item.Thirst is < 0 or > 10_000 || item.HeatExposure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Intent) || !Enum.IsDefined(item.Profile) || !Enum.IsDefined(item.Stage) ||
@@ -649,7 +667,7 @@ public sealed partial class GameSession
             !Enum.IsDefined(m.Stage) || !Enum.IsDefined(m.ResponseStage) ||
             m.WarningTick > s.CurrentTick || m.CollapseTick > s.CurrentTick || m.CriticalTick > s.CurrentTick ||
             m.Stage == MedicalStage.Terminal && (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Length != 1) ||
-            p.Status == PreparationStatus.Failed && m.Stage != MedicalStage.Terminal)
+            p.Status == PreparationStatus.Failed && m.Stage != MedicalStage.Terminal && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death")
             return "Medical Hot state, queue ownership or causal stage invalid.";
         return null;
     }

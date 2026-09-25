@@ -121,8 +121,8 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.03-hot-medical-v9",
-        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-hot-medical-v9");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.04-disorder-v10",
+        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-v10");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -168,7 +168,8 @@ public partial class Main : Node
         else
         {
             _session = _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
-                _medicalCaptureDirectory is not null || OS.GetCmdlineUserArgs().Length == 0 ? GameSession.CreateMedicalCampaign(20260922) :
+                _disorderCaptureDirectory is not null || OS.GetCmdlineUserArgs().Length == 0 ? GameSession.CreateDisorderCampaign(20260922) :
+                _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _preparationCaptureDirectory is null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier);
         }
@@ -219,6 +220,7 @@ public partial class Main : Node
         if (_equipmentCaptureDirectory is not null) ProcessEquipmentCapture();
         if (_equipmentPerformanceOutput is not null) ProcessEquipmentPerformanceCheck();
         ProcessMedicalCapture();
+        ProcessDisorderCapture();
         ProcessStartSplashCapture();
     }
 
@@ -705,6 +707,7 @@ public partial class Main : Node
         _selectedAttendeeId = null;
         _selected = item;
         RefreshMedicalActionInspector();
+        RefreshDisorderActionInspector();
         var radius = item.Kind switch
         {
             FarmObjectKind.LargeBarn => 11.5f, FarmObjectKind.SmallBarn => 8.3f,
@@ -724,6 +727,7 @@ public partial class Main : Node
         RefreshMedicalNeedBars(null);
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
         RefreshMedicalActionInspector();
+        RefreshDisorderActionInspector();
         _inspectorBody.Text = "Click a building, gate, stage or service point.\nClick empty ground to clear."; GD.Print("FARM_SELECTION_CLEARED");
     }
 
@@ -735,6 +739,7 @@ public partial class Main : Node
         _highlight.Scale = new Vector3(0.7f, 1, 0.7f); _highlight.Visible = true;
         RefreshAttendeeInspector();
         RefreshMedicalActionInspector();
+        RefreshDisorderActionInspector();
         GD.Print($"ATTENDEE_SELECTED id={id.Value} orientation={OrientationNames[_orientation]}");
     }
 
@@ -790,6 +795,12 @@ public partial class Main : Node
                 _medicalCaptureMode = args[++i];
                 _medicalCaptureDirectory = args[++i];
                 Directory.CreateDirectory(_medicalCaptureDirectory);
+            }
+            else if (args[i] == "--capture-disorder" && i + 2 < args.Length)
+            {
+                _disorderCaptureMode = args[++i];
+                _disorderCaptureDirectory = args[++i];
+                Directory.CreateDirectory(_disorderCaptureDirectory);
             }
             else if (args[i] == "--measure-live-performance" && i + 2 < args.Length)
             {
