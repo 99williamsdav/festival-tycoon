@@ -32,20 +32,10 @@ public partial class Main
         // The narrow standpipe has no v1-style approach pad. Put its tap within
         // arm's reach of the existing front queue slot without moving that slot.
         var waterPosition = At(GameSession.MedicalWaterCell) + new Vector3(0, 0, 1.9f);
-        AddAsset("res://assets/environment/lwf_free_water_point_v3.glb", waterPosition);
+        AddAsset("res://assets/environment/lwf_free_water_point_v4.glb", waterPosition);
         AddAsset("res://assets/environment/lwf_first_aid_point_v2.glb", At(GameSession.MedicalTentCell));
-        // Reversible runtime sign overlay: the approved v3 source/model is unchanged.
-        var signBoard = new MeshInstance3D { Mesh = new BoxMesh { Size = new Vector3(2.3f, 0.68f, 0.08f) },
-            Position = waterPosition + new Vector3(0, 2.03f, 0.28f),
-            MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color("087c82"), Roughness = .88f } };
-        AddChild(signBoard);
-        AddChild(new Label3D { Text = "WATER", Position = signBoard.Position + new Vector3(0, 0, 0.07f),
-            FontSize = 96, PixelSize = .004f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-            Modulate = new Color("fff7de"), OutlineSize = 14, OutlineModulate = new Color("16464a") });
         RegisterMedicalPick(MedicalFacility.Water, waterPosition + new Vector3(0, 1.05f, 0), new Vector3(2.3f, 2.1f, 1.1f));
         RegisterMedicalPick(MedicalFacility.FirstAid, At(GameSession.MedicalTentCell) + new Vector3(0, 1.35f, 0), new Vector3(3.5f, 2.7f, 3.5f));
-        AddChild(new Label3D { Text = "WATER", Position = At(GameSession.MedicalWaterCell) + new Vector3(0, 2.65f, 0),
-            FontSize = 45, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
         AddChild(new Label3D { Text = "FIRST AID", Position = At(GameSession.MedicalTentCell) + new Vector3(0, 3.1f, 0),
             FontSize = 45, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
         _medicalWorldAlert = new Label3D { Text = "HOT", Position = At(GameSession.MedicalWaterCell) + new Vector3(0, 3.4f, 0),
@@ -241,6 +231,26 @@ public partial class Main
             RefreshPreparationHud();
             GD.Print($"MEDICAL_CAPTURE warning={_session.CaptureMedical()?.Stage} queue={_session.CaptureMedical()?.WaterQueue.Length} tick={_session.CurrentTick}");
         }
+        if (_medicalCaptureMode == "water-v4")
+        {
+            if (_medicalCaptureFrame == 12)
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "default-view.png"));
+            if (_medicalCaptureFrame == 13)
+            {
+                _focus = AtMedicalWaterForCapture(); _camera.Size = 8f; ApplyCamera();
+            }
+            if (_medicalCaptureFrame == 16)
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "water-close-up.png"));
+            if (_medicalCaptureFrame == 17)
+                CapturePickMedicalFacility(MedicalFacility.Water);
+            if (_medicalCaptureFrame == 18)
+            {
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "water-selected.png"));
+                GD.Print("MEDICAL_CAPTURE water-v4 default-and-close-up selected=True");
+                GetTree().Quit();
+            }
+            return;
+        }
         if (_medicalCaptureFrame == 12 && _medicalCaptureMode == "line")
         {
             RefreshPreparationHud();
@@ -306,5 +316,11 @@ public partial class Main
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "outcome.png"));
             GetTree().Quit();
         }
+    }
+
+    private static Vector3 AtMedicalWaterForCapture()
+    {
+        var centre = TraversalGrid.CellCentre(GameSession.MedicalWaterCell);
+        return new Vector3(centre.XMillimetres / 1000f, 0.9f, centre.ZMillimetres / 1000f + 1.9f);
     }
 }
