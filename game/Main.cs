@@ -180,6 +180,7 @@ public partial class Main : Node
         if (DisplayServer.GetName() != "headless")
             DisplayServer.SetIcon(GD.Load<Texture2D>("res://assets/branding/festival-tycoon-stage-sun-icon.png").GetImage());
         if (_session.CaptureMedical() is not null) BuildMedicalWorld();
+        if (_session.CaptureDisorder() is not null) BuildDisorderWorld();
         if (_session.CaptureEquipment() is not null) EnsureStageDrumKit();
         if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();
         if (_sharedWorldFixture is not null) BuildSharedWorldServiceMarkers();
@@ -695,6 +696,7 @@ public partial class Main : Node
         if (!result.ContainsKey("collider")) { ClearSelection(); return; }
         var collider = result["collider"].AsGodotObject() as CollisionObject3D;
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
+        else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
         else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility)) SelectMedicalFacility(medicalFacility);
         else if (collider is not null && _pickRegistry.TryGetValue(collider.GetInstanceId(), out var item)) SelectObject(item);
         else ClearSelection();
@@ -702,6 +704,7 @@ public partial class Main : Node
 
     private void SelectObject(FarmObjectReadModel item)
     {
+        ClearSecurityPostSelection();
         _selectedMedicalFacility = null;
         RefreshMedicalNeedBars(null);
         _selectedAttendeeId = null;
@@ -724,6 +727,7 @@ public partial class Main : Node
 
     private void ClearSelection()
     {
+        ClearSecurityPostSelection();
         RefreshMedicalNeedBars(null);
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
         RefreshMedicalActionInspector();
@@ -733,6 +737,7 @@ public partial class Main : Node
 
     private void SelectAttendee(EntityId id)
     {
+        ClearSecurityPostSelection();
         _selectedMedicalFacility = null;
         _selected = null; _selectedAttendeeId = id;
         _highlight.Position = _attendeeVisuals[id].Position + new Vector3(0, 0.08f, 0);

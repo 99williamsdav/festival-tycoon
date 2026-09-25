@@ -15,6 +15,67 @@ public partial class Main
     private string? _disorderCaptureDirectory;
     private string _disorderCaptureMode = "music";
     private int _disorderCaptureFrame;
+    private ulong _securityPostPickId;
+    private bool _selectedSecurityPost;
+    private Button? _securityPostWorkerButton;
+
+    private void BuildDisorderWorld()
+    {
+        var centre = TraversalGrid.CellCentre(GameSession.DisorderSecurityPostCell);
+        var position = new Vector3(centre.XMillimetres / 1000f, 0, centre.ZMillimetres / 1000f);
+        AddAsset("res://assets/environment/lwf_security_post_v1.glb", position);
+        var pick = new StaticBody3D { Position = position + new Vector3(0, 1.55f, 0),
+            CollisionLayer = 1, CollisionMask = 0 };
+        pick.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(2.38f, 3.1f, 2.33f) } });
+        AddChild(pick);
+        _securityPostPickId = pick.GetInstanceId();
+    }
+
+    private void BuildSecurityPostInspectorAction(VBoxContainer parent)
+    {
+        if (_session.CaptureDisorder() is null) return;
+        _securityPostWorkerButton = ButtonText("SELECT JORDAN • SECURITY", () =>
+            SelectAttendee(new EntityId(_session.CaptureDisorder()!.SecurityId)));
+        _securityPostWorkerButton.Visible = false;
+        parent.AddChild(_securityPostWorkerButton);
+    }
+
+    private void SelectSecurityPost()
+    {
+        _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null;
+        _selectedSecurityPost = true;
+        RefreshMedicalNeedBars(null);
+        RefreshMedicalActionInspector();
+        RefreshDisorderActionInspector();
+        var centre = TraversalGrid.CellCentre(GameSession.DisorderSecurityPostCell);
+        _highlight.Position = new Vector3(centre.XMillimetres / 1000f, .08f, centre.ZMillimetres / 1000f);
+        _highlight.Scale = new Vector3(2.4f, 1, 2.4f); _highlight.Visible = true;
+        if (_securityPostWorkerButton is not null) _securityPostWorkerButton.Visible = true;
+        RefreshSecurityPostInspector();
+        GD.Print("SECURITY_POST_SELECTED");
+    }
+
+    private void ClearSecurityPostSelection()
+    {
+        _selectedSecurityPost = false;
+        if (_securityPostWorkerButton is not null) _securityPostWorkerButton.Visible = false;
+    }
+
+    private void RefreshSecurityPostInspector()
+    {
+        if (!_selectedSecurityPost || _session.CaptureDisorder() is not { } d) return;
+        var people = _session.CapturePreparation()!.People;
+        var worker = people.Single(item => item.AgentId == d.SecurityId);
+        var position = _session.CaptureSnapshot().NavigationAgents.SingleOrDefault(item => item.Id.Value == d.SecurityId);
+        var target = d.ResponseTargetId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
+        _inspectorTitle.Text = "Security post • Jordan Hale";
+        _inspectorBody.Text = $"POST  open public approach • gate route clear\n" +
+            $"WORKER  {(worker.Admitted ? d.SecurityIncapacitated ? "injured • needs medic" : "on site" : "walking in")}\n" +
+            $"POSITION  {(position is null ? "not yet arrived" : $"{position.XMillimetres / 1000m:0.00} m, {position.ZMillimetres / 1000m:0.00} m")}\n" +
+            $"RESPONSE  {d.ResponseStage} • target {target}\n{d.Response}\n" +
+            "Select an affected guest to DISPATCH SECURITY or use SAFE EGRESS in their inspector. " +
+            "Select Jordan here if he needs medical help; security does not teleport or guarantee de-escalation.";
+    }
 
     private void BuildDisorderControls(VBoxContainer box)
     {
@@ -121,6 +182,7 @@ public partial class Main
             button.TooltipText = error?.Message ?? "";
         }
         RefreshDisorderActionInspector();
+        RefreshSecurityPostInspector();
     }
 
     private void ProcessDisorderCapture()
@@ -130,6 +192,11 @@ public partial class Main
         if (_disorderCaptureFrame == 4)
             foreach (var id in new[] { "act.folk", "staff.steward", "equipment.buy" }) _offerButtons[id].EmitSignal(Button.SignalName.Pressed);
         if (_disorderCaptureFrame == 6) _preparationStart.EmitSignal(Button.SignalName.Pressed);
+        if (_disorderCaptureMode == "post")
+        {
+            ProcessSecurityPostCapture();
+            return;
+        }
         if (_disorderCaptureFrame == 8)
         {
             if (_disorderCaptureMode == "music")
@@ -173,6 +240,46 @@ public partial class Main
         {
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory, "prevented.png"));
             GD.Print($"DISORDER_CAPTURE resolved={_session.CaptureDisorder()!.People.Count(item => item.Grievance == DisorderGrievance.None)} waterClosed={_session.CaptureDisorder()!.WaterClosed} set={_session.CaptureLivePerformance()!.Stage}");
+            GetTree().Quit();
+        }
+    }
+
+    private void ProcessSecurityPostCapture()
+    {
+        if (_disorderCaptureFrame == 8)
+        {
+            var id = _session.CaptureDisorder()!.SecurityId;
+            while (_session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == id).Action != AgentNavigationAction.Arrived &&
+                   _session.CurrentTick < 2_000)
+                _session.AdvanceWithoutSnapshot(1);
+            var security = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == id);
+            if (security.Destination != GameSession.DisorderSecurityBaseCell || security.Action != AgentNavigationAction.Arrived)
+                throw new InvalidOperationException("Security did not physically reach the approved post approach.");
+            _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+            _focus = new Vector3(-7, 0, 17); _camera.Size = 32f; ApplyCamera();
+            RefreshPreparationHud();
+            GD.Print($"SECURITY_POST_CAPTURE security={id} base={security.Destination} tick={_session.CurrentTick}");
+        }
+        if (_disorderCaptureFrame == 10)
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "post-default.png"));
+        if (_disorderCaptureFrame == 11)
+        {
+            var centre = TraversalGrid.CellCentre(GameSession.DisorderSecurityPostCell);
+            Pick(_camera.UnprojectPosition(new Vector3(centre.XMillimetres / 1000f, 1.5f, centre.ZMillimetres / 1000f)));
+            if (!_selectedSecurityPost) throw new InvalidOperationException("Security post did not resolve through the normal pick ray.");
+        }
+        if (_disorderCaptureFrame == 13)
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "post-selected.png"));
+        if (_disorderCaptureFrame == 14)
+        {
+            _securityPostWorkerButton!.EmitSignal(Button.SignalName.Pressed);
+            if (_selectedAttendeeId?.Value != _session.CaptureDisorder()!.SecurityId)
+                throw new InvalidOperationException("Post action did not select the physical security worker.");
+        }
+        if (_disorderCaptureFrame == 16)
+        {
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "worker-selected.png"));
+            GD.Print("SECURITY_POST_CAPTURE picked=True workerSelected=True zoom=32 orientation=South");
             GetTree().Quit();
         }
     }

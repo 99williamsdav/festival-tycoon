@@ -31,6 +31,10 @@ public sealed partial class GameSession
     public const int DisorderCalmingTicks = 240;
     public const int DisorderConfrontationTicks = 160;
     public const int DisorderInjuryDeathTicks = 2_400;
+    // Open-sided visual post sits just south of this walkable duty position;
+    // neither the post nor the approach closes the gate/medical corridor.
+    public static readonly GridCell DisorderSecurityPostCell = new(116, 160); // (-5.75, 16.25) m.
+    public static readonly GridCell DisorderSecurityBaseCell = new(116, 164); // (-5.75, 18.25) m.
     private DisorderSnapshot? _disorder;
     public DisorderSnapshot? CaptureDisorder() => _disorder is null ? null :
         JsonSerializer.Deserialize<DisorderSnapshot>(JsonSerializer.Serialize(_disorder));

@@ -89,6 +89,7 @@ public partial class Main
         _inspectorBody.AutowrapMode = TextServer.AutowrapMode.WordSmart; detail.AddChild(_inspectorBody);
         BuildMedicalActionInspector(detail);
         BuildDisorderActionInspector();
+        BuildSecurityPostInspectorAction(detail);
         RefreshPreparationHud();
     }
 
@@ -134,7 +135,7 @@ public partial class Main
         if (result.IsSuccess && result.Session!.CapturePreparation() is not null)
         {
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
-            _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null; _session = result.Session;
+            _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null; ClearSecurityPostSelection(); _session = result.Session;
             RefreshMedicalNeedBars(null);
             ResetLivePerformancePresentation();
             if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();

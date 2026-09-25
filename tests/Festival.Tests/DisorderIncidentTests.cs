@@ -76,6 +76,31 @@ public sealed class DisorderIncidentTests
     }
 
     [TestMethod]
+    public void SecurityPostBaseIsReachedAndGateEgressRemainsWalkable()
+    {
+        var session = Started();
+        var securityId = session.CaptureDisorder()!.SecurityId;
+        var state = session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == securityId);
+        Assert.AreEqual(GameSession.DisorderSecurityBaseCell, state.Destination);
+        while (state.Action != AgentNavigationAction.Arrived && session.CurrentTick < 2_000)
+        {
+            session.AdvanceWithoutSnapshot(1);
+            state = session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == securityId);
+        }
+        Assert.AreEqual(AgentNavigationAction.Arrived, state.Action);
+        Assert.IsTrue(session.CapturePreparation()!.People.Single(item => item.AgentId == securityId).Admitted);
+        session = Restored(session);
+        var guest = session.CaptureDisorder()!.People[0].AgentId;
+        while (!session.CapturePreparation()!.People.Single(item => item.AgentId == guest).Admitted && session.CurrentTick < 2_000)
+            session.AdvanceWithoutSnapshot(1);
+        Assert.IsTrue(Send(session, new DisorderCommand(DisorderAction.SafeEgress, guest)).IsAccepted);
+        while (!session.CapturePreparation()!.People.Single(item => item.AgentId == guest).Departed && session.CurrentTick < 3_000)
+            session.AdvanceWithoutSnapshot(1);
+        Assert.IsTrue(session.CapturePreparation()!.People.Single(item => item.AgentId == guest).Departed);
+        Restored(session);
+    }
+
+    [TestMethod]
     public void SafeMusicResetRemovesCutoffGrievanceWithoutRestartingOverload()
     {
         var session = Started();

@@ -88,6 +88,7 @@ public partial class Main
 
     private void SelectMedicalFacility(MedicalFacility facility)
     {
+        ClearSecurityPostSelection();
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = facility;
         RefreshMedicalNeedBars(null);
         RefreshMedicalActionInspector();

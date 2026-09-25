@@ -188,7 +188,9 @@ public sealed partial class GameSession
                 SegmentOriginXMillimetres = position.XMillimetres, SegmentOriginZMillimetres = position.ZMillimetres,
                 WalkingSpeedPermille = GetWalkingSpeedPermille(id), Action = AgentNavigationAction.Idle
             });
-            ApplyAgentDestination(id, new(PreparedPlace(index), "edition.arrival"));
+            var dutyCell = _disorder is { } disorder && person.AgentId == disorder.SecurityId
+                ? DisorderSecurityBaseCell : PreparedPlace(index);
+            ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
         }
         _preparation = p with { Status = PreparationStatus.Running, StartedTick = CurrentTick };
         Phase = SessionPhase.Live;
