@@ -8,6 +8,8 @@ Festival Tycoon is a short-attempt survival-management campaign played on one pe
 
 The first death ends that edition immediately. A council hearing may spend one scarce collectible **Council Favour** to retain the licence and retry the same tier. With none available, the campaign ends. Favours come from explicit community/council choices with visible opportunity costs, never cash-purchased bribes.
 
+**R0.05 player-facing copy approval:** call editions **“weekends”** in the UI. The hearing heading is **“Someone has died”**; its spend/retry choice is **“It won’t happen again”**, accompanied by explicit **spend 1 Council Favour → retry this same-tier weekend** consequence text. These are copy instructions, not approval to integrate the commissioned hearing/Favour asset before its exact concept receives coordinator and user approval.
+
 The farm persists through good editions and failed ones. Casualty history retains the person's identity, role and attributable cause; future zombie returns may use it, but zombies and other absurd endless events are not R0 scope. Short, legible attempts and replay are the main appeal. Do not build the old annual tycoon beside this campaign, a sandbox, or a generic mode framework now.
 
 ## Authority and fixed decisions
