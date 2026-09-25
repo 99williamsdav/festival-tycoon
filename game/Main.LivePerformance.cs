@@ -118,6 +118,7 @@ public partial class Main
         var live = _session.CaptureLivePerformance();
         var medical = _session.CaptureMedical();
         var need = medical?.Needs.SingleOrDefault(item => item.AgentId == id.Value);
+        RefreshMedicalNeedBars(need);
         var listening = live?.Listeners.SingleOrDefault(item => item.AgentId == id.Value);
         var performer = live?.Performers.SingleOrDefault(item => item.AgentId == id.Value);
         var detail = listening is not null
@@ -132,10 +133,11 @@ public partial class Main
         _inspectorBody.Text = $"{navigation.Action} • {navigation.IntentId}\n" +
             $"POSITION  {navigation.XMillimetres / 1000.0:0.00} m, {navigation.ZMillimetres / 1000.0:0.00} m\n" +
             $"Admitted {person.Admitted} • satisfaction {person.Satisfaction / 100m:0.00}%\n" +
-            (need is null ? "" : $"HOT • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n" +
+            (need is null ? "" : $"HOT • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}% • " +
+                $"{(need.Profile == MedicalNeedProfile.Performer ? need.Stage : id.Value == medical!.AtRiskGuestId ? medical.Stage : need.Stage)}\n" +
                 $"INTENT {need.Intent} • {need.Reason}\n" +
                 (medical!.WaterOwnerId == id.Value
-                    ? $"REFILL {(GameSession.MedicalWaterServiceTicks - medical.WaterRemainingTicks) * 100 / GameSession.MedicalWaterServiceTicks}% • {medical.WaterRemainingTicks / 80m:0.0}s left\n"
+                    ? $"DRINKING • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n"
                     : "")) + detail;
     }
 
@@ -187,6 +189,8 @@ public partial class Main
         EnsureStageAudio();
         var roster = _session.CapturePreparation()!.People;
         var navigation = _session.CaptureObservation().NavigationAgents.ToDictionary(item => item.Id);
+        var collapsed = _session.CaptureMedical()?.Needs.Where(item => item.Intent == MedicalIntent.Collapsed)
+            .Select(item => item.AgentId).ToHashSet() ?? [];
         foreach (var performer in live.Performers)
         {
             var id = new EntityId(performer.AgentId);
@@ -211,7 +215,8 @@ public partial class Main
             var deckRoute = navigation[id].IntentId is "performance.visible-stairs" or "performance.stage-entry" or
                 "performance.stage-exit-stair" or "performance.stage-exit-access";
             var ramp = deckRoute || performer.OnStage ? Mathf.Clamp((-body.Position.X - 13.55f) / 1.6f, 0f, 1f) : 0f;
-            body.Position = new Vector3(body.Position.X, 0.04f + ramp * 1.15f, body.Position.Z);
+            if (!collapsed.Contains(performer.AgentId))
+                body.Position = new Vector3(body.Position.X, 0.04f + ramp * 1.15f, body.Position.Z);
         }
         var power = _session.CaptureEquipment()?.LoadPercent ?? 80;
         var cutoffVisual = power == 0 && live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted;

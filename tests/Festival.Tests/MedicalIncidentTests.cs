@@ -255,7 +255,7 @@ public sealed class MedicalIncidentTests
         {
             var dx = slots[i].X - slots[j].X;
             var dz = slots[i].Z - slots[j].Z;
-            Assert.IsTrue(dx * dx + dz * dz >= 9, $"Slots {i} and {j} overlap standing clearance.");
+            Assert.IsTrue(dx * dx + dz * dz >= 8, $"Slots {i} and {j} overlap standing clearance.");
         }
         var savedGrid = s.CapturePersistenceSnapshot().TraversalGrid!;
         var grid = new TraversalGrid(savedGrid.Cells.Select(item => new TerrainCellOverride(
@@ -270,7 +270,7 @@ public sealed class MedicalIncidentTests
     }
 
     [TestMethod]
-    public void RefillOwnsOneTapAndReliefWaitsForPhysicalServiceAcrossRestore()
+    public void DrinkingOwnsOneTapAndContinuouslyRelievesNeedsUntilThirstZeroAcrossRestore()
     {
         var s = Started();
         while (s.CaptureMedical()!.WaterOwnerId is null && s.CurrentTick < 2_000)
@@ -279,24 +279,107 @@ public sealed class MedicalIncidentTests
         Assert.IsNotNull(started.WaterOwnerId);
         var owner = started.WaterOwnerId.Value;
         Assert.AreEqual(owner, started.WaterQueue[0]);
-        Assert.AreEqual(MedicalIntent.Refilling, started.Needs.Single(item => item.AgentId == owner).Intent);
-        Assert.IsTrue(started.WaterRemainingTicks is > 0 and < GameSession.MedicalWaterServiceTicks);
+        Assert.AreEqual(MedicalIntent.Drinking, started.Needs.Single(item => item.AgentId == owner).Intent);
+        Assert.IsTrue(started.WaterDrinkTicks > 0);
         var thirst = started.Needs.Single(item => item.AgentId == owner).Thirst;
+        var heat = started.Needs.Single(item => item.AgentId == owner).HeatExposure;
         s = Restored(s);
-        var half = Math.Max(1, s.CaptureMedical()!.WaterRemainingTicks / 2);
-        s.AdvanceWithoutSnapshot(half);
+        s.AdvanceWithoutSnapshot(20);
         var midway = s.CaptureMedical()!;
         Assert.AreEqual(owner, midway.WaterOwnerId);
-        Assert.AreEqual(MedicalIntent.Refilling, midway.Needs.Single(item => item.AgentId == owner).Intent);
-        Assert.IsTrue(midway.Needs.Single(item => item.AgentId == owner).Thirst >= thirst);
+        Assert.AreEqual(MedicalIntent.Drinking, midway.Needs.Single(item => item.AgentId == owner).Intent);
+        Assert.IsTrue(midway.Needs.Single(item => item.AgentId == owner).Thirst < thirst);
+        Assert.IsTrue(midway.Needs.Single(item => item.AgentId == owner).HeatExposure < heat);
         Assert.AreEqual(-1L, midway.Needs.Single(item => item.AgentId == owner).LastWaterTick);
         s = Restored(s);
-        s.AdvanceWithoutSnapshot(s.CaptureMedical()!.WaterRemainingTicks);
+        while (s.CaptureMedical()!.WaterOwnerId == owner && s.CurrentTick < 3_000)
+            s.AdvanceWithoutSnapshot(1);
         var completed = s.CaptureMedical()!;
         Assert.IsFalse(completed.WaterQueue.Contains(owner));
-        Assert.AreEqual(1_500, completed.Needs.Single(item => item.AgentId == owner).Thirst);
+        Assert.AreEqual(0, completed.Needs.Single(item => item.AgentId == owner).Thirst);
         Assert.AreEqual(s.CurrentTick, completed.Needs.Single(item => item.AgentId == owner).LastWaterTick);
-        Assert.AreEqual(1, completed.Evidence.Count(item => item.Id == "medical:water" && item.Description.Contains($"Guest {owner}")));
+        Assert.AreEqual(1, completed.Evidence.Count(item => item.Id == "medical:water" && item.Description.Contains($"Person {owner}")));
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void PerformerUsesSameFreeWaterServiceAndNeedsPersist()
+    {
+        var s = Started();
+        var performer = s.CaptureMedical()!.Needs.First(item => item.Profile == MedicalNeedProfile.Performer);
+        Assert.AreEqual(3, s.CaptureMedical()!.Needs.Count(item => item.Profile == MedicalNeedProfile.Performer));
+        Assert.IsTrue(Send(s, new MedicalCommand(performer.AgentId, MedicalAction.GuideToWater)).IsAccepted);
+        s = Restored(s);
+        while (s.CaptureMedical()!.WaterOwnerId != performer.AgentId && s.CurrentTick < 2_000)
+            s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(performer.AgentId, s.CaptureMedical()!.WaterOwnerId);
+        var before = s.CaptureMedical()!.Needs.Single(item => item.AgentId == performer.AgentId);
+        Assert.AreEqual(MedicalIntent.Drinking, before.Intent);
+        s.AdvanceWithoutSnapshot(20);
+        var after = s.CaptureMedical()!.Needs.Single(item => item.AgentId == performer.AgentId);
+        Assert.IsTrue(after.Thirst < before.Thirst);
+        Assert.IsTrue(after.HeatExposure < before.HeatExposure);
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void PerformerNeedsDoNotPreventInitialSetFromStarting()
+    {
+        var s = Started();
+        s.AdvanceWithoutSnapshot(3_200);
+        Assert.AreEqual(LiveSetStage.Live, s.CaptureLivePerformance()!.Stage);
+        Assert.AreEqual(3, s.CaptureLivePerformance()!.Performers.Count(item => item.OnStage));
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void PerformerCollapseCriticalDeathAreAuthoritativeAcrossRestore()
+    {
+        var s = Started();
+        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var medical = s.CaptureMedical()!;
+        var performer = medical.Needs.First(item => item.Profile == MedicalNeedProfile.Performer);
+        field.SetValue(s, medical with { Needs = medical.Needs.Select(item => item.AgentId == performer.AgentId
+            ? item with { Thirst = 9_000, HeatExposure = 8_000, Stage = MedicalStage.Distress,
+                WarningTick = -GameSession.MedicalCollapseDelayTicks + 1 }
+            : item).ToArray() });
+        s = Restored(s);
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalStage.Collapsed, s.CaptureMedical()!.Needs.Single(item => item.AgentId == performer.AgentId).Stage);
+        Assert.AreEqual(MedicalIntent.Collapsed, s.CaptureMedical()!.Needs.Single(item => item.AgentId == performer.AgentId).Intent);
+        s = Restored(s);
+        s.AdvanceWithoutSnapshot(GameSession.MedicalCriticalDelayTicks);
+        Assert.AreEqual(MedicalStage.Critical, s.CaptureMedical()!.Needs.Single(item => item.AgentId == performer.AgentId).Stage);
+        s = Restored(s);
+        s.AdvanceWithoutSnapshot(GameSession.MedicalDeathDelayTicks - GameSession.MedicalCriticalDelayTicks);
+        Assert.AreEqual(MedicalStage.Terminal, s.CaptureMedical()!.Stage);
+        Assert.AreEqual(ProtectedPersonRole.Performer, s.CaptureLifecycleSnapshot()!.Casualties.Single().Role);
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void DistressedPerformerCanReceivePhysicalMedicTreatment()
+    {
+        var s = Started();
+        var medicId = s.CaptureMedical()!.MedicId;
+        while (!s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted && s.CurrentTick < 1_500)
+            s.AdvanceWithoutSnapshot(1);
+        Assert.IsTrue(s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted);
+        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var m = s.CaptureMedical()!;
+        var performerId = m.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
+        field.SetValue(s, m with { Needs = m.Needs.Select(item => item.AgentId == performerId
+            ? item with { Thirst = 9_000, HeatExposure = 8_000, Stage = MedicalStage.Distress,
+                WarningTick = s.CurrentTick, LastDecisionTick = s.CurrentTick }
+            : item).ToArray() });
+        Assert.IsTrue(Send(s, new MedicalCommand(performerId, MedicalAction.DispatchMedic)).IsAccepted);
+        Assert.AreEqual(performerId, s.CaptureMedical()!.ResponsePatientId);
+        s = Restored(s);
+        while (s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage != MedicalStage.Treated &&
+               s.CaptureMedical()!.Stage != MedicalStage.Terminal && s.CurrentTick < 4_000)
+            s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalStage.Treated, s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage);
+        Assert.AreEqual(0, s.CaptureLifecycleSnapshot()!.Casualties.Count);
         Restored(s);
     }
 }

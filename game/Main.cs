@@ -121,8 +121,8 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.03-hot-medical-v6",
-        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-hot-medical-v6");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.03-hot-medical-v7",
+        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-hot-medical-v7");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -692,12 +692,15 @@ public partial class Main : Node
         if (!result.ContainsKey("collider")) { ClearSelection(); return; }
         var collider = result["collider"].AsGodotObject() as CollisionObject3D;
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
+        else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility)) SelectMedicalFacility(medicalFacility);
         else if (collider is not null && _pickRegistry.TryGetValue(collider.GetInstanceId(), out var item)) SelectObject(item);
         else ClearSelection();
     }
 
     private void SelectObject(FarmObjectReadModel item)
     {
+        _selectedMedicalFacility = null;
+        RefreshMedicalNeedBars(null);
         _selectedAttendeeId = null;
         _selected = item;
         var radius = item.Kind switch
@@ -716,12 +719,14 @@ public partial class Main : Node
 
     private void ClearSelection()
     {
-        _selected = null; _selectedAttendeeId = null; _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
+        RefreshMedicalNeedBars(null);
+        _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
         _inspectorBody.Text = "Click a building, gate, stage or service point.\nClick empty ground to clear."; GD.Print("FARM_SELECTION_CLEARED");
     }
 
     private void SelectAttendee(EntityId id)
     {
+        _selectedMedicalFacility = null;
         _selected = null; _selectedAttendeeId = id;
         _highlight.Position = _attendeeVisuals[id].Position + new Vector3(0, 0.08f, 0);
         _highlight.Scale = new Vector3(0.7f, 1, 0.7f); _highlight.Visible = true;

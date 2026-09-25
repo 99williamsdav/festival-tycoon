@@ -77,6 +77,7 @@ public partial class Main
         inspector.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(inspector);
         var detail = new VBoxContainer(); inspector.AddChild(detail);
         _inspectorTitle = LabelText("Inspect the persistent farm", 18, ink); detail.AddChild(_inspectorTitle);
+        BuildMedicalNeedBars(detail);
         _inspectorBody = LabelText("Click a building to inspect its retained identity.\nAll guests and workers remain protected people.", 14, ink);
         _inspectorBody.AutowrapMode = TextServer.AutowrapMode.WordSmart; detail.AddChild(_inspectorBody);
         RefreshPreparationHud();
@@ -125,6 +126,7 @@ public partial class Main
         {
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null; _session = result.Session;
+            RefreshMedicalNeedBars(null);
             ResetLivePerformancePresentation();
             if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();
             _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
@@ -195,18 +197,22 @@ public partial class Main
             ? _session.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.PersonId : null;
         var casualtyId = casualtyName is null ? (EntityId?)null : _session.CapturePreparation()!.People
             .Where(item => item.Name == casualtyName).Select(item => (EntityId?)new EntityId(item.AgentId)).FirstOrDefault();
+        var collapsed = _session.CaptureMedical()?.Needs.Where(item => item.Intent == MedicalIntent.Collapsed)
+            .Select(item => new EntityId(item.AgentId)).ToHashSet() ?? [];
         foreach (var agent in _session.CaptureObservation().NavigationAgents)
         {
             var position = _foundationPresentation.Sample(agent.Id, _foundationClock.InterpolationFraction);
             var visual = _attendeeVisuals[agent.Id];
             var renderedPosition = new Vector3((float)(position.XMillimetres / 1000), 0.04f, (float)(position.ZMillimetres / 1000));
             visual.Position = renderedPosition;
-            if (agent.Id == casualtyId)
+            if (agent.Id == casualtyId || collapsed.Contains(agent.Id))
             {
-                // Temporary, unmistakable death pose until character animations exist.
+                // Show collapse through the entire rescue window, not only after death.
+                visual.Position = renderedPosition + new Vector3(0, .75f, 0);
                 visual.Rotation = new Vector3(Mathf.Pi / 2f, visual.Rotation.Y, 0);
                 continue;
             }
+            if (Mathf.Abs(visual.Rotation.X) > .1f) visual.Rotation = new Vector3(0, visual.Rotation.Y, 0);
             UpdatePersonFacing(agent.Id, visual, renderedPosition, agent.Action,
                 watching.Contains(agent.Id), onStage.Contains(agent.Id), delta);
         }
