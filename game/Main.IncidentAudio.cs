@@ -7,9 +7,8 @@ namespace Festival.Game;
 
 public partial class Main
 {
-    // These resources are deliberately optional until source and redistribution
-    // rights for the supplied recordings are confirmed. Never auto-package the
-    // untracked files under assets/source/audio/crowd.
+    // Local private playtest recordings. Runtime copies are git-ignored and
+    // excluded from the export preset; source identity/licence remain unverified.
     private const string AmbientCrowdPath = "res://assets/audio/crowd/background-crowd.wav";
     private const string ExplosionPath = "res://assets/audio/crowd/generator-explosion2.wav";
     private const string ScreamAPath = "res://assets/audio/crowd/exaggerated-female-scream.wav";
@@ -19,6 +18,7 @@ public partial class Main
     private AudioStreamPlayer? _generatorExplosion;
     private AudioStreamPlayer? _screamA;
     private AudioStreamPlayer? _screamB;
+    private bool _ambientStartedLogged;
 
     private static AudioStream? OptionalIncidentStream(string path) =>
         ResourceLoader.Exists(path) ? GD.Load<AudioStream>(path) : null;
@@ -36,6 +36,7 @@ public partial class Main
         _screamB = new AudioStreamPlayer { Bus = "Outdoor Stage", VolumeDb = -18,
             Stream = OptionalIncidentStream(ScreamBPath) };
         foreach (var player in new[] { _ambientCrowd, _generatorExplosion, _screamA, _screamB }) AddChild(player);
+        GD.Print($"INCIDENT_AUDIO_READY ambient={_ambientCrowd.Stream is not null} explosion={_generatorExplosion.Stream is not null} female={_screamA.Stream is not null} male={_screamB.Stream is not null} mode=private-playtest");
     }
 
     private void ResetIncidentAudioPresentation()
@@ -45,6 +46,7 @@ public partial class Main
         _generatorExplosion?.Stop();
         _screamA?.Stop();
         _screamB?.Stop();
+        _ambientStartedLogged = false;
     }
 
     private void AdvanceIncidentAudioPresentation()
@@ -60,7 +62,15 @@ public partial class Main
             var distance = new Vector2(_focus.X + 7f, _focus.Z - 13f).Length();
             var attenuation = Mathf.Clamp(1f - distance / 65f, 0.08f, 1f);
             _ambientCrowd!.VolumeDb = Mathf.LinearToDb(Math.Max(0.001f, 0.05f * attenuation));
-            if (!_ambientCrowd.Playing) _ambientCrowd.Play(); // Restarts the long recording after it ends.
+            if (!_ambientCrowd.Playing)
+            {
+                _ambientCrowd.Play(); // Restarts the long recording after it ends.
+                if (!_ambientStartedLogged)
+                {
+                    GD.Print("INCIDENT_AUDIO_AMBIENT_START mode=private-playtest");
+                    _ambientStartedLogged = true;
+                }
+            }
         }
         else if (_ambientCrowd!.Playing) _ambientCrowd.Stop();
 
@@ -78,8 +88,9 @@ public partial class Main
                 PlayIncidentCue(_generatorExplosion!, 0.45f * attenuation, cue);
             else
             {
-                // Alternate samples by the incident tick, never by a person's name or gender.
-                var chosen = (cue.Tick & 1) == 0 ? _screamA! : _screamB!;
+                // The voice belongs to an off-camera witness, not the victim.
+                // Its deterministic source mapping avoids random replay changes.
+                var chosen = cue.WitnessVoice == IncidentWitnessVoice.Female ? _screamA! : _screamB!;
                 var fallback = chosen == _screamA ? _screamB! : _screamA!;
                 PlayIncidentCue(chosen.Stream is null ? fallback : chosen, 0.20f * attenuation, cue);
             }
@@ -103,6 +114,6 @@ public partial class Main
         player.VolumeDb = Mathf.LinearToDb(Math.Max(0.001f, strength));
         player.Stop();
         player.Play();
-        GD.Print($"INCIDENT_AUDIO cue={cue.Kind} tick={cue.Tick}");
+        GD.Print($"INCIDENT_AUDIO cue={cue.Kind} voice={cue.WitnessVoice} tick={cue.Tick} mode=private-playtest");
     }
 }

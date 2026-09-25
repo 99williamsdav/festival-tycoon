@@ -31,6 +31,12 @@ artifacts/
 /art/reviews/R0.03/free-water-point-v2/
 /reports/evidence/R0.03-followup-v2/
 
+# User-supplied audio is cleared for local private playtesting only. Keep both
+# source recordings and game-local playback copies out of routine commits.
+/assets/source/audio/crowd/*.wav
+/assets/source/audio/crowd/*.mp3
+/game/assets/audio/crowd/
+
 # Local Windows Performance Recorder traces are multi-gigabyte diagnostics.
 reports/evidence/**/*.etl
 

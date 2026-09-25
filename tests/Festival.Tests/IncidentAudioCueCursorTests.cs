@@ -29,6 +29,7 @@ public sealed class IncidentAudioCueCursorTests
         var cues = cursor.Observe(session.CaptureEquipment(), session.CaptureMedical(), session.CurrentTick);
         CollectionAssert.AreEqual(new[] { IncidentAudioCueKind.GeneratorExplosion, IncidentAudioCueKind.DeathScream },
             cues.Select(item => item.Kind).ToArray());
+        Assert.AreEqual(IncidentWitnessVoice.Female, cues[1].WitnessVoice);
         Assert.AreEqual(0, cursor.Observe(session.CaptureEquipment(), session.CaptureMedical(), session.CurrentTick).Count);
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
@@ -48,6 +49,7 @@ public sealed class IncidentAudioCueCursorTests
         Assert.AreEqual(MedicalStage.Terminal, session.CaptureMedical()!.Stage);
         var cues = cursor.Observe(session.CaptureEquipment(), session.CaptureMedical(), session.CurrentTick);
         CollectionAssert.AreEqual(new[] { IncidentAudioCueKind.DeathScream }, cues.Select(item => item.Kind).ToArray());
+        Assert.AreEqual(IncidentWitnessVoice.Male, cues[0].WitnessVoice);
         Assert.AreEqual(0, cursor.Observe(session.CaptureEquipment(), session.CaptureMedical(), session.CurrentTick).Count);
         cursor.Reset(session.CaptureEquipment(), session.CaptureMedical());
         Assert.AreEqual(0, cursor.Observe(session.CaptureEquipment(), session.CaptureMedical(), session.CurrentTick).Count);

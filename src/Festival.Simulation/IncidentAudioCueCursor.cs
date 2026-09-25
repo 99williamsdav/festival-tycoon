@@ -33,7 +33,7 @@ public sealed class IncidentAudioCueCursor
                 if (Fresh(item.Tick, currentTick) && item.Id == "equipment:death")
                 {
                     cues.Add(new(IncidentAudioCueKind.GeneratorExplosion, item.Tick));
-                    cues.Add(new(IncidentAudioCueKind.DeathScream, item.Tick));
+                    cues.Add(new(IncidentAudioCueKind.DeathScream, item.Tick, IncidentWitnessVoice.Female));
                 }
         _equipmentEvidenceCount = equipmentEvidence.Length;
 
@@ -41,7 +41,7 @@ public sealed class IncidentAudioCueCursor
         if (medicalEvidence.Length >= _medicalEvidenceCount)
             foreach (var item in medicalEvidence.Skip(_medicalEvidenceCount))
                 if (Fresh(item.Tick, currentTick) && item.Id == "medical:death")
-                    cues.Add(new(IncidentAudioCueKind.DeathScream, item.Tick));
+                    cues.Add(new(IncidentAudioCueKind.DeathScream, item.Tick, IncidentWitnessVoice.Male));
         _medicalEvidenceCount = medicalEvidence.Length;
         return cues;
     }
@@ -51,4 +51,6 @@ public sealed class IncidentAudioCueCursor
 }
 
 public enum IncidentAudioCueKind { GeneratorExplosion, DeathScream }
-public sealed record IncidentAudioCue(IncidentAudioCueKind Kind, long Tick);
+public enum IncidentWitnessVoice { Female, Male }
+public sealed record IncidentAudioCue(IncidentAudioCueKind Kind, long Tick,
+    IncidentWitnessVoice WitnessVoice = IncidentWitnessVoice.Female);
