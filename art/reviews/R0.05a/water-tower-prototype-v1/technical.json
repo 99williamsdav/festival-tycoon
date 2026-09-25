@@ -1,0 +1,23 @@
+{
+  "name": "lwf_water_tower_prototype_v1",
+  "units": "metres",
+  "bounds_blender_min": [
+    -1.4800000190734863,
+    -1.5075000524520874,
+    0.0
+  ],
+  "bounds_blender_max": [
+    1.4800000190734863,
+    1.4800000190734863,
+    5.524999618530273
+  ],
+  "dimensions": [
+    2.9600000381469727,
+    2.9875000715255737,
+    5.524999618530273
+  ],
+  "triangles": 1068,
+  "mesh_nodes": 4,
+  "proposed_fixed_placement": "Farmhouse east side, tower centre 9.7 m east of farmhouse centre; review-only position",
+  "scope": "Presentation-only throughput perk; no pipes, collision, navmesh or service logic"
+}
