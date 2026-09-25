@@ -4,12 +4,12 @@ config_version=5
 [application]
 
 config/name="Festival Tycoon"
-config/icon="res://assets/branding/festival-tycoon-stage-sun-icon.png"
+config/icon="res://assets/branding/festival-tycoon-stage-sun-icon-v3.png"
 run/main_scene="res://Main.tscn"
 config/features=PackedStringArray("4.7", "C#", "GL Compatibility")
 run/max_fps=58
 boot_splash/bg_color=Color(0.078, 0.149, 0.188, 1)
-boot_splash/image="res://assets/branding/lwf-festival-tycoon-logo-v1.png"
+boot_splash/image="res://assets/branding/festival-tycoon-mosaic-logo-v2.png"
 boot_splash/stretch_mode=1
 boot_splash/minimum_display_time=700
 

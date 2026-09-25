@@ -28,7 +28,7 @@ public partial class Main
         var side = Mathf.Min(620f, Mathf.Min(visible.X * 0.55f, visible.Y * 0.69f));
         var logo = new TextureRect
         {
-            Texture = GD.Load<Texture2D>("res://assets/branding/lwf-festival-tycoon-logo-v1.png"),
+            Texture = GD.Load<Texture2D>("res://assets/branding/festival-tycoon-mosaic-logo-v2.png"),
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
             StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
             CustomMinimumSize = new Vector2(side, side),
