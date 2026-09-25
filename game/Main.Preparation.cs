@@ -228,6 +228,7 @@ public partial class Main
                 watching.Contains(agent.Id), onStage.Contains(agent.Id), delta);
         }
         AdvanceMedicalCuePresentation();
+        AdvanceDisorderCuePresentation();
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceLivePerformancePresentation(delta);
         AdvanceIncidentAudioPresentation();

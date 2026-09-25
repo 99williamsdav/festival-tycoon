@@ -355,6 +355,7 @@ public partial class Main : Node
         _attendeeVisual = _attendeeVisuals[agents[0].Id];
         _presentationFrom = _presentationTo = ToWorld(agents[0]);
         ResetMedicalCuePresentation();
+        ResetDisorderCuePresentation();
     }
 
     private static void MatchStewardShirtPalette(Node3D visual)

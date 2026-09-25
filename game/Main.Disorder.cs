@@ -28,6 +28,59 @@ public partial class Main
     private ulong _securityPostPickId;
     private bool _selectedSecurityPost;
     private Button? _securityPostWorkerButton;
+    private readonly DisorderCuePlanner _disorderCuePlanner = new();
+    private readonly Dictionary<ulong, Label3D> _disorderCueLabels = [];
+
+    private void ResetDisorderCuePresentation()
+    {
+        foreach (var label in _disorderCueLabels.Values) label.QueueFree();
+        _disorderCueLabels.Clear();
+        var disorder = _session.CaptureDisorder();
+        _disorderCuePlanner.Reset(disorder, _session.CurrentTick);
+        if (disorder is null) return;
+        foreach (var id in disorder.People.Select(item => item.AgentId).Append(disorder.SecurityId).Distinct())
+        {
+            if (!_attendeeVisuals.ContainsKey(new EntityId(id))) continue;
+            var label = new Label3D { Visible = false, FontSize = 52, PixelSize = .011f,
+                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+                OutlineSize = 18, OutlineModulate = new Color("2c2020"), NoDepthTest = true };
+            AddChild(label);
+            _disorderCueLabels.Add(id, label);
+        }
+    }
+
+    private void AdvanceDisorderCuePresentation()
+    {
+        if (_session.CaptureDisorder() is not { } disorder) return;
+        foreach (var label in _disorderCueLabels.Values) label.Visible = false;
+        var medical = _session.CaptureMedical();
+        var cues = _disorderCuePlanner.Observe(disorder, medical, _session.CurrentTick);
+        if (cues.Count > 0 && medical is not null)
+        {
+            var urgent = medical.Needs.Where(item => item.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical)
+                .Select(item => item.AgentId).ToHashSet();
+            if (medical.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical)
+                urgent.Add(medical.AtRiskGuestId);
+            foreach (var (id, label) in _medicalCueLabels)
+                if (!urgent.Contains(id)) label.Visible = false;
+        }
+        foreach (var cue in cues)
+        {
+            if (!_disorderCueLabels.TryGetValue(cue.AgentId, out var label) ||
+                !_attendeeVisuals.TryGetValue(new EntityId(cue.AgentId), out var visual)) continue;
+            if (_medicalCueLabels.TryGetValue(cue.AgentId, out var medicalLabel)) medicalLabel.Visible = false;
+            label.Text = cue.Text;
+            label.Position = visual.Position + new Vector3(0, cue.Kind == DisorderCueKind.Shout ? 2.95f :
+                (cue.AgentId % 2 == 0 ? 3.05f : 3.55f), 0);
+            label.Modulate = cue.Kind switch
+            {
+                DisorderCueKind.Fight => new Color("ff6b65"),
+                DisorderCueKind.Argument => new Color("ffb061"),
+                _ => new Color("ffe4a1")
+            };
+            label.Visible = true;
+        }
+    }
 
     private void BuildDisorderWorld()
     {
@@ -137,8 +190,15 @@ public partial class Main
                 $"RESPONSE {StewardWording(d.Response)}\n";
         var person = d.People.SingleOrDefault(item => item.AgentId == id);
         if (person is null) return "";
+        var counterpart = person.OpponentId is { } otherId
+            ? _session.CapturePreparation()!.People.SingleOrDefault(item => item.AgentId == otherId)?.Name ?? $"person {otherId}"
+            : "not established";
+        var otherPosition = person.OpponentId is { } opponentId
+            ? _session.CaptureSnapshot().NavigationAgents.SingleOrDefault(item => item.Id.Value == opponentId)
+            : null;
         return $"DISORDER • {person.Stage} • pressure {person.Pressure / 100m:0}%\n" +
-            $"CAUSE {person.Grievance} • {(person.Stage == DisorderStage.Injured ? "FIRST AID NEEDED" : "reduce pressure or dispatch a steward")}\n";
+            $"CAUSE {person.Grievance} • {(person.Stage == DisorderStage.Injured ? "FIRST AID NEEDED" : "reduce pressure or dispatch a steward")}\n" +
+            $"COUNTERPART {counterpart}{(otherPosition is null ? "" : $" • {otherPosition.XMillimetres / 1000m:0.0}, {otherPosition.ZMillimetres / 1000m:0.0} m")}\n";
     }
 
     private void CommitDisorderAction(DisorderAction action)
@@ -232,6 +292,11 @@ public partial class Main
             ProcessStewardCapture();
             return;
         }
+        if (_disorderCaptureMode == "signals")
+        {
+            ProcessDisorderSignalCapture();
+            return;
+        }
         if (_disorderCaptureMode == "post")
         {
             ProcessSecurityPostCapture();
@@ -282,6 +347,97 @@ public partial class Main
             GD.Print($"DISORDER_CAPTURE resolved={_session.CaptureDisorder()!.People.Count(item => item.Grievance == DisorderGrievance.None)} waterClosed={_session.CaptureDisorder()!.WaterClosed} set={_session.CaptureLivePerformance()!.Stage}");
             GetTree().Quit();
         }
+    }
+
+    private void ProcessDisorderSignalCapture()
+    {
+        if (_disorderCaptureFrame == 8)
+        {
+            var atRisk = _session.CaptureMedical()!.AtRiskGuestId;
+            _session.Execute(CampaignEnvelope(new MedicalCommand(atRisk, MedicalAction.GuideToRest)));
+            while (_session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && _session.CurrentTick < 4_000)
+                _session.AdvanceWithoutSnapshot(1);
+            if (_session.CaptureLivePerformance()!.Stage != LiveSetStage.Live)
+                throw new InvalidOperationException("Signal capture never reached live music.");
+            _session.Execute(CampaignEnvelope(new EquipmentCommand(EquipmentAction.Isolate)));
+            while (!_session.CaptureDisorder()!.People.Any(item => item.Stage == DisorderStage.Complaint &&
+                   item.Grievance == DisorderGrievance.MusicCutoff) && _session.CurrentTick < 5_000)
+                _session.AdvanceWithoutSnapshot(1);
+            var complaint = _session.CaptureDisorder()!.People.FirstOrDefault(item =>
+                item.Stage == DisorderStage.Complaint && item.Grievance == DisorderGrievance.MusicCutoff);
+            if (complaint is null) throw new InvalidOperationException("Signal capture did not reach a causal complaint.");
+            FocusDisorderSignalPerson(complaint.AgentId);
+            GD.Print($"DISORDER_SIGNAL complaint tick={_session.CurrentTick} person={complaint.AgentId}");
+        }
+        if (_disorderCaptureFrame == 10)
+        {
+            if (!_disorderCueLabels.Values.Any(item => item.Visible && item.Text is
+                "What the hell?!" or "This is ridiculous!" or "Hurry up!" or "This queue is ridiculous!"))
+                throw new InvalidOperationException("Complaint shout was not anchored visibly to a person.");
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "complaint-32.png"));
+            var selected = _selectedAttendeeId!.Value;
+            Pick(_camera.UnprojectPosition(_attendeeVisuals[selected].Position + new Vector3(0, .9f, 0)));
+            if (_selectedAttendeeId != selected)
+                throw new InvalidOperationException("The new overhead cue interfered with the normal person pick ray.");
+        }
+        if (_disorderCaptureFrame == 11)
+        {
+            while (!_session.CaptureDisorder()!.People.Any(item => item.Stage == DisorderStage.Argument) &&
+                   _session.CurrentTick < 6_000 && _session.CapturePreparation()!.Status == PreparationStatus.Running)
+                _session.AdvanceWithoutSnapshot(1);
+            var argument = _session.CaptureDisorder()!.People.FirstOrDefault(item => item.Stage == DisorderStage.Argument);
+            if (argument is null) throw new InvalidOperationException("Signal capture did not reach argument pressure.");
+            FocusDisorderSignalPerson(argument.AgentId);
+            GD.Print($"DISORDER_SIGNAL argument tick={_session.CurrentTick} person={argument.AgentId}");
+        }
+        if (_disorderCaptureFrame == 13)
+        {
+            if (!_disorderCueLabels.Values.Any(item => item.Visible && item.Text == "ARGUMENT"))
+                throw new InvalidOperationException("Argument was not visibly labelled over its person.");
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "argument-32.png"));
+        }
+        if (_disorderCaptureFrame == 14)
+        {
+            while (!_session.CaptureDisorder()!.People.Any(item => item.Stage == DisorderStage.Fight &&
+                   item.OpponentId != _session.CaptureDisorder()!.SecurityId) &&
+                   _session.CurrentTick < 7_000 && _session.CapturePreparation()!.Status == PreparationStatus.Running)
+                _session.AdvanceWithoutSnapshot(1);
+            var disorder = _session.CaptureDisorder()!;
+            var fighter = disorder.People.FirstOrDefault(item => item.Stage == DisorderStage.Fight &&
+                item.OpponentId != disorder.SecurityId);
+            if (fighter?.OpponentId is not { } opponentId ||
+                !disorder.People.Any(item => item.AgentId == opponentId && item.Stage == DisorderStage.Fight))
+                throw new InvalidOperationException("Signal capture did not reach an attendee-pair fight.");
+            FocusDisorderSignalPerson(fighter.AgentId);
+            var first = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == fighter.AgentId);
+            var other = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == opponentId);
+            _focus = new Vector3((first.XMillimetres + other.XMillimetres) / 2_000f, 0,
+                (first.ZMillimetres + other.ZMillimetres) / 2_000f);
+            ApplyCamera();
+            GD.Print($"DISORDER_SIGNAL fight tick={_session.CurrentTick} people={fighter.AgentId},{opponentId}");
+        }
+        if (_disorderCaptureFrame == 16)
+        {
+            var fighter = _session.CaptureDisorder()!.People.Single(item => item.AgentId == _selectedAttendeeId!.Value.Value);
+            if (fighter.OpponentId is not { } opponentId ||
+                !_disorderCueLabels[fighter.AgentId].Visible || !_disorderCueLabels[opponentId].Visible ||
+                _disorderCueLabels[fighter.AgentId].Text != "FIGHT" || _disorderCueLabels[opponentId].Text != "FIGHT" ||
+                !_inspectorBody.Text.Contains("COUNTERPART", StringComparison.Ordinal))
+                throw new InvalidOperationException("Fight pair or counterpart inspector was not visible.");
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "fight-pair-32.png"));
+            GD.Print("DISORDER_SIGNAL verified=complaint-argument-fight person-anchored pair=both zoom=32");
+            GetTree().Quit();
+        }
+    }
+
+    private void FocusDisorderSignalPerson(ulong id)
+    {
+        _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+        var person = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == id);
+        _focus = new Vector3(person.XMillimetres / 1000f, 0, person.ZMillimetres / 1000f);
+        _camera.Size = 32f; _orientation = 0; ApplyCamera();
+        SelectAttendee(new EntityId(id));
+        RefreshPreparationHud();
     }
 
     private void ProcessLayoutCapture()
