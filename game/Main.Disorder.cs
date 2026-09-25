@@ -31,13 +31,16 @@ public partial class Main
     private readonly DisorderCuePlanner _disorderCuePlanner = new();
     private readonly Dictionary<ulong, Label3D> _disorderCueLabels = [];
     private readonly HashSet<ulong> _fightShaking = [];
+    private readonly Dictionary<ulong, float> _preFightFacing = [];
 
     private void ResetDisorderCuePresentation()
     {
         foreach (var id in _fightShaking)
             if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual))
-                visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y, 0);
+                visual.Rotation = new Vector3(visual.Rotation.X,
+                    _preFightFacing.TryGetValue(id, out var priorYaw) ? priorYaw : visual.Rotation.Y, 0);
         _fightShaking.Clear();
+        _preFightFacing.Clear();
         foreach (var label in _disorderCueLabels.Values) label.QueueFree();
         _disorderCueLabels.Clear();
         var disorder = _session.CaptureDisorder();
@@ -95,8 +98,16 @@ public partial class Main
         if (fighters.Any(person => person.OpponentId == disorder.SecurityId))
             fighting.Add(disorder.SecurityId);
         foreach (var id in _fightShaking.Except(fighting))
+        {
             if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual))
-                visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y, 0);
+            {
+                var moving = _session.CaptureObservation().NavigationAgents.Any(agent =>
+                    agent.Id.Value == id && agent.Action == AgentNavigationAction.Travelling);
+                visual.Rotation = new Vector3(visual.Rotation.X,
+                    !moving && _preFightFacing.TryGetValue(id, out var priorYaw) ? priorYaw : visual.Rotation.Y, 0);
+            }
+            _preFightFacing.Remove(id);
+        }
         _fightShaking.Clear();
         var anchors = fighting.Where(id => _attendeeVisuals.ContainsKey(new EntityId(id)))
             .ToDictionary(id => id, id => _attendeeVisuals[new EntityId(id)].Position);
@@ -104,6 +115,7 @@ public partial class Main
         foreach (var id in fighting)
         {
             if (!_attendeeVisuals.TryGetValue(new EntityId(id), out var visual)) continue;
+            _preFightFacing.TryAdd(id, visual.Rotation.Y);
             var person = fighters.FirstOrDefault(item => item.AgentId == id);
             var counterpart = person?.OpponentId ?? fighters.FirstOrDefault(item => item.OpponentId == id)?.AgentId;
             var fightTick = person?.StageTick ?? fighters.FirstOrDefault(item => item.OpponentId == id)?.StageTick ?? _session.CurrentTick;
@@ -119,6 +131,10 @@ public partial class Main
                         _foundationClock.InterpolationFraction) / 48.0), 0f, 1f);
                     var pull = Mathf.Min(.4f, Mathf.Max(0f, (distance - 1.15f) * .5f)) * ease;
                     visual.Position += toward / distance * pull;
+                    // Presentation runs after UpdatePersonFacing: the live opponent wins over
+                    // travel/stage headings for both guest pairs and guest–steward fights.
+                    visual.Rotation = new Vector3(visual.Rotation.X,
+                        Mathf.Atan2(-toward.X, -toward.Z), visual.Rotation.Z);
                 }
             }
             var phase = time * Mathf.Tau * 5.5f + id * 0.83f;
@@ -481,6 +497,15 @@ public partial class Main
             var secondVisual = _attendeeVisuals[new EntityId(opponentId)].Position;
             if (new Vector2(firstVisual.X - secondVisual.X, firstVisual.Z - secondVisual.Z).Length() > 1.7f)
                 throw new InvalidOperationException("Fight participants did not visibly close their gap.");
+            foreach (var (fromId, from, to) in new[] {
+                (fighter.AgentId, firstVisual, secondVisual), (opponentId, secondVisual, firstVisual) })
+            {
+                var yaw = _attendeeVisuals[new EntityId(fromId)].Rotation.Y;
+                var forward = new Vector3(-Mathf.Sin(yaw), 0, -Mathf.Cos(yaw));
+                var toward = (to - from).Normalized();
+                if (forward.Dot(toward) < .75f)
+                    throw new InvalidOperationException("Fight participant did not face their counterpart.");
+            }
             if (DisplayServer.GetName() != "headless")
                 GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "fight-pair-32.png"));
             GD.Print("DISORDER_SIGNAL verified=complaint-argument-fight person-anchored pair=both shake=both zoom=32");

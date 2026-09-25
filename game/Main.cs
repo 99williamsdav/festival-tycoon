@@ -132,6 +132,11 @@ public partial class Main : Node
     public override void _Ready()
     {
         ConfigureCaptureMode();
+        if (_hearingCaptureDirectory is not null && DisplayServer.GetName() != "headless")
+        {
+            GetWindow().Mode = Window.ModeEnum.Windowed;
+            GetWindow().Size = new Vector2I(890, 680);
+        }
         _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null ?
             RealTimeAutosaveScheduler.ProductionCadenceSeconds : 2);
         if (_sharedWorldFixture is not null)
@@ -171,10 +176,22 @@ public partial class Main : Node
         else
         {
             _session = _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
+                _hearingCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _disorderCaptureDirectory is not null || OS.GetCmdlineUserArgs().Length == 0 ? GameSession.CreateDisorderCampaign(20260922) :
                 _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _preparationCaptureDirectory is null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier);
+        }
+        if (_hearingCaptureDirectory is not null)
+        {
+            foreach (var offer in new[] { "act.folk", "staff.steward", "equipment.buy" })
+                if (!_session.Execute(CampaignEnvelope(new AcceptPreparationOfferCommand(offer))).IsAccepted)
+                    throw new InvalidOperationException("Hearing capture booking failed.");
+            if (!_session.Execute(CampaignEnvelope(new StartPreparedEditionCommand())).IsAccepted)
+                throw new InvalidOperationException("Hearing capture start failed.");
+            _session.AdvanceWithoutSnapshot(6_200);
+            if (_session.PreparedStatus != PreparationStatus.Failed)
+                throw new InvalidOperationException("Hearing capture did not reach a fatal medical incident.");
         }
         _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
@@ -187,6 +204,11 @@ public partial class Main : Node
         if (_session.CaptureDisorder() is not null) BuildDisorderWorld();
         if (_session.CaptureEquipment() is not null) EnsureStageDrumKit();
         if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();
+        if (_hearingCaptureDirectory is not null)
+        {
+            _foundationPresentation.Reset(_session.CaptureObservation());
+            _foundationClock.ResetBoundary();
+        }
         if (_sharedWorldFixture is not null) BuildSharedWorldServiceMarkers();
         if (_foundationFixture is not null) _foundationPresentation.Reset(_session.CaptureSnapshot());
         BuildHud();
@@ -226,6 +248,7 @@ public partial class Main : Node
         if (_equipmentPerformanceOutput is not null) ProcessEquipmentPerformanceCheck();
         ProcessMedicalCapture();
         ProcessDisorderCapture();
+        ProcessHearingCapture();
         ProcessStartSplashCapture();
     }
 
@@ -889,6 +912,11 @@ public partial class Main : Node
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-campaign" && i + 1 < args.Length) _campaignCaptureDirectory = args[++i];
+            else if (args[i] == "--capture-r005-hearing" && i + 1 < args.Length)
+            {
+                _hearingCaptureDirectory = args[++i];
+                Directory.CreateDirectory(_hearingCaptureDirectory);
+            }
             else if (args[i] == "--capture-preparation" && i + 1 < args.Length) _preparationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-live-performance" && i + 1 < args.Length) _liveCaptureDirectory = args[++i];
             else if (args[i] == "--capture-start-splash" && i + 1 < args.Length) _startSplashCapturePath = args[++i];
