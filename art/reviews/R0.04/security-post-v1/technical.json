@@ -1,0 +1,29 @@
+{
+  "asset": "Open-sided security/steward post v1",
+  "status": "approved visually by coordinator and user 25 September 2026; gameplay integration separate",
+  "purpose": "R0.04 first graphics checkpoint, a friendly rural steward post and dispatch anchor",
+  "parts_triangles": {
+    "LWF_SecurityPostV1_Platform": 36,
+    "LWF_SecurityPostV1_TimberFrame": 72,
+    "LWF_SecurityPostV1_TealRoof": 24,
+    "LWF_SecurityPostV1_OpenCounter": 48,
+    "LWF_SecurityPostV1_PennantAndRadio": 96
+  },
+  "triangles": 276,
+  "nodes": 5,
+  "palette_size": [
+    96,
+    8
+  ],
+  "units": "metres",
+  "origin": "ground-centred within timber platform",
+  "customer_direction": "Blender -Y / Godot +Z",
+  "visual_approach": "one open public path tile before counter; not a route or queue reservation",
+  "footprint": "2.20 x 1.82 m platform plus a small front path tile; roof 2.38 x 1.88 m",
+  "highest_point_m": 3.16,
+  "ownership": "simulation/UI own security staffing, dispatch, coverage, routes, queues, pressure and incident states; mesh is presentation only",
+  "provenance": "original project-authored procedural geometry and palette derived from approved in-project concept; attendee review-only; no downloaded assets",
+  "bounds_blender": [[-1.190000057220459, -1.399999976158142, 0.0], [1.190000057220459, 0.9300000071525574, 3.1600000858306885]],
+  "verification_blender": "Blender 4.1.1 source reopen and GLB reimport passed: five mesh nodes, 276 triangles, one material and UV layer per mesh, matching bounds, grounded origin, embedded 96x8 matte palette and no armature.",
+  "verification_godot": "Godot 4.7.2 editor import and isolated instantiation passed: five mesh nodes, 276 triangles, embedded 96x8 palette. Process exited 0; local certificate-store and user-directory warnings were non-blocking."
+}
