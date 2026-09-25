@@ -151,6 +151,16 @@ public sealed partial class GameSession
                 ApplyWaterFoundationEffect(waterEffect);
                 break;
 
+            case PlaceWaterPointCommand placeWater:
+                affectedTarget = null;
+                ApplyWaterPlacement(placeWater.Cell, false);
+                break;
+
+            case MovePrimaryWaterPointCommand moveWater:
+                affectedTarget = null;
+                ApplyWaterPlacement(moveWater.Cell, true);
+                break;
+
             case ForceFixtureSafeCompletionCommand:
                 affectedTarget = null;
                 ApplyForceFixtureSafeCompletion();
@@ -654,7 +664,7 @@ public sealed partial class GameSession
 
         var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
         if (lifecycleFrozen is not null) return lifecycleFrozen;
-        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand))
+        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -680,6 +690,8 @@ public sealed partial class GameSession
             ConcedeCouncilHearingCommand => ValidateConcedeCouncilHearing(envelope.TargetId),
             CommitCommunityWaterShareCommand => ValidateCommunityWaterShare(envelope.TargetId),
             ApplyWaterFoundationEffectCommand waterEffect => ValidateWaterFoundationEffect(envelope.TargetId, waterEffect),
+            PlaceWaterPointCommand placeWater => ValidateWaterPlacement(envelope.TargetId, placeWater.Cell, false),
+            MovePrimaryWaterPointCommand moveWater => ValidateWaterPlacement(envelope.TargetId, moveWater.Cell, true),
             ForceFixtureSafeCompletionCommand => ValidateForceFixtureSafeCompletion(envelope.TargetId),
             CreateGuestWalletCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Guest setup requires no target and nonnegative opening cash."),

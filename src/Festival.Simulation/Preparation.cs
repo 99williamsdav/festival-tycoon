@@ -9,6 +9,7 @@ public sealed record EditionPerson(ulong AgentId, string Name, ProtectedPersonRo
 public sealed record PreparationPayment(int Id, string OfferId, int Attempt, long Tick, int AmountPennies,
     LedgerAccountType DebitAccount);
 public sealed record PreparationInventoryBalance(int OpeningUnits, int PurchasedUnits, int ConsumedUnits, int RemainingUnits, int UnitCostPennies);
+public sealed record WaterPlacement(string Id, GridCell Cell);
 public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed, int Attempt, PreparationStatus Status,
     ulong FinanceOwnerId, ulong StockId, long StartedTick, bool FixtureOutcomesEnabled,
     string[] OwnedEquipment, string[] Rentals, string[] Contacts, string[] WorkContracts, string[] AcceptedOffers,
@@ -19,12 +20,16 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public bool RetryEconomyFixtureEnabled { get; init; }
     public ulong? MaintenanceWorkerId { get; init; }
     public string[] ExtraWaterSiteIds { get; init; } = [];
+    public WaterPlacement[] WaterPlacements { get; init; } = [];
+    public GridCell PrimaryWaterCell { get; init; } = GameSession.MedicalWaterCell;
     public bool WaterTowerOwned { get; init; }
 }
 public sealed record AcceptPreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record StartPreparedEditionCommand : SessionCommand;
 public sealed record CommitCommunityWaterShareCommand : SessionCommand;
 public sealed record ApplyWaterFoundationEffectCommand(string EffectId) : SessionCommand;
+public sealed record PlaceWaterPointCommand(GridCell Cell) : SessionCommand;
+public sealed record MovePrimaryWaterPointCommand(GridCell Cell) : SessionCommand;
 
 public sealed partial class GameSession
 {
@@ -65,25 +70,108 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Water foundations can be placed only during Hot-weekend preparation.");
         if (command.EffectId == "water.tower")
             return p.WaterTowerOwned ? CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Water tower already owned.") : null;
-        if (!ExtraWaterSites.Any(site => site.Id == command.EffectId))
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown bounded water site.");
-        if (p.ExtraWaterSiteIds.Contains(command.EffectId))
-            return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This standpipe is already placed.");
-        return null;
+        return CommandResult.Rejected(CommandReasonCode.InvalidParameter,
+            "Fixed-site water commands are no longer available; choose a grass site for the extra tap.");
     }
 
     private void ApplyWaterFoundationEffect(ApplyWaterFoundationEffectCommand command)
     {
         var p = _preparation!;
-        if (command.EffectId == "water.tower")
-            _preparation = p with { WaterTowerOwned = true };
-        else
+        if (command.EffectId != "water.tower") throw new InvalidOperationException("Legacy fixed-site water creation is disabled.");
+        _preparation = p with { WaterTowerOwned = true };
+    }
+
+    private static WaterPlacement[] EffectiveWaterPlacements(PreparationSnapshot p) =>
+        p.ExtraWaterSiteIds.Select(id => p.WaterPlacements.SingleOrDefault(item => item.Id == id) ??
+            new WaterPlacement(id, ExtraWaterSites.Single(site => site.Id == id).Cell)).ToArray();
+
+    private CommandResult? ValidateWaterPlacement(EntityId? target, GridCell cell, bool movingPrimary)
+    {
+        if (target is not null || _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p)
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Water points can be positioned only during Hot-weekend preparation.");
+        if (!movingPrimary && p.ExtraWaterSiteIds.Length >= 2)
+            return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The two additional standpipes are already placed.");
+        if (movingPrimary && cell == p.PrimaryWaterCell)
+            return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The original standpipe is already at this site.");
+        var issue = ValidateWaterPlacementCell(cell, p, movingPrimary, _equipment);
+        return issue is null ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
+    }
+
+    private static string? ValidateWaterPlacementCell(GridCell cell, PreparationSnapshot p, bool movingPrimary,
+        EquipmentSnapshot? equipment)
+    {
+        // This deliberately bounds the first placeable-object interaction to the open festival field.
+        // The approved tower stays fixed; there is no general building editor or pipe network.
+        if (cell.X is < 68 or > 119 || cell.Z is < 112 or > 140)
+            return "Choose a grass site inside the open festival field.";
+        var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
+        var placed = EffectiveWaterPlacements(p);
+        var others = placed.Select(item => new WaterPointState(item.Id, item.Cell, [], [], null, 0)).ToList();
+        if (!movingPrimary) others.Insert(0, new WaterPointState("water.main", p.PrimaryWaterCell, [], [], null, 0));
+        var proposed = new WaterPointState(movingPrimary ? "water.main" : "water.proposed", cell, [], [], null, 0);
+        var occupied = new HashSet<GridCell>();
+        static void Footprint(HashSet<GridCell> cells, GridCell centre, int radius)
         {
-            var site = ExtraWaterSites.Single(item => item.Id == command.EffectId);
-            _preparation = p with { ExtraWaterSiteIds = p.ExtraWaterSiteIds.Append(site.Id).Order(StringComparer.Ordinal).ToArray() };
-            _medical = _medical! with { ExtraWaterPoints = _medical.ExtraWaterPoints.Append(new WaterPointState(site.Id, site.Cell, [], [], null, 0))
-                .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
+            for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
+            for (var x = centre.X - radius; x <= centre.X + radius; x++) cells.Add(new GridCell(x, z));
         }
+        foreach (var point in others) Footprint(occupied, point.Cell, 4);
+        Footprint(occupied, MedicalTentCell, 4);
+        Footprint(occupied, MedicalRestCell, 1);
+        Footprint(occupied, MedicalMedicCell, 1);
+        if (p.WaterTowerOwned) Footprint(occupied, WaterTowerCell, 4);
+        if (equipment is { } unit) Footprint(occupied, TraversalGrid.WorldToCell(unit.XMillimetres, unit.ZMillimetres), 5);
+        for (var z = 139; z <= 160; z++)
+        for (var x = 90; x <= 101; x++) occupied.Add(new GridCell(x, z));
+        var proposedCells = new HashSet<GridCell>();
+        Footprint(proposedCells, cell, 3);
+        for (var index = 0; index < 10; index++)
+        {
+            proposedCells.Add(WaterSlot(proposed, index));
+            proposedCells.Add(WaterOverflowSlot(proposed, index));
+            foreach (var point in others)
+            {
+                Footprint(occupied, WaterSlot(point, index), 1);
+                Footprint(occupied, WaterOverflowSlot(point, index), 1);
+            }
+        }
+        if (proposedCells.Any(candidate => !terrain.Contains(candidate) ||
+            terrain.Get(candidate) is not { IsWalkable: true, Surface: GroundSurface.Grass }))
+            return "The tap footprint and full visible queue need clear grass.";
+        if (proposedCells.Any(occupied.Contains))
+            return "The tap or queue overlaps a building, another line, the stage or a protected route.";
+        // Reserve the proposed solid footprint and prove all service fronts and first-aid rest
+        // remain reachable from the gate. Queue slots remain walkable and cannot be occupied by it.
+        var overrides = terrain.Overrides.ToDictionary(item => item.Key, item => item.Value);
+        foreach (var point in others.Append(proposed))
+        for (var z = point.Cell.Z - 3; z <= point.Cell.Z + 3; z++)
+        for (var x = point.Cell.X - 3; x <= point.Cell.X + 3; x++)
+        {
+            var blocked = new GridCell(x, z);
+            overrides[blocked] = new(blocked, GroundSurface.Grass, false);
+        }
+        var grid = new TraversalGrid(overrides.Values);
+        foreach (var destination in others.Append(proposed).Select(point => WaterSlot(point, 0))
+                     .Append(WaterSlot(proposed, 9)).Append(WaterOverflowSlot(proposed, 9)).Append(MedicalRestCell))
+            if (!DeterministicPathfinder.FindPath(grid, MedicalExitCell, destination).Found)
+                return "This position blocks a walkable route to water or first aid.";
+        return null;
+    }
+
+    private void ApplyWaterPlacement(GridCell cell, bool movingPrimary)
+    {
+        var p = _preparation!;
+        if (movingPrimary)
+        {
+            _preparation = p with { PrimaryWaterCell = cell };
+            _medical = _medical! with { MainWaterCell = cell };
+            return;
+        }
+        var id = $"water.extra-{p.ExtraWaterSiteIds.Length + 1}";
+        _preparation = p with { ExtraWaterSiteIds = p.ExtraWaterSiteIds.Append(id).Order(StringComparer.Ordinal).ToArray(),
+            WaterPlacements = p.WaterPlacements.Append(new WaterPlacement(id, cell)).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
+        _medical = _medical! with { ExtraWaterPoints = _medical.ExtraWaterPoints.Append(new WaterPointState(id, cell, [], [], null, 0))
+            .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
     }
 
     public static GameSession CreatePreparedCampaign(ulong seed, int tier = 1, bool fixtureOutcomesEnabled = false)
@@ -191,7 +279,7 @@ public sealed partial class GameSession
     private void ApplyStartPreparedEdition()
     {
         var p = _preparation!;
-        _traversalGrid ??= new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
+        _traversalGrid = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
         if (_equipment is { } unit)
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
@@ -223,7 +311,7 @@ public sealed partial class GameSession
         if (_medical is not null)
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
-            foreach (var (centre, radius) in new[] { (MedicalWaterCell, 3), (MedicalTentCell, 3) }
+            foreach (var (centre, radius) in new[] { (p.PrimaryWaterCell, 3), (MedicalTentCell, 3) }
                          .Concat(_medical.ExtraWaterPoints.Select(point => (point.Cell, 3))))
             for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
             for (var x = centre.X - radius; x <= centre.X + radius; x++)
@@ -350,9 +438,11 @@ public sealed partial class GameSession
         _equipment = baseline._equipment;
         _medical = baseline._medical;
         if (_medical is not null)
-            _medical = _medical with { ExtraWaterPoints = p.ExtraWaterSiteIds.Select(id => ExtraWaterSites.Single(site => site.Id == id))
-                .Select(site => new WaterPointState(site.Id, site.Cell, [], [], null, 0)).ToArray() };
+            _medical = _medical with { MainWaterCell = p.PrimaryWaterCell,
+                ExtraWaterPoints = EffectiveWaterPlacements(p).Select(site =>
+                    new WaterPointState(site.Id, site.Cell, [], [], null, 0)).ToArray() };
         _disorder = baseline._disorder;
+        _traversalGrid = null;
         _preparation = p with
         {
             Attempt = p.Attempt + 1, Status = PreparationStatus.Preparing, AcceptedOffers = [],
@@ -369,15 +459,36 @@ public sealed partial class GameSession
             p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != CampaignDefaults.OpeningCashPennies || p.StockConsumed < 0 ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||
-            p.ExtraWaterSiteIds is null || !p.ExtraWaterSiteIds.SequenceEqual(p.ExtraWaterSiteIds.Distinct().Order(StringComparer.Ordinal)) ||
-            p.ExtraWaterSiteIds.Any(id => !ExtraWaterSites.Any(site => site.Id == id)) ||
-            (p.WaterTowerOwned || p.ExtraWaterSiteIds.Length > 0) && snapshot.Medical is null ||
+            p.ExtraWaterSiteIds is null || p.WaterPlacements is null ||
+            !p.ExtraWaterSiteIds.SequenceEqual(p.ExtraWaterSiteIds.Distinct().Order(StringComparer.Ordinal)) ||
+            p.ExtraWaterSiteIds.Length > 2 ||
+            p.ExtraWaterSiteIds.Any(id => !ExtraWaterSites.Any(site => site.Id == id) && id is not ("water.extra-1" or "water.extra-2")) ||
+            p.WaterPlacements.Any(item => item is null) ||
+            !p.WaterPlacements.Select(item => item.Id).SequenceEqual(p.WaterPlacements.Select(item => item.Id).Distinct().Order(StringComparer.Ordinal)) ||
+            p.WaterPlacements.Any(item => !p.ExtraWaterSiteIds.Contains(item.Id) ||
+                item.Id is not ("water.extra-1" or "water.extra-2")) ||
+            p.ExtraWaterSiteIds.Any(id => id.StartsWith("water.extra-", StringComparison.Ordinal) &&
+                !p.WaterPlacements.Any(item => item.Id == id)) ||
+            (p.WaterTowerOwned || p.ExtraWaterSiteIds.Length > 0 || p.PrimaryWaterCell != MedicalWaterCell) && snapshot.Medical is null ||
             p.CommunityShareAttempt < 0 || p.CommunityShareAttempt > p.Attempt || p.CommunityShareAttempt > 0 && snapshot.Medical is null ||
             p.CommunityFavourClaimed != (p.CommunityShareAttempt == p.Attempt && p.Status == PreparationStatus.Finished) ||
             p.RetryEconomyFixtureEnabled && (p.FixtureOutcomesEnabled || snapshot.Equipment is null || snapshot.Medical is not null || snapshot.Disorder is not null) ||
             p.MaintenanceWorkerId is { } workerId && (workerId == 0 || workerId >= snapshot.NextEntityId ||
                 !snapshot.Wallets.Any(item => item.OwnerId == workerId)))
             return "Preparation header or collections invalid.";
+        if (p.PrimaryWaterCell != MedicalWaterCell && ValidateWaterPlacementCell(p.PrimaryWaterCell,
+                p with { ExtraWaterSiteIds = [], WaterPlacements = [], PrimaryWaterCell = MedicalWaterCell }, true,
+                snapshot.Equipment) is not null)
+            return "Primary water position is invalid.";
+        var preceding = p with { ExtraWaterSiteIds = [], WaterPlacements = [] };
+        foreach (var placement in EffectiveWaterPlacements(p))
+        {
+            if (placement.Id.StartsWith("water.extra-", StringComparison.Ordinal) &&
+                ValidateWaterPlacementCell(placement.Cell, preceding, false, snapshot.Equipment) is not null)
+                return "Placed water point or queue is invalid.";
+            preceding = preceding with { ExtraWaterSiteIds = preceding.ExtraWaterSiteIds.Append(placement.Id).Order(StringComparer.Ordinal).ToArray(),
+                WaterPlacements = preceding.WaterPlacements.Append(placement).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
+        }
         var maintenance = snapshot.Equipment?.WorkerId is not null ? 1 : 0;
         var medic = snapshot.Medical is null ? 0 : 1;
         var security = snapshot.Disorder is null ? 0 : 1;

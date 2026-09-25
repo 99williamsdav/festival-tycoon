@@ -14,6 +14,7 @@ public sealed record MedicalNeed(ulong AgentId, int Thirst, int HeatExposure, Me
     long WarningTick = -1, long CollapseTick = -1, long CriticalTick = -1)
 {
     public string WaterPointId { get; init; } = "water.main";
+    public long LastWaterChoiceReviewTick { get; init; } = -160;
 }
 public sealed record MedicalEvidence(string Id, long Tick, string Description);
 public sealed record WaterPointState(string Id, GridCell Cell, ulong[] Queue, ulong[] Overflow, ulong? OwnerId, int DrinkTicks);
@@ -22,6 +23,7 @@ public sealed record MedicalSnapshot(int Version, bool IsHot, ulong MedicId, ulo
     MedicalStage Stage, MedicalResponseStage ResponseStage, ulong? ResponsePatientId, long WarningTick, long CollapseTick,
     long CriticalTick, long ResponseStartedTick, string Response, MedicalEvidence[] Evidence)
 {
+    public GridCell MainWaterCell { get; init; } = GameSession.MedicalWaterCell;
     public WaterPointState[] ExtraWaterPoints { get; init; } = [];
 }
 
@@ -38,6 +40,8 @@ public sealed partial class GameSession
         (_preparation?.WaterTowerOwned == true ? 4 : 0);
     public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => EffectiveMedicalDrinkThirstPerTickFor(agentId) / 4;
     public const int MedicalDecisionCooldownTicks = 240;   // 3 real seconds at 1×.
+    public const int WaterChoiceReviewTicks = 160;
+    public const int WaterChoiceSwitchMarginTicks = 120;
     public const int MedicalCollapseDelayTicks = 1_600;   // 20 real seconds after distress.
     public const int MedicalCriticalDelayTicks = 800;     // 10 real seconds after collapse.
     public const int MedicalDeathDelayTicks = 2_400;      // 30 real seconds after collapse.
@@ -68,13 +72,15 @@ public sealed partial class GameSession
         new(110, 158), new(111, 160), new(112, 162), new(113, 164), new(114, 166)
     ];
     private IReadOnlyList<WaterPointState> WaterPoints() => _medical is not { } m ? [] :
-        [new("water.main", MedicalWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks), .. m.ExtraWaterPoints];
+        [new("water.main", m.MainWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks), .. m.ExtraWaterPoints];
     public IReadOnlyList<WaterPointState> CaptureWaterPoints() => WaterPoints().Select(point =>
         point with { Queue = point.Queue.ToArray(), Overflow = point.Overflow.ToArray() }).ToArray();
     private static GridCell WaterSlot(WaterPointState point, int index) =>
-        point.Id == "water.main" ? WaterSlots[index] : new(point.Cell.X + index / 2, point.Cell.Z + 5 + index * 2);
+        point.Id == "water.main" && point.Cell == MedicalWaterCell ? WaterSlots[index] :
+            new(point.Cell.X + index / 2, point.Cell.Z + 5 + index * 2);
     private static GridCell WaterOverflowSlot(WaterPointState point, int index) =>
-        point.Id == "water.main" ? WaterOverflowSlots[index] : new(point.Cell.X + 5 + index / 2, point.Cell.Z + 25 + index * 2);
+        point.Id == "water.main" && point.Cell == MedicalWaterCell ? WaterOverflowSlots[index] :
+            new(point.Cell.X + 5 + index / 2, point.Cell.Z + 25 + index * 2);
     private static GridCell WaterApproach(WaterPointState point) => point.Queue.Length < 10
         ? WaterSlot(point, point.Queue.Length) : WaterOverflowSlot(point, Math.Min(point.Overflow.Length, 9));
     private void SetWaterPoint(WaterPointState point)
@@ -86,18 +92,57 @@ public sealed partial class GameSession
     }
     private WaterPointState WaterPointFor(ulong id) => WaterPoints().Single(point => point.Id ==
         _medical!.Needs.Single(item => item.AgentId == id).WaterPointId);
-    private WaterPointState ChooseWaterPoint(ulong id)
+    private int EstimateWaterWalkTicks(ulong id, WaterPointState point)
     {
         var nav = _navigationAgents[new(id)];
         var from = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
+        var destination = WaterApproach(point);
+        IReadOnlyList<GridCell> remaining;
+        if (nav.Destination == destination && nav.Action == AgentNavigationAction.Arrived) return 0;
+        if (nav.Destination == destination && nav.Action == AgentNavigationAction.Travelling &&
+            nav.RouteIndex >= 0 && nav.RouteIndex < nav.Route.Count)
+            remaining = nav.Route.Skip(nav.RouteIndex).ToArray();
+        else
+        {
+            var search = DeterministicPathfinder.FindPath(_traversalGrid!, from, destination);
+            if (!search.Found) return int.MaxValue;
+            remaining = search.Path.Skip(1).ToArray();
+        }
+        var x = nav.XMillimetres; var z = nav.ZMillimetres;
+        long weightedMicrometres = 0;
+        foreach (var cell in remaining)
+        {
+            var centre = TraversalGrid.CellCentre(cell);
+            var dx = centre.XMillimetres - x; var dz = centre.ZMillimetres - z;
+            var segment = IntegerSquareRoot((long)dx * dx * 1_000_000L + (long)dz * dz * 1_000_000L);
+            weightedMicrometres += segment * _traversalGrid!.Get(cell).CostPermille / 1000;
+            x = centre.XMillimetres; z = centre.ZMillimetres;
+        }
+        var perTick = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000;
+        return checked((int)((weightedMicrometres + perTick - 1) / perTick));
+    }
+
+    private int EstimateWaterWaitTicks(WaterPointState point) => point.Queue.Concat(point.Overflow).Sum(id =>
+    {
+        var thirst = _medical!.Needs.Single(need => need.AgentId == id).Thirst;
+        var rate = EffectiveMedicalDrinkThirstPerTickFor(id);
+        return (thirst + rate - 1) / rate;
+    });
+
+    private int EstimateWaterTotalTicks(ulong id, WaterPointState point)
+    {
+        var walk = EstimateWaterWalkTicks(id, point);
+        if (walk == int.MaxValue) return walk;
+        var own = _medical!.Needs.Single(need => need.AgentId == id).Thirst;
+        var rate = EffectiveMedicalDrinkThirstPerTickFor(id);
+        return checked(walk + EstimateWaterWaitTicks(point) + (own + rate - 1) / rate);
+    }
+
+    private WaterPointState ChooseWaterPoint(ulong id)
+    {
         var available = WaterPoints().Where(point => point.Queue.Length < 10 || point.Overflow.Length < 10).ToArray();
-        var reachable = available.Where(point => MedicalRouteExists(id, WaterApproach(point))).ToArray();
-        // Approximate one second of service as one 0.5 m travel cell. This is a
-        // deterministic choice heuristic, not a claim about pipe pressure.
-        return (reachable.Length > 0 ? reachable : available.Length > 0 ? available : WaterPoints().ToArray())
-            .OrderBy(point => Math.Abs(from.X - point.Cell.X) + Math.Abs(from.Z - point.Cell.Z) +
-                point.Queue.Sum(member => _medical!.Needs.Single(need => need.AgentId == member).Thirst /
-                    EffectiveMedicalDrinkThirstPerTickFor(member)) / 80 + point.Overflow.Length * 10)
+        return (available.Length > 0 ? available : WaterPoints().ToArray())
+            .OrderBy(point => EstimateWaterTotalTicks(id, point))
             .ThenBy(point => point.Id, StringComparer.Ordinal).First();
     }
     public static GridCell MedicalQueueSlot(int index) => WaterSlots[index];
@@ -328,7 +373,8 @@ public sealed partial class GameSession
         }
         var point = ChooseWaterPoint(id);
         SetNeed(id, item => item with { Intent = MedicalIntent.SeekWater, Reason = reason,
-            QueueSlot = null, LastDecisionTick = CurrentTick, WaterPointId = point.Id });
+            QueueSlot = null, LastDecisionTick = CurrentTick, WaterPointId = point.Id,
+            LastWaterChoiceReviewTick = CurrentTick });
         MedicalRelinquishPerformerStage(id);
         ApplyAgentDestination(new(id), new(WaterApproach(point), "medical.free-water-approach"));
         MedicalEvent("medical:water-seek", $"Person {id} walked toward {point.Id} without reserving a place.");
@@ -354,6 +400,28 @@ public sealed partial class GameSession
                 if (nav.Destination != approach)
                     ApplyAgentDestination(new(need.AgentId), new(approach, "medical.free-water-approach"));
             }
+        }
+    }
+
+    private void ReassessWaterSeekers()
+    {
+        if (_disorder?.WaterClosed == true) return;
+        foreach (var need in _medical!.Needs.Where(item => item.Intent == MedicalIntent.SeekWater && item.QueueSlot is null &&
+                     CurrentTick - item.LastWaterChoiceReviewTick >= WaterChoiceReviewTicks &&
+                     CurrentTick % 8 == (long)(item.AgentId % 8)).ToArray())
+        {
+            var current = WaterPointFor(need.AgentId);
+            if (current.Overflow.Contains(need.AgentId)) continue; // physical tail is already reserved
+            var best = ChooseWaterPoint(need.AgentId);
+            var currentTicks = EstimateWaterTotalTicks(need.AgentId, current);
+            var bestTicks = EstimateWaterTotalTicks(need.AgentId, best);
+            SetNeed(need.AgentId, item => item with { LastWaterChoiceReviewTick = CurrentTick });
+            if (best.Id == current.Id || bestTicks == int.MaxValue || bestTicks + WaterChoiceSwitchMarginTicks >= currentTicks)
+                continue;
+            SetNeed(need.AgentId, item => item with { WaterPointId = best.Id,
+                Reason = $"Rechosen {best.Id} before physical queue arrival: {bestTicks} vs {currentTicks} estimated ticks" });
+            ApplyAgentDestination(new(need.AgentId), new(WaterApproach(best), "medical.free-water-approach"));
+            MedicalEvent("medical:water-rechoose", $"Person {need.AgentId} switched to {best.Id} before joining a line.");
         }
     }
 
@@ -519,13 +587,14 @@ public sealed partial class GameSession
                         LeaveWater(need.AgentId, $"Band appeal {showScore} exceeded water utility {waterScore}; queue place released");
                 }
                 else if (waterScore > showScore)
-                    SeekWater(need.AgentId, $"Hot thirst {need.Thirst}/10000 outweighed band {showScore}, travel {travel} cells and estimated wait {bestPoint.Queue.Sum(id => m.Needs.Single(item => item.AgentId == id).Thirst / EffectiveMedicalDrinkThirstPerTickFor(id))} ticks");
+                    SeekWater(need.AgentId, $"Hot thirst {need.Thirst}/10000 outweighed band {showScore}; estimated walk + wait + drink {EstimateWaterTotalTicks(need.AgentId, bestPoint)} ticks");
                 else SetNeed(need.AgentId, item => item with { Reason = $"Watching band: music {showScore} vs water {waterScore} incl. travel/wait",
                     LastDecisionTick = CurrentTick });
                 m = _medical!;
             }
         }
         m = _medical!;
+        ReassessWaterSeekers();
         AdmitWaterArrivals();
         m = _medical!;
         foreach (var selected in WaterPoints())
@@ -715,7 +784,7 @@ public sealed partial class GameSession
     private static string? ValidatePersistedMedical(MedicalSnapshot? m, SessionPersistenceSnapshot s)
     {
         if (m is null) return null;
-        var points = new[] { new WaterPointState("water.main", MedicalWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks) }
+        var points = new[] { new WaterPointState("water.main", m.MainWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks) }
             .Concat(m.ExtraWaterPoints ?? []).ToArray();
         if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || !m.IsHot || m.Needs is null || m.WaterQueue is null || m.WaterOverflow is null ||
             m.Evidence is null || m.Needs.Length != p.Tier * 20 + 3 + (s.Disorder is null ? 0 : 1) ||
@@ -726,11 +795,12 @@ public sealed partial class GameSession
             !p.People.Any(item => item.AgentId == m.MedicId && item.Name == "Riley Hart" && item.Role == ProtectedPersonRole.Staff) ||
             m.AtRiskGuestId != m.Needs[19].AgentId || m.Needs.Any(item => item.Thirst is < 0 or > 10_000 || item.HeatExposure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Intent) || !Enum.IsDefined(item.Profile) || !Enum.IsDefined(item.Stage) ||
-                item.QueueSlot is < 0 or >= 10 || !points.Any(point => point.Id == item.WaterPointId) || item.LastDecisionTick > s.CurrentTick ||
+                item.QueueSlot is < 0 or >= 10 || !points.Any(point => point.Id == item.WaterPointId) ||
+                item.LastDecisionTick > s.CurrentTick || item.LastWaterChoiceReviewTick > s.CurrentTick ||
                 item.WarningTick > s.CurrentTick || item.CollapseTick > s.CurrentTick || item.CriticalTick > s.CurrentTick) ||
-            m.ExtraWaterPoints is null || p.ExtraWaterSiteIds is null ||
+            m.MainWaterCell != p.PrimaryWaterCell || m.ExtraWaterPoints is null || p.ExtraWaterSiteIds is null || p.WaterPlacements is null ||
             !m.ExtraWaterPoints.Select(point => point.Id).SequenceEqual(p.ExtraWaterSiteIds) ||
-            m.ExtraWaterPoints.Any(point => !ExtraWaterSites.Any(site => site.Id == point.Id && site.Cell == point.Cell)) ||
+            m.ExtraWaterPoints.Any(point => !EffectiveWaterPlacements(p).Any(site => site.Id == point.Id && site.Cell == point.Cell)) ||
             points.Any(point => point.Queue is null || point.Overflow is null || point.Queue.Length > 10 || point.Overflow.Length > 10 ||
                 point.Queue.Distinct().Count() != point.Queue.Length || point.Overflow.Distinct().Count() != point.Overflow.Length ||
                 point.Overflow.Length > 0 && point.Queue.Length != 10 ||

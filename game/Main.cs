@@ -195,9 +195,10 @@ public partial class Main : Node
         }
         if (_waterFoundationCaptureDirectory is not null)
         {
-            foreach (var effect in new[] { "water.west", "water.east", "water.tower" })
-                if (!_session.Execute(CampaignEnvelope(new ApplyWaterFoundationEffectCommand(effect))).IsAccepted)
-                    throw new InvalidOperationException($"Water foundation capture effect {effect} was rejected.");
+            foreach (var command in new SessionCommand[] { new MovePrimaryWaterPointCommand(new GridCell(104, 112)),
+                         new ApplyWaterFoundationEffectCommand("water.tower") })
+                if (!_session.Execute(CampaignEnvelope(command)).IsAccepted)
+                    throw new InvalidOperationException($"Water foundation capture command {command} was rejected.");
         }
         _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
@@ -240,6 +241,7 @@ public partial class Main : Node
         if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) input.X -= 1;
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
+        if (_waterPlacementMode != WaterPlacementMode.None) UpdateWaterPlacementPreview(GetViewport().GetMousePosition());
         if (_session.CapturePreparation() is not null) AdvancePreparationPresentation(delta);
         else if (_sharedWorldFixture is not null) AdvanceSharedWorldFeasibility(delta);
         else if (_benchmarkFixture is not null) AdvanceRenderedBenchmark(delta);
@@ -272,6 +274,7 @@ public partial class Main : Node
         if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null || _campaignCaptureDirectory is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
+            if (key.Keycode == Key.Escape && _waterPlacementMode != WaterPlacementMode.None) { CancelWaterPlacement(); return; }
             if (key.Keycode == Key.Q) Rotate(-1);
             else if (key.Keycode == Key.E) Rotate(1);
             else if (key.Keycode == Key.Space)
@@ -286,6 +289,9 @@ public partial class Main : Node
             if (mouse.ButtonIndex == MouseButton.WheelUp && mouse.Pressed) Zoom(-4);
             else if (mouse.ButtonIndex == MouseButton.WheelDown && mouse.Pressed) Zoom(4);
             else if (mouse.ButtonIndex == MouseButton.Middle) _middleDragging = mouse.Pressed;
+            else if (mouse.ButtonIndex == MouseButton.Right && mouse.Pressed && _waterPlacementMode != WaterPlacementMode.None) CancelWaterPlacement();
+            else if (mouse.ButtonIndex == MouseButton.Left && mouse.Pressed && _waterPlacementMode != WaterPlacementMode.None)
+                CommitWaterPlacement(mouse.Position);
             else if (mouse.ButtonIndex == MouseButton.Left && mouse.Pressed) Pick(mouse.Position);
         }
         else if (inputEvent is InputEventMouseMotion motion && _middleDragging)

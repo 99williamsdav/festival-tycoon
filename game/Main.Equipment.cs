@@ -47,7 +47,8 @@ public partial class Main
         if (result.IsSuccess)
         {
             _session = result.Session; _autosaveGeneration++;
-            if (command is ApplyWaterFoundationEffectCommand) SyncExtraWaterWorld();
+            if (command is ApplyWaterFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand)
+                SyncExtraWaterWorld();
             _preparationSaveBlocked = false;
             _preparationMessage = "Action committed and autosaved.";
         }

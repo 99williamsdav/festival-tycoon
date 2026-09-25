@@ -18,7 +18,10 @@ public partial class Main
     private Button _preparationStart = null!;
     private Button? _communityShareButton;
     private Label? _waterFoundationHeading;
-    private readonly Dictionary<string, Button> _waterFoundationButtons = [];
+    private Button? _waterPlaceButton;
+    private Button? _waterMoveButton;
+    private Button? _waterTowerButton;
+    private Label? _waterPlacementStatus;
     private Label? _communityShareInfo;
     private string _preparationMessage = "Choose one act and one worker. Equipment and stock are optional.";
     private string? _preparationCaptureDirectory;
@@ -79,16 +82,16 @@ public partial class Main
         {
             _waterFoundationHeading = LabelText("FREE WATER • PLACE BEFORE OPENING", 14, ink);
             box.AddChild(_waterFoundationHeading);
-            foreach (var site in GameSession.ExtraWaterSites)
-            {
-                var siteId = site.Id;
-                var button = ButtonText($"PLACE STANDPIPE • {siteId.Split('.')[1].ToUpperInvariant()}",
-                    () => CommitEquipmentAction(new ApplyWaterFoundationEffectCommand(siteId)));
-                _waterFoundationButtons.Add(siteId, button); box.AddChild(button);
-            }
-            var tower = ButtonText("BUILD WATER TOWER • +4 PERSONAL RELIEF", () =>
+            _waterPlaceButton = ButtonText("ADD TAP • CHOOSE A GRASS SPOT", () => BeginWaterPlacement(false));
+            box.AddChild(_waterPlaceButton);
+            _waterMoveButton = ButtonText("MOVE ORIGINAL TAP • CHOOSE A GRASS SPOT", () => BeginWaterPlacement(true));
+            box.AddChild(_waterMoveButton);
+            _waterPlacementStatus = LabelText("Choose a tap action, then click valid ground. Right-click or Esc cancels.", 13, ink);
+            _waterPlacementStatus.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            box.AddChild(_waterPlacementStatus);
+            _waterTowerButton = ButtonText("BUILD WATER TOWER • +4 PERSONAL RELIEF", () =>
                 CommitEquipmentAction(new ApplyWaterFoundationEffectCommand("water.tower")));
-            _waterFoundationButtons.Add("water.tower", tower); box.AddChild(tower);
+            box.AddChild(_waterTowerButton);
         }
         _preparationStart = ButtonText("START FIXED ROSTER", PreparationStart); box.AddChild(_preparationStart);
         var controls = new HBoxContainer(); box.AddChild(controls);
@@ -141,6 +144,7 @@ public partial class Main
 
     private void PreparationStart()
     {
+        CancelWaterPlacement();
         var candidate = GameSession.Restore(_session.CapturePersistenceSnapshot());
         if (!candidate.IsSuccess) { _preparationMessage = candidate.Error!; RefreshPreparationHud(); return; }
         var command = new CommandEnvelope(new CommandId(1_010_000UL + candidate.Session!.NextSubmissionSequence),
@@ -165,6 +169,7 @@ public partial class Main
 
     private void PreparationLoad()
     {
+        CancelWaterPlacement();
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
         if (result.IsSuccess && result.Session!.CapturePreparation() is not null)
         {
@@ -208,10 +213,14 @@ public partial class Main
                 $"SHARING COMMITTED • weekend attempt {p.CommunityShareAttempt}. Personal baseline cap 12 thirst units/tick for faster drinkers before tower +4; queues may grow. " +
                 (p.CommunityFavourClaimed ? "1 Council Favour awarded after the full weekend." : "1 Council Favour only after the full weekend is honoured.");
         }
-        foreach (var (id, button) in _waterFoundationButtons)
+        if (_waterPlaceButton is not null)
         {
-            button.Visible = p.Status == PreparationStatus.Preparing;
-            button.Disabled = _session.ValidateCommand(CampaignEnvelope(new ApplyWaterFoundationEffectCommand(id))) is not null;
+            _waterPlaceButton.Visible = p.Status == PreparationStatus.Preparing;
+            _waterPlaceButton.Disabled = p.ExtraWaterSiteIds.Length >= 2;
+            _waterMoveButton!.Visible = p.Status == PreparationStatus.Preparing;
+            _waterTowerButton!.Visible = p.Status == PreparationStatus.Preparing;
+            _waterTowerButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new ApplyWaterFoundationEffectCommand("water.tower"))) is not null;
+            _waterPlacementStatus!.Visible = p.Status == PreparationStatus.Preparing;
         }
         if (_waterFoundationHeading is not null) _waterFoundationHeading.Visible = p.Status == PreparationStatus.Preparing;
         _preparationSummary.TooltipText = _preparationMessage;
