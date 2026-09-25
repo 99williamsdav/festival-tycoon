@@ -1,0 +1,27 @@
+{
+  "asset": "Detachable amber steward yoke cue v1",
+  "status": "approved visually by coordinator and user 25 September 2026; gameplay integration separate",
+  "purpose": "R0.04 security/steward worker role cue on unchanged attendee body",
+  "parts_triangles": {
+    "LWF_StewardV1_AmberYoke": 96,
+    "LWF_StewardV1_UpperArmBands": 72,
+    "LWF_StewardV1_TealEdge": 72
+  },
+  "triangles": 240,
+  "nodes": 3,
+  "palette_size": [
+    64,
+    8
+  ],
+  "compatible_body": "approved generic attendee v1, unchanged; runtime GLB contains accessory only",
+  "body_height_m": 1.75,
+  "origin": "shared feet-centred origin with attendee",
+  "forward_blender": "+Y",
+  "forward_godot": "-Z",
+  "rig_animation": "none; follows existing attendee presentation transform",
+  "ownership": "simulation owns person identity, staffing, response and route; cue is presentation only",
+  "provenance": "project-authored procedural accessory based on user-approved R0.04 concept; attendee and medic comparison are review-only context; no downloaded assets",
+  "bounds_blender": [[-0.382999986410141, -0.19349999725818634, 1.0394999980926514], [0.382999986410141, 0.2554999887943268, 1.3969999551773071]],
+  "verification_blender": "Blender 4.1.1 source reopen and GLB reimport passed: three accessory-only mesh nodes, 240 triangles, one UV/material per mesh, matching bounds, embedded 64x8 palette, no armature or animation.",
+  "verification_godot": "Godot 4.7.2 isolated import and instantiation passed: unchanged attendee has one mesh and accessory adds three; 240 accessory triangles and embedded 64x8 palette. Non-blocking local certificate-store and user-directory warnings occurred."
+}
