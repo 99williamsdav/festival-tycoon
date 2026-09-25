@@ -334,6 +334,7 @@ public partial class Main : Node
                 visual.AddChild(InstantiateAsset("res://assets/characters/lwf_medic_vest_cue_v1.glb"));
             if (performer?.Name == "Jordan Hale")
             {
+                MatchStewardShirtPalette(visual);
                 var yoke = InstantiateAsset("res://assets/characters/lwf_steward_yoke_cue_v1.glb");
                 yoke.Name = "StewardYokeCue";
                 visual.AddChild(yoke);
@@ -354,6 +355,36 @@ public partial class Main : Node
         _attendeeVisual = _attendeeVisuals[agents[0].Id];
         _presentationFrom = _presentationTo = ToWorld(agents[0]);
         ResetMedicalCuePresentation();
+    }
+
+    private static void MatchStewardShirtPalette(Node3D visual)
+    {
+        // The generic body has a baked amber chest swatch at palette columns
+        // 40..55. On Jordan alone, reuse its two existing teal shirt swatches
+        // (24..39); skin, hair, trousers and the approved yoke remain untouched.
+        var source = GD.Load<Texture2D>("res://assets/characters/lwf_generic_attendee_v1_attendee_palette.png");
+        var image = source.GetImage();
+        if (image.GetWidth() != 96 || image.GetHeight() != 8)
+            throw new InvalidOperationException("The steward's generic-body palette layout changed.");
+        for (var y = 0; y < image.GetHeight(); y++)
+        for (var x = 40; x < 56; x++)
+            image.SetPixel(x, y, image.GetPixel(x - 16, y));
+        var shirtMatched = ImageTexture.CreateFromImage(image);
+        var matchedMeshes = 0;
+        foreach (var child in visual.FindChildren("*", "MeshInstance3D", true, false))
+        {
+            if (child is not MeshInstance3D mesh || mesh.Mesh is null) continue;
+            for (var surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+            {
+                if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D sourceMaterial) continue;
+                var material = (StandardMaterial3D)sourceMaterial.Duplicate();
+                material.AlbedoTexture = shirtMatched;
+                mesh.SetSurfaceOverrideMaterial(surface, material);
+                matchedMeshes++;
+            }
+        }
+        if (matchedMeshes == 0)
+            throw new InvalidOperationException("No generic-body surface was available for Jordan's shirt-colour match.");
     }
 
     private void BuildGrass()
