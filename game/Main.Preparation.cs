@@ -169,7 +169,7 @@ public partial class Main
             .Concat(p.People.Where(item => item.Role != ProtectedPersonRole.Guest));
         _preparationPeople.Text = "FIXED PROTECTED ROSTER\n" +
             $"Arrived {p.People.Count(item => item.Admitted)}/{p.People.Length} • departed {p.People.Count(item => item.Departed)}/{p.People.Length}\n\n" +
-            string.Join("\n\n", examples.Select(item => $"[{item.Role.ToString().ToUpperInvariant()}] {item.Name}\n" +
+            string.Join("\n\n", examples.Select(item => $"[{(item.Name == "Jordan Hale" ? "STEWARD" : item.Role.ToString().ToUpperInvariant())}] {item.Name}\n" +
                 (item.Role == ProtectedPersonRole.Guest ? $"expects {(item.ExpectedGenre == 0 ? "folk" : "punk")} • satisfaction {item.Satisfaction / 100m:0}% • music risk {item.MusicRisk / 100m:0}%" : "Protected • physical arrival and departure"))) +
             (_session.CaptureEquipment() is null ? "\n\nNo lethal chains or success rewards in this preparation slice." : "\n\nEquipment chain active. Every person is protected; no Favour/reward economy yet.");
         RefreshLivePerformanceHud();

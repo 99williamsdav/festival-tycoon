@@ -147,7 +147,7 @@ public partial class Main
             _inspectorTitle.Text = "First aid • Riley Hart";
             _inspectorBody.Text = $"MEDIC  {m.ResponseStage}\nPATIENT  " +
                 (m.ResponsePatientId is { } id ? people.Single(item => item.AgentId == id).Name : "None") +
-                $"\nRESPONSE  {m.Response}\nREST  shade reduces heat after arrival\n" +
+                $"\nRESPONSE  {StewardWording(m.Response)}\nREST  shade reduces heat after arrival\n" +
                 "Select a distressed person for DISPATCH RILEY or GUIDE TO REST in their inspector.";
         }
     }
@@ -235,7 +235,7 @@ public partial class Main
         };
         var treatment = m.ResponseStage == MedicalResponseStage.Treating
             ? $"Treatment {Math.Clamp((_session.CurrentTick - m.ResponseStartedTick) * 100 / GameSession.MedicalTreatmentTicks, 0, 100)}% • {Remaining(m.ResponseStartedTick + GameSession.MedicalTreatmentTicks)} left"
-            : m.ResponseStage == MedicalResponseStage.Travelling ? "Medic travelling • treatment begins on arrival" : m.Response;
+            : m.ResponseStage == MedicalResponseStage.Travelling ? "Medic travelling • treatment begins on arrival" : StewardWording(m.Response);
         _medicalSummary.Text = $"HOT • FREE WATER • FIRST AID\n" +
             $"Guest 20: {m.Stage} • thirst {target.Thirst / 100m:0}% • heat {target.HeatExposure / 100m:0}%\n" +
             $"Water queue {m.WaterQueue.Length} + tail {m.WaterOverflow.Length} • {drinking}\nMedic {m.ResponseStage} • Clock: {clock}\n" +

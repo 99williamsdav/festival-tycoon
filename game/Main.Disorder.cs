@@ -10,6 +10,16 @@ namespace Festival.Game;
 
 public partial class Main
 {
+    // R0.04 saves retain their internal security identifiers and authored text.
+    // Present both new and previously saved response prose as steward language.
+    private static string StewardWording(string value) => value
+        .Replace("SECURITY", "STEWARD", StringComparison.Ordinal)
+        .Replace("Security", "Steward", StringComparison.Ordinal)
+        .Replace("security", "steward", StringComparison.Ordinal)
+        .Replace("GUARD", "STEWARD", StringComparison.Ordinal)
+        .Replace("Guard", "Steward", StringComparison.Ordinal)
+        .Replace("guard", "steward", StringComparison.Ordinal);
+
     private Label? _disorderSummary;
     private readonly Dictionary<DisorderAction, Button> _disorderButtons = [];
     private string? _disorderCaptureDirectory;
@@ -34,7 +44,7 @@ public partial class Main
     private void BuildSecurityPostInspectorAction(VBoxContainer parent)
     {
         if (_session.CaptureDisorder() is null) return;
-        _securityPostWorkerButton = ButtonText("SELECT JORDAN • SECURITY", () =>
+        _securityPostWorkerButton = ButtonText("SELECT JORDAN • STEWARD", () =>
             SelectAttendee(new EntityId(_session.CaptureDisorder()!.SecurityId)));
         _securityPostWorkerButton.Visible = false;
         parent.AddChild(_securityPostWorkerButton);
@@ -73,15 +83,15 @@ public partial class Main
         }
         var position = _session.CaptureSnapshot().NavigationAgents.SingleOrDefault(item => item.Id.Value == d.SecurityId);
         var target = d.ResponseTargetId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
-        _inspectorTitle.Text = "Security post • Jordan Hale";
+        _inspectorTitle.Text = "Steward post • Jordan Hale";
         _inspectorBody.Text = $"POST  open public approach • gate route clear\n" +
             $"WORKER  {(worker.Admitted ? d.SecurityIncapacitated ? "injured • needs medic" : "on site" : "walking in")}\n" +
             $"POSITION  {(position is null ? "not yet arrived" : $"{position.XMillimetres / 1000m:0.00} m, {position.ZMillimetres / 1000m:0.00} m")}\n" +
-            $"RESPONSE  {d.ResponseStage} • target {target}\n{d.Response}\n" +
-            "Select an affected guest to DISPATCH SECURITY or use SAFE EGRESS in their inspector. " +
+            $"RESPONSE  {d.ResponseStage} • target {target}\n{StewardWording(d.Response)}\n" +
+            "Select an affected guest to DISPATCH STEWARD or use SAFE EGRESS in their inspector. " +
             (workerAvailable ? "Select Jordan here if he needs medical help. " :
                 "Jordan can be selected after the edition starts and his physical visual exists. ") +
-            "Security does not teleport or guarantee de-escalation.";
+            "Stewards do not teleport or guarantee de-escalation.";
     }
 
     private void BuildDisorderControls(VBoxContainer box)
@@ -107,7 +117,7 @@ public partial class Main
     {
         if (_session.CaptureDisorder() is null || _medicalActionInspector is null) return;
         foreach (var (action, label) in new[] {
-            (DisorderAction.DispatchSecurity, "DISPATCH SECURITY"),
+            (DisorderAction.DispatchSecurity, "DISPATCH STEWARD"),
             (DisorderAction.SafeEgress, "SAFE EGRESS") })
         {
             var button = ButtonText(label, () => CommitDisorderAction(action));
@@ -123,12 +133,12 @@ public partial class Main
         var d = _session.CaptureDisorder();
         if (d is null) return "";
         if (id == d.SecurityId)
-            return $"SECURITY • {(d.SecurityIncapacitated ? "INJURED • NEEDS MEDIC" : d.ResponseStage)}\n" +
-                $"RESPONSE {d.Response}\n";
+            return $"STEWARD • {(d.SecurityIncapacitated ? "INJURED • NEEDS MEDIC" : d.ResponseStage)}\n" +
+                $"RESPONSE {StewardWording(d.Response)}\n";
         var person = d.People.SingleOrDefault(item => item.AgentId == id);
         if (person is null) return "";
         return $"DISORDER • {person.Stage} • pressure {person.Pressure / 100m:0}%\n" +
-            $"CAUSE {person.Grievance} • {(person.Stage == DisorderStage.Injured ? "FIRST AID NEEDED" : "reduce pressure or dispatch security")}\n";
+            $"CAUSE {person.Grievance} • {(person.Stage == DisorderStage.Injured ? "FIRST AID NEEDED" : "reduce pressure or dispatch a steward")}\n";
     }
 
     private void CommitDisorderAction(DisorderAction action)
@@ -150,7 +160,7 @@ public partial class Main
             _preparationSaveBlocked = false;
             _preparationMessage = "Disorder action committed and autosaved.";
         }
-        else { _preparationMessage = result.Error!; if (result.Autosave is not null) _preparationSaveBlocked = true; }
+        else { _preparationMessage = StewardWording(result.Error!); if (result.Autosave is not null) _preparationSaveBlocked = true; }
         RefreshPreparationHud();
     }
 
@@ -164,7 +174,7 @@ public partial class Main
             var selected = _selectedAttendeeId?.Value;
             var error = selected is { } id ? _session.ValidateCommand(CampaignEnvelope(new DisorderCommand(action, id))) : null;
             button.Disabled = selected is null || error is not null;
-            button.TooltipText = selected is null ? "Select an affected guest." : error?.Message ?? "";
+            button.TooltipText = selected is null ? "Select an affected guest." : StewardWording(error?.Message ?? "");
         }
     }
 
@@ -178,15 +188,15 @@ public partial class Main
         var latest = d.Evidence.LastOrDefault();
         _disorderSummary.Text = $"DISORDER • {(d.WaterClosed ? "WATER CLOSED" : "WATER OPEN")}\n" +
             $"{name}{(notable is null ? "" : $" • {notable.Stage} • pressure {notable.Pressure / 100m:0}% • {notable.Grievance}")}\n" +
-            $"Security {d.ResponseStage} • {d.Response}\n" +
-            $"{(latest is null ? "No complaint" : latest.Description)}\n" +
+            $"Steward {d.ResponseStage} • {StewardWording(d.Response)}\n" +
+            $"{(latest is null ? "No complaint" : StewardWording(latest.Description))}\n" +
             "Complaint and argument precede any confrontation. Select a person for response/egress.";
         foreach (var action in new[] { DisorderAction.CloseWater, DisorderAction.ReopenWater, DisorderAction.RestoreMusic })
         {
             var button = _disorderButtons[action];
             var error = _session.ValidateCommand(CampaignEnvelope(new DisorderCommand(action)));
             button.Disabled = error is not null;
-            button.TooltipText = error?.Message ?? "";
+            button.TooltipText = StewardWording(error?.Message ?? "");
         }
         RefreshDisorderActionInspector();
         RefreshSecurityPostInspector();
@@ -215,6 +225,11 @@ public partial class Main
         if (_disorderCaptureMode == "layout")
         {
             ProcessLayoutCapture();
+            return;
+        }
+        if (_disorderCaptureMode == "steward")
+        {
+            ProcessStewardCapture();
             return;
         }
         if (_disorderCaptureMode == "post")
@@ -297,6 +312,104 @@ public partial class Main
         if (_disorderCaptureFrame == 10)
         {
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "active-south.png"));
+            GetTree().Quit();
+        }
+    }
+
+    private void ProcessStewardCapture()
+    {
+        var preparation = _session.CapturePreparation()!;
+        var jordan = new EntityId(_session.CaptureDisorder()!.SecurityId);
+        var riley = new EntityId(_session.CaptureMedical()!.MedicId);
+        var casey = new EntityId(preparation.People.Single(item => item.Name == "Casey Vale").AgentId);
+        if (_disorderCaptureFrame == 8)
+        {
+            if (_attendeeVisuals[jordan].GetNodeOrNull<Node3D>("StewardYokeCue") is null ||
+                _attendeeVisuals[riley].GetNodeOrNull<Node3D>("StewardYokeCue") is not null ||
+                _attendeeVisuals[casey].GetNodeOrNull<Node3D>("StewardYokeCue") is not null)
+                throw new InvalidOperationException("Approved steward accessory is not exclusive to Jordan's existing body.");
+            while (_session.CurrentTick < 120) _session.AdvanceWithoutSnapshot(1);
+            _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+            var travelling = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id == jordan);
+            if (travelling.Action != AgentNavigationAction.Travelling)
+                throw new InvalidOperationException("Steward motion capture requires a real travelling route.");
+            _focus = new Vector3(travelling.XMillimetres / 1000f, 0, travelling.ZMillimetres / 1000f);
+            _camera.Size = 32f; _orientation = 0; ApplyCamera();
+            RefreshPreparationHud();
+            GD.Print($"STEWARD_CAPTURE moving tick={_session.CurrentTick} position={travelling.XMillimetres},{travelling.ZMillimetres}");
+        }
+        if (_disorderCaptureFrame == 10)
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "moving-south-32.png"));
+        if (_disorderCaptureFrame == 11)
+        {
+            while (_session.CaptureSnapshot().NavigationAgents.Single(item => item.Id == jordan).Action != AgentNavigationAction.Arrived &&
+                   _session.CurrentTick < 2_000)
+                _session.AdvanceWithoutSnapshot(1);
+            var arrived = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id == jordan);
+            if (arrived.Action != AgentNavigationAction.Arrived || arrived.Destination != GameSession.DisorderSecurityBaseCell)
+                throw new InvalidOperationException("Jordan did not reach the steward post for front/rear review.");
+            _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+            _focus = new Vector3(arrived.XMillimetres / 1000f, 0, arrived.ZMillimetres / 1000f);
+            ApplyCamera(); RefreshPreparationHud();
+            GD.Print($"STEWARD_CAPTURE base tick={_session.CurrentTick} position={arrived.XMillimetres},{arrived.ZMillimetres}");
+        }
+        if (_disorderCaptureFrame == 13)
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "post-south-32.png"));
+        if (_disorderCaptureFrame == 14) { _orientation = 2; ApplyCamera(); }
+        if (_disorderCaptureFrame == 16)
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "post-north-32.png"));
+        if (_disorderCaptureFrame == 17) { _orientation = 0; ApplyCamera(); SelectAttendee(jordan); }
+        if (_disorderCaptureFrame == 19)
+        {
+            var selectedText = _inspectorTitle.Text + _inspectorBody.Text + _disorderSummary!.Text +
+                _disorderButtons[DisorderAction.DispatchSecurity].Text;
+            if (!selectedText.Contains("Steward", StringComparison.OrdinalIgnoreCase) ||
+                selectedText.Contains("security", StringComparison.OrdinalIgnoreCase) ||
+                selectedText.Contains("guard", StringComparison.OrdinalIgnoreCase))
+                throw new InvalidOperationException("Player-facing steward wording is incomplete.");
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "selected-steward-32.png"));
+        }
+        if (_disorderCaptureFrame == 20)
+        {
+            SelectAttendee(riley);
+            var medic = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id == riley);
+            _focus = new Vector3(medic.XMillimetres / 1000f, 0, medic.ZMillimetres / 1000f);
+            ApplyCamera();
+        }
+        if (_disorderCaptureFrame == 22)
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "comparison-medic-32.png"));
+        if (_disorderCaptureFrame == 23)
+        {
+            SelectAttendee(casey);
+            var plain = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id == casey);
+            _focus = new Vector3(plain.XMillimetres / 1000f, 0, plain.ZMillimetres / 1000f);
+            ApplyCamera();
+        }
+        if (_disorderCaptureFrame == 25)
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "comparison-plain-32.png"));
+        if (_disorderCaptureFrame == 26)
+        {
+            SelectAttendee(jordan);
+            var arrived = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id == jordan);
+            _focus = new Vector3(arrived.XMillimetres / 1000f, 0, arrived.ZMillimetres / 1000f);
+            _camera.Size = 18f; _orientation = 0; ApplyCamera();
+        }
+        if (_disorderCaptureFrame == 28)
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "detail-south-18.png"));
+        if (_disorderCaptureFrame == 29) { _orientation = 2; ApplyCamera(); }
+        if (_disorderCaptureFrame == 31)
+        {
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "detail-north-18.png"));
+            var body = _attendeeVisuals[jordan];
+            var yoke = body.GetNode<Node3D>("StewardYokeCue");
+            var original = body.Rotation;
+            var upright = yoke.GlobalTransform.Basis.Y;
+            body.Rotation = new Vector3(Mathf.Pi / 2f, original.Y, 0);
+            var horizontal = yoke.GlobalTransform.Basis.Y;
+            body.Rotation = original;
+            if (upright.DistanceTo(horizontal) < .5f)
+                throw new InvalidOperationException("Steward accessory did not follow the medical horizontal body pose.");
+            GD.Print("STEWARD_CAPTURE verified=yoke-exclusive role=steward wording=steward-only zoom=32 orientations=South,North motion=physical horizontal-pose=attached");
             GetTree().Quit();
         }
     }

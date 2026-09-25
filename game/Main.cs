@@ -332,7 +332,14 @@ public partial class Main : Node
             _attendeeVisuals.Add(agent.Id, visual);
             if (performer?.Name == "Riley Hart")
                 visual.AddChild(InstantiateAsset("res://assets/characters/lwf_medic_vest_cue_v1.glb"));
-            if (_session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value) is { Role: not ProtectedPersonRole.Guest, Name: not "Riley Hart" } role)
+            if (performer?.Name == "Jordan Hale")
+            {
+                var yoke = InstantiateAsset("res://assets/characters/lwf_steward_yoke_cue_v1.glb");
+                yoke.Name = "StewardYokeCue";
+                visual.AddChild(yoke);
+            }
+            if (performer is { Role: not ProtectedPersonRole.Guest } role &&
+                role.Name is not ("Riley Hart" or "Jordan Hale"))
             {
                 var cue = new MeshInstance3D
                 {

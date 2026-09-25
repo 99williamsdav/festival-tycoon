@@ -1,6 +1,6 @@
 # R0 asset gaps and approval gate
 
-Status: **Audit only; no art authorized.** Reuse and provenance details remain in [M1 asset gaps](../M1/ASSET_GAPS.md) and the M0.06/M0.07/M0.09 approval registers.
+Status: **Audit and per-brief approval register.** Exact R0.04 post and steward-yoke v1 assets are approved; later assets still require their own gate. Reuse and provenance details remain in [M1 asset gaps](../M1/ASSET_GAPS.md) and the M0.06/M0.07/M0.09 approval registers.
 
 Reusable now: farm/camera, barns, farmhouse, trailer stage, service-point kiosk, hedges/gate/track, generic attendee and colourways. The food van is approved but not integrated. These assets do not by themselves communicate the three new causal incident chains or staff/performer roles.
 
@@ -10,7 +10,7 @@ Reusable now: farm/camera, barns, farmhouse, trailer stage, service-point kiosk,
 | R0.02 | compact temporary power unit; normal/overloaded/isolated/fault state; maintenance role cue; exclusion/action marker | Towable generator v1 dual-approved and committed `940fe3a`; code-native paper/colour worker cue and exclusion/action marker approved 23 September 2026 for prototype integration |
 | R0.02a | first three-person band/instrument visual; modest stage activity; two provenance-cleared folk/punk loops; restrained cheer/confusion/boo audio and muted visual cues | Start with one Sol-designed band-member/instrument prototype; both coordinator and user approve exact version before the next asset. Audio choice/rights are a separate explicit gate; no production asset assumed approved yet |
 | R0.03 | free-water/rest point; first-aid point; medical role cue/kit; distress/collapse/response markers | Approved low-poly points/accessories plus non-clinical UI states |
-| R0.04 | security post; security role cue; pressure/argument/dispatch/area-closure markers | Approved post/accessory plus readable abstract UI states; no graphic violence |
+| R0.04 | gate-side steward post; steward role accessory; pressure/argument/dispatch/area-closure markers | Exact post v1 and steward-yoke v1 approved and integrated; incident markers remain a separate checkpoint. Readable abstract UI states; no graphic violence. |
 | R0.05 | hearing card, Favour token and spend/concede confirmation states | Code-native paper UI is sufficient only if explicitly approved at brief start |
 | R0.06 | safe-settlement, tier-advance, victory and banked-endless-offer states | Code-native paper UI is sufficient only if explicitly approved at brief start |
 

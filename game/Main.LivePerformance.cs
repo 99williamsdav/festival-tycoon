@@ -127,15 +127,16 @@ public partial class Main
               $"PLACE  {(listening.Place is { } place ? $"{place.X},{place.Z} ({(place.X <= 107 ? "front" : place.X <= 113 ? "middle" : "rear")})" : "not reserved")} • {(listening.AtPlace ? "watching" : "travelling/not watching")}\n" +
               $"LISTENED  {listening.ListenedTicks / 80}s • enjoyment +{listening.EnjoymentEarned / 100m:0.00}%"
             : performer is not null ? $"STAGE  {performer.StageCell.X},{performer.StageCell.Z} • {(performer.OnStage ? "on stage" : "travelling/exit")}\n" +
-              $"INSTRUMENT  {(performer.InstrumentAttached ? "attached for set" : "detached")}" : "STAFF • autonomous physical route";
+              $"INSTRUMENT  {(performer.InstrumentAttached ? "attached for set" : "detached")}" :
+              person.Name == "Jordan Hale" ? "STEWARD • autonomous physical route" : "STAFF • autonomous physical route";
         _highlight.Position = _attendeeVisuals[id].Position + new Vector3(0, 0.08f, 0);
-        _inspectorTitle.Text = $"{person.Name} • {person.Role}";
-        _inspectorBody.Text = $"{navigation.Action} • {navigation.IntentId}\n" +
+        _inspectorTitle.Text = $"{person.Name} • {(person.Name == "Jordan Hale" ? "Steward" : person.Role)}";
+        _inspectorBody.Text = $"{navigation.Action} • {StewardWording(navigation.IntentId ?? "None")}\n" +
             $"POSITION  {navigation.XMillimetres / 1000.0:0.00} m, {navigation.ZMillimetres / 1000.0:0.00} m\n" +
             $"Admitted {person.Admitted} • satisfaction {person.Satisfaction / 100m:0.00}%\n" +
             (need is null ? "" : $"HOT • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}% • " +
                 $"{(need.Profile == MedicalNeedProfile.Performer ? need.Stage : id.Value == medical!.AtRiskGuestId ? medical.Stage : need.Stage)}\n" +
-                $"INTENT {need.Intent} • {need.Reason}\n" +
+                $"INTENT {need.Intent} • {StewardWording(need.Reason)}\n" +
                 (medical!.WaterOwnerId == id.Value
                     ? $"DRINKING • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n"
                     : "")) + DisorderPersonInspectorText(id.Value) + detail;
