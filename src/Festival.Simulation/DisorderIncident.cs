@@ -30,12 +30,16 @@ public sealed partial class GameSession
     public const int DisorderFightEligiblePressure = 8_000;
     public const int DisorderCalmingTicks = 240;
     public const int DisorderConfrontationTicks = 160;
+    public const int DisorderFightDurationTicks = 800;   // 10 seconds of visible confrontation at 1×.
     public const int DisorderInjuryDeathTicks = 2_400;
     // Rotated open-sided visual post faces east toward the path. Its walkable
     // duty position sits in front; neither post nor approach closes the gate.
     public static readonly GridCell DisorderSecurityPostCell = new(114, 178); // (-6.75, 25.25) m.
     public static readonly GridCell DisorderSecurityBaseCell = new(119, 178); // (-4.25, 25.25) m; front of post facing the path.
     private DisorderSnapshot? _disorder;
+    private bool DisorderOwnsNavigation(ulong id) => _disorder is { } d &&
+        (d.People.Any(item => item.AgentId == id && item.Stage == DisorderStage.Fight) ||
+         d.People.Any(item => item.Stage == DisorderStage.Fight && item.OpponentId == id));
     public DisorderSnapshot? CaptureDisorder() => _disorder is null ? null :
         JsonSerializer.Deserialize<DisorderSnapshot>(JsonSerializer.Serialize(_disorder));
     internal string? DisorderCanonicalJson => _disorder is null ? null : JsonSerializer.Serialize(_disorder);
@@ -303,7 +307,7 @@ public sealed partial class GameSession
         foreach (var fighter in _disorder!.People.Where(item => item.Stage == DisorderStage.Fight &&
                      _disorder.Incidents.Any(origin => origin.InitiatorId == item.AgentId &&
                          origin.FightTick == item.StageTick && origin.InjuryTick == -1) &&
-                     CurrentTick >= item.StageTick + DisorderConfrontationTicks).ToArray())
+                     CurrentTick >= item.StageTick + DisorderFightDurationTicks).ToArray())
             ResolveDisorderFight(fighter);
     }
 
@@ -321,6 +325,7 @@ public sealed partial class GameSession
                 OpponentId = initiatorId, StageTick = CurrentTick });
         foreach (var id in new[] { initiatorId, opponentId })
         {
+            LeaveWater(id, "Left the water line during confrontation", reroute: false);
             if (id == d.SecurityId) continue;
             var nav = _navigationAgents[new(id)];
             ApplyAgentDestination(new(id), new(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres),
@@ -338,9 +343,12 @@ public sealed partial class GameSession
                 !_disorder.People.Any(other => other.Stage == DisorderStage.Fight && other.OpponentId == item.AgentId) &&
                 _preparation!.People.Any(person => person.AgentId == item.AgentId && person.Admitted && !person.Departed))
             .Select(item => (item.AgentId, Nav: _navigationAgents[new(item.AgentId)]))
-            .Where(item => (long)(item.Nav.XMillimetres - actor.XMillimetres) * (item.Nav.XMillimetres - actor.XMillimetres) +
-                (long)(item.Nav.ZMillimetres - actor.ZMillimetres) * (item.Nav.ZMillimetres - actor.ZMillimetres) <= 9_000_000)
-            .OrderBy(item => item.AgentId).Select(item => (ulong?)item.AgentId).FirstOrDefault();
+            .Select(item => (item.AgentId, DistanceSquared:
+                (long)(item.Nav.XMillimetres - actor.XMillimetres) * (item.Nav.XMillimetres - actor.XMillimetres) +
+                (long)(item.Nav.ZMillimetres - actor.ZMillimetres) * (item.Nav.ZMillimetres - actor.ZMillimetres)))
+            .Where(item => item.DistanceSquared <= 4_000_000)
+            .OrderBy(item => item.DistanceSquared).ThenBy(item => item.AgentId)
+            .Select(item => (ulong?)item.AgentId).FirstOrDefault();
     }
 
     private void AdvanceSecurityResponse()

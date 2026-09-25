@@ -118,7 +118,8 @@ public sealed partial class GameSession
                      : Enumerable.Empty<int>()))
         {
             var listener = listeners[index];
-            if (listener.Place is not null || CurrentTick - listener.LastDecisionTick < 800 ||
+            if (listener.Place is not null || DisorderOwnsNavigation(listener.AgentId) ||
+                CurrentTick - listener.LastDecisionTick < 800 ||
                 !p.People.Any(item => item.AgentId == listener.AgentId && item.Admitted && !item.Departed)) continue;
             listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
             var start = _navigationAgents[new(listener.AgentId)];
@@ -133,7 +134,7 @@ public sealed partial class GameSession
                 if (!route.Found) continue;
                 reserved.Add(option.Cell);
                 listeners[index] = listener with { Place = option.Cell };
-                if (!MedicalOwnsNavigation(listener.AgentId))
+                if (!MedicalOwnsNavigation(listener.AgentId) && !DisorderOwnsNavigation(listener.AgentId))
                     ApplyAgentDestination(new(listener.AgentId), new(option.Cell, "performance.listen"));
                 break;
             }

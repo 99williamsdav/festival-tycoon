@@ -333,6 +333,12 @@ public sealed class DisorderIncidentTests
             opponent = (ulong?)pickOpponent.Invoke(session, [guest.AgentId]);
         }
         Assert.IsNotNull(opponent, "The fixture needs two physically nearby guests.");
+        var pair = session.CaptureSnapshot().NavigationAgents;
+        var firstPosition = pair.Single(item => item.Id.Value == guest.AgentId);
+        var secondPosition = pair.Single(item => item.Id.Value == opponent.Value);
+        var dx = (long)firstPosition.XMillimetres - secondPosition.XMillimetres;
+        var dz = (long)firstPosition.ZMillimetres - secondPosition.ZMillimetres;
+        Assert.IsTrue(dx * dx + dz * dz <= 4_000_000, "Fight opponents should be within two metres.");
         var field = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
         field.SetValue(session, session.CaptureDisorder()! with { People = session.CaptureDisorder()!.People.Select(item =>
             item.AgentId == guest.AgentId ? item with { Grievance = DisorderGrievance.MusicCutoff,
@@ -344,7 +350,11 @@ public sealed class DisorderIncidentTests
         Assert.IsFalse(Send(session, new DisorderCommand(DisorderAction.SafeEgress, opponent)).IsAccepted);
         Assert.IsFalse(Send(session, new MedicalCommand(opponent.Value, MedicalAction.SafeRemove)).IsAccepted);
         session = Restored(session);
-        session.AdvanceWithoutSnapshot(GameSession.DisorderConfrontationTicks + 8);
+        session.AdvanceWithoutSnapshot(GameSession.DisorderFightDurationTicks - 80);
+        Assert.IsTrue(session.CaptureDisorder()!.People.Any(item => item.Stage == DisorderStage.Fight),
+            "The pair should remain visibly in the fight for most of the ten-second window.");
+        Assert.IsFalse(session.CaptureDisorder()!.Incidents.Any(item => item.InjuryTick >= 0));
+        session.AdvanceWithoutSnapshot(88);
         Assert.AreEqual(1, session.CaptureDisorder()!.Incidents.Count(item => item.InjuryTick >= 0));
         Assert.AreEqual(1, session.CaptureMedical()!.Needs.Count(item =>
             (item.AgentId == guest.AgentId || item.AgentId == opponent) && item.Stage == MedicalStage.Collapsed));
@@ -445,7 +455,7 @@ public sealed class DisorderIncidentTests
                 Stage = DisorderStage.Argument, Pressure = 8_000, StageTick = session.CurrentTick } : item).ToArray() });
         typeof(GameSession).GetMethod("BeginDisorderFight", BindingFlags.Instance | BindingFlags.NonPublic)!
             .Invoke(session, [initiator, opponent.Value, "fixture:confrontation"]);
-        session.AdvanceWithoutSnapshot(GameSession.DisorderConfrontationTicks - 8);
+        session.AdvanceWithoutSnapshot(GameSession.DisorderFightDurationTicks - 8);
         // Fixture-only displacement represents another system moving this actor
         // before resolution; the real resolver must never injure at range.
         var navigation = typeof(GameSession).GetField("_navigationAgents", BindingFlags.Instance | BindingFlags.NonPublic)!
@@ -500,7 +510,7 @@ public sealed class DisorderIncidentTests
             Assert.AreEqual(SecurityResponseStage.Completed, session.CaptureDisorder()!.ResponseStage);
             Assert.IsNull(session.CaptureDisorder()!.ResponseTargetId);
             Assert.IsTrue(session.CaptureDisorder()!.Evidence.Any(item => item.Id == "security:too-late"));
-            session.AdvanceWithoutSnapshot(GameSession.DisorderConfrontationTicks);
+            session.AdvanceWithoutSnapshot(GameSession.DisorderFightDurationTicks);
             var origin = session.CaptureDisorder()!.Incidents.Last();
             if (origin.VictimId != target) continue;
             var collapseTick = session.CaptureMedical()!.Needs.Single(item => item.AgentId == target).CollapseTick;
@@ -514,8 +524,10 @@ public sealed class DisorderIncidentTests
                    session.CurrentTick < collapseTick + GameSession.DisorderInjuryDeathTicks + 1)
                 session.AdvanceWithoutSnapshot(1);
             Assert.AreEqual(PreparationStatus.Failed, session.CapturePreparation()!.Status);
-            Assert.AreEqual(session.CapturePreparation()!.People.Single(item => item.AgentId == target).Name,
-                session.CaptureLifecycleSnapshot()!.Casualties.Single().PersonId);
+            // A longer visible fight permits another independent incident to end
+            // this seed first; keep searching for the target's terminal route.
+            if (session.CaptureLifecycleSnapshot()!.Casualties.Single().PersonId !=
+                session.CapturePreparation()!.People.Single(item => item.AgentId == target).Name) continue;
             Restored(session);
             Console.WriteLine($"stale-security regression seed={seed} injury={collapseTick} deadline={session.CurrentTick}");
             reproduced = true;

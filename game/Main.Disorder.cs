@@ -90,18 +90,39 @@ public partial class Main
 
     private void AdvanceFightShakePresentation(DisorderSnapshot disorder)
     {
-        var fighting = disorder.People.Where(person => person.Stage == DisorderStage.Fight)
-            .Select(person => person.AgentId).ToHashSet();
+        var fighters = disorder.People.Where(person => person.Stage == DisorderStage.Fight).ToArray();
+        var fighting = fighters.Select(person => person.AgentId).ToHashSet();
+        if (fighters.Any(person => person.OpponentId == disorder.SecurityId))
+            fighting.Add(disorder.SecurityId);
         foreach (var id in _fightShaking.Except(fighting))
             if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual))
                 visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y, 0);
         _fightShaking.Clear();
+        var anchors = fighting.Where(id => _attendeeVisuals.ContainsKey(new EntityId(id)))
+            .ToDictionary(id => id, id => _attendeeVisuals[new EntityId(id)].Position);
         var time = (float)((_session.CurrentTick + _foundationClock.InterpolationFraction) / 80.0);
         foreach (var id in fighting)
         {
             if (!_attendeeVisuals.TryGetValue(new EntityId(id), out var visual)) continue;
+            var person = fighters.FirstOrDefault(item => item.AgentId == id);
+            var counterpart = person?.OpponentId ?? fighters.FirstOrDefault(item => item.OpponentId == id)?.AgentId;
+            var fightTick = person?.StageTick ?? fighters.FirstOrDefault(item => item.OpponentId == id)?.StageTick ?? _session.CurrentTick;
+            if (counterpart is { } otherId && anchors.TryGetValue(id, out var anchor) &&
+                anchors.TryGetValue(otherId, out var other))
+            {
+                var toward = other - anchor;
+                toward.Y = 0;
+                var distance = toward.Length();
+                if (distance > .001f)
+                {
+                    var ease = Mathf.Clamp((float)((_session.CurrentTick - fightTick +
+                        _foundationClock.InterpolationFraction) / 48.0), 0f, 1f);
+                    var pull = Mathf.Min(.4f, Mathf.Max(0f, (distance - 1.15f) * .5f)) * ease;
+                    visual.Position += toward / distance * pull;
+                }
+            }
             var phase = time * Mathf.Tau * 5.5f + id * 0.83f;
-            // A small pose-only jostle. Navigation, queue order and fight state stay authoritative.
+            // Presentation-only jostle and modest convergence; authoritative positions stay put.
             visual.Position += new Vector3(Mathf.Sin(phase) * .09f, 0,
                 Mathf.Sin(phase * 1.3f) * .055f);
             visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y,
@@ -438,6 +459,7 @@ public partial class Main
             if (fighter?.OpponentId is not { } opponentId ||
                 !disorder.People.Any(item => item.AgentId == opponentId && item.Stage == DisorderStage.Fight))
                 throw new InvalidOperationException("Signal capture did not reach an attendee-pair fight.");
+            _session.AdvanceWithoutSnapshot(64); // Let the visible pair close their small gap before capture.
             FocusDisorderSignalPerson(fighter.AgentId);
             var first = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == fighter.AgentId);
             var other = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == opponentId);
@@ -455,6 +477,10 @@ public partial class Main
                 !_fightShaking.Contains(fighter.AgentId) || !_fightShaking.Contains(opponentId) ||
                 !_inspectorBody.Text.Contains("COUNTERPART", StringComparison.Ordinal))
                 throw new InvalidOperationException("Fight pair, shake or counterpart inspector was not visible.");
+            var firstVisual = _attendeeVisuals[new EntityId(fighter.AgentId)].Position;
+            var secondVisual = _attendeeVisuals[new EntityId(opponentId)].Position;
+            if (new Vector2(firstVisual.X - secondVisual.X, firstVisual.Z - secondVisual.Z).Length() > 1.7f)
+                throw new InvalidOperationException("Fight participants did not visibly close their gap.");
             if (DisplayServer.GetName() != "headless")
                 GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "fight-pair-32.png"));
             GD.Print("DISORDER_SIGNAL verified=complaint-argument-fight person-anchored pair=both shake=both zoom=32");

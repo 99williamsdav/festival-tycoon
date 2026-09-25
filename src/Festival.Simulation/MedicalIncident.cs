@@ -432,7 +432,7 @@ public sealed partial class GameSession
             foreach (var need in m.Needs)
             {
                 var person = p.People.Single(item => item.AgentId == need.AgentId);
-                if (!person.Admitted || need.Profile == MedicalNeedProfile.Staff ||
+                if (!person.Admitted || need.Profile == MedicalNeedProfile.Staff || DisorderOwnsNavigation(need.AgentId) ||
                     need.Intent is MedicalIntent.Rest or MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed or MedicalIntent.Drinking ||
                     (m.Stage is MedicalStage.Collapsed or MedicalStage.Critical && need.AgentId == m.AtRiskGuestId) ||
                     need.Stage is MedicalStage.Collapsed or MedicalStage.Critical ||

@@ -123,8 +123,8 @@ public sealed class SaveRoundTripTests
         {
             var old = new SaveCompatibility("0.0.1-r0.04-disorder-v10",
                 "0b7dfbade3fd86317ca3b85ae162e4cf126cf16ec23c1dd211d6a435b672ccd7", "r0-disorder-v10");
-            var current = new SaveCompatibility("0.0.1-r0.04-layout-v12",
-                LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v12");
+            var current = new SaveCompatibility("0.0.1-r0.04-layout-v13",
+                LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v13");
             Assert.AreNotEqual(old.ContentHash, current.ContentHash);
             var path = SaveFileAdapter.ResolveSlotPath(directory, "old-layout");
             Assert.IsTrue(SaveFileAdapter.SaveFile(path, new SaveWriteRequest(
