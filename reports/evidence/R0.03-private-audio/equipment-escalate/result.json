@@ -1,0 +1,243 @@
+{
+  "passed": false,
+  "mode": "escalate",
+  "roundTrip": true,
+  "latestAutosaveExact": false,
+  "ticks": 5471,
+  "wallSeconds": 110.3096074,
+  "attainedSpeed": 0.6199595992760282,
+  "people": 45,
+  "samples": 1091,
+  "frameP50": 13.6078,
+  "frameP95": 262.3966,
+  "frameP99": 264.4936,
+  "frameMax": 334.5344,
+  "peakMemoryBytes": 372711424,
+  "equipment": {
+    "Version": 2,
+    "XMillimetres": -20250,
+    "ZMillimetres": 14500,
+    "LoadPercent": 120,
+    "Condition": 7000,
+    "Stage": 1,
+    "WarningTick": 2400,
+    "WarningAcknowledged": false,
+    "Response": "No response",
+    "WorkerId": 47,
+    "JobStage": 0,
+    "JobDispatchedTick": -1,
+    "RepairStartedTick": -1,
+    "Evidence": [
+      {
+        "Id": "equipment:load",
+        "Tick": 0,
+        "Description": "Stage sound and lights demand 120% of safe capacity; condition 80%. Free load shedding and emergency cutoff available; maintenance contract offered before opening."
+      },
+      {
+        "Id": "equipment:warning",
+        "Tick": 2400,
+        "Description": "GENERATOR OVERLOAD: 120% load, condition 70%. Shed load, isolate or complete maintenance. Dangerous fault in 45 seconds; lethal eligibility no sooner than 60 seconds at 1\u00D7."
+      }
+    ]
+  },
+  "lifecycle": {
+    "FixtureLabel": "R0.02 equipment lifecycle; hearing only, no Favour economy",
+    "CurrentTierId": "tier-2",
+    "FixtureTierOrdinal": 2,
+    "CurrentAttemptId": 1,
+    "FixtureFavourBalance": 0,
+    "ProtectedPeople": [
+      {
+        "PersonId": "Alex Reed",
+        "Role": 3
+      },
+      {
+        "PersonId": "Blair Moss",
+        "Role": 3
+      },
+      {
+        "PersonId": "Casey Vale",
+        "Role": 2
+      },
+      {
+        "PersonId": "Guest 01",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 02",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 03",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 04",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 05",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 06",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 07",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 08",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 09",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 10",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 11",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 12",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 13",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 14",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 15",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 16",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 17",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 18",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 19",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 20",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 21",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 22",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 23",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 24",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 25",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 26",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 27",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 28",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 29",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 30",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 31",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 32",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 33",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 34",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 35",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 36",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 37",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 38",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 39",
+        "Role": 1
+      },
+      {
+        "PersonId": "Guest 40",
+        "Role": 1
+      },
+      {
+        "PersonId": "Kit Rowan",
+        "Role": 3
+      },
+      {
+        "PersonId": "Morgan Finch",
+        "Role": 2
+      }
+    ],
+    "Attempts": [
+      {
+        "AttemptId": 1,
+        "TierId": "tier-2",
+        "Status": 1,
+        "OutcomeTransactionId": null
+      }
+    ],
+    "Casualties": [],
+    "Hearings": [],
+    "CompletedOutcomeTransactionIds": []
+  }
+}
