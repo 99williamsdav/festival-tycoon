@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="384" viewBox="0 0 1024 384">
+  <rect width="1024" height="384" fill="#31576b"/>
+  <path d="M22 63 L1001 60 M26 314 L1004 310" stroke="#4b7180" stroke-width="7" opacity=".36"/>
+  <g transform="rotate(-2 512 192)" fill="none" stroke="#ece9dc" stroke-width="26" stroke-linecap="square" stroke-linejoin="bevel">
+    <path d="M132 113 L173 277 L224 179 L273 278 L317 113"/>
+    <path d="M351 276 L409 110 L472 276 M370 221 L451 216"/>
+    <path d="M497 118 L612 115 M553 118 L555 278"/>
+    <path d="M654 117 L653 274 M657 119 L754 116 M656 197 L738 195 M654 275 L754 277"/>
+    <path d="M790 277 L789 115 L850 115 Q901 117 902 166 Q903 213 853 216 L791 215 M847 217 L916 277"/>
+  </g>
+  <g transform="rotate(-2 512 192)" fill="none" stroke="#faf5e8" stroke-width="4" stroke-linecap="square" opacity=".35">
+    <path d="M132 121 L169 262 M225 185 L270 263 M407 122 L360 259 M554 130 L555 264 M660 129 L659 184 M788 127 L789 193 M856 222 L905 264"/>
+  </g>
+  <g fill="#31576b" opacity=".35">
+    <path d="M153 168 l7 -4 2 21 -6 4z M266 242 l5 -4 4 15 -6 3z M387 193 l8 -2 -4 12 -7 1z M548 178 l5 1 0 19 -5 -1z M685 198 l16 -2 0 4 -15 3z M857 129 l15 1 -2 4 -14 -1z"/>
+  </g>
+</svg>

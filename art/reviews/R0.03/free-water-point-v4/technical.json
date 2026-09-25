@@ -1,0 +1,30 @@
+{
+  "asset": "Painted WATER standpipe sign v4",
+  "status": "approved by producer and user 25 September 2026; gameplay integration separate",
+  "purpose": "replace raised/floating lettering with a rustic WATER word painted flush onto the blue board",
+  "parts_triangles": {
+    "LWF_FreeWaterV4_ConcreteFoot": 12,
+    "LWF_FreeWaterV4_OneTapStandpipe": 272,
+    "LWF_FreeWaterV4_SignBoard": 24
+  },
+  "triangles": 308,
+  "nodes": 3,
+  "painted_sign_texture_px": [
+    1024,
+    384
+  ],
+  "sign_front_painted_faces": 1,
+  "units": "metres",
+  "origin": "ground-centred under pipe",
+  "customer_direction": "Blender -Y / Godot +Z",
+  "service_positions": 1,
+  "tap_outlet_m": [
+    0,
+    -0.27,
+    0.8075
+  ],
+  "provenance": "v3 standpipe geometry retained; original project-authored vector brush lettering rasterized as embedded texture; attendee review-only; watermarked user photo was visual reference only and not reused; no downloaded models or textures",
+  "bounds_blender": [[-0.550000011920929, -0.31565070152282715, 0.0], [0.550000011920929, 0.23000000417232513, 1.909999966621399]],
+  "verification_blender": "Blender 4.1.1 source reopen and GLB reimport passed: three mesh nodes, 308 triangles, one painted front face, embedded 1024x384 sign texture, matching bounds and grounded origin.",
+  "verification_godot": "Godot 4.7.2 isolated import and instantiation passed: three mesh nodes, 308 triangles, exactly one surface with the embedded 1024x384 painted sign texture. Non-blocking local certificate-store and user-directory warnings occurred."
+}
