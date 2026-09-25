@@ -121,8 +121,8 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.03-hot-medical-v8",
-        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-hot-medical-v8");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.03-hot-medical-v9",
+        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-hot-medical-v9");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()

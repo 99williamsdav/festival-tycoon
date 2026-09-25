@@ -107,7 +107,7 @@ public partial class Main
         {
             _inspectorTitle.Text = "Free water • WATER";
             var owner = m.WaterOwnerId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
-            _inspectorBody.Text = $"FREE • no stock or payment\nQUEUE  {m.WaterQueue.Length}/10 • one drinker at a time\n" +
+            _inspectorBody.Text = $"FREE • no stock or payment\nQUEUE  {m.WaterQueue.Length}/10 • VISIBLE TAIL  {m.WaterOverflow.Length}\n" +
                 $"DRINKING  {owner}\nRELIEF  thirst -{GameSession.MedicalDrinkThirstPerTick}/tick • heat -{GameSession.MedicalDrinkHeatPerTick}/tick\n" +
                 "Select a person, then use GUIDE TO FREE WATER in the HOT panel.";
         }
@@ -195,7 +195,7 @@ public partial class Main
         var selectedStage = selected.AgentId == m.AtRiskGuestId ? m.Stage : selected.Stage;
         _medicalSummary.Text = $"HOT • FREE WATER • FIRST AID\n" +
             $"Guest 20: {m.Stage} • thirst {target.Thirst / 100m:0}% • heat {target.HeatExposure / 100m:0}%\n" +
-            $"Water queue {m.WaterQueue.Length} • {drinking}\nMedic {m.ResponseStage} • Clock: {clock}\n" +
+            $"Water queue {m.WaterQueue.Length} + tail {m.WaterOverflow.Length} • {drinking}\nMedic {m.ResponseStage} • Clock: {clock}\n" +
             $"{treatment}\n" +
             $"Selected: {selectedStage} / {selected.Intent} • {selected.Reason}";
         foreach (var (action, button) in _medicalButtons)

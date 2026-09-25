@@ -257,7 +257,8 @@ public sealed class MedicalIncidentTests
     public void StaggeredWaterSlotsHaveClearanceAndWalkableRoutes()
     {
         var s = Started();
-        var slots = Enumerable.Range(0, 10).Select(GameSession.MedicalQueueSlot).ToArray();
+        var slots = Enumerable.Range(0, 10).Select(GameSession.MedicalQueueSlot)
+            .Concat(Enumerable.Range(0, 10).Select(index => GameSession.MedicalQueueApproach(10, index))).ToArray();
         Assert.AreEqual(slots.Length, slots.Distinct().Count());
         for (var index = 1; index < slots.Length; index++)
         {
@@ -284,6 +285,86 @@ public sealed class MedicalIncidentTests
                 $"Water slot {slot} has no entrance route.");
         }
         Assert.IsTrue(grid.Get(GameSession.MedicalQueueApproach(slots.Length)).IsWalkable);
+    }
+
+    [TestMethod]
+    public void FullLineKeepsEarlierPhysicalOverflowArrivalAheadOfLaterFasterWalkerAcrossRestore()
+    {
+        var s = Started();
+        SuppressGuestWaterDemand(s);
+        var ids = s.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest)
+            .Take(12).Select(item => item.AgentId).ToArray();
+        var medicalField = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var medical = s.CaptureMedical()!;
+        medicalField.SetValue(s, medical with
+        {
+            WaterQueue = ids.Take(10).ToArray(),
+            Needs = medical.Needs.Select(item =>
+            {
+                var index = Array.IndexOf(ids, item.AgentId);
+                return index < 0 ? item : item with { Thirst = 9_500,
+                    Intent = index < 10 ? MedicalIntent.SeekWater : MedicalIntent.WatchShow,
+                    QueueSlot = index < 10 ? index : null, LastDecisionTick = s.CurrentTick };
+            }).ToArray()
+        });
+        var navigationField = typeof(GameSession).GetField("_navigationAgents", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var agents = navigationField.GetValue(s)!;
+        var applyDestination = typeof(GameSession).GetMethod("ApplyAgentDestination", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        void Place(ulong id, GridCell cell, int speed)
+        {
+            var agent = agents.GetType().GetProperty("Item")!.GetValue(agents, [new EntityId(id)])!;
+            var centre = TraversalGrid.CellCentre(cell);
+            foreach (var (name, value) in new[] { ("XMillimetres", centre.XMillimetres), ("ZMillimetres", centre.ZMillimetres),
+                         ("SegmentOriginXMillimetres", centre.XMillimetres), ("SegmentOriginZMillimetres", centre.ZMillimetres),
+                         ("WalkingSpeedPermille", speed) })
+                agent.GetType().GetProperty(name)!.SetValue(agent, value);
+        }
+        for (var index = 0; index < 10; index++)
+        {
+            Place(ids[index], GameSession.MedicalQueueSlot(index), 1_000);
+            applyDestination.Invoke(s, [new EntityId(ids[index]),
+                new SetAgentDestinationCommand(GameSession.MedicalQueueSlot(index), "medical.free-water-queue"), false]);
+        }
+        var earlier = ids[10];
+        var later = ids[11];
+        Place(earlier, GameSession.MedicalQueueApproach(10), 850);
+        Place(later, new GridCell(110, 152), 1_150);
+        Assert.IsTrue(Send(s, new MedicalCommand(earlier, MedicalAction.GuideToWater)).IsAccepted);
+        Assert.AreEqual(0, s.CaptureMedical()!.WaterOverflow.Length);
+        s.AdvanceWithoutSnapshot(1);
+        CollectionAssert.AreEqual(new[] { earlier }, s.CaptureMedical()!.WaterOverflow);
+        Assert.IsNull(s.CaptureMedical()!.Needs.Single(item => item.AgentId == earlier).QueueSlot);
+        Assert.IsTrue(Send(s, new MedicalCommand(later, MedicalAction.GuideToWater)).IsAccepted);
+        Assert.AreEqual(GameSession.MedicalQueueApproach(10, 1),
+            s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == later).Destination);
+        s = Restored(s);
+        while (s.CaptureMedical()!.WaterOverflow.Length < 2 && s.CurrentTick < 500)
+            s.AdvanceWithoutSnapshot(1);
+        CollectionAssert.AreEqual(new[] { earlier, later }, s.CaptureMedical()!.WaterOverflow);
+        s = Restored(s);
+        Assert.IsTrue(Send(s, new MedicalCommand(ids[0], MedicalAction.ReturnToShow)).IsAccepted);
+        var after = s.CaptureMedical()!;
+        Assert.AreEqual(10, after.WaterQueue.Length);
+        Assert.AreEqual(earlier, after.WaterQueue[9]);
+        CollectionAssert.AreEqual(new[] { later }, after.WaterOverflow);
+        Assert.AreEqual(9, after.Needs.Single(item => item.AgentId == earlier).QueueSlot);
+        Assert.IsNull(after.Needs.Single(item => item.AgentId == later).QueueSlot);
+        Assert.AreEqual(GameSession.MedicalQueueApproach(10),
+            s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == later).Destination);
+        s = Restored(s);
+        while (s.CurrentTick < 300 && new[] { earlier, later }.Any(id =>
+                   s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == id).Action != AgentNavigationAction.Arrived))
+            s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(AgentNavigationAction.Arrived,
+            s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == earlier).Action,
+            "The promoted visitor must physically advance from overflow into the main line.");
+        Assert.AreEqual(AgentNavigationAction.Arrived,
+            s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == later).Action,
+            "The next overflow visitor must physically advance to the released tail spot.");
+        Assert.IsTrue(Send(s, new MedicalCommand(later, MedicalAction.ReturnToShow)).IsAccepted);
+        Assert.AreEqual(0, s.CaptureMedical()!.WaterOverflow.Length);
+        Assert.AreEqual(MedicalIntent.WatchShow, s.CaptureMedical()!.Needs.Single(item => item.AgentId == later).Intent);
+        Restored(s);
     }
 
     [TestMethod]

@@ -14,7 +14,7 @@ public sealed record MedicalNeed(ulong AgentId, int Thirst, int HeatExposure, Me
     long WarningTick = -1, long CollapseTick = -1, long CriticalTick = -1);
 public sealed record MedicalEvidence(string Id, long Tick, string Description);
 public sealed record MedicalSnapshot(int Version, bool IsHot, ulong MedicId, ulong AtRiskGuestId,
-    MedicalNeed[] Needs, ulong[] WaterQueue, ulong? WaterOwnerId, int WaterDrinkTicks,
+    MedicalNeed[] Needs, ulong[] WaterQueue, ulong[] WaterOverflow, ulong? WaterOwnerId, int WaterDrinkTicks,
     MedicalStage Stage, MedicalResponseStage ResponseStage, ulong? ResponsePatientId, long WarningTick, long CollapseTick,
     long CriticalTick, long ResponseStartedTick, string Response, MedicalEvidence[] Evidence);
 
@@ -42,12 +42,16 @@ public sealed partial class GameSession
         new(95, 128), new(95, 130), new(96, 132), new(97, 134), new(98, 136),
         new(99, 138), new(101, 140), new(102, 142), new(103, 144), new(104, 146)
     ];
-    private static readonly GridCell FullWaterEntrance = new(105, 148);
+    private static readonly GridCell[] WaterOverflowSlots =
+    [
+        new(105, 148), new(106, 150), new(107, 152), new(108, 154), new(109, 156),
+        new(110, 158), new(111, 160), new(112, 162), new(113, 164), new(114, 166)
+    ];
     public static GridCell MedicalQueueSlot(int index) => WaterSlots[index];
-    public static GridCell MedicalQueueApproach(int queuedCount) =>
-        queuedCount < WaterSlots.Length ? WaterSlots[queuedCount] : FullWaterEntrance;
+    public static GridCell MedicalQueueApproach(int queuedCount, int overflowCount = 0) =>
+        queuedCount < WaterSlots.Length ? WaterSlots[queuedCount] : WaterOverflowSlots[Math.Min(overflowCount, WaterOverflowSlots.Length - 1)];
     private bool MedicalQueueExcludesListening(GridCell cell) => _medical is not null &&
-        WaterSlots.Append(FullWaterEntrance).Any(slot => Math.Abs(cell.X - slot.X) <= 2 && Math.Abs(cell.Z - slot.Z) <= 2);
+        WaterSlots.Concat(WaterOverflowSlots).Any(slot => Math.Abs(cell.X - slot.X) <= 2 && Math.Abs(cell.Z - slot.Z) <= 2);
 
     private MedicalSnapshot? _medical;
     private bool MedicalOwnsNavigation(ulong id) => _medical is { } m &&
@@ -89,7 +93,7 @@ public sealed partial class GameSession
                 .Select((person, index) => new MedicalNeed(person.AgentId, 6_900 + index * 100, 6_000 + index * 100,
                     MedicalIntent.WatchShow, "Performing; free water and first aid remain available",
                     -MedicalDecisionCooldownTicks, null, -1, MedicalNeedProfile.Performer))).ToArray();
-        session._medical = new(4, true, medicId, atRisk, needs, [], null, 0,
+        session._medical = new(5, true, medicId, atRisk, needs, [], [], null, 0,
             MedicalStage.Clear, MedicalResponseStage.None, null, -1, -1, -1, -1, "No response",
             [new("medical:hot", 0, "Fixed Hot scenario; free water and a baseline medic are available before opening.")]);
         return session;
@@ -169,7 +173,10 @@ public sealed partial class GameSession
         if (command.Action == MedicalAction.ReturnToShow && need.Intent != MedicalIntent.SeekWater && !m.WaterQueue.Contains(command.GuestId))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Only a water visitor can leave this queue or approach.");
         if (command.Action == MedicalAction.GuideToWater && need.Intent != MedicalIntent.SeekWater && !m.WaterQueue.Contains(command.GuestId) &&
-            !MedicalRouteExists(command.GuestId, MedicalQueueApproach(m.WaterQueue.Length)))
+            m.WaterQueue.Length == WaterSlots.Length && m.WaterOverflow.Length == WaterOverflowSlots.Length)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "The free-water line and its visible overflow tail are full.");
+        if (command.Action == MedicalAction.GuideToWater && need.Intent != MedicalIntent.SeekWater && !m.WaterQueue.Contains(command.GuestId) &&
+            !MedicalRouteExists(command.GuestId, MedicalQueueApproach(m.WaterQueue.Length, m.WaterOverflow.Length)))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "No walkable route to free water; clear the path or choose first aid/rest.");
         if (command.Action == MedicalAction.GuideToRest && !MedicalRouteExists(command.GuestId, MedicalRestCell))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "No walkable route to the rest point; clear the path or dispatch aid.");
@@ -233,19 +240,32 @@ public sealed partial class GameSession
     {
         var m = _medical!;
         if (m.WaterQueue.Contains(id) || m.Needs.Any(item => item.AgentId == id && item.Intent == MedicalIntent.SeekWater)) return;
+        if (m.WaterQueue.Length == WaterSlots.Length && m.WaterOverflow.Length == WaterOverflowSlots.Length)
+        {
+            SetNeed(id, item => item with { Reason = "The physical free-water line is full", LastDecisionTick = CurrentTick });
+            return;
+        }
         SetNeed(id, item => item with { Intent = MedicalIntent.SeekWater, Reason = reason,
             QueueSlot = null, LastDecisionTick = CurrentTick });
         MedicalRelinquishPerformerStage(id);
-        ApplyAgentDestination(new(id), new(MedicalQueueApproach(m.WaterQueue.Length), "medical.free-water-approach"));
+        ApplyAgentDestination(new(id), new(MedicalQueueApproach(m.WaterQueue.Length, m.WaterOverflow.Length), "medical.free-water-approach"));
         MedicalEvent("medical:water-seek", $"Person {id} walked toward the free-water line without reserving a place.");
     }
 
     private void RetargetWaterSeekers()
     {
         var m = _medical!;
-        var approach = MedicalQueueApproach(m.WaterQueue.Length);
+        if (m.WaterQueue.Length == WaterSlots.Length && m.WaterOverflow.Length == WaterOverflowSlots.Length)
+        {
+            foreach (var need in m.Needs.Where(item => item.Intent == MedicalIntent.SeekWater && item.QueueSlot is null &&
+                         !m.WaterOverflow.Contains(item.AgentId)).ToArray())
+                LeaveWater(need.AgentId, "The physical water line is full");
+            return;
+        }
+        var approach = MedicalQueueApproach(m.WaterQueue.Length, m.WaterOverflow.Length);
         foreach (var need in m.Needs.Where(item => item.Intent == MedicalIntent.SeekWater && item.QueueSlot is null))
         {
+            if (m.WaterOverflow.Contains(need.AgentId)) continue;
             var nav = _navigationAgents[new(need.AgentId)];
             if (nav.Destination != approach)
                 ApplyAgentDestination(new(need.AgentId), new(approach, "medical.free-water-approach"));
@@ -255,10 +275,11 @@ public sealed partial class GameSession
     private void AdmitWaterArrivals()
     {
         var m = _medical!;
-        if (m.WaterQueue.Length >= WaterSlots.Length) return;
-        var approach = MedicalQueueApproach(m.WaterQueue.Length);
+        if (m.WaterQueue.Length == WaterSlots.Length && m.WaterOverflow.Length == WaterOverflowSlots.Length) return;
+        var approach = MedicalQueueApproach(m.WaterQueue.Length, m.WaterOverflow.Length);
         var centre = TraversalGrid.CellCentre(approach);
-        var arrived = m.Needs.Where(item => item.Intent == MedicalIntent.SeekWater && item.QueueSlot is null)
+        var arrived = m.Needs.Where(item => item.Intent == MedicalIntent.SeekWater && item.QueueSlot is null &&
+                         !m.WaterOverflow.Contains(item.AgentId))
             .Select(item => (item.AgentId, Nav: _navigationAgents[new(item.AgentId)]))
             .Where(item => item.Nav.Destination == approach &&
                 item.Nav.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived &&
@@ -268,12 +289,23 @@ public sealed partial class GameSession
         foreach (var (id, _) in arrived)
         {
             m = _medical!;
-            if (m.WaterQueue.Length >= WaterSlots.Length) break;
-            var slot = m.WaterQueue.Length;
-            _medical = m with { WaterQueue = m.WaterQueue.Append(id).ToArray() };
-            SetNeed(id, item => item with { QueueSlot = slot, Reason = $"Joined the free-water line on physical arrival at tick {CurrentTick}" });
-            ApplyAgentDestination(new(id), new(WaterSlots[slot], "medical.free-water-queue"));
-            MedicalEvent("medical:queue-join", $"Person {id} arrived physically and took free-water place {slot}; no payment or stock transfer.");
+            if (m.WaterQueue.Length < WaterSlots.Length)
+            {
+                var slot = m.WaterQueue.Length;
+                _medical = m with { WaterQueue = m.WaterQueue.Append(id).ToArray() };
+                SetNeed(id, item => item with { QueueSlot = slot, Reason = $"Joined the free-water line on physical arrival at tick {CurrentTick}" });
+                ApplyAgentDestination(new(id), new(WaterSlots[slot], "medical.free-water-queue"));
+                MedicalEvent("medical:queue-join", $"Person {id} arrived physically and took free-water place {slot}; no payment or stock transfer.");
+            }
+            else if (m.WaterOverflow.Length < WaterOverflowSlots.Length)
+            {
+                var slot = m.WaterOverflow.Length;
+                _medical = m with { WaterOverflow = m.WaterOverflow.Append(id).ToArray() };
+                SetNeed(id, item => item with { Reason = $"Reached visible water overflow place {slot} at tick {CurrentTick}" });
+                ApplyAgentDestination(new(id), new(WaterOverflowSlots[slot], "medical.free-water-overflow"));
+                MedicalEvent("medical:overflow-join", $"Person {id} reached visible overflow place {slot} after physical arrival.");
+            }
+            else break;
         }
         if (arrived.Length > 0) RetargetWaterSeekers();
     }
@@ -284,9 +316,17 @@ public sealed partial class GameSession
         if (!m.WaterQueue.Contains(id))
         {
             if (!m.Needs.Any(item => item.AgentId == id && item.Intent == MedicalIntent.SeekWater)) return;
+            if (m.WaterOverflow.Contains(id))
+            {
+                _medical = m with { WaterOverflow = m.WaterOverflow.Where(member => member != id).ToArray() };
+                m = _medical!;
+                for (var index = 0; index < m.WaterOverflow.Length; index++)
+                    ApplyAgentDestination(new(m.WaterOverflow[index]), new(WaterOverflowSlots[index], "medical.free-water-overflow"));
+            }
             SetNeed(id, item => item with { Intent = MedicalIntent.WatchShow, Reason = reason, QueueSlot = null,
                 LastDecisionTick = CurrentTick });
             if (reroute) ReturnToListening(id);
+            RetargetWaterSeekers();
             MedicalEvent("medical:queue-leave", $"Person {id} left the water approach before taking a place: {reason}.");
             return;
         }
@@ -302,6 +342,19 @@ public sealed partial class GameSession
             if (old.QueueSlot == index) continue;
             SetNeed(member, item => item with { QueueSlot = index });
             ApplyAgentDestination(new(member), new(WaterSlots[index], "medical.free-water-queue"));
+        }
+        m = _medical!;
+        if (m.WaterOverflow.Length > 0)
+        {
+            var promoted = m.WaterOverflow[0];
+            var slot = m.WaterQueue.Length;
+            _medical = m with { WaterQueue = m.WaterQueue.Append(promoted).ToArray(),
+                WaterOverflow = m.WaterOverflow.Skip(1).ToArray() };
+            SetNeed(promoted, item => item with { QueueSlot = slot, Reason = "Advanced from the visible overflow tail" });
+            ApplyAgentDestination(new(promoted), new(WaterSlots[slot], "medical.free-water-queue"));
+            m = _medical!;
+            for (var index = 0; index < m.WaterOverflow.Length; index++)
+                ApplyAgentDestination(new(m.WaterOverflow[index]), new(WaterOverflowSlots[index], "medical.free-water-overflow"));
         }
         if (reroute) ReturnToListening(id);
         RetargetWaterSeekers();
@@ -562,7 +615,7 @@ public sealed partial class GameSession
     private static string? ValidatePersistedMedical(MedicalSnapshot? m, SessionPersistenceSnapshot s)
     {
         if (m is null) return null;
-        if (s.Preparation is not { } p || m.Version != 4 || !m.IsHot || m.Needs is null || m.WaterQueue is null ||
+        if (s.Preparation is not { } p || m.Version != 5 || !m.IsHot || m.Needs is null || m.WaterQueue is null || m.WaterOverflow is null ||
             m.Evidence is null || m.Needs.Length != p.Tier * 20 + 3 ||
             !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role is ProtectedPersonRole.Guest or ProtectedPersonRole.Performer).Select(item => item.AgentId)) ||
             m.Needs.Any(item => item.Profile != (p.People.Single(person => person.AgentId == item.AgentId).Role == ProtectedPersonRole.Performer ? MedicalNeedProfile.Performer : MedicalNeedProfile.Guest)) ||
@@ -572,13 +625,19 @@ public sealed partial class GameSession
                 item.QueueSlot is < 0 or >= 10 || item.LastDecisionTick > s.CurrentTick ||
                 item.WarningTick > s.CurrentTick || item.CollapseTick > s.CurrentTick || item.CriticalTick > s.CurrentTick) ||
             m.WaterQueue.Length > WaterSlots.Length || m.WaterQueue.Distinct().Count() != m.WaterQueue.Length ||
+            m.WaterOverflow.Length > WaterOverflowSlots.Length || m.WaterOverflow.Distinct().Count() != m.WaterOverflow.Length ||
+            m.WaterOverflow.Any(id => m.WaterQueue.Contains(id)) ||
+            m.WaterOverflow.Length > 0 && m.WaterQueue.Length != WaterSlots.Length ||
             m.WaterQueue.Where((id, index) => !m.Needs.Any(item => item.AgentId == id && item.QueueSlot == index)).Any() ||
             m.Needs.Any(item => item.QueueSlot is not null && !m.WaterQueue.Contains(item.AgentId)) ||
             m.Needs.Any(item => item.QueueSlot is not null && item.Intent is not (MedicalIntent.SeekWater or MedicalIntent.Drinking)) ||
-            m.Needs.Any(item => item.Intent == MedicalIntent.SeekWater && item.QueueSlot is null &&
+            m.WaterOverflow.Where((id, index) => !m.Needs.Any(item => item.AgentId == id && item.Intent == MedicalIntent.SeekWater && item.QueueSlot is null) ||
+                s.NavigationAgents?.SingleOrDefault(agent => agent.Id == id) is not { } nav ||
+                nav.DestinationX != WaterOverflowSlots[index].X || nav.DestinationZ != WaterOverflowSlots[index].Z).Any() ||
+            m.Needs.Any(item => item.Intent == MedicalIntent.SeekWater && item.QueueSlot is null && !m.WaterOverflow.Contains(item.AgentId) &&
                 (s.NavigationAgents?.SingleOrDefault(agent => agent.Id == item.AgentId) is not { } nav ||
-                 nav.DestinationX != MedicalQueueApproach(m.WaterQueue.Length).X ||
-                 nav.DestinationZ != MedicalQueueApproach(m.WaterQueue.Length).Z)) ||
+                 nav.DestinationX != MedicalQueueApproach(m.WaterQueue.Length, m.WaterOverflow.Length).X ||
+                 nav.DestinationZ != MedicalQueueApproach(m.WaterQueue.Length, m.WaterOverflow.Length).Z)) ||
             m.WaterOwnerId is { } owner && (m.WaterQueue.Length == 0 || m.WaterQueue[0] != owner) ||
             m.WaterDrinkTicks < 0 || m.WaterDrinkTicks > s.CurrentTick ||
             m.WaterOwnerId is null && (m.WaterDrinkTicks != 0 || m.Needs.Any(item => item.Intent == MedicalIntent.Drinking)) ||

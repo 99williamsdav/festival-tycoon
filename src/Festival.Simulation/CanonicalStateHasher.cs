@@ -307,7 +307,7 @@ internal static class CanonicalStateHasher
         }
         if (session.MedicalCanonicalJson is { } medical)
         {
-            writer.Write("r0-medical-v4");
+            writer.Write("r0-medical-v5");
             writer.Write(medical);
         }
         writer.Flush();
