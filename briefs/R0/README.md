@@ -1,6 +1,6 @@
 # R0 — survival-campaign prototype
 
-Status: **R0.00–R0.04 accepted within their stated prototype bounds. R0.03 broader pacing remains pending; the parked traffic-kernel proof is not accepted. R0.05 and later briefs are not started.** [ROGUELIKE_DESIGN.md](../../ROGUELIKE_DESIGN.md) is the active product authority. Do not implement a brief until the user approves every **PROPOSED** choice it owns.
+Status: **R0.00–R0.04 accepted within their stated prototype bounds. R0.03 broader pacing remains pending; the parked traffic-kernel proof is not accepted. R0.05 backend work is authorized but the retained-purchase anti-exploit choice and commissioned UI asset gate remain open; R0.06 is not started.** [ROGUELIKE_DESIGN.md](../../ROGUELIKE_DESIGN.md) is the active product authority. Do not implement a brief until the user approves every **PROPOSED** choice it owns.
 
 Scale gate: R0.00 and the [S0.00 — population architecture diagnostic](S0.00-scale-diagnostic.md) are accepted. Representative 200 completed functionally but missed arrival mean/tail targets; congested 200 timed out after valid timed windows. [S0.01 — crowd architecture spike](S0.01-crowd-architecture-spike.md) and [S0.02 — contention ownership spike](S0.02-contention-ownership-spike.md) stopped after faster or ownership-based movement trials failed bounded completion; their authoritative source changes were reverted. S0.06/S0.07 isolated traffic-kernel proofs are stopped and P3 is parked, not accepted. R0.01 uses existing small-crowd production movement within 50 active people. S0.08's full exported 42-person run attained 0.999× speed but recorded a rare unexplained 604 ms hitch and save pauses; strict stable 60 FPS and 200 rendered support are not established. The user accepted these hitches provisionally on 23 September 2026 to continue to R0.02, not as a fix or capacity claim. The approved early-tier weekend playtest target is about 10 real minutes including ordinary preparation and pauses; exact day lengths remain tunable and human pacing is unverified.
 
@@ -14,7 +14,7 @@ R0 proves the smallest persistent failure/retry/success campaign using the exist
 | 3a | [R0.02a](R0.02a-live-performance.md) | Booked band plays; autonomous audience gathers, listens and reacts | R0.02 | band/audio asset approval, measured 50-person-bound crowd route |
 | 4 | [R0.03](R0.03-medical-chain.md) | Needs/exposure warning can be prevented or become attributable death | R0.02a | exact medical chain; asset/proxy approval |
 | 5 | [R0.04](R0.04-disorder-chain.md) | Pressure/argument can be de-escalated or become attributable death | R0.03 | exact disorder chain; asset/proxy approval |
-| 6 | [R0.05](R0.05-hearing-retry.md) | Failure → hearing → Favour spend → viable same-tier retry | R0.04 | retry floor, first/community Favour, safe-closure cost |
+| 6 | [R0.05](R0.05-hearing-retry.md) | Failure → hearing → Favour spend → viable same-tier retry | R0.04 | approved: first Favour, tier-baseline retry funds, one-edition shared-water sacrifice; no safe closure or council loan. Retained-purchase anti-exploit rule and commissioned UI approval still open |
 | 7 | [R0.06](R0.06-success-tier-gate.md) | Safe Tier 1 → reward → fixed Tier 2; final integrated gate | R0.05 | reward floor, quality, scoring, victory/endless boundary |
 
 ## Shared execution rules
