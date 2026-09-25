@@ -49,10 +49,11 @@ public sealed partial class GameSession
         if (_livePerformance is not { } live || _preparation is not { Status: PreparationStatus.Running } p) return;
         var hasPower = _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal);
         var periodic = CurrentTick % 80 == 0;
-        var stageEntryDue = live.Stage == LiveSetStage.BeforeSet && CurrentTick >= live.PlannedTick - LiveSetStageEntryLeadTicks;
+        var stageEntryDue = live.Stage != LiveSetStage.Finished &&
+            (live.Stage != LiveSetStage.BeforeSet || CurrentTick >= live.PlannedTick - LiveSetStageEntryLeadTicks);
         var waypointArrival = live.Performers.Any(item =>
             _navigationAgents[new(item.AgentId)] is { Action: AgentNavigationAction.Arrived } agent &&
-            (live.Stage == LiveSetStage.BeforeSet &&
+            (live.Stage != LiveSetStage.Finished &&
                  (!item.AccessReached && agent.Destination == item.AccessCell ||
                   item.AccessReached && !item.StairReached && agent.Destination == item.StairCell ||
                   item.StairReached && !item.OnStage && agent.Destination == item.StageCell) ||
@@ -67,7 +68,7 @@ public sealed partial class GameSession
         {
             var performer = performers[i];
             var agent = _navigationAgents[new(performer.AgentId)];
-            if (live.Stage == LiveSetStage.BeforeSet && !performer.AccessReached &&
+            if (live.Stage != LiveSetStage.Finished && !performer.AccessReached &&
                 agent.Action == AgentNavigationAction.Arrived && agent.Destination == performer.AccessCell)
             {
                 performer = performer with { AccessReached = true };
@@ -78,7 +79,7 @@ public sealed partial class GameSession
                 ApplyAgentDestination(new(performer.AgentId), new(performer.StairCell, "performance.visible-stairs"));
                 agent = _navigationAgents[new(performer.AgentId)];
             }
-            if (live.Stage == LiveSetStage.BeforeSet && performer.AccessReached && !performer.StairReached &&
+            if (live.Stage != LiveSetStage.Finished && performer.AccessReached && !performer.StairReached &&
                 agent.Action == AgentNavigationAction.Arrived && agent.Destination == performer.StairCell)
             {
                 ApplyAgentDestination(new(performer.AgentId), new(performer.StageCell, "performance.stage-entry"));
@@ -98,7 +99,7 @@ public sealed partial class GameSession
                 ApplyAgentDestination(new(performer.AgentId), new(PreparedPlace(index), "performance.stage-exit"));
                 agent = _navigationAgents[new(performer.AgentId)];
             }
-            performers[i] = performer with { OnStage = live.Stage != LiveSetStage.Finished &&
+            performers[i] = performer with { OnStage = live.Stage != LiveSetStage.Finished && performer.StairReached &&
                 agent.Action == AgentNavigationAction.Arrived && agent.Destination == performer.StageCell };
         }
         var listeners = live.Listeners.ToArray();

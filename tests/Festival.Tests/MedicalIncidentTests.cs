@@ -382,4 +382,67 @@ public sealed class MedicalIncidentTests
         Assert.AreEqual(0, s.CaptureLifecycleSnapshot()!.Casualties.Count);
         Restored(s);
     }
+
+    [TestMethod]
+    public void PerformerDrinksBeforeEntryThenReturnsViaAccessAndStairsAcrossRestores()
+    {
+        var s = Started();
+        var performerId = s.CaptureMedical()!.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
+        Assert.IsTrue(Send(s, new MedicalCommand(performerId, MedicalAction.GuideToWater)).IsAccepted);
+        s = Restored(s);
+        while (s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).LastWaterTick < 0 && s.CurrentTick < 4_500)
+            s.AdvanceWithoutSnapshot(1);
+        Assert.IsTrue(s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).LastWaterTick >= 0);
+        Assert.AreEqual("medical.return-to-stage-access", s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == performerId).IntentId);
+        s = Restored(s);
+        while (!s.CaptureLivePerformance()!.Performers.Single(item => item.AgentId == performerId).OnStage && s.CurrentTick < 5_900)
+            s.AdvanceWithoutSnapshot(1);
+        var performer = s.CaptureLivePerformance()!.Performers.Single(item => item.AgentId == performerId);
+        Assert.IsTrue(performer.AccessReached);
+        Assert.IsTrue(performer.StairReached);
+        Assert.IsTrue(performer.OnStage);
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void OnStageWaterRetargetIsImmediatelySaveable()
+    {
+        var s = Started();
+        s.AdvanceWithoutSnapshot(3_200);
+        var performer = s.CaptureLivePerformance()!.Performers.First();
+        Assert.IsTrue(performer.OnStage);
+        Assert.IsTrue(Send(s, new MedicalCommand(performer.AgentId, MedicalAction.GuideToWater)).IsAccepted);
+        var retargeted = s.CaptureLivePerformance()!.Performers.First();
+        Assert.IsFalse(retargeted.OnStage);
+        Assert.IsFalse(retargeted.InstrumentAttached);
+        Assert.IsFalse(retargeted.StairReached);
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void GuestWaterReliefDoesNotCancelAnotherPatientsMedicResponse()
+    {
+        var s = Started();
+        var medicId = s.CaptureMedical()!.MedicId;
+        while (!s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted && s.CurrentTick < 1_500)
+            s.AdvanceWithoutSnapshot(1);
+        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var m = s.CaptureMedical()!;
+        var performerId = m.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
+        field.SetValue(s, m with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick,
+            Needs = m.Needs.Select(item => item.AgentId == performerId
+                ? item with { Thirst = 9_000, HeatExposure = 8_000, Stage = MedicalStage.Distress,
+                    WarningTick = s.CurrentTick, LastDecisionTick = s.CurrentTick }
+                : item).ToArray() });
+        Assert.IsTrue(Send(s, new MedicalCommand(performerId, MedicalAction.DispatchMedic)).IsAccepted);
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalStage.Treated, s.CaptureMedical()!.Stage);
+        Assert.AreEqual(performerId, s.CaptureMedical()!.ResponsePatientId);
+        Assert.IsTrue(s.CaptureMedical()!.ResponseStage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating);
+        s = Restored(s);
+        while (s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage != MedicalStage.Treated && s.CurrentTick < 4_000)
+            s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalStage.Treated, s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage);
+        Restored(s);
+    }
 }

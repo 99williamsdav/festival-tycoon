@@ -189,6 +189,7 @@ public sealed partial class GameSession
         {
             LeaveWater(command.GuestId, "Rest chosen", reroute: false);
             SetNeed(command.GuestId, item => item with { Intent = MedicalIntent.Rest, Reason = "Rest chosen to reduce Hot exposure", QueueSlot = null });
+            MedicalRelinquishPerformerStage(command.GuestId);
             ApplyAgentDestination(id, new(MedicalRestCell, "medical.rest"));
             MedicalEvent("medical:rest", "Guest routed physically to the shaded first-aid rest point.");
             return;
@@ -204,6 +205,7 @@ public sealed partial class GameSession
             return;
         }
         LeaveWater(command.GuestId, "Medic now owns response", reroute: false);
+        MedicalRelinquishPerformerStage(command.GuestId);
         var patient = _navigationAgents[id];
         var patientCell = TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres);
         ApplyAgentDestination(id, new(patientCell, "medical.await-medic"));
@@ -235,6 +237,7 @@ public sealed partial class GameSession
         _medical = m with { WaterQueue = m.WaterQueue.Append(id).ToArray() };
         SetNeed(id, item => item with { Intent = MedicalIntent.SeekWater, Reason = reason,
             QueueSlot = slot, LastDecisionTick = CurrentTick });
+        MedicalRelinquishPerformerStage(id);
         ApplyAgentDestination(new(id), new(WaterSlots[slot], "medical.free-water-queue"));
         MedicalEvent("medical:queue-join", $"Guest {id} reserved free-water slot {slot}; no payment or stock transfer.");
     }
@@ -266,12 +269,23 @@ public sealed partial class GameSession
         if (place is { } cell) ApplyAgentDestination(new(id), new(cell, "performance.listen"));
         else if (_livePerformance?.Performers.SingleOrDefault(item => item.AgentId == id) is { } performer &&
                  _livePerformance.Stage is LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted)
-            ApplyAgentDestination(new(id), new(performer.StageCell, "medical.return-to-stage"));
+            ApplyAgentDestination(new(id), new(performer.AccessCell, "medical.return-to-stage-access"));
         else
         {
             var index = Array.FindIndex(_preparation!.People, item => item.AgentId == id);
             ApplyAgentDestination(new(id), new(PreparedPlace(index), "medical.return"));
         }
+    }
+
+    private void MedicalRelinquishPerformerStage(ulong id)
+    {
+        if (_livePerformance is not { } live) return;
+        var index = Array.FindIndex(live.Performers, item => item.AgentId == id);
+        if (index < 0) return;
+        var performers = live.Performers.ToArray();
+        performers[index] = performers[index] with
+        { AccessReached = false, StairReached = false, OnStage = false, InstrumentAttached = false };
+        _livePerformance = live with { Performers = performers };
     }
 
     private void AdvanceMedical()
@@ -365,15 +379,19 @@ public sealed partial class GameSession
         m = _medical!; target = m.Needs.Single(item => item.AgentId == m.AtRiskGuestId);
         if (m.Stage == MedicalStage.Distress && (target.Thirst < MedicalDistressThirst || target.HeatExposure < MedicalDistressHeat))
         {
-            _medical = m with { Stage = MedicalStage.Treated, ResponseStage = MedicalResponseStage.Completed,
-                Response = "Need relieved through free water or rest before collapse" };
+            const string relief = "Need relieved through free water or rest before collapse";
+            var otherPatientActive = m.ResponsePatientId != target.AgentId &&
+                m.ResponseStage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing;
+            _medical = m with { Stage = MedicalStage.Treated,
+                ResponseStage = otherPatientActive ? m.ResponseStage : MedicalResponseStage.Completed,
+                Response = otherPatientActive ? m.Response : relief };
             if (target.Intent == MedicalIntent.Rest)
             {
                 SetNeed(target.AgentId, item => item with { Intent = MedicalIntent.WatchShow,
                     Reason = "Rest relieved Hot exposure; free to return to the show" });
                 ReturnToListening(target.AgentId);
             }
-            MedicalEvent("medical:prevented", _medical.Response); return;
+            MedicalEvent("medical:prevented", relief); return;
         }
         if (m.ResponseStage == MedicalResponseStage.Removing && _navigationAgents[new(target.AgentId)] is { Action: AgentNavigationAction.Arrived, Destination: { } exit } && exit == MedicalExitCell)
         {
@@ -453,6 +471,7 @@ public sealed partial class GameSession
             if (need.Stage == MedicalStage.Distress && CurrentTick >= need.WarningTick + MedicalCollapseDelayTicks)
             {
                 LeaveWater(need.AgentId, "Collapsed before drinking", reroute: false);
+                MedicalRelinquishPerformerStage(need.AgentId);
                 var patient = _navigationAgents[new(need.AgentId)];
                 ApplyAgentDestination(new(need.AgentId), new(TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres), "medical.collapsed"));
                 SetNeed(need.AgentId, item => item with { Stage = MedicalStage.Collapsed, CollapseTick = CurrentTick,
