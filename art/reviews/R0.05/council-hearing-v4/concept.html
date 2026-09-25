@@ -1,0 +1,142 @@
+<div id="ft-council-hearing-v1">
+  <style>
+    #ft-council-hearing-v1 { --ft-ink:#2d3a37; --ft-muted:#59645d; --ft-paper:#fff4d6; --ft-paper-deep:#f4e6bd; --ft-line:#8d8b73; --ft-dark:#39433c; --ft-rust:#995541; --ft-ochre:#c69c4e; --ft-grass:#a5b970; --ft-sky:#9ac6d8; color:var(--ft-ink); font-family:Arial,Helvetica,sans-serif; max-width:920px; margin:0 auto; }
+    #ft-council-hearing-v1 * { box-sizing:border-box; }
+    #ft-council-hearing-v1 .ft-scene { position:relative; overflow:hidden; padding:24px; border-radius:12px; background:linear-gradient(152deg,transparent 0 45%,rgba(231,246,155,.36) 45% 48%,transparent 48% 100%),repeating-linear-gradient(155deg,rgba(244,255,182,.13) 0 36px,rgba(77,112,65,.10) 36px 72px),var(--ft-grass); }
+    #ft-council-hearing-v1 .ft-scene::before { content:""; position:absolute; inset:0 0 auto; height:16%; background:var(--ft-sky); opacity:.88; }
+    #ft-council-hearing-v1 .ft-paper { position:relative; max-width:720px; margin:auto; background:var(--ft-paper); border:2px solid #777460; border-radius:6px; box-shadow:0 11px 26px rgba(32,42,30,.28); padding:25px 30px 22px; }
+    #ft-council-hearing-v1 .ft-mast { display:flex; align-items:center; justify-content:space-between; gap:12px; border-bottom:2px solid var(--ft-line); padding-bottom:10px; letter-spacing:.11em; font-size:12px; font-weight:500; }
+    #ft-council-hearing-v1 .ft-mast span:last-child { color:var(--ft-muted); text-align:right; }
+    #ft-council-hearing-v1 .ft-head { display:grid; grid-template-columns:minmax(0,1fr) 138px; align-items:start; gap:20px; padding:22px 0 19px; }
+    #ft-council-hearing-v1 .ft-stamp { display:inline-block; padding:5px 8px 4px; background:var(--ft-rust); color:#fff8ec; letter-spacing:.12em; font-size:11px; font-weight:500; }
+    #ft-council-hearing-v1 h1 { font-family:Georgia,serif; font-size:34px; font-weight:500; margin:10px 0 7px; line-height:1.05; }
+    #ft-council-hearing-v1 .ft-lead { margin:0; max-width:440px; font-size:16px; line-height:1.38; color:var(--ft-ink); }
+    #ft-council-hearing-v1 .ft-token { position:relative; min-height:124px; padding:13px 10px 10px; text-align:center; background:var(--ft-paper-deep); border:2px solid #a27a35; clip-path:polygon(0 0,42% 0,50% 9%,58% 0,100% 0,100% 100%,58% 100%,50% 91%,42% 100%,0 100%); }
+    #ft-council-hearing-v1 .ft-token-name { display:block; color:#604823; font-size:11px; letter-spacing:.12em; line-height:1.15; }
+    #ft-council-hearing-v1 .ft-token strong { display:block; color:#654a22; font-family:Georgia,serif; font-size:47px; font-weight:500; line-height:1.05; }
+    #ft-council-hearing-v1 .ft-token small { display:block; color:#604823; font-size:11px; letter-spacing:.10em; }
+    #ft-council-hearing-v1 .ft-section { border-top:1px solid var(--ft-line); padding:17px 0 16px; }
+    #ft-council-hearing-v1 h2 { margin:0 0 12px; font-size:17px; font-weight:500; letter-spacing:.02em; }
+    #ft-council-hearing-v1 .ft-record { display:grid; grid-template-columns:94px minmax(0,1fr); gap:8px 14px; font-size:15px; line-height:1.35; }
+    #ft-council-hearing-v1 .ft-record .ft-label { color:var(--ft-muted); }
+    #ft-council-hearing-v1 .ft-sequence { margin-top:12px; padding:8px 10px; border-left:4px solid var(--ft-rust); background:#f6e8c9; color:#594c3f; font-size:13px; line-height:1.3; }
+    #ft-council-hearing-v1 .ft-options { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    #ft-council-hearing-v1 .ft-option { min-height:112px; appearance:none; display:flex; flex-direction:column; align-items:flex-start; justify-content:center; gap:7px; padding:14px 15px; border:2px solid var(--ft-dark); border-radius:4px; text-align:left; font-family:inherit; cursor:pointer; }
+    #ft-council-hearing-v1 .ft-option:focus-visible, #ft-council-hearing-v1 .ft-modal button:focus-visible { outline:3px solid #1e708a; outline-offset:2px; }
+    #ft-council-hearing-v1 .ft-option-primary { background:var(--ft-dark); color:#fff9e8; }
+    #ft-council-hearing-v1 .ft-option-secondary { background:var(--ft-paper); color:var(--ft-dark); }
+    #ft-council-hearing-v1 .ft-option:disabled { opacity:.55; cursor:not-allowed; }
+    #ft-council-hearing-v1 .ft-option .ft-verb { font-size:11px; letter-spacing:.10em; font-weight:500; }
+    #ft-council-hearing-v1 .ft-option strong { font-size:19px; font-weight:500; line-height:1.1; }
+    #ft-council-hearing-v1 .ft-option small { font-size:12px; line-height:1.25; }
+    #ft-council-hearing-v1 .ft-foot { margin:13px 0 0; color:var(--ft-muted); font-size:13px; line-height:1.3; }
+    #ft-council-hearing-v1 .ft-final { padding:14px; background:var(--ft-paper-deep); border-left:4px solid var(--ft-dark); font-size:16px; line-height:1.35; }
+    #ft-council-hearing-v1 .ft-final[hidden], #ft-council-hearing-v1 .ft-options[hidden], #ft-council-hearing-v1 .ft-modal[hidden] { display:none; }
+    #ft-council-hearing-v1 .ft-modal { position:absolute; inset:0; z-index:3; display:flex; align-items:center; justify-content:center; padding:18px; background:rgba(31,39,32,.57); }
+    #ft-council-hearing-v1 .ft-confirm { max-width:445px; width:100%; padding:24px; background:var(--ft-paper); border:2px solid var(--ft-dark); box-shadow:0 12px 25px rgba(0,0,0,.22); }
+    #ft-council-hearing-v1 .ft-confirm h2 { font-family:Georgia,serif; font-size:26px; margin:0 0 10px; }
+    #ft-council-hearing-v1 .ft-confirm p { margin:0 0 12px; font-size:15px; line-height:1.42; }
+    #ft-council-hearing-v1 .ft-confirm .ft-terms { padding:9px 11px; background:var(--ft-paper-deep); font-size:13px; }
+    #ft-council-hearing-v1 .ft-modal-actions { display:flex; justify-content:flex-end; gap:10px; margin-top:20px; }
+    #ft-council-hearing-v1 .ft-modal button { padding:10px 13px; font-family:inherit; font-size:14px; border:2px solid var(--ft-dark); border-radius:3px; cursor:pointer; }
+    #ft-council-hearing-v1 .ft-cancel { background:var(--ft-paper); color:var(--ft-dark); }
+    #ft-council-hearing-v1 .ft-confirm-action { background:var(--ft-dark); color:#fff9e8; }
+    @media (max-width:650px) { #ft-council-hearing-v1 .ft-scene { padding:10px; } #ft-council-hearing-v1 .ft-paper { padding:16px; } #ft-council-hearing-v1 .ft-head { grid-template-columns:minmax(0,1fr) 106px; gap:9px; } #ft-council-hearing-v1 h1 { font-size:27px; } #ft-council-hearing-v1 .ft-token { min-height:108px; } #ft-council-hearing-v1 .ft-token strong { font-size:39px; } #ft-council-hearing-v1 .ft-options { grid-template-columns:1fr; } #ft-council-hearing-v1 .ft-option { min-height:87px; } }
+    @media (max-width:390px) { #ft-council-hearing-v1 .ft-mast { display:block; } #ft-council-hearing-v1 .ft-mast span { display:block; text-align:left!important; margin-top:5px; } #ft-council-hearing-v1 .ft-head { grid-template-columns:1fr; } #ft-council-hearing-v1 .ft-token { max-width:148px; } #ft-council-hearing-v1 .ft-record { grid-template-columns:1fr; gap:2px; } #ft-council-hearing-v1 .ft-record .ft-label:not(:first-child) { margin-top:7px; } }
+  </style>
+  <section class="ft-scene" aria-label="Festival Tycoon Council hearing concept">
+    <article class="ft-paper">
+      <div class="ft-mast"><span>LOWER WITTERING</span><span>TIER 1 · FRIDAY · ATTEMPT 1</span></div>
+      <div class="ft-head">
+        <div>
+          <span class="ft-stamp">WEEKEND ENDED</span>
+          <h1>Council hearing</h1>
+          <p class="ft-lead">Someone has died. We explicitly told you this shouldn’t happen. We’re considering revoking your licence.</p>
+        </div>
+        <div class="ft-token" aria-label="Council Favour balance">
+          <span class="ft-token-name">COUNCIL<br>FAVOUR</span>
+          <strong data-balance>1</strong>
+          <small data-available>AVAILABLE</small>
+        </div>
+      </div>
+      <section class="ft-section" aria-labelledby="ft-record-heading">
+        <h2 id="ft-record-heading">Record of loss</h2>
+        <div class="ft-record"><span class="ft-label">Person</span><span>Guest 20 · attendee</span><span class="ft-label">Cause</span><span>Heat and thirst after collapse. Medical help did not arrive before the critical window ended.</span></div>
+        <div class="ft-sequence">Distress → collapse → response window missed</div>
+      </section>
+      <section class="ft-section" aria-labelledby="ft-decision-heading">
+        <h2 id="ft-decision-heading">Licence decision</h2>
+        <div class="ft-options" data-options>
+          <button class="ft-option ft-option-primary" data-action="spend" type="button"><span class="ft-verb">(SPEND 1 FAVOUR)</span><strong>It won’t happen again</strong><small>Retry Tier 1 · same tier · balance 1 → 0</small></button>
+          <button class="ft-option ft-option-secondary" data-action="concede" type="button"><span class="ft-verb">CONCEDE</span><strong>End campaign</strong><small>No retry · Favour is not spent</small></button>
+        </div>
+        <div class="ft-final" data-final role="status" aria-live="polite" hidden></div>
+        <p class="ft-foot" data-foot>This weekend has ended. Spend 1 Favour to retry Tier 1, or concede the licence.</p>
+      </section>
+    </article>
+    <div class="ft-modal" data-modal hidden role="dialog" aria-modal="true" aria-labelledby="ft-confirm-title">
+      <div class="ft-confirm">
+        <h2 id="ft-confirm-title" data-modal-title>Confirm licence decision</h2>
+        <p data-modal-copy></p>
+        <p class="ft-terms" data-modal-terms></p>
+        <div class="ft-modal-actions"><button class="ft-cancel" data-cancel type="button">Go back</button><button class="ft-confirm-action" data-confirm type="button">Confirm</button></div>
+      </div>
+    </div>
+  </section>
+  <script>
+    (() => {
+      const root = document.getElementById('ft-council-hearing-v1');
+      const saved = globalThis.openai?.widgetState?.privateContent;
+      const state = { balance: saved?.balance === '0' ? '0' : '1', phase: 'hearing', pending: null };
+      const token = root.querySelector('[data-balance]');
+      const available = root.querySelector('[data-available]');
+      const spend = root.querySelector('[data-action="spend"]');
+      const concede = root.querySelector('[data-action="concede"]');
+      const options = root.querySelector('[data-options]');
+      const final = root.querySelector('[data-final]');
+      const foot = root.querySelector('[data-foot]');
+      const modal = root.querySelector('[data-modal]');
+      const modalTitle = root.querySelector('[data-modal-title]');
+      const modalCopy = root.querySelector('[data-modal-copy]');
+      const modalTerms = root.querySelector('[data-modal-terms]');
+      const confirm = root.querySelector('[data-confirm]');
+      const cancel = root.querySelector('[data-cancel]');
+      function save() { globalThis.openai?.setWidgetState?.({modelContent:{favourBalance:state.balance,hearingPreview:state.phase},privateContent:{balance:state.balance}})?.catch(() => {}); }
+      function render() {
+        token.textContent = state.balance;
+        available.textContent = state.balance === '0' ? 'NONE LEFT' : 'AVAILABLE';
+        spend.disabled = state.balance === '0';
+        spend.querySelector('small').textContent = state.balance === '0' ? 'No Favour remains · cannot retry Tier 1' : 'Retry Tier 1 · same tier · balance 1 → 0';
+        const hearingWithFavour = state.phase === 'hearing' && state.balance !== '0';
+        options.hidden = !hearingWithFavour;
+        final.hidden = hearingWithFavour;
+        if (state.phase === 'hearing' && state.balance === '0') final.textContent = 'No Favour remains. The licence is lost; the campaign is over and no retry remains.';
+        if (state.phase === 'retry') final.textContent = 'One Favour spent. The licence is retained for a same-tier retry.';
+        if (state.phase === 'lost') final.textContent = 'Campaign ended. The casualty remains in the campaign record.';
+        foot.textContent = hearingWithFavour ? 'This weekend has ended. Spend 1 Favour to retry Tier 1, or concede the licence.' : 'This weekend has ended.';
+        modal.hidden = state.pending === null;
+        if (state.pending === 'spend') {
+          modalTitle.textContent = 'It won’t happen again?';
+          modalCopy.textContent = 'Spend 1 Favour to keep the licence and retry Tier 1. This failed weekend stays on the record.';
+          modalTerms.textContent = 'Favour 1 → 0 · same-tier retry';
+          confirm.textContent = 'Spend 1 Favour';
+        } else if (state.pending === 'concede') {
+          modalTitle.textContent = 'End this campaign?';
+          modalCopy.textContent = 'Concede the licence after this death. There will be no same-tier retry.';
+          modalTerms.textContent = 'Campaign ends · no Favour spent';
+          confirm.textContent = 'End campaign';
+        }
+      }
+      spend.addEventListener('click', () => { if (state.balance === '0') return; state.pending = 'spend'; render(); cancel.focus(); });
+      concede.addEventListener('click', () => { state.pending = 'concede'; render(); cancel.focus(); });
+      cancel.addEventListener('click', () => { state.pending = null; render(); });
+      confirm.addEventListener('click', () => { if (state.pending === 'spend') { state.balance = '0'; state.phase = 'retry'; } else if (state.pending === 'concede') { state.phase = 'lost'; } state.pending = null; render(); save(); });
+      root.addEventListener('keydown', event => { if (event.key === 'Escape' && state.pending) { state.pending = null; render(); } });
+      render();
+      if (globalThis.Tweak) {
+        const tweak = new Tweak({container:root,onChange:() => {state.phase='hearing';state.pending=null;render();}});
+        tweak.addSelect(state,'balance',{label:'Preview Favour balance',options:[{label:'One Favour',value:'1'},{label:'No Favour',value:'0'}],reference:'council-favour-balance'});
+      }
+    })();
+  </script>
+</div>
