@@ -125,7 +125,7 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.04-layout-v13",
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.05-hearing-v1",
         LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v13");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
@@ -1206,7 +1206,7 @@ public partial class Main : Node
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory => ProjectSettings.GlobalizePath(
-        _session?.CaptureDisorder() is not null ? "user://saves/r0.04-layout-v13" : "user://saves");
+        _session?.CapturePreparation() is not null ? "user://saves/r0.05-hearing-v1" : "user://saves");
     private void ManualSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));

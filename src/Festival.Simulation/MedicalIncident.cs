@@ -26,6 +26,9 @@ public sealed partial class GameSession
     // Stable per-person service pace: slower drinkers occupy the single tap longer.
     public static int MedicalDrinkThirstPerTickFor(ulong agentId) => 8 + (int)(agentId % 4) * 4;
     public static int MedicalDrinkHeatPerTickFor(ulong agentId) => MedicalDrinkThirstPerTickFor(agentId) / 4;
+    public int EffectiveMedicalDrinkThirstPerTickFor(ulong agentId) => CommunityWaterShareActive
+        ? Math.Min(12, MedicalDrinkThirstPerTickFor(agentId)) : MedicalDrinkThirstPerTickFor(agentId);
+    public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => EffectiveMedicalDrinkThirstPerTickFor(agentId) / 4;
     public const int MedicalDecisionCooldownTicks = 240;   // 3 real seconds at 1×.
     public const int MedicalCollapseDelayTicks = 1_600;   // 20 real seconds after distress.
     public const int MedicalCriticalDelayTicks = 800;     // 10 real seconds after collapse.
@@ -67,7 +70,7 @@ public sealed partial class GameSession
          m.Stage == MedicalStage.Distress && CurrentTick + 1 >= m.WarningTick + MedicalCollapseDelayTicks ||
          m.Stage == MedicalStage.Collapsed && CurrentTick + 1 >= m.CollapseTick + MedicalCriticalDelayTicks ||
          m.Stage == MedicalStage.Critical && CurrentTick + 1 >= m.CollapseTick + MedicalDeathDelayTicks ||
-         m.WaterOwnerId is { } waterOwner && m.Needs.Single(item => item.AgentId == waterOwner).Thirst <= MedicalDrinkThirstPerTickFor(waterOwner) ||
+         m.WaterOwnerId is { } waterOwner && m.Needs.Single(item => item.AgentId == waterOwner).Thirst <= EffectiveMedicalDrinkThirstPerTickFor(waterOwner) ||
          m.Needs.Any(item => item.Profile == MedicalNeedProfile.Performer &&
              (item.Stage == MedicalStage.Clear && item.Thirst >= MedicalDistressThirst - 1 && item.HeatExposure >= MedicalDistressHeat - 1 ||
               item.Stage == MedicalStage.Distress && CurrentTick + 1 >= item.WarningTick + MedicalCollapseDelayTicks ||
@@ -452,7 +455,7 @@ public sealed partial class GameSession
                         LeaveWater(need.AgentId, $"Band appeal {showScore} exceeded water utility {waterScore}; queue place released");
                 }
                 else if (waterScore > showScore)
-                    SeekWater(need.AgentId, $"Hot thirst {need.Thirst}/10000 outweighed band {showScore}, travel {travel} cells and estimated wait {m.WaterQueue.Sum(id => m.Needs.Single(item => item.AgentId == id).Thirst / MedicalDrinkThirstPerTickFor(id))} ticks");
+                    SeekWater(need.AgentId, $"Hot thirst {need.Thirst}/10000 outweighed band {showScore}, travel {travel} cells and estimated wait {m.WaterQueue.Sum(id => m.Needs.Single(item => item.AgentId == id).Thirst / EffectiveMedicalDrinkThirstPerTickFor(id))} ticks");
                 else SetNeed(need.AgentId, item => item with { Reason = $"Watching band: music {showScore} vs water {waterScore} incl. travel/wait",
                     LastDecisionTick = CurrentTick });
                 m = _medical!;
@@ -469,14 +472,14 @@ public sealed partial class GameSession
             {
                 _medical = m = m with { WaterOwnerId = first, WaterDrinkTicks = 0 };
                 SetNeed(first, item => item with { Intent = MedicalIntent.Drinking,
-                    Reason = $"Drinking at the free tap ({(MedicalDrinkThirstPerTickFor(first) <= 12 ? "slowly" : "steadily")}); thirst and heat improve continuously" });
+                    Reason = $"Drinking at the free tap ({EffectiveMedicalDrinkThirstPerTickFor(first)} thirst/tick{(CommunityWaterShareActive ? "; shared with neighbours, cap 12" : "")}); thirst and heat improve continuously" });
                 MedicalEvent("medical:drink-start", $"Person {first} started drinking at the free tap after physical arrival.");
                 m = _medical!;
             }
             if (m.WaterOwnerId == first && atTap)
             {
-                SetNeed(first, item => item with { Thirst = Math.Max(0, item.Thirst - MedicalDrinkThirstPerTickFor(first)),
-                    HeatExposure = Math.Max(0, item.HeatExposure - MedicalDrinkHeatPerTickFor(first)) });
+                SetNeed(first, item => item with { Thirst = Math.Max(0, item.Thirst - EffectiveMedicalDrinkThirstPerTickFor(first)),
+                    HeatExposure = Math.Max(0, item.HeatExposure - EffectiveMedicalDrinkHeatPerTickFor(first)) });
                 _medical = m = _medical! with { WaterDrinkTicks = m.WaterDrinkTicks + 1 };
                 if (m.Needs.Single(item => item.AgentId == first).Thirst == 0)
                 {

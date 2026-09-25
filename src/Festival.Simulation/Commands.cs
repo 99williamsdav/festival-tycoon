@@ -59,6 +59,10 @@ public sealed record ForceFixtureDeathsCommand(IReadOnlyList<string> SubjectPers
 /// <summary>Headless R0.00 fixture only: spends the one fixture-labelled Favour and creates a same-tier retry.</summary>
 public sealed record SpendFixtureFavourCommand : SessionCommand;
 
+/// <summary>Resolve a real fatal hearing by spending one Council Favour on a same-tier weekend retry.</summary>
+public sealed record SpendCouncilFavourCommand : SessionCommand;
+
+
 /// <summary>Headless R0.00 fixture only: settles the active attempt safely and advances one fixture tier.</summary>
 public sealed record ForceFixtureSafeCompletionCommand : SessionCommand;
 

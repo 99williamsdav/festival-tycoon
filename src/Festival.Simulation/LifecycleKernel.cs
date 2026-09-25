@@ -56,6 +56,8 @@ internal sealed class LifecycleState
 
 public sealed partial class GameSession
 {
+    private const string RealLifecycleLabel = "R0.05 real Council hearing and Favour";
+    private const string RetryEconomyFixtureLabel = "R0.05 headless retry-economy fixture; two Favour";
     private LifecycleState? _lifecycle;
     internal LifecycleState? LifecycleState => _lifecycle;
 
@@ -120,6 +122,18 @@ public sealed partial class GameSession
         return null;
     }
 
+    private CommandResult? ValidateSpendCouncilFavour(EntityId? targetId)
+    {
+        if (targetId is not null || _preparation is not { Status: PreparationStatus.Failed } ||
+            _lifecycle is null || _lifecycle.FixtureLabel is not (RealLifecycleLabel or RetryEconomyFixtureLabel))
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "A real fatal hearing is required.");
+        if (_lifecycle.Hearings.Count == 0 || _lifecycle.Hearings[^1].Status != HearingStatus.Open)
+            return CommandResult.Rejected(CommandReasonCode.AlreadySettled, "This hearing is already resolved.");
+        if (_lifecycle.FixtureFavourBalance < 1)
+            return CommandResult.Rejected(CommandReasonCode.InsufficientFavour, "No Council Favour remains; the campaign is lost.");
+        return null;
+    }
+
     private CommandResult? ValidateForceFixtureSafeCompletion(EntityId? targetId)
     {
         if (targetId is not null || _lifecycle is null)
@@ -158,6 +172,20 @@ public sealed partial class GameSession
         lifecycle.Attempts.Add(new EditionAttemptSnapshot(attemptId, lifecycle.CurrentTierId, EditionAttemptStatus.Active, null));
     }
 
+    private void ApplySpendCouncilFavour()
+    {
+        var lifecycle = _lifecycle!;
+        var hearing = lifecycle.Hearings[^1];
+        var transactionId = $"council-favour:{CampaignId.Value}:{hearing.HearingId}";
+        lifecycle.FixtureFavourBalance--;
+        lifecycle.Hearings[^1] = hearing with { Status = HearingStatus.FavourSpent, ResolutionTransactionId = transactionId };
+        lifecycle.CompletedOutcomeTransactionIds.Add(transactionId);
+        var attemptId = lifecycle.NextAttemptId++;
+        lifecycle.CurrentAttemptId = attemptId;
+        lifecycle.Attempts.Add(new EditionAttemptSnapshot(attemptId, lifecycle.CurrentTierId, EditionAttemptStatus.Active, null));
+        RetryPreparedWeekend();
+    }
+
     private void ApplyForceFixtureSafeCompletion()
     {
         var lifecycle = _lifecycle!;
@@ -175,7 +203,7 @@ public sealed partial class GameSession
 
     private CommandResult? ValidateLifecycleFrozenCommand(SessionCommand command)
     {
-        if (!IsLifecycleEditionFrozen() || command is SpendFixtureFavourCommand) return null;
+        if (!IsLifecycleEditionFrozen() || command is SpendFixtureFavourCommand or SpendCouncilFavourCommand) return null;
         return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is frozen after its first terminal outcome.");
     }
 
@@ -220,18 +248,28 @@ public sealed partial class GameSession
         foreach (var id in persisted.CompletedOutcomeTransactionIds) _lifecycle.CompletedOutcomeTransactionIds.Add(id);
     }
 
-    private static string? ValidatePersistedLifecycle(PersistedLifecycle? lifecycle)
+    private static string? ValidatePersistedLifecycle(PersistedLifecycle? lifecycle, PreparationSnapshot? preparation, ulong campaignId)
     {
         if (lifecycle is null) return null;
         if (string.IsNullOrWhiteSpace(lifecycle.FixtureLabel) || string.IsNullOrWhiteSpace(lifecycle.CurrentTierId) ||
             lifecycle.FixtureTierOrdinal < 1 || lifecycle.CurrentAttemptId == 0 || lifecycle.NextAttemptId == 0 ||
-            lifecycle.NextCasualtyId == 0 || lifecycle.NextHearingId == 0 || lifecycle.FixtureFavourBalance is < 0 or > 1)
+            lifecycle.NextCasualtyId == 0 || lifecycle.NextHearingId == 0 || lifecycle.FixtureFavourBalance is < 0 or > 2)
             return "Lifecycle fixture identity, counters or Favour balance is invalid.";
         if (lifecycle.ProtectedPeople is null || lifecycle.Attempts is null || lifecycle.Casualties is null || lifecycle.Hearings is null ||
             lifecycle.CompletedOutcomeTransactionIds is null || lifecycle.ProtectedPeople.Any(item => item is null) ||
             lifecycle.Attempts.Any(item => item is null) || lifecycle.Casualties.Any(item => item is null) || lifecycle.Hearings.Any(item => item is null))
             return "Lifecycle authoritative collections must be present and contain no null records.";
-        var equipmentLifecycle = lifecycle.FixtureLabel == "R0.02 equipment lifecycle; hearing only, no Favour economy";
+        var realLifecycle = lifecycle.FixtureLabel == RealLifecycleLabel;
+        var economyFixture = lifecycle.FixtureLabel == RetryEconomyFixtureLabel;
+        var equipmentLifecycle = realLifecycle || economyFixture || lifecycle.FixtureLabel == "R0.02 equipment lifecycle; hearing only, no Favour economy";
+        if ((realLifecycle || economyFixture) && (preparation is null || lifecycle.Attempts is not { Length: > 0 } ||
+            preparation.RetryEconomyFixtureEnabled != economyFixture ||
+            lifecycle.CurrentAttemptId != (ulong)preparation.Attempt ||
+            lifecycle.CurrentTierId != $"tier-{preparation.Tier}" ||
+            lifecycle.Attempts.Any(item => item.TierId != lifecycle.CurrentTierId) ||
+            ((EditionAttemptStatus)lifecycle.Attempts[^1].Status == EditionAttemptStatus.Failed) !=
+                (preparation.Status == PreparationStatus.Failed)))
+            return "Real hearing identity, retry attempt and tier must match preparation.";
         if ((!equipmentLifecycle && lifecycle.ProtectedPeople.Length != 3 || equipmentLifecycle && lifecycle.ProtectedPeople.Length is < 22 or > 50) ||
             !lifecycle.ProtectedPeople.Select(item => item.PersonId).SequenceEqual(lifecycle.ProtectedPeople.Select(item => item.PersonId).Order(StringComparer.Ordinal)) ||
             lifecycle.ProtectedPeople.Select(item => item.PersonId).Distinct(StringComparer.Ordinal).Count() != lifecycle.ProtectedPeople.Length ||
@@ -264,10 +302,12 @@ public sealed partial class GameSession
             .Concat(lifecycle.Hearings.Select(item => item.CreatedTransactionId))
             .Concat(lifecycle.Hearings.Where(item => item.ResolutionTransactionId is not null).Select(item => item.ResolutionTransactionId!))
             .Concat(lifecycle.Attempts.Where(item => (EditionAttemptStatus)item.Status == EditionAttemptStatus.Safe).Select(item => item.OutcomeTransactionId!))
+            .Concat(preparation?.CommunityFavourClaimed == true ? [$"community-water-favour:{campaignId}"] : [])
             .Order(StringComparer.Ordinal).ToArray();
         if (!lifecycle.CompletedOutcomeTransactionIds.SequenceEqual(expectedTransactions) || expectedTransactions.Distinct(StringComparer.Ordinal).Count() != expectedTransactions.Length)
             return "Lifecycle completed transaction IDs must exactly match terminal, hearing, Favour and safe outcomes.";
-        if (equipmentLifecycle ? lifecycle.FixtureFavourBalance != 0 || lifecycle.Hearings.Any(item => item.ResolutionTransactionId is not null) :
+        if (realLifecycle || economyFixture ? lifecycle.FixtureFavourBalance != (economyFixture ? 2 : 1) + (preparation?.CommunityFavourClaimed == true ? 1 : 0) - lifecycle.Hearings.Count(item => item.Status == (int)HearingStatus.FavourSpent) :
+            equipmentLifecycle ? lifecycle.FixtureFavourBalance != 0 || lifecycle.Hearings.Any(item => item.ResolutionTransactionId is not null) :
             lifecycle.FixtureFavourBalance == 0 != lifecycle.Hearings.Any(item => (HearingStatus)item.Status == HearingStatus.FavourSpent))
             return "Fixture Favour balance must reconcile with the single hearing spend.";
         return null;

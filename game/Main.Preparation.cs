@@ -16,6 +16,8 @@ public partial class Main
     private ScrollContainer? _preparationRosterScroll;
     private readonly Dictionary<string, Button> _offerButtons = [];
     private Button _preparationStart = null!;
+    private Button? _communityShareButton;
+    private Label? _communityShareInfo;
     private string _preparationMessage = "Choose one act and one worker. Equipment and stock are optional.";
     private string? _preparationCaptureDirectory;
     private int _preparationCaptureFrame;
@@ -60,6 +62,16 @@ public partial class Main
             button.AddThemeFontSizeOverride("font_size", 14);
             button.ClipText = true; button.TooltipText = offer.Name;
             _offerButtons.Add(offer.Id, button); box.AddChild(button);
+        }
+        if (_session.CommunityWaterShareDisclosure is { } disclosure)
+        {
+            _communityShareInfo = LabelText(disclosure, 13, ink);
+            _communityShareInfo.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            _communityShareInfo.CustomMinimumSize = new Vector2(370, 0);
+            box.AddChild(_communityShareInfo);
+            _communityShareButton = ButtonText("SHARE FREE WATER • THIS WEEKEND", () => CommitEquipmentAction(new CommitCommunityWaterShareCommand()));
+            _communityShareButton.TooltipText = disclosure;
+            box.AddChild(_communityShareButton);
         }
         _preparationStart = ButtonText("START FIXED ROSTER", PreparationStart); box.AddChild(_preparationStart);
         var controls = new HBoxContainer(); box.AddChild(controls);
@@ -168,6 +180,14 @@ public partial class Main
             button.Visible = p.Status == PreparationStatus.Preparing;
         }
         _preparationStart.Disabled = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand())) is not null;
+        if (_communityShareButton is not null)
+        {
+            _communityShareButton.Visible = p.Status == PreparationStatus.Preparing;
+            _communityShareButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new CommitCommunityWaterShareCommand())) is not null;
+            _communityShareInfo!.Text = p.CommunityShareAttempt == 0 ? _session.CommunityWaterShareDisclosure! :
+                $"SHARING COMMITTED • weekend attempt {p.CommunityShareAttempt}. Tap cap 12 thirst units/tick for faster drinkers; queues may grow. " +
+                (p.CommunityFavourClaimed ? "1 Council Favour awarded after the full weekend." : "1 Council Favour only after the full weekend is honoured.");
+        }
         _preparationSummary.TooltipText = _preparationMessage;
         var examples = p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Take(2)
             .Concat(p.People.Where(item => item.Role != ProtectedPersonRole.Guest));
@@ -175,7 +195,7 @@ public partial class Main
             $"Arrived {p.People.Count(item => item.Admitted)}/{p.People.Length} • departed {p.People.Count(item => item.Departed)}/{p.People.Length}\n\n" +
             string.Join("\n\n", examples.Select(item => $"[{(item.Name == "Jordan Hale" ? "STEWARD" : item.Role.ToString().ToUpperInvariant())}] {item.Name}\n" +
                 (item.Role == ProtectedPersonRole.Guest ? $"expects {(item.ExpectedGenre == 0 ? "folk" : "punk")} • satisfaction {item.Satisfaction / 100m:0}% • music risk {item.MusicRisk / 100m:0}%" : "Protected • physical arrival and departure"))) +
-            (_session.CaptureEquipment() is null ? "\n\nNo lethal chains or success rewards in this preparation slice." : "\n\nEquipment chain active. Every person is protected; no Favour/reward economy yet.");
+            (_session.CaptureEquipment() is null ? "\n\nNo lethal chains or success rewards in this preparation slice." : "\n\nEquipment chain active. Every person is protected; fatal hearings are recorded.");
         RefreshLivePerformanceHud();
         RefreshEquipmentControls();
         RefreshMedicalControls();

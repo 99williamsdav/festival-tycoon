@@ -12,9 +12,16 @@ public sealed record PreparationInventoryBalance(int OpeningUnits, int Purchased
 public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed, int Attempt, PreparationStatus Status,
     ulong FinanceOwnerId, ulong StockId, long StartedTick, bool FixtureOutcomesEnabled,
     string[] OwnedEquipment, string[] Rentals, string[] Contacts, string[] WorkContracts, string[] AcceptedOffers,
-    EditionPerson[] People, PreparationPayment[] Payments, int StockConsumed, long OpeningCashPennies);
+    EditionPerson[] People, PreparationPayment[] Payments, int StockConsumed, long OpeningCashPennies)
+{
+    public int CommunityShareAttempt { get; init; }
+    public bool CommunityFavourClaimed { get; init; }
+    public bool RetryEconomyFixtureEnabled { get; init; }
+    public ulong? MaintenanceWorkerId { get; init; }
+}
 public sealed record AcceptPreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record StartPreparedEditionCommand : SessionCommand;
+public sealed record CommitCommunityWaterShareCommand : SessionCommand;
 
 public sealed partial class GameSession
 {
@@ -31,7 +38,23 @@ public sealed partial class GameSession
          p.Status == PreparationStatus.Departing && p.People.All(item => item.Departed));
 
     public PreparationInventoryBalance? GetPreparationInventoryBalance() => _preparation is not { } p ? null :
-        new(40, p.Payments.Count(item => item.OfferId == "contract.stock") * 50, p.StockConsumed, _ownedStocks[new(p.StockId)].Quantity, 60);
+        new(40, p.Payments.Count(item => (p.FixtureOutcomesEnabled || item.Attempt == p.Attempt) && item.OfferId == "contract.stock") * 50,
+            p.StockConsumed, _ownedStocks[new(p.StockId)].Quantity, 60);
+
+    public string? CommunityWaterShareDisclosure => _preparation is null || _medical is null ? null :
+        "Share the free-water tap with the neighbouring community for this weekend. Drinking relief is capped at 12 thirst units/tick per person (ordinary rates: 8, 12, 16 or 20); faster drinkers take longer and queues may grow. Honour the full weekend to earn 1 Council Favour, once per campaign.";
+    public bool CommunityWaterShareActive => _preparation is { Status: PreparationStatus.Running or PreparationStatus.Departing } p && p.CommunityShareAttempt == p.Attempt;
+
+    private CommandResult? ValidateCommunityWaterShare(EntityId? target)
+    {
+        if (target is not null || _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p)
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Water sharing must be committed before a Hot weekend.");
+        if (p.CommunityShareAttempt != 0)
+            return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The once-per-campaign water choice was already made.");
+        return null;
+    }
+
+    private void ApplyCommunityWaterShare() => _preparation = _preparation! with { CommunityShareAttempt = _preparation.Attempt };
 
     public static GameSession CreatePreparedCampaign(ulong seed, int tier = 1, bool fixtureOutcomesEnabled = false)
     {
@@ -81,8 +104,8 @@ public sealed partial class GameSession
             new("staff.steward", "staff", "Casey: basic sound shift • +400 quality", 2_000, 400, -1),
             new("staff.engineer", "staff", "Casey: extended sound shift • +800 quality", 4_000, 800, -1),
             new("equipment.buy", "equipment", "Buy sound rig • +1000 quality; retained", 12_000, 1_000, -1),
-            new("equipment.rent", "equipment", "Rent sound rig • +500 quality; this edition", 3_000, 500, -1),
-            new("contract.stock", "contract", "50 nonperishable refreshments • retained unused", 3_000, 0, -1)
+            new("equipment.rent", "equipment", "Rent sound rig • +500 quality; this weekend", 3_000, 500, -1),
+            new("contract.stock", "contract", "50 refreshments • unused stock resets on retry", 3_000, 0, -1)
         ];
         return _equipment is null ? offers : offers.Append(new PreparationOffer("maintenance.worker", "maintenance", "Morgan: maintenance worker • physical repair", 1_500, 0, -1)).ToArray();
     }
@@ -126,9 +149,11 @@ public sealed partial class GameSession
         };
         if (offer.Category == "maintenance")
         {
-            var id = NextEntityId++;
-            _wallets.Add(new(id), new WalletState { OwnerId = new(id), CashPennies = 500 });
-            _preparation = _preparation with { People = _preparation.People.Append(new EditionPerson(id, "Morgan Finch", ProtectedPersonRole.Staff, 0)).ToArray() };
+            var id = p.MaintenanceWorkerId ?? NextEntityId++;
+            if (p.MaintenanceWorkerId is null)
+                _wallets.Add(new(id), new WalletState { OwnerId = new(id), CashPennies = 500 });
+            _preparation = _preparation with { MaintenanceWorkerId = id,
+                People = _preparation.People.Append(new EditionPerson(id, "Morgan Finch", ProtectedPersonRole.Staff, 0)).ToArray() };
             _equipment = _equipment! with { WorkerId = id };
         }
     }
@@ -239,7 +264,16 @@ public sealed partial class GameSession
             Phase = SessionPhase.Egress;
         }
         else if (p.Status == PreparationStatus.Departing && transitionAtStart)
+        {
             _preparation = p with { Status = PreparationStatus.Finished, Rentals = [], WorkContracts = [] };
+            if (p.CommunityShareAttempt == p.Attempt && !p.CommunityFavourClaimed && _lifecycle is { } lifecycle)
+            {
+                var claimId = $"community-water-favour:{CampaignId.Value}";
+                lifecycle.FixtureFavourBalance++;
+                lifecycle.CompletedOutcomeTransactionIds.Add(claimId);
+                _preparation = _preparation with { CommunityFavourClaimed = true };
+            }
+        }
     }
 
     // Persistence probes only; no normal UI or lethal chain calls these hooks.
@@ -262,13 +296,39 @@ public sealed partial class GameSession
         Phase = SessionPhase.OpeningCheck;
     }
 
+    private void RetryPreparedWeekend()
+    {
+        var p = _preparation!;
+        var baseline = _disorder is not null ? CreateDisorderCampaign(CampaignSeed, p.Tier) :
+            _medical is not null ? CreateMedicalCampaign(CampaignSeed, p.Tier) : CreateEquipmentCampaign(CampaignSeed, p.Tier);
+        _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;
+        _ownedStocks[new(p.StockId)].Quantity = 40;
+        _navigationAgents.Clear();
+        _livePerformance = null;
+        _equipment = baseline._equipment;
+        _medical = baseline._medical;
+        _disorder = baseline._disorder;
+        _preparation = p with
+        {
+            Attempt = p.Attempt + 1, Status = PreparationStatus.Preparing, AcceptedOffers = [],
+            Rentals = [], WorkContracts = [], StartedTick = 0, StockConsumed = 0,
+            People = baseline._preparation!.People
+        };
+        Phase = SessionPhase.OpeningCheck;
+    }
+
     private static string? ValidatePersistedPreparation(PreparationSnapshot? p, SessionPersistenceSnapshot snapshot)
     {
         if (p is null) return null;
         if (p.Version != 1 || p.Tier is < 1 or > 2 || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
             p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != CampaignDefaults.OpeningCashPennies || p.StockConsumed < 0 ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
-            p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null)
+            p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||
+            p.CommunityShareAttempt < 0 || p.CommunityShareAttempt > p.Attempt || p.CommunityShareAttempt > 0 && snapshot.Medical is null ||
+            p.CommunityFavourClaimed != (p.CommunityShareAttempt == p.Attempt && p.Status == PreparationStatus.Finished) ||
+            p.RetryEconomyFixtureEnabled && (p.FixtureOutcomesEnabled || snapshot.Equipment is null || snapshot.Medical is not null || snapshot.Disorder is not null) ||
+            p.MaintenanceWorkerId is { } workerId && (workerId == 0 || workerId >= snapshot.NextEntityId ||
+                !snapshot.Wallets.Any(item => item.OwnerId == workerId)))
             return "Preparation header or collections invalid.";
         var maintenance = snapshot.Equipment?.WorkerId is not null ? 1 : 0;
         var medic = snapshot.Medical is null ? 0 : 1;
@@ -304,7 +364,9 @@ public sealed partial class GameSession
             p.Contacts.Contains("contact.morgan-finch") != p.Payments.Any(item => offers[item.OfferId].Category == "maintenance") ||
             !p.WorkContracts.SequenceEqual(settled ? [] : p.AcceptedOffers.Where(id => offers[id].Category is "staff" or "maintenance")) ||
             p.OwnedEquipment.Length + p.Rentals.Length > 1 ||
-            p.Payments.Count(item => item.OfferId == "equipment.buy") > 1)
+            p.Payments.Count(item => item.OfferId == "equipment.buy") > 1 ||
+            (p.MaintenanceWorkerId is not null) != p.Payments.Any(item => item.OfferId == "maintenance.worker") ||
+            snapshot.Equipment?.WorkerId is { } activeWorker && activeWorker != p.MaintenanceWorkerId)
             return "Preparation property or contracts lack matching paid commitments.";
         if (p.Status == PreparationStatus.Preparing && (snapshot.Phase != (int)SessionPhase.OpeningCheck || (snapshot.NavigationAgents?.Length ?? 0) != 0 || p.People.Any(item => item.Admitted || item.Departed)) ||
             p.Status is PreparationStatus.Running or PreparationStatus.Failed && snapshot.Phase != (int)SessionPhase.Live ||
@@ -316,6 +378,7 @@ public sealed partial class GameSession
         var originalPeople = factory.CapturePreparation()!.People;
         if (maintenance == 1) originalPeople = originalPeople.Append(new EditionPerson(factory.NextEntityId, "Morgan Finch", ProtectedPersonRole.Staff, 0)).ToArray();
         if (snapshot.CampaignPlanning is null || snapshot.Lifecycle is not null && snapshot.Equipment is null ||
+            p.MaintenanceWorkerId is { } retainedWorkerId && retainedWorkerId != factory.NextEntityId ||
             p.People.Where((person, index) => person.AgentId != originalPeople[index].AgentId || person.Name != originalPeople[index].Name ||
                 person.Role != originalPeople[index].Role || person.ExpectedGenre != originalPeople[index].ExpectedGenre).Any() ||
             p.People.Any(person => !snapshot.Wallets.Any(wallet => wallet.OwnerId == person.AgentId)))
@@ -323,8 +386,8 @@ public sealed partial class GameSession
         var finance = snapshot.FestivalFinances.SingleOrDefault(item => item.OwnerId == p.FinanceOwnerId);
         var stock = snapshot.OwnedStocks.SingleOrDefault(item => item.ServiceId == p.StockId);
         if (finance is null || stock is null || stock.OwnerId != p.FinanceOwnerId || stock.UnitCostBasisPennies != 60 ||
-            finance.CashPennies != p.OpeningCashPennies - p.Payments.Sum(item => (long)item.AmountPennies) ||
-            stock.Quantity != 40 + 50 * p.Payments.Count(item => item.OfferId == "contract.stock") - p.StockConsumed)
+            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => p.FixtureOutcomesEnabled || item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) ||
+            stock.Quantity != 40 + 50 * p.Payments.Count(item => item.OfferId == "contract.stock" && (p.FixtureOutcomesEnabled || item.Attempt == p.Attempt)) - p.StockConsumed)
             return "Preparation cash or stock does not reconcile.";
         if (p.Status != PreparationStatus.Preparing &&
             !(snapshot.NavigationAgents ?? []).Select(item => item.Id).SequenceEqual(p.People.Select(item => item.AgentId)))

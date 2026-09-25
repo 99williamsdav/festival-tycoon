@@ -141,7 +141,7 @@ public partial class Main
             _inspectorTitle.Text = "Free water • WATER";
             var owner = m.WaterOwnerId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
             _inspectorBody.Text = $"FREE • no stock or payment\nQUEUE  {m.WaterQueue.Length}/10 • VISIBLE TAIL  {m.WaterOverflow.Length}\n" +
-                $"DRINKING  {owner}\nPACE  {(m.WaterOwnerId is { } drinker ? GameSession.MedicalDrinkThirstPerTickFor(drinker).ToString() : "8–20")} thirst/tick • varies by person\n" +
+                $"DRINKING  {owner}\nPACE  {(m.WaterOwnerId is { } drinker ? _session.EffectiveMedicalDrinkThirstPerTickFor(drinker).ToString() : _session.CommunityWaterShareActive ? "8–12" : "8–20")} thirst/tick • varies by person{(_session.CommunityWaterShareActive ? " • shared with neighbours (cap 12)" : "")}\n" +
                 "Select a person for GUIDE TO WATER in their inspector.";
         }
         else

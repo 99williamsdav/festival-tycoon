@@ -131,6 +131,16 @@ public sealed partial class GameSession
                 ApplySpendFixtureFavour();
                 break;
 
+            case SpendCouncilFavourCommand:
+                affectedTarget = null;
+                ApplySpendCouncilFavour();
+                break;
+
+            case CommitCommunityWaterShareCommand:
+                affectedTarget = null;
+                ApplyCommunityWaterShare();
+                break;
+
             case ForceFixtureSafeCompletionCommand:
                 affectedTarget = null;
                 ApplyForceFixtureSafeCompletion();
@@ -529,7 +539,7 @@ public sealed partial class GameSession
         if (queueError is not null) return queueError;
         var campaignError = ValidatePersistedCampaignPlanning(snapshot.CampaignPlanning, snapshot);
         if (campaignError is not null) return campaignError;
-        var lifecycleError = ValidatePersistedLifecycle(snapshot.Lifecycle);
+        var lifecycleError = ValidatePersistedLifecycle(snapshot.Lifecycle, snapshot.Preparation, snapshot.CampaignId);
         if (lifecycleError is not null) return lifecycleError;
         var preparationError = ValidatePersistedPreparation(snapshot.Preparation, snapshot);
         if (preparationError is not null) return preparationError;
@@ -634,9 +644,9 @@ public sealed partial class GameSession
 
         var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
         if (lifecycleFrozen is not null) return lifecycleFrozen;
-        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand))
+        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or SpendCouncilFavourCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
-        if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished)
+        if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not SpendCouncilFavourCommand)
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
 
         return envelope.Command switch
@@ -656,6 +666,8 @@ public sealed partial class GameSession
             DismissCampaignTipCommand dismiss => ValidateDismissCampaignTip(envelope.TargetId, dismiss),
             ForceFixtureDeathsCommand deaths => ValidateForceFixtureDeaths(envelope.TargetId, deaths),
             SpendFixtureFavourCommand => ValidateSpendFixtureFavour(envelope.TargetId),
+            SpendCouncilFavourCommand => ValidateSpendCouncilFavour(envelope.TargetId),
+            CommitCommunityWaterShareCommand => ValidateCommunityWaterShare(envelope.TargetId),
             ForceFixtureSafeCompletionCommand => ValidateForceFixtureSafeCompletion(envelope.TargetId),
             CreateGuestWalletCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Guest setup requires no target and nonnegative opening cash."),
