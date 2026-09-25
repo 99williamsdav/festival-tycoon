@@ -78,11 +78,16 @@ public sealed class MedicalCuePlanner
                 _active.Remove(need.AgentId);
                 _pending.RemoveAll(item => item.AgentId == need.AgentId);
             }
-            else if (_previous.GetValueOrDefault(need.AgentId) != kind && kind != RoutineKind.None &&
-                     _previousDecisionTick.GetValueOrDefault(need.AgentId, long.MinValue) != need.LastDecisionTick)
+            else if (_previousDecisionTick.GetValueOrDefault(need.AgentId, long.MinValue) != need.LastDecisionTick &&
+                     _previous.GetValueOrDefault(need.AgentId) != kind && kind != RoutineKind.None)
                 candidates.Add(new(need.AgentId, kind, tick));
-            _previous[need.AgentId] = kind;
-            _previousDecisionTick[need.AgentId] = need.LastDecisionTick;
+            // A thirst-only threshold crossing may change today's classification,
+            // but it is not a new decision and must not consume the next bark.
+            if (_previousDecisionTick.GetValueOrDefault(need.AgentId, long.MinValue) != need.LastDecisionTick)
+            {
+                _previous[need.AgentId] = kind;
+                _previousDecisionTick[need.AgentId] = need.LastDecisionTick;
+            }
         }
         _lastObservedTick = tick;
         if (urgent.Count > 0)

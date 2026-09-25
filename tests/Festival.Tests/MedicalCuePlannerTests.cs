@@ -58,6 +58,14 @@ public sealed class MedicalCuePlannerTests
             ? item with { Thirst = 6_500 } : item).ToArray() };
         Assert.AreEqual(0, planner.Observe(thresholdOnly, 1).Count,
             "Thirst crossing the presentation threshold without a new decision must not bark.");
+        var decidedAfterThreshold = thresholdOnly with { Needs = thresholdOnly.Needs.Select(item => item.AgentId == tradeoffId
+            ? item with { LastDecisionTick = 2 } : item).ToArray() };
+        var firstRealTradeoff = planner.Observe(decidedAfterThreshold, 2);
+        Assert.AreEqual(tradeoffId, firstRealTradeoff.Single().AgentId,
+            "The first real show/water decision after a silent thirst crossing must still bark.");
+        planner.Reset(decidedAfterThreshold, 2);
+        Assert.AreEqual(0, planner.Observe(decidedAfterThreshold, 2).Count,
+            "Restoring that decision must not replay its bark.");
     }
 
     [TestMethod]
