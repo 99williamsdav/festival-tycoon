@@ -42,12 +42,20 @@ public sealed class FarmSceneTests
         var barn = LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.large-barn");
         Assert.AreEqual(0d, barn.XMetres);
         Assert.AreEqual(-23d, barn.ZMetres);
+        Assert.AreEqual(0, barn.YawQuarterTurns, "The large barn doors must face the road.");
         var grid = new TraversalGrid(NavigationFixture.CreateLowerWitteringTerrain());
         Assert.IsFalse(grid.Get(TraversalGrid.WorldToCell(0, -23_000)).IsWalkable);
         foreach (var cell in new[] { GameSession.MedicalMedicCell, GameSession.MedicalRestCell,
                      GameSession.DisorderSecurityBaseCell, GameSession.MedicalExitCell })
             Assert.IsTrue(grid.Get(cell).IsWalkable, $"Approach {cell} must remain walkable.");
         Assert.AreNotEqual(GameSession.MedicalTentCell, GameSession.DisorderSecurityPostCell);
+        Assert.AreEqual(GameSession.MedicalTentCell.X, GameSession.MedicalMedicCell.X);
+        Assert.IsTrue(GameSession.MedicalMedicCell.Z > GameSession.MedicalTentCell.Z,
+            "Riley must stand on the tent's +Z/front side.");
+        Assert.IsTrue(GameSession.DisorderSecurityBaseCell.X > GameSession.DisorderSecurityPostCell.X,
+            "Jordan must stand on the steward post's rotated +X/front side.");
+        Assert.AreEqual(1, Math.Abs(GameSession.MedicalTentCell.Z + 5 - GameSession.MedicalWaterCell.Z),
+            "The tent's front edge should approximately line up with the tap.");
     }
 
     [TestMethod]

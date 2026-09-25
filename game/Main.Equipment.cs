@@ -29,7 +29,7 @@ public partial class Main
         _equipmentSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _equipmentSummary.CustomMinimumSize = new Vector2(370, 110); box.AddChild(_equipmentSummary);
         foreach (var row in new[] {
-            new[] { (EquipmentAction.ShedLoad, "SHED LOAD"), (EquipmentAction.Isolate, "EMERGENCY CUTOFF") },
+            new[] { (EquipmentAction.ShedLoad, "SHED LOAD") },
             new[] { (EquipmentAction.DispatchMaintenance, "DISPATCH MORGAN"), (EquipmentAction.Acknowledge, "ACKNOWLEDGE") } })
         {
             var line = new HBoxContainer(); box.AddChild(line);

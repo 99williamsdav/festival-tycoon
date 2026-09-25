@@ -127,9 +127,9 @@ public sealed class DisorderCuePlanner
 
     private static string ShoutText(Pending pending)
     {
-        var variant = (pending.AgentId + (ulong)Math.Max(0, pending.StageTick)) % 2;
+        var variant = (pending.AgentId + (ulong)Math.Max(0, pending.StageTick)) % 5;
         return pending.Grievance == DisorderGrievance.WaterWait
-            ? variant == 0 ? "Hurry up!" : "This queue is ridiculous!"
-            : variant == 0 ? "What the hell?!" : "This is ridiculous!";
+            ? variant switch { 0 => "Hurry up!", 1 => "This queue is ridiculous!", 2 => "It's an outrage!", 3 => "FFS!", _ => "Grrrr!" }
+            : variant switch { 0 => "What the hell?!", 1 => "This is ridiculous!", 2 => "It's an outrage!", 3 => "FFS!", _ => "Grrrr!" };
     }
 }

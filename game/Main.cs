@@ -30,6 +30,10 @@ public partial class Main : Node
     private Label _orientationLabel = null!;
     private Label _inspectorTitle = null!;
     private Label _inspectorBody = null!;
+    private VBoxContainer? _satisfactionSection;
+    private Label? _satisfactionLabel;
+    private ProgressBar? _satisfactionBar;
+    private Button? _stagePowerButton;
     private Label _hashLabel = null!;
     private GameSession _session = null!;
     private string _pausedHash = "";
@@ -121,8 +125,8 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.04-layout-v11",
-        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v11");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.04-layout-v12",
+        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v12");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -178,7 +182,7 @@ public partial class Main : Node
         _foundationPublishedHashTick = _session.CurrentTick;
         BuildWorld();
         if (DisplayServer.GetName() != "headless")
-            DisplayServer.SetIcon(GD.Load<Texture2D>("res://assets/branding/festival-tycoon-stage-sun-icon.png").GetImage());
+            DisplayServer.SetIcon(GD.Load<Texture2D>("res://assets/branding/festival-tycoon-stage-sun-icon-v3.png").GetImage());
         if (_session.CaptureMedical() is not null) BuildMedicalWorld();
         if (_session.CaptureDisorder() is not null) BuildDisorderWorld();
         if (_session.CaptureEquipment() is not null) EnsureStageDrumKit();
@@ -533,8 +537,10 @@ public partial class Main : Node
         var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", 12); margin.AddChild(box);
         box.AddChild(LabelText("SELECTION INSPECTOR", 15, new Color("6f5937")));
         _inspectorTitle = LabelText("Nothing selected", 24, ink); _inspectorTitle.AutowrapMode = TextServer.AutowrapMode.WordSmart; box.AddChild(_inspectorTitle);
+        BuildSatisfactionBar(box);
         _inspectorBody = LabelText("Click a building, gate, stage or service point.\nClick empty ground to clear.", 16, ink);
         _inspectorBody.AutowrapMode = TextServer.AutowrapMode.WordSmart; box.AddChild(_inspectorBody);
+        BuildStagePowerAction(box);
         box.AddChild(new Control { SizeFlagsVertical = Control.SizeFlags.ExpandFill });
         _hashLabel = LabelText("SIM HASH: CHECKING", 13, new Color("47603b")); _hashLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart; box.AddChild(_hashLabel);
 
@@ -748,6 +754,8 @@ public partial class Main : Node
         RefreshMedicalNeedBars(null);
         _selectedAttendeeId = null;
         _selected = item;
+        RefreshStagePowerAction();
+        RefreshSatisfactionBar(null);
         RefreshMedicalActionInspector();
         RefreshDisorderActionInspector();
         var radius = item.Kind switch
@@ -769,6 +777,8 @@ public partial class Main : Node
         ClearSecurityPostSelection();
         RefreshMedicalNeedBars(null);
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
+        RefreshStagePowerAction();
+        RefreshSatisfactionBar(null);
         RefreshMedicalActionInspector();
         RefreshDisorderActionInspector();
         _inspectorBody.Text = "Click a building, gate, stage or service point.\nClick empty ground to clear."; GD.Print("FARM_SELECTION_CLEARED");
@@ -784,12 +794,55 @@ public partial class Main : Node
         ClearSecurityPostSelection();
         _selectedMedicalFacility = null;
         _selected = null; _selectedAttendeeId = id;
+        RefreshStagePowerAction();
         _highlight.Position = visual.Position + new Vector3(0, 0.08f, 0);
         _highlight.Scale = new Vector3(0.7f, 1, 0.7f); _highlight.Visible = true;
         RefreshAttendeeInspector();
         RefreshMedicalActionInspector();
         RefreshDisorderActionInspector();
         GD.Print($"ATTENDEE_SELECTED id={id.Value} orientation={OrientationNames[_orientation]}");
+    }
+
+    private void BuildSatisfactionBar(VBoxContainer parent)
+    {
+        _satisfactionSection = new VBoxContainer { Visible = false };
+        _satisfactionLabel = LabelText("OVERALL SATISFACTION", 12, new Color("6f5937"));
+        _satisfactionSection.AddChild(_satisfactionLabel);
+        _satisfactionBar = new ProgressBar { MaxValue = 10_000, ShowPercentage = false,
+            CustomMinimumSize = new Vector2(285, 16) };
+        _satisfactionSection.AddChild(_satisfactionBar);
+        parent.AddChild(_satisfactionSection);
+    }
+
+    private void RefreshSatisfactionBar(int? satisfaction)
+    {
+        if (_satisfactionSection is null) return;
+        _satisfactionSection.Visible = satisfaction is not null;
+        if (satisfaction is not { } value) return;
+        _satisfactionLabel!.Text = $"OVERALL SATISFACTION  {value / 100m:0}%";
+        _satisfactionBar!.Value = value;
+        _satisfactionBar.Modulate = value < 3_500 ? new Color("df5750") :
+            value < 7_000 ? new Color("459ad1") : new Color("53bb72");
+        _satisfactionBar.TooltipText = $"Overall satisfaction: {value / 100m:0}%";
+    }
+
+    private void BuildStagePowerAction(VBoxContainer parent)
+    {
+        if (_session.CaptureEquipment() is null) return;
+        _stagePowerButton = ButtonText("ISOLATE STAGE POWER", () =>
+            CommitEquipmentAction(new EquipmentCommand(EquipmentAction.Isolate)));
+        _stagePowerButton.Visible = false;
+        parent.AddChild(_stagePowerButton);
+    }
+
+    private void RefreshStagePowerAction()
+    {
+        if (_stagePowerButton is null) return;
+        _stagePowerButton.Visible = _selected?.Kind == FarmObjectKind.TrailerStage;
+        if (!_stagePowerButton.Visible) return;
+        var error = _session.ValidateCommand(CampaignEnvelope(new EquipmentCommand(EquipmentAction.Isolate)));
+        _stagePowerButton.Disabled = error is not null;
+        _stagePowerButton.TooltipText = error?.Message ?? "Safely isolate this stage's power.";
     }
 
     private void RefreshAttendeeInspector(SessionObservation? supplied = null)
@@ -1153,7 +1206,7 @@ public partial class Main : Node
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory => ProjectSettings.GlobalizePath(
-        _session?.CaptureDisorder() is not null ? "user://saves/r0.04-layout-v11" : "user://saves");
+        _session?.CaptureDisorder() is not null ? "user://saves/r0.04-layout-v12" : "user://saves");
     private void ManualSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));

@@ -90,6 +90,8 @@ public partial class Main
     {
         ClearSecurityPostSelection();
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = facility;
+        RefreshSatisfactionBar(null);
+        RefreshStagePowerAction();
         RefreshMedicalNeedBars(null);
         RefreshMedicalActionInspector();
         var cell = facility == MedicalFacility.Water ? GameSession.MedicalWaterCell : GameSession.MedicalTentCell;
@@ -139,7 +141,7 @@ public partial class Main
             _inspectorTitle.Text = "Free water • WATER";
             var owner = m.WaterOwnerId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
             _inspectorBody.Text = $"FREE • no stock or payment\nQUEUE  {m.WaterQueue.Length}/10 • VISIBLE TAIL  {m.WaterOverflow.Length}\n" +
-                $"DRINKING  {owner}\nRELIEF  thirst -{GameSession.MedicalDrinkThirstPerTick}/tick • heat -{GameSession.MedicalDrinkHeatPerTick}/tick\n" +
+                $"DRINKING  {owner}\nPACE  {(m.WaterOwnerId is { } drinker ? GameSession.MedicalDrinkThirstPerTickFor(drinker).ToString() : "8–20")} thirst/tick • varies by person\n" +
                 "Select a person for GUIDE TO WATER in their inspector.";
         }
         else

@@ -26,7 +26,7 @@ public sealed class DisorderCuePlannerTests
                 : item).ToArray() };
         var first = planner.Observe(complaining, medical, 100);
         Assert.AreEqual(1, first.Count);
-        Assert.IsTrue(first.Single().Text is "What the hell?!" or "This is ridiculous!" or "Hurry up!" or "This queue is ridiculous!");
+        Assert.IsTrue(first.Single().Text is "What the hell?!" or "This is ridiculous!" or "It's an outrage!" or "FFS!" or "Grrrr!" or "Hurry up!" or "This queue is ridiculous!");
         Assert.AreEqual(first.Single(), planner.Observe(complaining, medical, 101).Single());
         Assert.IsTrue(planner.Observe(complaining, medical, 220).Count <= 1);
         Assert.AreEqual(secondId, planner.Observe(complaining, medical, 500).Single().AgentId,

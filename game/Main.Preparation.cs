@@ -32,6 +32,7 @@ public partial class Main
     {
         var layer = new CanvasLayer(); AddChild(layer);
         var viewportWidth = GetViewport().GetVisibleRect().Size.X;
+        var viewportHeight = GetViewport().GetVisibleRect().Size.Y;
         var rightPanelX = viewportWidth - 420;
         var livePanel = new PanelContainer { Position = new Vector2((viewportWidth - 400) / 2, 16), Size = new Vector2(400, 66) };
         livePanel.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(livePanel);
@@ -70,25 +71,28 @@ public partial class Main
         controls.AddChild(ButtonText("LOAD", PreparationLoad));
         _stageMuteButton = ButtonText("MUTE AUDIO", ToggleStageMute); box.AddChild(_stageMuteButton);
         controls.AddChild(ButtonText("RETRY SAVE", () => { _preparationSaveBlocked = false; _preparationMessage = "Retrying pending boundary."; RefreshPreparationHud(); }));
-        var rosterPanel = new PanelContainer { Position = new Vector2(rightPanelX, 16), Size = new Vector2(400, 380) };
+        var rosterPanel = new PanelContainer { Position = new Vector2(rightPanelX, 16), Size = new Vector2(400, 210) };
         rosterPanel.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(rosterPanel);
-        _preparationRosterScroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, 360) };
+        _preparationRosterScroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, 190) };
         rosterPanel.AddChild(_preparationRosterScroll);
         _preparationPeople = LabelText("", 15, ink); _preparationPeople.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _preparationPeople.CustomMinimumSize = new Vector2(360, 0);
         _preparationRosterScroll.AddChild(_preparationPeople);
-        var inspector = new PanelContainer { Position = new Vector2(rightPanelX, _session.CaptureMedical() is not null ? 405 : _session.CaptureEquipment() is null ? 440 : 525),
-            Size = new Vector2(400, _session.CaptureMedical() is not null ? 460 : _session.CaptureEquipment() is null ? 250 : 165) };
+        var inspectorHeight = Math.Max(300f, viewportHeight - 254f);
+        var inspector = new PanelContainer { Position = new Vector2(rightPanelX, 238),
+            Size = new Vector2(400, inspectorHeight) };
         inspector.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(inspector);
-        var inspectorScroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, _session.CaptureMedical() is not null ? 440 : 145) };
+        var inspectorScroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, inspectorHeight - 20) };
         inspector.AddChild(inspectorScroll);
         var detail = new VBoxContainer { CustomMinimumSize = new Vector2(375, 0) }; inspectorScroll.AddChild(detail);
         _inspectorTitle = LabelText("Inspect the persistent farm", 18, ink); detail.AddChild(_inspectorTitle);
+        BuildSatisfactionBar(detail);
         BuildMedicalNeedBars(detail);
         _inspectorBody = LabelText("Click a building to inspect its retained identity.\nAll guests and workers remain protected people.", 14, ink);
         _inspectorBody.AutowrapMode = TextServer.AutowrapMode.WordSmart; detail.AddChild(_inspectorBody);
         BuildMedicalActionInspector(detail);
         BuildDisorderActionInspector();
+        BuildStagePowerAction(detail);
         BuildSecurityPostInspectorAction(detail);
         RefreshPreparationHud();
     }
@@ -176,6 +180,7 @@ public partial class Main
         RefreshEquipmentControls();
         RefreshMedicalControls();
         RefreshDisorderControls();
+        RefreshStagePowerAction();
     }
 
     private void AdvancePreparationPresentation(double delta)

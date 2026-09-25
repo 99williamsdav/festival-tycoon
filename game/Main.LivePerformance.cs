@@ -115,6 +115,7 @@ public partial class Main
     private void RefreshLivePersonInspector(EntityId id, NavigationObservation navigation, PreparationSnapshot preparation)
     {
         var person = preparation.People.Single(item => item.AgentId == id.Value);
+        RefreshSatisfactionBar(person.Role == ProtectedPersonRole.Guest ? person.Satisfaction : null);
         var live = _session.CaptureLivePerformance();
         var medical = _session.CaptureMedical();
         var need = medical?.Needs.SingleOrDefault(item => item.AgentId == id.Value);
@@ -133,7 +134,7 @@ public partial class Main
         _inspectorTitle.Text = $"{person.Name} • {(person.Name == "Jordan Hale" ? "Steward" : person.Role)}";
         _inspectorBody.Text = $"{navigation.Action} • {StewardWording(navigation.IntentId ?? "None")}\n" +
             $"POSITION  {navigation.XMillimetres / 1000.0:0.00} m, {navigation.ZMillimetres / 1000.0:0.00} m\n" +
-            $"Admitted {person.Admitted} • satisfaction {person.Satisfaction / 100m:0.00}%\n" +
+            $"Admitted {person.Admitted}\n" +
             (need is null ? "" : $"HOT • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}% • " +
                 $"{(need.Profile == MedicalNeedProfile.Performer ? need.Stage : id.Value == medical!.AtRiskGuestId ? medical.Stage : need.Stage)}\n" +
                 $"INTENT {need.Intent} • {StewardWording(need.Reason)}\n" +

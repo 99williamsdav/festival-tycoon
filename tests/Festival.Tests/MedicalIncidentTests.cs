@@ -496,6 +496,15 @@ public sealed class MedicalIncidentTests
     }
 
     [TestMethod]
+    public void DrinkingPaceVariesDeterministicallyByPerson()
+    {
+        CollectionAssert.AreEquivalent(new[] { 8, 12, 16, 20 },
+            Enumerable.Range(1, 4).Select(id => GameSession.MedicalDrinkThirstPerTickFor((ulong)id)).ToArray());
+        Assert.AreEqual(GameSession.MedicalDrinkThirstPerTickFor(1),
+            GameSession.MedicalDrinkThirstPerTickFor(5), "Pace remains stable across sessions and saves.");
+    }
+
+    [TestMethod]
     public void DrinkingOwnsOneTapAndContinuouslyRelievesNeedsUntilThirstZeroAcrossRestore()
     {
         var s = Started();

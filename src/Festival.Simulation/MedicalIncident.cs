@@ -23,6 +23,9 @@ public sealed partial class GameSession
     // Prototype Hot scenario, not clinical thresholds or a general weather model.
     public const int MedicalDrinkThirstPerTick = 16;      // Continuous relief, not a fixed service timer.
     public const int MedicalDrinkHeatPerTick = 4;
+    // Stable per-person service pace: slower drinkers occupy the single tap longer.
+    public static int MedicalDrinkThirstPerTickFor(ulong agentId) => 8 + (int)(agentId % 4) * 4;
+    public static int MedicalDrinkHeatPerTickFor(ulong agentId) => MedicalDrinkThirstPerTickFor(agentId) / 4;
     public const int MedicalDecisionCooldownTicks = 240;   // 3 real seconds at 1×.
     public const int MedicalCollapseDelayTicks = 1_600;   // 20 real seconds after distress.
     public const int MedicalCriticalDelayTicks = 800;     // 10 real seconds after collapse.
@@ -31,9 +34,9 @@ public sealed partial class GameSession
     public const int MedicalDistressThirst = 9_000;
     public const int MedicalDistressHeat = 8_000;
     public static readonly GridCell MedicalWaterCell = new(95, 123);    // (-16.25, -2.25) m; upper-right overview, away from the audience.
-    public static readonly GridCell MedicalTentCell = new(116, 144);    // (-5.75, 8.25) m; behind the front entrance.
-    public static readonly GridCell MedicalMedicCell = new(116, 140);   // (-5.75, 6.25) m; walkable tent approach.
-    public static readonly GridCell MedicalRestCell = new(120, 140);    // (-3.75, 6.25) m; outside the tent footprint.
+    public static readonly GridCell MedicalTentCell = new(116, 119);    // (-5.75, -4.25) m; tent frontage aligns with the water point.
+    public static readonly GridCell MedicalMedicCell = new(116, 125);   // (-5.75, -1.25) m; Riley stands in front of the tent.
+    public static readonly GridCell MedicalRestCell = new(120, 125);    // (-3.75, -1.25) m; beside the tent's new front approach.
     public static readonly GridCell MedicalExitCell = new(128, 186);    // (0.25, 29.25) m.
     // One compact line behind the single tap, with a slight human offset and no branches.
     // Slot zero alone owns the tap. Approaching the tail does not reserve a slot.
@@ -64,7 +67,7 @@ public sealed partial class GameSession
          m.Stage == MedicalStage.Distress && CurrentTick + 1 >= m.WarningTick + MedicalCollapseDelayTicks ||
          m.Stage == MedicalStage.Collapsed && CurrentTick + 1 >= m.CollapseTick + MedicalCriticalDelayTicks ||
          m.Stage == MedicalStage.Critical && CurrentTick + 1 >= m.CollapseTick + MedicalDeathDelayTicks ||
-         m.WaterOwnerId is { } waterOwner && m.Needs.Single(item => item.AgentId == waterOwner).Thirst <= MedicalDrinkThirstPerTick ||
+         m.WaterOwnerId is { } waterOwner && m.Needs.Single(item => item.AgentId == waterOwner).Thirst <= MedicalDrinkThirstPerTickFor(waterOwner) ||
          m.Needs.Any(item => item.Profile == MedicalNeedProfile.Performer &&
              (item.Stage == MedicalStage.Clear && item.Thirst >= MedicalDistressThirst - 1 && item.HeatExposure >= MedicalDistressHeat - 1 ||
               item.Stage == MedicalStage.Distress && CurrentTick + 1 >= item.WarningTick + MedicalCollapseDelayTicks ||
@@ -449,7 +452,7 @@ public sealed partial class GameSession
                         LeaveWater(need.AgentId, $"Band appeal {showScore} exceeded water utility {waterScore}; queue place released");
                 }
                 else if (waterScore > showScore)
-                    SeekWater(need.AgentId, $"Hot thirst {need.Thirst}/10000 outweighed band {showScore}, travel {travel} cells and estimated wait {m.WaterQueue.Sum(id => m.Needs.Single(item => item.AgentId == id).Thirst / MedicalDrinkThirstPerTick)} ticks");
+                    SeekWater(need.AgentId, $"Hot thirst {need.Thirst}/10000 outweighed band {showScore}, travel {travel} cells and estimated wait {m.WaterQueue.Sum(id => m.Needs.Single(item => item.AgentId == id).Thirst / MedicalDrinkThirstPerTickFor(id))} ticks");
                 else SetNeed(need.AgentId, item => item with { Reason = $"Watching band: music {showScore} vs water {waterScore} incl. travel/wait",
                     LastDecisionTick = CurrentTick });
                 m = _medical!;
@@ -466,14 +469,14 @@ public sealed partial class GameSession
             {
                 _medical = m = m with { WaterOwnerId = first, WaterDrinkTicks = 0 };
                 SetNeed(first, item => item with { Intent = MedicalIntent.Drinking,
-                    Reason = "Drinking at the free tap after physical arrival; thirst and heat improve continuously" });
+                    Reason = $"Drinking at the free tap ({(MedicalDrinkThirstPerTickFor(first) <= 12 ? "slowly" : "steadily")}); thirst and heat improve continuously" });
                 MedicalEvent("medical:drink-start", $"Person {first} started drinking at the free tap after physical arrival.");
                 m = _medical!;
             }
             if (m.WaterOwnerId == first && atTap)
             {
-                SetNeed(first, item => item with { Thirst = Math.Max(0, item.Thirst - MedicalDrinkThirstPerTick),
-                    HeatExposure = Math.Max(0, item.HeatExposure - MedicalDrinkHeatPerTick) });
+                SetNeed(first, item => item with { Thirst = Math.Max(0, item.Thirst - MedicalDrinkThirstPerTickFor(first)),
+                    HeatExposure = Math.Max(0, item.HeatExposure - MedicalDrinkHeatPerTickFor(first)) });
                 _medical = m = _medical! with { WaterDrinkTicks = m.WaterDrinkTicks + 1 };
                 if (m.Needs.Single(item => item.AgentId == first).Thirst == 0)
                 {

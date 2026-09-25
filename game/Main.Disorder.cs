@@ -86,7 +86,8 @@ public partial class Main
     {
         var centre = TraversalGrid.CellCentre(GameSession.DisorderSecurityPostCell);
         var position = new Vector3(centre.XMillimetres / 1000f, 0, centre.ZMillimetres / 1000f);
-        AddAsset("res://assets/environment/lwf_security_post_v1.glb", position);
+        var post = AddAsset("res://assets/environment/lwf_security_post_v1.glb", position);
+        post.RotationDegrees = new Vector3(0, 90, 0);
         var pick = new StaticBody3D { Position = position + new Vector3(0, 1.55f, 0),
             CollisionLayer = 1, CollisionMask = 0 };
         pick.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(2.38f, 3.1f, 2.33f) } });
@@ -106,6 +107,8 @@ public partial class Main
     private void SelectSecurityPost()
     {
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null;
+        RefreshSatisfactionBar(null);
+        RefreshStagePowerAction();
         _selectedSecurityPost = true;
         RefreshMedicalNeedBars(null);
         RefreshMedicalActionInspector();
@@ -163,7 +166,6 @@ public partial class Main
             box.AddChild(button);
             _disorderButtons.Add(action, button);
         }
-        box.AddChild(ButtonText("ISOLATE STAGE POWER", () => CommitEquipmentAction(new EquipmentCommand(EquipmentAction.Isolate))));
     }
 
     private void BuildDisorderActionInspector()
@@ -370,7 +372,7 @@ public partial class Main
         if (_disorderCaptureFrame == 10)
         {
             if (!_disorderCueLabels.Values.Any(item => item.Visible && item.Text is
-                "What the hell?!" or "This is ridiculous!" or "Hurry up!" or "This queue is ridiculous!"))
+                "What the hell?!" or "This is ridiculous!" or "It's an outrage!" or "FFS!" or "Grrrr!" or "Hurry up!" or "This queue is ridiculous!"))
                 throw new InvalidOperationException("Complaint shout was not anchored visibly to a person.");
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "complaint-32.png"));
             var selected = _selectedAttendeeId!.Value;
