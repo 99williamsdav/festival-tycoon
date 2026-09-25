@@ -187,19 +187,30 @@ public sealed class NavigationTests
     }
 
     [TestMethod]
-    public void GateToServiceRouteStructurallyDetoursAroundLargeBarn()
+    public void RearFieldNorthToSouthRouteStructurallyDetoursAroundLargeBarn()
     {
-        var fixture = NavigationFixture.CreateGateToServiceSession();
-        Assert.IsTrue(NavigationFixture.IssueAutonomousServiceIntent(fixture).IsAccepted);
-        var route = fixture.Session.CaptureSnapshot().NavigationAgents.Single().Route;
-        var barnMin = TraversalGrid.WorldToCell(7_000, 5_000);
-        var barnMax = TraversalGrid.WorldToCell(29_000, 19_000);
+        var start = TraversalGrid.WorldToCell(0, -12_000);
+        var target = TraversalGrid.WorldToCell(0, -34_000);
+        var session = new GameSession(20260914);
+        var created = session.Execute(Envelope(session, new CommandId(1), null,
+            new InitializeNavigationFixtureCommand(start, NavigationFixture.CreateLowerWitteringTerrain())));
+        Assert.IsTrue(created.IsAccepted);
+        Assert.IsTrue(session.Execute(Envelope(session, new CommandId(2), created.TargetId,
+            new SetAgentDestinationCommand(target, "fixture.rear-barn-crossing"))).IsAccepted);
+        var route = session.CaptureSnapshot().NavigationAgents.Single().Route;
+        var barnMin = TraversalGrid.WorldToCell(-11_000, -30_000);
+        var barnMax = TraversalGrid.WorldToCell(11_000, -16_000);
         bool IsBarn(GridCell cell) => cell.X >= barnMin.X && cell.X <= barnMax.X && cell.Z >= barnMin.Z && cell.Z <= barnMax.Z;
-        var unobstructed = DeterministicPathfinder.FindPath(new TraversalGrid(), fixture.GateCell, fixture.ServiceCell);
-        Assert.IsTrue(unobstructed.Path.Any(IsBarn), "The straight optimal route must intersect the barn footprint for this fixture to prove a detour.");
-        Assert.IsFalse(route.Any(IsBarn));
-        Assert.IsTrue(route.Any(cell => cell.Z >= barnMin.Z && cell.Z <= barnMax.Z && cell.X < barnMin.X),
-            "The authoritative route must pass the west-side clearance before turning south of the barn.");
+        var unobstructed = DeterministicPathfinder.FindPath(new TraversalGrid(), start, target);
+        Assert.IsTrue(unobstructed.Found && unobstructed.Path.Any(IsBarn),
+            "Without the rear barn, this north-to-south fixture must cross its actual footprint.");
+        Assert.IsFalse(session.TraversalGrid!.Get(TraversalGrid.WorldToCell(0, -23_000)).IsWalkable,
+            "The authoritative fixture must contain the new rear-field barn obstacle.");
+        Assert.IsFalse(route.Any(IsBarn), "The authoritative route must avoid every blocked barn cell.");
+        Assert.IsTrue(route.Any(cell => cell.Z >= barnMin.Z && cell.Z <= barnMax.Z &&
+            (cell.X < barnMin.X || cell.X > barnMax.X)),
+            "The authoritative route must pass one side of the rear barn before reaching the far side.");
+        Assert.AreEqual(target, route.Last());
     }
 
     [TestMethod]

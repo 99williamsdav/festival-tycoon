@@ -10,6 +10,8 @@ The Godot 4.7.2 visual fixture exited 0 with no `ERROR:` and logged `STEWARD_CAP
 
 A first `dotnet test ... --filter` invocation did not apply the filter under this project's Microsoft Testing Platform setup and ran all 199 tests: 196 passed, while `FoundationSceneTests.PhysicalRejoinApproachesRemotelyThenAllocatesFreshUniqueSequenceOnArrival`, `NavigationTests.GateToServiceRouteStructurallyDetoursAroundLargeBarn`, and `TrafficKernelProofTests.PerpendicularAndDiagonalCrossingsDischarge(True)` failed. No related production or test logic was changed by this visual repair; this broader run is not claimed as a pass.
 
+Follow-up: the two layout-stale test assumptions were repaired separately in [layout-test evidence](layout-test-repair.md). The later full run passed 198/199; only the already parked S0.07 diagonal traffic-kernel proof remains failing.
+
 Fresh isolated Windows export: `artifacts/windows/r004-steward-patch-repair/FestivalTycoon-R0.04.exe` (127,284,136 bytes). A waited hidden `--headless --quit-after 120` run exited 0, advanced the Godot log and printed `FESTIVAL_TYCOON_LAUNCHED`, `FARM_SCENE_READY`, and `INCIDENT_AUDIO_READY`, with no `ERROR:` line. The launcher SHA-256 is `8C86D4D54FF35724574DC7F0FB46D6A4937F71F832C3E0C34ACE598E9C821E56` (the launcher is unchanged; the adjacent Game DLL contains the repair).
 
 The unrelated rejected first-aid v1 files were untouched. Incident-marker work and R0.05 were not started.

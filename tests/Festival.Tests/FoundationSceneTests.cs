@@ -36,8 +36,20 @@ public sealed class FoundationSceneTests
     {
         var fixture = FiftyAgentFoundationFixture.Create();
         var attendee16 = new EntityId(16);
-        while (!fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee16)) fixture.Session.AdvanceTicks(1);
-        Assert.AreEqual(1262, fixture.Session.CurrentTick, "Keep the independent review's first-admission reproduction exact.");
+        while (!fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee16) &&
+               fixture.Session.CurrentTick < 3000) fixture.Session.AdvanceTicks(1);
+        var firstAdmissionTick = fixture.Session.CurrentTick;
+        Assert.IsTrue(firstAdmissionTick > 0 && firstAdmissionTick < 3000,
+            "Attendee 16 must physically reach the first queue admission within the fixture bound.");
+        var replica = FiftyAgentFoundationFixture.Create();
+        replica.Session.AdvanceTicks(checked((int)(firstAdmissionTick - 1)));
+        Assert.IsFalse(replica.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee16),
+            "An independent replica must not admit attendee 16 before the first physical arrival.");
+        replica.Session.AdvanceTicks(1);
+        Assert.IsTrue(replica.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee16));
+        Assert.AreEqual(fixture.Session.CaptureSnapshot().AuthoritativeHash,
+            replica.Session.CaptureSnapshot().AuthoritativeHash,
+            "First physical admission must remain deterministic across identical fixtures.");
         var admitted = fixture.Session.CaptureSnapshot().ServiceQueues.Single();
         var oldSequence = admitted.Agents.Single(item => item.AgentId == attendee16).ArrivalSequence;
         Assert.IsTrue(ServiceQueueFixture.Abandon(new ServiceQueueFixtureState(fixture.Session, fixture.QueueId,
@@ -52,8 +64,10 @@ public sealed class FoundationSceneTests
         Assert.AreEqual(ServiceQueueAgentAction.ApproachingQueue, remote.Action);
         Assert.AreEqual("ai.service-approach", fixture.Session.CaptureSnapshot().NavigationAgents.Single(item => item.Id == attendee16).IntentId);
 
-        while (!fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee16)) fixture.Session.AdvanceTicks(1);
+        while (!fixture.Session.CaptureSnapshot().ServiceQueues.Single().OrderedMembers.Contains(attendee16) &&
+               fixture.Session.CurrentTick < firstAdmissionTick + 3000) fixture.Session.AdvanceTicks(1);
         var rejoined = fixture.Session.CaptureSnapshot().ServiceQueues.Single();
+        Assert.IsTrue(rejoined.OrderedMembers.Contains(attendee16), "Rejoining must complete by physical arrival.");
         var newSequence = rejoined.Agents.Single(item => item.AgentId == attendee16).ArrivalSequence;
         Assert.IsTrue(newSequence > oldSequence);
         Assert.IsTrue(newSequence < rejoined.NextArrivalSequence);
