@@ -1,6 +1,6 @@
 # Simple drinking-water standpipe v3
 
-R0.03 user-revision candidate. This is an ordinary galvanized standpipe with exactly one front-facing tap, a small concrete foot and a clearly printed `DRINKING WATER` sign on the pipe. No roof, reservoir, second spigot, counter, tray or basin. The single tap and open front support a one-at-a-time service presentation. This exact version awaits user visual approval.
+R0.03 user-approved revision. This is an ordinary galvanized standpipe with exactly one front-facing tap, a small concrete foot and a clearly printed `DRINKING WATER` sign on the pipe. No roof, reservoir, second spigot, counter, tray or basin. The single tap and open front support a one-at-a-time service presentation. The exact version was approved by the user on 25 September 2026; targeted independent review accepted its game integration with no findings.
 
 ## Review
 
@@ -22,4 +22,4 @@ This is presentation only. There is no collision, navmesh, queue slot, flowing-w
 
 Blender 4.1.1 reopened the source and reimported the GLB with matching bounds and triangle count. Godot 4.7.2 imported and instantiated the GLB with all five meshes, the palette and both lettering meshes. The three renders were visually checked. Exact counts and bounds are in `technical.json`.
 
-Original project-authored procedural geometry, palette and mesh lettering. No downloaded models or textures. V1 and v2 remain preserved separately. This v3 package remains in local documents only; it has not been copied to the Git repository, integrated or committed.
+Original project-authored procedural geometry, palette and mesh lettering. No downloaded models or textures. V1 and v2 remain preserved separately. The v3 source, runtime GLB and review package were committed as `d7733c3d675a90d492fc021402dce1c01cd1123b`; the game integration and rendered checks are recorded separately in [R0.03 water-v3 evidence](../../../../reports/evidence/R0.03-water-v3/integration.md). The wide default camera makes mesh lettering/tap small; the in-game floating `DRINKING WATER` cue supplements the approved model sign. Human playtest is still pending.

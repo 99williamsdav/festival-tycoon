@@ -24,9 +24,12 @@ public partial class Main
             var centre = TraversalGrid.CellCentre(cell);
             return new Vector3(centre.XMillimetres / 1000f, 0, centre.ZMillimetres / 1000f);
         }
-        AddAsset("res://assets/environment/lwf_free_water_point_v1.glb", At(GameSession.MedicalWaterCell));
+        // The narrow standpipe has no v1-style approach pad. Put its tap within
+        // arm's reach of the existing front queue slot without moving that slot.
+        AddAsset("res://assets/environment/lwf_free_water_point_v3.glb",
+            At(GameSession.MedicalWaterCell) + new Vector3(0, 0, 1.9f));
         AddAsset("res://assets/environment/lwf_first_aid_point_v2.glb", At(GameSession.MedicalTentCell));
-        AddChild(new Label3D { Text = "FREE WATER", Position = At(GameSession.MedicalWaterCell) + new Vector3(0, 2.65f, 0),
+        AddChild(new Label3D { Text = "DRINKING WATER", Position = At(GameSession.MedicalWaterCell) + new Vector3(0, 2.65f, 0),
             FontSize = 45, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
         AddChild(new Label3D { Text = "FIRST AID", Position = At(GameSession.MedicalTentCell) + new Vector3(0, 3.1f, 0),
             FontSize = 45, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });

@@ -1,0 +1,18 @@
+# R0.03 approved drinking-water standpipe v3 integration — 25 September 2026
+
+Status: **targeted independent integration review accepted with no findings; Windows EXE export pending.** Exact user-approved source/review/runtime package was committed by the designer as `d7733c3d675a90d492fc021402dce1c01cd1123b` and is recorded in [the approval register](../../../art/reviews/R0.03/ASSET_APPROVALS.md). The game-local GLB copy is byte-identical to `assets/runtime/environment/lwf_free_water_point_v3.glb`, SHA-256 `235393356F10C171D2B44443BE5BADCECDC57DBB5C746698DFEF0A74B05DD076`.
+
+Only presentation changed: `BuildMedicalWorld` references `lwf_free_water_point_v3.glb` at the already-corrected water site. Because v3 has no v1-style approach pad, its visual origin is offset 1.9 m toward the existing first queue slot so the refilling guest stands beside the tap; the authoritative water cell and every queue slot remain unchanged. The floating cue reads `DRINKING WATER`. Godot 4.7.2 imported the GLB and generated its palette/import sidecars without errors. The v1 asset remains retained for history; rejected v2 and first-aid v1 are not used. No queue, route, refill, thirst, service-timing, save or hash logic changed.
+
+`dotnet build FestivalTycoon.sln --no-restore` passed with zero warnings/errors. The focused direct-DLL medical/live/preparation/equipment/farm/audio-cursor subset passed **43/43**. Both fresh captures used the default overview, seed `20260922`, a booked folk act, steward and safe 80% generator baseline:
+
+| Route | Tick-2,000 queue and outcome | Evidence |
+| --- | --- | --- |
+| Prevention | Three people in water queue; Guest 01 refilling about 12% beside the tap; Riley treatment finishes; `Treated`, zero casualties. | [Final aligned water queue](prevent-aligned/water-queue.png), [warning](prevent-aligned/warning.png), [treatment](prevent-aligned/treatment.png), [outcome](prevent-aligned/outcome.png) |
+| Labelled fixture escalation | Three people in water queue; no intervention; `Terminal`, one causal casualty. | [Aligned water queue](escalate-aligned-retry/water-queue.png), [warning](escalate-aligned-retry/warning.png), [outcome](escalate-aligned-retry/outcome.png) |
+
+The earlier `prevent/` capture preceded the floating-cue wording change; `prevent-final/` and `escalate-final/` preceded the 1.9 m presentation-only alignment. They remain for comparison. At the final default wide camera, the model is visible beside the first refilling guest, its teal sign panel and one-pipe silhouette distinguish it from v1, and the queue approaches its authored front (`Godot +Z`). The mesh lettering and tap are **small at this zoom**; the separate floating `DRINKING WATER` cue is readable. The designer's [sign/tap close view](../../../art/reviews/R0.03/free-water-point-v3/02-sign-and-single-tap.png) verifies the authored detail, but does not prove that detail is legible in the default overview. This is the explicit visual-review point.
+
+The first aligned escalation capture printed four `ObjectDB` and two resource-in-use warnings during Godot cleanup despite exit 0. An immediate repeat of the same route to `escalate-aligned-retry/` exited 0 with the expected causal markers and without those warnings. This intermittent shutdown issue is not attributed to v3 by the present evidence.
+
+Local private audio was present for these editor captures. The standard export preset still excludes `assets/audio/crowd/*`; no playable EXE had been made at this evidence checkpoint. Targeted integration review accepted the v3 presentation, but human visual/audio playtesting remains separate.
