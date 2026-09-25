@@ -439,9 +439,18 @@ public partial class Main
                 _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
                 RefreshPreparationHud();
             }
+            if (_medicalCaptureFrame == 17)
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "collapsed-medic-travelling.png"));
+            if (_medicalCaptureFrame == 18)
+            {
+                var rosterBar = _preparationRosterScroll!.GetVScrollBar();
+                if (rosterBar.MaxValue <= rosterBar.Page)
+                    throw new InvalidOperationException("Roster did not expose its overflowing entries by scrolling.");
+                _preparationRosterScroll.ScrollVertical = (int)(rosterBar.MaxValue - rosterBar.Page);
+            }
             if (_medicalCaptureFrame == 19)
             {
-                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "collapsed-medic-travelling.png"));
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "roster-bottom.png"));
                 GD.Print($"MEDICAL_UI_STATE selected={medical.AtRiskGuestId} intent={_session.CaptureMedical()!.Needs.Single(item => item.AgentId == medical.AtRiskGuestId).Intent} response={_session.CaptureMedical()!.ResponseStage}");
             }
             if (_medicalCaptureFrame == 20)

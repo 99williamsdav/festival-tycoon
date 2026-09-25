@@ -13,6 +13,7 @@ public partial class Main
 {
     private Label _preparationSummary = null!;
     private Label _preparationPeople = null!;
+    private ScrollContainer? _preparationRosterScroll;
     private readonly Dictionary<string, Button> _offerButtons = [];
     private Button _preparationStart = null!;
     private string _preparationMessage = "Choose one act and one worker. Equipment and stock are optional.";
@@ -70,8 +71,11 @@ public partial class Main
         controls.AddChild(ButtonText("RETRY SAVE", () => { _preparationSaveBlocked = false; _preparationMessage = "Retrying pending boundary."; RefreshPreparationHud(); }));
         var rosterPanel = new PanelContainer { Position = new Vector2(rightPanelX, 16), Size = new Vector2(400, 380) };
         rosterPanel.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(rosterPanel);
+        _preparationRosterScroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, 360) };
+        rosterPanel.AddChild(_preparationRosterScroll);
         _preparationPeople = LabelText("", 15, ink); _preparationPeople.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _preparationPeople.CustomMinimumSize = new Vector2(380, 340); rosterPanel.AddChild(_preparationPeople);
+        _preparationPeople.CustomMinimumSize = new Vector2(360, 0);
+        _preparationRosterScroll.AddChild(_preparationPeople);
         var inspector = new PanelContainer { Position = new Vector2(rightPanelX, _session.CaptureMedical() is not null ? 405 : _session.CaptureEquipment() is null ? 440 : 525),
             Size = new Vector2(400, _session.CaptureMedical() is not null ? 460 : _session.CaptureEquipment() is null ? 250 : 165) };
         inspector.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(inspector);
