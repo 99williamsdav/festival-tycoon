@@ -50,7 +50,6 @@ public partial class Main
         var centre = TraversalGrid.CellCentre(GameSession.DisorderSecurityPostCell);
         _highlight.Position = new Vector3(centre.XMillimetres / 1000f, .08f, centre.ZMillimetres / 1000f);
         _highlight.Scale = new Vector3(2.4f, 1, 2.4f); _highlight.Visible = true;
-        if (_securityPostWorkerButton is not null) _securityPostWorkerButton.Visible = true;
         RefreshSecurityPostInspector();
         GD.Print("SECURITY_POST_SELECTED");
     }
@@ -66,6 +65,12 @@ public partial class Main
         if (!_selectedSecurityPost || _session.CaptureDisorder() is not { } d) return;
         var people = _session.CapturePreparation()!.People;
         var worker = people.Single(item => item.AgentId == d.SecurityId);
+        var workerAvailable = _attendeeVisuals.ContainsKey(new EntityId(d.SecurityId));
+        if (_securityPostWorkerButton is not null)
+        {
+            _securityPostWorkerButton.Visible = workerAvailable;
+            _securityPostWorkerButton.Disabled = !workerAvailable;
+        }
         var position = _session.CaptureSnapshot().NavigationAgents.SingleOrDefault(item => item.Id.Value == d.SecurityId);
         var target = d.ResponseTargetId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
         _inspectorTitle.Text = "Security post • Jordan Hale";
@@ -74,7 +79,9 @@ public partial class Main
             $"POSITION  {(position is null ? "not yet arrived" : $"{position.XMillimetres / 1000m:0.00} m, {position.ZMillimetres / 1000m:0.00} m")}\n" +
             $"RESPONSE  {d.ResponseStage} • target {target}\n{d.Response}\n" +
             "Select an affected guest to DISPATCH SECURITY or use SAFE EGRESS in their inspector. " +
-            "Select Jordan here if he needs medical help; security does not teleport or guarantee de-escalation.";
+            (workerAvailable ? "Select Jordan here if he needs medical help. " :
+                "Jordan can be selected after the edition starts and his physical visual exists. ") +
+            "Security does not teleport or guarantee de-escalation.";
     }
 
     private void BuildDisorderControls(VBoxContainer box)
@@ -189,6 +196,11 @@ public partial class Main
     {
         if (_disorderCaptureDirectory is null) return;
         _disorderCaptureFrame++;
+        if (_disorderCaptureMode == "post-prep")
+        {
+            ProcessSecurityPostPreparationCapture();
+            return;
+        }
         if (_disorderCaptureFrame == 4)
             foreach (var id in new[] { "act.folk", "staff.steward", "equipment.buy" }) _offerButtons[id].EmitSignal(Button.SignalName.Pressed);
         if (_disorderCaptureFrame == 6) _preparationStart.EmitSignal(Button.SignalName.Pressed);
@@ -280,6 +292,31 @@ public partial class Main
         {
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "worker-selected.png"));
             GD.Print("SECURITY_POST_CAPTURE picked=True workerSelected=True zoom=32 orientation=South");
+            GetTree().Quit();
+        }
+    }
+
+    private void ProcessSecurityPostPreparationCapture()
+    {
+        if (_disorderCaptureFrame == 3)
+        {
+            _focus = new Vector3(-7, 0, 17); _camera.Size = 32f; ApplyCamera();
+        }
+        if (_disorderCaptureFrame == 4)
+        {
+            var centre = TraversalGrid.CellCentre(GameSession.DisorderSecurityPostCell);
+            Pick(_camera.UnprojectPosition(new Vector3(centre.XMillimetres / 1000f, 1.5f, centre.ZMillimetres / 1000f)));
+            if (!_selectedSecurityPost || _session.CapturePreparation()!.Status != PreparationStatus.Preparing ||
+                _attendeeVisuals.Count != 0 || _securityPostWorkerButton!.Visible)
+                throw new InvalidOperationException("Preparation post selection exposed a worker without a physical visual.");
+            SelectAttendee(new EntityId(_session.CaptureDisorder()!.SecurityId));
+            if (!_selectedSecurityPost || _selectedAttendeeId is not null || !_highlight.Visible)
+                throw new InvalidOperationException("Unavailable attendee selection changed the preparation inspector.");
+        }
+        if (_disorderCaptureFrame == 6)
+        {
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "post-preparation.png"));
+            GD.Print("SECURITY_POST_PREPARATION selected=True workerActionVisible=False missingVisualGuard=True");
             GetTree().Quit();
         }
     }

@@ -737,10 +737,15 @@ public partial class Main : Node
 
     private void SelectAttendee(EntityId id)
     {
+        if (!_attendeeVisuals.TryGetValue(id, out var visual))
+        {
+            GD.Print($"ATTENDEE_SELECTION_UNAVAILABLE id={id.Value} no physical visual yet");
+            return;
+        }
         ClearSecurityPostSelection();
         _selectedMedicalFacility = null;
         _selected = null; _selectedAttendeeId = id;
-        _highlight.Position = _attendeeVisuals[id].Position + new Vector3(0, 0.08f, 0);
+        _highlight.Position = visual.Position + new Vector3(0, 0.08f, 0);
         _highlight.Scale = new Vector3(0.7f, 1, 0.7f); _highlight.Visible = true;
         RefreshAttendeeInspector();
         RefreshMedicalActionInspector();
