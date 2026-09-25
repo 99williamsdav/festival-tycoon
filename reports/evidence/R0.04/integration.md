@@ -34,3 +34,16 @@ Remaining: independent review and human exported playtest. The approved exact
 security post is designer-owned and not integrated in this implementation; role
 and incident cues use the approved existing text/state presentation only. Wider
 human pacing and hearing economy are out of this brief.
+
+## Independent-review repair — 25 September 2026
+
+Astra review of `2449600` found four actionable defects. This bounded repair:
+
+1. Releases water-approach seekers as well as queue/overflow members on closure, and guards physical admission while closed. A new test closes water while a person is still walking to the line, restores the save, advances 320 ticks and confirms there is no late admission.
+2. Removes remote fight suppression while security is merely travelling. A bounded seeded test restores the argument/dispatch boundary and proves a confrontation can still begin before arrival; security reports that it was too late.
+3. Reserves both abstract-confrontation participants, blocks egress/medical removal during the confrontation, and rechecks admission, reservation and physical separation before any injury. New tests cover shared-opponent ownership, blocked egress, exactly one injury from a coupled pair, and cancellation without remote injury after fixture-only displacement.
+4. Persists immutable incident origin (initiator, opponent, grievance, pressure, argument/fight ticks) through injury and death. A guest-opponent terminal test confirms attribution comes from the initiator rather than the injured victim. Save/hash includes this record, and restore validates it.
+
+The paired six-seed counterfactual now compares fights as well as complaints: safely countered music/water has zero confrontations in all six seeds; unresolved music has confrontations and spontaneous diffusion. The latest focused cross-brief run passed **69/69** in 40s 380ms. Debug test build and ExportRelease game build passed with zero warnings/errors. Fresh isolated export: `artifacts/windows/r004-disorder-review-2/FestivalTycoon-R0.04.exe` (127,264,312 bytes). A waited hidden `--headless --quit-after 120` run exited 0; the log timestamp advanced and its fresh log contained application, farm-scene and integrated-audio markers with no `ERROR:` lines. Launcher SHA-256 `0D2C88850430750A4F78D0FD218C8880AAB5D81DA19643029D8ADE7B7A9757C4`; adjacent Game DLL `839D8E7162EA2E98DBB0BEF27FA4918975CF77C57090F701BD87B5CEC20577DB`; Simulation DLL `B0E34D0C2BEBA91377C7810054A899E7D529920D2EF00BB4319382B1368639C7`.
+
+The fixture-only displacement manipulates a navigation coordinate to test the resolver's distance guard; it is not a player action or evidence of natural travel. Human exported playtest and further independent re-review remain pending.

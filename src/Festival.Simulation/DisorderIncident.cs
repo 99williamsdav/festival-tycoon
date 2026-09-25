@@ -12,9 +12,14 @@ public sealed record DisorderPerson(ulong AgentId, int Temperament, int QueueTol
     long QueueJoinedTick, long InjuryTick, long CooldownUntilTick, ulong? OpponentId);
 public sealed record DisorderEvidence(string Id, long Tick, ulong PersonId, ulong? OtherId,
     int XMillimetres, int ZMillimetres, int Pressure, string Description);
+public sealed record DisorderIncidentOrigin(ulong InitiatorId, ulong OpponentId, DisorderGrievance Grievance,
+    int Pressure, long ArgumentTick, long FightTick, long InjuryTick, ulong? VictimId);
 public sealed record DisorderSnapshot(int Version, ulong SecurityId, int CalmingSkill, int ConfrontationSkill,
     bool SecurityIncapacitated, bool WaterClosed, DisorderPerson[] People, SecurityResponseStage ResponseStage,
-    ulong? ResponseTargetId, long ResponseStartedTick, string Response, DisorderEvidence[] Evidence);
+    ulong? ResponseTargetId, long ResponseStartedTick, string Response, DisorderEvidence[] Evidence)
+{
+    public DisorderIncidentOrigin[] Incidents { get; init; } = [];
+}
 
 public sealed partial class GameSession
 {
@@ -134,7 +139,9 @@ public sealed partial class GameSession
         if (command.Action == DisorderAction.CloseWater)
         {
             _disorder = d with { WaterClosed = true };
-            foreach (var id in _medical!.WaterQueue.Concat(_medical.WaterOverflow).ToArray())
+            foreach (var id in _medical!.WaterQueue.Concat(_medical.WaterOverflow)
+                         .Concat(_medical.Needs.Where(item => item.Intent == MedicalIntent.SeekWater).Select(item => item.AgentId))
+                         .Distinct().ToArray())
             {
                 LeaveWater(id, "Water service closed safely", reroute: false);
                 var need = _medical!.Needs.Single(item => item.AgentId == id);
@@ -188,7 +195,7 @@ public sealed partial class GameSession
             }
             else if (CurrentTick >= injured.InjuryTick + DisorderInjuryDeathTicks)
             {
-                ApplyDisorderDeath(injured.AgentId, injured);
+                ApplyDisorderDeath(injured.AgentId);
                 return;
             }
         }
@@ -204,7 +211,7 @@ public sealed partial class GameSession
             }
             else if (CurrentTick >= securityNeed.CollapseTick + DisorderInjuryDeathTicks)
             {
-                ApplyDisorderDeath(d.SecurityId, d.People.Single(item => item.AgentId == d.ResponseTargetId));
+                ApplyDisorderDeath(d.SecurityId);
                 return;
             }
         }
@@ -212,6 +219,7 @@ public sealed partial class GameSession
         d = _disorder!;
         foreach (var person in d.People.ToArray())
         {
+            if (_disorder!.People.Single(item => item.AgentId == person.AgentId).Stage == DisorderStage.Fight) continue;
             if (person.Stage == DisorderStage.Injured || person.Stage == DisorderStage.Fight) continue;
             var protectedPerson = p.People.Single(item => item.AgentId == person.AgentId);
             if (!protectedPerson.Admitted || protectedPerson.Departed) continue;
@@ -282,19 +290,40 @@ public sealed partial class GameSession
                     "Argument subsided without a security intervention despite a continuing grievance.");
                 continue;
             }
-            if (pressure < DisorderFightEligiblePressure || d.ResponseTargetId == person.AgentId &&
-                d.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming) continue;
+            if (pressure < DisorderFightEligiblePressure) continue;
             var opponent = FindDisorderOpponent(person.AgentId);
             if (opponent is null || NextRandom(RandomStreamId.Incidents) % 4 != 0) continue;
-            SetDisorderPerson(person.AgentId, item => item with { Stage = DisorderStage.Fight,
-                OpponentId = opponent, StageTick = CurrentTick });
-            DisorderEvent("disorder:fight", person.AgentId, opponent, pressure,
-                "Abstract confrontation after visible complaint, agitation and argument; no graphic violence.");
+            BeginDisorderFight(person.AgentId, opponent.Value, "disorder:fight");
         }
         AdvanceSecurityResponse();
         foreach (var fighter in _disorder!.People.Where(item => item.Stage == DisorderStage.Fight &&
+                     _disorder.Incidents.Any(origin => origin.InitiatorId == item.AgentId &&
+                         origin.FightTick == item.StageTick && origin.InjuryTick == -1) &&
                      CurrentTick >= item.StageTick + DisorderConfrontationTicks).ToArray())
             ResolveDisorderFight(fighter);
+    }
+
+    private void BeginDisorderFight(ulong initiatorId, ulong opponentId, string eventId)
+    {
+        var d = _disorder!;
+        var initiator = d.People.Single(item => item.AgentId == initiatorId);
+        var origin = new DisorderIncidentOrigin(initiatorId, opponentId, initiator.Grievance,
+            initiator.Pressure, initiator.StageTick, CurrentTick, -1, null);
+        _disorder = d with { Incidents = d.Incidents.Append(origin).ToArray() };
+        SetDisorderPerson(initiatorId, item => item with { Stage = DisorderStage.Fight,
+            OpponentId = opponentId, StageTick = CurrentTick });
+        if (opponentId != d.SecurityId)
+            SetDisorderPerson(opponentId, item => item with { Stage = DisorderStage.Fight,
+                OpponentId = initiatorId, StageTick = CurrentTick });
+        foreach (var id in new[] { initiatorId, opponentId })
+        {
+            if (id == d.SecurityId) continue;
+            var nav = _navigationAgents[new(id)];
+            ApplyAgentDestination(new(id), new(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres),
+                "disorder.confrontation"));
+        }
+        DisorderEvent(eventId, initiatorId, opponentId, origin.Pressure,
+            "Abstract confrontation after visible complaint, agitation and argument; both participants reserved in place.");
     }
 
     private ulong? FindDisorderOpponent(ulong actorId)
@@ -302,6 +331,7 @@ public sealed partial class GameSession
         var actor = _navigationAgents[new(actorId)];
         return _disorder!.People.Where(item => item.AgentId != actorId &&
                 item.Stage is not (DisorderStage.Injured or DisorderStage.Fight) &&
+                !_disorder.People.Any(other => other.Stage == DisorderStage.Fight && other.OpponentId == item.AgentId) &&
                 _preparation!.People.Any(person => person.AgentId == item.AgentId && person.Admitted && !person.Departed))
             .Select(item => (item.AgentId, Nav: _navigationAgents[new(item.AgentId)]))
             .Where(item => (long)(item.Nav.XMillimetres - actor.XMillimetres) * (item.Nav.XMillimetres - actor.XMillimetres) +
@@ -314,6 +344,13 @@ public sealed partial class GameSession
         var d = _disorder!;
         if (d.ResponseTargetId is not { } targetId || d.SecurityIncapacitated) return;
         var target = d.People.Single(item => item.AgentId == targetId);
+        if (target.Stage == DisorderStage.Fight && d.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming)
+        {
+            _disorder = d with { ResponseStage = SecurityResponseStage.Completed, ResponseTargetId = null,
+                Response = "Target entered a separate confrontation before security could calm them" };
+            DisorderEvent("security:too-late", targetId, d.SecurityId, target.Pressure, _disorder.Response);
+            return;
+        }
         if (d.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting &&
             (target.Grievance == DisorderGrievance.None || target.Stage is DisorderStage.Resolved or DisorderStage.Calm))
         {
@@ -366,10 +403,7 @@ public sealed partial class GameSession
             if (aggressor.Stage != DisorderStage.Fight && aggressor.Pressure >= DisorderFightEligiblePressure &&
                 CurrentTick >= d.ResponseStartedTick + DisorderConfrontationTicks)
             {
-                SetDisorderPerson(aggressorId, item => item with { Stage = DisorderStage.Fight,
-                    StageTick = CurrentTick, OpponentId = d.SecurityId });
-                DisorderEvent("security:confrontation", aggressorId, d.SecurityId, aggressor.Pressure,
-                    "Visible argument escalated to an abstract security confrontation.");
+                BeginDisorderFight(aggressorId, d.SecurityId, "security:confrontation");
             }
         }
     }
@@ -378,7 +412,30 @@ public sealed partial class GameSession
     {
         if (fighter.OpponentId is not { } opponentId) return;
         var d = _disorder!;
+        var origin = d.Incidents.Last(item => item.InitiatorId == fighter.AgentId &&
+            item.FightTick == fighter.StageTick && item.InjuryTick == -1);
         var securityFight = opponentId == d.SecurityId;
+        var initiatorPerson = _preparation!.People.Single(item => item.AgentId == fighter.AgentId);
+        var opponentPerson = _preparation.People.Single(item => item.AgentId == opponentId);
+        var initiatorNav = _navigationAgents[new(fighter.AgentId)];
+        var opponentNav = _navigationAgents[new(opponentId)];
+        var dx = (long)initiatorNav.XMillimetres - opponentNav.XMillimetres;
+        var dz = (long)initiatorNav.ZMillimetres - opponentNav.ZMillimetres;
+        var opponentReserved = securityFight || d.People.Any(item => item.AgentId == opponentId &&
+            item.Stage == DisorderStage.Fight && item.OpponentId == fighter.AgentId);
+        if (!initiatorPerson.Admitted || initiatorPerson.Departed || !opponentPerson.Admitted ||
+            opponentPerson.Departed || !opponentReserved || dx * dx + dz * dz > 9_000_000)
+        {
+            _disorder = d with { Incidents = d.Incidents.Select(item => item == origin ? item with { InjuryTick = -2 } : item).ToArray() };
+            SetDisorderPerson(fighter.AgentId, item => item with { Stage = DisorderStage.Resolved,
+                Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
+            if (!securityFight && d.People.Single(item => item.AgentId == opponentId).Stage == DisorderStage.Fight)
+                SetDisorderPerson(opponentId, item => item with { Stage = DisorderStage.Resolved,
+                    Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
+            DisorderEvent("disorder:confrontation-broken", fighter.AgentId, opponentId, origin.Pressure,
+                "Confrontation ended without injury because participants were no longer together and available.");
+            return;
+        }
         var securityLoses = securityFight && d.ConfrontationSkill + NextRandom(RandomStreamId.Incidents) % 2_001 <
             fighter.Pressure + fighter.Temperament / 4;
         var victimId = securityLoses ? d.SecurityId : securityFight ? fighter.AgentId :
@@ -386,10 +443,15 @@ public sealed partial class GameSession
         var victimNeed = _medical!.Needs.Single(item => item.AgentId == victimId);
         if (victimNeed.Stage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Treated)
         {
+            _disorder = d with { Incidents = d.Incidents.Select(item => item == origin ? item with { InjuryTick = -2 } : item).ToArray() };
             SetDisorderPerson(fighter.AgentId, item => item with { Stage = DisorderStage.Resolved,
+                Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
+            if (!securityFight) SetDisorderPerson(opponentId, item => item with { Stage = DisorderStage.Resolved,
                 Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
             return;
         }
+        _disorder = d with { Incidents = d.Incidents.Select(item => item == origin ? item with { InjuryTick = CurrentTick,
+            VictimId = victimId } : item).ToArray() };
         LeaveWater(victimId, "Injured during confrontation", reroute: false);
         var nav = _navigationAgents[new(victimId)];
         ApplyAgentDestination(new(victimId), new(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres),
@@ -405,24 +467,25 @@ public sealed partial class GameSession
         if (victimId != d.SecurityId)
             SetDisorderPerson(victimId, item => item with { Stage = DisorderStage.Injured,
                 InjuryTick = CurrentTick, StageTick = CurrentTick, OpponentId = fighter.AgentId });
-        if (fighter.AgentId != victimId)
-            SetDisorderPerson(fighter.AgentId, item => item with { Stage = DisorderStage.Resolved,
+        foreach (var participant in new[] { fighter.AgentId, opponentId }.Where(id => id != victimId && id != d.SecurityId))
+            SetDisorderPerson(participant, item => item with { Stage = DisorderStage.Resolved,
                 Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
         DisorderEvent("disorder:injury", fighter.AgentId, victimId, fighter.Pressure,
             $"Generic serious injury to person {victimId}; security {d.ResponseStage}; first aid needed before tick {CurrentTick + DisorderInjuryDeathTicks}.");
     }
 
-    private void ApplyDisorderDeath(ulong victimId, DisorderPerson source)
+    private void ApplyDisorderDeath(ulong victimId)
     {
         var p = _preparation!;
         var victim = p.People.Single(item => item.AgentId == victimId);
         var d = _disorder!;
-        var cause = $"Confrontation injury to {victim.Name} ({victim.Role}); initiating person {source.AgentId}, opponent {source.OpponentId}, " +
-            $"grievance {source.Grievance}, pressure {source.Pressure}/10000, argument tick {source.StageTick}, " +
-            $"injury tick {(victimId == d.SecurityId ? _medical!.Needs.Single(item => item.AgentId == victimId).CollapseTick : source.InjuryTick)}, " +
+        var origin = d.Incidents.Last(item => item.VictimId == victimId && item.InjuryTick >= 0);
+        var cause = $"Confrontation injury to {victim.Name} ({victim.Role}); initiating person {origin.InitiatorId}, opponent {origin.OpponentId}, " +
+            $"grievance {origin.Grievance}, pressure {origin.Pressure}/10000, argument tick {origin.ArgumentTick}, " +
+            $"fight tick {origin.FightTick}, injury tick {origin.InjuryTick}, " +
             $"response {d.ResponseStage}/{d.Response}; medic {_medical!.ResponseStage}/{_medical.Response}.";
         _disorder = d with { Response = cause };
-        DisorderEvent("disorder:death", source.AgentId, victimId, source.Pressure, cause);
+        DisorderEvent("disorder:death", origin.InitiatorId, victimId, origin.Pressure, cause);
         var lifecycle = _lifecycle!;
         var attempt = CurrentAttempt();
         var transaction = $"disorder-death:{CampaignId.Value}:{attempt.AttemptId}";
@@ -441,7 +504,7 @@ public sealed partial class GameSession
     {
         if (d is null) return null;
         if (s.Preparation is not { } p || s.Medical is not { Version: 6 } medical ||
-            d.Version != 1 || d.People is null || d.Evidence is null ||
+            d.Version != 1 || d.People is null || d.Evidence is null || d.Incidents is null ||
             d.People.Length != p.Tier * 20 ||
             !d.People.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Select(item => item.AgentId)) ||
             !p.People.Any(item => item.AgentId == d.SecurityId && item.Name == "Jordan Hale" && item.Role == ProtectedPersonRole.Staff) ||
@@ -464,6 +527,13 @@ public sealed partial class GameSession
             d.Evidence.Length > 96 || d.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick ||
                 !p.People.Any(person => person.AgentId == item.PersonId) || string.IsNullOrWhiteSpace(item.Id) ||
                 string.IsNullOrWhiteSpace(item.Description) || item.Pressure is < 0 or > 10_000) ||
+            d.Incidents.Any(item => item is null || !d.People.Any(person => person.AgentId == item.InitiatorId) ||
+                !p.People.Any(person => person.AgentId == item.OpponentId) || !Enum.IsDefined(item.Grievance) ||
+                item.Grievance == DisorderGrievance.None || item.Pressure < DisorderArgumentPressure || item.Pressure > 10_000 ||
+                item.ArgumentTick < 0 || item.ArgumentTick > item.FightTick || item.FightTick > s.CurrentTick ||
+                item.InjuryTick < -2 || item.InjuryTick > s.CurrentTick ||
+                item.InjuryTick >= 0 != (item.VictimId is not null) ||
+                item.VictimId is { } injuredId && injuredId != item.InitiatorId && injuredId != item.OpponentId) ||
             !d.Evidence.Select(item => item.Tick).SequenceEqual(d.Evidence.Select(item => item.Tick).Order()) ||
             d.Evidence.LastOrDefault()?.Id == "disorder:death" &&
                 (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Length != 1))

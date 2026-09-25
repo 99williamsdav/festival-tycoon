@@ -145,6 +145,9 @@ public sealed partial class GameSession
         var need = m.Needs.SingleOrDefault(item => item.AgentId == command.GuestId);
         if (need is null)
             return CommandResult.Rejected(CommandReasonCode.UnknownTarget, "The selected person has no medical needs in this edition.");
+        if (_disorder?.People.Any(item => item.AgentId == command.GuestId && item.Stage == DisorderStage.Fight) == true)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter,
+                "This person is in an active confrontation; first aid and egress follow its safe resolution.");
         var patientStage = need.Stage is MedicalStage.Collapsed or MedicalStage.Critical ? need.Stage :
             need.Profile == MedicalNeedProfile.Guest && command.GuestId == m.AtRiskGuestId ? m.Stage : need.Stage;
         if (m.Stage == MedicalStage.Terminal || patientStage is MedicalStage.Treated or MedicalStage.Removed or MedicalStage.Terminal)
@@ -291,6 +294,7 @@ public sealed partial class GameSession
 
     private void AdmitWaterArrivals()
     {
+        if (_disorder?.WaterClosed == true) return;
         var m = _medical!;
         if (m.WaterQueue.Length == WaterSlots.Length && m.WaterOverflow.Length == WaterOverflowSlots.Length) return;
         var approach = MedicalQueueApproach(m.WaterQueue.Length, m.WaterOverflow.Length);
