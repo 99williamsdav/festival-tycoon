@@ -14,7 +14,10 @@ public partial class Main
     private string? _medicalCaptureDirectory;
     private string _medicalCaptureMode = "prevent";
     private int _medicalCaptureFrame;
-    private Label3D? _medicalWorldAlert;
+    private ulong _medicalCaptureWaterCueId;
+    private ulong _medicalCaptureTradeoffCueId;
+    private readonly MedicalCuePlanner _medicalCuePlanner = new();
+    private readonly System.Collections.Generic.Dictionary<ulong, Label3D> _medicalCueLabels = [];
     private VBoxContainer? _medicalNeedsBars;
     private ProgressBar? _medicalThirstBar;
     private ProgressBar? _medicalHeatBar;
@@ -38,10 +41,40 @@ public partial class Main
         RegisterMedicalPick(MedicalFacility.FirstAid, At(GameSession.MedicalTentCell) + new Vector3(0, 1.35f, 0), new Vector3(3.5f, 2.7f, 3.5f));
         AddChild(new Label3D { Text = "FIRST AID", Position = At(GameSession.MedicalTentCell) + new Vector3(0, 3.1f, 0),
             FontSize = 45, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
-        _medicalWorldAlert = new Label3D { Text = "HOT", Position = At(GameSession.MedicalWaterCell) + new Vector3(0, 3.4f, 0),
-            FontSize = 52, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-            Modulate = new Color("e8a34d") };
-        AddChild(_medicalWorldAlert);
+    }
+
+    private void ResetMedicalCuePresentation()
+    {
+        foreach (var label in _medicalCueLabels.Values) label.QueueFree();
+        _medicalCueLabels.Clear();
+        var medical = _session.CaptureMedical();
+        _medicalCuePlanner.Reset(medical, _session.CurrentTick);
+        if (medical is null) return;
+        foreach (var need in medical.Needs)
+        {
+            if (!_attendeeVisuals.ContainsKey(new EntityId(need.AgentId))) continue;
+            var label = new Label3D { Visible = false, FontSize = 42, PixelSize = .010f,
+                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+                OutlineSize = 14, OutlineModulate = new Color("2b2825") };
+            AddChild(label);
+            _medicalCueLabels.Add(need.AgentId, label);
+        }
+    }
+
+    private void AdvanceMedicalCuePresentation()
+    {
+        var medical = _session.CaptureMedical();
+        if (medical is null) return;
+        foreach (var label in _medicalCueLabels.Values) label.Visible = false;
+        foreach (var cue in _medicalCuePlanner.Observe(medical, _session.CurrentTick))
+        {
+            if (!_medicalCueLabels.TryGetValue(cue.AgentId, out var label) ||
+                !_attendeeVisuals.TryGetValue(new EntityId(cue.AgentId), out var visual)) continue;
+            label.Text = cue.Text;
+            label.Position = visual.Position + new Vector3(0, cue.Urgent ? 2.7f : 2.35f, 0);
+            label.Modulate = cue.Urgent ? new Color("ffdb73") : new Color("fff7e1");
+            label.Visible = true;
+        }
     }
 
     private void RegisterMedicalPick(MedicalFacility facility, Vector3 position, Vector3 size)
@@ -190,15 +223,6 @@ public partial class Main
             $"Selected: {selectedStage} / {selected.Intent} • {selected.Reason}";
         foreach (var (action, button) in _medicalButtons)
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new MedicalCommand(selected.AgentId, action))) is not null;
-        if (_medicalWorldAlert is not null)
-        {
-            var band = m.Needs.Where(item => item.Profile == MedicalNeedProfile.Performer).Select(item => item.Stage).ToArray();
-            _medicalWorldAlert.Text = m.Stage == MedicalStage.Terminal ? "MEDICAL • HEARING" :
-                m.Stage == MedicalStage.Critical || band.Contains(MedicalStage.Critical) ? "MEDICAL • CRITICAL" :
-                m.Stage == MedicalStage.Collapsed || band.Contains(MedicalStage.Collapsed) ? "MEDICAL • COLLAPSE" :
-                m.Stage == MedicalStage.Distress || band.Contains(MedicalStage.Distress) ? "HOT • DISTRESS" :
-                m.Stage is MedicalStage.Treated or MedicalStage.Removed ? "MEDICAL • SAFE" : "HOT";
-        }
         RefreshMedicalFacilityInspector();
     }
 
@@ -226,10 +250,83 @@ public partial class Main
                 if (_session.CaptureMedical()!.WaterQueue.Length < 5)
                     throw new InvalidOperationException("Line fixture did not assemble five physical queue members.");
             }
+            else if (_medicalCaptureMode == "cues")
+            {
+                while (_session.CurrentTick < 1_600)
+                {
+                    _session.AdvanceWithoutSnapshot(1);
+                    var state = _session.CaptureMedical()!;
+                    if (state.Needs.Any(item => item.Intent == MedicalIntent.SeekWater) &&
+                        state.Needs.Single(item => item.AgentId == state.AtRiskGuestId).Reason.StartsWith("Watching band:", StringComparison.Ordinal))
+                        break;
+                }
+                var stateAtDecision = _session.CaptureMedical()!;
+                if (!stateAtDecision.Needs.Any(item => item.Intent == MedicalIntent.SeekWater) ||
+                    !stateAtDecision.Needs.Single(item => item.AgentId == stateAtDecision.AtRiskGuestId).Reason.StartsWith("Watching band:", StringComparison.Ordinal))
+                    throw new InvalidOperationException("Cue fixture did not reach an autonomous water/show tradeoff.");
+                _medicalCaptureTradeoffCueId = stateAtDecision.Needs.First(item => item.Thirst >= 6_500 &&
+                    item.Reason.StartsWith("Watching band:", StringComparison.Ordinal)).AgentId;
+                FocusMedicalCapturePerson(_medicalCaptureTradeoffCueId, 24f);
+            }
             else _session.AdvanceWithoutSnapshot(2_000);
             _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
             RefreshPreparationHud();
             GD.Print($"MEDICAL_CAPTURE warning={_session.CaptureMedical()?.Stage} queue={_session.CaptureMedical()?.WaterQueue.Length} tick={_session.CurrentTick}");
+        }
+        if (_medicalCaptureMode == "cues")
+        {
+            var medical = _session.CaptureMedical()!;
+            if (_medicalCaptureFrame == 12)
+            {
+                var id = _medicalCaptureTradeoffCueId;
+                if (!_medicalCueLabels[id].Visible || !_medicalCueLabels[id].Text.Contains("don't"))
+                    throw new InvalidOperationException("Tradeoff cue was not visible over its person.");
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "tradeoff.png"));
+                GD.Print($"MEDICAL_CAPTURE tradeoff-person={id} tick={_session.CurrentTick}");
+            }
+            if (_medicalCaptureFrame == 13)
+            {
+                _medicalCaptureWaterCueId = medical.Needs.First(item => item.Intent == MedicalIntent.SeekWater).AgentId;
+                _session.AdvanceWithoutSnapshot(MedicalCuePlanner.RoutineDurationTicks + 8);
+                _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+                FocusMedicalCapturePerson(_medicalCaptureWaterCueId, 24f);
+                RefreshPreparationHud();
+            }
+            if (_medicalCaptureFrame == 16)
+            {
+                if (!_medicalCueLabels[_medicalCaptureWaterCueId].Visible ||
+                    !_medicalCueLabels[_medicalCaptureWaterCueId].Text.Contains("going to get water"))
+                    throw new InvalidOperationException("Water decision cue was not visible over its person.");
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "water-decision.png"));
+                GD.Print($"MEDICAL_CAPTURE water-decision-person={_medicalCaptureWaterCueId} tick={_session.CurrentTick}");
+            }
+            if (_medicalCaptureFrame == 17)
+            {
+                while (_session.CaptureMedical()!.Stage == MedicalStage.Clear && _session.CurrentTick < 3_000)
+                    _session.AdvanceWithoutSnapshot(1);
+                if (_session.CaptureMedical()!.Stage != MedicalStage.Distress)
+                    throw new InvalidOperationException("Distress cue fixture did not reach distress.");
+                _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+                FocusMedicalCapturePerson(_session.CaptureMedical()!.AtRiskGuestId, 24f);
+                RefreshPreparationHud();
+            }
+            if (_medicalCaptureFrame == 20)
+            {
+                var id = medical.AtRiskGuestId;
+                if (!_medicalCueLabels[id].Visible || !_medicalCueLabels[id].Text.Contains("collapse"))
+                    throw new InvalidOperationException("Urgent distress cue was not visible over its person.");
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "distress.png"));
+                GD.Print($"MEDICAL_CAPTURE distress-person={id} tick={_session.CurrentTick}");
+            }
+            if (_medicalCaptureFrame == 21)
+            {
+                var id = new EntityId(medical.AtRiskGuestId);
+                Pick(_camera.UnprojectPosition(_attendeeVisuals[id].GlobalPosition + new Vector3(0, .85f, 0)));
+                if (_selectedAttendeeId != id) throw new InvalidOperationException("Person cue interfered with attendee picking.");
+                GD.Print($"MEDICAL_CAPTURE person-pick={id.Value} selected=True");
+                GetTree().Quit();
+            }
+            return;
         }
         if (_medicalCaptureMode == "water-v4")
         {
@@ -322,5 +419,13 @@ public partial class Main
     {
         var centre = TraversalGrid.CellCentre(GameSession.MedicalWaterCell);
         return new Vector3(centre.XMillimetres / 1000f, 0.9f, centre.ZMillimetres / 1000f + 1.9f);
+    }
+
+    private void FocusMedicalCapturePerson(ulong id, float size)
+    {
+        var agent = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == id);
+        _focus = ToWorld(agent) + new Vector3(0, .8f, 0);
+        _camera.Size = size;
+        ApplyCamera();
     }
 }

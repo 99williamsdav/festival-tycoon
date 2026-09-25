@@ -343,6 +343,7 @@ public partial class Main : Node
         }
         _attendeeVisual = _attendeeVisuals[agents[0].Id];
         _presentationFrom = _presentationTo = ToWorld(agents[0]);
+        ResetMedicalCuePresentation();
     }
 
     private void BuildGrass()
