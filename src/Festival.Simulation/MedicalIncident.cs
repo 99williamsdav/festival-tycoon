@@ -217,7 +217,9 @@ public sealed partial class GameSession
         var patient = _navigationAgents[id];
         var patientCell = TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres);
         ApplyAgentDestination(id, new(patientCell, "medical.await-medic"));
-        SetNeed(command.GuestId, item => item with { Intent = MedicalIntent.AwaitMedic,
+        SetNeed(command.GuestId, item => item with {
+            Intent = (item.AgentId == m.AtRiskGuestId ? m.Stage : item.Stage) is MedicalStage.Collapsed or MedicalStage.Critical
+                ? MedicalIntent.Collapsed : MedicalIntent.AwaitMedic,
             Reason = "Awaiting physically dispatched medic", QueueSlot = null });
         // A medic cannot occupy the patient's cell. Reserve a walkable response
         // position beside it rather than waiting forever on collision avoidance.

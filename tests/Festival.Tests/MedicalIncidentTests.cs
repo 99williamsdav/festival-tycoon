@@ -611,6 +611,61 @@ public sealed class MedicalIncidentTests
     }
 
     [TestMethod]
+    [DataRow(false, false)]
+    [DataRow(false, true)]
+    [DataRow(true, false)]
+    [DataRow(true, true)]
+    public void DispatchKeepsCollapsedGuestOrPerformerDownThroughTravelAndTreatment(bool performer, bool critical)
+    {
+        var s = Started();
+        ulong patientId;
+        if (performer)
+        {
+            var medicId = s.CaptureMedical()!.MedicId;
+            while (!s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted && s.CurrentTick < 1_500)
+                s.AdvanceWithoutSnapshot(1);
+            var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var m = s.CaptureMedical()!;
+            patientId = m.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
+            field.SetValue(s, m with { Needs = m.Needs.Select(item => item.AgentId == patientId
+                ? item with { Thirst = 9_000, HeatExposure = 8_000, Stage = MedicalStage.Distress,
+                    WarningTick = s.CurrentTick - GameSession.MedicalCollapseDelayTicks + 1 }
+                : item).ToArray() });
+            s.AdvanceWithoutSnapshot(1);
+        }
+        else
+        {
+            patientId = s.CaptureMedical()!.AtRiskGuestId;
+            while (s.CaptureMedical()!.Stage != MedicalStage.Collapsed && s.CurrentTick < 4_000)
+                s.AdvanceWithoutSnapshot(1);
+        }
+        if (critical) s.AdvanceWithoutSnapshot(GameSession.MedicalCriticalDelayTicks);
+        MedicalStage Stage() => performer
+            ? s.CaptureMedical()!.Needs.Single(item => item.AgentId == patientId).Stage
+            : s.CaptureMedical()!.Stage;
+        Assert.AreEqual(critical ? MedicalStage.Critical : MedicalStage.Collapsed, Stage());
+        Assert.AreEqual(MedicalIntent.Collapsed, s.CaptureMedical()!.Needs.Single(item => item.AgentId == patientId).Intent);
+        var result = Send(s, new MedicalCommand(patientId, MedicalAction.DispatchMedic));
+        Assert.IsTrue(result.IsAccepted, result.Message);
+        Assert.AreEqual(MedicalResponseStage.Travelling, s.CaptureMedical()!.ResponseStage);
+        Assert.AreEqual(MedicalIntent.Collapsed, s.CaptureMedical()!.Needs.Single(item => item.AgentId == patientId).Intent);
+        s = Restored(s);
+        while (s.CaptureMedical()!.ResponseStage == MedicalResponseStage.Travelling && s.CurrentTick < 6_000)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            Assert.AreEqual(MedicalIntent.Collapsed, s.CaptureMedical()!.Needs.Single(item => item.AgentId == patientId).Intent);
+        }
+        Assert.AreEqual(MedicalResponseStage.Treating, s.CaptureMedical()!.ResponseStage);
+        s = Restored(s);
+        s.AdvanceWithoutSnapshot(GameSession.MedicalTreatmentTicks - 1);
+        Assert.AreEqual(MedicalIntent.Collapsed, s.CaptureMedical()!.Needs.Single(item => item.AgentId == patientId).Intent);
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalResponseStage.Completed, s.CaptureMedical()!.ResponseStage);
+        Assert.AreEqual(MedicalIntent.WatchShow, s.CaptureMedical()!.Needs.Single(item => item.AgentId == patientId).Intent);
+        Restored(s);
+    }
+
+    [TestMethod]
     public void PerformerDrinksBeforeEntryThenReturnsViaAccessAndStairsAcrossRestores()
     {
         var s = Started();

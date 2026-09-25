@@ -19,6 +19,7 @@ public partial class Main
     private readonly MedicalCuePlanner _medicalCuePlanner = new();
     private readonly System.Collections.Generic.Dictionary<ulong, Label3D> _medicalCueLabels = [];
     private VBoxContainer? _medicalNeedsBars;
+    private GridContainer? _medicalActionInspector;
     private ProgressBar? _medicalThirstBar;
     private ProgressBar? _medicalHeatBar;
     private enum MedicalFacility { Water, FirstAid }
@@ -88,7 +89,8 @@ public partial class Main
     private void SelectMedicalFacility(MedicalFacility facility)
     {
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = facility;
-        if (_medicalNeedsBars is not null) _medicalNeedsBars.Visible = false;
+        RefreshMedicalNeedBars(null);
+        RefreshMedicalActionInspector();
         var cell = facility == MedicalFacility.Water ? GameSession.MedicalWaterCell : GameSession.MedicalTentCell;
         var centre = TraversalGrid.CellCentre(cell);
         _highlight.Position = new Vector3(centre.XMillimetres / 1000f, .08f, centre.ZMillimetres / 1000f);
@@ -105,11 +107,11 @@ public partial class Main
         parent.AddChild(_medicalNeedsBars);
         _medicalNeedsBars.AddChild(LabelText("THIRST", 12, new Color("8b5835")));
         _medicalThirstBar = new ProgressBar { MaxValue = 10_000, ShowPercentage = false,
-            CustomMinimumSize = new Vector2(375, 13), Modulate = new Color("459ad1") };
+            CustomMinimumSize = new Vector2(375, 13) };
         _medicalNeedsBars.AddChild(_medicalThirstBar);
         _medicalNeedsBars.AddChild(LabelText("HEAT EXPOSURE", 12, new Color("8b5835")));
         _medicalHeatBar = new ProgressBar { MaxValue = 10_000, ShowPercentage = false,
-            CustomMinimumSize = new Vector2(375, 13), Modulate = new Color("e58a46") };
+            CustomMinimumSize = new Vector2(375, 13) };
         _medicalNeedsBars.AddChild(_medicalHeatBar);
     }
 
@@ -120,7 +122,12 @@ public partial class Main
         if (need is null) return;
         _medicalThirstBar!.Value = need.Thirst;
         _medicalHeatBar!.Value = need.HeatExposure;
+        _medicalThirstBar.Modulate = MedicalNeedColor(need.Thirst);
+        _medicalHeatBar.Modulate = MedicalNeedColor(need.HeatExposure);
     }
+
+    private static Color MedicalNeedColor(int value) => value < 3_500 ? new Color("53bb72")
+        : value < 7_000 ? new Color("459ad1") : new Color("df5750");
 
     private void RefreshMedicalFacilityInspector()
     {
@@ -132,7 +139,7 @@ public partial class Main
             var owner = m.WaterOwnerId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
             _inspectorBody.Text = $"FREE • no stock or payment\nQUEUE  {m.WaterQueue.Length}/10 • VISIBLE TAIL  {m.WaterOverflow.Length}\n" +
                 $"DRINKING  {owner}\nRELIEF  thirst -{GameSession.MedicalDrinkThirstPerTick}/tick • heat -{GameSession.MedicalDrinkHeatPerTick}/tick\n" +
-                "Select a person, then use GUIDE TO FREE WATER in the HOT panel.";
+                "Select a person for GUIDE TO WATER in their inspector.";
         }
         else
         {
@@ -140,7 +147,7 @@ public partial class Main
             _inspectorBody.Text = $"MEDIC  {m.ResponseStage}\nPATIENT  " +
                 (m.ResponsePatientId is { } id ? people.Single(item => item.AgentId == id).Name : "None") +
                 $"\nRESPONSE  {m.Response}\nREST  shade reduces heat after arrival\n" +
-                "Select a distressed person, then DISPATCH RILEY or GUIDE TO REST in the HOT panel.";
+                "Select a distressed person for DISPATCH RILEY or GUIDE TO REST in their inspector.";
         }
     }
 
@@ -161,27 +168,41 @@ public partial class Main
         _medicalSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _medicalSummary.CustomMinimumSize = new Vector2(370, 165);
         box.AddChild(_medicalSummary);
+    }
+
+    private void BuildMedicalActionInspector(VBoxContainer detail)
+    {
+        if (_session.CaptureMedical() is null) return;
+        _medicalActionInspector = new GridContainer { Columns = 2, Visible = false };
+        detail.AddChild(_medicalActionInspector);
         foreach (var (action, label) in new[] {
-            (MedicalAction.GuideToWater, "GUIDE TO FREE WATER"), (MedicalAction.GuideToRest, "GUIDE TO REST"),
+            (MedicalAction.GuideToWater, "GUIDE TO WATER"), (MedicalAction.GuideToRest, "GUIDE TO REST"),
             (MedicalAction.DispatchMedic, "DISPATCH RILEY"), (MedicalAction.SafeRemove, "SAFE REMOVE"),
             (MedicalAction.ReturnToShow, "LEAVE WATER QUEUE") })
         {
             var button = ButtonText(label, () => CommitMedicalAction(action));
             button.AddThemeFontSizeOverride("font_size", 12);
-            box.AddChild(button); _medicalButtons.Add(action, button);
+            button.CustomMinimumSize = new Vector2(183, 30);
+            _medicalActionInspector.AddChild(button); _medicalButtons.Add(action, button);
         }
     }
 
-    private ulong MedicalSelectedGuest()
+    private ulong? MedicalSelectedGuest()
     {
-        var medical = _session.CaptureMedical()!;
-        return _selectedAttendeeId is { } selected && medical.Needs.Any(item => item.AgentId == selected.Value)
-            ? selected.Value : medical.AtRiskGuestId;
+        var medical = _session.CaptureMedical();
+        return _selectedAttendeeId is { } selected && medical?.Needs.Any(item => item.AgentId == selected.Value) == true
+            ? selected.Value : null;
     }
 
     private void CommitMedicalAction(MedicalAction action)
     {
-        var command = new MedicalCommand(MedicalSelectedGuest(), action);
+        if (MedicalSelectedGuest() is not { } selected)
+        {
+            _preparationMessage = "Select a person before choosing a medical action.";
+            RefreshPreparationHud();
+            return;
+        }
+        var command = new MedicalCommand(selected, action);
         var result = MedicalCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility,
             DateTimeOffset.UtcNow, _autosaveGeneration);
         if (result.IsSuccess)
@@ -198,7 +219,6 @@ public partial class Main
     {
         if (_medicalSummary is null || _session.CaptureMedical() is not { } m) return;
         var target = m.Needs.Single(item => item.AgentId == m.AtRiskGuestId);
-        var selected = m.Needs.Single(item => item.AgentId == MedicalSelectedGuest());
         var drinking = m.WaterOwnerId is { } owner
             ? $"{_session.CapturePreparation()!.People.Single(item => item.AgentId == owner).Name} drinking • " +
               $"thirst {m.Needs.Single(item => item.AgentId == owner).Thirst / 100m:0}% • {m.WaterDrinkTicks / 80m:0.0}s"
@@ -215,15 +235,27 @@ public partial class Main
         var treatment = m.ResponseStage == MedicalResponseStage.Treating
             ? $"Treatment {Math.Clamp((_session.CurrentTick - m.ResponseStartedTick) * 100 / GameSession.MedicalTreatmentTicks, 0, 100)}% • {Remaining(m.ResponseStartedTick + GameSession.MedicalTreatmentTicks)} left"
             : m.ResponseStage == MedicalResponseStage.Travelling ? "Medic travelling • treatment begins on arrival" : m.Response;
-        var selectedStage = selected.AgentId == m.AtRiskGuestId ? m.Stage : selected.Stage;
         _medicalSummary.Text = $"HOT • FREE WATER • FIRST AID\n" +
             $"Guest 20: {m.Stage} • thirst {target.Thirst / 100m:0}% • heat {target.HeatExposure / 100m:0}%\n" +
             $"Water queue {m.WaterQueue.Length} + tail {m.WaterOverflow.Length} • {drinking}\nMedic {m.ResponseStage} • Clock: {clock}\n" +
-            $"{treatment}\n" +
-            $"Selected: {selectedStage} / {selected.Intent} • {selected.Reason}";
-        foreach (var (action, button) in _medicalButtons)
-            button.Disabled = _session.ValidateCommand(CampaignEnvelope(new MedicalCommand(selected.AgentId, action))) is not null;
+            $"{treatment}\nPerson actions are in the selected person's inspector.";
+        RefreshMedicalActionInspector();
         RefreshMedicalFacilityInspector();
+    }
+
+    private void RefreshMedicalActionInspector()
+    {
+        if (_medicalActionInspector is null) return;
+        var selected = MedicalSelectedGuest();
+        _medicalActionInspector.Visible = selected is not null && _selectedMedicalFacility is null;
+        foreach (var (action, button) in _medicalButtons)
+        {
+            button.Disabled = selected is not { } id ||
+                _session.ValidateCommand(CampaignEnvelope(new MedicalCommand(id, action))) is not null;
+            button.TooltipText = selected is { } target
+                ? _session.ValidateCommand(CampaignEnvelope(new MedicalCommand(target, action)))?.Message ?? ""
+                : "Select a person first.";
+        }
     }
 
     private void ProcessMedicalCapture()
@@ -233,6 +265,8 @@ public partial class Main
         if (_medicalCaptureFrame == 4)
             foreach (var id in new[] { "act.folk", "staff.steward", "equipment.buy" }) _offerButtons[id].EmitSignal(Button.SignalName.Pressed);
         if (_medicalCaptureFrame == 6) _preparationStart.EmitSignal(Button.SignalName.Pressed);
+        if (_medicalCaptureFrame == 7 && _medicalCaptureMode == "ui-state")
+            SelectAttendee(new EntityId(_session.CaptureMedical()!.AtRiskGuestId));
         if (_medicalCaptureFrame == 7 && _medicalCaptureMode == "line")
         {
             foreach (var person in _session.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest).Skip(8).Take(6))
@@ -243,6 +277,14 @@ public partial class Main
         }
         if (_medicalCaptureFrame == 8)
         {
+            if (_medicalCaptureMode == "ui-state")
+            {
+                if (MedicalNeedColor(0) != new Color("53bb72") ||
+                    MedicalNeedColor(5_000) != new Color("459ad1") ||
+                    MedicalNeedColor(10_000) != new Color("df5750"))
+                    throw new InvalidOperationException("Medical need color grading changed.");
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "early-need-bars.png"));
+            }
             if (_medicalCaptureMode == "line")
             {
                 while (_session.CaptureMedical()!.WaterQueue.Length < 5 && _session.CurrentTick < 5_200)
@@ -348,6 +390,82 @@ public partial class Main
             }
             return;
         }
+        if (_medicalCaptureMode == "ui-state")
+        {
+            var medical = _session.CaptureMedical()!;
+            if (_medicalCaptureFrame == 9)
+            {
+                SelectAttendee(new EntityId(medical.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId));
+                if (_medicalActionInspector?.Visible != true || _medicalButtons[MedicalAction.DispatchMedic].Disabled == false)
+                    throw new InvalidOperationException("Performer inspector did not show validated medical actions.");
+            }
+            if (_medicalCaptureFrame == 11)
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "performer-inspector.png"));
+            if (_medicalCaptureFrame == 12)
+            {
+                ClearSelection();
+                if (_medicalActionInspector?.Visible == true) throw new InvalidOperationException("Unselected actions remained visible.");
+                var before = _session.CaptureSnapshot().AuthoritativeHash;
+                CommitMedicalAction(MedicalAction.DispatchMedic);
+                if (_session.CaptureSnapshot().AuthoritativeHash != before)
+                    throw new InvalidOperationException("Unselected medical action changed authoritative state.");
+                CapturePickMedicalFacility(MedicalFacility.Water);
+                if (_medicalActionInspector?.Visible == true) throw new InvalidOperationException("Facility selection showed person actions.");
+            }
+            if (_medicalCaptureFrame == 13)
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "facility-inspector.png"));
+            if (_medicalCaptureFrame == 14)
+            {
+                while (_session.CaptureMedical()!.Stage != MedicalStage.Collapsed && _session.CurrentTick < 4_000)
+                    _session.AdvanceWithoutSnapshot(1);
+                if (_session.CaptureMedical()!.Stage != MedicalStage.Collapsed)
+                    throw new InvalidOperationException("UI fixture did not reach guest collapse.");
+                _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+                FocusMedicalCapturePerson(medical.AtRiskGuestId, 24f);
+                SelectAttendee(new EntityId(medical.AtRiskGuestId));
+                RefreshPreparationHud();
+                if (!_medicalButtons[MedicalAction.GuideToWater].Disabled || _medicalButtons[MedicalAction.DispatchMedic].Disabled)
+                    throw new InvalidOperationException("Collapsed guest inspector validation was incorrect.");
+            }
+            if (_medicalCaptureFrame == 16)
+            {
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "collapsed-before-dispatch.png"));
+                _medicalButtons[MedicalAction.DispatchMedic].EmitSignal(Button.SignalName.Pressed);
+                if (_session.CaptureMedical()!.Needs.Single(item => item.AgentId == medical.AtRiskGuestId).Intent != MedicalIntent.Collapsed)
+                    throw new InvalidOperationException("Dispatch made collapsed guest stand.");
+                var restored = GameSession.Restore(_session.CapturePersistenceSnapshot());
+                if (!restored.IsSuccess) throw new InvalidOperationException(restored.Error);
+                _session = restored.Session!;
+                _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+                RefreshPreparationHud();
+            }
+            if (_medicalCaptureFrame == 19)
+            {
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "collapsed-medic-travelling.png"));
+                GD.Print($"MEDICAL_UI_STATE selected={medical.AtRiskGuestId} intent={_session.CaptureMedical()!.Needs.Single(item => item.AgentId == medical.AtRiskGuestId).Intent} response={_session.CaptureMedical()!.ResponseStage}");
+            }
+            if (_medicalCaptureFrame == 20)
+            {
+                while (_session.CaptureMedical()!.ResponseStage == MedicalResponseStage.Travelling && _session.CurrentTick < 5_000)
+                    _session.AdvanceWithoutSnapshot(1);
+                if (_session.CaptureMedical()!.ResponseStage != MedicalResponseStage.Treating)
+                    throw new InvalidOperationException("Medic did not reach collapsed guest.");
+                if (_session.CaptureMedical()!.Needs.Single(item => item.AgentId == medical.AtRiskGuestId).Intent != MedicalIntent.Collapsed)
+                    throw new InvalidOperationException("Treatment made collapsed guest stand early.");
+                _session.AdvanceWithoutSnapshot(GameSession.MedicalTreatmentTicks);
+                if (_session.CaptureMedical()!.ResponseStage != MedicalResponseStage.Completed)
+                    throw new InvalidOperationException("Medic did not complete treatment.");
+                _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+                RefreshPreparationHud();
+                GD.Print($"MEDICAL_UI_STATE completed={_session.CaptureMedical()!.Stage} thirst={_session.CaptureMedical()!.Needs.Single(item => item.AgentId == medical.AtRiskGuestId).Thirst} heat={_session.CaptureMedical()!.Needs.Single(item => item.AgentId == medical.AtRiskGuestId).HeatExposure}");
+            }
+            if (_medicalCaptureFrame == 22)
+            {
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "treated-green-bars.png"));
+                GetTree().Quit();
+            }
+            return;
+        }
         if (_medicalCaptureFrame == 12 && _medicalCaptureMode == "line")
         {
             RefreshPreparationHud();
@@ -372,7 +490,11 @@ public partial class Main
         if (_medicalCaptureFrame == 16)
         {
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "warning.png"));
-            if (_medicalCaptureMode == "prevent") CommitMedicalAction(MedicalAction.DispatchMedic);
+            if (_medicalCaptureMode == "prevent")
+            {
+                SelectAttendee(new EntityId(_session.CaptureMedical()!.AtRiskGuestId));
+                CommitMedicalAction(MedicalAction.DispatchMedic);
+            }
         }
         if (_medicalCaptureFrame == 18)
         {

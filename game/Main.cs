@@ -704,6 +704,7 @@ public partial class Main : Node
         RefreshMedicalNeedBars(null);
         _selectedAttendeeId = null;
         _selected = item;
+        RefreshMedicalActionInspector();
         var radius = item.Kind switch
         {
             FarmObjectKind.LargeBarn => 11.5f, FarmObjectKind.SmallBarn => 8.3f,
@@ -722,6 +723,7 @@ public partial class Main : Node
     {
         RefreshMedicalNeedBars(null);
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
+        RefreshMedicalActionInspector();
         _inspectorBody.Text = "Click a building, gate, stage or service point.\nClick empty ground to clear."; GD.Print("FARM_SELECTION_CLEARED");
     }
 
@@ -732,6 +734,7 @@ public partial class Main : Node
         _highlight.Position = _attendeeVisuals[id].Position + new Vector3(0, 0.08f, 0);
         _highlight.Scale = new Vector3(0.7f, 1, 0.7f); _highlight.Visible = true;
         RefreshAttendeeInspector();
+        RefreshMedicalActionInspector();
         GD.Print($"ATTENDEE_SELECTED id={id.Value} orientation={OrientationNames[_orientation]}");
     }
 
