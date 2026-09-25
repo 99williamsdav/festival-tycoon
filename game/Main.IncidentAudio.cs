@@ -36,7 +36,7 @@ public partial class Main
         _screamB = new AudioStreamPlayer { Bus = "Outdoor Stage", VolumeDb = -18,
             Stream = OptionalIncidentStream(ScreamBPath) };
         foreach (var player in new[] { _ambientCrowd, _generatorExplosion, _screamA, _screamB }) AddChild(player);
-        GD.Print($"INCIDENT_AUDIO_READY ambient={_ambientCrowd.Stream is not null} explosion={_generatorExplosion.Stream is not null} female={_screamA.Stream is not null} male={_screamB.Stream is not null} mode=private-playtest");
+        GD.Print($"INCIDENT_AUDIO_READY ambient={_ambientCrowd.Stream is not null} explosion={_generatorExplosion.Stream is not null} female={_screamA.Stream is not null} male={_screamB.Stream is not null} mode=cc0-integrated");
     }
 
     private void ResetIncidentAudioPresentation()
@@ -67,7 +67,7 @@ public partial class Main
                 _ambientCrowd.Play(); // Restarts the long recording after it ends.
                 if (!_ambientStartedLogged)
                 {
-                    GD.Print("INCIDENT_AUDIO_AMBIENT_START mode=private-playtest");
+                    GD.Print("INCIDENT_AUDIO_AMBIENT_START mode=cc0-integrated");
                     _ambientStartedLogged = true;
                 }
             }
@@ -114,6 +114,6 @@ public partial class Main
         player.VolumeDb = Mathf.LinearToDb(Math.Max(0.001f, strength));
         player.Stop();
         player.Play();
-        GD.Print($"INCIDENT_AUDIO cue={cue.Kind} voice={cue.WitnessVoice} tick={cue.Tick} mode=private-playtest");
+        GD.Print($"INCIDENT_AUDIO cue={cue.Kind} voice={cue.WitnessVoice} tick={cue.Tick} mode=cc0-integrated");
     }
 }
