@@ -219,12 +219,38 @@ public partial class Main
         if (_medicalCaptureFrame == 4)
             foreach (var id in new[] { "act.folk", "staff.steward", "equipment.buy" }) _offerButtons[id].EmitSignal(Button.SignalName.Pressed);
         if (_medicalCaptureFrame == 6) _preparationStart.EmitSignal(Button.SignalName.Pressed);
+        if (_medicalCaptureFrame == 7 && _medicalCaptureMode == "line")
+        {
+            foreach (var person in _session.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest).Skip(8).Take(6))
+            {
+                var result = _session.Execute(CampaignEnvelope(new MedicalCommand(person.AgentId, MedicalAction.GuideToWater)));
+                if (!result.IsAccepted) throw new InvalidOperationException($"Line fixture could not guide {person.Name}: {result.Message}");
+            }
+        }
         if (_medicalCaptureFrame == 8)
         {
-            _session.AdvanceWithoutSnapshot(2_000);
+            if (_medicalCaptureMode == "line")
+            {
+                while (_session.CaptureMedical()!.WaterQueue.Length < 5 && _session.CurrentTick < 5_200)
+                    _session.AdvanceWithoutSnapshot(1);
+                if (_session.CaptureMedical()!.WaterQueue.Length < 5)
+                    throw new InvalidOperationException("Line fixture did not assemble five physical queue members.");
+            }
+            else _session.AdvanceWithoutSnapshot(2_000);
             _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
             RefreshPreparationHud();
-            GD.Print($"MEDICAL_CAPTURE warning={_session.CaptureMedical()?.Stage} queue={_session.CaptureMedical()?.WaterQueue.Length}");
+            GD.Print($"MEDICAL_CAPTURE warning={_session.CaptureMedical()?.Stage} queue={_session.CaptureMedical()?.WaterQueue.Length} tick={_session.CurrentTick}");
+        }
+        if (_medicalCaptureFrame == 12 && _medicalCaptureMode == "line")
+        {
+            RefreshPreparationHud();
+            return;
+        }
+        if (_medicalCaptureFrame == 13 && _medicalCaptureMode == "line")
+        {
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_medicalCaptureDirectory, "water-line.png"));
+            GD.Print($"MEDICAL_CAPTURE water-line={_session.CaptureMedical()?.WaterQueue.Length}");
+            GetTree().Quit(); return;
         }
         if (_medicalCaptureFrame == 9)
             SelectAttendee(new EntityId(_session.CaptureMedical()!.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId));

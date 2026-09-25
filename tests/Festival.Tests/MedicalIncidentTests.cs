@@ -31,6 +31,14 @@ public sealed class MedicalIncidentTests
         return loaded.Session;
     }
 
+    private static void SuppressGuestWaterDemand(GameSession s)
+    {
+        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var m = s.CaptureMedical()!;
+        field.SetValue(s, m with { Needs = m.Needs.Select(item => item.Profile == MedicalNeedProfile.Guest
+            ? item with { Thirst = 0, HeatExposure = 0 } : item).ToArray() });
+    }
+
     [TestMethod]
     public void UntreatedHotScenarioHasCausalWarningCollapseCriticalAndOneDeath()
     {
@@ -87,7 +95,8 @@ public sealed class MedicalIncidentTests
     public void QueueAbandonmentReassignsReservationsAndDoesNotTransferWater()
     {
         var s = Started();
-        s.AdvanceWithoutSnapshot(1_200);
+        while (s.CaptureMedical()!.WaterQueue.Length < 2 && s.CurrentTick < 3_000)
+            s.AdvanceWithoutSnapshot(1);
         var before = s.CaptureMedical()!;
         Assert.IsTrue(before.WaterQueue.Length >= 2);
         var leaver = before.WaterQueue[0];
@@ -250,12 +259,19 @@ public sealed class MedicalIncidentTests
         var s = Started();
         var slots = Enumerable.Range(0, 10).Select(GameSession.MedicalQueueSlot).ToArray();
         Assert.AreEqual(slots.Length, slots.Distinct().Count());
+        for (var index = 1; index < slots.Length; index++)
+        {
+            Assert.IsTrue(slots[index].Z > slots[index - 1].Z, "The line must progress away from the tap without snaking back.");
+            var dx = slots[index].X - slots[index - 1].X;
+            var dz = slots[index].Z - slots[index - 1].Z;
+            Assert.IsTrue(dx * dx + dz * dz <= 8, "Adjacent queue places must remain one continuous line.");
+        }
         for (var i = 0; i < slots.Length; i++)
         for (var j = i + 1; j < slots.Length; j++)
         {
             var dx = slots[i].X - slots[j].X;
             var dz = slots[i].Z - slots[j].Z;
-            Assert.IsTrue(dx * dx + dz * dz >= 8, $"Slots {i} and {j} overlap standing clearance.");
+            Assert.IsTrue(dx * dx + dz * dz >= 4, $"Slots {i} and {j} overlap standing clearance.");
         }
         var savedGrid = s.CapturePersistenceSnapshot().TraversalGrid!;
         var grid = new TraversalGrid(savedGrid.Cells.Select(item => new TerrainCellOverride(
@@ -267,6 +283,135 @@ public sealed class MedicalIncidentTests
             Assert.IsTrue(DeterministicPathfinder.FindPath(grid, new GridCell(122, 190), slot).Found,
                 $"Water slot {slot} has no entrance route.");
         }
+        Assert.IsTrue(grid.Get(GameSession.MedicalQueueApproach(slots.Length)).IsWalkable);
+    }
+
+    [TestMethod]
+    public void FasterLaterDepartingGuestTakesEarlierPlaceOnlyAfterPhysicalArrival()
+    {
+        var s = Started();
+        SuppressGuestWaterDemand(s);
+        var people = s.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest).Take(2).ToArray();
+        var slow = people[0].AgentId;
+        var fast = people[1].AgentId;
+        var field = typeof(GameSession).GetField("_navigationAgents", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var agents = field.GetValue(s)!;
+        void Place(ulong id, GridCell cell, int speed)
+        {
+            var agent = agents.GetType().GetProperty("Item")!.GetValue(agents, [new EntityId(id)])!;
+            var centre = TraversalGrid.CellCentre(cell);
+            foreach (var (name, value) in new[] { ("XMillimetres", centre.XMillimetres), ("ZMillimetres", centre.ZMillimetres),
+                         ("SegmentOriginXMillimetres", centre.XMillimetres), ("SegmentOriginZMillimetres", centre.ZMillimetres),
+                         ("WalkingSpeedPermille", speed) })
+                agent.GetType().GetProperty(name)!.SetValue(agent, value);
+        }
+        Place(slow, new GridCell(95, 138), 850);
+        Place(fast, new GridCell(97, 139), 1_150);
+        var approach = GameSession.MedicalQueueApproach(0);
+        var slowStart = TraversalGrid.CellCentre(new GridCell(95, 138));
+        var fastStart = TraversalGrid.CellCentre(new GridCell(97, 139));
+        var point = TraversalGrid.CellCentre(approach);
+        static long DistanceSquared((int XMillimetres, int ZMillimetres) a, (int XMillimetres, int ZMillimetres) b) =>
+            (long)(a.XMillimetres - b.XMillimetres) * (a.XMillimetres - b.XMillimetres) +
+            (long)(a.ZMillimetres - b.ZMillimetres) * (a.ZMillimetres - b.ZMillimetres);
+        Assert.IsTrue(DistanceSquared(fastStart, point) > DistanceSquared(slowStart, point));
+        Assert.IsTrue(Send(s, new MedicalCommand(slow, MedicalAction.GuideToWater)).IsAccepted);
+        Assert.IsTrue(Send(s, new MedicalCommand(fast, MedicalAction.GuideToWater)).IsAccepted);
+        Assert.AreEqual(0, s.CaptureMedical()!.WaterQueue.Length);
+        Assert.IsNull(s.CaptureMedical()!.Needs.Single(item => item.AgentId == slow).QueueSlot);
+        Assert.IsNull(s.CaptureMedical()!.Needs.Single(item => item.AgentId == fast).QueueSlot);
+        s = Restored(s);
+        while (s.CaptureMedical()!.WaterQueue.Length < 2 && s.CurrentTick < 1_000)
+            s.AdvanceWithoutSnapshot(1);
+        var queue = s.CaptureMedical()!.WaterQueue;
+        Assert.IsTrue(queue.Length >= 2);
+        Assert.AreEqual(fast, queue[0], "The faster physical arrival must overtake the earlier-departing walker.");
+        Assert.AreEqual(slow, queue[1]);
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void AbandoningWaterApproachReleasesNoQueuePlaceAcrossRestore()
+    {
+        var s = Started();
+        var id = s.CaptureMedical()!.Needs.First(item => item.Profile == MedicalNeedProfile.Guest &&
+            item.AgentId != s.CaptureMedical()!.AtRiskGuestId).AgentId;
+        Assert.IsTrue(Send(s, new MedicalCommand(id, MedicalAction.GuideToWater)).IsAccepted);
+        Assert.AreEqual(MedicalIntent.SeekWater, s.CaptureMedical()!.Needs.Single(item => item.AgentId == id).Intent);
+        Assert.IsNull(s.CaptureMedical()!.Needs.Single(item => item.AgentId == id).QueueSlot);
+        Assert.IsFalse(s.CaptureMedical()!.WaterQueue.Contains(id));
+        s = Restored(s);
+        Assert.IsTrue(Send(s, new MedicalCommand(id, MedicalAction.ReturnToShow)).IsAccepted);
+        Assert.AreEqual(MedicalIntent.WatchShow, s.CaptureMedical()!.Needs.Single(item => item.AgentId == id).Intent);
+        Assert.IsFalse(s.CaptureMedical()!.WaterQueue.Contains(id));
+        Assert.AreEqual(-1L, s.CaptureMedical()!.Needs.Single(item => item.AgentId == id).LastWaterTick);
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void SameTickWaterArrivalsUseStablePersonIdTieBreak()
+    {
+        var s = Started();
+        SuppressGuestWaterDemand(s);
+        var ids = s.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest)
+            .Take(2).Select(item => item.AgentId).ToArray();
+        var field = typeof(GameSession).GetField("_navigationAgents", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var agents = field.GetValue(s)!;
+        var centre = TraversalGrid.CellCentre(GameSession.MedicalQueueApproach(0));
+        for (var i = 0; i < ids.Length; i++)
+        {
+            var agent = agents.GetType().GetProperty("Item")!.GetValue(agents, [new EntityId(ids[i])])!;
+            var x = centre.XMillimetres + (i == 0 ? -500 : 500);
+            foreach (var (name, value) in new[] { ("XMillimetres", x), ("ZMillimetres", centre.ZMillimetres),
+                         ("SegmentOriginXMillimetres", x), ("SegmentOriginZMillimetres", centre.ZMillimetres) })
+                agent.GetType().GetProperty(name)!.SetValue(agent, value);
+            Assert.IsTrue(Send(s, new MedicalCommand(ids[i], MedicalAction.GuideToWater)).IsAccepted);
+        }
+        Assert.AreEqual(0, s.CaptureMedical()!.WaterQueue.Length);
+        s.AdvanceWithoutSnapshot(1);
+        CollectionAssert.AreEqual(ids, s.CaptureMedical()!.WaterQueue);
+        Assert.AreEqual(s.CaptureMedical()!.Evidence.Last(item => item.Id == "medical:queue-join").Tick,
+            s.CaptureMedical()!.Evidence.First(item => item.Id == "medical:queue-join").Tick);
+        Restored(s);
+    }
+
+    [TestMethod]
+    public void FivePersonLineAdvancesAndNextPhysicalArrivalOwnsTapAcrossRestore()
+    {
+        var s = Started();
+        var ids = s.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest)
+            .Take(6).Select(item => item.AgentId).ToArray();
+        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var m = s.CaptureMedical()!;
+        field.SetValue(s, m with { Needs = m.Needs.Select(item => ids.Contains(item.AgentId)
+            ? item with { Thirst = 9_500 } : item).ToArray() });
+        foreach (var id in ids)
+            Assert.IsTrue(Send(s, new MedicalCommand(id, MedicalAction.GuideToWater)).IsAccepted);
+        Assert.AreEqual(0, s.CaptureMedical()!.WaterQueue.Length);
+        while (s.CaptureMedical()!.WaterQueue.Length < 5 && s.CurrentTick < 2_500)
+            s.AdvanceWithoutSnapshot(1);
+        m = s.CaptureMedical()!;
+        Assert.IsTrue(m.WaterQueue.Length >= 5);
+        for (var index = 0; index < m.WaterQueue.Length; index++)
+        {
+            Assert.AreEqual(index, m.Needs.Single(item => item.AgentId == m.WaterQueue[index]).QueueSlot);
+            Assert.AreEqual(GameSession.MedicalQueueSlot(index),
+                s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == m.WaterQueue[index]).Destination);
+        }
+        s = Restored(s);
+        while (s.CaptureMedical()!.WaterOwnerId is null && s.CurrentTick < 3_000)
+            s.AdvanceWithoutSnapshot(1);
+        var owner = s.CaptureMedical()!.WaterOwnerId;
+        Assert.IsNotNull(owner);
+        var next = s.CaptureMedical()!.WaterQueue[1];
+        while (s.CaptureMedical()!.WaterQueue.Contains(owner.Value) && s.CurrentTick < 4_000)
+            s.AdvanceWithoutSnapshot(1);
+        Assert.IsFalse(s.CaptureMedical()!.WaterQueue.Contains(owner.Value));
+        Assert.AreEqual(next, s.CaptureMedical()!.WaterQueue[0]);
+        while (s.CaptureMedical()!.WaterOwnerId != next && s.CurrentTick < 4_500)
+            s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(next, s.CaptureMedical()!.WaterOwnerId);
+        Restored(s);
     }
 
     [TestMethod]
@@ -306,6 +451,7 @@ public sealed class MedicalIncidentTests
     public void PerformerUsesSameFreeWaterServiceAndNeedsPersist()
     {
         var s = Started();
+        SuppressGuestWaterDemand(s);
         var performer = s.CaptureMedical()!.Needs.First(item => item.Profile == MedicalNeedProfile.Performer);
         Assert.AreEqual(3, s.CaptureMedical()!.Needs.Count(item => item.Profile == MedicalNeedProfile.Performer));
         Assert.IsTrue(Send(s, new MedicalCommand(performer.AgentId, MedicalAction.GuideToWater)).IsAccepted);
@@ -387,6 +533,7 @@ public sealed class MedicalIncidentTests
     public void PerformerDrinksBeforeEntryThenReturnsViaAccessAndStairsAcrossRestores()
     {
         var s = Started();
+        SuppressGuestWaterDemand(s);
         var performerId = s.CaptureMedical()!.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
         Assert.IsTrue(Send(s, new MedicalCommand(performerId, MedicalAction.GuideToWater)).IsAccepted);
         s = Restored(s);
