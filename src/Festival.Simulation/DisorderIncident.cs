@@ -33,8 +33,8 @@ public sealed partial class GameSession
     public const int DisorderInjuryDeathTicks = 2_400;
     // Open-sided visual post sits just south of this walkable duty position;
     // neither the post nor the approach closes the gate/medical corridor.
-    public static readonly GridCell DisorderSecurityPostCell = new(116, 160); // (-5.75, 16.25) m.
-    public static readonly GridCell DisorderSecurityBaseCell = new(116, 164); // (-5.75, 18.25) m.
+    public static readonly GridCell DisorderSecurityPostCell = new(114, 178); // (-6.75, 25.25) m.
+    public static readonly GridCell DisorderSecurityBaseCell = new(114, 182); // (-6.75, 27.25) m.
     private DisorderSnapshot? _disorder;
     public DisorderSnapshot? CaptureDisorder() => _disorder is null ? null :
         JsonSerializer.Deserialize<DisorderSnapshot>(JsonSerializer.Serialize(_disorder));
@@ -346,6 +346,9 @@ public sealed partial class GameSession
     private void AdvanceSecurityResponse()
     {
         var d = _disorder!;
+        if (d.ResponseStage == SecurityResponseStage.Completed && !d.SecurityIncapacitated &&
+            _navigationAgents[new(d.SecurityId)].Destination != DisorderSecurityBaseCell)
+            ApplyAgentDestination(new(d.SecurityId), new(DisorderSecurityBaseCell, "disorder.return-to-post"));
         if (d.ResponseTargetId is not { } targetId || d.SecurityIncapacitated) return;
         var target = d.People.Single(item => item.AgentId == targetId);
         var targetNeed = _medical!.Needs.Single(item => item.AgentId == targetId);

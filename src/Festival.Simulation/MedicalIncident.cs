@@ -31,9 +31,9 @@ public sealed partial class GameSession
     public const int MedicalDistressThirst = 9_000;
     public const int MedicalDistressHeat = 8_000;
     public static readonly GridCell MedicalWaterCell = new(95, 123);    // (-16.25, -2.25) m; upper-right overview, away from the audience.
-    public static readonly GridCell MedicalTentCell = new(119, 172);    // (-4.25, 22.25) m; north of the audience.
-    public static readonly GridCell MedicalMedicCell = new(122, 164);   // (-2.75, 18.25) m.
-    public static readonly GridCell MedicalRestCell = new(119, 178);    // (-4.25, 25.25) m.
+    public static readonly GridCell MedicalTentCell = new(116, 144);    // (-5.75, 8.25) m; behind the front entrance.
+    public static readonly GridCell MedicalMedicCell = new(116, 140);   // (-5.75, 6.25) m; walkable tent approach.
+    public static readonly GridCell MedicalRestCell = new(120, 140);    // (-3.75, 6.25) m; outside the tent footprint.
     public static readonly GridCell MedicalExitCell = new(128, 186);    // (0.25, 29.25) m.
     // One compact line behind the single tap, with a slight human offset and no branches.
     // Slot zero alone owns the tap. Approaching the tail does not reserve a slot.
@@ -410,6 +410,11 @@ public sealed partial class GameSession
     private void AdvanceMedical()
     {
         if (_medical is not { } m || _preparation is not { Status: PreparationStatus.Running } p) return;
+        // A completed response releases the medic to walk back to the tent.
+        // The return route is authoritative navigation, never a position reset.
+        if (m.ResponseStage == MedicalResponseStage.Completed &&
+            _navigationAgents[new(m.MedicId)].Destination != MedicalMedicCell)
+            ApplyAgentDestination(new(m.MedicId), new(MedicalMedicCell, "medical.return-to-tent"));
         if (CurrentTick % 4 == 0)
         {
             var needs = m.Needs.Select(item => item with

@@ -189,7 +189,8 @@ public sealed partial class GameSession
                 WalkingSpeedPermille = GetWalkingSpeedPermille(id), Action = AgentNavigationAction.Idle
             });
             var dutyCell = _disorder is { } disorder && person.AgentId == disorder.SecurityId
-                ? DisorderSecurityBaseCell : PreparedPlace(index);
+                ? DisorderSecurityBaseCell : _medical is { } medical && person.AgentId == medical.MedicId
+                ? MedicalMedicCell : PreparedPlace(index);
             ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
         }
         _preparation = p with { Status = PreparationStatus.Running, StartedTick = CurrentTick };

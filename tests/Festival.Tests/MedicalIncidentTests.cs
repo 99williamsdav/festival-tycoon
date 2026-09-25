@@ -605,8 +605,27 @@ public sealed class MedicalIncidentTests
         while (s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage != MedicalStage.Treated &&
                s.CaptureMedical()!.Stage != MedicalStage.Terminal && s.CurrentTick < 4_000)
             s.AdvanceWithoutSnapshot(1);
-        Assert.AreEqual(MedicalStage.Treated, s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage);
+        var response = s.CaptureMedical()!;
+        var medic = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == medicId);
+        var performer = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == performerId);
+        Assert.AreEqual(MedicalStage.Treated, response.Needs.Single(item => item.AgentId == performerId).Stage,
+            $"tick={s.CurrentTick} response={response.ResponseStage} medic={medic.Action}/{medic.Destination} " +
+            $"at=({medic.XMillimetres},{medic.ZMillimetres}) performer={performer.Action}/{performer.Destination} " +
+            $"at=({performer.XMillimetres},{performer.ZMillimetres}) evidence=" +
+            string.Join(';', response.Evidence.Where(item => item.Id.Contains("dispatch") ||
+                item.Id.Contains("treatment") || item.Id.Contains("collapse") || item.Id.Contains("critical"))
+                .Select(item => $"{item.Tick}:{item.Id}")));
         Assert.AreEqual(0, s.CaptureLifecycleSnapshot()!.Casualties.Count);
+        s = Restored(s);
+        var returning = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == medicId);
+        while ((returning.Destination != GameSession.MedicalMedicCell || returning.Action != AgentNavigationAction.Arrived) &&
+               s.CurrentTick < 4_000)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            returning = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == medicId);
+        }
+        Assert.AreEqual(GameSession.MedicalMedicCell, returning.Destination);
+        Assert.AreEqual(AgentNavigationAction.Arrived, returning.Action);
         Restored(s);
     }
 

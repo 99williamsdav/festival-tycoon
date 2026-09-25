@@ -201,9 +201,22 @@ public partial class Main
             ProcessSecurityPostPreparationCapture();
             return;
         }
+        if (_disorderCaptureMode == "layout" && _disorderCaptureFrame == 3)
+        {
+            // Keep the ordinary South angle; widen only for a whole-site
+            // beginning/active layout comparison.
+            _focus = new Vector3(0, 0, -4); _camera.Size = 70f; ApplyCamera();
+        }
         if (_disorderCaptureFrame == 4)
             foreach (var id in new[] { "act.folk", "staff.steward", "equipment.buy" }) _offerButtons[id].EmitSignal(Button.SignalName.Pressed);
+        if (_disorderCaptureMode == "layout" && _disorderCaptureFrame == 5)
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory, "beginning-south.png"));
         if (_disorderCaptureFrame == 6) _preparationStart.EmitSignal(Button.SignalName.Pressed);
+        if (_disorderCaptureMode == "layout")
+        {
+            ProcessLayoutCapture();
+            return;
+        }
         if (_disorderCaptureMode == "post")
         {
             ProcessSecurityPostCapture();
@@ -252,6 +265,38 @@ public partial class Main
         {
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory, "prevented.png"));
             GD.Print($"DISORDER_CAPTURE resolved={_session.CaptureDisorder()!.People.Count(item => item.Grievance == DisorderGrievance.None)} waterClosed={_session.CaptureDisorder()!.WaterClosed} set={_session.CaptureLivePerformance()!.Stage}");
+            GetTree().Quit();
+        }
+    }
+
+    private void ProcessLayoutCapture()
+    {
+        if (_disorderCaptureFrame == 8)
+        {
+            var medical = _session.CaptureMedical()!;
+            var disorder = _session.CaptureDisorder()!;
+            while (_session.CurrentTick < 4_000)
+            {
+                var agents = _session.CaptureSnapshot().NavigationAgents;
+                if (agents.Single(item => item.Id.Value == medical.MedicId).Action == AgentNavigationAction.Arrived &&
+                    agents.Single(item => item.Id.Value == disorder.SecurityId).Action == AgentNavigationAction.Arrived &&
+                    _session.CaptureLivePerformance()!.Stage == LiveSetStage.Live)
+                    break;
+                _session.AdvanceWithoutSnapshot(1);
+            }
+            var liveAgents = _session.CaptureSnapshot().NavigationAgents;
+            var medic = liveAgents.Single(item => item.Id.Value == medical.MedicId);
+            var security = liveAgents.Single(item => item.Id.Value == disorder.SecurityId);
+            if (medic.Destination != GameSession.MedicalMedicCell || medic.Action != AgentNavigationAction.Arrived ||
+                security.Destination != GameSession.DisorderSecurityBaseCell || security.Action != AgentNavigationAction.Arrived)
+                throw new InvalidOperationException("Layout capture workers did not reach their physical bases.");
+            _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+            RefreshPreparationHud();
+            GD.Print($"R004_LAYOUT_CAPTURE tick={_session.CurrentTick} medic={medic.Destination} security={security.Destination} orientation=South zoom=70");
+        }
+        if (_disorderCaptureFrame == 10)
+        {
+            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory!, "active-south.png"));
             GetTree().Quit();
         }
     }

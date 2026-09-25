@@ -121,8 +121,8 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.04-disorder-v10",
-        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-v10");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.04-layout-v11",
+        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v11");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -130,7 +130,6 @@ public partial class Main : Node
         ConfigureCaptureMode();
         _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null ?
             RealTimeAutosaveScheduler.ProductionCadenceSeconds : 2);
-        _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
         if (_sharedWorldFixture is not null)
         {
             _session = _sharedWorldFixture.Session;
@@ -173,6 +172,7 @@ public partial class Main : Node
                 _equipmentCaptureDirectory is not null || _preparationCaptureDirectory is null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier);
         }
+        _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
         _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
         _foundationPublishedHash = _pausedHash;
         _foundationPublishedHashTick = _session.CurrentTick;
@@ -1111,7 +1111,10 @@ public partial class Main : Node
         GD.Print($"FOUNDATION_PAUSE paused={paused}");
     }
 
-    private string SaveDirectory => ProjectSettings.GlobalizePath("user://saves");
+    // Development layout revisions use a new save namespace. Old files remain
+    // untouched and the compatibility header still rejects cross-layout loads.
+    private string SaveDirectory => ProjectSettings.GlobalizePath(
+        _session?.CaptureDisorder() is not null ? "user://saves/r0.04-layout-v11" : "user://saves");
     private void ManualSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));

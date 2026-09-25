@@ -67,6 +67,13 @@ public sealed partial class GameSession
         for (var i = 0; i < performers.Length; i++)
         {
             var performer = performers[i];
+            // Medical response owns an awaiting/collapsed performer's position.
+            // Stage-entry timing must not pull the patient away mid-treatment.
+            if (MedicalOwnsNavigation(performer.AgentId))
+            {
+                performers[i] = performer with { OnStage = false, InstrumentAttached = false };
+                continue;
+            }
             var agent = _navigationAgents[new(performer.AgentId)];
             if (live.Stage != LiveSetStage.Finished && !performer.AccessReached &&
                 agent.Action == AgentNavigationAction.Arrived && agent.Destination == performer.AccessCell)

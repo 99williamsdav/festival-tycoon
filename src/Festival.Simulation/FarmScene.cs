@@ -28,7 +28,7 @@ public static class LowerWitteringFarmScenario
     // face toward increasing world X; the visible steps meet the south end.
     public const int TrailerStageXMillimetres = -16_000;
     public const int TrailerStageZMillimetres = 11_000;
-    public const string LayoutRevision = "r0.02a-front-stairs-side-generator-v3";
+    public const string LayoutRevision = "r0.04-rear-barn-front-post-back-aid-v1";
     private const string BaseAssetContentHash = "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9";
 
     private static readonly FarmSceneReadModel Model = new(
@@ -36,7 +36,7 @@ public static class LowerWitteringFarmScenario
         {
             new FarmObjectReadModel("farm.farmhouse", "Farmhouse", FarmObjectKind.Farmhouse, -22, -14, 0, FarmObjectState.Inherited, true, false, true),
             new FarmObjectReadModel("farm.small-barn", "Small Storage Barn", FarmObjectKind.SmallBarn, 19, -17, 3, FarmObjectState.Inherited, true, false, true),
-            new FarmObjectReadModel("farm.large-barn", "Large Barn", FarmObjectKind.LargeBarn, 18, 12, 2, FarmObjectState.Inherited, true, false, true),
+            new FarmObjectReadModel("farm.large-barn", "Large Barn", FarmObjectKind.LargeBarn, 0, -23, 2, FarmObjectState.Inherited, true, false, true),
             new FarmObjectReadModel("farm.trailer-stage", "Trailer Stage", FarmObjectKind.TrailerStage,
                 TrailerStageXMillimetres / 1000.0, TrailerStageZMillimetres / 1000.0, 1, FarmObjectState.Inherited, false, false, true),
             new FarmObjectReadModel("farm.service-point", "Generic Service Point", FarmObjectKind.ServicePoint, 29, -5, 2, FarmObjectState.Inherited, false, false, true),

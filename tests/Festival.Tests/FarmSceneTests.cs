@@ -1,4 +1,5 @@
 using Festival.Simulation;
+using Festival.Simulation.Fixtures;
 
 namespace Festival.Tests;
 
@@ -33,6 +34,20 @@ public sealed class FarmSceneTests
         }
         Assert.AreEqual(FarmObjectState.Open, scene.GetRequiredObject("farm.main-gate").State);
         Assert.IsTrue(scene.Objects.All(item => item.IsSelectable));
+    }
+
+    [TestMethod]
+    public void R004RearBarnAndSeparatedResponseFacilitiesHaveWalkableApproaches()
+    {
+        var barn = LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.large-barn");
+        Assert.AreEqual(0d, barn.XMetres);
+        Assert.AreEqual(-23d, barn.ZMetres);
+        var grid = new TraversalGrid(NavigationFixture.CreateLowerWitteringTerrain());
+        Assert.IsFalse(grid.Get(TraversalGrid.WorldToCell(0, -23_000)).IsWalkable);
+        foreach (var cell in new[] { GameSession.MedicalMedicCell, GameSession.MedicalRestCell,
+                     GameSession.DisorderSecurityBaseCell, GameSession.MedicalExitCell })
+            Assert.IsTrue(grid.Get(cell).IsWalkable, $"Approach {cell} must remain walkable.");
+        Assert.AreNotEqual(GameSession.MedicalTentCell, GameSession.DisorderSecurityPostCell);
     }
 
     [TestMethod]

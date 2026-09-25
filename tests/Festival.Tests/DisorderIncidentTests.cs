@@ -233,6 +233,15 @@ public sealed class DisorderIncidentTests
         Assert.IsTrue(d.Evidence.Any(item => item.Id == "security:calming"));
         Assert.IsTrue(d.Evidence.Any(item => item.Id == "security:calmed"));
         Assert.IsFalse(d.Evidence.Any(item => item.Id == "security:confrontation"));
+        var returning = session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == d.SecurityId);
+        while ((returning.Destination != GameSession.DisorderSecurityBaseCell || returning.Action != AgentNavigationAction.Arrived) &&
+               session.CurrentTick < 6_000)
+        {
+            session.AdvanceWithoutSnapshot(1);
+            returning = session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == d.SecurityId);
+        }
+        Assert.AreEqual(GameSession.DisorderSecurityBaseCell, returning.Destination);
+        Assert.AreEqual(AgentNavigationAction.Arrived, returning.Action);
         Restored(session);
     }
 
@@ -442,8 +451,12 @@ public sealed class DisorderIncidentTests
         var navigation = typeof(GameSession).GetField("_navigationAgents", BindingFlags.Instance | BindingFlags.NonPublic)!
             .GetValue(session)!;
         var agent = navigation.GetType().GetProperty("Item")!.GetValue(navigation, [new EntityId(opponent.Value)])!;
+        var initiatorAgent = navigation.GetType().GetProperty("Item")!.GetValue(navigation, [new EntityId(initiator)])!;
         var x = agent.GetType().GetProperty("XMillimetres")!;
-        x.SetValue(agent, (int)x.GetValue(agent)! + 10_000);
+        // Separate relative to the initiator, not relative to a particular
+        // farm layout: adding 10 m can move the opponent closer after a move.
+        x.SetValue(agent, (int)x.GetValue(initiatorAgent)! + 20_000);
+        agent.GetType().GetProperty("Action")!.SetValue(agent, AgentNavigationAction.Idle);
         session.AdvanceWithoutSnapshot(16);
         Assert.AreEqual(-2, session.CaptureDisorder()!.Incidents.Single().InjuryTick);
         Assert.IsTrue(session.CaptureDisorder()!.Evidence.Any(item => item.Id == "disorder:confrontation-broken"));

@@ -117,6 +117,25 @@ public sealed class SaveRoundTripTests
     }
 
     [TestMethod]
+    public void R004OldLayoutSaveIsRejectedWithoutChangingTheFile()
+    {
+        WithTemporaryDirectory(directory =>
+        {
+            var old = new SaveCompatibility("0.0.1-r0.04-disorder-v10",
+                "0b7dfbade3fd86317ca3b85ae162e4cf126cf16ec23c1dd211d6a435b672ccd7", "r0-disorder-v10");
+            var current = new SaveCompatibility("0.0.1-r0.04-layout-v11",
+                LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v11");
+            Assert.AreNotEqual(old.ContentHash, current.ContentHash);
+            var path = SaveFileAdapter.ResolveSlotPath(directory, "old-layout");
+            Assert.IsTrue(SaveFileAdapter.SaveFile(path, new SaveWriteRequest(
+                GameSession.CreateDisorderCampaign(20260922), old, "old-layout-test", DateTimeOffset.UtcNow)).IsSuccess);
+            var before = File.ReadAllBytes(path);
+            AssertFailureContains(SaveFileAdapter.LoadFile(path, current), "Content hash mismatch");
+            CollectionAssert.AreEqual(before, File.ReadAllBytes(path));
+        });
+    }
+
+    [TestMethod]
     public void InjectedFailurePreservesPriorGoodSlotAndSuccessfulReplaceKeepsBackup()
     {
         WithTemporaryDirectory(directory =>
