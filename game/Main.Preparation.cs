@@ -19,7 +19,6 @@ public partial class Main
     private Button? _communityShareButton;
     private Label? _waterFoundationHeading;
     private Button? _waterPlaceButton;
-    private Button? _waterMoveButton;
     private Button? _waterTowerButton;
     private Label? _waterPlacementStatus;
     private Label? _communityShareInfo;
@@ -84,15 +83,14 @@ public partial class Main
             box.AddChild(_waterFoundationHeading);
             _waterPlaceButton = ButtonText("ADD TAP • CHOOSE A GRASS SPOT", () => BeginWaterPlacement(false));
             box.AddChild(_waterPlaceButton);
-            _waterMoveButton = ButtonText("MOVE ORIGINAL TAP • CHOOSE A GRASS SPOT", () => BeginWaterPlacement(true));
-            box.AddChild(_waterMoveButton);
-            _waterPlacementStatus = LabelText("Choose a tap action, then click valid ground. Right-click or Esc cancels.", 13, ink);
+            _waterPlacementStatus = LabelText("Add a tap or select one to Move. Comma/period rotate. Right-click or Esc cancels.", 13, ink);
             _waterPlacementStatus.AutowrapMode = TextServer.AutowrapMode.WordSmart;
             box.AddChild(_waterPlacementStatus);
             _waterTowerButton = ButtonText("BUILD WATER TOWER • +4 PERSONAL RELIEF", () =>
                 CommitEquipmentAction(new ApplyWaterFoundationEffectCommand("water.tower")));
             box.AddChild(_waterTowerButton);
         }
+        BuildStaffFoundationControls(box);
         _preparationStart = ButtonText("START FIXED ROSTER", PreparationStart); box.AddChild(_preparationStart);
         var controls = new HBoxContainer(); box.AddChild(controls);
         controls.AddChild(ButtonText("PAUSE", () =>
@@ -118,6 +116,7 @@ public partial class Main
         inspector.AddChild(inspectorScroll);
         var detail = new VBoxContainer { CustomMinimumSize = new Vector2(375, 0) }; inspectorScroll.AddChild(detail);
         _inspectorTitle = LabelText("Inspect the persistent farm", 18, ink); detail.AddChild(_inspectorTitle);
+        BuildWaterFlowInspector(detail);
         BuildSatisfactionBar(detail);
         BuildMedicalNeedBars(detail);
         _inspectorBody = LabelText("Click a building to inspect its retained identity.\nAll guests and workers remain protected people.", 14, ink);
@@ -203,6 +202,11 @@ public partial class Main
         {
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new AcceptPreparationOfferCommand(id))) is not null;
             button.Visible = p.Status == PreparationStatus.Preparing;
+            if (id is "staff.extra-medic" or "staff.extra-steward" && _session.GetOptionalStaffOfferProfile(id == "staff.extra-medic" ? ResponseRole.Medic : ResponseRole.Steward) is { } profile)
+            {
+                button.Text = $"HIRE {profile.Name.Split(' ')[0].ToUpperInvariant()} • {profile.Role.ToString().ToUpperInvariant()} • £30/WEEKEND";
+                button.TooltipText = $"{profile.Name}\n{StaffAbilityText(profile)}\n£30 prototype tuning. Paid weekend-only contract; expires on any outcome. Requires its role-specific slot.";
+            }
         }
         _preparationStart.Disabled = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand())) is not null;
         if (_communityShareButton is not null)
@@ -217,7 +221,6 @@ public partial class Main
         {
             _waterPlaceButton.Visible = p.Status == PreparationStatus.Preparing;
             _waterPlaceButton.Disabled = p.ExtraWaterSiteIds.Length >= 2;
-            _waterMoveButton!.Visible = p.Status == PreparationStatus.Preparing;
             _waterTowerButton!.Visible = p.Status == PreparationStatus.Preparing;
             _waterTowerButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new ApplyWaterFoundationEffectCommand("water.tower"))) is not null;
             _waterPlacementStatus!.Visible = p.Status == PreparationStatus.Preparing;
@@ -235,6 +238,7 @@ public partial class Main
         RefreshEquipmentControls();
         RefreshMedicalControls();
         RefreshDisorderControls();
+        RefreshStaffControls();
         RefreshStagePowerAction();
         RefreshHearingHud();
     }

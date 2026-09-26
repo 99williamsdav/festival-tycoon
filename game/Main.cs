@@ -176,8 +176,9 @@ public partial class Main : Node
         else
         {
             _session = _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
+                _audienceCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, 2) :
                 _hearingCaptureDirectory is not null || _waterFoundationCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
-                _disorderCaptureDirectory is not null || OS.GetCmdlineUserArgs().Length == 0 ? GameSession.CreateDisorderCampaign(20260922) :
+                _staffCaptureDirectory is not null || _waterPlaytestCaptureDirectory is not null || _interventionCaptureDirectory is not null || _disorderCaptureDirectory is not null || OS.GetCmdlineUserArgs().Length == 0 ? GameSession.CreateDisorderCampaign(20260922) :
                 _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _preparationCaptureDirectory is null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier);
@@ -241,7 +242,8 @@ public partial class Main : Node
         if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) input.X -= 1;
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
-        if (_waterPlacementMode != WaterPlacementMode.None) UpdateWaterPlacementPreview(GetViewport().GetMousePosition());
+        if (_waterPlacementMode != WaterPlacementMode.None && _waterPlaytestCaptureDirectory is null)
+            UpdateWaterPlacementPreview(GetViewport().GetMousePosition());
         if (_session.CapturePreparation() is not null) AdvancePreparationPresentation(delta);
         else if (_sharedWorldFixture is not null) AdvanceSharedWorldFeasibility(delta);
         else if (_benchmarkFixture is not null) AdvanceRenderedBenchmark(delta);
@@ -256,6 +258,10 @@ public partial class Main : Node
         if (_equipmentPerformanceOutput is not null) ProcessEquipmentPerformanceCheck();
         ProcessMedicalCapture();
         ProcessWaterFoundationCapture();
+        ProcessStaffCapture();
+        ProcessWaterPlaytestCapture();
+        ProcessInterventionCapture();
+        ProcessAudienceCapture();
         ProcessDisorderCapture();
         ProcessHearingCapture();
         ProcessStartSplashCapture();
@@ -275,6 +281,8 @@ public partial class Main : Node
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (key.Keycode == Key.Escape && _waterPlacementMode != WaterPlacementMode.None) { CancelWaterPlacement(); return; }
+            if (_waterPlacementMode != WaterPlacementMode.None && key.Keycode is Key.Comma or Key.Period)
+            { RotateWaterPlacement(key.Keycode == Key.Comma ? -1 : 1); return; }
             if (key.Keycode == Key.Q) Rotate(-1);
             else if (key.Keycode == Key.E) Rotate(1);
             else if (key.Keycode == Key.Space)
@@ -370,9 +378,10 @@ public partial class Main : Node
                 _attendeePickRegistry.Add(pickBody.GetInstanceId(), agent.Id);
             }
             _attendeeVisuals.Add(agent.Id, visual);
-            if (performer?.Name == "Riley Hart")
+            var responder = _session.GetResponseStaff().SingleOrDefault(item => item.AgentId == agent.Id.Value);
+            if (responder?.Role == ResponseRole.Medic)
                 visual.AddChild(InstantiateAsset("res://assets/characters/lwf_medic_vest_cue_v1.glb"));
-            if (performer?.Name == "Jordan Hale")
+            if (responder?.Role == ResponseRole.Steward)
             {
                 MatchStewardShirtPalette(visual);
                 var yoke = InstantiateAsset("res://assets/characters/lwf_steward_yoke_cue_v1.glb");
@@ -380,7 +389,7 @@ public partial class Main : Node
                 visual.AddChild(yoke);
             }
             if (performer is { Role: not ProtectedPersonRole.Guest } role &&
-                role.Name is not ("Riley Hart" or "Jordan Hale"))
+                responder is null)
             {
                 var cue = new MeshInstance3D
                 {
@@ -392,6 +401,10 @@ public partial class Main : Node
                 if (role.Name == "Morgan Finch") visual.AddChild(new Label3D { Text = "MORGAN\nMAINTENANCE", Position = new Vector3(0, 2.1f, 0), FontSize = 36, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
             }
         }
+        foreach (var profile in _session.GetResponseStaff())
+            if (_attendeeVisuals.TryGetValue(new EntityId(profile.AgentId), out var responderVisual))
+                responderVisual.AddChild(new Label3D { Text = profile.Name.Split(' ')[0].ToUpperInvariant(), Position = new Vector3(0, 2.1f, 0),
+                    FontSize = 30, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
         _attendeeVisual = _attendeeVisuals[agents[0].Id];
         _presentationFrom = _presentationTo = ToWorld(agents[0]);
         ResetMedicalCuePresentation();
@@ -937,6 +950,27 @@ public partial class Main : Node
                 _waterFoundationCaptureDirectory = args[++i];
                 Directory.CreateDirectory(_waterFoundationCaptureDirectory);
             }
+            else if (args[i] == "--capture-r005b-staff" && i + 1 < args.Length)
+            {
+                _staffCaptureDirectory = args[++i]; Directory.CreateDirectory(_staffCaptureDirectory);
+            }
+            else if (args[i] == "--capture-r005c-water" && i + 1 < args.Length)
+            {
+                _waterPlaytestCaptureDirectory = args[++i]; Directory.CreateDirectory(_waterPlaytestCaptureDirectory);
+            }
+            else if (args[i] == "--capture-r005c-staff" && i + 1 < args.Length)
+            {
+                _interventionCaptureDirectory = args[++i]; Directory.CreateDirectory(_interventionCaptureDirectory);
+            }
+            else if (args[i] == "--capture-r005c-audience" && i + 1 < args.Length)
+            {
+                _audienceCaptureDirectory = args[++i]; Directory.CreateDirectory(_audienceCaptureDirectory);
+            }
+            else if (args[i] == "--capture-r005c-audience-refinement" && i + 1 < args.Length)
+            {
+                _audienceRefinementCapture = true;
+                _audienceCaptureDirectory = args[++i]; Directory.CreateDirectory(_audienceCaptureDirectory);
+            }
             else if (args[i] == "--capture-preparation" && i + 1 < args.Length) _preparationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-live-performance" && i + 1 < args.Length) _liveCaptureDirectory = args[++i];
             else if (args[i] == "--capture-start-splash" && i + 1 < args.Length) _startSplashCapturePath = args[++i];
@@ -1253,7 +1287,10 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => ProjectSettings.GlobalizePath(
+    private string SaveDirectory => _interventionCaptureDirectory is not null ? Path.Combine(_interventionCaptureDirectory, "saves") :
+        _waterPlaytestCaptureDirectory is not null ? Path.Combine(_waterPlaytestCaptureDirectory, "saves") :
+        _staffCaptureDirectory is not null ? Path.Combine(_staffCaptureDirectory, "saves") :
+        _audienceCaptureDirectory is not null ? Path.Combine(_audienceCaptureDirectory, "saves") : ProjectSettings.GlobalizePath(
         _session?.CapturePreparation() is not null ? "user://saves/r0.05-hearing-v1" : "user://saves");
     private void ManualSave()
     {

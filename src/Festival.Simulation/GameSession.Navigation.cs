@@ -69,7 +69,8 @@ public sealed partial class GameSession
         agent.SegmentProgressMicrometres = 0;
         agent.MovementRemainder = 0;
         agent.LastSearchExpandedNodes = search.ExpandedNodes;
-        agent.IntentId = command.IntentId;
+        agent.IntentId = command.IntentId is "performance.listen-local" or "performance.listen-local-retreat" && search.Path.Any(cell =>
+            cell.X is < 103 or > 126 || cell.Z is < 131 or > 169) ? "performance.listen" : command.IntentId;
         agent.Action = !search.Found ? AgentNavigationAction.NoRoute
             : search.Path.Count == 1 ? AgentNavigationAction.Arrived : AgentNavigationAction.Travelling;
     }
@@ -90,13 +91,13 @@ public sealed partial class GameSession
         // A deterministic lateral offset preserves route progress while giving proposals a
         // meaningful prototype centre clearance. This is steering/yielding, not body physics.
         var occupied = new SpatialNeighbourIndex();
-        var priorMovingOccupancy = new SpatialNeighbourIndex(moving.Select(agent =>
+        var priorMovingOccupancy = new SpatialNeighbourIndex(moving.Where(agent => MovementOccupant(agent.Id.Value)).Select(agent =>
         {
             var prior = backups[agent.Id];
             return new NavigationAgentSnapshot(agent.Id, prior.X, prior.Z, prior.Action, null, [], 0,
                 prior.X, prior.Z, 0, 0, 0, null, agent.WalkingSpeedPermille);
         }));
-        foreach (var agent in _navigationAgents.Values.Where(item => !backups.ContainsKey(item.Id)))
+        foreach (var agent in _navigationAgents.Values.Where(item => !backups.ContainsKey(item.Id) && MovementOccupant(item.Id.Value)))
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         foreach (var agent in moving.OrderBy(item => item.Route.Count - item.RouteIndex).ThenBy(item => item.Id))
         {
@@ -125,7 +126,7 @@ public sealed partial class GameSession
                 }
             }
             else ScaleDiagnosticProbe?.RecordProgress(agent.Id);
-            occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
+            if (MovementOccupant(agent.Id.Value)) occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         }
         foreach (var id in arrived.Order()) events.Add(new SessionEvent(CurrentTick, "navigation_arrived", id));
     }
@@ -134,7 +135,7 @@ public sealed partial class GameSession
     {
             var terrainCost = _traversalGrid!.Get(agent.Route[agent.RouteIndex]).CostPermille;
             var effectiveCost = checked(terrainCost * 1000);
-            var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * 1000 + agent.MovementRemainder);
+            var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * AudienceWalkingPace(agent) + agent.MovementRemainder);
             var allowance = checked((int)(numerator / effectiveCost));
             agent.MovementRemainder = checked((int)(numerator % effectiveCost));
             var arrived = false;

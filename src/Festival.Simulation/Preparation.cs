@@ -9,7 +9,7 @@ public sealed record EditionPerson(ulong AgentId, string Name, ProtectedPersonRo
 public sealed record PreparationPayment(int Id, string OfferId, int Attempt, long Tick, int AmountPennies,
     LedgerAccountType DebitAccount);
 public sealed record PreparationInventoryBalance(int OpeningUnits, int PurchasedUnits, int ConsumedUnits, int RemainingUnits, int UnitCostPennies);
-public sealed record WaterPlacement(string Id, GridCell Cell);
+public sealed record WaterPlacement(string Id, GridCell Cell) { public int QuarterTurns { get; init; } public int GeometryVersion { get; init; } }
 public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed, int Attempt, PreparationStatus Status,
     ulong FinanceOwnerId, ulong StockId, long StartedTick, bool FixtureOutcomesEnabled,
     string[] OwnedEquipment, string[] Rentals, string[] Contacts, string[] WorkContracts, string[] AcceptedOffers,
@@ -22,14 +22,21 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public string[] ExtraWaterSiteIds { get; init; } = [];
     public WaterPlacement[] WaterPlacements { get; init; } = [];
     public GridCell PrimaryWaterCell { get; init; } = GameSession.MedicalWaterCell;
+    public int PrimaryWaterQuarterTurns { get; init; }
+    public int PrimaryWaterGeometryVersion { get; init; }
     public bool WaterTowerOwned { get; init; }
+    public bool ExtraMedicSlotOwned { get; init; }
+    public bool ExtraStewardSlotOwned { get; init; }
+    public bool RespondersUpgraded { get; init; }
+    public StaffProfile[] StaffProfiles { get; init; } = [];
 }
 public sealed record AcceptPreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record StartPreparedEditionCommand : SessionCommand;
 public sealed record CommitCommunityWaterShareCommand : SessionCommand;
 public sealed record ApplyWaterFoundationEffectCommand(string EffectId) : SessionCommand;
-public sealed record PlaceWaterPointCommand(GridCell Cell) : SessionCommand;
-public sealed record MovePrimaryWaterPointCommand(GridCell Cell) : SessionCommand;
+public sealed record PlaceWaterPointCommand(GridCell Cell, int QuarterTurns = 0) : SessionCommand;
+public sealed record MovePrimaryWaterPointCommand(GridCell Cell, int QuarterTurns = 0) : SessionCommand;
+public sealed record MoveWaterPointCommand(string PointId, GridCell Cell, int QuarterTurns = 0) : SessionCommand;
 
 public sealed partial class GameSession
 {
@@ -40,7 +47,10 @@ public sealed partial class GameSession
     public PreparationStatus? PreparedStatus => _preparation?.Status;
     public PreparationSnapshot? CapturePreparation() => _preparation is null ? null :
         JsonSerializer.Deserialize<PreparationSnapshot>(JsonSerializer.Serialize(_preparation));
-    internal string? PreparationCanonicalJson => _preparation is null ? null : JsonSerializer.Serialize(_preparation);
+    internal string? PreparationCanonicalJson => _preparation is not { } p ? null : StaffCompatibleCanonicalJson(p,
+        p.ExtraMedicSlotOwned ? "" : nameof(p.ExtraMedicSlotOwned), p.ExtraStewardSlotOwned ? "" : nameof(p.ExtraStewardSlotOwned),
+        p.RespondersUpgraded ? "" : nameof(p.RespondersUpgraded), p.StaffProfiles.Length > 0 ? "" : nameof(p.StaffProfiles),
+        p.PrimaryWaterQuarterTurns != 0 ? "" : nameof(p.PrimaryWaterQuarterTurns), p.PrimaryWaterGeometryVersion != 0 ? "" : nameof(p.PrimaryWaterGeometryVersion));
     public bool PreparationBoundaryOnNextTick => !IsPaused && _preparation is { } p &&
         (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedWeekendTicks - 1 && p.People.All(item => item.Admitted) ||
          p.Status == PreparationStatus.Departing && p.People.All(item => item.Departed));
@@ -85,20 +95,22 @@ public sealed partial class GameSession
         p.ExtraWaterSiteIds.Select(id => p.WaterPlacements.SingleOrDefault(item => item.Id == id) ??
             new WaterPlacement(id, ExtraWaterSites.Single(site => site.Id == id).Cell)).ToArray();
 
-    private CommandResult? ValidateWaterPlacement(EntityId? target, GridCell cell, bool movingPrimary)
+    private CommandResult? ValidateWaterPlacement(EntityId? target, GridCell cell, string? movingId, int quarterTurns)
     {
         if (target is not null || _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Water points can be positioned only during Hot-weekend preparation.");
-        if (!movingPrimary && p.ExtraWaterSiteIds.Length >= 2)
+        if (quarterTurns is < 0 or > 3 || movingId is not null && movingId != "water.main" && !p.ExtraWaterSiteIds.Contains(movingId))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown water point or orientation.");
+        if (movingId is null && p.ExtraWaterSiteIds.Length >= 2)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The two additional standpipes are already placed.");
-        if (movingPrimary && cell == p.PrimaryWaterCell)
+        if (movingId == "water.main" && cell == p.PrimaryWaterCell && quarterTurns == p.PrimaryWaterQuarterTurns && p.PrimaryWaterGeometryVersion == 1)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The original standpipe is already at this site.");
-        var issue = ValidateWaterPlacementCell(cell, p, movingPrimary, _equipment);
+        var issue = ValidateWaterPlacementCell(cell, p, movingId, _equipment, quarterTurns);
         return issue is null ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
     }
 
-    private static string? ValidateWaterPlacementCell(GridCell cell, PreparationSnapshot p, bool movingPrimary,
-        EquipmentSnapshot? equipment)
+    private static string? ValidateWaterPlacementCell(GridCell cell, PreparationSnapshot p, string? movingId,
+        EquipmentSnapshot? equipment, int quarterTurns = 0, int geometryVersion = 1)
     {
         // This deliberately bounds the first placeable-object interaction to the open festival field.
         // The approved tower stays fixed; there is no general building editor or pipe network.
@@ -106,16 +118,16 @@ public sealed partial class GameSession
             return "Choose a grass site inside the open festival field.";
         var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
         var placed = EffectiveWaterPlacements(p);
-        var others = placed.Select(item => new WaterPointState(item.Id, item.Cell, [], [], null, 0)).ToList();
-        if (!movingPrimary) others.Insert(0, new WaterPointState("water.main", p.PrimaryWaterCell, [], [], null, 0));
-        var proposed = new WaterPointState(movingPrimary ? "water.main" : "water.proposed", cell, [], [], null, 0);
+        var others = placed.Where(item => item.Id != movingId).Select(item => new WaterPointState(item.Id, item.Cell, [], [], null, 0) { QuarterTurns = item.QuarterTurns, GeometryVersion = item.GeometryVersion }).ToList();
+        if (movingId != "water.main") others.Insert(0, new WaterPointState("water.main", p.PrimaryWaterCell, [], [], null, 0) { QuarterTurns = p.PrimaryWaterQuarterTurns, GeometryVersion = p.PrimaryWaterGeometryVersion });
+        var proposed = new WaterPointState(movingId ?? "water.proposed", cell, [], [], null, 0) { QuarterTurns = quarterTurns, GeometryVersion = geometryVersion };
         var occupied = new HashSet<GridCell>();
         static void Footprint(HashSet<GridCell> cells, GridCell centre, int radius)
         {
             for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
             for (var x = centre.X - radius; x <= centre.X + radius; x++) cells.Add(new GridCell(x, z));
         }
-        foreach (var point in others) Footprint(occupied, point.Cell, 4);
+        foreach (var point in others) Footprint(occupied, point.Cell, WaterFootprintRadius(point) + 1);
         Footprint(occupied, MedicalTentCell, 4);
         Footprint(occupied, MedicalRestCell, 1);
         Footprint(occupied, MedicalMedicCell, 1);
@@ -124,53 +136,50 @@ public sealed partial class GameSession
         for (var z = 139; z <= 160; z++)
         for (var x = 90; x <= 101; x++) occupied.Add(new GridCell(x, z));
         var proposedCells = new HashSet<GridCell>();
-        Footprint(proposedCells, cell, 3);
-        for (var index = 0; index < 10; index++)
-        {
-            proposedCells.Add(WaterSlot(proposed, index));
-            proposedCells.Add(WaterOverflowSlot(proposed, index));
-            foreach (var point in others)
-            {
-                Footprint(occupied, WaterSlot(point, index), 1);
-                Footprint(occupied, WaterOverflowSlot(point, index), 1);
-            }
-        }
+        Footprint(proposedCells, cell, WaterFootprintRadius(proposed));
+        proposedCells.Add(WaterPointServiceCell(proposed));
+        foreach (var point in others) Footprint(occupied, WaterPointServiceCell(point), 1);
         if (proposedCells.Any(candidate => !terrain.Contains(candidate) ||
             terrain.Get(candidate) is not { IsWalkable: true, Surface: GroundSurface.Grass }))
-            return "The tap footprint and full visible queue need clear grass.";
+            return "The tap footprint and service front need clear grass.";
         if (proposedCells.Any(occupied.Contains))
             return "The tap or queue overlaps a building, another line, the stage or a protected route.";
         // Reserve the proposed solid footprint and prove all service fronts and first-aid rest
         // remain reachable from the gate. Queue slots remain walkable and cannot be occupied by it.
         var overrides = terrain.Overrides.ToDictionary(item => item.Key, item => item.Value);
         foreach (var point in others.Append(proposed))
-        for (var z = point.Cell.Z - 3; z <= point.Cell.Z + 3; z++)
-        for (var x = point.Cell.X - 3; x <= point.Cell.X + 3; x++)
+        for (var z = point.Cell.Z - WaterFootprintRadius(point); z <= point.Cell.Z + WaterFootprintRadius(point); z++)
+        for (var x = point.Cell.X - WaterFootprintRadius(point); x <= point.Cell.X + WaterFootprintRadius(point); x++)
         {
             var blocked = new GridCell(x, z);
             overrides[blocked] = new(blocked, GroundSurface.Grass, false);
         }
         var grid = new TraversalGrid(overrides.Values);
-        foreach (var destination in others.Append(proposed).Select(point => WaterSlot(point, 0))
-                     .Append(WaterSlot(proposed, 9)).Append(WaterOverflowSlot(proposed, 9)).Append(MedicalRestCell))
+        foreach (var destination in others.Append(proposed).Select(WaterPointServiceCell).Append(MedicalRestCell))
             if (!DeterministicPathfinder.FindPath(grid, MedicalExitCell, destination).Found)
                 return "This position blocks a walkable route to water or first aid.";
         return null;
     }
 
-    private void ApplyWaterPlacement(GridCell cell, bool movingPrimary)
+    private void ApplyWaterPlacement(GridCell cell, string? movingId, int quarterTurns)
     {
         var p = _preparation!;
-        if (movingPrimary)
+        if (movingId == "water.main")
         {
-            _preparation = p with { PrimaryWaterCell = cell };
-            _medical = _medical! with { MainWaterCell = cell };
+            _preparation = p with { PrimaryWaterCell = cell, PrimaryWaterQuarterTurns = quarterTurns, PrimaryWaterGeometryVersion = 1 };
+            _medical = _medical! with { MainWaterCell = cell, MainWaterQuarterTurns = quarterTurns, MainWaterGeometryVersion = 1, MainWaterQueueCells = [] };
+            return;
+        }
+        if (movingId is not null)
+        {
+            _preparation = p with { WaterPlacements = EffectiveWaterPlacements(p).Select(item => item.Id == movingId ? new WaterPlacement(item.Id, cell) { QuarterTurns = quarterTurns, GeometryVersion = 1 } : item).ToArray() };
+            _medical = _medical! with { ExtraWaterPoints = _medical.ExtraWaterPoints.Select(item => item.Id == movingId ? item with { Cell = cell, QuarterTurns = quarterTurns, GeometryVersion = 1, QueueCells = [] } : item).ToArray() };
             return;
         }
         var id = $"water.extra-{p.ExtraWaterSiteIds.Length + 1}";
         _preparation = p with { ExtraWaterSiteIds = p.ExtraWaterSiteIds.Append(id).Order(StringComparer.Ordinal).ToArray(),
-            WaterPlacements = p.WaterPlacements.Append(new WaterPlacement(id, cell)).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
-        _medical = _medical! with { ExtraWaterPoints = _medical.ExtraWaterPoints.Append(new WaterPointState(id, cell, [], [], null, 0))
+            WaterPlacements = p.WaterPlacements.Append(new WaterPlacement(id, cell) { QuarterTurns = quarterTurns, GeometryVersion = 1 }).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
+        _medical = _medical! with { ExtraWaterPoints = _medical.ExtraWaterPoints.Append(new WaterPointState(id, cell, [], [], null, 0) { QuarterTurns = quarterTurns, GeometryVersion = 1 })
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
     }
 
@@ -225,7 +234,11 @@ public sealed partial class GameSession
             new("equipment.rent", "equipment", "Rent sound rig • +500 quality; this weekend", 3_000, 500, -1),
             new("contract.stock", "contract", "50 refreshments • unused stock resets on retry", 3_000, 0, -1)
         ];
-        return _equipment is null ? offers : offers.Append(new PreparationOffer("maintenance.worker", "maintenance", "Morgan: maintenance worker • physical repair", 1_500, 0, -1)).ToArray();
+        if (_equipment is not null) offers = offers.Append(new PreparationOffer("maintenance.worker", "maintenance", "Morgan: maintenance worker • physical repair", 1_500, 0, -1)).ToArray();
+        if (_disorder is not null) offers = offers.Concat(new[] {
+            new PreparationOffer("staff.extra-medic", "extra-medic", "Avery Brooks: extra medic • paid weekend contract", 3000, 0, -1),
+            new PreparationOffer("staff.extra-steward", "extra-steward", "Sam Ellis: extra steward • paid weekend contract", 3000, 0, -1) }).ToArray();
+        return offers;
     }
 
     private CommandResult? ValidatePreparationCommand(EntityId? target, SessionCommand command)
@@ -237,6 +250,9 @@ public sealed partial class GameSession
         {
             var offer = offers.SingleOrDefault(item => item.Id == accept.OfferId);
             if (offer is null) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown preparation offer.");
+            if (offer.Category is "extra-medic" or "extra-steward" &&
+                (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || p.People.Length >= 50))
+                return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Requires the matching role slot and room below 50 active people.");
             if (p.AcceptedOffers.Any(id => offers.Single(item => item.Id == id).Category == offer.Category) ||
                 offer.Category == "equipment" && p.OwnedEquipment.Contains("sound-rig"))
                 return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This category is already supplied for the edition.");
@@ -259,19 +275,22 @@ public sealed partial class GameSession
             AcceptedOffers = p.AcceptedOffers.Append(offer.Id).Order(StringComparer.Ordinal).ToArray(),
             OwnedEquipment = offer.Id == "equipment.buy" ? ["sound-rig"] : p.OwnedEquipment,
             Rentals = offer.Id == "equipment.rent" ? ["sound-rig"] : p.Rentals,
-            Contacts = offer.Category is "staff" or "maintenance" ? p.Contacts.Append(offer.Category == "staff" ? "contact.casey-vale" : "contact.morgan-finch").Distinct().Order(StringComparer.Ordinal).ToArray() : p.Contacts,
-            WorkContracts = offer.Category is "staff" or "maintenance" ? p.WorkContracts.Append(offer.Id).Order(StringComparer.Ordinal).ToArray() : p.WorkContracts,
+            Contacts = offer.Category is "staff" or "maintenance" or "extra-medic" or "extra-steward" ? p.Contacts.Append(offer.Category switch {
+                "staff" => "contact.casey-vale", "maintenance" => "contact.morgan-finch", "extra-medic" => "contact.avery-brooks", _ => "contact.sam-ellis" }).Distinct().Order(StringComparer.Ordinal).ToArray() : p.Contacts,
+            WorkContracts = offer.Category is "staff" or "maintenance" or "extra-medic" or "extra-steward" ? p.WorkContracts.Append(offer.Id).Order(StringComparer.Ordinal).ToArray() : p.WorkContracts,
             Payments = p.Payments.Append(new(p.Payments.Length + 1, offer.Id, p.Attempt, CurrentTick, offer.PricePennies,
                 offer.Category is "equipment" && offer.Id == "equipment.buy" ? LedgerAccountType.EquipmentAsset :
                 offer.Category == "contract" ? LedgerAccountType.InventoryAsset : LedgerAccountType.AdministrationExpense)).ToArray()
         };
+        if (offer.Category is "extra-medic" or "extra-steward")
+            HireOptionalStaff(offer.Category == "extra-medic" ? ResponseRole.Medic : ResponseRole.Steward);
         if (offer.Category == "maintenance")
         {
             var id = p.MaintenanceWorkerId ?? NextEntityId++;
             if (p.MaintenanceWorkerId is null)
                 _wallets.Add(new(id), new WalletState { OwnerId = new(id), CashPennies = 500 });
             _preparation = _preparation with { MaintenanceWorkerId = id,
-                People = _preparation.People.Append(new EditionPerson(id, "Morgan Finch", ProtectedPersonRole.Staff, 0)).ToArray() };
+                People = _preparation.People.Append(new EditionPerson(id, "Morgan Finch", ProtectedPersonRole.Staff, 0)).OrderBy(item => item.AgentId).ToArray() };
             _equipment = _equipment! with { WorkerId = id };
         }
     }
@@ -311,8 +330,8 @@ public sealed partial class GameSession
         if (_medical is not null)
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
-            foreach (var (centre, radius) in new[] { (p.PrimaryWaterCell, 3), (MedicalTentCell, 3) }
-                         .Concat(_medical.ExtraWaterPoints.Select(point => (point.Cell, 3))))
+            foreach (var (centre, radius) in new[] { (p.PrimaryWaterCell, p.PrimaryWaterGeometryVersion == 1 ? 1 : 3), (MedicalTentCell, 3) }
+                         .Concat(_medical.ExtraWaterPoints.Select(point => (point.Cell, WaterFootprintRadius(point)))))
             for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
             for (var x = centre.X - radius; x <= centre.X + radius; x++)
             {
@@ -341,11 +360,10 @@ public sealed partial class GameSession
             {
                 Id = id, XMillimetres = position.XMillimetres, ZMillimetres = position.ZMillimetres,
                 SegmentOriginXMillimetres = position.XMillimetres, SegmentOriginZMillimetres = position.ZMillimetres,
-                WalkingSpeedPermille = GetWalkingSpeedPermille(id), Action = AgentNavigationAction.Idle
+                WalkingSpeedPermille = GetResponseStaff().SingleOrDefault(item => item.AgentId == id.Value)?.WalkingSpeedPermille ?? GetWalkingSpeedPermille(id), Action = AgentNavigationAction.Idle
             });
-            var dutyCell = _disorder is { } disorder && person.AgentId == disorder.SecurityId
-                ? DisorderSecurityBaseCell : _medical is { } medical && person.AgentId == medical.MedicId
-                ? MedicalMedicCell : PreparedPlace(index);
+            var profile = GetResponseStaff().SingleOrDefault(item => item.AgentId == person.AgentId);
+            var dutyCell = profile is null ? PreparedPlace(index) : StaffDutyCell(person.AgentId, profile.Role);
             ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
         }
         _preparation = p with { Status = PreparationStatus.Running, StartedTick = CurrentTick };
@@ -390,6 +408,7 @@ public sealed partial class GameSession
             for (var index = 0; index < people.Length; index++)
                 if (!people[index].Departed)
                     ApplyAgentDestination(new(people[index].AgentId), new(PreparedStart(index), "edition.departure"));
+            FinishStaffResponsesForDeparture();
             _preparation = p with { Status = PreparationStatus.Departing };
             Phase = SessionPhase.Egress;
         }
@@ -412,6 +431,7 @@ public sealed partial class GameSession
         if (_preparation is not { FixtureOutcomesEnabled: true, Status: PreparationStatus.Running } p)
             throw new InvalidOperationException("Only a running persistence fixture can inject failure.");
         _preparation = p with { Status = PreparationStatus.Failed, Rentals = [], WorkContracts = [] };
+        ReleaseInterventionsForBoundary("Labelled failure fixture released active interventions");
         FinishLivePerformance();
     }
 
@@ -438,9 +458,9 @@ public sealed partial class GameSession
         _equipment = baseline._equipment;
         _medical = baseline._medical;
         if (_medical is not null)
-            _medical = _medical with { MainWaterCell = p.PrimaryWaterCell,
+            _medical = _medical with { MainWaterCell = p.PrimaryWaterCell, MainWaterQuarterTurns = p.PrimaryWaterQuarterTurns, MainWaterGeometryVersion = p.PrimaryWaterGeometryVersion,
                 ExtraWaterPoints = EffectiveWaterPlacements(p).Select(site =>
-                    new WaterPointState(site.Id, site.Cell, [], [], null, 0)).ToArray() };
+                    new WaterPointState(site.Id, site.Cell, [], [], null, 0) { QuarterTurns = site.QuarterTurns, GeometryVersion = site.GeometryVersion }).ToArray() };
         _disorder = baseline._disorder;
         _traversalGrid = null;
         _preparation = p with
@@ -459,14 +479,19 @@ public sealed partial class GameSession
             p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != CampaignDefaults.OpeningCashPennies || p.StockConsumed < 0 ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||
-            p.ExtraWaterSiteIds is null || p.WaterPlacements is null ||
+            p.ExtraWaterSiteIds is null || p.WaterPlacements is null || p.StaffProfiles is null ||
+            p.StaffProfiles.Any(item => item is null) || p.StaffProfiles.Length > 2 ||
+            !p.StaffProfiles.Select(item => item.AgentId).SequenceEqual(p.StaffProfiles.Select(item => item.AgentId).Distinct().Order()) ||
+            p.StaffProfiles.Select(item => item.Role).Distinct().Count() != p.StaffProfiles.Length ||
+            (p.ExtraMedicSlotOwned || p.ExtraStewardSlotOwned || p.RespondersUpgraded || p.StaffProfiles.Length > 0) && snapshot.Disorder is null ||
             !p.ExtraWaterSiteIds.SequenceEqual(p.ExtraWaterSiteIds.Distinct().Order(StringComparer.Ordinal)) ||
             p.ExtraWaterSiteIds.Length > 2 ||
             p.ExtraWaterSiteIds.Any(id => !ExtraWaterSites.Any(site => site.Id == id) && id is not ("water.extra-1" or "water.extra-2")) ||
             p.WaterPlacements.Any(item => item is null) ||
             !p.WaterPlacements.Select(item => item.Id).SequenceEqual(p.WaterPlacements.Select(item => item.Id).Distinct().Order(StringComparer.Ordinal)) ||
-            p.WaterPlacements.Any(item => !p.ExtraWaterSiteIds.Contains(item.Id) ||
-                item.Id is not ("water.extra-1" or "water.extra-2")) ||
+            p.PrimaryWaterQuarterTurns is < 0 or > 3 ||
+            p.PrimaryWaterGeometryVersion is < 0 or > 1 ||
+            p.WaterPlacements.Any(item => !p.ExtraWaterSiteIds.Contains(item.Id) || item.QuarterTurns is < 0 or > 3 || item.GeometryVersion is < 0 or > 1) ||
             p.ExtraWaterSiteIds.Any(id => id.StartsWith("water.extra-", StringComparison.Ordinal) &&
                 !p.WaterPlacements.Any(item => item.Id == id)) ||
             (p.WaterTowerOwned || p.ExtraWaterSiteIds.Length > 0 || p.PrimaryWaterCell != MedicalWaterCell) && snapshot.Medical is null ||
@@ -476,15 +501,15 @@ public sealed partial class GameSession
             p.MaintenanceWorkerId is { } workerId && (workerId == 0 || workerId >= snapshot.NextEntityId ||
                 !snapshot.Wallets.Any(item => item.OwnerId == workerId)))
             return "Preparation header or collections invalid.";
-        if (p.PrimaryWaterCell != MedicalWaterCell && ValidateWaterPlacementCell(p.PrimaryWaterCell,
-                p with { ExtraWaterSiteIds = [], WaterPlacements = [], PrimaryWaterCell = MedicalWaterCell }, true,
-                snapshot.Equipment) is not null)
+        if ((p.PrimaryWaterCell != MedicalWaterCell || p.PrimaryWaterQuarterTurns != 0) && ValidateWaterPlacementCell(p.PrimaryWaterCell,
+                p with { ExtraWaterSiteIds = [], WaterPlacements = [], PrimaryWaterCell = MedicalWaterCell }, "water.main",
+                snapshot.Equipment, p.PrimaryWaterQuarterTurns, p.PrimaryWaterGeometryVersion) is not null)
             return "Primary water position is invalid.";
         var preceding = p with { ExtraWaterSiteIds = [], WaterPlacements = [] };
         foreach (var placement in EffectiveWaterPlacements(p))
         {
             if (placement.Id.StartsWith("water.extra-", StringComparison.Ordinal) &&
-                ValidateWaterPlacementCell(placement.Cell, preceding, false, snapshot.Equipment) is not null)
+                ValidateWaterPlacementCell(placement.Cell, preceding, null, snapshot.Equipment, placement.QuarterTurns, placement.GeometryVersion) is not null)
                 return "Placed water point or queue is invalid.";
             preceding = preceding with { ExtraWaterSiteIds = preceding.ExtraWaterSiteIds.Append(placement.Id).Order(StringComparer.Ordinal).ToArray(),
                 WaterPlacements = preceding.WaterPlacements.Append(placement).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
@@ -492,8 +517,9 @@ public sealed partial class GameSession
         var maintenance = snapshot.Equipment?.WorkerId is not null ? 1 : 0;
         var medic = snapshot.Medical is null ? 0 : 1;
         var security = snapshot.Disorder is null ? 0 : 1;
-        if (p.People.Length != p.Tier * 20 + 4 + maintenance + medic + security || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != p.Tier * 20 ||
-            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic + security || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != 3 ||
+        var extras = p.AcceptedOffers.Count(id => id is "staff.extra-medic" or "staff.extra-steward");
+        if (p.People.Length > 50 || p.People.Length != p.Tier * 20 + 4 + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != p.Tier * 20 ||
+            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != 3 ||
             p.People.Any(item => item.AgentId == 0 || item.AgentId >= snapshot.NextEntityId || string.IsNullOrWhiteSpace(item.Name) || item.ExpectedGenre is < 0 or > 1 ||
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
             p.People.Select(item => item.AgentId).Distinct().Count() != p.People.Length)
@@ -505,8 +531,9 @@ public sealed partial class GameSession
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })
             if (list.Any(string.IsNullOrWhiteSpace) || !list.SequenceEqual(list.Distinct().Order(StringComparer.Ordinal))) return "Preparation collections must be sorted and unique.";
         if (p.OwnedEquipment.Any(id => id != "sound-rig") || p.Rentals.Any(id => id != "sound-rig") ||
-            p.Contacts.Any(id => id != "contact.casey-vale" && (snapshot.Equipment is null || id != "contact.morgan-finch")) ||
-            p.WorkContracts.Any(id => !offers.TryGetValue(id, out var offer) || offer.Category is not ("staff" or "maintenance")) || p.AcceptedOffers.Any(id => !offers.ContainsKey(id)) ||
+            p.Contacts.Any(id => id != "contact.casey-vale" && (snapshot.Equipment is null || id != "contact.morgan-finch") &&
+                (snapshot.Disorder is null || id is not ("contact.avery-brooks" or "contact.sam-ellis"))) ||
+            p.WorkContracts.Any(id => !offers.TryGetValue(id, out var offer) || offer.Category is not ("staff" or "maintenance" or "extra-medic" or "extra-steward")) || p.AcceptedOffers.Any(id => !offers.ContainsKey(id)) ||
             p.AcceptedOffers.Select(id => offers[id].Category).Distinct().Count() != p.AcceptedOffers.Length)
             return "Preparation entitlement invalid.";
         if (p.Payments.Where((item, index) => item.Id != index + 1 || item.Attempt < 1 || item.Attempt > p.Attempt || item.Tick < 0 || item.Tick > snapshot.CurrentTick ||
@@ -521,7 +548,7 @@ public sealed partial class GameSession
             (p.Rentals.Length == 1) != (!settled && p.AcceptedOffers.Contains("equipment.rent")) ||
             p.Contacts.Contains("contact.casey-vale") != p.Payments.Any(item => offers[item.OfferId].Category == "staff") ||
             p.Contacts.Contains("contact.morgan-finch") != p.Payments.Any(item => offers[item.OfferId].Category == "maintenance") ||
-            !p.WorkContracts.SequenceEqual(settled ? [] : p.AcceptedOffers.Where(id => offers[id].Category is "staff" or "maintenance")) ||
+            !p.WorkContracts.SequenceEqual(settled ? [] : p.AcceptedOffers.Where(id => offers[id].Category is "staff" or "maintenance" or "extra-medic" or "extra-steward")) ||
             p.OwnedEquipment.Length + p.Rentals.Length > 1 ||
             p.Payments.Count(item => item.OfferId == "equipment.buy") > 1 ||
             (p.MaintenanceWorkerId is not null) != p.Payments.Any(item => item.OfferId == "maintenance.worker") ||
@@ -535,9 +562,19 @@ public sealed partial class GameSession
             p.Status == PreparationStatus.Finished && p.People.Any(item => !item.Departed))
             return "Preparation phase and protected-person progress disagree.";
         var originalPeople = factory.CapturePreparation()!.People;
-        if (maintenance == 1) originalPeople = originalPeople.Append(new EditionPerson(factory.NextEntityId, "Morgan Finch", ProtectedPersonRole.Staff, 0)).ToArray();
+        if (maintenance == 1) originalPeople = originalPeople.Append(new EditionPerson(p.MaintenanceWorkerId!.Value, "Morgan Finch", ProtectedPersonRole.Staff, 0)).ToArray();
+        originalPeople = originalPeople.Concat(p.StaffProfiles.Where(profile => p.AcceptedOffers.Contains(profile.Role == ResponseRole.Medic ? "staff.extra-medic" : "staff.extra-steward"))
+            .Select(profile => new EditionPerson(profile.AgentId, profile.Name, ProtectedPersonRole.Staff, 0))).OrderBy(item => item.AgentId).ToArray();
         if (snapshot.CampaignPlanning is null || snapshot.Lifecycle is not null && snapshot.Equipment is null ||
-            p.MaintenanceWorkerId is { } retainedWorkerId && retainedWorkerId != factory.NextEntityId ||
+            p.MaintenanceWorkerId is { } retainedWorkerId && retainedWorkerId < factory.NextEntityId ||
+            p.StaffProfiles.Any(profile => !Enum.IsDefined(profile.Role) || profile.AgentId < factory.NextEntityId || profile.AgentId >= snapshot.NextEntityId ||
+                profile.AgentId == p.MaintenanceWorkerId || !snapshot.Wallets.Any(item => item.OwnerId == profile.AgentId) ||
+                profile != CreateOptionalStaff(snapshot.CampaignSeed, profile.AgentId, profile.Role) ||
+                !(profile.Role == ResponseRole.Medic ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned)) ||
+            p.Contacts.Contains("contact.avery-brooks") != p.Payments.Any(item => item.OfferId == "staff.extra-medic") ||
+            p.Contacts.Contains("contact.sam-ellis") != p.Payments.Any(item => item.OfferId == "staff.extra-steward") ||
+            p.Payments.Any(item => item.OfferId == "staff.extra-medic") != p.StaffProfiles.Any(item => item.Role == ResponseRole.Medic) ||
+            p.Payments.Any(item => item.OfferId == "staff.extra-steward") != p.StaffProfiles.Any(item => item.Role == ResponseRole.Steward) ||
             p.People.Where((person, index) => person.AgentId != originalPeople[index].AgentId || person.Name != originalPeople[index].Name ||
                 person.Role != originalPeople[index].Role || person.ExpectedGenre != originalPeople[index].ExpectedGenre).Any() ||
             p.People.Any(person => !snapshot.Wallets.Any(wallet => wallet.OwnerId == person.AgentId)))
@@ -553,6 +590,10 @@ public sealed partial class GameSession
             return "Every protected person must have one physical agent.";
         if (p.Status is PreparationStatus.Finished or PreparationStatus.Failed && (p.Rentals.Length != 0 || p.WorkContracts.Length != 0))
             return "Edition contracts must expire at settlement.";
+        var staffIssue = ValidatePersistedStaffResponses(snapshot);
+        if (staffIssue is not null) return staffIssue;
+        var interventionIssue = ValidatePersistedInterventions(snapshot);
+        if (interventionIssue is not null) return interventionIssue;
         return null;
     }
 }

@@ -1,0 +1,36 @@
+passed SparseIndifferentListenerWalksForwardWithBoundedLegAndSavedDwell (850ms)
+passed ContinuousComfortMakesKeenListenerMoreTolerantOfSamePhysicalCrowd (516ms)
+  Standard output
+    Same crowd indifferent GridCell { X = 107, Z = 148 }; keen GridCell { X = 108, Z = 150 }
+    
+passed LocalExcitementPaceComposesWithPersonalBaselineAndDoesNotAffectOtherRoutes (737ms)
+  Standard output
+    Same-person baseline 950; 3m local arrivals indifferent=112 ticks keen=88 ticks
+    Same 3m non-listening arrivals indifferent=106 ticks keen=106 ticks
+    
+passed DecisionClocksAndEnthusiasmRejectTamperingAndOutsideRouteHasNormalPace (248ms)
+passed ExtremeSightlinePrefersCentralBehindFrontPeopleButCrowdedCenterStillLoses (227ms)
+  Standard output
+    Sightline tradeoff clear behind-front=30 extreme-side=34; crowded center=192 side=34
+    
+passed SparseExtremeLateralActuallyWalksInwardWithoutForcedCentralBand (311ms)
+  Standard output
+    Extreme lateral actual inward arrival103,165 -> GridCell { X = 103, Z = 161 }
+    
+passed RearCongestionRedistributesPhysicallyAndFortyListenerDiagnosticReplays (1s 789ms)
+  Standard output
+    Bounded 44-person audience 4800 ticks: 532.17ms; meanX 119.90->112.30; arrived 40
+    
+passed ThreeStablePerformersTravelAndListenersAccrueOnlyWhileWatching (306ms)
+passed BandHoldsOffStageUntilLeadThenEquipsAtMarksBeforeSetStart (290ms)
+passed IsolationProducesImmediateSilenceThenOnlyDelayedBoo (297ms)
+passed FullFrontageFallsBackAndFinishedSetDoesNotRewardTwice (1s 389ms)
+passed BandUsesSavedSideAccessAndNeverReportsExitArrivalAsOnStage (611ms)
+passed ListeningCountsExactEligibleTicksAcrossSetStartAndPowerCut (514ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 13
+  failed: 0
+  succeeded: 13
+  skipped: 0
+  duration: 8s 218ms

@@ -8,11 +8,11 @@ public sealed class MedicalIncidentTests
 {
     private static CommandResult Send(GameSession s, SessionCommand command) => s.Execute(new(
         new CommandId(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase, s.CurrentTick,
-        s.NextSubmissionSequence, null, command));
+        s.NextSubmissionSequence, null, LegacyInterventionFixture.For(s, command)));
 
     private static CommandResult SendTo(GameSession s, ulong id, SessionCommand command) => s.Execute(new(
         new CommandId(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase, s.CurrentTick,
-        s.NextSubmissionSequence, new EntityId(id), command));
+        s.NextSubmissionSequence, new EntityId(id), LegacyInterventionFixture.For(s, command)));
 
     private static GameSession Started(ulong seed = 20260922, int tier = 1)
     {
@@ -291,6 +291,11 @@ public sealed class MedicalIncidentTests
     public void FullLineKeepsEarlierPhysicalOverflowArrivalAheadOfLaterFasterWalkerAcrossRestore()
     {
         var s = Started();
+        // Labelled legacy occupied-line fixture; retain old full geometry across upgrade.
+        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
+            s.CapturePreparation()! with { PrimaryWaterGeometryVersion = 0 });
+        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
+            s.CaptureMedical()! with { MainWaterGeometryVersion = 0 });
         SuppressGuestWaterDemand(s);
         var ids = s.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest)
             .Take(12).Select(item => item.AgentId).ToArray();
@@ -335,7 +340,7 @@ public sealed class MedicalIncidentTests
         CollectionAssert.AreEqual(new[] { earlier }, s.CaptureMedical()!.WaterOverflow);
         Assert.IsNull(s.CaptureMedical()!.Needs.Single(item => item.AgentId == earlier).QueueSlot);
         Assert.IsTrue(Send(s, new MedicalCommand(later, MedicalAction.GuideToWater)).IsAccepted);
-        Assert.AreEqual(GameSession.MedicalQueueApproach(10, 1),
+        Assert.AreEqual(s.CaptureWaterQueueCells("water.main")[11],
             s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == later).Destination);
         s = Restored(s);
         while (s.CaptureMedical()!.WaterOverflow.Length < 2 && s.CurrentTick < 500)
@@ -349,7 +354,7 @@ public sealed class MedicalIncidentTests
         CollectionAssert.AreEqual(new[] { later }, after.WaterOverflow);
         Assert.AreEqual(9, after.Needs.Single(item => item.AgentId == earlier).QueueSlot);
         Assert.IsNull(after.Needs.Single(item => item.AgentId == later).QueueSlot);
-        Assert.AreEqual(GameSession.MedicalQueueApproach(10),
+        Assert.AreEqual(s.CaptureWaterQueueCells("water.main")[10],
             s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == later).Destination);
         s = Restored(s);
         while (s.CurrentTick < 300 && new[] { earlier, later }.Any(id =>
@@ -438,7 +443,7 @@ public sealed class MedicalIncidentTests
             .Take(2).Select(item => item.AgentId).ToArray();
         var field = typeof(GameSession).GetField("_navigationAgents", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var agents = field.GetValue(s)!;
-        var centre = TraversalGrid.CellCentre(GameSession.MedicalQueueApproach(0));
+        var centre = TraversalGrid.CellCentre(GameSession.WaterPointServiceCell(s.CaptureWaterPoints()[0]));
         for (var i = 0; i < ids.Length; i++)
         {
             var agent = agents.GetType().GetProperty("Item")!.GetValue(agents, [new EntityId(ids[i])])!;
@@ -476,7 +481,7 @@ public sealed class MedicalIncidentTests
         for (var index = 0; index < m.WaterQueue.Length; index++)
         {
             Assert.AreEqual(index, m.Needs.Single(item => item.AgentId == m.WaterQueue[index]).QueueSlot);
-            Assert.AreEqual(GameSession.MedicalQueueSlot(index),
+            Assert.AreEqual(s.CaptureWaterQueueCells("water.main")[index],
                 s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == m.WaterQueue[index]).Destination);
         }
         s = Restored(s);

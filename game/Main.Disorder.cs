@@ -46,7 +46,7 @@ public partial class Main
         var disorder = _session.CaptureDisorder();
         _disorderCuePlanner.Reset(disorder, _session.CurrentTick);
         if (disorder is null) return;
-        foreach (var id in disorder.People.Select(item => item.AgentId).Append(disorder.SecurityId).Distinct())
+        foreach (var id in disorder.People.Select(item => item.AgentId).Concat(_session.GetStewardResponses().Select(item => item.WorkerId)).Distinct())
         {
             if (!_attendeeVisuals.ContainsKey(new EntityId(id))) continue;
             var label = new Label3D { Visible = false, FontSize = 52, PixelSize = .011f,
@@ -95,8 +95,8 @@ public partial class Main
     {
         var fighters = disorder.People.Where(person => person.Stage == DisorderStage.Fight).ToArray();
         var fighting = fighters.Select(person => person.AgentId).ToHashSet();
-        if (fighters.Any(person => person.OpponentId == disorder.SecurityId))
-            fighting.Add(disorder.SecurityId);
+        foreach (var response in _session.GetStewardResponses())
+            if (fighters.Any(person => person.OpponentId == response.WorkerId)) fighting.Add(response.WorkerId);
         foreach (var id in _fightShaking.Except(fighting))
         {
             if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual))
@@ -209,7 +209,7 @@ public partial class Main
             $"WORKER  {(worker.Admitted ? d.SecurityIncapacitated ? "injured • needs medic" : "on site" : "walking in")}\n" +
             $"POSITION  {(position is null ? "not yet arrived" : $"{position.XMillimetres / 1000m:0.00} m, {position.ZMillimetres / 1000m:0.00} m")}\n" +
             $"RESPONSE  {d.ResponseStage} • target {target}\n{StewardWording(d.Response)}\n" +
-            "Select an affected guest to DISPATCH STEWARD or use SAFE EGRESS in their inspector. " +
+            "Select an affected guest to dispatch a steward, or ask a named steward/medic to physically escort them to the gate. " +
             (workerAvailable ? "Select Jordan here if he needs medical help. " :
                 "Jordan can be selected after the weekend starts and his physical visual exists. ") +
             "Stewards do not teleport or guarantee de-escalation.";
@@ -222,8 +222,6 @@ public partial class Main
         _disorderSummary.CustomMinimumSize = new Vector2(370, 145);
         box.AddChild(_disorderSummary);
         foreach (var (action, label) in new[] {
-            (DisorderAction.CloseWater, "CLOSE WATER SAFELY"),
-            (DisorderAction.ReopenWater, "REOPEN WATER"),
             (DisorderAction.RestoreMusic, "SAFE RESET MUSIC") })
         {
             var button = ButtonText(label, () => CommitDisorderAction(action));
@@ -237,8 +235,7 @@ public partial class Main
     {
         if (_session.CaptureDisorder() is null || _medicalActionInspector is null) return;
         foreach (var (action, label) in new[] {
-            (DisorderAction.DispatchSecurity, "DISPATCH STEWARD"),
-            (DisorderAction.SafeEgress, "SAFE EGRESS") })
+            (DisorderAction.DispatchSecurity, "DISPATCH JORDAN • DISORDER") })
         {
             var button = ButtonText(label, () => CommitDisorderAction(action));
             button.AddThemeFontSizeOverride("font_size", 12);
@@ -252,9 +249,8 @@ public partial class Main
     {
         var d = _session.CaptureDisorder();
         if (d is null) return "";
-        if (id == d.SecurityId)
-            return $"STEWARD • {(d.SecurityIncapacitated ? "INJURED • NEEDS MEDIC" : d.ResponseStage)}\n" +
-                $"RESPONSE {StewardWording(d.Response)}\n";
+        if (_session.GetResponseStaff().Any(item => item.AgentId == id))
+            return ResponseStaffInspectorText(id);
         var person = d.People.SingleOrDefault(item => item.AgentId == id);
         if (person is null) return "";
         var counterpartLine = DisorderCuePlanner.CurrentCounterpartInspectorLine(d, person,
@@ -262,11 +258,11 @@ public partial class Main
             otherId => _session.CaptureSnapshot().NavigationAgents.SingleOrDefault(item => item.Id.Value == otherId) is { } position
                 ? $"{position.XMillimetres / 1000m:0.0}, {position.ZMillimetres / 1000m:0.0} m" : null);
         return $"DISORDER • {person.Stage} • pressure {person.Pressure / 100m:0}%\n" +
-            $"CAUSE {person.Grievance} • {(person.Stage == DisorderStage.Injured ? "FIRST AID NEEDED" : "reduce pressure or dispatch a steward")}\n" +
+            $"CAUSE {person.Grievance} • {(person.Stage == DisorderStage.Injured ? "FIRST AID NEEDED" : person.Grievance == DisorderGrievance.WaterWait ? "dispatch a steward; attendees choose their taps" : "reduce pressure or dispatch a steward")}\n" +
             counterpartLine;
     }
 
-    private void CommitDisorderAction(DisorderAction action)
+    private void CommitDisorderAction(DisorderAction action, ulong? workerId = null)
     {
         var personTargeted = action is DisorderAction.DispatchSecurity or DisorderAction.SafeEgress;
         var selected = _selectedAttendeeId?.Value;
@@ -276,7 +272,7 @@ public partial class Main
             RefreshPreparationHud();
             return;
         }
-        var command = new DisorderCommand(action, personTargeted ? selected : null);
+        var command = new DisorderCommand(action, personTargeted ? selected : null, workerId);
         var result = DisorderCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility,
             DateTimeOffset.UtcNow, _autosaveGeneration);
         if (result.IsSuccess)
@@ -313,10 +309,10 @@ public partial class Main
         var latest = d.Evidence.LastOrDefault();
         _disorderSummary.Text = $"DISORDER • {(d.WaterClosed ? "WATER CLOSED" : "WATER OPEN")}\n" +
             $"{name}{(notable is null ? "" : $" • {notable.Stage} • pressure {notable.Pressure / 100m:0}% • {notable.Grievance}")}\n" +
-            $"Steward {d.ResponseStage} • {StewardWording(d.Response)}\n" +
+            string.Join("\n", _session.GetStewardResponses().Select(job => $"{_session.CapturePreparation()!.People.Single(item => item.AgentId == job.WorkerId).Name.Split(' ')[0]}: {(job.Incapacitated ? "INJURED • MEDIC NEEDED" : ActiveStaffInterventionSummary(job.WorkerId) ?? job.Stage.ToString())}")) + "\n" +
             $"{(latest is null ? "No complaint" : StewardWording(latest.Description))}\n" +
-            "Complaint and argument precede any confrontation. Select a person for response/egress.";
-        foreach (var action in new[] { DisorderAction.CloseWater, DisorderAction.ReopenWater, DisorderAction.RestoreMusic })
+            "Complaint and argument precede any confrontation. Select a person for staff help; attendees choose their taps. Essential water stays available.";
+        foreach (var action in new[] { DisorderAction.RestoreMusic })
         {
             var button = _disorderButtons[action];
             var error = _session.ValidateCommand(CampaignEnvelope(new DisorderCommand(action)));
@@ -373,12 +369,12 @@ public partial class Main
             {
                 while (_session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && _session.CurrentTick < 4_000)
                     _session.AdvanceWithoutSnapshot(1);
-                _session.Execute(CampaignEnvelope(new MedicalCommand(_session.CaptureMedical()!.AtRiskGuestId, MedicalAction.GuideToRest)));
+                _session.Execute(CampaignEnvelope(LegacyMedicalCaptureFixture(_session.CaptureMedical()!.AtRiskGuestId, MedicalAction.GuideToRest)));
                 _session.Execute(CampaignEnvelope(new EquipmentCommand(EquipmentAction.Isolate)));
             }
             else
             {
-                _session.Execute(CampaignEnvelope(new MedicalCommand(_session.CaptureMedical()!.AtRiskGuestId, MedicalAction.GuideToRest)));
+                _session.Execute(CampaignEnvelope(LegacyMedicalCaptureFixture(_session.CaptureMedical()!.AtRiskGuestId, MedicalAction.GuideToRest)));
             }
             while (!_session.CaptureDisorder()!.People.Any(item => item.Stage == DisorderStage.Complaint &&
                    item.Grievance == (_disorderCaptureMode == "music" ? DisorderGrievance.MusicCutoff : DisorderGrievance.WaterWait)) &&
@@ -398,7 +394,7 @@ public partial class Main
         {
             GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_disorderCaptureDirectory, "complaint.png"));
             if (_disorderCaptureMode == "music") _disorderButtons[DisorderAction.RestoreMusic].EmitSignal(Button.SignalName.Pressed);
-            else _disorderButtons[DisorderAction.CloseWater].EmitSignal(Button.SignalName.Pressed);
+            else CommitDisorderAction(DisorderAction.CloseWater); // Historical diagnostic only; no player-facing closure control.
         }
         if (_disorderCaptureFrame == 14)
         {
@@ -419,7 +415,7 @@ public partial class Main
         if (_disorderCaptureFrame == 8)
         {
             var atRisk = _session.CaptureMedical()!.AtRiskGuestId;
-            _session.Execute(CampaignEnvelope(new MedicalCommand(atRisk, MedicalAction.GuideToRest)));
+            _session.Execute(CampaignEnvelope(LegacyMedicalCaptureFixture(atRisk, MedicalAction.GuideToRest)));
             while (_session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && _session.CurrentTick < 4_000)
                 _session.AdvanceWithoutSnapshot(1);
             if (_session.CaptureLivePerformance()!.Stage != LiveSetStage.Live)

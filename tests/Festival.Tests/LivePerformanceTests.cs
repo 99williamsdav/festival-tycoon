@@ -124,8 +124,8 @@ public sealed class LivePerformanceTests
         Assert.IsTrue(listeners.All(item => item.Place is { } place && place.X is >= 103 and <= 122 &&
             session.TraversalGrid!.Get(place).IsWalkable), "All reserved places must face the moved stage and avoid track/generator obstacles.");
         Assert.IsTrue(listeners.Select(item => item.Place!.Value).Distinct().Count() == 40);
-        Assert.IsTrue(listeners.Where(item => item.Enthusiasm >= 90).Average(item => item.Place!.Value.X) <
-            listeners.Where(item => item.Enthusiasm == 35).Average(item => item.Place!.Value.X));
+        // Interest changes local crowd tolerance, not a prescribed front/middle/rear row.
+        Assert.IsTrue(listeners.Where(item => item.Enthusiasm == 35).Any(item => item.Place!.Value.X <= 110));
         Assert.IsTrue(listeners.Count(item => item.Place!.Value.X <= 105) < 40, "Full frontage must use farther walkable places.");
         session = Restored(session);
         session.AdvanceWithoutSnapshot(10_000);

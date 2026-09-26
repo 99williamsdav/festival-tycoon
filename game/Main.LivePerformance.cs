@@ -68,10 +68,13 @@ public partial class Main
             visual.Rotation = new Vector3(0, -Mathf.Pi / 2f, 0);
             return;
         }
-        if (action != AgentNavigationAction.Travelling || !hasPrevious || direction.LengthSquared() < 0.000036f)
+        var backstepping = hasPrevious && _session.ShouldAudienceBackstepFacingStage(id,
+            position.X * 1000, position.Z * 1000, direction.X * 1000, direction.Z * 1000);
+        if (backstepping || action != AgentNavigationAction.Travelling || !hasPrevious || direction.LengthSquared() < 0.000036f)
         {
-            if (!watchingStage) return;
-            direction = new Vector3(-16f - position.X, 0, 11f - position.Z);
+            if (!watchingStage && !backstepping) return;
+            direction = new Vector3(AudienceFacingMath.StageXMillimetres / 1000f - position.X, 0,
+                AudienceFacingMath.StageZMillimetres / 1000f - position.Z);
         }
         if (direction.LengthSquared() < 0.000036f) return;
         var targetYaw = Mathf.Atan2(-direction.X, -direction.Z);
@@ -124,8 +127,9 @@ public partial class Main
         var performer = live?.Performers.SingleOrDefault(item => item.AgentId == id.Value);
         var detail = listening is not null
             ? $"FIT  {(listening.Enthusiasm >= 60 ? "booked style" : "other style")} • interest {listening.Enthusiasm}%\n" +
-              $"CHOICE  {(listening.Enthusiasm >= 90 ? "strong fan/front" : listening.Enthusiasm >= 60 ? "comfortable middle" : "casual/rear")} • safe route/space\n" +
-              $"PLACE  {(listening.Place is { } place ? $"{place.X},{place.Z} ({(place.X <= 107 ? "front" : place.X <= 113 ? "middle" : "rear")})" : "not reserved")} • {(listening.AtPlace ? "watching" : "travelling/not watching")}\n" +
+              "SPACE  personal crowd comfort • more interest tolerates more nearby people\nClear forward space preferred; step aside/back when too crowded\n" +
+              $"VOLUNTARY STAGE WALK  {GameSession.AudiencePacePermille(listening.Enthusiasm) / 10m:0}% × natural {GameSession.GetWalkingSpeedPermille(id) / 10m:0}%\nOther routes keep natural pace\n" +
+              $"PLACE  {(listening.Place is { } place ? $"{place.X},{place.Z}" : "not reserved")} • {(listening.AtPlace ? "watching" : "travelling/not watching")}\n" +
               $"LISTENED  {listening.ListenedTicks / 80}s • enjoyment +{listening.EnjoymentEarned / 100m:0.00}%"
             : performer is not null ? $"STAGE  {performer.StageCell.X},{performer.StageCell.Z} • {(performer.OnStage ? "on stage" : "travelling/exit")}\n" +
               $"INSTRUMENT  {(performer.InstrumentAttached ? "attached for set" : "detached")}" :
@@ -140,7 +144,7 @@ public partial class Main
                 $"INTENT {need.Intent} • {StewardWording(need.Reason)}\n" +
                 (medical!.WaterOwnerId == id.Value
                     ? $"DRINKING • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n"
-                    : "")) + DisorderPersonInspectorText(id.Value) + detail;
+                    : "")) + StaffInterventionTargetText(id.Value) + DisorderPersonInspectorText(id.Value) + detail;
     }
 
     private void EnsureStageDrumKit()

@@ -1,0 +1,18 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=faaeeabdefc79b90702abcd7b17f66c31885f8c72294a8aef50a9aeb6b28d4fe
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+MEDICAL_FACILITY_SELECTED type=Water
+FARM_SELECTION_CLEARED
+MEDICAL_FACILITY_SELECTED type=Water
+MEDICAL_FACILITY_SELECTED type=Water
+WATER_PLAYTEST_CAPTURE centred=True rotated=1 selected_extra_move=True queue=1 overflow=0 cells=2 saved=True hash=50d718eb758f0c95c73a390cce30d21874f1793729841d602f59f545ea323a8a
+WATER_PLAYTEST_LINES water.main:queue=1,overflow=0,owner=6;water.extra-1:queue=3,overflow=0,owner=9
+FARM_SELECTION_CLEARED
+MEDICAL_FACILITY_SELECTED type=Water
+MEDICAL_FACILITY_SELECTED type=Water
+FARM_SELECTION_CLEARED
+MEDICAL_FACILITY_SELECTED type=Water
+WATER_PLAYTEST_CAPTURE_COMPLETE labelled_fixture=true flow_states=3 approved_icons=48px

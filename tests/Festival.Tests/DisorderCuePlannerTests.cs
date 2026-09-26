@@ -125,8 +125,11 @@ public sealed class DisorderCuePlannerTests
         planner.Reset(restored.Session.CaptureDisorder(), restored.Session.CurrentTick);
         var cues = planner.Observe(restored.Session.CaptureDisorder()!, restored.Session.CaptureMedical(),
             restored.Session.CurrentTick);
-        CollectionAssert.AreEquivalent(new[] { fighter.AgentId, fighter.OpponentId!.Value },
-            cues.Select(item => item.AgentId).ToArray());
+        var allFighters = restored.Session.CaptureDisorder()!.People.Where(item => item.Stage == DisorderStage.Fight &&
+            DisorderCuePlanner.CurrentOpponentId(restored.Session.CaptureDisorder()!, item) is not null).Select(item => item.AgentId).ToArray();
+        Assert.IsTrue(allFighters.Contains(fighter.AgentId) && allFighters.Contains(fighter.OpponentId!.Value));
+        CollectionAssert.AreEquivalent(allFighters, cues.Select(item => item.AgentId).ToArray(),
+            "Changed real queue geometry may produce several simultaneous pairs; every actual fighter must retain its cue after restore.");
         Assert.IsTrue(cues.All(item => item.Kind == DisorderCueKind.Fight && item.Text == "FIGHT"));
     }
 
@@ -191,5 +194,5 @@ public sealed class DisorderCuePlannerTests
 
     private static CommandResult Send(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase,
-        session.CurrentTick, session.NextSubmissionSequence, null, command));
+        session.CurrentTick, session.NextSubmissionSequence, null, LegacyInterventionFixture.For(session, command)));
 }

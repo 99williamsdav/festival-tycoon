@@ -150,15 +150,24 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyWaterFoundationEffect(waterEffect);
                 break;
+            case ApplyStaffFoundationEffectCommand staffEffect:
+                affectedTarget = null;
+                ApplyStaffFoundationEffect(staffEffect);
+                break;
 
             case PlaceWaterPointCommand placeWater:
                 affectedTarget = null;
-                ApplyWaterPlacement(placeWater.Cell, false);
+                ApplyWaterPlacement(placeWater.Cell, null, placeWater.QuarterTurns);
                 break;
 
             case MovePrimaryWaterPointCommand moveWater:
                 affectedTarget = null;
-                ApplyWaterPlacement(moveWater.Cell, true);
+                ApplyWaterPlacement(moveWater.Cell, "water.main", moveWater.QuarterTurns);
+                break;
+
+            case MoveWaterPointCommand movePoint:
+                affectedTarget = null;
+                ApplyWaterPlacement(movePoint.Cell, movePoint.PointId, movePoint.QuarterTurns);
                 break;
 
             case ForceFixtureSafeCompletionCommand:
@@ -238,6 +247,21 @@ public sealed partial class GameSession
                 ApplyMedicalCommand(medical);
                 break;
 
+            case StaffInterventionCommand intervention:
+                affectedTarget = new EntityId(intervention.GuestId);
+                ApplyStaffIntervention(intervention);
+                break;
+
+            case DevelopmentMedicalFixtureCommand fixtureMedical:
+                affectedTarget = new EntityId(fixtureMedical.GuestId);
+                ApplyMedicalCommand(new(fixtureMedical.GuestId, fixtureMedical.Action), developmentFixture: true);
+                break;
+
+            case DevelopmentDisorderEgressFixtureCommand fixtureEgress:
+                affectedTarget = new EntityId(fixtureEgress.GuestId);
+                ApplyDisorderCommand(new(DisorderAction.SafeEgress, fixtureEgress.GuestId), developmentFixture: true);
+                break;
+
             case DisorderCommand disorder:
                 affectedTarget = disorder.PersonId is { } personId ? new EntityId(personId) : null;
                 ApplyDisorderCommand(disorder);
@@ -308,6 +332,7 @@ public sealed partial class GameSession
             AdvanceLivePerformance();
             AdvanceMedical();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceDisorder();
+            if (_preparation?.Status == PreparationStatus.Running) AdvanceStaffInterventions();
             if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished) break;
         }
 
@@ -664,7 +689,7 @@ public sealed partial class GameSession
 
         var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
         if (lifecycleFrozen is not null) return lifecycleFrozen;
-        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand))
+        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -674,6 +699,9 @@ public sealed partial class GameSession
             EquipmentCommand equipment => ValidateEquipmentCommand(envelope.TargetId, equipment),
             MedicalCommand medical => ValidateMedicalCommand(envelope.TargetId, medical),
             DisorderCommand disorder => ValidateDisorderCommand(envelope.TargetId, disorder),
+            StaffInterventionCommand intervention => ValidateStaffIntervention(envelope.TargetId, intervention),
+            DevelopmentMedicalFixtureCommand fixture => _medical?.DevelopmentInterventionFixturesEnabled != true ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Development intervention fixture is disabled.") : ValidateMedicalCommand(envelope.TargetId, new(fixture.GuestId, fixture.Action), developmentFixture: true),
+            DevelopmentDisorderEgressFixtureCommand fixture => _medical?.DevelopmentInterventionFixturesEnabled != true ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Development intervention fixture is disabled.") : ValidateDisorderCommand(envelope.TargetId, new(DisorderAction.SafeEgress, fixture.GuestId), developmentFixture: true),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture creation requires no target and a positive expiry."),
@@ -690,8 +718,10 @@ public sealed partial class GameSession
             ConcedeCouncilHearingCommand => ValidateConcedeCouncilHearing(envelope.TargetId),
             CommitCommunityWaterShareCommand => ValidateCommunityWaterShare(envelope.TargetId),
             ApplyWaterFoundationEffectCommand waterEffect => ValidateWaterFoundationEffect(envelope.TargetId, waterEffect),
-            PlaceWaterPointCommand placeWater => ValidateWaterPlacement(envelope.TargetId, placeWater.Cell, false),
-            MovePrimaryWaterPointCommand moveWater => ValidateWaterPlacement(envelope.TargetId, moveWater.Cell, true),
+            ApplyStaffFoundationEffectCommand staffEffect => ValidateStaffFoundationEffect(envelope.TargetId, staffEffect),
+            PlaceWaterPointCommand placeWater => ValidateWaterPlacement(envelope.TargetId, placeWater.Cell, null, placeWater.QuarterTurns),
+            MovePrimaryWaterPointCommand moveWater => ValidateWaterPlacement(envelope.TargetId, moveWater.Cell, "water.main", moveWater.QuarterTurns),
+            MoveWaterPointCommand movePoint => string.IsNullOrWhiteSpace(movePoint.PointId) ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Water point identity required.") : ValidateWaterPlacement(envelope.TargetId, movePoint.Cell, movePoint.PointId, movePoint.QuarterTurns),
             ForceFixtureSafeCompletionCommand => ValidateForceFixtureSafeCompletion(envelope.TargetId),
             CreateGuestWalletCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Guest setup requires no target and nonnegative opening cash."),

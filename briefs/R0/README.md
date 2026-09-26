@@ -16,6 +16,8 @@ R0 proves the smallest persistent failure/retry/success campaign using the exist
 | 5 | [R0.04](R0.04-disorder-chain.md) | Pressure/argument can be de-escalated or become attributable death | R0.03 | exact disorder chain; asset/proxy approval |
 | 6 | [R0.05](R0.05-hearing-retry.md) | Failure → hearing → Favour spend → viable same-tier retry | R0.04 | accepted: first Favour, tier-baseline cash/stock reset, one-weekend shared-water sacrifice, approved hearing v4 |
 | 6a | [R0.05a](R0.05a-water-foundations.md) | Independently placed water taps and explicit tower/share rate modifiers | R0.05 | implemented and reviewed; human playtest pending; no pressure loss or flow network |
+| 6b | [R0.05b](R0.05b-staff-foundations.md) | Role-specific capacity, paid optional weekend hires and individual independent responses | R0.05/R0.05a | directly authorized26September; implemented and independently re-reviewed; coordinator/human handoff pending; no perk draft |
+| 6c | [R0.05c](R0.05c-playtest-corrections.md) | Two reviewed playtest batches: placement/queues/flow, then physical staff interventions | R0.05a/R0.05b | both directly authorized26September and implemented; approved icons, physical staff/escort, render/export checks; coordinator/human handoff pending; no later progression |
 | 7 | [R0.06](R0.06-success-tier-gate.md) | Safe Tier 1 → reward → fixed Tier 2; final integrated gate | R0.05a and separately authorized foundations | deferred; reward floor, quality, scoring, victory/endless boundary |
 
 ## Shared execution rules

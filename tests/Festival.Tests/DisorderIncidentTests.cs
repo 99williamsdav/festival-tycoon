@@ -8,7 +8,7 @@ public sealed class DisorderIncidentTests
 {
     private static CommandResult Send(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase,
-        session.CurrentTick, session.NextSubmissionSequence, null, command));
+        session.CurrentTick, session.NextSubmissionSequence, null, LegacyInterventionFixture.For(session, command)));
 
     private static GameSession Restored(GameSession session)
     {
@@ -227,7 +227,23 @@ public sealed class DisorderIncidentTests
         session = Restored(session);
         while (session.CaptureDisorder()!.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming &&
                session.CurrentTick < 5_000)
+        {
+            // Labelled calming fixture: hold the listener's already-arrived place while
+            // measuring the physical response, rather than allowing unrelated voluntary
+            // crowd repositioning to naturally remove the music grievance mid-approach.
+            var live = session.CaptureLivePerformance()!;
+            var held = live.Listeners.Single(item => item.AgentId == target);
+            var patient = session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == target);
+            Assert.IsTrue(patient.Action == AgentNavigationAction.Arrived && patient.Destination == held.Place,
+                "Labelled persistent-music grievance requires an actually settled listener.");
+            typeof(GameSession).GetField("_livePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+                live with { Listeners = live.Listeners.Select(item => item.AgentId == target
+                    ? item with { LastDecisionTick = session.CurrentTick } : item).ToArray() });
+            if (session.CaptureDisorder()!.ResponseStage == SecurityResponseStage.Travelling)
+                field.SetValue(session, session.CaptureDisorder()! with { People = session.CaptureDisorder()!.People.Select(item => item.AgentId == target
+                    ? item with { Pressure = 2400, Stage = DisorderStage.Complaint, Grievance = DisorderGrievance.MusicCutoff } : item).ToArray() });
             session.AdvanceWithoutSnapshot(1);
+        }
         var d = session.CaptureDisorder()!;
         Assert.AreEqual(SecurityResponseStage.Completed, d.ResponseStage, d.Response);
         Assert.IsTrue(d.Evidence.Any(item => item.Id == "security:calming"));

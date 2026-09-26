@@ -110,32 +110,43 @@ public sealed partial class GameSession
                 agent.Action == AgentNavigationAction.Arrived && agent.Destination == performer.StageCell };
         }
         var listeners = live.Listeners.ToArray();
-        var reserved = listeners.Where(item => item.Place is not null).Select(item => item.Place!.Value).ToHashSet();
-        // A reservation is made once on physical admission. Front-biased fans claim first;
-        // a stable individual offset breaks ties without a shared destination or route churn.
-        foreach (var index in (periodic ? Enumerable.Range(0, listeners.Length)
-                     .OrderByDescending(i => listeners[i].Enthusiasm).ThenBy(i => listeners[i].AgentId)
+        var departed = p.People.Where(item => item.Departed).Select(item => item.AgentId).ToHashSet();
+        var reserved = listeners.Where(item => item.Place is not null && !departed.Contains(item.AgentId)).Select(item => item.Place!.Value).ToHashSet();
+        // Four identity cohorts spread bounded decisions. Dwell and a material improvement
+        // threshold prevent a settled crowd from continuously chasing tiny score changes.
+        foreach (var index in (periodic && live.Stage != LiveSetStage.Finished ? Enumerable.Range(0, listeners.Length)
+                     .Where(i => (CurrentTick / 80) % 4 == (long)(listeners[i].AgentId % 4)).OrderBy(i => listeners[i].AgentId)
                      : Enumerable.Empty<int>()))
         {
             var listener = listeners[index];
-            if (listener.Place is not null || DisorderOwnsNavigation(listener.AgentId) ||
+            if (AudienceNavigationOwned(listener.AgentId) ||
                 CurrentTick - listener.LastDecisionTick < 800 ||
                 !p.People.Any(item => item.AgentId == listener.AgentId && item.Admitted && !item.Departed)) continue;
             listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
             var start = _navigationAgents[new(listener.AgentId)];
             var startCell = TraversalGrid.WorldToCell(start.XMillimetres, start.ZMillimetres);
-            var options = ListeningPlaces().Where(cell => !reserved.Contains(cell) && _traversalGrid!.Get(cell).IsWalkable &&
+            if (listener.Place is not null && (start.Action != AgentNavigationAction.Arrived || start.Destination != listener.Place)) continue;
+            var currentScore = listener.Place is { } current ? PlaceScore(listener, current, startCell, listeners) : int.MaxValue;
+            var options = ListeningPlaces().Distinct().Where(cell => !reserved.Contains(cell) &&
+                (listener.Place is null || AudienceDistanceSquared(cell, startCell) <= 16) &&
+                _traversalGrid!.Get(cell).IsWalkable &&
                 !MedicalQueueExcludesListening(cell))
-                .Select(cell => (Cell: cell, Score: PlaceScore(listener, cell, startCell, reserved)))
+                .Where(cell => listeners.All(other => other.AgentId == listener.AgentId || departed.Contains(other.AgentId) || other.Place is not { } occupied || AudienceDistanceSquared(cell, occupied) >= 2))
+                .Select(cell => (Cell: cell, Score: PlaceScore(listener, cell, startCell, listeners)))
+                .Where(item => listener.Place is null || item.Score + 6 <= currentScore)
                 .OrderBy(item => item.Score).ThenBy(item => item.Cell).Take(8);
             foreach (var option in options)
             {
                 var route = DeterministicPathfinder.FindPath(_traversalGrid!, startCell, option.Cell);
                 if (!route.Found) continue;
+                if (listener.Place is { } old) reserved.Remove(old);
                 reserved.Add(option.Cell);
-                listeners[index] = listener with { Place = option.Cell };
-                if (!MedicalOwnsNavigation(listener.AgentId) && !DisorderOwnsNavigation(listener.AgentId))
-                    ApplyAgentDestination(new(listener.AgentId), new(option.Cell, "performance.listen"));
+                listeners[index] = listener with { Place = option.Cell, AtPlace = false };
+                var local = startCell.X is >= 103 and <= 126 && startCell.Z is >= 131 and <= 169;
+                var densityRetreat = local && listener.Place is not null && option.Cell.X > startCell.X &&
+                    AudienceDensity(listener, startCell, listeners) > AudienceComfortTolerance(listener);
+                ApplyAgentDestination(new(listener.AgentId), new(option.Cell,
+                    densityRetreat ? "performance.listen-local-retreat" : local ? "performance.listen-local" : "performance.listen"));
                 break;
             }
         }
@@ -143,7 +154,7 @@ public sealed partial class GameSession
         for (var i = 0; i < listeners.Length; i++)
         {
             var listener = listeners[i];
-            var atPlace = listener.Place is { } place &&
+            var atPlace = !departed.Contains(listener.AgentId) && !AudienceNavigationOwned(listener.AgentId) && listener.Place is { } place &&
                 _navigationAgents[new(listener.AgentId)].Action == AgentNavigationAction.Arrived &&
                 _navigationAgents[new(listener.AgentId)].Destination == place;
             // The prior tick's state earns one tick. A set starting, a new arrival,
@@ -253,16 +264,58 @@ public sealed partial class GameSession
         }
     }
 
-    private static int PlaceScore(LiveListener listener, GridCell cell, GridCell start, HashSet<GridCell> reserved)
+    private bool AudienceNavigationOwned(ulong id) => MedicalOwnsNavigation(id) || DisorderOwnsNavigation(id) ||
+        _medical?.StaffInterventions.Any(job => job.GuestId == id && job.Stage is StaffInterventionStage.Guiding or StaffInterventionStage.Escorting) == true;
+
+    private static int AudienceDistanceSquared(GridCell a, GridCell b) => (a.X - b.X) * (a.X - b.X) + (a.Z - b.Z) * (a.Z - b.Z);
+
+    /// <summary>Prototype weighted-neighbour comfort, not a real-world people-per-area measurement.</summary>
+    public static int AudienceComfortTolerance(LiveListener listener) => 900 + listener.Enthusiasm * 12 + ((int)(listener.AgentId % 7) - 3) * 50;
+    public static int AudiencePacePermille(int enthusiasm) => 800 + Math.Clamp(enthusiasm, 0, 100) * 4;
+    public int GetAudienceWalkingPacePermille(EntityId id) => _navigationAgents.TryGetValue(id, out var agent) ? AudienceWalkingPace(agent) : 1000;
+
+    public bool ShouldAudienceBackstepFacingStage(EntityId id, double x, double z, double movementX, double movementZ)
     {
-        var preferredBand = listener.Enthusiasm >= 90 ? 0 : listener.Enthusiasm >= 60 ? 3 : 6;
-        var band = (cell.X - 103) / 2;
+        if (!_navigationAgents.TryGetValue(id, out var agent) || agent.Destination is not { } cell ||
+            agent.IntentId is not { } intent || AudienceNavigationOwned(id.Value) ||
+            _livePerformance is null or { Stage: LiveSetStage.Finished } ||
+            !_livePerformance.Listeners.Any(listener => listener.AgentId == id.Value) ||
+            _preparation?.People.Any(person => person.AgentId == id.Value && person.Admitted && !person.Departed) != true)
+            return false;
+        var destination = TraversalGrid.CellCentre(cell);
+        return AudienceFacingMath.ShouldBackstep(intent, agent.Action, x, z,
+            destination.XMillimetres, destination.ZMillimetres, movementX, movementZ);
+    }
+
+    private int AudienceWalkingPace(NavigationAgentState agent) => agent.IntentId is "performance.listen-local" or "performance.listen-local-retreat" &&
+        !AudienceNavigationOwned(agent.Id.Value) && _livePerformance?.Listeners.FirstOrDefault(item => item.AgentId == agent.Id.Value) is { } listener
+            ? AudiencePacePermille(listener.Enthusiasm) : 1000;
+
+    private int PlaceScore(LiveListener listener, GridCell cell, GridCell start, LiveListener[] listeners)
+    {
         var travel = Math.Abs(cell.X - start.X) + Math.Abs(cell.Z - start.Z);
         var sightline = Math.Abs(cell.Z - 150);
-        var stableOffset = (int)((listener.AgentId * 17 + (ulong)(cell.X * 13 + cell.Z * 7)) % 13);
-        var density = reserved.Count(other => Math.Abs(other.X - cell.X) <= 3 && Math.Abs(other.Z - cell.Z) <= 3);
-        var densityCost = listener.Enthusiasm >= 90 ? 3 : listener.Enthusiasm >= 60 ? 8 : 14;
-        return Math.Abs(band - preferredBand) * 35 + sightline * 5 + travel + density * densityCost + stableOffset;
+        var stableOffset = (int)((listener.AgentId * 17 + (ulong)(cell.X * 13 + cell.Z * 7)) % 5);
+        return (cell.X - 103) * 6 + sightline + Math.Max(0, sightline - 10) * 2 + travel + stableOffset +
+            Math.Max(0, AudienceDensity(listener, cell, listeners) - AudienceComfortTolerance(listener)) / 20;
+    }
+
+    private int AudienceDensity(LiveListener listener, GridCell cell, LiveListener[] listeners)
+    {
+        var density = 0;
+        foreach (var person in _preparation!.People.Where(item => item.Admitted && !item.Departed && item.AgentId != listener.AgentId && MovementOccupant(item.AgentId)))
+        {
+            var agent = _navigationAgents[new(person.AgentId)];
+            var actual = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
+            var weight = Math.Max(0, 25 - AudienceDistanceSquared(actual, cell)) * 40;
+            var other = listeners.FirstOrDefault(item => item.AgentId == person.AgentId);
+            // An absent water/rest/escort owner retains a unique return place, but does not
+            // invent a second physical body at that place in the comfort calculation.
+            if (other?.Place is { } place && !AudienceNavigationOwned(person.AgentId))
+                weight = Math.Max(weight, Math.Max(0, 25 - AudienceDistanceSquared(place, cell)) * 40);
+            density += weight;
+        }
+        return density;
     }
 
     private static string? ValidatePersistedLivePerformance(LivePerformanceSnapshot? live, SessionPersistenceSnapshot snapshot)
@@ -275,6 +328,7 @@ public sealed partial class GameSession
             live.Performers.Select(item => item.AgentId).Distinct().Count() != 3 ||
             live.Listeners.Select(item => item.AgentId).Distinct().Count() != live.Listeners.Length ||
             live.Listeners.Any(item => item.ListenedTicks is < 0 or > LiveSetDurationTicks || item.EnjoymentEarned < 0 ||
+                item.Enthusiasm is < 0 or > 100 || item.LastDecisionTick < -800 || item.LastDecisionTick > snapshot.CurrentTick ||
                 item.Place is { } place && (place.X is < 103 or > 122 || place.Z is < 135 or > 165)))
             return "Live performance state invalid.";
         GridCell[] stageCells = [new(96, 150), new(94, 146), new(93, 152)];

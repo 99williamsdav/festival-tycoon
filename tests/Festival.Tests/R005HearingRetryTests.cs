@@ -54,7 +54,7 @@ public sealed class R005HearingRetryTests
 
     private static CommandResult Send(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase,
-        session.CurrentTick, session.NextSubmissionSequence, null, command));
+        session.CurrentTick, session.NextSubmissionSequence, null, LegacyInterventionFixture.For(session, command)));
 
     private static GameSession Restored(GameSession session)
     {

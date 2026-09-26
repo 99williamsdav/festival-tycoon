@@ -1,0 +1,32 @@
+passed SparseIndifferentListenerWalksForwardWithBoundedLegAndSavedDwell (690ms)
+passed ContinuousComfortMakesKeenListenerMoreTolerantOfSamePhysicalCrowd (457ms)
+  Standard output
+    Same crowd indifferent GridCell { X = 107, Z = 148 }; keen GridCell { X = 108, Z = 150 }
+    
+passed LocalExcitementPaceComposesWithPersonalBaselineAndDoesNotAffectOtherRoutes (817ms)
+  Standard output
+    Same-person baseline 950; 3m local arrivals indifferent=112 ticks keen=88 ticks
+    Same 3m non-listening arrivals indifferent=106 ticks keen=106 ticks
+    
+passed DecisionClocksAndEnthusiasmRejectTamperingAndOutsideRouteHasNormalPace (246ms)
+passed RearCongestionRedistributesPhysicallyAndFortyListenerDiagnosticReplays (1s 543ms)
+  Standard output
+    Bounded 44-person audience 4800 ticks: 502.96ms; meanX 119.90->112.33; arrived 40
+    
+passed ThreeStablePerformersTravelAndListenersAccrueOnlyWhileWatching (374ms)
+passed BandHoldsOffStageUntilLeadThenEquipsAtMarksBeforeSetStart (296ms)
+passed IsolationProducesImmediateSilenceThenOnlyDelayedBoo (305ms)
+passed FullFrontageFallsBackAndFinishedSetDoesNotRewardTwice (1s 772ms)
+passed BandUsesSavedSideAccessAndNeverReportsExitArrivalAsOnStage (738ms)
+passed ListeningCountsExactEligibleTicksAcrossSetStartAndPowerCut (604ms)
+passed ProportionalExistingTierTwoDiagnosticStaysBelowFifty (2s 287ms)
+  Standard output
+    STAFF_HEADLESS_DIAGNOSTIC people=49 ticks=4000 elapsed_ms=2082.57 simulated_real_seconds=50
+    
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 12
+  failed: 0
+  succeeded: 12
+  skipped: 0
+  duration: 10s 251ms

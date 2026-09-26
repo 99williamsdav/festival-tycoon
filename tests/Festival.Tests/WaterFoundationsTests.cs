@@ -8,7 +8,7 @@ public sealed class WaterFoundationsTests
 {
     private static CommandResult Send(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase,
-        session.CurrentTick, session.NextSubmissionSequence, null, command));
+        session.CurrentTick, session.NextSubmissionSequence, null, LegacyInterventionFixture.For(session, command)));
 
     private static GameSession Restore(GameSession session)
     {
@@ -87,14 +87,165 @@ public sealed class WaterFoundationsTests
     }
 
     [TestMethod]
+    [DataRow(0, 0, 2)]
+    [DataRow(1, 2, 0)]
+    [DataRow(2, 0, -2)]
+    [DataRow(3, -2, 0)]
+    public void EveryTapMovesAndSavesItsRotatedServiceFront(int turns, int dx, int dz)
+    {
+        var session = GameSession.CreateMedicalCampaign(20260922);
+        Assert.IsTrue(Send(session, new PlaceWaterPointCommand(ExtraSite)).IsAccepted);
+        var moved = new GridCell(74, 124);
+        Assert.IsTrue(Send(session, new MoveWaterPointCommand("water.extra-1", moved, turns)).IsAccepted);
+        Assert.AreEqual(new GridCell(moved.X + dx, moved.Z + dz), GameSession.WaterServiceCell(moved, turns));
+        session = Restore(session);
+        Assert.AreEqual(turns, session.CaptureWaterPoints()[1].QuarterTurns);
+        Assert.IsFalse(Send(session, new MoveWaterPointCommand("water.unknown", moved, turns)).IsAccepted);
+        Assert.IsFalse(Send(session, new MoveWaterPointCommand("water.extra-1", moved, 4)).IsAccepted);
+        foreach (var offer in new[] { "act.folk", "staff.steward", "equipment.buy" }) Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(offer)).IsAccepted);
+        Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
+        Assert.IsFalse(Send(session, new MoveWaterPointCommand("water.extra-1", ExtraSite)).IsAccepted);
+        session.AdvanceWithoutSnapshot(6200); // labelled untreated death / retry fixture
+        Assert.IsTrue(Send(session, new SpendCouncilFavourCommand()).IsAccepted);
+        session = Restore(session);
+        Assert.AreEqual(turns, session.CaptureWaterPoints()[1].QuarterTurns);
+        Assert.AreEqual(moved, session.CaptureWaterPoints()[1].Cell);
+        Assert.AreEqual(0, session.CaptureWaterPoints()[1].QueueCells.Length);
+    }
+
+    [TestMethod]
+    public void PlacementDoesNotReserveHypotheticalTailAndOrganicLineAvoidsStage()
+    {
+        var session = GameSession.CreateMedicalCampaign(20260922);
+        // This service front is clear; a straight hypothetical 20-place tail crosses the stage.
+        Assert.IsTrue(Send(session, new MovePrimaryWaterPointCommand(new GridCell(104, 130))).IsAccepted);
+        foreach (var offer in new[] { "act.folk", "staff.steward", "equipment.buy" }) Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(offer)).IsAccepted);
+        Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
+        var medicalField = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var grow = typeof(GameSession).GetMethod("GrowWaterQueue", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var m = session.CaptureMedical()!;
+        var ids = m.Needs.Take(12).Select(item => item.AgentId).ToArray();
+        for (var count = 0; count < 12; count++)
+        {
+            m = session.CaptureMedical()!;
+            medicalField.SetValue(session, m with { WaterQueue = ids.Take(Math.Min(count, 10)).ToArray(), WaterOverflow = ids.Skip(10).Take(Math.Max(0, count - 10)).ToArray() });
+            Assert.IsTrue((bool)grow.Invoke(session, ["water.main"])!);
+            var cells = session.CaptureWaterQueueCells("water.main");
+            Assert.AreEqual(count + 1, cells.Count);
+            Assert.AreEqual(cells.Count, cells.Distinct().Count());
+            Assert.IsFalse(cells.Any(cell => cell.X is >= 90 and <= 101 && cell.Z is >= 139 and <= 160));
+            for (var index = 1; index < cells.Count; index++) Assert.IsTrue(cells[index].Z >= cells[index - 1].Z, "The line must not snake back on itself.");
+        }
+    }
+
+    [TestMethod]
+    public void QueuedGuestForfeitsPlaceForWorthwhileAlternativeButOwnerAndNearFrontStay()
+    {
+        var session = StartWithExtra();
+        var ids = session.CaptureMedical()!.Needs.Take(3).Select(item => item.AgentId).ToArray();
+        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var m = session.CaptureMedical()!;
+        field.SetValue(session, m with { WaterQueue = ids, WaterOwnerId = ids[0],
+            Needs = m.Needs.Select(need => ids.Contains(need.AgentId) ? need with {
+                Intent = need.AgentId == ids[0] ? MedicalIntent.Drinking : MedicalIntent.SeekWater,
+                QueueSlot = Array.IndexOf(ids, need.AgentId), WaterPointId = "water.main", Thirst = need.AgentId == ids[0] ? 100 : 10000,
+                LastWaterChoiceReviewTick = -160 } : need).ToArray() });
+        for (var index = 0; index < ids.Length; index++) SetArrived(session, ids[index], GameSession.MedicalQueueSlot(index));
+        typeof(GameSession).GetMethod("RetargetWaterSeekers", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(session, null);
+        // Labelled near-alternative fixture; only position behind an actual slow person gains enough.
+        PutNear(session, ids[2], new GridCell(ExtraSite.X, ExtraSite.Z + 5));
+        for (var tick = 0; tick < 8; tick++) session.AdvanceWithoutSnapshot(1);
+        var now = session.CaptureMedical()!;
+        Assert.AreEqual("water.main", now.Needs.Single(item => item.AgentId == ids[0]).WaterPointId, "Drinker never switches.");
+        Assert.AreEqual("water.main", now.Needs.Single(item => item.AgentId == ids[1]).WaterPointId, "Own-position wait excludes people behind you.");
+        Assert.AreEqual("water.extra-1", now.Needs.Single(item => item.AgentId == ids[2]).WaterPointId);
+        Assert.IsFalse(now.WaterQueue.Contains(ids[2]));
+        Assert.IsTrue(now.Evidence.Any(item => item.Id == "medical:water-rechoose" && item.Description.Contains("old place forfeited=True")));
+        var switchedTick = now.Needs.Single(item => item.AgentId == ids[2]).LastWaterChoiceReviewTick;
+        session.AdvanceWithoutSnapshot(10);
+        Assert.AreEqual(switchedTick, session.CaptureMedical()!.Needs.Single(item => item.AgentId == ids[2]).LastWaterChoiceReviewTick);
+        Restore(session);
+    }
+
+    [TestMethod]
+    public void BlockedOrganicTailStopsWithoutReservingObstacleAndGrowthWorkIsBounded()
+    {
+        var session = StartWithExtra();
+        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var m = session.CaptureMedical()!;
+        var id = m.Needs[0].AgentId;
+        var front = GameSession.WaterServiceCell(ExtraSite);
+        field.SetValue(session, m with { ExtraWaterPoints = [m.ExtraWaterPoints[0] with { Queue = [id], QueueCells = [front] }] });
+        var gridField = typeof(GameSession).GetField("_traversalGrid", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var grid = (TraversalGrid)gridField.GetValue(session)!;
+        var overrides = grid.Overrides.ToDictionary(item => item.Key, item => item.Value);
+        for (var z = front.Z + 1; z <= front.Z + 3; z++)
+        for (var x = front.X - 3; x <= front.X + 3; x++) overrides[new(x, z)] = new(new(x, z), GroundSurface.Grass, false);
+        gridField.SetValue(session, new TraversalGrid(overrides.Values));
+        var grow = typeof(GameSession).GetMethod("GrowWaterQueue", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var watch = System.Diagnostics.Stopwatch.StartNew();
+        for (var iteration = 0; iteration < 1000; iteration++) Assert.IsFalse((bool)grow.Invoke(session, ["water.extra-1"])!);
+        watch.Stop();
+        Assert.AreEqual(1, session.CaptureWaterQueueCells("water.extra-1").Count);
+        Console.WriteLine($"WATER_GROWTH blocked_checks=1000 elapsed_ms={watch.Elapsed.TotalMilliseconds:F2} max_cells=20");
+        Assert.IsTrue(watch.Elapsed.TotalSeconds < 10, "Bounded local growth should not become an unbounded path search.");
+    }
+
+    [TestMethod]
+    public void SavedOrganicGeometryRejectsSpacingSnakesCrossingsAndSecondCornerClips()
+    {
+        var check = typeof(GameSession).GetMethod("ValidSavedWaterGeometry", BindingFlags.Static | BindingFlags.NonPublic)!;
+        var centre = new GridCell(70, 120); var front = GameSession.WaterServiceCell(centre);
+        var point = new WaterPointState("water.test", centre, [1, 2], [], null, 0)
+            { GeometryVersion = 1, QueueCells = [front, new(front.X, front.Z + 2)] };
+        bool Valid(WaterPointState[] points, TraversalGrid? grid = null) => (bool)check.Invoke(null, [points, grid])!;
+        Assert.IsTrue(Valid([point]));
+        Assert.IsFalse(Valid([point with { QueueCells = [] }]));
+        Assert.IsFalse(Valid([point with { QueueCells = [front, new(front.X, front.Z + 1)] }]));
+        Assert.IsFalse(Valid([point with { QueueCells = [front, new(front.X, front.Z - 2)] }]));
+        Assert.IsFalse(Valid([point with { QueueCells = [front, new(front.X + 2, front.Z + 2), new(front.X, front.Z)] }]));
+        Assert.IsFalse(Valid([point, point with { Id = "water.other" }]));
+        var diagonal = point with { QueueCells = [front, new(front.X + 2, front.Z + 2)] };
+        var crossing = point with { Id = "water.crossing", Cell = new(centre.X, centre.Z + 6), QuarterTurns = 2,
+            QueueCells = [new(front.X, front.Z + 2), new(front.X + 2, front.Z)] };
+        Assert.IsTrue(Valid([crossing]), "Each individual crossing-fixture line has legal geometry before collision checking.");
+        Assert.IsFalse(Valid([diagonal, crossing]), "Crossing segment interiors cannot both own physical queue space.");
+        Assert.IsFalse(Valid([diagonal], new TraversalGrid([new(new(front.X + 2, front.Z + 1), GroundSurface.Grass, false)])),
+            "A blocked second diagonal corner is not an available walking segment.");
+        var session = StartWithExtra();
+        Assert.AreEqual(1, session.CaptureWaterPoints()[0].GeometryVersion);
+        Assert.AreEqual(GameSession.WaterServiceCell(GameSession.MedicalWaterCell), session.CaptureWaterQueueCells("water.main")[0]);
+        Assert.IsFalse(Send(GameSession.CreateMedicalCampaign(20260922), new MoveWaterPointCommand(null!, centre)).IsAccepted);
+        var m = session.CaptureMedical()!;
+        var malformed = m with { MainWaterQueueCells = [front] };
+        var validate = typeof(GameSession).GetMethod("ValidatePersistedMedical", BindingFlags.Static | BindingFlags.NonPublic)!;
+        Assert.IsNotNull(validate.Invoke(null, [malformed, session.CapturePersistenceSnapshot()]));
+        var people = session.CaptureMedical()!.Needs.Take(2).Select(item => item.AgentId).ToArray();
+        foreach (var id in people)
+        {
+            PutNear(session, id, GameSession.WaterPointServiceCell(session.CaptureWaterPoints()[0]));
+            Assert.IsTrue(Send(session, new MedicalCommand(id, MedicalAction.GuideToWater)).IsAccepted);
+        }
+        session.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(2, session.CaptureMedical()!.WaterQueue.Length);
+        m = session.CaptureMedical()!;
+        var actualFront = m.MainWaterQueueCells[0];
+        var staleRoute = m with { MainWaterQueueCells = [actualFront, new(actualFront.X + 2, actualFront.Z + 2), new(actualFront.X + 4, actualFront.Z + 4)] };
+        Assert.IsTrue(Valid([new WaterPointState("water.main", m.MainWaterCell, m.WaterQueue, [], m.WaterOwnerId, m.WaterDrinkTicks)
+            { GeometryVersion = 1, QueueCells = staleRoute.MainWaterQueueCells }]));
+        Assert.IsNotNull(validate.Invoke(null, [staleRoute, session.CapturePersistenceSnapshot()]),
+            "Editing legal saved geometry without matching owned navigation must be rejected.");
+    }
+
+    [TestMethod]
     public void SeparatePhysicalArrivalsOwnSeparateTapsAndSaveTheirChoices()
     {
         var session = StartWithExtra(tower: true, share: true);
         var ids = session.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest)
             .Take(2).Select(item => item.AgentId).ToArray();
         var west = ExtraSite;
-        PutNear(session, ids[0], new GridCell(GameSession.MedicalWaterCell.X, GameSession.MedicalWaterCell.Z + 5));
-        PutNear(session, ids[1], new GridCell(west.X, west.Z + 5));
+        PutNear(session, ids[0], GameSession.WaterServiceCell(GameSession.MedicalWaterCell));
+        PutNear(session, ids[1], GameSession.WaterServiceCell(west));
         foreach (var id in ids)
             Assert.IsTrue(Send(session, new MedicalCommand(id, MedicalAction.GuideToWater)).IsAccepted);
         var initial = session.CaptureMedical()!;
@@ -137,7 +288,7 @@ public sealed class WaterFoundationsTests
             ? person with { Admitted = true } : person).ToArray() });
         foreach (var id in ids)
         {
-            PutNear(session, id, new GridCell(west.X, west.Z + 5));
+            PutNear(session, id, GameSession.WaterServiceCell(west));
             Assert.IsTrue(Send(session, new MedicalCommand(id, MedicalAction.GuideToWater)).IsAccepted);
         }
         Assert.AreEqual(0, session.CaptureWaterPoints().Sum(point => point.Queue.Length));
@@ -204,6 +355,9 @@ public sealed class WaterFoundationsTests
             }).ToArray(),
             ExtraWaterPoints = [new WaterPointState("water.extra-1", west, ids.Take(10).ToArray(), [ids[10]], null, 0)]
         });
+        var prepField = typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var prep = session.CapturePreparation()!;
+        prepField.SetValue(session, prep with { WaterPlacements = prep.WaterPlacements.Select(item => item with { GeometryVersion = 0 }).ToArray() });
         for (var index = 0; index < ids.Length; index++)
             SetArrived(session, ids[index], index < 10
                 ? new GridCell(west.X + index / 2, west.Z + 5 + index * 2)

@@ -7,6 +7,7 @@ public sealed record DisorderPersonCue(ulong AgentId, string Text, DisorderCueKi
 
 public sealed class DisorderCuePlanner
 {
+    private static bool IsSteward(DisorderSnapshot d, ulong id) => id == d.SecurityId || d.ExtraResponses.Any(item => item.WorkerId == id);
     public const int ShoutDurationTicks = 200;
     public const int ShoutSpacingTicks = 120;
     public const int PersonCooldownTicks = 640;
@@ -27,7 +28,7 @@ public sealed class DisorderCuePlanner
         if (person.OpponentId is not { } otherId) return null;
         if (person.Stage == DisorderStage.Fight)
         {
-            if (otherId == disorder.SecurityId) return otherId;
+            if (IsSteward(disorder, otherId)) return otherId;
             return disorder.People.Any(item => item.AgentId == otherId && item.Stage == DisorderStage.Fight &&
                 item.OpponentId == person.AgentId) ? otherId : null;
         }
@@ -35,6 +36,8 @@ public sealed class DisorderCuePlanner
         if (otherId == disorder.SecurityId)
             return !disorder.SecurityIncapacitated && disorder.ResponseStage == SecurityResponseStage.Confronting &&
                 disorder.ResponseTargetId == person.AgentId ? otherId : null;
+        if (disorder.ExtraResponses.SingleOrDefault(item => item.WorkerId == otherId) is { } response)
+            return !response.Incapacitated && response.Stage == SecurityResponseStage.Confronting && response.TargetId == person.AgentId ? otherId : null;
         // Guest arguments have no assigned pair before a fight; reciprocal IDs
         // here can only be history retained after an earlier confrontation.
         return null;
@@ -71,7 +74,7 @@ public sealed class DisorderCuePlanner
         foreach (var person in disorder.People.OrderBy(item => item.AgentId))
         {
             if (CurrentOpponentId(disorder, person) is not { } otherId) continue;
-            var securityOpponent = otherId == disorder.SecurityId;
+            var securityOpponent = IsSteward(disorder, otherId);
             if (!urgentMedical.Contains(person.AgentId))
                 cues.Add(new(person.AgentId, person.Stage == DisorderStage.Fight ? "FIGHT" : "ARGUMENT",
                     person.Stage == DisorderStage.Fight ? DisorderCueKind.Fight : DisorderCueKind.Argument));

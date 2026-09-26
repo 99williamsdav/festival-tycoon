@@ -1,0 +1,42 @@
+passed ShortActualDensityRetreatBackstepsButSideForwardAndStoppedStepsDoNot (4ms)
+passed NormalRouteImmediatelyResetsHeadingAndStageRelativeGeometryWorksOffCentre (0ms)
+passed SparseIndifferentListenerWalksForwardWithBoundedLegAndSavedDwell (838ms)
+passed ContinuousComfortMakesKeenListenerMoreTolerantOfSamePhysicalCrowd (503ms)
+  Standard output
+    Same crowd indifferent GridCell { X = 107, Z = 148 }; keen GridCell { X = 108, Z = 150 }
+    
+passed LocalExcitementPaceComposesWithPersonalBaselineAndDoesNotAffectOtherRoutes (905ms)
+  Standard output
+    Same-person baseline 950; 3m local arrivals indifferent=112 ticks keen=88 ticks
+    Same 3m non-listening arrivals indifferent=106 ticks keen=106 ticks
+    
+passed DecisionClocksAndEnthusiasmRejectTamperingAndOutsideRouteHasNormalPace (239ms)
+passed ExtremeSightlinePrefersCentralBehindFrontPeopleButCrowdedCenterStillLoses (199ms)
+  Standard output
+    Sightline tradeoff clear behind-front=30 extreme-side=34; crowded center=192 side=34
+    
+passed SparseExtremeLateralActuallyWalksInwardWithoutForcedCentralBand (249ms)
+  Standard output
+    Extreme lateral actual inward arrival103,165 -> GridCell { X = 103, Z = 161 }
+    
+passed DenseFrontListenerMakesSavedPhysicalShortRetreatWithNormalPaceAndScopedFacing (419ms)
+  Standard output
+    Dense front listener=3 enthusiasm35 crowd103/104/105 by147/151, actual103149 -> GridCell { X = 106, Z = 149 }; first displacement 26,0mm
+    
+passed RearCongestionRedistributesPhysicallyAndFortyListenerDiagnosticReplays (1s 365ms)
+  Standard output
+    Bounded 44-person audience 4800 ticks: 414.88ms; meanX 119.90->112.30; arrived 40
+    
+passed ThreeStablePerformersTravelAndListenersAccrueOnlyWhileWatching (267ms)
+passed BandHoldsOffStageUntilLeadThenEquipsAtMarksBeforeSetStart (202ms)
+passed IsolationProducesImmediateSilenceThenOnlyDelayedBoo (214ms)
+passed FullFrontageFallsBackAndFinishedSetDoesNotRewardTwice (1s 221ms)
+passed BandUsesSavedSideAccessAndNeverReportsExitArrivalAsOnStage (539ms)
+passed ListeningCountsExactEligibleTicksAcrossSetStartAndPowerCut (431ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 16
+  failed: 0
+  succeeded: 16
+  skipped: 0
+  duration: 7s 725ms
