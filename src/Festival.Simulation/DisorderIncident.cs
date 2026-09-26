@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Festival.Simulation;
 
-public enum DisorderGrievance { None, MusicCutoff, WaterWait }
+public enum DisorderGrievance { None, MusicCutoff, WaterWait, BandDelayed }
 public enum DisorderStage { Calm, Complaint, Agitated, Argument, Fight, Injured, Resolved }
 public enum SecurityResponseStage { None, Travelling, Calming, Confronting, Completed, Failed }
 public enum DisorderAction { DispatchSecurity, SafeEgress, CloseWater, ReopenWater, RestoreMusic }
@@ -270,20 +270,34 @@ public sealed partial class GameSession
             var joined = inWaterLine ? person.QueueJoinedTick < 0 ? CurrentTick : person.QueueJoinedTick : -1;
             var need = _medical.Needs.Single(item => item.AgentId == person.AgentId);
             var listener = _livePerformance?.Listeners.SingleOrDefault(item => item.AgentId == person.AgentId);
-            var grievance = _livePerformance?.Stage == LiveSetStage.Interrupted && listener is { AtPlace: true, Enthusiasm: >= 65 }
+            var lateAct = LateReadyFestivalAct;
+            var lateEnthusiasm = lateAct is null ? 0 : FestivalAffinity(person.AgentId, lateAct);
+            var waitingForBand = FestivalBandLate && listener is { AtPlace: true } && lateEnthusiasm >= 35 &&
+                need.Intent == MedicalIntent.WatchShow && need.Stage is MedicalStage.Clear or MedicalStage.Treated &&
+                need.Thirst < MedicalDistressThirst && need.HeatExposure < MedicalDistressHeat &&
+                !(need.AgentId == _medical.AtRiskGuestId && _medical.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical) &&
+                !InterventionOwnsTarget(person.AgentId) && !InterventionOwnsWorker(person.AgentId);
+            var grievance = _livePerformance?.Stage == LiveSetStage.Interrupted && !ScheduledSilence &&
+                (_programme is null || CurrentTick >= _livePerformance.PlannedTick && CurrentTick < _programme.SlotEndTick &&
+                    _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal) &&
+                listener is { AtPlace: true, Enthusiasm: >= 65 }
                 ? DisorderGrievance.MusicCutoff
                 : inWaterLine && need.Thirst >= 6_000 && CurrentTick - joined >= person.QueueToleranceTicks
-                    ? DisorderGrievance.WaterWait : DisorderGrievance.None;
+                    ? DisorderGrievance.WaterWait : waitingForBand ? DisorderGrievance.BandDelayed : DisorderGrievance.None;
             var pressure = person.Pressure;
             if (grievance != DisorderGrievance.None && CurrentTick >= person.CooldownUntilTick)
             {
-                var rate = grievance == DisorderGrievance.MusicCutoff
+                var rate = grievance == DisorderGrievance.BandDelayed
+                    ? CurrentTick - LateReadyScheduledTick < 800
+                        ? Math.Clamp(1 + lateEnthusiasm / 50 + person.Temperament / 4_000, 1, 3)
+                        : Math.Clamp(2 + lateEnthusiasm / 50 + person.Temperament / 2_500, 2, 5)
+                    : grievance == DisorderGrievance.MusicCutoff
                     ? 2 + (listener?.Enthusiasm ?? 0) / 100 + person.Temperament / 2_500
                     : 2 + need.Thirst / 3_500 + person.Temperament / 2_500;
                 // A sustained strongest grievance reaches fight eligibility no
                 // earlier than 1,600 ticks (20 real seconds), without a timer gate.
                 rate = Math.Min(5, rate);
-                pressure = Math.Min(10_000, pressure + rate * 8);
+                pressure = Math.Min(10_000, pressure + (rate + ImmersionAggression(person.AgentId,person.Temperament)) * 8);
             }
             else pressure = Math.Max(0, pressure - 48);
             var stage = pressure >= DisorderArgumentPressure ? DisorderStage.Argument :
@@ -298,11 +312,15 @@ public sealed partial class GameSession
                 StageTick = stage == person.Stage ? person.StageTick : CurrentTick };
             SetDisorderPerson(person.AgentId, _ => changed);
             d = _disorder!;
+            if (grievance == DisorderGrievance.BandDelayed && person.Grievance != DisorderGrievance.BandDelayed)
+                DisorderEvent($"disorder:band-late:{person.AgentId}:{CurrentTick}", person.AgentId, null, pressure,
+                    $"Where is {lateAct?.Name}? Scheduled start tick {LateReadyScheduledTick}; physical performer readiness still prevents music; pressure {pressure}/10000.");
             if (stage != person.Stage)
             {
                 var label = stage switch
                 {
-                    DisorderStage.Complaint => grievance == DisorderGrievance.WaterWait ? "Hurry up!" : "Why did the music stop?",
+                    DisorderStage.Complaint => grievance == DisorderGrievance.WaterWait ? "Hurry up!" :
+                        grievance == DisorderGrievance.BandDelayed ? "When is the band starting?" : "Why did the music stop?",
                     DisorderStage.Agitated => "Visibly agitated",
                     DisorderStage.Argument => "Argument forming",
                     DisorderStage.Calm => "Pressure subsided",
@@ -378,7 +396,7 @@ public sealed partial class GameSession
         var d = _disorder!;
         var workerId = response.WorkerId;
         var profile = GetResponseStaff().Single(item => item.AgentId == workerId);
-        if (!InterventionOwnsWorker(workerId) && response.Stage == SecurityResponseStage.Completed && !response.Incapacitated &&
+        if (!ImmersionOwnsNavigation(workerId) && !MedicalOwnsNavigation(workerId) && !InterventionOwnsWorker(workerId) && response.Stage == SecurityResponseStage.Completed && !response.Incapacitated &&
             _navigationAgents[new(workerId)].Destination != StaffDutyCell(workerId, ResponseRole.Steward))
             ApplyAgentDestination(new(workerId), new(StaffDutyCell(workerId, ResponseRole.Steward), "disorder.return-to-post"));
         if (response.TargetId is not { } targetId || response.Incapacitated) return;
@@ -594,6 +612,9 @@ public sealed partial class GameSession
             d.People.Any(item => item is null || item.Temperament is < 2_000 or > 8_000 ||
                 item.QueueToleranceTicks is < 320 or > 1_120 || item.Pressure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Grievance) || !Enum.IsDefined(item.Stage) ||
+                item.Grievance == DisorderGrievance.BandDelayed && (s.Programme is null || item.GrievanceTick < 0 ||
+                    !FestivalSlotStarts.Where((start, index) => item.GrievanceTick >= p.StartedTick + start &&
+                        item.GrievanceTick < p.StartedTick + FestivalSlotEnds[index]).Any()) ||
                 item.GrievanceTick > s.CurrentTick || item.StageTick > s.CurrentTick ||
                 item.QueueJoinedTick > s.CurrentTick || item.InjuryTick > s.CurrentTick ||
                 item.OpponentId is { } opponent && !p.People.Any(person => person.AgentId == opponent) ||
@@ -604,6 +625,7 @@ public sealed partial class GameSession
                 string.IsNullOrWhiteSpace(item.Description) || item.Pressure is < 0 or > 10_000) ||
             d.Incidents.Any(item => item is null || !d.People.Any(person => person.AgentId == item.InitiatorId) ||
                 !p.People.Any(person => person.AgentId == item.OpponentId) || !Enum.IsDefined(item.Grievance) ||
+                item.Grievance == DisorderGrievance.BandDelayed && s.Programme is null ||
                 item.Grievance == DisorderGrievance.None || item.Pressure < DisorderArgumentPressure || item.Pressure > 10_000 ||
                 item.ArgumentTick < 0 || item.ArgumentTick > item.FightTick || item.FightTick > s.CurrentTick ||
                 item.InjuryTick < -2 || item.InjuryTick > s.CurrentTick ||

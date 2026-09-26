@@ -3,7 +3,7 @@ namespace Festival.Simulation;
 public sealed partial class GameSession
 {
     // Only real members plus one unreserved arrival position are laid out. Up to 20
-    // places, at most seven local candidates per extension; no recursive search.
+    // places, at most nine local candidates per extension; no recursive search.
     private bool GrowWaterQueue(string pointId)
     {
         var point = WaterPoints().Single(item => item.Id == pointId);
@@ -18,33 +18,11 @@ public sealed partial class GameSession
             if (cells.Count == 0) cells.Add(WaterPointServiceCell(point));
         }
         var forward = RotateWaterOffset(new(0, 1), point.QuarterTurns);
+        var reserved=WaterPoints().Where(other=>other.Id!=pointId).SelectMany(other=>LooseQueueGeometry.Corridor(CaptureWaterQueueCells(other.Id))).Concat(ImmersionQueueCorridor()).ToArray();
         while (cells.Count < wanted)
         {
-            var tail = cells[^1];
-            var previous = cells.Count > 1 ? cells[^2] : point.Cell;
-            var heading = new GridCell(Math.Sign(tail.X - previous.X), Math.Sign(tail.Z - previous.Z));
-            var directions = new[] { heading, forward,
-                new GridCell(forward.X + forward.Z, forward.Z - forward.X),
-                new GridCell(forward.X - forward.Z, forward.Z + forward.X),
-                new GridCell(forward.Z, -forward.X), new GridCell(-forward.Z, forward.X) }.Distinct();
-            GridCell? next = null;
-            foreach (var direction in directions)
-            {
-                if (direction == new GridCell(0, 0) || direction.X * forward.X + direction.Z * forward.Z < 0 ||
-                    direction.X * heading.X + direction.Z * heading.Z <= 0) continue;
-                var candidate = new GridCell(tail.X + direction.X * 2, tail.Z + direction.Z * 2);
-                var middle = new GridCell(tail.X + direction.X, tail.Z + direction.Z);
-                bool Clear(GridCell cell) => _traversalGrid!.Contains(cell) && _traversalGrid.Get(cell).IsWalkable &&
-                    !(cell.X is >= 90 and <= 101 && cell.Z is >= 139 and <= 160) &&
-                    !cells.Take(Math.Max(0, cells.Count - 1)).Any(item => Math.Abs(item.X - cell.X) <= 1 && Math.Abs(item.Z - cell.Z) <= 1) &&
-                    !WaterPoints().Where(item => item.Id != pointId).Any(other => CaptureWaterQueueCells(other.Id).Any(item => Math.Abs(item.X - cell.X) <= 1 && Math.Abs(item.Z - cell.Z) <= 1));
-                if (!Clear(middle) || !Clear(candidate)) continue;
-                if (direction.X != 0 && direction.Z != 0 &&
-                    (!_traversalGrid!.Get(new(tail.X + direction.X, tail.Z)).IsWalkable || !_traversalGrid.Get(new(tail.X, tail.Z + direction.Z)).IsWalkable ||
-                     !_traversalGrid.Get(new(middle.X + direction.X, middle.Z)).IsWalkable || !_traversalGrid.Get(new(middle.X, middle.Z + direction.Z)).IsWalkable)) continue;
-                next = candidate; break;
-            }
-            if (next is null) break;
+            var next=LooseQueueGeometry.Extend(pointId,cells,forward,_traversalGrid!,QueueGroundAllowed,reserved);
+            if(next is null)break;
             cells.Add(next.Value);
         }
         SetWaterPoint(point with { QueueCells = cells.ToArray() });
@@ -89,13 +67,14 @@ public sealed partial class GameSession
                 if (index == 0) { if (cell != WaterPointServiceCell(point)) return false; continue; }
                 var previous = point.QueueCells[index - 1];
                 var dx = cell.X - previous.X; var dz = cell.Z - previous.Z;
-                if (Math.Abs(dx) is not (0 or 2) || Math.Abs(dz) is not (0 or 2) || dx == 0 && dz == 0 ||
+                if(LooseQueueGeometry.Corridor([previous,cell]).Any(part=>!QueueGroundAllowed(part)))return false;
+                if (Math.Abs(dx)>3 || Math.Abs(dz)>3 || Math.Max(Math.Abs(dx),Math.Abs(dz))<2 ||
                     dx * forward.X + dz * forward.Z < 0 ||
                     cell.X is >= 90 and <= 101 && cell.Z is >= 139 and <= 160) return false;
                 if (index > 1)
                 {
                     var before = point.QueueCells[index - 2];
-                    if (dx * (previous.X - before.X) + dz * (previous.Z - before.Z) <= 0) return false;
+                    if (dx * (previous.X - before.X) + dz * (previous.Z - before.Z) < 0) return false;
                 }
                 if (point.QueueCells.Take(index - 1).Any(other => Math.Abs(other.X - cell.X) <= 1 && Math.Abs(other.Z - cell.Z) <= 1)) return false;
                 var midpoint = new GridCell(previous.X + dx / 2, previous.Z + dz / 2);
@@ -117,7 +96,7 @@ public sealed partial class GameSession
         }
         for (var index = 0; index < points.Count; index++)
         for (var other = index + 1; other < points.Count; other++)
-            if (Cells(points[index]).Any(cell => Cells(points[other]).Any(candidate => Math.Abs(candidate.X - cell.X) <= 1 && Math.Abs(candidate.Z - cell.Z) <= 1))) return false;
+            if (LooseQueueGeometry.Corridor(Cells(points[index])).Any(cell => LooseQueueGeometry.Corridor(Cells(points[other])).Any(candidate => Math.Abs(candidate.X - cell.X) <= 1 && Math.Abs(candidate.Z - cell.Z) <= 1))) return false;
         return true;
     }
 }

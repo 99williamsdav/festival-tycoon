@@ -13,9 +13,9 @@ public sealed class DisorderCuePlanner
     public const int PersonCooldownTicks = 640;
     public const int MaximumVisibleShouts = 1;
     public const int MaximumUnpairedArguments = 3;
-    private sealed record Pending(ulong AgentId, DisorderGrievance Grievance, DisorderStage Stage, long StageTick);
-    private sealed record Active(string Text, long UntilTick);
-    private readonly Dictionary<ulong, (DisorderStage Stage, long StageTick)> _previous = [];
+    private sealed record Pending(ulong AgentId, DisorderGrievance Grievance, DisorderStage Stage, long StageTick, bool InitialQuestion = false);
+    private sealed record Active(string Text, long UntilTick, bool InitialQuestion, bool BandDelayed);
+    private readonly Dictionary<ulong, (DisorderStage Stage, long StageTick, DisorderGrievance Grievance)> _previous = [];
     private readonly Dictionary<ulong, Active> _active = [];
     private readonly Dictionary<ulong, long> _lastPersonShout = [];
     private readonly List<Pending> _pending = [];
@@ -58,7 +58,7 @@ public sealed class DisorderCuePlanner
         _initialized = disorder is not null;
         if (disorder is not null)
             foreach (var person in disorder.People)
-                _previous[person.AgentId] = (person.Stage, person.StageTick);
+                _previous[person.AgentId] = (person.Stage, person.StageTick, person.Grievance);
     }
 
     public IReadOnlyList<DisorderPersonCue> Observe(DisorderSnapshot disorder, MedicalSnapshot? medical, long tick)
@@ -92,11 +92,14 @@ public sealed class DisorderCuePlanner
         foreach (var person in disorder.People)
         {
             var prior = _previous.GetValueOrDefault(person.AgentId);
+            if (person.Grievance == DisorderGrievance.BandDelayed && prior.Grievance != person.Grievance &&
+                person.Stage == DisorderStage.Calm && !urgentMedical.Contains(person.AgentId))
+                _pending.Add(new(person.AgentId, person.Grievance, person.Stage, person.GrievanceTick, InitialQuestion: true));
             if (person.Stage is DisorderStage.Complaint or DisorderStage.Agitated &&
                 (prior.Stage != person.Stage || prior.StageTick != person.StageTick) &&
                 !urgentMedical.Contains(person.AgentId) && person.Grievance != DisorderGrievance.None)
                 _pending.Add(new(person.AgentId, person.Grievance, person.Stage, person.StageTick));
-            _previous[person.AgentId] = (person.Stage, person.StageTick);
+            _previous[person.AgentId] = (person.Stage, person.StageTick, person.Grievance);
         }
         _lastObservedTick = tick;
         if (fightCues.Length > 0)
@@ -106,10 +109,14 @@ public sealed class DisorderCuePlanner
         }
         _pending.RemoveAll(item => tick - item.StageTick > ShoutDurationTicks * 2 ||
             !people.TryGetValue(item.AgentId, out var person) || person.Stage != item.Stage ||
-            person.StageTick != item.StageTick || urgentMedical.Contains(item.AgentId));
+            (item.InitialQuestion ? person.Grievance != DisorderGrievance.BandDelayed || person.GrievanceTick != item.StageTick :
+                person.StageTick != item.StageTick) || urgentMedical.Contains(item.AgentId));
         foreach (var id in _active.Keys.ToArray())
             if (_active[id].UntilTick <= tick || !people.TryGetValue(id, out var person) ||
-                person.Stage is not (DisorderStage.Complaint or DisorderStage.Agitated) || urgentMedical.Contains(id))
+                _active[id].BandDelayed && person.Grievance != DisorderGrievance.BandDelayed ||
+                (person.Stage is not (DisorderStage.Complaint or DisorderStage.Agitated) &&
+                    !(_active[id].InitialQuestion && person.Stage == DisorderStage.Calm && person.Grievance == DisorderGrievance.BandDelayed)) ||
+                urgentMedical.Contains(id))
                 _active.Remove(id);
         if (_active.Count < MaximumVisibleShouts && _pending.Count > 0 &&
             (_lastShoutTick == long.MinValue || tick - _lastShoutTick >= ShoutSpacingTicks))
@@ -119,7 +126,8 @@ public sealed class DisorderCuePlanner
             if (next is not null)
             {
                 _pending.Remove(next);
-                _active[next.AgentId] = new(ShoutText(next), tick + ShoutDurationTicks);
+                _active[next.AgentId] = new(ShoutText(next), tick + ShoutDurationTicks, next.InitialQuestion,
+                    next.Grievance == DisorderGrievance.BandDelayed);
                 _lastPersonShout[next.AgentId] = _lastShoutTick = tick;
             }
         }
@@ -131,6 +139,10 @@ public sealed class DisorderCuePlanner
     private static string ShoutText(Pending pending)
     {
         var variant = (pending.AgentId + (ulong)Math.Max(0, pending.StageTick)) % 5;
+        if (pending.Grievance == DisorderGrievance.BandDelayed)
+            return pending.Stage == DisorderStage.Agitated
+                ? variant switch { 0 => "Start the music!", 1 => "We've waited long enough!", 2 => "Where the hell is the band?!", 3 => "This delay is ridiculous!", _ => "Get on with it!" }
+                : variant switch { 0 => "Where is the band?", 1 => "When are they starting?", 2 => "Are they ready yet?", 3 => "What's the hold-up?", _ => "Shouldn't the band be on?" };
         return pending.Grievance == DisorderGrievance.WaterWait
             ? variant switch { 0 => "Hurry up!", 1 => "This queue is ridiculous!", 2 => "It's an outrage!", 3 => "FFS!", _ => "Grrrr!" }
             : variant switch { 0 => "What the hell?!", 1 => "This is ridiculous!", 2 => "It's an outrage!", 3 => "FFS!", _ => "Grrrr!" };

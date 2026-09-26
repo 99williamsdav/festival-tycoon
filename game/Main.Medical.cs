@@ -105,6 +105,7 @@ public partial class Main
 
     private void BeginWaterPlacementFor(string? pointId)
     {
+        CancelImmersionPlacement();
         if (_session.CapturePreparation() is not { Status: PreparationStatus.Preparing }) return;
         _waterPlacementMode = pointId is null ? WaterPlacementMode.Add : WaterPlacementMode.Move;
         _movingWaterPointId = pointId;
@@ -477,6 +478,7 @@ public partial class Main
 
     private void SelectMedicalFacility(MedicalFacility facility, string? waterPointId = null)
     {
+        _selectedImmersionVendor = null;
         ClearSecurityPostSelection();
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = facility;
         if (facility == MedicalFacility.Water) _selectedWaterPointId = waterPointId ?? "water.main";
@@ -517,6 +519,7 @@ public partial class Main
 
     private void RefreshMedicalNeedBars(MedicalNeed? need)
     {
+        RefreshImmersionNeedBars(null);
         if (_medicalNeedsBars is null) return;
         _medicalNeedsBars.Visible = need is not null;
         if (need is null) return;
@@ -540,7 +543,7 @@ public partial class Main
         {
             var point = _session.CaptureWaterPoints().Single(item => item.Id == _selectedWaterPointId);
             _inspectorTitle.Text = $"Free water • {point.Id}";
-            var owner = point.OwnerId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
+            var owner = point.OwnerId is { } id ? PersonPresentationName(people.Single(item => item.AgentId == id)) : "None";
             var tower = _session.CapturePreparation()!.WaterTowerOwned;
             var flow = _session.CommunityWaterShareActive ? tower ? "NORMAL" : "LOW" : tower ? "BOOSTED" : "NORMAL";
             _waterFlowIcon!.Texture = _waterFlowTextures[flow.ToLowerInvariant()];
@@ -560,7 +563,7 @@ public partial class Main
         {
             _inspectorTitle.Text = "First aid • named medic coverage";
             _inspectorBody.Text = string.Join("\n", _session.GetMedicResponses().Select(job =>
-                $"{people.Single(item => item.AgentId == job.WorkerId).Name}: {job.Stage} • patient {(job.PatientId is { } id ? people.Single(item => item.AgentId == id).Name : "none")}")) +
+                $"{people.Single(item => item.AgentId == job.WorkerId).Name}: {job.Stage} • patient {(job.PatientId is { } id ? PersonPresentationName(people.Single(item => item.AgentId == id)) : "none")}")) +
                 "\nREST reduces heat after arrival. Select a distressed person to choose an available named medic.";
         }
     }
@@ -664,10 +667,13 @@ public partial class Main
             MedicalStage.Clear => "no active response window",
             _ => "window settled"
         };
+        var immersionCare = _session.CaptureImmersion();
         var treatment = string.Join("\n", _session.GetMedicResponses().Select(job => {
             var worker = _session.GetResponseStaff().Single(item => item.AgentId == job.WorkerId);
             if (ActiveStaffInterventionSummary(job.WorkerId) is { } intervention)
                 return $"{worker.Name.Split(' ')[0]}: {intervention}";
+            if (job.Stage == MedicalResponseStage.Treating && immersionCare?.People.SingleOrDefault(person => person.AgentId == job.PatientId) is { CareTicks: > 0 } care)
+                return $"{worker.Name.Split(' ')[0]}: gradual intoxication care {Math.Clamp(care.CareTicks * 100 / 1600, 0, 100)}% • {Math.Max(0, 1600 - care.CareTicks) / 80m:0.0}s left • exposure {care.Intoxication / 100m:0}%";
             return $"{worker.Name.Split(' ')[0]}: {job.Stage}" + (job.Stage == MedicalResponseStage.Treating
                 ? $" {Math.Clamp((_session.CurrentTick - job.StartedTick) * 100 / worker.TreatmentTicks, 0, 100)}% • {Remaining(job.StartedTick + worker.TreatmentTicks)} left"
                 : job.Stage == MedicalResponseStage.Travelling ? " • starts after arrival" : "");
@@ -682,6 +688,7 @@ public partial class Main
 
     private void RefreshMedicalActionInspector()
     {
+        RefreshContextPanelVisibility();
         if (_medicalActionInspector is null) return;
         if (_waterFlowRow is not null) _waterFlowRow.Visible = _selectedMedicalFacility == MedicalFacility.Water;
         if (_selectedWaterMoveButton is not null)
@@ -699,6 +706,7 @@ public partial class Main
         }
         RefreshStaffControls();
         RefreshStaffInterventionControls();
+        RefreshImmersionVendorInspector();
     }
 
     private void ProcessMedicalCapture()

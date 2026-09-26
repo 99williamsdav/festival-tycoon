@@ -73,13 +73,22 @@ public sealed partial class GameSession
         EntityId? affectedTarget;
         switch (envelope.Command)
         {
+            case SetProgrammeCommand programme:
+                affectedTarget = null;
+                ApplyProgramme(programme);
+                break;
             case EquipmentCommand equipment:
                 affectedTarget = null;
                 ApplyEquipmentCommand(equipment);
                 break;
+            case PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand:
+                affectedTarget = null;
+                ApplyImmersionCommand(envelope.Command);
+                break;
             case AcceptPreparationOfferCommand offer:
                 affectedTarget = null;
                 ApplyPreparationOffer(offer);
+                SynchronizeImmersionPeople();
                 break;
             case StartPreparedEditionCommand:
                 affectedTarget = null;
@@ -329,10 +338,13 @@ public sealed partial class GameSession
             ScaleDiagnosticProbe?.AddQueue(Stopwatch.GetTimestamp() - queueStart);
             ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.None);
             AdvancePreparation();
+            SynchronizeImmersionPeople();
             AdvanceLivePerformance();
             AdvanceMedical();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceDisorder();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceStaffInterventions();
+            if (MedicalOperationsActive) AdvanceImmersion();
+            if (_preparation?.Status is PreparationStatus.Departing or PreparationStatus.Finished) CleanupImmersionDeparture();
             if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished) break;
         }
 
@@ -463,6 +475,8 @@ public sealed partial class GameSession
             CampaignPlanning = CapturePersistedCampaignPlanning(),
             Lifecycle = CapturePersistedLifecycle(),
             Preparation = CapturePreparation(),
+            Programme = CaptureProgramme(),
+            Immersion = CaptureImmersion(),
             Equipment = CaptureEquipment(),
             LivePerformance = CaptureLivePerformance(),
             Medical = CaptureMedical(),
@@ -520,6 +534,8 @@ public sealed partial class GameSession
         session.RestoreCampaignPlanning(snapshot.CampaignPlanning);
         session.RestoreLifecycle(snapshot.Lifecycle);
         session._equipment = snapshot.Equipment is null ? null : snapshot.Equipment with { Evidence = snapshot.Equipment.Evidence.ToArray() };
+        session._programme = snapshot.Programme is null ? null : System.Text.Json.JsonSerializer.Deserialize<ProgrammeSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Programme));
+        session._immersion = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));
         session._preparation = snapshot.Preparation is null ? null : System.Text.Json.JsonSerializer.Deserialize<PreparationSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Preparation));
         session._livePerformance = snapshot.LivePerformance is null ? null : System.Text.Json.JsonSerializer.Deserialize<LivePerformanceSnapshot>(
@@ -547,6 +563,7 @@ public sealed partial class GameSession
 
     private static string? ValidatePersistenceSnapshot(SessionPersistenceSnapshot snapshot)
     {
+        if (snapshot.Immersion is { } immersion && (immersion.People is null || immersion.Vendors is null || immersion.Purchases is null || immersion.People.Any(p=>p is null) || immersion.Vendors.Any(v=>v is null || v.Queue is null) || immersion.Purchases.Length>112 || immersion.Purchases.Any(p=>p is null || p.Entries is null || p.Entries.Any(e=>e is null) || !Enum.IsDefined(p.Product) || p.PricePennies!=ImmersionPrice(p.Product) || p.CostPennies!=ImmersionCost(p.Product)))) return "Immersion collections or transaction shape invalid.";
         if (!Enum.IsDefined(typeof(SessionPhase), snapshot.Phase)) return $"Unknown session phase {snapshot.Phase}.";
         if (!string.Equals(snapshot.RandomAlgorithmVersion, Pcg32Random.AlgorithmVersion, StringComparison.Ordinal))
             return $"Random algorithm '{snapshot.RandomAlgorithmVersion}' is incompatible; expected '{Pcg32Random.AlgorithmVersion}'.";
@@ -586,12 +603,16 @@ public sealed partial class GameSession
         if (campaignError is not null) return campaignError;
         var lifecycleError = ValidatePersistedLifecycle(snapshot.Lifecycle, snapshot.Preparation, snapshot.CampaignId);
         if (lifecycleError is not null) return lifecycleError;
+        var programmeError = ValidatePersistedProgramme(snapshot);
+        if (programmeError is not null) return programmeError;
         var preparationError = ValidatePersistedPreparation(snapshot.Preparation, snapshot);
         if (preparationError is not null) return preparationError;
         var equipmentError = ValidatePersistedEquipment(snapshot.Equipment, snapshot);
         if (equipmentError is not null) return equipmentError;
         var livePerformanceError = ValidatePersistedLivePerformance(snapshot.LivePerformance, snapshot);
         if (livePerformanceError is not null) return livePerformanceError;
+        var immersionError = ValidatePersistedImmersion(snapshot);
+        if (immersionError is not null) return immersionError;
         var medicalError = ValidatePersistedMedical(snapshot.Medical, snapshot);
         if (medicalError is not null) return medicalError;
         var disorderError = ValidatePersistedDisorder(snapshot.Disorder, snapshot);
@@ -689,7 +710,7 @@ public sealed partial class GameSession
 
         var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
         if (lifecycleFrozen is not null) return lifecycleFrozen;
-        if (_preparation is not null && envelope.Command is not (AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
+        if (_preparation is not null && envelope.Command is not (PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -702,6 +723,8 @@ public sealed partial class GameSession
             StaffInterventionCommand intervention => ValidateStaffIntervention(envelope.TargetId, intervention),
             DevelopmentMedicalFixtureCommand fixture => _medical?.DevelopmentInterventionFixturesEnabled != true ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Development intervention fixture is disabled.") : ValidateMedicalCommand(envelope.TargetId, new(fixture.GuestId, fixture.Action), developmentFixture: true),
             DevelopmentDisorderEgressFixtureCommand fixture => _medical?.DevelopmentInterventionFixturesEnabled != true ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Development intervention fixture is disabled.") : ValidateDisorderCommand(envelope.TargetId, new(DisorderAction.SafeEgress, fixture.GuestId), developmentFixture: true),
+            SetProgrammeCommand programme => ValidateProgramme(envelope.TargetId, programme),
+            PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand => ValidateImmersionCommand(envelope.TargetId, envelope.Command),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture creation requires no target and a positive expiry."),

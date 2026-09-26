@@ -14,7 +14,10 @@ public partial class Main
     private Label _preparationSummary = null!;
     private Label _preparationPeople = null!;
     private ScrollContainer? _preparationRosterScroll;
+    private PanelContainer? _contextPanel;
     private readonly Dictionary<string, Button> _offerButtons = [];
+    private VBoxContainer? _preparationOfferBox;
+    private int _preparationOfferInsertIndex;
     private Button _preparationStart = null!;
     private Button? _communityShareButton;
     private Label? _waterFoundationHeading;
@@ -40,7 +43,7 @@ public partial class Main
         var viewportWidth = GetViewport().GetVisibleRect().Size.X;
         var viewportHeight = GetViewport().GetVisibleRect().Size.Y;
         var rightPanelX = viewportWidth - 420;
-        var livePanel = new PanelContainer { Position = new Vector2((viewportWidth - 400) / 2, 16), Size = new Vector2(400, 66) };
+        var livePanel = new PanelContainer { Position = new Vector2((viewportWidth - 400) / 2, 16), Size = new Vector2(400, _session.CaptureProgramme() is null ? 66 : 90) };
         livePanel.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(livePanel);
         _liveSetCue = LabelText("STAGE • awaiting booking", 16, new Color("29352c"));
         livePanel.AddChild(_liveSetCue);
@@ -55,26 +58,25 @@ public partial class Main
         _preparationSummary = LabelText("", 15, ink);
         _preparationSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _preparationSummary.CustomMinimumSize = new Vector2(370, 140); _preparationSummary.MaxLinesVisible = 9; box.AddChild(_preparationSummary);
+        BuildProgrammeControls(box);
+        BuildImmersionControls(box);
+        if (_session.CaptureProgramme() is not null)
+            _preparationMessage = "Book three different acts in order and hire the sound worker. Equipment and stock are optional.";
         if (_session.CaptureMedical() is not null)
             box.AddChild(LabelText("GENERATOR • safe 80% baseline", 13, ink));
         else if (_session.CaptureEquipment() is not null) BuildEquipmentControls(box);
         if (_session.CaptureMedical() is not null) BuildMedicalControls(box);
         if (_session.CaptureDisorder() is not null) BuildDisorderControls(box);
-        foreach (var offer in _session.GetPreparationOffers().OrderBy(item => item.Category == "maintenance" ? 0 : 1))
-        {
-            var button = ButtonText($"{offer.Name}  £{offer.PricePennies / 100m:0}", () => PreparationAccept(offer.Id));
-            button.AddThemeFontSizeOverride("font_size", 14);
-            button.ClipText = true; button.TooltipText = offer.Name;
-            _offerButtons.Add(offer.Id, button); box.AddChild(button);
-        }
+        _preparationOfferBox = box; _preparationOfferInsertIndex = box.GetChildCount();
+        RebuildPreparationOffers();
         if (_session.CommunityWaterShareDisclosure is { } disclosure)
         {
-            _communityShareInfo = LabelText(disclosure, 13, ink);
+            _communityShareInfo = LabelText(FestivalCopy(disclosure), 13, ink);
             _communityShareInfo.AutowrapMode = TextServer.AutowrapMode.WordSmart;
             _communityShareInfo.CustomMinimumSize = new Vector2(370, 0);
             box.AddChild(_communityShareInfo);
-            _communityShareButton = ButtonText("SHARE FREE WATER • THIS WEEKEND", () => CommitEquipmentAction(new CommitCommunityWaterShareCommand()));
-            _communityShareButton.TooltipText = disclosure;
+            _communityShareButton = ButtonText(FestivalCopy("SHARE FREE WATER • THIS WEEKEND").ToUpperInvariant(), () => CommitEquipmentAction(new CommitCommunityWaterShareCommand()));
+            _communityShareButton.TooltipText = FestivalCopy(disclosure);
             box.AddChild(_communityShareButton);
         }
         if (_session.CaptureMedical() is not null)
@@ -110,7 +112,8 @@ public partial class Main
         _preparationRosterScroll.AddChild(_preparationPeople);
         var inspectorHeight = Math.Max(300f, viewportHeight - 254f);
         var inspector = new PanelContainer { Position = new Vector2(rightPanelX, 238),
-            Size = new Vector2(400, inspectorHeight) };
+            Size = new Vector2(400, inspectorHeight), Visible = false };
+        _contextPanel = inspector;
         inspector.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(inspector);
         var inspectorScroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, inspectorHeight - 20) };
         inspector.AddChild(inspectorScroll);
@@ -119,14 +122,45 @@ public partial class Main
         BuildWaterFlowInspector(detail);
         BuildSatisfactionBar(detail);
         BuildMedicalNeedBars(detail);
+        BuildImmersionNeedBars(detail);
         _inspectorBody = LabelText("Click a building to inspect its retained identity.\nAll guests and workers remain protected people.", 14, ink);
         _inspectorBody.AutowrapMode = TextServer.AutowrapMode.WordSmart; detail.AddChild(_inspectorBody);
+        BuildImmersionVendorInspector(detail);
         BuildMedicalActionInspector(detail);
         BuildDisorderActionInspector();
+        BuildDisorderStageInspector(detail);
         BuildStagePowerAction(detail);
         BuildSecurityPostInspectorAction(detail);
         BuildHearingHud(layer);
         RefreshPreparationHud();
+    }
+
+    private static bool ContextVisualAvailable(Node3D? visual) => visual is not null &&
+        GodotObject.IsInstanceValid(visual) && !visual.IsQueuedForDeletion() && visual.Visible;
+
+    private void RefreshContextPanelVisibility()
+    {
+        if (_contextPanel is null) return;
+        var farm = _selected is { } item && _visualRegistry.TryGetValue(item.StableId, out var farmVisual) && ContextVisualAvailable(farmVisual);
+        var person = _selectedAttendeeId is { } id && _attendeeVisuals.TryGetValue(id, out var personVisual) && ContextVisualAvailable(personVisual);
+        var vendor = _selectedImmersionVendor is { } vendorId && _session.CaptureImmersion()?.Vendors.Any(v => v.Id == vendorId) == true &&
+            _immersionVendors.TryGetValue(vendorId, out var vendorVisual) && ContextVisualAvailable(vendorVisual);
+        var facility = _selectedMedicalFacility switch
+        {
+            MedicalFacility.Water => _session.CaptureWaterPoints().Any(point => point.Id == _selectedWaterPointId),
+            MedicalFacility.WaterTower => ContextVisualAvailable(_waterTowerVisual),
+            MedicalFacility.FirstAid => _session.CaptureMedical() is not null,
+            _ => false
+        };
+        _contextPanel.Visible = farm || person || vendor || facility ||
+            (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0);
+    }
+
+    private void AssertContextPanel(bool expected)
+    {
+        RefreshContextPanelVisibility();
+        if (_contextPanel?.Visible != expected || !_preparationSummary.IsVisibleInTree() || _preparationRosterScroll?.IsVisibleInTree() != true)
+            throw new InvalidOperationException("Context-panel visibility or retained global status/roster mismatch.");
     }
 
     private void PreparationAccept(string id)
@@ -143,6 +177,7 @@ public partial class Main
 
     private void PreparationStart()
     {
+        CancelImmersionPlacement();
         CancelWaterPlacement();
         var candidate = GameSession.Restore(_session.CapturePersistenceSnapshot());
         if (!candidate.IsSuccess) { _preparationMessage = candidate.Error!; RefreshPreparationHud(); return; }
@@ -162,25 +197,31 @@ public partial class Main
     private void PreparationSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-preparation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));
-        _preparationMessage = result.IsSuccess ? "Preparation / live weekend saved." : result.Error!;
+        _preparationMessage = result.IsSuccess ? FestivalCopy("Preparation / live weekend saved.") : result.Error!;
         RefreshPreparationHud();
     }
 
     private void PreparationLoad()
     {
+        CancelImmersionPlacement(); ResetImmersionHeldVisuals();
         CancelWaterPlacement();
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
         if (result.IsSuccess && result.Session!.CapturePreparation() is not null)
         {
+            var previousProgrammeMode = _session.CaptureProgramme() is not null;
+            var previousImmersionMode = _session.CaptureImmersion() is not null;
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null; ClearSecurityPostSelection(); _session = result.Session;
+            ResetFinanceFeedback();
             ClearSelection();
             SyncExtraWaterWorld();
+            SyncImmersionWorld();
             RefreshMedicalNeedBars(null);
             ResetLivePerformancePresentation();
             if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();
             _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
             _preparationSaveBlocked = false;
+            if (previousProgrammeMode != (_session.CaptureProgramme() is not null) || previousImmersionMode != (_session.CaptureImmersion() is not null)) RebuildPreparationOffers();
             _preparationMessage = "Loaded with the same offers, ownership and physical roster.";
         }
         else _preparationMessage = result.Error ?? "Save is not a prepared weekend.";
@@ -192,20 +233,26 @@ public partial class Main
         var p = _session.CapturePreparation()!;
         var snapshot = _session.CaptureSnapshot();
         var finance = snapshot.FestivalFinances.Single(item => item.OwnerId.Value == p.FinanceOwnerId);
-        var day = new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Min(2, (int)((_session.CurrentTick - p.StartedTick) / 12_800))];
+        var immersion = _session.CaptureImmersion();
+        var stockDescription = immersion is null ? $"stock {snapshot.OwnedStocks.Single(item => item.ServiceId.Value == p.StockId).Quantity}" :
+            $"chips {immersion.ChipsStock} • soft {immersion.SoftStock} • beer {immersion.BeerStock}";
+        var day = _session.CaptureProgramme() is not null ? "FESTIVAL DAY" : new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Min(2, (int)((_session.CurrentTick - p.StartedTick) / 12_800))];
         _preparationSummary.Text = $"Tier {p.Tier} • {p.Status}{(_session.IsPaused || _preparationSaveBlocked ? " • PAUSED" : "")} • {day}\n" +
-            $"£{finance.CashPennies / 100m:0.00} • debt £800 • stock {snapshot.OwnedStocks.Single(item => item.ServiceId.Value == p.StockId).Quantity}\n" +
-            $"{p.Tier * 20} mandatory guests + {p.People.Count(item => item.Role == ProtectedPersonRole.Staff)} staff + 3 performers\n" +
+            $"{FestivalCurrency.Format(finance.CashPennies)} • debt £800 • {stockDescription}\n" +
+            $"{p.Tier * 20} mandatory guests + {p.People.Count(item => item.Role == ProtectedPersonRole.Staff)} staff + {p.People.Count(item => item.Role == ProtectedPersonRole.Performer)} performers\n" +
             $"Owned rig: {p.OwnedEquipment.Length} • rental: {p.Rentals.Length} • known staff: {p.Contacts.Length}\n" +
-            $"8 live minutes + preparation/pauses; provisional pace.\n{_preparationMessage}";
+            $"{(_session.CaptureProgramme() is null ? "8 live minutes" : "5-minute festival day")} + preparation/pauses; provisional pace.\n{_preparationMessage}";
+        _preparationSummary.Text = FestivalCopy(_preparationSummary.Text);
+        RefreshProgrammeControls();
+        RefreshImmersionControls();
         foreach (var (id, button) in _offerButtons)
         {
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new AcceptPreparationOfferCommand(id))) is not null;
             button.Visible = p.Status == PreparationStatus.Preparing;
             if (id is "staff.extra-medic" or "staff.extra-steward" && _session.GetOptionalStaffOfferProfile(id == "staff.extra-medic" ? ResponseRole.Medic : ResponseRole.Steward) is { } profile)
             {
-                button.Text = $"HIRE {profile.Name.Split(' ')[0].ToUpperInvariant()} • {profile.Role.ToString().ToUpperInvariant()} • £30/WEEKEND";
-                button.TooltipText = $"{profile.Name}\n{StaffAbilityText(profile)}\n£30 prototype tuning. Paid weekend-only contract; expires on any outcome. Requires its role-specific slot.";
+                button.Text = FestivalCopy($"HIRE {profile.Name.Split(' ')[0].ToUpperInvariant()} • {profile.Role.ToString().ToUpperInvariant()} • £30/WEEKEND");
+                button.TooltipText = FestivalCopy($"{profile.Name}\n{StaffAbilityText(profile)}\n£30 prototype tuning. Paid weekend-only contract; expires on any outcome. Requires its role-specific slot.");
             }
         }
         _preparationStart.Disabled = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand())) is not null;
@@ -226,13 +273,14 @@ public partial class Main
             _waterPlacementStatus!.Visible = p.Status == PreparationStatus.Preparing;
         }
         if (_waterFoundationHeading is not null) _waterFoundationHeading.Visible = p.Status == PreparationStatus.Preparing;
-        _preparationSummary.TooltipText = _preparationMessage;
+        if (_communityShareInfo is not null) _communityShareInfo.Text = FestivalCopy(_communityShareInfo.Text);
+        _preparationSummary.TooltipText = FestivalCopy(_preparationMessage);
         var examples = p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Take(2)
             .Concat(p.People.Where(item => item.Role != ProtectedPersonRole.Guest));
-        _preparationPeople.Text = "FIXED WEEKEND ROSTER\n" +
+        _preparationPeople.Text = FestivalCopy("FIXED WEEKEND ROSTER").ToUpperInvariant() + "\n" +
             $"Arrived {p.People.Count(item => item.Admitted)}/{p.People.Length} • departed {p.People.Count(item => item.Departed)}/{p.People.Length}\n\n" +
-            string.Join("\n\n", examples.Select(item => $"[{(item.Name == "Jordan Hale" ? "STEWARD" : item.Role.ToString().ToUpperInvariant())}] {item.Name}\n" +
-                (item.Role == ProtectedPersonRole.Guest ? $"expects {(item.ExpectedGenre == 0 ? "folk" : "punk")} • satisfaction {item.Satisfaction / 100m:0}% • music risk {item.MusicRisk / 100m:0}%" : "Protected • physical arrival and departure"))) +
+            string.Join("\n\n", examples.Select(item => $"[{PersonPresentationRole(item).ToUpperInvariant()}] {item.Name}\n" +
+                (item.Role == ProtectedPersonRole.Guest ? $"prefers {(_session.CaptureProgramme() is null ? item.ExpectedGenre == 0 ? "folk" : "punk" : FestivalGenreName(item.ExpectedGenre))} • satisfaction {item.Satisfaction / 100m:0}% • music risk {item.MusicRisk / 100m:0}%" : "Protected • physical arrival and departure"))) +
             (_session.CaptureEquipment() is null ? "\n\nNo lethal chains or success rewards in this preparation slice." : "\n\nEquipment chain active. Fatal hearings are recorded.");
         RefreshLivePerformanceHud();
         RefreshEquipmentControls();
@@ -241,6 +289,28 @@ public partial class Main
         RefreshStaffControls();
         RefreshStagePowerAction();
         RefreshHearingHud();
+    }
+
+    private void RebuildPreparationOffers()
+    {
+        if (_preparationOfferBox is not { } box) return;
+        foreach (var button in _offerButtons.Values) { box.RemoveChild(button); button.QueueFree(); }
+        _offerButtons.Clear();
+        if (_session.CaptureProgramme() is not null && _programmeControls is null)
+        {
+            BuildProgrammeControls(box);
+            box.MoveChild(_programmeControls!, _preparationOfferInsertIndex++);
+        }
+        var index = _preparationOfferInsertIndex;
+        foreach (var offer in _session.GetPreparationOffers().OrderBy(item => item.Category == "maintenance" ? 0 : 1))
+        {
+            if (_session.CaptureImmersion() is not null && offer.Id == "contract.stock") continue;
+            if (_session.CaptureProgramme() is not null && offer.Category == "act") continue;
+            var id = offer.Id;
+            var button = ButtonText($"{FestivalCopy(offer.Name)}  £{offer.PricePennies / 100m:0}", () => PreparationAccept(id));
+            button.AddThemeFontSizeOverride("font_size", 14); button.ClipText = true; button.TooltipText = FestivalCopy(offer.Name);
+            _offerButtons.Add(id, button); box.AddChild(button); box.MoveChild(button, index++);
+        }
     }
 
     private void AdvancePreparationPresentation(double delta)
@@ -293,8 +363,10 @@ public partial class Main
                 watching.Contains(agent.Id), onStage.Contains(agent.Id), delta);
         }
         AdvanceLivePerformancePresentation(delta);
+        AdvanceImmersionPresentation(delta);
         AdvanceMedicalCuePresentation();
         AdvanceDisorderCuePresentation();
+        AdvanceImmersionCuePresentation();
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceIncidentAudioPresentation();
         ProcessLivePerformanceCapture();

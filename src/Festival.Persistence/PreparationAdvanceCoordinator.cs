@@ -13,7 +13,7 @@ public static class PreparationAdvanceCoordinator
     {
         if (session.PreparedStatus is null)
             return new(false, session, null, "A prepared edition is required.");
-        if (!session.PreparationBoundaryOnNextTick && !session.EquipmentBoundaryOnNextTick && !session.LivePerformanceBoundaryOnNextTick && !session.MedicalBoundaryOnNextTick && !session.DisorderBoundaryOnNextTick)
+        if (!session.ImmersionBoundaryOnNextTick && !session.PreparationBoundaryOnNextTick && !session.EquipmentBoundaryOnNextTick && !session.LivePerformanceBoundaryOnNextTick && !session.MedicalBoundaryOnNextTick && !session.DisorderBoundaryOnNextTick)
         {
             session.AdvanceWithoutSnapshot(1);
             return new(true, session, null, null);

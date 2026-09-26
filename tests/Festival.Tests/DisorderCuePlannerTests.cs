@@ -5,6 +5,49 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class DisorderCuePlannerTests
 {
+    [TestMethod]
+    public void DelayedBandQuestionsBecomeAngryWithExistingThrottlesAndNeverReplayAfterLoad()
+    {
+        var (baseline, medical) = Baseline();
+        var id = baseline.People[0].AgentId;
+        var planner = new DisorderCuePlanner();
+        planner.Reset(baseline, 799);
+        var waiting = baseline with { People = baseline.People.Select(person => person with
+            { Grievance = DisorderGrievance.BandDelayed, GrievanceTick = 800 }).ToArray() };
+        var mild = planner.Observe(waiting, medical, 800);
+        Assert.AreEqual(1, mild.Count);
+        Assert.IsTrue(mild.Single().Text is "Where is the band?" or "When are they starting?" or "Are they ready yet?" or "What's the hold-up?" or "Shouldn't the band be on?");
+        Assert.IsTrue(planner.Observe(waiting, medical, 920).Count <= DisorderCuePlanner.MaximumVisibleShouts);
+        var angry = waiting with { People = waiting.People.Select(person => person.AgentId == id
+            ? person with { Stage = DisorderStage.Agitated, StageTick = 1_440, Pressure = 3_000 } : person).ToArray() };
+        var stronger = planner.Observe(angry, medical, 1_440);
+        Assert.AreEqual(id, stronger.Single().AgentId);
+        Assert.IsTrue(stronger.Single().Text is "Start the music!" or "We've waited long enough!" or "Where the hell is the band?!" or "This delay is ridiculous!" or "Get on with it!");
+        var musicStarted = angry with { People = angry.People.Select(person => person with { Grievance = DisorderGrievance.None }).ToArray() };
+        Assert.AreEqual(0, planner.Observe(musicStarted, medical, 1_441).Count,
+            "A late-band phrase ends when actual music resolves its cause, even while pressure is still calming.");
+        planner.Reset(angry, 1_441);
+        Assert.AreEqual(0, planner.Observe(angry, medical, 1_441).Count);
+    }
+
+    [TestMethod]
+    public void DelayedBandQuestionYieldsToUrgentMedicalAndEndsWithResolvedGrievance()
+    {
+        var (baseline, medical) = Baseline();
+        var id = baseline.People[0].AgentId;
+        var planner = new DisorderCuePlanner();
+        planner.Reset(baseline, 799);
+        var waiting = baseline with { People = baseline.People.Select(person => person.AgentId == id
+            ? person with { Grievance = DisorderGrievance.BandDelayed, GrievanceTick = 800 } : person).ToArray() };
+        Assert.AreEqual(1, planner.Observe(waiting, medical, 800).Count);
+        var urgent = medical with { Needs = medical.Needs.Select(need => need.AgentId == id
+            ? need with { Stage = MedicalStage.Distress } : need).ToArray() };
+        Assert.AreEqual(0, planner.Observe(waiting, urgent, 801).Count);
+        planner.Reset(baseline, 799);
+        Assert.AreEqual(1, planner.Observe(waiting, medical, 800).Count);
+        Assert.AreEqual(0, planner.Observe(baseline, medical, 801).Count);
+    }
+
     private static (DisorderSnapshot Disorder, MedicalSnapshot Medical) Baseline()
     {
         var session = GameSession.CreateDisorderCampaign(20260925);

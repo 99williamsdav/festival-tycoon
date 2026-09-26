@@ -1,0 +1,84 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=short-overview tick=1820 actual_members=5 fifo=3,14,9,5,10 cells=95,125;95,127;94,129;94,132;94,134;94,136 physical=3:-16250,-1250:Arrived;14:-16250,-250:Arrived;9:-16750,984:Travelling;5:-16541,2003:Arrived;10:-16743,2707:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=short-detail tick=1820 actual_members=5 fifo=3,14,9,5,10 cells=95,125;95,127;94,129;94,132;94,134;94,136 physical=3:-16250,-1250:Arrived;14:-16250,-250:Arrived;9:-16750,984:Travelling;5:-16541,2003:Arrived;10:-16743,2707:Travelling
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=longest-observed-overview tick=1860 actual_members=11 fifo=3,14,9,5,10,21,4,6,19,13,20 cells=95,125;95,127;94,129;94,132;94,134;94,136;95,138;97,138;99,138;101,138;103,138;105,138 physical=3:-16250,-1250:Arrived;14:-16250,-250:Arrived;9:-16750,750:Arrived;5:-16541,2003:Arrived;10:-16750,3250:Arrived;21:-16750,4250:Arrived;4:-16141,4865:Travelling;6:-15065,5250:Travelling;19:-15087,4930:Travelling;13:-13630,5250:Travelling;20:-13126,5595:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=longest-observed-detail tick=1860 actual_members=11 fifo=3,14,9,5,10,21,4,6,19,13,20 cells=95,125;95,127;94,129;94,132;94,134;94,136;95,138;97,138;99,138;101,138;103,138;105,138 physical=3:-16250,-1250:Arrived;14:-16250,-250:Arrived;9:-16750,750:Arrived;5:-16541,2003:Arrived;10:-16750,3250:Arrived;21:-16750,4250:Arrived;4:-16141,4865:Travelling;6:-15065,5250:Travelling;19:-15087,4930:Travelling;13:-13630,5250:Travelling;20:-13126,5595:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=reloaded-stable tick=1860 actual_members=11 fifo=3,14,9,5,10,21,4,6,19,13,20 cells=95,125;95,127;94,129;94,132;94,134;94,136;95,138;97,138;99,138;101,138;103,138;105,138 physical=3:-16250,-1250:Arrived;14:-16250,-250:Arrived;9:-16750,750:Arrived;5:-16541,2003:Arrived;10:-16750,3250:Arrived;21:-16750,4250:Arrived;4:-16141,4865:Travelling;6:-15065,5250:Travelling;19:-15087,4930:Travelling;13:-13630,5250:Travelling;20:-13126,5595:Travelling
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=advanced-fifo tick=2260 actual_members=19 fifo=3,14,9,5,10,21,4,6,19,13,20,12,22,18,17,7,11,15,8 cells=95,125;95,127;94,129;94,132;94,134;94,136;95,138;97,138;99,138;101,138;103,138;105,138;107,138;109,138;111,138;113,138;115,138;117,138;119,138;121,138 physical=3:-16250,-1250:Arrived;14:-16250,-250:Arrived;9:-16750,750:Arrived;5:-16541,2003:Arrived;10:-16750,3250:Arrived;21:-16750,4250:Arrived;4:-16250,5250:Arrived;6:-15250,5250:Arrived;19:-14250,5250:Arrived;13:-13250,5250:Arrived;20:-12250,5250:Arrived;12:-11250,5250:Arrived;22:-10250,5250:Arrived;18:-9250,5250:Arrived;17:-8250,5250:Arrived;7:-7250,5250:Arrived;11:-6250,5250:Arrived;15:-5250,5250:Arrived;8:-4558,5169:Travelling
+ORGANIC_QUEUE_ROUTE_COMPLETE route=water-after-varied maximum=11 target_depth_reached=True reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=short-overview tick=2300 actual_members=3 fifo=7,10,12 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=7:8250,-320:Travelling;10:8250,3667:Travelling;12:8250,6026:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=short-detail tick=2300 actual_members=3 fifo=7,10,12 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=7:8250,-320:Travelling;10:8250,3667:Travelling;12:8250,6026:Travelling
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=longest-observed-overview tick=2500 actual_members=8 fifo=7,10,12,6,8,11,9,5 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=7:8250,-2250:Arrived;10:8250,-1250:Arrived;12:8250,-250:Arrived;6:8250,750:Arrived;8:8250,1750:Arrived;11:8250,3026:Travelling;9:8250,4902:Travelling;5:8250,5679:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=longest-observed-detail tick=2500 actual_members=8 fifo=7,10,12,6,8,11,9,5 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=7:8250,-2250:Arrived;10:8250,-1250:Arrived;12:8250,-250:Arrived;6:8250,750:Arrived;8:8250,1750:Arrived;11:8250,3026:Travelling;9:8250,4902:Travelling;5:8250,5679:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=reloaded-stable tick=2500 actual_members=8 fifo=7,10,12,6,8,11,9,5 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=7:8250,-2250:Arrived;10:8250,-1250:Arrived;12:8250,-250:Arrived;6:8250,750:Arrived;8:8250,1750:Arrived;11:8250,3026:Travelling;9:8250,4902:Travelling;5:8250,5679:Travelling
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=advanced-fifo tick=2900 actual_members=9 fifo=10,12,6,8,11,9,5,3,4 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=10:8250,-2250:Arrived;12:8250,-1250:Arrived;6:8250,-250:Arrived;8:8250,750:Arrived;11:8250,1750:Arrived;9:8250,2750:Arrived;5:8250,3750:Arrived;3:8250,4750:Arrived;4:8250,5750:Arrived
+ORGANIC_QUEUE_ROUTE_COMPLETE route=food-before-legacy-reference maximum=8 target_depth_reached=True reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=short-overview tick=2300 actual_members=3 fifo=7,10,12 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141;144,143 physical=7:8250,-682:Travelling;10:8250,3556:Travelling;12:8250,6616:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=short-detail tick=2300 actual_members=3 fifo=7,10,12 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141;144,143 physical=7:8250,-682:Travelling;10:8250,3556:Travelling;12:8250,6616:Travelling
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=longest-observed-overview tick=2420 actual_members=8 fifo=7,10,12,6,5,11,8,9 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141;144,143 physical=7:8250,-2250:Arrived;10:8250,136:Travelling;12:7963,2865:Travelling;6:7750,1250:Arrived;5:7750,2250:Arrived;11:7750,5958:Travelling;8:7872,6372:Travelling;9:8250,7696:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=longest-observed-detail tick=2420 actual_members=8 fifo=7,10,12,6,5,11,8,9 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141;144,143 physical=7:8250,-2250:Arrived;10:8250,136:Travelling;12:7963,2865:Travelling;6:7750,1250:Arrived;5:7750,2250:Arrived;11:7750,5958:Travelling;8:7872,6372:Travelling;9:8250,7696:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=reloaded-stable tick=2420 actual_members=8 fifo=7,10,12,6,5,11,8,9 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141;144,143 physical=7:8250,-2250:Arrived;10:8250,136:Travelling;12:7963,2865:Travelling;6:7750,1250:Arrived;5:7750,2250:Arrived;11:7750,5958:Travelling;8:7872,6372:Travelling;9:8250,7696:Travelling
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=advanced-fifo tick=2820 actual_members=9 fifo=10,12,6,5,11,8,9,3,4 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141;144,143 physical=10:8250,-2250:Arrived;12:8250,-1250:Arrived;6:8250,250:Arrived;5:7750,1250:Arrived;11:7750,2250:Arrived;8:7750,3250:Arrived;9:7750,4250:Arrived;3:8250,5750:Arrived;4:8250,6750:Arrived
+ORGANIC_QUEUE_ROUTE_COMPLETE route=food-after-varied maximum=8 target_depth_reached=True reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=short-overview tick=2500 actual_members=3 fifo=14,7,13 cells=160,124;160,126;160,128;160,130;160,132;160,134;160,136;160,138;160,140;160,142 physical=14:16250,2144:Travelling;7:16250,1560:Travelling;13:16250,7151:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=short-detail tick=2500 actual_members=3 fifo=14,7,13 cells=160,124;160,126;160,128;160,130;160,132;160,134;160,136;160,138;160,140;160,142 physical=14:16250,2144:Travelling;7:16250,1560:Travelling;13:16250,7151:Travelling
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=longest-observed-overview tick=2740 actual_members=9 fifo=14,7,13,12,5,11,3,4,9 cells=160,124;160,126;160,128;160,130;160,132;160,134;160,136;160,138;160,140;160,142 physical=14:16250,-1750:Arrived;7:16250,-750:Arrived;13:16250,250:Arrived;12:15968,1965:Travelling;5:16250,2250:Arrived;11:16550,5532:Travelling;3:16250,4250:Arrived;4:16250,5250:Arrived;9:16250,6953:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=longest-observed-detail tick=2740 actual_members=9 fifo=14,7,13,12,5,11,3,4,9 cells=160,124;160,126;160,128;160,130;160,132;160,134;160,136;160,138;160,140;160,142 physical=14:16250,-1750:Arrived;7:16250,-750:Arrived;13:16250,250:Arrived;12:15968,1965:Travelling;5:16250,2250:Arrived;11:16550,5532:Travelling;3:16250,4250:Arrived;4:16250,5250:Arrived;9:16250,6953:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=reloaded-stable tick=2740 actual_members=9 fifo=14,7,13,12,5,11,3,4,9 cells=160,124;160,126;160,128;160,130;160,132;160,134;160,136;160,138;160,140;160,142 physical=14:16250,-1750:Arrived;7:16250,-750:Arrived;13:16250,250:Arrived;12:15968,1965:Travelling;5:16250,2250:Arrived;11:16550,5532:Travelling;3:16250,4250:Arrived;4:16250,5250:Arrived;9:16250,6953:Travelling
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=advanced-fifo tick=3140 actual_members=2 fifo=13,4 cells=160,124;160,126;160,128 physical=13:16250,-1750:Arrived;4:16250,250:Travelling
+ORGANIC_QUEUE_ROUTE_COMPLETE route=drinks-before-legacy-reference maximum=9 target_depth_reached=True reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=short-overview tick=2540 actual_members=3 fifo=14,13,7 cells=160,124;160,126;160,128;161,130;161,133;161,135;161,137;160,139;160,141;160,144 physical=14:16250,515:Travelling;13:16250,6699:Travelling;7:16385,3385:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=short-detail tick=2540 actual_members=3 fifo=14,13,7 cells=160,124;160,126;160,128;161,130;161,133;161,135;161,137;160,139;160,141;160,144 physical=14:16250,515:Travelling;13:16250,6699:Travelling;7:16385,3385:Travelling
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=longest-observed-overview tick=2780 actual_members=8 fifo=13,7,12,5,11,8,9,4 cells=160,124;160,126;160,128;161,130;161,133;161,135;161,137;160,139;160,141;160,144 physical=13:16250,-1212:Travelling;7:16250,-233:Travelling;12:16339,2054:Travelling;5:16750,2309:Travelling;11:16835,5317:Travelling;8:16515,5529:Travelling;9:16506,7514:Travelling;4:16250,6130:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=longest-observed-detail tick=2780 actual_members=8 fifo=13,7,12,5,11,8,9,4 cells=160,124;160,126;160,128;161,130;161,133;161,135;161,137;160,139;160,141;160,144 physical=13:16250,-1212:Travelling;7:16250,-233:Travelling;12:16339,2054:Travelling;5:16750,2309:Travelling;11:16835,5317:Travelling;8:16515,5529:Travelling;9:16506,7514:Travelling;4:16250,6130:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=reloaded-stable tick=2780 actual_members=8 fifo=13,7,12,5,11,8,9,4 cells=160,124;160,126;160,128;161,130;161,133;161,135;161,137;160,139;160,141;160,144 physical=13:16250,-1212:Travelling;7:16250,-233:Travelling;12:16339,2054:Travelling;5:16750,2309:Travelling;11:16835,5317:Travelling;8:16515,5529:Travelling;9:16506,7514:Travelling;4:16250,6130:Travelling
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=advanced-fifo tick=3180 actual_members=1 fifo=4 cells=160,124;160,126 physical=4:16250,758:Travelling
+ORGANIC_QUEUE_ROUTE_COMPLETE route=drinks-after-varied maximum=8 target_depth_reached=True reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_CAPTURE_COMPLETE water_after_max=11 food_before_max=8 food_after_max=8 drinks_before_max=9 drinks_after_max=8 water_before_archived_members=1 actual_routes=True no_position_injection=True saved_reload=True paused_stable=True before_water_archived_save=True fixture_need_cooldown=True

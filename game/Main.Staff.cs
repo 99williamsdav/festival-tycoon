@@ -111,7 +111,7 @@ public partial class Main
             ("staff.steward-slot", "EXTRA STEWARD SLOT • FREE DEMO"), ("staff.role-training", "ALL MEDICS / STEWARDS UPGRADED • FREE DEMO") })
         {
             var button = ButtonText(text, () => CommitEquipmentAction(new ApplyStaffFoundationEffectCommand(effect)));
-            button.TooltipText = "Durable future-perk effect seam. No payment and no free worker. Extra hire contracts cost £30 each weekend; existing sound and maintenance contracts are unchanged.";
+            button.TooltipText = FestivalCopy("Durable future-perk effect seam. No payment and no free worker. Extra hire contracts cost £30 each weekend; existing sound and maintenance contracts are unchanged.");
             box.AddChild(button); _staffEffectButtons.Add(effect, button);
         }
     }

@@ -1,0 +1,44 @@
+passed AtomicBookingsReorderWithoutDuplicateFeesAndRejectReplacement (204ms)
+passed InsufficientFundsAndLateProgrammeCommandsLeaveStateUnchanged (92ms)
+passed MalformedProgrammeAndOutOfWindowLiveStateAreRejectedWithoutThrowing (66ms)
+passed IncomingCareRouteIsRetainedAndMissedSlotCannotExtendItsDeadline (118ms)
+passed DayTimingIsExplicitAndOldTimetableVersionsAreNotSilentlyMigrated (4ms)
+passed FullStaffCapacityHasThirtyFiveDistinctPhysicalPeople (933ms)
+  Standard output
+    35-person opening: max blocked people=0, routes=289, maximum blocked age=0
+    
+passed SameTierRetryKeepsNineIdentitiesAndTastesButClearsProgrammeAndContracts (1s 692ms)
+passed ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260926,True) (10s 938ms)
+  Standard output
+    Played 0,1,2; music starts=1078,5027,9130; actual music ticks=2922,2973,2870; nine stage identities=9; tick=12800; state=Departing; programme=Final set finished; performers remain on farm
+    
+passed ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260922,False) (9s 873ms)
+  Standard output
+    Played 0,1,2; music starts=1078,5027,9007; actual music ticks=2922,2973,2993; nine stage identities=9; tick=12800; state=Departing; programme=Final set finished; performers remain on farm
+    
+passed BookedBandRoleTitlesRetainIdentityAndFollowReorderAndRestore (8ms)
+passed NinePerformerMedicalProfilesRemainProtectedAndSaved (658ms)
+failed UpcomingAnticipationIsFiniteAndClampedAndSurvivesRestore (656ms)
+  Assertion failed. Expected condition to be true.
+  
+  actual: false
+  
+  Assert.IsTrue(session.ScheduledSilence)
+  Expected
+    true
+  Actual
+    false
+    at Festival.Tests.TimetableNeedsTests.UpcomingAnticipationIsFiniteAndClampedAndSurvivesRestore() in /_/tests/Festival.Tests/TimetableNeedsTests.cs:67
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+passed UrgentThirstWinsUpcomingMusicAndNeedsChoiceRestoresDeterministically (689ms)
+passed IdlePerformerHeatChoosesPhysicalRestWithoutStageEntitlement (1s 024ms)
+passed FuturePerformerRetainsWarningCollapseCriticalAndFirstDeathProtection (1s 715ms)
+passed PlannedSilenceDoesNotCreateMusicCutoffButActualPowerCutDoes (880ms)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 16
+  failed: 1
+  succeeded: 15
+  skipped: 0
+  duration: 29s 677ms

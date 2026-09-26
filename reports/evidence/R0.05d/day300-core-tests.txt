@@ -1,0 +1,57 @@
+passed AtomicBookingsReorderWithoutDuplicateFeesAndRejectReplacement (206ms)
+passed InsufficientFundsAndLateProgrammeCommandsLeaveStateUnchanged (97ms)
+passed MalformedProgrammeAndOutOfWindowLiveStateAreRejectedWithoutThrowing (79ms)
+passed IncomingCareRouteIsRetainedAndMissedSlotCannotExtendItsDeadline (124ms)
+passed DayTimingIsExplicitAndOldTimetableVersionsAreNotSilentlyMigrated (6ms)
+passed FullStaffCapacityHasThirtyFiveDistinctPhysicalPeople (892ms)
+  Standard output
+    35-person opening: ticks=2000, elapsedMs=787.2, max blocked people=0, routes=238, maximum blocked age=0
+    
+passed SameTierRetryKeepsNineIdentitiesAndTastesButClearsProgrammeAndContracts (1s 375ms)
+passed ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260926,True) (8s 501ms)
+  Standard output
+    Played 0,1,2; music starts=1200,9200,17292; actual music ticks=6000,6000,5908; nine stage identities=9; tick=24000; state=Departing; programme=Final set finished; performers remain on farm
+    
+passed ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260922,False) (7s 875ms)
+  Standard output
+    Played 0,1,2; music starts=1200,9200,17200; actual music ticks=6000,6000,6000; nine stage identities=9; tick=24000; state=Departing; programme=Final set finished; performers remain on farm
+    
+passed ThreeStablePerformersTravelAndListenersAccrueOnlyWhileWatching (256ms)
+passed BandHoldsOffStageUntilLeadThenEquipsAtMarksBeforeSetStart (212ms)
+passed IsolationProducesImmediateSilenceThenOnlyDelayedBoo (229ms)
+passed FullFrontageFallsBackAndFinishedSetDoesNotRewardTwice (1s 219ms)
+passed BandUsesSavedSideAccessAndNeverReportsExitArrivalAsOnStage (613ms)
+passed ListeningCountsExactEligibleTicksAcrossSetStartAndPowerCut (412ms)
+passed PerformedPoweredSetEndsOnceWithFrozenActualAudienceAndEnjoymentAndExactReload (1s 531ms)
+  Standard output
+    actual end 7200; audience 20; enjoyment 14201; strength 0.3768; enthusiastic True
+    
+passed ActualPowerCutAtDeadlineCannotBecomeSetEndApplause (1s 357ms)
+passed MissedUnplayedSlotHasNoApplauseAndCannotCountOwnedMedicalListeners (2s 901ms)
+passed EndAudienceTamperAndImpossibleEnjoymentAreRejectedAndAbsentPayloadPreservesLegacyCanonical (1s 391ms)
+passed ApplauseStrengthAndClipChoiceScaleWithActualAudienceAndEarnedEnjoyment (1ms)
+passed LateReadinessStartsAtScheduledBoundaryAndExcludesPreShowAndChangeover (1s 693ms)
+passed ActualMedicalDelayWarnsGraduallyThenRelievesWhenMusicReallyBeginsAndRestoresExactly (846ms)
+  Standard output
+    band warning 1800; agitation 2184; pressure 3000; enthusiasm 98; temperament 5971
+    
+passed BlockedOutgoingPhysicalPerformerMakesNextActualSlotLateWhileOldSlotRemainsFinished (1s 427ms)
+passed BandDelayCannotReplaceUrgentMedicalOwnershipOrDoubleCountAnActualPowerCut (766ms)
+passed PhysicalWaterTripCanDelayPerformerAndOnlyNormalDrinkingReleasesEntry (942ms)
+  Standard output
+    water-delayed performer=24 drank=True waterFinished=2764 outcome=Live actualStarted=3526 fixedEnd=7200
+    
+passed BandDelayGrievanceRejectsLegacyOrPreScheduledOnsetTamper (431ms)
+passed NinePerformerMedicalProfilesRemainProtectedAndSaved (442ms)
+passed UpcomingAnticipationIsFiniteAndClampedAndSurvivesRestore (349ms)
+passed UrgentThirstWinsUpcomingMusicAndNeedsChoiceRestoresDeterministically (464ms)
+passed IdlePerformerHeatChoosesPhysicalRestWithoutStageEntitlement (670ms)
+passed FuturePerformerRetainsWarningCollapseCriticalAndFirstDeathProtection (1s 140ms)
+passed PlannedSilenceDoesNotCreateMusicCutoffButActualPowerCutDoes (582ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 32
+  failed: 0
+  succeeded: 32
+  skipped: 0
+  duration: 39s 156ms

@@ -1,0 +1,101 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=c7d5fb5db9faa3167b5465111d8b9d1a5374d4a90831c784761e88f61620380e
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+TIMETABLE_UI legacy_and_programme_load=True exact_booked_hash=True
+TIMETABLE_STATE name=booked tick=0 slot=-1 phase= ready= people=32 performers=9 admitted=0 departed=0 status=Programme booked hash=86908ce4f561c15278b1118054ad6e5e80ca199879bcb609cf0363b073901567
+ATTENDEE_SELECTED id=26 orientation=South
+TIMETABLE_STATE name=scheduled-first-start tick=1200 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=3db0c8b801871bd744f69056b79b1ca0cb1a83f1fa5abcf73d83043aab178211
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+FESTIVAL_AUDIO act=act.meadow-lanterns genre=0 stream=res://assets/audio/folk_loop_v1.wav playing=True
+TIMETABLE_STATE name=checkpoint tick=2000 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d5c553349a71b8e00a46921a6ca8a64157dbb2e233aaf4319720be8a9efd89d7
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=first-set tick=2000 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d5c553349a71b8e00a46921a6ca8a64157dbb2e233aaf4319720be8a9efd89d7
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/folk_loop_v1.wav playing=True expected=True
+FESTIVAL_AUDIO act=act.barnstorm-circuit genre=1 stream=res://assets/audio/rock_loop_v2.wav playing=True
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/rock_loop_v2.wav playing=True expected=True
+TIMETABLE_ROCK duration=16.695646 same_live_phase=True
+FESTIVAL_AUDIO act=act.meadow-lanterns genre=0 stream=res://assets/audio/folk_loop_v1.wav playing=True
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/folk_loop_v1.wav playing=True expected=True
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/folk_loop_v1.wav playing=False expected=False
+FARM_SELECTION_CLEARED
+FESTIVAL_AUDIO act=act.meadow-lanterns genre=0 stream=res://assets/audio/folk_loop_v1.wav playing=True
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/folk_loop_v1.wav playing=True expected=True
+TIMETABLE_AUDIO_RELOAD exact_hash=True no_replayed_reaction=True power_cut_silence=True
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=22 tick=2000
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=4 tick=4320
+TIMETABLE_STATE name=checkpoint tick=7360 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=46c427b3dab8d5e302d8f5cb56e016b9313c3b86f6f5689792d27a324213280e
+TIMETABLE_BAND person=24 physical=-13606,14250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-14750,13221 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13463,15250 action=Travelling intent=medical.free-water-approach instrument=False
+SET_END_APPLAUSE act=act.meadow-lanterns sequence=2 audience=18 enjoyment=9377 strength=0.267 playing=True count=1
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/folk_loop_v1.wav playing=False expected=False
+TIMETABLE_STATE name=first-changeover tick=7360 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=46c427b3dab8d5e302d8f5cb56e016b9313c3b86f6f5689792d27a324213280e
+TIMETABLE_BAND person=24 physical=-13606,14250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-14750,13221 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13463,15250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_SAVE changeover_exact=True
+FARM_SELECTION_CLEARED
+SET_END_APPLAUSE_RELOAD exact_hash=True replay=False
+TIMETABLE_STATE name=checkpoint tick=10200 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=da8156855bdd1a0043c4a4ea52d5032980a70895af2f6554951e77f33ed422e2
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=second-set tick=10200 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=da8156855bdd1a0043c4a4ea52d5032980a70895af2f6554951e77f33ed422e2
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+FESTIVAL_AUDIO act=act.neon-postcards genre=2 stream=res://assets/audio/pop_loop_v1.wav playing=True
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/pop_loop_v1.wav playing=True expected=True
+TIMETABLE_STATE name=checkpoint tick=15360 slot=1 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=d3062b218cac4105eca8ae27be07b414feda5b2406fb1c6b2abc55b4f63de06c
+TIMETABLE_BAND person=29 physical=-14217,14250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=30 physical=-15250,12936 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=31 physical=-13581,14250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=second-changeover tick=15360 slot=1 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=d3062b218cac4105eca8ae27be07b414feda5b2406fb1c6b2abc55b4f63de06c
+TIMETABLE_BAND person=29 physical=-14217,14250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=30 physical=-15250,12936 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=31 physical=-13581,14250 action=Travelling intent=medical.free-water-approach instrument=False
+SET_END_APPLAUSE act=act.neon-postcards sequence=2 audience=19 enjoyment=11634 strength=0.318 playing=True count=2
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/pop_loop_v1.wav playing=False expected=False
+TIMETABLE_STATE name=checkpoint tick=18200 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e537567cfcbcff0f8401ad772d800c1c443e55876c48a3ff654eab74dffc28e5
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=third-set tick=18200 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e537567cfcbcff0f8401ad772d800c1c443e55876c48a3ff654eab74dffc28e5
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+FESTIVAL_AUDIO act=act.field-frequency genre=3 stream=res://assets/audio/electronic_loop_v1.wav playing=True
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/electronic_loop_v1.wav playing=True expected=True
+TIMETABLE_STATE name=checkpoint tick=23600 slot=2 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Final set finished; performers remain on farm hash=cb545f0968856174ccc15ffb8b0e9089cfa767b8632a5f2f81266de76847372b
+TIMETABLE_BAND person=32 physical=-12639,8861 action=Travelling intent=medical.return instrument=False
+TIMETABLE_BAND person=33 physical=-12504,10496 action=Travelling intent=medical.return instrument=False
+TIMETABLE_BAND person=34 physical=-12606,7894 action=Travelling intent=medical.return instrument=False
+TIMETABLE_STATE name=wind-down tick=23600 slot=2 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Final set finished; performers remain on farm hash=cb545f0968856174ccc15ffb8b0e9089cfa767b8632a5f2f81266de76847372b
+TIMETABLE_BAND person=32 physical=-12639,8861 action=Travelling intent=medical.return instrument=False
+TIMETABLE_BAND person=33 physical=-12504,10496 action=Travelling intent=medical.return instrument=False
+TIMETABLE_BAND person=34 physical=-12606,7894 action=Travelling intent=medical.return instrument=False
+SET_END_APPLAUSE act=act.field-frequency sequence=2 audience=19 enjoyment=11967 strength=0.326 playing=True count=3
+TIMETABLE_AUDIO_CHECK stream=res://assets/audio/electronic_loop_v1.wav playing=False expected=False
+TIMETABLE_STATE name=checkpoint tick=24001 slot=2 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Final set finished; performers remain on farm hash=97ebde46fa2b12f3b221b4eeb9c2bcf7572a0dc125e77ad915f504ab6605ef81
+TIMETABLE_BAND person=32 physical=-3886,17114 action=Travelling intent=edition.departure instrument=False
+TIMETABLE_BAND person=33 physical=-3514,19277 action=Travelling intent=edition.departure instrument=False
+TIMETABLE_BAND person=34 physical=-3249,17251 action=Travelling intent=edition.departure instrument=False
+TIMETABLE_STATE name=physical-final-departure tick=25367 slot=2 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=32 status=Final set finished; performers remain on farm hash=db50f88e49bbc94c4a469e54dbd418b6127eca1dd8e30b720adabec4a2bdbacd
+TIMETABLE_BAND person=32 physical=2250,35250 action=Arrived intent=edition.departure instrument=False
+TIMETABLE_BAND person=33 physical=-2750,36250 action=Arrived intent=edition.departure instrument=False
+TIMETABLE_BAND person=34 physical=-1750,36250 action=Arrived intent=edition.departure instrument=False
+TIMETABLE_CAPTURE_COMPLETE three_sets=True protected_performers=9 physical_departure=True existing_graphics=True

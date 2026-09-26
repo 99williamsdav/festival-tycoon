@@ -147,7 +147,7 @@ public partial class Main
         var stampStyle = PaperStyle(new Color("995541")); stampStyle.BorderColor = new Color("995541"); stampStyle.ShadowSize = 0;
         stamp.AddThemeStyleboxOverride("panel", stampStyle); headingWords.AddChild(stamp);
         var stampMargin = HearingMargins(8, 4); stamp.AddChild(stampMargin);
-        stampMargin.AddChild(LabelText("WEEKEND ENDED", 17, new Color("fff8ec")));
+        stampMargin.AddChild(LabelText(FestivalCopy("WEEKEND ENDED"), 17, new Color("fff8ec")));
         headingWords.AddChild(HearingGap(8));
         var title = LabelText("Council hearing", 45, ink);
         title.AddThemeFontOverride("font", HearingSerif()); headingWords.AddChild(title);
@@ -253,8 +253,8 @@ public partial class Main
         var hearing = lifecycle!.Hearings[^1];
         var casualty = lifecycle.Casualties[^1];
         var account = CouncilHearingPresenter.From(casualty);
-        var weekendDay = new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Clamp((int)((casualty.Tick - preparation!.StartedTick) / 12_800), 0, 2)];
-        _hearingMast!.Text = $"TIER {preparation.Tier} · {weekendDay} · ATTEMPT {preparation.Attempt}";
+        var weekendDay = _session.CaptureProgramme() is null ? new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Clamp((int)((casualty.Tick - preparation!.StartedTick) / 12_800), 0, 2)] : "FESTIVAL DAY";
+        _hearingMast!.Text = $"TIER {preparation!.Tier} · {weekendDay} · ATTEMPT {preparation.Attempt}";
         _hearingBalance!.Text = $"{lifecycle.FixtureFavourBalance}";
         _hearingBalanceState!.Text = lifecycle.FixtureFavourBalance == 0 ? "NONE LEFT" : "AVAILABLE";
         _hearingPerson!.Text = account.Person;
@@ -270,9 +270,11 @@ public partial class Main
             : hearing.Status == HearingStatus.LostNoFavour
                 ? "No Favour remains. The licence is lost; the campaign is over and no retry remains."
                 : "This weekend has ended.";
+        _hearingOutcome.Text = FestivalCopy(_hearingOutcome.Text);
         _hearingFoot!.Text = showChoices
             ? $"This weekend has ended. Spend 1 Favour to retry Tier {preparation.Tier}, or concede the licence."
             : "This weekend has ended.";
+        _hearingFoot.Text = FestivalCopy(_hearingFoot.Text);
     }
 
     private void ConfirmHearing(SessionCommand command)
@@ -284,6 +286,7 @@ public partial class Main
         {
             _hearingConfirmTitle!.Text = "It won’t happen again?";
             _hearingConfirmCopy!.Text = $"Spend 1 Favour to keep the licence and retry Tier {preparation.Tier}. This failed weekend stays on the record.";
+            _hearingConfirmCopy.Text = FestivalCopy(_hearingConfirmCopy.Text);
             _hearingConfirmTerms!.Text = $"Favour {balance} → {balance - 1} · same-tier retry";
             _hearingConfirmAction!.Text = "Spend 1 Favour";
         }
@@ -316,6 +319,7 @@ public partial class Main
         _preparationMessage = command is SpendCouncilFavourCommand ? "Council Favour spent. Prepare this tier’s next weekend." : "The campaign has ended.";
         if (command is SpendCouncilFavourCommand)
         {
+            ResetFinanceFeedback();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;
             ResetLivePerformancePresentation();

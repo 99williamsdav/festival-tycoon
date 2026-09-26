@@ -1,0 +1,11 @@
+passed SuccessfulExpensesEmitOnceRejectedCommandsNeverEmitAndHashIsUntouched (157ms)
+passed SameTickSalesProjectFestivalCashNotBuyerDebitOrCostAndLoadResetsHistory (290ms)
+passed SuccessfulClonedCommandSessionStillEmitsRatherThanSilentlyResetting (89ms)
+passed TransactionIdentityScopesCampaignAttemptAndPaymentId (2ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 4
+  failed: 0
+  succeeded: 4
+  skipped: 0
+  duration: 656ms

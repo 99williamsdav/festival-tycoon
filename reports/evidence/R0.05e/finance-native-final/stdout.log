@@ -1,0 +1,48 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=391fccafc2dd473047698f9717416bca78cf43ccc3c2ba47173672836acc3176
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+FINANCE_FEEDBACK transaction=cash:20260922:1:stock:immersion-stock:20260922:1 cash_pennies=-9600 anchor=stock
+FARM_SELECTION_CLEARED
+FINANCE_FEEDBACK transaction=cash:20260922:1:preparation:1 cash_pennies=-4000 anchor=programme
+FINANCE_FEEDBACK transaction=cash:20260922:1:preparation:2 cash_pennies=-11000 anchor=programme
+FINANCE_FEEDBACK transaction=cash:20260922:1:preparation:3 cash_pennies=-8500 anchor=programme
+FINANCE_FEEDBACK transaction=cash:20260922:1:preparation:4 cash_pennies=-2000 anchor=offer:staff.steward
+FINANCE_FEEDBACK transaction=cash:20260922:1:preparation:5 cash_pennies=-12000 anchor=offer:equipment.buy
+TIMETABLE_STATE name=checkpoint tick=160 slot=0 phase=BeforeSet ready=0 people=32 performers=9 admitted=0 departed=0 status=Performers approaching stage hash=3318a1257086b6d48532b8a125595c0e8d7422736e6ac7287e95c4d105e82573
+TIMETABLE_BAND person=24 physical=-3220,31280 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=25 physical=-1862,30578 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=26 physical=-1313,30687 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=320 slot=0 phase=BeforeSet ready=0 people=32 performers=9 admitted=1 departed=0 status=Performers approaching stage hash=4adf2f217a4842a4f6cf9654ff2d48d96bc1d4680aa1bc84329472cf3d856d53
+TIMETABLE_BAND person=24 physical=-6444,28056 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=25 physical=-3224,25276 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=26 physical=-4877,27123 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=480 slot=0 phase=BeforeSet ready=0 people=32 performers=9 admitted=2 departed=0 status=Performers approaching stage hash=040f9d4fbba937bd58437b312dc74391db1aca47038e476b617029877aeec360
+TIMETABLE_BAND person=24 physical=-9669,24831 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=25 physical=-6618,21882 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=26 physical=-8441,23559 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=640 slot=0 phase=BeforeSet ready=0 people=32 performers=9 admitted=22 departed=0 status=Performers approaching stage hash=c1a2eb504d5794a92366f165cd5511e3af9851842e055671aafc5e4974326699
+TIMETABLE_BAND person=24 physical=-12893,21607 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=25 physical=-10012,18488 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=26 physical=-12005,19995 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=800 slot=0 phase=BeforeSet ready=0 people=32 performers=9 admitted=28 departed=0 status=Performers approaching stage hash=a907d0d8040b0ccdc98afb8ac4fe9edb17f75a247d8a591c6443ef0a9af3b8e8
+TIMETABLE_BAND person=24 physical=-13250,17195 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=25 physical=-13250,15029 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=26 physical=-13250,15471 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=960 slot=0 phase=BeforeSet ready=0 people=32 performers=9 admitted=31 departed=0 status=Performers approaching stage hash=e62406d1abdd6e2e407982f2c88033227573654583537edc6519769b2307b2fc
+TIMETABLE_BAND person=24 physical=-14799,14201 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=25 physical=-16710,12290 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=26 physical=-16945,12555 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=1120 slot=0 phase=BeforeSet ready=3 people=32 performers=9 admitted=31 departed=0 status=Performers approaching stage hash=4cf98acda734291cef3006950b02f4dc5dce4aefb368d8a66f42347c5d018e98
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=1280 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=41bf90dc662c9d58b509e38e9015be695290f1e1646a57b60614bfcb78df7fd4
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+FINANCE_FEEDBACK transaction=cash:20260922:1:sale:immersion:1:1 cash_pennies=300 anchor=vendor.drinks
+FARM_SELECTION_CLEARED
+FINANCE_CAPTURE_COMPLETE actual_expense=-9600 actual_sale_credit=300 dedup=True load_replay=False early_mid_expired=True alpha_drift_hash=True actual_programme_aggregation=True labelled_cosmetic_capacity=True max_visible=8 overflow_loss=False

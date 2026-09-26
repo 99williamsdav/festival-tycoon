@@ -16,6 +16,8 @@ public partial class Main
     private AudioStreamPlayer? _crowdBoo;
     private AudioStreamPlayer? _crowdCheer;
     private AudioStreamPlayer? _bandEntryApplause;
+    private AudioStreamPlayer? _setEndApplause;
+    private int _setEndApplausePlayCount;
     private bool _bandEntryReactionPlayed;
     private int _stageAudioBus = -1;
     private int _lastReactionSequence = -1;
@@ -33,15 +35,19 @@ public partial class Main
 
     private void ResetLivePerformancePresentation()
     {
+        ResetImmersionHeldVisuals();
+        ResetImmersionCuePresentation();
         _performerInstruments.Clear();
         _lastPresentedPersonPositions.Clear();
         _presentedSetStage = null;
+        _presentedActId = null;
         _lastReactionSequence = _session.CaptureLivePerformance()?.ReactionSequence ?? -1;
         _bandEntryReactionPlayed = _session.CaptureLivePerformance()?.Performers.Any(item => item.OnStage) ?? false;
         _stageMusic?.Stop();
         _crowdBoo?.Stop();
         _crowdCheer?.Stop();
         _bandEntryApplause?.Stop();
+        _setEndApplause?.Stop();
         ResetIncidentAudioPresentation();
         _booFadeSeconds = 0;
         if (_liveSetCue is not null) _liveSetCue.Text = "STAGE • awaiting booking";
@@ -82,18 +88,18 @@ public partial class Main
             Mathf.Clamp((float)delta * 7f, 0f, 1f)), 0);
     }
 
-    private static string PerformerBodyPath(string name) => name switch
+    private static string PerformerBodyPath(int role) => role switch
     {
-        "Alex Reed" => "res://assets/characters/lwf_performer_frontperson_body_v1.glb",
-        "Blair Moss" => "res://assets/characters/lwf_performer_bassist_body_v1.glb",
-        "Kit Rowan" => "res://assets/characters/lwf_performer_drummer_body_v1.glb",
+        0 => "res://assets/characters/lwf_performer_frontperson_body_v1.glb",
+        1 => "res://assets/characters/lwf_performer_bassist_body_v1.glb",
+        2 => "res://assets/characters/lwf_performer_drummer_body_v1.glb",
         _ => "res://assets/characters/lwf_generic_attendee_v1.glb"
     };
 
-    private static string PerformerKitPath(string name) => name switch
+    private static string PerformerKitPath(int role) => role switch
     {
-        "Alex Reed" => "res://assets/characters/lwf_performer_acoustic_guitar_kit_v1.glb",
-        "Blair Moss" => "res://assets/characters/lwf_performer_solid_bass_kit_v1.glb",
+        0 => "res://assets/characters/lwf_performer_acoustic_guitar_kit_v1.glb",
+        1 => "res://assets/characters/lwf_performer_solid_bass_kit_v1.glb",
         _ => throw new InvalidOperationException("The drum kit is a fixed stage prop, not a body attachment.")
     };
 
@@ -113,6 +119,24 @@ public partial class Main
               $"Band {live.Performers.Count(item => item.OnStage)}/3 on deck • listeners {listeners}/{live.Listeners.Length}"
             : $"STAGE • {live.Stage} • {elapsed / 80}s / 120s\n" +
               $"Band {live.Performers.Count(item => item.OnStage)}/3 • listeners {listeners}/{live.Listeners.Length} • cue {live.LastReaction}";
+        if (_session.CaptureProgramme() is { } programme)
+        {
+            var act = _session.CurrentFestivalAct;
+            var next = _session.UpcomingFestivalAct;
+            var status = _session.PreparedStatus switch
+            {
+                PreparationStatus.Finished => "Festival finished • everyone physically departed",
+                PreparationStatus.Departing => "Festival closing • ordinary gate departure",
+                _ => programme.Status
+            };
+            if (_session.LateReadyFestivalAct is { } late)
+                status = $"LATE • waiting for {late.Name} • performers not ready";
+            _liveSetCue.Text = $"FESTIVAL • SET {Math.Clamp(programme.CurrentSlot + 1, 1, 3)}/3 • {live.Stage}\n" +
+                $"{act?.Name ?? "Awaiting booking"} • {FestivalGenreName(act?.Genre ?? -1)} • {live.Performers.Count(item => item.OnStage)}/3 ready\n" +
+                $"{status} • next {next?.Name ?? "wind-down"}";
+            if (ImmersionHeavyOnSiteCount() is var heavy && heavy > 0)
+                _liveSetCue.Text += $"\n! {heavy} HEAVY INTOXICATION • SELECT FOR MEDIC CARE";
+        }
     }
 
     private void RefreshLivePersonInspector(EntityId id, NavigationObservation navigation, PreparationSnapshot preparation)
@@ -125,17 +149,33 @@ public partial class Main
         RefreshMedicalNeedBars(need);
         var listening = live?.Listeners.SingleOrDefault(item => item.AgentId == id.Value);
         var performer = live?.Performers.SingleOrDefault(item => item.AgentId == id.Value);
+        var placeActivity = listening?.AtPlace == true ? "watching" : "travelling/not watching";
+        if (_session.CaptureProgramme() is not null)
+            placeActivity = person.Departed ? "left festival" : live?.Stage != LiveSetStage.Live
+                ? "not listening • scheduled silence or interrupted set" : placeActivity;
         var detail = listening is not null
             ? $"FIT  {(listening.Enthusiasm >= 60 ? "booked style" : "other style")} • interest {listening.Enthusiasm}%\n" +
               "SPACE  personal crowd comfort • more interest tolerates more nearby people\nClear forward space preferred; step aside/back when too crowded\n" +
               $"VOLUNTARY STAGE WALK  {GameSession.AudiencePacePermille(listening.Enthusiasm) / 10m:0}% × natural {GameSession.GetWalkingSpeedPermille(id) / 10m:0}%\nOther routes keep natural pace\n" +
-              $"PLACE  {(listening.Place is { } place ? $"{place.X},{place.Z}" : "not reserved")} • {(listening.AtPlace ? "watching" : "travelling/not watching")}\n" +
+              $"PLACE  {(listening.Place is { } place ? $"{place.X},{place.Z}" : "not reserved")} • {placeActivity}\n" +
               $"LISTENED  {listening.ListenedTicks / 80}s • enjoyment +{listening.EnjoymentEarned / 100m:0.00}%"
             : performer is not null ? $"STAGE  {performer.StageCell.X},{performer.StageCell.Z} • {(performer.OnStage ? "on stage" : "travelling/exit")}\n" +
               $"INSTRUMENT  {(performer.InstrumentAttached ? "attached for set" : "detached")}" :
               person.Name == "Jordan Hale" ? "STEWARD • autonomous physical route" : "STAFF • autonomous physical route";
+        if (_session.CaptureProgramme() is { } programme)
+        {
+            if (listening is not null)
+                detail = $"MAIN TASTE {FestivalGenreName(person.ExpectedGenre)}\n" +
+                    $"CURRENT {_session.CurrentFestivalAct?.Name ?? "none"} • interest {listening.Enthusiasm}%\n" +
+                    $"UPCOMING {_session.UpcomingFestivalAct?.Name ?? "none"}" +
+                    (_session.UpcomingFestivalAct is { } next ? $" • interest {_session.FestivalAffinity(id.Value, next)}%" : "") + "\n" + detail;
+            else if (programme.Performers.SingleOrDefault(item => item.AgentId == id.Value) is { } bandMember)
+                detail = $"SET {bandMember.SlotIndex + 1} • " +
+                    (programme.ActIds.Length == 3 ? _session.GetFestivalActs().Single(act => act.Id == programme.ActIds[bandMember.SlotIndex]).Name : "not booked") +
+                    "\nProtected all festival; ordinary water/rest and physical departure.\n" + detail;
+        }
         _highlight.Position = _attendeeVisuals[id].Position + new Vector3(0, 0.08f, 0);
-        _inspectorTitle.Text = $"{person.Name} • {(person.Name == "Jordan Hale" ? "Steward" : person.Role)}";
+        _inspectorTitle.Text = $"{person.Name} • {PersonPresentationRole(person)}";
         _inspectorBody.Text = $"{navigation.Action} • {StewardWording(navigation.IntentId ?? "None")}\n" +
             $"POSITION  {navigation.XMillimetres / 1000.0:0.00} m, {navigation.ZMillimetres / 1000.0:0.00} m\n" +
             $"Admitted {person.Admitted}\n" +
@@ -144,7 +184,7 @@ public partial class Main
                 $"INTENT {need.Intent} • {StewardWording(need.Reason)}\n" +
                 (medical!.WaterOwnerId == id.Value
                     ? $"DRINKING • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n"
-                    : "")) + StaffInterventionTargetText(id.Value) + DisorderPersonInspectorText(id.Value) + detail;
+                    : "")) + StaffInterventionTargetText(id.Value) + DisorderPersonInspectorText(id.Value) + detail + ImmersionPersonInspectorText(id.Value);
     }
 
     private void EnsureStageDrumKit()
@@ -177,6 +217,8 @@ public partial class Main
         AddChild(_crowdCheer);
         _bandEntryApplause = new AudioStreamPlayer { Bus = "Outdoor Stage", VolumeDb = -24 };
         AddChild(_bandEntryApplause);
+        _setEndApplause = new AudioStreamPlayer { Bus = "Outdoor Stage", VolumeDb = -24 };
+        AddChild(_setEndApplause);
         _stageLights = [new OmniLight3D { Position = new Vector3(-18, 2.2f, 10), OmniRange = 8,
             LightColor = new Color("ffd18a"), LightEnergy = 0.8f },
             new OmniLight3D { Position = new Vector3(-14.5f, 2.2f, 10), OmniRange = 8,
@@ -197,6 +239,12 @@ public partial class Main
         var navigation = _session.CaptureObservation().NavigationAgents.ToDictionary(item => item.Id);
         var collapsed = _session.CaptureMedical()?.Needs.Where(item => item.Intent == MedicalIntent.Collapsed)
             .Select(item => item.AgentId).ToHashSet() ?? [];
+        var attachedIds = live.Performers.Where(item => item.InstrumentAttached).Select(item => new EntityId(item.AgentId)).ToHashSet();
+        foreach (var oldId in _performerInstruments.Keys.Where(id => !attachedIds.Contains(id)).ToArray())
+        {
+            _performerInstruments[oldId].QueueFree(); _performerInstruments.Remove(oldId);
+            if (_attendeeVisuals.TryGetValue(oldId, out var oldBody)) SetNeutralArmsVisible(oldBody, true);
+        }
         foreach (var performer in live.Performers)
         {
             var id = new EntityId(performer.AgentId);
@@ -204,7 +252,7 @@ public partial class Main
             if (performer.InstrumentAttached && !_performerInstruments.ContainsKey(id))
             {
                 var name = roster.Single(item => item.AgentId == performer.AgentId).Name;
-                var kit = InstantiateAsset(PerformerKitPath(name));
+                var kit = InstantiateAsset(PerformerKitPath(PerformerPresentationRole(performer.AgentId, name)));
                 body.AddChild(kit);
                 _performerInstruments.Add(id, kit);
                 SetNeutralArmsVisible(body, false);
@@ -230,7 +278,8 @@ public partial class Main
             live.LastReaction == "sustained-boo" ? "POWER CUT • BOOS" : "POWER CUT • SILENCE" : live.Stage switch
         {
             LiveSetStage.Live => _stageMuted ? "LIVE SET • MUTED" : "LIVE SET",
-            LiveSetStage.Interrupted => live.LastReaction == "sustained-boo" ? "POWER CUT • BOOS" : "POWER CUT • SILENCE",
+            LiveSetStage.Interrupted => _session.CaptureProgramme() is not null ? "SET INTERRUPTED • BAND CARE" :
+                live.LastReaction == "sustained-boo" ? "POWER CUT • BOOS" : "POWER CUT • SILENCE",
             LiveSetStage.Finished => "SET FINISHED",
             _ => "SET READY"
         };
@@ -238,18 +287,28 @@ public partial class Main
         foreach (var light in _stageLights!) light.LightEnergy = live.Stage == LiveSetStage.Live ?
             power == 0 ? 0 : power == 80 ? 0.35f : 0.8f : 0;
         var audible = live.Stage == LiveSetStage.Live && power > 0;
-        if (_presentedSetStage != live.Stage)
+        var actId = _session.CurrentFestivalAct?.Id;
+        var actChanged = _presentedActId != actId;
+        if (actChanged) _bandEntryReactionPlayed = live.Stage == LiveSetStage.Live;
+        if (_presentedSetStage != live.Stage || actChanged)
         {
             if (audible)
             {
-                var punk = _session.CapturePreparation()!.AcceptedOffers.Contains("act.punk");
-                _stageMusic!.Stream = GD.Load<AudioStream>(punk ? "res://assets/audio/punk_loop_v1.wav" : "res://assets/audio/folk_loop_v1.wav");
-                _stageMusic.Play();
+                var genre = _session.CurrentFestivalAct?.Genre ?? (_session.CapturePreparation()!.AcceptedOffers.Contains("act.punk") ? 1 : 0);
+                var path = genre switch { 1 => _session.CaptureProgramme() is null ? "res://assets/audio/punk_loop_v1.wav" : "res://assets/audio/rock_loop_v2.wav", 2 => "res://assets/audio/pop_loop_v1.wav",
+                    3 => "res://assets/audio/electronic_loop_v1.wav", _ => "res://assets/audio/folk_loop_v1.wav" };
+                // Exact genre assets are integrated only after their approval gate.
+                var approved = _session.CaptureProgramme() is null || genre != 1 || FestivalRockAudioApproved;
+                _stageMusic!.Stream = approved && ResourceLoader.Exists(path) ? GD.Load<AudioStream>(path) : null;
+                if (_stageMusic.Stream is not null) _stageMusic.Play();
+                if (_timetableCaptureDirectory is not null)
+                    GD.Print($"FESTIVAL_AUDIO act={actId} genre={genre} stream={path} playing={_stageMusic.Playing}");
             }
             else _stageMusic!.Stop();
             _presentedSetStage = live.Stage;
+            _presentedActId = actId;
         }
-        if (audible && !_stageMusic!.Playing) _stageMusic.Play();
+        if (audible && _stageMusic!.Stream is not null && !_stageMusic.Playing) _stageMusic.Play();
         if (!audible && _stageMusic!.Playing) _stageMusic.Stop();
         // Use the ground-plane focus instead of the elevated isometric camera position;
         // zoom alters framing, not the physical PA distance.
@@ -278,6 +337,19 @@ public partial class Main
             filter.CutoffHz = Mathf.Lerp(1800f, 12000f, attenuation);
         if (_lastReactionSequence != live.ReactionSequence)
         {
+            if (live.LastReaction == "set-finished-applause" && live.Stage == LiveSetStage.Finished && live.SetEndAudienceCount > 0)
+            {
+                var enthusiastic = PerformanceApplauseMath.IsEnthusiastic(live.SetEndAudienceCount, live.SetEndEnjoymentTotal);
+                _setEndApplause!.Stream = GD.Load<AudioStream>(enthusiastic
+                    ? "res://assets/audio/band_entry_enthusiastic_applause.wav"
+                    : "res://assets/audio/band_entry_polite_applause.wav");
+                var strength = PerformanceApplauseMath.Strength(live.SetEndAudienceCount, live.SetEndEnjoymentTotal);
+                _setEndApplause.VolumeDb = Mathf.LinearToDb((float)strength * attenuation);
+                _setEndApplause.Play();
+                _setEndApplausePlayCount++;
+                if (_timetableCaptureDirectory is not null)
+                    GD.Print($"SET_END_APPLAUSE act={actId} sequence={live.ReactionSequence} audience={live.SetEndAudienceCount} enjoyment={live.SetEndEnjoymentTotal} strength={strength:0.000} playing={_setEndApplause.Playing} count={_setEndApplausePlayCount}");
+            }
             if (live.LastReaction is "set-start-cheer" or "set-start-muted") _bandEntryApplause?.Stop();
             if (live.LastReaction == "set-start-cheer")
             {

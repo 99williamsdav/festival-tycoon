@@ -1,0 +1,26 @@
+passed DelayedBandQuestionsBecomeAngryWithExistingThrottlesAndNeverReplayAfterLoad (103ms)
+passed DelayedBandQuestionYieldsToUrgentMedicalAndEndsWithResolvedGrievance (1ms)
+passed LateReadinessStartsAtScheduledBoundaryAndExcludesPreShowAndChangeover (1s 397ms)
+  Standard output
+    changeover tick=4000 retained person=10 stage=Injured pressure=8536 onset=1168
+    changeover tick=4000 retained person=13 stage=Fight pressure=8584 onset=1096
+    changeover tick=4000 retained person=14 stage=Injured pressure=8104 onset=1312
+    
+passed ActualMedicalDelayWarnsGraduallyThenRelievesWhenMusicReallyBeginsAndRestoresExactly (935ms)
+  Standard output
+    band warning 1800; agitation 2016; pressure 3024; enthusiasm 98; temperament 5971
+    
+passed BlockedOutgoingPhysicalPerformerMakesNextActualSlotLateWhileOldSlotRemainsFinished (1s 062ms)
+passed BandDelayCannotReplaceUrgentMedicalOwnershipOrDoubleCountAnActualPowerCut (1s 200ms)
+passed PhysicalWaterTripCanDelayPerformerAndOnlyNormalDrinkingReleasesEntry (1s 475ms)
+  Standard output
+    water-delayed performer=24 drank=True waterFinished=2764 outcome=Live actualStarted=3526 fixedEnd=4000
+    
+passed BandDelayGrievanceRejectsLegacyOrPreScheduledOnsetTamper (646ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 8
+  failed: 0
+  succeeded: 8
+  skipped: 0
+  duration: 6s 940ms

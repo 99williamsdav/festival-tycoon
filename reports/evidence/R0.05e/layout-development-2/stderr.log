@@ -1,0 +1,12 @@
+ERROR: IMMERSION_CAPTURE_FAILED System.InvalidOperationException: Vendor footprint or queue overlaps an obstacle, protected service or stage.
+   at Festival.Game.Main.ProcessImmersionLayoutCapture() in /_/game/Main.ImmersionLayoutCapture.cs:line 66
+   at Festival.Game.Main.ProcessImmersionCaptureStep() in /_/game/Main.ImmersionCapture.cs:line 60
+   at Festival.Game.Main.ProcessImmersionCapture() in /_/game/Main.ImmersionCapture.cs:line 54
+   at: void Festival.Game.Main.ProcessImmersionCapture() (/_/game/Main.ImmersionCapture.cs:54)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Festival.Game.Main.ProcessImmersionCapture() (/_/game/Main.ImmersionCapture.cs:54)
+       [2] void Festival.Game.Main._Process(double) (/_/game/Main.cs:274)
+       [3] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [4] bool Festival.Game.Main.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/_/game/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/Festival.Game.Main_ScriptMethods.generated.cs:2090)
+       [5] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

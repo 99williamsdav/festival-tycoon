@@ -1,0 +1,13 @@
+ERROR: IMMERSION_CAPTURE_FAILED System.InvalidOperationException: Ordinary timetable counter run failed at 6960; Guest 02
+   at Festival.Game.Main.TimetableAdvanceTo(Int64 relativeTick) in /_/game/Main.TimetableCapture.cs:line 116
+   at Festival.Game.Main.ProcessImmersionSevereCapture() in /_/game/Main.ImmersionSevereCapture.cs:line 132
+   at Festival.Game.Main.ProcessImmersionCaptureStep() in /_/game/Main.ImmersionCapture.cs:line 59
+   at Festival.Game.Main.ProcessImmersionCapture() in /_/game/Main.ImmersionCapture.cs:line 54
+   at: void Festival.Game.Main.ProcessImmersionCapture() (/_/game/Main.ImmersionCapture.cs:54)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Festival.Game.Main.ProcessImmersionCapture() (/_/game/Main.ImmersionCapture.cs:54)
+       [2] void Festival.Game.Main._Process(double) (/_/game/Main.cs:279)
+       [3] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [4] bool Festival.Game.Main.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/_/game/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/Festival.Game.Main_ScriptMethods.generated.cs:2220)
+       [5] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

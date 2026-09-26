@@ -1,0 +1,78 @@
+passed DelayedBandQuestionsBecomeAngryWithExistingThrottlesAndNeverReplayAfterLoad (103ms)
+passed DelayedBandQuestionYieldsToUrgentMedicalAndEndsWithResolvedGrievance (1ms)
+passed ComplaintShoutsAreTransitionTriggeredThrottledAndNotReplayedOnLoad (2ms)
+passed FightMarksBothRecordedParticipantsAndMedicalUrgencyWinsAfterRestore (3ms)
+passed FiftyPeopleBoundOrdinaryTextWhileActualPairsRemainVisible (14ms)
+passed NaturalSavedFightReconstructsBothOverheadCuesWithoutReplayState (1s 452ms)
+passed ResolvedStewardResponseDoesNotRePairLaterUnrelatedArgumentOrInspector (2ms)
+passed AtomicBookingsReorderWithoutDuplicateFeesAndRejectReplacement (19ms)
+passed InsufficientFundsAndLateProgrammeCommandsLeaveStateUnchanged (79ms)
+passed MalformedProgrammeAndOutOfWindowLiveStateAreRejectedWithoutThrowing (92ms)
+passed IncomingCareRouteIsRetainedAndMissedSlotCannotExtendItsDeadline (140ms)
+passed DayTimingIsExplicitAndOldTimetableVersionsAreNotSilentlyMigrated (4ms)
+passed FullStaffCapacityHasThirtyFiveDistinctPhysicalPeople (1s 534ms)
+  Standard output
+    35-person opening: ticks=2000, elapsedMs=1409.2, max blocked people=0, routes=289, maximum blocked age=0
+    
+passed SameTierRetryKeepsNineIdentitiesAndTastesButClearsProgrammeAndContracts (2s 053ms)
+passed ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260926,True) (10s 132ms)
+  Standard output
+    Played 0,1,2; music starts=1078,5027,9130; actual music ticks=2922,2973,2870; nine stage identities=9; tick=12800; state=Departing; programme=Final set finished; performers remain on farm
+    
+passed ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260922,False) (9s 657ms)
+  Standard output
+    Played 0,1,2; music starts=1078,5027,9007; actual music ticks=2922,2973,2993; nine stage identities=9; tick=12800; state=Departing; programme=Final set finished; performers remain on farm
+    
+passed ThreeStablePerformersTravelAndListenersAccrueOnlyWhileWatching (403ms)
+passed BandHoldsOffStageUntilLeadThenEquipsAtMarksBeforeSetStart (310ms)
+passed IsolationProducesImmediateSilenceThenOnlyDelayedBoo (335ms)
+passed FullFrontageFallsBackAndFinishedSetDoesNotRewardTwice (1s 773ms)
+passed BandUsesSavedSideAccessAndNeverReportsExitArrivalAsOnStage (769ms)
+passed ListeningCountsExactEligibleTicksAcrossSetStartAndPowerCut (614ms)
+passed BookedBandRoleTitlesRetainIdentityAndFollowReorderAndRestore (9ms)
+passed StableOffersHaveBoundedAffordableChoicesWithoutReroll (98ms)
+passed EntireProtectedRosterPhysicallyArrivesAndDeparts (1) (2s 399ms)
+passed EntireProtectedRosterPhysicallyArrivesAndDeparts (2) (5s 327ms)
+passed FailurePreservesPropertyContactsCashAndUnusedStockButExpiresContracts (644ms)
+passed WeakMusicFitChangesNamedGuestSatisfactionAndRiskWithoutBlockingStart (569ms)
+passed MalformedPreparationRejectsMissingRosterAndUnpaidProperty (1ms)
+passed PurchasedRigCostsMoreNowAndImprovesActualMusicQuality (590ms)
+passed SuccessfulRentalExpiresAndLedgerReconcilesExactly (1s 352ms)
+passed CommittedRetryCostsEventuallyRejectWithoutNegativeCashOrMutation (284ms)
+passed EditionBoundariesSaveCandidatesAndFailedWritesPreserveVisibleState (False) (1s 836ms)
+passed EditionBoundariesSaveCandidatesAndFailedWritesPreserveVisibleState (True) (1s 762ms)
+passed OpeningInventoryPlusDeliveriesLessActualConsumptionEqualsRemainingValue (300ms)
+failed LateReadinessStartsAtScheduledBoundaryAndExcludesPreShowAndChangeover (1s 119ms)
+  Assertion failed. Expected condition to be true.
+  
+  actual: false
+  
+  Assert.IsTrue(session.CaptureDisorder()!.People.All(person => person.Grievance != DisorderGrievance.BandDelayed))
+  Expected
+    true
+  Actual
+    false
+    at Festival.Tests.TimetableLateBandTests.LateReadinessStartsAtScheduledBoundaryAndExcludesPreShowAndChangeover() in /_/tests/Festival.Tests/TimetableLateBandTests.cs:54
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+passed ActualMedicalDelayWarnsGraduallyThenRelievesWhenMusicReallyBeginsAndRestoresExactly (921ms)
+  Standard output
+    band warning 1800; agitation 2016; pressure 3024; enthusiasm 98; temperament 5971
+    
+passed BlockedOutgoingPhysicalPerformerMakesNextActualSlotLateWhileOldSlotRemainsFinished (1s 325ms)
+passed BandDelayCannotReplaceUrgentMedicalOwnershipOrDoubleCountAnActualPowerCut (1s 179ms)
+passed PhysicalWaterTripCanDelayPerformerAndOnlyNormalDrinkingReleasesEntry (1s 421ms)
+passed BandDelayGrievanceRejectsLegacyOrPreScheduledOnsetTamper (620ms)
+passed NinePerformerMedicalProfilesRemainProtectedAndSaved (668ms)
+passed UpcomingAnticipationIsFiniteAndClampedAndSurvivesRestore (375ms)
+passed UrgentThirstWinsUpcomingMusicAndNeedsChoiceRestoresDeterministically (638ms)
+passed IdlePerformerHeatChoosesPhysicalRestWithoutStageEntitlement (985ms)
+passed FuturePerformerRetainsWarningCollapseCriticalAndFirstDeathProtection (1s 654ms)
+passed PlannedSilenceDoesNotCreateMusicCutoffButActualPowerCutDoes (833ms)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 47
+  failed: 1
+  succeeded: 46
+  skipped: 0
+  duration: 56s 552ms

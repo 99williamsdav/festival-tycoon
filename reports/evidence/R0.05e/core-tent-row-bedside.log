@@ -1,0 +1,48 @@
+passed TimelyPhysicalMedicStabilizesGraduallyAndDoesNotCreateAlcoholImmunity (2s 302ms)
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (164,140,164,160,3) (178ms)
+  Standard output
+    east-side food: cell=GridCell { X = 164, Z = 140 }, front=GridCell { X = 160, Z = 140 }, queue-tail=GridCell { X = 142, Z = 140 }
+    east-side drinks: cell=GridCell { X = 164, Z = 160 }, front=GridCell { X = 160, Z = 160 }, queue-tail=GridCell { X = 142, Z = 160 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (150,172,162,172,2) (181ms)
+  Standard output
+    east-side food: cell=GridCell { X = 150, Z = 172 }, front=GridCell { X = 150, Z = 168 }, queue-tail=GridCell { X = 150, Z = 150 }
+    east-side drinks: cell=GridCell { X = 162, Z = 172 }, front=GridCell { X = 162, Z = 168 }, queue-tail=GridCell { X = 162, Z = 150 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (148,119,164,119,0) (238ms)
+  Standard output
+    east-side food: cell=GridCell { X = 148, Z = 119 }, front=GridCell { X = 148, Z = 123 }, queue-tail=GridCell { X = 148, Z = 141 }
+    east-side drinks: cell=GridCell { X = 164, Z = 119 }, front=GridCell { X = 164, Z = 123 }, queue-tail=GridCell { X = 164, Z = 141 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (148,119,164,120,0) (246ms)
+  Standard output
+    east-side food: cell=GridCell { X = 148, Z = 119 }, front=GridCell { X = 148, Z = 123 }, queue-tail=GridCell { X = 148, Z = 141 }
+    east-side drinks: cell=GridCell { X = 164, Z = 120 }, front=GridCell { X = 164, Z = 124 }, queue-tail=GridCell { X = 164, Z = 142 }
+    
+passed NewDefaultVendorsFormTentFrontRowOnEastGrassWithAlignedEntrances (50ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (74,155,0,116,155,0) (282ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (150,172,2,162,172,2) (168ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (164,140,3,164,160,3) (141ms)
+passed CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (False) (150ms)
+passed CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (True) (163ms)
+passed CollapsedMedicPhysicallyArrivesAtHalfMetreBedsideAndResumesExactly (False) (376ms)
+  Standard output
+    physical bedside 500mm after 1676ticks, intoxication=False
+    
+passed CollapsedMedicPhysicallyArrivesAtHalfMetreBedsideAndResumesExactly (True) (368ms)
+  Standard output
+    physical bedside 500mm after 1676ticks, intoxication=True
+    
+passed BedsideBlockedAccessRejectsDispatchAndLegacyDistantTreatmentReroutesWithoutRemoteCare (829ms)
+passed NoncollapsedMedicRetainsOriginalTwoMetreResponseAndRange (64ms)
+passed LateDepartureCollapseRetainsPhysicalPatientAndMedicCanRespondOrFatalFreeze (False) (574ms)
+passed LateDepartureCollapseRetainsPhysicalPatientAndMedicCanRespondOrFatalFreeze (True) (881ms)
+passed OptionalStewardIsProtectedAndTimelyFirstAidPreventsItsDeath (1s 989ms)
+passed NamedUnreachableDispatchIsRejectedWithReasonAndNoOwnership (771ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 19
+  failed: 0
+  succeeded: 19
+  skipped: 0
+  duration: 10s 118ms

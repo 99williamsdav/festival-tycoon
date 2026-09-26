@@ -1,0 +1,8 @@
+passed CurrencyFormattingOmitsOnlyRoundPoundDecimals (8ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 1
+  failed: 0
+  succeeded: 1
+  skipped: 0
+  duration: 141ms

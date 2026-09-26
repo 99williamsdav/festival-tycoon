@@ -290,6 +290,11 @@ internal static class CanonicalStateHasher
             foreach (var id in lifecycle.CompletedOutcomeTransactionIds) writer.Write(id);
         }
 
+        if (session.ProgrammeCanonicalJson is { } programme)
+        {
+            writer.Write("r0-programme-v3");
+            writer.Write(programme);
+        }
         if (session.PreparationCanonicalJson is { } preparation)
         {
             writer.Write("r0-preparation-v1");
@@ -316,6 +321,7 @@ internal static class CanonicalStateHasher
             writer.Write(disorder);
         }
         writer.Flush();
+        if (session.ImmersionCanonicalJson is { } immersion) { writer.Write("r0-immersion-v1"); writer.Write(immersion); writer.Flush(); }
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();
     }

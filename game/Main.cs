@@ -176,12 +176,15 @@ public partial class Main : Node
         else
         {
             _session = _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
+                _immersionCaptureDirectory is not null || _financeCaptureDirectory is not null || _organicQueueCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) :
+                _timetableCaptureDirectory is not null ? GameSession.CreateTimetableCampaign(20260922) :
                 _audienceCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, 2) :
                 _hearingCaptureDirectory is not null || _waterFoundationCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
-                _staffCaptureDirectory is not null || _waterPlaytestCaptureDirectory is not null || _interventionCaptureDirectory is not null || _disorderCaptureDirectory is not null || OS.GetCmdlineUserArgs().Length == 0 ? GameSession.CreateDisorderCampaign(20260922) :
+                _staffCaptureDirectory is not null || _waterPlaytestCaptureDirectory is not null || _interventionCaptureDirectory is not null || _disorderCaptureDirectory is not null ? GameSession.CreateDisorderCampaign(20260922) :
                 _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
-                _equipmentCaptureDirectory is not null || _preparationCaptureDirectory is null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
-                GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier);
+                _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null || _liveCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
+                _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
+                GameSession.CreateImmersionCampaign(20260922);
         }
         if (_hearingCaptureDirectory is not null)
         {
@@ -209,6 +212,7 @@ public partial class Main : Node
         if (DisplayServer.GetName() != "headless")
             DisplayServer.SetIcon(GD.Load<Texture2D>("res://assets/branding/festival-tycoon-stage-sun-icon-v3.png").GetImage());
         if (_session.CaptureMedical() is not null) BuildMedicalWorld();
+        SyncImmersionWorld();
         if (_session.CaptureDisorder() is not null) BuildDisorderWorld();
         if (_session.CaptureEquipment() is not null) EnsureStageDrumKit();
         if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();
@@ -222,7 +226,11 @@ public partial class Main : Node
         BuildHud();
         if (_queueCaptureDirectory is not null || _foundationFixture is not null || _sharedWorldFixture is not null) { _focus = new Vector3(10, 0, 4); _camera.Size = 58; }
         if (_session.CaptureEquipment() is not null) { _focus = new Vector3(-16, 0, 11); _camera.Size = 32; }
+        // This mode includes both east-of-track vendors; frame them with the
+        // stage rather than retaining the older stage-only close-up.
+        if (_session.CaptureImmersion() is not null) { _focus = new Vector3(4, 0, 8); _camera.Size = 50; }
         ApplyCamera();
+        ResetFinanceFeedback();
         if ((OS.GetCmdlineUserArgs().Length == 0 || _startSplashCapturePath is not null) &&
             _session.CaptureEquipment() is not null) BuildStartSplash();
         if (_captureDirectory is not null)
@@ -244,6 +252,7 @@ public partial class Main : Node
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
         if (_waterPlacementMode != WaterPlacementMode.None && _waterPlaytestCaptureDirectory is null)
             UpdateWaterPlacementPreview(GetViewport().GetMousePosition());
+        if (_placingImmersionVendor is not null) UpdateImmersionPlacementPreview(GetViewport().GetMousePosition());
         if (_session.CapturePreparation() is not null) AdvancePreparationPresentation(delta);
         else if (_sharedWorldFixture is not null) AdvanceSharedWorldFeasibility(delta);
         else if (_benchmarkFixture is not null) AdvanceRenderedBenchmark(delta);
@@ -262,6 +271,13 @@ public partial class Main : Node
         ProcessWaterPlaytestCapture();
         ProcessInterventionCapture();
         ProcessAudienceCapture();
+        ProcessTimetableCapture();
+        RefreshContextPanelVisibility();
+        AdvanceFinanceFeedback(delta);
+        ProcessFinanceFeedbackCapture(delta);
+        ProcessVendorRowCapture();
+        ProcessOrganicQueueCapture();
+        ProcessImmersionCapture();
         ProcessDisorderCapture();
         ProcessHearingCapture();
         ProcessStartSplashCapture();
@@ -280,7 +296,11 @@ public partial class Main : Node
         if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null || _campaignCaptureDirectory is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
+            if (_placingImmersionVendor is not null && key.Keycode == Key.Escape) { CancelImmersionPlacement(); return; }
+            if (_placingImmersionVendor is not null && key.Keycode is Key.Comma or Key.Period)
+            { _immersionQuarterTurns = (_immersionQuarterTurns + (key.Keycode == Key.Comma ? 3 : 1)) % 4; UpdateImmersionPlacementPreview(GetViewport().GetMousePosition()); return; }
             if (key.Keycode == Key.Escape && _waterPlacementMode != WaterPlacementMode.None) { CancelWaterPlacement(); return; }
+            if (key.Keycode == Key.Escape) { ClearSelection(); return; }
             if (_waterPlacementMode != WaterPlacementMode.None && key.Keycode is Key.Comma or Key.Period)
             { RotateWaterPlacement(key.Keycode == Key.Comma ? -1 : 1); return; }
             if (key.Keycode == Key.Q) Rotate(-1);
@@ -294,6 +314,8 @@ public partial class Main : Node
         }
         else if (inputEvent is InputEventMouseButton mouse)
         {
+            if (_placingImmersionVendor is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Right) { CancelImmersionPlacement(); return; }
+            if (_placingImmersionVendor is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left) { CommitImmersionPlacement(mouse.Position); return; }
             if (mouse.ButtonIndex == MouseButton.WheelUp && mouse.Pressed) Zoom(-4);
             else if (mouse.ButtonIndex == MouseButton.WheelDown && mouse.Pressed) Zoom(4);
             else if (mouse.ButtonIndex == MouseButton.Middle) _middleDragging = mouse.Pressed;
@@ -350,7 +372,7 @@ public partial class Main : Node
         foreach (var agent in agents)
         {
             var performer = _session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value);
-            var visual = AddAsset(performer?.Role == ProtectedPersonRole.Performer ? PerformerBodyPath(performer.Name) :
+            var visual = AddAsset(performer?.Role == ProtectedPersonRole.Performer ? PerformerBodyPath(PerformerPresentationRole(performer.AgentId, performer.Name)) :
                 "res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
             if (_foundationFixture is not null || _sharedWorldFixture is not null)
             {
@@ -525,9 +547,16 @@ public partial class Main : Node
         var instance = InstantiateAsset(path); instance.Position = position; AddChild(instance); return instance;
     }
 
+    // Keep managed PackedScene wrappers alive across repeated roster/load rebuilds.
+    // Each call still creates a separate instance; approved asset bytes are unchanged.
+    private static readonly Dictionary<string, PackedScene> AssetScenes = new(StringComparer.Ordinal);
     private static Node3D InstantiateAsset(string path)
     {
-        var packed = GD.Load<PackedScene>(path) ?? throw new InvalidOperationException($"Missing farm asset: {path}");
+        if (!AssetScenes.TryGetValue(path, out var packed))
+        {
+            packed = GD.Load<PackedScene>(path) ?? throw new InvalidOperationException($"Missing farm asset: {path}");
+            AssetScenes.Add(path, packed);
+        }
         return packed.Instantiate<Node3D>();
     }
 
@@ -578,7 +607,8 @@ public partial class Main : Node
         bar.AddChild(ButtonText("↶ Q", () => Rotate(-1))); bar.AddChild(ButtonText("E ↷", () => Rotate(1)));
         bar.AddChild(ButtonText("−", () => Zoom(4))); bar.AddChild(ButtonText("+", () => Zoom(-4)));
 
-        var inspector = new PanelContainer(); inspector.SetAnchorsPreset(Control.LayoutPreset.RightWide);
+        var inspector = new PanelContainer { Visible = false }; inspector.SetAnchorsPreset(Control.LayoutPreset.RightWide);
+        _contextPanel = inspector;
         inspector.OffsetLeft = -324; inspector.OffsetTop = 92; inspector.OffsetRight = -16; inspector.OffsetBottom = -16;
         inspector.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(inspector);
         var margin = new MarginContainer(); margin.AddThemeConstantOverride("margin_left", 20); margin.AddThemeConstantOverride("margin_right", 20);
@@ -699,7 +729,7 @@ public partial class Main : Node
     private void CampaignManualLoad()
     {
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-campaign", _saveCompatibility);
-        if (result.IsSuccess) { _session = result.Session!; _campaignUiStatus = "Campaign loaded"; }
+        if (result.IsSuccess) { _session = result.Session!; ResetFinanceFeedback(); _campaignUiStatus = "Campaign loaded"; }
         else _campaignUiStatus = result.Error ?? "Load failed";
         RefreshCampaignHud();
     }
@@ -784,12 +814,14 @@ public partial class Main : Node
 
     private void Pick(Vector2 screenPosition)
     {
+        _selectedImmersionVendor = null;
         var origin = _camera.ProjectRayOrigin(screenPosition);
         var query = PhysicsRayQueryParameters3D.Create(origin, origin + _camera.ProjectRayNormal(screenPosition) * 250); query.CollisionMask = 1;
         var result = _camera.GetWorld3D().DirectSpaceState.IntersectRay(query);
         if (!result.ContainsKey("collider")) { ClearSelection(); return; }
         var collider = result["collider"].AsGodotObject() as CollisionObject3D;
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
+        else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
         else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
         else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility))
             SelectMedicalFacility(medicalFacility.Facility, medicalFacility.WaterPointId);
@@ -799,6 +831,7 @@ public partial class Main : Node
 
     private void SelectObject(FarmObjectReadModel item)
     {
+        _selectedImmersionVendor = null;
         ClearSecurityPostSelection();
         _selectedMedicalFacility = null;
         RefreshMedicalNeedBars(null);
@@ -824,6 +857,8 @@ public partial class Main : Node
 
     private void ClearSelection()
     {
+        RefreshImmersionNeedBars(null);
+        _selectedImmersionVendor = null;
         ClearSecurityPostSelection();
         RefreshMedicalNeedBars(null);
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _selectedWaterPointId = "water.main";
@@ -842,6 +877,7 @@ public partial class Main : Node
             GD.Print($"ATTENDEE_SELECTION_UNAVAILABLE id={id.Value} no physical visual yet");
             return;
         }
+        _selectedImmersionVendor = null;
         ClearSecurityPostSelection();
         _selectedMedicalFacility = null;
         _selected = null; _selectedAttendeeId = id;
@@ -940,6 +976,22 @@ public partial class Main : Node
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-campaign" && i + 1 < args.Length) _campaignCaptureDirectory = args[++i];
+            else if (args[i] == "--capture-r005e-immersion" && i + 1 < args.Length)
+            { _immersionCaptureDirectory = args[++i]; Directory.CreateDirectory(_immersionCaptureDirectory); }
+            else if (args[i] == "--capture-r005e-finance" && i + 1 < args.Length)
+            { _financeCaptureDirectory = args[++i]; Directory.CreateDirectory(_financeCaptureDirectory); }
+            else if (args[i] == "--capture-r005e-vendor-row" && i + 1 < args.Length)
+            { _vendorRowCaptureDirectory = args[++i]; Directory.CreateDirectory(_vendorRowCaptureDirectory); }
+            else if (args[i] == "--capture-r005e-queues" && i + 1 < args.Length)
+            { _organicQueueCaptureDirectory = args[++i]; Directory.CreateDirectory(_organicQueueCaptureDirectory); }
+            else if (args[i] == "--capture-r005e-intoxication" && i + 1 < args.Length)
+            { _immersionSevereFixture = true; _immersionCaptureDirectory = args[++i]; Directory.CreateDirectory(_immersionCaptureDirectory); }
+            else if (args[i] == "--capture-r005e-medic-close" && i + 1 < args.Length)
+            { _immersionSevereFixture = true; _immersionCloseCareFixture = true; _immersionCaptureDirectory = args[++i]; Directory.CreateDirectory(_immersionCaptureDirectory); }
+            else if (args[i] == "--capture-r005e-departure-care" && i + 1 < args.Length)
+            { _immersionSevereFixture = true; _immersionDepartureFixture = true; _immersionCaptureDirectory = args[++i]; Directory.CreateDirectory(_immersionCaptureDirectory); }
+            else if (args[i] == "--capture-r005e-layout" && i + 1 < args.Length)
+            { _immersionLayoutFixture = true; _immersionCaptureDirectory = args[++i]; Directory.CreateDirectory(_immersionCaptureDirectory); }
             else if (args[i] == "--capture-r005-hearing" && i + 1 < args.Length)
             {
                 _hearingCaptureDirectory = args[++i];
@@ -965,6 +1017,10 @@ public partial class Main : Node
             else if (args[i] == "--capture-r005c-audience" && i + 1 < args.Length)
             {
                 _audienceCaptureDirectory = args[++i]; Directory.CreateDirectory(_audienceCaptureDirectory);
+            }
+            else if (args[i] == "--capture-r005d-timetable" && i + 1 < args.Length)
+            {
+                _timetableCaptureDirectory = args[++i]; Directory.CreateDirectory(_timetableCaptureDirectory);
             }
             else if (args[i] == "--capture-r005c-audience-refinement" && i + 1 < args.Length)
             {
@@ -1287,10 +1343,14 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => _interventionCaptureDirectory is not null ? Path.Combine(_interventionCaptureDirectory, "saves") :
+    private string SaveDirectory => _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
+        _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
+        _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :
+        _interventionCaptureDirectory is not null ? Path.Combine(_interventionCaptureDirectory, "saves") :
         _waterPlaytestCaptureDirectory is not null ? Path.Combine(_waterPlaytestCaptureDirectory, "saves") :
         _staffCaptureDirectory is not null ? Path.Combine(_staffCaptureDirectory, "saves") :
-        _audienceCaptureDirectory is not null ? Path.Combine(_audienceCaptureDirectory, "saves") : ProjectSettings.GlobalizePath(
+        _audienceCaptureDirectory is not null ? Path.Combine(_audienceCaptureDirectory, "saves") :
+        _timetableCaptureDirectory is not null ? Path.Combine(_timetableCaptureDirectory, "saves") : ProjectSettings.GlobalizePath(
         _session?.CapturePreparation() is not null ? "user://saves/r0.05-hearing-v1" : "user://saves");
     private void ManualSave()
     {
@@ -1307,6 +1367,7 @@ public partial class Main : Node
         if (result.IsSuccess)
         {
             _session = result.Session!;
+            ResetFinanceFeedback();
             _foundationFixture = _foundationFixture! with { Session = _session };
             if (_foundationCaptureDirectory is not null)
             {

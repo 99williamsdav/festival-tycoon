@@ -49,6 +49,7 @@ public partial class Main
             _session = result.Session; _autosaveGeneration++;
             if (command is ApplyWaterFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand)
                 SyncExtraWaterWorld();
+            if (command is PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand) SyncImmersionWorld();
             _preparationSaveBlocked = false;
             _preparationMessage = "Action committed and autosaved.";
         }

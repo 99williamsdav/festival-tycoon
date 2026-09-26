@@ -1,0 +1,73 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=bf6b6380cb0872fa2fa0d0ff9f491a1b2f387151677bffd8d6fc2e38630c5d69
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+TIMETABLE_STATE name=checkpoint tick=1600 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a7bb4d1f91447352fa59722af3fc80ebe1e085cd4e61cdc09829fdaebe8c2f49
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=22 tick=2160
+TIMETABLE_STATE name=checkpoint tick=4000 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7e93a4c9c06f8637ba0671a4779475cb42cef4c5f3f8a7abfa5db1480c19f305
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4001 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=65d410e1438d826d1ad4f9de5c1bf463e2e5698f90a244728e00ab86f1e266bb
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+IMMERSION_INITIALIZED_EXPOSURE_FIXTURE person=3 exposure=9800 no_item_discard=True ordinary_reachability=False during_departure=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=checkpoint tick=5641 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7c1b67cf363f017a3329a14fc11ef0fc98787d5c074f5424508d51233e42a2f2
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=checkpoint tick=5681 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ae5b1eee0963555b3a7cc47423717e11b0c3452353953cf79afeb798aa1428cf
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=checkpoint tick=5721 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=66ed735c6accbef93ef580c479cbbbbaaeb94075f1eb5a5d3a3c17709ced09d2
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=checkpoint tick=5761 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=83e12e5713baf9771f47f2023deb6f6225cf515f3b11abb2aa171acbf46abae6
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=checkpoint tick=5801 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=425ba13c13d83b72874124e603e5555723d6cdaa5e8ea36d0acae72f147d0c47
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=checkpoint tick=5841 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=9fa0fb026d160424d1d79dee35740bca331112e5b2fd8530b9bfc316b4f734c0
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=checkpoint tick=5881 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=83587e3f21ad2952f447ec4a6ecdb8829f4721e8c203220d698fc69cbb997a84
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=checkpoint tick=5921 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=cd903c8b5507bbea344fafcb648f76345fb809c3ec4e8488a3429a069c1dee9b
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+TIMETABLE_STATE name=checkpoint tick=5961 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3989c30b0f1a28989a3d2b338024ea231a0b4d46b0de094bc763f71c5b8e180d
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=3 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=3 orientation=South
+IMMERSION_SEVERE_CARE_SAVE exact_hash=True ticks=5 exposure=9535
+ATTENDEE_SELECTED id=3 orientation=South
+IMMERSION_CLOSE_MEDIC physical_treating=True patient=3 medic=27 authoritative_distance_mm=500.0 no_visual_snap=True
+CLOSE_MEDIC_CAPTURE_COMPLETE initialized=True ordinary_reachability=False physical_distance_mm=500.0 reload=True no_snap=True patient_horizontal=True patient_pick=True no_casualties=True full_stabilization_not_exercised=True

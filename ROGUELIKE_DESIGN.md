@@ -18,7 +18,9 @@ The farm persists through good editions and failed ones. Casualty history retain
 |---|---|
 | Progress | Complete every fixed tier in order. A poor-but-safe edition advances; quality changes rewards, not victory eligibility. |
 | Audience | Each tier admits its entire mandatory attendee roster. The player cannot downsize, refuse the crowd, sell fewer tickets or close the gate to manufacture a win. |
+| Adult setting | Approved26September: all attendees are adults, gamewide. The bounded food/drink/intoxication slice must not introduce children or alcohol service to minors; no age/guardian/family simulation is authorised. |
 | Survival | Guests, staff and performers are protected people. The first death among them ends the edition. |
+| R0.05e closing risk | Approved26September: no new purchases after the300s closing boundary; pending alcohol absorption/recovery/warnings/severe exposure and medical risk continue until each person's physical exit. Medics retain physical response/job ownership during departure. Closing grants no immunity or teleport exit. This bounded rule does not implement R0.06 victory/reward/endless semantics. |
 | Expectations | Needs and music expectations scale with tier. Weak music and unmet needs create visible, causal risks; there is no separate lineup/service promise checklist for victory. |
 | Failure | A death is recorded once, operation stops, and the council hearing is resolved once. Spending one Favour retries the same tier; no Favour means campaign loss. |
 | Favour | Earned only through explicit authored choices with visible opportunity costs. It is not bought for cash and cannot be repeatedly farmed. |

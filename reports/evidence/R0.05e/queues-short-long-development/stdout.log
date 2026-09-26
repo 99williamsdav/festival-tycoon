@@ -1,0 +1,94 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=short-overview tick=1900 actual_members=5 settled=4 in_transit=1 distances=3:0mm:Arrived;7:0mm:Arrived;5:0mm:Arrived;4:0mm:Arrived;6:373mm:Travelling fifo=3,7,5,4,6 cells=95,125;95,127;94,129;94,132;94,134;94,136 physical=3:-16250,-1250:Arrived;7:-16250,-250:Arrived;5:-16750,750:Arrived;4:-16750,2250:Arrived;6:-16377,3250:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=short-detail tick=1900 actual_members=5 settled=4 in_transit=1 distances=3:0mm:Arrived;7:0mm:Arrived;5:0mm:Arrived;4:0mm:Arrived;6:373mm:Travelling fifo=3,7,5,4,6 cells=95,125;95,127;94,129;94,132;94,134;94,136 physical=3:-16250,-1250:Arrived;7:-16250,-250:Arrived;5:-16750,750:Arrived;4:-16750,2250:Arrived;6:-16377,3250:Travelling
+ORGANIC_QUEUE_DEMAND_EXTENDED route=water-after-varied short_cohort=3,4,5,6,7 additional=15 incumbents_unchanged=True service_timers_unchanged=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=longest-observed-overview tick=2180 actual_members=11 settled=9 in_transit=2 distances=3:0mm:Arrived;7:0mm:Arrived;5:0mm:Arrived;4:0mm:Arrived;6:0mm:Arrived;10:0mm:Arrived;9:0mm:Arrived;14:0mm:Arrived;21:0mm:Arrived;8:227mm:Arrived;19:588mm:Travelling fifo=3,7,5,4,6,10,9,14,21,8,19 cells=95,125;95,127;94,129;94,132;94,134;94,136;95,138;97,138;99,138;101,138;103,138;105,138 physical=3:-16250,-1250:Arrived;7:-16250,-250:Arrived;5:-16750,750:Arrived;4:-16750,2250:Arrived;6:-16750,3250:Arrived;10:-16750,4250:Arrived;9:-16250,5250:Arrived;14:-15250,5250:Arrived;21:-14250,5250:Arrived;8:-13056,5133:Arrived;19:-12250,5838:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=longest-observed-detail tick=2180 actual_members=11 settled=9 in_transit=2 distances=3:0mm:Arrived;7:0mm:Arrived;5:0mm:Arrived;4:0mm:Arrived;6:0mm:Arrived;10:0mm:Arrived;9:0mm:Arrived;14:0mm:Arrived;21:0mm:Arrived;8:227mm:Arrived;19:588mm:Travelling fifo=3,7,5,4,6,10,9,14,21,8,19 cells=95,125;95,127;94,129;94,132;94,134;94,136;95,138;97,138;99,138;101,138;103,138;105,138 physical=3:-16250,-1250:Arrived;7:-16250,-250:Arrived;5:-16750,750:Arrived;4:-16750,2250:Arrived;6:-16750,3250:Arrived;10:-16750,4250:Arrived;9:-16250,5250:Arrived;14:-15250,5250:Arrived;21:-14250,5250:Arrived;8:-13056,5133:Arrived;19:-12250,5838:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=reloaded-stable tick=2180 actual_members=11 settled=9 in_transit=2 distances=3:0mm:Arrived;7:0mm:Arrived;5:0mm:Arrived;4:0mm:Arrived;6:0mm:Arrived;10:0mm:Arrived;9:0mm:Arrived;14:0mm:Arrived;21:0mm:Arrived;8:227mm:Arrived;19:588mm:Travelling fifo=3,7,5,4,6,10,9,14,21,8,19 cells=95,125;95,127;94,129;94,132;94,134;94,136;95,138;97,138;99,138;101,138;103,138;105,138 physical=3:-16250,-1250:Arrived;7:-16250,-250:Arrived;5:-16750,750:Arrived;4:-16750,2250:Arrived;6:-16750,3250:Arrived;10:-16750,4250:Arrived;9:-16250,5250:Arrived;14:-15250,5250:Arrived;21:-14250,5250:Arrived;8:-13056,5133:Arrived;19:-12250,5838:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=water-after-varied kind=advanced-fifo tick=2580 actual_members=19 settled=19 in_transit=0 distances=7:0mm:Arrived;5:0mm:Arrived;4:0mm:Arrived;6:0mm:Arrived;10:0mm:Arrived;9:0mm:Arrived;14:0mm:Arrived;21:0mm:Arrived;8:0mm:Arrived;19:0mm:Arrived;16:0mm:Arrived;12:0mm:Arrived;13:0mm:Arrived;20:0mm:Arrived;22:0mm:Arrived;18:0mm:Arrived;17:0mm:Arrived;11:0mm:Arrived;15:0mm:Arrived fifo=7,5,4,6,10,9,14,21,8,19,16,12,13,20,22,18,17,11,15 cells=95,125;95,127;94,129;94,132;94,134;94,136;95,138;97,138;99,138;101,138;103,138;105,138;107,138;109,138;111,138;113,138;115,138;117,138;119,138;121,138 physical=7:-16250,-1250:Arrived;5:-16250,-250:Arrived;4:-16750,750:Arrived;6:-16750,2250:Arrived;10:-16750,3250:Arrived;9:-16750,4250:Arrived;14:-16250,5250:Arrived;21:-15250,5250:Arrived;8:-14250,5250:Arrived;19:-13250,5250:Arrived;16:-12250,5250:Arrived;12:-11250,5250:Arrived;13:-10250,5250:Arrived;20:-9250,5250:Arrived;22:-8250,5250:Arrived;18:-7250,5250:Arrived;17:-6250,5250:Arrived;11:-5250,5250:Arrived;15:-4250,5250:Arrived
+ORGANIC_QUEUE_ROUTE_COMPLETE route=water-after-varied short_image_members=5 maximum_claimed=11 long_image_members=11 long_image_settled=9 distinct_short_long=True target_depth_reached=True reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=short-overview tick=2420 actual_members=5 settled=5 in_transit=0 distances=7:0mm:Arrived;6:0mm:Arrived;5:0mm:Arrived;3:0mm:Arrived;4:0mm:Arrived fifo=7,6,5,3,4 cells=144,123;144,125;144,127;144,129;144,131;144,133 physical=7:8250,-2250:Arrived;6:8250,-1250:Arrived;5:8250,-250:Arrived;3:8250,750:Arrived;4:8250,1750:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=short-detail tick=2420 actual_members=5 settled=5 in_transit=0 distances=7:0mm:Arrived;6:0mm:Arrived;5:0mm:Arrived;3:0mm:Arrived;4:0mm:Arrived fifo=7,6,5,3,4 cells=144,123;144,125;144,127;144,129;144,131;144,133 physical=7:8250,-2250:Arrived;6:8250,-1250:Arrived;5:8250,-250:Arrived;3:8250,750:Arrived;4:8250,1750:Arrived
+ORGANIC_QUEUE_DEMAND_EXTENDED route=food-before-legacy-reference short_cohort=3,4,5,6,7 additional=15 incumbents_unchanged=True service_timers_unchanged=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=longest-observed-overview tick=4980 actual_members=8 settled=8 in_transit=0 distances=22:0mm:Arrived;8:0mm:Arrived;9:0mm:Arrived;12:0mm:Arrived;11:0mm:Arrived;14:0mm:Arrived;13:0mm:Arrived;15:0mm:Arrived fifo=22,8,9,12,11,14,13,15 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=22:8250,-2250:Arrived;8:8250,-1250:Arrived;9:8250,-250:Arrived;12:8250,750:Arrived;11:8250,1750:Arrived;14:8250,2750:Arrived;13:8250,3750:Arrived;15:8250,4750:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=longest-observed-detail tick=4980 actual_members=8 settled=8 in_transit=0 distances=22:0mm:Arrived;8:0mm:Arrived;9:0mm:Arrived;12:0mm:Arrived;11:0mm:Arrived;14:0mm:Arrived;13:0mm:Arrived;15:0mm:Arrived fifo=22,8,9,12,11,14,13,15 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=22:8250,-2250:Arrived;8:8250,-1250:Arrived;9:8250,-250:Arrived;12:8250,750:Arrived;11:8250,1750:Arrived;14:8250,2750:Arrived;13:8250,3750:Arrived;15:8250,4750:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=reloaded-stable tick=4980 actual_members=8 settled=8 in_transit=0 distances=22:0mm:Arrived;8:0mm:Arrived;9:0mm:Arrived;12:0mm:Arrived;11:0mm:Arrived;14:0mm:Arrived;13:0mm:Arrived;15:0mm:Arrived fifo=22,8,9,12,11,14,13,15 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=22:8250,-2250:Arrived;8:8250,-1250:Arrived;9:8250,-250:Arrived;12:8250,750:Arrived;11:8250,1750:Arrived;14:8250,2750:Arrived;13:8250,3750:Arrived;15:8250,4750:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-before-legacy-reference kind=advanced-fifo tick=5380 actual_members=7 settled=7 in_transit=0 distances=8:0mm:Arrived;9:0mm:Arrived;12:0mm:Arrived;11:0mm:Arrived;14:0mm:Arrived;13:0mm:Arrived;15:0mm:Arrived fifo=8,9,12,11,14,13,15 cells=144,123;144,125;144,127;144,129;144,131;144,133;144,135;144,137;144,139;144,141 physical=8:8250,-2250:Arrived;9:8250,-1250:Arrived;12:8250,-250:Arrived;11:8250,750:Arrived;14:8250,1750:Arrived;13:8250,2750:Arrived;15:8250,3750:Arrived
+ORGANIC_QUEUE_ROUTE_COMPLETE route=food-before-legacy-reference short_image_members=5 maximum_claimed=8 long_image_members=8 long_image_settled=8 distinct_short_long=True target_depth_reached=True reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=short-overview tick=2380 actual_members=3 settled=3 in_transit=0 distances=7:0mm:Arrived;6:0mm:Arrived;5:0mm:Arrived fifo=7,6,5 cells=144,123;144,125;144,128;143,130;143,132;143,134 physical=7:8250,-2250:Arrived;6:8250,-1250:Arrived;5:8250,250:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=short-detail tick=2380 actual_members=3 settled=3 in_transit=0 distances=7:0mm:Arrived;6:0mm:Arrived;5:0mm:Arrived fifo=7,6,5 cells=144,123;144,125;144,128;143,130;143,132;143,134 physical=7:8250,-2250:Arrived;6:8250,-1250:Arrived;5:8250,250:Arrived
+ORGANIC_QUEUE_DEMAND_EXTENDED route=food-after-varied short_cohort=3,4,5,6,7 additional=15 incumbents_unchanged=True service_timers_unchanged=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=longest-observed-overview tick=3940 actual_members=8 settled=8 in_transit=0 distances=4:0mm:Arrived;10:0mm:Arrived;12:0mm:Arrived;9:0mm:Arrived;11:0mm:Arrived;8:0mm:Arrived;14:0mm:Arrived;13:0mm:Arrived fifo=4,10,12,9,11,8,14,13 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141 physical=4:8250,-2250:Arrived;10:8250,-1250:Arrived;12:8250,250:Arrived;9:7750,1250:Arrived;11:7750,2250:Arrived;8:7750,3250:Arrived;14:7750,4250:Arrived;13:8250,5750:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=longest-observed-detail tick=3940 actual_members=8 settled=8 in_transit=0 distances=4:0mm:Arrived;10:0mm:Arrived;12:0mm:Arrived;9:0mm:Arrived;11:0mm:Arrived;8:0mm:Arrived;14:0mm:Arrived;13:0mm:Arrived fifo=4,10,12,9,11,8,14,13 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141 physical=4:8250,-2250:Arrived;10:8250,-1250:Arrived;12:8250,250:Arrived;9:7750,1250:Arrived;11:7750,2250:Arrived;8:7750,3250:Arrived;14:7750,4250:Arrived;13:8250,5750:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=reloaded-stable tick=3940 actual_members=8 settled=8 in_transit=0 distances=4:0mm:Arrived;10:0mm:Arrived;12:0mm:Arrived;9:0mm:Arrived;11:0mm:Arrived;8:0mm:Arrived;14:0mm:Arrived;13:0mm:Arrived fifo=4,10,12,9,11,8,14,13 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141 physical=4:8250,-2250:Arrived;10:8250,-1250:Arrived;12:8250,250:Arrived;9:7750,1250:Arrived;11:7750,2250:Arrived;8:7750,3250:Arrived;14:7750,4250:Arrived;13:8250,5750:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=food-after-varied kind=advanced-fifo tick=4340 actual_members=7 settled=7 in_transit=0 distances=10:0mm:Arrived;12:0mm:Arrived;9:0mm:Arrived;11:0mm:Arrived;8:0mm:Arrived;14:0mm:Arrived;13:0mm:Arrived fifo=10,12,9,11,8,14,13 cells=144,123;144,125;144,128;143,130;143,132;143,134;143,136;144,139;144,141;144,143 physical=10:8250,-2250:Arrived;12:8250,-1250:Arrived;9:8250,250:Arrived;11:7750,1250:Arrived;8:7750,2250:Arrived;14:7750,3250:Arrived;13:7750,4250:Arrived
+ORGANIC_QUEUE_ROUTE_COMPLETE route=food-after-varied short_image_members=3 maximum_claimed=8 long_image_members=8 long_image_settled=8 distinct_short_long=True target_depth_reached=True reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=short-overview tick=2660 actual_members=3 settled=3 in_transit=0 distances=7:0mm:Arrived;5:0mm:Arrived;3:0mm:Arrived fifo=7,5,3 cells=160,124;160,126;160,128;160,130;160,132 physical=7:16250,-1750:Arrived;5:16250,-750:Arrived;3:16250,250:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=short-detail tick=2660 actual_members=3 settled=3 in_transit=0 distances=7:0mm:Arrived;5:0mm:Arrived;3:0mm:Arrived fifo=7,5,3 cells=160,124;160,126;160,128;160,130;160,132 physical=7:16250,-1750:Arrived;5:16250,-750:Arrived;3:16250,250:Arrived
+ORGANIC_QUEUE_DEMAND_EXTENDED route=drinks-before-legacy-reference short_cohort=3,4,5,6,7 additional=15 incumbents_unchanged=True service_timers_unchanged=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=longest-observed-overview tick=4020 actual_members=5 settled=3 in_transit=2 distances=12:0mm:Arrived;16:1450mm:Travelling;11:0mm:Arrived;9:0mm:Arrived;15:1643mm:Travelling fifo=12,16,11,9,15 cells=160,124;160,126;160,128;160,130;160,132;160,134;160,136;160,138;160,140 physical=12:16250,-1750:Arrived;16:16152,697:Travelling;11:16250,250:Arrived;9:16250,1250:Arrived;15:16250,3893:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=longest-observed-detail tick=4020 actual_members=5 settled=3 in_transit=2 distances=12:0mm:Arrived;16:1450mm:Travelling;11:0mm:Arrived;9:0mm:Arrived;15:1643mm:Travelling fifo=12,16,11,9,15 cells=160,124;160,126;160,128;160,130;160,132;160,134;160,136;160,138;160,140 physical=12:16250,-1750:Arrived;16:16152,697:Travelling;11:16250,250:Arrived;9:16250,1250:Arrived;15:16250,3893:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=reloaded-stable tick=4020 actual_members=5 settled=3 in_transit=2 distances=12:0mm:Arrived;16:1450mm:Travelling;11:0mm:Arrived;9:0mm:Arrived;15:1643mm:Travelling fifo=12,16,11,9,15 cells=160,124;160,126;160,128;160,130;160,132;160,134;160,136;160,138;160,140 physical=12:16250,-1750:Arrived;16:16152,697:Travelling;11:16250,250:Arrived;9:16250,1250:Arrived;15:16250,3893:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-before-legacy-reference kind=advanced-fifo tick=4420 actual_members=0 settled=0 in_transit=0 distances= fifo= cells=160,124;160,126;160,128;160,130;160,132 physical=
+ORGANIC_QUEUE_ROUTE_COMPLETE route=drinks-before-legacy-reference short_image_members=3 maximum_claimed=5 long_image_members=5 long_image_settled=3 distinct_short_long=True target_depth_reached=False reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=short-overview tick=2660 actual_members=3 settled=3 in_transit=0 distances=7:0mm:Arrived;5:0mm:Arrived;3:0mm:Arrived fifo=7,5,3 cells=160,124;160,126;160,128;161,130;161,133 physical=7:16250,-1750:Arrived;5:16250,-750:Arrived;3:16250,250:Arrived
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=short-detail tick=2660 actual_members=3 settled=3 in_transit=0 distances=7:0mm:Arrived;5:0mm:Arrived;3:0mm:Arrived fifo=7,5,3 cells=160,124;160,126;160,128;161,130;161,133 physical=7:16250,-1750:Arrived;5:16250,-750:Arrived;3:16250,250:Arrived
+ORGANIC_QUEUE_DEMAND_EXTENDED route=drinks-after-varied short_cohort=3,4,5,6,7 additional=15 incumbents_unchanged=True service_timers_unchanged=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=longest-observed-overview tick=4060 actual_members=6 settled=4 in_transit=2 distances=12:0mm:Arrived;16:758mm:Travelling;11:0mm:Arrived;8:0mm:Arrived;9:0mm:Arrived;15:337mm:Travelling fifo=12,16,11,8,9,15 cells=160,124;160,126;160,128;161,130;161,133;161,135;161,137;160,139;160,141 physical=12:16250,-1750:Arrived;16:15982,-41:Travelling;11:16250,250:Arrived;8:16750,1250:Arrived;9:16750,2750:Arrived;15:16750,4087:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=longest-observed-detail tick=4060 actual_members=6 settled=4 in_transit=2 distances=12:0mm:Arrived;16:758mm:Travelling;11:0mm:Arrived;8:0mm:Arrived;9:0mm:Arrived;15:337mm:Travelling fifo=12,16,11,8,9,15 cells=160,124;160,126;160,128;161,130;161,133;161,135;161,137;160,139;160,141 physical=12:16250,-1750:Arrived;16:15982,-41:Travelling;11:16250,250:Arrived;8:16750,1250:Arrived;9:16750,2750:Arrived;15:16750,4087:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=reloaded-stable tick=4060 actual_members=6 settled=4 in_transit=2 distances=12:0mm:Arrived;16:758mm:Travelling;11:0mm:Arrived;8:0mm:Arrived;9:0mm:Arrived;15:337mm:Travelling fifo=12,16,11,8,9,15 cells=160,124;160,126;160,128;161,130;161,133;161,135;161,137;160,139;160,141 physical=12:16250,-1750:Arrived;16:15982,-41:Travelling;11:16250,250:Arrived;8:16750,1250:Arrived;9:16750,2750:Arrived;15:16750,4087:Travelling
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_IMAGE route=drinks-after-varied kind=advanced-fifo tick=4460 actual_members=0 settled=0 in_transit=0 distances= fifo= cells=160,124;160,126;160,128;161,130;161,133 physical=
+ORGANIC_QUEUE_ROUTE_COMPLETE route=drinks-after-varied short_image_members=3 maximum_claimed=6 long_image_members=6 long_image_settled=4 distinct_short_long=True target_depth_reached=False reload=True pause_stable=True advanced=True positions_injected=False
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ORGANIC_QUEUE_CAPTURE_COMPLETE water_after_max=11 food_before_max=8 food_after_max=8 drinks_before_max=5 drinks_after_max=6 water_before_archived_point=water.extra-1 water_before_archived_members=3 water_before_long_unverified=True actual_routes=True no_position_injection=True saved_reload=True paused_stable=True before_water_archived_save=True fixture_need_cooldown=True

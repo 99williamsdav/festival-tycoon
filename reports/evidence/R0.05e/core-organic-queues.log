@@ -1,0 +1,60 @@
+passed LooseVendorSlotsGrowOnlyAsNeededKeepPrefixAndPersistExactReplay (1s 003ms)
+passed SharedLooseVendorLineAdaptsAroundNearbyWaterBodyAndSavedCorridor (264ms)
+passed NewVendorPlacementIgnoresFutureTailAndBlockedTailNeverTargetsUnvalidatedCell (168ms)
+passed NullVendorGeometryRetainsIndependentOldJsonChecksumAndExactStraightQueue (135ms)
+passed PaidItemPartialConsumptionResumeAndPauseAreExact (335ms)
+passed PhysicalArrivalFifoHeterogeneousSaleAndFailureNeverChargeTwice (138ms)
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (164,140,164,160,3) (160ms)
+  Standard output
+    east-side food: cell=GridCell { X = 164, Z = 140 }, front=GridCell { X = 160, Z = 140 }, queue-tail=GridCell { X = 160, Z = 140 }
+    east-side drinks: cell=GridCell { X = 164, Z = 160 }, front=GridCell { X = 160, Z = 160 }, queue-tail=GridCell { X = 160, Z = 160 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (150,172,162,172,2) (172ms)
+  Standard output
+    east-side food: cell=GridCell { X = 150, Z = 172 }, front=GridCell { X = 150, Z = 168 }, queue-tail=GridCell { X = 150, Z = 168 }
+    east-side drinks: cell=GridCell { X = 162, Z = 172 }, front=GridCell { X = 162, Z = 168 }, queue-tail=GridCell { X = 162, Z = 168 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (148,119,164,119,0) (167ms)
+  Standard output
+    east-side food: cell=GridCell { X = 148, Z = 119 }, front=GridCell { X = 148, Z = 123 }, queue-tail=GridCell { X = 148, Z = 123 }
+    east-side drinks: cell=GridCell { X = 164, Z = 119 }, front=GridCell { X = 164, Z = 123 }, queue-tail=GridCell { X = 164, Z = 123 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (148,119,164,120,0) (160ms)
+  Standard output
+    east-side food: cell=GridCell { X = 148, Z = 119 }, front=GridCell { X = 148, Z = 123 }, queue-tail=GridCell { X = 148, Z = 123 }
+    east-side drinks: cell=GridCell { X = 164, Z = 120 }, front=GridCell { X = 164, Z = 124 }, queue-tail=GridCell { X = 164, Z = 124 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (144,119,160,120,0) (155ms)
+  Standard output
+    east-side food: cell=GridCell { X = 144, Z = 119 }, front=GridCell { X = 144, Z = 123 }, queue-tail=GridCell { X = 144, Z = 123 }
+    east-side drinks: cell=GridCell { X = 160, Z = 120 }, front=GridCell { X = 160, Z = 124 }, queue-tail=GridCell { X = 160, Z = 124 }
+    
+passed NewDefaultVendorsFormTentFrontRowOnEastGrassWithAlignedEntrances (40ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (74,155,0,116,155,0) (113ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (150,172,2,162,172,2) (111ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (148,119,0,164,120,0) (104ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (164,140,3,164,160,3) (100ms)
+passed GeometryRotationReciprocalWaterAndLedgerTamperingAreRejected (362ms)
+passed ActualImmersionDeathAndFavourRetryResetConsumablesAndBudgetsOnce (1s 446ms)
+passed DepartureSevereBoundarySaveFailureNeverPublishesCollapse (471ms)
+passed ClosingContinuesPaidIngestionAndPendingExposureWithoutNewSalesAndStopsAtExit (124ms)
+passed LooseQueueAimedAtFirstAidTentBendsAroundBlockedBodyAndValidatesSavedShape (43ms)
+  Standard output
+    First-aid-directed water line grew9 stablecells outside the blocked tent body.
+    
+passed PlacementDoesNotReserveHypotheticalTailAndOrganicLineAvoidsStage (42ms)
+passed QueuedGuestForfeitsPlaceForWorthwhileAlternativeButOwnerAndNearFrontStay (136ms)
+passed BlockedOrganicTailStopsWithoutReservingObstacleAndGrowthWorkIsBounded (106ms)
+  Standard output
+    WATER_GROWTH blocked_checks=1000 elapsed_ms=7.52 max_cells=20
+    
+passed SavedOrganicGeometryRejectsSpacingSnakesCrossingsAndSecondCornerClips (111ms)
+passed PlacedTapUsesItsOwnPhysicalArrivalFifoAndWaterWaitGrievance (92ms)
+passed PlacedTapOverflowPromotesOldestTailMemberAndPersists (157ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 27
+  failed: 0
+  succeeded: 27
+  skipped: 0
+  duration: 6s 539ms

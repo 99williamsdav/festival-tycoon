@@ -7,7 +7,7 @@ public static class EquipmentCommandCoordinator
     public static PreparationAdvanceResult Execute(string directory, GameSession session, SessionCommand command,
         SaveCompatibility compatibility, DateTimeOffset now, long generation, Action<SaveFailurePoint>? failureInjector = null)
     {
-        if (session.CaptureEquipment() is null || command is not (EquipmentCommand or AcceptPreparationOfferCommand or
+        if (session.CaptureEquipment() is null || command is not (PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or EquipmentCommand or AcceptPreparationOfferCommand or
                 CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or
                 MovePrimaryWaterPointCommand or MoveWaterPointCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return new(false, session, null, "An equipment, preparation or Council hearing action is required.");

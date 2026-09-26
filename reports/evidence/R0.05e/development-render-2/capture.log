@@ -1,0 +1,341 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=e5e103ce2e579853ab3b503356d947a3d32abaf9dbbfc897ea68832bb6f46ce0
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+IMMERSION_CROSS_MODE_LOAD exact_hash=True legacy_controls=True vendors_resynced=True
+FARM_SELECTION_CLEARED
+IMMERSION_STATE tick=0 status=Preparing sales=0 chips=40 soft=40 beer=32 held=0 max_intox=0 queues=0,0 hash=914adeca581fa30eb981b11b5a2502bd77157675773bccbb6d3b8ce83cbb156a
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+IMMERSION_ROTATED_PLACEMENT preview=True command=True exact_saved_hash=True visual_yaw=90
+TIMETABLE_STATE name=checkpoint tick=1600 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0c8aa834ab003034723708b72f99394a63bcf4194c8972d27596e799192dfc30
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2000 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=cfc34a9041b8aa1a4c0ec8cca76107387196816ae6d86c516ba005b2da78abf6
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=2000 status=Running sales=6 chips=40 soft=36 beer=30 held=6 max_intox=795 queues=0,4 hash=cfc34a9041b8aa1a4c0ec8cca76107387196816ae6d86c516ba005b2da78abf6
+FARM_SELECTION_CLEARED
+IMMERSION_PARTIAL_RELOAD exact_hash=True owner=13 consumed_ticks=532 product=SoftDrink
+ATTENDEE_SELECTED id=13 orientation=South
+IMMERSION_ACTUAL_HELD_PROP owner=13 product=SoftDrink scale=1 hands_available=True purchase_id=immersion:1:4
+ATTENDEE_SELECTED id=19 orientation=South
+IMMERSION_ACTUAL_HELD_PROP owner=19 product=Beer scale=1 hands_available=True purchase_id=immersion:1:2
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=22 tick=2000
+TIMETABLE_STATE name=checkpoint tick=2400 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a71a8eb907b7951ae5ab6ec4aec0c0a74ee521c892abd78e3b4f9637018458b9
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=2400 status=Running sales=9 chips=40 soft=35 beer=28 held=9 max_intox=1145 queues=0,1 hash=a71a8eb907b7951ae5ab6ec4aec0c0a74ee521c892abd78e3b4f9637018458b9
+TIMETABLE_STATE name=checkpoint tick=2800 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=bdee6f24d9612a049a131a879b53d0eb4fd5b81f081d6da7417eaee3e7d6fcae
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=2800 status=Running sales=11 chips=40 soft=33 beer=28 held=11 max_intox=1495 queues=0,1 hash=bdee6f24d9612a049a131a879b53d0eb4fd5b81f081d6da7417eaee3e7d6fcae
+TIMETABLE_STATE name=checkpoint tick=3200 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=25eef717fab81ea902db628efd536bfaadaa9bb2892a9bb0ca02aa568a33cc45
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=3200 status=Running sales=12 chips=40 soft=33 beer=27 held=12 max_intox=1845 queues=0,0 hash=25eef717fab81ea902db628efd536bfaadaa9bb2892a9bb0ca02aa568a33cc45
+TIMETABLE_STATE name=checkpoint tick=3600 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d747863367d7985ce2a126191f469efd77da7a4f37ecea2e3140fe715ff6ad50
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=3600 status=Running sales=13 chips=40 soft=32 beer=27 held=12 max_intox=2086 queues=0,2 hash=d747863367d7985ce2a126191f469efd77da7a4f37ecea2e3140fe715ff6ad50
+TIMETABLE_STATE name=checkpoint tick=4000 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=431a3f5851952c5689196eb4c104fafac45bc55813d2795daa4ded9f6d23aef7
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=4000 status=Running sales=15 chips=40 soft=31 beer=26 held=13 max_intox=2036 queues=0,2 hash=431a3f5851952c5689196eb4c104fafac45bc55813d2795daa4ded9f6d23aef7
+TIMETABLE_STATE name=checkpoint tick=4400 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0bd7589789ff435ab3afebc70ee31bbc94b1afab270a8e371bb058b92a33e5a5
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=4400 status=Running sales=17 chips=40 soft=31 beer=24 held=12 max_intox=2081 queues=0,0 hash=0bd7589789ff435ab3afebc70ee31bbc94b1afab270a8e371bb058b92a33e5a5
+TIMETABLE_STATE name=checkpoint tick=4800 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=182b3f9185f4589fa4987b8a56a210889daaee6ccf4a7147624c0d3ca172cb86
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=4800 status=Running sales=18 chips=40 soft=31 beer=23 held=11 max_intox=2355 queues=0,0 hash=182b3f9185f4589fa4987b8a56a210889daaee6ccf4a7147624c0d3ca172cb86
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=3 tick=4800
+TIMETABLE_STATE name=checkpoint tick=5200 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=43a389ffaf080cd5a9e84300c2715d8d4eb3146dc350b1081a31132020e40cd8
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=5200 status=Running sales=19 chips=40 soft=31 beer=22 held=10 max_intox=2705 queues=0,1 hash=43a389ffaf080cd5a9e84300c2715d8d4eb3146dc350b1081a31132020e40cd8
+TIMETABLE_STATE name=checkpoint tick=5600 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=1f33b5b921809ebb6cdac12420ff80ccb2ed3a88d32ebd0198c078d828b164bf
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=5600 status=Running sales=20 chips=40 soft=31 beer=21 held=9 max_intox=3055 queues=0,0 hash=1f33b5b921809ebb6cdac12420ff80ccb2ed3a88d32ebd0198c078d828b164bf
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=10 tick=5600
+TIMETABLE_STATE name=checkpoint tick=6000 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c97dc0f74f32169d4cc8959d60646c2f4195e55b39ca5d0830e5b966ef799ff6
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=6000 status=Running sales=21 chips=40 soft=30 beer=21 held=9 max_intox=3405 queues=0,3 hash=c97dc0f74f32169d4cc8959d60646c2f4195e55b39ca5d0830e5b966ef799ff6
+TIMETABLE_STATE name=checkpoint tick=6400 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=8f669ab50a3de0e2a186661f377329db9af035b2a8aa16e27d2b5c4d320d001b
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=6400 status=Running sales=23 chips=40 soft=28 beer=21 held=9 max_intox=3755 queues=0,2 hash=8f669ab50a3de0e2a186661f377329db9af035b2a8aa16e27d2b5c4d320d001b
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=8 tick=6400
+TIMETABLE_STATE name=checkpoint tick=6800 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7c4285a31f7d0ac92f2bac1905b133ccda2d9426d1dd94700b6f255e35ef3773
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=6800 status=Running sales=25 chips=40 soft=28 beer=19 held=9 max_intox=4086 queues=0,0 hash=7c4285a31f7d0ac92f2bac1905b133ccda2d9426d1dd94700b6f255e35ef3773
+TIMETABLE_STATE name=checkpoint tick=7200 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Playing hash=aa25815f37cba9738fbd42cf518383ff8314a70009c3be48ac2d99ed1eeeab97
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Travelling intent=performance.stage-exit-stair instrument=False
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Travelling intent=performance.stage-exit-stair instrument=False
+IMMERSION_STATE tick=7200 status=Running sales=26 chips=40 soft=28 beer=18 held=8 max_intox=4131 queues=0,1 hash=aa25815f37cba9738fbd42cf518383ff8314a70009c3be48ac2d99ed1eeeab97
+TIMETABLE_STATE name=checkpoint tick=7600 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=9f9b1530fe83554867077682c1471e8d30b9fbc163d52001cf1a81c1b6cbc10f
+TIMETABLE_BAND person=24 physical=-13250,7765 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13250,9579 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13250,6745 action=Travelling intent=medical.free-water-approach instrument=False
+IMMERSION_STATE tick=7600 status=Running sales=27 chips=40 soft=28 beer=17 held=8 max_intox=4169 queues=0,2 hash=9f9b1530fe83554867077682c1471e8d30b9fbc163d52001cf1a81c1b6cbc10f
+TIMETABLE_STATE name=checkpoint tick=8000 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=ed124ff86f7e684a7b4915d8fb2c6b84cc22cd18b4fde723b9c02f24435d1ddd
+TIMETABLE_BAND person=24 physical=-16250,3750 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16250,4750 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16250,2750 action=Travelling intent=medical.free-water-queue instrument=False
+IMMERSION_STATE tick=8000 status=Running sales=29 chips=40 soft=28 beer=15 held=9 max_intox=4519 queues=0,3 hash=ed124ff86f7e684a7b4915d8fb2c6b84cc22cd18b4fde723b9c02f24435d1ddd
+TIMETABLE_STATE name=checkpoint tick=8400 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=d105ef9ac85c4d45e1f204a089e8b36b5c84e31ea31315fe41fa97a9de3e2636
+TIMETABLE_BAND person=24 physical=-16250,2750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16250,3750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16250,1750 action=Arrived intent=medical.free-water-queue instrument=False
+IMMERSION_STATE tick=8400 status=Running sales=32 chips=40 soft=25 beer=15 held=12 max_intox=4869 queues=0,4 hash=d105ef9ac85c4d45e1f204a089e8b36b5c84e31ea31315fe41fa97a9de3e2636
+TIMETABLE_STATE name=checkpoint tick=8800 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=f863259ef013dd744389a614afe87110cedcd48db607ed2c6879ee23a5926aba
+TIMETABLE_BAND person=29 physical=-5834,15750 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=30 physical=-5335,15750 action=Travelling intent=performance.side-entry instrument=False
+TIMETABLE_BAND person=31 physical=-4554,15750 action=Travelling intent=performance.side-entry instrument=False
+IMMERSION_STATE tick=8800 status=Running sales=34 chips=40 soft=25 beer=13 held=13 max_intox=5219 queues=0,2 hash=f863259ef013dd744389a614afe87110cedcd48db607ed2c6879ee23a5926aba
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=4 tick=8800
+TIMETABLE_STATE name=checkpoint tick=9200 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Late: performers not on marks hash=87b04911288d1a5a3d866d0093da128fc7044c1f73e4ed626770f408cc329c8a
+TIMETABLE_BAND person=29 physical=-15082,13918 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=30 physical=-15357,13643 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=31 physical=-15277,14223 action=Travelling intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=9200 status=Running sales=36 chips=40 soft=24 beer=12 held=11 max_intox=5569 queues=0,0 hash=87b04911288d1a5a3d866d0093da128fc7044c1f73e4ed626770f408cc329c8a
+TIMETABLE_STATE name=checkpoint tick=9600 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f2e3909e80c8a3399fbaea2e62e27c20530da74c8bf2a68efad5e8934453ba7d
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=9600 status=Running sales=36 chips=40 soft=24 beer=12 held=11 max_intox=5919 queues=0,2 hash=f2e3909e80c8a3399fbaea2e62e27c20530da74c8bf2a68efad5e8934453ba7d
+TIMETABLE_STATE name=checkpoint tick=10000 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ce1b17315641c2fd07c0438357d636f03cf533e78f9b5349e2a2f5a52e37fc2c
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=10000 status=Running sales=39 chips=40 soft=23 beer=10 held=12 max_intox=6086 queues=0,0 hash=ce1b17315641c2fd07c0438357d636f03cf533e78f9b5349e2a2f5a52e37fc2c
+TIMETABLE_STATE name=checkpoint tick=10400 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0ea84b40d9db19bef7f78b59afd1a831fd5aecc9b0a8aca96839b7f7a2a6de83
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=10400 status=Running sales=40 chips=40 soft=23 beer=9 held=11 max_intox=6131 queues=0,0 hash=0ea84b40d9db19bef7f78b59afd1a831fd5aecc9b0a8aca96839b7f7a2a6de83
+TIMETABLE_STATE name=checkpoint tick=10800 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7912c574049119a37879458ab7cf0213e9ea3d685bc598ba9c531b133015ce35
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=10800 status=Running sales=41 chips=40 soft=23 beer=8 held=12 max_intox=6081 queues=0,0 hash=7912c574049119a37879458ab7cf0213e9ea3d685bc598ba9c531b133015ce35
+TIMETABLE_STATE name=checkpoint tick=11200 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=fe36dd37e59fcfd76cf0ddab39807b1eb7eb26690e6aafbe6d62a43a432ea85c
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=11200 status=Running sales=41 chips=40 soft=23 beer=8 held=10 max_intox=6093 queues=0,0 hash=fe36dd37e59fcfd76cf0ddab39807b1eb7eb26690e6aafbe6d62a43a432ea85c
+TIMETABLE_STATE name=checkpoint tick=11600 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=83072a6f3b53b57d4817361751b225350d3ea376b26c75d8ff61a5a86cff61ad
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=11600 status=Running sales=41 chips=40 soft=23 beer=8 held=7 max_intox=6054 queues=0,1 hash=83072a6f3b53b57d4817361751b225350d3ea376b26c75d8ff61a5a86cff61ad
+TIMETABLE_STATE name=checkpoint tick=12000 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b7260c936820387d43edc43e789c4f6c089d55a7b9b812d5324c2db671eb115a
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=12000 status=Running sales=42 chips=40 soft=23 beer=7 held=6 max_intox=6334 queues=0,0 hash=b7260c936820387d43edc43e789c4f6c089d55a7b9b812d5324c2db671eb115a
+TIMETABLE_STATE name=checkpoint tick=12400 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=70e34dbe35047ca84a06625bc6e54a40319ad3456a92230a8358d4835d803e0f
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=12400 status=Running sales=42 chips=40 soft=23 beer=7 held=4 max_intox=6684 queues=1,0 hash=70e34dbe35047ca84a06625bc6e54a40319ad3456a92230a8358d4835d803e0f
+TIMETABLE_STATE name=checkpoint tick=12800 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3d86e15a41e3a704e04fc96838e6a880a4c6677bffd8223dad09341f55cc9ecb
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=12800 status=Running sales=44 chips=39 soft=23 beer=6 held=5 max_intox=7034 queues=0,1 hash=3d86e15a41e3a704e04fc96838e6a880a4c6677bffd8223dad09341f55cc9ecb
+ATTENDEE_SELECTED id=14 orientation=South
+IMMERSION_ACTUAL_HELD_PROP owner=14 product=Chips scale=1 hands_available=True purchase_id=immersion:1:44
+TIMETABLE_STATE name=checkpoint tick=13200 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c880a24124bf5532b249ceff9a484ca18f376a5d07d2827e90e392c54cd9fb32
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=13200 status=Running sales=46 chips=39 soft=23 beer=4 held=5 max_intox=7384 queues=2,0 hash=c880a24124bf5532b249ceff9a484ca18f376a5d07d2827e90e392c54cd9fb32
+TIMETABLE_STATE name=checkpoint tick=13600 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=4beca3264792c3ab386b52c0bf1ffc30e008391191ed73c7337434fc5cdd03b3
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=13600 status=Running sales=48 chips=37 soft=23 beer=4 held=7 max_intox=7734 queues=1,1 hash=4beca3264792c3ab386b52c0bf1ffc30e008391191ed73c7337434fc5cdd03b3
+TIMETABLE_STATE name=checkpoint tick=14000 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=cb12dfb180b442c57b4dd0afab1a8a35b216a2c0f8d4e81ca7987b6e61eb4dc4
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=14000 status=Running sales=50 chips=36 soft=23 beer=3 held=9 max_intox=8084 queues=0,0 hash=cb12dfb180b442c57b4dd0afab1a8a35b216a2c0f8d4e81ca7987b6e61eb4dc4
+TIMETABLE_STATE name=checkpoint tick=14400 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=31b8bd1616bb33fa4cf3d1dfe56e8df58817f8990063b45c98b339a55d475320
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=14400 status=Running sales=50 chips=36 soft=23 beer=3 held=8 max_intox=8080 queues=0,0 hash=31b8bd1616bb33fa4cf3d1dfe56e8df58817f8990063b45c98b339a55d475320
+TIMETABLE_STATE name=checkpoint tick=14800 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c7aafe92813ccc017fb0f4731b3ede33114bd33123e07a6bd67ec26919fa0b6f
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=14800 status=Running sales=50 chips=36 soft=23 beer=3 held=8 max_intox=8030 queues=2,0 hash=c7aafe92813ccc017fb0f4731b3ede33114bd33123e07a6bd67ec26919fa0b6f
+TIMETABLE_STATE name=checkpoint tick=15200 slot=1 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0efef61c98f0fed793a6a2a4a54e5af2a0575c6d87169b4fde0e194b291b0cfc
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Travelling intent=performance.stage-exit-stair instrument=False
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Travelling intent=performance.stage-exit-stair instrument=False
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Travelling intent=performance.stage-exit-stair instrument=False
+IMMERSION_STATE tick=15200 status=Running sales=51 chips=35 soft=23 beer=3 held=8 max_intox=8079 queues=1,1 hash=0efef61c98f0fed793a6a2a4a54e5af2a0575c6d87169b4fde0e194b291b0cfc
+TIMETABLE_STATE name=checkpoint tick=15600 slot=1 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=be0d0f02a3f2d4021864694469f1c0542f4f70d977a5e600e53229b86461880e
+TIMETABLE_BAND person=29 physical=-13250,9667 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=30 physical=-13250,11841 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=31 physical=-13250,7763 action=Travelling intent=medical.free-water-approach instrument=False
+IMMERSION_STATE tick=15600 status=Running sales=53 chips=34 soft=23 beer=2 held=9 max_intox=8144 queues=0,1 hash=be0d0f02a3f2d4021864694469f1c0542f4f70d977a5e600e53229b86461880e
+TIMETABLE_STATE name=checkpoint tick=16000 slot=1 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=983bf57dcfc63fd205eceb8a1911eb25bc024eb72d52e2d70c3b4b4d6395b2d9
+TIMETABLE_BAND person=29 physical=-16250,3317 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=30 physical=-13422,5750 action=Travelling intent=medical.return instrument=False
+TIMETABLE_BAND person=31 physical=-16250,2266 action=Travelling intent=medical.free-water-queue instrument=False
+IMMERSION_STATE tick=16000 status=Running sales=55 chips=34 soft=22 beer=1 held=10 max_intox=8123 queues=0,2 hash=983bf57dcfc63fd205eceb8a1911eb25bc024eb72d52e2d70c3b4b4d6395b2d9
+TIMETABLE_STATE name=checkpoint tick=16400 slot=1 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=04b93208ff9563bcce132f7e50553487eefa7b9a1ad770057d1c143096e0111e
+TIMETABLE_BAND person=29 physical=-16250,1750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=30 physical=-13250,14750 action=Travelling intent=immersion.approach instrument=False
+TIMETABLE_BAND person=31 physical=-16250,750 action=Arrived intent=medical.free-water-queue instrument=False
+IMMERSION_STATE tick=16400 status=Running sales=58 chips=33 soft=21 beer=0 held=11 max_intox=8073 queues=0,0 hash=04b93208ff9563bcce132f7e50553487eefa7b9a1ad770057d1c143096e0111e
+TIMETABLE_STATE name=checkpoint tick=16800 slot=2 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=cf53107e4236ee64361a307df68f8519a29f603d9390552ab914f47518dd02cc
+TIMETABLE_BAND person=32 physical=-13250,9121 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=33 physical=-13250,8164 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=34 physical=-13250,8731 action=Travelling intent=medical.return-to-stage-access instrument=False
+IMMERSION_STATE tick=16800 status=Running sales=58 chips=33 soft=21 beer=0 held=11 max_intox=8023 queues=1,0 hash=cf53107e4236ee64361a307df68f8519a29f603d9390552ab914f47518dd02cc
+TIMETABLE_STATE name=checkpoint tick=17200 slot=2 phase=BeforeSet ready=2 people=32 performers=9 admitted=32 departed=0 status=Late: performers not on marks hash=b1ac4f28adaec7dd093b7b974d06373777357fd62bca0475cdc2db0fa4f8d4ab
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,11030 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=17200 status=Running sales=60 chips=32 soft=20 beer=0 held=12 max_intox=7973 queues=2,2 hash=b1ac4f28adaec7dd093b7b974d06373777357fd62bca0475cdc2db0fa4f8d4ab
+TIMETABLE_STATE name=checkpoint tick=17600 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=404155767554d7862e105df5cdb18d8f2c9ad940a9f70c541fdc63257c80521b
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=17600 status=Running sales=63 chips=31 soft=18 beer=0 held=14 max_intox=7923 queues=2,1 hash=404155767554d7862e105df5cdb18d8f2c9ad940a9f70c541fdc63257c80521b
+TIMETABLE_STATE name=checkpoint tick=18000 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3b6e640e77db3ea7002c566da7c7c7baa54ebb79e0690441419907554bdb0d66
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=18000 status=Running sales=65 chips=30 soft=17 beer=0 held=15 max_intox=7873 queues=1,0 hash=3b6e640e77db3ea7002c566da7c7c7baa54ebb79e0690441419907554bdb0d66
+TIMETABLE_STATE name=checkpoint tick=18400 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=55d0164ba1f035e8e699bab8ea53be4475307b8849b9afb4db8e391e056ab227
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=18400 status=Running sales=67 chips=28 soft=17 beer=0 held=15 max_intox=7979 queues=0,0 hash=55d0164ba1f035e8e699bab8ea53be4475307b8849b9afb4db8e391e056ab227
+TIMETABLE_STATE name=checkpoint tick=18800 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ed05d14d67c36a29186bc6463ad42623d8b9a8593aa9b656009057f51ac75504
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=18800 status=Running sales=68 chips=28 soft=16 beer=0 held=13 max_intox=8093 queues=1,0 hash=ed05d14d67c36a29186bc6463ad42623d8b9a8593aa9b656009057f51ac75504
+TIMETABLE_STATE name=checkpoint tick=19200 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=dbf8714e6761db811d657bd7e2b2938f06448d66328ba54b217c6cf9a379ec5c
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=19200 status=Running sales=69 chips=27 soft=16 beer=0 held=13 max_intox=8043 queues=1,0 hash=dbf8714e6761db811d657bd7e2b2938f06448d66328ba54b217c6cf9a379ec5c
+TIMETABLE_STATE name=checkpoint tick=19600 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c94aa9bba86a261ebb2de4b7beb6bda7b0d27d10733521772c0e4bf55ebcc72d
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=19600 status=Running sales=70 chips=26 soft=16 beer=0 held=14 max_intox=7993 queues=1,0 hash=c94aa9bba86a261ebb2de4b7beb6bda7b0d27d10733521772c0e4bf55ebcc72d
+TIMETABLE_STATE name=checkpoint tick=20000 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=5dd258d5a5ce4296d03ce02ff9b63627dacd573fd250824455aa7734a9fe3405
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=20000 status=Running sales=72 chips=25 soft=15 beer=0 held=14 max_intox=7943 queues=1,1 hash=5dd258d5a5ce4296d03ce02ff9b63627dacd573fd250824455aa7734a9fe3405
+TIMETABLE_STATE name=checkpoint tick=20400 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=af13a64f25cc0260858a4afb67a70e06b19c5aba43a066298f0f460169b74361
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=20400 status=Running sales=74 chips=24 soft=14 beer=0 held=13 max_intox=7893 queues=1,0 hash=af13a64f25cc0260858a4afb67a70e06b19c5aba43a066298f0f460169b74361
+TIMETABLE_STATE name=checkpoint tick=20800 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7dc1dea44589668fe8e9f0cc0c64b79f544313dc83a01b140a36dea70b6e6ca0
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=20800 status=Running sales=75 chips=23 soft=14 beer=0 held=12 max_intox=7843 queues=1,0 hash=7dc1dea44589668fe8e9f0cc0c64b79f544313dc83a01b140a36dea70b6e6ca0
+TIMETABLE_STATE name=checkpoint tick=21200 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e680c0e3399d049f60d80ad05690491d054e820a8fd6e4222dd6b248ff967ce5
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=21200 status=Running sales=77 chips=22 soft=13 beer=0 held=13 max_intox=7793 queues=1,0 hash=e680c0e3399d049f60d80ad05690491d054e820a8fd6e4222dd6b248ff967ce5
+TIMETABLE_STATE name=checkpoint tick=21600 slot=2 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ae5eb375ea3fc910e04fe28a3137ba24718936188eaa70a40a3939cc19c4bbaa
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+IMMERSION_STATE tick=21600 status=Running sales=78 chips=21 soft=13 beer=0 held=12 max_intox=7743 queues=0,0 hash=ae5eb375ea3fc910e04fe28a3137ba24718936188eaa70a40a3939cc19c4bbaa
+TIMETABLE_STATE name=checkpoint tick=22000 slot=2 phase=Interrupted ready=0 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7899b09e65e05582e7bd792018a0a9eea7512d51b73cf08697fc9644dfb67080
+TIMETABLE_BAND person=32 physical=-15750,11250 action=Travelling intent=medical.rest instrument=False
+TIMETABLE_BAND person=33 physical=-16750,9250 action=Travelling intent=medical.rest instrument=False
+TIMETABLE_BAND person=34 physical=-17250,12250 action=Travelling intent=medical.rest instrument=False
+IMMERSION_STATE tick=22000 status=Running sales=78 chips=21 soft=13 beer=0 held=11 max_intox=7693 queues=2,0 hash=7899b09e65e05582e7bd792018a0a9eea7512d51b73cf08697fc9644dfb67080
+TIMETABLE_STATE name=checkpoint tick=22400 slot=2 phase=Interrupted ready=0 people=32 performers=9 admitted=32 departed=0 status=Paused: performer away from stage marks hash=f724cb04effdc945846c6b0c217ab9c3096c5f1dc00a50f3c6a116c6b6178b09
+TIMETABLE_BAND person=32 physical=-8336,9336 action=Travelling intent=medical.rest instrument=False
+TIMETABLE_BAND person=33 physical=-9523,10523 action=Travelling intent=medical.rest instrument=False
+TIMETABLE_BAND person=34 physical=-8095,7595 action=Travelling intent=medical.rest instrument=False
+IMMERSION_STATE tick=22400 status=Running sales=79 chips=20 soft=13 beer=0 held=11 max_intox=7643 queues=1,0 hash=f724cb04effdc945846c6b0c217ab9c3096c5f1dc00a50f3c6a116c6b6178b09
+TIMETABLE_STATE name=checkpoint tick=22800 slot=2 phase=Interrupted ready=0 people=32 performers=9 admitted=32 departed=0 status=Paused: performer away from stage marks hash=942e284d0003d1eb28bdca6910781b20bd7835617d28eb662b61be753e6a453b
+TIMETABLE_BAND person=32 physical=-3750,-764 action=Travelling intent=medical.rest instrument=False
+TIMETABLE_BAND person=33 physical=-3750,314 action=Travelling intent=medical.rest instrument=False
+TIMETABLE_BAND person=34 physical=-3493,-1488 action=Travelling intent=medical.rest instrument=False
+IMMERSION_STATE tick=22800 status=Running sales=82 chips=19 soft=11 beer=0 held=13 max_intox=7593 queues=0,2 hash=942e284d0003d1eb28bdca6910781b20bd7835617d28eb662b61be753e6a453b
+TIMETABLE_STATE name=checkpoint tick=23200 slot=2 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Paused: performer away from stage marks hash=1cd0a1f7ddeac1f2083723a113acb60a0d5f2707a7e0b1a38f9e0215c7aa89f1
+TIMETABLE_BAND person=32 physical=-4148,-338 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=33 physical=-3750,-1250 action=Arrived intent=medical.rest instrument=False
+TIMETABLE_BAND person=34 physical=-3768,-937 action=Travelling intent=medical.rest instrument=False
+IMMERSION_STATE tick=23200 status=Running sales=85 chips=18 soft=9 beer=0 held=13 max_intox=7543 queues=0,0 hash=1cd0a1f7ddeac1f2083723a113acb60a0d5f2707a7e0b1a38f9e0215c7aa89f1
+TIMETABLE_STATE name=checkpoint tick=23600 slot=2 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Final set finished; performers remain on farm hash=75183b21921c8dcfd5f3510ac81fb661b5e77d4bcca67d3f2fc7b8e5a507acf0
+TIMETABLE_BAND person=32 physical=-13221,2750 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=33 physical=-2750,2084 action=Travelling intent=medical.return instrument=False
+TIMETABLE_BAND person=34 physical=-3750,-1250 action=Arrived intent=medical.rest instrument=False
+IMMERSION_STATE tick=23600 status=Running sales=85 chips=18 soft=9 beer=0 held=12 max_intox=7493 queues=1,0 hash=75183b21921c8dcfd5f3510ac81fb661b5e77d4bcca67d3f2fc7b8e5a507acf0
+TIMETABLE_STATE name=checkpoint tick=24000 slot=2 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Final set finished; performers remain on farm hash=28fe320f22fc62ca6b1c8b19b6f2c571ac6fe28e226d27c6f3aa941ac8284915
+TIMETABLE_BAND person=32 physical=-16250,1750 action=Travelling intent=edition.departure instrument=False
+TIMETABLE_BAND person=33 physical=-8503,2750 action=Travelling intent=edition.departure instrument=False
+TIMETABLE_BAND person=34 physical=-1750,4191 action=Travelling intent=edition.departure instrument=False
+IMMERSION_STATE tick=24000 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=28fe320f22fc62ca6b1c8b19b6f2c571ac6fe28e226d27c6f3aa941ac8284915
+TIMETABLE_STATE name=checkpoint tick=24001 slot=2 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Final set finished; performers remain on farm hash=9a0f8f5719f6f5ee7476b861f0f3a5e5169d9aded8918eedd1ea61ce4c133430
+TIMETABLE_BAND person=32 physical=-16229,1771 action=Travelling intent=edition.departure instrument=False
+TIMETABLE_BAND person=33 physical=-8489,2778 action=Travelling intent=edition.departure instrument=False
+TIMETABLE_BAND person=34 physical=-1750,4224 action=Travelling intent=edition.departure instrument=False
+IMMERSION_STATE tick=24001 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=9a0f8f5719f6f5ee7476b861f0f3a5e5169d9aded8918eedd1ea61ce4c133430
+IMMERSION_STATE tick=24081 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=f9fc4bd5068b109172c39602936c0ad62c0cb68d13c31166c47ef9d2c233a863
+IMMERSION_STATE tick=24161 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=ef55212ab4c39dacc5c1c7db1549dd0be83bc26c443d9522bec1f9ecc6ebbde5
+IMMERSION_STATE tick=24241 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=b659a983cf743a1aeeeedfe818e82fe10bf1d8ee7c8291356029fe647cfa9641
+IMMERSION_STATE tick=24321 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=f730f005e725cc7c0346bea0d94f3874805dbb69c15f1c3199a1d1bcbc90eab8
+IMMERSION_STATE tick=24401 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=7411cf551ac681b0425fe7d62816d7121a1bcf1ef610e1720911707b809cd414
+IMMERSION_STATE tick=24481 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=8920b898e5444029ccc1b2f3a8d9374e407dabc44e4ac6f03c7a78166630437d
+IMMERSION_STATE tick=24561 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=37ad424a672eef709a5b6abae9baa21a44382a9cb9b51d215d21242c2965e9c7
+IMMERSION_STATE tick=24641 status=Departing sales=86 chips=17 soft=9 beer=0 held=11 max_intox=7444 queues=0,0 hash=12df23295268b39b3329c2d246cf0871028bb3af837ee504d959f2db7ba9d2e9
+IMMERSION_STATE tick=24721 status=Departing sales=86 chips=17 soft=9 beer=0 held=9 max_intox=7444 queues=0,0 hash=4f42a2bd775ad2f88142082e71e38fad8452d7b084fe79a0fc40a1cd99501993
+IMMERSION_STATE tick=24801 status=Departing sales=86 chips=17 soft=9 beer=0 held=6 max_intox=7444 queues=0,0 hash=afc28ae76049fd8354b6bb25733ed6d971aca0bca7b48ec76f7b88537425b3aa
+IMMERSION_STATE tick=24881 status=Departing sales=86 chips=17 soft=9 beer=0 held=5 max_intox=7444 queues=0,0 hash=a57681406ee55c2844f401aeffa03d2ebcebbf67a739e027282a7fb14dd8ce5c
+IMMERSION_STATE tick=24961 status=Departing sales=86 chips=17 soft=9 beer=0 held=5 max_intox=7444 queues=0,0 hash=923aea1ab64103d29351e9a96768f8bdb072eba413b0c00107ac61c62cd00aa7
+IMMERSION_STATE tick=25041 status=Departing sales=86 chips=17 soft=9 beer=0 held=2 max_intox=7444 queues=0,0 hash=f53ca40593609f5e4fb0b4a1a9d714a7baa4ec8c917c867beae1004da2d32c41
+IMMERSION_STATE tick=25121 status=Departing sales=86 chips=17 soft=9 beer=0 held=2 max_intox=7444 queues=0,0 hash=480de050162edd746cef094aae5f7c3703bbd0faffe29210cd526e65febd34fd
+IMMERSION_STATE tick=25201 status=Departing sales=86 chips=17 soft=9 beer=0 held=1 max_intox=7444 queues=0,0 hash=f56ac0283206e02b85d205f7f30eb21f6cd59f23866bfea2ebe6e2d8a329aee8
+IMMERSION_STATE tick=25281 status=Departing sales=86 chips=17 soft=9 beer=0 held=1 max_intox=7444 queues=0,0 hash=636f643e2f2570a96d6ffdec0ca48f825354705d18a72e3a24f1192e9d220a4d
+IMMERSION_STATE tick=25361 status=Departing sales=86 chips=17 soft=9 beer=0 held=1 max_intox=7444 queues=0,0 hash=f52a406c00d543b0271c78d989b9cb0a6f8470cc063c0093362883a2d1692cb8
+IMMERSION_STATE tick=25441 status=Departing sales=86 chips=17 soft=9 beer=0 held=0 max_intox=7444 queues=0,0 hash=5f581bbdfb77ca3f68cbfc1c1eaf356a0b87348a1d03ce2096655b68719e5997
+IMMERSION_STATE tick=25521 status=Departing sales=86 chips=17 soft=9 beer=0 held=0 max_intox=7444 queues=0,0 hash=04842f9d67e609226e0833144a20d2920a521ff21e306f17d8159b0393d5ddcb
+IMMERSION_STATE tick=25601 status=Departing sales=86 chips=17 soft=9 beer=0 held=0 max_intox=7444 queues=0,0 hash=800c54feb52660142af29426306ce3b00e5cead0fc366bcea10c044eff470279
+IMMERSION_STATE tick=25681 status=Departing sales=86 chips=17 soft=9 beer=0 held=0 max_intox=7444 queues=0,0 hash=b4960f149faae2d795f545a78ac424867eec4fab6602eb4a46dfe6d95f1f758e
+IMMERSION_STATE tick=25685 status=Finished sales=86 chips=17 soft=9 beer=0 held=0 max_intox=7444 queues=0,0 hash=7a21ab1fac76809bb3a1b5d5d3fcb4967d88a1bb51a9713b17b15f915f9e36d3
+FARM_SELECTION_CLEARED
+IMMERSION_CAPTURE_COMPLETE departed=32 products_captured=SoftDrink,Beer,Chips partial_reload=True

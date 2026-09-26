@@ -43,6 +43,8 @@ public sealed partial class GameSession
     // 160 festival minutes = eight live real minutes at the unchanged 80 ticks/s;
     // preparation and pauses target the remaining two minutes, pending playtesting.
     public const int PreparedWeekendTicks = 38_400;
+    public const int PreparedDayTicks = 24_000;
+    public int PreparedEditionDurationTicks => _programme is null ? PreparedWeekendTicks : PreparedDayTicks;
     private PreparationSnapshot? _preparation;
     public PreparationStatus? PreparedStatus => _preparation?.Status;
     public PreparationSnapshot? CapturePreparation() => _preparation is null ? null :
@@ -52,7 +54,7 @@ public sealed partial class GameSession
         p.RespondersUpgraded ? "" : nameof(p.RespondersUpgraded), p.StaffProfiles.Length > 0 ? "" : nameof(p.StaffProfiles),
         p.PrimaryWaterQuarterTurns != 0 ? "" : nameof(p.PrimaryWaterQuarterTurns), p.PrimaryWaterGeometryVersion != 0 ? "" : nameof(p.PrimaryWaterGeometryVersion));
     public bool PreparationBoundaryOnNextTick => !IsPaused && _preparation is { } p &&
-        (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedWeekendTicks - 1 && p.People.All(item => item.Admitted) ||
+        (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks - 1 && p.People.All(item => item.Admitted) ||
          p.Status == PreparationStatus.Departing && p.People.All(item => item.Departed));
 
     public PreparationInventoryBalance? GetPreparationInventoryBalance() => _preparation is not { } p ? null :
@@ -106,6 +108,7 @@ public sealed partial class GameSession
         if (movingId == "water.main" && cell == p.PrimaryWaterCell && quarterTurns == p.PrimaryWaterQuarterTurns && p.PrimaryWaterGeometryVersion == 1)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The original standpipe is already at this site.");
         var issue = ValidateWaterPlacementCell(cell, p, movingId, _equipment, quarterTurns);
+        if(issue is null && WaterOverlapsImmersion(_immersion,cell,quarterTurns))issue="Water overlaps a placed food/drink vendor or its queue.";
         return issue is null ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
     }
 
@@ -238,6 +241,7 @@ public sealed partial class GameSession
         if (_disorder is not null) offers = offers.Concat(new[] {
             new PreparationOffer("staff.extra-medic", "extra-medic", "Avery Brooks: extra medic • paid weekend contract", 3000, 0, -1),
             new PreparationOffer("staff.extra-steward", "extra-steward", "Sam Ellis: extra steward • paid weekend contract", 3000, 0, -1) }).ToArray();
+        if (_programme is not null) offers = offers.Where(offer => offer.Category != "act").Concat(FestivalActs.Select(act => new PreparationOffer(act.Id, "act", act.Name, act.PricePennies, 1000, act.Genre))).ToArray();
         return offers;
     }
 
@@ -248,8 +252,10 @@ public sealed partial class GameSession
         var offers = GetPreparationOffers();
         if (command is AcceptPreparationOfferCommand accept)
         {
+            if (_immersion is not null && accept.OfferId=="contract.stock") return CommandResult.Rejected(CommandReasonCode.InvalidParameter,"Buy physical food/drink starter stock instead.");
             var offer = offers.SingleOrDefault(item => item.Id == accept.OfferId);
             if (offer is null) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown preparation offer.");
+            if (_programme is not null && offer.Category == "act") return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Confirm all three acts together through the programme.");
             if (offer.Category is "extra-medic" or "extra-steward" &&
                 (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || p.People.Length >= 50))
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Requires the matching role slot and room below 50 active people.");
@@ -259,7 +265,7 @@ public sealed partial class GameSession
             if (_festivalFinances[new(p.FinanceOwnerId)].CashPennies < offer.PricePennies)
                 return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, "Insufficient cash for this commitment.");
         }
-        else if (!p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) || !p.WorkContracts.Any(id => id.StartsWith("staff.", StringComparison.Ordinal)))
+        else if ((_programme is null ? !p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) : _programme.ActIds.Length != 3) || !p.WorkContracts.Any(id => id.StartsWith("staff.", StringComparison.Ordinal)))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Book one act and one worker for the fixed protected roster.");
         return null;
     }
@@ -351,6 +357,7 @@ public sealed partial class GameSession
             }
             _traversalGrid = new TraversalGrid(terrain.Values);
         }
+        BlockImmersionVendors();
         for (var index = 0; index < p.People.Length; index++)
         {
             var person = p.People[index];
@@ -392,19 +399,27 @@ public sealed partial class GameSession
             if (p.Status == PreparationStatus.Running && !person.Admitted)
             {
                 var satisfaction = 5_000;
-                if (person.Role == ProtectedPersonRole.Guest)
+                if (person.Role == ProtectedPersonRole.Guest && _immersion is null)
                 {
                     var stock = _ownedStocks[new(p.StockId)];
                     if (stock.Quantity > 0) { stock.Quantity--; consumed++; satisfaction = Math.Min(10_000, satisfaction + 200); }
                 }
                 people[index] = person with { Admitted = true, Satisfaction = satisfaction, MusicRisk = 0 };
             }
-            if (p.Status == PreparationStatus.Departing && !person.Departed)
+            if (p.Status == PreparationStatus.Departing && !person.Departed && ImmersionCanMarkDeparted(person.AgentId, index))
                 people[index] = person with { Departed = true };
         }
         _preparation = p = p with { People = people, StockConsumed = consumed };
-        if (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedWeekendTicks && transitionAtStart)
+        if (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks && transitionAtStart)
         {
+            if (_immersion is not null)
+            {
+                _preparation = p with { Status = PreparationStatus.Departing };
+                Phase = SessionPhase.Egress;
+                StartImmersionDeparture();
+                return;
+            }
+            FinishProgrammeMedicalNeedsForDeparture();
             for (var index = 0; index < people.Length; index++)
                 if (!people[index].Departed)
                     ApplyAgentDestination(new(people[index].AgentId), new(PreparedStart(index), "edition.departure"));
@@ -449,12 +464,18 @@ public sealed partial class GameSession
     private void RetryPreparedWeekend()
     {
         var p = _preparation!;
-        var baseline = _disorder is not null ? CreateDisorderCampaign(CampaignSeed, p.Tier) :
+        var baseline = _immersion is not null ? CreateImmersionCampaign(CampaignSeed) : _programme is not null ? CreateTimetableCampaign(CampaignSeed) : _disorder is not null ? CreateDisorderCampaign(CampaignSeed, p.Tier) :
             _medical is not null ? CreateMedicalCampaign(CampaignSeed, p.Tier) : CreateEquipmentCampaign(CampaignSeed, p.Tier);
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;
         _ownedStocks[new(p.StockId)].Quantity = 40;
         _navigationAgents.Clear();
         _livePerformance = null;
+        _programme = baseline._programme;
+        if (_immersion is not null)
+        {
+            _immersion = baseline._immersion! with { Vendors = _immersion.Vendors.Select(v => v with { Queue = [], OwnerId = null, ServiceTicks = 0,QueueCells=v.QueueCells is null?null:[ImmersionServiceCell(v)] }).ToArray() };
+            foreach (var person in _immersion.People) _wallets[new(person.AgentId)].CashPennies = person.OpeningBudgetPennies;
+        }
         _equipment = baseline._equipment;
         _medical = baseline._medical;
         if (_medical is not null)
@@ -506,6 +527,7 @@ public sealed partial class GameSession
                 snapshot.Equipment, p.PrimaryWaterQuarterTurns, p.PrimaryWaterGeometryVersion) is not null)
             return "Primary water position is invalid.";
         var preceding = p with { ExtraWaterSiteIds = [], WaterPlacements = [] };
+        if(WaterOverlapsImmersion(snapshot.Immersion,p.PrimaryWaterCell,p.PrimaryWaterQuarterTurns,p.PrimaryWaterGeometryVersion)||EffectiveWaterPlacements(p).Any(w=>WaterOverlapsImmersion(snapshot.Immersion,w.Cell,w.QuarterTurns,w.GeometryVersion)))return "Saved water overlaps immersion vendor or queue.";
         foreach (var placement in EffectiveWaterPlacements(p))
         {
             if (placement.Id.StartsWith("water.extra-", StringComparison.Ordinal) &&
@@ -518,13 +540,14 @@ public sealed partial class GameSession
         var medic = snapshot.Medical is null ? 0 : 1;
         var security = snapshot.Disorder is null ? 0 : 1;
         var extras = p.AcceptedOffers.Count(id => id is "staff.extra-medic" or "staff.extra-steward");
-        if (p.People.Length > 50 || p.People.Length != p.Tier * 20 + 4 + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != p.Tier * 20 ||
-            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != 3 ||
-            p.People.Any(item => item.AgentId == 0 || item.AgentId >= snapshot.NextEntityId || string.IsNullOrWhiteSpace(item.Name) || item.ExpectedGenre is < 0 or > 1 ||
+        var performerCount = snapshot.Programme is null ? 3 : 9;
+        if (p.People.Length > 50 || p.People.Length != p.Tier * 20 + 1 + performerCount + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != p.Tier * 20 ||
+            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != performerCount ||
+            p.People.Any(item => item.AgentId == 0 || item.AgentId >= snapshot.NextEntityId || string.IsNullOrWhiteSpace(item.Name) || item.ExpectedGenre < 0 || item.ExpectedGenre > (snapshot.Programme is null ? 1 : 3) ||
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
             p.People.Select(item => item.AgentId).Distinct().Count() != p.People.Length)
             return "Fixed protected roster invalid.";
-        var factory = snapshot.Disorder is not null ? CreateDisorderCampaign(snapshot.CampaignSeed, p.Tier) :
+        var factory = snapshot.Programme is not null ? CreateTimetableCampaign(snapshot.CampaignSeed) : snapshot.Disorder is not null ? CreateDisorderCampaign(snapshot.CampaignSeed, p.Tier) :
             snapshot.Medical is not null ? CreateMedicalCampaign(snapshot.CampaignSeed, p.Tier) :
             snapshot.Equipment is null ? CreatePreparedCampaign(snapshot.CampaignSeed, p.Tier) : CreateEquipmentCampaign(snapshot.CampaignSeed, p.Tier);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
@@ -534,13 +557,13 @@ public sealed partial class GameSession
             p.Contacts.Any(id => id != "contact.casey-vale" && (snapshot.Equipment is null || id != "contact.morgan-finch") &&
                 (snapshot.Disorder is null || id is not ("contact.avery-brooks" or "contact.sam-ellis"))) ||
             p.WorkContracts.Any(id => !offers.TryGetValue(id, out var offer) || offer.Category is not ("staff" or "maintenance" or "extra-medic" or "extra-steward")) || p.AcceptedOffers.Any(id => !offers.ContainsKey(id)) ||
-            p.AcceptedOffers.Select(id => offers[id].Category).Distinct().Count() != p.AcceptedOffers.Length)
+            p.AcceptedOffers.Select(id => offers[id].Category == "act" && snapshot.Programme is not null ? id : offers[id].Category).Distinct().Count() != p.AcceptedOffers.Length)
             return "Preparation entitlement invalid.";
         if (p.Payments.Where((item, index) => item.Id != index + 1 || item.Attempt < 1 || item.Attempt > p.Attempt || item.Tick < 0 || item.Tick > snapshot.CurrentTick ||
             string.IsNullOrWhiteSpace(item.OfferId) || !offers.TryGetValue(item.OfferId, out var offer) || item.AmountPennies != offer.PricePennies ||
             item.DebitAccount != (item.OfferId == "equipment.buy" ? LedgerAccountType.EquipmentAsset :
                 item.OfferId == "contract.stock" ? LedgerAccountType.InventoryAsset : LedgerAccountType.AdministrationExpense)).Any() ||
-            p.Payments.Select(item => (item.Attempt, offers[item.OfferId].Category)).Distinct().Count() != p.Payments.Length ||
+            p.Payments.Select(item => (item.Attempt, Category: offers[item.OfferId].Category == "act" && snapshot.Programme is not null ? item.OfferId : offers[item.OfferId].Category)).Distinct().Count() != p.Payments.Length ||
             !p.AcceptedOffers.SequenceEqual(p.Payments.Where(item => item.Attempt == p.Attempt).Select(item => item.OfferId).Order(StringComparer.Ordinal)))
             return "Preparation commitments do not reconcile.";
         var settled = p.Status is PreparationStatus.Failed or PreparationStatus.Finished;
@@ -555,7 +578,8 @@ public sealed partial class GameSession
             snapshot.Equipment?.WorkerId is { } activeWorker && activeWorker != p.MaintenanceWorkerId)
             return "Preparation property or contracts lack matching paid commitments.";
         if (p.Status == PreparationStatus.Preparing && (snapshot.Phase != (int)SessionPhase.OpeningCheck || (snapshot.NavigationAgents?.Length ?? 0) != 0 || p.People.Any(item => item.Admitted || item.Departed)) ||
-            p.Status is PreparationStatus.Running or PreparationStatus.Failed && snapshot.Phase != (int)SessionPhase.Live ||
+            (p.Status == PreparationStatus.Running || p.Status == PreparationStatus.Failed && snapshot.Immersion is null) && snapshot.Phase != (int)SessionPhase.Live ||
+            p.Status == PreparationStatus.Failed && snapshot.Immersion is not null && (snapshot.Phase is not ((int)SessionPhase.Live) and not ((int)SessionPhase.Egress) || snapshot.Phase == (int)SessionPhase.Egress && snapshot.CurrentTick < p.StartedTick + PreparedDayTicks) ||
             p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.Phase != (int)SessionPhase.Egress ||
             p.Status == PreparationStatus.Failed && !p.FixtureOutcomesEnabled && snapshot.Equipment?.Stage != EquipmentStage.Terminal && snapshot.Medical?.Stage != MedicalStage.Terminal && snapshot.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death" ||
             p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => offers[id].Category == "staff")) ||
@@ -582,7 +606,7 @@ public sealed partial class GameSession
         var finance = snapshot.FestivalFinances.SingleOrDefault(item => item.OwnerId == p.FinanceOwnerId);
         var stock = snapshot.OwnedStocks.SingleOrDefault(item => item.ServiceId == p.StockId);
         if (finance is null || stock is null || stock.OwnerId != p.FinanceOwnerId || stock.UnitCostBasisPennies != 60 ||
-            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => p.FixtureOutcomesEnabled || item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) ||
+            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => p.FixtureOutcomesEnabled || item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? 9600 : 0) + (snapshot.Immersion?.Purchases?.Sum(item => (long)item.PricePennies) ?? 0) ||
             stock.Quantity != 40 + 50 * p.Payments.Count(item => item.OfferId == "contract.stock" && (p.FixtureOutcomesEnabled || item.Attempt == p.Attempt)) - p.StockConsumed)
             return "Preparation cash or stock does not reconcile.";
         if (p.Status != PreparationStatus.Preparing &&

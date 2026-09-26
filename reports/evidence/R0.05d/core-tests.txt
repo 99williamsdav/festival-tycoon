@@ -1,0 +1,48 @@
+passed AtomicBookingsReorderWithoutDuplicateFeesAndRejectReplacement (213ms)
+passed InsufficientFundsAndLateProgrammeCommandsLeaveStateUnchanged (97ms)
+passed MalformedProgrammeAndOutOfWindowLiveStateAreRejectedWithoutThrowing (73ms)
+passed IncomingCareRouteIsRetainedAndMissedSlotCannotExtendItsDeadline (132ms)
+passed FullStaffCapacityHasThirtyFiveDistinctPhysicalPeople (1s 130ms)
+  Standard output
+    35-person opening: max blocked people=1, routes=355, maximum blocked age=1
+    
+passed SameTierRetryKeepsNineIdentitiesAndTastesButClearsProgrammeAndContracts (1s 437ms)
+passed ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260926,True) (14s 304ms)
+  Standard output
+    Played 0,1,2; tick=38400; state=Departing; programme=Final set finished; performers remain on farm
+    
+passed ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm (20260922,False) (13s 189ms)
+  Standard output
+    Played 0,1,2; tick=38400; state=Departing; programme=Final set finished; performers remain on farm
+    
+passed ThreeStablePerformersTravelAndListenersAccrueOnlyWhileWatching (289ms)
+passed BandHoldsOffStageUntilLeadThenEquipsAtMarksBeforeSetStart (262ms)
+passed IsolationProducesImmediateSilenceThenOnlyDelayedBoo (246ms)
+passed FullFrontageFallsBackAndFinishedSetDoesNotRewardTwice (1s 124ms)
+passed BandUsesSavedSideAccessAndNeverReportsExitArrivalAsOnStage (470ms)
+passed ListeningCountsExactEligibleTicksAcrossSetStartAndPowerCut (365ms)
+passed StableOffersHaveBoundedAffordableChoicesWithoutReroll (45ms)
+passed EntireProtectedRosterPhysicallyArrivesAndDeparts (1) (1s 509ms)
+passed EntireProtectedRosterPhysicallyArrivesAndDeparts (2) (4s 237ms)
+passed FailurePreservesPropertyContactsCashAndUnusedStockButExpiresContracts (557ms)
+passed WeakMusicFitChangesNamedGuestSatisfactionAndRiskWithoutBlockingStart (393ms)
+passed MalformedPreparationRejectsMissingRosterAndUnpaidProperty (1ms)
+passed PurchasedRigCostsMoreNowAndImprovesActualMusicQuality (345ms)
+passed SuccessfulRentalExpiresAndLedgerReconcilesExactly (878ms)
+passed CommittedRetryCostsEventuallyRejectWithoutNegativeCashOrMutation (169ms)
+passed EditionBoundariesSaveCandidatesAndFailedWritesPreserveVisibleState (False) (1s 130ms)
+passed EditionBoundariesSaveCandidatesAndFailedWritesPreserveVisibleState (True) (1s 217ms)
+passed OpeningInventoryPlusDeliveriesLessActualConsumptionEqualsRemainingValue (187ms)
+passed NinePerformerMedicalProfilesRemainProtectedAndSaved (393ms)
+passed UpcomingAnticipationIsFiniteAndClampedAndSurvivesRestore (472ms)
+passed UrgentThirstWinsUpcomingMusicAndNeedsChoiceRestoresDeterministically (373ms)
+passed IdlePerformerHeatChoosesPhysicalRestWithoutStageEntitlement (596ms)
+passed FuturePerformerRetainsWarningCollapseCriticalAndFirstDeathProtection (902ms)
+passed PlannedSilenceDoesNotCreateMusicCutoffButActualPowerCutDoes (425ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 32
+  failed: 0
+  succeeded: 32
+  skipped: 0
+  duration: 47s 292ms

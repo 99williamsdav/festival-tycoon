@@ -1,4 +1,5 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Festival.Simulation;
 
@@ -9,7 +10,12 @@ public sealed record LiveListener(ulong AgentId, GridCell? Place, int Enthusiasm
     long LastDecisionTick = -800);
 public sealed record LivePerformanceSnapshot(int Version, LiveSetStage Stage, long PlannedTick, long StartedTick,
     long EndedTick, long InterruptedTick, int ReactionSequence, string LastReaction, LivePerformer[] Performers,
-    LiveListener[] Listeners);
+    LiveListener[] Listeners)
+{
+    public ulong[] SetEndAudienceIds { get; init; } = [];
+    [JsonIgnore] public int SetEndAudienceCount => SetEndAudienceIds.Length;
+    [JsonIgnore] public int SetEndEnjoymentTotal => Listeners.Where(listener => SetEndAudienceIds.Contains(listener.AgentId)).Sum(listener => listener.EnjoymentEarned);
+}
 
 public sealed partial class GameSession
 {
@@ -19,33 +25,39 @@ public sealed partial class GameSession
     public const int SustainedBooDelayTicks = 320;
     private LivePerformanceSnapshot? _livePerformance;
     public LivePerformanceSnapshot? CaptureLivePerformance() => _livePerformance is null ? null : _livePerformance with
-    { Performers = _livePerformance.Performers.ToArray(), Listeners = _livePerformance.Listeners.ToArray() };
-    internal string? LivePerformanceCanonicalJson => _livePerformance is null ? null : JsonSerializer.Serialize(_livePerformance);
+    { Performers = _livePerformance.Performers.ToArray(), Listeners = _livePerformance.Listeners.ToArray(), SetEndAudienceIds = _livePerformance.SetEndAudienceIds.ToArray() };
+    internal string? LivePerformanceCanonicalJson => _livePerformance is null ? null : StaffCompatibleCanonicalJson(_livePerformance,
+        _livePerformance.SetEndAudienceIds.Length == 0 ? nameof(LivePerformanceSnapshot.SetEndAudienceIds) : "");
     public bool LivePerformanceBoundaryOnNextTick => !IsPaused && _livePerformance is { } live &&
         (live.Stage == LiveSetStage.BeforeSet && CurrentTick + 1 >= live.PlannedTick && live.Performers.All(item => item.OnStage) ||
-         live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted && CurrentTick + 1 >= live.StartedTick + LiveSetDurationTicks);
+         live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted && CurrentTick + 1 >= (_programme?.SlotEndTick ?? live.StartedTick + LiveSetDurationTicks) ||
+         _programme is { CurrentSlot: < 2 } q && live.Stage == LiveSetStage.Finished && _preparation is { } p && CurrentTick + 1 == p.StartedTick + FestivalSlotStarts[q.CurrentSlot + 1] - LiveSetStageEntryLeadTicks);
 
     private void StartLivePerformance()
     {
         var p = _preparation!;
+        if (_programme is { } programme)
+            _programme = programme with { CurrentSlot = Math.Max(0, programme.CurrentSlot), SlotEndTick = p.StartedTick + FestivalSlotEnds[Math.Max(0, programme.CurrentSlot)], Status = "Performers approaching stage" };
         GridCell[] positions = [new(96, 150), new(94, 146), new(93, 152)];
         GridCell[] access = [new(101, 156), new(101, 157), new(101, 158)];
         GridCell[] stairs = [new(99, 156), new(99, 157), new(99, 158)];
-        var performers = p.People.Where(item => item.Role == ProtectedPersonRole.Performer).Select((item, index) =>
+        var performers = p.People.Where(item => item.Role == ProtectedPersonRole.Performer && (_programme is null || _programme.Performers.Any(role => role.AgentId == item.AgentId && role.SlotIndex == _programme.CurrentSlot))).Select((item, index) =>
             new LivePerformer(item.AgentId, positions[index], access[index], stairs[index], false, false, false, false)).ToArray();
         foreach (var performer in performers)
-            ApplyAgentDestination(new(performer.AgentId), new(performer.AccessCell, "performance.side-entry"));
+            if (_programme is null || !MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < _programme.SlotEndTick)
+                ApplyAgentDestination(new(performer.AgentId), new(performer.AccessCell, "performance.side-entry"));
         var listeners = p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Select(item =>
-            new LiveListener(item.AgentId, null, item.ExpectedGenre != BookedGenre() ? 35 :
+            new LiveListener(item.AgentId, null, _programme is not null ? FestivalAffinity(item.AgentId, CurrentFestivalAct!) : item.ExpectedGenre != BookedGenre() ? 35 :
                 item.AgentId % 3 == 0 ? 65 : 100, 0, 0, false)).ToArray();
-        _livePerformance = new(2, LiveSetStage.BeforeSet, CurrentTick + LiveSetArrivalDelayTicks, -1, -1, -1,
+        _livePerformance = new(2, LiveSetStage.BeforeSet, _programme is null ? CurrentTick + LiveSetArrivalDelayTicks : p.StartedTick + FestivalSlotStarts[_programme.CurrentSlot], -1, -1, -1,
             0, "none", performers, listeners);
     }
 
-    private int BookedGenre() => _preparation!.AcceptedOffers.Contains("act.punk") ? 1 : 0;
+    private int BookedGenre() => CurrentFestivalAct?.Genre ?? (_preparation!.AcceptedOffers.Contains("act.punk") ? 1 : 0);
 
     private void AdvanceLivePerformance()
     {
+        AdvanceProgramme();
         if (_livePerformance is not { } live || _preparation is not { Status: PreparationStatus.Running } p) return;
         var hasPower = _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal);
         var periodic = CurrentTick % 80 == 0;
@@ -159,9 +171,9 @@ public sealed partial class GameSession
                 _navigationAgents[new(listener.AgentId)].Destination == place;
             // The prior tick's state earns one tick. A set starting, a new arrival,
             // or restored power cannot award an entire second at this boundary.
-            if (live.Stage == LiveSetStage.Live && hasPower && listener.AtPlace && atPlace &&
+            if (live.Stage == LiveSetStage.Live && hasPower && (_programme is null || performers.All(person => person.OnStage)) && listener.AtPlace && atPlace &&
                 !p.People.Any(item => item.AgentId == listener.AgentId && item.Departed) &&
-                CurrentTick > live.StartedTick && CurrentTick <= live.StartedTick + LiveSetDurationTicks)
+                CurrentTick > live.StartedTick && CurrentTick <= (_programme?.SlotEndTick ?? live.StartedTick + LiveSetDurationTicks))
             {
                 var listenedTicks = listener.ListenedTicks + 1;
                 var earned = listener.EnjoymentEarned;
@@ -189,7 +201,8 @@ public sealed partial class GameSession
         var interrupted = live.InterruptedTick;
         var reaction = live.LastReaction;
         var sequence = live.ReactionSequence;
-        if (stage == LiveSetStage.BeforeSet && CurrentTick >= live.PlannedTick && performers.All(item => item.OnStage))
+        var setEndAudienceIds = live.SetEndAudienceIds;
+        if (stage == LiveSetStage.BeforeSet && CurrentTick >= live.PlannedTick && CurrentTick < (_programme?.SlotEndTick ?? long.MaxValue) && performers.All(item => item.OnStage))
         {
             stage = LiveSetStage.Live;
             started = CurrentTick;
@@ -198,12 +211,12 @@ public sealed partial class GameSession
         }
         if (stage is LiveSetStage.Live or LiveSetStage.Interrupted)
         {
-            var powered = _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal);
+            var powered = _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal) && (_programme is null || performers.All(person => person.OnStage));
             if (!powered && stage == LiveSetStage.Live)
             {
                 stage = LiveSetStage.Interrupted;
                 interrupted = CurrentTick;
-                reaction = "silence";
+                reaction = _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? "silence" : "performer-unavailable";
                 sequence++;
             }
             else if (powered && stage == LiveSetStage.Interrupted)
@@ -213,7 +226,7 @@ public sealed partial class GameSession
                 reaction = "resumed";
                 sequence++;
             }
-            if (stage == LiveSetStage.Interrupted && CurrentTick - interrupted == SustainedBooDelayTicks)
+            if (stage == LiveSetStage.Interrupted && _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal && CurrentTick - interrupted == SustainedBooDelayTicks)
             {
                 var disappointed = listeners.Where(item => item.AtPlace).Select(item => item.AgentId).ToHashSet();
                 var people = p.People.Select(item => disappointed.Contains(item.AgentId) ? item with
@@ -222,23 +235,38 @@ public sealed partial class GameSession
                 reaction = disappointed.Count >= 5 ? "sustained-boo" : "sustained-muted";
                 sequence++;
             }
-            if (CurrentTick >= started + LiveSetDurationTicks)
+            if (CurrentTick >= (_programme?.SlotEndTick ?? started + LiveSetDurationTicks))
             {
+                var applauseEligible = _programme is not null && live.Stage == LiveSetStage.Live && stage == LiveSetStage.Live && powered && started >= 0;
+                if (applauseEligible)
+                    setEndAudienceIds = listeners.Where(listener => listener.AtPlace && listener.ListenedTicks > 0 &&
+                        !AudienceNavigationOwned(listener.AgentId)).Select(listener => listener.AgentId).ToArray();
                 stage = LiveSetStage.Finished;
                 ended = CurrentTick;
-                reaction = listeners.Count(item => item.AtPlace && item.Enthusiasm >= 65) >= 5 ? "set-finished-cheer" : "set-finished-muted";
+                reaction = _programme is null
+                    ? listeners.Count(item => item.AtPlace && item.Enthusiasm >= 65) >= 5 ? "set-finished-cheer" : "set-finished-muted"
+                    : setEndAudienceIds.Length > 0 ? "set-finished-applause" : applauseEligible ? "set-finished-muted" : "set-finished-interrupted";
                 sequence++;
             }
+        }
+        if (_programme is { } programme && CurrentTick >= programme.SlotEndTick && stage == LiveSetStage.BeforeSet)
+        {
+            stage = LiveSetStage.Finished;
+            ended = programme.SlotEndTick;
+            reaction = "slot-missed-not-ready";
+            sequence++;
         }
         performers = performers.Select((item, index) => stage == LiveSetStage.Finished
             ? item with { OnStage = false, InstrumentAttached = false }
             : item with { InstrumentAttached = index < 2 && item.OnStage }).ToArray();
         _livePerformance = live with { Stage = stage, StartedTick = started, EndedTick = ended,
             InterruptedTick = interrupted, ReactionSequence = sequence, LastReaction = reaction,
-            Performers = performers, Listeners = listeners };
+            Performers = performers, Listeners = listeners, SetEndAudienceIds = setEndAudienceIds };
         if (stage == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished)
             foreach (var performer in performers)
             {
+                if (_programme is not null && MedicalOwnsNavigation(performer.AgentId)) continue;
+                if (_programme is not null && !performer.StairReached && !ProgrammeStageAccessOccupied(_navigationAgents[new(performer.AgentId)])) continue;
                 ApplyAgentDestination(new(performer.AgentId), new(performer.StairCell, "performance.stage-exit-stair"));
             }
     }
@@ -264,7 +292,7 @@ public sealed partial class GameSession
         }
     }
 
-    private bool AudienceNavigationOwned(ulong id) => MedicalOwnsNavigation(id) || DisorderOwnsNavigation(id) ||
+    private bool AudienceNavigationOwned(ulong id) => ImmersionOwnsNavigation(id) || MedicalOwnsNavigation(id) || DisorderOwnsNavigation(id) ||
         _medical?.StaffInterventions.Any(job => job.GuestId == id && job.Stage is StaffInterventionStage.Guiding or StaffInterventionStage.Escorting) == true;
 
     private static int AudienceDistanceSquared(GridCell a, GridCell b) => (a.X - b.X) * (a.X - b.X) + (a.Z - b.Z) * (a.Z - b.Z);
@@ -323,18 +351,30 @@ public sealed partial class GameSession
         if (live is null) return null;
         if (snapshot.Preparation is not { } preparation || live.Version != 2 || !Enum.IsDefined(live.Stage) ||
             live.Performers is null || live.Listeners is null || live.Performers.Length != 3 ||
+            live.SetEndAudienceIds is null || live.SetEndAudienceIds.Distinct().Count() != live.SetEndAudienceIds.Length ||
+            live.SetEndAudienceIds.Any(id => !live.Listeners.Any(listener => listener.AgentId == id && listener.ListenedTicks > 0)) ||
+            live.SetEndAudienceIds.Length > 0 && (snapshot.Programme is null || live.Stage != LiveSetStage.Finished || live.StartedTick < 0 ||
+                live.EndedTick != snapshot.Programme.SlotEndTick || live.InterruptedTick != -1 || live.LastReaction != "set-finished-applause") ||
+            live.LastReaction == "set-finished-applause" && live.SetEndAudienceIds.Length == 0 ||
             live.Listeners.Length != preparation.Tier * 20 || live.PlannedTick < preparation.StartedTick ||
             live.StartedTick > snapshot.CurrentTick || live.EndedTick > snapshot.CurrentTick ||
             live.Performers.Select(item => item.AgentId).Distinct().Count() != 3 ||
             live.Listeners.Select(item => item.AgentId).Distinct().Count() != live.Listeners.Length ||
-            live.Listeners.Any(item => item.ListenedTicks is < 0 or > LiveSetDurationTicks || item.EnjoymentEarned < 0 ||
+            live.Listeners.Any(item => item.ListenedTicks < 0 || item.ListenedTicks > (snapshot.Programme is null ? LiveSetDurationTicks : FestivalSlotDurationTicks) ||
+                item.EnjoymentEarned < 0 || item.EnjoymentEarned > item.ListenedTicks / 80 * 23 ||
                 item.Enthusiasm is < 0 or > 100 || item.LastDecisionTick < -800 || item.LastDecisionTick > snapshot.CurrentTick ||
                 item.Place is { } place && (place.X is < 103 or > 122 || place.Z is < 135 or > 165)))
             return "Live performance state invalid.";
+        if (snapshot.Programme is { } programme &&
+            (live.PlannedTick != preparation.StartedTick + FestivalSlotStarts[programme.CurrentSlot] ||
+             live.StartedTick != -1 && (live.StartedTick < live.PlannedTick || live.StartedTick >= programme.SlotEndTick) ||
+             live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted && (live.StartedTick < 0 || snapshot.CurrentTick >= programme.SlotEndTick) ||
+             live.Stage == LiveSetStage.Finished && preparation.Status != PreparationStatus.Failed && live.EndedTick != programme.SlotEndTick))
+            return "Live programme progress exceeds its fixed slot window.";
         GridCell[] stageCells = [new(96, 150), new(94, 146), new(93, 152)];
         GridCell[] accessCells = [new(101, 156), new(101, 157), new(101, 158)];
         GridCell[] stairCells = [new(99, 156), new(99, 157), new(99, 158)];
-        var roster = preparation.People.Where(item => item.Role == ProtectedPersonRole.Performer).ToArray();
+        var roster = preparation.People.Where(item => item.Role == ProtectedPersonRole.Performer && (snapshot.Programme is null || snapshot.Programme.Performers.Any(role => role.AgentId == item.AgentId && role.SlotIndex == snapshot.Programme.CurrentSlot))).ToArray();
         for (var i = 0; i < 3; i++)
         {
             var performer = live.Performers[i];

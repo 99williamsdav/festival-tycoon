@@ -207,7 +207,7 @@ public sealed partial class GameSession
         m.MainWaterQuarterTurns != 0 ? "" : nameof(m.MainWaterQuarterTurns), m.MainWaterQueueCells.Length > 0 ? "" : nameof(m.MainWaterQueueCells),
         m.MainWaterGeometryVersion != 0 ? "" : nameof(m.MainWaterGeometryVersion), m.StaffInterventions.Length > 0 ? "" : nameof(m.StaffInterventions),
         m.DevelopmentInterventionFixturesEnabled ? "" : nameof(m.DevelopmentInterventionFixturesEnabled));
-    public bool MedicalBoundaryOnNextTick => StaffMedicalBoundaryOnNextTick || !IsPaused && _medical is { } m && _preparation is { Status: PreparationStatus.Running } &&
+    public bool MedicalBoundaryOnNextTick => ImmersionDepartureMedicalBoundaryOnNextTick || StaffMedicalBoundaryOnNextTick || !IsPaused && _medical is { } m && _preparation is { Status: PreparationStatus.Running } &&
         (m.Stage == MedicalStage.Clear && m.Needs.Single(item => item.AgentId == m.AtRiskGuestId).Thirst >= MedicalDistressThirst - 1 ||
          m.Stage == MedicalStage.Distress && CurrentTick + 1 >= m.WarningTick + MedicalCollapseDelayTicks ||
          m.Stage == MedicalStage.Collapsed && CurrentTick + 1 >= m.CollapseTick + MedicalCriticalDelayTicks ||
@@ -220,7 +220,7 @@ public sealed partial class GameSession
               item.Stage == MedicalStage.Collapsed && CurrentTick + 1 >= item.CollapseTick + MedicalCriticalDelayTicks ||
               item.Stage == MedicalStage.Critical && CurrentTick + 1 >= item.CollapseTick + MedicalDeathDelayTicks)) ||
          m.ResponseStage == MedicalResponseStage.Travelling && _navigationAgents[new(m.MedicId)].Action == AgentNavigationAction.Arrived ||
-         m.ResponseStage == MedicalResponseStage.Treating && CurrentTick + 1 >= m.ResponseStartedTick + MedicalTreatmentTicks);
+         m.ResponseStage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(GetMedicResponses().Single(j=>j.WorkerId==m.MedicId)) && CurrentTick + 1 >= m.ResponseStartedTick + MedicalTreatmentTicks || IntoxicationCareBoundary(GetMedicResponses().Single(j=>j.WorkerId==m.MedicId))));
 
     public static GameSession CreateMedicalCampaign(ulong seed, int tier = 1)
     {
@@ -263,8 +263,11 @@ public sealed partial class GameSession
     {
         var patient = _navigationAgents[new(patientId)];
         var cell = TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres);
-        foreach (var (dx, dz) in new (int X, int Z)[] { (4, 0), (-4, 0), (0, 4), (0, -4),
-                     (3, 2), (-3, 2), (3, -2), (-3, -2), (2, 3), (-2, 3), (2, -3), (-2, -3) })
+        var bedside=PersonCollapsed(patientId);
+        var offsets=bedside ? new (int X,int Z)[] { (1,0),(-1,0),(0,1),(0,-1),(0,0),(1,1),(-1,1),(1,-1),(-1,-1) }
+            : [(4,0),(-4,0),(0,4),(0,-4),(3,2),(-3,2),(3,-2),(-3,-2),(2,3),(-2,3),(2,-3),(-2,-3)];
+        if(bedside)offsets=offsets.OrderBy(offset=>{var centre=TraversalGrid.CellCentre(new(cell.X+offset.X,cell.Z+offset.Z));var dx=(long)centre.XMillimetres-patient.XMillimetres;var dz=(long)centre.ZMillimetres-patient.ZMillimetres;return Math.Abs(dx*dx+dz*dz-250_000);}).ToArray();
+        foreach (var (dx, dz) in offsets)
         {
             var candidate = new GridCell(cell.X + dx, cell.Z + dz);
             if (!_traversalGrid!.Contains(candidate) || WaterPoints().Any(point =>
@@ -273,7 +276,8 @@ public sealed partial class GameSession
             var centre = TraversalGrid.CellCentre(candidate);
             var px = (long)centre.XMillimetres - patient.XMillimetres;
             var pz = (long)centre.ZMillimetres - patient.ZMillimetres;
-            if (px * px + pz * pz <= 6_250_000) return candidate;
+            if (px * px + pz * pz <= (bedside?562_500:6_250_000) && (!bedside || px*px+pz*pz>=90_000) &&
+                (!bedside || TraversalSweep.IsWalkable(_traversalGrid,centre.XMillimetres,centre.ZMillimetres,patient.XMillimetres,patient.ZMillimetres))) return candidate;
         }
         return null;
     }
@@ -286,7 +290,15 @@ public sealed partial class GameSession
         var dx = (long)medic.XMillimetres - patient.XMillimetres;
         var dz = (long)medic.ZMillimetres - patient.ZMillimetres;
         return medic.Action == AgentNavigationAction.Arrived && patient.Action == AgentNavigationAction.Arrived &&
-            dx * dx + dz * dz <= 6_250_000;
+            dx * dx + dz * dz <= (PersonCollapsed(patientId)?562_500:6_250_000) &&
+            (!PersonCollapsed(patientId) || TraversalSweep.IsWalkable(_traversalGrid!,medic.XMillimetres,medic.ZMillimetres,patient.XMillimetres,patient.ZMillimetres));
+    }
+    private bool MedicHasValidBedsideDestination(ulong medicId,ulong patientId)
+    {
+        var medic=_navigationAgents[new(medicId)];var patient=_navigationAgents[new(patientId)];
+        if(medic.Destination is not { } cell || !_traversalGrid!.Get(cell).IsWalkable || medic.Action==AgentNavigationAction.NoRoute)return false;
+        var centre=TraversalGrid.CellCentre(cell);var dx=(long)centre.XMillimetres-patient.XMillimetres;var dz=(long)centre.ZMillimetres-patient.ZMillimetres;
+        return dx*dx+dz*dz is >=90_000 and <=562_500 && TraversalSweep.IsWalkable(_traversalGrid,centre.XMillimetres,centre.ZMillimetres,patient.XMillimetres,patient.ZMillimetres);
     }
 
     private CommandResult? ValidateMedicalCommand(EntityId? target, MedicalCommand command, bool developmentFixture = false)
@@ -294,7 +306,7 @@ public sealed partial class GameSession
         if (!Enum.IsDefined(command.Action)) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown medical action.");
         if (!developmentFixture && command.Action != MedicalAction.DispatchMedic)
             return ValidateStaffIntervention(target, LegacyMedicalIntervention(command));
-        if (target is not null || _medical is not { } m || _preparation?.Status != PreparationStatus.Running || !Enum.IsDefined(command.Action))
+        if (target is not null || _medical is not { } m || _preparation is null || !MedicalOperationsActive || !Enum.IsDefined(command.Action))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Medical actions require a live Hot edition.");
         var need = m.Needs.SingleOrDefault(item => item.AgentId == command.GuestId);
         if (InterventionOwnsWorker(command.WorkerId ?? m.MedicId) || InterventionOwnsTarget(command.WorkerId ?? m.MedicId) || (InterventionOwnsTarget(command.GuestId) || InterventionOwnsWorker(command.GuestId)) && !PersonCollapsed(command.GuestId))
@@ -311,7 +323,7 @@ public sealed partial class GameSession
         if (_disorder?.People.Any(item => item.AgentId == command.GuestId && item.Stage == DisorderStage.Fight) == true)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter,
                 "This person is in an active confrontation; first aid and egress follow its safe resolution.");
-        var patientStage = need.Stage is MedicalStage.Collapsed or MedicalStage.Critical ? need.Stage :
+        var patientStage = IntoxicationWarning(command.GuestId) && need.Stage is MedicalStage.Clear or MedicalStage.Treated ? MedicalStage.Distress : need.Stage is MedicalStage.Collapsed or MedicalStage.Critical ? need.Stage :
             need.Profile == MedicalNeedProfile.Guest && command.GuestId == m.AtRiskGuestId ? m.Stage : need.Stage;
         if (m.Stage == MedicalStage.Terminal || patientStage is MedicalStage.Treated or MedicalStage.Removed or MedicalStage.Terminal)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This medical incident has settled.");
@@ -613,9 +625,17 @@ public sealed partial class GameSession
 
     private void ReturnToListening(ulong id)
     {
+        if (ImmersionDepartureActive)
+        {
+            var index = Array.FindIndex(_preparation!.People, person => person.AgentId == id);
+            SetNeed(id, need => need with { Intent = MedicalIntent.Leaving, Reason = "Care completed; physically leaving" });
+            ApplyAgentDestination(new(id), new(PreparedStart(index), "edition.departure"));
+            return;
+        }
         var place = _livePerformance?.Listeners.SingleOrDefault(item => item.AgentId == id)?.Place;
         if (place is { } cell) ApplyAgentDestination(new(id), new(cell, "performance.listen"));
         else if (_livePerformance?.Performers.SingleOrDefault(item => item.AgentId == id) is { } performer &&
+                 (_programme is null || IsCurrentProgrammePerformer(id)) &&
                  _livePerformance.Stage is LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted)
             ApplyAgentDestination(new(id), new(performer.AccessCell, "medical.return-to-stage-access"));
         else
@@ -634,10 +654,39 @@ public sealed partial class GameSession
         performers[index] = performers[index] with
         { AccessReached = false, StairReached = false, OnStage = false, InstrumentAttached = false };
         _livePerformance = live with { Performers = performers };
+        if (_programme is not null && live.Stage == LiveSetStage.Live)
+            _livePerformance = _livePerformance with { Stage = LiveSetStage.Interrupted, InterruptedTick = CurrentTick,
+                LastReaction = "performer-unavailable", ReactionSequence = live.ReactionSequence + 1 };
+    }
+
+    // Derived only from saved programme, identity and time; no random draws or hidden anticipation state.
+    public int FestivalNeedMusicAppeal(ulong id)
+    {
+        if (_programme is null) return 0;
+        var score = _livePerformance?.Stage == LiveSetStage.Live && CurrentFestivalAct is { } current
+            ? 2_500 + FestivalAffinity(id, current) * 50 + current.Popularity * 10 : 2_500;
+        var until = UpcomingFestivalTick - CurrentTick;
+        if (UpcomingFestivalAct is { } upcoming && until is >= 0 and <= 1_600)
+            score += FestivalAnticipationAppeal(FestivalAffinity(id, upcoming), until);
+        return score;
+    }
+
+    public static int FestivalAnticipationAppeal(int affinity, long ticksUntil) => ticksUntil is < 0 or > 1_600
+        ? 0 : (int)((1_600 - ticksUntil) * Math.Clamp(affinity, 0, 100) * 1_500 / 160_000L);
+
+    private void FinishProgrammeMedicalNeedsForDeparture()
+    {
+        if (_programme is null || _medical is not { } medical) return;
+        _medical = medical with { WaterQueue = [], WaterOverflow = [], WaterOwnerId = null, WaterDrinkTicks = 0,
+            MainWaterQueueCells = [], ExtraWaterPoints = medical.ExtraWaterPoints.Select(point => point with
+                { Queue = [], Overflow = [], OwnerId = null, DrinkTicks = 0, QueueCells = [] }).ToArray(),
+            Needs = medical.Needs.Select(need => need with { Intent = MedicalIntent.Leaving, QueueSlot = null,
+                Reason = "Festival complete; leaving physically through the gate", LastDecisionTick = CurrentTick }).ToArray() };
     }
 
     private void AdvanceMedical()
     {
+        if (ImmersionDepartureActive) { AdvanceImmersionDepartureMedicine(); return; }
         if (_medical is not { } m || _preparation is not { Status: PreparationStatus.Running } p) return;
         if (CurrentTick % 4 == 0)
         {
@@ -653,11 +702,13 @@ public sealed partial class GameSession
             foreach (var need in m.Needs)
             {
                 var person = p.People.Single(item => item.AgentId == need.AgentId);
-                if (!person.Admitted || need.Profile == MedicalNeedProfile.Staff || DisorderOwnsNavigation(need.AgentId) ||
+                if (!person.Admitted || person.Departed || need.Profile == MedicalNeedProfile.Staff || DisorderOwnsNavigation(need.AgentId) ||
+                    InterventionOwnsTarget(need.AgentId) || InterventionOwnsWorker(need.AgentId) ||
                     need.Intent is MedicalIntent.Rest or MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed or MedicalIntent.Drinking ||
                     (m.Stage is MedicalStage.Collapsed or MedicalStage.Critical && need.AgentId == m.AtRiskGuestId) ||
                     need.Stage is MedicalStage.Collapsed or MedicalStage.Critical ||
-                    CurrentTick - need.LastDecisionTick < MedicalDecisionCooldownTicks) continue;
+                    CurrentTick - need.LastDecisionTick < MedicalDecisionCooldownTicks &&
+                    !(_programme is not null && (need.Thirst >= MedicalDistressThirst || need.HeatExposure >= MedicalDistressHeat))) continue;
                 var nav = _navigationAgents[new(need.AgentId)];
                 var from = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
                 var bestPoint = need.Intent == MedicalIntent.SeekWater ? WaterPointFor(need.AgentId) : ChooseWaterPoint(need.AgentId);
@@ -668,14 +719,31 @@ public sealed partial class GameSession
                 var showScore = 5_000 + enthusiasm * 40 + (_livePerformance?.Stage == LiveSetStage.Live ? 300 : 0) +
                     (need.Profile == MedicalNeedProfile.Performer ? 5_000 : 0) +
                     (need.AgentId == m.AtRiskGuestId ? 10_000 : 0);
-                if (need.Intent == MedicalIntent.SeekWater)
+                if (_programme is not null)
+                    showScore = FestivalNeedMusicAppeal(need.AgentId) +
+                        (need.Profile == MedicalNeedProfile.Performer && IsCurrentProgrammePerformer(need.AgentId) ? 5_000 : 0);
+                var urgent = _programme is not null && (need.Thirst >= MedicalDistressThirst || need.HeatExposure >= MedicalDistressHeat);
+                if (_programme is not null && need.Intent != MedicalIntent.SeekWater &&
+                    (need.Profile == MedicalNeedProfile.Performer || need.AgentId == m.AtRiskGuestId) &&
+                    need.HeatExposure >= MedicalDistressHeat && need.Thirst < MedicalDistressThirst &&
+                    MedicalRouteExists(need.AgentId, MedicalRestCell))
                 {
-                    if (bestPoint.OwnerId != need.AgentId && need.Thirst < 8_500 && showScore > waterScore + 1_200)
+                    MedicalRelinquishPerformerStage(need.AgentId);
+                    SetNeed(need.AgentId, item => item with { Intent = MedicalIntent.Rest,
+                        Reason = "Hot exposure takes priority over current and upcoming music; physically seeking rest",
+                        LastDecisionTick = CurrentTick });
+                    ApplyAgentDestination(new(need.AgentId), new(MedicalRestCell, "medical.rest"));
+                }
+                else if (need.Intent == MedicalIntent.SeekWater)
+                {
+                    if (!urgent && bestPoint.OwnerId != need.AgentId && need.Thirst < 8_500 && showScore > waterScore + 1_200)
                         LeaveWater(need.AgentId, $"Band appeal {showScore} exceeded water utility {waterScore}; queue place released");
                 }
-                else if (waterScore > showScore)
+                else if (urgent || waterScore > showScore)
                     SeekWater(need.AgentId, $"Hot thirst {need.Thirst}/10000 outweighed band {showScore}; estimated walk + wait + drink {EstimateWaterTotalTicks(need.AgentId, bestPoint)} ticks");
-                else SetNeed(need.AgentId, item => item with { Reason = $"Watching band: music {showScore} vs water {waterScore} incl. travel/wait",
+                else SetNeed(need.AgentId, item => item with { Reason = _programme is null
+                    ? $"Watching band: music {showScore} vs water {waterScore} incl. travel/wait"
+                    : $"Current/upcoming act appeal {showScore} vs water {waterScore} incl. travel/wait",
                     LastDecisionTick = CurrentTick });
                 m = _medical!;
             }
@@ -717,7 +785,15 @@ public sealed partial class GameSession
         foreach (var resting in m.Needs.Where(item => item.Profile == MedicalNeedProfile.Performer && item.Intent == MedicalIntent.Rest).ToArray())
         {
             if (_navigationAgents[new(resting.AgentId)] is { Action: AgentNavigationAction.Arrived, Destination: { } restCell } && restCell == MedicalRestCell)
+            {
                 SetNeed(resting.AgentId, item => item with { HeatExposure = Math.Max(0, item.HeatExposure - 8) });
+                if (_programme is not null && (resting.Stage is MedicalStage.Clear or MedicalStage.Treated) && resting.HeatExposure <= 6_000)
+                {
+                    SetNeed(resting.AgentId, item => item with { Intent = MedicalIntent.WatchShow,
+                        Reason = "Rest relieved Hot exposure; ordinary needs decisions resume", LastDecisionTick = CurrentTick });
+                    ReturnToListening(resting.AgentId);
+                }
+            }
         }
         AdvanceMedicResponses();
         m = _medical!;
@@ -831,7 +907,9 @@ public sealed partial class GameSession
     {
         var m = _medical!; var p = _preparation!;
         var victim = p.People.Single(item => item.AgentId == victimId);
-        var cause = $"In fixed Hot conditions {victim.Name} dried up after thirst {m.Needs.Single(item => item.AgentId == victim.AgentId).Thirst}/10000 and heat exposure; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}.";
+        var cause = _immersion?.People.SingleOrDefault(item=>item.AgentId==victimId) is { CollapseTick: >=0 } alcohol
+            ? $"{victim.Name} died after sustained intoxication {alcohol.Intoxication}/10000; visible intoxication warning tick {alcohol.WarningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
+            : $"In fixed Hot conditions {victim.Name} dried up after thirst {m.Needs.Single(item => item.AgentId == victim.AgentId).Thirst}/10000 and heat exposure; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}.";
         _medical = m with { Stage = MedicalStage.Terminal };
         MedicalEvent("medical:death", cause);
         var lifecycle = _lifecycle!; var attempt = CurrentAttempt();
@@ -856,11 +934,11 @@ public sealed partial class GameSession
         var points = new[] { new WaterPointState("water.main", m.MainWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks) { QuarterTurns = m.MainWaterQuarterTurns, GeometryVersion = m.MainWaterGeometryVersion, QueueCells = m.MainWaterQueueCells } }
             .Concat(m.ExtraWaterPoints ?? []).ToArray();
         if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || !m.IsHot || m.Needs is null || m.WaterQueue is null || m.WaterOverflow is null ||
-            m.Evidence is null || m.Needs.Length != p.Tier * 20 + 3 + (s.Disorder is null ? 0 : 1) + p.AcceptedOffers.Count(id => id == "staff.extra-steward") ||
+            m.Evidence is null || m.Needs.Length != (s.Immersion is not null ? p.People.Length : p.Tier * 20 + p.People.Count(item => item.Role == ProtectedPersonRole.Performer) + (s.Disorder is null ? 0 : 1) + p.AcceptedOffers.Count(id => id == "staff.extra-steward")) ||
             !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role is ProtectedPersonRole.Guest or ProtectedPersonRole.Performer ||
-                item.AgentId == s.Disorder?.SecurityId || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId)).Select(item => item.AgentId)) ||
+                item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId)).Select(item => item.AgentId)) ||
             m.Needs.Any(item => item.Profile != (p.People.Single(person => person.AgentId == item.AgentId).Role == ProtectedPersonRole.Performer ? MedicalNeedProfile.Performer :
-                item.AgentId == s.Disorder?.SecurityId || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId) ? MedicalNeedProfile.Staff : MedicalNeedProfile.Guest)) ||
+                item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null && p.People.Single(person=>person.AgentId==item.AgentId).Role==ProtectedPersonRole.Staff || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId) ? MedicalNeedProfile.Staff : MedicalNeedProfile.Guest)) ||
             !p.People.Any(item => item.AgentId == m.MedicId && item.Name == "Riley Hart" && item.Role == ProtectedPersonRole.Staff) ||
             m.AtRiskGuestId != m.Needs[19].AgentId || m.Needs.Any(item => item.Thirst is < 0 or > 10_000 || item.HeatExposure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Intent) || !Enum.IsDefined(item.Profile) || !Enum.IsDefined(item.Stage) ||
@@ -876,7 +954,7 @@ public sealed partial class GameSession
                 point.QueueCells.Length > 0 && (point.QueueCells.Length < point.Queue.Length + point.Overflow.Length ||
                     point.QueueCells.Length > point.Queue.Length + point.Overflow.Length + 1 || point.QueueCells[0] != WaterPointServiceCell(point) ||
                     point.QueueCells.Any(cell => cell.X is < 0 or >= TraversalGrid.Width || cell.Z is < 0 or >= TraversalGrid.Depth || savedGrid is not null && !savedGrid.Get(cell).IsWalkable) ||
-                    point.QueueCells.Skip(1).Where((cell, index) => Math.Abs(cell.X - point.QueueCells[index].X) > 2 || Math.Abs(cell.Z - point.QueueCells[index].Z) > 2).Any()) ||
+                    point.QueueCells.Skip(1).Where((cell, index) => Math.Abs(cell.X - point.QueueCells[index].X) > 3 || Math.Abs(cell.Z - point.QueueCells[index].Z) > 3).Any()) ||
                 point.Queue.Distinct().Count() != point.Queue.Length || point.Overflow.Distinct().Count() != point.Overflow.Length ||
                 point.Overflow.Length > 0 && point.Queue.Length != 10 ||
                 point.Queue.Where((id, index) => !m.Needs.Any(item => item.AgentId == id && item.WaterPointId == point.Id && item.QueueSlot == index) ||

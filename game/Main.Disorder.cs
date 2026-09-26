@@ -171,6 +171,7 @@ public partial class Main
 
     private void SelectSecurityPost()
     {
+        _selectedImmersionVendor = null;
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null;
         RefreshSatisfactionBar(null);
         RefreshStagePowerAction();
@@ -221,14 +222,16 @@ public partial class Main
         _disorderSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _disorderSummary.CustomMinimumSize = new Vector2(370, 145);
         box.AddChild(_disorderSummary);
-        foreach (var (action, label) in new[] {
-            (DisorderAction.RestoreMusic, "SAFE RESET MUSIC") })
-        {
-            var button = ButtonText(label, () => CommitDisorderAction(action));
-            button.AddThemeFontSizeOverride("font_size", 12);
-            box.AddChild(button);
-            _disorderButtons.Add(action, button);
-        }
+    }
+
+    private void BuildDisorderStageInspector(VBoxContainer parent)
+    {
+        if (_session.CaptureDisorder() is null) return;
+        var button = ButtonText("SAFE RESET MUSIC", () => CommitDisorderAction(DisorderAction.RestoreMusic));
+        button.AddThemeFontSizeOverride("font_size", 12);
+        button.Visible = false;
+        parent.AddChild(button);
+        _disorderButtons.Add(DisorderAction.RestoreMusic, button);
     }
 
     private void BuildDisorderActionInspector()
@@ -288,6 +291,8 @@ public partial class Main
     private void RefreshDisorderActionInspector()
     {
         var d = _session.CaptureDisorder();
+        if (_disorderButtons.TryGetValue(DisorderAction.RestoreMusic, out var stageButton))
+            stageButton.Visible = d is not null && _selected?.Kind == FarmObjectKind.TrailerStage;
         if (d is null) return;
         foreach (var action in new[] { DisorderAction.DispatchSecurity, DisorderAction.SafeEgress })
         {

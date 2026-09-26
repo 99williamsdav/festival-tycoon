@@ -114,6 +114,18 @@ public sealed class WaterFoundationsTests
     }
 
     [TestMethod]
+    public void LooseQueueAimedAtFirstAidTentBendsAroundBlockedBodyAndValidatesSavedShape()
+    {
+        var session=GameSession.CreateMedicalCampaign(20260922);Assert.IsTrue(Send(session,new MovePrimaryWaterPointCommand(new(108,119),1)).IsAccepted);
+        foreach(var offer in new[]{"act.folk","staff.steward","equipment.buy"})Assert.IsTrue(Send(session,new AcceptPreparationOfferCommand(offer)).IsAccepted);Assert.IsTrue(Send(session,new StartPreparedEditionCommand()).IsAccepted);
+        var field=typeof(GameSession).GetField("_medical",BindingFlags.Instance|BindingFlags.NonPublic)!;var grow=typeof(GameSession).GetMethod("GrowWaterQueue",BindingFlags.Instance|BindingFlags.NonPublic)!;var ids=session.CaptureMedical()!.Needs.Take(8).Select(need=>need.AgentId).ToArray();
+        for(var count=0;count<=8;count++){var medical=session.CaptureMedical()!;field.SetValue(session,medical with { WaterQueue=ids.Take(count).ToArray() });Assert.IsTrue((bool)grow.Invoke(session,["water.main"])!);}
+        var point=session.CaptureWaterPoints().Single();Assert.AreEqual(9,point.QueueCells.Length);Assert.IsFalse(point.QueueCells.Any(cell=>Math.Abs(cell.X-GameSession.MedicalTentCell.X)<=3&&Math.Abs(cell.Z-GameSession.MedicalTentCell.Z)<=3));
+        var grid=(TraversalGrid)typeof(GameSession).GetField("_traversalGrid",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(session)!;
+        Assert.AreEqual(true,typeof(GameSession).GetMethod("ValidSavedWaterGeometry",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,[session.CaptureWaterPoints(),grid]));
+        Console.WriteLine("First-aid-directed water line grew9 stablecells outside the blocked tent body.");
+    }
+    [TestMethod]
     public void PlacementDoesNotReserveHypotheticalTailAndOrganicLineAvoidsStage()
     {
         var session = GameSession.CreateMedicalCampaign(20260922);
@@ -179,8 +191,8 @@ public sealed class WaterFoundationsTests
         var gridField = typeof(GameSession).GetField("_traversalGrid", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var grid = (TraversalGrid)gridField.GetValue(session)!;
         var overrides = grid.Overrides.ToDictionary(item => item.Key, item => item.Value);
-        for (var z = front.Z + 1; z <= front.Z + 3; z++)
-        for (var x = front.X - 3; x <= front.X + 3; x++) overrides[new(x, z)] = new(new(x, z), GroundSurface.Grass, false);
+        for (var z = front.Z - 3; z <= front.Z + 3; z++)
+        for (var x = front.X - 3; x <= front.X + 3; x++) if(x!=front.X||z!=front.Z)overrides[new(x, z)] = new(new(x, z), GroundSurface.Grass, false);
         gridField.SetValue(session, new TraversalGrid(overrides.Values));
         var grow = typeof(GameSession).GetMethod("GrowWaterQueue", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var watch = System.Diagnostics.Stopwatch.StartNew();

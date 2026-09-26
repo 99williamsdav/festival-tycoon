@@ -10,10 +10,10 @@ public static class StaffSaveDefaults
     public static void Configure(System.Text.Json.Serialization.Metadata.JsonTypeInfo type)
     {
         if (type.Type != typeof(PreparationSnapshot) && type.Type != typeof(MedicalSnapshot) && type.Type != typeof(DisorderSnapshot) &&
-            type.Type != typeof(WaterPointState) && type.Type != typeof(WaterPlacement)) return;
+            type.Type != typeof(WaterPointState) && type.Type != typeof(WaterPlacement) && type.Type != typeof(LivePerformanceSnapshot)) return;
         foreach (var property in type.Properties)
         {
-            if (property.Name is "staffProfiles" or "extraResponses" or "queueCells" or "mainWaterQueueCells" or "staffInterventions") property.ShouldSerialize = (_, value) => value is not Array array || array.Length > 0;
+            if (property.Name is "staffProfiles" or "extraResponses" or "queueCells" or "mainWaterQueueCells" or "staffInterventions" or "setEndAudienceIds") property.ShouldSerialize = (_, value) => value is not Array array || array.Length > 0;
             if (property.Name is "extraMedicSlotOwned" or "extraStewardSlotOwned" or "respondersUpgraded" or "developmentInterventionFixturesEnabled") property.ShouldSerialize = (_, value) => value is true;
             if (property.Name == "responseDispatchedTick") property.ShouldSerialize = (_, value) => value is not long tick || tick >= 0;
             if (property.Name is "quarterTurns" or "primaryWaterQuarterTurns" or "mainWaterQuarterTurns" or "geometryVersion" or "primaryWaterGeometryVersion" or "mainWaterGeometryVersion") property.ShouldSerialize = (_, value) => value is not int turns || turns != 0;
@@ -39,9 +39,9 @@ public sealed partial class GameSession
                 }
         return json.ToJsonString();
     }
-    private bool StaffMedicalBoundaryOnNextTick => !IsPaused && _preparation is { Status: PreparationStatus.Running } &&
+    private bool StaffMedicalBoundaryOnNextTick => !IsPaused && MedicalOperationsActive &&
         GetMedicResponses().Any(job => job.Stage == MedicalResponseStage.Travelling && _navigationAgents[new(job.WorkerId)].Action == AgentNavigationAction.Arrived ||
-            job.Stage == MedicalResponseStage.Treating && CurrentTick + 1 >= job.StartedTick + GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks);
+            job.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(job) && CurrentTick + 1 >= job.StartedTick + GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks || IntoxicationCareBoundary(job)));
     public IReadOnlyList<MedicResponse> GetMedicResponses() => _medical is not { } m ? [] :
         new[] { new MedicResponse(m.MedicId, m.ResponseStage, m.ResponsePatientId, m.ResponseStartedTick, m.Response, m.ResponseDispatchedTick) }.Concat(m.ExtraResponses).ToArray();
     public IReadOnlyList<StewardResponse> GetStewardResponses() => _disorder is not { } d ? [] :
@@ -176,12 +176,18 @@ public sealed partial class GameSession
         foreach (var original in GetMedicResponses())
         {
             var job = original;
-            if (!InterventionOwnsWorker(job.WorkerId) && job.Stage == MedicalResponseStage.Completed &&
+            if (!ImmersionDepartureActive && !ImmersionOwnsNavigation(job.WorkerId) && !MedicalOwnsNavigation(job.WorkerId) && !InterventionOwnsWorker(job.WorkerId) && job.Stage == MedicalResponseStage.Completed &&
                 _navigationAgents[new(job.WorkerId)].Destination != StaffDutyCell(job.WorkerId, ResponseRole.Medic))
                 ApplyAgentDestination(new(job.WorkerId), new(StaffDutyCell(job.WorkerId, ResponseRole.Medic), "medical.return-to-tent"));
             if (job.Stage is not (MedicalResponseStage.Travelling or MedicalResponseStage.Treating)) continue;
             var m = _medical!;
             var positioned = MedicalTreatmentPositionValid(m with { MedicId = job.WorkerId, ResponsePatientId = job.PatientId });
+            if (!positioned && job.PatientId is { } bedsidePatient && PersonCollapsed(bedsidePatient) && !MedicHasValidBedsideDestination(job.WorkerId,bedsidePatient) && MedicalResponseCell(job.WorkerId,bedsidePatient) is { } bedsideCell &&
+                (_navigationAgents[new(job.WorkerId)].Destination!=bedsideCell || job.Stage==MedicalResponseStage.Treating))
+            {
+                ApplyAgentDestination(new(job.WorkerId),new(bedsideCell,"medical.dispatch"));
+                job=job with { Stage=MedicalResponseStage.Travelling,StartedTick=-1,Description="Physically approaching collapsed patient bedside" };SetMedicResponse(job);
+            }
             if (job.Stage == MedicalResponseStage.Travelling && positioned)
             {
                 job = job with { Stage = MedicalResponseStage.Treating, StartedTick = CurrentTick, Description = "Physical arrival; treatment underway" };
@@ -194,6 +200,7 @@ public sealed partial class GameSession
                 MedicalEvent("medical:treatment-interrupted", $"Worker {job.WorkerId}, patient {job.PatientId}: moved out of reach.");
                 continue;
             }
+            if (job.Stage == MedicalResponseStage.Treating && AdvanceIntoxicationCare(job)) continue;
             if (job.Stage != MedicalResponseStage.Treating || CurrentTick < job.StartedTick + GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks) continue;
             var patientId = job.PatientId!.Value;
             // Never rescue beyond a real causal deadline. Boundary-tick completion retains the existing ordering.

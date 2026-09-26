@@ -135,7 +135,7 @@ public sealed partial class GameSession
     {
             var terrainCost = _traversalGrid!.Get(agent.Route[agent.RouteIndex]).CostPermille;
             var effectiveCost = checked(terrainCost * 1000);
-            var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * AudienceWalkingPace(agent) + agent.MovementRemainder);
+            var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * Math.Max(800,AudienceWalkingPace(agent) * ImmersionCoordinationPace(agent.Id.Value) / 1000) + agent.MovementRemainder);
             var allowance = checked((int)(numerator / effectiveCost));
             agent.MovementRemainder = checked((int)(numerator % effectiveCost));
             var arrived = false;

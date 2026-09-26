@@ -1,0 +1,24 @@
+passed PaidItemPartialConsumptionResumeAndPauseAreExact (486ms)
+passed PhysicalArrivalFifoHeterogeneousSaleAndFailureNeverChargeTwice (161ms)
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (164,140,164,160,3) (191ms)
+  Standard output
+    east-side food: cell=GridCell { X = 164, Z = 140 }, front=GridCell { X = 160, Z = 140 }, queue-tail=GridCell { X = 142, Z = 140 }
+    east-side drinks: cell=GridCell { X = 164, Z = 160 }, front=GridCell { X = 160, Z = 160 }, queue-tail=GridCell { X = 142, Z = 160 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (150,172,162,172,2) (208ms)
+  Standard output
+    east-side food: cell=GridCell { X = 150, Z = 172 }, front=GridCell { X = 150, Z = 168 }, queue-tail=GridCell { X = 150, Z = 150 }
+    east-side drinks: cell=GridCell { X = 162, Z = 172 }, front=GridCell { X = 162, Z = 168 }, queue-tail=GridCell { X = 162, Z = 150 }
+    
+passed NewDefaultVendorsOccupyEastTrackGrassWithSeparateSouthFacingFronts (44ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (74,155,0,116,155,0) (161ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (164,140,3,164,160,3) (117ms)
+passed GeometryRotationReciprocalWaterAndLedgerTamperingAreRejected (293ms)
+passed PlacedTapUsesItsOwnPhysicalArrivalFifoAndWaterWaitGrievance (130ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 9
+  failed: 0
+  succeeded: 9
+  skipped: 0
+  duration: 1s 903ms

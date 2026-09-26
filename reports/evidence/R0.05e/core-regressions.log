@@ -1,0 +1,73 @@
+passed ExplicitModeBudgetStockAndLegacyAreConserved (357ms)
+passed PaidItemPartialConsumptionResumeAndPauseAreExact (268ms)
+passed BeerRefusalAbstentionStaffAndOnstagePendingPhysiology (68ms)
+passed FoodHalvesNewAbsorptionAndWaterDoesNotSober (67ms)
+passed SemanticTamperRejectsBudgetsStockHeldOrdersAndMalformedCollections (69ms)
+passed PhysicalDayCreatesSalesAndSaveReplayWithoutFreeAdmissionStock (2s 807ms)
+passed SevereFixtureWarnsCollapsesAndUsesExistingFatalBoundaryThenFreezes (1s 637ms)
+passed TimelyPhysicalMedicStabilizesGraduallyAndDoesNotCreateAlcoholImmunity (1s 328ms)
+passed LegacyGzipFileWithoutImmersionReconstructsOriginalChecksum (75ms)
+passed PhysicalArrivalFifoHeterogeneousSaleAndFailureNeverChargeTwice (105ms)
+passed GeometryRotationReciprocalWaterAndLedgerTamperingAreRejected (247ms)
+passed BudgetDistributionAndFullyStaffedDayHaveMeasuredBoundedCost (10s 720ms)
+  Standard output
+    35-person first4000ticks=1785.3ms, neededreal1x=50000ms
+    full300s people=35 sales=80 peakcurrentintox=7003
+    
+passed QueuedHeavyBeerRefusalCancelsWithoutCashStockOrReceipt (67ms)
+passed MaintenanceOwnershipSuspendsHeldItemAndPreventsShoppingRouteTheft (166ms)
+passed NinePaidPerformerItemsSaveWhileFirstBandOnstageAndResumeExactly (2s 901ms)
+passed ActualImmersionDeathAndFavourRetryResetConsumablesAndBudgetsOnce (1s 444ms)
+passed CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (False) (95ms)
+passed CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (True) (75ms)
+passed CoexistingInjuryKeepsOriginalDeadlineWhenAlcoholCrossesCollapseDuration (38ms)
+passed PerformedPoweredSetEndsOnceWithFrozenActualAudienceAndEnjoymentAndExactReload (1s 189ms)
+  Standard output
+    actual end 7200; audience 20; enjoyment 14201; strength 0.3768; enthusiastic True
+    
+passed ActualPowerCutAtDeadlineCannotBecomeSetEndApplause (2s 567ms)
+passed MissedUnplayedSlotHasNoApplauseAndCannotCountOwnedMedicalListeners (2s 466ms)
+passed EndAudienceTamperAndImpossibleEnjoymentAreRejectedAndAbsentPayloadPreservesLegacyCanonical (1s 333ms)
+passed ApplauseStrengthAndClipChoiceScaleWithActualAudienceAndEarnedEnjoyment (2ms)
+passed LegacySaveFileChecksumStillLoadsWhenEndAudienceFieldIsAbsent (112ms)
+passed BookedBandRoleTitlesRetainIdentityAndFollowReorderAndRestore (4ms)
+passed NormalUiCoordinatorPersistsWaterChoiceAndHearingDecision (855ms)
+passed PostDeathConcedeEndsCampaignWithoutSpendingFavourAndCannotRepeat (400ms)
+passed RealDeathSpendsOneFavourAndResetsCashStockWithoutFarmingProperty (712ms)
+passed CommunitySharingCapsFastDrinkersAndCannotBeCommittedTwice (33ms)
+passed FailedSharedWeekendCannotClaimFavourOrRepeatWaterChoiceOnRetry (784ms)
+passed HeadlessSecondFavourFixtureProvesTwoRetryResetsWithoutStockAccumulation (793ms)
+passed CommunityFavourIsClaimedOnlyAfterFullHonouredWeekend (2s 934ms)
+passed SlotsAreNotLabourAndPaidHiresAreAtomicAndSeedStable (4ms)
+passed AllHireOrdersKeepDistinctStableIdsAndRestore (11ms)
+passed RoleWideTrainingIsFreeClampedAndAppliesToActualRoutes (446ms)
+passed TwoMedicsTravelAndTreatIndependentPatientsAcrossReload (False) (740ms)
+passed TwoMedicsTravelAndTreatIndependentPatientsAcrossReload (True) (776ms)
+passed RetryExpiresBothPaidContractsButRetainsEffectsAndContacts (818ms)
+passed ProfileAndJobTamperingAreRejected (405ms)
+passed TwoStewardsOwnIndependentPhysicalResponsesAndRestore (800ms)
+passed OptionalStewardIsProtectedAndTimelyFirstAidPreventsItsDeath (1s 188ms)
+passed UnaffordableAndFiftyBoundaryHiresDoNotMutateRosterOrLedger (1ms)
+passed ProportionalExistingTierTwoDiagnosticStaysBelowFifty (1s 384ms)
+  Standard output
+    STAFF_HEADLESS_DIAGNOSTIC people=49 ticks=4000 elapsed_ms=1339.00 simulated_real_seconds=50
+    
+passed StrongAndWeakOptionalStewardSkillsChangeCalmingOutcome (1s 112ms)
+passed HigherPersonalSpeedArrivesEarlierOnTheSamePhysicalRoute (57ms)
+passed NamedUnreachableDispatchIsRejectedWithReasonAndNoOwnership (434ms)
+passed LateOptionalMedicCannotEraseDeathAndIsNamedInHearing (1s 232ms)
+passed SafeSettlementExpiresOptionalContractsWithoutDeletingContacts (3s 750ms)
+passed PreviouslyReviewedWaterSaveLoadsWithoutGrantingFreeStaff (22ms)
+passed NinePerformerMedicalProfilesRemainProtectedAndSaved (422ms)
+passed UpcomingAnticipationIsFiniteAndClampedAndSurvivesRestore (375ms)
+passed UrgentThirstWinsUpcomingMusicAndNeedsChoiceRestoresDeterministically (583ms)
+passed IdlePerformerHeatChoosesPhysicalRestWithoutStageEntitlement (931ms)
+passed FuturePerformerRetainsWarningCollapseCriticalAndFirstDeathProtection (1s 428ms)
+passed PlannedSilenceDoesNotCreateMusicCutoffButActualPowerCutDoes (642ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 56
+  failed: 0
+  succeeded: 56
+  skipped: 0
+  duration: 54s 434ms
