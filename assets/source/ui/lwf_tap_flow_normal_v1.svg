@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 64 64" role="img" aria-label="Normal tap flow: one narrow continuous stream">
+  <g fill="#39453F">
+    <rect x="7" y="17" width="7" height="17" rx="1.5"/>
+    <path d="M12 20H38C46 20 50 24 50 30V33H40V30C40 28 38 27 35 27H12Z"/>
+    <rect x="24" y="13" width="6" height="9" rx="1"/>
+    <rect x="18" y="9" width="18" height="5" rx="2"/>
+  </g>
+  <path fill="#36747B" d="M42 35H48L47 45L48 57Q48 61 45 61Q42 61 42 57L43 45Z"/>
+</svg>

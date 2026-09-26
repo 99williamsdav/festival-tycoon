@@ -1,7 +1,8 @@
-# R0.05a water-tower asset approval register
+# R0.05a water asset approval register
 
 Approve one exact version at a time. Technical import does not imply visual approval or gameplay integration.
 
 | Asset/version | Coordinator review | User approval | Technical verification | Identity and scope |
 | --- | --- | --- | --- | --- |
 | Rustic water tower prototype v1 | Approved exact farmhouse-side prototype, 25 September 2026 | Approved exact prototype, 25 September 2026 | Blender 4.1.1 source reopen/GLB reimport and Godot 4.7.2 isolated import passed; 4 mesh nodes, 1,068 triangles | `water-tower-prototype-v1/README.md`; modest raised timber tank on braced oak supports and stone shoes, with blue water cue. Blender source SHA-256 `DB8FD4A54445E72A436053492DE0B8E9C927913446150811EED9D379986BC0BB`; GLB SHA-256 `986FF8737828C8310F065EB7A22CCABBF6003E7431DDC87DB5561D32BFA04151`. No gameplay integration, tap redesign, pipe network or additional asset approval implied. |
+| Tap-flow icon trio v1 | Approved exact contact sheet/trio, 26 September 2026 | Approved exact trio ("Yep looks good"), 26 September 2026 | All nine transparent PNGs checked at 32/48/128 px; contact sheet visually inspected at original resolution with one-ink legibility check | `tap-flow-icons-v1/APPROVAL.md`; LOW FLOW drops, NORMAL FLOW narrow stream, BOOSTED FLOW broad three-strand stream. Original SVG sources under `assets/source/ui/`, PNGs under `assets/runtime/ui/`; exact source/runtime hashes in `tap-flow-icons-v1/technical.json`. Contact-sheet SHA-256 `25395CEAD75663F51F090485E74D46D1F69544EBCF8B13F34DFA9517F5483C5B`. Prefer 48 px plus text labels. No gameplay/3D edits or commit implied. |

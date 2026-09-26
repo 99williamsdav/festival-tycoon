@@ -1,0 +1,75 @@
+{
+  "version": "tap-flow-icons-v1",
+  "approval": "pending coordinator and user",
+  "sourceViewBox": [
+    0,
+    0,
+    64,
+    64
+  ],
+  "runtimeSizes": [
+    32,
+    48,
+    128
+  ],
+  "transparentAlphaVerified": true,
+  "colours": {
+    "tap": "#39453F",
+    "water": "#36747B"
+  },
+  "states": {
+    "low": "two separated drops",
+    "normal": "one narrow continuous stream",
+    "boosted": "broad three-strand continuous stream"
+  },
+  "files": [
+    {
+      "path": "assets/source/ui/lwf_tap_flow_boosted_v1.svg",
+      "sha256": "4eecb8c5f55942ace343b1d014846e45f4b719e0fc889ce33fedb1ab2d01e61a"
+    },
+    {
+      "path": "assets/source/ui/lwf_tap_flow_low_v1.svg",
+      "sha256": "e0bb29fac924553a35462c0d552e9212074eab59c271a92a5151412ea0736d5a"
+    },
+    {
+      "path": "assets/source/ui/lwf_tap_flow_normal_v1.svg",
+      "sha256": "cff432baf190e5cdc766cd79cccf7e093f0c7da2b85286efd111001c9e9f1f79"
+    },
+    {
+      "path": "assets/runtime/ui/lwf_tap_flow_boosted_v1.png",
+      "sha256": "df6cfdde8a5a9463eafa96c41fbed9385539be0a8cf0f27f1acc25ee4969ef38"
+    },
+    {
+      "path": "assets/runtime/ui/lwf_tap_flow_boosted_v1_32px.png",
+      "sha256": "4df1d8a6773542222f20bd298949a4dfc5f4e636ca580db687972ae161487f08"
+    },
+    {
+      "path": "assets/runtime/ui/lwf_tap_flow_boosted_v1_48px.png",
+      "sha256": "e9010ce2f89c68977b08b2283d08b1f9ffda350edba21877d3fbb0353bab46cd"
+    },
+    {
+      "path": "assets/runtime/ui/lwf_tap_flow_low_v1.png",
+      "sha256": "16d2a4abb21a2bbca6a07acb915576e763758d02d2199704c0bcb0620c14863f"
+    },
+    {
+      "path": "assets/runtime/ui/lwf_tap_flow_low_v1_32px.png",
+      "sha256": "6c3b1a10b5c65a744a5defab43285fc55e71104925746d9418cbf7650226db70"
+    },
+    {
+      "path": "assets/runtime/ui/lwf_tap_flow_low_v1_48px.png",
+      "sha256": "9c8d49f40098d84e4f1eec850f2c96fca437d72df152648660f43df967005676"
+    },
+    {
+      "path": "assets/runtime/ui/lwf_tap_flow_normal_v1.png",
+      "sha256": "d22b4746b89c45b21f36e34a630a5186c52c30b2d771c47634c1a035ca5870d0"
+    },
+    {
+      "path": "assets/runtime/ui/lwf_tap_flow_normal_v1_32px.png",
+      "sha256": "976366fe58fb8b8fb140f3815b582a3b6e4bb783052c858a7cab88fd523527d9"
+    },
+    {
+      "path": "assets/runtime/ui/lwf_tap_flow_normal_v1_48px.png",
+      "sha256": "42ff762c82e7cc9ea9d6ba926d7d5b010b5c0ce16534513000a4d20e13211112"
+    }
+  ]
+}
