@@ -1,0 +1,31 @@
+{
+  "change": "omit raised serving-flap instance only; no asset changes",
+  "retained": [
+    "assets/runtime/environment/lwf_food_van_chassis_v1.glb",
+    "assets/runtime/environment/lwf_food_van_fascia_v1.glb"
+  ],
+  "omitted_from_open_assembly": "assets/runtime/environment/lwf_food_van_serving_flap_v1.glb",
+  "sha256": {
+    "assets/runtime/environment/lwf_food_van_chassis_v1.glb": "40f67435b506b0e127588e518a53d04c69de224f09599354674cbfa95ddf36bb",
+    "assets/runtime/environment/lwf_food_van_fascia_v1.glb": "92f906654d0f4bd7b8b13b718889f6e70d31b3b5fe9f9307d7db522e31911f63",
+    "assets/runtime/environment/lwf_food_van_serving_flap_v1.glb": "5c9b9ec08c26b9215ac61dee047c085abfb8582b517c15cf671e6cf6c105f133"
+  },
+  "game_assembly_offset_godot": [
+    -2.15,
+    0,
+    0
+  ],
+  "fascia_local_godot": [
+    2.15,
+    2.49,
+    1.18
+  ],
+  "camera_yaw_degrees": [
+    45,
+    135,
+    225,
+    315
+  ],
+  "elevation_degrees": 38.853374340353334,
+  "context": "unchanged adult models; local review, not new-world-site game capture"
+}

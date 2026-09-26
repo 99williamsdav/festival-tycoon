@@ -1,0 +1,79 @@
+{
+  "status": "ONE trio checkpoint; exact dual approval pending; no integration",
+  "units": "metres",
+  "assets": {
+    "ChipsTrayV1": {
+      "file": "lwf_chips_tray_v1.glb",
+      "triangles": 212,
+      "bounds_blender": [
+        [
+          -0.09150000661611557,
+          -0.06149999797344208,
+          -0.02500000037252903
+        ],
+        [
+          0.09150000661611557,
+          0.06149999797344208,
+          0.03585156053304672
+        ]
+      ],
+      "dimensions_xyz_m": [
+        0.18300001323223114,
+        0.12299999594688416,
+        0.06085156090557575
+      ],
+      "mesh_nodes": 1,
+      "materials": 5
+    },
+    "SoftDrinkCupV1": {
+      "file": "lwf_soft_drink_cup_v1.glb",
+      "triangles": 240,
+      "bounds_blender": [
+        [
+          -0.04699999839067459,
+          -0.04699999839067459,
+          -0.07500000298023224
+        ],
+        [
+          0.04699999839067459,
+          0.04699999839067459,
+          0.1420000046491623
+        ]
+      ],
+      "dimensions_xyz_m": [
+        0.09399999678134918,
+        0.09399999678134918,
+        0.21700000762939453
+      ],
+      "mesh_nodes": 1,
+      "materials": 3
+    },
+    "BeerCupV1": {
+      "file": "lwf_beer_cup_v1.glb",
+      "triangles": 252,
+      "bounds_blender": [
+        [
+          -0.04600000008940697,
+          -0.04600000008940697,
+          -0.07500000298023224
+        ],
+        [
+          0.04600000008940697,
+          0.04600000008940697,
+          0.07699999958276749
+        ]
+      ],
+      "dimensions_xyz_m": [
+        0.09200000017881393,
+        0.09200000017881393,
+        0.15200000256299973
+      ],
+      "mesh_nodes": 1,
+      "materials": 4
+    }
+  },
+  "origin": "cup body mid-height; chips tray-volume centre. Grip centre proposals only; no adult hand socket verified",
+  "review_context": "unchanged 1.75m adult with neutral arms; props tangent to hands, not a holding animation",
+  "beer_material": "alpha-blended single-sided clear shell, opaque amber/foam; no transmission dependency; Godot sorting unverified",
+  "provenance": "original Blender procedural mesh and flat materials; no external meshes, images or textures"
+}
