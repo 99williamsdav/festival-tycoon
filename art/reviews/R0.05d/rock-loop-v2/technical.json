@@ -1,0 +1,13 @@
+{
+  "approval": "preview only; pending exact audition",
+  "file": "rock_loop_v2.wav",
+  "seconds": 16.695646258503402,
+  "bpm": 115,
+  "bars": 8,
+  "sampleRate": 22050,
+  "channels": 1,
+  "bits": 16,
+  "peakDbfs": -2.824299656142826,
+  "rmsDbfs": -16.4867119272446,
+  "sha256": "e366a5e04987a4a01a0ecfaaadf2a19b9f781417320f6f7962e843ee47c05b40"
+}

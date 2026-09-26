@@ -1,0 +1,25 @@
+{
+  "approval": "preview only; pending audition",
+  "files": [
+    {
+      "file": "pop_loop_v1.wav",
+      "seconds": 16,
+      "sampleRate": 22050,
+      "channels": 1,
+      "bits": 16,
+      "peakDbfs": -3.3242254454318223,
+      "rmsDbfs": -17.012909487820288,
+      "sha256": "ef342e9158e43fa12b9ec7110be2d344f88e1afe9ce1586412bf6fe13ba8ab0f"
+    },
+    {
+      "file": "electronic_loop_v1.wav",
+      "seconds": 16,
+      "sampleRate": 22050,
+      "channels": 1,
+      "bits": 16,
+      "peakDbfs": -5.32405291471532,
+      "rmsDbfs": -16.71821125406504,
+      "sha256": "c4e0d45c519c9a25c0872084ba82490eeb9f8cafb76b72024972dc516a3554d6"
+    }
+  ]
+}

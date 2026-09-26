@@ -1,0 +1,50 @@
+{
+  "status": "review only; dual approval pending",
+  "units": "metres",
+  "bounds_blender_min": [
+    -1.5443999767303467,
+    -1.1175000667572021,
+    0.0
+  ],
+  "bounds_blender_max": [
+    1.5443999767303467,
+    1.0537601709365845,
+    3.0525002479553223
+  ],
+  "dimensions_wdh": [
+    3.0887999534606934,
+    2.1712602376937866,
+    3.0525002479553223
+  ],
+  "triangles": 654,
+  "parts_triangles": {
+    "LWF_DrinksStallV1_Structure": 348,
+    "LWF_DrinksStallV1_Counter": 144,
+    "LWF_DrinksStallV1_Canopy": 124,
+    "LWF_DrinksStallV1_Sign": 38
+  },
+  "proposed_reserved_footprint": [
+    3.0,
+    2.0
+  ],
+  "front": "Blender -Y / Godot +Z",
+  "countertop_height": 1.1,
+  "anchors_godot": {
+    "service_face_center": [
+      0,
+      0,
+      0.95625
+    ],
+    "customer_stop_proposal": [
+      0,
+      0,
+      1.75
+    ],
+    "staff_handoff": [
+      0,
+      1.1,
+      0.7125
+    ]
+  },
+  "ownership": "anchors/queue/stock/identity are integration proposals only; simulation owns them"
+}

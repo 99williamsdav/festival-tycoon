@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="256" viewBox="0 0 1024 256">
+  <rect width="1024" height="256" fill="#2E5960"/>
+  <rect x="18" y="18" width="988" height="220" fill="none" stroke="#527A7D" stroke-width="6"/>
+  <text x="512" y="184" text-anchor="middle" font-family="Arial, sans-serif" font-size="164" font-weight="bold" letter-spacing="10" fill="#E8D6AF">DRINKS</text>
+</svg>
