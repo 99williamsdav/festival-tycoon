@@ -113,6 +113,12 @@ public sealed partial class GameSession
     private bool ImmersionShoppingEligible(ulong id) => _preparation?.Status == PreparationStatus.Running && ImmersionHandsAvailable(id) && !IsCurrentProgrammePerformer(id) &&
         (_medical!.Needs.SingleOrDefault(p => p.AgentId == id) is null or { Intent: MedicalIntent.WatchShow, Thirst: < MedicalDistressThirst, HeatExposure: < MedicalDistressHeat });
     private bool ImmersionOwnsNavigation(ulong id) => _immersion?.People.Any(p => p.AgentId == id && p.VendorId is not null) == true;
+    // The same read-only eligibility drives ingestion and its presentation. Pause
+    // freezes the tick scheduler, not this predicate, so a paused sip stays a sip.
+    public bool ImmersionConsumptionEligible(ulong id) => MedicalOperationsActive &&
+        _immersion?.People.Any(p => p.AgentId == id && p.Held is not null) == true &&
+        _navigationAgents.ContainsKey(new(id)) && ImmersionHandsAvailable(id) &&
+        !ImmersionOwnsNavigation(id) && ImmersionAwayFromCounters(id);
     private bool ImmersionAwayFromCounters(ulong id)
     {
         var nav=_navigationAgents[new(id)];return _immersion!.Vendors.All(v=>{var centre=TraversalGrid.CellCentre(ImmersionServiceCell(v));var x=(long)nav.XMillimetres-centre.XMillimetres;var z=(long)nav.ZMillimetres-centre.ZMillimetres;return x*x+z*z>1000000;});
@@ -182,7 +188,7 @@ public sealed partial class GameSession
             if(!_medical!.Needs.Any(n=>n.AgentId==p.AgentId)&&CurrentTick%4==0)p=p with { StaffThirst=Math.Min(10000,p.StaffThirst+1) };
             // Previously ingested dose keeps absorbing even when hands are owned by stage or care.
             if (p.PendingDose > 0) { var absorb = Math.Min(1,p.PendingDose); var residue = p.AbsorptionResidue + absorb*(p.FoodProtectionTicks>0 ? 1 : 2); p = p with { PendingDose = p.PendingDose-absorb, Intoxication = Math.Min(10000,p.Intoxication+residue/2), AbsorptionResidue = residue%2 }; }
-            if (p.Held is { } held && ImmersionHandsAvailable(p.AgentId) && !ImmersionOwnsNavigation(p.AgentId) && ImmersionAwayFromCounters(p.AgentId))
+            if (p.Held is { } held && ImmersionConsumptionEligible(p.AgentId))
             {
                 var duration = ImmersionConsumeTicks(held.Product); var elapsed = held.ConsumedTicks+1;
                 var effect = held.Product == ImmersionProduct.Chips ? 5500 : held.Product == ImmersionProduct.SoftDrink ? 6000 : 1500;

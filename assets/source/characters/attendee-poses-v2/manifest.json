@@ -1,0 +1,419 @@
+{
+  "schema_version": 1,
+  "units": "metres",
+  "front": "Godot -Z",
+  "origin": "foot ground centre",
+  "body_only": true,
+  "transform_rule": "Attach prop once under stable attendee root using Godot root-local transforms; do not also parent beneath exported socket. Body visual root remains identity.",
+  "palette": "Embedded 96x8 palette, preserved source material; no runtime recolouring required.",
+  "neutral_sources": {
+    "male": "../attendee-neutral-v5/direction-a-attendee.blend",
+    "female": "../female-neutral-v3/female-attendee-neutral.blend"
+  },
+  "source_sha256": {
+    "male": "d828e34ef79dcc6d6f1b1d5259420174b8efb4da8211d039de3920788125521a",
+    "female": "f784c1733dd3be0b4dd6dd511bbd705935218bdcbe7cc21832cf09036b16c2c5"
+  },
+  "variants": {
+    "male": [
+      {
+        "state": "relaxed",
+        "product": null,
+        "file": "lwf_attendee_male_relaxed_v1.glb",
+        "source_blend": "male-relaxed.blend",
+        "source_blend_sha256": "eb0e9b2de38ee4f339582b4400752979437cd87ebae96353c0c87862aedbd092",
+        "sha256": "3a333e5f18c042e481118a12103589d920088caeaeaf7eaf05f072f2724f8dec",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 1206,
+        "exported_vertices": 2424,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {}
+      },
+      {
+        "state": "drink_hold",
+        "product": null,
+        "file": "lwf_attendee_male_drink_hold_v1.glb",
+        "source_blend": "male-drink_hold.blend",
+        "source_blend_sha256": "5347ecb683dc3645a68a996dd561d532e9b6e2dff229e64af464366eeac351c3",
+        "sha256": "15448c0d472d00ae45bbca916b0027d378f67c5f6d62ef2e272ae0f0c81a58d6",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 1410,
+        "exported_vertices": 2824,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "beer": {
+            "position": [
+              0.20000000298023224,
+              1.1799999475479126,
+              -0.24500000476837158
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          },
+          "soft": {
+            "position": [
+              0.20000000298023224,
+              1.1799999475479126,
+              -0.24500000476837158
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "state": "food_hold",
+        "product": null,
+        "file": "lwf_attendee_male_food_hold_v1.glb",
+        "source_blend": "male-food_hold.blend",
+        "source_blend_sha256": "d2153f36e92f749af2f453d82fc7d1ee667b3f5e1baa823b27492d0e52117551",
+        "sha256": "e767cb317e1f09109e75518840cd3aa7489e76c7822e92aa4ab1bc2eb61f1a9b",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 1254,
+        "exported_vertices": 2520,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "tray": {
+            "position": [
+              0.11500000208616257,
+              1.1549999713897705,
+              -0.24500000476837158
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "state": "drinking",
+        "product": "beer",
+        "file": "lwf_attendee_male_drinking_beer_v1.glb",
+        "source_blend": "male-drinking.blend",
+        "source_blend_sha256": "29c45215e6e06708c224823c52e873c2c66ab49b1b68a9d9d60824bd79762d58",
+        "sha256": "2df3a7cfd7ac26e9692d8207e6c56f429a465c063cdc6115488ef91e7c1cf640",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 1410,
+        "exported_vertices": 2824,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "beer": {
+            "position": [
+              0.0,
+              1.5540891885757446,
+              -0.18164005875587463
+            ],
+            "rotation_degrees": [
+              55,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "state": "drinking",
+        "product": "soft",
+        "file": "lwf_attendee_male_drinking_soft_v1.glb",
+        "source_blend": "male-drinking_soft.blend",
+        "source_blend_sha256": "36854c04c9731343f6e459eb42ac99aa4e8f96d6ef7528e0bf2ea9a99a0f242c",
+        "sha256": "07d6dcd6c65293b6dfd996c11c0c3f3d772ca765794d3889453051c3a9ad4691",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 1410,
+        "exported_vertices": 2824,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "soft": {
+            "position": [
+              -0.008999999612569809,
+              1.4179999828338623,
+              -0.09200000017881393
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "state": "eating",
+        "product": null,
+        "file": "lwf_attendee_male_eating_v1.glb",
+        "source_blend": "male-eating.blend",
+        "source_blend_sha256": "d40d6aba797ac589a29964f2c16d57101a0170314e6c7cb595e795bf7a623f19",
+        "sha256": "43569fd031f1e59684461406aa55666e2eaeed06e97ce5f5eb47e215e50b8fbb",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 1282,
+        "exported_vertices": 2568,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "tray": {
+            "position": [
+              0.11500000208616257,
+              1.1549999713897705,
+              -0.24500000476837158
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    ],
+    "female": [
+      {
+        "state": "relaxed",
+        "product": null,
+        "file": "lwf_attendee_female_relaxed_v1.glb",
+        "source_blend": "female-relaxed.blend",
+        "source_blend_sha256": "8bf1af1b33ae3c56f1761e184aed22acb59645540ff40122e953699b33e3fb15",
+        "sha256": "f31b365e15e86fe10be5c63d4167dc9d1dbb3975b5190b5b4d73f1035efc1842",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 1842,
+        "exported_vertices": 3876,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {}
+      },
+      {
+        "state": "drink_hold",
+        "product": null,
+        "file": "lwf_attendee_female_drink_hold_v1.glb",
+        "source_blend": "female-drink_hold.blend",
+        "source_blend_sha256": "20094b48f31df1de1154ca1401faea091a620bc4263ae4e1df1cb42d2a0e578b",
+        "sha256": "1a4ca7bc358113a7142618fc0588f17bd885d2c80c933f42365854dff4a394e7",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 2046,
+        "exported_vertices": 4276,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "beer": {
+            "position": [
+              0.19200000166893005,
+              1.1799999475479126,
+              -0.24500000476837158
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          },
+          "soft": {
+            "position": [
+              0.19200000166893005,
+              1.1799999475479126,
+              -0.24500000476837158
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "state": "food_hold",
+        "product": null,
+        "file": "lwf_attendee_female_food_hold_v1.glb",
+        "source_blend": "female-food_hold.blend",
+        "source_blend_sha256": "2900a1b6f1e71bb023146d241061552b0960133bb47b90de4900ad4a4061f6a7",
+        "sha256": "be4d6cc4e39580799e6a1fbb24d6805e5b4a23ce9a9595fad6b26e14cdea6487",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 1890,
+        "exported_vertices": 3972,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "tray": {
+            "position": [
+              0.10700000077486038,
+              1.1549999713897705,
+              -0.24500000476837158
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "state": "drinking",
+        "product": "beer",
+        "file": "lwf_attendee_female_drinking_beer_v1.glb",
+        "source_blend": "female-drinking.blend",
+        "source_blend_sha256": "6e25ee6ec56f3be9a5d2a431c68ccb6a7c1a05eb6ee35077cc557504e055db76",
+        "sha256": "17b5140a0b7cee357956bc00aa4d4fdf0819bb58c4ee364f617449092e94ce58",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 2046,
+        "exported_vertices": 4276,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "beer": {
+            "position": [
+              0.0,
+              1.5339972972869873,
+              -0.17544007301330566
+            ],
+            "rotation_degrees": [
+              55,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "state": "drinking",
+        "product": "soft",
+        "file": "lwf_attendee_female_drinking_soft_v1.glb",
+        "source_blend": "female-drinking_soft.blend",
+        "source_blend_sha256": "b60d88523f0227973ec7eef7f92047ea8cd6d5f991aa4a4ee0b9f19a02f36bf1",
+        "sha256": "35c98e01cced98ec5260326e43ae3245dc55f5d362a04d988dd1744151620864",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 2046,
+        "exported_vertices": 4276,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "soft": {
+            "position": [
+              -0.008999999612569809,
+              1.397908091545105,
+              -0.08579999953508377
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      },
+      {
+        "state": "eating",
+        "product": null,
+        "file": "lwf_attendee_female_eating_v1.glb",
+        "source_blend": "female-eating.blend",
+        "source_blend_sha256": "18fbfa47b3b26bf9291562747e670961afb91ef1293baf546762141958b7403f",
+        "sha256": "5cc21790a2eb7b9f25f104fd79adf90d1ea6a6a2777ea3b8f5d596e53839965c",
+        "embedded_palette_sha256": "fc0f7128da5c03154a528a31c7ccc72f3e17b3e739fae6474a9fe5ce0304ff2a",
+        "triangles": 1918,
+        "exported_vertices": 4020,
+        "materials": 1,
+        "surfaces": 1,
+        "attachments": {
+          "tray": {
+            "position": [
+              0.10700000077486038,
+              1.1549999713897705,
+              -0.24500000476837158
+            ],
+            "rotation_degrees": [
+              0,
+              0,
+              0
+            ],
+            "scale": [
+              1,
+              1,
+              1
+            ]
+          }
+        }
+      }
+    ]
+  },
+  "props": {
+    "beer": {
+      "file": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\held-props-trio-lager-v2\\lwf_beer_cup_v2.glb",
+      "sha256": "e6fd2e115eef76797b97a76759b57687c8ed0a25baced7acd805df1dd25adc8c"
+    },
+    "soft": {
+      "file": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\held-props-trio-v1\\lwf_soft_drink_cup_v1.glb",
+      "sha256": "b0570c93ea5cba3c7d297111e3c070d66ac4e0f6cd24edede37c4e3b77fe9416"
+    },
+    "tray": {
+      "file": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\held-props-trio-v1\\lwf_chips_tray_v1.glb",
+      "sha256": "0bb9ebb82a2b3558a450beb84d9b8f89467c5b67e603a1c759c69cb0d95167a3"
+    }
+  }
+}

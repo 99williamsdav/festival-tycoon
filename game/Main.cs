@@ -176,7 +176,8 @@ public partial class Main : Node
         }
         else
         {
-            _session = _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
+            _session = _attendeePoseCapture ? GameSession.CreateEditableCampaign(20260922) :
+                _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
                 _immersionCaptureDirectory is not null || _financeCaptureDirectory is not null || _organicQueueCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) :
                 _timetableCaptureDirectory is not null ? GameSession.CreateTimetableCampaign(20260922) :
                 _audienceCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, 2) :
@@ -407,8 +408,10 @@ public partial class Main : Node
         foreach (var agent in agents)
         {
             var performer = _session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value);
-            var visual = AddAsset(performer?.Role == ProtectedPersonRole.Performer ? PerformerBodyPath(PerformerPresentationRole(performer.AgentId, performer.Name)) :
-                "res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
+            var visual = performer?.Role == ProtectedPersonRole.Guest && _foundationFixture is null && _sharedWorldFixture is null
+                ? AddGuestPoseRoot(agent.Id, ToWorld(agent))
+                : AddAsset(performer?.Role == ProtectedPersonRole.Performer ? PerformerBodyPath(PerformerPresentationRole(performer.AgentId, performer.Name)) :
+                    "res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
             if (_foundationFixture is not null || _sharedWorldFixture is not null)
             {
                 var ids = _sharedWorldFixture?.AgentIds ?? _foundationFixture!.AgentIds;
@@ -1026,6 +1029,8 @@ public partial class Main : Node
             else if (args[i] == "--capture-campaign" && i + 1 < args.Length) _campaignCaptureDirectory = args[++i];
             else if (args[i] == "--capture-r005e-immersion" && i + 1 < args.Length)
             { _immersionCaptureDirectory = args[++i]; Directory.CreateDirectory(_immersionCaptureDirectory); }
+            else if (args[i] == "--capture-attendee-poses" && i + 1 < args.Length)
+            { _attendeePoseCapture = true; _immersionCaptureDirectory = args[++i]; Directory.CreateDirectory(_immersionCaptureDirectory); }
             else if (args[i] == "--capture-r005e-finance" && i + 1 < args.Length)
             { _financeCaptureDirectory = args[++i]; Directory.CreateDirectory(_financeCaptureDirectory); }
             else if (args[i] == "--capture-r005e-vendor-row" && i + 1 < args.Length)

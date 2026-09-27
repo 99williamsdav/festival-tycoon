@@ -56,6 +56,7 @@ public partial class Main
     }
     private void ProcessImmersionCaptureStep()
     {
+        if (_attendeePoseCapture) { ProcessAttendeePoseCapture(); return; }
         if (_immersionSevereFixture) { ProcessImmersionSevereCapture(); return; }
         if (_immersionLayoutFixture) { ProcessImmersionLayoutCapture(); return; }
         _immersionCaptureFrame++;

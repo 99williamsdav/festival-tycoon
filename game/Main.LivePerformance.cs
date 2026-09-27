@@ -214,7 +214,7 @@ public partial class Main
                 (listening is null ? "" : $"{placeActivity} · interest {listening.Enthusiasm}%\n") +
                 (disorder is null || disorder.Stage is DisorderStage.Calm or DisorderStage.Resolved ? "" : $"{disorder.Stage} · pressure {disorder.Pressure / 100m:0}% · {disorder.Grievance}\n" +
                     (DisorderCuePlanner.CurrentOpponentId(_session.CaptureDisorder()!, disorder) is { } opponent ? $"COUNTERPART · {preparation.People.SingleOrDefault(item => item.AgentId == opponent)?.Name ?? "festival worker"}\n" : "") + "Reduce pressure or ask a steward for help. Injury needs a medic.\n") +
-                (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} · {(_session.ImmersionHandsAvailable(id.Value) ? "consuming" : "retained during work/care")}\n" : "") +
+                (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} · {(!_session.IsPaused && _session.ImmersionConsumptionEligible(id.Value) ? "consuming" : "retained; consumption paused")}\n" : "") +
                 (immersion is null ? "" : $"Personal budget {FestivalCurrency.Format(_session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id.Value).CashPennies)}\n") +
                 StaffInterventionTargetText(id.Value) +
                 (worker is null ? "" : ResponseStaffInspectorText(id.Value));

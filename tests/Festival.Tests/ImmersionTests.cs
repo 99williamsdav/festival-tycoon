@@ -39,6 +39,35 @@ public sealed class ImmersionTests
     }
     private static GameSession Restore(GameSession s) {var result=GameSession.Restore(s.CapturePersistenceSnapshot());Assert.IsTrue(result.IsSuccess,result.Error);Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash,result.Session!.CaptureSnapshot().AuthoritativeHash);return result.Session;}
     [TestMethod]
+    public void SharedConsumptionEligibilityUsesCounterDistanceOwnershipAndOperationState()
+    {
+        var s=Open();var id=s.CaptureImmersion()!.People.First().AgentId;
+        Assert.IsFalse(s.ImmersionConsumptionEligible(id)); Assert.IsFalse(s.ImmersionConsumptionEligible(ulong.MaxValue));
+        Invoke(s,"CompleteImmersionSale",id,ImmersionProduct.SoftDrink);
+        var service=GameSession.ImmersionServiceCell(s.CaptureImmersion()!.Vendors[0]);
+        PositionFixture(s,id,new(service.X+2,service.Z),"pose.counter-distance");
+        Assert.IsTrue(s.ImmersionHandsAvailable(id)); Assert.IsFalse(s.ImmersionConsumptionEligible(id),"Exactly 1m is still at the counter.");
+        Invoke(s,"AdvanceImmersion"); Assert.AreEqual(0,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).Held!.ConsumedTicks);
+        PositionFixture(s,id,new(service.X+3,service.Z),"pose.counter-distance");
+        Assert.IsTrue(s.ImmersionConsumptionEligible(id)); Invoke(s,"AdvanceImmersion");
+        Assert.AreEqual(1,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).Held!.ConsumedTicks);
+        var before=s.CaptureSnapshot().AuthoritativeHash;
+        for(var repeat=0;repeat<5;repeat++) Assert.IsTrue(s.ImmersionConsumptionEligible(id));
+        Assert.AreEqual(before,s.CaptureSnapshot().AuthoritativeHash);
+        var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { VendorId="food" }:p).ToArray() });
+        Assert.IsFalse(s.ImmersionConsumptionEligible(id)); Set(s,m);
+        var prep=s.CapturePreparation()!;
+        foreach(var status in new[]{PreparationStatus.Preparing,PreparationStatus.Failed,PreparationStatus.Finished})
+        {
+            typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { Status=status });
+            Assert.IsFalse(s.ImmersionConsumptionEligible(id));
+        }
+        typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { Status=PreparationStatus.Departing });
+        Assert.IsTrue(s.ImmersionConsumptionEligible(id));
+        typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { People=prep.People.Select(p=>p.AgentId==id?p with { Departed=true }:p).ToArray() });
+        Assert.IsFalse(s.ImmersionConsumptionEligible(id));
+    }
+    [TestMethod]
     public void LooseVendorSlotsGrowOnlyAsNeededKeepPrefixAndPersistExactReplay()
     {
         var s=Open();var ids=s.CapturePreparation()!.People.Where(p=>p.Role==ProtectedPersonRole.Guest).Take(9).Select(p=>p.AgentId).ToArray();var prefix=s.CaptureImmersionQueueCells("drinks").ToArray();Assert.AreEqual(1,prefix.Length);

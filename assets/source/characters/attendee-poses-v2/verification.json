@@ -1,0 +1,172 @@
+{
+  "male-relaxed": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {}
+  },
+  "male-drink_hold": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "beer": {
+        "maximum_sampled_side_penetration_m": 0
+      },
+      "soft": {
+        "maximum_sampled_side_penetration_m": 0
+      }
+    }
+  },
+  "male-food_hold": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "tray": {
+        "maximum_sampled_intrusion_m": 0,
+        "nominal_palm_support_gap_m": 0.0003
+      }
+    }
+  },
+  "male-drinking": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "beer": {
+        "maximum_sampled_side_penetration_m": 0
+      }
+    },
+    "mouth_blender": [
+      0.0,
+      0.09200000017881393,
+      1.559999942779541
+    ],
+    "nearest_prop_vertex_to_mouth_m": 0.0006014630663176654
+  },
+  "male-drinking_soft": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "soft": {
+        "maximum_sampled_side_penetration_m": 0
+      }
+    },
+    "mouth_blender": [
+      0.0,
+      0.09200000017881393,
+      1.559999942779541
+    ],
+    "nearest_prop_vertex_to_mouth_m": 0.0030000000530562825
+  },
+  "male-eating": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "tray": {
+        "maximum_sampled_intrusion_m": 0,
+        "nominal_palm_support_gap_m": 0.0003
+      }
+    }
+  },
+  "female-relaxed": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {}
+  },
+  "female-drink_hold": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "beer": {
+        "maximum_sampled_side_penetration_m": 0
+      },
+      "soft": {
+        "maximum_sampled_side_penetration_m": 0
+      }
+    }
+  },
+  "female-food_hold": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "tray": {
+        "maximum_sampled_intrusion_m": 0,
+        "nominal_palm_support_gap_m": 0.0003
+      }
+    }
+  },
+  "female-drinking": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "beer": {
+        "maximum_sampled_side_penetration_m": 0
+      }
+    },
+    "mouth_blender": [
+      0.0,
+      0.08579999953508377,
+      1.5399079322814941
+    ],
+    "nearest_prop_vertex_to_mouth_m": 0.0006015812288267298
+  },
+  "female-drinking_soft": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "soft": {
+        "maximum_sampled_side_penetration_m": 0
+      }
+    },
+    "mouth_blender": [
+      0.0,
+      0.08579999953508377,
+      1.5399079322814941
+    ],
+    "nearest_prop_vertex_to_mouth_m": 0.003000000055424758
+  },
+  "female-eating": {
+    "reimport_passed": true,
+    "body_world_vertices_preserved": true,
+    "no_baked_props": true,
+    "palette_embedded": true,
+    "non_arm_regions_exactly_preserved": true,
+    "sampled_contact": {
+      "tray": {
+        "maximum_sampled_intrusion_m": 0,
+        "nominal_palm_support_gap_m": 0.0003
+      }
+    }
+  }
+}

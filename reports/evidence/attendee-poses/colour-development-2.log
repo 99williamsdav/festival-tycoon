@@ -1,0 +1,1307 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=d0f6d1283504e8749d6974f503a4d10426043ee41e3bdb6791fa48249d7de51d
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+ATTENDEE_PALETTE_BASE filter=NearestWithMipmaps repeat=True roughness=0.93 dimensions=96x8
+TIMETABLE_STATE name=checkpoint tick=1600 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=014db3a11ae8320c38e5cfe41a05e4715e9d5e702d92b1fd0debfe7ebc8d146a
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2000 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=15af94b448f5f8f492c2e191b798ecb2143b4ca97a6ba07d677ffa702d117960
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=12 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=12 orientation=South
+ATTENDEE_POSE_ACTUAL key=female-drink_hold-soft owner=12 transaction=immersion:1:3 consumed=149 hash=15af94b448f5f8f492c2e191b798ecb2143b4ca97a6ba07d677ffa702d117960 reload=True root_identity=True scale=1
+ATTENDEE_SELECTED id=13 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=13 orientation=South
+ATTENDEE_POSE_ACTUAL key=female-drink_hold-beer owner=13 transaction=immersion:1:1 consumed=534 hash=15af94b448f5f8f492c2e191b798ecb2143b4ca97a6ba07d677ffa702d117960 reload=True root_identity=True scale=1
+TIMETABLE_STATE name=checkpoint tick=2032 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d2110b4e8822e4deb54889c9c5d71d7ede9c203459fb15d56f516d88ec3153a5
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=13 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=13 orientation=South
+ATTENDEE_POSE_ACTUAL key=female-drinking-beer owner=13 transaction=immersion:1:1 consumed=566 hash=d2110b4e8822e4deb54889c9c5d71d7ede9c203459fb15d56f516d88ec3153a5 reload=True root_identity=True scale=1
+TIMETABLE_STATE name=checkpoint tick=2064 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d1aa6363be4f5da67ea651336fd9a2d4e476dc296f1a02ac192ebb6e8228538f
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2096 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=75a887921341eecaaca6c194a7559cf4b6db95c9fbdc86621605f59dfb2ff1db
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=12 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=12 orientation=South
+ATTENDEE_POSE_ACTUAL key=female-drinking-soft owner=12 transaction=immersion:1:3 consumed=245 hash=75a887921341eecaaca6c194a7559cf4b6db95c9fbdc86621605f59dfb2ff1db reload=True root_identity=True scale=1
+TIMETABLE_STATE name=checkpoint tick=2128 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=6683e8fa663a9fd13f5cb9fd01a941e7594aeaf59e8e2f31bb6114ad0982ff35
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2160 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d5836b9177be39bf2859a2851f689ce91125c907befcd61d77e7960a8941b4fe
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2192 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3319c726c3872fb92d9f30b7e1bdad77a737b0720eef095e99308e9876e2d964
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2224 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f63e0d909b0c52dc3b85214614373b2256268675104c4d96d3a28aa68741738f
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2256 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=37e1e77db01acb2872d8ab8a94a19c1962cdb2c0b57e8bf4cc9a1e898ca39222
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2288 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=146bd32ee89d59f7a75270a0ddf8ee2a1a64776d885418ee5b1b9755469dffc8
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2320 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=81662e871407e63062a53f3f5421fec0da9e2801e2597b05eb24d7f486b01dd7
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2352 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=dc8ba4dd2051790fb8c24289ffe845b3fdb7fdd74fe4ce98415c458c158b3fc4
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2384 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ac114703fc2ecfa122bbb859bdd3ebe94aab0abd14bf0849ba413485ca2aa6c9
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=22 tick=2384
+TIMETABLE_STATE name=checkpoint tick=2416 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=5fe0d4c88e9632cf22d7201d0d67859147dfc49a2981833552214e50ab8d859e
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2448 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c8bef4e2c2f23f9b29d7d88252c078d34f702e9d80f2f869679351ef1b729003
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=17 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=17 orientation=South
+ATTENDEE_POSE_ACTUAL key=male-drink_hold-beer owner=17 transaction=immersion:1:6 consumed=5 hash=c8bef4e2c2f23f9b29d7d88252c078d34f702e9d80f2f869679351ef1b729003 reload=True root_identity=True scale=1
+TIMETABLE_STATE name=checkpoint tick=2480 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f10fb84f5916d40e600fe59fb7b6c0509b8363a9b5db13809259927c8812badb
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2512 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b1b7d86142a104f6cea35e23e47d623171f6ad79ce0868c6344096e400ded6bb
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2544 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b5279d66962df4a7aa1f20bbc8bb3011aeab8d4a4ada86facc37ea4e3959c1e4
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2576 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=2c4b2d990b7d8802ab3a07bd5883d51720e2abf99441c01a67b07f1767a55a08
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2608 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=532069511a76ddd2af24db42b7e9c5a1a819ac9eeb6aa55f25071529f308f5a3
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2640 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f665e0e5b2088d41ede2f79616fe1db0734c99cccd8ad62aada921a5df172a53
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2672 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=015409a19f18db9073b0e2985d5e82747502070a878e07c60c1b3ff84d2ffd7e
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2704 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a55d0e7dd19e132a9ec16315ed7785ea9eacbfcf8f79a41b05d27b49f11c1ada
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=17 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=17 orientation=South
+ATTENDEE_POSE_ACTUAL key=male-drinking-beer owner=17 transaction=immersion:1:6 consumed=261 hash=a55d0e7dd19e132a9ec16315ed7785ea9eacbfcf8f79a41b05d27b49f11c1ada reload=True root_identity=True scale=1
+TIMETABLE_STATE name=checkpoint tick=2736 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=837acd3421b10ff31aff54e9ba6cdb902c27c727e61e07e88a2074f27fbe77aa
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2768 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=cd7cc056dfd11ffa37f6948c1e05ceeb39c78cb22c6d898070bbb47f09a62cd5
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2800 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=33a6e7a83fe1e1e0a6858a5833fe7e0f146e544574c87dcec6ebe8f9d5f5ad2f
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2832 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=85dd9382c11b8cc0aafc63053f54c51f8ca3f509f9ea14e4bf46b218c4db8975
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2864 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b18deefcbe474726fb9fc4074a9ad20d40cc1c136b408cfea0d539f50e60ed3c
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2896 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a11471de5a29b5a584290da190b490bfbed3500727f865500b25e973b1674acf
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2928 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b9548ce40770054a4fa6a3d391a745197ef2f3ada295321874721809c9755587
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2960 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7e115324af0e353fb1649709a51f63b510f3fb5fefdc3e09aba37f050bb1dd7d
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=2992 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=db21a0a9f7108914ffabe33cff63d57f56fd696d5ece77375e3f06f7f1a757d3
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3024 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a3640f57c634ad5b4d70db9c0fd005dcc319b3d2e3054e6a615c7dfd42c138ac
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3056 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=881cbe433891342a6b2053fedbf1cefab8f06e88ea2ab387c2095bce46732366
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3088 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3f32da796834cd1449c4fff73b6326fff500ffd3ae80e6efdf842f306fa40120
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3120 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=4b929a18ac15d6754526f741208dd2ca581cbbab23b702b7ae3b24fd5700b329
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3152 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d6066e3ba1ac6eb8acbdd63e08f794769b39f3b88c864dc8df38ade8df05239e
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3184 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=8e8ec51674fc39b1197016519a8061a974d6376c8d9e43987f49093cd83366a0
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3216 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ac2ccb7ecb96558b31bc3a00510d392048820e7e088b7c6cd2a884546937300c
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3248 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c8a2dbee2ed1de4b57a9e1e3db4b060c12816075ee322b03b9d4be7dbae51070
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3280 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=45a4a352871a3b452fa797f5d6ed7305c4338631356b24a8a516124862ae43fa
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3312 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f21f1cec4d4419b23caa59875699599ea3d7f9dd2234b00b0cc0e5c785959401
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3344 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=2d738f03bfb146419c410408e8e0712056916cf2d5c450607496672b913a5b32
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3376 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f27c93cd6ffcb4a086b709efb0435bf9a0faa73eb8a8264b7bbb975f4e08a6dd
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3408 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c7e25f750a225851cbf432b010f2df2b5b97328674ebde6838be06a577664c7d
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3440 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=1e8d7901b397926fe562141919d295e80159ff0fa36b94ae8334af4147fba805
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3472 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=2a5ee8905b9546ebf4b65a19323ee048ced6631197d6d9b1f6cb6bf0245abfd2
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3504 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b7a5519e06ddcdcbd4295c47c29c7c01ed7ae43f82e11763e7924631ad76fc2f
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3536 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=597113ef0c41035f70e05625f8bf4cb16e541ff8bcef8c6c6c8914f00f58fda0
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3568 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c2e0f91ece09b3e6ef57e7270f26ae4f9619b652b41f2cac02d2d3a59977d009
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3600 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=14f7a049a8d55c6695713c5cfc10e6fc1f6ccdd8791c1a06417099010d98df4a
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3632 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0849d1fdeb71185b6a276136d6e3b9cb8361d80ed42851e694e794cba312761b
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3664 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=35534860fc5e8e1836dff452d78b88b5ebc360039e4f64abefa7aaede24d8928
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3696 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0837c4dc5cad4c984c6d3642581bc8b4b163abe0b3aa989706bde86eb6288210
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3728 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=069a9f1c6b072bba129b0ae65ce5b4611db86acbff692d783d4a6bd9bb47738a
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3760 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=41487618ec6d657d29ba8fc70e77877cf53ee21edca3af4fa93e014bd5f2a266
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3792 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=4b2051f030c80be940ff2bc2bcd4872ed5dab4d497354f11a1b1607e03d1c611
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3824 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=36f18f0afc6c52a60d64560c169cf828dc0216e05f42dad0c8d0bb1afa183b47
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3856 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7536e99b62b99e931b49d1aa378ca6e29573548e7e0d5d6b2c20e970009077f6
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3888 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e5011f6fd936952000e3cbffc65a80fe8ccf85e6c635b75912f62b381ab74722
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3920 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d261dcf867acde70907d60462f69278ee5ee5c5bdccaa28525d37f8345f24a2b
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3952 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f2125ffb8c5f36b178382d2d3f76240fa1fefb0b343dbe0e015ef114283dda8a
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=3984 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ece2906d172840087f6f3df6d2c7a1015d11c812398411e39f799e31ebf4cd7b
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4016 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a853cb911f706b456c92a05ca8d2285f8fe6a1308fc094bbda87d89cb4dc4182
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4048 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=54e8b3f5254d55404d7a30bac222d24ccf3393d31bac06e6b279cdfb780e4222
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4080 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3f3dc82434533f9af3adb597f7afc9f2fc46c43adb7f627802aca94a0f139095
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4112 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=51b8e1e76a0148ca0880df8509607109eb8ba58d8b10a3ea5593b3e5418df254
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4144 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=00252d70421a1bf7e55b3b46dc11561dbed3f3d143cdaccd26649cd4845846c4
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4176 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d6c2f1c44523c7e09436a6569a2d438801d13e2de962a2e10510865dcccf9887
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4208 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=cf3e668a192f46a870e2d226a7c5b29bf0508727a9b6ae1a4c915f7f03926495
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4240 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=738582648a0074a38c1befff8062c91293f4e8929c6374109d365eaf41af7fef
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4272 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=37583efd89af5a5425af40970b1ba9345a7e3c857b9a1534ed709fb326ece8f5
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4304 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=286d083e68230e988e53ad046369a411148785a22065cd574ee61bb5b7318a37
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4336 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3ee8abf5b3de20cda2069222d409fe3325fc66d82da3cda6707c74260047a93c
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4368 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=eb5671e4b72c247789a1b1a18a53c963f79c1e5b1eeefe83e3040a7a36336108
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4400 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=5b8bd87270f265860d3f7c24c2a62b62dfe4a25d02745a834c2d61143f0df15b
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4432 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=43ee1d585e1ce856954f9aab8d57e603dc27b0df5874a3195ee0d2b90e88b7be
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4464 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=18e92cda7a5ff49b28c54947c7733b1c335a6a25c2dcbca92e76b9aecae01768
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4496 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=5557b0be780a19a3b1fcd134f0a6e4308cc92cd5c74e1aa350135f883ccaebc4
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4528 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=8d10e9858766d9a744c107699616f22a1e1839487355c50cc44a5da937e1e8d6
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4560 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=fa6c21373370448769632c9af29480784f141b1931b7ff0b041a5bca7478d20d
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4592 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=00c601383285549dfbf23942ec14a5ee93d72e9d2973c57024c0db5e6174266f
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4624 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3f628178a71e0b499701cb4188014084d3ae4005ba997940ba8d0de8f5693e6e
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4656 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=1fa566bb0a041de29d5b9834a7b90595de8d6e4a751d7df57f15716e7382b55a
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4688 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=289ee917f613b24a593a4da29407d74a9c237d0bbaa6ff7ecd5ab4de296c94fd
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4720 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f67a8d08970f855b93355c0a082b623d2d7251cf1d7613ff9e672a597f1e8aad
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4752 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=bb44f18c30003d1d1e0ab476d5b4171a0b54bc3cef963660659a3f7f9ad6612d
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4784 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=bd48420449279d6f71fdb7f6640fde28dc240cde9dc6fc52a9dca56b0b01df61
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4816 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d9d489ccd502564b213a0398f879f9ff6ed609db0d241a60b95a81e01497d955
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4848 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3aa99b7d61e607f6cb3ce0304ef2f0edd48c3dd437b62b6ae7952283de7879e8
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4880 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=355a387d2c740450978f40e7b266a8bcbe384604e4edfcead774311232286686
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4912 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e6f3e027f76e6e767330d83d12addbad05eae9ffbee7df3238431e815d56a0fd
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4944 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f35446ac5754ec67fb22846fef2a0c1955b25c2a85ef7eeedd53706800b2ff5e
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=4976 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=13bee4dd45cbfa76ecbb25e76e559dd432993245657afc96b0126022a2caa38f
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5008 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ff40093f01ec2f1c81c9937ca7e7788d9bf7183a31ef0f5ecb5cb6fd709e8cb8
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5040 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a9823b713006f6b5fb44c0aac12f99be1924980c87e889cd26afe55a4bb736d5
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5072 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ccbd276dcf0adc3323a553dd554b7ea0876c7392d97c3162dfb95200a401c4af
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5104 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a9b8f7eb988e6d193788a7f22e284b7091116cbbc2f3cb6eefa6748209a351d8
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5136 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0ec30b38e10890889fa87ea277b4311a494ade6547a8f07c8c4419c9ad2bebc9
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5168 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=040fb9984c8f6133383af2eb12b8ce9a5375985804e0f11cc20b4d37030b6c16
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5200 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b7765ce675408f80ac43f0e0690fa9f359af8e3daf2ed8177baa4f7ef1dce4db
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5232 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e4176222f6150479a6ed520dc5351a8fae22a2636d248e2bb405a8260b7102cf
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5264 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=620f4d67bdb25e4b5b7d36bca122f0e43dbd05fd1ad0f36f3d39a0ed7fc4d17f
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5296 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=cc46ffc41f9d5a71ef6aeb0e904d294ddf7dcdabab303cf133abf86048a865e3
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5328 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=59aa32bb7b107cedd33985787410b99a981b9c5745b6ca18f25e30ec19f8c3e4
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5360 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=1ef6c6915f374346238a214679ff8fab3ab13f9d814a889e5e765288c2bad89a
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5392 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=2c0f11c73b69ea3ce7024aed32f6a10dc7d6a05ac5a6abaa2198069fa07e6f88
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5424 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=05454bdc63c090c3fee44e6f680482905e7fb7b31c9ac50e0bb50a2639235947
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5456 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c12bed968db89307c523371a359c69362dc197d736649ceef218df3bf9d00342
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5488 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=4c4e90df14726f84ae7ae81f77ab5d50eb4dd94fbfa88c8d39898508eacb15e3
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5520 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=cca7705a156eeb4e8c695177f4a530435f7339caecb03c8b27364511e3f5c37e
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5552 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=df331bb34d94ee931c7cc2cb48c103dac00f0912f3a069b6558a5cabc0d65258
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5584 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f40ec57e0cd5d0d6b408280ab9639282c35034a4e871d8aceb7658b6932f5a96
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5616 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=41d48e1d9c79eb48bde695d780b24fe8414ca96066efad52b9674aafb9f75531
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5648 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c0487e31467c141ecd56376a11e4a7288681c4fd1bcb89eca7b7b845ce46c494
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5680 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=db53e428fc1f4dbb585a8e06edcd85ee8dfbe1d8ed87156d0a45a8210a9516c1
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5712 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e2d0b8f86371db21955da9eaa0fffe66f061382e0251ac0214afb4d1b03378c0
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5744 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=117c298b78fbf1eb165010b6a2d5529bbaaf4c83fdb05f25832e40b14f2cfabf
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5776 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=28dc463a95a8ac1a402913822f1eeff1144c17cb0df894f550f7be5f9bd22bb3
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5808 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c18739690dee4e7d53cf75a5f12455d44ce12915a5906a90056020c3888c3851
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5840 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=9428e6b20d8dcd49f7806ce7ef85377fd64af06fe2a00994c5e40af89fbfc6a1
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5872 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=149443246e890507e1892669126be73c2b46f2a8da56ec77104ce9922e301328
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5904 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=2f7e0091b49d250476550ffb789ad32f73a6c1cd0794d6607ffca21b472fdc00
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5936 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e2dbd43ff8dcfdd21b6e0db8dcc8ed281b0df68bcfe1e011ba41a9a5a61e82b4
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=5968 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f78b25255e099e5a93dcdbcf01ae2d3fa96aa0017f0b68bdaf9336b610054b44
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6000 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a2db021a90e8e99ee3d11dfbe429b8bbd145d9c9290c66ae91b8ef507fe0e20f
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6032 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ab422358af77e900b1895c60bd2532684a0990c5ee363e4a422b41fc2ef6832d
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6064 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c990d5df23df021ede608e3688f3e6851f579eea8cb490c04304f3b6950cffa6
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6096 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a4357a93597b87f5a052dec6b24c84806be39d9a26bbd2ac205ce39660c476f9
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6128 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=803f2821250fab00087e6f937a54856a72a77726af6fa942bb8a976f8fe065eb
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6160 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3f98806b244dfc5d9348081b193def725e0c7c76253a17beff4311656e213445
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6192 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=4dec25e5b25611215326cddb9ab1992767b637e664b5c04b89325f0a27fa5231
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6224 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=8e1aa03d293038bc29850b68ac7aa4d7176c9e42f982dd07694cba2cbf3a91a7
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6256 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c374d8aac783ed590e11b67133677f7fbabcaceba534b0d443302e0d6dbaac97
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6288 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=105afc9621f604a9d518b890c436f6237b789490bcf2610cb13da4ea103d5d91
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6320 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=45bd0d08032f7559cc18c22cd50f39ef618aced24ea781748ff08088dc368cd6
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6352 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ca87208b7fcd2d981058c930adc7d128cfbd0248a6b6bdd5fee518071582257e
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6384 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=768740ed633159f8d6dc17e673c6324df5d5efbaef1fdb3d5476b0ce55d39555
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6416 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7ddc52cb53b9180f609bc682564150ee9b0bd2958284a8ea2320b50d229cba46
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6448 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3c2921261bd2d1af6677c556111672021d744f63609366c7d2f4e22559851dc3
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6480 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=6b9df3e50c5d02b424ea75a80359645c9f0e46425ef8180a745b5fb435b7af10
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6512 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=9732468e458eba9343a0cff317f8e6c9ca34a8856ecf73c4d253d71151793b66
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6544 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=da78dbb44e7b73c2d3e0d639ebbae53b4404e60ab1220ef56c04a6945bdaa9e6
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6576 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=87e506a186e7e93822ed2859b01ad8c7b82ffb017886a03c4ad4aa13e95a895d
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6608 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=8699862d22b012fa2d46ab27c1072a667f10624bb7949285d3700f8d92f9f851
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6640 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=8f65084770ce45410b67fbba8bd37e2d20639bad9faddfb830d2a4b6f8ccf0c8
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6672 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=261d375cca8fdb1229661391b14e6523ce7a83d3e197b7dcd55ffdf24bd0ded5
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6704 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=87e2a9b2d6d0610d934b96f5b81cca3ed10fe70ead76988c7652c89979f40bd7
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6736 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c632b3d574cb1c041c3a73732f8cdebd174a6544b15babda690eb52b14634a26
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6768 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b8768d9f37c772dc4f618f775b8bbf30110b693053160eb0b306a6a8dc0a2075
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6800 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d076b5fd76c70aaa78922be3c8a16da27f7db1dc8e73ecf330a6bf4375c09268
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6832 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b5dc04fe9d128c52c51ec8086235497978572b7a12c845a848325cf8676bb3c9
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6864 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=56b2e3319ddf1d08d8e3617e116620aeda871fa2bf62cf0d61d7bef0ca918503
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6896 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c04aeba69898532fec933a61890d92183f7545974df2cb9b6a16fbf46e68aafd
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6928 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=11f7e7e5ad29916b5fb09c0b03a2faec08dd875685aba81cd10b70b39f04df18
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6960 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=45cf13011dd413634b5343d3fb999425920830149b9c9bf6226546899534bdc5
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=6992 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=39c5e7b9b7f13400ce4d97f1b146f6e0f656fecf9104912a360aa66926c0e3e5
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=7024 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3ce98112ccc26a5aaf193e0a0bbf4ac763edcdb657bb3dfff0c0e6513b83b686
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=15 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=15 orientation=South
+ATTENDEE_POSE_ACTUAL key=male-drink_hold-soft owner=15 transaction=immersion:1:12 consumed=18 hash=3ce98112ccc26a5aaf193e0a0bbf4ac763edcdb657bb3dfff0c0e6513b83b686 reload=True root_identity=True scale=1
+TIMETABLE_STATE name=checkpoint tick=7056 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=5411ee910be87dce8f0745410228ecce1efa1354aa1f5afb25cc02b2a2b74411
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=7088 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c18e50d9ca20d83b6d3bb7ee0fefee7290484b74bf40e62bf31949d30569d991
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=7120 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=40f8362884a5bcd22a8a66f2200648140fb4c33706b4a8e6047182a2b1cd5d06
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=7152 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=20b9a47e28b7ce789d73fe2966e8371688533fb22f61bf5ab41ee3b533a5c555
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=7184 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=462f10e91c9cf352d30007ad3f5e078e58ef1847fd54c588e5ed361f876dc426
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=7216 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=364e8734c9d88a0dff27af383f56dd56aa0f46e94d72b883b6d926a5173b328e
+TIMETABLE_BAND person=24 physical=-15750,11706 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-16411,9589 action=Travelling intent=performance.stage-exit-stair instrument=False
+TIMETABLE_BAND person=26 physical=-16894,12606 action=Travelling intent=performance.stage-exit-stair instrument=False
+TIMETABLE_STATE name=checkpoint tick=7248 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=16f1c4e778f4e93e1e8e2b25b433881f8f12d0d0ef31d1d4082f622626e89d11
+TIMETABLE_BAND person=24 physical=-15750,12618 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-15733,10267 action=Travelling intent=immersion.approach instrument=False
+TIMETABLE_BAND person=26 physical=-16063,12937 action=Travelling intent=immersion.approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7280 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=3df11ebc9d182efbebdc8c10c1eeb25b1dfc9a814337c4b6e7a2d5e3b3bfcef1
+TIMETABLE_BAND person=24 physical=-14888,13468 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-15054,10946 action=Travelling intent=immersion.approach instrument=False
+TIMETABLE_BAND person=26 physical=-15351,13649 action=Travelling intent=immersion.approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7312 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=e5da7bb76797774e4abfbfab8033c1608c7526dd49f67ca94e188302ed1db559
+TIMETABLE_BAND person=24 physical=-14652,14250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-14750,11825 action=Travelling intent=immersion.approach instrument=False
+TIMETABLE_BAND person=26 physical=-15108,14066 action=Travelling intent=immersion.approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7344 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=41e583c14db408b70181a05ca73911431d51b6351ef832b30a0de21398e6f69e
+TIMETABLE_BAND person=24 physical=-13740,14250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-14750,12785 action=Travelling intent=immersion.approach instrument=False
+TIMETABLE_BAND person=26 physical=-14145,14250 action=Travelling intent=immersion.approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7376 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=cc57a33603a48af0c09477c8944d9a7aa7057e6f4184fa31ab20bad8211de62a
+TIMETABLE_BAND person=24 physical=-13250,13828 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-14750,13745 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13854,14195 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7408 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=a99a9f870ce198dcef311387ba72b9c3fb40060e6560f8d482d43598424755d1
+TIMETABLE_BAND person=24 physical=-13250,12916 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-14295,14250 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13250,13860 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7440 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=9eff3ae23d96a9faa113aa75d637ab912697da552e0270634b08c4745d9c079f
+TIMETABLE_BAND person=24 physical=-13250,12004 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13398,14401 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13250,12852 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7472 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=c0eb7d9d93aed04c7601ba3e579c27292265118ceb589a6a7080e76e7fbcb133
+TIMETABLE_BAND person=24 physical=-13250,11092 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13025,13528 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13250,11844 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7504 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=68ee1af02d1d6de710e061d3bdfca24b0a33a5e1269ff69816c2894cf2d2c02f
+TIMETABLE_BAND person=24 physical=-13250,10180 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-12950,12648 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13250,10836 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7536 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=07808290f7d570a461048cac7bcd76807043ae67ba492d6dd0d181a812cfa03a
+TIMETABLE_BAND person=24 physical=-13250,9268 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13250,11789 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13250,9828 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7568 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=e007935e27bd28106da4158769073c8fb4f6d965981a3f4dd1275bcf492512ab
+TIMETABLE_BAND person=24 physical=-13250,8356 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13019,10944 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13250,8820 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7600 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=b76ad94d38639da0c253c8439930d7b086bc38723c3d8aa03ba89806cafafd07
+TIMETABLE_BAND person=24 physical=-13250,7445 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-12813,9525 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13250,7812 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7632 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=7efe18bde3431ae3b7b0ea8ec7ca247a597443c4c55aa1eb5197129ea20a424d
+TIMETABLE_BAND person=24 physical=-13250,6533 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13250,8667 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13200,6859 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7664 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=05b89bcf5ce66d53905b8b8a54634996cd12f1fdf982e15305e3a0fa13eba589
+TIMETABLE_BAND person=24 physical=-13341,5659 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13250,7707 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13250,6248 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7696 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Changeover: outgoing performers clearing stairs hash=441d742bbe42795db16ae78dacfbb2c2237b3dc93c9cba64ba751b202a5483da
+TIMETABLE_BAND person=24 physical=-13986,5014 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13250,6747 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-13611,5389 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7728 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=9da1ec53c3afa8488231e99e5c00dbc62d9c49b473d172607563ffdebfaf46a0
+TIMETABLE_BAND person=24 physical=-14631,4369 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13250,5787 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-14323,4677 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7760 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=6966914a1115c92da64d7e360c60f1300f6ec5176fc4103afa40d8883c7b071e
+TIMETABLE_BAND person=24 physical=-15276,3724 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-13902,5098 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-15036,3964 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7792 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=9009b7e4ee3c71d2e76217a3fe42be21250478d31f145cf45b5ade85b0cd50a9
+TIMETABLE_BAND person=24 physical=-15921,3079 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=25 physical=-14581,4419 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-15995,3505 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_STATE name=checkpoint tick=7824 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=7fd08c2ea19f4cabd708dbd6bba21edf5758b476abd072e564ad75ac676a29c7
+TIMETABLE_BAND person=24 physical=-16564,2436 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-15344,4112 action=Travelling intent=medical.free-water-approach instrument=False
+TIMETABLE_BAND person=26 physical=-16739,3244 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=7856 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=d27f41c32db4dcfac191f1f800f4cc91e3ce4c22fba7aa325f3b595592400091
+TIMETABLE_BAND person=24 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16125,4635 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=7888 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=a82d6190e76ae207be7ecdd6eb0daa91377a327a37c47752b4fbd017208e4a5d
+TIMETABLE_BAND person=24 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16250,5250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=7920 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=d3a93ac02d39a06ffe924683c299c1a9e046eba195c1b56bd1f69ec99d414325
+TIMETABLE_BAND person=24 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16250,5250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=7952 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=5ab249305650eec74c38acd10ca61c731f4cd786d617229917ea7bac06bcd9c2
+TIMETABLE_BAND person=24 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16250,5250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=7984 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=43b84924d7b5bd367cd749e1130e137a2700e831622a69f7aa2744c58591aa6b
+TIMETABLE_BAND person=24 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16250,5250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8016 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=9c34f6e1e5637a3fd14ed1779707ecf4084f05c4413534f9c41c047582b21efa
+TIMETABLE_BAND person=24 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16250,5250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8048 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=e1c36bdc81eae411bff3ad706791625dceccfceeabbce18a8a7762173a92ba71
+TIMETABLE_BAND person=24 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16250,5250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8080 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=f0c6ad08f241405b4d8b2e59ac58da6d72afcb5daa31ee57a59f148e73acf899
+TIMETABLE_BAND person=24 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16250,5250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8112 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=f37072de416c4e01e0694ce7bc3de031cefeb13ff6272f6209951d1dc5fd58d2
+TIMETABLE_BAND person=24 physical=-16750,2051 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16398,5102 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,3030 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8144 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=f41783b14c057b0d1cd8c6fdefcf66f853a7648bd2e61c2b2f12890627123a37
+TIMETABLE_BAND person=24 physical=-16750,1139 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,4288 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8176 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=e94fe66744b7e30ab3a4b531a0d59361959afd9dc9898d4de53b613c866e740d
+TIMETABLE_BAND person=24 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,4250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8208 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=babe9916e5f5c8716b7e8bc3213e71869451707ada82d6bd7c8c5b53f7f14462
+TIMETABLE_BAND person=24 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,4250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8240 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=ea893b1db0114d08353b76fb272bc0de034c2101f6830c2ac9357ec92fc867d5
+TIMETABLE_BAND person=24 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,4250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8272 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=abfff57be2a5691f30475013df38122ad0f00d2a158e3bec2acd24d430202205
+TIMETABLE_BAND person=24 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,4250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8304 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=e87dd17657daf15f43ed6b2d1fa44d23cba84fd441d6f21b7f75b2d8ce651c17
+TIMETABLE_BAND person=24 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,4250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8336 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=5ef076013df41730ae2401415457bf4500945e920570cfc727cbe34964f35997
+TIMETABLE_BAND person=24 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,4250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8368 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=d8f6c464527a8fc80ab1d00ab27c95d1ca0cd88ac239e0e4a9dff087b020097b
+TIMETABLE_BAND person=24 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,4250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8400 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=48c3cc3835c82242188de15978d37a67ad11c3c02d6dcda72c03688ba625698a
+TIMETABLE_BAND person=24 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,4250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,2250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8432 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=f8e544b264137fbb61b2796fbcf412406f2087933e2142dec20e8ab403f0f61e
+TIMETABLE_BAND person=24 physical=-16509,509 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,3890 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,1872 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8464 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=cf24ec96aaae44b31776b84531751a9f1384b21cd39dcb9b829488a16c05a3bc
+TIMETABLE_BAND person=24 physical=-16250,-250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,864 action=Travelling intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8496 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=8a0b9a67b1e63f973594da1cc2a2f35d73bc728cc316b4a8f943fe4946a7ba47
+TIMETABLE_BAND person=24 physical=-16250,-250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8528 slot=0 phase=Finished ready=0 people=32 performers=9 admitted=32 departed=0 status=Scheduled changeover hash=bbcdcbb1915305b3148da331732c5b325c50d8a8db6d01139118708c5b361064
+TIMETABLE_BAND person=24 physical=-16250,-250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=25 physical=-16750,3250 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_BAND person=26 physical=-16750,750 action=Arrived intent=medical.free-water-queue instrument=False
+TIMETABLE_STATE name=checkpoint tick=8560 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=7a56a38450740d764c10196e5b8cbc6ba5230efdfd746328ba9d1533a96adbe7
+TIMETABLE_BAND person=29 physical=-14250,5250 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-11250,5250 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-12250,5250 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8592 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=2029f4254189a9809107ba97ee465de0b19a9e23c9751e9bfd3fd6a707238f5f
+TIMETABLE_BAND person=29 physical=-13642,5750 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-11860,5860 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-12894,5894 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8624 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=383ee6b37cd12340d92c501185d40f6425b21723f40f584c8c17b7e225d177f7
+TIMETABLE_BAND person=29 physical=-13250,6174 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-12471,6471 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,6659 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8656 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=9fe488493467f1dab898240ec95963159445629c7b4f0a28c8ef2df8b9e4f2da
+TIMETABLE_BAND person=29 physical=-13250,6990 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-12791,7372 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,7571 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8688 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=c55050c595593f0d96dff266455b2b624b8491bdb756412fc3246249e2f9b298
+TIMETABLE_BAND person=29 physical=-13017,7603 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-13250,8020 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,8483 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8720 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=4639f7b1f55bcaa5d62bb04026abd70a487c7c758e3d14687982e85d9dc32417
+TIMETABLE_BAND person=29 physical=-13250,8290 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-13250,8884 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,9395 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8752 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=098016a1a93e7e8e4e23029e61dd1aa990c273e2bb7e4316e2d1159eb40641d3
+TIMETABLE_BAND person=29 physical=-13250,9106 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-13250,9748 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,10307 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8784 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=01201800541307205bec49816f52823b42d58be67bbb81548fd4581dd356e6a6
+TIMETABLE_BAND person=29 physical=-13250,9922 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-13250,10612 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,11219 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8816 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=c6234ecb0bd649139292d752dac20e07fd6a1721558c10f6dfe935e10b937e90
+TIMETABLE_BAND person=29 physical=-13250,10738 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-13250,11476 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,12131 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8848 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=7a29f37dee6ccb240cbc3e357139db2099ca04c311097d1d337ea51c8646bab7
+TIMETABLE_BAND person=29 physical=-13250,11554 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-13250,12340 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,13043 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8880 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=f63be1c41db2ddb059f44b84bb69f8ad0440c9c03e29eaf9939354f6d893c06d
+TIMETABLE_BAND person=29 physical=-13250,12370 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-13250,13204 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,13955 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8912 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=bff8aa41828371377d237aedd04bb00331d68e5a8e5a7a8fd69d65a1822ed6c7
+TIMETABLE_BAND person=29 physical=-13250,13186 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-13250,14068 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=31 physical=-13250,14867 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_STATE name=checkpoint tick=8944 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=0ba07832335dcd82c7cc8d7919b3298314bdda14d0bdff382788454472f074a1
+TIMETABLE_BAND person=29 physical=-13250,14002 action=Travelling intent=medical.return-to-stage-access instrument=False
+TIMETABLE_BAND person=30 physical=-13412,14750 action=Travelling intent=performance.visible-stairs instrument=False
+TIMETABLE_BAND person=31 physical=-13763,15250 action=Travelling intent=performance.visible-stairs instrument=False
+TIMETABLE_STATE name=checkpoint tick=8976 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=fea8656b476a3a48a44456455452ea3036c8f6ec8d16a1d7291ea1cfd81c4e48
+TIMETABLE_BAND person=29 physical=-13811,14250 action=Travelling intent=performance.visible-stairs instrument=False
+TIMETABLE_BAND person=30 physical=-14250,14750 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=31 physical=-14532,14968 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9008 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=1955671b1d4cb775d1d39a8908c54db9a07388cdd5ebda50d540b0b3ca737b33
+TIMETABLE_BAND person=29 physical=-14557,14417 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=30 physical=-14860,14140 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=31 physical=-15177,14323 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9040 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=8d73f0d2adb2a7b3f049556ee69cb5144ef5e534b52b5ae73b1edcde831e7fbe
+TIMETABLE_BAND person=29 physical=-15146,13854 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=30 physical=-15471,13529 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=31 physical=-15821,13679 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9072 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=c362f78f8d6c317a39fae4ccc4acc1f3af15f8573b74e2af1bb1f1c15ffbf7dd
+TIMETABLE_BAND person=29 physical=-15723,13277 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=30 physical=-16082,12918 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=31 physical=-16466,13034 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9104 slot=1 phase=BeforeSet ready=0 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=3626a39d99529b22772b8a1dbb9f741370caf1be62fb6d54765676cca6233296
+TIMETABLE_BAND person=29 physical=-15750,12471 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=30 physical=-16693,12307 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=31 physical=-17111,12389 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9136 slot=1 phase=BeforeSet ready=1 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=d87f23be5a02cdea3ef827198a40516f4d6d5ac702d59e76b175a6d246a69428
+TIMETABLE_BAND person=29 physical=-15750,11655 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=30 physical=-16750,11466 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9168 slot=1 phase=BeforeSet ready=2 people=32 performers=9 admitted=32 departed=0 status=Performers approaching stage hash=2ed4d686061f606b58826476f79ff4b82500f3da014dade9f9be428ad74ba29d
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,10602 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9200 slot=1 phase=BeforeSet ready=2 people=32 performers=9 admitted=32 departed=0 status=Late: performers not on marks hash=67651d5a1c4d7885b96b960484eddd0c65bcdc52dcee2f8b884292990b92107f
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9738 action=Travelling intent=performance.stage-entry instrument=False
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9232 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ac9e3e802a7298dce50eb0ea491c1e08cd8cf68965e6399d6cf0e825ff313d1d
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9264 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=761ec01b4e52ede690a358803c563efa937de6791543b96f54e99d8e5707aaee
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9296 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=38c25277f3ae4b76d4e21830013584bf5ea49ac4118011117e997cc8106c284e
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9328 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=76f04c60baed09469c7a83133d41a35af0457df4af0dda6f42ed472bc3008af5
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=15 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=15 orientation=South
+ATTENDEE_POSE_ACTUAL key=male-drinking-soft owner=15 transaction=immersion:1:12 consumed=242 hash=76f04c60baed09469c7a83133d41a35af0457df4af0dda6f42ed472bc3008af5 reload=True root_identity=True scale=1
+TIMETABLE_STATE name=checkpoint tick=9360 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f703551e849e928a24584b6bce4c19cc9991910a8d1e4edb757486a32fb6e586
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9392 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=67cfd5ef21e237f222e5ff0db84c6349c2c02077ee63521afc8ed094f14d7def
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9424 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a20551ab3fac3048cd6a853cf50b09792b8928110ea6a1c8bd0acdb2e2b5359f
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9456 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=91a0b879b86d465b7fc3d687cb73440af0cc27d6e92cdca08de1a456f4b65b89
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9488 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=16da7c1841283e5cf7e3b57e1b8ae3ed3045feec89ec1ecd8e78b555a2aa0bd2
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9520 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=4e35407c34506fd924563d5f66b9b09fa236a5e42e22b69ef34d46c1e707e533
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9552 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0c1b24962f8dbcdf4e6cf540dceff83400cd8291a19dad265db511500c09a01f
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9584 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=9f81d0169b2b9b0bf98b0703bacf654497c8abd381658e2671141068f6a50ed6
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9616 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a65ba0fb3944e1254196ddbde56412bd6bced8d936c8e4bb43c42bd991f1a6ff
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9648 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7fd257ef990b7e26082b8f777240b1d334164485bc9e034875d3714768ef0580
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9680 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0a0a3bea35e6d2fc957b7af388ff5de103b2eac73729d5aa58da3ee9f593399a
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9712 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=96d51c6262a8c82ea93749a6ad6a5c96d76959bbff71b653af501a858a05b42f
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9744 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7dd972affede83cdf79bb98a0dc47f32465e180bb81743d945dca16fc8cc8dae
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9776 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c169fb753f949d5b267fbbe7b373be489f0833168a5937989cb16accab2fca7e
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9808 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=6f5ab9f9b3aa590b2ca8074a0c82d202083d2857558f1954e24dcf3a7bdb2f52
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9840 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=b5782558acd913a784d14294274a7182e4046ea097347058290be9206de0f432
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9872 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0b4ffbf70ab7df9b12ad9c863547033298e4d6f69722358070ad6f6bc469485c
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9904 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=42abcd0036269b1825f4b4ebb9bcf21059eb7cb1a303ff3ee9c6c11b259503b8
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9936 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f58f4b3092e424aa7a8c29e86ddf1cdf90c00981389633f972e04bdc32d629ee
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=9968 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=9e93d45eec7330a345ebb4979125720458e4d45033076a938b579ed4c2ce2cf1
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10000 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=bbf9cc487029d1ee6beb2a7193296cc92345e841d6af159e9a8d50529e414f03
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10032 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=138ace577114be37abcd25aab6e73548e64504891897f672e5b878454d39bcb2
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10064 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=18d64bde749762fb5fdfd138d1f8fafad807bfee62d578e8c551d40ea1bb86b7
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10096 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=414f13f9939271a58b8f840c43dbb09db3de182671682e236a8854d2bf8e7273
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10128 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a69670649c1535e17addf1219ffaa0027e16a2638aab7cbfc96eef46309dcdbb
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10160 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=010ed05492361c2cb1510a37c40d9bd17c089dea4008e811c447f8a2d520a98e
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10192 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=11018df3818ec7f099b7a791a81195f135675b55f92e5bfb071d64ecc75b8af2
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10224 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=5d59444228c4ad9267286a77fef52bfd13665828a0860a2c7fd1ab5d06810011
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10256 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=5d4dc5051a1541fd999cd2c5f315effe2c1930d23e2951d876e1cdb66a74bd9d
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10288 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=07445f0b835ba7c3d963c9fec501cfcd4dc8213eb702dabf5993d04dc141a647
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10320 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3321b30b5309f16624c656ce990e9e4f93c43090f34fff2a4ea70a72c6fbbaba
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10352 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=2d36c4f184bf57c39987fd73d375ef57931176f43bccc63445c930367798e9a8
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10384 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=187e88b570ebee1045605c2362e7e016448c257d743a2390cc59d820f087a7a7
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10416 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=7eb5f6d9b323cbfdd53dbabbb8dc948f648cef626a4e592d5c40a0a3d668905e
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10448 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d400ea3800d4b62b55d99b468cda5b8d38a9e64a5e9949602f0e763fc14cb9db
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10480 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=dbdd0c5dd5204a4fc359c656fae7e4b8429a4ea1910f2bbbdba4e588bbae2144
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10512 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=26c5b3c8833c238d36fdec138ca52db5e616225b397d1d336faf27147ae1b1d3
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10544 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=3b2e9b9202bbb3ddd26bf8aeaacabb6fdcd179e5033e6067791480ed3549f1b0
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10576 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0ba877da22d757a732fdbf61785e74826298ce38e33b00b594df34a668c2be61
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10608 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=4bcd8a1c3a2f2903454b8a483afb50e79145e4a6631596da0f299c673801bf79
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10640 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=1b44ab9acae772b8310b974ce96ac5bde5464fbdff5fbdf0d2f89c57f20df041
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10672 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ab5f6baf247302aea8c0dd166e647623b2af8aec1cfa0b0302d0ec9111d43d0a
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10704 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=37a2981afdb68f5cac07326e904987c1f8618cff10dd07d2da562ccacd9c2054
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10736 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=86071b9b9d5fd0b56a11b797474d708036abc5aa463da147bd6560d3c7ea058c
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10768 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0424aa1d9137392690f1431df60c1aba87dc69c53c636a2bb8498bb83f489f37
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10800 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=eb9d5ce9af7ef44f7143f62c3077ca94c4e667e1e589d81c4bd3a53e9131fcb4
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10832 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c5f5dc3ed128bb303ae5d62dca3ff4d1b2f2caa9a7a2eb71b9be2dbe295fc55d
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10864 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=91c1ae37b6dcf22697971165488c59961e05efb6e2771c98b980e3ca0588f2e1
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10896 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ee8b1e6b66b5dfc478058ce8dae8de46fc46a8d7b2f5158aece27868a9ef4840
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10928 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c72d957bbc4d990a73dbfa806cc5ddc3dfbaedba8fe82c8fa76f5a6bb5c7dc25
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10960 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c13359092b314bd2d80e1100b605373d9e46241bd4cd326603ee527036e58005
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=10992 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f8b02e0f5ab5c1f4cc34796ae59a12ad39c788d9d8d64d1ec5c71de8d391684e
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11024 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=5c1fb593a24ac2c9998f3c2f5bd8c479ea9999a63941664ac04eae2b3dd6f722
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11056 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c63a64fda232a18e9c33d11e203becf61d29d4e77819574838a3fa721dda4f16
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11088 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=f2529336641c239944aa72badbb17a49d0ef5b949b0f156e494e8d04935f9525
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11120 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e56431aef17fa72123df563ad3e18cf14b0c10c450aa79be55d6b1f65de66485
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11152 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=ded52a249fbcfb7e3ea50abaff872e2ef42201811d30a53ffcfe0890736a9c7e
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11184 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e72bb0a127551b68aa3b77854f961a89f8c11f956d6833eb19d2d0b29d924a07
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11216 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=10e32beb0e201d915a16adb597cab6b25baf43db452a0f783de7702845ef5269
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11248 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=0ccc8d83dd48a507bfa450693474850b9a843b3df0b9c3ec67d3b3e49d4e5f51
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11280 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=da7f56d389e222e17e7300d39f1a214ff57e69c49943851439b42700368b925d
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11312 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=355a1a081f90b9dbb90a07d935e6c641fd7dc85deee8005183955ac762c07cc3
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11344 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=9e05b306405da3f0813ab01f367752c6f38d725f706bbc3d515c8b72c14b2306
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11376 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=6c2ab9a2190807e2ffdb26ef0364795bb67fbae2782399131c6961ddeb6e4f0a
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11408 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=1fc1a28e7f330578ca53564b1a190a22a72c1dd8496e676024cfea6583fcb81a
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11440 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=de18bb206d38ad1c292fb8bac8eb7dd081310bd43399bcaadfe7d2d1eaf3c668
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=12 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=12 orientation=South
+ATTENDEE_POSE_ACTUAL key=female-food_hold-chips owner=12 transaction=immersion:1:20 consumed=19 hash=de18bb206d38ad1c292fb8bac8eb7dd081310bd43399bcaadfe7d2d1eaf3c668 reload=True root_identity=True scale=1
+TIMETABLE_STATE name=checkpoint tick=11472 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=d9fe62bea358a456036131cf38c98a61882750734e504213ee0ac184a7acfb7f
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11504 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=2fc949563e6fa9a8a49cdf44293fc30baa32ddd5e7cd9e651ef286cb6c73ddfa
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11536 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=857e70e9357e2d8fef27c794ea235aef48ffa7e5f4493ab865b7e640a868c336
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11568 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=a78dad2b897f5e0a4cbb65d2f90157624f5efec5a810584c9acca3291d8b5c66
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11600 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=e8473a9aaff4c43ec66904c273d25e0d1cff039701f9450409f0d5dbc39f5c58
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11632 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=c63521ce6d783b276893d24b01e268ea2b970156cad5a4c617a4bc98faea17ec
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+TIMETABLE_STATE name=checkpoint tick=11664 slot=1 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=060e03998b9afc53597bc50f3cbd87febf1401434e6babe14592a9a023fb8d3f
+TIMETABLE_BAND person=29 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=30 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=31 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+ATTENDEE_SELECTED id=12 orientation=South
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=12 orientation=South
+ATTENDEE_POSE_ACTUAL key=female-eating-chips owner=12 transaction=immersion:1:20 consumed=243 hash=060e03998b9afc53597bc50f3cbd87febf1401434e6babe14592a9a023fb8d3f reload=True root_identity=True scale=1
+FARM_SELECTION_CLEARED
+ATTENDEE_SELECTED id=12 orientation=South
+ATTENDEE_POSE_INTERRUPTION collapse=True collapsed_picking=True fight=True retained=True resume=True picked=True cosmetic_hash=True
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+INCIDENT_AUDIO cue=DeathScream voice=Male tick=11665 mode=cc0-integrated
+FARM_SELECTION_CLEARED
+ATTENDEE_POSE_RETRY same_variants=True same_colours=True fresh_roots=True cleared_props=True cleared_pickers=True actual_file_reload=True new_session=True hash=d3a7206217dec86cdf2849dbc7315d2295915a220f927afdd48ba2d60cd017e1
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+ATTENDEE_PALETTE_CHECK_COMPLETE combinations=16 both_bodies=True protected_bytes=True alpha=True original_resources=True material_flags=True cached_across_poses=True compatible_bases=1 materials=16 same_colours_reload_retry=True legacy_staff_performer=True hash=d3a7206217dec86cdf2849dbc7315d2295915a220f927afdd48ba2d60cd017e1
+ATTENDEE_POSE_CAPTURE_COMPLETE actual_keys=10 showcase_images=30 palette_images=3 both_variants=True all_six_visuals=True four_rotations=True reload=True interruption=True picking=True retry=True showcase_hash=d3a7206217dec86cdf2849dbc7315d2295915a220f927afdd48ba2d60cd017e1 manual_QA=False independent_review=False

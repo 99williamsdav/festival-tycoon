@@ -1,0 +1,582 @@
+{
+  "bases": {
+    "male": "d828e34ef79dcc6d6f1b1d5259420174b8efb4da8211d039de3920788125521a",
+    "female": "f784c1733dd3be0b4dd6dd511bbd705935218bdcbe7cc21832cf09036b16c2c5"
+  },
+  "poses": {
+    "male-relaxed": {
+      "sha256": "3a333e5f18c042e481118a12103589d920088caeaeaf7eaf05f072f2724f8dec",
+      "triangles": 1206,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 2424,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Right bare arm": true,
+        "Right mitten palm": true,
+        "Right thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Swept faceted hair": true
+      },
+      "authored_vertices": 650
+    },
+    "male-drink_hold": {
+      "sha256": "15448c0d472d00ae45bbca916b0027d378f67c5f6d62ef2e272ae0f0c81a58d6",
+      "triangles": 1410,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 2824,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Swept faceted hair": true
+      },
+      "authored_vertices": 754,
+      "attachment": {
+        "node": "Attachment_Cup",
+        "godot_position": [
+          0.20000000298023224,
+          1.1799999475479126,
+          -0.24500000476837158
+        ],
+        "godot_rotation_degrees": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "beer"
+      }
+    },
+    "male-food_hold": {
+      "sha256": "e767cb317e1f09109e75518840cd3aa7489e76c7822e92aa4ab1bc2eb61f1a9b",
+      "triangles": 1254,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 2520,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Swept faceted hair": true
+      },
+      "authored_vertices": 674,
+      "attachment": {
+        "node": "Attachment_Food",
+        "godot_position": [
+          0.11500000208616257,
+          1.1549999713897705,
+          -0.24500000476837158
+        ],
+        "godot_rotation_degrees": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "tray"
+      }
+    },
+    "male-drinking": {
+      "sha256": "2df3a7cfd7ac26e9692d8207e6c56f429a465c063cdc6115488ef91e7c1cf640",
+      "triangles": 1410,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 2824,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Swept faceted hair": true
+      },
+      "authored_vertices": 754,
+      "attachment": {
+        "node": "Attachment_Cup",
+        "godot_position": [
+          0.0,
+          1.5540891885757446,
+          -0.18164005875587463
+        ],
+        "godot_rotation_degrees": [
+          55,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "beer"
+      }
+    },
+    "male-drinking_soft": {
+      "sha256": "07d6dcd6c65293b6dfd996c11c0c3f3d772ca765794d3889453051c3a9ad4691",
+      "triangles": 1410,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 2824,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Swept faceted hair": true
+      },
+      "authored_vertices": 754,
+      "attachment": {
+        "node": "Attachment_Cup",
+        "godot_position": [
+          -0.008999999612569809,
+          1.4179999828338623,
+          -0.09200000017881393
+        ],
+        "godot_rotation_degrees": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "soft"
+      }
+    },
+    "male-eating": {
+      "sha256": "43569fd031f1e59684461406aa55666e2eaeed06e97ce5f5eb47e215e50b8fbb",
+      "triangles": 1282,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 2568,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Swept faceted hair": true
+      },
+      "authored_vertices": 690,
+      "attachment": {
+        "node": "Attachment_Food",
+        "godot_position": [
+          0.11500000208616257,
+          1.1549999713897705,
+          -0.24500000476837158
+        ],
+        "godot_rotation_degrees": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "tray"
+      }
+    },
+    "female-relaxed": {
+      "sha256": "f31b365e15e86fe10be5c63d4167dc9d1dbb3975b5190b5b4d73f1035efc1842",
+      "triangles": 1842,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 3876,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Right bare arm": true,
+        "Right mitten palm": true,
+        "Right thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Subtle mouth skin-shade": true,
+        "Hair compact crown": true,
+        "Hair layered lock 1": true,
+        "Hair layered lock 2": true,
+        "Hair layered lock 3": true,
+        "Hair layered lock 4": true,
+        "Hair layered lock 5": true,
+        "Hair layered lock 6": true,
+        "Hair sweeping front lock": true
+      },
+      "authored_vertices": 985
+    },
+    "female-drink_hold": {
+      "sha256": "1a4ca7bc358113a7142618fc0588f17bd885d2c80c933f42365854dff4a394e7",
+      "triangles": 2046,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 4276,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Subtle mouth skin-shade": true,
+        "Hair compact crown": true,
+        "Hair layered lock 1": true,
+        "Hair layered lock 2": true,
+        "Hair layered lock 3": true,
+        "Hair layered lock 4": true,
+        "Hair layered lock 5": true,
+        "Hair layered lock 6": true,
+        "Hair sweeping front lock": true
+      },
+      "authored_vertices": 1089,
+      "attachment": {
+        "node": "Attachment_Cup",
+        "godot_position": [
+          0.19200000166893005,
+          1.1799999475479126,
+          -0.24500000476837158
+        ],
+        "godot_rotation_degrees": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "beer"
+      }
+    },
+    "female-food_hold": {
+      "sha256": "be4d6cc4e39580799e6a1fbb24d6805e5b4a23ce9a9595fad6b26e14cdea6487",
+      "triangles": 1890,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 3972,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Subtle mouth skin-shade": true,
+        "Hair compact crown": true,
+        "Hair layered lock 1": true,
+        "Hair layered lock 2": true,
+        "Hair layered lock 3": true,
+        "Hair layered lock 4": true,
+        "Hair layered lock 5": true,
+        "Hair layered lock 6": true,
+        "Hair sweeping front lock": true
+      },
+      "authored_vertices": 1009,
+      "attachment": {
+        "node": "Attachment_Food",
+        "godot_position": [
+          0.10700000077486038,
+          1.1549999713897705,
+          -0.24500000476837158
+        ],
+        "godot_rotation_degrees": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "tray"
+      }
+    },
+    "female-drinking": {
+      "sha256": "17b5140a0b7cee357956bc00aa4d4fdf0819bb58c4ee364f617449092e94ce58",
+      "triangles": 2046,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 4276,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Subtle mouth skin-shade": true,
+        "Hair compact crown": true,
+        "Hair layered lock 1": true,
+        "Hair layered lock 2": true,
+        "Hair layered lock 3": true,
+        "Hair layered lock 4": true,
+        "Hair layered lock 5": true,
+        "Hair layered lock 6": true,
+        "Hair sweeping front lock": true
+      },
+      "authored_vertices": 1089,
+      "attachment": {
+        "node": "Attachment_Cup",
+        "godot_position": [
+          0.0,
+          1.5339972972869873,
+          -0.17544007301330566
+        ],
+        "godot_rotation_degrees": [
+          55,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "beer"
+      }
+    },
+    "female-drinking_soft": {
+      "sha256": "35c98e01cced98ec5260326e43ae3245dc55f5d362a04d988dd1744151620864",
+      "triangles": 2046,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 4276,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Left bare arm": true,
+        "Left mitten palm": true,
+        "Left thumb": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Subtle mouth skin-shade": true,
+        "Hair compact crown": true,
+        "Hair layered lock 1": true,
+        "Hair layered lock 2": true,
+        "Hair layered lock 3": true,
+        "Hair layered lock 4": true,
+        "Hair layered lock 5": true,
+        "Hair layered lock 6": true,
+        "Hair sweeping front lock": true
+      },
+      "authored_vertices": 1089,
+      "attachment": {
+        "node": "Attachment_Cup",
+        "godot_position": [
+          -0.008999999612569809,
+          1.397908091545105,
+          -0.08579999953508377
+        ],
+        "godot_rotation_degrees": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "soft"
+      }
+    },
+    "female-eating": {
+      "sha256": "5cc21790a2eb7b9f25f104fd79adf90d1ea6a6a2777ea3b8f5d596e53839965c",
+      "triangles": 1918,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "vertices": 4020,
+      "embedded_images": true,
+      "unchanged_regions": {
+        "Left shoe": true,
+        "Left trouser leg": true,
+        "Right shoe": true,
+        "Right trouser leg": true,
+        "Hip volume": true,
+        "Continuous tee": true,
+        "Neck": true,
+        "Faceted head": true,
+        "Left ear": true,
+        "Right ear": true,
+        "Small wedge nose": true,
+        "Palette slot9 eyes": true,
+        "Subtle mouth skin-shade": true,
+        "Hair compact crown": true,
+        "Hair layered lock 1": true,
+        "Hair layered lock 2": true,
+        "Hair layered lock 3": true,
+        "Hair layered lock 4": true,
+        "Hair layered lock 5": true,
+        "Hair layered lock 6": true,
+        "Hair sweeping front lock": true
+      },
+      "authored_vertices": 1025,
+      "attachment": {
+        "node": "Attachment_Food",
+        "godot_position": [
+          0.10700000077486038,
+          1.1549999713897705,
+          -0.24500000476837158
+        ],
+        "godot_rotation_degrees": [
+          0,
+          0,
+          0
+        ],
+        "scale": [
+          1,
+          1,
+          1
+        ],
+        "prop": "tray"
+      }
+    }
+  }
+}

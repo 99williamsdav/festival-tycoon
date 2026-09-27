@@ -1,0 +1,21 @@
+passed IdentityUsesStableSeedAndIdWithoutChangingAuthoritativeState (293ms)
+passed CadenceUsesSavedConsumptionAndHandsPrecedeLift (Beer,"drink_hold","drinking") (0ms)
+passed CadenceUsesSavedConsumptionAndHandsPrecedeLift (SoftDrink,"drink_hold","drinking") (0ms)
+passed CadenceUsesSavedConsumptionAndHandsPrecedeLift (Chips,"food_hold","eating") (0ms)
+passed DeliveredManifestFilesAndAllProductAnchorsRemainExact (17ms)
+passed ShortActualDensityRetreatBackstepsButSideForwardAndStoppedStepsDoNot (0ms)
+passed NormalRouteImmediatelyResetsHeadingAndStageRelativeGeometryWorksOffCentre (0ms)
+passed SharedConsumptionEligibilityUsesCounterDistanceOwnershipAndOperationState (108ms)
+passed PaidItemPartialConsumptionResumeAndPauseAreExact (265ms)
+passed BeerRefusalAbstentionStaffAndOnstagePendingPhysiology (67ms)
+passed MaintenanceOwnershipSuspendsHeldItemAndPreventsShoppingRouteTheft (371ms)
+passed NinePaidPerformerItemsSaveWhileFirstBandOnstageAndResumeExactly (3s 512ms)
+passed ActualImmersionDeathAndFavourRetryResetConsumablesAndBudgetsOnce (1s 311ms)
+passed ClosingContinuesPaidIngestionAndPendingExposureWithoutNewSalesAndStopsAtExit (110ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 14
+  failed: 0
+  succeeded: 14
+  skipped: 0
+  duration: 6s 170ms

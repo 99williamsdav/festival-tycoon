@@ -1,0 +1,24 @@
+passed SixteenDesignerCombinationsPreserveProtectedBytesAlphaAndOriginal (21ms)
+passed IndependentClothingHairChoicesAreStablePureAndCoverAllPairs (286ms)
+passed InvalidDimensionsIndicesAndProtectedSlotEditsAreRejected (1ms)
+passed IdentityUsesStableSeedAndIdWithoutChangingAuthoritativeState (48ms)
+passed CadenceUsesSavedConsumptionAndHandsPrecedeLift (Beer,"drink_hold","drinking") (0ms)
+passed CadenceUsesSavedConsumptionAndHandsPrecedeLift (SoftDrink,"drink_hold","drinking") (0ms)
+passed CadenceUsesSavedConsumptionAndHandsPrecedeLift (Chips,"food_hold","eating") (0ms)
+passed DeliveredManifestFilesAndAllProductAnchorsRemainExact (15ms)
+passed ShortActualDensityRetreatBackstepsButSideForwardAndStoppedStepsDoNot (0ms)
+passed NormalRouteImmediatelyResetsHeadingAndStageRelativeGeometryWorksOffCentre (0ms)
+passed SharedConsumptionEligibilityUsesCounterDistanceOwnershipAndOperationState (102ms)
+passed PaidItemPartialConsumptionResumeAndPauseAreExact (247ms)
+passed BeerRefusalAbstentionStaffAndOnstagePendingPhysiology (63ms)
+passed MaintenanceOwnershipSuspendsHeldItemAndPreventsShoppingRouteTheft (345ms)
+passed NinePaidPerformerItemsSaveWhileFirstBandOnstageAndResumeExactly (3s 430ms)
+passed ActualImmersionDeathAndFavourRetryResetConsumablesAndBudgetsOnce (1s 338ms)
+passed ClosingContinuesPaidIngestionAndPendingExposureWithoutNewSalesAndStopsAtExit (94ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 17
+  failed: 0
+  succeeded: 17
+  skipped: 0
+  duration: 6s 106ms

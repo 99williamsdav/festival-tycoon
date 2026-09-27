@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "status": "designer-approved colour set; concept precedes implementation; review in game",
+  "concept": "attendee-colour-concept.png",
+  "colour_space": "sRGB hex bytes; convert only as required by renderer texture pipeline",
+  "palette": {"width":96,"height":8,"swatch_width":8,"uv_centre_formula":"u=(8*slot+4)/96, v=0.5","filter":"nearest","wrap":"clamp","alpha":255},
+  "original_hex": ["C88F65","B98260","E0B087","397677","4D8B89","C2A055","D0AF63","343B42","454C54","252B31","3F2F28","5D4436"],
+  "protected_slots": {"0":"skin base incl arms/hands/face", "1":"skin shade / female mouth", "2":"skin light", "9":"eyes AND shoes; never recolour"},
+  "editable_slots": {"3":"tee base", "4":"tee light reserve", "5":"existing flush chest patch", "6":"patch light reserve", "7":"trousers / hip base", "8":"trousers light reserve", "10":"hair base", "11":"hair light reserve"},
+  "clothing_colourways": [
+    {"id":"field-teal","slots":{"3":"397677","4":"4D8B89","5":"C2A055","6":"D0AF63","7":"343B42","8":"454C54"}},
+    {"id":"clay-rust","slots":{"3":"985D48","4":"AB725B","5":"D0B989","6":"DEC99B","7":"3C4347","8":"4E5559"}},
+    {"id":"meadow-sage","slots":{"3":"6E7958","4":"84906D","5":"D2BE8D","6":"E0CE9F","7":"414749","8":"545B5D"}},
+    {"id":"dusk-blue","slots":{"3":"536D85","4":"69849B","5":"B9C3BF","6":"CDD5CF","7":"3B3D44","8":"4D5058"}}
+  ],
+  "hair_colours": [
+    {"id":"dark-brown","slots":{"10":"3F2F28","11":"5D4436"}},
+    {"id":"soft-black","slots":{"10":"292725","11":"403A35"}},
+    {"id":"dark-blonde","slots":{"10":"9A8056","11":"B29A70"}},
+    {"id":"auburn","slots":{"10":"79503A","11":"94684C"}}
+  ],
+  "combination_policy":"All 4 clothing sets x 4 hair colours approved for either body. Keep tee/patch/trouser values as a coordinated tuple, choose hair independently. No random RGB or arbitrary cross-pairing of cloth regions.",
+  "application":"Guest body palette texture/material variant only, shared cached resources by (clothingId,hairId). Do not modulate whole body, material albedo, scene root or props. No source mesh/UV/GLB modifications. All poses of a guest use same cosmetic choice.",
+  "excluded":"skin-tone variation, eye/mouth recolouring, hairstyle/geometry edits, new outfits or patterns, staff/performer recolouring, props, customization UI, gameplay traits or save fields"
+}

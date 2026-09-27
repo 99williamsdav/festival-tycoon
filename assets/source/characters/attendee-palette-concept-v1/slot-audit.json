@@ -1,0 +1,1040 @@
+{
+  "lwf_attendee_male_relaxed_v1.glb": {
+    "source_sha256": "eb0e9b2de38ee4f339582b4400752979437cd87ebae96353c0c87862aedbd092",
+    "used_slots": [
+      0,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Right bare arm": [
+        0
+      ],
+      "Right mitten palm": [
+        0
+      ],
+      "Right thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Swept faceted hair": [
+        10
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_male_drink_hold_v1.glb": {
+    "source_sha256": "5347ecb683dc3645a68a996dd561d532e9b6e2dff229e64af464366eeac351c3",
+    "used_slots": [
+      0,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Swept faceted hair": [
+        10
+      ],
+      "Right grip heel": [
+        0
+      ],
+      "Right curved palm and fingers": [
+        0
+      ],
+      "Right opposing thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_male_food_hold_v1.glb": {
+    "source_sha256": "d2153f36e92f749af2f453d82fc7d1ee667b3f5e1baa823b27492d0e52117551",
+    "used_slots": [
+      0,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Swept faceted hair": [
+        10
+      ],
+      "Right palm-up support": [
+        0
+      ],
+      "Right tray steadying thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_male_drinking_beer_v1.glb": {
+    "source_sha256": "29c45215e6e06708c224823c52e873c2c66ab49b1b68a9d9d60824bd79762d58",
+    "used_slots": [
+      0,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Swept faceted hair": [
+        10
+      ],
+      "Right grip heel": [
+        0
+      ],
+      "Right curved palm and fingers": [
+        0
+      ],
+      "Right opposing thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_male_drinking_soft_v1.glb": {
+    "source_sha256": "36854c04c9731343f6e459eb42ac99aa4e8f96d6ef7528e0bf2ea9a99a0f242c",
+    "used_slots": [
+      0,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Swept faceted hair": [
+        10
+      ],
+      "Right grip heel": [
+        0
+      ],
+      "Right curved palm and fingers": [
+        0
+      ],
+      "Right opposing thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_male_eating_v1.glb": {
+    "source_sha256": "d40d6aba797ac589a29964f2c16d57101a0170314e6c7cb595e795bf7a623f19",
+    "used_slots": [
+      0,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Swept faceted hair": [
+        10
+      ],
+      "Right palm-up support": [
+        0
+      ],
+      "Right tray steadying thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ],
+      "Left eating arm": [
+        0
+      ],
+      "Left eating palm": [
+        0
+      ],
+      "Left pinching fingers": [
+        0
+      ],
+      "Left opposing eating thumb": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_female_relaxed_v1.glb": {
+    "source_sha256": "8bf1af1b33ae3c56f1761e184aed22acb59645540ff40122e953699b33e3fb15",
+    "used_slots": [
+      0,
+      1,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Right bare arm": [
+        0
+      ],
+      "Right mitten palm": [
+        0
+      ],
+      "Right thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Subtle mouth skin-shade": [
+        1
+      ],
+      "Hair compact crown": [
+        10
+      ],
+      "Hair layered lock 1": [
+        10
+      ],
+      "Hair layered lock 2": [
+        10
+      ],
+      "Hair layered lock 3": [
+        10
+      ],
+      "Hair layered lock 4": [
+        10
+      ],
+      "Hair layered lock 5": [
+        10
+      ],
+      "Hair layered lock 6": [
+        10
+      ],
+      "Hair sweeping front lock": [
+        10
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_female_drink_hold_v1.glb": {
+    "source_sha256": "20094b48f31df1de1154ca1401faea091a620bc4263ae4e1df1cb42d2a0e578b",
+    "used_slots": [
+      0,
+      1,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Subtle mouth skin-shade": [
+        1
+      ],
+      "Hair compact crown": [
+        10
+      ],
+      "Hair layered lock 1": [
+        10
+      ],
+      "Hair layered lock 2": [
+        10
+      ],
+      "Hair layered lock 3": [
+        10
+      ],
+      "Hair layered lock 4": [
+        10
+      ],
+      "Hair layered lock 5": [
+        10
+      ],
+      "Hair layered lock 6": [
+        10
+      ],
+      "Hair sweeping front lock": [
+        10
+      ],
+      "Right grip heel": [
+        0
+      ],
+      "Right curved palm and fingers": [
+        0
+      ],
+      "Right opposing thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_female_food_hold_v1.glb": {
+    "source_sha256": "2900a1b6f1e71bb023146d241061552b0960133bb47b90de4900ad4a4061f6a7",
+    "used_slots": [
+      0,
+      1,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Subtle mouth skin-shade": [
+        1
+      ],
+      "Hair compact crown": [
+        10
+      ],
+      "Hair layered lock 1": [
+        10
+      ],
+      "Hair layered lock 2": [
+        10
+      ],
+      "Hair layered lock 3": [
+        10
+      ],
+      "Hair layered lock 4": [
+        10
+      ],
+      "Hair layered lock 5": [
+        10
+      ],
+      "Hair layered lock 6": [
+        10
+      ],
+      "Hair sweeping front lock": [
+        10
+      ],
+      "Right palm-up support": [
+        0
+      ],
+      "Right tray steadying thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_female_drinking_beer_v1.glb": {
+    "source_sha256": "6e25ee6ec56f3be9a5d2a431c68ccb6a7c1a05eb6ee35077cc557504e055db76",
+    "used_slots": [
+      0,
+      1,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Subtle mouth skin-shade": [
+        1
+      ],
+      "Hair compact crown": [
+        10
+      ],
+      "Hair layered lock 1": [
+        10
+      ],
+      "Hair layered lock 2": [
+        10
+      ],
+      "Hair layered lock 3": [
+        10
+      ],
+      "Hair layered lock 4": [
+        10
+      ],
+      "Hair layered lock 5": [
+        10
+      ],
+      "Hair layered lock 6": [
+        10
+      ],
+      "Hair sweeping front lock": [
+        10
+      ],
+      "Right grip heel": [
+        0
+      ],
+      "Right curved palm and fingers": [
+        0
+      ],
+      "Right opposing thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_female_drinking_soft_v1.glb": {
+    "source_sha256": "b60d88523f0227973ec7eef7f92047ea8cd6d5f991aa4a4ee0b9f19a02f36bf1",
+    "used_slots": [
+      0,
+      1,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Left bare arm": [
+        0
+      ],
+      "Left mitten palm": [
+        0
+      ],
+      "Left thumb": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Subtle mouth skin-shade": [
+        1
+      ],
+      "Hair compact crown": [
+        10
+      ],
+      "Hair layered lock 1": [
+        10
+      ],
+      "Hair layered lock 2": [
+        10
+      ],
+      "Hair layered lock 3": [
+        10
+      ],
+      "Hair layered lock 4": [
+        10
+      ],
+      "Hair layered lock 5": [
+        10
+      ],
+      "Hair layered lock 6": [
+        10
+      ],
+      "Hair sweeping front lock": [
+        10
+      ],
+      "Right grip heel": [
+        0
+      ],
+      "Right curved palm and fingers": [
+        0
+      ],
+      "Right opposing thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  },
+  "lwf_attendee_female_eating_v1.glb": {
+    "source_sha256": "18fbfa47b3b26bf9291562747e670961afb91ef1293baf546762141958b7403f",
+    "used_slots": [
+      0,
+      1,
+      3,
+      5,
+      7,
+      9,
+      10
+    ],
+    "regions": {
+      "Left shoe": [
+        9
+      ],
+      "Left trouser leg": [
+        7
+      ],
+      "Right shoe": [
+        9
+      ],
+      "Right trouser leg": [
+        7
+      ],
+      "Hip volume": [
+        7
+      ],
+      "Continuous tee": [
+        3,
+        5
+      ],
+      "Neck": [
+        0
+      ],
+      "Faceted head": [
+        0
+      ],
+      "Left ear": [
+        0
+      ],
+      "Right ear": [
+        0
+      ],
+      "Small wedge nose": [
+        0
+      ],
+      "Palette slot9 eyes": [
+        9
+      ],
+      "Subtle mouth skin-shade": [
+        1
+      ],
+      "Hair compact crown": [
+        10
+      ],
+      "Hair layered lock 1": [
+        10
+      ],
+      "Hair layered lock 2": [
+        10
+      ],
+      "Hair layered lock 3": [
+        10
+      ],
+      "Hair layered lock 4": [
+        10
+      ],
+      "Hair layered lock 5": [
+        10
+      ],
+      "Hair layered lock 6": [
+        10
+      ],
+      "Hair sweeping front lock": [
+        10
+      ],
+      "Right palm-up support": [
+        0
+      ],
+      "Right tray steadying thumb": [
+        0
+      ],
+      "Right posed arm": [
+        0
+      ],
+      "Left eating arm": [
+        0
+      ],
+      "Left eating palm": [
+        0
+      ],
+      "Left pinching fingers": [
+        0
+      ],
+      "Left opposing eating thumb": [
+        0
+      ]
+    },
+    "safe_semantic_separation": true
+  }
+}

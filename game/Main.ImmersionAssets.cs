@@ -56,7 +56,11 @@ public partial class Main
         }
         if (_immersionHeldVisuals.TryGetValue(id, out var existing) &&
             GodotObject.IsInstanceValid(existing) && existing.GetParent() == body &&
-            _immersionHeldProducts[id] == product) return;
+            _immersionHeldProducts[id] == product)
+        {
+            if (body.HasMeta("GuestPoseVariant")) ApplyGuestPropAnchor(body, existing, product!);
+            return;
+        }
         RemoveImmersionHeldVisual(id);
         var prop = InstantiateAsset(path);
         prop.Name = "ImmersionHeldItem";
@@ -64,6 +68,7 @@ public partial class Main
             ? new Vector3(.36f, 1.005f, -.075f)
             : new Vector3(.405f, .94f, -.04f);
         body.AddChild(prop);
+        if (body.HasMeta("GuestPoseVariant")) ApplyGuestPropAnchor(body, prop, product!);
         _immersionHeldVisuals.Add(id, prop);
         _immersionHeldProducts.Add(id, product!);
         // intoxication/delta are reserved for caller-owned cosmetic sway. This

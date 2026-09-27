@@ -72,6 +72,8 @@ No chain rolls directly from calm to death. Seed sweeps must show that correct t
 
 ## Existing work to reuse, not overclaim
 
+**Standing user graphics workflow, approved27September2026:** all new in-game graphics need design-led concept art before Blender modelling or in-game graphical build. Use the concept to define the intended visual and technical mapping before implementation, including restrained colour changes. This is prospective guidance, not retrospective invalidation of previously authorized assets. Exact aesthetic approval gates remain those stated by the owning brief; the current expressly authorized attendee pose/colour integration is reviewed by the user in-game without an additional aesthetic gate. Preserve original source/assets and record concept/export provenance; do not silently widen art or gameplay scope.
+
 - Reuse the approved farm, four-view camera, low-poly attendee and environment assets, paper UI direction, build/export tooling and provenance.
 - Reuse `GameSession` command ordering, deterministic 0.25-festival-second ticks, saved PRNG/state hashing, atomic rotating saves, integer finance/ledger, traversal, occupancy, physical queue reservations and transaction ownership.
 - Rework the M1.01 planning/campaign data rather than discarding it: campaign identity, farm seed, £800 loan example, eight-week shell and finance/save code exist at `0abd629`. Repository status remains **Implemented — verification pending** even though an independent review was accepted in conversation.
