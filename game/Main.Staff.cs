@@ -138,6 +138,7 @@ public partial class Main
                     else CommitDisorderAction(DisorderAction.DispatchSecurity, profile.AgentId);
                 });
                 button.AddThemeFontSizeOverride("font_size", 12);
+                button.CustomMinimumSize = new Vector2(0, 32); button.ClipText = true; button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
                 _medicalActionInspector.AddChild(button); _staffDispatchButtons.Add(profile.AgentId, button);
             }
             button.Visible = true;

@@ -39,100 +39,7 @@ public partial class Main
 
     private void BuildPreparationHud()
     {
-        var layer = new CanvasLayer(); AddChild(layer);
-        var viewportWidth = GetViewport().GetVisibleRect().Size.X;
-        var viewportHeight = GetViewport().GetVisibleRect().Size.Y;
-        var rightPanelX = viewportWidth - 420;
-        var livePanel = new PanelContainer { Position = new Vector2((viewportWidth - 400) / 2, 16), Size = new Vector2(400, _session.CaptureProgramme() is null ? 66 : 90) };
-        livePanel.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(livePanel);
-        _liveSetCue = LabelText("STAGE • awaiting booking", 16, new Color("29352c"));
-        livePanel.AddChild(_liveSetCue);
-        var panel = new PanelContainer();
-        panel.SetAnchorsPreset(Control.LayoutPreset.TopLeft);
-        panel.Position = new Vector2(16, 16); panel.Size = new Vector2(410, 680);
-        panel.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(panel);
-        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(390, 660) }; panel.AddChild(scroll);
-        var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; box.AddThemeConstantOverride("separation", 6); scroll.AddChild(box);
-        var ink = new Color("29352c");
-        box.AddChild(LabelText("LOWER WITTERING • PREPARATION", 19, ink));
-        _preparationSummary = LabelText("", 15, ink);
-        _preparationSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _preparationSummary.CustomMinimumSize = new Vector2(370, 140); _preparationSummary.MaxLinesVisible = 9; box.AddChild(_preparationSummary);
-        BuildProgrammeControls(box);
-        BuildImmersionControls(box);
-        if (_session.CaptureProgramme() is not null)
-            _preparationMessage = "Book three different acts in order and hire the sound worker. Equipment and stock are optional.";
-        if (_session.CaptureMedical() is not null)
-            box.AddChild(LabelText("GENERATOR • safe 80% baseline", 13, ink));
-        else if (_session.CaptureEquipment() is not null) BuildEquipmentControls(box);
-        if (_session.CaptureMedical() is not null) BuildMedicalControls(box);
-        if (_session.CaptureDisorder() is not null) BuildDisorderControls(box);
-        _preparationOfferBox = box; _preparationOfferInsertIndex = box.GetChildCount();
-        RebuildPreparationOffers();
-        if (_session.CommunityWaterShareDisclosure is { } disclosure)
-        {
-            _communityShareInfo = LabelText(FestivalCopy(disclosure), 13, ink);
-            _communityShareInfo.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-            _communityShareInfo.CustomMinimumSize = new Vector2(370, 0);
-            box.AddChild(_communityShareInfo);
-            _communityShareButton = ButtonText(FestivalCopy("SHARE FREE WATER • THIS WEEKEND").ToUpperInvariant(), () => CommitEquipmentAction(new CommitCommunityWaterShareCommand()));
-            _communityShareButton.TooltipText = FestivalCopy(disclosure);
-            box.AddChild(_communityShareButton);
-        }
-        if (_session.CaptureMedical() is not null)
-        {
-            _waterFoundationHeading = LabelText("FREE WATER • PLACE BEFORE OPENING", 14, ink);
-            box.AddChild(_waterFoundationHeading);
-            _waterPlaceButton = ButtonText("ADD TAP • CHOOSE A GRASS SPOT", () => BeginWaterPlacement(false));
-            box.AddChild(_waterPlaceButton);
-            _waterPlacementStatus = LabelText("Add a tap or select one to Move. Comma/period rotate. Right-click or Esc cancels.", 13, ink);
-            _waterPlacementStatus.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-            box.AddChild(_waterPlacementStatus);
-            _waterTowerButton = ButtonText("BUILD WATER TOWER • +4 PERSONAL RELIEF", () =>
-                CommitEquipmentAction(new ApplyWaterFoundationEffectCommand("water.tower")));
-            box.AddChild(_waterTowerButton);
-        }
-        BuildStaffFoundationControls(box);
-        _preparationStart = ButtonText("START FIXED ROSTER", PreparationStart); box.AddChild(_preparationStart);
-        var controls = new HBoxContainer(); box.AddChild(controls);
-        controls.AddChild(ButtonText("PAUSE", () =>
-        {
-            _session.Execute(CampaignEnvelope(new SetPausedCommand(!_session.IsPaused))); RefreshPreparationHud();
-        }));
-        controls.AddChild(ButtonText("SAVE", PreparationSave));
-        controls.AddChild(ButtonText("LOAD", PreparationLoad));
-        _stageMuteButton = ButtonText("MUTE AUDIO", ToggleStageMute); box.AddChild(_stageMuteButton);
-        controls.AddChild(ButtonText("RETRY SAVE", () => { _preparationSaveBlocked = false; _preparationMessage = "Retrying pending boundary."; RefreshPreparationHud(); }));
-        var rosterPanel = new PanelContainer { Position = new Vector2(rightPanelX, 16), Size = new Vector2(400, 210) };
-        rosterPanel.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(rosterPanel);
-        _preparationRosterScroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, 190) };
-        rosterPanel.AddChild(_preparationRosterScroll);
-        _preparationPeople = LabelText("", 15, ink); _preparationPeople.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _preparationPeople.CustomMinimumSize = new Vector2(360, 0);
-        _preparationRosterScroll.AddChild(_preparationPeople);
-        var inspectorHeight = Math.Max(300f, viewportHeight - 254f);
-        var inspector = new PanelContainer { Position = new Vector2(rightPanelX, 238),
-            Size = new Vector2(400, inspectorHeight), Visible = false };
-        _contextPanel = inspector;
-        inspector.AddThemeStyleboxOverride("panel", PaperStyle(new Color("f5e9c9"))); layer.AddChild(inspector);
-        var inspectorScroll = new ScrollContainer { CustomMinimumSize = new Vector2(380, inspectorHeight - 20) };
-        inspector.AddChild(inspectorScroll);
-        var detail = new VBoxContainer { CustomMinimumSize = new Vector2(375, 0) }; inspectorScroll.AddChild(detail);
-        _inspectorTitle = LabelText("Inspect the persistent farm", 18, ink); detail.AddChild(_inspectorTitle);
-        BuildWaterFlowInspector(detail);
-        BuildSatisfactionBar(detail);
-        BuildMedicalNeedBars(detail);
-        BuildImmersionNeedBars(detail);
-        _inspectorBody = LabelText("Click a building to inspect its retained identity.\nAll guests and workers remain protected people.", 14, ink);
-        _inspectorBody.AutowrapMode = TextServer.AutowrapMode.WordSmart; detail.AddChild(_inspectorBody);
-        BuildImmersionVendorInspector(detail);
-        BuildMedicalActionInspector(detail);
-        BuildDisorderActionInspector();
-        BuildDisorderStageInspector(detail);
-        BuildStagePowerAction(detail);
-        BuildSecurityPostInspectorAction(detail);
-        BuildHearingHud(layer);
-        RefreshPreparationHud();
+        BuildHudWorkspace();
     }
 
     private static bool ContextVisualAvailable(Node3D? visual) => visual is not null &&
@@ -159,7 +66,7 @@ public partial class Main
     private void AssertContextPanel(bool expected)
     {
         RefreshContextPanelVisibility();
-        if (_contextPanel?.Visible != expected || !_preparationSummary.IsVisibleInTree() || _preparationRosterScroll?.IsVisibleInTree() != true)
+        if (_contextPanel?.Visible != expected || (_hudMoney is null ? !_preparationSummary.IsVisibleInTree() : !_hudMoney.IsVisibleInTree()))
             throw new InvalidOperationException("Context-panel visibility or retained global status/roster mismatch.");
     }
 
@@ -260,7 +167,7 @@ public partial class Main
         {
             _communityShareButton.Visible = p.Status == PreparationStatus.Preparing;
             _communityShareButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new CommitCommunityWaterShareCommand())) is not null;
-            _communityShareInfo!.Text = p.CommunityShareAttempt == 0 ? _session.CommunityWaterShareDisclosure! :
+            _communityShareInfo!.Text = p.CommunityShareAttempt == 0 ? _session.CommunityWaterShareDisclosure ?? "Council sharing is unavailable in this saved mode." :
                 $"SHARING COMMITTED • weekend attempt {p.CommunityShareAttempt}. Personal baseline cap 12 thirst units/tick for faster drinkers before tower +4; queues may grow. " +
                 (p.CommunityFavourClaimed ? "1 Council Favour awarded after the full weekend." : "1 Council Favour only after the full weekend is honoured.");
         }
@@ -289,17 +196,18 @@ public partial class Main
         RefreshStaffControls();
         RefreshStagePowerAction();
         RefreshHearingHud();
+        RefreshHudWorkspace();
     }
 
     private void RebuildPreparationOffers()
     {
         if (_preparationOfferBox is not { } box) return;
-        foreach (var button in _offerButtons.Values) { box.RemoveChild(button); button.QueueFree(); }
+        foreach (var button in _offerButtons.Values) { button.GetParent().RemoveChild(button); button.QueueFree(); }
         _offerButtons.Clear();
         if (_session.CaptureProgramme() is not null && _programmeControls is null)
         {
-            BuildProgrammeControls(box);
-            box.MoveChild(_programmeControls!, _preparationOfferInsertIndex++);
+            BuildProgrammeControls(_hudPages.GetValueOrDefault("Programme") ?? box);
+            if (_hudTabs is null) box.MoveChild(_programmeControls!, _preparationOfferInsertIndex++);
         }
         var index = _preparationOfferInsertIndex;
         foreach (var offer in _session.GetPreparationOffers().OrderBy(item => item.Category == "maintenance" ? 0 : 1))
@@ -309,7 +217,9 @@ public partial class Main
             var id = offer.Id;
             var button = ButtonText($"{FestivalCopy(offer.Name)}  £{offer.PricePennies / 100m:0}", () => PreparationAccept(id));
             button.AddThemeFontSizeOverride("font_size", 14); button.ClipText = true; button.TooltipText = FestivalCopy(offer.Name);
-            _offerButtons.Add(id, button); box.AddChild(button); box.MoveChild(button, index++);
+            var destination = _hudTabs is null ? box : _hudPages[offer.Category switch { "equipment" => "Equipment", "contract" => "Stock", "act" => "Programme", _ => "Staff" }];
+            _offerButtons.Add(id, button); destination.AddChild(button);
+            if (_hudTabs is null) box.MoveChild(button, index++);
         }
     }
 

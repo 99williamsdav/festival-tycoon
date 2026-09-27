@@ -24,6 +24,8 @@ public partial class Main
     private GridContainer? _medicalActionInspector;
     private ProgressBar? _medicalThirstBar;
     private ProgressBar? _medicalHeatBar;
+    private Label? _medicalThirstLabel;
+    private Label? _medicalHeatLabel;
     private enum MedicalFacility { Water, FirstAid, WaterTower }
     private readonly System.Collections.Generic.Dictionary<ulong, (MedicalFacility Facility, string? WaterPointId)> _medicalFacilityPicks = [];
     private readonly System.Collections.Generic.Dictionary<string, (Node3D Visual, StaticBody3D Pick)> _extraWaterVisuals = [];
@@ -114,6 +116,7 @@ public partial class Main
         _waterPlacementIssue = null;
         _preparationMessage = $"{(pointId is null ? "Add tap" : "Move " + pointId)}: click grass. Comma/period rotate; Esc cancels.";
         ClearSelection();
+        if (pointId is not null) { _selectedMedicalFacility = MedicalFacility.Water; _selectedWaterPointId = pointId; }
         RefreshPreparationHud();
         UpdateWaterPlacementPreview(GetViewport().GetMousePosition());
     }
@@ -146,8 +149,7 @@ public partial class Main
     private void UpdateWaterPlacementPreview(Vector2 screenPosition)
     {
         if (_waterPlacementMode == WaterPlacementMode.None || _waterPlacementPreview is null) return;
-        var width = GetViewport().GetVisibleRect().Size.X;
-        if (screenPosition.X < 435 || screenPosition.X > width - 435 || screenPosition.Y < 110)
+        if (HudBlocksPlacement(screenPosition))
         {
             _waterPlacementPreview.Visible = false;
             _waterPlacementAsset!.Visible = false;
@@ -212,7 +214,11 @@ public partial class Main
         var moved = _movingWaterPointId is { } pointId && _session.CaptureWaterPoints().Any(point =>
             point.Id == pointId && point.Cell == cell && point.QuarterTurns == _waterPlacementQuarterTurns);
         if (moved || before.ExtraWaterSiteIds.Length < after.ExtraWaterSiteIds.Length)
+        {
             CancelWaterPlacement();
+            _preparationMessage = "Tap placement committed and autosaved.";
+            RefreshPreparationHud();
+        }
     }
 
     private void ProcessWaterFoundationCapture()
@@ -507,11 +513,11 @@ public partial class Main
         if (_session.CaptureMedical() is null) return;
         _medicalNeedsBars = new VBoxContainer { Visible = false };
         parent.AddChild(_medicalNeedsBars);
-        _medicalNeedsBars.AddChild(LabelText("THIRST", 12, new Color("8b5835")));
+        _medicalThirstLabel = LabelText("THIRST", 12, new Color("8b5835")); _medicalNeedsBars.AddChild(_medicalThirstLabel);
         _medicalThirstBar = new ProgressBar { MaxValue = 10_000, ShowPercentage = false,
             CustomMinimumSize = new Vector2(375, 13) };
         _medicalNeedsBars.AddChild(_medicalThirstBar);
-        _medicalNeedsBars.AddChild(LabelText("HEAT EXPOSURE", 12, new Color("8b5835")));
+        _medicalHeatLabel = LabelText("HEAT EXPOSURE", 12, new Color("8b5835")); _medicalNeedsBars.AddChild(_medicalHeatLabel);
         _medicalHeatBar = new ProgressBar { MaxValue = 10_000, ShowPercentage = false,
             CustomMinimumSize = new Vector2(375, 13) };
         _medicalNeedsBars.AddChild(_medicalHeatBar);
@@ -525,6 +531,8 @@ public partial class Main
         if (need is null) return;
         _medicalThirstBar!.Value = need.Thirst;
         _medicalHeatBar!.Value = need.HeatExposure;
+        _medicalThirstLabel!.Text = $"THIRST  {need.Thirst / 100m:0}%";
+        _medicalHeatLabel!.Text = $"HEAT EXPOSURE  {need.HeatExposure / 100m:0}%";
         _medicalThirstBar.Modulate = MedicalNeedColor(need.Thirst);
         _medicalHeatBar.Modulate = MedicalNeedColor(need.HeatExposure);
     }

@@ -28,6 +28,8 @@ public partial class Main
     private ProgressBar? _immersionHungerBar;
     private ProgressBar? _immersionIntoxBar;
     private Label? _immersionNeedLabel;
+    private Label? _immersionHungerLabel;
+    private Label? _immersionIntoxLabel;
     private readonly Dictionary<ulong, Label3D> _immersionWarningLabels = [];
     private readonly Dictionary<ulong, long> _immersionLastRemark = [];
     private Label3D? _immersionRemark;
@@ -90,7 +92,8 @@ public partial class Main
         _immersionNeedLabel = LabelText("", 13, new Color("29352c")); _immersionNeedSection.AddChild(_immersionNeedLabel);
         foreach (var title in new[] { "HUNGER", "INTOXICATION • FICTIONAL EXPOSURE" })
         {
-            _immersionNeedSection.AddChild(LabelText(title, 12, new Color("29352c")));
+            var label = LabelText(title, 12, new Color("29352c")); _immersionNeedSection.AddChild(label);
+            if (title == "HUNGER") _immersionHungerLabel = label; else _immersionIntoxLabel = label;
             var bar = new ProgressBar { MinValue = 0, MaxValue = 100, CustomMinimumSize = new Vector2(340, 15), ShowPercentage = true };
             _immersionNeedSection.AddChild(bar);
             if (title == "HUNGER") _immersionHungerBar = bar; else _immersionIntoxBar = bar;
@@ -103,6 +106,13 @@ public partial class Main
         _immersionNeedSection.Visible = person is not null;
         if (person is null) return;
         _immersionHungerBar!.Value = person.Hunger / 100d; _immersionIntoxBar!.Value = person.Intoxication / 100d;
+        if (_hudMoney is not null)
+        {
+            _immersionHungerLabel!.Text = $"HUNGER  {person.Hunger / 100m:0}%";
+            _immersionIntoxLabel!.Text = $"INTOXICATION  {person.Intoxication / 100m:0}%";
+            _immersionHungerBar.ShowPercentage = false; _immersionIntoxBar.ShowPercentage = false;
+        }
+        _immersionHungerBar.Modulate = MedicalNeedColor(person.Hunger);
         _immersionIntoxBar.Modulate = new Color(person.Intoxication >= 7500 ? "ff7566" : person.Intoxication >= 5000 ? "e8b45b" : "a6c887");
         _immersionNeedLabel!.Text = person.Intoxication >= 7500 ? "HEAVY INTOXICATION • CARE AVAILABLE" : person.Intoxication >= 5000 ? "IMPAIRED • COORDINATION REDUCED" : person.Intoxication >= 2500 ? "TIPSY" : "ADULT FOOD & DRINK NEEDS";
     }
@@ -134,6 +144,7 @@ public partial class Main
     {
         _immersionMoveButton = ButtonText("Move", () =>
         {
+            if (_placingImmersionVendor is not null) { CancelImmersionPlacement(); RefreshPreparationHud(); return; }
             if (_selectedImmersionVendor is { } id) BeginImmersionPlacement(id);
         });
         _immersionMoveButton.Visible = false;
@@ -196,6 +207,7 @@ public partial class Main
         if (_session.PreparedStatus != PreparationStatus.Preparing || _session.CaptureImmersion() is not { } state) return;
         CancelWaterPlacement(); CancelImmersionPlacement(); ClearSelection();
         _placingImmersionVendor = id; _immersionQuarterTurns = state.Vendors.Single(v => v.Id == id).QuarterTurns;
+        _selectedImmersionVendor = id;
         _immersionPreview = InstantiateImmersionVendor(id == "food"); AddChild(_immersionPreview);
         _immersionFootprintPreview = new MeshInstance3D { MaterialOverride = new StandardMaterial3D { Transparency = BaseMaterial3D.TransparencyEnum.Alpha, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded } };
         AddChild(_immersionFootprintPreview);
@@ -223,7 +235,7 @@ public partial class Main
     private void UpdateImmersionPlacementPreview(Vector2 screen)
     {
         if (_placingImmersionVendor is null || _immersionPreview is null) return;
-        if (screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110)
+        if (HudBlocksPlacement(screen))
         { _immersionCandidate = null; _immersionPreview.Visible = false; _immersionFootprintPreview!.Visible = false; foreach (var marker in _immersionQueuePreview) marker.Visible = false; return; }
         var ray = _camera.ProjectRayNormal(screen); var origin = _camera.ProjectRayOrigin(screen);
         if (Mathf.Abs(ray.Y) < .001f || -origin.Y / ray.Y <= 0) { _immersionCandidate = null; _immersionPreview.Visible = false; _immersionFootprintPreview!.Visible = false; foreach (var marker in _immersionQueuePreview) marker.Visible = false; return; }
@@ -265,6 +277,7 @@ public partial class Main
     private void RefreshImmersionVendorInspector()
     {
         RefreshContextPanelVisibility();
+        if (_immersionMoveButton is not null) _immersionMoveButton.Text = _placingImmersionVendor is null ? "Move" : "Cancel move";
         if (_immersionMoveButton is not null)
             _immersionMoveButton.Visible = _selectedImmersionVendor is not null &&
                 _session.PreparedStatus == PreparationStatus.Preparing && _session.CaptureImmersion() is not null;

@@ -137,6 +137,16 @@ public partial class Main
             if (ImmersionHeavyOnSiteCount() is var heavy && heavy > 0)
                 _liveSetCue.Text += $"\n! {heavy} HEAVY INTOXICATION • SELECT FOR MEDIC CARE";
         }
+        if (_hudMoney is not null)
+        {
+            var compactProgramme = _session.CaptureProgramme();
+            var act = _session.CurrentFestivalAct;
+            var next = _session.UpcomingFestivalAct;
+            var remaining = compactProgramme is not null ? Math.Max(0, compactProgramme.SlotEndTick - _session.CurrentTick) : Math.Max(0, live.StartedTick + GameSession.LiveSetDurationTicks - _session.CurrentTick);
+            _liveSetCue.Text = $"ON STAGE · {live.Stage}\n{act?.Name ?? (_session.PreparedStatus == PreparationStatus.Preparing ? "Awaiting booking" : "Booked act")}\n" +
+                (live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted ? $"{FestivalGenreName(act?.Genre ?? 0)} · {HudTime(remaining)} remaining" : compactProgramme?.Status ?? "Performers approaching stage") +
+                $"\n\nNEXT · {(_session.UpcomingFestivalTick < 0 ? "—" : HudTime(_session.UpcomingFestivalTick - _session.CapturePreparation()!.StartedTick))}\n{next?.Name ?? "No further set"}";
+        }
     }
 
     private void RefreshLivePersonInspector(EntityId id, NavigationObservation navigation, PreparationSnapshot preparation)
@@ -184,7 +194,23 @@ public partial class Main
                 $"INTENT {need.Intent} • {StewardWording(need.Reason)}\n" +
                 (medical!.WaterOwnerId == id.Value
                     ? $"DRINKING • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n"
-                    : "")) + StaffInterventionTargetText(id.Value) + DisorderPersonInspectorText(id.Value) + detail + ImmersionPersonInspectorText(id.Value);
+                : "")) + StaffInterventionTargetText(id.Value) + DisorderPersonInspectorText(id.Value) + detail + ImmersionPersonInspectorText(id.Value);
+        if (_hudMoney is not null && !_hudDevelopment)
+        {
+            var immersion = _session.CaptureImmersion()?.People.SingleOrDefault(item => item.AgentId == id.Value);
+            var disorder = _session.CaptureDisorder()?.People.SingleOrDefault(item => item.AgentId == id.Value);
+            var worker = _session.GetResponseStaff().SingleOrDefault(item => item.AgentId == id.Value);
+            var activity = person.Departed ? "Left the festival" : need?.Intent == MedicalIntent.Collapsed ? "Collapsed · needs care" :
+                need is not null ? StewardWording(System.Text.RegularExpressions.Regex.Replace(need.Reason, @"\s+at tick \d+", "")) : performer?.OnStage == true ? "Performing on stage" : "Walking through the festival";
+            _inspectorBody.Text = $"{(person.Role == ProtectedPersonRole.Guest ? "Adult · prefers " + FestivalGenreName(person.ExpectedGenre) : "Protected festival worker")}\n{activity}\n" +
+                (listening is null ? "" : $"{placeActivity} · interest {listening.Enthusiasm}%\n") +
+                (disorder is null || disorder.Stage is DisorderStage.Calm or DisorderStage.Resolved ? "" : $"{disorder.Stage} · pressure {disorder.Pressure / 100m:0}% · {disorder.Grievance}\n" +
+                    (DisorderCuePlanner.CurrentOpponentId(_session.CaptureDisorder()!, disorder) is { } opponent ? $"COUNTERPART · {preparation.People.SingleOrDefault(item => item.AgentId == opponent)?.Name ?? "festival worker"}\n" : "") + "Reduce pressure or ask a steward for help. Injury needs a medic.\n") +
+                (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} · {(_session.ImmersionHandsAvailable(id.Value) ? "consuming" : "retained during work/care")}\n" : "") +
+                (immersion is null ? "" : $"Personal budget {FestivalCurrency.Format(_session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id.Value).CashPennies)}\n") +
+                StaffInterventionTargetText(id.Value) +
+                (worker is null ? "" : $"{worker.Role} · {ActiveStaffInterventionSummary(id.Value) ?? _session.GetMedicResponses().SingleOrDefault(j => j.WorkerId == id.Value)?.Description ?? _session.GetStewardResponses().SingleOrDefault(j => j.WorkerId == id.Value)?.Description ?? "Available"}\n{StaffAbilityText(worker)}");
+        }
     }
 
     private void EnsureStageDrumKit()

@@ -280,6 +280,7 @@ public partial class Main : Node
         ProcessImmersionCapture();
         ProcessDisorderCapture();
         ProcessHearingCapture();
+        ProcessHudCapture();
         ProcessStartSplashCapture();
     }
 
@@ -852,6 +853,7 @@ public partial class Main : Node
         _inspectorTitle.Text = item.DisplayName;
         var permanence = item.IsPermanent ? "Permanent • Immovable" : "Inherited • Fixed for this blockout";
         _inspectorBody.Text = $"ID  {item.StableId}\nTYPE  {DisplayKind(item.Kind)}\nSTATE  {item.State}\nSITE  {item.XMetres:0.#} m, {item.ZMetres:0.#} m\n{permanence}";
+        if (_hudMoney is not null && !_hudDevelopment) _inspectorBody.Text = $"{DisplayKind(item.Kind)} · {item.State}\n{permanence}";
         GD.Print($"FARM_SELECTED id={item.StableId} orientation={OrientationNames[_orientation]}");
     }
 
@@ -972,6 +974,8 @@ public partial class Main : Node
         for (var i = 0; i < args.Length; i++)
         {
             if (args[i] == "--capture-farm" && i + 1 < args.Length) _captureDirectory = args[++i];
+            else if (args[i] == "--capture-r005f-hud" && i + 1 < args.Length)
+            { _hudCaptureDirectory = args[++i]; Directory.CreateDirectory(_hudCaptureDirectory); }
             else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
@@ -1112,7 +1116,13 @@ public partial class Main : Node
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
-                if (size.Length == 2 && int.TryParse(size[0], out var width) && int.TryParse(size[1], out var height)) GetWindow().Size = new Vector2I(width, height);
+                if (size.Length == 2 && int.TryParse(size[0], out var width) && int.TryParse(size[1], out var height))
+                {
+                    GetWindow().Mode = Window.ModeEnum.Windowed;
+                    GetWindow().ContentScaleMode = Window.ContentScaleModeEnum.Disabled;
+                    GetWindow().ContentScaleSize = Vector2I.Zero;
+                    GetWindow().Size = new Vector2I(width, height);
+                }
             }
         }
         if (_captureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_captureDirectory);
@@ -1343,7 +1353,8 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
+    private string SaveDirectory => _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
+        _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :
         _interventionCaptureDirectory is not null ? Path.Combine(_interventionCaptureDirectory, "saves") :

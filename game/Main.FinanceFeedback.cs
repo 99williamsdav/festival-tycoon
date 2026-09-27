@@ -79,13 +79,17 @@ public partial class Main
         {
             "stock" => _immersionStockButton,
             "programme" => _programmeBook,
-            _ => key.StartsWith("offer:", StringComparison.Ordinal) && _offerButtons.TryGetValue(key[6..], out var button) ? button : _preparationSummary
+            _ => key.StartsWith("offer:", StringComparison.Ordinal) && _offerButtons.TryGetValue(key[6..], out var button) ? button : _hudMoney ?? _preparationSummary
         };
         if (control is null) return null;
         // Paid offers can disappear when opening. The finance summary remains
         // the relevant panel anchor when the original control is no longer shown.
-        if (!FinanceFeedbackControlVisible(control)) control = _preparationSummary;
+        if (!FinanceFeedbackControlVisible(control)) control = _hudMoney ?? _preparationSummary;
         var rect = control.GetGlobalRect();
+        if (control == _hudMoney)
+            // The flush bar has no room above it for drift/stacking. Reserve
+            // that cosmetic space immediately below its actual money chip.
+            return new Vector2(rect.Position.X + rect.Size.X / 2, rect.End.Y + 110);
         if (control == _preparationSummary)
         {
             // Keep the shared expense anchor below the panel heading so its
@@ -171,6 +175,7 @@ public partial class Main
         {
             if (_financeCaptureStep == 0)
             {
+                SelectHudTab("Stock");
                 _session.Execute(CampaignEnvelope(new SetPausedCommand(true)));
                 _immersionStockButton!.EmitSignal(Button.SignalName.Pressed);
                 if (!_session.CaptureImmersion()!.StockPurchased) throw new InvalidOperationException("Actual stock command failed.");
@@ -192,6 +197,7 @@ public partial class Main
                 PreparationSave(); PreparationLoad();
                 if (_cashPopups.Count != 0 || _cashPopupPending.Count != 0) throw new InvalidOperationException("Load retained feedback.");
                 _programmeDraft = ["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"];
+                SelectHudTab("Programme");
                 RefreshProgrammeControls(); _programmeBook!.EmitSignal(Button.SignalName.Pressed);
                 foreach (var id in new[] { "staff.steward", "equipment.buy" }) _offerButtons[id].EmitSignal(Button.SignalName.Pressed);
                 _financeCaptureStep = 4; _financeCaptureElapsed = 0;

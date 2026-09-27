@@ -96,6 +96,9 @@ public partial class Main
             ? string.Join("\n", programme.ActIds.Select((id, slot) => $"{slot + 1}. {acts.Single(act => act.Id == id).Name} • {FestivalGenreName(acts.Single(act => act.Id == id).Genre)}")) +
               "\n25s changeovers • no music during scheduled silence."
             : "Choose three different acts in order. All nine performers are protected people. Popularity affects appeal, not guest count.\nPay once; reorder before opening only.";
+        if (_hudTabs is not null)
+            _programmeSummary.Text = booked ? "Three acts booked • paid once.\nOnly their order can change before opening." :
+                "Choose three different acts. Nine performers are protected.\nPay once; reorder before opening only.";
     }
 
     private string FestivalCopy(string text) => _session.CaptureProgramme() is null ? text :
