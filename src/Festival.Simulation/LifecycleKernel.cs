@@ -153,6 +153,7 @@ public sealed partial class GameSession
         var transactionId = $"council-concede:{CampaignId.Value}:{hearing.HearingId}";
         lifecycle.Hearings[^1] = hearing with { Status = HearingStatus.Conceded, ResolutionTransactionId = transactionId };
         lifecycle.CompletedOutcomeTransactionIds.Add(transactionId);
+        EndPerkCampaign();
     }
 
     private void ResolveNoFavourHearing()
@@ -164,6 +165,7 @@ public sealed partial class GameSession
         var transactionId = $"council-no-favour:{CampaignId.Value}:{hearing.HearingId}";
         lifecycle.Hearings[^1] = hearing with { Status = HearingStatus.LostNoFavour, ResolutionTransactionId = transactionId };
         lifecycle.CompletedOutcomeTransactionIds.Add(transactionId);
+        EndPerkCampaign();
     }
 
     private CommandResult? ValidateForceFixtureSafeCompletion(EntityId? targetId)

@@ -115,6 +115,7 @@ public partial class Main
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
         if (result.IsSuccess && result.Session!.CapturePreparation() is not null)
         {
+            CancelPerkConfirmation();
             var previousProgrammeMode = _session.CaptureProgramme() is not null;
             var previousImmersionMode = _session.CaptureImmersion() is not null;
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
@@ -174,7 +175,7 @@ public partial class Main
         if (_waterPlaceButton is not null)
         {
             _waterPlaceButton.Visible = p.Status == PreparationStatus.Preparing;
-            _waterPlaceButton.Disabled = p.ExtraWaterSiteIds.Length >= 2;
+            _waterPlaceButton.Disabled = _session.CapturePerks() is { } perks ? !perks.Equipped.Contains("another-round") || p.ExtraWaterSiteIds.Length >= 1 || perks.Pending : p.ExtraWaterSiteIds.Length >= 2;
             _waterTowerButton!.Visible = p.Status == PreparationStatus.Preparing;
             _waterTowerButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new ApplyWaterFoundationEffectCommand("water.tower"))) is not null;
             _waterPlacementStatus!.Visible = p.Status == PreparationStatus.Preparing;
@@ -197,6 +198,7 @@ public partial class Main
         RefreshStagePowerAction();
         RefreshHearingHud();
         RefreshHudWorkspace();
+        RefreshPerkHud();
     }
 
     private void RebuildPreparationOffers()

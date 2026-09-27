@@ -322,6 +322,7 @@ internal static class CanonicalStateHasher
         }
         writer.Flush();
         if (session.ImmersionCanonicalJson is { } immersion) { writer.Write("r0-immersion-v1"); writer.Write(immersion); writer.Flush(); }
+        if (session.PerkCanonicalJson is { } perks) { writer.Write("r0-perks-v1"); writer.Write(perks); writer.Flush(); }
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();
     }

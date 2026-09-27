@@ -73,6 +73,10 @@ public sealed partial class GameSession
         EntityId? affectedTarget;
         switch (envelope.Command)
         {
+            case PerkCommand perk:
+                affectedTarget = null;
+                ApplyPerkCommand(perk);
+                break;
             case SetProgrammeCommand programme:
                 affectedTarget = null;
                 ApplyProgramme(programme);
@@ -476,6 +480,7 @@ public sealed partial class GameSession
             Lifecycle = CapturePersistedLifecycle(),
             Preparation = CapturePreparation(),
             Programme = CaptureProgramme(),
+            Perks = CapturePerks(),
             Immersion = CaptureImmersion(),
             Equipment = CaptureEquipment(),
             LivePerformance = CaptureLivePerformance(),
@@ -533,6 +538,7 @@ public sealed partial class GameSession
         session.RestoreServiceQueues(snapshot.ServiceQueues, snapshot.NavigationAgents);
         session.RestoreCampaignPlanning(snapshot.CampaignPlanning);
         session.RestoreLifecycle(snapshot.Lifecycle);
+        session._perks = snapshot.Perks is null ? null : System.Text.Json.JsonSerializer.Deserialize<PerkSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Perks));
         session._equipment = snapshot.Equipment is null ? null : snapshot.Equipment with { Evidence = snapshot.Equipment.Evidence.ToArray() };
         session._programme = snapshot.Programme is null ? null : System.Text.Json.JsonSerializer.Deserialize<ProgrammeSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Programme));
         session._immersion = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));
@@ -607,6 +613,8 @@ public sealed partial class GameSession
         if (programmeError is not null) return programmeError;
         var preparationError = ValidatePersistedPreparation(snapshot.Preparation, snapshot);
         if (preparationError is not null) return preparationError;
+        var perkError = ValidatePersistedPerks(snapshot);
+        if (perkError is not null) return perkError;
         var equipmentError = ValidatePersistedEquipment(snapshot.Equipment, snapshot);
         if (equipmentError is not null) return equipmentError;
         var livePerformanceError = ValidatePersistedLivePerformance(snapshot.LivePerformance, snapshot);
@@ -710,13 +718,18 @@ public sealed partial class GameSession
 
         var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
         if (lifecycleFrozen is not null) return lifecycleFrozen;
-        if (_preparation is not null && envelope.Command is not (PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
+        if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
+        if (_perks is not null && envelope.Command is ApplyStaffFoundationEffectCommand or ApplyWaterFoundationEffectCommand)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Foundation demos are available only in legacy development diagnostics.");
+        if (_preparation is not null && envelope.Command is not (PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
 
         return envelope.Command switch
         {
+            PerkCommand perk => ValidatePerkCommand(envelope.TargetId, perk),
             EquipmentCommand equipment => ValidateEquipmentCommand(envelope.TargetId, equipment),
             MedicalCommand medical => ValidateMedicalCommand(envelope.TargetId, medical),
             DisorderCommand disorder => ValidateDisorderCommand(envelope.TargetId, disorder),

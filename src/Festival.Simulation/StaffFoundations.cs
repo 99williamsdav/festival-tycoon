@@ -86,7 +86,9 @@ public sealed partial class GameSession
         if (_preparation is { } p) profiles.AddRange(p.StaffProfiles.Where(profile => p.People.Any(person => person.AgentId == profile.AgentId)));
         return profiles.Select(EffectiveStaffProfile).OrderBy(profile => profile.AgentId).ToArray();
     }
-    private StaffProfile EffectiveStaffProfile(StaffProfile profile) => _preparation?.RespondersUpgraded == true ? profile with
+    private static bool RoleTrained(PreparationSnapshot? prep, PerkSnapshot? perks, ResponseRole role) =>
+        prep?.RespondersUpgraded == true || SavedPerkEffect(perks, role == ResponseRole.Medic ? "first-responders" : "smooth-operators");
+    private StaffProfile EffectiveStaffProfile(StaffProfile profile) => RoleTrained(_preparation, _perks, profile.Role) ? profile with
         {
             WalkingSpeedPermille = Math.Min(1150, profile.WalkingSpeedPermille + 100),
             TreatmentTicks = profile.Role == ResponseRole.Medic ? Math.Max(360, profile.TreatmentTicks - 120) : 0,
@@ -254,7 +256,7 @@ public sealed partial class GameSession
             stewards.Where(StewardBusy).Select(item => item.TargetId).Distinct().Count() != stewards.Count(StewardBusy) ||
             stewards.Where(StewardBusy).Any(job => medics.Any(other => MedicBusy(other) && other.PatientId == job.TargetId)))
             return "Staff roles, paid response roster, ownership or response clocks invalid.";
-        if (p.StaffProfiles.Length > 0 || p.RespondersUpgraded)
+        if (p.StaffProfiles.Length > 0 || p.RespondersUpgraded || s.Perks is not null)
         {
             if (p.Status is PreparationStatus.Running or PreparationStatus.Departing &&
                 (medics.Where(MedicBusy).Any(job => !p.People.Any(person => person.AgentId == job.WorkerId && person.Admitted && !person.Departed) ||
@@ -266,7 +268,8 @@ public sealed partial class GameSession
             foreach (var id in medics.Select(item => item.WorkerId).Concat(stewards.Select(item => item.WorkerId)))
             {
                 var nav = s.NavigationAgents?.SingleOrDefault(item => item.Id == id);
-                var speed = Math.Min(1150, GetWalkingSpeedPermille(new(id)) + (p.RespondersUpgraded ? 100 : 0));
+                var role = medics.Any(item => item.WorkerId == id) ? ResponseRole.Medic : ResponseRole.Steward;
+                var speed = Math.Min(1150, GetWalkingSpeedPermille(new(id)) + (RoleTrained(p, s.Perks, role) ? 100 : 0));
                 if (nav is not null && nav.WalkingSpeedPermille != speed) return "Staff movement disagrees with saved role training.";
             }
         }

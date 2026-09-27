@@ -1,0 +1,22 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=b780549f4a02ddcf7408a7fff4ed27ddf4a823a064b8a36258e2b52c12c26093
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+PERK_CAPTURE image=01-first-draft viewport=1280x720 people=32 hash=b780549f4a02ddcf7408a7fff4ed27ddf4a823a064b8a36258e2b52c12c26093
+PERK_CAPTURE image=02-rerolled-draft viewport=1280x720 people=32 hash=fef70295d8ae6648173ff51014f51f96c015faf1e619a8e560cb72f092e3db2a
+PERK_CAPTURE image=03-equipped-detail viewport=1280x720 people=32 hash=875429be773094fe0d7992ba6ba2b7369e7fadbfcc7035962053b0ec292dcf73
+PERK_CAPTURE image=04-equipped-collapsed-preparation viewport=1280x720 people=32 hash=875429be773094fe0d7992ba6ba2b7369e7fadbfcc7035962053b0ec292dcf73
+PERK_CAPTURE image=05-five-equipped-draft viewport=1280x720 people=32 hash=f2736924537b16ea8d874b653b01b5756ed099fbf91028870db7d13d6ac6b23b
+PERK_CAPTURE image=06-replacement-loss-benefit viewport=1280x720 people=32 hash=f2736924537b16ea8d874b653b01b5756ed099fbf91028870db7d13d6ac6b23b
+PERK_CAPTURE image=07-replacement-cancelled viewport=1280x720 people=32 hash=f2736924537b16ea8d874b653b01b5756ed099fbf91028870db7d13d6ac6b23b
+PERK_CAPTURE image=08-skip-confirmation viewport=1280x720 people=32 hash=f2736924537b16ea8d874b653b01b5756ed099fbf91028870db7d13d6ac6b23b
+PERK_CAPTURE image=09-skipped-five-kept viewport=1280x720 people=32 hash=1b7d7f5a388c792b6202996a783992bdeae47812f408ded9e207af3e01921c3d
+PERK_CAPTURE image=10-replace-tap-confirmation viewport=1280x720 people=32 hash=f2736924537b16ea8d874b653b01b5756ed099fbf91028870db7d13d6ac6b23b
+PERK_CAPTURE image=11-replaced-five-detail viewport=1280x720 people=32 hash=fdc33ce2144cd3875f467cf8edc4f4408604f327d41c680589a98859026b1128
+INCIDENT_AUDIO cue=DeathScream voice=Male tick=4000 mode=cc0-integrated
+PERK_CAPTURE image=12-fatal-hearing-labelled-fixture viewport=1280x720 people=33 hash=be193e840044bf172e0229aee08118c73a29b9abcca33d4e48fc1042ea6ac30e
+PERK_CAPTURE image=13-favour-confirmation viewport=1280x720 people=33 hash=be193e840044bf172e0229aee08118c73a29b9abcca33d4e48fc1042ea6ac30e
+PERK_CAPTURE image=14-saved-favour-retry-draft viewport=1280x720 people=32 hash=18e29fb3f86512a4e302811a288ac793db40497b5fda0a6c0e391a4c378f7767
+PERK_CAPTURE_COMPLETE native=true first_draft=true reroll=true five_slots=true replacement=true cancel_pure=true skip=true favour_retry=true labelled_fixture=full_capacity_and_ignored_intoxication_response

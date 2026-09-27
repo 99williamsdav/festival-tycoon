@@ -105,6 +105,8 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown water point or orientation.");
         if (movingId is null && p.ExtraWaterSiteIds.Length >= 2)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The two additional standpipes are already placed.");
+        if (movingId is null && _perks is not null && (!HasPerk("another-round") || p.ExtraWaterSiteIds.Length >= 1))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Another Round grants one extra placeable tap.");
         if (movingId == "water.main" && cell == p.PrimaryWaterCell && quarterTurns == p.PrimaryWaterQuarterTurns && p.PrimaryWaterGeometryVersion == 1)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The original standpipe is already at this site.");
         var issue = ValidateWaterPlacementCell(cell, p, movingId, _equipment, quarterTurns);
@@ -491,6 +493,7 @@ public sealed partial class GameSession
             People = baseline._preparation!.People
         };
         Phase = SessionPhase.OpeningCheck;
+        OpenPerkDraft();
     }
 
     private static string? ValidatePersistedPreparation(PreparationSnapshot? p, SessionPersistenceSnapshot snapshot)
@@ -594,7 +597,7 @@ public sealed partial class GameSession
             p.StaffProfiles.Any(profile => !Enum.IsDefined(profile.Role) || profile.AgentId < factory.NextEntityId || profile.AgentId >= snapshot.NextEntityId ||
                 profile.AgentId == p.MaintenanceWorkerId || !snapshot.Wallets.Any(item => item.OwnerId == profile.AgentId) ||
                 profile != CreateOptionalStaff(snapshot.CampaignSeed, profile.AgentId, profile.Role) ||
-                !(profile.Role == ResponseRole.Medic ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned)) ||
+                snapshot.Perks is null && !(profile.Role == ResponseRole.Medic ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned)) ||
             p.Contacts.Contains("contact.avery-brooks") != p.Payments.Any(item => item.OfferId == "staff.extra-medic") ||
             p.Contacts.Contains("contact.sam-ellis") != p.Payments.Any(item => item.OfferId == "staff.extra-steward") ||
             p.Payments.Any(item => item.OfferId == "staff.extra-medic") != p.StaffProfiles.Any(item => item.Role == ResponseRole.Medic) ||

@@ -697,6 +697,9 @@ public sealed partial class GameSession
             }).ToArray();
             _medical = m = m with { Needs = needs };
         }
+        if (HasPerk("thirsty-crowd") && CurrentTick % 40 == 0)
+            _medical = m = m with { Needs = m.Needs.Select(item => item.Profile == MedicalNeedProfile.Guest
+                ? item with { Thirst = Math.Min(10_000, item.Thirst + 1) } : item).ToArray() };
         if (CurrentTick % 80 == 0)
         {
             foreach (var need in m.Needs)
@@ -771,6 +774,9 @@ public sealed partial class GameSession
                 SetNeed(first, item => item with { Thirst = Math.Max(0, item.Thirst - EffectiveMedicalDrinkThirstPerTickFor(first)),
                     HeatExposure = Math.Max(0, item.HeatExposure - EffectiveMedicalDrinkHeatPerTickFor(first)) });
                 SetWaterPoint(point with { DrinkTicks = point.DrinkTicks + 1 });
+                if (HasPerk("something-in-the-water") && p.People.Any(person => person.AgentId == first && person.Role == ProtectedPersonRole.Guest))
+                    _preparation = _preparation! with { People = _preparation.People.Select(person => person.AgentId == first
+                        ? person with { Satisfaction = Math.Min(10_000, person.Satisfaction + 1) } : person).ToArray() };
                 if (_medical!.Needs.Single(item => item.AgentId == first).Thirst == 0)
                 {
                     var drankTicks = point.DrinkTicks + 1;
@@ -982,7 +988,7 @@ public sealed partial class GameSession
             m.ResponseStage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing && m.ResponsePatientId is null ||
             !Enum.IsDefined(m.Stage) || !Enum.IsDefined(m.ResponseStage) ||
             m.WarningTick > s.CurrentTick || m.CollapseTick > s.CurrentTick || m.CriticalTick > s.CurrentTick ||
-            m.Stage == MedicalStage.Terminal && (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Length != 1) ||
+            m.Stage == MedicalStage.Terminal && (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1) ||
             p.Status == PreparationStatus.Failed && m.Stage != MedicalStage.Terminal && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death")
             return "Medical Hot state, queue ownership or causal stage invalid.";
         return null;

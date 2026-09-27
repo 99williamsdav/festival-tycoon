@@ -242,6 +242,7 @@ public partial class Main
         var statusPanel = HudPanel(layer, new Vector2(width - 510, height - 50), new Vector2(495, 40));
         statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
         _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
+        BuildPerkHud(layer);
         BuildHearingHud(layer); RefreshPreparationHud();
     }
 
@@ -290,7 +291,7 @@ public partial class Main
         _hudPause.TooltipText = _preparationSaveBlocked ? "Simulation paused until the pending save succeeds. Open Menu → Retry save." : "Pause / resume (Space)";
         _hudStatus!.Text = placing && !_preparationSaveBlocked ? "Placement preview · no change until a valid click" : _preparationMessage;
         _hudStatus.TooltipText = _preparationMessage;
-        _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing;
+        _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
         _hudPreparationToggle!.Visible = preparing; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
         _hudRosterToggle!.Text = $"People · {p.People.Length} ▸";
         _hudPlacement!.Visible = placing;
@@ -306,7 +307,7 @@ public partial class Main
             _hudStartReason.Text = "Book three different acts and hire one sound shift before opening.";
         _preparationStart.TooltipText = _hudStartReason.Text;
         _hudRetry!.Visible = _preparationSaveBlocked;
-        _hudPrototypeSection!.Visible = preparing && _hudPrototypeOpen;
+        _hudPrototypeSection!.Visible = preparing && _hudPrototypeOpen && _session.CapturePerks() is null;
         _hudMenu!.Size = new Vector2(250, preparing && _hudPrototypeOpen ? 470 : _preparationSaveBlocked ? 310 : 270);
         if (_communityShareInfo is not null) _communityShareInfo.Visible = _hudWaterExact;
         _hudDiagnosticsText!.Text = $"Tick {_session.CurrentTick} · hash {_session.CaptureSnapshot().AuthoritativeHash}\nPhase {_session.Phase} · status {p.Status} · paused {_session.IsPaused}\n{_preparationMessage}";
@@ -366,6 +367,7 @@ public partial class Main
 
     private bool HudBlocksPlacement(Vector2 screen)
     {
+        if(_perkPanel?.Visible==true && _perkPanel.GetGlobalRect().HasPoint(screen))return true;
         if (_hudMoney is null) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
         if (screen.Y < 60 || screen.Y > GetViewport().GetVisibleRect().Size.Y - 54) return true;
         return new Control?[] { _hudWorkspace, _hudMenu, _hudPlacement, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }

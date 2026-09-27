@@ -184,7 +184,7 @@ public partial class Main : Node
                 _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null || _liveCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
-                GameSession.CreateImmersionCampaign(20260922);
+                _hudCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreatePerkCampaign(20260922);
         }
         if (_hearingCaptureDirectory is not null)
         {
@@ -281,6 +281,7 @@ public partial class Main : Node
         ProcessDisorderCapture();
         ProcessHearingCapture();
         ProcessHudCapture();
+        ProcessPerkCapture();
         ProcessStartSplashCapture();
     }
 
@@ -294,9 +295,12 @@ public partial class Main : Node
 
     public override void _UnhandledInput(InputEvent inputEvent)
     {
+        if (_perkPanel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && _perkPanel.GetGlobalRect().HasPoint(perkMouse.Position))
+        { GetViewport().SetInputAsHandled(); return; }
         if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null || _campaignCaptureDirectory is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
+            if(key.Keycode==Key.Escape && (_pendingPerkChoice is not null || _pendingPerkSkip)){CancelPerkConfirmation();return;}
             if (_placingImmersionVendor is not null && key.Keycode == Key.Escape) { CancelImmersionPlacement(); return; }
             if (_placingImmersionVendor is not null && key.Keycode is Key.Comma or Key.Period)
             { _immersionQuarterTurns = (_immersionQuarterTurns + (key.Keycode == Key.Comma ? 3 : 1)) % 4; UpdateImmersionPlacementPreview(GetViewport().GetMousePosition()); return; }
@@ -976,6 +980,8 @@ public partial class Main : Node
             if (args[i] == "--capture-farm" && i + 1 < args.Length) _captureDirectory = args[++i];
             else if (args[i] == "--capture-r005f-hud" && i + 1 < args.Length)
             { _hudCaptureDirectory = args[++i]; Directory.CreateDirectory(_hudCaptureDirectory); }
+            else if (args[i] == "--capture-r005g-perks" && i + 1 < args.Length)
+            { _perkCaptureDirectory = args[++i]; Directory.CreateDirectory(_perkCaptureDirectory); }
             else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
@@ -1353,7 +1359,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
+    private string SaveDirectory => _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :

@@ -633,7 +633,7 @@ public sealed partial class GameSession
                 item.VictimId is { } injuredId && injuredId != item.InitiatorId && injuredId != item.OpponentId) ||
             !d.Evidence.Select(item => item.Tick).SequenceEqual(d.Evidence.Select(item => item.Tick).Order()) ||
             d.Evidence.LastOrDefault()?.Id == "disorder:death" &&
-                (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Length != 1))
+                (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1))
             return "Disorder pressure, response ownership, evidence or protected-person state invalid.";
         return null;
     }
