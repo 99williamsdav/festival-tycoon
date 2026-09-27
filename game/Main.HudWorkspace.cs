@@ -144,10 +144,10 @@ public partial class Main
         _hudPages["Equipment"].AddChild(HudLabel("Optional sound rig", 21));
         _hudPages["Equipment"].AddChild(HudLabel("Buy £120 (+1000 quality, retained) or rent £30 (+500, this festival).\nGenerator: safe 80% baseline."));
         _hudPages["Staff"].AddChild(HudLabel("Festival staff", 21));
-        _hudPages["Staff"].AddChild(HudLabel("Hire one sound shift before opening. Maintenance and extra role hires are optional; extra hires require their unlocked role slot."));
+        _hudPages["Staff"].AddChild(HudLabel("Plan at least one sound shift or unlocked role hire before opening. Maintenance is optional; extra role hires require their unlocked slot. Pay at Start."));
         _preparationOfferBox = _hudPages["Staff"]; _preparationOfferInsertIndex = _preparationOfferBox.GetChildCount(); RebuildPreparationOffers();
         _hudPages["Stock"].AddChild(HudLabel("Food & drink starter stock", 21));
-        _hudPages["Stock"].AddChild(HudLabel("Optional fixed bundle • once before opening\n\nPRODUCT              QUANTITY              SALE PRICE\nChips                         40                              £3\nSoft drink                  40                              £2\nBeer                           32                              £3"));
+        _hudPages["Stock"].AddChild(HudLabel(_session.CapturePreparationPlan() is null ? "Optional fixed bundle • once before opening\n\nPRODUCT              QUANTITY              SALE PRICE\nChips                         40                              £3\nSoft drink                  40                              £2\nBeer                           32                              £3" : "Optional unpaid quantities • change before Start\nSale prices: chips £3 · soft drinks £2 · beer £3"));
         BuildImmersionControls(_hudPages["Stock"]);
         _hudPages["Stock"].AddThemeConstantOverride("separation", 8);
         _immersionControls!.GetChild<Control>(0).Visible = false;
@@ -290,7 +290,7 @@ public partial class Main
         _hudPhase!.Text = $"Lower Wittering\n{(preparing ? "PREPARATION · BEFORE OPENING" : "LIVE · FESTIVAL DAY")}";
         _hudMoney.Text = $"MONEY\n{FestivalCurrency.Format(finance.CashPennies)}";
         _hudClock!.Text = preparing ? "FESTIVAL CLOCK\nNot started" : $"FESTIVAL CLOCK\n{HudTime(_session.CurrentTick - p.StartedTick)} / {(_session.CaptureProgramme() is null ? "08:00" : "05:00")}";
-        _hudAttendance!.Text = preparing ? $"ON SITE\n{p.People.Length} expected" : $"ON SITE\n{p.People.Count(person => person.Admitted && !person.Departed)} / {p.People.Length}";
+        _hudAttendance!.Text = preparing ? $"ON SITE\n{_session.ExpectedPreparedPeopleCount} expected" : $"ON SITE\n{p.People.Count(person => person.Admitted && !person.Departed)} / {p.People.Length}";
         _hudWeather!.Text = "WEATHER\n" + (_session.CaptureMedical() is { IsHot: true } ? "☀ Hot" : "Unavailable");
         _hudPause!.Visible = !preparing; _hudPause.Text = _preparationSaveBlocked ? "Save blocked" : _session.IsPaused ? "Resume" : "Pause";
         _hudPause.TooltipText = _preparationSaveBlocked ? "Simulation paused until the pending save succeeds. Open Menu → Retry save." : "Pause / resume (Space)";
@@ -311,6 +311,13 @@ public partial class Main
         _hudStartReason!.Text = issue is null ? "Ready to open. Equipment and stock remain optional."
             : preparing && _session.CapturePerks()?.Pending != true && blockers.Count != 0
                 ? string.Join("\n", blockers.Select(blocker => blocker.Message)) : issue.Message;
+        if (_session.CapturePreparationPlan() is { Committed: false })
+        {
+            var funds = _session.CaptureSnapshot().FestivalFinances.Single().CashPennies;
+            var costs = $"Available {FestivalCurrency.Format(funds)} • Setup {FestivalCurrency.Format(_session.PreparationPlanCost)} • Remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}";
+            _hudStartReason.Text = costs + "\n" + _hudStartReason.Text;
+            _hudStartConfirmation!.DialogText = costs + "\nPay the complete setup once and open for the full fixed roster.";
+        }
         RefreshHudPreparationReadiness();
         _preparationStart.TooltipText = _hudStartReason.Text;
         _hudRetry!.Visible = _preparationSaveBlocked;
@@ -324,6 +331,12 @@ public partial class Main
             $"Owned rig {p.OwnedEquipment.Length} · rental {p.Rentals.Length} · equipment & stock optional";
         if (preparing && _session.CaptureImmersion() is { } stock)
             _immersionSummary!.Text = $"Current stock: chips {stock.ChipsStock} · soft {stock.SoftStock} · beer {stock.BeerStock}\nFree water remains available. Staff do not buy beer.";
+        if (preparing && p.Plan is { } plan)
+        {
+            _preparationSummary.Text = $"Available {FestivalCurrency.Format(finance.CashPennies)}\nSetup cost {FestivalCurrency.Format(_session.PreparationPlanCost)} · remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}\n" +
+                $"Unpaid lineup: {plan.ActIds.Count(id => id != "")}/3 acts\nPlanned hires: {string.Join(", ", plan.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nOwned rig {p.OwnedEquipment.Length} · selected rig {(plan.OfferIds.SingleOrDefault(id => id.StartsWith("equipment.")) ?? "none")}\nFreely revise purchases. Existing site and perk property stays committed.";
+            _immersionSummary!.Text = $"Planned chips {plan.Chips} · soft {plan.SoftDrinks} · beer {plan.Beers}\nUnpaid; pay at Start. Free water remains available.";
+        }
         if (_medicalActionInspector is not null)
         {
             if (_medicalButtons.TryGetValue(MedicalAction.DispatchMedic, out var medicButton)) medicButton.Text = "Dispatch Riley";

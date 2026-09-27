@@ -34,7 +34,7 @@ public partial class Main
         _programmeSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _programmeControls.AddChild(_programmeSummary);
         var acts = _session.GetFestivalActs().ToArray();
-        _programmeDraft = acts.Take(3).Select(act => act.Id).ToArray();
+        _programmeDraft = _session.CapturePreparationPlan() is not null ? ["", "", ""] : acts.Take(3).Select(act => act.Id).ToArray();
         var windows = new[] { "1 • 0:15–1:30", "2 • 1:55–3:10", "3 • 3:35–4:50" };
         for (var slot = 0; slot < 3; slot++)
         {
@@ -47,6 +47,7 @@ public partial class Main
             {
                 if (_programmeRefreshing) return;
                 _programmeDraft[index] = choice.GetItemMetadata((int)selected).AsString();
+                if (_session.CapturePreparationPlan() is not null) CommitEquipmentAction(new SetProgrammeCommand(_programmeDraft.ToArray()));
                 RefreshProgrammeControls();
             };
             _programmeChoices[slot] = choice; _programmeControls.AddChild(choice);
@@ -64,18 +65,23 @@ public partial class Main
         if (_session.CaptureProgramme() is not { } programme) return;
         var p = _session.CapturePreparation()!;
         var acts = _session.GetFestivalActs().ToArray();
-        var booked = programme.ActIds.Length == 3;
-        var bookingKey = string.Join("|", programme.ActIds);
+        var editable = p.Status == PreparationStatus.Preparing && p.Plan is { Committed: false };
+        var actIds = p.Plan?.ActIds ?? programme.ActIds;
+        if (editable) _programmeDraft = actIds.Length == 3 ? actIds.ToArray() : ["", "", ""];
+        var booked = actIds.Length == 3 && actIds.All(id => id != "");
+        var bookingKey = string.Join("|", actIds);
         if (_programmeRenderedBooking != bookingKey)
         {
-            if (booked) _programmeDraft = programme.ActIds.ToArray();
+            if (actIds.Length == 3) _programmeDraft = actIds.ToArray();
+            else if (editable) _programmeDraft = ["", "", ""];
             _programmeRenderedBooking = bookingKey;
         }
-        var available = booked ? acts.Where(act => programme.ActIds.Contains(act.Id)).ToArray() : acts;
+        var available = booked && !editable ? acts.Where(act => programme.ActIds.Contains(act.Id)).ToArray() : acts;
         _programmeRefreshing = true;
         for (var slot = 0; slot < 3; slot++)
         {
             var choice = _programmeChoices[slot]; choice.Clear();
+            if (editable) { choice.AddItem("Choose act / remove slot"); choice.SetItemMetadata(0, ""); }
             foreach (var act in available)
             {
                 choice.AddItem($"{act.Name} • {FestivalGenreName(act.Genre)} • £{act.PricePennies / 100}");
@@ -83,7 +89,7 @@ public partial class Main
                 choice.SetItemTooltip(choice.ItemCount - 1, $"{act.Name} · {FestivalGenreName(act.Genre)}\nPopularity {act.Popularity}/100 · £{act.PricePennies / 100}\nDifferent people enjoy other genres differently.");
             }
             var selected = Array.FindIndex(available, act => act.Id == _programmeDraft[slot]);
-            choice.Select(Math.Max(0, selected));
+            choice.Select(Math.Max(0, selected + (editable ? 1 : 0)));
             choice.Disabled = p.Status != PreparationStatus.Preparing;
         }
         _programmeRefreshing = false;
@@ -100,6 +106,12 @@ public partial class Main
         if (_hudTabs is not null)
             _programmeSummary.Text = booked ? "Three acts booked • paid once.\nOnly their order can change before opening." :
                 "Choose three different acts. Nine performers are protected.\nPay once; reorder before opening only.";
+        if (editable)
+        {
+            _programmeBook.Text = $"SAVE LINEUP PLAN • £{total / 100}";
+            _programmeBook.TooltipText = rejected?.Message ?? "Freely replace or reorder three distinct acts. Unpaid until Start.";
+            _programmeSummary.Text = $"Unpaid lineup • {FestivalCurrency.Format(actIds.Where(id => id != "").Sum(id => acts.Single(a => a.Id == id).PricePennies))}\nChoose three different acts; freely revise before opening.";
+        }
     }
 
     private string FestivalCopy(string text) => _session.CaptureProgramme() is null ? text :

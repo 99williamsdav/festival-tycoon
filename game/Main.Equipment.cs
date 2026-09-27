@@ -43,7 +43,7 @@ public partial class Main
 
     private void CommitEquipmentAction(SessionCommand command)
     {
-        var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
+        var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration, _planCaptureFailureInjector);
         if (result.IsSuccess)
         {
             _session = result.Session; _autosaveGeneration++;

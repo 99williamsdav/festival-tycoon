@@ -125,8 +125,8 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.05-hearing-v1",
-        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v13");
+    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.05k-unpaid-plan-v1",
+        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-editable-preparation-v1");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -184,7 +184,7 @@ public partial class Main : Node
                 _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null || _liveCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
-                _postCaptureDirectory is not null || _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreatePerkCampaign(20260922);
+                _postCaptureDirectory is not null || _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreateEditableCampaign(20260922);
         }
         if (_hearingCaptureDirectory is not null)
         {
@@ -243,7 +243,7 @@ public partial class Main : Node
     public override void _Process(double delta)
     {
         try { ProcessPresentationFrame(delta); }
-        catch(Exception error) when (_postCaptureDirectory is not null || _hoverCaptureDirectory is not null || _headerCaptureDirectory is not null)
+        catch(Exception error) when (_planCaptureDirectory is not null || _postCaptureDirectory is not null || _hoverCaptureDirectory is not null || _headerCaptureDirectory is not null)
         { GD.PushError("HOVER_CAPTURE_FAILED presentation=" + error); _hoverCaptureDirectory=null;_headerCaptureDirectory=null;GetTree().Quit(2); }
     }
 
@@ -296,6 +296,7 @@ public partial class Main : Node
         ProcessHoverCapture();
         ProcessHeaderCapture();
         ProcessResponsePostCapture();
+        ProcessPreparationPlanCapture();
     }
 
     public override void _Input(InputEvent inputEvent)
@@ -1155,6 +1156,8 @@ public partial class Main : Node
             { _hoverCaptureDirectory = args[++i]; Directory.CreateDirectory(_hoverCaptureDirectory); }
             else if(args[i]=="--capture-r005j-posts" && i+1<args.Length)
             {_postCaptureDirectory=args[++i];Directory.CreateDirectory(_postCaptureDirectory);}
+            else if(args[i]=="--capture-r005k-plan" && i+1<args.Length)
+            {_planCaptureDirectory=args[++i];Directory.CreateDirectory(_planCaptureDirectory);}
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
@@ -1395,7 +1398,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
+    private string SaveDirectory => _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :
@@ -1404,7 +1407,7 @@ public partial class Main : Node
         _staffCaptureDirectory is not null ? Path.Combine(_staffCaptureDirectory, "saves") :
         _audienceCaptureDirectory is not null ? Path.Combine(_audienceCaptureDirectory, "saves") :
         _timetableCaptureDirectory is not null ? Path.Combine(_timetableCaptureDirectory, "saves") : ProjectSettings.GlobalizePath(
-        _session?.CapturePreparation() is not null ? "user://saves/r0.05-hearing-v1" : "user://saves");
+        _session?.CapturePreparationPlan() is not null ? "user://saves/r0.05k-unpaid-plan-v1" : _session?.CapturePreparation() is not null ? "user://saves/r0.05-hearing-v1" : "user://saves");
     private void ManualSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));

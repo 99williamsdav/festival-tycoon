@@ -73,6 +73,10 @@ public sealed partial class GameSession
         EntityId? affectedTarget;
         switch (envelope.Command)
         {
+            case RemovePreparationOfferCommand or SetPreparationStockCommand:
+                affectedTarget = null;
+                ApplyPlanEdit(envelope.Command);
+                break;
             case PerkCommand perk:
                 affectedTarget = null;
                 ApplyPerkCommand(perk);
@@ -729,13 +733,14 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
         if (_perks is not null && envelope.Command is ApplyStaffFoundationEffectCommand or ApplyWaterFoundationEffectCommand)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Foundation demos are available only in legacy development diagnostics.");
-        if (_preparation is not null && envelope.Command is not (MoveResponsePostCommand or PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or MoveResponsePostCommand or PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
 
         return envelope.Command switch
         {
+            RemovePreparationOfferCommand or SetPreparationStockCommand => ValidatePlanEdit(envelope.TargetId, envelope.Command),
             PerkCommand perk => ValidatePerkCommand(envelope.TargetId, perk),
             EquipmentCommand equipment => ValidateEquipmentCommand(envelope.TargetId, equipment),
             MedicalCommand medical => ValidateMedicalCommand(envelope.TargetId, medical),

@@ -72,6 +72,8 @@ public partial class Main
 
     private void PreparationAccept(string id)
     {
+        if (_session.CapturePreparationPlan() is { Committed: false } plan && plan.OfferIds.Contains(id))
+        { CommitEquipmentAction(new RemovePreparationOfferCommand(id)); return; }
         if (_session.CaptureEquipment() is not null)
         {
             CommitEquipmentAction(new AcceptPreparationOfferCommand(id));
@@ -87,15 +89,10 @@ public partial class Main
         CancelImmersionPlacement();
         CancelWaterPlacement();
         CancelResponsePostPlacement();
-        var candidate = GameSession.Restore(_session.CapturePersistenceSnapshot());
-        if (!candidate.IsSuccess) { _preparationMessage = candidate.Error!; RefreshPreparationHud(); return; }
-        var command = new CommandEnvelope(new CommandId(1_010_000UL + candidate.Session!.NextSubmissionSequence),
-            candidate.Session.CampaignId, candidate.Session.Phase, candidate.Session.CurrentTick, candidate.Session.NextSubmissionSequence, null, new StartPreparedEditionCommand());
-        var result = candidate.Session.Execute(command);
-        if (!result.IsAccepted) { _preparationMessage = result.Message; RefreshPreparationHud(); return; }
-        var saved = AutosaveRotation.Save(SaveDirectory, candidate.Session, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
-        if (!saved.IsSuccess) { _preparationMessage = "Start not applied: autosave failed."; RefreshPreparationHud(); return; }
-        _autosaveGeneration++; _session = candidate.Session;
+        var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, new StartPreparedEditionCommand(),
+            _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
+        if (!result.IsSuccess) { _preparationMessage = result.Error!; RefreshPreparationHud(); return; }
+        _autosaveGeneration++; _session = result.Session;
         ResetLivePerformancePresentation();
         BuildAttendee(); _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
         _preparationMessage = "Autosaved. Everyone now walks into the field.";
@@ -115,6 +112,13 @@ public partial class Main
         CancelImmersionPlacement(); ResetImmersionHeldVisuals();
         CancelWaterPlacement();
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
+        if (_session.CapturePreparationPlan() is not null && result.IsSuccess &&
+            result.Session!.CapturePreparation() is not { Version: 2, Plan: not null })
+        {
+            _preparationMessage = "This save uses the paid preparation diagnostic model. Load it in its matching diagnostic mode; start a fresh normal campaign for the editable unpaid plan.";
+            RefreshPreparationHud();
+            return;
+        }
         if (result.IsSuccess && result.Session!.CapturePreparation() is not null)
         {
             CancelPerkConfirmation();
@@ -154,16 +158,25 @@ public partial class Main
             $"Owned rig: {p.OwnedEquipment.Length} • rental: {p.Rentals.Length} • known staff: {p.Contacts.Length}\n" +
             $"{(_session.CaptureProgramme() is null ? "8 live minutes" : "5-minute festival day")} + preparation/pauses; provisional pace.\n{_preparationMessage}";
         _preparationSummary.Text = FestivalCopy(_preparationSummary.Text);
+        if (p.Plan is { Committed: false } planned)
+            _preparationSummary.Text += $"\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nPlanned hires: {string.Join(", ", planned.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}";
         RefreshProgrammeControls();
         RefreshImmersionControls();
         foreach (var (id, button) in _offerButtons)
         {
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new AcceptPreparationOfferCommand(id))) is not null;
             button.Visible = p.Status == PreparationStatus.Preparing;
+            if (p.Plan is { } plan)
+            {
+                var offer = _session.GetPreparationOffers().Single(o => o.Id == id);
+                button.Text = $"{(plan.OfferIds.Contains(id) ? "REMOVE" : "PLAN")} • {FestivalCopy(offer.Name)} • {FestivalCurrency.Format(offer.PricePennies)}";
+                button.TooltipText = plan.OfferIds.Contains(id) ? "Remove this unpaid purchase from the setup plan." : "Add or replace this choice in the unpaid setup plan. Payment is due at Start.";
+            }
             if (id is "staff.extra-medic" or "staff.extra-steward" && _session.GetOptionalStaffOfferProfile(id == "staff.extra-medic" ? ResponseRole.Medic : ResponseRole.Steward) is { } profile)
             {
-                button.Text = FestivalCopy($"HIRE {profile.Name.Split(' ')[0].ToUpperInvariant()} • {profile.Role.ToString().ToUpperInvariant()} • £30/WEEKEND");
-                button.TooltipText = FestivalCopy($"{profile.Name}\n{StaffAbilityText(profile)}\n£30 prototype tuning. Paid weekend-only contract; expires on any outcome. Requires its role-specific slot.");
+                var selected = p.Plan?.OfferIds.Contains(id) == true;
+                button.Text = FestivalCopy($"{(p.Plan is null ? "HIRE" : selected ? "REMOVE" : "PLAN")} {profile.Name.Split(' ')[0].ToUpperInvariant()} • {profile.Role.ToString().ToUpperInvariant()} • £30/WEEKEND");
+                button.TooltipText = FestivalCopy($"{profile.Name}\n{StaffAbilityText(profile)}\n£30 prototype tuning. {(p.Plan is null ? "Paid weekend-only contract" : "Unpaid plan until Start; freely remove")}; expires on any outcome. Requires its role-specific slot.");
             }
         }
         _preparationStart.Disabled = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand())) is not null;

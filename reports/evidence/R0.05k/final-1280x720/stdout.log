@@ -1,0 +1,24 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=28ce567ad9cbee2485dcb582b87fb34a332c717e60a3b8b9afeb95308bdf7109
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+PLAN_CAPTURE_SETUP scripted_native=True manual_desktop_QA=False accelerated_ticks=True fixture=none isolated_saves=True
+PLAN_CAPTURE image=01-unpaid-empty-readiness cost=0 remaining=80000 hash=c111c9daf5cfcd02b5e2453df9bbc9928820dad63fec6c3770087d1c1a794e2c
+PLAN_CAPTURE image=02-incomplete-lineup-cost cost=4000 remaining=76000 hash=fd93bba92a91eb7d648f2671c23bbde5c30cf9822957cc0748af921ba7880397
+PLAN_CAPTURE_FAILED_EDIT_RETAINED fixture=save_failure_injection authoritative_hash=True dropdown=True subtotal=True
+PLAN_CAPTURE image=03-editable-staff-remove cost=20000 remaining=60000 hash=e17c759cb38406e660f765f564d2635db41ff2ce8a498cf914c2463eef85d9ee
+PLAN_CAPTURE image=04-planned-rig cost=32000 remaining=48000 hash=c26a307b624d3b3647fa7be45f2248dae4c54769e4218514a6ba5af43cd848c6
+PLAN_CAPTURE image=05-default-stock-quantities cost=29600 remaining=50400 hash=48b61a78ef98b11d1a1412fd6a401082da4da4c9ed6ac6e18b2eddb56fe1873f
+PLAN_CAPTURE image=06-over-budget-readiness cost=2620000 remaining=-2540000 hash=89bec85fd2e85964a92ea96d06f0b003b8aab66feb56eddbe9578121962260bd
+PLAN_CAPTURE image=07-removed-stock-zero-cost cost=20000 remaining=60000 hash=e3ca5855a83291fa1d2d4d2dc15c6e2ff2df71efd19d541eeda68c60979f8aa0
+FARM_SELECTION_CLEARED
+PLAN_CAPTURE image=08-saved-unpaid-fixed-perk cost=41600 remaining=38400 hash=cc3e31b1ea90bcaea18f45f67e5af0d7d9d3e1a3c421dd04a1f65a5be5792f7a
+FARM_SELECTION_CLEARED
+PLAN_CAPTURE image=09-revised-placement-preview cost=41600 remaining=38400 hash=cc3e31b1ea90bcaea18f45f67e5af0d7d9d3e1a3c421dd04a1f65a5be5792f7a
+PLAN_CAPTURE image=10-atomic-start-confirmation cost=41600 remaining=38400 hash=6640a16a138b1090443461361cb7c96662fdf839829b33a15489d810b01bc5e5
+PLAN_CAPTURE image=11-opened-one-setup-payment cost=41600 remaining=38400 hash=8c9fc802c493a4fbfebc1329635a886c82b5ea8eceef9b3c17c3caff8cd61f2b
+FARM_SELECTION_CLEARED
+PLAN_CAPTURE image=12-live-sale-save-no-replay cost=41600 remaining=40600 hash=3fa60a1e68586c43093625839675378435bb63df20761a379517138a0892b7db
+PLAN_CAPTURE_COMPLETE unpaid_edits=True incomplete_lineup=True stock_quantities=True overbudget=True removal=True revised_placement=True fixed_perk=True draft_restore=True atomic_setup=True live_sales=True load_replay=False hash=3fa60a1e68586c43093625839675378435bb63df20761a379517138a0892b7db

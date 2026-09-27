@@ -11,6 +11,8 @@ public partial class Main
     private VBoxContainer? _immersionControls;
     private Label? _immersionSummary;
     private Button? _immersionStockButton;
+    private readonly SpinBox[] _plannedStockAmounts = new SpinBox[3];
+    private bool _refreshingPlannedStock;
     private Button? _immersionMoveButton;
     private readonly Dictionary<string, StaticBody3D> _immersionVendors = [];
     private readonly Dictionary<ulong, string> _immersionVendorPicks = [];
@@ -137,6 +139,19 @@ public partial class Main
         _immersionStockButton = ButtonText("BUY STARTER STOCK • £96", () => CommitEquipmentAction(new PurchaseImmersionStarterStockCommand()));
         _immersionStockButton.TooltipText = "40 chips (£1 each), 40 soft drinks (60p each), 32 beers (£1 each). Paid from festival funds once before opening; no in-day refill.";
         _immersionControls.AddChild(_immersionStockButton);
+        if (_session.CapturePreparationPlan() is not null)
+        {
+            var names = new[] { "Chips • £1/unit", "Soft drinks • £0.60/unit", "Beer • £1/unit" };
+            for (var index = 0; index < 3; index++)
+            {
+                var row = new HBoxContainer(); _immersionControls.AddChild(row);
+                row.AddChild(LabelText(names[index], 13, new Color("29352c")));
+                var amount = new SpinBox { MinValue = 0, MaxValue = 10000, Step = 1, CustomMinimumSize = new Vector2(110, 32) };
+                _plannedStockAmounts[index] = amount; row.AddChild(amount);
+                amount.ValueChanged += _ => { if (!_refreshingPlannedStock) CommitEquipmentAction(new SetPreparationStockCommand((int)_plannedStockAmounts[0].Value, (int)_plannedStockAmounts[1].Value, (int)_plannedStockAmounts[2].Value)); };
+            }
+            _immersionControls.AddChild(ButtonText("REMOVE PLANNED STOCK", () => CommitEquipmentAction(new SetPreparationStockCommand(0, 0, 0))));
+        }
         RefreshImmersionControls();
     }
 
@@ -168,6 +183,15 @@ public partial class Main
         _immersionStockButton!.Visible = preparing;
         _immersionStockButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new PurchaseImmersionStarterStockCommand())) is not null;
         _immersionStockButton.Text = state.StockPurchased ? "STARTER STOCK PURCHASED • £96" : "BUY STARTER STOCK • £96";
+        if (_session.CapturePreparationPlan() is { } plan)
+        {
+            _immersionStockButton.Text = "PLAN DEFAULT STOCK • £96";
+            _immersionStockButton.TooltipText = "Plan 40 chips, 40 soft drinks and 32 beers. Unpaid until Start; revise quantities or remove freely.";
+            _refreshingPlannedStock = true;
+            var values = new[] { plan.Chips, plan.SoftDrinks, plan.Beers };
+            for (var i = 0; i < 3; i++) { _plannedStockAmounts[i].Value = values[i]; _plannedStockAmounts[i].Editable = preparing; }
+            _refreshingPlannedStock = false;
+        }
         _immersionSummary!.Text = $"Chips £3 • soft £2 • beer £3\nStock {state.ChipsStock}/{state.SoftStock}/{state.BeerStock} • sales {state.Purchases.Length}\n" +
             "Free water remains available. Personal spending budgets vary; staff do not buy beer.\n" +
             string.Join("\n", state.Vendors.Select(v => $"{(v.Id == "food" ? "Food van" : "Drinks stall")}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}"));

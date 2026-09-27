@@ -79,6 +79,9 @@ public sealed partial class GameSession
     {
         if (target is not null || _programme is null || _preparation is not { Status: PreparationStatus.Preparing } p)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Programme is editable before opening only.");
+        if (p.Plan is not null)
+            return command.ActIds is not null && command.ActIds.Length is 0 or 3 && command.ActIds.Where(id => id != "").Distinct().Count() == command.ActIds.Count(id => id != "") && command.ActIds.All(id => id == "" || FestivalActs.Any(a => a.Id == id))
+                ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Choose distinct acts for the three slots.");
         if (command.ActIds is null || command.ActIds.Length != 3 || command.ActIds.Distinct().Count() != 3 || command.ActIds.Any(id => !FestivalActs.Any(a => a.Id == id)))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Choose three distinct festival acts.");
         if (_programme.ActIds.Length > 0 && !_programme.ActIds.Order().SequenceEqual(command.ActIds.Order()))
@@ -89,6 +92,11 @@ public sealed partial class GameSession
     }
     private void ApplyProgramme(SetProgrammeCommand command)
     {
+        if (_preparation?.Plan is { } plan)
+        {
+            _preparation = _preparation with { Plan = plan with { ActIds = command.ActIds.ToArray() } };
+            return;
+        }
         if (_programme!.ActIds.Length == 0)
             foreach (var id in command.ActIds) ApplyPreparationOffer(new(id));
         _programme = _programme with { ActIds = command.ActIds.ToArray(), Status = "Programme booked" };

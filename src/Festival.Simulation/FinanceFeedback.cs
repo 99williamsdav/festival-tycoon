@@ -26,10 +26,18 @@ public static class FestivalCashFeedbackProjection
             var cash = entries.Where(entry => entry.OwnerId == owner && entry.Account == LedgerAccountType.CashAsset).Sum(entry => entry.AmountPennies);
             if (cash != 0) events.Add(new($"cash:{campaignId}:{attempt}:{id}", cash, anchor, tick));
         }
+        if (preparation.Plan is not null)
+        {
+            foreach (var setup in preparation.SetupPayments ?? [])
+            {
+                Add(setup.Id, setup.Attempt, setup.Tick, "preparation", setup.Entries);
+            }
+        }
+        else
         foreach (var payment in preparation.Payments)
             Add($"preparation:{payment.Id}", payment.Attempt, payment.Tick, $"offer:{payment.OfferId}",
                 [new(owner, payment.DebitAccount, payment.AmountPennies), new(owner, LedgerAccountType.CashAsset, -payment.AmountPennies)]);
-        if (immersion?.StockPurchase is { } stock)
+        if (preparation.Plan is null && immersion?.StockPurchase is { } stock)
             Add($"stock:{stock.Id}", stock.Attempt, stock.Tick, "stock", stock.Entries);
         foreach (var sale in immersion?.Purchases ?? [])
             Add($"sale:{sale.Id}", preparation.Attempt, sale.Tick, sale.Product == ImmersionProduct.Chips ? "vendor.food" : "vendor.drinks", sale.Entries);

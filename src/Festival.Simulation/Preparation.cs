@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace Festival.Simulation;
 
 public enum PreparationStatus { Preparing, Running, Departing, Finished, Failed }
-public enum PreparationStartOwner { Programme, Staff }
+public enum PreparationStartOwner { Programme, Staff, Overview }
 public sealed record PreparationStartBlocker(PreparationStartOwner Owner, string Message);
 public sealed record PreparationOffer(string Id, string Category, string Name, int PricePennies, int MusicQuality, int Genre);
 public sealed record EditionPerson(ulong AgentId, string Name, ProtectedPersonRole Role, int ExpectedGenre,
@@ -35,6 +35,10 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public ResponsePostPlacement? FirstAidPlacement { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ResponsePostPlacement? StewardPostPlacement { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PreparationPlan? Plan { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PreparationSetupPayment[]? SetupPayments { get; init; }
 }
 public sealed record AcceptPreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record StartPreparedEditionCommand : SessionCommand;
@@ -265,12 +269,14 @@ public sealed partial class GameSession
     {
         if (_preparation is not { Status: PreparationStatus.Preparing } p) return [];
         var blockers = new List<PreparationStartBlocker>(2);
-        if (_programme is null ? !p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) : _programme.ActIds.Length != 3)
+        if (_programme is null ? !p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) : (p.Plan?.ActIds ?? _programme.ActIds).Count(id => id != "") != 3)
             blockers.Add(new(PreparationStartOwner.Programme, _programme is null
                 ? "Book one act before opening."
                 : "Choose three different acts and confirm the programme before opening."));
-        if (!p.WorkContracts.Any(id => id.StartsWith("staff.", StringComparison.Ordinal)))
+        if (!(p.Plan?.OfferIds ?? p.WorkContracts).Any(id => id.StartsWith("staff.", StringComparison.Ordinal)))
             blockers.Add(new(PreparationStartOwner.Staff, "Hire one worker from the Staff tab before opening."));
+        if (p.Plan is { Committed: false } && PreparationRemainingCash < 0)
+            blockers.Add(new(PreparationStartOwner.Overview, "Setup exceeds available funds. Remove or revise planned purchases."));
         return blockers;
     }
 
@@ -288,10 +294,10 @@ public sealed partial class GameSession
             if (offer.Category is "extra-medic" or "extra-steward" &&
                 (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || p.People.Length >= 50))
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Requires the matching role slot and room below 50 active people.");
-            if (p.AcceptedOffers.Any(id => offers.Single(item => item.Id == id).Category == offer.Category) ||
+            if (p.Plan is null && p.AcceptedOffers.Any(id => offers.Single(item => item.Id == id).Category == offer.Category) ||
                 offer.Category == "equipment" && p.OwnedEquipment.Contains("sound-rig"))
                 return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This category is already supplied for the edition.");
-            if (_festivalFinances[new(p.FinanceOwnerId)].CashPennies < offer.PricePennies)
+            if (p.Plan is null && _festivalFinances[new(p.FinanceOwnerId)].CashPennies < offer.PricePennies)
                 return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, "Insufficient cash for this commitment.");
         }
         else if (GetPreparationStartBlockers().Count != 0)
@@ -303,6 +309,11 @@ public sealed partial class GameSession
     {
         var p = _preparation!;
         var offer = GetPreparationOffers().Single(item => item.Id == command.OfferId);
+        if (p.Plan is { Committed: false } plan && !_committingPreparationPlan)
+        {
+            _preparation = p with { Plan = plan with { OfferIds = plan.OfferIds.Where(id => GetPreparationOffers().Single(o => o.Id == id).Category != offer.Category).Append(offer.Id).Order(StringComparer.Ordinal).ToArray() } };
+            return;
+        }
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies -= offer.PricePennies;
         if (offer.Category == "contract") _ownedStocks[new(p.StockId)].Quantity += 50;
         _preparation = p with
@@ -332,6 +343,7 @@ public sealed partial class GameSession
 
     private void ApplyStartPreparedEdition()
     {
+        CommitPreparationPlan();
         var p = _preparation!;
         _traversalGrid = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
         if (_equipment is { } unit)
@@ -524,6 +536,7 @@ public sealed partial class GameSession
             Attempt = p.Attempt + 1, Status = PreparationStatus.Preparing, AcceptedOffers = [],
             Rentals = [], WorkContracts = [], StartedTick = 0, StockConsumed = 0,
             People = baseline._preparation!.People
+            ,Plan = p.Plan is null ? null : EmptyPreparationPlan()
         };
         Phase = SessionPhase.OpeningCheck;
         OpenPerkDraft();
@@ -532,7 +545,7 @@ public sealed partial class GameSession
     private static string? ValidatePersistedPreparation(PreparationSnapshot? p, SessionPersistenceSnapshot snapshot)
     {
         if (p is null) return null;
-        if (p.Version != 1 || p.Tier is < 1 or > 2 || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
+        if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > 2 || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
             p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != CampaignDefaults.OpeningCashPennies || p.StockConsumed < 0 ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||
@@ -558,6 +571,8 @@ public sealed partial class GameSession
             p.MaintenanceWorkerId is { } workerId && (workerId == 0 || workerId >= snapshot.NextEntityId ||
                 !snapshot.Wallets.Any(item => item.OwnerId == workerId)))
             return "Preparation header or collections invalid.";
+        var planIssue = ValidatePersistedPlan(p, snapshot);
+        if (planIssue is not null) return planIssue;
         if ((p.PrimaryWaterCell != MedicalWaterCell || p.PrimaryWaterQuarterTurns != 0) && ValidateWaterPlacementCell(p.PrimaryWaterCell,
                 p with { ExtraWaterSiteIds = [], WaterPlacements = [], PrimaryWaterCell = MedicalWaterCell }, "water.main",
                 snapshot.Equipment, p.PrimaryWaterQuarterTurns, p.PrimaryWaterGeometryVersion) is not null)
@@ -618,7 +633,7 @@ public sealed partial class GameSession
             p.Status == PreparationStatus.Failed && snapshot.Immersion is not null && (snapshot.Phase is not ((int)SessionPhase.Live) and not ((int)SessionPhase.Egress) || snapshot.Phase == (int)SessionPhase.Egress && snapshot.CurrentTick < p.StartedTick + PreparedDayTicks) ||
             p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.Phase != (int)SessionPhase.Egress ||
             p.Status == PreparationStatus.Failed && !p.FixtureOutcomesEnabled && snapshot.Equipment?.Stage != EquipmentStage.Terminal && snapshot.Medical?.Stage != MedicalStage.Terminal && snapshot.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death" ||
-            p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => offers[id].Category == "staff")) ||
+            p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => id.StartsWith("staff.", StringComparison.Ordinal))) ||
             p.Status == PreparationStatus.Finished && p.People.Any(item => !item.Departed))
             return "Preparation phase and protected-person progress disagree.";
         var originalPeople = factory.CapturePreparation()!.People;
@@ -642,7 +657,7 @@ public sealed partial class GameSession
         var finance = snapshot.FestivalFinances.SingleOrDefault(item => item.OwnerId == p.FinanceOwnerId);
         var stock = snapshot.OwnedStocks.SingleOrDefault(item => item.ServiceId == p.StockId);
         if (finance is null || stock is null || stock.OwnerId != p.FinanceOwnerId || stock.UnitCostBasisPennies != 60 ||
-            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => p.FixtureOutcomesEnabled || item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? 9600 : 0) + (snapshot.Immersion?.Purchases?.Sum(item => (long)item.PricePennies) ?? 0) ||
+            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => p.FixtureOutcomesEnabled || item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? p.Plan is null ? 9600 : PlannedStockCost(p.Plan) : 0) + (snapshot.Immersion?.Purchases?.Sum(item => (long)item.PricePennies) ?? 0) ||
             stock.Quantity != 40 + 50 * p.Payments.Count(item => item.OfferId == "contract.stock" && (p.FixtureOutcomesEnabled || item.Attempt == p.Attempt)) - p.StockConsumed)
             return "Preparation cash or stock does not reconcile.";
         if (p.Status != PreparationStatus.Preparing &&
