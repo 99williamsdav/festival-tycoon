@@ -3,6 +3,8 @@ using System.Text.Json;
 namespace Festival.Simulation;
 
 public enum PreparationStatus { Preparing, Running, Departing, Finished, Failed }
+public enum PreparationStartOwner { Programme, Staff }
+public sealed record PreparationStartBlocker(PreparationStartOwner Owner, string Message);
 public sealed record PreparationOffer(string Id, string Category, string Name, int PricePennies, int MusicQuality, int Genre);
 public sealed record EditionPerson(ulong AgentId, string Name, ProtectedPersonRole Role, int ExpectedGenre,
     bool Admitted = false, bool Departed = false, int Satisfaction = 5_000, int MusicRisk = 0);
@@ -247,6 +249,21 @@ public sealed partial class GameSession
         return offers;
     }
 
+    // Derived presentation read model; these are the exact local Start conditions,
+    // not extra safety recommendations or global command-envelope/perk guards.
+    public IReadOnlyList<PreparationStartBlocker> GetPreparationStartBlockers()
+    {
+        if (_preparation is not { Status: PreparationStatus.Preparing } p) return [];
+        var blockers = new List<PreparationStartBlocker>(2);
+        if (_programme is null ? !p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) : _programme.ActIds.Length != 3)
+            blockers.Add(new(PreparationStartOwner.Programme, _programme is null
+                ? "Book one act before opening."
+                : "Choose three different acts and confirm the programme before opening."));
+        if (!p.WorkContracts.Any(id => id.StartsWith("staff.", StringComparison.Ordinal)))
+            blockers.Add(new(PreparationStartOwner.Staff, "Hire one worker from the Staff tab before opening."));
+        return blockers;
+    }
+
     private CommandResult? ValidatePreparationCommand(EntityId? target, SessionCommand command)
     {
         if (_preparation is not { Status: PreparationStatus.Preparing } p || target is not null)
@@ -267,7 +284,7 @@ public sealed partial class GameSession
             if (_festivalFinances[new(p.FinanceOwnerId)].CashPennies < offer.PricePennies)
                 return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, "Insufficient cash for this commitment.");
         }
-        else if ((_programme is null ? !p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) : _programme.ActIds.Length != 3) || !p.WorkContracts.Any(id => id.StartsWith("staff.", StringComparison.Ordinal)))
+        else if (GetPreparationStartBlockers().Count != 0)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Book one act and one worker for the fixed protected roster.");
         return null;
     }

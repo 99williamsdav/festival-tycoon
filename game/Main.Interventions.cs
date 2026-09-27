@@ -22,6 +22,7 @@ public partial class Main
         foreach (var role in new[] { ResponseRole.Steward, ResponseRole.Medic })
         {
             var choice = new OptionButton { CustomMinimumSize = new Vector2(365, 32) };
+            RegisterHoverPopup(choice);
             choice.AddThemeFontSizeOverride("font_size", 12);
             choice.ItemSelected += _ => RefreshStaffInterventionControls();
             _staffInterventionChoices.Add(role, choice);

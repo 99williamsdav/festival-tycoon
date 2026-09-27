@@ -110,20 +110,20 @@ public partial class Main
             if (p.Equipped.Length == 5) footer.AddChild(ButtonText("Skip this choice", () => { _confirmationDraftAttempt=p.DraftAttempt;_confirmationCursor=p.Cursor;_pendingPerkSkip = true; _perkHudKey = ""; RefreshPerkHud(); }));
         }
         if(p.Pending){ _perkBody.AddChild(HudLabel("Equipped: " + (p.Equipped.Length == 0 ? "none yet" : string.Join(" · ",p.Equipped.Select(id=>PerkCatalogue.All.Single(item=>item.Id==id).Name))),12)); return; }
-        var slots = new HBoxContainer(); slots.AddThemeConstantOverride("separation",12); _perkBody.AddChild(slots);
+        var slots = new GridContainer { Name = "EquippedPerkCards", Columns = Math.Clamp((int)((GetViewport().GetVisibleRect().Size.X - 180) / 270), 1, 5) };
+        slots.AddThemeConstantOverride("h_separation",12); slots.AddThemeConstantOverride("v_separation",12); _perkBody.AddChild(slots);
         for (var i = 0; i < 5; i++)
         {
-            var id = i < p.Equipped.Length ? p.Equipped[i] : null;
-            var slot = ButtonText(id is null ? $"Slot {i+1}\nEmpty" : PerkCatalogue.All.Single(item=>item.Id==id).Name,
-                () => { _selectedPerk = _selectedPerk == id ? null : id; _perkHudKey = ""; RefreshPerkHud(); });
-            slot.CustomMinimumSize = new Vector2(156,50); slot.ClipText = false; slot.AutowrapMode = TextServer.AutowrapMode.WordSmart; slots.AddChild(slot);
-        }
-        if (!p.Pending && _selectedPerk is { } selected && p.Equipped.Contains(selected))
-        {
-            var row = new HBoxContainer(); row.AddThemeConstantOverride("separation",28); _perkBody.AddChild(row); row.AddChild(PerkCard(selected));
-            var detail = new VBoxContainer { SizeFlagsHorizontal=Control.SizeFlags.ExpandFill,CustomMinimumSize=new Vector2(420,0) }; row.AddChild(detail);
-            detail.AddChild(HudLabel("Active while equipped, including across retries.\nA fresh choice comes before each actual Council Favour retry.",16));
-            detail.AddChild(ButtonText("Close detail", () => { _selectedPerk = null; _perkHudKey = ""; RefreshPerkHud(); }));
+            if (i < p.Equipped.Length)
+            {
+                var card = PerkCard(p.Equipped[i]); card.Name = "Equipped_" + p.Equipped[i]; slots.AddChild(card);
+            }
+            else
+            {
+                var empty = new PanelContainer { CustomMinimumSize = new Vector2(248,358) };
+                empty.AddThemeStyleboxOverride("panel",HudStyle(new Color("c7cbb8"),14));
+                empty.AddChild(HudLabel($"Slot {i+1}\nEmpty",20)); slots.AddChild(empty);
+            }
         }
         _perkBody.AddChild(HudLabel(_preparationMessage,12));
     }

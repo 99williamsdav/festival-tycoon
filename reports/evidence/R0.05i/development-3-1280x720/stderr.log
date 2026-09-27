@@ -1,0 +1,11 @@
+ERROR: HOVER_CAPTURE_FAILED System.InvalidOperationException: Enabled UI hand missing
+   at Festival.Game.Main.HoverAssert(Boolean condition, String message) in /_/game/Main.HoverCapture.cs:line 19
+   at Festival.Game.Main.ProcessHoverCapture() in /_/game/Main.HoverCapture.cs:line 106
+   at: void Festival.Game.Main.ProcessHoverCapture() (/_/game/Main.HoverCapture.cs:106)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Festival.Game.Main.ProcessHoverCapture() (/_/game/Main.HoverCapture.cs:106)
+       [2] void Festival.Game.Main._Process(double) (/_/game/Main.cs:288)
+       [3] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [4] bool Festival.Game.Main.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/_/game/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/Festival.Game.Main_ScriptMethods.generated.cs:2740)
+       [5] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

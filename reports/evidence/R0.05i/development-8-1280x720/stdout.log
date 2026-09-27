@@ -1,0 +1,50 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=b780549f4a02ddcf7408a7fff4ed27ddf4a823a064b8a36258e2b52c12c26093
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+HOVER_CAPTURE_SETUP scripted_native=True manual_desktop_QA=False fixture=owned_card_states_visual_dense_collapsed save_namespace=isolated
+HOVER_CAPTURE image=01-empty-owned hovered=0 cursor=Arrow hash=10ab92b4b1d2d7a0caa6964bcfae0f85861cb75457a3c9e01b03158a41b0671c
+HOVER_CAPTURE image=02-partial-owned hovered=0 cursor=Arrow hash=ed88bd718ebe3584c51c06397ed303771898b345b97db921d7e43999ccc968e5
+PERK_CAPTURE_SETUP fixture=capacity inserted_owned=4 production_choice=5 extra_tap=production_placement
+HOVER_CAPTURE image=03-full-owned hovered=0 cursor=Arrow hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+HOVER_CAPTURE image=04-full-owned-bottom hovered=0 cursor=Arrow hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+HOVER_CAPTURE image=05-farmhouse-hover hovered=33587988170 cursor=PointingHand hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+FARM_SELECTED id=farm.farmhouse orientation=South
+HOVER_CAPTURE image=06-selected-and-hover hovered=33587988170 cursor=PointingHand hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+FARM_SELECTION_CLEARED
+HOVER_CAPTURE image=07-vendor-hover hovered=41154512790 cursor=PointingHand hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+HOVER_CAPTURE image=08-water-hover hovered=39912998732 cursor=PointingHand hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+MEDICAL_FACILITY_SELECTED type=Water
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+HOVER_CAPTURE image=09-valid-placement hovered=0 cursor=Cross hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+HOVER_CAPTURE image=10-invalid-placement hovered=0 cursor=Forbidden hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+HOVER_CAPTURE image=11-modal-blocks-world hovered=0 cursor=Arrow hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+HOVER_CAPTURE image=12-enabled-ui-hover hovered=0 cursor=PointingHand hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+HOVER_CAPTURE image=13-disabled-ui hovered=0 cursor=Arrow hash=4efe033478ab9fce6f777ab5c18af0c2924586d2a1d6e440c6d2742d54a1c25f
+FARM_SELECTION_CLEARED
+TIMETABLE_STATE name=checkpoint tick=1800 slot=0 phase=Live ready=3 people=32 performers=9 admitted=32 departed=0 status=Playing hash=8e68b7692c7f907596cfe94f7c27eca897bfd9afc013fc04eeabfc9e11c291c5
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+HOVER_CAPTURE image=14-live-people hovered=0 cursor=Arrow hash=47d1c1a8a2ff790fec72937a5a6e1db1c3622cabef6eaf34df1b4f5df840ee80
+FARM_SELECTION_CLEARED
+HOVER_CAPTURE image=15-person-hover hovered=158897016792 cursor=PointingHand hash=47d1c1a8a2ff790fec72937a5a6e1db1c3622cabef6eaf34df1b4f5df840ee80
+ATTENDEE_SELECTED id=3 orientation=South
+HOVER_CAPTURE image=16-collapsed-initialized-fixture hovered=158897016792 cursor=PointingHand hash=80a7fa2258be298403e85a570887990139de83e935a2bd7e452511b32b592c64
+ATTENDEE_SELECTED id=3 orientation=South
+HOVER_CAPTURE image=17-empty-ground hovered=0 cursor=Arrow hash=47d1c1a8a2ff790fec72937a5a6e1db1c3622cabef6eaf34df1b4f5df840ee80
+FARM_SELECTION_CLEARED
+HOVER_CAPTURE image=18-readiness-multiple-blockers hovered=0 cursor=Arrow hash=ed88bd718ebe3584c51c06397ed303771898b345b97db921d7e43999ccc968e5
+HOVER_CAPTURE image=19-readiness-selected-hover-programme hovered=0 cursor=Arrow hash=ed88bd718ebe3584c51c06397ed303771898b345b97db921d7e43999ccc968e5
+HOVER_CAPTURE image=20-readiness-staff-only hovered=0 cursor=Arrow hash=f2bd1b3b30610de4c3e5456189f039fac83a54ff074a71dc12ce12e472a1da81
+HOVER_CAPTURE image=21-readiness-ready-optional-normal hovered=0 cursor=Arrow hash=ffccbefc38b44195eba91414876f78a8e4dabdadd119f212dd40af021ae5fe62
+PERK_CAPTURE_SETUP fixture=capacity inserted_owned=4 production_choice=5 extra_tap=production_placement
+HOVER_CAPTURE image=22-replacement-selection hovered=0 cursor=Arrow hash=f2736924537b16ea8d874b653b01b5756ed099fbf91028870db7d13d6ac6b23b
+HOVER_CAPTURE image=23-replacement-confirmation hovered=0 cursor=Arrow hash=f2736924537b16ea8d874b653b01b5756ed099fbf91028870db7d13d6ac6b23b
+HOVER_CAPTURE image=24-owned-reopened-after-cancel hovered=0 cursor=Arrow hash=1b7d7f5a388c792b6202996a783992bdeae47812f408ded9e207af3e01921c3d
+HOVER_CAPTURE_COMPLETE native=True shared_ray=True actual_vendor_water=True ui_occlusion=True modal=True placement_priority=True independent_selection=True missing_visual_clear=True collapsed_initialized_fixture=True save_restore_exact=True readiness_multiple_to_ready=True owned_empty_partial_full=True replacement_cancel_exact=True collapse_reopen_exact=True content=0e6fa18d57decc54430afd5931e220b4477aa7cf793859883fc337ad600baa18

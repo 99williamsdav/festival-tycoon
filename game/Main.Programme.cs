@@ -41,6 +41,7 @@ public partial class Main
             _programmeControls.AddChild(LabelText(windows[slot], 13, new Color("29352c")));
             var index = slot;
             var choice = new OptionButton { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+            RegisterHoverPopup(choice);
             choice.AddThemeFontSizeOverride("font_size", 13);
             choice.ItemSelected += selected =>
             {

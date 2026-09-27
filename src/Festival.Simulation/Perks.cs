@@ -14,7 +14,7 @@ public static class PerkCatalogue
         new("smooth-operators", "Smooth Operators", "All stewards walk faster and gain calming and confrontation skill."),
         new("first-responders", "First Responders", "All medics walk faster and treat more quickly."),
         new("something-in-the-water", "Something in the Water", "Drinking free water improves satisfaction."),
-        new("thirsty-crowd", "Thirsty Crowd", "Guests grow thirsty faster. A mixed blessing with water satisfaction.")
+        new("thirsty-crowd", "Thirsty Crowd", "Guests grow thirsty faster.")
     ];
 }
 // This RNG is deliberately separate from the established stream collection: adding an enum

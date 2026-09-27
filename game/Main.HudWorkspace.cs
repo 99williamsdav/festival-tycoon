@@ -63,7 +63,7 @@ public partial class Main
         foreach (var type in new[] { "Button", "OptionButton" })
         {
             foreach (var state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
-                theme.SetStylebox(state, type, HudStyle(new Color(state == "pressed" ? "e5d5aa" : state == "disabled" ? "eee2be" : "fff6df"), 7));
+                theme.SetStylebox(state, type, HudStyle(new Color(state == "hover" ? "d3e8df" : state == "pressed" ? "e5d5aa" : state == "disabled" ? "eee2be" : "fff6df"), 7));
             theme.SetColor("font_color", type, HudInk);
             theme.SetColor("font_hover_color", type, HudInk);
             theme.SetColor("font_pressed_color", type, HudInk);
@@ -120,7 +120,7 @@ public partial class Main
         var workspaceBox = new VBoxContainer(); workspaceBox.AddThemeConstantOverride("separation", 12); _hudWorkspace.AddChild(workspaceBox);
         var heading = new HBoxContainer(); workspaceBox.AddChild(heading);
         var title = HudLabel("Prepare the festival", 25); title.AddThemeFontOverride("font", HearingSerif()); heading.AddChild(title);
-        heading.AddChild(ButtonText("Collapse ▴", () => { _hudWorkspaceOpen = false; RefreshHudWorkspace(); }));
+        heading.AddChild(ButtonText("Collapse preparation", () => { _hudWorkspaceOpen = false; RefreshHudWorkspace(); }));
         _hudTabs = new TabContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill }; workspaceBox.AddChild(_hudTabs);
         foreach (var name in new[] { "Overview", "Programme", "Staff", "Equipment", "Stock", "Site & water" })
         {
@@ -129,6 +129,9 @@ public partial class Main
             var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; box.AddThemeConstantOverride("separation", 12); scroll.AddChild(box); _hudPages.Add(name, box);
         }
         _hudTabs.TabChanged += _ => RefreshHudWorkspace();
+        // A per-tab red border and underline leave the native selected/hover text legible.
+        // The title and tooltip convey the same requirement without relying on colour.
+        _hudTabs.GetTabBar().Draw += DrawHudPreparationBlockers;
         var overview = _hudPages["Overview"];
         overview.AddThemeConstantOverride("separation", 6);
         overview.AddChild(HudLabel("Before opening", 21));
@@ -168,10 +171,11 @@ public partial class Main
         _hudStartConfirmation.GetLabel().AddThemeColorOverride("font_color", HudPaper);
         foreach (var button in new[] { _hudStartConfirmation.GetOkButton(), _hudStartConfirmation.GetCancelButton() })
         {
+            button.MouseEntered += () => button.MouseDefaultCursorShape = button.Disabled ? Control.CursorShape.Arrow : Control.CursorShape.PointingHand;
             foreach (var state in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color" })
                 button.AddThemeColorOverride(state, HudInk);
             foreach (var state in new[] { "normal", "hover", "pressed", "focus" })
-                button.AddThemeStyleboxOverride(state, HudStyle(HudPaper, 8));
+                button.AddThemeStyleboxOverride(state, HudStyle(state == "hover" ? new Color("d3e8df") : HudPaper, 8));
         }
         _hudStartConfirmation.Confirmed += PreparationStart; layer.AddChild(_hudStartConfirmation);
 
@@ -302,9 +306,11 @@ public partial class Main
         _contextPanel!.Position = new Vector2(GetViewport().GetVisibleRect().Size.X - 300, y);
         _contextPanel.Size = new Vector2(300, Math.Min(380, GetViewport().GetVisibleRect().Size.Y - y - 60));
         var issue = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand()));
-        _hudStartReason!.Text = issue?.Message ?? "Ready to open. Equipment and stock remain optional.";
-        if (_session.CaptureProgramme() is not null && _hudStartReason.Text == "Book one act and one worker for the fixed protected roster.")
-            _hudStartReason.Text = "Book three different acts and hire one sound shift before opening.";
+        var blockers = _session.GetPreparationStartBlockers();
+        _hudStartReason!.Text = issue is null ? "Ready to open. Equipment and stock remain optional."
+            : preparing && _session.CapturePerks()?.Pending != true && blockers.Count != 0
+                ? string.Join("\n", blockers.Select(blocker => blocker.Message)) : issue.Message;
+        RefreshHudPreparationReadiness();
         _preparationStart.TooltipText = _hudStartReason.Text;
         _hudRetry!.Visible = _preparationSaveBlocked;
         _hudPrototypeSection!.Visible = preparing && _hudPrototypeOpen && _session.CapturePerks() is null;
@@ -323,6 +329,36 @@ public partial class Main
             if (_disorderButtons.TryGetValue(DisorderAction.DispatchSecurity, out var stewardButton)) stewardButton.Text = "Dispatch Jordan";
         }
         RefreshHudAlerts();
+    }
+
+    private void RefreshHudPreparationReadiness()
+    {
+        if (_hudTabs is null) return;
+        var blockers = _session.GetPreparationStartBlockers();
+        var names = _hudPages.Keys.ToArray();
+        for (var index = 0; index < names.Length; index++)
+        {
+            var name = names[index];
+            var reasons = blockers.Where(blocker => blocker.Owner.ToString() == name).Select(blocker => blocker.Message).ToArray();
+            _hudTabs.SetTabTitle(index, reasons.Length == 0 ? name : name + " !");
+            _hudTabs.SetTabTooltip(index, reasons.Length == 0 ? name : "Required before Start festival: " + string.Join("\n", reasons));
+        }
+        _hudTabs.GetTabBar().QueueRedraw();
+    }
+
+    private void DrawHudPreparationBlockers()
+    {
+        if (_hudTabs is null) return;
+        var bar = _hudTabs.GetTabBar();
+        var names = _hudPages.Keys.ToArray();
+        foreach (var blocker in _session.GetPreparationStartBlockers())
+        {
+            var index = Array.IndexOf(names, blocker.Owner.ToString());
+            if (index < 0) continue;
+            var rect = bar.GetTabRect(index);
+            bar.DrawRect(new Rect2(rect.Position + new Vector2(1, 1), rect.Size - new Vector2(2, 2)), new Color("a52e32"), false, 2);
+            bar.DrawRect(new Rect2(rect.Position + new Vector2(3, rect.Size.Y - 5), new Vector2(rect.Size.X - 6, 4)), new Color("a52e32"));
+        }
     }
 
     private void RefreshHudAlerts()

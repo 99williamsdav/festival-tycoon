@@ -242,6 +242,13 @@ public partial class Main : Node
 
     public override void _Process(double delta)
     {
+        try { ProcessPresentationFrame(delta); }
+        catch(Exception error) when (_hoverCaptureDirectory is not null)
+        { GD.PushError("HOVER_CAPTURE_FAILED presentation=" + error); _hoverCaptureDirectory=null;GetTree().Quit(2); }
+    }
+
+    private void ProcessPresentationFrame(double delta)
+    {
         if (_equipmentPerformanceOutput is not null) _equipmentCallbackStarted = Stopwatch.GetTimestamp();
         if (_middleDragging && !Input.IsMouseButtonPressed(MouseButton.Middle)) _middleDragging = false;
         var input = Vector2.Zero;
@@ -284,6 +291,8 @@ public partial class Main : Node
         ProcessPerkCapture();
         ProcessLayoutPolishCapture();
         ProcessStartSplashCapture();
+        UpdateHoverFeedback(GetViewport().GetMousePosition());
+        ProcessHoverCapture();
     }
 
     public override void _Input(InputEvent inputEvent)
@@ -320,6 +329,7 @@ public partial class Main : Node
         }
         else if (inputEvent is InputEventMouseButton mouse)
         {
+            if (WorldInputOccluded(mouse.Position)) return;
             if (_placingImmersionVendor is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Right) { CancelImmersionPlacement(); return; }
             if (_placingImmersionVendor is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left) { CommitImmersionPlacement(mouse.Position); return; }
             if (mouse.ButtonIndex == MouseButton.WheelUp && mouse.Pressed) Zoom(-4);
@@ -374,6 +384,7 @@ public partial class Main : Node
             }, Visible = false,
         };
         AddChild(_highlight);
+        BuildHoverFeedback();
         _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 62, Current = true };
         AddChild(_camera);
     }
@@ -675,6 +686,7 @@ public partial class Main : Node
         plannerBox.AddChild(ButtonText("RENAME", CampaignRename));
         plannerBox.AddChild(LabelText("Paper tab colour", 14, ink));
         _campaignPaletteOption = new OptionButton { CustomMinimumSize = new Vector2(0, 40) };
+        RegisterHoverPopup(_campaignPaletteOption);
         foreach (var value in Enum.GetValues<FestivalPalette>()) _campaignPaletteOption.AddItem(value.ToString());
         _campaignPaletteOption.ItemSelected += CampaignPaletteSelected; plannerBox.AddChild(_campaignPaletteOption);
         plannerBox.AddChild(new HSeparator());
@@ -801,7 +813,11 @@ public partial class Main : Node
 
     private static Button ButtonText(string text, Action action)
     {
-        var button = new Button { Text = text, CustomMinimumSize = new Vector2(68, 38) }; button.Pressed += action; return button;
+        var button = new Button { Text = text, CustomMinimumSize = new Vector2(68, 38) };
+        if (text.StartsWith("Collapse", StringComparison.OrdinalIgnoreCase))
+        { button.Text = "×"; button.TooltipText = text; button.CustomMinimumSize = new Vector2(38,38); }
+        button.MouseEntered += () => button.MouseDefaultCursorShape = button.Disabled ? Control.CursorShape.Arrow : Control.CursorShape.PointingHand;
+        button.Pressed += action; return button;
     }
 
     private void ApplyCamera()
@@ -826,12 +842,9 @@ public partial class Main : Node
 
     private void Pick(Vector2 screenPosition)
     {
+        if (WorldInputOccluded(screenPosition)) return;
         _selectedImmersionVendor = null;
-        var origin = _camera.ProjectRayOrigin(screenPosition);
-        var query = PhysicsRayQueryParameters3D.Create(origin, origin + _camera.ProjectRayNormal(screenPosition) * 250); query.CollisionMask = 1;
-        var result = _camera.GetWorld3D().DirectSpaceState.IntersectRay(query);
-        if (!result.ContainsKey("collider")) { ClearSelection(); return; }
-        var collider = result["collider"].AsGodotObject() as CollisionObject3D;
+        var collider = ResolveWorldHit(screenPosition);
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
         else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
@@ -1129,6 +1142,8 @@ public partial class Main : Node
                 _sharedWorldOutputPath = ProjectSettings.GlobalizePath(args[++i]);
                 _sharedWorldFixture = SharedWorldFeasibilityFixture.Create();
             }
+            else if (args[i] == "--capture-r005i-hover" && i + 1 < args.Length)
+            { _hoverCaptureDirectory = args[++i]; Directory.CreateDirectory(_hoverCaptureDirectory); }
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
@@ -1369,7 +1384,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
+    private string SaveDirectory => _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :
