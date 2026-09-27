@@ -1,0 +1,27 @@
+passed ExactStarBoundaries (0,1) (4ms)
+passed ExactStarBoundaries (1999,1) (0ms)
+passed ExactStarBoundaries (2000,2) (0ms)
+passed ExactStarBoundaries (3999,2) (0ms)
+passed ExactStarBoundaries (4000,3) (0ms)
+passed ExactStarBoundaries (5999,3) (0ms)
+passed ExactStarBoundaries (6000,4) (0ms)
+passed ExactStarBoundaries (7999,4) (0ms)
+passed ExactStarBoundaries (8000,5) (0ms)
+passed ExactStarBoundaries (10000,5) (0ms)
+passed NoGuestsIsUnratedAndRoundingCannotChangeBoundary (0ms)
+passed NaturalDepartureFrozenReportAndActualFileReload (8s 969ms)
+passed BeerPartialGuestCompletionAndPerformerExclusionAreExact (593ms)
+passed LedgerOperatingProfitExcludesOpeningFundsAndCapital (7s 400ms)
+passed LegacyNullMetricsPreserveCanonicalHashAndInvalidCompletionRejected (441ms)
+passed ActualExitTickDeathPrecedesDepartureAndRetryClearsMetrics (6s 852ms)
+passed FinalSettlementSaveFailureDoesNotPublishAndOrdinaryDepartureDoesNotAutosave (9s 447ms)
+passed EarlyUnhappyGuestRetainedInFinalMeanAndHistory (9s 099ms)
+passed ActualMedicalCollapseCountsOnceAndFightKnockoutDoesNotCount (7s 388ms)
+passed FightMetricUsesOneActualEncounterIncludingGuestAndExcludesPerformerPair (411ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 20
+  failed: 0
+  succeeded: 20
+  skipped: 0
+  duration: 50s 714ms

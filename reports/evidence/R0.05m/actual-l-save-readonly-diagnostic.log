@@ -1,0 +1,11 @@
+
+BeforeFileSHA256       : F56502BE6F8552ED85D78B4AC0B736206D080D073FC267878ED454CE8FA8972B
+AfterFileSHA256        : F56502BE6F8552ED85D78B4AC0B736206D080D073FC267878ED454CE8FA8972B
+Build                  : 0.0.1-r0.05l-staff-autonomy-v1
+Content                : 0e6fa18d57decc54430afd5931e220b4477aa7cf793859883fc337ad600baa18
+Ruleset                : r0-staff-autonomy-v1
+MatchingHeaderReadable : True
+LoadError              :
+CanonicalHash          : eb717aa672b14fd84c652c59ed6b2b40a533d0110270d9374f58888138a7a0a9
+NewMRejected           : True
+NewMReason             : Ruleset hash mismatch: save 'r0-staff-autonomy-v1', expected 'r0-results-v1'. Explicit migration or matching ruleset is required.

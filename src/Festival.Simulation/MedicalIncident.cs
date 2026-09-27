@@ -864,6 +864,7 @@ public sealed partial class GameSession
             _medical = _medical! with { Stage = MedicalStage.Collapsed, CollapseTick = CurrentTick,
                 ResponseStage = m.ResponseStage == MedicalResponseStage.Removing ? MedicalResponseStage.None : m.ResponseStage };
             MedicalEvent("medical:collapse", "Guest collapsed after visible distress; untreated response window remains.");
+            RecordGuestMedicalCollapse(m.AtRiskGuestId);
         }
         m = _medical!;
         if (m.Stage == MedicalStage.Collapsed && CurrentTick >= m.CollapseTick + MedicalCriticalDelayTicks)
@@ -908,6 +909,7 @@ public sealed partial class GameSession
                 SetNeed(need.AgentId, item => item with { Stage = MedicalStage.Collapsed, CollapseTick = CurrentTick,
                     Intent = MedicalIntent.Collapsed, Reason = "Collapsed; needs physical medic response", QueueSlot = null });
                 MedicalEvent("medical:collapse", $"Performer {need.AgentId} collapsed after visible distress.");
+                RecordGuestMedicalCollapse(need.AgentId);
             }
             need = _medical!.Needs.Single(item => item.AgentId == performer.AgentId);
             if (need.Stage == MedicalStage.Collapsed && CurrentTick >= need.CollapseTick + MedicalCriticalDelayTicks)

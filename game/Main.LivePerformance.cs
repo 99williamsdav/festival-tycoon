@@ -152,7 +152,8 @@ public partial class Main
             var next = _session.UpcomingFestivalAct;
             var remaining = compactProgramme is not null ? Math.Max(0, compactProgramme.SlotEndTick - _session.CurrentTick) : Math.Max(0, live.StartedTick + GameSession.LiveSetDurationTicks - _session.CurrentTick);
             _liveSetCue.Text = $"ON STAGE · {live.Stage}\n{act?.Name ?? (_session.PreparedStatus == PreparationStatus.Preparing ? "Awaiting booking" : "Booked act")}\n" +
-                (live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted ? $"{FestivalGenreName(act?.Genre ?? 0)} · {HudTime(remaining)} remaining" : compactProgramme?.Status ?? "Performers approaching stage") +
+                (live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted ? $"{FestivalGenreName(act?.Genre ?? 0)} · {HudTime(remaining)} remaining" :
+                    _session.PreparedStatus == PreparationStatus.Departing ? "Final set finished · physical departures in progress" : compactProgramme?.Status ?? "Performers approaching stage") +
                 $"\n\nNEXT · {(_session.UpcomingFestivalTick < 0 ? "—" : HudTime(_session.UpcomingFestivalTick - _session.CapturePreparation()!.StartedTick))}\n{next?.Name ?? "No further set"}";
         }
     }

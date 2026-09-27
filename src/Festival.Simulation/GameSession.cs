@@ -358,6 +358,7 @@ public sealed partial class GameSession
             if (MedicalOperationsActive) AdvanceImmersion();
             ReleaseFrozenStaffClaims();
             AdvanceStaffAutonomy();
+            FinalizeFestivalDeparture();
             if (_preparation?.Status is PreparationStatus.Departing or PreparationStatus.Finished) CleanupImmersionDeparture();
             if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished) break;
         }
@@ -624,6 +625,8 @@ public sealed partial class GameSession
         if(snapshot.Preparation is {} postPrep && new[]{postPrep.FirstAidPlacement,postPrep.StewardPostPlacement}.Any(p=>p is not null && (p.QuarterTurns is <0 or >3 || p.Cell.X is <0 or >255 || p.Cell.Z is <0 or >255)))return "Saved response post scalar fields invalid.";
         var preparationError = ValidatePersistedPreparation(snapshot.Preparation, snapshot);
         if (preparationError is not null) return preparationError;
+        var resultError = ValidateFestivalResult(snapshot);
+        if (resultError is not null) return resultError;
         var responsePostError = ValidatePersistedResponsePosts(snapshot);
         if(responsePostError is not null)return responsePostError;
         var perkError = ValidatePersistedPerks(snapshot);

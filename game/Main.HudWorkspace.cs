@@ -289,6 +289,7 @@ public partial class Main
         if (placing) _hudWorkspaceOpen = false;
         var finance = _session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);
         _hudPhase!.Text = $"Lower Wittering\n{(preparing ? "PREPARATION · BEFORE OPENING" : "LIVE · FESTIVAL DAY")}";
+        if (p.Status == PreparationStatus.Departing) _hudPhase.Text = "Lower Wittering\nDEPARTING · FESTIVAL FINISHED";
         _hudMoney.Text = $"MONEY\n{FestivalCurrency.Format(finance.CashPennies)}";
         _hudClock!.Text = preparing ? "FESTIVAL CLOCK\nNot started" : $"FESTIVAL CLOCK\n{HudTime(_session.CurrentTick - p.StartedTick)} / {(_session.CaptureProgramme() is null ? "08:00" : "05:00")}";
         _hudAttendance!.Text = preparing ? $"ON SITE\n{_session.ExpectedPreparedPeopleCount} expected" : $"ON SITE\n{p.People.Count(person => person.Admitted && !person.Departed)} / {p.People.Length}";
@@ -296,6 +297,8 @@ public partial class Main
         _hudPause!.Visible = !preparing; _hudPause.Text = _preparationSaveBlocked ? "Save blocked" : _session.IsPaused ? "Resume" : "Pause";
         _hudPause.TooltipText = _preparationSaveBlocked ? "Simulation paused until the pending save succeeds. Open Menu → Retry save." : "Pause / resume (Space)";
         _hudStatus!.Text = placing && !_preparationSaveBlocked ? "Placement preview · no change until a valid click" : _preparationMessage;
+        if (p.Status == PreparationStatus.Departing && !_preparationSaveBlocked)
+            _hudStatus.Text = $"Festival finished · Guests leaving: {p.People.Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed)}";
         _hudStatus.TooltipText = _preparationMessage;
         _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
         LayoutOwnedPerkWorkspace();

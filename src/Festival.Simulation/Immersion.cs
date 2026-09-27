@@ -200,6 +200,8 @@ public sealed partial class GameSession
                 var enjoyment = held.Product == ImmersionProduct.Chips ? 100 : held.Product == ImmersionProduct.SoftDrink ? 75 : 150*p.BeerTaste/100;
                 var gain = elapsed*enjoyment/duration-held.ConsumedTicks*enjoyment/duration;
                 _preparation = _preparation with { People = _preparation.People.Select(person => person.AgentId == p.AgentId ? person with { Satisfaction = Math.Min(10000,person.Satisfaction+gain) } : person).ToArray() };
+                if (elapsed == duration && held.Product == ImmersionProduct.Beer && _preparation.FinishedBeerIds is { } finished && _preparation.People.Any(person => person.AgentId == p.AgentId && person.Role == ProtectedPersonRole.Guest && person.Admitted))
+                    _preparation = _preparation with { FinishedBeerIds = finished.Append(held.TransactionId).ToArray() };
                 p = p with { Held = elapsed == duration ? null : held with { ConsumedTicks = elapsed } };
             }
             if (p.Intoxication >= 7500 && p.WarningTick < 0) { p = p with { WarningTick = CurrentTick }; MedicalEvent("intoxication:warning", $"Person {p.AgentId}: heavy intoxication {p.Intoxication}; no further beer served, water, rest and medic available."); }
@@ -220,6 +222,7 @@ public sealed partial class GameSession
                 SetNeed(p.AgentId,n=>n with { Stage=MedicalStage.Collapsed,WarningTick=p.WarningTick,CollapseTick=CurrentTick,Intent=MedicalIntent.Collapsed,Reason="Intoxication collapse; physical medic response required" });
                 if (p.AgentId==_medical.AtRiskGuestId) _medical=_medical with { Stage=MedicalStage.Collapsed,WarningTick=p.WarningTick,CollapseTick=CurrentTick };
                 MedicalEvent("intoxication:collapse",$"Person {p.AgentId}: exposure continuously above8500 for20s after warning {p.WarningTick}; critical and fatal response deadlines begin now.");
+                RecordGuestMedicalCollapse(p.AgentId);
             }
             if (p.VendorId is not null && (p.Order is not { } order || !ImmersionOrderEligible(p,order))) { LeaveImmersionQueue(p.AgentId,ImmersionShoppingEligible(p.AgentId)); continue; }
             if (p.Held is null && p.VendorId is null && CurrentTick%80 == (long)(p.AgentId%80) && CurrentTick-p.LastDecisionTick >= 800 && ImmersionShoppingEligible(p.AgentId))

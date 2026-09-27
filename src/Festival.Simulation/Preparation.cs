@@ -40,6 +40,12 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public PreparationPlan? Plan { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PreparationSetupPayment[]? SetupPayments { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string[]? FinishedBeerIds { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? GuestMedicalCollapses { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public FestivalResult? Result { get; init; }
 }
 public sealed record AcceptPreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record StartPreparedEditionCommand : SessionCommand;
@@ -465,7 +471,7 @@ public sealed partial class GameSession
                 }
                 people[index] = person with { Admitted = true, Satisfaction = satisfaction, MusicRisk = 0 };
             }
-            if (p.Status == PreparationStatus.Departing && !person.Departed && ImmersionCanMarkDeparted(person.AgentId, index))
+            if (p.FinishedBeerIds is null && p.Status == PreparationStatus.Departing && !person.Departed && ImmersionCanMarkDeparted(person.AgentId, index))
                 people[index] = person with { Departed = true };
         }
         _preparation = p = p with { People = people, StockConsumed = consumed };
@@ -486,7 +492,7 @@ public sealed partial class GameSession
             _preparation = p with { Status = PreparationStatus.Departing };
             Phase = SessionPhase.Egress;
         }
-        else if (p.Status == PreparationStatus.Departing && transitionAtStart)
+        else if (p.FinishedBeerIds is null && p.Status == PreparationStatus.Departing && transitionAtStart)
         {
             _preparation = p with { Status = PreparationStatus.Finished, Rentals = [], WorkContracts = [] };
             if (p.CommunityShareAttempt == p.Attempt && !p.CommunityFavourClaimed && _lifecycle is { } lifecycle)
@@ -546,6 +552,7 @@ public sealed partial class GameSession
         _preparation = p with
         {
             Attempt = p.Attempt + 1, Status = PreparationStatus.Preparing, AcceptedOffers = [],
+            FinishedBeerIds = p.FinishedBeerIds is null ? null : [], GuestMedicalCollapses = p.GuestMedicalCollapses is null ? null : 0, Result = null,
             Rentals = [], WorkContracts = [], StartedTick = 0, StockConsumed = 0,
             People = baseline._preparation!.People
             ,Plan = p.Plan is null ? null : EmptyPreparationPlan()

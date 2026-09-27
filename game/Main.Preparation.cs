@@ -115,7 +115,7 @@ public partial class Main
         CancelWaterPlacement();
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
         if (_session.CapturePreparationPlan() is not null && result.IsSuccess &&
-            (result.Session!.CapturePreparation() is not { Version: 2, Plan: not null } || _session.StaffAutonomyEnabled && !result.Session.StaffAutonomyEnabled))
+            (result.Session!.CapturePreparation() is not { Version: 2, Plan: not null } || _session.StaffAutonomyEnabled && !result.Session.StaffAutonomyEnabled || _session.FestivalResultsEnabled && !result.Session.FestivalResultsEnabled))
         {
             _preparationMessage = "This save uses the paid preparation diagnostic model. Load it in its matching diagnostic mode; start a fresh normal campaign for the editable unpaid plan.";
             RefreshPreparationHud();
@@ -220,6 +220,7 @@ public partial class Main
         RefreshHearingHud();
         RefreshHudWorkspace();
         RefreshPerkHud();
+        RefreshFestivalPaper();
     }
 
     private void RebuildPreparationOffers()
@@ -249,7 +250,7 @@ public partial class Main
     private void AdvancePreparationPresentation(double delta)
     {
         var workStarted = Stopwatch.GetTimestamp();
-        _foundationClock.IsPaused = _session.IsPaused || _preparationSaveBlocked || _session.CapturePreparation()!.Status is not (PreparationStatus.Running or PreparationStatus.Departing);
+        _foundationClock.IsPaused = _resultsCaptureDirectory is not null || _session.IsPaused || _preparationSaveBlocked || _session.CapturePreparation()!.Status is not (PreparationStatus.Running or PreparationStatus.Departing);
         if (_equipmentPerformanceOutput is not null) { _equipmentDeltaMs = delta * 1000; _equipmentDebtBefore = _foundationClock.DebtTicks; }
         var ticks = _foundationClock.Schedule(delta);
         if (_equipmentPerformanceOutput is not null) _equipmentScheduledTicks = ticks;
@@ -282,6 +283,14 @@ public partial class Main
         {
             var position = _foundationPresentation.Sample(agent.Id, _foundationClock.InterpolationFraction);
             var visual = _attendeeVisuals[agent.Id];
+            if (_session.CapturePreparation()!.People.Any(person => person.AgentId == agent.Id.Value && person.Departed))
+            {
+                visual.Hide();
+                foreach (var key in _attendeePickRegistry.Where(pair => pair.Value == agent.Id).Select(pair => pair.Key).ToArray()) _attendeePickRegistry.Remove(key);
+                foreach (var body in visual.FindChildren("*", "StaticBody3D", true, false)) if (body is StaticBody3D collider) collider.CollisionLayer = 0;
+                if (_selectedAttendeeId == agent.Id) ClearSelection();
+                continue;
+            }
             var renderedPosition = new Vector3((float)(position.XMillimetres / 1000), 0.04f, (float)(position.ZMillimetres / 1000));
             visual.Position = renderedPosition;
             if (agent.Id == casualtyId || collapsed.Contains(agent.Id))
@@ -303,7 +312,7 @@ public partial class Main
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceIncidentAudioPresentation();
         ProcessLivePerformanceCapture();
-        if (_autosaveScheduler.Advance(delta))
+        if (_session.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing && _autosaveScheduler.Advance(delta))
         {
             var result = AutosaveRotation.Save(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
             if (result.IsSuccess) _autosaveGeneration++;

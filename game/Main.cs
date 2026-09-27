@@ -125,7 +125,9 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private SaveCompatibility _saveCompatibility => _session?.StaffAutonomyEnabled == true
+    private SaveCompatibility _saveCompatibility => _session?.FestivalResultsEnabled == true
+        ? new("0.0.1-r0.05m-results-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-results-v1")
+        : _session?.StaffAutonomyEnabled == true
         ? new("0.0.1-r0.05l-staff-autonomy-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-staff-autonomy-v1")
         : new("0.0.1-r0.05k-unpaid-plan-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-editable-preparation-v1");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
@@ -186,7 +188,7 @@ public partial class Main : Node
                 _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null || _liveCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
-                _postCaptureDirectory is not null || _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreateEditableCampaign(20260922);
+                _postCaptureDirectory is not null || _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreateResultsCampaign(20260922);
         }
         if (_hearingCaptureDirectory is not null)
         {
@@ -302,6 +304,7 @@ public partial class Main : Node
         ProcessResponsePostCapture();
         ProcessPreparationPlanCapture();
         ProcessStaffAutomationCapture();
+        ProcessResultsCapture();
     }
 
     public override void _Input(InputEvent inputEvent)
@@ -314,6 +317,7 @@ public partial class Main : Node
 
     public override void _UnhandledInput(InputEvent inputEvent)
     {
+        if (_festivalPaper is not null || _startSplash is not null) return;
         if (_perkPanel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && _perkPanel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
         if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null || _campaignCaptureDirectory is not null) return;
@@ -915,6 +919,7 @@ public partial class Main : Node
 
     private void SelectAttendee(EntityId id)
     {
+        if (_session.CapturePreparation()?.People.Any(person => person.AgentId == id.Value && person.Departed) == true) return;
         if (!_attendeeVisuals.TryGetValue(id, out var visual))
         {
             GD.Print($"ATTENDEE_SELECTION_UNAVAILABLE id={id.Value} no physical visual yet");
@@ -1035,6 +1040,8 @@ public partial class Main : Node
             { _financeCaptureDirectory = args[++i]; Directory.CreateDirectory(_financeCaptureDirectory); }
             else if (args[i] == "--capture-r005e-vendor-row" && i + 1 < args.Length)
             { _vendorRowCaptureDirectory = args[++i]; Directory.CreateDirectory(_vendorRowCaptureDirectory); }
+            else if (args[i] == "--capture-r005m-results" && i + 1 < args.Length)
+            { _resultsCaptureDirectory = args[++i]; Directory.CreateDirectory(_resultsCaptureDirectory); }
             else if (args[i] == "--capture-r005e-queues" && i + 1 < args.Length)
             { _organicQueueCaptureDirectory = args[++i]; Directory.CreateDirectory(_organicQueueCaptureDirectory); }
             else if (args[i] == "--capture-r005e-intoxication" && i + 1 < args.Length)
@@ -1414,7 +1421,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-private string SaveDirectory => _automationCaptureDirectory is not null ? Path.Combine(_automationCaptureDirectory,"saves") : _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory,"saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory,"saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory,"saves") :
+private string SaveDirectory => _resultsCaptureDirectory is not null ? Path.Combine(_resultsCaptureDirectory,"saves") : _automationCaptureDirectory is not null ? Path.Combine(_automationCaptureDirectory,"saves") : _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory,"saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory,"saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory,"saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :
@@ -1423,7 +1430,7 @@ private string SaveDirectory => _automationCaptureDirectory is not null ? Path.C
         _staffCaptureDirectory is not null ? Path.Combine(_staffCaptureDirectory, "saves") :
         _audienceCaptureDirectory is not null ? Path.Combine(_audienceCaptureDirectory, "saves") :
         _timetableCaptureDirectory is not null ? Path.Combine(_timetableCaptureDirectory, "saves") : ProjectSettings.GlobalizePath(
-        _session?.StaffAutonomyEnabled == true ? "user://saves/r0.05l-staff-autonomy-v1" : _session?.CapturePreparationPlan() is not null ? "user://saves/r0.05k-unpaid-plan-v1" : _session?.CapturePreparation() is not null ? "user://saves/r0.05-hearing-v1" : "user://saves");
+        _session?.FestivalResultsEnabled == true ? "user://saves/r0.05m-results-v1" : _session?.StaffAutonomyEnabled == true ? "user://saves/r0.05l-staff-autonomy-v1" : _session?.CapturePreparationPlan() is not null ? "user://saves/r0.05k-unpaid-plan-v1" : _session?.CapturePreparation() is not null ? "user://saves/r0.05-hearing-v1" : "user://saves");
     private void ManualSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));

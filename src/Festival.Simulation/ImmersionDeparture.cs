@@ -86,6 +86,7 @@ public sealed partial class GameSession
                 SetNeed(person.AgentId, item => item with { Stage = MedicalStage.Collapsed, Intent = MedicalIntent.Collapsed, CollapseTick = CurrentTick });
                 if (primary) _medical = _medical with { Stage = MedicalStage.Collapsed, CollapseTick = CurrentTick };
                 MedicalEvent("medical:collapse", $"Person {person.AgentId}: existing medical warning progressed during physical departure");
+                RecordGuestMedicalCollapse(person.AgentId);
                 stage = MedicalStage.Collapsed; collapse = CurrentTick;
             }
             if (stage == MedicalStage.Collapsed && CurrentTick >= collapse + MedicalCriticalDelayTicks)
