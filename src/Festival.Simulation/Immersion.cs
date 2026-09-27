@@ -57,7 +57,8 @@ public sealed partial class GameSession
         foreach(var point in WaterPoints())foreach(var cell in LooseQueueGeometry.Corridor(CaptureWaterQueueCells(point.Id)))reserved.Add(cell);
         foreach(var vendor in _immersion!.Vendors.Where(v=>v.Id!=proposed.Id)) { foreach(var cell in ImmersionFootprint(vendor).Concat(LooseQueueGeometry.Corridor(VendorQueueCells(vendor,_immersion))))reserved.Add(cell); }
         for(var x=90;x<=101;x++)for(var z=140;z<=159;z++)reserved.Add(new(x,z));
-        for(var x=113;x<=123;x++)for(var z=116;z<=127;z++)reserved.Add(new(x,z));
+        foreach(var cell in ResponsePostReserved(_preparation))reserved.Add(cell);
+        for(var x=MedicalRestCell.X-1;x<=MedicalRestCell.X+1;x++)for(var z=MedicalRestCell.Z-1;z<=MedicalRestCell.Z+1;z++)reserved.Add(new(x,z));
         if(_equipment is { } unit) { var centre=TraversalGrid.WorldToCell(unit.XMillimetres,unit.ZMillimetres);for(var x=centre.X-5;x<=centre.X+5;x++)for(var z=centre.Z-5;z<=centre.Z+5;z++)reserved.Add(new(x,z)); }
         if(_preparation!.WaterTowerOwned)for(var x=WaterTowerCell.X-4;x<=WaterTowerCell.X+4;x++)for(var z=WaterTowerCell.Z-4;z<=WaterTowerCell.Z+4;z++)reserved.Add(new(x,z));
         var needed=ImmersionFootprint(proposed).Append(ImmersionServiceCell(proposed)).ToArray();
@@ -65,6 +66,7 @@ public sealed partial class GameSession
         var service=ImmersionServiceCell(proposed);
         if(otherCorridors.Any(cell=>Math.Abs(cell.X-service.X)<=1&&Math.Abs(cell.Z-service.Z)<=1))return "Vendor service overlaps an existing physical queue corridor.";
         if(needed.Any(c=>!terrain.Contains(c)||!terrain.Get(c).IsWalkable||reserved.Contains(c)))return "Vendor footprint or queue overlaps an obstacle, protected service or stage.";
+        if((_preparation.FirstAidPlacement is not null || _preparation.StewardPostPlacement is not null) && !PlacementAccessClear(_preparation,_equipment,_immersion with{Vendors=_immersion.Vendors.Select(v=>v.Id==proposed.Id?proposed:v).ToArray()},_medical))return "Vendor blocks a response post or essential approach.";
         var blocked=terrain.Overrides.ToDictionary(p=>p.Key,p=>p.Value);
         foreach(var vendor in _immersion.Vendors.Where(v=>v.Id!=proposed.Id).Append(proposed))foreach(var cell in ImmersionFootprint(vendor))blocked[cell]=new(cell,GroundSurface.Grass,false);
         var grid=new TraversalGrid(blocked.Values);
@@ -284,7 +286,7 @@ public sealed partial class GameSession
         {
             var cells=vendor.QueueCells!;var members=m.People.Count(person=>person.VendorId==vendor.Id);
             var reserved=geometry.WaterPoints().SelectMany(point=>LooseQueueGeometry.Corridor(geometry.CaptureWaterQueueCells(point.Id))).Concat(geometry.ImmersionQueueCorridor(vendor.Id)).ToArray();
-            if(cells.Length is <1 or >10 || cells.Length<members || cells[0]!=ImmersionServiceCell(vendor) || LooseQueueGeometry.Corridor(cells).Any(cell=>!QueueGroundAllowed(cell)) || !LooseQueueGeometry.Valid(cells,RotateWaterOffset(new(0,1),vendor.QuarterTurns),queueGrid,reserved))return "Immersion saved loose queue geometry invalid.";
+            if(cells.Length is <1 or >10 || cells.Length<members || cells[0]!=ImmersionServiceCell(vendor) || LooseQueueGeometry.Corridor(cells).Any(cell=>!QueueGroundAllowed(cell,prep)) || !LooseQueueGeometry.Valid(cells,RotateWaterOffset(new(0,1),vendor.QuarterTurns),queueGrid,reserved))return "Immersion saved loose queue geometry invalid.";
         }
         if(prep.Status!=PreparationStatus.Preparing && (s.TraversalGrid is null || m.Vendors.SelectMany(ImmersionFootprint).Any(cell=>!s.TraversalGrid.Cells.Any(c=>c.X==cell.X&&c.Z==cell.Z&&!c.IsWalkable))))return "Immersion vendor solid footprint absent from saved traversal.";
         var festival=new EntityId(prep.FinanceOwnerId);

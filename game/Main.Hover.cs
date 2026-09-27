@@ -1,6 +1,7 @@
 using Festival.Simulation;
 using Godot;
 using System;
+using System.Collections.Generic;
 
 namespace Festival.Game;
 
@@ -11,6 +12,29 @@ public partial class Main
     private Input.CursorShape _feedbackCursor;
     private PopupMenu? _hoverPopup;
     private OptionButton? _hoverPopupOwner;
+    private readonly Dictionary<ulong,(Vector3 Centre,Vector3 Scale)> _buildingHoverGeometry=[];
+    private (Vector3 Centre,Vector3 Scale) BuildingHoverGeometry(Node3D body)
+    {
+        var key=body.GetInstanceId();if(_buildingHoverGeometry.TryGetValue(key,out var cached))return cached;
+        var min=new Vector3(float.PositiveInfinity,0,float.PositiveInfinity);var max=new Vector3(float.NegativeInfinity,0,float.NegativeInfinity);
+        void Inspect(Node node)
+        {
+            if(node is MeshInstance3D mesh && mesh.Mesh is not null)
+            {
+                var box=mesh.GetAabb();
+                for(var x=0;x<2;x++)for(var y=0;y<2;y++)for(var z=0;z<2;z++)
+                {
+                    var point=body.ToLocal(mesh.ToGlobal(box.Position+box.Size*new Vector3(x,y,z)));
+                    min.X=Mathf.Min(min.X,point.X);min.Z=Mathf.Min(min.Z,point.Z);max.X=Mathf.Max(max.X,point.X);max.Z=Mathf.Max(max.Z,point.Z);
+                }
+            }
+            foreach(var child in node.GetChildren())Inspect(child);
+        }
+        Inspect(body);
+        // sqrt(2) times each half-extent encloses all corners, with a small margin.
+        var geometry=((min+max)/2,new Vector3((max.X-min.X)*.73f,.3f,(max.Z-min.Z)*.73f));
+        _buildingHoverGeometry[key]=geometry;return geometry;
+    }
     private void RegisterHoverPopup(OptionButton choice)
     {
         var popup=choice.GetPopup();
@@ -87,7 +111,9 @@ public partial class Main
             }
         if (!WorldInputOccluded(screen))
         {
-            if (_waterPlacementMode != WaterPlacementMode.None)
+            if(_movingResponsePost is not null)
+                cursor=_postCandidate is not null && _postIssue is null?Input.CursorShape.Cross:Input.CursorShape.Forbidden;
+            else if (_waterPlacementMode != WaterPlacementMode.None)
                 cursor = _waterPlacementCandidate is not null && _waterPlacementIssue is null ? Input.CursorShape.Cross : Input.CursorShape.Forbidden;
             else if (_placingImmersionVendor is not null)
                 cursor = _immersionCandidate is not null && _immersionPlacementIssue is null ? Input.CursorShape.Cross : Input.CursorShape.Forbidden;
@@ -102,8 +128,17 @@ public partial class Main
                     radius = item.Kind switch { FarmObjectKind.LargeBarn => 11.8f, FarmObjectKind.SmallBarn => 8.6f,
                         FarmObjectKind.Farmhouse => 7.6f, FarmObjectKind.TrailerStage => 6.3f, _ => 3.8f };
                 }
+                var scale=new Vector3(radius,.3f,radius);var yaw=0f;
+                if(_immersionVendorPicks.TryGetValue(key,out var vendorId))
+                {
+                    var body=_immersionVendors[vendorId];yaw=body.Rotation.Y;
+                    var geometry=BuildingHoverGeometry(body);point=body.ToGlobal(geometry.Centre);scale=geometry.Scale;
+                }
+                else if(key==_securityPostPickId){var post=_responsePostVisuals[ResponseRole.Steward];var geometry=BuildingHoverGeometry(post);yaw=post.Rotation.Y;point=post.ToGlobal(geometry.Centre);scale=geometry.Scale;}
+                else if(_medicalFacilityPicks.TryGetValue(key,out var medical) && medical.Facility==MedicalFacility.FirstAid)
+                {var tent=_responsePostVisuals[ResponseRole.Medic];var geometry=BuildingHoverGeometry(tent);yaw=tent.Rotation.Y;point=tent.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 _hoverHighlight.Position = new Vector3(point.X,.14f,point.Z);
-                _hoverHighlight.Scale = new Vector3(radius,.3f,radius); _hoverHighlight.Visible = true;
+                _hoverHighlight.Rotation=new(0,yaw,0);_hoverHighlight.Scale=scale; _hoverHighlight.Visible = true;
                 cursor = Input.CursorShape.PointingHand;
             }
         }

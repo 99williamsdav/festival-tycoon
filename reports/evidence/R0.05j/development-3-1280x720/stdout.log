@@ -1,0 +1,42 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+POST_CAPTURE_SETUP scripted_native=True manual_desktop_QA=False fixture=legacy_capacity_paid_hires accelerated_ticks=True isolated_saves=True
+MEDICAL_FACILITY_SELECTED type=FirstAid
+POST_CAPTURE image=01-first-aid-context-move mode= candidate= issue=none hover=0 scale=(1, 1, 1) centre=(0, 0, 0) yaw=0 zoom=50 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+FARM_SELECTION_CLEARED
+POST_CAPTURE image=02-valid-tent-preview mode=Medic candidate=GridCell { X = 80, Z = 120 } issue=none hover=0 scale=(1, 1, 1) centre=(0, 0, 0) yaw=0 zoom=50 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+POST_CAPTURE image=03-rotated-tent-preview mode=Medic candidate=GridCell { X = 80, Z = 120 } issue=none hover=0 scale=(1, 1, 1) centre=(0, 0, 0) yaw=0 zoom=50 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+POST_CAPTURE image=04-invalid-tent-preview mode=Medic candidate=GridCell { X = 95, Z = 123 } issue=The post or staff fronts overlap a building, service, physical queue or protected route. hover=0 scale=(1, 1, 1) centre=(0, 0, 0) yaw=0 zoom=50 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+POST_CAPTURE image=05-cancelled-tent mode= candidate= issue=none hover=39912998732 scale=(1.7, 0.3, 1.7) centre=(-16.25, 0.14, -2.25) yaw=0 zoom=50 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+POST_CAPTURE image=06-moved-tent-hover-default-zoom mode= candidate= issue=none hover=39963330383 scale=(2.45645, 0.3, 3.009426) centre=(-23.37125, 0.14, -3.75) yaw=1.5707964 zoom=50 hash=e092e31ae9057fd6245525f07f3764d189b7fac2e44cd5b46461d88572ffd99a
+MEDICAL_FACILITY_SELECTED type=FirstAid
+SECURITY_POST_SELECTED
+POST_CAPTURE image=07-steward-context-move mode= candidate= issue=none hover=44258297820 scale=(1.7374008, 0.3, 1.7009) centre=(-6.5150003, 0.14, 25.25) yaw=1.5707964 zoom=50 hash=e092e31ae9057fd6245525f07f3764d189b7fac2e44cd5b46461d88572ffd99a
+FARM_SELECTION_CLEARED
+POST_CAPTURE image=08-steward-valid-preview mode=Steward candidate=GridCell { X = 145, Z = 170 } issue=none hover=0 scale=(1.7374008, 0.3, 1.7009) centre=(-6.5150003, 0.14, 25.25) yaw=1.5707964 zoom=50 hash=e092e31ae9057fd6245525f07f3764d189b7fac2e44cd5b46461d88572ffd99a
+POST_CAPTURE image=09-steward-rotated-preview mode=Steward candidate=GridCell { X = 145, Z = 170 } issue=none hover=0 scale=(1.7374008, 0.3, 1.7009) centre=(-6.5150003, 0.14, 25.25) yaw=1.5707964 zoom=50 hash=e092e31ae9057fd6245525f07f3764d189b7fac2e44cd5b46461d88572ffd99a
+FARM_SELECTION_CLEARED
+POST_CAPTURE image=10-moved-steward-hover-default-zoom mode= candidate= issue=none hover=44258297820 scale=(1.7374008, 0.3, 1.7009) centre=(8.75, 0.14, 21.485) yaw=0 zoom=50 hash=f82b54a3478861689a7467c4fe5657bac898b4f76bcf0b796fb6864d7f0a9d5a
+SECURITY_POST_SELECTED
+FARM_SELECTION_CLEARED
+POST_CAPTURE image=11-food-hover-default-zoom mode= candidate= issue=none hover=41154512790 scale=(4.2705, 0.3, 2.0293999) centre=(7.7650003, 0.14, -4.14) yaw=0 zoom=50 hash=f82b54a3478861689a7467c4fe5657bac898b4f76bcf0b796fb6864d7f0a9d5a
+FARM_SELECTION_CLEARED
+POST_CAPTURE image=12-bar-hover-default-zoom mode= candidate= issue=none hover=42362472363 scale=(2.2548237, 0.3, 1.5850272) centre=(16.25, 0.14, -3.7181249) yaw=0 zoom=50 hash=f82b54a3478861689a7467c4fe5657bac898b4f76bcf0b796fb6864d7f0a9d5a
+FARM_SELECTION_CLEARED
+FARM_SELECTION_CLEARED
+POST_CAPTURE image=13-site-shortcut-absent-save-load mode= candidate= issue=none hover=0 scale=(2.2548237, 0.3, 1.5850272) centre=(16.25, 0.14, -3.7181249) yaw=0 zoom=50 hash=f82b54a3478861689a7467c4fe5657bac898b4f76bcf0b796fb6864d7f0a9d5a
+TIMETABLE_STATE name=checkpoint tick=1800 slot=0 phase=Live ready=3 people=34 performers=9 admitted=34 departed=0 status=Playing hash=1f9e74ffc73146586b916c84eae89700ff9361c84c73ee9bd8984f16c8d3b913
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=False
+POST_CAPTURE image=14-baseline-hired-medic-fronts mode= candidate= issue=none hover=0 scale=(2.2548237, 0.3, 1.5850272) centre=(16.25, 0.14, -3.7181249) yaw=0 zoom=50 hash=7ee124612789b09dca615136b6d229c31897538ebde879d98add24100781e885
+POST_CAPTURE image=15-baseline-hired-steward-fronts mode= candidate= issue=none hover=0 scale=(2.2548237, 0.3, 1.5850272) centre=(16.25, 0.14, -3.7181249) yaw=0 zoom=50 hash=7ee124612789b09dca615136b6d229c31897538ebde879d98add24100781e885
+POST_CAPTURE image=16-live-stable-stage-name mode= candidate= issue=none hover=0 scale=(2.2548237, 0.3, 1.5850272) centre=(16.25, 0.14, -3.7181249) yaw=0 zoom=50 hash=7ee124612789b09dca615136b6d229c31897538ebde879d98add24100781e885
+FARM_SELECTION_CLEARED
+POST_CAPTURE_COMPLETE move_rotate_cancel_invalid_commit=True exact_save_load=True loaded_preview_clear=True moved_picking=True baseline_hired_fronts_outward=True rings_four_default_zoom=True BAR=True stable_TRAILER_STAGE=True shortcut_absent=True hash=7ee124612789b09dca615136b6d229c31897538ebde879d98add24100781e885 content=0e6fa18d57decc54430afd5931e220b4477aa7cf793859883fc337ad600baa18

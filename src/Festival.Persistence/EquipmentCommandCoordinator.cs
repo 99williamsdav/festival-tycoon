@@ -9,7 +9,7 @@ public static class EquipmentCommandCoordinator
     {
         if (session.CaptureEquipment() is null || command is not (PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or EquipmentCommand or AcceptPreparationOfferCommand or
                 CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or
-                MovePrimaryWaterPointCommand or MoveWaterPointCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
+                MovePrimaryWaterPointCommand or MoveWaterPointCommand or MoveResponsePostCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return new(false, session, null, "An equipment, preparation or Council hearing action is required.");
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         if (!restored.IsSuccess) return new(false, session, null, restored.Error);

@@ -21,7 +21,7 @@ public sealed partial class GameSession
         var reserved=WaterPoints().Where(other=>other.Id!=pointId).SelectMany(other=>LooseQueueGeometry.Corridor(CaptureWaterQueueCells(other.Id))).Concat(ImmersionQueueCorridor()).ToArray();
         while (cells.Count < wanted)
         {
-            var next=LooseQueueGeometry.Extend(pointId,cells,forward,_traversalGrid!,QueueGroundAllowed,reserved);
+            var next=LooseQueueGeometry.Extend(pointId,cells,forward,_traversalGrid!,cell=>QueueGroundAllowed(cell,_preparation),reserved);
             if(next is null)break;
             cells.Add(next.Value);
         }
@@ -42,7 +42,7 @@ public sealed partial class GameSession
         });
     }
 
-    private static bool ValidSavedWaterGeometry(IReadOnlyList<WaterPointState> points, TraversalGrid? grid)
+    private static bool ValidSavedWaterGeometry(IReadOnlyList<WaterPointState> points, TraversalGrid? grid, PreparationSnapshot? prep)
     {
         static GridCell[] Cells(WaterPointState point) => point.QueueCells.Length > 0 ? point.QueueCells :
             Enumerable.Range(0, Math.Min(20, point.Queue.Length + point.Overflow.Length + 1)).Select(index =>
@@ -67,7 +67,7 @@ public sealed partial class GameSession
                 if (index == 0) { if (cell != WaterPointServiceCell(point)) return false; continue; }
                 var previous = point.QueueCells[index - 1];
                 var dx = cell.X - previous.X; var dz = cell.Z - previous.Z;
-                if(LooseQueueGeometry.Corridor([previous,cell]).Any(part=>!QueueGroundAllowed(part)))return false;
+                if(LooseQueueGeometry.Corridor([previous,cell]).Any(part=>!QueueGroundAllowed(part,prep)))return false;
                 if (Math.Abs(dx)>3 || Math.Abs(dz)>3 || Math.Max(Math.Abs(dx),Math.Abs(dz))<2 ||
                     dx * forward.X + dz * forward.Z < 0 ||
                     cell.X is >= 90 and <= 101 && cell.Z is >= 139 and <= 160) return false;

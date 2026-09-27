@@ -1,0 +1,13 @@
+ERROR: Cannot deselect tabs, deselection is not enabled.
+   at: set_current_tab (scene/gui/tab_bar.cpp:824)
+   C# backtrace (most recent call first):
+       [0] void Godot.NativeCalls.godot_icall_1_38(nint, nint, int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/NativeCalls.cs:338)
+       [1] void Godot.TabContainer.SetCurrentTab(int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/TabContainer.cs:258)
+       [2] void Godot.TabContainer.set_CurrentTab(int) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/TabContainer.cs:58)
+       [3] void Festival.Game.Main.SelectHudTab(string) (/_/game/Main.HudWorkspace.cs:271)
+       [4] void Festival.Game.Main.ProcessResponsePostCapture() (/_/game/Main.ResponsePostCapture.cs:86)
+       [5] void Festival.Game.Main.ProcessPresentationFrame(double) (/_/game/Main.cs:298)
+       [6] void Festival.Game.Main._Process(double) (/_/game/Main.cs:245)
+       [7] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [8] bool Festival.Game.Main.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/_/game/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/Festival.Game.Main_ScriptMethods.generated.cs:2960)
+       [9] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

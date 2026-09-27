@@ -182,6 +182,10 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyWaterPlacement(movePoint.Cell, movePoint.PointId, movePoint.QuarterTurns);
                 break;
+            case MoveResponsePostCommand post:
+                affectedTarget = null;
+                ApplyResponsePostPlacement(post);
+                break;
 
             case ForceFixtureSafeCompletionCommand:
                 affectedTarget = null;
@@ -611,8 +615,11 @@ public sealed partial class GameSession
         if (lifecycleError is not null) return lifecycleError;
         var programmeError = ValidatePersistedProgramme(snapshot);
         if (programmeError is not null) return programmeError;
+        if(snapshot.Preparation is {} postPrep && new[]{postPrep.FirstAidPlacement,postPrep.StewardPostPlacement}.Any(p=>p is not null && (p.QuarterTurns is <0 or >3 || p.Cell.X is <0 or >255 || p.Cell.Z is <0 or >255)))return "Saved response post scalar fields invalid.";
         var preparationError = ValidatePersistedPreparation(snapshot.Preparation, snapshot);
         if (preparationError is not null) return preparationError;
+        var responsePostError = ValidatePersistedResponsePosts(snapshot);
+        if(responsePostError is not null)return responsePostError;
         var perkError = ValidatePersistedPerks(snapshot);
         if (perkError is not null) return perkError;
         var equipmentError = ValidatePersistedEquipment(snapshot.Equipment, snapshot);
@@ -722,7 +729,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
         if (_perks is not null && envelope.Command is ApplyStaffFoundationEffectCommand or ApplyWaterFoundationEffectCommand)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Foundation demos are available only in legacy development diagnostics.");
-        if (_preparation is not null && envelope.Command is not (PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
+        if (_preparation is not null && envelope.Command is not (MoveResponsePostCommand or PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -758,6 +765,7 @@ public sealed partial class GameSession
             PlaceWaterPointCommand placeWater => ValidateWaterPlacement(envelope.TargetId, placeWater.Cell, null, placeWater.QuarterTurns),
             MovePrimaryWaterPointCommand moveWater => ValidateWaterPlacement(envelope.TargetId, moveWater.Cell, "water.main", moveWater.QuarterTurns),
             MoveWaterPointCommand movePoint => string.IsNullOrWhiteSpace(movePoint.PointId) ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Water point identity required.") : ValidateWaterPlacement(envelope.TargetId, movePoint.Cell, movePoint.PointId, movePoint.QuarterTurns),
+            MoveResponsePostCommand post => ValidateResponsePostPlacement(envelope.TargetId,post),
             ForceFixtureSafeCompletionCommand => ValidateForceFixtureSafeCompletion(envelope.TargetId),
             CreateGuestWalletCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Guest setup requires no target and nonnegative opening cash."),

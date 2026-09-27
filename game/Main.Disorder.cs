@@ -158,6 +158,8 @@ public partial class Main
         pick.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(2.38f, 3.1f, 2.33f) } });
         AddChild(pick);
         _securityPostPickId = pick.GetInstanceId();
+        _responsePostVisuals[ResponseRole.Steward]=post;_responsePostPicks[ResponseRole.Steward]=pick;
+        var postName=BuildingName("STEWARD POST",Vector3.Zero);AddChild(postName);_responsePostLabels[ResponseRole.Steward]=postName;SyncResponsePosts();
     }
 
     private void BuildSecurityPostInspectorAction(VBoxContainer parent)
@@ -167,6 +169,7 @@ public partial class Main
             SelectAttendee(new EntityId(_session.CaptureDisorder()!.SecurityId)));
         _securityPostWorkerButton.Visible = false;
         parent.AddChild(_securityPostWorkerButton);
+        _stewardMoveButton=ButtonText("Move",()=>BeginResponsePostPlacement(ResponseRole.Steward));_stewardMoveButton.Visible=false;parent.AddChild(_stewardMoveButton);
     }
 
     private void SelectSecurityPost()
@@ -179,7 +182,7 @@ public partial class Main
         RefreshMedicalNeedBars(null);
         RefreshMedicalActionInspector();
         RefreshDisorderActionInspector();
-        var centre = TraversalGrid.CellCentre(GameSession.DisorderSecurityPostCell);
+        var centre = TraversalGrid.CellCentre(_session.CaptureResponsePost(ResponseRole.Steward).Cell);
         _highlight.Position = new Vector3(centre.XMillimetres / 1000f, .08f, centre.ZMillimetres / 1000f);
         _highlight.Scale = new Vector3(2.4f, 1, 2.4f); _highlight.Visible = true;
         RefreshSecurityPostInspector();
@@ -194,6 +197,7 @@ public partial class Main
 
     private void RefreshSecurityPostInspector()
     {
+        RefreshResponsePostMoveButtons();
         if (!_selectedSecurityPost || _session.CaptureDisorder() is not { } d) return;
         var people = _session.CapturePreparation()!.People;
         var worker = people.Single(item => item.AgentId == d.SecurityId);

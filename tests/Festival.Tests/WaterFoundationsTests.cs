@@ -122,7 +122,7 @@ public sealed class WaterFoundationsTests
         for(var count=0;count<=8;count++){var medical=session.CaptureMedical()!;field.SetValue(session,medical with { WaterQueue=ids.Take(count).ToArray() });Assert.IsTrue((bool)grow.Invoke(session,["water.main"])!);}
         var point=session.CaptureWaterPoints().Single();Assert.AreEqual(9,point.QueueCells.Length);Assert.IsFalse(point.QueueCells.Any(cell=>Math.Abs(cell.X-GameSession.MedicalTentCell.X)<=3&&Math.Abs(cell.Z-GameSession.MedicalTentCell.Z)<=3));
         var grid=(TraversalGrid)typeof(GameSession).GetField("_traversalGrid",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(session)!;
-        Assert.AreEqual(true,typeof(GameSession).GetMethod("ValidSavedWaterGeometry",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,[session.CaptureWaterPoints(),grid]));
+        Assert.AreEqual(true,typeof(GameSession).GetMethod("ValidSavedWaterGeometry",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,[session.CaptureWaterPoints(),grid,session.CapturePreparation()]));
         Console.WriteLine("First-aid-directed water line grew9 stablecells outside the blocked tent body.");
     }
     [TestMethod]
@@ -210,7 +210,7 @@ public sealed class WaterFoundationsTests
         var centre = new GridCell(70, 120); var front = GameSession.WaterServiceCell(centre);
         var point = new WaterPointState("water.test", centre, [1, 2], [], null, 0)
             { GeometryVersion = 1, QueueCells = [front, new(front.X, front.Z + 2)] };
-        bool Valid(WaterPointState[] points, TraversalGrid? grid = null) => (bool)check.Invoke(null, [points, grid])!;
+        bool Valid(WaterPointState[] points, TraversalGrid? grid = null) => (bool)check.Invoke(null, [points, grid,null])!;
         Assert.IsTrue(Valid([point]));
         Assert.IsFalse(Valid([point with { QueueCells = [] }]));
         Assert.IsFalse(Valid([point with { QueueCells = [front, new(front.X, front.Z + 1)] }]));

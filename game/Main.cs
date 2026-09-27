@@ -184,7 +184,7 @@ public partial class Main : Node
                 _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null || _liveCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
-                _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreatePerkCampaign(20260922);
+                _postCaptureDirectory is not null || _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreatePerkCampaign(20260922);
         }
         if (_hearingCaptureDirectory is not null)
         {
@@ -243,7 +243,7 @@ public partial class Main : Node
     public override void _Process(double delta)
     {
         try { ProcessPresentationFrame(delta); }
-        catch(Exception error) when (_hoverCaptureDirectory is not null || _headerCaptureDirectory is not null)
+        catch(Exception error) when (_postCaptureDirectory is not null || _hoverCaptureDirectory is not null || _headerCaptureDirectory is not null)
         { GD.PushError("HOVER_CAPTURE_FAILED presentation=" + error); _hoverCaptureDirectory=null;_headerCaptureDirectory=null;GetTree().Quit(2); }
     }
 
@@ -260,6 +260,7 @@ public partial class Main : Node
         if (_waterPlacementMode != WaterPlacementMode.None && _waterPlaytestCaptureDirectory is null)
             UpdateWaterPlacementPreview(GetViewport().GetMousePosition());
         if (_placingImmersionVendor is not null) UpdateImmersionPlacementPreview(GetViewport().GetMousePosition());
+        if(_movingResponsePost is not null)UpdateResponsePostPreview(GetViewport().GetMousePosition());
         if (_session.CapturePreparation() is not null) AdvancePreparationPresentation(delta);
         else if (_sharedWorldFixture is not null) AdvanceSharedWorldFeasibility(delta);
         else if (_benchmarkFixture is not null) AdvanceRenderedBenchmark(delta);
@@ -294,6 +295,7 @@ public partial class Main : Node
         UpdateHoverFeedback(GetViewport().GetMousePosition());
         ProcessHoverCapture();
         ProcessHeaderCapture();
+        ProcessResponsePostCapture();
     }
 
     public override void _Input(InputEvent inputEvent)
@@ -311,6 +313,8 @@ public partial class Main : Node
         if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null || _campaignCaptureDirectory is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
+            if(_movingResponsePost is not null && key.Keycode==Key.Escape){CancelResponsePostPlacement();return;}
+            if(_movingResponsePost is not null && key.Keycode is Key.Comma or Key.Period){RotateResponsePost(key.Keycode==Key.Comma?-1:1);return;}
             if(key.Keycode==Key.Escape && (_pendingPerkChoice is not null || _pendingPerkSkip)){CancelPerkConfirmation();return;}
             if (_placingImmersionVendor is not null && key.Keycode == Key.Escape) { CancelImmersionPlacement(); return; }
             if (_placingImmersionVendor is not null && key.Keycode is Key.Comma or Key.Period)
@@ -331,6 +335,8 @@ public partial class Main : Node
         else if (inputEvent is InputEventMouseButton mouse)
         {
             if (WorldInputOccluded(mouse.Position)) return;
+            if(_movingResponsePost is not null && mouse.Pressed && mouse.ButtonIndex==MouseButton.Right){CancelResponsePostPlacement();return;}
+            if(_movingResponsePost is not null && mouse.Pressed && mouse.ButtonIndex==MouseButton.Left){CommitResponsePostPlacement(mouse.Position);return;}
             if (_placingImmersionVendor is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Right) { CancelImmersionPlacement(); return; }
             if (_placingImmersionVendor is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left) { CommitImmersionPlacement(mouse.Position); return; }
             if (mouse.ButtonIndex == MouseButton.WheelUp && mouse.Pressed) Zoom(-4);
@@ -1147,6 +1153,8 @@ public partial class Main : Node
             { _headerCaptureDirectory = args[++i]; Directory.CreateDirectory(_headerCaptureDirectory); }
             else if (args[i] == "--capture-r005i-hover" && i + 1 < args.Length)
             { _hoverCaptureDirectory = args[++i]; Directory.CreateDirectory(_hoverCaptureDirectory); }
+            else if(args[i]=="--capture-r005j-posts" && i+1<args.Length)
+            {_postCaptureDirectory=args[++i];Directory.CreateDirectory(_postCaptureDirectory);}
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
@@ -1387,7 +1395,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
+    private string SaveDirectory => _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :

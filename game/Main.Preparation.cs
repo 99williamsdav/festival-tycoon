@@ -86,6 +86,7 @@ public partial class Main
     {
         CancelImmersionPlacement();
         CancelWaterPlacement();
+        CancelResponsePostPlacement();
         var candidate = GameSession.Restore(_session.CapturePersistenceSnapshot());
         if (!candidate.IsSuccess) { _preparationMessage = candidate.Error!; RefreshPreparationHud(); return; }
         var command = new CommandEnvelope(new CommandId(1_010_000UL + candidate.Session!.NextSubmissionSequence),
@@ -110,6 +111,7 @@ public partial class Main
 
     private void PreparationLoad()
     {
+        CancelResponsePostPlacement();
         CancelImmersionPlacement(); ResetImmersionHeldVisuals();
         CancelWaterPlacement();
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
@@ -123,6 +125,7 @@ public partial class Main
             ResetFinanceFeedback();
             ClearSelection();
             SyncExtraWaterWorld();
+            SyncResponsePosts();
             SyncImmersionWorld();
             RefreshMedicalNeedBars(null);
             ResetLivePerformancePresentation();

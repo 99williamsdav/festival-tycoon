@@ -35,8 +35,8 @@ public partial class Main
                 foreach (var body in _immersionVendors.Values)
                 {
                     var category = body.GetNode<Label3D>("VendorCategoryLabel");
-                    if (category.Text != (body == _immersionVendors["food"] ? "FOOD" : "DRINK") ||
-                        category.FontSize != 45 || Math.Abs(category.PixelSize - .009f) > .00001f)
+                    if (category.Text != (body == _immersionVendors["food"] ? "FOOD" : "BAR") ||
+                        category.FontSize != 80 || Math.Abs(category.PixelSize - .014f) > .00001f)
                         throw new InvalidOperationException("Vendor category label must match first-aid typography, without world prices.");
                     var screen = _camera.UnprojectPosition(body.Position);
                     var track = _camera.UnprojectPosition(new Vector3(0, 0, body.Position.Z));

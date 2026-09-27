@@ -53,7 +53,7 @@ public partial class Main
         if (_liveSetCue is not null) _liveSetCue.Text = "STAGE • awaiting booking";
         if (_stageWorldCue is not null)
         {
-            _stageWorldCue.Text = "SET READY";
+            _stageWorldCue.Text = "TRAILER STAGE";
             _stageWorldCue.Modulate = new Color("f7e4a4");
         }
         if (_stageLights is not null)
@@ -79,7 +79,7 @@ public partial class Main
         if ((!hasPrevious || direction.LengthSquared() < 0.0000000001f) &&
             _session.IdleResponseStaffRole(id, position.X * 1000, position.Z * 1000) is { } idleRole)
         {
-            visual.Rotation = new Vector3(0, idleRole == ResponseRole.Medic ? Mathf.Pi : -Mathf.Pi / 2f, 0);
+            visual.Rotation = new Vector3(0, Mathf.Pi+_session.CaptureResponsePost(idleRole).QuarterTurns*Mathf.Pi/2,0);
             return;
         }
         var backstepping = hasPrevious && _session.ShouldAudienceBackstepFacingStage(id,
@@ -258,9 +258,7 @@ public partial class Main
             new OmniLight3D { Position = new Vector3(-14.5f, 2.2f, 10), OmniRange = 8,
                 LightColor = new Color("eaa8ff"), LightEnergy = 0.8f }];
         foreach (var light in _stageLights) AddChild(light);
-        _stageWorldCue = new Label3D { Position = new Vector3(-16, 3.4f, 11),
-            FontSize = 56, PixelSize = 0.011f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-            Modulate = new Color("f7e4a4"), Text = "SET READY" };
+        _stageWorldCue = BuildingName("TRAILER STAGE",new Vector3(-16,4.2f,11));
         AddChild(_stageWorldCue);
     }
 
@@ -308,16 +306,7 @@ public partial class Main
         }
         var power = _session.CaptureEquipment()?.LoadPercent ?? 80;
         var cutoffVisual = power == 0 && live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted;
-        _stageWorldCue!.Text = cutoffVisual ?
-            live.LastReaction == "sustained-boo" ? "POWER CUT • BOOS" : "POWER CUT • SILENCE" : live.Stage switch
-        {
-            LiveSetStage.Live => _stageMuted ? "LIVE SET • MUTED" : "LIVE SET",
-            LiveSetStage.Interrupted => _session.CaptureProgramme() is not null ? "SET INTERRUPTED • BAND CARE" :
-                live.LastReaction == "sustained-boo" ? "POWER CUT • BOOS" : "POWER CUT • SILENCE",
-            LiveSetStage.Finished => "SET FINISHED",
-            _ => "SET READY"
-        };
-        _stageWorldCue.Modulate = cutoffVisual ? new Color("ff7777") : new Color("f7e4a4");
+        _stageWorldCue!.Text = "TRAILER STAGE";
         foreach (var light in _stageLights!) light.LightEnergy = live.Stage == LiveSetStage.Live ?
             power == 0 ? 0 : power == 80 ? 0.35f : 0.8f : 0;
         var audible = live.Stage == LiveSetStage.Live && power > 0;

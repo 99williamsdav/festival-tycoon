@@ -31,6 +31,10 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public bool ExtraStewardSlotOwned { get; init; }
     public bool RespondersUpgraded { get; init; }
     public StaffProfile[] StaffProfiles { get; init; } = [];
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ResponsePostPlacement? FirstAidPlacement { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ResponsePostPlacement? StewardPostPlacement { get; init; }
 }
 public sealed record AcceptPreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record StartPreparedEditionCommand : SessionCommand;
@@ -113,6 +117,11 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The original standpipe is already at this site.");
         var issue = ValidateWaterPlacementCell(cell, p, movingId, _equipment, quarterTurns);
         if(issue is null && WaterOverlapsImmersion(_immersion,cell,quarterTurns))issue="Water overlaps a placed food/drink vendor or its queue.";
+        if(issue is null && (p.FirstAidPlacement is not null || p.StewardPostPlacement is not null))
+        {
+            var proposed=movingId=="water.main"?p with{PrimaryWaterCell=cell,PrimaryWaterQuarterTurns=quarterTurns,PrimaryWaterGeometryVersion=1}:p with { ExtraWaterSiteIds=p.ExtraWaterSiteIds.Where(id=>id!=movingId).Append(movingId??"water.proposed").ToArray(),WaterPlacements=EffectiveWaterPlacements(p).Where(w=>w.Id!=movingId).Append(new(movingId??"water.proposed",cell){QuarterTurns=quarterTurns,GeometryVersion=1}).ToArray() };
+            if(!PlacementAccessClear(proposed,_equipment,_immersion,_medical))issue="This tap blocks a response post or essential service approach.";
+        }
         return issue is null ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
     }
 
@@ -135,9 +144,10 @@ public sealed partial class GameSession
             for (var x = centre.X - radius; x <= centre.X + radius; x++) cells.Add(new GridCell(x, z));
         }
         foreach (var point in others) Footprint(occupied, point.Cell, WaterFootprintRadius(point) + 1);
-        Footprint(occupied, MedicalTentCell, 4);
+        Footprint(occupied, ResponsePost(p, ResponseRole.Medic).Cell, 4);
         Footprint(occupied, MedicalRestCell, 1);
-        Footprint(occupied, MedicalMedicCell, 1);
+        Footprint(occupied, ResponsePostHome(p, ResponseRole.Medic), 1);
+        foreach(var postCell in ResponsePostReserved(p)) occupied.Add(postCell);
         if (p.WaterTowerOwned) Footprint(occupied, WaterTowerCell, 4);
         if (equipment is { } unit) Footprint(occupied, TraversalGrid.WorldToCell(unit.XMillimetres, unit.ZMillimetres), 5);
         for (var z = 139; z <= 160; z++)
@@ -355,7 +365,7 @@ public sealed partial class GameSession
         if (_medical is not null)
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
-            foreach (var (centre, radius) in new[] { (p.PrimaryWaterCell, p.PrimaryWaterGeometryVersion == 1 ? 1 : 3), (MedicalTentCell, 3) }
+            foreach (var (centre, radius) in new[] { (p.PrimaryWaterCell, p.PrimaryWaterGeometryVersion == 1 ? 1 : 3), (ResponsePost(p,ResponseRole.Medic).Cell, 3) }
                          .Concat(_medical.ExtraWaterPoints.Select(point => (point.Cell, WaterFootprintRadius(point)))))
             for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
             for (var x = centre.X - radius; x <= centre.X + radius; x++)
@@ -375,6 +385,12 @@ public sealed partial class GameSession
                 }
             }
             _traversalGrid = new TraversalGrid(terrain.Values);
+        }
+        if(p.StewardPostPlacement is { } steward)
+        {
+            var terrain=_traversalGrid.Overrides.ToDictionary(item=>item.Key,item=>item.Value);
+            foreach(var cell in ResponsePostFootprint(steward,ResponseRole.Steward))terrain[cell]=new(cell,GroundSurface.Grass,false);
+            _traversalGrid=new TraversalGrid(terrain.Values);
         }
         BlockImmersionVendors();
         for (var index = 0; index < p.People.Length; index++)

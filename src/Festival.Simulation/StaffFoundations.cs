@@ -72,9 +72,8 @@ public sealed partial class GameSession
     private static bool StewardBusy(StewardResponse item) => item.Stage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting;
     private GridCell StaffDutyCell(ulong id, ResponseRole role)
     {
-        var baseCell = role == ResponseRole.Medic ? MedicalMedicCell : DisorderSecurityBaseCell;
         var baseline = role == ResponseRole.Medic ? _medical!.MedicId : _disorder!.SecurityId;
-        return id == baseline ? baseCell : new(baseCell.X + 2, baseCell.Z);
+        return ResponsePostHome(_preparation,role,id!=baseline);
     }
     /// <summary>Derived presentation hint only: no job, route, hash or save state is changed.</summary>
     public ResponseRole? IdleResponseStaffRole(EntityId id, double renderedXMillimetres, double renderedZMillimetres)

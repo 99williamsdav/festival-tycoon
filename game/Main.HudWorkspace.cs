@@ -156,7 +156,6 @@ public partial class Main
         _waterFoundationHeading = HudLabel("Add a free-water tap • up to two additional sites"); site.AddChild(_waterFoundationHeading);
         _waterPlaceButton = ButtonText("Add tap", () => BeginWaterPlacement(false)); site.AddChild(_waterPlaceButton);
         _waterPlacementStatus = HudLabel("Choose a grass spot; rotate or cancel in the placement bar."); site.AddChild(_waterPlacementStatus);
-        site.AddChild(ButtonText("Inspect drinks stall", () => { if (_session.CaptureImmersion() is not null) SelectImmersionVendor("drinks"); }));
         site.AddChild(HudLabel("Council water choice • this festival\nShare free water with the neighbouring community. Faster drinkers take longer; queues may grow. Honour the full festival for 1 Council Favour, once per campaign."));
         _communityShareInfo = HudLabel(""); _communityShareInfo.Visible = false; site.AddChild(_communityShareInfo);
         site.AddChild(ButtonText("Exact effect ▸", () => { _hudWaterExact = !_hudWaterExact; RefreshHudWorkspace(); }));
@@ -183,10 +182,11 @@ public partial class Main
         var placementRow = new HBoxContainer(); _hudPlacement.AddChild(placementRow);
         _hudPlacementText = HudLabel(""); placementRow.AddChild(_hudPlacementText);
         placementRow.AddChild(ButtonText("Rotate ↻", () => {
-            if (_placingImmersionVendor is not null) { _immersionQuarterTurns = (_immersionQuarterTurns + 1) % 4; UpdateImmersionPlacementPreview(GetViewport().GetMousePosition()); }
+            if(_movingResponsePost is not null)RotateResponsePost(1);
+            else if (_placingImmersionVendor is not null) { _immersionQuarterTurns = (_immersionQuarterTurns + 1) % 4; UpdateImmersionPlacementPreview(GetViewport().GetMousePosition()); }
             else RotateWaterPlacement(1);
         }));
-        placementRow.AddChild(ButtonText("Cancel", () => { CancelImmersionPlacement(); CancelWaterPlacement(); RefreshHudWorkspace(); }));
+        placementRow.AddChild(ButtonText("Cancel", () => { CancelResponsePostPlacement(); CancelImmersionPlacement(); CancelWaterPlacement(); RefreshHudWorkspace(); }));
 
         _hudProgrammeToggle = ButtonText("Programme ▴", () => { _hudProgrammeOpen = !_hudProgrammeOpen; RefreshHudWorkspace(); });
         _hudProgrammeToggle.Position = new Vector2(width - 150, 58); _hudProgrammeToggle.Size = new Vector2(150, 34); _hudProgrammeToggle.Theme = HudTheme(); layer.AddChild(_hudProgrammeToggle);
@@ -284,7 +284,7 @@ public partial class Main
     {
         if (_hudMoney is null || _session.CapturePreparation() is not { } p) return;
         var preparing = p.Status == PreparationStatus.Preparing;
-        var placing = _placingImmersionVendor is not null || _waterPlacementMode != WaterPlacementMode.None;
+        var placing = _movingResponsePost is not null || _placingImmersionVendor is not null || _waterPlacementMode != WaterPlacementMode.None;
         if (placing) _hudWorkspaceOpen = false;
         var finance = _session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);
         _hudPhase!.Text = $"Lower Wittering\n{(preparing ? "PREPARATION · BEFORE OPENING" : "LIVE · FESTIVAL DAY")}";
@@ -300,7 +300,7 @@ public partial class Main
         _hudPreparationToggle!.Visible = preparing; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
         _hudRosterToggle!.Text = $"People · {p.People.Length} ▸";
         _hudPlacement!.Visible = placing;
-        _hudPlacementText!.Text = $"{(_placingImmersionVendor is { } id ? "Moving " + (id == "food" ? "food van" : "drinks stall") : _waterPlacementMode == WaterPlacementMode.Add ? "Adding free-water tap" : "Moving free-water tap")}\nChoose grass · click to place · comma/period rotate · Esc cancels";
+        _hudPlacementText!.Text = $"{(_movingResponsePost is {} postRole?postRole==ResponseRole.Medic?"Moving first aid":"Moving steward post":_placingImmersionVendor is { } id ? "Moving " + (id == "food" ? "food van" : "bar") : _waterPlacementMode == WaterPlacementMode.Add ? "Adding free-water tap" : "Moving free-water tap")}\nChoose grass · click to place · comma/period rotate · Esc cancels";
         _hudProgrammeToggle!.Visible = !preparing; _hudProgramme!.Visible = !preparing && _hudProgrammeOpen;
         _hudProgrammeToggle.Text = _hudProgrammeOpen ? "Programme ▴" : "Programme ▾";
         var y = preparing ? 77 : _hudProgrammeOpen ? 280 : 99;

@@ -47,6 +47,7 @@ public partial class Main
         if (result.IsSuccess)
         {
             _session = result.Session; _autosaveGeneration++;
+            if(command is MoveResponsePostCommand)SyncResponsePosts();
             if (command is ChoosePerkCommand or ApplyWaterFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand)
                 SyncExtraWaterWorld();
             if (command is PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand) SyncImmersionWorld();

@@ -72,11 +72,10 @@ public partial class Main
         _displayedPrimaryWaterCell = _session.CaptureWaterPoints().Single(point => point.Id == "water.main").Cell;
         var waterPosition = WaterVisualPosition(_session.CaptureWaterPoints().Single(point => point.Id == "water.main"));
         _primaryWaterVisual = AddAsset("res://assets/environment/lwf_free_water_point_v4.glb", waterPosition);
-        AddAsset("res://assets/environment/lwf_first_aid_point_v2.glb", At(GameSession.MedicalTentCell));
+        _responsePostVisuals[ResponseRole.Medic]=AddAsset(PostAsset(ResponseRole.Medic),At(_session.CaptureResponsePost(ResponseRole.Medic).Cell));
         _primaryWaterPick = RegisterMedicalPick(MedicalFacility.Water, "water.main", waterPosition + new Vector3(0, 1.05f, 0), new Vector3(2.3f, 2.1f, 1.1f));
-        RegisterMedicalPick(MedicalFacility.FirstAid, null, At(GameSession.MedicalTentCell) + new Vector3(0, 1.35f, 0), new Vector3(3.5f, 2.7f, 3.5f));
-        AddChild(new Label3D { Text = "FIRST AID", Position = At(GameSession.MedicalTentCell) + new Vector3(0, 3.1f, 0),
-            FontSize = 45, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
+        _responsePostPicks[ResponseRole.Medic]=RegisterMedicalPick(MedicalFacility.FirstAid, null, At(GameSession.MedicalTentCell) + new Vector3(0, 1.35f, 0), new Vector3(3.5f, 2.7f, 3.5f));
+        var tentName=BuildingName("FIRST AID",Vector3.Zero);AddChild(tentName);_responsePostLabels[ResponseRole.Medic]=tentName;SyncResponsePosts();
         _waterPlacementPreview = new MeshInstance3D
         {
             Mesh = new CylinderMesh { TopRadius = .75f, BottomRadius = .75f, Height = 0.07f },
@@ -108,6 +107,7 @@ public partial class Main
     private void BeginWaterPlacementFor(string? pointId)
     {
         CancelImmersionPlacement();
+        CancelResponsePostPlacement();
         if (_session.CapturePreparation() is not { Status: PreparationStatus.Preparing }) return;
         _waterPlacementMode = pointId is null ? WaterPlacementMode.Add : WaterPlacementMode.Move;
         _movingWaterPointId = pointId;
@@ -496,7 +496,7 @@ public partial class Main
         {
             MedicalFacility.Water => _session.CaptureWaterPoints().Single(point => point.Id == _selectedWaterPointId).Cell,
             MedicalFacility.WaterTower => GameSession.WaterTowerCell,
-            _ => GameSession.MedicalTentCell
+            _ => _session.CaptureResponsePost(ResponseRole.Medic).Cell
         };
         var centre = TraversalGrid.CellCentre(cell);
         _highlight.Position = new Vector3(centre.XMillimetres / 1000f, .08f, centre.ZMillimetres / 1000f);
@@ -542,6 +542,7 @@ public partial class Main
 
     private void RefreshMedicalFacilityInspector()
     {
+        RefreshResponsePostMoveButtons();
         if (_selectedWaterMoveButton is not null)
             _selectedWaterMoveButton.Visible = _selectedMedicalFacility == MedicalFacility.Water &&
                 _session.CapturePreparation()?.Status == PreparationStatus.Preparing;
@@ -602,6 +603,7 @@ public partial class Main
         _selectedWaterMoveButton.Visible = false;
         _selectedWaterMoveButton.TooltipText = "Choose a new grass site. Comma/period rotate the tap and its service access; Esc cancels.";
         detail.AddChild(_selectedWaterMoveButton);
+        _firstAidMoveButton=ButtonText("Move",()=>BeginResponsePostPlacement(ResponseRole.Medic));_firstAidMoveButton.Visible=false;detail.AddChild(_firstAidMoveButton);
         _medicalActionInspector = new GridContainer { Columns = 2, Visible = false };
         detail.AddChild(_medicalActionInspector);
         foreach (var (action, label) in new[] {
@@ -696,6 +698,7 @@ public partial class Main
 
     private void RefreshMedicalActionInspector()
     {
+        RefreshResponsePostMoveButtons();
         RefreshContextPanelVisibility();
         if (_medicalActionInspector is null) return;
         if (_waterFlowRow is not null) _waterFlowRow.Visible = _selectedMedicalFacility == MedicalFacility.Water;

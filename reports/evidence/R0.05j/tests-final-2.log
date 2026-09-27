@@ -1,0 +1,21 @@
+failed PostRejectsAdjacentLooseVendorQueueHomeWithoutMutation (100ms)
+  Assertion failed. Expected condition to be false.
+  Command accepted.
+
+  actual: true
+
+  Assert.IsFalse(rejected.IsAccepted)
+  Expected
+    false
+  Actual
+    true
+    at Festival.Tests.ResponsePostPlacementTests.PostRejectsAdjacentLooseVendorQueueHomeWithoutMutation() in /_/tests/Festival.Tests/ResponsePostPlacementTests.cs:138
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 129
+  failed: 1
+  succeeded: 128
+  skipped: 0
+  duration: 1m 15s 136ms

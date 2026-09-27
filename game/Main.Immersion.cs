@@ -194,8 +194,7 @@ public partial class Main
                 body.AddChild(InstantiateImmersionVendor(vendor.Id == "food"));
                 var size = vendor.Id == "food" ? new Vector3(6, 2.8f, 3) : new Vector3(3.5f, 3.1f, 2.5f);
                 body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size }, Position = new Vector3(vendor.Id == "food" ? -.5f : 0, size.Y / 2, 0) });
-                body.AddChild(new Label3D { Name = "VendorCategoryLabel", Text = vendor.Id == "food" ? "FOOD" : "DRINK", Position = new Vector3(0, 3.4f, 0),
-                    FontSize = 45, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
+                var name=BuildingName(vendor.Id=="food"?"FOOD":"BAR",new Vector3(0,3.4f,0));name.Name="VendorCategoryLabel";body.AddChild(name);
                 AddChild(body); _immersionVendors.Add(vendor.Id, body); _immersionVendorPicks.Add(body.GetInstanceId(), vendor.Id);
             }
             body.Position = ImmersionPosition(vendor.Cell); body.RotationDegrees = new Vector3(0, 90 * vendor.QuarterTurns, 0);
@@ -206,6 +205,7 @@ public partial class Main
     {
         if (_session.PreparedStatus != PreparationStatus.Preparing || _session.CaptureImmersion() is not { } state) return;
         CancelWaterPlacement(); CancelImmersionPlacement(); ClearSelection();
+        CancelResponsePostPlacement();
         _placingImmersionVendor = id; _immersionQuarterTurns = state.Vendors.Single(v => v.Id == id).QuarterTurns;
         _selectedImmersionVendor = id;
         _immersionPreview = InstantiateImmersionVendor(id == "food"); AddChild(_immersionPreview);
