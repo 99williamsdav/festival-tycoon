@@ -1,0 +1,12 @@
+ERROR: BOOKING_CAPTURE_FAILED System.InvalidOperationException: Start footer outside viewport
+   at Festival.Game.Main.BookingCheck(Boolean condition, String message) in /_/game/Main.BookingCapture.cs:line 16
+   at Festival.Game.Main.ProcessBookingCapture() in /_/game/Main.BookingCapture.cs:line 35
+   at: void Festival.Game.Main.ProcessBookingCapture() (/_/game/Main.BookingCapture.cs:35)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Festival.Game.Main.ProcessBookingCapture() (/_/game/Main.BookingCapture.cs:35)
+       [2] void Festival.Game.Main.ProcessPresentationFrame(double) (/_/game/Main.cs:311)
+       [3] void Festival.Game.Main._Process(double) (/_/game/Main.cs:252)
+       [4] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [5] bool Festival.Game.Main.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/_/game/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/Festival.Game.Main_ScriptMethods.generated.cs:3450)
+       [6] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

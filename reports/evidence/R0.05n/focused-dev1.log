@@ -1,0 +1,12 @@
+passed ExactApprovedTraitsAndIntegerFormulasAreMonotonicAndBounded (58ms)
+passed SharedResolverAssignsMovesSwapsReplacesRemovesAndRejectsStaleOrInvalid (529ms)
+passed ActualAdmissionUsesFinalPaidMappingOnceAndLoadDoesNotStack (2s 791ms)
+passed CoordinatorEditsAndFailedStartAreAtomicWithOneSetupPaymentAndLiveLock (935ms)
+passed IdentityValidationPreservesLegacyNullCanonicalAndActualOldFile (274ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 5
+  failed: 0
+  succeeded: 5
+  skipped: 0
+  duration: 4s 709ms

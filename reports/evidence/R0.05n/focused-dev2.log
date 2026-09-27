@@ -1,0 +1,14 @@
+passed ActualWarningDeathFavourRetryRetainsReactionIdentityAndResetsAdmission (3s 802ms)
+passed ActualResultsSaveStillLoadsWithOriginalHashAndNewHeaderRejectsWithoutRewrite (426ms)
+passed ExactApprovedTraitsAndIntegerFormulasAreMonotonicAndBounded (1ms)
+passed SharedResolverAssignsMovesSwapsReplacesRemovesAndRejectsStaleOrInvalid (364ms)
+passed ActualAdmissionUsesFinalPaidMappingOnceAndLoadDoesNotStack (1s 334ms)
+passed CoordinatorEditsAndFailedStartAreAtomicWithOneSetupPaymentAndLiveLock (530ms)
+passed IdentityValidationPreservesLegacyNullCanonicalAndActualOldFile (174ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 7
+  failed: 0
+  succeeded: 7
+  skipped: 0
+  duration: 6s 748ms

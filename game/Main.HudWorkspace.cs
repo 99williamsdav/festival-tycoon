@@ -117,18 +117,20 @@ public partial class Main
 
         var workspaceWidth = width >= 1600 ? 690 : 650;
         _hudWorkspace = HudPanel(layer, new Vector2(15, 77), new Vector2(workspaceWidth, Math.Min(520, height - 150)));
+        _hudWorkspace.MinimumSizeChanged += ScheduleBookingLayout;
         var workspaceBox = new VBoxContainer(); workspaceBox.AddThemeConstantOverride("separation", 12); _hudWorkspace.AddChild(workspaceBox);
         var heading = new HBoxContainer(); workspaceBox.AddChild(heading);
         var title = HudLabel("Prepare the festival", 25); title.AddThemeFontOverride("font", HearingSerif()); heading.AddChild(title);
         heading.AddChild(ButtonText("Collapse preparation", () => { _hudWorkspaceOpen = false; RefreshHudWorkspace(); }));
         _hudTabs = new TabContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill }; workspaceBox.AddChild(_hudTabs);
+        if (_session.CapturePreparation()?.LineupReactionsVersion == 1) _hudTabs.UseHiddenTabsForMinSize = false;
         foreach (var name in new[] { "Overview", "Programme", "Staff", "Equipment", "Stock", "Site & water" })
         {
             var scroll = new ScrollContainer { Name = name, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
             _hudTabs.AddChild(scroll);
             var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; box.AddThemeConstantOverride("separation", 12); scroll.AddChild(box); _hudPages.Add(name, box);
         }
-        _hudTabs.TabChanged += _ => RefreshHudWorkspace();
+        _hudTabs.TabChanged += _ => { RefreshHudWorkspace(); ScheduleBookingLayout(); };
         // A per-tab red border and underline leave the native selected/hover text legible.
         // The title and tooltip convey the same requirement without relying on colour.
         _hudTabs.GetTabBar().Draw += DrawHudPreparationBlockers;
@@ -322,6 +324,19 @@ public partial class Main
             _hudStartConfirmation!.DialogText = costs + "\nPay the complete setup once and open for the full fixed roster.";
         }
         RefreshHudPreparationReadiness();
+        if (_bookingLane is not null)
+        {
+            _hudStartReason.MaxLinesVisible = _hudTabs?.CurrentTab == 1 ? 2 : -1;
+            var actions = blockers.Select(b => b.Owner switch
+            {
+                PreparationStartOwner.Programme => "choose 3 different acts",
+                PreparationStartOwner.Staff => "hire 1 worker",
+                PreparationStartOwner.Overview => "reduce planned cost",
+                _ => b.Message
+            });
+            _hudStartReason.Text = _programmeSummary!.Text + "\n" + (blockers.Count > 0 ? "Before Start: " + string.Join("; ", actions) + "." : issue?.Message ?? "Ready to open; setup paid once at Start.");
+            if (_hudTabs?.CurrentTab == 1) _hudStatus!.Text = _bookingDurableMessage;
+        }
         _preparationStart.TooltipText = _hudStartReason.Text;
         _hudRetry!.Visible = _preparationSaveBlocked;
         _hudPrototypeSection!.Visible = preparing && _hudPrototypeOpen && _session.CapturePerks() is null;

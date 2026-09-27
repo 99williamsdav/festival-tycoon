@@ -27,6 +27,7 @@ public partial class Main
 
     private void BuildProgrammeControls(VBoxContainer parent)
     {
+        if (_session.CapturePreparation()?.LineupReactionsVersion == 1) { BuildBookingControls(parent); return; }
         if (_session.CaptureProgramme() is null) return;
         _programmeControls = new VBoxContainer(); parent.AddChild(_programmeControls);
         _programmeControls.AddChild(LabelText("ONE DAY • THREE FIXED SETS", 16, new Color("29352c")));
@@ -60,6 +61,7 @@ public partial class Main
 
     private void RefreshProgrammeControls()
     {
+        if (_bookingLane is not null) { RefreshBookingControls(); return; }
         if (_programmeControls is null) return;
         _programmeControls.Visible = _session.CaptureProgramme() is not null;
         if (_session.CaptureProgramme() is not { } programme) return;

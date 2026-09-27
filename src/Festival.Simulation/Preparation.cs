@@ -46,6 +46,8 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public int? GuestMedicalCollapses { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public FestivalResult? Result { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int? LineupReactionsVersion { get; init; }
 }
 public sealed record AcceptPreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record StartPreparedEditionCommand : SessionCommand;
@@ -469,6 +471,7 @@ public sealed partial class GameSession
                     var stock = _ownedStocks[new(p.StockId)];
                     if (stock.Quantity > 0) { stock.Quantity--; consumed++; satisfaction = Math.Min(10_000, satisfaction + 200); }
                 }
+                satisfaction = Math.Clamp(satisfaction + AdmissionLineupAdjustment(person), 0, 10_000);
                 people[index] = person with { Admitted = true, Satisfaction = satisfaction, MusicRisk = 0 };
             }
             if (p.FinishedBeerIds is null && p.Status == PreparationStatus.Departing && !person.Departed && ImmersionCanMarkDeparted(person.AgentId, index))
@@ -564,6 +567,8 @@ public sealed partial class GameSession
     private static string? ValidatePersistedPreparation(PreparationSnapshot? p, SessionPersistenceSnapshot snapshot)
     {
         if (p is null) return null;
+        if (p.LineupReactionsVersion is not null && (p.LineupReactionsVersion != 1 || p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null))
+            return "Lineup reaction identity requires the current saved programme and results plan.";
         if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > 2 || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
             p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != CampaignDefaults.OpeningCashPennies || p.StockConsumed < 0 ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||

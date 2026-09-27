@@ -2,7 +2,7 @@ using System.Text.Json;
 
 namespace Festival.Simulation;
 
-public sealed record FestivalAct(string Id, string Name, int Genre, int PricePennies, int Popularity);
+public sealed record FestivalAct(string Id, string Name, int Genre, int PricePennies, int Popularity, int Ego = 0, int Professionalism = 0);
 public sealed record ProgrammePerformer(ulong AgentId, int SlotIndex, int RoleIndex);
 public sealed record ProgrammeSnapshot(int Version, string[] ActIds, ProgrammePerformer[] Performers, int CurrentSlot, long SlotEndTick, string Status);
 public sealed record SetProgrammeCommand(string[] ActIds) : SessionCommand;
@@ -17,12 +17,12 @@ public sealed partial class GameSession
     public const int FestivalSlotDurationTicks = 6000;
     public IReadOnlyList<FestivalAct> GetFestivalActs() => _programme is null ? [] : FestivalActs;
     private static readonly FestivalAct[] FestivalActs = [
-        new("act.meadow-lanterns", "Meadow Lanterns", 0, 4000, 40),
-        new("act.orchard-chorus", "Orchard Chorus", 0, 7500, 70),
-        new("act.barnstorm-circuit", "Barnstorm Circuit", 1, 5500, 55),
-        new("act.copper-static", "Copper Static", 1, 9000, 80),
-        new("act.neon-postcards", "Neon Postcards", 2, 11000, 90),
-        new("act.field-frequency", "Field Frequency", 3, 8500, 75)];
+        new("act.meadow-lanterns", "Meadow Lanterns", 0, 4000, 40, 20, 80),
+        new("act.orchard-chorus", "Orchard Chorus", 0, 7500, 70, 45, 90),
+        new("act.barnstorm-circuit", "Barnstorm Circuit", 1, 5500, 55, 35, 65),
+        new("act.copper-static", "Copper Static", 1, 9000, 80, 80, 70),
+        new("act.neon-postcards", "Neon Postcards", 2, 11000, 90, 90, 85),
+        new("act.field-frequency", "Field Frequency", 3, 8500, 75, 60, 75)];
     public FestivalAct? CurrentFestivalAct => _programme is { CurrentSlot: >= 0 and < 3 } q && q.ActIds.Length == 3 ? FestivalActs.Single(a => a.Id == q.ActIds[q.CurrentSlot]) : null;
     private int UpcomingProgrammeSlot => _programme is not { } q ? -1 : q.CurrentSlot < 0 ? 0 : _livePerformance?.Stage == LiveSetStage.BeforeSet ? q.CurrentSlot : q.CurrentSlot < 2 ? q.CurrentSlot + 1 : -1;
     public FestivalAct? UpcomingFestivalAct => _programme is { ActIds.Length: 3 } q && UpcomingProgrammeSlot is >= 0 and < 3 ? FestivalActs.Single(a => a.Id == q.ActIds[UpcomingProgrammeSlot]) : null;
