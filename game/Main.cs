@@ -243,7 +243,7 @@ public partial class Main : Node
     public override void _Process(double delta)
     {
         try { ProcessPresentationFrame(delta); }
-        catch(Exception error) when (_planCaptureDirectory is not null || _postCaptureDirectory is not null || _hoverCaptureDirectory is not null || _headerCaptureDirectory is not null)
+        catch(Exception error) when (_mosaicCaptureDirectory is not null || _planCaptureDirectory is not null || _postCaptureDirectory is not null || _hoverCaptureDirectory is not null || _headerCaptureDirectory is not null)
         { GD.PushError("HOVER_CAPTURE_FAILED presentation=" + error); _hoverCaptureDirectory=null;_headerCaptureDirectory=null;GetTree().Quit(2); }
     }
 
@@ -290,6 +290,7 @@ public partial class Main : Node
         ProcessHearingCapture();
         ProcessHudCapture();
         ProcessPerkCapture();
+        ProcessMosaicCapture();
         ProcessPerkPopoutCapture();
         ProcessLayoutPolishCapture();
         ProcessStartSplashCapture();
@@ -1012,6 +1013,8 @@ public partial class Main : Node
             { _hudCaptureDirectory = args[++i]; Directory.CreateDirectory(_hudCaptureDirectory); }
             else if (args[i] == "--capture-r005g-perks" && i + 1 < args.Length)
             { _perkCaptureDirectory = args[++i]; Directory.CreateDirectory(_perkCaptureDirectory); }
+            else if (args[i] == "--capture-perk-mosaic" && i + 1 < args.Length)
+            { _mosaicCaptureDirectory = args[++i]; Directory.CreateDirectory(_mosaicCaptureDirectory); }
             else if (args[i] == "--capture-r005h-layout" && i + 1 < args.Length)
             { _layoutCaptureDirectory = args[++i]; Directory.CreateDirectory(_layoutCaptureDirectory); }
             else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
@@ -1401,7 +1404,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
+private string SaveDirectory => _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :

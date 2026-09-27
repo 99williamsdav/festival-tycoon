@@ -1,0 +1,133 @@
+{
+  "status": "approved by user and coordinator 2026-09-27; builder integration authorized with native text and current layouts unchanged",
+  "catalogueSource": "C:/Projects/festival-tycoon/src/Festival.Simulation/Perks.cs",
+  "date": "2026-09-27",
+  "generator": "built-in image_gen",
+  "cards": [
+    {
+      "id": "extra-pair-of-hands",
+      "name": "Extra Pair of Hands",
+      "effect": "+1 steward hiring slot. Hire separately for £30 per weekend.",
+      "subject": "A pair of upright teal festival steward safety vests side by side, the nearer vest larger, simple cream reflective bands and a small golden addition-plus symbol between them. No people, no medical equipment. This means an additional steward hiring slot, not training.",
+      "artwork": "artwork/extra-pair-of-hands.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "1ef4d3e2b07ebcb92e3068bffc53d36a625b0e8bc6f55fdb30905463b50de9ed",
+      "fullReview": "cards/extra-pair-of-hands-744x1074.png",
+      "draftPreview": "small/extra-pair-of-hands-248x358.png",
+      "ownedPreview": "small/extra-pair-of-hands-250x142.png"
+    },
+    {
+      "id": "doctors-orders",
+      "name": "Doctor's Orders",
+      "effect": "+1 medic hiring slot. Hire separately for £30 per weekend.",
+      "subject": "One prominent dark teal medical carry bag with a large cream heart emblem, a second smaller matching bag behind, and a golden addition-plus symbol beside them. Clearly a medical hiring-capacity symbol. No red cross, no stewards or vest.",
+      "artwork": "artwork/doctors-orders.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "c3159dfc4d4424fb168c0b96dc4d8614664de666fdb746383dc338e2ec87aaea",
+      "fullReview": "cards/doctors-orders-744x1074.png",
+      "draftPreview": "small/doctors-orders-248x358.png",
+      "ownedPreview": "small/doctors-orders-250x142.png"
+    },
+    {
+      "id": "another-round",
+      "name": "Another Round",
+      "effect": "+1 placeable free-water tap above the guaranteed baseline.",
+      "subject": "Two distinct upright dark teal outdoor standpipe taps side by side, one taller foreground and one slightly smaller behind, each spout clearly visible; one small golden addition-plus between them. Tiny turquoise drops only, no drinking cup and no tower. Additional free-water access, NOT beer or alcohol.",
+      "artwork": "artwork/another-round.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "06be332b8776cfb238bcafe1e5b89c3ef1599b98c91e79485f1a7d5ddb5593be",
+      "fullReview": "cards/another-round-744x1074.png",
+      "draftPreview": "small/another-round-248x358.png",
+      "ownedPreview": "small/another-round-250x142.png"
+    },
+    {
+      "id": "high-pressure",
+      "name": "High Pressure",
+      "effect": "Water tower adds +4 flow to each tap.",
+      "subject": "One bold dark teal elevated cylindrical farm water tank on four clear sturdy legs, with a turquoise water-drop emblem on its tank and a short bold turquoise stream curving from an outlet pipe near its base. Entire tower visible including tank and feet. No extra taps, cup or plus symbol. Water flow infrastructure.",
+      "artwork": "artwork/high-pressure.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "95187620597ae0a5214632bd093b4ab988f8c21e3498daf6298cd12216440f00",
+      "fullReview": "cards/high-pressure-744x1074.png",
+      "draftPreview": "small/high-pressure-248x358.png",
+      "ownedPreview": "small/high-pressure-250x142.png"
+    },
+    {
+      "id": "smooth-operators",
+      "name": "Smooth Operators",
+      "effect": "All stewards walk faster and gain calming and confrontation skill.",
+      "subject": "One prominent teal steward reflective safety vest with broad cream reflective bands, centred over a simple golden training rosette with two short ribbons; three restrained turquoise motion strokes to one side imply faster trained movement. No plus symbol, no second vest, no medical bag. Training for stewards, not a new hiring slot.",
+      "artwork": "artwork/smooth-operators.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "5c23643a2dd31a23069ce6dbdb6a88d3f7de3fb74c92e4562c6d1b789d2e9ba1",
+      "fullReview": "cards/smooth-operators-744x1074.png",
+      "draftPreview": "small/smooth-operators-248x358.png",
+      "ownedPreview": "small/smooth-operators-250x142.png"
+    },
+    {
+      "id": "first-responders",
+      "name": "First Responders",
+      "effect": "All medics walk faster and treat more quickly.",
+      "subject": "One prominent dark teal medical carry bag with large cream heart emblem, a golden lightning bolt to its side and three turquoise motion strokes. Recognisably trained fast medical response. No red cross, no plus symbol, no second bag, no vest. Not a hiring-capacity image.",
+      "artwork": "artwork/first-responders.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "18bb934d87e7cdd7397b261009dcfcd3782e7580b69bee50a18fecdd8ed831b2",
+      "fullReview": "cards/first-responders-744x1074.png",
+      "draftPreview": "small/first-responders-248x358.png",
+      "ownedPreview": "small/first-responders-250x142.png"
+    },
+    {
+      "id": "something-in-the-water",
+      "name": "Something in the Water",
+      "effect": "Drinking free water improves satisfaction.",
+      "subject": "Adapt the exact approved anchor artwork in image1: dark teal tap at left pouring turquoise water into cream cup below right, golden sun rays upper right and teal/sage leaves low corners. Preserve this recognised composition and ceramic character. Output ONLY its artwork as a standalone panel; remove all title/effect/paper card portions. Extend cream tiled background at the sides as necessary for landscape 3:2, do not squash objects.",
+      "artwork": "artwork/something-in-the-water.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "cb3f75d7f0dffb5598768881df9c125c598bf4e18bc1c94d43d0ace35308d7c5",
+      "fullReview": "cards/something-in-the-water-744x1074.png",
+      "draftPreview": "small/something-in-the-water-248x358.png",
+      "ownedPreview": "small/something-in-the-water-250x142.png"
+    },
+    {
+      "id": "thirsty-crowd",
+      "name": "Thirsty Crowd",
+      "effect": "Guests grow thirsty faster.",
+      "subject": "Three simple dark teal festival guest bust silhouettes with clearly separated round heads, two smaller behind one foreground, and one large turquoise water droplet overhead; three small golden sun rays at upper right. No smiling faces, no tap, no cup, no medical symbol. More rapid thirst in a crowd, not satisfaction.",
+      "artwork": "artwork/thirsty-crowd.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "384320ad60d674b4ce0bdc8ec05850e19de796848585a6cd5780d88de33dc7e2",
+      "fullReview": "cards/thirsty-crowd-744x1074.png",
+      "draftPreview": "small/thirsty-crowd-248x358.png",
+      "ownedPreview": "small/thirsty-crowd-250x142.png"
+    }
+  ],
+  "uiReference": {
+    "source": "game/Main.Perks.cs",
+    "draft": [
+      248,
+      358
+    ],
+    "artPanel": [
+      216,
+      145
+    ],
+    "artPanelPadding": 10,
+    "owned": [
+      250,
+      142
+    ],
+    "ownedArtwork": [
+      46,
+      46
+    ],
+    "stretch": "KeepAspectCentered"
+  }
+}

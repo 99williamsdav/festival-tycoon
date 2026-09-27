@@ -1,0 +1,53 @@
+{
+  "catalogue": "8 exact matches",
+  "checks": [
+    {
+      "id": "card-extra-pair-of-hands",
+      "textFits": true,
+      "cardWidth": 248,
+      "cardHeight": 358
+    },
+    {
+      "id": "card-doctors-orders",
+      "textFits": true,
+      "cardWidth": 248,
+      "cardHeight": 358
+    },
+    {
+      "id": "card-another-round",
+      "textFits": true,
+      "cardWidth": 248,
+      "cardHeight": 358
+    },
+    {
+      "id": "card-high-pressure",
+      "textFits": true,
+      "cardWidth": 248,
+      "cardHeight": 358
+    },
+    {
+      "id": "card-smooth-operators",
+      "textFits": true,
+      "cardWidth": 248,
+      "cardHeight": 358
+    },
+    {
+      "id": "card-first-responders",
+      "textFits": true,
+      "cardWidth": 248,
+      "cardHeight": 358
+    },
+    {
+      "id": "card-something-in-the-water",
+      "textFits": true,
+      "cardWidth": 248,
+      "cardHeight": 358
+    },
+    {
+      "id": "card-thirsty-crowd",
+      "textFits": true,
+      "cardWidth": 248,
+      "cardHeight": 358
+    }
+  ]
+}

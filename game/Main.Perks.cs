@@ -57,7 +57,7 @@ public partial class Main
         box.AddChild(HudLabel("FESTIVAL PERK", 10));
         var title = HudLabel(perk.Name, 25); title.AddThemeFontOverride("font", HearingSerif()); title.CustomMinimumSize = new Vector2(216, 66); box.AddChild(title);
         var art = new PanelContainer { CustomMinimumSize = new Vector2(216, 145) }; art.AddThemeStyleboxOverride("panel", HudStyle(new Color("d2dfce"), 10)); box.AddChild(art);
-        art.AddChild(new TextureRect { Texture = GD.Load<Texture2D>($"res://assets/ui/perks/{id}.svg"),
+        art.AddChild(new TextureRect { Texture = GD.Load<Texture2D>($"res://assets/ui/perks/{id}.png"), TextureFilter = CanvasItem.TextureFilterEnum.Linear,
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
             CustomMinimumSize = new Vector2(112, 112) });
         box.AddChild(new HSeparator());
@@ -71,7 +71,7 @@ public partial class Main
         card.AddThemeStyleboxOverride("panel", HudStyle(new Color("fff4d6"), 9));
         var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", 6); card.AddChild(box);
         var heading = new HBoxContainer(); heading.AddThemeConstantOverride("separation", 8); box.AddChild(heading);
-        heading.AddChild(new TextureRect { Texture = GD.Load<Texture2D>($"res://assets/ui/perks/{id}.svg"),
+        heading.AddChild(new TextureRect { Texture = GD.Load<Texture2D>($"res://assets/ui/perks/{id}.png"), TextureFilter = CanvasItem.TextureFilterEnum.Linear,
             ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
             CustomMinimumSize = new Vector2(46, 46) });
         var title = HudLabel(perk.Name, 19); title.AddThemeFontOverride("font", HearingSerif());
