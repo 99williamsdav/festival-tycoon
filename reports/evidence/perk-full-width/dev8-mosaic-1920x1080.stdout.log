@@ -1,0 +1,72 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=d0f6d1283504e8749d6974f503a4d10426043ee41e3bdb6791fa48249d7de51d
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+MOSAIC_FIXTURE step=0 mode=draft ids=extra-pair-of-hands,doctors-orders,another-round natural_progression=false
+MOSAIC_ASSET id=extra-pair-of-hands texture=res://assets/ui/perks/extra-pair-of-hands.png master=1536x1024 slot=(220, 146.66667) title=Extra Pair of Hands native_effect=true
+MOSAIC_ASSET id=doctors-orders texture=res://assets/ui/perks/doctors-orders.png master=1536x1024 slot=(220, 146.66667) title=Doctor's Orders native_effect=true
+MOSAIC_ASSET id=another-round texture=res://assets/ui/perks/another-round.png master=1536x1024 slot=(220, 146.66667) title=Another Round native_effect=true
+MOSAIC_CAPTURE image=01-draft-1 viewport=1920x1080 hash=505adb2866b10feb318a73259520d443fc159d7635dfa6952f86f974ece6c094
+MOSAIC_FIXTURE step=1 mode=draft ids=high-pressure,smooth-operators,first-responders natural_progression=false
+MOSAIC_ASSET id=high-pressure texture=res://assets/ui/perks/high-pressure.png master=1536x1024 slot=(220, 146.66667) title=High Pressure native_effect=true
+MOSAIC_ASSET id=smooth-operators texture=res://assets/ui/perks/smooth-operators.png master=1536x1024 slot=(220, 146.66667) title=Smooth Operators native_effect=true
+MOSAIC_ASSET id=first-responders texture=res://assets/ui/perks/first-responders.png master=1536x1024 slot=(220, 146.66667) title=First Responders native_effect=true
+MOSAIC_CAPTURE image=02-draft-2 viewport=1920x1080 hash=1716ed2032bb332aa2e92666545af104491b8c135d4e8fe6f6563f47d8e164dd
+MOSAIC_FIXTURE step=2 mode=draft ids=something-in-the-water,thirsty-crowd,extra-pair-of-hands natural_progression=false
+MOSAIC_ASSET id=something-in-the-water texture=res://assets/ui/perks/something-in-the-water.png master=1536x1024 slot=(220, 146.66667) title=Something in the Water native_effect=true
+MOSAIC_ASSET id=thirsty-crowd texture=res://assets/ui/perks/thirsty-crowd.png master=1536x1024 slot=(220, 146.66667) title=Thirsty Crowd native_effect=true
+MOSAIC_ASSET id=extra-pair-of-hands texture=res://assets/ui/perks/extra-pair-of-hands.png master=1536x1024 slot=(220, 146.66667) title=Extra Pair of Hands native_effect=true
+MOSAIC_CAPTURE image=03-draft-3 viewport=1920x1080 hash=f8816f8431821be96f9b9f8c7ba05ed58d36b2b9e46d3febd74f7da3c42b6d08
+MOSAIC_FIXTURE step=3 mode=compact ids=extra-pair-of-hands,doctors-orders,another-round,high-pressure,smooth-operators natural_progression=false
+MOSAIC_ASSET id=extra-pair-of-hands texture=res://assets/ui/perks/extra-pair-of-hands.png master=1536x1024 slot=(144, 96) title=Extra Pair of Hands native_effect=true
+MOSAIC_ASSET id=doctors-orders texture=res://assets/ui/perks/doctors-orders.png master=1536x1024 slot=(144, 96) title=Doctor's Orders native_effect=true
+MOSAIC_ASSET id=another-round texture=res://assets/ui/perks/another-round.png master=1536x1024 slot=(144, 96) title=Another Round native_effect=true
+MOSAIC_ASSET id=high-pressure texture=res://assets/ui/perks/high-pressure.png master=1536x1024 slot=(144, 96) title=High Pressure native_effect=true
+MOSAIC_ASSET id=smooth-operators texture=res://assets/ui/perks/smooth-operators.png master=1536x1024 slot=(144, 96) title=Smooth Operators native_effect=true
+MOSAIC_CAPTURE image=04-compact-extra-pair-of-hands viewport=1920x1080 hash=d04fea03a221a615789b280892f51213f6fbe902111e853ccafa1b0bb7a8b355
+MOSAIC_FIXTURE step=4 mode=compact ids=extra-pair-of-hands,doctors-orders,another-round,high-pressure,smooth-operators natural_progression=false
+MOSAIC_ASSET id=extra-pair-of-hands texture=res://assets/ui/perks/extra-pair-of-hands.png master=1536x1024 slot=(144, 96) title=Extra Pair of Hands native_effect=true
+MOSAIC_ASSET id=doctors-orders texture=res://assets/ui/perks/doctors-orders.png master=1536x1024 slot=(144, 96) title=Doctor's Orders native_effect=true
+MOSAIC_ASSET id=another-round texture=res://assets/ui/perks/another-round.png master=1536x1024 slot=(144, 96) title=Another Round native_effect=true
+MOSAIC_ASSET id=high-pressure texture=res://assets/ui/perks/high-pressure.png master=1536x1024 slot=(144, 96) title=High Pressure native_effect=true
+MOSAIC_ASSET id=smooth-operators texture=res://assets/ui/perks/smooth-operators.png master=1536x1024 slot=(144, 96) title=Smooth Operators native_effect=true
+MOSAIC_CAPTURE image=05-compact-doctors-orders viewport=1920x1080 hash=d04fea03a221a615789b280892f51213f6fbe902111e853ccafa1b0bb7a8b355
+MOSAIC_FIXTURE step=5 mode=compact ids=extra-pair-of-hands,doctors-orders,another-round,high-pressure,smooth-operators natural_progression=false
+MOSAIC_ASSET id=extra-pair-of-hands texture=res://assets/ui/perks/extra-pair-of-hands.png master=1536x1024 slot=(144, 96) title=Extra Pair of Hands native_effect=true
+MOSAIC_ASSET id=doctors-orders texture=res://assets/ui/perks/doctors-orders.png master=1536x1024 slot=(144, 96) title=Doctor's Orders native_effect=true
+MOSAIC_ASSET id=another-round texture=res://assets/ui/perks/another-round.png master=1536x1024 slot=(144, 96) title=Another Round native_effect=true
+MOSAIC_ASSET id=high-pressure texture=res://assets/ui/perks/high-pressure.png master=1536x1024 slot=(144, 96) title=High Pressure native_effect=true
+MOSAIC_ASSET id=smooth-operators texture=res://assets/ui/perks/smooth-operators.png master=1536x1024 slot=(144, 96) title=Smooth Operators native_effect=true
+MOSAIC_CAPTURE image=06-compact-another-round viewport=1920x1080 hash=d04fea03a221a615789b280892f51213f6fbe902111e853ccafa1b0bb7a8b355
+MOSAIC_FIXTURE step=6 mode=compact ids=extra-pair-of-hands,doctors-orders,another-round,high-pressure,smooth-operators natural_progression=false
+MOSAIC_ASSET id=extra-pair-of-hands texture=res://assets/ui/perks/extra-pair-of-hands.png master=1536x1024 slot=(144, 96) title=Extra Pair of Hands native_effect=true
+MOSAIC_ASSET id=doctors-orders texture=res://assets/ui/perks/doctors-orders.png master=1536x1024 slot=(144, 96) title=Doctor's Orders native_effect=true
+MOSAIC_ASSET id=another-round texture=res://assets/ui/perks/another-round.png master=1536x1024 slot=(144, 96) title=Another Round native_effect=true
+MOSAIC_ASSET id=high-pressure texture=res://assets/ui/perks/high-pressure.png master=1536x1024 slot=(144, 96) title=High Pressure native_effect=true
+MOSAIC_ASSET id=smooth-operators texture=res://assets/ui/perks/smooth-operators.png master=1536x1024 slot=(144, 96) title=Smooth Operators native_effect=true
+MOSAIC_CAPTURE image=07-compact-high-pressure viewport=1920x1080 hash=d04fea03a221a615789b280892f51213f6fbe902111e853ccafa1b0bb7a8b355
+MOSAIC_FIXTURE step=7 mode=compact ids=extra-pair-of-hands,doctors-orders,another-round,high-pressure,smooth-operators natural_progression=false
+MOSAIC_ASSET id=extra-pair-of-hands texture=res://assets/ui/perks/extra-pair-of-hands.png master=1536x1024 slot=(144, 96) title=Extra Pair of Hands native_effect=true
+MOSAIC_ASSET id=doctors-orders texture=res://assets/ui/perks/doctors-orders.png master=1536x1024 slot=(144, 96) title=Doctor's Orders native_effect=true
+MOSAIC_ASSET id=another-round texture=res://assets/ui/perks/another-round.png master=1536x1024 slot=(144, 96) title=Another Round native_effect=true
+MOSAIC_ASSET id=high-pressure texture=res://assets/ui/perks/high-pressure.png master=1536x1024 slot=(144, 96) title=High Pressure native_effect=true
+MOSAIC_ASSET id=smooth-operators texture=res://assets/ui/perks/smooth-operators.png master=1536x1024 slot=(144, 96) title=Smooth Operators native_effect=true
+MOSAIC_CAPTURE image=08-compact-smooth-operators viewport=1920x1080 hash=d04fea03a221a615789b280892f51213f6fbe902111e853ccafa1b0bb7a8b355
+MOSAIC_FIXTURE step=8 mode=compact ids=first-responders,something-in-the-water,thirsty-crowd natural_progression=false
+MOSAIC_ASSET id=first-responders texture=res://assets/ui/perks/first-responders.png master=1536x1024 slot=(144, 96) title=First Responders native_effect=true
+MOSAIC_ASSET id=something-in-the-water texture=res://assets/ui/perks/something-in-the-water.png master=1536x1024 slot=(144, 96) title=Something in the Water native_effect=true
+MOSAIC_ASSET id=thirsty-crowd texture=res://assets/ui/perks/thirsty-crowd.png master=1536x1024 slot=(144, 96) title=Thirsty Crowd native_effect=true
+MOSAIC_CAPTURE image=09-compact-first-responders viewport=1920x1080 hash=4ca27fce622b3aa8a0a0d6b51151d5cfd12c46f398fdbfcb87e871d8103e1d13
+MOSAIC_FIXTURE step=9 mode=compact ids=first-responders,something-in-the-water,thirsty-crowd natural_progression=false
+MOSAIC_ASSET id=first-responders texture=res://assets/ui/perks/first-responders.png master=1536x1024 slot=(144, 96) title=First Responders native_effect=true
+MOSAIC_ASSET id=something-in-the-water texture=res://assets/ui/perks/something-in-the-water.png master=1536x1024 slot=(144, 96) title=Something in the Water native_effect=true
+MOSAIC_ASSET id=thirsty-crowd texture=res://assets/ui/perks/thirsty-crowd.png master=1536x1024 slot=(144, 96) title=Thirsty Crowd native_effect=true
+MOSAIC_CAPTURE image=10-compact-something-in-the-water viewport=1920x1080 hash=4ca27fce622b3aa8a0a0d6b51151d5cfd12c46f398fdbfcb87e871d8103e1d13
+MOSAIC_FIXTURE step=10 mode=compact ids=first-responders,something-in-the-water,thirsty-crowd natural_progression=false
+MOSAIC_ASSET id=first-responders texture=res://assets/ui/perks/first-responders.png master=1536x1024 slot=(144, 96) title=First Responders native_effect=true
+MOSAIC_ASSET id=something-in-the-water texture=res://assets/ui/perks/something-in-the-water.png master=1536x1024 slot=(144, 96) title=Something in the Water native_effect=true
+MOSAIC_ASSET id=thirsty-crowd texture=res://assets/ui/perks/thirsty-crowd.png master=1536x1024 slot=(144, 96) title=Thirsty Crowd native_effect=true
+MOSAIC_CAPTURE image=11-compact-thirsty-crowd viewport=1920x1080 hash=4ca27fce622b3aa8a0a0d6b51151d5cfd12c46f398fdbfcb87e871d8103e1d13
+MOSAIC_CAPTURE_COMPLETE native=true draft_all=8 compact_all=8 contain=true linear=true native_copy=true labelled_presentation_fixture=true

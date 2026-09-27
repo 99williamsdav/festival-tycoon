@@ -305,9 +305,7 @@ public partial class Main
         _hudPlacementText!.Text = $"{(_movingResponsePost is {} postRole?postRole==ResponseRole.Medic?"Moving first aid":"Moving steward post":_placingImmersionVendor is { } id ? "Moving " + (id == "food" ? "food van" : "bar") : _waterPlacementMode == WaterPlacementMode.Add ? "Adding free-water tap" : "Moving free-water tap")}\nChoose grass · click to place · comma/period rotate · Esc cancels";
         _hudProgrammeToggle!.Visible = !preparing; _hudProgramme!.Visible = !preparing && _hudProgrammeOpen;
         _hudProgrammeToggle.Text = _hudProgrammeOpen ? "Programme ▴" : "Programme ▾";
-        var y = preparing ? 77 : _hudProgrammeOpen ? 280 : 99;
-        _contextPanel!.Position = new Vector2(GetViewport().GetVisibleRect().Size.X - 300, y);
-        _contextPanel.Size = new Vector2(300, Math.Min(380, GetViewport().GetVisibleRect().Size.Y - y - 60));
+        LayoutOwnedContext(_ownedWorkspaceConstrained);
         var issue = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand()));
         var blockers = _session.GetPreparationStartBlockers();
         _hudStartReason!.Text = issue is null ? "Ready to open. Equipment and stock remain optional."
@@ -420,6 +418,7 @@ public partial class Main
     private bool HudBlocksPlacement(Vector2 screen)
     {
         if(_perkPanel?.Visible==true && _perkPanel.GetGlobalRect().HasPoint(screen))return true;
+        if(_ownedEffectPopup?.Visible==true && _ownedEffectPopup.GetGlobalRect().HasPoint(screen))return true;
         if (_hudMoney is null) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
         if (screen.Y < 60 || screen.Y > GetViewport().GetVisibleRect().Size.Y - 54) return true;
         return new Control?[] { _hudWorkspace, _hudMenu, _hudPlacement, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }

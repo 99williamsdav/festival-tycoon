@@ -1,0 +1,3 @@
+MOSAIC_CAPTURE_FAILED System.InvalidOperationException: Tooltip outside viewport/leaks world input: popup=(10, 495), (350, 1373) viewport=(0, 0), (1280, 720) occluded=True
+   at Festival.Game.Main.HoverAssert(Boolean condition, String message) in /_/game/Main.HoverCapture.cs:line 27
+   at Festival.Game.Main.ProcessMosaicCapture() in /_/game/Main.MosaicCapture.cs:line 75

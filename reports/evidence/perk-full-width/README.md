@@ -1,0 +1,12 @@
+# Full-width perk UI evidence
+
+27September2026; R0.05i user-approved follow-up after `f5062cc`. See [result](../../../briefs/results/R0.05i-full-width-perks.md) and amended brief for exact scope, authorization, counts and caveats.
+
+- `tests-focused.log`:22/22 perk/art/readiness tests,0failed/skipped,14.842s. `tests-build.log` and `game-build-dev8.log`: clean builds; final Debug1.90s.
+- `dev8-popout-1280x720` / `dev8-popout-1920x1080`:28native PNG each and matching stdout/stderr; full-width/full-five/empty/partial, focus/pointer/lifecycle, successful normal save/load, selection/footer/input/purity and context/preparation scroll guards. Labelled capacity and long-context fixtures, not natural progression.
+- `dev8-mosaic-1280x720` / `dev8-mosaic-1920x1080`:11native PNG each; all eight approved mosaics, title/art-only owned, visible draft effects, actual full-content-width3:2 art. All four development processes exited0,stderr empty;78final development images.
+- `export-popout-1280x720` / `export-mosaic-1920x1080`:28+11native PNG, full startup/completion markers, empty stderr. Launch exit codes not retained/not claimed. `export-startup.*`: separate bounded headless startup exited0 and emitted required markers.
+- `export-final.log` and `export-final2.*`: both packedDONE/noERROR; invocation wait did not return. Exact task-owned console wrapper7236 and later waiting PowerShell48556 were verified/cleaned up; neither export invocation claimed clean exit. Final engine was already gone/no direct active child when second waiting shell stopped. Root cause unknown; coordinator conditionally accepts validated runtime bundle subject to independent contents/provenance/runtime gate. Nonblocking packaging investigation remains.
+- Earlier `dev1`–`dev7` images/logs retain failures and superseded fixtures. Not acceptance evidence. Dev5 load clearing was vacuous due legacy capacity fixture identity and is explicitly rejected; normal nonvacuous load checks start atdev6. Dev7 long-context injection was replaced by production refresh; dev8 retains labelled diagnostic child. Production behavior was not weakened.
+
+Runtime bundle is ignored/generated under `artifacts/windows/perk-full-width-final`, not committed. Adjacent `data_Festival.Game_windows_x86_64` is required. Final runtime DLL SHA256 `8AA77330CC425B54A5E4BCA569FB58FDFD928E5B2BE27236F99A0D7FC98EBB78`; engine executable `069A16D9DC33B63DF86A0D7C2995C24268A71248AEBD6F69D9F892BE71210DFC`. No manual walkthrough/OS-input QA, full-suite, FPS, balance or natural full-perk progression claim.

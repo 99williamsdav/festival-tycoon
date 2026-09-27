@@ -1,0 +1,30 @@
+warning: --no-progress is deprecated; use --progress off instead.
+passed RuntimeMastersMatchApprovedManifestAndNativeCatalogue (40ms)
+passed ThreeDistinctUniformChoicesUseSeparateSavedEntropyAndOneReroll (2s 812ms)
+passed PendingDraftBlocksPreparationAndStaleUnknownDuplicateCommandsArePure (28ms)
+passed FullHandExcludesOwnedAndAllowsRepeatedRemainingThreeReplacementAndSkip (78ms)
+passed SlotPerksAddNoWorkersAndPaidContractsCannotBypassRemovedSlot (35ms)
+passed SeparateRoleTrainingDerivesActualAbilitiesAndSavedWalkingSpeeds (384ms)
+passed TowerTapRemovalRestoresBaselineAndNeverRemovesMain (36ms)
+passed ThirstPerkChangesOnlyGuestsByTenPercentAndWaterHappinessRequiresActualService (129ms)
+passed SaveFailureRetainsHandCursorMoneyAndIdsAndSuccessfulChoiceReloadsExactly (199ms)
+passed MalformedVersionHandCapacityRngAndEffectsAreRejected (4ms)
+passed LegacyNullableStateIsOmittedAndExactCanonicalAndEffectsRemainUnchanged (52ms)
+passed ActualCommittedLegacyHudSaveRetainsChecksumHashCanonicalEffectsAndFileBytes (33ms)
+passed ActualFatalHearingRetryKeepsPerksDrawsOnceExpiresContractsAndTerminalResetPreservesHistory (6s 347ms)
+passed EveryPerkRemovalRestoresItsBoundedEffectAndOwnedExclusion (2ms)
+passed ActualGuestFreeWaterTicksImproveSatisfactionAndResumeExactlyWhileStaffDoNotGain (475ms)
+passed PairedModestSynergyDiagnosticKeepsBaselineCountersAndExactContinuationBelowFifty (2s 133ms)
+passed ActualStaffFreeWaterAndGuestPaidDrinkDoNotEarnPerkHappiness (831ms)
+passed PerkTrainedPaidMedicTravelsTreatsAndResumesTheExactJob (984ms)
+passed TimetableShowsBothOwningTabsThenOnlyUnresolvedTabAndClearsWhenReady (37ms)
+passed LegacyOneActGateAndAnyStaffContractSemanticsArePreserved (24ms)
+passed MaintenanceAndOptionalEquipmentDoNotHideTheActualStaffBlocker (1ms)
+passed PendingPerkUsesItsGlobalGuardAndDoesNotInventAnotherOwningTab (24ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 22
+  failed: 0
+  succeeded: 22
+  skipped: 0
+  duration: 14s 842ms

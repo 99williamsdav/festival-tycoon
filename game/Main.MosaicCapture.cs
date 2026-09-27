@@ -36,11 +36,15 @@ public partial class Main
             var step = (frame - 1) / 12;
             if(step == 11) { GD.Print("MOSAIC_CAPTURE_COMPLETE native=true draft_all=8 compact_all=8 contain=true linear=true native_copy=true labelled_presentation_fixture=true"); GetTree().Quit(); return; }
             if(frame % 12 == 1) MosaicFixture(step);
-            if(frame % 12 == 5 && step >= 3) _ownedPerkScroll!.ScrollHorizontal = (step < 8 ? step - 3 : step - 8) * 260;
+            if(frame % 12 == 5 && step >= 3)
+            {
+                var target = PerkDescendants(_ownedPerkScroll!).OfType<PanelContainer>().Where(c => c.Name.ToString().StartsWith("Equipped_")).ElementAt(step < 8 ? step - 3 : step - 8);
+                HoverMovePointer(target.GetGlobalRect().GetCenter());
+            }
             if(frame % 12 != 11) return;
             HoverAssert(_session.CaptureSnapshot().AuthoritativeHash == _mosaicHash, "Mosaic presentation changed authoritative state");
             var cards = step < 3 ? PerkDescendants(_perkBody!).OfType<PanelContainer>().Where(c => c.CustomMinimumSize == new Vector2(248,358)).ToArray()
-                : _ownedPerkScroll!.GetNode<HBoxContainer>("EquippedPerkCards").GetChildren().OfType<PanelContainer>().Where(c => PerkDescendants(c).OfType<TextureRect>().Any()).ToArray();
+                : PerkDescendants(_ownedPerkScroll!).OfType<PanelContainer>().Where(c => c.Name.ToString().StartsWith("Equipped_")).ToArray();
             var ids = step < 3 ? _session.CapturePerks()!.Hand : _session.CapturePerks()!.Equipped;
             HoverAssert(cards.Length == ids.Length, "Mosaic card count mismatch");
             for(var i = 0; i < ids.Length; i++)
@@ -51,18 +55,24 @@ public partial class Main
                 HoverAssert(art.Texture!.GetWidth()==1536 && art.Texture.GetHeight()==1024, "Artwork master dimensions changed");
                 HoverAssert(art.StretchMode==TextureRect.StretchModeEnum.KeepAspectCentered && art.TextureFilter==CanvasItem.TextureFilterEnum.Linear, "Artwork fit/filter changed");
                 var labels = PerkDescendants(card).OfType<Label>().ToArray();
-                HoverAssert(labels.Any(l => l.Text==perk.Name) && labels.Any(l=>l.Text==perk.Effect), "Native catalogue copy missing");
+                HoverAssert(labels.Any(l => l.Text==perk.Name) && (step < 3 ? labels.Any(l=>l.Text==perk.Effect) : !labels.Any(l=>l.Text==perk.Effect)), "Native catalogue copy missing/owned effect remains visible");
+                var box = (Control)art.GetParent();
+                HoverAssert(Math.Abs(art.Size.X-box.Size.X)<=1 && Math.Abs(art.Size.Y-art.Size.X*2/3)<=1, "Artwork not full content-width 3:2/no inset");
                 foreach(var label in labels) HoverAssert(label.GetLineCount()*label.GetThemeFont("font").GetHeight(label.GetThemeFontSize("font_size")) <= label.Size.Y + 2, $"Native text clipped: {perk.Id} {label.Text}");
-                HoverAssert(step < 3 ? card.Size.X>=248 && card.Size.Y>=358 : card.Size.X>=250 && card.Size.Y<=160, "Card footprint changed");
+                HoverAssert(step < 3 ? card.Size.X>=248 && card.Size.Y>=358 : card.Size.X==156 && card.Size.Y<=156, "Card footprint changed");
                 GD.Print($"MOSAIC_ASSET id={perk.Id} texture={art.Texture.ResourcePath} master=1536x1024 slot={art.Size} title={perk.Name} native_effect=true");
             }
             if(step >= 3)
             {
                 var bounds = _perkPanel!.GetGlobalRect();
-                HoverAssert(Math.Abs(bounds.Size.X - GetWindow().Size.X*.45f)<=1 && bounds.Size.Y<=220, "Shallow popout footprint changed");
+                HoverAssert(Math.Abs(bounds.Size.X - (GetWindow().Size.X-20))<=1 && bounds.Size.Y<=220, "Full-width shallow popout footprint wrong");
                 var target = cards[step < 8 ? step-3 : step-8].GetGlobalRect();
                 var viewport = _ownedPerkScroll!.GetGlobalRect();
                 HoverAssert(target.Position.X >= viewport.Position.X-1 && target.End.X<=viewport.End.X+1, "Target compact artwork/card not fully accessible");
+                foreach(var card in cards) HoverAssert(viewport.Encloses(card.GetGlobalRect()), "Equipped card not simultaneously whole");
+                var targetIndex = step < 8 ? step-3 : step-8;
+                HoverAssert(_ownedEffectPopup!.Visible && _ownedEffectText!.Text==PerkCatalogue.All.Single(p=>p.Id==ids[targetIndex]).Effect, "Scripted pointer did not expose exact effect");
+                HoverAssert(GetViewport().GetVisibleRect().Encloses(_ownedEffectPopup.GetGlobalRect()) && WorldInputOccluded(_ownedEffectPopup.GetGlobalRect().GetCenter()), $"Tooltip outside viewport/leaks world input: popup={_ownedEffectPopup.GetGlobalRect()} viewport={GetViewport().GetVisibleRect()} occluded={WorldInputOccluded(_ownedEffectPopup.GetGlobalRect().GetCenter())}");
                 HoverAssert(!_hudWorkspace!.Visible || _hudWorkspace.GetGlobalRect().End.Y<=bounds.Position.Y-5,"Popout overlaps preparation");
             }
             else foreach(var card in cards) HoverAssert(_perkPanel!.GetGlobalRect().Encloses(card.GetGlobalRect()),"Draft card outside panel");

@@ -83,6 +83,7 @@ public partial class Main
     {
         if (_startSplash is not null || _hudStartConfirmation?.Visible == true || _hearingShade?.Visible == true || HoverPopupActive) return true;
         if (_perkPanel?.IsVisibleInTree() == true && _perkPanel.GetGlobalRect().HasPoint(screen)) return true;
+        if (_ownedEffectPopup?.IsVisibleInTree() == true && _ownedEffectPopup.GetGlobalRect().HasPoint(screen)) return true;
         if (_hudMoney is not null && HudBlocksPlacement(screen)) return true;
         // Godot resolves Ignore/Pass/Stop and child ordering; a label inside a
         // panel still blocks the world through its receiving ancestor.
