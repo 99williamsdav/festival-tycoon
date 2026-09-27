@@ -396,7 +396,15 @@ public sealed class StaffFoundationsTests
     public void PreviouslyReviewedWaterSaveLoadsWithoutGrantingFreeStaff()
     {
         var path = Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "../../../../../reports/evidence/R0.05a/player-placement/same-id-layout-b.ftsave"));
-        var loaded = SaveFileAdapter.LoadFile(path, new SaveCompatibility("0.0.1-r0.05-hearing-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v13"));
+        var bytes = File.ReadAllBytes(path);
+        var current = new SaveCompatibility("0.0.1-r0.05-hearing-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v13");
+        var rejected = SaveFileAdapter.LoadFile(path, current);
+        Assert.IsFalse(rejected.IsSuccess);
+        StringAssert.Contains(rejected.Error!, "Content hash mismatch");
+        CollectionAssert.AreEqual(bytes, File.ReadAllBytes(path));
+        // Historical fixture-only compatibility identity, never the normal game
+        // adapter. R0.05h intentionally requires a fresh current-layout save.
+        var loaded = SaveFileAdapter.LoadFile(path, current with { ContentHash = "153c4af484f24f92ee5bb4bd8572153bea4283bda785174685ef4f5c54d7d344" });
         Assert.IsTrue(loaded.IsSuccess, loaded.Error);
         var p = loaded.Session!.CapturePreparation()!;
         Assert.IsFalse(loaded.Session.CaptureMedical()!.DevelopmentInterventionFixturesEnabled);

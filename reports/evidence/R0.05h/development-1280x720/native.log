@@ -1,0 +1,22 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+FARM_SELECTION_CLEARED
+LAYOUT_BARNS actual_door_axis_dot=1.0000 front_positive_z=True render_bounds_overlap=False selection_yaw0=True generic_normal_mesh_pick_absent=True content=0e6fa18d57decc54430afd5931e220b4477aa7cf793859883fc337ad600baa18
+LAYOUT_STAFF worker=Riley Hart role=Medic idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Jordan Hale role=Steward idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Avery Brooks role=Medic idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Sam Ellis role=Steward idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_LABELLED_GUARD worker=Riley Hart treatment_precedence=True stopped_intervention_precedence=True collapse_precedence=True
+LAYOUT_LABELLED_GUARD worker=Jordan Hale calming_precedence=True stopped_intervention_precedence=True collapse_precedence=True
+LAYOUT_LABELLED_GUARD worker=Avery Brooks treatment_precedence=True stopped_intervention_precedence=True collapse_precedence=True
+LAYOUT_LABELLED_GUARD worker=Sam Ellis calming_precedence=True stopped_intervention_precedence=True collapse_precedence=True
+LAYOUT_STAFF worker=Riley Hart role=Medic idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Jordan Hale role=Steward idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Avery Brooks role=Medic idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Sam Ellis role=Steward idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+FARM_SELECTION_CLEARED
+LAYOUT_CAPTURE_COMPLETE barn_actual_axes=True four_cardinals=True generic_normal_mesh_pick_absent=True idle_four_workers=True labelled_busy_collapse_intervention_guards=True labelled_real_walk_return=True cosmetic_hash_pure=True exact_file_restore=True hash=9e676783dfb1cf246945bd1d302ca7e83df587ac394f14271f4acff3acd6fb00 size=(1280, 720)

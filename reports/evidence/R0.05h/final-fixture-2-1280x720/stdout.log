@@ -1,0 +1,16 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FARM_SELECTED id=farm.farmhouse orientation=South
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=6 hash=6fe08f9ea95f89cc9a802c372cea16490f2ed3cf804f8e2bba7ca7eace6a5476
+FARM_CAPTURE orientation=South selected=farm.farmhouse path=C:\Projects\festival-tycoon\reports\evidence\R0.05h\final-fixture-2-1280x720\farm-south-1280x720.png result=Ok
+FARM_CAPTURE orientation=West selected=farm.farmhouse path=C:\Projects\festival-tycoon\reports\evidence\R0.05h\final-fixture-2-1280x720\farm-west-1280x720.png result=Ok
+FARM_CAPTURE orientation=North selected=farm.farmhouse path=C:\Projects\festival-tycoon\reports\evidence\R0.05h\final-fixture-2-1280x720\farm-north-1280x720.png result=Ok
+FARM_CAPTURE orientation=East selected=farm.farmhouse path=C:\Projects\festival-tycoon\reports\evidence\R0.05h\final-fixture-2-1280x720\farm-east-1280x720.png result=Ok
+FARM_SELECTED id=farm.farmhouse orientation=East
+FARM_SELECTED id=farm.main-gate orientation=East
+FARM_SELECTED id=farm.service-point orientation=East
+FARM_SELECTION_CLEARED
+FARM_SELECTED id=farm.farmhouse orientation=East
+FARM_CAPTURE_COMPLETE selected=farm.farmhouse verified=True size=(1280, 720)

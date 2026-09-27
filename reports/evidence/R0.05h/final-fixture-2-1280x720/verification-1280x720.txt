@@ -1,0 +1,11 @@
+M0.06 exported-runtime verification passed=True resolution=(1280, 720)
+pick target=visible-object expected=farm.farmhouse resolved=farm.farmhouse correct=True
+pick target=visible-open-leaf expected=farm.main-gate resolved=farm.main-gate correct=True
+pick target=visible-object expected=farm.service-point resolved=farm.service-point correct=True
+empty_selection_cleared=True
+selection_retained_four_rotations=True id=farm.farmhouse
+zoom_min_bounded=True zoom_max_bounded=True pan_bounded=True
+grass_bounds_x=-32..32 grass_bounds_z=-32..32 supports_boundary=True
+track_bounds_z=-32..32 reaches_gate_z30=True
+middle_release_before_gui_clears_drag=True
+paused=True hash_before=6fe08f9ea95f89cc9a802c372cea16490f2ed3cf804f8e2bba7ca7eace6a5476 hash_after=6fe08f9ea95f89cc9a802c372cea16490f2ed3cf804f8e2bba7ca7eace6a5476 unchanged=True

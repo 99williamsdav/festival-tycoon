@@ -74,6 +74,14 @@ public partial class Main
             visual.Rotation = new Vector3(0, -Mathf.Pi / 2f, 0);
             return;
         }
+        // Actual rendered motion wins, including the final interpolated step after
+        // authoritative arrival. Actor GLBs face -Z; facilities face +Z.
+        if ((!hasPrevious || direction.LengthSquared() < 0.0000000001f) &&
+            _session.IdleResponseStaffRole(id, position.X * 1000, position.Z * 1000) is { } idleRole)
+        {
+            visual.Rotation = new Vector3(0, idleRole == ResponseRole.Medic ? Mathf.Pi : -Mathf.Pi / 2f, 0);
+            return;
+        }
         var backstepping = hasPrevious && _session.ShouldAudienceBackstepFacingStage(id,
             position.X * 1000, position.Z * 1000, direction.X * 1000, direction.Z * 1000);
         if (backstepping || action != AgentNavigationAction.Travelling || !hasPrevious || direction.LengthSquared() < 0.000036f)

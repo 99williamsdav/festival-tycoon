@@ -39,7 +39,7 @@ public static class NavigationFixture
         }
 
         BlockRectangle(cells, -28_500, -15_500, -19_500, -8_500); // farmhouse
-        BlockRectangle(cells, 13_500, 24_500, -25_000, -9_000);   // small barn
+        BlockRectangle(cells, 11_000, 27_000, -22_500, -11_500);  // small barn +Z front; same padded extents rotated to yaw0
         BlockRectangle(cells, -11_000, 11_000, -30_000, -16_000); // large barn in the rear field
         return cells.Values.ToArray();
     }

@@ -184,7 +184,7 @@ public partial class Main : Node
                 _medicalCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null || _liveCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
-                _hudCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreatePerkCampaign(20260922);
+                _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreatePerkCampaign(20260922);
         }
         if (_hearingCaptureDirectory is not null)
         {
@@ -282,6 +282,7 @@ public partial class Main : Node
         ProcessHearingCapture();
         ProcessHudCapture();
         ProcessPerkCapture();
+        ProcessLayoutPolishCapture();
         ProcessStartSplashCapture();
     }
 
@@ -333,6 +334,11 @@ public partial class Main : Node
             Pan(motion.Relative * 0.055f);
     }
 
+    // Explicit legacy diagnostics retain the immutable generic service fixture.
+    private bool IncludeGenericServicePointDiagnostic => _captureDirectory is not null ||
+        _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null ||
+        _foundationFixture is not null || _sharedWorldFixture is not null;
+
     private void BuildWorld()
     {
         var worldEnvironment = new WorldEnvironment
@@ -355,7 +361,8 @@ public partial class Main : Node
         BuildGrass();
         BuildTrack();
         BuildHedgeBoundary();
-        foreach (var item in LowerWitteringFarmScenario.CreateReadModel().Objects) AddFarmObject(item);
+        foreach (var item in LowerWitteringFarmScenario.CreateReadModel().Objects)
+            if (item.Kind != FarmObjectKind.ServicePoint || IncludeGenericServicePointDiagnostic) AddFarmObject(item);
         _highlight = new MeshInstance3D
         {
             Mesh = new CylinderMesh { TopRadius = 1f, BottomRadius = 1f, Height = 0.08f },
@@ -836,6 +843,7 @@ public partial class Main : Node
 
     private void SelectObject(FarmObjectReadModel item)
     {
+        if (!_visualRegistry.TryGetValue(item.StableId, out var objectVisual)) { ClearSelection(); return; }
         _selectedImmersionVendor = null;
         ClearSecurityPostSelection();
         _selectedMedicalFacility = null;
@@ -852,7 +860,7 @@ public partial class Main : Node
             FarmObjectKind.Farmhouse => 7.3f, FarmObjectKind.TrailerStage => 6f,
             FarmObjectKind.ServicePoint => 3f, _ => 3.5f,
         };
-        _highlight.Position = _visualRegistry[item.StableId].Position + new Vector3(0, 0.08f, 0);
+        _highlight.Position = objectVisual.Position + new Vector3(0, 0.08f, 0);
         _highlight.Scale = new Vector3(radius, 1, radius); _highlight.Visible = true;
         _inspectorTitle.Text = item.DisplayName;
         var permanence = item.IsPermanent ? "Permanent • Immovable" : "Inherited • Fixed for this blockout";
@@ -982,6 +990,8 @@ public partial class Main : Node
             { _hudCaptureDirectory = args[++i]; Directory.CreateDirectory(_hudCaptureDirectory); }
             else if (args[i] == "--capture-r005g-perks" && i + 1 < args.Length)
             { _perkCaptureDirectory = args[++i]; Directory.CreateDirectory(_perkCaptureDirectory); }
+            else if (args[i] == "--capture-r005h-layout" && i + 1 < args.Length)
+            { _layoutCaptureDirectory = args[++i]; Directory.CreateDirectory(_layoutCaptureDirectory); }
             else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
@@ -1359,7 +1369,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
+    private string SaveDirectory => _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :
@@ -1692,7 +1702,8 @@ public partial class Main : Node
     {
         var lines = new List<string>();
         var passed = true;
-        foreach (var id in new[] { "farm.farmhouse", "farm.main-gate", "farm.service-point" })
+        foreach (var id in new[] { "farm.farmhouse", "farm.main-gate" }.Concat(
+                     IncludeGenericServicePointDiagnostic ? new[] { "farm.service-point" } : Array.Empty<string>()))
         {
             var visual = _visualRegistry[id];
             var pickTarget = id == "farm.main-gate"

@@ -76,6 +76,22 @@ public sealed partial class GameSession
         var baseline = role == ResponseRole.Medic ? _medical!.MedicId : _disorder!.SecurityId;
         return id == baseline ? baseCell : new(baseCell.X + 2, baseCell.Z);
     }
+    /// <summary>Derived presentation hint only: no job, route, hash or save state is changed.</summary>
+    public ResponseRole? IdleResponseStaffRole(EntityId id, double renderedXMillimetres, double renderedZMillimetres)
+    {
+        var profile = GetResponseStaff().SingleOrDefault(item => item.AgentId == id.Value);
+        if (profile is null || _preparation is not { Status: PreparationStatus.Running } ||
+            !_navigationAgents.TryGetValue(id, out var nav) || nav.Action is not (AgentNavigationAction.Idle or AgentNavigationAction.Arrived) ||
+            PersonCollapsed(id.Value) || MedicalOwnsNavigation(id.Value) || ImmersionOwnsNavigation(id.Value) ||
+            InterventionOwnsWorker(id.Value) || InterventionOwnsTarget(id.Value) ||
+            GetMedicResponses().Any(job => job.WorkerId == id.Value && MedicBusy(job)) ||
+            GetStewardResponses().Any(job => job.WorkerId == id.Value && (StewardBusy(job) || job.Incapacitated))) return null;
+        var duty = StaffDutyCell(id.Value, profile.Role);
+        var centre = TraversalGrid.CellCentre(duty);
+        return nav.Destination == duty && nav.XMillimetres == centre.XMillimetres && nav.ZMillimetres == centre.ZMillimetres &&
+            Math.Abs(renderedXMillimetres - centre.XMillimetres) < .01 && Math.Abs(renderedZMillimetres - centre.ZMillimetres) < .01
+            ? profile.Role : null;
+    }
     public IReadOnlyList<StaffProfile> GetResponseStaff()
     {
         var profiles = new List<StaffProfile>();
