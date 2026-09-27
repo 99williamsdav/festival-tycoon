@@ -15,6 +15,8 @@ public partial class Main
     private int _perkPopoutCaptureFrame;
     private string? _perkPopoutShot;
     private string _perkPopoutHash = "";
+    private int _popoutTab;
+    private int _popoutTabScroll;
     private void PopoutSelect(int slot, string id)
     {
         var choice = _programmeChoices[slot];
@@ -29,15 +31,26 @@ public partial class Main
         try
         {
             var frame=++_perkPopoutCaptureFrame;
+            if(frame/12==13 && frame%12==4)
+                ((ScrollContainer)_hudTabs!.GetCurrentTabControl()).ScrollVertical=10000;
             if(frame%12==11 && _perkPopoutShot is { } shot)
             {
                 if(_perkPanel!.Visible && _session.CapturePerks()?.Pending!=true)
                 {
                     var bounds=_perkPanel.GetGlobalRect();
-                    HoverAssert(bounds.Position.X>=_hudWorkspace!.GetGlobalRect().End.X+5 && bounds.End.X<=GetWindow().Size.X-310 && bounds.End.Y<=GetWindow().Size.Y-55,$"Popout overlaps protected HUD region: panel={bounds} workspace={_hudWorkspace.GetGlobalRect()}");
+                    HoverAssert(Math.Abs(bounds.Size.X-GetWindow().Size.X*.45f)<=1 && bounds.Size.Y<=220 && Math.Abs(bounds.GetCenter().X-GetWindow().Size.X/2f)<=1 && bounds.End.Y<=GetWindow().Size.Y-55,$"Popout footprint wrong: {bounds}");
+                    HoverAssert(!_hudWorkspace!.Visible || _hudWorkspace.GetGlobalRect().End.Y<=bounds.Position.Y-5,$"Popout overlaps preparation: {bounds} {_hudWorkspace.GetGlobalRect()}");
+                    HoverAssert(!_contextPanel!.Visible || !bounds.Intersects(_contextPanel.GetGlobalRect()),"Popout overlaps context");
+                    if(_hudWorkspace.Visible) {
+                        HoverAssert(_preparationStart.GetGlobalRect().End.Y<=_hudWorkspace.GetGlobalRect().End.Y && !_perkPanel.GetGlobalRect().HasPoint(_preparationStart.GetGlobalRect().GetCenter()),"Start clipped/occluded");
+                        HoverAssert(_hudStartReason!.GetGlobalRect().End.Y<=_hudWorkspace.GetGlobalRect().End.Y,"Cost footer clipped");
+                    }
                     HoverMovePointer(bounds.GetCenter());UpdateHoverFeedback(bounds.GetCenter());
                     HoverAssert(WorldInputOccluded(bounds.GetCenter()) && _hoveredColliderId==0,"Popout leaked pointer to world");
-                    HoverAssert(_perkBody!.GetNode<GridContainer>("EquippedPerkCards").GetChildCount()==5,"Owned slots missing");
+                    var cards=_ownedPerkScroll!.GetNode<HBoxContainer>("EquippedPerkCards");
+                    HoverAssert(cards.GetChildCount()==5,"Owned slots missing");
+                    foreach(var card in cards.GetChildren().OfType<Control>()) HoverAssert(card.Size.Y<=160 && card.Size.X>=250,"Compact card size wrong");
+                    GD.Print($"POPOUT_BOUNDS panel={bounds} workspace={_hudWorkspace.GetGlobalRect()} start={_preparationStart.GetGlobalRect()} cards={cards.Size} scroll={_ownedPerkScroll.GetGlobalRect()}");
                 }
                 var image=GetViewport().GetTexture().GetImage();
                 HoverAssert(image.GetWidth()==GetWindow().Size.X && image.GetHeight()==GetWindow().Size.Y,"Wrong native size");
@@ -63,14 +76,16 @@ public partial class Main
                     _perksExpanded=false;RefreshPreparationHud();_perkPopoutHash=_session.CaptureSnapshot().AuthoritativeHash;_perkPopoutShot="05-five-collapsed";break;
                 case 6:_perkToggle!.EmitSignal(BaseButton.SignalName.Pressed);PopoutPure();_perkPopoutShot="06-five-open";break;
                 case 7:
-                    _perkScroll!.ScrollVertical=10000;PopoutPure();_perkPopoutShot="07-five-bottom-accessible";break;
+                    _ownedPerkScroll!.ScrollHorizontal=10000;PopoutPure();_perkPopoutShot="07-five-right-accessible";break;
                 case 8:
-                    var last=_perkBody!.GetNode<GridContainer>("EquippedPerkCards").GetChild<Control>(4);
-                    HoverAssert(last.GetGlobalRect().End.Y<=_perkScroll!.GetGlobalRect().End.Y && last.GetGlobalRect().Position.Y>=_perkScroll.GetGlobalRect().Position.Y,"Fifth card not fully accessible by scrolling");
+                    var last=_ownedPerkScroll!.GetNode<HBoxContainer>("EquippedPerkCards").GetChild<Control>(4);
+                    HoverAssert(last.GetGlobalRect().End.X<=_ownedPerkScroll.GetGlobalRect().End.X && last.GetGlobalRect().Position.X>=_ownedPerkScroll.GetGlobalRect().Position.X && last.GetGlobalRect().End.Y<=_ownedPerkScroll.GetGlobalRect().End.Y,"Fifth card not fully accessible by scrolling");
                     SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.farmhouse"));RefreshContextPanelVisibility();
                     HeaderButton(_perkBody!,"Collapse perks").EmitSignal(BaseButton.SignalName.Pressed);_perkToggle!.EmitSignal(BaseButton.SignalName.Pressed);
                     HoverAssert(_selected?.StableId=="farm.farmhouse" && _contextPanel!.Visible,"Collapse/reopen cleared selection");PopoutPure();_perkPopoutShot="08-five-reopened-selection";break;
                 case 9:
+                    last=_ownedPerkScroll!.GetNode<HBoxContainer>("EquippedPerkCards").GetChild<Control>(4);
+                    HoverAssert(last.GetGlobalRect().End.X<=_ownedPerkScroll.GetGlobalRect().End.X && last.GetGlobalRect().Position.X>=_ownedPerkScroll.GetGlobalRect().Position.X,"Horizontal scroll not retained on reopen");
                     _session=GameSession.CreateEditableCampaign(20260922);p=_session.CapturePerks()!;CommitEquipmentAction(new ChoosePerkCommand(p.DraftAttempt,p.Cursor,p.Hand[0]));
                     _perksExpanded=false;_perkHudKey="";SelectHudTab("Programme");RefreshPreparationHud();
                     HoverAssert(!_programmeBook!.Visible,"Redundant lineup save button visible");
@@ -97,6 +112,49 @@ public partial class Main
                     _session.Execute(CampaignEnvelope(new SetPausedCommand(true)));
                     _perkPopoutShot="12-start-displayed-lineup-once";break;
                 case 13:
+                    _session=GameSession.CreateEditableCampaign(20260922);p=_session.CapturePerks()!;CommitEquipmentAction(new ChoosePerkCommand(p.DraftAttempt,p.Cursor,p.Hand[0]));
+                    _perksExpanded=true;_perkHudKey="";SelectHudTab("Site & water");RefreshPreparationHud();
+                    _perkPopoutHash=_session.CaptureSnapshot().AuthoritativeHash;
+                    ((ScrollContainer)_hudTabs!.GetCurrentTabControl()).ScrollVertical=10000;
+                    _perkPopoutShot="13-partial-site-open-scroll";break;
+                case 14:
+                    _popoutTab=_hudTabs!.CurrentTab;_popoutTabScroll=((ScrollContainer)_hudTabs.GetCurrentTabControl()).ScrollVertical;
+                    HoverAssert(_popoutTabScroll>0,"Deep tab scroll fixture did not move");
+                    GD.Print($"POPOUT_TAB_SCROLL open={_popoutTabScroll}");
+                    HeaderButton(_perkBody!,"Collapse perks").EmitSignal(BaseButton.SignalName.Pressed);PopoutPure();
+                    HoverAssert(_hudWorkspace!.Size.Y==Math.Min(520,GetWindow().Size.Y-150),"Workspace did not restore");
+                    _perkPopoutShot="14-partial-site-closed-restored";break;
+                case 15:_perkToggle!.EmitSignal(BaseButton.SignalName.Pressed);PopoutPure();_perkPopoutShot="15-partial-site-reopened";break;
+                case 16:
+                    HoverAssert(_hudTabs!.CurrentTab==_popoutTab && ((ScrollContainer)_hudTabs.GetCurrentTabControl()).ScrollVertical==_popoutTabScroll,"Active tab/scroll not preserved on reopen");
+                    GD.Print($"POPOUT_TAB_SCROLL reopened={((ScrollContainer)_hudTabs.GetCurrentTabControl()).ScrollVertical}");
+                    SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.farmhouse"));RefreshContextPanelVisibility();
+                    _perkPopoutShot="16-partial-selected-context";break;
+                case 17:
+                    HeaderButton(_perkBody!,"Collapse perks").EmitSignal(BaseButton.SignalName.Pressed);PopoutPure();_perkPopoutShot="17-closed-before-user-scroll";break;
+                case 18:
+                    ((ScrollContainer)_hudTabs!.GetCurrentTabControl()).ScrollVertical=0;
+                    _perkToggle!.EmitSignal(BaseButton.SignalName.Pressed);PopoutPure();_perkPopoutShot="18-reopened-user-scroll-retained";break;
+                case 19:
+                    HoverAssert(((ScrollContainer)_hudTabs!.GetCurrentTabControl()).ScrollVertical==0,"Closed tab scroll preference overwritten");
+                    // Schedule A's deep restore, then replace it with a fresh B preference
+                    // before either two-frame layout callback can settle.
+                    ((ScrollContainer)_hudTabs.GetCurrentTabControl()).ScrollVertical=10000;
+                    HeaderButton(_perkBody!,"Collapse perks").EmitSignal(BaseButton.SignalName.Pressed);
+                    _perkToggle!.EmitSignal(BaseButton.SignalName.Pressed);
+                    HeaderButton(_perkBody!,"Collapse perks").EmitSignal(BaseButton.SignalName.Pressed);
+                    ((ScrollContainer)_hudTabs.GetCurrentTabControl()).ScrollVertical=0;
+                    _perkToggle.EmitSignal(BaseButton.SignalName.Pressed);PopoutPure();
+                    _perkPopoutShot="19-rapid-toggle-new-scroll";break;
+                case 20:
+                    HoverAssert(((ScrollContainer)_hudTabs!.GetCurrentTabControl()).ScrollVertical==0,"Stale rapid-toggle restore replaced fresh scroll");
+                    ((ScrollContainer)_hudTabs.GetCurrentTabControl()).ScrollVertical=10000;
+                    HeaderButton(_perkBody!,"Collapse perks").EmitSignal(BaseButton.SignalName.Pressed);_perkToggle!.EmitSignal(BaseButton.SignalName.Pressed);
+                    _session=GameSession.CreateEditableCampaign(20260922);p=_session.CapturePerks()!;CommitEquipmentAction(new ChoosePerkCommand(p.DraftAttempt,p.Cursor,p.Hand[0]));
+                    ((ScrollContainer)_hudTabs.GetCurrentTabControl()).ScrollVertical=0;
+                    _perkPopoutHash=_session.CaptureSnapshot().AuthoritativeHash;_perkPopoutShot="20-session-replacement-new-scroll";break;
+                case 21:
+                    HoverAssert(((ScrollContainer)_hudTabs!.GetCurrentTabControl()).ScrollVertical==0,"Stale session restore replaced new session scroll");
                     GD.Print($"POPOUT_CAPTURE_COMPLETE native={GetWindow().Size} empty=True five=True reopen=True selection_preserved=True pointer_occluded=True purity=True immediate_lineup=True incomplete_reload=True failed_save_coherent=True duplicate_rejected=True exact_start_once=True manual_desktop_QA=False hash={_session.CaptureSnapshot().AuthoritativeHash}");GetTree().Quit();break;
             }
         }

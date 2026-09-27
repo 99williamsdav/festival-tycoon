@@ -1,0 +1,38 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=28ce567ad9cbee2485dcb582b87fb34a332c717e60a3b8b9afeb95308bdf7109
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+POPOUT_CAPTURE image=01-empty-collapsed hash=66b144ef2ad485273ed7d72ee8a06200a6df5cbf535781833eed0a1b199213ac cost=0
+POPOUT_BOUNDS panel=(528, 800), (864, 220) workspace=(15, 77), (690, 520) start=(593, 519), (100, 66) cards=(1290, 142) scroll=(538, 854), (844, 150)
+POPOUT_CAPTURE image=02-empty-open hash=66b144ef2ad485273ed7d72ee8a06200a6df5cbf535781833eed0a1b199213ac cost=0
+POPOUT_CAPTURE image=03-empty-x-collapsed hash=66b144ef2ad485273ed7d72ee8a06200a6df5cbf535781833eed0a1b199213ac cost=0
+POPOUT_BOUNDS panel=(528, 800), (864, 220) workspace=(15, 77), (690, 520) start=(593, 519), (100, 66) cards=(1290, 142) scroll=(538, 854), (844, 150)
+POPOUT_CAPTURE image=04-empty-reopened hash=66b144ef2ad485273ed7d72ee8a06200a6df5cbf535781833eed0a1b199213ac cost=0
+PERK_CAPTURE_SETUP fixture=capacity inserted_owned=4 production_choice=5 extra_tap=production_placement
+POPOUT_CAPTURE image=05-five-collapsed hash=1b7d7f5a388c792b6202996a783992bdeae47812f408ded9e207af3e01921c3d cost=0
+POPOUT_BOUNDS panel=(528, 800), (864, 220) workspace=(15, 77), (690, 520) start=(593, 542), (100, 43) cards=(1290, 142) scroll=(538, 854), (844, 150)
+POPOUT_CAPTURE image=06-five-open hash=1b7d7f5a388c792b6202996a783992bdeae47812f408ded9e207af3e01921c3d cost=0
+POPOUT_BOUNDS panel=(528, 800), (864, 220) workspace=(15, 77), (690, 520) start=(593, 542), (100, 43) cards=(1290, 142) scroll=(538, 854), (844, 150)
+POPOUT_CAPTURE image=07-five-right-accessible hash=1b7d7f5a388c792b6202996a783992bdeae47812f408ded9e207af3e01921c3d cost=0
+FARM_SELECTED id=farm.farmhouse orientation=South
+POPOUT_BOUNDS panel=(528, 800), (864, 220) workspace=(15, 77), (690, 520) start=(593, 542), (100, 43) cards=(1290, 142) scroll=(538, 854), (844, 150)
+POPOUT_CAPTURE image=08-five-reopened-selection hash=1b7d7f5a388c792b6202996a783992bdeae47812f408ded9e207af3e01921c3d cost=0
+FARM_SELECTION_CLEARED
+POPOUT_CAPTURE image=09-immediate-partial-lineup hash=1a312067029f091a8d165b415da5da3756947c34bf32076daea1ff0c007193a2 cost=4000
+POPOUT_CAPTURE image=10-failed-lineup-save-coherent hash=1a312067029f091a8d165b415da5da3756947c34bf32076daea1ff0c007193a2 cost=4000
+POPOUT_CAPTURE image=11-immediate-complete-lineup hash=6585eecbff937270bc0ebd2ad74520ec24cf4b577889f42250cbb27c56069a0f cost=20000
+POPOUT_CAPTURE image=12-start-displayed-lineup-once hash=beb7336189b0d23dce5491fce1ed6198b4040a826c9bd03f82f57d5de808a90d cost=20000
+POPOUT_BOUNDS panel=(528, 800), (864, 220) workspace=(15, 77), (690, 520) start=(593, 519), (100, 66) cards=(1290, 142) scroll=(538, 854), (844, 150)
+POPOUT_CAPTURE image=13-partial-site-open-scroll hash=526c3a6a2e7c228da9324310d136f34e76c11533efc147bf53049749e12485b5 cost=0
+POPOUT_CAPTURE image=14-partial-site-closed-restored hash=526c3a6a2e7c228da9324310d136f34e76c11533efc147bf53049749e12485b5 cost=0
+POPOUT_BOUNDS panel=(528, 800), (864, 220) workspace=(15, 77), (690, 520) start=(593, 519), (100, 66) cards=(1290, 142) scroll=(538, 854), (844, 150)
+POPOUT_CAPTURE image=15-partial-site-reopened hash=526c3a6a2e7c228da9324310d136f34e76c11533efc147bf53049749e12485b5 cost=0
+FARM_SELECTED id=farm.farmhouse orientation=South
+POPOUT_BOUNDS panel=(528, 800), (864, 220) workspace=(15, 77), (690, 520) start=(593, 519), (100, 66) cards=(1290, 142) scroll=(538, 854), (844, 150)
+POPOUT_CAPTURE image=16-partial-selected-context hash=526c3a6a2e7c228da9324310d136f34e76c11533efc147bf53049749e12485b5 cost=0
+POPOUT_CAPTURE image=17-closed-before-user-scroll hash=526c3a6a2e7c228da9324310d136f34e76c11533efc147bf53049749e12485b5 cost=0
+POPOUT_BOUNDS panel=(528, 800), (864, 220) workspace=(15, 77), (690, 520) start=(593, 519), (100, 66) cards=(1290, 142) scroll=(538, 854), (844, 150)
+POPOUT_CAPTURE image=18-reopened-user-scroll-retained hash=526c3a6a2e7c228da9324310d136f34e76c11533efc147bf53049749e12485b5 cost=0
+POPOUT_CAPTURE_COMPLETE native=(1920, 1080) empty=True five=True reopen=True selection_preserved=True pointer_occluded=True purity=True immediate_lineup=True incomplete_reload=True failed_save_coherent=True duplicate_rejected=True exact_start_once=True manual_desktop_QA=False hash=526c3a6a2e7c228da9324310d136f34e76c11533efc147bf53049749e12485b5

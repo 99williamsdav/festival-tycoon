@@ -297,6 +297,7 @@ public partial class Main
         _hudStatus!.Text = placing && !_preparationSaveBlocked ? "Placement preview · no change until a valid click" : _preparationMessage;
         _hudStatus.TooltipText = _preparationMessage;
         _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
+        LayoutOwnedPerkWorkspace();
         _hudPreparationToggle!.Visible = preparing; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
         _hudRosterToggle!.Text = $"People · {p.People.Length} ▸";
         _hudPlacement!.Visible = placing;

@@ -1,0 +1,12 @@
+ERROR: POPOUT_CAPTURE_FAILED System.InvalidOperationException: Popout footprint wrong: (528, 800), (864, 1044)
+   at Festival.Game.Main.HoverAssert(Boolean condition, String message) in /_/game/Main.HoverCapture.cs:line 27
+   at Festival.Game.Main.ProcessPerkPopoutCapture() in /_/game/Main.PerkPopoutCapture.cs:line 39
+   at: void Festival.Game.Main.ProcessPerkPopoutCapture() (/_/game/Main.PerkPopoutCapture.cs:39)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Festival.Game.Main.ProcessPerkPopoutCapture() (/_/game/Main.PerkPopoutCapture.cs:39)
+       [2] void Festival.Game.Main.ProcessPresentationFrame(double) (/_/game/Main.cs:293)
+       [3] void Festival.Game.Main._Process(double) (/_/game/Main.cs:245)
+       [4] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [5] bool Festival.Game.Main.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/_/game/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/Festival.Game.Main_ScriptMethods.generated.cs:3050)
+       [6] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)
