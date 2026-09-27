@@ -1,0 +1,34 @@
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (2s 135ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 433ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (685ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (687ms)
+failed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (645ms)
+  Assertion failed. Expected value to not be null.
+  No physical attempt: StewardResponse { WorkerId = 28, Stage = Travelling, TargetId = 4, StartedTick = 1501, Incapacitated = False, Description = Steward 28 walking to person 4; not yet calming, DispatchedTick = 1501 } navigation=NavigationAgentSnapshot { Id = 28, XMillimetres = -3765, ZMillimetres = 25928, Action = Travelling, Destination = GridCell { X = 125, Z = 179 }, Route = Festival.Simulation.GridCell[], RouteIndex = 1, SegmentOriginXMillimetres = -3830, SegmentOriginZMillimetres = 25950, SegmentProgressMicrometres = 69000, MovementRemainder = 0, LastSearchExpandedNodes = 5, IntentId = disorder.security-dispatch, WalkingSpeedPermille = 1150 }
+  
+  actual: null
+  
+  Assert.IsNotNull(s.CaptureDisorder()!.Incidents.Single().HandlingAttempt)
+  Expected
+    not null
+  Actual
+    null
+    at Festival.Tests.StaffAutonomyTests.CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt() in /_/tests/Festival.Tests/StaffAutonomyTests.cs:141
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (29ms)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (55ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (538ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (649ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (465ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (525ms)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (539ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (491ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (483ms)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 14
+  failed: 1
+  succeeded: 13
+  skipped: 0
+  duration: 9s 482ms

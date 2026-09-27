@@ -1,0 +1,2 @@
+  Run tests: 'C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll' [net8.0|x64]
+C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll : error run failed: Tests failed: 'C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\TestResults\Festival.Tests_net8.0_x64.log' [net8.0|x64] [C:\Projects\festival-tycoon\tests\Festival.Tests\Festival.Tests.csproj]

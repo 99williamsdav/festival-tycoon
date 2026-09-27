@@ -174,6 +174,7 @@ public partial class Main
 
     private void SelectSecurityPost()
     {
+        _selectedGenerator = false;
         _selectedImmersionVendor = null;
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null;
         RefreshSatisfactionBar(null);
@@ -191,6 +192,7 @@ public partial class Main
 
     private void ClearSecurityPostSelection()
     {
+        _selectedGenerator = false;
         _selectedSecurityPost = false;
         if (_securityPostWorkerButton is not null) _securityPostWorkerButton.Visible = false;
     }
@@ -242,7 +244,7 @@ public partial class Main
     {
         if (_session.CaptureDisorder() is null || _medicalActionInspector is null) return;
         foreach (var (action, label) in new[] {
-            (DisorderAction.DispatchSecurity, "DISPATCH JORDAN • DISORDER") })
+            (DisorderAction.DispatchSecurity, "Send steward") })
         {
             var button = ButtonText(label, () => CommitDisorderAction(action));
             button.AddThemeFontSizeOverride("font_size", 12);
@@ -280,6 +282,12 @@ public partial class Main
             return;
         }
         var command = new DisorderCommand(action, personTargeted ? selected : null, workerId);
+        if (action == DisorderAction.DispatchSecurity && workerId is null)
+        {
+            if (_session.SelectRoleResponse(ResponseRole.Steward, selected!.Value, out var issue) is not DisorderCommand roleCommand)
+            { _preparationMessage = issue!; RefreshPreparationHud(); return; }
+            command = roleCommand;
+        }
         var result = DisorderCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility,
             DateTimeOffset.UtcNow, _autosaveGeneration);
         if (result.IsSuccess)
@@ -302,9 +310,10 @@ public partial class Main
         {
             if (!_disorderButtons.TryGetValue(action, out var button)) continue;
             var selected = _selectedAttendeeId?.Value;
-            var error = selected is { } id ? _session.ValidateCommand(CampaignEnvelope(new DisorderCommand(action, id))) : null;
-            button.Disabled = selected is null || error is not null;
-            button.TooltipText = selected is null ? "Select an affected guest." : StewardWording(error?.Message ?? "");
+            string? issue = "Select an affected guest.";
+            if (selected is { } id) _session.SelectRoleResponse(ResponseRole.Steward, id, out issue);
+            button.Disabled = issue is not null;
+            button.TooltipText = StewardWording(issue ?? "Send nearest available suitable steward; physical arrival required.");
         }
     }
 

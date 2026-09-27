@@ -14,7 +14,7 @@ public static class StaffSaveDefaults
         foreach (var property in type.Properties)
         {
             if (property.Name is "staffProfiles" or "extraResponses" or "queueCells" or "mainWaterQueueCells" or "staffInterventions" or "setEndAudienceIds") property.ShouldSerialize = (_, value) => value is not Array array || array.Length > 0;
-            if (property.Name is "extraMedicSlotOwned" or "extraStewardSlotOwned" or "respondersUpgraded" or "developmentInterventionFixturesEnabled") property.ShouldSerialize = (_, value) => value is true;
+            if (property.Name is "extraMedicSlotOwned" or "extraStewardSlotOwned" or "respondersUpgraded" or "developmentInterventionFixturesEnabled" or "staffAutonomyEnabled") property.ShouldSerialize = (_, value) => value is true;
             if (property.Name == "responseDispatchedTick") property.ShouldSerialize = (_, value) => value is not long tick || tick >= 0;
             if (property.Name is "quarterTurns" or "primaryWaterQuarterTurns" or "mainWaterQuarterTurns" or "geometryVersion" or "primaryWaterGeometryVersion" or "mainWaterGeometryVersion") property.ShouldSerialize = (_, value) => value is not int turns || turns != 0;
         }
@@ -193,6 +193,16 @@ public sealed partial class GameSession
         foreach (var original in GetMedicResponses())
         {
             var job = original;
+            if (MedicBusy(job) && PersonCollapsed(job.WorkerId))
+            {
+                SetMedicResponse(job with { Stage = MedicalResponseStage.None, PatientId = null, StartedTick = -1, Description = "Medic incapacitated; response released for another physical medic" });
+                continue;
+            }
+            if (StaffAutonomyEnabled && MedicBusy(job) && _navigationAgents[new(job.WorkerId)].Action == AgentNavigationAction.NoRoute)
+            {
+                SetMedicResponse(job with { Stage = MedicalResponseStage.None, PatientId = null, StartedTick = -1, Description = "Physical route failed; response released without remote treatment" });
+                continue;
+            }
             if (!ImmersionDepartureActive && !ImmersionOwnsNavigation(job.WorkerId) && !MedicalOwnsNavigation(job.WorkerId) && !InterventionOwnsWorker(job.WorkerId) && job.Stage == MedicalResponseStage.Completed &&
                 _navigationAgents[new(job.WorkerId)].Destination != StaffDutyCell(job.WorkerId, ResponseRole.Medic))
                 ApplyAgentDestination(new(job.WorkerId), new(StaffDutyCell(job.WorkerId, ResponseRole.Medic), "medical.return-to-tent"));
@@ -288,6 +298,10 @@ public sealed partial class GameSession
                 if (nav is not null && nav.WalkingSpeedPermille != speed) return "Staff movement disagrees with saved role training.";
             }
         }
+        if (p.StaffAutonomyEnabled && stewards.Where(StewardBusy).Any(job =>
+            s.Disorder!.People.Single(person => person.AgentId == job.TargetId) is { Stage: DisorderStage.Fight, OpponentId: { } opponent } &&
+            stewards.Any(other => other.WorkerId != job.WorkerId && StewardBusy(other) && other.TargetId == opponent)))
+            return "A reciprocal fight pair may only have one active steward response.";
         return null;
     }
 }

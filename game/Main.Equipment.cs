@@ -15,6 +15,23 @@ public partial class Main
     private Label? _equipmentSummary;
     private readonly Dictionary<EquipmentAction, Button> _equipmentButtons = [];
     private Node3D? _equipmentVisual;
+    private ulong _generatorPickId;
+    private bool _selectedGenerator;
+
+    private void SelectGenerator()
+    {
+        ClearSelection(); _selectedGenerator = true;
+        RefreshMedicalActionInspector(); RefreshStagePowerAction(); RefreshGeneratorInspector();
+        _highlight.Position = _equipmentVisual!.Position + new Vector3(0, .08f, 0);
+        _highlight.Scale = new Vector3(4, 1, 4); _highlight.Visible = true;
+    }
+    private void RefreshGeneratorInspector()
+    {
+        if (!_selectedGenerator || _session.CaptureEquipment() is not { } equipment) return;
+        _inspectorTitle.Text = "Stage generator";
+        _inspectorBody.Text = $"This generator currently supplies the trailer stage only.\nCircuit: {equipment.Stage} · load {equipment.LoadPercent}% · condition {equipment.Condition / 100}%\nIsolation removes the modeled load, stops overload escalation and interrupts stage music.";
+        RefreshStagePowerAction(); RefreshContextPanelVisibility();
+    }
     private EquipmentStage? _equipmentVisualStage;
     private string? _equipmentCaptureDirectory;
     private string _equipmentCaptureMode = "prevent";
@@ -60,6 +77,7 @@ public partial class Main
 
     private void RefreshEquipmentControls()
     {
+        RefreshGeneratorInspector();
         if (_equipmentSummary is null || _session.CaptureEquipment() is not { } e) return;
         var left = e.WarningTick < 0 ? GameSession.EquipmentDeathDelayTicks : Math.Max(0, e.WarningTick + GameSession.EquipmentDeathDelayTicks - _session.CurrentTick);
         _equipmentSummary.Text = $"STAGE GENERATOR • {e.Stage}\nLoad {e.LoadPercent}% / safe 100% • condition {e.Condition / 100}%\n" +
@@ -75,6 +93,9 @@ public partial class Main
         _equipmentVisual?.QueueFree();
         var variant = e.Stage switch { EquipmentStage.Warning => "overloaded", EquipmentStage.DangerousFault or EquipmentStage.Terminal => "fault", EquipmentStage.Isolated => "isolated", _ => "normal" };
         _equipmentVisual = AddAsset($"res://assets/equipment/lwf_towable_generator_{variant}_v1.glb", new Vector3(e.XMillimetres / 1000f, 0, e.ZMillimetres / 1000f));
+        var pick = new StaticBody3D { CollisionLayer = 1, CollisionMask = 1, Position = new Vector3(0, 1.3f, 0) };
+        pick.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(5, 2.6f, 3) } });
+        _equipmentVisual.AddChild(pick); _generatorPickId = pick.GetInstanceId();
         var marker = new MeshInstance3D { Mesh = new TorusMesh { InnerRadius = 3.9f, OuterRadius = 4f, Rings = 32, RingSegments = 8 },
             Scale = new Vector3(1, .04f, 1), Position = new Vector3(0, .07f, 0),
             MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color("e0ad45") } };

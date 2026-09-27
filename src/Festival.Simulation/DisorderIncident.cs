@@ -13,8 +13,14 @@ public sealed record DisorderPerson(ulong AgentId, int Temperament, int QueueTol
     long QueueJoinedTick, long InjuryTick, long CooldownUntilTick, ulong? OpponentId);
 public sealed record DisorderEvidence(string Id, long Tick, ulong PersonId, ulong? OtherId,
     int XMillimetres, int ZMillimetres, int Pressure, string Description);
+public enum FightHandlingOutcome { Handling, Succeeded, Failed, Interrupted }
+public sealed record FightHandlingAttempt(ulong WorkerId, long StartedTick, long EndedTick, FightHandlingOutcome Outcome);
 public sealed record DisorderIncidentOrigin(ulong InitiatorId, ulong OpponentId, DisorderGrievance Grievance,
-    int Pressure, long ArgumentTick, long FightTick, long InjuryTick, ulong? VictimId);
+    int Pressure, long ArgumentTick, long FightTick, long InjuryTick, ulong? VictimId)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public FightHandlingAttempt? HandlingAttempt { get; init; }
+}
 public sealed record DisorderSnapshot(int Version, ulong SecurityId, int CalmingSkill, int ConfrontationSkill,
     bool SecurityIncapacitated, bool WaterClosed, DisorderPerson[] People, SecurityResponseStage ResponseStage,
     ulong? ResponseTargetId, long ResponseStartedTick, string Response, DisorderEvidence[] Evidence)
@@ -88,6 +94,9 @@ public sealed partial class GameSession
 
     private CommandResult? ValidateDisorderCommand(EntityId? target, DisorderCommand command, bool developmentFixture = false)
     {
+        if (StaffAutonomyEnabled && command.Action == DisorderAction.DispatchSecurity && command.WorkerId is null && command.PersonId is { } roleTarget)
+            return target is not null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Steward dispatch has no envelope target.") :
+                SelectRoleResponse(ResponseRole.Steward, roleTarget, out var roleIssue) is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, roleIssue!) : null;
         if (!developmentFixture && command.Action == DisorderAction.SafeEgress && command.PersonId is { } escortId)
             return ValidateStaffIntervention(target, new(escortId, command.WorkerId ?? _disorder?.SecurityId ?? 0, StaffInterventionAction.EscortOut));
         if (target is not null || _disorder is not { } d || _preparation?.Status != PreparationStatus.Running ||
@@ -109,6 +118,12 @@ public sealed partial class GameSession
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This person is owned by medical response or needs first aid, not steward reassignment.");
             if (command.Action == DisorderAction.DispatchSecurity)
             {
+                if (StaffAutonomyEnabled && person.Stage == DisorderStage.Fight && GuestFightOrigin(id) is { } fight && !GuestFightParticipantsAvailable(fight))
+                    return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "A fight participant is medically or physically unavailable; no steward reassignment.");
+                if (StaffAutonomyEnabled && (StaffUnavailableReason(workerId) is not null || ResponseTargetClaimed(id)))
+                    return CommandResult.Rejected(CommandReasonCode.InvalidParameter, StaffUnavailableReason(workerId) ?? "This person or reciprocal fight is already assigned; finish that response first.");
+                if (StaffAutonomyEnabled && person.Stage == DisorderStage.Fight && GuestFightOrigin(id)?.HandlingAttempt is not null)
+                    return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This fight has already had its one physical handling attempt; no retry or reroll.");
                 if (!_preparation.People.Single(item => item.AgentId == id).Admitted || _preparation.People.Single(item => item.AgentId == id).Departed)
                     return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "The affected person is not physically on site.");
                 if (person.Stage is not (DisorderStage.Complaint or DisorderStage.Agitated or DisorderStage.Argument or DisorderStage.Fight))
@@ -117,7 +132,7 @@ public sealed partial class GameSession
                     return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Security is not physically available.");
                 if (StewardBusy(job) || GetStewardResponses().Any(item => StewardBusy(item) && item.TargetId == id))
                     return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Security is already responding; this request is backlogged.");
-                if (MedicalResponseCell(workerId, id) is null)
+                if (StewardResponseCell(workerId, id) is null)
                     return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Security cannot reach this person.");
             }
             else if (person.Stage is DisorderStage.Injured or DisorderStage.Fight ||
@@ -139,6 +154,8 @@ public sealed partial class GameSession
 
     private void ApplyDisorderCommand(DisorderCommand command, bool developmentFixture = false)
     {
+        if (StaffAutonomyEnabled && command.Action == DisorderAction.DispatchSecurity && command.WorkerId is null)
+            command = (DisorderCommand)SelectRoleResponse(ResponseRole.Steward, command.PersonId!.Value, out _)!;
         if (!developmentFixture && command.Action == DisorderAction.SafeEgress)
         { ApplyStaffIntervention(new(command.PersonId!.Value, command.WorkerId ?? _disorder!.SecurityId, StaffInterventionAction.EscortOut)); return; }
         var d = _disorder!;
@@ -148,7 +165,7 @@ public sealed partial class GameSession
             var workerId = command.WorkerId ?? d.SecurityId;
             LeaveWater(workerId, "Steward explicitly recalled from water for assigned response", reroute: false);
             SetNeed(workerId, item => item with { Intent = MedicalIntent.WatchShow, Reason = "Steward responding to assigned target", QueueSlot = null });
-            ApplyAgentDestination(new(workerId), new(MedicalResponseCell(workerId, id)!.Value, "disorder.security-dispatch"));
+            ApplyAgentDestination(new(workerId), new(StewardResponseCell(workerId, id)!.Value, "disorder.security-dispatch"));
             var description = $"Steward {workerId} walking to person {id}; not yet calming";
             SetStewardResponse(new(workerId, SecurityResponseStage.Travelling, id, CurrentTick, false, description, CurrentTick));
             DisorderEvent("security:dispatch", id, workerId, d.People.Single(item => item.AgentId == id).Pressure, description);
@@ -343,12 +360,14 @@ public sealed partial class GameSession
             if (opponent is null || NextRandom(RandomStreamId.Incidents) % 4 != 0) continue;
             BeginDisorderFight(person.AgentId, opponent.Value, "disorder:fight");
         }
+        ReconcileMergedFightClaims();
         foreach (var response in GetStewardResponses()) AdvanceSecurityResponse(response);
         foreach (var fighter in _disorder!.People.Where(item => item.Stage == DisorderStage.Fight &&
                      _disorder.Incidents.Any(origin => origin.InitiatorId == item.AgentId &&
                          origin.FightTick == item.StageTick && origin.InjuryTick == -1) &&
                      CurrentTick >= item.StageTick + DisorderFightDurationTicks).ToArray())
             ResolveDisorderFight(fighter);
+        FinishInterruptedFightAttempts();
     }
 
     private void BeginDisorderFight(ulong initiatorId, ulong opponentId, string eventId)
@@ -402,6 +421,9 @@ public sealed partial class GameSession
         if (response.TargetId is not { } targetId || response.Incapacitated) return;
         var target = d.People.Single(item => item.AgentId == targetId);
         var targetNeed = _medical!.Needs.Single(item => item.AgentId == targetId);
+        if (StaffAutonomyEnabled && GuestFightOrigin(targetId) is { } guestFight &&
+            (target.Stage == DisorderStage.Fight || guestFight.HandlingAttempt is { Outcome: FightHandlingOutcome.Handling, WorkerId: var handler } && handler == workerId))
+        { AdvanceGuestFightResponse(response, guestFight); return; }
         if (target.Stage == DisorderStage.Injured || targetNeed.Stage is MedicalStage.Collapsed or MedicalStage.Critical)
         {
             SetStewardResponse(response with { Stage = SecurityResponseStage.Completed, TargetId = null,
@@ -635,6 +657,6 @@ public sealed partial class GameSession
             d.Evidence.LastOrDefault()?.Id == "disorder:death" &&
                 (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1))
             return "Disorder pressure, response ownership, evidence or protected-person state invalid.";
-        return null;
+        return ValidatePersistedFightHandling(d, s);
     }
 }

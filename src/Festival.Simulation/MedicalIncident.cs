@@ -259,7 +259,8 @@ public sealed partial class GameSession
         return DeterministicPathfinder.FindPath(_traversalGrid!, origin, destination).Found;
     }
 
-    private GridCell? MedicalResponseCell(ulong medicId, ulong patientId)
+    private GridCell? MedicalResponseCell(ulong medicId, ulong patientId) => PhysicalResponseCell(medicId, patientId, null);
+    private GridCell? PhysicalResponseCell(ulong medicId, ulong patientId, ulong? counterpartId)
     {
         var patient = _navigationAgents[new(patientId)];
         var cell = TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres);
@@ -274,6 +275,12 @@ public sealed partial class GameSession
                     CaptureWaterQueueCells(point.Id).Contains(candidate)) ||
                 !_traversalGrid.Get(candidate).IsWalkable || !MedicalRouteExists(medicId, candidate)) continue;
             var centre = TraversalGrid.CellCentre(candidate);
+            if (counterpartId is { } otherId)
+            {
+                var other = _navigationAgents[new(otherId)];
+                var ox = (long)centre.XMillimetres - other.XMillimetres; var oz = (long)centre.ZMillimetres - other.ZMillimetres;
+                if (ox * ox + oz * oz > 6_250_000) continue;
+            }
             var px = (long)centre.XMillimetres - patient.XMillimetres;
             var pz = (long)centre.ZMillimetres - patient.ZMillimetres;
             if (px * px + pz * pz <= (bedside?562_500:6_250_000) && (!bedside || px*px+pz*pz>=90_000) &&
@@ -303,6 +310,9 @@ public sealed partial class GameSession
 
     private CommandResult? ValidateMedicalCommand(EntityId? target, MedicalCommand command, bool developmentFixture = false)
     {
+        if (StaffAutonomyEnabled && command.Action == MedicalAction.DispatchMedic && command.WorkerId is null)
+            return target is not null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Medical dispatch has no envelope target.") :
+                SelectRoleResponse(ResponseRole.Medic, command.GuestId, out var roleIssue) is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, roleIssue!) : null;
         if (!Enum.IsDefined(command.Action)) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown medical action.");
         if (!developmentFixture && command.Action != MedicalAction.DispatchMedic)
             return ValidateStaffIntervention(target, LegacyMedicalIntervention(command));
@@ -336,6 +346,9 @@ public sealed partial class GameSession
                 "This prototype's first-aid rest route is reserved for the at-risk guest; guide other guests to free water.");
         if (command.Action == MedicalAction.DispatchMedic)
         {
+            if (StaffAutonomyEnabled && (StaffUnavailableReason(workerId) is not null || ResponseTargetClaimed(command.GuestId)))
+                return CommandResult.Rejected(CommandReasonCode.InvalidParameter, StaffUnavailableReason(workerId) ?? "This person or reciprocal fight is already assigned; finish that response first.");
+            if (PersonCollapsed(workerId)) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This medic is incapacitated; first aid is needed.");
             if (!_preparation.People.Single(item => item.AgentId == command.GuestId).Admitted || _preparation.People.Single(item => item.AgentId == command.GuestId).Departed)
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "The patient is not physically on site.");
             if (GetStewardResponses().Any(item => StewardBusy(item) && item.TargetId == command.GuestId) &&
@@ -378,6 +391,8 @@ public sealed partial class GameSession
 
     private void ApplyMedicalCommand(MedicalCommand command, bool developmentFixture = false)
     {
+        if (StaffAutonomyEnabled && command.Action == MedicalAction.DispatchMedic && command.WorkerId is null)
+            command = (MedicalCommand)SelectRoleResponse(ResponseRole.Medic, command.GuestId, out _)!;
         if (!developmentFixture && command.Action != MedicalAction.DispatchMedic)
         { ApplyStaffIntervention(LegacyMedicalIntervention(command)); return; }
         var m = _medical!;

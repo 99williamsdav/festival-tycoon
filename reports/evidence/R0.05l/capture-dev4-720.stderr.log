@@ -1,0 +1,3 @@
+STAFF_AUTOMATION_CAPTURE_FAILED System.InvalidOperationException: Worker status does not show actual treatment
+   at Festival.Game.Main.AutomationCheck(Boolean condition, String message) in /_/game/Main.StaffAutomationCapture.cs:line 20
+   at Festival.Game.Main.ProcessStaffAutomationCapture() in /_/game/Main.StaffAutomationCapture.cs:line 127

@@ -30,6 +30,7 @@ public sealed partial class GameSession
     }
     private void StartImmersionDeparture()
     {
+        ReleaseFightHandlingForBoundary("Closing released physical fight handling; the single attempt is spent without a new roll");
         ReleaseInterventionsForBoundary("Closing released ordinary staff interventions; physical medical responses remain active");
         foreach (var job in GetStewardResponses().Where(StewardBusy))
             SetStewardResponse(job with { Stage = SecurityResponseStage.Completed, TargetId = null, Description = "Closing; physical departure" });

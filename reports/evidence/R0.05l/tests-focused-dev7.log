@@ -1,0 +1,41 @@
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (1s 769ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 323ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (650ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (645ms)
+passed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (626ms)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (30ms)
+passed HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering (669ms)
+failed ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable (548ms)
+  Assertion failed. Expected condition to be true.
+  Live programme progress exceeds its fixed slot window.
+  
+  actual: false
+  
+  Assert.IsTrue(loaded.IsSuccess)
+  Expected
+    true
+  Actual
+    false
+    at Festival.Tests.StaffAutonomyTests.Restore(GameSession s) in /_/tests/Festival.Tests/StaffAutonomyTests.cs:15
+    at Festival.Tests.StaffAutonomyTests.ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable() in /_/tests/Festival.Tests/StaffAutonomyTests.cs:192
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (44ms)
+passed HistoricalDiagnosticSaveRetainsOriginalHashAndNoAutonomyReinterpretation (144ms)
+passed ArgumentAutomationUsesExistingEightThousandThresholdAndOldestStageThenId (620ms)
+passed MergedPreassignedArgumentsKeepOneClaimAndCalmingConvertsToPhysicalHandling (660ms)
+passed AutoMedicTreatmentPhysicallyStartsAndContinuesExactlyAcrossReload (797ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (511ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (635ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (540ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (547ms)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (468ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (505ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (558ms)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 20
+  failed: 1
+  succeeded: 19
+  skipped: 0
+  duration: 12s 409ms

@@ -217,7 +217,7 @@ public partial class Main
                 (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} · {(_session.ImmersionHandsAvailable(id.Value) ? "consuming" : "retained during work/care")}\n" : "") +
                 (immersion is null ? "" : $"Personal budget {FestivalCurrency.Format(_session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id.Value).CashPennies)}\n") +
                 StaffInterventionTargetText(id.Value) +
-                (worker is null ? "" : $"{worker.Role} · {ActiveStaffInterventionSummary(id.Value) ?? _session.GetMedicResponses().SingleOrDefault(j => j.WorkerId == id.Value)?.Description ?? _session.GetStewardResponses().SingleOrDefault(j => j.WorkerId == id.Value)?.Description ?? "Available"}\n{StaffAbilityText(worker)}");
+                (worker is null ? "" : ResponseStaffInspectorText(id.Value));
         }
     }
 

@@ -1,0 +1,20 @@
+R0.05l root diagnostic: untouched prerequisite baseline b6c88a2
+
+Source: git archive --format=tar --output=<baselineRoot>\baseline.tar b6c88a2 src tests content eng global.json Directory.Build.props
+Extracted into C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\diagnostics\r005l-baseline-b6c88a2. No baseline source edits.
+Command: dotnet run --project '<baselineRoot>\tests\Festival.Tests\Festival.Tests.csproj' -- --filter 'FullyQualifiedName=Festival.Tests.MedicalIncidentTests.FullLineKeepsEarlierPhysicalOverflowArrivalAheadOfLaterFasterWalkerAcrossRestore'
+The first sandbox attempt could not read the existing NuGet.Config. Authorized escalation then built and executed the baseline test using existing tooling.
+Test process exit: 1
+
+failed FullLineKeepsEarlierPhysicalOverflowArrivalAheadOfLaterFasterWalkerAcrossRestore (260ms)
+  CollectionAssert.AreEqual failed. Different number of elements.
+    at Festival.Tests.MedicalIncidentTests.FullLineKeepsEarlierPhysicalOverflowArrivalAheadOfLaterFasterWalkerAcrossRestore() in C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\diagnostics\r005l-baseline-b6c88a2\tests\Festival.Tests\MedicalIncidentTests.cs:340
+
+Test run summary: Failed!
+  total: 1
+  failed: 1
+  succeeded: 0
+  skipped: 0
+  duration: 362ms
+
+This confirms the same current proportional-run failure predates R0.05l. Reviewer traced static legacy approach versus existing organically grown approach in the fixture. No production queue change is authorized by this diagnostic; a narrow fixture correction must retain physical arrival/order/save assertions.

@@ -1,0 +1,33 @@
+warning: --no-progress is deprecated; use --progress off instead.
+passed NoncollapsedMedicRetainsOriginalTwoMetreResponseAndRange (219ms)
+passed FullLineKeepsEarlierPhysicalOverflowArrivalAheadOfLaterFasterWalkerAcrossRestore (490ms)
+passed OptionalOnlyStaffRetryRetainsImmutableSetupAndRehiresStablePerson (2s 816ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (1s 440ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 136ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (683ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (685ms)
+passed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (753ms)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (33ms)
+passed HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering (735ms)
+passed ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable (748ms)
+passed MedicalCollapseDuringFightHandlingInterruptsWithoutSkillRollOrFreshAttempt (756ms)
+passed CollapsedCounterpartDuringTransitRejectsHealthyTargetAndDoesNotRedispatch (697ms)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (64ms)
+passed HistoricalDiagnosticSaveRetainsOriginalHashAndNoAutonomyReinterpretation (79ms)
+passed ArgumentAutomationUsesExistingEightThousandThresholdAndOldestStageThenId (638ms)
+passed MergedPreassignedArgumentsKeepOneClaimAndCalmingConvertsToPhysicalHandling (824ms)
+passed AutoMedicTreatmentPhysicallyStartsAndContinuesExactlyAcrossReload (970ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (608ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (871ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (555ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (681ms)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (651ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (614ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (645ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 25
+  failed: 0
+  succeeded: 25
+  skipped: 0
+  duration: 18s 528ms

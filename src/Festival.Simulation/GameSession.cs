@@ -325,7 +325,7 @@ public sealed partial class GameSession
             CurrentTick++;
             // A terminal hazard freezes before any other work at this tick.
             AdvanceEquipment();
-            if (IsLifecycleEditionFrozen()) break;
+            if (IsLifecycleEditionFrozen()) { ReleaseFrozenStaffClaims(); break; }
             foreach (var record in _fixtureRecords.Values)
             {
                 if (record.HasExpired || record.RemainingTicks <= 0)
@@ -356,6 +356,8 @@ public sealed partial class GameSession
             if (_preparation?.Status == PreparationStatus.Running) AdvanceDisorder();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceStaffInterventions();
             if (MedicalOperationsActive) AdvanceImmersion();
+            ReleaseFrozenStaffClaims();
+            AdvanceStaffAutonomy();
             if (_preparation?.Status is PreparationStatus.Departing or PreparationStatus.Finished) CleanupImmersionDeparture();
             if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished) break;
         }

@@ -1,0 +1,3 @@
+STAFF_AUTOMATION_CAPTURE_FAILED System.InvalidOperationException: Normal viewport tap preview invalid
+   at Festival.Game.Main.AutomationCheck(Boolean condition, String message) in /_/game/Main.StaffAutomationCapture.cs:line 19
+   at Festival.Game.Main.ProcessStaffAutomationCapture() in /_/game/Main.StaffAutomationCapture.cs:line 81

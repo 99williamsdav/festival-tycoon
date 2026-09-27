@@ -1,0 +1,37 @@
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (2s 074ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 517ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (665ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (703ms)
+passed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (638ms)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (22ms)
+passed HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering (753ms)
+failed ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable (612ms)
+  Assertion failed. Expected condition to be true.
+  Preparation phase and protected-person progress disagree.
+  
+  actual: false
+  
+  Assert.IsTrue(loaded.IsSuccess)
+  Expected
+    true
+  Actual
+    false
+    at Festival.Tests.StaffAutonomyTests.Restore(GameSession s) in /_/tests/Festival.Tests/StaffAutonomyTests.cs:15
+    at Festival.Tests.StaffAutonomyTests.ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable() in /_/tests/Festival.Tests/StaffAutonomyTests.cs:191
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (42ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (503ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (703ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (498ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (495ms)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (559ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (524ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (576ms)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 16
+  failed: 1
+  succeeded: 15
+  skipped: 0
+  duration: 11s 010ms

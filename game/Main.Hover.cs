@@ -71,6 +71,8 @@ public partial class Main
         if (_immersionVendorPicks.TryGetValue(key,out var vendor))
             return _immersionVendors.TryGetValue(vendor,out var body) && body.IsVisibleInTree() && !body.IsQueuedForDeletion() ? collider : null;
         if (_securityPostPickId != 0 && key == _securityPostPickId) return collider;
+        if (_generatorPickId != 0 && key == _generatorPickId)
+            return _equipmentVisual is { } generator && generator.IsVisibleInTree() && !generator.IsQueuedForDeletion() ? collider : null;
         if (_medicalFacilityPicks.ContainsKey(key)) return collider;
         if (_pickRegistry.TryGetValue(key,out var item))
             return _visualRegistry.TryGetValue(item.StableId,out var body) && body.IsVisibleInTree() && !body.IsQueuedForDeletion() ? collider : null;
@@ -135,6 +137,7 @@ public partial class Main
                     var geometry=BuildingHoverGeometry(body);point=body.ToGlobal(geometry.Centre);scale=geometry.Scale;
                 }
                 else if(key==_securityPostPickId){var post=_responsePostVisuals[ResponseRole.Steward];var geometry=BuildingHoverGeometry(post);yaw=post.Rotation.Y;point=post.ToGlobal(geometry.Centre);scale=geometry.Scale;}
+                else if(key==_generatorPickId && _equipmentVisual is { } generator){var geometry=BuildingHoverGeometry(generator);yaw=generator.Rotation.Y;point=generator.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 else if(_medicalFacilityPicks.TryGetValue(key,out var medical) && medical.Facility==MedicalFacility.FirstAid)
                 {var tent=_responsePostVisuals[ResponseRole.Medic];var geometry=BuildingHoverGeometry(tent);yaw=tent.Rotation.Y;point=tent.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 _hoverHighlight.Position = new Vector3(point.X,.14f,point.Z);

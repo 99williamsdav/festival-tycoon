@@ -1,0 +1,22 @@
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (2s 131ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 372ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (635ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (700ms)
+passed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (618ms)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (28ms)
+passed HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering (635ms)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (45ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (483ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (622ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (513ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (554ms)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (503ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (484ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (532ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 15
+  failed: 0
+  succeeded: 15
+  skipped: 0
+  duration: 9s 970ms

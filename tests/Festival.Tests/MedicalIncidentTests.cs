@@ -332,7 +332,11 @@ public sealed class MedicalIncidentTests
         }
         var earlier = ids[10];
         var later = ids[11];
-        Place(earlier, GameSession.MedicalQueueApproach(10), 850);
+        // The preserved occupied prefix grows an organic, unreserved approach;
+        // place at that actual cell, not the obsolete static overflow coordinate.
+        Assert.AreEqual(true, typeof(GameSession).GetMethod("GrowWaterQueue", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(s, ["water.main"]));
+        Place(earlier, s.CaptureWaterQueueCells("water.main")[10], 850);
         Place(later, new GridCell(110, 152), 1_150);
         Assert.IsTrue(Send(s, new MedicalCommand(earlier, MedicalAction.GuideToWater)).IsAccepted);
         Assert.AreEqual(0, s.CaptureMedical()!.WaterOverflow.Length);

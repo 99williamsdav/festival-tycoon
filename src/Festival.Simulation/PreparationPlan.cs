@@ -14,7 +14,7 @@ public sealed partial class GameSession
     public static GameSession CreateEditableCampaign(ulong seed)
     {
         var session = CreatePerkCampaign(seed);
-        session._preparation = session._preparation! with { Version = 2, Plan = EmptyPreparationPlan(), SetupPayments = [] };
+        session._preparation = session._preparation! with { Version = 2, Plan = EmptyPreparationPlan(), SetupPayments = [], StaffAutonomyEnabled = true };
         return session;
     }
     private static PreparationPlan EmptyPreparationPlan() => new(1, [], [], 0, 0, 0);

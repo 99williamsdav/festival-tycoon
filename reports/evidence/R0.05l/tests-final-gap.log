@@ -1,0 +1,48 @@
+warning: --no-progress is deprecated; use --progress off instead.
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (2s 250ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 528ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (770ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (642ms)
+passed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (711ms)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (32ms)
+passed HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering (702ms)
+passed ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable (726ms)
+passed MedicalCollapseDuringFightHandlingInterruptsWithoutSkillRollOrFreshAttempt (722ms)
+passed CollapsedCounterpartDuringTransitRejectsHealthyTargetAndDoesNotRedispatch (605ms)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (48ms)
+passed HistoricalDiagnosticSaveRetainsOriginalHashAndNoAutonomyReinterpretation (145ms)
+passed ArgumentAutomationUsesExistingEightThousandThresholdAndOldestStageThenId (759ms)
+passed MergedPreassignedArgumentsKeepOneClaimAndCalmingConvertsToPhysicalHandling (735ms)
+passed AutoMedicTreatmentPhysicallyStartsAndContinuesExactlyAcrossReload (889ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (659ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (708ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (585ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (656ms)
+passed RoleSelectionSkipsNearestBusyMedicForAvailableFartherWorker (567ms)
+passed RoleSelectionSkipsNearestUnreachableMedicForLegalFartherRoute (804ms)
+passed AllUnavailableMedicsExplainEachWorkerWithoutCreatingClaims (578ms)
+failed NewCriticalPatientDoesNotPreemptPhysicallyActiveMedicTreatment (591ms)
+  Assertion failed. Expected condition to be true.
+  Medical Hot state, queue ownership or causal stage invalid.
+  
+  actual: false
+  
+  Assert.IsTrue(loaded.IsSuccess)
+  Expected
+    true
+  Actual
+    false
+    at Festival.Tests.StaffAutonomyTests.Restore(GameSession s) in /_/tests/Festival.Tests/StaffAutonomyTests.cs:15
+    at Festival.Tests.StaffAutonomyTests.NewCriticalPatientDoesNotPreemptPhysicallyActiveMedicTreatment() in /_/tests/Festival.Tests/StaffAutonomyTests.cs:407
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (634ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (578ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (526ms)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 26
+  failed: 1
+  succeeded: 25
+  skipped: 0
+  duration: 18s 279ms

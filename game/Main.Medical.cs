@@ -109,6 +109,8 @@ public partial class Main
         CancelImmersionPlacement();
         CancelResponsePostPlacement();
         if (_session.CapturePreparation() is not { Status: PreparationStatus.Preparing }) return;
+        if (pointId is null && _session.WaterTapAdditionUnavailableReason is { } unavailable)
+        { _preparationMessage = unavailable; RefreshPreparationHud(); return; }
         _waterPlacementMode = pointId is null ? WaterPlacementMode.Add : WaterPlacementMode.Move;
         _movingWaterPointId = pointId;
         _waterPlacementQuarterTurns = pointId is null ? 0 : _session.CaptureWaterPoints().Single(point => point.Id == pointId).QuarterTurns;
@@ -607,7 +609,7 @@ public partial class Main
         _medicalActionInspector = new GridContainer { Columns = 2, Visible = false };
         detail.AddChild(_medicalActionInspector);
         foreach (var (action, label) in new[] {
-            (MedicalAction.DispatchMedic, "DISPATCH RILEY • FIRST AID") })
+            (MedicalAction.DispatchMedic, "Send medic") })
         {
             var button = ButtonText(label, () => CommitMedicalAction(action));
             button.AddThemeFontSizeOverride("font_size", 12);
@@ -648,6 +650,12 @@ public partial class Main
             return;
         }
         var command = new MedicalCommand(selected, action, workerId);
+        if (action == MedicalAction.DispatchMedic && workerId is null)
+        {
+            if (_session.SelectRoleResponse(ResponseRole.Medic, selected, out var issue) is not MedicalCommand roleCommand)
+            { _preparationMessage = issue!; RefreshPreparationHud(); return; }
+            command = roleCommand;
+        }
         var result = MedicalCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility,
             DateTimeOffset.UtcNow, _autosaveGeneration);
         if (result.IsSuccess)
@@ -709,11 +717,10 @@ public partial class Main
         _medicalActionInspector.Visible = selected is not null && _selectedMedicalFacility is null;
         foreach (var (action, button) in _medicalButtons)
         {
-            button.Disabled = selected is not { } id ||
-                _session.ValidateCommand(CampaignEnvelope(new MedicalCommand(id, action))) is not null;
-            button.TooltipText = selected is { } target
-                ? _session.ValidateCommand(CampaignEnvelope(new MedicalCommand(target, action)))?.Message ?? ""
-                : "Select a person first.";
+            string? issue = "Select a person first.";
+            if (selected is { } id) _session.SelectRoleResponse(ResponseRole.Medic, id, out issue);
+            button.Disabled = issue is not null;
+            button.TooltipText = issue ?? "Send nearest available suitable medic; physical arrival and treatment required.";
         }
         RefreshStaffControls();
         RefreshStaffInterventionControls();

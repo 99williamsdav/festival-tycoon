@@ -1,0 +1,339 @@
+passed SecurityTraitsAndRosterRestoreBeforeAndAfterStart (419ms)
+passed SecurityPostBaseIsReachedAndGateEgressRemainsWalkable (1s 217ms)
+passed SafeMusicResetRemovesCutoffGrievanceWithoutRestartingOverload (1s 458ms)
+passed PhysicalThirstyWaterWaitCanCauseVisibleComplaintAndClosurePreservesEgress (1s 324ms)
+  Standard output
+    water tick=2184 queue=6 complaints=1
+    
+passed SecurityDispatchTravelsAndEitherCalmsOrHonestlyEscalates (912ms)
+  Standard output
+    security=Completed Steward calmed the argument after arriving tick=3536 skills=6683/5723
+    
+passed LowSkillSecurityFixtureCanBeInjuredAndPhysicallyTreated (6s 230ms)
+  Standard output
+    security injury fixture seed=45 tick=4800
+    injury tick=4800 response=Failed securityInjured=True evidence=disorder:fight,disorder:diffused,disorder:calm:8:4480,disorder:argument:3:4656,disorder:calm:11:4800,disorder:injury
+    
+passed TimelySkilledSecurityCalmsAfterPhysicalArrival (1s 920ms)
+passed UnassistedSecurityInjuryProducesAttributedTerminalFixture (6s 219ms)
+  Standard output
+    security injury fixture seed=45 tick=4800
+    
+passed CounteredMusicAndWaterAcrossSeedsHaveNoForcedDisorder (7s 717ms)
+  Standard output
+    seed=51 counteredFights=0 uncounteredFights=3 complaints=12 diffusions=3
+    seed=52 counteredFights=0 uncounteredFights=4 complaints=15 diffusions=5
+    seed=53 counteredFights=0 uncounteredFights=1 complaints=13 diffusions=7
+    seed=54 counteredFights=0 uncounteredFights=2 complaints=14 diffusions=10
+    seed=55 counteredFights=0 uncounteredFights=1 complaints=13 diffusions=7
+    seed=56 counteredFights=0 uncounteredFights=3 complaints=18 diffusions=7
+    
+passed ClosingWaterDuringApproachReleasesSeekersAndBlocksLaterAdmission (99ms)
+passed ConfrontationReservesBothGuestsAndRejectsTheirEgress (247ms)
+passed TravellingSecurityDoesNotRemotelyCancelAnEligibleConfrontation (583ms)
+  Standard output
+    remote-protection regression seed=41 dispatch=3200 fight=3440
+    
+passed GuestVictimTerminalCauseKeepsOriginalInitiatorAndGrievance (2s 338ms)
+  Standard output
+    guest victim attribution seed=42 initiator=10 victim=5
+    
+passed SeparatedConfrontationCannotInjureARemoteOpponent (212ms)
+passed FailedCalmingThenGuestInjuryCannotRestartStaleSecurityFight (944ms)
+  Standard output
+    stale-security regression seed=41 injury=4232 deadline=6632
+    
+passed LooseVendorSlotsGrowOnlyAsNeededKeepPrefixAndPersistExactReplay (411ms)
+passed SharedLooseVendorLineAdaptsAroundNearbyWaterBodyAndSavedCorridor (95ms)
+passed NewVendorPlacementIgnoresFutureTailAndBlockedTailNeverTargetsUnvalidatedCell (58ms)
+passed NullVendorGeometryRetainsIndependentOldJsonChecksumAndExactStraightQueue (97ms)
+passed ExplicitModeBudgetStockAndLegacyAreConserved (47ms)
+passed PaidItemPartialConsumptionResumeAndPauseAreExact (165ms)
+passed BeerRefusalAbstentionStaffAndOnstagePendingPhysiology (31ms)
+passed FoodHalvesNewAbsorptionAndWaterDoesNotSober (26ms)
+passed SemanticTamperRejectsBudgetsStockHeldOrdersAndMalformedCollections (42ms)
+passed PhysicalDayCreatesSalesAndSaveReplayWithoutFreeAdmissionStock (1s 642ms)
+passed SevereFixtureWarnsCollapsesAndUsesExistingFatalBoundaryThenFreezes (1s 177ms)
+passed TimelyPhysicalMedicStabilizesGraduallyAndDoesNotCreateAlcoholImmunity (1s 108ms)
+passed LegacyGzipFileWithoutImmersionReconstructsOriginalChecksum (21ms)
+passed PhysicalArrivalFifoHeterogeneousSaleAndFailureNeverChargeTwice (101ms)
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (164,140,164,160,3) (109ms)
+  Standard output
+    east-side food: cell=GridCell { X = 164, Z = 140 }, front=GridCell { X = 160, Z = 140 }, queue-tail=GridCell { X = 160, Z = 140 }
+    east-side drinks: cell=GridCell { X = 164, Z = 160 }, front=GridCell { X = 160, Z = 160 }, queue-tail=GridCell { X = 160, Z = 160 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (150,172,162,172,2) (123ms)
+  Standard output
+    east-side food: cell=GridCell { X = 150, Z = 172 }, front=GridCell { X = 150, Z = 168 }, queue-tail=GridCell { X = 150, Z = 168 }
+    east-side drinks: cell=GridCell { X = 162, Z = 172 }, front=GridCell { X = 162, Z = 168 }, queue-tail=GridCell { X = 162, Z = 168 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (148,119,164,119,0) (108ms)
+  Standard output
+    east-side food: cell=GridCell { X = 148, Z = 119 }, front=GridCell { X = 148, Z = 123 }, queue-tail=GridCell { X = 148, Z = 123 }
+    east-side drinks: cell=GridCell { X = 164, Z = 119 }, front=GridCell { X = 164, Z = 123 }, queue-tail=GridCell { X = 164, Z = 123 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (148,119,164,120,0) (135ms)
+  Standard output
+    east-side food: cell=GridCell { X = 148, Z = 119 }, front=GridCell { X = 148, Z = 123 }, queue-tail=GridCell { X = 148, Z = 123 }
+    east-side drinks: cell=GridCell { X = 164, Z = 120 }, front=GridCell { X = 164, Z = 124 }, queue-tail=GridCell { X = 164, Z = 124 }
+    
+passed EastSideVendorCandidatesHaveClearFootprintsTrackFacingQueuesAndPhysicalAccess (144,119,160,120,0) (122ms)
+  Standard output
+    east-side food: cell=GridCell { X = 144, Z = 119 }, front=GridCell { X = 144, Z = 123 }, queue-tail=GridCell { X = 144, Z = 123 }
+    east-side drinks: cell=GridCell { X = 160, Z = 120 }, front=GridCell { X = 160, Z = 124 }, queue-tail=GridCell { X = 160, Z = 124 }
+    
+passed NewDefaultVendorsFormTentFrontRowOnEastGrassWithAlignedEntrances (22ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (74,155,0,116,155,0) (79ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (150,172,2,162,172,2) (77ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (148,119,0,164,120,0) (73ms)
+passed ExistingAndChosenVendorSitesRoundTripWithoutDefaultMigration (164,140,3,164,160,3) (68ms)
+passed GeometryRotationReciprocalWaterAndLedgerTamperingAreRejected (243ms)
+passed BudgetDistributionAndFullyStaffedDayHaveMeasuredBoundedCost (9s 650ms)
+  Standard output
+    35-person first4000ticks=1471.5ms, neededreal1x=50000ms
+    full300s people=35 sales=54 peakcurrentintox=6859
+    
+passed QueuedHeavyBeerRefusalCancelsWithoutCashStockOrReceipt (75ms)
+passed MaintenanceOwnershipSuspendsHeldItemAndPreventsShoppingRouteTheft (147ms)
+passed NinePaidPerformerItemsSaveWhileFirstBandOnstageAndResumeExactly (2s 736ms)
+passed ActualImmersionDeathAndFavourRetryResetConsumablesAndBudgetsOnce (1s 207ms)
+passed CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (False) (63ms)
+passed CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary (True) (62ms)
+passed CollapsedMedicPhysicallyArrivesAtHalfMetreBedsideAndResumesExactly (False) (182ms)
+  Standard output
+    physical bedside 500mm after 1676ticks, intoxication=False
+    
+passed CollapsedMedicPhysicallyArrivesAtHalfMetreBedsideAndResumesExactly (True) (176ms)
+  Standard output
+    physical bedside 500mm after 1676ticks, intoxication=True
+    
+passed BedsideBlockedAccessRejectsDispatchAndLegacyDistantTreatmentReroutesWithoutRemoteCare (463ms)
+failed NoncollapsedMedicRetainsOriginalTwoMetreResponseAndRange (33ms)
+  Test method Festival.Tests.ImmersionTests.NoncollapsedMedicRetainsOriginalTwoMetreResponseAndRange threw exception:
+  System.Reflection.TargetParameterCountException: Parameter count mismatch.
+    at System.Reflection.MethodBaseInvoker.ThrowTargetParameterCountException()
+    at System.Reflection.RuntimeMethodInfo.Invoke(Object obj, BindingFlags invokeAttr, Binder binder, Object[] parameters, CultureInfo culture)
+    at System.Reflection.MethodBase.Invoke(Object obj, Object[] parameters)
+    at Festival.Tests.ImmersionTests.NoncollapsedMedicRetainsOriginalTwoMetreResponseAndRange() in /_/tests/Festival.Tests/ImmersionTests.cs:401
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+    
+passed DepartureSevereBoundarySaveFailureNeverPublishesCollapse (326ms)
+passed ClosingContinuesPaidIngestionAndPendingExposureWithoutNewSalesAndStopsAtExit (87ms)
+passed LateDepartureCollapseRetainsPhysicalPatientAndMedicCanRespondOrFatalFreeze (False) (280ms)
+passed LateDepartureCollapseRetainsPhysicalPatientAndMedicCanRespondOrFatalFreeze (True) (507ms)
+passed DeparturePrimaryHeatUsesOriginalGlobalClocksForBoundaryAndDeath (Distress) (64ms)
+passed DeparturePrimaryHeatUsesOriginalGlobalClocksForBoundaryAndDeath (Collapsed) (65ms)
+passed DeparturePrimaryHeatUsesOriginalGlobalClocksForBoundaryAndDeath (Critical) (61ms)
+passed CoexistingInjuryKeepsOriginalDeadlineWhenAlcoholCrossesCollapseDuration (27ms)
+passed UntreatedHotScenarioHasCausalWarningCollapseCriticalAndOneDeath (585ms)
+  Standard output
+    stage=Terminal warning=2000 collapse=3600 critical=4400 tick=6000 queue=2
+    0 medical:hot Fixed Hot scenario; free water and a baseline medic are available before opening.
+    560 medical:water-seek Person 7 walked toward water.main without reserving a place.
+    640 medical:water-seek Person 3 walked toward water.main without reserving a place.
+    720 medical:water-seek Person 9 walked toward water.main without reserving a place.
+    800 medical:water-seek Person 6 walked toward water.main without reserving a place.
+    1235 medical:queue-join Person 7 arrived physically and took water.main place 0; no payment or stock transfer.
+    1254 medical:drink-start Person 7 started drinking at water.main after physical arrival.
+    1323 medical:queue-join Person 3 arrived physically and took water.main place 1; no payment or stock transfer.
+    1447 medical:queue-join Person 9 arrived physically and took water.main place 2; no payment or stock transfer.
+    1490 medical:queue-join Person 6 arrived physically and took water.main place 3; no payment or stock transfer.
+    1654 medical:queue-leave Guest 7 released their free-water reservation: Thirst reached zero after drinking.
+    1654 medical:water Person 7 finished at water.main after 401 ticks; thirst zero, no payment or stock transfer.
+    1690 medical:drink-start Person 3 started drinking at water.main after physical arrival.
+    2000 medical:distress Guest 22 distressed in Hot conditions: thirst 9000, heat 8000; free water, rest, safe removal and medic dispatch are available.
+    2096 medical:queue-leave Guest 3 released their free-water reservation: Thirst reached zero after drinking.
+    2096 medical:water Person 3 finished at water.main after 407 ticks; thirst zero, no payment or stock transfer.
+    2134 medical:drink-start Person 9 started drinking at water.main after physical arrival.
+    2826 medical:queue-leave Guest 9 released their free-water reservation: Thirst reached zero after drinking.
+    2826 medical:water Person 9 finished at water.main after 693 ticks; thirst zero, no payment or stock transfer.
+    2857 medical:drink-start Person 6 started drinking at water.main after physical arrival.
+    3384 medical:queue-leave Guest 6 released their free-water reservation: Thirst reached zero after drinking.
+    3384 medical:water Person 6 finished at water.main after 528 ticks; thirst zero, no payment or stock transfer.
+    3600 medical:collapse Guest collapsed after visible distress; untreated response window remains.
+    4400 medical:critical Guest remains untreated after collapse; dispatch can still prevent death.
+    5200 medical:water-seek Person 10 walked toward water.main without reserving a place.
+    5360 medical:water-seek Person 5 walked toward water.main without reserving a place.
+    5607 medical:queue-join Person 10 arrived physically and took water.main place 0; no payment or stock transfer.
+    5629 medical:drink-start Person 10 started drinking at water.main after physical arrival.
+    5680 medical:water-seek Person 4 walked toward water.main without reserving a place.
+    5717 medical:queue-join Person 5 arrived physically and took water.main place 1; no payment or stock transfer.
+    5760 medical:water-seek Person 8 walked toward water.main without reserving a place.
+    6000 medical:death In fixed Hot conditions Guest 20 dried up after thirst 10000/10000 and heat exposure; distress tick 2000, collapse tick 3600, critical tick 4400; medics: Riley Hart→none None, dispatch tick -1, treatment tick -1. Stewards: . Physical interventions: .
+    
+passed EarlyFreeWaterAndTimelyMedicAreCounterfactualPreventions (2s 726ms)
+  Standard output
+    action=GuideToWater stage=Treated response=Need relieved through free water or rest before collapse tick=6200
+    action=DispatchMedic stage=Treated response=Basic first aid completed tick=6200
+    action=SafeRemove stage=Removed response=Guest safely reached the main gate tick=6200
+    action=GuideToRest stage=Clear response=No response tick=6200
+    
+passed QueueAbandonmentReassignsReservationsAndDoesNotTransferWater (299ms)
+passed WarningTravelTreatmentAndCriticalRestoreWithoutChangingOutcome (1s 045ms)
+passed BlockedMedicApproachGivesActionableCauseBeforeCommandAcceptance (266ms)
+passed OwnedResponseRejectsPatientAndMedicRetargetsWithoutQueueLeak (449ms)
+passed OrdinaryGuestCannotEnterUnsupportedRestHold (22ms)
+passed TreatmentCannotCompleteAfterPhysicalSeparation (298ms)
+passed StaggeredWaterSlotsHaveClearanceAndWalkableRoutes (33ms)
+failed FullLineKeepsEarlierPhysicalOverflowArrivalAheadOfLaterFasterWalkerAcrossRestore (25ms)
+  CollectionAssert.AreEqual failed. Different number of elements.
+    at Festival.Tests.MedicalIncidentTests.FullLineKeepsEarlierPhysicalOverflowArrivalAheadOfLaterFasterWalkerAcrossRestore() in /_/tests/Festival.Tests/MedicalIncidentTests.cs:340
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+passed FasterLaterDepartingGuestTakesEarlierPlaceOnlyAfterPhysicalArrival (81ms)
+passed AbandoningWaterApproachReleasesNoQueuePlaceAcrossRestore (75ms)
+passed SameTickWaterArrivalsUseStablePersonIdTieBreak (33ms)
+passed FivePersonLineAdvancesAndNextPhysicalArrivalOwnsTapAcrossRestore (389ms)
+passed DrinkingPaceVariesDeterministicallyByPerson (1ms)
+passed DrinkingOwnsOneTapAndContinuouslyRelievesNeedsUntilThirstZeroAcrossRestore (394ms)
+passed PerformerUsesSameFreeWaterServiceAndNeedsPersist (328ms)
+passed PerformerNeedsDoNotPreventInitialSetFromStarting (363ms)
+passed PerformerCollapseCriticalDeathAreAuthoritativeAcrossRestore (330ms)
+passed DistressedPerformerCanReceivePhysicalMedicTreatment (904ms)
+passed DispatchKeepsCollapsedGuestOrPerformerDownThroughTravelAndTreatment (False,False) (880ms)
+passed DispatchKeepsCollapsedGuestOrPerformerDownThroughTravelAndTreatment (False,True) (861ms)
+passed DispatchKeepsCollapsedGuestOrPerformerDownThroughTravelAndTreatment (True,False) (445ms)
+passed DispatchKeepsCollapsedGuestOrPerformerDownThroughTravelAndTreatment (True,True) (481ms)
+passed PerformerDrinksBeforeEntryThenReturnsViaAccessAndStairsAcrossRestores (513ms)
+passed OnStageWaterRetargetIsImmediatelySaveable (363ms)
+passed GuestWaterReliefDoesNotCancelAnotherPatientsMedicResponse (422ms)
+passed ThreeDistinctUniformChoicesUseSeparateSavedEntropyAndOneReroll (1s 270ms)
+passed PendingDraftBlocksPreparationAndStaleUnknownDuplicateCommandsArePure (28ms)
+passed FullHandExcludesOwnedAndAllowsRepeatedRemainingThreeReplacementAndSkip (65ms)
+passed SlotPerksAddNoWorkersAndPaidContractsCannotBypassRemovedSlot (21ms)
+passed SeparateRoleTrainingDerivesActualAbilitiesAndSavedWalkingSpeeds (233ms)
+passed TowerTapRemovalRestoresBaselineAndNeverRemovesMain (27ms)
+passed ThirstPerkChangesOnlyGuestsByTenPercentAndWaterHappinessRequiresActualService (106ms)
+passed SaveFailureRetainsHandCursorMoneyAndIdsAndSuccessfulChoiceReloadsExactly (133ms)
+passed MalformedVersionHandCapacityRngAndEffectsAreRejected (3ms)
+passed LegacyNullableStateIsOmittedAndExactCanonicalAndEffectsRemainUnchanged (45ms)
+passed ActualCommittedLegacyHudSaveRetainsChecksumHashCanonicalEffectsAndFileBytes (47ms)
+passed ActualFatalHearingRetryKeepsPerksDrawsOnceExpiresContractsAndTerminalResetPreservesHistory (5s 685ms)
+passed EveryPerkRemovalRestoresItsBoundedEffectAndOwnedExclusion (3ms)
+passed ActualGuestFreeWaterTicksImproveSatisfactionAndResumeExactlyWhileStaffDoNotGain (452ms)
+passed PairedModestSynergyDiagnosticKeepsBaselineCountersAndExactContinuationBelowFifty (2s 268ms)
+  Standard output
+    PERK_DIAGNOSTIC paired_ticks=4000 people=32 elapsed_ms=2122.00 baseline_status=Running synergy_status=Running guest_growth_extra=10percent hash=31ad9983bf80e0bd98d569ca75c954527bf9e8dcc7b85aa0d8c00a26becec9c9
+    
+passed ActualStaffFreeWaterAndGuestPaidDrinkDoNotEarnPerkHappiness (1s 056ms)
+passed PerkTrainedPaidMedicTravelsTreatsAndResumesTheExactJob (1s 239ms)
+passed SoundEngineerLabelsDescribeExistingQualityAndPrices (1ms)
+passed EditsAreUnpaidReplaceableRemovableAndPersistIncompleteLineup (62ms)
+passed MissingRoleSlotRejectsHireWithoutChangingDraftOrIds (33ms)
+passed OverBudgetDraftSavesButCannotOpenAndMalformedPlanRejects (91ms)
+passed ActualStartCoordinatorIsFailureSafeAndExactlyOnceAcrossLoad (1s 844ms)
+failed OptionalOnlyStaffRetryRetainsImmutableSetupAndRehiresStablePerson (2s 202ms)
+  Assertion failed. Expected values to be equal.
+  
+  expected: Failed
+  actual:   Running
+  
+  Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus)
+  Expected
+    Failed
+  Actual
+    Running
+    at Festival.Tests.PreparationPlanTests.OptionalOnlyStaffRetryRetainsImmutableSetupAndRehiresStablePerson() in /_/tests/Festival.Tests/PreparationPlanTests.cs:144
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+passed MalformedSetupAndCollectionsRejectWithoutThrowing (71ms)
+passed PriorChargedSaveIsRejectedByNormalEconomicsIdentityAndFilePreserved (151ms)
+passed NormalUiCoordinatorPersistsWaterChoiceAndHearingDecision (970ms)
+passed PostDeathConcedeEndsCampaignWithoutSpendingFavourAndCannotRepeat (402ms)
+passed RealDeathSpendsOneFavourAndResetsCashStockWithoutFarmingProperty (729ms)
+passed CommunitySharingCapsFastDrinkersAndCannotBeCommittedTwice (38ms)
+passed FailedSharedWeekendCannotClaimFavourOrRepeatWaterChoiceOnRetry (824ms)
+passed HeadlessSecondFavourFixtureProvesTwoRetryResetsWithoutStockAccumulation (850ms)
+passed CommunityFavourIsClaimedOnlyAfterFullHonouredWeekend (3s 438ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (1s 196ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 260ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (824ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (829ms)
+passed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (702ms)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (38ms)
+passed HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering (782ms)
+passed ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable (688ms)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (41ms)
+passed HistoricalDiagnosticSaveRetainsOriginalHashAndNoAutonomyReinterpretation (67ms)
+passed ArgumentAutomationUsesExistingEightThousandThresholdAndOldestStageThenId (556ms)
+passed MergedPreassignedArgumentsKeepOneClaimAndCalmingConvertsToPhysicalHandling (799ms)
+passed AutoMedicTreatmentPhysicallyStartsAndContinuesExactlyAcrossReload (877ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (514ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (773ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (509ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (540ms)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (575ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (565ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (576ms)
+passed SlotsAreNotLabourAndPaidHiresAreAtomicAndSeedStable (4ms)
+passed AllHireOrdersKeepDistinctStableIdsAndRestore (13ms)
+passed RoleWideTrainingIsFreeClampedAndAppliesToActualRoutes (427ms)
+passed TwoMedicsTravelAndTreatIndependentPatientsAcrossReload (False) (701ms)
+passed TwoMedicsTravelAndTreatIndependentPatientsAcrossReload (True) (653ms)
+passed RetryExpiresBothPaidContractsButRetainsEffectsAndContacts (831ms)
+passed ProfileAndJobTamperingAreRejected (379ms)
+passed TwoStewardsOwnIndependentPhysicalResponsesAndRestore (783ms)
+passed OptionalStewardIsProtectedAndTimelyFirstAidPreventsItsDeath (1s 145ms)
+passed UnaffordableAndFiftyBoundaryHiresDoNotMutateRosterOrLedger (1ms)
+passed ProportionalExistingTierTwoDiagnosticStaysBelowFifty (1s 312ms)
+  Standard output
+    STAFF_HEADLESS_DIAGNOSTIC people=49 ticks=4000 elapsed_ms=1263.18 simulated_real_seconds=50
+    
+passed StrongAndWeakOptionalStewardSkillsChangeCalmingOutcome (1s 068ms)
+passed HigherPersonalSpeedArrivesEarlierOnTheSamePhysicalRoute (51ms)
+passed NamedUnreachableDispatchIsRejectedWithReasonAndNoOwnership (439ms)
+passed LateOptionalMedicCannotEraseDeathAndIsNamedInHearing (1s 131ms)
+passed SafeSettlementExpiresOptionalContractsWithoutDeletingContacts (3s 346ms)
+passed PreviouslyReviewedWaterSaveLoadsWithoutGrantingFreeStaff (13ms)
+passed ProductionLegacyGuidanceDispatchesPhysicalWorkerAndFixtureGateIsDisabled (330ms)
+passed IndependentWorkersTrackMovingTargetsAndSaveTheirApproachAndGuidance (409ms)
+  Standard output
+    STAFF_INTERVENTION_DIAGNOSTIC people=28 jobs=2 ticks=960 elapsed_ms=97.21 fixture_need_suppression=true
+    
+passed EscortWalksBothPeopleToGateBeforeOnlyAffectedPersonDepartsAndReloadMatches (353ms)
+passed NoWarningClosureWrongRoleAndCollapsedGuidanceAreRejectedWithoutMutation (326ms)
+passed LateApproachDoesNotStopCollapseDeathAndReleasesJobsAcrossRetry (502ms)
+passed CollapsedBodiesDoNotBlockExactMovementButMedicalStateAndDeadlineRemain (268ms)
+passed BaselinePhysicalRestGuidancePreventsHighNeedsWithoutFixtureCommandsOrClampingTarget (842ms)
+passed CollapseDuringSavedEscortCancelsInsteadOfProtectingItsDeadline (594ms)
+passed JobTamperingWrongRolesOwnershipClocksAndFakeGateCompletionAreRejected (342ms)
+passed UnreachableInterventionDoesNotChangeOwnershipAndExplicitFixtureGateRoundTrips (282ms)
+passed LeaveQueueHasNoRemoteEffectAndKeepsOtherPersonsServiceOwner (378ms)
+passed ClosingWaterBeforePhysicalArrivalDoesNotGiveStewardRemoteRestOrQueueEffect (312ms)
+passed TowerAndCouncilSharingComposeWithoutTapPressureLoss (52ms)
+passed EveryTapMovesAndSavesItsRotatedServiceFront (0,0,2) (1s 184ms)
+passed EveryTapMovesAndSavesItsRotatedServiceFront (1,2,0) (1s 104ms)
+passed EveryTapMovesAndSavesItsRotatedServiceFront (2,0,-2) (1s 136ms)
+passed EveryTapMovesAndSavesItsRotatedServiceFront (3,-2,0) (1s 843ms)
+passed LooseQueueAimedAtFirstAidTentBendsAroundBlockedBodyAndValidatesSavedShape (29ms)
+  Standard output
+    First-aid-directed water line grew9 stablecells outside the blocked tent body.
+    
+passed PlacementDoesNotReserveHypotheticalTailAndOrganicLineAvoidsStage (29ms)
+passed QueuedGuestForfeitsPlaceForWorthwhileAlternativeButOwnerAndNearFrontStay (95ms)
+passed BlockedOrganicTailStopsWithoutReservingObstacleAndGrowthWorkIsBounded (72ms)
+  Standard output
+    WATER_GROWTH blocked_checks=1000 elapsed_ms=7.79 max_cells=20
+    
+passed SavedOrganicGeometryRejectsSpacingSnakesCrossingsAndSecondCornerClips (72ms)
+passed SeparatePhysicalArrivalsOwnSeparateTapsAndSaveTheirChoices (101ms)
+passed PlacedTapUsesItsOwnPhysicalArrivalFifoAndWaterWaitGrievance (58ms)
+passed EarlierPlacedTapArrivalBeatsLowerIdAndChoiceStaysPutWhenOtherWaitChanges (92ms)
+passed PlacedTapOverflowPromotesOldestTailMemberAndPersists (101ms)
+passed FoundationEffectsPersistAsDurablePropertyAcrossFailedWeekendRetry (1s 177ms)
+passed PlayerChosenSitesAreValidatedAndPersisted (39ms)
+passed LegacyCreationCannotExceedTwoChosenTapsOrPoisonRestore (38ms)
+passed ExistingFixedSiteSavesStillRestoreAfterCreationIsRetired (4ms)
+passed OriginalTapCanMoveDuringPreparationAndSurvivesOpeningAndSave (58ms)
+passed ChosenLayoutSupportsMovedOriginalAndTwoExtraSites (46ms)
+passed MovedOriginalAndArbitraryExtraSitesSurviveSameTierRetry (1s 358ms)
+passed GuestChoosesFasterFreeTapOverNearbyBusyTap (65ms)
+passed PreQueueGuestCanRechooseAfterCooldownButDoesNotOscillate (84ms)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 190
+  failed: 3
+  succeeded: 187
+  skipped: 0
+  duration: 2m 10s 239ms

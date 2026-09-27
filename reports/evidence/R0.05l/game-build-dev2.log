@@ -1,0 +1,9 @@
+C:\Projects\festival-tycoon\game\Main.StaffAutomationCapture.cs(98,91): error CS8602: Dereference of a possibly null reference. [C:\Projects\festival-tycoon\game\Festival.Game.csproj]
+
+Build FAILED.
+
+C:\Projects\festival-tycoon\game\Main.StaffAutomationCapture.cs(98,91): error CS8602: Dereference of a possibly null reference. [C:\Projects\festival-tycoon\game\Festival.Game.csproj]
+    0 Warning(s)
+    1 Error(s)
+
+Time Elapsed 00:00:01.79

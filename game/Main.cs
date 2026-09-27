@@ -125,8 +125,9 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private readonly SaveCompatibility _saveCompatibility = new("0.0.1-r0.05k-unpaid-plan-v1",
-        LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-editable-preparation-v1");
+    private SaveCompatibility _saveCompatibility => _session?.StaffAutonomyEnabled == true
+        ? new("0.0.1-r0.05l-staff-autonomy-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-staff-autonomy-v1")
+        : new("0.0.1-r0.05k-unpaid-plan-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-editable-preparation-v1");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -299,6 +300,7 @@ public partial class Main : Node
         ProcessHeaderCapture();
         ProcessResponsePostCapture();
         ProcessPreparationPlanCapture();
+        ProcessStaffAutomationCapture();
     }
 
     public override void _Input(InputEvent inputEvent)
@@ -856,6 +858,7 @@ public partial class Main : Node
         _selectedImmersionVendor = null;
         var collider = ResolveWorldHit(screenPosition);
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
+        else if (collider is not null && collider.GetInstanceId() == _generatorPickId) SelectGenerator();
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
         else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
         else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility))
@@ -953,7 +956,7 @@ public partial class Main : Node
     private void BuildStagePowerAction(VBoxContainer parent)
     {
         if (_session.CaptureEquipment() is null) return;
-        _stagePowerButton = ButtonText("ISOLATE STAGE POWER", () =>
+        _stagePowerButton = ButtonText("Shut off stage supply", () =>
             CommitEquipmentAction(new EquipmentCommand(EquipmentAction.Isolate)));
         _stagePowerButton.Visible = false;
         parent.AddChild(_stagePowerButton);
@@ -962,11 +965,11 @@ public partial class Main : Node
     private void RefreshStagePowerAction()
     {
         if (_stagePowerButton is null) return;
-        _stagePowerButton.Visible = _selected?.Kind == FarmObjectKind.TrailerStage;
+        _stagePowerButton.Visible = _selected?.Kind == FarmObjectKind.TrailerStage || _selectedGenerator;
         if (!_stagePowerButton.Visible) return;
         var error = _session.ValidateCommand(CampaignEnvelope(new EquipmentCommand(EquipmentAction.Isolate)));
         _stagePowerButton.Disabled = error is not null;
-        _stagePowerButton.TooltipText = error?.Message ?? "Safely isolate this stage's power.";
+        _stagePowerButton.TooltipText = "This generator currently supplies the trailer stage only. Isolation removes its modeled load, stops overload escalation and interrupts stage music.\n" + (error?.Message ?? "Isolate the trailer-stage circuit.");
     }
 
     private void RefreshAttendeeInspector(SessionObservation? supplied = null)
@@ -1162,6 +1165,8 @@ public partial class Main : Node
             {_postCaptureDirectory=args[++i];Directory.CreateDirectory(_postCaptureDirectory);}
             else if(args[i]=="--capture-r005k-plan" && i+1<args.Length)
             {_planCaptureDirectory=args[++i];Directory.CreateDirectory(_planCaptureDirectory);}
+            else if(args[i]=="--capture-r005l-staff" && i+1<args.Length)
+            {_automationCaptureDirectory=args[++i];Directory.CreateDirectory(_automationCaptureDirectory);}
             else if(args[i]=="--capture-perk-popout" && i+1<args.Length)
             {_perkPopoutCaptureDirectory=args[++i];Directory.CreateDirectory(_perkPopoutCaptureDirectory);}
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
@@ -1404,7 +1409,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-private string SaveDirectory => _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
+private string SaveDirectory => _automationCaptureDirectory is not null ? Path.Combine(_automationCaptureDirectory,"saves") : _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory,"saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory,"saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory,"saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :
@@ -1413,7 +1418,7 @@ private string SaveDirectory => _mosaicCaptureDirectory is not null ? Path.Combi
         _staffCaptureDirectory is not null ? Path.Combine(_staffCaptureDirectory, "saves") :
         _audienceCaptureDirectory is not null ? Path.Combine(_audienceCaptureDirectory, "saves") :
         _timetableCaptureDirectory is not null ? Path.Combine(_timetableCaptureDirectory, "saves") : ProjectSettings.GlobalizePath(
-        _session?.CapturePreparationPlan() is not null ? "user://saves/r0.05k-unpaid-plan-v1" : _session?.CapturePreparation() is not null ? "user://saves/r0.05-hearing-v1" : "user://saves");
+        _session?.StaffAutonomyEnabled == true ? "user://saves/r0.05l-staff-autonomy-v1" : _session?.CapturePreparationPlan() is not null ? "user://saves/r0.05k-unpaid-plan-v1" : _session?.CapturePreparation() is not null ? "user://saves/r0.05-hearing-v1" : "user://saves");
     private void ManualSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));

@@ -1,0 +1,28 @@
+passed OptionalOnlyStaffRetryRetainsImmutableSetupAndRehiresStablePerson (3s 105ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (1s 336ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 328ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (702ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (1s 001ms)
+passed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (908ms)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (40ms)
+passed HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering (752ms)
+passed ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable (973ms)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (79ms)
+passed HistoricalDiagnosticSaveRetainsOriginalHashAndNoAutonomyReinterpretation (98ms)
+passed ArgumentAutomationUsesExistingEightThousandThresholdAndOldestStageThenId (730ms)
+passed MergedPreassignedArgumentsKeepOneClaimAndCalmingConvertsToPhysicalHandling (1s 010ms)
+passed AutoMedicTreatmentPhysicallyStartsAndContinuesExactlyAcrossReload (1s 094ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (798ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (910ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (656ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (874ms)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (832ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (775ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (617ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 21
+  failed: 0
+  succeeded: 21
+  skipped: 0
+  duration: 18s 758ms

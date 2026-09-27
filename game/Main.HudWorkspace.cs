@@ -153,8 +153,9 @@ public partial class Main
         _immersionControls!.GetChild<Control>(0).Visible = false;
         var site = _hudPages["Site & water"];
         site.AddChild(HudLabel("Site & water", 21)); site.AddChild(HudLabel("Arrange taps and vendors before opening. Select an object on the field, then choose Move in its own card."));
-        _waterFoundationHeading = HudLabel("Add a free-water tap • up to two additional sites"); site.AddChild(_waterFoundationHeading);
+        _waterFoundationHeading = HudLabel(_session.CapturePerks() is null ? "DIAGNOSTIC · up to two additional taps" : "Another Round · one extra free-water tap"); site.AddChild(_waterFoundationHeading);
         _waterPlaceButton = ButtonText("Add tap", () => BeginWaterPlacement(false)); site.AddChild(_waterPlaceButton);
+        _waterAdditionReason = HudLabel(""); site.AddChild(_waterAdditionReason);
         _waterPlacementStatus = HudLabel("Choose a grass spot; rotate or cancel in the placement bar."); site.AddChild(_waterPlacementStatus);
         site.AddChild(HudLabel("Council water choice • this festival\nShare free water with the neighbouring community. Faster drinkers take longer; queues may grow. Honour the full festival for 1 Council Favour, once per campaign."));
         _communityShareInfo = HudLabel(""); _communityShareInfo.Visible = false; site.AddChild(_communityShareInfo);
@@ -340,8 +341,8 @@ public partial class Main
         }
         if (_medicalActionInspector is not null)
         {
-            if (_medicalButtons.TryGetValue(MedicalAction.DispatchMedic, out var medicButton)) medicButton.Text = "Dispatch Riley";
-            if (_disorderButtons.TryGetValue(DisorderAction.DispatchSecurity, out var stewardButton)) stewardButton.Text = "Dispatch Jordan";
+            if (_medicalButtons.TryGetValue(MedicalAction.DispatchMedic, out var medicButton)) medicButton.Text = "Send medic";
+            if (_disorderButtons.TryGetValue(DisorderAction.DispatchSecurity, out var stewardButton)) stewardButton.Text = "Send steward";
         }
         RefreshHudAlerts();
     }

@@ -30,6 +30,7 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public bool ExtraMedicSlotOwned { get; init; }
     public bool ExtraStewardSlotOwned { get; init; }
     public bool RespondersUpgraded { get; init; }
+    public bool StaffAutonomyEnabled { get; init; }
     public StaffProfile[] StaffProfiles { get; init; } = [];
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ResponsePostPlacement? FirstAidPlacement { get; init; }
@@ -62,7 +63,8 @@ public sealed partial class GameSession
     internal string? PreparationCanonicalJson => _preparation is not { } p ? null : StaffCompatibleCanonicalJson(p,
         p.ExtraMedicSlotOwned ? "" : nameof(p.ExtraMedicSlotOwned), p.ExtraStewardSlotOwned ? "" : nameof(p.ExtraStewardSlotOwned),
         p.RespondersUpgraded ? "" : nameof(p.RespondersUpgraded), p.StaffProfiles.Length > 0 ? "" : nameof(p.StaffProfiles),
-        p.PrimaryWaterQuarterTurns != 0 ? "" : nameof(p.PrimaryWaterQuarterTurns), p.PrimaryWaterGeometryVersion != 0 ? "" : nameof(p.PrimaryWaterGeometryVersion));
+        p.PrimaryWaterQuarterTurns != 0 ? "" : nameof(p.PrimaryWaterQuarterTurns), p.PrimaryWaterGeometryVersion != 0 ? "" : nameof(p.PrimaryWaterGeometryVersion),
+        p.StaffAutonomyEnabled ? "" : nameof(p.StaffAutonomyEnabled));
     public bool PreparationBoundaryOnNextTick => !IsPaused && _preparation is { } p &&
         (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks - 1 && p.People.All(item => item.Admitted) ||
          p.Status == PreparationStatus.Departing && p.People.All(item => item.Departed));
@@ -109,6 +111,8 @@ public sealed partial class GameSession
 
     private CommandResult? ValidateWaterPlacement(EntityId? target, GridCell cell, string? movingId, int quarterTurns)
     {
+        if (movingId is null && WaterTapAdditionUnavailableReason is { } additionIssue)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, additionIssue);
         if (target is not null || _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Water points can be positioned only during Hot-weekend preparation.");
         if (quarterTurns is < 0 or > 3 || movingId is not null && movingId != "water.main" && !p.ExtraWaterSiteIds.Contains(movingId))
@@ -128,6 +132,14 @@ public sealed partial class GameSession
         }
         return issue is null ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
     }
+
+    public string? WaterTapAdditionUnavailableReason => _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p
+        ? "Taps can only be added during preparation."
+        : _perks is { Pending: true } ? "Finish the pending perk choice before adding a tap."
+        : _perks is not null && !HasPerk("another-round") ? "Requires Another Round: it grants one extra placeable tap."
+        : _perks is not null && p.ExtraWaterSiteIds.Length >= 1 ? "Another Round's one extra tap is already placed; select it to move it."
+        : p.ExtraWaterSiteIds.Length >= 2 ? "Both diagnostic additional taps are already placed."
+        : null;
 
     private static string? ValidateWaterPlacementCell(GridCell cell, PreparationSnapshot p, string? movingId,
         EquipmentSnapshot? equipment, int quarterTurns = 0, int geometryVersion = 1)

@@ -1,0 +1,34 @@
+warning: --no-progress is deprecated; use --progress off instead.
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (1s 985ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 724ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (1s 001ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (978ms)
+passed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (809ms)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (26ms)
+passed HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering (624ms)
+passed ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable (630ms)
+passed MedicalCollapseDuringFightHandlingInterruptsWithoutSkillRollOrFreshAttempt (572ms)
+passed CollapsedCounterpartDuringTransitRejectsHealthyTargetAndDoesNotRedispatch (559ms)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (47ms)
+passed HistoricalDiagnosticSaveRetainsOriginalHashAndNoAutonomyReinterpretation (160ms)
+passed ArgumentAutomationUsesExistingEightThousandThresholdAndOldestStageThenId (650ms)
+passed MergedPreassignedArgumentsKeepOneClaimAndCalmingConvertsToPhysicalHandling (725ms)
+passed AutoMedicTreatmentPhysicallyStartsAndContinuesExactlyAcrossReload (769ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (467ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (613ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (468ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (498ms)
+passed RoleSelectionSkipsNearestBusyMedicForAvailableFartherWorker (496ms)
+passed RoleSelectionSkipsNearestUnreachableMedicForLegalFartherRoute (585ms)
+passed AllUnavailableMedicsExplainEachWorkerWithoutCreatingClaims (550ms)
+passed NewCriticalPatientDoesNotPreemptPhysicallyActiveMedicTreatment (579ms)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (477ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (502ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (521ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 26
+  failed: 0
+  succeeded: 26
+  skipped: 0
+  duration: 17s 148ms

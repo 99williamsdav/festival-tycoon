@@ -1,0 +1,37 @@
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (True) (2s 097ms)
+passed GuestFightPhysicalHandlingRollsOnceAndSavedContinuationPreservesOriginalDeadline (False) (1s 431ms)
+passed ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate (657ms)
+passed TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline (703ms)
+passed CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt (631ms)
+passed FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse (25ms)
+passed HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering (656ms)
+failed ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable (584ms)
+  Assertion failed. Expected condition to be true.
+  Festival programme identity, booking or fixed window invalid.
+  
+  actual: false
+  
+  Assert.IsTrue(loaded.IsSuccess)
+  Expected
+    true
+  Actual
+    false
+    at Festival.Tests.StaffAutonomyTests.Restore(GameSession s) in /_/tests/Festival.Tests/StaffAutonomyTests.cs:15
+    at Festival.Tests.StaffAutonomyTests.ClosingDuringPhysicalHandlingInterruptsSavedAttemptAndKeepsMedicAutonomyAvailable() in /_/tests/Festival.Tests/StaffAutonomyTests.cs:189
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+passed TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity (44ms)
+passed CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment (503ms)
+passed MultipleMedicsOwnDistinctPatientsAndExactContinuationAcrossTravel (672ms)
+passed ManualRoleDispatchPrioritizesSelectedTargetBeforeAutomaticCritical (532ms)
+passed RoleSelectionUsesNearestLegalWorkerAndStableWorkerIdTieBreak (483ms)
+passed OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted (468ms)
+passed IncapacitatedMedicAndClaimedPatientCannotReceiveNewResponse (562ms)
+passed RoleDispatchAutosaveFailurePreservesSourceSessionAtomically (517ms)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 16
+  failed: 1
+  succeeded: 15
+  skipped: 0
+  duration: 10s 685ms

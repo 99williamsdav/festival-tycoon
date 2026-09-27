@@ -24,6 +24,7 @@ public partial class Main
     private Button? _waterPlaceButton;
     private Button? _waterTowerButton;
     private Label? _waterPlacementStatus;
+    private Label? _waterAdditionReason;
     private Label? _communityShareInfo;
     private string _preparationMessage = "Choose one act and one worker. Equipment and stock are optional.";
     private string? _preparationCaptureDirectory;
@@ -60,7 +61,8 @@ public partial class Main
             _ => false
         };
         _contextPanel.Visible = farm || person || vendor || facility ||
-            (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0);
+            (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0) ||
+            (_selectedGenerator && _session.CaptureEquipment() is not null && ContextVisualAvailable(_equipmentVisual));
     }
 
     private void AssertContextPanel(bool expected)
@@ -113,7 +115,7 @@ public partial class Main
         CancelWaterPlacement();
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
         if (_session.CapturePreparationPlan() is not null && result.IsSuccess &&
-            result.Session!.CapturePreparation() is not { Version: 2, Plan: not null })
+            (result.Session!.CapturePreparation() is not { Version: 2, Plan: not null } || _session.StaffAutonomyEnabled && !result.Session.StaffAutonomyEnabled))
         {
             _preparationMessage = "This save uses the paid preparation diagnostic model. Load it in its matching diagnostic mode; start a fresh normal campaign for the editable unpaid plan.";
             RefreshPreparationHud();
@@ -191,7 +193,10 @@ public partial class Main
         if (_waterPlaceButton is not null)
         {
             _waterPlaceButton.Visible = p.Status == PreparationStatus.Preparing;
-            _waterPlaceButton.Disabled = _session.CapturePerks() is { } perks ? !perks.Equipped.Contains("another-round") || p.ExtraWaterSiteIds.Length >= 1 || perks.Pending : p.ExtraWaterSiteIds.Length >= 2;
+            var reason = _session.WaterTapAdditionUnavailableReason;
+            _waterPlaceButton.Disabled = reason is not null;
+            _waterPlaceButton.TooltipText = reason ?? "Choose a grass site; rotation and physical service access are checked at placement.";
+            if (_waterAdditionReason is not null) _waterAdditionReason.Text = reason ?? "Extra tap available · choose a grass spot, rotate or cancel.";
             _waterTowerButton!.Visible = p.Status == PreparationStatus.Preparing;
             _waterTowerButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new ApplyWaterFoundationEffectCommand("water.tower"))) is not null;
             _waterPlacementStatus!.Visible = p.Status == PreparationStatus.Preparing;
