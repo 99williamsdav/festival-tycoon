@@ -1,8 +1,10 @@
 # R0.05i evidence inventory
 
+Latest symbol-only header follow-up: [result](../../../briefs/results/R0.05i-x-correction.md). `headers-final-1280x720` and `headers-final-1920x1080` each4PNGs/exit0/stderr0/startup+HEADER_CAPTURE_COMPLETE,8final total. `headers-development-1-1280x720` and `headers-development-1-1920x1080` each4Debug PNGs/clean gates. All three relevant rendered headers show only×; context close and all reopen handlers/hash preserved. No failed follow-up attempt. Its newer bundle/hash identities supersede the original feedback export below, whose evidence remains historical and intact.
+
 Exact source/test/binary identities, commands, fixtures and limitations: [result](../../../briefs/results/R0.05i.md).
 
-Accepted final bundle is `artifacts/windows/r005i-feedback-final-2/FestivalTycoon-R0.05i-Feedback.exe` plus adjacent managed data folder. EXE hash alone does not identify C# source; use result's game DLL hash.
+Original accepted bundle (superseded by header correction) is `artifacts/windows/r005i-feedback-final-2/FestivalTycoon-R0.05i-Feedback.exe` plus adjacent managed data folder. EXE hash alone does not identify C# source; use result's game DLL hash.
 
 | Directory | PNGs | Result/provenance |
 |---|---:|---|

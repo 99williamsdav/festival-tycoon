@@ -198,7 +198,8 @@ public partial class Main
         _hudContextScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _contextPanel.AddChild(_hudContextScroll);
         var detail = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; detail.AddThemeConstantOverride("separation", 8); _hudContextScroll.AddChild(detail);
         var contextHeading = new HBoxContainer(); detail.AddChild(contextHeading); contextHeading.AddChild(HudLabel("Selected", 12));
-        var contextClose = ButtonText("Close ×", ClearSelection); contextHeading.AddChild(contextClose);
+        var contextClose = ButtonText("×", ClearSelection); contextClose.Name = "CloseSelectedPanel";
+        contextClose.TooltipText = "Close selected object panel"; contextHeading.AddChild(contextClose);
         _inspectorTitle = HudLabel("", 20); detail.AddChild(_inspectorTitle);
         BuildWaterFlowInspector(detail); BuildSatisfactionBar(detail); BuildMedicalNeedBars(detail); BuildImmersionNeedBars(detail);
         // Essential actions precede optional prose and remain accessible by scroll.
@@ -206,7 +207,7 @@ public partial class Main
         BuildDisorderStageInspector(detail); BuildStagePowerAction(detail); BuildSecurityPostInspectorAction(detail);
         _inspectorBody = HudLabel("", 13); detail.AddChild(_inspectorBody);
         ConstrainHudControls(detail);
-        contextClose.CustomMinimumSize = new Vector2(65, 28); contextClose.SizeFlagsHorizontal = Control.SizeFlags.Fill;
+        contextClose.CustomMinimumSize = new Vector2(38, 38); contextClose.SizeFlagsHorizontal = Control.SizeFlags.Fill;
 
         _hudMenu = HudPanel(layer, new Vector2(width - 265, 65), new Vector2(250, 180)); _hudMenu.Visible = false;
         var menuScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _hudMenu.AddChild(menuScroll);

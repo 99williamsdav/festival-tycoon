@@ -243,8 +243,8 @@ public partial class Main : Node
     public override void _Process(double delta)
     {
         try { ProcessPresentationFrame(delta); }
-        catch(Exception error) when (_hoverCaptureDirectory is not null)
-        { GD.PushError("HOVER_CAPTURE_FAILED presentation=" + error); _hoverCaptureDirectory=null;GetTree().Quit(2); }
+        catch(Exception error) when (_hoverCaptureDirectory is not null || _headerCaptureDirectory is not null)
+        { GD.PushError("HOVER_CAPTURE_FAILED presentation=" + error); _hoverCaptureDirectory=null;_headerCaptureDirectory=null;GetTree().Quit(2); }
     }
 
     private void ProcessPresentationFrame(double delta)
@@ -293,6 +293,7 @@ public partial class Main : Node
         ProcessStartSplashCapture();
         UpdateHoverFeedback(GetViewport().GetMousePosition());
         ProcessHoverCapture();
+        ProcessHeaderCapture();
     }
 
     public override void _Input(InputEvent inputEvent)
@@ -1142,6 +1143,8 @@ public partial class Main : Node
                 _sharedWorldOutputPath = ProjectSettings.GlobalizePath(args[++i]);
                 _sharedWorldFixture = SharedWorldFeasibilityFixture.Create();
             }
+            else if (args[i] == "--capture-r005i-headers" && i + 1 < args.Length)
+            { _headerCaptureDirectory = args[++i]; Directory.CreateDirectory(_headerCaptureDirectory); }
             else if (args[i] == "--capture-r005i-hover" && i + 1 < args.Length)
             { _hoverCaptureDirectory = args[++i]; Directory.CreateDirectory(_hoverCaptureDirectory); }
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
@@ -1384,7 +1387,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-    private string SaveDirectory => _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
+    private string SaveDirectory => _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory, "saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory, "saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :
