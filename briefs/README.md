@@ -6,6 +6,8 @@ Bounded assignments implement M0 sequentially. These are implementation instruct
 
 The paused [M1 — first playable](M1/README.md) and its results remain available for implementation/evidence history.
 
+Unscheduled, distant-future concepts are recorded separately in [Future ideas](FUTURE_IDEAS.md), not the actionable backlog or implementation queue.
+
 ## How to use
 
 Give a coding agent access to the whole repository, then assign the selected brief. A brief without its referenced specifications is not complete context. Each agent must inspect prior implementation and evidence before extending it.
