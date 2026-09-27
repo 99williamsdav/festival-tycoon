@@ -98,7 +98,7 @@ public partial class Main
 
     private void BuildHudWorkspace()
     {
-        if (_session.CaptureProgramme() is not null) _preparationMessage = "Book three different acts and hire a sound shift. Equipment and stock are optional.";
+        if (_session.CaptureProgramme() is not null) _preparationMessage = "Choose three different acts and hire a sound engineer. Equipment and stock are optional.";
         var layer = new CanvasLayer(); AddChild(layer);
         var size = GetViewport().GetVisibleRect().Size;
         var width = size.X; var height = size.Y;
@@ -144,7 +144,7 @@ public partial class Main
         _hudPages["Equipment"].AddChild(HudLabel("Optional sound rig", 21));
         _hudPages["Equipment"].AddChild(HudLabel("Buy £120 (+1000 quality, retained) or rent £30 (+500, this festival).\nGenerator: safe 80% baseline."));
         _hudPages["Staff"].AddChild(HudLabel("Festival staff", 21));
-        _hudPages["Staff"].AddChild(HudLabel("Plan at least one sound shift or unlocked role hire before opening. Maintenance is optional; extra role hires require their unlocked slot. Pay at Start."));
+        _hudPages["Staff"].AddChild(HudLabel("Hire at least one sound engineer or unlocked role before opening. Maintenance is optional; extra role hires require their unlocked slot. Pay at Start."));
         _preparationOfferBox = _hudPages["Staff"]; _preparationOfferInsertIndex = _preparationOfferBox.GetChildCount(); RebuildPreparationOffers();
         _hudPages["Stock"].AddChild(HudLabel("Food & drink starter stock", 21));
         _hudPages["Stock"].AddChild(HudLabel(_session.CapturePreparationPlan() is null ? "Optional fixed bundle • once before opening\n\nPRODUCT              QUANTITY              SALE PRICE\nChips                         40                              £3\nSoft drink                  40                              £2\nBeer                           32                              £3" : "Optional unpaid quantities • change before Start\nSale prices: chips £3 · soft drinks £2 · beer £3"));
@@ -327,7 +327,7 @@ public partial class Main
         _hudDiagnosticsText!.Text = $"Tick {_session.CurrentTick} · hash {_session.CaptureSnapshot().AuthoritativeHash}\nPhase {_session.Phase} · status {p.Status} · paused {_session.IsPaused}\n{_preparationMessage}";
         _preparationSummary.Text = $"{(_session.CaptureProgramme() is null ? "Fixed festival roster" : "Three fixed sets · five-minute festival day")}\n" +
             $"Programme: {(_session.CaptureProgramme() is { ActIds.Length: 3 } ? "three acts booked" : p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) ? "act booked" : "choose before opening")}\n" +
-            $"Sound: {(p.AcceptedOffers.Contains("staff.steward") ? "Casey · basic shift hired · £20" : p.AcceptedOffers.Contains("staff.engineer") ? "Casey · extended shift hired · £40" : "hire a sound shift before opening")}\n" +
+            $"Sound: {(p.AcceptedOffers.Contains("staff.steward") ? "Casey · standard sound engineer hired · £20" : p.AcceptedOffers.Contains("staff.engineer") ? "Casey · better sound engineer hired · £40" : "hire a sound engineer before opening")}\n" +
             $"Owned rig {p.OwnedEquipment.Length} · rental {p.Rentals.Length} · equipment & stock optional";
         if (preparing && _session.CaptureImmersion() is { } stock)
             _immersionSummary!.Text = $"Current stock: chips {stock.ChipsStock} · soft {stock.SoftStock} · beer {stock.BeerStock}\nFree water remains available. Staff do not buy beer.";

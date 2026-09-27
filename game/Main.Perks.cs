@@ -11,6 +11,7 @@ public partial class Main
     private PanelContainer? _perkPanel;
     private VBoxContainer? _perkBody;
     private Button? _perkToggle;
+    private ScrollContainer? _perkScroll;
     private string _perkHudKey = "";
     private bool _perksExpanded;
     private string? _selectedPerk;
@@ -26,11 +27,11 @@ public partial class Main
     private void BuildPerkHud(CanvasLayer layer)
     {
         var size = GetViewport().GetVisibleRect().Size;
-        _perkToggle = ButtonText("Perks · 0 / 5 ▸", () => { _perksExpanded = !_perksExpanded; _perkHudKey = ""; RefreshPerkHud(); });
+        _perkToggle = ButtonText("Your Perks", () => { _perksExpanded = !_perksExpanded; _perkHudKey = ""; RefreshPerkHud(); });
         _perkToggle.Position = new Vector2(365, size.Y - 50); _perkToggle.Theme = HudTheme(); layer.AddChild(_perkToggle);
         _perkPanel = HudPanel(layer, new Vector2(60, 65), new Vector2(size.X - 120, size.Y - 120));
         _perkPanel.AddThemeStyleboxOverride("panel", HudStyle(new Color("d8d6bd"), 22));
-        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _perkPanel.AddChild(scroll);
+        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _perkScroll = scroll; _perkPanel.AddChild(scroll);
         _perkBody = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; _perkBody.AddThemeConstantOverride("separation", 9); scroll.AddChild(_perkBody);
     }
     private static void ClearPerkChildren(Node parent)
@@ -81,14 +82,16 @@ public partial class Main
         _perkToggle!.Visible = p is { Ended: false };
         _perkPanel.Visible = p is { Ended: false } && (p.Pending || _perksExpanded);
         if (p is null || p.Ended) return;
+        LayoutPerkHud(p.Pending);
         if((_pendingPerkChoice is not null || _pendingPerkSkip) && (!p.Pending || _confirmationDraftAttempt!=p.DraftAttempt || _confirmationCursor!=p.Cursor))
         { _pendingPerkChoice=null;_pendingPerkReplacement=null;_pendingPerkSkip=false; }
-        _perkToggle.Text = $"Perks · {p.Equipped.Length} / 5 {(_perksExpanded ? "▴" : "▸")}";
-        var key = System.Text.Json.JsonSerializer.Serialize(p) + _perksExpanded + _selectedPerk + _pendingPerkChoice + _pendingPerkReplacement + _pendingPerkSkip + _preparationMessage;
+        _perkToggle.Text = "Your Perks";
+        _perkToggle.TooltipText = $"{p.Equipped.Length} / 5 equipped · {(_perksExpanded ? "Collapse" : "Expand")} upwards";
+        var key = System.Text.Json.JsonSerializer.Serialize(p) + _perksExpanded + _selectedPerk + _pendingPerkChoice + _pendingPerkReplacement + _pendingPerkSkip + _preparationMessage + GetViewport().GetVisibleRect().Size;
         if (key == _perkHudKey) return; _perkHudKey = key;
         ClearPerkChildren(_perkBody!);
         var heading = new HBoxContainer(); _perkBody!.AddChild(heading);
-        var title = HudLabel(p.Pending ? "Choose a festival perk" : "Your equipped perks", 29); title.AddThemeFontOverride("font", HearingSerif()); heading.AddChild(title);
+        var title = HudLabel(p.Pending ? "Choose a festival perk" : "Your Perks", p.Pending ? 29 : 23); title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; title.AddThemeFontOverride("font", HearingSerif()); heading.AddChild(title);
         if (p.Pending)
         {
             var reroll = ButtonText(p.RerollUsed ? "Free reroll used" : "Reroll all 3 · 1 free", () => CommitEquipmentAction(new RerollPerksCommand(p.DraftAttempt,p.Cursor)));
@@ -110,7 +113,9 @@ public partial class Main
             if (p.Equipped.Length == 5) footer.AddChild(ButtonText("Skip this choice", () => { _confirmationDraftAttempt=p.DraftAttempt;_confirmationCursor=p.Cursor;_pendingPerkSkip = true; _perkHudKey = ""; RefreshPerkHud(); }));
         }
         if(p.Pending){ _perkBody.AddChild(HudLabel("Equipped: " + (p.Equipped.Length == 0 ? "none yet" : string.Join(" · ",p.Equipped.Select(id=>PerkCatalogue.All.Single(item=>item.Id==id).Name))),12)); return; }
-        var slots = new GridContainer { Name = "EquippedPerkCards", Columns = Math.Clamp((int)((GetViewport().GetVisibleRect().Size.X - 180) / 270), 1, 5) };
+        var viewportWidth = GetViewport().GetVisibleRect().Size.X;
+        var ownedWidth = Math.Min(800, viewportWidth - 315 - ((viewportWidth >= 1600 ? 690 : 650) + 25));
+        var slots = new GridContainer { Name = "EquippedPerkCards", Columns = Math.Clamp((int)((ownedWidth - 36) / 260), 1, 5) };
         slots.AddThemeConstantOverride("h_separation",12); slots.AddThemeConstantOverride("v_separation",12); _perkBody.AddChild(slots);
         for (var i = 0; i < 5; i++)
         {
@@ -125,7 +130,19 @@ public partial class Main
                 empty.AddChild(HudLabel($"Slot {i+1}\nEmpty",20)); slots.AddChild(empty);
             }
         }
-        _perkBody.AddChild(HudLabel(_preparationMessage,12));
+    }
+    private void LayoutPerkHud(bool draft)
+    {
+        var size = GetViewport().GetVisibleRect().Size;
+        var left = (size.X >= 1600 ? 690 : 650) + 25;
+        _perkToggle!.Position = new Vector2(left, size.Y - 50);
+        _perkToggle.CustomMinimumSize = new Vector2(90, 38);
+        _perkToggle.AddThemeFontSizeOverride("font_size", 12);
+        _perkPanel!.AddThemeStyleboxOverride("panel", HudStyle(new Color("d8d6bd"), draft ? 22 : 10));
+        var width = draft ? size.X - 120 : Math.Min(800, size.X - 315 - left);
+        var height = draft ? size.Y - 120 : Math.Min(450, size.Y - 150);
+        _perkPanel.Position = draft ? new Vector2(60,65) : new Vector2(left,size.Y - 60 - height);
+        _perkPanel.Size = new Vector2(width,height);
     }
     private void BuildPerkConfirmation(PerkSnapshot p)
     {

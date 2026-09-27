@@ -81,7 +81,7 @@ public partial class Main
         for (var slot = 0; slot < 3; slot++)
         {
             var choice = _programmeChoices[slot]; choice.Clear();
-            if (editable) { choice.AddItem("Choose act / remove slot"); choice.SetItemMetadata(0, ""); }
+            if (editable) { choice.AddItem("Empty slot · choose an act"); choice.SetItemMetadata(0, ""); }
             foreach (var act in available)
             {
                 choice.AddItem($"{act.Name} • {FestivalGenreName(act.Genre)} • £{act.PricePennies / 100}");
@@ -91,6 +91,9 @@ public partial class Main
             var selected = Array.FindIndex(available, act => act.Id == _programmeDraft[slot]);
             choice.Select(Math.Max(0, selected + (editable ? 1 : 0)));
             choice.Disabled = p.Status != PreparationStatus.Preparing;
+            foreach (var state in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color" })
+                choice.AddThemeColorOverride(state, editable && _programmeDraft[slot] == "" ? new Color("a83232") : HudInk);
+            choice.TooltipText = editable && _programmeDraft[slot] == "" ? "Empty slot · choose an act before Start" : "Selecting an act immediately saves the unpaid lineup plan.";
         }
         _programmeRefreshing = false;
         var total = acts.Where(act => _programmeDraft.Contains(act.Id)).Sum(act => act.PricePennies);
@@ -98,7 +101,7 @@ public partial class Main
         _programmeBook!.Text = booked ? "SAVE ACT ORDER • NO EXTRA FEE" : $"BOOK THREE ACTS • £{total / 100}";
         _programmeBook.Disabled = rejected is not null;
         _programmeBook.TooltipText = rejected?.Message ?? "Atomic booking/order; autosave must succeed before any payment or change applies.";
-        _programmeBook.Visible = p.Status == PreparationStatus.Preparing;
+        _programmeBook.Visible = p.Status == PreparationStatus.Preparing && !editable;
         _programmeSummary!.Text = booked
             ? string.Join("\n", programme.ActIds.Select((id, slot) => $"{slot + 1}. {acts.Single(act => act.Id == id).Name} • {FestivalGenreName(acts.Single(act => act.Id == id).Genre)}")) +
               "\n25s changeovers • no music during scheduled silence."

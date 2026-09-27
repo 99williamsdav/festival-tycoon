@@ -249,8 +249,8 @@ public sealed partial class GameSession
         PreparationOffer[] offers = [
             new("act.folk", "act", "Alex: meadow folk • folk fit", 6_000 + premium, 1_000, 0),
             new("act.punk", "act", "Alex: barn punk • punk fit", 6_000 + premium, 1_000, 1),
-            new("staff.steward", "staff", "Casey: basic sound shift • +400 quality", 2_000, 400, -1),
-            new("staff.engineer", "staff", "Casey: extended sound shift • +800 quality", 4_000, 800, -1),
+            new("staff.steward", "staff", "Casey: standard sound engineer • +400 quality", 2_000, 400, -1),
+            new("staff.engineer", "staff", "Casey: better sound engineer • +800 quality", 4_000, 800, -1),
             new("equipment.buy", "equipment", "Buy sound rig • +1000 quality; retained", 12_000, 1_000, -1),
             new("equipment.rent", "equipment", "Rent sound rig • +500 quality; this weekend", 3_000, 500, -1),
             new("contract.stock", "contract", "50 refreshments • unused stock resets on retry", 3_000, 0, -1)
@@ -272,7 +272,7 @@ public sealed partial class GameSession
         if (_programme is null ? !p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) : (p.Plan?.ActIds ?? _programme.ActIds).Count(id => id != "") != 3)
             blockers.Add(new(PreparationStartOwner.Programme, _programme is null
                 ? "Book one act before opening."
-                : "Choose three different acts and confirm the programme before opening."));
+                : "Choose three different acts before opening. Each selection saves immediately."));
         if (!(p.Plan?.OfferIds ?? p.WorkContracts).Any(id => id.StartsWith("staff.", StringComparison.Ordinal)))
             blockers.Add(new(PreparationStartOwner.Staff, "Hire one worker from the Staff tab before opening."));
         if (p.Plan is { Committed: false } && PreparationRemainingCash < 0)

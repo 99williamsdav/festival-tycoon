@@ -28,6 +28,16 @@ public sealed class PreparationPlanTests
         Accept(s, new PurchaseImmersionStarterStockCommand());
     }
     [TestMethod]
+    public void SoundEngineerLabelsDescribeExistingQualityAndPrices()
+    {
+        var offers=New().GetPreparationOffers();
+        var standard=offers.Single(o=>o.Id=="staff.steward");var better=offers.Single(o=>o.Id=="staff.engineer");
+        Assert.AreEqual("Casey: standard sound engineer • +400 quality",standard.Name);
+        Assert.AreEqual("Casey: better sound engineer • +800 quality",better.Name);
+        Assert.AreEqual(2000L,standard.PricePennies);Assert.AreEqual(400,standard.MusicQuality);
+        Assert.AreEqual(4000L,better.PricePennies);Assert.AreEqual(800,better.MusicQuality);
+    }
+    [TestMethod]
     public void EditsAreUnpaidReplaceableRemovableAndPersistIncompleteLineup()
     {
         var s = New(); var next = s.NextEntityId; var cash = s.CaptureSnapshot().FestivalFinances.Single().CashPennies;

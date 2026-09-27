@@ -169,13 +169,13 @@ public partial class Main
             if (p.Plan is { } plan)
             {
                 var offer = _session.GetPreparationOffers().Single(o => o.Id == id);
-                button.Text = $"{(plan.OfferIds.Contains(id) ? "REMOVE" : "PLAN")} • {FestivalCopy(offer.Name)} • {FestivalCurrency.Format(offer.PricePennies)}";
+                button.Text = $"{(plan.OfferIds.Contains(id) ? "REMOVE" : offer.Category == "staff" || offer.Category == "maintenance" ? "HIRE" : "PLAN")} • {FestivalCopy(offer.Name)} • {FestivalCurrency.Format(offer.PricePennies)}";
                 button.TooltipText = plan.OfferIds.Contains(id) ? "Remove this unpaid purchase from the setup plan." : "Add or replace this choice in the unpaid setup plan. Payment is due at Start.";
             }
             if (id is "staff.extra-medic" or "staff.extra-steward" && _session.GetOptionalStaffOfferProfile(id == "staff.extra-medic" ? ResponseRole.Medic : ResponseRole.Steward) is { } profile)
             {
                 var selected = p.Plan?.OfferIds.Contains(id) == true;
-                button.Text = FestivalCopy($"{(p.Plan is null ? "HIRE" : selected ? "REMOVE" : "PLAN")} {profile.Name.Split(' ')[0].ToUpperInvariant()} • {profile.Role.ToString().ToUpperInvariant()} • £30/WEEKEND");
+                button.Text = FestivalCopy($"{(p.Plan is null ? "HIRE" : selected ? "REMOVE" : "HIRE")} {profile.Name.Split(' ')[0].ToUpperInvariant()} • {profile.Role.ToString().ToUpperInvariant()} • £30/WEEKEND");
                 button.TooltipText = FestivalCopy($"{profile.Name}\n{StaffAbilityText(profile)}\n£30 prototype tuning. {(p.Plan is null ? "Paid weekend-only contract" : "Unpaid plan until Start; freely remove")}; expires on any outcome. Requires its role-specific slot.");
             }
         }
