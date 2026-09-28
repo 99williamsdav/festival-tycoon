@@ -239,19 +239,6 @@ public sealed class StaffAutonomyTests
         Assert.IsFalse(Send(s, new PlaceWaterPointCommand(new(90, 100))).IsAccepted);
     }
     [TestMethod]
-    public void HistoricalDiagnosticSaveRetainsOriginalHashAndNoAutonomyReinterpretation()
-    {
-        var root = new DirectoryInfo(AppContext.BaseDirectory);
-        while (root is not null && !Directory.Exists(Path.Combine(root.FullName, "briefs"))) root = root.Parent;
-        Assert.IsNotNull(root);
-        var path = Path.Combine(root.FullName, "reports", "evidence", "R0.05h", "final-1280x720", "saves", "manual-preparation.ftsave");
-        var before = Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path)));
-        var loaded = SaveFileAdapter.LoadFile(path, new("0.0.1-r0.05-hearing-v1", "0e6fa18d57decc54430afd5931e220b4477aa7cf793859883fc337ad600baa18", "r0-disorder-layout-v13"));
-        Assert.IsTrue(loaded.IsSuccess, loaded.Error); Assert.IsFalse(loaded.Session!.StaffAutonomyEnabled);
-        Assert.AreEqual("dd38b5a79df072eef2e06adf1694787c73069519f408c5a4a54c8fee7c6f3742", loaded.Session.CaptureSnapshot().AuthoritativeHash);
-        Assert.AreEqual(before, Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))));
-    }
-    [TestMethod]
     public void ArgumentAutomationUsesExistingEightThousandThresholdAndOldestStageThenId()
     {
         var s = Started(); var ids = Guests(s); var d = s.CaptureDisorder()!;

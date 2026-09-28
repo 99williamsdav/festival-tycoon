@@ -5,7 +5,14 @@ namespace Festival.Simulation;
 
 public enum LiveSetStage { BeforeSet, Live, Interrupted, Finished }
 public sealed record LivePerformer(ulong AgentId, GridCell StageCell, GridCell AccessCell, GridCell StairCell,
-    bool AccessReached, bool StairReached, bool OnStage, bool InstrumentAttached);
+    bool AccessReached, bool StairReached, bool OnStage, bool InstrumentAttached)
+{
+    // Nullable for exact old-save canonical compatibility. Once observed, all
+    // three fields are authoritative: a route label alone cannot hide a stall.
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public long? LastStageProgressTick { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public int? ObservedStageXMillimetres { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public int? ObservedStageZMillimetres { get; init; }
+}
 public sealed record LiveListener(ulong AgentId, GridCell? Place, int Enthusiasm, int ListenedTicks, int EnjoymentEarned, bool AtPlace,
     long LastDecisionTick = -800);
 public sealed record LivePerformanceSnapshot(int Version, LiveSetStage Stage, long PlannedTick, long StartedTick,
@@ -55,6 +62,11 @@ public sealed partial class GameSession
 
     private int BookedGenre() => CurrentFestivalAct?.Genre ?? (_preparation!.AcceptedOffers.Contains("act.punk") ? 1 : 0);
 
+    private static bool IsStageApproachRoute(LivePerformer performer, NavigationAgentState agent) =>
+        !performer.AccessReached ? agent.IntentId == "performance.side-entry" && agent.Destination == performer.AccessCell :
+        !performer.StairReached ? agent.IntentId == "performance.visible-stairs" && agent.Destination == performer.StairCell :
+        !performer.OnStage && agent.IntentId == "performance.stage-entry" && agent.Destination == performer.StageCell;
+
     private void AdvanceLivePerformance()
     {
         AdvanceProgramme();
@@ -87,6 +99,10 @@ public sealed partial class GameSession
                 continue;
             }
             var agent = _navigationAgents[new(performer.AgentId)];
+            if (agent.Action == AgentNavigationAction.Travelling && IsStageApproachRoute(performer, agent) &&
+                (performer.ObservedStageXMillimetres != agent.XMillimetres || performer.ObservedStageZMillimetres != agent.ZMillimetres))
+                performer = performer with { LastStageProgressTick = CurrentTick,
+                    ObservedStageXMillimetres = agent.XMillimetres, ObservedStageZMillimetres = agent.ZMillimetres };
             if (live.Stage != LiveSetStage.Finished && !performer.AccessReached &&
                 agent.Action == AgentNavigationAction.Arrived && agent.Destination == performer.AccessCell)
             {
@@ -256,9 +272,9 @@ public sealed partial class GameSession
             reaction = "slot-missed-not-ready";
             sequence++;
         }
-        performers = performers.Select((item, index) => stage == LiveSetStage.Finished
+        performers = performers.Select(item => stage == LiveSetStage.Finished
             ? item with { OnStage = false, InstrumentAttached = false }
-            : item with { InstrumentAttached = index < 2 && item.OnStage }).ToArray();
+            : item with { InstrumentAttached = item.OnStage }).ToArray();
         _livePerformance = live with { Stage = stage, StartedTick = started, EndedTick = ended,
             InterruptedTick = interrupted, ReactionSequence = sequence, LastReaction = reaction,
             Performers = performers, Listeners = listeners, SetEndAudienceIds = setEndAudienceIds };
@@ -382,10 +398,13 @@ public sealed partial class GameSession
             if (performer.AgentId != roster[i].AgentId || performer.StageCell != stageCells[i] ||
                 performer.AccessCell != accessCells[i] || performer.StairCell != stairCells[i] || nav is null ||
                 performer.StairReached && !performer.AccessReached || performer.OnStage && !performer.StairReached ||
+                (performer.LastStageProgressTick is null) != (performer.ObservedStageXMillimetres is null) ||
+                (performer.LastStageProgressTick is null) != (performer.ObservedStageZMillimetres is null) ||
+                performer.LastStageProgressTick is { } progressTick && (progressTick < 0 || progressTick > snapshot.CurrentTick) ||
                 snapshot.CurrentTick < live.PlannedTick - LiveSetStageEntryLeadTicks && performer.StairReached ||
                 performer.OnStage && (live.Stage == LiveSetStage.Finished || nav.Action != (int)AgentNavigationAction.Arrived ||
                     nav.DestinationX != performer.StageCell.X || nav.DestinationZ != performer.StageCell.Z) ||
-                performer.InstrumentAttached != (i < 2 && performer.OnStage && live.Stage != LiveSetStage.Finished))
+                performer.InstrumentAttached != (performer.OnStage && live.Stage != LiveSetStage.Finished))
                 return "Live performer route or attachment invalid.";
         }
         return null;

@@ -1,0 +1,17 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=4532e818d06f658cc4a9adcec30851e3215853be13fb143547a816f71ba8e90e
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+ROLE_PRESTART_DRUM hardware_only=True drummer_absent=True arms=0 sticks=0
+ATTENDEE_PALETTE_BASE filter=NearestWithMipmaps repeat=True roughness=0.93 dimensions=96x8
+TIMETABLE_OPERATOR ordinary_medic_dispatch=True patient=22 tick=2000
+TIMETABLE_STATE name=checkpoint tick=2200 slot=0 phase=Live ready=3 people=33 performers=9 admitted=33 departed=0 status=Playing hash=358cb6440c1eca0c06010455bc448b860630023af224e636979db3bd9920ce3e
+TIMETABLE_BAND person=24 physical=-15750,11250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=25 physical=-16750,9250 action=Arrived intent=performance.stage-entry instrument=True
+TIMETABLE_BAND person=26 physical=-17250,12250 action=Arrived intent=performance.stage-entry instrument=True
+ROLE_ACTUAL staff=4 booked_performers=9 on_stage=3 attached_kits=3 stable_pick_capsules=True deterministic_variants=True hardware_only=True hash=aa7a4d09b1a550e9bed03f95835f97dac17619f9ce6778256e45249ad86ca5ee
+ROLE_HELD_STAFF variants=8 poses=drink_hold,drinking,food_hold,eating anchors=body_specific garment_stable=True interruption_resume=True
+ROLE_HELD_PERFORMER variants=6 offstage_poses=drink_hold,drinking,food_hold,eating anchors=body_specific neutral_modular_restored=True interruption_resume=True
+ROLE_CAPTURE_COMPLETE exact_current_hash=aa7a4d09b1a550e9bed03f95835f97dac17619f9ce6778256e45249ad86ca5ee sizes=(1920, 1080) source_roots=stable preview_variants=14 role_held_poses=True cosmetic_hash_pure=True

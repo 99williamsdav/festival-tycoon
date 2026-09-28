@@ -309,6 +309,7 @@ public partial class Main : Node
         ProcessStaffAutomationCapture();
         ProcessResultsCapture();
         ProcessBookingCapture();
+        ProcessRoleCapture();
     }
 
     public override void _Input(InputEvent inputEvent)
@@ -418,8 +419,9 @@ public partial class Main : Node
             var performer = _session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value);
             var visual = performer?.Role == ProtectedPersonRole.Guest && _foundationFixture is null && _sharedWorldFixture is null
                 ? AddGuestPoseRoot(agent.Id, ToWorld(agent))
-                : AddAsset(performer?.Role == ProtectedPersonRole.Performer ? PerformerBodyPath(PerformerPresentationRole(performer.AgentId, performer.Name)) :
-                    "res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
+                : performer is { Role: ProtectedPersonRole.Staff or ProtectedPersonRole.Performer } && _foundationFixture is null && _sharedWorldFixture is null
+                    ? AddRoleBodyRoot(performer, ToWorld(agent))
+                    : AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
             if (_foundationFixture is not null || _sharedWorldFixture is not null)
             {
                 var ids = _sharedWorldFixture?.AgentIds ?? _foundationFixture!.AgentIds;
@@ -446,28 +448,6 @@ public partial class Main : Node
                 _attendeePickRegistry.Add(pickBody.GetInstanceId(), agent.Id);
             }
             _attendeeVisuals.Add(agent.Id, visual);
-            var responder = _session.GetResponseStaff().SingleOrDefault(item => item.AgentId == agent.Id.Value);
-            if (responder?.Role == ResponseRole.Medic)
-                visual.AddChild(InstantiateAsset("res://assets/characters/lwf_medic_vest_cue_v1.glb"));
-            if (responder?.Role == ResponseRole.Steward)
-            {
-                MatchStewardShirtPalette(visual);
-                var yoke = InstantiateAsset("res://assets/characters/lwf_steward_yoke_cue_v1.glb");
-                yoke.Name = "StewardYokeCue";
-                visual.AddChild(yoke);
-            }
-            if (performer is { Role: not ProtectedPersonRole.Guest } role &&
-                responder is null)
-            {
-                var cue = new MeshInstance3D
-                {
-                    Mesh = new BoxMesh { Size = new Vector3(0.20f, 0.12f, 0.05f) },
-                    Position = new Vector3(0, 1.25f, 0.20f),
-                    MaterialOverride = new StandardMaterial3D { AlbedoColor = role.Name == "Morgan Finch" ? new Color("6acfd1") : role.Role == ProtectedPersonRole.Staff ? new Color("ffd166") : new Color("aa88dd") }
-                };
-                visual.AddChild(cue);
-                if (role.Name == "Morgan Finch") visual.AddChild(new Label3D { Text = "MORGAN\nMAINTENANCE", Position = new Vector3(0, 2.1f, 0), FontSize = 36, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
-            }
         }
         foreach (var profile in _session.GetResponseStaff())
             if (_attendeeVisuals.TryGetValue(new EntityId(profile.AgentId), out var responderVisual))
@@ -479,35 +459,6 @@ public partial class Main : Node
         ResetDisorderCuePresentation();
     }
 
-    private static void MatchStewardShirtPalette(Node3D visual)
-    {
-        // The generic body has a baked amber chest swatch at palette columns
-        // 40..55. On Jordan alone, reuse its two existing teal shirt swatches
-        // (24..39); skin, hair, trousers and the approved yoke remain untouched.
-        var source = GD.Load<Texture2D>("res://assets/characters/lwf_generic_attendee_v1_attendee_palette.png");
-        var image = source.GetImage();
-        if (image.GetWidth() != 96 || image.GetHeight() != 8)
-            throw new InvalidOperationException("The steward's generic-body palette layout changed.");
-        for (var y = 0; y < image.GetHeight(); y++)
-        for (var x = 40; x < 56; x++)
-            image.SetPixel(x, y, image.GetPixel(x - 16, y));
-        var shirtMatched = ImageTexture.CreateFromImage(image);
-        var matchedMeshes = 0;
-        foreach (var child in visual.FindChildren("*", "MeshInstance3D", true, false))
-        {
-            if (child is not MeshInstance3D mesh || mesh.Mesh is null) continue;
-            for (var surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
-            {
-                if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D sourceMaterial) continue;
-                var material = (StandardMaterial3D)sourceMaterial.Duplicate();
-                material.AlbedoTexture = shirtMatched;
-                mesh.SetSurfaceOverrideMaterial(surface, material);
-                matchedMeshes++;
-            }
-        }
-        if (matchedMeshes == 0)
-            throw new InvalidOperationException("No generic-body surface was available for Jordan's shirt-colour match.");
-    }
 
     private void BuildGrass()
     {
@@ -1052,6 +1003,8 @@ public partial class Main : Node
             { _bookingCaptureDirectory = args[++i]; Directory.CreateDirectory(_bookingCaptureDirectory); }
             else if (args[i] == "--capture-r005o-table" && i + 1 < args.Length)
             { _bookingCaptureDirectory = args[++i]; Directory.CreateDirectory(_bookingCaptureDirectory); }
+            else if (args[i] == "--capture-r005q-roles" && i + 1 < args.Length)
+            { _roleCaptureDirectory = args[++i]; Directory.CreateDirectory(_roleCaptureDirectory); }
             else if (args[i] == "--capture-r005e-queues" && i + 1 < args.Length)
             { _organicQueueCaptureDirectory = args[++i]; Directory.CreateDirectory(_organicQueueCaptureDirectory); }
             else if (args[i] == "--capture-r005e-intoxication" && i + 1 < args.Length)
@@ -1431,7 +1384,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-private string SaveDirectory => _bookingCaptureDirectory is not null ? Path.Combine(_bookingCaptureDirectory,"saves") : _resultsCaptureDirectory is not null ? Path.Combine(_resultsCaptureDirectory,"saves") : _automationCaptureDirectory is not null ? Path.Combine(_automationCaptureDirectory,"saves") : _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory,"saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory,"saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory,"saves") :
+private string SaveDirectory => _roleCaptureDirectory is not null ? Path.Combine(_roleCaptureDirectory,"saves") : _bookingCaptureDirectory is not null ? Path.Combine(_bookingCaptureDirectory,"saves") : _resultsCaptureDirectory is not null ? Path.Combine(_resultsCaptureDirectory,"saves") : _automationCaptureDirectory is not null ? Path.Combine(_automationCaptureDirectory,"saves") : _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory,"saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory,"saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory,"saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :

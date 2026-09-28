@@ -1,0 +1,3006 @@
+{
+  "schema_version": 1,
+  "units": "metres",
+  "forward": "Godot -Z; Blender +Y",
+  "origin": "foot-ground centre",
+  "root_transform": {
+    "position": [
+      0,
+      0,
+      0
+    ],
+    "rotation_degrees": [
+      0,
+      0,
+      0
+    ],
+    "scale": [
+      1,
+      1,
+      1
+    ]
+  },
+  "sources": {
+    "male": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\direction-a-blender-prototypes-v1\\attendee-neutral-v5\\direction-a-attendee.blend",
+      "sha256": "d828e34ef79dcc6d6f1b1d5259420174b8efb4da8211d039de3920788125521a"
+    },
+    "female": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\direction-a-blender-prototypes-v1\\female-neutral-v3\\female-attendee-neutral.blend",
+      "sha256": "f784c1733dd3be0b4dd6dd511bbd705935218bdcbe7cc21832cf09036b16c2c5"
+    }
+  },
+  "palettes": {
+    "medic": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\palettes\\lwf_medic_body_palette_v1.png",
+      "sha256": "6e7fead8f62efb7f117a16f3ca5fae3f45b1632e824e9998c20415fb05e2971e",
+      "size": [
+        96,
+        8
+      ],
+      "colors": [
+        "C88F65",
+        "B98260",
+        "E0B087",
+        "397677",
+        "4D8B89",
+        "397677",
+        "4D8B89",
+        "343B42",
+        "454C54",
+        "252B31",
+        "3F2F28",
+        "5D4436"
+      ],
+      "changed_slots": {
+        "5": "397677",
+        "6": "4D8B89"
+      },
+      "protected_slots": [
+        0,
+        1,
+        2,
+        9
+      ],
+      "hair_slots": [
+        10,
+        11
+      ],
+      "rule": "Apply only to body/core/idle/playing arms; never recolour instrument or garment material. Preserve per-person natural hair choices in slots 10,11."
+    },
+    "steward": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\palettes\\lwf_steward_body_palette_v1.png",
+      "sha256": "6e7fead8f62efb7f117a16f3ca5fae3f45b1632e824e9998c20415fb05e2971e",
+      "size": [
+        96,
+        8
+      ],
+      "colors": [
+        "C88F65",
+        "B98260",
+        "E0B087",
+        "397677",
+        "4D8B89",
+        "397677",
+        "4D8B89",
+        "343B42",
+        "454C54",
+        "252B31",
+        "3F2F28",
+        "5D4436"
+      ],
+      "changed_slots": {
+        "5": "397677",
+        "6": "4D8B89"
+      },
+      "protected_slots": [
+        0,
+        1,
+        2,
+        9
+      ],
+      "hair_slots": [
+        10,
+        11
+      ],
+      "rule": "Apply only to body/core/idle/playing arms; never recolour instrument or garment material. Preserve per-person natural hair choices in slots 10,11."
+    },
+    "maintenance": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\palettes\\lwf_maintenance_body_palette_v1.png",
+      "sha256": "454c2430cee886e60d3099c3500ac2faf308799f1f7962ff44dbc364687c0a5d",
+      "size": [
+        96,
+        8
+      ],
+      "colors": [
+        "C88F65",
+        "B98260",
+        "E0B087",
+        "397677",
+        "4D8B89",
+        "397677",
+        "4D8B89",
+        "786347",
+        "907B59",
+        "252B31",
+        "3F2F28",
+        "5D4436"
+      ],
+      "changed_slots": {
+        "5": "397677",
+        "6": "4D8B89",
+        "7": "786347",
+        "8": "907B59"
+      },
+      "protected_slots": [
+        0,
+        1,
+        2,
+        9
+      ],
+      "hair_slots": [
+        10,
+        11
+      ],
+      "rule": "Apply only to body/core/idle/playing arms; never recolour instrument or garment material. Preserve per-person natural hair choices in slots 10,11."
+    },
+    "sound": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\palettes\\lwf_sound_body_palette_v1.png",
+      "sha256": "77e6d9769d0fbdde3c1549f48a4720c9531cd66571967b3af147f2d9174e63f8",
+      "size": [
+        96,
+        8
+      ],
+      "colors": [
+        "C88F65",
+        "B98260",
+        "E0B087",
+        "373E43",
+        "4A5155",
+        "FFD166",
+        "FFE095",
+        "4A555F",
+        "5A6570",
+        "252B31",
+        "3F2F28",
+        "5D4436"
+      ],
+      "changed_slots": {
+        "3": "373E43",
+        "4": "4A5155",
+        "5": "FFD166",
+        "6": "FFE095",
+        "7": "4A555F",
+        "8": "5A6570"
+      },
+      "protected_slots": [
+        0,
+        1,
+        2,
+        9
+      ],
+      "hair_slots": [
+        10,
+        11
+      ],
+      "rule": "Apply only to body/core/idle/playing arms; never recolour instrument or garment material. Preserve per-person natural hair choices in slots 10,11."
+    },
+    "guitarist": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\palettes\\lwf_guitarist_body_palette_v1.png",
+      "sha256": "2d636324d9df19e174e7895d27287aef6885ef69da5e18678bac06756162b824",
+      "size": [
+        96,
+        8
+      ],
+      "colors": [
+        "C88F65",
+        "B98260",
+        "E0B087",
+        "397677",
+        "4D8B89",
+        "AA88DD",
+        "BBA0E6",
+        "343B42",
+        "454C54",
+        "252B31",
+        "3F2F28",
+        "5D4436"
+      ],
+      "changed_slots": {
+        "5": "AA88DD",
+        "6": "BBA0E6"
+      },
+      "protected_slots": [
+        0,
+        1,
+        2,
+        9
+      ],
+      "hair_slots": [
+        10,
+        11
+      ],
+      "rule": "Apply only to body/core/idle/playing arms; never recolour instrument or garment material. Preserve per-person natural hair choices in slots 10,11."
+    },
+    "bassist": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\palettes\\lwf_bassist_body_palette_v1.png",
+      "sha256": "495c0f7ebfb2bae1acfbf2e965630d2fa19c5d59a133ee143a5b8d09c052101d",
+      "size": [
+        96,
+        8
+      ],
+      "colors": [
+        "C88F65",
+        "B98260",
+        "E0B087",
+        "67556C",
+        "7C6A80",
+        "AA88DD",
+        "BBA0E6",
+        "343B42",
+        "454C54",
+        "252B31",
+        "3F2F28",
+        "5D4436"
+      ],
+      "changed_slots": {
+        "3": "67556C",
+        "4": "7C6A80",
+        "5": "AA88DD",
+        "6": "BBA0E6"
+      },
+      "protected_slots": [
+        0,
+        1,
+        2,
+        9
+      ],
+      "hair_slots": [
+        10,
+        11
+      ],
+      "rule": "Apply only to body/core/idle/playing arms; never recolour instrument or garment material. Preserve per-person natural hair choices in slots 10,11."
+    },
+    "drummer": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\palettes\\lwf_drummer_body_palette_v1.png",
+      "sha256": "39cfb9ee8afe19938548ec30858d99457d27ec5d82f5dfe3dfe46e36b0a32482",
+      "size": [
+        96,
+        8
+      ],
+      "colors": [
+        "C88F65",
+        "B98260",
+        "E0B087",
+        "9B7050",
+        "AD8661",
+        "AA88DD",
+        "BBA0E6",
+        "343B42",
+        "454C54",
+        "252B31",
+        "3F2F28",
+        "5D4436"
+      ],
+      "changed_slots": {
+        "3": "9B7050",
+        "4": "AD8661",
+        "5": "AA88DD",
+        "6": "BBA0E6"
+      },
+      "protected_slots": [
+        0,
+        1,
+        2,
+        9
+      ],
+      "hair_slots": [
+        10,
+        11
+      ],
+      "rule": "Apply only to body/core/idle/playing arms; never recolour instrument or garment material. Preserve per-person natural hair choices in slots 10,11."
+    }
+  },
+  "assets": {
+    "lwf_medic_male_overlay_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_medic_male_overlay_v1.glb",
+      "sha256": "817c5d8dc3a3febfb8d8819115603411fe2a6298bb71499cbd9e94967cc756bf",
+      "triangles": 812,
+      "meshes": 1,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Medic_Male_Overlay"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_medic_male_overlay_v1.blend",
+        "sha256": "c4f02c3d5dbca29f0cbff4c349d650878a4202be8c372d31685cf7a2e4c48c7e"
+      },
+      "attach": "Stable person root at identity; never parent beneath swapping body visual.",
+      "body_variant": "male",
+      "role": "medic",
+      "bounds_blender": [
+        [
+          -0.17933815717697144,
+          -0.1321549117565155,
+          0.9380000233650208
+        ],
+        [
+          0.17933815717697144,
+          0.1321549117565155,
+          1.3739999532699585
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.17933815717697144,
+          0.9380000233650208,
+          -0.1321549117565155
+        ],
+        [
+          0.17933815717697144,
+          1.3739999532699585,
+          0.1321549117565155
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Medic_Male_Overlay",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_steward_male_overlay_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_steward_male_overlay_v1.glb",
+      "sha256": "51b529bff32a92a90864c365eb1c6e652526ec7294abdb673c8d90858e0f7598",
+      "triangles": 1068,
+      "meshes": 1,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Steward_Male_Overlay"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_steward_male_overlay_v1.blend",
+        "sha256": "9ea2771232cd53025e7b3bdc2b37686e491413cd1729bee1bea833fbd790954c"
+      },
+      "attach": "Stable person root at identity; never parent beneath swapping body visual.",
+      "body_variant": "male",
+      "role": "steward",
+      "bounds_blender": [
+        [
+          -0.17933815717697144,
+          -0.125929057598114,
+          0.9380000233650208
+        ],
+        [
+          0.17933815717697144,
+          0.12592893838882446,
+          1.3739999532699585
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.17933815717697144,
+          0.9380000233650208,
+          -0.12592893838882446
+        ],
+        [
+          0.17933815717697144,
+          1.3739999532699585,
+          0.125929057598114
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Steward_Male_Overlay",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_maintenance_male_overlay_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_maintenance_male_overlay_v1.glb",
+      "sha256": "949fbb0f80ee52152c51cc257f50cfcf8e60a4ec980d3b960d07af2ffd2a21dc",
+      "triangles": 732,
+      "meshes": 1,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Maintenance_Male_Overlay"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_maintenance_male_overlay_v1.blend",
+        "sha256": "cc5a982272b96af2652f712bf331cf03a68d3c29762a8b3af6fc61134337f263"
+      },
+      "attach": "Stable person root at identity; never parent beneath swapping body visual.",
+      "body_variant": "male",
+      "role": "maintenance",
+      "bounds_blender": [
+        [
+          -0.20800000429153442,
+          -0.1306321918964386,
+          0.39399999380111694
+        ],
+        [
+          0.17040500044822693,
+          0.19850000739097595,
+          1.3630000352859497
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.20800000429153442,
+          0.39399999380111694,
+          -0.19850000739097595
+        ],
+        [
+          0.17040500044822693,
+          1.3630000352859497,
+          0.1306321918964386
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Maintenance_Male_Overlay",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_sound_male_overlay_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_sound_male_overlay_v1.glb",
+      "sha256": "c09153dbea4267e0713d1a459100ced04b59b1b54432bd621da6ed0fe350bb91",
+      "triangles": 396,
+      "meshes": 1,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Sound_Male_Overlay"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_sound_male_overlay_v1.blend",
+        "sha256": "f25b3502b12f3d61ad7d0e155a7c6ee5b10b639acc8d2e032415526d6f3dc0ec"
+      },
+      "attach": "Stable person root at identity; never parent beneath swapping body visual.",
+      "body_variant": "male",
+      "role": "sound",
+      "bounds_blender": [
+        [
+          -0.20634667575359344,
+          0.0910918116569519,
+          0.39399999380111694
+        ],
+        [
+          0.18250000476837158,
+          0.15700000524520874,
+          0.9415000081062317
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.20634667575359344,
+          0.39399999380111694,
+          -0.15700000524520874
+        ],
+        [
+          0.18250000476837158,
+          0.9415000081062317,
+          -0.0910918116569519
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Sound_Male_Overlay",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_performer_male_body_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_performer_male_body_v1.glb",
+      "sha256": "94be812e0620b08013d42f4530bff1e987fef91aae76aac702b857c073bd7af0",
+      "triangles": 1206,
+      "meshes": 3,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Performer_BodyCore"
+        },
+        {
+          "mesh": 1,
+          "name": "LWF_Performer_IdleLeftArm"
+        },
+        {
+          "mesh": 2,
+          "name": "LWF_Performer_IdleRightArm"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_performer_male_body_v1.blend",
+        "sha256": "a79a8e6ccfdff96e09024a7f5039283f35ad1b4caefda8b10f22ba18159eac57"
+      },
+      "body_variant": "male",
+      "partition_coordinates_exact": true,
+      "idle_arm_nodes": [
+        "LWF_Performer_IdleLeftArm",
+        "LWF_Performer_IdleRightArm"
+      ],
+      "role_palette": "guitarist default; bassist/drummer replace body palette only",
+      "bounds_blender": [
+        [
+          -0.3160000145435333,
+          -0.11900000274181366,
+          0.0
+        ],
+        [
+          0.3160000145435333,
+          0.18400000035762787,
+          1.75
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.3160000145435333,
+          0.0,
+          -0.18400000035762787
+        ],
+        [
+          0.3160000145435333,
+          1.75,
+          0.11900000274181366
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Performer_BodyCore",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        },
+        {
+          "name": "LWF_Performer_IdleLeftArm",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 1
+        },
+        {
+          "name": "LWF_Performer_IdleRightArm",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 2
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_guitarist_male_kit_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_guitarist_male_kit_v1.glb",
+      "sha256": "c57da418d3886e3866df2c9123d9c22ac4692e4e6cedcf96997c84e1ad1ce2b1",
+      "triangles": 628,
+      "meshes": 4,
+      "materials": 3,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Guitarist_AcousticGuitar"
+        },
+        {
+          "mesh": 1,
+          "name": "LWF_Fitted_LeatherStrap"
+        },
+        {
+          "mesh": 2,
+          "name": "LWF_Guitarist_LeftPlayingArm",
+          "translation": [
+            -0.20900000631809235,
+            1.215000033378601,
+            -0.01599999889731407
+          ]
+        },
+        {
+          "mesh": 3,
+          "name": "LWF_Guitarist_RightPlayingArm",
+          "translation": [
+            0.20900000631809235,
+            1.215000033378601,
+            -0.01600000075995922
+          ]
+        }
+      ],
+      "embedded_images": true,
+      "body_variant": "male",
+      "role": "guitarist",
+      "original_instrument_source": {
+        "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_performer_acoustic_guitar_kit_v1.glb",
+        "sha256": "aa4b1251700588f36bd55e5ffe38f642fb429a84823f0d0981f9f74d0ca2b763"
+      },
+      "attach": "Stable performer root at identity; hide both Idle*Arm nodes while attached. Playing arms use role body palette; do not recolour instrument.",
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_guitarist_male_kit_v1.blend",
+        "sha256": "7dd15d74093966521afe60530bf5384025ac58fb59562047c3e8e977aaeccc6a"
+      },
+      "bounds_blender": [
+        [
+          -0.6922352910041809,
+          -0.07060770690441132,
+          0.6499999761581421
+        ],
+        [
+          0.31932127475738525,
+          0.41698798537254333,
+          1.382962942123413
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.6922352910041809,
+          0.6499999761581421,
+          -0.41698798537254333
+        ],
+        [
+          0.31932127475738525,
+          1.382962942123413,
+          0.07060770690441132
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Guitarist_AcousticGuitar",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        },
+        {
+          "name": "LWF_Fitted_LeatherStrap",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 1
+        },
+        {
+          "name": "LWF_Guitarist_LeftPlayingArm",
+          "translation": [
+            -0.20900000631809235,
+            1.215000033378601,
+            -0.01599999889731407
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 2
+        },
+        {
+          "name": "LWF_Guitarist_RightPlayingArm",
+          "translation": [
+            0.20900000631809235,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 3
+        }
+      ],
+      "animation_names": [
+        "Animation"
+      ]
+    },
+    "lwf_bassist_male_kit_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_bassist_male_kit_v1.glb",
+      "sha256": "10f6c91c7aeb9043c9408414264042331031e0a9c32d0254325171217c42d788",
+      "triangles": 728,
+      "meshes": 4,
+      "materials": 3,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Bassist_SolidBass"
+        },
+        {
+          "mesh": 1,
+          "name": "LWF_Fitted_LeatherStrap"
+        },
+        {
+          "mesh": 2,
+          "name": "LWF_Bassist_LeftPlayingArm",
+          "translation": [
+            -0.20900000631809235,
+            1.215000033378601,
+            -0.01599999889731407
+          ]
+        },
+        {
+          "mesh": 3,
+          "name": "LWF_Bassist_RightPlayingArm",
+          "translation": [
+            0.20900000631809235,
+            1.215000033378601,
+            -0.01600000075995922
+          ]
+        }
+      ],
+      "embedded_images": true,
+      "body_variant": "male",
+      "role": "bassist",
+      "original_instrument_source": {
+        "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_performer_solid_bass_kit_v1.glb",
+        "sha256": "234b8c7309e9f81f12ca43012a30bf5815627e7e6ea8c08af4fa85fbe98b6680"
+      },
+      "attach": "Stable performer root at identity; hide both Idle*Arm nodes while attached. Playing arms use role body palette; do not recolour instrument.",
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_bassist_male_kit_v1.blend",
+        "sha256": "80633917bedb316fa9d36a1f2b1c195bf88df8ebaa4b668280a7c8950a9b8358"
+      },
+      "bounds_blender": [
+        [
+          -0.8659999966621399,
+          -0.07060770690441132,
+          0.6499999761581421
+        ],
+        [
+          0.32474252581596375,
+          0.4219857454299927,
+          1.4570525884628296
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.8659999966621399,
+          0.6499999761581421,
+          -0.4219857454299927
+        ],
+        [
+          0.32474252581596375,
+          1.4570525884628296,
+          0.07060770690441132
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Bassist_SolidBass",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        },
+        {
+          "name": "LWF_Fitted_LeatherStrap",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 1
+        },
+        {
+          "name": "LWF_Bassist_LeftPlayingArm",
+          "translation": [
+            -0.20900000631809235,
+            1.215000033378601,
+            -0.01599999889731407
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 2
+        },
+        {
+          "name": "LWF_Bassist_RightPlayingArm",
+          "translation": [
+            0.20900000631809235,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 3
+        }
+      ],
+      "animation_names": [
+        "Animation"
+      ]
+    },
+    "lwf_drummer_male_kit_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_drummer_male_kit_v1.glb",
+      "sha256": "bd0a6a2ca39ce392f13247db9b2febdee18014670c15389cdb99010f297df199",
+      "triangles": 328,
+      "meshes": 4,
+      "materials": 3,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Drummer_LeftStick",
+          "translation": [
+            0.20900000631809235,
+            -1.215000033378601,
+            0.01599999889731407
+          ]
+        },
+        {
+          "children": [
+            0
+          ],
+          "mesh": 1,
+          "name": "LWF_Drummer_LeftPlayingArm",
+          "translation": [
+            -0.20900000631809235,
+            1.215000033378601,
+            -0.01599999889731407
+          ]
+        },
+        {
+          "mesh": 2,
+          "name": "LWF_Drummer_RightStick",
+          "translation": [
+            -0.20900000631809235,
+            -1.215000033378601,
+            0.01600000075995922
+          ]
+        },
+        {
+          "children": [
+            2
+          ],
+          "mesh": 3,
+          "name": "LWF_Drummer_RightPlayingArm",
+          "translation": [
+            0.20900000631809235,
+            1.215000033378601,
+            -0.01600000075995922
+          ]
+        }
+      ],
+      "embedded_images": true,
+      "body_variant": "male",
+      "role": "drummer",
+      "original_instrument_source": {
+        "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_performer_compact_drum_kit_v1.glb",
+        "sha256": "2e49db4cbaa501886fb3d8b2616cbfc5910f5be20fa0d23f0c278e42a1a00118"
+      },
+      "attach": "Stable performer root at identity; hide both Idle*Arm nodes while attached. Playing arms use role body palette; do not recolour instrument.",
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_drummer_male_kit_v1.blend",
+        "sha256": "7a969ce1c6d3488b6db789bfefd3d255ae2427ecef209173dda812492e8b5f52"
+      },
+      "bounds_blender": [
+        [
+          -0.35534825921058655,
+          -0.020144222304224968,
+          1.0318208932876587
+        ],
+        [
+          0.35534825921058655,
+          0.7833542823791504,
+          1.2262165546417236
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.35534825921058655,
+          1.0318208932876587,
+          -0.7833542823791504
+        ],
+        [
+          0.35534825921058655,
+          1.2262165546417236,
+          0.020144222304224968
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Drummer_LeftStick",
+          "translation": [
+            0.20900000631809235,
+            -1.215000033378601,
+            0.01599999889731407
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        },
+        {
+          "name": "LWF_Drummer_LeftPlayingArm",
+          "translation": [
+            -0.20900000631809235,
+            1.215000033378601,
+            -0.01599999889731407
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [
+            0
+          ],
+          "mesh": 1
+        },
+        {
+          "name": "LWF_Drummer_RightStick",
+          "translation": [
+            -0.20900000631809235,
+            -1.215000033378601,
+            0.01600000075995922
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 2
+        },
+        {
+          "name": "LWF_Drummer_RightPlayingArm",
+          "translation": [
+            0.20900000631809235,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [
+            2
+          ],
+          "mesh": 3
+        }
+      ],
+      "animation_names": [
+        "Animation"
+      ]
+    },
+    "lwf_drum_hardware_only_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_drum_hardware_only_v1.glb",
+      "sha256": "e82849f28fe9c613ac31acb16c55bef9e879a042371583dbfb56fa30a177dce8",
+      "triangles": 496,
+      "meshes": 2,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Drummer_DrumShells"
+        },
+        {
+          "mesh": 1,
+          "name": "LWF_Drummer_CymbalsHardware"
+        }
+      ],
+      "embedded_images": true,
+      "attach": "Existing fixed drum stage root, same position/yaw as previous compact kit. Never includes arms or sticks.",
+      "original_instrument_source": {
+        "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_performer_compact_drum_kit_v1.glb",
+        "sha256": "2e49db4cbaa501886fb3d8b2616cbfc5910f5be20fa0d23f0c278e42a1a00118"
+      },
+      "bounds_blender": [
+        [
+          -0.800000011920929,
+          0.4050000011920929,
+          0.019999995827674866
+        ],
+        [
+          0.8299999833106995,
+          0.9300000071525574,
+          1.3424999713897705
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.800000011920929,
+          0.019999995827674866,
+          -0.9300000071525574
+        ],
+        [
+          0.8299999833106995,
+          1.3424999713897705,
+          -0.4050000011920929
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Drummer_DrumShells",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        },
+        {
+          "name": "LWF_Drummer_CymbalsHardware",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 1
+        }
+      ],
+      "animation_names": [],
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_drum_hardware_only_v1.blend",
+        "sha256": "4189d7200070eeb19b04a63f99b0ab4363c2100d56c59bdc834a6fe19cf535c8"
+      }
+    },
+    "lwf_medic_female_overlay_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_medic_female_overlay_v1.glb",
+      "sha256": "dc297a99ce78b0d2f2f1db7dca7dcbdb8c9c71d6bbb27fa7284f45dba54d9f1e",
+      "triangles": 812,
+      "meshes": 1,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Medic_Female_Overlay"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_medic_female_overlay_v1.blend",
+        "sha256": "28430b1cc3f1e4071010c8bb044402639c14276e57be1b9dea1d0dc86736a08f"
+      },
+      "attach": "Stable person root at identity; never parent beneath swapping body visual.",
+      "body_variant": "female",
+      "role": "medic",
+      "bounds_blender": [
+        [
+          -0.16106900572776794,
+          -0.11452171206474304,
+          0.9380000233650208
+        ],
+        [
+          0.16106900572776794,
+          0.14330098032951355,
+          1.3739999532699585
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.16106900572776794,
+          0.9380000233650208,
+          -0.14330098032951355
+        ],
+        [
+          0.16106900572776794,
+          1.3739999532699585,
+          0.11452171206474304
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Medic_Female_Overlay",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_steward_female_overlay_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_steward_female_overlay_v1.glb",
+      "sha256": "2f97ba733aaa2311491741bd4bac5f4722c2168cdfc8d0ef6cb54e693ac844d2",
+      "triangles": 1068,
+      "meshes": 1,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Steward_Female_Overlay"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_steward_female_overlay_v1.blend",
+        "sha256": "bacc4baf1c3fb60787475103212e41ccd7fca7c4b7df56aa1ae5ab1e24e1b421"
+      },
+      "attach": "Stable person root at identity; never parent beneath swapping body visual.",
+      "body_variant": "female",
+      "role": "steward",
+      "bounds_blender": [
+        [
+          -0.16106900572776794,
+          -0.1085253357887268,
+          0.9380000233650208
+        ],
+        [
+          0.16106900572776794,
+          0.14662060141563416,
+          1.3739999532699585
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.16106900572776794,
+          0.9380000233650208,
+          -0.14662060141563416
+        ],
+        [
+          0.16106900572776794,
+          1.3739999532699585,
+          0.1085253357887268
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Steward_Female_Overlay",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_maintenance_female_overlay_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_maintenance_female_overlay_v1.glb",
+      "sha256": "200303360d5d7d38f5e3bc28da2242ae7f70455cc369aae232b0428220f9a834",
+      "triangles": 732,
+      "meshes": 1,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Maintenance_Female_Overlay"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_maintenance_female_overlay_v1.blend",
+        "sha256": "6cbb5cf15fcba7e0ea1e12f8e88dbc96fe438b364b34b3e965fab824fe7ae943"
+      },
+      "attach": "Stable person root at identity; never parent beneath swapping body visual.",
+      "body_variant": "female",
+      "role": "maintenance",
+      "bounds_blender": [
+        [
+          -0.19699999690055847,
+          -0.11400000005960464,
+          0.39399999380111694
+        ],
+        [
+          0.15188699960708618,
+          0.19850000739097595,
+          1.3630000352859497
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.19699999690055847,
+          0.39399999380111694,
+          -0.19850000739097595
+        ],
+        [
+          0.15188699960708618,
+          1.3630000352859497,
+          0.11400000005960464
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Maintenance_Female_Overlay",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_sound_female_overlay_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_sound_female_overlay_v1.glb",
+      "sha256": "47c2a1644a48cbd407860085279bfadf913a0f69fd60b3493b90b3f32bb32270",
+      "triangles": 396,
+      "meshes": 1,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Sound_Female_Overlay"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_sound_female_overlay_v1.blend",
+        "sha256": "b0740c7a1e24b64f5a0619910700f8620c1c3340ad47f101a896f3c08a7d6813"
+      },
+      "attach": "Stable person root at identity; never parent beneath swapping body visual.",
+      "body_variant": "female",
+      "role": "sound",
+      "bounds_blender": [
+        [
+          -0.20634667575359344,
+          0.09109193086624146,
+          0.39399999380111694
+        ],
+        [
+          0.17350000143051147,
+          0.15700000524520874,
+          0.9415000081062317
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.20634667575359344,
+          0.39399999380111694,
+          -0.15700000524520874
+        ],
+        [
+          0.17350000143051147,
+          0.9415000081062317,
+          -0.09109193086624146
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Sound_Female_Overlay",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_performer_female_body_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_performer_female_body_v1.glb",
+      "sha256": "f326db748e8868bd063af7854e35348de85ed16a3db348422ed26d26b2c21423",
+      "triangles": 1842,
+      "meshes": 3,
+      "materials": 1,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Performer_BodyCore"
+        },
+        {
+          "mesh": 1,
+          "name": "LWF_Performer_IdleLeftArm"
+        },
+        {
+          "mesh": 2,
+          "name": "LWF_Performer_IdleRightArm"
+        }
+      ],
+      "embedded_images": true,
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_performer_female_body_v1.blend",
+        "sha256": "f4587fdf751705d55698b081c7c9ba0336885d41f63b54e80bdbd965a385fe22"
+      },
+      "body_variant": "female",
+      "partition_coordinates_exact": true,
+      "idle_arm_nodes": [
+        "LWF_Performer_IdleLeftArm",
+        "LWF_Performer_IdleRightArm"
+      ],
+      "role_palette": "guitarist default; bassist/drummer replace body palette only",
+      "bounds_blender": [
+        [
+          -0.2750000059604645,
+          -0.1449105441570282,
+          0.0
+        ],
+        [
+          0.2750000059604645,
+          0.18400000035762787,
+          1.750158429145813
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.2750000059604645,
+          0.0,
+          -0.18400000035762787
+        ],
+        [
+          0.2750000059604645,
+          1.750158429145813,
+          0.1449105441570282
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Performer_BodyCore",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        },
+        {
+          "name": "LWF_Performer_IdleLeftArm",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 1
+        },
+        {
+          "name": "LWF_Performer_IdleRightArm",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 2
+        }
+      ],
+      "animation_names": []
+    },
+    "lwf_guitarist_female_kit_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_guitarist_female_kit_v1.glb",
+      "sha256": "42f7d1931b9cc96de5556ae1204d568efa2b025779174dc665a5f795e67b950b",
+      "triangles": 628,
+      "meshes": 4,
+      "materials": 3,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Guitarist_AcousticGuitar"
+        },
+        {
+          "mesh": 1,
+          "name": "LWF_Fitted_LeatherStrap"
+        },
+        {
+          "mesh": 2,
+          "name": "LWF_Guitarist_LeftPlayingArm",
+          "translation": [
+            -0.16899999976158142,
+            1.215000033378601,
+            -0.01600000075995922
+          ]
+        },
+        {
+          "mesh": 3,
+          "name": "LWF_Guitarist_RightPlayingArm",
+          "translation": [
+            0.16899999976158142,
+            1.215000033378601,
+            -0.01600000262260437
+          ]
+        }
+      ],
+      "embedded_images": true,
+      "body_variant": "female",
+      "role": "guitarist",
+      "original_instrument_source": {
+        "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_performer_acoustic_guitar_kit_v1.glb",
+        "sha256": "aa4b1251700588f36bd55e5ffe38f642fb429a84823f0d0981f9f74d0ca2b763"
+      },
+      "attach": "Stable performer root at identity; hide both Idle*Arm nodes while attached. Playing arms use role body palette; do not recolour instrument.",
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_guitarist_female_kit_v1.blend",
+        "sha256": "af719046344febaaded6786a4886e4127cf69d391e991ba4edcbc2bd158185b7"
+      },
+      "bounds_blender": [
+        [
+          -0.6922352910041809,
+          -0.07060770690441132,
+          0.6499999761581421
+        ],
+        [
+          0.3198525309562683,
+          0.41698798537254333,
+          1.382962942123413
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.6922352910041809,
+          0.6499999761581421,
+          -0.41698798537254333
+        ],
+        [
+          0.3198525309562683,
+          1.382962942123413,
+          0.07060770690441132
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Guitarist_AcousticGuitar",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        },
+        {
+          "name": "LWF_Fitted_LeatherStrap",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 1
+        },
+        {
+          "name": "LWF_Guitarist_LeftPlayingArm",
+          "translation": [
+            -0.16899999976158142,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 2
+        },
+        {
+          "name": "LWF_Guitarist_RightPlayingArm",
+          "translation": [
+            0.16899999976158142,
+            1.215000033378601,
+            -0.01600000262260437
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 3
+        }
+      ],
+      "animation_names": [
+        "Animation"
+      ]
+    },
+    "lwf_bassist_female_kit_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_bassist_female_kit_v1.glb",
+      "sha256": "d3e3e6866ebe254d654d76a9b0ee7e0204f221a694a81a3e18600447a4a8b026",
+      "triangles": 728,
+      "meshes": 4,
+      "materials": 3,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Bassist_SolidBass"
+        },
+        {
+          "mesh": 1,
+          "name": "LWF_Fitted_LeatherStrap"
+        },
+        {
+          "mesh": 2,
+          "name": "LWF_Bassist_LeftPlayingArm",
+          "translation": [
+            -0.16899999976158142,
+            1.215000033378601,
+            -0.01600000075995922
+          ]
+        },
+        {
+          "mesh": 3,
+          "name": "LWF_Bassist_RightPlayingArm",
+          "translation": [
+            0.16899999976158142,
+            1.215000033378601,
+            -0.01600000262260437
+          ]
+        }
+      ],
+      "embedded_images": true,
+      "body_variant": "female",
+      "role": "bassist",
+      "original_instrument_source": {
+        "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_performer_solid_bass_kit_v1.glb",
+        "sha256": "234b8c7309e9f81f12ca43012a30bf5815627e7e6ea8c08af4fa85fbe98b6680"
+      },
+      "attach": "Stable performer root at identity; hide both Idle*Arm nodes while attached. Playing arms use role body palette; do not recolour instrument.",
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_bassist_female_kit_v1.blend",
+        "sha256": "e65e1f16eb6743811d6a0a04b49b062a5aec6efa1de845a682e236c5b4921925"
+      },
+      "bounds_blender": [
+        [
+          -0.8659999966621399,
+          -0.07060770690441132,
+          0.6499999761581421
+        ],
+        [
+          0.3250708281993866,
+          0.4219857454299927,
+          1.4570525884628296
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.8659999966621399,
+          0.6499999761581421,
+          -0.4219857454299927
+        ],
+        [
+          0.3250708281993866,
+          1.4570525884628296,
+          0.07060770690441132
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Bassist_SolidBass",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        },
+        {
+          "name": "LWF_Fitted_LeatherStrap",
+          "translation": [
+            0,
+            0,
+            0
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 1
+        },
+        {
+          "name": "LWF_Bassist_LeftPlayingArm",
+          "translation": [
+            -0.16899999976158142,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 2
+        },
+        {
+          "name": "LWF_Bassist_RightPlayingArm",
+          "translation": [
+            0.16899999976158142,
+            1.215000033378601,
+            -0.01600000262260437
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 3
+        }
+      ],
+      "animation_names": [
+        "Animation"
+      ]
+    },
+    "lwf_drummer_female_kit_v1": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\runtime\\lwf_drummer_female_kit_v1.glb",
+      "sha256": "579159c5adaa91cacb6aafbf381917ddb1fe8537c5edcdaff42975be68b29261",
+      "triangles": 328,
+      "meshes": 4,
+      "materials": 3,
+      "nodes": [
+        {
+          "mesh": 0,
+          "name": "LWF_Drummer_LeftStick",
+          "translation": [
+            0.16899999976158142,
+            -1.215000033378601,
+            0.01600000075995922
+          ]
+        },
+        {
+          "children": [
+            0
+          ],
+          "mesh": 1,
+          "name": "LWF_Drummer_LeftPlayingArm",
+          "translation": [
+            -0.16899999976158142,
+            1.215000033378601,
+            -0.01600000075995922
+          ]
+        },
+        {
+          "mesh": 2,
+          "name": "LWF_Drummer_RightStick",
+          "translation": [
+            -0.16899999976158142,
+            -1.215000033378601,
+            0.01600000262260437
+          ]
+        },
+        {
+          "children": [
+            2
+          ],
+          "mesh": 3,
+          "name": "LWF_Drummer_RightPlayingArm",
+          "translation": [
+            0.16899999976158142,
+            1.215000033378601,
+            -0.01600000262260437
+          ]
+        }
+      ],
+      "embedded_images": true,
+      "body_variant": "female",
+      "role": "drummer",
+      "original_instrument_source": {
+        "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_performer_compact_drum_kit_v1.glb",
+        "sha256": "2e49db4cbaa501886fb3d8b2616cbfc5910f5be20fa0d23f0c278e42a1a00118"
+      },
+      "attach": "Stable performer root at identity; hide both Idle*Arm nodes while attached. Playing arms use role body palette; do not recolour instrument.",
+      "source": {
+        "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\source\\lwf_drummer_female_kit_v1.blend",
+        "sha256": "28dbeffe7a31e8a87cd6c53a7cf777054917eb9807d0e811dc33abc7b3d53fcb"
+      },
+      "bounds_blender": [
+        [
+          -0.35534825921058655,
+          -0.016030820086598396,
+          1.0318208932876587
+        ],
+        [
+          0.35534825921058655,
+          0.7833542823791504,
+          1.2245407104492188
+        ]
+      ],
+      "bounds_godot": [
+        [
+          -0.35534825921058655,
+          1.0318208932876587,
+          -0.7833542823791504
+        ],
+        [
+          0.35534825921058655,
+          1.2245407104492188,
+          0.016030820086598396
+        ]
+      ],
+      "node_contract": [
+        {
+          "name": "LWF_Drummer_LeftStick",
+          "translation": [
+            0.16899999976158142,
+            -1.215000033378601,
+            0.01600000075995922
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 0
+        },
+        {
+          "name": "LWF_Drummer_LeftPlayingArm",
+          "translation": [
+            -0.16899999976158142,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [
+            0
+          ],
+          "mesh": 1
+        },
+        {
+          "name": "LWF_Drummer_RightStick",
+          "translation": [
+            -0.16899999976158142,
+            -1.215000033378601,
+            0.01600000262260437
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [],
+          "mesh": 2
+        },
+        {
+          "name": "LWF_Drummer_RightPlayingArm",
+          "translation": [
+            0.16899999976158142,
+            1.215000033378601,
+            -0.01600000262260437
+          ],
+          "rotation_quaternion_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "scale": [
+            1,
+            1,
+            1
+          ],
+          "children": [
+            2
+          ],
+          "mesh": 3
+        }
+      ],
+      "animation_names": [
+        "Animation"
+      ]
+    }
+  },
+  "fit": {
+    "lwf_medic_male_overlay_v1": {
+      "tee_surface_offset_m": 0.009,
+      "marking_offset_m": 0.016,
+      "body_coordinates_unchanged": true,
+      "pose_compatibility": "Torso and legs are identical across approved guest poses. Pockets are static and require visual checking with carried props; no rig.",
+      "construction": "Full fitted vest front/back, side closure below armpits, open armholes and shoulder bridges; source tee sleeves retained.",
+      "measured_surface_clearance_m": {
+        "torso_front": {
+          "min": 0.006507299840450287,
+          "max": 0.01600024104118347,
+          "samples": 1194
+        },
+        "torso_back": {
+          "min": 0.006626546382904053,
+          "max": 0.01600024104118347,
+          "samples": 1166
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_steward_male_overlay_v1": {
+      "tee_surface_offset_m": 0.009,
+      "marking_offset_m": 0.016,
+      "body_coordinates_unchanged": true,
+      "pose_compatibility": "Torso and legs are identical across approved guest poses. Pockets are static and require visual checking with carried props; no rig.",
+      "construction": "Full fitted vest front/back, side closure below armpits, open armholes and shoulder bridges; source tee sleeves retained.",
+      "measured_surface_clearance_m": {
+        "torso_front": {
+          "min": 0.006507299840450287,
+          "max": 0.017189428210258484,
+          "samples": 1638
+        },
+        "torso_back": {
+          "min": 0.006626546382904053,
+          "max": 0.017189428210258484,
+          "samples": 1610
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_maintenance_male_overlay_v1": {
+      "tee_surface_offset_m": 0.009,
+      "marking_offset_m": 0.016,
+      "body_coordinates_unchanged": true,
+      "pose_compatibility": "Torso and legs are identical across approved guest poses. Pockets are static and require visual checking with carried props; no rig.",
+      "measured_surface_clearance_m": {
+        "torso_front": {
+          "min": 0.00957903265953064,
+          "max": 0.08311459422111511,
+          "samples": 1544
+        },
+        "torso_back": {
+          "min": 0.0100480318069458,
+          "max": 0.012333713471889496,
+          "samples": 555
+        },
+        "knee_panels": {
+          "min": 0.007787883281707764,
+          "max": 0.009610913693904877,
+          "samples": 174
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_sound_male_overlay_v1": {
+      "tee_surface_offset_m": 0.009,
+      "marking_offset_m": 0.016,
+      "body_coordinates_unchanged": true,
+      "pose_compatibility": "Torso and legs are identical across approved guest poses. Pockets are static and require visual checking with carried props; no rig.",
+      "measured_surface_clearance_m": {
+        "knee_panels": {
+          "min": 0.007787883281707764,
+          "max": 0.009610913693904877,
+          "samples": 174
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_guitarist_male_kit_v1": {
+      "arms": {
+        "Left": {
+          "sleeve_entry_blender": [
+            -0.20900000631809235,
+            0.01599999889731407,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            -0.20900000631809235,
+            1.215000033378601,
+            -0.01599999889731407
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.5350000262260437,
+            0.3100000023841858,
+            1.2050000429153442
+          ],
+          "arm_length_m": 0.4546124040390134,
+          "loop_radians": 0
+        },
+        "Right": {
+          "sleeve_entry_blender": [
+            0.20900000631809235,
+            0.01600000075995922,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            0.20900000631809235,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.07500000298023224,
+            0.38499999046325684,
+            0.8450000286102295
+          ],
+          "arm_length_m": 0.7862979139143065,
+          "loop_radians": 0.025
+        }
+      },
+      "original_instrument_geometry_retained": true,
+      "animation_note": "Short restrained transform loops; play cyclically at runtime. Frame 1 is neutral contact. Not skeletal animation.",
+      "max_loop_vertex_displacement_m": {
+        "LWF_Guitarist_LeftPlayingArm": 0,
+        "LWF_Guitarist_RightPlayingArm": 0.01264352347833689
+      },
+      "hand_contact_nearest_distance_m": {
+        "LWF_Guitarist_LeftPlayingArm": {
+          "min": 0.0007368832011707127,
+          "max": 0.03675909712910652
+        },
+        "LWF_Guitarist_RightPlayingArm": {
+          "min": 0.0005472793127410114,
+          "max": 0.05167640373110771
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05,
+      "retained_instrument_world_coordinates_exact_at_5dp": true,
+      "retained_instrument_palette_bytes_exact": true
+    },
+    "lwf_bassist_male_kit_v1": {
+      "arms": {
+        "Left": {
+          "sleeve_entry_blender": [
+            -0.20900000631809235,
+            0.01599999889731407,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            -0.20900000631809235,
+            1.215000033378601,
+            -0.01599999889731407
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.6650000214576721,
+            0.30000001192092896,
+            1.315000057220459
+          ],
+          "arm_length_m": 0.5622724580000402,
+          "loop_radians": 0
+        },
+        "Right": {
+          "sleeve_entry_blender": [
+            0.20900000631809235,
+            0.01600000075995922,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            0.20900000631809235,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.03999999910593033,
+            0.38999998569488525,
+            0.8500000238418579
+          ],
+          "arm_length_m": 0.7640878019571786,
+          "loop_radians": 0.018
+        }
+      },
+      "original_instrument_geometry_retained": true,
+      "animation_note": "Short restrained transform loops; play cyclically at runtime. Frame 1 is neutral contact. Not skeletal animation.",
+      "max_loop_vertex_displacement_m": {
+        "LWF_Bassist_LeftPlayingArm": 0,
+        "LWF_Bassist_RightPlayingArm": 0.008660863124589293
+      },
+      "hand_contact_nearest_distance_m": {
+        "LWF_Bassist_LeftPlayingArm": {
+          "min": 0.00025342946173623204,
+          "max": 0.021418053656816483
+        },
+        "LWF_Bassist_RightPlayingArm": {
+          "min": 0.001426994800567627,
+          "max": 0.0439857542514801
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05,
+      "retained_instrument_world_coordinates_exact_at_5dp": true,
+      "retained_instrument_palette_bytes_exact": true
+    },
+    "lwf_drummer_male_kit_v1": {
+      "arms": {
+        "Left": {
+          "sleeve_entry_blender": [
+            -0.20900000631809235,
+            0.01599999889731407,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            -0.20900000631809235,
+            1.215000033378601,
+            -0.01599999889731407
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.3100000023841858,
+            0.47999998927116394,
+            1.1299999952316284
+          ],
+          "arm_length_m": 0.47599026551727575,
+          "loop_radians": 0.028
+        },
+        "Right": {
+          "sleeve_entry_blender": [
+            0.20900000631809235,
+            0.01600000075995922,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            0.20900000631809235,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            0.3100000023841858,
+            0.47999998927116394,
+            1.1299999952316284
+          ],
+          "arm_length_m": 0.47599026551727575,
+          "loop_radians": 0.028
+        }
+      },
+      "original_instrument_geometry_retained": true,
+      "animation_note": "Short restrained transform loops; play cyclically at runtime. Frame 1 is neutral contact. Not skeletal animation.",
+      "max_loop_vertex_displacement_m": {
+        "LWF_Drummer_LeftPlayingArm": 0.014285873442658593,
+        "LWF_Drummer_RightPlayingArm": 0.014285873442658593
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_medic_female_overlay_v1": {
+      "tee_surface_offset_m": 0.009,
+      "marking_offset_m": 0.016,
+      "body_coordinates_unchanged": true,
+      "pose_compatibility": "Torso and legs are identical across approved guest poses. Pockets are static and require visual checking with carried props; no rig.",
+      "construction": "Full fitted vest front/back, side closure below armpits, open armholes and shoulder bridges; source tee sleeves retained.",
+      "measured_surface_clearance_m": {
+        "torso_front": {
+          "min": 0.0024353861808776855,
+          "max": 0.016184747219085693,
+          "samples": 1290
+        },
+        "torso_back": {
+          "min": 0.006782911717891693,
+          "max": 0.01615723967552185,
+          "samples": 1262
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_steward_female_overlay_v1": {
+      "tee_surface_offset_m": 0.009,
+      "marking_offset_m": 0.016,
+      "body_coordinates_unchanged": true,
+      "pose_compatibility": "Torso and legs are identical across approved guest poses. Pockets are static and require visual checking with carried props; no rig.",
+      "construction": "Full fitted vest front/back, side closure below armpits, open armholes and shoulder bridges; source tee sleeves retained.",
+      "measured_surface_clearance_m": {
+        "torso_front": {
+          "min": 0.0024353861808776855,
+          "max": 0.017283760011196136,
+          "samples": 1758
+        },
+        "torso_back": {
+          "min": 0.006782911717891693,
+          "max": 0.017262935638427734,
+          "samples": 1730
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_maintenance_female_overlay_v1": {
+      "tee_surface_offset_m": 0.009,
+      "marking_offset_m": 0.016,
+      "body_coordinates_unchanged": true,
+      "pose_compatibility": "Torso and legs are identical across approved guest poses. Pockets are static and require visual checking with carried props; no rig.",
+      "measured_surface_clearance_m": {
+        "torso_front": {
+          "min": 0.007567301392555237,
+          "max": 0.0873018205165863,
+          "samples": 1596
+        },
+        "torso_back": {
+          "min": 0.010615073144435883,
+          "max": 0.012282967567443848,
+          "samples": 607
+        },
+        "knee_panels": {
+          "min": 0.007787808775901794,
+          "max": 0.00961083173751831,
+          "samples": 174
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_sound_female_overlay_v1": {
+      "tee_surface_offset_m": 0.009,
+      "marking_offset_m": 0.016,
+      "body_coordinates_unchanged": true,
+      "pose_compatibility": "Torso and legs are identical across approved guest poses. Pockets are static and require visual checking with carried props; no rig.",
+      "measured_surface_clearance_m": {
+        "knee_panels": {
+          "min": 0.007787808775901794,
+          "max": 0.00961083173751831,
+          "samples": 174
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_guitarist_female_kit_v1": {
+      "arms": {
+        "Left": {
+          "sleeve_entry_blender": [
+            -0.16899999976158142,
+            0.01600000075995922,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            -0.16899999976158142,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.5350000262260437,
+            0.3100000023841858,
+            1.2050000429153442
+          ],
+          "arm_length_m": 0.4804123164389693,
+          "loop_radians": 0
+        },
+        "Right": {
+          "sleeve_entry_blender": [
+            0.16899999976158142,
+            0.01600000262260437,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            0.16899999976158142,
+            1.215000033378601,
+            -0.01600000262260437
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.07500000298023224,
+            0.38499999046325684,
+            0.8450000286102295
+          ],
+          "arm_length_m": 0.7960432354890625,
+          "loop_radians": 0.025
+        }
+      },
+      "original_instrument_geometry_retained": true,
+      "animation_note": "Short restrained transform loops; play cyclically at runtime. Frame 1 is neutral contact. Not skeletal animation.",
+      "max_loop_vertex_displacement_m": {
+        "LWF_Guitarist_LeftPlayingArm": 0,
+        "LWF_Guitarist_RightPlayingArm": 0.0120632928343407
+      },
+      "hand_contact_nearest_distance_m": {
+        "LWF_Guitarist_LeftPlayingArm": {
+          "min": 0.0007368832011707127,
+          "max": 0.03675909712910652
+        },
+        "LWF_Guitarist_RightPlayingArm": {
+          "min": 0.0005472800694406033,
+          "max": 0.05167640373110771
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05,
+      "retained_instrument_world_coordinates_exact_at_5dp": true,
+      "retained_instrument_palette_bytes_exact": true
+    },
+    "lwf_bassist_female_kit_v1": {
+      "arms": {
+        "Left": {
+          "sleeve_entry_blender": [
+            -0.16899999976158142,
+            0.01600000075995922,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            -0.16899999976158142,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.6650000214576721,
+            0.30000001192092896,
+            1.315000057220459
+          ],
+          "arm_length_m": 0.5935030169060393,
+          "loop_radians": 0
+        },
+        "Right": {
+          "sleeve_entry_blender": [
+            0.16899999976158142,
+            0.01600000262260437,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            0.16899999976158142,
+            1.215000033378601,
+            -0.01600000262260437
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.03999999910593033,
+            0.38999998569488525,
+            0.8500000238418579
+          ],
+          "arm_length_m": 0.7743312970276708,
+          "loop_radians": 0.018
+        }
+      },
+      "original_instrument_geometry_retained": true,
+      "animation_note": "Short restrained transform loops; play cyclically at runtime. Frame 1 is neutral contact. Not skeletal animation.",
+      "max_loop_vertex_displacement_m": {
+        "LWF_Bassist_LeftPlayingArm": 0,
+        "LWF_Bassist_RightPlayingArm": 0.00827860587430679
+      },
+      "hand_contact_nearest_distance_m": {
+        "LWF_Bassist_LeftPlayingArm": {
+          "min": 0.0002534769009798765,
+          "max": 0.021418053656816483
+        },
+        "LWF_Bassist_RightPlayingArm": {
+          "min": 0.001426994800567627,
+          "max": 0.0439857542514801
+        }
+      },
+      "roundtrip_position_tolerance_m": 3e-05,
+      "retained_instrument_world_coordinates_exact_at_5dp": true,
+      "retained_instrument_palette_bytes_exact": true
+    },
+    "lwf_drummer_female_kit_v1": {
+      "arms": {
+        "Left": {
+          "sleeve_entry_blender": [
+            -0.16899999976158142,
+            0.01600000075995922,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            -0.16899999976158142,
+            1.215000033378601,
+            -0.01600000075995922
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            -0.3100000023841858,
+            0.47999998927116394,
+            1.1299999952316284
+          ],
+          "arm_length_m": 0.49298896672853365,
+          "loop_radians": 0.028
+        },
+        "Right": {
+          "sleeve_entry_blender": [
+            0.16899999976158142,
+            0.01600000262260437,
+            1.215000033378601
+          ],
+          "sleeve_entry_godot": [
+            0.16899999976158142,
+            1.215000033378601,
+            -0.01600000262260437
+          ],
+          "original_sleeve_ring_reused_exactly": true,
+          "hand_centre_blender": [
+            0.3100000023841858,
+            0.47999998927116394,
+            1.1299999952316284
+          ],
+          "arm_length_m": 0.49298896672853365,
+          "loop_radians": 0.028
+        }
+      },
+      "original_instrument_geometry_retained": true,
+      "animation_note": "Short restrained transform loops; play cyclically at runtime. Frame 1 is neutral contact. Not skeletal animation.",
+      "max_loop_vertex_displacement_m": {
+        "LWF_Drummer_LeftPlayingArm": 0.014285873442658593,
+        "LWF_Drummer_RightPlayingArm": 0.014285885920781432
+      },
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_performer_male_body_v1": {
+      "roundtrip_position_tolerance_m": 3e-05
+    },
+    "lwf_drum_hardware_only_v1": {
+      "retained_instrument_world_coordinates_exact_at_5dp": true,
+      "retained_instrument_palette_bytes_exact": true
+    },
+    "lwf_performer_female_body_v1": {
+      "roundtrip_position_tolerance_m": 3e-05
+    }
+  },
+  "approval": "Builder relayed explicit user approval of v3 workwear for production on 2026-09-28.",
+  "validation": {
+    "blender_roundtrip": "passed",
+    "asset_count": 17,
+    "protected_palette_slots": "passed",
+    "scope": "Local Blender export/reimport and sampled geometric fit; in-engine placement/state transitions must be checked by Builder.",
+    "godot_import": "passed all17",
+    "godot_engine": "4.7.2-stable (official)",
+    "pose_compatibility": "Approved tee/leg/hip coordinates exact across all12 existing body pose files; four combined carried-prop renders reviewed."
+  },
+  "status": "FROZEN_FOR_INTEGRATION",
+  "trim_palette": {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\palettes\\lwf_crew_trim_palette_v1.png",
+    "sha256": "51252f788e12858833cc1571f4ff82691274535f0b84ebb8ca8aaa774e3f5192",
+    "size": [
+      128,
+      8
+    ],
+    "rule": "Keep original; not a 96x8 body palette."
+  },
+  "handoff_documents": {
+    "README.md": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\README.md",
+      "sha256": "98a2baea08843b0167dfdac4e832efc079b0b3a23b5b40899de64f8e059ff08d"
+    },
+    "verification.json": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\verification.json",
+      "sha256": "2336223aa915a3e554664e18ed59a8263cebf78095f10d152251b4700a98bae7"
+    },
+    "godot-verification.json": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\godot-verification.json",
+      "sha256": "29f8934da5bbf0519c5ff1b5c1854482b5f5369775f57c6758de5fee63d955bc"
+    },
+    "pose-compatibility.json": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\pose-compatibility.json",
+      "sha256": "d8463fe376d7010c11ad402ead0167c3111e350f2a9220b84c7cb371ae7ff956"
+    },
+    "build_roles.py": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\build_roles.py",
+      "sha256": "071cc819ea8cdc0bd787de1451f44ad71d39c96b979306790b151234f0440b4d"
+    },
+    "verify_roles.py": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\verify_roles.py",
+      "sha256": "2e5a4da8832823a60b22bd74071734bd8dae042863e6b16aa2a78d6bbe04a918"
+    },
+    "verify_pose_compatibility.py": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\verify_pose_compatibility.py",
+      "sha256": "2987d55f185736d27ca7ad8f4ce24dc52f9c176d05d91b0ee0b0c7da19b71466"
+    },
+    "render_proof.py": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\render_proof.py",
+      "sha256": "a3c05f49e5ee785909630fdb7f7f12b775b6fd9603fa23afe5599855db758a5e"
+    },
+    "render_band.py": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\render_band.py",
+      "sha256": "456ab61b0ee0fe8bd5caca1076bb6f9edd16905ace9b9572660678f455180b9a"
+    }
+  },
+  "review_files": {
+    "crew-gameplay-scale.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\crew-gameplay-scale.png",
+      "sha256": "c2beb2d83b967020c6eea63634edbf2ce2ec1d19bac7c1c4d91296f451f1f500"
+    },
+    "crew-lineup-back.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\crew-lineup-back.png",
+      "sha256": "34f09f34f4371c17ba26db8a0ab24df75c7fa34d0fc11b59a20037552f6c2600"
+    },
+    "crew-lineup.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\crew-lineup.png",
+      "sha256": "8efa53482aaba1703f8a91017dde8e5b059abd43633856875403eb733b5b0f4e"
+    },
+    "lwf_bassist_female_kit_v1-contact.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_female_kit_v1-contact.png",
+      "sha256": "9fccd76c342bed41009783fe98d131ed3e91ff34714d8407b4694f5fe9def7aa"
+    },
+    "lwf_bassist_female_kit_v1-frame13.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_female_kit_v1-frame13.png",
+      "sha256": "b72ccd2407ec6f540a95059659730cce9ad7d8dc228d707da597328c020d8e63"
+    },
+    "lwf_bassist_female_kit_v1-frame5.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_female_kit_v1-frame5.png",
+      "sha256": "b3921df7c7c5635d1c93109f82be439419f24c311294dc47da67bd588b4ef5d3"
+    },
+    "lwf_bassist_female_kit_v1-side.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_female_kit_v1-side.png",
+      "sha256": "c75718fd94e8dbd53d3cd8f66da4385c0abd8ff9dc582a32f7acf500a0d19136"
+    },
+    "lwf_bassist_female_kit_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_female_kit_v1.png",
+      "sha256": "891960f9007babb5b633ad305bb94db2bb892b5fb19f0b714126761d2efc6bae"
+    },
+    "lwf_bassist_male_kit_v1-contact.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_male_kit_v1-contact.png",
+      "sha256": "7897276e07fa7170851dc2919381e6b9b80b60076008b193c62fd5ab53c696bc"
+    },
+    "lwf_bassist_male_kit_v1-frame13.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_male_kit_v1-frame13.png",
+      "sha256": "3541364502c442dee8f697a17aa0d2d8b1657f4d9fefe607338f5f157a466131"
+    },
+    "lwf_bassist_male_kit_v1-frame5.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_male_kit_v1-frame5.png",
+      "sha256": "107fd9df4b41fe38859dba67646be073c6d72d1a13935e07daf9dafc7c43222a"
+    },
+    "lwf_bassist_male_kit_v1-side.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_male_kit_v1-side.png",
+      "sha256": "9700ed9ed3a3fa006407802e4c83b016e6f3166448b8f6735badba29323e96ea"
+    },
+    "lwf_bassist_male_kit_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_bassist_male_kit_v1.png",
+      "sha256": "6440992c9bd75263a348d7fca5ab8fcc5d3d8a0709c2e831a4403eef48b4849f"
+    },
+    "lwf_drummer_female_kit_v1-contact.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_female_kit_v1-contact.png",
+      "sha256": "7c98290256ca0b27f53a2c8f8d4150a99f01d294508b3cddcbc7057e213265ac"
+    },
+    "lwf_drummer_female_kit_v1-frame13.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_female_kit_v1-frame13.png",
+      "sha256": "d78fe8dfdaa4199c754e10690bb42f14d6eb837976461281c004d174be4c3ccc"
+    },
+    "lwf_drummer_female_kit_v1-frame5.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_female_kit_v1-frame5.png",
+      "sha256": "29133984e6f007c29fc7be6c1158aa97fd3ae196136ce061b61a44da75b1df6a"
+    },
+    "lwf_drummer_female_kit_v1-side.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_female_kit_v1-side.png",
+      "sha256": "f01a839933831e6bac1f7040cf594fc69569cbe02a8446e0efc31b4a90f3e94c"
+    },
+    "lwf_drummer_female_kit_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_female_kit_v1.png",
+      "sha256": "e6ed81eb69c9a1f8cdf98c39c2a7b77991e9d097980f6fc9003619edded5af95"
+    },
+    "lwf_drummer_male_kit_v1-contact.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_male_kit_v1-contact.png",
+      "sha256": "c01534c50fd8006b4d845fc8f651d22c4ef9eaa6000a0e5245bd1ba6372a4f27"
+    },
+    "lwf_drummer_male_kit_v1-frame13.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_male_kit_v1-frame13.png",
+      "sha256": "65278c8361c225409ecccf524df5e4cf5900ea7ad474d79610e763f32f83f297"
+    },
+    "lwf_drummer_male_kit_v1-frame5.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_male_kit_v1-frame5.png",
+      "sha256": "70bd978980db0984f4035fef11a3817664fa6379f277f91a481b5043c8420092"
+    },
+    "lwf_drummer_male_kit_v1-side.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_male_kit_v1-side.png",
+      "sha256": "bc48f7586a3c13511dbfb5cd36c4f5c0e84a279871b34455578c1e533d2786b5"
+    },
+    "lwf_drummer_male_kit_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_drummer_male_kit_v1.png",
+      "sha256": "4700956ee6e5ce766de2a145023432ca265ff8a6759d25eef0ce4ad6c98a5fc0"
+    },
+    "lwf_guitarist_female_kit_v1-contact.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_female_kit_v1-contact.png",
+      "sha256": "4f5064e80b02f375b41c115b87f0b82c71ccd5e0db86f19ad985d400d3b8e9c6"
+    },
+    "lwf_guitarist_female_kit_v1-frame13.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_female_kit_v1-frame13.png",
+      "sha256": "be8dd4dc727e5b2794df0ca9b95336344cf78ce54dacb6e0243429d61b382d96"
+    },
+    "lwf_guitarist_female_kit_v1-frame5.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_female_kit_v1-frame5.png",
+      "sha256": "d94a90469ecdbf3da1b9713ef3551c4f9a6b23b1d587d16c446017bdfdeb3f39"
+    },
+    "lwf_guitarist_female_kit_v1-side.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_female_kit_v1-side.png",
+      "sha256": "96898c3f0875578d193be901b1a2f732dbc343b3e6fe24b8ff004a49a75249b0"
+    },
+    "lwf_guitarist_female_kit_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_female_kit_v1.png",
+      "sha256": "60d30606779d83c12606286ca981fb5c14646b5bd03de613363bdc833c1ff88c"
+    },
+    "lwf_guitarist_male_kit_v1-contact.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_male_kit_v1-contact.png",
+      "sha256": "980d9f82f959a8336eb7b8f037658dc5752827b18cc0e77b3d2552964f64fbb9"
+    },
+    "lwf_guitarist_male_kit_v1-frame13.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_male_kit_v1-frame13.png",
+      "sha256": "b894993536ba0889008828ba94a01246489ea5429cb7d5ea3b1ca6c960688d5d"
+    },
+    "lwf_guitarist_male_kit_v1-frame5.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_male_kit_v1-frame5.png",
+      "sha256": "404591c9cff0d6e1ae5522169f5ee4551bf0fe86c6194d3a653a024dad0d7427"
+    },
+    "lwf_guitarist_male_kit_v1-side.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_male_kit_v1-side.png",
+      "sha256": "c95ed4be46089bf5d7f6a5f622878477cd9491ca7beea62ad40f274cd55b092b"
+    },
+    "lwf_guitarist_male_kit_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_guitarist_male_kit_v1.png",
+      "sha256": "4dced83991df01446655e939906832d6385f63b09650850a7b17d1a83972275d"
+    },
+    "lwf_maintenance_female_overlay_v1-back.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_maintenance_female_overlay_v1-back.png",
+      "sha256": "84e09e390655a52daab18b5ef720f1981841ed25784200228cdf6dc9aaa62f2b"
+    },
+    "lwf_maintenance_female_overlay_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_maintenance_female_overlay_v1.png",
+      "sha256": "4b7556ac8abd1c2bfc05f42ac1c8533715920eb597cc51919f40a539037bebf9"
+    },
+    "lwf_maintenance_male_overlay_v1-back.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_maintenance_male_overlay_v1-back.png",
+      "sha256": "dd37e88c15ecf37c5e192b200c331335db284efa26d6e54587508c81a53c4ace"
+    },
+    "lwf_maintenance_male_overlay_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_maintenance_male_overlay_v1.png",
+      "sha256": "5527aa80c217d49ea7a437a902df399e633cdc48b71d0f6f58b7ae0aaf30e91f"
+    },
+    "lwf_medic_female_overlay_v1-back.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_medic_female_overlay_v1-back.png",
+      "sha256": "42bd07fc6069361720a6cb60d3f2a795c20518bdb98142a80ceda4ae9a3bab58"
+    },
+    "lwf_medic_female_overlay_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_medic_female_overlay_v1.png",
+      "sha256": "478f3ce35d8486f561f0395e25d4ce6dffd0e2371ac4fe25d2c2874449f8efb3"
+    },
+    "lwf_medic_male_overlay_v1-back.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_medic_male_overlay_v1-back.png",
+      "sha256": "c9eaa3ccbe9bfd8d0180b317e0beecec890063ace30450452e25f685ab6bf0cb"
+    },
+    "lwf_medic_male_overlay_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_medic_male_overlay_v1.png",
+      "sha256": "29cb51a7a9035d305daa6fdec91e05e5f885a41a63beeae58ee597a9c5cf7388"
+    },
+    "lwf_performer_female_body_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_performer_female_body_v1.png",
+      "sha256": "6ed4104c6d7f6dfce33cd88904517c01dc5b5de69dc1e72adbc00c445c613b55"
+    },
+    "lwf_performer_male_body_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_performer_male_body_v1.png",
+      "sha256": "1ac3f0a8e54292bcebc403b24279d98557a4bc7ec8eeedfe572c3bfe20def4f1"
+    },
+    "lwf_sound_female_overlay_v1-back.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_sound_female_overlay_v1-back.png",
+      "sha256": "408bfbec3034f579aa352ad1c087180aff9a6ff0de77821cd61caa6761ce70ff"
+    },
+    "lwf_sound_female_overlay_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_sound_female_overlay_v1.png",
+      "sha256": "cf365bd89fd07d26bd4e5468dbc10522be8a89236fd1db3b4c1adb54df4ceb53"
+    },
+    "lwf_sound_male_overlay_v1-back.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_sound_male_overlay_v1-back.png",
+      "sha256": "46dfadc9c3408800188dd0260fbb544fde431999b7a7b9c9c0a560d8b2c8a905"
+    },
+    "lwf_sound_male_overlay_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_sound_male_overlay_v1.png",
+      "sha256": "52c02121a68a1e165a5b995594900c1b46661632640060f5cb25f054cf224f55"
+    },
+    "lwf_steward_female_overlay_v1-back.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_steward_female_overlay_v1-back.png",
+      "sha256": "78efb1723a6e02d6f760bf52bfa096742f94989f2003fd14fa3e291f440bc903"
+    },
+    "lwf_steward_female_overlay_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_steward_female_overlay_v1.png",
+      "sha256": "202516743619013d282306761823bcc821e3707e547476a0b61e58e4fdaef59e"
+    },
+    "lwf_steward_male_overlay_v1-back.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_steward_male_overlay_v1-back.png",
+      "sha256": "fff915df38a4de838638b8caf9efe0a59b6d1f22ab1f63e4176780f94611df4d"
+    },
+    "lwf_steward_male_overlay_v1.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\lwf_steward_male_overlay_v1.png",
+      "sha256": "ee1844029aa3b53ccd6e0d2e103085890a05c2403b21ad078581b53e0d72d566"
+    },
+    "pose-fit-maintenance-female-drinking.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\pose-fit-maintenance-female-drinking.png",
+      "sha256": "a681bb9d03626cd432fad668b8d6dd769baaed9905d355ef921e2a3766939a1b"
+    },
+    "pose-fit-medic-male-drink_hold.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\pose-fit-medic-male-drink_hold.png",
+      "sha256": "707d1d80dd7b215f56f6dd2b155c3644842bc53958d9f7e3c0d927d2c8c5ec81"
+    },
+    "pose-fit-sound-male-food_hold.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\pose-fit-sound-male-food_hold.png",
+      "sha256": "d3d48003ba58a4a67dc0f62dc8a8109db55e31b60d8ea8d09ff07d386441c52b"
+    },
+    "pose-fit-steward-female-eating.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\pose-fit-steward-female-eating.png",
+      "sha256": "656b7d5edb4510b4d4dbbc6535720c54e3fced15cf5f54d9abbda365ffa0e0b1"
+    },
+    "workwear-final.png": {
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\person-role-assets-v1\\review\\workwear-final.png",
+      "sha256": "22e549b3be7b5211c61fe2e775d644841bdded74b1fad3642c0bfdc12a042932"
+    }
+  }
+}

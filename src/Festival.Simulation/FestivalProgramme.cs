@@ -41,6 +41,23 @@ public sealed partial class GameSession
         }
     }
     public bool FestivalBandLate => LateReadyScheduledTick >= 0;
+    public const int BandDelayRemarkGraceTicks = 400; // 5 seconds at 80 deterministic ticks/s, not wall-clock time.
+    public const int BandStageProgressWindowTicks = 160; // a stalled approach becomes remark-eligible after 2 seconds.
+    public bool BandDelayRemarkEligible
+    {
+        get
+        {
+            var scheduled = LateReadyScheduledTick;
+            if (scheduled < 0 || CurrentTick - scheduled < BandDelayRemarkGraceTicks) return false;
+            if (_livePerformance is not { Stage: LiveSetStage.BeforeSet } live) return true;
+            var offstage = live.Performers.Where(person => !person.OnStage).ToArray();
+            return offstage.Any(person =>
+                MedicalOwnsNavigation(person.AgentId) || InterventionOwnsTarget(person.AgentId) || InterventionOwnsWorker(person.AgentId) ||
+                !_navigationAgents.TryGetValue(new(person.AgentId), out var nav) ||
+                nav.Action != AgentNavigationAction.Travelling || !IsStageApproachRoute(person, nav) ||
+                person.LastStageProgressTick is not { } progress || CurrentTick - progress > BandStageProgressWindowTicks);
+        }
+    }
     public FestivalAct? LateReadyFestivalAct
     {
         get

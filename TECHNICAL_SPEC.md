@@ -2,6 +2,8 @@
 
 Version 1.0 • Read after [GAME_DESIGN_SPEC.md](GAME_DESIGN_SPEC.md)
 
+> **Development policy override — approved 28 September 2026:** [Active save policy](ROGUELIKE_DESIGN.md#development-save-policy--approved-28-september-2026) supersedes older migration/backward-compatibility requirements below. No legacy saves need support; version/reject incompatible files without automatic deletion. Maintain minimal current-version round-trip coverage, full authoritative state, reliable campaign reset/Council retry and atomic current gameplay transactions. Historical hash/readability gates, migration, polished recovery/slots and exhaustive disk-failure testing are not per-change requirements. Broader persistence verification belongs at meaningful milestones.
+
 ## 1. Technology decision
 
 Use the stable Godot 4 .NET edition, C# for game code, and a plain .NET simulation library without Godot dependencies. Use Godot for 3D scenes, materials, audio, input and UI. Use a small console runner and ordinary .NET tests for simulation verification. This is a project design choice: the separation makes economic and behavioural rules testable without launching the graphical game.

@@ -40,8 +40,8 @@ public sealed class LivePerformanceTests
         var show = session.CaptureLivePerformance()!;
         Assert.AreEqual(LiveSetStage.Live, show.Stage);
         Assert.IsTrue(show.Performers.All(item => item.OnStage));
-        Assert.IsTrue(show.Performers.Take(2).All(item => item.InstrumentAttached));
-        Assert.IsFalse(show.Performers[2].InstrumentAttached, "The drum kit is a fixed stage prop, not a body attachment.");
+        Assert.IsTrue(show.Performers.All(item => item.InstrumentAttached),
+            "All three performers own their playing kits; only drum hardware stays fixed.");
         Assert.IsTrue(show.Listeners.Count(item => item.AtPlace) > 5);
         Assert.AreEqual(show.Listeners.Count(item => item.Place is not null), show.Listeners.Select(item => item.Place).Where(item => item is not null).Distinct().Count());
         Assert.IsTrue(show.Listeners.Any(item => item.ListenedTicks > 0 && item.EnjoymentEarned > 0));
@@ -77,11 +77,11 @@ public sealed class LivePerformanceTests
         var ready = session.CaptureLivePerformance()!;
         Assert.IsTrue(ready.Performers.All(item => item.AccessReached && item.StairReached && item.OnStage));
         Assert.AreEqual(LiveSetStage.BeforeSet, ready.Stage);
-        Assert.IsTrue(ready.Performers.Take(2).All(item => item.InstrumentAttached), "Guitar and bass attach when their owners reach their marks.");
-        Assert.IsFalse(ready.Performers[2].InstrumentAttached);
+        Assert.IsTrue(ready.Performers.All(item => item.InstrumentAttached),
+            "Guitar, bass and drummer playing arms/sticks attach when their owners reach their marks.");
         var snapshot = session.CapturePersistenceSnapshot();
         var forged = ready with { Performers = ready.Performers.Select((item, index) =>
-            index == 2 ? item with { InstrumentAttached = true } : item).ToArray() };
+            index == 2 ? item with { InstrumentAttached = false } : item).ToArray() };
         Assert.IsFalse(GameSession.Restore(snapshot with { LivePerformance = forged }).IsSuccess);
         session = Restored(session);
         session.AdvanceWithoutSnapshot(checked((int)(planned - session.CurrentTick)));

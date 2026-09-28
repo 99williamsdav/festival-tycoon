@@ -74,6 +74,28 @@ public partial class Main
             visual.Rotation = new Vector3(0, -Mathf.Pi / 2f, 0);
             return;
         }
+        // Once physically attending, face the live person. Travel still follows
+        // rendered motion below, and the later fight pass retains final priority.
+        var attending = _session.GetStewardResponses().FirstOrDefault(job => job.WorkerId == id.Value &&
+            !job.Incapacitated && job.TargetId is not null &&
+            job.Stage is SecurityResponseStage.Calming or SecurityResponseStage.Confronting);
+        if (attending?.TargetId is { } targetId &&
+            _session.CapturePreparation()?.People.Any(person => person.AgentId == targetId &&
+                person.Admitted && !person.Departed) == true &&
+            _session.CaptureMedical()?.Needs.Any(need => need.AgentId == targetId &&
+                (need.Intent == MedicalIntent.Collapsed || need.Stage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal)) != true &&
+            _attendeeVisuals.TryGetValue(new EntityId(targetId), out var targetVisual) && targetVisual.Visible)
+        {
+            var toward = targetVisual.Position - position;
+            toward.Y = 0;
+            if (toward.LengthSquared() > 0.000001f)
+            {
+                var yaw = Mathf.Atan2(-toward.X, -toward.Z);
+                visual.Rotation = new Vector3(0, Mathf.LerpAngle(visual.Rotation.Y, yaw,
+                    Mathf.Clamp((float)delta * 7f, 0f, 1f)), 0);
+                return;
+            }
+        }
         // Actual rendered motion wins, including the final interpolated step after
         // authoritative arrival. Actor GLBs face -Z; facilities face +Z.
         if ((!hasPrevious || direction.LengthSquared() < 0.0000000001f) &&
@@ -96,19 +118,12 @@ public partial class Main
             Mathf.Clamp((float)delta * 7f, 0f, 1f)), 0);
     }
 
-    private static string PerformerBodyPath(int role) => role switch
+    private static string PerformerKitPath(int role, string variant) => role switch
     {
-        0 => "res://assets/characters/lwf_performer_frontperson_body_v1.glb",
-        1 => "res://assets/characters/lwf_performer_bassist_body_v1.glb",
-        2 => "res://assets/characters/lwf_performer_drummer_body_v1.glb",
-        _ => "res://assets/characters/lwf_generic_attendee_v1.glb"
-    };
-
-    private static string PerformerKitPath(int role) => role switch
-    {
-        0 => "res://assets/characters/lwf_performer_acoustic_guitar_kit_v1.glb",
-        1 => "res://assets/characters/lwf_performer_solid_bass_kit_v1.glb",
-        _ => throw new InvalidOperationException("The drum kit is a fixed stage prop, not a body attachment.")
+        0 => $"res://assets/characters/lwf_guitarist_{variant}_kit_v1.glb",
+        1 => $"res://assets/characters/lwf_bassist_{variant}_kit_v1.glb",
+        2 => $"res://assets/characters/lwf_drummer_{variant}_kit_v1.glb",
+        _ => throw new ArgumentOutOfRangeException(nameof(role))
     };
 
     private void RefreshLivePerformanceHud()
@@ -228,7 +243,7 @@ public partial class Main
     {
         if (_stageDrumKit is not null) return;
         var drumMark = TraversalGrid.CellCentre(new GridCell(93, 152));
-        _stageDrumKit = AddAsset("res://assets/characters/lwf_performer_compact_drum_kit_v1.glb",
+        _stageDrumKit = AddAsset("res://assets/characters/lwf_drum_hardware_only_v1.glb",
             new Vector3(drumMark.XMillimetres / 1000f, 1.19f, drumMark.ZMillimetres / 1000f));
         _stageDrumKit.RotationDegrees = new Vector3(0, -90, 0);
     }
@@ -287,8 +302,16 @@ public partial class Main
             if (performer.InstrumentAttached && !_performerInstruments.ContainsKey(id))
             {
                 var name = roster.Single(item => item.AgentId == performer.AgentId).Name;
-                var kit = InstantiateAsset(PerformerKitPath(PerformerPresentationRole(performer.AgentId, name)));
+                var kit = InstantiateAsset(PerformerKitPath(PerformerPresentationRole(performer.AgentId, name),
+                    body.GetMeta("RoleVariant").AsString()));
+                ApplyRolePlayingArmPalette(body, kit);
                 body.AddChild(kit);
+                foreach (var player in kit.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>())
+                    foreach (var animationName in player.GetAnimationList())
+                    {
+                        player.GetAnimation(animationName).LoopMode = Animation.LoopModeEnum.Linear;
+                        player.Play(animationName);
+                    }
                 _performerInstruments.Add(id, kit);
                 SetNeutralArmsVisible(body, false);
             }
@@ -455,7 +478,7 @@ public partial class Main
             _foundationPresentation.Reset(_session.CaptureObservation());
             _foundationClock.ResetBoundary();
             RefreshPreparationHud();
-            GD.Print($"LIVE_CAPTURE ready={_session.CaptureLivePerformance()?.Performers.Count(item => item.OnStage)} guitars={_session.CaptureLivePerformance()?.Performers.Count(item => item.InstrumentAttached)} stage={_session.CaptureLivePerformance()?.Stage}");
+            GD.Print($"LIVE_CAPTURE ready={_session.CaptureLivePerformance()?.Performers.Count(item => item.OnStage)} person_kits={_session.CaptureLivePerformance()?.Performers.Count(item => item.InstrumentAttached)} stage={_session.CaptureLivePerformance()?.Stage}");
         }
         if (_liveCaptureFrame == 14)
         {

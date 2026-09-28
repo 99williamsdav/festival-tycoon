@@ -2,6 +2,12 @@
 
 Status: **Active product authority.** R0.05 implementation was authorized on 25 September 2026, with retry cash/stock anti-exploit treatment resolved and commissioned [hearing UI concept v4](art/reviews/R0.05/ASSET_APPROVALS.md) approved for integration. Approved product decisions below replace conflicting campaign rules in `GAME_DESIGN_SPEC.md`, `CONTENT_AND_BALANCE.md` and `IMPLEMENTATION_PLAN.md`. `TECHNICAL_SPEC.md` remains authoritative where it does not conflict. Values and rules marked **PROPOSED** require user approval before their owning R0 brief starts.
 
+## Development save policy — approved 28 September 2026
+
+During development, assume no legacy saves require support. This policy supersedes conflicting historical compatibility requirements in specifications and briefs. Changes may invalidate old saves; bump the applicable version and reject unsupported files clearly. Do not add migrations, preserve historical canonical hashes, or require historical-save diagnostics for new work. Existing save files must not be deleted automatically.
+
+Retain complete authoritative state ownership and minimal current-version save/load round-trip coverage. Fresh campaign reset, Council Favour retry and atomic current gameplay transactions remain required gameplay correctness. Defer polished save slots, migration/recovery features and exhaustive disk-failure matrices; run broader persistence checks at meaningful milestones rather than every small or cosmetic change. Existing harmless compatibility code/tests need not be removed as unrelated cleanup.
+
 ## The game now
 
 Festival Tycoon is a short-attempt survival-management campaign played on one persistent inherited farm. Each edition has a fixed mandatory audience roster and runs across a festival weekend. Keep every guest, staff member and performer alive through it to advance. A safe but scruffy festival advances with modest resources; a delightful festival earns more. The final tier's safe completion wins the campaign. The exact compressed day lengths are not approved.

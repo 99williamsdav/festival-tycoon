@@ -9,6 +9,9 @@ public sealed class TimetableLateBandTests
     private static CommandResult Send(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase,
         session.CurrentTick, session.NextSubmissionSequence, null, command));
+    private static void FixtureDestination(GameSession session, ulong id, GridCell cell, string intent) =>
+        typeof(GameSession).GetMethod("ApplyAgentDestination", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(session, [new EntityId(id), new SetAgentDestinationCommand(cell, intent), false]);
 
     private static void Medical(GameSession session, Func<MedicalNeed, MedicalNeed> change)
     {
@@ -48,6 +51,7 @@ public sealed class TimetableLateBandTests
         session.AdvanceWithoutSnapshot(1);
         Assert.IsTrue(session.FestivalBandLate);
         Assert.AreEqual((long)GameSession.FestivalSlotStarts[0], session.LateReadyScheduledTick);
+        Assert.IsFalse(session.BandDelayRemarkEligible, "A scheduled boundary is not an immediate guest complaint.");
         session = Restored(session);
         var performer = session.CaptureProgramme()!.Performers[0].AgentId;
         Medical(session, need => need.AgentId == performer ? need with { Intent = MedicalIntent.WatchShow } : need);
@@ -124,9 +128,68 @@ public sealed class TimetableLateBandTests
         Assert.AreEqual(LiveSetStage.Finished, session.CaptureLivePerformance()!.Stage);
         Assert.IsTrue(session.FestivalBandLate);
         Assert.AreEqual((long)GameSession.FestivalSlotStarts[1], session.LateReadyScheduledTick);
+        Assert.IsFalse(session.BandDelayRemarkEligible);
+        session.AdvanceWithoutSnapshot(GameSession.BandDelayRemarkGraceTicks - 1);
+        Assert.IsFalse(session.BandDelayRemarkEligible);
+        Assert.IsFalse(session.CaptureDisorder()!.People.Any(person => person.Grievance == DisorderGrievance.BandDelayed));
+        session.AdvanceWithoutSnapshot(1);
+        Assert.IsTrue(session.BandDelayRemarkEligible);
         session.AdvanceWithoutSnapshot(8);
         Assert.IsTrue(session.CaptureDisorder()!.People.Any(person => person.Grievance == DisorderGrievance.BandDelayed));
         Restored(session);
+    }
+
+    [TestMethod]
+    public void ActualMovingStageApproachSuppressesRemarksAfterGraceButSavedStallDoesNot()
+    {
+        var session = Started(holdFirstPerformer: true);
+        var performer = session.CaptureLivePerformance()!.Performers[0];
+        // Labelled development fixture: physically route the medically held
+        // performer away, then release and send them back to the real access cell.
+        FixtureDestination(session, performer.AgentId, new GridCell(140, 180), "fixture.distant-hold");
+        session.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0] - 1);
+        Medical(session, need => need.AgentId == performer.AgentId ? need with { Intent = MedicalIntent.WatchShow } : need);
+        FixtureDestination(session, performer.AgentId, performer.AccessCell, "performance.side-entry");
+        session.AdvanceWithoutSnapshot(1);
+        Assert.IsTrue(session.FestivalBandLate);
+        Assert.IsFalse(session.BandDelayRemarkEligible);
+        session.AdvanceWithoutSnapshot(GameSession.BandDelayRemarkGraceTicks);
+        var moving = session.CaptureLivePerformance()!.Performers[0];
+        var nav = session.CaptureObservation().NavigationAgents.Single(agent => agent.Id.Value == performer.AgentId);
+        Assert.AreEqual(AgentNavigationAction.Travelling, nav.Action);
+        Assert.IsTrue(moving.LastStageProgressTick >= session.CurrentTick - GameSession.BandStageProgressWindowTicks);
+        Assert.IsFalse(session.BandDelayRemarkEligible, "Actual recent stage-entry movement suppresses remarks after grace.");
+        Assert.IsFalse(session.CaptureDisorder()!.People.Any(person => person.Grievance == DisorderGrievance.BandDelayed));
+        var restored = Restored(session);
+        Assert.IsFalse(restored.BandDelayRemarkEligible, "Save/resume preserves the physical progress checkpoint.");
+        var stalled = moving with { LastStageProgressTick = session.CurrentTick - GameSession.BandStageProgressWindowTicks - 1 };
+        typeof(GameSession).GetField("_livePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .SetValue(restored, restored.CaptureLivePerformance()! with { Performers = restored.CaptureLivePerformance()!.Performers.Select(item =>
+                item.AgentId == stalled.AgentId ? stalled : item).ToArray() });
+        Assert.IsTrue(restored.BandDelayRemarkEligible, "A stale route intent cannot silence a persistent stall.");
+        Restored(restored);
+    }
+
+    [TestMethod]
+    public void GraceUsesSimulationTicksAndPauseCannotConsumeIt()
+    {
+        var session = Started(holdFirstPerformer: true);
+        session.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0]);
+        Assert.IsTrue(session.FestivalBandLate);
+        Assert.IsTrue(Send(session, new SetPausedCommand(true)).IsAccepted);
+        var pausedTick = session.CurrentTick;
+        session.AdvanceWithoutSnapshot(GameSession.BandDelayRemarkGraceTicks * 8);
+        Assert.AreEqual(pausedTick, session.CurrentTick);
+        Assert.IsFalse(session.BandDelayRemarkEligible);
+        session = Restored(session);
+        Assert.IsTrue(Send(session, new SetPausedCommand(false)).IsAccepted);
+        session.RequestSpeed(RequestedSpeed.FourX);
+        session.AdvanceWithoutSnapshot(GameSession.BandDelayRemarkGraceTicks - 1);
+        Assert.IsFalse(session.BandDelayRemarkEligible, "Requested wall-clock speed cannot shorten the authoritative tick grace.");
+        session.AdvanceWithoutSnapshot(1);
+        Assert.IsTrue(session.BandDelayRemarkEligible);
+        Assert.IsTrue(session.CaptureDisorder()!.People.All(person =>
+            person.Grievance != DisorderGrievance.BandDelayed || person.GrievanceTick >= pausedTick + GameSession.BandDelayRemarkGraceTicks));
     }
 
     [TestMethod]

@@ -336,6 +336,7 @@ public partial class Main
             ResetImmersionHeldVisuals();
             foreach (var root in _attendeeVisuals.Values)
                 if (root.HasMeta("GuestPoseVariant")) SetGuestBodyPose(root, "relaxed", null);
+                else if (root.HasMeta("RoleVariant")) SetRoleBodyPose(root, "relaxed", null);
             return;
         }
         foreach (var person in state.People)
@@ -344,6 +345,8 @@ public partial class Main
                 var hands = _session.ImmersionHandsAvailable(person.AgentId);
                 if (body.HasMeta("GuestPoseVariant"))
                     SetGuestBodyPose(body, AttendeePose.State(person.Held, hands, _session.ImmersionConsumptionEligible(person.AgentId)), person.Held?.Product);
+                else if (body.HasMeta("RoleVariant"))
+                    SetRoleBodyPose(body, AttendeePose.State(person.Held, hands, _session.ImmersionConsumptionEligible(person.AgentId)), person.Held?.Product);
                 SetImmersionHeldVisual(new(person.AgentId), body, person.Held is { } held ? ImmersionProductKey(held.Product) : null, hands, person.Intoxication, delta);
                 if (hands && person.Intoxication >= 5000)
                     body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, Mathf.Sin((float)Time.GetTicksMsec() / 350f + person.AgentId) * .035f);

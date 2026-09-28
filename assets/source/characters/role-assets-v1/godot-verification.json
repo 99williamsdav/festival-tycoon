@@ -1,0 +1,880 @@
+{
+	"assets": {
+		"lwf_bassist_female_kit_v1": {
+			"animations": [
+				{
+					"length_seconds": 0.708333313465118,
+					"loop_mode": 0,
+					"name": "Animation",
+					"tracks": 1
+				}
+			],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "LWF_Bassist_MattePalette",
+							"palette": [
+								192,
+								8
+							]
+						}
+					],
+					"name": "LWF_Bassist_SolidBass",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Fitted_LeatherStrap",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_bassist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Bassist_LeftPlayingArm",
+					"position": [
+						-0.168999999761581,
+						1.2150000333786,
+						-0.0160000007599592
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_bassist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Bassist_RightPlayingArm",
+					"position": [
+						0.168999999761581,
+						1.2150000333786,
+						-0.0160000026226044
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_bassist_male_kit_v1": {
+			"animations": [
+				{
+					"length_seconds": 0.708333313465118,
+					"loop_mode": 0,
+					"name": "Animation",
+					"tracks": 1
+				}
+			],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "LWF_Bassist_MattePalette",
+							"palette": [
+								192,
+								8
+							]
+						}
+					],
+					"name": "LWF_Bassist_SolidBass",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Fitted_LeatherStrap",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_bassist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Bassist_LeftPlayingArm",
+					"position": [
+						-0.209000006318092,
+						1.2150000333786,
+						-0.0159999988973141
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_bassist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Bassist_RightPlayingArm",
+					"position": [
+						0.209000006318092,
+						1.2150000333786,
+						-0.0160000007599592
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_drum_hardware_only_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "LWF_Drummer_MattePalette",
+							"palette": [
+								192,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_DrumShells",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "LWF_Drummer_MattePalette",
+							"palette": [
+								192,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_CymbalsHardware",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_drummer_female_kit_v1": {
+			"animations": [
+				{
+					"length_seconds": 0.708333313465118,
+					"loop_mode": 0,
+					"name": "Animation",
+					"tracks": 2
+				}
+			],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_drummer_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_LeftPlayingArm",
+					"position": [
+						-0.168999999761581,
+						1.2150000333786,
+						-0.0160000007599592
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_LeftStick",
+					"position": [
+						0.168999999761581,
+						-1.2150000333786,
+						0.0160000007599592
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_drummer_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_RightPlayingArm",
+					"position": [
+						0.168999999761581,
+						1.2150000333786,
+						-0.0160000026226044
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1.001",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_RightStick",
+					"position": [
+						-0.168999999761581,
+						-1.2150000333786,
+						0.0160000026226044
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_drummer_male_kit_v1": {
+			"animations": [
+				{
+					"length_seconds": 0.708333313465118,
+					"loop_mode": 0,
+					"name": "Animation",
+					"tracks": 2
+				}
+			],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_drummer_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_LeftPlayingArm",
+					"position": [
+						-0.209000006318092,
+						1.2150000333786,
+						-0.0159999988973141
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_LeftStick",
+					"position": [
+						0.209000006318092,
+						-1.2150000333786,
+						0.0159999988973141
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_drummer_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_RightPlayingArm",
+					"position": [
+						0.209000006318092,
+						1.2150000333786,
+						-0.0160000007599592
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1.001",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Drummer_RightStick",
+					"position": [
+						-0.209000006318092,
+						-1.2150000333786,
+						0.0160000007599592
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_guitarist_female_kit_v1": {
+			"animations": [
+				{
+					"length_seconds": 0.708333313465118,
+					"loop_mode": 0,
+					"name": "Animation",
+					"tracks": 1
+				}
+			],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "LWF_Guitarist_MattePalette",
+							"palette": [
+								192,
+								8
+							]
+						}
+					],
+					"name": "LWF_Guitarist_AcousticGuitar",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Fitted_LeatherStrap",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Guitarist_LeftPlayingArm",
+					"position": [
+						-0.168999999761581,
+						1.2150000333786,
+						-0.0160000007599592
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Guitarist_RightPlayingArm",
+					"position": [
+						0.168999999761581,
+						1.2150000333786,
+						-0.0160000026226044
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_guitarist_male_kit_v1": {
+			"animations": [
+				{
+					"length_seconds": 0.708333313465118,
+					"loop_mode": 0,
+					"name": "Animation",
+					"tracks": 1
+				}
+			],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "LWF_Guitarist_MattePalette",
+							"palette": [
+								192,
+								8
+							]
+						}
+					],
+					"name": "LWF_Guitarist_AcousticGuitar",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Fitted_LeatherStrap",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Guitarist_LeftPlayingArm",
+					"position": [
+						-0.209000006318092,
+						1.2150000333786,
+						-0.0159999988973141
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Guitarist_RightPlayingArm",
+					"position": [
+						0.209000006318092,
+						1.2150000333786,
+						-0.0160000007599592
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_maintenance_female_overlay_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Maintenance_Female_Overlay",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_maintenance_male_overlay_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Maintenance_Male_Overlay",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_medic_female_overlay_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Medic_Female_Overlay",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_medic_male_overlay_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Medic_Male_Overlay",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_performer_female_body_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Performer_BodyCore",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Performer_IdleLeftArm",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Performer_IdleRightArm",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_performer_male_body_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Performer_BodyCore",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Performer_IdleLeftArm",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				},
+				{
+					"materials": [
+						{
+							"name": "lwf_guitarist_body_palette_v1",
+							"palette": [
+								96,
+								8
+							]
+						}
+					],
+					"name": "LWF_Performer_IdleRightArm",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_sound_female_overlay_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Sound_Female_Overlay",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_sound_male_overlay_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Sound_Male_Overlay",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_steward_female_overlay_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Steward_Female_Overlay",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		},
+		"lwf_steward_male_overlay_v1": {
+			"animations": [],
+			"meshes": [
+				{
+					"materials": [
+						{
+							"name": "lwf_crew_trim_palette_v1",
+							"palette": [
+								128,
+								8
+							]
+						}
+					],
+					"name": "LWF_Steward_Male_Overlay",
+					"position": [
+						0.0,
+						0.0,
+						0.0
+					],
+					"surfaces": 1
+				}
+			],
+			"skeletons": 0
+		}
+	},
+	"engine": {
+		"build": "official",
+		"hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+		"hex": 263938,
+		"major": 4,
+		"minor": 7,
+		"patch": 2,
+		"status": "stable",
+		"string": "4.7.2-stable (official)",
+		"timestamp": 0
+	},
+	"passed": true
+}

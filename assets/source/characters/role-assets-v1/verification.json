@@ -1,0 +1,239 @@
+{
+  "lwf_medic_male_overlay_v1": {
+    "passed": true,
+    "measured_surface_clearance_m": {
+      "torso_front": {
+        "min": 0.006507299840450287,
+        "max": 0.01600024104118347,
+        "samples": 1194
+      },
+      "torso_back": {
+        "min": 0.006626546382904053,
+        "max": 0.01600024104118347,
+        "samples": 1166
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_steward_male_overlay_v1": {
+    "passed": true,
+    "measured_surface_clearance_m": {
+      "torso_front": {
+        "min": 0.006507299840450287,
+        "max": 0.017189428210258484,
+        "samples": 1638
+      },
+      "torso_back": {
+        "min": 0.006626546382904053,
+        "max": 0.017189428210258484,
+        "samples": 1610
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_maintenance_male_overlay_v1": {
+    "passed": true,
+    "measured_surface_clearance_m": {
+      "torso_front": {
+        "min": 0.00957903265953064,
+        "max": 0.08311459422111511,
+        "samples": 1544
+      },
+      "torso_back": {
+        "min": 0.0100480318069458,
+        "max": 0.012333713471889496,
+        "samples": 555
+      },
+      "knee_panels": {
+        "min": 0.007787883281707764,
+        "max": 0.009610913693904877,
+        "samples": 174
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_sound_male_overlay_v1": {
+    "passed": true,
+    "measured_surface_clearance_m": {
+      "knee_panels": {
+        "min": 0.007787883281707764,
+        "max": 0.009610913693904877,
+        "samples": 174
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_performer_male_body_v1": {
+    "passed": true,
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_guitarist_male_kit_v1": {
+    "passed": true,
+    "max_loop_vertex_displacement_m": {
+      "LWF_Guitarist_LeftPlayingArm": 0,
+      "LWF_Guitarist_RightPlayingArm": 0.01264352347833689
+    },
+    "hand_contact_nearest_distance_m": {
+      "LWF_Guitarist_LeftPlayingArm": {
+        "min": 0.0007368832011707127,
+        "max": 0.03675909712910652
+      },
+      "LWF_Guitarist_RightPlayingArm": {
+        "min": 0.0005472793127410114,
+        "max": 0.05167640373110771
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05,
+    "retained_instrument_world_coordinates_exact_at_5dp": true,
+    "retained_instrument_palette_bytes_exact": true
+  },
+  "lwf_bassist_male_kit_v1": {
+    "passed": true,
+    "max_loop_vertex_displacement_m": {
+      "LWF_Bassist_LeftPlayingArm": 0,
+      "LWF_Bassist_RightPlayingArm": 0.008660863124589293
+    },
+    "hand_contact_nearest_distance_m": {
+      "LWF_Bassist_LeftPlayingArm": {
+        "min": 0.00025342946173623204,
+        "max": 0.021418053656816483
+      },
+      "LWF_Bassist_RightPlayingArm": {
+        "min": 0.001426994800567627,
+        "max": 0.0439857542514801
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05,
+    "retained_instrument_world_coordinates_exact_at_5dp": true,
+    "retained_instrument_palette_bytes_exact": true
+  },
+  "lwf_drummer_male_kit_v1": {
+    "passed": true,
+    "max_loop_vertex_displacement_m": {
+      "LWF_Drummer_LeftPlayingArm": 0.014285873442658593,
+      "LWF_Drummer_RightPlayingArm": 0.014285873442658593
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_drum_hardware_only_v1": {
+    "passed": true,
+    "retained_instrument_world_coordinates_exact_at_5dp": true,
+    "retained_instrument_palette_bytes_exact": true
+  },
+  "lwf_medic_female_overlay_v1": {
+    "passed": true,
+    "measured_surface_clearance_m": {
+      "torso_front": {
+        "min": 0.0024353861808776855,
+        "max": 0.016184747219085693,
+        "samples": 1290
+      },
+      "torso_back": {
+        "min": 0.006782911717891693,
+        "max": 0.01615723967552185,
+        "samples": 1262
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_steward_female_overlay_v1": {
+    "passed": true,
+    "measured_surface_clearance_m": {
+      "torso_front": {
+        "min": 0.0024353861808776855,
+        "max": 0.017283760011196136,
+        "samples": 1758
+      },
+      "torso_back": {
+        "min": 0.006782911717891693,
+        "max": 0.017262935638427734,
+        "samples": 1730
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_maintenance_female_overlay_v1": {
+    "passed": true,
+    "measured_surface_clearance_m": {
+      "torso_front": {
+        "min": 0.007567301392555237,
+        "max": 0.0873018205165863,
+        "samples": 1596
+      },
+      "torso_back": {
+        "min": 0.010615073144435883,
+        "max": 0.012282967567443848,
+        "samples": 607
+      },
+      "knee_panels": {
+        "min": 0.007787808775901794,
+        "max": 0.00961083173751831,
+        "samples": 174
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_sound_female_overlay_v1": {
+    "passed": true,
+    "measured_surface_clearance_m": {
+      "knee_panels": {
+        "min": 0.007787808775901794,
+        "max": 0.00961083173751831,
+        "samples": 174
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_performer_female_body_v1": {
+    "passed": true,
+    "roundtrip_position_tolerance_m": 3e-05
+  },
+  "lwf_guitarist_female_kit_v1": {
+    "passed": true,
+    "max_loop_vertex_displacement_m": {
+      "LWF_Guitarist_LeftPlayingArm": 0,
+      "LWF_Guitarist_RightPlayingArm": 0.0120632928343407
+    },
+    "hand_contact_nearest_distance_m": {
+      "LWF_Guitarist_LeftPlayingArm": {
+        "min": 0.0007368832011707127,
+        "max": 0.03675909712910652
+      },
+      "LWF_Guitarist_RightPlayingArm": {
+        "min": 0.0005472800694406033,
+        "max": 0.05167640373110771
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05,
+    "retained_instrument_world_coordinates_exact_at_5dp": true,
+    "retained_instrument_palette_bytes_exact": true
+  },
+  "lwf_bassist_female_kit_v1": {
+    "passed": true,
+    "max_loop_vertex_displacement_m": {
+      "LWF_Bassist_LeftPlayingArm": 0,
+      "LWF_Bassist_RightPlayingArm": 0.00827860587430679
+    },
+    "hand_contact_nearest_distance_m": {
+      "LWF_Bassist_LeftPlayingArm": {
+        "min": 0.0002534769009798765,
+        "max": 0.021418053656816483
+      },
+      "LWF_Bassist_RightPlayingArm": {
+        "min": 0.001426994800567627,
+        "max": 0.0439857542514801
+      }
+    },
+    "roundtrip_position_tolerance_m": 3e-05,
+    "retained_instrument_world_coordinates_exact_at_5dp": true,
+    "retained_instrument_palette_bytes_exact": true
+  },
+  "lwf_drummer_female_kit_v1": {
+    "passed": true,
+    "max_loop_vertex_displacement_m": {
+      "LWF_Drummer_LeftPlayingArm": 0.014285873442658593,
+      "LWF_Drummer_RightPlayingArm": 0.014285885920781432
+    },
+    "roundtrip_position_tolerance_m": 3e-05
+  }
+}

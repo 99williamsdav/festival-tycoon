@@ -289,7 +289,7 @@ public sealed partial class GameSession
             var listener = _livePerformance?.Listeners.SingleOrDefault(item => item.AgentId == person.AgentId);
             var lateAct = LateReadyFestivalAct;
             var lateEnthusiasm = lateAct is null ? 0 : FestivalAffinity(person.AgentId, lateAct);
-            var waitingForBand = FestivalBandLate && listener is { AtPlace: true } && lateEnthusiasm >= 35 &&
+            var waitingForBand = BandDelayRemarkEligible && listener is { AtPlace: true } && lateEnthusiasm >= 35 &&
                 need.Intent == MedicalIntent.WatchShow && need.Stage is MedicalStage.Clear or MedicalStage.Treated &&
                 need.Thirst < MedicalDistressThirst && need.HeatExposure < MedicalDistressHeat &&
                 !(need.AgentId == _medical.AtRiskGuestId && _medical.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical) &&

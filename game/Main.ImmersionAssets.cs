@@ -59,6 +59,7 @@ public partial class Main
             _immersionHeldProducts[id] == product)
         {
             if (body.HasMeta("GuestPoseVariant")) ApplyGuestPropAnchor(body, existing, product!);
+            else if (body.HasMeta("RoleVariant")) ApplyRolePropAnchor(body, existing, product!);
             return;
         }
         RemoveImmersionHeldVisual(id);
@@ -69,6 +70,7 @@ public partial class Main
             : new Vector3(.405f, .94f, -.04f);
         body.AddChild(prop);
         if (body.HasMeta("GuestPoseVariant")) ApplyGuestPropAnchor(body, prop, product!);
+        else if (body.HasMeta("RoleVariant")) ApplyRolePropAnchor(body, prop, product!);
         _immersionHeldVisuals.Add(id, prop);
         _immersionHeldProducts.Add(id, product!);
         // intoxication/delta are reserved for caller-owned cosmetic sway. This

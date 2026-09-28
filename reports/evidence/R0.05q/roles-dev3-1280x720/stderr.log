@@ -1,0 +1,13 @@
+ERROR: ROLE_CAPTURE_FAILED System.InvalidOperationException: ROLE_CAPTURE_ASSERT Steward never physically travelled and reached the complaint.
+   at Festival.Game.Main.RoleCaptureCheck(Boolean valid, String reason) in /_/game/Main.RoleCapture.cs:line 19
+   at Festival.Game.Main.VerifyPhysicalStewardFacing() in /_/game/Main.RoleCapture.cs:line 138
+   at Festival.Game.Main.ProcessRoleCapture() in /_/game/Main.RoleCapture.cs:line 199
+   at: void Festival.Game.Main.ProcessRoleCapture() (/_/game/Main.RoleCapture.cs:199)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/GD.cs:366)
+       [1] void Festival.Game.Main.ProcessRoleCapture() (/_/game/Main.RoleCapture.cs:199)
+       [2] void Festival.Game.Main.ProcessPresentationFrame(double) (/_/game/Main.cs:312)
+       [3] void Festival.Game.Main._Process(double) (/_/game/Main.cs:252)
+       [4] bool Godot.Node.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Generated/GodotObjects/Node.cs:2654)
+       [5] bool Festival.Game.Main.InvokeGodotClassMethod(Godot.NativeInterop.godot_string_name&, Godot.NativeInterop.NativeVariantPtrArgs, Godot.NativeInterop.godot_variant&) (/_/game/.godot/mono/temp/obj/Debug/Godot.SourceGenerators/Godot.SourceGenerators.ScriptMethodsGenerator/Festival.Game.Main_ScriptMethods.generated.cs:3610)
+       [6] Godot.NativeInterop.godot_bool Godot.Bridge.CSharpInstanceBridge.Call(nint, Godot.NativeInterop.godot_string_name*, Godot.NativeInterop.godot_variant**, int, Godot.NativeInterop.godot_variant_call_error*, Godot.NativeInterop.godot_variant*) (/root/godot/modules/mono/glue/GodotSharp/GodotSharp/Core/Bridge/CSharpInstanceBridge.cs:24)

@@ -58,10 +58,30 @@ public partial class Main
             body.Rotation = new Vector3(0, .37f, 0);
             _lastPresentedPersonPositions[id] = body.Position;
             UpdatePersonFacing(id, body, body.Position, AgentNavigationAction.Arrived, false, false, 1);
-            if (Math.Abs(body.Rotation.Y - .37f) > .001f) throw new InvalidOperationException("Active duty job snapped idle: " + worker.Name);
+            if (worker.Role == ResponseRole.Steward)
+            {
+                var targetBody = _attendeeVisuals[new EntityId(medical.AtRiskGuestId)];
+                var toward = targetBody.Position - body.Position;
+                var expectedYaw = Mathf.Atan2(-toward.X, -toward.Z);
+                if (Math.Abs(Mathf.Wrap(body.Rotation.Y - expectedYaw, -Mathf.Pi, Mathf.Pi)) > .001f)
+                    throw new InvalidOperationException("Attending steward did not face the live person: " + worker.Name);
+                GD.Print($"LAYOUT_STEWARD_ATTENDING worker={worker.Name} target={medical.AtRiskGuestId} face_target=True");
+            }
+            else if (Math.Abs(body.Rotation.Y - .37f) > .001f)
+                throw new InvalidOperationException("Active duty job snapped idle: " + worker.Name);
             LayoutMedicalField.SetValue(_session, medical); LayoutDisorderField.SetValue(_session, disorder);
             if (worker.Role == ResponseRole.Steward)
             {
+                body.Rotation = new Vector3(0, .37f, 0);
+                LayoutDisorderField.SetValue(_session, worker.AgentId == disorder.SecurityId
+                    ? disorder with { ResponseStage = SecurityResponseStage.Calming, ResponseTargetId = medical.AtRiskGuestId }
+                    : disorder with { ExtraResponses = disorder.ExtraResponses.Select(r => r.WorkerId == worker.AgentId ? r with { Stage = SecurityResponseStage.Calming, TargetId = medical.AtRiskGuestId } : r).ToArray() });
+                LayoutMedicalField.SetValue(_session, medical with { Needs = medical.Needs.Select(n => n.AgentId == medical.AtRiskGuestId
+                    ? n with { Intent = MedicalIntent.Collapsed, Stage = MedicalStage.Collapsed } : n).ToArray() });
+                UpdatePersonFacing(id, body, body.Position, AgentNavigationAction.Arrived, false, false, 1);
+                if (Math.Abs(body.Rotation.Y - .37f) > .001f) throw new InvalidOperationException("Collapsed target still controlled steward facing.");
+                LayoutMedicalField.SetValue(_session, medical); LayoutDisorderField.SetValue(_session, disorder);
+                GD.Print($"LAYOUT_STEWARD_INVALID_TARGET worker={worker.Name} collapsed_target_ignored=True");
                 LayoutDisorderField.SetValue(_session, worker.AgentId == disorder.SecurityId
                     ? disorder with { SecurityIncapacitated = true, ResponseStage = SecurityResponseStage.Failed }
                     : disorder with { ExtraResponses = disorder.ExtraResponses.Select(r => r.WorkerId == worker.AgentId ? r with { Incapacitated = true, Stage = SecurityResponseStage.Failed } : r).ToArray() });

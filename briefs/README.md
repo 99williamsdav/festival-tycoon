@@ -18,6 +18,10 @@ Accept each result using its checks and short demonstration before assigning the
 |---|---|---|
 | 1 | [M0.01 — Toolchain](M0.01-toolchain.md) | Buildable projects and launchable Windows shell |
 
+## Development save policy
+
+User-approved 28 September 2026: no legacy-save support or migrations are required. The [active development save policy](../ROGUELIKE_DESIGN.md#development-save-policy--approved-28-september-2026) overrides historical brief requirements. Version/reject unsupported saves without deleting files automatically. Use minimal current-version save/load checks; keep campaign reset, Council retry and atomic current gameplay transactions correct. Defer historical compatibility gates, polished recovery/slots and exhaustive disk-failure matrices; broader persistence tests belong at milestones. Do not remove harmless old compatibility code/tests solely as cleanup.
+
 ## Shared execution rules
 
 1. For R0, product rules live in `ROGUELIKE_DESIGN.md` and the assigned R0 brief; compatible architecture remains in `TECHNICAL_SPEC.md`. `GAME_DESIGN_SPEC.md`, `CONTENT_AND_BALANCE.md` and M1 are historical inputs where the pivot conflicts. Historical discovery notes are not a competing task list.
