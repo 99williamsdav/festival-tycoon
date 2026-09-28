@@ -18,7 +18,7 @@ public sealed partial class GameSession
     });
     private bool IsImmersionMedic(ulong id) => GetMedicResponses().Any(job => job.WorkerId == id);
     private bool ImmersionDepartureJobOwns(ulong id) => PersonCollapsed(id) ||
-        _immersion?.Toilet?.OwnerId == id ||
+        EffectiveToilets(_immersion).Any(toilet => toilet.OwnerId == id) ||
         GetMedicResponses().Any(job => MedicBusy(job) && (job.WorkerId == id || job.PatientId == id)) ||
         _disorder?.People.Any(person => person.AgentId == id && person.Stage == DisorderStage.Injured) == true;
     private bool ImmersionCanMarkDeparted(ulong id, int index)

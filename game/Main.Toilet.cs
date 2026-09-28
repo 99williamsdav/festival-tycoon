@@ -15,7 +15,11 @@ public partial class Main
     private Node3D? _toiletFreeIndicator;
     private Node3D? _toiletOccupiedIndicator;
     private readonly HashSet<ulong> _toiletPickIds = [];
+    private readonly Dictionary<ulong, string> _toiletPickOwners = [];
+    private sealed record ToiletView(StaticBody3D Body, Node3D Door, Node3D Free, Node3D Occupied);
+    private readonly Dictionary<string, ToiletView> _toiletViews = [];
     private bool _selectedToilet;
+    private string? _selectedToiletId;
     private Button? _toiletMoveButton;
     private bool _movingToilet;
     private int _toiletQuarterTurns;
@@ -28,7 +32,7 @@ public partial class Main
     private static Node3D RequireToiletNode(Node3D root, string name) =>
         root.FindChild(name, true, false) as Node3D ?? throw new InvalidOperationException("Approved portaloo node missing: " + name);
 
-    private void AddToiletCollision(StaticBody3D body)
+    private void AddToiletCollision(StaticBody3D body, Node3D doorPivot, string id)
     {
         // Disjoint shell boxes keep the measured doorway/interior open. The moving
         // door has its own body under DoorPivot, never part of a static hull.
@@ -45,43 +49,56 @@ public partial class Main
             (new(0,.275f,.465f),new(1.12f,.39f,.45f)),
         }) body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size }, Position = centre });
         var door = new StaticBody3D { CollisionLayer = 1, CollisionMask = 0, Name = "PortalooDoorPick" };
-        _toiletDoorPivot!.AddChild(door);
+        doorPivot.AddChild(door);
         door.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new(.9f,2.032f,.035f) },
             Position = new(-.45f,1.024f,0) });
         _toiletPickIds.Add(body.GetInstanceId());
         _toiletPickIds.Add(door.GetInstanceId());
+        _toiletPickOwners[body.GetInstanceId()] = id;
+        _toiletPickOwners[door.GetInstanceId()] = id;
     }
 
     private void SyncToiletWorld()
     {
-        var toilet = _session.CaptureToilet();
-        if (toilet is null)
+        var toilets = _session.CaptureToilets();
+        foreach (var stale in _toiletViews.Keys.Except(toilets.Select(item => item.Id)).ToArray())
         {
-            if (_toiletBody is not null) { _toiletBody.Visible = false; _toiletBody.QueueFree(); }
-            _toiletBody = null; _toiletPickIds.Clear();
-            return;
+            var view = _toiletViews[stale];
+            foreach (var key in _toiletPickOwners.Where(pair => pair.Value == stale).Select(pair => pair.Key).ToArray())
+            { _toiletPickOwners.Remove(key); _toiletPickIds.Remove(key); }
+            view.Body.QueueFree(); _toiletViews.Remove(stale);
         }
-        if (_toiletBody is null)
+        foreach (var toilet in toilets)
         {
-            _toiletBody = new StaticBody3D { Name = "OwnedPortaloo", CollisionLayer = 1, CollisionMask = 0 };
-            var visual = InstantiateAsset(ToiletAsset);
-            _toiletBody.AddChild(visual);
-            _toiletDoorPivot = RequireToiletNode(visual, "DoorPivot");
-            var socket = RequireToiletNode(visual, "OccupancySocket");
-            _toiletFreeIndicator = RequireToiletNode(visual, "IndicatorFree");
-            _toiletOccupiedIndicator = InstantiateAsset(OccupiedIndicatorAsset);
-            socket.AddChild(_toiletOccupiedIndicator);
-            AddChild(_toiletBody);
-            AddToiletCollision(_toiletBody);
-            var name = BuildingName("TOILET", new Vector3(0, 2.8f, 0));
-            name.FontSize = 54; name.PixelSize = .009f;
-            _toiletBody.AddChild(name);
+            if (!_toiletViews.TryGetValue(toilet.Id, out var view))
+            {
+                var body = new StaticBody3D { Name = "OwnedPortaloo-" + toilet.Id, CollisionLayer = 1, CollisionMask = 0 };
+                var visual = InstantiateAsset(ToiletAsset);
+                body.AddChild(visual);
+                var door = RequireToiletNode(visual, "DoorPivot");
+                var socket = RequireToiletNode(visual, "OccupancySocket");
+                var free = RequireToiletNode(visual, "IndicatorFree");
+                var occupied = InstantiateAsset(OccupiedIndicatorAsset);
+                socket.AddChild(occupied);
+                AddChild(body);
+                AddToiletCollision(body, door, toilet.Id);
+                var name = BuildingName("TOILET", new Vector3(0, 2.8f, 0));
+                name.FontSize = 54; name.PixelSize = .009f;
+                body.AddChild(name);
+                view = new(body, door, free, occupied); _toiletViews.Add(toilet.Id, view);
+            }
+            view.Body.Position = ImmersionPosition(toilet.Cell);
+            view.Body.RotationDegrees = new Vector3(0, toilet.QuarterTurns * 90, 0);
+            view.Door.RotationDegrees = new Vector3(0, toilet.DoorOpen ? -110 : 0, 0);
+            view.Free.Visible = toilet.OwnerId is null && toilet.InterruptedOccupantId is null && !toilet.IsFull;
+            view.Occupied.Visible = !view.Free.Visible;
         }
-        _toiletBody.Position = ImmersionPosition(toilet.Cell);
-        _toiletBody.RotationDegrees = new Vector3(0, toilet.QuarterTurns * 90, 0);
-        _toiletDoorPivot!.RotationDegrees = new Vector3(0, toilet.DoorOpen ? -110 : 0, 0);
-        _toiletFreeIndicator!.Visible = toilet.OwnerId is null && toilet.InterruptedOccupantId is null && !toilet.IsFull;
-        _toiletOccupiedIndicator!.Visible = !_toiletFreeIndicator.Visible;
+        var primary = toilets.FirstOrDefault();
+        var primaryView = primary is null ? null : _toiletViews[primary.Id];
+        _toiletBody = primaryView?.Body;
+        _toiletDoorPivot = primaryView?.Door;
+        _toiletFreeIndicator = primaryView?.Free;
+        _toiletOccupiedIndicator = primaryView?.Occupied;
         RefreshToiletInspector();
     }
 
@@ -98,9 +115,9 @@ public partial class Main
         parent.AddChild(_toiletMoveButton);
     }
 
-    private void SelectToilet()
+    private void SelectToilet(string? id = null)
     {
-        ClearSelection(); _selectedToilet = true; RefreshToiletInspector();
+        ClearSelection(); _selectedToilet = true; _selectedToiletId = id ?? _session.CaptureToilet()?.Id; RefreshToiletInspector();
     }
 
     private void RefreshToiletInspector()
@@ -109,7 +126,8 @@ public partial class Main
         if (_toiletMoveButton is null) return;
         _toiletMoveButton.Visible = _selectedToilet && _session.PreparedStatus == PreparationStatus.Preparing;
         _toiletMoveButton.Text = _movingToilet ? "Cancel move" : "Move";
-        if (!_selectedToilet || _toiletBody is null || _session.CaptureToilet() is not { } toilet) return;
+        if (!_selectedToilet || _selectedToiletId is null || !_toiletViews.TryGetValue(_selectedToiletId, out var selectedView) ||
+            _session.CaptureToilets().SingleOrDefault(item => item.Id == _selectedToiletId) is not { } toilet) return;
         _inspectorTitle.Text = "Portaloo • owned";
         _inspectorBody.Text = $"{(toilet.InterruptedOccupantId is { } interrupted ?
             $"Unavailable • {_session.CapturePreparation()!.People.Single(p => p.AgentId == interrupted).Name} needs a clear exit" :
@@ -119,12 +137,13 @@ public partial class Main
             $"\nWees {toilet.WeeCount} • poos {toilet.PooCount} • queue {toilet.Queue.Length}" +
             $"\nFacing {toilet.QuarterTurns * 90}° • preparation placement only" +
             "\nSmell rises with waste; containment is a future upgrade hook.";
-        _highlight.Position = _toiletBody.Position + new Vector3(0, .08f, 0);
+        _highlight.Position = selectedView.Body.Position + new Vector3(0, .08f, 0);
         _highlight.Scale = new Vector3(1.3f, 1, 1.5f); _highlight.Visible = true;
     }
 
     private void BeginToiletPlacement()
     {
+        if (_session.BuildModeEnabled) { BeginBuildPlacement(BuildServiceKind.Toilet, _selectedToiletId); return; }
         if (_session.PreparedStatus != PreparationStatus.Preparing || _session.CaptureToilet() is not { } toilet) return;
         CancelWaterPlacement(); CancelImmersionPlacement(); CancelResponsePostPlacement(); CancelToiletPlacement();
         ClearSelection(); _selectedToilet = true;

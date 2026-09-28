@@ -113,6 +113,7 @@ public partial class Main
         topRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
         _hudAlertToggle = ButtonText("Alerts · 0", () => { _hudAlerts!.Visible = !_hudAlerts.Visible; }); topRow.AddChild(_hudAlertToggle);
         _hudPause = ButtonText("Pause", () => { _session.Execute(CampaignEnvelope(new SetPausedCommand(!_session.IsPaused))); RefreshPreparationHud(); }); topRow.AddChild(_hudPause);
+        if (_session.BuildModeEnabled) { _buildToggleButton = ButtonText("Build", ToggleBuildDrawer); topRow.AddChild(_buildToggleButton); }
         topRow.AddChild(ButtonText("Menu", () => { _hudMenu!.Visible = !_hudMenu.Visible; }));
 
         var workspaceWidth = width >= 1600 ? 690 : 650;
@@ -121,7 +122,8 @@ public partial class Main
         var workspaceBox = new VBoxContainer(); workspaceBox.AddThemeConstantOverride("separation", 12); _hudWorkspace.AddChild(workspaceBox);
         var heading = new HBoxContainer(); workspaceBox.AddChild(heading);
         var title = HudLabel("Prepare the festival", 25); title.AddThemeFontOverride("font", HearingSerif()); heading.AddChild(title);
-        heading.AddChild(ButtonText("Collapse preparation", () => { _hudWorkspaceOpen = false; RefreshHudWorkspace(); }));
+        var collapsePreparation = ButtonText("×", () => { _hudWorkspaceOpen = false; RefreshHudWorkspace(); });
+        collapsePreparation.TooltipText = "Collapse preparation"; heading.AddChild(collapsePreparation);
         _hudTabs = new TabContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill }; workspaceBox.AddChild(_hudTabs);
         if (_session.CapturePreparation()?.LineupReactionsVersion == 1) _hudTabs.UseHiddenTabsForMinSize = false;
         foreach (var name in new[] { "Overview", "Programme", "Staff", "Equipment", "Stock", "Site & water" })
@@ -246,7 +248,7 @@ public partial class Main
         _preparationRosterScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _hudRoster.AddChild(_preparationRosterScroll);
         _preparationPeople = HudLabel("", 13); _preparationPeople.CustomMinimumSize = new Vector2(300, 0); _preparationRosterScroll.AddChild(_preparationPeople);
         var bottom = new HBoxContainer { Position = new Vector2(15, height - 50), Theme = HudTheme() }; layer.AddChild(bottom);
-        _hudPreparationToggle = ButtonText("Preparation ▾", () => { _hudWorkspaceOpen = !_hudWorkspaceOpen; RefreshHudWorkspace(); }); bottom.AddChild(_hudPreparationToggle);
+        _hudPreparationToggle = ButtonText("Preparation ▾", () => { _buildDrawerOpen = false; _hudWorkspaceOpen = !_hudWorkspaceOpen; RefreshHudWorkspace(); }); bottom.AddChild(_hudPreparationToggle);
         _hudRosterToggle = ButtonText("People ▸", () => { _hudRoster.Visible = !_hudRoster.Visible; }); bottom.AddChild(_hudRosterToggle);
         bottom.AddChild(ButtonText("Rotate view", () => Rotate(1)));
         _orientationLabel = HudLabel("", 12); _orientationLabel.Visible = false; bottom.AddChild(_orientationLabel);
@@ -254,7 +256,7 @@ public partial class Main
         statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
         _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
         BuildPerkHud(layer);
-        BuildHearingHud(layer); RefreshPreparationHud();
+        BuildHearingHud(layer); BuildBuildDrawer(layer, size); RefreshPreparationHud();
     }
 
     private static void ConstrainHudControls(Node root)
@@ -274,11 +276,12 @@ public partial class Main
     private void SelectHudTab(string name)
     {
         if (_hudTabs is null) return;
-        _hudWorkspaceOpen = true; _hudTabs.CurrentTab = Array.IndexOf(_hudPages.Keys.ToArray(), name); RefreshHudWorkspace();
+        _buildDrawerOpen = false; _hudWorkspaceOpen = true; _hudTabs.CurrentTab = Array.IndexOf(_hudPages.Keys.ToArray(), name); RefreshHudWorkspace();
     }
 
     private void ShowHudStartConfirmation()
     {
+        if (_buildGhostKind is not null) { _preparationMessage = "Finish or cancel placement before opening."; RefreshPreparationHud(); return; }
         var issue = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand()));
         if (issue is not null) { _preparationMessage = issue.Message; RefreshPreparationHud(); return; }
         _hudStartConfirmation!.PopupCentered(new Vector2I(480, 180));
@@ -290,7 +293,7 @@ public partial class Main
     {
         if (_hudMoney is null || _session.CapturePreparation() is not { } p) return;
         var preparing = p.Status == PreparationStatus.Preparing;
-        var placing = _movingResponsePost is not null || _placingImmersionVendor is not null || _movingToilet || _waterPlacementMode != WaterPlacementMode.None;
+        var placing = _movingResponsePost is not null || _placingImmersionVendor is not null || _movingToilet || _waterPlacementMode != WaterPlacementMode.None || _buildGhostKind is not null;
         if (placing) _hudWorkspaceOpen = false;
         var finance = _session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);
         _hudPhase!.Text = $"Lower Wittering\n{(preparing ? "PREPARATION · BEFORE OPENING" : "LIVE · FESTIVAL DAY")}";
@@ -302,14 +305,18 @@ public partial class Main
         _hudPause!.Visible = !preparing; _hudPause.Text = _preparationSaveBlocked ? "Save blocked" : _session.IsPaused ? "Resume" : "Pause";
         _hudPause.TooltipText = _preparationSaveBlocked ? "Simulation paused until the pending save succeeds. Open Menu → Retry save." : "Pause / resume (Space)";
         _hudStatus!.Text = placing && !_preparationSaveBlocked ? "Placement preview · no change until a valid click" : _preparationMessage;
+        if (_buildGhostKind is not null && !_preparationSaveBlocked) _hudStatus.Text = _preparationMessage;
         if (p.Status == PreparationStatus.Departing && !_preparationSaveBlocked)
             _hudStatus.Text = $"Festival finished · Guests leaving: {p.People.Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed)}";
         _hudStatus.TooltipText = _preparationMessage;
         _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
+        if (_buildToggleButton is not null) _buildToggleButton.Visible = preparing;
+        if (_buildDrawer is not null) _buildDrawer.Visible = preparing && _buildDrawerOpen && !placing && _session.CapturePerks()?.Pending != true;
+        if (_buildBudgetFooter is not null) _buildBudgetFooter.Visible = preparing && _session.CapturePerks()?.Pending != true;
         LayoutOwnedPerkWorkspace();
         _hudPreparationToggle!.Visible = preparing; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
         _hudRosterToggle!.Text = $"People · {p.People.Length} ▸";
-        _hudPlacement!.Visible = placing;
+        _hudPlacement!.Visible = placing && _buildGhostKind is null;
         _hudPlacementText!.Text = $"{(_movingResponsePost is {} postRole?postRole==ResponseRole.Medic?"Moving first aid":"Moving steward post":_placingImmersionVendor is { } id ? "Moving " + (id == "food" ? "food van" : "bar") : _movingToilet ? "Moving toilet" : _waterPlacementMode == WaterPlacementMode.Add ? "Adding free-water tap" : "Moving free-water tap")}\nChoose grass · click to place · comma/period rotate · Esc cancels";
         _hudProgrammeToggle!.Visible = !preparing; _hudProgramme!.Visible = !preparing && _hudProgrammeOpen;
         _hudProgrammeToggle.Text = _hudProgrammeOpen ? "Programme ▴" : "Programme ▾";
@@ -325,6 +332,8 @@ public partial class Main
             var costs = $"Available {FestivalCurrency.Format(funds)} • Setup {FestivalCurrency.Format(_session.PreparationPlanCost)} • Remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}";
             _hudStartReason.Text = costs + "\n" + _hudStartReason.Text;
             _hudStartConfirmation!.DialogText = costs + "\nPay the complete setup once and open for the full fixed roster.";
+            if (_session.BuildModeEnabled)
+                _hudStartConfirmation.DialogText = BuildStartCostSummary() + "\nPay this complete setup once and open the festival?";
         }
         RefreshHudPreparationReadiness();
         if (_bookingLane is not null)
@@ -364,6 +373,7 @@ public partial class Main
             if (_disorderButtons.TryGetValue(DisorderAction.DispatchSecurity, out var stewardButton)) stewardButton.Text = "Send steward";
         }
         RefreshHudAlerts();
+        RefreshBuildDrawer();
     }
 
     private void RefreshHudPreparationReadiness()
@@ -442,7 +452,7 @@ public partial class Main
         if(_ownedEffectPopup?.Visible==true && _ownedEffectPopup.GetGlobalRect().HasPoint(screen))return true;
         if (_hudMoney is null) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
         if (screen.Y < 60 || screen.Y > GetViewport().GetVisibleRect().Size.Y - 54) return true;
-        return new Control?[] { _hudWorkspace, _hudMenu, _hudPlacement, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
+        return new Control?[] { _hudWorkspace, _buildDrawer, _buildBudgetFooter, _hudMenu, _hudPlacement, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
             .Any(control => control?.IsVisibleInTree() == true && control.GetGlobalRect().HasPoint(screen));
     }
 }

@@ -85,6 +85,7 @@ public sealed partial class GameSession
         new(110, 158), new(111, 160), new(112, 162), new(113, 164), new(114, 166)
     ];
     private IReadOnlyList<WaterPointState> WaterPoints() => _medical is not { } m ? [] :
+        _preparation?.BuildModeEnabled == true && !_preparation.BuildPlacements.Any(item => item.Id == "water.main") ? m.ExtraWaterPoints :
         [new WaterPointState("water.main", m.MainWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks)
             { QuarterTurns = m.MainWaterQuarterTurns, GeometryVersion = m.MainWaterGeometryVersion, QueueCells = m.MainWaterQueueCells }, .. m.ExtraWaterPoints];
     public IReadOnlyList<WaterPointState> CaptureWaterPoints() => WaterPoints().Select(point =>

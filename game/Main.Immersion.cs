@@ -224,6 +224,13 @@ public partial class Main
             _immersionVendors.Clear(); _immersionVendorPicks.Clear(); ResetImmersionHeldVisuals();
             return;
         }
+        foreach (var stale in _immersionVendors.Keys.Except(state.Vendors.Select(vendor => vendor.Id)).ToArray())
+        {
+            var body = _immersionVendors[stale];
+            _immersionVendorPicks.Remove(body.GetInstanceId());
+            body.QueueFree();
+            _immersionVendors.Remove(stale);
+        }
         foreach (var vendor in state.Vendors)
         {
             if (!_immersionVendors.TryGetValue(vendor.Id, out var body))
@@ -241,6 +248,7 @@ public partial class Main
 
     private void BeginImmersionPlacement(string id)
     {
+        if (_session.BuildModeEnabled) { BeginBuildPlacement(id == "food" ? BuildServiceKind.FoodVan : BuildServiceKind.Bar, id); return; }
         if (_session.PreparedStatus != PreparationStatus.Preparing || _session.CaptureImmersion() is not { } state) return;
         CancelWaterPlacement(); CancelImmersionPlacement(); ClearSelection();
         CancelResponsePostPlacement();

@@ -40,9 +40,16 @@ public sealed record MoveToiletCommand(GridCell Cell, int QuarterTurns = 0) : Se
 
 public sealed partial class GameSession
 {
-    private void SetToilet(ToiletFacility toilet) => _immersion = _immersion! with { Toilet = toilet };
+    private static IEnumerable<ToiletFacility> EffectiveToilets(ImmersionSnapshot? immersion) =>
+        (immersion?.Toilet is { } main ? new[] { main } : []).Concat(immersion?.ExtraToilets ?? []);
+    private ToiletFacility GetToilet(string id) => EffectiveToilets(_immersion).Single(item => item.Id == id);
+    private void SetToilet(ToiletFacility toilet) => _immersion = toilet.Id == "toilet.main"
+        ? _immersion! with { Toilet = toilet }
+        : _immersion! with { ExtraToilets = (_immersion.ExtraToilets ?? []).Select(item => item.Id == toilet.Id ? toilet : item).ToArray() };
     private bool ToiletOwnsNavigation(ulong id) => _immersion?.People.Any(p => p.AgentId == id && p.ToiletStage != ToiletVisitStage.None) == true;
-    public ToiletFacility? CaptureToilet() => _immersion?.Toilet is { } toilet ? toilet with { Queue = toilet.Queue.ToArray() } : null;
+    public ToiletFacility? CaptureToilet() => CaptureToilets().FirstOrDefault();
+    public IReadOnlyList<ToiletFacility> CaptureToilets() => EffectiveToilets(_immersion)
+        .Select(toilet => toilet with { Queue = toilet.Queue.ToArray() }).ToArray();
 
     public static GridCell ToiletInsideCell(ToiletFacility toilet) => toilet.Cell;
     public static GridCell ToiletQueueCell(ToiletFacility toilet, int index)
@@ -95,6 +102,8 @@ public sealed partial class GameSession
         var reserved = new HashSet<GridCell>();
         foreach (var vendor in _immersion.Vendors)
             foreach (var cell in ImmersionFootprint(vendor).Concat(LooseQueueGeometry.Corridor(VendorQueueCells(vendor, _immersion)))) reserved.Add(cell);
+        foreach (var other in EffectiveToilets(_immersion).Where(item => item.Id != proposed.Id))
+            foreach (var cell in ToiletReservedCells(other).Append(ToiletQueueCell(other, 0)).Append(ToiletExitCell(other))) reserved.Add(cell);
         foreach (var water in WaterPoints())
         {
             for (var x = water.Cell.X - 3; x <= water.Cell.X + 3; x++)
@@ -118,11 +127,15 @@ public sealed partial class GameSession
             if (!terrain.Contains(cell) || !terrain.Get(cell).IsWalkable || reserved.Contains(cell))
                 return "Toilet footprint, door sweep or approach overlaps terrain, a service or a protected route.";
         var blocked = terrain.Overrides.ToDictionary(pair => pair.Key, pair => pair.Value);
-        foreach (var cell in _immersion.Vendors.SelectMany(ImmersionFootprint).Concat(ToiletSolidCells(proposed)))
+        foreach (var cell in _immersion.Vendors.SelectMany(ImmersionFootprint)
+                     .Concat(EffectiveToilets(_immersion).Where(item => item.Id != proposed.Id).SelectMany(ToiletSolidCells))
+                     .Concat(ToiletSolidCells(proposed)))
             blocked[cell] = new(cell, GroundSurface.Grass, false);
         var grid = new TraversalGrid(blocked.Values);
         foreach (var destination in _immersion.Vendors.Select(ImmersionServiceCell).Concat(WaterPoints().Select(WaterPointServiceCell))
-                     .Append(MedicalRestCell).Append(ToiletInsideCell(proposed)).Append(ToiletQueueCell(proposed, 0)))
+                     .Append(MedicalRestCell).Concat(EffectiveToilets(_immersion).Where(item => item.Id != proposed.Id)
+                         .SelectMany(item => new[] { ToiletInsideCell(item), ToiletQueueCell(item, 0) }))
+                     .Append(ToiletInsideCell(proposed)).Append(ToiletQueueCell(proposed, 0)))
             if (!DeterministicPathfinder.FindPath(grid, MedicalExitCell, destination).Found)
                 return "Toilet would block an essential route or its own open entrance.";
         return null;
@@ -143,9 +156,9 @@ public sealed partial class GameSession
 
     private void BlockToilet()
     {
-        if (_immersion?.Toilet is not { } toilet || _traversalGrid is null) return;
+        if (_immersion is null || _traversalGrid is null) return;
         var terrain = _traversalGrid.Overrides.ToDictionary(pair => pair.Key, pair => pair.Value);
-        foreach (var cell in ToiletSolidCells(toilet)) terrain[cell] = new(cell, GroundSurface.Grass, false);
+        foreach (var cell in EffectiveToilets(_immersion).SelectMany(ToiletSolidCells)) terrain[cell] = new(cell, GroundSurface.Grass, false);
         _traversalGrid = new TraversalGrid(terrain.Values);
     }
 
@@ -154,18 +167,43 @@ public sealed partial class GameSession
 
     private void ReleaseToiletPerson(ulong id, bool returnToListening)
     {
-        var toilet = _immersion!.Toilet!;
+        var person = _immersion!.People.Single(p => p.AgentId == id);
+        var toilet = GetToilet(person.ToiletId ?? "toilet.main");
         SetToilet(toilet with { Queue = toilet.Queue.Where(member => member != id).ToArray(),
             OwnerId = toilet.OwnerId == id ? null : toilet.OwnerId, DoorOpen = toilet.OwnerId == id ? false : toilet.DoorOpen,
             ServiceTicks = toilet.OwnerId == id ? 0 : toilet.ServiceTicks });
-        var person = _immersion.People.Single(p => p.AgentId == id);
-        SetImmersionPerson(person with { ToiletStage = ToiletVisitStage.None, ToiletChoice = null });
+        SetImmersionPerson(person with { ToiletStage = ToiletVisitStage.None, ToiletChoice = null, ToiletId = null });
         if (returnToListening) ReturnToListening(id);
     }
 
     private void AdvanceToilet()
     {
-        if (_immersion?.Toilet is not { } toilet || _preparation is not { } prep || !MedicalOperationsActive) return;
+        if (_immersion is null || _preparation is null || !MedicalOperationsActive) return;
+        foreach (var facility in EffectiveToilets(_immersion).ToArray())
+            AdvanceSingleToilet(GetToilet(facility.Id));
+        ApplyToiletSmell();
+    }
+
+    private ToiletFacility? BestToiletFor(ulong agentId, ToiletVisitKind kind)
+    {
+        var nav = _navigationAgents[new(agentId)];
+        return EffectiveToilets(_immersion)
+            .Where(toilet => !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind) &&
+                toilet.Queue.Length + _immersion!.People.Count(person => person.ToiletId == toilet.Id && person.ToiletStage == ToiletVisitStage.Approaching) < ToiletRules.MaximumQueue)
+            .OrderBy(toilet =>
+            {
+                var centre = TraversalGrid.CellCentre(ToiletQueueCell(toilet, 0));
+                var dx = (long)nav.XMillimetres - centre.XMillimetres;
+                var dz = (long)nav.ZMillimetres - centre.ZMillimetres;
+                return dx * dx + dz * dz + (long)toilet.Queue.Length * 4_000_000;
+            })
+            .ThenBy(toilet => toilet.Id, StringComparer.Ordinal)
+            .FirstOrDefault(toilet => MedicalRouteExists(agentId, ToiletQueueCell(toilet, toilet.Queue.Length)));
+    }
+
+    private void AdvanceSingleToilet(ToiletFacility toilet)
+    {
+        var prep = _preparation!;
         if (toilet.InterruptedOccupantId is { } interrupted)
         {
             var nav = _navigationAgents[new(interrupted)];
@@ -176,11 +214,11 @@ public sealed partial class GameSession
                 dx * dx + dz * dz > 2_500_000)
             {
                 SetToilet(toilet with { InterruptedOccupantId = null, DoorOpen = false });
-                toilet = _immersion.Toilet!;
+                toilet = GetToilet(toilet.Id);
             }
         }
         var running = prep.Status == PreparationStatus.Running;
-        for (var personIndex = 0; personIndex < _immersion.People.Length; personIndex++)
+        for (var personIndex = 0; personIndex < _immersion!.People.Length; personIndex++)
         {
             if (prep.People[personIndex].Departed) continue;
             var person = _immersion.People[personIndex];
@@ -194,19 +232,19 @@ public sealed partial class GameSession
                     _medical!.Needs.Single(p => p.AgentId == person.AgentId).Intent != MedicalIntent.WatchShow ||
                     _livePerformance?.Performers.Any(p => p.AgentId == person.AgentId && (p.OnStage || p.InstrumentAttached)) == true)
                     continue;
-                if (_immersion.People.Count(p => p.ToiletStage != ToiletVisitStage.None) >= ToiletRules.MaximumQueue ||
-                    !toilet.CanAccept(ChooseToiletVisit(person))) continue;
+                var choice = ChooseToiletVisit(person);
+                if (BestToiletFor(person.AgentId, choice)?.Id != toilet.Id) continue;
                 var queueCell = ToiletQueueCell(toilet, toilet.Queue.Length);
-                if (!MedicalRouteExists(person.AgentId, queueCell)) continue;
                 SetImmersionPerson(person with { ToiletStage = ToiletVisitStage.Approaching,
-                    ToiletChoice = ChooseToiletVisit(person) });
+                    ToiletChoice = choice, ToiletId = toilet.Id });
                 ApplyAgentDestination(new(person.AgentId), new(queueCell, "toilet.approach"));
                 continue;
             }
+            if ((person.ToiletId ?? "toilet.main") != toilet.Id) continue;
             var nav = _navigationAgents[new(person.AgentId)];
             if (person.ToiletStage is ToiletVisitStage.Approaching or ToiletVisitStage.Queued &&
                 (!running || toilet.IsFull || nav.IntentId?.StartsWith("toilet.", StringComparison.Ordinal) != true))
-            { ReleaseToiletPerson(person.AgentId, running && nav.IntentId?.StartsWith("toilet.", StringComparison.Ordinal) == true); toilet = _immersion.Toilet!; continue; }
+            { ReleaseToiletPerson(person.AgentId, running && nav.IntentId?.StartsWith("toilet.", StringComparison.Ordinal) == true); toilet = GetToilet(toilet.Id); continue; }
             if (person.ToiletStage == ToiletVisitStage.Approaching && nav.Action == AgentNavigationAction.Arrived &&
                 nav.IntentId == "toilet.approach" && toilet.Queue.Length < ToiletRules.MaximumQueue)
             {
@@ -214,18 +252,18 @@ public sealed partial class GameSession
                 SetToilet(toilet); SetImmersionPerson(person with { ToiletStage = ToiletVisitStage.Queued });
             }
         }
-        toilet = _immersion.Toilet!;
+        toilet = GetToilet(toilet.Id);
         if (toilet.OwnerId is null && toilet.Queue.Length == 0 &&
-            !_immersion.People.Any(p => p.ToiletStage == ToiletVisitStage.Approaching))
-        { ApplyToiletSmell(); return; }
+            !_immersion.People.Any(p => (p.ToiletId ?? "toilet.main") == toilet.Id && p.ToiletStage == ToiletVisitStage.Approaching))
+            return;
         if (!running)
         {
             foreach (var id in toilet.Queue.Where(id => id != toilet.OwnerId).ToArray()) ReleaseToiletPerson(id, false);
-            toilet = _immersion.Toilet!;
+            toilet = GetToilet(toilet.Id);
         }
-        foreach (var person in _immersion.People.Where(p => p.ToiletStage == ToiletVisitStage.Approaching).OrderBy(p => p.AgentId))
+        foreach (var person in _immersion.People.Where(p => (p.ToiletId ?? "toilet.main") == toilet.Id && p.ToiletStage == ToiletVisitStage.Approaching).OrderBy(p => p.AgentId))
         {
-            var index = Math.Min(toilet.Queue.Length + _immersion.People.Count(p => p.ToiletStage == ToiletVisitStage.Approaching && p.AgentId < person.AgentId), ToiletRules.MaximumQueue - 1);
+            var index = Math.Min(toilet.Queue.Length + _immersion.People.Count(p => (p.ToiletId ?? "toilet.main") == toilet.Id && p.ToiletStage == ToiletVisitStage.Approaching && p.AgentId < person.AgentId), ToiletRules.MaximumQueue - 1);
             var cell = ToiletQueueCell(toilet, index);
             if (_navigationAgents[new(person.AgentId)].Destination != cell)
                 ApplyAgentDestination(new(person.AgentId), new(cell, "toilet.approach"));
@@ -238,13 +276,13 @@ public sealed partial class GameSession
             if (_navigationAgents[new(id)].Destination != cell)
                 ApplyAgentDestination(new(id), new(cell, "toilet.queue"));
         }
-        toilet = _immersion.Toilet!;
+        toilet = GetToilet(toilet.Id);
         if (running && !toilet.IsFull && toilet.InterruptedOccupantId is null &&
             toilet.OwnerId is null && toilet.Queue.Length > 0)
         {
             var id = toilet.Queue[0]; var nav = _navigationAgents[new(id)];
             if (!toilet.CanAccept(_immersion.People.Single(p => p.AgentId == id).ToiletChoice!.Value))
-            { ReleaseToiletPerson(id, true); ApplyToiletSmell(); return; }
+            { ReleaseToiletPerson(id, true); return; }
             if (nav.Action == AgentNavigationAction.Arrived && nav.Destination == ToiletQueueCell(toilet, 0))
             {
                 SetToilet(toilet with { OwnerId = id, DoorOpen = true });
@@ -252,8 +290,8 @@ public sealed partial class GameSession
                 ApplyAgentDestination(new(id), new(ToiletInsideCell(toilet), "toilet.enter"));
             }
         }
-        toilet = _immersion.Toilet!;
-        if (toilet.OwnerId is not { } owner) { ApplyToiletSmell(); return; }
+        toilet = GetToilet(toilet.Id);
+        if (toilet.OwnerId is not { } owner) return;
         var active = _immersion.People.Single(p => p.AgentId == owner);
         var activeNav = _navigationAgents[new(owner)];
         if (running && active.ToiletStage is ToiletVisitStage.Entering or ToiletVisitStage.Leaving &&
@@ -294,22 +332,21 @@ public sealed partial class GameSession
             var dz = (long)activeNav.ZMillimetres - centre.ZMillimetres;
             if (dx * dx + dz * dz > 2_500_000) ReleaseToiletPerson(owner, false);
         }
-        ApplyToiletSmell();
     }
 
     private void InterruptToiletOwner(ulong id)
     {
-        var toilet = _immersion!.Toilet!;
+        var person = _immersion!.People.Single(item => item.AgentId == id);
+        var toilet = GetToilet(person.ToiletId ?? "toilet.main");
         SetToilet(toilet with { Queue = toilet.Queue.Where(member => member != id).ToArray(),
             OwnerId = null, InterruptedOccupantId = id, DoorOpen = true, ServiceTicks = 0 });
-        var person = _immersion.People.Single(item => item.AgentId == id);
-        SetImmersionPerson(person with { ToiletStage = ToiletVisitStage.None, ToiletChoice = null });
+        SetImmersionPerson(person with { ToiletStage = ToiletVisitStage.None, ToiletChoice = null, ToiletId = null });
     }
 
     private void ApplyToiletSmell()
     {
-        if (CurrentTick % 80 != 0 || _immersion?.Toilet is not { } toilet || _preparation?.Status != PreparationStatus.Running) return;
-        if (toilet.UsedMillilitres * 1_000 / toilet.CapacityMillilitres <= ToiletRules.SmellStartsPermille) return;
+        if (CurrentTick % 80 != 0 || _immersion is null || _preparation?.Status != PreparationStatus.Running ||
+            !EffectiveToilets(_immersion).Any(toilet => toilet.UsedMillilitres * 1_000 / toilet.CapacityMillilitres > ToiletRules.SmellStartsPermille)) return;
         _preparation = _preparation with { People = _preparation.People.Select(person =>
         {
             if (person.Role != ProtectedPersonRole.Guest || !person.Admitted || person.Departed ||
@@ -321,7 +358,13 @@ public sealed partial class GameSession
 
     public int ToiletSmellPenaltyPerSecond(ulong agentId)
     {
-        if (_immersion?.Toilet is not { } toilet || !_navigationAgents.TryGetValue(new(agentId), out var nav)) return 0;
+        if (_immersion is null || !_navigationAgents.TryGetValue(new(agentId), out var nav)) return 0;
+        return Math.Min(ToiletRules.SmellMaximumPenaltyPerSecond,
+            EffectiveToilets(_immersion).Sum(toilet => ToiletSmellPenaltyAt(toilet, nav)));
+    }
+
+    private static int ToiletSmellPenaltyAt(ToiletFacility toilet, NavigationAgentState nav)
+    {
         var fillPermille = Math.Min(1_000, toilet.UsedMillilitres * 1_000 / toilet.CapacityMillilitres);
         if (fillPermille <= ToiletRules.SmellStartsPermille) return 0;
         var strength = Math.Min(ToiletRules.SmellMaximumPenaltyPerSecond,
@@ -336,10 +379,30 @@ public sealed partial class GameSession
         return strength * (ToiletRules.SmellRadiusMillimetres - distance) / ToiletRules.SmellRadiusMillimetres;
     }
 
-    private static string? ValidatePersistedToilet(SessionPersistenceSnapshot snapshot, ImmersionSnapshot immersion, GameSession geometry)
+    private static string? ValidatePersistedToilets(SessionPersistenceSnapshot snapshot, ImmersionSnapshot immersion, GameSession geometry)
     {
-        var toilet = immersion.Toilet!;
-        if (toilet.Id != "toilet.main" || toilet.QuarterTurns is < 0 or > 3 ||
+        var toilets = EffectiveToilets(immersion).ToArray();
+        var build = snapshot.Preparation?.BuildModeEnabled == true;
+        if (immersion.ExtraToilets?.Any(item => item is null) == true ||
+            toilets.Select(item => item.Id).Distinct(StringComparer.Ordinal).Count() != toilets.Length ||
+            !build && (toilets.Length != 1 || toilets[0].Id != "toilet.main") ||
+            build && (!toilets.Select(item => item.Id).Order(StringComparer.Ordinal).SequenceEqual(
+                snapshot.Preparation!.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet)
+                    .Select(item => item.Id).Order(StringComparer.Ordinal)) || toilets.Length > BuildServiceLimit(BuildServiceKind.Toilet)) ||
+            immersion.People.Any(person => person.ToiletStage != ToiletVisitStage.None &&
+                !toilets.Any(toilet => toilet.Id == (person.ToiletId ?? (build ? "" : "toilet.main"))) ||
+                person.ToiletStage == ToiletVisitStage.None && person.ToiletId is not null) ||
+            toilets.SelectMany(item => item.Queue).Distinct().Count() != toilets.Sum(item => item.Queue.Length))
+            return "Toilet facility identities or person assignments invalid.";
+        foreach (var toilet in toilets)
+            if (ValidatePersistedToilet(snapshot, immersion, geometry, toilet, build) is { } issue) return issue;
+        return null;
+    }
+
+    private static string? ValidatePersistedToilet(SessionPersistenceSnapshot snapshot, ImmersionSnapshot immersion, GameSession geometry,
+        ToiletFacility toilet, bool build)
+    {
+        if ((!build && toilet.Id != "toilet.main") || toilet.QuarterTurns is < 0 or > 3 ||
             toilet.CapacityMillilitres != ToiletRules.CapacityMillilitres ||
             toilet.ContainmentPermille != ToiletRules.ContainmentPermille ||
             toilet.WeeCount < 0 || toilet.PooCount < 0 || toilet.UsedMillilitres > toilet.CapacityMillilitres ||
@@ -357,11 +420,12 @@ public sealed partial class GameSession
             (person.ToiletStage == ToiletVisitStage.None) != (person.ToiletChoice is null) ||
             person.ToiletChoice is { } choice && !Enum.IsDefined(choice) ||
             person.ToiletStage is ToiletVisitStage.Queued or ToiletVisitStage.Entering or ToiletVisitStage.Using or ToiletVisitStage.Leaving or ToiletVisitStage.InterruptedLeaving &&
-            !toilet.Queue.Contains(person.AgentId)))
+            (person.ToiletId ?? (build ? "" : "toilet.main")) == toilet.Id && !toilet.Queue.Contains(person.AgentId)))
             return "Toilet person need, choice or queue ownership invalid.";
         if (toilet.Queue.Any(id => !immersion.People.Any(person => person.AgentId == id &&
             person.ToiletStage is not (ToiletVisitStage.None or ToiletVisitStage.Approaching))) ||
-            immersion.People.Count(person => person.ToiletStage != ToiletVisitStage.None) > ToiletRules.MaximumQueue)
+            immersion.People.Count(person => person.ToiletStage != ToiletVisitStage.None &&
+                (person.ToiletId ?? (build ? "" : "toilet.main")) == toilet.Id) > ToiletRules.MaximumQueue)
             return "Toilet physical queue membership invalid.";
         if (toilet.OwnerId is { } current)
         {

@@ -69,8 +69,10 @@ public partial class Main
         }
         // The narrow standpipe has no v1-style approach pad. Put its tap within
         // arm's reach of the existing front queue slot without moving that slot.
-        _displayedPrimaryWaterCell = _session.CaptureWaterPoints().Single(point => point.Id == "water.main").Cell;
-        var waterPosition = WaterVisualPosition(_session.CaptureWaterPoints().Single(point => point.Id == "water.main"));
+        var primaryWater = _session.CaptureWaterPoints().SingleOrDefault(point => point.Id == "water.main") ??
+            new WaterPointState("water.main", GameSession.MedicalWaterCell, [], [], null, 0);
+        _displayedPrimaryWaterCell = primaryWater.Cell;
+        var waterPosition = WaterVisualPosition(primaryWater);
         _primaryWaterVisual = AddAsset("res://assets/environment/lwf_free_water_point_v4.glb", waterPosition);
         _responsePostVisuals[ResponseRole.Medic]=AddAsset(PostAsset(ResponseRole.Medic),At(_session.CaptureResponsePost(ResponseRole.Medic).Cell));
         _primaryWaterPick = RegisterMedicalPick(MedicalFacility.Water, "water.main", waterPosition + new Vector3(0, 1.05f, 0), new Vector3(2.3f, 2.1f, 1.1f));
@@ -106,6 +108,7 @@ public partial class Main
 
     private void BeginWaterPlacementFor(string? pointId)
     {
+        if (_session.BuildModeEnabled) { BeginBuildPlacement(BuildServiceKind.WaterTap, pointId); return; }
         CancelImmersionPlacement();
         CancelResponsePostPlacement();
         if (_session.CapturePreparation() is not { Status: PreparationStatus.Preparing }) return;
@@ -389,16 +392,20 @@ public partial class Main
     private void SyncExtraWaterWorld()
     {
         if (_session.CaptureMedical() is null) return;
-        var main = _session.CaptureWaterPoints().Single(point => point.Id == "water.main");
+        var main = _session.CaptureWaterPoints().SingleOrDefault(point => point.Id == "water.main");
         if (_primaryWaterVisual is not null)
         {
-            var centre = TraversalGrid.CellCentre(main.Cell);
-            var position = WaterVisualPosition(main);
-            _primaryWaterVisual.Position = position;
-            _primaryWaterVisual.RotationDegrees = new Vector3(0, 90 * main.QuarterTurns, 0);
-            _primaryWaterPick!.Position = position + new Vector3(0, 1.05f, 0);
-            _primaryWaterPick.RotationDegrees = _primaryWaterVisual.RotationDegrees;
-            _displayedPrimaryWaterCell = main.Cell;
+            _primaryWaterVisual.Visible = main is not null;
+            _primaryWaterPick!.CollisionLayer = main is null ? 0u : 1u;
+            if (main is not null)
+            {
+                var position = WaterVisualPosition(main);
+                _primaryWaterVisual.Position = position;
+                _primaryWaterVisual.RotationDegrees = new Vector3(0, 90 * main.QuarterTurns, 0);
+                _primaryWaterPick.Position = position + new Vector3(0, 1.05f, 0);
+                _primaryWaterPick.RotationDegrees = _primaryWaterVisual.RotationDegrees;
+                _displayedPrimaryWaterCell = main.Cell;
+            }
         }
         var points = _session.CaptureWaterPoints().Where(point => point.Id != "water.main").ToArray();
         foreach (var stale in _extraWaterVisuals.Keys.Except(points.Select(point => point.Id)).ToArray())

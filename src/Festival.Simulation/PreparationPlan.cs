@@ -5,7 +5,11 @@ public sealed record PreparationPlan(int Version, string[] OfferIds, string[] Ac
     int Chips, int SoftDrinks, int Beers, bool Committed = false);
 public sealed record RemovePreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record SetPreparationStockCommand(int Chips, int SoftDrinks, int Beers) : SessionCommand;
-public sealed record PreparationSetupPayment(string Id, int Attempt, long Tick, int Chips, int SoftDrinks, int Beers, long TotalPennies, LedgerEntry[] Entries);
+public sealed record PreparationSetupPayment(string Id, int Attempt, long Tick, int Chips, int SoftDrinks, int Beers, long TotalPennies, LedgerEntry[] Entries)
+{
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public long BuildCostPennies { get; init; }
+}
 
 public sealed partial class GameSession
 {
@@ -20,7 +24,7 @@ public sealed partial class GameSession
     private static PreparationPlan EmptyPreparationPlan() => new(1, [], [], 0, 0, 0);
     private static int PlannedStockCost(PreparationPlan plan) => checked(plan.Chips * 100 + plan.SoftDrinks * 60 + plan.Beers * 100);
     public long PreparationPlanCost => _preparation?.Plan is { } plan
-        ? plan.OfferIds.Concat(plan.ActIds.Where(id => id != "")).Sum(id => (long)GetPreparationOffers().Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) : 0;
+        ? plan.OfferIds.Concat(plan.ActIds.Where(id => id != "")).Sum(id => (long)GetPreparationOffers().Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + BuildDraftCost : 0;
     public long PreparationRemainingCash => _preparation is { } p ? _festivalFinances[new(p.FinanceOwnerId)].CashPennies - (p.Plan is { Committed: false } ? PreparationPlanCost : 0) : 0;
     public int ExpectedPreparedPeopleCount => _preparation is not { } p ? 0 : p.People.Length +
         (p.Plan is { Committed: false } plan ? plan.OfferIds.Count(id => id is "maintenance.worker" or "staff.extra-medic" or "staff.extra-steward") : 0);
@@ -51,6 +55,8 @@ public sealed partial class GameSession
         try
         {
             foreach (var id in plan.OfferIds.Concat(plan.ActIds)) ApplyPreparationOffer(new(id));
+            var buildCost = BuildDraftCost;
+            if (buildCost > 0) _festivalFinances[new(_preparation!.FinanceOwnerId)].CashPennies -= buildCost;
             _programme = _programme! with { ActIds = plan.ActIds.ToArray(), Status = "Programme booked" };
             SynchronizeImmersionPeople();
             var cost = PlannedStockCost(plan);
@@ -68,8 +74,11 @@ public sealed partial class GameSession
             var entries = p.Payments.Where(payment => payment.Attempt == p.Attempt).SelectMany(payment => new LedgerEntry[] {
                 new(financeOwner, payment.DebitAccount, payment.AmountPennies), new(financeOwner, LedgerAccountType.CashAsset, -payment.AmountPennies) }).ToArray();
             if (cost > 0) entries = entries.Concat(_immersion!.StockPurchase!.Entries).ToArray();
+            if (buildCost > 0) entries = entries.Concat(new LedgerEntry[] {
+                new(financeOwner, LedgerAccountType.AdministrationExpense, buildCost),
+                new(financeOwner, LedgerAccountType.CashAsset, -buildCost) }).ToArray();
             _preparation = p with { SetupPayments = p.SetupPayments!.Append(new($"setup:{CampaignId.Value}:{p.Attempt}", p.Attempt, CurrentTick,
-                plan.Chips, plan.SoftDrinks, plan.Beers, PreparationPlanCost, entries)).ToArray() };
+                plan.Chips, plan.SoftDrinks, plan.Beers, PreparationPlanCost, entries) { BuildCostPennies = buildCost }).ToArray() };
         }
         finally { _committingPreparationPlan = false; }
     }
@@ -105,8 +114,11 @@ public sealed partial class GameSession
             var payments = p.Payments.Where(payment => payment.Attempt == setup.Attempt).ToArray();
             var expected = payments.SelectMany(payment => new LedgerEntry[] { new(owner, payment.DebitAccount, payment.AmountPennies), new(owner, LedgerAccountType.CashAsset, -payment.AmountPennies) });
             if (stockCost > 0) expected = expected.Concat(new LedgerEntry[] { new(owner, LedgerAccountType.CashAsset, -stockCost), new(owner, LedgerAccountType.InventoryAsset, stockCost) });
-            if (!setup.Entries.SequenceEqual(expected) || setup.TotalPennies != payments.Sum(payment => (long)payment.AmountPennies) + stockCost || payments.Any(payment => payment.Tick != setup.Tick) ||
-                setup.Attempt == p.Attempt && (!plan.Committed || setup.Chips != plan.Chips || setup.SoftDrinks != plan.SoftDrinks || setup.Beers != plan.Beers || setup.TotalPennies != plan.OfferIds.Concat(plan.ActIds).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan)))
+            if (setup.BuildCostPennies > 0) expected = expected.Concat(new LedgerEntry[] {
+                new(owner, LedgerAccountType.AdministrationExpense, setup.BuildCostPennies),
+                new(owner, LedgerAccountType.CashAsset, -setup.BuildCostPennies) });
+            if (setup.BuildCostPennies < 0 || !setup.Entries.SequenceEqual(expected) || setup.TotalPennies != payments.Sum(payment => (long)payment.AmountPennies) + stockCost + setup.BuildCostPennies || payments.Any(payment => payment.Tick != setup.Tick) ||
+                setup.Attempt == p.Attempt && (!plan.Committed || setup.Chips != plan.Chips || setup.SoftDrinks != plan.SoftDrinks || setup.Beers != plan.Beers || setup.TotalPennies != plan.OfferIds.Concat(plan.ActIds).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + (p.BuildModeEnabled ? p.BuildPlacements.Sum(item => (long)BuildServiceFeePennies(item.Kind)) : 0)))
                 return "Setup payment ledger or planned total does not reconcile.";
         }
         return null;

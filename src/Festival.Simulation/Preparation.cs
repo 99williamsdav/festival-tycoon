@@ -31,6 +31,10 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public bool ExtraStewardSlotOwned { get; init; }
     public bool RespondersUpgraded { get; init; }
     public bool StaffAutonomyEnabled { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool BuildModeEnabled { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public BuildPlacement[] BuildPlacements { get; init; } = null!;
     public StaffProfile[] StaffProfiles { get; init; } = [];
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ResponsePostPlacement? FirstAidPlacement { get; init; }
@@ -143,6 +147,8 @@ public sealed partial class GameSession
 
     public string? WaterTapAdditionUnavailableReason => _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p
         ? "Taps can only be added during preparation."
+        : p.BuildModeEnabled ? p.BuildPlacements.Count(item => item.Kind == BuildServiceKind.WaterTap) >= BuildServiceLimit(BuildServiceKind.WaterTap)
+            ? "Both paid tap slots are placed; select one to move or remove it." : null
         : _perks is { Pending: true } ? "Finish the pending perk choice before adding a tap."
         : _perks is not null && !HasPerk("another-round") ? "Requires Another Round: it grants one extra placeable tap."
         : _perks is not null && p.ExtraWaterSiteIds.Length >= 1 ? "Another Round's one extra tap is already placed; select it to move it."
@@ -289,6 +295,17 @@ public sealed partial class GameSession
     {
         if (_preparation is not { Status: PreparationStatus.Preparing } p) return [];
         var blockers = new List<PreparationStartBlocker>(2);
+        if (p.BuildModeEnabled)
+        {
+            if (!p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.WaterTap))
+                blockers.Add(new(PreparationStartOwner.Overview, "Place a water tap before opening."));
+            if (!p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.Toilet))
+                blockers.Add(new(PreparationStartOwner.Overview, "Place a toilet before opening."));
+            if (!p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.FirstAid))
+                blockers.Add(new(PreparationStartOwner.Overview, "Place first aid before opening."));
+            if (!p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.StewardPost))
+                blockers.Add(new(PreparationStartOwner.Overview, "Place a steward post before opening."));
+        }
         if (_programme is null ? !p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) : (p.Plan?.ActIds ?? _programme.ActIds).Count(id => id != "") != 3)
             blockers.Add(new(PreparationStartOwner.Programme, _programme is null
                 ? "Book one act before opening."
@@ -564,15 +581,22 @@ public sealed partial class GameSession
             FinishedBeerIds = p.FinishedBeerIds is null ? null : [], GuestMedicalCollapses = p.GuestMedicalCollapses is null ? null : 0, Result = null,
             Rentals = [], WorkContracts = [], StartedTick = 0, StockConsumed = 0,
             People = baseline._preparation!.People
-            ,Plan = p.Plan is null ? null : EmptyPreparationPlan()
+            ,Plan = p.Plan is null ? null : p.BuildModeEnabled ? p.Plan with { Committed = false } : EmptyPreparationPlan()
         };
         Phase = SessionPhase.OpeningCheck;
+        if (_preparation.BuildModeEnabled) SyncBuildPhysicalLayout();
         OpenPerkDraft();
     }
 
     private static string? ValidatePersistedPreparation(PreparationSnapshot? p, SessionPersistenceSnapshot snapshot)
     {
         if (p is null) return null;
+        if (p.BuildModeEnabled && (p.BuildPlacements is null || p.Plan is null ||
+            !p.BuildPlacements.Select(item => item.Id).SequenceEqual(p.BuildPlacements.Select(item => item.Id).Order(StringComparer.Ordinal)) ||
+            ValidateBuildLayout(p.BuildPlacements, snapshot.Equipment, p.WaterTowerOwned) is not null) ||
+            !p.BuildModeEnabled && p.BuildPlacements is { Length: > 0 })
+            return "Saved build layout is invalid.";
+        if (ValidateBuildMirrors(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
         if (p.LineupReactionsVersion is not null && (p.LineupReactionsVersion != 1 || p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null))
             return "Lineup reaction identity requires the current saved programme and results plan.";
         if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > 2 || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
@@ -603,15 +627,15 @@ public sealed partial class GameSession
             return "Preparation header or collections invalid.";
         var planIssue = ValidatePersistedPlan(p, snapshot);
         if (planIssue is not null) return planIssue;
-        if ((p.PrimaryWaterCell != MedicalWaterCell || p.PrimaryWaterQuarterTurns != 0) && ValidateWaterPlacementCell(p.PrimaryWaterCell,
+        if (!p.BuildModeEnabled && (p.PrimaryWaterCell != MedicalWaterCell || p.PrimaryWaterQuarterTurns != 0) && ValidateWaterPlacementCell(p.PrimaryWaterCell,
                 p with { ExtraWaterSiteIds = [], WaterPlacements = [], PrimaryWaterCell = MedicalWaterCell }, "water.main",
                 snapshot.Equipment, p.PrimaryWaterQuarterTurns, p.PrimaryWaterGeometryVersion) is not null)
             return "Primary water position is invalid.";
         var preceding = p with { ExtraWaterSiteIds = [], WaterPlacements = [] };
-        if(WaterOverlapsImmersion(snapshot.Immersion,p.PrimaryWaterCell,p.PrimaryWaterQuarterTurns,p.PrimaryWaterGeometryVersion)||EffectiveWaterPlacements(p).Any(w=>WaterOverlapsImmersion(snapshot.Immersion,w.Cell,w.QuarterTurns,w.GeometryVersion)))return "Saved water overlaps immersion vendor or queue.";
+        if(!p.BuildModeEnabled && (WaterOverlapsImmersion(snapshot.Immersion,p.PrimaryWaterCell,p.PrimaryWaterQuarterTurns,p.PrimaryWaterGeometryVersion)||EffectiveWaterPlacements(p).Any(w=>WaterOverlapsImmersion(snapshot.Immersion,w.Cell,w.QuarterTurns,w.GeometryVersion))))return "Saved water overlaps immersion vendor or queue.";
         foreach (var placement in EffectiveWaterPlacements(p))
         {
-            if (placement.Id.StartsWith("water.extra-", StringComparison.Ordinal) &&
+            if (!p.BuildModeEnabled && placement.Id.StartsWith("water.extra-", StringComparison.Ordinal) &&
                 ValidateWaterPlacementCell(placement.Cell, preceding, null, snapshot.Equipment, placement.QuarterTurns, placement.GeometryVersion) is not null)
                 return "Placed water point or queue is invalid.";
             preceding = preceding with { ExtraWaterSiteIds = preceding.ExtraWaterSiteIds.Append(placement.Id).Order(StringComparer.Ordinal).ToArray(),
@@ -687,7 +711,7 @@ public sealed partial class GameSession
         var finance = snapshot.FestivalFinances.SingleOrDefault(item => item.OwnerId == p.FinanceOwnerId);
         var stock = snapshot.OwnedStocks.SingleOrDefault(item => item.ServiceId == p.StockId);
         if (finance is null || stock is null || stock.OwnerId != p.FinanceOwnerId || stock.UnitCostBasisPennies != 60 ||
-            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => p.FixtureOutcomesEnabled || item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? p.Plan is null ? 9600 : PlannedStockCost(p.Plan) : 0) + (snapshot.Immersion?.Purchases?.Sum(item => (long)item.PricePennies) ?? 0) ||
+            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => p.FixtureOutcomesEnabled || item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? p.Plan is null ? 9600 : PlannedStockCost(p.Plan) : 0) - (p.Plan?.Committed == true ? p.SetupPayments?.LastOrDefault()?.BuildCostPennies ?? 0 : 0) + (snapshot.Immersion?.Purchases?.Sum(item => (long)item.PricePennies) ?? 0) ||
             stock.Quantity != 40 + 50 * p.Payments.Count(item => item.OfferId == "contract.stock" && (p.FixtureOutcomesEnabled || item.Attempt == p.Attempt)) - p.StockConsumed)
             return "Preparation cash or stock does not reconcile.";
         if (p.Status != PreparationStatus.Preparing &&

@@ -125,7 +125,9 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private SaveCompatibility _saveCompatibility => _session?.CapturePreparation()?.LineupReactionsVersion == 1
+    private SaveCompatibility _saveCompatibility => _session?.BuildModeEnabled == true
+        ? new("0.0.1-r0.05v-build-mode-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-mode-v1")
+        : _session?.CapturePreparation()?.LineupReactionsVersion == 1
         ? new("0.0.1-r0.05s-toilet-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-toilet-v1")
         : _session?.FestivalResultsEnabled == true
         ? new("0.0.1-r0.05m-results-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-results-v1")
@@ -191,7 +193,9 @@ public partial class Main : Node
                 _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null || _liveCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
                 _postCaptureDirectory is not null || _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) :
-                _resultsCaptureDirectory is not null && !_resultsNewGameCapture ? GameSession.CreateResultsCampaign(20260922) : GameSession.CreateBookingCampaign(20260922);
+                _resultsCaptureDirectory is not null && !_resultsNewGameCapture ? GameSession.CreateResultsCampaign(20260922) :
+                OS.GetCmdlineUserArgs().Length == 0 || _buildCaptureDirectory is not null
+                    ? GameSession.CreateBuildCampaign(20260922) : GameSession.CreateBookingCampaign(20260922);
         }
         if (_hearingCaptureDirectory is not null)
         {
@@ -315,6 +319,7 @@ public partial class Main : Node
         ProcessResultsCapture();
         ProcessBookingCapture();
         ProcessRoleCapture();
+        ProcessBuildCapture();
         FinishCameraProfileFrame();
     }
 
@@ -337,6 +342,9 @@ public partial class Main : Node
         if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null || _campaignCaptureDirectory is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
+            if (_buildGhostKind is not null && key.Keycode == Key.Escape) { CancelBuildPlacement(); RefreshHudWorkspace(); return; }
+            if (_buildGhostKind is not null && key.Keycode is Key.Comma or Key.Period)
+            { RotateBuildGhost(key.Keycode == Key.Comma ? -1 : 1); return; }
             if(_movingResponsePost is not null && key.Keycode==Key.Escape){CancelResponsePostPlacement();return;}
             if(_movingResponsePost is not null && key.Keycode is Key.Comma or Key.Period){RotateResponsePost(key.Keycode==Key.Comma?-1:1);return;}
             if(key.Keycode==Key.Escape && (_pendingPerkChoice is not null || _pendingPerkSkip)){CancelPerkConfirmation();return;}
@@ -362,6 +370,10 @@ public partial class Main : Node
         else if (inputEvent is InputEventMouseButton mouse)
         {
             if (WorldInputOccluded(mouse.Position)) return;
+            if (_buildGhostKind is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Right)
+            { CancelBuildPlacement(); RefreshHudWorkspace(); return; }
+            if (_buildGhostKind is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
+            { CommitBuildPlacement(mouse.Position); return; }
             if(_movingResponsePost is not null && mouse.Pressed && mouse.ButtonIndex==MouseButton.Right){CancelResponsePostPlacement();return;}
             if(_movingResponsePost is not null && mouse.Pressed && mouse.ButtonIndex==MouseButton.Left){CommitResponsePostPlacement(mouse.Position);return;}
             if (_placingImmersionVendor is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Right) { CancelImmersionPlacement(); return; }
@@ -376,8 +388,11 @@ public partial class Main : Node
                 CommitWaterPlacement(mouse.Position);
             else if (mouse.ButtonIndex == MouseButton.Left && mouse.Pressed) Pick(mouse.Position);
         }
-        else if (inputEvent is InputEventMouseMotion motion && _middleDragging)
-            Pan(motion.Relative * 0.055f);
+        else if (inputEvent is InputEventMouseMotion motion)
+        {
+            if (_middleDragging) Pan(motion.Relative * 0.055f);
+            if (_buildGhostKind is not null) UpdateBuildGhost(motion.Position);
+        }
     }
 
     // Explicit legacy diagnostics retain the immutable generic service fixture.
@@ -837,7 +852,7 @@ public partial class Main : Node
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
         else if (collider is not null && collider.GetInstanceId() == _generatorPickId) SelectGenerator();
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
-        else if (collider is not null && _toiletPickIds.Contains(collider.GetInstanceId())) SelectToilet();
+        else if (collider is not null && _toiletPickOwners.TryGetValue(collider.GetInstanceId(), out var toiletId)) SelectToilet(toiletId);
         else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
         else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility))
             SelectMedicalFacility(medicalFacility.Facility, medicalFacility.WaterPointId);
@@ -1170,6 +1185,8 @@ public partial class Main : Node
             {_automationCaptureDirectory=args[++i];Directory.CreateDirectory(_automationCaptureDirectory);}
             else if(args[i]=="--capture-perk-popout" && i+1<args.Length)
             {_perkPopoutCaptureDirectory=args[++i];Directory.CreateDirectory(_perkPopoutCaptureDirectory);}
+            else if (args[i] == "--capture-build-mode" && i + 1 < args.Length)
+            { _buildCaptureDirectory = args[++i]; Directory.CreateDirectory(_buildCaptureDirectory); }
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');

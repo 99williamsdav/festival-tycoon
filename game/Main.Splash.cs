@@ -66,7 +66,7 @@ public partial class Main
             while (seed == 0 || _menuCampaignIds.Contains(seed))
                 seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
             _menuCampaignIds.Add(seed);
-            var next = GameSession.CreateBookingCampaign(seed);
+            var next = GameSession.CreateBuildCampaign(seed);
             CancelResponsePostPlacement(); CancelImmersionPlacement(); CancelWaterPlacement(); CancelPerkConfirmation();
             ClearSelection(); ResetImmersionHeldVisuals();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();

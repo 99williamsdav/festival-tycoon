@@ -77,6 +77,10 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyPlanEdit(envelope.Command);
                 break;
+            case PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand:
+                affectedTarget = null;
+                ApplyBuildCommand(envelope.Command);
+                break;
             case PerkCommand perk:
                 affectedTarget = null;
                 ApplyPerkCommand(perk);
@@ -740,9 +744,12 @@ public sealed partial class GameSession
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
+        if (BuildModeEnabled && envelope.Command is (PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand or
+            MoveToiletCommand or PlaceImmersionVendorCommand or MoveResponsePostCommand))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Use the Build catalogue to change this service layout.");
         if (_perks is not null && envelope.Command is ApplyStaffFoundationEffectCommand or ApplyWaterFoundationEffectCommand)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Foundation demos are available only in legacy development diagnostics.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or MoveResponsePostCommand or PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or MoveToiletCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or MoveResponsePostCommand or PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or MoveToiletCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -750,6 +757,7 @@ public sealed partial class GameSession
         return envelope.Command switch
         {
             RemovePreparationOfferCommand or SetPreparationStockCommand => ValidatePlanEdit(envelope.TargetId, envelope.Command),
+            PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand => ValidateBuildCommand(envelope.TargetId, envelope.Command),
             PerkCommand perk => ValidatePerkCommand(envelope.TargetId, perk),
             EquipmentCommand equipment => ValidateEquipmentCommand(envelope.TargetId, equipment),
             MedicalCommand medical => ValidateMedicalCommand(envelope.TargetId, medical),

@@ -29,6 +29,12 @@ public partial class Main
     {
         foreach(var role in _responsePostVisuals.Keys)
         {
+            var placed = !_session.BuildModeEnabled || _session.CaptureBuildPlacements().Any(item => item.Kind ==
+                (role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost));
+            _responsePostVisuals[role].Visible = placed;
+            _responsePostPicks[role].CollisionLayer = placed ? 1u : 0u;
+            _responsePostLabels[role].Visible = placed;
+            if (!placed) continue;
             var post=_session.CaptureResponsePost(role);
             var point=ImmersionPosition(post.Cell);
             _responsePostVisuals[role].Position=point;
@@ -46,6 +52,8 @@ public partial class Main
     }
     private void BeginResponsePostPlacement(ResponseRole role)
     {
+        if (_session.BuildModeEnabled) { BeginBuildPlacement(role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost,
+            role == ResponseRole.Medic ? "first-aid" : "steward-post"); return; }
         if(_session.PreparedStatus!=PreparationStatus.Preparing)return;
         CancelWaterPlacement();CancelImmersionPlacement();CancelResponsePostPlacement();ClearSelection();
         _movingResponsePost=role;_postQuarterTurns=_session.CaptureResponsePost(role).QuarterTurns;
