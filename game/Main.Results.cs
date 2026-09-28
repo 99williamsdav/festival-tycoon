@@ -10,6 +10,7 @@ public partial class Main
     private ScrollContainer? _resultsScroll;
     private void RefreshFestivalPaper()
     {
+        if (_newCampaignOnEnter) return;
         var result = _session.CompletedFestivalResult;
         if (result is null)
         {
@@ -58,7 +59,8 @@ public partial class Main
         column.AddChild(HearingRule());
         var footer = new HBoxContainer(); column.AddChild(footer);
         footer.AddChild(Text("Demo complete\nAll guests have left. Thanks for playing.", 18));
-        var menu = ButtonText("Return to menu", () => { _festivalPaper?.QueueFree(); _festivalPaper = null; BuildStartSplash(); });
+        var menu = ButtonText("Return to menu", () => { _newCampaignOnEnter = true; _festivalPaper?.QueueFree(); _festivalPaper = null; BuildStartSplash(); });
+        menu.Name = "ReturnToMenu";
         menu.CustomMinimumSize = new Vector2(185, 48); footer.AddChild(menu);
     }
 }

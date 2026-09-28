@@ -11,8 +11,12 @@ namespace Festival.Game;
 public partial class Main
 {
     private string? _resultsCaptureDirectory;
+    private bool _resultsNewGameCapture;
     private int _resultsCaptureFrame;
     private GameSession? _resultsNatural;
+    private byte[]? _resultsTerminalSaveBytes;
+    private ulong _resultsTerminalCampaignId;
+    private ulong _resultsFirstNewCampaignId;
     private string _resultsShot = "";
     private Label? _resultsFixtureLabel;
     private void ResultsCheck(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
@@ -31,6 +35,12 @@ public partial class Main
             var frame = ++_resultsCaptureFrame;
             if (frame == 1)
             {
+                var unfinished = _session;
+                var unfinishedHash = _session.CaptureSnapshot().AuthoritativeHash;
+                BuildStartSplash();
+                ((_startSplash!.FindChild("EnterFestival", true, false) as Button) ?? throw new InvalidOperationException("Initial Enter missing")).EmitSignal(Button.SignalName.Pressed);
+                ResultsCheck(ReferenceEquals(unfinished, _session) && _session.CaptureSnapshot().AuthoritativeHash == unfinishedHash && _startSplash is null,
+                    "Unfinished splash entry unexpectedly reset campaign");
                 var overlay = new CanvasLayer { Layer = 30 }; AddChild(overlay);
                 _resultsFixtureLabel = new Label { Position = new Vector2(12, 3) }; _resultsFixtureLabel.AddThemeFontSizeOverride("font_size", 13); overlay.AddChild(_resultsFixtureLabel);
                 var perk = _session.CapturePerks()!;
@@ -100,17 +110,112 @@ public partial class Main
                 ResultsCheck(_session.CompletedFestivalResult is null && _session.PreparedStatus == PreparationStatus.Failed, "Council must bypass paper");
                 ResultsShot("07-initialized-council-bypass", "INITIALIZED FATAL MEDICAL FIXTURE · Council bypass · no success report");
             }
-            if (frame == 29)
+            if (frame == 29 && !_resultsNewGameCapture)
             {
                 _session = _resultsNatural!; _festivalPaper?.QueueFree(); _festivalPaper = null; RefreshHearingHud();
                 BuildStartSplash(); _resultsFixtureLabel!.Text = "TERMINAL MENU ROUTE · completed run stays frozen · no progression/reset"; _resultsShot = "07-menu";
+            }
+            if (frame == 29 && _resultsNewGameCapture)
+            {
+                _session = _resultsNatural!; _festivalPaper?.QueueFree(); _festivalPaper = null; RefreshPreparationHud();
+                _resultsTerminalCampaignId = _session.CampaignId.Value;
+                _resultsTerminalSaveBytes = File.ReadAllBytes(SaveFileAdapter.ResolveSlotPath(SaveDirectory, "manual-preparation"));
+                var terminalHash = _session.CaptureSnapshot().AuthoritativeHash;
+                ((_festivalPaper!.FindChild("ReturnToMenu", true, false) as Button) ?? throw new InvalidOperationException("Return button missing")).EmitSignal(Button.SignalName.Pressed);
+                ResultsCheck(_newCampaignOnEnter && _startSplash is not null && _session.CaptureSnapshot().AuthoritativeHash == terminalHash,
+                    "Return must preserve frozen session and show pending fresh-start menu");
+                RefreshPreparationHud(); ResultsCheck(_festivalPaper is null, "Newspaper reopened behind menu");
+                ResultsCheck(_resultsTerminalSaveBytes.SequenceEqual(File.ReadAllBytes(SaveFileAdapter.ResolveSlotPath(SaveDirectory, "manual-preparation"))), "Return changed terminal save bytes");
+                _resultsFixtureLabel!.Text = "TERMINAL MENU ROUTE · completed run preserved until Enter · no paper behind splash"; _resultsShot = "07-menu";
+            }
+            if (frame == 33 && _resultsNewGameCapture)
+            {
+                ((_startSplash!.FindChild("EnterFestival", true, false) as Button) ?? throw new InvalidOperationException("Enter button missing")).EmitSignal(Button.SignalName.Pressed);
+                _resultsFirstNewCampaignId = _session.CampaignId.Value;
+                ResultsCheck(!_newCampaignOnEnter && _startSplash is null && _festivalPaper is null && _resultsFirstNewCampaignId != _resultsTerminalCampaignId,
+                    "Enter did not create distinct fresh campaign");
+                ResultsCheck(_session.CurrentTick == 0 && _session.PreparedStatus == PreparationStatus.Preparing && _session.CompletedFestivalResult is null &&
+                    _session.CapturePerks() is { Pending: true, Equipped.Length: 0 } && _session.CapturePreparationPlan() is { Committed: false },
+                    "Fresh campaign skipped draft/preparation or retained terminal state");
+                ResultsCheck(_session.CaptureSnapshot().AuthoritativeHash == GameSession.CreateBookingCampaign(_session.CampaignSeed).CaptureSnapshot().AuthoritativeHash,
+                    "Fresh session differs from complete new-campaign factory (funds, favours, draft, people or other state retained)");
+                ResultsCheck(_resultsTerminalSaveBytes!.SequenceEqual(File.ReadAllBytes(SaveFileAdapter.ResolveSlotPath(SaveDirectory, "manual-preparation"))), "Enter changed terminal save bytes");
+                _resultsFixtureLabel!.Text = "NEW CAMPAIGN · distinct identity · fresh perk draft and unpaid preparation · no newspaper";
+                _resultsShot = "08-fresh-preparation";
+                GD.Print($"RESULTS_NEW_CAMPAIGN terminal={_resultsTerminalCampaignId} fresh={_resultsFirstNewCampaignId} save_unchanged=True");
+            }
+            if (frame == 35 && _resultsNewGameCapture)
+            {
+                var viewport = GetViewport().GetVisibleRect();
+                var panel = _perkPanel!.GetGlobalRect();
+                bool Fits(Rect2 rect) => rect.Position.X >= 0 && rect.Position.Y >= 0 &&
+                    rect.End.X <= viewport.End.X && rect.End.Y <= viewport.End.Y &&
+                    rect.Position.X >= panel.Position.X && rect.Position.Y >= panel.Position.Y &&
+                    rect.End.X <= panel.End.X && rect.End.Y <= panel.End.Y;
+                ResultsCheck(_perkPanel.Visible && Fits(panel) && panel.Size.Y >= viewport.Size.Y - 125,
+                    "Fresh draft panel retained completed-session owned-strip layout");
+                foreach (var id in _session.CapturePerks()!.Hand)
+                {
+                    var card = _perkBody!.FindChild("DraftPerkCard_" + id, true, false) as Control;
+                    var choose = _perkBody.FindChild("ChooseDraftPerk_" + id, true, false) as Button;
+                    ResultsCheck(card is not null && choose is not null && Fits(card.GetGlobalRect()) && Fits(choose.GetGlobalRect()) &&
+                        choose.IsVisibleInTree(), "Fresh draft card or Choose action is clipped: " + id);
+                }
+                ResultsCheck(_perkScroll!.ScrollVertical == 0, "Fresh draft actions require an unexpected scroll");
+                GD.Print("RESULTS_NEW_CAMPAIGN draft_cards_actions_fit=True");
+            }
+            if (frame == 37 && _resultsNewGameCapture)
+            {
+                var firstChoice = _session.CapturePerks()!.Hand[0];
+                ((_perkBody!.FindChild("ChooseDraftPerk_" + firstChoice, true, false) as Button) ??
+                    throw new InvalidOperationException("Fresh draft Choose action missing")).EmitSignal(Button.SignalName.Pressed);
+                ResultsCheck(_session.CapturePerks() is { Pending: false, Equipped.Length: 1 },
+                    "Fresh draft Choose action did not commit the choice");
+            }
+            if (frame == 39 && _resultsNewGameCapture)
+            {
+                var viewport = GetViewport().GetVisibleRect();
+                bool Fits(Rect2 rect) => rect.Position.X >= 0 && rect.Position.Y >= 0 &&
+                    rect.End.X <= viewport.End.X && rect.End.Y <= viewport.End.Y;
+                ResultsCheck(_hudTabs!.CurrentTab == 1 && _hudWorkspace!.IsVisibleInTree() && _bookingLane!.IsVisibleInTree() &&
+                    _preparationStart.IsVisibleInTree() && _hudStartReason!.IsVisibleInTree() &&
+                    _hudStartReason.Text.Contains('£') && Fits(_hudWorkspace.GetGlobalRect()) &&
+                    Fits(_preparationStart.GetGlobalRect()) && Fits(_hudStartReason.GetGlobalRect()),
+                    "Choosing a fresh perk did not reveal usable in-viewport Programme/cost/Start controls");
+                _resultsFixtureLabel!.Text = "FRESH PROGRAMME · selected perk committed · cost and Start in viewport";
+                _resultsShot = "09-fresh-programme";
+                GD.Print("RESULTS_NEW_CAMPAIGN programme_cost_start_fit=True");
+            }
+            if (frame == 43 && _resultsNewGameCapture)
+            {
+                // An incompatible adapter read is pure; a compatible explicit
+                // completed-file load remains available from the menu slot.
+                var fresh = _session;
+                var freshHash = fresh.CaptureSnapshot().AuthoritativeHash;
+                var incompatible = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation",
+                    new SaveCompatibility("r0.05p-incompatible-fixture", "wrong-content", "wrong-rules"));
+                ResultsCheck(!incompatible.IsSuccess && ReferenceEquals(fresh, _session) &&
+                    _session.CaptureSnapshot().AuthoritativeHash == freshHash && _festivalPaper is null,
+                    "Incompatible completed-save read changed the fresh campaign");
+                PreparationLoad();
+                ResultsCheck(_session.CompletedFestivalResult is not null && _festivalPaper is not null,
+                    "Compatible explicit completed-save load did not restore newspaper");
+                // A second actual menu/enter cycle must not reuse the first fresh identity.
+                ((_festivalPaper!.FindChild("ReturnToMenu", true, false) as Button) ?? throw new InvalidOperationException("Second Return missing")).EmitSignal(Button.SignalName.Pressed);
+                ((_startSplash!.FindChild("EnterFestival", true, false) as Button) ?? throw new InvalidOperationException("Second Enter missing")).EmitSignal(Button.SignalName.Pressed);
+                ResultsCheck(_session.CampaignId.Value != _resultsTerminalCampaignId && _session.CampaignId.Value != _resultsFirstNewCampaignId &&
+                    _session.CurrentTick == 0 && _session.CompletedFestivalResult is null && _festivalPaper is null,
+                    "Repeated completed-menu cycle did not create a fresh campaign");
+                ResultsCheck(_resultsTerminalSaveBytes!.SequenceEqual(File.ReadAllBytes(SaveFileAdapter.ResolveSlotPath(SaveDirectory, "manual-preparation"))), "Second cycle changed terminal save bytes");
+                GD.Print("RESULTS_NEW_CAMPAIGN repeated=True incompatible_read_unchanged=True explicit_terminal_load=True terminal_save_unchanged=True");
             }
             if (frame % 4 == 0 && _resultsShot != "")
             {
                 var image = GetViewport().GetTexture().GetImage(); image.SavePng(Path.Combine(_resultsCaptureDirectory, _resultsShot + ".png"));
                 GD.Print($"RESULTS_CAPTURE image={_resultsShot} size={image.GetWidth()}x{image.GetHeight()}"); _resultsShot = "";
             }
-            if (frame == 33) { GD.Print("RESULTS_CAPTURE completed natural_exit_reload_freeze=True last_guest_gate=True initialized_ratings_labelled=True council_bypass=True menu=True"); GetTree().Quit(); }
+            if (frame == 33 && !_resultsNewGameCapture) { GD.Print("RESULTS_CAPTURE completed natural_exit_reload_freeze=True last_guest_gate=True initialized_ratings_labelled=True council_bypass=True menu=True"); GetTree().Quit(); }
+            if (frame == 47 && _resultsNewGameCapture) { GD.Print("RESULTS_CAPTURE completed natural_exit_reload_freeze=True last_guest_gate=True initialized_ratings_labelled=True council_bypass=True new_campaign=True"); GetTree().Quit(); }
         }
         catch (Exception error) { GD.PushError(error.ToString()); GetTree().Quit(1); }
     }

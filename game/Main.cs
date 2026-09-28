@@ -191,7 +191,7 @@ public partial class Main : Node
                 _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null || _liveCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, _equipmentCaptureDirectory is not null || _equipmentPerformanceOutput is not null ? (_liveMeasurementTier == 0 ? 2 : _liveMeasurementTier) : 1) :
                 _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
                 _postCaptureDirectory is not null || _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) :
-                _resultsCaptureDirectory is not null ? GameSession.CreateResultsCampaign(20260922) : GameSession.CreateBookingCampaign(20260922);
+                _resultsCaptureDirectory is not null && !_resultsNewGameCapture ? GameSession.CreateResultsCampaign(20260922) : GameSession.CreateBookingCampaign(20260922);
         }
         if (_hearingCaptureDirectory is not null)
         {
@@ -1046,6 +1046,8 @@ public partial class Main : Node
             { _vendorRowCaptureDirectory = args[++i]; Directory.CreateDirectory(_vendorRowCaptureDirectory); }
             else if (args[i] == "--capture-r005m-results" && i + 1 < args.Length)
             { _resultsCaptureDirectory = args[++i]; Directory.CreateDirectory(_resultsCaptureDirectory); }
+            else if (args[i] == "--capture-r005p-newgame" && i + 1 < args.Length)
+            { _resultsNewGameCapture = true; _resultsCaptureDirectory = args[++i]; Directory.CreateDirectory(_resultsCaptureDirectory); }
             else if (args[i] == "--capture-r005n-booking" && i + 1 < args.Length)
             { _bookingCaptureDirectory = args[++i]; Directory.CreateDirectory(_bookingCaptureDirectory); }
             else if (args[i] == "--capture-r005o-table" && i + 1 < args.Length)

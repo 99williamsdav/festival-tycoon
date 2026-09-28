@@ -1,10 +1,17 @@
 using Godot;
+using Festival.Persistence;
+using Festival.Simulation;
+using System;
+using System.Collections.Generic;
+using CryptographicRandom = System.Security.Cryptography.RandomNumberGenerator;
 
 namespace Festival.Game;
 
 public partial class Main
 {
     private CanvasLayer? _startSplash;
+    private bool _newCampaignOnEnter;
+    private readonly HashSet<ulong> _menuCampaignIds = [];
     private string? _startSplashCapturePath;
     private int _startSplashCaptureFrame;
 
@@ -40,12 +47,50 @@ public partial class Main
         subtitle.AddThemeFontSizeOverride("font_size", 18);
         subtitle.AddThemeColorOverride("font_color", new Color("f3e8c9"));
         content.AddChild(subtitle);
-        var button = new Button { Text = "ENTER FESTIVAL", CustomMinimumSize = new Vector2(280, 54),
+        var button = new Button { Name = "EnterFestival", Text = "ENTER FESTIVAL", CustomMinimumSize = new Vector2(280, 54),
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter };
         button.AddThemeFontSizeOverride("font_size", 21);
-        button.Pressed += () => { _startSplash?.QueueFree(); _startSplash = null; };
+        button.Pressed += EnterFestival;
         content.AddChild(button);
         button.GrabFocus();
+    }
+
+    private void EnterFestival()
+    {
+        if (_newCampaignOnEnter)
+        {
+            // Create only on Enter: merely viewing the menu must not touch a terminal save.
+            _menuCampaignIds.Add(_session.CampaignId.Value);
+            var seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
+            while (seed == 0 || _menuCampaignIds.Contains(seed))
+                seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
+            _menuCampaignIds.Add(seed);
+            var next = GameSession.CreateBookingCampaign(seed);
+            CancelResponsePostPlacement(); CancelImmersionPlacement(); CancelWaterPlacement(); CancelPerkConfirmation();
+            ClearSelection(); ResetImmersionHeldVisuals();
+            foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
+            _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;
+            _session = next;
+            _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
+            _autosaveScheduler.Rebase(); _preparationSaveBlocked = false;
+            _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
+            _pausedHash = _foundationPublishedHash = _session.CaptureSnapshot().AuthoritativeHash;
+            _foundationPublishedHashTick = _session.CurrentTick;
+            _perksExpanded = false; _selectedPerk = null; _perkHudKey = "";
+            _bookingSelected = null; _bookingDurableMessage = "Select a band, then activate a set. Dragging also works.";
+            _bookingSort = BookingSortField.Price; _bookingDescending = false; _bookingGenre = null;
+            _bookingGenreFilter?.Select(0);
+            _hudWorkspaceOpen = true; _hudProgrammeOpen = false;
+            _preparationMessage = "Choose three different acts and hire a sound engineer. Equipment and stock are optional.";
+            ResetFinanceFeedback(); ResetLivePerformancePresentation();
+            ResetMedicalCuePresentation(); ResetDisorderCuePresentation();
+            SyncExtraWaterWorld(); SyncResponsePosts(); SyncImmersionWorld();
+            if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();
+            RebuildPreparationOffers(); SelectHudTab("Programme"); RefreshPreparationHud();
+            _newCampaignOnEnter = false;
+            GD.Print($"NEW_CAMPAIGN_STARTED id={_session.CampaignId.Value} seed={seed} status={_session.PreparedStatus}");
+        }
+        _startSplash?.QueueFree(); _startSplash = null;
     }
 
     private void ProcessStartSplashCapture()

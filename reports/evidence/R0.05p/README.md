@@ -1,0 +1,3 @@
+# R0.05p evidence index
+
+See [full result](../../../briefs/results/R0.05p.md). `review-repair2-1280x720` and `review-repair2-1920x1080` are final native current-booking capture runs. `exported-reviewed-1280x720` and `exported-reviewed-1920x1080` are final reviewed-bundle runs. Each final run has 12 PNGs, stdout markers and empty stderr; `07-menu.png`, `08-fresh-preparation.png` and `09-fresh-programme.png` show the new lifecycle. `historical-m-results-1280x720` preserves the previous M fixture route. `review-repair-*` contains the early failing M-to-N fixture attempt and is not acceptance evidence. Fixture save files are isolated under each run's `saves` directory; actual user saves were not touched.

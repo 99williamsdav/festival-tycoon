@@ -171,7 +171,9 @@ public partial class Main
             foreach (var id in p.Hand)
             {
                 var wrap = new VBoxContainer(); wrap.AddThemeConstantOverride("separation",12); hand.AddChild(wrap);
-                wrap.AddChild(PerkCard(id)); wrap.AddChild(ButtonText(p.Equipped.Length == 5 ? "Replace a perk…" : "Choose this perk", () => BeginPerkChoice(id)));
+                var card = PerkCard(id); card.Name = "DraftPerkCard_" + id; wrap.AddChild(card);
+                var choose = ButtonText(p.Equipped.Length == 5 ? "Replace a perk…" : "Choose this perk", () => BeginPerkChoice(id));
+                choose.Name = "ChooseDraftPerk_" + id; wrap.AddChild(choose);
             }
             var footer = new HBoxContainer(); _perkBody.AddChild(footer);
             footer.AddChild(HudLabel("Three distinct eligible choices, equally likely. Owned perks excluded; options may repeat.\nYour hand is saved; reloading does not change it.",13));
@@ -198,7 +200,16 @@ public partial class Main
             }
         }
         // Rebuilt containers release the preceding draft/card minimum on the next layout pass.
-        _perkPanel.SetDeferred(Control.PropertyName.Size, new Vector2(GetViewport().GetVisibleRect().Size.X - 20, 220));
+        // The old completed session may queue this release immediately before
+        // Enter creates a fresh draft. Never apply its owned-strip size to a
+        // different session's full-height draft panel on the next frame.
+        var owner = _session;
+        Callable.From(() =>
+        {
+            if (ReferenceEquals(owner, _session) && _session.CapturePerks()?.Pending == false &&
+                _perkPanel is not null && GodotObject.IsInstanceValid(_perkPanel))
+                _perkPanel.Size = new Vector2(GetViewport().GetVisibleRect().Size.X - 20, 220);
+        }).CallDeferred();
         _ownedPerkScroll.SetDeferred(ScrollContainer.PropertyName.ScrollHorizontal, _ownedPerkOffset);
     }
     private void LayoutPerkHud(bool draft)
