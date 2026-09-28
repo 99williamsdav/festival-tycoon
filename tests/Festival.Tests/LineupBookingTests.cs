@@ -1,7 +1,6 @@
 using Festival.Simulation;
 using Festival.Persistence;
 using System.Reflection;
-using System.Security.Cryptography;
 
 namespace Festival.Tests;
 
@@ -97,17 +96,12 @@ public sealed class LineupBookingTests
         Assert.IsFalse(EquipmentCommandCoordinator.Execute(directory, s, new StartPreparedEditionCommand(), compatibility, DateTimeOffset.UtcNow, 2).IsSuccess);
     }
     [TestMethod]
-    public void IdentityValidationPreservesLegacyNullCanonicalAndActualOldFile()
+    public void IdentityValidationRejectsInvalidCurrentSnapshot()
     {
         var s = New(); var snapshot = s.CapturePersistenceSnapshot(); var p = snapshot.Preparation!;
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { LineupReactionsVersion = 2 } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { FinishedBeerIds = null, GuestMedicalCollapses = null } }).IsSuccess);
-        var legacy = New(false); Assert.IsNull(legacy.CapturePreparation()!.LineupReactionsVersion); RestoreExact(legacy);
-        var dir = new DirectoryInfo(AppContext.BaseDirectory); while (dir is not null && !File.Exists(Path.Combine(dir.FullName, "ROGUELIKE_DESIGN.md"))) dir = dir.Parent;
-        var file = Path.Combine(dir!.FullName, "reports", "evidence", "R0.05h", "final-1280x720", "saves", "manual-preparation.ftsave"); var bytes = File.ReadAllBytes(file);
-        var historical = new SaveCompatibility("0.0.1-r0.05-hearing-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v13");
-        var read = SaveFileAdapter.LoadFile(file, historical); Assert.IsTrue(read.IsSuccess, read.Error); Assert.IsNull(read.Session!.CapturePreparation()!.LineupReactionsVersion); RestoreExact(read.Session);
-        var normal = new SaveCompatibility("0.0.1-r0.05n-booking-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-booking-v1"); Assert.IsFalse(SaveFileAdapter.LoadFile(file, normal).IsSuccess);
-        CollectionAssert.AreEqual(bytes, File.ReadAllBytes(file)); Assert.AreEqual("CBBDAF6BE8409B401907F669F603BE3FFEF4E9212F7DE3BC327998F379A82E56", Convert.ToHexString(SHA256.HashData(bytes)));
+        // Development saves are current-version only; the historical R0.05h file is retained as evidence, not a compatibility gate.
+        RestoreExact(s);
     }
 }

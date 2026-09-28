@@ -55,6 +55,7 @@ public partial class Main
             if (frame == 18)
             {
                 BookingCheck(_bookingSort == BookingSortField.Ego && !_bookingDescending && ReferenceEquals(_bookingTableBody!.GetChild(0), _bookingCards["act.meadow-lanterns"]), "Native Enter first header sort failed");
+                BookingCheck(_bookingMeaning!.Text.Contains("Ego") && _bookingMeaning.Text.Contains("Demandingness"), "Keyboard-focused rating header lost its meaning");
                 Input.ParseInputEvent(new InputEventKey { Keycode = Key.Enter, Pressed = true });
                 Input.ParseInputEvent(new InputEventKey { Keycode = Key.Enter, Pressed = false });
             }
@@ -106,6 +107,7 @@ public partial class Main
                     BookingCheck(_hudStartReason.GetVisibleLineCount() == _hudStartReason.GetLineCount(), "Booking readiness text clipped");
                     BookingCheck(_hudStartReason.GetGlobalRect().End.Y < viewport.End.Y - 54, "Footer overlaps global status bar");
                     BookingCheck(_bookingSlots.All(s => viewport.Encloses(s.GetGlobalRect())), "Stage slot outside viewport");
+                    BookingCheck(_bookingLane!.GetGlobalRect().End.X < _bookingHeaders[0].GetGlobalRect().Position.X, "Lineup and hitboxes are not left of the band table");
                     BookingCheck(_bookingHeaders.All(h => viewport.Encloses(h.GetGlobalRect())), "A table column header left the viewport");
                     BookingCheck(_bookingCards.Values.All(card => card.Visible && viewport.Encloses(card.GetGlobalRect())), "A band row is hidden or outside the viewport in All genres");
                     BookingCheck(_bookingMeaning is not null && viewport.Encloses(_bookingMeaning.GetGlobalRect()) && _bookingMeaning.GetVisibleLineCount() == _bookingMeaning.GetLineCount(), "Booking trait meaning line clipped");
@@ -117,9 +119,17 @@ public partial class Main
                         pair.Value.Name.GetLineCount() == 1 && pair.Value.Name.GetVisibleLineCount() == 1 &&
                         pair.Value.Detail.GetLineCount() == 1 && pair.Value.Detail.GetVisibleLineCount() == 1), "Assigned name or expectation wraps/clips outside its 42px row");
                     BookingCheck(_bookingHeaderTitles.All(label => label.GetLineCount() == 1 && label.GetVisibleLineCount() == 1), "A table header label wraps or clips");
+                    BookingCheck(_bookingHeaders.All(button => button.GetChild(0).GetChildCount() == 1), "A rating-header subtitle remains visible");
+                    BookingCheck(_bookingRatings.Values.All(rating => rating.Popularity.GetParent().GetChildCount() == 1 && rating.Ego.GetParent().GetChildCount() == 1 && rating.Professionalism.GetParent().GetChildCount() == 1), "A numeric star total remains beside a star strip");
                     BookingCheck(_session.GetFestivalActs().All(act =>
                         _bookingRatings[act.Id].Popularity.Score == act.Popularity && _bookingRatings[act.Id].Ego.Score == act.Ego && _bookingRatings[act.Id].Professionalism.Score == act.Professionalism &&
-                        _bookingCards[act.Id].TooltipText.Contains($"Popularity {act.Popularity}/100") && _bookingCards[act.Id].TooltipText.Contains($"Ego {act.Ego}/100") && _bookingCards[act.Id].TooltipText.Contains($"Professionalism {act.Professionalism}/100")), "A star cell or exact raw-value tooltip disagrees with the catalog");
+                        _bookingCards[act.Id].TooltipText.Contains($"Popularity {act.Popularity}/100") && _bookingCards[act.Id].TooltipText.Contains($"Ego {act.Ego}/100") && _bookingCards[act.Id].TooltipText.Contains($"Professionalism {act.Professionalism}/100") &&
+                        _bookingRatings[act.Id].Popularity.TooltipText.Contains($"{act.Name} — Popularity {act.Popularity}/100") &&
+                        _bookingRatings[act.Id].Ego.TooltipText.Contains($"{act.Name} — Ego {act.Ego}/100") &&
+                        _bookingRatings[act.Id].Professionalism.TooltipText.Contains($"{act.Name} — Professionalism {act.Professionalism}/100") &&
+                        _bookingRatings[act.Id].Popularity.FocusMode == Control.FocusModeEnum.All &&
+                        _bookingRatings[act.Id].Ego.FocusMode == Control.FocusModeEnum.All &&
+                        _bookingRatings[act.Id].Professionalism.FocusMode == Control.FocusModeEnum.All), "A star cell or exact raw-value hover/keyboard help disagrees with the catalog");
                 }
                 GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_bookingCaptureDirectory, _bookingCaptureShot + ".png"));
             }
@@ -182,6 +192,14 @@ public partial class Main
                     _bookingCaptureShot = "14-keyboard-placement"; break;
                 case 14:
                     BookingCheck(BookingIds[0] == "act.neon-postcards", "Injected native Enter/Space placement failed");
+                    _bookingHeaders[3].EmitSignal(Control.SignalName.MouseEntered);
+                    BookingCheck(_bookingMeaning!.Text.Contains("Popularity — Audience appeal"), "Rating-header hover lost its meaning");
+                    _bookingHeaders[3].EmitSignal(Control.SignalName.MouseExited);
+                    _bookingRatings["act.field-frequency"].Ego.EmitSignal(Control.SignalName.MouseEntered);
+                    BookingCheck(_bookingMeaning!.Text.Contains("Field Frequency — Ego 60/100") && _bookingMeaning.Text.Contains("3.0 stars"), "Star-strip hover lacks exact score and star count");
+                    _bookingRatings["act.field-frequency"].Ego.EmitSignal(Control.SignalName.MouseExited);
+                    _bookingRatings["act.field-frequency"].Ego.GrabFocus();
+                    BookingCheck(_bookingMeaning!.Text.Contains("Field Frequency — Ego 60/100") && _bookingMeaning.Text.Contains("3.0 stars") && _bookingMeaning.Text.Contains("demanding/headline-sensitive"), "Keyboard focus on star strip lacks exact score, star count and meaning");
                     _bookingCards["act.field-frequency"].GrabFocus();
                     BookingCheck(_bookingMeaning!.Text.Contains("Field Frequency") && _bookingMeaning.Text.Contains("Popularity 75/100") && _bookingMeaning.Text.Contains("Ego 60/100") && _bookingMeaning.Text.Contains("Professionalism 75/100") &&
                         _bookingMeaning.Text.Contains("appeal") && _bookingMeaning.Text.Contains("demanding, not quality") && _bookingMeaning.Text.Contains("softens ego, not immunity") &&

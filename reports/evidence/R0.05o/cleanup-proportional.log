@@ -1,0 +1,35 @@
+failed ActualHistoricalSaveRemainsReadableWithKnownHashAndNewIdentityRejectsIt (87ms)
+  Assertion failed. Expected condition to be true.
+  Authoritative payload validation failed: Live performer route or attachment invalid.
+
+  actual: false
+
+  Assert.IsTrue(loaded.IsSuccess)
+  Expected
+    true
+  Actual
+    false
+    at Festival.Tests.FestivalResultsTests.ActualHistoricalSaveRemainsReadableWithKnownHashAndNewIdentityRejectsIt() in /_/tests/Festival.Tests/FestivalResultsTests.cs:196
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+failed PriorChargedSaveIsRejectedByNormalEconomicsIdentityAndFilePreserved (77ms)
+  Assertion failed. Expected condition to be true.
+  Authoritative payload validation failed: Live performer route or attachment invalid.
+
+  actual: false
+
+  Assert.IsTrue(legacy.IsSuccess)
+  Expected
+    true
+  Actual
+    false
+    at Festival.Tests.PreparationPlanTests.PriorChargedSaveIsRejectedByNormalEconomicsIdentityAndFilePreserved() in /_/tests/Festival.Tests/PreparationPlanTests.cs:194
+    at System.RuntimeMethodHandle.InvokeMethod(Object target, Void** arguments, Signature sig, Boolean isConstructor)
+    at System.Reflection.MethodBaseInvoker.InvokeWithNoArgs(Object obj, BindingFlags invokeAttr)
+
+Test run summary: Failed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 96
+  failed: 2
+  succeeded: 94
+  skipped: 0
+  duration: 1m 49s 849ms
