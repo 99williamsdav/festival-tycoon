@@ -1,0 +1,10 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+ATTENDEE_PALETTE_BASE filter=NearestWithMipmaps repeat=True roughness=0.93 dimensions=96x8
+CAMERA_PROFILE_READY mode=live-toilet people=32 performers=9 tick=1800 hash=fe6ac02db3a7f3fba1a5041bfc7f10a6426ef467e724d46ce6e421677f8b440b
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=32355bb51b2c5e472fcf3943dfa6f766ac9a39462493206b0b380a3dd55e84c4
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+INCIDENT_AUDIO_AMBIENT_START mode=cc0-integrated
+CAMERA_PROFILE_COMPLETE mode=live-toilet frames=2863 p95=24.557 p99=28.981 max=212.019 over100=1 focused=2863 tick=5802

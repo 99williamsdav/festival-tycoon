@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.Json;
 
 namespace Festival.Game;
@@ -16,7 +17,8 @@ public partial class Main
     private sealed record CameraProfileFrame(double Seconds, string Phase, double IntervalMs, double CallbackMs,
         double OutsideCallbackMs, double SimulationMs, double PresentationMs, long AllocatedBytes,
         int Gen0, int Gen1, int Gen2, long Tick, long AutosaveGeneration, bool Focused,
-        float FocusX, float FocusZ, int Orientation, float Zoom, bool BoundaryPending);
+        float FocusX, float FocusZ, int Orientation, float Zoom, bool BoundaryPending,
+        bool ToiletOccupied = false, int ToiletQueue = 0);
 
     private string? _cameraProfileOutput;
     private string? _cameraProfileMode;
@@ -38,7 +40,7 @@ public partial class Main
     {
         if (_cameraProfileOutput is null) return;
         PersistenceTiming.Observer = (stage, ms) => _cameraProfileSaveStages.Enqueue((stage, ms));
-        if (_cameraProfileMode is "live" or "failure")
+        if (_cameraProfileMode is "live" or "failure" or "live-toilet")
         {
             var perk = _session.CapturePerks()!;
             CommitEquipmentAction(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
@@ -48,6 +50,21 @@ public partial class Main
             if (_session.PreparedStatus != PreparationStatus.Running)
                 throw new InvalidOperationException("Camera profile could not start the current booking campaign: " + _preparationMessage);
             _session.AdvanceWithoutSnapshot(1800);
+            if (_cameraProfileMode == "live-toilet")
+            {
+                // Labelled profile fixture: otherwise no guest reaches the need
+                // threshold inside this 50-second camera measurement window.
+                var ids = _session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest)
+                    .Skip(3).Take(2).Select(person => person.AgentId).ToHashSet();
+                var immersion = _session.CaptureImmersion()!;
+                typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+                    immersion with { People = immersion.People.Select(person => ids.Contains(person.AgentId) ?
+                        person with { ToiletNeed = 9_000 } : person).ToArray() });
+                var medical = _session.CaptureMedical()!;
+                typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+                    medical with { Needs = medical.Needs.Select(need => ids.Contains(need.AgentId) ?
+                        need with { Thirst = 0 } : need).ToArray() });
+            }
             _foundationPresentation.Reset(_session.CaptureObservation());
             RefreshPreparationHud();
         }
@@ -95,6 +112,7 @@ public partial class Main
             if (!ReferenceEquals(source, _session)) throw new InvalidOperationException("Load replaced the source while an atomic boundary was pending.");
             _cameraProfileAttemptedLoadWhilePending = true;
         }
+        var toilet = _cameraProfileMode == "live-toilet" ? _session.CaptureToilet() : null;
         var now = Stopwatch.GetTimestamp();
         var interval = Stopwatch.GetElapsedTime(_cameraProfilePrevious, now).TotalMilliseconds;
         var callback = Stopwatch.GetElapsedTime(_cameraProfileCallbackStarted, now).TotalMilliseconds;
@@ -103,7 +121,7 @@ public partial class Main
             GC.GetAllocatedBytesForCurrentThread() - _cameraProfileAllocatedStart,
             GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2), _session.CurrentTick,
             _autosaveGeneration, DisplayServer.WindowIsFocused(), _focus.X, _focus.Z, _orientation, _camera.Size,
-            _boundarySaveTask is not null));
+            _boundarySaveTask is not null, toilet?.OwnerId is not null, toilet?.Queue.Length ?? 0));
         _cameraProfilePrevious = now;
         if (_cameraProfileMode == "failure")
         {
@@ -154,6 +172,8 @@ public partial class Main
             viewport = GetWindow().Size.ToString(), engineVersion = Engine.GetVersionInfo()["string"].AsString(),
             initialTick = _cameraProfileInitialTick, initialHash = _cameraProfileInitialHash,
             finalTick = _session.CurrentTick, finalHash, exactFinalReload = true,
+            toiletWees = _session.CaptureToilet()?.WeeCount,
+            toiletPoos = _session.CaptureToilet()?.PooCount,
             frameCount = frames.Count, focusedFrames = frames.Count(frame => frame.Focused),
             p50 = P(.5), p95 = P(.95), p99 = P(.99), max = sorted[^1],
             over33Ms = sorted.Count(ms => ms > 33.333), over100Ms = sorted.Count(ms => ms > 100),
