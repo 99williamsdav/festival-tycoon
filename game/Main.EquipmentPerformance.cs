@@ -170,6 +170,12 @@ public partial class Main
             catch (Exception error) { GD.PushError("Pending boundary save did not complete during shutdown: " + error); }
             _boundarySaveTask = null;
         }
+        if (_periodicSaveTask is { } periodic)
+        {
+            try { periodic.GetAwaiter().GetResult(); }
+            catch (Exception error) { GD.PushError("Pending periodic autosave did not complete during shutdown: " + error); }
+            _periodicSaveTask = null;
+        }
         if (_cameraProfileOutput is not null) PersistenceTiming.Observer = null;
         if (_equipmentOriginalVsync is { } original) DisplayServer.WindowSetVsyncMode(original);
         if (_equipmentOriginalMaxFps is { } originalFps) Engine.MaxFps = originalFps;

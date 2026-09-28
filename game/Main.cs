@@ -142,7 +142,7 @@ public partial class Main : Node
             GetWindow().Mode = Window.ModeEnum.Windowed;
             GetWindow().Size = new Vector2I(890, 680);
         }
-        _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null ?
+        _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null && _cameraProfileMode != "live-periodic" ?
             RealTimeAutosaveScheduler.ProductionCadenceSeconds : 2);
         if (_sharedWorldFixture is not null)
         {
@@ -321,7 +321,7 @@ public partial class Main : Node
     public override void _Input(InputEvent inputEvent)
     {
         if (_startSplash is not null) return;
-        if (_boundarySaveTask is not null && !CameraOnlyInput(inputEvent))
+        if ((_boundarySaveTask is not null || _periodicSaveTask is not null) && !CameraOnlyInput(inputEvent))
         { GetViewport().SetInputAsHandled(); return; }
         // Release must be observed before a HUD Control consumes the mouse event.
         if (inputEvent is InputEventMouseButton { ButtonIndex: MouseButton.Middle, Pressed: false })
@@ -331,7 +331,7 @@ public partial class Main : Node
     public override void _UnhandledInput(InputEvent inputEvent)
     {
         if (_festivalPaper is not null || _startSplash is not null) return;
-        if (_boundarySaveTask is not null && !CameraOnlyInput(inputEvent)) return;
+        if ((_boundarySaveTask is not null || _periodicSaveTask is not null) && !CameraOnlyInput(inputEvent)) return;
         if (_perkPanel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && _perkPanel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
         if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null || _campaignCaptureDirectory is not null) return;

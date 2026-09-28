@@ -21,6 +21,19 @@ public static class AutosaveRotation
         Action<SaveFailurePoint>? failureInjector = null) =>
         SaveFileAdapter.SaveSlot(directory, SlotForGeneration(generation), new SaveWriteRequest(session, compatibility, "autosave", now, generation), failureInjector);
 
+    /// <summary>Persist an immutable checkpoint on a worker while the live session advances.</summary>
+    public static SaveOperationResult SaveCaptured(
+        string directory, SessionPersistenceSnapshot snapshot, SaveCompatibility compatibility,
+        DateTimeOffset now, long generation, Action<SaveFailurePoint>? failureInjector = null)
+    {
+        var started = PersistenceTiming.Start();
+        var restored = GameSession.Restore(snapshot);
+        PersistenceTiming.Record("autosave.restore", started);
+        return restored.IsSuccess
+            ? Save(directory, restored.Session!, compatibility, now, generation, failureInjector)
+            : SaveOperationResult.Failure($"Could not restore captured autosave: {restored.Error}");
+    }
+
     public static long NextGeneration(string directory, SaveCompatibility compatibility)
     {
         var sequences = ValidCandidates(directory, compatibility)

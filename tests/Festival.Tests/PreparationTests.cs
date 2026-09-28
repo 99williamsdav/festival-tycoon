@@ -352,6 +352,48 @@ public sealed class PreparationTests
     }
 
     [TestMethod]
+    public void CapturedBoundarySaveAllowsLiveTicksAndFailureRestoresRetryPoint()
+    {
+        var directory = Path.Combine(Path.GetTempPath(), "festival-moving-boundary-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var live = GameSession.CreatePreparedCampaign(2);
+            Book(live, equipment: "equipment.rent");
+            Execute(live, new StartPreparedEditionCommand());
+            live.AdvanceWithoutSnapshot(GameSession.PreparedWeekendTicks - 1);
+            Assert.IsTrue(live.PreparationBoundaryOnNextTick);
+            var before = live.CapturePersistenceSnapshot();
+            var beforeHash = live.CaptureSnapshot().AuthoritativeHash;
+            live.AdvanceWithoutSnapshot(1);
+            var checkpoint = live.CapturePersistenceSnapshot();
+            var checkpointHash = live.CaptureSnapshot().AuthoritativeHash;
+            var pending = Task.Run(() => AutosaveRotation.SaveCaptured(directory, checkpoint, Compatibility,
+                DateTimeOffset.UnixEpoch, 0));
+            live.AdvanceWithoutSnapshot(8);
+            Assert.AreEqual(before.CurrentTick + 9, live.CurrentTick, "Simulation must advance while the save is pending.");
+            Assert.IsTrue(pending.GetAwaiter().GetResult().IsSuccess);
+            var saved = AutosaveRotation.LoadNewestValid(directory, Compatibility);
+            Assert.IsTrue(saved.IsSuccess, saved.Error);
+            Assert.AreEqual(before.CurrentTick + 1, saved.Session!.CurrentTick);
+            Assert.AreEqual(checkpointHash, saved.Session.CaptureSnapshot().AuthoritativeHash);
+
+            var failed = Task.Run(() => AutosaveRotation.SaveCaptured(directory, checkpoint, Compatibility,
+                DateTimeOffset.UnixEpoch.AddSeconds(1), 1,
+                _ => throw new IOException("Injected moving-boundary failure"))).GetAwaiter().GetResult();
+            Assert.IsFalse(failed.IsSuccess);
+            var rollback = GameSession.Restore(before);
+            Assert.IsTrue(rollback.IsSuccess, rollback.Error);
+            Assert.AreEqual(beforeHash, rollback.Session!.CaptureSnapshot().AuthoritativeHash);
+            Assert.IsTrue(rollback.Session.PreparationBoundaryOnNextTick);
+            saved = AutosaveRotation.LoadNewestValid(directory, Compatibility);
+            Assert.IsTrue(saved.IsSuccess, saved.Error);
+            Assert.AreEqual(checkpointHash, saved.Session!.CaptureSnapshot().AuthoritativeHash);
+        }
+        finally { Directory.Delete(directory, true); }
+    }
+
+    [TestMethod]
     public void OpeningInventoryPlusDeliveriesLessActualConsumptionEqualsRemainingValue()
     {
         var session = GameSession.CreatePreparedCampaign(2);

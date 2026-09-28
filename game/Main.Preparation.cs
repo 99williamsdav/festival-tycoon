@@ -256,15 +256,21 @@ public partial class Main
     {
         var workStarted = Stopwatch.GetTimestamp();
         if (_equipmentPerformanceOutput is not null) { _equipmentDeltaMs = delta * 1000; _equipmentDebtBefore = _foundationClock.DebtTicks; }
-        var saving = _boundarySaveTask is not null && !FinishResponsiveBoundarySave();
+        if (_periodicSaveTask is not null) FinishPeriodicAutosave();
+        if (_boundarySaveTask is not null) FinishResponsiveBoundarySave();
         _foundationClock.IsPaused = _resultsCaptureDirectory is not null || _session.IsPaused || _preparationSaveBlocked ||
             _session.CapturePreparation()!.Status is not (PreparationStatus.Running or PreparationStatus.Departing);
-        var ticks = _foundationClock.Schedule(delta, saving ? 0 : null);
+        var ticks = _foundationClock.Schedule(delta);
         if (_equipmentPerformanceOutput is not null) _equipmentScheduledTicks = ticks;
         for (var tick = 0; tick < ticks; tick++)
         {
             if (UseResponsiveBoundarySaves && BoundaryOnNextTick(_session))
             {
+                if (_boundarySaveTask is not null)
+                {
+                    _foundationClock.RequeueUnprocessedTicks(ticks - tick);
+                    break;
+                }
                 StartResponsiveBoundarySave(ticks - tick - 1);
                 break;
             }
@@ -324,11 +330,10 @@ public partial class Main
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceIncidentAudioPresentation();
         ProcessLivePerformanceCapture();
-        if (_boundarySaveTask is null && _session.PreparedStatus is (PreparationStatus.Running or PreparationStatus.Departing) && _autosaveScheduler.Advance(delta))
+        if (_boundarySaveTask is null && _periodicSaveTask is null &&
+            _session.PreparedStatus is (PreparationStatus.Running or PreparationStatus.Departing) && _autosaveScheduler.Advance(delta))
         {
-            var result = AutosaveRotation.Save(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
-            if (result.IsSuccess) _autosaveGeneration++;
-            else { _preparationMessage = $"Periodic autosave failed: {result.Error}"; RefreshPreparationHud(); }
+            StartPeriodicAutosave();
         }
         if (Engine.GetProcessFrames() % 15 == 0) RefreshPreparationHud();
         if (_preparationMeasurementTier > 0 && _preparationLiveStarted != 0)

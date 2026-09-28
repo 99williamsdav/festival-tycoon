@@ -18,11 +18,13 @@ public partial class Main
         double OutsideCallbackMs, double SimulationMs, double PresentationMs, long AllocatedBytes,
         int Gen0, int Gen1, int Gen2, long Tick, long AutosaveGeneration, bool Focused,
         float FocusX, float FocusZ, int Orientation, float Zoom, bool BoundaryPending,
-        bool ToiletOccupied = false, int ToiletQueue = 0);
+        bool ToiletOccupied = false, int ToiletQueue = 0, int TravellingVisuals = 0, int MovingVisuals = 0,
+        bool PeriodicPending = false);
 
     private string? _cameraProfileOutput;
     private string? _cameraProfileMode;
     private readonly List<CameraProfileFrame> _cameraProfileFrames = [];
+    private readonly Dictionary<EntityId, Vector3> _cameraProfilePriorPositions = [];
     private readonly ConcurrentQueue<(string Stage, double Milliseconds)> _cameraProfileSaveStages = new();
     private long _cameraProfileStarted;
     private long _cameraProfilePrevious;
@@ -40,7 +42,7 @@ public partial class Main
     {
         if (_cameraProfileOutput is null) return;
         PersistenceTiming.Observer = (stage, ms) => _cameraProfileSaveStages.Enqueue((stage, ms));
-        if (_cameraProfileMode is "live" or "failure" or "live-toilet")
+        if (_cameraProfileMode is "live" or "failure" or "live-toilet" or "live-periodic")
         {
             var perk = _session.CapturePerks()!;
             CommitEquipmentAction(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
@@ -113,6 +115,19 @@ public partial class Main
             _cameraProfileAttemptedLoadWhilePending = true;
         }
         var toilet = _cameraProfileMode == "live-toilet" ? _session.CaptureToilet() : null;
+        var travellingVisuals = 0;
+        var movingVisuals = 0;
+        foreach (var agent in _session.CaptureObservation().NavigationAgents)
+        {
+            if (!_attendeeVisuals.TryGetValue(agent.Id, out var visual)) continue;
+            if (agent.Action == AgentNavigationAction.Travelling)
+            {
+                travellingVisuals++;
+                if (_cameraProfilePriorPositions.TryGetValue(agent.Id, out var prior) &&
+                    visual.Position.DistanceSquaredTo(prior) > 0.00000001f) movingVisuals++;
+            }
+            _cameraProfilePriorPositions[agent.Id] = visual.Position;
+        }
         var now = Stopwatch.GetTimestamp();
         var interval = Stopwatch.GetElapsedTime(_cameraProfilePrevious, now).TotalMilliseconds;
         var callback = Stopwatch.GetElapsedTime(_cameraProfileCallbackStarted, now).TotalMilliseconds;
@@ -121,7 +136,8 @@ public partial class Main
             GC.GetAllocatedBytesForCurrentThread() - _cameraProfileAllocatedStart,
             GC.CollectionCount(0), GC.CollectionCount(1), GC.CollectionCount(2), _session.CurrentTick,
             _autosaveGeneration, DisplayServer.WindowIsFocused(), _focus.X, _focus.Z, _orientation, _camera.Size,
-            _boundarySaveTask is not null, toilet?.OwnerId is not null, toilet?.Queue.Length ?? 0));
+            _boundarySaveTask is not null, toilet?.OwnerId is not null, toilet?.Queue.Length ?? 0,
+            travellingVisuals, movingVisuals, _periodicSaveTask is not null));
         _cameraProfilePrevious = now;
         if (_cameraProfileMode == "failure")
         {
@@ -151,7 +167,7 @@ public partial class Main
             GetTree().Quit();
             return;
         }
-        if (_cameraProfileSeconds < 50 || _boundarySaveTask is not null) return;
+        if (_cameraProfileSeconds < 50 || _boundarySaveTask is not null || _periodicSaveTask is not null) return;
         var frames = _cameraProfileFrames;
         var sorted = frames.Select(frame => frame.IntervalMs).Order().ToArray();
         double P(double p) => sorted[Math.Clamp((int)Math.Ceiling(sorted.Length * p) - 1, 0, sorted.Length - 1)];
