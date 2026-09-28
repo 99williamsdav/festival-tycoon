@@ -93,6 +93,10 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyImmersionCommand(envelope.Command);
                 break;
+            case MoveToiletCommand toilet:
+                affectedTarget = null;
+                ApplyToiletCommand(toilet);
+                break;
             case AcceptPreparationOfferCommand offer:
                 affectedTarget = null;
                 ApplyPreparationOffer(offer);
@@ -355,7 +359,7 @@ public sealed partial class GameSession
             AdvanceMedical();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceDisorder();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceStaffInterventions();
-            if (MedicalOperationsActive) AdvanceImmersion();
+            if (MedicalOperationsActive) { AdvanceImmersion(); AdvanceToilet(); }
             ReleaseFrozenStaffClaims();
             AdvanceStaffAutonomy();
             FinalizeFestivalDeparture();
@@ -738,7 +742,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
         if (_perks is not null && envelope.Command is ApplyStaffFoundationEffectCommand or ApplyWaterFoundationEffectCommand)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Foundation demos are available only in legacy development diagnostics.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or MoveResponsePostCommand or PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or MoveResponsePostCommand or PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or MoveToiletCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -755,6 +759,7 @@ public sealed partial class GameSession
             DevelopmentDisorderEgressFixtureCommand fixture => _medical?.DevelopmentInterventionFixturesEnabled != true ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Development intervention fixture is disabled.") : ValidateDisorderCommand(envelope.TargetId, new(DisorderAction.SafeEgress, fixture.GuestId), developmentFixture: true),
             SetProgrammeCommand programme => ValidateProgramme(envelope.TargetId, programme),
             PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand => ValidateImmersionCommand(envelope.TargetId, envelope.Command),
+            MoveToiletCommand toilet => ValidateToiletCommand(envelope.TargetId, toilet),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture creation requires no target and a positive expiry."),

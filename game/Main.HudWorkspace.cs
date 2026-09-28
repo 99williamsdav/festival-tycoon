@@ -189,9 +189,10 @@ public partial class Main
         placementRow.AddChild(ButtonText("Rotate ↻", () => {
             if(_movingResponsePost is not null)RotateResponsePost(1);
             else if (_placingImmersionVendor is not null) { _immersionQuarterTurns = (_immersionQuarterTurns + 1) % 4; UpdateImmersionPlacementPreview(GetViewport().GetMousePosition()); }
+            else if (_movingToilet) RotateToiletPlacement(1);
             else RotateWaterPlacement(1);
         }));
-        placementRow.AddChild(ButtonText("Cancel", () => { CancelResponsePostPlacement(); CancelImmersionPlacement(); CancelWaterPlacement(); RefreshHudWorkspace(); }));
+        placementRow.AddChild(ButtonText("Cancel", () => { CancelResponsePostPlacement(); CancelImmersionPlacement(); CancelToiletPlacement(); CancelWaterPlacement(); RefreshHudWorkspace(); }));
 
         _hudProgrammeToggle = ButtonText("Programme ▴", () => { _hudProgrammeOpen = !_hudProgrammeOpen; RefreshHudWorkspace(); });
         _hudProgrammeToggle.Position = new Vector2(width - 150, 58); _hudProgrammeToggle.Size = new Vector2(150, 34); _hudProgrammeToggle.Theme = HudTheme(); layer.AddChild(_hudProgrammeToggle);
@@ -289,7 +290,7 @@ public partial class Main
     {
         if (_hudMoney is null || _session.CapturePreparation() is not { } p) return;
         var preparing = p.Status == PreparationStatus.Preparing;
-        var placing = _movingResponsePost is not null || _placingImmersionVendor is not null || _waterPlacementMode != WaterPlacementMode.None;
+        var placing = _movingResponsePost is not null || _placingImmersionVendor is not null || _movingToilet || _waterPlacementMode != WaterPlacementMode.None;
         if (placing) _hudWorkspaceOpen = false;
         var finance = _session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);
         _hudPhase!.Text = $"Lower Wittering\n{(preparing ? "PREPARATION · BEFORE OPENING" : "LIVE · FESTIVAL DAY")}";
@@ -309,7 +310,7 @@ public partial class Main
         _hudPreparationToggle!.Visible = preparing; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
         _hudRosterToggle!.Text = $"People · {p.People.Length} ▸";
         _hudPlacement!.Visible = placing;
-        _hudPlacementText!.Text = $"{(_movingResponsePost is {} postRole?postRole==ResponseRole.Medic?"Moving first aid":"Moving steward post":_placingImmersionVendor is { } id ? "Moving " + (id == "food" ? "food van" : "bar") : _waterPlacementMode == WaterPlacementMode.Add ? "Adding free-water tap" : "Moving free-water tap")}\nChoose grass · click to place · comma/period rotate · Esc cancels";
+        _hudPlacementText!.Text = $"{(_movingResponsePost is {} postRole?postRole==ResponseRole.Medic?"Moving first aid":"Moving steward post":_placingImmersionVendor is { } id ? "Moving " + (id == "food" ? "food van" : "bar") : _movingToilet ? "Moving toilet" : _waterPlacementMode == WaterPlacementMode.Add ? "Adding free-water tap" : "Moving free-water tap")}\nChoose grass · click to place · comma/period rotate · Esc cancels";
         _hudProgrammeToggle!.Visible = !preparing; _hudProgramme!.Visible = !preparing && _hudProgrammeOpen;
         _hudProgrammeToggle.Text = _hudProgrammeOpen ? "Programme ▴" : "Programme ▾";
         LayoutOwnedContext(_ownedWorkspaceConstrained);

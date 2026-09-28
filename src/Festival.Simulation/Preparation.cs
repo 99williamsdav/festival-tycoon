@@ -425,6 +425,7 @@ public sealed partial class GameSession
             _traversalGrid=new TraversalGrid(terrain.Values);
         }
         BlockImmersionVendors();
+        BlockToilet();
         for (var index = 0; index < p.People.Length; index++)
         {
             var person = p.People[index];
@@ -541,7 +542,12 @@ public sealed partial class GameSession
         _programme = baseline._programme;
         if (_immersion is not null)
         {
-            _immersion = baseline._immersion! with { Vendors = _immersion.Vendors.Select(v => v with { Queue = [], OwnerId = null, ServiceTicks = 0,QueueCells=v.QueueCells is null?null:[ImmersionServiceCell(v)] }).ToArray() };
+            _immersion = baseline._immersion! with
+            {
+                Vendors = _immersion.Vendors.Select(v => v with { Queue = [], OwnerId = null, ServiceTicks = 0,QueueCells=v.QueueCells is null?null:[ImmersionServiceCell(v)] }).ToArray(),
+                Toilet = _immersion.Toilet is { } owned ? baseline._immersion!.Toilet! with
+                { Cell = owned.Cell, QuarterTurns = owned.QuarterTurns } : baseline._immersion!.Toilet
+            };
             foreach (var person in _immersion.People) _wallets[new(person.AgentId)].CashPennies = person.OpeningBudgetPennies;
         }
         _equipment = baseline._equipment;

@@ -126,7 +126,7 @@ public partial class Main : Node
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
     private SaveCompatibility _saveCompatibility => _session?.CapturePreparation()?.LineupReactionsVersion == 1
-        ? new("0.0.1-r0.05n-booking-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-booking-v1")
+        ? new("0.0.1-r0.05s-toilet-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-toilet-v1")
         : _session?.FestivalResultsEnabled == true
         ? new("0.0.1-r0.05m-results-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-results-v1")
         : _session?.StaffAutonomyEnabled == true
@@ -271,6 +271,7 @@ public partial class Main : Node
         if (_waterPlacementMode != WaterPlacementMode.None && _waterPlaytestCaptureDirectory is null)
             UpdateWaterPlacementPreview(GetViewport().GetMousePosition());
         if (_placingImmersionVendor is not null) UpdateImmersionPlacementPreview(GetViewport().GetMousePosition());
+        if (_movingToilet) UpdateToiletPlacementPreview(GetViewport().GetMousePosition());
         if(_movingResponsePost is not null)UpdateResponsePostPreview(GetViewport().GetMousePosition());
         if (_session.CapturePreparation() is not null) AdvancePreparationPresentation(delta);
         else if (_sharedWorldFixture is not null) AdvanceSharedWorldFeasibility(delta);
@@ -340,6 +341,9 @@ public partial class Main : Node
             if(_movingResponsePost is not null && key.Keycode is Key.Comma or Key.Period){RotateResponsePost(key.Keycode==Key.Comma?-1:1);return;}
             if(key.Keycode==Key.Escape && (_pendingPerkChoice is not null || _pendingPerkSkip)){CancelPerkConfirmation();return;}
             if (_placingImmersionVendor is not null && key.Keycode == Key.Escape) { CancelImmersionPlacement(); return; }
+            if (_movingToilet && key.Keycode == Key.Escape) { CancelToiletPlacement(); return; }
+            if (_movingToilet && key.Keycode is Key.Comma or Key.Period)
+            { RotateToiletPlacement(key.Keycode == Key.Comma ? -1 : 1); return; }
             if (_placingImmersionVendor is not null && key.Keycode is Key.Comma or Key.Period)
             { _immersionQuarterTurns = (_immersionQuarterTurns + (key.Keycode == Key.Comma ? 3 : 1)) % 4; UpdateImmersionPlacementPreview(GetViewport().GetMousePosition()); return; }
             if (key.Keycode == Key.Escape && _waterPlacementMode != WaterPlacementMode.None) { CancelWaterPlacement(); return; }
@@ -362,6 +366,8 @@ public partial class Main : Node
             if(_movingResponsePost is not null && mouse.Pressed && mouse.ButtonIndex==MouseButton.Left){CommitResponsePostPlacement(mouse.Position);return;}
             if (_placingImmersionVendor is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Right) { CancelImmersionPlacement(); return; }
             if (_placingImmersionVendor is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left) { CommitImmersionPlacement(mouse.Position); return; }
+            if (_movingToilet && mouse.Pressed && mouse.ButtonIndex == MouseButton.Right) { CancelToiletPlacement(); return; }
+            if (_movingToilet && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left) { CommitToiletPlacement(mouse.Position); return; }
             if (mouse.ButtonIndex == MouseButton.WheelUp && mouse.Pressed) Zoom(-4);
             else if (mouse.ButtonIndex == MouseButton.WheelDown && mouse.Pressed) Zoom(4);
             else if (mouse.ButtonIndex == MouseButton.Middle) _middleDragging = mouse.Pressed;
@@ -826,10 +832,12 @@ public partial class Main : Node
     {
         if (WorldInputOccluded(screenPosition)) return;
         _selectedImmersionVendor = null;
+        _selectedToilet = false;
         var collider = ResolveWorldHit(screenPosition);
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
         else if (collider is not null && collider.GetInstanceId() == _generatorPickId) SelectGenerator();
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
+        else if (collider is not null && _toiletPickIds.Contains(collider.GetInstanceId())) SelectToilet();
         else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
         else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility))
             SelectMedicalFacility(medicalFacility.Facility, medicalFacility.WaterPointId);
@@ -841,6 +849,7 @@ public partial class Main : Node
     {
         if (!_visualRegistry.TryGetValue(item.StableId, out var objectVisual)) { ClearSelection(); return; }
         _selectedImmersionVendor = null;
+        _selectedToilet = false;
         ClearSecurityPostSelection();
         _selectedMedicalFacility = null;
         RefreshMedicalNeedBars(null);
@@ -869,6 +878,7 @@ public partial class Main : Node
     {
         RefreshImmersionNeedBars(null);
         _selectedImmersionVendor = null;
+        _selectedToilet = false;
         ClearSecurityPostSelection();
         RefreshMedicalNeedBars(null);
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _selectedWaterPointId = "water.main";
@@ -889,6 +899,7 @@ public partial class Main : Node
             return;
         }
         _selectedImmersionVendor = null;
+        _selectedToilet = false;
         ClearSecurityPostSelection();
         _selectedMedicalFacility = null;
         _selected = null; _selectedAttendeeId = id;
@@ -1013,6 +1024,8 @@ public partial class Main : Node
             { _bookingCaptureDirectory = args[++i]; Directory.CreateDirectory(_bookingCaptureDirectory); }
             else if (args[i] == "--capture-r005q-roles" && i + 1 < args.Length)
             { _roleCaptureDirectory = args[++i]; Directory.CreateDirectory(_roleCaptureDirectory); }
+            else if (args[i] == "--capture-r005s-toilet" && i + 1 < args.Length)
+            { _toiletCaptureDirectory = args[++i]; _immersionCaptureDirectory = _toiletCaptureDirectory; Directory.CreateDirectory(_toiletCaptureDirectory); }
             else if (args[i] == "--profile-camera-release" && i + 2 < args.Length)
             {
                 _cameraProfileMode = args[++i]; _cameraProfileOutput = args[++i];

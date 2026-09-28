@@ -308,7 +308,7 @@ public sealed partial class GameSession
         }
     }
 
-    private bool AudienceNavigationOwned(ulong id) => ImmersionOwnsNavigation(id) || MedicalOwnsNavigation(id) || DisorderOwnsNavigation(id) ||
+    private bool AudienceNavigationOwned(ulong id) => ImmersionOwnsNavigation(id) || ToiletOwnsNavigation(id) || MedicalOwnsNavigation(id) || DisorderOwnsNavigation(id) ||
         _medical?.StaffInterventions.Any(job => job.GuestId == id && job.Stage is StaffInterventionStage.Guiding or StaffInterventionStage.Escorting) == true;
 
     private static int AudienceDistanceSquared(GridCell a, GridCell b) => (a.X - b.X) * (a.X - b.X) + (a.Z - b.Z) * (a.Z - b.Z);

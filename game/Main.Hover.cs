@@ -70,6 +70,7 @@ public partial class Main
             return _attendeeVisuals.TryGetValue(person,out var body) && body.IsVisibleInTree() && !body.IsQueuedForDeletion() ? collider : null;
         if (_immersionVendorPicks.TryGetValue(key,out var vendor))
             return _immersionVendors.TryGetValue(vendor,out var body) && body.IsVisibleInTree() && !body.IsQueuedForDeletion() ? collider : null;
+        if (_toiletPickIds.Contains(key)) return _toiletBody is { } toilet && toilet.IsVisibleInTree() && !toilet.IsQueuedForDeletion() ? collider : null;
         if (_securityPostPickId != 0 && key == _securityPostPickId) return collider;
         if (_generatorPickId != 0 && key == _generatorPickId)
             return _equipmentVisual is { } generator && generator.IsVisibleInTree() && !generator.IsQueuedForDeletion() ? collider : null;
@@ -120,6 +121,8 @@ public partial class Main
                 cursor = _waterPlacementCandidate is not null && _waterPlacementIssue is null ? Input.CursorShape.Cross : Input.CursorShape.Forbidden;
             else if (_placingImmersionVendor is not null)
                 cursor = _immersionCandidate is not null && _immersionPlacementIssue is null ? Input.CursorShape.Cross : Input.CursorShape.Forbidden;
+            else if (_movingToilet)
+                cursor = _toiletCandidate is not null && _toiletPlacementIssue is null ? Input.CursorShape.Cross : Input.CursorShape.Forbidden;
             else if (ResolveWorldHit(screen) is { } collider)
             {
                 var key = collider.GetInstanceId(); _hoveredColliderId = key;
@@ -137,6 +140,8 @@ public partial class Main
                     var body=_immersionVendors[vendorId];yaw=body.Rotation.Y;
                     var geometry=BuildingHoverGeometry(body);point=body.ToGlobal(geometry.Centre);scale=geometry.Scale;
                 }
+                else if (_toiletPickIds.Contains(key) && _toiletBody is { } toilet)
+                { point = toilet.GlobalPosition; yaw = toilet.Rotation.Y; scale = new Vector3(1.5f,.3f,1.7f); }
                 else if(key==_securityPostPickId){var post=_responsePostVisuals[ResponseRole.Steward];var geometry=BuildingHoverGeometry(post);yaw=post.Rotation.Y;point=post.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 else if(key==_generatorPickId && _equipmentVisual is { } generator){var geometry=BuildingHoverGeometry(generator);yaw=generator.Rotation.Y;point=generator.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 else if(_medicalFacilityPicks.TryGetValue(key,out var medical) && medical.Facility==MedicalFacility.FirstAid)

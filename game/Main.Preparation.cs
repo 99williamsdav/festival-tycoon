@@ -61,6 +61,7 @@ public partial class Main
             _ => false
         };
         _contextPanel.Visible = farm || person || vendor || facility ||
+            (_selectedToilet && _session.CaptureToilet() is not null && ContextVisualAvailable(_toiletBody)) ||
             (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0) ||
             (_selectedGenerator && _session.CaptureEquipment() is not null && ContextVisualAvailable(_equipmentVisual));
     }
@@ -89,6 +90,7 @@ public partial class Main
     private void PreparationStart()
     {
         CancelImmersionPlacement();
+        CancelToiletPlacement();
         CancelWaterPlacement();
         CancelResponsePostPlacement();
         var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, new StartPreparedEditionCommand(),
@@ -114,6 +116,7 @@ public partial class Main
         if (RejectActionDuringBoundarySave()) return;
         CancelResponsePostPlacement();
         CancelImmersionPlacement(); ResetImmersionHeldVisuals();
+        CancelToiletPlacement();
         CancelWaterPlacement();
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
         if (_session.CapturePreparationPlan() is not null && result.IsSuccess &&

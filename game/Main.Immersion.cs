@@ -30,9 +30,11 @@ public partial class Main
     private VBoxContainer? _immersionNeedSection;
     private ProgressBar? _immersionHungerBar;
     private ProgressBar? _immersionIntoxBar;
+    private ProgressBar? _immersionToiletBar;
     private Label? _immersionNeedLabel;
     private Label? _immersionHungerLabel;
     private Label? _immersionIntoxLabel;
+    private Label? _immersionToiletLabel;
     private readonly Dictionary<ulong, Label3D> _immersionWarningLabels = [];
     private readonly Dictionary<ulong, long> _immersionLastRemark = [];
     private Label3D? _immersionRemark;
@@ -93,13 +95,17 @@ public partial class Main
     {
         _immersionNeedSection = new VBoxContainer { Visible = false }; parent.AddChild(_immersionNeedSection);
         _immersionNeedLabel = LabelText("", 13, new Color("29352c")); _immersionNeedSection.AddChild(_immersionNeedLabel);
-        foreach (var title in new[] { "HUNGER", "INTOXICATION • FICTIONAL EXPOSURE" })
+        foreach (var title in new[] { "HUNGER", "TOILET NEED", "INTOXICATION • FICTIONAL EXPOSURE" })
         {
             var label = LabelText(title, 12, new Color("29352c")); _immersionNeedSection.AddChild(label);
-            if (title == "HUNGER") _immersionHungerLabel = label; else _immersionIntoxLabel = label;
+            if (title == "HUNGER") _immersionHungerLabel = label;
+            else if (title == "TOILET NEED") _immersionToiletLabel = label;
+            else _immersionIntoxLabel = label;
             var bar = new ProgressBar { MinValue = 0, MaxValue = 100, CustomMinimumSize = new Vector2(340, 15), ShowPercentage = true };
             _immersionNeedSection.AddChild(bar);
-            if (title == "HUNGER") _immersionHungerBar = bar; else _immersionIntoxBar = bar;
+            if (title == "HUNGER") _immersionHungerBar = bar;
+            else if (title == "TOILET NEED") _immersionToiletBar = bar;
+            else _immersionIntoxBar = bar;
         }
     }
     private void RefreshImmersionNeedBars(ulong? id)
@@ -108,14 +114,18 @@ public partial class Main
         var person = id is { } selected ? _session.CaptureImmersion()?.People.SingleOrDefault(p => p.AgentId == selected) : null;
         _immersionNeedSection.Visible = person is not null;
         if (person is null) return;
-        _immersionHungerBar!.Value = person.Hunger / 100d; _immersionIntoxBar!.Value = person.Intoxication / 100d;
+        _immersionHungerBar!.Value = person.Hunger / 100d;
+        _immersionToiletBar!.Value = person.ToiletNeed / 100d;
+        _immersionIntoxBar!.Value = person.Intoxication / 100d;
         if (_hudMoney is not null)
         {
             _immersionHungerLabel!.Text = $"HUNGER  {person.Hunger / 100m:0}%";
+            _immersionToiletLabel!.Text = $"TOILET NEED  {person.ToiletNeed / 100m:0}%";
             _immersionIntoxLabel!.Text = $"INTOXICATION  {person.Intoxication / 100m:0}%";
-            _immersionHungerBar.ShowPercentage = false; _immersionIntoxBar.ShowPercentage = false;
+            _immersionHungerBar.ShowPercentage = false; _immersionToiletBar.ShowPercentage = false; _immersionIntoxBar.ShowPercentage = false;
         }
         _immersionHungerBar.Modulate = MedicalNeedColor(person.Hunger);
+        _immersionToiletBar.Modulate = MedicalNeedColor(person.ToiletNeed);
         _immersionIntoxBar.Modulate = new Color(person.Intoxication >= 7500 ? "ff7566" : person.Intoxication >= 5000 ? "e8b45b" : "a6c887");
         _immersionNeedLabel!.Text = person.Intoxication >= 7500 ? "HEAVY INTOXICATION • CARE AVAILABLE" : person.Intoxication >= 5000 ? "IMPAIRED • COORDINATION REDUCED" : person.Intoxication >= 2500 ? "TIPSY" : "ADULT FOOD & DRINK NEEDS";
     }
@@ -166,6 +176,7 @@ public partial class Main
         _immersionMoveButton.Visible = false;
         _immersionMoveButton.TooltipText = "Choose a new grass site before opening. Comma/period rotate; right-click or Esc cancels.";
         parent.AddChild(_immersionMoveButton);
+        BuildToiletInspector(parent);
     }
 
     private int ImmersionHeavyOnSiteCount()
@@ -195,10 +206,12 @@ public partial class Main
         }
         _immersionSummary!.Text = $"Chips £3 • soft £2 • beer £3\nStock {state.ChipsStock}/{state.SoftStock}/{state.BeerStock} • sales {state.Purchases.Length}\n" +
             "Free water remains available. Personal spending budgets vary; staff do not buy beer.\n" +
-            string.Join("\n", state.Vendors.Select(v => $"{(v.Id == "food" ? "Food van" : "Drinks stall")}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}"));
+            string.Join("\n", state.Vendors.Select(v => $"{(v.Id == "food" ? "Food van" : "Drinks stall")}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}")) +
+            (state.Toilet is { } toilet ? $"\nPortaloo: {toilet.FullPercent}% full • {(toilet.InterruptedOccupantId is not null ? "unavailable" : toilet.IsFull ? "full" : toilet.OwnerId is null ? "free" : "occupied")}" : "");
         if (_session.PreparedStatus == PreparationStatus.Departing) _immersionSummary.Text += "\nCOUNTERS CLOSED • on-site alcohol risk and medic response continue until physical exit.";
         if (ImmersionHeavyOnSiteCount() > 0) _immersionSummary.Text = "! HEAVY INTOXICATION • select affected people for medic care\n" + _immersionSummary.Text;
         SyncImmersionWorld();
+        SyncToiletWorld();
         RefreshImmersionVendorInspector();
     }
 
@@ -321,7 +334,9 @@ public partial class Main
         if (_session.CaptureImmersion()?.People.SingleOrDefault(p => p.AgentId == id) is not { } person) return "";
         var wallet = _session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id).CashPennies;
         return $"\nFOOD & DRINK • adult\nBudget {FestivalCurrency.Format(wallet)} remaining / {FestivalCurrency.Format(person.OpeningBudgetPennies)} opening\n" +
-            $"Hunger {person.Hunger / 100m:0}% • intoxication {person.Intoxication / 100m:0}%\n" +
+            $"Hunger {person.Hunger / 100m:0}% • toilet need {person.ToiletNeed / 100m:0}% • intoxication {person.Intoxication / 100m:0}%\n" +
+            (person.ToiletStage != ToiletVisitStage.None ? $"Toilet: {person.ToiletStage.ToString().ToLowerInvariant()}\n" : "") +
+            (_session.ToiletSmellPenaltyPerSecond(id) > 0 ? "Nearby toilet smell is gradually reducing satisfaction.\n" : "") +
             (person.Abstains ? "Abstains from beer\n" : "Individual food/drink preferences\n") +
             (person.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} • {held.ConsumedTicks / 80m:0.0}/{GameSession.ImmersionConsumeTicks(held.Product) / 80}s consumed • {(!_session.IsPaused && _session.ImmersionConsumptionEligible(id) ? "consuming away from counter" : "retained; consumption paused")}\n" : "Hands empty\n") +
             (person.PendingDose > 0 ? "Previously ingested dose still absorbing\n" : "") +
@@ -353,5 +368,6 @@ public partial class Main
                 else if (Mathf.Abs(body.Rotation.X) < .1f) body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, 0);
             }
         RefreshImmersionVendorInspector();
+        RefreshToiletInspector();
     }
 }
