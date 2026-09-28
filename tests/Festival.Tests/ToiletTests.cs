@@ -37,6 +37,19 @@ public sealed class ToiletTests
         return session;
     }
 
+    private static GameSession OpenWithStock()
+    {
+        var session = GameSession.CreateImmersionCampaign(20260928);
+        Assert.IsTrue(Send(session, new PurchaseImmersionStarterStockCommand()).IsAccepted);
+        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"])).IsAccepted);
+        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
+        var preparation = session.CapturePreparation()!;
+        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+            preparation with { People = preparation.People.Select(p => p with { Admitted = true }).ToArray() });
+        return session;
+    }
+
     [TestMethod]
     public void OwnedToiletMoveIsAtomicAndCurrentVersionRoundTrips()
     {
@@ -97,6 +110,7 @@ public sealed class ToiletTests
         Assert.AreEqual(1, completed.PooCount);
         Assert.AreEqual(0, completed.WeeCount);
         Assert.AreEqual(ToiletRules.PooMillilitres, completed.UsedMillilitres);
+        Assert.AreEqual(1_000, session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed);
         Assert.IsTrue(completed.DoorOpen);
         Invoke(session, "AdvanceToilet");
         Assert.AreEqual(completed.UsedMillilitres, session.CaptureToilet()!.UsedMillilitres);
@@ -107,6 +121,86 @@ public sealed class ToiletTests
         Assert.AreEqual(ToiletVisitStage.None, session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletStage);
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    [TestMethod]
+    public void NeedFallsOnlyDuringUseAndPartialReliefSurvivesSaveAndInterruption()
+    {
+        var session = Open();
+        var id = session.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
+        var toilet = session.CaptureToilet()!;
+        var state = session.CaptureImmersion()!;
+        SetImmersion(session, state with { Toilet = toilet with { Queue = [id] },
+            People = state.People.Select(p => p.AgentId == id ? p with
+            { ToiletNeed = 9_000, ToiletStage = ToiletVisitStage.Queued, ToiletChoice = ToiletVisitKind.Wee } : p).ToArray() });
+        Position(session, id, GameSession.ToiletQueueCell(toilet, 0), "toilet.queue");
+        Invoke(session, "AdvanceToilet");
+        Assert.IsTrue(session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed >= 9_000);
+        state = session.CaptureImmersion()!;
+        SetImmersion(session, state with { Toilet = state.Toilet! with { OwnerId = id, Queue = [id], DoorOpen = false, ServiceTicks = 100 },
+            People = state.People.Select(p => p.AgentId == id ? p with { ToiletNeed = 9_000,
+                ToiletStage = ToiletVisitStage.Using, ToiletChoice = ToiletVisitKind.Wee } : p).ToArray() });
+        Position(session, id, GameSession.ToiletInsideCell(toilet), "toilet.enter");
+        session.AdvanceWithoutSnapshot(20);
+        var partial = session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed;
+        Assert.IsTrue(partial is > 1_000 and < 9_000, $"Partial relief should be visible mid-use: {partial}.");
+        Assert.AreEqual(0, session.CaptureToilet()!.UsedMillilitres);
+        var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        session.AdvanceWithoutSnapshot(20); restored.Session!.AdvanceWithoutSnapshot(20);
+        Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session.CaptureSnapshot().AuthoritativeHash);
+        var beforeInterruption = session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed;
+        Position(session, id, GameSession.ToiletInsideCell(toilet), "medical.collapsed");
+        Invoke(session, "AdvanceToilet");
+        Assert.AreEqual(beforeInterruption, session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed);
+        Assert.AreEqual(0, session.CaptureToilet()!.UsedMillilitres);
+        Assert.AreEqual(0, session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletVisits);
+    }
+
+    [TestMethod]
+    public void ActuallyDrinkingBeerAddsNeedOnlyDuringConsumptionNotPurchaseOrHolding()
+    {
+        var beer = OpenWithStock(); var soft = OpenWithStock(); var held = OpenWithStock(); var control = OpenWithStock();
+        var id = beer.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
+        void Sell(GameSession session, ImmersionProduct product) =>
+            typeof(GameSession).GetMethod("CompleteImmersionSale", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .Invoke(session, [id, product]);
+        Sell(beer, ImmersionProduct.Beer); Sell(soft, ImmersionProduct.SoftDrink); Sell(held, ImmersionProduct.Beer);
+        var baseline = beer.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed;
+        Assert.AreEqual(baseline, held.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed,
+            "Buying or holding beer alone must not raise toilet need.");
+        foreach (var session in new[] { beer, soft, control }) Position(session, id, new GridCell(130, 165), "fixture.drink-away-from-counter");
+        var vendor = held.CaptureImmersion()!.Vendors.Single(v => v.Id == "drinks");
+        Position(held, id, GameSession.ImmersionServiceCell(vendor), "fixture.holding-at-counter");
+        Assert.IsTrue(beer.ImmersionConsumptionEligible(id));
+        Assert.IsFalse(held.ImmersionConsumptionEligible(id));
+        foreach (var session in new[] { beer, soft, held, control }) session.AdvanceWithoutSnapshot(80);
+        var beerPerson = beer.CaptureImmersion()!.People.Single(p => p.AgentId == id);
+        var softPerson = soft.CaptureImmersion()!.People.Single(p => p.AgentId == id);
+        var heldPerson = held.CaptureImmersion()!.People.Single(p => p.AgentId == id);
+        var controlPerson = control.CaptureImmersion()!.People.Single(p => p.AgentId == id);
+        Assert.IsTrue(beerPerson.Held!.ConsumedTicks >= 79);
+        Assert.AreEqual(beerPerson.Held.ConsumedTicks, softPerson.Held!.ConsumedTicks);
+        Assert.AreEqual(0, heldPerson.Held!.ConsumedTicks);
+        Assert.AreEqual(controlPerson.ToiletNeed, heldPerson.ToiletNeed);
+        Assert.AreEqual(controlPerson.ToiletNeed, softPerson.ToiletNeed);
+        Assert.AreEqual(beerPerson.Held.ConsumedTicks / ToiletRules.BeerConsumptionExtraGainEveryTicks,
+            beerPerson.ToiletNeed - softPerson.ToiletNeed);
+        // Labelled completion fixture: skip only the remaining sipping duration.
+        var completed = OpenWithStock(); Sell(completed, ImmersionProduct.Beer);
+        var state = completed.CaptureImmersion()!;
+        SetImmersion(completed, state with { People = state.People.Select(p => p.AgentId == id ?
+            p with { Held = p.Held! with { ConsumedTicks = GameSession.ImmersionConsumeTicks(ImmersionProduct.Beer) - 1 } } : p).ToArray() });
+        Position(completed, id, new GridCell(130, 165), "fixture.finish-drink-away-from-counter");
+        Assert.IsTrue(completed.ImmersionConsumptionEligible(id));
+        Invoke(completed, "AdvanceImmersion");
+        Assert.IsNull(completed.CaptureImmersion()!.People.Single(p => p.AgentId == id).Held);
+        Assert.AreEqual(1, completed.CaptureImmersion()!.Purchases.Length);
+        var finishedNeed = completed.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed;
+        completed.AdvanceWithoutSnapshot(40);
+        var laterGain = completed.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed - finishedNeed;
+        Assert.IsTrue(laterGain is 9 or 10,
+            "Completed beer must not leave a lasting extra need modifier.");
     }
 
     [TestMethod]

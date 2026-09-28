@@ -201,13 +201,16 @@ public sealed partial class GameSession
             var p = original;
             var recovery = p.RecoveryResidue + 10; var hunger = p.HungerResidue + 12;
             p = p with { Intoxication = Math.Max(0,p.Intoxication-recovery/80), RecoveryResidue = recovery%80, Hunger = Math.Min(10000,p.Hunger+hunger/80), HungerResidue = hunger%80, FoodProtectionTicks = Math.Max(0,p.FoodProtectionTicks-1),
-                ToiletNeed = _preparation.Status == PreparationStatus.Running && CurrentTick % ToiletRules.NeedGainEveryTicks == 0 ? Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1) : p.ToiletNeed };
+                ToiletNeed = _preparation.Status == PreparationStatus.Running && p.ToiletStage != ToiletVisitStage.Using && CurrentTick % ToiletRules.NeedGainEveryTicks == 0 ? Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1) : p.ToiletNeed };
             if(!_medical!.Needs.Any(n=>n.AgentId==p.AgentId)&&CurrentTick%4==0)p=p with { StaffThirst=Math.Min(10000,p.StaffThirst+1) };
             // Previously ingested dose keeps absorbing even when hands are owned by stage or care.
             if (p.PendingDose > 0) { var absorb = Math.Min(1,p.PendingDose); var residue = p.AbsorptionResidue + absorb*(p.FoodProtectionTicks>0 ? 1 : 2); p = p with { PendingDose = p.PendingDose-absorb, Intoxication = Math.Min(10000,p.Intoxication+residue/2), AbsorptionResidue = residue%2 }; }
             if (p.Held is { } held && ImmersionConsumptionEligible(p.AgentId))
             {
                 var duration = ImmersionConsumeTicks(held.Product); var elapsed = held.ConsumedTicks+1;
+                if (held.Product == ImmersionProduct.Beer && _preparation.Status == PreparationStatus.Running &&
+                    CurrentTick % ToiletRules.BeerConsumptionExtraGainEveryTicks == 0)
+                    p = p with { ToiletNeed = Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1) };
                 var effect = held.Product == ImmersionProduct.Chips ? 5500 : held.Product == ImmersionProduct.SoftDrink ? 6000 : 1500;
                 var delta = elapsed*effect/duration-held.ConsumedTicks*effect/duration;
                 if (held.Product == ImmersionProduct.Chips) p = p with { Hunger = Math.Max(0,p.Hunger-delta), FoodProtectionTicks = 4800 };

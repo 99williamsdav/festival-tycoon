@@ -19,6 +19,8 @@ public static class EquipmentCommandCoordinator
         if (!result.IsAccepted) return new(false, session, null, result.Message);
         var saved = AutosaveRotation.Save(directory, candidate, compatibility, now, generation, failureInjector);
         return saved.IsSuccess ? new(true, candidate, saved, null) : new(false, session, saved,
-            $"Action not applied; prior state retained. Fix the save location and retry the action. {saved.Error}");
+            saved.Error?.Contains("Temporary save validation failed:", StringComparison.Ordinal) == true
+                ? $"Action not applied; prior state retained. Save validation rejected the change. {saved.Error}"
+                : $"Action not applied; prior state retained. Check the save location and retry. {saved.Error}");
     }
 }

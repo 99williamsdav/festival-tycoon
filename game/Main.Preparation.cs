@@ -199,16 +199,20 @@ public partial class Main
         }
         if (_waterPlaceButton is not null)
         {
-            _waterPlaceButton.Visible = p.Status == PreparationStatus.Preparing;
+            _waterPlaceButton.Visible = p.Status == PreparationStatus.Preparing && !_session.BuildModeEnabled;
             var reason = _session.WaterTapAdditionUnavailableReason;
             _waterPlaceButton.Disabled = reason is not null;
             _waterPlaceButton.TooltipText = reason ?? "Choose a grass site; rotation and physical service access are checked at placement.";
-            if (_waterAdditionReason is not null) _waterAdditionReason.Text = reason ?? "Extra tap available · choose a grass spot, rotate or cancel.";
+            if (_waterAdditionReason is not null)
+            {
+                _waterAdditionReason.Visible = !_session.BuildModeEnabled;
+                _waterAdditionReason.Text = reason ?? "Extra tap available · choose a grass spot, rotate or cancel.";
+            }
             _waterTowerButton!.Visible = p.Status == PreparationStatus.Preparing;
             _waterTowerButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new ApplyWaterFoundationEffectCommand("water.tower"))) is not null;
-            _waterPlacementStatus!.Visible = p.Status == PreparationStatus.Preparing;
+            _waterPlacementStatus!.Visible = p.Status == PreparationStatus.Preparing && !_session.BuildModeEnabled;
         }
-        if (_waterFoundationHeading is not null) _waterFoundationHeading.Visible = p.Status == PreparationStatus.Preparing;
+        if (_waterFoundationHeading is not null) _waterFoundationHeading.Visible = p.Status == PreparationStatus.Preparing && !_session.BuildModeEnabled;
         if (_communityShareInfo is not null) _communityShareInfo.Text = FestivalCopy(_communityShareInfo.Text);
         _preparationSummary.TooltipText = FestivalCopy(_preparationMessage);
         var examples = p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Take(2)

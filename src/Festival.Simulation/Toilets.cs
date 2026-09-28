@@ -9,6 +9,9 @@ public static class ToiletRules
     public const int NeedMaximum = 10_000;
     public const int NeedThreshold = 6_000;
     public const int NeedGainEveryTicks = 4;
+    // While a held beer is actually being consumed, add one extra need unit
+    // every four ticks. No purchase, carrying or lasting intoxication modifier.
+    public const int BeerConsumptionExtraGainEveryTicks = 4;
     public const int DecisionEveryTicks = 80;
     public const int WeeServiceTicks = 240;
     public const int PooServiceTicks = 400;
@@ -313,7 +316,13 @@ public sealed partial class GameSession
         else if (active.ToiletStage == ToiletVisitStage.Using)
         {
             if (activeNav.IntentId != "toilet.enter") InterruptToiletOwner(owner);
-            else if (toilet.ServiceTicks > 1) SetToilet(toilet with { ServiceTicks = toilet.ServiceTicks - 1 });
+            else if (toilet.ServiceTicks > 1)
+            {
+                var remaining = toilet.ServiceTicks;
+                var reduction = (Math.Max(0, active.ToiletNeed - 1_000) + remaining - 1) / remaining;
+                SetImmersionPerson(active with { ToiletNeed = Math.Max(1_000, active.ToiletNeed - reduction) });
+                SetToilet(toilet with { ServiceTicks = remaining - 1 });
+            }
             else
             {
                 var poo = active.ToiletChoice == ToiletVisitKind.Poo;
@@ -414,7 +423,10 @@ public sealed partial class GameSession
             toilet.InterruptedOccupantId is { } interrupted &&
             (toilet.Queue.Contains(interrupted) || !immersion.People.Any(person => person.AgentId == interrupted)))
             return "Toilet identity, tank or exclusive owner invalid.";
-        if (geometry.ToiletPlacementError(toilet) is { } issue) return issue;
+        // Build-mode geometry was already checked as one complete layout in
+        // ValidatePersistedPreparation. The legacy single-toilet validator also
+        // reserves default response posts that do not exist in a fresh Build plan.
+        if (!build && geometry.ToiletPlacementError(toilet) is { } issue) return issue;
         if (immersion.People.Any(person => person.ToiletNeed is < 0 or > ToiletRules.NeedMaximum ||
             person.ToiletVisits < 0 || !Enum.IsDefined(person.ToiletStage) ||
             (person.ToiletStage == ToiletVisitStage.None) != (person.ToiletChoice is null) ||

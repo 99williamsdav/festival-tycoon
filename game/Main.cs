@@ -320,6 +320,7 @@ public partial class Main : Node
         ProcessBookingCapture();
         ProcessRoleCapture();
         ProcessBuildCapture();
+        ProcessBuildDebugOverlay();
         FinishCameraProfileFrame();
     }
 

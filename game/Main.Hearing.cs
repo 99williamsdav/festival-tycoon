@@ -319,6 +319,7 @@ public partial class Main
         _preparationMessage = command is SpendCouncilFavourCommand ? "Council Favour spent. Prepare this tier’s next weekend." : "The campaign has ended.";
         if (command is SpendCouncilFavourCommand)
         {
+            if (_session.BuildModeEnabled) SelectHudTab("Overview");
             ResetFinanceFeedback();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;

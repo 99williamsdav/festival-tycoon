@@ -13,11 +13,13 @@ public partial class Main
     private Label? _buildBudgetText;
     private Label? _buildChecklist;
     private Label? _buildFooterReason;
+    private ScrollContainer? _buildCatalogueScroll;
     private VBoxContainer? _buildPlacedList;
     private Button? _buildStartButton;
     private Button? _buildToggleButton;
     private ConfirmationDialog? _buildDefaultsDialog;
-    private readonly Dictionary<BuildServiceKind, (Label Count, Button Action)> _buildCatalogueRows = [];
+    private readonly Dictionary<BuildServiceKind, (Label Count, Button Action, HBoxContainer Row)> _buildCatalogueRows = [];
+    private readonly Dictionary<BuildServiceKind, List<Button>> _buildShortcutButtons = [];
     private bool _buildDrawerOpen;
     private string _buildPlacedKey = "";
     private BuildServiceKind? _buildGhostKind;
@@ -89,6 +91,7 @@ public partial class Main
             Math.Min(size.X >= 1600 ? 735 : 530, size.Y - 190)));
         _buildDrawer.Visible = false;
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+        _buildCatalogueScroll = scroll;
         _buildDrawer.AddChild(scroll);
         var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         box.AddThemeConstantOverride("separation", 6);
@@ -111,13 +114,9 @@ public partial class Main
             var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; row.AddChild(words);
             words.AddChild(HudLabel(BuildName(kind), 14));
             var count = HudLabel("", 11); words.AddChild(count);
-            var button = ButtonText("+ Place", () =>
-            {
-                var existing = _session.CaptureBuildPlacements().FirstOrDefault(item => item.Kind == kind);
-                BeginBuildPlacement(kind, GameSession.BuildServiceLimit(kind) == 1 ? existing?.Id : null);
-            });
+            var button = ButtonText("+ Place", () => BeginBuildPlacement(kind));
             button.CustomMinimumSize = new Vector2(74, 36); row.AddChild(button);
-            _buildCatalogueRows.Add(kind, (count, button));
+            _buildCatalogueRows.Add(kind, (count, button, row));
         }
         box.AddChild(new HSeparator());
         box.AddChild(HudLabel("Placed services · select one to move or remove", 13));
@@ -150,6 +149,37 @@ public partial class Main
         RefreshHudWorkspace();
     }
 
+    private void OpenBuildCatalogue(BuildServiceKind? focus = null)
+    {
+        if (!_session.BuildModeEnabled || _session.PreparedStatus != PreparationStatus.Preparing) return;
+        _buildDrawerOpen = true; _hudWorkspaceOpen = false;
+        RefreshHudWorkspace();
+        if (focus is { } kind && _buildCatalogueRows.TryGetValue(kind, out var entry))
+        {
+            _buildCatalogueScroll?.EnsureControlVisible(entry.Row);
+            if (!entry.Action.Disabled) entry.Action.GrabFocus();
+        }
+    }
+
+    private void AddBuildChecklistShortcuts(VBoxContainer parent)
+    {
+        foreach (var (kind, caption) in new[]
+        {
+            (BuildServiceKind.WaterTap, "Water — open taps in Build"),
+            (BuildServiceKind.Toilet, "Toilet — open toilets in Build"),
+            (BuildServiceKind.FirstAid, "Safety — open first aid in Build"),
+            (BuildServiceKind.StewardPost, "Safety — open steward posts in Build")
+        })
+        {
+            var button = ButtonText(caption, () => OpenBuildCatalogue(kind));
+            button.TooltipText = $"Open the Build catalogue at {BuildName(kind)}; placement remains your choice.";
+            parent.AddChild(button);
+            if (!_buildShortcutButtons.TryGetValue(kind, out var existing))
+                _buildShortcutButtons[kind] = existing = [];
+            existing.Add(button);
+        }
+    }
+
     private void RefreshBuildDrawer()
     {
         if (_buildDrawer is null || !_session.BuildModeEnabled || _session.CapturePreparationPlan() is not { } plan) return;
@@ -159,11 +189,14 @@ public partial class Main
             var count = placements.Count(item => item.Kind == kind);
             var limit = GameSession.BuildServiceLimit(kind);
             pair.Count.Text = $"{FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind))} each · {count}/{limit} placed";
-            pair.Action.Text = limit == 1 && count == 1 ? "Move" : "+ Place";
-            pair.Action.Disabled = limit > 1 && count >= limit;
+            pair.Action.Text = "+ Place";
+            pair.Action.Disabled = count >= limit;
+            pair.Row.Modulate = pair.Action.Disabled ? new Color(.63f, .63f, .63f) : Colors.White;
             pair.Action.TooltipText = $"{BuildName(kind)} costs {FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind))} at Start. {count} of {limit} placed. " +
                 (pair.Action.Disabled ? "Select a placed one to move or remove." : "Place an unpaid draft service.");
         }
+        foreach (var (kind, buttons) in _buildShortcutButtons)
+            foreach (var button in buttons) button.Visible = !placements.Any(item => item.Kind == kind);
         var key = string.Join("|", placements.Select(item => $"{item.Id}:{item.Cell.X}:{item.Cell.Z}:{item.QuarterTurns}"));
         if (key != _buildPlacedKey)
         {
@@ -255,19 +288,21 @@ public partial class Main
         CancelWaterPlacement(); CancelImmersionPlacement(); CancelToiletPlacement(); CancelResponsePostPlacement(); CancelBuildPlacement();
         _buildGhostKind = kind; _buildMovingId = movingId;
         _buildClickRejected = false;
-        _buildQuarterTurns = movingId is null ? 0 : _session.CaptureBuildPlacements().Single(item => item.Id == movingId).QuarterTurns;
+        _buildQuarterTurns = movingId is null ? kind == BuildServiceKind.Toilet ? 2 : 0 :
+            _session.CaptureBuildPlacements().Single(item => item.Id == movingId).QuarterTurns;
         _buildGhost = BuildAsset(kind); AddChild(_buildGhost);
         foreach (var mesh in _buildGhost.FindChildren("*", "MeshInstance3D", true, false))
             if (mesh is GeometryInstance3D geometry) geometry.Transparency = .12f;
         _buildDrawerOpen = false; _hudWorkspaceOpen = false;
         _preparationMessage = $"{(movingId is null ? "Place" : "Move")} {BuildName(kind)} · comma/period rotate · Esc cancels.";
-        RefreshHudWorkspace(); UpdateBuildGhost(GetViewport().GetMousePosition());
+        RefreshHudWorkspace(); UpdateBuildGhost(GetViewport().GetMousePosition()); RequestBuildOriginOverlay();
     }
 
     private void CancelBuildPlacement()
     {
         _buildGhostKind = null; _buildMovingId = null; _buildCandidate = null; _buildCandidateIssue = null;
         _buildClickRejected = false;
+        ClearBuildOriginOverlay();
         if (_buildGhost is not null) { _buildGhost.QueueFree(); _buildGhost = null; }
         RefreshBuildDrawer();
     }
@@ -277,15 +312,16 @@ public partial class Main
         _buildQuarterTurns = (_buildQuarterTurns + step + 4) % 4;
         _buildCandidate = null;
         UpdateBuildGhost(GetViewport().GetMousePosition());
+        RequestBuildOriginOverlay();
     }
 
     private void UpdateBuildGhost(Vector2 screen)
     {
         if (_buildGhostKind is not { } kind || _buildGhost is null) return;
-        if (HudBlocksPlacement(screen)) { _buildGhost.Visible = false; _buildCandidate = null; return; }
+        if (HudBlocksPlacement(screen)) { _buildGhost.Visible = false; _buildCandidate = null; RefreshBuildDebugHover(); return; }
         var ray = _camera.ProjectRayNormal(screen); var origin = _camera.ProjectRayOrigin(screen);
         if (Mathf.Abs(ray.Y) < .001f || -origin.Y / ray.Y <= 0)
-        { _buildGhost.Visible = false; _buildCandidate = null; return; }
+        { _buildGhost.Visible = false; _buildCandidate = null; RefreshBuildDebugHover(); return; }
         var point = origin + ray * (-origin.Y / ray.Y);
         var cell = TraversalGrid.WorldToCell(Mathf.RoundToInt(point.X * 1000), Mathf.RoundToInt(point.Z * 1000));
         if (_buildCandidate != cell)
@@ -306,6 +342,7 @@ public partial class Main
         _buildGhost.Position = ImmersionPosition(cell);
         _buildGhost.RotationDegrees = new Vector3(0, _buildQuarterTurns * 90, 0);
         _buildGhost.Visible = true;
+        RefreshBuildDebugHover();
     }
 
     private void CommitBuildPlacement(Vector2 screen)

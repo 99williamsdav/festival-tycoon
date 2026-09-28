@@ -126,7 +126,9 @@ public partial class Main
         collapsePreparation.TooltipText = "Collapse preparation"; heading.AddChild(collapsePreparation);
         _hudTabs = new TabContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill }; workspaceBox.AddChild(_hudTabs);
         if (_session.CapturePreparation()?.LineupReactionsVersion == 1) _hudTabs.UseHiddenTabsForMinSize = false;
-        foreach (var name in new[] { "Overview", "Programme", "Staff", "Equipment", "Stock", "Site & water" })
+        foreach (var name in (_session.BuildModeEnabled
+                     ? new[] { "Build", "Overview", "Programme", "Staff", "Equipment", "Stock", "Site & water" }
+                     : new[] { "Overview", "Programme", "Staff", "Equipment", "Stock", "Site & water" }))
         {
             var scroll = new ScrollContainer { Name = name, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
             if (name == "Programme" && _session.CapturePreparation()?.LineupReactionsVersion == 1)
@@ -138,10 +140,24 @@ public partial class Main
         // A per-tab red border and underline leave the native selected/hover text legible.
         // The title and tooltip convey the same requirement without relying on colour.
         _hudTabs.GetTabBar().Draw += DrawHudPreparationBlockers;
+        if (_session.BuildModeEnabled)
+        {
+            var build = _hudPages["Build"];
+            build.AddChild(HudLabel("Build your festival", 21));
+            build.AddChild(HudLabel("Place essential services in any order. Choose a row to begin; select an existing service on the field to move it."));
+            build.AddChild(ButtonText("Open Build catalogue", () => OpenBuildCatalogue()));
+            build.AddChild(HudLabel("Before opening · open the matching Build row", 13));
+            AddBuildChecklistShortcuts(build);
+        }
         var overview = _hudPages["Overview"];
         overview.AddThemeConstantOverride("separation", 6);
         overview.AddChild(HudLabel("Before opening", 21));
         _preparationSummary = HudLabel("", 14); overview.AddChild(_preparationSummary);
+        if (_session.BuildModeEnabled)
+        {
+            overview.AddChild(ButtonText("Open Build catalogue", () => OpenBuildCatalogue()));
+            AddBuildChecklistShortcuts(overview);
+        }
         foreach (var (name, label) in new[] { ("Programme", "Choose acts"), ("Staff", "Manage staff"), ("Stock", "Review stock"), ("Site & water", "Review site") })
         {
             var destination = name; var shortcut = ButtonText(label, () => SelectHudTab(destination)); shortcut.CustomMinimumSize = new Vector2(0, 32); overview.AddChild(shortcut);
@@ -158,7 +174,9 @@ public partial class Main
         _hudPages["Stock"].AddThemeConstantOverride("separation", 8);
         _immersionControls!.GetChild<Control>(0).Visible = false;
         var site = _hudPages["Site & water"];
-        site.AddChild(HudLabel("Site & water", 21)); site.AddChild(HudLabel("Arrange taps and vendors before opening. Select an object on the field, then choose Move in its own card."));
+        site.AddChild(HudLabel("Site & water", 21)); site.AddChild(HudLabel(_session.BuildModeEnabled
+            ? "Manage water choices here. Place taps and other services through Build; select a placed object on the field to move it."
+            : "Arrange taps and vendors before opening. Select an object on the field, then choose Move in its own card."));
         _waterFoundationHeading = HudLabel(_session.CapturePerks() is null ? "DIAGNOSTIC · up to two additional taps" : "Another Round · one extra free-water tap"); site.AddChild(_waterFoundationHeading);
         _waterPlaceButton = ButtonText("Add tap", () => BeginWaterPlacement(false)); site.AddChild(_waterPlaceButton);
         _waterAdditionReason = HudLabel(""); site.AddChild(_waterAdditionReason);
@@ -237,6 +255,7 @@ public partial class Main
         _hudDiagnostics = HudPanel(layer, new Vector2(15, 150), new Vector2(600, 380)); _hudDiagnostics.Visible = false;
         var diagnosticBox = new VBoxContainer(); _hudDiagnostics.AddChild(diagnosticBox); diagnosticBox.AddChild(HudLabel("DEVELOPMENT DIAGNOSTICS • not player HUD", 16));
         _hudDiagnosticsText = HudLabel("", 12); diagnosticBox.AddChild(_hudDiagnosticsText);
+        BuildDebugControls(diagnosticBox, layer, size);
         if (_session.CaptureEquipment() is not null) BuildEquipmentControls(diagnosticBox);
         if (_session.CaptureMedical() is not null) BuildMedicalControls(diagnosticBox);
         if (_session.CaptureDisorder() is not null) BuildDisorderControls(diagnosticBox);
@@ -278,6 +297,9 @@ public partial class Main
         if (_hudTabs is null) return;
         _buildDrawerOpen = false; _hudWorkspaceOpen = true; _hudTabs.CurrentTab = Array.IndexOf(_hudPages.Keys.ToArray(), name); RefreshHudWorkspace();
     }
+
+    private bool HudProgrammeSelected() => _hudTabs is not null &&
+        _hudTabs.CurrentTab == Array.IndexOf(_hudPages.Keys.ToArray(), "Programme");
 
     private void ShowHudStartConfirmation()
     {
@@ -338,7 +360,7 @@ public partial class Main
         RefreshHudPreparationReadiness();
         if (_bookingLane is not null)
         {
-            _hudStartReason.MaxLinesVisible = _hudTabs?.CurrentTab == 1 ? 2 : -1;
+            _hudStartReason.MaxLinesVisible = HudProgrammeSelected() ? 2 : -1;
             var actions = blockers.Select(b => b.Owner switch
             {
                 PreparationStartOwner.Programme => "choose 3 different acts",
@@ -347,7 +369,7 @@ public partial class Main
                 _ => b.Message
             });
             _hudStartReason.Text = _programmeSummary!.Text + "\n" + (blockers.Count > 0 ? "Before Start: " + string.Join("; ", actions) + "." : issue?.Message ?? "Ready to open; setup paid once at Start.");
-            if (_hudTabs?.CurrentTab == 1) _hudStatus!.Text = _bookingDurableMessage;
+            if (HudProgrammeSelected()) _hudStatus!.Text = _bookingDurableMessage;
         }
         _preparationStart.TooltipText = _hudStartReason.Text;
         _hudRetry!.Visible = _preparationSaveBlocked;

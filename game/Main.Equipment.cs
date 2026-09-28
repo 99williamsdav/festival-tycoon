@@ -60,7 +60,8 @@ public partial class Main
 
     private void CommitEquipmentAction(SessionCommand command)
     {
-        var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration, _planCaptureFailureInjector);
+        var actionSaveDirectory = _buildCaptureDirectory is null ? SaveDirectory : Path.Combine(_buildCaptureDirectory, "saves");
+        var result = EquipmentCommandCoordinator.Execute(actionSaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration, _planCaptureFailureInjector);
         if (result.IsSuccess)
         {
             _session = result.Session; _autosaveGeneration++;
@@ -70,6 +71,11 @@ public partial class Main
             if (command is PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand) SyncImmersionWorld();
             _preparationSaveBlocked = false;
             _preparationMessage = "Action committed and autosaved.";
+            if (command is ChoosePerkCommand && _session.BuildModeEnabled)
+            {
+                if (_session.CapturePreparation()?.Attempt == 1) OpenBuildCatalogue();
+                else SelectHudTab("Overview");
+            }
         }
         else { _preparationMessage = result.Error!; if (result.Autosave is not null) _preparationSaveBlocked = true; }
         RefreshPreparationHud();

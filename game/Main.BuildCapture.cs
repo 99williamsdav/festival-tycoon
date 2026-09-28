@@ -2,6 +2,7 @@ using Festival.Simulation;
 using Godot;
 using System;
 using System.IO;
+using System.Linq;
 
 namespace Festival.Game;
 
@@ -30,52 +31,79 @@ public partial class Main
             {
                 case 0:
                     var perk = _session.CapturePerks()!;
-                    if (!_session.Execute(CampaignEnvelope(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]))).IsAccepted)
+                    CommitEquipmentAction(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
+                    if (_session.CapturePerks()?.Pending != false || !_buildDrawerOpen || _hudPages.Keys.First() != "Build")
                         throw new InvalidOperationException("Build capture could not settle the opening perk.");
-                    _hudWorkspaceOpen = false; _buildDrawerOpen = true; RefreshPreparationHud();
                     break;
                 case 1:
-                    BuildCaptureImage("01-empty-build-drawer");
+                    BuildCaptureImage("01-auto-open-build-catalogue");
+                    SelectHudTab("Build");
+                    break;
+                case 2:
+                    if (_hudTabs?.CurrentTab != 0) throw new InvalidOperationException("Build is not the first preparation tab.");
+                    BuildCaptureImage("02-build-first-tab-shortcuts");
+                    OpenBuildCatalogue();
                     ShowBuildDefaults();
                     if (_buildDefaultsDialog?.DialogText.Contains("Replace 0 placed services") != true ||
                         !_buildDefaultsDialog.DialogText.Contains("6 standard services") ||
                         !_buildDefaultsDialog.DialogText.Contains("£300"))
                         throw new InvalidOperationException("Defaults confirmation omitted count or cost comparison.");
                     break;
-                case 2:
-                    BuildCaptureImage("02-defaults-cost-confirmation");
+                case 3:
+                    BuildCaptureImage("03-defaults-cost-confirmation");
                     _buildDefaultsDialog!.Hide(); ApplyBuildDefaults();
                     break;
-                case 3:
-                    BuildCaptureImage("03-default-layout-cost-and-readiness");
-                    BeginBuildPlacement(BuildServiceKind.WaterTap);
-                    UpdateBuildGhost(_camera.UnprojectPosition(ImmersionPosition(BuildBlockedCaptureCell)));
-                    break;
                 case 4:
+                    BuildCaptureImage("04-default-layout-cost-and-readiness");
+                    if (!_buildCatalogueRows[BuildServiceKind.FirstAid].Action.Disabled ||
+                        !_buildCatalogueRows[BuildServiceKind.StewardPost].Action.Disabled)
+                        throw new InvalidOperationException("One-slot catalogue rows remain purchasable at capacity.");
+                    BeginBuildPlacement(BuildServiceKind.Toilet);
+                    if (_buildQuarterTurns != 2) throw new InvalidOperationException("Fresh toilet did not face 180 degrees.");
+                    UpdateBuildGhost(_camera.UnprojectPosition(ImmersionPosition(BuildBlockedCaptureCell)));
+                    EnableBuildOriginCapture();
+                    break;
+                case 5:
+                    if (!BuildOriginOverlayReady) { _buildCaptureStep--; break; }
+                    UpdateBuildGhost(_camera.UnprojectPosition(ImmersionPosition(BuildBlockedCaptureCell)));
                     if (_buildCandidateIssue is null) throw new InvalidOperationException("Blocked ghost fixture was accepted.");
                     if (_hudPlacement?.Visible == true) throw new InvalidOperationException("Legacy placement panel appeared over build ghost.");
-                    BuildCaptureImage("04-blocked-red-ghost");
+                    BuildCaptureImage("05-blocked-ghost-and-debug-origins");
                     var hash = _session.CaptureSnapshot().AuthoritativeHash;
                     CommitBuildPlacement(_camera.UnprojectPosition(ImmersionPosition(BuildBlockedCaptureCell)));
                     if (_session.CaptureSnapshot().AuthoritativeHash != hash || _buildGhostKind is null)
                         throw new InvalidOperationException("Blocked click changed draft or ended placement.");
                     break;
-                case 5:
-                    BuildCaptureImage("05-blocked-click-reason");
+                case 6:
+                    BuildCaptureImage("06-blocked-click-reason");
                     GridCell? valid = null;
-                    foreach (var cell in new[] { new GridCell(150, 165), new GridCell(145, 165), new GridCell(160, 170), new GridCell(120, 170) })
-                        if (_session.ValidateCommand(CampaignEnvelope(new PlaceBuildServiceCommand(BuildServiceKind.WaterTap, cell))) is null)
-                        { valid = cell; break; }
+                    for (var x = 110; x <= 180 && valid is null; x += 5)
+                    for (var z = 110; z <= 175 && valid is null; z += 5)
+                    {
+                        var cell = new GridCell(x, z);
+                        var screen = _camera.UnprojectPosition(ImmersionPosition(cell));
+                        if (screen.X < 60 || screen.X > GetViewport().GetVisibleRect().Size.X - 60 ||
+                            screen.Y < 100 || screen.Y > GetViewport().GetVisibleRect().Size.Y - 140 || HudBlocksPlacement(screen)) continue;
+                        if (_session.ValidateCommand(CampaignEnvelope(new PlaceBuildServiceCommand(BuildServiceKind.Toilet, cell, 2))) is null)
+                            valid = cell;
+                    }
                     if (valid is null) throw new InvalidOperationException("No visible valid ghost fixture site.");
                     UpdateBuildGhost(_camera.UnprojectPosition(ImmersionPosition(valid.Value)));
                     break;
-                case 6:
-                    if (_buildCandidateIssue is not null) throw new InvalidOperationException("Valid ghost fixture was blocked.");
-                    BuildCaptureImage("06-normal-valid-ghost");
-                    CancelBuildPlacement(); _buildDrawerOpen = false; _hudWorkspaceOpen = true; SelectHudTab("Programme");
-                    break;
                 case 7:
-                    BuildCaptureImage("07-programme-destination-after-build");
+                    if (_buildCandidateIssue is not null) throw new InvalidOperationException("Valid ghost fixture was blocked.");
+                    BuildCaptureImage("07-normal-valid-ghost");
+                    var chosenCell = _buildCandidate;
+                    CommitBuildPlacement(_camera.UnprojectPosition(ImmersionPosition(chosenCell!.Value)));
+                    if (_session.CaptureToilets().Count != 2 || !_buildCatalogueRows[BuildServiceKind.Toilet].Action.Disabled)
+                        throw new InvalidOperationException("Second toilet was not autosaved or capacity row stayed active.");
+                    break;
+                case 8:
+                    BuildCaptureImage("08-second-toilet-cap-disabled");
+                    SelectHudTab("Programme");
+                    break;
+                case 9:
+                    BuildCaptureImage("09-programme-destination-after-build");
                     _buildCaptureDirectory = null; GetTree().Quit();
                     break;
             }

@@ -170,8 +170,6 @@ public partial class Main
                 (live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted ? $"{FestivalGenreName(act?.Genre ?? 0)} · {HudTime(remaining)} remaining" :
                     _session.PreparedStatus == PreparationStatus.Departing ? "Final set finished · physical departures in progress" : compactProgramme?.Status ?? "Performers approaching stage") +
                 $"\n\nNEXT · {(_session.UpcomingFestivalTick < 0 ? "—" : HudTime(_session.UpcomingFestivalTick - _session.CapturePreparation()!.StartedTick))}\n{next?.Name ?? "No further set"}";
-            if (_session.CapturePreparation()?.LineupReactionsVersion == 1)
-                _liveSetCue.Text += "\nProgramme locked after Start · no further booking.";
         }
     }
 

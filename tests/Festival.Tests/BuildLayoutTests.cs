@@ -1,4 +1,5 @@
 using Festival.Simulation;
+using Festival.Persistence;
 using System.Reflection;
 
 namespace Festival.Tests;
@@ -64,6 +65,48 @@ public sealed class BuildLayoutTests
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
         Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
+    }
+
+    [TestMethod]
+    public void ValidBuildToiletAtFormerPostSiteAutosavesAndRestoresWithoutLosingPriorSlot()
+    {
+        var session = GameSession.CreateBuildCampaign(20260922);
+        var perk = session.CapturePerks()!;
+        Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
+        var placement = new PlaceBuildServiceCommand(BuildServiceKind.Toilet, new(115, 115), 2);
+        Assert.IsNull(session.ValidateCommand(new(new(session.NextSubmissionSequence + 1), session.CampaignId,
+            session.Phase, session.CurrentTick, session.NextSubmissionSequence, null, placement)));
+        var compatibility = new SaveCompatibility("r0.05w-tests", LowerWitteringFarmScenario.ContentCompatibilityHash, "build-layout-tests");
+        var directory = Path.Combine(Path.GetTempPath(), "festival-r005w-toilet-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            Assert.IsTrue(AutosaveRotation.Save(directory, session, compatibility, DateTimeOffset.UtcNow, 0).IsSuccess);
+            var before = session.CaptureSnapshot().AuthoritativeHash;
+            var committed = EquipmentCommandCoordinator.Execute(directory, session, placement, compatibility,
+                DateTimeOffset.UtcNow, 3);
+            Assert.IsTrue(committed.IsSuccess, committed.Error);
+            Assert.AreEqual(before, session.CaptureSnapshot().AuthoritativeHash, "Original state is immutable until autosave succeeds.");
+            Assert.AreEqual(1, committed.Session.CaptureToilets().Count);
+            var loaded = SaveFileAdapter.LoadSlot(directory, "autosave-0", compatibility);
+            Assert.IsTrue(loaded.IsSuccess, loaded.Error);
+            Assert.AreEqual(committed.Session.CaptureSnapshot().AuthoritativeHash,
+                loaded.Session!.CaptureSnapshot().AuthoritativeHash);
+            Assert.AreEqual(new GridCell(115, 115), loaded.Session.CaptureToilet()!.Cell);
+            Assert.AreEqual(2, loaded.Session.CaptureToilet()!.QuarterTurns);
+            var preserved = loaded.Session.CaptureSnapshot().AuthoritativeHash;
+            var failed = EquipmentCommandCoordinator.Execute(directory, loaded.Session,
+                new PlaceBuildServiceCommand(BuildServiceKind.WaterTap, new(150, 160)), compatibility,
+                DateTimeOffset.UtcNow, 6, _ => throw new IOException("injected post-validation failure"));
+            Assert.IsFalse(failed.IsSuccess);
+            Assert.AreEqual(preserved, failed.Session.CaptureSnapshot().AuthoritativeHash);
+            var stillLoaded = SaveFileAdapter.LoadSlot(directory, "autosave-0", compatibility);
+            Assert.IsTrue(stillLoaded.IsSuccess, stillLoaded.Error);
+            Assert.AreEqual(preserved, stillLoaded.Session!.CaptureSnapshot().AuthoritativeHash);
+        }
+        finally
+        {
+            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+        }
     }
 
     [TestMethod]
