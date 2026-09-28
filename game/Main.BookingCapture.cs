@@ -13,6 +13,7 @@ public partial class Main
     private string _bookingCaptureShot = "";
     private string _bookingCaptureHash = "";
     private Variant _bookingCapturePayload;
+    private Variant _bookingStalePayload;
     private void BookingCheck(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
     private void ProcessBookingCapture()
     {
@@ -44,7 +45,49 @@ public partial class Main
             {
                 CommitEquipmentAction(new SetPreparationStockCommand(0, 0, 0)); SelectHudTab("Programme");
             }
-            var scenarioFrame = frame - 15;
+            if (frame == 16) _bookingCaptureHash = _session.CaptureSnapshot().AuthoritativeHash;
+            if (frame == 17)
+            {
+                _bookingHeaders[4].GrabFocus();
+                Input.ParseInputEvent(new InputEventKey { Keycode = Key.Enter, Pressed = true });
+                Input.ParseInputEvent(new InputEventKey { Keycode = Key.Enter, Pressed = false });
+            }
+            if (frame == 18)
+            {
+                BookingCheck(_bookingSort == BookingSortField.Ego && !_bookingDescending && ReferenceEquals(_bookingTableBody!.GetChild(0), _bookingCards["act.meadow-lanterns"]), "Native Enter first header sort failed");
+                Input.ParseInputEvent(new InputEventKey { Keycode = Key.Enter, Pressed = true });
+                Input.ParseInputEvent(new InputEventKey { Keycode = Key.Enter, Pressed = false });
+            }
+            if (frame == 19)
+            {
+                BookingCheck(_bookingSort == BookingSortField.Ego && _bookingDescending && ReferenceEquals(_bookingTableBody!.GetChild(0), _bookingCards["act.neon-postcards"]), "Native Enter reverse header sort failed");
+                BookingCheck(_bookingCaptureHash == _session.CaptureSnapshot().AuthoritativeHash, "Cosmetic sort changed authoritative hash");
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_bookingCaptureDirectory, "00-ego-descending.png"));
+                _bookingGenreFilter!.Select(2); _bookingGenreFilter.EmitSignal(OptionButton.SignalName.ItemSelected, 2);
+                BookingCheck(_bookingCards.Values.Count(card => card.Visible) == 2 && _bookingCards["act.copper-static"].Visible && _bookingCards["act.barnstorm-circuit"].Visible, "Rock filter membership failed");
+                BookingCheck(_bookingCaptureHash == _session.CaptureSnapshot().AuthoritativeHash, "Cosmetic filter changed authoritative hash");
+            }
+            if (frame == 20)
+            {
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_bookingCaptureDirectory, "00-rock-filter.png"));
+                _bookingGenreFilter!.Select(0); _bookingGenreFilter.EmitSignal(OptionButton.SignalName.ItemSelected, 0);
+                _bookingHeaders[2].EmitSignal(Button.SignalName.Pressed);
+                BookingCheck(_bookingCards.Values.All(card => card.Visible) && ReferenceEquals(_bookingTableBody!.GetChild(0), _bookingCards["act.meadow-lanterns"]), "All/default Price ordering not restored");
+                BookingCheck(_bookingCaptureHash == _session.CaptureSnapshot().AuthoritativeHash, "Restored view changed authoritative hash");
+            }
+            if (frame == 28)
+            {
+                SelectBookingBand("act.meadow-lanterns");
+                _bookingGenreFilter!.Select(2); _bookingGenreFilter.EmitSignal(OptionButton.SignalName.ItemSelected, 2);
+                BookingCheck(BookingIds[0] == "act.meadow-lanterns" && !_bookingCards["act.meadow-lanterns"].Visible && _bookingSelected == "act.meadow-lanterns", "Filtering hid a booked act but lost selection or slot");
+                BookingCheck(_bookingCaptureHash != _session.CaptureSnapshot().AuthoritativeHash, "Booked plan did not change after placement");
+            }
+            if (frame == 29)
+            {
+                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_bookingCaptureDirectory, "00-filtered-assigned.png"));
+                _bookingGenreFilter!.Select(0); _bookingGenreFilter.EmitSignal(OptionButton.SignalName.ItemSelected, 0);
+            }
+            var scenarioFrame = frame - 22;
             if (scenarioFrame <= 0) return;
             if (scenarioFrame == 66)
             {
@@ -57,12 +100,26 @@ public partial class Main
                 {
                     var viewport = GetViewport().GetVisibleRect();
                     GD.Print($"BOOKING_LAYOUT shot={_bookingCaptureShot} viewport={viewport} workspace={_hudWorkspace!.GetGlobalRect()} start={_preparationStart!.GetGlobalRect()} reason={_hudStartReason!.GetGlobalRect()} tabs={_hudTabs!.GetGlobalRect()}");
-                    GD.Print($"BOOKING_MIN tabs={_hudTabs.GetCombinedMinimumSize()} page={_hudPages["Programme"].GetCombinedMinimumSize()} controls={_programmeControls!.GetCombinedMinimumSize()} listscroll={_bookingListScroll!.GetCombinedMinimumSize()} lane={_bookingLane!.GetCombinedMinimumSize()} hidden={_hudTabs.UseHiddenTabsForMinSize}");
+                    GD.Print($"BOOKING_MIN tabs={_hudTabs.GetCombinedMinimumSize()} page={_hudPages["Programme"].GetCombinedMinimumSize()} controls={_programmeControls!.GetCombinedMinimumSize()} table={_bookingTableBody!.GetCombinedMinimumSize()} lane={_bookingLane!.GetCombinedMinimumSize()} hidden={_hudTabs.UseHiddenTabsForMinSize}");
                     BookingCheck(_preparationStart!.IsVisibleInTree() && viewport.Encloses(_preparationStart.GetGlobalRect()), "Start footer outside viewport");
                     BookingCheck(_hudStartReason!.IsVisibleInTree() && viewport.Encloses(_hudStartReason.GetGlobalRect()) && _hudStartReason.Text.Contains("Paid at Start"), "Lineup cost/readiness footer outside viewport");
                     BookingCheck(_hudStartReason.GetVisibleLineCount() == _hudStartReason.GetLineCount(), "Booking readiness text clipped");
                     BookingCheck(_hudStartReason.GetGlobalRect().End.Y < viewport.End.Y - 54, "Footer overlaps global status bar");
                     BookingCheck(_bookingSlots.All(s => viewport.Encloses(s.GetGlobalRect())), "Stage slot outside viewport");
+                    BookingCheck(_bookingHeaders.All(h => viewport.Encloses(h.GetGlobalRect())), "A table column header left the viewport");
+                    BookingCheck(_bookingCards.Values.All(card => card.Visible && viewport.Encloses(card.GetGlobalRect())), "A band row is hidden or outside the viewport in All genres");
+                    BookingCheck(_bookingMeaning is not null && viewport.Encloses(_bookingMeaning.GetGlobalRect()) && _bookingMeaning.GetVisibleLineCount() == _bookingMeaning.GetLineCount(), "Booking trait meaning line clipped");
+                    BookingCheck(((ScrollContainer)_hudTabs.GetChild(1)).ScrollVertical == 0, "Programme page needs scrolling at target size");
+                    BookingCheck(_bookingCards.Values.All(card => _hudTabs.GetGlobalRect().Encloses(card.GetGlobalRect())), "A band row is clipped by Programme contents");
+                    BookingCheck(_bookingRowCopy.All(pair =>
+                        _bookingCards[pair.Key].GetGlobalRect().Encloses(pair.Value.Name.GetGlobalRect()) &&
+                        _bookingCards[pair.Key].GetGlobalRect().Encloses(pair.Value.Detail.GetGlobalRect()) &&
+                        pair.Value.Name.GetLineCount() == 1 && pair.Value.Name.GetVisibleLineCount() == 1 &&
+                        pair.Value.Detail.GetLineCount() == 1 && pair.Value.Detail.GetVisibleLineCount() == 1), "Assigned name or expectation wraps/clips outside its 42px row");
+                    BookingCheck(_bookingHeaderTitles.All(label => label.GetLineCount() == 1 && label.GetVisibleLineCount() == 1), "A table header label wraps or clips");
+                    BookingCheck(_session.GetFestivalActs().All(act =>
+                        _bookingRatings[act.Id].Popularity.Score == act.Popularity && _bookingRatings[act.Id].Ego.Score == act.Ego && _bookingRatings[act.Id].Professionalism.Score == act.Professionalism &&
+                        _bookingCards[act.Id].TooltipText.Contains($"Popularity {act.Popularity}/100") && _bookingCards[act.Id].TooltipText.Contains($"Ego {act.Ego}/100") && _bookingCards[act.Id].TooltipText.Contains($"Professionalism {act.Professionalism}/100")), "A star cell or exact raw-value tooltip disagrees with the catalog");
                 }
                 GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_bookingCaptureDirectory, _bookingCaptureShot + ".png"));
             }
@@ -73,10 +130,13 @@ public partial class Main
                 case 0:
                     SelectHudTab("Programme");
                     _bookingCaptureShot = "01-empty"; _bookingCaptureHash = _session.CaptureSnapshot().AuthoritativeHash;
+                    _bookingStalePayload = BookingPayload("act.meadow-lanterns");
                     BookingCheck(BookingIds.All(id => id == ""), "New booking not empty"); break;
                 case 1:
                     SelectBookingBand("act.meadow-lanterns"); BookingCheck(_bookingCaptureHash == _session.CaptureSnapshot().AuthoritativeHash, "Selecting paid or placed");
-                    _bookingSlots[0].EmitSignal(Button.SignalName.Pressed); _bookingCaptureShot = "02-one-set"; break;
+                    _bookingSlots[0].EmitSignal(Button.SignalName.Pressed);
+                    BookingCheck(!_bookingSlots[1]._CanDropData(Vector2.Zero, _bookingStalePayload), "Stale source-slot payload accepted after sorted/filtered placement");
+                    _bookingCaptureShot = "02-one-set"; break;
                 case 2:
                     _bookingCards["act.neon-postcards"].ForceDrag(BookingPayload("act.neon-postcards"), new Label { Text = "Neon Postcards · Pop · £110" });
                     BookingCheck(GetViewport().GuiIsDragging(), "Native ForceDrag did not begin");
@@ -123,16 +183,19 @@ public partial class Main
                 case 14:
                     BookingCheck(BookingIds[0] == "act.neon-postcards", "Injected native Enter/Space placement failed");
                     _bookingCards["act.field-frequency"].GrabFocus();
+                    BookingCheck(_bookingMeaning!.Text.Contains("Field Frequency") && _bookingMeaning.Text.Contains("Popularity 75/100") && _bookingMeaning.Text.Contains("Ego 60/100") && _bookingMeaning.Text.Contains("Professionalism 75/100") &&
+                        _bookingMeaning.Text.Contains("appeal") && _bookingMeaning.Text.Contains("demanding, not quality") && _bookingMeaning.Text.Contains("softens ego, not immunity") &&
+                        _bookingMeaning.GetVisibleLineCount() == _bookingMeaning.GetLineCount(), "Keyboard focus lacks full exact scores and factual meanings");
                     PreparationAccept("staff.steward"); _bookingCaptureShot = "15-ready-cost"; break;
                 case 15:
                     PreparationStart(); _session.AdvanceWithoutSnapshot(1800); _foundationPresentation.Reset(_session.CaptureObservation());
                     AcceptBookingPause();
-                    BookingCheck(_bookingListScroll!.ScrollVertical > 0, "Last card keyboard focus did not scroll");
+                    BookingCheck(_bookingCards.Values.All(card => GetViewport().GetVisibleRect().Encloses(card.GetGlobalRect())), "A band row left the viewport after keyboard focus");
                     _bookingCaptureHash = _session.CaptureSnapshot().AuthoritativeHash; _bookingCaptureShot = "16-live-locked";
                     BookingCheck(!_session.PreviewLineupEdit("act.orchard-chorus", -1, 0).IsValid, "Live edit accepted"); break;
                 case 16:
                     BookingCheck(_bookingCaptureHash == _session.CaptureSnapshot().AuthoritativeHash, "Live invalid edit changed");
-                    GD.Print($"BOOKING_CAPTURE_COMPLETE scripted_native_handlers=True ordinary_OS_drag=False png=19 hash={_bookingCaptureHash}"); GetTree().Quit(); break;
+                    GD.Print($"BOOKING_TABLE_CAPTURE_COMPLETE scripted_native_handlers=True ordinary_OS_drag=False png=22 hash={_bookingCaptureHash}"); GetTree().Quit(); break;
             }
         }
         catch (Exception ex) { GD.PushError("BOOKING_CAPTURE_FAILED " + ex); GetTree().Quit(2); }

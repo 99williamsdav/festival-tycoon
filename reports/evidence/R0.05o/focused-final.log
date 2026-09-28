@@ -1,0 +1,18 @@
+passed HalfStarMidpointsRoundUpIncludingZeroAndMaximum (7ms)
+passed EveryHeaderUsesRawFieldDirectionAndDeterministicNameIdTies (5ms)
+passed GenreFilteringOnlyProjectsRowsAndNeverMutatesCatalog (1ms)
+passed ActualR005nNormalSaveRemainsReadableWithoutMigrationOrMutation (419ms)
+passed ActualWarningDeathFavourRetryRetainsReactionIdentityAndResetsAdmission (3s 627ms)
+passed ActualResultsSaveStillLoadsWithOriginalHashAndNewHeaderRejectsWithoutRewrite (291ms)
+passed ExactApprovedTraitsAndIntegerFormulasAreMonotonicAndBounded (3ms)
+passed SharedResolverAssignsMovesSwapsReplacesRemovesAndRejectsStaleOrInvalid (408ms)
+passed ActualAdmissionUsesFinalPaidMappingOnceAndLoadDoesNotStack (1s 987ms)
+passed CoordinatorEditsAndFailedStartAreAtomicWithOneSetupPaymentAndLiveLock (765ms)
+passed IdentityValidationPreservesLegacyNullCanonicalAndActualOldFile (246ms)
+
+Test run summary: Passed! - C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll (net8.0|x64)
+  total: 11
+  failed: 0
+  succeeded: 11
+  skipped: 0
+  duration: 7s 899ms

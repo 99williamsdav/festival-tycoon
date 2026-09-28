@@ -1048,6 +1048,8 @@ public partial class Main : Node
             { _resultsCaptureDirectory = args[++i]; Directory.CreateDirectory(_resultsCaptureDirectory); }
             else if (args[i] == "--capture-r005n-booking" && i + 1 < args.Length)
             { _bookingCaptureDirectory = args[++i]; Directory.CreateDirectory(_bookingCaptureDirectory); }
+            else if (args[i] == "--capture-r005o-table" && i + 1 < args.Length)
+            { _bookingCaptureDirectory = args[++i]; Directory.CreateDirectory(_bookingCaptureDirectory); }
             else if (args[i] == "--capture-r005e-queues" && i + 1 < args.Length)
             { _organicQueueCaptureDirectory = args[++i]; Directory.CreateDirectory(_organicQueueCaptureDirectory); }
             else if (args[i] == "--capture-r005e-intoxication" && i + 1 < args.Length)

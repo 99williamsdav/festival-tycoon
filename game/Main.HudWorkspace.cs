@@ -127,6 +127,8 @@ public partial class Main
         foreach (var name in new[] { "Overview", "Programme", "Staff", "Equipment", "Stock", "Site & water" })
         {
             var scroll = new ScrollContainer { Name = name, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
+            if (name == "Programme" && _session.CapturePreparation()?.LineupReactionsVersion == 1)
+                scroll.VerticalScrollMode = ScrollContainer.ScrollMode.Disabled;
             _hudTabs.AddChild(scroll);
             var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; box.AddThemeConstantOverride("separation", 12); scroll.AddChild(box); _hudPages.Add(name, box);
         }

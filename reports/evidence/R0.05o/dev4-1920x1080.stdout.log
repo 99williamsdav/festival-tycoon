@@ -1,0 +1,42 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=4532e818d06f658cc4a9adcec30851e3215853be13fb143547a816f71ba8e90e
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+BOOKING_READINESS_LAYOUT tab=Programme workspace=(16, 72), (1888, 660) tabs=(28, 134), (1864, 515) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) lines=2/2 max=2
+BOOKING_READINESS_LAYOUT tab=Overview workspace=(15, 77), (690, 520) tabs=(27, 139), (666, 375) start=(593, 542), (100, 43) reason=(27, 542), (562, 43) lines=2/2 max=-1
+BOOKING_READINESS_LAYOUT tab=Staff workspace=(15, 77), (690, 520) tabs=(27, 139), (666, 375) start=(593, 542), (100, 43) reason=(27, 542), (562, 43) lines=2/2 max=-1
+BOOKING_LAYOUT shot=01-empty viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=02-one-set viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=03-native-drag-preview viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=04-three-sets viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=05-replacement-preview viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=06-replaced viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=07-swap-preview viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=08-swapped viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=09-invalid-retained viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=10-cancelled viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=11-save-failure viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+FARM_SELECTION_CLEARED
+BOOKING_LAYOUT shot=12-loaded viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=13-removed viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=14-keyboard-placement viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+BOOKING_LAYOUT shot=15-ready-cost viewport=(0, 0), (1920, 1080) workspace=(16, 72), (1888, 660) start=(1792, 677), (100, 43) reason=(28, 677), (1760, 43) tabs=(28, 134), (1864, 515)
+BOOKING_MIN tabs=(1236, 66) page=(1208, 370) controls=(1208, 370) table=(824, 252) lane=(354, 300) hidden=False
+ATTENDEE_PALETTE_BASE filter=NearestWithMipmaps repeat=True roughness=0.93 dimensions=96x8
+BOOKING_TABLE_CAPTURE_COMPLETE scripted_native_handlers=True ordinary_OS_drag=False png=21 hash=ebfbe7d7b38c077879b3fa4e4d2252eb54abe28dd9718ad404c2d9c39e97bae8

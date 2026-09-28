@@ -233,8 +233,9 @@ public partial class Main
         if (constrained)
             height = Math.Min(height, size.Y - 60 - 220 - 10 - _hudWorkspace.Position.Y);
         var bookingPage = _bookingLane is not null && _hudTabs?.CurrentTab == 1;
-        if (bookingPage && !constrained) height = Math.Min(650, size.Y - 150);
-        _hudWorkspace.Size = new Vector2(bookingPage ? Math.Min(1040, size.X - 330) : size.X >= 1600 ? 690 : 650, height);
+        if (bookingPage && !constrained) height = Math.Min(660, size.Y - 138);
+        _hudWorkspace.Position = bookingPage && !constrained ? new Vector2(16, 72) : new Vector2(15, 77);
+        _hudWorkspace.Size = new Vector2(bookingPage && !constrained ? size.X - 32 : size.X >= 1600 ? 690 : 650, height);
         LayoutOwnedContext(constrained);
         if (!_ownedWorkspaceConstrained && constrained && _hudTabs is not null)
         {

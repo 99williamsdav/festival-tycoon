@@ -10,13 +10,24 @@ public partial class Main
 {
     private Control? _bookingLane;
     private readonly Dictionary<string, BookingDragButton> _bookingCards = [];
+    private readonly Dictionary<string, (Label Name, Label Detail)> _bookingRowCopy = [];
+    private readonly Dictionary<string, (BookingStarRating Popularity, BookingStarRating Ego, BookingStarRating Professionalism)> _bookingRatings = [];
+    private readonly Button[] _bookingHeaders = new Button[6];
+    private readonly Label[] _bookingHeaderTitles = new Label[6];
+    private VBoxContainer? _bookingTableBody;
+    private OptionButton? _bookingGenreFilter;
+    private Label? _bookingTableCount;
+    private Label? _bookingMeaning;
+    private const string BookingDefaultMeaning = "High ego = more demanding / headline-sensitive. Stars show intensity, not universal quality.";
+    private BookingSortField _bookingSort = BookingSortField.Price;
+    private bool _bookingDescending;
+    private int? _bookingGenre;
     private readonly BookingDragButton[] _bookingSlots = new BookingDragButton[3];
     private readonly Button[] _bookingRemove = new Button[3];
     private readonly Label[] _bookingHints = new Label[3];
     private Label? _bookingStatus;
     private string? _bookingSelected;
     private string _bookingDurableMessage = "Select a band, then activate a set. Dragging also works.";
-    private ScrollContainer? _bookingListScroll;
     private bool _bookingLayoutPending;
     private async void ScheduleBookingLayout()
     {
@@ -79,24 +90,110 @@ public partial class Main
         if (!ReferenceEquals(prior, _session)) _bookingSelected = null;
         RefreshBookingControls();
     }
+    private static float BookingColumnMin(int column) => column switch
+    { 0 => 238, 1 => 96, 2 => 68, 3 => 136, 4 => 136, 5 => 150, _ => throw new ArgumentOutOfRangeException(nameof(column)) };
+    private static Label BookingText(string text, int size)
+    { var label = HudLabel(text, size); label.MouseFilter = Control.MouseFilterEnum.Ignore; return label; }
+    private static Control.SizeFlags BookingColumnFlags(int column) => column is 0 or 5 ? Control.SizeFlags.ExpandFill : Control.SizeFlags.Fill;
+    private static VBoxContainer BookingCell(HBoxContainer parent, int column)
+    {
+        var cell = new VBoxContainer { CustomMinimumSize = new Vector2(BookingColumnMin(column), 0), SizeFlagsHorizontal = BookingColumnFlags(column), Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
+        cell.AddThemeConstantOverride("separation", 0); parent.AddChild(cell); return cell;
+    }
+    private static string BookingStars(int score) => $"{BookingTableView.HalfStarUnits(score) / 2.0:0.0}";
+    private static string BookingExactTooltip(FestivalAct act) =>
+        $"{act.Name} · {FestivalGenreName(act.Genre)} · {FestivalCurrency.Format(act.PricePennies)}\n" +
+        $"Popularity {act.Popularity}/100 · {BookingStars(act.Popularity)} stars · audience appeal (existing display role)\n" +
+        $"Ego {act.Ego}/100 · {BookingStars(act.Ego)} stars · higher means more demanding/headline-sensitive, not quality\n" +
+        $"Professionalism {act.Professionalism}/100 · {BookingStars(act.Professionalism)} stars · softens ego disappointment, not immunity" +
+        (act.Ego >= 70 ? "\nExpects to headline; non-headline performance still allowed." : "");
+    private void ShowBookingExactScores(FestivalAct act)
+    {
+        if (_bookingMeaning is not null) _bookingMeaning.Text =
+            $"{act.Name} · Popularity {act.Popularity}/100 appeal · Ego {act.Ego}/100 demanding, not quality · Professionalism {act.Professionalism}/100 softens ego, not immunity";
+    }
+    private static BookingStarRating BookingRatingCell(HBoxContainer parent, int column, int score, string meaning, Color colour)
+    {
+        var cell = BookingCell(parent, column);
+        var content = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+        content.AddThemeConstantOverride("separation", 1); cell.AddChild(content);
+        var stars = new BookingStarRating { Score = score, Ink = colour, MouseFilter = Control.MouseFilterEnum.Ignore };
+        content.AddChild(stars);
+        content.AddChild(BookingText(BookingStars(score), 12));
+        cell.TooltipText = $"{score}/100 · {BookingStars(score)} stars · {meaning}";
+        return stars;
+    }
     private void BuildBookingControls(VBoxContainer parent)
     {
         _programmeControls = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; parent.AddChild(_programmeControls);
-        var columns = new HBoxContainer(); columns.AddThemeConstantOverride("separation", 16); _programmeControls.AddChild(columns);
-        var left = new VBoxContainer { CustomMinimumSize = new Vector2(250, 0), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; columns.AddChild(left);
-        left.AddChild(HudLabel("Available bands", 22)); left.AddChild(HudLabel("Drag a band, or select then choose a set.", 13));
-        var scroll = new ScrollContainer { CustomMinimumSize = new Vector2(250, 310), FollowFocus = true, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, SizeFlagsVertical = Control.SizeFlags.ExpandFill }; _bookingListScroll = scroll; left.AddChild(scroll);
-        var list = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; scroll.AddChild(list);
+        var columns = new HBoxContainer(); columns.AddThemeConstantOverride("separation", 24); _programmeControls.AddChild(columns);
+        var left = new VBoxContainer { CustomMinimumSize = new Vector2(824, 0), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 1.7f };
+        left.AddThemeConstantOverride("separation", 0); columns.AddChild(left);
+        left.AddChild(HudLabel("Available bands", 22));
+        var filters = new HBoxContainer { CustomMinimumSize = new Vector2(0, 34) }; filters.AddThemeConstantOverride("separation", 12); left.AddChild(filters);
+        _bookingGenreFilter = new OptionButton { CustomMinimumSize = new Vector2(150, 32), FocusMode = Control.FocusModeEnum.All };
+        foreach (var option in new[] { "All genres", "Folk", "Rock", "Pop", "Electronic" }) _bookingGenreFilter.AddItem(option);
+        _bookingGenreFilter.ItemSelected += index =>
+        {
+            if (GetViewport().GuiIsDragging()) { _bookingGenreFilter.Select(_bookingGenre is { } g ? g + 1 : 0); return; }
+            _bookingGenre = index == 0 ? null : (int)index - 1;
+            RefreshBookingControls();
+        };
+        filters.AddChild(_bookingGenreFilter);
+        _bookingTableCount = HudLabel("", 12); filters.AddChild(_bookingTableCount);
+        var header = new HBoxContainer { CustomMinimumSize = new Vector2(824, 36) }; header.AddThemeConstantOverride("separation", 0); left.AddChild(header);
+        var labels = new[] { "Band", "Genre", "Price", "Popularity", "Ego", "Professionalism" };
+        var subtitles = new[] { "", "", "", "Audience appeal", "Demandingness", "Softens ego reaction" };
+        for (var column = 0; column < labels.Length; column++)
+        {
+            var index = column;
+            var button = new Button { CustomMinimumSize = new Vector2(BookingColumnMin(index), 36), SizeFlagsHorizontal = BookingColumnFlags(index), FocusMode = Control.FocusModeEnum.All };
+            button.Pressed += () =>
+            {
+                if (GetViewport().GuiIsDragging()) return;
+                var field = (BookingSortField)index;
+                if (_bookingSort == field) _bookingDescending = !_bookingDescending;
+                else { _bookingSort = field; _bookingDescending = false; }
+                RefreshBookingControls();
+            };
+            var copy = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore }; copy.AddThemeConstantOverride("separation", 0);
+            button.AddChild(copy); copy.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            var title = BookingText(labels[index], 14); copy.AddChild(title); _bookingHeaderTitles[index] = title;
+            if (subtitles[index] != "") copy.AddChild(BookingText(subtitles[index], 12));
+            header.AddChild(button); _bookingHeaders[index] = button;
+        }
+        _bookingTableBody = new VBoxContainer { CustomMinimumSize = new Vector2(824, 252), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _bookingTableBody.AddThemeConstantOverride("separation", 0); left.AddChild(_bookingTableBody);
         foreach (var act in _session.GetFestivalActs())
         {
             var id = act.Id;
-            var card = new BookingDragButton { Alignment = HorizontalAlignment.Left, CustomMinimumSize = new Vector2(250, 112), FocusMode = Control.FocusModeEnum.All };
-            card.AddThemeFontSizeOverride("font_size", 14); list.AddChild(card); _bookingCards.Add(id, card);
+            var card = new BookingDragButton { Text = "", CustomMinimumSize = new Vector2(824, 42), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, FocusMode = Control.FocusModeEnum.All };
+            _bookingTableBody.AddChild(card); _bookingCards.Add(id, card);
+            card.DragPreviewText = () => $"{act.Name} · {FestivalGenreName(act.Genre)} · {FestivalCurrency.Format(act.PricePennies)}";
+            var cells = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore }; cells.AddThemeConstantOverride("separation", 0);
+            card.AddChild(cells); cells.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
+            var band = BookingCell(cells, 0);
+            var name = BookingText(act.Name, 14); band.AddChild(name);
+            var detail = BookingText("", 12); band.AddChild(detail);
+            _bookingRowCopy.Add(id, (name, detail));
+            BookingCell(cells, 1).AddChild(BookingText(FestivalGenreName(act.Genre), 13));
+            BookingCell(cells, 2).AddChild(BookingText(FestivalCurrency.Format(act.PricePennies), 13));
+            var popularity = BookingRatingCell(cells, 3, act.Popularity, "Audience appeal", new Color("293b38"));
+            var ego = BookingRatingCell(cells, 4, act.Ego, "Higher means more demanding/headline-sensitive, not quality", new Color("795336"));
+            var professionalism = BookingRatingCell(cells, 5, act.Professionalism, "Softens ego disappointment; does not prevent it", new Color("293b38"));
+            _bookingRatings.Add(id, (popularity, ego, professionalism));
             card.DragPayload = () => BeginBookingDrag(id); card.Pressed += () => SelectBookingBand(id);
             card.GuiInput += input => HandleBookingKey(card, input, () => SelectBookingBand(id));
+            card.FocusEntered += () => ShowBookingExactScores(act);
+            card.MouseEntered += () => ShowBookingExactScores(act);
+            card.FocusExited += () => { if (_bookingMeaning is not null) _bookingMeaning.Text = BookingDefaultMeaning; };
+            card.MouseExited += () => { if (!card.HasFocus() && _bookingMeaning is not null) _bookingMeaning.Text = BookingDefaultMeaning; };
+            card.TooltipText = BookingExactTooltip(act);
         }
-        var right = new VBoxContainer { CustomMinimumSize = new Vector2(354, 0), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; columns.AddChild(right);
-        var heading = HudLabel("Main stage", 24); heading.AddThemeFontOverride("font", HearingSerif()); right.AddChild(heading);
+        _bookingMeaning = HudLabel(BookingDefaultMeaning, 12);
+        left.AddChild(_bookingMeaning);
+        var right = new VBoxContainer { CustomMinimumSize = new Vector2(360, 0), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; columns.AddChild(right);
+        var heading = HudLabel("Trailer Stage", 24); heading.AddThemeFontOverride("font", HearingSerif()); right.AddChild(heading);
         right.AddChild(HudLabel("Elapsed festival time · mm:ss", 13));
         _bookingLane = new Control { CustomMinimumSize = new Vector2(354, 300), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, MouseFilter = Control.MouseFilterEnum.Stop }; right.AddChild(_bookingLane);
         var backdrop = new ColorRect { Color = new Color("eee2be"), Position = new Vector2(54, 0), Size = new Vector2(300, 300), MouseFilter = Control.MouseFilterEnum.Stop }; _bookingLane.AddChild(backdrop);
@@ -119,6 +216,19 @@ public partial class Main
                 var gap = HudLabel($"Changeover · {(GameSession.FestivalSlotStarts[i + 1] - GameSession.FestivalSlotEnds[i]) / 80}s · no drop", 12); gap.Position = new Vector2(61, top + height + 2); gap.Size = new Vector2(285, 24); _bookingLane.AddChild(gap);
             }
         }
+        void FitStageLane()
+        {
+            var laneWidth = Math.Max(300, _bookingLane.Size.X - 54);
+            backdrop.Size = new Vector2(laneWidth, 300);
+            for (var i = 0; i < 3; i++)
+            {
+                _bookingSlots[i].Size = new Vector2(laneWidth, _bookingSlots[i].Size.Y);
+                _bookingRemove[i].Position = new Vector2(54 + laneWidth - 38, _bookingRemove[i].Position.Y);
+                _bookingHints[i].Size = new Vector2(laneWidth - 20, _bookingHints[i].Size.Y);
+            }
+        }
+        _bookingLane.Resized += FitStageLane;
+        FitStageLane();
         _programmeSummary = HudLabel("", 14); _programmeSummary.Visible = false; _programmeControls.AddChild(_programmeSummary);
         _bookingStatus = HudLabel("", 13); _bookingStatus.Visible = false; _programmeControls.AddChild(_bookingStatus);
         // Kept for older diagnostic capture routing; not a second user payment control.
@@ -140,13 +250,24 @@ public partial class Main
     {
         if (_bookingLane is null || GetViewport().GuiIsDragging()) return;
         var acts = _session.GetFestivalActs().ToArray(); var ids = BookingIds; _programmeDraft = ids.ToArray();
+        var projected = BookingTableView.Project(acts, _bookingGenre, _bookingSort, _bookingDescending);
+        for (var index = 0; index < projected.Length; index++) _bookingTableBody!.MoveChild(_bookingCards[projected[index].Id], index);
+        _bookingTableCount!.Text = $"{projected.Length} of {acts.Length} bands · {_bookingSort} {(_bookingDescending ? "↓" : "↑")} · select a row, then a set";
+        for (var index = 0; index < _bookingHeaders.Length; index++)
+        {
+            var active = _bookingSort == (BookingSortField)index;
+            _bookingHeaderTitles[index].Text = new[] { "Band", "Genre", "Price", "Popularity", "Ego", "Professionalism" }[index] + (active ? _bookingDescending ? " ↓" : " ↑" : " ↕");
+            _bookingHeaders[index].TooltipText = active ? $"Sorted {(_bookingDescending ? "descending" : "ascending")}. Activate to reverse." : "Activate to sort ascending; activate again to reverse.";
+        }
         foreach (var act in acts)
         {
             var card = _bookingCards[act.Id]; var assigned = Array.IndexOf(ids, act.Id);
-            card.Text = $"{act.Name} · {FestivalCurrency.Format(act.PricePennies)}\n{FestivalGenreName(act.Genre)}{(assigned >= 0 ? $" · Set {assigned + 1}" : "")}\nPopularity {act.Popularity}/100\nEgo {act.Ego}/100 · Professionalism {act.Professionalism}/100\n{(act.Ego >= 70 ? "Expects headline Set 3" : "No headline expectation")}";
-            card.TooltipText = act.Ego >= 70 ? "Expects headline Set 3. In Set 1 or 2, performers lose admission satisfaction; professionalism reduces the penalty. Provisional tuning." : "No headline disappointment below Ego 70. Guest appraisal uses existing genre affinity equally across three paid acts. Provisional tuning.";
+            card.Visible = _bookingGenre is null || act.Genre == _bookingGenre;
+            _bookingRowCopy[act.Id].Detail.Text = (assigned >= 0 ? $"Assigned · Set {assigned + 1}" : "Available") + (act.Ego >= 70 ? " · Expects to headline" : "");
             card.Disabled = BookingLocked; card.AddThemeStyleboxOverride("normal", HudStyle(new Color(_bookingSelected == act.Id ? "e5d5aa" : "fff6df"), 7));
         }
+        if (_bookingSelected is { } selected && !_bookingCards[selected].Visible)
+            _bookingDurableMessage = $"{acts.Single(a => a.Id == selected).Name} selected · hidden by genre filter; choose a set or show its genre.";
         for (var i = 0; i < 3; i++)
         {
             var act = acts.SingleOrDefault(a => a.Id == ids[i]);
@@ -154,7 +275,7 @@ public partial class Main
                 $"{act.Name}\n{FestivalGenreName(act.Genre)} · {BookingTime(GameSession.FestivalSlotStarts[i])}–{BookingTime(GameSession.FestivalSlotEnds[i])}";
             _bookingSlots[i].Disabled = BookingLocked;
             _bookingSlots[i].AddThemeStyleboxOverride("normal", HudStyle(new Color(act is null ? "fff6df" : "d3e8df"), 7));
-            _bookingHints[i].Text = _bookingSelected is { } selected ? _session.PreviewLineupEdit(selected, Array.IndexOf(ids, selected), i).Message : act?.Ego >= 70 && i != 2 ? "Expects headline · disappointment applies" : "";
+            _bookingHints[i].Text = _bookingSelected is { } selectedAct ? _session.PreviewLineupEdit(selectedAct, Array.IndexOf(ids, selectedAct), i).Message : act?.Ego >= 70 && i != 2 ? "Expects to headline · disappointment applies" : "";
             _bookingRemove[i].Visible = act is not null; _bookingRemove[i].Disabled = BookingLocked;
             _bookingRemove[i].TooltipText = act is null ? "Empty set" : $"Remove {act.Name} from Set {i + 1}";
         }
