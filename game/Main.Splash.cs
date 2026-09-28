@@ -57,6 +57,7 @@ public partial class Main
 
     private void EnterFestival()
     {
+        if (RejectActionDuringBoundarySave()) return;
         if (_newCampaignOnEnter)
         {
             // Create only on Enter: merely viewing the menu must not touch a terminal save.

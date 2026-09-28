@@ -60,25 +60,39 @@ public static partial class SaveFileAdapter
 
         try
         {
+            var stageStarted = PersistenceTiming.Start();
             var envelope = CreateEnvelope(request);
+            PersistenceTiming.Record("save.envelope", stageStarted);
             if (File.Exists(temporaryPath)) File.Delete(temporaryPath);
+            stageStarted = PersistenceTiming.Start();
             WriteEnvelope(temporaryPath, envelope);
+            PersistenceTiming.Record("save.write", stageStarted);
+            stageStarted = PersistenceTiming.Start();
             var temporaryValidation = LoadFile(temporaryPath, request.Compatibility);
+            PersistenceTiming.Record("save.validate-temp", stageStarted);
             if (!temporaryValidation.IsSuccess)
                 throw new InvalidDataException($"Temporary save validation failed: {temporaryValidation.Error}");
 
             failureInjector?.Invoke(SaveFailurePoint.AfterTemporaryValidationBeforeReplace);
             if (File.Exists(fullPath))
             {
+                stageStarted = PersistenceTiming.Start();
                 var priorValidation = LoadFile(fullPath, request.Compatibility);
+                PersistenceTiming.Record("save.validate-prior", stageStarted);
+                stageStarted = PersistenceTiming.Start();
                 File.Replace(
                     temporaryPath,
                     fullPath,
                     priorValidation.IsSuccess ? backupPath : null,
                     ignoreMetadataErrors: true);
+                PersistenceTiming.Record("save.replace", stageStarted);
             }
             else
+            {
+                stageStarted = PersistenceTiming.Start();
                 File.Move(temporaryPath, fullPath);
+                PersistenceTiming.Record("save.move", stageStarted);
+            }
             return SaveOperationResult.Success(fullPath);
         }
         catch (Exception exception) when (exception is IOException or UnauthorizedAccessException or InvalidDataException or JsonException or InvalidOperationException)
@@ -102,7 +116,9 @@ public static partial class SaveFileAdapter
         ArgumentNullException.ThrowIfNull(expected);
         try
         {
+            var stageStarted = PersistenceTiming.Start();
             var envelope = ReadEnvelope(Path.GetFullPath(path));
+            PersistenceTiming.Record("load.read", stageStarted);
             if (envelope.Header is null || envelope.Payload is null)
                 return SaveLoadResult.Failure("Save envelope must contain non-null header and payload records.");
             var migration = SaveMigrationPipeline.Migrate(envelope);
@@ -122,11 +138,15 @@ public static partial class SaveFileAdapter
                 return SaveLoadResult.Failure($"Ruleset hash mismatch: save '{envelope.Header.RulesetHash}', expected '{expected.RulesetHash}'. Explicit migration or matching ruleset is required.");
             if (envelope.Header.CampaignId != envelope.Payload.CampaignId || envelope.Header.Phase != envelope.Payload.Phase)
                 return SaveLoadResult.Failure("Save header campaign/phase does not match its authoritative payload.");
+            stageStarted = PersistenceTiming.Start();
             var checksum = ComputePayloadChecksum(envelope.Payload);
+            PersistenceTiming.Record("load.checksum", stageStarted);
             if (!string.Equals(checksum, envelope.Header.PayloadChecksum, StringComparison.Ordinal))
                 return SaveLoadResult.Failure($"Payload checksum mismatch: expected {envelope.Header.PayloadChecksum}, calculated {checksum}. The save may be corrupted or truncated.");
 
+            stageStarted = PersistenceTiming.Start();
             var restored = GameSession.Restore(envelope.Payload);
+            PersistenceTiming.Record("load.restore", stageStarted);
             if (!restored.IsSuccess) return SaveLoadResult.Failure($"Authoritative payload validation failed: {restored.Error}");
             var buildMismatch = !string.Equals(envelope.Header.BuildId, expected.BuildId, StringComparison.Ordinal);
             return SaveLoadResult.Success(restored.Session!, envelope.Header, buildMismatch);

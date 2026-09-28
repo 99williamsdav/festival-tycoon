@@ -238,6 +238,7 @@ public partial class Main : Node
         if (_session.CaptureImmersion() is not null) { _focus = new Vector3(4, 0, 8); _camera.Size = 50; }
         ApplyCamera();
         ResetFinanceFeedback();
+        PrepareCameraProfile();
         if ((OS.GetCmdlineUserArgs().Length == 0 || _startSplashCapturePath is not null) &&
             _session.CaptureEquipment() is not null) BuildStartSplash();
         if (_captureDirectory is not null)
@@ -250,12 +251,15 @@ public partial class Main : Node
     public override void _Process(double delta)
     {
         try { ProcessPresentationFrame(delta); }
+        catch(Exception error) when (_cameraProfileOutput is not null)
+        { GD.PushError("CAMERA_PROFILE_FAILED " + error); GetTree().Quit(2); }
         catch(Exception error) when (_mosaicCaptureDirectory is not null || _planCaptureDirectory is not null || _postCaptureDirectory is not null || _hoverCaptureDirectory is not null || _headerCaptureDirectory is not null)
         { GD.PushError("HOVER_CAPTURE_FAILED presentation=" + error); _hoverCaptureDirectory=null;_headerCaptureDirectory=null;GetTree().Quit(2); }
     }
 
     private void ProcessPresentationFrame(double delta)
     {
+        BeginCameraProfileFrame();
         if (_equipmentPerformanceOutput is not null) _equipmentCallbackStarted = Stopwatch.GetTimestamp();
         if (_middleDragging && !Input.IsMouseButtonPressed(MouseButton.Middle)) _middleDragging = false;
         var input = Vector2.Zero;
@@ -310,11 +314,14 @@ public partial class Main : Node
         ProcessResultsCapture();
         ProcessBookingCapture();
         ProcessRoleCapture();
+        FinishCameraProfileFrame();
     }
 
     public override void _Input(InputEvent inputEvent)
     {
         if (_startSplash is not null) return;
+        if (_boundarySaveTask is not null && !CameraOnlyInput(inputEvent))
+        { GetViewport().SetInputAsHandled(); return; }
         // Release must be observed before a HUD Control consumes the mouse event.
         if (inputEvent is InputEventMouseButton { ButtonIndex: MouseButton.Middle, Pressed: false })
             _middleDragging = false;
@@ -323,6 +330,7 @@ public partial class Main : Node
     public override void _UnhandledInput(InputEvent inputEvent)
     {
         if (_festivalPaper is not null || _startSplash is not null) return;
+        if (_boundarySaveTask is not null && !CameraOnlyInput(inputEvent)) return;
         if (_perkPanel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && _perkPanel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
         if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null || _campaignCaptureDirectory is not null) return;
@@ -1005,6 +1013,11 @@ public partial class Main : Node
             { _bookingCaptureDirectory = args[++i]; Directory.CreateDirectory(_bookingCaptureDirectory); }
             else if (args[i] == "--capture-r005q-roles" && i + 1 < args.Length)
             { _roleCaptureDirectory = args[++i]; Directory.CreateDirectory(_roleCaptureDirectory); }
+            else if (args[i] == "--profile-camera-release" && i + 2 < args.Length)
+            {
+                _cameraProfileMode = args[++i]; _cameraProfileOutput = args[++i];
+                Directory.CreateDirectory(Path.GetDirectoryName(_cameraProfileOutput)!);
+            }
             else if (args[i] == "--capture-r005e-queues" && i + 1 < args.Length)
             { _organicQueueCaptureDirectory = args[++i]; Directory.CreateDirectory(_organicQueueCaptureDirectory); }
             else if (args[i] == "--capture-r005e-intoxication" && i + 1 < args.Length)
@@ -1384,7 +1397,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-private string SaveDirectory => _roleCaptureDirectory is not null ? Path.Combine(_roleCaptureDirectory,"saves") : _bookingCaptureDirectory is not null ? Path.Combine(_bookingCaptureDirectory,"saves") : _resultsCaptureDirectory is not null ? Path.Combine(_resultsCaptureDirectory,"saves") : _automationCaptureDirectory is not null ? Path.Combine(_automationCaptureDirectory,"saves") : _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory,"saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory,"saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory,"saves") :
+private string SaveDirectory => _cameraProfileOutput is not null ? Path.Combine(Path.GetDirectoryName(_cameraProfileOutput)!,"saves") : _roleCaptureDirectory is not null ? Path.Combine(_roleCaptureDirectory,"saves") : _bookingCaptureDirectory is not null ? Path.Combine(_bookingCaptureDirectory,"saves") : _resultsCaptureDirectory is not null ? Path.Combine(_resultsCaptureDirectory,"saves") : _automationCaptureDirectory is not null ? Path.Combine(_automationCaptureDirectory,"saves") : _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory, "saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory,"saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory,"saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory,"saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :

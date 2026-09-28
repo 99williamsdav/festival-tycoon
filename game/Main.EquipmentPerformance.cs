@@ -1,4 +1,5 @@
 using Festival.Simulation;
+using Festival.Persistence;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -163,6 +164,13 @@ public partial class Main
 
     public override void _ExitTree()
     {
+        if (_boundarySaveTask is { } pending)
+        {
+            try { pending.GetAwaiter().GetResult(); }
+            catch (Exception error) { GD.PushError("Pending boundary save did not complete during shutdown: " + error); }
+            _boundarySaveTask = null;
+        }
+        if (_cameraProfileOutput is not null) PersistenceTiming.Observer = null;
         if (_equipmentOriginalVsync is { } original) DisplayServer.WindowSetVsyncMode(original);
         if (_equipmentOriginalMaxFps is { } originalFps) Engine.MaxFps = originalFps;
         if (_nativeTimingControlDiagnostic) RenderingServer.ViewportSetMeasureRenderTime(GetViewport().GetViewportRid(), false);

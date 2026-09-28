@@ -42,6 +42,22 @@ public sealed class FoundationClock
         return scheduled;
     }
 
+    /// <summary>Return the tail of the most recent schedule when an atomic boundary
+    /// must finish before those ticks can be published. No authoritative tick is lost.</summary>
+    public void RequeueUnprocessedTicks(int count)
+    {
+        var samples = _samples.ToArray();
+        if (samples.Length == 0 || count < 0 || count > samples[^1].Processed)
+            throw new ArgumentOutOfRangeException(nameof(count));
+        if (count == 0) return;
+        _samples.Clear();
+        for (var index = 0; index < samples.Length - 1; index++) _samples.Enqueue(samples[index]);
+        _samples.Enqueue((samples[^1].Requested, samples[^1].Processed - count));
+        _windowProcessedTicks -= count;
+        _tickDebt = Math.Min(MaximumDebtTicks, _tickDebt + count);
+        IsOverloaded = _tickDebt >= 1;
+    }
+
     public void ResetMeasurement() { _samples.Clear(); _windowRequestedTicks = 0; _windowProcessedTicks = 0; IsOverloaded = false; }
     public void ResetBoundary() { _tickDebt = 0; ResetMeasurement(); }
 }

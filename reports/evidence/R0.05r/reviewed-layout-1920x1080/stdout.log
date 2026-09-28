@@ -1,0 +1,31 @@
+Godot Engine v4.7.2.stable.mono.official.ed1daf0bf - https://godotengine.org
+OpenGL API 3.3.0 NVIDIA 596.08 - Compatibility - Using Device: NVIDIA - NVIDIA GeForce RTX 3050 Ti Laptop GPU
+
+FESTIVAL_TYCOON_LAUNCHED build=0.0.1-m0.01 godot=4.7.2-stable (official)
+FARM_SCENE_READY scenario=scenario.lower-wittering-farm objects=5 hash=38148ffe225dee1d65e755ee93946e63fe2c687d953ced2a0c58e9b279b1f8a5
+INCIDENT_AUDIO_READY ambient=True explosion=True female=True male=True mode=cc0-integrated
+FARM_SELECTION_CLEARED
+LAYOUT_BARNS actual_door_axis_dot=1.0000 front_positive_z=True render_bounds_overlap=False selection_yaw0=True generic_normal_mesh_pick_absent=True content=0e6fa18d57decc54430afd5931e220b4477aa7cf793859883fc337ad600baa18
+ATTENDEE_PALETTE_BASE filter=NearestWithMipmaps repeat=True roughness=0.93 dimensions=96x8
+LAYOUT_STAFF worker=Riley Hart role=Medic idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Jordan Hale role=Steward idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Avery Brooks role=Medic idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Sam Ellis role=Steward idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_LABELLED_GUARD worker=Riley Hart treatment_precedence=True stopped_intervention_precedence=True incapacity_excluded=True final_1mm_renderdelta_excluded=True collapse_precedence=True
+LAYOUT_STEWARD_ATTENDING worker=Jordan Hale target=22 face_target=True
+LAYOUT_STEWARD_INVALID_TARGET worker=Jordan Hale collapsed_target_ignored=True
+LAYOUT_LABELLED_GUARD worker=Jordan Hale calming_precedence=True stopped_intervention_precedence=True incapacity_excluded=True final_1mm_renderdelta_excluded=True collapse_precedence=True
+LAYOUT_LABELLED_GUARD worker=Avery Brooks treatment_precedence=True stopped_intervention_precedence=True incapacity_excluded=True final_1mm_renderdelta_excluded=True collapse_precedence=True
+LAYOUT_STEWARD_ATTENDING worker=Sam Ellis target=22 face_target=True
+LAYOUT_STEWARD_INVALID_TARGET worker=Sam Ellis collapsed_target_ignored=True
+LAYOUT_LABELLED_GUARD worker=Sam Ellis calming_precedence=True stopped_intervention_precedence=True incapacity_excluded=True final_1mm_renderdelta_excluded=True collapse_precedence=True
+LAYOUT_LABELLED_WALK_GUARD worker=Riley Hart route_action=Travelling previous_render_position_initialized_0_1m=True travel_heading_precedence=True
+LAYOUT_LABELLED_WALK_GUARD worker=Jordan Hale route_action=Travelling previous_render_position_initialized_0_1m=True travel_heading_precedence=True
+LAYOUT_LABELLED_WALK_GUARD worker=Avery Brooks route_action=Travelling previous_render_position_initialized_0_1m=True travel_heading_precedence=True
+LAYOUT_LABELLED_WALK_GUARD worker=Sam Ellis route_action=Travelling previous_render_position_initialized_0_1m=True travel_heading_precedence=True
+LAYOUT_STAFF worker=Riley Hart role=Medic idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Jordan Hale role=Steward idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Avery Brooks role=Medic idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+LAYOUT_STAFF worker=Sam Ellis role=Steward idle=True action=Arrived actual_front_dot=1.0000 hash_pure=True
+FARM_SELECTION_CLEARED
+LAYOUT_CAPTURE_COMPLETE barn_actual_axes=True four_fixed_quarterturn_views=True generic_normal_mesh_pick_absent=True idle_four_workers=True labelled_busy_collapse_intervention_guards=True labelled_real_route_and_initialized_renderdelta_walk_return=True cosmetic_hash_pure=True exact_file_restore=True hash=c5a0826bf2882cbac0a8fcd5d8aa90fc9dbefd17165de38641fa248570891dcb size=(1920, 1080)

@@ -103,6 +103,7 @@ public partial class Main
 
     private void PreparationSave()
     {
+        if (RejectActionDuringBoundarySave()) return;
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-preparation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));
         _preparationMessage = result.IsSuccess ? FestivalCopy("Preparation / live weekend saved.") : result.Error!;
         RefreshPreparationHud();
@@ -110,6 +111,7 @@ public partial class Main
 
     private void PreparationLoad()
     {
+        if (RejectActionDuringBoundarySave()) return;
         CancelResponsePostPlacement();
         CancelImmersionPlacement(); ResetImmersionHeldVisuals();
         CancelWaterPlacement();
@@ -250,12 +252,19 @@ public partial class Main
     private void AdvancePreparationPresentation(double delta)
     {
         var workStarted = Stopwatch.GetTimestamp();
-        _foundationClock.IsPaused = _resultsCaptureDirectory is not null || _session.IsPaused || _preparationSaveBlocked || _session.CapturePreparation()!.Status is not (PreparationStatus.Running or PreparationStatus.Departing);
         if (_equipmentPerformanceOutput is not null) { _equipmentDeltaMs = delta * 1000; _equipmentDebtBefore = _foundationClock.DebtTicks; }
-        var ticks = _foundationClock.Schedule(delta);
+        var saving = _boundarySaveTask is not null && !FinishResponsiveBoundarySave();
+        _foundationClock.IsPaused = _resultsCaptureDirectory is not null || _session.IsPaused || _preparationSaveBlocked ||
+            _session.CapturePreparation()!.Status is not (PreparationStatus.Running or PreparationStatus.Departing);
+        var ticks = _foundationClock.Schedule(delta, saving ? 0 : null);
         if (_equipmentPerformanceOutput is not null) _equipmentScheduledTicks = ticks;
         for (var tick = 0; tick < ticks; tick++)
         {
+            if (UseResponsiveBoundarySaves && BoundaryOnNextTick(_session))
+            {
+                StartResponsiveBoundarySave(ticks - tick - 1);
+                break;
+            }
             var advanced = PreparationAdvanceCoordinator.AdvanceOne(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
             if (!advanced.IsSuccess)
             {
@@ -267,7 +276,7 @@ public partial class Main
             _foundationPresentation.Advance(_session.CaptureObservation());
         }
         var presentationStarted = Stopwatch.GetTimestamp();
-        if (_preparationProfileOutput is not null || _equipmentPerformanceOutput is not null) _profileSimulationMs = Stopwatch.GetElapsedTime(workStarted, presentationStarted).TotalMilliseconds;
+        if (_preparationProfileOutput is not null || _equipmentPerformanceOutput is not null || _cameraProfileOutput is not null) _profileSimulationMs = Stopwatch.GetElapsedTime(workStarted, presentationStarted).TotalMilliseconds;
         var live = _session.CaptureLivePerformance();
         var watching = live is { Stage: LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted }
             ? live.Listeners.Where(item => item.AtPlace).Select(item => new EntityId(item.AgentId)).ToHashSet()
@@ -312,7 +321,7 @@ public partial class Main
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceIncidentAudioPresentation();
         ProcessLivePerformanceCapture();
-        if (_session.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing && _autosaveScheduler.Advance(delta))
+        if (_boundarySaveTask is null && _session.PreparedStatus is (PreparationStatus.Running or PreparationStatus.Departing) && _autosaveScheduler.Advance(delta))
         {
             var result = AutosaveRotation.Save(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
             if (result.IsSuccess) _autosaveGeneration++;
@@ -322,7 +331,7 @@ public partial class Main
         if (_preparationMeasurementTier > 0 && _preparationLiveStarted != 0)
             _preparationWorkMilliseconds.Add(Stopwatch.GetElapsedTime(workStarted).TotalMilliseconds);
         var captureStarted = Stopwatch.GetTimestamp();
-        if (_preparationProfileOutput is not null || _equipmentPerformanceOutput is not null) _profilePresentationMs = Stopwatch.GetElapsedTime(presentationStarted, captureStarted).TotalMilliseconds;
+        if (_preparationProfileOutput is not null || _equipmentPerformanceOutput is not null || _cameraProfileOutput is not null) _profilePresentationMs = Stopwatch.GetElapsedTime(presentationStarted, captureStarted).TotalMilliseconds;
         if (_preparationCaptureDirectory is not null &&
             (_preparationProfileOutput is null || _preparationProfileCapture || _preparationCaptureFrame < 10)) ProcessPreparationCapture();
         if (_preparationProfileOutput is not null || _equipmentPerformanceOutput is not null) _profileCaptureMs = Stopwatch.GetElapsedTime(captureStarted).TotalMilliseconds;

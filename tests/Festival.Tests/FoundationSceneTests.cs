@@ -324,6 +324,20 @@ public sealed class FoundationSceneTests
     }
 
     [TestMethod]
+    public void RequeuedBoundaryTicksRemainScheduledAfterAsynchronousWait()
+    {
+        var clock = new FoundationClock();
+        Assert.AreEqual(8, clock.Schedule(.1));
+        clock.RequeueUnprocessedTicks(6);
+        Assert.AreEqual(6, clock.DebtTicks, 0.0001);
+        Assert.AreEqual(0, clock.Schedule(.025, 0), "A pending save must accrue debt without publishing ticks.");
+        Assert.AreEqual(8, clock.DebtTicks, 0.0001);
+        Assert.AreEqual(8, clock.Schedule(0));
+        Assert.AreEqual(0, clock.DebtTicks, 0.0001);
+        Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => clock.RequeueUnprocessedTicks(9));
+    }
+
+    [TestMethod]
     public void NeighbourIndexAndPaletteAssignmentAreStable()
     {
         var fixture = FiftyAgentFoundationFixture.Create();
