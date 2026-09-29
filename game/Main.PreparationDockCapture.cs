@@ -43,6 +43,10 @@ public partial class Main
                         throw new InvalidOperationException("Initial dock badges do not match real Start blockers.");
                     if (_preparationReadiness?.Visible != true || !HudBlocksPlacement(_preparationReadiness.GetGlobalRect().GetCenter()))
                         throw new InvalidOperationException("Readiness card leaked world placement input.");
+                    var initialChecks = _preparationReadinessRows!.GetChildren().OfType<Button>().ToArray();
+                    if (initialChecks.Length != 7 || initialChecks.Count(row => row.Text.StartsWith("! ")) != 6 ||
+                        initialChecks.Count(row => row.Text.StartsWith("✓ ")) != 1)
+                        throw new InvalidOperationException("Before opening did not retain all seven initial requirements.");
                     PreparationDockCaptureImage("01-build-open-blockers");
                     _buildDrawerClose!.EmitSignal(BaseButton.SignalName.Pressed);
                     break;
@@ -86,6 +90,9 @@ public partial class Main
                     if (_session.GetPreparationStartBlockers().Count != 0 || _preparationDockStart?.Disabled == true ||
                         _preparationDockBadges.Values.Any(badge => badge.Visible))
                         throw new InvalidOperationException("Ready dock retains a false missing-task badge or disabled Start.");
+                    var readyChecks = _preparationReadinessRows!.GetChildren().OfType<Button>().ToArray();
+                    if (readyChecks.Length != 7 || readyChecks.Any(row => !row.Text.StartsWith("✓ ")))
+                        throw new InvalidOperationException("Completed opening requirements disappeared or remained unchecked.");
                     PreparationDockCaptureImage("07-ready-full-draft");
                     PreparationStart();
                     break;

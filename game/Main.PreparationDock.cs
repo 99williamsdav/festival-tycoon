@@ -154,33 +154,23 @@ public partial class Main
         _preparationDockReason!.Visible = issue is not null;
         _preparationDockReason.Text = issue is null ? "Ready to open" : "! " + (blockers.Count == 0 ? "Finish placement" : "Required tasks");
         _preparationDockReason.TooltipText = issue ?? "Ready to open";
-        var key = string.Join("|", blockers.Select(item => item.Owner + ":" + item.Message));
+        var requirements = _session.GetPreparationStartRequirements();
+        var key = string.Join("|", requirements.Select(item => item.Id + ":" + item.Complete));
         if (key == _preparationReadinessKey) return;
         _preparationReadinessKey = key;
         foreach (var child in _preparationReadinessRows!.GetChildren()) child.QueueFree();
-        if (blockers.Count == 0) _preparationReadinessRows.AddChild(HudLabel("✓ Ready to open", 14));
-        foreach (var blocker in blockers)
+        foreach (var requirement in requirements)
         {
-            var owner = blocker.Owner;
-            var row = ButtonText("! " + ShortPreparationReason(blocker), () => OpenPreparationBlocker(owner));
-            row.TooltipText = blocker.Message + " Open the matching preparation panel.";
-            row.AddThemeColorOverride("font_color", new Color("aa242b"));
+            var owner = requirement.Owner;
+            var row = ButtonText((requirement.Complete ? "✓ " : "! ") + requirement.Label,
+                () => OpenPreparationBlocker(owner));
+            row.TooltipText = requirement.Complete
+                ? requirement.Label + " complete. Open the matching preparation panel to review or revise it."
+                : requirement.Detail + " Open the matching preparation panel.";
+            row.AddThemeColorOverride("font_color", requirement.Complete ? new Color("126c70") : new Color("aa242b"));
             row.AddThemeFontSizeOverride("font_size", 12);
-            row.CustomMinimumSize = new Vector2(0, 38);
+            row.CustomMinimumSize = new Vector2(0, 30);
             _preparationReadinessRows.AddChild(row);
         }
-    }
-
-    private static string ShortPreparationReason(PreparationStartBlocker blocker)
-    {
-        var message = blocker.Message;
-        if (message.Contains("water tap", StringComparison.OrdinalIgnoreCase)) return "Water tap missing";
-        if (message.Contains("toilet", StringComparison.OrdinalIgnoreCase)) return "Toilet missing";
-        if (message.Contains("first aid", StringComparison.OrdinalIgnoreCase)) return "First aid missing";
-        if (message.Contains("steward post", StringComparison.OrdinalIgnoreCase)) return "Steward post missing";
-        if (blocker.Owner == PreparationStartOwner.Programme) return "Programme incomplete";
-        if (blocker.Owner == PreparationStartOwner.Staff) return "Sound staff needed";
-        if (message.Contains("funds", StringComparison.OrdinalIgnoreCase)) return "Draft exceeds budget";
-        return message;
     }
 }

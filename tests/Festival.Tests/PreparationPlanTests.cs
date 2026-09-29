@@ -84,6 +84,9 @@ public sealed class PreparationPlanTests
     {
         var s = New(); Ready(s); Accept(s, new SetPreparationStockCommand(10000, 10000, 10000));
         var before = s.CaptureSnapshot().AuthoritativeHash; Assert.IsTrue(s.PreparationRemainingCash < 0);
+        var budget = s.GetPreparationStartRequirements().Single(item => item.Id == "budget");
+        Assert.IsFalse(budget.Complete);
+        Assert.AreEqual(budget.Detail, s.GetPreparationStartBlockers().Single().Message);
         Assert.IsFalse(Send(s, new StartPreparedEditionCommand()).IsAccepted); Assert.AreEqual(before, s.CaptureSnapshot().AuthoritativeHash);
         Restored(s);
         var directory = Path.Combine(Path.GetTempPath(), "festival-plan-" + Guid.NewGuid());

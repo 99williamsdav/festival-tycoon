@@ -5,6 +5,8 @@ namespace Festival.Simulation;
 public enum PreparationStatus { Preparing, Running, Departing, Finished, Failed }
 public enum PreparationStartOwner { Programme, Staff, Overview }
 public sealed record PreparationStartBlocker(PreparationStartOwner Owner, string Message);
+public sealed record PreparationStartRequirement(string Id, PreparationStartOwner Owner, string Label,
+    bool Complete, string Detail);
 public sealed record PreparationOffer(string Id, string Category, string Name, int PricePennies, int MusicQuality, int Genre);
 public sealed record EditionPerson(ulong AgentId, string Name, ProtectedPersonRole Role, int ExpectedGenre,
     bool Admitted = false, bool Departed = false, int Satisfaction = 5_000, int MusicRisk = 0);
@@ -291,31 +293,40 @@ public sealed partial class GameSession
 
     // Derived presentation read model; these are the exact local Start conditions,
     // not extra safety recommendations or global command-envelope/perk guards.
-    public IReadOnlyList<PreparationStartBlocker> GetPreparationStartBlockers()
+    public IReadOnlyList<PreparationStartRequirement> GetPreparationStartRequirements()
     {
         if (_preparation is not { Status: PreparationStatus.Preparing } p) return [];
-        var blockers = new List<PreparationStartBlocker>(2);
+        var requirements = new List<PreparationStartRequirement>(7);
         if (p.BuildModeEnabled)
         {
-            if (!p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.WaterTap))
-                blockers.Add(new(PreparationStartOwner.Overview, "Place a water tap before opening."));
-            if (!p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.Toilet))
-                blockers.Add(new(PreparationStartOwner.Overview, "Place a toilet before opening."));
-            if (!p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.FirstAid))
-                blockers.Add(new(PreparationStartOwner.Overview, "Place first aid before opening."));
-            if (!p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.StewardPost))
-                blockers.Add(new(PreparationStartOwner.Overview, "Place a steward post before opening."));
+            requirements.Add(new("water", PreparationStartOwner.Overview, "Water tap",
+                p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.WaterTap), "Place a water tap before opening."));
+            requirements.Add(new("toilet", PreparationStartOwner.Overview, "Toilet",
+                p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.Toilet), "Place a toilet before opening."));
+            requirements.Add(new("first-aid", PreparationStartOwner.Overview, "First aid",
+                p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.FirstAid), "Place first aid before opening."));
+            requirements.Add(new("steward-post", PreparationStartOwner.Overview, "Steward post",
+                p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.StewardPost), "Place a steward post before opening."));
         }
-        if (_programme is null ? !p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) : (p.Plan?.ActIds ?? _programme.ActIds).Count(id => id != "") != 3)
-            blockers.Add(new(PreparationStartOwner.Programme, _programme is null
-                ? "Book one act before opening."
-                : "Choose three different acts before opening. Each selection saves immediately."));
-        if (!(p.Plan?.OfferIds ?? p.WorkContracts).Any(id => id.StartsWith("staff.", StringComparison.Ordinal)))
-            blockers.Add(new(PreparationStartOwner.Staff, "Hire one worker from the Staff tab before opening."));
-        if (p.Plan is { Committed: false } && PreparationRemainingCash < 0)
-            blockers.Add(new(PreparationStartOwner.Overview, "Setup exceeds available funds. Remove or revise planned purchases."));
-        return blockers;
+        requirements.Add(new("programme", PreparationStartOwner.Programme,
+            _programme is null ? "Act booked" : "Three acts booked",
+            _programme is null ? p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) :
+                (p.Plan?.ActIds ?? _programme.ActIds).Count(id => id != "") == 3,
+            _programme is null ? "Book one act before opening." :
+                "Choose three different acts before opening. Each selection saves immediately."));
+        requirements.Add(new("staff", PreparationStartOwner.Staff, "Worker hired",
+            (p.Plan?.OfferIds ?? p.WorkContracts).Any(id => id.StartsWith("staff.", StringComparison.Ordinal)),
+            "Hire one worker from the Staff tab before opening."));
+        if (p.BuildModeEnabled || p.Plan is { Committed: false })
+            requirements.Add(new("budget", PreparationStartOwner.Overview, "Setup within budget",
+                p.Plan is not { Committed: false } || PreparationRemainingCash >= 0,
+                "Setup exceeds available funds. Remove or revise planned purchases."));
+        return requirements;
     }
+
+    public IReadOnlyList<PreparationStartBlocker> GetPreparationStartBlockers() =>
+        GetPreparationStartRequirements().Where(requirement => !requirement.Complete)
+            .Select(requirement => new PreparationStartBlocker(requirement.Owner, requirement.Detail)).ToArray();
 
     private CommandResult? ValidatePreparationCommand(EntityId? target, SessionCommand command)
     {

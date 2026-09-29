@@ -202,7 +202,24 @@ public partial class Main
                 (pair.Action.Disabled ? "Select a placed one to move or remove." : "Place an unpaid draft service.");
         }
         foreach (var (kind, buttons) in _buildShortcutButtons)
-            foreach (var button in buttons) button.Visible = !placements.Any(item => item.Kind == kind);
+        {
+            var complete = placements.Any(item => item.Kind == kind);
+            foreach (var button in buttons)
+            {
+                button.Visible = true;
+                button.Text = (complete ? "✓ " : "! ") + (kind switch
+                {
+                    BuildServiceKind.WaterTap => "Water — open taps in Build",
+                    BuildServiceKind.Toilet => "Toilet — open toilets in Build",
+                    BuildServiceKind.FirstAid => "Safety — open first aid in Build",
+                    BuildServiceKind.StewardPost => "Safety — open steward posts in Build",
+                    _ => BuildName(kind)
+                });
+                button.TooltipText = complete
+                    ? $"{BuildName(kind)} placed. Open its Build row to review or change it."
+                    : $"{BuildName(kind)} is required before opening. Open its Build row to place one.";
+            }
+        }
         var key = string.Join("|", placements.Select(item => $"{item.Id}:{item.Cell.X}:{item.Cell.Z}:{item.QuarterTurns}"));
         if (key != _buildPlacedKey)
         {

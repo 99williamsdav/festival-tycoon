@@ -92,4 +92,36 @@ public sealed class PreparationReadinessTests
         Accept(session, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[0]));
         VerifyReadModel(session, PreparationStartOwner.Programme, PreparationStartOwner.Staff);
     }
+
+    [TestMethod]
+    public void BuildChecklistKeepsEveryRequirementVisibleAcrossCompletionRemovalAndReload()
+    {
+        var session = GameSession.CreateBuildCampaign(20260929);
+        var originalHash = session.CaptureSnapshot().AuthoritativeHash;
+        var initial = session.GetPreparationStartRequirements();
+        CollectionAssert.AreEqual(new[] { "water", "toilet", "first-aid", "steward-post", "programme", "staff", "budget" },
+            initial.Select(item => item.Id).ToArray());
+        Assert.AreEqual(6, initial.Count(item => !item.Complete));
+        Assert.IsTrue(initial.Single(item => item.Id == "budget").Complete);
+        Assert.AreEqual(originalHash, session.CaptureSnapshot().AuthoritativeHash);
+
+        var perk = session.CapturePerks()!;
+        Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
+        Accept(session, new UseDefaultBuildLayoutCommand());
+        foreach (var id in new[] { "water", "toilet", "first-aid", "steward-post" })
+            Assert.IsTrue(session.GetPreparationStartRequirements().Single(item => item.Id == id).Complete);
+        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
+        Accept(session, new AcceptPreparationOfferCommand("staff.steward"));
+        Assert.IsTrue(session.GetPreparationStartRequirements().All(item => item.Complete));
+        Assert.AreEqual(0, session.GetPreparationStartBlockers().Count);
+
+        Accept(session, new RemoveBuildServiceCommand("water.main"));
+        var removed = session.GetPreparationStartRequirements();
+        Assert.AreEqual(7, removed.Count);
+        Assert.IsFalse(removed.Single(item => item.Id == "water").Complete);
+        Assert.AreEqual(1, session.GetPreparationStartBlockers().Count);
+        var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        CollectionAssert.AreEqual(removed.ToArray(), restored.Session!.GetPreparationStartRequirements().ToArray());
+    }
 }
