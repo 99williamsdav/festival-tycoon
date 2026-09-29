@@ -61,12 +61,7 @@ public partial class Main
         if (_newCampaignOnEnter)
         {
             // Create only on Enter: merely viewing the menu must not touch a terminal save.
-            _menuCampaignIds.Add(_session.CampaignId.Value);
-            var seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
-            while (seed == 0 || _menuCampaignIds.Contains(seed))
-                seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
-            _menuCampaignIds.Add(seed);
-            var next = GameSession.CreateBuildCampaign(seed);
+            var next = CreateFreshBuildCampaign(out var seed);
             CancelResponsePostPlacement(); CancelImmersionPlacement(); CancelWaterPlacement(); CancelPerkConfirmation();
             ClearSelection(); ResetImmersionHeldVisuals();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
@@ -92,6 +87,18 @@ public partial class Main
             GD.Print($"NEW_CAMPAIGN_STARTED id={_session.CampaignId.Value} seed={seed} status={_session.PreparedStatus}");
         }
         _startSplash?.QueueFree(); _startSplash = null;
+    }
+
+    private GameSession CreateFreshBuildCampaign(out ulong seed)
+    {
+        // Entropy belongs at the user-facing creation boundary, never inside the
+        // deterministic simulation factory. Keep previous campaigns distinct in
+        // this process, including a session created before the splash is entered.
+        if (_session is not null) _menuCampaignIds.Add(_session.CampaignId.Value);
+        do seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
+        while (seed == 0 || _menuCampaignIds.Contains(seed));
+        _menuCampaignIds.Add(seed);
+        return GameSession.CreateBuildCampaign(seed);
     }
 
     private void ProcessStartSplashCapture()

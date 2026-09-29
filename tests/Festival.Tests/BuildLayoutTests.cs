@@ -12,6 +12,49 @@ public sealed class BuildLayoutTests
         session.NextSubmissionSequence, null, command));
 
     [TestMethod]
+    public void FreshBuildSeedsStayDeterministicAndRerolledHandSurvivesDiskLoad()
+    {
+        const ulong seed = 0x6E84_C2A9_FD03_41B7;
+        var session = GameSession.CreateBuildCampaign(seed);
+        var sameSeed = GameSession.CreateBuildCampaign(seed);
+        var differentSeed = GameSession.CreateBuildCampaign(seed + 1);
+        Assert.AreNotEqual(0UL, session.CampaignSeed);
+        Assert.AreEqual(seed, session.CampaignId.Value);
+        Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, sameSeed.CaptureSnapshot().AuthoritativeHash);
+        Assert.AreNotEqual(session.CampaignId, differentSeed.CampaignId);
+        var initial = session.CapturePerks()!;
+        CollectionAssert.AreEqual(initial.Hand, sameSeed.CapturePerks()!.Hand);
+        Assert.AreEqual(initial.Cursor, sameSeed.CapturePerks()!.Cursor);
+
+        var reroll = Send(session, new RerollPerksCommand(initial.DraftAttempt, initial.Cursor));
+        Assert.IsTrue(reroll.IsAccepted, reroll.Message);
+        var rerolled = session.CapturePerks()!;
+        var compatibility = new SaveCompatibility("r0.05x-seed-test", LowerWitteringFarmScenario.ContentCompatibilityHash,
+            "build-seed-test");
+        var directory = Path.Combine(Path.GetTempPath(), "festival-build-seed-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            var saved = AutosaveRotation.Save(directory, session, compatibility, DateTimeOffset.UtcNow, 0);
+            Assert.IsTrue(saved.IsSuccess, saved.Error);
+            var loaded = AutosaveRotation.LoadNewestValid(directory, compatibility);
+            Assert.IsTrue(loaded.IsSuccess, loaded.Error);
+            Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, loaded.Session!.CaptureSnapshot().AuthoritativeHash);
+            Assert.AreEqual(seed, loaded.Session.CampaignSeed);
+            var restoredHand = loaded.Session.CapturePerks()!;
+            CollectionAssert.AreEqual(rerolled.Hand, restoredHand.Hand);
+            Assert.AreEqual(rerolled.Cursor, restoredHand.Cursor);
+            Assert.IsTrue(restoredHand.RerollUsed);
+            var beforeRejectedReroll = loaded.Session.CaptureSnapshot().AuthoritativeHash;
+            Assert.IsFalse(Send(loaded.Session, new RerollPerksCommand(restoredHand.DraftAttempt, restoredHand.Cursor)).IsAccepted);
+            Assert.AreEqual(beforeRejectedReroll, loaded.Session.CaptureSnapshot().AuthoritativeHash);
+        }
+        finally
+        {
+            if (Directory.Exists(directory)) Directory.Delete(directory, recursive: true);
+        }
+    }
+
+    [TestMethod]
     public void FreshDraftIsUnplacedAndDefaultsHaveViablePrototypeCost()
     {
         var session = GameSession.CreateBuildCampaign(20260922);

@@ -194,8 +194,9 @@ public partial class Main : Node
                 _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
                 _postCaptureDirectory is not null || _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) :
                 _resultsCaptureDirectory is not null && !_resultsNewGameCapture ? GameSession.CreateResultsCampaign(20260922) :
-                OS.GetCmdlineUserArgs().Length == 0 || _buildCaptureDirectory is not null
-                    ? GameSession.CreateBuildCampaign(20260922) : GameSession.CreateBookingCampaign(20260922);
+                _buildCaptureDirectory is not null ? GameSession.CreateBuildCampaign(20260922) :
+                OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
+                GameSession.CreateBookingCampaign(20260922);
         }
         if (_hearingCaptureDirectory is not null)
         {
@@ -250,6 +251,8 @@ public partial class Main : Node
         var version = Engine.GetVersionInfo()["string"].AsString();
         GD.Print($"FESTIVAL_TYCOON_LAUNCHED build={ToolchainSmoke.BuildVersion} godot={version}");
         GD.Print($"FARM_SCENE_READY scenario={LowerWitteringFarmScenario.ScenarioId} objects={_visualRegistry.Count} hash={_pausedHash}");
+        if (OS.GetCmdlineUserArgs().Length == 0)
+            GD.Print($"INITIAL_BUILD_CAMPAIGN id={_session.CampaignId.Value} seed={_session.CampaignSeed}");
     }
 
     public override void _Process(double delta)
