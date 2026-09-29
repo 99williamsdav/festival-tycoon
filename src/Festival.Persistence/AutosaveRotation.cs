@@ -26,12 +26,10 @@ public static class AutosaveRotation
         string directory, SessionPersistenceSnapshot snapshot, SaveCompatibility compatibility,
         DateTimeOffset now, long generation, Action<SaveFailurePoint>? failureInjector = null)
     {
-        var started = PersistenceTiming.Start();
-        var restored = GameSession.Restore(snapshot);
-        PersistenceTiming.Record("autosave.restore", started);
-        return restored.IsSuccess
-            ? Save(directory, restored.Session!, compatibility, now, generation, failureInjector)
-            : SaveOperationResult.Failure($"Could not restore captured autosave: {restored.Error}");
+        // The immutable capture is validated by the normal temporary-file load
+        // before replacement. Avoid a redundant full restore/capture on the worker.
+        return SaveFileAdapter.SaveCapturedSlot(directory, SlotForGeneration(generation), snapshot,
+            compatibility, "autosave", now, generation, failureInjector);
     }
 
     public static long NextGeneration(string directory, SaveCompatibility compatibility)

@@ -164,6 +164,11 @@ public partial class Main
 
     public override void _ExitTree()
     {
+        if (_draftSavePipeline is { HasPending: true } draft)
+        {
+            var result = draft.FinishPending();
+            if (result.RolledBack) GD.PushError("Pending staff draft edits did not save during shutdown: " + result.Error);
+        }
         if (_boundarySaveTask is { } pending)
         {
             try { pending.GetAwaiter().GetResult(); }

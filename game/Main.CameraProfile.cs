@@ -37,12 +37,15 @@ public partial class Main
     private bool _cameraProfileAttemptedLoadWhilePending;
     private string _cameraProfilePhase = "cold-idle";
     private double _cameraProfileSeconds;
+    private readonly List<object> _cameraProfileStaffActions = [];
+    private int _cameraProfileStaffActionIndex;
+    private long _cameraProfileStaffOpeningCash;
 
     private void PrepareCameraProfile()
     {
         if (_cameraProfileOutput is null) return;
         PersistenceTiming.Observer = (stage, ms) => _cameraProfileSaveStages.Enqueue((stage, ms));
-        if (_cameraProfileMode is "live" or "failure" or "live-toilet" or "live-periodic")
+        if (_cameraProfileMode is "live" or "failure" or "live-toilet" or "live-periodic" or "live-slow-boundary")
         {
             var perk = _session.CapturePerks()!;
             CommitEquipmentAction(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
@@ -69,6 +72,14 @@ public partial class Main
             }
             _foundationPresentation.Reset(_session.CaptureObservation());
             RefreshPreparationHud();
+        }
+        else if (_cameraProfileMode == "staff-draft")
+        {
+            var perk = _session.CapturePerks()!;
+            CommitEquipmentAction(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
+            SelectPreparationDockDestination("Staff");
+            _cameraProfileStaffOpeningCash = _session.CaptureSnapshot().FestivalFinances.Single().CashPennies;
+            while (_cameraProfileSaveStages.TryDequeue(out _)) { }
         }
         else if (_cameraProfileMode != "preparation") throw new InvalidOperationException("Unknown camera profile mode.");
         _cameraProfileHomeFocus = _focus;
@@ -106,6 +117,22 @@ public partial class Main
     private void FinishCameraProfileFrame()
     {
         if (_cameraProfileOutput is null) return;
+        if (_cameraProfileMode == "staff-draft" && _cameraProfileStaffActionIndex < 8 &&
+            _cameraProfileSeconds >= 5 + _cameraProfileStaffActionIndex * 2)
+        {
+            var index = _cameraProfileStaffActionIndex++;
+            var started = Stopwatch.GetTimestamp();
+            _offerButtons["staff.steward"].EmitSignal(BaseButton.SignalName.Pressed);
+            var clickMs = Stopwatch.GetElapsedTime(started).TotalMilliseconds;
+            var selected = _session.CapturePreparationPlan()!.OfferIds.Contains("staff.steward");
+            if (selected != (index % 2 == 0) || _session.CapturePreparation()!.Payments.Length != 0 ||
+                _session.CaptureSnapshot().FestivalFinances.Single().CashPennies != _cameraProfileStaffOpeningCash ||
+                !_offerButtons["staff.steward"].Text.StartsWith(selected ? "REMOVE" : "HIRE", StringComparison.Ordinal))
+                throw new InvalidOperationException($"Staff draft click {index} did not visibly and atomically toggle the unpaid hire.");
+            _cameraProfileStaffActions.Add(new { index, seconds = _cameraProfileSeconds, clickToVisibleMs = clickMs,
+                selected, generation = _autosaveGeneration, hash = _session.CaptureSnapshot().AuthoritativeHash });
+            GD.Print($"STAFF_DRAFT_CLICK index={index} selected={selected} clickToVisibleMs={clickMs:0.###} generation={_autosaveGeneration}");
+        }
         if (_cameraProfileMode == "failure" && _boundarySaveTask is not null && _cameraProfileFailureInjected &&
             !_cameraProfileAttemptedLoadWhilePending)
         {
@@ -164,6 +191,29 @@ public partial class Main
                 frames = _cameraProfileFrames
             }, new JsonSerializerOptions { WriteIndented = true }));
             GD.Print($"CAMERA_PROFILE_FAILURE_COMPLETE tick={_session.CurrentTick} prior={prior.Session.CurrentTick} hash={sourceHash}");
+            GetTree().Quit();
+            return;
+        }
+        if (_cameraProfileMode == "staff-draft" && _cameraProfileSeconds >= 22)
+        {
+            if (_draftSavePipeline?.HasPending == true)
+            {
+                if (_cameraProfileSeconds >= 60)
+                    throw new InvalidOperationException("Staff draft saves did not settle within 60 seconds.");
+                return;
+            }
+            var hash = _session.CaptureSnapshot().AuthoritativeHash;
+            var loaded = SaveFileAdapter.LoadSlot(SaveDirectory, AutosaveRotation.SlotForGeneration(_autosaveGeneration - 1), _saveCompatibility);
+            if (!loaded.IsSuccess || loaded.Session!.CaptureSnapshot().AuthoritativeHash != hash || _autosaveGeneration < 9)
+                throw new InvalidOperationException("Staff draft final save/reload or sequence was not exact: " + loaded.Error);
+            File.WriteAllText(_cameraProfileOutput, JsonSerializer.Serialize(new
+            {
+                mode = "staff-draft", actions = _cameraProfileStaffActions,
+                stages = _cameraProfileSaveStages.Select(item => new { stage = item.Stage, milliseconds = item.Milliseconds }).ToArray(),
+                exactFinalReload = true, finalHash = hash, frames = _cameraProfileFrames
+            }, new JsonSerializerOptions { WriteIndented = true }));
+            PersistenceTiming.Observer = null;
+            GD.Print($"STAFF_DRAFT_PROFILE_COMPLETE actions={_cameraProfileStaffActions.Count} exactReload=True");
             GetTree().Quit();
             return;
         }

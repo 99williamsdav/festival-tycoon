@@ -32,6 +32,7 @@ public partial class Main
     private readonly List<double> _preparationFrameMilliseconds = [];
     private long _preparationPriorTimestamp;
     private bool _preparationSaveBlocked;
+    private PreparationDraftSavePipeline? _draftSavePipeline;
     private int _preparationMeasurementTier;
     private long _preparationMeasurementStarted;
     private long _preparationLiveStarted;
@@ -78,8 +79,28 @@ public partial class Main
 
     private void PreparationAccept(string id)
     {
-        if (_session.CapturePreparationPlan() is { Committed: false } plan && plan.OfferIds.Contains(id))
-        { CommitEquipmentAction(new RemovePreparationOfferCommand(id)); return; }
+        if (_session.CapturePreparationPlan() is { Committed: false } plan)
+        {
+            if (_session.BuildModeEnabled && (OS.GetCmdlineUserArgs().Length == 0 || _cameraProfileMode == "staff-draft") &&
+                (id.StartsWith("staff.", StringComparison.Ordinal) || id == "maintenance.worker"))
+            {
+                _draftSavePipeline ??= new(SaveDirectory, _session, _saveCompatibility, _autosaveGeneration);
+                var command = plan.OfferIds.Contains(id) ? (SessionCommand)new RemovePreparationOfferCommand(id) : new AcceptPreparationOfferCommand(id);
+                var staged = _draftSavePipeline.Submit(command, DateTimeOffset.UtcNow, _planCaptureFailureInjector);
+                _session = _draftSavePipeline.VisibleSession;
+                if (staged.IsAccepted)
+                {
+                    _autosaveGeneration = _draftSavePipeline.NextGeneration;
+                    _preparationMessage = "Staff plan updated; saving in order.";
+                }
+                else _preparationMessage = staged.Error ?? "Staff plan was not changed.";
+                RefreshPreparationHud();
+                return;
+            }
+            if (RejectActionDuringDraftSave()) return;
+            if (plan.OfferIds.Contains(id))
+            { CommitEquipmentAction(new RemovePreparationOfferCommand(id)); return; }
+        }
         if (_session.CaptureEquipment() is not null)
         {
             CommitEquipmentAction(new AcceptPreparationOfferCommand(id));
@@ -92,6 +113,7 @@ public partial class Main
 
     private void PreparationStart()
     {
+        if (RejectActionDuringDraftSave()) return;
         if (_buildGhostKind is not null) { _preparationMessage = "Finish or cancel placement before opening."; RefreshPreparationHud(); return; }
         CancelImmersionPlacement();
         CancelToiletPlacement();
@@ -101,6 +123,7 @@ public partial class Main
             _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
         if (!result.IsSuccess) { _preparationMessage = result.Error!; RefreshPreparationHud(); return; }
         _autosaveGeneration++; _session = result.Session;
+        _draftSavePipeline = null;
         ResetLivePerformancePresentation();
         BuildAttendee(); _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
         _preparationMessage = "Autosaved. Everyone now walks into the field.";
@@ -109,6 +132,7 @@ public partial class Main
 
     private void PreparationSave()
     {
+        if (RejectActionDuringDraftSave()) return;
         if (RejectActionDuringBoundarySave()) return;
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-preparation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));
         _preparationMessage = result.IsSuccess ? FestivalCopy("Preparation / live weekend saved.") : result.Error!;
@@ -117,6 +141,7 @@ public partial class Main
 
     private void PreparationLoad()
     {
+        if (RejectActionDuringDraftSave()) return;
         if (RejectActionDuringBoundarySave()) return;
         CancelBuildPlacement();
         CancelResponsePostPlacement();
@@ -133,6 +158,7 @@ public partial class Main
         }
         if (result.IsSuccess && result.Session!.CapturePreparation() is not null)
         {
+            _draftSavePipeline = null;
             CancelPerkConfirmation();
             var previousProgrammeMode = _session.CaptureProgramme() is not null;
             var previousImmersionMode = _session.CaptureImmersion() is not null;
@@ -264,6 +290,22 @@ public partial class Main
     private void AdvancePreparationPresentation(double delta)
     {
         var workStarted = Stopwatch.GetTimestamp();
+        if (_draftSavePipeline is { } draft)
+        {
+            var update = draft.Poll();
+            if (update.RolledBack)
+            {
+                _session = draft.VisibleSession;
+                _autosaveGeneration = draft.NextGeneration;
+                _preparationMessage = "Staff plan save failed; unsaved edits rolled back. " + update.Error;
+                RefreshPreparationHud();
+            }
+            else if (update.Committed > 0 && !draft.HasPending)
+            {
+                _preparationMessage = "Staff plan autosaved.";
+                RefreshPreparationHud();
+            }
+        }
         if (_equipmentPerformanceOutput is not null) { _equipmentDeltaMs = delta * 1000; _equipmentDebtBefore = _foundationClock.DebtTicks; }
         if (_periodicSaveTask is not null) FinishPeriodicAutosave();
         if (_boundarySaveTask is not null) FinishResponsiveBoundarySave();
@@ -275,13 +317,16 @@ public partial class Main
         {
             if (UseResponsiveBoundarySaves && BoundaryOnNextTick(_session))
             {
-                if (_boundarySaveTask is not null)
+                if (_boundaryPendingSaves.Count >= 16)
                 {
                     _foundationClock.RequeueUnprocessedTicks(ticks - tick);
                     break;
                 }
-                StartResponsiveBoundarySave(ticks - tick - 1);
-                break;
+                // The boundary checkpoint is immutable once captured. Continue
+                // the remaining scheduled ticks in this frame while its write
+                // runs on the worker, preserving visible movement cadence.
+                StartResponsiveBoundarySave();
+                continue;
             }
             var advanced = PreparationAdvanceCoordinator.AdvanceOne(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
             if (!advanced.IsSuccess)

@@ -60,11 +60,13 @@ public partial class Main
 
     private void CommitEquipmentAction(SessionCommand command)
     {
+        if (RejectActionDuringDraftSave()) return;
         var actionSaveDirectory = _buildCaptureDirectory is null ? SaveDirectory : Path.Combine(_buildCaptureDirectory, "saves");
         var result = EquipmentCommandCoordinator.Execute(actionSaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration, _planCaptureFailureInjector);
         if (result.IsSuccess)
         {
             _session = result.Session; _autosaveGeneration++;
+            _draftSavePipeline = null;
             if(command is MoveResponsePostCommand)SyncResponsePosts();
             if (command is ChoosePerkCommand or ApplyWaterFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand)
                 SyncExtraWaterWorld();

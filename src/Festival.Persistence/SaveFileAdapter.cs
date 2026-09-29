@@ -49,8 +49,22 @@ public static partial class SaveFileAdapter
         SaveWriteRequest request,
         Action<SaveFailurePoint>? failureInjector = null)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(path);
         ArgumentNullException.ThrowIfNull(request);
+        return SaveFileCore(path, request.Compatibility, () => CreateEnvelope(request), failureInjector);
+    }
+
+    public static SaveOperationResult SaveCapturedSlot(
+        string directory, string slotId, SessionPersistenceSnapshot snapshot,
+        SaveCompatibility compatibility, string purpose, DateTimeOffset timestampUtc, long? saveSequence = null,
+        Action<SaveFailurePoint>? failureInjector = null) =>
+        SaveFileCore(ResolveSlotPath(directory, slotId), compatibility,
+            () => CreateEnvelope(snapshot, compatibility, purpose, timestampUtc, saveSequence), failureInjector);
+
+    private static SaveOperationResult SaveFileCore(
+        string path, SaveCompatibility compatibility, Func<SaveEnvelopeV1> createEnvelope,
+        Action<SaveFailurePoint>? failureInjector)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(path);
         var fullPath = Path.GetFullPath(path);
         var directory = Path.GetDirectoryName(fullPath);
         if (directory is null) return SaveOperationResult.Failure("Save path must have a parent directory.", fullPath);
@@ -61,14 +75,14 @@ public static partial class SaveFileAdapter
         try
         {
             var stageStarted = PersistenceTiming.Start();
-            var envelope = CreateEnvelope(request);
+            var envelope = createEnvelope();
             PersistenceTiming.Record("save.envelope", stageStarted);
             if (File.Exists(temporaryPath)) File.Delete(temporaryPath);
             stageStarted = PersistenceTiming.Start();
             WriteEnvelope(temporaryPath, envelope);
             PersistenceTiming.Record("save.write", stageStarted);
             stageStarted = PersistenceTiming.Start();
-            var temporaryValidation = LoadFile(temporaryPath, request.Compatibility);
+            var temporaryValidation = LoadFile(temporaryPath, compatibility);
             PersistenceTiming.Record("save.validate-temp", stageStarted);
             if (!temporaryValidation.IsSuccess)
                 throw new InvalidDataException($"Temporary save validation failed: {temporaryValidation.Error}");
@@ -77,7 +91,7 @@ public static partial class SaveFileAdapter
             if (File.Exists(fullPath))
             {
                 stageStarted = PersistenceTiming.Start();
-                var priorValidation = LoadFile(fullPath, request.Compatibility);
+                var priorValidation = LoadFile(fullPath, compatibility);
                 PersistenceTiming.Record("save.validate-prior", stageStarted);
                 stageStarted = PersistenceTiming.Start();
                 File.Replace(
@@ -164,22 +178,26 @@ public static partial class SaveFileAdapter
     }
 
     private static SaveEnvelopeV1 CreateEnvelope(SaveWriteRequest request)
+        => CreateEnvelope(request.Session.CapturePersistenceSnapshot(), request.Compatibility, request.Purpose,
+            request.TimestampUtc, request.SaveSequence);
+
+    private static SaveEnvelopeV1 CreateEnvelope(SessionPersistenceSnapshot payload, SaveCompatibility compatibility,
+        string purpose, DateTimeOffset timestampUtc, long? saveSequence)
     {
-        ValidateCompatibility(request.Compatibility);
-        if (string.IsNullOrWhiteSpace(request.Purpose)) throw new InvalidDataException("Save purpose is required.");
-        var payload = request.Session.CapturePersistenceSnapshot();
+        ValidateCompatibility(compatibility);
+        if (string.IsNullOrWhiteSpace(purpose)) throw new InvalidDataException("Save purpose is required.");
         var header = new SaveHeaderV1(
             FormatId,
             SaveMigrationPipeline.CurrentSchemaVersion,
-            request.Compatibility.BuildId,
-            request.Compatibility.ContentHash,
-            request.Compatibility.RulesetHash,
+            compatibility.BuildId,
+            compatibility.ContentHash,
+            compatibility.RulesetHash,
             payload.CampaignId,
-            request.TimestampUtc.ToUniversalTime().ToString("O"),
+            timestampUtc.ToUniversalTime().ToString("O"),
             payload.Phase,
-            request.Purpose,
+            purpose,
             ComputePayloadChecksum(payload),
-            request.SaveSequence);
+            saveSequence);
         return new SaveEnvelopeV1(header, payload);
     }
 
