@@ -126,7 +126,7 @@ public partial class Main : Node
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
     private SaveCompatibility _saveCompatibility => _session?.BuildModeEnabled == true
-        ? new("0.0.1-r0.05ae-playtest-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-playtest-v1")
+        ? new("0.0.1-r0.05af-guest-arrivals-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-guest-arrivals-v1")
         : _session?.CapturePreparation()?.LineupReactionsVersion == 1
         ? new("0.0.1-r0.05s-toilet-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-toilet-v1")
         : _session?.FestivalResultsEnabled == true
@@ -203,7 +203,7 @@ public partial class Main : Node
                 _preparationCaptureDirectory is not null ? GameSession.CreatePreparedCampaign(20260922, _preparationMeasurementTier == 0 ? 1 : _preparationMeasurementTier) :
                 _postCaptureDirectory is not null || _hudCaptureDirectory is not null || _layoutCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) :
                 _resultsCaptureDirectory is not null && !_resultsNewGameCapture ? GameSession.CreateResultsCampaign(20260922) :
-                _buildCaptureDirectory is not null || _preparationDockCaptureDirectory is not null || _playtestCaptureDirectory is not null ? GameSession.CreateBuildCampaign(20260922) :
+                _buildCaptureDirectory is not null || _preparationDockCaptureDirectory is not null || _playtestCaptureDirectory is not null || _guestArrivalCaptureDirectory is not null ? GameSession.CreateBuildCampaign(20260922) :
                 OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
                 GameSession.CreateBookingCampaign(20260922);
         }
@@ -317,6 +317,7 @@ public partial class Main : Node
         AdvanceFinanceFeedback(delta);
         _urgentAlertDisplay.Advance(delta); RenderUrgentAlerts();
         ProcessPlaytestCapture(delta);
+        ProcessGuestArrivalCapture(delta);
         ProcessFinanceFeedbackCapture(delta);
         ProcessVendorRowCapture();
         ProcessOrganicQueueCapture();
@@ -474,6 +475,8 @@ public partial class Main : Node
                 : performer is { Role: ProtectedPersonRole.Staff or ProtectedPersonRole.Performer } && _foundationFixture is null && _sharedWorldFixture is null
                     ? AddRoleBodyRoot(performer, ToWorld(agent))
                     : AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
+            if (performer?.Role == ProtectedPersonRole.Guest && _session.GuestWaitingForRelease(agent.Id.Value))
+                visual.Hide();
             if (_foundationFixture is not null || _sharedWorldFixture is not null)
             {
                 var ids = _sharedWorldFixture?.AgentIds ?? _foundationFixture!.AgentIds;
@@ -490,6 +493,8 @@ public partial class Main : Node
                 });
                 visual.AddChild(pickBody);
                 _attendeePickRegistry.Add(pickBody.GetInstanceId(), agent.Id);
+                if (performer?.Role == ProtectedPersonRole.Guest && _session.GuestWaitingForRelease(agent.Id.Value))
+                    pickBody.CollisionLayer = 0;
             }
             else if (_session.CapturePreparation() is not null)
             {
@@ -498,6 +503,8 @@ public partial class Main : Node
                     Shape = new CapsuleShape3D { Radius = 0.38f, Height = 1.7f } });
                 visual.AddChild(pickBody);
                 _attendeePickRegistry.Add(pickBody.GetInstanceId(), agent.Id);
+                if (performer?.Role == ProtectedPersonRole.Guest && _session.GuestWaitingForRelease(agent.Id.Value))
+                    pickBody.CollisionLayer = 0;
             }
             _attendeeVisuals.Add(agent.Id, visual);
         }
@@ -1217,6 +1224,8 @@ public partial class Main : Node
             { _preparationDockCaptureDirectory = args[++i]; Directory.CreateDirectory(_preparationDockCaptureDirectory); }
             else if (args[i] == "--capture-playtest-corrections" && i + 1 < args.Length)
             { _playtestCaptureDirectory = args[++i]; Directory.CreateDirectory(_playtestCaptureDirectory); }
+            else if (args[i] == "--capture-guest-arrivals" && i + 1 < args.Length)
+            { _guestArrivalCaptureDirectory = args[++i]; Directory.CreateDirectory(_guestArrivalCaptureDirectory); }
             else if (args[i] == "--profile-save-cadence" && i + 1 < args.Length)
             { _saveCadenceCaptureOutput = args[++i]; Directory.CreateDirectory(Path.GetDirectoryName(_saveCadenceCaptureOutput)!); }
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
@@ -1459,7 +1468,7 @@ public partial class Main : Node
 
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
-private string SaveDirectory => _playtestCaptureDirectory is not null ? Path.Combine(_playtestCaptureDirectory, "saves") : _saveCadenceCaptureOutput is not null ? Path.Combine(Path.GetDirectoryName(_saveCadenceCaptureOutput)!, "saves") : _preparationDockCaptureDirectory is not null ? Path.Combine(_preparationDockCaptureDirectory, "saves") : _queueChoiceCaptureDirectory is not null ? Path.Combine(_queueChoiceCaptureDirectory, "saves") : _cameraProfileOutput is not null ? Path.Combine(Path.GetDirectoryName(_cameraProfileOutput)!,"saves") : _roleCaptureDirectory is not null ? Path.Combine(_roleCaptureDirectory,"saves") : _bookingCaptureDirectory is not null ? Path.Combine(_bookingCaptureDirectory,"saves") : _resultsCaptureDirectory is not null ? Path.Combine(_resultsCaptureDirectory,"saves") : _automationCaptureDirectory is not null ? Path.Combine(_automationCaptureDirectory,"saves") : _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory,"saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory,"saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory,"saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory,"saves") :
+private string SaveDirectory => _guestArrivalCaptureDirectory is not null ? Path.Combine(_guestArrivalCaptureDirectory, "saves") : _playtestCaptureDirectory is not null ? Path.Combine(_playtestCaptureDirectory, "saves") : _saveCadenceCaptureOutput is not null ? Path.Combine(Path.GetDirectoryName(_saveCadenceCaptureOutput)!, "saves") : _preparationDockCaptureDirectory is not null ? Path.Combine(_preparationDockCaptureDirectory, "saves") : _queueChoiceCaptureDirectory is not null ? Path.Combine(_queueChoiceCaptureDirectory, "saves") : _cameraProfileOutput is not null ? Path.Combine(Path.GetDirectoryName(_cameraProfileOutput)!,"saves") : _roleCaptureDirectory is not null ? Path.Combine(_roleCaptureDirectory,"saves") : _bookingCaptureDirectory is not null ? Path.Combine(_bookingCaptureDirectory,"saves") : _resultsCaptureDirectory is not null ? Path.Combine(_resultsCaptureDirectory,"saves") : _automationCaptureDirectory is not null ? Path.Combine(_automationCaptureDirectory,"saves") : _mosaicCaptureDirectory is not null ? Path.Combine(_mosaicCaptureDirectory,"saves") : _perkPopoutCaptureDirectory is not null ? Path.Combine(_perkPopoutCaptureDirectory,"saves") : _planCaptureDirectory is not null ? Path.Combine(_planCaptureDirectory,"saves") : _postCaptureDirectory is not null ? Path.Combine(_postCaptureDirectory,"saves") : _headerCaptureDirectory is not null ? Path.Combine(_headerCaptureDirectory, "saves") : _hoverCaptureDirectory is not null ? Path.Combine(_hoverCaptureDirectory,"saves") : _layoutCaptureDirectory is not null ? Path.Combine(_layoutCaptureDirectory,"saves") : _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory,"saves") : _hudCaptureDirectory is not null ? Path.Combine(_hudCaptureDirectory,"saves") :
         _organicQueueCaptureDirectory is not null ? Path.Combine(_organicQueueCaptureDirectory, "saves") :
         _financeCaptureDirectory is not null ? Path.Combine(_financeCaptureDirectory, "saves") :
         _immersionCaptureDirectory is not null ? Path.Combine(_immersionCaptureDirectory, "saves") :

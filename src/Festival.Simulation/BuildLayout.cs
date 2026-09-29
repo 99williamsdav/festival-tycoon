@@ -13,6 +13,7 @@ public sealed partial class GameSession
     {
         var session = CreateBookingCampaign(seed);
         session._preparation = session._preparation! with { BuildModeEnabled = true, BuildPlacements = [] };
+        session.ApplyBuildGuestOpeningNeeds();
         session.SyncBuildPhysicalLayout();
         return session;
     }

@@ -400,6 +400,14 @@ public partial class Main
         {
             var position = _foundationPresentation.Sample(agent.Id, _foundationClock.InterpolationFraction);
             var visual = _attendeeVisuals[agent.Id];
+            if (_session.GuestWaitingForRelease(agent.Id.Value))
+            {
+                visual.Hide();
+                foreach (var body in visual.FindChildren("*", "StaticBody3D", true, false))
+                    if (body is StaticBody3D collider) collider.CollisionLayer = 0;
+                if (_selectedAttendeeId == agent.Id) ClearSelection();
+                continue;
+            }
             if (_session.CapturePreparation()!.People.Any(person => person.AgentId == agent.Id.Value && person.Departed))
             {
                 visual.Hide();
@@ -407,6 +415,12 @@ public partial class Main
                 foreach (var body in visual.FindChildren("*", "StaticBody3D", true, false)) if (body is StaticBody3D collider) collider.CollisionLayer = 0;
                 if (_selectedAttendeeId == agent.Id) ClearSelection();
                 continue;
+            }
+            if (!visual.Visible)
+            {
+                visual.Show();
+                foreach (var body in visual.FindChildren("*", "StaticBody3D", true, false))
+                    if (body is StaticBody3D collider) collider.CollisionLayer = 1;
             }
             var renderedPosition = new Vector3((float)(position.XMillimetres / 1000), 0.04f, (float)(position.ZMillimetres / 1000));
             visual.Position = renderedPosition;

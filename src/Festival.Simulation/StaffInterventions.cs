@@ -21,7 +21,8 @@ public sealed partial class GameSession
     private bool PersonCollapsed(ulong id) => _medical is { } m &&
         (m.Needs.Any(need => need.AgentId == id && need.Stage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal) ||
          id == m.AtRiskGuestId && m.Stage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal);
-    private bool MovementOccupant(ulong id) => !PersonCollapsed(id) && _preparation?.People.Any(person => person.AgentId == id && person.Departed) != true;
+    private bool MovementOccupant(ulong id) => !PersonCollapsed(id) && !GuestWaitingForRelease(id) &&
+        _preparation?.People.Any(person => person.AgentId == id && person.Departed) != true;
     private void SetIntervention(StaffInterventionJob job) => _medical = _medical! with
     {
         StaffInterventions = _medical.StaffInterventions.Where(item => item.WorkerId != job.WorkerId).Append(job).OrderBy(item => item.WorkerId).ToArray()

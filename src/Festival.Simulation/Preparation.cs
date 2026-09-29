@@ -467,7 +467,8 @@ public sealed partial class GameSession
             });
             var profile = GetResponseStaff().SingleOrDefault(item => item.AgentId == person.AgentId);
             var dutyCell = StaffAssignedPost(person.AgentId) ?? PreparedPlace(index);
-            ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
+            if (!p.BuildModeEnabled || person.Role != ProtectedPersonRole.Guest || GuestReleaseTick(CampaignSeed, person.AgentId) == 0)
+                ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
         }
         _preparation = p with { Status = PreparationStatus.Running, StartedTick = CurrentTick };
         Phase = SessionPhase.Live;
@@ -493,6 +494,10 @@ public sealed partial class GameSession
         {
             var person = people[index];
             var agent = _navigationAgents[new(person.AgentId)];
+            if (p.Status == PreparationStatus.Running && p.BuildModeEnabled && person.Role == ProtectedPersonRole.Guest &&
+                !person.Admitted && agent.Destination is null &&
+                CurrentTick - p.StartedTick >= GuestReleaseTick(CampaignSeed, person.AgentId))
+                ApplyAgentDestination(new(person.AgentId), new(PreparedPlace(index), "edition.arrival"));
             if (agent.Action != AgentNavigationAction.Arrived) continue;
             if (p.Status == PreparationStatus.Running && !person.Admitted)
             {
@@ -598,6 +603,7 @@ public sealed partial class GameSession
         };
         Phase = SessionPhase.OpeningCheck;
         if (_preparation.BuildModeEnabled) SyncBuildPhysicalLayout();
+        ApplyBuildGuestOpeningNeeds();
         OpenPerkDraft();
     }
 

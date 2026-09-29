@@ -211,7 +211,8 @@ public sealed partial class GameSession
         if(!ImmersionDepartureActive)GrowImmersionQueues();
         foreach (var original in _immersion.People)
         {
-            if (_preparation!.People.Single(person => person.AgentId == original.AgentId).Departed) continue;
+            var presence = _preparation!.People.Single(person => person.AgentId == original.AgentId);
+            if (presence.Departed || _preparation.BuildModeEnabled && presence.Role == ProtectedPersonRole.Guest && !presence.Admitted) continue;
             var p = original;
             var recovery = p.RecoveryResidue + 10; var hunger = p.HungerResidue + 12;
             p = p with { Intoxication = Math.Max(0,p.Intoxication-recovery/80), RecoveryResidue = recovery%80, Hunger = Math.Min(10000,p.Hunger+hunger/80), HungerResidue = hunger%80, FoodProtectionTicks = Math.Max(0,p.FoodProtectionTicks-1),

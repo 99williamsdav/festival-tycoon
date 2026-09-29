@@ -689,13 +689,15 @@ public sealed partial class GameSession
         {
             var needs = m.Needs.Select(item => item with
             {
-                Thirst = Math.Min(10_000, item.Thirst + 1),
-                HeatExposure = Math.Min(10_000, item.HeatExposure + (item.AgentId == m.AtRiskGuestId || item.Profile == MedicalNeedProfile.Performer ? 1 : CurrentTick % 32 == 0 ? 1 : 0))
+                Thirst = p.BuildModeEnabled && item.Profile == MedicalNeedProfile.Guest && !p.People.Single(person => person.AgentId == item.AgentId).Admitted
+                    ? item.Thirst : Math.Min(10_000, item.Thirst + 1),
+                HeatExposure = p.BuildModeEnabled && item.Profile == MedicalNeedProfile.Guest && !p.People.Single(person => person.AgentId == item.AgentId).Admitted
+                    ? item.HeatExposure : Math.Min(10_000, item.HeatExposure + (item.AgentId == m.AtRiskGuestId || item.Profile == MedicalNeedProfile.Performer ? 1 : CurrentTick % 32 == 0 ? 1 : 0))
             }).ToArray();
             _medical = m = m with { Needs = needs };
         }
         if (HasPerk("thirsty-crowd") && CurrentTick % 40 == 0)
-            _medical = m = m with { Needs = m.Needs.Select(item => item.Profile == MedicalNeedProfile.Guest
+            _medical = m = m with { Needs = m.Needs.Select(item => item.Profile == MedicalNeedProfile.Guest && (!p.BuildModeEnabled || p.People.Any(person => person.AgentId == item.AgentId && person.Admitted))
                 ? item with { Thirst = Math.Min(10_000, item.Thirst + 1) } : item).ToArray() };
         if (CurrentTick % 80 == 0)
         {
