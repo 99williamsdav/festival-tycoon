@@ -21,6 +21,8 @@ public sealed record ImmersionPerson(ulong AgentId, int OpeningBudgetPennies, in
     public ToiletVisitKind? ToiletChoice { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public string? ToiletId { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public long? LastToiletChoiceReviewTick { get; init; }
 }
 public sealed record ImmersionVendor(string Id, GridCell Cell, int QuarterTurns, ulong[] Queue, ulong? OwnerId = null, int ServiceTicks = 0)
 {

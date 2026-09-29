@@ -15,6 +15,9 @@ public static class ToiletRules
     public const int DecisionEveryTicks = 80;
     public const int WeeServiceTicks = 240;
     public const int PooServiceTicks = 400;
+    // If another person's visit kind is not yet known, use the public 3:1
+    // expected wee/poo mix rather than predicting a future private decision.
+    public const int UnknownServiceTicks = (3 * WeeServiceTicks + PooServiceTicks) / 4;
     public const int SmellStartsPermille = 250;
     public const int SmellRadiusMillimetres = 8_000;
     public const int SmellMaximumPenaltyPerSecond = 24;
@@ -182,26 +185,84 @@ public sealed partial class GameSession
     private void AdvanceToilet()
     {
         if (_immersion is null || _preparation is null || !MedicalOperationsActive) return;
+        ReassessToiletSeekers();
         foreach (var facility in EffectiveToilets(_immersion).ToArray())
             AdvanceSingleToilet(GetToilet(facility.Id));
         ApplyToiletSmell();
     }
 
+    private static int ToiletServiceDuration(ToiletVisitKind? kind) => kind switch
+    { ToiletVisitKind.Wee => ToiletRules.WeeServiceTicks, ToiletVisitKind.Poo => ToiletRules.PooServiceTicks,
+        _ => ToiletRules.UnknownServiceTicks };
+
+    private QueuedServiceChoice.Candidate ToiletChoiceCandidate(ulong agentId, ToiletVisitKind kind, ToiletFacility toilet)
+    {
+        var people = _immersion!.People;
+        var position = Array.IndexOf(toilet.Queue, agentId);
+        var currentApproach = people.Any(person => person.AgentId == agentId && person.ToiletId == toilet.Id &&
+            person.ToiletStage == ToiletVisitStage.Approaching);
+        var nav = _navigationAgents[new(agentId)];
+        var destination = position >= 0 ? ToiletQueueCell(toilet, position) :
+            currentApproach && nav.IntentId == "toilet.approach" && nav.Destination is { } assigned ? assigned :
+            ToiletQueueCell(toilet, Math.Min(toilet.Queue.Length, ToiletRules.MaximumQueue - 1));
+        var approaching = people.Where(person => person.ToiletId == toilet.Id &&
+                person.ToiletStage == ToiletVisitStage.Approaching)
+            .Select(person =>
+            {
+                var approachNav = _navigationAgents[new(person.AgentId)];
+                var approachCell = approachNav.IntentId == "toilet.approach" && approachNav.Destination is { } assigned
+                    ? assigned : ToiletQueueCell(toilet, Math.Min(toilet.Queue.Length, ToiletRules.MaximumQueue - 1));
+                return new QueuedServiceChoice.Approacher(person.AgentId,
+                    EstimateQueuedServiceWalkTicks(person.AgentId, approachCell), ToiletServiceDuration(person.ToiletChoice));
+            })
+            .Where(item => item.ArrivalTicks != int.MaxValue).ToArray();
+        var active = toilet.OwnerId is { } owner ? people.Single(person => person.AgentId == owner) : null;
+        var ownerRemaining = active?.ToiletStage switch
+        { ToiletVisitStage.Using => toilet.ServiceTicks, ToiletVisitStage.Leaving => 0,
+            ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 };
+        return new(toilet.Id, EstimateQueuedServiceWalkTicks(agentId, destination), ToiletServiceDuration(kind),
+            !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind),
+            toilet.Queue.Length < ToiletRules.MaximumQueue,
+            toilet.Queue.Select(id => new QueuedServiceChoice.Member(id,
+                ToiletServiceDuration(people.Single(person => person.AgentId == id).ToiletChoice))).ToArray(),
+            toilet.OwnerId, ownerRemaining, approaching);
+    }
+
     private ToiletFacility? BestToiletFor(ulong agentId, ToiletVisitKind kind)
     {
-        var nav = _navigationAgents[new(agentId)];
-        return EffectiveToilets(_immersion)
-            .Where(toilet => !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind) &&
-                toilet.Queue.Length + _immersion!.People.Count(person => person.ToiletId == toilet.Id && person.ToiletStage == ToiletVisitStage.Approaching) < ToiletRules.MaximumQueue)
-            .OrderBy(toilet =>
+        var facilities = EffectiveToilets(_immersion).ToArray();
+        var decision = QueuedServiceChoice.Choose(agentId, null,
+            facilities.Select(toilet => ToiletChoiceCandidate(agentId, kind, toilet)).ToArray());
+        return decision is null ? null : facilities.Single(toilet => toilet.Id == decision.Id);
+    }
+
+    private void ReassessToiletSeekers()
+    {
+        if (_preparation?.Status != PreparationStatus.Running) return;
+        foreach (var person in _immersion!.People.Where(person => person.ToiletStage is
+                     ToiletVisitStage.Approaching or ToiletVisitStage.Queued && person.ToiletId is not null &&
+                     QueuedServiceChoice.ReviewDue(CurrentTick, person.AgentId,
+                         person.LastToiletChoiceReviewTick ?? -QueuedServiceChoice.ReviewIntervalTicks)).ToArray())
+        {
+            var current = GetToilet(person.ToiletId!);
+            if (current.OwnerId == person.AgentId || person.ToiletChoice is not { } kind) continue;
+            if (_navigationAgents[new(person.AgentId)].IntentId?.StartsWith("toilet.", StringComparison.Ordinal) != true)
             {
-                var centre = TraversalGrid.CellCentre(ToiletQueueCell(toilet, 0));
-                var dx = (long)nav.XMillimetres - centre.XMillimetres;
-                var dz = (long)nav.ZMillimetres - centre.ZMillimetres;
-                return dx * dx + dz * dz + (long)toilet.Queue.Length * 4_000_000;
-            })
-            .ThenBy(toilet => toilet.Id, StringComparer.Ordinal)
-            .FirstOrDefault(toilet => MedicalRouteExists(agentId, ToiletQueueCell(toilet, toilet.Queue.Length)));
+                ReleaseToiletPerson(person.AgentId, false);
+                continue;
+            }
+            var decision = QueuedServiceChoice.Choose(person.AgentId, current.Id,
+                EffectiveToilets(_immersion).Select(toilet => ToiletChoiceCandidate(person.AgentId, kind, toilet)).ToArray());
+            SetImmersionPerson(person with { LastToiletChoiceReviewTick = CurrentTick });
+            if (decision is not { Switched: true }) continue;
+            var wasQueued = current.Queue.Contains(person.AgentId);
+            if (wasQueued) SetToilet(current with { Queue = current.Queue.Where(id => id != person.AgentId).ToArray() });
+            var selected = GetToilet(decision.Id);
+            SetImmersionPerson(person with { ToiletStage = ToiletVisitStage.Approaching, ToiletId = selected.Id,
+                LastToiletChoiceReviewTick = CurrentTick });
+            ApplyAgentDestination(new(person.AgentId), new(ToiletQueueCell(selected,
+                Math.Min(selected.Queue.Length, ToiletRules.MaximumQueue - 1)), "toilet.approach"));
+        }
     }
 
     private void AdvanceSingleToilet(ToiletFacility toilet)
@@ -239,14 +300,15 @@ public sealed partial class GameSession
                 if (BestToiletFor(person.AgentId, choice)?.Id != toilet.Id) continue;
                 var queueCell = ToiletQueueCell(toilet, toilet.Queue.Length);
                 SetImmersionPerson(person with { ToiletStage = ToiletVisitStage.Approaching,
-                    ToiletChoice = choice, ToiletId = toilet.Id });
+                    ToiletChoice = choice, ToiletId = toilet.Id, LastToiletChoiceReviewTick = CurrentTick });
                 ApplyAgentDestination(new(person.AgentId), new(queueCell, "toilet.approach"));
                 continue;
             }
             if ((person.ToiletId ?? "toilet.main") != toilet.Id) continue;
             var nav = _navigationAgents[new(person.AgentId)];
             if (person.ToiletStage is ToiletVisitStage.Approaching or ToiletVisitStage.Queued &&
-                (!running || toilet.IsFull || nav.IntentId?.StartsWith("toilet.", StringComparison.Ordinal) != true))
+                (!running || toilet.IsFull || !toilet.CanAccept(person.ToiletChoice!.Value) ||
+                 nav.IntentId?.StartsWith("toilet.", StringComparison.Ordinal) != true))
             { ReleaseToiletPerson(person.AgentId, running && nav.IntentId?.StartsWith("toilet.", StringComparison.Ordinal) == true); toilet = GetToilet(toilet.Id); continue; }
             if (person.ToiletStage == ToiletVisitStage.Approaching && nav.Action == AgentNavigationAction.Arrived &&
                 nav.IntentId == "toilet.approach" && toilet.Queue.Length < ToiletRules.MaximumQueue)
@@ -428,6 +490,7 @@ public sealed partial class GameSession
         // reserves default response posts that do not exist in a fresh Build plan.
         if (!build && geometry.ToiletPlacementError(toilet) is { } issue) return issue;
         if (immersion.People.Any(person => person.ToiletNeed is < 0 or > ToiletRules.NeedMaximum ||
+            person.LastToiletChoiceReviewTick is { } reviewed && (reviewed < 0 || reviewed > snapshot.CurrentTick) ||
             person.ToiletVisits < 0 || !Enum.IsDefined(person.ToiletStage) ||
             (person.ToiletStage == ToiletVisitStage.None) != (person.ToiletChoice is null) ||
             person.ToiletChoice is { } choice && !Enum.IsDefined(choice) ||
@@ -435,9 +498,7 @@ public sealed partial class GameSession
             (person.ToiletId ?? (build ? "" : "toilet.main")) == toilet.Id && !toilet.Queue.Contains(person.AgentId)))
             return "Toilet person need, choice or queue ownership invalid.";
         if (toilet.Queue.Any(id => !immersion.People.Any(person => person.AgentId == id &&
-            person.ToiletStage is not (ToiletVisitStage.None or ToiletVisitStage.Approaching))) ||
-            immersion.People.Count(person => person.ToiletStage != ToiletVisitStage.None &&
-                (person.ToiletId ?? (build ? "" : "toilet.main")) == toilet.Id) > ToiletRules.MaximumQueue)
+            person.ToiletStage is not (ToiletVisitStage.None or ToiletVisitStage.Approaching))))
             return "Toilet physical queue membership invalid.";
         if (toilet.OwnerId is { } current)
         {

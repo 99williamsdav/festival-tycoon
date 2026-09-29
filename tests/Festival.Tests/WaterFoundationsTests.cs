@@ -332,10 +332,14 @@ public sealed class WaterFoundationsTests
         var west = ExtraSite;
         PutNear(session, ids[1], new GridCell(west.X, west.Z + 5));
         Assert.IsTrue(Send(session, new MedicalCommand(ids[1], MedicalAction.GuideToWater)).IsAccepted);
-        PutNear(session, ids[0], new GridCell(west.X, west.Z + 8));
-        Assert.IsTrue(Send(session, new MedicalCommand(ids[0], MedicalAction.GuideToWater)).IsAccepted);
         PutNear(session, ids[2], GameSession.MedicalQueueSlot(0));
         Assert.IsTrue(Send(session, new MedicalCommand(ids[2], MedicalAction.GuideToWater)).IsAccepted);
+        session.AdvanceWithoutSnapshot(1);
+        // Even after accounting for the earlier approacher's expected drink,
+        // the west tap remains the better route from this farther-west origin
+        // while the main tap has its own physical owner.
+        PutNear(session, ids[0], new GridCell(west.X - 5, west.Z + 8));
+        Assert.IsTrue(Send(session, new MedicalCommand(ids[0], MedicalAction.GuideToWater)).IsAccepted);
         Assert.AreEqual("water.extra-1", session.CaptureMedical()!.Needs.Single(need => need.AgentId == ids[0]).WaterPointId);
         for (var tick = 0; tick < 150 && session.CaptureWaterPoints().Single(point => point.Id == "water.extra-1").Queue.Length < 2; tick++)
             session.AdvanceWithoutSnapshot(1);

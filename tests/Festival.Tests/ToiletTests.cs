@@ -50,6 +50,135 @@ public sealed class ToiletTests
         return session;
     }
 
+    private static GameSession OpenBuildWithTwoToilets()
+    {
+        var session = GameSession.CreateBuildCampaign(20260929);
+        var perk = session.CapturePerks()!;
+        Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
+        Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);
+        GridCell? second = null;
+        for (var x = 140; x <= 185 && second is null; x += 5)
+        for (var z = 160; z <= 175 && second is null; z += 5)
+        {
+            var cell = new GridCell(x, z);
+            if (session.ValidateCommand(new(new(session.NextSubmissionSequence + 1), session.CampaignId,
+                session.Phase, session.CurrentTick, session.NextSubmissionSequence, null,
+                new PlaceBuildServiceCommand(BuildServiceKind.Toilet, cell, 2))) is null) second = cell;
+        }
+        Assert.IsNotNull(second, "A second reachable Build toilet site should exist.");
+        Assert.IsTrue(Send(session, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, second.Value, 2)).IsAccepted);
+        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"])).IsAccepted);
+        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("equipment.rent")).IsAccepted);
+        Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
+        var baseline = GameSession.Restore(session.CapturePersistenceSnapshot());
+        Assert.IsTrue(baseline.IsSuccess, $"second={second}: {baseline.Error}");
+        return session;
+    }
+
+    [TestMethod]
+    public void QueuedGuestForfeitsLongToiletLineButUsingOwnerStaysAndChoicePersists()
+    {
+        var session = OpenBuildWithTwoToilets();
+        var toilets = session.CaptureToilets();
+        var longLine = toilets.Single(toilet => toilet.Id == "toilet.main");
+        var alternative = toilets.Single(toilet => toilet.Id != longLine.Id);
+        var guests = session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest)
+            .Select(person => person.AgentId).ToArray();
+        var seeker = guests.First(id => id % QueuedServiceChoice.ReviewStagger ==
+            (ulong)(session.CurrentTick % QueuedServiceChoice.ReviewStagger));
+        var ahead = guests.Where(id => id != seeker && id % QueuedServiceChoice.ReviewStagger !=
+            (ulong)(session.CurrentTick % QueuedServiceChoice.ReviewStagger)).Take(5).ToArray();
+        var members = ahead.Append(seeker).ToArray();
+        var prep = session.CapturePreparation()!;
+        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+            prep with { People = prep.People.Select(person => members.Contains(person.AgentId)
+                ? person with { Admitted = true } : person).ToArray() });
+        var immersion = session.CaptureImmersion()!;
+        SetImmersion(session, immersion with
+        {
+            Toilet = immersion.Toilet! with { Queue = members, OwnerId = ahead[0], DoorOpen = false,
+                ServiceTicks = ToiletRules.PooServiceTicks },
+            People = immersion.People.Select(person => members.Contains(person.AgentId) ? person with
+            {
+                ToiletNeed = 9_000, ToiletId = longLine.Id,
+                ToiletStage = person.AgentId == ahead[0] ? ToiletVisitStage.Using : ToiletVisitStage.Queued,
+                ToiletChoice = person.AgentId == seeker ? ToiletVisitKind.Wee : ToiletVisitKind.Poo
+            } : person).ToArray()
+        });
+        Position(session, ahead[0], GameSession.ToiletInsideCell(longLine), "toilet.enter");
+        for (var index = 1; index < members.Length; index++)
+            Position(session, members[index], GameSession.ToiletQueueCell(longLine, index), "toilet.queue");
+
+        Invoke(session, "AdvanceToilet");
+        var after = session.CaptureImmersion()!.People.Single(person => person.AgentId == seeker);
+        Assert.AreEqual(alternative.Id, after.ToiletId);
+        Assert.AreEqual(ToiletVisitStage.Approaching, after.ToiletStage);
+        Assert.AreEqual(session.CurrentTick, after.LastToiletChoiceReviewTick);
+        Assert.IsFalse(session.CaptureToilets().Single(toilet => toilet.Id == longLine.Id).Queue.Contains(seeker));
+        Assert.AreEqual(ahead[0], session.CaptureToilets().Single(toilet => toilet.Id == longLine.Id).OwnerId,
+            "A person already using the toilet must keep exclusive ownership.");
+        Invoke(session, "AdvanceToilet");
+        Assert.AreEqual(alternative.Id, session.CaptureImmersion()!.People.Single(person => person.AgentId == seeker).ToiletId);
+        var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
+        Assert.AreEqual(after.LastToiletChoiceReviewTick,
+            restored.Session.CaptureImmersion()!.People.Single(person => person.AgentId == seeker).LastToiletChoiceReviewTick);
+        session.AdvanceWithoutSnapshot(170);
+        restored.Session.AdvanceWithoutSnapshot(170);
+        Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session.CaptureSnapshot().AuthoritativeHash,
+            "A switched seeker must continue deterministically through the next choice review after restore.");
+        var snapshot = session.CapturePersistenceSnapshot();
+        Assert.IsFalse(GameSession.Restore(snapshot with { Immersion = snapshot.Immersion! with
+        {
+            People = snapshot.Immersion.People.Select(person => person.AgentId == seeker
+                ? person with { LastToiletChoiceReviewTick = snapshot.CurrentTick + 1 } : person).ToArray()
+        } }).IsSuccess);
+    }
+
+    [TestMethod]
+    public void QueuedGuestReroutesFromFullToiletButNeverOverridesMedicalRoute()
+    {
+        static (GameSession Session, ulong Seeker, string Main, string Alternative) Setup()
+        {
+            var session = OpenBuildWithTwoToilets();
+            var toilets = session.CaptureToilets();
+            var main = toilets.Single(toilet => toilet.Id == "toilet.main");
+            var alternative = toilets.Single(toilet => toilet.Id != main.Id);
+            var seeker = session.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Guest &&
+                person.AgentId % QueuedServiceChoice.ReviewStagger ==
+                (ulong)(session.CurrentTick % QueuedServiceChoice.ReviewStagger)).AgentId;
+            var prep = session.CapturePreparation()!;
+            typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+                prep with { People = prep.People.Select(person => person.AgentId == seeker
+                    ? person with { Admitted = true } : person).ToArray() });
+            var immersion = session.CaptureImmersion()!;
+            SetImmersion(session, immersion with
+            {
+                Toilet = main with { Queue = [seeker], WeeCount = 40 },
+                People = immersion.People.Select(person => person.AgentId == seeker ? person with
+                { ToiletNeed = 9_000, ToiletId = main.Id, ToiletStage = ToiletVisitStage.Queued,
+                  ToiletChoice = ToiletVisitKind.Wee } : person).ToArray()
+            });
+            Position(session, seeker, GameSession.ToiletQueueCell(main, 0), "toilet.queue");
+            return (session, seeker, main.Id, alternative.Id);
+        }
+
+        var (rerouting, seeker, mainId, alternativeId) = Setup();
+        Invoke(rerouting, "AdvanceToilet");
+        Assert.AreEqual(alternativeId, rerouting.CaptureImmersion()!.People.Single(p => p.AgentId == seeker).ToiletId);
+        Assert.IsFalse(rerouting.CaptureToilets().Single(t => t.Id == mainId).Queue.Contains(seeker));
+
+        var (interrupted, interruptedId, interruptedMain, _) = Setup();
+        Position(interrupted, interruptedId, GameSession.ToiletQueueCell(interrupted.CaptureToilets().Single(t => t.Id == interruptedMain), 0),
+            "medical.collapsed");
+        Invoke(interrupted, "AdvanceToilet");
+        Assert.AreEqual(ToiletVisitStage.None, interrupted.CaptureImmersion()!.People.Single(p => p.AgentId == interruptedId).ToiletStage);
+        Assert.IsFalse(interrupted.CaptureToilets().Single(t => t.Id == interruptedMain).Queue.Contains(interruptedId));
+        Assert.AreEqual("medical.collapsed", interrupted.CaptureSnapshot().NavigationAgents.Single(n => n.Id.Value == interruptedId).IntentId);
+    }
+
     [TestMethod]
     public void OwnedToiletMoveIsAtomicAndCurrentVersionRoundTrips()
     {

@@ -29,19 +29,6 @@ public sealed partial class GameSession
         return cells.Count > members || members == 20;
     }
 
-    private int RemainingOwnWaterWaitTicks(ulong id, WaterPointState point)
-    {
-        var members = point.Queue.Concat(point.Overflow).ToArray();
-        var position = Array.IndexOf(members, id);
-        if (position < 0) return EstimateWaterTotalTicks(id, point);
-        return members.Take(position + 1).Sum(member =>
-        {
-            var thirst = _medical!.Needs.Single(item => item.AgentId == member).Thirst;
-            var rate = EffectiveMedicalDrinkThirstPerTickFor(member);
-            return (thirst + rate - 1) / rate;
-        });
-    }
-
     private static bool ValidSavedWaterGeometry(IReadOnlyList<WaterPointState> points, TraversalGrid? grid, PreparationSnapshot? prep)
     {
         static GridCell[] Cells(WaterPointState point) => point.QueueCells.Length > 0 ? point.QueueCells :
