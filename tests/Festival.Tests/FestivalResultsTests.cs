@@ -57,6 +57,7 @@ public sealed class FestivalResultsTests
         var s = Open(); Closing(s); var prior = s.CapturePreparation()!;
         s = Reload(s); s.AdvanceWithoutSnapshot(15000);
         Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus); Assert.IsNotNull(s.CompletedFestivalResult);
+        Assert.IsNotNull(s.CompletedFestivalAccounts); Assert.IsTrue(s.CompletedFestivalAccounts.Reconciles);
         Assert.AreEqual(20, s.CompletedFestivalResult.GuestCount); Assert.AreEqual(prior.People.Length, s.CapturePreparation()!.People.Length);
         var directory = Path.Combine(Path.GetTempPath(), "festival-results-" + Guid.NewGuid()); Directory.CreateDirectory(directory);
         try
@@ -66,6 +67,9 @@ public sealed class FestivalResultsTests
             var loaded = SaveFileAdapter.LoadSlot(directory, "finished", compatibility); Assert.IsTrue(loaded.IsSuccess, loaded.Error);
             var hash = loaded.Session!.CaptureSnapshot().AuthoritativeHash; loaded.Session.AdvanceWithoutSnapshot(500);
             Assert.AreEqual(hash, loaded.Session.CaptureSnapshot().AuthoritativeHash); Assert.AreEqual(s.CompletedFestivalResult, loaded.Session.CompletedFestivalResult);
+            Assert.IsTrue(loaded.Session.CompletedFestivalAccounts!.Reconciles);
+            Assert.AreEqual(s.CompletedFestivalAccounts!.ClosingCashPennies, loaded.Session.CompletedFestivalAccounts.ClosingCashPennies);
+            Assert.IsTrue(s.CompletedFestivalAccounts.Sales.SequenceEqual(loaded.Session.CompletedFestivalAccounts.Sales));
         }
         finally { Directory.Delete(directory, true); }
     }

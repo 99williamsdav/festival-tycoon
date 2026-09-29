@@ -78,12 +78,24 @@ public partial class Main
             if (frame == 6)
             {
                 ResultsCheck(_attendeePickRegistry.Count == 0 && _attendeeVisuals.Values.All(visual => !visual.Visible), "Departed people retained render or picker eligibility after reload");
+                var publicText = string.Join(" ", _resultsBody!.FindChildren("*", "Label", true, false).OfType<Label>().Select(label => label.Text));
+                ResultsCheck(!publicText.Contains("Sales revenue") && !publicText.Contains("Operating profit") &&
+                    !publicText.Contains("Operating loss") && !publicText.Contains("Net cash"), "Newspaper contains private accounts data");
                 GD.Print("RESULTS_DEPARTED visuals_hidden=True picker_registry_empty=True historical_people_retained=True");
                 var image = GetViewport().GetTexture().GetImage(); image.SavePng(Path.Combine(_resultsCaptureDirectory, "02-natural-complete-reloaded.png"));
             }
             if (frame == 7)
             {
-                _resultsScroll!.ScrollVertical = 100000; _resultsShot = "02b-natural-facts-scroll";
+                _accountsTab!.EmitSignal(Button.SignalName.Pressed);
+                ResultsCheck(_resultsShowingAccounts && _session.CompletedFestivalAccounts?.Reconciles == true, "Accounts tab and recorded cash projection");
+                _resultsShot = "02c-natural-accounts-top";
+            }
+            if (frame == 9)
+            {
+                var image = GetViewport().GetTexture().GetImage();
+                image.SavePng(Path.Combine(_resultsCaptureDirectory, "02d-natural-accounts-cash.png"));
+                _newspaperTab!.EmitSignal(Button.SignalName.Pressed);
+                ResultsCheck(!_resultsShowingAccounts && _accountsScrollPosition > 0, "Document switch retains Accounts scroll position");
             }
             if (frame is 9 or 13 or 17)
             {
@@ -213,6 +225,7 @@ public partial class Main
             {
                 var image = GetViewport().GetTexture().GetImage(); image.SavePng(Path.Combine(_resultsCaptureDirectory, _resultsShot + ".png"));
                 GD.Print($"RESULTS_CAPTURE image={_resultsShot} size={image.GetWidth()}x{image.GetHeight()}"); _resultsShot = "";
+                if (frame == 8) _resultsScroll!.ScrollVertical = 100000;
             }
             if (frame == 33 && !_resultsNewGameCapture) { GD.Print("RESULTS_CAPTURE completed natural_exit_reload_freeze=True last_guest_gate=True initialized_ratings_labelled=True council_bypass=True menu=True"); GetTree().Quit(); }
             if (frame == 47 && _resultsNewGameCapture) { GD.Print("RESULTS_CAPTURE completed natural_exit_reload_freeze=True last_guest_gate=True initialized_ratings_labelled=True council_bypass=True new_campaign=True"); GetTree().Quit(); }
