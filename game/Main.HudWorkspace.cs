@@ -327,7 +327,7 @@ public partial class Main
         _hudPhase!.Text = $"Lower Wittering\n{(preparing ? "PREPARATION · BEFORE OPENING" : "LIVE · FESTIVAL DAY")}";
         if (p.Status == PreparationStatus.Departing) _hudPhase.Text = "Lower Wittering\nDEPARTING · FESTIVAL FINISHED";
         _hudMoney.Text = $"MONEY\n{FestivalCurrency.Format(finance.CashPennies)}";
-        _hudClock!.Text = preparing ? "FESTIVAL CLOCK\nNot started" : $"FESTIVAL CLOCK\n{HudTime(_session.CurrentTick - p.StartedTick)} / {(_session.CaptureProgramme() is null ? "08:00" : "05:00")}";
+        _hudClock!.Text = preparing ? "FESTIVAL CLOCK\nNot started" : $"FESTIVAL CLOCK\n{HudTime(_session.CurrentTick - p.StartedTick)} / 08:00";
         _hudAttendance!.Text = preparing ? $"ON SITE\n{_session.ExpectedPreparedPeopleCount} expected" : $"ON SITE\n{p.People.Count(person => person.Admitted && !person.Departed)} / {p.People.Length}";
         _hudWeather!.Text = "WEATHER\n" + (_session.CaptureMedical() is { IsHot: true } ? "☀ Hot" : "Unavailable");
         _hudPause!.Visible = !preparing; _hudPause.Text = _preparationSaveBlocked ? "Save blocked" : _session.IsPaused ? "Resume" : "Pause";
@@ -390,7 +390,7 @@ public partial class Main
         _hudMenu!.Size = new Vector2(250, preparing && _hudPrototypeOpen ? 470 : _preparationSaveBlocked ? 310 : 270);
         if (_communityShareInfo is not null) _communityShareInfo.Visible = _hudWaterExact;
         _hudDiagnosticsText!.Text = $"Tick {_session.CurrentTick} · hash {_session.CaptureSnapshot().AuthoritativeHash}\nPhase {_session.Phase} · status {p.Status} · paused {_session.IsPaused}\n{_preparationMessage}";
-        _preparationSummary.Text = $"{(_session.CaptureProgramme() is null ? "Fixed festival roster" : "Three fixed sets · five-minute festival day")}\n" +
+        _preparationSummary.Text = $"{(_session.CaptureProgramme() is null ? "Fixed festival roster" : "Three fixed sets · eight-minute festival day")}\n" +
             $"Programme: {(_session.CaptureProgramme() is { ActIds.Length: 3 } ? "three acts booked" : p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) ? "act booked" : "choose before opening")}\n" +
             $"Sound: {(p.AcceptedOffers.Contains("staff.steward") ? "Casey · standard sound engineer hired · £20" : p.AcceptedOffers.Contains("staff.engineer") ? "Casey · better sound engineer hired · £40" : "hire a sound engineer before opening")}\n" +
             $"Owned rig {p.OwnedEquipment.Length} · rental {p.Rentals.Length} · equipment & stock optional";

@@ -168,7 +168,7 @@ public partial class Main
             $"{FestivalCurrency.Format(finance.CashPennies)} • debt £800 • {stockDescription}\n" +
             $"{p.Tier * 20} mandatory guests + {p.People.Count(item => item.Role == ProtectedPersonRole.Staff)} staff + {p.People.Count(item => item.Role == ProtectedPersonRole.Performer)} performers\n" +
             $"Owned rig: {p.OwnedEquipment.Length} • rental: {p.Rentals.Length} • known staff: {p.Contacts.Length}\n" +
-            $"{(_session.CaptureProgramme() is null ? "8 live minutes" : "5-minute festival day")} + preparation/pauses; provisional pace.\n{_preparationMessage}";
+            $"8 live minutes + preparation/pauses; provisional pace.\n{_preparationMessage}";
         _preparationSummary.Text = FestivalCopy(_preparationSummary.Text);
         if (p.Plan is { Committed: false } planned)
             _preparationSummary.Text += $"\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nPlanned hires: {string.Join(", ", planned.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}";

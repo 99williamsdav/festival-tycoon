@@ -118,7 +118,7 @@ public sealed class TimetableLateBandTests
     public void BlockedOutgoingPhysicalPerformerMakesNextActualSlotLateWhileOldSlotRemainsFinished()
     {
         var session = Started(holdFirstPerformer: false);
-        while (session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && session.CurrentTick < 3_000)
+        while (session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && session.CurrentTick < GameSession.FestivalSlotStarts[0] + 1_800)
             session.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(LiveSetStage.Live, session.CaptureLivePerformance()!.Stage);
         var performer = session.CaptureProgramme()!.Performers[0].AgentId;
@@ -196,7 +196,7 @@ public sealed class TimetableLateBandTests
     public void BandDelayCannotReplaceUrgentMedicalOwnershipOrDoubleCountAnActualPowerCut()
     {
         var session = Started(holdFirstPerformer: true);
-        session.AdvanceWithoutSnapshot(1_600);
+        session.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0] + 400);
         var id = session.CaptureLivePerformance()!.Listeners.First(listener => listener.AtPlace && listener.Enthusiasm >= 35).AgentId;
         Medical(session, need => need.AgentId == id ? need with { Stage = MedicalStage.Distress, Intent = MedicalIntent.AwaitMedic,
             Thirst = 9_500, HeatExposure = 8_500, WarningTick = session.CurrentTick } : need);
@@ -205,7 +205,7 @@ public sealed class TimetableLateBandTests
         Assert.AreEqual(MedicalIntent.AwaitMedic, session.CaptureMedical()!.Needs.Single(need => need.AgentId == id).Intent);
 
         session = Started(holdFirstPerformer: false);
-        while (session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && session.CurrentTick < 3_000)
+        while (session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && session.CurrentTick < GameSession.FestivalSlotStarts[0] + 1_800)
             session.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(LiveSetStage.Live, session.CaptureLivePerformance()!.Stage);
         Assert.IsTrue(Send(session, new EquipmentCommand(EquipmentAction.Isolate)).IsAccepted);
@@ -220,11 +220,12 @@ public sealed class TimetableLateBandTests
     {
         var session = Started(holdFirstPerformer: false);
         var performer = session.CaptureProgramme()!.Performers[0].AgentId;
+        session.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0] - 160);
         // Development need initialization; the existing water navigation, physical admission and drinking execute normally.
         Medical(session, need => need.AgentId == performer ? need with { Thirst = 9_500, HeatExposure = 6_500 } : need);
         typeof(GameSession).GetMethod("SeekWater", BindingFlags.Instance | BindingFlags.NonPublic)!
             .Invoke(session, [performer, "Development fixture: performer needs water before the scheduled set"]);
-        session.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0]);
+        session.AdvanceWithoutSnapshot(160);
         Assert.IsTrue(session.FestivalBandLate);
         Assert.AreEqual(LiveSetStage.BeforeSet, session.CaptureLivePerformance()!.Stage);
         Assert.IsTrue(session.CaptureMedical()!.Needs.Single(need => need.AgentId == performer).Intent is MedicalIntent.SeekWater or MedicalIntent.Drinking);
@@ -257,7 +258,7 @@ public sealed class TimetableLateBandTests
             ? person with { Grievance = DisorderGrievance.BandDelayed, GrievanceTick = 0 } : person).ToArray() };
         Assert.IsFalse(GameSession.Restore(legacy with { Disorder = fake }).IsSuccess);
         var session = Started(holdFirstPerformer: true);
-        session.AdvanceWithoutSnapshot(1_600);
+        session.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0] + 400);
         var snapshot = session.CapturePersistenceSnapshot();
         var id = snapshot.Disorder!.People.First(person => person.Grievance == DisorderGrievance.BandDelayed).AgentId;
         Assert.IsFalse(GameSession.Restore(snapshot with { Disorder = snapshot.Disorder with { People = snapshot.Disorder.People.Select(person => person.AgentId == id

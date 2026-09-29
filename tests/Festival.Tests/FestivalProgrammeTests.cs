@@ -64,7 +64,7 @@ public sealed class FestivalProgrammeTests
         Assert.IsFalse(GameSession.Restore(saved with { Preparation = saved.Preparation! with { People = null! } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(saved with { Preparation = saved.Preparation! with { AcceptedOffers = null! } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(saved with { Programme = saved.Programme! with { Performers = [null!] } }).IsSuccess);
-        Assert.IsFalse(GameSession.Restore(saved with { Programme = saved.Programme! with { Version = 4 } }).IsSuccess);
+        Assert.IsFalse(GameSession.Restore(saved with { Programme = saved.Programme! with { Version = 5 } }).IsSuccess);
         Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts)).IsAccepted);
         Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
@@ -85,16 +85,16 @@ public sealed class FestivalProgrammeTests
         typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
             s.CaptureMedical()! with { Needs = s.CaptureMedical()!.Needs.Select(need => need.AgentId == performer ? need with { Intent = MedicalIntent.Rest, HeatExposure = 8000 } : need).ToArray() });
         typeof(GameSession).GetMethod("ApplyAgentDestination", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [new EntityId(performer), new SetAgentDestinationCommand(GameSession.MedicalRestCell, "medical.rest"), false]);
-        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s, 8560L);
+        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s, 16_000L);
         typeof(GameSession).GetField("_programme", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, s.CaptureProgramme()! with { CurrentSlot = 1 });
         typeof(GameSession).GetMethod("StartLivePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, null);
         Assert.AreEqual("medical.rest", s.CaptureSnapshot().NavigationAgents.Single(agent => agent.Id.Value == performer).IntentId);
         Restore(s);
-        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s, 15400L);
+        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s, 25_000L);
         typeof(GameSession).GetMethod("StartLivePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, null);
         typeof(GameSession).GetMethod("AdvanceLivePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, null);
         Assert.AreEqual(LiveSetStage.Finished, s.CaptureLivePerformance()!.Stage);
-        Assert.AreEqual(15200L, s.CaptureLivePerformance()!.EndedTick);
+        Assert.AreEqual(24_800L, s.CaptureLivePerformance()!.EndedTick);
         Assert.IsFalse(s.CaptureSnapshot().NavigationAgents.Any(agent => agent.IntentId == "performance.stage-exit-stair"));
         Restore(s);
     }
@@ -102,11 +102,11 @@ public sealed class FestivalProgrammeTests
     public void DayTimingIsExplicitAndOldTimetableVersionsAreNotSilentlyMigrated()
     {
         var s = GameSession.CreateTimetableCampaign(20260926);
-        Assert.AreEqual(24000, s.PreparedEditionDurationTicks);
+        Assert.AreEqual(38_400, s.PreparedEditionDurationTicks);
         Assert.AreEqual(38400, GameSession.CreatePreparedCampaign(20260926).PreparedEditionDurationTicks);
-        CollectionAssert.AreEqual(new[] { 1200, 9200, 17200 }, GameSession.FestivalSlotStarts);
-        CollectionAssert.AreEqual(new[] { 7200, 15200, 23200 }, GameSession.FestivalSlotEnds);
-        Assert.AreEqual(3, s.CaptureProgramme()!.Version);
+        CollectionAssert.AreEqual(new[] { 4_800, 16_400, 28_000 }, GameSession.FestivalSlotStarts);
+        CollectionAssert.AreEqual(new[] { 13_200, 24_800, 37_600 }, GameSession.FestivalSlotEnds);
+        Assert.AreEqual(4, s.CaptureProgramme()!.Version);
         var saved = s.CapturePersistenceSnapshot();
         var old = GameSession.Restore(saved with { Programme = saved.Programme! with { Version = 1 } });
         Assert.IsFalse(old.IsSuccess);
@@ -114,6 +114,9 @@ public sealed class FestivalProgrammeTests
         var priorDay = GameSession.Restore(saved with { Programme = saved.Programme! with { Version = 2 } });
         Assert.IsFalse(priorDay.IsSuccess);
         StringAssert.Contains(priorDay.Error!, "earlier 160-second timetable");
+        var priorFiveMinuteDay = GameSession.Restore(saved with { Programme = saved.Programme! with { Version = 3 } });
+        Assert.IsFalse(priorFiveMinuteDay.IsSuccess);
+        StringAssert.Contains(priorFiveMinuteDay.Error!, "earlier 300-second timetable");
         Restore(GameSession.CreatePreparedCampaign(20260926));
     }
     [TestMethod]
@@ -216,7 +219,7 @@ public sealed class FestivalProgrammeTests
                 Assert.IsTrue(live.Performers.All(p => p.OnStage), $"tick={s.CurrentTick} slot={q.CurrentSlot} performers={string.Join(';', live.Performers.Select(person => $"{person.AgentId}:{person.OnStage}"))}");
                 if (restoredSlots.Add(q.CurrentSlot)) s = Restore(s);
             }
-            if (s.CurrentTick == 8000 || s.CurrentTick == 16000)
+            if (s.CurrentTick == 14_000 || s.CurrentTick == 25_600)
             {
                 var continued = s;
                 s = Restore(s);

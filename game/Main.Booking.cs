@@ -208,10 +208,11 @@ public partial class Main
         lineup.AddChild(HudLabel("Elapsed festival time · mm:ss", 13));
         _bookingLane = new Control { CustomMinimumSize = new Vector2(354, 300), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, MouseFilter = Control.MouseFilterEnum.Stop }; lineup.AddChild(_bookingLane);
         var backdrop = new ColorRect { Color = new Color("eee2be"), Position = new Vector2(54, 0), Size = new Vector2(300, 300), MouseFilter = Control.MouseFilterEnum.Stop }; _bookingLane.AddChild(backdrop);
+        var secondsToLanePixels = 300f / (GameSession.PreparedDayTicks / 80f);
         for (var slot = 0; slot < 3; slot++)
         {
-            var i = slot; float top = GameSession.FestivalSlotStarts[i] / 80f;
-            float height = (GameSession.FestivalSlotEnds[i] - GameSession.FestivalSlotStarts[i]) / 80f;
+            var i = slot; float top = GameSession.FestivalSlotStarts[i] / 80f * secondsToLanePixels;
+            float height = (GameSession.FestivalSlotEnds[i] - GameSession.FestivalSlotStarts[i]) / 80f * secondsToLanePixels;
             var time = HudLabel(BookingTime(GameSession.FestivalSlotStarts[i]), 13); time.Position = new Vector2(0, top); time.Size = new Vector2(50, 20); _bookingLane.AddChild(time);
             var end = HudLabel(BookingTime(GameSession.FestivalSlotEnds[i]), 13); end.Position = new Vector2(0, top + height - 5); end.Size = new Vector2(50, 20); _bookingLane.AddChild(end);
             var target = new BookingDragButton { Position = new Vector2(54, top), Size = new Vector2(300, height), Alignment = HorizontalAlignment.Left, FocusMode = Control.FocusModeEnum.All }; target.AddThemeFontSizeOverride("font_size", 14); _bookingLane.AddChild(target); _bookingSlots[i] = target;

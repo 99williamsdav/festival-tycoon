@@ -12,9 +12,10 @@ public sealed partial class GameSession
     private ProgrammeSnapshot? _programme;
     public ProgrammeSnapshot? CaptureProgramme() => _programme is null ? null : _programme with { ActIds = _programme.ActIds.ToArray(), Performers = _programme.Performers.ToArray() };
     internal string? ProgrammeCanonicalJson => _programme is null ? null : JsonSerializer.Serialize(_programme);
-    public static readonly int[] FestivalSlotStarts = [1200, 9200, 17200];
-    public static readonly int[] FestivalSlotEnds = [7200, 15200, 23200];
-    public const int FestivalSlotDurationTicks = 6000;
+    public static readonly int[] FestivalSlotStarts = [4_800, 16_400, 28_000];
+    public static readonly int[] FestivalSlotEnds = [13_200, 24_800, 37_600];
+    // The headliner is 120 seconds; the first two sets are 105 seconds.
+    public const int FestivalSlotDurationTicks = 9_600;
     public IReadOnlyList<FestivalAct> GetFestivalActs() => _programme is null ? [] : FestivalActs;
     private static readonly FestivalAct[] FestivalActs = [
         new("act.meadow-lanterns", "Meadow Lanterns", 0, 4000, 40, 20, 80),
@@ -89,7 +90,7 @@ public sealed partial class GameSession
         }
         session._preparation = p with { People = people.OrderBy(person => person.AgentId).ToArray() };
         session._medical = session._medical! with { Needs = session._medical.Needs.Select(need => need.Profile == MedicalNeedProfile.Performer ? need with { Thirst = 2500, HeatExposure = 2500 } : need).OrderBy(need => need.AgentId).ToArray() };
-        session._programme = new(3, [], people.Where(person => person.Role == ProtectedPersonRole.Performer).Select((person, i) => new ProgrammePerformer(person.AgentId, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts");
+        session._programme = new(4, [], people.Where(person => person.Role == ProtectedPersonRole.Performer).Select((person, i) => new ProgrammePerformer(person.AgentId, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts");
         return session;
     }
     private CommandResult? ValidateProgramme(EntityId? target, SetProgrammeCommand command)
@@ -143,10 +144,11 @@ public sealed partial class GameSession
     private static string? ValidatePersistedProgramme(SessionPersistenceSnapshot snapshot)
     {
         if (snapshot.Programme is not { } q) return null;
-        if (q.Version != 3) return q.Version switch
+        if (q.Version != 4) return q.Version switch
         {
             1 => "Unsupported festival programme version: the earlier 480-second timetable requires its matching build; no silent timing migration is available.",
             2 => "Unsupported festival programme version: the earlier 160-second timetable requires its matching build; no silent timing migration is available.",
+            3 => "Unsupported festival programme version: the earlier 300-second timetable requires its matching build; no silent timing migration is available.",
             _ => "Unsupported festival programme version; load it with its matching build."
         };
         if (snapshot.Preparation is not { Tier: 1 } p || p.People is null || p.People.Any(person => person is null) || p.AcceptedOffers is null || snapshot.Disorder is null || q.ActIds is null || q.Performers is null || q.Performers.Any(role => role is null) ||

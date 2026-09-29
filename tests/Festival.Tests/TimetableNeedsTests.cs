@@ -17,7 +17,7 @@ public sealed class TimetableNeedsTests
             .SetValue(session, state with { Needs = state.Needs.Select(change).ToArray() });
     }
 
-    private static GameSession Started(int ticks = 1_600)
+    private static GameSession Started(int ticks = -1)
     {
         var session = GameSession.CreateTimetableCampaign(20260926);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"])).IsAccepted);
@@ -25,7 +25,7 @@ public sealed class TimetableNeedsTests
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         SetMedical(session, need => need with { Thirst = 0, HeatExposure = 0 });
-        session.AdvanceWithoutSnapshot(ticks);
+        session.AdvanceWithoutSnapshot(ticks < 0 ? GameSession.FestivalSlotStarts[0] + 400 : ticks);
         return session;
     }
 

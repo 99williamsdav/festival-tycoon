@@ -66,7 +66,7 @@ public sealed partial class GameSession
     // 160 festival minutes = eight live real minutes at the unchanged 80 ticks/s;
     // preparation and pauses target the remaining two minutes, pending playtesting.
     public const int PreparedWeekendTicks = 38_400;
-    public const int PreparedDayTicks = 24_000;
+    public const int PreparedDayTicks = 38_400;
     public int PreparedEditionDurationTicks => _programme is null ? PreparedWeekendTicks : PreparedDayTicks;
     private PreparationSnapshot? _preparation;
     public PreparationStatus? PreparedStatus => _preparation?.Status;

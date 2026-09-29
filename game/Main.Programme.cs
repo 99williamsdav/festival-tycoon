@@ -36,7 +36,9 @@ public partial class Main
         _programmeControls.AddChild(_programmeSummary);
         var acts = _session.GetFestivalActs().ToArray();
         _programmeDraft = _session.CapturePreparationPlan() is not null ? ["", "", ""] : acts.Take(3).Select(act => act.Id).ToArray();
-        var windows = new[] { "1 • 0:15–1:30", "2 • 1:55–3:10", "3 • 3:35–4:50" };
+        var windows = Enumerable.Range(0, 3)
+            .Select(slot => $"{slot + 1} • {BookingTime(GameSession.FestivalSlotStarts[slot])}–{BookingTime(GameSession.FestivalSlotEnds[slot])}")
+            .ToArray();
         for (var slot = 0; slot < 3; slot++)
         {
             _programmeControls.AddChild(LabelText(windows[slot], 13, new Color("29352c")));

@@ -39,7 +39,7 @@ public sealed class FestivalResultsTests
     }
     private static void Closing(GameSession s)
     {
-        s.AdvanceWithoutSnapshot((int)(24000 - s.CurrentTick));
+        s.AdvanceWithoutSnapshot((int)(s.PreparedEditionDurationTicks - s.CurrentTick));
         Assert.AreEqual(PreparationStatus.Departing, s.PreparedStatus);
     }
     [TestMethod]

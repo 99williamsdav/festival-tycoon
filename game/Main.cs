@@ -192,7 +192,7 @@ public partial class Main : Node
             _session = _attendeePoseCapture ? GameSession.CreateEditableCampaign(20260922) :
                 _campaignCaptureDirectory is not null ? GameSession.CreateCampaign(20260922) :
                 _immersionCaptureDirectory is not null || _financeCaptureDirectory is not null || _organicQueueCaptureDirectory is not null ? GameSession.CreateImmersionCampaign(20260922) :
-                _timetableCaptureDirectory is not null ? GameSession.CreateTimetableCampaign(20260922) :
+                _timetableCaptureDirectory is not null ? GameSession.CreateTimetableCampaign(20260926) :
                 _audienceCaptureDirectory is not null ? GameSession.CreateEquipmentCampaign(20260922, 2) :
                 _hearingCaptureDirectory is not null || _waterFoundationCaptureDirectory is not null ? GameSession.CreateMedicalCampaign(20260922) :
                 _staffCaptureDirectory is not null || _waterPlaytestCaptureDirectory is not null || _interventionCaptureDirectory is not null || _disorderCaptureDirectory is not null ? GameSession.CreateDisorderCampaign(20260922) :

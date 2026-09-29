@@ -49,7 +49,7 @@ public partial class Main
                 Accept(new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
                 Accept(new AcceptPreparationOfferCommand("staff.engineer")); Accept(new AcceptPreparationOfferCommand("equipment.buy"));
                 Accept(new PurchaseImmersionStarterStockCommand()); Accept(new StartPreparedEditionCommand());
-                BuildAttendee(); _session.AdvanceWithoutSnapshot(24000); _foundationPresentation.Reset(_session.CaptureObservation());
+                BuildAttendee(); _session.AdvanceWithoutSnapshot(_session.PreparedEditionDurationTicks); _foundationPresentation.Reset(_session.CaptureObservation());
                 ResultsCheck(_session.PreparedStatus == PreparationStatus.Departing && _session.CompletedFestivalResult is null, "Natural closing must keep live world without report");
                 PreparationSave(); PreparationLoad(); ResultsCheck(_session.PreparedStatus == PreparationStatus.Departing, "Actual departing file reload failed");
                 ResultsShot("01-natural-departing-reloaded", "NATURAL TIMETABLE · accelerated deterministic ticks · actual file reload · guests still leaving");

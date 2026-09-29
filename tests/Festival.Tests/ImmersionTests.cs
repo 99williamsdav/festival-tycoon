@@ -325,8 +325,8 @@ public sealed class ImmersionTests
         Assert.IsTrue(Send(s,new PurchaseImmersionStarterStockCommand()).IsAccepted);Assert.IsTrue(Send(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.neon-postcards"])).IsAccepted);Assert.IsTrue(Send(s,new StartPreparedEditionCommand()).IsAccepted);
         Assert.AreEqual(35,s.CapturePreparation()!.People.Length);var timer=Stopwatch.StartNew();s.AdvanceWithoutSnapshot(4000);timer.Stop();Console.WriteLine($"35-person first4000ticks={timer.Elapsed.TotalMilliseconds:F1}ms, neededreal1x=50000ms");Restore(s);
         if(s.CaptureMedical()!.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical)Assert.IsTrue(Send(s,new MedicalCommand(s.CaptureMedical()!.AtRiskGuestId,MedicalAction.DispatchMedic)).IsAccepted,"Respond to any inherited visible heat collapse through the normal physical medic command.");
-        s.AdvanceWithoutSnapshot(20001);Assert.AreEqual(PreparationStatus.Departing,s.PreparedStatus,s.CaptureSnapshot().Lifecycle?.Casualties.FirstOrDefault()?.Cause);Assert.IsTrue(s.CaptureImmersion()!.Vendors.All(v=>v.Queue.Length==0&&v.OwnerId is null));Restore(s);
-        Console.WriteLine($"full300s people={s.CapturePreparation()!.People.Length} sales={s.CaptureImmersion()!.Purchases.Length} peakcurrentintox={s.CaptureImmersion()!.People.Max(p=>p.Intoxication)}");
+        s.AdvanceWithoutSnapshot((int)(s.PreparedEditionDurationTicks-s.CurrentTick));Assert.AreEqual(PreparationStatus.Departing,s.PreparedStatus,s.CaptureSnapshot().Lifecycle?.Casualties.FirstOrDefault()?.Cause);Assert.IsTrue(s.CaptureImmersion()!.Vendors.All(v=>v.Queue.Length==0&&v.OwnerId is null));Restore(s);
+        Console.WriteLine($"full480s people={s.CapturePreparation()!.People.Length} sales={s.CaptureImmersion()!.Purchases.Length} peakcurrentintox={s.CaptureImmersion()!.People.Max(p=>p.Intoxication)}");
         s.AdvanceWithoutSnapshot(8000);Assert.AreEqual(PreparationStatus.Finished,s.PreparedStatus);Assert.IsTrue(s.CaptureImmersion()!.People.All(p=>p.Held is null));Restore(s);
     }
     [TestMethod]
@@ -350,8 +350,9 @@ public sealed class ImmersionTests
     [TestMethod]
     public void NinePaidPerformerItemsSaveWhileFirstBandOnstageAndResumeExactly()
     {
-        var s=Open();foreach(var p in s.CapturePreparation()!.People.Where(p=>p.Role==ProtectedPersonRole.Performer))Invoke(s,"CompleteImmersionSale",p.AgentId,ImmersionProduct.SoftDrink);
-        s.AdvanceWithoutSnapshot(1800);var performers=s.CaptureLivePerformance()!.Performers;Assert.IsTrue(performers.All(p=>p.OnStage));
+        var s=Open();s.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0]-800);
+        foreach(var p in s.CapturePreparation()!.People.Where(p=>p.Role==ProtectedPersonRole.Performer))Invoke(s,"CompleteImmersionSale",p.AgentId,ImmersionProduct.SoftDrink);
+        s.AdvanceWithoutSnapshot(1600);var performers=s.CaptureLivePerformance()!.Performers;Assert.IsTrue(performers.All(p=>p.OnStage));
         var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>performers.Any(n=>n.AgentId==p.AgentId)?p with { PendingDose=80,Intoxication=1000 }:p).ToArray() });
         var consumed=performers.ToDictionary(p=>p.AgentId,p=>s.CaptureImmersion()!.People.Single(n=>n.AgentId==p.AgentId).Held!.ConsumedTicks);
         var compatibility=new SaveCompatibility("held-performer","content","rules");var directory=Path.Combine(Path.GetTempPath(),"festival-held-performer-"+Guid.NewGuid());Directory.CreateDirectory(directory);
@@ -390,7 +391,7 @@ public sealed class ImmersionTests
     }
     private static void DepartureFixture(GameSession s)
     {
-        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,24000L);
+        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,GameSession.PreparedDayTicks);
         typeof(GameSession).GetProperty(nameof(GameSession.Phase))!.SetValue(s,SessionPhase.Egress);
         var prep=s.CapturePreparation()!;typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { Status=PreparationStatus.Departing });
         Invoke(s,"StartImmersionDeparture");
@@ -438,7 +439,7 @@ public sealed class ImmersionTests
     public void DepartureSevereBoundarySaveFailureNeverPublishesCollapse()
     {
         var s=Open();DepartureFixture(s);var m=s.CaptureImmersion()!;var id=s.CaptureMedical()!.AtRiskGuestId;
-        Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=9800,WarningTick=22401,SevereTicks=1599 }:p).ToArray() });
+        Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=9800,WarningTick=GameSession.PreparedDayTicks-1599,SevereTicks=1599 }:p).ToArray() });
         PositionFixture(s,id,new(120,125),"edition.departure");var hash=s.CaptureSnapshot().AuthoritativeHash;
         var directory=Path.Combine(Path.GetTempPath(),"festival-departure-atomic-"+Guid.NewGuid());Directory.CreateDirectory(directory);
         try
@@ -447,7 +448,7 @@ public sealed class ImmersionTests
             var failed=PreparationAdvanceCoordinator.AdvanceOne(directory,s,compatibility,DateTimeOffset.UtcNow,1,_=>throw new IOException("Labelled save failure"));
             Assert.IsFalse(failed.IsSuccess);Assert.AreSame(s,failed.Session);Assert.AreEqual(hash,s.CaptureSnapshot().AuthoritativeHash);
             var accepted=PreparationAdvanceCoordinator.AdvanceOne(directory,s,compatibility,DateTimeOffset.UtcNow,2);
-            Assert.IsTrue(accepted.IsSuccess,accepted.Error);Assert.AreEqual(24001L,accepted.Session.CaptureImmersion()!.People.Single(p=>p.AgentId==id).CollapseTick);Restore(accepted.Session);
+            Assert.IsTrue(accepted.IsSuccess,accepted.Error);Assert.AreEqual(GameSession.PreparedDayTicks+1L,accepted.Session.CaptureImmersion()!.People.Single(p=>p.AgentId==id).CollapseTick);Restore(accepted.Session);
         }
         finally { Directory.Delete(directory,true); }
     }
@@ -471,8 +472,8 @@ public sealed class ImmersionTests
     public void LateDepartureCollapseRetainsPhysicalPatientAndMedicCanRespondOrFatalFreeze(bool rescue)
     {
         var s=Open();var id=s.CaptureMedical()!.AtRiskGuestId;PositionFixture(s,id,new(120,125),"audience.watch");DepartureFixture(s);
-        var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=9800,WarningTick=22401,SevereTicks=1599 }:p).ToArray() });
-        Assert.IsTrue(s.ImmersionBoundaryOnNextTick);s.AdvanceWithoutSnapshot(1);Assert.AreEqual(24001L,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).CollapseTick);Assert.IsFalse(s.CapturePreparation()!.People.Single(p=>p.AgentId==id).Departed);Restore(s);
+        var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=9800,WarningTick=GameSession.PreparedDayTicks-1599,SevereTicks=1599 }:p).ToArray() });
+        Assert.IsTrue(s.ImmersionBoundaryOnNextTick);s.AdvanceWithoutSnapshot(1);Assert.AreEqual(GameSession.PreparedDayTicks+1L,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).CollapseTick);Assert.IsFalse(s.CapturePreparation()!.People.Single(p=>p.AgentId==id).Departed);Restore(s);
         if(rescue)
         {
             PositionFixture(s,s.CaptureMedical()!.MedicId,new(124,125),"medical.departure-standby");
@@ -495,13 +496,13 @@ public sealed class ImmersionTests
     public void DeparturePrimaryHeatUsesOriginalGlobalClocksForBoundaryAndDeath(MedicalStage stage)
     {
         var s=Open();DepartureFixture(s);var medical=s.CaptureMedical()!;var id=medical.AtRiskGuestId;
-        var collapse=stage==MedicalStage.Collapsed?23201L:21601L;var warning=stage==MedicalStage.Distress?22401L:20001L;var critical=22401L;
+        var collapse=stage==MedicalStage.Collapsed?GameSession.PreparedDayTicks-799L:GameSession.PreparedDayTicks-2399L;var warning=stage==MedicalStage.Distress?GameSession.PreparedDayTicks-1599L:GameSession.PreparedDayTicks-3999L;var critical=GameSession.PreparedDayTicks-1599L;
         typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=stage,WarningTick=warning,CollapseTick=stage==MedicalStage.Distress?-1:collapse,CriticalTick=stage==MedicalStage.Critical?critical:-1 });
         if(stage!=MedicalStage.Distress)Invoke(s,"SetNeed",id,(Func<MedicalNeed,MedicalNeed>)(n=>n with { Intent=MedicalIntent.Collapsed }));
         PositionFixture(s,id,new(120,125),"medical.departure-collapse");Assert.IsTrue(s.MedicalBoundaryOnNextTick);
         s.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(stage==MedicalStage.Distress?MedicalStage.Collapsed:stage==MedicalStage.Collapsed?MedicalStage.Critical:MedicalStage.Terminal,s.CaptureMedical()!.Stage);
-        if(stage==MedicalStage.Critical)Assert.IsTrue(s.CaptureLifecycleSnapshot()!.Casualties.Single().Cause.Contains("critical tick 22401"));
+        if(stage==MedicalStage.Critical)Assert.IsTrue(s.CaptureLifecycleSnapshot()!.Casualties.Single().Cause.Contains($"critical tick {critical}"));
         Restore(s);
     }
     [TestMethod]

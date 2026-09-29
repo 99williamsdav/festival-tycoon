@@ -11,6 +11,7 @@ public partial class Main
 {
     private string? _timetableCaptureDirectory;
     private int _timetableCaptureFrame;
+    private bool _timetableGuidedAtRiskGuest;
 
     private void TimetableAudioAssert(string path, bool playing)
     {
@@ -37,10 +38,10 @@ public partial class Main
         Send(new SetProgrammeCommand(["act.barnstorm-circuit", "act.neon-postcards", "act.field-frequency"]));
         foreach (var id in new[] { "staff.steward", "equipment.buy" }) Send(new AcceptPreparationOfferCommand(id));
         Send(new StartPreparedEditionCommand());
-        rock.AdvanceWithoutSnapshot(1600);
+        rock.AdvanceWithoutSnapshot(3500);
         var medical = rock.CaptureMedical()!;
         Send(new StaffInterventionCommand(medical.AtRiskGuestId, medical.MedicId, StaffInterventionAction.GuideToRest));
-        rock.AdvanceWithoutSnapshot(1800);
+        rock.AdvanceWithoutSnapshot(2000);
         Send(new SetPausedCommand(true));
         if (rock.CaptureLivePerformance()?.Stage != LiveSetStage.Live)
             throw new InvalidOperationException("Rock fixture did not physically reach Live.");
@@ -78,7 +79,7 @@ public partial class Main
             throw new InvalidOperationException("Timetable demonstration lost protected performers or exceeded its scope.");
         if (name is "first-set" or "second-set" or "third-set" &&
             (live?.Stage != LiveSetStage.Live || live.Performers.Count(person => person.OnStage) != 3))
-            throw new InvalidOperationException($"{name} did not physically start within its fixed window.");
+            throw new InvalidOperationException($"{name} did not physically start within its fixed window at tick {_session.CurrentTick}; stage={live?.Stage}.");
         GD.Print($"TIMETABLE_STATE name={name} tick={_session.CurrentTick} slot={programme.CurrentSlot} phase={live?.Stage} ready={live?.Performers.Count(person => person.OnStage)} people={p.People.Length} performers={protectedPerformers.Length} admitted={p.People.Count(person => person.Admitted)} departed={p.People.Count(person => person.Departed)} status={programme.Status} hash={_session.CaptureSnapshot().AuthoritativeHash}");
         if (live is not null)
             foreach (var performer in live.Performers)
@@ -88,7 +89,7 @@ public partial class Main
             }
     }
 
-    private void TimetableAdvanceTo(long relativeTick)
+    private void TimetableAdvanceTo(long relativeTick, bool log = true)
     {
         var target = _session.CapturePreparation()!.StartedTick + relativeTick;
         if (_session.CurrentTick < target)
@@ -96,6 +97,17 @@ public partial class Main
             StaffCaptureSend(new SetPausedCommand(false));
             while (_session.CurrentTick < target && _session.PreparedStatus != PreparationStatus.Failed)
             {
+                var atRisk = _session.CaptureMedical()!.AtRiskGuestId;
+                if (!_timetableGuidedAtRiskGuest && _session.CapturePreparation()!.People.Single(person => person.AgentId == atRisk).Admitted)
+                {
+                    var guide = new StaffInterventionCommand(atRisk, _session.CaptureMedical()!.MedicId, StaffInterventionAction.GuideToRest);
+                    if (_session.ValidateCommand(CampaignEnvelope(guide)) is null)
+                    {
+                        StaffCaptureSend(guide);
+                        _timetableGuidedAtRiskGuest = true;
+                        GD.Print($"TIMETABLE_OPERATOR early_physical_guide=True guest={atRisk} tick={_session.CurrentTick}");
+                    }
+                }
                 // Demonstration operator responds to visible warnings with the ordinary
                 // baseline medic; no needs/position/deadline injection or remote aid.
                 var medical = _session.CaptureMedical()!;
@@ -117,7 +129,16 @@ public partial class Main
             StaffCaptureSend(new SetPausedCommand(true));
             _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary(); RefreshPreparationHud();
         }
-        TimetableState("checkpoint");
+        if (log) TimetableState("checkpoint");
+    }
+
+    private void TimetableAdvanceUntilLive(int slot, int firstProbe)
+    {
+        TimetableAdvanceTo(firstProbe);
+        while (_session.CaptureLivePerformance()?.Stage != LiveSetStage.Live &&
+               _session.CurrentTick < _session.CapturePreparation()!.StartedTick + GameSession.FestivalSlotEnds[slot] - 160)
+            TimetableAdvanceTo(_session.CurrentTick - _session.CapturePreparation()!.StartedTick + 80, false);
+        TimetableState(slot switch { 0 => "first-set", 1 => "second-set", _ => "third-set" });
     }
 
     private void ProcessTimetableCapture()
@@ -138,9 +159,9 @@ public partial class Main
         _timetableCaptureFrame++;
         if (_timetableCaptureFrame == 4)
         {
-            _programmeDraft = ["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"];
+            _programmeDraft = ["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"];
             RefreshProgrammeControls(); _programmeBook!.EmitSignal(Button.SignalName.Pressed);
-            foreach (var offer in new[] { "staff.steward", "equipment.buy" }) _offerButtons[offer].EmitSignal(Button.SignalName.Pressed);
+            foreach (var offer in new[] { "staff.steward", "equipment.buy", "maintenance.worker" }) _offerButtons[offer].EmitSignal(Button.SignalName.Pressed);
             // Exercise the ordinary load handler across both saved modes in this
             // isolated fixture directory; never overwrite player saves.
             var bookedSession = _session;
@@ -159,6 +180,7 @@ public partial class Main
             GD.Print("TIMETABLE_UI legacy_and_programme_load=True exact_booked_hash=True");
             _preparationMessage = "ONE-DAY DEMO • ordinary programme booking, paid once; three distinct protected bands.";
             RefreshPreparationHud();
+            SelectHudTab("Programme");
             _focus = new Vector3(-10, 0, 11); _camera.Size = 29; ApplyCamera();
             TimetableState("booked");
         }
@@ -170,17 +192,15 @@ public partial class Main
                 throw new InvalidOperationException($"Programme start failed: {_preparationMessage}");
             if (_session.CaptureEquipment() is not { LoadPercent: 80 })
                 throw new InvalidOperationException("Normal Hot scenario must retain the inherited safe generator baseline.");
-            StaffCaptureAdvance(1200);
+            TimetableAdvanceTo(3500);
             SelectAttendee(new EntityId(_session.CaptureProgramme()!.Performers[2].AgentId));
             TimetableState("scheduled-first-start");
         }
         if (_timetableCaptureFrame == 7)
         {
             TimetableImage("scheduled-start-performer-readiness-and-role-title");
-            StaffCaptureAdvance(400);
-            var medical = _session.CaptureMedical()!;
-            StaffCaptureSend(new StaffInterventionCommand(medical.AtRiskGuestId, medical.MedicId, StaffInterventionAction.GuideToRest));
-            TimetableAdvanceTo(2000);
+            TimetableAdvanceTo(3900);
+            TimetableAdvanceTo(5600);
             SelectAttendee(new EntityId(_session.CaptureLivePerformance()!.Listeners[0].AgentId));
             TimetableState("first-set");
         }
@@ -189,7 +209,7 @@ public partial class Main
             TimetableImage("first-folk-set-current-upcoming-needs");
             TimetableAudioAssert("res://assets/audio/folk_loop_v1.wav", true);
             TimetableRockAndReloadCheck();
-            TimetableAdvanceTo(7360);
+            TimetableAdvanceTo(13_360);
             TimetableAudioAssert("", false);
             TimetableState("first-changeover");
             var saved = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-changeover", new SaveWriteRequest(_session, _saveCompatibility, "timetable-changeover", DateTimeOffset.UtcNow));
@@ -208,31 +228,31 @@ public partial class Main
         if (_timetableCaptureFrame == 10)
         {
             TimetableImage("first-band-physical-exit-changeover-silence");
-            TimetableAdvanceTo(10200); TimetableState("second-set");
+            TimetableAdvanceUntilLive(1, 17_400);
         }
         if (_timetableCaptureFrame == 12)
         {
-            TimetableAudioAssert("res://assets/audio/pop_loop_v1.wav", true);
-            TimetableImage("second-pop-band-on-marks");
-            TimetableAdvanceTo(15360); TimetableState("second-changeover");
+            TimetableAudioAssert("res://assets/audio/rock_loop_v2.wav", true);
+            TimetableImage("second-rock-band-on-marks");
+            TimetableAdvanceTo(24_960); TimetableState("second-changeover");
         }
         if (_timetableCaptureFrame == 14)
         {
             TimetableAudioAssert("", false);
             TimetableImage("second-band-physical-exit-changeover");
-            TimetableAdvanceTo(18200); TimetableState("third-set");
+            TimetableAdvanceUntilLive(2, 28_000);
         }
         if (_timetableCaptureFrame == 16)
         {
-            TimetableAudioAssert("res://assets/audio/electronic_loop_v1.wav", true);
-            TimetableImage("third-electronic-band-on-marks");
-            TimetableAdvanceTo(23600); TimetableState("wind-down");
+            TimetableAudioAssert("res://assets/audio/pop_loop_v1.wav", true);
+            TimetableImage("third-pop-band-on-marks");
+            TimetableAdvanceTo(38_000); TimetableState("wind-down");
         }
         if (_timetableCaptureFrame == 18)
         {
             TimetableAudioAssert("", false);
             TimetableImage("all-nine-protected-performers-remain-on-farm");
-            TimetableAdvanceTo(24001);
+            TimetableAdvanceTo(38_401);
             StaffCaptureSend(new SetPausedCommand(false));
             for (var ticks = 0; ticks < 9600 && _session.PreparedStatus != PreparationStatus.Finished; ticks++)
                 _session.AdvanceWithoutSnapshot(1);
