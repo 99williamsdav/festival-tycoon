@@ -138,6 +138,8 @@ public partial class Main
         if (_perkPanel is null) return;
         var p = _session.CapturePerks();
         _perkToggle!.Visible = p is { Ended: false };
+        if (_session.BuildModeEnabled && _session.PreparedStatus == PreparationStatus.Preparing && p?.Pending == false)
+            _perkToggle.Visible = false;
         _perkPanel.Visible = p is { Ended: false } && (p.Pending || _perksExpanded);
         if (!_perkPanel.Visible || p?.Pending != false) HideOwnedEffect();
         LayoutOwnedPerkWorkspace();
@@ -224,7 +226,8 @@ public partial class Main
         _perkBody!.AddThemeConstantOverride("separation", draft ? 9 : 6);
         var width = draft ? size.X - 120 : size.X - 20;
         var height = draft ? size.Y - 120 : 220;
-        _perkPanel.Position = draft ? new Vector2(60,65) : new Vector2((size.X-width)/2,size.Y - 60 - height);
+        _perkPanel.Position = draft ? new Vector2(60,65) : new Vector2((size.X-width)/2,
+            size.Y - (_session.BuildModeEnabled && _session.PreparedStatus == PreparationStatus.Preparing ? 132 : 60) - height);
         _perkPanel.Size = new Vector2(width,height);
     }
     private void LayoutOwnedPerkWorkspace()
@@ -244,7 +247,7 @@ public partial class Main
         if (constrained)
             height = Math.Min(height, size.Y - 60 - 220 - 10 - _hudWorkspace.Position.Y);
         var bookingPage = _bookingLane is not null && HudProgrammeSelected();
-        if (bookingPage && !constrained) height = Math.Min(660, size.Y - 138);
+        if (bookingPage && !constrained) height = Math.Min(660, size.Y - (_session.BuildModeEnabled && _session.PreparedStatus == PreparationStatus.Preparing ? 210 : 138));
         _hudWorkspace.Position = bookingPage && !constrained ? new Vector2(16, 72) : new Vector2(15, 77);
         _hudWorkspace.Size = new Vector2(bookingPage && !constrained ? size.X - 32 : size.X >= 1600 ? 690 : 650, height);
         LayoutOwnedContext(constrained);

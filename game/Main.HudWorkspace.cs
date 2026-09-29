@@ -33,6 +33,9 @@ public partial class Main
     private Button? _hudPreparationToggle;
     private Button? _hudProgrammeToggle;
     private Button? _hudRosterToggle;
+    private HBoxContainer? _hudLegacyBottom;
+    private PanelContainer? _hudLegacyStatusPanel;
+    private HBoxContainer? _hudWorkspaceFooter;
     private ConfirmationDialog? _hudStartConfirmation;
     private ScrollContainer? _hudContextScroll;
     private TabContainer? _hudTabs;
@@ -125,6 +128,7 @@ public partial class Main
         var collapsePreparation = ButtonText("×", () => { _hudWorkspaceOpen = false; RefreshHudWorkspace(); });
         collapsePreparation.TooltipText = "Collapse preparation"; heading.AddChild(collapsePreparation);
         _hudTabs = new TabContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill }; workspaceBox.AddChild(_hudTabs);
+        if (_session.BuildModeEnabled) _hudTabs.TabsVisible = false;
         if (_session.CapturePreparation()?.LineupReactionsVersion == 1) _hudTabs.UseHiddenTabsForMinSize = false;
         foreach (var name in (_session.BuildModeEnabled
                      ? new[] { "Build", "Overview", "Programme", "Staff", "Equipment", "Stock", "Site & water" }
@@ -185,7 +189,9 @@ public partial class Main
         _communityShareInfo = HudLabel(""); _communityShareInfo.Visible = false; site.AddChild(_communityShareInfo);
         site.AddChild(ButtonText("Exact effect ▸", () => { _hudWaterExact = !_hudWaterExact; RefreshHudWorkspace(); }));
         _communityShareButton = ButtonText("Commit water sharing", () => CommitEquipmentAction(new CommitCommunityWaterShareCommand())); site.AddChild(_communityShareButton);
-        var footer = new HBoxContainer(); workspaceBox.AddChild(new HSeparator()); workspaceBox.AddChild(footer);
+        var footer = new HBoxContainer(); var footerSeparator = new HSeparator(); workspaceBox.AddChild(footerSeparator); workspaceBox.AddChild(footer);
+        _hudWorkspaceFooter = footer;
+        if (_session.BuildModeEnabled) { footer.Visible = false; footerSeparator.Visible = false; }
         _hudStartReason = HudLabel(""); footer.AddChild(_hudStartReason);
         // Existing development captures emit this button directly. Keep that bounded
         // route's established behavior while ordinary player clicks confirm below.
@@ -263,19 +269,19 @@ public partial class Main
         _hudAlerts = HudPanel(layer, new Vector2(15, 70), new Vector2(370, 300)); _hudAlerts.Visible = false;
         var alertScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, CustomMinimumSize = new Vector2(0, 240) }; _hudAlerts.AddChild(alertScroll);
         _hudAlertBox = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; alertScroll.AddChild(_hudAlertBox);
-        _hudRoster = HudPanel(layer, new Vector2(15, height - 340), new Vector2(330, 280)); _hudRoster.Visible = false;
+        _hudRoster = HudPanel(layer, new Vector2(15, height - (_session.BuildModeEnabled ? 422 : 340)), new Vector2(330, 280)); _hudRoster.Visible = false;
         _preparationRosterScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _hudRoster.AddChild(_preparationRosterScroll);
         _preparationPeople = HudLabel("", 13); _preparationPeople.CustomMinimumSize = new Vector2(300, 0); _preparationRosterScroll.AddChild(_preparationPeople);
-        var bottom = new HBoxContainer { Position = new Vector2(15, height - 50), Theme = HudTheme() }; layer.AddChild(bottom);
+        var bottom = new HBoxContainer { Position = new Vector2(15, height - 50), Theme = HudTheme() }; layer.AddChild(bottom); _hudLegacyBottom = bottom;
         _hudPreparationToggle = ButtonText("Preparation ▾", () => { _buildDrawerOpen = false; _hudWorkspaceOpen = !_hudWorkspaceOpen; RefreshHudWorkspace(); }); bottom.AddChild(_hudPreparationToggle);
         _hudRosterToggle = ButtonText("People ▸", () => { _hudRoster.Visible = !_hudRoster.Visible; }); bottom.AddChild(_hudRosterToggle);
         bottom.AddChild(ButtonText("Rotate view", () => Rotate(1)));
         _orientationLabel = HudLabel("", 12); _orientationLabel.Visible = false; bottom.AddChild(_orientationLabel);
-        var statusPanel = HudPanel(layer, new Vector2(width - 510, height - 50), new Vector2(495, 40));
+        var statusPanel = HudPanel(layer, new Vector2(width - 510, height - 50), new Vector2(495, 40)); _hudLegacyStatusPanel = statusPanel;
         statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
         _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
         BuildPerkHud(layer);
-        BuildHearingHud(layer); BuildBuildDrawer(layer, size); RefreshPreparationHud();
+        BuildHearingHud(layer); BuildBuildDrawer(layer, size); BuildPreparationDock(layer, size); RefreshPreparationHud();
     }
 
     private static void ConstrainHudControls(Node root)
@@ -334,9 +340,16 @@ public partial class Main
         _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
         if (_buildToggleButton is not null) _buildToggleButton.Visible = preparing;
         if (_buildDrawer is not null) _buildDrawer.Visible = preparing && _buildDrawerOpen && !placing && _session.CapturePerks()?.Pending != true;
-        if (_buildBudgetFooter is not null) _buildBudgetFooter.Visible = preparing && _session.CapturePerks()?.Pending != true;
+        if (_buildBudgetFooter is not null) _buildBudgetFooter.Visible = false;
         LayoutOwnedPerkWorkspace();
-        _hudPreparationToggle!.Visible = preparing; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
+        _hudPreparationToggle!.Visible = preparing && !_session.BuildModeEnabled; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
+        if (_session.BuildModeEnabled)
+        {
+            _hudLegacyBottom!.Visible = !preparing;
+            _hudLegacyStatusPanel!.Visible = !preparing;
+            if (_buildToggleButton is not null) _buildToggleButton.Visible = false;
+            if (_perkToggle is not null && _session.CapturePerks()?.Pending != true) _perkToggle.Visible = !preparing;
+        }
         _hudRosterToggle!.Text = $"People · {p.People.Length} ▸";
         _hudPlacement!.Visible = placing && _buildGhostKind is null;
         _hudPlacementText!.Text = $"{(_movingResponsePost is {} postRole?postRole==ResponseRole.Medic?"Moving first aid":"Moving steward post":_placingImmersionVendor is { } id ? "Moving " + (id == "food" ? "food van" : "bar") : _movingToilet ? "Moving toilet" : _waterPlacementMode == WaterPlacementMode.Add ? "Adding free-water tap" : "Moving free-water tap")}\nChoose grass · click to place · comma/period rotate · Esc cancels";
@@ -396,6 +409,7 @@ public partial class Main
         }
         RefreshHudAlerts();
         RefreshBuildDrawer();
+        RefreshPreparationDock();
     }
 
     private void RefreshHudPreparationReadiness()
@@ -473,8 +487,8 @@ public partial class Main
         if(_perkPanel?.Visible==true && _perkPanel.GetGlobalRect().HasPoint(screen))return true;
         if(_ownedEffectPopup?.Visible==true && _ownedEffectPopup.GetGlobalRect().HasPoint(screen))return true;
         if (_hudMoney is null) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
-        if (screen.Y < 60 || screen.Y > GetViewport().GetVisibleRect().Size.Y - 54) return true;
-        return new Control?[] { _hudWorkspace, _buildDrawer, _buildBudgetFooter, _hudMenu, _hudPlacement, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
+        if (screen.Y < 60 || screen.Y > GetViewport().GetVisibleRect().Size.Y - (_session.BuildModeEnabled && _session.PreparedStatus == PreparationStatus.Preparing ? 128 : 54)) return true;
+        return new Control?[] { _hudWorkspace, _buildDrawer, _buildBudgetFooter, _preparationReadiness, _hudMenu, _hudPlacement, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
             .Any(control => control?.IsVisibleInTree() == true && control.GetGlobalRect().HasPoint(screen));
     }
 }

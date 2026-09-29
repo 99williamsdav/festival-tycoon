@@ -21,6 +21,8 @@ public partial class Main
     private readonly Dictionary<BuildServiceKind, (Label Count, Button Action, HBoxContainer Row)> _buildCatalogueRows = [];
     private readonly Dictionary<BuildServiceKind, List<Button>> _buildShortcutButtons = [];
     private bool _buildDrawerOpen;
+    private Button? _buildDrawerClose;
+    private Button? _buildSiteWaterButton;
     private string _buildPlacedKey = "";
     private BuildServiceKind? _buildGhostKind;
     private string? _buildMovingId;
@@ -88,7 +90,7 @@ public partial class Main
         if (!_session.BuildModeEnabled) return;
         var width = size.X >= 1600 ? 390f : 318f;
         _buildDrawer = HudPanel(layer, new Vector2(15, 77), new Vector2(width,
-            Math.Min(size.X >= 1600 ? 735 : 530, size.Y - 190)));
+            Math.Min(size.X >= 1600 ? 735 : 530, size.Y - 212)));
         _buildDrawer.Visible = false;
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         _buildCatalogueScroll = scroll;
@@ -100,11 +102,15 @@ public partial class Main
         var title = HudLabel("Build your festival", 23); title.AddThemeFontOverride("font", HearingSerif());
         heading.AddChild(title);
         var close = ButtonText("×", () => { _buildDrawerOpen = false; RefreshHudWorkspace(); });
+        _buildDrawerClose = close;
         close.TooltipText = "Collapse Build drawer"; close.CustomMinimumSize = new Vector2(34, 34); heading.AddChild(close);
         box.AddChild(HudLabel("Select a service · scroll for all six.", 12));
         var defaults = ButtonText("Use defaults…", ShowBuildDefaults);
         defaults.TooltipText = "Restore standard service positions at normal draft cost; other preparation choices stay.";
         box.AddChild(defaults);
+        _buildSiteWaterButton = ButtonText("Site & water ▸", () => SelectHudTab("Site & water"));
+        _buildSiteWaterButton.TooltipText = "Open water sharing and additional tap choices; placement remains in Build.";
+        box.AddChild(_buildSiteWaterButton);
         _buildChecklist = HudLabel("", 12); box.AddChild(_buildChecklist);
         foreach (var kind in Enum.GetValues<BuildServiceKind>())
         {
