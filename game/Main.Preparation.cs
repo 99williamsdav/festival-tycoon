@@ -381,6 +381,9 @@ public partial class Main
             _foundationPresentation.Advance(_session.CaptureObservation());
         }
         var presentationStarted = Stopwatch.GetTimestamp();
+        var characterDelta = CharacterPresentationPaused ? 0 : delta;
+        _characterPresentationSeconds += characterDelta;
+        SyncPresentationPause();
         if (_preparationProfileOutput is not null || _equipmentPerformanceOutput is not null || _cameraProfileOutput is not null) _profileSimulationMs = Stopwatch.GetElapsedTime(workStarted, presentationStarted).TotalMilliseconds;
         var live = _session.CaptureLivePerformance();
         var watching = live is { Stage: LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted }
@@ -416,15 +419,16 @@ public partial class Main
             }
             if (Mathf.Abs(visual.Rotation.X) > .1f) visual.Rotation = new Vector3(0, visual.Rotation.Y, 0);
             UpdatePersonFacing(agent.Id, visual, renderedPosition, agent.Action,
-                watching.Contains(agent.Id), onStage.Contains(agent.Id), delta);
+                watching.Contains(agent.Id), onStage.Contains(agent.Id), characterDelta);
         }
-        AdvanceLivePerformancePresentation(delta);
-        AdvanceImmersionPresentation(delta);
+        AdvanceLivePerformancePresentation(characterDelta);
+        AdvanceImmersionPresentation(characterDelta);
         AdvanceMedicalCuePresentation();
         AdvanceDisorderCuePresentation();
         AdvanceImmersionCuePresentation();
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceIncidentAudioPresentation();
+        SyncPresentationPause();
         ProcessLivePerformanceCapture();
         if (RelaxedSaveCadence) AdvanceCadenceSave(delta);
         else if (_boundarySaveTask is null && _periodicSaveTask is null &&

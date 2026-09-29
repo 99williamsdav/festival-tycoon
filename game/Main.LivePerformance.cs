@@ -79,7 +79,7 @@ public partial class Main
         var attending = _session.GetStewardResponses().FirstOrDefault(job => job.WorkerId == id.Value &&
             !job.Incapacitated && job.TargetId is not null &&
             job.Stage is SecurityResponseStage.Calming or SecurityResponseStage.Confronting);
-        if (attending?.TargetId is { } targetId &&
+        if (action == AgentNavigationAction.Arrived && (!hasPrevious || direction.LengthSquared() < 0.000036f) && attending?.TargetId is { } targetId &&
             _session.CapturePreparation()?.People.Any(person => person.AgentId == targetId &&
                 person.Admitted && !person.Departed) == true &&
             _session.CaptureMedical()?.Needs.Any(need => need.AgentId == targetId &&
@@ -355,7 +355,7 @@ public partial class Main
             _presentedSetStage = live.Stage;
             _presentedActId = actId;
         }
-        if (audible && _stageMusic!.Stream is not null && !_stageMusic.Playing) _stageMusic.Play();
+        if (audible && _stageMusic!.Stream is not null && !_stageMusic.Playing && !_stageMusic.StreamPaused) _stageMusic.Play();
         if (!audible && _stageMusic!.Playing) _stageMusic.Stop();
         // Use the ground-plane focus instead of the elevated isometric camera position;
         // zoom alters framing, not the physical PA distance.

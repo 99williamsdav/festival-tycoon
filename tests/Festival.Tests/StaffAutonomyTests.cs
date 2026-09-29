@@ -260,6 +260,9 @@ public sealed class StaffAutonomyTests
         Set(s, "_disorder", d with { ResponseStage = SecurityResponseStage.Calming, ResponseTargetId = a, ResponseStartedTick = s.CurrentTick - 16,
             ResponseDispatchedTick = s.CurrentTick - 32, ExtraResponses = [new(other, SecurityResponseStage.Calming, b, s.CurrentTick - 8, false, "Labelled preassigned argument response", s.CurrentTick - 24)] });
         s.AdvanceWithoutSnapshot(4); d = s.CaptureDisorder()!;
+        Assert.IsNull(d.Incidents.Single().HandlingAttempt, "Two-metre separation must require a closer physical approach.");
+        for (var tick = 0; tick < 200 && s.CaptureDisorder()!.Incidents.Single().HandlingAttempt is null; tick++) s.AdvanceWithoutSnapshot(1);
+        d = s.CaptureDisorder()!;
         Assert.AreEqual(1, s.GetStewardResponses().Count(job => job.Stage == SecurityResponseStage.Confronting));
         Assert.AreEqual(baseline, d.Incidents.Single().HandlingAttempt!.WorkerId);
         var snapshot = s.CapturePersistenceSnapshot();

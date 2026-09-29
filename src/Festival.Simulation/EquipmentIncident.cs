@@ -94,7 +94,7 @@ public sealed partial class GameSession
         if (e.JobStage is MaintenanceStage.Travelling or MaintenanceStage.Repairing)
         {
             var index = Array.FindIndex(_preparation!.People, item => item.AgentId == e.WorkerId);
-            ApplyAgentDestination(new(e.WorkerId!.Value), new(PreparedPlace(index), "equipment.job-cancelled"));
+            ReturnToListening(e.WorkerId!.Value);
         }
         _equipment = e with { Stage = command.Action == EquipmentAction.Isolate ? EquipmentStage.Isolated : EquipmentStage.Resolved,
             LoadPercent = command.Action == EquipmentAction.Isolate ? 0 : 80,

@@ -32,6 +32,9 @@ public sealed record ToiletFacility(string Id, GridCell Cell, int QuarterTurns, 
     ulong? OwnerId, bool DoorOpen, int ServiceTicks, int WeeCount, int PooCount,
     int CapacityMillilitres, int ContainmentPermille, ulong? InterruptedOccupantId = null)
 {
+    // Door signal only; ownership/fullness still independently controls admission.
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool OccupiedIndicator => !DoorOpen && (OwnerId is not null || InterruptedOccupantId is not null);
     [System.Text.Json.Serialization.JsonIgnore]
     public int UsedMillilitres => WeeCount * ToiletRules.WeeMillilitres + PooCount * ToiletRules.PooMillilitres;
     [System.Text.Json.Serialization.JsonIgnore]

@@ -466,7 +466,7 @@ public sealed partial class GameSession
                 WalkingSpeedPermille = GetResponseStaff().SingleOrDefault(item => item.AgentId == id.Value)?.WalkingSpeedPermille ?? GetWalkingSpeedPermille(id), Action = AgentNavigationAction.Idle
             });
             var profile = GetResponseStaff().SingleOrDefault(item => item.AgentId == person.AgentId);
-            var dutyCell = profile is null ? PreparedPlace(index) : StaffDutyCell(person.AgentId, profile.Role);
+            var dutyCell = StaffAssignedPost(person.AgentId) ?? PreparedPlace(index);
             ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
         }
         _preparation = p with { Status = PreparationStatus.Running, StartedTick = CurrentTick };
@@ -476,6 +476,8 @@ public sealed partial class GameSession
     }
 
     private static GridCell PreparedStart(int index) => new(122 + index % 6 * 2, 190 + index / 6 * 2);
+    // Physical presence includes collapsed guests until their recorded departure.
+    public int OnSiteAttendeeCount => _preparation?.People.Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed) ?? 0;
     private static GridCell PreparedPlace(int index) => new(122 + index % 6 * 2, 156 + index / 6 * 2);
 
     private void AdvancePreparation()

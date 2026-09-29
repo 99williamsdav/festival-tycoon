@@ -227,10 +227,18 @@ public sealed class ToiletTests
         Invoke(session, "AdvanceToilet");
         Assert.AreEqual(id, session.CaptureToilet()!.OwnerId);
         Assert.IsTrue(session.CaptureToilet()!.DoorOpen);
+        Assert.IsFalse(session.CaptureToilet()!.OccupiedIndicator, "Entry is green while exclusive ownership stays held.");
+        var enteringRestore = GameSession.Restore(session.CapturePersistenceSnapshot());
+        Assert.IsTrue(enteringRestore.IsSuccess, enteringRestore.Error);
+        Assert.IsFalse(enteringRestore.Session!.CaptureToilet()!.OccupiedIndicator);
         Position(session, id, GameSession.ToiletInsideCell(toilet), "toilet.enter");
         Invoke(session, "AdvanceToilet");
         Assert.AreEqual(ToiletVisitStage.Using, session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletStage);
         Assert.IsFalse(session.CaptureToilet()!.DoorOpen);
+        Assert.IsTrue(session.CaptureToilet()!.OccupiedIndicator);
+        var usingRestore = GameSession.Restore(session.CapturePersistenceSnapshot());
+        Assert.IsTrue(usingRestore.IsSuccess, usingRestore.Error);
+        Assert.IsTrue(usingRestore.Session!.CaptureToilet()!.OccupiedIndicator);
         Assert.AreEqual(ToiletVisitKind.Poo, approaching.ToiletChoice);
         var current = session.CaptureImmersion()!;
         SetImmersion(session, current with { Toilet = current.Toilet! with { ServiceTicks = 1 } });
@@ -241,6 +249,10 @@ public sealed class ToiletTests
         Assert.AreEqual(ToiletRules.PooMillilitres, completed.UsedMillilitres);
         Assert.AreEqual(1_000, session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed);
         Assert.IsTrue(completed.DoorOpen);
+        Assert.IsFalse(completed.OccupiedIndicator, "Exit stays owned but its door signal is green.");
+        var leavingRestore = GameSession.Restore(session.CapturePersistenceSnapshot());
+        Assert.IsTrue(leavingRestore.IsSuccess, leavingRestore.Error);
+        Assert.IsFalse(leavingRestore.Session!.CaptureToilet()!.OccupiedIndicator);
         Invoke(session, "AdvanceToilet");
         Assert.AreEqual(completed.UsedMillilitres, session.CaptureToilet()!.UsedMillilitres);
         Position(session, id, GameSession.ToiletExitCell(toilet), "toilet.exit");
@@ -248,6 +260,7 @@ public sealed class ToiletTests
         Assert.IsNull(session.CaptureToilet()!.OwnerId);
         Assert.IsFalse(session.CaptureToilet()!.DoorOpen);
         Assert.AreEqual(ToiletVisitStage.None, session.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletStage);
+        Assert.IsFalse(session.CaptureToilet()!.OccupiedIndicator);
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
     }
@@ -456,6 +469,7 @@ public sealed class ToiletTests
         Assert.IsNull(interrupted.OwnerId);
         Assert.AreEqual(id, interrupted.InterruptedOccupantId);
         Assert.IsTrue(interrupted.DoorOpen);
+        Assert.IsFalse(interrupted.OccupiedIndicator, "An interrupted interior blocks admission but shows green while open.");
         Assert.AreEqual(0, interrupted.UsedMillilitres);
         Assert.AreEqual(0, interrupted.Queue.Length);
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());

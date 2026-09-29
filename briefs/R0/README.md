@@ -47,6 +47,8 @@ R0 proves the smallest persistent failure/retry/success campaign using the exist
 
 ## Shared execution rules
 
+Latest bounded follow-up: [R0.05ae playtest corrections](../R0.05ae-playtest-corrections.md), implemented and independently reviewed; [106/106 focused checks and final native/exported evidence](../results/R0.05ae-playtest-corrections.md). User playtest pending.
+
 - Read the active design and targeted source/evidence named by the brief. `TECHNICAL_SPEC.md` still governs deterministic ticks, commands, save integrity, finance, causal history and measurement where compatible.
 - Inspect current code and evidence; do not replace working boundaries merely to match suggested names. M1.01 stays **Implemented — verification pending** until repository acceptance changes.
 - Implement only the assigned brief. Use clearly labelled fixtures only where permitted. No user-facing forced death, unavoidable eligible death, or invisible counter.

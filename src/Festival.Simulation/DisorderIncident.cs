@@ -454,13 +454,13 @@ public sealed partial class GameSession
             var patient = _navigationAgents[new(targetId)];
             var dx = (long)security.XMillimetres - patient.XMillimetres;
             var dz = (long)security.ZMillimetres - patient.ZMillimetres;
-            if (security.Action == AgentNavigationAction.Arrived && dx * dx + dz * dz <= 6_250_000)
+            if (StewardAttending(workerId, targetId))
             {
                 SetStewardResponse(response with { Stage = SecurityResponseStage.Calming,
                     StartedTick = CurrentTick, Description = "Steward arrived; calming attempt underway" });
                 DisorderEvent("security:calming", targetId, workerId, target.Pressure, "Steward arrived; calming attempt underway");
             }
-            else if (CurrentTick % 80 == 0 && MedicalResponseCell(workerId, targetId) is { } cell && security.Destination != cell)
+            else if (CurrentTick % 80 == 0 && StewardResponseCell(workerId, targetId) is { } cell && security.Destination != cell)
                 ApplyAgentDestination(new(workerId), new(cell, "disorder.security-retarget"));
             return;
         }
@@ -469,10 +469,10 @@ public sealed partial class GameSession
         {
             var worker = _navigationAgents[new(workerId)]; var patient = _navigationAgents[new(targetId)];
             var dx = (long)worker.XMillimetres - patient.XMillimetres; var dz = (long)worker.ZMillimetres - patient.ZMillimetres;
-            if (worker.Action != AgentNavigationAction.Arrived || dx * dx + dz * dz > 6_250_000)
+            if (!StewardAttending(workerId, targetId))
             {
                 SetStewardResponse(response with { Stage = SecurityResponseStage.Travelling, Description = "Target moved; steward must physically re-approach before calming" });
-                if (MedicalResponseCell(workerId, targetId) is { } cell) ApplyAgentDestination(new(workerId), new(cell, "disorder.security-retarget"));
+                if (StewardResponseCell(workerId, targetId) is { } cell) ApplyAgentDestination(new(workerId), new(cell, "disorder.security-retarget"));
                 return;
             }
         }
@@ -501,6 +501,13 @@ public sealed partial class GameSession
         if (response.Stage == SecurityResponseStage.Confronting && response.TargetId is { } aggressorId)
         {
             var aggressor = d.People.Single(item => item.AgentId == aggressorId);
+            if (aggressor.Stage == DisorderStage.Argument && !StewardAttending(workerId, aggressorId))
+            {
+                if (CurrentTick % 80 == 0 && StewardResponseCell(workerId, aggressorId) is { } near &&
+                    _navigationAgents[new(workerId)].Destination != near)
+                    ApplyAgentDestination(new(workerId), new(near, "disorder.confrontation-retarget"));
+                return;
+            }
             var person = _preparation!.People.Single(item => item.AgentId == aggressorId);
             if (aggressor.Stage == DisorderStage.Argument && aggressor.OpponentId == workerId &&
                 person.Admitted && !person.Departed &&

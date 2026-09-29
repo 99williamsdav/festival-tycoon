@@ -2,8 +2,40 @@ namespace Festival.Simulation;
 
 public sealed partial class GameSession
 {
-    private GridCell? StewardResponseCell(ulong workerId, ulong targetId) => PhysicalResponseCell(workerId, targetId,
-        StaffAutonomyEnabled && GuestFightOrigin(targetId) is { } origin ? origin.InitiatorId == targetId ? origin.OpponentId : origin.InitiatorId : null);
+    private const long StewardAttendanceDistanceSquared = 1_562_500; // 1.25 m maximum; approach aims for 1 m.
+    private bool StewardNearPoint(int x, int z, ulong targetId)
+    {
+        var target = _navigationAgents[new(targetId)];
+        var dx = (long)x - target.XMillimetres; var dz = (long)z - target.ZMillimetres;
+        return dx * dx + dz * dz is >= 250_000 and <= StewardAttendanceDistanceSquared &&
+            TraversalSweep.IsWalkable(_traversalGrid!, x, z, target.XMillimetres, target.ZMillimetres);
+    }
+    private bool StewardAttending(ulong workerId, ulong targetId)
+    {
+        var worker = _navigationAgents[new(workerId)];
+        return worker.Action == AgentNavigationAction.Arrived && StewardNearPoint(worker.XMillimetres, worker.ZMillimetres, targetId);
+    }
+    private GridCell? StewardResponseCell(ulong workerId, ulong targetId)
+    {
+        var worker = _navigationAgents[new(workerId)]; var target = _navigationAgents[new(targetId)];
+        var counterpart = StaffAutonomyEnabled && GuestFightOrigin(targetId) is { } fight
+            ? (ulong?)(fight.InitiatorId == targetId ? fight.OpponentId : fight.InitiatorId) : null;
+        bool Suitable(GridCell candidate)
+        {
+            if (!_traversalGrid!.Contains(candidate) || !_traversalGrid.Get(candidate).IsWalkable ||
+                WaterPoints().Any(point => CaptureWaterQueueCells(point.Id).Contains(candidate))) return false;
+            var centre = TraversalGrid.CellCentre(candidate);
+            return StewardNearPoint(centre.XMillimetres, centre.ZMillimetres, targetId) &&
+                (counterpart is null || StewardNearPoint(centre.XMillimetres, centre.ZMillimetres, counterpart.Value));
+        }
+        // Keep a still-valid approach point while the target moves within the tolerance.
+        if (worker.Action != AgentNavigationAction.NoRoute && worker.Destination is { } current && Suitable(current)) return current;
+        var cell = TraversalGrid.WorldToCell(target.XMillimetres, target.ZMillimetres);
+        var candidates = Enumerable.Range(-3, 7).SelectMany(x => Enumerable.Range(-3, 7).Select(z => new GridCell(cell.X+x,cell.Z+z)))
+            .Where(Suitable).OrderBy(candidate => { var c=TraversalGrid.CellCentre(candidate); var x=(long)c.XMillimetres-target.XMillimetres; var z=(long)c.ZMillimetres-target.ZMillimetres; return Math.Abs(x*x+z*z-1_000_000); })
+            .ThenBy(candidate => candidate.X).ThenBy(candidate => candidate.Z);
+        return candidates.Cast<GridCell?>().FirstOrDefault(candidate => MedicalRouteExists(workerId, candidate!.Value));
+    }
     private DisorderIncidentOrigin? GuestFightOrigin(ulong id) => _disorder?.Incidents.LastOrDefault(origin =>
         (origin.InitiatorId == id || origin.OpponentId == id) && !IsSteward(origin.OpponentId) &&
         (_disorder.People.SingleOrDefault(person => person.AgentId == id) is { Stage: DisorderStage.Fight } person
@@ -18,7 +50,7 @@ public sealed partial class GameSession
         {
             var participant = _navigationAgents[new(id)];
             var dx = (long)worker.XMillimetres - participant.XMillimetres; var dz = (long)worker.ZMillimetres - participant.ZMillimetres;
-            return dx * dx + dz * dz <= 6_250_000;
+            return StewardNearPoint(worker.XMillimetres, worker.ZMillimetres, id);
         }
         // Arrival at a legal bedside is required. Both fighters remain physical participants.
         return worker.Action == AgentNavigationAction.Arrived && Near(origin.InitiatorId) && Near(origin.OpponentId);

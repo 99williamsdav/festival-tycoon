@@ -75,6 +75,16 @@ public sealed partial class GameSession
         var baseline = role == ResponseRole.Medic ? _medical!.MedicId : _disorder!.SecurityId;
         return ResponsePostHome(_preparation,role,id!=baseline);
     }
+    /// <summary>Current assigned work location, shared by arrivals, returns and consumption.</summary>
+    public GridCell? StaffAssignedPost(ulong id)
+    {
+        if (_preparation?.People.SingleOrDefault(person => person.AgentId == id)?.Role != ProtectedPersonRole.Staff) return null;
+        if (GetResponseStaff().SingleOrDefault(person => person.AgentId == id) is { } response)
+            return StaffDutyCell(id, response.Role);
+        if (_equipment?.WorkerId == id) return EquipmentWorkCell;
+        // The sound engineer's established listening/mixing location in the audience apron.
+        return PreparedPlace(Array.FindIndex(_preparation.People, person => person.AgentId == id));
+    }
     /// <summary>Derived presentation hint only: no job, route, hash or save state is changed.</summary>
     public ResponseRole? IdleResponseStaffRole(EntityId id, double renderedXMillimetres, double renderedZMillimetres)
     {

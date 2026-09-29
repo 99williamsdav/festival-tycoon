@@ -473,6 +473,7 @@ public partial class Main
         foreach (var label in _medicalCueLabels.Values) label.Visible = false;
         foreach (var cue in _medicalCuePlanner.Observe(medical, _session.CurrentTick))
         {
+            if (_hudAlerts is not null && cue.Urgent) continue;
             if (!_medicalCueLabels.TryGetValue(cue.AgentId, out var label) ||
                 !_attendeeVisuals.TryGetValue(new EntityId(cue.AgentId), out var visual)) continue;
             label.Text = cue.Text;

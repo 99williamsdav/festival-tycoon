@@ -14,7 +14,7 @@ public partial class Main
     private PanelContainer? _hudRoster;
     private PanelContainer? _hudProgramme;
     private PanelContainer? _hudPlacement;
-    private PanelContainer? _hudAlerts;
+    private Control? _hudAlerts;
     private PanelContainer? _hudDiagnostics;
     private Control? _hudPrototypeSection;
     private Control? _hudProgrammeBody;
@@ -42,7 +42,10 @@ public partial class Main
     private readonly Dictionary<string, VBoxContainer> _hudPages = [];
     private readonly List<Button> _hudAlertActions = [];
     private VBoxContainer? _hudAlertBox;
+    private readonly Festival.ContentAdapter.UrgentAlertDisplay _urgentAlertDisplay = new();
+    private readonly Dictionary<string, Action> _urgentAlertActions = [];
     private string _hudAlertKey = "uninitialized";
+    private readonly Dictionary<Control, (Vector2 Position, Vector2 Size, Vector2 Applied)> _alertClearance = [];
     private bool _hudWorkspaceOpen = true;
     private bool _hudProgrammeOpen = true;
     private bool _hudDevelopment;
@@ -114,7 +117,8 @@ public partial class Main
         _hudAttendance = LabelText("", 15, HudPaper); _hudAttendance.CustomMinimumSize = new Vector2(125, 0); topRow.AddChild(_hudAttendance);
         _hudWeather = LabelText("", 15, HudPaper); topRow.AddChild(_hudWeather);
         topRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
-        _hudAlertToggle = ButtonText("Alerts · 0", () => { _hudAlerts!.Visible = !_hudAlerts.Visible; }); topRow.AddChild(_hudAlertToggle);
+        _hudAlertToggle = ButtonText("Alerts · 0", () => { _urgentAlertDisplay.ShowNextPage(); RenderUrgentAlerts(); }); topRow.AddChild(_hudAlertToggle);
+        _hudAlertToggle.TooltipText = "Show current urgent alerts; press again for the next group. Select an alert to locate it.";
         _hudPause = ButtonText("Pause", () => { if (_session.Execute(CampaignEnvelope(new SetPausedCommand(!_session.IsPaused))).IsAccepted && RelaxedSaveCadence) MarkSaveDirty(); RefreshPreparationHud(); }); topRow.AddChild(_hudPause);
         if (_session.BuildModeEnabled) { _buildToggleButton = ButtonText("Build", ToggleBuildDrawer); topRow.AddChild(_buildToggleButton); }
         topRow.AddChild(ButtonText("Menu", () => { _hudMenu!.Visible = !_hudMenu.Visible; }));
@@ -266,9 +270,8 @@ public partial class Main
         if (_session.CaptureMedical() is not null) BuildMedicalControls(diagnosticBox);
         if (_session.CaptureDisorder() is not null) BuildDisorderControls(diagnosticBox);
 
-        _hudAlerts = HudPanel(layer, new Vector2(15, 70), new Vector2(370, 300)); _hudAlerts.Visible = false;
-        var alertScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, CustomMinimumSize = new Vector2(0, 240) }; _hudAlerts.AddChild(alertScroll);
-        _hudAlertBox = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; alertScroll.AddChild(_hudAlertBox);
+        _hudAlerts = new Control { Position = new Vector2(15, 70), Size = new Vector2(400, 130), MouseFilter = Control.MouseFilterEnum.Ignore, ZIndex = 20 }; layer.AddChild(_hudAlerts);
+        _hudAlertBox = new VBoxContainer { Size = new Vector2(400, 0), MouseFilter = Control.MouseFilterEnum.Ignore }; _hudAlerts.AddChild(_hudAlertBox);
         _hudRoster = HudPanel(layer, new Vector2(15, height - (_session.BuildModeEnabled ? 422 : 340)), new Vector2(330, 280)); _hudRoster.Visible = false;
         _preparationRosterScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _hudRoster.AddChild(_preparationRosterScroll);
         _preparationPeople = HudLabel("", 13); _preparationPeople.CustomMinimumSize = new Vector2(300, 0); _preparationRosterScroll.AddChild(_preparationPeople);
@@ -328,7 +331,7 @@ public partial class Main
         if (p.Status == PreparationStatus.Departing) _hudPhase.Text = "Lower Wittering\nDEPARTING · FESTIVAL FINISHED";
         _hudMoney.Text = $"MONEY\n{FestivalCurrency.Format(finance.CashPennies)}";
         _hudClock!.Text = preparing ? "FESTIVAL CLOCK\nNot started" : $"FESTIVAL CLOCK\n{HudTime(_session.CurrentTick - p.StartedTick)} / 08:00";
-        _hudAttendance!.Text = preparing ? $"ON SITE\n{_session.ExpectedPreparedPeopleCount} expected" : $"ON SITE\n{p.People.Count(person => person.Admitted && !person.Departed)} / {p.People.Length}";
+        _hudAttendance!.Text = $"Attendees\n{_session.OnSiteAttendeeCount} / {p.People.Count(person => person.Role == ProtectedPersonRole.Guest)}";
         _hudWeather!.Text = "WEATHER\n" + (_session.CaptureMedical() is { IsHot: true } ? "☀ Hot" : "Unavailable");
         _hudPause!.Visible = !preparing; _hudPause.Text = _preparationSaveBlocked ? "Save blocked" : _session.IsPaused ? "Resume" : "Pause";
         _hudPause.TooltipText = _preparationSaveBlocked ? "Simulation paused until the pending save succeeds. Open Menu → Retry save." : "Pause / resume (Space)";
@@ -445,34 +448,72 @@ public partial class Main
     private void RefreshHudAlerts()
     {
         var p = _session.CapturePreparation()!;
-        var alerts = new List<(string Text, Action Action)>();
+        var alerts = new List<Festival.ContentAdapter.UrgentAlert>();
+        void Add(string id, string text, int priority, Action action)
+        {
+            if (alerts.Any(alert => alert.Id == id && alert.Priority >= priority)) return;
+            alerts.RemoveAll(alert => alert.Id == id);
+            alerts.Add(new(id, text, priority)); _urgentAlertActions[id] = action;
+        }
         var onSite = p.People.Where(person => person.Admitted && !person.Departed).Select(person => person.AgentId).ToHashSet();
         if (_session.CaptureMedical() is { } medical)
             foreach (var need in medical.Needs.Where(n => onSite.Contains(n.AgentId) && n.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical))
             {
-                var target = need.AgentId; alerts.Add(($"{p.People.Single(person => person.AgentId == target).Name} · {need.Stage} · locate for care", () => HudLocatePerson(target)));
+                var target = need.AgentId; Add($"person:{target}", $"{p.People.Single(person => person.AgentId == target).Name}: {need.Stage} · locate", need.Stage == MedicalStage.Critical ? 100 : need.Stage == MedicalStage.Collapsed ? 95 : 70, () => HudLocatePerson(target));
             }
         if (_session.CaptureImmersion() is { } immersion)
             foreach (var person in immersion.People.Where(person => onSite.Contains(person.AgentId) && person.Intoxication >= 7500))
             {
-                var target = person.AgentId; alerts.Add(($"{p.People.Single(person => person.AgentId == target).Name} · heavy intoxication · locate for care", () => HudLocatePerson(target)));
+                var target = person.AgentId; Add($"person:{target}", $"{p.People.Single(person => person.AgentId == target).Name}: needs care · locate", 60, () => HudLocatePerson(target));
             }
         if (_session.CaptureDisorder() is { } disorder)
             foreach (var person in disorder.People.Where(person => onSite.Contains(person.AgentId) && person.Stage is DisorderStage.Argument or DisorderStage.Fight or DisorderStage.Injured))
             {
-                var target = person.AgentId; alerts.Add(($"{p.People.Single(person => person.AgentId == target).Name} · {person.Stage} · locate for help", () => HudLocatePerson(target)));
+                var target = person.AgentId; Add($"person:{target}", $"{p.People.Single(person => person.AgentId == target).Name}: {person.Stage} · locate", person.Stage == DisorderStage.Fight ? 90 : person.Stage == DisorderStage.Injured ? 85 : 50, () => HudLocatePerson(target));
             }
         if (_session.CaptureEquipment() is { Stage: EquipmentStage.Warning or EquipmentStage.DangerousFault })
-            alerts.Add(("Generator overload · inspect stage power", () => SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.trailer-stage"))));
+            Add("generator", "Generator overload · inspect power", 80, () => SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.trailer-stage")));
         _hudAlertToggle!.Text = alerts.Count == 0 ? "Alerts · 0" : $"{alerts.Count} urgent alert{(alerts.Count == 1 ? "" : "s")}";
-        var key = string.Join("|", alerts.Select(a => a.Text));
+        _urgentAlertDisplay.Observe(alerts);
+        RenderUrgentAlerts();
+    }
+
+    private void RenderUrgentAlerts()
+    {
+        if (_hudAlertBox is null) return;
+        var alerts = _urgentAlertDisplay.Visible();
+        foreach (var panel in new Control?[] { _buildDrawer, _hudWorkspace, _hudPlacement })
+        {
+            if (panel is null) continue;
+            if (!_alertClearance.TryGetValue(panel, out var layout) || panel.Position != layout.Applied)
+                layout = (panel.Position, panel.Size, panel.Position);
+            var y = alerts.Length == 0 ? layout.Position.Y : Math.Max(layout.Position.Y, 78 + alerts.Length * 32);
+            panel.Position = new Vector2(layout.Position.X, y);
+            // Scrollable preparation content keeps its original lower edge above the dock.
+            panel.Size = new Vector2(layout.Size.X, Math.Max(65, layout.Size.Y - (y - layout.Position.Y)));
+            _alertClearance[panel] = (layout.Position, layout.Size, panel.Position);
+        }
+        var key = string.Join("|", alerts.Select(a => a.Alert.Id + a.Alert.Text));
+        _hudAlerts!.Visible = alerts.Length > 0;
+        for (var i = 0; i < Math.Min(alerts.Length, _hudAlertActions.Count); i++)
+            _hudAlertActions[i].Modulate = new Color(1, 1, 1, alerts[i].Opacity);
         if (key == _hudAlertKey) return;
         _hudAlertKey = key;
         foreach (var child in _hudAlertBox!.GetChildren()) { _hudAlertBox.RemoveChild(child); child.QueueFree(); }
         _hudAlertActions.Clear();
-        _hudAlertBox.AddChild(HudLabel(alerts.Count == 0 ? "No current urgent alerts." : "Current alerts • select to locate", 14));
-        foreach (var alert in alerts) { var button = ButtonText(alert.Text, alert.Action); button.AddThemeFontSizeOverride("font_size", 12); button.ClipText = true; button.TooltipText = alert.Text; _hudAlertBox.AddChild(button); _hudAlertActions.Add(button); }
-        _hudAlerts!.Size = new Vector2(370, 300);
+        foreach (var entry in alerts)
+        {
+            var id = entry.Alert.Id;
+            var button = ButtonText(entry.Alert.Text, () => { if (_urgentAlertActions.TryGetValue(id, out var action)) action(); });
+            button.Alignment = HorizontalAlignment.Left; button.Flat = true; button.ClipText = true;
+            button.CustomMinimumSize = new Vector2(400, 28); button.TooltipText = entry.Alert.Text;
+            foreach (var state in new[] { "normal", "hover", "pressed", "focus", "disabled" }) button.AddThemeStyleboxOverride(state, new StyleBoxEmpty());
+            foreach (var state in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color" }) button.AddThemeColorOverride(state, new Color("fff3d3"));
+            button.AddThemeColorOverride("font_outline_color", new Color("202828")); button.AddThemeConstantOverride("outline_size", 5);
+            button.AddThemeFontSizeOverride("font_size", 16); button.Modulate = new Color(1, 1, 1, entry.Opacity);
+            _hudAlertBox.AddChild(button); _hudAlertActions.Add(button);
+        }
+        _hudAlerts.Size = new Vector2(400, alerts.Length * 32);
     }
 
     private void HudLocatePerson(ulong id)

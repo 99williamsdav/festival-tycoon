@@ -90,8 +90,8 @@ public partial class Main
             view.Body.Position = ImmersionPosition(toilet.Cell);
             view.Body.RotationDegrees = new Vector3(0, toilet.QuarterTurns * 90, 0);
             view.Door.RotationDegrees = new Vector3(0, toilet.DoorOpen ? -110 : 0, 0);
-            view.Free.Visible = toilet.OwnerId is null && toilet.InterruptedOccupantId is null && !toilet.IsFull;
-            view.Occupied.Visible = !view.Free.Visible;
+            view.Occupied.Visible = toilet.OccupiedIndicator;
+            view.Free.Visible = !toilet.OccupiedIndicator;
         }
         var primary = toilets.FirstOrDefault();
         var primaryView = primary is null ? null : _toiletViews[primary.Id];
@@ -135,8 +135,7 @@ public partial class Main
             $"Occupied by {_session.CapturePreparation()!.People.Single(p => p.AgentId == occupant).Name}" : "Free")}" +
             $"\nTank {toilet.UsedMillilitres / 1000m:0.0}/{toilet.CapacityMillilitres / 1000m:0.0} L • {toilet.FullPercent}% full" +
             $"\nWees {toilet.WeeCount} • poos {toilet.PooCount} • queue {toilet.Queue.Length}" +
-            $"\nFacing {toilet.QuarterTurns * 90}° • preparation placement only" +
-            "\nSmell rises with waste; containment is a future upgrade hook.";
+            "\nSmell rises as the tank fills.";
         _highlight.Position = selectedView.Body.Position + new Vector3(0, .08f, 0);
         _highlight.Scale = new Vector3(1.3f, 1, 1.5f); _highlight.Visible = true;
     }

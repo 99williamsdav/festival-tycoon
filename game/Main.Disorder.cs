@@ -75,6 +75,7 @@ public partial class Main
         }
         foreach (var cue in cues)
         {
+            if (_hudAlerts is not null && cue.Kind is DisorderCueKind.Argument or DisorderCueKind.Fight) continue;
             if (!_disorderCueLabels.TryGetValue(cue.AgentId, out var label) ||
                 !_attendeeVisuals.TryGetValue(new EntityId(cue.AgentId), out var visual)) continue;
             if (_medicalCueLabels.TryGetValue(cue.AgentId, out var medicalLabel)) medicalLabel.Visible = false;

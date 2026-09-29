@@ -60,6 +60,7 @@ public partial class Main
         var onSite = (_session.CapturePreparation()?.People ?? []).Where(p => p.Admitted && !p.Departed).Select(p => p.AgentId).ToHashSet();
         foreach (var person in state.People.Where(p => p.Intoxication >= 7500 && onSite.Contains(p.AgentId)))
         {
+            if (_hudAlerts is not null) continue;
             if (!_attendeeVisuals.TryGetValue(new EntityId(person.AgentId), out var body)) continue;
             if (_medicalCueLabels.TryGetValue(person.AgentId, out var medical) && medical.Visible ||
                 _disorderCueLabels.TryGetValue(person.AgentId, out var disorder) && disorder.Visible) continue;
@@ -330,10 +331,10 @@ public partial class Main
         if (_selectedImmersionVendor is not { } id || _session.CaptureImmersion() is not { } state || !_immersionVendors.TryGetValue(id, out var body)) return;
         var vendor = state.Vendors.Single(v => v.Id == id);
         _inspectorTitle.Text = id == "food" ? "Food van • chips" : "Drinks stall • soft drinks & beer";
-        _inspectorBody.Text = $"Physical FIFO • {vendor.Queue.Length} queued\n" +
+        _inspectorBody.Text = $"Queue: {vendor.Queue.Length}\n" +
             (vendor.OwnerId is { } owner ? $"Serving {_session.CapturePreparation()!.People.Single(p => p.AgentId == owner).Name} • {vendor.ServiceTicks / 80m:0.0}s remaining\n" : "Counter ready\n") +
-            $"Facing {vendor.QuarterTurns * 90}° • preparation placement only\n" +
-            (id == "food" ? $"Chips £3 • stock {state.ChipsStock}" : $"Soft £2 • stock {state.SoftStock}\nBeer £3 • stock {state.BeerStock}\nAbstainers and staff choose nonalcoholic options; heavy intoxication means no further beer.");
+            (id == "food" ? $"Chips {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Chips))} • stock {state.ChipsStock}" : $"Soft {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.SoftDrink))} • stock {state.SoftStock}\nBeer {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Beer))} • stock {state.BeerStock}\nNo beer for staff or heavily intoxicated customers.") +
+            "\nStaff & band: half price.";
         _highlight.Position = body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new Vector3(id == "food" ? 3.5f : 2, 1, id == "food" ? 3.5f : 2); _highlight.Visible = true;
     }
     private string ImmersionPersonInspectorText(ulong id)
@@ -372,7 +373,7 @@ public partial class Main
                     SetRoleBodyPose(body, AttendeePose.State(person.Held, hands, _session.ImmersionConsumptionEligible(person.AgentId)), person.Held?.Product);
                 SetImmersionHeldVisual(new(person.AgentId), body, person.Held is { } held ? ImmersionProductKey(held.Product) : null, hands, person.Intoxication, delta);
                 if (hands && person.Intoxication >= 5000)
-                    body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, Mathf.Sin((float)Time.GetTicksMsec() / 350f + person.AgentId) * .035f);
+                    body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, Mathf.Sin((float)_characterPresentationSeconds / .35f + person.AgentId) * .035f);
                 else if (Mathf.Abs(body.Rotation.X) < .1f) body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, 0);
             }
         RefreshImmersionVendorInspector();

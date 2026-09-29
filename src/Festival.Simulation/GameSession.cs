@@ -588,7 +588,7 @@ public sealed partial class GameSession
 
     private static string? ValidatePersistenceSnapshot(SessionPersistenceSnapshot snapshot)
     {
-        if (snapshot.Immersion is { } immersion && (immersion.People is null || immersion.Vendors is null || immersion.Purchases is null || immersion.People.Any(p=>p is null) || immersion.Vendors.Any(v=>v is null || v.Queue is null) || immersion.Purchases.Length>112 || immersion.Purchases.Any(p=>p is null || p.Entries is null || p.Entries.Any(e=>e is null) || !Enum.IsDefined(p.Product) || p.PricePennies!=ImmersionPrice(p.Product) || p.CostPennies!=ImmersionCost(p.Product)))) return "Immersion collections or transaction shape invalid.";
+if (snapshot.Immersion is { } immersion && (immersion.People is null || immersion.Vendors is null || immersion.Purchases is null || immersion.People.Any(p=>p is null) || immersion.Vendors.Any(v=>v is null || v.Queue is null) || immersion.Purchases.Length>112 || immersion.Purchases.Any(p=>p is null || p.Entries is null || p.Entries.Any(e=>e is null) || !Enum.IsDefined(p.Product) || p.PricePennies<0 || p.PricePennies>ImmersionPrice(p.Product) || p.CostPennies!=ImmersionCost(p.Product)))) return "Immersion collections or transaction shape invalid.";
         if (!Enum.IsDefined(typeof(SessionPhase), snapshot.Phase)) return $"Unknown session phase {snapshot.Phase}.";
         if (!string.Equals(snapshot.RandomAlgorithmVersion, Pcg32Random.AlgorithmVersion, StringComparison.Ordinal))
             return $"Random algorithm '{snapshot.RandomAlgorithmVersion}' is incompatible; expected '{Pcg32Random.AlgorithmVersion}'.";

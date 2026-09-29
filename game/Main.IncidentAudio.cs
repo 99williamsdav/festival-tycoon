@@ -54,7 +54,7 @@ public partial class Main
         EnsureIncidentAudio();
         var preparation = _session.CapturePreparation()!;
         var activeGuests = preparation.People.Count(item => item.Role == ProtectedPersonRole.Guest && item.Admitted && !item.Departed);
-        var crowdActive = !_stageMuted && !(_session.IsPaused || _preparationSaveBlocked) &&
+        var crowdActive = !_stageMuted &&
             preparation.Status == PreparationStatus.Running && activeGuests >= 3 && _ambientCrowd!.Stream is not null;
         if (crowdActive)
         {
@@ -62,7 +62,7 @@ public partial class Main
             var distance = new Vector2(_focus.X + 7f, _focus.Z - 13f).Length();
             var attenuation = Mathf.Clamp(1f - distance / 65f, 0.08f, 1f);
             _ambientCrowd!.VolumeDb = Mathf.LinearToDb(Math.Max(0.001f, 0.05f * attenuation));
-            if (!_ambientCrowd.Playing)
+            if (!_ambientCrowd.Playing && !_ambientCrowd.StreamPaused)
             {
                 _ambientCrowd.Play(); // Restarts the long recording after it ends.
                 if (!_ambientStartedLogged)

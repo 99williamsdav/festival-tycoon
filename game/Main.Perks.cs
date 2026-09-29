@@ -247,7 +247,7 @@ public partial class Main
             CaptureOwnedWorkspaceClosedScroll();
         }
         if (constrained)
-            height = Math.Min(height, size.Y - 60 - 220 - 10 - _hudWorkspace.Position.Y);
+            height = Math.Min(height, size.Y - 60 - 220 - 10 - 77);
         var bookingPage = _bookingLane is not null && HudProgrammeSelected();
         if (bookingPage && !constrained) height = Math.Min(660, size.Y - (_session.BuildModeEnabled && _session.PreparedStatus == PreparationStatus.Preparing ? 210 : 138));
         _hudWorkspace.Position = bookingPage && !constrained ? new Vector2(16, 72) : new Vector2(15, 77);

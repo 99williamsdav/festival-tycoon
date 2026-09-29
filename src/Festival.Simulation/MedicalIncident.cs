@@ -624,6 +624,11 @@ public sealed partial class GameSession
             ApplyAgentDestination(new(id), new(PreparedStart(index), "edition.departure"));
             return;
         }
+        if (StaffAssignedPost(id) is { } duty)
+        {
+            ApplyAgentDestination(new(id), new(duty, "staff.return-to-post"));
+            return;
+        }
         var place = _livePerformance?.Listeners.SingleOrDefault(item => item.AgentId == id)?.Place;
         if (place is { } cell) ApplyAgentDestination(new(id), new(cell, "performance.listen"));
         else if (_livePerformance?.Performers.SingleOrDefault(item => item.AgentId == id) is { } performer &&
