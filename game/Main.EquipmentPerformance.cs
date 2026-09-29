@@ -164,6 +164,16 @@ public partial class Main
 
     public override void _ExitTree()
     {
+        if (_cadenceSaveTask is { } cadence)
+        {
+            try
+            {
+                var result = cadence.GetAwaiter().GetResult();
+                if (!result.IsSuccess) GD.PushError("Pending background save failed during shutdown: " + result.Error);
+            }
+            catch (Exception error) { GD.PushError("Pending background save did not complete during shutdown: " + error); }
+            _cadenceSaveTask = null;
+        }
         if (_draftSavePipeline is { HasPending: true } draft)
         {
             var result = draft.FinishPending();

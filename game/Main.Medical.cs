@@ -221,7 +221,7 @@ public partial class Main
         if (moved || before.ExtraWaterSiteIds.Length < after.ExtraWaterSiteIds.Length)
         {
             CancelWaterPlacement();
-            _preparationMessage = "Tap placement committed and autosaved.";
+            _preparationMessage = RelaxedSaveCadence ? "Tap placed; next timed save pending." : "Tap placement committed and autosaved.";
             RefreshPreparationHud();
         }
     }
@@ -663,13 +663,21 @@ public partial class Main
             { _preparationMessage = issue!; RefreshPreparationHud(); return; }
             command = roleCommand;
         }
-        var result = MedicalCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility,
+        var relaxed = RelaxedSaveCadence;
+        PreparationAdvanceResult result;
+        if (relaxed)
+        {
+            var accepted = ExecuteWithoutImmediateSave(command, out var error);
+            result = new(accepted, _session, null, error);
+        }
+        else result = MedicalCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility,
             DateTimeOffset.UtcNow, _autosaveGeneration);
         if (result.IsSuccess)
         {
-            _session = result.Session; _autosaveGeneration++;
+            _session = result.Session;
+            if (!relaxed) _autosaveGeneration++;
             _preparationSaveBlocked = false;
-            _preparationMessage = "Medical action committed and autosaved.";
+            _preparationMessage = relaxed ? "Medical action applied; next background save is within 30 unpaused seconds." : "Medical action committed and autosaved.";
         }
         else { _preparationMessage = result.Error!; if (result.Autosave is not null) _preparationSaveBlocked = true; }
         RefreshPreparationHud();

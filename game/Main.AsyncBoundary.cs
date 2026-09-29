@@ -24,7 +24,8 @@ public partial class Main
     private long _boundarySourceGeneration;
     private string _boundarySourceHash = "";
     private bool _cameraProfileFailureInjected;
-    private bool UseResponsiveBoundarySaves => _cameraProfileOutput is not null || OS.GetCmdlineUserArgs().Length == 0;
+    private bool UseResponsiveBoundarySaves => !RelaxedSaveCadence &&
+        (_cameraProfileOutput is not null || OS.GetCmdlineUserArgs().Length == 0);
     private static bool BoundaryOnNextTick(GameSession session) => session.ImmersionBoundaryOnNextTick ||
         session.PreparationBoundaryOnNextTick || session.EquipmentBoundaryOnNextTick ||
         session.LivePerformanceBoundaryOnNextTick || session.MedicalBoundaryOnNextTick || session.DisorderBoundaryOnNextTick;
@@ -192,6 +193,7 @@ public partial class Main
 
     private bool RejectActionDuringBoundarySave()
     {
+        if (RelaxedSaveCadence) return false;
         if (_boundarySaveTask is null && _periodicSaveTask is null) return false;
         _preparationMessage = "Saving the campaign; try again in a moment.";
         RefreshPreparationHud();
@@ -200,6 +202,7 @@ public partial class Main
 
     private bool RejectActionDuringDraftSave()
     {
+        if (RelaxedSaveCadence) return false;
         if (_draftSavePipeline?.HasPending != true) return false;
         _preparationMessage = "Staff changes are saving; this other action can be retried when they finish.";
         RefreshPreparationHud();

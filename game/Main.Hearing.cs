@@ -306,15 +306,23 @@ public partial class Main
         var command = _pendingHearingDecision;
         _pendingHearingDecision = null;
         _hearingModalShade!.Visible = false;
-        var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
-        if (!result.IsSuccess)
+        if (RelaxedSaveCadence)
         {
-            _preparationMessage = result.Error!;
-            RefreshPreparationHud();
-            return;
+            if (!ExecuteMilestoneCommand(command, "Council decision", out var error))
+            { _preparationMessage = error ?? _preparationMessage; RefreshPreparationHud(); return; }
         }
-        _session = result.Session;
-        _autosaveGeneration++;
+        else
+        {
+            var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
+            if (!result.IsSuccess)
+            {
+                _preparationMessage = result.Error!;
+                RefreshPreparationHud();
+                return;
+            }
+            _session = result.Session;
+            _autosaveGeneration++;
+        }
         _preparationSaveBlocked = false;
         _preparationMessage = command is SpendCouncilFavourCommand ? "Council Favour spent. Prepare this tier’s next weekend." : "The campaign has ended.";
         if (command is SpendCouncilFavourCommand)

@@ -81,6 +81,14 @@ public partial class Main
     {
         if (_session.CapturePreparationPlan() is { Committed: false } plan)
         {
+            if (RelaxedSaveCadence && (id.StartsWith("staff.", StringComparison.Ordinal) || id == "maintenance.worker"))
+            {
+                var command = plan.OfferIds.Contains(id) ? (SessionCommand)new RemovePreparationOfferCommand(id) : new AcceptPreparationOfferCommand(id);
+                var accepted = ExecuteWithoutImmediateSave(command, out var error);
+                _preparationMessage = accepted ? "Staff plan updated; saves every 30 unpaused seconds and at opening." : error ?? "Staff plan was not changed.";
+                RefreshPreparationHud();
+                return;
+            }
             if (_session.BuildModeEnabled && (OS.GetCmdlineUserArgs().Length == 0 || _cameraProfileMode == "staff-draft") &&
                 (id.StartsWith("staff.", StringComparison.Ordinal) || id == "maintenance.worker"))
             {
@@ -119,14 +127,22 @@ public partial class Main
         CancelToiletPlacement();
         CancelWaterPlacement();
         CancelResponsePostPlacement();
-        var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, new StartPreparedEditionCommand(),
-            _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
-        if (!result.IsSuccess) { _preparationMessage = result.Error!; RefreshPreparationHud(); return; }
-        _autosaveGeneration++; _session = result.Session;
+        if (RelaxedSaveCadence)
+        {
+            if (!ExecuteMilestoneCommand(new StartPreparedEditionCommand(), "Festival start", out var error))
+            { _preparationMessage = error ?? _preparationMessage; RefreshPreparationHud(); return; }
+        }
+        else
+        {
+            var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, new StartPreparedEditionCommand(),
+                _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
+            if (!result.IsSuccess) { _preparationMessage = result.Error!; RefreshPreparationHud(); return; }
+            _autosaveGeneration++; _session = result.Session;
+        }
         _draftSavePipeline = null;
         ResetLivePerformancePresentation();
         BuildAttendee(); _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
-        _preparationMessage = "Autosaved. Everyone now walks into the field.";
+        _preparationMessage = "Festival start saved. Everyone now walks into the field.";
         RefreshPreparationHud();
     }
 
@@ -143,6 +159,12 @@ public partial class Main
     {
         if (RejectActionDuringDraftSave()) return;
         if (RejectActionDuringBoundarySave()) return;
+        if (RelaxedSaveCadence && _cadenceSaveTask is not null)
+        {
+            try { _cadenceSaveTask.GetAwaiter().GetResult(); }
+            catch { /* Poll reports the failure before the loaded session replaces this one. */ }
+            PollCadenceSave();
+        }
         CancelBuildPlacement();
         CancelResponsePostPlacement();
         CancelImmersionPlacement(); ResetImmersionHeldVisuals();
@@ -174,6 +196,7 @@ public partial class Main
             if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();
             _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
             _preparationSaveBlocked = false;
+            if (RelaxedSaveCadence) { MarkSaveDirty(); _autosaveScheduler.Rebase(); ClearCadenceSaveError(); }
             if (previousProgrammeMode != (_session.CaptureProgramme() is not null) || previousImmersionMode != (_session.CaptureImmersion() is not null)) RebuildPreparationOffers();
             _preparationMessage = "Loaded with the same offers, ownership and physical roster.";
         }
@@ -290,6 +313,7 @@ public partial class Main
     private void AdvancePreparationPresentation(double delta)
     {
         var workStarted = Stopwatch.GetTimestamp();
+        if (RelaxedSaveCadence) PollCadenceSave();
         if (_draftSavePipeline is { } draft)
         {
             var update = draft.Poll();
@@ -313,8 +337,26 @@ public partial class Main
             _session.CapturePreparation()!.Status is not (PreparationStatus.Running or PreparationStatus.Departing);
         var ticks = _foundationClock.Schedule(delta);
         if (_equipmentPerformanceOutput is not null) _equipmentScheduledTicks = ticks;
+        var previousStatus = _session.PreparedStatus;
+        var hadResult = _session.CompletedFestivalResult is not null;
         for (var tick = 0; tick < ticks; tick++)
         {
+            if (RelaxedSaveCadence)
+            {
+                _session.AdvanceWithoutSnapshot(1);
+                _foundationPresentation.Advance(_session.CaptureObservation());
+                MarkSaveDirty();
+                var failed = previousStatus != PreparationStatus.Failed && _session.PreparedStatus == PreparationStatus.Failed;
+                var finished = !hadResult && _session.CompletedFestivalResult is not null;
+                if (failed || finished)
+                {
+                    SaveCadenceMilestone(failed ? "Failure" : "Results");
+                    break;
+                }
+                previousStatus = _session.PreparedStatus;
+                hadResult = _session.CompletedFestivalResult is not null;
+                continue;
+            }
             if (UseResponsiveBoundarySaves && BoundaryOnNextTick(_session))
             {
                 if (_boundaryPendingSaves.Count >= 16)
@@ -384,7 +426,8 @@ public partial class Main
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceIncidentAudioPresentation();
         ProcessLivePerformanceCapture();
-        if (_boundarySaveTask is null && _periodicSaveTask is null &&
+        if (RelaxedSaveCadence) AdvanceCadenceSave(delta);
+        else if (_boundarySaveTask is null && _periodicSaveTask is null &&
             _session.PreparedStatus is (PreparationStatus.Running or PreparationStatus.Departing) && _autosaveScheduler.Advance(delta))
         {
             StartPeriodicAutosave();

@@ -104,7 +104,9 @@ public partial class Main
         var rejected = _session.ValidateCommand(CampaignEnvelope(new SetProgrammeCommand(_programmeDraft.ToArray())));
         _programmeBook!.Text = booked ? "SAVE ACT ORDER • NO EXTRA FEE" : $"BOOK THREE ACTS • £{total / 100}";
         _programmeBook.Disabled = rejected is not null;
-        _programmeBook.TooltipText = rejected?.Message ?? "Atomic booking/order; autosave must succeed before any payment or change applies.";
+        _programmeBook.TooltipText = rejected?.Message ?? (RelaxedSaveCadence
+            ? "Update the unpaid lineup now; changed state saves every 30 unpaused seconds and at opening."
+            : "Atomic booking/order; autosave must succeed before any payment or change applies.");
         _programmeBook.Visible = p.Status == PreparationStatus.Preparing && !editable;
         _programmeSummary!.Text = booked
             ? string.Join("\n", programme.ActIds.Select((id, slot) => $"{slot + 1}. {acts.Single(act => act.Id == id).Name} • {FestivalGenreName(acts.Single(act => act.Id == id).Genre)}")) +

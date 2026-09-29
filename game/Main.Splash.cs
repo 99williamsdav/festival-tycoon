@@ -68,6 +68,8 @@ public partial class Main
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;
             _session = next;
             _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
+            _cadenceSaveTask = null; _cadenceDue = false; _saveRevision = 1; _savedRevision = 0;
+            ClearCadenceSaveError();
             _autosaveScheduler.Rebase(); _preparationSaveBlocked = false;
             _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
             _pausedHash = _foundationPublishedHash = _session.CaptureSnapshot().AuthoritativeHash;

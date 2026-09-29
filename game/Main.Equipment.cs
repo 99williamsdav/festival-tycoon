@@ -62,17 +62,25 @@ public partial class Main
     {
         if (RejectActionDuringDraftSave()) return;
         var actionSaveDirectory = _buildCaptureDirectory is null ? SaveDirectory : Path.Combine(_buildCaptureDirectory, "saves");
-        var result = EquipmentCommandCoordinator.Execute(actionSaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration, _planCaptureFailureInjector);
+        var relaxed = RelaxedSaveCadence;
+        PreparationAdvanceResult result;
+        if (relaxed)
+        {
+            var accepted = ExecuteWithoutImmediateSave(command, out var error);
+            result = new(accepted, _session, null, error);
+        }
+        else result = EquipmentCommandCoordinator.Execute(actionSaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration, _planCaptureFailureInjector);
         if (result.IsSuccess)
         {
-            _session = result.Session; _autosaveGeneration++;
+            _session = result.Session;
+            if (!relaxed) _autosaveGeneration++;
             _draftSavePipeline = null;
             if(command is MoveResponsePostCommand)SyncResponsePosts();
             if (command is ChoosePerkCommand or ApplyWaterFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand)
                 SyncExtraWaterWorld();
             if (command is PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand) SyncImmersionWorld();
             _preparationSaveBlocked = false;
-            _preparationMessage = "Action committed and autosaved.";
+            _preparationMessage = relaxed ? "Plan updated; saves every 30 unpaused seconds and at opening." : "Action committed and autosaved.";
             if (command is ChoosePerkCommand && _session.BuildModeEnabled)
             {
                 if (_session.CapturePreparation()?.Attempt == 1) OpenBuildCatalogue();
@@ -92,7 +100,8 @@ public partial class Main
             (e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? $"GENERATOR OVERLOAD • {left / 80m:0.0}s to lethal eligibility at 1×\n" : e.Stage == EquipmentStage.Normal ? "Visible load exceeds capacity before any alarm.\n" : "Unit made safe; no further escalation.\n") +
             $"{e.Response}\nMaintenance: {e.JobStage}. Repair needs arrival + 20s.";
         if (e.Stage == EquipmentStage.Terminal)
-            _equipmentSummary.Text = "WEEKEND ENDED • COUNCIL HEARING\n" + StewardWording(_session.CaptureLifecycleSnapshot()!.Casualties.Last().Cause) + "\nThe hearing has been saved.";
+            _equipmentSummary.Text = "WEEKEND ENDED • COUNCIL HEARING\n" + StewardWording(_session.CaptureLifecycleSnapshot()!.Casualties.Last().Cause) +
+                (RelaxedSaveCadence ? (_cadenceSaveError ? "\nSave failed; use the visible Retry save control." : "\nThe failure checkpoint has been saved.") : "\nThe hearing has been saved.");
         if (_equipmentCaptureMode == "escalate" && _equipmentCaptureDirectory is not null)
             _equipmentSummary.Text = "LABELLED IGNORED-RESPONSE FIXTURE\n" + _equipmentSummary.Text;
         foreach (var (action, button) in _equipmentButtons)

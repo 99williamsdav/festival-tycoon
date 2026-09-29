@@ -59,7 +59,17 @@ public partial class Main
         column.AddChild(HearingRule());
         var footer = new HBoxContainer(); column.AddChild(footer);
         footer.AddChild(Text("Demo complete\nAll guests have left. Thanks for playing.", 18));
-        var menu = ButtonText("Return to menu", () => { _newCampaignOnEnter = true; _festivalPaper?.QueueFree(); _festivalPaper = null; BuildStartSplash(); });
+        Button? menu = null;
+        menu = ButtonText("Return to menu", () =>
+        {
+            if (RelaxedSaveCadence && !SaveCadenceMilestone("Return to menu"))
+            {
+                menu!.Text = "Save failed · retry menu";
+                menu.TooltipText = _preparationMessage;
+                return;
+            }
+            _newCampaignOnEnter = true; _festivalPaper?.QueueFree(); _festivalPaper = null; BuildStartSplash();
+        });
         menu.Name = "ReturnToMenu";
         menu.CustomMinimumSize = new Vector2(185, 48); footer.AddChild(menu);
     }

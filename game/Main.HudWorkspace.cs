@@ -115,7 +115,7 @@ public partial class Main
         _hudWeather = LabelText("", 15, HudPaper); topRow.AddChild(_hudWeather);
         topRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
         _hudAlertToggle = ButtonText("Alerts · 0", () => { _hudAlerts!.Visible = !_hudAlerts.Visible; }); topRow.AddChild(_hudAlertToggle);
-        _hudPause = ButtonText("Pause", () => { _session.Execute(CampaignEnvelope(new SetPausedCommand(!_session.IsPaused))); RefreshPreparationHud(); }); topRow.AddChild(_hudPause);
+        _hudPause = ButtonText("Pause", () => { if (_session.Execute(CampaignEnvelope(new SetPausedCommand(!_session.IsPaused))).IsAccepted && RelaxedSaveCadence) MarkSaveDirty(); RefreshPreparationHud(); }); topRow.AddChild(_hudPause);
         if (_session.BuildModeEnabled) { _buildToggleButton = ButtonText("Build", ToggleBuildDrawer); topRow.AddChild(_buildToggleButton); }
         topRow.AddChild(ButtonText("Menu", () => { _hudMenu!.Visible = !_hudMenu.Visible; }));
 

@@ -288,13 +288,21 @@ public partial class Main
             { _preparationMessage = issue!; RefreshPreparationHud(); return; }
             command = roleCommand;
         }
-        var result = DisorderCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility,
+        var relaxed = RelaxedSaveCadence;
+        PreparationAdvanceResult result;
+        if (relaxed)
+        {
+            var accepted = ExecuteWithoutImmediateSave(command, out var error);
+            result = new(accepted, _session, null, error);
+        }
+        else result = DisorderCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility,
             DateTimeOffset.UtcNow, _autosaveGeneration);
         if (result.IsSuccess)
         {
-            _session = result.Session; _autosaveGeneration++;
+            _session = result.Session;
+            if (!relaxed) _autosaveGeneration++;
             _preparationSaveBlocked = false;
-            _preparationMessage = "Disorder action committed and autosaved.";
+            _preparationMessage = relaxed ? "Disorder action applied; next background save is within 30 unpaused seconds." : "Disorder action committed and autosaved.";
         }
         else { _preparationMessage = StewardWording(result.Error!); if (result.Autosave is not null) _preparationSaveBlocked = true; }
         RefreshPreparationHud();

@@ -84,10 +84,11 @@ public partial class Main
         if (!ReadBookingPayload(payload, out var id, out var source)) { _bookingDurableMessage = "Invalid band payload; lineup retained."; RefreshBookingControls(); return; }
         var preview = _session.PreviewLineupEdit(id, source, slot, remove);
         if (!preview.IsValid || preview.IsNoOp) { _bookingDurableMessage = preview.Message; RefreshBookingControls(); return; }
-        var prior = _session;
+        var priorHash = _session.CaptureSnapshot().AuthoritativeHash;
         CommitEquipmentAction(new SetProgrammeCommand(preview.ActIds));
-        _bookingDurableMessage = ReferenceEquals(prior, _session) ? _preparationMessage : preview.Message + " · Unpaid plan saved.";
-        if (!ReferenceEquals(prior, _session)) _bookingSelected = null;
+        var changed = _session.CaptureSnapshot().AuthoritativeHash != priorHash;
+        _bookingDurableMessage = changed ? preview.Message + (RelaxedSaveCadence ? " · Unpaid plan updated; next timed save pending." : " · Unpaid plan saved.") : _preparationMessage;
+        if (changed) _bookingSelected = null;
         RefreshBookingControls();
     }
     private static float BookingColumnMin(int column) => column switch

@@ -153,10 +153,10 @@ public sealed class FoundationPresentationInterpolator
     }
 }
 
-/// <summary>Presentation-side monotonic real-time cadence, independent of simulation speed and pause.</summary>
+/// <summary>Presentation-side real-time cadence, independent of simulation speed; the caller omits paused time.</summary>
 public sealed class RealTimeAutosaveScheduler
 {
-    public const double ProductionCadenceSeconds = 300;
+    public const double ProductionCadenceSeconds = 30;
     private double _elapsedSeconds;
     public double CadenceSeconds { get; }
 

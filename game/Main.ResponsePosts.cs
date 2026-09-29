@@ -72,7 +72,7 @@ public partial class Main
         if(hadPreview)
         {
             _hoveredColliderId=0;_hoverHighlight.Visible=false;
-            _preparationMessage=committed?"Response post moved and autosaved.":"Response post movement cancelled.";
+            _preparationMessage=committed?(RelaxedSaveCadence?"Response post moved; next timed save pending.":"Response post moved and autosaved."):"Response post movement cancelled.";
             RefreshPreparationHud();
         }
     }
@@ -90,7 +90,7 @@ public partial class Main
         _postPreview.Position=ImmersionPosition(cell);_postPreview.RotationDegrees=new(0,_postQuarterTurns*90,0);_postPreview.Visible=true;
         _postPreviewLabel!.RotationDegrees=new(0,-_postQuarterTurns*90,0);
         _postPreviewLabel.Text=_postIssue is null?"VALID • CLICK TO MOVE":"INVALID";
-        _preparationMessage=_postIssue??"Valid response post site • click to move and autosave.";RefreshPreparationHud();
+        _preparationMessage=_postIssue??(RelaxedSaveCadence?"Valid response post site • click to move; next timed save pending.":"Valid response post site • click to move and autosave.");RefreshPreparationHud();
         var color=_postIssue is null?new Color(.25f,.78f,.38f,.4f):new Color(.9f,.24f,.18f,.4f);
         var extent=role==ResponseRole.Medic?3.5f:2.5f;
         _postFootprintPreview!.Mesh=new BoxMesh {Size=new(extent,.035f,extent)};
@@ -104,8 +104,8 @@ public partial class Main
     {
         UpdateResponsePostPreview(screen);
         if(_movingResponsePost is not {} role || _postCandidate is not {} cell || _postIssue is not null)return;
-        var previousSession=_session;
+        var previousHash=_session.CaptureSnapshot().AuthoritativeHash;
         CommitEquipmentAction(new MoveResponsePostCommand(role,cell,_postQuarterTurns));
-        if(!ReferenceEquals(previousSession,_session) && _session.CaptureResponsePost(role)==new ResponsePostPlacement(cell,_postQuarterTurns))CancelResponsePostPlacement(true);
+        if(_session.CaptureSnapshot().AuthoritativeHash!=previousHash && _session.CaptureResponsePost(role)==new ResponsePostPlacement(cell,_postQuarterTurns))CancelResponsePostPlacement(true);
     }
 }
