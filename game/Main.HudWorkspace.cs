@@ -198,7 +198,7 @@ public partial class Main
         statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
         _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
         Perks.Build(layer);
-        Hearing.Build(layer); BuildBuildDrawer(layer, size); BuildPreparationDock(layer, size); RefreshPreparationHud();
+        Hearing.Build(layer); BuildBuildDrawer(layer, size); Dock.Build(layer, size); RefreshPreparationHud();
     }
 
     private static void ConstrainHudControls(Node root)
@@ -316,7 +316,7 @@ public partial class Main
         }
         RefreshHudAlerts();
         RefreshBuildDrawer();
-        RefreshPreparationDock();
+        Dock.Refresh();
     }
 
     private void RefreshHudPreparationReadiness()
@@ -433,7 +433,7 @@ public partial class Main
         if(Perks.EffectPopup?.Visible==true && Perks.EffectPopup.GetGlobalRect().HasPoint(screen))return true;
         if (_hudMoney is null) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
         if (screen.Y < 60 || screen.Y > GetViewport().GetVisibleRect().Size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? 128 : 54)) return true;
-        return new Control?[] { _hudWorkspace, _buildDrawer, _buildBudgetFooter, _preparationReadiness, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
+        return new Control?[] { _hudWorkspace, _buildDrawer, _buildBudgetFooter, Dock.Readiness, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
             .Any(control => control?.IsVisibleInTree() == true && control.GetGlobalRect().HasPoint(screen));
     }
 }
