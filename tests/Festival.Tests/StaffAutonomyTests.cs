@@ -31,7 +31,7 @@ public sealed class StaffAutonomyTests
         Assert.AreEqual(PreparationStatus.Running, s.PreparedStatus);
         Assert.IsTrue(s.CapturePreparation()!.People.Where(person => person.Role != ProtectedPersonRole.Performer).All(person => person.Admitted)); return Restore(s);
     }
-    private static ulong[] Guests(GameSession s) => s.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.AgentId != s.CaptureMedical()!.AtRiskGuestId).Take(4).Select(person => person.AgentId).ToArray();
+    private static ulong[] Guests(GameSession s) => s.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.AgentId != BuildSession.LastGuest(s)).Take(4).Select(person => person.AgentId).ToArray();
     private static void Incidents(GameSession s, params (ulong Id, MedicalStage Stage, long Collapse)[] incidents)
     {
         var m = s.CaptureMedical()!;
@@ -179,7 +179,7 @@ public sealed class StaffAutonomyTests
     public void CriticalBeforeCollapsedThenDeadlineAndStableIdWithoutRemoteTreatment()
     {
         var s = Started(); var ids = Guests(s);
-        Incidents(s, (ids[0], MedicalStage.Collapsed, 20), (ids[1], MedicalStage.Critical, 90), (ids[2], MedicalStage.Critical, 80));
+        var origin = s.CurrentTick - 100; Incidents(s, (ids[0], MedicalStage.Collapsed, origin + 20), (ids[1], MedicalStage.Critical, origin + 90), (ids[2], MedicalStage.Critical, origin + 80));
         s.AdvanceWithoutSnapshot(1);
         var job = s.GetMedicResponses().Single(); Assert.AreEqual(ids[2], job.PatientId); Assert.AreEqual(MedicalResponseStage.Travelling, job.Stage);
         Assert.AreEqual(MedicalStage.Critical, s.CaptureMedical()!.Needs.Single(need => need.AgentId == ids[2]).Stage);
@@ -299,7 +299,7 @@ public sealed class StaffAutonomyTests
     public void OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted()
     {
         var s = Started(); var ids = Guests(s); var m = s.CaptureMedical()!;
-        Set(s, "MedicalView", m with { Needs = m.Needs.Select(need => need.AgentId == ids[0] ? need with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick } : need).ToArray() });
+        Set(s, "MedicalView", m with { Needs = m.Needs.Select(need => need.AgentId == ids[0] ? need with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick, Thirst = 10_000, HeatExposure = 10_000 } : need).ToArray() });
         s.AdvanceWithoutSnapshot(1); Assert.AreEqual(MedicalResponseStage.None, s.GetMedicResponses().Single().Stage); Assert.AreEqual(0, s.CaptureStaffInterventions().Count);
         var medic = s.GetResponseStaff().Single(worker => worker.Role == ResponseRole.Medic).AgentId;
         Accept(s, new StaffInterventionCommand(ids[0], medic, StaffInterventionAction.EscortOut));

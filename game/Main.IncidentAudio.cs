@@ -99,7 +99,9 @@ public partial class Main
 
     private Vector2 MedicalDeathPosition()
     {
-        var id = _session.CaptureMedical()!.AtRiskGuestId;
+        // The latest casualty; casualty records name the person.
+        var victim = _session.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.PersonId;
+        var id = _session.CapturePreparation()!.People.FirstOrDefault(person => person.Name == victim)?.AgentId ?? 0;
         var patient = _session.CaptureObservation().NavigationAgents.Single(item => item.Id.Value == id);
         return new Vector2(patient.XMillimetres / 1000f, patient.ZMillimetres / 1000f);
     }

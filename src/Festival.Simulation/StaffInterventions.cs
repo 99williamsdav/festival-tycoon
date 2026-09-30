@@ -14,8 +14,7 @@ public sealed partial class GameSession
     public IReadOnlyList<StaffInterventionJob> CaptureStaffInterventions() => _medical?.StaffInterventions.ToArray() ?? [];
     private static bool InterventionBusy(StaffInterventionJob job) => job.Stage is StaffInterventionStage.Travelling or StaffInterventionStage.Guiding or StaffInterventionStage.Escorting;
     private bool PersonCollapsed(ulong id) => _medical is { } m &&
-        (PersonIn(PersonView.Medical, id) is { HealthStage: MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal } ||
-         id == m.AtRiskGuestId && m.Stage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal);
+        PersonIn(PersonView.Medical, id) is { HealthStage: MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal };
     private bool MovementOccupant(ulong id) => !PersonCollapsed(id) && !GuestWaitingForRelease(id) &&
         PersonIn(PersonView.Roster, id)?.Departed != true;
     private void SetIntervention(StaffInterventionJob job) => _medical = _medical! with
@@ -40,7 +39,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Both people must be physically on site and the worker available.");
         if (HasClaim(command.WorkerId, PersonClaims.ResponseAssigned) || HasClaim(command.GuestId, PersonClaims.ResponseAssigned))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This worker or target already owns an independent response.");
-        if (PersonCollapsed(command.GuestId) || need.HealthStage == MedicalStage.Removed || m.Stage == MedicalStage.Terminal ||
+        if (PersonCollapsed(command.GuestId) || need.HealthStage == MedicalStage.Removed || m.Fatal ||
             PersonIn(PersonView.Disorder, command.GuestId)?.ConductStage is DisorderStage.Fight or DisorderStage.Injured)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Resolve active confrontation or give physical first aid before guidance or escort.");
         if ((command.Action is StaffInterventionAction.GuideToWater or StaffInterventionAction.LeaveWaterQueue) && worker.Role != ResponseRole.Steward ||
@@ -51,13 +50,12 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Free water is closed or unreachable.");
         if (command.Action == StaffInterventionAction.LeaveWaterQueue && need.Intent is not (MedicalIntent.SeekWater or MedicalIntent.Drinking))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Only an actual water visitor can be asked to leave its queue.");
-        if (command.Action == StaffInterventionAction.GuideToRest && command.GuestId != m.AtRiskGuestId && need.NeedProfile != MedicalNeedProfile.Performer)
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This bounded rest point supports the at-risk guest and performers.");
+        if (command.Action == StaffInterventionAction.GuideToRest && need.NeedProfile == MedicalNeedProfile.Staff)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "The first-aid rest point is for guests and performers.");
         if (command.Action == StaffInterventionAction.GuideToRest && !MedicalRouteExists(command.GuestId, MedicalRestCell) ||
             command.Action == StaffInterventionAction.EscortOut && !MedicalRouteExists(command.GuestId, MedicalExitCell))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "The person's destination is not reachable.");
         if (command.Action == StaffInterventionAction.EscortOut && need.HealthStage != MedicalStage.Distress &&
-            !(command.GuestId == m.AtRiskGuestId && m.Stage == MedicalStage.Distress) &&
             PersonIn(PersonView.Disorder, command.GuestId)?.ConductStage is not (DisorderStage.Complaint or DisorderStage.Agitated or DisorderStage.Argument))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Escort is an affected-person intervention, not a no-warning festival closure.");
         if (MedicalResponseCell(command.WorkerId, command.GuestId) is null)
@@ -190,7 +188,6 @@ public sealed partial class GameSession
                 continue;
             }
             MutatePerson(job.GuestId, need => { need.HealthStage = MedicalStage.Removed; need.Reason = "Named escort physically completed at the gate"; });
-            if (job.GuestId == _medical.AtRiskGuestId) _medical = _medical with { Stage = MedicalStage.Removed };
             MutatePerson(job.GuestId, person => person.Departed = true);
             if (InView(PersonView.Disorder, job.GuestId))
                 MutatePerson(job.GuestId, person => { person.ConductStage = DisorderStage.Resolved; person.Pressure = 0; person.OpponentId = null; person.Grievance = DisorderGrievance.None; });

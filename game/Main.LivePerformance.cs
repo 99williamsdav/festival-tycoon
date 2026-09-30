@@ -213,7 +213,7 @@ public partial class Main
             $"POSITION  {navigation.XMillimetres / 1000.0:0.00} m, {navigation.ZMillimetres / 1000.0:0.00} m\n" +
             $"Admitted {person.Admitted}\n" +
             (need is null ? "" : $"HOT • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}% • " +
-                $"{(need.Profile == MedicalNeedProfile.Performer ? need.Stage : id.Value == medical!.AtRiskGuestId ? medical.Stage : need.Stage)}\n" +
+                $"{need.Stage}\n" +
                 $"INTENT {need.Intent} • {StewardWording(need.Reason)}\n" +
                 (_session.CaptureWaterPoints().Any(point => point.OwnerId == id.Value)
                     ? $"DRINKING • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n"

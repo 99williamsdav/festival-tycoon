@@ -102,8 +102,8 @@ public sealed class FestivalProgrammeTests
         while (s.CurrentTick < GameSession.PreparedDayTicks)
         {
             s.AdvanceWithoutSnapshot(1);
-            if (!guided && s.CapturePreparation()!.People.Single(person => person.AgentId == s.CaptureMedical()!.AtRiskGuestId).Admitted)
-                guided = Send(s, new StaffInterventionCommand(s.CaptureMedical()!.AtRiskGuestId, s.CaptureMedical()!.MedicId, StaffInterventionAction.GuideToRest)).IsAccepted;
+            if (!guided && s.CapturePreparation()!.People.Single(person => person.AgentId == BuildSession.LastGuest(s)).Admitted)
+                guided = Send(s, new StaffInterventionCommand(BuildSession.LastGuest(s), s.CaptureMedical()!.MedicId, StaffInterventionAction.GuideToRest)).IsAccepted;
             if (s.CurrentTick % 80 == 0)
             {
                 if (s.CaptureEquipment()!.LoadPercent > 80) Send(s, new EquipmentCommand(EquipmentAction.ShedLoad));

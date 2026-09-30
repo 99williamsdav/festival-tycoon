@@ -146,7 +146,7 @@ public sealed class MedicalIncidentTests
         Assert.AreEqual(MedicalStage.Critical, s.CaptureMedical()!.Needs.Single(item => item.AgentId == performer.AgentId).Stage);
         s = Restored(s);
         s.AdvanceWithoutSnapshot(GameSession.MedicalDeathDelayTicks - GameSession.MedicalCriticalDelayTicks);
-        Assert.AreEqual(MedicalStage.Terminal, s.CaptureMedical()!.Stage);
+        Assert.IsTrue(s.CaptureMedical()!.Fatal);
         Assert.AreEqual(ProtectedPersonRole.Performer, s.CaptureLifecycleSnapshot()!.Casualties.Single().Role);
         Restored(s);
     }
@@ -170,7 +170,7 @@ public sealed class MedicalIncidentTests
         Assert.AreEqual(performerId, s.CaptureMedical()!.ResponsePatientId);
         s = Restored(s);
         while (s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage != MedicalStage.Treated &&
-               s.CaptureMedical()!.Stage != MedicalStage.Terminal && s.CurrentTick < 8_000)
+               !s.CaptureMedical()!.Fatal && s.CurrentTick < 8_000)
             s.AdvanceWithoutSnapshot(1);
         var response = s.CaptureMedical()!;
         var medic = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == medicId);
@@ -206,14 +206,13 @@ public sealed class MedicalIncidentTests
         var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var m = s.CaptureMedical()!;
         var performerId = m.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
-        field.SetValue(s, m with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick,
+        field.SetValue(s, m with {
             Needs = m.Needs.Select(item => item.AgentId == performerId
                 ? item with { Thirst = 9_000, HeatExposure = 8_000, Stage = MedicalStage.Distress,
                     WarningTick = s.CurrentTick, LastDecisionTick = s.CurrentTick }
                 : item).ToArray() });
         Assert.IsTrue(Send(s, new MedicalCommand(performerId, MedicalAction.DispatchMedic)).IsAccepted);
         s.AdvanceWithoutSnapshot(1);
-        Assert.AreEqual(MedicalStage.Treated, s.CaptureMedical()!.Stage);
         Assert.AreEqual(performerId, s.CaptureMedical()!.ResponsePatientId);
         Assert.IsTrue(s.CaptureMedical()!.ResponseStage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating);
         s = Restored(s);

@@ -157,7 +157,7 @@ public sealed partial class GameSession
             {
                 LeaveWater(id, "Water service closed safely", reroute: false);
                 var need = _persons[id];
-                if (id == _medical!.AtRiskGuestId || need.NeedProfile == MedicalNeedProfile.Performer)
+                if (need.NeedProfile == MedicalNeedProfile.Performer || need.NeedProfile == MedicalNeedProfile.Guest && need.HeatExposure >= MedicalDistressHeat)
                 {
                     MutatePerson(id, item => { item.Intent = MedicalIntent.Rest; item.Reason = "Closed-water relief at first-aid rest"; });
                     ApplyAgentDestination(new(id), new(MedicalRestCell, "disorder.water-closure-rest"));
@@ -258,7 +258,6 @@ public sealed partial class GameSession
             var waitingForBand = BandDelayRemarkEligible && listener is { AtPlace: true } && lateEnthusiasm >= 35 &&
                 need.Intent == MedicalIntent.WatchShow && need.HealthStage is MedicalStage.Clear or MedicalStage.Treated &&
                 need.Thirst < MedicalDistressThirst && need.HeatExposure < MedicalDistressHeat &&
-                !(need.Id == _medical!.AtRiskGuestId && _medical.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical) &&
                 !InterventionOwnsTarget(person.Id) && !InterventionOwnsWorker(person.Id);
             var grievance = _livePerformance?.Stage == LiveSetStage.Interrupted && !ScheduledSilence &&
                 (CurrentTick >= _livePerformance.PlannedTick && CurrentTick < _programme!.SlotEndTick &&

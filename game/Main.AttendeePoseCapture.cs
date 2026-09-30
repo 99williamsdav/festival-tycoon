@@ -28,6 +28,9 @@ public partial class Main
     private int _paletteCaptureIndex;
     private static readonly string[] PoseShowcaseStates = ["relaxed", "drink_hold", "food_hold", "drinking", "drinking", "eating"];
     private static readonly ImmersionProduct[] PoseShowcaseProducts = [ImmersionProduct.SoftDrink, ImmersionProduct.Beer, ImmersionProduct.Chips, ImmersionProduct.Beer, ImmersionProduct.SoftDrink, ImmersionProduct.Chips];
+    /// <summary>The capture's subject: the first admitted guest.</summary>
+    private ulong PoseGuestId() => _session.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Guest && person.Admitted).AgentId;
+
     private static void PoseAssert(bool condition, string message)
     { if (!condition) throw new InvalidOperationException("ATTENDEE_POSE_ASSERT " + message); }
     private static void PoseSetField(GameSession session, string field, object value) =>
@@ -53,7 +56,7 @@ public partial class Main
             PoseAssert(_session.PreparedStatus == PreparationStatus.Running, _preparationMessage);
             TimetableAdvanceTo(1600);
             var medical = _session.CaptureMedical()!;
-            StaffCaptureSend(new StaffInterventionCommand(medical.AtRiskGuestId, medical.MedicId, StaffInterventionAction.GuideToRest));
+            StaffCaptureSend(new StaffInterventionCommand(PoseGuestId(), medical.MedicId, StaffInterventionAction.GuideToRest));
             TimetableAdvanceTo(2000);
             _poseStep = 1;
             return;
@@ -159,8 +162,9 @@ public partial class Main
                 var medical = _session.CaptureMedical()!; var tick = _session.CurrentTick;
                 var collapse = tick - GameSession.MedicalDeathDelayTicks;
                 var warning = collapse - GameSession.MedicalCollapseDelayTicks;
-                PoseSetField(_session, "MedicalView", medical with { Stage = MedicalStage.Critical, WarningTick = warning, CollapseTick = collapse, CriticalTick = collapse + GameSession.MedicalCriticalDelayTicks,
-                    Needs = medical.Needs.Select(n => n.AgentId == medical.AtRiskGuestId ? n with { Stage = MedicalStage.Critical, Intent = MedicalIntent.Collapsed, Thirst = 10000, HeatExposure = 10000, WarningTick = warning, CollapseTick = collapse, CriticalTick = collapse + GameSession.MedicalCriticalDelayTicks } : n).ToArray() });
+                var victim = PoseGuestId();
+                PoseSetField(_session, "MedicalView", medical with {
+                    Needs = medical.Needs.Select(n => n.AgentId == victim ? n with { Stage = MedicalStage.Critical, Intent = MedicalIntent.Collapsed, Thirst = 10000, HeatExposure = 10000, WarningTick = warning, CollapseTick = collapse, CriticalTick = collapse + GameSession.MedicalCriticalDelayTicks } : n).ToArray() });
                 StaffCaptureSend(new SetPausedCommand(false)); _session.AdvanceWithoutSnapshot(1);
                 PoseAssert(_session.PreparedStatus == PreparationStatus.Failed, "Initialized past-deadline medical fixture did not take existing death transition.");
                 _poseDisclaimer!.Text = "INITIALIZED PAST-DEADLINE MEDICAL FIXTURE\nOrdinary hearing and Favour retry reconstruction check";

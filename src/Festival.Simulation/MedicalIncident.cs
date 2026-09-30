@@ -24,11 +24,11 @@ public sealed record WaterPointState(string Id, GridCell Cell, ulong[] Queue, ul
     public int GeometryVersion { get; init; }
     public GridCell[] QueueCells { get; init; } = [];
 }
-public sealed record MedicalSnapshot(int Version, bool IsHot, ulong MedicId, ulong AtRiskGuestId,
-    MedicalNeed[] Needs,
-    MedicalStage Stage, MedicalResponseStage ResponseStage, ulong? ResponsePatientId, long WarningTick, long CollapseTick,
-    long CriticalTick, long ResponseStartedTick, string Response, MedicalEvidence[] Evidence)
+public sealed record MedicalSnapshot(int Version, bool IsHot, ulong MedicId, MedicalNeed[] Needs,
+    MedicalResponseStage ResponseStage, ulong? ResponsePatientId, long ResponseStartedTick, string Response, MedicalEvidence[] Evidence)
 {
+    /// <summary>A medical death has frozen this edition.</summary>
+    public bool Fatal { get; init; }
     public MedicResponse[] ExtraResponses { get; init; } = [];
     public long ResponseDispatchedTick { get; init; } = -1;
     public StaffInterventionJob[] StaffInterventions { get; init; } = [];
@@ -164,13 +164,9 @@ public sealed partial class GameSession
     public MedicalSnapshot? CaptureMedical() => MedicalView;
     internal string? MedicalCanonicalJson => MedicalView is not { } m ? null : System.Text.Json.JsonSerializer.Serialize(m);
     public bool MedicalBoundaryOnNextTick => ImmersionDepartureMedicalBoundaryOnNextTick || StaffMedicalBoundaryOnNextTick || !IsPaused && _medical is { } m && _preparation is { Status: PreparationStatus.Running } &&
-        (m.Stage == MedicalStage.Clear && _persons[m.AtRiskGuestId].Thirst >= MedicalDistressThirst - 1 ||
-         m.Stage == MedicalStage.Distress && CurrentTick + 1 >= m.WarningTick + MedicalCollapseDelayTicks ||
-         m.Stage == MedicalStage.Collapsed && CurrentTick + 1 >= m.CollapseTick + MedicalCriticalDelayTicks ||
-         m.Stage == MedicalStage.Critical && CurrentTick + 1 >= m.CollapseTick + MedicalDeathDelayTicks ||
-         WaterPoints().Any(point => point.OwnerId is { } waterOwner &&
+        (WaterPoints().Any(point => point.OwnerId is { } waterOwner &&
              _persons[waterOwner].Thirst <= EffectiveMedicalDrinkThirstPerTickFor(waterOwner)) ||
-         PeopleIn(PersonView.Medical).Any(item => item.NeedProfile == MedicalNeedProfile.Performer &&
+         PeopleIn(PersonView.Medical).Any(item => item.NeedProfile != MedicalNeedProfile.Staff &&
              (item.HealthStage == MedicalStage.Clear && item.Thirst >= MedicalDistressThirst - 1 && item.HeatExposure >= MedicalDistressHeat - 1 ||
               item.HealthStage == MedicalStage.Distress && CurrentTick + 1 >= item.HealthWarningTick + MedicalCollapseDelayTicks ||
               item.HealthStage == MedicalStage.Collapsed && CurrentTick + 1 >= item.HealthCollapseTick + MedicalCriticalDelayTicks ||
@@ -261,9 +257,8 @@ public sealed partial class GameSession
         if (PersonIn(PersonView.Disorder, command.GuestId)?.ConductStage == DisorderStage.Fight)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter,
                 "This person is in an active confrontation; first aid and egress follow its safe resolution.");
-        var patientStage = IntoxicationWarning(command.GuestId) && need.HealthStage is MedicalStage.Clear or MedicalStage.Treated ? MedicalStage.Distress : need.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical ? need.HealthStage :
-            need.NeedProfile == MedicalNeedProfile.Guest && command.GuestId == m.AtRiskGuestId ? m.Stage : need.HealthStage;
-        if (m.Stage == MedicalStage.Terminal || patientStage is MedicalStage.Treated or MedicalStage.Removed or MedicalStage.Terminal)
+        var patientStage = IntoxicationWarning(command.GuestId) && need.HealthStage is MedicalStage.Clear or MedicalStage.Treated ? MedicalStage.Distress : need.HealthStage;
+        if (m.Fatal || patientStage is MedicalStage.Treated or MedicalStage.Removed or MedicalStage.Terminal)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This medical incident has settled.");
         if (HasClaim(command.GuestId, PersonClaim.MedicPatient))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "A medic already owns this response; allow travel and treatment to finish.");
@@ -306,8 +301,7 @@ public sealed partial class GameSession
         var patient = _navigationAgents[id];
         var patientCell = TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres);
         ApplyAgentDestination(id, new(patientCell, "medical.await-medic"));
-        MutatePerson(command.GuestId, item => { item.Intent = (item.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical ||
-                item.Id == m.AtRiskGuestId && m.Stage is MedicalStage.Collapsed or MedicalStage.Critical)
+        MutatePerson(command.GuestId, item => { item.Intent = item.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical
                 ? MedicalIntent.Collapsed : MedicalIntent.AwaitMedic; item.Reason = "Awaiting physically dispatched medic"; item.WaterQueueSlot = null; });
         // A medic cannot occupy the patient's cell. Reserve a walkable response
         // position beside it rather than waiting forever on collision avoidance.
@@ -323,7 +317,7 @@ public sealed partial class GameSession
         if (_disorder?.WaterClosed == true)
         {
             var need = _persons[id];
-            if (id == _medical!.AtRiskGuestId || need.NeedProfile == MedicalNeedProfile.Performer)
+            if (need.NeedProfile == MedicalNeedProfile.Performer || need.NeedProfile == MedicalNeedProfile.Guest && need.HeatExposure >= MedicalDistressHeat)
             {
                 MutatePerson(id, item => { item.Intent = MedicalIntent.Rest; item.Reason = "Water service closed; physically seeking first-aid rest"; });
                 ApplyAgentDestination(new(id), new(MedicalRestCell, "disorder.water-closure-rest"));
@@ -560,7 +554,8 @@ public sealed partial class GameSession
             {
                 // Guests outside the gate do not heat up or get thirsty yet.
                 if (item.NeedProfile == MedicalNeedProfile.Guest && !item.Admitted) continue;
-                var heat = item.Id == m.AtRiskGuestId || item.NeedProfile == MedicalNeedProfile.Performer ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
+                // Guests and performers heat up at the same rate; on-duty staff far more slowly.
+                var heat = item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
                 MutatePerson(item.Id, person => { person.Thirst = Math.Min(10_000, person.Thirst + 1); person.HeatExposure = Math.Min(10_000, person.HeatExposure + heat); });
             }
         }
@@ -576,7 +571,6 @@ public sealed partial class GameSession
                 if (!person.Admitted || person.Departed || need.NeedProfile == MedicalNeedProfile.Staff || DisorderOwnsNavigation(need.Id) ||
                     InterventionOwnsTarget(need.Id) || InterventionOwnsWorker(need.Id) ||
                     need.Intent is MedicalIntent.Rest or MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed or MedicalIntent.Drinking ||
-                    (m.Stage is MedicalStage.Collapsed or MedicalStage.Critical && need.Id == m.AtRiskGuestId) ||
                     need.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical ||
                     CurrentTick - need.NeedDecisionTick < MedicalDecisionCooldownTicks &&
                     !(need.Thirst >= MedicalDistressThirst || need.HeatExposure >= MedicalDistressHeat)) continue;
@@ -590,7 +584,6 @@ public sealed partial class GameSession
                     (need.NeedProfile == MedicalNeedProfile.Performer && IsCurrentProgrammePerformer(need.Id) ? 5_000 : 0);
                 var urgent = need.Thirst >= MedicalDistressThirst || need.HeatExposure >= MedicalDistressHeat;
                 if (need.Intent != MedicalIntent.SeekWater &&
-                    (need.NeedProfile == MedicalNeedProfile.Performer || need.Id == m.AtRiskGuestId) &&
                     need.HeatExposure >= MedicalDistressHeat && need.Thirst < MedicalDistressThirst &&
                     MedicalRouteExists(need.Id, MedicalRestCell))
                 {
@@ -642,7 +635,7 @@ public sealed partial class GameSession
             }
         }
         m = _medical!;
-        foreach (var resting in PeopleIn(PersonView.Medical).Where(item => item.NeedProfile == MedicalNeedProfile.Performer && item.Intent == MedicalIntent.Rest).ToArray())
+        foreach (var resting in PeopleIn(PersonView.Medical).Where(item => item.NeedProfile != MedicalNeedProfile.Staff && item.Intent == MedicalIntent.Rest).ToArray())
         {
             if (_navigationAgents[new(resting.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } restCell } && restCell == MedicalRestCell)
             {
@@ -658,76 +651,18 @@ public sealed partial class GameSession
         }
         AdvanceMedicResponses();
         m = _medical!;
-        var target = _persons[m.AtRiskGuestId];
-        if (target.Intent == MedicalIntent.Rest && _navigationAgents[new(target.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } rest } && rest == MedicalRestCell)
-        {
-            MutatePerson(target.Id, item => item.HeatExposure = Math.Max(0, item.HeatExposure - 8));
-            m = _medical!; target = _persons[m.AtRiskGuestId];
-        }
-        if (m.Stage == MedicalStage.Clear && target.Thirst >= MedicalDistressThirst && target.HeatExposure >= MedicalDistressHeat)
-        {
-            _medical = m = m with { Stage = MedicalStage.Distress, WarningTick = CurrentTick };
-            MedicalEvent("medical:distress", $"Guest {target.Id} distressed in Hot conditions: thirst {target.Thirst}, heat {target.HeatExposure}; free water, rest, safe removal and medic dispatch are available.");
-        }
-        m = _medical!; target = _persons[m.AtRiskGuestId];
-        if (m.Stage == MedicalStage.Distress && (target.Thirst < MedicalDistressThirst || target.HeatExposure < MedicalDistressHeat))
-        {
-            const string relief = "Need relieved through free water or rest before collapse";
-            var otherPatientActive = m.ResponsePatientId != target.Id &&
-                m.ResponseStage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing;
-            _medical = m with { Stage = MedicalStage.Treated,
-                ResponseStage = otherPatientActive ? m.ResponseStage : MedicalResponseStage.Completed,
-                Response = otherPatientActive ? m.Response : relief };
-            if (target.Intent == MedicalIntent.Rest)
-            {
-                MutatePerson(target.Id, item => { item.Intent = MedicalIntent.WatchShow; item.Reason = "Rest relieved Hot exposure; free to return to the show"; });
-                ReturnToListening(target.Id);
-            }
-            MedicalEvent("medical:prevented", relief); return;
-        }
-        if (m.ResponseStage == MedicalResponseStage.Removing && _navigationAgents[new(target.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } exit } && exit == MedicalExitCell)
-        {
-            _medical = m with { Stage = MedicalStage.Removed, ResponseStage = MedicalResponseStage.Completed,
-                Response = "Guest safely reached the main gate" };
-            foreach (var person in PeopleIn(PersonView.Roster).Select(item => item.Id == target.Id ? item with { Departed = true } : item).ToArray())
-                SetPresence(person);
-            MedicalEvent("medical:removed", _medical.Response); return;
-        }
-        m = _medical!;
-        if (m.Stage == MedicalStage.Distress && CurrentTick >= m.WarningTick + MedicalCollapseDelayTicks)
-        {
-            LeaveWater(m.AtRiskGuestId, "Collapsed before drinking", reroute: false);
-            var patient = _navigationAgents[new(m.AtRiskGuestId)];
-            ApplyAgentDestination(new(m.AtRiskGuestId), new(TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres), "medical.collapsed"));
-            MutatePerson(m.AtRiskGuestId, item => { item.Intent = MedicalIntent.Collapsed; item.Reason = "Collapsed; needs physical medic response"; item.WaterQueueSlot = null; });
-            _medical = _medical! with { Stage = MedicalStage.Collapsed, CollapseTick = CurrentTick,
-                ResponseStage = m.ResponseStage == MedicalResponseStage.Removing ? MedicalResponseStage.None : m.ResponseStage };
-            MedicalEvent("medical:collapse", "Guest collapsed after visible distress; untreated response window remains.");
-            RecordGuestMedicalCollapse(m.AtRiskGuestId);
-        }
-        m = _medical!;
-        if (m.Stage == MedicalStage.Collapsed && CurrentTick >= m.CollapseTick + MedicalCriticalDelayTicks)
-        {
-            _medical = m with { Stage = MedicalStage.Critical, CriticalTick = CurrentTick };
-            MedicalEvent("medical:critical", "Guest remains untreated after collapse; dispatch can still prevent death.");
-        }
-        m = _medical!;
-        if (m.Stage == MedicalStage.Critical && CurrentTick >= m.CollapseTick + MedicalDeathDelayTicks)
-        {
-            ApplyMedicalDeath(m.AtRiskGuestId, m.WarningTick, m.CollapseTick, m.CriticalTick);
-            return;
-        }
-        foreach (var performer in PeopleIn(PersonView.Medical).Where(item => item.NeedProfile == MedicalNeedProfile.Performer).ToArray())
+        // One health track for every guest and performer: distress, relief, collapse, critical, death.
+        foreach (var atRisk in PeopleIn(PersonView.Medical).Where(item => item.NeedProfile != MedicalNeedProfile.Staff).ToArray())
         {
             m = _medical!;
-            var need = _persons[performer.Id];
+            var need = _persons[atRisk.Id];
             if (need.HealthStage is MedicalStage.Treated or MedicalStage.Removed) continue;
             if (need.HealthStage == MedicalStage.Clear && need.Thirst >= MedicalDistressThirst && need.HeatExposure >= MedicalDistressHeat)
             {
                 MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Distress; item.HealthWarningTick = CurrentTick; });
-                MedicalEvent("medical:distress", $"Performer {need.Id} distressed in Hot conditions; free water, rest and first aid are available.");
+                MedicalEvent("medical:distress", $"{need.Name} ({need.Id}) distressed in Hot conditions; free water, rest and first aid are available.");
             }
-            need = _persons[performer.Id];
+            need = _persons[atRisk.Id];
             if (need.HealthStage == MedicalStage.Distress && (need.Thirst < MedicalDistressThirst || need.HeatExposure < MedicalDistressHeat))
             {
                 MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Treated; item.Reason = "Need relieved before collapse"; });
@@ -736,7 +671,7 @@ public sealed partial class GameSession
                     MutatePerson(need.Id, item => item.Intent = MedicalIntent.WatchShow);
                     ReturnToListening(need.Id);
                 }
-                MedicalEvent("medical:prevented", $"Performer {need.Id} relieved through water or rest.");
+                MedicalEvent("medical:prevented", $"{need.Name} ({need.Id}) relieved through water or rest.");
                 continue;
             }
             if (need.HealthStage == MedicalStage.Distress && CurrentTick >= need.HealthWarningTick + MedicalCollapseDelayTicks)
@@ -746,16 +681,16 @@ public sealed partial class GameSession
                 var patient = _navigationAgents[new(need.Id)];
                 ApplyAgentDestination(new(need.Id), new(TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres), "medical.collapsed"));
                 MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Collapsed; item.HealthCollapseTick = CurrentTick; item.Intent = MedicalIntent.Collapsed; item.Reason = "Collapsed; needs physical medic response"; item.WaterQueueSlot = null; });
-                MedicalEvent("medical:collapse", $"Performer {need.Id} collapsed after visible distress.");
+                MedicalEvent("medical:collapse", $"{need.Name} ({need.Id}) collapsed after visible distress.");
                 RecordGuestMedicalCollapse(need.Id);
             }
-            need = _persons[performer.Id];
+            need = _persons[atRisk.Id];
             if (need.HealthStage == MedicalStage.Collapsed && CurrentTick >= need.HealthCollapseTick + MedicalCriticalDelayTicks)
             {
                 MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Critical; item.HealthCriticalTick = CurrentTick; });
-                MedicalEvent("medical:critical", $"Performer {need.Id} remains untreated after collapse.");
+                MedicalEvent("medical:critical", $"{need.Name} ({need.Id}) remains untreated after collapse; dispatch can still prevent death.");
             }
-            need = _persons[performer.Id];
+            need = _persons[atRisk.Id];
             if (need.HealthStage == MedicalStage.Critical && CurrentTick >= need.HealthCollapseTick + MedicalDeathDelayTicks)
             {
                 ApplyMedicalDeath(need.Id, need.HealthWarningTick, need.HealthCollapseTick, need.HealthCriticalTick);
@@ -771,7 +706,7 @@ public sealed partial class GameSession
         var cause = PersonIn(PersonView.Consumption, victimId) is { IntoxicationCollapseTick: >=0 } alcohol
             ? $"{victim.Name} died after sustained intoxication {alcohol.Intoxication}/10000; visible intoxication warning tick {alcohol.IntoxicationWarningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
             : $"In fixed Hot conditions {victim.Name} dried up after thirst {_persons[victim.Id].Thirst}/10000 and heat exposure; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}.";
-        _medical = m with { Stage = MedicalStage.Terminal };
+        _medical = m with { Fatal = true };
         MedicalEvent("medical:death", cause);
         var lifecycle = _lifecycle!; var attempt = CurrentAttempt();
         var transaction = $"medical-death:{CampaignId.Value}:{attempt.AttemptId}";
@@ -801,7 +736,7 @@ public sealed partial class GameSession
             m.Needs.Any(item => item.Profile != (p.People.Single(person => person.AgentId == item.AgentId).Role == ProtectedPersonRole.Performer ? MedicalNeedProfile.Performer :
                 item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null && p.People.Single(person=>person.AgentId==item.AgentId).Role==ProtectedPersonRole.Staff || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId) ? MedicalNeedProfile.Staff : MedicalNeedProfile.Guest)) ||
             !p.People.Any(item => item.AgentId == m.MedicId && item.Name == "Riley Hart" && item.Role == ProtectedPersonRole.Staff) ||
-            m.AtRiskGuestId != m.Needs[19].AgentId || m.Needs.Any(item => item.Thirst is < 0 or > 10_000 || item.HeatExposure is < 0 or > 10_000 ||
+            m.Needs.Any(item => item.Thirst is < 0 or > 10_000 || item.HeatExposure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Intent) || !Enum.IsDefined(item.Profile) || !Enum.IsDefined(item.Stage) ||
                 item.QueueSlot is < 0 or >= 10 || item.WaterPointId != "water.main" && !points.Any(point => point.Id == item.WaterPointId) ||
                 item.LastDecisionTick > s.CurrentTick || item.LastWaterChoiceReviewTick > s.CurrentTick ||
@@ -842,10 +777,9 @@ public sealed partial class GameSession
             m.Needs.Any(item => item.Intent == MedicalIntent.Drinking && !points.Any(point => point.OwnerId == item.AgentId)) ||
             m.ResponsePatientId is { } responsePatient && !m.Needs.Any(item => item.AgentId == responsePatient) ||
             m.ResponseStage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing && m.ResponsePatientId is null ||
-            !Enum.IsDefined(m.Stage) || !Enum.IsDefined(m.ResponseStage) ||
-            m.WarningTick > s.CurrentTick || m.CollapseTick > s.CurrentTick || m.CriticalTick > s.CurrentTick ||
-            m.Stage == MedicalStage.Terminal && (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1) ||
-            p.Status == PreparationStatus.Failed && m.Stage != MedicalStage.Terminal && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death")
+            !Enum.IsDefined(m.ResponseStage) ||
+            m.Fatal && (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1) ||
+            p.Status == PreparationStatus.Failed && !m.Fatal && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death")
             return "Medical Hot state, queue ownership or causal stage invalid.";
         return null;
     }

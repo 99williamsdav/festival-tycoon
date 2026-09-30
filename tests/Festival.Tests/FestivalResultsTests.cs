@@ -142,9 +142,9 @@ public sealed class FestivalResultsTests
     [TestMethod]
     public void ActualMedicalCollapseCountsOnceAndFightKnockoutDoesNotCount()
     {
-        var s = Open(); Closing(s); var m = s.CaptureMedical()!; var id = m.AtRiskGuestId;
+        var s = Open(); Closing(s); var m = s.CaptureMedical()!; var id = BuildSession.LastGuest(s);
         var expected = s.CapturePreparation()!.GuestMedicalCollapses + 1;
-        Set(s, "MedicalView", m with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick - GameSession.MedicalCollapseDelayTicks });
+        Invoke(s, "UpdatePerson", id, (Func<Person,Person>)(need => need with { HealthStage = MedicalStage.Distress, HealthWarningTick = s.CurrentTick - GameSession.MedicalCollapseDelayTicks }));
         Invoke(s, "AdvanceImmersionDepartureMedicine"); Assert.AreEqual(expected, s.CapturePreparation()!.GuestMedicalCollapses);
         Invoke(s, "AdvanceImmersionDepartureMedicine"); Assert.AreEqual(expected, s.CapturePreparation()!.GuestMedicalCollapses);
         var nonGuest = s.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Performer);

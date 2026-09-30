@@ -85,7 +85,7 @@ public sealed class DisorderIncidentTests
     public void SecurityDispatchTravelsAndEitherCalmsOrHonestlyEscalates()
     {
         var session = Started();
-        var atRisk = session.CaptureMedical()!.AtRiskGuestId;
+        var atRisk = BuildSession.LastGuest(session);
         while (session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && session.CurrentTick < 8_000)
             session.AdvanceWithoutSnapshot(1);
         Assert.IsTrue(Send(session, new EquipmentCommand(EquipmentAction.Isolate)).IsAccepted);

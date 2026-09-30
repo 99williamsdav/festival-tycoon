@@ -402,20 +402,23 @@ public partial class Main
     private void RefreshMedicalControls()
     {
         if (_medicalSummary is null || _session.CaptureMedical() is not { } m) return;
-        var target = m.Needs.Single(item => item.AgentId == m.AtRiskGuestId);
+        // The most urgent person on the health track: furthest along distress, collapse, critical.
+        var urgent = m.Needs.Where(item => item.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical)
+            .OrderByDescending(item => item.Stage).ThenBy(item => item.WarningTick).FirstOrDefault();
         var points = _session.CaptureWaterPoints();
         var active = points.Where(point => point.OwnerId is not null).ToArray();
         var drinking = active.Length == 0 ? $"{points.Count} taps ready • one drinker per tap" :
             string.Join(", ", active.Select(point => $"{point.Id}: {_session.CapturePreparation()!.People.Single(person => person.AgentId == point.OwnerId).Name}"));
         string Remaining(long dueTick) => $"{Math.Max(0, dueTick - _session.CurrentTick) / 80m:0.0}s";
-        var clock = m.Stage switch
+        var clock = urgent?.Stage switch
         {
-            MedicalStage.Distress => $"collapse {Remaining(m.WarningTick + GameSession.MedicalCollapseDelayTicks)} • death {Remaining(m.WarningTick + GameSession.MedicalCollapseDelayTicks + GameSession.MedicalDeathDelayTicks)}",
-            MedicalStage.Collapsed => $"critical {Remaining(m.CollapseTick + GameSession.MedicalCriticalDelayTicks)} • death {Remaining(m.CollapseTick + GameSession.MedicalDeathDelayTicks)}",
-            MedicalStage.Critical => $"death {Remaining(m.CollapseTick + GameSession.MedicalDeathDelayTicks)}",
-            MedicalStage.Clear => "no active response window",
-            _ => "window settled"
+            MedicalStage.Distress => $"collapse {Remaining(urgent.WarningTick + GameSession.MedicalCollapseDelayTicks)} • death {Remaining(urgent.WarningTick + GameSession.MedicalCollapseDelayTicks + GameSession.MedicalDeathDelayTicks)}",
+            MedicalStage.Collapsed => $"critical {Remaining(urgent.CollapseTick + GameSession.MedicalCriticalDelayTicks)} • death {Remaining(urgent.CollapseTick + GameSession.MedicalDeathDelayTicks)}",
+            MedicalStage.Critical => $"death {Remaining(urgent.CollapseTick + GameSession.MedicalDeathDelayTicks)}",
+            _ => "no active response window"
         };
+        var urgentLine = urgent is null ? "No one in heat distress"
+            : $"{_session.CapturePreparation()!.People.Single(person => person.AgentId == urgent.AgentId).Name}: {urgent.Stage} • thirst {urgent.Thirst / 100m:0}% • heat {urgent.HeatExposure / 100m:0}%";
         var immersionCare = _session.CaptureImmersion();
         var treatment = string.Join("\n", _session.GetMedicResponses().Select(job => {
             var worker = _session.GetResponseStaff().Single(item => item.AgentId == job.WorkerId);
@@ -428,7 +431,7 @@ public partial class Main
                 : job.Stage == MedicalResponseStage.Travelling ? " • starts after arrival" : "");
         }));
         _medicalSummary.Text = $"HOT • FREE WATER • FIRST AID\n" +
-            $"Guest 20: {m.Stage} • thirst {target.Thirst / 100m:0}% • heat {target.HeatExposure / 100m:0}%\n" +
+            $"{urgentLine}\n" +
             $"Water {points.Count} taps • queue {points.Sum(point => point.Queue.Length)} + tail {points.Sum(point => point.Overflow.Length)} • {drinking}\nClock: {clock}\n" +
             $"{treatment}\nPerson actions are in the selected person's inspector.";
         RefreshMedicalActionInspector();

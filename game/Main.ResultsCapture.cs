@@ -116,7 +116,7 @@ public partial class Main
             if (frame == 25)
             {
                 _session = GameSession.Restore(_resultsNatural!.CapturePersistenceSnapshot()).Session!;
-                var p = _session.CapturePreparation()!; var id = _session.CaptureMedical()!.AtRiskGuestId;
+                var p = _session.CapturePreparation()!; var id = p.People.First(person => person.Role == ProtectedPersonRole.Guest).AgentId;
                 ResultsSetPreparation(p with { Status = PreparationStatus.Departing, Result = null, People = p.People.Select(person => person.AgentId == id ? person with { Departed = false } : person).ToArray() });
                 typeof(GameSession).GetMethod("ApplyMedicalDeath", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(_session, [id, _session.CurrentTick - 4000, _session.CurrentTick - 2400, _session.CurrentTick - 1600]);
                 ResultsCheck(_session.CompletedFestivalResult is null && _session.PreparedStatus == PreparationStatus.Failed, "Council must bypass paper");

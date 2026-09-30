@@ -200,11 +200,10 @@ public sealed partial class GameSession
             if (p.SevereTicks >= 1600 && p.IntoxicationWarningTick >= 0 && p.IntoxicationCollapseTick < 0 && !ExistingMedicalHazardOwns(p.Id) && InView(PersonView.Medical, p.Id))
             {
                 var need = _persons[p.Id];
-                { p.IntoxicationCollapseTick = CurrentTick; p.PriorMedicalStage = p.Id==_medical!.AtRiskGuestId?_medical.Stage:need.HealthStage; } SetConsumption(p);
+                { p.IntoxicationCollapseTick = CurrentTick; p.PriorMedicalStage = need.HealthStage; } SetConsumption(p);
                 LeaveImmersionQueue(p.Id,false); LeaveWater(p.Id,"Intoxication collapse",false); MedicalRelinquishPerformerStage(p.Id);
                 var nav=_navigationAgents[new(p.Id)]; ApplyAgentDestination(new(p.Id),new(TraversalGrid.WorldToCell(nav.XMillimetres,nav.ZMillimetres),"medical.intoxication-collapse"));
                 MutatePerson(p.Id, n => { n.HealthStage = MedicalStage.Collapsed; n.HealthWarningTick = p.IntoxicationWarningTick; n.HealthCollapseTick = CurrentTick; n.Intent = MedicalIntent.Collapsed; n.Reason = "Intoxication collapse; physical medic response required"; });
-                if (p.Id==_medical.AtRiskGuestId) _medical=_medical with { Stage=MedicalStage.Collapsed,WarningTick=p.IntoxicationWarningTick,CollapseTick=CurrentTick };
                 MedicalEvent("intoxication:collapse",$"Person {p.Id}: exposure continuously above8500 for20s after warning {p.IntoxicationWarningTick}; critical and fatal response deadlines begin now.");
                 RecordGuestMedicalCollapse(p.Id);
             }
@@ -238,7 +237,6 @@ public sealed partial class GameSession
     private bool IntoxicationWarning(ulong id) => PersonIn(PersonView.Consumption, id) is { IntoxicationWarningTick: >=0 } p && (p.Intoxication>=7500 || p.IntoxicationCollapseTick>=0 || p.CareTicks>0);
     private bool ExistingMedicalHazardOwns(ulong id) => _medical is { } medical &&
         (PersonIn(PersonView.Medical, id)?.HealthStage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical ||
-         medical.AtRiskGuestId==id&&medical.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical ||
          PersonIn(PersonView.Disorder, id)?.ConductStage==DisorderStage.Injured);
     private bool IntoxicationCareOwns(MedicResponse job)
     {
@@ -252,14 +250,13 @@ public sealed partial class GameSession
         var id=job.PatientId!.Value;var p=_persons[id];
         var need=_persons[id];
         // Existing heat/injury ownership keeps its own causal treatment path and deadlines.
-        if(p.CareTicks==0 && p.IntoxicationCollapseTick<0)p=p with { PriorMedicalStage=id==_medical!.AtRiskGuestId?_medical.Stage:need.HealthStage };
+        if(p.CareTicks==0 && p.IntoxicationCollapseTick<0)p=p with { PriorMedicalStage=need.HealthStage };
         // Only the physical treating owner calls this; neither dispatch nor water sobers.
         var care=p.CareTicks+1; p=p with { CareTicks=care,Intoxication=Math.Max(0,p.Intoxication-4) }; SetConsumption(p);
         if (care<1600 || p.Intoxication>=7500) return true;
         var restored=p.PriorMedicalStage==MedicalStage.Treated?MedicalStage.Treated:MedicalStage.Clear;
         SetConsumption(p with { IntoxicationWarningTick=-1,IntoxicationCollapseTick=-1,SevereTicks=0,CareTicks=0 });
         MutatePerson(id, n => { n.HealthStage = restored; n.Intent = MedicalIntent.WatchShow; n.Reason = "Gradual intoxication stabilization completed; future exposure can warn again"; n.HealthWarningTick = -1; n.HealthCollapseTick = -1; n.HealthCriticalTick = -1; });
-        if (id==_medical!.AtRiskGuestId) _medical=_medical with { Stage=restored,WarningTick=-1,CollapseTick=-1,CriticalTick=-1 };
         SetMedicResponse(job with { Stage=MedicalResponseStage.Completed,Description="Gradual intoxication stabilization completed" }); ReturnToListening(id);
         MedicalEvent("intoxication:treatment-complete",$"Physical medic {job.WorkerId} stabilized {id} gradually over20s; exposure remains {p.Intoxication}."); return true;
     }

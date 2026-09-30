@@ -66,8 +66,6 @@ public partial class Main
         {
             var urgent = medical.Needs.Where(item => item.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical)
                 .Select(item => item.AgentId).ToHashSet();
-            if (medical.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical)
-                urgent.Add(medical.AtRiskGuestId);
             foreach (var (id, label) in _medicalCueLabels)
                 if (!urgent.Contains(id)) label.Visible = false;
         }

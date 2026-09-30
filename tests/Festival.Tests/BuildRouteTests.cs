@@ -41,7 +41,7 @@ public sealed class BuildRouteTests
                 if (live.Stage == LiveSetStage.Live) liveSets.Add(live.PlannedTick);
                 listened = Math.Max(listened, live.Listeners.Sum(item => (long)item.ListenedTicks));
             }
-            medical.Add(s.CaptureMedical()!.Stage);
+            foreach (var need in s.CaptureMedical()!.Needs) medical.Add(need.Stage);
             foreach (var person in s.CaptureDisorder()!.People) disorder.Add(person.Stage);
             if (checkpoint is null && s.CurrentTick >= CheckpointTick)
             {
@@ -90,12 +90,12 @@ public sealed class BuildRouteTests
 
     [TestCategory("Slow")]
     [TestMethod]
-    public void AutonomousMedicsTreatDistressBeforeItBecomesFatal()
+    public void OpenFreeWaterKeepsDefaultGuestsOutOfHeatDistress()
     {
+        // Heat distress needs thirst and heat together; guests who can reach the tap drink first.
         var run = Run.Value;
-        Assert.IsTrue(run.MedicalStages.Contains(MedicalStage.Distress));
-        Assert.IsTrue(run.MedicalStages.Contains(MedicalStage.Treated));
-        Assert.IsFalse(run.MedicalStages.Contains(MedicalStage.Terminal));
+        Assert.IsFalse(run.MedicalStages.Contains(MedicalStage.Distress));
+        Assert.IsFalse(run.Session.CaptureMedical()!.Fatal);
     }
 
     [TestCategory("Slow")]

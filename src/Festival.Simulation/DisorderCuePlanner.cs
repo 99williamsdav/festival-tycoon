@@ -66,8 +66,6 @@ public sealed class DisorderCuePlanner
         if (!_initialized || tick < _lastObservedTick) Reset(disorder, tick);
         var urgentMedical = medical?.Needs.Where(item => item.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical)
             .Select(item => item.AgentId).ToHashSet() ?? [];
-        if (medical is { } m && m.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical)
-            urgentMedical.Add(m.AtRiskGuestId);
         var people = disorder.People.ToDictionary(item => item.AgentId);
         var cues = new List<DisorderPersonCue>();
         var paired = new HashSet<ulong>();

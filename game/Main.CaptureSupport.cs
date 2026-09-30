@@ -9,7 +9,6 @@ namespace Festival.Game;
 // Shared helpers for the scripted evidence captures that drive the Build route.
 public partial class Main
 {
-    private bool _captureGuidedAtRiskGuest;
     private bool _attendeePoseCaptureCompleted;
     private Action<Festival.Persistence.SaveFailurePoint>? _planCaptureFailureInjector;
 
@@ -25,8 +24,7 @@ public partial class Main
 
     /// <summary>
     /// Advances a running edition to a tick relative to its start, acting as a careful
-    /// operator: the at-risk guest is guided to rest once admitted and the ordinary
-    /// medic answers visible warnings. No needs, positions or deadlines are injected.
+    /// operator: the ordinary medic answers visible warnings. No needs, positions or deadlines are injected.
     /// </summary>
     private void TimetableAdvanceTo(long relativeTick)
     {
@@ -36,17 +34,7 @@ public partial class Main
         while (_session.CurrentTick < target && _session.PreparedStatus != PreparationStatus.Failed)
         {
             var medical = _session.CaptureMedical()!;
-            if (!_captureGuidedAtRiskGuest && _session.CapturePerson(medical.AtRiskGuestId)?.Admitted == true)
-            {
-                var guide = new StaffInterventionCommand(medical.AtRiskGuestId, medical.MedicId, StaffInterventionAction.GuideToRest);
-                if (_session.ValidateCommand(CampaignEnvelope(guide)) is null)
-                {
-                    StaffCaptureSend(guide);
-                    _captureGuidedAtRiskGuest = true;
-                }
-            }
-            foreach (var need in medical.Needs.Where(need => need.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical ||
-                need.AgentId == medical.AtRiskGuestId && medical.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical))
+            foreach (var need in medical.Needs.Where(need => need.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical))
             {
                 var command = new MedicalCommand(need.AgentId, MedicalAction.DispatchMedic, medical.MedicId);
                 if (_session.ValidateCommand(CampaignEnvelope(command)) is null) { StaffCaptureSend(command); break; }

@@ -81,18 +81,14 @@ public sealed partial class GameSession
         session.PreparationView = session.PreparationView! with { People = session.PreparationView.People.Append(
             new EditionPerson(medicId, "Riley Hart", ProtectedPersonRole.Staff, 0)).ToArray() };
         var guests = session.PreparationView!.People.Where(item => item.Role == ProtectedPersonRole.Guest).ToArray();
-        var atRisk = guests[19].AgentId;
         var needs = guests.Select((guest, index) => new MedicalNeed(guest.AgentId,
-            index == 19 ? 8_500 : index < 8 ? 7_600 : 2_000 + (index * 43) % 500,
-            index == 19 ? 7_500 : 2_500, MedicalIntent.WatchShow,
-            index == 19 ? "Strong act interest outweighs early water trip" : "Water need below show preference",
+            index < 8 ? 7_600 : 2_000 + (index * 43) % 500, 2_500, MedicalIntent.WatchShow, "Water need below show preference",
             -MedicalDecisionCooldownTicks, null, -1))
             .Concat(session.PreparationView.People.Where(item => item.Role == ProtectedPersonRole.Performer)
                 .Select((person, index) => new MedicalNeed(person.AgentId, 6_900 + index * 100, 6_000 + index * 100,
                     MedicalIntent.WatchShow, "Performing; free water and first aid remain available",
                     -MedicalDecisionCooldownTicks, null, -1, MedicalNeedProfile.Performer))).ToArray();
-        session.MedicalView = new(5, true, medicId, atRisk, needs,
-            MedicalStage.Clear, MedicalResponseStage.None, null, -1, -1, -1, -1, "No response",
+        session.MedicalView = new(5, true, medicId, needs, MedicalResponseStage.None, null, -1, "No response",
             [new("medical:hot", 0, "Fixed Hot scenario; free water and a baseline medic are available before opening.")]);
         session._facilities = new FacilitiesSnapshot(1, [OpeningMainTap()], [], []);
     }

@@ -54,9 +54,7 @@ public sealed class StaffInterventionTests
     private static void DistressFixture(GameSession session, ulong id)
     {
         var m = session.CaptureMedical()!;
-        Medical(session, m with { Stage = id == m.AtRiskGuestId ? MedicalStage.Distress : m.Stage,
-            WarningTick = id == m.AtRiskGuestId ? session.CurrentTick : m.WarningTick,
-            Needs = m.Needs.Select(need => need.AgentId == id ? need with { Stage = MedicalStage.Distress,
+        Medical(session, m with { Needs = m.Needs.Select(need => need.AgentId == id ? need with { Stage = MedicalStage.Distress,
                 Thirst = 10000, HeatExposure = 10000, WarningTick = session.CurrentTick, Reason = "Labelled ambulatory-distress intervention fixture" } : need).ToArray() });
     }
 
@@ -89,7 +87,7 @@ public sealed class StaffInterventionTests
         var session = Started(); var m = session.CaptureMedical()!; var guest = m.Needs[0].AgentId; var steward = session.CaptureDisorder()!.SecurityId;
         foreach (var command in new StaffInterventionCommand[] {
             new(guest, steward, StaffInterventionAction.EscortOut), new(guest, m.MedicId, StaffInterventionAction.GuideToWater),
-            new(m.AtRiskGuestId, steward, StaffInterventionAction.GuideToRest) })
+            new(BuildSession.LastGuest(session), steward, StaffInterventionAction.GuideToRest) })
         {
             var hash = session.CaptureSnapshot().AuthoritativeHash;
             Assert.IsFalse(Send(session, command).IsAccepted); Assert.AreEqual(hash, session.CaptureSnapshot().AuthoritativeHash);
@@ -105,10 +103,10 @@ public sealed class StaffInterventionTests
     [TestMethod]
     public void CollapsedBodiesDoNotBlockExactMovementButMedicalStateAndDeadlineRemain()
     {
-        var session = Started(false); var m = session.CaptureMedical()!; var id = m.AtRiskGuestId; var walker = m.Needs[0].AgentId;
+        var session = Started(false); var m = session.CaptureMedical()!; var id = BuildSession.LastGuest(session); var walker = m.Needs[0].AgentId;
         var body = new GridCell(80, 175); PlaceFixture(session, id, body); PlaceFixture(session, walker, new GridCell(80, 171));
-        Medical(session, m with { Stage = MedicalStage.Collapsed, WarningTick = session.CurrentTick - 1, CollapseTick = session.CurrentTick,
-            Needs = m.Needs.Select(need => need.AgentId == id ? need with { Thirst = 10000, HeatExposure = 10000, Intent = MedicalIntent.Collapsed } : need).ToArray() });
+        Medical(session, m with {
+            Needs = m.Needs.Select(need => need.AgentId == id ? need with { Thirst = 10000, HeatExposure = 10000, Intent = MedicalIntent.Collapsed, Stage = MedicalStage.Collapsed, CollapseTick = session.CurrentTick } : need).ToArray() });
         Route(session, walker, body);
         for (var elapsed = 0; elapsed < 500 && session.CaptureSnapshot().NavigationAgents.Single(agent => agent.Id.Value == walker).Action != AgentNavigationAction.Arrived; elapsed += 20) Step(session, 20, id);
         Assert.AreEqual(AgentNavigationAction.Arrived, session.CaptureSnapshot().NavigationAgents.Single(agent => agent.Id.Value == walker).Action);
@@ -120,7 +118,7 @@ public sealed class StaffInterventionTests
     [TestMethod]
     public void ClosingWaterBeforePhysicalArrivalDoesNotGiveStewardRemoteRestOrQueueEffect()
     {
-        var session = Started(false); var m = session.CaptureMedical()!; var id = m.AtRiskGuestId; var worker = session.CaptureDisorder()!.SecurityId;
+        var session = Started(false); var m = session.CaptureMedical()!; var id = BuildSession.LastGuest(session); var worker = session.CaptureDisorder()!.SecurityId;
         PlaceFixture(session, id, new GridCell(80, 175)); PlaceFixture(session, worker, new GridCell(84, 175));
         Accept(session, new StaffInterventionCommand(id, worker, StaffInterventionAction.GuideToWater));
         Accept(session, new DisorderCommand(DisorderAction.CloseWater));

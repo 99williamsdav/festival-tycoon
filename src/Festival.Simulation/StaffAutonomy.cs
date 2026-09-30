@@ -47,11 +47,10 @@ public sealed partial class GameSession
         return null;
     }
 
-    private MedicalStage EffectiveMedicalStage(Person need) => need.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical
-        ? need.HealthStage : need.Id == _medical!.AtRiskGuestId ? _medical.Stage : need.HealthStage;
+    private MedicalStage EffectiveMedicalStage(Person need) => need.HealthStage;
     private long MedicalResponseDeadline(Person need)
     {
-        var collapse = need.Id == _medical!.AtRiskGuestId ? _medical.CollapseTick : need.HealthCollapseTick;
+        var collapse = need.HealthCollapseTick;
         return _disorder?.Incidents.LastOrDefault(incident => incident.VictimId == need.Id && incident.InjuryTick >= 0) is { } injury
             ? injury.InjuryTick + DisorderInjuryDeathTicks : collapse + MedicalDeathDelayTicks;
     }

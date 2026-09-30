@@ -31,9 +31,9 @@ public sealed partial class GameSession
         foreach (var person in PeopleIn(PersonView.Consumption))
             if (PersonIn(PersonView.Roster, person.Id) is { Role: ProtectedPersonRole.Guest })
                 _persons.Set(person with { Hunger = GuestOpeningHunger(CampaignSeed, person.Id), ToiletNeed = GuestOpeningToiletNeed(CampaignSeed, person.Id) });
-        if (_medical is { } medical)
+        if (_medical is not null)
             foreach (var need in PeopleIn(PersonView.Medical))
-                if (need.NeedProfile == MedicalNeedProfile.Guest && need.Id != medical.AtRiskGuestId)
+                if (need.NeedProfile == MedicalNeedProfile.Guest)
                     _persons.Set(need with { Thirst = GuestOpeningThirst(CampaignSeed, need.Id) });
     }
 }

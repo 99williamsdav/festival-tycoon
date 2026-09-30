@@ -166,7 +166,7 @@ public sealed partial class GameSession
             e.JobStage is MaintenanceStage.Repairing or MaintenanceStage.Completed && (e.RepairStartedTick < e.JobDispatchedTick || e.RepairStartedTick > s.CurrentTick) ||
             e.WarningTick < -1 || e.WarningTick > s.CurrentTick || e.WarningAcknowledged && e.WarningTick < 0 ||
             e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick != p.StartedTick + EquipmentWarningDelayTicks ||
-            (e.Stage == EquipmentStage.Terminal) != (p.Status == PreparationStatus.Failed && s.Medical?.Stage != MedicalStage.Terminal && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death") ||
+            (e.Stage == EquipmentStage.Terminal) != (p.Status == PreparationStatus.Failed && s.Medical?.Fatal != true && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death") ||
             p.Status != PreparationStatus.Preparing && s.Lifecycle is null)
             return "Equipment warning, response ownership or lifecycle invalid.";
         if (e.Evidence[0].Id != "equipment:load" || e.Evidence[0].Tick != 0 ||
@@ -181,7 +181,7 @@ public sealed partial class GameSession
         if (p.Status == PreparationStatus.Preparing && p.Attempt == 1 && s.Lifecycle is not null ||
             s.Lifecycle is { } lifecycle && (p.People.Any(person => !lifecycle.ProtectedPeople.Any(item => item.PersonId == person.Name && item.Role == (int)person.Role)) ||
                 (lifecycle.Casualties.LastOrDefault()?.AttemptId == (ulong)p.Attempt) !=
-                    (e.Stage == EquipmentStage.Terminal || s.Medical?.Stage == MedicalStage.Terminal || s.Disorder?.Evidence.LastOrDefault()?.Id == "disorder:death")))
+                    (e.Stage == EquipmentStage.Terminal || s.Medical?.Fatal == true || s.Disorder?.Evidence.LastOrDefault()?.Id == "disorder:death")))
             return "Equipment lifecycle must protect the exact physical roster.";
         return null;
     }

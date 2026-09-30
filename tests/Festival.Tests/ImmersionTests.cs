@@ -211,17 +211,17 @@ public sealed class ImmersionTests
     public void CoexistingHeatCollapseRetainsEarlierClocksAndOrdinaryMedicSaveBoundary(bool extraMedic)
     {
         var s=Open(extraMedic:extraMedic);typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,4000L);
-        var m=s.CaptureMedical()!;var id=m.AtRiskGuestId;var worker=s.GetMedicResponses().Last().WorkerId;
-        m=m with { Stage=MedicalStage.Collapsed,WarningTick=2300,CollapseTick=3900,CriticalTick=-1,Needs=m.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,WarningTick=2300,CollapseTick=3900,CriticalTick=-1,Intent=MedicalIntent.Collapsed,Thirst=9500,HeatExposure=8500 }:n).ToArray() };
+        var m=s.CaptureMedical()!;var id=BuildSession.LastGuest(s);var worker=s.GetMedicResponses().Last().WorkerId;
+        m=m with { Needs=m.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,WarningTick=2300,CollapseTick=3900,CriticalTick=-1,Intent=MedicalIntent.Collapsed,Thirst=9500,HeatExposure=8500 }:n).ToArray() };
         typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,m);
         var immersion=s.CaptureImmersion()!;Set(s,immersion with { People=immersion.People.Select(p=>p.AgentId==id?p with { Intoxication=10000,WarningTick=2399,SevereTicks=1599 }:p).ToArray() });
         PositionFixture(s,id,new(120,125),"medical.collapsed");PositionFixture(s,worker,new(121,125),"medical.dispatch");
         var duration=s.GetResponseStaff().Single(p=>p.AgentId==worker).TreatmentTicks;
         Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.Treating,id,4001-duration,"Labelled dual heat/intoxication physical treatment",4000-duration));
-        Invoke(s,"AdvanceImmersion");Assert.AreEqual(3900L,s.CaptureMedical()!.CollapseTick);Assert.AreEqual(3900L,s.CaptureMedical()!.Needs.Single(n=>n.AgentId==id).CollapseTick);Assert.AreEqual(-1L,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).CollapseTick,"Alcohol must not restart the inherited heat deadline.");
+        Invoke(s,"AdvanceImmersion");Assert.AreEqual(3900L,s.CaptureMedical()!.Needs.Single(n=>n.AgentId==id).CollapseTick);Assert.AreEqual(-1L,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).CollapseTick,"Alcohol must not restart the inherited heat deadline.");
         Assert.IsFalse(s.ImmersionBoundaryOnNextTick,"A severe alcohol overlap blocked by existing heat ownership must not clone/save every tick.");
         Assert.IsTrue(s.MedicalBoundaryOnNextTick,"The actual ordinary heat treatment must still stage/persist its completion despite a simultaneous alcohol warning.");Restore(s);
-        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,4001L);Invoke(s,"AdvanceMedicResponses");Assert.AreEqual(MedicalResponseStage.Completed,s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage);Assert.AreEqual(MedicalStage.Treated,s.CaptureMedical()!.Stage);
+        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,4001L);Invoke(s,"AdvanceMedicResponses");Assert.AreEqual(MedicalResponseStage.Completed,s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage);Assert.AreEqual(MedicalStage.Treated,s.CaptureMedical()!.Needs.Single(n=>n.AgentId==id).Stage);
     }
     private static void DepartureFixture(GameSession s)
     {
@@ -235,10 +235,10 @@ public sealed class ImmersionTests
     [DataRow(true)]
     public void CollapsedMedicPhysicallyArrivesAtHalfMetreBedsideAndResumesExactly(bool intoxication)
     {
-        var s=Open();var medical=s.CaptureMedical()!;var id=medical.AtRiskGuestId;var worker=medical.MedicId;
+        var s=Open();var medical=s.CaptureMedical()!;var id=BuildSession.LastGuest(s);var worker=medical.MedicId;
         typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,1600L);
         PositionFixture(s,id,new(120,125),"medical.collapsed");PositionFixture(s,worker,new(126,125),"medical.standby");
-        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=MedicalStage.Collapsed,WarningTick=0,CollapseTick=1600,Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=0,CollapseTick=1600 }:n).ToArray() });
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=0,CollapseTick=1600 }:n).ToArray() });
         if(intoxication){var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=9800,WarningTick=0,CollapseTick=1600,SevereTicks=1600 }:p).ToArray() });}
         Assert.IsTrue(Send(s,new MedicalCommand(id,MedicalAction.DispatchMedic)).IsAccepted);Assert.AreEqual(MedicalResponseStage.Travelling,s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage);
         var r=Restore(s);for(var ticks=0;ticks<600&&s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage!=MedicalResponseStage.Treating;ticks++){s.AdvanceWithoutSnapshot(1);r.AdvanceWithoutSnapshot(1);}
@@ -248,10 +248,10 @@ public sealed class ImmersionTests
     [TestMethod]
     public void BedsideBlockedAccessRejectsDispatchAndLegacyDistantTreatmentReroutesWithoutRemoteCare()
     {
-        var s=Open();var medical=s.CaptureMedical()!;var id=medical.AtRiskGuestId;var worker=medical.MedicId;PositionFixture(s,id,new(120,125),"medical.collapsed");PositionFixture(s,worker,new(124,125),"medical.dispatch");
-        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=MedicalStage.Collapsed,WarningTick=0,CollapseTick=0,Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=0,CollapseTick=0 }:n).ToArray() });
+        var s=Open();var medical=s.CaptureMedical()!;var id=BuildSession.LastGuest(s);var worker=medical.MedicId;PositionFixture(s,id,new(120,125),"medical.collapsed");PositionFixture(s,worker,new(124,125),"medical.dispatch");
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=0,CollapseTick=0 }:n).ToArray() });
         Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.Treating,id,0,"Older saved distant treatment",0));Restore(s);
-        Invoke(s,"AdvanceMedicResponses");Assert.AreEqual(MedicalResponseStage.Travelling,s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage);Assert.AreEqual(MedicalStage.Collapsed,s.CaptureMedical()!.Stage);Restore(s);
+        Invoke(s,"AdvanceMedicResponses");Assert.AreEqual(MedicalResponseStage.Travelling,s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage);Assert.AreEqual(MedicalStage.Collapsed,s.CaptureMedical()!.Needs.Single(n=>n.AgentId==id).Stage);Restore(s);
         Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.None,null,-1,"Blocked access fixture",-1));
         var grid=(TraversalGrid)typeof(GameSession).GetField("_traversalGrid",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(s)!;var cells=grid.Overrides.ToDictionary(p=>p.Key,p=>p.Value);
         for(var x=119;x<=121;x++)for(var z=124;z<=126;z++)if(x!=120||z!=125)cells[new(x,z)]=new(new(x,z),GroundSurface.Grass,false);
@@ -261,7 +261,7 @@ public sealed class ImmersionTests
     [TestMethod]
     public void NoncollapsedMedicRetainsOriginalTwoMetreResponseAndRange()
     {
-        var s=Open();var medical=s.CaptureMedical()!;var id=medical.AtRiskGuestId;var worker=medical.MedicId;PositionFixture(s,id,new(120,125),"medical.await-medic");PositionFixture(s,worker,new(124,125),"medical.dispatch");
+        var s=Open();var medical=s.CaptureMedical()!;var id=BuildSession.LastGuest(s);var worker=medical.MedicId;PositionFixture(s,id,new(120,125),"medical.await-medic");PositionFixture(s,worker,new(124,125),"medical.dispatch");
         var responseCell=typeof(GameSession).GetMethod("MedicalResponseCell",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(s,[worker,id]);Assert.AreEqual(new GridCell(124,125),responseCell);
         var cells=new[]{new TerrainCellOverride(new(122,125),GroundSurface.Grass,false)};typeof(GameSession).GetField("_traversalGrid",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,new TraversalGrid(cells));
         Assert.AreEqual(true,typeof(GameSession).GetMethod("MedicalTreatmentPositionValid",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(s,[medical with { ResponsePatientId=id }]),"Noncollapsed guidance range must remain unchanged by the collapsed bedside correction.");
@@ -272,7 +272,7 @@ public sealed class ImmersionTests
     [TestMethod]
     public void DepartureSevereBoundarySaveFailureNeverPublishesCollapse()
     {
-        var s=Open();DepartureFixture(s);var m=s.CaptureImmersion()!;var id=s.CaptureMedical()!.AtRiskGuestId;
+        var s=Open();DepartureFixture(s);var m=s.CaptureImmersion()!;var id=BuildSession.LastGuest(s);
         Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=9800,WarningTick=GameSession.PreparedDayTicks-1599,SevereTicks=1599 }:p).ToArray() });
         PositionFixture(s,id,new(120,125),"edition.departure");var hash=s.CaptureSnapshot().AuthoritativeHash;
         var directory=Path.Combine(Path.GetTempPath(),"festival-departure-atomic-"+Guid.NewGuid());Directory.CreateDirectory(directory);
@@ -304,15 +304,15 @@ public sealed class ImmersionTests
     [DataRow(MedicalStage.Distress)]
     [DataRow(MedicalStage.Collapsed)]
     [DataRow(MedicalStage.Critical)]
-    public void DeparturePrimaryHeatUsesOriginalGlobalClocksForBoundaryAndDeath(MedicalStage stage)
+    public void DepartureHeatUsesPersonClocksForBoundaryAndDeath(MedicalStage stage)
     {
-        var s=Open();DepartureFixture(s);var medical=s.CaptureMedical()!;var id=medical.AtRiskGuestId;
+        var s=Open();DepartureFixture(s);var medical=s.CaptureMedical()!;var id=BuildSession.LastGuest(s);
         var collapse=stage==MedicalStage.Collapsed?GameSession.PreparedDayTicks-799L:GameSession.PreparedDayTicks-2399L;var warning=stage==MedicalStage.Distress?GameSession.PreparedDayTicks-1599L:GameSession.PreparedDayTicks-3999L;var critical=GameSession.PreparedDayTicks-1599L;
-        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=stage,WarningTick=warning,CollapseTick=stage==MedicalStage.Distress?-1:collapse,CriticalTick=stage==MedicalStage.Critical?critical:-1 });
+        Invoke(s,"UpdatePerson",id,(Func<Person,Person>)(n=>n with { HealthStage=stage,HealthWarningTick=warning,HealthCollapseTick=stage==MedicalStage.Distress?-1:collapse,HealthCriticalTick=stage==MedicalStage.Critical?critical:-1 }));
         if(stage!=MedicalStage.Distress)Invoke(s,"UpdatePerson",id,(Func<Person,Person>)(n=>n with { Intent=MedicalIntent.Collapsed }));
         PositionFixture(s,id,new(120,125),"medical.departure-collapse");Assert.IsTrue(s.MedicalBoundaryOnNextTick);
         s.AdvanceWithoutSnapshot(1);
-        Assert.AreEqual(stage==MedicalStage.Distress?MedicalStage.Collapsed:stage==MedicalStage.Collapsed?MedicalStage.Critical:MedicalStage.Terminal,s.CaptureMedical()!.Stage);
+        Assert.AreEqual(stage==MedicalStage.Distress?MedicalStage.Collapsed:MedicalStage.Critical,s.CaptureMedical()!.Needs.Single(n=>n.AgentId==id).Stage);Assert.AreEqual(stage==MedicalStage.Critical,s.CaptureMedical()!.Fatal);
         if(stage==MedicalStage.Critical)Assert.IsTrue(s.CaptureLifecycleSnapshot()!.Casualties.Single().Cause.Contains($"critical tick {critical}"));
         Restore(s);
     }

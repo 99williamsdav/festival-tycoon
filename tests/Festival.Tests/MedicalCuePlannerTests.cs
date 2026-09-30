@@ -13,7 +13,7 @@ public sealed class MedicalCuePlannerTests
     {
         var baseline = Baseline();
         var waterId = baseline.Needs[0].AgentId;
-        var tradeoffId = baseline.AtRiskGuestId;
+        var tradeoffId = baseline.Needs.Last(item => item.Profile == MedicalNeedProfile.Guest).AgentId;
         var planner = new MedicalCuePlanner();
         planner.Reset(baseline, 0);
         var choices = baseline with { Needs = baseline.Needs.Select(item => item.AgentId == waterId

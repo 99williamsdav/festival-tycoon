@@ -38,15 +38,15 @@ public sealed class GuestArrivalNeedsTests
             Assert.IsTrue(releases.Distinct().Count()>=10,"Guest entry must be visibly staggered.");
             Assert.IsTrue(guests.Select(p=>GameSession.GuestOpeningHunger(seed,p.AgentId)).Distinct().Count()>=15);
             Assert.IsTrue(guests.Select(p=>GameSession.GuestOpeningToiletNeed(seed,p.AgentId)).Distinct().Count()>=15);
-            Assert.IsTrue(guests.Where(p=>p.AgentId!=med.AtRiskGuestId).Select(p=>GameSession.GuestOpeningThirst(seed,p.AgentId)).Distinct().Count()>=15);
+            Assert.IsTrue(guests.Select(p=>GameSession.GuestOpeningThirst(seed,p.AgentId)).Distinct().Count()>=15);
             foreach(var person in guests)
             {
                 var food=immersion.People.Single(p=>p.AgentId==person.AgentId);var need=med.Needs.Single(p=>p.AgentId==person.AgentId);
                 Assert.IsTrue(food.Hunger is >=1500 and <=5500 && food.ToiletNeed is >=1200 and <=5200);
                 Assert.AreEqual(GameSession.GuestOpeningHunger(seed,person.AgentId),food.Hunger);
                 Assert.AreEqual(GameSession.GuestOpeningToiletNeed(seed,person.AgentId),food.ToiletNeed);
-                Assert.AreEqual(person.AgentId==med.AtRiskGuestId?8500:GameSession.GuestOpeningThirst(seed,person.AgentId),need.Thirst);
-                Assert.AreEqual(person.AgentId==med.AtRiskGuestId?7500:2500,need.HeatExposure);
+                Assert.AreEqual(GameSession.GuestOpeningThirst(seed,person.AgentId),need.Thirst);
+                Assert.AreEqual(2500,need.HeatExposure);
                 Assert.AreEqual(0,food.Intoxication);Assert.IsNull(food.Held);
             }
             var twin=Ready(seed);

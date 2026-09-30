@@ -32,8 +32,7 @@ public sealed class MedicalCuePlanner
         _ => RoutineKind.None
     };
 
-    private static MedicalStage StageFor(MedicalSnapshot medical, MedicalNeed need) =>
-        need.AgentId == medical.AtRiskGuestId ? medical.Stage : need.Stage;
+    private static MedicalStage StageFor(MedicalSnapshot medical, MedicalNeed need) => need.Stage;
 
     private static string? UrgentText(MedicalStage stage) => stage switch
     {
