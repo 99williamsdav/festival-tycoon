@@ -62,8 +62,8 @@ public sealed partial class GameSession
     public int PreparedEditionDurationTicks => PreparedDayTicks;
 
     public PreparationStatus? PreparedStatus => _preparation?.Status;
-    public PreparationSnapshot? CapturePreparation() => PreparationView is not { } view ? null :
-        JsonSerializer.Deserialize<PreparationSnapshot>(JsonSerializer.Serialize(view));
+    /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
+    public PreparationSnapshot? CapturePreparation() => PreparationView;
     internal string? PreparationCanonicalJson => PreparationView is not { } p ? null : System.Text.Json.JsonSerializer.Serialize(p);
     public bool PreparationBoundaryOnNextTick => !IsPaused && _preparation is { } p &&
         (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks - 1 && PeopleIn(PersonView.Roster).All(item => item.Admitted) ||

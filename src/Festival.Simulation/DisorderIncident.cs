@@ -46,8 +46,8 @@ public sealed partial class GameSession
     public static readonly GridCell DisorderSecurityPostCell = new(114, 178); // (-6.75, 25.25) m.
     public static readonly GridCell DisorderSecurityBaseCell = new(119, 178); // (-4.25, 25.25) m; front of post facing the path.
 
-    public DisorderSnapshot? CaptureDisorder() => DisorderView is not { } view ? null :
-        JsonSerializer.Deserialize<DisorderSnapshot>(JsonSerializer.Serialize(view));
+    /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
+    public DisorderSnapshot? CaptureDisorder() => DisorderView;
     internal string? DisorderCanonicalJson => DisorderView is not { } d ? null : System.Text.Json.JsonSerializer.Serialize(d);
 
 

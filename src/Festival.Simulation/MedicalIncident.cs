@@ -185,7 +185,8 @@ public sealed partial class GameSession
             .Any(slot => Math.Abs(cell.X - slot.X) <= 2 && Math.Abs(cell.Z - slot.Z) <= 2));
 
 
-    public MedicalSnapshot? CaptureMedical() => MedicalView is not { } view ? null : JsonSerializer.Deserialize<MedicalSnapshot>(JsonSerializer.Serialize(view));
+    /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
+    public MedicalSnapshot? CaptureMedical() => MedicalView;
     internal string? MedicalCanonicalJson => MedicalView is not { } m ? null : System.Text.Json.JsonSerializer.Serialize(m);
     public bool MedicalBoundaryOnNextTick => ImmersionDepartureMedicalBoundaryOnNextTick || StaffMedicalBoundaryOnNextTick || !IsPaused && _medical is { } m && _preparation is { Status: PreparationStatus.Running } &&
         (m.Stage == MedicalStage.Clear && _persons[m.AtRiskGuestId].Thirst >= MedicalDistressThirst - 1 ||

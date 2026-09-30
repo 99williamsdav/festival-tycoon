@@ -38,7 +38,8 @@ public sealed record SkipPerksCommand(int DraftAttempt, ulong Cursor) : PerkComm
 public sealed partial class GameSession
 {
     private PerkSnapshot? _perks;
-    public PerkSnapshot? CapturePerks() => _perks is null ? null : JsonSerializer.Deserialize<PerkSnapshot>(JsonSerializer.Serialize(_perks));
+    /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
+    public PerkSnapshot? CapturePerks() => _perks;
     internal string? PerkCanonicalJson => _perks is null ? null : JsonSerializer.Serialize(_perks);
     private bool HasPerk(string id) => _perks is { Ended: false } p && p.Equipped.Contains(id);
     private void OpenPerkDraft()

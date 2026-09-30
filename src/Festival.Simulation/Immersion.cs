@@ -43,7 +43,8 @@ public sealed record ImmersionSnapshot(int Version, bool StockPurchased, int Chi
 public sealed partial class GameSession
 {
 
-    public ImmersionSnapshot? CaptureImmersion() => ImmersionView is not { } view ? null : JsonSerializer.Deserialize<ImmersionSnapshot>(JsonSerializer.Serialize(view));
+    /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
+    public ImmersionSnapshot? CaptureImmersion() => ImmersionView;
     internal string? ImmersionCanonicalJson => ImmersionView is not { } view ? null : JsonSerializer.Serialize(view);
     public static int ImmersionPrice(ImmersionProduct product) => product == ImmersionProduct.SoftDrink ? 200 : 300;
     // Whole-penny prices: round a half-penny down in the buyer's favour.
