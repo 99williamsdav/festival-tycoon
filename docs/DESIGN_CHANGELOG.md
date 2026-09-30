@@ -1,5 +1,9 @@
 # Design documentation changelog
 
+## 30 September 2026 — sixth philosophy: farce, not dread
+
+Added the user-endorsed sixth [design philosophy](../DESIGN_PHILOSOPHIES.md): a comic British-farce tone with real stakes, a nuisance → problem → emergency → death pressure ladder, near-misses and rescues as the main drama, and death as rare dark comedy. This is design direction, not gameplay authorization.
+
 ## 30 September 2026 — user-endorsed philosophies
 
 Recorded the user's five [design philosophies](../DESIGN_PHILOSOPHIES.md), especially people as storytellers, meaningful failure and depth from interacting systems. Linked them from the root README, current-design snapshot and roguelike authority. This is design direction, not gameplay authorization.

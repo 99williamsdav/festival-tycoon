@@ -1,6 +1,6 @@
 # Festival Tycoon — design philosophies
 
-**User-endorsed direction, 30 September 2026.** These are tests for future design choices, not a commission for new features or a substitute for bounded briefs. The user particularly emphasized **people, failure and interacting systems** (1, 4 and 5). Read alongside the [current prototype](CURRENT_DESIGN.md) and [roguelike authority](ROGUELIKE_DESIGN.md).
+**User-endorsed direction, 30 September 2026.** Six tests for future design choices, not a commission for new features or a substitute for bounded briefs. The user particularly emphasized **people, failure and interacting systems** (1, 4 and 5). Read alongside the [current prototype](CURRENT_DESIGN.md) and [roguelike authority](ROGUELIKE_DESIGN.md).
 
 1. **People, not meters.** Guests, bands and staff are individuals whose understandable behavior creates stories. Their models must not merely dress up resource bars. *Review question:* Can a player point to a person and explain what they are doing and why?
 
@@ -11,5 +11,7 @@
 4. **Failure creates stories and better next attempts.** Losing may be funny, dramatic or costly, but its cause and available counterplay should be understandable. Vary pressure while avoiding grind and tedious repetition. *Review question:* After a loss, can the player tell a memorable story and identify a better next decision?
 
 5. **Depth through interacting systems.** Favor simple, legible rules that collide productively over piling on currencies, menus and exceptions. Beer income can increase toilet demand; a popular band can concentrate the crowd; a cheap layout can worsen travel and queues. These are examples of interaction, not new mechanics authorization. *Review question:* Does this rule create an interesting relationship with existing systems that the player can notice and use?
+
+6. **Farce, not dread.** Added 30 September 2026. The tone is British farce (Fawlty Towers, Hot Fuzz, Two Point Hospital), not Frostpunk: everything goes wrong, nobody is supposed to die, and it's the player's job to keep it that way. Chaos comes from *excess*, such as too much beer, too much excitement or too many people wanting the same toilet, rather than scarcity and inevitable decline. Most chaos should sit on the funny lower rungs of a pressure ladder (nuisance → problem → emergency → death). Frequent near-misses and last-second rescues should carry the drama, with rescues celebrated, while actual deaths stay rare and are treated as dark comedy, never gore. Danger signals stay unmistakable but can be written with a wink; fixes should be quick and satisfying rather than fiddly; and the timetable's natural peaks and lulls give breathing room. *Review question:* Does this make the chaos funnier and the stakes clearer, or just grimmer and more stressful?
 
 Clear, responsive UI and fair warning/counterplay support all five pillars. In particular, an expressive failure is still subject to the existing causal-safety contract; it cannot be an unavoidable surprise death. A new system needs its own approved scope, implementation and evidence even when it fits these philosophies.

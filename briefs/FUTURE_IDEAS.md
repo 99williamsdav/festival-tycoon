@@ -2,6 +2,10 @@
 
 Updated 29 September 2026. Unscheduled discussion kept separately from the [review backlog](BACKLOG.md). Recording an idea here is **not approval or implementation authorization**; a later product decision, concept where graphics are involved, and bounded brief are needed. The [current prototype](../CURRENT_DESIGN.md) ends after its Tier 1 newspaper/accounts. These ideas do not change that.
 
+## Run variety and live play
+
+Recorded 30 September 2026. Weekend contracts, larger band/staff/perk pools, weekend modifiers, named trait guests, farm memory and a festival-director live-play model are collected in the [run variety and live play proposal](../RUN_VARIETY_AND_LIVE_PLAY.md). Discussion only; no approval or implementation authorization.
+
 ## Band T-shirts for devoted fans
 
 Recorded27September2026 at the user's request. Purely cosmetic visual expression of strong band affinity: enthusiastic fans may wear their favourite band's T-shirt.
