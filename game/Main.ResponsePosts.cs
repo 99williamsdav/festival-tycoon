@@ -11,9 +11,6 @@ public partial class Main
     private readonly Dictionary<ResponseRole,Node3D> _responsePostVisuals=[];
     private readonly Dictionary<ResponseRole,StaticBody3D> _responsePostPicks=[];
     private readonly Dictionary<ResponseRole,Label3D> _responsePostLabels=[];
-    private MeshInstance3D? _postFootprintPreview;
-    private Label3D? _postPreviewLabel;
-    private readonly List<MeshInstance3D> _postFrontMarkers=[];
     private Button? _firstAidMoveButton;
     private Button? _stewardMoveButton;
     private static string PostAsset(ResponseRole role)=>role==ResponseRole.Medic?"res://assets/environment/lwf_first_aid_point_v2.glb":"res://assets/environment/lwf_security_post_v1.glb";

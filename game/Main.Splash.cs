@@ -12,8 +12,6 @@ public partial class Main
     private CanvasLayer? _startSplash;
     private bool _newCampaignOnEnter;
     private readonly HashSet<ulong> _menuCampaignIds = [];
-    private string? _startSplashCapturePath;
-    private int _startSplashCaptureFrame;
 
     private void BuildStartSplash()
     {
@@ -103,11 +101,4 @@ CancelPerkConfirmation();
         return GameSession.CreateBuildCampaign(seed);
     }
 
-    private void ProcessStartSplashCapture()
-    {
-        if (_startSplashCapturePath is null || ++_startSplashCaptureFrame < 4) return;
-        GetViewport().GetTexture().GetImage().SavePng(_startSplashCapturePath);
-        GD.Print($"START_SPLASH_CAPTURE path={_startSplashCapturePath}");
-        GetTree().Quit();
-    }
 }

@@ -9,7 +9,6 @@ public partial class Main
 {
     private MeshInstance3D _hoverHighlight = null!;
     private ulong _hoveredColliderId;
-    private Input.CursorShape _feedbackCursor;
     private PopupMenu? _hoverPopup;
     private OptionButton? _hoverPopupOwner;
     private readonly Dictionary<ulong,(Vector3 Centre,Vector3 Scale)> _buildingHoverGeometry=[];
@@ -159,6 +158,6 @@ public partial class Main
             for(var i=0;actionable && i<popup.ItemCount;i++)actionable=!popup.IsItemDisabled(i) && !popup.IsItemSeparator(i);
             cursor=actionable && new Rect2(Vector2.Zero,popup.Size).HasPoint(popup.GetMousePosition())?Input.CursorShape.PointingHand:Input.CursorShape.Arrow;
         }
-        _feedbackCursor = cursor; Input.SetDefaultCursorShape(cursor);
+        Input.SetDefaultCursorShape(cursor);
     }
 }

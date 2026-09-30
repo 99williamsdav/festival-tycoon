@@ -17,28 +17,16 @@ public partial class Main
     // Development capture modes retain their historical per-action fixtures.
     // Ordinary play trades at most 30 unpaused seconds of changes for responsive edits.
     // Ordinary launches (no user arguments) and the frame profile use background cadence saves.
-    private bool RelaxedSaveCadence => (OS.GetCmdlineUserArgs().Length == 0 || _saveCadenceCaptureOutput is not null ||
-        _playtestCaptureDirectory is not null || _preparationProfileOutput is not null);
+    private bool RelaxedSaveCadence => (OS.GetCmdlineUserArgs().Length == 0 || _preparationProfileOutput is not null);
     private long _saveRevision;
     private long _savedRevision;
     private long _savingRevision;
     private long _savingGeneration;
     private Task<SaveOperationResult>? _cadenceSaveTask;
     private bool _cadenceDue;
-    private int _cadenceWriteAttempts;
-    private int _cadenceMilestoneAttempts;
-    private int _cadenceFailures;
-    private int _cadenceFixtureFailure = 1;
-    private bool _cadenceFailNextMilestone;
     private bool _cadenceSaveError;
     private CanvasLayer? _cadenceErrorLayer;
     private Label? _cadenceErrorLabel;
-    private string? _saveCadenceCaptureOutput;
-    private int _saveCadenceCaptureStage;
-    private long _saveCadenceCaptureStarted;
-    private long _saveCadencePendingTick;
-    private bool _saveCadenceMovedWhilePending;
-    private readonly List<double> _saveCadenceClickMs = [];
 
     private void MarkSaveDirty() => _saveRevision++;
 
@@ -103,7 +91,6 @@ public partial class Main
         }
         else
         {
-            _cadenceFailures++;
             _preparationMessage = "Background save failed; changes remain in play and will retry. " + result.Error;
             ShowCadenceSaveError("The latest changes remain in play. Any earlier valid save remains intact. Retry now or keep playing for the next 30-second attempt.");
         }
@@ -124,13 +111,7 @@ public partial class Main
         var directory = SaveDirectory;
         var compatibility = _saveCompatibility;
         var generation = _savingGeneration;
-        _cadenceWriteAttempts++;
-        Action<SaveFailurePoint>? injector = _saveCadenceCaptureOutput is null ? null : _ =>
-        {
-            Thread.Sleep(650); // labelled slow/failing-disk fixture; worker only
-            if (Interlocked.Exchange(ref _cadenceFixtureFailure, 0) == 1)
-                throw new IOException("Labelled first periodic write failure");
-        };
+        Action<SaveFailurePoint>? injector = null;
         _cadenceSaveTask = Task.Run(() => AutosaveRotation.SaveCaptured(directory, snapshot, compatibility,
             DateTimeOffset.UtcNow, generation, injector));
         _cadenceDue = false;
@@ -148,15 +129,7 @@ public partial class Main
         if (!force && _saveRevision == _savedRevision) return true;
         var snapshot = _session.CapturePersistenceSnapshot();
         var revision = _saveRevision;
-        _cadenceMilestoneAttempts++;
-        Action<SaveFailurePoint>? injector = _saveCadenceCaptureOutput is null ? null : _ =>
-        {
-            if (_cadenceFailNextMilestone)
-            {
-                _cadenceFailNextMilestone = false;
-                throw new IOException("Labelled milestone write failure");
-            }
-        };
+        Action<SaveFailurePoint>? injector = null;
         var result = AutosaveRotation.SaveCaptured(SaveDirectory, snapshot, _saveCompatibility,
             DateTimeOffset.UtcNow, _autosaveGeneration, injector);
         if (!result.IsSuccess)
@@ -190,93 +163,4 @@ public partial class Main
         return false;
     }
 
-    private void ProcessSaveCadenceCapture()
-    {
-        if (_saveCadenceCaptureOutput is null) return;
-        try
-        {
-            if (_saveCadenceCaptureStage == 0)
-            {
-                GD.Print("SAVE_CADENCE_CAPTURE_SETUP");
-                var perk = _session.CapturePerks()!;
-                CommitEquipmentAction(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
-                CommitEquipmentAction(new UseDefaultBuildLayoutCommand());
-                CommitEquipmentAction(new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
-                for (var index = 0; index < 9; index++)
-                {
-                    var clickStarted = Stopwatch.GetTimestamp();
-                    _offerButtons["staff.steward"].EmitSignal(BaseButton.SignalName.Pressed);
-                    _saveCadenceClickMs.Add(Stopwatch.GetElapsedTime(clickStarted).TotalMilliseconds);
-                }
-                if (_cadenceWriteAttempts != 0 || _cadenceMilestoneAttempts != 0 ||
-                    Directory.Exists(SaveDirectory) && Directory.EnumerateFiles(SaveDirectory).Any())
-                    throw new InvalidOperationException("Ordinary draft edits wrote a save before the cadence or opening milestone.");
-                PreparationStart();
-                if (_session.PreparedStatus != PreparationStatus.Running || _cadenceMilestoneAttempts != 1)
-                    throw new InvalidOperationException("Festival start did not create exactly one milestone save.");
-                _saveCadenceCaptureStarted = Stopwatch.GetTimestamp();
-                _saveCadenceCaptureStage = 1;
-                return;
-            }
-            var seconds = Stopwatch.GetElapsedTime(_saveCadenceCaptureStarted).TotalSeconds;
-            if (_saveCadenceCaptureStage == 1 && _cadenceSaveTask is not null)
-            {
-                _saveCadencePendingTick = _session.CurrentTick;
-                ExecuteWithoutImmediateSave(new SetPausedCommand(true), out _);
-                ExecuteWithoutImmediateSave(new SetPausedCommand(false), out _);
-                _saveCadenceCaptureStage = 2;
-            }
-            if (_saveCadenceCaptureStage == 2 && _cadenceSaveTask is not null && _session.CurrentTick > _saveCadencePendingTick)
-                _saveCadenceMovedWhilePending = true;
-            if (seconds < 6.8 || _cadenceSaveTask is not null) return;
-            if (_cadenceFailures != 1 || _cadenceWriteAttempts < 2 || !_saveCadenceMovedWhilePending)
-                throw new InvalidOperationException($"Failed-write retry, coalescing or movement while pending was not demonstrated: failures={_cadenceFailures} writes={_cadenceWriteAttempts} moved={_saveCadenceMovedWhilePending} stage={_saveCadenceCaptureStage} tick={_session.CurrentTick}.");
-            var prior = AutosaveRotation.LoadNewestValid(SaveDirectory, _saveCompatibility);
-            if (!prior.IsSuccess) throw new InvalidOperationException("A failed write lost the previous valid slot: " + prior.Error);
-            var writesBeforePause = _cadenceWriteAttempts;
-            ExecuteWithoutImmediateSave(new SetPausedCommand(true), out _);
-            AdvanceCadenceSave(60); // labelled artificial elapsed time; paused play does not accrue cadence
-            if (_cadenceWriteAttempts != writesBeforePause)
-                throw new InvalidOperationException("Paused play scheduled a background write.");
-            ExecuteWithoutImmediateSave(new SetPausedCommand(false), out _);
-            if (!SaveCadenceMilestone("Fixture final")) throw new InvalidOperationException(_preparationMessage);
-            var loaded = AutosaveRotation.LoadNewestValid(SaveDirectory, _saveCompatibility);
-            var hash = _session.CaptureSnapshot().AuthoritativeHash;
-            if (!loaded.IsSuccess || loaded.Session!.CaptureSnapshot().AuthoritativeHash != hash)
-                throw new InvalidOperationException("Final milestone did not reload exactly: " + loaded.Error);
-            var writesBeforeUnchanged = _cadenceWriteAttempts;
-            AdvanceCadenceSave(2.1); // labelled artificial due window with no changed state
-            if (_cadenceWriteAttempts != writesBeforeUnchanged)
-                throw new InvalidOperationException("Unchanged state scheduled a redundant background write.");
-            var priorHash = loaded.Session.CaptureSnapshot().AuthoritativeHash;
-            _cadenceFailNextMilestone = true;
-            if (SaveCadenceMilestone("Labelled terminal") || !_cadenceSaveError || _cadenceErrorLayer?.Visible != true)
-                throw new InvalidOperationException("Failed terminal milestone did not expose a visible retry action.");
-            var afterFailure = AutosaveRotation.LoadNewestValid(SaveDirectory, _saveCompatibility);
-            if (!afterFailure.IsSuccess || afterFailure.Session!.CaptureSnapshot().AuthoritativeHash != priorHash)
-                throw new InvalidOperationException("Failed terminal milestone damaged the previous valid slot.");
-            if (!SaveCadenceMilestone("Retry") || _cadenceSaveError || _cadenceErrorLayer?.Visible != false)
-                throw new InvalidOperationException("Terminal milestone retry did not clear the visible error.");
-            File.WriteAllText(_saveCadenceCaptureOutput, JsonSerializer.Serialize(new
-            {
-                mode = "changed-state-2s-diagnostic", productionCadenceSeconds = RealTimeAutosaveScheduler.ProductionCadenceSeconds,
-                draftEdits = 9, buildPlacementCommands = 1, draftWriteAttempts = 0,
-                clickToVisibleMilliseconds = _saveCadenceClickMs,
-                milestoneWrites = _cadenceMilestoneAttempts, periodicWriteAttempts = _cadenceWriteAttempts,
-                failedPeriodicWrites = _cadenceFailures, movedWhileWritePending = _saveCadenceMovedWhilePending,
-                pausedCadenceSkipped = true, unchangedCadenceSkipped = true,
-                failedMilestonePreservedSlot = true, visibleRetrySucceeded = true,
-                finalTick = _session.CurrentTick, exactFinalReload = true, finalHash = hash
-            }, new JsonSerializerOptions { WriteIndented = true }));
-            GD.Print($"SAVE_CADENCE_CAPTURE_COMPLETE periodic={_cadenceWriteAttempts} failures={_cadenceFailures} tick={_session.CurrentTick}");
-            _saveCadenceCaptureOutput = null;
-            GetTree().Quit();
-        }
-        catch (Exception exception)
-        {
-            GD.PushError("SAVE_CADENCE_CAPTURE_FAILED " + exception);
-            _saveCadenceCaptureOutput = null;
-            GetTree().Quit(2);
-        }
-    }
 }

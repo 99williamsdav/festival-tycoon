@@ -21,7 +21,6 @@ public partial class Main
     private readonly Dictionary<BuildServiceKind, (Label Count, Button Action, HBoxContainer Row)> _buildCatalogueRows = [];
     private readonly Dictionary<BuildServiceKind, List<Button>> _buildShortcutButtons = [];
     private bool _buildDrawerOpen;
-    private Button? _buildDrawerClose;
     private Button? _buildSiteWaterButton;
     private string _buildPlacedKey = "";
     private BuildServiceKind? _buildGhostKind;
@@ -101,7 +100,6 @@ public partial class Main
         var title = HudLabel("Build your festival", 23); title.AddThemeFontOverride("font", HearingSerif());
         heading.AddChild(title);
         var close = ButtonText("×", () => { _buildDrawerOpen = false; RefreshHudWorkspace(); });
-        _buildDrawerClose = close;
         close.TooltipText = "Collapse Build drawer"; close.CustomMinimumSize = new Vector2(34, 34); heading.AddChild(close);
         box.AddChild(HudLabel("Select a service · scroll for all six.", 12));
         var defaults = ButtonText("Use defaults…", ShowBuildDefaults);

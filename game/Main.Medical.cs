@@ -11,11 +11,6 @@ public partial class Main
 {
     private Label? _medicalSummary;
     private readonly System.Collections.Generic.Dictionary<MedicalAction, Button> _medicalButtons = [];
-    private string? _waterFoundationCaptureDirectory;
-    private int _waterFoundationCaptureFrame;
-    private int _medicalCaptureFrame;
-    private ulong _medicalCaptureWaterCueId;
-    private ulong _medicalCaptureTradeoffCueId;
     private readonly MedicalCuePlanner _medicalCuePlanner = new();
     private readonly System.Collections.Generic.Dictionary<ulong, Label3D> _medicalCueLabels = [];
     private VBoxContainer? _medicalNeedsBars;
@@ -40,7 +35,6 @@ public partial class Main
     private Label? _waterFlowLabel;
     private readonly System.Collections.Generic.Dictionary<string, Texture2D> _waterFlowTextures = [];
     private MeshInstance3D? _waterPlacementPreview;
-    private readonly System.Collections.Generic.List<MeshInstance3D> _waterQueuePreview = [];
     private MedicalFacility? _selectedMedicalFacility;
     private string _selectedWaterPointId = "water.main";
 
@@ -81,18 +75,6 @@ public partial class Main
         AddChild(_waterPlacementPreview);
         _waterPlacementAsset = AddAsset("res://assets/environment/lwf_free_water_point_v4.glb", Vector3.Zero);
         _waterPlacementAsset.Visible = false;
-        for (var index = 0; index < 20; index++)
-        {
-            var marker = new MeshInstance3D
-            {
-                Mesh = new CylinderMesh { TopRadius = .4f, BottomRadius = .4f, Height = .045f },
-                MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color(.25f, .78f, .38f, .48f),
-                    Transparency = BaseMaterial3D.TransparencyEnum.Alpha, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
-                Visible = false
-            };
-            AddChild(marker);
-            _waterQueuePreview.Add(marker);
-        }
         SyncExtraWaterWorld();
     }
 

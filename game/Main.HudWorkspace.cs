@@ -15,7 +15,6 @@ public partial class Main
     private PanelContainer? _hudProgramme;
     private Control? _hudAlerts;
     private PanelContainer? _hudDiagnostics;
-    private Control? _hudProgrammeBody;
     private Label? _hudMoney;
     private Label? _hudPhase;
     private Label? _hudClock;
@@ -32,7 +31,6 @@ public partial class Main
     private Button? _hudRosterToggle;
     private HBoxContainer? _hudLegacyBottom;
     private PanelContainer? _hudLegacyStatusPanel;
-    private HBoxContainer? _hudWorkspaceFooter;
     private ConfirmationDialog? _hudStartConfirmation;
     private ScrollContainer? _hudContextScroll;
     private TabContainer? _hudTabs;
@@ -178,7 +176,6 @@ public partial class Main
         site.AddChild(ButtonText("Exact effect ▸", () => { _hudWaterExact = !_hudWaterExact; RefreshHudWorkspace(); }));
         _communityShareButton = ButtonText("Commit water sharing", () => CommitEquipmentAction(new CommitCommunityWaterShareCommand())); site.AddChild(_communityShareButton);
         var footer = new HBoxContainer(); var footerSeparator = new HSeparator(); workspaceBox.AddChild(footerSeparator); workspaceBox.AddChild(footer);
-        _hudWorkspaceFooter = footer;
         footer.Visible = false; footerSeparator.Visible = false;
         _hudStartReason = HudLabel(""); footer.AddChild(_hudStartReason);
         // Existing development captures emit this button directly. Keep that bounded
@@ -200,7 +197,7 @@ public partial class Main
         _hudProgrammeToggle = ButtonText("Programme ▴", () => { _hudProgrammeOpen = !_hudProgrammeOpen; RefreshHudWorkspace(); });
         _hudProgrammeToggle.Position = new Vector2(width - 150, 58); _hudProgrammeToggle.Size = new Vector2(150, 34); _hudProgrammeToggle.Theme = HudTheme(); layer.AddChild(_hudProgrammeToggle);
         _hudProgramme = HudPanel(layer, new Vector2(width - 300, 92), new Vector2(300, 172));
-        var programmeBox = new VBoxContainer(); _hudProgramme.AddChild(programmeBox); _hudProgrammeBody = programmeBox;
+        var programmeBox = new VBoxContainer(); _hudProgramme.AddChild(programmeBox);
         _liveSetCue = HudLabel("", 15); programmeBox.AddChild(_liveSetCue);
 
         _contextPanel = HudPanel(layer, new Vector2(width - 300, 280), new Vector2(300, Math.Min(380, height - 340))); _contextPanel.Visible = false;

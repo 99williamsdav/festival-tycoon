@@ -28,7 +28,6 @@ public partial class Main
     private PanelContainer? _hearingConfirm;
     private Label? _hearingConfirmCopy;
     private SessionCommand? _pendingHearingDecision;
-    private int _hearingCaptureFrame;
 
     private static SystemFont HearingSerif() => new() { FontNames = ["Georgia", "Times New Roman"] };
 

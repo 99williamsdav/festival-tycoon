@@ -17,13 +17,10 @@ public partial class Main
     private AudioStreamPlayer? _crowdCheer;
     private AudioStreamPlayer? _bandEntryApplause;
     private AudioStreamPlayer? _setEndApplause;
-    private int _setEndApplausePlayCount;
     private bool _bandEntryReactionPlayed;
     private int _stageAudioBus = -1;
     private int _lastReactionSequence = -1;
     private LiveSetStage? _presentedSetStage;
-    private int _liveCaptureFrame;
-    private int _liveMeasurementTier;
     private Label? _liveSetCue;
     private Button? _stageMuteButton;
     private bool _stageMuted;
@@ -390,7 +387,6 @@ public partial class Main
                 var strength = PerformanceApplauseMath.Strength(live.SetEndAudienceCount, live.SetEndEnjoymentTotal);
                 _setEndApplause.VolumeDb = Mathf.LinearToDb((float)strength * attenuation);
                 _setEndApplause.Play();
-                _setEndApplausePlayCount++;
             }
             if (live.LastReaction is "set-start-cheer" or "set-start-muted") _bandEntryApplause?.Stop();
             if (live.LastReaction == "set-start-cheer")

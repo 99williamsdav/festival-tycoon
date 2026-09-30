@@ -22,7 +22,6 @@ public partial class Main
 
     private Label? _disorderSummary;
     private readonly Dictionary<DisorderAction, Button> _disorderButtons = [];
-    private int _disorderCaptureFrame;
     private ulong _securityPostPickId;
     private bool _selectedSecurityPost;
     private Button? _securityPostWorkerButton;

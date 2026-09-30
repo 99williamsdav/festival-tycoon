@@ -33,10 +33,6 @@ public partial class Main
         RefreshStagePowerAction(); RefreshContextPanelVisibility();
     }
     private EquipmentStage? _equipmentVisualStage;
-    private int _equipmentCaptureStep;
-    private long _equipmentCaptureStarted;
-    private long _equipmentPriorFrame;
-    private readonly List<double> _equipmentFrames = [];
 
     private void BuildEquipmentControls(VBoxContainer box)
     {
@@ -59,7 +55,7 @@ public partial class Main
     private void CommitEquipmentAction(SessionCommand command)
     {
         if (RejectActionDuringDraftSave()) return;
-        var actionSaveDirectory = _buildCaptureDirectory is null ? SaveDirectory : Path.Combine(_buildCaptureDirectory, "saves");
+        var actionSaveDirectory = SaveDirectory;
         var relaxed = RelaxedSaveCadence;
         PreparationAdvanceResult result;
         if (relaxed)

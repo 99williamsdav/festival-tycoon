@@ -13,12 +13,6 @@ public partial class Main
     private readonly List<CashPopup> _cashPopups = [];
     private readonly Dictionary<(string Anchor, bool Credit), long> _cashPopupPending = [];
     private CanvasLayer? _cashPopupLayer;
-    private long _cashFeedbackCredits;
-    private long _cashFeedbackExpenses;
-    private int _financeCaptureStep;
-    private double _financeCaptureElapsed;
-    private long _financeCaptureSalesTick;
-    private long _financeCaptureObservedCredit;
     private float _financeCaptureEarlyAlpha;
     private float _financeCaptureEarlyY;
     private string _financeCaptureAnimationHash = "";
@@ -113,8 +107,6 @@ public partial class Main
         }
         foreach (var item in _financeFeedbackCursor.Observe(_session.CaptureFestivalCashFeedbackEvents()))
         {
-            if (item.FestivalCashPennies > 0) _cashFeedbackCredits += item.FestivalCashPennies;
-            else _cashFeedbackExpenses += item.FestivalCashPennies;
             var anchor = FinanceFeedbackAnchor(item.AnchorKey);
             var credit = item.FestivalCashPennies > 0;
             var recent = _cashPopups.FirstOrDefault(p => p.Anchor == anchor && (p.Pennies > 0) == credit && p.Age < .2);

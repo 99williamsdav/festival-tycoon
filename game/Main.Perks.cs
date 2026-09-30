@@ -37,8 +37,6 @@ public partial class Main
     private bool _pendingPerkSkip;
     private int _confirmationDraftAttempt;
     private ulong _confirmationCursor;
-    private int _perkCaptureFrame;
-    private string _perkCapturePureHash = "";
 
     private void BuildPerkHud(CanvasLayer layer)
     {

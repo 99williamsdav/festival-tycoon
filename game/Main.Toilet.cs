@@ -10,10 +10,6 @@ public partial class Main
 {
     private const string ToiletAsset = "res://assets/environment/portaloo/lwf_portaloo_v1.glb";
     private const string OccupiedIndicatorAsset = "res://assets/environment/portaloo/lwf_portaloo_indicator_occupied_v1.glb";
-    private StaticBody3D? _toiletBody;
-    private Node3D? _toiletDoorPivot;
-    private Node3D? _toiletFreeIndicator;
-    private Node3D? _toiletOccupiedIndicator;
     private readonly HashSet<ulong> _toiletPickIds = [];
     private readonly Dictionary<ulong, string> _toiletPickOwners = [];
     private sealed record ToiletView(StaticBody3D Body, Node3D Door, Node3D Free, Node3D Occupied);
@@ -21,8 +17,6 @@ public partial class Main
     private bool _selectedToilet;
     private string? _selectedToiletId;
     private Button? _toiletMoveButton;
-    private MeshInstance3D? _toiletFootprintPreview;
-    private Label3D? _toiletPreviewLabel;
 
     private static Node3D RequireToiletNode(Node3D root, string name) =>
         root.FindChild(name, true, false) as Node3D ?? throw new InvalidOperationException("Approved portaloo node missing: " + name);
@@ -88,12 +82,6 @@ public partial class Main
             view.Occupied.Visible = toilet.OccupiedIndicator;
             view.Free.Visible = !toilet.OccupiedIndicator;
         }
-        var primary = toilets.FirstOrDefault();
-        var primaryView = primary is null ? null : _toiletViews[primary.Id];
-        _toiletBody = primaryView?.Body;
-        _toiletDoorPivot = primaryView?.Door;
-        _toiletFreeIndicator = primaryView?.Free;
-        _toiletOccupiedIndicator = primaryView?.Occupied;
         RefreshToiletInspector();
     }
 

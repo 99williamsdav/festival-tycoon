@@ -21,8 +21,6 @@ public partial class Main
     private SessionPersistenceSnapshot? _boundarySourceSnapshot;
     private Task<SaveOperationResult>? _periodicSaveTask;
     private long _boundarySourceTick;
-    private long _boundarySourceGeneration;
-    private string _boundarySourceHash = "";
     private bool UseResponsiveBoundarySaves => !RelaxedSaveCadence &&
         OS.GetCmdlineUserArgs().Length == 0;
     private static bool BoundaryOnNextTick(GameSession session) => session.ImmersionBoundaryOnNextTick ||
@@ -40,9 +38,7 @@ public partial class Main
         {
             _boundarySourceSession = source;
             _boundarySourceTick = source.CurrentTick;
-            _boundarySourceGeneration = _autosaveGeneration;
             var sourceCaptureStarted = PersistenceTiming.Start();
-            _boundarySourceHash = source.CaptureSnapshot().AuthoritativeHash;
             _boundarySourceSnapshot = source.CapturePersistenceSnapshot();
             _boundaryLastDurableSnapshot = _boundarySourceSnapshot;
             PersistenceTiming.Record("live.boundary-source-capture", sourceCaptureStarted);

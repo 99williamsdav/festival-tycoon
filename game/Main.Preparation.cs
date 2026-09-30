@@ -22,13 +22,9 @@ public partial class Main
     private Button? _communityShareButton;
     private Label? _communityShareInfo;
     private string _preparationMessage = "Choose one act and one worker. Equipment and stock are optional.";
-    private readonly List<double> _preparationFrameMilliseconds = [];
-    private long _preparationPriorTimestamp;
     private bool _preparationSaveBlocked;
     private PreparationDraftSavePipeline? _draftSavePipeline;
-    private long _preparationMeasurementStarted;
     private long _preparationLiveStarted;
-    private readonly List<double> _preparationMovingFrameMilliseconds = [];
 
     private void BuildPreparationHud()
     {

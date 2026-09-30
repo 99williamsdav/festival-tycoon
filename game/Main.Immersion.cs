@@ -18,9 +18,6 @@ public partial class Main
     private readonly Dictionary<string, StaticBody3D> _immersionVendors = [];
     private readonly Dictionary<ulong, string> _immersionVendorPicks = [];
     private string? _selectedImmersionVendor;
-    private Label3D? _immersionPreviewLabel;
-    private int _immersionPreviewQuarterTurns = -1;
-    private readonly List<MeshInstance3D> _immersionQueuePreview = [];
     private VBoxContainer? _immersionNeedSection;
     private ProgressBar? _immersionHungerBar;
     private ProgressBar? _immersionIntoxBar;
