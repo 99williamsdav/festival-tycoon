@@ -6,9 +6,12 @@ public sealed partial class GameSession
     /// A fresh Tier 1 campaign on the ordinary New Game route. Each stage adds one
     /// system in a fixed order; the order also fixes every entity identity.
     /// </summary>
-    public static GameSession CreateBuildCampaign(ulong seed)
+    public static GameSession CreateBuildCampaign(ulong seed) => CreateBuildCampaign(seed, TierOneGuests);
+
+    /// <summary>A Build campaign with a non-standard guest count, for scale diagnostics only.</summary>
+    internal static GameSession CreateBuildCampaign(ulong seed, int guests)
     {
-        var session = CreateFoodAndDrinkBaseline(seed);
+        var session = CreateFoodAndDrinkBaseline(seed, guests);
         SetUpPerks(session, seed);
         SetUpEditablePlan(session);
         SetUpResults(session);
@@ -17,19 +20,21 @@ public sealed partial class GameSession
     }
 
     /// <summary>The campaign through its food-and-drink stage: the baseline a retried edition resets to.</summary>
-    private static GameSession CreateFoodAndDrinkBaseline(ulong seed)
+    private static GameSession CreateFoodAndDrinkBaseline(ulong seed, int guests = TierOneGuests)
     {
-        var session = CreateProgrammeBaseline(seed);
+        var session = CreateProgrammeBaseline(seed, guests);
         SetUpFoodAndDrink(session, seed);
         return session;
     }
 
     /// <summary>The campaign through its programme stage: the saved roster's reference identities.</summary>
-    private static GameSession CreateProgrammeBaseline(ulong seed)
+    private const int TierOneGuests = 20;
+
+    private static GameSession CreateProgrammeBaseline(ulong seed, int guests = TierOneGuests)
     {
         const int tier = 1;
         var session = CreateCampaign(seed);
-        SetUpEdition(session, seed, tier);
+        SetUpEdition(session, seed, tier, guests);
         SetUpStagePower(session);
         SetUpHotWeather(session);
         SetUpSecurity(session, seed);
@@ -38,7 +43,7 @@ public sealed partial class GameSession
     }
 
     /// <summary>The edition roster, stock and preparation plan on the inherited farm.</summary>
-    private static void SetUpEdition(GameSession session, ulong seed, int tier)
+    private static void SetUpEdition(GameSession session, ulong seed, int tier, int guests)
     {
         session.Phase = SessionPhase.OpeningCheck;
         // Retain campaign identity, inherited farm and opening loan. The old planning-week
@@ -47,9 +52,9 @@ public sealed partial class GameSession
         var stock = new EntityId(session.NextEntityId++);
         session._ownedStocks.Add(stock, new OwnedStockState
         { ServiceId = stock, OwnerId = owner, Quantity = 40, UnitCostBasisPennies = 60 });
-        var people = Enumerable.Range(0, tier * 20 + 4).Select(index => new EditionPerson(
-            session.NextEntityId++, index < tier * 20 ? $"Guest {index + 1:00}" : index == tier * 20 ? "Casey Vale" : new[] { "Alex Reed", "Blair Moss", "Kit Rowan" }[index - tier * 20 - 1],
-            index < tier * 20 ? ProtectedPersonRole.Guest : index == tier * 20 ? ProtectedPersonRole.Staff : ProtectedPersonRole.Performer,
+        var people = Enumerable.Range(0, guests + 4).Select(index => new EditionPerson(
+            session.NextEntityId++, index < guests ? $"Guest {index + 1:00}" : index == guests ? "Casey Vale" : new[] { "Alex Reed", "Blair Moss", "Kit Rowan" }[index - guests - 1],
+            index < guests ? ProtectedPersonRole.Guest : index == guests ? ProtectedPersonRole.Staff : ProtectedPersonRole.Performer,
             index % 4 == 0 ? 1 - (int)(seed % 2) : (int)(seed % 2))).ToArray();
         foreach (var person in people)
             session._wallets.Add(new(person.AgentId), new WalletState { OwnerId = new(person.AgentId), CashPennies = 500 });
