@@ -287,7 +287,7 @@ public partial class Main
         foreach (var oldId in _performerInstruments.Keys.Where(id => !attachedIds.Contains(id)).ToArray())
         {
             _performerInstruments[oldId].QueueFree(); _performerInstruments.Remove(oldId);
-            if (_attendeeVisuals.TryGetValue(oldId, out var oldBody)) SetNeutralArmsVisible(oldBody, true);
+            if (_attendeeVisuals.TryGetValue(oldId, out var oldBody)) CrowdBodies.SetNeutralArmsVisible(oldBody, true);
         }
         foreach (var performer in live.Performers)
         {
@@ -298,7 +298,7 @@ public partial class Main
                 var name = roster.Single(item => item.AgentId == performer.AgentId).Name;
                 var kit = InstantiateAsset(PerformerKitPath(PerformerPresentationRole(performer.AgentId, name),
                     body.GetMeta("RoleVariant").AsString()));
-                ApplyRolePlayingArmPalette(body, kit);
+                Bodies.PaintPlayingArms(body, kit);
                 body.AddChild(kit);
                 foreach (var player in kit.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>())
                     foreach (var animationName in player.GetAnimationList())
@@ -307,12 +307,12 @@ public partial class Main
                         player.Play(animationName);
                     }
                 _performerInstruments.Add(id, kit);
-                SetNeutralArmsVisible(body, false);
+                CrowdBodies.SetNeutralArmsVisible(body, false);
             }
             else if (!performer.InstrumentAttached && _performerInstruments.Remove(id, out var kit))
             {
                 kit.QueueFree();
-                SetNeutralArmsVisible(body, true);
+                CrowdBodies.SetNeutralArmsVisible(body, true);
             }
             // Heading is assigned with every other protected person's rendered motion.
             // Instrument kits are children, so they follow that same body yaw.
@@ -416,13 +416,6 @@ public partial class Main
         else if (_crowdBoo.Playing && !cutoffVisual) _crowdBoo.Stop();
     }
 
-    private static void SetNeutralArmsVisible(Node3D body, bool visible)
-    {
-        foreach (var node in body.FindChildren("*", "MeshInstance3D", true, false))
-            if (node is MeshInstance3D mesh && mesh.Name.ToString().Contains("Idle", StringComparison.OrdinalIgnoreCase) &&
-                mesh.Name.ToString().EndsWith("Arm", StringComparison.OrdinalIgnoreCase))
-                mesh.Visible = visible;
-    }
 
     private void ToggleStageMute()
     {

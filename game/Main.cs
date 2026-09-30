@@ -28,6 +28,8 @@ public partial class Main : Node, IHudHost
     // The host owns the session, its clock and its saves; views only read through it.
     private SessionHost _host = null!;
     private CameraRig _rig = null!;
+    private CrowdBodies? _bodiesView;
+    private CrowdBodies Bodies => _bodiesView ??= new(this, () => _session, PerformerPresentationRole, id => _performerInstruments.ContainsKey(id));
     private GameSession _session => _host.Session;
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
@@ -164,9 +166,9 @@ public partial class Main : Node, IHudHost
         {
             var performer = _session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value);
             var visual = performer?.Role == ProtectedPersonRole.Guest
-                ? AddGuestPoseRoot(agent.Id, ToWorld(agent))
+                ? Bodies.AddGuest(agent.Id, ToWorld(agent))
                 : performer is { Role: ProtectedPersonRole.Staff or ProtectedPersonRole.Performer }
-                    ? AddRoleBodyRoot(performer, ToWorld(agent))
+                    ? Bodies.AddRole(performer, ToWorld(agent))
                     : AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
             if (performer?.Role == ProtectedPersonRole.Guest && _session.GuestWaitingForRelease(agent.Id.Value))
                 visual.Hide();
@@ -277,7 +279,7 @@ public partial class Main : Node, IHudHost
     // Keep managed PackedScene wrappers alive across repeated roster/load rebuilds.
     // Each call still creates a separate instance; approved asset bytes are unchanged.
     private static readonly Dictionary<string, PackedScene> AssetScenes = new(StringComparer.Ordinal);
-    private static Node3D InstantiateAsset(string path)
+    internal static Node3D InstantiateAsset(string path)
     {
         if (!AssetScenes.TryGetValue(path, out var packed))
         {
