@@ -86,22 +86,8 @@ public partial class Main
     private void CommitStaffIntervention(ResponseRole role, StaffInterventionAction action)
     {
         if (MedicalSelectedGuest() is not { } guest || ChosenInterventionWorker(role) is not { } worker) return;
-        var relaxed = RelaxedSaveCadence;
-        PreparationAdvanceResult result;
-        if (relaxed)
-        {
-            var accepted = ExecuteWithoutImmediateSave(new StaffInterventionCommand(guest, worker, action), out var error);
-            result = new(accepted, _session, null, error);
-        }
-        else result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, new StaffInterventionCommand(guest, worker, action),
-            _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
-        if (result.IsSuccess)
-        {
-            _session = result.Session; if (!relaxed) _autosaveGeneration++; _preparationSaveBlocked = false;
-            _preparationMessage = relaxed ? "Staff request applied; next background save is within 30 unpaused seconds. Physical arrival comes first." :
-                "Staff request autosaved. Physical arrival comes before guidance; escort ends at the gate.";
-        }
-        else { _preparationMessage = result.Error!; if (result.Autosave is not null) _preparationSaveBlocked = true; }
+        _preparationMessage = _host.Execute(new StaffInterventionCommand(guest, worker, action), out var error)
+            ? "Staff request applied; next background save is within 30 unpaused seconds. Physical arrival comes first." : error!;
         RefreshPreparationHud();
     }
 

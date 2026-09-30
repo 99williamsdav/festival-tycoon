@@ -54,31 +54,17 @@ public partial class Main
 
     private void CommitEquipmentAction(SessionCommand command)
     {
-        if (RejectActionDuringDraftSave()) return;
-        var actionSaveDirectory = SaveDirectory;
-        var relaxed = RelaxedSaveCadence;
-        PreparationAdvanceResult result;
-        if (relaxed)
+        if (_host.Execute(command, out var error))
         {
-            var accepted = ExecuteWithoutImmediateSave(command, out var error);
-            result = new(accepted, _session, null, error);
-        }
-        else result = EquipmentCommandCoordinator.Execute(actionSaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration, null);
-        if (result.IsSuccess)
-        {
-            _session = result.Session;
-            if (!relaxed) _autosaveGeneration++;
-            _draftSavePipeline = null;
             if (command is ChoosePerkCommand) SyncExtraWaterWorld();
-            _preparationSaveBlocked = false;
-            _preparationMessage = relaxed ? "Plan updated; saves every 30 unpaused seconds and at opening." : "Action committed and autosaved.";
+            _preparationMessage = "Plan updated; saves every 30 unpaused seconds and at opening.";
             if (command is ChoosePerkCommand)
             {
                 if (_session.CapturePreparation()?.Attempt == 1) OpenBuildCatalogue();
                 else SelectHudTab("Overview");
             }
         }
-        else { _preparationMessage = result.Error!; if (result.Autosave is not null) _preparationSaveBlocked = true; }
+        else _preparationMessage = error!;
         RefreshPreparationHud();
     }
 
@@ -92,7 +78,7 @@ public partial class Main
             $"{e.Response}\nMaintenance: {e.JobStage}. Repair needs arrival + 20s.";
         if (e.Stage == EquipmentStage.Terminal)
             _equipmentSummary.Text = "WEEKEND ENDED • COUNCIL HEARING\n" + StewardWording(_session.CaptureLifecycleSnapshot()!.Casualties.Last().Cause) +
-                (RelaxedSaveCadence ? (_cadenceSaveError ? "\nSave failed; use the visible Retry save control." : "\nThe failure checkpoint has been saved.") : "\nThe hearing has been saved.");
+                (_host.SaveError is not null ? "\nSave failed; use the visible Retry save control." : "\nThe failure checkpoint has been saved.");
         foreach (var (action, button) in _equipmentButtons)
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new EquipmentCommand(action))) is not null;
         if (_equipmentVisualStage == e.Stage) return;

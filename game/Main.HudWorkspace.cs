@@ -25,7 +25,6 @@ public partial class Main
     private Label? _hudDiagnosticsText;
     private Button? _hudPause;
     private Button? _hudAlertToggle;
-    private Button? _hudRetry;
     private Button? _hudPreparationToggle;
     private Button? _hudProgrammeToggle;
     private Button? _hudRosterToggle;
@@ -113,7 +112,7 @@ public partial class Main
         topRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
         _hudAlertToggle = ButtonText("Alerts · 0", () => { _urgentAlertDisplay.ShowNextPage(); RenderUrgentAlerts(); }); topRow.AddChild(_hudAlertToggle);
         _hudAlertToggle.TooltipText = "Show current urgent alerts; press again for the next group. Select an alert to locate it.";
-        _hudPause = ButtonText("Pause", () => { if (_session.Execute(CampaignEnvelope(new SetPausedCommand(!_session.IsPaused))).IsAccepted && RelaxedSaveCadence) MarkSaveDirty(); RefreshPreparationHud(); }); topRow.AddChild(_hudPause);
+        _hudPause = ButtonText("Pause", () => { _host.Submit(new SetPausedCommand(!_session.IsPaused)); RefreshPreparationHud(); }); topRow.AddChild(_hudPause);
         _buildToggleButton = ButtonText("Build", ToggleBuildDrawer); topRow.AddChild(_buildToggleButton);
         topRow.AddChild(ButtonText("Menu", () => { _hudMenu!.Visible = !_hudMenu.Visible; }));
 
@@ -220,7 +219,6 @@ public partial class Main
         var menuBox = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; menuBox.AddThemeConstantOverride("separation", 6); menuScroll.AddChild(menuBox);
         menuBox.AddChild(HudLabel("Festival menu", 14)); menuBox.AddChild(ButtonText("Save", PreparationSave)); menuBox.AddChild(ButtonText("Load", PreparationLoad));
         _stageMuteButton = ButtonText("Mute audio", ToggleStageMute); menuBox.AddChild(_stageMuteButton);
-        _hudRetry = ButtonText("Retry save", () => { _preparationSaveBlocked = false; _preparationMessage = "Retrying pending boundary."; RefreshPreparationHud(); }); menuBox.AddChild(_hudRetry);
         menuBox.AddChild(ButtonText("Development diagnostics ▸", () => { _hudDevelopment = !_hudDevelopment; _hudDiagnostics!.Visible = _hudDevelopment; RefreshHudWorkspace(); if (_selectedAttendeeId is not null) RefreshAttendeeInspector(); }));
         ConstrainHudControls(menuBox);
 
@@ -292,11 +290,11 @@ public partial class Main
         _hudClock!.Text = preparing ? "FESTIVAL CLOCK\nNot started" : $"FESTIVAL CLOCK\n{HudTime(_session.CurrentTick - p.StartedTick)} / 08:00";
         _hudAttendance!.Text = $"Attendees\n{_session.OnSiteAttendeeCount} / {p.People.Count(person => person.Role == ProtectedPersonRole.Guest)}";
         _hudWeather!.Text = "WEATHER\n" + (_session.CaptureMedical() is { IsHot: true } ? "☀ Hot" : "Unavailable");
-        _hudPause!.Visible = !preparing; _hudPause.Text = _preparationSaveBlocked ? "Save blocked" : _session.IsPaused ? "Resume" : "Pause";
-        _hudPause.TooltipText = _preparationSaveBlocked ? "Simulation paused until the pending save succeeds. Open Menu → Retry save." : "Pause / resume (Space)";
-        _hudStatus!.Text = placing && !_preparationSaveBlocked ? "Placement preview · no change until a valid click" : _preparationMessage;
-        if (_buildGhostKind is not null && !_preparationSaveBlocked) _hudStatus.Text = _preparationMessage;
-        if (p.Status == PreparationStatus.Departing && !_preparationSaveBlocked)
+        _hudPause!.Visible = !preparing; _hudPause.Text = _session.IsPaused ? "Resume" : "Pause";
+        _hudPause.TooltipText = "Pause / resume (Space)";
+        _hudStatus!.Text = placing ? "Placement preview · no change until a valid click" : _preparationMessage;
+        if (_buildGhostKind is not null) _hudStatus.Text = _preparationMessage;
+        if (p.Status == PreparationStatus.Departing)
             _hudStatus.Text = $"Festival finished · Guests leaving: {p.People.Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed)}";
         _hudStatus.TooltipText = _preparationMessage;
         _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
@@ -342,8 +340,7 @@ public partial class Main
             if (HudProgrammeSelected()) _hudStatus!.Text = _bookingDurableMessage;
         }
         _preparationStart.TooltipText = _hudStartReason.Text;
-        _hudRetry!.Visible = _preparationSaveBlocked;
-        _hudMenu!.Size = new Vector2(250, _preparationSaveBlocked ? 310 : 270);
+        _hudMenu!.Size = new Vector2(250, 270);
         if (_communityShareInfo is not null) _communityShareInfo.Visible = _hudWaterExact;
         _hudDiagnosticsText!.Text = $"Tick {_session.CurrentTick} · hash {_session.CaptureSnapshot().AuthoritativeHash}\nPhase {_session.Phase} · status {p.Status} · paused {_session.IsPaused}\n{_preparationMessage}";
         _preparationSummary.Text = $"{(_session.CaptureProgramme() is null ? "Fixed festival roster" : "Three fixed sets · eight-minute festival day")}\n" +

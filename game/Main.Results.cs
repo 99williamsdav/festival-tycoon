@@ -50,7 +50,7 @@ public partial class Main
         Button? menu = null;
         menu = ButtonText("Return to menu", () =>
         {
-            if (RelaxedSaveCadence && !SaveCadenceMilestone("Return to menu"))
+            if (!SaveMilestone("Return to menu"))
             {
                 menu!.Text = "Save failed · retry menu";
                 menu.TooltipText = _preparationMessage;

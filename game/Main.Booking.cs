@@ -87,7 +87,7 @@ public partial class Main
         var priorHash = _session.CaptureSnapshot().AuthoritativeHash;
         CommitEquipmentAction(new SetProgrammeCommand(preview.ActIds));
         var changed = _session.CaptureSnapshot().AuthoritativeHash != priorHash;
-        _bookingDurableMessage = changed ? preview.Message + (RelaxedSaveCadence ? " · Unpaid plan updated; next timed save pending." : " · Unpaid plan saved.") : _preparationMessage;
+        _bookingDurableMessage = changed ? preview.Message + " · Unpaid plan updated; next timed save pending." : _preparationMessage;
         if (changed) _bookingSelected = null;
         RefreshBookingControls();
     }

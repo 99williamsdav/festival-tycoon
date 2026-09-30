@@ -107,7 +107,7 @@ public partial class Main
         _fightShaking.Clear();
         var anchors = fighting.Where(id => _attendeeVisuals.ContainsKey(new EntityId(id)))
             .ToDictionary(id => id, id => _attendeeVisuals[new EntityId(id)].Position);
-        var time = (float)((_session.CurrentTick + _foundationClock.InterpolationFraction) / 80.0);
+        var time = (float)((_session.CurrentTick + _host.Clock.InterpolationFraction) / 80.0);
         foreach (var id in fighting)
         {
             if (!_attendeeVisuals.TryGetValue(new EntityId(id), out var visual)) continue;
@@ -124,7 +124,7 @@ public partial class Main
                 if (distance > .001f)
                 {
                     var ease = Mathf.Clamp((float)((_session.CurrentTick - fightTick +
-                        _foundationClock.InterpolationFraction) / 48.0), 0f, 1f);
+                        _host.Clock.InterpolationFraction) / 48.0), 0f, 1f);
                     var pull = Mathf.Min(.4f, Mathf.Max(0f, (distance - 1.15f) * .5f)) * ease;
                     visual.Position += toward / distance * pull;
                     // Presentation runs after UpdatePersonFacing: the live opponent wins over
@@ -285,23 +285,9 @@ public partial class Main
             { _preparationMessage = issue!; RefreshPreparationHud(); return; }
             command = roleCommand;
         }
-        var relaxed = RelaxedSaveCadence;
-        PreparationAdvanceResult result;
-        if (relaxed)
-        {
-            var accepted = ExecuteWithoutImmediateSave(command, out var error);
-            result = new(accepted, _session, null, error);
-        }
-        else result = DisorderCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility,
-            DateTimeOffset.UtcNow, _autosaveGeneration);
-        if (result.IsSuccess)
-        {
-            _session = result.Session;
-            if (!relaxed) _autosaveGeneration++;
-            _preparationSaveBlocked = false;
-            _preparationMessage = relaxed ? "Disorder action applied; next background save is within 30 unpaused seconds." : "Disorder action committed and autosaved.";
-        }
-        else { _preparationMessage = StewardWording(result.Error!); if (result.Autosave is not null) _preparationSaveBlocked = true; }
+        if (_host.Execute(command, out var error))
+            _preparationMessage = "Disorder action applied; next background save is within 30 unpaused seconds.";
+        else _preparationMessage = StewardWording(error!);
         RefreshPreparationHud();
     }
 
@@ -348,7 +334,7 @@ public partial class Main
 
     private void FocusDisorderSignalPerson(ulong id)
     {
-        _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
+        _foundationPresentation.Reset(_session.CaptureObservation()); _host.Clock.ResetBoundary();
         var person = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == id);
         _focus = new Vector3(person.XMillimetres / 1000f, 0, person.ZMillimetres / 1000f);
         _camera.Size = 32f; _orientation = 0; ApplyCamera();

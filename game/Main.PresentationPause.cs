@@ -5,7 +5,7 @@ namespace Festival.Game;
 
 public partial class Main
 {
-    private bool CharacterPresentationPaused => _session.IsPaused || _preparationSaveBlocked ||
+    private bool CharacterPresentationPaused => _session.IsPaused ||
         _session.PreparedStatus is not (Festival.Simulation.PreparationStatus.Running or Festival.Simulation.PreparationStatus.Departing);
     private double _characterPresentationSeconds;
 

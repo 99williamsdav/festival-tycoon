@@ -22,8 +22,6 @@ public partial class Main
     private Button? _communityShareButton;
     private Label? _communityShareInfo;
     private string _preparationMessage = "Choose one act and one worker. Equipment and stock are optional.";
-    private bool _preparationSaveBlocked;
-    private PreparationDraftSavePipeline? _draftSavePipeline;
     private long _preparationLiveStarted;
 
     private void BuildPreparationHud()
@@ -68,31 +66,14 @@ public partial class Main
     {
         if (_session.CapturePreparationPlan() is { Committed: false } plan)
         {
-            if (RelaxedSaveCadence && (id.StartsWith("staff.", StringComparison.Ordinal) || id == "maintenance.worker"))
+            if (id.StartsWith("staff.", StringComparison.Ordinal) || id == "maintenance.worker")
             {
                 var command = plan.OfferIds.Contains(id) ? (SessionCommand)new RemovePreparationOfferCommand(id) : new AcceptPreparationOfferCommand(id);
-                var accepted = ExecuteWithoutImmediateSave(command, out var error);
+                var accepted = _host.Execute(command, out var error);
                 _preparationMessage = accepted ? "Staff plan updated; saves every 30 unpaused seconds and at opening." : error ?? "Staff plan was not changed.";
                 RefreshPreparationHud();
                 return;
             }
-            if (OS.GetCmdlineUserArgs().Length == 0 &&
-                (id.StartsWith("staff.", StringComparison.Ordinal) || id == "maintenance.worker"))
-            {
-                _draftSavePipeline ??= new(SaveDirectory, _session, _saveCompatibility, _autosaveGeneration);
-                var command = plan.OfferIds.Contains(id) ? (SessionCommand)new RemovePreparationOfferCommand(id) : new AcceptPreparationOfferCommand(id);
-                var staged = _draftSavePipeline.Submit(command, DateTimeOffset.UtcNow, null);
-                _session = _draftSavePipeline.VisibleSession;
-                if (staged.IsAccepted)
-                {
-                    _autosaveGeneration = _draftSavePipeline.NextGeneration;
-                    _preparationMessage = "Staff plan updated; saving in order.";
-                }
-                else _preparationMessage = staged.Error ?? "Staff plan was not changed.";
-                RefreshPreparationHud();
-                return;
-            }
-            if (RejectActionDuringDraftSave()) return;
             if (plan.OfferIds.Contains(id))
             { CommitEquipmentAction(new RemovePreparationOfferCommand(id)); return; }
         }
@@ -101,71 +82,42 @@ public partial class Main
             CommitEquipmentAction(new AcceptPreparationOfferCommand(id));
             return;
         }
-        var result = _session.Execute(CampaignEnvelope(new AcceptPreparationOfferCommand(id)));
+        var result = _host.Submit(new AcceptPreparationOfferCommand(id));
         _preparationMessage = result.IsAccepted ? $"Committed and paid: {_session.GetPreparationOffers().Single(item => item.Id == id).Name}" : result.Message;
         RefreshPreparationHud();
     }
 
     private void PreparationStart()
     {
-        if (RejectActionDuringDraftSave()) return;
         if (_buildGhostKind is not null) { _preparationMessage = "Finish or cancel placement before opening."; RefreshPreparationHud(); return; }
-
-
-
-
-        if (RelaxedSaveCadence)
-        {
-            if (!ExecuteMilestoneCommand(new StartPreparedEditionCommand(), "Festival start", out var error))
-            { _preparationMessage = error ?? _preparationMessage; RefreshPreparationHud(); return; }
-        }
-        else
-        {
-            var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, new StartPreparedEditionCommand(),
-                _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
-            if (!result.IsSuccess) { _preparationMessage = result.Error!; RefreshPreparationHud(); return; }
-            _autosaveGeneration++; _session = result.Session;
-        }
-        _draftSavePipeline = null;
+        if (!_host.ExecuteMilestone(new StartPreparedEditionCommand(), "Festival start", out var error))
+        { SyncSaveStatus(); _preparationMessage = error ?? _preparationMessage; RefreshPreparationHud(); return; }
+        _host.TakeNotice();
         ResetLivePerformancePresentation();
-        BuildAttendee(); _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
+        BuildAttendee(); _host.Clock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
         _preparationMessage = "Festival start saved. Everyone now walks into the field.";
         RefreshPreparationHud();
     }
 
     private void PreparationSave()
     {
-        if (RejectActionDuringDraftSave()) return;
-        if (RejectActionDuringBoundarySave()) return;
-        var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-preparation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));
+        var result = _host.SaveManual();
         _preparationMessage = result.IsSuccess ? FestivalCopy("Preparation / live weekend saved.") : result.Error!;
         RefreshPreparationHud();
     }
 
     private void PreparationLoad()
     {
-        if (RejectActionDuringDraftSave()) return;
-        if (RejectActionDuringBoundarySave()) return;
-        if (RelaxedSaveCadence && _cadenceSaveTask is not null)
-        {
-            try { _cadenceSaveTask.GetAwaiter().GetResult(); }
-            catch { /* Poll reports the failure before the loaded session replaces this one. */ }
-            PollCadenceSave();
-        }
         CancelBuildPlacement();
-
-ResetImmersionHeldVisuals();
-
-
-        var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
-        if (result.IsSuccess && result.Session!.CapturePreparation() is not null)
+        ResetImmersionHeldVisuals();
+        var previousProgrammeMode = _session.CaptureProgramme() is not null;
+        var previousImmersionMode = _session.CaptureImmersion() is not null;
+        if (_host.LoadManual(out var loadError))
         {
-            _draftSavePipeline = null;
+            SyncSaveStatus();
             CancelPerkConfirmation();
-            var previousProgrammeMode = _session.CaptureProgramme() is not null;
-            var previousImmersionMode = _session.CaptureImmersion() is not null;
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
-            _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null; ClearSecurityPostSelection(); _session = result.Session;
+            _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null; ClearSecurityPostSelection();
             ResetFinanceFeedback();
             ClearSelection();
             SyncExtraWaterWorld();
@@ -174,13 +126,11 @@ ResetImmersionHeldVisuals();
             RefreshMedicalNeedBars(null);
             ResetLivePerformancePresentation();
             if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();
-            _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
-            _preparationSaveBlocked = false;
-            if (RelaxedSaveCadence) { MarkSaveDirty(); _autosaveScheduler.Rebase(); ClearCadenceSaveError(); }
+            _foundationPresentation.Reset(_session.CaptureObservation());
             if (previousProgrammeMode != (_session.CaptureProgramme() is not null) || previousImmersionMode != (_session.CaptureImmersion() is not null)) RebuildPreparationOffers();
             _preparationMessage = "Loaded with the same offers, ownership and physical roster.";
         }
-        else _preparationMessage = result.Error ?? "Save is not a prepared weekend.";
+        else _preparationMessage = loadError!;
         RefreshPreparationHud();
     }
 
@@ -193,7 +143,7 @@ ResetImmersionHeldVisuals();
         var stockDescription = immersion is null ? $"stock {snapshot.OwnedStocks.Single(item => item.ServiceId.Value == p.StockId).Quantity}" :
             $"chips {immersion.ChipsStock} • soft {immersion.SoftStock} • beer {immersion.BeerStock}";
         var day = _session.CaptureProgramme() is not null ? "FESTIVAL DAY" : new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Min(2, (int)((_session.CurrentTick - p.StartedTick) / 12_800))];
-        _preparationSummary.Text = $"Tier {p.Tier} • {p.Status}{(_session.IsPaused || _preparationSaveBlocked ? " • PAUSED" : "")} • {day}\n" +
+        _preparationSummary.Text = $"Tier {p.Tier} • {p.Status}{(_session.IsPaused ? " • PAUSED" : "")} • {day}\n" +
             $"{FestivalCurrency.Format(finance.CashPennies)} • debt £800 • {stockDescription}\n" +
             $"{p.Tier * 20} mandatory guests + {p.People.Count(item => item.Role == ProtectedPersonRole.Staff)} staff + {p.People.Count(item => item.Role == ProtectedPersonRole.Performer)} performers\n" +
             $"Owned rig: {p.OwnedEquipment.Length} • rental: {p.Rentals.Length} • known staff: {p.Contacts.Length}\n" +
@@ -276,71 +226,8 @@ ResetImmersionHeldVisuals();
     private void AdvancePreparationPresentation(double delta)
     {
         var workStarted = Stopwatch.GetTimestamp();
-        if (RelaxedSaveCadence) PollCadenceSave();
-        if (_draftSavePipeline is { } draft)
-        {
-            var update = draft.Poll();
-            if (update.RolledBack)
-            {
-                _session = draft.VisibleSession;
-                _autosaveGeneration = draft.NextGeneration;
-                _preparationMessage = "Staff plan save failed; unsaved edits rolled back. " + update.Error;
-                RefreshPreparationHud();
-            }
-            else if (update.Committed > 0 && !draft.HasPending)
-            {
-                _preparationMessage = "Staff plan autosaved.";
-                RefreshPreparationHud();
-            }
-        }
-        if (_periodicSaveTask is not null) FinishPeriodicAutosave();
-        if (_boundarySaveTask is not null) FinishResponsiveBoundarySave();
-        _foundationClock.IsPaused = _session.IsPaused || _preparationSaveBlocked ||
-            _session.CapturePreparation()!.Status is not (PreparationStatus.Running or PreparationStatus.Departing);
-        var ticks = _foundationClock.Schedule(delta);
-        var previousStatus = _session.PreparedStatus;
-        var hadResult = _session.CompletedFestivalResult is not null;
-        for (var tick = 0; tick < ticks; tick++)
-        {
-            if (RelaxedSaveCadence)
-            {
-                _session.AdvanceWithoutSnapshot(1);
-                _foundationPresentation.Advance(_session.CaptureObservation());
-                MarkSaveDirty();
-                var failed = previousStatus != PreparationStatus.Failed && _session.PreparedStatus == PreparationStatus.Failed;
-                var finished = !hadResult && _session.CompletedFestivalResult is not null;
-                if (failed || finished)
-                {
-                    SaveCadenceMilestone(failed ? "Failure" : "Results");
-                    break;
-                }
-                previousStatus = _session.PreparedStatus;
-                hadResult = _session.CompletedFestivalResult is not null;
-                continue;
-            }
-            if (UseResponsiveBoundarySaves && BoundaryOnNextTick(_session))
-            {
-                if (_boundaryPendingSaves.Count >= 16)
-                {
-                    _foundationClock.RequeueUnprocessedTicks(ticks - tick);
-                    break;
-                }
-                // The boundary checkpoint is immutable once captured. Continue
-                // the remaining scheduled ticks in this frame while its write
-                // runs on the worker, preserving visible movement cadence.
-                StartResponsiveBoundarySave();
-                continue;
-            }
-            var advanced = PreparationAdvanceCoordinator.AdvanceOne(SaveDirectory, _session, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
-            if (!advanced.IsSuccess)
-            {
-                _preparationSaveBlocked = true; _preparationMessage = advanced.Error!;
-                _foundationClock.ResetBoundary(); RefreshPreparationHud(); break;
-            }
-            _session = advanced.Session;
-            if (advanced.Autosave is not null) { _autosaveGeneration++; _preparationMessage = $"{_session.CapturePreparation()!.Status} boundary autosaved."; }
-            _foundationPresentation.Advance(_session.CaptureObservation());
-        }
+        _host.Advance(delta, session => _foundationPresentation.Advance(session.CaptureObservation()));
+        SyncSaveStatus();
         var presentationStarted = Stopwatch.GetTimestamp();
         var characterDelta = CharacterPresentationPaused ? 0 : delta;
         _characterPresentationSeconds += characterDelta;
@@ -359,7 +246,7 @@ ResetImmersionHeldVisuals();
             .Select(item => new EntityId(item.AgentId)).ToHashSet() ?? [];
         foreach (var agent in _session.CaptureObservation().NavigationAgents)
         {
-            var position = _foundationPresentation.Sample(agent.Id, _foundationClock.InterpolationFraction);
+            var position = _foundationPresentation.Sample(agent.Id, _host.Clock.InterpolationFraction);
             var visual = _attendeeVisuals[agent.Id];
             if (_session.GuestWaitingForRelease(agent.Id.Value))
             {
@@ -404,12 +291,8 @@ ResetImmersionHeldVisuals();
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceIncidentAudioPresentation();
         SyncPresentationPause();
-        if (RelaxedSaveCadence) AdvanceCadenceSave(delta);
-        else if (_boundarySaveTask is null && _periodicSaveTask is null &&
-            _session.PreparedStatus is (PreparationStatus.Running or PreparationStatus.Departing) && _autosaveScheduler.Advance(delta))
-        {
-            StartPeriodicAutosave();
-        }
+        _host.AdvanceSaves(delta);
+        SyncSaveStatus();
         if (Engine.GetProcessFrames() % 15 == 0) RefreshPreparationHud();
         var captureStarted = Stopwatch.GetTimestamp();
         if (_preparationProfileOutput is not null) _profilePresentationMs = Stopwatch.GetElapsedTime(presentationStarted, captureStarted).TotalMilliseconds;

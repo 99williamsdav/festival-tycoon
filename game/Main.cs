@@ -32,31 +32,22 @@ public partial class Main : Node
     private Label? _satisfactionLabel;
     private ProgressBar? _satisfactionBar;
     private Button? _stagePowerButton;
-    private GameSession _session = null!;
-    private string _pausedHash = "";
+    // The host owns the session, its clock and its saves; views only read through it.
+    private SessionHost _host = null!;
+    private GameSession _session => _host.Session;
     private bool _middleDragging;
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
-    private readonly FoundationClock _foundationClock = new();
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private string _foundationPublishedHash = "";
-    private long _foundationPublishedHashTick = -1;
-    private RealTimeAutosaveScheduler _autosaveScheduler = null!;
-    private long _autosaveGeneration;
     private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v5", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v5");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
     {
         ConfigureCommandLine();
-        _autosaveScheduler = new RealTimeAutosaveScheduler(RealTimeAutosaveScheduler.ProductionCadenceSeconds);
-        _session = _preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
+        _host = new SessionHost(_preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
-            GameSession.CreateBuildCampaign(20260922);
-        _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
-        _pausedHash = _session.CaptureSnapshot().AuthoritativeHash;
-        _foundationPublishedHash = _pausedHash;
-        _foundationPublishedHashTick = _session.CurrentTick;
+            GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility);
         BuildWorld();
         if (DisplayServer.GetName() != "headless")
             DisplayServer.SetIcon(GD.Load<Texture2D>("res://assets/branding/festival-tycoon-stage-sun-icon-v3.png").GetImage());
@@ -75,7 +66,7 @@ public partial class Main : Node
         if (OS.GetCmdlineUserArgs().Length == 0 && _session.CaptureEquipment() is not null) BuildStartSplash();
         var version = Engine.GetVersionInfo()["string"].AsString();
         GD.Print($"FESTIVAL_TYCOON_LAUNCHED build={ToolchainSmoke.BuildVersion} godot={version}");
-        GD.Print($"FARM_SCENE_READY scenario={LowerWitteringFarmScenario.ScenarioId} objects={_visualRegistry.Count} hash={_pausedHash}");
+        GD.Print($"FARM_SCENE_READY scenario={LowerWitteringFarmScenario.ScenarioId} objects={_visualRegistry.Count} hash={_session.CaptureSnapshot().AuthoritativeHash}");
         if (OS.GetCmdlineUserArgs().Length == 0)
             GD.Print($"INITIAL_BUILD_CAMPAIGN id={_session.CampaignId.Value} seed={_session.CampaignSeed}");
     }
@@ -101,8 +92,6 @@ public partial class Main : Node
     public override void _Input(InputEvent inputEvent)
     {
         if (_startSplash is not null) return;
-        if (!RelaxedSaveCadence && (_boundarySaveTask is not null || _periodicSaveTask is not null) && !CameraOnlyInput(inputEvent))
-        { GetViewport().SetInputAsHandled(); return; }
         // Release must be observed before a HUD Control consumes the mouse event.
         if (inputEvent is InputEventMouseButton { ButtonIndex: MouseButton.Middle, Pressed: false })
             _middleDragging = false;
@@ -111,7 +100,6 @@ public partial class Main : Node
     public override void _UnhandledInput(InputEvent inputEvent)
     {
         if (_festivalPaper is not null || _startSplash is not null) return;
-        if (!RelaxedSaveCadence && (_boundarySaveTask is not null || _periodicSaveTask is not null) && !CameraOnlyInput(inputEvent)) return;
         if (_perkPanel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && _perkPanel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
@@ -125,7 +113,7 @@ public partial class Main : Node
             else if (key.Keycode == Key.E) Rotate(1);
             else if (key.Keycode == Key.Space)
             {
-                if (_session.Execute(CampaignEnvelope(new SetPausedCommand(!_session.IsPaused))).IsAccepted && RelaxedSaveCadence) MarkSaveDirty();
+                _host.Submit(new SetPausedCommand(!_session.IsPaused));
                 RefreshPreparationHud();
             }
         }
@@ -322,9 +310,7 @@ public partial class Main : Node
 
     private void BuildHud() => BuildPreparationHud();
 
-    private CommandEnvelope CampaignEnvelope(SessionCommand command) => new(
-        new CommandId(1_010_000UL + _session.NextSubmissionSequence), _session.CampaignId, _session.Phase,
-        _session.CurrentTick, _session.NextSubmissionSequence, null, command);
+    private CommandEnvelope CampaignEnvelope(SessionCommand command) => _host.Envelope(command);
 
     private static Color CampaignPaletteColor(FestivalPalette palette) => palette switch
     {

@@ -275,24 +275,9 @@ public partial class Main
         var command = _pendingHearingDecision;
         _pendingHearingDecision = null;
         _hearingModalShade!.Visible = false;
-        if (RelaxedSaveCadence)
-        {
-            if (!ExecuteMilestoneCommand(command, "Council decision", out var error))
-            { _preparationMessage = error ?? _preparationMessage; RefreshPreparationHud(); return; }
-        }
-        else
-        {
-            var result = EquipmentCommandCoordinator.Execute(SaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration);
-            if (!result.IsSuccess)
-            {
-                _preparationMessage = result.Error!;
-                RefreshPreparationHud();
-                return;
-            }
-            _session = result.Session;
-            _autosaveGeneration++;
-        }
-        _preparationSaveBlocked = false;
+        if (!_host.ExecuteMilestone(command, "Council decision", out var error))
+        { SyncSaveStatus(); _preparationMessage = error ?? _preparationMessage; RefreshPreparationHud(); return; }
+        _host.TakeNotice();
         _preparationMessage = command is SpendCouncilFavourCommand ? "Council Favour spent. Prepare this tier’s next weekend." : "The campaign has ended.";
         if (command is SpendCouncilFavourCommand)
         {
@@ -301,7 +286,7 @@ public partial class Main
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;
             ResetLivePerformancePresentation();
-            _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
+            _host.Clock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
             if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();
         }
         RefreshPreparationHud();

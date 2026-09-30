@@ -55,7 +55,6 @@ public partial class Main
 
     private void EnterFestival()
     {
-        if (RejectActionDuringBoundarySave()) return;
         if (_newCampaignOnEnter)
         {
             // Create only on Enter: merely viewing the menu must not touch a terminal save.
@@ -64,14 +63,9 @@ CancelPerkConfirmation();
             ClearSelection(); ResetImmersionHeldVisuals();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;
-            _session = next;
-            _autosaveGeneration = AutosaveRotation.NextGeneration(SaveDirectory, _saveCompatibility);
-            _cadenceSaveTask = null; _cadenceDue = false; _saveRevision = 1; _savedRevision = 0;
-            ClearCadenceSaveError();
-            _autosaveScheduler.Rebase(); _preparationSaveBlocked = false;
-            _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
-            _pausedHash = _foundationPublishedHash = _session.CaptureSnapshot().AuthoritativeHash;
-            _foundationPublishedHashTick = _session.CurrentTick;
+            _host.StartNewCampaign(next);
+            SyncSaveStatus();
+            _foundationPresentation.Reset(_session.CaptureObservation());
             _perksExpanded = false; _selectedPerk = null; _perkHudKey = "";
             _bookingSelected = null; _bookingDurableMessage = "Select a band, then activate a set. Dragging also works.";
             _bookingSort = BookingSortField.Price; _bookingDescending = false; _bookingGenre = null;
@@ -94,7 +88,7 @@ CancelPerkConfirmation();
         // Entropy belongs at the user-facing creation boundary, never inside the
         // deterministic simulation factory. Keep previous campaigns distinct in
         // this process, including a session created before the splash is entered.
-        if (_session is not null) _menuCampaignIds.Add(_session.CampaignId.Value);
+        if (_host is not null) _menuCampaignIds.Add(_session.CampaignId.Value);
         do seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
         while (seed == 0 || _menuCampaignIds.Contains(seed));
         _menuCampaignIds.Add(seed);

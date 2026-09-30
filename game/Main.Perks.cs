@@ -175,9 +175,7 @@ public partial class Main
                 choose.Name = "ChooseDraftPerk_" + id; wrap.AddChild(choose);
             }
             var footer = new HBoxContainer(); _perkBody.AddChild(footer);
-            footer.AddChild(HudLabel(RelaxedSaveCadence
-                ? "Three distinct eligible choices, equally likely. Owned perks excluded; options may repeat.\nYour choice joins the next timed save; opening saves it immediately."
-                : "Three distinct eligible choices, equally likely. Owned perks excluded; options may repeat.\nYour hand is saved; reloading does not change it.",13));
+            footer.AddChild(HudLabel("Three distinct eligible choices, equally likely. Owned perks excluded; options may repeat.\nYour choice joins the next timed save; opening saves it immediately.",13));
             if (p.Equipped.Length == 5) footer.AddChild(ButtonText("Skip this choice", () => { _confirmationDraftAttempt=p.DraftAttempt;_confirmationCursor=p.Cursor;_pendingPerkSkip = true; _perkHudKey = ""; RefreshPerkHud(); }));
         }
         if(p.Pending){ _perkBody.AddChild(HudLabel("Equipped: " + (p.Equipped.Length == 0 ? "none yet" : string.Join(" · ",p.Equipped.Select(id=>PerkCatalogue.All.Single(item=>item.Id==id).Name))),12)); return; }

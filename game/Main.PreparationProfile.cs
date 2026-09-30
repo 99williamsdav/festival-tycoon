@@ -31,12 +31,12 @@ public partial class Main
                      new UseDefaultBuildLayoutCommand(), new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]),
                      new AcceptPreparationOfferCommand("staff.steward"), new SetPreparationStockCommand(40, 40, 32), new StartPreparedEditionCommand() })
         {
-            var result = _session.Execute(CampaignEnvelope(command));
+            var result = _host.Submit(command);
             if (!result.IsAccepted) { GD.PushError($"BUILD_PROFILE_SETUP_FAILED {command.GetType().Name}: {result.Message}"); GetTree().Quit(2); return; }
         }
         SyncBuildWorld();
         ResetLivePerformancePresentation();
-        BuildAttendee(); _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
+        BuildAttendee(); _host.Clock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
         _hudWorkspaceOpen = false; _buildDrawerOpen = false; _hudProgrammeOpen = false; ClearSelection();
         RefreshPreparationHud();
         _preparationLiveStarted = Stopwatch.GetTimestamp();
@@ -82,7 +82,7 @@ public partial class Main
         _profilePrevious = now;
         if (_preparationProfileFullAttempt)
         {
-            if (_session.PreparedStatus != Festival.Simulation.PreparationStatus.Finished && elapsed < 660 && !_preparationSaveBlocked) return;
+            if (_session.PreparedStatus != Festival.Simulation.PreparationStatus.Finished && elapsed < 660) return;
         }
         else if (elapsed < _profileSeconds) return;
         static object Stats(IEnumerable<double> values)

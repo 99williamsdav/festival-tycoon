@@ -205,7 +205,7 @@ Serialize sorted ID collections. Save to a sibling temporary file, flush and val
 
 Migration pipeline transforms supported older schemas before runtime construction. A future unknown schema refuses to load with explanation. Ruleset mismatches require an explicit supported migration or matching bundled catalog; never silently swap costs underneath ongoing contracts. First implementation can support only v1, but the version/migration interface must exist.
 
-Autosaves rotate three files per campaign. Manual named slots are separate. Live autosave interval: five real minutes at a safe boundary, plus phase boundaries. Player can save paused or mid-queue. Validate that all references resolve, queues have no duplicate members and money/stock constraints hold after loading.
+Autosaves rotate three files per campaign. Manual named slots are separate. The game's `SessionHost` (`src/Festival.Persistence/SessionHost.cs`) owns the running session, its fixed-step clock and its one save policy: changed state is written in the background at most every 30 unpaused real seconds; festival start, failure, results and Council decisions are saved immediately, and a milestone command only takes effect once its save succeeds. A failed save keeps play going with a visible retry; the prior valid slot stays intact. Player can save paused or mid-queue. Validate that all references resolve, queues have no duplicate members and money/stock constraints hold after loading.
 
 ## 12. Content and feature configuration
 
