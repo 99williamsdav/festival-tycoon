@@ -95,12 +95,8 @@ public sealed partial class GameSession
     private void SynchronizePerkEffects()
     {
         var p = _preparation!;
-        var removeTap = false;
         _preparation = p with { ExtraMedicSlotOwned = HasPerk("doctors-orders"), ExtraStewardSlotOwned = HasPerk("extra-pair-of-hands"),
-            WaterTowerOwned = HasPerk("high-pressure"), RespondersUpgraded = false,
-            ExtraWaterSiteIds = removeTap ? p.ExtraWaterSiteIds.Where(id => id != PerkCatalogue.TapId).ToArray() : p.ExtraWaterSiteIds,
-            WaterPlacements = removeTap ? p.WaterPlacements.Where(site => site.Id != PerkCatalogue.TapId).ToArray() : p.WaterPlacements };
-        if (removeTap) SetTaps(Taps.Where(site => site.Id != PerkCatalogue.TapId).ToArray());
+            WaterTowerOwned = HasPerk("high-pressure"), RespondersUpgraded = false };
     }
     // Loss retires active perks, but keeps the exact failed-world geometry and derived
     // navigation speeds as immutable evidence. FrozenEffects validate that snapshot and

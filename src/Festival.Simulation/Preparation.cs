@@ -22,11 +22,6 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public int CommunityShareAttempt { get; init; }
     public bool CommunityFavourClaimed { get; init; }
     public ulong? MaintenanceWorkerId { get; init; }
-    public string[] ExtraWaterSiteIds { get; init; } = [];
-    public WaterPlacement[] WaterPlacements { get; init; } = [];
-    public GridCell PrimaryWaterCell { get; init; } = GameSession.MedicalWaterCell;
-    public int PrimaryWaterQuarterTurns { get; init; }
-    public int PrimaryWaterGeometryVersion { get; init; }
     public bool WaterTowerOwned { get; init; }
     public bool ExtraMedicSlotOwned { get; init; }
     public bool ExtraStewardSlotOwned { get; init; }
@@ -34,10 +29,6 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public BuildPlacement[] BuildPlacements { get; init; } = null!;
     public StaffProfile[] StaffProfiles { get; init; } = [];
-    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    public ResponsePostPlacement? FirstAidPlacement { get; init; }
-    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
-    public ResponsePostPlacement? StewardPostPlacement { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PreparationPlan? Plan { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
@@ -88,9 +79,7 @@ public sealed partial class GameSession
 
     private void ApplyCommunityWaterShare() => _preparation = _preparation! with { CommunityShareAttempt = _preparation.Attempt };
 
-    private static WaterPlacement[] EffectiveWaterPlacements(PreparationSnapshot p) =>
-        p.ExtraWaterSiteIds.Select(id => p.WaterPlacements.SingleOrDefault(item => item.Id == id) ??
-            new WaterPlacement(id, ExtraWaterSites.Single(site => site.Id == id).Cell)).ToArray();
+
 
     public string? WaterTapAdditionUnavailableReason => _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p
         ? "Taps can only be added during preparation."
@@ -107,7 +96,7 @@ public sealed partial class GameSession
         var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
         var placed = EffectiveWaterPlacements(p);
         var others = placed.Where(item => item.Id != movingId).Select(item => new WaterPointState(item.Id, item.Cell, [], [], null, 0) { QuarterTurns = item.QuarterTurns, GeometryVersion = item.GeometryVersion }).ToList();
-        if (movingId != "water.main") others.Insert(0, new WaterPointState("water.main", p.PrimaryWaterCell, [], [], null, 0) { QuarterTurns = p.PrimaryWaterQuarterTurns, GeometryVersion = p.PrimaryWaterGeometryVersion });
+        if (movingId != "water.main") others.Insert(0, new WaterPointState("water.main", PrimaryWaterCell(p), [], [], null, 0) { QuarterTurns = PrimaryWaterQuarterTurns(p), GeometryVersion = PrimaryWaterGeometryVersion(p) });
         var proposed = new WaterPointState(movingId ?? "water.proposed", cell, [], [], null, 0) { QuarterTurns = quarterTurns, GeometryVersion = geometryVersion };
         var occupied = new HashSet<GridCell>();
         static void Footprint(HashSet<GridCell> cells, GridCell centre, int radius)
@@ -316,7 +305,7 @@ public sealed partial class GameSession
         if (_medical is not null)
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
-            foreach (var (centre, radius) in new[] { (p.PrimaryWaterCell, p.PrimaryWaterGeometryVersion == 1 ? 1 : 3), (ResponsePost(p,ResponseRole.Medic).Cell, 3) }
+            foreach (var (centre, radius) in new[] { (PrimaryWaterCell(p), PrimaryWaterGeometryVersion(p) == 1 ? 1 : 3), (ResponsePost(p,ResponseRole.Medic).Cell, 3) }
                          .Concat(Taps.Where(point => point.Id != "water.main").Select(point => (point.Cell, WaterFootprintRadius(point)))))
             for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
             for (var x = centre.X - radius; x <= centre.X + radius; x++)
@@ -337,7 +326,7 @@ public sealed partial class GameSession
             }
             _traversalGrid = new TraversalGrid(terrain.Values);
         }
-        if(p.StewardPostPlacement is { } steward)
+        if(StewardPostPlacement(p) is { } steward)
         {
             var terrain=_traversalGrid.Overrides.ToDictionary(item=>item.Key,item=>item.Value);
             foreach(var cell in ResponsePostFootprint(steward,ResponseRole.Steward))terrain[cell]=new(cell,GroundSurface.Grass,false);
@@ -426,7 +415,7 @@ public sealed partial class GameSession
         _equipment = baseline._equipment;
         MedicalView = baseline.MedicalView;
         if (_medical is not null)
-            SetTaps((MainTapStanding(p) ? new[] { OpeningMainTap() with { Cell = p.PrimaryWaterCell, QuarterTurns = p.PrimaryWaterQuarterTurns, GeometryVersion = p.PrimaryWaterGeometryVersion } } : [])
+            SetTaps((MainTapStanding(p) ? new[] { OpeningMainTap() with { Cell = PrimaryWaterCell(p), QuarterTurns = PrimaryWaterQuarterTurns(p), GeometryVersion = PrimaryWaterGeometryVersion(p) } } : [])
                 .Concat(EffectiveWaterPlacements(p).Select(site =>
                     new WaterPointState(site.Id, site.Cell, [], [], null, 0) { QuarterTurns = site.QuarterTurns, GeometryVersion = site.GeometryVersion })).ToArray());
         DisorderView = baseline.DisorderView;
@@ -452,29 +441,19 @@ public sealed partial class GameSession
             !p.BuildPlacements.Select(item => item.Id).SequenceEqual(p.BuildPlacements.Select(item => item.Id).Order(StringComparer.Ordinal)) ||
             ValidateBuildLayout(p.BuildPlacements, snapshot.Equipment, p.WaterTowerOwned) is not null))
             return "Saved build layout is invalid.";
-        if (ValidateBuildMirrors(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
+        if (ValidateBuildFacilities(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
         if (p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null)
             return "Lineup reaction identity requires the current saved programme and results plan.";
         if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > 2 || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
             p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != CampaignDefaults.OpeningCashPennies || p.StockConsumed < 0 ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||
-            p.ExtraWaterSiteIds is null || p.WaterPlacements is null || p.StaffProfiles is null ||
+            p.StaffProfiles is null ||
             p.StaffProfiles.Any(item => item is null) || p.StaffProfiles.Length > 2 ||
             !p.StaffProfiles.Select(item => item.AgentId).SequenceEqual(p.StaffProfiles.Select(item => item.AgentId).Distinct().Order()) ||
             p.StaffProfiles.Select(item => item.Role).Distinct().Count() != p.StaffProfiles.Length ||
             (p.ExtraMedicSlotOwned || p.ExtraStewardSlotOwned || p.RespondersUpgraded || p.StaffProfiles.Length > 0) && snapshot.Disorder is null ||
-            !p.ExtraWaterSiteIds.SequenceEqual(p.ExtraWaterSiteIds.Distinct().Order(StringComparer.Ordinal)) ||
-            p.ExtraWaterSiteIds.Length > 2 ||
-            p.ExtraWaterSiteIds.Any(id => !ExtraWaterSites.Any(site => site.Id == id) && id is not ("water.extra-1" or "water.extra-2")) ||
-            p.WaterPlacements.Any(item => item is null) ||
-            !p.WaterPlacements.Select(item => item.Id).SequenceEqual(p.WaterPlacements.Select(item => item.Id).Distinct().Order(StringComparer.Ordinal)) ||
-            p.PrimaryWaterQuarterTurns is < 0 or > 3 ||
-            p.PrimaryWaterGeometryVersion is < 0 or > 1 ||
-            p.WaterPlacements.Any(item => !p.ExtraWaterSiteIds.Contains(item.Id) || item.QuarterTurns is < 0 or > 3 || item.GeometryVersion is < 0 or > 1) ||
-            p.ExtraWaterSiteIds.Any(id => id.StartsWith("water.extra-", StringComparison.Ordinal) &&
-                !p.WaterPlacements.Any(item => item.Id == id)) ||
-            (p.WaterTowerOwned || p.ExtraWaterSiteIds.Length > 0 || p.PrimaryWaterCell != MedicalWaterCell) && snapshot.Medical is null ||
+            (p.WaterTowerOwned || EffectiveWaterPlacements(p).Length > 0 || PrimaryWaterCell(p) != MedicalWaterCell) && snapshot.Medical is null ||
             p.CommunityShareAttempt < 0 || p.CommunityShareAttempt > p.Attempt || p.CommunityShareAttempt > 0 && snapshot.Medical is null ||
             p.CommunityFavourClaimed != (p.CommunityShareAttempt == p.Attempt && p.Status == PreparationStatus.Finished) ||
             p.MaintenanceWorkerId is { } workerId && (workerId == 0 || workerId >= snapshot.NextEntityId ||
@@ -482,12 +461,6 @@ public sealed partial class GameSession
             return "Preparation header or collections invalid.";
         var planIssue = ValidatePersistedPlan(p, snapshot);
         if (planIssue is not null) return planIssue;
-        var preceding = p with { ExtraWaterSiteIds = [], WaterPlacements = [] };
-        foreach (var placement in EffectiveWaterPlacements(p))
-        {
-            preceding = preceding with { ExtraWaterSiteIds = preceding.ExtraWaterSiteIds.Append(placement.Id).Order(StringComparer.Ordinal).ToArray(),
-                WaterPlacements = preceding.WaterPlacements.Append(placement).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
-        }
         var maintenance = snapshot.Equipment?.WorkerId is not null ? 1 : 0;
         var medic = snapshot.Medical is null ? 0 : 1;
         var security = snapshot.Disorder is null ? 0 : 1;

@@ -113,19 +113,6 @@ public sealed partial class GameSession
         SetTaps((primary is null ? [] : new[] { existingMain with { Cell = primary.Cell, QuarterTurns = primary.QuarterTurns, GeometryVersion = 1, QueueCells = [] } })
             .Concat(water.Where(item => item.Id != "water.main").Select(item =>
                 new WaterPointState(item.Id, item.Cell, [], [], null, 0) { QuarterTurns = item.QuarterTurns, GeometryVersion = 1 })).ToArray());
-        _preparation = p with
-        {
-            PrimaryWaterCell = primary?.Cell ?? MedicalWaterCell,
-            PrimaryWaterQuarterTurns = primary?.QuarterTurns ?? 0,
-            PrimaryWaterGeometryVersion = primary is null ? 0 : 1,
-            ExtraWaterSiteIds = water.Where(item => item.Id != "water.main").Select(item => item.Id).ToArray(),
-            WaterPlacements = water.Where(item => item.Id != "water.main").Select(item =>
-                new WaterPlacement(item.Id, item.Cell) { QuarterTurns = item.QuarterTurns, GeometryVersion = 1 }).ToArray(),
-            FirstAidPlacement = p.BuildPlacements.FirstOrDefault(item => item.Kind == BuildServiceKind.FirstAid) is { } aid
-                ? new(aid.Cell, aid.QuarterTurns) : null,
-            StewardPostPlacement = p.BuildPlacements.FirstOrDefault(item => item.Kind == BuildServiceKind.StewardPost) is { } post
-                ? new(post.Cell, post.QuarterTurns) : null
-        };
         SetVendors(p.BuildPlacements.Where(item => item.Kind is BuildServiceKind.FoodVan or BuildServiceKind.Bar)
             .Select(item => NewLooseVendor(new ImmersionVendor(item.Id, item.Cell, item.QuarterTurns, [])))
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray());
@@ -182,33 +169,20 @@ public sealed partial class GameSession
         return null;
     }
 
-    private static string? ValidateBuildMirrors(PreparationSnapshot p, SessionPersistenceSnapshot saved)
+    /// <summary>The standing facilities are exactly what the saved Build layout places.</summary>
+    private static string? ValidateBuildFacilities(PreparationSnapshot p, SessionPersistenceSnapshot saved)
     {
-        if (saved.Medical is null || saved.Immersion is null || saved.Facilities is not { Taps: { } taps, Vendors: { } savedVendors } facilities ||
-            p.ExtraWaterSiteIds is null || p.WaterPlacements is null)
+        if (saved.Medical is null || saved.Immersion is null || saved.Facilities is not { Taps: { } taps, Vendors: { } savedVendors } facilities)
             return "Saved build services have no physical state.";
         var water = p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.WaterTap).ToArray();
         var main = water.SingleOrDefault(item => item.Id == "water.main");
-        if (p.PrimaryWaterCell != (main?.Cell ?? MedicalWaterCell) || p.PrimaryWaterQuarterTurns != (main?.QuarterTurns ?? 0) ||
-            p.PrimaryWaterGeometryVersion != (main is null ? 0 : 1) ||
-            taps.FirstOrDefault(item => item.Id == "water.main") is var mainTap && (mainTap is null) != (main is null) ||
-            mainTap is not null && (mainTap.Cell != p.PrimaryWaterCell || mainTap.QuarterTurns != p.PrimaryWaterQuarterTurns ||
-                mainTap.GeometryVersion != p.PrimaryWaterGeometryVersion))
+        if (taps.FirstOrDefault(item => item.Id == "water.main") is var mainTap && (mainTap is null) != (main is null) ||
+            mainTap is not null && (mainTap.Cell != main!.Cell || mainTap.QuarterTurns != main.QuarterTurns || mainTap.GeometryVersion != 1))
             return "Saved primary tap differs from the build layout.";
         var extras = water.Where(item => item.Id != "water.main").OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
-        if (!extras.Select(item => item.Id).SequenceEqual(p.ExtraWaterSiteIds) ||
-            !extras.Select(item => (item.Id, item.Cell, item.QuarterTurns)).SequenceEqual(
-                p.WaterPlacements.Select(item => (item.Id, item.Cell, item.QuarterTurns))) ||
-            !extras.Select(item => (item.Id, item.Cell, item.QuarterTurns)).SequenceEqual(
+        if (!extras.Select(item => (item.Id, item.Cell, item.QuarterTurns)).SequenceEqual(
                 taps.Where(item => item.Id != "water.main").Select(item => (item.Id, item.Cell, item.QuarterTurns))))
             return "Saved extra taps differ from the build layout.";
-        foreach (var kind in new[] { BuildServiceKind.FirstAid, BuildServiceKind.StewardPost })
-        {
-            var item = p.BuildPlacements.SingleOrDefault(placement => placement.Kind == kind);
-            var post = kind == BuildServiceKind.FirstAid ? p.FirstAidPlacement : p.StewardPostPlacement;
-            if ((item is null) != (post is null) || item is not null && (item.Cell != post!.Cell || item.QuarterTurns != post.QuarterTurns))
-                return "Saved response post differs from the build layout.";
-        }
         var vendors = p.BuildPlacements.Where(item => item.Kind is BuildServiceKind.FoodVan or BuildServiceKind.Bar)
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         if (!vendors.Select(item => (item.Id, item.Cell, item.QuarterTurns)).SequenceEqual(

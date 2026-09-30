@@ -15,9 +15,9 @@ public sealed partial class GameSession
         .Concat(EffectiveToilets(_facilities).SelectMany(ToiletReservedCells)).ToArray();
     private static bool QueueGroundAllowed(GridCell cell,PreparationSnapshot? prep)=>!(cell.X is >=90 and <=101 && cell.Z is >=139 and <=160) &&
         !(Math.Abs(cell.X-ResponsePost(prep,ResponseRole.Medic).Cell.X)<=3 && Math.Abs(cell.Z-ResponsePost(prep,ResponseRole.Medic).Cell.Z)<=3) &&
-        (prep?.StewardPostPlacement is null || !(Math.Abs(cell.X-prep.StewardPostPlacement.Cell.X)<=2 && Math.Abs(cell.Z-prep.StewardPostPlacement.Cell.Z)<=2)) &&
-        (prep?.FirstAidPlacement is null || !new[]{ResponsePostHome(prep,ResponseRole.Medic),ResponsePostHome(prep,ResponseRole.Medic,true)}.Contains(cell)) &&
-        (prep?.StewardPostPlacement is null || !new[]{ResponsePostHome(prep,ResponseRole.Steward),ResponsePostHome(prep,ResponseRole.Steward,true)}.Contains(cell)) &&
+        (StewardPostPlacement(prep) is not { } steward || !(Math.Abs(cell.X-steward.Cell.X)<=2 && Math.Abs(cell.Z-steward.Cell.Z)<=2)) &&
+        (FirstAidPlacement(prep) is null || !new[]{ResponsePostHome(prep,ResponseRole.Medic),ResponsePostHome(prep,ResponseRole.Medic,true)}.Contains(cell)) &&
+        (StewardPostPlacement(prep) is null || !new[]{ResponsePostHome(prep,ResponseRole.Steward),ResponsePostHome(prep,ResponseRole.Steward,true)}.Contains(cell)) &&
         !(Math.Abs(cell.X-MedicalRestCell.X)<=1&&Math.Abs(cell.Z-MedicalRestCell.Z)<=1) &&
         !(Math.Abs(cell.X-ResponsePostHome(prep,ResponseRole.Medic).X)<=1&&Math.Abs(cell.Z-ResponsePostHome(prep,ResponseRole.Medic).Z)<=1);
     private void GrowImmersionQueues()

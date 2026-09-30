@@ -5,13 +5,13 @@ public sealed record ResponsePostPlacement(GridCell Cell, int QuarterTurns);
 public sealed partial class GameSession
 {
     public static ResponsePostPlacement ResponsePost(PreparationSnapshot? prep, ResponseRole role) => role == ResponseRole.Medic
-        ? prep?.FirstAidPlacement ?? new(MedicalTentCell, 0)
-        : prep?.StewardPostPlacement ?? new(DisorderSecurityPostCell, 1);
+        ? FirstAidPlacement(prep) ?? new(MedicalTentCell, 0)
+        : StewardPostPlacement(prep) ?? new(DisorderSecurityPostCell, 1);
     public ResponsePostPlacement CaptureResponsePost(ResponseRole role) => ResponsePost(_preparation, role);
     public static GridCell ResponsePostHome(PreparationSnapshot? prep, ResponseRole role, bool hired = false)
     {
         // Absent records retain the exact legacy homes for compatible saved routes.
-        if ((role == ResponseRole.Medic ? prep?.FirstAidPlacement : prep?.StewardPostPlacement) is null)
+        if ((role == ResponseRole.Medic ? FirstAidPlacement(prep) : StewardPostPlacement(prep)) is null)
         {
             var old = role == ResponseRole.Medic ? MedicalMedicCell : DisorderSecurityBaseCell;
             return hired ? new(old.X + 2, old.Z) : old;
@@ -35,8 +35,8 @@ public sealed partial class GameSession
         var blocked=new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain()).Overrides.ToDictionary(c=>c.Key,c=>c.Value);
         void Block(GridCell centre,int rx,int rz){for(var x=centre.X-rx;x<=centre.X+rx;x++)for(var z=centre.Z-rz;z<=centre.Z+rz;z++){var c=new GridCell(x,z);blocked[c]=new(c,GroundSurface.Grass,false);}}
         Block(ResponsePost(p,ResponseRole.Medic).Cell,3,3);
-        if(p.StewardPostPlacement is {} steward)Block(steward.Cell,2,2);
-        var points=new[]{new WaterPointState("water.main",p.PrimaryWaterCell,[],[],null,0){QuarterTurns=p.PrimaryWaterQuarterTurns,GeometryVersion=p.PrimaryWaterGeometryVersion}}
+        if(StewardPostPlacement(p) is {} steward)Block(steward.Cell,2,2);
+        var points=new[]{new WaterPointState("water.main",PrimaryWaterCell(p),[],[],null,0){QuarterTurns=PrimaryWaterQuarterTurns(p),GeometryVersion=PrimaryWaterGeometryVersion(p)}}
             .Concat(EffectiveWaterPlacements(p).Select(w=>new WaterPointState(w.Id,w.Cell,[],[],null,0){QuarterTurns=w.QuarterTurns,GeometryVersion=w.GeometryVersion})).ToArray();
         foreach(var water in points)Block(water.Cell,WaterFootprintRadius(water),WaterFootprintRadius(water));
         if(p.WaterTowerOwned)Block(WaterTowerCell,3,3);
@@ -58,7 +58,7 @@ public sealed partial class GameSession
         if(s.Preparation is not { } p)return null;
         foreach(var role in Enum.GetValues<ResponseRole>())
         {
-            var placement=role==ResponseRole.Medic?p.FirstAidPlacement:p.StewardPostPlacement;
+            var placement=role==ResponseRole.Medic?FirstAidPlacement(p):StewardPostPlacement(p);
             if(placement is null)continue;
             if(s.Medical is null || s.Disorder is null || placement.QuarterTurns is <0 or >3)return "Saved response post identity or orientation invalid.";
             if (!p.BuildPlacements.Any(item => item.Kind == (role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost) &&

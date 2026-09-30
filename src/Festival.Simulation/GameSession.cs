@@ -546,7 +546,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleError is not null) return lifecycleError;
         var programmeError = ValidatePersistedProgramme(snapshot);
         if (programmeError is not null) return programmeError;
-        if(snapshot.Preparation is {} postPrep && new[]{postPrep.FirstAidPlacement,postPrep.StewardPostPlacement}.Any(p=>p is not null && (p.QuarterTurns is <0 or >3 || p.Cell.X is <0 or >255 || p.Cell.Z is <0 or >255)))return "Saved response post scalar fields invalid.";
+        if(snapshot.Preparation is {} postPrep && new[]{FirstAidPlacement(postPrep),StewardPostPlacement(postPrep)}.Any(p=>p is not null && (p.QuarterTurns is <0 or >3 || p.Cell.X is <0 or >255 || p.Cell.Z is <0 or >255)))return "Saved response post scalar fields invalid.";
         var preparationError = ValidatePersistedPreparation(snapshot.Preparation, snapshot);
         if (preparationError is not null) return preparationError;
         var resultError = ValidateFestivalResult(snapshot);

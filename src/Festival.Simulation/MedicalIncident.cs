@@ -55,11 +55,6 @@ public sealed partial class GameSession
     public const int MedicalDistressHeat = 8_000;
     public static readonly GridCell MedicalWaterCell = new(95, 123);    // (-16.25, -2.25) m; upper-right overview, away from the audience.
     public static readonly GridCell WaterTowerCell = TraversalGrid.WorldToCell(-12_300, -14_000);
-    public static readonly (string Id, GridCell Cell)[] ExtraWaterSites =
-    [
-        ("water.west", new GridCell(74, 123)),
-        ("water.east", new GridCell(116, 143))
-    ];
     public static readonly GridCell MedicalTentCell = new(116, 119);    // (-5.75, -4.25) m; tent frontage aligns with the water point.
     public static readonly GridCell MedicalMedicCell = new(116, 125);   // (-5.75, -1.25) m; Riley stands in front of the tent.
     public static readonly GridCell MedicalRestCell = new(120, 125);    // (-3.75, -1.25) m; beside the tent's new front approach.
@@ -811,10 +806,9 @@ public sealed partial class GameSession
                 item.QueueSlot is < 0 or >= 10 || item.WaterPointId != "water.main" && !points.Any(point => point.Id == item.WaterPointId) ||
                 item.LastDecisionTick > s.CurrentTick || item.LastWaterChoiceReviewTick > s.CurrentTick ||
                 item.WarningTick > s.CurrentTick || item.CollapseTick > s.CurrentTick || item.CriticalTick > s.CurrentTick) ||
-            points.FirstOrDefault(point => point.Id == "water.main") is { } mainTap && (mainTap.Cell != p.PrimaryWaterCell ||
-                mainTap.QuarterTurns != p.PrimaryWaterQuarterTurns || mainTap.GeometryVersion != p.PrimaryWaterGeometryVersion) ||
-            p.ExtraWaterSiteIds is null || p.WaterPlacements is null ||
-            !extraTaps.Select(point => point.Id).SequenceEqual(p.ExtraWaterSiteIds) ||
+            points.FirstOrDefault(point => point.Id == "water.main") is { } mainTap && (mainTap.Cell != PrimaryWaterCell(p) ||
+                mainTap.QuarterTurns != PrimaryWaterQuarterTurns(p) || mainTap.GeometryVersion != PrimaryWaterGeometryVersion(p)) ||
+            !extraTaps.Select(point => point.Id).SequenceEqual(EffectiveWaterPlacements(p).Select(site => site.Id)) ||
             extraTaps.Any(point => !EffectiveWaterPlacements(p).Any(site => site.Id == point.Id && site.Cell == point.Cell && site.QuarterTurns == point.QuarterTurns && site.GeometryVersion == point.GeometryVersion)) ||
             points.Any(point => point.Queue is null || point.Overflow is null || point.Queue.Length > 10 || point.Overflow.Length > 10 ||
                 point.QuarterTurns is < 0 or > 3 || point.GeometryVersion is < 0 or > 1 || point.QueueCells is null || point.QueueCells.Length > 20 ||

@@ -95,7 +95,6 @@ public sealed partial class GameSession
             MedicalStage.Clear, MedicalResponseStage.None, null, -1, -1, -1, -1, "No response",
             [new("medical:hot", 0, "Fixed Hot scenario; free water and a baseline medic are available before opening.")]);
         session._facilities = new FacilitiesSnapshot(1, [OpeningMainTap()], [], []);
-        session._preparation = session._preparation! with { PrimaryWaterGeometryVersion = 1 };
     }
 
     /// <summary>The baseline steward and each guest's temperament.</summary>

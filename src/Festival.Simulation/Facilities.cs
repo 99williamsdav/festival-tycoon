@@ -30,6 +30,20 @@ public sealed partial class GameSession
     /// <summary>The tap a campaign opens with before any Build layout exists.</summary>
     private static WaterPointState OpeningMainTap() => new("water.main", MedicalWaterCell, [], [], null, 0) { GeometryVersion = 1 };
 
+    // Placement facts derived from the Build layout. Before a layout exists (the opening baseline)
+    // the main tap stands at its fixed site and no extra taps or posts are placed.
+    private static BuildPlacement? PlacedMainTap(PreparationSnapshot? p) => p?.BuildPlacements?.FirstOrDefault(item => item.Id == "water.main");
+    private static GridCell PrimaryWaterCell(PreparationSnapshot? p) => PlacedMainTap(p)?.Cell ?? MedicalWaterCell;
+    private static int PrimaryWaterQuarterTurns(PreparationSnapshot? p) => PlacedMainTap(p)?.QuarterTurns ?? 0;
+    private static int PrimaryWaterGeometryVersion(PreparationSnapshot? p) => p?.BuildPlacements is null || PlacedMainTap(p) is not null ? 1 : 0;
+    private static WaterPlacement[] EffectiveWaterPlacements(PreparationSnapshot p) => (p.BuildPlacements ?? [])
+        .Where(item => item.Kind == BuildServiceKind.WaterTap && item.Id != "water.main").OrderBy(item => item.Id, StringComparer.Ordinal)
+        .Select(item => new WaterPlacement(item.Id, item.Cell) { QuarterTurns = item.QuarterTurns, GeometryVersion = 1 }).ToArray();
+    private static ResponsePostPlacement? FirstAidPlacement(PreparationSnapshot? p) => PlacedPost(p, BuildServiceKind.FirstAid);
+    private static ResponsePostPlacement? StewardPostPlacement(PreparationSnapshot? p) => PlacedPost(p, BuildServiceKind.StewardPost);
+    private static ResponsePostPlacement? PlacedPost(PreparationSnapshot? p, BuildServiceKind kind) =>
+        p?.BuildPlacements?.FirstOrDefault(item => item.Kind == kind) is { } post ? new(post.Cell, post.QuarterTurns) : null;
+
     /// <summary>The main tap is standing unless a Build layout exists that does not place it.</summary>
     private static bool MainTapStanding(PreparationSnapshot? p) => p?.BuildPlacements?.Any(item => item.Id == "water.main") != false;
 }
