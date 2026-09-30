@@ -9,9 +9,10 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class FatalHearingTests
 {
-    private static GameSession Fatal(ulong seed = 20260922)
+    private static GameSession Fatal(ulong seed = 20260922) => Fatal(BuildSession.Started(seed));
+
+    private static GameSession Fatal(GameSession s)
     {
-        var s = BuildSession.Started(seed);
         s.AdvanceWithoutSnapshot(6_000);
         var performer = s.CapturePreparation()!.People.First(person =>
             person.Role == ProtectedPersonRole.Performer && s.CapturePerson(person.AgentId)!.Admitted);
@@ -63,6 +64,42 @@ public sealed class FatalHearingTests
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         s.AdvanceWithoutSnapshot(2_000);
         Assert.AreEqual(PreparationStatus.Running, s.PreparedStatus);
+    }
+
+    [TestMethod]
+    public void FavourRetryRebuildsEveryPlacedToiletFresh()
+    {
+        var s = BuildSession.Ready();
+        GridCell? second = null;
+        for (var x = 145; x <= 190 && second is null; x += 5)
+        for (var z = 115; z <= 190 && second is null; z += 5)
+        {
+            var cell = new GridCell(x, z);
+            if (s.ValidateCommand(new(new(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase, s.CurrentTick,
+                s.NextSubmissionSequence, null, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, cell))) is null) second = cell;
+        }
+        Assert.IsNotNull(second, "A second portaloo site should exist on the festival field.");
+        BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, second.Value));
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        s = Fatal(s);
+        Assert.AreEqual(2, s.CaptureToilets().Count);
+        BuildSession.Accept(s, new SpendCouncilFavourCommand());
+        var placed = s.CapturePreparation()!.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet).ToArray();
+        var toilets = s.CaptureToilets();
+        CollectionAssert.AreEquivalent(placed.Select(item => item.Id).ToArray(), toilets.Select(item => item.Id).ToArray());
+        Assert.AreEqual("toilet.main", toilets[0].Id);
+        foreach (var toilet in toilets)
+        {
+            var site = placed.Single(item => item.Id == toilet.Id);
+            Assert.AreEqual(site.Cell, toilet.Cell);
+            Assert.AreEqual(site.QuarterTurns, toilet.QuarterTurns);
+            Assert.AreEqual(0, toilet.Queue.Length);
+            Assert.IsNull(toilet.OwnerId);
+            Assert.AreEqual(0, toilet.ServiceTicks);
+            Assert.AreEqual(0, toilet.WeeCount + toilet.PooCount);
+        }
+        s = BuildSession.Restored(s);
+        Assert.AreEqual(2, s.CaptureToilets().Count);
     }
 
     [TestMethod]

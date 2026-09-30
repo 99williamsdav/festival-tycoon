@@ -116,12 +116,15 @@ public sealed partial class GameSession
         SetVendors(p.BuildPlacements.Where(item => item.Kind is BuildServiceKind.FoodVan or BuildServiceKind.Bar)
             .Select(item => NewLooseVendor(new ImmersionVendor(item.Id, item.Cell, item.QuarterTurns, [])))
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray());
-        // The main toilet comes first, then any others in placement order.
-        SetToilets(p.BuildPlacements.Where(item => item.Id == "toilet.main")
+        SetToilets(PlacedToilets(p));
+    }
+
+    /// <summary>Every placed toilet, standing fresh at its placement: the main toilet first, then any others in placement order.</summary>
+    private static ToiletFacility[] PlacedToilets(PreparationSnapshot p) =>
+        p.BuildPlacements.Where(item => item.Id == "toilet.main")
             .Concat(p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet && item.Id != "toilet.main"))
             .Select(item => new ToiletFacility(item.Id, item.Cell, item.QuarterTurns, [], null, false, 0, 0, 0,
-                ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille)).ToArray());
-    }
+                ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille)).ToArray();
 
     private static string? ValidateBuildLayout(IReadOnlyList<BuildPlacement> placements,
         EquipmentSnapshot? equipment = null, bool waterTowerOwned = false)
