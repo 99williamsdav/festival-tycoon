@@ -91,7 +91,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Input(InputEvent inputEvent)
     {
-        if (_startSplash is not null) return;
+        if (StartMenu.IsOpen) return;
         // Release must be observed before a HUD Control consumes the mouse event.
         if (inputEvent is InputEventMouseButton { ButtonIndex: MouseButton.Middle, Pressed: false })
             _middleDragging = false;
@@ -99,7 +99,7 @@ public partial class Main : Node, IHudHost
 
     public override void _UnhandledInput(InputEvent inputEvent)
     {
-        if (ResultsPaper.IsOpen || _startSplash is not null) return;
+        if (ResultsPaper.IsOpen || StartMenu.IsOpen) return;
         if (Perks.Panel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && Perks.Panel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)

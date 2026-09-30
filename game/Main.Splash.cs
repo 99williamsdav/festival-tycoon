@@ -9,49 +9,13 @@ namespace Festival.Game;
 
 public partial class Main
 {
-    private CanvasLayer? _startSplash;
     private bool _newCampaignOnEnter;
     private readonly HashSet<ulong> _menuCampaignIds = [];
 
-    private void BuildStartSplash()
-    {
-        _startSplash = new CanvasLayer { Layer = 20 };
-        AddChild(_startSplash);
-        var backdrop = new ColorRect { Color = new Color("142630") };
-        backdrop.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        backdrop.MouseFilter = Control.MouseFilterEnum.Stop;
-        _startSplash.AddChild(backdrop);
+    private StartMenu? _startMenuView;
+    private StartMenu StartMenu => _startMenuView ??= new();
 
-        var centre = new CenterContainer();
-        centre.SetAnchorsPreset(Control.LayoutPreset.FullRect);
-        backdrop.AddChild(centre);
-        var content = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
-        content.AddThemeConstantOverride("separation", 16);
-        centre.AddChild(content);
-
-        var visible = GetViewport().GetVisibleRect().Size;
-        var side = Mathf.Min(620f, Mathf.Min(visible.X * 0.55f, visible.Y * 0.69f));
-        var logo = new TextureRect
-        {
-            Texture = GD.Load<Texture2D>("res://assets/branding/festival-tycoon-mosaic-logo-v2.png"),
-            ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-            StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
-            CustomMinimumSize = new Vector2(side, side),
-            MouseFilter = Control.MouseFilterEnum.Ignore,
-        };
-        content.AddChild(logo);
-        var subtitle = new Label { Text = "LOWER WITTERING FARM  •  YOUR WEEKEND STARTS HERE",
-            HorizontalAlignment = HorizontalAlignment.Center };
-        subtitle.AddThemeFontSizeOverride("font_size", 18);
-        subtitle.AddThemeColorOverride("font_color", new Color("f3e8c9"));
-        content.AddChild(subtitle);
-        var button = new Button { Name = "EnterFestival", Text = "ENTER FESTIVAL", CustomMinimumSize = new Vector2(280, 54),
-            SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter };
-        button.AddThemeFontSizeOverride("font_size", 21);
-        button.Pressed += EnterFestival;
-        content.AddChild(button);
-        button.GrabFocus();
-    }
+    private void BuildStartSplash() => StartMenu.Open(this, EnterFestival);
 
     private void EnterFestival()
     {
@@ -59,7 +23,7 @@ public partial class Main
         {
             // Create only on Enter: merely viewing the menu must not touch a terminal save.
             var next = CreateFreshBuildCampaign(out var seed);
-Perks.CancelConfirmation();
+            Perks.CancelConfirmation();
             ClearSelection(); ResetImmersionHeldVisuals();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;
@@ -80,7 +44,7 @@ Perks.CancelConfirmation();
             _newCampaignOnEnter = false;
             GD.Print($"NEW_CAMPAIGN_STARTED id={_session.CampaignId.Value} seed={seed} status={_session.PreparedStatus}");
         }
-        _startSplash?.QueueFree(); _startSplash = null;
+        StartMenu.Close();
     }
 
     private GameSession CreateFreshBuildCampaign(out ulong seed)
