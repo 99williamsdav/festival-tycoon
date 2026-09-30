@@ -1,0 +1,12 @@
+{
+ "sex": "female",
+ "mode": "relaxed",
+ "file": "lwf_performer_female_body_v2.glb",
+ "nodes": [
+  "LWF_Performer_BodyCore",
+  "LWF_Performer_IdleLeftArm",
+  "LWF_Performer_IdleRightArm"
+ ],
+ "triangles": 2592,
+ "sha256": "45a0e3c85ebabc6e6ca11ac0016840308c82879a2305b25bf11caf8b3f1bab88"
+}

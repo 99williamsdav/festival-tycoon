@@ -1,0 +1,32 @@
+{
+ "sex": "male",
+ "mode": "drummer",
+ "left_loop_scale": 1.094,
+ "left_pivot": [
+  -0.1754,
+  -0.0039,
+  1.2723
+ ],
+ "right_loop_scale": 1.094,
+ "right_pivot": [
+  0.1754,
+  -0.0039,
+  1.2723
+ ],
+ "shift_mm": [
+  0.0,
+  -85.0,
+  20.0
+ ],
+ "fret_slide_mm": 0.0,
+ "fixed_clearance_mm": 185.39,
+ "file": "lwf_drummer_male_kit_v2.glb",
+ "nodes": [
+  "LWF_Drummer_LeftStick",
+  "LWF_Drummer_LeftPlayingArm",
+  "LWF_Drummer_RightStick",
+  "LWF_Drummer_RightPlayingArm"
+ ],
+ "triangles": 700,
+ "sha256": "2d518bc21e4a83c0f33d41e4ff13d5fe5d68436878df70b23aa97c1c5fe1fdff"
+}

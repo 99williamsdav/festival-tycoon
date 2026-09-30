@@ -11,7 +11,7 @@ public partial class Main
     private readonly Dictionary<string, PackedScene> _guestPoseScenes = [];
 
     private AttendeePoseCatalog GuestPoseCatalog => _guestPoseCatalog ??=
-        AttendeePoseCatalog.Parse(Godot.FileAccess.GetFileAsString("res://assets/characters/attendee_poses_v2_manifest.json"));
+        AttendeePoseCatalog.Parse(Godot.FileAccess.GetFileAsString("res://assets/characters/attendee_poses_v6_manifest.json"));
 
     private Node3D AddGuestPoseRoot(EntityId id, Vector3 position)
     {

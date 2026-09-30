@@ -1,0 +1,12 @@
+{
+ "sex": "male",
+ "mode": "relaxed",
+ "file": "lwf_performer_male_body_v2.glb",
+ "nodes": [
+  "LWF_Performer_BodyCore",
+  "LWF_Performer_IdleLeftArm",
+  "LWF_Performer_IdleRightArm"
+ ],
+ "triangles": 1776,
+ "sha256": "3c6759de0980d94dca7b9bc37c948b35a4f62d5480e6655e7d1a396707dcde66"
+}

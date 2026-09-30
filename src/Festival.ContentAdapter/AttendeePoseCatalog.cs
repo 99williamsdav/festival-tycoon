@@ -12,7 +12,7 @@ public sealed class AttendeePoseCatalog
 {
     private readonly Dictionary<string, AttendeePoseAsset> _assets = [];
     public AttendeePoseAsset Get(string variant, string state, ImmersionProduct? product) =>
-        _assets[AttendeePose.File(variant, state, product)];
+        _assets[AttendeePose.Key(variant, state, product)];
     public static AttendeePoseCatalog Parse(string json)
     {
         using var document = JsonDocument.Parse(json);
@@ -36,7 +36,15 @@ public sealed class AttendeePoseCatalog
                     anchors.Add(attachment.Name, new(p[0], p[1], p[2], r[0], r[1], r[2]));
                 }
                 var file = asset.GetProperty("file").GetString()!;
-                catalog._assets.Add(file, new(file, asset.GetProperty("sha256").GetString()!, anchors));
+                var state = asset.GetProperty("state").GetString()!;
+                ImmersionProduct? product = asset.GetProperty("product").GetString() switch
+                {
+                    null => null,
+                    "beer" => ImmersionProduct.Beer,
+                    "soft" => ImmersionProduct.SoftDrink,
+                    var other => throw new InvalidDataException($"Unknown attendee pose product '{other}'."),
+                };
+                catalog._assets.Add(AttendeePose.Key(variant.Name, state, product), new(file, asset.GetProperty("sha256").GetString()!, anchors));
             }
         return catalog;
     }

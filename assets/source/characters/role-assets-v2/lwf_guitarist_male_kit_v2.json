@@ -1,0 +1,43 @@
+{
+ "sex": "male",
+ "mode": "guitarist",
+ "strap_fit": {
+  "vertices": 40,
+  "old_min_mm": -13.06,
+  "new_min_mm": 0.3,
+  "inside_new": 0,
+  "old_median_mm": 40.51,
+  "new_median_mm": 38.82
+ },
+ "left_pivot": [
+  -0.1754,
+  -0.0039,
+  1.2723
+ ],
+ "right_loop_scale": 1.249,
+ "right_pivot": [
+  0.1754,
+  -0.0039,
+  1.2723
+ ],
+ "LeftPlayingArm_hand_gap_mm": 0.91,
+ "LeftPlayingArm_verts_inside_instrument": 1,
+ "RightPlayingArm_hand_gap_mm": 0.35,
+ "RightPlayingArm_verts_inside_instrument": 17,
+ "shift_mm": [
+  0.0,
+  -80.0,
+  160.0
+ ],
+ "fret_slide_mm": 0.0,
+ "fixed_clearance_mm": 19.63,
+ "file": "lwf_guitarist_male_kit_v2.glb",
+ "nodes": [
+  "LWF_Guitarist_AcousticGuitar",
+  "LWF_Fitted_LeatherStrap",
+  "LWF_Guitarist_LeftPlayingArm",
+  "LWF_Guitarist_RightPlayingArm"
+ ],
+ "triangles": 1000,
+ "sha256": "6f86d7966e4061088e628c72b69ef12ca211694174f99ea11bd5ba263ceec86d"
+}

@@ -1,0 +1,464 @@
+{
+ "schema_version": 1,
+ "units": "metres",
+ "front": "Godot -Z",
+ "origin": "foot ground centre",
+ "body_only": true,
+ "transform_rule": "Attach prop once under stable attendee root using Godot root-local transforms; do not also parent beneath exported socket. Body visual root remains identity.",
+ "palette": "Embedded 96x8 palette, preserved source material; same slot contract as v2 so runtime colourways apply unchanged.",
+ "generator": "../build_attendee.py (procedural; blender -b --python build_attendee.py -- <sex> <out.blend> <palette.blend> <pose>)",
+ "heights": {
+  "female": 1.7,
+  "male": 1.78
+ },
+ "variants": {
+  "female": [
+   {
+    "state": "relaxed",
+    "product": null,
+    "file": "lwf_attendee_female_relaxed_v2.glb",
+    "source_blend": "female-relaxed.blend",
+    "source_blend_sha256": "6a2c3bbb0658e0520976e60b6a4d5959a64d5583973b09ada5ce4346bfd3e697",
+    "sha256": "319555b775b2c32213f3e5f81e1fd68b8e809959e538e94f181481bd8f19390f",
+    "triangles": 2592,
+    "exported_vertices": 4942,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {},
+    "mouth_target": [
+     0.0,
+     1.42898,
+     -0.07811
+    ]
+   },
+   {
+    "state": "drink_hold",
+    "product": null,
+    "file": "lwf_attendee_female_drink_hold_v2.glb",
+    "source_blend": "female-drink_hold.blend",
+    "source_blend_sha256": "0ce6c071870c4b6a9912943085c788d993c892c758acba98dad9aa985e2587c8",
+    "sha256": "f22a2b9e0323acd3c4756fc6b47a81da19811440335a3e1f2c69a5ae73f94286",
+    "triangles": 2652,
+    "exported_vertices": 5062,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "beer": {
+      "position": [
+       0.17126,
+       1.08993,
+       -0.23617
+      ],
+      "rotation_degrees": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     },
+     "soft": {
+      "position": [
+       0.17126,
+       1.08993,
+       -0.23617
+      ],
+      "rotation_degrees": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.42898,
+     -0.07811
+    ]
+   },
+   {
+    "state": "food_hold",
+    "product": null,
+    "file": "lwf_attendee_female_food_hold_v2.glb",
+    "source_blend": "female-food_hold.blend",
+    "source_blend_sha256": "503911d2467fc80ecd96910cd31c3bdc9c24aafafef86fffeacf8f522db7a88d",
+    "sha256": "1998da1dfa8129ac433933f514ba9b7d4897e0a2ba22d67490469603aadc5731",
+    "triangles": 2620,
+    "exported_vertices": 4998,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "tray": {
+      "position": [
+       0.10926,
+       1.10193,
+       -0.24117
+      ],
+      "rotation_degrees": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.42898,
+     -0.07811
+    ]
+   },
+   {
+    "state": "drinking",
+    "product": "beer",
+    "file": "lwf_attendee_female_drinking_beer_v2.glb",
+    "source_blend": "female-drinking_beer.blend",
+    "source_blend_sha256": "d88a9f568ddb2c5abe93ec76ec41bab2853525d2c123bbd0dab2b07a8d1c3685",
+    "sha256": "cc857f6e1dfa2ee86b9a82d8a548109c617eb268f5702a5ea96708a913b935e1",
+    "triangles": 2652,
+    "exported_vertices": 5062,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "beer": {
+      "position": [
+       0.0,
+       1.4225,
+       -0.16857
+      ],
+      "rotation_degrees": [
+       55.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.42898,
+     -0.07811
+    ]
+   },
+   {
+    "state": "drinking",
+    "product": "soft",
+    "file": "lwf_attendee_female_drinking_soft_v2.glb",
+    "source_blend": "female-drinking_soft.blend",
+    "source_blend_sha256": "2d8be24211fe8726064ee48f36a9ea1fa3812465450d4fe0f85eff40f1779c57",
+    "sha256": "86a73e1d5c1bdc0703bc6c2869d5690e27ded7d65c7c43f37cb7bb9b7581e929",
+    "triangles": 2652,
+    "exported_vertices": 5062,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "soft": {
+      "position": [
+       -0.012,
+       1.30029,
+       -0.14012
+      ],
+      "rotation_degrees": [
+       25.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.42898,
+     -0.07811
+    ]
+   },
+   {
+    "state": "eating",
+    "product": null,
+    "file": "lwf_attendee_female_eating_v2.glb",
+    "source_blend": "female-eating.blend",
+    "source_blend_sha256": "f99f25a3edc751734364d6f9a58975c75cdf14f15515eb3b5ccec08da9fd1075",
+    "sha256": "2ba0cc2679a264e9e5b2638210627004438feb593e5a8171b0532f9b65fecb49",
+    "triangles": 2620,
+    "exported_vertices": 4998,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "tray": {
+      "position": [
+       0.10926,
+       1.10193,
+       -0.24117
+      ],
+      "rotation_degrees": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.42898,
+     -0.07811
+    ]
+   }
+  ],
+  "male": [
+   {
+    "state": "relaxed",
+    "product": null,
+    "file": "lwf_attendee_male_relaxed_v2.glb",
+    "source_blend": "male-relaxed.blend",
+    "source_blend_sha256": "a772bbd8de8201556a7adab97141d07ae7bf6a22e0b1cf1eadf7d1e6dac358be",
+    "sha256": "acb40b8bc764cea59aee5edcda535312010d7daae2e6434f7c69e47a31a0f986",
+    "triangles": 1776,
+    "exported_vertices": 3250,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {},
+    "mouth_target": [
+     0.0,
+     1.49735,
+     -0.08202
+    ]
+   },
+   {
+    "state": "drink_hold",
+    "product": null,
+    "file": "lwf_attendee_male_drink_hold_v2.glb",
+    "source_blend": "male-drink_hold.blend",
+    "source_blend_sha256": "f73b6181c94323cc2dafeca3c17f05e4f25ee36134926343c9800844838a9133",
+    "sha256": "593b2c3986f13f35e506c12e7bf9c4d03eb4f91d0c0d7d57800d2aafe445e4e8",
+    "triangles": 1836,
+    "exported_vertices": 3370,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "beer": {
+      "position": [
+       0.19742,
+       1.14229,
+       -0.23614
+      ],
+      "rotation_degrees": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     },
+     "soft": {
+      "position": [
+       0.19742,
+       1.14229,
+       -0.23614
+      ],
+      "rotation_degrees": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.49735,
+     -0.08202
+    ]
+   },
+   {
+    "state": "food_hold",
+    "product": null,
+    "file": "lwf_attendee_male_food_hold_v2.glb",
+    "source_blend": "male-food_hold.blend",
+    "source_blend_sha256": "93886b9bf92960fae9f3f3fb0b482c73f5d179755cac0020a454f32ebdbc8ab3",
+    "sha256": "74ba68ca8edf73a12dcbc4a9545da5290e688dc3fad9d7a54cd36a6244316a77",
+    "triangles": 1804,
+    "exported_vertices": 3306,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "tray": {
+      "position": [
+       0.13542,
+       1.15429,
+       -0.24114
+      ],
+      "rotation_degrees": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.49735,
+     -0.08202
+    ]
+   },
+   {
+    "state": "drinking",
+    "product": "beer",
+    "file": "lwf_attendee_male_drinking_beer_v2.glb",
+    "source_blend": "male-drinking_beer.blend",
+    "source_blend_sha256": "3c30fdbb4913e0540179ab89bab352cc2431e1d3e422950ce7f5ff27a62edade",
+    "sha256": "51c8d90a3b38677f13aac6ea0d97dcd4f93b7f9f329964d1e1ae7226d6c7667c",
+    "triangles": 1836,
+    "exported_vertices": 3370,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "beer": {
+      "position": [
+       0.0,
+       1.49087,
+       -0.17247
+      ],
+      "rotation_degrees": [
+       55.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.49735,
+     -0.08202
+    ]
+   },
+   {
+    "state": "drinking",
+    "product": "soft",
+    "file": "lwf_attendee_male_drinking_soft_v2.glb",
+    "source_blend": "male-drinking_soft.blend",
+    "source_blend_sha256": "e445f035d3e75792b6ddb851e8a8ec98b36ad5d6d07a4f5bb7c9f28c23ac7e93",
+    "sha256": "5c16bbfc4c5c6728330f5598f900fe703705154f4c1ef0be116b31557bab892d",
+    "triangles": 1836,
+    "exported_vertices": 3370,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "soft": {
+      "position": [
+       -0.012,
+       1.36866,
+       -0.14403
+      ],
+      "rotation_degrees": [
+       25.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.49735,
+     -0.08202
+    ]
+   },
+   {
+    "state": "eating",
+    "product": null,
+    "file": "lwf_attendee_male_eating_v2.glb",
+    "source_blend": "male-eating.blend",
+    "source_blend_sha256": "b55369c66154658e29cdeead585cd79eb8351d7231463b7f6d5bff46a87378c5",
+    "sha256": "43c65de076a59961570c5c7694a088d31bc9475b32923a5a03ceea0f3482a2d4",
+    "triangles": 1804,
+    "exported_vertices": 3306,
+    "materials": 1,
+    "surfaces": 1,
+    "attachments": {
+     "tray": {
+      "position": [
+       0.13542,
+       1.15429,
+       -0.24114
+      ],
+      "rotation_degrees": [
+       0.0,
+       0.0,
+       0.0
+      ],
+      "scale": [
+       1,
+       1,
+       1
+      ]
+     }
+    },
+    "mouth_target": [
+     0.0,
+     1.49735,
+     -0.08202
+    ]
+   }
+  ]
+ },
+ "props": {
+  "beer": {
+   "file": "assets/runtime/props/lwf_beer_cup_v2.glb",
+   "sha256": "e6fd2e115eef76797b97a76759b57687c8ed0a25baced7acd805df1dd25adc8c"
+  },
+  "soft": {
+   "file": "assets/runtime/props/lwf_soft_drink_cup_v1.glb",
+   "sha256": "b0570c93ea5cba3c7d297111e3c070d66ac4e0f6cd24edede37c4e3b77fe9416"
+  },
+  "tray": {
+   "file": "assets/runtime/props/lwf_chips_tray_v1.glb",
+   "sha256": "0bb9ebb82a2b3558a450beb84d9b8f89467c5b67e603a1c759c69cb0d95167a3"
+  }
+ }
+}

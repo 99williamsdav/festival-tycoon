@@ -1,0 +1,32 @@
+{
+ "sex": "female",
+ "mode": "drummer",
+ "left_loop_scale": 1.122,
+ "left_pivot": [
+  -0.1493,
+  -0.0038,
+  1.2199
+ ],
+ "right_loop_scale": 1.122,
+ "right_pivot": [
+  0.1493,
+  -0.0038,
+  1.2199
+ ],
+ "shift_mm": [
+  0.0,
+  -85.0,
+  20.0
+ ],
+ "fret_slide_mm": 0.0,
+ "fixed_clearance_mm": 186.62,
+ "file": "lwf_drummer_female_kit_v2.glb",
+ "nodes": [
+  "LWF_Drummer_LeftStick",
+  "LWF_Drummer_LeftPlayingArm",
+  "LWF_Drummer_RightStick",
+  "LWF_Drummer_RightPlayingArm"
+ ],
+ "triangles": 724,
+ "sha256": "e305ddf95d35abf33ee10b5a5d69f7b58dfa6705d783327013e2b304c9337d7c"
+}

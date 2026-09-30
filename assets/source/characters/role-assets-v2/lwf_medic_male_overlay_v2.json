@@ -1,0 +1,12 @@
+{
+ "vertices": 1624,
+ "old_min_mm": 6.87,
+ "new_min_mm": 5.74,
+ "inside_new": 0,
+ "old_median_mm": 8.98,
+ "new_median_mm": 8.91,
+ "file": "lwf_medic_male_overlay_v2.glb",
+ "node": "LWF_Medic_Male_Overlay",
+ "triangles": 812,
+ "sha256": "49e5dba0809ba5019cae2a31bd99a1853b64a0e18cbf0651bc8a9e2c2f3845e8"
+}

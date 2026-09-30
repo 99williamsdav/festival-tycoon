@@ -120,9 +120,9 @@ public partial class Main
 
     private static string PerformerKitPath(int role, string variant) => role switch
     {
-        0 => $"res://assets/characters/lwf_guitarist_{variant}_kit_v1.glb",
-        1 => $"res://assets/characters/lwf_bassist_{variant}_kit_v1.glb",
-        2 => $"res://assets/characters/lwf_drummer_{variant}_kit_v1.glb",
+        0 => $"res://assets/characters/lwf_guitarist_{variant}_kit_v2.glb",
+        1 => $"res://assets/characters/lwf_bassist_{variant}_kit_v2.glb",
+        2 => $"res://assets/characters/lwf_drummer_{variant}_kit_v2.glb",
         _ => throw new ArgumentOutOfRangeException(nameof(role))
     };
 
@@ -241,7 +241,7 @@ public partial class Main
     {
         if (_stageDrumKit is not null) return;
         var drumMark = TraversalGrid.CellCentre(new GridCell(93, 152));
-        _stageDrumKit = AddAsset("res://assets/characters/lwf_drum_hardware_only_v1.glb",
+        _stageDrumKit = AddAsset("res://assets/characters/lwf_drum_hardware_only_v2.glb",
             new Vector3(drumMark.XMillimetres / 1000f, 1.19f, drumMark.ZMillimetres / 1000f));
         _stageDrumKit.RotationDegrees = new Vector3(0, -90, 0);
     }

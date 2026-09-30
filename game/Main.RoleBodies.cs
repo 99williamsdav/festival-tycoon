@@ -48,7 +48,7 @@ public partial class Main
         SetRoleBodyPose(root, "relaxed", null);
         if (!performer)
         {
-            var overlay = InstantiateAsset($"res://assets/characters/lwf_{role}_{variant}_overlay_v1.glb");
+            var overlay = InstantiateAsset($"res://assets/characters/lwf_{role}_{variant}_overlay_v2.glb");
             overlay.Name = "RoleGarment";
             root.AddChild(overlay);
         }
@@ -63,7 +63,7 @@ public partial class Main
         // free. Held food/drink temporarily uses the approved body-specific
         // pose, then returns to the partitioned body before the playing kit.
         var modular = role is "guitarist" or "bassist" or "drummer" && state == "relaxed";
-        var file = modular ? $"lwf_performer_{variant}_body_v1.glb" : GuestPoseCatalog.Get(variant, state, product).File;
+        var file = modular ? $"lwf_performer_{variant}_body_v2.glb" : GuestPoseCatalog.Get(variant, state, product).File;
         if (root.HasMeta("RolePoseFile") && root.GetMeta("RolePoseFile").AsString() == file) return;
         if (root.GetNodeOrNull<Node3D>("RoleBody") is { } previous)
         {

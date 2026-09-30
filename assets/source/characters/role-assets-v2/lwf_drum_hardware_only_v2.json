@@ -1,0 +1,15 @@
+{
+ "mode": "hardware",
+ "file": "lwf_drum_hardware_only_v2.glb",
+ "nodes": [
+  "LWF_Drummer_DrumShells",
+  "LWF_Drummer_CymbalsHardware"
+ ],
+ "shift_mm": [
+  0,
+  -85.0,
+  20.0
+ ],
+ "triangles": 496,
+ "sha256": "9c8e40248a15ea2a47f85f928f79885e6bf56d4a0e6b3c4d65ee9b560ab7ea41"
+}

@@ -1,0 +1,12 @@
+{
+ "vertices": 376,
+ "old_min_mm": -63.67,
+ "new_min_mm": 3.77,
+ "inside_new": 0,
+ "old_median_mm": 16.73,
+ "new_median_mm": 12.43,
+ "file": "lwf_sound_male_overlay_v2.glb",
+ "node": "LWF_Sound_Male_Overlay",
+ "triangles": 396,
+ "sha256": "401150dc02d3a0904d990f589d1e4c8d74c320ee6c5bc4d8de668c19232fb43c"
+}

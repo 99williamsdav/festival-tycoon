@@ -1,0 +1,12 @@
+{
+ "vertices": 2136,
+ "old_min_mm": 6.87,
+ "new_min_mm": 5.74,
+ "inside_new": 0,
+ "old_median_mm": 9.0,
+ "new_median_mm": 9.69,
+ "file": "lwf_steward_male_overlay_v2.glb",
+ "node": "LWF_Steward_Male_Overlay",
+ "triangles": 1068,
+ "sha256": "0ab12af3ab1fd3d9a99fdf7c6b0978dc23bc1c7fecf22dd5bc0ed6976fe38ff5"
+}

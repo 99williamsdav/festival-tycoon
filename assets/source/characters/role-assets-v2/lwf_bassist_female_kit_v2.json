@@ -1,0 +1,43 @@
+{
+ "sex": "female",
+ "mode": "bassist",
+ "strap_fit": {
+  "vertices": 40,
+  "old_min_mm": -3.12,
+  "new_min_mm": 0.35,
+  "inside_new": 0,
+  "old_median_mm": 40.08,
+  "new_median_mm": 39.88
+ },
+ "left_pivot": [
+  -0.1493,
+  -0.0038,
+  1.2199
+ ],
+ "right_loop_scale": 1.223,
+ "right_pivot": [
+  0.1493,
+  -0.0038,
+  1.2199
+ ],
+ "LeftPlayingArm_hand_gap_mm": 0.05,
+ "LeftPlayingArm_verts_inside_instrument": 6,
+ "RightPlayingArm_hand_gap_mm": 1.12,
+ "RightPlayingArm_verts_inside_instrument": 10,
+ "shift_mm": [
+  0.0,
+  -70.0,
+  100.0
+ ],
+ "fret_slide_mm": 225.0,
+ "fixed_clearance_mm": 21.29,
+ "file": "lwf_bassist_female_kit_v2.glb",
+ "nodes": [
+  "LWF_Bassist_SolidBass",
+  "LWF_Fitted_LeatherStrap",
+  "LWF_Bassist_LeftPlayingArm",
+  "LWF_Bassist_RightPlayingArm"
+ ],
+ "triangles": 1124,
+ "sha256": "40182d0ed4aaa8adaa06729236eb4952b858aa28567ffd01c5c477bffbd928cb"
+}

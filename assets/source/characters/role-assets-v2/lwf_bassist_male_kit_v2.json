@@ -1,0 +1,43 @@
+{
+ "sex": "male",
+ "mode": "bassist",
+ "strap_fit": {
+  "vertices": 40,
+  "old_min_mm": -13.06,
+  "new_min_mm": 0.3,
+  "inside_new": 0,
+  "old_median_mm": 40.51,
+  "new_median_mm": 39.88
+ },
+ "left_pivot": [
+  -0.1754,
+  -0.0039,
+  1.2723
+ ],
+ "right_loop_scale": 1.227,
+ "right_pivot": [
+  0.1754,
+  -0.0039,
+  1.2723
+ ],
+ "LeftPlayingArm_hand_gap_mm": 0.5,
+ "LeftPlayingArm_verts_inside_instrument": 6,
+ "RightPlayingArm_hand_gap_mm": 0.34,
+ "RightPlayingArm_verts_inside_instrument": 6,
+ "shift_mm": [
+  0.0,
+  -80.0,
+  140.0
+ ],
+ "fret_slide_mm": 150.0,
+ "fixed_clearance_mm": 19.63,
+ "file": "lwf_bassist_male_kit_v2.glb",
+ "nodes": [
+  "LWF_Bassist_SolidBass",
+  "LWF_Fitted_LeatherStrap",
+  "LWF_Bassist_LeftPlayingArm",
+  "LWF_Bassist_RightPlayingArm"
+ ],
+ "triangles": 1100,
+ "sha256": "c554a519b6b6a7b036afa55329afbaa1bbddbda795026a936362f9e08a67b7f3"
+}

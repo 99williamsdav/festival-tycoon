@@ -1,0 +1,12 @@
+{
+ "vertices": 1336,
+ "old_min_mm": 7.01,
+ "new_min_mm": 4.68,
+ "inside_new": 0,
+ "old_median_mm": 11.36,
+ "new_median_mm": 10.77,
+ "file": "lwf_maintenance_female_overlay_v2.glb",
+ "node": "LWF_Maintenance_Female_Overlay",
+ "triangles": 732,
+ "sha256": "691dd3f5339bdecd39b87c979bb02194c8f74bc481dc4e9fec53f3648d001985"
+}

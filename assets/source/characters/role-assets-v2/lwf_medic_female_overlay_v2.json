@@ -1,0 +1,12 @@
+{
+ "vertices": 1624,
+ "old_min_mm": 4.76,
+ "new_min_mm": 5.1,
+ "inside_new": 0,
+ "old_median_mm": 8.88,
+ "new_median_mm": 8.72,
+ "file": "lwf_medic_female_overlay_v2.glb",
+ "node": "LWF_Medic_Female_Overlay",
+ "triangles": 812,
+ "sha256": "b4a0071df551b43d30f6ea61df58cb487ca8b10a71ea0340eec528e095e514ed"
+}

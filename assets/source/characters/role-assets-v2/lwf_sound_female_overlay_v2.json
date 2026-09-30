@@ -1,0 +1,12 @@
+{
+ "vertices": 376,
+ "old_min_mm": -37.94,
+ "new_min_mm": 4.0,
+ "inside_new": 0,
+ "old_median_mm": 20.6,
+ "new_median_mm": 11.32,
+ "file": "lwf_sound_female_overlay_v2.glb",
+ "node": "LWF_Sound_Female_Overlay",
+ "triangles": 396,
+ "sha256": "24d0a3acbcf4ff478d10317b1ac810bba2c18d8c931c50699e42a4ede327755a"
+}

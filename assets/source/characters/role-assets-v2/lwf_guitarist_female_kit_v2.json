@@ -1,0 +1,43 @@
+{
+ "sex": "female",
+ "mode": "guitarist",
+ "strap_fit": {
+  "vertices": 40,
+  "old_min_mm": -3.12,
+  "new_min_mm": 0.35,
+  "inside_new": 0,
+  "old_median_mm": 40.08,
+  "new_median_mm": 39.97
+ },
+ "left_pivot": [
+  -0.1493,
+  -0.0038,
+  1.2199
+ ],
+ "right_loop_scale": 1.256,
+ "right_pivot": [
+  0.1493,
+  -0.0038,
+  1.2199
+ ],
+ "LeftPlayingArm_hand_gap_mm": 1.16,
+ "LeftPlayingArm_verts_inside_instrument": 8,
+ "RightPlayingArm_hand_gap_mm": 0.02,
+ "RightPlayingArm_verts_inside_instrument": 16,
+ "shift_mm": [
+  0.0,
+  -75.0,
+  120.0
+ ],
+ "fret_slide_mm": 75.0,
+ "fixed_clearance_mm": 16.07,
+ "file": "lwf_guitarist_female_kit_v2.glb",
+ "nodes": [
+  "LWF_Guitarist_AcousticGuitar",
+  "LWF_Fitted_LeatherStrap",
+  "LWF_Guitarist_LeftPlayingArm",
+  "LWF_Guitarist_RightPlayingArm"
+ ],
+ "triangles": 1024,
+ "sha256": "e48d30f31ee105c6c4d6652a044dce14be7d75cd6ba0c1de62b91123e1aa1039"
+}

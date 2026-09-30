@@ -20,6 +20,7 @@ public static class AttendeePose
         var lifted = consumptionEligible && held.ConsumedTicks % CycleTicks >= LiftStartTicks;
         return held.Product == ImmersionProduct.Chips ? lifted ? "eating" : "food_hold" : lifted ? "drinking" : "drink_hold";
     }
-    public static string File(string variant, string state, ImmersionProduct? product) =>
-        $"lwf_attendee_{variant}_{state}{(state == "drinking" ? product == ImmersionProduct.Beer ? "_beer" : "_soft" : "")}_v1.glb";
+    // Only the lifted drinking state has a product-specific body; holds share one grip.
+    public static string Key(string variant, string state, ImmersionProduct? product) =>
+        $"{variant}_{state}{(state == "drinking" ? product == ImmersionProduct.Beer ? "_beer" : "_soft" : "")}";
 }
