@@ -5,8 +5,62 @@ using System.Linq;
 
 namespace Festival.Game;
 
-public partial class Main
+/// <summary>The end-of-festival paper: the public newspaper review and the festival accounts.</summary>
+internal sealed class ResultsPaper(IHudHost _hud)
 {
+    private CanvasLayer? _layer;
+    private ScrollContainer? _scroll;
+    private VBoxContainer? _body;
+    private Button? _newspaperTab;
+    private Button? _accountsTab;
+    private bool _showingAccounts;
+    private int _newspaperScroll;
+    private int _accountsScroll;
+
+    public bool IsOpen => _layer is not null;
+
+    public void Close() { _layer?.QueueFree(); _layer = null; }
+
+    /// <summary>Opens on the newspaper. <paramref name="returnToMenu"/> reports whether leaving succeeded.</summary>
+    public void Open(Node parent, Func<bool> returnToMenu)
+    {
+        _showingAccounts = false; _newspaperScroll = _accountsScroll = 0;
+        _layer = new CanvasLayer { Layer = 19 }; parent.AddChild(_layer);
+        var shade = new ColorRect { Color = new Color("172d2b") };
+        shade.SetAnchorsPreset(Control.LayoutPreset.FullRect); _layer.AddChild(shade);
+        var center = new CenterContainer(); center.SetAnchorsPreset(Control.LayoutPreset.FullRect); shade.AddChild(center);
+        var viewport = _hud.Viewport.GetVisibleRect().Size;
+        var width = Math.Min(1060, viewport.X - 40);
+        var height = Math.Min(850, viewport.Y - 40);
+        var paper = new PanelContainer { CustomMinimumSize = new Vector2(width, height) };
+        paper.AddThemeStyleboxOverride("panel", new StyleBoxFlat { BgColor = new Color("fff3d3") }); center.AddChild(paper);
+        var margins = HearingMargins(viewport.X < 900 ? 18 : 30, 18); paper.AddChild(margins);
+        var column = new VBoxContainer(); column.AddThemeConstantOverride("separation", 10); margins.AddChild(column);
+        var nav = new HBoxContainer(); nav.AddThemeConstantOverride("separation", 10); column.AddChild(nav);
+        nav.AddChild(ResultText("Festival results", viewport.X < 900 ? 20 : 25, true));
+        _newspaperTab = ButtonText("Newspaper", () => Show(false));
+        _newspaperTab.Name = "NewspaperTab"; _newspaperTab.TooltipText = "Public festival review";
+        _newspaperTab.CustomMinimumSize = new Vector2(125, 44); nav.AddChild(_newspaperTab);
+        _accountsTab = ButtonText("Accounts", () => Show(true));
+        _accountsTab.Name = "AccountsTab"; _accountsTab.TooltipText = "Income, expenditure and cash";
+        _accountsTab.CustomMinimumSize = new Vector2(125, 44); nav.AddChild(_accountsTab);
+        Button? menu = null;
+        menu = ButtonText("Return to menu", () =>
+        {
+            if (returnToMenu()) return;
+            menu!.Text = "Save failed · retry menu";
+            menu.TooltipText = _hud.Message;
+        });
+        menu.Name = "ReturnToMenu"; menu.CustomMinimumSize = new Vector2(170, 44); nav.AddChild(menu);
+        column.AddChild(HearingRule());
+        _scroll = new ScrollContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill,
+            HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FocusMode = Control.FocusModeEnum.All };
+        column.AddChild(_scroll);
+        _body = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        _body.AddThemeConstantOverride("separation", 12); _scroll.AddChild(_body);
+        Show(false, first: true);
+    }
+
     private Label ResultText(string value, int size = 17, bool serif = false)
     {
         var label = new Label { Text = value, AutowrapMode = TextServer.AutowrapMode.WordSmart,
@@ -17,31 +71,31 @@ public partial class Main
         return label;
     }
 
-    private void ShowResultDocument(bool accounts, bool first = false)
+    public void Show(bool accounts, bool first = false)
     {
-        if (_resultsBody is null || _resultsScroll is null) return;
+        if (_body is null || _scroll is null) return;
         if (!first)
         {
-            if (_resultsShowingAccounts) _accountsScrollPosition = _resultsScroll.ScrollVertical;
-            else _newspaperScrollPosition = _resultsScroll.ScrollVertical;
+            if (_showingAccounts) _accountsScroll = _scroll.ScrollVertical;
+            else _newspaperScroll = _scroll.ScrollVertical;
         }
-        _resultsShowingAccounts = accounts;
-        foreach (var child in _resultsBody.GetChildren())
+        _showingAccounts = accounts;
+        foreach (var child in _body.GetChildren())
         {
-            _resultsBody.RemoveChild(child); child.QueueFree();
+            _body.RemoveChild(child); child.QueueFree();
         }
-        if (accounts) RenderFestivalAccounts(_resultsBody);
-        else RenderFestivalNewspaper(_resultsBody);
+        if (accounts) RenderFestivalAccounts(_body);
+        else RenderFestivalNewspaper(_body);
         _newspaperTab!.Disabled = !accounts;
         _accountsTab!.Disabled = accounts;
-        var position = accounts ? _accountsScrollPosition : _newspaperScrollPosition;
-        _resultsScroll.ScrollVertical = position;
-        _resultsScroll.SetDeferred("scroll_vertical", position);
+        var position = accounts ? _accountsScroll : _newspaperScroll;
+        _scroll.ScrollVertical = position;
+        _scroll.SetDeferred("scroll_vertical", position);
     }
 
     private void RenderFestivalNewspaper(VBoxContainer body)
     {
-        var result = _session.CompletedFestivalResult!;
+        var result = _hud.Session.CompletedFestivalResult!;
         body.AddChild(ResultText("LOCAL EDITION · FESTIVAL REVIEW", 14)); body.AddChild(HearingRule());
         body.AddChild(ResultText("The Lower Wittering Gazette", 39, true)); body.AddChild(HearingRule());
         var headline = result.Stars switch { 5 => "A day to remember", 4 => "Festival hits the right note",
@@ -91,11 +145,11 @@ public partial class Main
 
     private void RenderFestivalAccounts(VBoxContainer body)
     {
-        var report = _session.CompletedFestivalAccounts!;
+        var report = _hud.Session.CompletedFestivalAccounts!;
         body.AddChild(ResultText("FESTIVAL ACCOUNTS", 36, true));
         body.AddChild(ResultText("Lower Wittering · Income and expenditure", 20, true));
         body.AddChild(ResultText("Actual recorded transactions for this festival attempt", 14));
-        var wide = GetViewport().GetVisibleRect().Size.X >= 1100;
+        var wide = _hud.Viewport.GetVisibleRect().Size.X >= 1100;
         var columns = new HBoxContainer(); columns.AddThemeConstantOverride("separation", 28); body.AddChild(columns);
         var income = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         var spending = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };

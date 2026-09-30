@@ -82,7 +82,7 @@ public partial class Main
 
     private bool WorldInputOccluded(Vector2 screen)
     {
-        if (_festivalPaper is not null || _startSplash is not null || _hudStartConfirmation?.Visible == true || _hearingShade?.Visible == true || HoverPopupActive) return true;
+        if (ResultsPaper.IsOpen || _startSplash is not null || _hudStartConfirmation?.Visible == true || _hearingShade?.Visible == true || HoverPopupActive) return true;
         if (_perkPanel?.IsVisibleInTree() == true && _perkPanel.GetGlobalRect().HasPoint(screen)) return true;
         if (_ownedEffectPopup?.IsVisibleInTree() == true && _ownedEffectPopup.GetGlobalRect().HasPoint(screen)) return true;
         if (_hudMoney is not null && HudBlocksPlacement(screen)) return true;

@@ -11,7 +11,7 @@ using System.Text.Json;
 
 namespace Festival.Game;
 
-public partial class Main : Node
+public partial class Main : Node, IHudHost
 {
     private const float MinZoom = 18f;
     private const float MaxZoom = 82f;
@@ -99,7 +99,7 @@ public partial class Main : Node
 
     public override void _UnhandledInput(InputEvent inputEvent)
     {
-        if (_festivalPaper is not null || _startSplash is not null) return;
+        if (ResultsPaper.IsOpen || _startSplash is not null) return;
         if (_perkPanel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && _perkPanel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
@@ -534,6 +534,9 @@ public partial class Main : Node
     private static Vector3 ToWorld(NavigationAgentSnapshot agent) =>
         new(agent.XMillimetres / 1000f, 0.04f, agent.ZMillimetres / 1000f);
 
-
-
+    SessionHost IHudHost.Host => _host;
+    Viewport IHudHost.Viewport => GetViewport();
+    string IHudHost.Message { get => _preparationMessage; set => _preparationMessage = value; }
+    void IHudHost.RefreshHud() => RefreshPreparationHud();
+    void IHudHost.Commit(SessionCommand command) => CommitEquipmentAction(command);
 }

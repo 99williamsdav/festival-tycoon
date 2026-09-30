@@ -91,4 +91,56 @@ internal static class HudKit
         .Replace("guard", "steward", StringComparison.Ordinal);
     internal static string FestivalGenreName(int genre) => genre switch
     { 0 => "Folk", 1 => "Rock", 2 => "Pop", 3 => "Electronic", _ => "Unknown" };
+
+    internal static SystemFont HearingSerif() => new() { FontNames = ["Georgia", "Times New Roman"] };
+    internal static MarginContainer HearingMargins(int horizontal, int vertical)
+    {
+        var margin = new MarginContainer();
+        margin.AddThemeConstantOverride("margin_left", horizontal);
+        margin.AddThemeConstantOverride("margin_right", horizontal);
+        margin.AddThemeConstantOverride("margin_top", vertical);
+        margin.AddThemeConstantOverride("margin_bottom", vertical);
+        return margin;
+    }
+    internal static ColorRect HearingRule() => new()
+    {
+        Color = new Color("8d8b73"), CustomMinimumSize = new Vector2(0, 1),
+        MouseFilter = Control.MouseFilterEnum.Ignore
+    };
+    internal static Control HearingGap(float height) => new() { CustomMinimumSize = new Vector2(0, height) };
+    internal static void HearingRecordRow(VBoxContainer parent, string key, Label value)
+    {
+        var row = new HBoxContainer(); row.AddThemeConstantOverride("separation", 14); parent.AddChild(row);
+        var keyLabel = LabelText(key, 20, new Color("59645d"));
+        keyLabel.CustomMinimumSize = new Vector2(112, 0); row.AddChild(keyLabel);
+        value.AddThemeFontSizeOverride("font_size", 22);
+        value.AddThemeColorOverride("font_color", new Color("2d3a37"));
+        value.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        value.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        row.AddChild(value);
+    }
+    internal static (Button Button, Label Detail) HearingChoice(Color background, Color foreground,
+        string verb, string title, string detail, Action action)
+    {
+        var button = new Button { Text = "", CustomMinimumSize = new Vector2(0, 158),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        var normal = PaperStyle(background); normal.BorderColor = new Color("39433c"); normal.ShadowSize = 0;
+        var hover = PaperStyle(background.Lightened(0.08f)); hover.BorderColor = new Color("39433c"); hover.ShadowSize = 0;
+        button.AddThemeStyleboxOverride("normal", normal);
+        button.AddThemeStyleboxOverride("hover", hover);
+        button.AddThemeStyleboxOverride("pressed", hover);
+        button.Pressed += action;
+        var margin = HearingMargins(20, 17); margin.MouseFilter = Control.MouseFilterEnum.Ignore;
+        margin.SetAnchorsPreset(Control.LayoutPreset.FullRect); button.AddChild(margin);
+        var words = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+        words.AddThemeConstantOverride("separation", 5); margin.AddChild(words);
+        var verbLabel = LabelText(verb, 17, foreground); verbLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
+        words.AddChild(verbLabel);
+        var titleLabel = LabelText(title, 30, foreground); titleLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
+        words.AddChild(titleLabel);
+        var detailLabel = LabelText(detail, 18, foreground);
+        detailLabel.MouseFilter = Control.MouseFilterEnum.Ignore;
+        detailLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart; words.AddChild(detailLabel);
+        return (button, detailLabel);
+    }
 }
