@@ -2,9 +2,9 @@
 
 ## Current direction
 
-The active product is the persistent-farm survival/roguelike campaign defined in [ROGUELIKE_DESIGN.md](ROGUELIKE_DESIGN.md). The docs-only [R0 prototype package](briefs/R0/README.md) is prepared but **Not started**; its proposed tier, timing, economy, Favour, closure and reward choices require the listed user decisions before their owning brief.
+**Start with the [current design and implementation snapshot](CURRENT_DESIGN.md)** (29 September 2026), the user-endorsed [design philosophies](DESIGN_PHILOSOPHIES.md) (30 September), then [dated decisions](briefs/DECISIONS.md), [approved-design/source index](assets/source/DESIGN_INDEX.md) and [review backlog](briefs/BACKLOG.md). The active product is the persistent-farm survival/roguelike campaign defined in [ROGUELIKE_DESIGN.md](ROGUELIKE_DESIGN.md), with later bounded R0 briefs controlling the current Tier 1 details. The prototype now has Build preparation, an eight-minute festival-time day, physical arrivals/departure, public Newspaper and separate Accounts; it ends there. Tier 2/rewards/endless are not implemented. The original docs-only R0 preparation text below is historical.
 
-The implemented repository foundation is retained: deterministic simulation/save/finance, farm/camera/assets, physical queues and the M1.01 planning shell. [M1.01 remains Implemented — verification pending](briefs/results/M1.01.md). The old annual tycoon design and M1 roadmap are paused in place as references; do not implement them in parallel.
+The implemented foundation remains: deterministic simulation/save/finance, farm/camera/assets, physical queues and the M1.01 planning shell. [M1.01 remains Implemented — verification pending](briefs/results/M1.01.md). The old annual tycoon design and M1 roadmap are paused in place as references; do not implement them in parallel.
 
 The 50-person M1.00 exception remains explicit: measured mean was about 61.45 FPS, strict 60 FPS tail pacing failed, attained speed was about 0.99×/3.95×, and OS input latency was **Unverified**. See [the result](briefs/results/M1.00.md); 50 is not evidence for a larger practical crowd.
 

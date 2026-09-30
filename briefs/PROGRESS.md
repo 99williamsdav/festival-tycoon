@@ -2,6 +2,8 @@
 
 Implementation began 7 September 2026. Update rows only when work actually occurs; detailed evidence belongs in a linked results file as described in [README.md](README.md).
 
+This foundation record includes later checkpoints, but is not the current design entrypoint. See the [current design](../CURRENT_DESIGN.md), [dated decisions](DECISIONS.md) and [R0 progress](R0/PROGRESS.md).
+
 | Brief | Status | Implementation / evidence | Open checks |
 |---|---|---|---|
 | M0.01 | Accepted | [Toolchain, projects, tests, Windows export and launch evidence](results/M0.01.md) | None |

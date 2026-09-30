@@ -1,6 +1,6 @@
 # Festival Tycoon
 
-> **SUPERSEDED / PAUSED FOR REFERENCE (23 September 2026):** The annual prestige-tycoon handoff below is not the active product plan. Use [ROGUELIKE_DESIGN.md](ROGUELIKE_DESIGN.md) and [R0 briefs](briefs/R0/README.md). Preserve this text as design history; `TECHNICAL_SPEC.md` still applies where the pivot does not conflict.
+> **SUPERSEDED / PAUSED FOR REFERENCE (23 September 2026):** The annual prestige-tycoon handoff below is not the active product plan. Use [current design](CURRENT_DESIGN.md), [design philosophies](DESIGN_PHILOSOPHIES.md), [ROGUELIKE_DESIGN.md](ROGUELIKE_DESIGN.md) and [R0 briefs](briefs/R0/README.md). Preserve this text as design history; `TECHNICAL_SPEC.md` still applies where the pivot does not conflict.
 
 A British-inspired festival-management simulation: inherit a farm, take a loan, stage a tiny event, then build a legendary festival through music, money, mud and individual-driven chaos.
 

@@ -1,0 +1,18 @@
+# Persistent preparation dock
+
+## Revision prompt (built-in edit of first generated image)
+
+Reduce the entire bottom dock from roughly22% to15% (108 logical pixels at720): 36px budget strip plus72px icon row; icons28px and labels16px. Recover map space. Preserve all labels, amounts, exact button order, selected Build, warning badges, ancillary controls, Start/reason and other panels. Change First aid red cross to white cross inside green square. Preserve16:9. Result only partially reduced dock height; limitation documented in HANDOFF.md rather than claimed as pixel-exact.
+
+Built-in image generation; ui-mockup; concept only. Existing build-mode board inspected as style/context reference, not an edit target.
+
+## Prompt
+
+Use case: ui-mockup. Generate one polished 16:9 full-screen Festival Tycoon preparation HUD mockup, designed to be readable at 1280x720. NOT a collage or presentation slide. Established theme: dark forest-ink edge-to-edge top bar, cream paper panels, thin brown borders, teal selected states, serif headings and clear sans-serif labels. Sunny understated low-poly British farm field with triangulated grass, existing cream-stone barn, fixed small stage and generator. Quiet background and ample empty map, no new asset designs. Primary subject is the UI.
+Top bar height 50: "Lower Wittering" and "PREPARATION", "Not started", "32 expected", "Hot", "Menu". NO navigation tabs beneath topbar.
+Left cream build catalogue width about320px from y65 to y535: heading "Build your festival" and close X. Six compact rows each with useful small thematic pictogram, readable service name, illustrative price and count plus "+": "Water tap" / "£20 · 0 placed"; "Toilet" / "£40 · 0 placed"; "Food van" / "£80 · 0/1"; "Bar" / "£70 · 0/1"; "First aid" / "£50 · 0/1"; "Steward post" / "£40 · 0/1". Footer within panel "Move freely · Pay at Start" and "Use defaults…".
+Right compact cream "Before opening" checklist width245: RED exclamation icons and dark-red text for "Water missing", "Toilet missing", "Safety coverage missing", "Programme incomplete", "Sound staff needed". Small neutral note "Equipment & stock optional". Red indicates missing required tasks, not neutral circles.
+Most important: ONE integrated persistent bottom dock flush with bottom edge, total approximately108px tall, covering no more than bottom15%. Upper slim row of this same dock: "Budget £800" / "Draft total £0" / "Remaining £800" / "Paid only at Start". Right side disabled "Start festival" button and red reason "Required tasks missing". Lower row has exactly FIVE large labelled icon buttons in this exact left-to-right order: "Build", "Programme", "Staff", "Equipment", "Stock". Every label readable, every icon recognizable: Build crossed hammer and small plan; Programme musical note and set-list; Staff two crew silhouettes including hi-vis vest; Equipment speaker cabinet; Stock crate with bottle. Build selected with teal background and cream label, other buttons cream with ink labels. No added sixth main navigation tab. Small red exclamation badges only on Build, Programme and Staff; none on Equipment or Stock.
+At far right of lower row, subordinate smaller text controls separated by thin divider: "Your Perks", "People ▾", "Rotate view" arranged compactly in two rows. These must not visually compete with five main buttons. No second footer, no duplicated top prep tabs, no floating lower-left Preparation button. Keep a little clear map above dock.
+Small unobtrusive badge above dock on map: "CONCEPT · Prices illustrative".
+Clean mature game UI, sharp legible typography, practical proportions, not fantasy ornate, not phone UI, not photorealistic scenery. Show only this single main selected-Build screen.

@@ -1,5 +1,7 @@
 # Foundation implementation briefs
 
+> **Current entrypoint (29 September 2026):** [Current design](../CURRENT_DESIGN.md), [dated decisions](DECISIONS.md), [R0 prototype index](R0/README.md), [review backlog](BACKLOG.md). The M0/M1 assignment queue below is preserved history. New work requires its own bounded authorized brief; backlog order does not authorize implementation.
+
 > **Routing update (23 September 2026):** M0 and M1 material below is preserved evidence/history. The active product authority is [ROGUELIKE_DESIGN.md](../ROGUELIKE_DESIGN.md); new work is indexed at [R0 — survival-campaign prototype](R0/README.md). Do not continue M1 or use the blanket old `GAME_DESIGN_SPEC.md` authority rule for pivot work.
 
 Bounded assignments implement M0 sequentially. These are implementation instructions, not completed work. Begin with M0.01 and do not proceed until its implementation and evidence are accepted.

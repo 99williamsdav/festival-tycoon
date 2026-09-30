@@ -1,0 +1,15 @@
+# Festival Tycoon — design philosophies
+
+**User-endorsed direction, 30 September 2026.** These are tests for future design choices, not a commission for new features or a substitute for bounded briefs. The user particularly emphasized **people, failure and interacting systems** (1, 4 and 5). Read alongside the [current prototype](CURRENT_DESIGN.md) and [roguelike authority](ROGUELIKE_DESIGN.md).
+
+1. **People, not meters.** Guests, bands and staff are individuals whose understandable behavior creates stories. Their models must not merely dress up resource bars. *Review question:* Can a player point to a person and explain what they are doing and why?
+
+2. **Fun over realism.** The user's shorthand was **“Sim City over Cities: Skylines, Saints Row over GTA”**. Behavior should be believable enough to make choices understandable, while timings, economics and consequences serve enjoyable decisions, expressive readable exaggeration and a mischievous tone. Authenticity adds flavour rather than obligations. These comparisons guide tone and priority; they do not ask us to clone either franchise or add unrelated content. Fun still needs consistent, learnable, trustworthy rules rather than arbitrary randomness. *Review question:* Does realism improve the choice or merely add chores?
+
+3. **Organise, don't micromanage.** The player shapes conditions through layout, lineup, staffing and facilities. People then act sensibly on their own; intervention is a useful override, not repetitive mandatory clicking. *Review question:* Can the player make a meaningful plan and watch it work without constant individual orders?
+
+4. **Failure creates stories and better next attempts.** Losing may be funny, dramatic or costly, but its cause and available counterplay should be understandable. Vary pressure while avoiding grind and tedious repetition. *Review question:* After a loss, can the player tell a memorable story and identify a better next decision?
+
+5. **Depth through interacting systems.** Favor simple, legible rules that collide productively over piling on currencies, menus and exceptions. Beer income can increase toilet demand; a popular band can concentrate the crowd; a cheap layout can worsen travel and queues. These are examples of interaction, not new mechanics authorization. *Review question:* Does this rule create an interesting relationship with existing systems that the player can notice and use?
+
+Clear, responsive UI and fair warning/counterplay support all five pillars. In particular, an expressive failure is still subject to the existing causal-safety contract; it cannot be an unavoidable surprise death. A new system needs its own approved scope, implementation and evidence even when it fits these philosophies.
