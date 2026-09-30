@@ -66,6 +66,38 @@ public sealed class ActivityChooserTests
         Assert.AreEqual(ActivityChooser.RestHeatTarget, ActivityChooser.Relieve(ActivityKind.Rest, new(0, 9_000, 0, 0)).Heat);
     }
 
+    private static ActivityOption Plan(ActivityKind first, int firstDone, ActivityKind second, int secondDone, int away, long enjoyment = 0) =>
+        new(first, first.ToString(), firstDone, away, enjoyment) { Then = new(second, second.ToString(), secondDone) };
+
+    [TestMethod]
+    public void AToiletOnTheWayToTheBarIsWorthTheStop()
+    {
+        // Beer is wanted; the toilet adds four seconds on the way. Going via the toilet wins.
+        var needs = new NeedLevels(4_000, 4_000, 2_000, 6_500);
+        var beerOnly = new ActivityOption(ActivityKind.Beer, "drinks", 1_200, 1_800, 60_000);
+        var viaToilet = Plan(ActivityKind.Toilet, 900, ActivityKind.Beer, 1_500, 2_100, 60_000);
+        Assert.AreSame(viaToilet, ActivityChooser.Rank(needs, Growth, Music(2_000), [beerOnly, viaToilet])[0].Option);
+    }
+
+    [TestMethod]
+    public void TheToiletGoesFirstWhenItWillBeMoreUrgentByTheBar()
+    {
+        var needs = new NeedLevels(4_000, 4_000, 2_000, 7_500);
+        var beerFirst = Plan(ActivityKind.Beer, 1_200, ActivityKind.Toilet, 2_400, 3_000, 60_000);
+        var toiletFirst = Plan(ActivityKind.Toilet, 1_200, ActivityKind.Beer, 2_400, 3_000, 60_000);
+        Assert.AreEqual(ActivityKind.Toilet, ActivityChooser.Rank(needs, Growth, Music(2_000), [beerFirst, toiletFirst])[0].Option.Kind);
+    }
+
+    [TestMethod]
+    public void AFartherTapWinsWhenItIsOnTheWayToTheNextStop()
+    {
+        // Tap A is nearer, but chips are twenty seconds' walk beyond it; tap B sits beside the stall.
+        var needs = new NeedLevels(7_500, 6_000, 7_000, 3_000);
+        var viaA = new ActivityOption(ActivityKind.Water, "water.a", 800, 4_400) { Then = new(ActivityKind.Food, "food", 3_200) };
+        var viaB = new ActivityOption(ActivityKind.Water, "water.b", 1_200, 2_400) { Then = new(ActivityKind.Food, "food", 1_800) };
+        Assert.AreEqual("water.b", ActivityChooser.Rank(needs, Growth, Music(2_000), [viaA, viaB])[0].Option.FacilityId);
+    }
+
     [TestMethod]
     public void TiesKeepTheCallersOrder()
     {

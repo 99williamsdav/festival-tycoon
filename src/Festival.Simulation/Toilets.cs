@@ -139,7 +139,6 @@ public sealed partial class GameSession
     private void AdvanceToilet()
     {
         if (_immersion is null || _preparation is null || !MedicalOperationsActive) return;
-        ReassessToiletSeekers();
         foreach (var facility in EffectiveToilets(_facilities).ToArray())
             AdvanceSingleToilet(GetToilet(facility.Id));
         ApplyToiletSmell();
@@ -188,35 +187,6 @@ public sealed partial class GameSession
         var decision = QueuedServiceChoice.Choose(agentId, null,
             facilities.Select(toilet => ToiletChoiceCandidate(agentId, kind, toilet)).ToArray());
         return decision is null ? null : facilities.Single(toilet => toilet.Id == decision.Id);
-    }
-
-    private void ReassessToiletSeekers()
-    {
-        if (_preparation?.Status != PreparationStatus.Running) return;
-        foreach (var person in PeopleIn(PersonView.Consumption).Where(person => person.ToiletStage is
-                     ToiletVisitStage.Approaching or ToiletVisitStage.Queued && person.ToiletId is not null &&
-                     QueuedServiceChoice.ReviewDue(CurrentTick, person.Id,
-                         person.LastToiletChoiceReviewTick ?? -QueuedServiceChoice.ReviewIntervalTicks)).ToArray())
-        {
-            var current = GetToilet(person.ToiletId!);
-            if (current.OwnerId == person.Id || person.ToiletChoice is not { } kind) continue;
-            if (_navigationAgents[new(person.Id)].IntentId?.StartsWith("toilet.", StringComparison.Ordinal) != true)
-            {
-                ReleaseToiletPerson(person.Id, false);
-                continue;
-            }
-            var decision = QueuedServiceChoice.Choose(person.Id, current.Id,
-                EffectiveToilets(_facilities).Select(toilet => ToiletChoiceCandidate(person.Id, kind, toilet)).ToArray());
-            SetConsumption(person with { LastToiletChoiceReviewTick = CurrentTick });
-            if (decision is not { Switched: true }) continue;
-            var wasQueued = current.Queue.Contains(person.Id);
-            if (wasQueued) SetToilet(current with { Queue = current.Queue.Where(id => id != person.Id).ToArray() });
-            var selected = GetToilet(decision.Id);
-            SetConsumption(person with { ToiletStage = ToiletVisitStage.Approaching, ToiletId = selected.Id,
-                LastToiletChoiceReviewTick = CurrentTick });
-            ApplyAgentDestination(new(person.Id), new(ToiletQueueCell(selected,
-                Math.Min(selected.Queue.Length, ToiletRules.MaximumQueue - 1)), "toilet.approach"));
-        }
     }
 
     private void AdvanceSingleToilet(ToiletFacility toilet)

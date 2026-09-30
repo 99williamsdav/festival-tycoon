@@ -17,6 +17,8 @@ public sealed partial class GameSession
     public const int PurchaseValueScale = 13;
     // Music's worth per second, as a share of an act's appeal, against need discomfort.
     public const long MusicValuePermille = 800;
+    // How much better another tap or toilet of the same kind must score before a person swaps lines.
+    public const long FacilitySwitchMargin = 30_000;
     // A worker's worth per second at their post, in place of the music.
     public const long StaffPostPerSecond = 3_000;
     // What an automatic job is worth to the worker offered it, by urgency.
@@ -77,19 +79,31 @@ public sealed partial class GameSession
         var ranked = RankActivities(id, current);
         var best = ranked[0];
         var runnerUp = ranked.Length > 1 ? ranked[1] : null;
-        var comparison = runnerUp is null ? "" : $" vs {ActivityLabel(runnerUp.Option.Kind, IsStaffMember(id))} {runnerUp.Score / 1_000}";
-        if (best.Option.Kind == current)
+        var staff = IsStaffMember(id);
+        var comparison = runnerUp is null ? "" : $" vs {PlanLabel(runnerUp.Option, staff)} {runnerUp.Score / 1_000}";
+        // Swapping one tap or toilet for another must be clearly better: near-equal lines would flip-flop.
+        var currentFacility = CurrentFacility(person);
+        if (best.Option.Kind == current && current != ActivityKind.Watch && best.Option.FacilityId != currentFacility &&
+            ranked.FirstOrDefault(item => item.Option.Kind == current && item.Option.FacilityId == currentFacility) is { } held &&
+            best.Score - held.Score < FacilitySwitchMargin)
+            best = held;
+        if (best.Option.Kind == current && (current == ActivityKind.Watch || best.Option.FacilityId == currentFacility))
         {
             var reason = current == ActivityKind.Watch
                 ? IsStaffMember(id) ? $"On duty: post {best.Score / 1_000}{comparison}" : $"Watching band: music {best.Score / 1_000}{comparison} incl. travel/wait"
-                : $"Staying with {ActivityLabel(current)} {best.Score / 1_000}{comparison}";
+                : $"Staying with {PlanLabel(best.Option, staff)} {best.Score / 1_000}{comparison}";
             MutatePerson(id, item => { item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
             return;
         }
-        var why = $"Chose {ActivityLabel(best.Option.Kind, IsStaffMember(id))} {best.Score / 1_000}{comparison}";
+        var why = $"Chose {PlanLabel(best.Option, staff)} {best.Score / 1_000}{comparison}";
+        if (current == ActivityKind.Water && best.Option.Kind == ActivityKind.Water)
+            MedicalEvent("medical:water-rechoose", $"Person {id} switched to {best.Option.FacilityId}; no advance reservation, old place forfeited={WaterPointFor(id).Queue.Contains(id)}.");
         AbandonActivity(id, current, best.Option.Kind == ActivityKind.Watch, why);
         StartActivity(id, best.Option, why);
     }
+
+    private static string PlanLabel(ActivityOption option, bool staff) => option.Then is { } then
+        ? $"{ActivityLabel(option.Kind, staff)} then {ActivityLabel(then.Kind, staff)}" : ActivityLabel(option.Kind, staff);
 
     private static string ActivityLabel(ActivityKind kind, bool staff = false) => kind switch
     {
@@ -155,7 +169,7 @@ public sealed partial class GameSession
                 MutatePerson(id, item => { item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
                 break;
             case ActivityKind.Water:
-                SeekWater(id, reason);
+                SeekWater(id, reason, option.FacilityId);
                 break;
             case ActivityKind.Rest:
                 MedicalRelinquishPerformerStage(id);
@@ -165,7 +179,8 @@ public sealed partial class GameSession
             case ActivityKind.Toilet:
                 var person = _persons[id];
                 var kind = ChooseToiletVisit(person);
-                if (BestToiletFor(id, kind) is not { } toilet) { ReturnToListening(id); break; }
+                var toilet = GetToilet(option.FacilityId!);
+                if (toilet.IsFull || toilet.InterruptedOccupantId is not null || !toilet.CanAccept(kind)) { ReturnToListening(id); break; }
                 SetConsumption(person with { ToiletStage = ToiletVisitStage.Approaching, ToiletChoice = kind, ToiletId = toilet.Id,
                     LastToiletChoiceReviewTick = CurrentTick });
                 MutatePerson(id, item => { item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
@@ -182,6 +197,15 @@ public sealed partial class GameSession
         }
     }
 
+    /// <summary>One place a plan could stop: when its relief lands, where it is, and what it's worth.</summary>
+    private readonly record struct StopCandidate(ActivityKind Kind, string Facility, GridCell Cell, int CompleteTicks, long Enjoyment, long Cost);
+
+    /// <summary>
+    /// Every plan open to this person: staying put, one stop, or one stop then another of a different
+    /// kind. First stops keep the two quickest facilities of each kind (and always the one already
+    /// under way); each is followed by the quickest stop of every other kind, reached from there.
+    /// Two purchases in a row are left out: hands stay full until the first is finished.
+    /// </summary>
     private List<ActivityOption> ActivityOptions(ulong id, ActivityKind current)
     {
         var person = _persons[id];
@@ -189,27 +213,57 @@ public sealed partial class GameSession
         var here = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
         var music = MusicReturnCell(id, here);
         var options = new List<ActivityOption> { new(ActivityKind.Watch, null, 0, current == ActivityKind.Watch ? 0 : EstimateWalkTicks(id, here, music)) };
-        ActivityOption? Trip(ActivityKind kind, string facility, GridCell approach, int completeTicks, long enjoyment = 0, long cost = 0) =>
-            completeTicks == int.MaxValue ? null
-                : new(kind, facility, completeTicks, completeTicks + EstimateWalkTicks(id, approach, music), enjoyment, cost);
-        void Add(ActivityOption? option) { if (option is not null) options.Add(option); }
-
-        if (_disorder?.WaterClosed != true)
-            Add(WaterPoints().Select(point => Trip(ActivityKind.Water, point.Id, point.Cell, LightWaterTicks(id, point, here)))
-                .Where(item => item is not null).OrderBy(item => item!.CompleteTicks).FirstOrDefault());
-        if (person.HeatExposure > ActivityChooser.RestHeatTarget)
-            Add(Trip(ActivityKind.Rest, "rest", MedicalRestCell,
-                EstimateWalkTicks(id, here, MedicalRestCell) + (person.HeatExposure - ActivityChooser.RestHeatTarget) / 8));
-        if (current == ActivityKind.Toilet || ImmersionHandsAvailable(id) && person.Intent is MedicalIntent.WatchShow or MedicalIntent.SeekWater)
+        var currentFacility = CurrentFacility(person);
+        var firsts = StopCandidates(id, person, current, here, 0, null)
+            .GroupBy(stop => stop.Kind)
+            .SelectMany(group => group.OrderBy(stop => stop.CompleteTicks).ThenBy(stop => stop.Facility, StringComparer.Ordinal)
+                .Where((stop, rank) => rank < 2 || stop.Kind == current && stop.Facility == currentFacility));
+        foreach (var first in firsts)
         {
-            var kind = person.ToiletChoice ?? ChooseToiletVisit(person);
-            Add(EffectiveToilets(_facilities).Select(toilet => Trip(ActivityKind.Toilet, toilet.Id, toilet.Cell, LightToiletTicks(id, kind, toilet, here)))
-                .Where(item => item is not null).OrderBy(item => item!.CompleteTicks).FirstOrDefault());
+            options.Add(new(first.Kind, first.Facility, first.CompleteTicks, first.CompleteTicks + EstimateWalkTicks(id, first.Cell, music), first.Enjoyment, first.Cost));
+            foreach (var second in StopCandidates(id, person, current, first.Cell, first.CompleteTicks, first.Kind)
+                         .GroupBy(stop => stop.Kind)
+                         .Select(group => group.OrderBy(stop => stop.CompleteTicks).ThenBy(stop => stop.Facility, StringComparer.Ordinal).First()))
+                options.Add(new ActivityOption(first.Kind, first.Facility, first.CompleteTicks,
+                    second.CompleteTicks + EstimateWalkTicks(id, second.Cell, music), first.Enjoyment + second.Enjoyment, first.Cost + second.Cost)
+                    { Then = new(second.Kind, second.Facility, second.CompleteTicks) });
         }
+        return options;
+    }
+
+    private static bool IsPurchase(ActivityKind kind) => kind is ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer;
+
+    private static string? CurrentFacility(Person person) =>
+        person.Intent == MedicalIntent.SeekWater ? person.WaterPointId : person.ToiletStage != ToiletVisitStage.None ? person.ToiletId : person.VendorId;
+
+    /// <summary>
+    /// Candidate stops starting from <paramref name="from"/> at <paramref name="startTicks"/>.
+    /// With <paramref name="after"/> set they are second stops: never the same kind again, never a
+    /// second purchase, and never counting a queue place the person holds now.
+    /// </summary>
+    private List<StopCandidate> StopCandidates(ulong id, Person person, ActivityKind current, GridCell from, int startTicks, ActivityKind? after)
+    {
+        var stops = new List<StopCandidate>();
+        var fresh = after is not null;
+        void Add(ActivityKind kind, string facility, GridCell cell, int ticks, long enjoyment = 0, long cost = 0)
+        {
+            if (ticks != int.MaxValue && kind != after) stops.Add(new(kind, facility, cell, startTicks + ticks, enjoyment, cost));
+        }
+        if (_disorder?.WaterClosed != true)
+            foreach (var point in WaterPoints()) Add(ActivityKind.Water, point.Id, point.Cell, LightWaterTicks(id, point, from, fresh));
+        if (person.HeatExposure > ActivityChooser.RestHeatTarget)
+            Add(ActivityKind.Rest, "rest", MedicalRestCell, EstimateWalkTicks(id, from, MedicalRestCell) + (person.HeatExposure - ActivityChooser.RestHeatTarget) / 8);
+        if (!fresh && current == ActivityKind.Toilet || ImmersionHandsAvailable(id) && person.Intent is MedicalIntent.WatchShow or MedicalIntent.SeekWater)
+        {
+            var visit = person.ToiletChoice ?? ChooseToiletVisit(person);
+            foreach (var toilet in EffectiveToilets(_facilities)) Add(ActivityKind.Toilet, toilet.Id, toilet.Cell, LightToiletTicks(id, visit, toilet, from, fresh));
+        }
+        if (after is { } previous && IsPurchase(previous)) return stops;
         foreach (var product in Enum.GetValues<ImmersionProduct>())
         {
             var kind = product switch { ImmersionProduct.Chips => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, _ => ActivityKind.Beer };
-            if (current != kind && !ActivityPurchaseEligible(person, product)) continue;
+            var underWay = !fresh && current == kind;
+            if (!underWay && !ActivityPurchaseEligible(person, product)) continue;
             var vendorId = product == ImmersionProduct.Chips ? "food" : "drinks";
             var price = ImmersionPriceFor(id, product) * (2L + person.PriceReluctance / 25) * PurchaseValueScale;
             var enjoyment = product switch
@@ -218,11 +272,10 @@ public sealed partial class GameSession
                 ImmersionProduct.SoftDrink => person.SoftTaste * 35L * PurchaseValueScale,
                 _ => 0L
             };
-            Add(Vendors.Where(vendor => vendor.Id == vendorId && (current == kind || VendorHasRoom(vendor)))
-                .Select(vendor => Trip(kind, vendor.Id, vendor.Cell, LightVendorTicks(id, product, vendor, here), enjoyment, price))
-                .Where(item => item is not null).OrderBy(item => item!.CompleteTicks).FirstOrDefault());
+            foreach (var vendor in Vendors.Where(vendor => vendor.Id == vendorId && (underWay || VendorHasRoom(vendor))))
+                Add(kind, vendor.Id, vendor.Cell, LightVendorTicks(id, product, vendor, from, fresh), enjoyment, price);
         }
-        return options;
+        return stops;
     }
 
     private bool ActivityPurchaseEligible(Person person, ImmersionProduct product) =>
@@ -253,11 +306,11 @@ public sealed partial class GameSession
         _livePerformance?.Listeners.FirstOrDefault(item => item.AgentId == id)?.Place ??
         (_persons[id].NeedProfile == MedicalNeedProfile.Performer ? here : PreparedPlace(Array.FindIndex(PeopleIn(PersonView.Roster), item => item.Id == id)));
 
-    private int LightWaterTicks(ulong id, WaterPointState point, GridCell here)
+    private int LightWaterTicks(ulong id, WaterPointState point, GridCell here, bool fresh = false)
     {
         var members = point.Queue.Concat(point.Overflow).ToArray();
-        var position = Array.IndexOf(members, id);
-        var joined = position >= 0 || _persons[id].Intent == MedicalIntent.SeekWater && _persons[id].WaterPointId == point.Id;
+        var position = fresh ? -1 : Array.IndexOf(members, id);
+        var joined = position >= 0 || !fresh && _persons[id].Intent == MedicalIntent.SeekWater && _persons[id].WaterPointId == point.Id;
         var destination = position < 0 ? WaterApproach(point) : position < 10 ? WaterSlot(point, position) : WaterOverflowSlot(point, position - 10);
         var candidate = new QueuedServiceChoice.Candidate(point.Id, EstimateWalkTicks(id, here, destination), WaterDurationTicks(id), true,
             joined || members.Length < 20 && (point.QueueCells.Length == 0 || point.QueueCells.Length > members.Length),
@@ -266,25 +319,24 @@ public sealed partial class GameSession
         return QueuedServiceChoice.EstimateTicks(id, candidate);
     }
 
-    private int LightToiletTicks(ulong id, ToiletVisitKind kind, ToiletFacility toilet, GridCell here)
+    private int LightToiletTicks(ulong id, ToiletVisitKind kind, ToiletFacility toilet, GridCell here, bool fresh = false)
     {
-        var people = PeopleIn(PersonView.Consumption);
-        var position = Array.IndexOf(toilet.Queue, id);
+        var position = fresh ? -1 : Array.IndexOf(toilet.Queue, id);
         var destination = ToiletQueueCell(toilet, position >= 0 ? position : Math.Min(toilet.Queue.Length, ToiletRules.MaximumQueue - 1));
         var active = toilet.OwnerId is { } owner ? _persons[owner] : null;
         var ownerRemaining = active?.ToiletStage switch
         { ToiletVisitStage.Using => toilet.ServiceTicks, ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 };
         var candidate = new QueuedServiceChoice.Candidate(toilet.Id, EstimateWalkTicks(id, here, destination), ToiletServiceDuration(kind),
             !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind),
-            position >= 0 || _persons[id].ToiletId == toilet.Id || toilet.Queue.Length < ToiletRules.MaximumQueue,
+            position >= 0 || !fresh && _persons[id].ToiletId == toilet.Id || toilet.Queue.Length < ToiletRules.MaximumQueue,
             toilet.Queue.Select(member => new QueuedServiceChoice.Member(member, ToiletServiceDuration(_persons[member].ToiletChoice))).ToArray(),
             toilet.OwnerId, ownerRemaining, []);
         return QueuedServiceChoice.EstimateTicks(id, candidate);
     }
 
-    private int LightVendorTicks(ulong id, ImmersionProduct product, ImmersionVendor vendor, GridCell here)
+    private int LightVendorTicks(ulong id, ImmersionProduct product, ImmersionVendor vendor, GridCell here, bool fresh = false)
     {
-        var position = Array.IndexOf(vendor.Queue, id);
+        var position = fresh ? -1 : Array.IndexOf(vendor.Queue, id);
         var destination = ImmersionQueueCell(vendor, position >= 0 ? position : vendor.Queue.Length);
         var candidate = new QueuedServiceChoice.Candidate(vendor.Id, EstimateWalkTicks(id, here, destination), ImmersionServiceDuration(product), true, true,
             vendor.Queue.Select(member => new QueuedServiceChoice.Member(member, ImmersionServiceDuration(_persons[member].Order ?? ImmersionProduct.SoftDrink))).ToArray(),

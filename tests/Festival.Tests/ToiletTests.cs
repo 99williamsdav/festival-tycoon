@@ -12,6 +12,9 @@ public sealed class ToiletTests
         session.NextSubmissionSequence, null, command));
     private static void SetImmersion(GameSession session, ImmersionSnapshot snapshot) =>
         typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session, snapshot);
+    // The activity chooser decides whether a queued person swaps toilets.
+    private static void Choose(GameSession session, ulong id) =>
+        typeof(GameSession).GetMethod("ChooseActivity", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(session, [id]);
     private static void Invoke(GameSession session, string method) =>
         typeof(GameSession).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(session, null);
     private static void Position(GameSession session, ulong id, GridCell cell, string intent)
@@ -110,7 +113,7 @@ public sealed class ToiletTests
         for (var index = 1; index < members.Length; index++)
             Position(session, members[index], GameSession.ToiletQueueCell(longLine, index), "toilet.queue");
 
-        Invoke(session, "AdvanceToilet");
+        Choose(session, seeker);
         var after = session.CaptureImmersion()!.People.Single(person => person.AgentId == seeker);
         Assert.AreEqual(alternative.Id, after.ToiletId);
         Assert.AreEqual(ToiletVisitStage.Approaching, after.ToiletStage);
@@ -166,7 +169,7 @@ public sealed class ToiletTests
         }
 
         var (rerouting, seeker, mainId, alternativeId) = Setup();
-        Invoke(rerouting, "AdvanceToilet");
+        Choose(rerouting, seeker);
         Assert.AreEqual(alternativeId, rerouting.CaptureImmersion()!.People.Single(p => p.AgentId == seeker).ToiletId);
         Assert.IsFalse(rerouting.CaptureToilets().Single(t => t.Id == mainId).Queue.Contains(seeker));
 

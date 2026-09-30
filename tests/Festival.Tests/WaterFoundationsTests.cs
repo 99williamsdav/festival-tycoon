@@ -72,6 +72,8 @@ public sealed class WaterFoundationsTests
         var session = StartWithExtra();
         var ids = session.CaptureMedical()!.Needs.Take(3).Select(item => item.AgentId).ToArray();
         var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        foreach (var id in ids) typeof(GameSession).GetMethod("UpdatePerson", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(session, [id, (Func<Person, Person>)(person => person with { Admitted = true })]);
         var m = session.CaptureMedical()!;
         BuildSession.SetTap(session, BuildSession.MainTap(session) with { Queue = ids, OwnerId = ids[0] });
         field.SetValue(session, m with {
@@ -83,7 +85,8 @@ public sealed class WaterFoundationsTests
         typeof(GameSession).GetMethod("RetargetWaterSeekers", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(session, null);
         // Labelled near-alternative fixture; only position behind an actual slow person gains enough.
         PutNear(session, ids[2], new GridCell(ExtraSite.X, ExtraSite.Z + 5));
-        for (var tick = 0; tick < 8; tick++) session.AdvanceWithoutSnapshot(1);
+        // Each person re-plans once a second; one second covers all three.
+        session.AdvanceWithoutSnapshot(GameSession.ActivityDecisionTicks);
         var now = session.CaptureMedical()!;
         Assert.AreEqual("water.main", now.Needs.Single(item => item.AgentId == ids[0]).WaterPointId, "Drinker never switches.");
         Assert.AreEqual("water.main", now.Needs.Single(item => item.AgentId == ids[1]).WaterPointId, "Own-position wait excludes people behind you.");

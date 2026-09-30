@@ -74,8 +74,9 @@ public sealed partial class GameSession
         for (var index = 0; index < waterMembers.Length; index++)
             PlaceFixtureAgent(session, waterMembers[index], WaterSlot(mainWater, index), "medical.free-water-queue");
 
-        session.ReassessWaterSeekers();
-        session.ReassessToiletSeekers();
+        // The activity chooser decides whether a clearly shorter line is worth forfeiting a place for.
+        session.ChooseActivity(waterSeeker);
+        session.ChooseActivity(toiletSeeker);
         var toiletTo = session._persons[toiletSeeker].ToiletId!;
         var waterTo = session._persons[waterSeeker].WaterPointId;
         Accept(session, new SetPausedCommand(true)); // freeze this labelled visual diagnostic

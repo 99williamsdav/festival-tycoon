@@ -312,7 +312,7 @@ public sealed partial class GameSession
         MedicalEvent("medical:dispatch", $"Worker {workerId} dispatched to patient {command.GuestId}.");
     }
 
-    private void SeekWater(ulong id, string reason)
+    private void SeekWater(ulong id, string reason, string? pointId = null)
     {
         if (_disorder?.WaterClosed == true)
         {
@@ -333,7 +333,7 @@ public sealed partial class GameSession
             MutatePerson(id, item => { item.Reason = "The physical free-water line is full"; item.NeedDecisionTick = CurrentTick; });
             return;
         }
-        var point = ChooseWaterPoint(id);
+        var point = pointId is null ? ChooseWaterPoint(id) : WaterPoints().Single(item => item.Id == pointId);
         if (EstimateWaterTotalTicks(id, point) == int.MaxValue)
         {
             MutatePerson(id, item => { item.Reason = "No reachable space at a physical water line"; item.NeedDecisionTick = CurrentTick; });
@@ -370,27 +370,6 @@ public sealed partial class GameSession
                 if (nav.Destination != approach)
                     ApplyAgentDestination(new(need.Id), new(approach, "medical.free-water-approach"));
             }
-        }
-    }
-
-    private void ReassessWaterSeekers()
-    {
-        if (_disorder?.WaterClosed == true) return;
-        foreach (var need in PeopleIn(PersonView.Medical).Where(item => item.Intent == MedicalIntent.SeekWater &&
-                     QueuedServiceChoice.ReviewDue(CurrentTick, item.Id, item.LastWaterChoiceReviewTick)).ToArray())
-        {
-            var current = WaterPointFor(need.Id);
-            if (current.OwnerId == need.Id) continue;
-            var decision = QueuedServiceChoice.Choose(need.Id, current.Id,
-                WaterPoints().Select(point => WaterChoiceCandidate(need.Id, point)).ToArray());
-            MutatePerson(need.Id, item => item.LastWaterChoiceReviewTick = CurrentTick);
-            if (decision is not { Switched: true }) continue;
-            var best = WaterPoints().Single(point => point.Id == decision.Id);
-            var wasQueued = current.Queue.Contains(need.Id) || current.Overflow.Contains(need.Id);
-            if (wasQueued) LeaveWater(need.Id, "Left old place for a clearly shorter physical water line", reroute: false);
-            MutatePerson(need.Id, item => { item.WaterPointId = best.Id; item.Intent = MedicalIntent.SeekWater; item.WaterQueueSlot = null; item.LastWaterChoiceReviewTick = CurrentTick; item.Reason = $"Rechosen {best.Id}; old place forfeited: {decision.TotalTicks} vs {decision.CurrentTicks} remaining ticks"; });
-            ApplyAgentDestination(new(need.Id), new(WaterApproach(best), "medical.free-water-approach"));
-            MedicalEvent("medical:water-rechoose", $"Person {need.Id} switched to {best.Id}; no advance reservation, old place forfeited={wasQueued}.");
         }
     }
 
@@ -551,7 +530,6 @@ public sealed partial class GameSession
                     MutatePerson(item.Id, person => person.Thirst = Math.Min(10_000, person.Thirst + 1));
         AdvanceActivityChoices();
         m = _medical!;
-        ReassessWaterSeekers();
         AdmitWaterArrivals();
         m = _medical!;
         foreach (var selected in WaterPoints())

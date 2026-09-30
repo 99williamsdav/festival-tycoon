@@ -9,11 +9,20 @@ public readonly record struct NeedLevels(int Thirst, int Heat, int Hunger, int T
 /// <summary>Need growth per second (80 ticks).</summary>
 public readonly record struct NeedGrowth(int Thirst, int Heat, int Hunger, int Toilet);
 
+/// <summary>A later stop in a plan; <see cref="CompleteTicks"/> counts from now.</summary>
+public sealed record ActivityStop(ActivityKind Kind, string? FacilityId, int CompleteTicks);
+
 /// <summary>
-/// One candidate activity. <see cref="CompleteTicks"/> is walk + wait + service from now, when the
-/// activity's relief lands; <see cref="AwayTicks"/> adds the walk back, the time missing the music.
+/// One candidate plan. <see cref="CompleteTicks"/> is walk + wait + service from now, when the first
+/// stop's relief lands; <see cref="Then"/> is an optional second stop straight after it.
+/// <see cref="AwayTicks"/> runs to the walk back from the last stop, the time missing the music.
+/// Enjoyment and cost cover every stop. Only the first stop is ever acted on: the plan is re-made
+/// once it completes, so the second stop shapes which first stop, and where, is chosen.
 /// </summary>
-public sealed record ActivityOption(ActivityKind Kind, string? FacilityId, int CompleteTicks, int AwayTicks, long Enjoyment = 0, long Cost = 0);
+public sealed record ActivityOption(ActivityKind Kind, string? FacilityId, int CompleteTicks, int AwayTicks, long Enjoyment = 0, long Cost = 0)
+{
+    public ActivityStop? Then { get; init; }
+}
 
 public sealed record ActivityScore(ActivityOption Option, long Score);
 
@@ -74,13 +83,16 @@ public static class ActivityChooser
     public static long Score(NeedLevels now, NeedGrowth growth, IReadOnlyList<long> musicPerSecond, ActivityOption option)
     {
         long score = option.Enjoyment - option.Cost;
-        var relieved = option.Kind != ActivityKind.Watch && option.CompleteTicks < HorizonTicks
+        // Relief lands at each stop in turn; a stop beyond the horizon never lands.
+        var first = option.Kind != ActivityKind.Watch && option.CompleteTicks < HorizonTicks
             ? Relieve(option.Kind, Grow(now, growth, option.CompleteTicks)) : (NeedLevels?)null;
+        var second = first is { } afterFirst && option.Then is { } then && then.CompleteTicks < HorizonTicks
+            ? Relieve(then.Kind, Grow(afterFirst, growth, then.CompleteTicks - option.CompleteTicks)) : (NeedLevels?)null;
         for (var sample = 0; sample < Samples; sample++)
         {
             var tick = (sample + 1) * SampleTicks;
-            var levels = relieved is { } after && tick >= option.CompleteTicks
-                ? Grow(after, growth, tick - option.CompleteTicks) : Grow(now, growth, tick);
+            var levels = second is { } afterBoth && tick >= option.Then!.CompleteTicks ? Grow(afterBoth, growth, tick - option.Then.CompleteTicks)
+                : first is { } after && tick >= option.CompleteTicks ? Grow(after, growth, tick - option.CompleteTicks) : Grow(now, growth, tick);
             if (tick > option.AwayTicks) score += musicPerSecond[sample];
             score -= Discomfort(levels);
             if (sample == Samples - 1) score -= Discomfort(levels) * TailSeconds;

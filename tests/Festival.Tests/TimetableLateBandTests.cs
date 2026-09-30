@@ -226,7 +226,7 @@ public sealed class TimetableLateBandTests
         // Development need initialization; the existing water navigation, physical admission and drinking execute normally.
         Medical(session, need => need.AgentId == performer ? need with { Thirst = 9_500, HeatExposure = 6_500 } : need);
         typeof(GameSession).GetMethod("SeekWater", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .Invoke(session, [performer, "Development fixture: performer needs water before the scheduled set"]);
+            .Invoke(session, [performer, "Development fixture: performer needs water before the scheduled set", null]);
         session.AdvanceWithoutSnapshot(160);
         Assert.IsTrue(session.FestivalBandLate);
         Assert.AreEqual(LiveSetStage.BeforeSet, session.CaptureLivePerformance()!.Stage);
