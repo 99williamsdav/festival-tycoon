@@ -148,4 +148,15 @@ internal static class HudKit
     internal static string FestivalWording(GameSession session, string text) => session.CaptureProgramme() is null ? text :
         text.Replace("weekend", "festival", StringComparison.Ordinal).Replace("Weekend", "Festival", StringComparison.Ordinal)
             .Replace("WEEKEND", "FESTIVAL", StringComparison.Ordinal);
+
+    internal static string BuildName(BuildServiceKind kind) => kind switch
+    {
+        BuildServiceKind.WaterTap => "Water tap",
+        BuildServiceKind.Toilet => "Toilet",
+        BuildServiceKind.FoodVan => "Food van",
+        BuildServiceKind.Bar => "Bar",
+        BuildServiceKind.FirstAid => "First aid",
+        BuildServiceKind.StewardPost => "Steward post",
+        _ => "Service"
+    };
 }

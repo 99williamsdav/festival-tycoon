@@ -98,14 +98,14 @@ public partial class Main
         build.AddChild(HudLabel("Place essential services in any order. Choose a row to begin; select an existing service on the field to move it."));
         build.AddChild(ButtonText("Open Build catalogue", () => OpenBuildCatalogue()));
         build.AddChild(HudLabel("Before opening · open the matching Build row", 13));
-        AddBuildChecklistShortcuts(build);
+        Drawer.AddChecklistShortcuts(build);
 
         var overview = _hudPages["Overview"];
         overview.AddThemeConstantOverride("separation", 6);
         overview.AddChild(HudLabel("Before opening", 21));
         _preparationSummary = HudLabel("", 14); overview.AddChild(_preparationSummary);
         overview.AddChild(ButtonText("Open Build catalogue", () => OpenBuildCatalogue()));
-        AddBuildChecklistShortcuts(overview);
+        Drawer.AddChecklistShortcuts(overview);
 
         foreach (var (name, label) in new[] { ("Programme", "Choose acts"), ("Staff", "Manage staff"), ("Stock", "Review stock"), ("Site & water", "Review site") })
         {
@@ -198,7 +198,7 @@ public partial class Main
         statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
         _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
         Perks.Build(layer);
-        Hearing.Build(layer); BuildBuildDrawer(layer, size); Dock.Build(layer, size); RefreshPreparationHud();
+        Hearing.Build(layer); Drawer.Build(layer, size); Dock.Build(layer, size); RefreshPreparationHud();
     }
 
     private static void ConstrainHudControls(Node root)
@@ -253,8 +253,7 @@ public partial class Main
         _hudStatus.TooltipText = _preparationMessage;
         _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
         if (_buildToggleButton is not null) _buildToggleButton.Visible = preparing;
-        if (_buildDrawer is not null) _buildDrawer.Visible = preparing && _buildDrawerOpen && !placing && _session.CapturePerks()?.Pending != true;
-        if (_buildBudgetFooter is not null) _buildBudgetFooter.Visible = false;
+        if (Drawer.Panel is not null) Drawer.Panel.Visible = preparing && _buildDrawerOpen && !placing && _session.CapturePerks()?.Pending != true;
         LayoutOwnedPerkWorkspace();
         _hudPreparationToggle!.Visible = false; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
         _hudLegacyBottom!.Visible = !preparing;
@@ -277,7 +276,7 @@ public partial class Main
             var costs = $"Available {FestivalCurrency.Format(funds)} • Setup {FestivalCurrency.Format(_session.PreparationPlanCost)} • Remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}";
             _hudStartReason.Text = costs + "\n" + _hudStartReason.Text;
             _hudStartConfirmation!.DialogText = costs + "\nPay the complete setup once and open for the full fixed roster.";
-            _hudStartConfirmation.DialogText = BuildStartCostSummary() + "\nPay this complete setup once and open the festival?";
+            _hudStartConfirmation.DialogText = Drawer.CostSummary() + "\nPay this complete setup once and open the festival?";
         }
         RefreshHudPreparationReadiness();
         if (Booking.IsBuilt)
@@ -315,7 +314,8 @@ public partial class Main
             if (_disorderButtons.TryGetValue(DisorderAction.DispatchSecurity, out var stewardButton)) stewardButton.Text = "Send steward";
         }
         RefreshHudAlerts();
-        RefreshBuildDrawer();
+        Drawer.Refresh();
+        if (_buildToggleButton is not null) _buildToggleButton.Text = _buildDrawerOpen ? "Build ×" : "Build";
         Dock.Refresh();
     }
 
@@ -386,7 +386,7 @@ public partial class Main
     {
         if (_hudAlertBox is null) return;
         var alerts = _urgentAlertDisplay.Visible();
-        foreach (var panel in new Control?[] { _buildDrawer, _hudWorkspace })
+        foreach (var panel in new Control?[] { Drawer.Panel, _hudWorkspace })
         {
             if (panel is null) continue;
             if (!_alertClearance.TryGetValue(panel, out var layout) || panel.Position != layout.Applied)
@@ -433,7 +433,7 @@ public partial class Main
         if(Perks.EffectPopup?.Visible==true && Perks.EffectPopup.GetGlobalRect().HasPoint(screen))return true;
         if (_hudMoney is null) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
         if (screen.Y < 60 || screen.Y > GetViewport().GetVisibleRect().Size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? 128 : 54)) return true;
-        return new Control?[] { _hudWorkspace, _buildDrawer, _buildBudgetFooter, Dock.Readiness, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
+        return new Control?[] { _hudWorkspace, Drawer.Panel, Dock.Readiness, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
             .Any(control => control?.IsVisibleInTree() == true && control.GetGlobalRect().HasPoint(screen));
     }
 }
