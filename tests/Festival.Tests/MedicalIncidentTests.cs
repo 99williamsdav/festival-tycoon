@@ -33,7 +33,7 @@ public sealed class MedicalIncidentTests
 
     private static void SuppressGuestWaterDemand(GameSession s)
     {
-        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var m = s.CaptureMedical()!;
         field.SetValue(s, m with { Needs = m.Needs.Select(item => item.Profile == MedicalNeedProfile.Guest
             ? item with { Thirst = 0, HeatExposure = 0 } : item).ToArray() });
@@ -292,14 +292,14 @@ public sealed class MedicalIncidentTests
     {
         var s = Started();
         // Labelled legacy occupied-line fixture; retain old full geometry across upgrade.
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
             s.CapturePreparation()! with { PrimaryWaterGeometryVersion = 0 });
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
             s.CaptureMedical()! with { MainWaterGeometryVersion = 0 });
         SuppressGuestWaterDemand(s);
         var ids = s.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest)
             .Take(12).Select(item => item.AgentId).ToArray();
-        var medicalField = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var medicalField = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var medical = s.CaptureMedical()!;
         medicalField.SetValue(s, medical with
         {
@@ -471,7 +471,7 @@ public sealed class MedicalIncidentTests
         var s = Started();
         var ids = s.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest)
             .Take(6).Select(item => item.AgentId).ToArray();
-        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var m = s.CaptureMedical()!;
         field.SetValue(s, m with { Needs = m.Needs.Select(item => ids.Contains(item.AgentId)
             ? item with { Thirst = 9_500 } : item).ToArray() });
@@ -581,7 +581,7 @@ public sealed class MedicalIncidentTests
     public void PerformerCollapseCriticalDeathAreAuthoritativeAcrossRestore()
     {
         var s = Started();
-        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var medical = s.CaptureMedical()!;
         var performer = medical.Needs.First(item => item.Profile == MedicalNeedProfile.Performer);
         field.SetValue(s, medical with { Needs = medical.Needs.Select(item => item.AgentId == performer.AgentId
@@ -610,7 +610,7 @@ public sealed class MedicalIncidentTests
         while (!s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted && s.CurrentTick < 1_500)
             s.AdvanceWithoutSnapshot(1);
         Assert.IsTrue(s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted);
-        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var m = s.CaptureMedical()!;
         var performerId = m.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
         field.SetValue(s, m with { Needs = m.Needs.Select(item => item.AgentId == performerId
@@ -661,7 +661,7 @@ public sealed class MedicalIncidentTests
             var medicId = s.CaptureMedical()!.MedicId;
             while (!s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted && s.CurrentTick < 1_500)
                 s.AdvanceWithoutSnapshot(1);
-            var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
             var m = s.CaptureMedical()!;
             patientId = m.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
             field.SetValue(s, m with { Needs = m.Needs.Select(item => item.AgentId == patientId
@@ -746,7 +746,7 @@ public sealed class MedicalIncidentTests
         var medicId = s.CaptureMedical()!.MedicId;
         while (!s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted && s.CurrentTick < 1_500)
             s.AdvanceWithoutSnapshot(1);
-        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var m = s.CaptureMedical()!;
         var performerId = m.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
         field.SetValue(s, m with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick,

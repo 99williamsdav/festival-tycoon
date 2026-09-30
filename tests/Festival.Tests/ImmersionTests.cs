@@ -15,7 +15,7 @@ namespace Festival.Tests;
 public sealed class ImmersionTests
 {
     private static CommandResult Send(GameSession s,SessionCommand c)=>s.Execute(new(new(s.NextSubmissionSequence+1),s.CampaignId,s.Phase,s.CurrentTick,s.NextSubmissionSequence,null,c));
-    private static void Set(GameSession s,ImmersionSnapshot snapshot)=>typeof(GameSession).GetField("_immersion",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,snapshot);
+    private static void Set(GameSession s,ImmersionSnapshot snapshot)=>typeof(GameSession).GetProperty("ImmersionView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,snapshot);
     private static void Invoke(GameSession s,string method,params object[] args)=>typeof(GameSession).GetMethod(method,BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(s,args);
     private static void PositionFixture(GameSession s,ulong id,GridCell cell,string intent)
     {
@@ -34,7 +34,7 @@ public sealed class ImmersionTests
         Assert.IsTrue(Send(s,new StartPreparedEditionCommand()).IsAccepted);
         // Labelled eligibility fixture; admission/navigation itself is covered by physical scenario below.
         var prep=s.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { People=prep.People.Select(p=>p with { Admitted=true }).ToArray() });
+        typeof(GameSession).GetProperty("PreparationView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { People=prep.People.Select(p=>p with { Admitted=true }).ToArray() });
         return s;
     }
     private static GameSession Restore(GameSession s) {var result=GameSession.Restore(s.CapturePersistenceSnapshot());Assert.IsTrue(result.IsSuccess,result.Error);Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash,result.Session!.CaptureSnapshot().AuthoritativeHash);return result.Session;}
@@ -59,12 +59,12 @@ public sealed class ImmersionTests
         var prep=s.CapturePreparation()!;
         foreach(var status in new[]{PreparationStatus.Preparing,PreparationStatus.Failed,PreparationStatus.Finished})
         {
-            typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { Status=status });
+            typeof(GameSession).GetProperty("PreparationView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { Status=status });
             Assert.IsFalse(s.ImmersionConsumptionEligible(id));
         }
-        typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { Status=PreparationStatus.Departing });
+        typeof(GameSession).GetProperty("PreparationView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { Status=PreparationStatus.Departing });
         Assert.IsTrue(s.ImmersionConsumptionEligible(id));
-        typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { People=prep.People.Select(p=>p.AgentId==id?p with { Departed=true }:p).ToArray() });
+        typeof(GameSession).GetProperty("PreparationView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { People=prep.People.Select(p=>p.AgentId==id?p with { Departed=true }:p).ToArray() });
         Assert.IsFalse(s.ImmersionConsumptionEligible(id));
     }
     [TestMethod]
@@ -151,7 +151,7 @@ public sealed class ImmersionTests
         var s=Open();var prep=s.CapturePreparation()!;var m=s.CaptureImmersion()!;
         var abstainer=m.People.First(p=>p.Abstains);var staff=m.People.First(p=>prep.People.Single(n=>n.AgentId==p.AgentId).Role==ProtectedPersonRole.Staff);
         var eligible=typeof(GameSession).GetMethod("ImmersionOrderEligible",BindingFlags.NonPublic|BindingFlags.Instance)!;
-        Assert.AreEqual(false,eligible.Invoke(s,[abstainer,ImmersionProduct.Beer]));Assert.AreEqual(false,eligible.Invoke(s,[staff,ImmersionProduct.Beer]));
+        Assert.AreEqual(false,eligible.Invoke(s,[s.CapturePerson(abstainer.AgentId),ImmersionProduct.Beer]));Assert.AreEqual(false,eligible.Invoke(s,[s.CapturePerson(staff.AgentId),ImmersionProduct.Beer]));
         var performer=s.CaptureLivePerformance()!.Performers.First();var id=performer.AgentId;
         Invoke(s,"CompleteImmersionSale",id,ImmersionProduct.Beer);
         var live=s.CaptureLivePerformance()!;typeof(GameSession).GetField("_livePerformance",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,live with { Performers=live.Performers.Select(p=>p.AgentId==id?p with { OnStage=true,InstrumentAttached=true }:p).ToArray() });
@@ -165,7 +165,7 @@ public sealed class ImmersionTests
         var s=Open();var m=s.CaptureImmersion()!;var id=m.People.First().AgentId;
         Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { PendingDose=80,Intoxication=1000,FoodProtectionTicks=4800 }:p).ToArray() });
         for(var i=0;i<80;i++)Invoke(s,"AdvanceImmersion");var after=s.CaptureImmersion()!.People.Single(p=>p.AgentId==id);Assert.AreEqual(1030,after.Intoxication);Assert.AreEqual(0,after.PendingDose);
-        Invoke(s,"SetNeed",id,(Func<MedicalNeed,MedicalNeed>)(n=>n with { Thirst=0 }));Assert.AreEqual(1030,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).Intoxication);
+        Invoke(s,"UpdatePerson",id,(Func<Person,Person>)(n=>n with { Thirst=0 }));Assert.AreEqual(1030,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).Intoxication);
     }
     [TestMethod]
     public void SemanticTamperRejectsBudgetsStockHeldOrdersAndMalformedCollections()
@@ -206,7 +206,7 @@ public sealed class ImmersionTests
     public void TimelyPhysicalMedicStabilizesGraduallyAndDoesNotCreateAlcoholImmunity()
     {
         var s=Open();var m=s.CaptureImmersion()!;var id=m.People.First().AgentId;
-        Invoke(s,"SetNeed",id,(Func<MedicalNeed,MedicalNeed>)(n=>n with { Stage=MedicalStage.Treated }));
+        Invoke(s,"UpdatePerson",id,(Func<Person,Person>)(n=>n with { HealthStage=MedicalStage.Treated }));
         Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=10000 }:p).ToArray() });s.AdvanceWithoutSnapshot(1);
         Assert.IsTrue(Send(s,new MedicalCommand(id,MedicalAction.DispatchMedic)).IsAccepted);
         s.AdvanceWithoutSnapshot(200);Assert.IsTrue(s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).Intoxication>7500,"Dispatch alone must not sober.");
@@ -379,7 +379,7 @@ public sealed class ImmersionTests
         var s=Open(extraMedic:extraMedic);typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,4000L);
         var m=s.CaptureMedical()!;var id=m.AtRiskGuestId;var worker=s.GetMedicResponses().Last().WorkerId;
         m=m with { Stage=MedicalStage.Collapsed,WarningTick=2300,CollapseTick=3900,CriticalTick=-1,Needs=m.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,WarningTick=2300,CollapseTick=3900,CriticalTick=-1,Intent=MedicalIntent.Collapsed,Thirst=9500,HeatExposure=8500 }:n).ToArray() };
-        typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,m);
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,m);
         var immersion=s.CaptureImmersion()!;Set(s,immersion with { People=immersion.People.Select(p=>p.AgentId==id?p with { Intoxication=10000,WarningTick=2399,SevereTicks=1599 }:p).ToArray() });
         PositionFixture(s,id,new(120,125),"medical.collapsed");PositionFixture(s,worker,new(121,125),"medical.dispatch");
         var duration=s.GetResponseStaff().Single(p=>p.AgentId==worker).TreatmentTicks;
@@ -393,7 +393,7 @@ public sealed class ImmersionTests
     {
         typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,GameSession.PreparedDayTicks);
         typeof(GameSession).GetProperty(nameof(GameSession.Phase))!.SetValue(s,SessionPhase.Egress);
-        var prep=s.CapturePreparation()!;typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { Status=PreparationStatus.Departing });
+        var prep=s.CapturePreparation()!;typeof(GameSession).GetProperty("PreparationView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { Status=PreparationStatus.Departing });
         Invoke(s,"StartImmersionDeparture");
     }
     [TestMethod]
@@ -404,7 +404,7 @@ public sealed class ImmersionTests
         var s=Open();var medical=s.CaptureMedical()!;var id=medical.AtRiskGuestId;var worker=medical.MedicId;
         typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,1600L);
         PositionFixture(s,id,new(120,125),"medical.collapsed");PositionFixture(s,worker,new(126,125),"medical.standby");
-        typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=MedicalStage.Collapsed,WarningTick=0,CollapseTick=1600,Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=0,CollapseTick=1600 }:n).ToArray() });
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=MedicalStage.Collapsed,WarningTick=0,CollapseTick=1600,Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=0,CollapseTick=1600 }:n).ToArray() });
         if(intoxication){var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=9800,WarningTick=0,CollapseTick=1600,SevereTicks=1600 }:p).ToArray() });}
         Assert.IsTrue(Send(s,new MedicalCommand(id,MedicalAction.DispatchMedic)).IsAccepted);Assert.AreEqual(MedicalResponseStage.Travelling,s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage);
         var r=Restore(s);for(var ticks=0;ticks<600&&s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage!=MedicalResponseStage.Treating;ticks++){s.AdvanceWithoutSnapshot(1);r.AdvanceWithoutSnapshot(1);}
@@ -415,7 +415,7 @@ public sealed class ImmersionTests
     public void BedsideBlockedAccessRejectsDispatchAndLegacyDistantTreatmentReroutesWithoutRemoteCare()
     {
         var s=Open();var medical=s.CaptureMedical()!;var id=medical.AtRiskGuestId;var worker=medical.MedicId;PositionFixture(s,id,new(120,125),"medical.collapsed");PositionFixture(s,worker,new(124,125),"medical.dispatch");
-        typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=MedicalStage.Collapsed,WarningTick=0,CollapseTick=0,Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=0,CollapseTick=0 }:n).ToArray() });
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=MedicalStage.Collapsed,WarningTick=0,CollapseTick=0,Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=0,CollapseTick=0 }:n).ToArray() });
         Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.Treating,id,0,"Older saved distant treatment",0));Restore(s);
         Invoke(s,"AdvanceMedicResponses");Assert.AreEqual(MedicalResponseStage.Travelling,s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage);Assert.AreEqual(MedicalStage.Collapsed,s.CaptureMedical()!.Stage);Restore(s);
         Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.None,null,-1,"Blocked access fixture",-1));
@@ -431,8 +431,8 @@ public sealed class ImmersionTests
         var responseCell=typeof(GameSession).GetMethod("MedicalResponseCell",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(s,[worker,id]);Assert.AreEqual(new GridCell(124,125),responseCell);
         var cells=new[]{new TerrainCellOverride(new(122,125),GroundSurface.Grass,false)};typeof(GameSession).GetField("_traversalGrid",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,new TraversalGrid(cells));
         Assert.AreEqual(true,typeof(GameSession).GetMethod("MedicalTreatmentPositionValid",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(s,[medical with { ResponsePatientId=id }]),"Noncollapsed guidance range must remain unchanged by the collapsed bedside correction.");
-        Invoke(s,"SetNeed",id,(Func<MedicalNeed,MedicalNeed>)(n=>n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,CollapseTick=0,Reason="Labelled existing injury ownership" }));
-        Invoke(s,"SetDisorderPerson",id,(Func<DisorderPerson,DisorderPerson>)(p=>p with { Stage=DisorderStage.Injured,InjuryTick=0,StageTick=0 }));
+        Invoke(s,"UpdatePerson",id,(Func<Person,Person>)(n=>n with { HealthStage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,HealthCollapseTick=0,Reason="Labelled existing injury ownership" }));
+        Invoke(s,"UpdatePerson",id,(Func<Person,Person>)(p=>p with { ConductStage=DisorderStage.Injured,InjuryTick=0,ConductStageTick=0 }));
         var bedside=typeof(GameSession).GetMethod("MedicalResponseCell",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(s,[worker,id]);Assert.IsNotNull(bedside);Assert.AreNotEqual(new GridCell(124,125),bedside,"Injury-owned collapse uses the same lawful bedside destination selection.");
     }
     [TestMethod]
@@ -462,7 +462,7 @@ public sealed class ImmersionTests
         s.AdvanceWithoutSnapshot(80);r.AdvanceWithoutSnapshot(80);Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash,r.CaptureSnapshot().AuthoritativeHash);
         var person=s.CaptureImmersion()!.People.Single(p=>p.AgentId==id);Assert.AreEqual(0,person.PendingDose);Assert.AreEqual(1070,person.Intoxication);Assert.AreEqual(80,person.Held!.ConsumedTicks);
         Assert.AreEqual(purchases,s.CaptureImmersion()!.Purchases.Length);Assert.AreEqual(stock,(s.CaptureImmersion()!.ChipsStock,s.CaptureImmersion()!.SoftStock,s.CaptureImmersion()!.BeerStock));
-        var prep=s.CapturePreparation()!;typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { People=prep.People.Select(p=>p.AgentId==id?p with { Departed=true }:p).ToArray() });
+        var prep=s.CapturePreparation()!;typeof(GameSession).GetProperty("PreparationView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { People=prep.People.Select(p=>p.AgentId==id?p with { Departed=true }:p).ToArray() });
         Invoke(s,"CleanupImmersionDeparture");m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { PendingDose=500,Intoxication=9000,WarningTick=-1 }:p).ToArray() });
         Assert.IsFalse(s.ImmersionBoundaryOnNextTick);s.AdvanceWithoutSnapshot(80);person=s.CaptureImmersion()!.People.Single(p=>p.AgentId==id);Assert.AreEqual(500,person.PendingDose);Assert.AreEqual(9000,person.Intoxication);Assert.IsNull(person.Held);
     }
@@ -497,8 +497,8 @@ public sealed class ImmersionTests
     {
         var s=Open();DepartureFixture(s);var medical=s.CaptureMedical()!;var id=medical.AtRiskGuestId;
         var collapse=stage==MedicalStage.Collapsed?GameSession.PreparedDayTicks-799L:GameSession.PreparedDayTicks-2399L;var warning=stage==MedicalStage.Distress?GameSession.PreparedDayTicks-1599L:GameSession.PreparedDayTicks-3999L;var critical=GameSession.PreparedDayTicks-1599L;
-        typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=stage,WarningTick=warning,CollapseTick=stage==MedicalStage.Distress?-1:collapse,CriticalTick=stage==MedicalStage.Critical?critical:-1 });
-        if(stage!=MedicalStage.Distress)Invoke(s,"SetNeed",id,(Func<MedicalNeed,MedicalNeed>)(n=>n with { Intent=MedicalIntent.Collapsed }));
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Stage=stage,WarningTick=warning,CollapseTick=stage==MedicalStage.Distress?-1:collapse,CriticalTick=stage==MedicalStage.Critical?critical:-1 });
+        if(stage!=MedicalStage.Distress)Invoke(s,"UpdatePerson",id,(Func<Person,Person>)(n=>n with { Intent=MedicalIntent.Collapsed }));
         PositionFixture(s,id,new(120,125),"medical.departure-collapse");Assert.IsTrue(s.MedicalBoundaryOnNextTick);
         s.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(stage==MedicalStage.Distress?MedicalStage.Collapsed:stage==MedicalStage.Collapsed?MedicalStage.Critical:MedicalStage.Terminal,s.CaptureMedical()!.Stage);
@@ -510,8 +510,8 @@ public sealed class ImmersionTests
     {
         // Labelled ownership fixture; the established disorder suite proves the causal fight/injury chain.
         var s=Open();typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,4000L);var id=s.CaptureDisorder()!.People.First().AgentId;
-        Invoke(s,"SetNeed",id,(Func<MedicalNeed,MedicalNeed>)(n=>n with { Stage=MedicalStage.Collapsed,CollapseTick=3900,Intent=MedicalIntent.Collapsed,Reason="Existing confrontation injury" }));
-        Invoke(s,"SetDisorderPerson",id,(Func<DisorderPerson,DisorderPerson>)(p=>p with { Stage=DisorderStage.Injured,InjuryTick=3900,StageTick=3900 }));
+        Invoke(s,"UpdatePerson",id,(Func<Person,Person>)(n=>n with { HealthStage=MedicalStage.Collapsed,HealthCollapseTick=3900,Intent=MedicalIntent.Collapsed,Reason="Existing confrontation injury" }));
+        Invoke(s,"UpdatePerson",id,(Func<Person,Person>)(p=>p with { ConductStage=DisorderStage.Injured,InjuryTick=3900,ConductStageTick=3900 }));
         var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=10000,WarningTick=2399,SevereTicks=1599 }:p).ToArray() });Invoke(s,"AdvanceImmersion");
         Assert.AreEqual(3900L,s.CaptureDisorder()!.People.Single(p=>p.AgentId==id).InjuryTick);Assert.AreEqual(3900L,s.CaptureMedical()!.Needs.Single(p=>p.AgentId==id).CollapseTick);Assert.AreEqual(-1L,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).CollapseTick);
         Assert.IsFalse(s.ImmersionBoundaryOnNextTick,"Blocked overlap must not create a repeated boundary save.");

@@ -44,11 +44,11 @@ public partial class Main
         var ids = warming ? _session.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest).Select(p => p.AgentId).ToHashSet()
             : _organicQueueShortIds.ToHashSet();
         var thirst = warming ? 0 : OrganicQueueKind == "water" ? 10000 : OrganicQueueKind == "drinks" ? 6000 : 1000;
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
             medical with { DevelopmentInterventionFixturesEnabled = true, Needs = medical.Needs.Select(n => n with
                 { Thirst = ids.Contains(n.AgentId) ? thirst : 0, HeatExposure = 0, LastDecisionTick = _session.CurrentTick }).ToArray() });
         var immersion = _session.CaptureImmersion()!;
-        typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
             immersion with { People = immersion.People.Select(p => p with
                 { Hunger = !warming && OrganicQueueKind == "food" && ids.Contains(p.AgentId) ? 10000 : 0,
                     LastDecisionTick = !warming && ids.Contains(p.AgentId) ? _session.CurrentTick - 800 : _session.CurrentTick }).ToArray() });
@@ -62,10 +62,10 @@ public partial class Main
             // adults continue normal movement with only cosmetic-fixture demand
             // decisions deferred. No existing queue owner/member is changed.
             var state = _session.CaptureImmersion()!;
-            typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+            typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                 state with { People = state.People.Select(p => _organicQueueShortIds.Contains(p.AgentId) ? p : p with { LastDecisionTick = _session.CurrentTick }).ToArray() });
             var needs = _session.CaptureMedical()!;
-            typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+            typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                 needs with { Needs = needs.Needs.Select(n => _organicQueueShortIds.Contains(n.AgentId) ? n : n with { LastDecisionTick = _session.CurrentTick }).ToArray() });
         }
         if (OrganicQueueKind != "water")
@@ -73,7 +73,7 @@ public partial class Main
             // Labelled paid-demand fixture keeps nonurgent medical decision
             // cooldown current. Urgent water/heat thresholds still bypass it.
             var medical = _session.CaptureMedical()!;
-            typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+            typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                 medical with { Needs = medical.Needs.Select(n => n with { LastDecisionTick = _session.CurrentTick }).ToArray() });
         }
         StaffCaptureAdvance(ticks);
@@ -90,9 +90,9 @@ public partial class Main
         var incumbentPeople = immersion.People.Where(p => !remaining.Contains(p.AgentId)).ToArray();
         var physicalPositions = _session.CaptureObservation().NavigationAgents.Select(n => (n.Id, n.XMillimetres, n.ZMillimetres)).ToArray();
         var thirst = OrganicQueueKind == "water" ? 10000 : OrganicQueueKind == "drinks" ? 6000 : 1000;
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
             medical with { Needs = medical.Needs.Select(n => remaining.Contains(n.AgentId) ? n with { Thirst = thirst, HeatExposure = 0, LastDecisionTick = _session.CurrentTick } : n).ToArray() });
-        typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
             immersion with { People = immersion.People.Select(p => remaining.Contains(p.AgentId) ? p with { Hunger = OrganicQueueKind == "food" ? 10000 : 0, LastDecisionTick = _session.CurrentTick - 800 } : p).ToArray() });
         if (OrganicQueueKind == "water")
             foreach (var id in remaining.OrderBy(id => id)) StaffCaptureSend(new DevelopmentMedicalFixtureCommand(id, MedicalAction.GuideToWater));
@@ -191,7 +191,7 @@ public partial class Main
                     for (var tick = 0; tick < 1500; tick += 40)
                     {
                         var state = _session.CaptureImmersion()!;
-                        typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+                        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                             state with { People = state.People.Select(p => p with { LastDecisionTick = _session.CurrentTick }).ToArray() });
                         StaffCaptureAdvance(Math.Min(40, 1500 - tick));
                     }
@@ -205,7 +205,7 @@ public partial class Main
                     if (OrganicQueueBefore)
                     {
                         var state = _session.CaptureImmersion()!;
-                        typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+                        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                             state with { Vendors = state.Vendors.Select(v => v.Id == OrganicQueueKind ? v with { QueueCells = null } : v).ToArray() });
                     }
                     if (OrganicQueueKind == "water")

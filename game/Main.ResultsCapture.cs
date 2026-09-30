@@ -20,7 +20,7 @@ public partial class Main
     private string _resultsShot = "";
     private Label? _resultsFixtureLabel;
     private void ResultsCheck(bool condition, string message) { if (!condition) throw new InvalidOperationException(message); }
-    private void ResultsSetPreparation(PreparationSnapshot p) => typeof(GameSession).GetField("_preparation", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(_session, p);
+    private void ResultsSetPreparation(PreparationSnapshot p) => typeof(GameSession).GetProperty("PreparationView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(_session, p);
     private void ResultsShot(string name, string label)
     {
         AdvancePreparationPresentation(0);

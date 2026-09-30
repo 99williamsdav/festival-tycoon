@@ -42,27 +42,27 @@ public sealed partial class GameSession
 
     private void RecordGuestMedicalCollapse(ulong id)
     {
-        if (_preparation is { GuestMedicalCollapses: { } count } p && p.People.Any(person => person.AgentId == id && person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed))
+        if (_preparation is { GuestMedicalCollapses: { } count } p && PeopleIn(PersonView.Roster).Any(person => person.Id == id && person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed))
             _preparation = p with { GuestMedicalCollapses = checked(count + 1) };
     }
 
     private void FinalizeFestivalDeparture()
     {
         if (_preparation is not { Status: PreparationStatus.Departing, FinishedBeerIds: not null } p || IsLifecycleEditionFrozen()) return;
-        var departedAtStart = p.People.All(person => person.Admitted && person.Departed);
+        var departedAtStart = PeopleIn(PersonView.Roster).All(person => person.Admitted && person.Departed);
         // Hazards and paid ingestion have completed at this tick before physical exit is committed.
-        var people = p.People.ToArray();
+        var people = PeopleIn(PersonView.Roster).ToArray();
         for (var index = 0; index < people.Length; index++)
         {
             var person = people[index];
-            var nav = _navigationAgents[new(person.AgentId)];
-            if (!person.Departed && person.Admitted && nav.Action == AgentNavigationAction.Arrived && ImmersionCanMarkDeparted(person.AgentId, index))
+            var nav = _navigationAgents[new(person.Id)];
+            if (!person.Departed && person.Admitted && nav.Action == AgentNavigationAction.Arrived && ImmersionCanMarkDeparted(person.Id, index))
                 people[index] = person with { Departed = true };
         }
-        _preparation = p = p with { People = people };
+        foreach (var person in people) SetPresence(person);
         if (!departedAtStart) return;
         _preparation = p with { Status = PreparationStatus.Finished, Rentals = [], WorkContracts = [],
-            Result = MakeFestivalResult(p, _immersion, _medical, _disorder, CurrentTick) };
+            Result = MakeFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick) };
         if (p.CommunityShareAttempt == p.Attempt && !p.CommunityFavourClaimed && _lifecycle is { } lifecycle)
         {
             lifecycle.FixtureFavourBalance++;

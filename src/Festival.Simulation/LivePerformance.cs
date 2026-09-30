@@ -48,14 +48,14 @@ public sealed partial class GameSession
         GridCell[] positions = [new(96, 150), new(94, 146), new(93, 152)];
         GridCell[] access = [new(101, 156), new(101, 157), new(101, 158)];
         GridCell[] stairs = [new(99, 156), new(99, 157), new(99, 158)];
-        var performers = p.People.Where(item => item.Role == ProtectedPersonRole.Performer && (_programme is null || _programme.Performers.Any(role => role.AgentId == item.AgentId && role.SlotIndex == _programme.CurrentSlot))).Select((item, index) =>
-            new LivePerformer(item.AgentId, positions[index], access[index], stairs[index], false, false, false, false)).ToArray();
+        var performers = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Performer && (_programme is null || _programme.Performers.Any(role => role.AgentId == item.Id && role.SlotIndex == _programme.CurrentSlot))).Select((item, index) =>
+            new LivePerformer(item.Id, positions[index], access[index], stairs[index], false, false, false, false)).ToArray();
         foreach (var performer in performers)
             if (_programme is null || !MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < _programme.SlotEndTick)
                 ApplyAgentDestination(new(performer.AgentId), new(performer.AccessCell, "performance.side-entry"));
-        var listeners = p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Select(item =>
-            new LiveListener(item.AgentId, null, _programme is not null ? FestivalAffinity(item.AgentId, CurrentFestivalAct!) : item.ExpectedGenre != BookedGenre() ? 35 :
-                item.AgentId % 3 == 0 ? 65 : 100, 0, 0, false)).ToArray();
+        var listeners = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Guest).Select(item =>
+            new LiveListener(item.Id, null, _programme is not null ? FestivalAffinity(item.Id, CurrentFestivalAct!) : item.ExpectedGenre != BookedGenre() ? 35 :
+                item.Id % 3 == 0 ? 65 : 100, 0, 0, false)).ToArray();
         _livePerformance = new(2, LiveSetStage.BeforeSet, _programme is null ? CurrentTick + LiveSetArrivalDelayTicks : p.StartedTick + FestivalSlotStarts[_programme.CurrentSlot], -1, -1, -1,
             0, "none", performers, listeners);
     }
@@ -130,7 +130,7 @@ public sealed partial class GameSession
             if (live.Stage == LiveSetStage.Finished && agent.Action == AgentNavigationAction.Arrived &&
                 agent.Destination == performer.AccessCell && agent.IntentId == "performance.stage-exit-access")
             {
-                var index = Array.FindIndex(p.People, item => item.AgentId == performer.AgentId);
+                var index = Array.FindIndex(PeopleIn(PersonView.Roster), item => item.Id == performer.AgentId);
                 ApplyAgentDestination(new(performer.AgentId), new(PreparedPlace(index), "performance.stage-exit"));
                 agent = _navigationAgents[new(performer.AgentId)];
             }
@@ -138,7 +138,7 @@ public sealed partial class GameSession
                 agent.Action == AgentNavigationAction.Arrived && agent.Destination == performer.StageCell };
         }
         var listeners = live.Listeners.ToArray();
-        var departed = p.People.Where(item => item.Departed).Select(item => item.AgentId).ToHashSet();
+        var departed = PeopleIn(PersonView.Roster).Where(item => item.Departed).Select(item => item.Id).ToHashSet();
         var reserved = listeners.Where(item => item.Place is not null && !departed.Contains(item.AgentId)).Select(item => item.Place!.Value).ToHashSet();
         // Four identity cohorts spread bounded decisions. Dwell and a material improvement
         // threshold prevent a settled crowd from continuously chasing tiny score changes.
@@ -149,7 +149,7 @@ public sealed partial class GameSession
             var listener = listeners[index];
             if (AudienceNavigationOwned(listener.AgentId) ||
                 CurrentTick - listener.LastDecisionTick < 800 ||
-                !p.People.Any(item => item.AgentId == listener.AgentId && item.Admitted && !item.Departed)) continue;
+                !PeopleIn(PersonView.Roster).Any(item => item.Id == listener.AgentId && item.Admitted && !item.Departed)) continue;
             listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
             var start = _navigationAgents[new(listener.AgentId)];
             var startCell = TraversalGrid.WorldToCell(start.XMillimetres, start.ZMillimetres);
@@ -178,7 +178,7 @@ public sealed partial class GameSession
                 break;
             }
         }
-        EditionPerson[]? rewardedPeople = null;
+        Person[]? rewardedPeople = null;
         for (var i = 0; i < listeners.Length; i++)
         {
             var listener = listeners[i];
@@ -188,7 +188,7 @@ public sealed partial class GameSession
             // The prior tick's state earns one tick. A set starting, a new arrival,
             // or restored power cannot award an entire second at this boundary.
             if (live.Stage == LiveSetStage.Live && hasPower && (_programme is null || performers.All(person => person.OnStage)) && listener.AtPlace && atPlace &&
-                !p.People.Any(item => item.AgentId == listener.AgentId && item.Departed) &&
+                !PeopleIn(PersonView.Roster).Any(item => item.Id == listener.AgentId && item.Departed) &&
                 CurrentTick > live.StartedTick && CurrentTick <= (_programme?.SlotEndTick ?? live.StartedTick + LiveSetDurationTicks))
             {
                 var listenedTicks = listener.ListenedTicks + 1;
@@ -199,8 +199,8 @@ public sealed partial class GameSession
                     var rigBonus = p.OwnedEquipment.Length > 0 ? 5 : 0;
                     var staffBonus = p.AcceptedOffers.Contains("staff.engineer") ? 3 : 0;
                     var gain = ((listener.Enthusiasm >= 90 ? 15 : listener.Enthusiasm >= 60 ? 10 : 5) + rigBonus + staffBonus) * quality / 100;
-                    rewardedPeople ??= p.People.ToArray();
-                    var personIndex = Array.FindIndex(rewardedPeople, item => item.AgentId == listener.AgentId);
+                    rewardedPeople ??= PeopleIn(PersonView.Roster).ToArray();
+                    var personIndex = Array.FindIndex(rewardedPeople, item => item.Id == listener.AgentId);
                     var person = rewardedPeople[personIndex];
                     rewardedPeople[personIndex] = person with { Satisfaction = Math.Min(10_000, person.Satisfaction + gain),
                         MusicRisk = Math.Min(3_000, person.MusicRisk + (listener.Enthusiasm >= 60 ? 0 : 5)) };
@@ -210,7 +210,7 @@ public sealed partial class GameSession
             }
             listeners[i] = listener.AtPlace == atPlace ? listener : listener with { AtPlace = atPlace };
         }
-        if (rewardedPeople is not null) _preparation = p = p with { People = rewardedPeople };
+        if (rewardedPeople is not null) foreach (var person in rewardedPeople) SetPresence(person);
         var stage = live.Stage;
         var started = live.StartedTick;
         var ended = live.EndedTick;
@@ -245,9 +245,9 @@ public sealed partial class GameSession
             if (stage == LiveSetStage.Interrupted && _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal && CurrentTick - interrupted == SustainedBooDelayTicks)
             {
                 var disappointed = listeners.Where(item => item.AtPlace).Select(item => item.AgentId).ToHashSet();
-                var people = p.People.Select(item => disappointed.Contains(item.AgentId) ? item with
+                var people = PeopleIn(PersonView.Roster).Select(item => disappointed.Contains(item.Id) ? item with
                 { Satisfaction = Math.Max(0, item.Satisfaction - 100), MusicRisk = Math.Min(3_000, item.MusicRisk + 200) } : item).ToArray();
-                _preparation = p = p with { People = people };
+                foreach (var person in people) SetPresence(person);
                 reaction = disappointed.Count >= 5 ? "sustained-boo" : "sustained-muted";
                 sequence++;
             }
@@ -308,8 +308,6 @@ public sealed partial class GameSession
         }
     }
 
-    private bool AudienceNavigationOwned(ulong id) => ImmersionOwnsNavigation(id) || ToiletOwnsNavigation(id) || MedicalOwnsNavigation(id) || DisorderOwnsNavigation(id) ||
-        _medical?.StaffInterventions.Any(job => job.GuestId == id && job.Stage is StaffInterventionStage.Guiding or StaffInterventionStage.Escorting) == true;
 
     private static int AudienceDistanceSquared(GridCell a, GridCell b) => (a.X - b.X) * (a.X - b.X) + (a.Z - b.Z) * (a.Z - b.Z);
 
@@ -324,7 +322,7 @@ public sealed partial class GameSession
             agent.IntentId is not { } intent || AudienceNavigationOwned(id.Value) ||
             _livePerformance is null or { Stage: LiveSetStage.Finished } ||
             !_livePerformance.Listeners.Any(listener => listener.AgentId == id.Value) ||
-            _preparation?.People.Any(person => person.AgentId == id.Value && person.Admitted && !person.Departed) != true)
+            PersonIn(PersonView.Roster, id.Value) is not { Admitted: true, Departed: false })
             return false;
         var destination = TraversalGrid.CellCentre(cell);
         return AudienceFacingMath.ShouldBackstep(intent, agent.Action, x, z,
@@ -347,15 +345,15 @@ public sealed partial class GameSession
     private int AudienceDensity(LiveListener listener, GridCell cell, LiveListener[] listeners)
     {
         var density = 0;
-        foreach (var person in _preparation!.People.Where(item => item.Admitted && !item.Departed && item.AgentId != listener.AgentId && MovementOccupant(item.AgentId)))
+        foreach (var person in PeopleIn(PersonView.Roster).Where(item => item.Admitted && !item.Departed && item.Id != listener.AgentId && MovementOccupant(item.Id)))
         {
-            var agent = _navigationAgents[new(person.AgentId)];
+            var agent = _navigationAgents[new(person.Id)];
             var actual = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
             var weight = Math.Max(0, 25 - AudienceDistanceSquared(actual, cell)) * 40;
-            var other = listeners.FirstOrDefault(item => item.AgentId == person.AgentId);
+            var other = listeners.FirstOrDefault(item => item.AgentId == person.Id);
             // An absent water/rest/escort owner retains a unique return place, but does not
             // invent a second physical body at that place in the comfort calculation.
-            if (other?.Place is { } place && !AudienceNavigationOwned(person.AgentId))
+            if (other?.Place is { } place && !AudienceNavigationOwned(person.Id))
                 weight = Math.Max(weight, Math.Max(0, 25 - AudienceDistanceSquared(place, cell)) * 40);
             density += weight;
         }

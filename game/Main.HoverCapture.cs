@@ -165,7 +165,7 @@ public partial class Main
                     HoverAssert(hit is not null && _attendeePickRegistry.ContainsKey(hit.GetInstanceId()),"Person hover missing");Pick(_hoverCapturePoint);HoverAssert(_selectedAttendeeId==_attendeePickRegistry[hit!.GetInstanceId()],"Dense physical person click differs from hover");
                     _hoverCollapsedPerson=_selectedAttendeeId;var body=_attendeeVisuals[_selectedAttendeeId!.Value];
                     _hoverSavedMedical=_session.CaptureMedical()!;_hoverCaptureHash=_session.CaptureSnapshot().AuthoritativeHash;
-                    typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(_session,_hoverSavedMedical with { Needs=_hoverSavedMedical.Needs.Select(n=>n.AgentId==_selectedAttendeeId.Value.Value?n with {Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed}:n).ToArray() });
+                    typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(_session,_hoverSavedMedical with { Needs=_hoverSavedMedical.Needs.Select(n=>n.AgentId==_selectedAttendeeId.Value.Value?n with {Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed}:n).ToArray() });
                     _foundationPresentation.Reset(_session.CaptureObservation());
                     body.Rotation=new Vector3(Mathf.Pi/2,0,0);HoverAt(body.ToGlobal(new Vector3(0,.85f,0)),"16-collapsed-initialized-fixture");break;
                 case 17:
@@ -173,7 +173,7 @@ public partial class Main
                     HoverAssert(ResolveWorldHit(_hoverCapturePoint) is { } collapsedHit && _attendeePickRegistry.TryGetValue(collapsedHit.GetInstanceId(),out var collapsedId) && collapsedId==_hoverCollapsedPerson,"Ray missed the initialized collapsed person");
                     UpdateHoverFeedback(_hoverCapturePoint);hit=ResolveWorldHit(_hoverCapturePoint)!;HoverAssert(hit is not null && _attendeePickRegistry.ContainsKey(hit.GetInstanceId()),"Rotated collapsed capsule hover missing");Pick(_hoverCapturePoint);HoverAssert(_selectedAttendeeId==_attendeePickRegistry[hit!.GetInstanceId()],"Collapsed click differs from hover");
                     var id=_selectedAttendeeId!.Value;body=_attendeeVisuals[id];_attendeeVisuals.Remove(id);UpdateHoverFeedback(_hoverCapturePoint);HoverAssert(_hoveredColliderId==0,"Missing visual retained hover");_attendeeVisuals.Add(id,body);
-                    typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(_session,_hoverSavedMedical);_foundationPresentation.Reset(_session.CaptureObservation());
+                    typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(_session,_hoverSavedMedical);_foundationPresentation.Reset(_session.CaptureObservation());
                     HoverAssert(_hoverCaptureHash==_session.CaptureSnapshot().AuthoritativeHash,"Temporary collapse fixture did not restore exact authoritative state");
                     _focus=new Vector3(45,0,45);ApplyCamera();HoverAt(new Vector3(45,0,45),"17-empty-ground");break;
                 case 18:

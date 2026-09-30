@@ -57,7 +57,7 @@ public partial class Main
             var ids = _session.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest).Take(2).Select(item => item.AgentId).ToArray();
             var medical = _session.CaptureMedical()!;
             // Labelled development warning fixture only. Travel, treatment, ownership and save paths are production logic.
-            typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+            typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                 medical with { Needs = medical.Needs.Select(item => ids.Contains(item.AgentId) ? item with { Stage = MedicalStage.Distress, WarningTick = _session.CurrentTick } : item).ToArray() });
             var workers = _session.GetResponseStaff().Where(item => item.Role == ResponseRole.Medic).ToArray();
             for (var index = 0; index < 2; index++) { SelectAttendee(new EntityId(ids[index])); CommitMedicalAction(MedicalAction.DispatchMedic, workers[index].AgentId); }

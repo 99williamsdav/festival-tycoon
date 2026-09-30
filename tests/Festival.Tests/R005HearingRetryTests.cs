@@ -186,7 +186,7 @@ public sealed class R005HearingRetryTests
         Assert.AreEqual(1, session.CaptureLifecycleSnapshot()!.FixtureFavourBalance);
         // Fixture-only suppression keeps this test focused on the honour/claim boundary;
         // lethality and timely medical prevention are covered by MedicalIncidentTests.
-        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         while (session.CurrentTick < 40_000 && session.PreparedStatus is (PreparationStatus.Running or PreparationStatus.Departing))
         {
             session.AdvanceWithoutSnapshot(500);

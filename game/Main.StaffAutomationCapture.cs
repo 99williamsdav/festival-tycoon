@@ -42,7 +42,7 @@ public partial class Main
         var restored = GameSession.Restore(original.CapturePersistenceSnapshot());
         AutomationCheck(restored.IsSuccess, "Negative-load fixture clone failed");
         var diagnostic = restored.Session!;
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(diagnostic, diagnostic.CapturePreparation()! with { StaffAutonomyEnabled = false });
         foreach (var header in new[] { compatibility, new SaveCompatibility("0.0.1-r0.05k-unpaid-plan-v1", compatibility.ContentHash, "r0-editable-preparation-v1") })
         {
@@ -143,7 +143,7 @@ public partial class Main
                     var medical = _session.CaptureMedical()!;
                     _automationCapturePatient = _session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.AgentId != medical.AtRiskGuestId).Skip(9).First().AgentId;
                     AutomationPositionFixture(_automationCapturePatient, new(118, 125));
-                    typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session, medical with { Needs = medical.Needs.Select(need => need.AgentId == _automationCapturePatient ? need with {
+                    typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session, medical with { Needs = medical.Needs.Select(need => need.AgentId == _automationCapturePatient ? need with {
                         Stage = MedicalStage.Collapsed, CollapseTick = _session.CurrentTick, WarningTick = _session.CurrentTick, Intent = MedicalIntent.Collapsed } : need).ToArray() });
                     _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary();
                     _focus = new Vector3(-5, 0, -1); _camera.Size = 24; ApplyCamera(); SelectAttendee(new(_automationCapturePatient)); RefreshPreparationHud();
@@ -160,7 +160,7 @@ public partial class Main
                 case 10:
                     var disorder = _session.CaptureDisorder()!; var pair = _session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.AgentId != _automationCapturePatient).Skip(11).Take(2).Select(person => person.AgentId).ToArray();
                     _automationCaptureFighter = pair[0]; AutomationPositionFixture(disorder.SecurityId, new(119, 178)); AutomationPositionFixture(pair[0], new(121, 178)); AutomationPositionFixture(pair[1], new(121, 179));
-                    typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session, disorder with { People = disorder.People.Select(person => pair.Contains(person.AgentId) ? person with {
+                    typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session, disorder with { People = disorder.People.Select(person => pair.Contains(person.AgentId) ? person with {
                         Stage = DisorderStage.Argument, Pressure = 8000, Grievance = DisorderGrievance.MusicCutoff, GrievanceTick = _session.CurrentTick, StageTick = _session.CurrentTick } : person).ToArray() });
                     typeof(GameSession).GetMethod("BeginDisorderFight", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(_session, [pair[0], pair[1], "labelled:capture-fight"]);
                     _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary(); _focus = new Vector3(-5, 0, 25); _camera.Size = 24; ApplyCamera();

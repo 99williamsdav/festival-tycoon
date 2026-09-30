@@ -13,7 +13,7 @@ public sealed class TimetableNeedsTests
     private static void SetMedical(GameSession session, Func<MedicalNeed, MedicalNeed> change)
     {
         var state = session.CaptureMedical()!;
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(session, state with { Needs = state.Needs.Select(change).ToArray() });
     }
 

@@ -25,7 +25,7 @@ public partial class Main
              _medicalCaptureDirectory is null && _disorderCaptureDirectory is null))
             throw new InvalidOperationException("Legacy medical fixtures are restricted to isolated legacy capture modes.");
         var medical = _session.CaptureMedical()!;
-        typeof(GameSession).GetField("_medical", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+        typeof(GameSession).GetProperty("MedicalView", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
             .SetValue(_session, medical with { DevelopmentInterventionFixturesEnabled = true });
         return new(id, action);
     }

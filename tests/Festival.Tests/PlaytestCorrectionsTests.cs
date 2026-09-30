@@ -8,7 +8,7 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class PlaytestCorrectionsTests
 {
-    private static void Set(GameSession s, string field, object value) => typeof(GameSession).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, value);
+    private static void Set(GameSession s, string field, object value) => SetMember(typeof(GameSession), field, BindingFlags.Instance | BindingFlags.NonPublic, s, value);
     private static object? Call(GameSession s, string method, params object[] args) => typeof(GameSession).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, args);
     private static void Send(GameSession s, SessionCommand command)
     { var result=s.Execute(new(new(s.NextSubmissionSequence+1),s.CampaignId,s.Phase,s.CurrentTick,s.NextSubmissionSequence,null,command)); Assert.IsTrue(result.IsAccepted,result.Message); }
@@ -21,7 +21,7 @@ public sealed class PlaytestCorrectionsTests
         Send(s,new AcceptPreparationOfferCommand("maintenance.worker"));
         if (moved) { Send(s,new MoveResponsePostCommand(ResponseRole.Medic,new(80,120),1)); Send(s,new MoveResponsePostCommand(ResponseRole.Steward,new(145,170),1)); }
         Send(s,new StartPreparedEditionCommand());
-        var p=s.CapturePreparation()!; Set(s,"_preparation",p with { People=p.People.Select(person=>person with { Admitted=true }).ToArray() });
+        var p=s.CapturePreparation()!; Set(s,"PreparationView",p with { People=p.People.Select(person=>person with { Admitted=true }).ToArray() });
         return s;
     }
     private static void Position(GameSession s, ulong id, GridCell cell)
@@ -71,7 +71,7 @@ public sealed class PlaytestCorrectionsTests
             var wallet=wallets[new EntityId(person.AgentId)]!;
             var price=s.ImmersionPriceFor(person.AgentId,ImmersionProduct.SoftDrink);
             wallet.GetType().GetProperty("CashPennies")!.SetValue(wallet,(long)price);
-            var immersion=s.CaptureImmersion()!.People.Single(p=>p.AgentId==person.AgentId);
+            var immersion=s.CapturePerson(person.AgentId)!;
             Assert.IsTrue((bool)Call(s,"ImmersionOrderEligible",immersion,ImmersionProduct.SoftDrink)!);
             wallet.GetType().GetProperty("CashPennies")!.SetValue(wallet,(long)price-1);
             Assert.IsFalse((bool)Call(s,"ImmersionOrderEligible",immersion,ImmersionProduct.SoftDrink)!);
@@ -105,12 +105,12 @@ public sealed class PlaytestCorrectionsTests
     {
         var s=Open();var p=s.CapturePreparation()!;var guests=p.People.Where(p=>p.Role==ProtectedPersonRole.Guest).ToArray();
         Assert.AreEqual(guests.Length,s.OnSiteAttendeeCount);
-        Set(s,"_preparation",p with {People=p.People.Select(person=>person.AgentId==guests[0].AgentId?person with {Admitted=false}:person.AgentId==guests[1].AgentId?person with {Departed=true}:person).ToArray()});
+        Set(s,"PreparationView",p with {People=p.People.Select(person=>person.AgentId==guests[0].AgentId?person with {Admitted=false}:person.AgentId==guests[1].AgentId?person with {Departed=true}:person).ToArray()});
         Assert.AreEqual(guests.Length-2,s.OnSiteAttendeeCount);Assert.AreEqual(p.People.Length,s.CapturePreparation()!.People.Length);
-        Set(s,"_preparation",p); var medical=s.CaptureMedical()!;
-        Set(s,"_medical",medical with {Needs=medical.Needs.Select(n=>n.AgentId==guests[0].AgentId?n with {Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed}:n).ToArray()});
+        Set(s,"PreparationView",p); var medical=s.CaptureMedical()!;
+        Set(s,"MedicalView",medical with {Needs=medical.Needs.Select(n=>n.AgentId==guests[0].AgentId?n with {Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed}:n).ToArray()});
         Assert.AreEqual(guests.Length,s.OnSiteAttendeeCount);
-        Set(s,"_medical",medical);Assert.AreEqual(guests.Length,Restore(s).OnSiteAttendeeCount);
+        Set(s,"MedicalView",medical);Assert.AreEqual(guests.Length,Restore(s).OnSiteAttendeeCount);
     }
 
     [TestMethod]
@@ -132,7 +132,7 @@ public sealed class PlaytestCorrectionsTests
     {
         var s=Open();var d=s.CaptureDisorder()!;var worker=d.SecurityId;var target=d.People.First().AgentId;
         Position(s,worker,new(115,178));Position(s,target,new(121,178));
-        Set(s,"_disorder",d with {People=d.People.Select(p=>p.AgentId==target?p with {Stage=DisorderStage.Argument,Pressure=8000,Grievance=DisorderGrievance.MusicCutoff,GrievanceTick=0,StageTick=0}:p).ToArray()});
+        Set(s,"DisorderView",d with {People=d.People.Select(p=>p.AgentId==target?p with {Stage=DisorderStage.Argument,Pressure=8000,Grievance=DisorderGrievance.MusicCutoff,GrievanceTick=0,StageTick=0}:p).ToArray()});
         Send(s,new DisorderCommand(DisorderAction.DispatchSecurity,target,WorkerId:worker));
         var destination=s.CaptureSnapshot().NavigationAgents.Single(n=>n.Id.Value==worker).Destination!.Value;
         Assert.AreEqual(destination,(GridCell)Call(s,"StewardResponseCell",worker,target)!,"A valid route must not churn each update.");

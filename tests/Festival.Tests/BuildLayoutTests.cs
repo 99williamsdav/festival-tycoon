@@ -275,16 +275,16 @@ public sealed class BuildLayoutTests
         Assert.IsFalse(session.IsPaused);
         var guests = session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest).Take(2).ToArray();
         var prep = session.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             prep with { People = prep.People.Select(person => guests.Any(guest => guest.AgentId == person.AgentId) ?
                 person with { Admitted = true } : person).ToArray() });
         var immersion = session.CaptureImmersion()!;
         var ids = guests.Select(person => person.AgentId).ToHashSet();
-        typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             immersion with { People = immersion.People.Select(person => ids.Contains(person.AgentId) ?
                 person with { ToiletNeed = 9_000 } : person).ToArray() });
         var medical = session.CaptureMedical()!;
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             medical with { Needs = medical.Needs.Select(need => ids.Contains(need.AgentId) ?
                 need with { Thirst = 0, HeatExposure = 0, Intent = MedicalIntent.WatchShow, LastDecisionTick = 0 } : need).ToArray() });
         var toilets = session.CaptureToilets().OrderBy(item => item.Cell.X).ToArray();
@@ -332,16 +332,16 @@ public sealed class BuildLayoutTests
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         Assert.AreEqual(62_600L, firstCost);
         var prep = session.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             prep with { People = prep.People.Select(person => person with { Admitted = true }).ToArray() });
         var guest = prep.People.First(person => person.Role == ProtectedPersonRole.Guest).AgentId;
         var immersion = session.CaptureImmersion()!;
-        typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             immersion with { People = immersion.People.Select(person => person.AgentId == guest ?
                 person with { Intoxication = 10_000 } : person).ToArray() });
         var medical = session.CaptureMedical()!;
         var medics = session.GetMedicResponses().Select(job => job.WorkerId).ToHashSet();
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             medical with { Needs = medical.Needs.Select(need => medics.Contains(need.AgentId) ?
                 need with { Intent = MedicalIntent.Rest, Reason = "Labelled unavailable medic retry fixture" } : need).ToArray() });
         session.AdvanceWithoutSnapshot(4_000);

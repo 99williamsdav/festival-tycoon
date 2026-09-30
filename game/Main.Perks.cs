@@ -375,9 +375,9 @@ public partial class Main
         CommitEquipmentAction(new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.field-frequency"]));
         CommitEquipmentAction(new AcceptPreparationOfferCommand("staff.steward"));PreparationStart();
         var prep=_session.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.SetValue(_session,prep with {People=prep.People.Select(person=>person with {Admitted=true}).ToArray()});
+        typeof(GameSession).GetProperty("PreparationView",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.SetValue(_session,prep with {People=prep.People.Select(person=>person with {Admitted=true}).ToArray()});
         var immersion=_session.CaptureImmersion()!;var id=prep.People.First(person=>person.Role==ProtectedPersonRole.Guest).AgentId;
-        typeof(GameSession).GetField("_immersion",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.SetValue(_session,immersion with {People=immersion.People.Select(person=>person.AgentId==id?person with {Intoxication=10000}:person).ToArray()});
+        typeof(GameSession).GetProperty("ImmersionView",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.SetValue(_session,immersion with {People=immersion.People.Select(person=>person.AgentId==id?person with {Intoxication=10000}:person).ToArray()});
         _session.AdvanceWithoutSnapshot(4000);
         if(_session.PreparedStatus!=PreparationStatus.Failed)throw new InvalidOperationException("Labelled ignored-response setup failed to reach the existing fatal chain.");
         PreparationSave();_preparationMessage="LABELLED FATAL FIXTURE · all admitted; guest intoxication set to10000;4000ticks with no response · normal Council retry";RefreshPreparationHud();

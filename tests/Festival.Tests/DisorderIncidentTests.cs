@@ -43,7 +43,7 @@ public sealed class DisorderIncidentTests
             if (session.CapturePreparation()!.Status != PreparationStatus.Running) continue;
             var target = session.CaptureDisorder()!.People.First(item => item.Grievance == DisorderGrievance.MusicCutoff &&
                 item.Stage == DisorderStage.Complaint).AgentId;
-            var field = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var field = typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!;
             field.SetValue(session, session.CaptureDisorder()! with { CalmingSkill = 3_500, ConfrontationSkill = 3_500 });
             if (!Send(session, new DisorderCommand(DisorderAction.DispatchSecurity, target)).IsAccepted) continue;
             while (!session.CaptureDisorder()!.SecurityIncapacitated && session.CurrentTick < 6_500 &&
@@ -221,7 +221,7 @@ public sealed class DisorderIncidentTests
             session.AdvanceWithoutSnapshot(1);
         var target = session.CaptureDisorder()!.People.First(item => item.Grievance == DisorderGrievance.MusicCutoff &&
             item.Stage == DisorderStage.Complaint).AgentId;
-        var field = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         field.SetValue(session, session.CaptureDisorder()! with { CalmingSkill = 8_000 });
         Assert.IsTrue(Send(session, new DisorderCommand(DisorderAction.DispatchSecurity, target)).IsAccepted);
         session = Restored(session);
@@ -355,7 +355,7 @@ public sealed class DisorderIncidentTests
         var dx = (long)firstPosition.XMillimetres - secondPosition.XMillimetres;
         var dz = (long)firstPosition.ZMillimetres - secondPosition.ZMillimetres;
         Assert.IsTrue(dx * dx + dz * dz <= 4_000_000, "Fight opponents should be within two metres.");
-        var field = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         field.SetValue(session, session.CaptureDisorder()! with { People = session.CaptureDisorder()!.People.Select(item =>
             item.AgentId == guest.AgentId ? item with { Grievance = DisorderGrievance.MusicCutoff,
                 Stage = DisorderStage.Argument, Pressure = 8_000, StageTick = session.CurrentTick } : item).ToArray() });
@@ -395,7 +395,7 @@ public sealed class DisorderIncidentTests
             if (session.CapturePreparation()!.Status != PreparationStatus.Running) continue;
             var target = session.CaptureDisorder()!.People.First(item => item.Grievance == DisorderGrievance.MusicCutoff &&
                 item.Stage == DisorderStage.Argument).AgentId;
-            var field = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
+            var field = typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!;
             field.SetValue(session, session.CaptureDisorder()! with { People = session.CaptureDisorder()!.People.Select(item =>
                 item.AgentId == target ? item with { Pressure = 8_000 } : item).ToArray() });
             if (!Send(session, new DisorderCommand(DisorderAction.DispatchSecurity, target)).IsAccepted) continue;
@@ -465,7 +465,7 @@ public sealed class DisorderIncidentTests
             opponent = (ulong?)pickOpponent.Invoke(session, [initiator]);
         }
         Assert.IsNotNull(opponent);
-        var field = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         field.SetValue(session, session.CaptureDisorder()! with { People = session.CaptureDisorder()!.People.Select(item =>
             item.AgentId == initiator ? item with { Grievance = DisorderGrievance.MusicCutoff,
                 Stage = DisorderStage.Argument, Pressure = 8_000, StageTick = session.CurrentTick } : item).ToArray() });
@@ -495,7 +495,7 @@ public sealed class DisorderIncidentTests
     {
         var reproduced = false;
         var pickOpponent = typeof(GameSession).GetMethod("FindDisorderOpponent", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var field = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var beginFight = typeof(GameSession).GetMethod("BeginDisorderFight", BindingFlags.Instance | BindingFlags.NonPublic)!;
         for (ulong seed = 41; seed < 81 && !reproduced; seed++)
         {

@@ -5,9 +5,11 @@ public sealed partial class GameSession
     private static ImmersionVendor NewLooseVendor(ImmersionVendor vendor)=>vendor with { QueueCells=[ImmersionServiceCell(vendor)] };
     private static GridCell[] VendorQueueCells(ImmersionVendor vendor,ImmersionSnapshot immersion)=>vendor.QueueCells ??
         Enumerable.Range(0,Math.Min(10,immersion.People.Count(person=>person.VendorId==vendor.Id)+1)).Select(index=>ImmersionQueueCell(vendor,index)).ToArray();
-    public IReadOnlyList<GridCell> CaptureImmersionQueueCells(string vendorId)=>_immersion is null?[]:VendorQueueCells(_immersion.Vendors.Single(vendor=>vendor.Id==vendorId),_immersion).ToArray();
+    // Legacy vendors without saved geometry size their queue from current shoppers.
+    private GridCell[] VendorQueueCells(ImmersionVendor vendor)=>vendor.QueueCells ?? VendorQueueCells(vendor,ImmersionView!);
+    public IReadOnlyList<GridCell> CaptureImmersionQueueCells(string vendorId)=>_immersion is null?[]:VendorQueueCells(_immersion.Vendors.Single(vendor=>vendor.Id==vendorId)).ToArray();
     private GridCell[] ImmersionQueueCorridor(string? except=null)=>_immersion is null?[]:_immersion.Vendors.Where(vendor=>vendor.Id!=except)
-        .SelectMany(vendor=>LooseQueueGeometry.Corridor(VendorQueueCells(vendor,_immersion)))
+        .SelectMany(vendor=>LooseQueueGeometry.Corridor(VendorQueueCells(vendor)))
         .Concat(EffectiveToilets(_immersion).SelectMany(ToiletReservedCells)).ToArray();
     private static bool QueueGroundAllowed(GridCell cell,PreparationSnapshot? prep)=>!(cell.X is >=90 and <=101 && cell.Z is >=139 and <=160) &&
         !(Math.Abs(cell.X-ResponsePost(prep,ResponseRole.Medic).Cell.X)<=3 && Math.Abs(cell.Z-ResponsePost(prep,ResponseRole.Medic).Cell.Z)<=3) &&
@@ -22,7 +24,7 @@ public sealed partial class GameSession
         foreach(var vendor in _immersion.Vendors.ToArray())
         {
             if(vendor.QueueCells is null)continue; // exact legacy occupied and approaching geometry
-            var wanted=Math.Min(10,_immersion.People.Count(person=>person.VendorId==vendor.Id)+1);
+            var wanted=Math.Min(10,PeopleIn(PersonView.Consumption).Count(person=>person.VendorId==vendor.Id)+1);
             var cells=vendor.QueueCells.Take(wanted).ToList();if(cells.Count==0)cells.Add(ImmersionServiceCell(vendor));
             var reserved=WaterPoints().SelectMany(point=>LooseQueueGeometry.Corridor(CaptureWaterQueueCells(point.Id))).Concat(ImmersionQueueCorridor(vendor.Id)).ToArray();
             while(cells.Count<wanted)

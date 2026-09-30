@@ -15,10 +15,10 @@ public sealed class LineupBookingRetryTests
         Accept(s, new SetProgrammeCommand(["act.copper-static", "act.neon-postcards", "act.field-frequency"])); Accept(s, new AcceptPreparationOfferCommand("staff.steward")); Accept(s, new StartPreparedEditionCommand());
         // Labelled severe-exposure/unavailable-medic fixture; production warning and death own the transition.
         var prep = s.CapturePreparation()!; var guest = prep.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
-        typeof(GameSession).GetField("_preparation", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, prep with { People = prep.People.Select(p => p with { Admitted = true }).ToArray() });
-        var immersion = s.CaptureImmersion()!; typeof(GameSession).GetField("_immersion", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, immersion with { People = immersion.People.Select(p => p.AgentId == guest ? p with { Intoxication = 10000 } : p).ToArray() });
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, prep with { People = prep.People.Select(p => p with { Admitted = true }).ToArray() });
+        var immersion = s.CaptureImmersion()!; typeof(GameSession).GetProperty("ImmersionView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, immersion with { People = immersion.People.Select(p => p.AgentId == guest ? p with { Intoxication = 10000 } : p).ToArray() });
         var medical = s.CaptureMedical()!; var medics = s.GetMedicResponses().Select(m => m.WorkerId).ToArray();
-        typeof(GameSession).GetField("_medical", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, medical with { Needs = medical.Needs.Select(n => medics.Contains(n.AgentId) ? n with { Intent = MedicalIntent.Rest, Reason = "Labelled unavailable medic fixture" } : n).ToArray() });
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, medical with { Needs = medical.Needs.Select(n => medics.Contains(n.AgentId) ? n with { Intent = MedicalIntent.Rest, Reason = "Labelled unavailable medic fixture" } : n).ToArray() });
         s.AdvanceWithoutSnapshot(4000); Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus);
         var restored = GameSession.Restore(s.CapturePersistenceSnapshot()); Assert.IsTrue(restored.IsSuccess, restored.Error); s = restored.Session!;
         Accept(s, new SpendCouncilFavourCommand()); Assert.AreEqual(1, s.CapturePreparation()!.LineupReactionsVersion); Assert.IsTrue(s.CapturePreparation()!.People.All(p => !p.Admitted && p.Satisfaction == 5000));

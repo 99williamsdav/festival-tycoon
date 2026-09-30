@@ -31,7 +31,7 @@ public partial class Main
     private static void PoseAssert(bool condition, string message)
     { if (!condition) throw new InvalidOperationException("ATTENDEE_POSE_ASSERT " + message); }
     private static void PoseSetField(GameSession session, string field, object value) =>
-        typeof(GameSession).GetField(field, BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(session, value);
+        SetMember(typeof(GameSession), field, BindingFlags.NonPublic | BindingFlags.Instance, session, value);
 
     private void ProcessAttendeePoseCapture()
     {
@@ -97,7 +97,7 @@ public partial class Main
             {
                 _poseMedical = _session.CaptureMedical()!; _poseDisorder = _session.CaptureDisorder()!;
                 var owner = _poseOwner.Value;
-                PoseSetField(_session, "_medical", _poseMedical with { Needs = _poseMedical.Needs.Select(n => n.AgentId == owner ? n with { Stage = MedicalStage.Collapsed, Intent = MedicalIntent.Collapsed } : n).ToArray() });
+                PoseSetField(_session, "MedicalView", _poseMedical with { Needs = _poseMedical.Needs.Select(n => n.AgentId == owner ? n with { Stage = MedicalStage.Collapsed, Intent = MedicalIntent.Collapsed } : n).ToArray() });
                 _poseGuardHash = _session.CaptureSnapshot().AuthoritativeHash;
                 AdvancePreparationPresentation(0);
                 var root = _attendeeVisuals[_poseOwner];
@@ -118,9 +118,9 @@ public partial class Main
             var collapsedPoint = _camera.UnprojectPosition(collapsedRoot.ToGlobal(new Vector3(0, .85f, 0)));
             var collapsedHit = ResolveWorldHit(collapsedPoint);
             PoseAssert(collapsedHit is not null && _attendeePickRegistry.TryGetValue(collapsedHit.GetInstanceId(), out var collapsedPicked) && collapsedPicked == _poseOwner, "Collapsed guest capsule identity no longer picks.");
-            PoseSetField(_session, "_medical", _poseMedical!);
+            PoseSetField(_session, "MedicalView", _poseMedical!);
             var opponent = _poseDisorder!.People.First(p => p.AgentId != _poseOwner.Value).AgentId;
-            PoseSetField(_session, "_disorder", _poseDisorder with { People = _poseDisorder.People.Select(p => p.AgentId == _poseOwner.Value ? p with { Stage = DisorderStage.Fight, StageTick = _session.CurrentTick, OpponentId = opponent } : p).ToArray() });
+            PoseSetField(_session, "DisorderView", _poseDisorder with { People = _poseDisorder.People.Select(p => p.AgentId == _poseOwner.Value ? p with { Stage = DisorderStage.Fight, StageTick = _session.CurrentTick, OpponentId = opponent } : p).ToArray() });
             _poseGuardHash = _session.CaptureSnapshot().AuthoritativeHash; AdvancePreparationPresentation(0);
             PoseAssert(!_immersionHeldVisuals.ContainsKey(_poseOwner) && _attendeeVisuals[_poseOwner].GetMeta("GuestPoseState").AsString() == "relaxed", "Fight hands precedence broken.");
             _poseImage = "fixture-fighting-retained-item"; _poseStep = 3; return;
@@ -128,7 +128,7 @@ public partial class Main
         if (_poseStep == 3)
         {
             PoseAssert(_session.CaptureSnapshot().AuthoritativeHash == _poseGuardHash, "Fight presentation changed gameplay.");
-            PoseSetField(_session, "_disorder", _poseDisorder!); AdvancePreparationPresentation(0);
+            PoseSetField(_session, "DisorderView", _poseDisorder!); AdvancePreparationPresentation(0);
             PoseAssert(_immersionHeldVisuals.ContainsKey(_poseOwner), "Retained prop did not resume after hands interruption.");
             var root = _attendeeVisuals[_poseOwner];
             ClearSelection(); _focus = root.Position; _camera.Size = 12; ApplyCamera();
@@ -158,7 +158,7 @@ public partial class Main
                 var medical = _session.CaptureMedical()!; var tick = _session.CurrentTick;
                 var collapse = tick - GameSession.MedicalDeathDelayTicks;
                 var warning = collapse - GameSession.MedicalCollapseDelayTicks;
-                PoseSetField(_session, "_medical", medical with { Stage = MedicalStage.Critical, WarningTick = warning, CollapseTick = collapse, CriticalTick = collapse + GameSession.MedicalCriticalDelayTicks,
+                PoseSetField(_session, "MedicalView", medical with { Stage = MedicalStage.Critical, WarningTick = warning, CollapseTick = collapse, CriticalTick = collapse + GameSession.MedicalCriticalDelayTicks,
                     Needs = medical.Needs.Select(n => n.AgentId == medical.AtRiskGuestId ? n with { Stage = MedicalStage.Critical, Intent = MedicalIntent.Collapsed, Thirst = 10000, HeatExposure = 10000, WarningTick = warning, CollapseTick = collapse, CriticalTick = collapse + GameSession.MedicalCriticalDelayTicks } : n).ToArray() });
                 StaffCaptureSend(new SetPausedCommand(false)); _session.AdvanceWithoutSnapshot(1);
                 PoseAssert(_session.PreparedStatus == PreparationStatus.Failed, "Initialized past-deadline medical fixture did not take existing death transition.");

@@ -14,8 +14,8 @@ public partial class Main
     private int _layoutCaptureFrame;
     private int _layoutCaptureStep;
     private string _layoutCosmeticHash = "";
-    private static readonly FieldInfo LayoutMedicalField = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
-    private static readonly FieldInfo LayoutDisorderField = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
+    private static readonly PropertyInfo LayoutMedicalField = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
+    private static readonly PropertyInfo LayoutDisorderField = typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!;
     private static readonly MethodInfo LayoutApplyDestination = typeof(GameSession).GetMethod("ApplyAgentDestination", BindingFlags.Instance | BindingFlags.NonPublic)!;
 
     private void LayoutImage(string name)

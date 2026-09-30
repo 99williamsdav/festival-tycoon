@@ -59,11 +59,11 @@ public partial class Main
                 var ids = _session.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest)
                     .Skip(3).Take(2).Select(p => p.AgentId).ToHashSet();
                 var immersion = _session.CaptureImmersion()!;
-                typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+                typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                     immersion with { People = immersion.People.Select(p => ids.Contains(p.AgentId) ?
                         p with { ToiletNeed = 9_000 } : p).ToArray() });
                 var medical = _session.CaptureMedical()!;
-                typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+                typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                     medical with { Needs = medical.Needs.Select(n => ids.Contains(n.AgentId) ? n with { Thirst = 0 } : n).ToArray() });
                 _toiletCaptureStep = 4; return;
             case 4:

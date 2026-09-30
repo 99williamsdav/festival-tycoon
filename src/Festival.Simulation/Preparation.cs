@@ -70,18 +70,18 @@ public sealed partial class GameSession
     public const int PreparedWeekendTicks = 38_400;
     public const int PreparedDayTicks = 38_400;
     public int PreparedEditionDurationTicks => _programme is null ? PreparedWeekendTicks : PreparedDayTicks;
-    private PreparationSnapshot? _preparation;
+
     public PreparationStatus? PreparedStatus => _preparation?.Status;
-    public PreparationSnapshot? CapturePreparation() => _preparation is null ? null :
-        JsonSerializer.Deserialize<PreparationSnapshot>(JsonSerializer.Serialize(_preparation));
-    internal string? PreparationCanonicalJson => _preparation is not { } p ? null : StaffCompatibleCanonicalJson(p,
+    public PreparationSnapshot? CapturePreparation() => PreparationView is not { } view ? null :
+        JsonSerializer.Deserialize<PreparationSnapshot>(JsonSerializer.Serialize(view));
+    internal string? PreparationCanonicalJson => PreparationView is not { } p ? null : StaffCompatibleCanonicalJson(p,
         p.ExtraMedicSlotOwned ? "" : nameof(p.ExtraMedicSlotOwned), p.ExtraStewardSlotOwned ? "" : nameof(p.ExtraStewardSlotOwned),
         p.RespondersUpgraded ? "" : nameof(p.RespondersUpgraded), p.StaffProfiles.Length > 0 ? "" : nameof(p.StaffProfiles),
         p.PrimaryWaterQuarterTurns != 0 ? "" : nameof(p.PrimaryWaterQuarterTurns), p.PrimaryWaterGeometryVersion != 0 ? "" : nameof(p.PrimaryWaterGeometryVersion),
         p.StaffAutonomyEnabled ? "" : nameof(p.StaffAutonomyEnabled));
     public bool PreparationBoundaryOnNextTick => !IsPaused && _preparation is { } p &&
-        (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks - 1 && p.People.All(item => item.Admitted) ||
-         p.Status == PreparationStatus.Departing && p.People.All(item => item.Departed));
+        (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks - 1 && PeopleIn(PersonView.Roster).All(item => item.Admitted) ||
+         p.Status == PreparationStatus.Departing && PeopleIn(PersonView.Roster).All(item => item.Departed));
 
     public PreparationInventoryBalance? GetPreparationInventoryBalance() => _preparation is not { } p ? null :
         new(40, p.Payments.Count(item => (p.FixtureOutcomesEnabled || item.Attempt == p.Attempt) && item.OfferId == "contract.stock") * 50,
@@ -138,11 +138,11 @@ public sealed partial class GameSession
         if (movingId == "water.main" && cell == p.PrimaryWaterCell && quarterTurns == p.PrimaryWaterQuarterTurns && p.PrimaryWaterGeometryVersion == 1)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The original standpipe is already at this site.");
         var issue = ValidateWaterPlacementCell(cell, p, movingId, _equipment, quarterTurns);
-        if(issue is null && WaterOverlapsImmersion(_immersion,cell,quarterTurns))issue="Water overlaps a placed food/drink vendor or its queue.";
+        if(issue is null && WaterOverlapsImmersion(ImmersionView,cell,quarterTurns))issue="Water overlaps a placed food/drink vendor or its queue.";
         if(issue is null && (p.FirstAidPlacement is not null || p.StewardPostPlacement is not null))
         {
             var proposed=movingId=="water.main"?p with{PrimaryWaterCell=cell,PrimaryWaterQuarterTurns=quarterTurns,PrimaryWaterGeometryVersion=1}:p with { ExtraWaterSiteIds=p.ExtraWaterSiteIds.Where(id=>id!=movingId).Append(movingId??"water.proposed").ToArray(),WaterPlacements=EffectiveWaterPlacements(p).Where(w=>w.Id!=movingId).Append(new(movingId??"water.proposed",cell){QuarterTurns=quarterTurns,GeometryVersion=1}).ToArray() };
-            if(!PlacementAccessClear(proposed,_equipment,_immersion,_medical))issue="This tap blocks a response post or essential service approach.";
+            if(!PlacementAccessClear(proposed,_equipment,ImmersionView,MedicalView))issue="This tap blocks a response post or essential service approach.";
         }
         return issue is null ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
     }
@@ -249,7 +249,7 @@ public sealed partial class GameSession
             index % 4 == 0 ? 1 - (int)(seed % 2) : (int)(seed % 2))).ToArray();
         foreach (var person in people)
             session._wallets.Add(new(person.AgentId), new WalletState { OwnerId = new(person.AgentId), CashPennies = 500 });
-        session._preparation = new(1, tier, seed ^ ((ulong)tier * 0x9E3779B97F4A7C15UL), 1,
+        session.PreparationView = new(1, tier, seed ^ ((ulong)tier * 0x9E3779B97F4A7C15UL), 1,
             PreparationStatus.Preparing, owner.Value, stock.Value, 0, fixtureOutcomesEnabled,
             [], [], [], [], [], people, [], 0, CampaignDefaults.OpeningCashPennies);
         return session;
@@ -340,7 +340,7 @@ public sealed partial class GameSession
             if (offer is null) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown preparation offer.");
             if (_programme is not null && offer.Category == "act") return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Confirm all three acts together through the programme.");
             if (offer.Category is "extra-medic" or "extra-steward" &&
-                (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || p.People.Length >= 50))
+                (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || PeopleIn(PersonView.Roster).Length >= 50))
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Requires the matching role slot and room below 50 active people.");
             if (p.Plan is null && p.AcceptedOffers.Any(id => offers.Single(item => item.Id == id).Category == offer.Category) ||
                 offer.Category == "equipment" && p.OwnedEquipment.Contains("sound-rig"))
@@ -383,8 +383,8 @@ public sealed partial class GameSession
             var id = p.MaintenanceWorkerId ?? NextEntityId++;
             if (p.MaintenanceWorkerId is null)
                 _wallets.Add(new(id), new WalletState { OwnerId = new(id), CashPennies = 500 });
-            _preparation = _preparation with { MaintenanceWorkerId = id,
-                People = _preparation.People.Append(new EditionPerson(id, "Morgan Finch", ProtectedPersonRole.Staff, 0)).OrderBy(item => item.AgentId).ToArray() };
+            PreparationView = PreparationView! with { MaintenanceWorkerId = id,
+                People = PreparationView.People.Append(new EditionPerson(id, "Morgan Finch", ProtectedPersonRole.Staff, 0)).OrderBy(item => item.AgentId).ToArray() };
             _equipment = _equipment! with { WorkerId = id };
         }
     }
@@ -454,10 +454,10 @@ public sealed partial class GameSession
         }
         BlockImmersionVendors();
         BlockToilet();
-        for (var index = 0; index < p.People.Length; index++)
+        for (var index = 0; index < PeopleIn(PersonView.Roster).Length; index++)
         {
-            var person = p.People[index];
-            var id = new EntityId(person.AgentId);
+            var person = PeopleIn(PersonView.Roster)[index];
+            var id = new EntityId(person.Id);
             var position = TraversalGrid.CellCentre(PreparedStart(index));
             _navigationAgents.Add(id, new NavigationAgentState
             {
@@ -465,9 +465,9 @@ public sealed partial class GameSession
                 SegmentOriginXMillimetres = position.XMillimetres, SegmentOriginZMillimetres = position.ZMillimetres,
                 WalkingSpeedPermille = GetResponseStaff().SingleOrDefault(item => item.AgentId == id.Value)?.WalkingSpeedPermille ?? GetWalkingSpeedPermille(id), Action = AgentNavigationAction.Idle
             });
-            var profile = GetResponseStaff().SingleOrDefault(item => item.AgentId == person.AgentId);
-            var dutyCell = StaffAssignedPost(person.AgentId) ?? PreparedPlace(index);
-            if (!p.BuildModeEnabled || person.Role != ProtectedPersonRole.Guest || GuestReleaseTick(CampaignSeed, person.AgentId) == 0)
+            var profile = GetResponseStaff().SingleOrDefault(item => item.AgentId == person.Id);
+            var dutyCell = StaffAssignedPost(person.Id) ?? PreparedPlace(index);
+            if (!p.BuildModeEnabled || person.Role != ProtectedPersonRole.Guest || GuestReleaseTick(CampaignSeed, person.Id) == 0)
                 ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
         }
         _preparation = p with { Status = PreparationStatus.Running, StartedTick = CurrentTick };
@@ -478,7 +478,7 @@ public sealed partial class GameSession
 
     private static GridCell PreparedStart(int index) => new(122 + index % 6 * 2, 190 + index / 6 * 2);
     // Physical presence includes collapsed guests until their recorded departure.
-    public int OnSiteAttendeeCount => _preparation?.People.Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed) ?? 0;
+    public int OnSiteAttendeeCount => PeopleIn(PersonView.Roster).Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed);
     private static GridCell PreparedPlace(int index) => new(122 + index % 6 * 2, 156 + index / 6 * 2);
 
     private void AdvancePreparation()
@@ -488,16 +488,16 @@ public sealed partial class GameSession
         // boundary tick without cloning every ordinary movement tick. Final physical arrival
         // is committed first; the following tick commits settlement and contract expiry.
         var transitionAtStart = PreparationBoundaryOnNextTick;
-        var people = p.People.ToArray();
+        var people = PeopleIn(PersonView.Roster).ToArray();
         var consumed = p.StockConsumed;
         for (var index = 0; index < people.Length; index++)
         {
             var person = people[index];
-            var agent = _navigationAgents[new(person.AgentId)];
+            var agent = _navigationAgents[new(person.Id)];
             if (p.Status == PreparationStatus.Running && p.BuildModeEnabled && person.Role == ProtectedPersonRole.Guest &&
                 !person.Admitted && agent.Destination is null &&
-                CurrentTick - p.StartedTick >= GuestReleaseTick(CampaignSeed, person.AgentId))
-                ApplyAgentDestination(new(person.AgentId), new(PreparedPlace(index), "edition.arrival"));
+                CurrentTick - p.StartedTick >= GuestReleaseTick(CampaignSeed, person.Id))
+                ApplyAgentDestination(new(person.Id), new(PreparedPlace(index), "edition.arrival"));
             if (agent.Action != AgentNavigationAction.Arrived) continue;
             if (p.Status == PreparationStatus.Running && !person.Admitted)
             {
@@ -510,10 +510,11 @@ public sealed partial class GameSession
                 satisfaction = Math.Clamp(satisfaction + AdmissionLineupAdjustment(person), 0, 10_000);
                 people[index] = person with { Admitted = true, Satisfaction = satisfaction, MusicRisk = 0 };
             }
-            if (p.FinishedBeerIds is null && p.Status == PreparationStatus.Departing && !person.Departed && ImmersionCanMarkDeparted(person.AgentId, index))
+            if (p.FinishedBeerIds is null && p.Status == PreparationStatus.Departing && !person.Departed && ImmersionCanMarkDeparted(person.Id, index))
                 people[index] = person with { Departed = true };
         }
-        _preparation = p = p with { People = people, StockConsumed = consumed };
+        _preparation = p = p with { StockConsumed = consumed };
+        foreach (var person in people) SetPresence(person);
         if (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks && transitionAtStart)
         {
             if (_immersion is not null)
@@ -526,7 +527,7 @@ public sealed partial class GameSession
             FinishProgrammeMedicalNeedsForDeparture();
             for (var index = 0; index < people.Length; index++)
                 if (!people[index].Departed)
-                    ApplyAgentDestination(new(people[index].AgentId), new(PreparedStart(index), "edition.departure"));
+                    ApplyAgentDestination(new(people[index].Id), new(PreparedStart(index), "edition.departure"));
             FinishStaffResponsesForDeparture();
             _preparation = p with { Status = PreparationStatus.Departing };
             Phase = SessionPhase.Egress;
@@ -560,8 +561,8 @@ public sealed partial class GameSession
             throw new InvalidOperationException("Only a failed persistence fixture can create a retry.");
         _navigationAgents.Clear();
         _livePerformance = null;
-        _preparation = p with { Attempt = p.Attempt + 1, Status = PreparationStatus.Preparing, AcceptedOffers = [], StartedTick = 0,
-            People = p.People.Select(item => item with { Admitted = false, Departed = false, Satisfaction = 5_000, MusicRisk = 0 }).ToArray() };
+        PreparationView = p with { Attempt = p.Attempt + 1, Status = PreparationStatus.Preparing, AcceptedOffers = [], StartedTick = 0,
+            People = PreparationView!.People.Select(item => item with { Admitted = false, Departed = false, Satisfaction = 5_000, MusicRisk = 0 }).ToArray() };
         Phase = SessionPhase.OpeningCheck;
     }
 
@@ -577,32 +578,32 @@ public sealed partial class GameSession
         _programme = baseline._programme;
         if (_immersion is not null)
         {
-            _immersion = baseline._immersion! with
+            ImmersionView = baseline.ImmersionView! with
             {
                 Vendors = _immersion.Vendors.Select(v => v with { Queue = [], OwnerId = null, ServiceTicks = 0,QueueCells=v.QueueCells is null?null:[ImmersionServiceCell(v)] }).ToArray(),
                 Toilet = _immersion.Toilet is { } owned ? baseline._immersion!.Toilet! with
                 { Cell = owned.Cell, QuarterTurns = owned.QuarterTurns } : baseline._immersion!.Toilet
             };
-            foreach (var person in _immersion.People) _wallets[new(person.AgentId)].CashPennies = person.OpeningBudgetPennies;
+            foreach (var person in PeopleIn(PersonView.Consumption)) _wallets[new(person.Id)].CashPennies = person.OpeningBudgetPennies;
         }
         _equipment = baseline._equipment;
-        _medical = baseline._medical;
+        MedicalView = baseline.MedicalView;
         if (_medical is not null)
             _medical = _medical with { MainWaterCell = p.PrimaryWaterCell, MainWaterQuarterTurns = p.PrimaryWaterQuarterTurns, MainWaterGeometryVersion = p.PrimaryWaterGeometryVersion,
                 ExtraWaterPoints = EffectiveWaterPlacements(p).Select(site =>
                     new WaterPointState(site.Id, site.Cell, [], [], null, 0) { QuarterTurns = site.QuarterTurns, GeometryVersion = site.GeometryVersion }).ToArray() };
-        _disorder = baseline._disorder;
+        DisorderView = baseline.DisorderView;
         _traversalGrid = null;
-        _preparation = p with
+        PreparationView = p with
         {
             Attempt = p.Attempt + 1, Status = PreparationStatus.Preparing, AcceptedOffers = [],
             FinishedBeerIds = p.FinishedBeerIds is null ? null : [], GuestMedicalCollapses = p.GuestMedicalCollapses is null ? null : 0, Result = null,
             Rentals = [], WorkContracts = [], StartedTick = 0, StockConsumed = 0,
-            People = baseline._preparation!.People
+            People = baseline.PreparationView!.People
             ,Plan = p.Plan is null ? null : p.BuildModeEnabled ? p.Plan with { Committed = false } : EmptyPreparationPlan()
         };
         Phase = SessionPhase.OpeningCheck;
-        if (_preparation.BuildModeEnabled) SyncBuildPhysicalLayout();
+        if (_preparation!.BuildModeEnabled) SyncBuildPhysicalLayout();
         ApplyBuildGuestOpeningNeeds();
         OpenPerkDraft();
     }

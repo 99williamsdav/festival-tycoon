@@ -16,7 +16,7 @@ public sealed class TimetableLateBandTests
     private static void Medical(GameSession session, Func<MedicalNeed, MedicalNeed> change)
     {
         var medical = session.CaptureMedical()!;
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(session, medical with { Needs = medical.Needs.Select(change).ToArray() });
     }
 

@@ -9,7 +9,7 @@ public sealed class StaffAutonomyTests
 {
     private static CommandResult Send(GameSession s, SessionCommand c) => s.Execute(new(new(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase, s.CurrentTick, s.NextSubmissionSequence, null, c));
     private static void Accept(GameSession s, SessionCommand c) { var result = Send(s, c); Assert.IsTrue(result.IsAccepted, result.Message); }
-    private static void Set<T>(GameSession s, string field, T value) => typeof(GameSession).GetField(field, BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, value);
+    private static void Set<T>(GameSession s, string field, T value) => SetMember(typeof(GameSession), field, BindingFlags.Instance | BindingFlags.NonPublic, s, value);
     private static GameSession Restore(GameSession s)
     {
         var loaded = GameSession.Restore(s.CapturePersistenceSnapshot()); Assert.IsTrue(loaded.IsSuccess, loaded.Error);
@@ -18,7 +18,7 @@ public sealed class StaffAutonomyTests
     private static GameSession Ready(bool extra = false)
     {
         var s = extra ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreateEditableCampaign(20260922);
-        if (extra) Set(s, "_preparation", s.CapturePreparation()! with { StaffAutonomyEnabled = true });
+        if (extra) Set(s, "PreparationView", s.CapturePreparation()! with { StaffAutonomyEnabled = true });
         if (s.CapturePerks() is { } perks) Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[0]));
         if (extra)
         {
@@ -42,7 +42,7 @@ public sealed class StaffAutonomyTests
     private static void Incidents(GameSession s, params (ulong Id, MedicalStage Stage, long Collapse)[] incidents)
     {
         var m = s.CaptureMedical()!;
-        Set(s, "_medical", m with { Needs = m.Needs.Select(need => incidents.FirstOrDefault(item => item.Id == need.AgentId) is { Id: > 0 } incident
+        Set(s, "MedicalView", m with { Needs = m.Needs.Select(need => incidents.FirstOrDefault(item => item.Id == need.AgentId) is { Id: > 0 } incident
             ? need with { Stage = incident.Stage, CollapseTick = incident.Collapse, WarningTick = Math.Max(0, incident.Collapse - GameSession.MedicalCollapseDelayTicks),
                 CriticalTick = incident.Stage == MedicalStage.Critical ? incident.Collapse + GameSession.MedicalCriticalDelayTicks : -1, Intent = MedicalIntent.Collapsed }
             : need).ToArray() });
@@ -61,7 +61,7 @@ public sealed class StaffAutonomyTests
     {
         var s = Started(extra); var ids = Guests(s); var d = s.CaptureDisorder()!;
         PositionFixture(s, d.SecurityId, new(119, 178)); PositionFixture(s, ids[0], new(121, 178)); PositionFixture(s, ids[1], new(121, 179));
-        Set(s, "_disorder", d with { ConfrontationSkill = 8000, People = d.People.Select(person => ids.Take(2).Contains(person.AgentId)
+        Set(s, "DisorderView", d with { ConfrontationSkill = 8000, People = d.People.Select(person => ids.Take(2).Contains(person.AgentId)
             ? person with { Stage = DisorderStage.Argument, Pressure = success ? 4000 : 10000, Temperament = success ? 2000 : 8000,
                 Grievance = DisorderGrievance.MusicCutoff, GrievanceTick = s.CurrentTick - age, StageTick = s.CurrentTick - age }
             : person).ToArray() });
@@ -69,7 +69,7 @@ public sealed class StaffAutonomyTests
         if (age > 0)
         {
             d = s.CaptureDisorder()!;
-            Set(s, "_disorder", d with { People = d.People.Select(person => ids.Take(2).Contains(person.AgentId) ? person with { StageTick = s.CurrentTick - age } : person).ToArray(),
+            Set(s, "DisorderView", d with { People = d.People.Select(person => ids.Take(2).Contains(person.AgentId) ? person with { StageTick = s.CurrentTick - age } : person).ToArray(),
                 Incidents = d.Incidents.Select(origin => origin with { FightTick = s.CurrentTick - age }).ToArray() });
         }
         return (Restore(s), ids[0], ids[1]);
@@ -108,7 +108,7 @@ public sealed class StaffAutonomyTests
     public void ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate()
     {
         var (s, a, b) = FightFixture(true, true); var ids = Guests(s); var d = s.CaptureDisorder()!;
-        Set(s, "_disorder", d with { People = d.People.Select(person => person.AgentId == ids[2] ? person with {
+        Set(s, "DisorderView", d with { People = d.People.Select(person => person.AgentId == ids[2] ? person with {
             Stage = DisorderStage.Argument, Pressure = 8000, Grievance = DisorderGrievance.MusicCutoff, GrievanceTick = s.CurrentTick, StageTick = s.CurrentTick } : person).ToArray() });
         s.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(1, s.GetStewardResponses().Count(job => job.TargetId == a || job.TargetId == b));
@@ -134,14 +134,14 @@ public sealed class StaffAutonomyTests
     {
         var (s, a, b) = FightFixture(true); s.AdvanceWithoutSnapshot(1);
         var d = s.CaptureDisorder()!;
-        Set(s, "_disorder", d with { ResponseStage = SecurityResponseStage.Completed, ResponseTargetId = null });
+        Set(s, "DisorderView", d with { ResponseStage = SecurityResponseStage.Completed, ResponseTargetId = null });
         Assert.IsNull(s.CaptureDisorder()!.Incidents.Single().HandlingAttempt);
         Accept(s, new DisorderCommand(DisorderAction.DispatchSecurity, a));
         for (var tick = 0; tick < 400 && s.CaptureDisorder()!.Incidents.Single().HandlingAttempt?.Outcome != FightHandlingOutcome.Succeeded; tick++) s.AdvanceWithoutSnapshot(1);
         Assert.IsNotNull(s.CaptureDisorder()!.Incidents.Single().HandlingAttempt, $"No physical attempt: {s.GetStewardResponses().Single()} navigation={s.CaptureSnapshot().NavigationAgents.Single(nav => nav.Id.Value == s.CaptureDisorder()!.SecurityId)}");
         Assert.AreEqual(FightHandlingOutcome.Succeeded, s.CaptureDisorder()!.Incidents.Single().HandlingAttempt!.Outcome);
         d = s.CaptureDisorder()!;
-        Set(s, "_disorder", d with { People = d.People.Select(person => person.AgentId == a || person.AgentId == b ? person with {
+        Set(s, "DisorderView", d with { People = d.People.Select(person => person.AgentId == a || person.AgentId == b ? person with {
             Stage = DisorderStage.Argument, Pressure = 4000, Grievance = DisorderGrievance.MusicCutoff, StageTick = s.CurrentTick, GrievanceTick = s.CurrentTick } : person).ToArray() });
         typeof(GameSession).GetMethod("BeginDisorderFight", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [a, b, "labelled:second-fight"]);
         s.AdvanceWithoutSnapshot(1); Assert.AreEqual(SecurityResponseStage.Travelling, s.GetStewardResponses().Single().Stage);
@@ -152,7 +152,7 @@ public sealed class StaffAutonomyTests
     {
         var normal = Ready(); Assert.IsTrue(normal.StaffAutonomyEnabled); Assert.IsTrue(Restore(normal).StaffAutonomyEnabled);
         var before = normal.CaptureSnapshot().AuthoritativeHash;
-        Set(normal, "_preparation", normal.CapturePreparation()! with { StaffAutonomyEnabled = false });
+        Set(normal, "PreparationView", normal.CapturePreparation()! with { StaffAutonomyEnabled = false });
         Assert.AreNotEqual(before, normal.CaptureSnapshot().AuthoritativeHash);
         var diagnostic = GameSession.CreateDisorderCampaign(20260922); Assert.IsFalse(diagnostic.StaffAutonomyEnabled);
         Assert.IsFalse(Restore(diagnostic).StaffAutonomyEnabled);
@@ -168,7 +168,7 @@ public sealed class StaffAutonomyTests
         Assert.IsNotNull(attempt);
         var originalTick = attempt.StartedTick + GameSession.DisorderConfrontationTicks - GameSession.DisorderFightDurationTicks;
         // Labelled deadline alignment; no production deadline or duration is changed.
-        Set(s, "_disorder", d with { Incidents = d.Incidents.Select(origin => origin with { ArgumentTick = originalTick, FightTick = originalTick }).ToArray(),
+        Set(s, "DisorderView", d with { Incidents = d.Incidents.Select(origin => origin with { ArgumentTick = originalTick, FightTick = originalTick }).ToArray(),
             People = d.People.Select(person => person.Stage == DisorderStage.Fight ? person with { StageTick = originalTick, GrievanceTick = originalTick } : person).ToArray() });
         s = Restore(s); s.AdvanceWithoutSnapshot(GameSession.DisorderConfrontationTicks);
         var result = s.CaptureDisorder()!.Incidents.Single(); Assert.AreEqual(-2, result.InjuryTick);
@@ -186,7 +186,7 @@ public sealed class StaffAutonomyTests
         Set(s, "_livePerformance", s.CaptureLivePerformance()! with { EndedTick = s.CaptureProgramme()!.SlotEndTick });
         typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s, (long)GameSession.PreparedDayTicks);
         typeof(GameSession).GetProperty(nameof(GameSession.Phase))!.SetValue(s, SessionPhase.Egress);
-        Set(s, "_preparation", s.CapturePreparation()! with { Status = PreparationStatus.Departing });
+        Set(s, "PreparationView", s.CapturePreparation()! with { Status = PreparationStatus.Departing });
         typeof(GameSession).GetMethod("StartImmersionDeparture", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, []);
         var closed = s.CaptureDisorder()!.Incidents.Single(); Assert.AreEqual(FightHandlingOutcome.Interrupted, closed.HandlingAttempt!.Outcome);
         Assert.AreEqual(original.FightTick, closed.FightTick); Assert.AreEqual(original.InjuryTick, closed.InjuryTick);
@@ -242,11 +242,11 @@ public sealed class StaffAutonomyTests
     public void ArgumentAutomationUsesExistingEightThousandThresholdAndOldestStageThenId()
     {
         var s = Started(); var ids = Guests(s); var d = s.CaptureDisorder()!;
-        Set(s, "_disorder", d with { People = d.People.Select(person => ids.Take(3).Contains(person.AgentId) ? person with {
+        Set(s, "DisorderView", d with { People = d.People.Select(person => ids.Take(3).Contains(person.AgentId) ? person with {
             Stage = DisorderStage.Argument, Pressure = 7999, Grievance = DisorderGrievance.MusicCutoff, StageTick = s.CurrentTick - 10, GrievanceTick = s.CurrentTick - 10 } : person).ToArray() });
         s.AdvanceWithoutSnapshot(1); Assert.AreEqual(SecurityResponseStage.None, s.GetStewardResponses().Single().Stage);
         d = s.CaptureDisorder()!;
-        Set(s, "_disorder", d with { People = d.People.Select(person => ids.Take(3).Contains(person.AgentId) ? person with {
+        Set(s, "DisorderView", d with { People = d.People.Select(person => ids.Take(3).Contains(person.AgentId) ? person with {
             Pressure = 8000, StageTick = person.AgentId == ids[2] ? s.CurrentTick - 20 : s.CurrentTick - 10 } : person).ToArray() });
         s.AdvanceWithoutSnapshot(1); Assert.AreEqual(ids[2], s.GetStewardResponses().Single().TargetId);
         var clone = Restore(s); s.AdvanceWithoutSnapshot(40); clone.AdvanceWithoutSnapshot(40);
@@ -257,7 +257,7 @@ public sealed class StaffAutonomyTests
     {
         var (s, a, b) = FightFixture(true, true); var d = s.CaptureDisorder()!; var baseline = d.SecurityId; var other = d.ExtraResponses.Single().WorkerId;
         PositionFixture(s, baseline, new(125,178)); PositionFixture(s, other, new(125,179));
-        Set(s, "_disorder", d with { ResponseStage = SecurityResponseStage.Calming, ResponseTargetId = a, ResponseStartedTick = s.CurrentTick - 16,
+        Set(s, "DisorderView", d with { ResponseStage = SecurityResponseStage.Calming, ResponseTargetId = a, ResponseStartedTick = s.CurrentTick - 16,
             ResponseDispatchedTick = s.CurrentTick - 32, ExtraResponses = [new(other, SecurityResponseStage.Calming, b, s.CurrentTick - 8, false, "Labelled preassigned argument response", s.CurrentTick - 24)] });
         s.AdvanceWithoutSnapshot(4); d = s.CaptureDisorder()!;
         Assert.IsNull(d.Incidents.Single().HandlingAttempt, "Two-metre separation must require a closer physical approach.");
@@ -375,7 +375,7 @@ public sealed class StaffAutonomyTests
         var s=Started(true);var id=Guests(s)[0];Incidents(s,(id,MedicalStage.Collapsed,s.CurrentTick));
         var workers=s.GetResponseStaff().Where(worker=>worker.Role==ResponseRole.Medic).ToArray();
         var medical=s.CaptureMedical()!;
-        Set(s,"_medical",medical with {Needs=medical.Needs.Select(need=>workers.Any(worker=>worker.AgentId==need.AgentId)?need with {Intent=MedicalIntent.Rest}:need).ToArray()});
+        Set(s,"MedicalView",medical with {Needs=medical.Needs.Select(need=>workers.Any(worker=>worker.AgentId==need.AgentId)?need with {Intent=MedicalIntent.Rest}:need).ToArray()});
         var before=s.CaptureSnapshot().AuthoritativeHash;
         Assert.IsNull(s.SelectRoleResponse(ResponseRole.Medic,id,out var reason));
         foreach(var worker in workers)StringAssert.Contains(reason!,worker.Name);
@@ -408,7 +408,7 @@ public sealed class StaffAutonomyTests
     public void OrdinaryDistressDoesNotAutomaticallyGuideOrDispatchAndManualGuidanceIsNotPreempted()
     {
         var s = Started(); var ids = Guests(s); var m = s.CaptureMedical()!;
-        Set(s, "_medical", m with { Needs = m.Needs.Select(need => need.AgentId == ids[0] ? need with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick } : need).ToArray() });
+        Set(s, "MedicalView", m with { Needs = m.Needs.Select(need => need.AgentId == ids[0] ? need with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick } : need).ToArray() });
         s.AdvanceWithoutSnapshot(1); Assert.AreEqual(MedicalResponseStage.None, s.GetMedicResponses().Single().Stage); Assert.AreEqual(0, s.CaptureStaffInterventions().Count);
         var medic = s.GetResponseStaff().Single(worker => worker.Role == ResponseRole.Medic).AgentId;
         Accept(s, new StaffInterventionCommand(ids[0], medic, StaffInterventionAction.EscortOut));

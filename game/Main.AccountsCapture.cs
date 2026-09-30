@@ -60,7 +60,7 @@ public partial class Main
                     var make = typeof(GameSession).GetMethod("MakeFestivalResult", BindingFlags.NonPublic | BindingFlags.Static)!;
                     var result = (FestivalResult)make.Invoke(null, [preparation, _session.CaptureImmersion(),
                         _session.CaptureMedical(), _session.CaptureDisorder(), _session.CurrentTick])!;
-                    typeof(GameSession).GetField("_preparation", BindingFlags.NonPublic | BindingFlags.Instance)!
+                    typeof(GameSession).GetProperty("PreparationView", BindingFlags.NonPublic | BindingFlags.Instance)!
                         .SetValue(_session, preparation with { Result = result });
                     var report = _session.CompletedFestivalAccounts!;
                     if (!report.Reconciles || report.OperatingExpenses.All(line => line.Category != "Facilities") ||

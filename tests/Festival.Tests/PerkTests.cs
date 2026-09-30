@@ -36,9 +36,9 @@ public sealed class PerkTests
         // Explicit headless fixture: inherited alcohol warning/collapse/death chain,
         // with normal deadlines and no medic response. No normal gameplay control.
         var prep=s.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with {People=prep.People.Select(p=>p with {Admitted=true}).ToArray()});
+        typeof(GameSession).GetProperty("PreparationView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with {People=prep.People.Select(p=>p with {Admitted=true}).ToArray()});
         var immersion=s.CaptureImmersion()!;var id=prep.People.First(p=>p.Role==ProtectedPersonRole.Guest).AgentId;
-        typeof(GameSession).GetField("_immersion",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,immersion with {People=immersion.People.Select(p=>p.AgentId==id?p with {Intoxication=10000}:p).ToArray()});
+        typeof(GameSession).GetProperty("ImmersionView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,immersion with {People=immersion.People.Select(p=>p.AgentId==id?p with {Intoxication=10000}:p).ToArray()});
         s.AdvanceWithoutSnapshot(4000);Assert.AreEqual(PreparationStatus.Failed,s.PreparedStatus);
     }
     [TestMethod]
@@ -211,7 +211,7 @@ public sealed class PerkTests
         }
         Assert.IsTrue(found,"Actual physically served guest drinking was required.");
         var original=s.CapturePreparation()!;var owner=s.CaptureWaterPoints().Single(p=>p.OwnerId is not null).OwnerId;
-        typeof(GameSession).GetField("_preparation",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,original with {People=original.People.Select(p=>p.AgentId==owner?p with {Satisfaction=10000}:p).ToArray()});
+        typeof(GameSession).GetProperty("PreparationView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,original with {People=original.People.Select(p=>p.AgentId==owner?p with {Satisfaction=10000}:p).ToArray()});
         s.AdvanceWithoutSnapshot(1);Assert.AreEqual(10000,s.CapturePreparation()!.People.Single(p=>p.AgentId==owner).Satisfaction);Restored(s);
     }
     [TestMethod]
@@ -237,7 +237,7 @@ public sealed class PerkTests
         var s=GameSession.CreatePerkCampaign(20260922);FixturePerks(s,"something-in-the-water");Accept(s,new PurchaseImmersionStarterStockCommand());Start(s);s.AdvanceWithoutSnapshot(2000);
         var m=s.CaptureMedical()!;var id=s.CaptureDisorder()!.SecurityId;var point=s.CaptureWaterPoints().Single();var front=GameSession.WaterPointServiceCell(point);
         PositionServiceFixture(s,id,front,"medical.water");
-        typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,m with {WaterQueue=[id],WaterOverflow=[],WaterOwnerId=id,WaterDrinkTicks=1,MainWaterQueueCells=[front],Needs=m.Needs.Select(n=>n.AgentId==id?n with {Thirst=1000,Intent=MedicalIntent.Drinking,WaterPointId="water.main",QueueSlot=0}:n with {QueueSlot=null,WaterPointId="water.main",Intent=n.Intent is MedicalIntent.Drinking or MedicalIntent.SeekWater?MedicalIntent.WatchShow:n.Intent}).ToArray()});
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,m with {WaterQueue=[id],WaterOverflow=[],WaterOwnerId=id,WaterDrinkTicks=1,MainWaterQueueCells=[front],Needs=m.Needs.Select(n=>n.AgentId==id?n with {Thirst=1000,Intent=MedicalIntent.Drinking,WaterPointId="water.main",QueueSlot=0}:n with {QueueSlot=null,WaterPointId="water.main",Intent=n.Intent is MedicalIntent.Drinking or MedicalIntent.SeekWater?MedicalIntent.WatchShow:n.Intent}).ToArray()});
         var before=s.CapturePreparation()!.People.Single(p=>p.AgentId==id).Satisfaction;s.AdvanceWithoutSnapshot(1);Assert.AreEqual(2,s.CaptureWaterPoints().Single().DrinkTicks);Assert.AreEqual(before,s.CapturePreparation()!.People.Single(p=>p.AgentId==id).Satisfaction);Restored(s);
         var paid=GameSession.CreatePerkCampaign(20260922);FixturePerks(paid,"something-in-the-water");Accept(paid,new PurchaseImmersionStarterStockCommand());Start(paid);
         var baseline=Restored(paid);typeof(GameSession).GetField("_perks",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(baseline,null);
@@ -252,7 +252,7 @@ public sealed class PerkTests
     {
         var s=GameSession.CreatePerkCampaign(20260922);FixturePerks(s,"doctors-orders","first-responders");Accept(s,new AcceptPreparationOfferCommand("staff.extra-medic"));Start(s);s.AdvanceWithoutSnapshot(2000);
         var m=s.CaptureMedical()!;var id=m.AtRiskGuestId;var worker=s.GetResponseStaff().Single(p=>p.Name=="Avery Brooks");
-        typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,m with {Stage=MedicalStage.Distress,WarningTick=s.CurrentTick,Needs=m.Needs.Select(n=>n.AgentId==id?n with {Thirst=9500,HeatExposure=8500,Stage=MedicalStage.Distress,WarningTick=s.CurrentTick,Intent=MedicalIntent.AwaitMedic}:n).ToArray()});
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,m with {Stage=MedicalStage.Distress,WarningTick=s.CurrentTick,Needs=m.Needs.Select(n=>n.AgentId==id?n with {Thirst=9500,HeatExposure=8500,Stage=MedicalStage.Distress,WarningTick=s.CurrentTick,Intent=MedicalIntent.AwaitMedic}:n).ToArray()});
         Accept(s,new MedicalCommand(id,MedicalAction.DispatchMedic,worker.AgentId));Assert.AreEqual(MedicalResponseStage.Travelling,s.GetMedicResponses().Single(p=>p.WorkerId==worker.AgentId).Stage);s=Restored(s);
         while(s.GetMedicResponses().Single(p=>p.WorkerId==worker.AgentId).Stage==MedicalResponseStage.Travelling && s.CurrentTick<5000)s.AdvanceWithoutSnapshot(1);
         var job=s.GetMedicResponses().Single(p=>p.WorkerId==worker.AgentId);Assert.AreEqual(MedicalResponseStage.Treating,job.Stage);var restored=Restored(s);s.AdvanceWithoutSnapshot(worker.TreatmentTicks);restored.AdvanceWithoutSnapshot(worker.TreatmentTicks);Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash,restored.CaptureSnapshot().AuthoritativeHash);Assert.AreEqual(MedicalResponseStage.Completed,s.GetMedicResponses().Single(p=>p.WorkerId==worker.AgentId).Stage);Restored(s);

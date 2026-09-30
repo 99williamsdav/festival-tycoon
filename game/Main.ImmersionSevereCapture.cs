@@ -47,7 +47,7 @@ public partial class Main
                 _session.CaptureMedical()!.Needs.Single(n => n.AgentId == p.AgentId) is { Stage: MedicalStage.Clear or MedicalStage.Treated, Intent: MedicalIntent.WatchShow });
             if (target is null) throw new InvalidOperationException("No eligible adult for explicit initialized-exposure fixture.");
             _immersionSeverePerson = target.AgentId;
-            typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+            typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                 state with { People = state.People.Select(p => p.AgentId == target.AgentId ? p with { Intoxication = 9800 } : p).ToArray() });
             TimetableAdvanceTo(_immersionDepartureFixture ? 24001 : fixtureTick + 1); SelectAttendee(new(target.AgentId));
             if (_immersionDepartureFixture && _session.PreparedStatus != PreparationStatus.Departing) throw new InvalidOperationException("Departure care fixture did not reach physical closing.");

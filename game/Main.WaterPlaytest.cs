@@ -80,7 +80,7 @@ public partial class Main
             // Long refills make the organically grown line readable in a paused screenshot.
             var guestIds = _session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest).Take(8).Select(person => person.AgentId).ToArray();
             var medical = _session.CaptureMedical()!;
-            typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
+            typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(_session,
                 medical with { Needs = medical.Needs.Select(need => guestIds.Contains(need.AgentId) ? need with { Thirst = 10_000 } : need).ToArray() });
             foreach (var id in guestIds)
                 StaffCaptureSend(LegacyMedicalCaptureFixture(id, MedicalAction.GuideToWater));

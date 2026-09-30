@@ -37,7 +37,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Response posts can be moved only during preparation.");
         if (!Enum.IsDefined(command.Role) || command.QuarterTurns is < 0 or > 3)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown response post or orientation.");
-        var issue = ResponsePostPlacementError(_preparation, _equipment, _immersion, _medical, command);
+        var issue = ResponsePostPlacementError(_preparation, _equipment, ImmersionView, MedicalView, command);
         return issue is null ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
     }
     private static PreparationSnapshot WithResponsePost(PreparationSnapshot p, MoveResponsePostCommand c) => c.Role == ResponseRole.Medic
@@ -87,7 +87,7 @@ public sealed partial class GameSession
         {
             // Apply the existing reciprocal vendor and loose-line rules to the
             // proposed preparation snapshot; this scratch session executes no ticks.
-            var geometry=new GameSession(1,new CampaignId(1)){_preparation=candidate,_medical=medical,_immersion=immersion,_equipment=equipment};
+            var geometry=new GameSession(1,new CampaignId(1)){PreparationView=candidate,MedicalView=medical,ImmersionView=immersion,_equipment=equipment};
             foreach(var vendor in immersion.Vendors)
                 if(geometry.ImmersionPlacementError(vendor) is not null || vendor.QueueCells is not null && LooseQueueGeometry.Corridor(vendor.QueueCells).Any(c=>!QueueGroundAllowed(c,candidate)))
                     return "The post blocks a vendor footprint or existing physical queue geometry.";

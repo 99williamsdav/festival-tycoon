@@ -76,7 +76,7 @@ public sealed class ResponsePostPlacementTests
         }
         var patient=s.CapturePreparation()!.People.First(p=>p.Role==ProtectedPersonRole.Guest).AgentId;
         var medical=s.CaptureMedical()!;
-        typeof(GameSession).GetField("_medical",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with {Needs=medical.Needs.Select(n=>n.AgentId==patient?n with {Stage=MedicalStage.Distress,WarningTick=s.CurrentTick}:n).ToArray()});
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with {Needs=medical.Needs.Select(n=>n.AgentId==patient?n with {Stage=MedicalStage.Distress,WarningTick=s.CurrentTick}:n).ToArray()});
         var medic=s.GetResponseStaff().Single(p=>p.Name=="Avery Brooks");Accept(s,new MedicalCommand(patient,MedicalAction.DispatchMedic,medic.AgentId));
         var guided=s.CapturePreparation()!.People.Where(p=>p.Role==ProtectedPersonRole.Guest && p.AgentId!=patient).First().AgentId;
         var steward=s.GetResponseStaff().Single(p=>p.Name=="Sam Ellis");Accept(s,new StaffInterventionCommand(guided,steward.AgentId,StaffInterventionAction.GuideToWater));

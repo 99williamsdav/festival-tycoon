@@ -119,6 +119,8 @@ All IDs are stable, serializable and independent of scene paths. Runtime referen
 | Objective | trigger window, sample rule, accumulated metric, completed/claimed ID |
 | Notification | template ID, variables, severity, source, action link, dismissed/seen state |
 
+**Person model (implemented 30 September 2026).** All protected-person state lives in one immutable `Person` record per ID, held in `GameSession`'s person registry (`src/Festival.Simulation/People.cs`). Systems read and update people there; the older per-system records (`EditionPerson`, `ImmersionPerson`, `MedicalNeed`, `DisorderPerson`) are read-model projections used by `Capture*`, hashing and saves, so the save format and canonical hashes are unchanged. Who currently has hold of a person (water line, vendor, toilet, fight, stage, staff job, medical care) is answered by one claim table, `PersonClaim` in `PersonClaims.cs`; a system declares which claims block it rather than consulting other systems' state.
+
 Definitions are immutable content records; runtime state references definition IDs. A facility's name can change without changing its identity. Artist booking and performer agent state must not be conflated: a performer trapped in a toilet affects the booked performance through availability.
 
 Households and adult relationships are typed edges. Avoid all-pairs relationship matrices. Stored edges exist only for meaningful contacts, with bounded memory per agent. Children have guardian references and are filtered out before adult interaction candidate scoring.

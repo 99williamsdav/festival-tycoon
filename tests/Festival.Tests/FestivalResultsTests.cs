@@ -7,7 +7,7 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class FestivalResultsTests
 {
-    private static void Set(GameSession s, string field, object value) => typeof(GameSession).GetField(field, BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, value);
+    private static void Set(GameSession s, string field, object value) => SetMember(typeof(GameSession), field, BindingFlags.NonPublic | BindingFlags.Instance, s, value);
     private static void Invoke(GameSession s, string name, params object[] args) => typeof(GameSession).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(s, args);
     private static void Position(GameSession s, ulong id, GridCell cell)
     {
@@ -79,19 +79,19 @@ public sealed class FestivalResultsTests
         var s = Open(); var guest = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !s.CaptureImmersion()!.People.Single(i => i.AgentId == p.AgentId).Abstains);
         Invoke(s, "CompleteImmersionSale", guest.AgentId, ImmersionProduct.Beer);
         Invoke(s, "LeaveWater", guest.AgentId, "Labelled consumption fixture", false, true);
-        Invoke(s, "SetNeed", guest.AgentId, (Func<MedicalNeed, MedicalNeed>)(n => n with { Intent = MedicalIntent.WatchShow }));
+        Invoke(s, "UpdatePerson", guest.AgentId, (Func<Person,Person>)(n => n with { Intent = MedicalIntent.WatchShow }));
         Position(s, guest.AgentId, new(120, 125));
         var immersion = s.CaptureImmersion()!;
-        Set(s, "_immersion", immersion with { People = immersion.People.Select(p => p.AgentId == guest.AgentId ? p with { Held = p.Held! with { ConsumedTicks = 2399 } } : p).ToArray() });
+        Set(s, "ImmersionView", immersion with { People = immersion.People.Select(p => p.AgentId == guest.AgentId ? p with { Held = p.Held! with { ConsumedTicks = 2399 } } : p).ToArray() });
         Assert.AreEqual(0, s.CapturePreparation()!.FinishedBeerIds!.Length); Invoke(s, "AdvanceImmersion");
         Assert.AreEqual(1, s.CapturePreparation()!.FinishedBeerIds!.Length); Invoke(s, "AdvanceImmersion"); Assert.AreEqual(1, s.CapturePreparation()!.FinishedBeerIds!.Length);
         Reload(s);
         var performer = s.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Performer && !s.IsCurrentProgrammePerformer(person.AgentId) && !s.CaptureImmersion()!.People.Single(item => item.AgentId == person.AgentId).Abstains);
         Invoke(s, "CompleteImmersionSale", performer.AgentId, ImmersionProduct.Beer);
         Invoke(s, "LeaveWater", performer.AgentId, "Labelled performer consumption fixture", false, true);
-        Invoke(s, "SetNeed", performer.AgentId, (Func<MedicalNeed, MedicalNeed>)(n => n with { Intent = MedicalIntent.WatchShow })); Position(s, performer.AgentId, new(124, 125));
+        Invoke(s, "UpdatePerson", performer.AgentId, (Func<Person,Person>)(n => n with { Intent = MedicalIntent.WatchShow })); Position(s, performer.AgentId, new(124, 125));
         immersion = s.CaptureImmersion()!;
-        Set(s, "_immersion", immersion with { People = immersion.People.Select(person => person.AgentId == performer.AgentId ? person with { Held = person.Held! with { ConsumedTicks = 2399 } } : person).ToArray() });
+        Set(s, "ImmersionView", immersion with { People = immersion.People.Select(person => person.AgentId == performer.AgentId ? person with { Held = person.Held! with { ConsumedTicks = 2399 } } : person).ToArray() });
         Invoke(s, "AdvanceImmersion"); Assert.IsNull(s.CaptureImmersion()!.People.Single(person => person.AgentId == performer.AgentId).Held);
         Assert.AreEqual(1, s.CapturePreparation()!.FinishedBeerIds!.Length); Reload(s);
     }
@@ -108,9 +108,9 @@ public sealed class FestivalResultsTests
     public void LegacyNullMetricsPreserveCanonicalHashAndInvalidCompletionRejected()
     {
         var legacy = GameSession.CreateEditableCampaign(20260922); Assert.IsFalse(legacy.FestivalResultsEnabled); Reload(legacy);
-        var s = Open(); var p = s.CapturePreparation()!; Set(s, "_preparation", p with { FinishedBeerIds = ["fabricated"] });
+        var s = Open(); var p = s.CapturePreparation()!; Set(s, "PreparationView", p with { FinishedBeerIds = ["fabricated"] });
         Assert.IsFalse(GameSession.Restore(s.CapturePersistenceSnapshot()).IsSuccess);
-        Set(s, "_preparation", p with { FinishedBeerIds = null });
+        Set(s, "PreparationView", p with { FinishedBeerIds = null });
         Assert.IsFalse(GameSession.Restore(s.CapturePersistenceSnapshot()).IsSuccess, "A partial metrics tracker must not masquerade as a legacy payload.");
     }
     [TestMethod]
@@ -118,9 +118,9 @@ public sealed class FestivalResultsTests
     {
         var s = Open(); Closing(s); var m = s.CaptureMedical()!; var id = m.AtRiskGuestId; var p = s.CapturePreparation()!;
         var index = Array.FindIndex(p.People, person => person.AgentId == id);
-        Set(s, "_preparation", p with { People = p.People.Select(person => person.AgentId == id ? person : person with { Departed = true }).ToArray() });
+        Set(s, "PreparationView", p with { People = p.People.Select(person => person.AgentId == id ? person : person with { Departed = true }).ToArray() });
         Position(s, id, new(122 + index % 6 * 2, 190 + index / 6 * 2));
-        Set(s, "_medical", m with { Stage = MedicalStage.Critical, WarningTick = 20000, CollapseTick = 21601, CriticalTick = 22401 });
+        Set(s, "MedicalView", m with { Stage = MedicalStage.Critical, WarningTick = 20000, CollapseTick = 21601, CriticalTick = 22401 });
         s.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus); Assert.IsFalse(s.CapturePreparation()!.People.Single(person => person.AgentId == id).Departed);
         Assert.IsNull(s.CompletedFestivalResult); Assert.AreEqual(1, s.CaptureLifecycleSnapshot()!.Casualties.Count);
@@ -148,8 +148,8 @@ public sealed class FestivalResultsTests
     public void EarlyUnhappyGuestRetainedInFinalMeanAndHistory()
     {
         var s = Open(); var p = s.CapturePreparation()!; var guest = p.People.First(person => person.Role == ProtectedPersonRole.Guest && person.Admitted);
-        Set(s, "_preparation", p with { People = p.People.Select(person => person.AgentId == guest.AgentId ? person with { Satisfaction = 100 } : person).ToArray() });
-        Invoke(s, "SetDisorderPerson", guest.AgentId, (Func<DisorderPerson, DisorderPerson>)(person => person with { Stage = DisorderStage.Complaint, Pressure = 4000, Grievance = DisorderGrievance.MusicCutoff, GrievanceTick = s.CurrentTick, StageTick = s.CurrentTick }));
+        Set(s, "PreparationView", p with { People = p.People.Select(person => person.AgentId == guest.AgentId ? person with { Satisfaction = 100 } : person).ToArray() });
+        Invoke(s, "UpdatePerson", guest.AgentId, (Func<Person,Person>)(person => person with { ConductStage = DisorderStage.Complaint, Pressure = 4000, Grievance = DisorderGrievance.MusicCutoff, GrievanceTick = s.CurrentTick, ConductStageTick = s.CurrentTick }));
         Accept(s, new DisorderCommand(DisorderAction.SafeEgress, guest.AgentId)); s.AdvanceWithoutSnapshot(5000);
         Assert.IsTrue(s.CapturePreparation()!.People.Single(person => person.AgentId == guest.AgentId).Departed);
         var finalEarly = s.CapturePreparation()!.People.Single(person => person.AgentId == guest.AgentId).Satisfaction;
@@ -163,14 +163,14 @@ public sealed class FestivalResultsTests
     {
         var s = Open(); Closing(s); var m = s.CaptureMedical()!; var id = m.AtRiskGuestId;
         var expected = s.CapturePreparation()!.GuestMedicalCollapses + 1;
-        Set(s, "_medical", m with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick - GameSession.MedicalCollapseDelayTicks });
+        Set(s, "MedicalView", m with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick - GameSession.MedicalCollapseDelayTicks });
         Invoke(s, "AdvanceImmersionDepartureMedicine"); Assert.AreEqual(expected, s.CapturePreparation()!.GuestMedicalCollapses);
         Invoke(s, "AdvanceImmersionDepartureMedicine"); Assert.AreEqual(expected, s.CapturePreparation()!.GuestMedicalCollapses);
         var nonGuest = s.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Performer);
-        Invoke(s, "SetNeed", nonGuest.AgentId, (Func<MedicalNeed, MedicalNeed>)(need => need with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick - GameSession.MedicalCollapseDelayTicks }));
+        Invoke(s, "UpdatePerson", nonGuest.AgentId, (Func<Person,Person>)(need => need with { HealthStage = MedicalStage.Distress, HealthWarningTick = s.CurrentTick - GameSession.MedicalCollapseDelayTicks }));
         Invoke(s, "AdvanceImmersionDepartureMedicine"); Assert.AreEqual(expected, s.CapturePreparation()!.GuestMedicalCollapses);
         var otherGuest = s.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Guest && person.AgentId != id);
-        Invoke(s, "SetDisorderPerson", otherGuest.AgentId, (Func<DisorderPerson, DisorderPerson>)(person => person with { Stage = DisorderStage.Injured, InjuryTick = s.CurrentTick }));
+        Invoke(s, "UpdatePerson", otherGuest.AgentId, (Func<Person,Person>)(person => person with { ConductStage = DisorderStage.Injured, InjuryTick = s.CurrentTick }));
         Invoke(s, "AdvanceImmersionDepartureMedicine"); Assert.AreEqual(expected, s.CapturePreparation()!.GuestMedicalCollapses);
     }
     [TestMethod]
@@ -183,7 +183,7 @@ public sealed class FestivalResultsTests
         // Non-guest initiators are not an eligible production encounter; initialize a
         // structured origin solely to prove the report's defensive role filter.
         var disorder = s.CaptureDisorder()!;
-        Set(s, "_disorder", disorder with { Incidents = disorder.Incidents.Append(new(performers[0].AgentId, performers[1].AgentId, DisorderGrievance.None, 0, s.CurrentTick, s.CurrentTick, -1, null)).ToArray() });
+        Set(s, "DisorderView", disorder with { Incidents = disorder.Incidents.Append(new(performers[0].AgentId, performers[1].AgentId, DisorderGrievance.None, 0, s.CurrentTick, s.CurrentTick, -1, null)).ToArray() });
         var method = typeof(GameSession).GetMethod("MakeFestivalResult", BindingFlags.NonPublic | BindingFlags.Static)!;
         p = s.CapturePreparation()! with { People = s.CapturePreparation()!.People.Select(person => person with { Departed = true }).ToArray() };
         var result = (FestivalResult)method.Invoke(null, [p, s.CaptureImmersion(), s.CaptureMedical(), s.CaptureDisorder(), s.CurrentTick])!;

@@ -82,7 +82,7 @@ public sealed class FestivalProgrammeTests
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
         // Bounded incoming-patient and late-clock fixtures; no physical-run evidence comes from these hooks.
         var performer = s.CaptureProgramme()!.Performers.First(person => person.SlotIndex == 1).AgentId;
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
             s.CaptureMedical()! with { Needs = s.CaptureMedical()!.Needs.Select(need => need.AgentId == performer ? need with { Intent = MedicalIntent.Rest, HeatExposure = 8000 } : need).ToArray() });
         typeof(GameSession).GetMethod("ApplyAgentDestination", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [new EntityId(performer), new SetAgentDestinationCommand(GameSession.MedicalRestCell, "medical.rest"), false]);
         typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s, 16_000L);

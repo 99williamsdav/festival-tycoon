@@ -118,7 +118,7 @@ public sealed class WaterFoundationsTests
     {
         var session=GameSession.CreateMedicalCampaign(20260922);Assert.IsTrue(Send(session,new MovePrimaryWaterPointCommand(new(108,119),1)).IsAccepted);
         foreach(var offer in new[]{"act.folk","staff.steward","equipment.buy"})Assert.IsTrue(Send(session,new AcceptPreparationOfferCommand(offer)).IsAccepted);Assert.IsTrue(Send(session,new StartPreparedEditionCommand()).IsAccepted);
-        var field=typeof(GameSession).GetField("_medical",BindingFlags.Instance|BindingFlags.NonPublic)!;var grow=typeof(GameSession).GetMethod("GrowWaterQueue",BindingFlags.Instance|BindingFlags.NonPublic)!;var ids=session.CaptureMedical()!.Needs.Take(8).Select(need=>need.AgentId).ToArray();
+        var field=typeof(GameSession).GetProperty("MedicalView",BindingFlags.Instance|BindingFlags.NonPublic)!;var grow=typeof(GameSession).GetMethod("GrowWaterQueue",BindingFlags.Instance|BindingFlags.NonPublic)!;var ids=session.CaptureMedical()!.Needs.Take(8).Select(need=>need.AgentId).ToArray();
         for(var count=0;count<=8;count++){var medical=session.CaptureMedical()!;field.SetValue(session,medical with { WaterQueue=ids.Take(count).ToArray() });Assert.IsTrue((bool)grow.Invoke(session,["water.main"])!);}
         var point=session.CaptureWaterPoints().Single();Assert.AreEqual(9,point.QueueCells.Length);Assert.IsFalse(point.QueueCells.Any(cell=>Math.Abs(cell.X-GameSession.MedicalTentCell.X)<=3&&Math.Abs(cell.Z-GameSession.MedicalTentCell.Z)<=3));
         var grid=(TraversalGrid)typeof(GameSession).GetField("_traversalGrid",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(session)!;
@@ -133,7 +133,7 @@ public sealed class WaterFoundationsTests
         Assert.IsTrue(Send(session, new MovePrimaryWaterPointCommand(new GridCell(104, 130))).IsAccepted);
         foreach (var offer in new[] { "act.folk", "staff.steward", "equipment.buy" }) Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(offer)).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
-        var medicalField = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var medicalField = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var grow = typeof(GameSession).GetMethod("GrowWaterQueue", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var m = session.CaptureMedical()!;
         var ids = m.Needs.Take(12).Select(item => item.AgentId).ToArray();
@@ -155,7 +155,7 @@ public sealed class WaterFoundationsTests
     {
         var session = StartWithExtra();
         var ids = session.CaptureMedical()!.Needs.Take(3).Select(item => item.AgentId).ToArray();
-        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var m = session.CaptureMedical()!;
         field.SetValue(session, m with { WaterQueue = ids, WaterOwnerId = ids[0],
             Needs = m.Needs.Select(need => ids.Contains(need.AgentId) ? need with {
@@ -183,7 +183,7 @@ public sealed class WaterFoundationsTests
     public void BlockedOrganicTailStopsWithoutReservingObstacleAndGrowthWorkIsBounded()
     {
         var session = StartWithExtra();
-        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var m = session.CaptureMedical()!;
         var id = m.Needs[0].AgentId;
         var front = GameSession.WaterServiceCell(ExtraSite);
@@ -294,7 +294,7 @@ public sealed class WaterFoundationsTests
         var ids = session.CaptureDisorder()!.People.Take(2).Select(item => item.AgentId).ToArray();
         var west = ExtraSite;
         // This labelled positioning fixture starts the two already-admitted guests beside the west tap.
-        var preparationField = typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var preparationField = typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var preparation = session.CapturePreparation()!;
         preparationField.SetValue(session, preparation with { People = preparation.People.Select(person => ids.Contains(person.AgentId)
             ? person with { Admitted = true } : person).ToArray() });
@@ -310,7 +310,7 @@ public sealed class WaterFoundationsTests
         Assert.AreEqual(0, session.CaptureWaterPoints().Single(point => point.Id == "water.main").Queue.Length);
         session = Restore(session);
         // Diagnostic fixture accelerates this person's tolerance only to exercise the grievance branch.
-        var disorderField = typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var disorderField = typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var disorder = session.CaptureDisorder()!;
         disorderField.SetValue(session, disorder with { People = disorder.People.Select(person => person.AgentId == ids[1]
             ? person with { QueueToleranceTicks = 1 } : person).ToArray() });
@@ -359,7 +359,7 @@ public sealed class WaterFoundationsTests
         var ids = session.CapturePreparation()!.People.Where(item => item.Role == ProtectedPersonRole.Guest)
             .Take(11).Select(item => item.AgentId).ToArray();
         var west = ExtraSite;
-        var medicalField = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var medicalField = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var medical = session.CaptureMedical()!;
         medicalField.SetValue(session, medical with
         {
@@ -371,7 +371,7 @@ public sealed class WaterFoundationsTests
             }).ToArray(),
             ExtraWaterPoints = [new WaterPointState("water.extra-1", west, ids.Take(10).ToArray(), [ids[10]], null, 0)]
         });
-        var prepField = typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var prepField = typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var prep = session.CapturePreparation()!;
         prepField.SetValue(session, prep with { WaterPlacements = prep.WaterPlacements.Select(item => item with { GeometryVersion = 0 }).ToArray() });
         for (var index = 0; index < ids.Length; index++)
@@ -441,8 +441,8 @@ public sealed class WaterFoundationsTests
     {
         var session = GameSession.CreateMedicalCampaign(20260922);
         var sites = GameSession.ExtraWaterSites.OrderBy(site => site.Id, StringComparer.Ordinal).ToArray();
-        var preparationField = typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!;
-        var medicalField = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var preparationField = typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var medicalField = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         preparationField.SetValue(session, session.CapturePreparation()! with
         {
             ExtraWaterSiteIds = sites.Select(site => site.Id).ToArray(), WaterPlacements = []
@@ -515,7 +515,7 @@ public sealed class WaterFoundationsTests
             .Take(2).Select(item => item.AgentId).ToArray();
         var firstSlot = GameSession.MedicalQueueSlot(0);
         SetArrived(session, ids[0], firstSlot);
-        var medicalField = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var medicalField = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var medical = session.CaptureMedical()!;
         medicalField.SetValue(session, medical with
         {
@@ -540,7 +540,7 @@ public sealed class WaterFoundationsTests
         Assert.IsTrue(Send(session, new MedicalCommand(ids[1], MedicalAction.GuideToWater)).IsAccepted);
         Assert.AreEqual("water.main", session.CaptureMedical()!.Needs.Single(need => need.AgentId == ids[1]).WaterPointId);
         SetArrived(session, ids[0], GameSession.MedicalQueueSlot(0));
-        var field = typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var medical = session.CaptureMedical()!;
         field.SetValue(session, medical with
         {

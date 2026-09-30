@@ -37,7 +37,7 @@ public sealed class StaffFoundationsTests
         Assert.IsTrue(s.CapturePreparation()!.People.All(item => item.Admitted));
         return Restore(s);
     }
-    private static void SetMedical(GameSession s, MedicalSnapshot m) => typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, m);
+    private static void SetMedical(GameSession s, MedicalSnapshot m) => typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, m);
     private static string? SemanticError(SessionPersistenceSnapshot snapshot) => (string?)typeof(GameSession)
         .GetMethod("ValidatePersistenceSnapshot", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [snapshot]);
 
@@ -218,7 +218,7 @@ public sealed class StaffFoundationsTests
             typeof(GameSession).GetMethod("ApplyAgentDestination", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s,
                 [new EntityId(id), new SetAgentDestinationCommand(cell, "staff.labelled-stress-fixture"), false]);
         }
-        typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, d with {
+        typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, d with {
             People = d.People.Select(item => item.AgentId == target ? item with { Temperament = calming ? 2000 : 8000, Pressure = calming ? 6500 : 10000,
                 Grievance = DisorderGrievance.MusicCutoff, GrievanceTick = s.CurrentTick, Stage = DisorderStage.Argument, StageTick = s.CurrentTick, OpponentId = worker } : item).ToArray(),
             ExtraResponses = [new(worker, calming ? SecurityResponseStage.Calming : SecurityResponseStage.Confronting, target,
@@ -266,7 +266,7 @@ public sealed class StaffFoundationsTests
         finance.GetType().GetProperty("CashPennies")!.SetValue(finance, 80000L);
         var p = s.CapturePreparation()!;
         // Deliberately overfilled command-boundary fixture, not a valid saved roster.
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s,
             p with { People = p.People.Concat(Enumerable.Range(0, 24).Select(index => new EditionPerson((ulong)(100 + index), "Capacity probe", ProtectedPersonRole.Staff, 0))).ToArray() });
         Assert.IsFalse(Send(s, new AcceptPreparationOfferCommand("staff.extra-medic")).IsAccepted);
         Assert.AreEqual(80000L, s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
@@ -345,7 +345,7 @@ public sealed class StaffFoundationsTests
         Assert.IsFalse(rejected.IsAccepted); StringAssert.Contains(rejected.Message, "reach");
         Assert.AreEqual(MedicalResponseStage.None, s.CaptureMedical()!.ExtraResponses.Single().Stage);
         var d = s.CaptureDisorder()!;
-        typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, d with {
+        typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, d with {
             People = d.People.Select(item => item.AgentId == id ? item with { Stage = DisorderStage.Complaint, Pressure = 2500,
                 Grievance = DisorderGrievance.MusicCutoff, StageTick = s.CurrentTick, GrievanceTick = s.CurrentTick } : item).ToArray() });
         var steward = s.GetResponseStaff().Single(item => item.Name == "Sam Ellis").AgentId;

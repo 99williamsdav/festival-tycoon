@@ -117,7 +117,7 @@ public sealed class R005LayoutTests
         // use production commands and ticks, including the normal save adapter.
         var patient=s.CapturePreparation()!.People.First(person=>person.Role==ProtectedPersonRole.Guest).AgentId;
         var medical=s.CaptureMedical()!;
-        typeof(GameSession).GetField("_medical",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.SetValue(s,
+        typeof(GameSession).GetProperty("MedicalView",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.SetValue(s,
             medical with { Needs=medical.Needs.Select(n=>n.AgentId==patient?n with {Stage=MedicalStage.Distress,WarningTick=s.CurrentTick}:n).ToArray() });
         var worker=s.GetResponseStaff().Single(w=>w.Name=="Avery Brooks");
         Accept(s,new MedicalCommand(patient,MedicalAction.DispatchMedic,worker.AgentId));

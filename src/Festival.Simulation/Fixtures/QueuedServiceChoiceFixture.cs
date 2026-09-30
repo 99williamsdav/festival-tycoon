@@ -36,8 +36,8 @@ public sealed partial class GameSession
         Accept(session, new AcceptPreparationOfferCommand("equipment.rent"));
         Accept(session, new StartPreparedEditionCommand());
 
-        var guests = session._preparation!.People.Where(person => person.Role == ProtectedPersonRole.Guest)
-            .Select(person => person.AgentId).ToArray();
+        var guests = session.PeopleIn(PersonView.Roster).Where(person => person.Role == ProtectedPersonRole.Guest)
+            .Select(person => person.Id).ToArray();
         var reviewIds = guests.Where(id => id % QueuedServiceChoice.ReviewStagger ==
             (ulong)(session.CurrentTick % QueuedServiceChoice.ReviewStagger)).ToArray();
         if (reviewIds.Length < 2) throw new InvalidOperationException("Queue-choice fixture needs two due reviewers.");
@@ -48,18 +48,17 @@ public sealed partial class GameSession
         var waterAhead = remaining.Skip(5).Take(5).ToArray();
         var toiletMembers = toiletAhead.Append(toiletSeeker).ToArray();
         var waterMembers = waterAhead.Append(waterSeeker).ToArray();
-        session._preparation = session._preparation with { People = session._preparation.People.Select(person =>
-            toiletMembers.Contains(person.AgentId) || waterMembers.Contains(person.AgentId)
-                ? person with { Admitted = true } : person).ToArray() };
+        foreach (var id in toiletMembers.Concat(waterMembers))
+            session.UpdatePerson(id, person => person with { Admitted = true });
 
         var mainToilet = session.GetToilet("toilet.main");
         session.SetToilet(mainToilet with { Queue = toiletMembers, OwnerId = toiletAhead[0],
             DoorOpen = false, ServiceTicks = ToiletRules.PooServiceTicks });
-        session._immersion = session._immersion! with { People = session._immersion.People.Select(person =>
-            toiletMembers.Contains(person.AgentId) ? person with { ToiletNeed = 9_000,
-                ToiletId = mainToilet.Id, ToiletStage = person.AgentId == toiletAhead[0]
+        foreach (var person in session.PeopleIn(PersonView.Consumption).Where(person => toiletMembers.Contains(person.Id)))
+            session._persons.Set(person with { ToiletNeed = 9_000,
+                ToiletId = mainToilet.Id, ToiletStage = person.Id == toiletAhead[0]
                     ? ToiletVisitStage.Using : ToiletVisitStage.Queued,
-                ToiletChoice = person.AgentId == toiletSeeker ? ToiletVisitKind.Wee : ToiletVisitKind.Poo } : person).ToArray() };
+                ToiletChoice = person.Id == toiletSeeker ? ToiletVisitKind.Wee : ToiletVisitKind.Poo });
         PlaceFixtureAgent(session, toiletAhead[0], ToiletInsideCell(mainToilet), "toilet.enter");
         for (var index = 1; index < toiletMembers.Length; index++)
             PlaceFixtureAgent(session, toiletMembers[index], ToiletQueueCell(mainToilet, index), "toilet.queue");
@@ -68,17 +67,17 @@ public sealed partial class GameSession
         session.SetWaterPoint(mainWater with { Queue = waterMembers, Overflow = [], OwnerId = waterAhead[0], DrinkTicks = 0 });
         if (!session.GrowWaterQueue(mainWater.Id)) throw new InvalidOperationException("Queue-choice fixture could not grow physical water line.");
         mainWater = session.WaterPoints().Single(point => point.Id == "water.main");
-        session._medical = session._medical! with { Needs = session._medical.Needs.Select(need =>
-            waterMembers.Contains(need.AgentId) ? need with { Thirst = 9_000, WaterPointId = mainWater.Id,
-                Intent = need.AgentId == waterAhead[0] ? MedicalIntent.Drinking : MedicalIntent.SeekWater,
-                QueueSlot = Array.IndexOf(waterMembers, need.AgentId), LastWaterChoiceReviewTick = -160 } : need).ToArray() };
+        foreach (var need in session.PeopleIn(PersonView.Medical).Where(need => waterMembers.Contains(need.Id)))
+            session._persons.Set(need with { Thirst = 9_000, WaterPointId = mainWater.Id,
+                Intent = need.Id == waterAhead[0] ? MedicalIntent.Drinking : MedicalIntent.SeekWater,
+                WaterQueueSlot = Array.IndexOf(waterMembers, need.Id), LastWaterChoiceReviewTick = -160 });
         for (var index = 0; index < waterMembers.Length; index++)
             PlaceFixtureAgent(session, waterMembers[index], WaterSlot(mainWater, index), "medical.free-water-queue");
 
         session.ReassessWaterSeekers();
         session.ReassessToiletSeekers();
-        var toiletTo = session._immersion!.People.Single(person => person.AgentId == toiletSeeker).ToiletId!;
-        var waterTo = session._medical!.Needs.Single(need => need.AgentId == waterSeeker).WaterPointId;
+        var toiletTo = session._persons[toiletSeeker].ToiletId!;
+        var waterTo = session._persons[waterSeeker].WaterPointId;
         Accept(session, new SetPausedCommand(true)); // freeze this labelled visual diagnostic
         return new(session, mainToilet.Id, toiletTo, mainWater.Id, waterTo,
             session.GetToilet(mainToilet.Id).OwnerId == toiletAhead[0],

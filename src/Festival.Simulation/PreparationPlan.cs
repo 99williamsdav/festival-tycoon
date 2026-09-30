@@ -26,7 +26,7 @@ public sealed partial class GameSession
     public long PreparationPlanCost => _preparation?.Plan is { } plan
         ? plan.OfferIds.Concat(plan.ActIds.Where(id => id != "")).Sum(id => (long)GetPreparationOffers().Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + BuildDraftCost : 0;
     public long PreparationRemainingCash => _preparation is { } p ? _festivalFinances[new(p.FinanceOwnerId)].CashPennies - (p.Plan is { Committed: false } ? PreparationPlanCost : 0) : 0;
-    public int ExpectedPreparedPeopleCount => _preparation is not { } p ? 0 : p.People.Length +
+    public int ExpectedPreparedPeopleCount => _preparation is not { } p ? 0 : PeopleIn(PersonView.Roster).Length +
         (p.Plan is { Committed: false } plan ? plan.OfferIds.Count(id => id is "maintenance.worker" or "staff.extra-medic" or "staff.extra-steward") : 0);
     private CommandResult? ValidatePlanEdit(EntityId? target, SessionCommand command)
     {

@@ -8,26 +8,16 @@ public sealed partial class GameSession
     // Completed jobs own no response; their ordinary return route can safely be replaced.
     private string? StaffUnavailableReason(ulong id)
     {
-        if (_preparation?.People.SingleOrDefault(person => person.AgentId == id) is not { Admitted: true, Departed: false })
+        if (PersonIn(PersonView.Roster, id) is not { Admitted: true, Departed: false })
             return "Not physically on duty.";
         if (PersonCollapsed(id) || GetStewardResponses().Any(job => job.WorkerId == id && job.Incapacitated) || DisorderOwnsNavigation(id))
             return "Incapacitated or in an active confrontation.";
-        if (InterventionOwnsWorker(id) || InterventionOwnsTarget(id) ||
-            GetMedicResponses().Any(job => MedicBusy(job) && (job.WorkerId == id || job.PatientId == id)) ||
-            GetStewardResponses().Any(job => StewardBusy(job) && (job.WorkerId == id || job.TargetId == id)))
+        if (HasClaim(id, PersonClaims.ResponseAssigned))
             return "Already assigned; finish the current response or manual guidance.";
         if (MedicalOwnsNavigation(id) || ImmersionOwnsNavigation(id)) return "Busy with physical water, rest or departure.";
         return null;
     }
 
-    private bool ResponseTargetClaimed(ulong id)
-    {
-        var opponent = _disorder?.People.SingleOrDefault(person => person.AgentId == id && person.Stage == DisorderStage.Fight)?.OpponentId;
-        bool Claimed(ulong value) => InterventionOwnsWorker(value) || InterventionOwnsTarget(value) ||
-            GetMedicResponses().Any(job => MedicBusy(job) && (job.WorkerId == value || job.PatientId == value)) ||
-            GetStewardResponses().Any(job => StewardBusy(job) && (job.WorkerId == value || job.TargetId == value));
-        return Claimed(id) || opponent is { } other && Claimed(other);
-    }
 
     public SessionCommand? SelectRoleResponse(ResponseRole role, ulong targetId, out string? reason)
     {
@@ -58,28 +48,28 @@ public sealed partial class GameSession
         return null;
     }
 
-    private MedicalStage EffectiveMedicalStage(MedicalNeed need) => need.Stage is MedicalStage.Collapsed or MedicalStage.Critical
-        ? need.Stage : need.AgentId == _medical!.AtRiskGuestId ? _medical.Stage : need.Stage;
-    private long MedicalResponseDeadline(MedicalNeed need)
+    private MedicalStage EffectiveMedicalStage(Person need) => need.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical
+        ? need.HealthStage : need.Id == _medical!.AtRiskGuestId ? _medical.Stage : need.HealthStage;
+    private long MedicalResponseDeadline(Person need)
     {
-        var collapse = need.AgentId == _medical!.AtRiskGuestId ? _medical.CollapseTick : need.CollapseTick;
-        return _disorder?.Incidents.LastOrDefault(incident => incident.VictimId == need.AgentId && incident.InjuryTick >= 0) is { } injury
+        var collapse = need.Id == _medical!.AtRiskGuestId ? _medical.CollapseTick : need.HealthCollapseTick;
+        return _disorder?.Incidents.LastOrDefault(incident => incident.VictimId == need.Id && incident.InjuryTick >= 0) is { } injury
             ? injury.InjuryTick + DisorderInjuryDeathTicks : collapse + MedicalDeathDelayTicks;
     }
 
     private void AdvanceStaffAutonomy()
     {
         if (!StaffAutonomyEnabled || !MedicalOperationsActive || _medical is null) return;
-        foreach (var need in _medical.Needs.Where(need => EffectiveMedicalStage(need) is MedicalStage.Critical or MedicalStage.Collapsed)
+        foreach (var need in PeopleIn(PersonView.Medical).Where(need => EffectiveMedicalStage(need) is MedicalStage.Critical or MedicalStage.Collapsed)
                      .OrderBy(need => EffectiveMedicalStage(need) == MedicalStage.Critical ? 0 : 1)
-                     .ThenBy(MedicalResponseDeadline).ThenBy(need => need.AgentId).ToArray())
-            if (!ResponseTargetClaimed(need.AgentId) && SelectRoleResponse(ResponseRole.Medic, need.AgentId, out _) is MedicalCommand command)
+                     .ThenBy(MedicalResponseDeadline).ThenBy(need => need.Id).ToArray())
+            if (!ResponseTargetClaimed(need.Id) && SelectRoleResponse(ResponseRole.Medic, need.Id, out _) is MedicalCommand command)
                 ApplyMedicalCommand(command);
         if (_disorder is null || _preparation?.Status != PreparationStatus.Running) return;
-        foreach (var person in _disorder.People.Where(person => person.Stage == DisorderStage.Fight && GuestFightOrigin(person.AgentId)?.HandlingAttempt is null ||
-                         person.Stage == DisorderStage.Argument && person.Pressure >= DisorderFightEligiblePressure)
-                     .OrderBy(person => person.Stage == DisorderStage.Fight ? 0 : 1).ThenBy(person => person.StageTick).ThenBy(person => person.AgentId).ToArray())
-            if (!ResponseTargetClaimed(person.AgentId) && SelectRoleResponse(ResponseRole.Steward, person.AgentId, out _) is DisorderCommand command)
+        foreach (var person in PeopleIn(PersonView.Disorder).Where(person => person.ConductStage == DisorderStage.Fight && GuestFightOrigin(person.Id)?.HandlingAttempt is null ||
+                         person.ConductStage == DisorderStage.Argument && person.Pressure >= DisorderFightEligiblePressure)
+                     .OrderBy(person => person.ConductStage == DisorderStage.Fight ? 0 : 1).ThenBy(person => person.ConductStageTick).ThenBy(person => person.Id).ToArray())
+            if (!ResponseTargetClaimed(person.Id) && SelectRoleResponse(ResponseRole.Steward, person.Id, out _) is DisorderCommand command)
                 ApplyDisorderCommand(command);
     }
 

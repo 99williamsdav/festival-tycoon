@@ -63,7 +63,7 @@ public sealed partial class GameSession
     private bool IsSteward(ulong id) => GetStewardResponses().Any(item => item.WorkerId == id);
     private string StaffResponseCausalSummary()
     {
-        string Name(ulong? id) => id is { } value ? _preparation!.People.Single(item => item.AgentId == value).Name : "none";
+        string Name(ulong? id) => id is { } value ? _persons[value].Name : "none";
         return "medics: " + string.Join("; ", GetMedicResponses().Select(job => $"{Name(job.WorkerId)}→{Name(job.PatientId)} {job.Stage}, dispatch tick {job.DispatchedTick}, treatment tick {job.StartedTick}")) +
             ". Stewards: " + string.Join("; ", GetStewardResponses().Select(job => $"{Name(job.WorkerId)}→{Name(job.TargetId)} {job.Stage}, dispatch tick {job.DispatchedTick}, response tick {job.StartedTick}")) +
             ". Physical interventions: " + string.Join("; ", CaptureStaffInterventions().Select(job => $"{Name(job.WorkerId)}→{Name(job.GuestId)} {job.Action}/{job.Stage}, dispatch tick {job.DispatchedTick}, arrival tick {job.StartedTick}, end tick {job.EndedTick}"));
@@ -78,12 +78,12 @@ public sealed partial class GameSession
     /// <summary>Current assigned work location, shared by arrivals, returns and consumption.</summary>
     public GridCell? StaffAssignedPost(ulong id)
     {
-        if (_preparation?.People.SingleOrDefault(person => person.AgentId == id)?.Role != ProtectedPersonRole.Staff) return null;
+        if (PersonIn(PersonView.Roster, id)?.Role != ProtectedPersonRole.Staff) return null;
         if (GetResponseStaff().SingleOrDefault(person => person.AgentId == id) is { } response)
             return StaffDutyCell(id, response.Role);
         if (_equipment?.WorkerId == id) return EquipmentWorkCell;
         // The sound engineer's established listening/mixing location in the audience apron.
-        return PreparedPlace(Array.FindIndex(_preparation.People, person => person.AgentId == id));
+        return PreparedPlace(Array.FindIndex(PeopleIn(PersonView.Roster), person => person.Id == id));
     }
     /// <summary>Derived presentation hint only: no job, route, hash or save state is changed.</summary>
     public ResponseRole? IdleResponseStaffRole(EntityId id, double renderedXMillimetres, double renderedZMillimetres)
@@ -108,7 +108,7 @@ public sealed partial class GameSession
             GetWalkingSpeedPermille(new(m.MedicId)), MedicalTreatmentTicks, 0, 0));
         if (_disorder is { } d) profiles.Add(new(d.SecurityId, "Jordan Hale", ResponseRole.Steward,
             GetWalkingSpeedPermille(new(d.SecurityId)), 0, d.CalmingSkill, d.ConfrontationSkill));
-        if (_preparation is { } p) profiles.AddRange(p.StaffProfiles.Where(profile => p.People.Any(person => person.AgentId == profile.AgentId)));
+        if (_preparation is { } p) profiles.AddRange(p.StaffProfiles.Where(profile => InView(PersonView.Roster, profile.AgentId)));
         return profiles.Select(EffectiveStaffProfile).OrderBy(profile => profile.AgentId).ToArray();
     }
     private static bool RoleTrained(PreparationSnapshot? prep, PerkSnapshot? perks, ResponseRole role) =>
@@ -186,14 +186,14 @@ public sealed partial class GameSession
             profile = CreateOptionalStaff(CampaignSeed, NextEntityId++, role);
             _wallets.Add(new(profile.AgentId), new WalletState { OwnerId = new(profile.AgentId), CashPennies = 500 });
         }
-        _preparation = p with { StaffProfiles = p.StaffProfiles.Append(profile).Distinct().OrderBy(item => item.AgentId).ToArray(),
-            People = p.People.Append(new EditionPerson(profile.AgentId, profile.Name, ProtectedPersonRole.Staff, 0)).OrderBy(item => item.AgentId).ToArray() };
+        PreparationView = p with { StaffProfiles = p.StaffProfiles.Append(profile).Distinct().OrderBy(item => item.AgentId).ToArray(),
+            People = PreparationView!.People.Append(new EditionPerson(profile.AgentId, profile.Name, ProtectedPersonRole.Staff, 0)).OrderBy(item => item.AgentId).ToArray() };
         if (role == ResponseRole.Medic)
             _medical = _medical! with { ExtraResponses = [new(profile.AgentId, MedicalResponseStage.None, null, -1, "Available")] };
         else
         {
             _disorder = _disorder! with { ExtraResponses = [new(profile.AgentId, SecurityResponseStage.None, null, -1, false, "Available")] };
-            _medical = _medical! with { Needs = _medical.Needs.Append(new MedicalNeed(profile.AgentId, 0, 0,
+            MedicalView = MedicalView! with { Needs = MedicalView.Needs.Append(new MedicalNeed(profile.AgentId, 0, 0,
                 MedicalIntent.WatchShow, "Steward on duty", -MedicalDecisionCooldownTicks, null, -1, MedicalNeedProfile.Staff)).OrderBy(item => item.AgentId).ToArray() };
         }
     }
@@ -241,13 +241,13 @@ public sealed partial class GameSession
             if (job.Stage != MedicalResponseStage.Treating || CurrentTick < job.StartedTick + GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks) continue;
             var patientId = job.PatientId!.Value;
             // Never rescue beyond a real causal deadline. Boundary-tick completion retains the existing ordering.
-            var need = m.Needs.Single(item => item.AgentId == patientId);
+            var need = _persons[patientId];
             var deadline = _disorder?.Incidents.LastOrDefault(item => item.VictimId == patientId && item.InjuryTick >= 0) is { } injury
                 ? injury.InjuryTick + DisorderInjuryDeathTicks : patientId == m.AtRiskGuestId && m.CollapseTick >= 0
-                ? m.CollapseTick + MedicalDeathDelayTicks : need.CollapseTick >= 0 ? need.CollapseTick + MedicalDeathDelayTicks : long.MaxValue;
+                ? m.CollapseTick + MedicalDeathDelayTicks : need.HealthCollapseTick >= 0 ? need.HealthCollapseTick + MedicalDeathDelayTicks : long.MaxValue;
             if (CurrentTick > deadline) continue;
-            SetNeed(patientId, item => item with { Thirst = 2000, HeatExposure = 3000, Intent = MedicalIntent.WatchShow,
-                Stage = MedicalStage.Treated, Reason = "Basic first aid completed after physical medic arrival" });
+            UpdatePerson(patientId, item => item with { Thirst = 2000, HeatExposure = 3000, Intent = MedicalIntent.WatchShow,
+                HealthStage = MedicalStage.Treated, Reason = "Basic first aid completed after physical medic arrival" });
             ReturnToListening(patientId);
             if (patientId == m.AtRiskGuestId) _medical = _medical! with { Stage = MedicalStage.Treated };
             SetMedicResponse(job with { Stage = MedicalResponseStage.Completed, Description = "Basic first aid completed" });

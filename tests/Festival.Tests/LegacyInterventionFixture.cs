@@ -11,7 +11,7 @@ internal static class LegacyInterventionFixture
     public static SessionCommand For(GameSession session, SessionCommand command)
     {
         if (session.CaptureMedical() is { DevelopmentInterventionFixturesEnabled: false } medical)
-            typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+            typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
                 medical with { DevelopmentInterventionFixturesEnabled = true });
         return command switch
         {

@@ -11,7 +11,7 @@ public sealed class ToiletTests
         new(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase, session.CurrentTick,
         session.NextSubmissionSequence, null, command));
     private static void SetImmersion(GameSession session, ImmersionSnapshot snapshot) =>
-        typeof(GameSession).GetField("_immersion", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session, snapshot);
+        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session, snapshot);
     private static void Invoke(GameSession session, string method) =>
         typeof(GameSession).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(session, null);
     private static void Position(GameSession session, ulong id, GridCell cell, string intent)
@@ -32,7 +32,7 @@ public sealed class ToiletTests
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         var preparation = session.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             preparation with { People = preparation.People.Select(p => p with { Admitted = true }).ToArray() });
         return session;
     }
@@ -45,7 +45,7 @@ public sealed class ToiletTests
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         var preparation = session.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             preparation with { People = preparation.People.Select(p => p with { Admitted = true }).ToArray() });
         return session;
     }
@@ -91,7 +91,7 @@ public sealed class ToiletTests
             (ulong)(session.CurrentTick % QueuedServiceChoice.ReviewStagger)).Take(5).ToArray();
         var members = ahead.Append(seeker).ToArray();
         var prep = session.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             prep with { People = prep.People.Select(person => members.Contains(person.AgentId)
                 ? person with { Admitted = true } : person).ToArray() });
         var immersion = session.CaptureImmersion()!;
@@ -150,7 +150,7 @@ public sealed class ToiletTests
                 person.AgentId % QueuedServiceChoice.ReviewStagger ==
                 (ulong)(session.CurrentTick % QueuedServiceChoice.ReviewStagger)).AgentId;
             var prep = session.CapturePreparation()!;
-            typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+            typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
                 prep with { People = prep.People.Select(person => person.AgentId == seeker
                     ? person with { Admitted = true } : person).ToArray() });
             var immersion = session.CaptureImmersion()!;
@@ -387,7 +387,7 @@ public sealed class ToiletTests
         SetImmersion(session, state with { People = state.People.Select(p => ids.Contains(p.AgentId) ?
             p with { ToiletNeed = 9_000 } : p).ToArray() });
         var medical = session.CaptureMedical()!;
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             medical with { Needs = medical.Needs.Select(n => ids.Contains(n.AgentId) ? n with { Thirst = 0 } : n).ToArray() });
         Position(session, ids[0], GameSession.ToiletQueueCell(toilet, 0), "fixture.near-toilet");
         Position(session, ids[1], GameSession.ToiletQueueCell(toilet, 1), "fixture.near-toilet");
@@ -436,7 +436,7 @@ public sealed class ToiletTests
         Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session.CaptureSnapshot().AuthoritativeHash);
         session = restored.Session!;
         var preparation = session.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             preparation with { Status = PreparationStatus.Departing });
         Invoke(session, "AdvanceToilet");
         Assert.IsTrue(session.CaptureToilet()!.DoorOpen);
@@ -496,7 +496,7 @@ public sealed class ToiletTests
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         var prep = session.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             prep with { People = prep.People.Select(p => p with { Admitted = true }).ToArray() });
         var state = session.CaptureImmersion()!;
         var doomed = state.People.First().AgentId;

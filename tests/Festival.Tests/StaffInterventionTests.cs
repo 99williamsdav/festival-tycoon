@@ -10,7 +10,7 @@ public sealed class StaffInterventionTests
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase, session.CurrentTick, session.NextSubmissionSequence, null, command));
     private static void Accept(GameSession session, SessionCommand command)
     { var result = Send(session, command); Assert.IsTrue(result.IsAccepted, result.Message); }
-    private static void Medical(GameSession session, MedicalSnapshot value) => typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session, value);
+    private static void Medical(GameSession session, MedicalSnapshot value) => typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session, value);
     private static void SuppressUnrelatedNeeds(GameSession session, ulong? except = null)
     {
         var m = session.CaptureMedical()!;

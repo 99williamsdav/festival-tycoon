@@ -143,11 +143,11 @@ public sealed class PreparationPlanTests
         // medics busy at rest. Normal autonomy remains enabled; unavailable staff
         // cannot respond. The actual warning/deadline chain still owns the death.
         var prep = s.CapturePreparation()!;
-        typeof(GameSession).GetField("_preparation", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, prep with { People = prep.People.Select(p => p with { Admitted = true }).ToArray() });
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, prep with { People = prep.People.Select(p => p with { Admitted = true }).ToArray() });
         var immersion = s.CaptureImmersion()!; var guest = prep.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
-        typeof(GameSession).GetField("_immersion", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, immersion with { People = immersion.People.Select(p => p.AgentId == guest ? p with { Intoxication = 10000 } : p).ToArray() });
+        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, immersion with { People = immersion.People.Select(p => p.AgentId == guest ? p with { Intoxication = 10000 } : p).ToArray() });
         var medics = s.GetMedicResponses().Select(job => job.WorkerId).ToArray(); var medical = s.CaptureMedical()!;
-        typeof(GameSession).GetField("_medical", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, medical with { Needs = medical.Needs.Select(need => medics.Contains(need.AgentId)
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, medical with { Needs = medical.Needs.Select(need => medics.Contains(need.AgentId)
             ? need with { Intent = MedicalIntent.Rest, Reason = "Labelled unavailable medic rest fixture" } : need).ToArray() });
         s.AdvanceWithoutSnapshot(4000); Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus); s = Restored(s);
         Accept(s, new SpendCouncilFavourCommand()); s = Restored(s);

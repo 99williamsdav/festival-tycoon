@@ -45,8 +45,8 @@ public sealed partial class GameSession
     // Panel access is on the outer side of the relocated unit, away from the
     // trailer deck/stairs and the audience-facing apron.
     private GridCell EquipmentWorkCell => TraversalGrid.WorldToCell(_equipment!.XMillimetres - 2_000, _equipment.ZMillimetres);
-    private EditionPerson? NearbyEquipmentPerson() => _preparation!.People.OrderBy(item => item.AgentId).FirstOrDefault(person =>
-        _navigationAgents.TryGetValue(new(person.AgentId), out var agent) &&
+    private Person? NearbyEquipmentPerson() => PeopleIn(PersonView.Roster).OrderBy(item => item.Id).FirstOrDefault(person =>
+        _navigationAgents.TryGetValue(new(person.Id), out var agent) &&
         (long)(agent.XMillimetres - _equipment!.XMillimetres) * (agent.XMillimetres - _equipment.XMillimetres) +
         (long)(agent.ZMillimetres - _equipment.ZMillimetres) * (agent.ZMillimetres - _equipment.ZMillimetres) <=
         (long)EquipmentHazardRadiusMillimetres * EquipmentHazardRadiusMillimetres);
@@ -67,7 +67,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The unit is already safe or terminal.");
         if (command.Action == EquipmentAction.Acknowledge && (e.WarningTick < 0 || e.WarningAcknowledged))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "No unseen overload warning.");
-        if (command.Action == EquipmentAction.DispatchMaintenance && (e.WorkerId is null || e.JobStage != MaintenanceStage.None || _preparation!.Status != PreparationStatus.Running || !_preparation.People.Single(item => item.AgentId == e.WorkerId).Admitted))
+        if (command.Action == EquipmentAction.DispatchMaintenance && (e.WorkerId is null || e.JobStage != MaintenanceStage.None || _preparation!.Status != PreparationStatus.Running || !_persons[e.WorkerId.Value].Admitted))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Hire maintenance before opening and wait for their physical arrival. Only one repair job is available.");
         return null;
     }
@@ -93,7 +93,7 @@ public sealed partial class GameSession
         }
         if (e.JobStage is MaintenanceStage.Travelling or MaintenanceStage.Repairing)
         {
-            var index = Array.FindIndex(_preparation!.People, item => item.AgentId == e.WorkerId);
+            var index = Array.FindIndex(PeopleIn(PersonView.Roster), item => item.Id == e.WorkerId);
             ReturnToListening(e.WorkerId!.Value);
         }
         _equipment = e with { Stage = command.Action == EquipmentAction.Isolate ? EquipmentStage.Isolated : EquipmentStage.Resolved,
@@ -114,7 +114,7 @@ public sealed partial class GameSession
                 NextCasualtyId = 1, NextHearingId = 1, FixtureFavourBalance = p.RetryEconomyFixtureEnabled ? 2 : 1 };
             _lifecycle.Attempts.Add(new(1, _lifecycle.CurrentTierId, EditionAttemptStatus.Active, null));
         }
-        foreach (var person in p.People)
+        foreach (var person in PeopleIn(PersonView.Roster))
             _lifecycle.ProtectedPeople.TryAdd(person.Name, new(person.Name, person.Role));
     }
 
@@ -146,7 +146,7 @@ public sealed partial class GameSession
         }
         else if (e.Stage == EquipmentStage.DangerousFault && CurrentTick >= e.WarningTick + EquipmentDeathDelayTicks && NearbyEquipmentPerson() is { } victim)
         {
-            var agent = _navigationAgents[new(victim.AgentId)];
+            var agent = _navigationAgents[new(victim.Id)];
             var cause = $"Generator overload killed {victim.Name} ({victim.Role}) at ({agent.XMillimetres},{agent.ZMillimetres}) near unit ({e.XMillimetres},{e.ZMillimetres}); load {e.LoadPercent}%; condition {e.Condition / 100}%; warning tick {e.WarningTick}, acknowledged {e.WarningAcknowledged}; response: {e.Response}; job {e.JobStage}.";
             _equipment = e with { Stage = EquipmentStage.Terminal };
             EquipmentEvent("equipment:death", cause);

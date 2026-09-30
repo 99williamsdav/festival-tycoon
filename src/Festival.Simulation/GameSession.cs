@@ -560,14 +560,14 @@ public sealed partial class GameSession
         session._perks = snapshot.Perks is null ? null : System.Text.Json.JsonSerializer.Deserialize<PerkSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Perks));
         session._equipment = snapshot.Equipment is null ? null : snapshot.Equipment with { Evidence = snapshot.Equipment.Evidence.ToArray() };
         session._programme = snapshot.Programme is null ? null : System.Text.Json.JsonSerializer.Deserialize<ProgrammeSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Programme));
-        session._immersion = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));
-        session._preparation = snapshot.Preparation is null ? null : System.Text.Json.JsonSerializer.Deserialize<PreparationSnapshot>(
+        session.ImmersionView = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));
+        session.PreparationView = snapshot.Preparation is null ? null : System.Text.Json.JsonSerializer.Deserialize<PreparationSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Preparation));
         session._livePerformance = snapshot.LivePerformance is null ? null : System.Text.Json.JsonSerializer.Deserialize<LivePerformanceSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.LivePerformance));
-        session._medical = snapshot.Medical is null ? null : System.Text.Json.JsonSerializer.Deserialize<MedicalSnapshot>(
+        session.MedicalView = snapshot.Medical is null ? null : System.Text.Json.JsonSerializer.Deserialize<MedicalSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Medical));
-        session._disorder = snapshot.Disorder is null ? null : System.Text.Json.JsonSerializer.Deserialize<DisorderSnapshot>(
+        session.DisorderView = snapshot.Disorder is null ? null : System.Text.Json.JsonSerializer.Deserialize<DisorderSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Disorder));
 
         var actualHash = CanonicalStateHasher.Compute(session);

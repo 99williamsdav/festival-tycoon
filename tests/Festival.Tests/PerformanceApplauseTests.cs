@@ -18,7 +18,7 @@ public sealed class PerformanceApplauseTests
     private static void Medical(GameSession session, Func<MedicalNeed, MedicalNeed> change)
     {
         var state = session.CaptureMedical()!;
-        typeof(GameSession).GetField("_medical", BindingFlags.Instance | BindingFlags.NonPublic)!
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!
             .SetValue(session, state with { Needs = state.Needs.Select(change).ToArray() });
     }
 
@@ -109,7 +109,7 @@ public sealed class PerformanceApplauseTests
         Medical(session, need => need.AgentId == performer ? need with { Intent = MedicalIntent.AwaitMedic } : need);
         // Audio-boundary fixture isolates an unplayed slot from the separate tested disorder escalation chain.
         var disorder = session.CaptureDisorder()!;
-        typeof(GameSession).GetField("_disorder", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
+        typeof(GameSession).GetProperty("DisorderView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             disorder with { People = disorder.People.Select(person => person with { CooldownUntilTick = long.MaxValue }).ToArray() });
         session.AdvanceWithoutSnapshot(GameSession.FestivalSlotEnds[0]);
         var missed = session.CaptureLivePerformance()!;
