@@ -15,12 +15,6 @@ public sealed partial class GameSession
 {
     public bool FestivalResultsEnabled => _preparation?.FinishedBeerIds is not null;
     public FestivalResult? CompletedFestivalResult => _preparation?.Result;
-    public static GameSession CreateResultsCampaign(ulong seed)
-    {
-        var session = CreateEditableCampaign(seed);
-        session._preparation = session._preparation! with { FinishedBeerIds = [], GuestMedicalCollapses = 0 };
-        return session;
-    }
 
     private static FestivalResult MakeFestivalResult(PreparationSnapshot p, ImmersionSnapshot? immersion,
         MedicalSnapshot? medical, DisorderSnapshot? disorder, long tick)
@@ -65,7 +59,7 @@ public sealed partial class GameSession
             Result = MakeFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick) };
         if (p.CommunityShareAttempt == p.Attempt && !p.CommunityFavourClaimed && _lifecycle is { } lifecycle)
         {
-            lifecycle.FixtureFavourBalance++;
+            lifecycle.FavourBalance++;
             lifecycle.CompletedOutcomeTransactionIds.Add($"community-water-favour:{CampaignId.Value}");
             _preparation = _preparation with { CommunityFavourClaimed = true };
         }

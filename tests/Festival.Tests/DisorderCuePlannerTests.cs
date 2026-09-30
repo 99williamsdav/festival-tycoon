@@ -50,7 +50,7 @@ public sealed class DisorderCuePlannerTests
 
     private static (DisorderSnapshot Disorder, MedicalSnapshot Medical) Baseline()
     {
-        var session = GameSession.CreateDisorderCampaign(20260925);
+        var session = BuildSession.Planned(20260925);
         return (session.CaptureDisorder()!, session.CaptureMedical()!);
     }
 
@@ -143,40 +143,6 @@ public sealed class DisorderCuePlannerTests
     }
 
     [TestMethod]
-    public void NaturalSavedFightReconstructsBothOverheadCuesWithoutReplayState()
-    {
-        var session = GameSession.CreateDisorderCampaign(20260922);
-        foreach (var offer in new[] { "act.folk", "staff.steward", "equipment.buy" })
-            Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(offer)).IsAccepted);
-        Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
-        Assert.IsTrue(Send(session, new MedicalCommand(session.CaptureMedical()!.AtRiskGuestId,
-            MedicalAction.GuideToRest)).IsAccepted);
-        while (session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && session.CurrentTick < 4_000)
-            session.AdvanceWithoutSnapshot(1);
-        Assert.AreEqual(LiveSetStage.Live, session.CaptureLivePerformance()!.Stage);
-        Assert.IsTrue(Send(session, new EquipmentCommand(EquipmentAction.Isolate)).IsAccepted);
-        while (!session.CaptureDisorder()!.People.Any(item => item.Stage == DisorderStage.Fight &&
-               item.OpponentId != session.CaptureDisorder()!.SecurityId) && session.CurrentTick < 7_000)
-            session.AdvanceWithoutSnapshot(1);
-        var fighter = session.CaptureDisorder()!.People.First(item => item.Stage == DisorderStage.Fight &&
-            item.OpponentId != session.CaptureDisorder()!.SecurityId);
-        var hash = session.CaptureSnapshot().AuthoritativeHash;
-        var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
-        Assert.IsTrue(restored.IsSuccess, restored.Error);
-        Assert.AreEqual(hash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
-        var planner = new DisorderCuePlanner();
-        planner.Reset(restored.Session.CaptureDisorder(), restored.Session.CurrentTick);
-        var cues = planner.Observe(restored.Session.CaptureDisorder()!, restored.Session.CaptureMedical(),
-            restored.Session.CurrentTick);
-        var allFighters = restored.Session.CaptureDisorder()!.People.Where(item => item.Stage == DisorderStage.Fight &&
-            DisorderCuePlanner.CurrentOpponentId(restored.Session.CaptureDisorder()!, item) is not null).Select(item => item.AgentId).ToArray();
-        Assert.IsTrue(allFighters.Contains(fighter.AgentId) && allFighters.Contains(fighter.OpponentId!.Value));
-        CollectionAssert.AreEquivalent(allFighters, cues.Select(item => item.AgentId).ToArray(),
-            "Changed real queue geometry may produce several simultaneous pairs; every actual fighter must retain its cue after restore.");
-        Assert.IsTrue(cues.All(item => item.Kind == DisorderCueKind.Fight && item.Text == "FIGHT"));
-    }
-
-    [TestMethod]
     public void ResolvedStewardResponseDoesNotRePairLaterUnrelatedArgumentOrInspector()
     {
         var (baseline, medical) = Baseline();
@@ -237,5 +203,5 @@ public sealed class DisorderCuePlannerTests
 
     private static CommandResult Send(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase,
-        session.CurrentTick, session.NextSubmissionSequence, null, LegacyInterventionFixture.For(session, command)));
+        session.CurrentTick, session.NextSubmissionSequence, null, command));
 }

@@ -45,6 +45,7 @@ public sealed class PersonModelTests
         }
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void OnePersonCarriesEveryPerSystemRecordThroughAFestivalAndRestore()
     {
@@ -62,6 +63,7 @@ public sealed class PersonModelTests
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void ClaimsDescribeWhatEachPersonIsDoing()
     {

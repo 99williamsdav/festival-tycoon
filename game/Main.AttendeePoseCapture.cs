@@ -38,17 +38,18 @@ public partial class Main
         if (++_poseFrame < 4) return;
         if (_poseImage is { } image)
         {
-            ImmersionImage(image); _poseImage = null;
+            AttendeePoseImage(image); _poseImage = null;
             return;
         }
         if (_poseStep == 0)
         {
-            PoseAssert(SaveDirectory == System.IO.Path.Combine(_immersionCaptureDirectory!, "saves"), "Capture save isolation missing.");
+            PoseAssert(SaveDirectory == System.IO.Path.Combine(_attendeePoseCaptureDirectory!, "saves"), "Capture save isolation missing.");
             var perk = _session.CapturePerks()!;
             CommitEquipmentAction(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand.First(id => id != "thirsty-crowd")));
             CommitEquipmentAction(new SetProgrammeCommand(["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"]));
             foreach (var offer in new[] { "staff.steward", "equipment.buy" }) PreparationAccept(offer);
-            CommitEquipmentAction(new PurchaseImmersionStarterStockCommand()); PreparationStart();
+            CommitEquipmentAction(new UseDefaultBuildLayoutCommand());
+            CommitEquipmentAction(new SetPreparationStockCommand(40, 40, 32)); PreparationStart();
             PoseAssert(_session.PreparedStatus == PreparationStatus.Running, _preparationMessage);
             TimetableAdvanceTo(1600);
             var medical = _session.CaptureMedical()!;
@@ -194,7 +195,7 @@ public partial class Main
             var perk = _session.CapturePerks()!;
             CommitEquipmentAction(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand.First(id => id != "thirsty-crowd")));
             CommitEquipmentAction(new SetProgrammeCommand(["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"]));
-            PreparationAccept("staff.steward"); CommitEquipmentAction(new PurchaseImmersionStarterStockCommand()); PreparationStart();
+            PreparationAccept("staff.steward"); CommitEquipmentAction(new SetPreparationStockCommand(40, 40, 32)); PreparationStart();
             PoseAssert(_session.PreparedStatus == PreparationStatus.Running, "Retry start failed: " + _preparationMessage);
             StaffCaptureSend(new SetPausedCommand(true)); AdvancePreparationPresentation(0);
             foreach (var (id, variant) in _poseRetryVariants)
@@ -242,7 +243,7 @@ public partial class Main
             PoseAssert(_session.CaptureSnapshot().AuthoritativeHash == _poseGuardHash && _guestPaletteMaterials.Values.All(set => set.Length == 16), "Palette showcase changed gameplay or exceeded cache bound.");
             GD.Print($"ATTENDEE_PALETTE_CHECK_COMPLETE combinations=16 both_bodies=True protected_bytes=True alpha=True original_resources=True nonsampling_material_flags=True nearest_clamp=True cached_across_poses=True compatible_bases={_guestPaletteMaterials.Count} materials={_guestPaletteMaterials.Count * 16} same_colours_reload_retry=True legacy_staff_performer=True hash={_poseGuardHash}");
             GD.Print($"ATTENDEE_POSE_CAPTURE_COMPLETE actual_keys={_poseActual.Count} showcase_images=30 palette_images=3 both_variants=True all_six_visuals=True four_rotations=True reload=True interruption=True picking=True retry=True showcase_hash={_poseGuardHash} manual_QA=False independent_review=False");
-            _immersionCaptureCompleted = true; GetTree().Quit();
+            _attendeePoseCaptureCompleted = true; GetTree().Quit();
         }
     }
 

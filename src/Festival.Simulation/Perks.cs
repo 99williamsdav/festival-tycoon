@@ -40,14 +40,6 @@ public sealed partial class GameSession
     private PerkSnapshot? _perks;
     public PerkSnapshot? CapturePerks() => _perks is null ? null : JsonSerializer.Deserialize<PerkSnapshot>(JsonSerializer.Serialize(_perks));
     internal string? PerkCanonicalJson => _perks is null ? null : JsonSerializer.Serialize(_perks);
-    public static GameSession CreatePerkCampaign(ulong seed)
-    {
-        var session = CreateImmersionCampaign(seed);
-        var rng = RandomStreamFactory.Create(seed ^ 0x5045524B44524146UL, RandomStreamId.ArtistDecisions);
-        session._perks = new(1, [], 0, false, false, [], rng.State, rng.Increment, 0, false, []);
-        session.OpenPerkDraft();
-        return session;
-    }
     private bool HasPerk(string id) => _perks is { Ended: false } p && p.Equipped.Contains(id);
     private void OpenPerkDraft()
     {
@@ -102,7 +94,7 @@ public sealed partial class GameSession
     private void SynchronizePerkEffects()
     {
         var p = _preparation!;
-        var removeTap = !p.BuildModeEnabled && !HasPerk("another-round");
+        var removeTap = false;
         _preparation = p with { ExtraMedicSlotOwned = HasPerk("doctors-orders"), ExtraStewardSlotOwned = HasPerk("extra-pair-of-hands"),
             WaterTowerOwned = HasPerk("high-pressure"), RespondersUpgraded = false,
             ExtraWaterSiteIds = removeTap ? p.ExtraWaterSiteIds.Where(id => id != PerkCatalogue.TapId).ToArray() : p.ExtraWaterSiteIds,
@@ -156,7 +148,6 @@ public sealed partial class GameSession
             return "Perk pending choice, replacement or skip result invalid.";
         if (prep.RespondersUpgraded || prep.WaterTowerOwned != SavedPerkEffect(p,"high-pressure") ||
             prep.ExtraMedicSlotOwned != SavedPerkEffect(p,"doctors-orders") || prep.ExtraStewardSlotOwned != SavedPerkEffect(p,"extra-pair-of-hands") ||
-            !prep.BuildModeEnabled && (prep.ExtraWaterSiteIds.Any(id => id != PerkCatalogue.TapId) || prep.ExtraWaterSiteIds.Length > 1 || prep.ExtraWaterSiteIds.Length > 0 && !SavedPerkEffect(p,"another-round")) ||
             prep.AcceptedOffers.Contains("staff.extra-medic") && !SavedPerkEffect(p,"doctors-orders") || prep.AcceptedOffers.Contains("staff.extra-steward") && !SavedPerkEffect(p,"extra-pair-of-hands"))
             return "Perk effects or perk-owned tap disagree with the equipped set.";
         return null;

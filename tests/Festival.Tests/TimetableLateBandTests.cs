@@ -22,7 +22,7 @@ public sealed class TimetableLateBandTests
 
     private static GameSession Started(bool holdFirstPerformer)
     {
-        var session = GameSession.CreateTimetableCampaign(20260926);
+        var session = BuildSession.Planned(20260926);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"])).IsAccepted);
         foreach (var id in new[] { "staff.steward", "equipment.buy" })
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
@@ -41,6 +41,7 @@ public sealed class TimetableLateBandTests
         return loaded.Session;
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void LateReadinessStartsAtScheduledBoundaryAndExcludesPreShowAndChangeover()
     {
@@ -114,6 +115,7 @@ public sealed class TimetableLateBandTests
         Restored(session);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void BlockedOutgoingPhysicalPerformerMakesNextActualSlotLateWhileOldSlotRemainsFinished()
     {
@@ -253,7 +255,7 @@ public sealed class TimetableLateBandTests
     [TestMethod]
     public void BandDelayGrievanceRejectsLegacyOrPreScheduledOnsetTamper()
     {
-        var legacy = GameSession.CreateDisorderCampaign(20260926).CapturePersistenceSnapshot();
+        var legacy = BuildSession.Planned(20260926).CapturePersistenceSnapshot();
         var fake = legacy.Disorder! with { People = legacy.Disorder!.People.Select((person, index) => index == 0
             ? person with { Grievance = DisorderGrievance.BandDelayed, GrievanceTick = 0 } : person).ToArray() };
         Assert.IsFalse(GameSession.Restore(legacy with { Disorder = fake }).IsSuccess);

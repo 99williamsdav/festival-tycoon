@@ -7,9 +7,9 @@ public static class EquipmentCommandCoordinator
     public static PreparationAdvanceResult Execute(string directory, GameSession session, SessionCommand command,
         SaveCompatibility compatibility, DateTimeOffset now, long generation, Action<SaveFailurePoint>? failureInjector = null)
     {
-        if (session.CaptureEquipment() is null || command is not (StartPreparedEditionCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or SetProgrammeCommand or EquipmentCommand or AcceptPreparationOfferCommand or
-                CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or
-                MovePrimaryWaterPointCommand or MoveWaterPointCommand or MoveResponsePostCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
+        if (session.CaptureEquipment() is null || command is not (StartPreparedEditionCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or EquipmentCommand or AcceptPreparationOfferCommand or
+                CommitCommunityWaterShareCommand or
+                StaffInterventionCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return new(false, session, null, "An equipment, preparation or Council hearing action is required.");
         var stageStarted = PersistenceTiming.Start();
         var snapshot = session.CapturePersistenceSnapshot();

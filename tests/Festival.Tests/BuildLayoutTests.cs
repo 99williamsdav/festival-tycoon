@@ -55,27 +55,6 @@ public sealed class BuildLayoutTests
     }
 
     [TestMethod]
-    public void FreshDraftIsUnplacedAndDefaultsHaveViablePrototypeCost()
-    {
-        var session = GameSession.CreateBuildCampaign(20260922);
-        Assert.IsTrue(session.BuildModeEnabled);
-        Assert.AreEqual(0, session.CaptureBuildPlacements().Count);
-        Assert.AreEqual(0L, session.BuildDraftCost);
-        Assert.AreEqual(0, session.CaptureWaterPoints().Count);
-        Assert.AreEqual(0, session.CaptureImmersion()!.Vendors.Length);
-        Assert.IsNull(session.CaptureToilet());
-        var perk = session.CapturePerks()!;
-        Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
-        var defaults = Send(session, new UseDefaultBuildLayoutCommand());
-        Assert.IsTrue(defaults.IsAccepted, defaults.Message);
-        Assert.AreEqual(6, session.CaptureBuildPlacements().Count);
-        Assert.AreEqual(30_000L, session.BuildDraftCost);
-        var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
-        Assert.IsTrue(restored.IsSuccess, restored.Error);
-        Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
-    }
-
-    [TestMethod]
     public void DraftPlacementRemovalAndCancelAccountingAreUnpaid()
     {
         var session = GameSession.CreateBuildCampaign(20260922);

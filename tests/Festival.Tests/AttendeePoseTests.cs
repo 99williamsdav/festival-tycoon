@@ -10,7 +10,7 @@ public sealed class AttendeePoseTests
     [TestMethod]
     public void IdentityUsesStableSeedAndIdWithoutChangingAuthoritativeState()
     {
-        var session = GameSession.CreateImmersionCampaign(20260926);
+        var session = BuildSession.Planned(20260926);
         var before = session.CaptureSnapshot().AuthoritativeHash;
         var variants = session.CapturePreparation()!.People.Select(p => AttendeePose.Variant(session.CampaignSeed, p.AgentId)).ToArray();
         Assert.IsTrue(variants.Contains("male")); Assert.IsTrue(variants.Contains("female"));

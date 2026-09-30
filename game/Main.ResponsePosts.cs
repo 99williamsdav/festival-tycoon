@@ -11,11 +11,6 @@ public partial class Main
     private readonly Dictionary<ResponseRole,Node3D> _responsePostVisuals=[];
     private readonly Dictionary<ResponseRole,StaticBody3D> _responsePostPicks=[];
     private readonly Dictionary<ResponseRole,Label3D> _responsePostLabels=[];
-    private ResponseRole? _movingResponsePost;
-    private int _postQuarterTurns;
-    private GridCell? _postCandidate;
-    private string? _postIssue;
-    private Node3D? _postPreview;
     private MeshInstance3D? _postFootprintPreview;
     private Label3D? _postPreviewLabel;
     private readonly List<MeshInstance3D> _postFrontMarkers=[];
@@ -29,7 +24,7 @@ public partial class Main
     {
         foreach(var role in _responsePostVisuals.Keys)
         {
-            var placed = !_session.BuildModeEnabled || _session.CaptureBuildPlacements().Any(item => item.Kind ==
+            var placed = _session.CaptureBuildPlacements().Any(item => item.Kind ==
                 (role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost));
             _responsePostVisuals[role].Visible = placed;
             _responsePostPicks[role].CollisionLayer = placed ? 1u : 0u;
@@ -52,60 +47,7 @@ public partial class Main
     }
     private void BeginResponsePostPlacement(ResponseRole role)
     {
-        if (_session.BuildModeEnabled) { BeginBuildPlacement(role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost,
-            role == ResponseRole.Medic ? "first-aid" : "steward-post"); return; }
-        if(_session.PreparedStatus!=PreparationStatus.Preparing)return;
-        CancelWaterPlacement();CancelImmersionPlacement();CancelResponsePostPlacement();ClearSelection();
-        _movingResponsePost=role;_postQuarterTurns=_session.CaptureResponsePost(role).QuarterTurns;
-        _postPreview=AddAsset(PostAsset(role),Vector3.Zero);
-        _postPreviewLabel=BuildingName("",new(0,4,0));_postPreview.AddChild(_postPreviewLabel);
-        _postFootprintPreview=new() { MaterialOverride=new StandardMaterial3D { Transparency=BaseMaterial3D.TransparencyEnum.Alpha,ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded } };AddChild(_postFootprintPreview);
-        for(var i=0;i<2;i++) {var marker=new MeshInstance3D {Mesh=new CylinderMesh {TopRadius=.3f,BottomRadius=.3f,Height=.035f},MaterialOverride=new StandardMaterial3D {Transparency=BaseMaterial3D.TransparencyEnum.Alpha,ShadingMode=BaseMaterial3D.ShadingModeEnum.Unshaded}};AddChild(marker);_postFrontMarkers.Add(marker);}
-        _preparationMessage="Move response post: click valid grass. Comma/period rotate; right-click or Esc cancels.";RefreshPreparationHud();
-    }
-    private void CancelResponsePostPlacement(bool committed=false)
-    {
-        var hadPreview=_movingResponsePost is not null;
-        _movingResponsePost=null;_postCandidate=null;_postIssue=null;
-        foreach(var node in new Node3D?[]{_postPreview,_postFootprintPreview}.Concat(_postFrontMarkers))if(node is not null){node.Visible=false;node.QueueFree();}
-        _postFrontMarkers.Clear();_postPreview=null;_postFootprintPreview=null;_postPreviewLabel=null;
-        if(hadPreview)
-        {
-            _hoveredColliderId=0;_hoverHighlight.Visible=false;
-            _preparationMessage=committed?(RelaxedSaveCadence?"Response post moved; next timed save pending.":"Response post moved and autosaved."):"Response post movement cancelled.";
-            RefreshPreparationHud();
-        }
-    }
-    private void RotateResponsePost(int direction)
-    { _postQuarterTurns=(_postQuarterTurns+direction+4)%4;_postCandidate=null;UpdateResponsePostPreview(GetViewport().GetMousePosition()); }
-    private void UpdateResponsePostPreview(Vector2 screen)
-    {
-        if(_movingResponsePost is not { } role || _postPreview is null)return;
-        if(WorldInputOccluded(screen)){_postCandidate=null;_postPreview.Visible=false;_postFootprintPreview!.Visible=false;foreach(var m in _postFrontMarkers)m.Visible=false;return;}
-        var origin=_camera.ProjectRayOrigin(screen);var ray=_camera.ProjectRayNormal(screen);
-        if(Mathf.Abs(ray.Y)<.001f || -origin.Y/ray.Y<=0)return;
-        var world=origin+ray*(-origin.Y/ray.Y);var cell=TraversalGrid.WorldToCell(Mathf.RoundToInt(world.X*1000),Mathf.RoundToInt(world.Z*1000));
-        if(_postCandidate==cell)return;
-        _postCandidate=cell;_postIssue=_session.ValidateCommand(CampaignEnvelope(new MoveResponsePostCommand(role,cell,_postQuarterTurns)))?.Message;
-        _postPreview.Position=ImmersionPosition(cell);_postPreview.RotationDegrees=new(0,_postQuarterTurns*90,0);_postPreview.Visible=true;
-        _postPreviewLabel!.RotationDegrees=new(0,-_postQuarterTurns*90,0);
-        _postPreviewLabel.Text=_postIssue is null?"VALID • CLICK TO MOVE":"INVALID";
-        _preparationMessage=_postIssue??(RelaxedSaveCadence?"Valid response post site • click to move; next timed save pending.":"Valid response post site • click to move and autosave.");RefreshPreparationHud();
-        var color=_postIssue is null?new Color(.25f,.78f,.38f,.4f):new Color(.9f,.24f,.18f,.4f);
-        var extent=role==ResponseRole.Medic?3.5f:2.5f;
-        _postFootprintPreview!.Mesh=new BoxMesh {Size=new(extent,.035f,extent)};
-        _postFootprintPreview.Position=ImmersionPosition(cell)+new Vector3(0,.08f,0);_postFootprintPreview.Visible=true;
-        ((StandardMaterial3D)_postFootprintPreview.MaterialOverride!).AlbedoColor=color;
-        var prep=_session.CapturePreparation()!;
-        prep=role==ResponseRole.Medic?prep with{FirstAidPlacement=new(cell,_postQuarterTurns)}:prep with{StewardPostPlacement=new(cell,_postQuarterTurns)};
-        for(var i=0;i<2;i++){var m=_postFrontMarkers[i];m.Position=ImmersionPosition(GameSession.ResponsePostHome(prep,role,i==1))+new Vector3(0,.08f,0);m.Visible=true;((StandardMaterial3D)m.MaterialOverride!).AlbedoColor=color;}
-    }
-    private void CommitResponsePostPlacement(Vector2 screen)
-    {
-        UpdateResponsePostPreview(screen);
-        if(_movingResponsePost is not {} role || _postCandidate is not {} cell || _postIssue is not null)return;
-        var previousHash=_session.CaptureSnapshot().AuthoritativeHash;
-        CommitEquipmentAction(new MoveResponsePostCommand(role,cell,_postQuarterTurns));
-        if(_session.CaptureSnapshot().AuthoritativeHash!=previousHash && _session.CaptureResponsePost(role)==new ResponsePostPlacement(cell,_postQuarterTurns))CancelResponsePostPlacement(true);
+        BeginBuildPlacement(role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost,
+            role == ResponseRole.Medic ? "first-aid" : "steward-post");
     }
 }

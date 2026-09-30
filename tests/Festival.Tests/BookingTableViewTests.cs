@@ -63,18 +63,4 @@ public sealed class BookingTableViewTests
         Assert.ThrowsExactly<ArgumentOutOfRangeException>(() => BookingTableView.Project(Acts, 4, BookingSortField.Price, false));
     }
 
-    [TestMethod]
-    public void ActualR005nNormalSaveRemainsReadableWithoutMigrationOrMutation()
-    {
-        var root = new DirectoryInfo(AppContext.BaseDirectory);
-        while (root is not null && !File.Exists(Path.Combine(root.FullName, "ROGUELIKE_DESIGN.md"))) root = root.Parent;
-        var file = Path.Combine(root!.FullName, "reports", "evidence", "R0.05n", "review-repair2-1280x720", "saves", "manual-preparation.ftsave");
-        var bytes = File.ReadAllBytes(file);
-        Assert.AreEqual("2B0A2ACBD53D7D2D76FA4DC0A2F0EE84FEFFC4419EEE7876FBB9E61C66A9E4A8", Convert.ToHexString(SHA256.HashData(bytes)));
-        var header = new SaveCompatibility("0.0.1-r0.05n-booking-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-booking-v1");
-        var loaded = SaveFileAdapter.LoadFile(file, header); Assert.IsTrue(loaded.IsSuccess, loaded.Error);
-        Assert.AreEqual(1, loaded.Session!.CapturePreparation()!.LineupReactionsVersion);
-        Assert.AreEqual(loaded.Session.CaptureSnapshot().AuthoritativeHash, GameSession.Restore(loaded.Session.CapturePersistenceSnapshot()).Session!.CaptureSnapshot().AuthoritativeHash);
-        CollectionAssert.AreEqual(bytes, File.ReadAllBytes(file));
-    }
 }

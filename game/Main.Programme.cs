@@ -27,38 +27,7 @@ public partial class Main
 
     private void BuildProgrammeControls(VBoxContainer parent)
     {
-        if (_session.CapturePreparation()?.LineupReactionsVersion == 1) { BuildBookingControls(parent); return; }
-        if (_session.CaptureProgramme() is null) return;
-        _programmeControls = new VBoxContainer(); parent.AddChild(_programmeControls);
-        _programmeControls.AddChild(LabelText("ONE DAY • THREE FIXED SETS", 16, new Color("29352c")));
-        _programmeSummary = LabelText("", 13, new Color("29352c"));
-        _programmeSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _programmeControls.AddChild(_programmeSummary);
-        var acts = _session.GetFestivalActs().ToArray();
-        _programmeDraft = _session.CapturePreparationPlan() is not null ? ["", "", ""] : acts.Take(3).Select(act => act.Id).ToArray();
-        var windows = Enumerable.Range(0, 3)
-            .Select(slot => $"{slot + 1} • {BookingTime(GameSession.FestivalSlotStarts[slot])}–{BookingTime(GameSession.FestivalSlotEnds[slot])}")
-            .ToArray();
-        for (var slot = 0; slot < 3; slot++)
-        {
-            _programmeControls.AddChild(LabelText(windows[slot], 13, new Color("29352c")));
-            var index = slot;
-            var choice = new OptionButton { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-            RegisterHoverPopup(choice);
-            choice.AddThemeFontSizeOverride("font_size", 13);
-            choice.ItemSelected += selected =>
-            {
-                if (_programmeRefreshing) return;
-                _programmeDraft[index] = choice.GetItemMetadata((int)selected).AsString();
-                if (_session.CapturePreparationPlan() is not null) CommitEquipmentAction(new SetProgrammeCommand(_programmeDraft.ToArray()));
-                RefreshProgrammeControls();
-            };
-            _programmeChoices[slot] = choice; _programmeControls.AddChild(choice);
-        }
-        _programmeBook = ButtonText("BOOK THREE ACTS", () =>
-            CommitEquipmentAction(new SetProgrammeCommand(_programmeDraft.ToArray())));
-        _programmeBook.TooltipText = "Book three distinct acts once. After payment, only their order can change before opening; no refund or repeat fee.";
-        _programmeControls.AddChild(_programmeBook);
+        BuildBookingControls(parent);
     }
 
     private void RefreshProgrammeControls()

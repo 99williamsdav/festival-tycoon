@@ -36,6 +36,7 @@ public sealed class CrowdBenchmarkTests
         Assert.AreEqual(50, fixture.ActiveAgentCount);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void WideControlledPassageCompletesSameDemandSoonerWithoutFailuresOrRecovery()
     {

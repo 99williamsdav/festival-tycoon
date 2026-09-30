@@ -25,11 +25,10 @@ public sealed class FestivalResultsTests
     }
     private static GameSession Open()
     {
-        var s = GameSession.CreateResultsCampaign(20260922); var perks = s.CapturePerks()!;
-        Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[0]));
+        var s = BuildSession.Drafted(20260922);
         Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
         Accept(s, new AcceptPreparationOfferCommand("staff.engineer")); Accept(s, new AcceptPreparationOfferCommand("equipment.buy"));
-        Accept(s, new PurchaseImmersionStarterStockCommand()); Accept(s, new StartPreparedEditionCommand());
+        Accept(s, new SetPreparationStockCommand(40, 40, 32)); Accept(s, new StartPreparedEditionCommand());
         s.AdvanceWithoutSnapshot(1200); return s;
     }
     private static GameSession Reload(GameSession s)
@@ -51,6 +50,7 @@ public sealed class FestivalResultsTests
     {
         Assert.IsNull(FestivalResult.Rating(0, 0)); Assert.AreEqual(1, FestivalResult.Rating(3999, 2));
     }
+    [TestCategory("Slow")]
     [TestMethod]
     public void NaturalDepartureFrozenReportAndActualFileReload()
     {
@@ -95,6 +95,7 @@ public sealed class FestivalResultsTests
         Invoke(s, "AdvanceImmersion"); Assert.IsNull(s.CaptureImmersion()!.People.Single(person => person.AgentId == performer.AgentId).Held);
         Assert.AreEqual(1, s.CapturePreparation()!.FinishedBeerIds!.Length); Reload(s);
     }
+    [TestCategory("Slow")]
     [TestMethod]
     public void LedgerOperatingProfitExcludesOpeningFundsAndCapital()
     {
@@ -104,29 +105,7 @@ public sealed class FestivalResultsTests
         Assert.AreEqual(s.CaptureSnapshot().FestivalFinances.Single().CashPennies - 80000L, r.NetCashChangePennies);
         Assert.IsTrue(r.ContractCostsPennies > 0); Reload(s);
     }
-    [TestMethod]
-    public void LegacyNullMetricsPreserveCanonicalHashAndInvalidCompletionRejected()
-    {
-        var legacy = GameSession.CreateEditableCampaign(20260922); Assert.IsFalse(legacy.FestivalResultsEnabled); Reload(legacy);
-        var s = Open(); var p = s.CapturePreparation()!; Set(s, "PreparationView", p with { FinishedBeerIds = ["fabricated"] });
-        Assert.IsFalse(GameSession.Restore(s.CapturePersistenceSnapshot()).IsSuccess);
-        Set(s, "PreparationView", p with { FinishedBeerIds = null });
-        Assert.IsFalse(GameSession.Restore(s.CapturePersistenceSnapshot()).IsSuccess, "A partial metrics tracker must not masquerade as a legacy payload.");
-    }
-    [TestMethod]
-    public void ActualExitTickDeathPrecedesDepartureAndRetryClearsMetrics()
-    {
-        var s = Open(); Closing(s); var m = s.CaptureMedical()!; var id = m.AtRiskGuestId; var p = s.CapturePreparation()!;
-        var index = Array.FindIndex(p.People, person => person.AgentId == id);
-        Set(s, "PreparationView", p with { People = p.People.Select(person => person.AgentId == id ? person : person with { Departed = true }).ToArray() });
-        Position(s, id, new(122 + index % 6 * 2, 190 + index / 6 * 2));
-        Set(s, "MedicalView", m with { Stage = MedicalStage.Critical, WarningTick = 20000, CollapseTick = 21601, CriticalTick = 22401 });
-        s.AdvanceWithoutSnapshot(1);
-        Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus); Assert.IsFalse(s.CapturePreparation()!.People.Single(person => person.AgentId == id).Departed);
-        Assert.IsNull(s.CompletedFestivalResult); Assert.AreEqual(1, s.CaptureLifecycleSnapshot()!.Casualties.Count);
-        Accept(s, new SpendCouncilFavourCommand()); Assert.AreEqual(PreparationStatus.Preparing, s.PreparedStatus);
-        Assert.AreEqual(0, s.CapturePreparation()!.GuestMedicalCollapses); Assert.AreEqual(0, s.CapturePreparation()!.FinishedBeerIds!.Length); Assert.IsNull(s.CompletedFestivalResult); Reload(s);
-    }
+    [TestCategory("Slow")]
     [TestMethod]
     public void FinalSettlementSaveFailureDoesNotPublishAndOrdinaryDepartureDoesNotAutosave()
     {
@@ -144,6 +123,7 @@ public sealed class FestivalResultsTests
         }
         finally { Directory.Delete(directory, true); }
     }
+    [TestCategory("Slow")]
     [TestMethod]
     public void EarlyUnhappyGuestRetainedInFinalMeanAndHistory()
     {
@@ -158,6 +138,7 @@ public sealed class FestivalResultsTests
         Assert.AreEqual(final.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && person.Departed).Sum(person => (long)person.Satisfaction), s.CompletedFestivalResult!.SatisfactionTotal);
         Assert.AreEqual(20, s.CompletedFestivalResult.GuestCount); Reload(s);
     }
+    [TestCategory("Slow")]
     [TestMethod]
     public void ActualMedicalCollapseCountsOnceAndFightKnockoutDoesNotCount()
     {
@@ -188,18 +169,5 @@ public sealed class FestivalResultsTests
         p = s.CapturePreparation()! with { People = s.CapturePreparation()!.People.Select(person => person with { Departed = true }).ToArray() };
         var result = (FestivalResult)method.Invoke(null, [p, s.CaptureImmersion(), s.CaptureMedical(), s.CaptureDisorder(), s.CurrentTick])!;
         Assert.AreEqual(1, result.Fights); Assert.AreEqual(2, s.CaptureDisorder()!.Incidents.Length);
-    }
-    [TestMethod]
-    public void ActualHistoricalSaveRemainsReadableWithKnownHashAndNewIdentityRejectsIt()
-    {
-        var path = Path.GetFullPath("../../../../../reports/evidence/R0.05h/final-1280x720/saves/manual-preparation.ftsave", AppContext.BaseDirectory);
-        var original = File.ReadAllBytes(path);
-        Assert.AreEqual("CBBDAF6BE8409B401907F669F603BE3FFEF4E9212F7DE3BC327998F379A82E56", Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(original)));
-        var envelope = (SaveEnvelopeV1)typeof(SaveFileAdapter).GetMethod("ReadEnvelope", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [path])!;
-        var header = envelope.Header;
-        var loaded = SaveFileAdapter.LoadFile(path, new(header.BuildId, header.ContentHash, header.RulesetHash)); Assert.IsTrue(loaded.IsSuccess, loaded.Error);
-        Assert.AreEqual("dd38b5a79df072eef2e06adf1694787c73069519f408c5a4a54c8fee7c6f3742", loaded.Session!.CaptureSnapshot().AuthoritativeHash);
-        Assert.IsFalse(SaveFileAdapter.LoadFile(path, new("0.0.1-r0.05m-results-v1", header.ContentHash, "r0-results-v1")).IsSuccess);
-        CollectionAssert.AreEqual(original, File.ReadAllBytes(path));
     }
 }

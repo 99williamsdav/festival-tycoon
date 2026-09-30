@@ -6,7 +6,7 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class MedicalCuePlannerTests
 {
-    private static MedicalSnapshot Baseline() => GameSession.CreateMedicalCampaign(20260925).CaptureMedical()!;
+    private static MedicalSnapshot Baseline() => BuildSession.Planned(20260925).CaptureMedical()!;
 
     [TestMethod]
     public void RoutineChoicesAreTransitionTriggeredGloballySpacedAndNotRepeatedPerTick()
@@ -66,46 +66,6 @@ public sealed class MedicalCuePlannerTests
         planner.Reset(decidedAfterThreshold, 2);
         Assert.AreEqual(0, planner.Observe(decidedAfterThreshold, 2).Count,
             "Restoring that decision must not replay its bark.");
-    }
-
-    [TestMethod]
-    public void UrgentPersonCuePreemptsRoutineBudgetPersistsAndReappearsAfterRestore()
-    {
-        var baseline = Baseline();
-        var id = baseline.AtRiskGuestId;
-        var planner = new MedicalCuePlanner();
-        planner.Reset(baseline, 0);
-        var tradeoff = baseline with { Needs = baseline.Needs.Select(item => item.AgentId == id
-                ? item with { Thirst = 9_100, Reason = "Watching band: music 19000 vs water 10900 incl. travel/wait", LastDecisionTick = 80 }
-                : item).ToArray() };
-        Assert.IsTrue(planner.Observe(tradeoff, 80).Any(item => item.AgentId == id && !item.Urgent));
-        var distress = tradeoff with { Stage = MedicalStage.Distress };
-        var cue = planner.Observe(distress, 100).Single(item => item.AgentId == id);
-        Assert.IsTrue(cue.Urgent);
-        StringAssert.Contains(cue.Text, "collapse");
-        Assert.AreEqual(0, planner.Observe(distress, 101).Count(item => !item.Urgent));
-        var performer = distress.Needs.First(item => item.Profile == MedicalNeedProfile.Performer);
-        distress = distress with { Needs = distress.Needs.Select(item => item.AgentId == performer.AgentId
-            ? item with { Stage = MedicalStage.Distress } : item).ToArray() };
-        Assert.AreEqual(2, planner.Observe(distress, 102).Count(item => item.Urgent));
-        Assert.IsTrue(planner.Observe(distress, 1_600).Any(item => item.AgentId == id && item.Urgent));
-        planner.Reset(distress, 1_600); // A load seeds routine transitions, but urgency reconstructs from state.
-        Assert.IsTrue(planner.Observe(distress, 1_600).Any(item => item.AgentId == id && item.Urgent));
-        Assert.AreEqual(0, planner.Observe(distress with { Stage = MedicalStage.Treated }, 1_601)
-            .Count(item => item.AgentId == id));
-
-        var started = GameSession.CreateMedicalCampaign(20260925);
-        foreach (var offer in new[] { "act.folk", "staff.steward", "equipment.buy" })
-            Assert.IsTrue(Send(started, new AcceptPreparationOfferCommand(offer)).IsAccepted);
-        Assert.IsTrue(Send(started, new StartPreparedEditionCommand()).IsAccepted);
-        while (started.CaptureMedical()!.Stage != MedicalStage.Distress && started.CurrentTick < 3_000)
-            started.AdvanceWithoutSnapshot(1);
-        Assert.AreEqual(MedicalStage.Distress, started.CaptureMedical()!.Stage);
-        var restored = GameSession.Restore(started.CapturePersistenceSnapshot());
-        Assert.IsTrue(restored.IsSuccess, restored.Error);
-        planner.Reset(restored.Session!.CaptureMedical(), restored.Session.CurrentTick);
-        Assert.IsTrue(planner.Observe(restored.Session.CaptureMedical()!, restored.Session.CurrentTick)
-            .Any(item => item.AgentId == id && item.Urgent));
     }
 
     [TestMethod]

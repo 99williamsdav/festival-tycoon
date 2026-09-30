@@ -93,14 +93,6 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyEquipmentCommand(equipment);
                 break;
-            case PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand:
-                affectedTarget = null;
-                ApplyImmersionCommand(envelope.Command);
-                break;
-            case MoveToiletCommand toilet:
-                affectedTarget = null;
-                ApplyToiletCommand(toilet);
-                break;
             case AcceptPreparationOfferCommand offer:
                 affectedTarget = null;
                 ApplyPreparationOffer(offer);
@@ -131,31 +123,6 @@ public sealed partial class GameSession
                 IsPaused = pause.IsPaused;
                 break;
 
-            case ConfirmPlanningCommitmentCommand commitment:
-                affectedTarget = null;
-                ApplyConfirmPlanningCommitment(commitment);
-                break;
-
-            case AdvancePlanningWeekCommand:
-                affectedTarget = null;
-                ApplyAdvancePlanningWeek();
-                break;
-
-            case DismissCampaignTipCommand dismiss:
-                affectedTarget = null;
-                ApplyDismissTip(dismiss);
-                break;
-
-            case ForceFixtureDeathsCommand deaths:
-                affectedTarget = null;
-                ApplyForceFixtureDeaths(deaths);
-                break;
-
-            case SpendFixtureFavourCommand:
-                affectedTarget = null;
-                ApplySpendFixtureFavour();
-                break;
-
             case SpendCouncilFavourCommand:
                 affectedTarget = null;
                 ApplySpendCouncilFavour();
@@ -169,39 +136,6 @@ public sealed partial class GameSession
             case CommitCommunityWaterShareCommand:
                 affectedTarget = null;
                 ApplyCommunityWaterShare();
-                break;
-
-            case ApplyWaterFoundationEffectCommand waterEffect:
-                affectedTarget = null;
-                ApplyWaterFoundationEffect(waterEffect);
-                break;
-            case ApplyStaffFoundationEffectCommand staffEffect:
-                affectedTarget = null;
-                ApplyStaffFoundationEffect(staffEffect);
-                break;
-
-            case PlaceWaterPointCommand placeWater:
-                affectedTarget = null;
-                ApplyWaterPlacement(placeWater.Cell, null, placeWater.QuarterTurns);
-                break;
-
-            case MovePrimaryWaterPointCommand moveWater:
-                affectedTarget = null;
-                ApplyWaterPlacement(moveWater.Cell, "water.main", moveWater.QuarterTurns);
-                break;
-
-            case MoveWaterPointCommand movePoint:
-                affectedTarget = null;
-                ApplyWaterPlacement(movePoint.Cell, movePoint.PointId, movePoint.QuarterTurns);
-                break;
-            case MoveResponsePostCommand post:
-                affectedTarget = null;
-                ApplyResponsePostPlacement(post);
-                break;
-
-            case ForceFixtureSafeCompletionCommand:
-                affectedTarget = null;
-                ApplyForceFixtureSafeCompletion();
                 break;
 
             case CreateGuestWalletCommand createGuest:
@@ -279,16 +213,6 @@ public sealed partial class GameSession
             case StaffInterventionCommand intervention:
                 affectedTarget = new EntityId(intervention.GuestId);
                 ApplyStaffIntervention(intervention);
-                break;
-
-            case DevelopmentMedicalFixtureCommand fixtureMedical:
-                affectedTarget = new EntityId(fixtureMedical.GuestId);
-                ApplyMedicalCommand(new(fixtureMedical.GuestId, fixtureMedical.Action), developmentFixture: true);
-                break;
-
-            case DevelopmentDisorderEgressFixtureCommand fixtureEgress:
-                affectedTarget = new EntityId(fixtureEgress.GuestId);
-                ApplyDisorderCommand(new(DisorderAction.SafeEgress, fixtureEgress.GuestId), developmentFixture: true);
                 break;
 
             case DisorderCommand disorder:
@@ -572,17 +496,6 @@ public sealed partial class GameSession
 
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
-        if (snapshot.ServiceQueues is { Length: > 0 })
-        {
-            var modeWasAbsent = snapshot.ServiceQueues.Any(queue => queue.PhysicalArrivalAdmission is null);
-            var compatibilityHash = CanonicalStateHasher.ComputeQueueCompatibility(session, includePhysicalQueueMode: !modeWasAbsent);
-            if (string.Equals(compatibilityHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
-        }
-        if (snapshot.CampaignPlanning is not null)
-        {
-            var compatibilityHash = CanonicalStateHasher.ComputeCampaignCompatibility(session);
-            if (string.Equals(compatibilityHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
-        }
         return SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");
     }
 
@@ -744,12 +657,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (BuildModeEnabled && envelope.Command is (PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand or
-            MoveToiletCommand or PlaceImmersionVendorCommand or MoveResponsePostCommand))
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Use the Build catalogue to change this service layout.");
-        if (_perks is not null && envelope.Command is ApplyStaffFoundationEffectCommand or ApplyWaterFoundationEffectCommand)
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Foundation demos are available only in legacy development diagnostics.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or MoveResponsePostCommand or PerkCommand or PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand or MoveToiletCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or DevelopmentMedicalFixtureCommand or DevelopmentDisorderEgressFixtureCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or ApplyWaterFoundationEffectCommand or ApplyStaffFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -763,11 +671,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
             MedicalCommand medical => ValidateMedicalCommand(envelope.TargetId, medical),
             DisorderCommand disorder => ValidateDisorderCommand(envelope.TargetId, disorder),
             StaffInterventionCommand intervention => ValidateStaffIntervention(envelope.TargetId, intervention),
-            DevelopmentMedicalFixtureCommand fixture => _medical?.DevelopmentInterventionFixturesEnabled != true ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Development intervention fixture is disabled.") : ValidateMedicalCommand(envelope.TargetId, new(fixture.GuestId, fixture.Action), developmentFixture: true),
-            DevelopmentDisorderEgressFixtureCommand fixture => _medical?.DevelopmentInterventionFixturesEnabled != true ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Development intervention fixture is disabled.") : ValidateDisorderCommand(envelope.TargetId, new(DisorderAction.SafeEgress, fixture.GuestId), developmentFixture: true),
             SetProgrammeCommand programme => ValidateProgramme(envelope.TargetId, programme),
-            PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand => ValidateImmersionCommand(envelope.TargetId, envelope.Command),
-            MoveToiletCommand toilet => ValidateToiletCommand(envelope.TargetId, toilet),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture creation requires no target and a positive expiry."),
@@ -775,21 +679,9 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
                 CommandResult.Rejected(CommandReasonCode.UnknownTarget, "Fixture target does not exist."),
             SetPausedCommand when envelope.TargetId is not null =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Pause command does not accept a target."),
-            ConfirmPlanningCommitmentCommand commitment => ValidateConfirmPlanningCommitment(envelope.TargetId, commitment),
-            AdvancePlanningWeekCommand => ValidateAdvancePlanningWeek(envelope.TargetId),
-            DismissCampaignTipCommand dismiss => ValidateDismissCampaignTip(envelope.TargetId, dismiss),
-            ForceFixtureDeathsCommand deaths => ValidateForceFixtureDeaths(envelope.TargetId, deaths),
-            SpendFixtureFavourCommand => ValidateSpendFixtureFavour(envelope.TargetId),
             SpendCouncilFavourCommand => ValidateSpendCouncilFavour(envelope.TargetId),
             ConcedeCouncilHearingCommand => ValidateConcedeCouncilHearing(envelope.TargetId),
             CommitCommunityWaterShareCommand => ValidateCommunityWaterShare(envelope.TargetId),
-            ApplyWaterFoundationEffectCommand waterEffect => ValidateWaterFoundationEffect(envelope.TargetId, waterEffect),
-            ApplyStaffFoundationEffectCommand staffEffect => ValidateStaffFoundationEffect(envelope.TargetId, staffEffect),
-            PlaceWaterPointCommand placeWater => ValidateWaterPlacement(envelope.TargetId, placeWater.Cell, null, placeWater.QuarterTurns),
-            MovePrimaryWaterPointCommand moveWater => ValidateWaterPlacement(envelope.TargetId, moveWater.Cell, "water.main", moveWater.QuarterTurns),
-            MoveWaterPointCommand movePoint => string.IsNullOrWhiteSpace(movePoint.PointId) ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Water point identity required.") : ValidateWaterPlacement(envelope.TargetId, movePoint.Cell, movePoint.PointId, movePoint.QuarterTurns),
-            MoveResponsePostCommand post => ValidateResponsePostPlacement(envelope.TargetId,post),
-            ForceFixtureSafeCompletionCommand => ValidateForceFixtureSafeCompletion(envelope.TargetId),
             CreateGuestWalletCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Guest setup requires no target and nonnegative opening cash."),
             CreateFestivalFinanceCommand create when envelope.TargetId is not null || create.OpeningCashPennies < 0 =>
@@ -813,47 +705,6 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
     }
 
     public CommandResult? ValidateCommand(CommandEnvelope envelope) => ValidateEnvelope(envelope);
-
-    private CommandResult? ValidateConfirmPlanningCommitment(EntityId? targetId, ConfirmPlanningCommitmentCommand command)
-    {
-        if (targetId is not null || Phase != SessionPhase.Planning || _campaignPlanning is null)
-            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Commitments can be confirmed only during campaign planning.");
-        var commitment = _campaignPlanning.Commitments.SingleOrDefault(item => item.Id == command.CommitmentId);
-        if (commitment is null)
-            return CommandResult.Rejected(CommandReasonCode.UnknownTarget, "Planning commitment does not exist.");
-        if (commitment.Status != PlanningCommitmentStatus.Available)
-            return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Planning commitment is already confirmed or paid.");
-        var cash = _festivalFinances[_campaignPlanning.FinanceOwnerId].CashPennies;
-        var reserved = _campaignPlanning.Commitments
-            .Where(item => item.Status == PlanningCommitmentStatus.Confirmed)
-            .Sum(item => item.AmountPennies);
-        if (cash - reserved < commitment.AmountPennies)
-            return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, "Festival cash is insufficient for this commitment.");
-        return null;
-    }
-
-    private CommandResult? ValidateAdvancePlanningWeek(EntityId? targetId)
-    {
-        if (targetId is not null || Phase != SessionPhase.Planning || _campaignPlanning is null || _campaignPlanning.PlanningWeek is < 1 or > 8)
-            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Advance Week is available only during Planning W8 through W1.");
-        var due = _campaignPlanning.Commitments
-            .Where(item => item.Status == PlanningCommitmentStatus.Confirmed && item.DueOnAdvanceFromWeek == _campaignPlanning.PlanningWeek)
-            .Sum(item => item.AmountPennies);
-        if (_festivalFinances[_campaignPlanning.FinanceOwnerId].CashPennies < due)
-            return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, "Festival cash is insufficient for payments due on this advance.");
-        return null;
-    }
-
-    private CommandResult? ValidateDismissCampaignTip(EntityId? targetId, DismissCampaignTipCommand command)
-    {
-        if (targetId is not null || _campaignPlanning is null)
-            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "This session has no campaign tip state.");
-        if (string.IsNullOrWhiteSpace(command.TipId) || command.TipId.Length > 80)
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Tip ID must contain 1-80 characters.");
-        if (_campaignPlanning.DismissedTipIds.Contains(command.TipId))
-            return CommandResult.Rejected(CommandReasonCode.DuplicateCommand, "Tip was already dismissed.");
-        return null;
-    }
 
     private CommandResult? ValidatePurchase(EntityId? serviceId, PurchaseItemCommand purchase)
     {

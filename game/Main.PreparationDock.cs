@@ -20,7 +20,6 @@ public partial class Main
 
     private void BuildPreparationDock(CanvasLayer layer, Vector2 size)
     {
-        if (!_session.BuildModeEnabled) return;
         _preparationDock = HudPanel(layer, new Vector2(8, size.Y - 124), new Vector2(size.X - 16, 116), HudInk);
         _preparationDock.AddThemeStyleboxOverride("panel", HudStyle(HudInk, 5));
         var stack = new VBoxContainer(); stack.AddThemeConstantOverride("separation", 4); _preparationDock.AddChild(stack);
@@ -144,8 +143,8 @@ public partial class Main
         var funds = _session.CaptureSnapshot().FestivalFinances.Single().CashPennies;
         _preparationDockCost!.Text = $"Budget {FestivalCurrency.Format(funds)}   ·   Full draft {FestivalCurrency.Format(_session.PreparationPlanCost)}   ·   " +
             $"Remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}   ·   Pay only at Start";
-        if (_buildGhostKind is not null || _movingResponsePost is not null || _placingImmersionVendor is not null ||
-            _movingToilet || _waterPlacementMode != WaterPlacementMode.None)
+        if (_buildGhostKind is not null ||
+            false)
             _preparationDockCost.Text += "\n" + _preparationMessage;
         var issue = _buildGhostKind is not null ? "Finish or cancel placement" :
             blockers.FirstOrDefault()?.Message ?? _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand()))?.Message;

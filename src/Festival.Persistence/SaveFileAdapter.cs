@@ -16,10 +16,6 @@ public static partial class SaveFileAdapter
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
         WriteIndented = false,
-        TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver
-        {
-            Modifiers = { StaffSaveDefaults.Configure }
-        },
     };
 
     public static string ResolveSlotPath(string directory, string slotId)

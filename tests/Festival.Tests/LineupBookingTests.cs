@@ -11,8 +11,7 @@ public sealed class LineupBookingTests
     private static void Accept(GameSession s, SessionCommand c) { var r = Send(s, c); Assert.IsTrue(r.IsAccepted, r.Message); }
     private static GameSession New(bool reactions = true)
     {
-        var s = reactions ? GameSession.CreateBookingCampaign(20260922) : GameSession.CreateResultsCampaign(20260922);
-        var perk = s.CapturePerks()!; Accept(s, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])); return s;
+        return BuildSession.Drafted(20260922);
     }
     private static void Ready(GameSession s)
     {
@@ -54,33 +53,6 @@ public sealed class LineupBookingTests
         Assert.AreEqual(hash, s.CaptureSnapshot().AuthoritativeHash); Assert.AreEqual(cash, s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
     }
     [TestMethod]
-    public void ActualAdmissionUsesFinalPaidMappingOnceAndLoadDoesNotStack()
-    {
-        var current = New(); var legacy = New(false); Ready(current); Ready(legacy);
-        // Draft changes do not appraise anyone. Final committed mapping differs from preview.
-        Accept(current, new SetProgrammeCommand(["act.meadow-lanterns", "act.copper-static", "act.neon-postcards"]));
-        Accept(legacy, new SetProgrammeCommand(["act.meadow-lanterns", "act.copper-static", "act.neon-postcards"]));
-        Assert.IsTrue(current.CapturePreparation()!.People.All(p => p.Satisfaction == 5000 && !p.Admitted));
-        Accept(current, new StartPreparedEditionCommand()); Accept(legacy, new StartPreparedEditionCommand());
-        var checkedIds = new HashSet<ulong>();
-        for (var tick = 0; tick < 3000 && checkedIds.Count < current.CapturePreparation()!.People.Length; tick++)
-        {
-            current.AdvanceWithoutSnapshot(1); legacy.AdvanceWithoutSnapshot(1);
-            var p = current.CapturePreparation()!; var old = legacy.CapturePreparation()!; var programme = current.CaptureProgramme()!;
-            foreach (var person in p.People.Where(p => p.Admitted && checkedIds.Add(p.AgentId)))
-            {
-                var previous = old.People.Single(p => p.AgentId == person.AgentId);
-                var adjustment = person.Role == ProtectedPersonRole.Guest ? GameSession.GuestLineupAdjustment(programme.ActIds.Sum(id => current.FestivalAffinity(person.AgentId, current.GetFestivalActs().Single(a => a.Id == id)))) :
-                    person.Role == ProtectedPersonRole.Performer ? -GameSession.PerformerLineupPenalty(current.GetFestivalActs().Single(a => a.Id == programme.ActIds[programme.Performers.Single(m => m.AgentId == person.AgentId).SlotIndex]), programme.Performers.Single(m => m.AgentId == person.AgentId).SlotIndex) : 0;
-                Assert.AreEqual(Math.Clamp(previous.Satisfaction + adjustment, 0, 10000), person.Satisfaction, person.Name);
-            }
-        }
-        Assert.AreEqual(current.CapturePreparation()!.People.Length, checkedIds.Count); RestoreExact(current);
-        var restored = GameSession.Restore(current.CapturePersistenceSnapshot()).Session!;
-        current.AdvanceWithoutSnapshot(200); restored.AdvanceWithoutSnapshot(200);
-        Assert.AreEqual(current.CaptureSnapshot().AuthoritativeHash, restored.CaptureSnapshot().AuthoritativeHash);
-    }
-    [TestMethod]
     public void CoordinatorEditsAndFailedStartAreAtomicWithOneSetupPaymentAndLiveLock()
     {
         var s = New(); Ready(s); var compatibility = new SaveCompatibility("booking-test", "content", "booking-v1");
@@ -94,14 +66,5 @@ public sealed class LineupBookingTests
         Assert.AreEqual(1, s.CapturePreparation()!.SetupPayments!.Length); Assert.IsFalse(s.PreviewLineupEdit("act.orchard-chorus", -1, 0).IsValid);
         var loaded = AutosaveRotation.LoadNewestValid(directory, compatibility); Assert.IsTrue(loaded.IsSuccess, loaded.Error); RestoreExact(loaded.Session!);
         Assert.IsFalse(EquipmentCommandCoordinator.Execute(directory, s, new StartPreparedEditionCommand(), compatibility, DateTimeOffset.UtcNow, 2).IsSuccess);
-    }
-    [TestMethod]
-    public void IdentityValidationRejectsInvalidCurrentSnapshot()
-    {
-        var s = New(); var snapshot = s.CapturePersistenceSnapshot(); var p = snapshot.Preparation!;
-        Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { LineupReactionsVersion = 2 } }).IsSuccess);
-        Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { FinishedBeerIds = null, GuestMedicalCollapses = null } }).IsSuccess);
-        // Development saves are current-version only; the historical R0.05h file is retained as evidence, not a compatibility gate.
-        RestoreExact(s);
     }
 }

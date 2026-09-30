@@ -4,18 +4,12 @@ public sealed record LineupEditResult(bool IsValid, bool IsNoOp, string Message,
 
 public sealed partial class GameSession
 {
-    public static GameSession CreateBookingCampaign(ulong seed)
-    {
-        var session = CreateResultsCampaign(seed);
-        session._preparation = session._preparation! with { LineupReactionsVersion = 1 };
-        return session;
-    }
     public static int GuestLineupAdjustment(int affinitySum) => Math.Clamp((affinitySum - 150) * 10, -1500, 1500);
     public static int PerformerLineupPenalty(FestivalAct act, int slot) => slot == 2 || act.Ego < 70 ? 0 :
         1500 * act.Ego * (200 - act.Professionalism) / 20000;
     private int AdmissionLineupAdjustment(Person person)
     {
-        if (_preparation?.LineupReactionsVersion != 1 || _programme is not { ActIds.Length: 3 } programme) return 0;
+        if (_programme is not { ActIds.Length: 3 } programme) return 0;
         if (person.Role == ProtectedPersonRole.Guest)
             return GuestLineupAdjustment(programme.ActIds.Sum(id => FestivalAffinity(person.Id, FestivalActs.Single(a => a.Id == id))));
         if (person.Role != ProtectedPersonRole.Performer) return 0;

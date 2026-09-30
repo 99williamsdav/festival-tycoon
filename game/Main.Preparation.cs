@@ -20,23 +20,14 @@ public partial class Main
     private int _preparationOfferInsertIndex;
     private Button _preparationStart = null!;
     private Button? _communityShareButton;
-    private Label? _waterFoundationHeading;
-    private Button? _waterPlaceButton;
-    private Button? _waterTowerButton;
-    private Label? _waterPlacementStatus;
-    private Label? _waterAdditionReason;
     private Label? _communityShareInfo;
     private string _preparationMessage = "Choose one act and one worker. Equipment and stock are optional.";
-    private string? _preparationCaptureDirectory;
-    private int _preparationCaptureFrame;
     private readonly List<double> _preparationFrameMilliseconds = [];
     private long _preparationPriorTimestamp;
     private bool _preparationSaveBlocked;
     private PreparationDraftSavePipeline? _draftSavePipeline;
-    private int _preparationMeasurementTier;
     private long _preparationMeasurementStarted;
     private long _preparationLiveStarted;
-    private readonly List<double> _preparationWorkMilliseconds = [];
     private readonly List<double> _preparationMovingFrameMilliseconds = [];
 
     private void BuildPreparationHud()
@@ -89,7 +80,7 @@ public partial class Main
                 RefreshPreparationHud();
                 return;
             }
-            if (_session.BuildModeEnabled && (OS.GetCmdlineUserArgs().Length == 0 || _cameraProfileMode == "staff-draft") &&
+            if ((OS.GetCmdlineUserArgs().Length == 0 || _cameraProfileMode == "staff-draft") &&
                 (id.StartsWith("staff.", StringComparison.Ordinal) || id == "maintenance.worker"))
             {
                 _draftSavePipeline ??= new(SaveDirectory, _session, _saveCompatibility, _autosaveGeneration);
@@ -123,10 +114,10 @@ public partial class Main
     {
         if (RejectActionDuringDraftSave()) return;
         if (_buildGhostKind is not null) { _preparationMessage = "Finish or cancel placement before opening."; RefreshPreparationHud(); return; }
-        CancelImmersionPlacement();
-        CancelToiletPlacement();
-        CancelWaterPlacement();
-        CancelResponsePostPlacement();
+
+
+
+
         if (RelaxedSaveCadence)
         {
             if (!ExecuteMilestoneCommand(new StartPreparedEditionCommand(), "Festival start", out var error))
@@ -166,18 +157,11 @@ public partial class Main
             PollCadenceSave();
         }
         CancelBuildPlacement();
-        CancelResponsePostPlacement();
-        CancelImmersionPlacement(); ResetImmersionHeldVisuals();
-        CancelToiletPlacement();
-        CancelWaterPlacement();
+
+ResetImmersionHeldVisuals();
+
+
         var result = SaveFileAdapter.LoadSlot(SaveDirectory, "manual-preparation", _saveCompatibility);
-        if (_session.CapturePreparationPlan() is not null && result.IsSuccess &&
-            (result.Session!.CapturePreparation() is not { Version: 2, Plan: not null } || _session.StaffAutonomyEnabled && !result.Session.StaffAutonomyEnabled || _session.FestivalResultsEnabled && !result.Session.FestivalResultsEnabled))
-        {
-            _preparationMessage = "This save uses the paid preparation diagnostic model. Load it in its matching diagnostic mode; start a fresh normal campaign for the editable unpaid plan.";
-            RefreshPreparationHud();
-            return;
-        }
         if (result.IsSuccess && result.Session!.CapturePreparation() is not null)
         {
             _draftSavePipeline = null;
@@ -249,22 +233,6 @@ public partial class Main
                 $"SHARING COMMITTED • weekend attempt {p.CommunityShareAttempt}. Personal baseline cap 12 thirst units/tick for faster drinkers before tower +4; queues may grow. " +
                 (p.CommunityFavourClaimed ? "1 Council Favour awarded after the full weekend." : "1 Council Favour only after the full weekend is honoured.");
         }
-        if (_waterPlaceButton is not null)
-        {
-            _waterPlaceButton.Visible = p.Status == PreparationStatus.Preparing && !_session.BuildModeEnabled;
-            var reason = _session.WaterTapAdditionUnavailableReason;
-            _waterPlaceButton.Disabled = reason is not null;
-            _waterPlaceButton.TooltipText = reason ?? "Choose a grass site; rotation and physical service access are checked at placement.";
-            if (_waterAdditionReason is not null)
-            {
-                _waterAdditionReason.Visible = !_session.BuildModeEnabled;
-                _waterAdditionReason.Text = reason ?? "Extra tap available · choose a grass spot, rotate or cancel.";
-            }
-            _waterTowerButton!.Visible = p.Status == PreparationStatus.Preparing;
-            _waterTowerButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new ApplyWaterFoundationEffectCommand("water.tower"))) is not null;
-            _waterPlacementStatus!.Visible = p.Status == PreparationStatus.Preparing && !_session.BuildModeEnabled;
-        }
-        if (_waterFoundationHeading is not null) _waterFoundationHeading.Visible = p.Status == PreparationStatus.Preparing && !_session.BuildModeEnabled;
         if (_communityShareInfo is not null) _communityShareInfo.Text = FestivalCopy(_communityShareInfo.Text);
         _preparationSummary.TooltipText = FestivalCopy(_preparationMessage);
         var examples = p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Take(2)
@@ -330,13 +298,11 @@ public partial class Main
                 RefreshPreparationHud();
             }
         }
-        if (_equipmentPerformanceOutput is not null) { _equipmentDeltaMs = delta * 1000; _equipmentDebtBefore = _foundationClock.DebtTicks; }
         if (_periodicSaveTask is not null) FinishPeriodicAutosave();
         if (_boundarySaveTask is not null) FinishResponsiveBoundarySave();
         _foundationClock.IsPaused = _resultsCaptureDirectory is not null || _session.IsPaused || _preparationSaveBlocked ||
             _session.CapturePreparation()!.Status is not (PreparationStatus.Running or PreparationStatus.Departing);
         var ticks = _foundationClock.Schedule(delta);
-        if (_equipmentPerformanceOutput is not null) _equipmentScheduledTicks = ticks;
         var previousStatus = _session.PreparedStatus;
         var hadResult = _session.CompletedFestivalResult is not null;
         for (var tick = 0; tick < ticks; tick++)
@@ -384,7 +350,7 @@ public partial class Main
         var characterDelta = CharacterPresentationPaused ? 0 : delta;
         _characterPresentationSeconds += characterDelta;
         SyncPresentationPause();
-        if (_preparationProfileOutput is not null || _equipmentPerformanceOutput is not null || _cameraProfileOutput is not null) _profileSimulationMs = Stopwatch.GetElapsedTime(workStarted, presentationStarted).TotalMilliseconds;
+        if (_preparationProfileOutput is not null || _cameraProfileOutput is not null) _profileSimulationMs = Stopwatch.GetElapsedTime(workStarted, presentationStarted).TotalMilliseconds;
         var live = _session.CaptureLivePerformance();
         var watching = live is { Stage: LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted }
             ? live.Listeners.Where(item => item.AtPlace).Select(item => new EntityId(item.AgentId)).ToHashSet()
@@ -443,7 +409,6 @@ public partial class Main
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         AdvanceIncidentAudioPresentation();
         SyncPresentationPause();
-        ProcessLivePerformanceCapture();
         if (RelaxedSaveCadence) AdvanceCadenceSave(delta);
         else if (_boundarySaveTask is null && _periodicSaveTask is null &&
             _session.PreparedStatus is (PreparationStatus.Running or PreparationStatus.Departing) && _autosaveScheduler.Advance(delta))
@@ -451,93 +416,9 @@ public partial class Main
             StartPeriodicAutosave();
         }
         if (Engine.GetProcessFrames() % 15 == 0) RefreshPreparationHud();
-        if (_preparationMeasurementTier > 0 && _preparationLiveStarted != 0)
-            _preparationWorkMilliseconds.Add(Stopwatch.GetElapsedTime(workStarted).TotalMilliseconds);
         var captureStarted = Stopwatch.GetTimestamp();
-        if (_preparationProfileOutput is not null || _equipmentPerformanceOutput is not null || _cameraProfileOutput is not null) _profilePresentationMs = Stopwatch.GetElapsedTime(presentationStarted, captureStarted).TotalMilliseconds;
-        if (_preparationCaptureDirectory is not null &&
-            (_preparationProfileOutput is null || _preparationProfileCapture || _preparationCaptureFrame < 10)) ProcessPreparationCapture();
-        if (_preparationProfileOutput is not null || _equipmentPerformanceOutput is not null) _profileCaptureMs = Stopwatch.GetElapsedTime(captureStarted).TotalMilliseconds;
+        if (_preparationProfileOutput is not null || _cameraProfileOutput is not null) _profilePresentationMs = Stopwatch.GetElapsedTime(presentationStarted, captureStarted).TotalMilliseconds;
+        if (_preparationProfileOutput is not null) _profileCaptureMs = Stopwatch.GetElapsedTime(captureStarted).TotalMilliseconds;
     }
 
-    private void ProcessPreparationCapture()
-    {
-        _preparationCaptureFrame++;
-        var now = Stopwatch.GetTimestamp();
-        if (_preparationMeasurementStarted == 0) _preparationMeasurementStarted = now;
-        if (_preparationPriorTimestamp != 0 && _preparationCaptureFrame > 30)
-            _preparationFrameMilliseconds.Add(Stopwatch.GetElapsedTime(_preparationPriorTimestamp, now).TotalMilliseconds);
-        if (_preparationMeasurementTier > 0 && _preparationPriorTimestamp != 0 &&
-            _session.CaptureObservation().NavigationAgents.Any(item => item.Action == AgentNavigationAction.Travelling))
-            _preparationMovingFrameMilliseconds.Add(Stopwatch.GetElapsedTime(_preparationPriorTimestamp, now).TotalMilliseconds);
-        _preparationPriorTimestamp = now;
-        Directory.CreateDirectory(_preparationCaptureDirectory!);
-        if (_preparationCaptureFrame == 5)
-        {
-            _offerButtons["act.folk"].EmitSignal(Button.SignalName.Pressed);
-            _offerButtons["staff.steward"].EmitSignal(Button.SignalName.Pressed);
-            _offerButtons["equipment.buy"].EmitSignal(Button.SignalName.Pressed);
-        }
-        if (_preparationCaptureFrame == 8) GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_preparationCaptureDirectory!, "preparation.png"));
-        if (_preparationCaptureFrame == 10)
-        {
-            _preparationStart.EmitSignal(Button.SignalName.Pressed);
-            if (_preparationProfileOutput is not null && _preparationProfileDeparture)
-            {
-                _session.AdvanceWithoutSnapshot(GameSession.PreparedWeekendTicks);
-                _session = GameSession.Restore(_session.CapturePersistenceSnapshot()).Session!;
-                _foundationPresentation.Reset(_session.CaptureObservation());
-                _foundationClock.ResetBoundary();
-            }
-            _preparationLiveStarted = Stopwatch.GetTimestamp();
-        }
-        if (_preparationMeasurementTier > 0)
-        {
-            if (_preparationProfileOutput is not null) return;
-            if (_session.PreparedStatus == PreparationStatus.Finished || _preparationSaveBlocked ||
-                Stopwatch.GetElapsedTime(_preparationMeasurementStarted).TotalSeconds > 660)
-            {
-                var p = _session.CapturePreparation()!;
-                var latest = AutosaveRotation.LoadNewestValid(SaveDirectory, _saveCompatibility);
-                var exact = latest.IsSuccess && latest.Session!.CaptureSnapshot().AuthoritativeHash == _session.CaptureSnapshot().AuthoritativeHash;
-                var passed = p.Status == PreparationStatus.Finished && p.People.All(item => item.Admitted && item.Departed) && exact;
-                var liveSeconds = Stopwatch.GetElapsedTime(_preparationLiveStarted).TotalSeconds;
-                static string Stats(List<double> samples)
-                {
-                    if (samples.Count == 0) return "unavailable";
-                    var sorted = samples.Order().ToArray();
-                    double Percentile(double p) => sorted[Math.Clamp((int)Math.Ceiling(p * sorted.Length) - 1, 0, sorted.Length - 1)];
-                    return $"n={samples.Count};mean={samples.Average():0.000};p50={Percentile(.50):0.000};p95={Percentile(.95):0.000};p99={Percentile(.99):0.000};max={sorted[^1]:0.000}";
-                }
-                File.WriteAllText(Path.Combine(_preparationCaptureDirectory!, "complete-attempt.txt"),
-                    $"passed={passed}\ntier={p.Tier}\npeople={p.People.Length}\nadmitted={p.People.Count(item => item.Admitted)}\ndeparted={p.People.Count(item => item.Departed)}\n" +
-                    $"newestAutosaveExact={exact}\nticks={_session.CurrentTick}\nliveWallSeconds={liveSeconds:0.000}\nscriptedAttemptWallSeconds={Stopwatch.GetElapsedTime(_preparationMeasurementStarted).TotalSeconds:0.000}\n" +
-                    $"attainedSpeed={_session.CurrentTick / (80 * liveSeconds):0.000000}\nframeMs={Stats(_preparationFrameMilliseconds)}\nmovingFrameMs={Stats(_preparationMovingFrameMilliseconds)}\nworkMs={Stats(_preparationWorkMilliseconds)}\n" +
-                    $"peakWorkingSetBytes={Process.GetCurrentProcess().PeakWorkingSet64}\nstatus={p.Status}\nmessage={_preparationMessage}\n" +
-                    "Scripted preparation; no human decision or pause time included. One bounded 1x run, not a general capacity claim.\n");
-                RefreshPreparationHud();
-                GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_preparationCaptureDirectory!, "complete-attempt.png"));
-                GetTree().Quit(passed ? 0 : 2);
-            }
-            return;
-        }
-        if (_preparationCaptureFrame == 100)
-        {
-            _session.Execute(CampaignEnvelope(new SetPausedCommand(true)));
-            var hash = _session.CaptureSnapshot().AuthoritativeHash;
-            PreparationSave(); PreparationLoad();
-            var exact = hash == _session.CaptureSnapshot().AuthoritativeHash;
-            var p = _session.CapturePreparation()!;
-            var passed = exact && p.Status == PreparationStatus.Running && _session.CaptureObservation().NavigationAgents.Count == 22;
-            File.WriteAllText(Path.Combine(_preparationCaptureDirectory!, "verification.txt"),
-                $"passed={passed}\nrestoreExact={exact}\npeople={p.People.Length}\ntick={_session.CurrentTick}\n" +
-                $"meanFrameMs={_preparationFrameMilliseconds.Average():0.000}\nmaxFrameMs={_preparationFrameMilliseconds.Max():0.000}\n" +
-                "Measurement: short runtime smoke only; not a capacity or complete-attempt pacing claim.\n");
-        }
-        if (_preparationCaptureFrame == 103)
-        {
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_preparationCaptureDirectory!, "live-restored.png"));
-            GetTree().Quit();
-        }
-    }
 }

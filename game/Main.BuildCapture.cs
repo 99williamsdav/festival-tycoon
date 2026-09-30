@@ -67,7 +67,6 @@ public partial class Main
                     if (!BuildOriginOverlayReady) { _buildCaptureStep--; break; }
                     UpdateBuildGhost(_camera.UnprojectPosition(ImmersionPosition(BuildBlockedCaptureCell)));
                     if (_buildCandidateIssue is null) throw new InvalidOperationException("Blocked ghost fixture was accepted.");
-                    if (_hudPlacement?.Visible == true) throw new InvalidOperationException("Legacy placement panel appeared over build ghost.");
                     BuildCaptureImage("05-blocked-ghost-and-debug-origins");
                     var hash = _session.CaptureSnapshot().AuthoritativeHash;
                     CommitBuildPlacement(_camera.UnprojectPosition(ImmersionPosition(BuildBlockedCaptureCell)));

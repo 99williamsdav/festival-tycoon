@@ -227,57 +227,6 @@ public sealed partial class GameSession
             _campaignPlanning.Loan.InterestDueAtSettlementPennies);
     }
 
-    private void ApplyConfirmPlanningCommitment(ConfirmPlanningCommitmentCommand command)
-    {
-        var index = _campaignPlanning!.Commitments.FindIndex(item => item.Id == command.CommitmentId);
-        var commitment = _campaignPlanning.Commitments[index];
-        _campaignPlanning.Commitments[index] = commitment with
-        {
-            Status = PlanningCommitmentStatus.Confirmed,
-            ConfirmedInWeek = _campaignPlanning.PlanningWeek,
-            DueOnAdvanceFromWeek = _campaignPlanning.PlanningWeek,
-        };
-    }
-
-    private void ApplyDismissTip(DismissCampaignTipCommand command) => _campaignPlanning!.DismissedTipIds.Add(command.TipId);
-
-    private void ApplyAdvancePlanningWeek()
-    {
-        var campaign = _campaignPlanning!;
-        var fromWeek = campaign.PlanningWeek;
-        var due = campaign.Commitments
-            .Where(item => item.Status == PlanningCommitmentStatus.Confirmed && item.DueOnAdvanceFromWeek == fromWeek)
-            .ToArray();
-        var cash = _festivalFinances[campaign.FinanceOwnerId];
-        foreach (var commitment in due)
-        {
-            cash.CashPennies = checked(cash.CashPennies - commitment.AmountPennies);
-            var index = campaign.Commitments.FindIndex(item => item.Id == commitment.Id);
-            campaign.Commitments[index] = commitment with { Status = PlanningCommitmentStatus.Paid };
-            campaign.LedgerTransactions.Add(new PlanningLedgerTransactionSnapshot(
-                checked((ulong)campaign.LedgerTransactions.Count + 1),
-                commitment.DisplayName,
-                fromWeek,
-                [
-                    new LedgerEntry(campaign.FinanceOwnerId, LedgerAccountType.AdministrationExpense, commitment.AmountPennies),
-                    new LedgerEntry(campaign.FinanceOwnerId, LedgerAccountType.CashAsset, -commitment.AmountPennies),
-                ]));
-        }
-
-        campaign.PlanningWeek--;
-        if (campaign.PlanningWeek == 0) Phase = SessionPhase.OpeningCheck;
-        var warnings = new[] { "Settlement forecast includes £160.00 principal and £64.00 interest; neither is due during planning." };
-        campaign.WeeklyDigests.Add(new WeeklyDigestSnapshot(
-            fromWeek,
-            campaign.PlanningWeek,
-            Phase,
-            due.Select(item => new WeeklyPaymentSnapshot(item.Id, item.DisplayName, item.AmountPennies)).ToArray(),
-            campaign.Commitments.Count(item => item.Status == PlanningCommitmentStatus.Confirmed),
-            cash.CashPennies,
-            campaign.Loan.OutstandingPrincipalPennies,
-            warnings));
-    }
-
     private PersistedCampaignPlanning? CapturePersistedCampaignPlanning()
     {
         if (_campaignPlanning is null) return null;

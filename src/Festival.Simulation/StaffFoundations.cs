@@ -3,42 +3,9 @@ namespace Festival.Simulation;
 public enum ResponseRole { Medic, Steward }
 public sealed record StaffProfile(ulong AgentId, string Name, ResponseRole Role, int WalkingSpeedPermille,
     int TreatmentTicks, int CalmingSkill, int ConfrontationSkill);
-public sealed record ApplyStaffFoundationEffectCommand(string EffectId) : SessionCommand;
-
-public static class StaffSaveDefaults
-{
-    public static void Configure(System.Text.Json.Serialization.Metadata.JsonTypeInfo type)
-    {
-        if (type.Type != typeof(PreparationSnapshot) && type.Type != typeof(MedicalSnapshot) && type.Type != typeof(DisorderSnapshot) &&
-            type.Type != typeof(WaterPointState) && type.Type != typeof(WaterPlacement) && type.Type != typeof(LivePerformanceSnapshot)) return;
-        foreach (var property in type.Properties)
-        {
-            if (property.Name is "staffProfiles" or "extraResponses" or "queueCells" or "mainWaterQueueCells" or "staffInterventions" or "setEndAudienceIds") property.ShouldSerialize = (_, value) => value is not Array array || array.Length > 0;
-            if (property.Name is "extraMedicSlotOwned" or "extraStewardSlotOwned" or "respondersUpgraded" or "developmentInterventionFixturesEnabled" or "staffAutonomyEnabled") property.ShouldSerialize = (_, value) => value is true;
-            if (property.Name == "responseDispatchedTick") property.ShouldSerialize = (_, value) => value is not long tick || tick >= 0;
-            if (property.Name is "quarterTurns" or "primaryWaterQuarterTurns" or "mainWaterQuarterTurns" or "geometryVersion" or "primaryWaterGeometryVersion" or "mainWaterGeometryVersion") property.ShouldSerialize = (_, value) => value is not int turns || turns != 0;
-        }
-    }
-}
 
 public sealed partial class GameSession
 {
-    // Absent new fields mean their exact no-staff-foundation defaults. Preserve canonical
-    // bytes for earlier baseline saves without granting slots, training, contracts or jobs.
-    private static string StaffCompatibleCanonicalJson(object value, params string[] absentDefaultFields)
-    {
-        var json = System.Text.Json.JsonSerializer.SerializeToNode(value)!.AsObject();
-        foreach (var field in absentDefaultFields.Where(field => field.Length > 0)) json.Remove(field);
-        foreach (var arrayName in new[] { "WaterPlacements", "ExtraWaterPoints" })
-            if (json[arrayName] is System.Text.Json.Nodes.JsonArray items)
-                foreach (var item in items.OfType<System.Text.Json.Nodes.JsonObject>())
-                {
-                    if (item["QuarterTurns"]?.GetValue<int>() == 0) item.Remove("QuarterTurns");
-                    if (item["GeometryVersion"]?.GetValue<int>() == 0) item.Remove("GeometryVersion");
-                    if (item["QueueCells"] is System.Text.Json.Nodes.JsonArray { Count: 0 }) item.Remove("QueueCells");
-                }
-        return json.ToJsonString();
-    }
     private bool StaffMedicalBoundaryOnNextTick => !IsPaused && MedicalOperationsActive &&
         GetMedicResponses().Any(job => job.Stage == MedicalResponseStage.Travelling && _navigationAgents[new(job.WorkerId)].Action == AgentNavigationAction.Arrived ||
             job.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(job) && CurrentTick + 1 >= job.StartedTick + GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks || IntoxicationCareBoundary(job)));
@@ -151,32 +118,6 @@ public sealed partial class GameSession
             role == ResponseRole.Steward ? 3500 + (int)(random.NextUInt32() % 4501) : 0);
     }
 
-    private CommandResult? ValidateStaffFoundationEffect(EntityId? target, ApplyStaffFoundationEffectCommand command)
-    {
-        if (target is not null || _disorder is null || _preparation is not { Status: PreparationStatus.Preparing } p)
-            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Staff foundation effects are preparation-only.");
-        bool? owned = command.EffectId switch
-        {
-            "staff.medic-slot" => p.ExtraMedicSlotOwned,
-            "staff.steward-slot" => p.ExtraStewardSlotOwned,
-            "staff.role-training" => p.RespondersUpgraded,
-            _ => null
-        };
-        return owned is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown staff foundation effect.") :
-            owned.Value ? CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This durable staff effect is already active.") : null;
-    }
-
-    private void ApplyStaffFoundationEffect(ApplyStaffFoundationEffectCommand command)
-    {
-        var p = _preparation!;
-        _preparation = command.EffectId switch
-        {
-            "staff.medic-slot" => p with { ExtraMedicSlotOwned = true },
-            "staff.steward-slot" => p with { ExtraStewardSlotOwned = true },
-            _ => p with { RespondersUpgraded = true }
-        };
-    }
-
     private void HireOptionalStaff(ResponseRole role)
     {
         var p = _preparation!;
@@ -208,7 +149,7 @@ public sealed partial class GameSession
                 SetMedicResponse(job with { Stage = MedicalResponseStage.None, PatientId = null, StartedTick = -1, Description = "Medic incapacitated; response released for another physical medic" });
                 continue;
             }
-            if (StaffAutonomyEnabled && MedicBusy(job) && _navigationAgents[new(job.WorkerId)].Action == AgentNavigationAction.NoRoute)
+            if (MedicBusy(job) && _navigationAgents[new(job.WorkerId)].Action == AgentNavigationAction.NoRoute)
             {
                 SetMedicResponse(job with { Stage = MedicalResponseStage.None, PatientId = null, StartedTick = -1, Description = "Physical route failed; response released without remote treatment" });
                 continue;
@@ -308,7 +249,7 @@ public sealed partial class GameSession
                 if (nav is not null && nav.WalkingSpeedPermille != speed) return "Staff movement disagrees with saved role training.";
             }
         }
-        if (p.StaffAutonomyEnabled && stewards.Where(StewardBusy).Any(job =>
+        if (stewards.Where(StewardBusy).Any(job =>
             s.Disorder!.People.Single(person => person.AgentId == job.TargetId) is { Stage: DisorderStage.Fight, OpponentId: { } opponent } &&
             stewards.Any(other => other.WorkerId != job.WorkerId && StewardBusy(other) && other.TargetId == opponent)))
             return "A reciprocal fight pair may only have one active steward response.";

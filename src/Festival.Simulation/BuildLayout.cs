@@ -9,14 +9,6 @@ public sealed record UseDefaultBuildLayoutCommand : SessionCommand;
 
 public sealed partial class GameSession
 {
-    public static GameSession CreateBuildCampaign(ulong seed)
-    {
-        var session = CreateBookingCampaign(seed);
-        session._preparation = session._preparation! with { BuildModeEnabled = true, BuildPlacements = [] };
-        session.ApplyBuildGuestOpeningNeeds();
-        session.SyncBuildPhysicalLayout();
-        return session;
-    }
     private static readonly (BuildServiceKind Kind, int FeePennies, int Limit)[] BuildCatalogue =
     [
         (BuildServiceKind.WaterTap, 2_000, 2),
@@ -31,10 +23,8 @@ public sealed partial class GameSession
         BuildCatalogue.Single(item => item.Kind == kind).FeePennies;
     public static int BuildServiceLimit(BuildServiceKind kind) =>
         BuildCatalogue.Single(item => item.Kind == kind).Limit;
-    public bool BuildModeEnabled => _preparation?.BuildModeEnabled == true;
     public IReadOnlyList<BuildPlacement> CaptureBuildPlacements() => _preparation?.BuildPlacements.ToArray() ?? [];
-    public long BuildDraftCost => _preparation?.BuildModeEnabled == true
-        ? _preparation.BuildPlacements.Sum(item => (long)BuildServiceFeePennies(item.Kind)) : 0;
+    public long BuildDraftCost => _preparation?.BuildPlacements?.Sum(item => (long)BuildServiceFeePennies(item.Kind)) ?? 0;
     public static BuildPlacement[] StandardBuildLayout() =>
     [
         new("water.main", BuildServiceKind.WaterTap, MedicalWaterCell, 0),
@@ -70,7 +60,7 @@ public sealed partial class GameSession
 
     private CommandResult? ValidateBuildCommand(EntityId? target, SessionCommand command)
     {
-        if (target is not null || _preparation is not { BuildModeEnabled: true, Status: PreparationStatus.Preparing, Plan: { Committed: false } } p)
+        if (target is not null || _preparation is not { Status: PreparationStatus.Preparing, Plan: { Committed: false } } p)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Build layout can be edited only before opening.");
         if (command is RemoveBuildServiceCommand remove)
             return p.BuildPlacements.Any(item => item.Id == remove.Id) ? null :
@@ -115,7 +105,7 @@ public sealed partial class GameSession
 
     private void SyncBuildPhysicalLayout()
     {
-        if (_preparation is not { BuildModeEnabled: true } p || _medical is null || _immersion is null) return;
+        if (_preparation is not { } p || _medical is null || _immersion is null) return;
         var water = p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.WaterTap).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         var primary = water.FirstOrDefault(item => item.Id == "water.main");
         _medical = _medical with
@@ -203,7 +193,6 @@ public sealed partial class GameSession
 
     private static string? ValidateBuildMirrors(PreparationSnapshot p, SessionPersistenceSnapshot saved)
     {
-        if (!p.BuildModeEnabled) return null;
         if (saved.Medical is not { } medical || saved.Immersion is not { } immersion ||
             p.ExtraWaterSiteIds is null || p.WaterPlacements is null || medical.ExtraWaterPoints is null || immersion.Vendors is null)
             return "Saved build services have no physical state.";

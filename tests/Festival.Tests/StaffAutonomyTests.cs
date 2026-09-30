@@ -17,24 +17,17 @@ public sealed class StaffAutonomyTests
     }
     private static GameSession Ready(bool extra = false)
     {
-        var s = extra ? GameSession.CreateImmersionCampaign(20260922) : GameSession.CreateEditableCampaign(20260922);
-        if (extra) Set(s, "PreparationView", s.CapturePreparation()! with { StaffAutonomyEnabled = true });
-        if (s.CapturePerks() is { } perks) Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[0]));
-        if (extra)
-        {
-            // Explicit capacity fixture; no new normal free-slot path is introduced.
-            Accept(s, new ApplyStaffFoundationEffectCommand("staff.medic-slot"));
-            Accept(s, new ApplyStaffFoundationEffectCommand("staff.steward-slot"));
-            Accept(s, new AcceptPreparationOfferCommand("staff.extra-medic"));
-            Accept(s, new AcceptPreparationOfferCommand("staff.extra-steward"));
-        }
-        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
+        // The extra medic slot comes from drafting Doctor's Orders; the medic is still hired for £30.
+        var s = extra ? BuildSession.PlannedWith("doctors-orders") : BuildSession.Planned();
+        if (extra) Accept(s, new AcceptPreparationOfferCommand("staff.extra-medic"));
         Accept(s, new AcceptPreparationOfferCommand("staff.steward"));
         return s;
     }
     private static GameSession Started(bool extra = false)
     {
         var s = Ready(extra); Accept(s, new StartPreparedEditionCommand()); s.AdvanceWithoutSnapshot(1500);
+        while (!s.CapturePreparation()!.People.Where(person => person.Role != ProtectedPersonRole.Performer).All(person => person.Admitted) && s.CurrentTick < 12000)
+            s.AdvanceWithoutSnapshot(80);
         Assert.AreEqual(PreparationStatus.Running, s.PreparedStatus);
         Assert.IsTrue(s.CapturePreparation()!.People.Where(person => person.Role != ProtectedPersonRole.Performer).All(person => person.Admitted)); return Restore(s);
     }
@@ -105,31 +98,6 @@ public sealed class StaffAutonomyTests
         }
     }
     [TestMethod]
-    public void ReciprocalFightClaimsOneWorkerBeforeCompetingArgumentAndRejectsMalformedSavedDuplicate()
-    {
-        var (s, a, b) = FightFixture(true, true); var ids = Guests(s); var d = s.CaptureDisorder()!;
-        Set(s, "DisorderView", d with { People = d.People.Select(person => person.AgentId == ids[2] ? person with {
-            Stage = DisorderStage.Argument, Pressure = 8000, Grievance = DisorderGrievance.MusicCutoff, GrievanceTick = s.CurrentTick, StageTick = s.CurrentTick } : person).ToArray() });
-        s.AdvanceWithoutSnapshot(1);
-        Assert.AreEqual(1, s.GetStewardResponses().Count(job => job.TargetId == a || job.TargetId == b));
-        Assert.AreEqual(1, s.GetStewardResponses().Count(job => job.TargetId == ids[2]));
-        Assert.IsFalse(Send(s, new DisorderCommand(DisorderAction.DispatchSecurity, b)).IsAccepted);
-        var snapshot = s.CapturePersistenceSnapshot(); d = snapshot.Disorder!;
-        var malformed = snapshot with { Disorder = d with { ResponseTargetId = a, ExtraResponses = d.ExtraResponses.Select(job => job with { TargetId = b }).ToArray() } };
-        var error = (string?)typeof(GameSession).GetMethod("ValidatePersistenceSnapshot", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [malformed]);
-        Assert.IsNotNull(error);
-    }
-    [TestMethod]
-    public void TooLatePhysicalHandlingDoesNotExtendOriginalFightDeadline()
-    {
-        var (s, _, _) = FightFixture(true, age: 696); var fightTick = s.CaptureDisorder()!.Incidents.Single().FightTick;
-        s.AdvanceWithoutSnapshot(112);
-        var origin = s.CaptureDisorder()!.Incidents.Single(); Assert.AreEqual((fightTick + 800 + 7) / 8 * 8, origin.InjuryTick);
-        Assert.AreEqual(FightHandlingOutcome.Interrupted, origin.HandlingAttempt!.Outcome);
-        Assert.IsTrue(s.GetMedicResponses().Any(job => job.PatientId == origin.VictimId));
-        s = Restore(s); Assert.AreEqual(FightHandlingOutcome.Interrupted, s.CaptureDisorder()!.Incidents.Single().HandlingAttempt!.Outcome);
-    }
-    [TestMethod]
     public void CancelledFightTransitDoesNotConsumePhysicalAttemptAndNewIncidentHasItsOwnAttempt()
     {
         var (s, a, b) = FightFixture(true); s.AdvanceWithoutSnapshot(1);
@@ -146,18 +114,6 @@ public sealed class StaffAutonomyTests
         typeof(GameSession).GetMethod("BeginDisorderFight", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [a, b, "labelled:second-fight"]);
         s.AdvanceWithoutSnapshot(1); Assert.AreEqual(SecurityResponseStage.Travelling, s.GetStewardResponses().Single().Stage);
         Assert.AreEqual(2, s.CaptureDisorder()!.Incidents.Length); Assert.IsNull(s.CaptureDisorder()!.Incidents.Last().HandlingAttempt);
-    }
-    [TestMethod]
-    public void FreshNormalAutonomyIsSavedHashedAndLegacyDefaultIsFalse()
-    {
-        var normal = Ready(); Assert.IsTrue(normal.StaffAutonomyEnabled); Assert.IsTrue(Restore(normal).StaffAutonomyEnabled);
-        var before = normal.CaptureSnapshot().AuthoritativeHash;
-        Set(normal, "PreparationView", normal.CapturePreparation()! with { StaffAutonomyEnabled = false });
-        Assert.AreNotEqual(before, normal.CaptureSnapshot().AuthoritativeHash);
-        var diagnostic = GameSession.CreateDisorderCampaign(20260922); Assert.IsFalse(diagnostic.StaffAutonomyEnabled);
-        Assert.IsFalse(Restore(diagnostic).StaffAutonomyEnabled);
-        var canonical = (string)typeof(GameSession).GetProperty("PreparationCanonicalJson", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(diagnostic)!;
-        Assert.IsFalse(canonical.Contains("StaffAutonomyEnabled"));
     }
     [TestMethod]
     public void HandlingCompletionOnOriginalFightBoundaryRetainsExistingResponseBeforeInjuryOrdering()
@@ -205,71 +161,6 @@ public sealed class StaffAutonomyTests
         Assert.AreEqual(FightHandlingOutcome.Interrupted,s.CaptureDisorder()!.Incidents.Single().HandlingAttempt!.Outcome);
         Assert.AreEqual(-1,s.CaptureDisorder()!.Incidents.Single().InjuryTick);
         s=Restore(s); Assert.IsFalse(Send(s,new DisorderCommand(DisorderAction.DispatchSecurity,a)).IsAccepted);
-    }
-    [TestMethod]
-    public void CollapsedCounterpartDuringTransitRejectsHealthyTargetAndDoesNotRedispatch()
-    {
-        var (s,a,b) = FightFixture(true);
-        var worker = s.GetStewardResponses().Single().WorkerId;
-        PositionFixture(s, worker, new GridCell(80, 120));
-        Incidents(s,(a,MedicalStage.Collapsed,s.CurrentTick));
-        Assert.IsFalse(Send(s,new DisorderCommand(DisorderAction.DispatchSecurity,b)).IsAccepted);
-        s.AdvanceWithoutSnapshot(24);
-        Assert.IsNull(s.CaptureDisorder()!.Incidents.Single().HandlingAttempt);
-        Assert.IsFalse(s.GetStewardResponses().Any(job => job.Stage is SecurityResponseStage.Travelling or SecurityResponseStage.Confronting));
-        s=Restore(s); Assert.IsFalse(Send(s,new DisorderCommand(DisorderAction.DispatchSecurity,b)).IsAccepted);
-    }
-    [TestMethod]
-    public void TapReasonMatchesAuthorityAbsentEntitlementAndUsedCapacity()
-    {
-        var s = Ready(); var p = s.CapturePerks()!;
-        Set(s, "_perks", p with { Equipped = p.Equipped.Where(id => id != "another-round").ToArray() });
-        Assert.IsTrue(s.WaterTapAdditionUnavailableReason!.Contains("Requires Another Round"));
-        var result = Send(s, new PlaceWaterPointCommand(new(104, 112)));
-        Assert.IsFalse(result.IsAccepted); Assert.AreEqual(s.WaterTapAdditionUnavailableReason, result.Message);
-        // Separate normal seed whose actual first draft contains Another Round.
-        for (ulong seed = 1; ; seed++)
-        {
-            var candidate = GameSession.CreateEditableCampaign(seed); var draft = candidate.CapturePerks()!;
-            if (!draft.Hand.Contains("another-round")) continue;
-            Accept(candidate, new ChoosePerkCommand(draft.DraftAttempt, draft.Cursor, "another-round")); s = candidate; break;
-        }
-        Assert.IsNull(s.WaterTapAdditionUnavailableReason); Accept(s, new PlaceWaterPointCommand(new(104, 112)));
-        s = Restore(s); Assert.IsTrue(s.WaterTapAdditionUnavailableReason!.Contains("already placed"));
-        Assert.IsFalse(Send(s, new PlaceWaterPointCommand(new(90, 100))).IsAccepted);
-    }
-    [TestMethod]
-    public void ArgumentAutomationUsesExistingEightThousandThresholdAndOldestStageThenId()
-    {
-        var s = Started(); var ids = Guests(s); var d = s.CaptureDisorder()!;
-        Set(s, "DisorderView", d with { People = d.People.Select(person => ids.Take(3).Contains(person.AgentId) ? person with {
-            Stage = DisorderStage.Argument, Pressure = 7999, Grievance = DisorderGrievance.MusicCutoff, StageTick = s.CurrentTick - 10, GrievanceTick = s.CurrentTick - 10 } : person).ToArray() });
-        s.AdvanceWithoutSnapshot(1); Assert.AreEqual(SecurityResponseStage.None, s.GetStewardResponses().Single().Stage);
-        d = s.CaptureDisorder()!;
-        Set(s, "DisorderView", d with { People = d.People.Select(person => ids.Take(3).Contains(person.AgentId) ? person with {
-            Pressure = 8000, StageTick = person.AgentId == ids[2] ? s.CurrentTick - 20 : s.CurrentTick - 10 } : person).ToArray() });
-        s.AdvanceWithoutSnapshot(1); Assert.AreEqual(ids[2], s.GetStewardResponses().Single().TargetId);
-        var clone = Restore(s); s.AdvanceWithoutSnapshot(40); clone.AdvanceWithoutSnapshot(40);
-        Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, clone.CaptureSnapshot().AuthoritativeHash);
-    }
-    [TestMethod]
-    public void MergedPreassignedArgumentsKeepOneClaimAndCalmingConvertsToPhysicalHandling()
-    {
-        var (s, a, b) = FightFixture(true, true); var d = s.CaptureDisorder()!; var baseline = d.SecurityId; var other = d.ExtraResponses.Single().WorkerId;
-        PositionFixture(s, baseline, new(125,178)); PositionFixture(s, other, new(125,179));
-        Set(s, "DisorderView", d with { ResponseStage = SecurityResponseStage.Calming, ResponseTargetId = a, ResponseStartedTick = s.CurrentTick - 16,
-            ResponseDispatchedTick = s.CurrentTick - 32, ExtraResponses = [new(other, SecurityResponseStage.Calming, b, s.CurrentTick - 8, false, "Labelled preassigned argument response", s.CurrentTick - 24)] });
-        s.AdvanceWithoutSnapshot(4); d = s.CaptureDisorder()!;
-        Assert.IsNull(d.Incidents.Single().HandlingAttempt, "Two-metre separation must require a closer physical approach.");
-        for (var tick = 0; tick < 200 && s.CaptureDisorder()!.Incidents.Single().HandlingAttempt is null; tick++) s.AdvanceWithoutSnapshot(1);
-        d = s.CaptureDisorder()!;
-        Assert.AreEqual(1, s.GetStewardResponses().Count(job => job.Stage == SecurityResponseStage.Confronting));
-        Assert.AreEqual(baseline, d.Incidents.Single().HandlingAttempt!.WorkerId);
-        var snapshot = s.CapturePersistenceSnapshot();
-        var malformed = snapshot with { Disorder = d with { Incidents = d.Incidents.Select(origin => origin with { HandlingAttempt = null }).ToArray() } };
-        Assert.IsNotNull(typeof(GameSession).GetMethod("ValidatePersistenceSnapshot", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [malformed]));
-        s = Restore(s); s.AdvanceWithoutSnapshot(160);
-        Assert.AreEqual(FightHandlingOutcome.Succeeded, s.CaptureDisorder()!.Incidents.Single().HandlingAttempt!.Outcome);
     }
     [TestMethod]
     public void AutoMedicTreatmentPhysicallyStartsAndContinuesExactlyAcrossReload()

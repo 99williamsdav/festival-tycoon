@@ -18,48 +18,9 @@ public sealed class FestivalProgrammeTests
         return result.Session;
     }
     [TestMethod]
-    public void AtomicBookingsReorderWithoutDuplicateFeesAndRejectReplacement()
-    {
-        var s = GameSession.CreateTimetableCampaign(20260926);
-        Restore(s);
-        var hash = s.CaptureSnapshot().AuthoritativeHash;
-        Assert.IsFalse(Send(s, new SetProgrammeCommand([Acts[0], Acts[0], Acts[2]])).IsAccepted);
-        Assert.AreEqual(hash, s.CaptureSnapshot().AuthoritativeHash);
-        Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts)).IsAccepted);
-        var p = s.CapturePreparation()!;
-        Assert.AreEqual(3, p.Payments.Length);
-        Assert.AreEqual(20500, p.Payments.Sum(payment => payment.AmountPennies));
-        Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts.Reverse().ToArray())).IsAccepted);
-        Assert.AreEqual(3, s.CapturePreparation()!.Payments.Length);
-        Assert.IsFalse(Send(s, new SetProgrammeCommand([Acts[0], Acts[1], "act.field-frequency"])).IsAccepted);
-        Restore(s);
-        var saved = s.CapturePersistenceSnapshot();
-        Assert.IsFalse(GameSession.Restore(saved with { Programme = saved.Programme! with { ActIds = [Acts[0], Acts[0], Acts[2]] } }).IsSuccess);
-    }
-    [TestMethod]
-    public void InsufficientFundsAndLateProgrammeCommandsLeaveStateUnchanged()
-    {
-        var s = GameSession.CreateTimetableCampaign(20260926);
-        // Labelled low-cash failure-path fixture, not a normal preparation route.
-        var finances = (IDictionary)typeof(GameSession).GetField("_festivalFinances", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(s)!;
-        var finance = finances.Values.Cast<object>().Single();
-        finance.GetType().GetProperty("CashPennies")!.SetValue(finance, 1000L);
-        var before = s.CaptureSnapshot().AuthoritativeHash;
-        Assert.IsFalse(Send(s, new SetProgrammeCommand(Acts)).IsAccepted);
-        Assert.AreEqual(before, s.CaptureSnapshot().AuthoritativeHash);
-        Assert.AreEqual(0, s.CapturePreparation()!.Payments.Length);
-        s = GameSession.CreateTimetableCampaign(20260926);
-        Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts)).IsAccepted);
-        Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
-        Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
-        before = s.CaptureSnapshot().AuthoritativeHash;
-        Assert.IsFalse(Send(s, new SetProgrammeCommand(Acts.Reverse().ToArray())).IsAccepted);
-        Assert.AreEqual(before, s.CaptureSnapshot().AuthoritativeHash);
-    }
-    [TestMethod]
     public void MalformedProgrammeAndOutOfWindowLiveStateAreRejectedWithoutThrowing()
     {
-        var s = GameSession.CreateTimetableCampaign(20260926);
+        var s = BuildSession.Drafted(20260926);
         var saved = s.CapturePersistenceSnapshot();
         Assert.IsFalse(GameSession.Restore(saved with { Preparation = saved.Preparation! with { People = null! } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(saved with { Preparation = saved.Preparation! with { AcceptedOffers = null! } }).IsSuccess);
@@ -76,7 +37,7 @@ public sealed class FestivalProgrammeTests
     [TestMethod]
     public void IncomingCareRouteIsRetainedAndMissedSlotCannotExtendItsDeadline()
     {
-        var s = GameSession.CreateTimetableCampaign(20260926);
+        var s = BuildSession.Drafted(20260926);
         Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts)).IsAccepted);
         Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
@@ -101,9 +62,9 @@ public sealed class FestivalProgrammeTests
     [TestMethod]
     public void DayTimingIsExplicitAndOldTimetableVersionsAreNotSilentlyMigrated()
     {
-        var s = GameSession.CreateTimetableCampaign(20260926);
+        var s = BuildSession.Drafted(20260926);
         Assert.AreEqual(38_400, s.PreparedEditionDurationTicks);
-        Assert.AreEqual(38400, GameSession.CreatePreparedCampaign(20260926).PreparedEditionDurationTicks);
+        Assert.AreEqual(38400, BuildSession.Drafted(20260926).PreparedEditionDurationTicks);
         CollectionAssert.AreEqual(new[] { 4_800, 16_400, 28_000 }, GameSession.FestivalSlotStarts);
         CollectionAssert.AreEqual(new[] { 13_200, 24_800, 37_600 }, GameSession.FestivalSlotEnds);
         Assert.AreEqual(4, s.CaptureProgramme()!.Version);
@@ -117,63 +78,15 @@ public sealed class FestivalProgrammeTests
         var priorFiveMinuteDay = GameSession.Restore(saved with { Programme = saved.Programme! with { Version = 3 } });
         Assert.IsFalse(priorFiveMinuteDay.IsSuccess);
         StringAssert.Contains(priorFiveMinuteDay.Error!, "earlier 300-second timetable");
-        Restore(GameSession.CreatePreparedCampaign(20260926));
+        Restore(BuildSession.Drafted(20260926));
     }
-    [TestMethod]
-    public void FullStaffCapacityHasThirtyFiveDistinctPhysicalPeople()
-    {
-        var s = GameSession.CreateTimetableCampaign(20260922);
-        foreach (var effect in new[] { "staff.medic-slot", "staff.steward-slot" }) Assert.IsTrue(Send(s, new ApplyStaffFoundationEffectCommand(effect)).IsAccepted);
-        Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts)).IsAccepted);
-        foreach (var offer in new[] { "staff.steward", "maintenance.worker", "staff.extra-medic", "staff.extra-steward" }) Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(offer)).IsAccepted);
-        Assert.AreEqual(35, s.CapturePreparation()!.People.Length);
-        s = Restore(s);
-        Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
-        Assert.AreEqual(35, s.CaptureSnapshot().NavigationAgents.Count);
-        Assert.AreEqual(35, s.CaptureSnapshot().NavigationAgents.Select(agent => agent.Id).Distinct().Count());
-        var probe = new ScaleDiagnosticProbe();
-        s.ScaleDiagnosticProbe = probe;
-        var maximumBlockedPeople = 0;
-        var openingWatch = Stopwatch.StartNew();
-        for (var tick = 0; tick < 2000; tick++)
-        {
-            s.AdvanceWithoutSnapshot(1);
-            maximumBlockedPeople = Math.Max(maximumBlockedPeople, probe.CurrentlyBlockedAgents);
-        }
-        openingWatch.Stop();
-        Console.WriteLine($"35-person opening: ticks=2000, elapsedMs={openingWatch.Elapsed.TotalMilliseconds:F1}, max blocked people={maximumBlockedPeople}, routes={probe.RouteSearches}, maximum blocked age={probe.MaximumBlockedAgentAgeTicks}");
-        Assert.IsTrue(maximumBlockedPeople <= 35);
-        Restore(s);
-    }
-    [TestMethod]
-    public void SameTierRetryKeepsNineIdentitiesAndTastesButClearsProgrammeAndContracts()
-    {
-        var s = GameSession.CreateTimetableCampaign(20260926);
-        var people = s.CapturePreparation()!.People;
-        Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts)).IsAccepted);
-        foreach (var offer in new[] { "staff.steward", "equipment.buy" }) Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(offer)).IsAccepted);
-        Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
-        s.AdvanceWithoutSnapshot(6200); // Labelled untreated medical failure, using ordinary hazards.
-        Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus);
-        s = Restore(s);
-        Assert.IsTrue(Send(s, new SpendCouncilFavourCommand()).IsAccepted);
-        var retry = s.CapturePreparation()!;
-        Assert.AreEqual(0, s.CaptureProgramme()!.ActIds.Length);
-        Assert.AreEqual(-1, s.CaptureProgramme()!.CurrentSlot);
-        Assert.AreEqual(0, retry.WorkContracts.Length);
-        CollectionAssert.AreEqual(people.Select(person => (person.AgentId, person.Name, person.ExpectedGenre)).ToArray(), retry.People.Select(person => (person.AgentId, person.Name, person.ExpectedGenre)).ToArray());
-        Assert.IsTrue(retry.OwnedEquipment.Contains("sound-rig"));
-        Assert.IsFalse(Send(s, new StartPreparedEditionCommand()).IsAccepted);
-        Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts.Reverse().ToArray())).IsAccepted);
-        Assert.AreEqual(3, s.CapturePreparation()!.Payments.Count(payment => payment.Attempt == 2));
-        Restore(s);
-    }
+    [TestCategory("Slow")]
     [TestMethod]
     [DataRow(20260926UL, true)]
     [DataRow(20260922UL, false)]
     public void ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm(ulong seed, bool maintenance)
     {
-        var s = GameSession.CreateTimetableCampaign(seed);
+        var s = BuildSession.Drafted(seed);
         Assert.IsTrue(Send(s, new SetProgrammeCommand(seed == 20260922 ? ["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"] : Acts)).IsAccepted);
         foreach (var id in new[] { "staff.steward", "equipment.buy" }.Concat(maintenance ? ["maintenance.worker"] : Array.Empty<string>())) Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);

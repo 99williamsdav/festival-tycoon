@@ -48,32 +48,8 @@ public sealed partial class GameSession
 
     public DisorderSnapshot? CaptureDisorder() => DisorderView is not { } view ? null :
         JsonSerializer.Deserialize<DisorderSnapshot>(JsonSerializer.Serialize(view));
-    internal string? DisorderCanonicalJson => DisorderView is not { } d ? null : StaffCompatibleCanonicalJson(d,
-        d.ExtraResponses.Length > 0 ? "" : nameof(d.ExtraResponses), d.ResponseDispatchedTick >= 0 ? "" : nameof(d.ResponseDispatchedTick));
+    internal string? DisorderCanonicalJson => DisorderView is not { } d ? null : System.Text.Json.JsonSerializer.Serialize(d);
 
-    public static GameSession CreateDisorderCampaign(ulong seed, int tier = 1)
-    {
-        var session = CreateMedicalCampaign(seed, tier);
-        var securityId = session.NextEntityId++;
-        session._wallets.Add(new(securityId), new WalletState { OwnerId = new(securityId), CashPennies = 500 });
-        session.PreparationView = session.PreparationView! with { People = session.PreparationView.People.Append(
-            new EditionPerson(securityId, "Jordan Hale", ProtectedPersonRole.Staff, 0)).ToArray() };
-        session.MedicalView = session.MedicalView! with { Version = 6, Needs = session.MedicalView.Needs.Append(
-            new MedicalNeed(securityId, 0, 0, MedicalIntent.WatchShow, "Security on duty", -MedicalDecisionCooldownTicks,
-                null, -1, MedicalNeedProfile.Staff)).ToArray() };
-        var skills = RandomStreamFactory.Create(seed ^ securityId, RandomStreamId.IndividualBehaviour);
-        var people = session.PreparationView!.People.Where(item => item.Role == ProtectedPersonRole.Guest).Select(person =>
-        {
-            var random = RandomStreamFactory.Create(seed ^ person.AgentId, RandomStreamId.IndividualBehaviour);
-            return new DisorderPerson(person.AgentId, 2_000 + (int)(random.NextUInt32() % 6_001),
-                320 + (int)(random.NextUInt32() % 801), 0, DisorderGrievance.None, DisorderStage.Calm,
-                -1, -1, -1, -1, -1, null);
-        }).ToArray();
-        session.DisorderView = new(1, securityId, 3_500 + (int)(skills.NextUInt32() % 4_501),
-            3_500 + (int)(skills.NextUInt32() % 4_501), false, false, people,
-            SecurityResponseStage.None, null, -1, "Security available", []);
-        return session;
-    }
 
     private void DisorderEvent(string id, ulong personId, ulong? otherId, int pressure, string description)
     {
@@ -83,12 +59,12 @@ public sealed partial class GameSession
         _disorder = _disorder! with { Evidence = _disorder.Evidence.Append(item).TakeLast(96).ToArray() };
     }
 
-    private CommandResult? ValidateDisorderCommand(EntityId? target, DisorderCommand command, bool developmentFixture = false)
+    private CommandResult? ValidateDisorderCommand(EntityId? target, DisorderCommand command)
     {
-        if (StaffAutonomyEnabled && command.Action == DisorderAction.DispatchSecurity && command.WorkerId is null && command.PersonId is { } roleTarget)
+        if (command.Action == DisorderAction.DispatchSecurity && command.WorkerId is null && command.PersonId is { } roleTarget)
             return target is not null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Steward dispatch has no envelope target.") :
                 SelectRoleResponse(ResponseRole.Steward, roleTarget, out var roleIssue) is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, roleIssue!) : null;
-        if (!developmentFixture && command.Action == DisorderAction.SafeEgress && command.PersonId is { } escortId)
+        if (command.Action == DisorderAction.SafeEgress && command.PersonId is { } escortId)
             return ValidateStaffIntervention(target, new(escortId, command.WorkerId ?? _disorder?.SecurityId ?? 0, StaffInterventionAction.EscortOut));
         if (target is not null || _disorder is not { } d || _preparation?.Status != PreparationStatus.Running ||
             !Enum.IsDefined(command.Action))
@@ -109,11 +85,11 @@ public sealed partial class GameSession
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This person is owned by medical response or needs first aid, not steward reassignment.");
             if (command.Action == DisorderAction.DispatchSecurity)
             {
-                if (StaffAutonomyEnabled && person.ConductStage == DisorderStage.Fight && GuestFightOrigin(id) is { } fight && !GuestFightParticipantsAvailable(fight))
+                if (person.ConductStage == DisorderStage.Fight && GuestFightOrigin(id) is { } fight && !GuestFightParticipantsAvailable(fight))
                     return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "A fight participant is medically or physically unavailable; no steward reassignment.");
-                if (StaffAutonomyEnabled && (StaffUnavailableReason(workerId) is not null || ResponseTargetClaimed(id)))
+                if ((StaffUnavailableReason(workerId) is not null || ResponseTargetClaimed(id)))
                     return CommandResult.Rejected(CommandReasonCode.InvalidParameter, StaffUnavailableReason(workerId) ?? "This person or reciprocal fight is already assigned; finish that response first.");
-                if (StaffAutonomyEnabled && person.ConductStage == DisorderStage.Fight && GuestFightOrigin(id)?.HandlingAttempt is not null)
+                if (person.ConductStage == DisorderStage.Fight && GuestFightOrigin(id)?.HandlingAttempt is not null)
                     return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This fight has already had its one physical handling attempt; no retry or reroll.");
                 if (!_persons[id].Admitted || _persons[id].Departed)
                     return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "The affected person is not physically on site.");
@@ -143,11 +119,11 @@ public sealed partial class GameSession
         return null;
     }
 
-    private void ApplyDisorderCommand(DisorderCommand command, bool developmentFixture = false)
+    private void ApplyDisorderCommand(DisorderCommand command)
     {
-        if (StaffAutonomyEnabled && command.Action == DisorderAction.DispatchSecurity && command.WorkerId is null)
+        if (command.Action == DisorderAction.DispatchSecurity && command.WorkerId is null)
             command = (DisorderCommand)SelectRoleResponse(ResponseRole.Steward, command.PersonId!.Value, out _)!;
-        if (!developmentFixture && command.Action == DisorderAction.SafeEgress)
+        if (command.Action == DisorderAction.SafeEgress)
         { ApplyStaffIntervention(new(command.PersonId!.Value, command.WorkerId ?? _disorder!.SecurityId, StaffInterventionAction.EscortOut)); return; }
         var d = _disorder!;
         if (command.Action == DisorderAction.DispatchSecurity)
@@ -285,7 +261,7 @@ public sealed partial class GameSession
                 !(need.Id == _medical!.AtRiskGuestId && _medical.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical) &&
                 !InterventionOwnsTarget(person.Id) && !InterventionOwnsWorker(person.Id);
             var grievance = _livePerformance?.Stage == LiveSetStage.Interrupted && !ScheduledSilence &&
-                (_programme is null || CurrentTick >= _livePerformance.PlannedTick && CurrentTick < _programme.SlotEndTick &&
+                (CurrentTick >= _livePerformance.PlannedTick && CurrentTick < _programme!.SlotEndTick &&
                     _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal) &&
                 listener is { AtPlace: true, Enthusiasm: >= 65 }
                 ? DisorderGrievance.MusicCutoff
@@ -411,7 +387,7 @@ public sealed partial class GameSession
         if (response.TargetId is not { } targetId || response.Incapacitated) return;
         var target = _persons[targetId];
         var targetNeed = _persons[targetId];
-        if (StaffAutonomyEnabled && GuestFightOrigin(targetId) is { } guestFight &&
+        if (GuestFightOrigin(targetId) is { } guestFight &&
             (target.ConductStage == DisorderStage.Fight || guestFight.HandlingAttempt is { Outcome: FightHandlingOutcome.Handling, WorkerId: var handler } && handler == workerId))
         { AdvanceGuestFightResponse(response, guestFight); return; }
         if (target.ConductStage == DisorderStage.Injured || targetNeed.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical)

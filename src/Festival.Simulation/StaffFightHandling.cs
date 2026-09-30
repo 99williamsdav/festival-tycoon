@@ -18,7 +18,7 @@ public sealed partial class GameSession
     private GridCell? StewardResponseCell(ulong workerId, ulong targetId)
     {
         var worker = _navigationAgents[new(workerId)]; var target = _navigationAgents[new(targetId)];
-        var counterpart = StaffAutonomyEnabled && GuestFightOrigin(targetId) is { } fight
+        var counterpart = GuestFightOrigin(targetId) is { } fight
             ? (ulong?)(fight.InitiatorId == targetId ? fight.OpponentId : fight.InitiatorId) : null;
         bool Suitable(GridCell candidate)
         {
@@ -117,7 +117,7 @@ public sealed partial class GameSession
     }
     private void FinishInterruptedFightAttempts()
     {
-        if (!StaffAutonomyEnabled || _disorder is null) return;
+        if (_disorder is null) return;
         foreach (var origin in _disorder.Incidents.Where(origin => origin.InjuryTick != -1 && origin.HandlingAttempt is { Outcome: FightHandlingOutcome.Handling }).ToArray())
         {
             var job = GetStewardResponses().Single(response => response.WorkerId == origin.HandlingAttempt!.WorkerId);
@@ -126,7 +126,7 @@ public sealed partial class GameSession
     }
     private void ReconcileMergedFightClaims()
     {
-        if (!StaffAutonomyEnabled || _disorder is null) return;
+        if (_disorder is null) return;
         foreach (var origin in _disorder.Incidents.Where(origin => origin.InjuryTick == -1 && !IsSteward(origin.OpponentId)).ToArray())
         {
             var jobs = GetStewardResponses().Where(job => StewardBusy(job) && (job.TargetId == origin.InitiatorId || job.TargetId == origin.OpponentId))
@@ -137,13 +137,13 @@ public sealed partial class GameSession
     }
     private void ReleaseFightHandlingForBoundary(string reason)
     {
-        if (!StaffAutonomyEnabled || _disorder is null) return;
+        if (_disorder is null) return;
         foreach (var origin in _disorder.Incidents.Where(origin => origin.HandlingAttempt is { Outcome: FightHandlingOutcome.Handling }).ToArray())
             EndGuestFightResponse(GetStewardResponses().Single(job => job.WorkerId == origin.HandlingAttempt!.WorkerId), origin, FightHandlingOutcome.Interrupted, reason);
     }
     private void ReleaseFrozenStaffClaims()
     {
-        if (!StaffAutonomyEnabled || !IsLifecycleEditionFrozen()) return;
+        if (!IsLifecycleEditionFrozen()) return;
         ReleaseFightHandlingForBoundary("First death froze the edition; handling attempt interrupted without a new roll");
         FinishStaffResponsesForDeparture();
     }
@@ -152,7 +152,7 @@ public sealed partial class GameSession
     {
         var jobs = new[] { new StewardResponse(disorder.SecurityId, disorder.ResponseStage, disorder.ResponseTargetId, disorder.ResponseStartedTick,
             disorder.SecurityIncapacitated, disorder.Response, disorder.ResponseDispatchedTick) }.Concat(disorder.ExtraResponses ?? []).ToArray();
-        if (snapshot.Preparation?.StaffAutonomyEnabled == true && jobs.Any(job => job.Stage == SecurityResponseStage.Confronting &&
+        if (jobs.Any(job => job.Stage == SecurityResponseStage.Confronting &&
             disorder.People.SingleOrDefault(person => person.AgentId == job.TargetId) is { Stage: DisorderStage.Fight, OpponentId: { } opponent } target &&
             !jobs.Any(other => other.WorkerId == opponent) && !disorder.Incidents.Any(origin => origin.FightTick == target.StageTick &&
                 (origin.InitiatorId == target.AgentId || origin.OpponentId == target.AgentId) && origin.HandlingAttempt is { Outcome: FightHandlingOutcome.Handling } attempt &&
@@ -161,7 +161,7 @@ public sealed partial class GameSession
         foreach (var origin in disorder.Incidents.Where(origin => origin.HandlingAttempt is not null))
         {
             var attempt = origin.HandlingAttempt!;
-            if (snapshot.Preparation?.StaffAutonomyEnabled != true || !Enum.IsDefined(attempt.Outcome) ||
+            if (!Enum.IsDefined(attempt.Outcome) ||
                 !jobs.Any(job => job.WorkerId == attempt.WorkerId) || jobs.Any(job => job.WorkerId == origin.OpponentId) ||
                 attempt.StartedTick < origin.FightTick || attempt.StartedTick > snapshot.CurrentTick ||
                 attempt.EndedTick > snapshot.CurrentTick || attempt.Outcome == FightHandlingOutcome.Handling &&

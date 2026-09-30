@@ -87,7 +87,6 @@ public partial class Main
 
     private void BuildBuildDrawer(CanvasLayer layer, Vector2 size)
     {
-        if (!_session.BuildModeEnabled) return;
         var width = size.X >= 1600 ? 390f : 318f;
         _buildDrawer = HudPanel(layer, new Vector2(15, 77), new Vector2(width,
             Math.Min(size.X >= 1600 ? 735 : 530, size.Y - 212)));
@@ -148,7 +147,7 @@ public partial class Main
 
     private void ToggleBuildDrawer()
     {
-        if (!_session.BuildModeEnabled || _session.PreparedStatus != PreparationStatus.Preparing) return;
+        if (_session.PreparedStatus != PreparationStatus.Preparing) return;
         if (_buildGhostKind is not null) CancelBuildPlacement();
         _buildDrawerOpen = !_buildDrawerOpen;
         if (_buildDrawerOpen) _hudWorkspaceOpen = false;
@@ -157,7 +156,7 @@ public partial class Main
 
     private void OpenBuildCatalogue(BuildServiceKind? focus = null)
     {
-        if (!_session.BuildModeEnabled || _session.PreparedStatus != PreparationStatus.Preparing) return;
+        if (_session.PreparedStatus != PreparationStatus.Preparing) return;
         _buildDrawerOpen = true; _hudWorkspaceOpen = false;
         RefreshHudWorkspace();
         if (focus is { } kind && _buildCatalogueRows.TryGetValue(kind, out var entry))
@@ -188,7 +187,7 @@ public partial class Main
 
     private void RefreshBuildDrawer()
     {
-        if (_buildDrawer is null || !_session.BuildModeEnabled || _session.CapturePreparationPlan() is not { } plan) return;
+        if (_buildDrawer is null || _session.CapturePreparationPlan() is not { } plan) return;
         var placements = _session.CaptureBuildPlacements();
         foreach (var (kind, pair) in _buildCatalogueRows)
         {
@@ -307,8 +306,8 @@ public partial class Main
 
     private void BeginBuildPlacement(BuildServiceKind kind, string? movingId = null)
     {
-        if (!_session.BuildModeEnabled || _session.PreparedStatus != PreparationStatus.Preparing) return;
-        CancelWaterPlacement(); CancelImmersionPlacement(); CancelToiletPlacement(); CancelResponsePostPlacement(); CancelBuildPlacement();
+        if (_session.PreparedStatus != PreparationStatus.Preparing) return;
+CancelBuildPlacement();
         _buildGhostKind = kind; _buildMovingId = movingId;
         _buildClickRejected = false;
         _buildQuarterTurns = movingId is null ? kind == BuildServiceKind.Toilet ? 2 : 0 :

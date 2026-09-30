@@ -62,7 +62,7 @@ public partial class Main
         {
             // Create only on Enter: merely viewing the menu must not touch a terminal save.
             var next = CreateFreshBuildCampaign(out var seed);
-            CancelResponsePostPlacement(); CancelImmersionPlacement(); CancelWaterPlacement(); CancelPerkConfirmation();
+CancelPerkConfirmation();
             ClearSelection(); ResetImmersionHeldVisuals();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;

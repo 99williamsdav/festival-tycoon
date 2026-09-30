@@ -24,7 +24,6 @@ public partial class Main
 
     private void BuildDebugControls(VBoxContainer diagnostics, CanvasLayer layer, Vector2 size)
     {
-        if (!_session.BuildModeEnabled) return;
         _buildOriginToggle = ButtonText("Invalid origins overlay · Off", () =>
         {
             _buildOriginOverlayEnabled = !_buildOriginOverlayEnabled;

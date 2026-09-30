@@ -48,7 +48,7 @@ public partial class Main
                 Accept(new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
                 Accept(new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
                 Accept(new AcceptPreparationOfferCommand("staff.engineer")); Accept(new AcceptPreparationOfferCommand("equipment.buy"));
-                Accept(new PurchaseImmersionStarterStockCommand()); Accept(new StartPreparedEditionCommand());
+                Accept(new UseDefaultBuildLayoutCommand()); Accept(new SetPreparationStockCommand(40, 40, 32)); Accept(new StartPreparedEditionCommand());
                 BuildAttendee(); _session.AdvanceWithoutSnapshot(_session.PreparedEditionDurationTicks); _foundationPresentation.Reset(_session.CaptureObservation());
                 ResultsCheck(_session.PreparedStatus == PreparationStatus.Departing && _session.CompletedFestivalResult is null, "Natural closing must keep live world without report");
                 PreparationSave(); PreparationLoad(); ResultsCheck(_session.PreparedStatus == PreparationStatus.Departing, "Actual departing file reload failed");
@@ -149,7 +149,7 @@ public partial class Main
                 ResultsCheck(_session.CurrentTick == 0 && _session.PreparedStatus == PreparationStatus.Preparing && _session.CompletedFestivalResult is null &&
                     _session.CapturePerks() is { Pending: true, Equipped.Length: 0 } && _session.CapturePreparationPlan() is { Committed: false },
                     "Fresh campaign skipped draft/preparation or retained terminal state");
-                ResultsCheck(_session.CaptureSnapshot().AuthoritativeHash == GameSession.CreateBookingCampaign(_session.CampaignSeed).CaptureSnapshot().AuthoritativeHash,
+                ResultsCheck(_session.CaptureSnapshot().AuthoritativeHash == GameSession.CreateBuildCampaign(_session.CampaignSeed).CaptureSnapshot().AuthoritativeHash,
                     "Fresh session differs from complete new-campaign factory (funds, favours, draft, people or other state retained)");
                 ResultsCheck(_resultsTerminalSaveBytes!.SequenceEqual(File.ReadAllBytes(SaveFileAdapter.ResolveSlotPath(SaveDirectory, "manual-preparation"))), "Enter changed terminal save bytes");
                 _resultsFixtureLabel!.Text = "NEW CAMPAIGN · distinct identity · fresh perk draft and unpaid preparation · no newspaper";

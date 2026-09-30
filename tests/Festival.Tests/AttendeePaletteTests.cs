@@ -50,7 +50,7 @@ public sealed class AttendeePaletteTests
     [TestMethod]
     public void IndependentClothingHairChoicesAreStablePureAndCoverAllPairs()
     {
-        var session = GameSession.CreateEditableCampaign(20260922); var hash = session.CaptureSnapshot().AuthoritativeHash;
+        var session = BuildSession.Planned(20260922); var hash = session.CaptureSnapshot().AuthoritativeHash;
         var pairs = Enumerable.Range(1, 256).Select(id => AttendeePalette.Choice(session.CampaignSeed, (ulong)id)).ToArray();
         Assert.AreEqual(16, pairs.Distinct().Count());
         Assert.IsTrue(pairs.Any(p => p.Clothing != p.Hair));

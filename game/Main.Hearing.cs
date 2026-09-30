@@ -28,37 +28,7 @@ public partial class Main
     private PanelContainer? _hearingConfirm;
     private Label? _hearingConfirmCopy;
     private SessionCommand? _pendingHearingDecision;
-    private string? _hearingCaptureDirectory;
     private int _hearingCaptureFrame;
-
-    private void ProcessHearingCapture()
-    {
-        if (_hearingCaptureDirectory is null) return;
-        _hearingCaptureFrame++;
-        if (_hearingCaptureFrame == 4)
-        {
-            if (DisplayServer.GetName() != "headless")
-            {
-                var image = GetViewport().GetTexture().GetImage();
-                var size = image.GetSize();
-                image.SavePng(Path.Combine(_hearingCaptureDirectory, $"hearing-{size.X}x{size.Y}.png"));
-                GD.Print($"HEARING_CAPTURE viewport={size.X}x{size.Y}");
-            }
-            else GD.Print("HEARING_CAPTURE screenshot skipped: headless dummy renderer");
-            ConfirmHearing(new SpendCouncilFavourCommand());
-        }
-        if (_hearingCaptureFrame == 7)
-        {
-            if (DisplayServer.GetName() != "headless")
-            {
-                var image = GetViewport().GetTexture().GetImage();
-                var size = image.GetSize();
-                image.SavePng(Path.Combine(_hearingCaptureDirectory, $"hearing-confirm-{size.X}x{size.Y}.png"));
-            }
-            GD.Print("HEARING_CAPTURE completed");
-            GetTree().Quit();
-        }
-    }
 
     private static SystemFont HearingSerif() => new() { FontNames = ["Georgia", "Times New Roman"] };
 
@@ -255,15 +225,15 @@ public partial class Main
         var account = CouncilHearingPresenter.From(casualty);
         var weekendDay = _session.CaptureProgramme() is null ? new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Clamp((int)((casualty.Tick - preparation!.StartedTick) / 12_800), 0, 2)] : "FESTIVAL DAY";
         _hearingMast!.Text = $"TIER {preparation!.Tier} · {weekendDay} · ATTEMPT {preparation.Attempt}";
-        _hearingBalance!.Text = $"{lifecycle.FixtureFavourBalance}";
-        _hearingBalanceState!.Text = lifecycle.FixtureFavourBalance == 0 ? "NONE LEFT" : "AVAILABLE";
+        _hearingBalance!.Text = $"{lifecycle.FavourBalance}";
+        _hearingBalanceState!.Text = lifecycle.FavourBalance == 0 ? "NONE LEFT" : "AVAILABLE";
         _hearingPerson!.Text = account.Person;
         _hearingRecord!.Text = account.Cause;
         _hearingSequence!.Text = account.Sequence;
-        var showChoices = hearing.Status == HearingStatus.Open && lifecycle.FixtureFavourBalance > 0;
+        var showChoices = hearing.Status == HearingStatus.Open && lifecycle.FavourBalance > 0;
         _hearingChoices!.Visible = showChoices;
-        _hearingRetryDetail!.Text = $"Retry Tier {preparation.Tier} · same tier · balance {lifecycle.FixtureFavourBalance} → {lifecycle.FixtureFavourBalance - 1}";
-        _hearingRetry!.Disabled = lifecycle.FixtureFavourBalance == 0;
+        _hearingRetryDetail!.Text = $"Retry Tier {preparation.Tier} · same tier · balance {lifecycle.FavourBalance} → {lifecycle.FavourBalance - 1}";
+        _hearingRetry!.Disabled = lifecycle.FavourBalance == 0;
         _hearingOutcome!.Visible = !showChoices;
         _hearingOutcome!.Text = hearing.Status == HearingStatus.Conceded
             ? "Campaign ended. The casualty remains in the campaign record."
@@ -281,7 +251,7 @@ public partial class Main
     {
         _pendingHearingDecision = command;
         var preparation = _session.CapturePreparation()!;
-        var balance = _session.CaptureLifecycleSnapshot()!.FixtureFavourBalance;
+        var balance = _session.CaptureLifecycleSnapshot()!.FavourBalance;
         if (command is SpendCouncilFavourCommand)
         {
             _hearingConfirmTitle!.Text = "It won’t happen again?";
@@ -327,7 +297,7 @@ public partial class Main
         _preparationMessage = command is SpendCouncilFavourCommand ? "Council Favour spent. Prepare this tier’s next weekend." : "The campaign has ended.";
         if (command is SpendCouncilFavourCommand)
         {
-            if (_session.BuildModeEnabled) SelectHudTab("Overview");
+            SelectHudTab("Overview");
             ResetFinanceFeedback();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;

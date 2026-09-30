@@ -22,7 +22,6 @@ public partial class Main
     private int _stageAudioBus = -1;
     private int _lastReactionSequence = -1;
     private LiveSetStage? _presentedSetStage;
-    private string? _liveCaptureDirectory;
     private int _liveCaptureFrame;
     private int _liveMeasurementTier;
     private Label? _liveSetCue;
@@ -348,8 +347,6 @@ public partial class Main
                 var approved = _session.CaptureProgramme() is null || genre != 1 || FestivalRockAudioApproved;
                 _stageMusic!.Stream = approved && ResourceLoader.Exists(path) ? GD.Load<AudioStream>(path) : null;
                 if (_stageMusic.Stream is not null) _stageMusic.Play();
-                if (_timetableCaptureDirectory is not null)
-                    GD.Print($"FESTIVAL_AUDIO act={actId} genre={genre} stream={path} playing={_stageMusic.Playing}");
             }
             else _stageMusic!.Stop();
             _presentedSetStage = live.Stage;
@@ -394,8 +391,6 @@ public partial class Main
                 _setEndApplause.VolumeDb = Mathf.LinearToDb((float)strength * attenuation);
                 _setEndApplause.Play();
                 _setEndApplausePlayCount++;
-                if (_timetableCaptureDirectory is not null)
-                    GD.Print($"SET_END_APPLAUSE act={actId} sequence={live.ReactionSequence} audience={live.SetEndAudienceCount} enjoyment={live.SetEndEnjoymentTotal} strength={strength:0.000} playing={_setEndApplause.Playing} count={_setEndApplausePlayCount}");
             }
             if (live.LastReaction is "set-start-cheer" or "set-start-muted") _bandEntryApplause?.Stop();
             if (live.LastReaction == "set-start-cheer")
@@ -414,7 +409,6 @@ public partial class Main
                 _booFadeSeconds = 0;
                 _crowdBoo!.VolumeDb = -48;
                 _crowdBoo.Play();
-                if (_liveCaptureDirectory is not null) GD.Print($"LIVE_AUDIO boo_start_db={_crowdBoo.VolumeDb:0.00} target_db={_booTargetDb:0.00} fade_seconds=1.8");
             }
             _lastReactionSequence = live.ReactionSequence;
         }
@@ -441,93 +435,4 @@ public partial class Main
         if (_stageMuteButton is not null) _stageMuteButton.Text = _stageMuted ? "UNMUTE AUDIO" : "MUTE AUDIO";
     }
 
-    private void ProcessLivePerformanceCapture()
-    {
-        if (_liveCaptureDirectory is null) return;
-        Directory.CreateDirectory(_liveCaptureDirectory);
-        _liveCaptureFrame++;
-        if (_liveCaptureFrame == 4)
-        {
-            _offerButtons["act.folk"].EmitSignal(Button.SignalName.Pressed);
-            _offerButtons["staff.steward"].EmitSignal(Button.SignalName.Pressed);
-            _offerButtons["equipment.buy"].EmitSignal(Button.SignalName.Pressed);
-            _offerButtons["maintenance.worker"].EmitSignal(Button.SignalName.Pressed);
-        }
-        if (_liveCaptureFrame == 5)
-        {
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_liveCaptureDirectory, "pre-start-stage.png"));
-            GD.Print($"LIVE_CAPTURE prestart_drum={_stageDrumKit?.IsInsideTree() == true} performers={_session.CaptureLivePerformance()?.Performers.Length ?? 0}");
-        }
-        if (_liveCaptureFrame == 6) _preparationStart.EmitSignal(Button.SignalName.Pressed);
-        if (_liveCaptureFrame == 8)
-        {
-            _session.AdvanceWithoutSnapshot(1_600);
-            _foundationPresentation.Reset(_session.CaptureObservation());
-            _foundationClock.ResetBoundary();
-            _focus = new Vector3(-16, 0, 11);
-            ApplyCamera();
-            RefreshPreparationHud();
-            GD.Print($"LIVE_CAPTURE holding={_session.CaptureLivePerformance()?.Performers.Count(item => item.AccessReached && !item.StairReached)}");
-        }
-        if (_liveCaptureFrame == 11)
-        {
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_liveCaptureDirectory, "pre-show-holding.png"));
-            _session.AdvanceWithoutSnapshot(600);
-            _foundationPresentation.Reset(_session.CaptureObservation());
-            _foundationClock.ResetBoundary();
-            RefreshPreparationHud();
-            GD.Print($"LIVE_CAPTURE ready={_session.CaptureLivePerformance()?.Performers.Count(item => item.OnStage)} person_kits={_session.CaptureLivePerformance()?.Performers.Count(item => item.InstrumentAttached)} stage={_session.CaptureLivePerformance()?.Stage}");
-        }
-        if (_liveCaptureFrame == 14)
-        {
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_liveCaptureDirectory, "pre-show-ready.png"));
-            _session.AdvanceWithoutSnapshot(1_000);
-            _foundationPresentation.Reset(_session.CaptureObservation());
-            _foundationClock.ResetBoundary();
-            RefreshPreparationHud();
-            GD.Print($"LIVE_CAPTURE stage={_session.CaptureLivePerformance()?.Stage} listeners={_session.CaptureLivePerformance()?.Listeners.Count(item => item.AtPlace)}");
-        }
-        if (_liveCaptureFrame == 17)
-        {
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_liveCaptureDirectory, "live-set-default-camera.png"));
-            _camera.Size = 26;
-            ApplyCamera();
-        }
-        if (_liveCaptureFrame == 18)
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_liveCaptureDirectory, "live-set-ui.png"));
-        if (_liveCaptureFrame == 19)
-        {
-            foreach (var layer in GetChildren().OfType<CanvasLayer>()) layer.Visible = false;
-            _focus = new Vector3(-11, 0, 11);
-            _camera.Size = 24;
-            ApplyCamera();
-        }
-        if (_liveCaptureFrame == 22)
-        {
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_liveCaptureDirectory, "live-set.png"));
-            GD.Print($"LIVE_AUDIO near_db={_stageMusic!.VolumeDb:0.00} near_cutoff_hz={((AudioEffectLowPassFilter)AudioServer.GetBusEffect(_stageAudioBus, 0)).CutoffHz:0}");
-        }
-        if (_liveCaptureFrame == 23)
-        {
-            _focus = new Vector3(40, 0, 40);
-            ApplyCamera();
-        }
-        if (_liveCaptureFrame == 24)
-        {
-            GD.Print($"LIVE_AUDIO far_db={_stageMusic!.VolumeDb:0.00} far_cutoff_hz={((AudioEffectLowPassFilter)AudioServer.GetBusEffect(_stageAudioBus, 0)).CutoffHz:0}");
-            CommitEquipmentAction(new EquipmentCommand(EquipmentAction.Isolate));
-            _session.AdvanceWithoutSnapshot(GameSession.SustainedBooDelayTicks + 1);
-            _foundationPresentation.Reset(_session.CaptureObservation());
-            _foundationClock.ResetBoundary();
-            _focus = new Vector3(-11, 0, 11);
-            ApplyCamera();
-            GD.Print($"LIVE_CAPTURE interruption={_session.CaptureLivePerformance()?.LastReaction}");
-        }
-        if (_liveCaptureFrame == 28)
-        {
-            GD.Print($"LIVE_AUDIO boo_fading_db={_crowdBoo?.VolumeDb:0.00}");
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_liveCaptureDirectory, "interruption.png"));
-            GetTree().Quit();
-        }
-    }
 }

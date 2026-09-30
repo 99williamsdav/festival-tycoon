@@ -45,7 +45,6 @@ public sealed record ToiletFacility(string Id, GridCell Cell, int QuarterTurns, 
         (kind == ToiletVisitKind.Poo ? ToiletRules.PooMillilitres : ToiletRules.WeeMillilitres) <= CapacityMillilitres;
 }
 
-public sealed record MoveToiletCommand(GridCell Cell, int QuarterTurns = 0) : SessionCommand;
 
 public sealed partial class GameSession
 {
@@ -102,65 +101,6 @@ public sealed partial class GameSession
             }
         return cells.OrderBy(cell => cell.X).ThenBy(cell => cell.Z).ToArray();
     }
-
-    private string? ToiletPlacementError(ToiletFacility proposed)
-    {
-        if (_immersion is null || _preparation is null || _medical is null) return "A prepared weekend is required.";
-        var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
-        var reserved = new HashSet<GridCell>();
-        foreach (var vendor in _immersion.Vendors)
-            foreach (var cell in ImmersionFootprint(vendor).Concat(LooseQueueGeometry.Corridor(VendorQueueCells(vendor)))) reserved.Add(cell);
-        foreach (var other in EffectiveToilets(_immersion).Where(item => item.Id != proposed.Id))
-            foreach (var cell in ToiletReservedCells(other).Append(ToiletQueueCell(other, 0)).Append(ToiletExitCell(other))) reserved.Add(cell);
-        foreach (var water in WaterPoints())
-        {
-            for (var x = water.Cell.X - 3; x <= water.Cell.X + 3; x++)
-                for (var z = water.Cell.Z - 3; z <= water.Cell.Z + 3; z++) reserved.Add(new(x, z));
-            foreach (var cell in LooseQueueGeometry.Corridor(CaptureWaterQueueCells(water.Id))) reserved.Add(cell);
-        }
-        foreach (var cell in ResponsePostReserved(_preparation)) reserved.Add(cell);
-        for (var x = 90; x <= 101; x++) for (var z = 140; z <= 159; z++) reserved.Add(new(x, z));
-        for (var x = MedicalRestCell.X - 1; x <= MedicalRestCell.X + 1; x++)
-            for (var z = MedicalRestCell.Z - 1; z <= MedicalRestCell.Z + 1; z++) reserved.Add(new(x, z));
-        if (_equipment is { } unit)
-        {
-            var centre = TraversalGrid.WorldToCell(unit.XMillimetres, unit.ZMillimetres);
-            for (var x = centre.X - 5; x <= centre.X + 5; x++)
-                for (var z = centre.Z - 5; z <= centre.Z + 5; z++) reserved.Add(new(x, z));
-        }
-        if (_preparation.WaterTowerOwned)
-            for (var x = WaterTowerCell.X - 4; x <= WaterTowerCell.X + 4; x++)
-                for (var z = WaterTowerCell.Z - 4; z <= WaterTowerCell.Z + 4; z++) reserved.Add(new(x, z));
-        foreach (var cell in ToiletReservedCells(proposed).Append(ToiletQueueCell(proposed, 0)).Append(ToiletExitCell(proposed)))
-            if (!terrain.Contains(cell) || !terrain.Get(cell).IsWalkable || reserved.Contains(cell))
-                return "Toilet footprint, door sweep or approach overlaps terrain, a service or a protected route.";
-        var blocked = terrain.Overrides.ToDictionary(pair => pair.Key, pair => pair.Value);
-        foreach (var cell in _immersion.Vendors.SelectMany(ImmersionFootprint)
-                     .Concat(EffectiveToilets(_immersion).Where(item => item.Id != proposed.Id).SelectMany(ToiletSolidCells))
-                     .Concat(ToiletSolidCells(proposed)))
-            blocked[cell] = new(cell, GroundSurface.Grass, false);
-        var grid = new TraversalGrid(blocked.Values);
-        foreach (var destination in _immersion.Vendors.Select(ImmersionServiceCell).Concat(WaterPoints().Select(WaterPointServiceCell))
-                     .Append(MedicalRestCell).Concat(EffectiveToilets(_immersion).Where(item => item.Id != proposed.Id)
-                         .SelectMany(item => new[] { ToiletInsideCell(item), ToiletQueueCell(item, 0) }))
-                     .Append(ToiletInsideCell(proposed)).Append(ToiletQueueCell(proposed, 0)))
-            if (!DeterministicPathfinder.FindPath(grid, MedicalExitCell, destination).Found)
-                return "Toilet would block an essential route or its own open entrance.";
-        return null;
-    }
-
-    private CommandResult? ValidateToiletCommand(EntityId? target, MoveToiletCommand command)
-    {
-        if (target is not null || _immersion?.Toilet is not { } toilet || _preparation?.Status != PreparationStatus.Preparing)
-            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Move the owned toilet before opening.");
-        if (command.QuarterTurns is < 0 or > 3 || !new TraversalGrid().Contains(command.Cell))
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Invalid toilet placement or rotation.");
-        var proposed = toilet with { Cell = command.Cell, QuarterTurns = command.QuarterTurns };
-        return ToiletPlacementError(proposed) is { } error ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, error) : null;
-    }
-
-    private void ApplyToiletCommand(MoveToiletCommand command) => SetToilet(_immersion!.Toilet! with
-    { Cell = command.Cell, QuarterTurns = command.QuarterTurns });
 
     private void BlockToilet()
     {
@@ -456,27 +396,25 @@ public sealed partial class GameSession
     private static string? ValidatePersistedToilets(SessionPersistenceSnapshot snapshot, ImmersionSnapshot immersion, GameSession geometry)
     {
         var toilets = EffectiveToilets(immersion).ToArray();
-        var build = snapshot.Preparation?.BuildModeEnabled == true;
         if (immersion.ExtraToilets?.Any(item => item is null) == true ||
             toilets.Select(item => item.Id).Distinct(StringComparer.Ordinal).Count() != toilets.Length ||
-            !build && (toilets.Length != 1 || toilets[0].Id != "toilet.main") ||
-            build && (!toilets.Select(item => item.Id).Order(StringComparer.Ordinal).SequenceEqual(
+            (!toilets.Select(item => item.Id).Order(StringComparer.Ordinal).SequenceEqual(
                 snapshot.Preparation!.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet)
                     .Select(item => item.Id).Order(StringComparer.Ordinal)) || toilets.Length > BuildServiceLimit(BuildServiceKind.Toilet)) ||
             immersion.People.Any(person => person.ToiletStage != ToiletVisitStage.None &&
-                !toilets.Any(toilet => toilet.Id == (person.ToiletId ?? (build ? "" : "toilet.main"))) ||
+                !toilets.Any(toilet => toilet.Id == (person.ToiletId ?? "")) ||
                 person.ToiletStage == ToiletVisitStage.None && person.ToiletId is not null) ||
             toilets.SelectMany(item => item.Queue).Distinct().Count() != toilets.Sum(item => item.Queue.Length))
             return "Toilet facility identities or person assignments invalid.";
         foreach (var toilet in toilets)
-            if (ValidatePersistedToilet(snapshot, immersion, geometry, toilet, build) is { } issue) return issue;
+            if (ValidatePersistedToilet(snapshot, immersion, geometry, toilet) is { } issue) return issue;
         return null;
     }
 
     private static string? ValidatePersistedToilet(SessionPersistenceSnapshot snapshot, ImmersionSnapshot immersion, GameSession geometry,
-        ToiletFacility toilet, bool build)
+        ToiletFacility toilet)
     {
-        if ((!build && toilet.Id != "toilet.main") || toilet.QuarterTurns is < 0 or > 3 ||
+        if (toilet.QuarterTurns is < 0 or > 3 ||
             toilet.CapacityMillilitres != ToiletRules.CapacityMillilitres ||
             toilet.ContainmentPermille != ToiletRules.ContainmentPermille ||
             toilet.WeeCount < 0 || toilet.PooCount < 0 || toilet.UsedMillilitres > toilet.CapacityMillilitres ||
@@ -488,17 +426,14 @@ public sealed partial class GameSession
             toilet.InterruptedOccupantId is { } interrupted &&
             (toilet.Queue.Contains(interrupted) || !immersion.People.Any(person => person.AgentId == interrupted)))
             return "Toilet identity, tank or exclusive owner invalid.";
-        // Build-mode geometry was already checked as one complete layout in
-        // ValidatePersistedPreparation. The legacy single-toilet validator also
-        // reserves default response posts that do not exist in a fresh Build plan.
-        if (!build && geometry.ToiletPlacementError(toilet) is { } issue) return issue;
+        // Geometry was already checked as one complete layout in ValidatePersistedPreparation.
         if (immersion.People.Any(person => person.ToiletNeed is < 0 or > ToiletRules.NeedMaximum ||
             person.LastToiletChoiceReviewTick is { } reviewed && (reviewed < 0 || reviewed > snapshot.CurrentTick) ||
             person.ToiletVisits < 0 || !Enum.IsDefined(person.ToiletStage) ||
             (person.ToiletStage == ToiletVisitStage.None) != (person.ToiletChoice is null) ||
             person.ToiletChoice is { } choice && !Enum.IsDefined(choice) ||
             person.ToiletStage is ToiletVisitStage.Queued or ToiletVisitStage.Entering or ToiletVisitStage.Using or ToiletVisitStage.Leaving or ToiletVisitStage.InterruptedLeaving &&
-            (person.ToiletId ?? (build ? "" : "toilet.main")) == toilet.Id && !toilet.Queue.Contains(person.AgentId)))
+            (person.ToiletId ?? "") == toilet.Id && !toilet.Queue.Contains(person.AgentId)))
             return "Toilet person need, choice or queue ownership invalid.";
         if (toilet.Queue.Any(id => !immersion.People.Any(person => person.AgentId == id &&
             person.ToiletStage is not (ToiletVisitStage.None or ToiletVisitStage.Approaching))))

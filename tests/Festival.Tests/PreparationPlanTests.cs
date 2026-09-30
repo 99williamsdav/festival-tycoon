@@ -12,8 +12,7 @@ public sealed class PreparationPlanTests
     private static void Accept(GameSession s, SessionCommand c) { var result = Send(s, c); Assert.IsTrue(result.IsAccepted, result.Message); }
     private static GameSession New()
     {
-        var s = GameSession.CreateEditableCampaign(20260922); var p = s.CapturePerks()!;
-        Accept(s, new ChoosePerkCommand(p.DraftAttempt, p.Cursor, p.Hand[0])); return s;
+        return BuildSession.Drafted(20260922);
     }
     private static GameSession Restored(GameSession s)
     {
@@ -25,7 +24,7 @@ public sealed class PreparationPlanTests
         Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
         Accept(s, new AcceptPreparationOfferCommand("staff.steward"));
         Accept(s, new AcceptPreparationOfferCommand("equipment.buy"));
-        Accept(s, new PurchaseImmersionStarterStockCommand());
+        Accept(s, new SetPreparationStockCommand(40, 40, 32));
     }
     [TestMethod]
     public void SoundEngineerLabelsDescribeExistingQualityAndPrices()
@@ -36,39 +35,6 @@ public sealed class PreparationPlanTests
         Assert.AreEqual("Casey: better sound engineer • +800 quality",better.Name);
         Assert.AreEqual(2000L,standard.PricePennies);Assert.AreEqual(400,standard.MusicQuality);
         Assert.AreEqual(4000L,better.PricePennies);Assert.AreEqual(800,better.MusicQuality);
-    }
-    [TestMethod]
-    public void EditsAreUnpaidReplaceableRemovableAndPersistIncompleteLineup()
-    {
-        var s = New(); var next = s.NextEntityId; var cash = s.CaptureSnapshot().FestivalFinances.Single().CashPennies;
-        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "", ""])); s = Restored(s);
-        Assert.AreEqual("act.meadow-lanterns", s.CapturePreparationPlan()!.ActIds[0]);
-        Assert.IsFalse(Send(s, new StartPreparedEditionCommand()).IsAccepted);
-        Ready(s); Accept(s, new AcceptPreparationOfferCommand("staff.engineer"));
-        Accept(s, new SetProgrammeCommand(["act.orchard-chorus", "act.barnstorm-circuit", "act.field-frequency"]));
-        Assert.AreEqual(21500L + 4000 + 12000 + 9600, s.PreparationPlanCost);
-        Accept(s, new SetProgrammeCommand(["", "act.barnstorm-circuit", "act.field-frequency"]));
-        Assert.IsFalse(Send(s, new StartPreparedEditionCommand()).IsAccepted);
-        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
-        Accept(s, new AcceptPreparationOfferCommand("equipment.rent"));
-        Assert.IsFalse(s.CapturePreparationPlan()!.OfferIds.Contains("equipment.buy"));
-        Assert.AreEqual(0, s.CapturePreparation()!.Rentals.Length);
-        Accept(s, new AcceptPreparationOfferCommand("equipment.buy"));
-        Assert.IsFalse(s.CapturePreparationPlan()!.OfferIds.Contains("staff.steward"));
-        Accept(s, new AcceptPreparationOfferCommand("maintenance.worker"));
-        Accept(s, new RemovePreparationOfferCommand("maintenance.worker"));
-        Accept(s, new RemovePreparationOfferCommand("equipment.buy"));
-        Accept(s, new SetPreparationStockCommand(3, 7, 2));
-        Assert.AreEqual(22920L, s.PreparationPlanCost);
-        Assert.AreEqual(cash, s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
-        Assert.AreEqual(next, s.NextEntityId); Assert.AreEqual(0, s.CapturePreparation()!.Payments.Length);
-        Assert.AreEqual(0, s.CaptureProgramme()!.ActIds.Length); Assert.IsFalse(s.CaptureImmersion()!.StockPurchased);
-        Assert.AreEqual(0, s.CaptureFestivalCashFeedbackEvents().Count); Restored(s);
-        var perk = s.CapturePerks()!;
-        var hash = s.CaptureSnapshot().AuthoritativeHash;
-        Assert.IsFalse(Send(s, new RerollPerksCommand(perk.DraftAttempt, perk.Cursor)).IsAccepted);
-        Assert.IsFalse(Send(s, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Equipped.Single())).IsAccepted);
-        Assert.AreEqual(hash, s.CaptureSnapshot().AuthoritativeHash);
     }
     [TestMethod]
     public void MissingRoleSlotRejectsHireWithoutChangingDraftOrIds()
@@ -121,58 +87,6 @@ public sealed class PreparationPlanTests
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, resumed.CaptureSnapshot().AuthoritativeHash);
     }
     [TestMethod]
-    public void OptionalOnlyStaffRetryRetainsImmutableSetupAndRehiresStablePerson()
-    {
-        GameSession? candidate = null;
-        for (ulong seed = 0; seed < 100; seed++)
-        {
-            var possible = GameSession.CreateEditableCampaign(seed); var hand = possible.CapturePerks()!;
-            if (!hand.Hand.Contains("doctors-orders")) continue;
-            Accept(possible, new ChoosePerkCommand(hand.DraftAttempt, hand.Cursor, "doctors-orders")); candidate = possible; break;
-        }
-        var s = candidate!; Assert.IsNotNull(s);
-        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
-        Accept(s, new AcceptPreparationOfferCommand("staff.extra-medic"));
-        Accept(s, new AcceptPreparationOfferCommand("equipment.buy")); Accept(s, new PurchaseImmersionStarterStockCommand());
-        var directory = Path.Combine(Path.GetTempPath(), "festival-plan-retry-" + Guid.NewGuid());
-        var opened = EquipmentCommandCoordinator.Execute(directory, s, new StartPreparedEditionCommand(), Compatibility, DateTimeOffset.UtcNow, 1);
-        Assert.IsTrue(opened.IsSuccess, opened.Error); s = Restored(opened.Session);
-        var profile = s.CapturePreparation()!.StaffProfiles.Single(); var next = s.NextEntityId;
-        var setup = s.CapturePreparation()!.SetupPayments!.Single(); var cashEvent = s.CaptureFestivalCashFeedbackEvents().Single();
-        // Labelled fixture: admitted roster + severe alcohol exposure, with both
-        // medics busy at rest. Normal autonomy remains enabled; unavailable staff
-        // cannot respond. The actual warning/deadline chain still owns the death.
-        var prep = s.CapturePreparation()!;
-        typeof(GameSession).GetProperty("PreparationView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, prep with { People = prep.People.Select(p => p with { Admitted = true }).ToArray() });
-        var immersion = s.CaptureImmersion()!; var guest = prep.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
-        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, immersion with { People = immersion.People.Select(p => p.AgentId == guest ? p with { Intoxication = 10000 } : p).ToArray() });
-        var medics = s.GetMedicResponses().Select(job => job.WorkerId).ToArray(); var medical = s.CaptureMedical()!;
-        typeof(GameSession).GetProperty("MedicalView", BindingFlags.NonPublic | BindingFlags.Instance)!.SetValue(s, medical with { Needs = medical.Needs.Select(need => medics.Contains(need.AgentId)
-            ? need with { Intent = MedicalIntent.Rest, Reason = "Labelled unavailable medic rest fixture" } : need).ToArray() });
-        s.AdvanceWithoutSnapshot(4000); Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus); s = Restored(s);
-        Accept(s, new SpendCouncilFavourCommand()); s = Restored(s);
-        Assert.IsTrue(s.StaffAutonomyEnabled); Assert.IsTrue(s.GetMedicResponses().All(job => job.Stage == MedicalResponseStage.None));
-        Assert.IsTrue(s.GetStewardResponses().All(job => job.Stage == SecurityResponseStage.None));
-        Assert.AreEqual(0, s.CaptureStaffInterventions().Count); Assert.AreEqual(0, s.CaptureDisorder()!.Incidents.Length);
-        Assert.AreEqual(cashEvent, s.CaptureFestivalCashFeedbackEvents().Single(e => e.TransactionId == cashEvent.TransactionId));
-        Assert.AreEqual(setup.TotalPennies, s.CapturePreparation()!.SetupPayments!.Single().TotalPennies);
-        CollectionAssert.AreEqual(setup.Entries, s.CapturePreparation()!.SetupPayments!.Single().Entries);
-        Assert.AreEqual(80000L, s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
-        Assert.AreEqual(0, s.CaptureImmersion()!.ChipsStock); Assert.AreEqual(0, s.CapturePreparation()!.WorkContracts.Length);
-        Assert.IsFalse(s.CapturePreparation()!.People.Any(p => p.AgentId == profile.AgentId));
-        var draft = s.CapturePerks()!; Accept(s, new ChoosePerkCommand(draft.DraftAttempt, draft.Cursor, draft.Hand[0]));
-        Assert.IsFalse(Send(s, new AcceptPreparationOfferCommand("equipment.buy")).IsAccepted);
-        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
-        Accept(s, new AcceptPreparationOfferCommand("staff.extra-medic"));
-        Accept(s, new RemovePreparationOfferCommand("staff.extra-medic")); Accept(s, new AcceptPreparationOfferCommand("staff.extra-medic"));
-        Assert.AreEqual(next, s.NextEntityId);
-        Accept(s, new StartPreparedEditionCommand()); s = Restored(s);
-        Assert.AreEqual(next, s.NextEntityId); Assert.AreEqual(profile, s.CapturePreparation()!.StaffProfiles.Single());
-        Assert.AreEqual(1, s.CapturePreparation()!.People.Count(p => p.AgentId == profile.AgentId));
-        Assert.AreEqual(2, s.CapturePreparation()!.SetupPayments!.Length);
-        Assert.AreEqual(80000L - 18000 - 3000, s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
-    }
-    [TestMethod]
     public void MalformedSetupAndCollectionsRejectWithoutThrowing()
     {
         var s = New(); Ready(s); Accept(s, new StartPreparedEditionCommand()); var snapshot = s.CapturePersistenceSnapshot(); var p = snapshot.Preparation!; var payment = p.SetupPayments!.Single();
@@ -182,21 +96,5 @@ public sealed class PreparationPlanTests
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { Payments = [null!] } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { SetupPayments = null } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { AcceptedOffers = null! } }).IsSuccess);
-    }
-    [TestMethod]
-    public void PriorChargedSaveIsRejectedByNormalEconomicsIdentityAndFilePreserved()
-    {
-        var directory = new DirectoryInfo(AppContext.BaseDirectory);
-        while (directory is not null && !File.Exists(Path.Combine(directory.FullName, "ROGUELIKE_DESIGN.md"))) directory = directory.Parent;
-        var path = Path.Combine(directory!.FullName, "reports", "evidence", "R0.05h", "final-1280x720", "saves", "manual-preparation.ftsave");
-        var bytes = File.ReadAllBytes(path);
-        var normal = new SaveCompatibility("0.0.1-r0.05k-unpaid-plan-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-editable-preparation-v1");
-        var result = SaveFileAdapter.LoadSlot(Path.GetDirectoryName(path)!, "manual-preparation", normal);
-        Assert.IsFalse(result.IsSuccess); Assert.IsNotNull(result.Error);
-        var historical = new SaveCompatibility("0.0.1-r0.05-hearing-v1", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-disorder-layout-v13");
-        var legacy = SaveFileAdapter.LoadFile(path, historical); Assert.IsTrue(legacy.IsSuccess, legacy.Error);
-        Assert.IsNull(legacy.Session!.CapturePreparationPlan()); Assert.AreEqual(1, legacy.Session.CapturePreparation()!.Version);
-        Assert.IsTrue(legacy.Session.CapturePreparation()!.Payments.Length > 0);
-        CollectionAssert.AreEqual(bytes, File.ReadAllBytes(path));
     }
 }

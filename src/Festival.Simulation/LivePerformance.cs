@@ -33,11 +33,10 @@ public sealed partial class GameSession
     private LivePerformanceSnapshot? _livePerformance;
     public LivePerformanceSnapshot? CaptureLivePerformance() => _livePerformance is null ? null : _livePerformance with
     { Performers = _livePerformance.Performers.ToArray(), Listeners = _livePerformance.Listeners.ToArray(), SetEndAudienceIds = _livePerformance.SetEndAudienceIds.ToArray() };
-    internal string? LivePerformanceCanonicalJson => _livePerformance is null ? null : StaffCompatibleCanonicalJson(_livePerformance,
-        _livePerformance.SetEndAudienceIds.Length == 0 ? nameof(LivePerformanceSnapshot.SetEndAudienceIds) : "");
+    internal string? LivePerformanceCanonicalJson => _livePerformance is null ? null : System.Text.Json.JsonSerializer.Serialize(_livePerformance);
     public bool LivePerformanceBoundaryOnNextTick => !IsPaused && _livePerformance is { } live &&
         (live.Stage == LiveSetStage.BeforeSet && CurrentTick + 1 >= live.PlannedTick && live.Performers.All(item => item.OnStage) ||
-         live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted && CurrentTick + 1 >= (_programme?.SlotEndTick ?? live.StartedTick + LiveSetDurationTicks) ||
+         live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted && CurrentTick + 1 >= _programme!.SlotEndTick ||
          _programme is { CurrentSlot: < 2 } q && live.Stage == LiveSetStage.Finished && _preparation is { } p && CurrentTick + 1 == p.StartedTick + FestivalSlotStarts[q.CurrentSlot + 1] - LiveSetStageEntryLeadTicks);
 
     private void StartLivePerformance()
@@ -48,15 +47,14 @@ public sealed partial class GameSession
         GridCell[] positions = [new(96, 150), new(94, 146), new(93, 152)];
         GridCell[] access = [new(101, 156), new(101, 157), new(101, 158)];
         GridCell[] stairs = [new(99, 156), new(99, 157), new(99, 158)];
-        var performers = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Performer && (_programme is null || _programme.Performers.Any(role => role.AgentId == item.Id && role.SlotIndex == _programme.CurrentSlot))).Select((item, index) =>
+        var performers = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Performer && _programme!.Performers.Any(role => role.AgentId == item.Id && role.SlotIndex == _programme.CurrentSlot)).Select((item, index) =>
             new LivePerformer(item.Id, positions[index], access[index], stairs[index], false, false, false, false)).ToArray();
         foreach (var performer in performers)
-            if (_programme is null || !MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < _programme.SlotEndTick)
+            if (!MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < _programme!.SlotEndTick)
                 ApplyAgentDestination(new(performer.AgentId), new(performer.AccessCell, "performance.side-entry"));
         var listeners = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Guest).Select(item =>
-            new LiveListener(item.Id, null, _programme is not null ? FestivalAffinity(item.Id, CurrentFestivalAct!) : item.ExpectedGenre != BookedGenre() ? 35 :
-                item.Id % 3 == 0 ? 65 : 100, 0, 0, false)).ToArray();
-        _livePerformance = new(2, LiveSetStage.BeforeSet, _programme is null ? CurrentTick + LiveSetArrivalDelayTicks : p.StartedTick + FestivalSlotStarts[_programme.CurrentSlot], -1, -1, -1,
+            new LiveListener(item.Id, null, FestivalAffinity(item.Id, CurrentFestivalAct!), 0, 0, false)).ToArray();
+        _livePerformance = new(2, LiveSetStage.BeforeSet, p.StartedTick + FestivalSlotStarts[_programme!.CurrentSlot], -1, -1, -1,
             0, "none", performers, listeners);
     }
 
@@ -187,9 +185,9 @@ public sealed partial class GameSession
                 _navigationAgents[new(listener.AgentId)].Destination == place;
             // The prior tick's state earns one tick. A set starting, a new arrival,
             // or restored power cannot award an entire second at this boundary.
-            if (live.Stage == LiveSetStage.Live && hasPower && (_programme is null || performers.All(person => person.OnStage)) && listener.AtPlace && atPlace &&
+            if (live.Stage == LiveSetStage.Live && hasPower && (performers.All(person => person.OnStage)) && listener.AtPlace && atPlace &&
                 !PeopleIn(PersonView.Roster).Any(item => item.Id == listener.AgentId && item.Departed) &&
-                CurrentTick > live.StartedTick && CurrentTick <= (_programme?.SlotEndTick ?? live.StartedTick + LiveSetDurationTicks))
+                CurrentTick > live.StartedTick && CurrentTick <= _programme!.SlotEndTick)
             {
                 var listenedTicks = listener.ListenedTicks + 1;
                 var earned = listener.EnjoymentEarned;
@@ -218,7 +216,7 @@ public sealed partial class GameSession
         var reaction = live.LastReaction;
         var sequence = live.ReactionSequence;
         var setEndAudienceIds = live.SetEndAudienceIds;
-        if (stage == LiveSetStage.BeforeSet && CurrentTick >= live.PlannedTick && CurrentTick < (_programme?.SlotEndTick ?? long.MaxValue) && performers.All(item => item.OnStage))
+        if (stage == LiveSetStage.BeforeSet && CurrentTick >= live.PlannedTick && CurrentTick < _programme!.SlotEndTick && performers.All(item => item.OnStage))
         {
             stage = LiveSetStage.Live;
             started = CurrentTick;
@@ -227,7 +225,7 @@ public sealed partial class GameSession
         }
         if (stage is LiveSetStage.Live or LiveSetStage.Interrupted)
         {
-            var powered = _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal) && (_programme is null || performers.All(person => person.OnStage));
+            var powered = _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal) && (performers.All(person => person.OnStage));
             if (!powered && stage == LiveSetStage.Live)
             {
                 stage = LiveSetStage.Interrupted;
@@ -251,17 +249,15 @@ public sealed partial class GameSession
                 reaction = disappointed.Count >= 5 ? "sustained-boo" : "sustained-muted";
                 sequence++;
             }
-            if (CurrentTick >= (_programme?.SlotEndTick ?? started + LiveSetDurationTicks))
+            if (CurrentTick >= _programme!.SlotEndTick)
             {
-                var applauseEligible = _programme is not null && live.Stage == LiveSetStage.Live && stage == LiveSetStage.Live && powered && started >= 0;
+                var applauseEligible = live.Stage == LiveSetStage.Live && stage == LiveSetStage.Live && powered && started >= 0;
                 if (applauseEligible)
                     setEndAudienceIds = listeners.Where(listener => listener.AtPlace && listener.ListenedTicks > 0 &&
                         !AudienceNavigationOwned(listener.AgentId)).Select(listener => listener.AgentId).ToArray();
                 stage = LiveSetStage.Finished;
                 ended = CurrentTick;
-                reaction = _programme is null
-                    ? listeners.Count(item => item.AtPlace && item.Enthusiasm >= 65) >= 5 ? "set-finished-cheer" : "set-finished-muted"
-                    : setEndAudienceIds.Length > 0 ? "set-finished-applause" : applauseEligible ? "set-finished-muted" : "set-finished-interrupted";
+                reaction = setEndAudienceIds.Length > 0 ? "set-finished-applause" : applauseEligible ? "set-finished-muted" : "set-finished-interrupted";
                 sequence++;
             }
         }
@@ -281,8 +277,8 @@ public sealed partial class GameSession
         if (stage == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished)
             foreach (var performer in performers)
             {
-                if (_programme is not null && MedicalOwnsNavigation(performer.AgentId)) continue;
-                if (_programme is not null && !performer.StairReached && !ProgrammeStageAccessOccupied(_navigationAgents[new(performer.AgentId)])) continue;
+                if (MedicalOwnsNavigation(performer.AgentId)) continue;
+                if (!performer.StairReached && !ProgrammeStageAccessOccupied(_navigationAgents[new(performer.AgentId)])) continue;
                 ApplyAgentDestination(new(performer.AgentId), new(performer.StairCell, "performance.stage-exit-stair"));
             }
     }

@@ -1,7 +1,6 @@
 namespace Festival.Simulation;
 
 public sealed record ResponsePostPlacement(GridCell Cell, int QuarterTurns);
-public sealed record MoveResponsePostCommand(ResponseRole Role, GridCell Cell, int QuarterTurns = 0) : SessionCommand;
 
 public sealed partial class GameSession
 {
@@ -31,70 +30,6 @@ public sealed partial class GameSession
         .SelectMany(role => ResponsePostFootprint(ResponsePost(p, role), role)
             .Concat(new[] { ResponsePostHome(p, role), ResponsePostHome(p, role, true) }));
 
-    private CommandResult? ValidateResponsePostPlacement(EntityId? target, MoveResponsePostCommand command)
-    {
-        if (target is not null || _medical is null || _disorder is null || _preparation is not { Status: PreparationStatus.Preparing })
-            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Response posts can be moved only during preparation.");
-        if (!Enum.IsDefined(command.Role) || command.QuarterTurns is < 0 or > 3)
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown response post or orientation.");
-        var issue = ResponsePostPlacementError(_preparation, _equipment, ImmersionView, MedicalView, command);
-        return issue is null ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
-    }
-    private static PreparationSnapshot WithResponsePost(PreparationSnapshot p, MoveResponsePostCommand c) => c.Role == ResponseRole.Medic
-        ? p with { FirstAidPlacement = new(c.Cell, c.QuarterTurns) } : p with { StewardPostPlacement = new(c.Cell, c.QuarterTurns) };
-    private void ApplyResponsePostPlacement(MoveResponsePostCommand command) => _preparation = WithResponsePost(_preparation!, command);
-
-    private static string? ResponsePostPlacementError(PreparationSnapshot p, EquipmentSnapshot? equipment, ImmersionSnapshot? immersion,
-        MedicalSnapshot? medical, MoveResponsePostCommand command)
-    {
-        var candidate = WithResponsePost(p, command);
-        var post = ResponsePost(candidate, command.Role);
-        var solid = ResponsePostFootprint(post, command.Role);
-        var homes = new[] { ResponsePostHome(candidate, command.Role), ResponsePostHome(candidate, command.Role, true) };
-        var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
-        if (solid.Concat(homes).Any(c => c.X is < 68 or > 190 || c.Z is < 108 or > 190 || !terrain.Contains(c) ||
-            terrain.Get(c) is not { IsWalkable: true, Surface: GroundSurface.Grass }))
-            return "The post footprint and staff fronts need clear grass inside the festival field.";
-        var otherRole = command.Role == ResponseRole.Medic ? ResponseRole.Steward : ResponseRole.Medic;
-        var reserved = ResponsePostFootprint(ResponsePost(p, otherRole), otherRole)
-            .Concat(new[] { ResponsePostHome(p, otherRole), ResponsePostHome(p, otherRole, true), MedicalRestCell }).ToHashSet();
-        for(var x=MedicalRestCell.X-1;x<=MedicalRestCell.X+1;x++)for(var z=MedicalRestCell.Z-1;z<=MedicalRestCell.Z+1;z++)reserved.Add(new(x,z));
-        foreach (var point in new[] { new WaterPointState("water.main", p.PrimaryWaterCell, [], [], null, 0) { QuarterTurns=p.PrimaryWaterQuarterTurns, GeometryVersion=p.PrimaryWaterGeometryVersion } }
-            .Concat(medical?.ExtraWaterPoints ?? []))
-        {
-            var radius = WaterFootprintRadius(point)+1;
-            for (var x=point.Cell.X-radius;x<=point.Cell.X+radius;x++) for(var z=point.Cell.Z-radius;z<=point.Cell.Z+radius;z++) reserved.Add(new(x,z));
-            foreach(var cell in point.QueueCells.Length > 0 ? LooseQueueGeometry.Corridor(point.QueueCells) : new[] { WaterPointServiceCell(point) }) reserved.Add(cell);
-        }
-        for(var x=90;x<=101;x++)for(var z=139;z<=160;z++)reserved.Add(new(x,z));
-        if(equipment is { } unit) {var centre=TraversalGrid.WorldToCell(unit.XMillimetres,unit.ZMillimetres);for(var x=centre.X-5;x<=centre.X+5;x++)for(var z=centre.Z-5;z<=centre.Z+5;z++)reserved.Add(new(x,z));}
-        if(p.WaterTowerOwned)for(var x=WaterTowerCell.X-4;x<=WaterTowerCell.X+4;x++)for(var z=WaterTowerCell.Z-4;z<=WaterTowerCell.Z+4;z++)reserved.Add(new(x,z));
-        if(immersion is not null)foreach(var vendor in immersion.Vendors)foreach(var c in ImmersionFootprint(vendor).Concat(LooseQueueGeometry.Corridor(VendorQueueCells(vendor,immersion))))reserved.Add(c);
-        foreach(var toilet in EffectiveToilets(immersion))
-            foreach(var c in ToiletReservedCells(toilet).Append(ToiletQueueCell(toilet,0)).Append(ToiletExitCell(toilet)))reserved.Add(c);
-        if(solid.Concat(homes).Any(reserved.Contains))return "The post or staff fronts overlap a building, service, physical queue or protected route.";
-        // Reuse the tap's exact frontage/padded response reservations as well as
-        // the post's solid geometry. An accepted move must survive normal restore.
-        foreach(var water in new[]{new WaterPlacement("water.main",p.PrimaryWaterCell){QuarterTurns=p.PrimaryWaterQuarterTurns,GeometryVersion=p.PrimaryWaterGeometryVersion}}.Concat(EffectiveWaterPlacements(p)))
-            if(ValidateWaterPlacementCell(water.Cell,candidate,water.Id,equipment,water.QuarterTurns,water.GeometryVersion) is not null)
-                return "The post blocks a tap footprint or protected service front.";
-        if(medical is not null)
-        {
-            var points=new[]{new WaterPointState("water.main",p.PrimaryWaterCell,medical.WaterQueue,medical.WaterOverflow,medical.WaterOwnerId,medical.WaterDrinkTicks){QuarterTurns=p.PrimaryWaterQuarterTurns,GeometryVersion=p.PrimaryWaterGeometryVersion,QueueCells=medical.MainWaterQueueCells}}.Concat(medical.ExtraWaterPoints).ToArray();
-            if(!ValidSavedWaterGeometry(points,null,candidate))return "The post blocks existing water queue geometry.";
-        }
-        if(immersion is not null)
-        {
-            // Apply the existing reciprocal vendor and loose-line rules to the
-            // proposed preparation snapshot; this scratch session executes no ticks.
-            var geometry=new GameSession(1,new CampaignId(1)){PreparationView=candidate,MedicalView=medical,ImmersionView=immersion,_equipment=equipment};
-            foreach(var vendor in immersion.Vendors)
-                if(geometry.ImmersionPlacementError(vendor) is not null || vendor.QueueCells is not null && LooseQueueGeometry.Corridor(vendor.QueueCells).Any(c=>!QueueGroundAllowed(c,candidate)))
-                    return "The post blocks a vendor footprint or existing physical queue geometry.";
-        }
-        if(!PlacementAccessClear(candidate,equipment,immersion,medical))return "This position blocks access to a response post or essential service.";
-        return null;
-    }
     private static bool PlacementAccessClear(PreparationSnapshot p,EquipmentSnapshot? equipment,ImmersionSnapshot? immersion,MedicalSnapshot? medical)
     {
         var blocked=new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain()).Overrides.ToDictionary(c=>c.Key,c=>c.Value);
@@ -125,11 +60,9 @@ public sealed partial class GameSession
             var placement=role==ResponseRole.Medic?p.FirstAidPlacement:p.StewardPostPlacement;
             if(placement is null)continue;
             if(s.Medical is null || s.Disorder is null || placement.QuarterTurns is <0 or >3)return "Saved response post identity or orientation invalid.";
-            if (p.BuildModeEnabled && !p.BuildPlacements.Any(item => item.Kind == (role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost) &&
+            if (!p.BuildPlacements.Any(item => item.Kind == (role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost) &&
                 item.Cell == placement.Cell && item.QuarterTurns == placement.QuarterTurns))
                 return "Saved response post differs from the build layout.";
-            var issue=p.BuildModeEnabled ? null : ResponsePostPlacementError(p,s.Equipment,s.Immersion,s.Medical,new(role,placement.Cell,placement.QuarterTurns));
-            if(issue is not null)return "Saved response post invalid: "+issue;
             if(p.Status!=PreparationStatus.Preparing && (s.TraversalGrid is null || ResponsePostFootprint(placement,role).Any(c=>!s.TraversalGrid.Cells.Any(saved=>saved.X==c.X && saved.Z==c.Z && !saved.IsWalkable))))return "Saved response post solid footprint missing.";
         }
         return null;

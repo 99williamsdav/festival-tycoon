@@ -2,7 +2,6 @@ namespace Festival.Simulation;
 
 public sealed partial class GameSession
 {
-    public bool StaffAutonomyEnabled => _preparation?.StaffAutonomyEnabled == true;
 
     // Availability is shared by automatic arbitration and role-based manual dispatch.
     // Completed jobs own no response; their ordinary return route can safely be replaced.
@@ -59,7 +58,7 @@ public sealed partial class GameSession
 
     private void AdvanceStaffAutonomy()
     {
-        if (!StaffAutonomyEnabled || !MedicalOperationsActive || _medical is null) return;
+        if (!MedicalOperationsActive || _medical is null) return;
         foreach (var need in PeopleIn(PersonView.Medical).Where(need => EffectiveMedicalStage(need) is MedicalStage.Critical or MedicalStage.Collapsed)
                      .OrderBy(need => EffectiveMedicalStage(need) == MedicalStage.Critical ? 0 : 1)
                      .ThenBy(MedicalResponseDeadline).ThenBy(need => need.Id).ToArray())

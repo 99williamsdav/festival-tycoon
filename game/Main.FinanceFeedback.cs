@@ -15,7 +15,6 @@ public partial class Main
     private CanvasLayer? _cashPopupLayer;
     private long _cashFeedbackCredits;
     private long _cashFeedbackExpenses;
-    private string? _financeCaptureDirectory;
     private int _financeCaptureStep;
     private double _financeCaptureElapsed;
     private long _financeCaptureSalesTick;
@@ -125,8 +124,6 @@ public partial class Main
                 var key = (anchor, credit);
                 _cashPopupPending[key] = _cashPopupPending.GetValueOrDefault(key) + item.FestivalCashPennies;
             }
-            if (_financeCaptureDirectory is not null)
-                GD.Print($"FINANCE_FEEDBACK transaction={item.TransactionId} cash_pennies={item.FestivalCashPennies} anchor={anchor}");
         }
         // Overflow remains aggregated by the finite visible control/vendor keys
         // and sign, then drains when a display slot expires. No cash is discarded
@@ -163,116 +160,6 @@ public partial class Main
             popup.Label.Position = new Vector2(Mathf.Clamp(position.X - 80, 4, Math.Max(4, viewport.X - 164)), Mathf.Clamp(y, 4, Math.Max(4, viewport.Y - 46)));
             popup.Label.Modulate = new Color(1, 1, 1, 1 - (float)popup.Age / 2);
         }
-    }
-
-    private void FinanceCaptureImage(string name) => GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_financeCaptureDirectory!, name + ".png"));
-
-    private void ProcessFinanceFeedbackCapture(double delta)
-    {
-        if (_financeCaptureDirectory is null) return;
-        _financeCaptureElapsed += delta;
-        try
-        {
-            if (_financeCaptureStep == 0)
-            {
-                SelectHudTab("Stock");
-                _session.Execute(CampaignEnvelope(new SetPausedCommand(true)));
-                _immersionStockButton!.EmitSignal(Button.SignalName.Pressed);
-                if (!_session.CaptureImmersion()!.StockPurchased) throw new InvalidOperationException("Actual stock command failed.");
-                _financeCaptureStep = 1; _financeCaptureElapsed = 0;
-            }
-            else if (_financeCaptureStep == 1 && _financeCaptureElapsed >= .25)
-            {
-                if (_cashPopups.Single().Pennies != -9600 || _cashFeedbackExpenses != -9600 || _cashPopups.Single().Label.Text != "−£96") throw new InvalidOperationException("Stock expense feedback missing, duplicated or incorrectly formatted.");
-                CaptureFinanceAnimationBaseline(_cashPopups.Single());
-                FinanceCaptureImage("01-stock-expense-early"); _financeCaptureStep = 2;
-            }
-            else if (_financeCaptureStep == 2 && _financeCaptureElapsed >= 1)
-            { AssertFinanceAnimation(_cashPopups.Single()); FinanceCaptureImage("02-stock-expense-mid"); _financeCaptureStep = 3; }
-            else if (_financeCaptureStep == 3 && _financeCaptureElapsed >= 2.3)
-            {
-                if (_cashPopups.Count != 0) throw new InvalidOperationException("Expense popup did not expire.");
-                AssertFinanceAnimationHash();
-                FinanceCaptureImage("03-stock-expense-expired");
-                PreparationSave(); PreparationLoad();
-                if (_cashPopups.Count != 0 || _cashPopupPending.Count != 0) throw new InvalidOperationException("Load retained feedback.");
-                _programmeDraft = ["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"];
-                SelectHudTab("Programme");
-                RefreshProgrammeControls(); _programmeBook!.EmitSignal(Button.SignalName.Pressed);
-                foreach (var id in new[] { "staff.steward", "equipment.buy" }) _offerButtons[id].EmitSignal(Button.SignalName.Pressed);
-                _financeCaptureStep = 4; _financeCaptureElapsed = 0;
-            }
-            else if (_financeCaptureStep == 4 && _financeCaptureElapsed >= .25)
-            {
-                var expected = _session.CaptureFestivalCashFeedbackEvents().Where(e => e.AnchorKey.StartsWith("offer:act.", StringComparison.Ordinal)).Sum(e => e.FestivalCashPennies);
-                if (_cashPopups.Single(p => p.Anchor == "programme").Pennies != expected) throw new InvalidOperationException("Three paid acts did not aggregate at booking control.");
-                var paidOffers = _session.CaptureFestivalCashFeedbackEvents().Where(e => e.AnchorKey.StartsWith("offer:", StringComparison.Ordinal)).Sum(e => e.FestivalCashPennies);
-                if (_cashPopups.Single(p => p.Anchor == "preparation").Pennies != paidOffers - expected ||
-                    _cashPopups.Sum(p => p.Pennies) != paidOffers || _cashPopups.Any(p => p.Label.Position.Y >= GetViewport().GetVisibleRect().Size.Y - 100))
-                    throw new InvalidOperationException("Clipped staff/equipment expenses did not aggregate at the preparation summary.");
-                FinanceCaptureImage("04-programme-expense-aggregated"); _financeCaptureStep = 10;
-            }
-            else if (_financeCaptureStep == 10 && _financeCaptureElapsed >= 2.3)
-            {
-                PreparationStart(); _financeCaptureStep = 5;
-            }
-            else if (_financeCaptureStep == 5)
-            {
-                if (_financeCaptureSalesTick == 0)
-                {
-                    SelectAttendee(_session.CaptureObservation().NavigationAgents.First().Id); AssertContextPanel(true);
-                    ClearSelection(); AssertContextPanel(false);
-                }
-                _financeCaptureSalesTick += 160;
-                TimetableAdvanceTo(_financeCaptureSalesTick);
-                if (_session.CaptureImmersion()!.Purchases.Length > 0)
-                { _financeCaptureStep = 6; _financeCaptureElapsed = 0; }
-                else if (_financeCaptureSalesTick >= 6400) throw new InvalidOperationException("No ordinary sale within 80 simulated seconds.");
-            }
-            else if (_financeCaptureStep == 6 && _financeCaptureElapsed >= .25)
-            {
-                _financeCaptureObservedCredit = _session.CaptureImmersion()!.Purchases.Sum(p => (long)p.PricePennies);
-                if (_cashFeedbackCredits != _financeCaptureObservedCredit || !_cashPopups.Any(p => p.Pennies > 0) ||
-                    _cashPopups.Where(p => p.Pennies > 0).Any(p => p.Label.Text != FestivalCurrency.Format(p.Pennies, signed: true))) throw new InvalidOperationException("Sale credit missing, duplicated or incorrectly formatted.");
-                CaptureFinanceAnimationBaseline(_cashPopups.First(p => p.Pennies > 0));
-                FinanceCaptureImage("04-vendor-sale-early"); _financeCaptureStep = 7;
-            }
-            else if (_financeCaptureStep == 7 && _financeCaptureElapsed >= 1)
-            { AssertFinanceAnimation(_cashPopups.First(p => p.Pennies > 0)); FinanceCaptureImage("05-vendor-sale-mid"); _financeCaptureStep = 8; }
-            else if (_financeCaptureStep == 8 && _financeCaptureElapsed >= 2.3)
-            {
-                if (_cashPopups.Count != 0) throw new InvalidOperationException("Sale popup did not expire.");
-                AssertFinanceAnimationHash();
-                FinanceCaptureImage("06-vendor-sale-expired");
-                PreparationSave(); PreparationLoad(); _financeCaptureStep = 9; _financeCaptureElapsed = 0;
-            }
-            else if (_financeCaptureStep == 9 && _financeCaptureElapsed >= .3)
-            {
-                if (_cashPopups.Count != 0 || _cashFeedbackCredits != _financeCaptureObservedCredit) throw new InvalidOperationException("Historical sales replayed after load.");
-                FinanceCaptureImage("07-loaded-no-replay");
-                AssertFinanceHiddenControlStack();
-                // Labelled cosmetic capacity fixture: these are display-only
-                // amounts, never authoritative cash, ledger or cursor events.
-                _financeCaptureAnimationHash = _session.CaptureSnapshot().AuthoritativeHash;
-                for (var index = 0; index < 10; index++) _cashPopupPending[("fixture:" + index, true)] = 100;
-                _financeCaptureStep = 11; _financeCaptureElapsed = 0;
-            }
-            else if (_financeCaptureStep == 11 && _financeCaptureElapsed >= .1)
-            {
-                if (_cashPopups.Count != 8 || _cashPopupPending.Count != 2 || _cashPopups.Sum(p => p.Pennies) + _cashPopupPending.Values.Sum() != 1000)
-                    throw new InvalidOperationException("Labelled cosmetic capacity fixture lost overflow amounts.");
-                _financeCaptureStep = 12;
-            }
-            else if (_financeCaptureStep == 12 && _financeCaptureElapsed >= 2.2)
-            {
-                if (_cashPopups.Count != 2 || _cashPopupPending.Count != 0 || _cashPopups.Sum(p => p.Pennies) != 200)
-                    throw new InvalidOperationException("Cosmetic overflow did not drain into bounded visible slots.");
-                AssertFinanceAnimationHash();
-                GD.Print($"FINANCE_CAPTURE_COMPLETE actual_expense=-9600 actual_sale_credit={_financeCaptureObservedCredit} dedup=True load_replay=False early_mid_expired=True alpha_drift_hash=True actual_programme_aggregation=True hidden_control_stack=True labelled_cosmetic_capacity=True max_visible=8 overflow_loss=False");
-                GetTree().Quit();
-            }
-        }
-        catch (Exception error) { GD.PushError("FINANCE_CAPTURE_FAILED " + error); GetTree().Quit(1); }
     }
 
     private void CaptureFinanceAnimationBaseline(CashPopup popup)

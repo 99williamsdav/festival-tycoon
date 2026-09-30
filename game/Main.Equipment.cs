@@ -33,8 +33,6 @@ public partial class Main
         RefreshStagePowerAction(); RefreshContextPanelVisibility();
     }
     private EquipmentStage? _equipmentVisualStage;
-    private string? _equipmentCaptureDirectory;
-    private string _equipmentCaptureMode = "prevent";
     private int _equipmentCaptureStep;
     private long _equipmentCaptureStarted;
     private long _equipmentPriorFrame;
@@ -75,13 +73,10 @@ public partial class Main
             _session = result.Session;
             if (!relaxed) _autosaveGeneration++;
             _draftSavePipeline = null;
-            if(command is MoveResponsePostCommand)SyncResponsePosts();
-            if (command is ChoosePerkCommand or ApplyWaterFoundationEffectCommand or PlaceWaterPointCommand or MovePrimaryWaterPointCommand or MoveWaterPointCommand)
-                SyncExtraWaterWorld();
-            if (command is PurchaseImmersionStarterStockCommand or PlaceImmersionVendorCommand) SyncImmersionWorld();
+            if (command is ChoosePerkCommand) SyncExtraWaterWorld();
             _preparationSaveBlocked = false;
             _preparationMessage = relaxed ? "Plan updated; saves every 30 unpaused seconds and at opening." : "Action committed and autosaved.";
-            if (command is ChoosePerkCommand && _session.BuildModeEnabled)
+            if (command is ChoosePerkCommand)
             {
                 if (_session.CapturePreparation()?.Attempt == 1) OpenBuildCatalogue();
                 else SelectHudTab("Overview");
@@ -102,8 +97,6 @@ public partial class Main
         if (e.Stage == EquipmentStage.Terminal)
             _equipmentSummary.Text = "WEEKEND ENDED • COUNCIL HEARING\n" + StewardWording(_session.CaptureLifecycleSnapshot()!.Casualties.Last().Cause) +
                 (RelaxedSaveCadence ? (_cadenceSaveError ? "\nSave failed; use the visible Retry save control." : "\nThe failure checkpoint has been saved.") : "\nThe hearing has been saved.");
-        if (_equipmentCaptureMode == "escalate" && _equipmentCaptureDirectory is not null)
-            _equipmentSummary.Text = "LABELLED IGNORED-RESPONSE FIXTURE\n" + _equipmentSummary.Text;
         foreach (var (action, button) in _equipmentButtons)
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new EquipmentCommand(action))) is not null;
         if (_equipmentVisualStage == e.Stage) return;
@@ -124,54 +117,4 @@ public partial class Main
 
     // Scripted normal buttons for prevention; ignored response is explicitly labelled.
     // Samples stay in memory; screenshots/writes occur only at four checkpoints.
-    private void ProcessEquipmentCapture()
-    {
-        var now = Stopwatch.GetTimestamp();
-        if (_equipmentPriorFrame != 0 && _equipmentCaptureStarted != 0) _equipmentFrames.Add(Stopwatch.GetElapsedTime(_equipmentPriorFrame, now).TotalMilliseconds);
-        _equipmentPriorFrame = now;
-        if (_equipmentCaptureStep == 0)
-        {
-            foreach (var id in new[] { "act.folk", "staff.steward", "equipment.buy", "maintenance.worker" }) _offerButtons[id].EmitSignal(Button.SignalName.Pressed);
-            _equipmentCaptureStep = 1; return;
-        }
-        if (_equipmentCaptureStep == 1)
-        {
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_equipmentCaptureDirectory!, "pre-warning.png"));
-            _preparationStart.EmitSignal(Button.SignalName.Pressed);
-            _equipmentCaptureStarted = now; _equipmentCaptureStep = 2; return;
-        }
-        var e = _session.CaptureEquipment()!;
-        if (_equipmentCaptureStep == 2 && e.Stage == EquipmentStage.Warning)
-        {
-            RefreshPreparationHud();
-            _equipmentCaptureStep = 20; return;
-        }
-        if (_equipmentCaptureStep == 20)
-        {
-            GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_equipmentCaptureDirectory!, "warning.png"));
-            PreparationSave(); PreparationLoad();
-            if (_equipmentCaptureMode != "escalate") _equipmentButtons[EquipmentAction.DispatchMaintenance].EmitSignal(Button.SignalName.Pressed);
-            _equipmentCaptureStep = 3;
-        }
-        if (_equipmentCaptureStep == 3 && (e.Stage is EquipmentStage.Resolved or EquipmentStage.Terminal || Stopwatch.GetElapsedTime(_equipmentCaptureStarted).TotalSeconds > 110 || _preparationSaveBlocked))
-        {
-            RefreshPreparationHud(); _equipmentCaptureStep = 4; return;
-        }
-        if (_equipmentCaptureStep != 4) return;
-        GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_equipmentCaptureDirectory!, "outcome.png"));
-        var loaded = AutosaveRotation.LoadNewestValid(SaveDirectory, _saveCompatibility);
-        var exact = loaded.IsSuccess && loaded.Session!.CaptureSnapshot().AuthoritativeHash == _session.CaptureSnapshot().AuthoritativeHash;
-        // A safe live session may have advanced beyond the boundary autosave; compare a manual round trip as well.
-        var before = _session.CaptureSnapshot().AuthoritativeHash; PreparationSave(); PreparationLoad();
-        var roundTrip = before == _session.CaptureSnapshot().AuthoritativeHash;
-        var sorted = _equipmentFrames.Order().ToArray();
-        double P(double p) => sorted[Math.Clamp((int)Math.Ceiling(sorted.Length * p) - 1, 0, sorted.Length - 1)];
-        var seconds = Stopwatch.GetElapsedTime(_equipmentCaptureStarted).TotalSeconds;
-        var passed = roundTrip && (_equipmentCaptureMode == "escalate" ? e.Stage == EquipmentStage.Terminal && exact : e.JobStage == MaintenanceStage.Completed);
-        File.WriteAllText(Path.Combine(_equipmentCaptureDirectory!, "result.json"), JsonSerializer.Serialize(new { passed, mode = _equipmentCaptureMode, roundTrip, latestAutosaveExact = exact,
-            ticks = _session.CurrentTick, wallSeconds = seconds, attainedSpeed = _session.CurrentTick / (80 * seconds), people = _session.CapturePreparation()!.People.Length,
-            samples = sorted.Length, frameP50 = P(.5), frameP95 = P(.95), frameP99 = P(.99), frameMax = sorted[^1],
-            peakMemoryBytes = Process.GetCurrentProcess().PeakWorkingSet64, equipment = e, lifecycle = _session.CaptureLifecycleSnapshot() }, new JsonSerializerOptions { WriteIndented = true }));
-        GetTree().Quit(passed ? 0 : 2);
-    }
 }

@@ -21,13 +21,13 @@ public sealed partial class GameSession
         2_500 + (int)(GuestInitialRoll(seed, id, 0x544849525354UL) % 5_301);
 
     public bool GuestWaitingForRelease(ulong id) =>
-        _preparation is { Status: PreparationStatus.Running, BuildModeEnabled: true } p &&
+        _preparation is { Status: PreparationStatus.Running } p &&
         PeopleIn(PersonView.Roster).Any(person => person.Id == id && person.Role == ProtectedPersonRole.Guest && !person.Admitted && !person.Departed) &&
         _navigationAgents.TryGetValue(new(id), out var navigation) && navigation.Destination is null;
 
     private void ApplyBuildGuestOpeningNeeds()
     {
-        if (_preparation?.BuildModeEnabled != true) return;
+        if (_preparation is null) return;
         foreach (var person in PeopleIn(PersonView.Consumption))
             if (PeopleIn(PersonView.Roster).Any(p => p.Id == person.Id && p.Role == ProtectedPersonRole.Guest))
                 _persons.Set(person with { Hunger = GuestOpeningHunger(CampaignSeed, person.Id), ToiletNeed = GuestOpeningToiletNeed(CampaignSeed, person.Id) });

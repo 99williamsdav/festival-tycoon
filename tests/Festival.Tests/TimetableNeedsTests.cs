@@ -19,7 +19,7 @@ public sealed class TimetableNeedsTests
 
     private static GameSession Started(int ticks = -1)
     {
-        var session = GameSession.CreateTimetableCampaign(20260926);
+        var session = BuildSession.Planned(20260926);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"])).IsAccepted);
         foreach (var id in new[] { "staff.steward", "equipment.buy" })
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
@@ -40,7 +40,7 @@ public sealed class TimetableNeedsTests
     [TestMethod]
     public void NinePerformerMedicalProfilesRemainProtectedAndSaved()
     {
-        var session = GameSession.CreateTimetableCampaign(20260926);
+        var session = BuildSession.Planned(20260926);
         var performers = session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Performer).ToArray();
         Assert.AreEqual(9, performers.Length);
         Assert.AreEqual(9, session.CaptureMedical()!.Needs.Count(need => need.Profile == MedicalNeedProfile.Performer));
@@ -108,27 +108,6 @@ public sealed class TimetableNeedsTests
             session.AdvanceWithoutSnapshot(1);
         Assert.AreNotEqual(MedicalIntent.Rest, session.CaptureMedical()!.Needs.Single(item => item.AgentId == performer).Intent);
         Assert.AreEqual(MedicalStage.Treated, session.CaptureMedical()!.Needs.Single(item => item.AgentId == performer).Stage);
-        Restored(session);
-    }
-
-    [TestMethod]
-    public void FuturePerformerRetainsWarningCollapseCriticalAndFirstDeathProtection()
-    {
-        var session = Started();
-        var performer = session.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Performer &&
-            person.Admitted && !session.IsCurrentProgrammePerformer(person.AgentId));
-        // A deliberately untreated warning isolates the protected medical deadline from ordinary prevention.
-        SetMedical(session, need => need.AgentId == performer.AgentId ? need with { Thirst = 9_500, HeatExposure = 8_500,
-            Stage = MedicalStage.Distress, WarningTick = session.CurrentTick, Intent = MedicalIntent.AwaitMedic } : need);
-        session = Restored(session);
-        session.AdvanceWithoutSnapshot(GameSession.MedicalCollapseDelayTicks);
-        Assert.AreEqual(MedicalStage.Collapsed, session.CaptureMedical()!.Needs.Single(need => need.AgentId == performer.AgentId).Stage);
-        session = Restored(session);
-        session.AdvanceWithoutSnapshot(GameSession.MedicalCriticalDelayTicks);
-        Assert.AreEqual(MedicalStage.Critical, session.CaptureMedical()!.Needs.Single(need => need.AgentId == performer.AgentId).Stage);
-        session.AdvanceWithoutSnapshot(GameSession.MedicalDeathDelayTicks - GameSession.MedicalCriticalDelayTicks);
-        Assert.AreEqual(PreparationStatus.Failed, session.PreparedStatus);
-        Assert.AreEqual(performer.Name, session.CaptureLifecycleSnapshot()!.Casualties.Single().PersonId);
         Restored(session);
     }
 

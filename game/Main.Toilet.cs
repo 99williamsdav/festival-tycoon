@@ -21,11 +21,6 @@ public partial class Main
     private bool _selectedToilet;
     private string? _selectedToiletId;
     private Button? _toiletMoveButton;
-    private bool _movingToilet;
-    private int _toiletQuarterTurns;
-    private GridCell? _toiletCandidate;
-    private string? _toiletPlacementIssue;
-    private Node3D? _toiletPreview;
     private MeshInstance3D? _toiletFootprintPreview;
     private Label3D? _toiletPreviewLabel;
 
@@ -106,8 +101,7 @@ public partial class Main
     {
         _toiletMoveButton = ButtonText("Move", () =>
         {
-            if (_movingToilet) CancelToiletPlacement();
-            else if (_selectedToilet) BeginToiletPlacement();
+            if (_selectedToilet) BeginToiletPlacement();
             RefreshPreparationHud();
         });
         _toiletMoveButton.Visible = false;
@@ -125,7 +119,7 @@ public partial class Main
         RefreshContextPanelVisibility();
         if (_toiletMoveButton is null) return;
         _toiletMoveButton.Visible = _selectedToilet && _session.PreparedStatus == PreparationStatus.Preparing;
-        _toiletMoveButton.Text = _movingToilet ? "Cancel move" : "Move";
+        _toiletMoveButton.Text = false ? "Cancel move" : "Move";
         if (!_selectedToilet || _selectedToiletId is null || !_toiletViews.TryGetValue(_selectedToiletId, out var selectedView) ||
             _session.CaptureToilets().SingleOrDefault(item => item.Id == _selectedToiletId) is not { } toilet) return;
         _inspectorTitle.Text = "Portaloo • owned";
@@ -142,69 +136,7 @@ public partial class Main
 
     private void BeginToiletPlacement()
     {
-        if (_session.BuildModeEnabled) { BeginBuildPlacement(BuildServiceKind.Toilet, _selectedToiletId); return; }
-        if (_session.PreparedStatus != PreparationStatus.Preparing || _session.CaptureToilet() is not { } toilet) return;
-        CancelWaterPlacement(); CancelImmersionPlacement(); CancelResponsePostPlacement(); CancelToiletPlacement();
-        ClearSelection(); _selectedToilet = true;
-        _movingToilet = true; _toiletQuarterTurns = toilet.QuarterTurns;
-        _toiletPreview = InstantiateAsset(ToiletAsset); AddChild(_toiletPreview);
-        _toiletPreviewLabel = new Label3D { FontSize = 34, PixelSize = .009f,
-            Position = new Vector3(0, 3f, 0), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled };
-        _toiletPreview.AddChild(_toiletPreviewLabel);
-        _toiletFootprintPreview = new MeshInstance3D { Mesh = new BoxMesh { Size = new(3.5f,.035f,3.5f) },
-            MaterialOverride = new StandardMaterial3D { Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
-                ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded } };
-        AddChild(_toiletFootprintPreview);
-        _preparationMessage = "Move toilet: click valid grass; comma/period rotate; right-click or Esc cancels.";
-        RefreshPreparationHud(); UpdateToiletPlacementPreview(GetViewport().GetMousePosition());
+        BeginBuildPlacement(BuildServiceKind.Toilet, _selectedToiletId);
     }
 
-    private void CancelToiletPlacement()
-    {
-        _movingToilet = false; _toiletCandidate = null; _toiletPlacementIssue = null;
-        if (_toiletPreview is not null) { _toiletPreview.Visible = false; _toiletPreview.QueueFree(); }
-        if (_toiletFootprintPreview is not null) { _toiletFootprintPreview.Visible = false; _toiletFootprintPreview.QueueFree(); }
-        _toiletPreview = null; _toiletFootprintPreview = null; _toiletPreviewLabel = null;
-    }
-
-    private void UpdateToiletPlacementPreview(Vector2 screen)
-    {
-        if (!_movingToilet || _toiletPreview is null) return;
-        if (HudBlocksPlacement(screen))
-        { _toiletCandidate = null; _toiletPreview.Visible = false; _toiletFootprintPreview!.Visible = false; return; }
-        var ray = _camera.ProjectRayNormal(screen); var origin = _camera.ProjectRayOrigin(screen);
-        if (Mathf.Abs(ray.Y) < .001f || -origin.Y / ray.Y <= 0)
-        { _toiletCandidate = null; _toiletPreview.Visible = false; _toiletFootprintPreview!.Visible = false; return; }
-        var point = origin + ray * (-origin.Y / ray.Y);
-        var cell = TraversalGrid.WorldToCell(Mathf.RoundToInt(point.X * 1000), Mathf.RoundToInt(point.Z * 1000));
-        if (_toiletCandidate == cell && _toiletPreview.Visible) return;
-        _toiletCandidate = cell;
-        _toiletPlacementIssue = _session.ValidateCommand(CampaignEnvelope(new MoveToiletCommand(cell, _toiletQuarterTurns)))?.Message;
-        _toiletPreview.Position = ImmersionPosition(cell);
-        _toiletPreview.RotationDegrees = new Vector3(0, _toiletQuarterTurns * 90, 0);
-        _toiletPreview.Visible = true;
-        _toiletPreviewLabel!.Text = _toiletPlacementIssue is null ? "VALID • CLICK TO MOVE" : "INVALID • " + _toiletPlacementIssue;
-        var colour = _toiletPlacementIssue is null ? new Color(.25f,.78f,.38f,.4f) : new Color(.9f,.24f,.18f,.4f);
-        _toiletPreviewLabel.Modulate = new Color(_toiletPlacementIssue is null ? "67db76" : "ff7566");
-        _toiletFootprintPreview!.Position = _toiletPreview.Position + new Vector3(0,.06f,0);
-        _toiletFootprintPreview.RotationDegrees = _toiletPreview.RotationDegrees;
-        ((StandardMaterial3D)_toiletFootprintPreview.MaterialOverride!).AlbedoColor = colour;
-        _toiletFootprintPreview.Visible = true;
-    }
-
-    private void RotateToiletPlacement(int step)
-    {
-        _toiletQuarterTurns = (_toiletQuarterTurns + step + 4) % 4;
-        _toiletCandidate = null;
-        UpdateToiletPlacementPreview(GetViewport().GetMousePosition());
-    }
-
-    private void CommitToiletPlacement(Vector2 screen)
-    {
-        UpdateToiletPlacementPreview(screen);
-        if (_toiletCandidate is not { } cell || _toiletPlacementIssue is not null) return;
-        CommitEquipmentAction(new MoveToiletCommand(cell, _toiletQuarterTurns));
-        if (_session.CaptureToilet() is { } toilet && toilet.Cell == cell && toilet.QuarterTurns == _toiletQuarterTurns)
-            CancelToiletPlacement();
-    }
 }

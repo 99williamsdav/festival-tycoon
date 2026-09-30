@@ -138,7 +138,7 @@ public partial class Main
         if (_perkPanel is null) return;
         var p = _session.CapturePerks();
         _perkToggle!.Visible = p is { Ended: false };
-        if (_session.BuildModeEnabled && _session.PreparedStatus == PreparationStatus.Preparing && p?.Pending == false)
+        if (_session.PreparedStatus == PreparationStatus.Preparing && p?.Pending == false)
             _perkToggle.Visible = false;
         _perkPanel.Visible = p is { Ended: false } && (p.Pending || _perksExpanded);
         if (!_perkPanel.Visible || p?.Pending != false) HideOwnedEffect();
@@ -229,7 +229,7 @@ public partial class Main
         var width = draft ? size.X - 120 : size.X - 20;
         var height = draft ? size.Y - 120 : 220;
         _perkPanel.Position = draft ? new Vector2(60,65) : new Vector2((size.X-width)/2,
-            size.Y - (_session.BuildModeEnabled && _session.PreparedStatus == PreparationStatus.Preparing ? 132 : 60) - height);
+            size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? 132 : 60) - height);
         _perkPanel.Size = new Vector2(width,height);
     }
     private void LayoutOwnedPerkWorkspace()
@@ -249,7 +249,7 @@ public partial class Main
         if (constrained)
             height = Math.Min(height, size.Y - 60 - 220 - 10 - 77);
         var bookingPage = _bookingLane is not null && HudProgrammeSelected();
-        if (bookingPage && !constrained) height = Math.Min(660, size.Y - (_session.BuildModeEnabled && _session.PreparedStatus == PreparationStatus.Preparing ? 210 : 138));
+        if (bookingPage && !constrained) height = Math.Min(660, size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? 210 : 138));
         _hudWorkspace.Position = bookingPage && !constrained ? new Vector2(16, 72) : new Vector2(15, 77);
         _hudWorkspace.Size = new Vector2(bookingPage && !constrained ? size.X - 32 : size.X >= 1600 ? 690 : 650, height);
         LayoutOwnedContext(constrained);
@@ -358,13 +358,12 @@ public partial class Main
     {
         // Explicit capture-only setup, because R0 has no progression to five choices yet.
         // Commands and all confirmation/save interactions after setup use production paths.
-        _session=GameSession.CreatePerkCampaign(20260922);_pendingPerkChoice=null;_pendingPerkReplacement=null;_pendingPerkSkip=false;
+        _session=GameSession.CreateBuildCampaign(20260922);_pendingPerkChoice=null;_pendingPerkReplacement=null;_pendingPerkSkip=false;
         var field=typeof(GameSession).GetField("_perks",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!;
         var p=_session.CapturePerks()!;field.SetValue(_session,p with {Equipped=["another-round","doctors-orders","extra-pair-of-hands","high-pressure"],Pending=true});
         typeof(GameSession).GetMethod("SynchronizePerkEffects",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(_session,[]);
         do{typeof(GameSession).GetMethod("OpenPerkDraft",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(_session,[]);p=_session.CapturePerks()!;}while(!p.Hand.Contains("smooth-operators"));
         CommitEquipmentAction(new ChoosePerkCommand(p.DraftAttempt,p.Cursor,"smooth-operators"));
-        CommitEquipmentAction(new PlaceWaterPointCommand(new(80,126)));
         typeof(GameSession).GetMethod("OpenPerkDraft",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(_session,[]);
         _preparationMessage="LABELLED CAPACITY FIXTURE · four owned inserted, fifth chosen normally · saved draft/confirmation commands";_perksExpanded=false;_perkHudKey="";RefreshPreparationHud();
         GD.Print("PERK_CAPTURE_SETUP fixture=capacity inserted_owned=4 production_choice=5 extra_tap=production_placement");

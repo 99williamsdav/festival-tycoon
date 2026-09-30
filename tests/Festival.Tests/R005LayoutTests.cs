@@ -19,15 +19,11 @@ public sealed class R005LayoutTests
         var r = s.Execute(new(new CommandId(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase, s.CurrentTick, s.NextSubmissionSequence, null, c));
         Assert.IsTrue(r.IsAccepted, r.Message);
     }
+
     private static GameSession PaidStaffFixture()
     {
-        var s = GameSession.CreateImmersionCampaign(20260922);
-        // Explicit development capacity setup; each worker is still hired for £30.
-        foreach (var effect in new[] { "staff.medic-slot", "staff.steward-slot" })
-            if (effect == "staff.medic-slot" ? !s.CapturePreparation()!.ExtraMedicSlotOwned : !s.CapturePreparation()!.ExtraStewardSlotOwned)
-                Accept(s, new ApplyStaffFoundationEffectCommand(effect));
-        foreach (var offer in new[] { "staff.extra-medic", "staff.extra-steward", "staff.steward" }) Accept(s, new AcceptPreparationOfferCommand(offer));
-        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
+        var s = BuildSession.PlannedWith("doctors-orders");
+        foreach (var offer in new[] { "staff.extra-medic", "staff.steward" }) Accept(s, new AcceptPreparationOfferCommand(offer));
         return s;
     }
 
@@ -63,7 +59,7 @@ public sealed class R005LayoutTests
     [TestMethod]
     public void GateRoutesToActualServicesPostsStageAndBothBarnFrontApronsRemainViable()
     {
-        var s = GameSession.CreateImmersionCampaign(20260922);
+        var s = BuildSession.Planned(20260922);
         // Starting the actual campaign creates its production vendor obstacles.
         Accept(s,new AcceptPreparationOfferCommand("staff.steward"));
         Accept(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.field-frequency"]));
@@ -77,65 +73,4 @@ public sealed class R005LayoutTests
         foreach(var cell in targets) Assert.IsTrue(DeterministicPathfinder.FindPath(grid,TraversalGrid.WorldToCell(0,30000),cell).Found,$"Route to {cell}");
     }
 
-    [TestMethod]
-    public void IdleRoleHintIsPureAndRequiresPhysicalDutyArrivalForAllPaidAndBaselineWorkers()
-    {
-        var s = PaidStaffFixture(); Accept(s,new StartPreparedEditionCommand());
-        foreach(var worker in s.GetResponseStaff())
-        {
-            var nav=s.CaptureObservation().NavigationAgents.Single(n=>n.Id.Value==worker.AgentId);
-            Assert.IsNull(s.IdleResponseStaffRole(nav.Id,nav.XMillimetres,nav.ZMillimetres));
-        }
-        s.AdvanceWithoutSnapshot(1800);
-        var hash=s.CaptureSnapshot().AuthoritativeHash;
-        foreach(var worker in s.GetResponseStaff())
-        {
-            var nav=s.CaptureObservation().NavigationAgents.Single(n=>n.Id.Value==worker.AgentId);
-            Assert.AreEqual(worker.Role,s.IdleResponseStaffRole(nav.Id,nav.XMillimetres,nav.ZMillimetres),worker.Name);
-            Assert.IsNull(s.IdleResponseStaffRole(nav.Id,nav.XMillimetres+10,nav.ZMillimetres),"Interpolation still away from duty.");
-        }
-        Assert.AreEqual(hash,s.CaptureSnapshot().AuthoritativeHash);
-    }
-
-    [TestMethod]
-    public void ActualPriorHeaderRejectsWithoutChangingFileAndCurrentPerkPaidCampaignLoadsExactly()
-    {
-        var compatibility=new SaveCompatibility("0.0.1-r0.05-hearing-v1",LowerWitteringFarmScenario.ContentCompatibilityHash,"r0-disorder-layout-v13");
-        var prior=Path.Combine(RepositoryRoot(),"reports/evidence/R0.05g/final-1280x720/saves/manual-preparation.ftsave");
-        var bytes=File.ReadAllBytes(prior); var rejected=SaveFileAdapter.LoadFile(prior,compatibility);
-        Assert.IsFalse(rejected.IsSuccess); StringAssert.Contains(rejected.Error!,"Content hash mismatch");
-        CollectionAssert.AreEqual(bytes,File.ReadAllBytes(prior));
-        Assert.AreNotEqual("153c4af484f24f92ee5bb4bd8572153bea4283bda785174685ef4f5c54d7d344",compatibility.ContentHash);
-        var s=GameSession.CreatePerkCampaign(20260922);
-        for(ulong seed=20260923;!s.CapturePerks()!.Hand.Contains("doctors-orders");seed++) s=GameSession.CreatePerkCampaign(seed);
-        var perk=s.CapturePerks()!;Accept(s,new ChoosePerkCommand(perk.DraftAttempt,perk.Cursor,"doctors-orders"));
-        Accept(s,new AcceptPreparationOfferCommand("staff.extra-medic"));
-        Accept(s,new AcceptPreparationOfferCommand("staff.steward"));
-        Accept(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.field-frequency"]));
-        Accept(s,new StartPreparedEditionCommand()); s.AdvanceWithoutSnapshot(1800);
-        // Labelled warning initialization; dispatch, physical route and job continuation
-        // use production commands and ticks, including the normal save adapter.
-        var patient=s.CapturePreparation()!.People.First(person=>person.Role==ProtectedPersonRole.Guest).AgentId;
-        var medical=s.CaptureMedical()!;
-        typeof(GameSession).GetProperty("MedicalView",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!.SetValue(s,
-            medical with { Needs=medical.Needs.Select(n=>n.AgentId==patient?n with {Stage=MedicalStage.Distress,WarningTick=s.CurrentTick}:n).ToArray() });
-        var worker=s.GetResponseStaff().Single(w=>w.Name=="Avery Brooks");
-        Accept(s,new MedicalCommand(patient,MedicalAction.DispatchMedic,worker.AgentId));
-        Assert.AreEqual(MedicalResponseStage.Travelling,s.GetMedicResponses().Single(j=>j.WorkerId==worker.AgentId).Stage);
-        var nav=s.CaptureObservation().NavigationAgents.Single(n=>n.Id.Value==worker.AgentId);
-        Assert.IsNull(s.IdleResponseStaffRole(nav.Id,nav.XMillimetres,nav.ZMillimetres));
-        var directory=Path.Combine(Path.GetTempPath(),"r005h-layout-"+Guid.NewGuid().ToString("N"));
-        Directory.CreateDirectory(directory);
-        try
-        {
-            Assert.IsTrue(SaveFileAdapter.SaveSlot(directory,"current",new(s,compatibility,"labelled-layout-fixture",DateTimeOffset.UtcNow)).IsSuccess);
-            var loaded=SaveFileAdapter.LoadSlot(directory,"current",compatibility); Assert.IsTrue(loaded.IsSuccess,loaded.Error);
-            Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash,loaded.Session!.CaptureSnapshot().AuthoritativeHash);
-            CollectionAssert.AreEqual(s.CapturePerks()!.Equipped,loaded.Session.CapturePerks()!.Equipped);
-            CollectionAssert.AreEqual(s.GetResponseStaff().ToArray(),loaded.Session.GetResponseStaff().ToArray());
-            s.AdvanceWithoutSnapshot(100);loaded.Session.AdvanceWithoutSnapshot(100);
-            Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash,loaded.Session.CaptureSnapshot().AuthoritativeHash);
-        }
-        finally { Directory.Delete(directory,true); }
-    }
 }

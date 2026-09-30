@@ -5,23 +5,16 @@ namespace Festival.Simulation;
 
 internal static class CanonicalStateHasher
 {
-    private const int PreviousSchemaVersion = 2;
-    private const int QueueSchemaVersion = 3;
-    private const int PhysicalQueueModeSchemaVersion = 4;
+    private const int SchemaVersion = 2;
+    private const int QueueSchemaVersion = 4;
 
-    public static string Compute(GameSession session) => Compute(session, PhysicalQueueModeSchemaVersion, includePhysicalQueueMode: true, includeCommitmentConfirmationWeek: true);
-    internal static string ComputeQueueCompatibility(GameSession session, bool includePhysicalQueueMode) =>
-        Compute(session, QueueSchemaVersion, includePhysicalQueueMode, includeCommitmentConfirmationWeek: true);
-    internal static string ComputeCampaignCompatibility(GameSession session) =>
-        Compute(session, PhysicalQueueModeSchemaVersion, includePhysicalQueueMode: true, includeCommitmentConfirmationWeek: false);
-
-    private static string Compute(GameSession session, int queueSchemaVersion, bool includePhysicalQueueMode, bool includeCommitmentConfirmationWeek)
+    public static string Compute(GameSession session)
     {
         using var memory = new MemoryStream();
         using var writer = new BinaryWriter(memory, Encoding.UTF8, leaveOpen: true);
 
         var includesQueues = session.ServiceQueues.Count > 0;
-        writer.Write(includesQueues ? queueSchemaVersion : PreviousSchemaVersion);
+        writer.Write(includesQueues ? QueueSchemaVersion : SchemaVersion);
         writer.Write(GameSession.TickDurationMilliseconds);
         writer.Write(Pcg32Random.AlgorithmVersion);
         writer.Write(session.CampaignId.Value);
@@ -161,7 +154,7 @@ internal static class CanonicalStateHasher
                 writer.Write(queue.ActiveOwnerId.HasValue); if (queue.ActiveOwnerId is { } owner) writer.Write(owner.Value);
                 writer.Write(queue.RemainingServiceTicks); writer.Write(queue.CompletionSequence); writer.Write(queue.NeedsReassignment);
                 writer.Write(queue.NextArrivalSequence);
-                if (includePhysicalQueueMode) writer.Write(queue.PhysicalArrivalAdmission);
+                writer.Write(queue.PhysicalArrivalAdmission);
                 writer.Write(queue.QueueSlots.Count); foreach (var cell in queue.QueueSlots) { writer.Write(cell.X); writer.Write(cell.Z); }
                 writer.Write(queue.ExitCells.Count); foreach (var cell in queue.ExitCells) { writer.Write(cell.X); writer.Write(cell.Z); }
                 writer.Write(queue.Agents.Count);
@@ -197,11 +190,8 @@ internal static class CanonicalStateHasher
                 writer.Write(item.AmountPennies);
                 writer.Write(item.DueOnAdvanceFromWeek);
                 writer.Write((int)item.Status);
-                if (includeCommitmentConfirmationWeek)
-                {
-                    writer.Write(item.ConfirmedInWeek.HasValue);
-                    if (item.ConfirmedInWeek.HasValue) writer.Write(item.ConfirmedInWeek.Value);
-                }
+                writer.Write(item.ConfirmedInWeek.HasValue);
+                if (item.ConfirmedInWeek.HasValue) writer.Write(item.ConfirmedInWeek.Value);
             }
             writer.Write(campaign.LedgerTransactions.Count);
             foreach (var transaction in campaign.LedgerTransactions)
@@ -241,15 +231,14 @@ internal static class CanonicalStateHasher
 
         if (session.LifecycleState is { } lifecycle)
         {
-            writer.Write("r0-lifecycle-fixture-v1");
-            writer.Write(lifecycle.FixtureLabel);
+            writer.Write("lifecycle-v2");
             writer.Write(lifecycle.CurrentTierId);
-            writer.Write(lifecycle.FixtureTierOrdinal);
+            writer.Write(lifecycle.TierOrdinal);
             writer.Write(lifecycle.CurrentAttemptId);
             writer.Write(lifecycle.NextAttemptId);
             writer.Write(lifecycle.NextCasualtyId);
             writer.Write(lifecycle.NextHearingId);
-            writer.Write(lifecycle.FixtureFavourBalance);
+            writer.Write(lifecycle.FavourBalance);
             writer.Write(lifecycle.ProtectedPeople.Count);
             foreach (var person in lifecycle.ProtectedPeople.Values)
             {

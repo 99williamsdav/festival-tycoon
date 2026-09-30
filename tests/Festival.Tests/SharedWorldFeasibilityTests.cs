@@ -139,6 +139,7 @@ public sealed class SharedWorldFeasibilityTests
         Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void SharedWorldCompletesWithSafeSweepsAndReconciledOwnership()
     {

@@ -128,7 +128,7 @@ public sealed class SaveRoundTripTests
             Assert.AreNotEqual(old.ContentHash, current.ContentHash);
             var path = SaveFileAdapter.ResolveSlotPath(directory, "old-layout");
             Assert.IsTrue(SaveFileAdapter.SaveFile(path, new SaveWriteRequest(
-                GameSession.CreateDisorderCampaign(20260922), old, "old-layout-test", DateTimeOffset.UtcNow)).IsSuccess);
+                BuildSession.Planned(20260922), old, "old-layout-test", DateTimeOffset.UtcNow)).IsSuccess);
             var before = File.ReadAllBytes(path);
             AssertFailureContains(SaveFileAdapter.LoadFile(path, current), "Content hash mismatch");
             CollectionAssert.AreEqual(before, File.ReadAllBytes(path));

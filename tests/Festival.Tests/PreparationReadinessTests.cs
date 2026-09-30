@@ -39,7 +39,7 @@ public sealed class PreparationReadinessTests
     [TestMethod]
     public void TimetableShowsBothOwningTabsThenOnlyUnresolvedTabAndClearsWhenReady()
     {
-        var session = GameSession.CreateTimetableCampaign(20260927);
+        var session = BuildSession.Drafted(20260927);
         session = VerifyReadModel(session, PreparationStartOwner.Programme, PreparationStartOwner.Staff);
         Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
         session = VerifyReadModel(session, PreparationStartOwner.Staff);
@@ -53,44 +53,12 @@ public sealed class PreparationReadinessTests
     }
 
     [TestMethod]
-    public void LegacyOneActGateAndAnyStaffContractSemanticsArePreserved()
-    {
-        var session = GameSession.CreateDisorderCampaign(20260927);
-        session = VerifyReadModel(session, PreparationStartOwner.Programme, PreparationStartOwner.Staff);
-        Accept(session, new ApplyStaffFoundationEffectCommand("staff.medic-slot"));
-        Accept(session, new AcceptPreparationOfferCommand("staff.extra-medic"));
-        session = VerifyReadModel(session, PreparationStartOwner.Programme);
-        Accept(session, new AcceptPreparationOfferCommand("act.folk"));
-        session = VerifyReadModel(session);
-        Assert.IsFalse(session.CapturePreparation()!.AcceptedOffers.Contains("staff.steward"));
-        Accept(session, new StartPreparedEditionCommand());
-    }
-
-    [TestMethod]
     public void MaintenanceAndOptionalEquipmentDoNotHideTheActualStaffBlocker()
     {
-        var session = GameSession.CreateDisorderCampaign(20260927);
+        var session = BuildSession.Planned(20260927);
         Accept(session, new AcceptPreparationOfferCommand("maintenance.worker"));
         Accept(session, new AcceptPreparationOfferCommand("equipment.buy"));
-        Accept(session, new AcceptPreparationOfferCommand("act.folk"));
         VerifyReadModel(session, PreparationStartOwner.Staff);
-    }
-
-    [TestMethod]
-    public void PendingPerkUsesItsGlobalGuardAndDoesNotInventAnotherOwningTab()
-    {
-        var session = GameSession.CreatePerkCampaign(20260927);
-        var hash = session.CaptureSnapshot().AuthoritativeHash;
-        var blockers = session.GetPreparationStartBlockers();
-        CollectionAssert.AreEqual(new[] { PreparationStartOwner.Programme, PreparationStartOwner.Staff },
-            blockers.Select(blocker => blocker.Owner).ToArray());
-        var issue = session.ValidateCommand(Envelope(session, new StartPreparedEditionCommand()));
-        Assert.AreEqual("Choose a festival perk before preparation.", issue!.Message);
-        Assert.AreEqual(CommandReasonCode.WrongPhase, issue.ReasonCode);
-        Assert.AreEqual(hash, session.CaptureSnapshot().AuthoritativeHash);
-        var perks = session.CapturePerks()!;
-        Accept(session, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[0]));
-        VerifyReadModel(session, PreparationStartOwner.Programme, PreparationStartOwner.Staff);
     }
 
     [TestMethod]

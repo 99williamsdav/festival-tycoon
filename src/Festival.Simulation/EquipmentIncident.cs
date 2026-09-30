@@ -25,22 +25,8 @@ public sealed partial class GameSession
     public EquipmentSnapshot? CaptureEquipment() => _equipment is null ? null : _equipment with { Evidence = _equipment.Evidence.ToArray() };
     internal string? EquipmentCanonicalJson => _equipment is null ? null : JsonSerializer.Serialize(_equipment);
 
-    public static GameSession CreateEquipmentCampaign(ulong seed, int tier = 1)
-    {
-        var session = CreatePreparedCampaign(seed, tier);
-        session._equipment = new(2, EquipmentXMillimetres, EquipmentZMillimetres, 120, 8_000, EquipmentStage.Normal, -1, false,
-            "No response", null, MaintenanceStage.None, -1, -1,
-            [new("equipment:load", 0, "Stage sound and lights demand 120% of safe capacity; condition 80%. Free load shedding and emergency cutoff available; maintenance contract offered before opening.")]);
-        return session;
-    }
 
     /// <summary>Headless economy fixture only: grants a second test Favour to exercise two reset cycles.</summary>
-    public static GameSession CreateR005RetryEconomyFixture(ulong seed, int tier = 1)
-    {
-        var session = CreateEquipmentCampaign(seed, tier);
-        session._preparation = session._preparation! with { RetryEconomyFixtureEnabled = true };
-        return session;
-    }
 
     // Panel access is on the outer side of the relocated unit, away from the
     // trailer deck/stairs and the audience-facing apron.
@@ -109,9 +95,9 @@ public sealed partial class GameSession
         var p = _preparation!;
         if (_lifecycle is null)
         {
-            _lifecycle = new LifecycleState { FixtureLabel = p.RetryEconomyFixtureEnabled ? RetryEconomyFixtureLabel : RealLifecycleLabel,
-                CurrentTierId = $"tier-{p.Tier}", FixtureTierOrdinal = p.Tier, CurrentAttemptId = 1, NextAttemptId = 2,
-                NextCasualtyId = 1, NextHearingId = 1, FixtureFavourBalance = p.RetryEconomyFixtureEnabled ? 2 : 1 };
+            _lifecycle = new LifecycleState {
+                CurrentTierId = $"tier-{p.Tier}", TierOrdinal = p.Tier, CurrentAttemptId = 1, NextAttemptId = 2,
+                NextCasualtyId = 1, NextHearingId = 1, FavourBalance = 1 };
             _lifecycle.Attempts.Add(new(1, _lifecycle.CurrentTierId, EditionAttemptStatus.Active, null));
         }
         foreach (var person in PeopleIn(PersonView.Roster))
@@ -193,8 +179,7 @@ public sealed partial class GameSession
             e.Stage == EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + EquipmentDeathDelayTicks)
             return "Equipment causal stages do not reconcile.";
         if (p.Status == PreparationStatus.Preparing && p.Attempt == 1 && s.Lifecycle is not null ||
-            s.Lifecycle is { } lifecycle && (lifecycle.FixtureLabel is not (RealLifecycleLabel or RetryEconomyFixtureLabel or "R0.02 equipment lifecycle; hearing only, no Favour economy") ||
-                p.People.Any(person => !lifecycle.ProtectedPeople.Any(item => item.PersonId == person.Name && item.Role == (int)person.Role)) ||
+            s.Lifecycle is { } lifecycle && (p.People.Any(person => !lifecycle.ProtectedPeople.Any(item => item.PersonId == person.Name && item.Role == (int)person.Role)) ||
                 (lifecycle.Casualties.LastOrDefault()?.AttemptId == (ulong)p.Attempt) !=
                     (e.Stage == EquipmentStage.Terminal || s.Medical?.Stage == MedicalStage.Terminal || s.Disorder?.Evidence.LastOrDefault()?.Id == "disorder:death")))
             return "Equipment lifecycle must protect the exact physical roster.";

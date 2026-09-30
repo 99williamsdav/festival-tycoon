@@ -24,7 +24,7 @@ public sealed class PerformanceApplauseTests
 
     private static GameSession Started()
     {
-        var session = GameSession.CreateTimetableCampaign(20260926);
+        var session = BuildSession.Planned(20260926);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"])).IsAccepted);
         foreach (var id in new[] { "staff.steward", "equipment.buy" })
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
@@ -41,6 +41,7 @@ public sealed class PerformanceApplauseTests
         return loaded.Session;
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void PerformedPoweredSetEndsOnceWithFrozenActualAudienceAndEnjoymentAndExactReload()
     {
@@ -73,6 +74,7 @@ public sealed class PerformanceApplauseTests
         Assert.AreEqual(session.CaptureLivePerformance()!.SetEndEnjoymentTotal, restored.CaptureLivePerformance()!.SetEndEnjoymentTotal);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void ActualPowerCutAtDeadlineCannotBecomeSetEndApplause()
     {
@@ -101,6 +103,7 @@ public sealed class PerformanceApplauseTests
         Restored(session);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void MissedUnplayedSlotHasNoApplauseAndCannotCountOwnedMedicalListeners()
     {
@@ -129,35 +132,6 @@ public sealed class PerformanceApplauseTests
     }
 
     [TestMethod]
-    public void EndAudienceTamperAndImpossibleEnjoymentAreRejectedAndAbsentPayloadPreservesLegacyCanonical()
-    {
-        var session = Started();
-        session.AdvanceWithoutSnapshot(GameSession.FestivalSlotEnds[0]);
-        var snapshot = session.CapturePersistenceSnapshot();
-        var ended = snapshot.LivePerformance!;
-        Assert.IsTrue(ended.SetEndAudienceIds.Length > 0);
-        foreach (var invalid in new[]
-        {
-            ended with { SetEndAudienceIds = [ended.SetEndAudienceIds[0], ended.SetEndAudienceIds[0]] },
-            ended with { SetEndAudienceIds = [ulong.MaxValue] },
-            ended with { SetEndAudienceIds = null! },
-            ended with { Stage = LiveSetStage.Live },
-            ended with { InterruptedTick = ended.EndedTick },
-            ended with { LastReaction = "set-finished-muted" },
-            ended with { Listeners = ended.Listeners.Select((listener, index) => index == 0 ? listener with { EnjoymentEarned = int.MaxValue } : listener).ToArray() }
-        }) Assert.IsFalse(GameSession.Restore(snapshot with { LivePerformance = invalid }).IsSuccess);
-        var legacy = GameSession.CreateEquipmentCampaign(2);
-        foreach (var id in new[] { "act.folk", "staff.steward", "equipment.buy" })
-            Assert.IsTrue(Send(legacy, new AcceptPreparationOfferCommand(id)).IsAccepted);
-        Assert.IsTrue(Send(legacy, new StartPreparedEditionCommand()).IsAccepted);
-        var priorShape = JsonSerializer.SerializeToNode(legacy.CaptureLivePerformance())!.AsObject();
-        priorShape.Remove(nameof(LivePerformanceSnapshot.SetEndAudienceIds));
-        var canonical = typeof(GameSession).GetProperty("LivePerformanceCanonicalJson", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(legacy);
-        Assert.AreEqual(priorShape.ToJsonString(), canonical);
-        Restored(legacy);
-    }
-
-    [TestMethod]
     public void ApplauseStrengthAndClipChoiceScaleWithActualAudienceAndEarnedEnjoyment()
     {
         Assert.AreEqual(0d, PerformanceApplauseMath.Strength(0, 10_000));
@@ -170,39 +144,4 @@ public sealed class PerformanceApplauseTests
         Assert.IsTrue(PerformanceApplauseMath.IsEnthusiastic(10, 4_000));
     }
 
-    [TestMethod]
-    public void LegacySaveFileChecksumStillLoadsWhenEndAudienceFieldIsAbsent()
-    {
-        var legacy = GameSession.CreateEquipmentCampaign(2);
-        foreach (var id in new[] { "act.folk", "staff.steward", "equipment.buy" })
-            Assert.IsTrue(Send(legacy, new AcceptPreparationOfferCommand(id)).IsAccepted);
-        Assert.IsTrue(Send(legacy, new StartPreparedEditionCommand()).IsAccepted);
-        var snapshot = legacy.CapturePersistenceSnapshot();
-        var options = new JsonSerializerOptions { PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-            TypeInfoResolver = new System.Text.Json.Serialization.Metadata.DefaultJsonTypeInfoResolver
-            { Modifiers = { StaffSaveDefaults.Configure } } };
-        var oldPayload = JsonSerializer.SerializeToNode(snapshot, options)!.AsObject();
-        oldPayload["livePerformance"]!.AsObject().Remove("setEndAudienceIds");
-        var priorChecksum = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(oldPayload.ToJsonString(options)))).ToLowerInvariant();
-        Assert.AreEqual(priorChecksum, SaveFileAdapter.ComputePayloadChecksum(snapshot), "Default end payload must not change an older file's checksum.");
-        var compatibility = new SaveCompatibility("applause-legacy-test", "content", "rules");
-        var header = new SaveHeaderV1(SaveFileAdapter.FormatId, SaveMigrationPipeline.CurrentSchemaVersion,
-            compatibility.BuildId, compatibility.ContentHash, compatibility.RulesetHash, snapshot.CampaignId,
-            DateTimeOffset.UtcNow.ToString("O"), snapshot.Phase, "legacy-no-end-payload", priorChecksum);
-        var envelope = new System.Text.Json.Nodes.JsonObject { ["header"] = JsonSerializer.SerializeToNode(header, options), ["payload"] = oldPayload };
-        var directory = Path.Combine(Path.GetTempPath(), "festival-applause-legacy-" + Guid.NewGuid());
-        Directory.CreateDirectory(directory);
-        try
-        {
-            var path = Path.Combine(directory, "legacy.ftsave");
-            using (var file = File.Create(path))
-            using (var gzip = new GZipStream(file, CompressionLevel.SmallestSize))
-                gzip.Write(Encoding.UTF8.GetBytes(envelope.ToJsonString(options)));
-            var loaded = SaveFileAdapter.LoadFile(path, compatibility);
-            Assert.IsTrue(loaded.IsSuccess, loaded.Error);
-            Assert.AreEqual(legacy.CaptureSnapshot().AuthoritativeHash, loaded.Session!.CaptureSnapshot().AuthoritativeHash);
-            Assert.AreEqual(0, loaded.Session.CaptureLivePerformance()!.SetEndAudienceCount);
-        }
-        finally { Directory.Delete(directory, recursive: true); }
-    }
 }

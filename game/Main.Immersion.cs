@@ -18,14 +18,8 @@ public partial class Main
     private readonly Dictionary<string, StaticBody3D> _immersionVendors = [];
     private readonly Dictionary<ulong, string> _immersionVendorPicks = [];
     private string? _selectedImmersionVendor;
-    private string? _placingImmersionVendor;
-    private int _immersionQuarterTurns;
-    private GridCell? _immersionCandidate;
-    private string? _immersionPlacementIssue;
-    private Node3D? _immersionPreview;
     private Label3D? _immersionPreviewLabel;
     private int _immersionPreviewQuarterTurns = -1;
-    private MeshInstance3D? _immersionFootprintPreview;
     private readonly List<MeshInstance3D> _immersionQueuePreview = [];
     private VBoxContainer? _immersionNeedSection;
     private ProgressBar? _immersionHungerBar;
@@ -148,7 +142,7 @@ public partial class Main
         _immersionSummary = LabelText("", 13, new Color("29352c"));
         _immersionSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _immersionControls.AddChild(_immersionSummary);
-        _immersionStockButton = ButtonText("BUY STARTER STOCK • £96", () => CommitEquipmentAction(new PurchaseImmersionStarterStockCommand()));
+        _immersionStockButton = ButtonText("BUY STARTER STOCK • £96", () => CommitEquipmentAction(new SetPreparationStockCommand(40, 40, 32)));
         _immersionStockButton.TooltipText = "40 chips (£1 each), 40 soft drinks (60p each), 32 beers (£1 each). Paid from festival funds once before opening; no in-day refill.";
         _immersionControls.AddChild(_immersionStockButton);
         if (_session.CapturePreparationPlan() is not null)
@@ -171,7 +165,6 @@ public partial class Main
     {
         _immersionMoveButton = ButtonText("Move", () =>
         {
-            if (_placingImmersionVendor is not null) { CancelImmersionPlacement(); RefreshPreparationHud(); return; }
             if (_selectedImmersionVendor is { } id) BeginImmersionPlacement(id);
         });
         _immersionMoveButton.Visible = false;
@@ -194,7 +187,7 @@ public partial class Main
         if (state is null) return;
         var preparing = _session.PreparedStatus == PreparationStatus.Preparing;
         _immersionStockButton!.Visible = preparing;
-        _immersionStockButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new PurchaseImmersionStarterStockCommand())) is not null;
+        _immersionStockButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new SetPreparationStockCommand(40, 40, 32))) is not null;
         _immersionStockButton.Text = state.StockPurchased ? "STARTER STOCK PURCHASED • £96" : "BUY STARTER STOCK • £96";
         if (_session.CapturePreparationPlan() is { } plan)
         {
@@ -249,73 +242,7 @@ public partial class Main
 
     private void BeginImmersionPlacement(string id)
     {
-        if (_session.BuildModeEnabled) { BeginBuildPlacement(id == "food" ? BuildServiceKind.FoodVan : BuildServiceKind.Bar, id); return; }
-        if (_session.PreparedStatus != PreparationStatus.Preparing || _session.CaptureImmersion() is not { } state) return;
-        CancelWaterPlacement(); CancelImmersionPlacement(); ClearSelection();
-        CancelResponsePostPlacement();
-        _placingImmersionVendor = id; _immersionQuarterTurns = state.Vendors.Single(v => v.Id == id).QuarterTurns;
-        _selectedImmersionVendor = id;
-        _immersionPreview = InstantiateImmersionVendor(id == "food"); AddChild(_immersionPreview);
-        _immersionFootprintPreview = new MeshInstance3D { MaterialOverride = new StandardMaterial3D { Transparency = BaseMaterial3D.TransparencyEnum.Alpha, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded } };
-        AddChild(_immersionFootprintPreview);
-        // Only service access is needed now; the physical line grows on demand.
-        for (var index = 0; index < 1; index++)
-        {
-            var marker = new MeshInstance3D { Mesh = new CylinderMesh { TopRadius = .22f, BottomRadius = .22f, Height = .025f },
-                MaterialOverride = new StandardMaterial3D { Transparency = BaseMaterial3D.TransparencyEnum.Alpha, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded } };
-            AddChild(marker); _immersionQueuePreview.Add(marker);
-        }
-        _immersionPreviewLabel = new Label3D { FontSize = 34, PixelSize = .009f, Position = new Vector3(0, 3.7f, 0), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled };
-        _immersionPreview.AddChild(_immersionPreviewLabel);
-        _preparationMessage = "Move vendor: click valid grass; comma/period rotate; right-click or Esc cancels.";
-        RefreshPreparationHud(); UpdateImmersionPlacementPreview(GetViewport().GetMousePosition());
-    }
-    private void CancelImmersionPlacement()
-    {
-        _placingImmersionVendor = null; _immersionCandidate = null; _immersionPlacementIssue = null;
-        _immersionPreviewQuarterTurns = -1;
-        if (_immersionPreview is not null) { _immersionPreview.Visible = false; _immersionPreview.QueueFree(); }
-        _immersionPreview = null; _immersionPreviewLabel = null;
-        if (_immersionFootprintPreview is not null) { _immersionFootprintPreview.Visible = false; _immersionFootprintPreview.QueueFree(); _immersionFootprintPreview = null; }
-        foreach (var marker in _immersionQueuePreview) { marker.Visible = false; marker.QueueFree(); } _immersionQueuePreview.Clear();
-    }
-    private void UpdateImmersionPlacementPreview(Vector2 screen)
-    {
-        if (_placingImmersionVendor is null || _immersionPreview is null) return;
-        if (HudBlocksPlacement(screen))
-        { _immersionCandidate = null; _immersionPreview.Visible = false; _immersionFootprintPreview!.Visible = false; foreach (var marker in _immersionQueuePreview) marker.Visible = false; return; }
-        var ray = _camera.ProjectRayNormal(screen); var origin = _camera.ProjectRayOrigin(screen);
-        if (Mathf.Abs(ray.Y) < .001f || -origin.Y / ray.Y <= 0) { _immersionCandidate = null; _immersionPreview.Visible = false; _immersionFootprintPreview!.Visible = false; foreach (var marker in _immersionQueuePreview) marker.Visible = false; return; }
-        var world = origin + ray * (-origin.Y / ray.Y);
-        var cell = TraversalGrid.WorldToCell(Mathf.RoundToInt(world.X * 1000), Mathf.RoundToInt(world.Z * 1000));
-        if (_immersionCandidate == cell && _immersionPreviewQuarterTurns == _immersionQuarterTurns) return;
-        _immersionCandidate = cell;
-        _immersionPreviewQuarterTurns = _immersionQuarterTurns;
-        _immersionPlacementIssue = _session.ValidateCommand(CampaignEnvelope(new PlaceImmersionVendorCommand(_placingImmersionVendor, cell, _immersionQuarterTurns)))?.Message;
-        _immersionPreview.Position = ImmersionPosition(cell); _immersionPreview.RotationDegrees = new Vector3(0, 90 * _immersionQuarterTurns, 0); _immersionPreview.Visible = true;
-        _immersionPreviewLabel!.Text = _immersionPlacementIssue is null ? "VALID • CLICK TO MOVE" : "INVALID • " + _immersionPlacementIssue;
-        _immersionPreviewLabel.Modulate = new Color(_immersionPlacementIssue is null ? "67db76" : "ff7566");
-        var proposed = new ImmersionVendor(_placingImmersionVendor, cell, _immersionQuarterTurns, []);
-        var footprint = GameSession.ImmersionFootprint(proposed);
-        var min = ImmersionPosition(new GridCell(footprint.Min(c => c.X), footprint.Min(c => c.Z)));
-        var max = ImmersionPosition(new GridCell(footprint.Max(c => c.X), footprint.Max(c => c.Z)));
-        var color = _immersionPlacementIssue is null ? new Color(.25f, .78f, .38f, .4f) : new Color(.9f, .24f, .18f, .4f);
-        _immersionFootprintPreview!.Mesh = new BoxMesh { Size = new Vector3(max.X - min.X + .5f, .035f, max.Z - min.Z + .5f) };
-        _immersionFootprintPreview.Position = (min + max) / 2 + new Vector3(0, .06f, 0); _immersionFootprintPreview.Visible = true;
-        ((StandardMaterial3D)_immersionFootprintPreview.MaterialOverride!).AlbedoColor = color;
-        for (var index = 0; index < _immersionQueuePreview.Count; index++)
-        {
-            _immersionQueuePreview[index].Position = ImmersionPosition(GameSession.ImmersionQueueCell(proposed, index)) + new Vector3(0, .08f, 0);
-            ((StandardMaterial3D)_immersionQueuePreview[index].MaterialOverride!).AlbedoColor = color;
-            _immersionQueuePreview[index].Visible = true;
-        }
-    }
-    private void CommitImmersionPlacement(Vector2 screen)
-    {
-        UpdateImmersionPlacementPreview(screen);
-        if (_placingImmersionVendor is not { } id || _immersionCandidate is not { } cell || _immersionPlacementIssue is not null) return;
-        CommitEquipmentAction(new PlaceImmersionVendorCommand(id, cell, _immersionQuarterTurns));
-        if (_session.CaptureImmersion()?.Vendors.Any(v => v.Id == id && v.Cell == cell && v.QuarterTurns == _immersionQuarterTurns) == true) CancelImmersionPlacement();
+        BeginBuildPlacement(id == "food" ? BuildServiceKind.FoodVan : BuildServiceKind.Bar, id);
     }
     private void SelectImmersionVendor(string id)
     {
@@ -324,7 +251,7 @@ public partial class Main
     private void RefreshImmersionVendorInspector()
     {
         RefreshContextPanelVisibility();
-        if (_immersionMoveButton is not null) _immersionMoveButton.Text = _placingImmersionVendor is null ? "Move" : "Cancel move";
+        if (_immersionMoveButton is not null) _immersionMoveButton.Text = true ? "Move" : "Cancel move";
         if (_immersionMoveButton is not null)
             _immersionMoveButton.Visible = _selectedImmersionVendor is not null &&
                 _session.PreparedStatus == PreparationStatus.Preparing && _session.CaptureImmersion() is not null;

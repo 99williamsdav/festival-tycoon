@@ -15,12 +15,6 @@ public sealed partial class GameSession
 {
     private bool _committingPreparationPlan;
     public PreparationPlan? CapturePreparationPlan() => CapturePreparation()?.Plan;
-    public static GameSession CreateEditableCampaign(ulong seed)
-    {
-        var session = CreatePerkCampaign(seed);
-        session._preparation = session._preparation! with { Version = 2, Plan = EmptyPreparationPlan(), SetupPayments = [], StaffAutonomyEnabled = true };
-        return session;
-    }
     private static PreparationPlan EmptyPreparationPlan() => new(1, [], [], 0, 0, 0);
     private static int PlannedStockCost(PreparationPlan plan) => checked(plan.Chips * 100 + plan.SoftDrinks * 60 + plan.Beers * 100);
     public long PreparationPlanCost => _preparation?.Plan is { } plan
@@ -91,7 +85,7 @@ public sealed partial class GameSession
             plan.ActIds.Length is not (0 or 3) || plan.ActIds.Where(id => id != "").Distinct().Count() != plan.ActIds.Count(id => id != "") || plan.ActIds.Any(id => id != "" && !FestivalActs.Any(a => a.Id == id)) ||
             plan.Chips is < 0 or > 10000 || plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 ||
             plan.Committed != (p.Status != PreparationStatus.Preparing)) return "Preparation plan header or quantities invalid.";
-        var factory = CreateImmersionCampaign(s.CampaignSeed);
+        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed);
         var offers = factory.GetPreparationOffers();
         if (plan.OfferIds.Any(id => !offers.Any(o => o.Id == id && o.Category is not ("act" or "contract"))) ||
             plan.OfferIds.Select(id => offers.Single(o => o.Id == id).Category).Distinct().Count() != plan.OfferIds.Length ||
@@ -118,7 +112,7 @@ public sealed partial class GameSession
                 new(owner, LedgerAccountType.AdministrationExpense, setup.BuildCostPennies),
                 new(owner, LedgerAccountType.CashAsset, -setup.BuildCostPennies) });
             if (setup.BuildCostPennies < 0 || !setup.Entries.SequenceEqual(expected) || setup.TotalPennies != payments.Sum(payment => (long)payment.AmountPennies) + stockCost + setup.BuildCostPennies || payments.Any(payment => payment.Tick != setup.Tick) ||
-                setup.Attempt == p.Attempt && (!plan.Committed || setup.Chips != plan.Chips || setup.SoftDrinks != plan.SoftDrinks || setup.Beers != plan.Beers || setup.TotalPennies != plan.OfferIds.Concat(plan.ActIds).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + (p.BuildModeEnabled ? p.BuildPlacements.Sum(item => (long)BuildServiceFeePennies(item.Kind)) : 0)))
+                setup.Attempt == p.Attempt && (!plan.Committed || setup.Chips != plan.Chips || setup.SoftDrinks != plan.SoftDrinks || setup.Beers != plan.Beers || setup.TotalPennies != plan.OfferIds.Concat(plan.ActIds).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + p.BuildPlacements.Sum(item => (long)BuildServiceFeePennies(item.Kind))))
                 return "Setup payment ledger or planned total does not reconcile.";
         }
         return null;

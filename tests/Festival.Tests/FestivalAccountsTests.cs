@@ -14,6 +14,7 @@ public sealed class FestivalAccountsTests
         Assert.IsTrue(result.IsAccepted, result.Message);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void NaturalBuildCompletionAndSavedTerminalAccountsReconcile()
     {

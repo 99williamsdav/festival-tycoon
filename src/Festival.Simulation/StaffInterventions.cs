@@ -3,9 +3,6 @@ namespace Festival.Simulation;
 public enum StaffInterventionAction { GuideToWater, LeaveWaterQueue, GuideToRest, EscortOut }
 public enum StaffInterventionStage { Travelling, Guiding, Escorting, Completed, Failed }
 public sealed record StaffInterventionCommand(ulong GuestId, ulong WorkerId, StaffInterventionAction Action) : SessionCommand;
-// Isolated, explicitly enabled regression/capture fixture. No normal UI enables its gate.
-public sealed record DevelopmentMedicalFixtureCommand(ulong GuestId, MedicalAction Action) : SessionCommand;
-public sealed record DevelopmentDisorderEgressFixtureCommand(ulong GuestId) : SessionCommand;
 public sealed record StaffInterventionJob(ulong WorkerId, ulong GuestId, StaffInterventionAction Action,
     StaffInterventionStage Stage, long DispatchedTick, long StartedTick, long EndedTick,
     long LastReviewTick, GridCell? Waypoint, string Description);

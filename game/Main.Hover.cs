@@ -116,15 +116,7 @@ public partial class Main
             }
         if (!WorldInputOccluded(screen))
         {
-            if(_movingResponsePost is not null)
-                cursor=_postCandidate is not null && _postIssue is null?Input.CursorShape.Cross:Input.CursorShape.Forbidden;
-            else if (_waterPlacementMode != WaterPlacementMode.None)
-                cursor = _waterPlacementCandidate is not null && _waterPlacementIssue is null ? Input.CursorShape.Cross : Input.CursorShape.Forbidden;
-            else if (_placingImmersionVendor is not null)
-                cursor = _immersionCandidate is not null && _immersionPlacementIssue is null ? Input.CursorShape.Cross : Input.CursorShape.Forbidden;
-            else if (_movingToilet)
-                cursor = _toiletCandidate is not null && _toiletPlacementIssue is null ? Input.CursorShape.Cross : Input.CursorShape.Forbidden;
-            else if (ResolveWorldHit(screen) is { } collider)
+            if (ResolveWorldHit(screen) is { } collider)
             {
                 var key = collider.GetInstanceId(); _hoveredColliderId = key;
                 var point = collider.GlobalPosition; var radius = 1.7f;

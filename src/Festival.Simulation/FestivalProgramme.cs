@@ -28,7 +28,7 @@ public sealed partial class GameSession
     private int UpcomingProgrammeSlot => _programme is not { } q ? -1 : q.CurrentSlot < 0 ? 0 : _livePerformance?.Stage == LiveSetStage.BeforeSet ? q.CurrentSlot : q.CurrentSlot < 2 ? q.CurrentSlot + 1 : -1;
     public FestivalAct? UpcomingFestivalAct => _programme is { ActIds.Length: 3 } q && UpcomingProgrammeSlot is >= 0 and < 3 ? FestivalActs.Single(a => a.Id == q.ActIds[UpcomingProgrammeSlot]) : null;
     public long UpcomingFestivalTick => UpcomingProgrammeSlot is >= 0 and < 3 && _preparation is { } p ? p.StartedTick + FestivalSlotStarts[UpcomingProgrammeSlot] : -1;
-    public bool ScheduledSilence => _programme is not null && _livePerformance?.Stage is not (LiveSetStage.Live or LiveSetStage.Interrupted);
+    public bool ScheduledSilence => _livePerformance?.Stage is not (LiveSetStage.Live or LiveSetStage.Interrupted);
     public long LateReadyScheduledTick
     {
         get
@@ -74,24 +74,6 @@ public sealed partial class GameSession
     {
         var main = _persons[id].ExpectedGenre;
         return main == act.Genre ? 80 + (int)(id % 21) : 15 + (int)((id * 37 + (ulong)act.Genre * 17 + CampaignSeed) % 56);
-    }
-    public static GameSession CreateTimetableCampaign(ulong seed)
-    {
-        var session = CreateDisorderCampaign(seed);
-        var p = session.PreparationView!;
-        var people = p.People.Select(person => person.Role == ProtectedPersonRole.Guest ? person with { ExpectedGenre = (int)((person.AgentId * 17 + seed) % 4) } : person).ToList();
-        string[] names = ["Robin Shaw", "Ellis Brook", "Taylor Finch", "Ash Dale", "Rowan Lake", "Sky Morgan"];
-        foreach (var name in names)
-        {
-            var id = session.NextEntityId++;
-            session._wallets.Add(new(id), new WalletState { OwnerId = new(id), CashPennies = 500 });
-            people.Add(new(id, name, ProtectedPersonRole.Performer, 0));
-            session.MedicalView = session.MedicalView! with { Needs = session.MedicalView.Needs.Append(new MedicalNeed(id, 2500, 2500, MedicalIntent.WatchShow, "Awaiting set; water and rest available", -MedicalDecisionCooldownTicks, null, -1, MedicalNeedProfile.Performer)).ToArray() };
-        }
-        session.PreparationView = p with { People = people.OrderBy(person => person.AgentId).ToArray() };
-        session.MedicalView = session.MedicalView! with { Needs = session.MedicalView.Needs.Select(need => need.Profile == MedicalNeedProfile.Performer ? need with { Thirst = 2500, HeatExposure = 2500 } : need).OrderBy(need => need.AgentId).ToArray() };
-        session._programme = new(4, [], people.Where(person => person.Role == ProtectedPersonRole.Performer).Select((person, i) => new ProgrammePerformer(person.AgentId, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts");
-        return session;
     }
     private CommandResult? ValidateProgramme(EntityId? target, SetProgrammeCommand command)
     {

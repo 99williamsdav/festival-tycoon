@@ -54,8 +54,8 @@ public sealed record PersistedEditionAttempt(ulong AttemptId, string TierId, int
 public sealed record PersistedCasualty(ulong CasualtyId, ulong AttemptId, string PersonId, int Role, string Cause, long Tick, string TransactionId);
 public sealed record PersistedCouncilHearing(ulong HearingId, ulong AttemptId, int Status, string CreatedTransactionId, string? ResolutionTransactionId);
 public sealed record PersistedLifecycle(
-    string FixtureLabel, string CurrentTierId, int FixtureTierOrdinal, ulong CurrentAttemptId,
-    ulong NextAttemptId, ulong NextCasualtyId, ulong NextHearingId, int FixtureFavourBalance,
+    string CurrentTierId, int TierOrdinal, ulong CurrentAttemptId,
+    ulong NextAttemptId, ulong NextCasualtyId, ulong NextHearingId, int FavourBalance,
     PersistedProtectedPerson[] ProtectedPeople, PersistedEditionAttempt[] Attempts, PersistedCasualty[] Casualties,
     PersistedCouncilHearing[] Hearings, string[] CompletedOutcomeTransactionIds);
 

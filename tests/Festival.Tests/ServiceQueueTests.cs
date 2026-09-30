@@ -182,6 +182,7 @@ public sealed class ServiceQueueTests
         Assert.AreEqual(fixture.AgentIds[1], fixture.Session.CaptureSnapshot().ServiceQueues.Single().ActiveOwnerId);
     }
 
+    [TestCategory("Slow")]
     [TestMethod]
     public void FailedAndAbandonedCustomersClearCounterAndFinishAtDistinctExits()
     {

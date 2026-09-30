@@ -66,7 +66,7 @@ public sealed partial class GameSession
             var facilityDetailRecorded = true;
             if (buildCost > 0)
             {
-                var facilities = p.BuildModeEnabled && p.BuildPlacements is not null
+                var facilities = p.BuildPlacements is not null
                     ? p.BuildPlacements.GroupBy(placement => placement.Kind).OrderBy(group => group.Key)
                         .Select(group => new FestivalAccountsExpense("Facilities",
                             $"{FacilityName(group.Key)} × {group.Count()}", group.Count() * (long)BuildServiceFeePennies(group.Key))).ToArray()

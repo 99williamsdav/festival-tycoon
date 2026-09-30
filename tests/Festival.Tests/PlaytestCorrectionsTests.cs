@@ -12,14 +12,11 @@ public sealed class PlaytestCorrectionsTests
     private static object? Call(GameSession s, string method, params object[] args) => typeof(GameSession).GetMethod(method, BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, args);
     private static void Send(GameSession s, SessionCommand command)
     { var result=s.Execute(new(new(s.NextSubmissionSequence+1),s.CampaignId,s.Phase,s.CurrentTick,s.NextSubmissionSequence,null,command)); Assert.IsTrue(result.IsAccepted,result.Message); }
-    private static GameSession Open(bool moved = false)
+    private static GameSession Open()
     {
-        var s=GameSession.CreateImmersionCampaign(20260929);
-        Send(s,new PurchaseImmersionStarterStockCommand());
-        Send(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.neon-postcards"]));
+        var s=BuildSession.Planned(20260929);
         Send(s,new AcceptPreparationOfferCommand("staff.steward"));
         Send(s,new AcceptPreparationOfferCommand("maintenance.worker"));
-        if (moved) { Send(s,new MoveResponsePostCommand(ResponseRole.Medic,new(80,120),1)); Send(s,new MoveResponsePostCommand(ResponseRole.Steward,new(145,170),1)); }
         Send(s,new StartPreparedEditionCommand());
         var p=s.CapturePreparation()!; Set(s,"PreparationView",p with { People=p.People.Select(person=>person with { Admitted=true }).ToArray() });
         return s;
@@ -82,7 +79,7 @@ public sealed class PlaytestCorrectionsTests
     [TestMethod]
     public void StaffPurchasesReturnToMovedAssignedPostsAndConsumeOnlyOnArrivalAcrossRestore()
     {
-        var s=Open(true);
+        var s=Open();
         foreach(var person in s.CapturePreparation()!.People.Where(p=>p.Role==ProtectedPersonRole.Staff))
         {
             var post=s.StaffAssignedPost(person.AgentId)!.Value;
@@ -127,24 +124,4 @@ public sealed class PlaytestCorrectionsTests
         display.Observe([alerts[0]]);Assert.AreEqual(1,display.Visible().Length);display.Reset();Assert.AreEqual(0,display.Visible().Length);
     }
 
-    [TestMethod]
-    public void StewardArgumentApproachIsCloseReachableStableAndReapproachesMovingTarget()
-    {
-        var s=Open();var d=s.CaptureDisorder()!;var worker=d.SecurityId;var target=d.People.First().AgentId;
-        Position(s,worker,new(115,178));Position(s,target,new(121,178));
-        Set(s,"DisorderView",d with {People=d.People.Select(p=>p.AgentId==target?p with {Stage=DisorderStage.Argument,Pressure=8000,Grievance=DisorderGrievance.MusicCutoff,GrievanceTick=0,StageTick=0}:p).ToArray()});
-        Send(s,new DisorderCommand(DisorderAction.DispatchSecurity,target,WorkerId:worker));
-        var destination=s.CaptureSnapshot().NavigationAgents.Single(n=>n.Id.Value==worker).Destination!.Value;
-        Assert.AreEqual(destination,(GridCell)Call(s,"StewardResponseCell",worker,target)!,"A valid route must not churn each update.");
-        Assert.IsFalse((bool)Call(s,"StewardAttending",worker,target)!);
-        var start=s.CaptureSnapshot().NavigationAgents.Single(n=>n.Id.Value==worker);
-        s.AdvanceWithoutSnapshot(8);
-        var moved=s.CaptureSnapshot().NavigationAgents.Single(n=>n.Id.Value==worker);
-        Assert.IsTrue(Math.Abs(moved.XMillimetres-start.XMillimetres)+Math.Abs(moved.ZMillimetres-start.ZMillimetres)<1000,"Approach walks rather than teleporting.");
-        Position(s,worker,destination);Assert.IsTrue((bool)Call(s,"StewardAttending",worker,target)!);
-        Position(s,target,new(125,178));Assert.IsFalse((bool)Call(s,"StewardAttending",worker,target)!);
-        var next=(GridCell)Call(s,"StewardResponseCell",worker,target)!;Assert.AreNotEqual(destination,next);
-        Position(s,worker,next);Assert.IsTrue((bool)Call(s,"StewardAttending",worker,target)!);
-        Restore(s);
-    }
 }

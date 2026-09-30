@@ -47,17 +47,10 @@ public sealed record ChangeFixtureValueCommand(int NewValue) : SessionCommand;
 
 public sealed record SetPausedCommand(bool IsPaused) : SessionCommand;
 
-public sealed record ConfirmPlanningCommitmentCommand(string CommitmentId) : SessionCommand;
 
-public sealed record AdvancePlanningWeekCommand : SessionCommand;
 
-public sealed record DismissCampaignTipCommand(string TipId) : SessionCommand;
 
-/// <summary>Headless R0.00 fixture only: injects simultaneous terminal subjects; the first protected subject wins.</summary>
-public sealed record ForceFixtureDeathsCommand(IReadOnlyList<string> SubjectPersonIds) : SessionCommand;
 
-/// <summary>Headless R0.00 fixture only: spends the one fixture-labelled Favour and creates a same-tier retry.</summary>
-public sealed record SpendFixtureFavourCommand : SessionCommand;
 
 /// <summary>Resolve a real fatal hearing by spending one Council Favour on a same-tier weekend retry.</summary>
 public sealed record SpendCouncilFavourCommand : SessionCommand;
@@ -66,8 +59,6 @@ public sealed record SpendCouncilFavourCommand : SessionCommand;
 public sealed record ConcedeCouncilHearingCommand : SessionCommand;
 
 
-/// <summary>Headless R0.00 fixture only: settles the active attempt safely and advances one fixture tier.</summary>
-public sealed record ForceFixtureSafeCompletionCommand : SessionCommand;
 
 /// <summary>Development fixture: creates one guest wallet for M0.04 verification.</summary>
 public sealed record CreateGuestWalletCommand(long OpeningCashPennies) : SessionCommand;
