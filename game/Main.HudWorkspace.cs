@@ -198,7 +198,7 @@ public partial class Main
         statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
         _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
         BuildPerkHud(layer);
-        BuildHearingHud(layer); BuildBuildDrawer(layer, size); BuildPreparationDock(layer, size); RefreshPreparationHud();
+        Hearing.Build(layer); BuildBuildDrawer(layer, size); BuildPreparationDock(layer, size); RefreshPreparationHud();
     }
 
     private static void ConstrainHudControls(Node root)

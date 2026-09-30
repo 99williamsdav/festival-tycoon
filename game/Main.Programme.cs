@@ -88,13 +88,12 @@ public partial class Main
         }
     }
 
-    private string FestivalCopy(string text) => _session.CaptureProgramme() is null ? text :
-        text.Replace("weekend", "festival", StringComparison.Ordinal).Replace("Weekend", "Festival", StringComparison.Ordinal)
-            .Replace("WEEKEND", "FESTIVAL", StringComparison.Ordinal);
 
     private int PerformerPresentationRole(ulong id, string name)
     {
         var performer = _session.CaptureProgramme()?.Performers.FirstOrDefault(item => item.AgentId == id);
         return performer?.RoleIndex ?? (name == "Alex Reed" ? 0 : name == "Blair Moss" ? 1 : 2);
     }
+
+    private string FestivalCopy(string text) => FestivalWording(_session, text);
 }

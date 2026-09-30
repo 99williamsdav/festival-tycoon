@@ -143,4 +143,9 @@ internal static class HudKit
         detailLabel.AutowrapMode = TextServer.AutowrapMode.WordSmart; words.AddChild(detailLabel);
         return (button, detailLabel);
     }
+
+    /// <summary>Festival mode says "festival" where the older weekend wording said "weekend".</summary>
+    internal static string FestivalWording(GameSession session, string text) => session.CaptureProgramme() is null ? text :
+        text.Replace("weekend", "festival", StringComparison.Ordinal).Replace("Weekend", "Festival", StringComparison.Ordinal)
+            .Replace("WEEKEND", "FESTIVAL", StringComparison.Ordinal);
 }

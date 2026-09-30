@@ -193,7 +193,7 @@ public partial class Main
         RefreshMedicalControls();
         RefreshDisorderControls();
         RefreshStagePowerAction();
-        RefreshHearingHud();
+        Hearing.Refresh();
         RefreshHudWorkspace();
         RefreshPerkHud();
         RefreshFestivalPaper();
