@@ -10,15 +10,6 @@ namespace Festival.Game;
 
 public partial class Main
 {
-    // R0.04 saves retain their internal security identifiers and authored text.
-    // Present both new and previously saved response prose as steward language.
-    private static string StewardWording(string value) => value
-        .Replace("SECURITY", "STEWARD", StringComparison.Ordinal)
-        .Replace("Security", "Steward", StringComparison.Ordinal)
-        .Replace("security", "steward", StringComparison.Ordinal)
-        .Replace("GUARD", "STEWARD", StringComparison.Ordinal)
-        .Replace("Guard", "Steward", StringComparison.Ordinal)
-        .Replace("guard", "steward", StringComparison.Ordinal);
 
     private Label? _disorderSummary;
     private readonly Dictionary<DisorderAction, Button> _disorderButtons = [];

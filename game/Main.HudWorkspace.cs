@@ -44,56 +44,10 @@ public partial class Main
     private bool _hudProgrammeOpen = true;
     private bool _hudDevelopment;
     private bool _hudWaterExact;
-    private static readonly Color HudInk = new("293b38");
-    private static readonly Color HudPaper = new("fff3d3");
 
-    private static StyleBoxFlat HudStyle(Color color, int margin = 12) => new()
-    {
-        BgColor = color, BorderColor = new Color("aa9f78"), BorderWidthBottom = 1,
-        BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1,
-        ContentMarginLeft = margin, ContentMarginRight = margin,
-        ContentMarginTop = margin, ContentMarginBottom = margin,
-        ShadowColor = new Color(0, 0, 0, .16f), ShadowSize = 4
-    };
 
-    private static Theme HudTheme()
-    {
-        var theme = new Theme { DefaultFontSize = 14 };
-        foreach (var type in new[] { "Button", "OptionButton" })
-        {
-            foreach (var state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
-                theme.SetStylebox(state, type, HudStyle(new Color(state == "hover" ? "d3e8df" : state == "pressed" ? "e5d5aa" : state == "disabled" ? "eee2be" : "fff6df"), 7));
-            theme.SetColor("font_color", type, HudInk);
-            theme.SetColor("font_hover_color", type, HudInk);
-            theme.SetColor("font_pressed_color", type, HudInk);
-            theme.SetColor("font_focus_color", type, HudInk);
-            theme.SetColor("font_disabled_color", type, new Color("897f63"));
-        }
-        theme.SetStylebox("tab_selected", "TabContainer", HudStyle(HudPaper, 9));
-        theme.SetStylebox("tab_unselected", "TabContainer", HudStyle(new Color("eaddb7"), 9));
-        theme.SetStylebox("panel", "TabContainer", HudStyle(HudPaper, 14));
-        theme.SetColor("font_selected_color", "TabContainer", HudInk);
-        theme.SetColor("font_unselected_color", "TabContainer", HudInk);
-        theme.SetColor("font_color", "Label", HudInk);
-        theme.SetStylebox("background", "ProgressBar", new StyleBoxFlat { BgColor = new Color("d7cfb0") });
-        theme.SetStylebox("fill", "ProgressBar", new StyleBoxFlat { BgColor = Colors.White });
-        return theme;
-    }
 
-    private PanelContainer HudPanel(CanvasLayer layer, Vector2 position, Vector2 size, Color? color = null)
-    {
-        var panel = new PanelContainer { Position = position, Size = size, Theme = HudTheme() };
-        panel.AddThemeStyleboxOverride("panel", HudStyle(color ?? HudPaper)); layer.AddChild(panel);
-        return panel;
-    }
 
-    private static Label HudLabel(string text, int size = 14)
-    {
-        var label = LabelText(text, size, HudInk);
-        label.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-        return label;
-    }
 
     private void BuildHudWorkspace()
     {

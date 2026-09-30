@@ -312,35 +312,9 @@ public partial class Main : Node
 
     private CommandEnvelope CampaignEnvelope(SessionCommand command) => _host.Envelope(command);
 
-    private static Color CampaignPaletteColor(FestivalPalette palette) => palette switch
-    {
-        FestivalPalette.Meadow => new Color("dfe8c4"),
-        FestivalPalette.Marigold => new Color("f1d28a"),
-        FestivalPalette.Berry => new Color("dfb7c5"),
-        FestivalPalette.River => new Color("bcd9db"),
-        _ => new Color("f5e9c9"),
-    };
 
-    private static StyleBoxFlat PaperStyle(Color color) => new()
-    {
-        BgColor = color, BorderColor = new Color("5f5a43"), BorderWidthLeft = 2, BorderWidthTop = 2,
-        BorderWidthRight = 2, BorderWidthBottom = 2, CornerRadiusTopLeft = 5, CornerRadiusTopRight = 5,
-        CornerRadiusBottomLeft = 5, CornerRadiusBottomRight = 5, ShadowColor = new Color(0, 0, 0, 0.24f), ShadowSize = 5,
-    };
 
-    private static Label LabelText(string text, int size, Color color)
-    {
-        var label = new Label { Text = text }; label.AddThemeFontSizeOverride("font_size", size); label.AddThemeColorOverride("font_color", color); return label;
-    }
 
-    private static Button ButtonText(string text, Action action)
-    {
-        var button = new Button { Text = text, CustomMinimumSize = new Vector2(68, 38) };
-        if (text.StartsWith("Collapse", StringComparison.OrdinalIgnoreCase))
-        { button.Text = "×"; button.TooltipText = text; button.CustomMinimumSize = new Vector2(38,38); }
-        button.MouseEntered += () => button.MouseDefaultCursorShape = button.Disabled ? Control.CursorShape.Arrow : Control.CursorShape.PointingHand;
-        button.Pressed += action; return button;
-    }
 
     private void ApplyCamera()
     {

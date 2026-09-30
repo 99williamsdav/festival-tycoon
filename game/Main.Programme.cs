@@ -22,8 +22,6 @@ public partial class Main
     private string PersonPresentationRole(EditionPerson person) => _session.FestivalPerformerTitle(person.AgentId) ??
         (person.Name == "Jordan Hale" ? "Steward" : person.Role.ToString());
 
-    private static string FestivalGenreName(int genre) => genre switch
-    { 0 => "Folk", 1 => "Rock", 2 => "Pop", 3 => "Electronic", _ => "Unknown" };
 
     private void BuildProgrammeControls(VBoxContainer parent)
     {
