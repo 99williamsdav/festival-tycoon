@@ -59,14 +59,14 @@ public partial class Main
         {
             // Create only on Enter: merely viewing the menu must not touch a terminal save.
             var next = CreateFreshBuildCampaign(out var seed);
-CancelPerkConfirmation();
+Perks.CancelConfirmation();
             ClearSelection(); ResetImmersionHeldVisuals();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;
             _host.StartNewCampaign(next);
             SyncSaveStatus();
             _foundationPresentation.Reset(_session.CaptureObservation());
-            _perksExpanded = false; _selectedPerk = null; _perkHudKey = "";
+            Perks.Reset();
             _bookingSelected = null; _bookingDurableMessage = "Select a band, then activate a set. Dragging also works.";
             _bookingSort = BookingSortField.Price; _bookingDescending = false; _bookingGenre = null;
             _bookingGenreFilter?.Select(0);

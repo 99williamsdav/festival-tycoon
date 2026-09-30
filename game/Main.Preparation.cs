@@ -115,7 +115,7 @@ public partial class Main
         if (_host.LoadManual(out var loadError))
         {
             SyncSaveStatus();
-            CancelPerkConfirmation();
+            Perks.CancelConfirmation();
             foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
             _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null; ClearSecurityPostSelection();
             ResetFinanceFeedback();
@@ -195,7 +195,7 @@ public partial class Main
         RefreshStagePowerAction();
         Hearing.Refresh();
         RefreshHudWorkspace();
-        RefreshPerkHud();
+        Perks.Refresh();
         RefreshFestivalPaper();
     }
 

@@ -49,7 +49,7 @@ public partial class Main
         ancillary.CustomMinimumSize = new Vector2(size.X >= 1600 ? 330 : 275, 0); navigation.AddChild(ancillary);
         foreach (var (text, action) in new (string, Action)[]
                  { ("People", () => _hudRoster!.Visible = !_hudRoster.Visible),
-                   ("Your Perks", () => { _perksExpanded = !_perksExpanded; _perkHudKey = ""; RefreshPerkHud(); }),
+                   ("Your Perks", () => Perks.ToggleExpanded()),
                    ("Rotate view", () => Rotate(1)) })
         {
             var button = ButtonText(text, action); button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;

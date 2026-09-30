@@ -197,7 +197,7 @@ public partial class Main
         var statusPanel = HudPanel(layer, new Vector2(width - 510, height - 50), new Vector2(495, 40)); _hudLegacyStatusPanel = statusPanel;
         statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
         _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
-        BuildPerkHud(layer);
+        Perks.Build(layer);
         Hearing.Build(layer); BuildBuildDrawer(layer, size); BuildPreparationDock(layer, size); RefreshPreparationHud();
     }
 
@@ -260,7 +260,7 @@ public partial class Main
         _hudLegacyBottom!.Visible = !preparing;
         _hudLegacyStatusPanel!.Visible = !preparing;
         if (_buildToggleButton is not null) _buildToggleButton.Visible = false;
-        if (_perkToggle is not null && _session.CapturePerks()?.Pending != true) _perkToggle.Visible = !preparing;
+        if (Perks.Toggle is not null && _session.CapturePerks()?.Pending != true) Perks.Toggle.Visible = !preparing;
 
         _hudRosterToggle!.Text = $"People · {p.People.Length} ▸";
         _hudProgrammeToggle!.Visible = !preparing; _hudProgramme!.Visible = !preparing && _hudProgrammeOpen;
@@ -429,8 +429,8 @@ public partial class Main
 
     private bool HudBlocksPlacement(Vector2 screen)
     {
-        if(_perkPanel?.Visible==true && _perkPanel.GetGlobalRect().HasPoint(screen))return true;
-        if(_ownedEffectPopup?.Visible==true && _ownedEffectPopup.GetGlobalRect().HasPoint(screen))return true;
+        if(Perks.Panel?.Visible==true && Perks.Panel.GetGlobalRect().HasPoint(screen))return true;
+        if(Perks.EffectPopup?.Visible==true && Perks.EffectPopup.GetGlobalRect().HasPoint(screen))return true;
         if (_hudMoney is null) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
         if (screen.Y < 60 || screen.Y > GetViewport().GetVisibleRect().Size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? 128 : 54)) return true;
         return new Control?[] { _hudWorkspace, _buildDrawer, _buildBudgetFooter, _preparationReadiness, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }

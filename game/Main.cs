@@ -100,14 +100,14 @@ public partial class Main : Node, IHudHost
     public override void _UnhandledInput(InputEvent inputEvent)
     {
         if (ResultsPaper.IsOpen || _startSplash is not null) return;
-        if (_perkPanel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && _perkPanel.GetGlobalRect().HasPoint(perkMouse.Position))
+        if (Perks.Panel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && Perks.Panel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (_buildGhostKind is not null && key.Keycode == Key.Escape) { CancelBuildPlacement(); RefreshHudWorkspace(); return; }
             if (_buildGhostKind is not null && key.Keycode is Key.Comma or Key.Period)
             { RotateBuildGhost(key.Keycode == Key.Comma ? -1 : 1); return; }
-            if(key.Keycode==Key.Escape && (_pendingPerkChoice is not null || _pendingPerkSkip)){CancelPerkConfirmation();return;}
+            if(key.Keycode==Key.Escape && Perks.ConfirmationPending){Perks.CancelConfirmation();return;}
             if (key.Keycode == Key.Escape) { ClearSelection(); return; }
             if (key.Keycode == Key.Q) Rotate(-1);
             else if (key.Keycode == Key.E) Rotate(1);
