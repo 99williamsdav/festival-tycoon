@@ -14,7 +14,7 @@ public sealed partial class GameSession
     public IReadOnlyList<StaffInterventionJob> CaptureStaffInterventions() => _medical?.StaffInterventions.ToArray() ?? [];
     private static bool InterventionBusy(StaffInterventionJob job) => job.Stage is StaffInterventionStage.Travelling or StaffInterventionStage.Guiding or StaffInterventionStage.Escorting;
     private bool PersonCollapsed(ulong id) => _medical is { } m &&
-        (PeopleIn(PersonView.Medical).Any(need => need.Id == id && need.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal) ||
+        (PersonIn(PersonView.Medical, id) is { HealthStage: MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal } ||
          id == m.AtRiskGuestId && m.Stage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal);
     private bool MovementOccupant(ulong id) => !PersonCollapsed(id) && !GuestWaitingForRelease(id) &&
         PersonIn(PersonView.Roster, id)?.Departed != true;

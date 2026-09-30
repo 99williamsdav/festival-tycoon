@@ -22,7 +22,7 @@ public sealed partial class GameSession
 
     public bool GuestWaitingForRelease(ulong id) =>
         _preparation is { Status: PreparationStatus.Running } p &&
-        PeopleIn(PersonView.Roster).Any(person => person.Id == id && person.Role == ProtectedPersonRole.Guest && !person.Admitted && !person.Departed) &&
+        PersonIn(PersonView.Roster, id) is { Role: ProtectedPersonRole.Guest, Admitted: false, Departed: false } &&
         _navigationAgents.TryGetValue(new(id), out var navigation) && navigation.Destination is null;
 
     private void ApplyBuildGuestOpeningNeeds()

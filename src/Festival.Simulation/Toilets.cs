@@ -224,16 +224,16 @@ public sealed partial class GameSession
             }
         }
         var running = prep.Status == PreparationStatus.Running;
-        for (var personIndex = 0; personIndex < PeopleIn(PersonView.Consumption).Length; personIndex++)
+        for (var personIndex = 0; personIndex < _persons.Count(PersonView.Consumption); personIndex++)
         {
-            if (PeopleIn(PersonView.Roster)[personIndex].Departed) continue;
-            var person = PeopleIn(PersonView.Consumption)[personIndex];
+            if (_persons.At(PersonView.Roster, personIndex).Departed) continue;
+            var person = _persons.At(PersonView.Consumption, personIndex);
             if (person.ToiletStage == ToiletVisitStage.None)
             {
                 if (!running || toilet.IsFull || toilet.InterruptedOccupantId is not null ||
                     person.ToiletNeed < ToiletRules.NeedThreshold ||
                     CurrentTick % ToiletRules.DecisionEveryTicks != (long)(person.Id % ToiletRules.DecisionEveryTicks) ||
-                    PeopleIn(PersonView.Roster)[personIndex].Role != ProtectedPersonRole.Guest ||
+                    _persons.At(PersonView.Roster, personIndex).Role != ProtectedPersonRole.Guest ||
                     !ImmersionHandsAvailable(person.Id) || ImmersionOwnsNavigation(person.Id) ||
                     _persons[person.Id].Intent != MedicalIntent.WatchShow ||
                     HasClaim(person.Id, PersonClaim.Performing))

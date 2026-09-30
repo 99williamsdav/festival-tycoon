@@ -180,6 +180,11 @@ internal sealed class PersonRegistry
 
     public IReadOnlyList<ulong> Members(PersonView view) => _members[view];
 
+    public int Count(PersonView view) => _members[view].Count;
+
+    /// <summary>The current state of the person at one position in a view's order.</summary>
+    public Person At(PersonView view, int index) => _people[_members[view][index]];
+
     public void Set(Person person)
     {
         if (!_people.ContainsKey(person.Id)) throw new InvalidOperationException($"Unknown person {person.Id}.");

@@ -8,8 +8,19 @@ public sealed partial class GameSession
     public Person? CapturePerson(ulong id) => _persons.TryGet(id, out var person) ? person : null;
 
     private void UpdatePerson(ulong id, Func<Person, Person> change) => _persons.Set(change(_persons[id]));
-    /// <summary>A stable snapshot of the people tracked by one system, in that system's order.</summary>
-    private Person[] PeopleIn(PersonView view) => _persons.Project(view, person => person);
+    private readonly Dictionary<PersonView, (long Version, Person[] People)> _peopleInCache = [];
+
+    /// <summary>
+    /// A stable snapshot of the people tracked by one system, in that system's order. The array is
+    /// shared until the registry changes, so callers must copy it before writing into it.
+    /// </summary>
+    private Person[] PeopleIn(PersonView view)
+    {
+        if (_peopleInCache.TryGetValue(view, out var cached) && cached.Version == _persons.Version) return cached.People;
+        var people = _persons.Project(view, person => person);
+        _peopleInCache[view] = (_persons.Version, people);
+        return people;
+    }
     private Person? PersonIn(PersonView view, ulong id) => _persons.IsMember(view, id) ? _persons[id] : null;
     private bool InView(PersonView view, ulong id) => _persons.IsMember(view, id);
     /// <summary>Writes only the food, drink, intoxication and toilet state carried by a working copy.</summary>

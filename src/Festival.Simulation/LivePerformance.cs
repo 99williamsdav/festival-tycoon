@@ -186,7 +186,7 @@ public sealed partial class GameSession
             // The prior tick's state earns one tick. A set starting, a new arrival,
             // or restored power cannot award an entire second at this boundary.
             if (live.Stage == LiveSetStage.Live && hasPower && (performers.All(person => person.OnStage)) && listener.AtPlace && atPlace &&
-                !PeopleIn(PersonView.Roster).Any(item => item.Id == listener.AgentId && item.Departed) &&
+                PersonIn(PersonView.Roster, listener.AgentId)?.Departed != true &&
                 CurrentTick > live.StartedTick && CurrentTick <= _programme!.SlotEndTick)
             {
                 var listenedTicks = listener.ListenedTicks + 1;
