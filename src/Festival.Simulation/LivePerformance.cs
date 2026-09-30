@@ -138,6 +138,12 @@ public sealed partial class GameSession
         var listeners = live.Listeners.ToArray();
         var departed = PeopleIn(PersonView.Roster).Where(item => item.Departed).Select(item => item.Id).ToHashSet();
         var reserved = listeners.Where(item => item.Place is not null && !departed.Contains(item.AgentId)).Select(item => item.Place!.Value).ToHashSet();
+        _listenerIndex.Clear();
+        for (var i = 0; i < listeners.Length; i++) _listenerIndex.TryAdd(listeners[i].AgentId, i);
+        // Places held by listeners still on site, for the one-cell spacing rule below.
+        var occupied = new Dictionary<GridCell, int>();
+        foreach (var item in listeners)
+            if (item.Place is { } held && !departed.Contains(item.AgentId)) occupied[held] = occupied.GetValueOrDefault(held) + 1;
         // Four identity cohorts spread bounded decisions. Dwell and a material improvement
         // threshold prevent a settled crowd from continuously chasing tiny score changes.
         foreach (var index in (periodic && live.Stage != LiveSetStage.Finished ? Enumerable.Range(0, listeners.Length)
@@ -157,7 +163,7 @@ public sealed partial class GameSession
                 (listener.Place is null || AudienceDistanceSquared(cell, startCell) <= 16) &&
                 _traversalGrid!.Get(cell).IsWalkable &&
                 !MedicalQueueExcludesListening(cell))
-                .Where(cell => listeners.All(other => other.AgentId == listener.AgentId || departed.Contains(other.AgentId) || other.Place is not { } occupied || AudienceDistanceSquared(cell, occupied) >= 2))
+                .Where(cell => !PlaceCrowded(cell, listener, departed, occupied))
                 .Select(cell => (Cell: cell, Score: PlaceScore(listener, cell, startCell, listeners)))
                 .Where(item => listener.Place is null || item.Score + 6 <= currentScore)
                 .OrderBy(item => item.Score).ThenBy(item => item.Cell).Take(8);
@@ -167,6 +173,11 @@ public sealed partial class GameSession
                 if (!route.Found) continue;
                 if (listener.Place is { } old) reserved.Remove(old);
                 reserved.Add(option.Cell);
+                if (!departed.Contains(listener.AgentId))
+                {
+                    if (listener.Place is { } previous && --occupied[previous] == 0) occupied.Remove(previous);
+                    occupied[option.Cell] = occupied.GetValueOrDefault(option.Cell) + 1;
+                }
                 listeners[index] = listener with { Place = option.Cell, AtPlace = false };
                 var local = startCell.X is >= 103 and <= 126 && startCell.Z is >= 131 and <= 169;
                 var densityRetreat = local && listener.Place is not null && option.Cell.X > startCell.X &&
@@ -338,6 +349,24 @@ public sealed partial class GameSession
             Math.Max(0, AudienceDensity(listener, cell, listeners) - AudienceComfortTolerance(listener)) / 20;
     }
 
+    // Listener position by agent id for the pass in progress; entries index the live listeners array.
+    private readonly Dictionary<ulong, int> _listenerIndex = [];
+
+    /// <summary>
+    /// Whether another on-site listener holds a place within one orthogonal step of <paramref name="cell"/>
+    /// (squared distance below 2), ignoring the deciding listener's own place.
+    /// </summary>
+    private static bool PlaceCrowded(GridCell cell, LiveListener listener, HashSet<ulong> departed, Dictionary<GridCell, int> occupied)
+    {
+        foreach (var near in new[] { cell, new GridCell(cell.X + 1, cell.Z), new GridCell(cell.X - 1, cell.Z), new GridCell(cell.X, cell.Z + 1), new GridCell(cell.X, cell.Z - 1) })
+        {
+            var count = occupied.GetValueOrDefault(near);
+            if (listener.Place == near && !departed.Contains(listener.AgentId)) count--;
+            if (count > 0) return true;
+        }
+        return false;
+    }
+
     private int AudienceDensity(LiveListener listener, GridCell cell, LiveListener[] listeners)
     {
         var density = 0;
@@ -346,7 +375,7 @@ public sealed partial class GameSession
             var agent = _navigationAgents[new(person.Id)];
             var actual = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
             var weight = Math.Max(0, 25 - AudienceDistanceSquared(actual, cell)) * 40;
-            var other = listeners.FirstOrDefault(item => item.AgentId == person.Id);
+            var other = _listenerIndex.TryGetValue(person.Id, out var at) ? listeners[at] : null;
             // An absent water/rest/escort owner retains a unique return place, but does not
             // invent a second physical body at that place in the comfort calculation.
             if (other?.Place is { } place && !AudienceNavigationOwned(person.Id))

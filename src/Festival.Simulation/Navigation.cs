@@ -43,8 +43,31 @@ public sealed class TraversalGrid
     }
 
     public IReadOnlyDictionary<GridCell, TerrainCellOverride> Overrides => _overrides;
-    public int MinimumWalkableCostPermille => Math.Min(1000,
+    private int? _minimumWalkableCostPermille;
+    public int MinimumWalkableCostPermille => _minimumWalkableCostPermille ??= Math.Min(1000,
         _overrides.Values.Where(item => item.IsWalkable).Select(item => item.CostPermille).DefaultIfEmpty(1000).Min());
+
+    // Flat per-cell tables for path search, built on first use. The grid never changes after
+    // construction, so these always agree with Get(cell).
+    private bool[]? _walkable;
+    private int[]? _cost;
+    internal (bool[] Walkable, int[] Cost) SearchTables()
+    {
+        if (_walkable is null || _cost is null)
+        {
+            var walkable = new bool[Width * Depth];
+            var cost = new int[Width * Depth];
+            Array.Fill(walkable, true);
+            Array.Fill(cost, 1000);
+            foreach (var (cell, item) in _overrides)
+            {
+                walkable[cell.Z * Width + cell.X] = item.IsWalkable;
+                cost[cell.Z * Width + cell.X] = item.CostPermille;
+            }
+            (_walkable, _cost) = (walkable, cost);
+        }
+        return (_walkable, _cost);
+    }
     public bool Contains(GridCell cell) => cell.X is >= 0 and < Width && cell.Z is >= 0 and < Depth;
     public TerrainCellReadModel Get(GridCell cell)
     {
@@ -140,74 +163,79 @@ public static class DeterministicPathfinder
             return new PathSearchResult(false, Array.Empty<GridCell>(), 0);
 
         const int cellCount = TraversalGrid.Width * TraversalGrid.Depth;
-        var scores = ArrayPool<int>.Shared.Rent(cellCount);
-        var cameFrom = ArrayPool<int>.Shared.Rent(cellCount);
-        var heap = ArrayPool<int>.Shared.Rent(cellCount);
-        var heapIndices = ArrayPool<int>.Shared.Rent(cellCount);
-        var states = ArrayPool<byte>.Shared.Rent(cellCount);
+        var buffers = _buffers ??= new SearchBuffers();
+        if (++buffers.Generation == int.MaxValue) { Array.Clear(buffers.Stamp); buffers.Generation = 1; }
+        var generation = buffers.Generation;
+        var (scores, cameFrom, heap, heapIndices, states, stamp) =
+            (buffers.Scores, buffers.CameFrom, buffers.Heap, buffers.HeapIndices, buffers.States, buffers.Stamp);
         var minimumCost = grid.MinimumWalkableCostPermille;
-        try
+        var (walkable, cellCost) = grid.SearchTables();
+        // A cell's search state counts only when stamped with this search's generation, so
+        // nothing needs clearing between searches. Every other per-cell value is written
+        // when the cell is first reached, before anything reads it.
+        var startIndex = ToIndex(start);
+        scores[startIndex] = 0;
+        cameFrom[startIndex] = -1;
+        heap[0] = startIndex;
+        heapIndices[startIndex] = 0;
+        states[startIndex] = 1;
+        stamp[startIndex] = generation;
+        var heapCount = 1;
+        var expanded = 0;
+
+        while (heapCount > 0 && expanded < cellCount)
         {
-            Array.Fill(scores, int.MaxValue, 0, cellCount);
-            Array.Fill(cameFrom, -1, 0, cellCount);
-            Array.Fill(heapIndices, -1, 0, cellCount);
-            Array.Clear(states, 0, cellCount);
-            var startIndex = ToIndex(start);
-            scores[startIndex] = 0;
-            heap[0] = startIndex;
-            heapIndices[startIndex] = 0;
-            states[startIndex] = 1;
-            var heapCount = 1;
-            var expanded = 0;
+            var currentIndex = Pop(heap, heapIndices, ref heapCount, target, scores, minimumCost);
+            states[currentIndex] = 2;
+            var current = FromIndex(currentIndex);
+            if (current == target) return new PathSearchResult(true, Reconstruct(cameFrom, currentIndex), expanded);
+            expanded++;
 
-            while (heapCount > 0 && expanded < cellCount)
+            foreach (var (dx, dz, baseCost) in Neighbours)
             {
-                var currentIndex = Pop(heap, heapIndices, ref heapCount, target, scores, minimumCost);
-                states[currentIndex] = 2;
-                var current = FromIndex(currentIndex);
-                if (current == target) return new PathSearchResult(true, Reconstruct(cameFrom, currentIndex), expanded);
-                expanded++;
-
-                foreach (var (dx, dz, baseCost) in Neighbours)
+                var neighbour = new GridCell(current.X + dx, current.Z + dz);
+                if (!grid.Contains(neighbour)) continue;
+                var neighbourIndex = ToIndex(neighbour);
+                if (!walkable[neighbourIndex]) continue;
+                // A diagonal step may not cut the corner of a blocked orthogonal cell.
+                if (dx != 0 && dz != 0 &&
+                    (!walkable[ToIndex(new GridCell(current.X + dx, current.Z))] ||
+                     !walkable[ToIndex(new GridCell(current.X, current.Z + dz))])) continue;
+                var stepCost = checked(baseCost * cellCost[neighbourIndex] / 1000);
+                var tentative = checked(scores[currentIndex] + stepCost);
+                var state = stamp[neighbourIndex] == generation ? states[neighbourIndex] : (byte)0;
+                if (state != 0 && tentative >= scores[neighbourIndex]) continue;
+                cameFrom[neighbourIndex] = currentIndex;
+                scores[neighbourIndex] = tentative;
+                if (state == 1)
                 {
-                    var neighbour = new GridCell(current.X + dx, current.Z + dz);
-                    if (!grid.Contains(neighbour) || !grid.Get(neighbour).IsWalkable) continue;
-                    if (dx != 0 && dz != 0 &&
-                        (!grid.Get(new GridCell(current.X + dx, current.Z)).IsWalkable ||
-                         !grid.Get(new GridCell(current.X, current.Z + dz)).IsWalkable)) continue;
-                    var terrain = grid.Get(neighbour);
-                    var stepCost = checked(baseCost * terrain.CostPermille / 1000);
-                    var tentative = checked(scores[currentIndex] + stepCost);
-                    var neighbourIndex = ToIndex(neighbour);
-                    if (states[neighbourIndex] != 0 && tentative >= scores[neighbourIndex]) continue;
-                    cameFrom[neighbourIndex] = currentIndex;
-                    scores[neighbourIndex] = tentative;
-                    if (states[neighbourIndex] == 1)
-                    {
-                        // Although g decreased, the reference's unchecked signed (g + h) can
-                        // wrap across int.MaxValue and move the total priority in either direction.
-                        var repairedIndex = SiftUp(heap, heapIndices, heapIndices[neighbourIndex], target, scores, minimumCost);
-                        SiftDown(heap, heapIndices, heapCount, repairedIndex, target, scores, minimumCost);
-                    }
-                    else
-                    {
-                        states[neighbourIndex] = 1;
-                        heap[heapCount] = neighbourIndex;
-                        heapIndices[neighbourIndex] = heapCount;
-                        SiftUp(heap, heapIndices, heapCount++, target, scores, minimumCost);
-                    }
+                    // Although g decreased, the reference's unchecked signed (g + h) can
+                    // wrap across int.MaxValue and move the total priority in either direction.
+                    var repairedIndex = SiftUp(heap, heapIndices, heapIndices[neighbourIndex], target, scores, minimumCost);
+                    SiftDown(heap, heapIndices, heapCount, repairedIndex, target, scores, minimumCost);
+                }
+                else
+                {
+                    states[neighbourIndex] = 1;
+                    stamp[neighbourIndex] = generation;
+                    heap[heapCount] = neighbourIndex;
+                    heapIndices[neighbourIndex] = heapCount;
+                    SiftUp(heap, heapIndices, heapCount++, target, scores, minimumCost);
                 }
             }
-            return new PathSearchResult(false, Array.Empty<GridCell>(), expanded);
         }
-        finally
-        {
-            ArrayPool<int>.Shared.Return(scores);
-            ArrayPool<int>.Shared.Return(cameFrom);
-            ArrayPool<int>.Shared.Return(heap);
-            ArrayPool<int>.Shared.Return(heapIndices);
-            ArrayPool<byte>.Shared.Return(states);
-        }
+        return new PathSearchResult(false, Array.Empty<GridCell>(), expanded);
+    }
+
+    // Per-thread search storage, reused across searches (tests search on several threads at once).
+    [ThreadStatic] private static SearchBuffers? _buffers;
+    private sealed class SearchBuffers
+    {
+        private const int CellCount = TraversalGrid.Width * TraversalGrid.Depth;
+        public readonly int[] Scores = new int[CellCount], CameFrom = new int[CellCount], Heap = new int[CellCount],
+            HeapIndices = new int[CellCount], Stamp = new int[CellCount];
+        public readonly byte[] States = new byte[CellCount];
+        public int Generation;
     }
 
     private static int Pop(int[] heap, int[] heapIndices, ref int count, GridCell target, int[] scores, int minimumCost)

@@ -67,6 +67,20 @@ public sealed partial class GameSession
         return claims;
     }
 
+    // Ids named as the opponent of someone fighting, rebuilt whenever any person changes.
+    private (long Version, HashSet<ulong>? Ids) _fightOpponents;
+    private bool IsFightOpponent(ulong id)
+    {
+        if (_fightOpponents.Ids is null || _fightOpponents.Version != _persons.Version)
+        {
+            var ids = new HashSet<ulong>();
+            foreach (var person in PeopleIn(PersonView.Disorder))
+                if (person.ConductStage == DisorderStage.Fight && person.OpponentId is { } opponent) ids.Add(opponent);
+            _fightOpponents = (_persons.Version, ids);
+        }
+        return _fightOpponents.Ids.Contains(id);
+    }
+
     /// <summary>True when any of the requested claims currently holds; only requested claims are evaluated.</summary>
     private bool HasClaim(ulong id, PersonClaim claims)
     {
@@ -82,8 +96,7 @@ public sealed partial class GameSession
         if (claims.HasFlag(PersonClaim.ToiletVisit) &&
             PersonIn(PersonView.Consumption, id) is { ToiletStage: not ToiletVisitStage.None }) return true;
         if (claims.HasFlag(PersonClaim.Fighting) &&
-            (PersonIn(PersonView.Disorder, id)?.ConductStage == DisorderStage.Fight ||
-             PeopleIn(PersonView.Disorder).Any(item => item.ConductStage == DisorderStage.Fight && item.OpponentId == id))) return true;
+            (PersonIn(PersonView.Disorder, id)?.ConductStage == DisorderStage.Fight || IsFightOpponent(id))) return true;
         if (claims.HasFlag(PersonClaim.Performing) &&
             _livePerformance?.Performers.Any(performer => performer.AgentId == id && (performer.OnStage || performer.InstrumentAttached)) == true) return true;
         if ((claims & (PersonClaim.InterventionTarget | PersonClaim.BeingEscorted | PersonClaim.InterventionWorker)) != 0 &&

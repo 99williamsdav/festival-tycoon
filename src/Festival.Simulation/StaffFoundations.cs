@@ -9,10 +9,24 @@ public sealed partial class GameSession
     private bool StaffMedicalBoundaryOnNextTick => !IsPaused && MedicalOperationsActive &&
         GetMedicResponses().Any(job => job.Stage == MedicalResponseStage.Travelling && _navigationAgents[new(job.WorkerId)].Action == AgentNavigationAction.Arrived ||
             job.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(job) && CurrentTick + 1 >= job.StartedTick + GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks || IntoxicationCareBoundary(job)));
-    public IReadOnlyList<MedicResponse> GetMedicResponses() => _medical is not { } m ? [] :
-        new[] { new MedicResponse(m.MedicId, m.ResponseStage, m.ResponsePatientId, m.ResponseStartedTick, m.Response, m.ResponseDispatchedTick) }.Concat(m.ExtraResponses).ToArray();
-    public IReadOnlyList<StewardResponse> GetStewardResponses() => _disorder is not { } d ? [] :
-        new[] { new StewardResponse(d.SecurityId, d.ResponseStage, d.ResponseTargetId, d.ResponseStartedTick, d.SecurityIncapacitated, d.Response, d.ResponseDispatchedTick) }.Concat(d.ExtraResponses).ToArray();
+    // Reused until the immutable medical record is replaced.
+    private (MedicalSnapshot? Medical, MedicResponse[]? Responses) _medicResponses;
+    public IReadOnlyList<MedicResponse> GetMedicResponses()
+    {
+        if (_medical is not { } m) return [];
+        if (!ReferenceEquals(_medicResponses.Medical, m) || _medicResponses.Responses is null)
+            _medicResponses = (m, new[] { new MedicResponse(m.MedicId, m.ResponseStage, m.ResponsePatientId, m.ResponseStartedTick, m.Response, m.ResponseDispatchedTick) }.Concat(m.ExtraResponses).ToArray());
+        return _medicResponses.Responses;
+    }
+    // Reused until the immutable disorder record is replaced.
+    private (DisorderSnapshot? Disorder, StewardResponse[]? Responses) _stewardResponses;
+    public IReadOnlyList<StewardResponse> GetStewardResponses()
+    {
+        if (_disorder is not { } d) return [];
+        if (!ReferenceEquals(_stewardResponses.Disorder, d) || _stewardResponses.Responses is null)
+            _stewardResponses = (d, new[] { new StewardResponse(d.SecurityId, d.ResponseStage, d.ResponseTargetId, d.ResponseStartedTick, d.SecurityIncapacitated, d.Response, d.ResponseDispatchedTick) }.Concat(d.ExtraResponses).ToArray());
+        return _stewardResponses.Responses;
+    }
     private void SetMedicResponse(MedicResponse response)
     {
         var m = _medical!;

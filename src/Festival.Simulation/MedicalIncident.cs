@@ -81,10 +81,19 @@ public sealed partial class GameSession
         new(105, 148), new(106, 150), new(107, 152), new(108, 154), new(109, 156),
         new(110, 158), new(111, 160), new(112, 162), new(113, 164), new(114, 166)
     ];
-    private IReadOnlyList<WaterPointState> WaterPoints() => _medical is not { } m ? [] :
-        _preparation?.BuildPlacements?.Any(item => item.Id == "water.main") == false ? m.ExtraWaterPoints :
-        [new WaterPointState("water.main", m.MainWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks)
-            { QuarterTurns = m.MainWaterQuarterTurns, GeometryVersion = m.MainWaterGeometryVersion, QueueCells = m.MainWaterQueueCells }, .. m.ExtraWaterPoints];
+    // Medical and preparation state are immutable records, so the derived list is reused until either is replaced.
+    private (MedicalSnapshot? Medical, PreparationSnapshot? Preparation, IReadOnlyList<WaterPointState>? Points) _waterPoints;
+    private IReadOnlyList<WaterPointState> WaterPoints()
+    {
+        if (_waterPoints.Points is { } cached && ReferenceEquals(_waterPoints.Medical, _medical) && ReferenceEquals(_waterPoints.Preparation, _preparation))
+            return cached;
+        IReadOnlyList<WaterPointState> points = _medical is not { } m ? [] :
+            _preparation?.BuildPlacements?.Any(item => item.Id == "water.main") == false ? m.ExtraWaterPoints :
+            [new WaterPointState("water.main", m.MainWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks)
+                { QuarterTurns = m.MainWaterQuarterTurns, GeometryVersion = m.MainWaterGeometryVersion, QueueCells = m.MainWaterQueueCells }, .. m.ExtraWaterPoints];
+        _waterPoints = (_medical, _preparation, points);
+        return points;
+    }
     public IReadOnlyList<WaterPointState> CaptureWaterPoints() => WaterPoints().Select(point =>
         point with { Queue = point.Queue.ToArray(), Overflow = point.Overflow.ToArray(), QueueCells = point.QueueCells.ToArray() }).ToArray();
     public static GridCell RotateWaterOffset(GridCell offset, int quarterTurns) => quarterTurns switch
@@ -572,18 +581,17 @@ public sealed partial class GameSession
         if (CurrentTick % 4 == 0)
         {
             foreach (var item in PeopleIn(PersonView.Medical))
-                _persons.Set(item with
             {
-                Thirst = item.NeedProfile == MedicalNeedProfile.Guest && !_persons[item.Id].Admitted
-                    ? item.Thirst : Math.Min(10_000, item.Thirst + 1),
-                HeatExposure = item.NeedProfile == MedicalNeedProfile.Guest && !_persons[item.Id].Admitted
-                    ? item.HeatExposure : Math.Min(10_000, item.HeatExposure + (item.Id == m.AtRiskGuestId || item.NeedProfile == MedicalNeedProfile.Performer ? 1 : CurrentTick % 32 == 0 ? 1 : 0))
-            });
+                // Guests outside the gate do not heat up or get thirsty yet.
+                if (item.NeedProfile == MedicalNeedProfile.Guest && !item.Admitted) continue;
+                var heat = item.Id == m.AtRiskGuestId || item.NeedProfile == MedicalNeedProfile.Performer ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
+                MutatePerson(item.Id, person => { person.Thirst = Math.Min(10_000, person.Thirst + 1); person.HeatExposure = Math.Min(10_000, person.HeatExposure + heat); });
+            }
         }
         if (HasPerk("thirsty-crowd") && CurrentTick % 40 == 0)
             foreach (var item in PeopleIn(PersonView.Medical))
                 if (item.NeedProfile == MedicalNeedProfile.Guest && PersonIn(PersonView.Roster, item.Id) is { Admitted: true })
-                    _persons.Set(item with { Thirst = Math.Min(10_000, item.Thirst + 1) });
+                    MutatePerson(item.Id, person => person.Thirst = Math.Min(10_000, person.Thirst + 1));
         if (CurrentTick % 80 == 0)
         {
             foreach (var need in PeopleIn(PersonView.Medical))
