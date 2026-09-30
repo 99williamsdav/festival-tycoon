@@ -200,8 +200,8 @@ public partial class Main
         }
         _immersionSummary!.Text = $"Chips £3 • soft £2 • beer £3\nStock {state.ChipsStock}/{state.SoftStock}/{state.BeerStock} • sales {state.Purchases.Length}\n" +
             "Free water remains available. Personal spending budgets vary; staff do not buy beer.\n" +
-            string.Join("\n", state.Vendors.Select(v => $"{(v.Id == "food" ? "Food van" : "Drinks stall")}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}")) +
-            (state.Toilet is { } toilet ? $"\nPortaloo: {toilet.FullPercent}% full • {(toilet.InterruptedOccupantId is not null ? "unavailable" : toilet.IsFull ? "full" : toilet.OwnerId is null ? "free" : "occupied")}" : "");
+            string.Join("\n", _session.CaptureVendors().Select(v => $"{(v.Id == "food" ? "Food van" : "Drinks stall")}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}")) +
+            (_session.CaptureToilet() is { } toilet ? $"\nPortaloo: {toilet.FullPercent}% full • {(toilet.InterruptedOccupantId is not null ? "unavailable" : toilet.IsFull ? "full" : toilet.OwnerId is null ? "free" : "occupied")}" : "");
         if (_session.PreparedStatus == PreparationStatus.Departing) _immersionSummary.Text += "\nCOUNTERS CLOSED • on-site alcohol risk and medic response continue until physical exit.";
         if (ImmersionHeavyOnSiteCount() > 0) _immersionSummary.Text = "! HEAVY INTOXICATION • select affected people for medic care\n" + _immersionSummary.Text;
         SyncImmersionWorld();
@@ -218,14 +218,14 @@ public partial class Main
             _immersionVendors.Clear(); _immersionVendorPicks.Clear(); ResetImmersionHeldVisuals();
             return;
         }
-        foreach (var stale in _immersionVendors.Keys.Except(state.Vendors.Select(vendor => vendor.Id)).ToArray())
+        foreach (var stale in _immersionVendors.Keys.Except(_session.CaptureVendors().Select(vendor => vendor.Id)).ToArray())
         {
             var body = _immersionVendors[stale];
             _immersionVendorPicks.Remove(body.GetInstanceId());
             body.QueueFree();
             _immersionVendors.Remove(stale);
         }
-        foreach (var vendor in state.Vendors)
+        foreach (var vendor in _session.CaptureVendors())
         {
             if (!_immersionVendors.TryGetValue(vendor.Id, out var body))
             {
@@ -256,7 +256,7 @@ public partial class Main
             _immersionMoveButton.Visible = _selectedImmersionVendor is not null &&
                 _session.PreparedStatus == PreparationStatus.Preparing && _session.CaptureImmersion() is not null;
         if (_selectedImmersionVendor is not { } id || _session.CaptureImmersion() is not { } state || !_immersionVendors.TryGetValue(id, out var body)) return;
-        var vendor = state.Vendors.Single(v => v.Id == id);
+        var vendor = _session.CaptureVendors().Single(v => v.Id == id);
         _inspectorTitle.Text = id == "food" ? "Food van • chips" : "Drinks stall • soft drinks & beer";
         _inspectorBody.Text = $"Queue: {vendor.Queue.Length}\n" +
             (vendor.OwnerId is { } owner ? $"Serving {_session.CapturePreparation()!.People.Single(p => p.AgentId == owner).Name} • {vendor.ServiceTicks / 80m:0.0}s remaining\n" : "Counter ready\n") +

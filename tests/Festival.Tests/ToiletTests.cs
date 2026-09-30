@@ -95,10 +95,10 @@ public sealed class ToiletTests
             prep with { People = prep.People.Select(person => members.Contains(person.AgentId)
                 ? person with { Admitted = true } : person).ToArray() });
         var immersion = session.CaptureImmersion()!;
+        BuildSession.SetToilet(session, session.CaptureToilet()! with { Queue = members, OwnerId = ahead[0], DoorOpen = false,
+            ServiceTicks = ToiletRules.PooServiceTicks });
         SetImmersion(session, immersion with
         {
-            Toilet = immersion.Toilet! with { Queue = members, OwnerId = ahead[0], DoorOpen = false,
-                ServiceTicks = ToiletRules.PooServiceTicks },
             People = immersion.People.Select(person => members.Contains(person.AgentId) ? person with
             {
                 ToiletNeed = 9_000, ToiletId = longLine.Id,
@@ -154,9 +154,9 @@ public sealed class ToiletTests
                 prep with { People = prep.People.Select(person => person.AgentId == seeker
                     ? person with { Admitted = true } : person).ToArray() });
             var immersion = session.CaptureImmersion()!;
+            BuildSession.SetToilet(session, main with { Queue = [seeker], WeeCount = 40 });
             SetImmersion(session, immersion with
             {
-                Toilet = main with { Queue = [seeker], WeeCount = 40 },
                 People = immersion.People.Select(person => person.AgentId == seeker ? person with
                 { ToiletNeed = 9_000, ToiletId = main.Id, ToiletStage = ToiletVisitStage.Queued,
                   ToiletChoice = ToiletVisitKind.Wee } : person).ToArray()
@@ -192,7 +192,7 @@ public sealed class ToiletTests
         Assert.AreEqual(baseline, held.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletNeed,
             "Buying or holding beer alone must not raise toilet need.");
         foreach (var session in new[] { beer, soft, control }) Position(session, id, new GridCell(130, 165), "fixture.drink-away-from-counter");
-        var vendor = held.CaptureImmersion()!.Vendors.Single(v => v.Id == "drinks");
+        var vendor = held.CaptureVendors().Single(v => v.Id == "drinks");
         Position(held, id, GameSession.ImmersionServiceCell(vendor), "fixture.holding-at-counter");
         Assert.IsTrue(beer.ImmersionConsumptionEligible(id));
         Assert.IsFalse(held.ImmersionConsumptionEligible(id));
@@ -233,7 +233,8 @@ public sealed class ToiletTests
         var other = session.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest).Skip(1).First().AgentId;
         var toilet = session.CaptureToilet()!;
         var state = session.CaptureImmersion()!;
-        SetImmersion(session, state with { Toilet = toilet with { PooCount = 17 },
+        BuildSession.SetToilet(session, toilet with { PooCount = 17 });
+        SetImmersion(session, state with {
             People = state.People.Select(p => p.AgentId == id ? p with { ToiletNeed = 9_000 } : p).ToArray() });
         Assert.IsTrue(session.CaptureToilet()!.IsFull);
         Assert.AreEqual(100, session.CaptureToilet()!.FullPercent);
@@ -246,7 +247,8 @@ public sealed class ToiletTests
         Invoke(session, "ApplyToiletSmell");
         Assert.AreEqual(before - near, session.CapturePreparation()!.People.Single(p => p.AgentId == id).Satisfaction);
         state = session.CaptureImmersion()!;
-        SetImmersion(session, state with { Toilet = state.Toilet! with { Queue = [id] },
+        BuildSession.SetToilet(session, session.CaptureToilet()! with { Queue = [id] });
+        SetImmersion(session, state with {
             People = state.People.Select(p => p.AgentId == id ? p with
             { ToiletStage = ToiletVisitStage.Queued, ToiletChoice = ToiletVisitKind.Wee } : p).ToArray() });
         Position(session, id, GameSession.ToiletQueueCell(toilet, 0), "toilet.queue");
@@ -262,10 +264,10 @@ public sealed class ToiletTests
         var session = Open();
         var id = session.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
         var state = session.CaptureImmersion()!;
-        var toilet = state.Toilet!;
+        var toilet = session.CaptureToilet()!;
+        BuildSession.SetToilet(session, toilet with { Queue = [id], OwnerId = id, ServiceTicks = 100, DoorOpen = false });
         SetImmersion(session, state with
         {
-            Toilet = toilet with { Queue = [id], OwnerId = id, ServiceTicks = 100, DoorOpen = false },
             People = state.People.Select(p => p.AgentId == id ? p with
             { ToiletStage = ToiletVisitStage.Using, ToiletChoice = ToiletVisitKind.Wee } : p).ToArray()
         });

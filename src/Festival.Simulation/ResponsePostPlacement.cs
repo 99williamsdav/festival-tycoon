@@ -30,7 +30,7 @@ public sealed partial class GameSession
         .SelectMany(role => ResponsePostFootprint(ResponsePost(p, role), role)
             .Concat(new[] { ResponsePostHome(p, role), ResponsePostHome(p, role, true) }));
 
-    private static bool PlacementAccessClear(PreparationSnapshot p,EquipmentSnapshot? equipment,ImmersionSnapshot? immersion,MedicalSnapshot? medical,IReadOnlyList<WaterPointState> taps)
+    private static bool PlacementAccessClear(PreparationSnapshot p,EquipmentSnapshot? equipment,ImmersionSnapshot? immersion,MedicalSnapshot? medical,FacilitiesSnapshot? facilities)
     {
         var blocked=new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain()).Overrides.ToDictionary(c=>c.Key,c=>c.Value);
         void Block(GridCell centre,int rx,int rz){for(var x=centre.X-rx;x<=centre.X+rx;x++)for(var z=centre.Z-rz;z<=centre.Z+rz;z++){var c=new GridCell(x,z);blocked[c]=new(c,GroundSurface.Grass,false);}}
@@ -42,13 +42,14 @@ public sealed partial class GameSession
         if(p.WaterTowerOwned)Block(WaterTowerCell,3,3);
         if(equipment is {} unit){var lo=TraversalGrid.WorldToCell(unit.XMillimetres-1500,unit.ZMillimetres-1000);var hi=TraversalGrid.WorldToCell(unit.XMillimetres+1500,unit.ZMillimetres+1000);for(var x=lo.X;x<=hi.X;x++)for(var z=lo.Z;z<=hi.Z;z++){var c=new GridCell(x,z);blocked[c]=new(c,GroundSurface.Grass,false);}}
         for(var x=91;x<=100;x++)for(var z=140;z<=159;z++){var c=new GridCell(x,z);blocked[c]=new(c,GroundSurface.Grass,x is >=92 and <=98 && z is >=143 and <=157 || x is >=98 and <=100 && z is >=156 and <=158);}
-        if(immersion is not null)foreach(var c in immersion.Vendors.SelectMany(ImmersionFootprint))blocked[c]=new(c,GroundSurface.Grass,false);
-        foreach(var toilet in EffectiveToilets(immersion))
+        var vendors=immersion is null?[]:facilities?.Vendors??[];var taps=facilities?.Taps??[];
+        foreach(var c in vendors.SelectMany(ImmersionFootprint))blocked[c]=new(c,GroundSurface.Grass,false);
+        foreach(var toilet in immersion is null?[]:EffectiveToilets(facilities))
             foreach(var c in ToiletSolidCells(toilet))blocked[c]=new(c,GroundSurface.Grass,false);
         var grid=new TraversalGrid(blocked.Values);
         var access=Enum.GetValues<ResponseRole>().SelectMany(role=>new[]{ResponsePostHome(p,role),ResponsePostHome(p,role,true)})
-            .Append(MedicalRestCell).Concat(points.Select(WaterPointServiceCell)).Concat(immersion?.Vendors.Select(ImmersionServiceCell)??[])
-            .Concat(EffectiveToilets(immersion).SelectMany(accessToilet => new[] { ToiletInsideCell(accessToilet), ToiletQueueCell(accessToilet,0), ToiletExitCell(accessToilet) }))
+            .Append(MedicalRestCell).Concat(points.Select(WaterPointServiceCell)).Concat(vendors.Select(ImmersionServiceCell))
+            .Concat((immersion is null?[]:EffectiveToilets(facilities)).SelectMany(accessToilet => new[] { ToiletInsideCell(accessToilet), ToiletQueueCell(accessToilet,0), ToiletExitCell(accessToilet) }))
             .Concat(medical is null?[]:taps.Where(w=>w.Id!="water.main").SelectMany(w=>w.QueueCells));
         return access.All(c=>DeterministicPathfinder.FindPath(grid,MedicalExitCell,c).Found);
     }

@@ -78,6 +78,14 @@ internal static class BuildSession
     public static void SetTap(GameSession s, WaterPointState tap) => typeof(GameSession)
         .GetMethod("SetWaterPoint", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(s, [tap]);
 
+    /// <summary>Test fixture: replaces one vendor's live state.</summary>
+    public static void SetVendor(GameSession s, ImmersionVendor vendor) => typeof(GameSession)
+        .GetMethod("SetImmersionVendor", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(s, [vendor]);
+
+    /// <summary>Test fixture: replaces one toilet's live state.</summary>
+    public static void SetToilet(GameSession s, ToiletFacility toilet) => typeof(GameSession)
+        .GetMethod("SetToilet", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(s, [toilet]);
+
     public static GameSession Restored(GameSession s)
     {
         var loaded = GameSession.Restore(s.CapturePersistenceSnapshot());

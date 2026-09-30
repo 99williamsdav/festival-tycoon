@@ -415,12 +415,12 @@ public sealed partial class GameSession
         _programme = baseline._programme;
         if (_immersion is not null)
         {
-            ImmersionView = baseline.ImmersionView! with
-            {
-                Vendors = _immersion.Vendors.Select(v => v with { Queue = [], OwnerId = null, ServiceTicks = 0,QueueCells=v.QueueCells is null?null:[ImmersionServiceCell(v)] }).ToArray(),
-                Toilet = _immersion.Toilet is { } owned ? baseline._immersion!.Toilet! with
-                { Cell = owned.Cell, QuarterTurns = owned.QuarterTurns } : baseline._immersion!.Toilet
-            };
+            SetVendors(Vendors.Select(v => v with { Queue = [], OwnerId = null, ServiceTicks = 0,QueueCells=v.QueueCells is null?null:[ImmersionServiceCell(v)] }).ToArray());
+            // Retry restores the opening main toilet at the placed main toilet's site. Other toilets are
+            // not restored here (a known gap: an extra placed toilet does not survive a retry).
+            SetToilets([Toilets.FirstOrDefault(item => item.Id == "toilet.main") is { } owned
+                ? OpeningMainToilet() with { Cell = owned.Cell, QuarterTurns = owned.QuarterTurns } : OpeningMainToilet()]);
+            ImmersionView = baseline.ImmersionView!;
             foreach (var person in PeopleIn(PersonView.Consumption)) _wallets[new(person.Id)].CashPennies = person.OpeningBudgetPennies;
         }
         _equipment = baseline._equipment;

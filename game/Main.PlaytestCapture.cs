@@ -22,6 +22,7 @@ public partial class Main
     private readonly Dictionary<ulong, Transform3D> _playtestTransforms = [];
     private readonly Dictionary<ulong, double> _playtestAnimationPositions = [];
     private ImmersionSnapshot? _playtestOriginalImmersion;
+    private FacilitiesSnapshot? _playtestOriginalFacilities;
     private Vector3 _playtestCameraFocus;
 
     private static void PlaytestRequire(bool valid, string message)
@@ -43,9 +44,10 @@ public partial class Main
     private Node3D[] PlaytestNodes() => _attendeeVisuals.Values.SelectMany(body => body.FindChildren("*", "Node3D", true, false).OfType<Node3D>().Prepend(body)).ToArray();
     private void PlaytestToilet(bool doorOpen, bool owned)
     {
-        var m = _playtestOriginalImmersion!; var toilet = m.Toilet!;
+        var f = _playtestOriginalFacilities!;
         var id = _session.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
-        PlaytestSet("ImmersionView", m with { Toilet = toilet with { DoorOpen = doorOpen, OwnerId = owned ? id : null } });
+        PlaytestSet("_facilities", f with { Toilets = f.Toilets.Select(toilet => toilet.Id == "toilet.main"
+            ? toilet with { DoorOpen = doorOpen, OwnerId = owned ? id : null } : toilet).ToArray() });
         SyncToiletWorld(); SelectToilet();
         PlaytestRequire(_toiletFreeIndicator!.Visible == (doorOpen || !owned) && _toiletOccupiedIndicator!.Visible == (!doorOpen && owned), "actual toilet door signal");
         PlaytestRequire(!_inspectorBody.Text.Contains("Facing") && !_inspectorBody.Text.Contains("preparation placement"), "concise context");
@@ -130,6 +132,7 @@ public partial class Main
                 case 7:
                     PlaytestImage("05-live-alerts-next-page");
                     _playtestOriginalImmersion = _session.CaptureImmersion();
+                    _playtestOriginalFacilities = _session.CaptureFacilities();
                     _focus = _toiletBody!.Position; _camera.Size = 10; _orientation = 2; ApplyCamera();
                     PlaytestToilet(true, true);
                     break;
@@ -142,6 +145,7 @@ public partial class Main
                 case 11:
                     PlaytestImage("09-toilet-empty-green");
                     PlaytestSet("ImmersionView", _playtestOriginalImmersion!);
+                    PlaytestSet("_facilities", _playtestOriginalFacilities!);
                     File.WriteAllText(Path.Combine(_playtestCaptureDirectory, "presentation.json"), JsonSerializer.Serialize(new {
                         mode = "scripted actual presentation; labelled needs and toilet visual fixtures", resolution = GetWindow().Size.ToString(),
                         pausedTick = _playtestPausedTick, pausedMusicSeconds = _playtestMusicPosition, resumedMusicSeconds = _playtestResumePosition, pausedAmbientSeconds = _playtestAmbientPosition, ambienceContinued = true,

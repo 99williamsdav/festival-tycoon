@@ -126,18 +126,14 @@ public sealed partial class GameSession
             StewardPostPlacement = p.BuildPlacements.FirstOrDefault(item => item.Kind == BuildServiceKind.StewardPost) is { } post
                 ? new(post.Cell, post.QuarterTurns) : null
         };
-        _immersion = _immersion with
-        {
-            Vendors = p.BuildPlacements.Where(item => item.Kind is BuildServiceKind.FoodVan or BuildServiceKind.Bar)
-                .Select(item => NewLooseVendor(new ImmersionVendor(item.Id, item.Cell, item.QuarterTurns, [])))
-                .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(),
-            Toilet = p.BuildPlacements.FirstOrDefault(item => item.Id == "toilet.main") is { } toilet
-                ? new ToiletFacility(toilet.Id, toilet.Cell, toilet.QuarterTurns, [], null, false, 0, 0, 0,
-                    ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille) : null,
-            ExtraToilets = p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet && item.Id != "toilet.main")
-                .Select(item => new ToiletFacility(item.Id, item.Cell, item.QuarterTurns, [], null, false, 0, 0, 0,
-                    ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille)).ToArray()
-        };
+        SetVendors(p.BuildPlacements.Where(item => item.Kind is BuildServiceKind.FoodVan or BuildServiceKind.Bar)
+            .Select(item => NewLooseVendor(new ImmersionVendor(item.Id, item.Cell, item.QuarterTurns, [])))
+            .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray());
+        // The main toilet comes first, then any others in placement order.
+        SetToilets(p.BuildPlacements.Where(item => item.Id == "toilet.main")
+            .Concat(p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet && item.Id != "toilet.main"))
+            .Select(item => new ToiletFacility(item.Id, item.Cell, item.QuarterTurns, [], null, false, 0, 0, 0,
+                ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille)).ToArray());
     }
 
     private static string? ValidateBuildLayout(IReadOnlyList<BuildPlacement> placements,
@@ -188,8 +184,8 @@ public sealed partial class GameSession
 
     private static string? ValidateBuildMirrors(PreparationSnapshot p, SessionPersistenceSnapshot saved)
     {
-        if (saved.Medical is null || saved.Immersion is not { } immersion || saved.Facilities?.Taps is not { } taps ||
-            p.ExtraWaterSiteIds is null || p.WaterPlacements is null || immersion.Vendors is null)
+        if (saved.Medical is null || saved.Immersion is null || saved.Facilities is not { Taps: { } taps, Vendors: { } savedVendors } facilities ||
+            p.ExtraWaterSiteIds is null || p.WaterPlacements is null)
             return "Saved build services have no physical state.";
         var water = p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.WaterTap).ToArray();
         var main = water.SingleOrDefault(item => item.Id == "water.main");
@@ -216,12 +212,12 @@ public sealed partial class GameSession
         var vendors = p.BuildPlacements.Where(item => item.Kind is BuildServiceKind.FoodVan or BuildServiceKind.Bar)
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         if (!vendors.Select(item => (item.Id, item.Cell, item.QuarterTurns)).SequenceEqual(
-            immersion.Vendors.Select(item => (item.Id, item.Cell, item.QuarterTurns))))
+            savedVendors.Select(item => (item.Id, item.Cell, item.QuarterTurns))))
             return "Saved vendor differs from the build layout.";
         var toilets = p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet)
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         if (!toilets.Select(item => (item.Id, item.Cell, item.QuarterTurns)).SequenceEqual(
-            EffectiveToilets(immersion).OrderBy(item => item.Id, StringComparer.Ordinal)
+            EffectiveToilets(facilities).OrderBy(item => item.Id, StringComparer.Ordinal)
                 .Select(item => (item.Id, item.Cell, item.QuarterTurns))))
             return "Saved toilet differs from the build layout.";
         return null;

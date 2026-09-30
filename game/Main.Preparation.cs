@@ -43,7 +43,7 @@ public partial class Main
         if (_contextPanel is null) return;
         var farm = _selected is { } item && _visualRegistry.TryGetValue(item.StableId, out var farmVisual) && ContextVisualAvailable(farmVisual);
         var person = _selectedAttendeeId is { } id && _attendeeVisuals.TryGetValue(id, out var personVisual) && ContextVisualAvailable(personVisual);
-        var vendor = _selectedImmersionVendor is { } vendorId && _session.CaptureImmersion()?.Vendors.Any(v => v.Id == vendorId) == true &&
+        var vendor = _selectedImmersionVendor is { } vendorId && _session.CaptureVendors().Any(v => v.Id == vendorId) &&
             _immersionVendors.TryGetValue(vendorId, out var vendorVisual) && ContextVisualAvailable(vendorVisual);
         var facility = _selectedMedicalFacility switch
         {

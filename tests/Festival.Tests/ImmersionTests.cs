@@ -42,7 +42,7 @@ public sealed class ImmersionTests
         var s=Open();var id=s.CaptureImmersion()!.People.First().AgentId;
         Assert.IsFalse(s.ImmersionConsumptionEligible(id)); Assert.IsFalse(s.ImmersionConsumptionEligible(ulong.MaxValue));
         Invoke(s,"CompleteImmersionSale",id,ImmersionProduct.SoftDrink);
-        var service=GameSession.ImmersionServiceCell(s.CaptureImmersion()!.Vendors[0]);
+        var service=GameSession.ImmersionServiceCell(s.CaptureVendors()[0]);
         PositionFixture(s,id,new(service.X+2,service.Z),"pose.counter-distance");
         Assert.IsTrue(s.ImmersionHandsAvailable(id)); Assert.IsFalse(s.ImmersionConsumptionEligible(id),"Exactly 1m is still at the counter.");
         Invoke(s,"AdvanceImmersion"); Assert.AreEqual(0,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).Held!.ConsumedTicks);
@@ -154,17 +154,17 @@ public sealed class ImmersionTests
     [TestMethod]
     public void PhysicalArrivalFifoHeterogeneousSaleAndFailureNeverChargeTwice()
     {
-        var s=Open();var m=s.CaptureImmersion()!;var ids=m.People.Where(p=>!p.Abstains&&s.CapturePreparation()!.People.Single(n=>n.AgentId==p.AgentId).Role==ProtectedPersonRole.Guest).Take(2).Select(p=>p.AgentId).ToArray();var first=ids[1];var remote=ids[0];var vendor=m.Vendors.Single(v=>v.Id=="drinks");
+        var s=Open();var m=s.CaptureImmersion()!;var ids=m.People.Where(p=>!p.Abstains&&s.CapturePreparation()!.People.Single(n=>n.AgentId==p.AgentId).Role==ProtectedPersonRole.Guest).Take(2).Select(p=>p.AgentId).ToArray();var first=ids[1];var remote=ids[0];var vendor=s.CaptureVendors().Single(v=>v.Id=="drinks");
         Set(s,m with { People=m.People.Select(p=>p.AgentId==first?p with { VendorId="drinks",Order=ImmersionProduct.SoftDrink }:p.AgentId==remote?p with { VendorId="drinks",Order=ImmersionProduct.Beer }:p with { LastDecisionTick=s.CurrentTick }).ToArray() });
-        PositionFixture(s,first,GameSession.ImmersionServiceCell(vendor),"immersion.approach");Invoke(s,"AdvanceImmersion");Assert.AreEqual(first,s.CaptureImmersion()!.Vendors.Single(v=>v.Id=="drinks").Queue.Single(),"Remote request must not join before physical arrival.");
+        PositionFixture(s,first,GameSession.ImmersionServiceCell(vendor),"immersion.approach");Invoke(s,"AdvanceImmersion");Assert.AreEqual(first,s.CaptureVendors().Single(v=>v.Id=="drinks").Queue.Single(),"Remote request must not join before physical arrival.");
         for(var i=0;i<160;i++)Invoke(s,"AdvanceImmersion");var purchase=s.CaptureImmersion()!.Purchases.Single();Assert.AreEqual(first,purchase.AgentId);Assert.AreEqual(ImmersionProduct.SoftDrink,purchase.Product);Assert.AreEqual(0,s.CaptureImmersion()!.People.Single(p=>p.AgentId==first).Held!.ConsumedTicks,"Counter purchase releases it before any ingestion.");
-        vendor=s.CaptureImmersion()!.Vendors.Single(v=>v.Id=="drinks");PositionFixture(s,remote,GameSession.ImmersionServiceCell(vendor),"immersion.approach");for(var i=0;i<160;i++)Invoke(s,"AdvanceImmersion");Assert.AreEqual(2,s.CaptureImmersion()!.Purchases.Length);Assert.AreEqual(ImmersionProduct.Beer,s.CaptureImmersion()!.Purchases.Last().Product);
+        vendor=s.CaptureVendors().Single(v=>v.Id=="drinks");PositionFixture(s,remote,GameSession.ImmersionServiceCell(vendor),"immersion.approach");for(var i=0;i<160;i++)Invoke(s,"AdvanceImmersion");Assert.AreEqual(2,s.CaptureImmersion()!.Purchases.Length);Assert.AreEqual(ImmersionProduct.Beer,s.CaptureImmersion()!.Purchases.Last().Product);
         var stock=s.CaptureImmersion()!.BeerStock;for(var i=0;i<160;i++)Invoke(s,"AdvanceImmersion");Assert.AreEqual(stock,s.CaptureImmersion()!.BeerStock);Assert.AreEqual(2,s.CaptureImmersion()!.Purchases.Length);Restore(s);
     }
     [TestMethod]
     public void NewDefaultVendorsFormTentFrontRowOnEastGrassWithAlignedEntrances()
     {
-        var s=BuildSession.Planned(20260926);var vendors=s.CaptureImmersion()!.Vendors;
+        var s=BuildSession.Planned(20260926);var vendors=s.CaptureVendors();
         Assert.AreEqual(new GridCell(144,119),vendors.Single(v=>v.Id=="food").Cell);Assert.AreEqual(new GridCell(160,120),vendors.Single(v=>v.Id=="drinks").Cell);
         Assert.IsTrue(vendors.All(v=>v.QuarterTurns==0));Assert.IsTrue(vendors.SelectMany(GameSession.ImmersionFootprint).All(c=>c.X>=137));
         Assert.AreEqual(16,vendors.Single(v=>v.Id=="drinks").Cell.X-vendors.Single(v=>v.Id=="food").Cell.X);
@@ -174,11 +174,11 @@ public sealed class ImmersionTests
     [TestMethod]
     public void QueuedHeavyBeerRefusalCancelsWithoutCashStockOrReceipt()
     {
-        var s=Open();var m=s.CaptureImmersion()!;var p=m.People.First(p=>!p.Abstains&&s.CapturePreparation()!.People.Single(n=>n.AgentId==p.AgentId).Role==ProtectedPersonRole.Guest);var vendor=m.Vendors.Single(v=>v.Id=="drinks");
+        var s=Open();var m=s.CaptureImmersion()!;var p=m.People.First(p=>!p.Abstains&&s.CapturePreparation()!.People.Single(n=>n.AgentId==p.AgentId).Role==ProtectedPersonRole.Guest);var vendor=s.CaptureVendors().Single(v=>v.Id=="drinks");
         PositionFixture(s,p.AgentId,GameSession.ImmersionServiceCell(vendor),"immersion.queue");
-        Set(s,m with { People=m.People.Select(n=>n.AgentId==p.AgentId?n with { VendorId="drinks",Order=ImmersionProduct.Beer,Intoxication=7000,PendingDose=20 }:n).ToArray(),Vendors=m.Vendors.Select(v=>v.Id=="drinks"?v with { Queue=[p.AgentId],OwnerId=p.AgentId,ServiceTicks=1 }:v).ToArray() });
+        BuildSession.SetVendor(s,vendor with { Queue=[p.AgentId],OwnerId=p.AgentId,ServiceTicks=1 });Set(s,m with { People=m.People.Select(n=>n.AgentId==p.AgentId?n with { VendorId="drinks",Order=ImmersionProduct.Beer,Intoxication=7000,PendingDose=20 }:n).ToArray() });
         var cash=s.CaptureSnapshot().Wallets.Single(w=>w.OwnerId.Value==p.AgentId).CashPennies;Invoke(s,"AdvanceImmersion");
-        Assert.AreEqual(32,s.CaptureImmersion()!.BeerStock);Assert.AreEqual(0,s.CaptureImmersion()!.Purchases.Length);Assert.AreEqual(cash,s.CaptureSnapshot().Wallets.Single(w=>w.OwnerId.Value==p.AgentId).CashPennies);Assert.IsNull(s.CaptureImmersion()!.People.Single(n=>n.AgentId==p.AgentId).Held);Assert.IsNull(s.CaptureImmersion()!.Vendors.Single(v=>v.Id=="drinks").OwnerId);Restore(s);
+        Assert.AreEqual(32,s.CaptureImmersion()!.BeerStock);Assert.AreEqual(0,s.CaptureImmersion()!.Purchases.Length);Assert.AreEqual(cash,s.CaptureSnapshot().Wallets.Single(w=>w.OwnerId.Value==p.AgentId).CashPennies);Assert.IsNull(s.CaptureImmersion()!.People.Single(n=>n.AgentId==p.AgentId).Held);Assert.IsNull(s.CaptureVendors().Single(v=>v.Id=="drinks").OwnerId);Restore(s);
     }
     [TestMethod]
     public void MaintenanceOwnershipSuspendsHeldItemAndPreventsShoppingRouteTheft()

@@ -94,7 +94,7 @@ public sealed partial class GameSession
         session.MedicalView = new(5, true, medicId, atRisk, needs,
             MedicalStage.Clear, MedicalResponseStage.None, null, -1, -1, -1, -1, "No response",
             [new("medical:hot", 0, "Fixed Hot scenario; free water and a baseline medic are available before opening.")]);
-        session._facilities = new FacilitiesSnapshot(1, [OpeningMainTap()]);
+        session._facilities = new FacilitiesSnapshot(1, [OpeningMainTap()], [], []);
         session._preparation = session._preparation! with { PrimaryWaterGeometryVersion = 1 };
     }
 
@@ -143,7 +143,8 @@ public sealed partial class GameSession
     private static void SetUpFoodAndDrink(GameSession session, ulong seed)
     {
         session.ImmersionView = NewImmersion(seed, session.PreparationView!.People);
-        session._immersion=session._immersion! with { Vendors=session._immersion.Vendors.Select(NewLooseVendor).ToArray() };
+        session.SetVendors(OpeningVendors().Select(NewLooseVendor).ToArray());
+        session.SetToilets([OpeningMainToilet()]);
         session.SynchronizeImmersionPeople();
         foreach (var person in session.PeopleIn(PersonView.Consumption)) session._wallets[new(person.Id)].CashPennies = person.OpeningBudgetPennies;
     }

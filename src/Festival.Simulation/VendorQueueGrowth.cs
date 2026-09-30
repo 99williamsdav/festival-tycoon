@@ -8,11 +8,11 @@ public sealed partial class GameSession
     // Legacy vendors without saved geometry size their queue from current shoppers.
     private GridCell[] VendorQueueCells(ImmersionVendor vendor)=>vendor.QueueCells ?? VendorQueueCells(vendor,ImmersionView!);
     /// <summary>The food and drink vendors, in their stable order.</summary>
-    public IReadOnlyList<ImmersionVendor> CaptureVendors() => _immersion?.Vendors ?? [];
-    public IReadOnlyList<GridCell> CaptureImmersionQueueCells(string vendorId)=>_immersion is null?[]:VendorQueueCells(_immersion.Vendors.Single(vendor=>vendor.Id==vendorId)).ToArray();
-    private GridCell[] ImmersionQueueCorridor(string? except=null)=>_immersion is null?[]:_immersion.Vendors.Where(vendor=>vendor.Id!=except)
+    public IReadOnlyList<ImmersionVendor> CaptureVendors() => Vendors;
+    public IReadOnlyList<GridCell> CaptureImmersionQueueCells(string vendorId)=>_immersion is null?[]:VendorQueueCells(Vendors.Single(vendor=>vendor.Id==vendorId)).ToArray();
+    private GridCell[] ImmersionQueueCorridor(string? except=null)=>_immersion is null?[]:Vendors.Where(vendor=>vendor.Id!=except)
         .SelectMany(vendor=>LooseQueueGeometry.Corridor(VendorQueueCells(vendor)))
-        .Concat(EffectiveToilets(_immersion).SelectMany(ToiletReservedCells)).ToArray();
+        .Concat(EffectiveToilets(_facilities).SelectMany(ToiletReservedCells)).ToArray();
     private static bool QueueGroundAllowed(GridCell cell,PreparationSnapshot? prep)=>!(cell.X is >=90 and <=101 && cell.Z is >=139 and <=160) &&
         !(Math.Abs(cell.X-ResponsePost(prep,ResponseRole.Medic).Cell.X)<=3 && Math.Abs(cell.Z-ResponsePost(prep,ResponseRole.Medic).Cell.Z)<=3) &&
         (prep?.StewardPostPlacement is null || !(Math.Abs(cell.X-prep.StewardPostPlacement.Cell.X)<=2 && Math.Abs(cell.Z-prep.StewardPostPlacement.Cell.Z)<=2)) &&
@@ -23,7 +23,7 @@ public sealed partial class GameSession
     private void GrowImmersionQueues()
     {
         if(_immersion is null)return;
-        foreach(var vendor in _immersion.Vendors.ToArray())
+        foreach(var vendor in Vendors.ToArray())
         {
             if(vendor.QueueCells is null)continue; // exact legacy occupied and approaching geometry
             var wanted=Math.Min(10,PeopleIn(PersonView.Consumption).Count(person=>person.VendorId==vendor.Id)+1);

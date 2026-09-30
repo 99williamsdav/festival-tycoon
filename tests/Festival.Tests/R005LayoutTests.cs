@@ -69,7 +69,7 @@ public sealed class R005LayoutTests
         var targets = new[] { GameSession.MedicalMedicCell, GameSession.MedicalRestCell, GameSession.DisorderSecurityBaseCell,
             GameSession.MedicalExitCell, new GridCell(104,152), TraversalGrid.WorldToCell(19000,-10500), TraversalGrid.WorldToCell(0,-15000) }
             .Concat(s.CaptureWaterPoints().SelectMany(p => s.CaptureWaterQueueCells(p.Id)))
-            .Concat(s.CaptureImmersion()!.Vendors.Select(v => GameSession.ImmersionQueueCell(v,0)));
+            .Concat(s.CaptureVendors().Select(v => GameSession.ImmersionQueueCell(v,0)));
         foreach(var cell in targets) Assert.IsTrue(DeterministicPathfinder.FindPath(grid,TraversalGrid.WorldToCell(0,30000),cell).Found,$"Route to {cell}");
     }
 

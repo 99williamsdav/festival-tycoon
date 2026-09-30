@@ -48,14 +48,11 @@ public sealed record ToiletFacility(string Id, GridCell Cell, int QuarterTurns, 
 
 public sealed partial class GameSession
 {
-    private static IEnumerable<ToiletFacility> EffectiveToilets(ImmersionSnapshot? immersion) =>
-        (immersion?.Toilet is { } main ? new[] { main } : []).Concat(immersion?.ExtraToilets ?? []);
-    private ToiletFacility GetToilet(string id) => EffectiveToilets(_immersion).Single(item => item.Id == id);
-    private void SetToilet(ToiletFacility toilet) => _immersion = toilet.Id == "toilet.main"
-        ? _immersion! with { Toilet = toilet }
-        : _immersion! with { ExtraToilets = (_immersion.ExtraToilets ?? []).Select(item => item.Id == toilet.Id ? toilet : item).ToArray() };
+    private static IEnumerable<ToiletFacility> EffectiveToilets(FacilitiesSnapshot? facilities) => facilities?.Toilets ?? [];
+    private ToiletFacility GetToilet(string id) => Toilets.Single(item => item.Id == id);
+    private void SetToilet(ToiletFacility toilet) => SetToilets(Toilets.Select(item => item.Id == toilet.Id ? toilet : item).ToArray());
     public ToiletFacility? CaptureToilet() => CaptureToilets().FirstOrDefault();
-    public IReadOnlyList<ToiletFacility> CaptureToilets() => EffectiveToilets(_immersion)
+    public IReadOnlyList<ToiletFacility> CaptureToilets() => EffectiveToilets(_facilities)
         .Select(toilet => toilet with { Queue = toilet.Queue.ToArray() }).ToArray();
 
     public static GridCell ToiletInsideCell(ToiletFacility toilet) => toilet.Cell;
@@ -106,7 +103,7 @@ public sealed partial class GameSession
     {
         if (_immersion is null || _traversalGrid is null) return;
         var terrain = _traversalGrid.Overrides.ToDictionary(pair => pair.Key, pair => pair.Value);
-        foreach (var cell in EffectiveToilets(_immersion).SelectMany(ToiletSolidCells)) terrain[cell] = new(cell, GroundSurface.Grass, false);
+        foreach (var cell in EffectiveToilets(_facilities).SelectMany(ToiletSolidCells)) terrain[cell] = new(cell, GroundSurface.Grass, false);
         _traversalGrid = new TraversalGrid(terrain.Values);
     }
 
@@ -128,7 +125,7 @@ public sealed partial class GameSession
     {
         if (_immersion is null || _preparation is null || !MedicalOperationsActive) return;
         ReassessToiletSeekers();
-        foreach (var facility in EffectiveToilets(_immersion).ToArray())
+        foreach (var facility in EffectiveToilets(_facilities).ToArray())
             AdvanceSingleToilet(GetToilet(facility.Id));
         ApplyToiletSmell();
     }
@@ -172,7 +169,7 @@ public sealed partial class GameSession
 
     private ToiletFacility? BestToiletFor(ulong agentId, ToiletVisitKind kind)
     {
-        var facilities = EffectiveToilets(_immersion).ToArray();
+        var facilities = EffectiveToilets(_facilities).ToArray();
         var decision = QueuedServiceChoice.Choose(agentId, null,
             facilities.Select(toilet => ToiletChoiceCandidate(agentId, kind, toilet)).ToArray());
         return decision is null ? null : facilities.Single(toilet => toilet.Id == decision.Id);
@@ -194,7 +191,7 @@ public sealed partial class GameSession
                 continue;
             }
             var decision = QueuedServiceChoice.Choose(person.Id, current.Id,
-                EffectiveToilets(_immersion).Select(toilet => ToiletChoiceCandidate(person.Id, kind, toilet)).ToArray());
+                EffectiveToilets(_facilities).Select(toilet => ToiletChoiceCandidate(person.Id, kind, toilet)).ToArray());
             SetConsumption(person with { LastToiletChoiceReviewTick = CurrentTick });
             if (decision is not { Switched: true }) continue;
             var wasQueued = current.Queue.Contains(person.Id);
@@ -359,7 +356,7 @@ public sealed partial class GameSession
     private void ApplyToiletSmell()
     {
         if (CurrentTick % 80 != 0 || _immersion is null || _preparation?.Status != PreparationStatus.Running ||
-            !EffectiveToilets(_immersion).Any(toilet => toilet.UsedMillilitres * 1_000 / toilet.CapacityMillilitres > ToiletRules.SmellStartsPermille)) return;
+            !EffectiveToilets(_facilities).Any(toilet => toilet.UsedMillilitres * 1_000 / toilet.CapacityMillilitres > ToiletRules.SmellStartsPermille)) return;
         foreach (var person in PeopleIn(PersonView.Roster).Select(person =>
         {
             if (person.Role != ProtectedPersonRole.Guest || !person.Admitted || person.Departed ||
@@ -374,7 +371,7 @@ public sealed partial class GameSession
     {
         if (_immersion is null || !_navigationAgents.TryGetValue(new(agentId), out var nav)) return 0;
         return Math.Min(ToiletRules.SmellMaximumPenaltyPerSecond,
-            EffectiveToilets(_immersion).Sum(toilet => ToiletSmellPenaltyAt(toilet, nav)));
+            EffectiveToilets(_facilities).Sum(toilet => ToiletSmellPenaltyAt(toilet, nav)));
     }
 
     private static int ToiletSmellPenaltyAt(ToiletFacility toilet, NavigationAgentState nav)
@@ -393,10 +390,10 @@ public sealed partial class GameSession
         return strength * (ToiletRules.SmellRadiusMillimetres - distance) / ToiletRules.SmellRadiusMillimetres;
     }
 
-    private static string? ValidatePersistedToilets(SessionPersistenceSnapshot snapshot, ImmersionSnapshot immersion, GameSession geometry)
+    private static string? ValidatePersistedToilets(SessionPersistenceSnapshot snapshot, ImmersionSnapshot immersion, FacilitiesSnapshot facilities, GameSession geometry)
     {
-        var toilets = EffectiveToilets(immersion).ToArray();
-        if (immersion.ExtraToilets?.Any(item => item is null) == true ||
+        var toilets = EffectiveToilets(facilities).ToArray();
+        if (toilets.Any(item => item is null) ||
             toilets.Select(item => item.Id).Distinct(StringComparer.Ordinal).Count() != toilets.Length ||
             (!toilets.Select(item => item.Id).Order(StringComparer.Ordinal).SequenceEqual(
                 snapshot.Preparation!.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet)
