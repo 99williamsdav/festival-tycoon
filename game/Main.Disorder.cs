@@ -207,12 +207,13 @@ public partial class Main
             _securityPostWorkerButton.Disabled = !workerAvailable;
         }
         var position = _session.CaptureSnapshot().NavigationAgents.SingleOrDefault(item => item.Id.Value == d.SecurityId);
-        var target = d.ResponseTargetId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
+        var security = d.Stewards[0];
+        var target = security.TargetId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
         _inspectorTitle.Text = "Steward post • Jordan Hale";
         _inspectorBody.Text = $"POST  open public approach • gate route clear\n" +
             $"WORKER  {(worker.Admitted ? d.SecurityIncapacitated ? "injured • needs medic" : "on site" : "walking in")}\n" +
             $"POSITION  {(position is null ? "not yet arrived" : $"{position.XMillimetres / 1000m:0.00} m, {position.ZMillimetres / 1000m:0.00} m")}\n" +
-            $"RESPONSE  {d.ResponseStage} • target {target}\n{StewardWording(d.Response)}\n" +
+            $"RESPONSE  {security.Stage} • target {target}\n{StewardWording(security.Description)}\n" +
             "Select an affected guest to dispatch a steward, or ask a named steward/medic to physically escort them to the gate. " +
             (workerAvailable ? "Select Jordan here if he needs medical help. " :
                 "Jordan can be selected after the weekend starts and his physical visual exists. ") +

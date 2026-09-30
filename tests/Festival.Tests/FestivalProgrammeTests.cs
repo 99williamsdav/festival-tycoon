@@ -142,7 +142,7 @@ public sealed class FestivalProgrammeTests
             }
             if (s.PreparedStatus == PreparationStatus.Failed)
             {
-                Console.WriteLine($"Failed at {s.CurrentTick}: {s.CaptureMedical()!.Response}");
+                Console.WriteLine($"Failed at {s.CurrentTick}: {s.CaptureMedical()!.Medics[0].Description}");
                 foreach (var need in s.CaptureMedical()!.Needs) Console.WriteLine($"{need.AgentId} {need.Profile} {need.Thirst}/{need.HeatExposure} {need.Stage} {need.Intent}");
                 break;
             }

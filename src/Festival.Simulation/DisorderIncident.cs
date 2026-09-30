@@ -21,13 +21,13 @@ public sealed record DisorderIncidentOrigin(ulong InitiatorId, ulong OpponentId,
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public FightHandlingAttempt? HandlingAttempt { get; init; }
 }
-public sealed record DisorderSnapshot(int Version, ulong SecurityId, int CalmingSkill, int ConfrontationSkill,
-    bool SecurityIncapacitated, bool WaterClosed, DisorderPerson[] People, SecurityResponseStage ResponseStage,
-    ulong? ResponseTargetId, long ResponseStartedTick, string Response, DisorderEvidence[] Evidence)
+/// <summary>Stewards[0] is the baseline steward; any hired steward follows.</summary>
+public sealed record DisorderSnapshot(int Version, StewardResponse[] Stewards, int CalmingSkill, int ConfrontationSkill,
+    bool WaterClosed, DisorderPerson[] People, DisorderEvidence[] Evidence)
 {
     public DisorderIncidentOrigin[] Incidents { get; init; } = [];
-    public StewardResponse[] ExtraResponses { get; init; } = [];
-    public long ResponseDispatchedTick { get; init; } = -1;
+    [System.Text.Json.Serialization.JsonIgnore] public ulong SecurityId => Stewards[0].WorkerId;
+    [System.Text.Json.Serialization.JsonIgnore] public bool SecurityIncapacitated => Stewards[0].Incapacitated;
 }
 
 public sealed partial class GameSession
@@ -542,7 +542,7 @@ public sealed partial class GameSession
         foreach (var participant in new[] { fighter.Id, opponentId }.Where(id => id != victimId && !IsSteward(id)))
             MutatePerson(participant, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.CooldownUntilTick = CurrentTick + 800; });
         DisorderEvent("disorder:injury", fighter.Id, victimId, fighter.Pressure,
-            $"Generic serious injury to person {victimId}; security {d.ResponseStage}; first aid needed before tick {CurrentTick + DisorderInjuryDeathTicks}.");
+            $"Generic serious injury to person {victimId}; security {d.Stewards[0].Stage}; first aid needed before tick {CurrentTick + DisorderInjuryDeathTicks}.");
     }
 
     private void ApplyDisorderDeath(ulong victimId)
@@ -555,7 +555,7 @@ public sealed partial class GameSession
             $"grievance {origin.Grievance}, pressure {origin.Pressure}/10000, argument tick {origin.ArgumentTick}, " +
             $"fight tick {origin.FightTick}, injury tick {origin.InjuryTick}, " +
             $"{StaffResponseCausalSummary()}.";
-        _disorder = d with { Response = cause };
+        SetStewardResponse(d.Stewards[0] with { Description = cause });
         DisorderEvent("disorder:death", origin.InitiatorId, victimId, origin.Pressure, cause);
         var lifecycle = _lifecycle!;
         var attempt = CurrentAttempt();
@@ -577,17 +577,17 @@ public sealed partial class GameSession
     {
         if (d is null) return null;
         if (s.Preparation is not { } p || s.Medical is not { Version: 6 } medical ||
-            d.Version != 1 || d.People is null || d.Evidence is null || d.Incidents is null ||
+            d.Version != 1 || d.People is null || d.Evidence is null || d.Incidents is null || d.Stewards is not [{ } security, ..] ||
             d.People.Length != p.Tier * 20 ||
             !d.People.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Select(item => item.AgentId)) ||
             !p.People.Any(item => item.AgentId == d.SecurityId && item.Name == "Jordan Hale" && item.Role == ProtectedPersonRole.Staff) ||
             !medical.Needs.Any(item => item.AgentId == d.SecurityId && item.Profile == MedicalNeedProfile.Staff) ||
             d.CalmingSkill is < 3_500 or > 8_000 || d.ConfrontationSkill is < 3_500 or > 8_000 ||
-            !Enum.IsDefined(d.ResponseStage) || string.IsNullOrWhiteSpace(d.Response) ||
-            d.ResponseStartedTick > s.CurrentTick ||
-            d.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting &&
-                (d.ResponseTargetId is null || !d.People.Any(item => item.AgentId == d.ResponseTargetId)) ||
-            d.SecurityIncapacitated != (medical.Needs.Single(item => item.AgentId == d.SecurityId).Stage == MedicalStage.Collapsed) ||
+            !Enum.IsDefined(security.Stage) || string.IsNullOrWhiteSpace(security.Description) ||
+            security.StartedTick > s.CurrentTick ||
+            security.Stage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting &&
+                (security.TargetId is null || !d.People.Any(item => item.AgentId == security.TargetId)) ||
+            security.Incapacitated != (medical.Needs.Single(item => item.AgentId == d.SecurityId).Stage == MedicalStage.Collapsed) ||
             d.WaterClosed && (s.Facilities?.Taps ?? []).Any(point => point.Queue.Length > 0 || point.Overflow.Length > 0 || point.OwnerId is not null) ||
             d.People.Any(item => item is null || item.Temperament is < 2_000 or > 8_000 ||
                 item.QueueToleranceTicks is < 320 or > 1_120 || item.Pressure is < 0 or > 10_000 ||

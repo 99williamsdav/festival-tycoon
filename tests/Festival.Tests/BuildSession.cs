@@ -74,6 +74,10 @@ internal static class BuildSession
     /// <summary>The last guest on the roster: the person the retired at-risk scenario used to single out.</summary>
     public static ulong LastGuest(GameSession s) => s.CapturePreparation()!.People.Last(person => person.Role == ProtectedPersonRole.Guest).AgentId;
 
+    /// <summary>The disorder record with its baseline steward changed.</summary>
+    public static DisorderSnapshot WithSecurity(DisorderSnapshot d, SecurityResponseStage stage, ulong? target) =>
+        d with { Stewards = [d.Stewards[0] with { Stage = stage, TargetId = target }, .. d.Stewards.Skip(1)] };
+
     /// <summary>The standing main water tap.</summary>
     public static WaterPointState MainTap(GameSession s) => s.CaptureWaterPoints().Single(point => point.Id == "water.main");
 

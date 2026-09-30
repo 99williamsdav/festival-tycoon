@@ -9,38 +9,12 @@ public sealed partial class GameSession
     private bool StaffMedicalBoundaryOnNextTick => !IsPaused && MedicalOperationsActive &&
         GetMedicResponses().Any(job => job.Stage == MedicalResponseStage.Travelling && _navigationAgents[new(job.WorkerId)].Action == AgentNavigationAction.Arrived ||
             job.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(job) && CurrentTick + 1 >= job.StartedTick + GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks || IntoxicationCareBoundary(job)));
-    // Reused until the immutable medical record is replaced.
-    private (MedicalSnapshot? Medical, MedicResponse[]? Responses) _medicResponses;
-    public IReadOnlyList<MedicResponse> GetMedicResponses()
-    {
-        if (_medical is not { } m) return [];
-        if (!ReferenceEquals(_medicResponses.Medical, m) || _medicResponses.Responses is null)
-            _medicResponses = (m, new[] { new MedicResponse(m.MedicId, m.ResponseStage, m.ResponsePatientId, m.ResponseStartedTick, m.Response, m.ResponseDispatchedTick) }.Concat(m.ExtraResponses).ToArray());
-        return _medicResponses.Responses;
-    }
-    // Reused until the immutable disorder record is replaced.
-    private (DisorderSnapshot? Disorder, StewardResponse[]? Responses) _stewardResponses;
-    public IReadOnlyList<StewardResponse> GetStewardResponses()
-    {
-        if (_disorder is not { } d) return [];
-        if (!ReferenceEquals(_stewardResponses.Disorder, d) || _stewardResponses.Responses is null)
-            _stewardResponses = (d, new[] { new StewardResponse(d.SecurityId, d.ResponseStage, d.ResponseTargetId, d.ResponseStartedTick, d.SecurityIncapacitated, d.Response, d.ResponseDispatchedTick) }.Concat(d.ExtraResponses).ToArray());
-        return _stewardResponses.Responses;
-    }
-    private void SetMedicResponse(MedicResponse response)
-    {
-        var m = _medical!;
-        _medical = response.WorkerId == m.MedicId ? m with { ResponseStage = response.Stage, ResponsePatientId = response.PatientId,
-            ResponseStartedTick = response.StartedTick, Response = response.Description, ResponseDispatchedTick = response.DispatchedTick } :
-            m with { ExtraResponses = m.ExtraResponses.Select(item => item.WorkerId == response.WorkerId ? response : item).ToArray() };
-    }
-    private void SetStewardResponse(StewardResponse response)
-    {
-        var d = _disorder!;
-        _disorder = response.WorkerId == d.SecurityId ? d with { ResponseStage = response.Stage, ResponseTargetId = response.TargetId,
-            ResponseStartedTick = response.StartedTick, SecurityIncapacitated = response.Incapacitated, Response = response.Description, ResponseDispatchedTick = response.DispatchedTick } :
-            d with { ExtraResponses = d.ExtraResponses.Select(item => item.WorkerId == response.WorkerId ? response : item).ToArray() };
-    }
+    public IReadOnlyList<MedicResponse> GetMedicResponses() => _medical?.Medics ?? [];
+    public IReadOnlyList<StewardResponse> GetStewardResponses() => _disorder?.Stewards ?? [];
+    private void SetMedicResponse(MedicResponse response) => _medical = _medical! with
+        { Medics = _medical.Medics.Select(item => item.WorkerId == response.WorkerId ? response : item).ToArray() };
+    private void SetStewardResponse(StewardResponse response) => _disorder = _disorder! with
+        { Stewards = _disorder.Stewards.Select(item => item.WorkerId == response.WorkerId ? response : item).ToArray() };
     private bool IsSteward(ulong id) => GetStewardResponses().Any(item => item.WorkerId == id);
     private string StaffResponseCausalSummary()
     {
@@ -144,10 +118,10 @@ public sealed partial class GameSession
         PreparationView = p with { StaffProfiles = p.StaffProfiles.Append(profile).Distinct().OrderBy(item => item.AgentId).ToArray(),
             People = PreparationView!.People.Append(new EditionPerson(profile.AgentId, profile.Name, ProtectedPersonRole.Staff, 0)).OrderBy(item => item.AgentId).ToArray() };
         if (role == ResponseRole.Medic)
-            _medical = _medical! with { ExtraResponses = [new(profile.AgentId, MedicalResponseStage.None, null, -1, "Available")] };
+            _medical = _medical! with { Medics = [_medical.Medics[0], new(profile.AgentId, MedicalResponseStage.None, null, -1, "Available")] };
         else
         {
-            _disorder = _disorder! with { ExtraResponses = [new(profile.AgentId, SecurityResponseStage.None, null, -1, false, "Available")] };
+            _disorder = _disorder! with { Stewards = [_disorder.Stewards[0], new(profile.AgentId, SecurityResponseStage.None, null, -1, false, "Available")] };
             MedicalView = MedicalView! with { Needs = MedicalView.Needs.Append(new MedicalNeed(profile.AgentId, 0, 0,
                 MedicalIntent.WatchShow, "Steward on duty", -MedicalDecisionCooldownTicks, null, -1, MedicalNeedProfile.Staff)).OrderBy(item => item.AgentId).ToArray() };
         }
@@ -173,7 +147,7 @@ public sealed partial class GameSession
                 ApplyAgentDestination(new(job.WorkerId), new(StaffDutyCell(job.WorkerId, ResponseRole.Medic), "medical.return-to-tent"));
             if (job.Stage is not (MedicalResponseStage.Travelling or MedicalResponseStage.Treating)) continue;
             var m = _medical!;
-            var positioned = MedicalTreatmentPositionValid(m with { MedicId = job.WorkerId, ResponsePatientId = job.PatientId });
+            var positioned = MedicalTreatmentPositionValid(job.WorkerId, job.PatientId);
             if (!positioned && job.PatientId is { } bedsidePatient && PersonCollapsed(bedsidePatient) && !MedicHasValidBedsideDestination(job.WorkerId,bedsidePatient) && MedicalResponseCell(job.WorkerId,bedsidePatient) is { } bedsideCell &&
                 (_navigationAgents[new(job.WorkerId)].Destination!=bedsideCell || job.Stage==MedicalResponseStage.Treating))
             {
@@ -220,13 +194,13 @@ public sealed partial class GameSession
     {
         if (s.Preparation is not { } p) return null;
         if (s.Medical is { Needs: null }) return "Medical needs required for staff jobs.";
-        var medics = s.Medical is not { } m ? [] : new[] { new MedicResponse(m.MedicId, m.ResponseStage, m.ResponsePatientId, m.ResponseStartedTick, m.Response, m.ResponseDispatchedTick) }.Concat(m.ExtraResponses ?? []).ToArray();
-        var stewards = s.Disorder is not { } d ? [] : new[] { new StewardResponse(d.SecurityId, d.ResponseStage, d.ResponseTargetId, d.ResponseStartedTick, d.SecurityIncapacitated, d.Response, d.ResponseDispatchedTick) }.Concat(d.ExtraResponses ?? []).ToArray();
+        var medics = s.Medical?.Medics ?? [];
+        var stewards = s.Disorder?.Stewards ?? [];
         bool ActiveProfile(StaffProfile profile) => p.AcceptedOffers.Contains(profile.Role == ResponseRole.Medic ? "staff.extra-medic" : "staff.extra-steward");
-        if (s.Medical is { ExtraResponses: null } || s.Disorder is { ExtraResponses: null } ||
-            (s.Medical?.ExtraResponses ?? []).Any(item => item is null) || (s.Disorder?.ExtraResponses ?? []).Any(item => item is null) ||
-            !(s.Medical?.ExtraResponses ?? []).Select(item => item.WorkerId).SequenceEqual(p.StaffProfiles.Where(item => item.Role == ResponseRole.Medic && ActiveProfile(item)).Select(item => item.AgentId)) ||
-            !(s.Disorder?.ExtraResponses ?? []).Select(item => item.WorkerId).SequenceEqual(p.StaffProfiles.Where(item => item.Role == ResponseRole.Steward && ActiveProfile(item)).Select(item => item.AgentId)) ||
+        if (s.Medical is { Medics: null or [] } || s.Disorder is { Stewards: null or [] } ||
+            medics.Any(item => item is null) || stewards.Any(item => item is null) ||
+            !medics.Skip(1).Select(item => item.WorkerId).SequenceEqual(p.StaffProfiles.Where(item => item.Role == ResponseRole.Medic && ActiveProfile(item)).Select(item => item.AgentId)) ||
+            !stewards.Skip(1).Select(item => item.WorkerId).SequenceEqual(p.StaffProfiles.Where(item => item.Role == ResponseRole.Steward && ActiveProfile(item)).Select(item => item.AgentId)) ||
             medics.Any(item => !Enum.IsDefined(item.Stage) || string.IsNullOrWhiteSpace(item.Description) || item.StartedTick < -1 || item.StartedTick > s.CurrentTick ||
                 item.DispatchedTick < -1 || item.DispatchedTick > s.CurrentTick || item.Stage == MedicalResponseStage.Removing && item.WorkerId != s.Medical!.MedicId ||
                 item.PatientId is { } patient && s.Medical?.Needs.Any(need => need.AgentId == patient) != true ||

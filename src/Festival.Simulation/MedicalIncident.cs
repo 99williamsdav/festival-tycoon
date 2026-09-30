@@ -24,14 +24,13 @@ public sealed record WaterPointState(string Id, GridCell Cell, ulong[] Queue, ul
     public int GeometryVersion { get; init; }
     public GridCell[] QueueCells { get; init; } = [];
 }
-public sealed record MedicalSnapshot(int Version, bool IsHot, ulong MedicId, MedicalNeed[] Needs,
-    MedicalResponseStage ResponseStage, ulong? ResponsePatientId, long ResponseStartedTick, string Response, MedicalEvidence[] Evidence)
+/// <summary>Medics[0] is the baseline medic; any hired medic follows.</summary>
+public sealed record MedicalSnapshot(int Version, bool IsHot, MedicResponse[] Medics, MedicalNeed[] Needs, MedicalEvidence[] Evidence)
 {
     /// <summary>A medical death has frozen this edition.</summary>
     public bool Fatal { get; init; }
-    public MedicResponse[] ExtraResponses { get; init; } = [];
-    public long ResponseDispatchedTick { get; init; } = -1;
     public StaffInterventionJob[] StaffInterventions { get; init; } = [];
+    [System.Text.Json.Serialization.JsonIgnore] public ulong MedicId => Medics[0].WorkerId;
 }
 
 public sealed partial class GameSession
@@ -171,8 +170,8 @@ public sealed partial class GameSession
               item.HealthStage == MedicalStage.Distress && CurrentTick + 1 >= item.HealthWarningTick + MedicalCollapseDelayTicks ||
               item.HealthStage == MedicalStage.Collapsed && CurrentTick + 1 >= item.HealthCollapseTick + MedicalCriticalDelayTicks ||
               item.HealthStage == MedicalStage.Critical && CurrentTick + 1 >= item.HealthCollapseTick + MedicalDeathDelayTicks)) ||
-         m.ResponseStage == MedicalResponseStage.Travelling && _navigationAgents[new(m.MedicId)].Action == AgentNavigationAction.Arrived ||
-         m.ResponseStage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(GetMedicResponses().Single(j=>j.WorkerId==m.MedicId)) && CurrentTick + 1 >= m.ResponseStartedTick + MedicalTreatmentTicks || IntoxicationCareBoundary(GetMedicResponses().Single(j=>j.WorkerId==m.MedicId))));
+         m.Medics[0] is var medic && (medic.Stage == MedicalResponseStage.Travelling && _navigationAgents[new(medic.WorkerId)].Action == AgentNavigationAction.Arrived ||
+         medic.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(medic) && CurrentTick + 1 >= medic.StartedTick + MedicalTreatmentTicks || IntoxicationCareBoundary(medic))));
 
 
     private void MedicalEvent(string id, string description) => _medical = _medical! with
@@ -215,10 +214,10 @@ public sealed partial class GameSession
         return null;
     }
 
-    private bool MedicalTreatmentPositionValid(MedicalSnapshot m)
+    private bool MedicalTreatmentPositionValid(ulong medicId, ulong? assignedPatient)
     {
-        var medic = _navigationAgents[new(m.MedicId)];
-        if (m.ResponsePatientId is not { } patientId) return false;
+        var medic = _navigationAgents[new(medicId)];
+        if (assignedPatient is not { } patientId) return false;
         var patient = _navigationAgents[new(patientId)];
         var dx = (long)medic.XMillimetres - patient.XMillimetres;
         var dz = (long)medic.ZMillimetres - patient.ZMillimetres;
@@ -775,9 +774,10 @@ public sealed partial class GameSession
                  nav.DestinationX != WaterApproach(points.Single(point => point.Id == item.WaterPointId)).X ||
                  nav.DestinationZ != WaterApproach(points.Single(point => point.Id == item.WaterPointId)).Z)) ||
             m.Needs.Any(item => item.Intent == MedicalIntent.Drinking && !points.Any(point => point.OwnerId == item.AgentId)) ||
-            m.ResponsePatientId is { } responsePatient && !m.Needs.Any(item => item.AgentId == responsePatient) ||
-            m.ResponseStage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing && m.ResponsePatientId is null ||
-            !Enum.IsDefined(m.ResponseStage) ||
+            m.Medics is not [{ } medic, ..] ||
+            medic.PatientId is { } responsePatient && !m.Needs.Any(item => item.AgentId == responsePatient) ||
+            medic.Stage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing && medic.PatientId is null ||
+            !Enum.IsDefined(medic.Stage) ||
             m.Fatal && (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1) ||
             p.Status == PreparationStatus.Failed && !m.Fatal && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death")
             return "Medical Hot state, queue ownership or causal stage invalid.";

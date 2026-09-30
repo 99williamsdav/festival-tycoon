@@ -109,7 +109,7 @@ public partial class Main : Node
     private bool _selectionRetainedAfterLoad;
     private bool _pressureInputVerified;
     private double _pressureInputLatencyMilliseconds;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v4", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v4");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v5", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v5");
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
@@ -1035,7 +1035,7 @@ private string SaveDirectory => _showcaseDirectory is not null ? Path.Combine(_s
         _resultsCaptureDirectory is not null ? Path.Combine(_resultsCaptureDirectory, "saves") :
         _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") :
         _attendeePoseCaptureDirectory is not null ? Path.Combine(_attendeePoseCaptureDirectory, "saves") :
-        ProjectSettings.GlobalizePath(_session?.CapturePreparation() is not null ? "user://saves/r0-build-v4" : "user://saves");
+        ProjectSettings.GlobalizePath(_session?.CapturePreparation() is not null ? "user://saves/r0-build-v5" : "user://saves");
     private void ManualSave()
     {
         var result = SaveFileAdapter.SaveSlot(SaveDirectory, "manual-foundation", new SaveWriteRequest(_session, _saveCompatibility, "manual", DateTimeOffset.UtcNow));

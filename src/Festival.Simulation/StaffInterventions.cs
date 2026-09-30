@@ -207,8 +207,8 @@ public sealed partial class GameSession
         if (m.StaffInterventions is null || m.StaffInterventions.Any(job => job is null) || snapshot.Preparation is not { } p)
             return "Staff intervention collection missing.";
         var jobs = m.StaffInterventions;
-        var medicJobs = new[] { new MedicResponse(m.MedicId, m.ResponseStage, m.ResponsePatientId, m.ResponseStartedTick, m.Response, m.ResponseDispatchedTick) }.Concat(m.ExtraResponses ?? []).ToArray();
-        var stewardJobs = snapshot.Disorder is not { } d ? [] : new[] { new StewardResponse(d.SecurityId, d.ResponseStage, d.ResponseTargetId, d.ResponseStartedTick, d.SecurityIncapacitated, d.Response, d.ResponseDispatchedTick) }.Concat(d.ExtraResponses ?? []).ToArray();
+        var medicJobs = m.Medics ?? [];
+        var stewardJobs = snapshot.Disorder?.Stewards ?? [];
         ResponseRole? Role(ulong id) => id == m.MedicId ? ResponseRole.Medic : id == snapshot.Disorder?.SecurityId ? ResponseRole.Steward :
             p.StaffProfiles.SingleOrDefault(profile => profile.AgentId == id && p.People.Any(person => person.AgentId == id))?.Role;
         if (jobs.Length > 4 || !jobs.Select(job => job.WorkerId).SequenceEqual(jobs.Select(job => job.WorkerId).Distinct().Order()) ||

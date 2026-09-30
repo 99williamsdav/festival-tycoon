@@ -167,7 +167,7 @@ public sealed class MedicalIncidentTests
                 WarningTick = s.CurrentTick, LastDecisionTick = s.CurrentTick }
             : item).ToArray() });
         Assert.IsTrue(Send(s, new MedicalCommand(performerId, MedicalAction.DispatchMedic)).IsAccepted);
-        Assert.AreEqual(performerId, s.CaptureMedical()!.ResponsePatientId);
+        Assert.AreEqual(performerId, s.CaptureMedical()!.Medics[0].PatientId);
         s = Restored(s);
         while (s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage != MedicalStage.Treated &&
                !s.CaptureMedical()!.Fatal && s.CurrentTick < 8_000)
@@ -176,7 +176,7 @@ public sealed class MedicalIncidentTests
         var medic = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == medicId);
         var performer = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == performerId);
         Assert.AreEqual(MedicalStage.Treated, response.Needs.Single(item => item.AgentId == performerId).Stage,
-            $"tick={s.CurrentTick} response={response.ResponseStage} medic={medic.Action}/{medic.Destination} " +
+            $"tick={s.CurrentTick} response={response.Medics[0].Stage} medic={medic.Action}/{medic.Destination} " +
             $"at=({medic.XMillimetres},{medic.ZMillimetres}) performer={performer.Action}/{performer.Destination} " +
             $"at=({performer.XMillimetres},{performer.ZMillimetres}) evidence=" +
             string.Join(';', response.Evidence.Where(item => item.Id.Contains("dispatch") ||
@@ -213,8 +213,8 @@ public sealed class MedicalIncidentTests
                 : item).ToArray() });
         Assert.IsTrue(Send(s, new MedicalCommand(performerId, MedicalAction.DispatchMedic)).IsAccepted);
         s.AdvanceWithoutSnapshot(1);
-        Assert.AreEqual(performerId, s.CaptureMedical()!.ResponsePatientId);
-        Assert.IsTrue(s.CaptureMedical()!.ResponseStage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating);
+        Assert.AreEqual(performerId, s.CaptureMedical()!.Medics[0].PatientId);
+        Assert.IsTrue(s.CaptureMedical()!.Medics[0].Stage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating);
         s = Restored(s);
         while (s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage != MedicalStage.Treated && s.CurrentTick < 8_000)
             s.AdvanceWithoutSnapshot(1);

@@ -102,7 +102,7 @@ public sealed class StaffAutonomyTests
     {
         var (s, a, b) = FightFixture(true); s.AdvanceWithoutSnapshot(1);
         var d = s.CaptureDisorder()!;
-        Set(s, "DisorderView", d with { ResponseStage = SecurityResponseStage.Completed, ResponseTargetId = null });
+        Set(s, "DisorderView", BuildSession.WithSecurity(d, SecurityResponseStage.Completed, null));
         Assert.IsNull(s.CaptureDisorder()!.Incidents.Single().HandlingAttempt);
         Accept(s, new DisorderCommand(DisorderAction.DispatchSecurity, a));
         for (var tick = 0; tick < 400 && s.CaptureDisorder()!.Incidents.Single().HandlingAttempt?.Outcome != FightHandlingOutcome.Succeeded; tick++) s.AdvanceWithoutSnapshot(1);

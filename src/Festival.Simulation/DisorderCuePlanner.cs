@@ -7,7 +7,7 @@ public sealed record DisorderPersonCue(ulong AgentId, string Text, DisorderCueKi
 
 public sealed class DisorderCuePlanner
 {
-    private static bool IsSteward(DisorderSnapshot d, ulong id) => id == d.SecurityId || d.ExtraResponses.Any(item => item.WorkerId == id);
+    private static bool IsSteward(DisorderSnapshot d, ulong id) => d.Stewards.Any(item => item.WorkerId == id);
     public const int ShoutDurationTicks = 200;
     public const int ShoutSpacingTicks = 120;
     public const int PersonCooldownTicks = 640;
@@ -33,10 +33,7 @@ public sealed class DisorderCuePlanner
                 item.OpponentId == person.AgentId) ? otherId : null;
         }
         if (person.Stage != DisorderStage.Argument) return null;
-        if (otherId == disorder.SecurityId)
-            return !disorder.SecurityIncapacitated && disorder.ResponseStage == SecurityResponseStage.Confronting &&
-                disorder.ResponseTargetId == person.AgentId ? otherId : null;
-        if (disorder.ExtraResponses.SingleOrDefault(item => item.WorkerId == otherId) is { } response)
+        if (disorder.Stewards.SingleOrDefault(item => item.WorkerId == otherId) is { } response)
             return !response.Incapacitated && response.Stage == SecurityResponseStage.Confronting && response.TargetId == person.AgentId ? otherId : null;
         // Guest arguments have no assigned pair before a fight; reciprocal IDs
         // here can only be history retained after an earlier confrontation.

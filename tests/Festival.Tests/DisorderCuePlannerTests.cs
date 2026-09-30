@@ -102,7 +102,7 @@ public sealed class DisorderCuePlannerTests
         Assert.AreEqual(b, planner.Observe(fight, urgent, 902).Single().AgentId,
             "An urgent medical cue owns the injured participant's overhead label.");
 
-        var failedCalming = baseline with { ResponseStage = SecurityResponseStage.Confronting, ResponseTargetId = a,
+        var failedCalming = BuildSession.WithSecurity(baseline, SecurityResponseStage.Confronting, a) with {
             People = baseline.People.Select(item => item.AgentId == a
             ? item with { Stage = DisorderStage.Argument, OpponentId = baseline.SecurityId, StageTick = 1_000 }
             : item).ToArray() };
@@ -147,10 +147,8 @@ public sealed class DisorderCuePlannerTests
     {
         var (baseline, medical) = Baseline();
         var id = baseline.People[0].AgentId;
-        var active = baseline with
+        var active = BuildSession.WithSecurity(baseline, SecurityResponseStage.Confronting, id) with
         {
-            ResponseStage = SecurityResponseStage.Confronting,
-            ResponseTargetId = id,
             People = baseline.People.Select(item => item.AgentId == id
                 ? item with { Stage = DisorderStage.Argument, OpponentId = baseline.SecurityId,
                     Grievance = DisorderGrievance.MusicCutoff, StageTick = 100 }
@@ -164,10 +162,8 @@ public sealed class DisorderCuePlannerTests
         StringAssert.Contains(DisorderCuePlanner.CurrentCounterpartInspectorLine(active, person,
             _ => "Jordan Hale", _ => "-6.8, 27.3 m"), "Jordan Hale");
 
-        var resolved = active with
+        var resolved = BuildSession.WithSecurity(active, SecurityResponseStage.Completed, null) with
         {
-            ResponseStage = SecurityResponseStage.Completed,
-            ResponseTargetId = null,
             People = active.People.Select(item => item.AgentId == id
                 ? item with { Stage = DisorderStage.Resolved, StageTick = 200, Pressure = 0 }
                 : item).ToArray()

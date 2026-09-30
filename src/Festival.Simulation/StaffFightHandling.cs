@@ -150,8 +150,7 @@ public sealed partial class GameSession
 
     private static string? ValidatePersistedFightHandling(DisorderSnapshot disorder, SessionPersistenceSnapshot snapshot)
     {
-        var jobs = new[] { new StewardResponse(disorder.SecurityId, disorder.ResponseStage, disorder.ResponseTargetId, disorder.ResponseStartedTick,
-            disorder.SecurityIncapacitated, disorder.Response, disorder.ResponseDispatchedTick) }.Concat(disorder.ExtraResponses ?? []).ToArray();
+        var jobs = disorder.Stewards ?? [];
         if (jobs.Any(job => job.Stage == SecurityResponseStage.Confronting &&
             disorder.People.SingleOrDefault(person => person.AgentId == job.TargetId) is { Stage: DisorderStage.Fight, OpponentId: { } opponent } target &&
             !jobs.Any(other => other.WorkerId == opponent) && !disorder.Incidents.Any(origin => origin.FightTick == target.StageTick &&

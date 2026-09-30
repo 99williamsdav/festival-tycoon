@@ -97,16 +97,16 @@ public sealed class DisorderIncidentTests
             item.Stage is DisorderStage.Complaint or DisorderStage.Agitated or DisorderStage.Argument);
         var dispatch = Send(session, new DisorderCommand(DisorderAction.DispatchSecurity, target.AgentId));
         Assert.IsTrue(dispatch.IsAccepted, dispatch.Message);
-        Assert.AreEqual(SecurityResponseStage.Travelling, session.CaptureDisorder()!.ResponseStage);
+        Assert.AreEqual(SecurityResponseStage.Travelling, session.CaptureDisorder()!.Stewards[0].Stage);
         Assert.AreEqual("disorder.security-dispatch", session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == session.CaptureDisorder()!.SecurityId).IntentId);
         session = Restored(session);
-        while (session.CaptureDisorder()!.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting &&
+        while (session.CaptureDisorder()!.Stewards[0].Stage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting &&
                session.CurrentTick < 6_000)
             session.AdvanceWithoutSnapshot(1);
         var response = session.CaptureDisorder()!;
-        Console.WriteLine($"security={response.ResponseStage} {response.Response} tick={session.CurrentTick} skills={response.CalmingSkill}/{response.ConfrontationSkill}");
+        Console.WriteLine($"security={response.Stewards[0].Stage} {response.Stewards[0].Description} tick={session.CurrentTick} skills={response.CalmingSkill}/{response.ConfrontationSkill}");
         Assert.IsTrue(response.Evidence.Any(item => item.Id == "security:dispatch"));
-        Assert.IsTrue(response.ResponseStage is SecurityResponseStage.Completed or SecurityResponseStage.Failed);
+        Assert.IsTrue(response.Stewards[0].Stage is SecurityResponseStage.Completed or SecurityResponseStage.Failed);
         Restored(session);
     }
 

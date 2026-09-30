@@ -88,7 +88,7 @@ public sealed partial class GameSession
                 .Select((person, index) => new MedicalNeed(person.AgentId, 6_900 + index * 100, 6_000 + index * 100,
                     MedicalIntent.WatchShow, "Performing; free water and first aid remain available",
                     -MedicalDecisionCooldownTicks, null, -1, MedicalNeedProfile.Performer))).ToArray();
-        session.MedicalView = new(5, true, medicId, needs, MedicalResponseStage.None, null, -1, "No response",
+        session.MedicalView = new(5, true, [new(medicId, MedicalResponseStage.None, null, -1, "No response")], needs,
             [new("medical:hot", 0, "Fixed Hot scenario; free water and a baseline medic are available before opening.")]);
         session._facilities = new FacilitiesSnapshot(1, [OpeningMainTap()], [], []);
     }
@@ -111,9 +111,8 @@ public sealed partial class GameSession
                 320 + (int)(random.NextUInt32() % 801), 0, DisorderGrievance.None, DisorderStage.Calm,
                 -1, -1, -1, -1, -1, null);
         }).ToArray();
-        session.DisorderView = new(1, securityId, 3_500 + (int)(skills.NextUInt32() % 4_501),
-            3_500 + (int)(skills.NextUInt32() % 4_501), false, false, people,
-            SecurityResponseStage.None, null, -1, "Security available", []);
+        session.DisorderView = new(1, [new(securityId, SecurityResponseStage.None, null, -1, false, "Security available")],
+            3_500 + (int)(skills.NextUInt32() % 4_501), 3_500 + (int)(skills.NextUInt32() % 4_501), false, people, []);
     }
 
     /// <summary>Six performers and the three-slot festival programme.</summary>
