@@ -16,7 +16,9 @@ public partial class Main
 {
     // Development capture modes retain their historical per-action fixtures.
     // Ordinary play trades at most 30 unpaused seconds of changes for responsive edits.
-    private bool RelaxedSaveCadence => (OS.GetCmdlineUserArgs().Length == 0 || _saveCadenceCaptureOutput is not null || _playtestCaptureDirectory is not null);
+    // Ordinary launches (no user arguments) and the frame profile use background cadence saves.
+    private bool RelaxedSaveCadence => (OS.GetCmdlineUserArgs().Length == 0 || _saveCadenceCaptureOutput is not null ||
+        _playtestCaptureDirectory is not null || _preparationProfileOutput is not null);
     private long _saveRevision;
     private long _savedRevision;
     private long _savingRevision;

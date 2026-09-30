@@ -1,3 +1,4 @@
+using Festival.Simulation;
 using Godot;
 using System;
 using System.Collections.Generic;
@@ -8,9 +9,38 @@ using System.Text.Json;
 
 namespace Festival.Game;
 
-// Opt-in S0.08 instrumentation only. It changes neither tick rules nor scene content.
+// Opt-in frame profile (--profile-build). It changes neither tick rules nor scene content.
 public partial class Main
 {
+    private int _profileGuests = 20;
+    private int _profileSeconds = 60;
+    private bool _profileSetupDone;
+    private const double ProfileWarmupSeconds = 3;
+
+    /// <summary>
+    /// Plans and opens the default Build edition once, as a player would with the default layout.
+    /// Opening bypasses the start save because a non-standard guest count cannot be saved; cadence
+    /// saves still run (and fail harmlessly) so their cost stays in the frame.
+    /// </summary>
+    private void ProcessBuildProfileSetup()
+    {
+        if (_profileSetupDone) return;
+        _profileSetupDone = true;
+        var perk = _session.CapturePerks()!;
+        foreach (var command in new SessionCommand[] { new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]),
+                     new UseDefaultBuildLayoutCommand(), new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]),
+                     new AcceptPreparationOfferCommand("staff.steward"), new SetPreparationStockCommand(40, 40, 32), new StartPreparedEditionCommand() })
+        {
+            var result = _session.Execute(CampaignEnvelope(command));
+            if (!result.IsAccepted) { GD.PushError($"BUILD_PROFILE_SETUP_FAILED {command.GetType().Name}: {result.Message}"); GetTree().Quit(2); return; }
+        }
+        SyncBuildWorld();
+        ResetLivePerformancePresentation();
+        BuildAttendee(); _foundationClock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
+        _hudWorkspaceOpen = false; _buildDrawerOpen = false; _hudProgrammeOpen = false; ClearSelection();
+        RefreshPreparationHud();
+        _preparationLiveStarted = Stopwatch.GetTimestamp();
+    }
     private string? _preparationProfileOutput;
     private bool _preparationProfileCapture;
     private bool _preparationProfileDeparture;
@@ -30,6 +60,7 @@ public partial class Main
     {
         if (_preparationLiveStarted == 0) return;
         var now = Stopwatch.GetTimestamp();
+        if (Stopwatch.GetElapsedTime(_preparationLiveStarted, now).TotalSeconds < ProfileWarmupSeconds) return;
         if (_profileStarted == 0)
         {
             _profileStarted = _profilePrevious = now;
@@ -53,7 +84,7 @@ public partial class Main
         {
             if (_session.PreparedStatus != Festival.Simulation.PreparationStatus.Finished && elapsed < 660 && !_preparationSaveBlocked) return;
         }
-        else if (elapsed < 30) return;
+        else if (elapsed < _profileSeconds) return;
         static object Stats(IEnumerable<double> values)
         {
             var ordered = values.Order().ToArray();
@@ -62,7 +93,7 @@ public partial class Main
         }
         var result = new
         {
-            diagnostic = "S0.08", capture = _preparationProfileCapture, departure = _preparationProfileDeparture, fullAttempt = _preparationProfileFullAttempt, debug = OS.IsDebugBuild(),
+            diagnostic = "build-frame-profile", guests = _profileGuests, warmupSeconds = ProfileWarmupSeconds, capture = _preparationProfileCapture, departure = _preparationProfileDeparture, fullAttempt = _preparationProfileFullAttempt, debug = OS.IsDebugBuild(),
             godot = Engine.GetVersionInfo()["string"].AsString(), processor = System.Runtime.InteropServices.RuntimeInformation.ProcessArchitecture.ToString(),
             resolution = GetWindow().Size.ToString(), renderer = RenderingServer.GetCurrentRenderingMethod(),
             gpu = RenderingServer.GetVideoAdapterName(), vsync = DisplayServer.WindowGetVsyncMode().ToString(),

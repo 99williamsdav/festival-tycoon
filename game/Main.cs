@@ -161,7 +161,8 @@ public partial class Main : Node
         }
         else
         {
-            _session = _cameraProfileMode == "staff-draft" || _saveCadenceCaptureOutput is not null ? GameSession.CreateBuildCampaign(20260929) :
+            _session = _preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
+                _cameraProfileMode == "staff-draft" || _saveCadenceCaptureOutput is not null ? GameSession.CreateBuildCampaign(20260929) :
                 OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
                 GameSession.CreateBuildCampaign(20260922);
         }
@@ -233,6 +234,7 @@ public partial class Main : Node
         AdvanceFinanceFeedback(delta);
         _urgentAlertDisplay.Advance(delta); RenderUrgentAlerts();
         ProcessPlaytestCapture(delta);
+        if (_preparationProfileOutput is not null) { ProcessBuildProfileSetup(); FinishPreparationProfileFrame(); }
         ProcessAttendeePoseCaptureFrame();
         ProcessGuestArrivalCapture(delta);
         ProcessAccountsCapture(delta);
@@ -807,6 +809,13 @@ public partial class Main : Node
                 Directory.CreateDirectory(Path.GetDirectoryName(_cameraProfileOutput)!);
             }
             else if (args[i] == "--capture-start-splash" && i + 1 < args.Length) _startSplashCapturePath = args[++i];
+            else if (args[i] == "--profile-build" && i + 1 < args.Length)
+            {
+                // --profile-build <output.json> [guests] [seconds]
+                _preparationProfileOutput = args[++i];
+                if (i + 1 < args.Length && int.TryParse(args[i + 1], out var guests)) { _profileGuests = guests; i++; }
+                if (i + 1 < args.Length && int.TryParse(args[i + 1], out var seconds)) { _profileSeconds = seconds; i++; }
+            }
             else if (args[i] == "--benchmark-launch" && i + 3 < args.Length)
             {
                 var agents = int.Parse(args[++i]);
