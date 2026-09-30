@@ -122,6 +122,39 @@ Preparation is **strategy**; the live day is **tactics plus payoff**.
 
 ---
 
+## Part 3 — Tier 1 red herrings
+
+*Idea recorded 30 September 2026 at the user's suggestion.*
+
+### The idea
+
+In Tier 1, some threats look alarming but cannot become critical. Players who give them too much attention get distracted from the real threat. The same threats come back in later tiers, where they *can* escalate, so the first encounter works as an early warning. The player's growing knowledge becomes the progression, which suits the roguelike structure and the farce tone: the generator coughs smoke while the real problem builds quietly at the water tap.
+
+### The main risk: trust
+
+If the game ever seems to lie about danger, players learn to ignore warnings, and a later death feels unfair. That would break the causal-safety contract and Philosophy 2 (consistent, learnable, trustworthy rules). Red herrings must therefore come from **conditions, not scripting**.
+
+### Rules
+
+1. **Same rule, different conditions.** A threat always follows the same rule. The generator chain is always load × condition → fault. In Tier 1, 20 guests and a small rig keep the load too low to go past a scare. In later tiers, a bigger crowd and heavier rig can push it over the edge. The player learns a real rule, not "this one's fake".
+2. **Honest warning levels.** A warning never overstates its rung on the pressure ladder (nuisance → problem → emergency → death). A herring can look dramatic (smoke, flicker, a worried steward) while clearly showing *Problem*, not *Emergency*. The skill being tested is triage: reading the ladder correctly under distraction.
+3. **Explain after the fizzle.** When a herring fades, say why in the Newspaper or debrief. For example: *"Generator overheated briefly. Load was light tonight. With a bigger crowd, this could have been serious."* The early warning then becomes explicit.
+4. **Attention has a real cost.** Under the festival-director model, fussing over a herring means a staff member walking away from their post, and that is how the real threat slips through. The distraction does its damage through the simulation, never through an invented penalty.
+
+### Variation and replay
+
+- Once a player knows which threat is the herring, it stops distracting them. That is acceptable: knowledge is the reward.
+- Weekend contracts and modifiers (Part 1) can shift which threat is real and which is noise, for example a heatwave making water critical while the generator stays safe. Conditions must decide this, never a hidden random roll.
+- Some herrings can be pure nuisances with no fatal version at all, such as a cow in the field or a lost drummer. These carry the comedy.
+
+### Open questions
+
+- Which existing chains (equipment, medical, disorder) make the best Tier 1 herring versus Tier 1 real threat?
+- Should the debrief always explain fizzled threats, or only the first time the player sees each one?
+- How are the escalation thresholds tuned so the Tier 1 cap holds for every valid Tier 1 layout, including extreme ones?
+
+---
+
 ## Review against the design philosophies
 
 | Philosophy | How this proposal serves it | Watch-out |
@@ -129,7 +162,7 @@ Preparation is **strategy**; the live day is **tactics plus payoff**.
 | 1. People, not meters | Trait bands, quirky staff and named guests make individuals the source of variety | Traits must show up in visible behaviour, not hidden modifiers |
 | 2. Fun over realism | Contracts and modifiers are chosen for interesting decisions, not accuracy | Don't let modifiers become paperwork |
 | 3. Organise, don't micromanage | Calls go through staff and crowd-wide levers, never direct control of guests | Too many calls per minute would break this; tune the pacing |
-| 4. Failure creates stories | Named guests and trait-driven chaos produce memorable, attributable failures; farm memory carries consequences forward | Farm scars must not create a death spiral that forces a restart |
+| 4. Failure creates stories | Named guests and trait-driven chaos produce memorable, attributable failures; farm memory carries consequences forward; red herrings foreshadow later threats | Farm scars must not create a death spiral that forces a restart; herrings must never mislabel severity |
 | 5. Depth through interacting systems | Modifiers and traits act on existing needs (thirst, toilets, drink, crush) instead of adding new currencies | Resist adding a new meter for each modifier |
 | 6. Farce, not dread | Pressure ladder, celebrated rescues, comic copy, chaos from excess | Keep death rare; frequent deaths would turn farce into grind |
 
@@ -140,6 +173,7 @@ Preparation is **strategy**; the live day is **tactics plus payoff**.
 3. Target pool sizes for bands, staff and perks for the next playable milestone.
 4. Should farm memory (band memory, contacts book, scarred land) be part of R0.06 rewards, or later?
 5. Should quality (rating) affect which contracts are offered? That would give quality a real role beyond rewards.
+6. Adopt **Tier 1 red herrings** (Part 3), and which chain plays the herring?
 
 ## Suggested first slice (for discussion)
 

@@ -1,8 +1,8 @@
 # Design documentation changelog
 
-## 30 September 2026 — open-top bin direction
+## 30 September 2026 — run variety and live play proposal
 
-Recorded the user's [bin progression decision](../briefs/DECISIONS.md) and [B-020](../briefs/BACKLOG.md): basic open-top bins attract wasps when full; later lidded bins contain smell and avoid wasps. Two new open-top concepts are pending review. The earlier hooded-bin comparison is not production-approved, and no mechanics or models were commissioned in this documentation update. The [design index](../assets/source/DESIGN_INDEX.md) keeps source status and toilet flies distinct.
+Added [RUN_VARIETY_AND_LIVE_PLAY.md](../RUN_VARIETY_AND_LIVE_PLAY.md), a **proposal/discussion** document covering weekend contracts, larger offer pools, weekend modifiers, trait-bearing guests, perk combinations, farm memory, and a "festival director" model for the live day, reviewed against all six philosophies. Nothing in it is approved or authorized; it lists the decisions needed before any brief.
 
 ## 30 September 2026 — sixth philosophy: farce, not dread
 
