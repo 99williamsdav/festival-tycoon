@@ -29,6 +29,18 @@ public sealed class FatalHearingTests
     }
 
     [TestMethod]
+    public void FavourRetryAfterBuyingEquipmentKeepsItAndSaves()
+    {
+        var s = BuildSession.Ready(offers: "equipment.buy");
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        s = Fatal(s);
+        BuildSession.Accept(s, new SpendCouncilFavourCommand());
+        Assert.IsTrue(s.CapturePreparation()!.OwnedEquipment.Length > 0, "Bought equipment survives the retry.");
+        Assert.IsFalse(s.CapturePreparation()!.Plan!.OfferIds.Any(id => id.StartsWith("equipment.")), "The retry plan must not buy it again.");
+        BuildSession.Restored(s);
+    }
+
+    [TestMethod]
     public void DeathFreezesTheEditionAndOpensOneHearing()
     {
         var s = Fatal();

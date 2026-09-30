@@ -423,7 +423,9 @@ public sealed partial class GameSession
             FinishedBeerIds = [], GuestMedicalCollapses = 0, Result = null,
             Rentals = [], WorkContracts = [], StartedTick = 0, StockConsumed = 0,
             People = baseline.PreparationView!.People
-            ,Plan = p.Plan! with { Committed = false }
+            // Bought equipment stays owned; the retry's plan must not offer to buy (or rent) it again.
+            ,Plan = p.Plan! with { Committed = false, OfferIds = p.OwnedEquipment.Length > 0
+                ? p.Plan.OfferIds.Where(id => !id.StartsWith("equipment.", StringComparison.Ordinal)).ToArray() : p.Plan.OfferIds }
         };
         Phase = SessionPhase.OpeningCheck;
         SyncBuildPhysicalLayout();
