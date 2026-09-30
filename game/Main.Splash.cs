@@ -31,9 +31,7 @@ public partial class Main
             SyncSaveStatus();
             _foundationPresentation.Reset(_session.CaptureObservation());
             Perks.Reset();
-            _bookingSelected = null; _bookingDurableMessage = "Select a band, then activate a set. Dragging also works.";
-            _bookingSort = BookingSortField.Price; _bookingDescending = false; _bookingGenre = null;
-            _bookingGenreFilter?.Select(0);
+            Booking.Reset();
             _hudWorkspaceOpen = true; _hudProgrammeOpen = false;
             _preparationMessage = "Choose three different acts and hire a sound engineer. Equipment and stock are optional.";
             ResetFinanceFeedback(); ResetLivePerformancePresentation();

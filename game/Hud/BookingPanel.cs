@@ -1,13 +1,34 @@
 using Festival.Simulation;
 using Godot;
 using System;
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Festival.Game;
 
-public partial class Main
+/// <summary>
+/// The Programme page: the sortable, filterable band table and the Trailer Stage lane with three sets.
+/// Bands are booked by selecting then activating a set, or by dragging; every edit is previewed
+/// against the session first. <c>setStatus</c> shows the booking message in the HUD status line.
+/// </summary>
+internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Action<string> _setStatus)
 {
+    private VBoxContainer? _root;
+    public VBoxContainer? Root => _root;
+    public bool IsBuilt => _bookingLane is not null;
+    /// <summary>Sets filled and lineup cost, for the Start button's explanation.</summary>
+    public string Summary { get; private set; } = "";
+    /// <summary>The latest booking outcome to show while the Programme page is open.</summary>
+    public string DurableMessage => _bookingDurableMessage;
+
+    /// <summary>Forgets the previous campaign's selection, sort and filter.</summary>
+    public void Reset()
+    {
+        _bookingSelected = null; _bookingDurableMessage = "Select a band, then activate a set. Dragging also works.";
+        _bookingSort = BookingSortField.Price; _bookingDescending = false; _bookingGenre = null;
+        _bookingGenreFilter?.Select(0);
+    }
+
     private Control? _bookingLane;
     private readonly Dictionary<string, BookingDragButton> _bookingCards = [];
     private readonly Dictionary<string, (Label Name, Label Detail)> _bookingRowCopy = [];
@@ -25,22 +46,21 @@ public partial class Main
     private readonly BookingDragButton[] _bookingSlots = new BookingDragButton[3];
     private readonly Button[] _bookingRemove = new Button[3];
     private readonly Label[] _bookingHints = new Label[3];
-    private Label? _bookingStatus;
     private string? _bookingSelected;
     private string _bookingDurableMessage = "Select a band, then activate a set. Dragging also works.";
     private bool _bookingLayoutPending;
-    private async void ScheduleBookingLayout()
+    public async void ScheduleLayout()
     {
         if (_bookingLayoutPending || _bookingLane is null) return;
         _bookingLayoutPending = true;
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
-        await ToSignal(GetTree(), SceneTree.SignalName.ProcessFrame);
+        await _hud.Viewport.ToSignal(_hud.Viewport.GetTree(), SceneTree.SignalName.ProcessFrame);
+        await _hud.Viewport.ToSignal(_hud.Viewport.GetTree(), SceneTree.SignalName.ProcessFrame);
         _bookingLayoutPending = false;
-        if (!GetViewport().GuiIsDragging()) LayoutOwnedPerkWorkspace();
+        if (!_hud.Viewport.GuiIsDragging()) _layoutWorkspace();
     }
-    private string[] BookingIds => _session.CapturePreparationPlan()?.ActIds is { Length: 3 } plan ? plan :
-        _session.CaptureProgramme()?.ActIds is { Length: 3 } booked ? booked : ["", "", ""];
-    private bool BookingLocked => _session.PreparedStatus != PreparationStatus.Preparing;
+    private string[] BookingIds => _hud.Session.CapturePreparationPlan()?.ActIds is { Length: 3 } plan ? plan :
+        _hud.Session.CaptureProgramme()?.ActIds is { Length: 3 } booked ? booked : ["", "", ""];
+    private bool BookingLocked => _hud.Session.PreparedStatus != PreparationStatus.Preparing;
     private static string BookingTime(int ticks) => $"{ticks / 80 / 60:00}:{ticks / 80 % 60:00}";
     private Variant BookingPayload(string id)
     {
@@ -68,28 +88,28 @@ public partial class Main
     private void SelectBookingBand(string id)
     {
         if (BookingLocked) return;
-        _bookingSelected = id; _bookingDurableMessage = $"Selected {_session.GetFestivalActs().Single(a => a.Id == id).Name}. Choose a set; Escape cancels.";
-        RefreshBookingControls();
+        _bookingSelected = id; _bookingDurableMessage = $"Selected {_hud.Session.GetFestivalActs().Single(a => a.Id == id).Name}. Choose a set; Escape cancels.";
+        Refresh();
     }
     private bool PreviewBookingDrop(int slot, Variant payload)
     {
         if (!ReadBookingPayload(payload, out var id, out var source)) return false;
-        var preview = _session.PreviewLineupEdit(id, source, slot);
+        var preview = _hud.Session.PreviewLineupEdit(id, source, slot);
         _bookingHints[slot].Text = preview.Message;
         _bookingSlots[slot].AddThemeStyleboxOverride("normal", HudStyle(new Color(preview.IsValid ? BookingIds[slot] == "" ? "d3e8df" : "e5d5aa" : "eee2be"), 7));
         return preview.IsValid;
     }
     private void CommitBookingDrop(int slot, Variant payload, bool remove = false)
     {
-        if (!ReadBookingPayload(payload, out var id, out var source)) { _bookingDurableMessage = "Invalid band payload; lineup retained."; RefreshBookingControls(); return; }
-        var preview = _session.PreviewLineupEdit(id, source, slot, remove);
-        if (!preview.IsValid || preview.IsNoOp) { _bookingDurableMessage = preview.Message; RefreshBookingControls(); return; }
-        var priorHash = _session.CaptureSnapshot().AuthoritativeHash;
-        CommitEquipmentAction(new SetProgrammeCommand(preview.ActIds));
-        var changed = _session.CaptureSnapshot().AuthoritativeHash != priorHash;
-        _bookingDurableMessage = changed ? preview.Message + " · Unpaid plan updated; next timed save pending." : _preparationMessage;
+        if (!ReadBookingPayload(payload, out var id, out var source)) { _bookingDurableMessage = "Invalid band payload; lineup retained."; Refresh(); return; }
+        var preview = _hud.Session.PreviewLineupEdit(id, source, slot, remove);
+        if (!preview.IsValid || preview.IsNoOp) { _bookingDurableMessage = preview.Message; Refresh(); return; }
+        var priorHash = _hud.Session.CaptureSnapshot().AuthoritativeHash;
+        _hud.Commit(new SetProgrammeCommand(preview.ActIds));
+        var changed = _hud.Session.CaptureSnapshot().AuthoritativeHash != priorHash;
+        _bookingDurableMessage = changed ? preview.Message + " · Unpaid plan updated; next timed save pending." : _hud.Message;
         if (changed) _bookingSelected = null;
-        RefreshBookingControls();
+        Refresh();
     }
     private static float BookingColumnMin(int column) => column switch
     { 0 => 238, 1 => 96, 2 => 68, 3 => 136, 4 => 136, 5 => 150, _ => throw new ArgumentOutOfRangeException(nameof(column)) };
@@ -130,10 +150,10 @@ public partial class Main
         stars.MouseExited += () => { if (!stars.HasFocus() && _bookingMeaning is not null) _bookingMeaning.Text = BookingDefaultMeaning; };
         return stars;
     }
-    private void BuildBookingControls(VBoxContainer parent)
+    public void Build(VBoxContainer parent)
     {
-        _programmeControls = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; parent.AddChild(_programmeControls);
-        var columns = new HBoxContainer(); columns.AddThemeConstantOverride("separation", 24); _programmeControls.AddChild(columns);
+        _root = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; parent.AddChild(_root);
+        var columns = new HBoxContainer(); columns.AddThemeConstantOverride("separation", 24); _root.AddChild(columns);
         var lineup = new VBoxContainer { CustomMinimumSize = new Vector2(360, 0), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         columns.AddChild(lineup);
         var table = new VBoxContainer { CustomMinimumSize = new Vector2(824, 0), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 1.7f };
@@ -144,9 +164,9 @@ public partial class Main
         foreach (var option in new[] { "All genres", "Folk", "Rock", "Pop", "Electronic" }) _bookingGenreFilter.AddItem(option);
         _bookingGenreFilter.ItemSelected += index =>
         {
-            if (GetViewport().GuiIsDragging()) { _bookingGenreFilter.Select(_bookingGenre is { } g ? g + 1 : 0); return; }
+            if (_hud.Viewport.GuiIsDragging()) { _bookingGenreFilter.Select(_bookingGenre is { } g ? g + 1 : 0); return; }
             _bookingGenre = index == 0 ? null : (int)index - 1;
-            RefreshBookingControls();
+            Refresh();
         };
         filters.AddChild(_bookingGenreFilter);
         _bookingTableCount = HudLabel("", 12); filters.AddChild(_bookingTableCount);
@@ -159,11 +179,11 @@ public partial class Main
             var button = new Button { CustomMinimumSize = new Vector2(BookingColumnMin(index), 36), SizeFlagsHorizontal = BookingColumnFlags(index), FocusMode = Control.FocusModeEnum.All };
             button.Pressed += () =>
             {
-                if (GetViewport().GuiIsDragging()) return;
+                if (_hud.Viewport.GuiIsDragging()) return;
                 var field = (BookingSortField)index;
                 if (_bookingSort == field) _bookingDescending = !_bookingDescending;
                 else { _bookingSort = field; _bookingDescending = false; }
-                RefreshBookingControls();
+                Refresh();
             };
             var copy = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore }; copy.AddThemeConstantOverride("separation", 0);
             button.AddChild(copy); copy.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
@@ -177,7 +197,7 @@ public partial class Main
         }
         _bookingTableBody = new VBoxContainer { CustomMinimumSize = new Vector2(824, 252), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         _bookingTableBody.AddThemeConstantOverride("separation", 0); table.AddChild(_bookingTableBody);
-        foreach (var act in _session.GetFestivalActs())
+        foreach (var act in _hud.Session.GetFestivalActs())
         {
             var id = act.Id;
             var card = new BookingDragButton { Text = "", CustomMinimumSize = new Vector2(824, 42), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, FocusMode = Control.FocusModeEnum.All };
@@ -242,27 +262,23 @@ public partial class Main
         }
         _bookingLane.Resized += FitStageLane;
         FitStageLane();
-        _programmeSummary = HudLabel("", 14); _programmeSummary.Visible = false; _programmeControls.AddChild(_programmeSummary);
-        _bookingStatus = HudLabel("", 13); _bookingStatus.Visible = false; _programmeControls.AddChild(_bookingStatus);
-        // Kept for older diagnostic capture routing; not a second user payment control.
-        _programmeBook = ButtonText("SAVE LINEUP", () => CommitEquipmentAction(new SetProgrammeCommand(_programmeDraft))); _programmeBook.Visible = false; _programmeControls.AddChild(_programmeBook);
-        RefreshBookingControls();
+        Refresh();
     }
     private void HandleBookingKey(Control control, InputEvent input, Action activate)
     {
         if (input is not InputEventKey { Pressed: true, Echo: false } key) return;
         if (key.Keycode == Key.Escape)
         {
-            GetViewport().GuiCancelDrag(); _bookingSelected = null; _bookingDurableMessage = "Selection cancelled; lineup retained.";
-            RefreshBookingControls(); control.AcceptEvent();
+            _hud.Viewport.GuiCancelDrag(); _bookingSelected = null; _bookingDurableMessage = "Selection cancelled; lineup retained.";
+            Refresh(); control.AcceptEvent();
         }
         else if (key.Keycode is Key.Enter or Key.Space)
         { if (!BookingLocked) activate(); control.AcceptEvent(); }
     }
-    private void RefreshBookingControls()
+    public void Refresh()
     {
-        if (_bookingLane is null || GetViewport().GuiIsDragging()) return;
-        var acts = _session.GetFestivalActs().ToArray(); var ids = BookingIds; _programmeDraft = ids.ToArray();
+        if (_bookingLane is null || _hud.Viewport.GuiIsDragging()) return;
+        var acts = _hud.Session.GetFestivalActs().ToArray(); var ids = BookingIds;
         var projected = BookingTableView.Project(acts, _bookingGenre, _bookingSort, _bookingDescending);
         for (var index = 0; index < projected.Length; index++) _bookingTableBody!.MoveChild(_bookingCards[projected[index].Id], index);
         _bookingTableCount!.Text = $"{projected.Length} of {acts.Length} bands · {_bookingSort} {(_bookingDescending ? "↓" : "↑")} · select a row, then a set";
@@ -289,12 +305,11 @@ public partial class Main
                 $"{act.Name}\n{FestivalGenreName(act.Genre)} · {BookingTime(GameSession.FestivalSlotStarts[i])}–{BookingTime(GameSession.FestivalSlotEnds[i])}";
             _bookingSlots[i].Disabled = BookingLocked;
             _bookingSlots[i].AddThemeStyleboxOverride("normal", HudStyle(new Color(act is null ? "fff6df" : "d3e8df"), 7));
-            _bookingHints[i].Text = _bookingSelected is { } selectedAct ? _session.PreviewLineupEdit(selectedAct, Array.IndexOf(ids, selectedAct), i).Message : act?.Ego >= 70 && i != 2 ? "Expects to headline · disappointment applies" : "";
+            _bookingHints[i].Text = _bookingSelected is { } selectedAct ? _hud.Session.PreviewLineupEdit(selectedAct, Array.IndexOf(ids, selectedAct), i).Message : act?.Ego >= 70 && i != 2 ? "Expects to headline · disappointment applies" : "";
             _bookingRemove[i].Visible = act is not null; _bookingRemove[i].Disabled = BookingLocked;
             _bookingRemove[i].TooltipText = act is null ? "Empty set" : $"Remove {act.Name} from Set {i + 1}";
         }
-        _programmeSummary!.Text = $"{ids.Count(id => id != "")} of 3 sets filled · Lineup {FestivalCurrency.Format(ids.Where(id => id != "").Sum(id => acts.Single(a => a.Id == id).PricePennies))} · Paid at Start";
-        _bookingStatus!.Text = BookingLocked ? "Programme locked · final paid lineup. Admission reactions apply once." : _bookingDurableMessage;
-        if (!BookingLocked && _hudStatus is not null) _hudStatus.Text = _bookingDurableMessage;
+        Summary = $"{ids.Count(id => id != "")} of 3 sets filled · Lineup {FestivalCurrency.Format(ids.Where(id => id != "").Sum(id => acts.Single(a => a.Id == id).PricePennies))} · Paid at Start";
+        if (!BookingLocked) _setStatus(_bookingDurableMessage);
     }
 }

@@ -72,7 +72,7 @@ public partial class Main
 
         var workspaceWidth = width >= 1600 ? 690 : 650;
         _hudWorkspace = HudPanel(layer, new Vector2(15, 77), new Vector2(workspaceWidth, Math.Min(520, height - 150)));
-        _hudWorkspace.MinimumSizeChanged += ScheduleBookingLayout;
+        _hudWorkspace.MinimumSizeChanged += () => Booking.ScheduleLayout();
         var workspaceBox = new VBoxContainer(); workspaceBox.AddThemeConstantOverride("separation", 12); _hudWorkspace.AddChild(workspaceBox);
         var heading = new HBoxContainer(); workspaceBox.AddChild(heading);
         var title = HudLabel("Prepare the festival", 25); title.AddThemeFontOverride("font", HearingSerif()); heading.AddChild(title);
@@ -89,7 +89,7 @@ public partial class Main
             _hudTabs.AddChild(scroll);
             var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; box.AddThemeConstantOverride("separation", 12); scroll.AddChild(box); _hudPages.Add(name, box);
         }
-        _hudTabs.TabChanged += _ => { RefreshHudWorkspace(); ScheduleBookingLayout(); };
+        _hudTabs.TabChanged += _ => { RefreshHudWorkspace(); Booking.ScheduleLayout(); };
         // A per-tab red border and underline leave the native selected/hover text legible.
         // The title and tooltip convey the same requirement without relying on colour.
         _hudTabs.GetTabBar().Draw += DrawHudPreparationBlockers;
@@ -111,7 +111,7 @@ public partial class Main
         {
             var destination = name; var shortcut = ButtonText(label, () => SelectHudTab(destination)); shortcut.CustomMinimumSize = new Vector2(0, 32); overview.AddChild(shortcut);
         }
-        BuildProgrammeControls(_hudPages["Programme"]);
+        Booking.Build(_hudPages["Programme"]);
         _hudPages["Equipment"].AddChild(HudLabel("Optional sound rig", 21));
         _hudPages["Equipment"].AddChild(HudLabel("Buy £120 (+1000 quality, retained) or rent £30 (+500, this festival).\nGenerator: safe 80% baseline."));
         _hudPages["Staff"].AddChild(HudLabel("Festival staff", 21));
@@ -280,7 +280,7 @@ public partial class Main
             _hudStartConfirmation.DialogText = BuildStartCostSummary() + "\nPay this complete setup once and open the festival?";
         }
         RefreshHudPreparationReadiness();
-        if (_bookingLane is not null)
+        if (Booking.IsBuilt)
         {
             _hudStartReason.MaxLinesVisible = HudProgrammeSelected() ? 2 : -1;
             var actions = blockers.Select(b => b.Owner switch
@@ -290,8 +290,8 @@ public partial class Main
                 PreparationStartOwner.Overview => "reduce planned cost",
                 _ => b.Message
             });
-            _hudStartReason.Text = _programmeSummary!.Text + "\n" + (blockers.Count > 0 ? "Before Start: " + string.Join("; ", actions) + "." : issue?.Message ?? "Ready to open; setup paid once at Start.");
-            if (HudProgrammeSelected()) _hudStatus!.Text = _bookingDurableMessage;
+            _hudStartReason.Text = Booking.Summary + "\n" + (blockers.Count > 0 ? "Before Start: " + string.Join("; ", actions) + "." : issue?.Message ?? "Ready to open; setup paid once at Start.");
+            if (HudProgrammeSelected()) _hudStatus!.Text = Booking.DurableMessage;
         }
         _preparationStart.TooltipText = _hudStartReason.Text;
         _hudMenu!.Size = new Vector2(250, 270);

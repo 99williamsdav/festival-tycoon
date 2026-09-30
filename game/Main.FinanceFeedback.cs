@@ -21,12 +21,10 @@ public partial class Main
     {
         if (key is "vendor.food" or "vendor.drinks") return key;
         if (key == "stock") return FinanceFeedbackControlVisible(_immersionStockButton) ? key : "preparation";
-        if (key == "programme") return FinanceFeedbackControlVisible(_programmeBook) ? key : "preparation";
         if (key.StartsWith("offer:", StringComparison.Ordinal))
         {
             var offer = key[6..];
             if (_offerButtons.TryGetValue(offer, out var button)) return FinanceFeedbackControlVisible(button) ? key : "preparation";
-            if (offer.StartsWith("act.", StringComparison.Ordinal) && FinanceFeedbackControlVisible(_programmeBook)) return "programme";
         }
         return "preparation";
     }
@@ -56,7 +54,6 @@ public partial class Main
         Control? control = key switch
         {
             "stock" => _immersionStockButton,
-            "programme" => _programmeBook,
             _ => key.StartsWith("offer:", StringComparison.Ordinal) && _offerButtons.TryGetValue(key[6..], out var button) ? button : _hudMoney ?? _preparationSummary
         };
         if (control is null) return null;

@@ -145,7 +145,7 @@ public partial class Main
         _preparationSummary.Text = FestivalCopy(_preparationSummary.Text);
         if (p.Plan is { Committed: false } planned)
             _preparationSummary.Text += $"\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nPlanned hires: {string.Join(", ", planned.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}";
-        RefreshProgrammeControls();
+        Booking.Refresh();
         RefreshImmersionControls();
         foreach (var (id, button) in _offerButtons)
         {
@@ -198,10 +198,10 @@ public partial class Main
         if (_preparationOfferBox is not { } box) return;
         foreach (var button in _offerButtons.Values) { button.GetParent().RemoveChild(button); button.QueueFree(); }
         _offerButtons.Clear();
-        if (_session.CaptureProgramme() is not null && _programmeControls is null)
+        if (_session.CaptureProgramme() is not null && !Booking.IsBuilt)
         {
-            BuildProgrammeControls(_hudPages.GetValueOrDefault("Programme") ?? box);
-            if (_hudTabs is null) box.MoveChild(_programmeControls!, _preparationOfferInsertIndex++);
+            Booking.Build(_hudPages.GetValueOrDefault("Programme") ?? box);
+            if (_hudTabs is null) box.MoveChild(Booking.Root!, _preparationOfferInsertIndex++);
         }
         var index = _preparationOfferInsertIndex;
         foreach (var offer in _session.GetPreparationOffers().OrderBy(item => item.Category == "maintenance" ? 0 : 1))
