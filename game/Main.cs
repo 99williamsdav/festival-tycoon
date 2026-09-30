@@ -13,19 +13,12 @@ namespace Festival.Game;
 
 public partial class Main : Node, IHudHost
 {
-    private const float MinZoom = 18f;
-    private const float MaxZoom = 82f;
-    private const float PanLimit = 24f;
     private readonly Dictionary<ulong, FarmObjectReadModel> _pickRegistry = [];
     private readonly Dictionary<ulong, EntityId> _attendeePickRegistry = [];
     private readonly Dictionary<string, Node3D> _visualRegistry = new(StringComparer.Ordinal);
-    private Camera3D _camera = null!;
-    private Vector3 _focus = Vector3.Zero;
-    private int _orientation;
     private FarmObjectReadModel? _selected;
     private EntityId? _selectedAttendeeId;
     private MeshInstance3D _highlight = null!;
-    private Label _orientationLabel = null!;
     private Label _inspectorTitle = null!;
     private Label _inspectorBody = null!;
     private VBoxContainer? _satisfactionSection;
@@ -34,13 +27,12 @@ public partial class Main : Node, IHudHost
     private Button? _stagePowerButton;
     // The host owns the session, its clock and its saves; views only read through it.
     private SessionHost _host = null!;
+    private CameraRig _rig = null!;
     private GameSession _session => _host.Session;
-    private bool _middleDragging;
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
     private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v5", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v5");
-    private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
 
     public override void _Ready()
     {
@@ -57,11 +49,10 @@ public partial class Main : Node, IHudHost
         if (_session.CaptureEquipment() is not null) EnsureStageDrumKit();
         if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();
         BuildHud();
-        if (_session.CaptureEquipment() is not null) { _focus = new Vector3(-16, 0, 11); _camera.Size = 32; }
-        // This mode includes both east-of-track vendors; frame them with the
-        // stage rather than retaining the older stage-only close-up.
-        if (_session.CaptureImmersion() is not null) { _focus = new Vector3(4, 0, 8); _camera.Size = 50; }
-        ApplyCamera();
+        // Frame both east-of-track vendors with the stage rather than a stage-only close-up.
+        if (_session.CaptureImmersion() is not null) _rig.Frame(new Vector3(4, 0, 8), 50);
+        else if (_session.CaptureEquipment() is not null) _rig.Frame(new Vector3(-16, 0, 11), 32);
+        else _rig.Frame(Vector3.Zero, 62);
         ResetFinanceFeedback();
         if (OS.GetCmdlineUserArgs().Length == 0 && _session.CaptureEquipment() is not null) BuildStartSplash();
         var version = Engine.GetVersionInfo()["string"].AsString();
@@ -73,13 +64,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
-        if (_middleDragging && !Input.IsMouseButtonPressed(MouseButton.Middle)) _middleDragging = false;
-        var input = Vector2.Zero;
-        if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up)) input.Y -= 1;
-        if (Input.IsKeyPressed(Key.S) || Input.IsKeyPressed(Key.Down)) input.Y += 1;
-        if (Input.IsKeyPressed(Key.A) || Input.IsKeyPressed(Key.Left)) input.X -= 1;
-        if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
-        if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
+        _rig.Process(delta);
         AdvancePreparationPresentation(delta);
         RefreshContextPanelVisibility();
         AdvanceFinanceFeedback(delta);
@@ -92,9 +77,7 @@ public partial class Main : Node, IHudHost
     public override void _Input(InputEvent inputEvent)
     {
         if (StartMenu.IsOpen) return;
-        // Release must be observed before a HUD Control consumes the mouse event.
-        if (inputEvent is InputEventMouseButton { ButtonIndex: MouseButton.Middle, Pressed: false })
-            _middleDragging = false;
+        _rig.ObserveRelease(inputEvent);
     }
 
     public override void _UnhandledInput(InputEvent inputEvent)
@@ -109,8 +92,8 @@ public partial class Main : Node, IHudHost
             { RotateBuildGhost(key.Keycode == Key.Comma ? -1 : 1); return; }
             if(key.Keycode==Key.Escape && Perks.ConfirmationPending){Perks.CancelConfirmation();return;}
             if (key.Keycode == Key.Escape) { ClearSelection(); return; }
-            if (key.Keycode == Key.Q) Rotate(-1);
-            else if (key.Keycode == Key.E) Rotate(1);
+            if (key.Keycode == Key.Q) _rig.Rotate(-1);
+            else if (key.Keycode == Key.E) _rig.Rotate(1);
             else if (key.Keycode == Key.Space)
             {
                 _host.Submit(new SetPausedCommand(!_session.IsPaused));
@@ -124,14 +107,12 @@ public partial class Main : Node, IHudHost
             { CancelBuildPlacement(); RefreshHudWorkspace(); return; }
             if (_buildGhostKind is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
             { CommitBuildPlacement(mouse.Position); return; }
-            if (mouse.ButtonIndex == MouseButton.WheelUp && mouse.Pressed) Zoom(-4);
-            else if (mouse.ButtonIndex == MouseButton.WheelDown && mouse.Pressed) Zoom(4);
-            else if (mouse.ButtonIndex == MouseButton.Middle) _middleDragging = mouse.Pressed;
-            else if (mouse.ButtonIndex == MouseButton.Left && mouse.Pressed) Pick(mouse.Position);
+            if (_rig.HandleButton(mouse)) return;
+            if (mouse.ButtonIndex == MouseButton.Left && mouse.Pressed) Pick(mouse.Position);
         }
         else if (inputEvent is InputEventMouseMotion motion)
         {
-            if (_middleDragging) Pan(motion.Relative * 0.055f);
+            _rig.HandleMotion(motion);
             if (_buildGhostKind is not null) UpdateBuildGhost(motion.Position);
         }
     }
@@ -173,8 +154,7 @@ public partial class Main : Node, IHudHost
         };
         AddChild(_highlight);
         BuildHoverFeedback();
-        _camera = new Camera3D { Projection = Camera3D.ProjectionType.Orthogonal, Size = 62, Current = true };
-        AddChild(_camera);
+        _rig = new CameraRig(this);
     }
 
     private void BuildAttendee()
@@ -316,25 +296,8 @@ public partial class Main : Node, IHudHost
 
 
 
-    private void ApplyCamera()
-    {
-        var yaw = Mathf.DegToRad(45 + _orientation * 90);
-        _camera.Position = _focus + new Vector3(Mathf.Sin(yaw) * 72, 58, Mathf.Cos(yaw) * 72);
-        _camera.LookAt(_focus, Vector3.Up);
-        if (_orientationLabel is not null) _orientationLabel.Text = $"VIEW: {OrientationNames[_orientation].ToUpperInvariant()}";
-    }
 
-    private void Rotate(int step) { _orientation = (_orientation + step + 4) % 4; ApplyCamera(); }
-    private void Zoom(float amount) { _camera.Size = Mathf.Clamp(_camera.Size + amount, MinZoom, MaxZoom); }
 
-    private void Pan(Vector2 amount)
-    {
-        // Pan in screen axes, including the camera's 45-degree isometric yaw.
-        // amount.X is screen-right and amount.Y is screen-down.
-        var world = CameraControlMath.ScreenPanToWorld(_orientation, amount.X, amount.Y);
-        _focus += new Vector3((float)world.X, 0, (float)world.Z);
-        _focus.X = Mathf.Clamp(_focus.X, -PanLimit, PanLimit); _focus.Z = Mathf.Clamp(_focus.Z, -PanLimit, PanLimit); ApplyCamera();
-    }
 
     private void Pick(Vector2 screenPosition)
     {
@@ -379,7 +342,7 @@ public partial class Main : Node, IHudHost
         var permanence = item.IsPermanent ? "Permanent • Immovable" : "Inherited • Fixed for this blockout";
         _inspectorBody.Text = $"ID  {item.StableId}\nTYPE  {DisplayKind(item.Kind)}\nSTATE  {item.State}\nSITE  {item.XMetres:0.#} m, {item.ZMetres:0.#} m\n{permanence}";
         if (_hudMoney is not null && !_hudDevelopment) _inspectorBody.Text = $"{DisplayKind(item.Kind)} · {item.State}\n{permanence}";
-        GD.Print($"FARM_SELECTED id={item.StableId} orientation={OrientationNames[_orientation]}");
+        GD.Print($"FARM_SELECTED id={item.StableId} orientation={_rig.OrientationName}");
     }
 
     private void ClearSelection()
@@ -417,7 +380,7 @@ public partial class Main : Node, IHudHost
         RefreshAttendeeInspector();
         RefreshMedicalActionInspector();
         RefreshDisorderActionInspector();
-        GD.Print($"ATTENDEE_SELECTED id={id.Value} orientation={OrientationNames[_orientation]}");
+        GD.Print($"ATTENDEE_SELECTED id={id.Value} orientation={_rig.OrientationName}");
     }
 
     private void BuildSatisfactionBar(VBoxContainer parent)

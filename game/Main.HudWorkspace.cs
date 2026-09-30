@@ -192,8 +192,7 @@ public partial class Main
         var bottom = new HBoxContainer { Position = new Vector2(15, height - 50), Theme = HudTheme() }; layer.AddChild(bottom); _hudLegacyBottom = bottom;
         _hudPreparationToggle = ButtonText("Preparation ▾", () => { _buildDrawerOpen = false; _hudWorkspaceOpen = !_hudWorkspaceOpen; RefreshHudWorkspace(); }); bottom.AddChild(_hudPreparationToggle);
         _hudRosterToggle = ButtonText("People ▸", () => { _hudRoster.Visible = !_hudRoster.Visible; }); bottom.AddChild(_hudRosterToggle);
-        bottom.AddChild(ButtonText("Rotate view", () => Rotate(1)));
-        _orientationLabel = HudLabel("", 12); _orientationLabel.Visible = false; bottom.AddChild(_orientationLabel);
+        bottom.AddChild(ButtonText("Rotate view", () => _rig.Rotate(1)));
         var statusPanel = HudPanel(layer, new Vector2(width - 510, height - 50), new Vector2(495, 40)); _hudLegacyStatusPanel = statusPanel;
         statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
         _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
@@ -423,7 +422,7 @@ public partial class Main
     private void HudLocatePerson(ulong id)
     {
         SelectAttendee(new EntityId(id));
-        if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual)) { _focus = visual.Position; ApplyCamera(); }
+        if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual)) _rig.FocusOn(visual.Position);
         _hudAlerts!.Visible = false;
     }
 

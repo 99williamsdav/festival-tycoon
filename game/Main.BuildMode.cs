@@ -124,7 +124,7 @@ CancelBuildPlacement();
     {
         if (_buildGhostKind is not { } kind || _buildGhost is null) return;
         if (HudBlocksPlacement(screen)) { _buildGhost.Visible = false; _buildCandidate = null; RefreshBuildDebugHover(); return; }
-        var ray = _camera.ProjectRayNormal(screen); var origin = _camera.ProjectRayOrigin(screen);
+        var ray = _rig.Camera.ProjectRayNormal(screen); var origin = _rig.Camera.ProjectRayOrigin(screen);
         if (Mathf.Abs(ray.Y) < .001f || -origin.Y / ray.Y <= 0)
         { _buildGhost.Visible = false; _buildCandidate = null; RefreshBuildDebugHover(); return; }
         var point = origin + ray * (-origin.Y / ray.Y);

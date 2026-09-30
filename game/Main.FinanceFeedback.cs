@@ -47,8 +47,8 @@ public partial class Main
         if (key.StartsWith("vendor.", StringComparison.Ordinal) && _immersionVendors.TryGetValue(key[7..], out var vendor))
         {
             var point = vendor.GlobalPosition + new Vector3(0, 2.8f, 0);
-            if (_camera.IsPositionBehind(point)) return null;
-            var screen = _camera.UnprojectPosition(point);
+            if (_rig.Camera.IsPositionBehind(point)) return null;
+            var screen = _rig.Camera.UnprojectPosition(point);
             return GetViewport().GetVisibleRect().HasPoint(screen) ? screen : null;
         }
         Control? control = key switch

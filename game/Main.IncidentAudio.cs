@@ -59,7 +59,7 @@ public partial class Main
         if (crowdActive)
         {
             // Ground-plane camera focus is the listener, as for stage music.
-            var distance = new Vector2(_focus.X + 7f, _focus.Z - 13f).Length();
+            var distance = new Vector2(_rig.Focus.X + 7f, _rig.Focus.Z - 13f).Length();
             var attenuation = Mathf.Clamp(1f - distance / 65f, 0.08f, 1f);
             _ambientCrowd!.VolumeDb = Mathf.LinearToDb(Math.Max(0.001f, 0.05f * attenuation));
             if (!_ambientCrowd.Playing && !_ambientCrowd.StreamPaused)
@@ -82,7 +82,7 @@ public partial class Main
             var source = cue.Kind == IncidentAudioCueKind.GeneratorExplosion || _session.CaptureMedical() is null
                 ? new Vector2(GameSession.EquipmentXMillimetres / 1000f, GameSession.EquipmentZMillimetres / 1000f)
                 : MedicalDeathPosition();
-            var distance = new Vector2(_focus.X - source.X, _focus.Z - source.Y).Length();
+            var distance = new Vector2(_rig.Focus.X - source.X, _rig.Focus.Z - source.Y).Length();
             var attenuation = Mathf.Clamp(1f - distance / 70f, 0.05f, 1f);
             if (cue.Kind == IncidentAudioCueKind.GeneratorExplosion)
                 PlayIncidentCue(_generatorExplosion!, 0.45f * attenuation, cue);

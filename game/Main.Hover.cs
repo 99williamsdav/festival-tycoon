@@ -57,10 +57,10 @@ public partial class Main
     // shared by click and hover. No screen-distance or second-hit fallback.
     private CollisionObject3D? ResolveWorldHit(Vector2 screen)
     {
-        var origin = _camera.ProjectRayOrigin(screen);
-        var query = PhysicsRayQueryParameters3D.Create(origin, origin + _camera.ProjectRayNormal(screen) * 250);
+        var origin = _rig.Camera.ProjectRayOrigin(screen);
+        var query = PhysicsRayQueryParameters3D.Create(origin, origin + _rig.Camera.ProjectRayNormal(screen) * 250);
         query.CollisionMask = 1;
-        var result = _camera.GetWorld3D().DirectSpaceState.IntersectRay(query);
+        var result = _rig.Camera.GetWorld3D().DirectSpaceState.IntersectRay(query);
         if (!result.ContainsKey("collider")) return null;
         var collider = result["collider"].AsGodotObject() as CollisionObject3D;
         if (collider is null || !GodotObject.IsInstanceValid(collider) || collider.IsQueuedForDeletion() || !collider.IsVisibleInTree()) return null;

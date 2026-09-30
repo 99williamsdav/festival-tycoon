@@ -31,5 +31,5 @@ public partial class Main : IPreparationNavigation
     void IPreparationNavigation.ConfirmStart() => ShowHudStartConfirmation();
     void IPreparationNavigation.ToggleRoster() => _hudRoster!.Visible = !_hudRoster.Visible;
     void IPreparationNavigation.TogglePerks() => Perks.ToggleExpanded();
-    void IPreparationNavigation.RotateView() => Rotate(1);
+    void IPreparationNavigation.RotateView() => _rig.Rotate(1);
 }

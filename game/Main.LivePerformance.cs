@@ -353,7 +353,7 @@ public partial class Main
         if (!audible && _stageMusic!.Playing) _stageMusic.Stop();
         // Use the ground-plane focus instead of the elevated isometric camera position;
         // zoom alters framing, not the physical PA distance.
-        var distance = new Vector2(_focus.X + 16f, _focus.Z - 11f).Length();
+        var distance = new Vector2(_rig.Focus.X + 16f, _rig.Focus.Z - 11f).Length();
         var attenuation = Mathf.Clamp(1f - distance / 90f, 0.08f, 1f);
         if (!_bandEntryReactionPlayed && live.Stage == LiveSetStage.BeforeSet && live.Performers.Any(item => item.OnStage))
         {
