@@ -35,10 +35,7 @@ public sealed partial class GameSession
         ReleaseInterventionsForBoundary("Closing released ordinary staff interventions; physical medical responses remain active");
         foreach (var job in GetStewardResponses().Where(StewardBusy))
             SetStewardResponse(job with { Stage = SecurityResponseStage.Completed, TargetId = null, Description = "Closing; physical departure" });
-        var medical = _medical!;
-        _medical = medical with { WaterQueue = [], WaterOverflow = [], WaterOwnerId = null, WaterDrinkTicks = 0,
-            MainWaterQueueCells = [], ExtraWaterPoints = medical.ExtraWaterPoints.Select(point => point with
-                { Queue = [], Overflow = [], OwnerId = null, DrinkTicks = 0, QueueCells = [] }).ToArray() };
+        SetTaps(Taps.Select(point => point with { Queue = [], Overflow = [], OwnerId = null, DrinkTicks = 0, QueueCells = [] }).ToArray());
         foreach (var need in PeopleIn(PersonView.Medical).Select(need => ImmersionDepartureJobOwns(need.Id) ? need with { WaterQueueSlot = null } :
                 need with { Intent = IsImmersionMedic(need.Id) ? MedicalIntent.WatchShow : MedicalIntent.Leaving,
                     WaterQueueSlot = null, Reason = IsImmersionMedic(need.Id) ? "Medic remains available until other people physically exit" : "Closing; physically leaving while exposure continues" }).ToArray())

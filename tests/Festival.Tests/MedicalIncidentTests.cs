@@ -86,29 +86,30 @@ public sealed class MedicalIncidentTests
     public void DrinkingOwnsOneTapAndContinuouslyRelievesNeedsUntilThirstZeroAcrossRestore()
     {
         var s = Started();
-        while (s.CaptureMedical()!.WaterOwnerId is null && s.CurrentTick < 2_000)
+        while (BuildSession.MainTap(s).OwnerId is null && s.CurrentTick < 2_000)
             s.AdvanceWithoutSnapshot(1);
         var started = s.CaptureMedical()!;
-        Assert.IsNotNull(started.WaterOwnerId);
-        var owner = started.WaterOwnerId.Value;
-        Assert.AreEqual(owner, started.WaterQueue[0]);
+        var startedTap = BuildSession.MainTap(s);
+        Assert.IsNotNull(startedTap.OwnerId);
+        var owner = startedTap.OwnerId.Value;
+        Assert.AreEqual(owner, startedTap.Queue[0]);
         Assert.AreEqual(MedicalIntent.Drinking, started.Needs.Single(item => item.AgentId == owner).Intent);
-        Assert.IsTrue(started.WaterDrinkTicks > 0);
+        Assert.IsTrue(startedTap.DrinkTicks > 0);
         var thirst = started.Needs.Single(item => item.AgentId == owner).Thirst;
         var heat = started.Needs.Single(item => item.AgentId == owner).HeatExposure;
         s = Restored(s);
         s.AdvanceWithoutSnapshot(20);
         var midway = s.CaptureMedical()!;
-        Assert.AreEqual(owner, midway.WaterOwnerId);
+        Assert.AreEqual(owner, BuildSession.MainTap(s).OwnerId);
         Assert.AreEqual(MedicalIntent.Drinking, midway.Needs.Single(item => item.AgentId == owner).Intent);
         Assert.IsTrue(midway.Needs.Single(item => item.AgentId == owner).Thirst < thirst);
         Assert.IsTrue(midway.Needs.Single(item => item.AgentId == owner).HeatExposure < heat);
         Assert.AreEqual(-1L, midway.Needs.Single(item => item.AgentId == owner).LastWaterTick);
         s = Restored(s);
-        while (s.CaptureMedical()!.WaterOwnerId == owner && s.CurrentTick < 3_000)
+        while (BuildSession.MainTap(s).OwnerId == owner && s.CurrentTick < 3_000)
             s.AdvanceWithoutSnapshot(1);
         var completed = s.CaptureMedical()!;
-        Assert.IsFalse(completed.WaterQueue.Contains(owner));
+        Assert.IsFalse(BuildSession.MainTap(s).Queue.Contains(owner));
         Assert.AreEqual(0, completed.Needs.Single(item => item.AgentId == owner).Thirst);
         Assert.AreEqual(s.CurrentTick, completed.Needs.Single(item => item.AgentId == owner).LastWaterTick);
         Assert.AreEqual(1, completed.Evidence.Count(item => item.Id == "medical:water" && item.Description.Contains($"Person {owner}")));

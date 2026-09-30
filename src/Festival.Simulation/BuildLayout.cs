@@ -108,16 +108,11 @@ public sealed partial class GameSession
         if (_preparation is not { } p || _medical is null || _immersion is null) return;
         var water = p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.WaterTap).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         var primary = water.FirstOrDefault(item => item.Id == "water.main");
-        _medical = _medical with
-        {
-            MainWaterCell = primary?.Cell ?? MedicalWaterCell,
-            MainWaterQuarterTurns = primary?.QuarterTurns ?? 0,
-            MainWaterGeometryVersion = primary is null ? 0 : 1,
-            MainWaterQueueCells = [],
-            ExtraWaterPoints = water.Where(item => item.Id != "water.main").Select(item =>
-                new WaterPointState(item.Id, item.Cell, [], [], null, 0)
-                { QuarterTurns = item.QuarterTurns, GeometryVersion = 1 }).ToArray()
-        };
+        // A placed main tap keeps its live queue; every other tap stands fresh at its placement.
+        var existingMain = Taps.FirstOrDefault(item => item.Id == "water.main") ?? OpeningMainTap();
+        SetTaps((primary is null ? [] : new[] { existingMain with { Cell = primary.Cell, QuarterTurns = primary.QuarterTurns, GeometryVersion = 1, QueueCells = [] } })
+            .Concat(water.Where(item => item.Id != "water.main").Select(item =>
+                new WaterPointState(item.Id, item.Cell, [], [], null, 0) { QuarterTurns = item.QuarterTurns, GeometryVersion = 1 })).ToArray());
         _preparation = p with
         {
             PrimaryWaterCell = primary?.Cell ?? MedicalWaterCell,
@@ -193,22 +188,23 @@ public sealed partial class GameSession
 
     private static string? ValidateBuildMirrors(PreparationSnapshot p, SessionPersistenceSnapshot saved)
     {
-        if (saved.Medical is not { } medical || saved.Immersion is not { } immersion ||
-            p.ExtraWaterSiteIds is null || p.WaterPlacements is null || medical.ExtraWaterPoints is null || immersion.Vendors is null)
+        if (saved.Medical is null || saved.Immersion is not { } immersion || saved.Facilities?.Taps is not { } taps ||
+            p.ExtraWaterSiteIds is null || p.WaterPlacements is null || immersion.Vendors is null)
             return "Saved build services have no physical state.";
         var water = p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.WaterTap).ToArray();
         var main = water.SingleOrDefault(item => item.Id == "water.main");
         if (p.PrimaryWaterCell != (main?.Cell ?? MedicalWaterCell) || p.PrimaryWaterQuarterTurns != (main?.QuarterTurns ?? 0) ||
             p.PrimaryWaterGeometryVersion != (main is null ? 0 : 1) ||
-            medical.MainWaterCell != p.PrimaryWaterCell || medical.MainWaterQuarterTurns != p.PrimaryWaterQuarterTurns ||
-            medical.MainWaterGeometryVersion != p.PrimaryWaterGeometryVersion)
+            taps.FirstOrDefault(item => item.Id == "water.main") is var mainTap && (mainTap is null) != (main is null) ||
+            mainTap is not null && (mainTap.Cell != p.PrimaryWaterCell || mainTap.QuarterTurns != p.PrimaryWaterQuarterTurns ||
+                mainTap.GeometryVersion != p.PrimaryWaterGeometryVersion))
             return "Saved primary tap differs from the build layout.";
         var extras = water.Where(item => item.Id != "water.main").OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         if (!extras.Select(item => item.Id).SequenceEqual(p.ExtraWaterSiteIds) ||
             !extras.Select(item => (item.Id, item.Cell, item.QuarterTurns)).SequenceEqual(
                 p.WaterPlacements.Select(item => (item.Id, item.Cell, item.QuarterTurns))) ||
             !extras.Select(item => (item.Id, item.Cell, item.QuarterTurns)).SequenceEqual(
-                medical.ExtraWaterPoints.Select(item => (item.Id, item.Cell, item.QuarterTurns))))
+                taps.Where(item => item.Id != "water.main").Select(item => (item.Id, item.Cell, item.QuarterTurns))))
             return "Saved extra taps differ from the build layout.";
         foreach (var kind in new[] { BuildServiceKind.FirstAid, BuildServiceKind.StewardPost })
         {

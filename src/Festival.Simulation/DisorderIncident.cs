@@ -589,8 +589,7 @@ public sealed partial class GameSession
             d.ResponseStage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting &&
                 (d.ResponseTargetId is null || !d.People.Any(item => item.AgentId == d.ResponseTargetId)) ||
             d.SecurityIncapacitated != (medical.Needs.Single(item => item.AgentId == d.SecurityId).Stage == MedicalStage.Collapsed) ||
-            d.WaterClosed && (medical.WaterQueue.Length > 0 || medical.WaterOverflow.Length > 0 || medical.WaterOwnerId is not null ||
-                medical.ExtraWaterPoints.Any(point => point.Queue.Length > 0 || point.Overflow.Length > 0 || point.OwnerId is not null)) ||
+            d.WaterClosed && (s.Facilities?.Taps ?? []).Any(point => point.Queue.Length > 0 || point.Overflow.Length > 0 || point.OwnerId is not null) ||
             d.People.Any(item => item is null || item.Temperament is < 2_000 or > 8_000 ||
                 item.QueueToleranceTicks is < 320 or > 1_120 || item.Pressure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Grievance) || !Enum.IsDefined(item.Stage) ||

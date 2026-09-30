@@ -317,7 +317,7 @@ public sealed partial class GameSession
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
             foreach (var (centre, radius) in new[] { (p.PrimaryWaterCell, p.PrimaryWaterGeometryVersion == 1 ? 1 : 3), (ResponsePost(p,ResponseRole.Medic).Cell, 3) }
-                         .Concat(_medical.ExtraWaterPoints.Select(point => (point.Cell, WaterFootprintRadius(point)))))
+                         .Concat(Taps.Where(point => point.Id != "water.main").Select(point => (point.Cell, WaterFootprintRadius(point)))))
             for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
             for (var x = centre.X - radius; x <= centre.X + radius; x++)
             {
@@ -426,9 +426,9 @@ public sealed partial class GameSession
         _equipment = baseline._equipment;
         MedicalView = baseline.MedicalView;
         if (_medical is not null)
-            _medical = _medical with { MainWaterCell = p.PrimaryWaterCell, MainWaterQuarterTurns = p.PrimaryWaterQuarterTurns, MainWaterGeometryVersion = p.PrimaryWaterGeometryVersion,
-                ExtraWaterPoints = EffectiveWaterPlacements(p).Select(site =>
-                    new WaterPointState(site.Id, site.Cell, [], [], null, 0) { QuarterTurns = site.QuarterTurns, GeometryVersion = site.GeometryVersion }).ToArray() };
+            SetTaps((MainTapStanding(p) ? new[] { OpeningMainTap() with { Cell = p.PrimaryWaterCell, QuarterTurns = p.PrimaryWaterQuarterTurns, GeometryVersion = p.PrimaryWaterGeometryVersion } } : [])
+                .Concat(EffectiveWaterPlacements(p).Select(site =>
+                    new WaterPointState(site.Id, site.Cell, [], [], null, 0) { QuarterTurns = site.QuarterTurns, GeometryVersion = site.GeometryVersion })).ToArray());
         DisorderView = baseline.DisorderView;
         _traversalGrid = null;
         PreparationView = p with

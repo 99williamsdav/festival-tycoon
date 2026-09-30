@@ -25,15 +25,10 @@ public sealed record WaterPointState(string Id, GridCell Cell, ulong[] Queue, ul
     public GridCell[] QueueCells { get; init; } = [];
 }
 public sealed record MedicalSnapshot(int Version, bool IsHot, ulong MedicId, ulong AtRiskGuestId,
-    MedicalNeed[] Needs, ulong[] WaterQueue, ulong[] WaterOverflow, ulong? WaterOwnerId, int WaterDrinkTicks,
+    MedicalNeed[] Needs,
     MedicalStage Stage, MedicalResponseStage ResponseStage, ulong? ResponsePatientId, long WarningTick, long CollapseTick,
     long CriticalTick, long ResponseStartedTick, string Response, MedicalEvidence[] Evidence)
 {
-    public GridCell MainWaterCell { get; init; } = GameSession.MedicalWaterCell;
-    public int MainWaterQuarterTurns { get; init; }
-    public int MainWaterGeometryVersion { get; init; }
-    public GridCell[] MainWaterQueueCells { get; init; } = [];
-    public WaterPointState[] ExtraWaterPoints { get; init; } = [];
     public MedicResponse[] ExtraResponses { get; init; } = [];
     public long ResponseDispatchedTick { get; init; } = -1;
     public StaffInterventionJob[] StaffInterventions { get; init; } = [];
@@ -81,19 +76,7 @@ public sealed partial class GameSession
         new(105, 148), new(106, 150), new(107, 152), new(108, 154), new(109, 156),
         new(110, 158), new(111, 160), new(112, 162), new(113, 164), new(114, 166)
     ];
-    // Medical and preparation state are immutable records, so the derived list is reused until either is replaced.
-    private (MedicalSnapshot? Medical, PreparationSnapshot? Preparation, IReadOnlyList<WaterPointState>? Points) _waterPoints;
-    private IReadOnlyList<WaterPointState> WaterPoints()
-    {
-        if (_waterPoints.Points is { } cached && ReferenceEquals(_waterPoints.Medical, _medical) && ReferenceEquals(_waterPoints.Preparation, _preparation))
-            return cached;
-        IReadOnlyList<WaterPointState> points = _medical is not { } m ? [] :
-            _preparation?.BuildPlacements?.Any(item => item.Id == "water.main") == false ? m.ExtraWaterPoints :
-            [new WaterPointState("water.main", m.MainWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks)
-                { QuarterTurns = m.MainWaterQuarterTurns, GeometryVersion = m.MainWaterGeometryVersion, QueueCells = m.MainWaterQueueCells }, .. m.ExtraWaterPoints];
-        _waterPoints = (_medical, _preparation, points);
-        return points;
-    }
+    private IReadOnlyList<WaterPointState> WaterPoints() => _medical is null ? [] : Taps;
     public IReadOnlyList<WaterPointState> CaptureWaterPoints() => WaterPoints().Select(point =>
         point with { Queue = point.Queue.ToArray(), Overflow = point.Overflow.ToArray(), QueueCells = point.QueueCells.ToArray() }).ToArray();
     public static GridCell RotateWaterOffset(GridCell offset, int quarterTurns) => quarterTurns switch
@@ -135,10 +118,7 @@ public sealed partial class GameSession
         ? WaterSlot(point, point.Queue.Length) : WaterOverflowSlot(point, Math.Min(point.Overflow.Length, 9));
     private void SetWaterPoint(WaterPointState point)
     {
-        var m = _medical!;
-        _medical = point.Id == "water.main"
-            ? m with { WaterQueue = point.Queue, WaterOverflow = point.Overflow, WaterOwnerId = point.OwnerId, WaterDrinkTicks = point.DrinkTicks, MainWaterQueueCells = point.QueueCells }
-            : m with { ExtraWaterPoints = m.ExtraWaterPoints.Select(item => item.Id == point.Id ? point : item).ToArray() };
+        SetTaps(Taps.Select(item => item.Id == point.Id ? point : item).ToArray());
     }
     private WaterPointState WaterPointFor(ulong id) => WaterPoints().Single(point => point.Id ==
         _persons[id].WaterPointId);
@@ -817,9 +797,9 @@ public sealed partial class GameSession
         if (m is null) return null;
         var savedGrid = s.TraversalGrid is { } savedTerrain ? new TraversalGrid(savedTerrain.Cells.Select(cell =>
             new TerrainCellOverride(new(cell.X, cell.Z), (GroundSurface)cell.Surface, cell.IsWalkable, cell.CostPermille, cell.ElevationMillimetres, cell.SlopePermille))) : null;
-        var points = new[] { new WaterPointState("water.main", m.MainWaterCell, m.WaterQueue, m.WaterOverflow, m.WaterOwnerId, m.WaterDrinkTicks) { QuarterTurns = m.MainWaterQuarterTurns, GeometryVersion = m.MainWaterGeometryVersion, QueueCells = m.MainWaterQueueCells } }
-            .Concat(m.ExtraWaterPoints ?? []).ToArray();
-        if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || !m.IsHot || m.Needs is null || m.WaterQueue is null || m.WaterOverflow is null ||
+        if (s.Facilities?.Taps is not { } points || points.Any(point => point is null)) return "Saved facilities have no taps.";
+        var extraTaps = points.Where(point => point.Id != "water.main").ToArray();
+        if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || !m.IsHot || m.Needs is null ||
             m.Evidence is null || m.Needs.Length != (s.Immersion is not null ? p.People.Length : p.Tier * 20 + p.People.Count(item => item.Role == ProtectedPersonRole.Performer) + (s.Disorder is null ? 0 : 1) + p.AcceptedOffers.Count(id => id == "staff.extra-steward")) ||
             !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role is ProtectedPersonRole.Guest or ProtectedPersonRole.Performer ||
                 item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId)).Select(item => item.AgentId)) ||
@@ -828,12 +808,14 @@ public sealed partial class GameSession
             !p.People.Any(item => item.AgentId == m.MedicId && item.Name == "Riley Hart" && item.Role == ProtectedPersonRole.Staff) ||
             m.AtRiskGuestId != m.Needs[19].AgentId || m.Needs.Any(item => item.Thirst is < 0 or > 10_000 || item.HeatExposure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Intent) || !Enum.IsDefined(item.Profile) || !Enum.IsDefined(item.Stage) ||
-                item.QueueSlot is < 0 or >= 10 || !points.Any(point => point.Id == item.WaterPointId) ||
+                item.QueueSlot is < 0 or >= 10 || item.WaterPointId != "water.main" && !points.Any(point => point.Id == item.WaterPointId) ||
                 item.LastDecisionTick > s.CurrentTick || item.LastWaterChoiceReviewTick > s.CurrentTick ||
                 item.WarningTick > s.CurrentTick || item.CollapseTick > s.CurrentTick || item.CriticalTick > s.CurrentTick) ||
-            m.MainWaterCell != p.PrimaryWaterCell || m.MainWaterQuarterTurns != p.PrimaryWaterQuarterTurns || m.MainWaterGeometryVersion != p.PrimaryWaterGeometryVersion || m.ExtraWaterPoints is null || p.ExtraWaterSiteIds is null || p.WaterPlacements is null ||
-            !m.ExtraWaterPoints.Select(point => point.Id).SequenceEqual(p.ExtraWaterSiteIds) ||
-            m.ExtraWaterPoints.Any(point => !EffectiveWaterPlacements(p).Any(site => site.Id == point.Id && site.Cell == point.Cell && site.QuarterTurns == point.QuarterTurns && site.GeometryVersion == point.GeometryVersion)) ||
+            points.FirstOrDefault(point => point.Id == "water.main") is { } mainTap && (mainTap.Cell != p.PrimaryWaterCell ||
+                mainTap.QuarterTurns != p.PrimaryWaterQuarterTurns || mainTap.GeometryVersion != p.PrimaryWaterGeometryVersion) ||
+            p.ExtraWaterSiteIds is null || p.WaterPlacements is null ||
+            !extraTaps.Select(point => point.Id).SequenceEqual(p.ExtraWaterSiteIds) ||
+            extraTaps.Any(point => !EffectiveWaterPlacements(p).Any(site => site.Id == point.Id && site.Cell == point.Cell && site.QuarterTurns == point.QuarterTurns && site.GeometryVersion == point.GeometryVersion)) ||
             points.Any(point => point.Queue is null || point.Overflow is null || point.Queue.Length > 10 || point.Overflow.Length > 10 ||
                 point.QuarterTurns is < 0 or > 3 || point.GeometryVersion is < 0 or > 1 || point.QueueCells is null || point.QueueCells.Length > 20 ||
                 point.QueueCells.Distinct().Count() != point.QueueCells.Length ||

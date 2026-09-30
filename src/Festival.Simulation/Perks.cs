@@ -100,7 +100,7 @@ public sealed partial class GameSession
             WaterTowerOwned = HasPerk("high-pressure"), RespondersUpgraded = false,
             ExtraWaterSiteIds = removeTap ? p.ExtraWaterSiteIds.Where(id => id != PerkCatalogue.TapId).ToArray() : p.ExtraWaterSiteIds,
             WaterPlacements = removeTap ? p.WaterPlacements.Where(site => site.Id != PerkCatalogue.TapId).ToArray() : p.WaterPlacements };
-        if (removeTap) _medical = _medical! with { ExtraWaterPoints = _medical.ExtraWaterPoints.Where(site => site.Id != PerkCatalogue.TapId).ToArray() };
+        if (removeTap) SetTaps(Taps.Where(site => site.Id != PerkCatalogue.TapId).ToArray());
     }
     // Loss retires active perks, but keeps the exact failed-world geometry and derived
     // navigation speeds as immutable evidence. FrozenEffects validate that snapshot and

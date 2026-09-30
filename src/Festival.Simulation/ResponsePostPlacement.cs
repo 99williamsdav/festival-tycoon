@@ -30,7 +30,7 @@ public sealed partial class GameSession
         .SelectMany(role => ResponsePostFootprint(ResponsePost(p, role), role)
             .Concat(new[] { ResponsePostHome(p, role), ResponsePostHome(p, role, true) }));
 
-    private static bool PlacementAccessClear(PreparationSnapshot p,EquipmentSnapshot? equipment,ImmersionSnapshot? immersion,MedicalSnapshot? medical)
+    private static bool PlacementAccessClear(PreparationSnapshot p,EquipmentSnapshot? equipment,ImmersionSnapshot? immersion,MedicalSnapshot? medical,IReadOnlyList<WaterPointState> taps)
     {
         var blocked=new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain()).Overrides.ToDictionary(c=>c.Key,c=>c.Value);
         void Block(GridCell centre,int rx,int rz){for(var x=centre.X-rx;x<=centre.X+rx;x++)for(var z=centre.Z-rz;z<=centre.Z+rz;z++){var c=new GridCell(x,z);blocked[c]=new(c,GroundSurface.Grass,false);}}
@@ -49,7 +49,7 @@ public sealed partial class GameSession
         var access=Enum.GetValues<ResponseRole>().SelectMany(role=>new[]{ResponsePostHome(p,role),ResponsePostHome(p,role,true)})
             .Append(MedicalRestCell).Concat(points.Select(WaterPointServiceCell)).Concat(immersion?.Vendors.Select(ImmersionServiceCell)??[])
             .Concat(EffectiveToilets(immersion).SelectMany(accessToilet => new[] { ToiletInsideCell(accessToilet), ToiletQueueCell(accessToilet,0), ToiletExitCell(accessToilet) }))
-            .Concat(medical is null?[]:medical.ExtraWaterPoints.SelectMany(w=>w.QueueCells));
+            .Concat(medical is null?[]:taps.Where(w=>w.Id!="water.main").SelectMany(w=>w.QueueCells));
         return access.All(c=>DeterministicPathfinder.FindPath(grid,MedicalExitCell,c).Found);
     }
     private static string? ValidatePersistedResponsePosts(SessionPersistenceSnapshot s)

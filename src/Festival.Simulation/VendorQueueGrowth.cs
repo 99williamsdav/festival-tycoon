@@ -7,6 +7,8 @@ public sealed partial class GameSession
         Enumerable.Range(0,Math.Min(10,immersion.People.Count(person=>person.VendorId==vendor.Id)+1)).Select(index=>ImmersionQueueCell(vendor,index)).ToArray();
     // Legacy vendors without saved geometry size their queue from current shoppers.
     private GridCell[] VendorQueueCells(ImmersionVendor vendor)=>vendor.QueueCells ?? VendorQueueCells(vendor,ImmersionView!);
+    /// <summary>The food and drink vendors, in their stable order.</summary>
+    public IReadOnlyList<ImmersionVendor> CaptureVendors() => _immersion?.Vendors ?? [];
     public IReadOnlyList<GridCell> CaptureImmersionQueueCells(string vendorId)=>_immersion is null?[]:VendorQueueCells(_immersion.Vendors.Single(vendor=>vendor.Id==vendorId)).ToArray();
     private GridCell[] ImmersionQueueCorridor(string? except=null)=>_immersion is null?[]:_immersion.Vendors.Where(vendor=>vendor.Id!=except)
         .SelectMany(vendor=>LooseQueueGeometry.Corridor(VendorQueueCells(vendor)))

@@ -215,7 +215,7 @@ public partial class Main
             (need is null ? "" : $"HOT • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}% • " +
                 $"{(need.Profile == MedicalNeedProfile.Performer ? need.Stage : id.Value == medical!.AtRiskGuestId ? medical.Stage : need.Stage)}\n" +
                 $"INTENT {need.Intent} • {StewardWording(need.Reason)}\n" +
-                (medical!.WaterOwnerId == id.Value
+                (_session.CaptureWaterPoints().Any(point => point.OwnerId == id.Value)
                     ? $"DRINKING • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n"
                 : "")) + StaffInterventionTargetText(id.Value) + DisorderPersonInspectorText(id.Value) + detail + ImmersionPersonInspectorText(id.Value);
         if (_hudMoney is not null && !_hudDevelopment)

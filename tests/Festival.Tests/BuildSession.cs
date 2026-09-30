@@ -71,6 +71,13 @@ internal static class BuildSession
         return s;
     }
 
+    /// <summary>The standing main water tap.</summary>
+    public static WaterPointState MainTap(GameSession s) => s.CaptureWaterPoints().Single(point => point.Id == "water.main");
+
+    /// <summary>Test fixture: replaces one standing tap's live state.</summary>
+    public static void SetTap(GameSession s, WaterPointState tap) => typeof(GameSession)
+        .GetMethod("SetWaterPoint", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(s, [tap]);
+
     public static GameSession Restored(GameSession s)
     {
         var loaded = GameSession.Restore(s.CapturePersistenceSnapshot());

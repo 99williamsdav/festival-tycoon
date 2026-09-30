@@ -129,6 +129,6 @@ public sealed class StaffInterventionTests
         Assert.AreEqual(StaffInterventionStage.Failed, session.CaptureStaffInterventions().Single().Stage);
         StringAssert.Contains(session.CaptureStaffInterventions().Single().Description, "no substitute rest");
         Assert.AreEqual(MedicalIntent.WatchShow, session.CaptureMedical()!.Needs.Single(need => need.AgentId == id).Intent);
-        Assert.AreEqual(0, session.CaptureMedical()!.WaterQueue.Length); Restore(session);
+        Assert.AreEqual(0, BuildSession.MainTap(session).Queue.Length); Restore(session);
     }
 }

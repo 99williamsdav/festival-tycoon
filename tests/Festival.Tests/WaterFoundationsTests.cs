@@ -73,7 +73,8 @@ public sealed class WaterFoundationsTests
         var ids = session.CaptureMedical()!.Needs.Take(3).Select(item => item.AgentId).ToArray();
         var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var m = session.CaptureMedical()!;
-        field.SetValue(session, m with { WaterQueue = ids, WaterOwnerId = ids[0],
+        BuildSession.SetTap(session, BuildSession.MainTap(session) with { Queue = ids, OwnerId = ids[0] });
+        field.SetValue(session, m with {
             Needs = m.Needs.Select(need => ids.Contains(need.AgentId) ? need with {
                 Intent = need.AgentId == ids[0] ? MedicalIntent.Drinking : MedicalIntent.SeekWater,
                 QueueSlot = Array.IndexOf(ids, need.AgentId), WaterPointId = "water.main", Thirst = need.AgentId == ids[0] ? 100 : 10000,
@@ -87,7 +88,7 @@ public sealed class WaterFoundationsTests
         Assert.AreEqual("water.main", now.Needs.Single(item => item.AgentId == ids[0]).WaterPointId, "Drinker never switches.");
         Assert.AreEqual("water.main", now.Needs.Single(item => item.AgentId == ids[1]).WaterPointId, "Own-position wait excludes people behind you.");
         Assert.AreEqual("water.extra-1", now.Needs.Single(item => item.AgentId == ids[2]).WaterPointId);
-        Assert.IsFalse(now.WaterQueue.Contains(ids[2]));
+        Assert.IsFalse(BuildSession.MainTap(session).Queue.Contains(ids[2]));
         Assert.IsTrue(now.Evidence.Any(item => item.Id == "medical:water-rechoose" && item.Description.Contains("old place forfeited=True")));
         var switchedTick = now.Needs.Single(item => item.AgentId == ids[2]).LastWaterChoiceReviewTick;
         session.AdvanceWithoutSnapshot(10);
@@ -103,7 +104,7 @@ public sealed class WaterFoundationsTests
         var m = session.CaptureMedical()!;
         var id = m.Needs[0].AgentId;
         var front = GameSession.WaterServiceCell(ExtraSite);
-        field.SetValue(session, m with { ExtraWaterPoints = [m.ExtraWaterPoints[0] with { Queue = [id], QueueCells = [front] }] });
+        BuildSession.SetTap(session, session.CaptureWaterPoints().First(point => point.Id != "water.main") with { Queue = [id], QueueCells = [front] });
         var gridField = typeof(GameSession).GetField("_traversalGrid", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var grid = (TraversalGrid)gridField.GetValue(session)!;
         var overrides = grid.Overrides.ToDictionary(item => item.Key, item => item.Value);

@@ -84,7 +84,7 @@ public sealed partial class GameSession
         var service=ImmersionServiceCell(proposed);
         if(otherCorridors.Any(cell=>Math.Abs(cell.X-service.X)<=1&&Math.Abs(cell.Z-service.Z)<=1))return "Vendor service overlaps an existing physical queue corridor.";
         if(needed.Any(c=>!terrain.Contains(c)||!terrain.Get(c).IsWalkable||reserved.Contains(c)))return "Vendor footprint or queue overlaps an obstacle, protected service or stage.";
-        if((_preparation.FirstAidPlacement is not null || _preparation.StewardPostPlacement is not null) && !PlacementAccessClear(_preparation,_equipment,ImmersionView! with{Vendors=_immersion.Vendors.Select(v=>v.Id==proposed.Id?proposed:v).ToArray()},_medical))return "Vendor blocks a response post or essential approach.";
+        if((_preparation.FirstAidPlacement is not null || _preparation.StewardPostPlacement is not null) && !PlacementAccessClear(_preparation,_equipment,ImmersionView! with{Vendors=_immersion.Vendors.Select(v=>v.Id==proposed.Id?proposed:v).ToArray()},_medical,Taps))return "Vendor blocks a response post or essential approach.";
         var blocked=terrain.Overrides.ToDictionary(p=>p.Key,p=>p.Value);
         foreach(var vendor in _immersion.Vendors.Where(v=>v.Id!=proposed.Id).Append(proposed))foreach(var cell in ImmersionFootprint(vendor))blocked[cell]=new(cell,GroundSurface.Grass,false);
         var grid=new TraversalGrid(blocked.Values);

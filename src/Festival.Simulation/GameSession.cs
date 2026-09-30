@@ -428,6 +428,7 @@ public sealed partial class GameSession
             Equipment = CaptureEquipment(),
             LivePerformance = CaptureLivePerformance(),
             Medical = CaptureMedical(),
+            Facilities = CaptureFacilities(),
             Disorder = CaptureDisorder(),
         };
 
@@ -491,6 +492,8 @@ public sealed partial class GameSession
             System.Text.Json.JsonSerializer.Serialize(snapshot.LivePerformance));
         session.MedicalView = snapshot.Medical is null ? null : System.Text.Json.JsonSerializer.Deserialize<MedicalSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Medical));
+        session._facilities = snapshot.Facilities is null ? null : System.Text.Json.JsonSerializer.Deserialize<FacilitiesSnapshot>(
+            System.Text.Json.JsonSerializer.Serialize(snapshot.Facilities));
         session.DisorderView = snapshot.Disorder is null ? null : System.Text.Json.JsonSerializer.Deserialize<DisorderSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Disorder));
 
