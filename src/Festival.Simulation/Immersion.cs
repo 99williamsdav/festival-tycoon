@@ -171,48 +171,47 @@ public sealed partial class GameSession
         {
             var presence = _persons[original.Id];
             if (presence.Departed || presence.Role == ProtectedPersonRole.Guest && !presence.Admitted) continue;
-            var p = original;
+            var p = original with { }; // One scratch copy per person; updated in place below.
             var recovery = p.RecoveryResidue + 10; var hunger = p.HungerResidue + 12;
-            p = p with { Intoxication = Math.Max(0,p.Intoxication-recovery/80), RecoveryResidue = recovery%80, Hunger = Math.Min(10000,p.Hunger+hunger/80), HungerResidue = hunger%80, FoodProtectionTicks = Math.Max(0,p.FoodProtectionTicks-1),
-                ToiletNeed = _preparation!.Status == PreparationStatus.Running && p.ToiletStage != ToiletVisitStage.Using && CurrentTick % ToiletRules.NeedGainEveryTicks == 0 ? Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1) : p.ToiletNeed };
-            if(!InView(PersonView.Medical, p.Id)&&CurrentTick%4==0)p=p with { StaffThirst=Math.Min(10000,p.StaffThirst+1) };
+            { p.Intoxication = Math.Max(0,p.Intoxication-recovery/80); p.RecoveryResidue = recovery%80; p.Hunger = Math.Min(10000,p.Hunger+hunger/80); p.HungerResidue = hunger%80; p.FoodProtectionTicks = Math.Max(0,p.FoodProtectionTicks-1); p.ToiletNeed = _preparation!.Status == PreparationStatus.Running && p.ToiletStage != ToiletVisitStage.Using && CurrentTick % ToiletRules.NeedGainEveryTicks == 0 ? Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1) : p.ToiletNeed; }
+            if(!InView(PersonView.Medical, p.Id)&&CurrentTick%4==0)p.StaffThirst = Math.Min(10000,p.StaffThirst+1);
             // Previously ingested dose keeps absorbing even when hands are owned by stage or care.
-            if (p.PendingDose > 0) { var absorb = Math.Min(1,p.PendingDose); var residue = p.AbsorptionResidue + absorb*(p.FoodProtectionTicks>0 ? 1 : 2); p = p with { PendingDose = p.PendingDose-absorb, Intoxication = Math.Min(10000,p.Intoxication+residue/2), AbsorptionResidue = residue%2 }; }
+            if (p.PendingDose > 0) { var absorb = Math.Min(1,p.PendingDose); var residue = p.AbsorptionResidue + absorb*(p.FoodProtectionTicks>0 ? 1 : 2); { p.PendingDose = p.PendingDose-absorb; p.Intoxication = Math.Min(10000,p.Intoxication+residue/2); p.AbsorptionResidue = residue%2; } }
             if (p.Held is { } held && ImmersionConsumptionEligible(p.Id))
             {
                 var duration = ImmersionConsumeTicks(held.Product); var elapsed = held.ConsumedTicks+1;
                 if (held.Product == ImmersionProduct.Beer && _preparation.Status == PreparationStatus.Running &&
                     CurrentTick % ToiletRules.BeerConsumptionExtraGainEveryTicks == 0)
-                    p = p with { ToiletNeed = Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1) };
+                    p.ToiletNeed = Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1);
                 var effect = held.Product == ImmersionProduct.Chips ? 5500 : held.Product == ImmersionProduct.SoftDrink ? 6000 : 1500;
                 var delta = elapsed*effect/duration-held.ConsumedTicks*effect/duration;
-                if (held.Product == ImmersionProduct.Chips) p = p with { Hunger = Math.Max(0,p.Hunger-delta), FoodProtectionTicks = 4800 };
-                else if (InView(PersonView.Medical, p.Id)) UpdatePerson(p.Id,n => n with { Thirst = Math.Max(0,n.Thirst-delta) });
-                else p=p with { StaffThirst=Math.Max(0,p.StaffThirst-delta) };
-                if (held.Product == ImmersionProduct.Beer) p = p with { PendingDose = p.PendingDose + elapsed*2400/duration-held.ConsumedTicks*2400/duration };
+                if (held.Product == ImmersionProduct.Chips) { p.Hunger = Math.Max(0,p.Hunger-delta); p.FoodProtectionTicks = 4800; }
+                else if (InView(PersonView.Medical, p.Id)) MutatePerson(p.Id, n => n.Thirst = Math.Max(0,n.Thirst-delta));
+                else p.StaffThirst = Math.Max(0,p.StaffThirst-delta);
+                if (held.Product == ImmersionProduct.Beer) p.PendingDose = p.PendingDose + elapsed*2400/duration-held.ConsumedTicks*2400/duration;
                 var enjoyment = held.Product == ImmersionProduct.Chips ? 100 : held.Product == ImmersionProduct.SoftDrink ? 75 : 150*p.BeerTaste/100;
                 var gain = elapsed*enjoyment/duration-held.ConsumedTicks*enjoyment/duration;
-                UpdatePerson(p.Id, person => person with { Satisfaction = Math.Min(10000,person.Satisfaction+gain) });
-                if (elapsed == duration && held.Product == ImmersionProduct.Beer && _preparation.FinishedBeerIds is { } finished && PeopleIn(PersonView.Roster).Any(person => person.Id == p.Id && person.Role == ProtectedPersonRole.Guest && person.Admitted))
+                MutatePerson(p.Id, person => person.Satisfaction = Math.Min(10000,person.Satisfaction+gain));
+                if (elapsed == duration && held.Product == ImmersionProduct.Beer && _preparation.FinishedBeerIds is { } finished && PersonIn(PersonView.Roster, p.Id) is { Role: ProtectedPersonRole.Guest, Admitted: true })
                     _preparation = _preparation with { FinishedBeerIds = finished.Append(held.TransactionId).ToArray() };
-                p = p with { Held = elapsed == duration ? null : held with { ConsumedTicks = elapsed } };
+                p.Held = elapsed == duration ? null : held with { ConsumedTicks = elapsed };
             }
-            if (p.Intoxication >= 7500 && p.IntoxicationWarningTick < 0) { p = p with { IntoxicationWarningTick = CurrentTick }; MedicalEvent("intoxication:warning", $"Person {p.Id}: heavy intoxication {p.Intoxication}; no further beer served, water, rest and medic available."); }
-            p = p with { SevereTicks = p.Intoxication >= 8500 ? p.SevereTicks+1 : 0 };
+            if (p.Intoxication >= 7500 && p.IntoxicationWarningTick < 0) { p.IntoxicationWarningTick = CurrentTick; MedicalEvent("intoxication:warning", $"Person {p.Id}: heavy intoxication {p.Intoxication}; no further beer served, water, rest and medic available."); }
+            p.SevereTicks = p.Intoxication >= 8500 ? p.SevereTicks+1 : 0;
             SetConsumption(p);
             if(!ImmersionDepartureActive && _persons[p.Id] is { NeedProfile:MedicalNeedProfile.Staff,Thirst:>=MedicalDistressThirst,Intent:MedicalIntent.WatchShow } && ImmersionHandsAvailable(p.Id)) { if(p.VendorId is not null)LeaveImmersionQueue(p.Id,false);SeekWater(p.Id,"Urgent staff thirst: free water precedes shopping");continue; }
             if (p.IntoxicationCollapseTick>=0 && PersonIn(PersonView.Medical, p.Id) is { } collapsed)
             {
-                if(collapsed.HealthStage==MedicalStage.Collapsed && CurrentTick>=p.IntoxicationCollapseTick+MedicalCriticalDelayTicks) { UpdatePerson(p.Id,n=>n with { HealthStage=MedicalStage.Critical,HealthCriticalTick=CurrentTick }); MedicalEvent("intoxication:critical",$"Person {p.Id}: untreated intoxication collapse; physical response deadline remains."); }
+                if(collapsed.HealthStage==MedicalStage.Collapsed && CurrentTick>=p.IntoxicationCollapseTick+MedicalCriticalDelayTicks) { MutatePerson(p.Id, n => { n.HealthStage = MedicalStage.Critical; n.HealthCriticalTick = CurrentTick; }); MedicalEvent("intoxication:critical",$"Person {p.Id}: untreated intoxication collapse; physical response deadline remains."); }
                 if(CurrentTick>=p.IntoxicationCollapseTick+MedicalDeathDelayTicks && _persons[p.Id].HealthStage==MedicalStage.Critical) { var need=_persons[p.Id];ApplyMedicalDeath(p.Id,p.IntoxicationWarningTick,p.IntoxicationCollapseTick,need.HealthCriticalTick);return; }
             }
             if (p.SevereTicks >= 1600 && p.IntoxicationWarningTick >= 0 && p.IntoxicationCollapseTick < 0 && !ExistingMedicalHazardOwns(p.Id) && InView(PersonView.Medical, p.Id))
             {
                 var need = _persons[p.Id];
-                p=p with { IntoxicationCollapseTick=CurrentTick, PriorMedicalStage=p.Id==_medical!.AtRiskGuestId?_medical.Stage:need.HealthStage }; SetConsumption(p);
+                { p.IntoxicationCollapseTick = CurrentTick; p.PriorMedicalStage = p.Id==_medical!.AtRiskGuestId?_medical.Stage:need.HealthStage; } SetConsumption(p);
                 LeaveImmersionQueue(p.Id,false); LeaveWater(p.Id,"Intoxication collapse",false); MedicalRelinquishPerformerStage(p.Id);
                 var nav=_navigationAgents[new(p.Id)]; ApplyAgentDestination(new(p.Id),new(TraversalGrid.WorldToCell(nav.XMillimetres,nav.ZMillimetres),"medical.intoxication-collapse"));
-                UpdatePerson(p.Id,n=>n with { HealthStage=MedicalStage.Collapsed,HealthWarningTick=p.IntoxicationWarningTick,HealthCollapseTick=CurrentTick,Intent=MedicalIntent.Collapsed,Reason="Intoxication collapse; physical medic response required" });
+                MutatePerson(p.Id, n => { n.HealthStage = MedicalStage.Collapsed; n.HealthWarningTick = p.IntoxicationWarningTick; n.HealthCollapseTick = CurrentTick; n.Intent = MedicalIntent.Collapsed; n.Reason = "Intoxication collapse; physical medic response required"; });
                 if (p.Id==_medical.AtRiskGuestId) _medical=_medical with { Stage=MedicalStage.Collapsed,WarningTick=p.IntoxicationWarningTick,CollapseTick=CurrentTick };
                 MedicalEvent("intoxication:collapse",$"Person {p.Id}: exposure continuously above8500 for20s after warning {p.IntoxicationWarningTick}; critical and fatal response deadlines begin now.");
                 RecordGuestMedicalCollapse(p.Id);
@@ -267,7 +266,7 @@ public sealed partial class GameSession
         if (care<1600 || p.Intoxication>=7500) return true;
         var restored=p.PriorMedicalStage==MedicalStage.Treated?MedicalStage.Treated:MedicalStage.Clear;
         SetConsumption(p with { IntoxicationWarningTick=-1,IntoxicationCollapseTick=-1,SevereTicks=0,CareTicks=0 });
-        UpdatePerson(id,n=>n with { HealthStage=restored,Intent=MedicalIntent.WatchShow,Reason="Gradual intoxication stabilization completed; future exposure can warn again",HealthWarningTick=-1,HealthCollapseTick=-1,HealthCriticalTick=-1 });
+        MutatePerson(id, n => { n.HealthStage = restored; n.Intent = MedicalIntent.WatchShow; n.Reason = "Gradual intoxication stabilization completed; future exposure can warn again"; n.HealthWarningTick = -1; n.HealthCollapseTick = -1; n.HealthCriticalTick = -1; });
         if (id==_medical!.AtRiskGuestId) _medical=_medical with { Stage=restored,WarningTick=-1,CollapseTick=-1,CriticalTick=-1 };
         SetMedicResponse(job with { Stage=MedicalResponseStage.Completed,Description="Gradual intoxication stabilization completed" }); ReturnToListening(id);
         MedicalEvent("intoxication:treatment-complete",$"Physical medic {job.WorkerId} stabilized {id} gradually over20s; exposure remains {p.Intoxication}."); return true;
@@ -276,7 +275,7 @@ public sealed partial class GameSession
     private int ImmersionCoordinationPace(ulong id) => PersonIn(PersonView.Consumption, id) is { Intoxication:>=5000 } person && _persons[id].Role==ProtectedPersonRole.Guest && !MedicalOwnsNavigation(id) && !DisorderOwnsNavigation(id) && !InterventionOwnsTarget(id) ? Math.Max(800,1000-(person.Intoxication-5000)/25) : 1000;
     public bool ImmersionBoundaryOnNextTick => !IsPaused && MedicalOperationsActive && _immersion is { } m &&
         (EffectiveToilets(m).Any(toilet => toilet.OwnerId is not null && toilet.ServiceTicks <= 1 &&
-             PeopleIn(PersonView.Consumption).Any(p => p.Id == toilet.OwnerId && p.ToiletStage == ToiletVisitStage.Using)) ||
+             (toilet.OwnerId is { } owner && PersonIn(PersonView.Consumption, owner) is { ToiletStage: ToiletVisitStage.Using })) ||
          m.Vendors.Any(v=>v.OwnerId is not null && v.ServiceTicks<=1) || PeopleIn(PersonView.Consumption).Any(p=>!_persons[p.Id].Departed && (p.IntoxicationWarningTick<0 && p.Intoxication>=7499 || p.SevereTicks>=1599 && p.Intoxication>=8500 && p.IntoxicationWarningTick>=0 && p.IntoxicationCollapseTick<0 && !ExistingMedicalHazardOwns(p.Id) || p.IntoxicationCollapseTick>=0 && (CurrentTick+1==p.IntoxicationCollapseTick+MedicalCriticalDelayTicks || CurrentTick+1==p.IntoxicationCollapseTick+MedicalDeathDelayTicks))));
     private bool IntoxicationCareBoundary(MedicResponse job) => IntoxicationCareOwns(job) && _persons[job.PatientId!.Value].CareTicks>=1599;
     private void CleanupImmersionDeparture()

@@ -29,7 +29,7 @@ public sealed partial class GameSession
     {
         if (_preparation is null) return;
         foreach (var person in PeopleIn(PersonView.Consumption))
-            if (PeopleIn(PersonView.Roster).Any(p => p.Id == person.Id && p.Role == ProtectedPersonRole.Guest))
+            if (PersonIn(PersonView.Roster, person.Id) is { Role: ProtectedPersonRole.Guest })
                 _persons.Set(person with { Hunger = GuestOpeningHunger(CampaignSeed, person.Id), ToiletNeed = GuestOpeningToiletNeed(CampaignSeed, person.Id) });
         if (_medical is { } medical)
             foreach (var need in PeopleIn(PersonView.Medical))

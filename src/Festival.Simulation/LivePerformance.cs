@@ -147,7 +147,7 @@ public sealed partial class GameSession
             var listener = listeners[index];
             if (AudienceNavigationOwned(listener.AgentId) ||
                 CurrentTick - listener.LastDecisionTick < 800 ||
-                !PeopleIn(PersonView.Roster).Any(item => item.Id == listener.AgentId && item.Admitted && !item.Departed)) continue;
+                PersonIn(PersonView.Roster, listener.AgentId) is not { Admitted: true, Departed: false }) continue;
             listeners[index] = listener = listener with { LastDecisionTick = CurrentTick };
             var start = _navigationAgents[new(listener.AgentId)];
             var startCell = TraversalGrid.WorldToCell(start.XMillimetres, start.ZMillimetres);

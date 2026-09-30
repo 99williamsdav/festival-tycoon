@@ -14,7 +14,7 @@ public sealed partial class GameSession
         return stage==MedicalStage.Distress && CurrentTick+1>=warning+MedicalCollapseDelayTicks ||
             stage==MedicalStage.Collapsed && CurrentTick+1>=collapse+MedicalCriticalDelayTicks ||
             stage==MedicalStage.Critical && CurrentTick+1>=collapse+MedicalDeathDelayTicks ||
-            PeopleIn(PersonView.Disorder).Any(person=>person.Id==need.Id && person.ConductStage==DisorderStage.Injured && CurrentTick+1>=person.InjuryTick+DisorderInjuryDeathTicks);
+            (PersonIn(PersonView.Disorder, need.Id) is { ConductStage: DisorderStage.Injured } injured && CurrentTick+1>=injured.InjuryTick+DisorderInjuryDeathTicks);
     });
     private bool IsImmersionMedic(ulong id) => GetMedicResponses().Any(job => job.WorkerId == id);
     private bool ImmersionDepartureJobOwns(ulong id) => PersonCollapsed(id) ||
@@ -59,8 +59,7 @@ public sealed partial class GameSession
             var intent = holdMedic ? "medical.departure-standby" : "edition.departure";
             var nav = _navigationAgents[new(person.Id)];
             if (nav.Destination != cell || nav.IntentId != intent) ApplyAgentDestination(new(person.Id), new(cell, intent));
-            UpdatePerson(person.Id, need => need with { Intent = holdMedic ? MedicalIntent.WatchShow : MedicalIntent.Leaving,
-                Reason = holdMedic ? "Medic available while protected people remain on site" : "Physically leaving; ingestion and exposure continue until exit" });
+            MutatePerson(person.Id, need => { need.Intent = holdMedic ? MedicalIntent.WatchShow : MedicalIntent.Leaving; need.Reason = holdMedic ? "Medic available while protected people remain on site" : "Physically leaving; ingestion and exposure continue until exit"; });
         }
     }
     private void AdvanceImmersionDepartureMedicine()
@@ -73,7 +72,7 @@ public sealed partial class GameSession
             if (injury is not null)
             {
                 if (need.HealthStage == MedicalStage.Treated)
-                    UpdatePerson(person.Id, item => item with { ConductStage = DisorderStage.Resolved, Pressure = 0, ConductStageTick = CurrentTick, CooldownUntilTick = CurrentTick + 800 });
+                    MutatePerson(person.Id, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.ConductStageTick = CurrentTick; item.CooldownUntilTick = CurrentTick + 800; });
                 else if (CurrentTick >= injury.InjuryTick + DisorderInjuryDeathTicks) { ApplyDisorderDeath(person.Id); return; }
                 continue;
             }
@@ -85,7 +84,7 @@ public sealed partial class GameSession
             {
                 var nav = _navigationAgents[new(person.Id)];
                 ApplyAgentDestination(new(person.Id), new(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres), "medical.departure-collapse"));
-                UpdatePerson(person.Id, item => item with { HealthStage = MedicalStage.Collapsed, Intent = MedicalIntent.Collapsed, HealthCollapseTick = CurrentTick });
+                MutatePerson(person.Id, item => { item.HealthStage = MedicalStage.Collapsed; item.Intent = MedicalIntent.Collapsed; item.HealthCollapseTick = CurrentTick; });
                 if (primary) _medical = _medical with { Stage = MedicalStage.Collapsed, CollapseTick = CurrentTick };
                 MedicalEvent("medical:collapse", $"Person {person.Id}: existing medical warning progressed during physical departure");
                 RecordGuestMedicalCollapse(person.Id);
@@ -93,7 +92,7 @@ public sealed partial class GameSession
             }
             if (stage == MedicalStage.Collapsed && CurrentTick >= collapse + MedicalCriticalDelayTicks)
             {
-                UpdatePerson(person.Id, item => item with { HealthStage = MedicalStage.Critical, HealthCriticalTick = CurrentTick });
+                MutatePerson(person.Id, item => { item.HealthStage = MedicalStage.Critical; item.HealthCriticalTick = CurrentTick; });
                 if (primary) _medical = _medical with { Stage = MedicalStage.Critical, CriticalTick = CurrentTick };
                 MedicalEvent("medical:critical", $"Person {person.Id}: medical deadline continues until physical exit");
                 stage = MedicalStage.Critical;

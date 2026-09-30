@@ -5,30 +5,33 @@ public sealed partial class GameSession
     private readonly PersonRegistry _persons = new();
 
     /// <summary>The current state of one protected person, or null when unknown.</summary>
-    public Person? CapturePerson(ulong id) => _persons.TryGet(id, out var person) ? person : null;
+    public Person? CapturePerson(ulong id) => _persons.TryGet(id, out var person) ? person with { } : null;
 
     private void UpdatePerson(ulong id, Func<Person, Person> change) => _persons.Set(change(_persons[id]));
+    /// <summary>Changes one person in place; the change must read everything it needs before writing.</summary>
+    private void MutatePerson(ulong id, Action<Person> change) => _persons.Mutate(id, change);
     private readonly Dictionary<PersonView, (long Version, Person[] People)> _peopleInCache = [];
 
     /// <summary>
-    /// A stable snapshot of the people tracked by one system, in that system's order. The array is
-    /// shared until the registry changes, so callers must copy it before writing into it.
+    /// The live people tracked by one system, in that system's order. Elements are the stored
+    /// instances, so they always show current state; the array is shared until membership
+    /// changes and must be copied before writing into it.
     /// </summary>
     private Person[] PeopleIn(PersonView view)
     {
-        if (_peopleInCache.TryGetValue(view, out var cached) && cached.Version == _persons.Version) return cached.People;
+        if (_peopleInCache.TryGetValue(view, out var cached) && cached.Version == _persons.MembershipVersion) return cached.People;
         var people = _persons.Project(view, person => person);
-        _peopleInCache[view] = (_persons.Version, people);
+        _peopleInCache[view] = (_persons.MembershipVersion, people);
         return people;
     }
     private Person? PersonIn(PersonView view, ulong id) => _persons.IsMember(view, id) ? _persons[id] : null;
     private bool InView(PersonView view, ulong id) => _persons.IsMember(view, id);
     /// <summary>Writes only the food, drink, intoxication and toilet state carried by a working copy.</summary>
-    private void SetConsumption(Person changed) => UpdatePerson(changed.Id, current => Person.With(current, changed.ToImmersionPerson()));
-    /// <summary>Writes only the pressure, grievance and conduct state carried by a working copy.</summary>
+    private void SetConsumption(Person changed) => _persons.Mutate(changed.Id, live => { if (!ReferenceEquals(live, changed)) live.CopyConsumptionFrom(changed); });
     /// <summary>Writes only the presence and experience state carried by a working copy.</summary>
-    private void SetPresence(Person changed) => UpdatePerson(changed.Id, current => Person.With(current, changed.ToEditionPerson()));
-    private void SetConduct(Person changed) => UpdatePerson(changed.Id, current => Person.With(current, changed.ToDisorderPerson()));
+    private void SetPresence(Person changed) => _persons.Mutate(changed.Id, live => { if (!ReferenceEquals(live, changed)) live.CopyPresenceFrom(changed); });
+    /// <summary>Writes only the pressure, grievance and conduct state carried by a working copy.</summary>
+    private void SetConduct(Person changed) => _persons.Mutate(changed.Id, live => { if (!ReferenceEquals(live, changed)) live.CopyConductFrom(changed); });
 
     private (object? Core, long Version, PreparationSnapshot? View) _preparationView;
     private (object? Core, long Version, ImmersionSnapshot? View) _immersionView;

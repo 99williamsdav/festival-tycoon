@@ -321,11 +321,9 @@ public sealed partial class GameSession
         var patient = _navigationAgents[id];
         var patientCell = TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres);
         ApplyAgentDestination(id, new(patientCell, "medical.await-medic"));
-        UpdatePerson(command.GuestId, item => item with {
-            Intent = (item.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical ||
+        MutatePerson(command.GuestId, item => { item.Intent = (item.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical ||
                 item.Id == m.AtRiskGuestId && m.Stage is MedicalStage.Collapsed or MedicalStage.Critical)
-                ? MedicalIntent.Collapsed : MedicalIntent.AwaitMedic,
-            Reason = "Awaiting physically dispatched medic", WaterQueueSlot = null });
+                ? MedicalIntent.Collapsed : MedicalIntent.AwaitMedic; item.Reason = "Awaiting physically dispatched medic"; item.WaterQueueSlot = null; });
         // A medic cannot occupy the patient's cell. Reserve a walkable response
         // position beside it rather than waiting forever on collision avoidance.
         var workerId = command.WorkerId ?? m.MedicId;
@@ -342,8 +340,7 @@ public sealed partial class GameSession
             var need = _persons[id];
             if (id == _medical!.AtRiskGuestId || need.NeedProfile == MedicalNeedProfile.Performer)
             {
-                UpdatePerson(id, item => item with { Intent = MedicalIntent.Rest,
-                    Reason = "Water service closed; physically seeking first-aid rest" });
+                MutatePerson(id, item => { item.Intent = MedicalIntent.Rest; item.Reason = "Water service closed; physically seeking first-aid rest"; });
                 ApplyAgentDestination(new(id), new(MedicalRestCell, "disorder.water-closure-rest"));
             }
             return;
@@ -351,21 +348,19 @@ public sealed partial class GameSession
         foreach (var item in WaterPoints()) GrowWaterQueue(item.Id);
         var m = _medical!;
         if (WaterPoints().Any(point => point.Queue.Contains(id)) ||
-            PeopleIn(PersonView.Medical).Any(item => item.Id == id && item.Intent == MedicalIntent.SeekWater)) return;
+            PersonIn(PersonView.Medical, id) is { Intent: MedicalIntent.SeekWater }) return;
         if (WaterPoints().All(point => point.Queue.Length == 10 && point.Overflow.Length == 10))
         {
-            UpdatePerson(id, item => item with { Reason = "The physical free-water line is full", NeedDecisionTick = CurrentTick });
+            MutatePerson(id, item => { item.Reason = "The physical free-water line is full"; item.NeedDecisionTick = CurrentTick; });
             return;
         }
         var point = ChooseWaterPoint(id);
         if (EstimateWaterTotalTicks(id, point) == int.MaxValue)
         {
-            UpdatePerson(id, item => item with { Reason = "No reachable space at a physical water line", NeedDecisionTick = CurrentTick });
+            MutatePerson(id, item => { item.Reason = "No reachable space at a physical water line"; item.NeedDecisionTick = CurrentTick; });
             return;
         }
-        UpdatePerson(id, item => item with { Intent = MedicalIntent.SeekWater, Reason = reason,
-            WaterQueueSlot = null, NeedDecisionTick = CurrentTick, WaterPointId = point.Id,
-            LastWaterChoiceReviewTick = CurrentTick });
+        MutatePerson(id, item => { item.Intent = MedicalIntent.SeekWater; item.Reason = reason; item.WaterQueueSlot = null; item.NeedDecisionTick = CurrentTick; item.WaterPointId = point.Id; item.LastWaterChoiceReviewTick = CurrentTick; });
         MedicalRelinquishPerformerStage(id);
         ApplyAgentDestination(new(id), new(WaterApproach(point), "medical.free-water-approach"));
         MedicalEvent("medical:water-seek", $"Person {id} walked toward {point.Id} without reserving a place.");
@@ -409,14 +404,12 @@ public sealed partial class GameSession
             if (current.OwnerId == need.Id) continue;
             var decision = QueuedServiceChoice.Choose(need.Id, current.Id,
                 WaterPoints().Select(point => WaterChoiceCandidate(need.Id, point)).ToArray());
-            UpdatePerson(need.Id, item => item with { LastWaterChoiceReviewTick = CurrentTick });
+            MutatePerson(need.Id, item => item.LastWaterChoiceReviewTick = CurrentTick);
             if (decision is not { Switched: true }) continue;
             var best = WaterPoints().Single(point => point.Id == decision.Id);
             var wasQueued = current.Queue.Contains(need.Id) || current.Overflow.Contains(need.Id);
             if (wasQueued) LeaveWater(need.Id, "Left old place for a clearly shorter physical water line", reroute: false);
-            UpdatePerson(need.Id, item => item with { WaterPointId = best.Id, Intent = MedicalIntent.SeekWater, WaterQueueSlot = null,
-                LastWaterChoiceReviewTick = CurrentTick,
-                Reason = $"Rechosen {best.Id}; old place forfeited: {decision.TotalTicks} vs {decision.CurrentTicks} remaining ticks" });
+            MutatePerson(need.Id, item => { item.WaterPointId = best.Id; item.Intent = MedicalIntent.SeekWater; item.WaterQueueSlot = null; item.LastWaterChoiceReviewTick = CurrentTick; item.Reason = $"Rechosen {best.Id}; old place forfeited: {decision.TotalTicks} vs {decision.CurrentTicks} remaining ticks"; });
             ApplyAgentDestination(new(need.Id), new(WaterApproach(best), "medical.free-water-approach"));
             MedicalEvent("medical:water-rechoose", $"Person {need.Id} switched to {best.Id}; no advance reservation, old place forfeited={wasQueued}.");
         }
@@ -452,7 +445,7 @@ public sealed partial class GameSession
             {
                 var slot = point.Queue.Length;
                 SetWaterPoint(point with { Queue = point.Queue.Append(id).ToArray() });
-                UpdatePerson(id, item => item with { WaterQueueSlot = slot, Reason = $"Joined the free-water line on physical arrival at tick {CurrentTick}" });
+                MutatePerson(id, item => { item.WaterQueueSlot = slot; item.Reason = $"Joined the free-water line on physical arrival at tick {CurrentTick}"; });
                 ApplyAgentDestination(new(id), new(WaterSlot(point, slot), "medical.free-water-queue"));
                 MedicalEvent("medical:queue-join", $"Person {id} arrived physically and took {point.Id} place {slot}; no payment or stock transfer.");
             }
@@ -460,7 +453,7 @@ public sealed partial class GameSession
             {
                 var slot = point.Overflow.Length;
                 SetWaterPoint(point with { Overflow = point.Overflow.Append(id).ToArray() });
-                UpdatePerson(id, item => item with { Reason = $"Reached visible water overflow place {slot} at tick {CurrentTick}" });
+                MutatePerson(id, item => item.Reason = $"Reached visible water overflow place {slot} at tick {CurrentTick}");
                 ApplyAgentDestination(new(id), new(WaterOverflowSlot(point, slot), "medical.free-water-overflow"));
                 MedicalEvent("medical:overflow-join", $"Person {id} reached {point.Id} overflow place {slot} after physical arrival.");
             }
@@ -474,7 +467,7 @@ public sealed partial class GameSession
         var point = WaterPointFor(id);
         if (!point.Queue.Contains(id))
         {
-            if (!PeopleIn(PersonView.Medical).Any(item => item.Id == id && item.Intent == MedicalIntent.SeekWater)) return;
+            if (PersonIn(PersonView.Medical, id) is not { Intent: MedicalIntent.SeekWater }) return;
             if (point.Overflow.Contains(id))
             {
                 SetWaterPoint(point with { Overflow = point.Overflow.Where(member => member != id).ToArray() });
@@ -482,8 +475,7 @@ public sealed partial class GameSession
                 for (var index = 0; index < point.Overflow.Length; index++)
                     ApplyAgentDestination(new(point.Overflow[index]), new(WaterOverflowSlot(point, index), "medical.free-water-overflow"));
             }
-            UpdatePerson(id, item => item with { Intent = MedicalIntent.WatchShow, Reason = reason, WaterQueueSlot = null,
-                NeedDecisionTick = CurrentTick });
+            MutatePerson(id, item => { item.Intent = MedicalIntent.WatchShow; item.Reason = reason; item.WaterQueueSlot = null; item.NeedDecisionTick = CurrentTick; });
             if (reroute) ReturnToListening(id);
             if (retargetSeekers) RetargetWaterSeekers();
             MedicalEvent("medical:queue-leave", $"Person {id} left the water approach before taking a place: {reason}.");
@@ -492,14 +484,13 @@ public sealed partial class GameSession
         var ordered = point.Queue.Where(item => item != id).ToArray();
         SetWaterPoint(point with { Queue = ordered, OwnerId = point.OwnerId == id ? null : point.OwnerId,
             DrinkTicks = point.OwnerId == id ? 0 : point.DrinkTicks });
-        UpdatePerson(id, item => item with { Intent = MedicalIntent.WatchShow, Reason = reason, WaterQueueSlot = null,
-            NeedDecisionTick = CurrentTick });
+        MutatePerson(id, item => { item.Intent = MedicalIntent.WatchShow; item.Reason = reason; item.WaterQueueSlot = null; item.NeedDecisionTick = CurrentTick; });
         for (var index = 0; index < ordered.Length; index++)
         {
             var member = ordered[index];
             var old = _persons[member];
             if (old.WaterQueueSlot == index) continue;
-            UpdatePerson(member, item => item with { WaterQueueSlot = index });
+            MutatePerson(member, item => item.WaterQueueSlot = index);
             ApplyAgentDestination(new(member), new(WaterSlot(point, index), "medical.free-water-queue"));
         }
         point = WaterPointFor(id);
@@ -508,7 +499,7 @@ public sealed partial class GameSession
             var promoted = point.Overflow[0];
             var slot = point.Queue.Length;
             SetWaterPoint(point with { Queue = point.Queue.Append(promoted).ToArray(), Overflow = point.Overflow.Skip(1).ToArray() });
-            UpdatePerson(promoted, item => item with { WaterQueueSlot = slot, Reason = "Advanced from the visible overflow tail" });
+            MutatePerson(promoted, item => { item.WaterQueueSlot = slot; item.Reason = "Advanced from the visible overflow tail"; });
             ApplyAgentDestination(new(promoted), new(WaterSlot(point, slot), "medical.free-water-queue"));
             point = WaterPointFor(id);
             for (var index = 0; index < point.Overflow.Length; index++)
@@ -524,7 +515,7 @@ public sealed partial class GameSession
         if (ImmersionDepartureActive)
         {
             var index = Array.FindIndex(PeopleIn(PersonView.Roster), person => person.Id == id);
-            UpdatePerson(id, need => need with { Intent = MedicalIntent.Leaving, Reason = "Care completed; physically leaving" });
+            MutatePerson(id, need => { need.Intent = MedicalIntent.Leaving; need.Reason = "Care completed; physically leaving"; });
             ApplyAgentDestination(new(id), new(PreparedStart(index), "edition.departure"));
             return;
         }
@@ -591,7 +582,7 @@ public sealed partial class GameSession
         }
         if (HasPerk("thirsty-crowd") && CurrentTick % 40 == 0)
             foreach (var item in PeopleIn(PersonView.Medical))
-                if (item.NeedProfile == MedicalNeedProfile.Guest && PeopleIn(PersonView.Roster).Any(person => person.Id == item.Id && person.Admitted))
+                if (item.NeedProfile == MedicalNeedProfile.Guest && PersonIn(PersonView.Roster, item.Id) is { Admitted: true })
                     _persons.Set(item with { Thirst = Math.Min(10_000, item.Thirst + 1) });
         if (CurrentTick % 80 == 0)
         {
@@ -620,9 +611,7 @@ public sealed partial class GameSession
                     MedicalRouteExists(need.Id, MedicalRestCell))
                 {
                     MedicalRelinquishPerformerStage(need.Id);
-                    UpdatePerson(need.Id, item => item with { Intent = MedicalIntent.Rest,
-                        Reason = "Hot exposure takes priority over current and upcoming music; physically seeking rest",
-                        NeedDecisionTick = CurrentTick });
+                    MutatePerson(need.Id, item => { item.Intent = MedicalIntent.Rest; item.Reason = "Hot exposure takes priority over current and upcoming music; physically seeking rest"; item.NeedDecisionTick = CurrentTick; });
                     ApplyAgentDestination(new(need.Id), new(MedicalRestCell, "medical.rest"));
                 }
                 else if (need.Intent == MedicalIntent.SeekWater)
@@ -632,8 +621,7 @@ public sealed partial class GameSession
                 }
                 else if (urgent || waterScore > showScore)
                     SeekWater(need.Id, $"Hot thirst {need.Thirst}/10000 outweighed band {showScore}; estimated walk + wait + drink {EstimateWaterTotalTicks(need.Id, bestPoint)} ticks");
-                else UpdatePerson(need.Id, item => item with { Reason = $"Current/upcoming act appeal {showScore} vs water {waterScore} incl. travel/wait",
-                    NeedDecisionTick = CurrentTick });
+                else MutatePerson(need.Id, item => { item.Reason = $"Current/upcoming act appeal {showScore} vs water {waterScore} incl. travel/wait"; item.NeedDecisionTick = CurrentTick; });
                 m = _medical!;
             }
         }
@@ -650,24 +638,21 @@ public sealed partial class GameSession
             if (point.OwnerId is null && atTap)
             {
                 SetWaterPoint(point with { OwnerId = first, DrinkTicks = 0 });
-                UpdatePerson(first, item => item with { Intent = MedicalIntent.Drinking,
-                    Reason = $"Drinking at {point.Id} ({EffectiveMedicalDrinkThirstPerTickFor(first)} thirst/tick); thirst and heat improve continuously" });
+                MutatePerson(first, item => { item.Intent = MedicalIntent.Drinking; item.Reason = $"Drinking at {point.Id} ({EffectiveMedicalDrinkThirstPerTickFor(first)} thirst/tick); thirst and heat improve continuously"; });
                 MedicalEvent("medical:drink-start", $"Person {first} started drinking at {point.Id} after physical arrival.");
                 point = WaterPoints().Single(item => item.Id == selected.Id);
             }
             if (point.OwnerId == first && atTap)
             {
-                UpdatePerson(first, item => item with { Thirst = Math.Max(0, item.Thirst - EffectiveMedicalDrinkThirstPerTickFor(first)),
-                    HeatExposure = Math.Max(0, item.HeatExposure - EffectiveMedicalDrinkHeatPerTickFor(first)) });
+                MutatePerson(first, item => { item.Thirst = Math.Max(0, item.Thirst - EffectiveMedicalDrinkThirstPerTickFor(first)); item.HeatExposure = Math.Max(0, item.HeatExposure - EffectiveMedicalDrinkHeatPerTickFor(first)); });
                 SetWaterPoint(point with { DrinkTicks = point.DrinkTicks + 1 });
-                if (HasPerk("something-in-the-water") && PeopleIn(PersonView.Roster).Any(person => person.Id == first && person.Role == ProtectedPersonRole.Guest))
-                    UpdatePerson(first, person => person with { Satisfaction = Math.Min(10_000, person.Satisfaction + 1) });
+                if (HasPerk("something-in-the-water") && PersonIn(PersonView.Roster, first) is { Role: ProtectedPersonRole.Guest })
+                    MutatePerson(first, person => person.Satisfaction = Math.Min(10_000, person.Satisfaction + 1));
                 if (_persons[first].Thirst == 0)
                 {
                     var drankTicks = point.DrinkTicks + 1;
                     LeaveWater(first, "Thirst reached zero after drinking", reroute: true);
-                    UpdatePerson(first, item => item with { LastWaterTick = CurrentTick,
-                        Reason = "Drank free water until thirst reached zero" });
+                    MutatePerson(first, item => { item.LastWaterTick = CurrentTick; item.Reason = "Drank free water until thirst reached zero"; });
                     MedicalEvent("medical:water", $"Person {first} finished at {point.Id} after {drankTicks} ticks; thirst zero, no payment or stock transfer.");
                 }
             }
@@ -677,11 +662,12 @@ public sealed partial class GameSession
         {
             if (_navigationAgents[new(resting.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } restCell } && restCell == MedicalRestCell)
             {
-                UpdatePerson(resting.Id, item => item with { HeatExposure = Math.Max(0, item.HeatExposure - 8) });
-                if ((resting.HealthStage is MedicalStage.Clear or MedicalStage.Treated) && resting.HeatExposure <= 6_000)
+                // Recovery is judged on the state before this tick's relief.
+                var (stageBefore, heatBefore) = (resting.HealthStage, resting.HeatExposure);
+                MutatePerson(resting.Id, item => item.HeatExposure = Math.Max(0, item.HeatExposure - 8));
+                if ((stageBefore is MedicalStage.Clear or MedicalStage.Treated) && heatBefore <= 6_000)
                 {
-                    UpdatePerson(resting.Id, item => item with { Intent = MedicalIntent.WatchShow,
-                        Reason = "Rest relieved Hot exposure; ordinary needs decisions resume", NeedDecisionTick = CurrentTick });
+                    MutatePerson(resting.Id, item => { item.Intent = MedicalIntent.WatchShow; item.Reason = "Rest relieved Hot exposure; ordinary needs decisions resume"; item.NeedDecisionTick = CurrentTick; });
                     ReturnToListening(resting.Id);
                 }
             }
@@ -691,7 +677,7 @@ public sealed partial class GameSession
         var target = _persons[m.AtRiskGuestId];
         if (target.Intent == MedicalIntent.Rest && _navigationAgents[new(target.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } rest } && rest == MedicalRestCell)
         {
-            UpdatePerson(target.Id, item => item with { HeatExposure = Math.Max(0, item.HeatExposure - 8) });
+            MutatePerson(target.Id, item => item.HeatExposure = Math.Max(0, item.HeatExposure - 8));
             m = _medical!; target = _persons[m.AtRiskGuestId];
         }
         if (m.Stage == MedicalStage.Clear && target.Thirst >= MedicalDistressThirst && target.HeatExposure >= MedicalDistressHeat)
@@ -710,8 +696,7 @@ public sealed partial class GameSession
                 Response = otherPatientActive ? m.Response : relief };
             if (target.Intent == MedicalIntent.Rest)
             {
-                UpdatePerson(target.Id, item => item with { Intent = MedicalIntent.WatchShow,
-                    Reason = "Rest relieved Hot exposure; free to return to the show" });
+                MutatePerson(target.Id, item => { item.Intent = MedicalIntent.WatchShow; item.Reason = "Rest relieved Hot exposure; free to return to the show"; });
                 ReturnToListening(target.Id);
             }
             MedicalEvent("medical:prevented", relief); return;
@@ -730,7 +715,7 @@ public sealed partial class GameSession
             LeaveWater(m.AtRiskGuestId, "Collapsed before drinking", reroute: false);
             var patient = _navigationAgents[new(m.AtRiskGuestId)];
             ApplyAgentDestination(new(m.AtRiskGuestId), new(TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres), "medical.collapsed"));
-            UpdatePerson(m.AtRiskGuestId, item => item with { Intent = MedicalIntent.Collapsed, Reason = "Collapsed; needs physical medic response", WaterQueueSlot = null });
+            MutatePerson(m.AtRiskGuestId, item => { item.Intent = MedicalIntent.Collapsed; item.Reason = "Collapsed; needs physical medic response"; item.WaterQueueSlot = null; });
             _medical = _medical! with { Stage = MedicalStage.Collapsed, CollapseTick = CurrentTick,
                 ResponseStage = m.ResponseStage == MedicalResponseStage.Removing ? MedicalResponseStage.None : m.ResponseStage };
             MedicalEvent("medical:collapse", "Guest collapsed after visible distress; untreated response window remains.");
@@ -755,16 +740,16 @@ public sealed partial class GameSession
             if (need.HealthStage is MedicalStage.Treated or MedicalStage.Removed) continue;
             if (need.HealthStage == MedicalStage.Clear && need.Thirst >= MedicalDistressThirst && need.HeatExposure >= MedicalDistressHeat)
             {
-                UpdatePerson(need.Id, item => item with { HealthStage = MedicalStage.Distress, HealthWarningTick = CurrentTick });
+                MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Distress; item.HealthWarningTick = CurrentTick; });
                 MedicalEvent("medical:distress", $"Performer {need.Id} distressed in Hot conditions; free water, rest and first aid are available.");
             }
             need = _persons[performer.Id];
             if (need.HealthStage == MedicalStage.Distress && (need.Thirst < MedicalDistressThirst || need.HeatExposure < MedicalDistressHeat))
             {
-                UpdatePerson(need.Id, item => item with { HealthStage = MedicalStage.Treated, Reason = "Need relieved before collapse" });
+                MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Treated; item.Reason = "Need relieved before collapse"; });
                 if (need.Intent == MedicalIntent.Rest)
                 {
-                    UpdatePerson(need.Id, item => item with { Intent = MedicalIntent.WatchShow });
+                    MutatePerson(need.Id, item => item.Intent = MedicalIntent.WatchShow);
                     ReturnToListening(need.Id);
                 }
                 MedicalEvent("medical:prevented", $"Performer {need.Id} relieved through water or rest.");
@@ -776,15 +761,14 @@ public sealed partial class GameSession
                 MedicalRelinquishPerformerStage(need.Id);
                 var patient = _navigationAgents[new(need.Id)];
                 ApplyAgentDestination(new(need.Id), new(TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres), "medical.collapsed"));
-                UpdatePerson(need.Id, item => item with { HealthStage = MedicalStage.Collapsed, HealthCollapseTick = CurrentTick,
-                    Intent = MedicalIntent.Collapsed, Reason = "Collapsed; needs physical medic response", WaterQueueSlot = null });
+                MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Collapsed; item.HealthCollapseTick = CurrentTick; item.Intent = MedicalIntent.Collapsed; item.Reason = "Collapsed; needs physical medic response"; item.WaterQueueSlot = null; });
                 MedicalEvent("medical:collapse", $"Performer {need.Id} collapsed after visible distress.");
                 RecordGuestMedicalCollapse(need.Id);
             }
             need = _persons[performer.Id];
             if (need.HealthStage == MedicalStage.Collapsed && CurrentTick >= need.HealthCollapseTick + MedicalCriticalDelayTicks)
             {
-                UpdatePerson(need.Id, item => item with { HealthStage = MedicalStage.Critical, HealthCriticalTick = CurrentTick });
+                MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Critical; item.HealthCriticalTick = CurrentTick; });
                 MedicalEvent("medical:critical", $"Performer {need.Id} remains untreated after collapse.");
             }
             need = _persons[performer.Id];

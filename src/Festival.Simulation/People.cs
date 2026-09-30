@@ -6,87 +6,141 @@ namespace Festival.Simulation;
 /// stored copy of person state; the older per-system records (<see cref="EditionPerson"/>,
 /// <see cref="ImmersionPerson"/>, <see cref="MedicalNeed"/>, <see cref="DisorderPerson"/>)
 /// are read-model projections of it.
+/// <para>
+/// The registry holds one mutable instance per person and systems update it in place, so a
+/// reference always shows current state. Code that needs a person's state as it was before an
+/// update takes an explicit copy (<c>person with { }</c>). Outside the simulation only copies
+/// are handed out (<see cref="GameSession.CapturePerson"/>), so the public setters cannot
+/// reach live state.
+/// </para>
 /// </summary>
 public sealed record Person(ulong Id)
 {
     // Identity and presence.
-    public string Name { get; init; } = "";
-    public ProtectedPersonRole Role { get; init; }
-    public int ExpectedGenre { get; init; }
-    public bool Admitted { get; init; }
-    public bool Departed { get; init; }
+    public string Name { get; set; } = "";
+    public ProtectedPersonRole Role { get; set; }
+    public int ExpectedGenre { get; set; }
+    public bool Admitted { get; set; }
+    public bool Departed { get; set; }
 
     // Experience.
-    public int Satisfaction { get; init; } = 5_000;
-    public int MusicRisk { get; init; }
+    public int Satisfaction { get; set; } = 5_000;
+    public int MusicRisk { get; set; }
 
     // Stable traits.
-    public int OpeningBudgetPennies { get; init; }
-    public bool Abstains { get; init; }
-    public int BeerTaste { get; init; }
-    public int SoftTaste { get; init; }
-    public int PriceReluctance { get; init; }
-    public int Temperament { get; init; }
-    public int QueueToleranceTicks { get; init; }
+    public int OpeningBudgetPennies { get; set; }
+    public bool Abstains { get; set; }
+    public int BeerTaste { get; set; }
+    public int SoftTaste { get; set; }
+    public int PriceReluctance { get; set; }
+    public int Temperament { get; set; }
+    public int QueueToleranceTicks { get; set; }
 
     // Needs, on the fixed 0–10,000 scale. StaffThirst is the legacy thirst used only
     // by people without a need profile.
-    public int Thirst { get; init; }
-    public int HeatExposure { get; init; }
-    public int Hunger { get; init; }
-    public int HungerResidue { get; init; }
-    public int StaffThirst { get; init; } = 3_000;
-    public int ToiletNeed { get; init; }
-    public MedicalNeedProfile NeedProfile { get; init; }
+    public int Thirst { get; set; }
+    public int HeatExposure { get; set; }
+    public int Hunger { get; set; }
+    public int HungerResidue { get; set; }
+    public int StaffThirst { get; set; } = 3_000;
+    public int ToiletNeed { get; set; }
+    public MedicalNeedProfile NeedProfile { get; set; }
 
     // Food, drink and intoxication.
-    public ImmersionHeldItem? Held { get; init; }
-    public int Intoxication { get; init; }
-    public int PendingDose { get; init; }
-    public int FoodProtectionTicks { get; init; }
-    public int RecoveryResidue { get; init; }
-    public int AbsorptionResidue { get; init; }
-    public long ShoppingDecisionTick { get; init; } = -800;
-    public string? VendorId { get; init; }
-    public ImmersionProduct? Order { get; init; }
-    public long IntoxicationWarningTick { get; init; } = -1;
-    public int SevereTicks { get; init; }
-    public long IntoxicationCollapseTick { get; init; } = -1;
-    public int CareTicks { get; init; }
-    public MedicalStage PriorMedicalStage { get; init; }
+    public ImmersionHeldItem? Held { get; set; }
+    public int Intoxication { get; set; }
+    public int PendingDose { get; set; }
+    public int FoodProtectionTicks { get; set; }
+    public int RecoveryResidue { get; set; }
+    public int AbsorptionResidue { get; set; }
+    public long ShoppingDecisionTick { get; set; } = -800;
+    public string? VendorId { get; set; }
+    public ImmersionProduct? Order { get; set; }
+    public long IntoxicationWarningTick { get; set; } = -1;
+    public int SevereTicks { get; set; }
+    public long IntoxicationCollapseTick { get; set; } = -1;
+    public int CareTicks { get; set; }
+    public MedicalStage PriorMedicalStage { get; set; }
 
     // Toilet visits.
-    public int ToiletVisits { get; init; }
-    public ToiletVisitStage ToiletStage { get; init; }
-    public ToiletVisitKind? ToiletChoice { get; init; }
-    public string? ToiletId { get; init; }
-    public long? LastToiletChoiceReviewTick { get; init; }
+    public int ToiletVisits { get; set; }
+    public ToiletVisitStage ToiletStage { get; set; }
+    public ToiletVisitKind? ToiletChoice { get; set; }
+    public string? ToiletId { get; set; }
+    public long? LastToiletChoiceReviewTick { get; set; }
 
     // Water, rest and medical care.
-    public MedicalIntent Intent { get; init; }
-    public string Reason { get; init; } = "";
-    public long NeedDecisionTick { get; init; }
-    public int? WaterQueueSlot { get; init; }
-    public long LastWaterTick { get; init; }
-    public string WaterPointId { get; init; } = "water.main";
-    public long LastWaterChoiceReviewTick { get; init; } = -160;
-    public MedicalStage HealthStage { get; init; }
-    public long HealthWarningTick { get; init; } = -1;
-    public long HealthCollapseTick { get; init; } = -1;
-    public long HealthCriticalTick { get; init; } = -1;
+    public MedicalIntent Intent { get; set; }
+    public string Reason { get; set; } = "";
+    public long NeedDecisionTick { get; set; }
+    public int? WaterQueueSlot { get; set; }
+    public long LastWaterTick { get; set; }
+    public string WaterPointId { get; set; } = "water.main";
+    public long LastWaterChoiceReviewTick { get; set; } = -160;
+    public MedicalStage HealthStage { get; set; }
+    public long HealthWarningTick { get; set; } = -1;
+    public long HealthCollapseTick { get; set; } = -1;
+    public long HealthCriticalTick { get; set; } = -1;
 
     // Conduct and disorder.
-    public int Pressure { get; init; }
-    public DisorderGrievance Grievance { get; init; }
-    public DisorderStage ConductStage { get; init; }
-    public long GrievanceTick { get; init; }
-    public long ConductStageTick { get; init; }
-    public long QueueJoinedTick { get; init; }
-    public long InjuryTick { get; init; }
-    public long CooldownUntilTick { get; init; }
-    public ulong? OpponentId { get; init; }
+    public int Pressure { get; set; }
+    public DisorderGrievance Grievance { get; set; }
+    public DisorderStage ConductStage { get; set; }
+    public long GrievanceTick { get; set; }
+    public long ConductStageTick { get; set; }
+    public long QueueJoinedTick { get; set; }
+    public long InjuryTick { get; set; }
+    public long CooldownUntilTick { get; set; }
+    public ulong? OpponentId { get; set; }
 
-    internal static Person With(Person person, EditionPerson view) => person with
+        /// <summary>Copies only the presence fields from a working copy, as <see cref="With(Person, EditionPerson)"/> does.</summary>
+    internal void CopyPresenceFrom(Person other)
+    {
+        Name = other.Name; Role = other.Role; ExpectedGenre = other.ExpectedGenre; Admitted = other.Admitted;
+        Departed = other.Departed; Satisfaction = other.Satisfaction; MusicRisk = other.MusicRisk;
+    }
+
+    /// <summary>Copies only the consumption fields from a working copy, as <see cref="With(Person, ImmersionPerson)"/> does.</summary>
+    internal void CopyConsumptionFrom(Person other)
+    {
+        OpeningBudgetPennies = other.OpeningBudgetPennies; Hunger = other.Hunger; Abstains = other.Abstains; BeerTaste = other.BeerTaste;
+        SoftTaste = other.SoftTaste; PriceReluctance = other.PriceReluctance; Held = other.Held; Intoxication = other.Intoxication;
+        PendingDose = other.PendingDose; FoodProtectionTicks = other.FoodProtectionTicks; ShoppingDecisionTick = other.ShoppingDecisionTick; VendorId = other.VendorId;
+        Order = other.Order; IntoxicationWarningTick = other.IntoxicationWarningTick; SevereTicks = other.SevereTicks; HungerResidue = other.HungerResidue;
+        RecoveryResidue = other.RecoveryResidue; AbsorptionResidue = other.AbsorptionResidue; IntoxicationCollapseTick = other.IntoxicationCollapseTick; CareTicks = other.CareTicks;
+        PriorMedicalStage = other.PriorMedicalStage; StaffThirst = other.StaffThirst; ToiletNeed = other.ToiletNeed; ToiletVisits = other.ToiletVisits;
+        ToiletStage = other.ToiletStage; ToiletChoice = other.ToiletChoice; ToiletId = other.ToiletId; LastToiletChoiceReviewTick = other.LastToiletChoiceReviewTick;
+    }
+
+    /// <summary>Copies only the conduct fields from a working copy, as <see cref="With(Person, DisorderPerson)"/> does.</summary>
+    internal void CopyConductFrom(Person other)
+    {
+        Temperament = other.Temperament; QueueToleranceTicks = other.QueueToleranceTicks; Pressure = other.Pressure; Grievance = other.Grievance;
+        ConductStage = other.ConductStage; GrievanceTick = other.GrievanceTick; ConductStageTick = other.ConductStageTick; QueueJoinedTick = other.QueueJoinedTick;
+        InjuryTick = other.InjuryTick; CooldownUntilTick = other.CooldownUntilTick; OpponentId = other.OpponentId;
+    }
+
+    /// <summary>Overwrites every field with another copy of the same person.</summary>
+    internal void CopyFrom(Person other)
+    {
+        Name = other.Name; Role = other.Role; ExpectedGenre = other.ExpectedGenre; Admitted = other.Admitted;
+        Departed = other.Departed; Satisfaction = other.Satisfaction; MusicRisk = other.MusicRisk; OpeningBudgetPennies = other.OpeningBudgetPennies;
+        Abstains = other.Abstains; BeerTaste = other.BeerTaste; SoftTaste = other.SoftTaste; PriceReluctance = other.PriceReluctance;
+        Temperament = other.Temperament; QueueToleranceTicks = other.QueueToleranceTicks; Thirst = other.Thirst; HeatExposure = other.HeatExposure;
+        Hunger = other.Hunger; HungerResidue = other.HungerResidue; StaffThirst = other.StaffThirst; ToiletNeed = other.ToiletNeed;
+        NeedProfile = other.NeedProfile; Held = other.Held; Intoxication = other.Intoxication; PendingDose = other.PendingDose;
+        FoodProtectionTicks = other.FoodProtectionTicks; RecoveryResidue = other.RecoveryResidue; AbsorptionResidue = other.AbsorptionResidue; ShoppingDecisionTick = other.ShoppingDecisionTick;
+        VendorId = other.VendorId; Order = other.Order; IntoxicationWarningTick = other.IntoxicationWarningTick; SevereTicks = other.SevereTicks;
+        IntoxicationCollapseTick = other.IntoxicationCollapseTick; CareTicks = other.CareTicks; PriorMedicalStage = other.PriorMedicalStage; ToiletVisits = other.ToiletVisits;
+        ToiletStage = other.ToiletStage; ToiletChoice = other.ToiletChoice; ToiletId = other.ToiletId; LastToiletChoiceReviewTick = other.LastToiletChoiceReviewTick;
+        Intent = other.Intent; Reason = other.Reason; NeedDecisionTick = other.NeedDecisionTick; WaterQueueSlot = other.WaterQueueSlot;
+        LastWaterTick = other.LastWaterTick; WaterPointId = other.WaterPointId; LastWaterChoiceReviewTick = other.LastWaterChoiceReviewTick; HealthStage = other.HealthStage;
+        HealthWarningTick = other.HealthWarningTick; HealthCollapseTick = other.HealthCollapseTick; HealthCriticalTick = other.HealthCriticalTick; Pressure = other.Pressure;
+        Grievance = other.Grievance; ConductStage = other.ConductStage; GrievanceTick = other.GrievanceTick; ConductStageTick = other.ConductStageTick;
+        QueueJoinedTick = other.QueueJoinedTick; InjuryTick = other.InjuryTick; CooldownUntilTick = other.CooldownUntilTick; OpponentId = other.OpponentId;
+    }
+
+internal static Person With(Person person, EditionPerson view) => person with
     {
         Name = view.Name, Role = view.Role, ExpectedGenre = view.ExpectedGenre, Admitted = view.Admitted,
         Departed = view.Departed, Satisfaction = view.Satisfaction, MusicRisk = view.MusicRisk,
@@ -170,6 +224,9 @@ internal sealed class PersonRegistry
     /// <summary>Increments on every change so projection caches can be reused safely.</summary>
     public long Version { get; private set; }
 
+    /// <summary>Increments only when a view's membership or order changes.</summary>
+    public long MembershipVersion { get; private set; }
+
     public bool Contains(ulong id) => _people.ContainsKey(id);
 
     public Person this[ulong id] => _people[id];
@@ -185,10 +242,18 @@ internal sealed class PersonRegistry
     /// <summary>The current state of the person at one position in a view's order.</summary>
     public Person At(PersonView view, int index) => _people[_members[view][index]];
 
+    /// <summary>Changes one person in place. Anyone holding this person sees the change.</summary>
+    public void Mutate(ulong id, Action<Person> change)
+    {
+        change(_people[id]);
+        Version++;
+    }
+
+    /// <summary>Writes a changed copy back into the person's one stable instance.</summary>
     public void Set(Person person)
     {
-        if (!_people.ContainsKey(person.Id)) throw new InvalidOperationException($"Unknown person {person.Id}.");
-        _people[person.Id] = person;
+        if (!_people.TryGetValue(person.Id, out var live)) throw new InvalidOperationException($"Unknown person {person.Id}.");
+        if (!ReferenceEquals(live, person)) live.CopyFrom(person);
         Version++;
     }
 
@@ -202,14 +267,15 @@ internal sealed class PersonRegistry
             foreach (var record in records)
             {
                 var key = id(record);
-                var person = _people.TryGetValue(key, out var existing) ? existing : new Person(key);
-                _people[key] = apply(person, record);
+                if (_people.TryGetValue(key, out var existing)) existing.CopyFrom(apply(existing, record));
+                else _people[key] = apply(new Person(key), record);
                 members.Add(key);
                 _memberSets[view].Add(key);
             }
         foreach (var orphan in _people.Keys.Where(key => _memberSets.Values.All(set => !set.Contains(key))).ToArray())
             _people.Remove(orphan);
         Version++;
+        MembershipVersion++;
     }
 
     public T[] Project<T>(PersonView view, Func<Person, T> project) =>

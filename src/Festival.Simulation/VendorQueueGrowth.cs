@@ -26,13 +26,17 @@ public sealed partial class GameSession
             if(vendor.QueueCells is null)continue; // exact legacy occupied and approaching geometry
             var wanted=Math.Min(10,PeopleIn(PersonView.Consumption).Count(person=>person.VendorId==vendor.Id)+1);
             var cells=vendor.QueueCells.Take(wanted).ToList();if(cells.Count==0)cells.Add(ImmersionServiceCell(vendor));
-            var reserved=WaterPoints().SelectMany(point=>LooseQueueGeometry.Corridor(CaptureWaterQueueCells(point.Id))).Concat(ImmersionQueueCorridor(vendor.Id)).ToArray();
-            while(cells.Count<wanted)
+            if(cells.Count<wanted)
             {
-                var next=LooseQueueGeometry.Extend("vendor."+vendor.Id,cells,RotateWaterOffset(new(0,1),vendor.QuarterTurns),_traversalGrid!,cell=>QueueGroundAllowed(cell,_preparation),reserved);
-                if(next is null)break;cells.Add(next.Value);
+                // Other queues' corridors only matter when this queue has to grow.
+                var reserved=WaterPoints().SelectMany(point=>LooseQueueGeometry.Corridor(CaptureWaterQueueCells(point.Id))).Concat(ImmersionQueueCorridor(vendor.Id)).ToArray();
+                while(cells.Count<wanted)
+                {
+                    var next=LooseQueueGeometry.Extend("vendor."+vendor.Id,cells,RotateWaterOffset(new(0,1),vendor.QuarterTurns),_traversalGrid!,cell=>QueueGroundAllowed(cell,_preparation),reserved);
+                    if(next is null)break;cells.Add(next.Value);
+                }
             }
-            SetImmersionVendor(vendor with { QueueCells=cells.ToArray() });
+            if(!cells.SequenceEqual(vendor.QueueCells))SetImmersionVendor(vendor with { QueueCells=cells.ToArray() });
         }
     }
 }

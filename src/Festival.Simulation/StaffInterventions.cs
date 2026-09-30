@@ -35,8 +35,8 @@ public sealed partial class GameSession
         var worker = GetResponseStaff().SingleOrDefault(item => item.AgentId == command.WorkerId);
         if (need is null || worker is null || command.GuestId == command.WorkerId)
             return CommandResult.Rejected(CommandReasonCode.UnknownTarget, "Choose an affected person and a contracted responder.");
-        if (!PeopleIn(PersonView.Roster).Any(item => item.Id == command.GuestId && item.Admitted && !item.Departed) ||
-            !PeopleIn(PersonView.Roster).Any(item => item.Id == command.WorkerId && item.Admitted && !item.Departed) || PersonCollapsed(command.WorkerId))
+        if (PersonIn(PersonView.Roster, command.GuestId) is not { Admitted: true, Departed: false } ||
+            PersonIn(PersonView.Roster, command.WorkerId) is not { Admitted: true, Departed: false } || PersonCollapsed(command.WorkerId))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Both people must be physically on site and the worker available.");
         if (HasClaim(command.WorkerId, PersonClaims.ResponseAssigned) || HasClaim(command.GuestId, PersonClaims.ResponseAssigned))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This worker or target already owns an independent response.");
@@ -69,7 +69,7 @@ public sealed partial class GameSession
         if (IsSteward(command.WorkerId))
         {
             LeaveWater(command.WorkerId, "Steward recalled for a physical intervention", reroute: false);
-            UpdatePerson(command.WorkerId, need => need with { Intent = MedicalIntent.WatchShow, WaterQueueSlot = null, Reason = "Named physical intervention" });
+            MutatePerson(command.WorkerId, need => { need.Intent = MedicalIntent.WatchShow; need.WaterQueueSlot = null; need.Reason = "Named physical intervention"; });
         }
         ApplyAgentDestination(new(command.WorkerId), new(MedicalResponseCell(command.WorkerId, command.GuestId)!.Value, "staff.intervention-approach"));
         SetIntervention(new(command.WorkerId, command.GuestId, command.Action, StaffInterventionStage.Travelling,
@@ -118,7 +118,7 @@ public sealed partial class GameSession
         if (!completed && job.Action == StaffInterventionAction.EscortOut &&
             _persons[job.GuestId].Intent == MedicalIntent.Leaving && !PersonCollapsed(job.GuestId))
         {
-            UpdatePerson(job.GuestId, need => need with { Intent = MedicalIntent.WatchShow, Reason = description });
+            MutatePerson(job.GuestId, need => { need.Intent = MedicalIntent.WatchShow; need.Reason = description; });
             ReturnToListening(job.GuestId);
         }
     }
@@ -160,7 +160,7 @@ public sealed partial class GameSession
                 {
                     LeaveWater(job.GuestId, "Staff arrived to escort this affected person", reroute: false);
                     MedicalRelinquishPerformerStage(job.GuestId);
-                    UpdatePerson(job.GuestId, need => need with { Intent = MedicalIntent.Leaving, WaterQueueSlot = null, Reason = "Physically escorted exit; still exposed until the gate" });
+                    MutatePerson(job.GuestId, need => { need.Intent = MedicalIntent.Leaving; need.WaterQueueSlot = null; need.Reason = "Physically escorted exit; still exposed until the gate"; });
                     if (!StartEscortLeg(job)) EndIntervention(job, false, "No reachable escorted leg; no remote removal");
                     continue;
                 }
@@ -174,7 +174,7 @@ public sealed partial class GameSession
                 else
                 {
                     LeaveWater(job.GuestId, "Medic physically arrived to guide first-aid rest", reroute: false);
-                    UpdatePerson(job.GuestId, need => need with { Intent = MedicalIntent.Rest, WaterQueueSlot = null, Reason = "A named medic physically guided first-aid rest" });
+                    MutatePerson(job.GuestId, need => { need.Intent = MedicalIntent.Rest; need.WaterQueueSlot = null; need.Reason = "A named medic physically guided first-aid rest"; });
                     MedicalRelinquishPerformerStage(job.GuestId);
                     ApplyAgentDestination(new(job.GuestId), new(MedicalRestCell, "medical.rest"));
                 }
@@ -189,11 +189,11 @@ public sealed partial class GameSession
                 if (!StartEscortLeg(job)) EndIntervention(job, false, "Next escorted leg blocked; person remains on site");
                 continue;
             }
-            UpdatePerson(job.GuestId, need => need with { HealthStage = MedicalStage.Removed, Reason = "Named escort physically completed at the gate" });
+            MutatePerson(job.GuestId, need => { need.HealthStage = MedicalStage.Removed; need.Reason = "Named escort physically completed at the gate"; });
             if (job.GuestId == _medical.AtRiskGuestId) _medical = _medical with { Stage = MedicalStage.Removed };
-            UpdatePerson(job.GuestId, person => person with { Departed = true });
+            MutatePerson(job.GuestId, person => person.Departed = true);
             if (InView(PersonView.Disorder, job.GuestId))
-                UpdatePerson(job.GuestId, person => person with { ConductStage = DisorderStage.Resolved, Pressure = 0, OpponentId = null, Grievance = DisorderGrievance.None });
+                MutatePerson(job.GuestId, person => { person.ConductStage = DisorderStage.Resolved; person.Pressure = 0; person.OpponentId = null; person.Grievance = DisorderGrievance.None; });
             EndIntervention(job, true, "Both people physically reached the gate; only this affected person departed");
         }
     }

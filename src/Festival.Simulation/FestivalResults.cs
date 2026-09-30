@@ -36,7 +36,7 @@ public sealed partial class GameSession
 
     private void RecordGuestMedicalCollapse(ulong id)
     {
-        if (_preparation is { GuestMedicalCollapses: { } count } p && PeopleIn(PersonView.Roster).Any(person => person.Id == id && person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed))
+        if (_preparation is { GuestMedicalCollapses: { } count } p && PersonIn(PersonView.Roster, id) is { Role: ProtectedPersonRole.Guest, Admitted: true, Departed: false })
             _preparation = p with { GuestMedicalCollapses = checked(count + 1) };
     }
 

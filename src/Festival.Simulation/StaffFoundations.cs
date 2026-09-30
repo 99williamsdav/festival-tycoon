@@ -187,8 +187,7 @@ public sealed partial class GameSession
                 ? injury.InjuryTick + DisorderInjuryDeathTicks : patientId == m.AtRiskGuestId && m.CollapseTick >= 0
                 ? m.CollapseTick + MedicalDeathDelayTicks : need.HealthCollapseTick >= 0 ? need.HealthCollapseTick + MedicalDeathDelayTicks : long.MaxValue;
             if (CurrentTick > deadline) continue;
-            UpdatePerson(patientId, item => item with { Thirst = 2000, HeatExposure = 3000, Intent = MedicalIntent.WatchShow,
-                HealthStage = MedicalStage.Treated, Reason = "Basic first aid completed after physical medic arrival" });
+            MutatePerson(patientId, item => { item.Thirst = 2000; item.HeatExposure = 3000; item.Intent = MedicalIntent.WatchShow; item.HealthStage = MedicalStage.Treated; item.Reason = "Basic first aid completed after physical medic arrival"; });
             ReturnToListening(patientId);
             if (patientId == m.AtRiskGuestId) _medical = _medical! with { Stage = MedicalStage.Treated };
             SetMedicResponse(job with { Stage = MedicalResponseStage.Completed, Description = "Basic first aid completed" });

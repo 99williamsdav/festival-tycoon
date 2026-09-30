@@ -64,10 +64,10 @@ public sealed partial class GameSession
     }
     private bool GuestFightParticipantsAvailable(DisorderIncidentOrigin origin) =>
         origin.InjuryTick == -1 && !PersonCollapsed(origin.InitiatorId) && !PersonCollapsed(origin.OpponentId) &&
-        PeopleIn(PersonView.Roster).Any(person => person.Id == origin.InitiatorId && person.Admitted && !person.Departed) &&
-        PeopleIn(PersonView.Roster).Any(person => person.Id == origin.OpponentId && person.Admitted && !person.Departed) &&
-        PeopleIn(PersonView.Disorder).Any(person => person.Id == origin.InitiatorId && person.ConductStage == DisorderStage.Fight && person.OpponentId == origin.OpponentId) &&
-        PeopleIn(PersonView.Disorder).Any(person => person.Id == origin.OpponentId && person.ConductStage == DisorderStage.Fight && person.OpponentId == origin.InitiatorId);
+        PersonIn(PersonView.Roster, origin.InitiatorId) is { Admitted: true, Departed: false } &&
+        PersonIn(PersonView.Roster, origin.OpponentId) is { Admitted: true, Departed: false } &&
+        PersonIn(PersonView.Disorder, origin.InitiatorId) is { ConductStage: DisorderStage.Fight } initiator && initiator.OpponentId == origin.OpponentId &&
+        PersonIn(PersonView.Disorder, origin.OpponentId) is { ConductStage: DisorderStage.Fight } opponent && opponent.OpponentId == origin.InitiatorId;
     private void AdvanceGuestFightResponse(StewardResponse response, DisorderIncidentOrigin origin)
     {
         var active = GuestFightParticipantsAvailable(origin);
@@ -107,7 +107,7 @@ public sealed partial class GameSession
             _disorder = _disorder! with { Incidents = _disorder.Incidents.Select(item => item == origin ? item with { InjuryTick = -2 } : item).ToArray() };
             foreach (var id in new[] { origin.InitiatorId, origin.OpponentId })
             {
-                UpdatePerson(id, person => person with { ConductStage = DisorderStage.Resolved, Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
+                MutatePerson(id, person => { person.ConductStage = DisorderStage.Resolved; person.Pressure = 0; person.CooldownUntilTick = CurrentTick + 800; });
                 ReturnToListening(id);
             }
             origin = _disorder.Incidents.Single(item => item.InitiatorId == origin.InitiatorId && item.FightTick == origin.FightTick);

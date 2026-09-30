@@ -131,7 +131,7 @@ public sealed partial class GameSession
             var id = command.PersonId!.Value;
             var workerId = command.WorkerId ?? d.SecurityId;
             LeaveWater(workerId, "Steward explicitly recalled from water for assigned response", reroute: false);
-            UpdatePerson(workerId, item => item with { Intent = MedicalIntent.WatchShow, Reason = "Steward responding to assigned target", WaterQueueSlot = null });
+            MutatePerson(workerId, item => { item.Intent = MedicalIntent.WatchShow; item.Reason = "Steward responding to assigned target"; item.WaterQueueSlot = null; });
             ApplyAgentDestination(new(workerId), new(StewardResponseCell(workerId, id)!.Value, "disorder.security-dispatch"));
             var description = $"Steward {workerId} walking to person {id}; not yet calming";
             SetStewardResponse(new(workerId, SecurityResponseStage.Travelling, id, CurrentTick, false, description, CurrentTick));
@@ -142,10 +142,9 @@ public sealed partial class GameSession
         {
             var id = command.PersonId!.Value;
             LeaveWater(id, "Safe egress chosen", reroute: false);
-            UpdatePerson(id, item => item with { Intent = MedicalIntent.Leaving, Reason = "Safe exit via the gate" });
+            MutatePerson(id, item => { item.Intent = MedicalIntent.Leaving; item.Reason = "Safe exit via the gate"; });
             ApplyAgentDestination(new(id), new(MedicalExitCell, "disorder.safe-egress"));
-            UpdatePerson(id, item => item with { ConductStage = DisorderStage.Resolved, Pressure = 0,
-                Grievance = DisorderGrievance.None, ConductStageTick = CurrentTick, CooldownUntilTick = long.MaxValue });
+            MutatePerson(id, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.Grievance = DisorderGrievance.None; item.ConductStageTick = CurrentTick; item.CooldownUntilTick = long.MaxValue; });
             DisorderEvent("disorder:egress", id, null, 0, "Person walking to the safe gate; egress completes only on arrival.");
             return;
         }
@@ -160,7 +159,7 @@ public sealed partial class GameSession
                 var need = _persons[id];
                 if (id == _medical!.AtRiskGuestId || need.NeedProfile == MedicalNeedProfile.Performer)
                 {
-                    UpdatePerson(id, item => item with { Intent = MedicalIntent.Rest, Reason = "Closed-water relief at first-aid rest" });
+                    MutatePerson(id, item => { item.Intent = MedicalIntent.Rest; item.Reason = "Closed-water relief at first-aid rest"; });
                     ApplyAgentDestination(new(id), new(MedicalRestCell, "disorder.water-closure-rest"));
                 }
                 else ReturnToListening(id);
@@ -201,8 +200,7 @@ public sealed partial class GameSession
         {
             if (_persons[injured.Id].HealthStage == MedicalStage.Treated)
             {
-                UpdatePerson(injured.Id, item => item with { ConductStage = DisorderStage.Resolved,
-                    Pressure = 0, ConductStageTick = CurrentTick, CooldownUntilTick = CurrentTick + 800 });
+                MutatePerson(injured.Id, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.ConductStageTick = CurrentTick; item.CooldownUntilTick = CurrentTick + 800; });
                 DisorderEvent("disorder:treated", injured.Id, injured.OpponentId, 0,
                     "Physical first aid completed after confrontation injury.");
             }
@@ -230,7 +228,9 @@ public sealed partial class GameSession
         }
         if (CurrentTick % 8 != 0) return;
         d = _disorder!;
-        foreach (var person in PeopleIn(PersonView.Disorder).ToArray())
+        // Each person is judged against their state at the start of this pass; fights begun
+        // earlier in the pass do not re-classify later people until the next pass.
+        foreach (var person in PeopleIn(PersonView.Disorder).Select(item => item with { }).ToArray())
         {
             if (_persons[person.Id].ConductStage == DisorderStage.Fight) continue;
             if (person.ConductStage == DisorderStage.Injured || person.ConductStage == DisorderStage.Fight) continue;
@@ -242,7 +242,7 @@ public sealed partial class GameSession
                 var nav = _navigationAgents[new(person.Id)];
                 if (nav.Action == AgentNavigationAction.Arrived && nav.Destination == MedicalExitCell)
                 {
-                    UpdatePerson(person.Id, item => item with { Departed = true });
+                    MutatePerson(person.Id, item => item.Departed = true);
                     DisorderEvent("disorder:egress-complete", person.Id, null, 0,
                         "Person reached the safe gate; no teleport or casualty.");
                 }
@@ -315,8 +315,7 @@ public sealed partial class GameSession
             if (stage != DisorderStage.Argument || grievance == DisorderGrievance.None || CurrentTick % 80 != 0) continue;
             if (NextRandom(RandomStreamId.Incidents) % 20 == 0)
             {
-                UpdatePerson(person.Id, item => item with { ConductStage = DisorderStage.Resolved,
-                    Pressure = 0, ConductStageTick = CurrentTick, CooldownUntilTick = CurrentTick + 800 });
+                MutatePerson(person.Id, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.ConductStageTick = CurrentTick; item.CooldownUntilTick = CurrentTick + 800; });
                 DisorderEvent("disorder:diffused", person.Id, null, pressure,
                     "Argument subsided without a security intervention despite a continuing grievance.");
                 continue;
@@ -331,8 +330,8 @@ public sealed partial class GameSession
         foreach (var fighter in PeopleIn(PersonView.Disorder).Where(item => item.ConductStage == DisorderStage.Fight &&
                      _disorder.Incidents.Any(origin => origin.InitiatorId == item.Id &&
                          origin.FightTick == item.ConductStageTick && origin.InjuryTick == -1) &&
-                     CurrentTick >= item.ConductStageTick + DisorderFightDurationTicks).ToArray())
-            ResolveDisorderFight(fighter);
+                     CurrentTick >= item.ConductStageTick + DisorderFightDurationTicks).Select(item => item with { }).ToArray())
+            ResolveDisorderFight(fighter); // State as collected, before other fights in this batch resolve.
         FinishInterruptedFightAttempts();
     }
 
@@ -343,11 +342,9 @@ public sealed partial class GameSession
         var origin = new DisorderIncidentOrigin(initiatorId, opponentId, initiator.Grievance,
             initiator.Pressure, initiator.ConductStageTick, CurrentTick, -1, null);
         _disorder = d with { Incidents = d.Incidents.Append(origin).ToArray() };
-        UpdatePerson(initiatorId, item => item with { ConductStage = DisorderStage.Fight,
-            OpponentId = opponentId, ConductStageTick = CurrentTick });
+        MutatePerson(initiatorId, item => { item.ConductStage = DisorderStage.Fight; item.OpponentId = opponentId; item.ConductStageTick = CurrentTick; });
         if (!IsSteward(opponentId))
-            UpdatePerson(opponentId, item => item with { ConductStage = DisorderStage.Fight,
-                OpponentId = initiatorId, ConductStageTick = CurrentTick });
+            MutatePerson(opponentId, item => { item.ConductStage = DisorderStage.Fight; item.OpponentId = initiatorId; item.ConductStageTick = CurrentTick; });
         foreach (var id in new[] { initiatorId, opponentId })
         {
             LeaveWater(id, "Left the water line during confrontation", reroute: false);
@@ -366,7 +363,7 @@ public sealed partial class GameSession
         return PeopleIn(PersonView.Disorder).Where(item => item.Id != actorId &&
                 item.ConductStage is not (DisorderStage.Injured or DisorderStage.Fight) &&
                 !PeopleIn(PersonView.Disorder).Any(other => other.ConductStage == DisorderStage.Fight && other.OpponentId == item.Id) &&
-                PeopleIn(PersonView.Roster).Any(person => person.Id == item.Id && person.Admitted && !person.Departed))
+                PersonIn(PersonView.Roster, item.Id) is { Admitted: true, Departed: false })
             .Select(item => (item.Id, Nav: _navigationAgents[new(item.Id)]))
             .Select(item => (item.Id, DistanceSquared:
                 (long)(item.Nav.XMillimetres - actor.XMillimetres) * (item.Nav.XMillimetres - actor.XMillimetres) +
@@ -385,8 +382,9 @@ public sealed partial class GameSession
             _navigationAgents[new(workerId)].Destination != StaffDutyCell(workerId, ResponseRole.Steward))
             ApplyAgentDestination(new(workerId), new(StaffDutyCell(workerId, ResponseRole.Steward), "disorder.return-to-post"));
         if (response.TargetId is not { } targetId || response.Incapacitated) return;
-        var target = _persons[targetId];
-        var targetNeed = _persons[targetId];
+        // The response step decides from the target's state as it began.
+        var target = _persons[targetId] with { };
+        var targetNeed = target;
         if (GuestFightOrigin(targetId) is { } guestFight &&
             (target.ConductStage == DisorderStage.Fight || guestFight.HandlingAttempt is { Outcome: FightHandlingOutcome.Handling, WorkerId: var handler } && handler == workerId))
         { AdvanceGuestFightResponse(response, guestFight); return; }
@@ -446,17 +444,14 @@ public sealed partial class GameSession
         {
             if (profile.CalmingSkill + NextRandom(RandomStreamId.Incidents) % 2_001 >= target.Pressure + target.Temperament / 4)
             {
-                UpdatePerson(targetId, item => item with { ConductStage = DisorderStage.Resolved, Pressure = 0,
-                    ConductStageTick = CurrentTick, CooldownUntilTick = CurrentTick + 800 });
+                MutatePerson(targetId, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.ConductStageTick = CurrentTick; item.CooldownUntilTick = CurrentTick + 800; });
                 SetStewardResponse(response with { Stage = SecurityResponseStage.Completed,
                     TargetId = null, Description = "Steward calmed the argument after arriving" });
                 DisorderEvent("security:calmed", targetId, workerId, target.Pressure, "Steward calmed the argument after arriving");
             }
             else
             {
-                UpdatePerson(targetId, item => item with { ConductStage = DisorderStage.Argument,
-                    Pressure = Math.Max(item.Pressure, DisorderArgumentPressure), ConductStageTick = CurrentTick,
-                    OpponentId = workerId });
+                MutatePerson(targetId, item => { item.ConductStage = DisorderStage.Argument; item.Pressure = Math.Max(item.Pressure, DisorderArgumentPressure); item.ConductStageTick = CurrentTick; item.OpponentId = workerId; });
                 SetStewardResponse(response with { Stage = SecurityResponseStage.Confronting,
                     StartedTick = CurrentTick, Description = "Calming failed; aggression redirected toward steward" });
                 DisorderEvent("security:calm-failed", targetId, workerId, target.Pressure, "Calming failed; aggression redirected toward steward");
@@ -506,17 +501,14 @@ public sealed partial class GameSession
         var opponentNav = _navigationAgents[new(opponentId)];
         var dx = (long)initiatorNav.XMillimetres - opponentNav.XMillimetres;
         var dz = (long)initiatorNav.ZMillimetres - opponentNav.ZMillimetres;
-        var opponentReserved = securityFight || PeopleIn(PersonView.Disorder).Any(item => item.Id == opponentId &&
-            item.ConductStage == DisorderStage.Fight && item.OpponentId == fighter.Id);
+        var opponentReserved = securityFight || PersonIn(PersonView.Disorder, opponentId) is { ConductStage: DisorderStage.Fight } opponent && opponent.OpponentId == fighter.Id;
         if (!initiatorPerson.Admitted || initiatorPerson.Departed || !opponentPerson.Admitted ||
             opponentPerson.Departed || !opponentReserved || dx * dx + dz * dz > 9_000_000)
         {
             _disorder = d with { Incidents = d.Incidents.Select(item => item == origin ? item with { InjuryTick = -2 } : item).ToArray() };
-            UpdatePerson(fighter.Id, item => item with { ConductStage = DisorderStage.Resolved,
-                Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
+            MutatePerson(fighter.Id, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.CooldownUntilTick = CurrentTick + 800; });
             if (!securityFight && _persons[opponentId].ConductStage == DisorderStage.Fight)
-                UpdatePerson(opponentId, item => item with { ConductStage = DisorderStage.Resolved,
-                    Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
+                MutatePerson(opponentId, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.CooldownUntilTick = CurrentTick + 800; });
             DisorderEvent("disorder:confrontation-broken", fighter.Id, opponentId, origin.Pressure,
                 "Confrontation ended without injury because participants were no longer together and available.");
             return;
@@ -529,10 +521,8 @@ public sealed partial class GameSession
         if (victimNeed.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Treated)
         {
             _disorder = d with { Incidents = d.Incidents.Select(item => item == origin ? item with { InjuryTick = -2 } : item).ToArray() };
-            UpdatePerson(fighter.Id, item => item with { ConductStage = DisorderStage.Resolved,
-                Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
-            if (!securityFight) UpdatePerson(opponentId, item => item with { ConductStage = DisorderStage.Resolved,
-                Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
+            MutatePerson(fighter.Id, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.CooldownUntilTick = CurrentTick + 800; });
+            if (!securityFight) MutatePerson(opponentId, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.CooldownUntilTick = CurrentTick + 800; });
             return;
         }
         _disorder = d with { Incidents = d.Incidents.Select(item => item == origin ? item with { InjuryTick = CurrentTick,
@@ -541,8 +531,7 @@ public sealed partial class GameSession
         var nav = _navigationAgents[new(victimId)];
         ApplyAgentDestination(new(victimId), new(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres),
             "disorder.injured"));
-        UpdatePerson(victimId, item => item with { HealthStage = MedicalStage.Collapsed, Intent = MedicalIntent.Collapsed,
-            HealthCollapseTick = CurrentTick, Reason = "Generic serious confrontation injury; physical first aid needed" });
+        MutatePerson(victimId, item => { item.HealthStage = MedicalStage.Collapsed; item.Intent = MedicalIntent.Collapsed; item.HealthCollapseTick = CurrentTick; item.Reason = "Generic serious confrontation injury; physical first aid needed"; });
         if (securityLoses)
             SetStewardResponse(GetStewardResponses().Single(item => item.WorkerId == opponentId) with {
                 Incapacitated = true, Stage = SecurityResponseStage.Failed, Description = "Steward incapacitated; medical help needed" });
@@ -550,11 +539,9 @@ public sealed partial class GameSession
             SetStewardResponse(GetStewardResponses().Single(item => item.WorkerId == opponentId) with {
                 Stage = SecurityResponseStage.Completed, TargetId = null, Description = "Confrontation ended; injured guest needs medical help" });
         if (!IsSteward(victimId))
-            UpdatePerson(victimId, item => item with { ConductStage = DisorderStage.Injured,
-                InjuryTick = CurrentTick, ConductStageTick = CurrentTick, OpponentId = fighter.Id });
+            MutatePerson(victimId, item => { item.ConductStage = DisorderStage.Injured; item.InjuryTick = CurrentTick; item.ConductStageTick = CurrentTick; item.OpponentId = fighter.Id; });
         foreach (var participant in new[] { fighter.Id, opponentId }.Where(id => id != victimId && !IsSteward(id)))
-            UpdatePerson(participant, item => item with { ConductStage = DisorderStage.Resolved,
-                Pressure = 0, CooldownUntilTick = CurrentTick + 800 });
+            MutatePerson(participant, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.CooldownUntilTick = CurrentTick + 800; });
         DisorderEvent("disorder:injury", fighter.Id, victimId, fighter.Pressure,
             $"Generic serious injury to person {victimId}; security {d.ResponseStage}; first aid needed before tick {CurrentTick + DisorderInjuryDeathTicks}.");
     }
