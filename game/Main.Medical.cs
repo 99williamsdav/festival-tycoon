@@ -78,8 +78,6 @@ public partial class Main
         SyncExtraWaterWorld();
     }
 
-    private void BeginWaterPlacement(bool movePrimary)
-        => BeginWaterPlacementFor(movePrimary ? "water.main" : null);
 
     private void BeginWaterPlacementFor(string? pointId)
     {
@@ -284,16 +282,6 @@ public partial class Main
         }
     }
 
-    private void CapturePickMedicalFacility(MedicalFacility facility)
-    {
-        var cell = facility == MedicalFacility.Water ? GameSession.MedicalWaterCell : GameSession.MedicalTentCell;
-        var centre = TraversalGrid.CellCentre(cell);
-        var point = new Vector3(centre.XMillimetres / 1000f, 1.6f,
-            centre.ZMillimetres / 1000f);
-        Pick(_camera.UnprojectPosition(point));
-        if (_selectedMedicalFacility != facility)
-            throw new InvalidOperationException($"Capture ray did not select {facility}.");
-    }
 
     private void BuildMedicalControls(VBoxContainer box)
     {
@@ -427,17 +415,5 @@ public partial class Main
         RefreshImmersionVendorInspector();
     }
 
-    private static Vector3 AtMedicalWaterForCapture()
-    {
-        var centre = TraversalGrid.CellCentre(GameSession.MedicalWaterCell);
-        return new Vector3(centre.XMillimetres / 1000f, 0.9f, centre.ZMillimetres / 1000f);
-    }
 
-    private void FocusMedicalCapturePerson(ulong id, float size)
-    {
-        var agent = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == id);
-        _focus = ToWorld(agent) + new Vector3(0, .8f, 0);
-        _camera.Size = size;
-        ApplyCamera();
-    }
 }

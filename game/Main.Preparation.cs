@@ -55,12 +55,6 @@ public partial class Main
                 !(_hudWorkspaceOpen && !_buildDrawerOpen && HudProgrammeSelected()) && !_contextPanel.Visible;
     }
 
-    private void AssertContextPanel(bool expected)
-    {
-        RefreshContextPanelVisibility();
-        if (_contextPanel?.Visible != expected || (_hudMoney is null ? !_preparationSummary.IsVisibleInTree() : !_hudMoney.IsVisibleInTree()))
-            throw new InvalidOperationException("Context-panel visibility or retained global status/roster mismatch.");
-    }
 
     private void PreparationAccept(string id)
     {

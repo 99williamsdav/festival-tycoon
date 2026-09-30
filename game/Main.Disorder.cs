@@ -323,14 +323,5 @@ public partial class Main
         RefreshSecurityPostInspector();
     }
 
-    private void FocusDisorderSignalPerson(ulong id)
-    {
-        _foundationPresentation.Reset(_session.CaptureObservation()); _host.Clock.ResetBoundary();
-        var person = _session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == id);
-        _focus = new Vector3(person.XMillimetres / 1000f, 0, person.ZMillimetres / 1000f);
-        _camera.Size = 32f; _orientation = 0; ApplyCamera();
-        SelectAttendee(new EntityId(id));
-        RefreshPreparationHud();
-    }
 
 }

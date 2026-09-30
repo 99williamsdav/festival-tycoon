@@ -86,6 +86,5 @@ public partial class Main
             }
     }
 
-    private static string GuestColourKey(Node3D root) => root.GetMeta("GuestClothing").AsInt32() + ":" + root.GetMeta("GuestHair").AsInt32();
 
 }
