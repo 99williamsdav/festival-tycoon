@@ -196,7 +196,7 @@ public sealed partial class GameSession
             var x = agent.XMillimetres + lateralX * distance * side;
             var z = agent.ZMillimetres + lateralZ * distance * side;
             var cell = TraversalGrid.WorldToCell(x, z);
-            if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable ||
+            if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable || CubicleClosedTo(agent.Id.Value, cell) ||
                 !TraversalSweep.IsWalkable(_traversalGrid, backup.X, backup.Z, x, z) || HasConflict(occupied, x, z)) continue;
             if (HasConflict(priorMovingOccupancy, x, z, agent.Id)) continue;
             agent.XMillimetres = x; agent.ZMillimetres = z;

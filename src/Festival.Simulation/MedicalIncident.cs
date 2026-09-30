@@ -562,45 +562,7 @@ public sealed partial class GameSession
             foreach (var item in PeopleIn(PersonView.Medical))
                 if (item.NeedProfile == MedicalNeedProfile.Guest && PersonIn(PersonView.Roster, item.Id) is { Admitted: true })
                     MutatePerson(item.Id, person => person.Thirst = Math.Min(10_000, person.Thirst + 1));
-        if (CurrentTick % 80 == 0)
-        {
-            foreach (var need in PeopleIn(PersonView.Medical))
-            {
-                var person = _persons[need.Id];
-                if (!person.Admitted || person.Departed || need.NeedProfile == MedicalNeedProfile.Staff || DisorderOwnsNavigation(need.Id) ||
-                    InterventionOwnsTarget(need.Id) || InterventionOwnsWorker(need.Id) ||
-                    need.Intent is MedicalIntent.Rest or MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed or MedicalIntent.Drinking ||
-                    need.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical ||
-                    CurrentTick - need.NeedDecisionTick < MedicalDecisionCooldownTicks &&
-                    !(need.Thirst >= MedicalDistressThirst || need.HeatExposure >= MedicalDistressHeat)) continue;
-                var nav = _navigationAgents[new(need.Id)];
-                var from = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
-                var bestPoint = need.Intent == MedicalIntent.SeekWater ? WaterPointFor(need.Id) : ChooseWaterPoint(need.Id);
-                var travel = Math.Abs(from.X - bestPoint.Cell.X) + Math.Abs(from.Z - bestPoint.Cell.Z);
-                var waterScore = need.Thirst + need.HeatExposure / 3 + (need.Thirst >= MedicalDistressThirst ? 3_000 : 0) -
-                    travel * 15 - bestPoint.Queue.Length * 120;
-                var showScore = FestivalNeedMusicAppeal(need.Id) +
-                    (need.NeedProfile == MedicalNeedProfile.Performer && IsCurrentProgrammePerformer(need.Id) ? 5_000 : 0);
-                var urgent = need.Thirst >= MedicalDistressThirst || need.HeatExposure >= MedicalDistressHeat;
-                if (need.Intent != MedicalIntent.SeekWater &&
-                    need.HeatExposure >= MedicalDistressHeat && need.Thirst < MedicalDistressThirst &&
-                    MedicalRouteExists(need.Id, MedicalRestCell))
-                {
-                    MedicalRelinquishPerformerStage(need.Id);
-                    MutatePerson(need.Id, item => { item.Intent = MedicalIntent.Rest; item.Reason = "Hot exposure takes priority over current and upcoming music; physically seeking rest"; item.NeedDecisionTick = CurrentTick; });
-                    ApplyAgentDestination(new(need.Id), new(MedicalRestCell, "medical.rest"));
-                }
-                else if (need.Intent == MedicalIntent.SeekWater)
-                {
-                    if (!urgent && bestPoint.OwnerId != need.Id && need.Thirst < 8_500 && showScore > waterScore + 1_200)
-                        LeaveWater(need.Id, $"Band appeal {showScore} exceeded water utility {waterScore}; queue place released");
-                }
-                else if (urgent || waterScore > showScore)
-                    SeekWater(need.Id, $"Hot thirst {need.Thirst}/10000 outweighed band {showScore}; estimated walk + wait + drink {EstimateWaterTotalTicks(need.Id, bestPoint)} ticks");
-                else MutatePerson(need.Id, item => { item.Reason = $"Current/upcoming act appeal {showScore} vs water {waterScore} incl. travel/wait"; item.NeedDecisionTick = CurrentTick; });
-                m = _medical!;
-            }
-        }
+        AdvanceActivityChoices();
         m = _medical!;
         ReassessWaterSeekers();
         AdmitWaterArrivals();

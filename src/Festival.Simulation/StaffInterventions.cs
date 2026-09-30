@@ -98,7 +98,10 @@ public sealed partial class GameSession
         var origin = TraversalGrid.WorldToCell(guest.XMillimetres, guest.ZMillimetres);
         var path = DeterministicPathfinder.FindPath(_traversalGrid!, origin, MedicalExitCell);
         if (!path.Found) return false;
-        var waypoint = path.Path[Math.Min(path.Path.Count - 1, 8)];
+        // Up to eight cells ahead, never onto someone standing still: an occupied waypoint can't be reached.
+        var ahead = Math.Min(path.Path.Count - 1, 8);
+        while (ahead > 1 && StandingOn(path.Path[ahead], job.GuestId, job.WorkerId)) ahead--;
+        var waypoint = path.Path[ahead];
         var companion = CompanionCell(job.WorkerId, waypoint);
         if (companion is null) return false;
         ApplyAgentDestination(new(job.GuestId), new(waypoint, "staff.escorted-exit"));
@@ -106,6 +109,14 @@ public sealed partial class GameSession
         SetIntervention(job with { Stage = StaffInterventionStage.Escorting, Waypoint = waypoint, LastReviewTick = CurrentTick,
             Description = "Walking together through bounded waypoints; no safety until both reach the gate" });
         return true;
+    }
+    private bool StandingOn(GridCell cell, ulong guestId, ulong workerId)
+    {
+        var centre = TraversalGrid.CellCentre(cell);
+        return _navigationAgents.Values.Any(agent => agent.Id.Value != guestId && agent.Id.Value != workerId &&
+            agent.Action != AgentNavigationAction.Travelling && MovementOccupant(agent.Id.Value) &&
+            Math.Abs((long)agent.XMillimetres - centre.XMillimetres) < SeparationRadiusMillimetres &&
+            Math.Abs((long)agent.ZMillimetres - centre.ZMillimetres) < SeparationRadiusMillimetres);
     }
     private void EndIntervention(StaffInterventionJob job, bool completed, string description)
     {

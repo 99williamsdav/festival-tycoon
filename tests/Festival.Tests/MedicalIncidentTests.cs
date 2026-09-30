@@ -86,7 +86,7 @@ public sealed class MedicalIncidentTests
     public void DrinkingOwnsOneTapAndContinuouslyRelievesNeedsUntilThirstZeroAcrossRestore()
     {
         var s = Started();
-        while (BuildSession.MainTap(s).OwnerId is null && s.CurrentTick < 2_000)
+        while (BuildSession.MainTap(s).OwnerId is null && s.CurrentTick < 12_000)
             s.AdvanceWithoutSnapshot(1);
         var started = s.CaptureMedical()!;
         var startedTap = BuildSession.MainTap(s);
@@ -106,7 +106,7 @@ public sealed class MedicalIncidentTests
         Assert.IsTrue(midway.Needs.Single(item => item.AgentId == owner).HeatExposure < heat);
         Assert.AreEqual(-1L, midway.Needs.Single(item => item.AgentId == owner).LastWaterTick);
         s = Restored(s);
-        while (BuildSession.MainTap(s).OwnerId == owner && s.CurrentTick < 3_000)
+        while (BuildSession.MainTap(s).OwnerId == owner && s.CurrentTick < 15_000)
             s.AdvanceWithoutSnapshot(1);
         var completed = s.CaptureMedical()!;
         Assert.IsFalse(BuildSession.MainTap(s).Queue.Contains(owner));

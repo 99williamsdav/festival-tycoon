@@ -100,11 +100,26 @@ public sealed class BuildRouteTests
 
     [TestCategory("Slow")]
     [TestMethod]
-    public void DisorderEscalatesAndStewardsResolveIt()
+    public void CrowdedSiteDisorderEscalatesAndStewardsResolveIt()
     {
-        var run = Run.Value;
-        Assert.IsTrue(run.DisorderStages.Contains(DisorderStage.Argument));
-        Assert.IsTrue(run.DisorderStages.Contains(DisorderStage.Resolved));
+        // The default plan is calm: guests leave long lines and performers are ready on time.
+        // Three times the crowd on the same single tap still builds water-wait grievances.
+        var s = Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, 60);
+        var perks = s.CapturePerks()!;
+        BuildSession.Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[0]));
+        BuildSession.Accept(s, new UseDefaultBuildLayoutCommand());
+        BuildSession.Accept(s, new SetProgrammeCommand(BuildSession.Acts));
+        BuildSession.Accept(s, new SetPreparationStockCommand(40, 40, 32));
+        BuildSession.Accept(s, new AcceptPreparationOfferCommand("staff.steward"));
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        HashSet<DisorderStage> stages = [];
+        while (s.PreparedStatus == PreparationStatus.Running && s.CurrentTick < 38_400)
+        {
+            s.AdvanceWithoutSnapshot(80);
+            foreach (var person in s.CaptureDisorder()!.People) stages.Add(person.Stage);
+        }
+        Assert.IsTrue(stages.Contains(DisorderStage.Argument));
+        Assert.IsTrue(stages.Contains(DisorderStage.Resolved));
     }
 
     [TestCategory("Slow")]

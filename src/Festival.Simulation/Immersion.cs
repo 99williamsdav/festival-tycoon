@@ -208,7 +208,8 @@ public sealed partial class GameSession
                 RecordGuestMedicalCollapse(p.Id);
             }
             if (p.VendorId is not null && (p.Order is not { } order || !ImmersionOrderEligible(p,order))) { LeaveImmersionQueue(p.Id,ImmersionShoppingEligible(p.Id)); continue; }
-            if (p.Held is null && p.VendorId is null && CurrentTick%80 == (long)(p.Id%80) && CurrentTick-p.ShoppingDecisionTick >= 800 && ImmersionShoppingEligible(p.Id))
+            // Guests and performers shop through the activity chooser; idle staff still shop here.
+            if (p.NeedProfile == MedicalNeedProfile.Staff && p.Held is null && p.VendorId is null && CurrentTick%80 == (long)(p.Id%80) && CurrentTick-p.ShoppingDecisionTick >= 800 && ImmersionShoppingEligible(p.Id))
             {
                 SetConsumption(p with { ShoppingDecisionTick = CurrentTick });
                 var choices = Enum.GetValues<ImmersionProduct>().Where(product => ImmersionOrderEligible(p,product))

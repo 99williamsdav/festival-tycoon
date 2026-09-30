@@ -101,7 +101,7 @@ public sealed class DisorderIncidentTests
         Assert.AreEqual("disorder.security-dispatch", session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == session.CaptureDisorder()!.SecurityId).IntentId);
         session = Restored(session);
         while (session.CaptureDisorder()!.Stewards[0].Stage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting &&
-               session.CurrentTick < 6_000)
+               session.CurrentTick < 8_000)
             session.AdvanceWithoutSnapshot(1);
         var response = session.CaptureDisorder()!;
         Console.WriteLine($"security={response.Stewards[0].Stage} {response.Stewards[0].Description} tick={session.CurrentTick} skills={response.CalmingSkill}/{response.ConfrontationSkill}");

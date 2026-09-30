@@ -79,6 +79,21 @@ public sealed partial class GameSession
         cells.Add(new(toilet.Cell.X + back.X, toilet.Cell.Z + back.Z));
         return cells.ToArray();
     }
+    /// <summary>
+    /// A toilet cubicle (doorway and interior) belongs to its occupant. Sidestepping a crowd must
+    /// never push anyone else into it: they would meet the next user head-on in a one-cell doorway.
+    /// </summary>
+    private bool CubicleClosedTo(ulong agentId, GridCell cell)
+    {
+        if (_immersion is null) return false;
+        foreach (var toilet in EffectiveToilets(_facilities))
+        {
+            var door = RotateWaterOffset(new(0, -1), toilet.QuarterTurns);
+            if ((cell == toilet.Cell || cell == new GridCell(toilet.Cell.X + door.X, toilet.Cell.Z + door.Z)) &&
+                toilet.OwnerId != agentId && toilet.InterruptedOccupantId != agentId) return true;
+        }
+        return false;
+    }
     public static GridCell[] ToiletReservedCells(ToiletFacility toilet)
     {
         var cells = new HashSet<GridCell>();
@@ -225,24 +240,8 @@ public sealed partial class GameSession
         {
             if (_persons.At(PersonView.Roster, personIndex).Departed) continue;
             var person = _persons.At(PersonView.Consumption, personIndex);
-            if (person.ToiletStage == ToiletVisitStage.None)
-            {
-                if (!running || toilet.IsFull || toilet.InterruptedOccupantId is not null ||
-                    person.ToiletNeed < ToiletRules.NeedThreshold ||
-                    CurrentTick % ToiletRules.DecisionEveryTicks != (long)(person.Id % ToiletRules.DecisionEveryTicks) ||
-                    _persons.At(PersonView.Roster, personIndex).Role != ProtectedPersonRole.Guest ||
-                    !ImmersionHandsAvailable(person.Id) || ImmersionOwnsNavigation(person.Id) ||
-                    _persons[person.Id].Intent != MedicalIntent.WatchShow ||
-                    HasClaim(person.Id, PersonClaim.Performing))
-                    continue;
-                var choice = ChooseToiletVisit(person);
-                if (BestToiletFor(person.Id, choice)?.Id != toilet.Id) continue;
-                var queueCell = ToiletQueueCell(toilet, toilet.Queue.Length);
-                SetConsumption(person with { ToiletStage = ToiletVisitStage.Approaching,
-                    ToiletChoice = choice, ToiletId = toilet.Id, LastToiletChoiceReviewTick = CurrentTick });
-                ApplyAgentDestination(new(person.Id), new(queueCell, "toilet.approach"));
-                continue;
-            }
+            // Visits start in the activity chooser.
+            if (person.ToiletStage == ToiletVisitStage.None) continue;
             if ((person.ToiletId ?? "toilet.main") != toilet.Id) continue;
             var nav = _navigationAgents[new(person.Id)];
             if (person.ToiletStage is ToiletVisitStage.Approaching or ToiletVisitStage.Queued &&
