@@ -15,8 +15,7 @@ public partial class Main
         foreach (var body in _attendeeVisuals.Values)
             foreach (var player in body.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>())
                 player.SpeedScale = paused ? 0 : 1;
-        foreach (var player in new[] { _stageMusic, _bandEntryApplause, _setEndApplause, _crowdCheer, _crowdBoo,
-                     _ambientCrowd, _generatorExplosion, _screamA, _screamB })
+        foreach (var player in Audio.Players)
             if (player is not null) player.StreamPaused = paused;
     }
 }

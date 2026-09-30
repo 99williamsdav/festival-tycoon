@@ -282,7 +282,7 @@ public partial class Main
         AdvanceDisorderCuePresentation();
         AdvanceImmersionCuePresentation();
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
-        AdvanceIncidentAudioPresentation();
+        EnsureStage(); Audio.AdvanceIncidents(_session, _rig.Focus);
         SyncPresentationPause();
         _host.AdvanceSaves(delta);
         SyncSaveStatus();

@@ -12,49 +12,12 @@ public partial class Main
     private readonly Dictionary<EntityId, Node3D> _performerInstruments = [];
     private readonly Dictionary<EntityId, Vector3> _lastPresentedPersonPositions = [];
     private Node3D? _stageDrumKit;
-    private AudioStreamPlayer? _stageMusic;
-    private AudioStreamPlayer? _crowdBoo;
-    private AudioStreamPlayer? _crowdCheer;
-    private AudioStreamPlayer? _bandEntryApplause;
-    private AudioStreamPlayer? _setEndApplause;
-    private bool _bandEntryReactionPlayed;
-    private int _stageAudioBus = -1;
-    private int _lastReactionSequence = -1;
-    private LiveSetStage? _presentedSetStage;
     private Label? _liveSetCue;
     private Button? _stageMuteButton;
-    private bool _stageMuted;
+    private FestivalAudio? _audio;
+    private FestivalAudio Audio => _audio ??= new(this);
     private OmniLight3D[]? _stageLights;
     private Label3D? _stageWorldCue;
-    private float _booFadeSeconds;
-    private float _booTargetDb;
-
-    private void ResetLivePerformancePresentation()
-    {
-        ResetImmersionHeldVisuals();
-        ResetImmersionCuePresentation();
-        _performerInstruments.Clear();
-        _lastPresentedPersonPositions.Clear();
-        _presentedSetStage = null;
-        _presentedActId = null;
-        _lastReactionSequence = _session.CaptureLivePerformance()?.ReactionSequence ?? -1;
-        _bandEntryReactionPlayed = _session.CaptureLivePerformance()?.Performers.Any(item => item.OnStage) ?? false;
-        _stageMusic?.Stop();
-        _crowdBoo?.Stop();
-        _crowdCheer?.Stop();
-        _bandEntryApplause?.Stop();
-        _setEndApplause?.Stop();
-        ResetIncidentAudioPresentation();
-        _booFadeSeconds = 0;
-        if (_liveSetCue is not null) _liveSetCue.Text = "STAGE • awaiting booking";
-        if (_stageWorldCue is not null)
-        {
-            _stageWorldCue.Text = "TRAILER STAGE";
-            _stageWorldCue.Modulate = new Color("f7e4a4");
-        }
-        if (_stageLights is not null)
-            foreach (var light in _stageLights) light.LightEnergy = 0;
-    }
 
     private void UpdatePersonFacing(EntityId id, Node3D visual, Vector3 position,
         AgentNavigationAction action, bool watchingStage, bool onStage, double delta)
@@ -242,29 +205,11 @@ public partial class Main
         _stageDrumKit.RotationDegrees = new Vector3(0, -90, 0);
     }
 
-    private void EnsureStageAudio()
+    private void EnsureStage()
     {
         EnsureStageDrumKit();
-        if (_stageMusic is not null) return;
-        _stageAudioBus = AudioServer.GetBusCount();
-        AudioServer.AddBus(_stageAudioBus);
-        AudioServer.SetBusName(_stageAudioBus, "Outdoor Stage");
-        AudioServer.SetBusSend(_stageAudioBus, "Master");
-        AudioServer.SetBusMute(_stageAudioBus, _stageMuted);
-        AudioServer.AddBusEffect(_stageAudioBus, new AudioEffectLowPassFilter { CutoffHz = 12000 });
-        AudioServer.AddBusEffect(_stageAudioBus, new AudioEffectReverb { RoomSize = 0.12f, Wet = 0.04f, Dry = 1f });
-        _stageMusic = new AudioStreamPlayer { Bus = "Outdoor Stage", VolumeDb = -8 };
-        AddChild(_stageMusic);
-        _crowdBoo = new AudioStreamPlayer { Bus = "Outdoor Stage", VolumeDb = -20,
-            Stream = GD.Load<AudioStream>("res://assets/audio/264378__howardv__crowd-booing.wav") };
-        AddChild(_crowdBoo);
-        _crowdCheer = new AudioStreamPlayer { Bus = "Outdoor Stage", VolumeDb = -24,
-            Stream = GD.Load<AudioStream>("res://assets/audio/set_start_cheer.wav") };
-        AddChild(_crowdCheer);
-        _bandEntryApplause = new AudioStreamPlayer { Bus = "Outdoor Stage", VolumeDb = -24 };
-        AddChild(_bandEntryApplause);
-        _setEndApplause = new AudioStreamPlayer { Bus = "Outdoor Stage", VolumeDb = -24 };
-        AddChild(_setEndApplause);
+        Audio.EnsureStage();
+        if (_stageLights is not null) return;
         _stageLights = [new OmniLight3D { Position = new Vector3(-18, 2.2f, 10), OmniRange = 8,
             LightColor = new Color("ffd18a"), LightEnergy = 0.8f },
             new OmniLight3D { Position = new Vector3(-14.5f, 2.2f, 10), OmniRange = 8,
@@ -274,11 +219,28 @@ public partial class Main
         AddChild(_stageWorldCue);
     }
 
+    private void ResetLivePerformancePresentation()
+    {
+        ResetImmersionHeldVisuals();
+        ResetImmersionCuePresentation();
+        _performerInstruments.Clear();
+        _lastPresentedPersonPositions.Clear();
+        Audio.Reset(_session);
+        if (_liveSetCue is not null) _liveSetCue.Text = "STAGE • awaiting booking";
+        if (_stageWorldCue is not null)
+        {
+            _stageWorldCue.Text = "TRAILER STAGE";
+            _stageWorldCue.Modulate = new Color("f7e4a4");
+        }
+        if (_stageLights is not null)
+            foreach (var light in _stageLights) light.LightEnergy = 0;
+    }
+
     private void AdvanceLivePerformancePresentation(double delta)
     {
         var live = _session.CaptureLivePerformance();
         if (live is null) return;
-        EnsureStageAudio();
+        EnsureStage();
         var roster = _session.CapturePreparation()!.People;
         var navigation = _session.CaptureObservation().NavigationAgents.ToDictionary(item => item.Id);
         var collapsed = _session.CaptureMedical()?.Needs.Where(item => item.Intent == MedicalIntent.Collapsed)
@@ -325,103 +287,15 @@ public partial class Main
                 body.Position = new Vector3(body.Position.X, 0.04f + ramp * 1.15f, body.Position.Z);
         }
         var power = _session.CaptureEquipment()?.LoadPercent ?? 80;
-        var cutoffVisual = power == 0 && live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted;
         _stageWorldCue!.Text = "TRAILER STAGE";
         foreach (var light in _stageLights!) light.LightEnergy = live.Stage == LiveSetStage.Live ?
             power == 0 ? 0 : power == 80 ? 0.35f : 0.8f : 0;
-        var audible = live.Stage == LiveSetStage.Live && power > 0;
-        var actId = _session.CurrentFestivalAct?.Id;
-        var actChanged = _presentedActId != actId;
-        if (actChanged) _bandEntryReactionPlayed = live.Stage == LiveSetStage.Live;
-        if (_presentedSetStage != live.Stage || actChanged)
-        {
-            if (audible)
-            {
-                var genre = _session.CurrentFestivalAct?.Genre ?? (_session.CapturePreparation()!.AcceptedOffers.Contains("act.punk") ? 1 : 0);
-                var path = genre switch { 1 => _session.CaptureProgramme() is null ? "res://assets/audio/punk_loop_v1.wav" : "res://assets/audio/rock_loop_v2.wav", 2 => "res://assets/audio/pop_loop_v1.wav",
-                    3 => "res://assets/audio/electronic_loop_v1.wav", _ => "res://assets/audio/folk_loop_v1.wav" };
-                // Exact genre assets are integrated only after their approval gate.
-                var approved = _session.CaptureProgramme() is null || genre != 1 || FestivalRockAudioApproved;
-                _stageMusic!.Stream = approved && ResourceLoader.Exists(path) ? GD.Load<AudioStream>(path) : null;
-                if (_stageMusic.Stream is not null) _stageMusic.Play();
-            }
-            else _stageMusic!.Stop();
-            _presentedSetStage = live.Stage;
-            _presentedActId = actId;
-        }
-        if (audible && _stageMusic!.Stream is not null && !_stageMusic.Playing && !_stageMusic.StreamPaused) _stageMusic.Play();
-        if (!audible && _stageMusic!.Playing) _stageMusic.Stop();
-        // Use the ground-plane focus instead of the elevated isometric camera position;
-        // zoom alters framing, not the physical PA distance.
-        var distance = new Vector2(_rig.Focus.X + 16f, _rig.Focus.Z - 11f).Length();
-        var attenuation = Mathf.Clamp(1f - distance / 90f, 0.08f, 1f);
-        if (!_bandEntryReactionPlayed && live.Stage == LiveSetStage.BeforeSet && live.Performers.Any(item => item.OnStage))
-        {
-            _bandEntryReactionPlayed = true;
-            var watchers = live.Listeners.Where(item => item.AtPlace).ToArray();
-            if (watchers.Length >= 3)
-            {
-                var averageEnthusiasm = watchers.Average(item => item.Enthusiasm);
-                var enthusiastic = watchers.Length >= 20 && averageEnthusiasm >= 65;
-                _bandEntryApplause!.Stream = GD.Load<AudioStream>(enthusiastic
-                    ? "res://assets/audio/band_entry_enthusiastic_applause.wav"
-                    : "res://assets/audio/band_entry_polite_applause.wav");
-                var strength = Mathf.Clamp(watchers.Length / 40f, 0.15f, 0.65f) *
-                    (0.5f + 0.5f * (float)averageEnthusiasm / 100f);
-                _bandEntryApplause.VolumeDb = Mathf.LinearToDb(strength * attenuation);
-                _bandEntryApplause.Play();
-            }
-        }
-        var shed = power == 80 ? 0.72f : 1f;
-        _stageMusic!.VolumeDb = Mathf.LinearToDb(Math.Max(0.001f, attenuation * shed * 0.42f));
-        if (AudioServer.GetBusEffect(_stageAudioBus, 0) is AudioEffectLowPassFilter filter)
-            filter.CutoffHz = Mathf.Lerp(1800f, 12000f, attenuation);
-        if (_lastReactionSequence != live.ReactionSequence)
-        {
-            if (live.LastReaction == "set-finished-applause" && live.Stage == LiveSetStage.Finished && live.SetEndAudienceCount > 0)
-            {
-                var enthusiastic = PerformanceApplauseMath.IsEnthusiastic(live.SetEndAudienceCount, live.SetEndEnjoymentTotal);
-                _setEndApplause!.Stream = GD.Load<AudioStream>(enthusiastic
-                    ? "res://assets/audio/band_entry_enthusiastic_applause.wav"
-                    : "res://assets/audio/band_entry_polite_applause.wav");
-                var strength = PerformanceApplauseMath.Strength(live.SetEndAudienceCount, live.SetEndEnjoymentTotal);
-                _setEndApplause.VolumeDb = Mathf.LinearToDb((float)strength * attenuation);
-                _setEndApplause.Play();
-            }
-            if (live.LastReaction is "set-start-cheer" or "set-start-muted") _bandEntryApplause?.Stop();
-            if (live.LastReaction == "set-start-cheer")
-            {
-                var watchers = live.Listeners.Where(item => item.AtPlace).ToArray();
-                var enthusiasm = watchers.Length == 0 ? 0f : (float)watchers.Average(item => item.Enthusiasm) / 100f;
-                var size = Mathf.Clamp(watchers.Length / 40f, 0f, 1f);
-                var strength = Mathf.Clamp(size * (0.35f + 0.65f * enthusiasm), 0.02f, 0.55f);
-                _crowdCheer!.VolumeDb = Mathf.LinearToDb(strength * attenuation);
-                _crowdCheer.Play();
-            }
-            // No immediate gasp on cutoff. Only the provisional CC0 sustained boo is audible.
-            if (live.LastReaction == "sustained-boo" && live.Listeners.Count(item => item.AtPlace) >= 5)
-            {
-                _booTargetDb = Mathf.LinearToDb(Mathf.Clamp(live.Listeners.Count(item => item.AtPlace) / 40f, 0.1f, 0.6f) * attenuation);
-                _booFadeSeconds = 0;
-                _crowdBoo!.VolumeDb = -48;
-                _crowdBoo.Play();
-            }
-            _lastReactionSequence = live.ReactionSequence;
-        }
-        if (_crowdBoo!.Playing && cutoffVisual)
-        {
-            _booFadeSeconds += (float)delta;
-            _crowdBoo.VolumeDb = Mathf.Lerp(-48f, _booTargetDb, Mathf.Clamp(_booFadeSeconds / 1.8f, 0f, 1f));
-        }
-        else if (_crowdBoo.Playing && !cutoffVisual) _crowdBoo.Stop();
+        Audio.AdvanceStage(_session, live, power, _rig.Focus, delta);
     }
-
 
     private void ToggleStageMute()
     {
-        _stageMuted = !_stageMuted;
-        if (_stageAudioBus >= 0) AudioServer.SetBusMute(_stageAudioBus, _stageMuted);
-        if (_stageMuteButton is not null) _stageMuteButton.Text = _stageMuted ? "UNMUTE AUDIO" : "MUTE AUDIO";
+        Audio.ToggleMute();
+        if (_stageMuteButton is not null) _stageMuteButton.Text = Audio.Muted ? "UNMUTE AUDIO" : "MUTE AUDIO";
     }
-
 }
