@@ -88,19 +88,4 @@ public partial class Main
 
     private static string GuestColourKey(Node3D root) => root.GetMeta("GuestClothing").AsInt32() + ":" + root.GetMeta("GuestHair").AsInt32();
 
-    private void AssertGuestPalette(Node3D root)
-    {
-        var choice = new AttendeeColourChoice(root.GetMeta("GuestClothing").AsInt32(), root.GetMeta("GuestHair").AsInt32());
-        foreach (var mesh in root.GetNode<Node3D>("GuestBody").FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
-        {
-            var original = (StandardMaterial3D)mesh.Mesh.SurfaceGetMaterial(0);
-            var applied = (StandardMaterial3D)mesh.GetSurfaceOverrideMaterial(0);
-            var bytes = GuestPaletteBytes(original);
-            PoseAssert(!ReferenceEquals(original, applied) && !ReferenceEquals(original.AlbedoTexture, applied.AlbedoTexture), "Palette variant mutated shared source resources.");
-            PoseAssert(GuestPaletteContract.Apply(bytes, choice).SequenceEqual(GuestPaletteBytes(applied)), "Palette override differs from exact designer RGB/alpha bytes.");
-            PoseAssert(GuestMaterialSettings(original, false) == GuestMaterialSettings(applied, false), "Palette variant changed non-sampling imported material flags.");
-            PoseAssert(applied.TextureFilter == BaseMaterial3D.TextureFilterEnum.Nearest && !applied.TextureRepeat, "Palette variant did not use designer nearest/clamp sampling.");
-            PoseAssert(ReferenceEquals(applied, GuestPaletteMaterial(original, choice)), "Palette cache did not reuse compatible material identity.");
-        }
-    }
 }

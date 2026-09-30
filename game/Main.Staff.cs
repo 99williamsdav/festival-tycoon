@@ -10,24 +10,6 @@ namespace Festival.Game;
 
 public partial class Main
 {
-    private int _staffCaptureFrame;
-
-    private void StaffCaptureSend(SessionCommand command)
-    {
-        var result = _session.Execute(CampaignEnvelope(command));
-        if (!result.IsAccepted) throw new InvalidOperationException($"Staff fixture command rejected: {result.Message}");
-    }
-    private void StaffCaptureAdvance(int ticks)
-    {
-        StaffCaptureSend(new SetPausedCommand(false)); _session.AdvanceWithoutSnapshot(ticks); StaffCaptureSend(new SetPausedCommand(true));
-        _foundationPresentation.Reset(_session.CaptureObservation()); _foundationClock.ResetBoundary(); RefreshPreparationHud();
-    }
-
-    private void RefreshStaffControls()
-    {
-        var p = _session.CapturePreparation();
-        if (p is null) return;
-    }
 
     private static string StaffAbilityText(StaffProfile p) => $"{p.Role.ToString().ToUpperInvariant()} ABILITIES\nWALKING  {p.WalkingSpeedPermille / 10m:0}% of standard speed\n" +
         (p.Role == ResponseRole.Medic ? $"TREATMENT  {p.TreatmentTicks / 80m:0.0}s at 1× • starts after arrival" :

@@ -37,7 +37,6 @@ public partial class Main
     private bool _pendingPerkSkip;
     private int _confirmationDraftAttempt;
     private ulong _confirmationCursor;
-    private string? _perkCaptureDirectory;
     private int _perkCaptureFrame;
     private string _perkCapturePureHash = "";
 
@@ -324,80 +323,6 @@ public partial class Main
         var buttons = new HBoxContainer(); _perkBody.AddChild(buttons);
         if(_pendingPerkSkip || _pendingPerkReplacement is not null)buttons.AddChild(ButtonText(_pendingPerkSkip ? "Skip & continue" : "Replace perk",ConfirmPerkChoice));
         buttons.AddChild(ButtonText(_pendingPerkSkip ? "Back to cards" : "Keep current perks",CancelPerkConfirmation));
-    }
-    private void ProcessPerkCapture()
-    {
-        if (_perkCaptureDirectory is null) return;
-        _perkCaptureFrame++;
-        try
-        {
-            switch(_perkCaptureFrame)
-            {
-                case 4: PerkCaptureImage("01-first-draft"); var p=_session.CapturePerks()!; CommitEquipmentAction(new RerollPerksCommand(p.DraftAttempt,p.Cursor)); break;
-                case 8: PerkCaptureImage("02-rerolled-draft"); p=_session.CapturePerks()!; BeginPerkChoice(p.Hand[0]); _perksExpanded=true; _selectedPerk=p.Hand[0]; RefreshPerkHud(); break;
-                case 12: PerkCaptureImage("03-equipped-detail"); _perksExpanded=false; RefreshPerkHud(); break;
-                case 16: PerkCaptureImage("04-equipped-collapsed-preparation"); PerkCaptureFullFixture(); break;
-                case 20: PerkCaptureImage("05-five-equipped-draft"); p=_session.CapturePerks()!; BeginPerkChoice(p.Hand[0]); _pendingPerkReplacement=p.Equipped[0];_perkHudKey="";RefreshPerkHud();_perkCapturePureHash=_session.CaptureSnapshot().AuthoritativeHash;break;
-                case 24: PerkCaptureImage("06-replacement-loss-benefit");CancelPerkConfirmation();PerkCaptureAssertPure();PreparationSave();p=_session.CapturePerks()!;BeginPerkChoice(p.Hand[0]);_pendingPerkReplacement=p.Equipped[0];PreparationLoad();if(_pendingPerkChoice is not null || _pendingPerkReplacement is not null || _pendingPerkSkip)throw new InvalidOperationException("Successful same-cursor load retained a confirmation.");PerkCaptureAssertPure();GD.Print("PERK_CAPTURE load_same_cursor_confirmation_cancelled=true");break;
-                case 28: PerkCaptureImage("07-replacement-cancelled");p=_session.CapturePerks()!;_confirmationDraftAttempt=p.DraftAttempt;_confirmationCursor=p.Cursor;_pendingPerkSkip=true;_perkHudKey="";RefreshPerkHud();break;
-                case 32: PerkCaptureImage("08-skip-confirmation");CancelPerkConfirmation();PerkCaptureAssertPure();p=_session.CapturePerks()!;_confirmationDraftAttempt=p.DraftAttempt;_confirmationCursor=p.Cursor;_pendingPerkSkip=true;ConfirmPerkChoice();_perksExpanded=true;RefreshPerkHud();break;
-                case 36: PerkCaptureImage("09-skipped-five-kept");PerkCaptureFullFixture();p=_session.CapturePerks()!;BeginPerkChoice(p.Hand[0]);_pendingPerkReplacement="another-round";_perkHudKey="";RefreshPerkHud();break;
-                case 40: PerkCaptureImage("10-replace-tap-confirmation");ConfirmPerkChoice();_perksExpanded=true;_selectedPerk=_session.CapturePerks()!.Equipped.Last();RefreshPerkHud();break;
-                case 44: PerkCaptureImage("11-replaced-five-detail");_perksExpanded=false;RefreshPerkHud();PerkCaptureFatalFixture();break;
-                case 48: PerkCaptureImage("12-fatal-hearing-labelled-fixture");ConfirmHearing(new SpendCouncilFavourCommand());break;
-                case 52: PerkCaptureImage("13-favour-confirmation");ApplyHearingDecision();break;
-                case 56: PerkCaptureImage("14-saved-favour-retry-draft");p=_session.CapturePerks()!;if(p.DraftAttempt!=2 || !p.Pending || _session.CapturePreparation()!.AcceptedOffers.Length!=0)throw new InvalidOperationException("Actual Favour retry did not produce the saved preparation gate.");GD.Print("PERK_CAPTURE_COMPLETE native=true first_draft=true reroll=true five_slots=true replacement=true cancel_pure=true skip=true favour_retry=true labelled_fixture=full_capacity_and_ignored_intoxication_response");GetTree().Quit();break;
-            }
-        }catch(Exception error){GD.PrintErr("PERK_CAPTURE_FAILED "+error);GetTree().Quit(2);}
-    }
-    private void PerkCaptureAssertPure()
-    {
-        if(_session.CaptureSnapshot().AuthoritativeHash!=_perkCapturePureHash)throw new InvalidOperationException("Cancelled confirmation changed state.");
-    }
-    private void PerkCaptureFullFixture()
-    {
-        // Explicit capture-only setup, because R0 has no progression to five choices yet.
-        // Commands and all confirmation/save interactions after setup use production paths.
-        _session=GameSession.CreateBuildCampaign(20260922);_pendingPerkChoice=null;_pendingPerkReplacement=null;_pendingPerkSkip=false;
-        var field=typeof(GameSession).GetField("_perks",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!;
-        var p=_session.CapturePerks()!;field.SetValue(_session,p with {Equipped=["another-round","doctors-orders","extra-pair-of-hands","high-pressure"],Pending=true});
-        typeof(GameSession).GetMethod("SynchronizePerkEffects",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(_session,[]);
-        do{typeof(GameSession).GetMethod("OpenPerkDraft",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(_session,[]);p=_session.CapturePerks()!;}while(!p.Hand.Contains("smooth-operators"));
-        CommitEquipmentAction(new ChoosePerkCommand(p.DraftAttempt,p.Cursor,"smooth-operators"));
-        typeof(GameSession).GetMethod("OpenPerkDraft",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.Invoke(_session,[]);
-        _preparationMessage="LABELLED CAPACITY FIXTURE · four owned inserted, fifth chosen normally · saved draft/confirmation commands";_perksExpanded=false;_perkHudKey="";RefreshPreparationHud();
-        GD.Print("PERK_CAPTURE_SETUP fixture=capacity inserted_owned=4 production_choice=5 extra_tap=production_placement");
-    }
-    private void PerkCaptureFatalFixture()
-    {
-        CommitEquipmentAction(new AcceptPreparationOfferCommand("staff.extra-medic"));
-        CommitEquipmentAction(new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.field-frequency"]));
-        CommitEquipmentAction(new AcceptPreparationOfferCommand("staff.steward"));PreparationStart();
-        var prep=_session.CapturePreparation()!;
-        typeof(GameSession).GetProperty("PreparationView",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.SetValue(_session,prep with {People=prep.People.Select(person=>person with {Admitted=true}).ToArray()});
-        var immersion=_session.CaptureImmersion()!;var id=prep.People.First(person=>person.Role==ProtectedPersonRole.Guest).AgentId;
-        typeof(GameSession).GetProperty("ImmersionView",System.Reflection.BindingFlags.NonPublic|System.Reflection.BindingFlags.Instance)!.SetValue(_session,immersion with {People=immersion.People.Select(person=>person.AgentId==id?person with {Intoxication=10000}:person).ToArray()});
-        _session.AdvanceWithoutSnapshot(4000);
-        if(_session.PreparedStatus!=PreparationStatus.Failed)throw new InvalidOperationException("Labelled ignored-response setup failed to reach the existing fatal chain.");
-        PreparationSave();_preparationMessage="LABELLED FATAL FIXTURE · all admitted; guest intoxication set to10000;4000ticks with no response · normal Council retry";RefreshPreparationHud();
-        GD.Print("PERK_CAPTURE_SETUP fixture=fatal all_admitted=true guest_intoxication=10000 inherited_deadlines_ticks=4000 medic_response=none normal_favour_retry=true");
-    }
-    private void PerkCaptureImage(string name)
-    {
-        var image=GetViewport().GetTexture().GetImage();
-        if(image.GetWidth()!=GetWindow().Size.X || image.GetHeight()!=GetWindow().Size.Y)throw new InvalidOperationException("Perk capture must be native size.");
-        image.SavePng(Path.Combine(_perkCaptureDirectory!,name+".png"));
-        if(_perkPanel!.Visible && (_perkPanel.GetGlobalRect().End.X>image.GetWidth() || _perkPanel.GetGlobalRect().End.Y>image.GetHeight()-45))throw new InvalidOperationException("Perk panel exceeds native bounds.");
-        if(_perkPanel.Visible && !HudBlocksPlacement(_perkPanel.GetGlobalRect().GetCenter()))throw new InvalidOperationException("Perk overlay does not block background placement.");
-        if(_perkPanel.Visible)
-        {
-            foreach(var button in PerkDescendants(_perkBody!).OfType<Button>().Where(button=>button.Text is "Choose this perk" or "Replace a perk…" or "Skip this choice"))
-                if(button.GetGlobalRect().End.Y>_perkPanel.GetGlobalRect().End.Y-15)throw new InvalidOperationException("Primary draft action clipped below panel.");
-            foreach(var detail in PerkDescendants(_perkBody!).OfType<VBoxContainer>().Where(box=>box.CustomMinimumSize.X==420))
-                if(detail.Size.X<420)throw new InvalidOperationException("Selected perk detail copy is too narrow.");
-        }
-        var loaded=GameSession.Restore(_session.CapturePersistenceSnapshot());if(!loaded.IsSuccess)throw new InvalidOperationException("Native state failed restoration: "+loaded.Error);
-        GD.Print($"PERK_CAPTURE image={name} viewport={image.GetWidth()}x{image.GetHeight()} people={_session.CapturePreparation()!.People.Length} hash={_session.CaptureSnapshot().AuthoritativeHash}");
     }
     private static System.Collections.Generic.IEnumerable<Node> PerkDescendants(Node node)
     {

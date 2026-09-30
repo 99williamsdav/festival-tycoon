@@ -23,9 +23,8 @@ public partial class Main
     private long _boundarySourceTick;
     private long _boundarySourceGeneration;
     private string _boundarySourceHash = "";
-    private bool _cameraProfileFailureInjected;
     private bool UseResponsiveBoundarySaves => !RelaxedSaveCadence &&
-        (_cameraProfileOutput is not null || OS.GetCmdlineUserArgs().Length == 0);
+        OS.GetCmdlineUserArgs().Length == 0;
     private static bool BoundaryOnNextTick(GameSession session) => session.ImmersionBoundaryOnNextTick ||
         session.PreparationBoundaryOnNextTick || session.EquipmentBoundaryOnNextTick ||
         session.LivePerformanceBoundaryOnNextTick || session.MedicalBoundaryOnNextTick || session.DisorderBoundaryOnNextTick;
@@ -60,13 +59,6 @@ public partial class Main
         var generation = _boundaryNextGeneration++;
         var now = DateTimeOffset.UtcNow;
         Action<SaveFailurePoint>? failureInjector = null;
-        if (_cameraProfileMode == "failure" && !_cameraProfileFailureInjected && source.CurrentTick >= 2900)
-        {
-            _cameraProfileFailureInjected = true;
-            failureInjector = _ => throw new IOException("Scripted camera-profile boundary save failure");
-        }
-        else if (_cameraProfileMode == "live-slow-boundary")
-            failureInjector = _ => Thread.Sleep(650); // labelled slow-disk diagnostic, worker only
         _boundarySaveTask = Task.Run(async () =>
         {
             if (priorBoundary is not null)

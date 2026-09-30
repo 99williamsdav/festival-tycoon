@@ -67,7 +67,7 @@ public partial class Main
             var accepted = ExecuteWithoutImmediateSave(command, out var error);
             result = new(accepted, _session, null, error);
         }
-        else result = EquipmentCommandCoordinator.Execute(actionSaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration, _planCaptureFailureInjector);
+        else result = EquipmentCommandCoordinator.Execute(actionSaveDirectory, _session, command, _saveCompatibility, DateTimeOffset.UtcNow, _autosaveGeneration, null);
         if (result.IsSuccess)
         {
             _session = result.Session;

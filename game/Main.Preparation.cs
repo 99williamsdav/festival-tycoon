@@ -80,12 +80,12 @@ public partial class Main
                 RefreshPreparationHud();
                 return;
             }
-            if ((OS.GetCmdlineUserArgs().Length == 0 || _cameraProfileMode == "staff-draft") &&
+            if (OS.GetCmdlineUserArgs().Length == 0 &&
                 (id.StartsWith("staff.", StringComparison.Ordinal) || id == "maintenance.worker"))
             {
                 _draftSavePipeline ??= new(SaveDirectory, _session, _saveCompatibility, _autosaveGeneration);
                 var command = plan.OfferIds.Contains(id) ? (SessionCommand)new RemovePreparationOfferCommand(id) : new AcceptPreparationOfferCommand(id);
-                var staged = _draftSavePipeline.Submit(command, DateTimeOffset.UtcNow, _planCaptureFailureInjector);
+                var staged = _draftSavePipeline.Submit(command, DateTimeOffset.UtcNow, null);
                 _session = _draftSavePipeline.VisibleSession;
                 if (staged.IsAccepted)
                 {
@@ -246,7 +246,6 @@ ResetImmersionHeldVisuals();
         RefreshEquipmentControls();
         RefreshMedicalControls();
         RefreshDisorderControls();
-        RefreshStaffControls();
         RefreshStagePowerAction();
         RefreshHearingHud();
         RefreshHudWorkspace();
@@ -300,7 +299,7 @@ ResetImmersionHeldVisuals();
         }
         if (_periodicSaveTask is not null) FinishPeriodicAutosave();
         if (_boundarySaveTask is not null) FinishResponsiveBoundarySave();
-        _foundationClock.IsPaused = _resultsCaptureDirectory is not null || _session.IsPaused || _preparationSaveBlocked ||
+        _foundationClock.IsPaused = _session.IsPaused || _preparationSaveBlocked ||
             _session.CapturePreparation()!.Status is not (PreparationStatus.Running or PreparationStatus.Departing);
         var ticks = _foundationClock.Schedule(delta);
         var previousStatus = _session.PreparedStatus;
@@ -350,7 +349,7 @@ ResetImmersionHeldVisuals();
         var characterDelta = CharacterPresentationPaused ? 0 : delta;
         _characterPresentationSeconds += characterDelta;
         SyncPresentationPause();
-        if (_preparationProfileOutput is not null || _cameraProfileOutput is not null) _profileSimulationMs = Stopwatch.GetElapsedTime(workStarted, presentationStarted).TotalMilliseconds;
+        if (_preparationProfileOutput is not null) _profileSimulationMs = Stopwatch.GetElapsedTime(workStarted, presentationStarted).TotalMilliseconds;
         var live = _session.CaptureLivePerformance();
         var watching = live is { Stage: LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted }
             ? live.Listeners.Where(item => item.AtPlace).Select(item => new EntityId(item.AgentId)).ToHashSet()
@@ -417,7 +416,7 @@ ResetImmersionHeldVisuals();
         }
         if (Engine.GetProcessFrames() % 15 == 0) RefreshPreparationHud();
         var captureStarted = Stopwatch.GetTimestamp();
-        if (_preparationProfileOutput is not null || _cameraProfileOutput is not null) _profilePresentationMs = Stopwatch.GetElapsedTime(presentationStarted, captureStarted).TotalMilliseconds;
+        if (_preparationProfileOutput is not null) _profilePresentationMs = Stopwatch.GetElapsedTime(presentationStarted, captureStarted).TotalMilliseconds;
         if (_preparationProfileOutput is not null) _profileCaptureMs = Stopwatch.GetElapsedTime(captureStarted).TotalMilliseconds;
     }
 

@@ -61,22 +61,6 @@ public partial class Main : Node
     private FiftyAgentFoundationFixtureState? _foundationFixture;
     private CrowdBenchmarkFixture? _benchmarkFixture;
     private string? _benchmarkOutputPath;
-    private SharedWorldFeasibilityFixtureState? _sharedWorldFixture;
-    private string? _sharedWorldOutputPath;
-    private string? _attendeePoseCaptureDirectory;
-    private readonly FoundationClock _sharedWorldClock = new();
-    private readonly List<double> _sharedWallFrameMilliseconds = [];
-    private readonly List<double> _sharedEngineDeltaMilliseconds = [];
-    private readonly List<double> _sharedWorkMilliseconds = [];
-    private int _sharedMeasurementFrames;
-    private int _sharedMeasurementStage;
-    private long _sharedRepresentativeTick;
-    private long _sharedMeasurementStartTick;
-    private long _sharedWallStartTimestamp;
-    private long _sharedWallPreviousTimestamp;
-    private double _sharedSaveMilliseconds;
-    private double _sharedLoadMilliseconds;
-    private bool _sharedRestoreExact;
     private int _benchmarkFrames;
     private readonly List<double> _benchmarkFrameMilliseconds = [];
     private FiftyAgentFoundationFixtureState? _foundationReference;
@@ -116,13 +100,9 @@ public partial class Main : Node
     {
         ConfigureCaptureMode();
         if (_saveCadenceCaptureOutput is not null) GD.Print("SAVE_CADENCE_CAPTURE_READY " + _saveCadenceCaptureOutput);
-        _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null && _cameraProfileMode != "live-periodic" && _saveCadenceCaptureOutput is null ?
+        _autosaveScheduler = new RealTimeAutosaveScheduler(_foundationCaptureDirectory is null && _saveCadenceCaptureOutput is null ?
             RealTimeAutosaveScheduler.ProductionCadenceSeconds : 2);
-        if (_sharedWorldFixture is not null)
-        {
-            _session = _sharedWorldFixture.Session;
-        }
-        else if (_benchmarkFixture is not null)
+        if (_benchmarkFixture is not null)
         {
             _session = _benchmarkFixture.Waves[0].Session;
         }
@@ -162,7 +142,7 @@ public partial class Main : Node
         else
         {
             _session = _preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
-                _cameraProfileMode == "staff-draft" || _saveCadenceCaptureOutput is not null ? GameSession.CreateBuildCampaign(20260929) :
+                _saveCadenceCaptureOutput is not null ? GameSession.CreateBuildCampaign(20260929) :
                 OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
                 GameSession.CreateBuildCampaign(20260922);
         }
@@ -178,18 +158,16 @@ public partial class Main : Node
         if (_session.CaptureDisorder() is not null) BuildDisorderWorld();
         if (_session.CaptureEquipment() is not null) EnsureStageDrumKit();
         if (_session.CaptureSnapshot().NavigationAgents.Count > 0) BuildAttendee();
-        if (_sharedWorldFixture is not null) BuildSharedWorldServiceMarkers();
         if (_foundationFixture is not null) _foundationPresentation.Reset(_session.CaptureSnapshot());
         BuildHud();
         if (_queueChoiceCaptureDirectory is not null) BuildQueueChoiceCaptureLabel();
-        if (_queueCaptureDirectory is not null || _foundationFixture is not null || _sharedWorldFixture is not null) { _focus = new Vector3(10, 0, 4); _camera.Size = 58; }
+        if (_queueCaptureDirectory is not null || _foundationFixture is not null) { _focus = new Vector3(10, 0, 4); _camera.Size = 58; }
         if (_session.CaptureEquipment() is not null) { _focus = new Vector3(-16, 0, 11); _camera.Size = 32; }
         // This mode includes both east-of-track vendors; frame them with the
         // stage rather than retaining the older stage-only close-up.
         if (_session.CaptureImmersion() is not null) { _focus = new Vector3(4, 0, 8); _camera.Size = 50; }
         ApplyCamera();
         ResetFinanceFeedback();
-        PrepareCameraProfile();
         if ((OS.GetCmdlineUserArgs().Length == 0 || _startSplashCapturePath is not null) &&
             _session.CaptureEquipment() is not null) BuildStartSplash();
         if (_captureDirectory is not null)
@@ -204,8 +182,6 @@ public partial class Main : Node
     public override void _Process(double delta)
     {
         try { ProcessPresentationFrame(delta); }
-        catch(Exception error) when (_cameraProfileOutput is not null)
-        { GD.PushError("CAMERA_PROFILE_FAILED " + error); GetTree().Quit(2); }
         catch(Exception error) when (_queueChoiceCaptureDirectory is not null)
         { GD.PushError("QUEUE_CHOICE_CAPTURE_FAILED presentation=" + error); _queueChoiceCaptureDirectory=null; GetTree().Quit(2); }
         catch(Exception error) when (_preparationDockCaptureDirectory is not null)
@@ -214,7 +190,6 @@ public partial class Main : Node
 
     private void ProcessPresentationFrame(double delta)
     {
-        BeginCameraProfileFrame();
         if (_middleDragging && !Input.IsMouseButtonPressed(MouseButton.Middle)) _middleDragging = false;
         var input = Vector2.Zero;
         if (Input.IsKeyPressed(Key.W) || Input.IsKeyPressed(Key.Up)) input.Y -= 1;
@@ -223,7 +198,6 @@ public partial class Main : Node
         if (Input.IsKeyPressed(Key.D) || Input.IsKeyPressed(Key.Right)) input.X += 1;
         if (input.LengthSquared() > 0) Pan(input.Normalized() * (float)delta * 18f);
         if (_session.CapturePreparation() is not null) AdvancePreparationPresentation(delta);
-        else if (_sharedWorldFixture is not null) AdvanceSharedWorldFeasibility(delta);
         else if (_benchmarkFixture is not null) AdvanceRenderedBenchmark(delta);
         else if (_foundationFixture is not null) AdvanceFoundationPresentation(delta);
         else if (_queueCaptureDirectory is not null) AdvanceQueuePresentation(delta);
@@ -235,21 +209,15 @@ public partial class Main : Node
         _urgentAlertDisplay.Advance(delta); RenderUrgentAlerts();
         ProcessPlaytestCapture(delta);
         if (_preparationProfileOutput is not null) { ProcessBuildProfileSetup(); FinishPreparationProfileFrame(); }
-        ProcessAttendeePoseCaptureFrame();
         ProcessGuestArrivalCapture(delta);
         ProcessAccountsCapture(delta);
         ProcessShowcaseCapture();
-        ProcessPerkCapture();
         ProcessStartSplashCapture();
         UpdateHoverFeedback(GetViewport().GetMousePosition());
-        ProcessResultsCapture();
-        ProcessBookingCapture();
-        ProcessRoleCapture();
         ProcessBuildCapture();
         ProcessPreparationDockCapture();
         ProcessQueueChoiceCapture();
         ProcessBuildDebugOverlay();
-        FinishCameraProfileFrame();
         ProcessSaveCadenceCapture();
     }
 
@@ -269,7 +237,7 @@ public partial class Main : Node
         if (!RelaxedSaveCadence && (_boundarySaveTask is not null || _periodicSaveTask is not null) && !CameraOnlyInput(inputEvent)) return;
         if (_perkPanel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && _perkPanel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
-        if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null || _sharedWorldOutputPath is not null) return;
+        if (_captureDirectory is not null || _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null || _foundationCaptureDirectory is not null) return;
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (_buildGhostKind is not null && key.Keycode == Key.Escape) { CancelBuildPlacement(); RefreshHudWorkspace(); return; }
@@ -308,7 +276,7 @@ public partial class Main : Node
     // Explicit legacy diagnostics retain the immutable generic service fixture.
     private bool IncludeGenericServicePointDiagnostic => _captureDirectory is not null ||
         _navigationCaptureDirectory is not null || _queueCaptureDirectory is not null ||
-        _foundationFixture is not null || _sharedWorldFixture is not null;
+        _foundationFixture is not null;
 
     private void BuildWorld()
     {
@@ -356,16 +324,16 @@ public partial class Main : Node
         foreach (var agent in agents)
         {
             var performer = _session.CapturePreparation()?.People.SingleOrDefault(item => item.AgentId == agent.Id.Value);
-            var visual = performer?.Role == ProtectedPersonRole.Guest && _foundationFixture is null && _sharedWorldFixture is null
+            var visual = performer?.Role == ProtectedPersonRole.Guest && _foundationFixture is null
                 ? AddGuestPoseRoot(agent.Id, ToWorld(agent))
-                : performer is { Role: ProtectedPersonRole.Staff or ProtectedPersonRole.Performer } && _foundationFixture is null && _sharedWorldFixture is null
+                : performer is { Role: ProtectedPersonRole.Staff or ProtectedPersonRole.Performer } && _foundationFixture is null
                     ? AddRoleBodyRoot(performer, ToWorld(agent))
                     : AddAsset("res://assets/characters/lwf_generic_attendee_v1.glb", ToWorld(agent));
             if (performer?.Role == ProtectedPersonRole.Guest && _session.GuestWaitingForRelease(agent.Id.Value))
                 visual.Hide();
-            if (_foundationFixture is not null || _sharedWorldFixture is not null)
+            if (_foundationFixture is not null)
             {
-                var ids = _sharedWorldFixture?.AgentIds ?? _foundationFixture!.AgentIds;
+                var ids = _foundationFixture.AgentIds;
                 var ordinal = Array.IndexOf(ids.ToArray(), agent.Id);
                 var palette = AttendeePaletteAssignment.FromOrdinal(ordinal) + 1;
                 var material = GD.Load<Material>($"res://assets/characters/colourways/palette-{palette:00}.tres");
@@ -503,22 +471,6 @@ public partial class Main : Node
         return packed.Instantiate<Node3D>();
     }
 
-    private void BuildSharedWorldServiceMarkers()
-    {
-        for (var index = 0; index < _sharedWorldFixture!.ServiceVisualCells.Count; index++)
-        {
-            var centre = TraversalGrid.CellCentre(_sharedWorldFixture.ServiceVisualCells[index]);
-            if (index != 1)
-                AddAsset("res://assets/environment/lwf_service_point_v2.glb",
-                    new Vector3(centre.XMillimetres / 1000f, 0, centre.ZMillimetres / 1000f));
-            var label = new Label3D
-            {
-                Text = $"SERVICE {index + 1}", Position = new Vector3(centre.XMillimetres / 1000f, 3.6f, centre.ZMillimetres / 1000f),
-                FontSize = 44, OutlineSize = 8, Modulate = new Color("f5e9c9"), OutlineModulate = new Color("29352c"), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-            };
-            AddChild(label);
-        }
-    }
 
     private void BuildHud()
     {
@@ -788,26 +740,9 @@ public partial class Main : Node
         for (var i = 0; i < args.Length; i++)
         {
             if (args[i] == "--capture-farm" && i + 1 < args.Length) _captureDirectory = args[++i];
-            else if (args[i] == "--capture-r005g-perks" && i + 1 < args.Length)
-            { _perkCaptureDirectory = args[++i]; Directory.CreateDirectory(_perkCaptureDirectory); }
             else if (args[i] == "--capture-navigation" && i + 1 < args.Length) _navigationCaptureDirectory = args[++i];
             else if (args[i] == "--capture-queue" && i + 1 < args.Length) _queueCaptureDirectory = args[++i];
             else if (args[i] == "--capture-foundation" && i + 1 < args.Length) _foundationCaptureDirectory = args[++i];
-            else if (args[i] == "--capture-attendee-poses" && i + 1 < args.Length)
-            { _attendeePoseCapture = true; _attendeePoseCaptureDirectory = args[++i]; Directory.CreateDirectory(_attendeePoseCaptureDirectory); }
-            else if (args[i] == "--capture-r005p-newgame" && i + 1 < args.Length)
-            { _resultsNewGameCapture = true; _resultsCaptureDirectory = args[++i]; Directory.CreateDirectory(_resultsCaptureDirectory); }
-            else if (args[i] == "--capture-r005n-booking" && i + 1 < args.Length)
-            { _bookingCaptureDirectory = args[++i]; Directory.CreateDirectory(_bookingCaptureDirectory); }
-            else if (args[i] == "--capture-r005o-table" && i + 1 < args.Length)
-            { _bookingCaptureDirectory = args[++i]; Directory.CreateDirectory(_bookingCaptureDirectory); }
-            else if (args[i] == "--capture-r005q-roles" && i + 1 < args.Length)
-            { _roleCaptureDirectory = args[++i]; Directory.CreateDirectory(_roleCaptureDirectory); }
-            else if (args[i] == "--profile-camera-release" && i + 2 < args.Length)
-            {
-                _cameraProfileMode = args[++i]; _cameraProfileOutput = args[++i];
-                Directory.CreateDirectory(Path.GetDirectoryName(_cameraProfileOutput)!);
-            }
             else if (args[i] == "--capture-start-splash" && i + 1 < args.Length) _startSplashCapturePath = args[++i];
             else if (args[i] == "--profile-build" && i + 1 < args.Length)
             {
@@ -822,11 +757,6 @@ public partial class Main : Node
                 var passage = Enum.Parse<BenchmarkPassage>(args[++i], true);
                 _benchmarkOutputPath = ProjectSettings.GlobalizePath(args[++i]);
                 _benchmarkFixture = CrowdBenchmarkFixture.Create(agents, passage);
-            }
-            else if (args[i] == "--m1-feasibility-launch" && i + 1 < args.Length)
-            {
-                _sharedWorldOutputPath = ProjectSettings.GlobalizePath(args[++i]);
-                _sharedWorldFixture = SharedWorldFeasibilityFixture.Create();
             }
             else if (args[i] == "--capture-build-mode" && i + 1 < args.Length)
             { _buildCaptureDirectory = args[++i]; Directory.CreateDirectory(_buildCaptureDirectory); }
@@ -861,119 +791,11 @@ public partial class Main : Node
         if (_queueCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_queueCaptureDirectory);
         if (_foundationCaptureDirectory is not null) DirAccess.MakeDirRecursiveAbsolute(_foundationCaptureDirectory);
         if (_benchmarkOutputPath is not null) DirAccess.MakeDirRecursiveAbsolute(Path.GetDirectoryName(_benchmarkOutputPath)!);
-        if (_sharedWorldOutputPath is not null) DirAccess.MakeDirRecursiveAbsolute(Path.GetDirectoryName(_sharedWorldOutputPath)!);
     }
 
-    private void AdvanceSharedWorldFeasibility(double delta)
-    {
-        var fixture = _sharedWorldFixture!;
-        if (_sharedMeasurementStage == 0)
-        {
-            for (var tick = 0; tick < FoundationClock.MaximumTicksPerFrame && !SharedWorldFeasibilityFixture.IsRepresentativeActiveState(fixture); tick++)
-                _session.AdvanceTicks(1);
-            PresentSharedWorld();
-            if (!SharedWorldFeasibilityFixture.IsRepresentativeActiveState(fixture)) return;
-            _sharedRepresentativeTick = _session.CurrentTick;
-            var hash = _session.CaptureSnapshot().AuthoritativeHash;
-            var timer = Stopwatch.StartNew();
-            var saved = SaveFileAdapter.SaveSlot(SaveDirectory, "m1-shared-world", new SaveWriteRequest(_session, _saveCompatibility, "m1-feasibility", DateTimeOffset.UtcNow));
-            timer.Stop(); _sharedSaveMilliseconds = timer.Elapsed.TotalMilliseconds;
-            timer.Restart(); var loaded = SaveFileAdapter.LoadSlot(SaveDirectory, "m1-shared-world", _saveCompatibility); timer.Stop();
-            _sharedLoadMilliseconds = timer.Elapsed.TotalMilliseconds;
-            _sharedRestoreExact = saved.IsSuccess && loaded.IsSuccess && loaded.Session!.CaptureSnapshot().AuthoritativeHash == hash;
-            if (!_sharedRestoreExact) { GetTree().Quit(2); return; }
-            _session = loaded.Session!; _sharedWorldFixture = fixture = fixture with { Session = _session };
-            _sharedWorldClock.RequestedSpeed = RequestedSpeed.OneX; _sharedWorldClock.ResetBoundary(); _sharedMeasurementStage = 1;
-            ResetSharedMeasurementWindow();
-            return;
-        }
 
-        // Arm only after one clean post-restore presentation frame. Save/load and its engine
-        // delta therefore cannot contaminate either callback intervals or attained speed.
-        if (_sharedWallPreviousTimestamp == 0)
-        {
-            PresentSharedWorld();
-            _sharedMeasurementStartTick = _session.CurrentTick;
-            _sharedWallStartTimestamp = _sharedWallPreviousTimestamp = Stopwatch.GetTimestamp();
-            return;
-        }
 
-        var work = Stopwatch.StartNew();
-        var ticks = _sharedWorldClock.Schedule(delta);
-        for (var tick = 0; tick < ticks; tick++) _session.AdvanceTicks(1);
-        PresentSharedWorld(); work.Stop();
-        var wallNow = Stopwatch.GetTimestamp();
-        _sharedWallFrameMilliseconds.Add(Stopwatch.GetElapsedTime(_sharedWallPreviousTimestamp, wallNow).TotalMilliseconds);
-        _sharedWallPreviousTimestamp = wallNow;
-        _sharedEngineDeltaMilliseconds.Add(delta * 1000);
-        _sharedWorkMilliseconds.Add(work.Elapsed.TotalMilliseconds); _sharedMeasurementFrames++;
-        if (_sharedMeasurementFrames < 90) return;
-        var requested = _sharedWorldClock.RequestedSpeed;
-        WriteSharedRenderedResult(requested, requested == RequestedSpeed.FourX);
-        if (requested == RequestedSpeed.OneX)
-        {
-            var loaded = SaveFileAdapter.LoadSlot(SaveDirectory, "m1-shared-world", _saveCompatibility);
-            if (!loaded.IsSuccess) { GetTree().Quit(2); return; }
-            _session = loaded.Session!; _sharedWorldFixture = fixture with { Session = _session };
-            _sharedWorldClock.RequestedSpeed = RequestedSpeed.FourX; _sharedWorldClock.ResetBoundary();
-            ResetSharedMeasurementWindow(); _sharedMeasurementStage = 2;
-            return;
-        }
-        GetTree().Quit(0);
-    }
 
-    private void PresentSharedWorld()
-    {
-        var snapshot = _session.CaptureSnapshot();
-        foreach (var agent in snapshot.NavigationAgents)
-            if (_attendeeVisuals.TryGetValue(agent.Id, out var visual)) visual.Position = ToWorld(agent);
-        var queued = snapshot.ServiceQueues.Sum(queue => queue.OrderedMembers.Count);
-        _hashLabel.Text = $"M1.00 SHARED WORLD • 50 PEOPLE • 3 DESTINATIONS\nACTIVE {snapshot.NavigationAgents.Count}  QUEUED {queued}  SERVED {snapshot.Transactions.Count}\nREQUEST {(int)_sharedWorldClock.RequestedSpeed}×  SCHEDULER-DELTA {_sharedWorldClock.AttainedSpeed:0.00}×\nTICK {snapshot.CurrentTick}  HASH {snapshot.AuthoritativeHash[..12]}";
-    }
-
-    private void ResetSharedMeasurementWindow()
-    {
-        _sharedWallFrameMilliseconds.Clear(); _sharedEngineDeltaMilliseconds.Clear(); _sharedWorkMilliseconds.Clear();
-        _sharedMeasurementFrames = 0; _sharedMeasurementStartTick = 0; _sharedWallStartTimestamp = 0; _sharedWallPreviousTimestamp = 0;
-    }
-
-    private void WriteSharedRenderedResult(RequestedSpeed speed, bool final)
-    {
-        var frames = _sharedWallFrameMilliseconds.Order().ToArray();
-        var engineDeltas = _sharedEngineDeltaMilliseconds.Order().ToArray();
-        var work = _sharedWorkMilliseconds.Order().ToArray();
-        double P(double[] values, double p) => values[Math.Clamp((int)Math.Ceiling(values.Length * p) - 1, 0, values.Length - 1)];
-        var path = Path.Combine(Path.GetDirectoryName(_sharedWorldOutputPath!)!, $"shared-world-{(int)speed}x.json");
-        var snapshot = _session.CaptureSnapshot();
-        var wallElapsedSeconds = Stopwatch.GetElapsedTime(_sharedWallStartTimestamp, _sharedWallPreviousTimestamp).TotalSeconds;
-        var measuredTicks = snapshot.CurrentTick - _sharedMeasurementStartTick;
-        var wallAttainedSpeed = measuredTicks / (FoundationClock.OneXTickRate * wallElapsedSeconds);
-        var interacting = snapshot.ServiceQueues.SelectMany(queue => queue.Agents)
-            .Count(agent => agent.Action is not ServiceQueueAgentAction.Completed and not ServiceQueueAgentAction.Failed);
-        var result = new
-        {
-            RequestedSpeed = (int)speed, WallAttainedSpeed = wallAttainedSpeed,
-            SchedulerEngineDeltaAttainedSpeed = _sharedWorldClock.AttainedSpeed,
-            SampleFrames = frames.Length, SampleTicks = measuredTicks, WallElapsedSeconds = wallElapsedSeconds,
-            MeasurementStartTick = _sharedMeasurementStartTick, MeasurementEndTick = snapshot.CurrentTick,
-            WallFrameMeanMs = frames.Average(), WallFrameP50Ms = P(frames, .5),
-            WallFrameP95Ms = P(frames, .95), WallFrameP99Ms = P(frames, .99),
-            EngineDeltaMeanMs = engineDeltas.Average(), EngineDeltaP95Ms = P(engineDeltas, .95),
-            WorkMeanMs = work.Average(),
-            WorkP50Ms = P(work, .5), WorkP95Ms = P(work, .95), WorkP99Ms = P(work, .99),
-            RepresentativePopulation = snapshot.NavigationAgents.Count == SharedWorldFeasibilityFixture.AgentCount,
-            RepresentativeBoundaryTick = _sharedRepresentativeTick,
-            ActiveAgents = snapshot.NavigationAgents.Count, InteractingAgents = interacting, Destinations = snapshot.ServiceQueues.Count,
-            SaveMs = _sharedSaveMilliseconds, LoadMs = _sharedLoadMilliseconds, RestoreExact = _sharedRestoreExact,
-            ProcessPeakWorkingSetBytes = Process.GetCurrentProcess().PeakWorkingSet64, Hash = snapshot.AuthoritativeHash,
-        };
-        File.WriteAllText(path, JsonSerializer.Serialize(result, new JsonSerializerOptions { WriteIndented = true }));
-        if (final)
-        {
-            GetViewport().GetTexture().GetImage().SavePng(Path.ChangeExtension(_sharedWorldOutputPath!, ".png"));
-            File.WriteAllText(_sharedWorldOutputPath!, "M1.00 shared-world rendered feasibility completed; see adjacent 1x/4x JSON evidence." + System.Environment.NewLine);
-        }
-    }
 
     private void AdvanceRenderedBenchmark(double delta)
     {
@@ -1029,12 +851,6 @@ private string SaveDirectory => _showcaseDirectory is not null ? Path.Combine(_s
         _saveCadenceCaptureOutput is not null ? Path.Combine(Path.GetDirectoryName(_saveCadenceCaptureOutput)!, "saves") :
         _preparationDockCaptureDirectory is not null ? Path.Combine(_preparationDockCaptureDirectory, "saves") :
         _queueChoiceCaptureDirectory is not null ? Path.Combine(_queueChoiceCaptureDirectory, "saves") :
-        _cameraProfileOutput is not null ? Path.Combine(Path.GetDirectoryName(_cameraProfileOutput)!, "saves") :
-        _roleCaptureDirectory is not null ? Path.Combine(_roleCaptureDirectory, "saves") :
-        _bookingCaptureDirectory is not null ? Path.Combine(_bookingCaptureDirectory, "saves") :
-        _resultsCaptureDirectory is not null ? Path.Combine(_resultsCaptureDirectory, "saves") :
-        _perkCaptureDirectory is not null ? Path.Combine(_perkCaptureDirectory, "saves") :
-        _attendeePoseCaptureDirectory is not null ? Path.Combine(_attendeePoseCaptureDirectory, "saves") :
         ProjectSettings.GlobalizePath(_session?.CapturePreparation() is not null ? "user://saves/r0-build-v5" : "user://saves");
     private void ManualSave()
     {

@@ -456,7 +456,6 @@ public partial class Main
             button.Disabled = issue is not null;
             button.TooltipText = issue ?? "Send nearest available suitable medic; physical arrival and treatment required.";
         }
-        RefreshStaffControls();
         RefreshStaffInterventionControls();
         RefreshImmersionVendorInspector();
     }
