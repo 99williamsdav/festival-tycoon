@@ -1,6 +1,6 @@
 # Prioritized review backlog
 
-Updated **29 September 2026** against [current design](../CURRENT_DESIGN.md). This is a **documentation recommendation, not implementation authorization**. P0 means resolve or explicitly accept before treating the affected Tier 1 behavior as robust; P1 means a likely next playtest/design candidate; P2 means polish or longer-term investigation. An approved direction still needs its own bounded brief and a check of its approval scope. Completed items remain below as history. [Distant-future ideas](FUTURE_IDEAS.md) are separate.
+Updated **30 September 2026** against [current design](../CURRENT_DESIGN.md). This is a **documentation recommendation, not implementation authorization**. P0 means resolve or explicitly accept before treating the affected Tier 1 behavior as robust; P1 means a likely next playtest/design candidate; P2 means polish or longer-term investigation. An approved direction still needs its own bounded brief and a check of its approval scope. Completed items remain below as history. [Distant-future ideas](FUTURE_IDEAS.md) are separate.
 
 | ID | Priority / state | Review candidate and next gate |
 | --- | --- | --- |
@@ -19,6 +19,7 @@ Updated **29 September 2026** against [current design](../CURRENT_DESIGN.md). Th
 | B-001 | P2 · open | Farmhouse shadow polish; concept-first if new graphical treatment is needed. |
 | B-014 | P2 · requested, not implemented | Explicit saved attendee gender/model identity with no behavior/statistics by gender. Current male/female body selection and clothing/hair colours are deterministic cosmetic derivations from seed/person ID, not a new saved schema. Scope only if a real persistence need is established. |
 | B-015 | P2 · requested, not implemented | Flies near smelly toilets; needs a graphical concept and asset/performance review. Current portaloo mechanics have smell but no flies. |
+| B-020 | P2 · approved direction, concept pending | Basic **open-top general-waste bins**; full bins attract **wasps**. Later unlock better **lidded bins** that contain smell and do not attract wasps. Two open-top concepts commissioned for review, with no model or mechanic authorized. Define capacity, filling/disposal/collection, smell and wasp consequences, price and unlock rules in a later bounded brief. Keep this separate from toilet flies (B-015). [Decision](DECISIONS.md). |
 | B-008 | Done | Idle staff face out from their posts, with job/motion overrides. [Evidence](results/R0.05h.md). |
 | B-010 | Done | Hide the unused generic service point from ordinary presentation while retaining diagnostics/assets. [Evidence](results/R0.05h.md). |
 | B-011 | Done | Small barn doors aligned with big barn doors under the 27 September correction. [Evidence](results/R0.05h.md). |

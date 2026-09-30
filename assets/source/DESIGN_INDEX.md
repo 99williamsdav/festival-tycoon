@@ -1,6 +1,6 @@
 # Approved design and source index
 
-**Audited 29 September 2026.** This is a locator, not a fresh approval. Each source handoff describes its status **when written**; use the current status column and owning result to see what happened later. Concept images are direction boards, not native in-game screenshots, literal prices or permission to create extra illustrated assets. Original files in the art workspace were copied, never moved or deleted. The art workspace root is `C:\Users\99wil\Documents\ChatGPT\Festival Tycoon`.
+**Audited 30 September 2026.** This is a locator, not a fresh approval. Each source handoff describes its status **when written**; use the current status column and owning result to see what happened later. Concept images are direction boards, not native in-game screenshots, literal prices or permission to create extra illustrated assets. Original files in the art workspace were copied, never moved or deleted. The art workspace root is `C:\Users\99wil\Documents\ChatGPT\Festival Tycoon`.
 
 ## Approval and provenance
 
@@ -31,6 +31,7 @@ The user's [working agreement](../../docs/WORKING-AGREEMENTS.md) records that ap
 
 ## External-only or incomplete provenance
 
+- **Bin concepts, pending:** The user approved a direction of basic open-top general-waste bins that attract wasps when full, followed by unlockable lidded bins that contain smell and do not attract wasps. Two **new open-top concepts** are commissioned for review; no new image, model or runtime implementation is recorded here yet. The earlier external `bin-concepts-v1/bin-options.png` A/B board shows hooded bins and is **not approved for production** under this direction. Do not mirror or build from it as the selected design. [Decision](../../briefs/DECISIONS.md) and [B-020](../../briefs/BACKLOG.md) hold the unresolved mechanics and unlock questions. Toilet flies are separately [B-015](../../briefs/BACKLOG.md).
 - `environment-directions-v1/` in the art workspace contains four comparative AI direction boards. Its `DIRECTIONS.md` explicitly requested later selection; this audit did not find a durable approval selecting one **as a wholesale environment rebuild**. It remains external-only comparison, not current implementation authority.
 - `direction-a-blender-prototypes-v1/` contains bar and other Blender previews in the art workspace. An actual bar model may exist in source or runtime, but this audit has **not established approval, exact production integration or parity** for the newer comparison; verify manifest and game asset reference before calling it integrated or copying a large Blender/video package.
 - `portaloo-asset-v1/` and other full Blender/review exports remain in the art workspace or their recorded art/review paths. The mirrored concept PNG/hand-off does not make the repository self-contained for rebuilding every asset. No raw Blender/video package was duplicated in this documentation task.

@@ -1,6 +1,6 @@
 # Dated product and prototype decisions
 
-**Snapshot 29 September 2026.** This log points to the owning approval, brief and result; it does not replace them or authorize the next feature. A row marked implemented describes the current prototype, not a global acceptance or human-playtest pass. Older documents remain intact where a later decision supersedes them. Start at [current design](../CURRENT_DESIGN.md).
+**Snapshot 30 September 2026.** This log points to the owning approval, brief and result; it does not replace them or authorize the next feature. A row marked implemented describes the current prototype, not a global acceptance or human-playtest pass. Older documents remain intact where a later decision supersedes them. Start at [current design](../CURRENT_DESIGN.md).
 
 | Date | Decision and state | Earlier text / boundary | Source |
 | --- | --- | --- | --- |
@@ -20,6 +20,10 @@
 | 29 Sep | **Implemented separate Accounts:** Newspaper is public rating/satisfaction/incidents; Accounts has actual discounted sales, item costs, paid offers/build fees, operating result and cash reconciliation. | Earlier newspaper profit/cash layout is superseded. No invented ticket revenue, loan income, depreciation or illustrative fixture numbers. | [Approved concept](../assets/source/ui/festival-accounts-concept-v1/HANDOFF.md), [R0.05ag result](R0.05ag-festival-accounts.md) |
 | 29 Sep | **Implemented changed-state saves:** dirty background save every 30 real unpaused seconds plus milestone saves, with ordered staff-draft and boundary pipelines. | No individual-action disk write requirement or blanket zero-hitch claim. | [R0.05ad](results/R0.05ad-thirty-second-save-cadence.md), [R0.05ab](results/R0.05ab-save-and-staff-latency.md) |
 | 27–29 Sep | **Standing art/output workflow:** concept first for all new graphics; preserve source/provenance. Deliver Windows EXE with adjacent Godot .NET data folder, **never ZIP the executable**. Producer approvals relayed under the working agreement do not expand an unrelated brief. | A generated concept board is not native screenshot or automatic permission to implement every illustrated detail. | [Art authority](../ROGUELIKE_DESIGN.md#existing-work-to-reuse-not-overclaim), [design index](../assets/source/DESIGN_INDEX.md) |
+
+## 30 September: bin progression direction
+
+The user approved **basic open-top general-waste bins** whose full state attracts **wasps**, followed by unlockable better **lidded bins** that contain smell and do not attract wasps. Two new open-top concepts were commissioned for review, **not models or gameplay implementation**. The earlier hooded-bin A/B comparison is not approved for production. Capacity, filling/disposal/collection behavior, precise smell effects, wasp consequences, prices and unlock conditions remain undecided. This is distinct from the existing request for **flies near smelly toilets**. Source: producer relay of the user's 30 September decision; follow-up [B-020](BACKLOG.md) and [design index](../assets/source/DESIGN_INDEX.md).
 
 ## Approved directions still awaiting bounded work
 

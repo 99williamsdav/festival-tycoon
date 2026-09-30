@@ -1,5 +1,9 @@
 # Design documentation changelog
 
+## 30 September 2026 — open-top bin direction
+
+Recorded the user's [bin progression decision](../briefs/DECISIONS.md) and [B-020](../briefs/BACKLOG.md): basic open-top bins attract wasps when full; later lidded bins contain smell and avoid wasps. Two new open-top concepts are pending review. The earlier hooded-bin comparison is not production-approved, and no mechanics or models were commissioned in this documentation update. The [design index](../assets/source/DESIGN_INDEX.md) keeps source status and toilet flies distinct.
+
 ## 30 September 2026 — sixth philosophy: farce, not dread
 
 Added the user-endorsed sixth [design philosophy](../DESIGN_PHILOSOPHIES.md): a comic British-farce tone with real stakes, a nuisance → problem → emergency → death pressure ladder, near-misses and rescues as the main drama, and death as rare dark comedy. This is design direction, not gameplay authorization.
