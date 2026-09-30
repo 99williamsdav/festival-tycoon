@@ -1,6 +1,7 @@
 namespace Festival.Simulation;
 
-public enum ActivityKind { Watch, Water, Rest, Food, SoftDrink, Beer, Toilet }
+/// <summary>Watch is the default: the music for guests and performers, the post for staff. Respond is a staff job.</summary>
+public enum ActivityKind { Watch, Water, Rest, Food, SoftDrink, Beer, Toilet, Respond }
 
 /// <summary>Need levels on the shared 0–10,000 scale.</summary>
 public readonly record struct NeedLevels(int Thirst, int Heat, int Hunger, int Toilet);

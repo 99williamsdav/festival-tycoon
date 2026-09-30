@@ -39,6 +39,8 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Both people must be physically on site and the worker available.");
         if (HasClaim(command.WorkerId, PersonClaims.ResponseAssigned) || HasClaim(command.GuestId, PersonClaims.ResponseAssigned))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This worker or target already owns an independent response.");
+        if (PersonalActivityInService(command.WorkerId))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This worker is finishing a drink, purchase, toilet visit or rest.");
         if (PersonCollapsed(command.GuestId) || need.HealthStage == MedicalStage.Removed || m.Fatal ||
             PersonIn(PersonView.Disorder, command.GuestId)?.ConductStage is DisorderStage.Fight or DisorderStage.Injured)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Resolve active confrontation or give physical first aid before guidance or escort.");

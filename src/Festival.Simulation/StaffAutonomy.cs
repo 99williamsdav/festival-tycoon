@@ -13,12 +13,18 @@ public sealed partial class GameSession
             return "Incapacitated or in an active confrontation.";
         if (HasClaim(id, PersonClaims.ResponseAssigned))
             return "Already assigned; finish the current response or manual guidance.";
-        if (MedicalOwnsNavigation(id) || ImmersionOwnsNavigation(id)) return "Busy with physical water, rest or departure.";
+        if (PersonalActivityInService(id)) return "Finishing a drink, purchase, toilet visit or rest.";
+        if (_persons[id].Intent is MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed)
+            return "Busy with medical care or departure.";
         return null;
     }
 
 
-    public SessionCommand? SelectRoleResponse(ResponseRole role, ulong targetId, out string? reason)
+    public SessionCommand? SelectRoleResponse(ResponseRole role, ulong targetId, out string? reason) =>
+        SelectRoleResponse(role, targetId, null, out reason);
+
+    /// <summary>Nearest legal worker first; <paramref name="accepts"/> lets an automatic job be declined.</summary>
+    private SessionCommand? SelectRoleResponse(ResponseRole role, ulong targetId, Func<ulong, bool>? accepts, out string? reason)
     {
         SessionCommand Command(ulong workerId) => role == ResponseRole.Medic
             ? new MedicalCommand(targetId, MedicalAction.DispatchMedic, workerId)
@@ -40,8 +46,8 @@ public sealed partial class GameSession
         {
             var command = Command(worker.AgentId);
             var issue = role == ResponseRole.Medic ? ValidateMedicalCommand(null, (MedicalCommand)command) : ValidateDisorderCommand(null, (DisorderCommand)command);
-            if (issue is null) { reason = null; return command; }
-            issues.Add($"{worker.Name}: {issue.Message}");
+            if (issue is null && accepts?.Invoke(worker.AgentId) != false) { reason = null; return command; }
+            issues.Add($"{worker.Name}: {issue?.Message ?? "declined for a more pressing need"}");
         }
         reason = string.Join("\n", issues);
         return null;
@@ -61,13 +67,18 @@ public sealed partial class GameSession
         foreach (var need in PeopleIn(PersonView.Medical).Where(need => EffectiveMedicalStage(need) is MedicalStage.Critical or MedicalStage.Collapsed)
                      .OrderBy(need => EffectiveMedicalStage(need) == MedicalStage.Critical ? 0 : 1)
                      .ThenBy(MedicalResponseDeadline).ThenBy(need => need.Id).ToArray())
-            if (!ResponseTargetClaimed(need.Id) && SelectRoleResponse(ResponseRole.Medic, need.Id, out _) is MedicalCommand command)
+            if (!ResponseTargetClaimed(need.Id) && SelectRoleResponse(ResponseRole.Medic, need.Id,
+                    worker => AcceptsAutomaticResponse(worker, need.Id,
+                        EffectiveMedicalStage(need) == MedicalStage.Critical ? CriticalResponseValue : CollapsedResponseValue,
+                        GetResponseStaff().Single(item => item.AgentId == worker).TreatmentTicks), out _) is MedicalCommand command)
                 ApplyMedicalCommand(command);
         if (_disorder is null || _preparation?.Status != PreparationStatus.Running) return;
         foreach (var person in PeopleIn(PersonView.Disorder).Where(person => person.ConductStage == DisorderStage.Fight && GuestFightOrigin(person.Id)?.HandlingAttempt is null ||
                          person.ConductStage == DisorderStage.Argument && person.Pressure >= DisorderFightEligiblePressure)
                      .OrderBy(person => person.ConductStage == DisorderStage.Fight ? 0 : 1).ThenBy(person => person.ConductStageTick).ThenBy(person => person.Id).ToArray())
-            if (!ResponseTargetClaimed(person.Id) && SelectRoleResponse(ResponseRole.Steward, person.Id, out _) is DisorderCommand command)
+            if (!ResponseTargetClaimed(person.Id) && SelectRoleResponse(ResponseRole.Steward, person.Id,
+                    worker => AcceptsAutomaticResponse(worker, person.Id,
+                        person.ConductStage == DisorderStage.Fight ? FightResponseValue : ArgumentResponseValue, DisorderCalmingTicks), out _) is DisorderCommand command)
                 ApplyDisorderCommand(command);
     }
 

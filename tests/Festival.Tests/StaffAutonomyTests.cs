@@ -28,6 +28,10 @@ public sealed class StaffAutonomyTests
         var s = Ready(extra); Accept(s, new StartPreparedEditionCommand()); s.AdvanceWithoutSnapshot(1500);
         while (!s.CapturePreparation()!.People.Where(person => person.Role != ProtectedPersonRole.Performer).All(person => person.Admitted) && s.CurrentTick < 12000)
             s.AdvanceWithoutSnapshot(80);
+        // Workers take personal breaks now; start each scenario with none of them mid-service.
+        var inService = typeof(GameSession).GetMethod("PersonalActivityInService", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var staff = s.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Staff).Select(person => person.AgentId).ToArray();
+        while (staff.Any(id => (bool)inService.Invoke(s, [id])!) && s.CurrentTick < 16000) s.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(PreparationStatus.Running, s.PreparedStatus);
         Assert.IsTrue(s.CapturePreparation()!.People.Where(person => person.Role != ProtectedPersonRole.Performer).All(person => person.Admitted)); return Restore(s);
     }
@@ -259,6 +263,32 @@ public sealed class StaffAutonomyTests
         var command=(MedicalCommand)s.SelectRoleResponse(ResponseRole.Medic,id,out var reason)!;
         Assert.IsNull(reason);Assert.AreEqual(workers[1].AgentId,command.WorkerId);
         Accept(s,command);Assert.AreEqual(MedicalResponseStage.None,s.GetMedicResponses().Single(job=>job.WorkerId==workers[0].AgentId).Stage);
+    }
+    private static void Update(GameSession s, ulong id, Func<Person, Person> change) =>
+        typeof(GameSession).GetMethod("UpdatePerson", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [id, change]);
+    [TestMethod]
+    public void DirectOrderPullsAWorkerOffTheirWayToTheToilet()
+    {
+        var s = Started(); var medic = s.CaptureMedical()!.MedicId;
+        Update(s, medic, person => person with { ToiletNeed = 9_800 });
+        for (var tick = 0; tick < 200 && s.CaptureImmersion()!.People.Single(p => p.AgentId == medic).ToiletStage == ToiletVisitStage.None; tick++) s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(ToiletVisitStage.Approaching, s.CaptureImmersion()!.People.Single(p => p.AgentId == medic).ToiletStage);
+        var id = Guests(s)[0]; Incidents(s, (id, MedicalStage.Collapsed, s.CurrentTick));
+        Accept(s, new MedicalCommand(id, MedicalAction.DispatchMedic, medic));
+        Assert.AreEqual(ToiletVisitStage.None, s.CaptureImmersion()!.People.Single(p => p.AgentId == medic).ToiletStage);
+        Assert.AreEqual(MedicalResponseStage.Travelling, s.GetMedicResponses().Single(job => job.WorkerId == medic).Stage);
+        Restore(s);
+    }
+    [TestMethod]
+    public void AStewardInHeatDistressLeavesANearFightToAnotherWorker()
+    {
+        var s = Started(); var steward = s.CaptureDisorder()!.SecurityId; var id = Guests(s)[0];
+        bool Offer() => (bool)typeof(GameSession).GetMethod("AcceptsAutomaticResponse", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(s, [steward, id, GameSession.ArgumentResponseValue, GameSession.DisorderCalmingTicks])!;
+        Assert.IsTrue(Offer());
+        Update(s, steward, person => person with { Thirst = 10_000, HeatExposure = 10_000 });
+        Assert.IsFalse(Offer());
+        StringAssert.StartsWith(s.CaptureMedical()!.Needs.Single(need => need.AgentId == steward).Reason, "Left ");
     }
     [TestMethod]
     public void AllUnavailableMedicsExplainEachWorkerWithoutCreatingClaims()

@@ -52,22 +52,18 @@ public sealed class TimetableNeedsTests
     }
 
     [TestMethod]
-    public void UpcomingAnticipationIsFiniteAndClampedAndSurvivesRestore()
+    public void MusicAheadFollowsTheTimetableAndSurvivesRestore()
     {
-        Assert.AreEqual(0, GameSession.FestivalAnticipationAppeal(100, -1));
-        Assert.AreEqual(0, GameSession.FestivalAnticipationAppeal(100, 1_601));
-        Assert.AreEqual(0, GameSession.FestivalAnticipationAppeal(100, long.MaxValue));
-        Assert.AreEqual(0, GameSession.FestivalAnticipationAppeal(100, 1_600));
-        Assert.AreEqual(750, GameSession.FestivalAnticipationAppeal(100, 800));
-        Assert.AreEqual(1_500, GameSession.FestivalAnticipationAppeal(100, 0));
-        Assert.AreEqual(1_500, GameSession.FestivalAnticipationAppeal(int.MaxValue, 0));
-        Assert.AreEqual(0, GameSession.FestivalAnticipationAppeal(-1, 0));
+        // Two seconds before the first set: silence now, the act's appeal once it starts.
         var session = Started(GameSession.FestivalSlotStarts[0] - 160);
         var guest = session.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Guest).AgentId;
+        long[] Music(GameSession s) => (long[])typeof(GameSession).GetMethod("MusicPerSecond", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [guest])!;
         Assert.IsTrue(session.ScheduledSilence);
-        Assert.IsTrue(session.FestivalNeedMusicAppeal(guest) is >= 2_500 and <= 4_000);
+        var ahead = Music(session);
+        Assert.AreEqual(2_500 * GameSession.MusicValuePermille / 1_000, ahead[0]);
+        Assert.IsTrue(ahead[2] > ahead[0], "The set starting in two seconds is worth more than the silence before it.");
         var restored = Restored(session);
-        Assert.AreEqual(session.FestivalNeedMusicAppeal(guest), restored.FestivalNeedMusicAppeal(guest));
+        CollectionAssert.AreEqual(ahead, Music(restored));
         Assert.AreEqual(session.FestivalAffinity(guest, session.UpcomingFestivalAct!), restored.FestivalAffinity(guest, restored.UpcomingFestivalAct!));
         session.AdvanceWithoutSnapshot(80);
         restored.AdvanceWithoutSnapshot(80);

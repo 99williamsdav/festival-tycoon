@@ -130,7 +130,7 @@ public sealed partial class GameSession
         {
             var id = command.PersonId!.Value;
             var workerId = command.WorkerId ?? d.SecurityId;
-            LeaveWater(workerId, "Steward explicitly recalled from water for assigned response", reroute: false);
+            RecallWorker(workerId, "Steward recalled from a personal errand for an assigned response");
             MutatePerson(workerId, item => { item.Intent = MedicalIntent.WatchShow; item.Reason = "Steward responding to assigned target"; item.WaterQueueSlot = null; });
             ApplyAgentDestination(new(workerId), new(StewardResponseCell(workerId, id)!.Value, "disorder.security-dispatch"));
             var description = $"Steward {workerId} walking to person {id}; not yet calming";

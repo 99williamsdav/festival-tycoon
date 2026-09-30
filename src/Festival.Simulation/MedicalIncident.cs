@@ -288,6 +288,7 @@ public sealed partial class GameSession
         { ApplyStaffIntervention(LegacyMedicalIntervention(command)); return; }
         var m = _medical!;
         var id = new EntityId(command.GuestId);
+        RecallWorker(command.WorkerId ?? m.MedicId, "Recalled from a personal errand for a medical response");
         foreach (var job in GetStewardResponses().Where(item => StewardBusy(item) && item.TargetId == command.GuestId))
         {
             SetStewardResponse(job with { Stage = SecurityResponseStage.Completed, TargetId = null, Description = "Injured person handed to medical response" });
@@ -528,20 +529,6 @@ public sealed partial class GameSession
             _livePerformance = _livePerformance with { Stage = LiveSetStage.Interrupted, InterruptedTick = CurrentTick,
                 LastReaction = "performer-unavailable", ReactionSequence = live.ReactionSequence + 1 };
     }
-
-    // Derived only from saved programme, identity and time; no random draws or hidden anticipation state.
-    public int FestivalNeedMusicAppeal(ulong id)
-    {
-        var score = _livePerformance?.Stage == LiveSetStage.Live && CurrentFestivalAct is { } current
-            ? 2_500 + FestivalAffinity(id, current) * 50 + current.Popularity * 10 : 2_500;
-        var until = UpcomingFestivalTick - CurrentTick;
-        if (UpcomingFestivalAct is { } upcoming && until is >= 0 and <= 1_600)
-            score += FestivalAnticipationAppeal(FestivalAffinity(id, upcoming), until);
-        return score;
-    }
-
-    public static int FestivalAnticipationAppeal(int affinity, long ticksUntil) => ticksUntil is < 0 or > 1_600
-        ? 0 : (int)((1_600 - ticksUntil) * Math.Clamp(affinity, 0, 100) * 1_500 / 160_000L);
 
     private void AdvanceMedical()
     {

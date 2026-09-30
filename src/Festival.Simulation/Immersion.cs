@@ -149,12 +149,6 @@ public sealed partial class GameSession
         _immersion = _immersion with { ChipsStock = _immersion.ChipsStock - (product == ImmersionProduct.Chips ? 1 : 0), SoftStock = _immersion.SoftStock - (product == ImmersionProduct.SoftDrink ? 1 : 0), BeerStock = _immersion.BeerStock - (product == ImmersionProduct.Beer ? 1 : 0), Purchases = _immersion.Purchases.Append(purchase).ToArray() };
         LeaveImmersionQueue(id, true); SetConsumption(_persons[id] with { Held = new(transaction, product, 0) });
     }
-    public int ImmersionDecisionScore(ulong id, ImmersionProduct product, ImmersionVendor vendor)
-    {
-        var p = _persons[id]; var thirst = PersonIn(PersonView.Medical, id)?.Thirst??p.StaffThirst; var nav = _navigationAgents[new(id)]; var from = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
-        var drive = product == ImmersionProduct.Chips ? p.Hunger + (p.Hunger >= 6000 ? 3500 : 0) : product == ImmersionProduct.SoftDrink ? thirst + p.SoftTaste*35 : 3000 + p.BeerTaste*45 + thirst/4;
-        return drive - ImmersionPriceFor(id, product)*(2+p.PriceReluctance/25) - (Math.Abs(from.X-vendor.Cell.X)+Math.Abs(from.Z-vendor.Cell.Z))*30 - vendor.Queue.Length*400 - FestivalNeedMusicAppeal(id)/2;
-    }
     private void AdvanceImmersion()
     {
         if (_immersion is null || !MedicalOperationsActive) return;
@@ -191,7 +185,6 @@ public sealed partial class GameSession
             if (p.Intoxication >= 7500 && p.IntoxicationWarningTick < 0) { p.IntoxicationWarningTick = CurrentTick; MedicalEvent("intoxication:warning", $"Person {p.Id}: heavy intoxication {p.Intoxication}; no further beer served, water, rest and medic available."); }
             p.SevereTicks = p.Intoxication >= 8500 ? p.SevereTicks+1 : 0;
             SetConsumption(p);
-            if(!ImmersionDepartureActive && _persons[p.Id] is { NeedProfile:MedicalNeedProfile.Staff,Thirst:>=MedicalDistressThirst,Intent:MedicalIntent.WatchShow } && ImmersionHandsAvailable(p.Id)) { if(p.VendorId is not null)LeaveImmersionQueue(p.Id,false);SeekWater(p.Id,"Urgent staff thirst: free water precedes shopping");continue; }
             if (p.IntoxicationCollapseTick>=0 && PersonIn(PersonView.Medical, p.Id) is { } collapsed)
             {
                 if(collapsed.HealthStage==MedicalStage.Collapsed && CurrentTick>=p.IntoxicationCollapseTick+MedicalCriticalDelayTicks) { MutatePerson(p.Id, n => { n.HealthStage = MedicalStage.Critical; n.HealthCriticalTick = CurrentTick; }); MedicalEvent("intoxication:critical",$"Person {p.Id}: untreated intoxication collapse; physical response deadline remains."); }
@@ -208,18 +201,6 @@ public sealed partial class GameSession
                 RecordGuestMedicalCollapse(p.Id);
             }
             if (p.VendorId is not null && (p.Order is not { } order || !ImmersionOrderEligible(p,order))) { LeaveImmersionQueue(p.Id,ImmersionShoppingEligible(p.Id)); continue; }
-            // Guests and performers shop through the activity chooser; idle staff still shop here.
-            if (p.NeedProfile == MedicalNeedProfile.Staff && p.Held is null && p.VendorId is null && CurrentTick%80 == (long)(p.Id%80) && CurrentTick-p.ShoppingDecisionTick >= 800 && ImmersionShoppingEligible(p.Id))
-            {
-                SetConsumption(p with { ShoppingDecisionTick = CurrentTick });
-                var choices = Enum.GetValues<ImmersionProduct>().Where(product => ImmersionOrderEligible(p,product))
-                    .SelectMany(product => Vendors.Where(v => v.Id == (product == ImmersionProduct.Chips ? "food" : "drinks"))
-                        .Select(vendor => (Product: product, Vendor: vendor)))
-                    .Where(c=>PeopleIn(PersonView.Consumption).Count(n=>n.VendorId==c.Vendor.Id)<10 && (c.Vendor.QueueCells is null || c.Vendor.QueueCells.Length>PeopleIn(PersonView.Consumption).Count(n=>n.VendorId==c.Vendor.Id)))
-                    .Select(c=>(c.Product,c.Vendor,Score:ImmersionDecisionScore(p.Id,c.Product,c.Vendor))).OrderByDescending(c=>c.Score).ToArray();
-                if (choices.Length>0 && choices[0].Score>1000 && (choices[0].Product != ImmersionProduct.Chips || p.Hunger>=6000) && MedicalRouteExists(p.Id,ImmersionQueueCell(choices[0].Vendor,choices[0].Vendor.Queue.Length)))
-                { var choice = choices[0]; SetConsumption(_persons[p.Id] with { VendorId=choice.Vendor.Id,Order=choice.Product }); ApplyAgentDestination(new(p.Id),new(ImmersionQueueCell(choice.Vendor,choice.Vendor.Queue.Length),"immersion.approach")); }
-            }
         }
         if (ImmersionDepartureActive) return;
         foreach (var original in Vendors)

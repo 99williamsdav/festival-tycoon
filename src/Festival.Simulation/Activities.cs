@@ -1,11 +1,13 @@
 namespace Festival.Simulation;
 
 /// <summary>
-/// The one activity decision for guests and performers. Each person re-plans once a second
+/// The one activity decision for guests, performers and staff. Each person re-plans once a second
 /// (staggered by id). People in a fixed state — collapsed, fighting, escorted, performing their
-/// own set, mid-service or resting — are not scored; everyone else compares watching the music
-/// with every activity open to them and switches when another plan scores higher. The facility
-/// systems still run the chosen activity: queues, service and relief are unchanged.
+/// own set, on a staff job, mid-service or resting — are not scored; everyone else compares their
+/// default (the music, or a worker's post) with every activity open to them and switches when
+/// another plan scores higher. Automatic staff jobs are offered to a worker as one more option
+/// (see <see cref="AcceptsAutomaticResponse"/>); a player's direct order is never scored. The
+/// facility systems still run the chosen activity: queues, service and relief are unchanged.
 /// </summary>
 public sealed partial class GameSession
 {
@@ -15,6 +17,13 @@ public sealed partial class GameSession
     public const int PurchaseValueScale = 13;
     // Music's worth per second, as a share of an act's appeal, against need discomfort.
     public const long MusicValuePermille = 800;
+    // A worker's worth per second at their post, in place of the music.
+    public const long StaffPostPerSecond = 3_000;
+    // What an automatic job is worth to the worker offered it, by urgency.
+    public const long CriticalResponseValue = 900_000;
+    public const long CollapsedResponseValue = 600_000;
+    public const long FightResponseValue = 600_000;
+    public const long ArgumentResponseValue = 300_000;
 
     private void AdvanceActivityChoices()
     {
@@ -28,7 +37,8 @@ public sealed partial class GameSession
     private bool ActivityChooserOwns(ulong id)
     {
         var person = _persons[id];
-        if (person.NeedProfile == MedicalNeedProfile.Staff || !person.Admitted || person.Departed) return false;
+        if (!person.Admitted || person.Departed) return false;
+        if (HasClaim(id, PersonClaims.StaffJob) || GetStewardResponses().Any(job => job.WorkerId == id && job.Incapacitated)) return false;
         if (person.Intent is MedicalIntent.Rest or MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed or MedicalIntent.Drinking ||
             person.HealthStage is MedicalStage.Collapsed or MedicalStage.Critical || IsCurrentProgrammePerformer(id)) return false;
         if (HasClaim(id, PersonClaim.Fighting | PersonClaim.InterventionTarget | PersonClaim.InterventionWorker | PersonClaim.BeingEscorted |
@@ -46,35 +56,86 @@ public sealed partial class GameSession
         { ImmersionProduct.Chips => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, _ => ActivityKind.Beer } :
         ActivityKind.Watch;
 
+    private bool IsStaffMember(ulong id) => _persons[id].NeedProfile == MedicalNeedProfile.Staff;
+
+    private ActivityScore[] RankActivities(ulong id, ActivityKind current, ActivityOption? extra = null)
+    {
+        var person = _persons[id];
+        var options = ActivityOptions(id, current);
+        if (extra is not null) options.Add(extra);
+        // On-duty staff heat up an eighth as fast (see AdvanceMedical).
+        var growth = new NeedGrowth(20 + (HasPerk("thirsty-crowd") && person.NeedProfile == MedicalNeedProfile.Guest ? 2 : 0),
+            IsStaffMember(id) ? 2 : 20, 12, 20);
+        var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed);
+        return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options);
+    }
+
     private void ChooseActivity(ulong id)
     {
         var person = _persons[id];
         var current = CurrentActivity(person);
-        var options = ActivityOptions(id, current);
-        var growth = new NeedGrowth(20 + (HasPerk("thirsty-crowd") ? 2 : 0), 20, 12, 20);
-        var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed);
-        var ranked = ActivityChooser.Rank(now, growth, MusicPerSecond(id), options);
+        var ranked = RankActivities(id, current);
         var best = ranked[0];
         var runnerUp = ranked.Length > 1 ? ranked[1] : null;
-        var comparison = runnerUp is null ? "" : $" vs {ActivityLabel(runnerUp.Option.Kind)} {runnerUp.Score / 1_000}";
+        var comparison = runnerUp is null ? "" : $" vs {ActivityLabel(runnerUp.Option.Kind, IsStaffMember(id))} {runnerUp.Score / 1_000}";
         if (best.Option.Kind == current)
         {
             var reason = current == ActivityKind.Watch
-                ? $"Watching band: music {best.Score / 1_000}{comparison} incl. travel/wait"
+                ? IsStaffMember(id) ? $"On duty: post {best.Score / 1_000}{comparison}" : $"Watching band: music {best.Score / 1_000}{comparison} incl. travel/wait"
                 : $"Staying with {ActivityLabel(current)} {best.Score / 1_000}{comparison}";
             MutatePerson(id, item => { item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
             return;
         }
-        var why = $"Chose {ActivityLabel(best.Option.Kind)} {best.Score / 1_000}{comparison}";
+        var why = $"Chose {ActivityLabel(best.Option.Kind, IsStaffMember(id))} {best.Score / 1_000}{comparison}";
         AbandonActivity(id, current, best.Option.Kind == ActivityKind.Watch, why);
         StartActivity(id, best.Option, why);
     }
 
-    private static string ActivityLabel(ActivityKind kind) => kind switch
+    private static string ActivityLabel(ActivityKind kind, bool staff = false) => kind switch
     {
-        ActivityKind.Watch => "music", ActivityKind.Water => "water", ActivityKind.Rest => "rest", ActivityKind.Food => "chips",
-        ActivityKind.SoftDrink => "soft drink", ActivityKind.Beer => "beer", _ => "toilet"
+        ActivityKind.Watch => staff ? "post" : "music", ActivityKind.Water => "water", ActivityKind.Rest => "rest", ActivityKind.Food => "chips",
+        ActivityKind.SoftDrink => "soft drink", ActivityKind.Beer => "beer", ActivityKind.Respond => "respond", _ => "toilet"
     };
+
+    /// <summary>
+    /// Offers an automatic job to one worker as another option in their plan. They take it unless
+    /// their own plan scores higher (a steward bursting for the toilet may leave a scuffle to
+    /// another worker); a direct player order never comes through here.
+    /// </summary>
+    private bool AcceptsAutomaticResponse(ulong workerId, ulong targetId, long value, int serviceTicks)
+    {
+        var person = _persons[workerId];
+        var current = CurrentActivity(person);
+        var nav = _navigationAgents[new(workerId)];
+        var here = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
+        var target = _navigationAgents[new(targetId)];
+        var scene = TraversalGrid.WorldToCell(target.XMillimetres, target.ZMillimetres);
+        var complete = EstimateWalkTicks(workerId, here, scene) + serviceTicks;
+        var job = new ActivityOption(ActivityKind.Respond, targetId.ToString(), complete,
+            complete + EstimateWalkTicks(workerId, scene, StaffAssignedPost(workerId) ?? here), value);
+        var ranked = RankActivities(workerId, current, job);
+        if (ranked[0].Option.Kind == ActivityKind.Respond) return true;
+        var respond = ranked.First(item => item.Option.Kind == ActivityKind.Respond);
+        var reason = $"Left {_persons[targetId].Name} to another worker: {ActivityLabel(ranked[0].Option.Kind, true)} {ranked[0].Score / 1_000} vs respond {respond.Score / 1_000}";
+        MutatePerson(workerId, item => item.Reason = reason);
+        return false;
+    }
+
+    /// <summary>A worker can be pulled off a personal errand until its service begins; resting is recovery, not an errand.</summary>
+    private bool PersonalActivityInService(ulong id)
+    {
+        var person = _persons[id];
+        return person.Intent is MedicalIntent.Drinking or MedicalIntent.Rest || WaterPoints().Any(point => point.OwnerId == id) ||
+            person.ToiletStage is not (ToiletVisitStage.None or ToiletVisitStage.Approaching or ToiletVisitStage.Queued) ||
+            person.VendorId is { } vendorId && Vendors.Any(vendor => vendor.Id == vendorId && vendor.OwnerId == id);
+    }
+
+    /// <summary>Drops a worker's personal errand (not yet in service) so a job can take their route.</summary>
+    private void RecallWorker(ulong id, string reason)
+    {
+        var person = _persons[id];
+        AbandonActivity(id, CurrentActivity(person), false, reason);
+    }
 
     private void AbandonActivity(ulong id, ActivityKind current, bool returnToMusic, string reason)
     {
@@ -170,7 +231,7 @@ public sealed partial class GameSession
         person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat && !IsCurrentProgrammePerformer(person.Id) &&
         ImmersionHandsAvailable(person.Id) && ImmersionStock(product) > 0 &&
         _wallets[new(person.Id)].CashPennies >= ImmersionPriceFor(person.Id, product) &&
-        (product != ImmersionProduct.Beer || !person.Abstains && person.Intoxication < 7_000);
+        (product != ImmersionProduct.Beer || !person.Abstains && person.Intoxication < 7_000 && person.Role != ProtectedPersonRole.Staff);
 
     private bool VendorHasRoom(ImmersionVendor vendor)
     {
@@ -188,6 +249,7 @@ public sealed partial class GameSession
     }
 
     private GridCell MusicReturnCell(ulong id, GridCell here) =>
+        StaffAssignedPost(id) ??
         _livePerformance?.Listeners.FirstOrDefault(item => item.AgentId == id)?.Place ??
         (_persons[id].NeedProfile == MedicalNeedProfile.Performer ? here : PreparedPlace(Array.FindIndex(PeopleIn(PersonView.Roster), item => item.Id == id)));
 
@@ -237,6 +299,11 @@ public sealed partial class GameSession
     private long[] MusicPerSecond(ulong id)
     {
         var values = new long[ActivityChooser.Samples];
+        if (IsStaffMember(id))
+        {
+            Array.Fill(values, StaffPostPerSecond);
+            return values;
+        }
         var started = _preparation!.StartedTick;
         var q = _programme;
         var ownSlot = q?.Performers.FirstOrDefault(item => item.AgentId == id)?.SlotIndex ?? -1;
