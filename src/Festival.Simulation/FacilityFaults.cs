@@ -75,6 +75,8 @@ public sealed partial class GameSession
     public FacilityFault? ActiveFault(string facilityId) => OpenFaults.FirstOrDefault(f => f.FacilityId == facilityId && f.Stage == FacilityFaultStage.Active);
     public bool TapBodged(string tapId) => OpenFaults.Any(f => f.FacilityId == tapId && f.Stage == FacilityFaultStage.Bodged);
     private bool FaultWorkOwns(ulong id) => OpenFaults.Any(f => f.WorkerId == id);
+    /// <summary>Locked in a cubicle: only a steward's rescue at the door gets them out.</summary>
+    public bool StuckInToilet(ulong id) => OpenFaults.Any(f => f.Kind == FacilityFaultKind.StuckInToilet && f.Stage == FacilityFaultStage.Active && f.VictimId == id);
     public FacilityFault? FaultWorkOf(ulong id) => OpenFaults.FirstOrDefault(f => f.WorkerId == id);
 
     /// <summary>A line for the toilet or tap inspector while something is wrong with it.</summary>
@@ -100,6 +102,8 @@ public sealed partial class GameSession
         _faults ??= EmptyFaults;
         var fault = new FacilityFault(id, kind, facilityId, victimId, CurrentTick, FacilityFaultStage.Active);
         // A tap that breaks again loses its earlier bodge: the new break needs mending from scratch.
+        foreach (var bodge in _faults.Faults.Where(f => f.FacilityId == facilityId && f.Stage == FacilityFaultStage.Bodged && f.WorkerId is not null))
+            SendWorkerBack(bodge.WorkerId!.Value);
         _faults = _faults with { Faults = _faults.Faults
             .Select(f => f.FacilityId == facilityId && f.Stage == FacilityFaultStage.Bodged ? f with { Stage = FacilityFaultStage.Fixed, WorkerId = null, WorkStartedTick = -1 } : f)
             .Append(fault).ToArray() };
@@ -168,8 +172,8 @@ public sealed partial class GameSession
         {
             // Departure takes everyone's route: workers are released, and what is broken stays broken.
             foreach (var held in OpenFaults.Where(f => f.WorkerId is not null).ToArray()) SetFault(held with { WorkerId = null, WorkStartedTick = -1 });
-            // The end of the day opens the door: the toilet sends every occupant out.
-            foreach (var jam in OpenFaults.Where(f => f.Kind == FacilityFaultKind.StuckInToilet && GetToilet(f.FacilityId).OwnerId != f.VictimId).ToArray())
+            // The end of the day opens every jammed door: the toilet sends every occupant out.
+            foreach (var jam in OpenFaults.Where(f => f.Kind == FacilityFaultKind.StuckInToilet && f.Stage == FacilityFaultStage.Active).ToArray())
                 ResolveFault(jam, FacilityFaultStage.Fixed);
             return;
         }
@@ -212,7 +216,6 @@ public sealed partial class GameSession
             var duration = fault.Kind == FacilityFaultKind.StuckInToilet ? FaultRules.RescueTicks : mending ? FaultRules.RepairTicks : FaultRules.BodgeTicks;
             if (CurrentTick - fault.WorkStartedTick < duration) return;
             ResolveFault(fault, fault.Kind == FacilityFaultKind.BrokenTap && !mending ? FacilityFaultStage.Bodged : FacilityFaultStage.Fixed);
-            ReturnToListening(worker);
             return;
         }
         if (CurrentTick % 8 != 0) return;
@@ -235,8 +238,15 @@ public sealed partial class GameSession
         }
     }
 
+    /// <summary>A worker whose fault is over, however it ended, heads back rather than standing at the door or tap.</summary>
+    private void SendWorkerBack(ulong worker)
+    {
+        if (_navigationAgents[new(worker)].IntentId?.StartsWith("fault.", StringComparison.Ordinal) == true) ReturnToListening(worker);
+    }
+
     private void ResolveFault(FacilityFault fault, FacilityFaultStage stage)
     {
+        if (fault.WorkerId is { } worker) { SetFault(fault with { WorkerId = null, WorkStartedTick = -1 }); SendWorkerBack(worker); }
         var resolved = fault with { Stage = stage, ResolvedTick = CurrentTick, WorkerId = null, WorkStartedTick = -1 };
         SetFault(resolved);
         MedicalEvent(stage == FacilityFaultStage.Bodged ? "fault:bodged" : "fault:fixed",
@@ -250,22 +260,36 @@ public sealed partial class GameSession
             return "Facility fault state shape invalid.";
         var faults = s.Faults.Faults;
         if (prep.Status == PreparationStatus.Preparing && faults.Length != 0) return "Draft/retry must clear facility faults.";
+        // Disabled is a labelled test fixture. A save can carry it only with no faults recorded; play never sets it.
         if (s.Faults.Disabled && faults.Length != 0) return "A fault-free fixture holds no faults.";
         var toilets = (s.Facilities?.Toilets ?? []).ToDictionary(t => t.Id);
         var taps = (s.Facilities?.Taps ?? []).Select(t => t.Id).ToHashSet();
         var stewards = (s.Disorder?.Stewards ?? []).Select(w => w.WorkerId).ToHashSet();
         var maintenance = s.Equipment?.WorkerId;
-        bool Working(ulong id) => s.NavigationAgents?.SingleOrDefault(n => n.Id == id)?.IntentId?.StartsWith("fault.", StringComparison.Ordinal) == true;
+        var occupants = (s.Immersion?.People ?? []).ToDictionary(p => p.AgentId);
+        var tapOwners = (s.Facilities?.Taps ?? []).ToDictionary(t => t.Id, t => t.OwnerId);
+        PersistedNavigationAgent? Nav(ulong id) => s.NavigationAgents?.SingleOrDefault(n => n.Id == id);
+        bool Working(ulong id) => Nav(id)?.IntentId?.StartsWith("fault.", StringComparison.Ordinal) == true;
+        // The worker's route names the job, and only the right role does it: stewards free people and bodge
+        // taps when no maintenance worker is hired; maintenance mends taps.
+        string ExpectedIntent(FacilityFault f, ulong worker) => f.Kind == FacilityFaultKind.StuckInToilet ? "fault.rescue" : worker == maintenance ? "fault.repair" : "fault.bodge";
+        bool RightWorker(FacilityFault f, ulong worker) => f.Kind == FacilityFaultKind.StuckInToilet ? stewards.Contains(worker) :
+            f.Stage == FacilityFaultStage.Bodged || maintenance is not null ? worker == maintenance : stewards.Contains(worker);
+        bool Standing(ulong id) => Nav(id) is { Action: (int)AgentNavigationAction.Arrived, DestinationX: { } x, DestinationZ: { } z } n &&
+            (n.XMillimetres, n.ZMillimetres) == TraversalGrid.CellCentre(new GridCell(x, z));
         if (faults.Select(f => f.Id).Distinct().Count() != faults.Length ||
             faults.Any(f => !Enum.IsDefined(f.Kind) || !Enum.IsDefined(f.Stage) || f.StartedTick < prep.StartedTick || f.StartedTick > s.CurrentTick ||
                 !prep.People.Any(p => p.AgentId == f.VictimId) ||
                 (f.Kind == FacilityFaultKind.StuckInToilet ? !toilets.ContainsKey(f.FacilityId) || f.Stage == FacilityFaultStage.Bodged : !taps.Contains(f.FacilityId)) ||
                 (f.Stage == FacilityFaultStage.Active) != (f.ResolvedTick < 0) || f.ResolvedTick >= 0 && (f.ResolvedTick < f.StartedTick || f.ResolvedTick > s.CurrentTick) ||
                 f.Stage == FacilityFaultStage.Fixed && (f.WorkerId is not null || f.WorkStartedTick != -1) ||
-                f.WorkerId is { } worker && (!(stewards.Contains(worker) || worker == maintenance) || !Working(worker)) ||
+                f.WorkerId is { } worker && (!RightWorker(f, worker) || !Working(worker) || Nav(worker)!.IntentId != ExpectedIntent(f, worker) ||
+                    f.WorkStartedTick >= 0 && !Standing(worker)) ||
                 f.WorkerId is null && f.WorkStartedTick != -1 || f.WorkStartedTick > s.CurrentTick || f.WorkStartedTick >= 0 && f.WorkStartedTick < f.StartedTick ||
                 f.Stage == FacilityFaultStage.Bodged && f.WorkerId is { } mender && mender != maintenance ||
-                f.Stage == FacilityFaultStage.Active && f.Kind == FacilityFaultKind.StuckInToilet && toilets[f.FacilityId].OwnerId != f.VictimId) ||
+                f.Stage == FacilityFaultStage.Active && f.Kind == FacilityFaultKind.StuckInToilet &&
+                    (toilets[f.FacilityId].OwnerId != f.VictimId || occupants.GetValueOrDefault(f.VictimId)?.ToiletStage != ToiletVisitStage.Using) ||
+                f.Stage == FacilityFaultStage.Active && f.Kind == FacilityFaultKind.BrokenTap && tapOwners.GetValueOrDefault(f.FacilityId) is not null) ||
             faults.Where(f => f.Stage != FacilityFaultStage.Fixed).GroupBy(f => f.FacilityId).Any(g => g.Count() > 1) ||
             faults.Where(f => f.WorkerId is not null).GroupBy(f => f.WorkerId).Any(g => g.Count() > 1))
             return "Facility fault identity, stage or worker invalid.";

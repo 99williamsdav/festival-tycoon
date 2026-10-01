@@ -84,6 +84,38 @@ public sealed class FacilityFaultTests
     }
 
     [TestMethod]
+    public void NobodyCanGuideAStuckGuestOutAroundTheRescue()
+    {
+        var (s, fault) = Find(FacilityFaultKind.StuckInToilet);
+        var steward = s.GetStewardResponses().First().WorkerId;
+        var medic = s.GetMedicResponses().First().WorkerId;
+        Assert.IsFalse(Send(s, new StaffInterventionCommand(fault.VictimId, steward, StaffInterventionAction.GuideToWater)).IsAccepted);
+        Assert.IsFalse(Send(s, new StaffInterventionCommand(fault.VictimId, medic, StaffInterventionAction.GuideToRest)).IsAccepted);
+        Assert.IsFalse(Send(s, new MedicalCommand(fault.VictimId, MedicalAction.DispatchMedic, medic)).IsAccepted);
+        Assert.AreEqual(fault.VictimId, s.CaptureToilets().Single(t => t.Id == fault.FacilityId).OwnerId);
+    }
+
+    [TestMethod]
+    public void AWorkerOnTheWayHeadsBackIfTheJamEndsAnotherWay()
+    {
+        var (s, fault) = Find(FacilityFaultKind.StuckInToilet);
+        ulong? worker = null;
+        for (var guard = 0; guard < 200 && worker is null; guard++)
+        {
+            s.AdvanceWithoutSnapshot(8);
+            worker = s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id) is { Stage: FacilityFaultStage.Active, WorkStartedTick: < 0, WorkerId: { } w } ? w : null;
+        }
+        Assert.IsNotNull(worker, "A steward set off.");
+        // Something else gets them out (as a collapse would): the toilet releases its occupant.
+        typeof(GameSession).GetMethod("InterruptToiletOwner", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [fault.VictimId]);
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(FacilityFaultStage.Fixed, s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).Stage);
+        var intent = s.CaptureObservation().NavigationAgents.Single(a => a.Id.Value == worker).IntentId;
+        Assert.IsFalse(intent?.StartsWith("fault.", StringComparison.Ordinal) == true, $"Still heading to the toilet: {intent}");
+        AssertRestores(s);
+    }
+
+    [TestMethod]
     public void WithoutMaintenanceAStewardBodgesABrokenTapToHalfFlow()
     {
         var (s, fault) = Find(FacilityFaultKind.BrokenTap);

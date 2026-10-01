@@ -41,6 +41,8 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This worker or target already owns an independent response.");
         if (PersonalActivityInService(command.WorkerId))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This worker is finishing a drink, purchase, toilet visit or rest.");
+        if (StuckInToilet(command.GuestId))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "They're stuck in the toilet: a steward has to free them at the door first.");
         if (PersonCollapsed(command.GuestId) || need.HealthStage == MedicalStage.Removed || m.Fatal ||
             PersonIn(PersonView.Disorder, command.GuestId)?.ConductStage is DisorderStage.Fight or DisorderStage.Injured)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Resolve active confrontation or give physical first aid before guidance or escort.");

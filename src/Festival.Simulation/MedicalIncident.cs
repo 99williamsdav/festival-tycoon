@@ -247,6 +247,8 @@ public sealed partial class GameSession
         if (target is not null || _medical is not { } m || _preparation is null || !MedicalOperationsActive)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Medical actions require a live Hot edition.");
         var need = PersonIn(PersonView.Medical, command.GuestId);
+        if (StuckInToilet(command.GuestId))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "They're stuck in the toilet: a steward has to free them at the door first.");
         if (InterventionOwnsWorker(command.WorkerId ?? m.MedicId) || InterventionOwnsTarget(command.WorkerId ?? m.MedicId) || (InterventionOwnsTarget(command.GuestId) || InterventionOwnsWorker(command.GuestId)) && !PersonCollapsed(command.GuestId))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "A physical staff intervention owns this worker or target.");
         var workerId = command.WorkerId ?? m.MedicId;
