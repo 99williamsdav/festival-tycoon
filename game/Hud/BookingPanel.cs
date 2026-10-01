@@ -56,6 +56,9 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
 
     private VBoxContainer? _detail;
     private Label? _detailEmpty;
+    private PanelContainer? _detailPanel;
+    private Button? _detailTab;
+    private bool _detailOpen;
     private HBoxContainer? _detailTags;
     private Label? _detailName;
     private readonly (Label Value, ProgressBar Bar)[] _detailMetrics = new (Label, ProgressBar)[3];
@@ -119,7 +122,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
     {
         if (BookingLocked) return;
         if (WontPlay(id)) { _bookingDurableMessage = $"{ActCatalogue.Find(id)!.Name} won't play for the festival yet."; Refresh(); return; }
-        _bookingSelected = id; _bookingDurableMessage = $"Selected {_hud.Session.GetFestivalActs().Single(a => a.Id == id).Name}. Choose a set or Book; Escape cancels.";
+        _bookingSelected = id; _detailOpen = true; _bookingDurableMessage = $"Selected {_hud.Session.GetFestivalActs().Single(a => a.Id == id).Name}. Choose a set or Book; Escape cancels.";
         Refresh();
     }
     private bool PreviewBookingDrop(int slot, Variant payload)
@@ -176,8 +179,12 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         _root.AddThemeConstantOverride("separation", Ui.Px(22)); parent.AddChild(_root);
         BuildRunningOrder(_root);
         _root.AddChild(new ColorRect { Color = Ui.PaperRule, CustomMinimumSize = new Vector2(1, 0), MouseFilter = Control.MouseFilterEnum.Ignore });
-        BuildActTable(_root);
-        BuildDetail(_root);
+        // The table takes the rest of the width; the selected act's details slide in over its right side.
+        var area = new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, MouseFilter = Control.MouseFilterEnum.Pass };
+        _root.AddChild(area);
+        var table = BuildActTable(area);
+        area.CustomMinimumSize = new Vector2(Ui.S(420), table.GetCombinedMinimumSize().Y);
+        BuildDetail(area);
         Refresh();
     }
 
@@ -244,13 +251,14 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         Time(BookingTime(GameSession.FestivalSlotEnds[2]), tops[2] + heights[2] - 7);
     }
 
-    private void BuildActTable(HBoxContainer parent)
+    private VBoxContainer BuildActTable(Control parent)
     {
         var table = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        table.AddThemeConstantOverride("separation", 0); parent.AddChild(table);
+        table.AddThemeConstantOverride("separation", 0); parent.AddChild(table); table.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
         var heading = new HBoxContainer(); table.AddChild(heading);
         var title = Ui.Heading("Available acts", 22); title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; heading.AddChild(title);
         _bookingTableCount = Ui.Text("", 13, Ui.InkMuted); _bookingTableCount.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; heading.AddChild(_bookingTableCount);
+        heading.AddChild(new Control { CustomMinimumSize = new Vector2(Ui.S(40), 0) }); // clear of the sheet's close button
         _standingLine = Ui.Text("", 13, Ui.InkMuted); _standingLine.AutowrapMode = TextServer.AutowrapMode.WordSmart; table.AddChild(_standingLine);
         table.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         var filters = new HBoxContainer(); filters.AddThemeConstantOverride("separation", Ui.Px(8)); table.AddChild(filters);
@@ -301,6 +309,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         table.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         _bookingMeaning = Ui.Text(BookingDefaultMeaning, 12.5f, Ui.InkMuted); _bookingMeaning.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         table.AddChild(_bookingMeaning);
+        return table;
     }
 
     private bool WontPlay(string id) => ActCatalogue.Find(id) is not { } act || _hud.Session.ActStandingOf(act) == ActStanding.Locked;
@@ -354,14 +363,27 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         return card;
     }
 
-    private void BuildDetail(HBoxContainer parent)
+    private void BuildDetail(Control parent)
     {
-        var panel = new PanelContainer { CustomMinimumSize = new Vector2(Ui.S(300), 0) };
-        panel.AddThemeStyleboxOverride("panel", Ui.Box(Ui.GoldWash, 8, Ui.PaperRule, 1, 18, 18)); parent.AddChild(panel);
+        // As tall as its content, starting below the sheet's close button.
+        var panel = new PanelContainer { Visible = false, AnchorLeft = 1, AnchorRight = 1, AnchorTop = 0, AnchorBottom = 0,
+            OffsetLeft = -Ui.S(300), OffsetRight = 0, OffsetTop = Ui.S(34), OffsetBottom = Ui.S(34), MouseFilter = Control.MouseFilterEnum.Stop };
+        var face = Ui.Box(Ui.GoldWash, 8, Ui.PaperRule, 1, 18, 18, shadow: 14, shadowAlpha: 0.3f);
+        face.ShadowOffset = new Vector2(-Ui.S(8), Ui.S(2));
+        panel.AddThemeStyleboxOverride("panel", face); parent.AddChild(panel); _detailPanel = panel;
+        _detailTab = Ui.IconButton("Show details", "chevron-left", Ui.ButtonKind.Secondary, () => { _detailOpen = true; Refresh(); }, 13);
+        _detailTab.Visible = false; _detailTab.TooltipText = "Show the selected act's details";
+        _detailTab.AnchorLeft = _detailTab.AnchorRight = 1; _detailTab.AnchorTop = _detailTab.AnchorBottom = 0;
+        _detailTab.OffsetLeft = -Ui.S(130); _detailTab.OffsetRight = 0; _detailTab.OffsetTop = Ui.S(34); _detailTab.OffsetBottom = Ui.S(64);
+        parent.AddChild(_detailTab);
         _detail = new VBoxContainer(); _detail.AddThemeConstantOverride("separation", 0); panel.AddChild(_detail);
         _detailEmpty = Ui.Text("Select an act to see its details and book it.", 14, Ui.InkMuted);
         _detailEmpty.AutowrapMode = TextServer.AutowrapMode.WordSmart; _detail.AddChild(_detailEmpty);
-        _detailTags = new HBoxContainer(); _detailTags.AddThemeConstantOverride("separation", Ui.Px(6)); _detail.AddChild(_detailTags);
+        var header = new HBoxContainer(); _detail.AddChild(header);
+        _detailTags = new HBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; _detailTags.AddThemeConstantOverride("separation", Ui.Px(6)); header.AddChild(_detailTags);
+        var hide = new Button { Icon = Ui.Icon("chevron-right"), ExpandIcon = true, IconAlignment = HorizontalAlignment.Center, CustomMinimumSize = Ui.S(28, 28),
+            TooltipText = "Hide details; the act stays selected", MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+        Ui.Style(hide, Ui.ButtonKind.Quiet); hide.Pressed += () => { _detailOpen = false; Refresh(); }; header.AddChild(hide);
         _detail.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         _detailName = Ui.Heading("", 29); _detailName.AutowrapMode = TextServer.AutowrapMode.WordSmart; _detail.AddChild(_detailName);
         _detail.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(16)) });
@@ -379,7 +401,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             _detail.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
             _detailMetrics[i] = (value, bar);
         }
-        _detail.AddChild(new Control { SizeFlagsVertical = Control.SizeFlags.ExpandFill });
+        _detail.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(8)) });
         var feeRule = new ColorRect { Color = Ui.PaperRule, CustomMinimumSize = new Vector2(0, 1) }; _detail.AddChild(feeRule);
         _detail.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         var fee = new HBoxContainer(); _detail.AddChild(fee);
@@ -524,6 +546,22 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
 
     private void RefreshDetail(FestivalAct? act)
     {
+        var show = act is not null && _detailOpen;
+        if (_detailPanel!.Visible != show)
+        {
+            _detailPanel.Visible = show;
+            if (show)
+            {
+                // Slide in from the right over the table.
+                _detailPanel.Modulate = new Color(1, 1, 1, 0);
+                _detailPanel.OffsetLeft = -Ui.S(240); _detailPanel.OffsetRight = Ui.S(60);
+                var tween = _detailPanel.CreateTween().SetParallel().SetEase(Tween.EaseType.Out).SetTrans(Tween.TransitionType.Cubic);
+                tween.TweenProperty(_detailPanel, "offset_left", -Ui.S(300), 0.18);
+                tween.TweenProperty(_detailPanel, "offset_right", 0, 0.18);
+                tween.TweenProperty(_detailPanel, "modulate:a", 1, 0.18);
+            }
+        }
+        _detailTab!.Visible = act is not null && !_detailOpen;
         _detailEmpty!.Visible = act is null;
         foreach (var child in _detail!.GetChildren())
             if (child is Control control && control != _detailEmpty) control.Visible = act is not null;
