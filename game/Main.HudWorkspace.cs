@@ -346,7 +346,7 @@ public partial class Main
         }
         var key = string.Join("|", alerts.Select(a => a.Alert.Id + a.Alert.Text));
         // Modal documents own the screen; the feed returns when they close.
-        _hudAlerts!.Visible = alerts.Length > 0 && !Hearing.IsOpen && !ResultsPaper.IsOpen;
+        _hudAlerts!.Visible = alerts.Length > 0 && !Hearing.IsOpen && !ResultsPaper.IsOpen && _session.CapturePerks()?.Pending != true;
         for (var i = 0; i < Math.Min(alerts.Length, _hudAlertActions.Count); i++)
             _hudAlertActions[i].Modulate = new Color(1, 1, 1, alerts[i].Opacity);
         if (key == _hudAlertKey) return;
