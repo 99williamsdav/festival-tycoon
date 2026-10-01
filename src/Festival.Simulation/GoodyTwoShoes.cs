@@ -42,10 +42,8 @@ public sealed partial class GameSession
         bool Swept(string id) => _litter!.Sweeps.Any(j => j.Remaining > 0 && !j.TargetIsBin && j.TargetId == id);
         var binCells = CaptureBins().Select(b => b.Cell).ToArray();
         // Only litter they could then carry to a bin: the same walk limit everyone applies to their own rubbish.
-        // ...and with a side of that bin they can actually reach, as the carry step will need.
-        bool BinWithinWalk(ulong id, GridCell from) => binCells.Any(b =>
-            EstimateWalkTicks(id, from, b) + EstimateWalkTicks(id, b, new GridCell(b.X + 2, b.Z)) <= LitterRules.BinWalkLimitTicks &&
-            ReachableBinSide(id, b) is not null);
+        bool BinWithinWalk(ulong id, GridCell from, GridCell[] reachable) => reachable.Any(b =>
+            EstimateWalkTicks(id, from, b) + EstimateWalkTicks(id, b, new GridCell(b.X + 2, b.Z)) <= LitterRules.BinWalkLimitTicks);
         foreach (var person in PeopleIn(PersonView.Roster).Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed && IsGoodyTwoShoes(p.Id)).ToArray())
         {
             var id = person.Id;
@@ -55,10 +53,16 @@ public sealed partial class GameSession
                 _persons[id].Intent != MedicalIntent.WatchShow || _persons[id].Held is not null || nav.Action != AgentNavigationAction.Arrived ||
                 !ImmersionHandsAvailable(id)) continue;
             var here = PersonCell(id);
-            var target = GroundNear(here, LitterRules.GoodyReachCells)
+            var nearby = GroundNear(here, LitterRules.GoodyReachCells)
                 .Where(w => w.CarrierId is null && !Swept(w.Id))
-                .Select(w => (Piece: w, Cell: TraversalGrid.WorldToCell(w.XMillimetres, w.ZMillimetres)))
-                .Where(t => BinWithinWalk(id, t.Cell))
+                .Select(w => (Piece: w, Cell: TraversalGrid.WorldToCell(w.XMillimetres, w.ZMillimetres))).ToArray();
+            if (nearby.Length == 0) continue;
+            // ...and only bins with a side they can actually reach, as the carry step will need. That depends on
+            // where they stand, not on the piece, so it is worked out once per goody, and only with litter about.
+            var reachable = binCells.Where(b => ReachableBinSide(id, b) is not null).ToArray();
+            if (reachable.Length == 0) continue;
+            var target = nearby
+                .Where(t => BinWithinWalk(id, t.Cell, reachable))
                 .OrderBy(t => CellDistanceSquared(t.Cell, here)).ThenBy(t => t.Piece.Id, StringComparer.Ordinal).Take(4)
                 .FirstOrDefault(t => _traversalGrid!.Get(t.Cell).IsWalkable && DeterministicPathfinder.FindPath(_traversalGrid, here, t.Cell).Found);
             if (target.Piece is null) continue;
