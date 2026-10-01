@@ -26,22 +26,28 @@ finally {
 $escape = [char]27
 $plain = $output | ForEach-Object { $_ -replace "$escape\[[0-9;]*m", '' }
 $plain | Set-Content -LiteralPath $log -Encoding utf8
-# Re-importing textures extracted from models logs a harmless "get_multiple_md5" condition while the
-# file does not exist yet; any other ERROR fails the export.
-$text = ($plain -join "`n") -replace '(?m)^ERROR: Condition "f\.is_null\(\)" is true\. Continuing\.\n\s*at: get_multiple_md5 [^\n]*', ''
-if ($godotExitCode -ne 0 -or $text -match '(?m)^ERROR:') {
-    throw "Windows export failed (exit $godotExitCode). Inspect $log."
-}
-if (-not (Test-Path -LiteralPath $executable)) {
-    throw "Windows export did not create $executable."
-}
+
 # The export re-imports assets, and Godot rewrites .import files with different line endings from the
-# checkout. Restore only those whose content is unchanged, so real edits are never touched.
+# checkout. Restore only those whose content is unchanged, so real edits are never touched. This runs
+# before judging the export so a failed export leaves the tree clean too.
 $flagged = @(git -C $repoRoot status --porcelain -- '*.import' | Where-Object { $_ -match '^ M ' } | ForEach-Object { $_.Substring(3) })
 $edited = @(git -C $repoRoot diff --name-only -- '*.import')
 $lineEndingsOnly = @($flagged | Where-Object { $edited -notcontains $_ })
 if ($lineEndingsOnly.Count -gt 0) {
     git -C $repoRoot checkout -- $lineEndingsOnly
+}
+
+# Re-importing textures extracted from models logs a harmless condition in get_multiple_md5 while the
+# file does not exist yet; its lines can arrive interleaved, so each is dropped on its own. Any other
+# ERROR fails the export.
+$errors = $plain | Where-Object {
+    $_ -match '^ERROR:' -and $_ -notmatch '^ERROR: Condition "f\.is_null\(\)" is true\. Continuing\.$'
+}
+if ($godotExitCode -ne 0 -or $errors) {
+    throw "Windows export failed (exit $godotExitCode). Inspect $log."
+}
+if (-not (Test-Path -LiteralPath $executable)) {
+    throw "Windows export did not create $executable."
 }
 $built = Get-Item -LiteralPath $executable
 Write-Host "Exported $($built.FullName) ($([math]::Round($built.Length / 1MB)) MB, $($built.LastWriteTime))"
