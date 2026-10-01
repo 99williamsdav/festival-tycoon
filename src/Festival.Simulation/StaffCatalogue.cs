@@ -15,7 +15,6 @@ public sealed record StaffCandidate(string Id, StaffRole Role, string Name, stri
 {
     public bool Has(StaffTrait trait) => Traits.Contains(trait);
     public int Number => Id[^1] - '0';
-    public string Contact => "contact." + Id["staff.".Length..];
     public string ExtraOfferId => $"staff.extra-{StaffCatalogue.Key(Role)}.{Number}";
     public StaffProfile Profile(ulong agentId) => new(agentId, Name, Role == StaffRole.Medic ? ResponseRole.Medic : ResponseRole.Steward,
         WalkingSpeedPermille, TreatmentTicks, CalmingSkill, ConfrontationSkill);
@@ -34,6 +33,7 @@ public static class StaffCatalogue
     /// <summary>The offer category for hiring into a role's main slot or its perk-granted second slot.</summary>
     public static string Category(StaffRole role, bool extra) => extra ? "extra-" + Key(role) : role == StaffRole.Sound ? "staff" : Key(role);
     public static bool IsWorkCategory(string category) => category is "staff" or "medic" or "steward" or "maintenance" or "extra-medic" or "extra-steward";
+    public static bool IsVacancy(string name) => Enum.GetValues<StaffRole>().Any(role => Vacancy(role) == name);
     public static string Vacancy(StaffRole role) => role switch { StaffRole.Sound => "Sound engineer (unhired)", StaffRole.Medic => "Medic (unhired)", _ => "Steward (unhired)" };
 
     /// <summary>The candidate an offer id hires, whether into the main slot or the extra one.</summary>

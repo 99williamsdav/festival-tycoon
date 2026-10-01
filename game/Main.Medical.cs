@@ -383,7 +383,7 @@ public partial class Main
             if (job.Stage == MedicalResponseStage.Treating && immersionCare?.People.SingleOrDefault(person => person.AgentId == job.PatientId) is { CareTicks: > 0 } care)
                 return $"{worker.Name.Split(' ')[0]}: gradual intoxication care {Math.Clamp(care.CareTicks * 100 / 1600, 0, 100)}% • {Math.Max(0, 1600 - care.CareTicks) / 80m:0.0}s left • exposure {care.Intoxication / 100m:0}%";
             return $"{worker.Name.Split(' ')[0]}: {job.Stage}" + (job.Stage == MedicalResponseStage.Treating
-                ? $" {Math.Clamp((_session.CurrentTick - job.StartedTick) * 100 / worker.TreatmentTicks, 0, 100)}% • {Remaining(job.StartedTick + worker.TreatmentTicks)} left"
+                ? $" {Math.Clamp((_session.CurrentTick - job.StartedTick) * 100 / job.TreatmentTicks, 0, 100)}% • {Remaining(job.StartedTick + job.TreatmentTicks)} left"
                 : job.Stage == MedicalResponseStage.Travelling ? " • starts after arrival" : "");
         }));
         _medicalSummary.Text = $"HOT • FREE WATER • FIRST AID\n" +

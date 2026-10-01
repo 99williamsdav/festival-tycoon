@@ -8,7 +8,7 @@ public sealed partial class GameSession
 {
     private bool StaffMedicalBoundaryOnNextTick => !IsPaused && MedicalOperationsActive &&
         GetMedicResponses().Any(job => job.Stage == MedicalResponseStage.Travelling && _navigationAgents[new(job.WorkerId)].Action == AgentNavigationAction.Arrived ||
-            job.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(job) && CurrentTick + 1 >= job.StartedTick + GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks || IntoxicationCareBoundary(job)));
+            job.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(job) && CurrentTick + 1 >= job.StartedTick + job.TreatmentTicks || IntoxicationCareBoundary(job)));
     public IReadOnlyList<MedicResponse> GetMedicResponses() => _medical?.Medics ?? [];
     public IReadOnlyList<StewardResponse> GetStewardResponses() => _disorder?.Stewards ?? [];
     private void SetMedicResponse(MedicResponse response) => _medical = _medical! with
@@ -162,9 +162,10 @@ public sealed partial class GameSession
             }
             if (job.Stage == MedicalResponseStage.Travelling && positioned)
             {
-                job = job with { Stage = MedicalResponseStage.Treating, StartedTick = CurrentTick, Description = "Physical arrival; treatment underway" };
+                job = job with { Stage = MedicalResponseStage.Treating, StartedTick = CurrentTick, Description = "Physical arrival; treatment underway",
+                    TreatmentTicks = GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks };
                 SetMedicResponse(job);
-                MedicalEvent("medical:treatment-start", $"Worker {job.WorkerId} reached patient {job.PatientId}; treatment {GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks} ticks.");
+                MedicalEvent("medical:treatment-start", $"Worker {job.WorkerId} reached patient {job.PatientId}; treatment {job.TreatmentTicks} ticks.");
             }
             if (job.Stage == MedicalResponseStage.Treating && !positioned)
             {
@@ -173,7 +174,7 @@ public sealed partial class GameSession
                 continue;
             }
             if (job.Stage == MedicalResponseStage.Treating && AdvanceIntoxicationCare(job)) continue;
-            if (job.Stage != MedicalResponseStage.Treating || CurrentTick < job.StartedTick + GetResponseStaff().Single(item => item.AgentId == job.WorkerId).TreatmentTicks) continue;
+            if (job.Stage != MedicalResponseStage.Treating || CurrentTick < job.StartedTick + job.TreatmentTicks) continue;
             var patientId = job.PatientId!.Value;
             // Never rescue beyond a real causal deadline. Boundary-tick completion retains the existing ordering.
             var need = _persons[patientId];
@@ -212,7 +213,8 @@ public sealed partial class GameSession
                 item.DispatchedTick < -1 || item.DispatchedTick > s.CurrentTick || item.Stage == MedicalResponseStage.Removing && item.WorkerId != s.Medical!.MedicId ||
                 item.PatientId is { } patient && s.Medical?.Needs.Any(need => need.AgentId == patient) != true ||
                 MedicBusy(item) && (item.PatientId is null || item.WorkerId == item.PatientId) ||
-                item.Stage == MedicalResponseStage.Treating && item.StartedTick < 0 ||
+                item.Stage == MedicalResponseStage.Treating && (item.StartedTick < 0 || item.TreatmentTicks is < 360 or > 1_200) ||
+                item.TreatmentTicks != 0 && item.TreatmentTicks is < 360 or > 1_200 ||
                 p.Status == PreparationStatus.Preparing && item.Stage != MedicalResponseStage.None) ||
             stewards.Any(item => !Enum.IsDefined(item.Stage) || string.IsNullOrWhiteSpace(item.Description) || item.StartedTick < -1 || item.StartedTick > s.CurrentTick ||
                 item.DispatchedTick < -1 || item.DispatchedTick > s.CurrentTick ||

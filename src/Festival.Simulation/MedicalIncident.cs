@@ -8,7 +8,9 @@ public enum MedicalResponseStage { None, Travelling, Treating, Removing, Complet
 public enum MedicalAction { GuideToWater, GuideToRest, DispatchMedic, SafeRemove, ReturnToShow }
 public enum MedicalNeedProfile { Guest, Performer, Staff }
 public sealed record MedicalCommand(ulong GuestId, MedicalAction Action, ulong? WorkerId = null) : SessionCommand;
-public sealed record MedicResponse(ulong WorkerId, MedicalResponseStage Stage, ulong? PatientId, long StartedTick, string Description, long DispatchedTick = -1);
+/// <param name="TreatmentTicks">How long this treatment takes, fixed when it starts so a medic sobering up mid-treatment cannot move the finish.</param>
+public sealed record MedicResponse(ulong WorkerId, MedicalResponseStage Stage, ulong? PatientId, long StartedTick, string Description, long DispatchedTick = -1,
+    int TreatmentTicks = 0);
 public sealed record MedicalNeed(ulong AgentId, int Thirst, int HeatExposure, MedicalIntent Intent,
     string Reason, long LastDecisionTick, int? QueueSlot, long LastWaterTick,
     MedicalNeedProfile Profile = MedicalNeedProfile.Guest, MedicalStage Stage = MedicalStage.Clear,
@@ -171,7 +173,7 @@ public sealed partial class GameSession
               item.HealthStage == MedicalStage.Collapsed && CurrentTick + 1 >= item.HealthCollapseTick + MedicalCriticalDelayTicks ||
               item.HealthStage == MedicalStage.Critical && CurrentTick + 1 >= item.HealthCollapseTick + MedicalDeathDelayTicks)) ||
          m.Medics[0] is var medic && (medic.Stage == MedicalResponseStage.Travelling && _navigationAgents[new(medic.WorkerId)].Action == AgentNavigationAction.Arrived ||
-         medic.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(medic) && CurrentTick + 1 >= medic.StartedTick + GetResponseStaff().Single(item => item.AgentId == medic.WorkerId).TreatmentTicks || IntoxicationCareBoundary(medic))));
+         medic.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(medic) && CurrentTick + 1 >= medic.StartedTick + medic.TreatmentTicks || IntoxicationCareBoundary(medic))));
 
 
     private void MedicalEvent(string id, string description) => _medical = _medical! with

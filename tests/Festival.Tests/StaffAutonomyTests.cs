@@ -175,6 +175,13 @@ public sealed class StaffAutonomyTests
         Assert.AreEqual(MedicalResponseStage.Treating,s.GetMedicResponses().Single().Stage);
         Assert.AreEqual(MedicalStage.Collapsed,s.CaptureMedical()!.Needs.Single(need=>need.AgentId==id).Stage);
         var clone=Restore(s);var duration=s.GetResponseStaff().Single(worker=>worker.Role==ResponseRole.Medic).TreatmentTicks;
+        Assert.AreEqual(duration,s.GetMedicResponses().Single().TreatmentTicks,"The treatment length is fixed when it starts.");
+        // Drink would slow a fresh treatment, but cannot stretch the one already under way.
+        var medic=s.GetMedicResponses().Single().WorkerId;var immersion=s.CaptureImmersion()!;
+        typeof(GameSession).GetProperty("ImmersionView",System.Reflection.BindingFlags.Instance|System.Reflection.BindingFlags.NonPublic)!
+            .SetValue(s,immersion with { People=immersion.People.Select(p=>p.AgentId==medic?p with { Intoxication=6_000 }:p).ToArray() });
+        Assert.IsTrue(s.GetResponseStaff().Single(worker=>worker.AgentId==medic).TreatmentTicks>duration);
+        clone=Restore(s);
         s.AdvanceWithoutSnapshot(duration);clone.AdvanceWithoutSnapshot(duration);
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash,clone.CaptureSnapshot().AuthoritativeHash);
         Assert.AreEqual(MedicalStage.Treated,s.CaptureMedical()!.Needs.Single(need=>need.AgentId==id).Stage);

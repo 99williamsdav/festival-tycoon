@@ -217,7 +217,7 @@ public sealed class ImmersionTests
         var immersion=s.CaptureImmersion()!;Set(s,immersion with { People=immersion.People.Select(p=>p.AgentId==id?p with { Intoxication=10000,WarningTick=2399,SevereTicks=1599 }:p).ToArray() });
         PositionFixture(s,id,new(120,125),"medical.collapsed");PositionFixture(s,worker,new(121,125),"medical.dispatch");
         var duration=s.GetResponseStaff().Single(p=>p.AgentId==worker).TreatmentTicks;
-        Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.Treating,id,4001-duration,"Labelled dual heat/intoxication physical treatment",4000-duration));
+        Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.Treating,id,4001-duration,"Labelled dual heat/intoxication physical treatment",4000-duration,duration));
         Invoke(s,"AdvanceImmersion");Assert.AreEqual(3900L,s.CaptureMedical()!.Needs.Single(n=>n.AgentId==id).CollapseTick);Assert.AreEqual(-1L,s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).CollapseTick,"Alcohol must not restart the inherited heat deadline.");
         Assert.IsFalse(s.ImmersionBoundaryOnNextTick,"A severe alcohol overlap blocked by existing heat ownership must not clone/save every tick.");
         Assert.IsTrue(s.MedicalBoundaryOnNextTick,"The actual ordinary heat treatment must still stage/persist its completion despite a simultaneous alcohol warning.");Restore(s);
@@ -250,7 +250,7 @@ public sealed class ImmersionTests
     {
         var s=Open();var medical=s.CaptureMedical()!;var id=BuildSession.LastGuest(s);var worker=medical.MedicId;PositionFixture(s,id,new(120,125),"medical.collapsed");PositionFixture(s,worker,new(124,125),"medical.dispatch");
         typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=0,CollapseTick=0 }:n).ToArray() });
-        Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.Treating,id,0,"Older saved distant treatment",0));Restore(s);
+        Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.Treating,id,0,"Older saved distant treatment",0,s.GetResponseStaff().Single(p=>p.AgentId==worker).TreatmentTicks));Restore(s);
         Invoke(s,"AdvanceMedicResponses");Assert.AreEqual(MedicalResponseStage.Travelling,s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage);Assert.AreEqual(MedicalStage.Collapsed,s.CaptureMedical()!.Needs.Single(n=>n.AgentId==id).Stage);Restore(s);
         Invoke(s,"SetMedicResponse",new MedicResponse(worker,MedicalResponseStage.None,null,-1,"Blocked access fixture",-1));
         var grid=(TraversalGrid)typeof(GameSession).GetField("_traversalGrid",BindingFlags.NonPublic|BindingFlags.Instance)!.GetValue(s)!;var cells=grid.Overrides.ToDictionary(p=>p.Key,p=>p.Value);

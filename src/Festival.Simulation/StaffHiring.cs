@@ -64,14 +64,16 @@ public sealed partial class GameSession
         return people.Select(person => names.TryGetValue(person.AgentId, out var name) ? person with { Name = name } : person).ToArray();
     }
 
-    private (PreparationSnapshot Key, Dictionary<ulong, StaffCandidate> Map)? _hiredByAgent;
+    private (PreparationSnapshot Key, IReadOnlyList<StaffCandidate> Candidates, Dictionary<ulong, StaffCandidate> Map)? _hiredByAgent;
 
     /// <summary>The candidate working as this person this attempt, if any.</summary>
     public StaffCandidate? HiredCandidateFor(ulong id)
     {
         if (_preparation is not { } p) return null;
-        if (_hiredByAgent is not { } cached || !ReferenceEquals(cached.Key, p))
-            _hiredByAgent = cached = (p, HiredAgents(GetStaffCandidates().ToArray(), p.AcceptedOffers, p.StaffProfiles,
+        // Keyed on both the preparation and the candidate list, so a change to either rebuilds it.
+        var candidates = GetStaffCandidates();
+        if (_hiredByAgent is not { } cached || !ReferenceEquals(cached.Key, p) || !ReferenceEquals(cached.Candidates, candidates))
+            _hiredByAgent = cached = (p, candidates, HiredAgents(candidates.ToArray(), p.AcceptedOffers, p.StaffProfiles,
                 SoundSlotId(PeopleIn(PersonView.Roster).Select(person => (person.Id, person.Role))), _medical?.MedicId, _disorder?.SecurityId));
         return cached.Map.GetValueOrDefault(id);
     }

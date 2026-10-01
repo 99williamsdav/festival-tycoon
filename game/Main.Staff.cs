@@ -57,7 +57,7 @@ public partial class Main
         var targetName = target is { } personId ? _session.CapturePreparation()!.People.Single(item => item.AgentId == personId).Name : "None";
         var nav = _session.CaptureObservation().NavigationAgents.SingleOrDefault(item => item.Id.Value == id);
         var eta = _session.EstimateStaffTravelTicks(id);
-        var treatmentRemaining = medic?.Stage == MedicalResponseStage.Treating ? $" • treatment {System.Math.Max(0, medic.StartedTick + profile.TreatmentTicks - _session.CurrentTick) / 80m:0.0}s left" : "";
+        var treatmentRemaining = medic?.Stage == MedicalResponseStage.Treating ? $" • treatment {System.Math.Max(0, medic.StartedTick + medic.TreatmentTicks - _session.CurrentTick) / 80m:0.0}s left" : "";
         return $"{StaffAbilityText(profile)}\n{_session.ResponseStaffStatus(id)} • TARGET {targetName}{treatmentRemaining}\n" +
             $"{intervention?.Description ?? medic?.Description ?? steward?.Description}\nROUTE {nav?.Action} • ETA {(eta is { } ticks ? $"~{ticks / 80m:0.0}s plus crowd delays" : "unavailable")}\nAssign from the target person's inspector\n";
     }
