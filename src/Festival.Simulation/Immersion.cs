@@ -197,7 +197,7 @@ public sealed partial class GameSession
                 var need = _persons[p.Id];
                 { p.IntoxicationCollapseTick = CurrentTick; p.PriorMedicalStage = need.HealthStage; } SetConsumption(p);
                 LeaveImmersionQueue(p.Id,false); LeaveWater(p.Id,"Intoxication collapse",false); MedicalRelinquishPerformerStage(p.Id);
-                var nav=_navigationAgents[new(p.Id)]; ApplyAgentDestination(new(p.Id),new(TraversalGrid.WorldToCell(nav.XMillimetres,nav.ZMillimetres),"medical.intoxication-collapse"));
+                var nav=_navigationAgents[new(p.Id)]; if (!StuckInToilet(p.Id)) ApplyAgentDestination(new(p.Id),new(TraversalGrid.WorldToCell(nav.XMillimetres,nav.ZMillimetres),"medical.intoxication-collapse"));
                 MutatePerson(p.Id, n => { n.HealthStage = MedicalStage.Collapsed; n.HealthWarningTick = p.IntoxicationWarningTick; n.HealthCollapseTick = CurrentTick; n.Intent = MedicalIntent.Collapsed; n.Reason = "Intoxication collapse; physical medic response required"; });
                 ReleaseCollapsedStewardResponse(p.Id);
                 MedicalEvent("intoxication:collapse",$"Person {p.Id}: exposure continuously above8500 for20s after warning {p.IntoxicationWarningTick}; critical and fatal response deadlines begin now.");

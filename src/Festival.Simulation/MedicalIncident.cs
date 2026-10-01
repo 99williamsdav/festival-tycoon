@@ -616,7 +616,8 @@ public sealed partial class GameSession
                 LeaveWater(need.Id, "Collapsed before drinking", reroute: false);
                 MedicalRelinquishPerformerStage(need.Id);
                 var patient = _navigationAgents[new(need.Id)];
-                ApplyAgentDestination(new(need.Id), new(TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres), "medical.collapsed"));
+                if (!StuckInToilet(need.Id))
+                    ApplyAgentDestination(new(need.Id), new(TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres), "medical.collapsed"));
                 MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Collapsed; item.HealthCollapseTick = CurrentTick; item.Intent = MedicalIntent.Collapsed; item.Reason = "Collapsed; needs physical medic response"; item.WaterQueueSlot = null; });
                 ReleaseCollapsedStewardResponse(need.Id);
                 MedicalEvent("medical:collapse", $"{need.Name} ({need.Id}) collapsed after visible distress.");

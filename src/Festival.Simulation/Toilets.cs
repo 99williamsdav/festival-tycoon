@@ -272,7 +272,7 @@ public sealed partial class GameSession
         {
             InterruptToiletOwner(owner);
         }
-        else if (!running && active.ToiletStage is ToiletVisitStage.Entering or ToiletVisitStage.Using)
+        else if (!running && active.ToiletStage is ToiletVisitStage.Entering or ToiletVisitStage.Using && !StuckInToilet(owner))
         {
             SetToilet(toilet with { DoorOpen = true, ServiceTicks = 0 });
             SetConsumption(active with { ToiletStage = ToiletVisitStage.Leaving });

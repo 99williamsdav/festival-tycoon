@@ -51,8 +51,9 @@ public static class FaultRules
     /// the heat); a tap's last user grumbles once as it breaks.
     /// Presentation only, and a pure function of the fault, the tick and the weather, so a reload needs no catching up.
     /// </summary>
-    public static string? Remark(FacilityFault fault, long tick, bool hot = false)
+    public static string? Remark(FacilityFault fault, long tick, bool hot = false, bool conscious = true)
     {
+        if (!conscious) return null;
         var elapsed = tick - fault.StartedTick;
         if (elapsed < 0 || fault.Stage != FacilityFaultStage.Active && !(fault.Kind == FacilityFaultKind.BrokenTap && elapsed < GrumbleTicks)) return null;
         if (fault.Kind == FacilityFaultKind.BrokenTap)
@@ -79,6 +80,7 @@ public sealed partial class GameSession
     public FacilityFault? ActiveFault(string facilityId) => OpenFaults.FirstOrDefault(f => f.FacilityId == facilityId && f.Stage == FacilityFaultStage.Active);
     public bool TapBodged(string tapId) => OpenFaults.Any(f => f.FacilityId == tapId && f.Stage == FacilityFaultStage.Bodged);
     private bool FaultWorkOwns(ulong id) => OpenFaults.Any(f => f.WorkerId == id);
+    private bool Unconscious(ulong id) => _persons[id].HealthStage is MedicalStage.Collapsed or MedicalStage.Critical;
     /// <summary>Locked in a cubicle: only a steward's rescue at the door gets them out.</summary>
     public bool StuckInToilet(ulong id) => OpenFaults.Any(f => f.Kind == FacilityFaultKind.StuckInToilet && f.Stage == FacilityFaultStage.Active && f.VictimId == id);
     public FacilityFault? FaultWorkOf(ulong id) => OpenFaults.FirstOrDefault(f => f.WorkerId == id);
@@ -91,6 +93,7 @@ public sealed partial class GameSession
         var help = fault.WorkerId is { } worker ? $"{Who(worker)} {(fault.WorkStartedTick >= 0 ? "is on it" : "is on the way")}" : "waiting for help";
         return fault switch
         {
+            { Kind: FacilityFaultKind.StuckInToilet } when Unconscious(fault.VictimId) => $"COLLAPSED INSIDE • {Who(fault.VictimId)} needs the door opened for first aid • {help}",
             { Kind: FacilityFaultKind.StuckInToilet } => $"STUCK • {Who(fault.VictimId)} can't get out ({(CurrentTick - fault.StartedTick) / 80}s) • {help}",
             { Stage: FacilityFaultStage.Active } => $"BROKEN • no water until mended • {(_equipment?.WorkerId is null && fault.WorkerId is null ? "a steward can bodge it" : help)}",
             _ => $"BODGED • half flow{(_equipment?.WorkerId is null ? "" : fault.WorkerId is null ? " • maintenance will mend it" : $" • {help}")}",
@@ -192,7 +195,7 @@ public sealed partial class GameSession
                 { ResolveFault(fault, FacilityFaultStage.Fixed); continue; }
                 // Panic only costs satisfaction; any collapse comes from ordinary heat and thirst (a hot cubicle helps).
                 var stuck = CurrentTick - fault.StartedTick;
-                if (stuck > 0 && stuck % 80 == 0)
+                if (stuck > 0 && stuck % 80 == 0 && !Unconscious(fault.VictimId))
                 {
                     var loss = FaultRules.PanicLossPerSecond(stuck);
                     MutatePerson(fault.VictimId, person => person.Satisfaction = Math.Max(0, person.Satisfaction - loss));
@@ -248,11 +251,36 @@ public sealed partial class GameSession
         if (_navigationAgents[new(worker)].IntentId?.StartsWith("fault.", StringComparison.Ordinal) == true) ReturnToListening(worker);
     }
 
+    /// <summary>
+    /// The door opens on someone collapsed inside. Their visit counts, the cubicle frees up, and the body
+    /// is moved just outside the door, where the medic can reach them.
+    /// </summary>
+    private void CarryOutCollapsed(FacilityFault fault)
+    {
+        var id = fault.VictimId;
+        var toilet = GetToilet(fault.FacilityId);
+        var person = _persons[id];
+        var poo = person.ToiletChoice == ToiletVisitKind.Poo;
+        SetToilet(toilet with { WeeCount = toilet.WeeCount + (poo ? 0 : 1), PooCount = toilet.PooCount + (poo ? 1 : 0) });
+        SetConsumption(person with { ToiletVisits = person.ToiletVisits + 1, ToiletNeed = 1_000 });
+        ReleaseToiletPerson(id, false);
+        var outside = ToiletExitCell(GetToilet(fault.FacilityId));
+        var centre = TraversalGrid.CellCentre(outside);
+        var nav = _navigationAgents[new(id)];
+        nav.XMillimetres = centre.XMillimetres; nav.ZMillimetres = centre.ZMillimetres;
+        nav.SegmentOriginXMillimetres = centre.XMillimetres; nav.SegmentOriginZMillimetres = centre.ZMillimetres;
+        nav.Route = []; nav.RouteIndex = 0; nav.SegmentProgressMicrometres = 0; nav.MovementRemainder = 0;
+        nav.Action = AgentNavigationAction.Arrived; nav.Destination = outside; nav.IntentId = "medical.collapsed";
+        MedicalEvent("fault:carried-out", $"Person {id} found collapsed in {fault.FacilityId} and moved just outside for first aid.");
+    }
+
     private void ResolveFault(FacilityFault fault, FacilityFaultStage stage)
     {
         if (fault.WorkerId is { } worker) { SetFault(fault with { WorkerId = null, WorkStartedTick = -1 }); SendWorkerBack(worker); }
         var resolved = fault with { Stage = stage, ResolvedTick = CurrentTick, WorkerId = null, WorkStartedTick = -1 };
         SetFault(resolved);
+        if (fault.Kind == FacilityFaultKind.StuckInToilet && GetToilet(fault.FacilityId).OwnerId == fault.VictimId && Unconscious(fault.VictimId))
+            CarryOutCollapsed(fault);
         MedicalEvent(stage == FacilityFaultStage.Bodged ? "fault:bodged" : "fault:fixed",
             stage == FacilityFaultStage.Bodged ? $"{fault.FacilityId} bodged back into service at reduced flow." : $"{fault.FacilityId}: {fault.Kind} resolved.");
     }

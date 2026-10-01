@@ -16,7 +16,8 @@ public partial class Main
         var hot = _session.CaptureMedical()?.IsHot == true;
         foreach (var fault in _session.CaptureFaults()?.Faults ?? [])
         {
-            if (FaultRules.Remark(fault, _session.CurrentTick, hot) is not { } text) continue;
+            var conscious = _session.CaptureMedical()?.Needs.SingleOrDefault(n => n.AgentId == fault.VictimId)?.Stage is not (MedicalStage.Collapsed or MedicalStage.Critical);
+            if (FaultRules.Remark(fault, _session.CurrentTick, hot, conscious) is not { } text) continue;
             Vector3 position;
             if (fault.Kind == FacilityFaultKind.StuckInToilet)
             {

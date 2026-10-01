@@ -84,6 +84,41 @@ public sealed class FacilityFaultTests
     }
 
     [TestMethod]
+    public void SomeoneWhoCollapsesWhileStuckStaysInsideUntilTheDoorOpensThenLiesOutside()
+    {
+        (GameSession Session, FacilityFault Fault)? found = null;
+        for (var seed = 20260922UL; seed < 20260942UL && found is null; seed++)
+            if (FirstFault(FacilityFaultKind.StuckInToilet, seed) is { } candidate &&
+                candidate.Session.CapturePreparation()!.People.Single(p => p.AgentId == candidate.Fault.VictimId).Role == ProtectedPersonRole.Guest)
+                found = candidate;
+        var (s, fault) = found ?? throw new InvalidOperationException("No guest stuck in twenty days.");
+        var victim = fault.VictimId;
+        // Distressed long enough ago that the next tick is their collapse.
+        var medical = s.CaptureMedical()!;
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, medical with { Needs = medical.Needs
+            .Select(n => n.AgentId == victim ? n with { Stage = MedicalStage.Distress, WarningTick = s.CurrentTick - GameSession.MedicalCollapseDelayTicks, Thirst = 9_500, HeatExposure = 9_000 } : n).ToArray() });
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalStage.Collapsed, s.CaptureMedical()!.Needs.Single(n => n.AgentId == victim).Stage);
+        Assert.AreEqual(victim, s.CaptureToilets().Single(t => t.Id == fault.FacilityId).OwnerId, "Collapsed behind the locked door.");
+        Assert.IsTrue(s.StuckInToilet(victim));
+        Assert.IsNull(FaultRules.Remark(s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id), s.CurrentTick - s.CurrentTick % FaultRules.ShoutEveryTicks, hot: true, conscious: false), "Silent.");
+        StringAssert.Contains(s.FaultStatus(fault.FacilityId)!, "COLLAPSED INSIDE");
+        Assert.IsFalse(Send(s, new MedicalCommand(victim, MedicalAction.DispatchMedic, s.GetMedicResponses()[0].WorkerId)).IsAccepted, "The medic can't get in.");
+        AssertRestores(s);
+        for (var guard = 0; guard < 600 && s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).Stage == FacilityFaultStage.Active; guard++)
+            s.AdvanceWithoutSnapshot(4);
+        Assert.AreEqual(FacilityFaultStage.Fixed, s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).Stage);
+        var toilet = s.CaptureToilets().Single(t => t.Id == fault.FacilityId);
+        Assert.AreNotEqual(victim, toilet.OwnerId, "The cubicle is free.");
+        var body = s.CaptureObservation().NavigationAgents.Single(a => a.Id.Value == victim);
+        var outside = TraversalGrid.CellCentre(GameSession.ToiletExitCell(toilet));
+        Assert.AreEqual((outside.XMillimetres, outside.ZMillimetres), (body.XMillimetres, body.ZMillimetres), "Lying just outside the door.");
+        Assert.IsTrue(s.CaptureMedical()!.Needs.Single(n => n.AgentId == victim).Stage is MedicalStage.Collapsed or MedicalStage.Critical);
+        AssertRestores(s);
+        Assert.IsNotNull(s.SelectRoleResponse(ResponseRole.Medic, victim, out var issue), $"A medic can reach them now: {issue}");
+    }
+
+    [TestMethod]
     public void NobodyCanGuideAStuckGuestOutAroundTheRescue()
     {
         var (s, fault) = Find(FacilityFaultKind.StuckInToilet);
