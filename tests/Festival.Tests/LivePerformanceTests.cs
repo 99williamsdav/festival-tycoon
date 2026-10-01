@@ -12,7 +12,7 @@ public sealed class LivePerformanceTests
     private static GameSession Started(int tier = 1)
     {
         var session = BuildSession.Planned(2);
-        foreach (var id in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1", "equipment.buy" })
+        foreach (var id in BuildSession.CrewIds(session).Concat(new[] { "equipment.buy" }))
             Assert.IsTrue(Execute(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Execute(session, new StartPreparedEditionCommand()).IsAccepted);
         return session;

@@ -23,7 +23,7 @@ public sealed class R005LayoutTests
     private static GameSession PaidStaffFixture()
     {
         var s = BuildSession.PlannedWith("doctors-orders");
-        foreach (var offer in new[] { "staff.extra-medic.2", "staff.sound.1", "staff.medic.1", "staff.steward.1" }) Accept(s, new AcceptPreparationOfferCommand(offer));
+        foreach (var offer in BuildSession.CrewIds(s).Prepend(BuildSession.ExtraId(s, StaffRole.Medic))) Accept(s, new AcceptPreparationOfferCommand(offer));
         return s;
     }
 

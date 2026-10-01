@@ -54,7 +54,10 @@ public sealed class GuestArrivalNeedsTests
             signatures.Add(string.Join(',',releases)+"|"+string.Join(',',guests.Select(p=>GameSession.GuestOpeningThirst(seed,p.AgentId))));
             Accept(s,new StartPreparedEditionCommand());
             var nonGuests=s.CapturePreparation()!.People.Where(p=>p.Role!=ProtectedPersonRole.Guest).ToArray();
-            Assert.IsTrue(nonGuests.All(p=>s.CaptureSnapshot().NavigationAgents.Single(n=>n.Id.Value==p.AgentId).Destination is not null));
+            // Everyone but guests sets off at opening, except a tardy hire, who is held back like a late guest.
+            Assert.IsTrue(nonGuests.All(p=>s.StaffHas(p.AgentId,StaffTrait.Tardy)
+                ? s.GuestWaitingForRelease(p.AgentId)
+                : s.CaptureSnapshot().NavigationAgents.Single(n=>n.Id.Value==p.AgentId).Destination is not null));
             Assert.AreEqual(20,s.CapturePreparation()!.People.Count(p=>p.Role==ProtectedPersonRole.Guest));
             Restore(s);
         }

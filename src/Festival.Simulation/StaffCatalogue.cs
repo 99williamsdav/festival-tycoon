@@ -117,7 +117,7 @@ public static class StaffCatalogue
         ["Calmed a riot at a darts final. Allegedly.", "Large, polite and somehow everywhere at once."]];
 
     /// <summary>
-    /// Three candidates per role for this edition's seed. Candidate 1 is standard (exactly the
+    /// Three candidates per role for this edition's seed. Candidate 1 has standard abilities (exactly the
     /// slot's baseline abilities), candidate 2 below it and candidate 3 above it; the staff page
     /// sorts by wage, so the order is not on show.
     /// </summary>
@@ -176,14 +176,13 @@ public static class StaffCatalogue
     }
 
     /// <summary>
-    /// The standard candidate is plain; the others have none (1 in 4), one (2 in 4) or two (1 in 4)
-    /// traits, so about half the market has a quirk. Opposites never pair up.
+    /// Any candidate has none (4 in 8), one (3 in 8) or two (1 in 8) traits, so about half the
+    /// market has a quirk. Opposites never pair up.
     /// </summary>
     private static StaffCandidate WithTraits(StaffCandidate candidate, Pcg32Random random)
     {
-        if (candidate.Grade == 0) return candidate;
-        var roll = random.NextUInt32() % 4;
-        var count = roll == 0 ? 0 : roll == 3 ? 2 : 1;
+        var roll = random.NextUInt32() % 8;
+        var count = roll < 4 ? 0 : roll == 7 ? 2 : 1;
         var all = Enum.GetValues<StaffTrait>();
         var traits = new List<StaffTrait>(2);
         while (traits.Count < count)

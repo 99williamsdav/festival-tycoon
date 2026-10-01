@@ -54,9 +54,21 @@ internal static class BuildSession
         return Planned(seed, index);
     }
 
-    /// <summary>The standard candidate for every role this campaign offers: sound, medic and steward.</summary>
-    public static string[] CrewIds(GameSession s) => s.GetPreparationOffers()
-        .Where(offer => offer.Id is "staff.sound.1" or "staff.medic.1" or "staff.steward.1").Select(offer => offer.Id).ToArray();
+    /// <summary>
+    /// One hire for every role this campaign offers: sound, medic and steward. Each is the standard
+    /// candidate unless they have traits, in which case the closest trait-free one, so tests see no quirks.
+    /// </summary>
+    public static string[] CrewIds(GameSession s) => s.GetStaffCandidates().GroupBy(c => c.Role)
+        .Select(role => role.OrderBy(c => c.Traits.Length > 0).ThenBy(c => c.Grade > 0).ThenBy(c => Math.Abs(c.Grade)).ThenBy(c => c.Id, StringComparer.Ordinal).First().Id)
+        .ToArray();
+
+    /// <summary>A trait-free hire for the role's perk-granted extra slot, never the person <see cref="CrewIds"/> picks.</summary>
+    public static string ExtraId(GameSession s, StaffRole role)
+    {
+        var crew = CrewIds(s);
+        return s.GetStaffCandidates().Where(c => c.Role == role && !crew.Contains(c.Id))
+            .OrderBy(c => c.Traits.Length > 0).ThenBy(c => c.Grade > 0).ThenBy(c => Math.Abs(c.Grade)).ThenBy(c => c.Id, StringComparer.Ordinal).First().ExtraOfferId;
+    }
 
     /// <summary>Hire commands for <see cref="CrewIds"/>.</summary>
     public static AcceptPreparationOfferCommand[] Crew(GameSession s) => CrewIds(s).Select(id => new AcceptPreparationOfferCommand(id)).ToArray();

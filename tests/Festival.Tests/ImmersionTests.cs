@@ -28,7 +28,7 @@ public sealed class ImmersionTests
         var s=extraMedic?BuildSession.PlannedWith("doctors-orders",seed):BuildSession.Planned(seed);
         foreach (var hire in BuildSession.Crew(s)) Assert.IsTrue(Send(s, hire).IsAccepted);
         if(maintenance)Assert.IsTrue(Send(s,new AcceptPreparationOfferCommand("maintenance.worker")).IsAccepted);
-        if(extraMedic)Assert.IsTrue(Send(s,new AcceptPreparationOfferCommand("staff.extra-medic.2")).IsAccepted);
+        if(extraMedic)Assert.IsTrue(Send(s,new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Medic))).IsAccepted);
         Assert.IsTrue(Send(s,new StartPreparedEditionCommand()).IsAccepted);
         // Labelled eligibility fixture; admission/navigation itself is covered by physical scenario below.
         var prep=s.CapturePreparation()!;

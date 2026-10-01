@@ -11,7 +11,7 @@ public sealed class EquipmentIncidentTests
     private static GameSession Started(ulong seed = 2, bool worker = false, int tier = 1)
     {
         var s = BuildSession.Planned(seed);
-        foreach (var id in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1", "equipment.buy" }.Concat(worker ? new[] { "maintenance.worker" } : []))
+        foreach (var id in BuildSession.CrewIds(s).Concat(new[] { "equipment.buy" }).Concat(worker ? new[] { "maintenance.worker" } : []))
             Assert.IsTrue(Execute(s, new AcceptPreparationOfferCommand(id)).IsAccepted, id);
         Assert.IsTrue(Execute(s, new StartPreparedEditionCommand()).IsAccepted);
         return s;

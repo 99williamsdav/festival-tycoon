@@ -12,7 +12,7 @@ public sealed class PreparationTests
         session.NextSubmissionSequence, null, command));
     private static void Book(GameSession session, string equipment = "equipment.buy")
     {
-        foreach (var id in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1", equipment })
+        foreach (var id in BuildSession.CrewIds(session).Concat(new[] { equipment }))
             Assert.IsTrue(Execute(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
     }
     private static GameSession Restore(GameSession session)

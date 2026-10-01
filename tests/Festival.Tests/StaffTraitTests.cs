@@ -38,7 +38,7 @@ public sealed class StaffTraitTests
     public void AboutHalfTheMarketHasAQuirkAndOppositesNeverPair()
     {
         var all = Enumerable.Range(0, 200).SelectMany(offset => StaffCatalogue.Candidates(20260922UL + (ulong)offset, new(1_000, 1_000, 5_000, 5_000))).ToArray();
-        Assert.IsTrue(all.Where(c => c.Grade == 0).All(c => c.Traits.Length == 0), "The standard candidate is plain.");
+        Assert.IsTrue(all.Where(c => c.Grade == 0).Any(c => c.Traits.Length > 0), "The standard candidate can have traits too.");
         var share = all.Count(c => c.Traits.Length > 0) * 100 / all.Length;
         Assert.IsTrue(share is >= 40 and <= 60, $"{share}% have a trait.");
         Assert.IsTrue(all.All(c => c.Traits.Length <= 2 && c.WagePennies >= 500));
