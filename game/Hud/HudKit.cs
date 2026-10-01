@@ -104,8 +104,7 @@ internal static class HudKit
         .Replace("GUARD", "STEWARD", StringComparison.Ordinal)
         .Replace("Guard", "Steward", StringComparison.Ordinal)
         .Replace("guard", "steward", StringComparison.Ordinal);
-    internal static string FestivalGenreName(int genre) => genre switch
-    { 0 => "Folk", 1 => "Rock", 2 => "Pop", 3 => "Electronic", _ => "Unknown" };
+    internal static string FestivalGenreName(int genre) => FestivalGenre.Name(genre);
 
     internal static MarginContainer HearingMargins(int horizontal, int vertical)
     {

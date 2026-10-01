@@ -57,6 +57,12 @@ public sealed partial class GameSession
         if (!departedAtStart) return;
         _preparation = p with { Status = PreparationStatus.Finished, Rentals = [], WorkContracts = [],
             Result = MakeFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick) };
+        if (_preparation.Result!.Stars is { } stars && _programme is { ActIds.Length: 3 } programme)
+        {
+            var before = new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray());
+            var after = ActCatalogue.AfterFestival(before, stars, programme.ActIds.Select(id => ActCatalogue.Find(id)!.Genre));
+            _preparation = _preparation with { Reputation = after.Reputation, SceneCredibility = after.SceneCredibility, StandingBefore = before };
+        }
         if (p.CommunityShareAttempt == p.Attempt && !p.CommunityFavourClaimed && _lifecycle is { } lifecycle)
         {
             lifecycle.FavourBalance++;
@@ -77,6 +83,14 @@ public sealed partial class GameSession
             s.Immersion?.People.Any(person => person.Held is { } held && ids.Contains(held.TransactionId)) == true)
             return "Completed beer identities invalid.";
         if ((p.Status == PreparationStatus.Finished) != (p.Result is not null)) return "Terminal festival report missing or premature.";
+        if (p.Result is { Stars: { } stars } && s.Programme is { ActIds.Length: 3 } programme)
+        {
+            if (p.StandingBefore is not { } before) return "Completed festival must record the standing it changed.";
+            var after = ActCatalogue.AfterFestival(before, stars, programme.ActIds.Select(id => ActCatalogue.Find(id)!.Genre));
+            if (after.Reputation != p.Reputation || !after.SceneCredibility.SequenceEqual(p.SceneCredibility))
+                return "Festival standing does not follow from the completed festival.";
+        }
+        else if (p.StandingBefore is not null) return "Standing change recorded without a completed festival.";
         if (p.Result is { } result && (result.Tick != s.CurrentTick || s.Lifecycle?.Casualties.Any(c => c.AttemptId == s.Lifecycle.CurrentAttemptId) == true ||
             result != MakeFestivalResult(p, s.Immersion, s.Medical, s.Disorder, result.Tick))) return "Terminal festival report does not match final authoritative state.";
         return null;

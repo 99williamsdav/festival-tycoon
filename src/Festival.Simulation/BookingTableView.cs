@@ -27,8 +27,5 @@ public static class BookingTableView
     private static IOrderedEnumerable<FestivalAct> Sort<TKey>(IEnumerable<FestivalAct> acts, Func<FestivalAct, TKey> key, bool descending)
         where TKey : IComparable<TKey> => descending ? acts.OrderByDescending(key) : acts.OrderBy(key);
 
-    private static string GenreLabel(int genre) => genre switch
-    {
-        0 => "Folk", 1 => "Rock", 2 => "Pop", 3 => "Electronic", _ => "Unknown"
-    };
+    private static string GenreLabel(int genre) => FestivalGenre.Name(genre);
 }

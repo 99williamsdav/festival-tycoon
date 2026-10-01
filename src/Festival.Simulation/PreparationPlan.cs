@@ -82,10 +82,11 @@ public sealed partial class GameSession
         if (p.SetupPayments is null || p.SetupPayments.Any(payment => payment is null || payment.Entries is null)) return "Preparation setup history missing.";
         if (plan.Version != 1 || s.Immersion is null || s.Programme is null || s.Perks is null || plan.OfferIds is null || plan.ActIds is null ||
             !plan.OfferIds.SequenceEqual(plan.OfferIds.Distinct().Order(StringComparer.Ordinal)) ||
-            plan.ActIds.Length is not (0 or 3) || plan.ActIds.Where(id => id != "").Distinct().Count() != plan.ActIds.Count(id => id != "") || plan.ActIds.Any(id => id != "" && !FestivalActs.Any(a => a.Id == id)) ||
+            plan.ActIds.Length is not (0 or 3) || plan.ActIds.Where(id => id != "").Distinct().Count() != plan.ActIds.Count(id => id != "") || plan.ActIds.Any(id => id != "" && (ActCatalogue.Find(id) is not { } act ||
+                !plan.Committed && ActCatalogue.StandingOf(new(p.Reputation, p.SceneCredibility), act) == ActStanding.Locked)) ||
             plan.Chips is < 0 or > 10000 || plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 ||
             plan.Committed != (p.Status != PreparationStatus.Preparing)) return "Preparation plan header or quantities invalid.";
-        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed);
+        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers();
         if (plan.OfferIds.Any(id => !offers.Any(o => o.Id == id && o.Category is not ("act" or "contract"))) ||
             plan.OfferIds.Select(id => offers.Single(o => o.Id == id).Category).Distinct().Count() != plan.OfferIds.Length ||

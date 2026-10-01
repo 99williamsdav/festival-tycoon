@@ -8,6 +8,18 @@ public sealed partial class GameSession
     /// </summary>
     public static GameSession CreateBuildCampaign(ulong seed) => CreateBuildCampaign(seed, TierOneGuests);
 
+    /// <summary>A Tier 1 Build campaign whose festival already has this reputation and scene credibility.</summary>
+    public static GameSession CreateBuildCampaign(ulong seed, FestivalStanding standing) => CreateBuildCampaign(seed, TierOneGuests, standing);
+
+    internal static GameSession CreateBuildCampaign(ulong seed, int guests, FestivalStanding standing)
+    {
+        if (standing.Reputation is < 0 or > 100 || standing.SceneCredibility is not { Length: FestivalGenre.Count } || standing.SceneCredibility.Any(value => value is < 0 or > 100))
+            throw new ArgumentOutOfRangeException(nameof(standing), "Reputation and each scene's credibility run 0–100 across six genres.");
+        var session = CreateBuildCampaign(seed, guests);
+        session.PreparationView = session.PreparationView! with { Reputation = standing.Reputation, SceneCredibility = standing.SceneCredibility.ToArray() };
+        return session;
+    }
+
     /// <summary>A Build campaign with a non-standard guest count, for scale diagnostics only.</summary>
     internal static GameSession CreateBuildCampaign(ulong seed, int guests)
     {
@@ -119,7 +131,7 @@ public sealed partial class GameSession
     private static void SetUpProgramme(GameSession session, ulong seed)
     {
         var p = session.PreparationView!;
-        var people = p.People.Select(person => person.Role == ProtectedPersonRole.Guest ? person with { ExpectedGenre = (int)((person.AgentId * 17 + seed) % 4) } : person).ToList();
+        var people = p.People.Select(person => person.Role == ProtectedPersonRole.Guest ? person with { ExpectedGenre = (int)((person.AgentId * 17 + seed) % FestivalGenre.Count) } : person).ToList();
         string[] names = ["Robin Shaw", "Ellis Brook", "Taylor Finch", "Ash Dale", "Rowan Lake", "Sky Morgan"];
         foreach (var name in names)
         {

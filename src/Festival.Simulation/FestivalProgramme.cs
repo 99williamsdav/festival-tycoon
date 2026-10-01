@@ -16,14 +16,30 @@ public sealed partial class GameSession
     public static readonly int[] FestivalSlotEnds = [13_200, 24_800, 37_600];
     // The headliner is 120 seconds; the first two sets are 105 seconds.
     public const int FestivalSlotDurationTicks = 9_600;
-    public IReadOnlyList<FestivalAct> GetFestivalActs() => _programme is null ? [] : FestivalActs;
-    private static readonly FestivalAct[] FestivalActs = [
-        new("act.meadow-lanterns", "Meadow Lanterns", 0, 4000, 40, 20, 80),
-        new("act.orchard-chorus", "Orchard Chorus", 0, 7500, 70, 45, 90),
-        new("act.barnstorm-circuit", "Barnstorm Circuit", 1, 5500, 55, 35, 65),
-        new("act.copper-static", "Copper Static", 1, 9000, 80, 80, 70),
-        new("act.neon-postcards", "Neon Postcards", 2, 11000, 90, 90, 85),
-        new("act.field-frequency", "Field Frequency", 3, 8500, 75, 60, 75)];
+    /// <summary>This run's offer: acts who will play for the festival now, then a few just out of reach.</summary>
+    public IReadOnlyList<FestivalAct> GetFestivalActs() => _programme is null ? [] :
+        ActCatalogue.Offer(Standing, CampaignSeed, _preparation?.Tier ?? 1, _preparation?.Plan?.ActIds ?? _programme.ActIds);
+    private static FestivalAct[] FestivalActs => ActCatalogue.All;
+    /// <summary>The festival's reputation and scene credibility.</summary>
+    public FestivalStanding Standing => _preparation is { } p ? new(p.Reputation, p.SceneCredibility.ToArray()) : FestivalStanding.New;
+    public ActStanding ActStandingOf(FestivalAct act) => ActCatalogue.StandingOf(Standing, act);
+    /// <summary>What this festival pays the act, including the stretch-booking premium.</summary>
+    public int ActFee(FestivalAct act) => ActCatalogue.Fee(Standing, act);
+    public int ActReputationNeeded(FestivalAct act) => ActCatalogue.ReputationNeeded(Standing, act);
+    public int TicketPricePennies => ActCatalogue.TicketPricePennies(_preparation?.Tier ?? 1);
+    /// <summary>The act popularity this ticket price leads guests to expect.</summary>
+    public int ExpectedPopularity => ActCatalogue.ExpectedPopularity(TicketPricePennies);
+    /// <summary>
+    /// A rebuilt baseline priced as this preparation paid: its standing before any completed festival
+    /// changed it, so act fees (and stretch premiums) match the recorded payments.
+    /// </summary>
+    private GameSession WithPaymentStanding(PreparationSnapshot p)
+    {
+        var standing = p.StandingBefore ?? new(p.Reputation, p.SceneCredibility);
+        PreparationView = PreparationView! with { Reputation = standing.Reputation, SceneCredibility = standing.SceneCredibility.ToArray() };
+        return this;
+    }
+    private bool ActWillPlay(string id) => ActCatalogue.Find(id) is { } act && ActStandingOf(act) != ActStanding.Locked;
     public FestivalAct? CurrentFestivalAct => _programme is { CurrentSlot: >= 0 and < 3 } q && q.ActIds.Length == 3 ? FestivalActs.Single(a => a.Id == q.ActIds[q.CurrentSlot]) : null;
     private int UpcomingProgrammeSlot => _programme is not { } q ? -1 : q.CurrentSlot < 0 ? 0 : _livePerformance?.Stage == LiveSetStage.BeforeSet ? q.CurrentSlot : q.CurrentSlot < 2 ? q.CurrentSlot + 1 : -1;
     public FestivalAct? UpcomingFestivalAct => _programme is { ActIds.Length: 3 } q && UpcomingProgrammeSlot is >= 0 and < 3 ? FestivalActs.Single(a => a.Id == q.ActIds[UpcomingProgrammeSlot]) : null;
@@ -80,13 +96,17 @@ public sealed partial class GameSession
         if (target is not null || _programme is null || _preparation is not { Status: PreparationStatus.Preparing } p)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Programme is editable before opening only.");
         if (p.Plan is not null)
+        {
+            if (command.ActIds is not null && command.ActIds.FirstOrDefault(id => id != "" && ActCatalogue.Find(id) is not null && !ActWillPlay(id)) is { } locked)
+                return CommandResult.Rejected(CommandReasonCode.InvalidParameter, $"{ActCatalogue.Find(locked)!.Name} won't play for the festival yet.");
             return command.ActIds is not null && command.ActIds.Length is 0 or 3 && command.ActIds.Where(id => id != "").Distinct().Count() == command.ActIds.Count(id => id != "") && command.ActIds.All(id => id == "" || FestivalActs.Any(a => a.Id == id))
                 ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Choose distinct acts for the three slots.");
-        if (command.ActIds is null || command.ActIds.Length != 3 || command.ActIds.Distinct().Count() != 3 || command.ActIds.Any(id => !FestivalActs.Any(a => a.Id == id)))
+        }
+        if (command.ActIds is null || command.ActIds.Length != 3 || command.ActIds.Distinct().Count() != 3 || command.ActIds.Any(id => !FestivalActs.Any(a => a.Id == id) || !ActWillPlay(id)))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Choose three distinct festival acts.");
         if (_programme.ActIds.Length > 0 && !_programme.ActIds.Order().SequenceEqual(command.ActIds.Order()))
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Paid acts can be reordered but not replaced.");
-        if (_programme.ActIds.Length == 0 && _festivalFinances[new(p.FinanceOwnerId)].CashPennies < command.ActIds.Sum(id => FestivalActs.Single(a => a.Id == id).PricePennies))
+        if (_programme.ActIds.Length == 0 && _festivalFinances[new(p.FinanceOwnerId)].CashPennies < command.ActIds.Sum(id => ActFee(FestivalActs.Single(a => a.Id == id))))
             return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, "Insufficient cash for the three-act programme.");
         return null;
     }

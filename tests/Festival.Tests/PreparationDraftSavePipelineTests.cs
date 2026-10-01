@@ -10,7 +10,7 @@ public sealed class PreparationDraftSavePipelineTests
 
     private static GameSession Open()
     {
-        var session = GameSession.CreateBuildCampaign(20260929);
+        var session = GameSession.CreateBuildCampaign(20260929, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         var choice = session.Execute(new(new(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase,
             session.CurrentTick, session.NextSubmissionSequence, null,

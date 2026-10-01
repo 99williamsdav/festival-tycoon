@@ -13,7 +13,7 @@ public sealed class PersonModelTests
 
     private static GameSession Started(ulong seed)
     {
-        var s = GameSession.CreateBuildCampaign(seed);
+        var s = GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);
         var perk = s.CapturePerks()!;
         Accept(s, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
         Accept(s, new UseDefaultBuildLayoutCommand());

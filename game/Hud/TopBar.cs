@@ -117,7 +117,8 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
 
     private static Color SetColour(int genre) => genre switch
     {
-        0 => new Color("8fb27a"), 1 => new Color("d98a63"), 2 => new Color("e7c15a"), 3 => new Color("7fa9c9"), _ => Ui.BarMuted,
+        0 => new Color("8fb27a"), 1 => new Color("d98a63"), 2 => new Color("e7c15a"), 3 => new Color("7fa9c9"),
+        4 => new Color("e07aa2"), 5 => new Color("9a99a3"), _ => Ui.BarMuted,
     };
 
     private static HBoxContainer Group(HBoxContainer row, bool divider, bool first = false)

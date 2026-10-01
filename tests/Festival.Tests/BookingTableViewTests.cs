@@ -30,7 +30,7 @@ public sealed class BookingTableViewTests
         var expected = new Dictionary<BookingSortField, (string[] Asc, string[] Desc)>
         {
             [BookingSortField.Band] = (["b", "c", "f", "n", "a", "z"], ["a", "z", "n", "f", "c", "b"]),
-            [BookingSortField.Genre] = (["f", "a", "z", "n", "b", "c"], ["b", "c", "n", "a", "z", "f"]),
+            [BookingSortField.Genre] = (["f", "a", "z", "b", "c", "n"], ["n", "b", "c", "a", "z", "f"]),
             [BookingSortField.Price] = (["a", "z", "b", "f", "c", "n"], ["n", "c", "f", "b", "a", "z"]),
             [BookingSortField.Popularity] = (["a", "z", "b", "f", "c", "n"], ["n", "c", "f", "b", "a", "z"]),
             [BookingSortField.Ego] = (["a", "z", "b", "f", "c", "n"], ["n", "c", "f", "b", "a", "z"]),

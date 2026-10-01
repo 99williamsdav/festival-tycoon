@@ -55,7 +55,7 @@ public sealed class ToiletTests
 
     private static GameSession OpenBuildWithTwoToilets()
     {
-        var session = GameSession.CreateBuildCampaign(20260929);
+        var session = GameSession.CreateBuildCampaign(20260929, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);

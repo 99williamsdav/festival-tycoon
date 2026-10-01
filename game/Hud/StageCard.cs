@@ -80,6 +80,7 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
     {
         0 => (new Color("cfddbf"), new Color("3e5a33")), 1 => (new Color("edc6ae"), new Color("5a3a2a")),
         2 => (new Color("f1d48e"), new Color("5c4410")), 3 => (new Color("c9dcea"), new Color("2c4f6b")),
+        4 => (new Color("f1c9d8"), new Color("7a1f42")), 5 => (new Color("d2d1d6"), new Color("2a2930")),
         _ => (Ui.PaperRule, Ui.InkMuted),
     };
 

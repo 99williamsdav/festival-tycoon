@@ -15,9 +15,9 @@ public sealed class BuildLayoutTests
     public void FreshBuildSeedsStayDeterministicAndRerolledHandSurvivesDiskLoad()
     {
         const ulong seed = 0x6E84_C2A9_FD03_41B7;
-        var session = GameSession.CreateBuildCampaign(seed);
-        var sameSeed = GameSession.CreateBuildCampaign(seed);
-        var differentSeed = GameSession.CreateBuildCampaign(seed + 1);
+        var session = GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);
+        var sameSeed = GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);
+        var differentSeed = GameSession.CreateBuildCampaign(seed + 1, FestivalStanding.Established);
         Assert.AreNotEqual(0UL, session.CampaignSeed);
         Assert.AreEqual(seed, session.CampaignId.Value);
         Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, sameSeed.CaptureSnapshot().AuthoritativeHash);
@@ -57,7 +57,7 @@ public sealed class BuildLayoutTests
     [TestMethod]
     public void DraftPlacementRemovalAndCancelAccountingAreUnpaid()
     {
-        var session = GameSession.CreateBuildCampaign(20260922);
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         var cash = session.CaptureSnapshot().FestivalFinances.Single().CashPennies;
@@ -79,7 +79,7 @@ public sealed class BuildLayoutTests
     [TestMethod]
     public void CustomEastFieldTapRemainsSaveable()
     {
-        var session = GameSession.CreateBuildCampaign(20260922);
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         var placed = Send(session, new PlaceBuildServiceCommand(BuildServiceKind.WaterTap, new(150, 160)));
@@ -92,7 +92,7 @@ public sealed class BuildLayoutTests
     [TestMethod]
     public void ValidBuildToiletAtFormerPostSiteAutosavesAndRestoresWithoutLosingPriorSlot()
     {
-        var session = GameSession.CreateBuildCampaign(20260922);
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         var placement = new PlaceBuildServiceCommand(BuildServiceKind.Toilet, new(115, 115), 2);
@@ -134,7 +134,7 @@ public sealed class BuildLayoutTests
     [TestMethod]
     public void PaidSecondTapDoesNotRequireOrDisappearWithAnotherRound()
     {
-        var session = GameSession.CreateBuildCampaign(20260922);
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor,
             perk.Hand.First(id => id != "another-round"))).IsAccepted);
@@ -163,7 +163,7 @@ public sealed class BuildLayoutTests
     {
         foreach (var standard in GameSession.StandardBuildLayout())
         {
-            var session = GameSession.CreateBuildCampaign(20260922);
+            var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
             var perk = session.CapturePerks()!;
             Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
             Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);
@@ -189,7 +189,7 @@ public sealed class BuildLayoutTests
     [TestMethod]
     public void TwoToiletsHaveDistinctSavedFacilityStateAndRoutes()
     {
-        var session = GameSession.CreateBuildCampaign(20260922);
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);
@@ -232,7 +232,7 @@ public sealed class BuildLayoutTests
     [TestMethod]
     public void TwoUrgentGuestsChooseDifferentNearbyToilets()
     {
-        var session = GameSession.CreateBuildCampaign(20260922);
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);
@@ -299,7 +299,7 @@ public sealed class BuildLayoutTests
     [TestMethod]
     public void FailureRetryKeepsEditableLayoutAndOtherPlanChoicesWithoutDoubleCharging()
     {
-        var session = GameSession.CreateBuildCampaign(20260922);
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);

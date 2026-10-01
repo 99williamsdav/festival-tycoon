@@ -200,6 +200,7 @@ internal sealed class FestivalAudio(Node _parent)
             {
                 var genre = session.CurrentFestivalAct?.Genre ?? (session.CapturePreparation()!.AcceptedOffers.Contains("act.punk") ? 1 : 0);
                 var path = genre switch { 1 => session.CaptureProgramme() is null ? "res://assets/audio/punk_loop_v1.wav" : "res://assets/audio/rock_loop_v2.wav", 2 => "res://assets/audio/pop_loop_v1.wav",
+                    4 => "res://assets/audio/punk_loop_v1.wav", 5 => "res://assets/audio/rock_loop_v2.wav",
                     3 => "res://assets/audio/electronic_loop_v1.wav", _ => "res://assets/audio/folk_loop_v1.wav" };
                 // Exact genre assets are integrated only after their approval gate.
                 var approved = session.CaptureProgramme() is null || genre != 1 || RockAudioApproved;

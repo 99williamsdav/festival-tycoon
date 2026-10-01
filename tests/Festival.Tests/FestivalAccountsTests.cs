@@ -18,7 +18,7 @@ public sealed class FestivalAccountsTests
     [TestMethod]
     public void NaturalBuildCompletionAndSavedTerminalAccountsReconcile()
     {
-        var session = GameSession.CreateBuildCampaign(20260922);
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
         Accept(session, new UseDefaultBuildLayoutCommand());
@@ -53,7 +53,7 @@ public sealed class FestivalAccountsTests
     [TestMethod]
     public void RecordedRatesBuildFeesStockAndCapitalReconcileWithoutDoubleCounting()
     {
-        var session = GameSession.CreateBuildCampaign(20260922);
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
         Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
         Accept(session, new UseDefaultBuildLayoutCommand());

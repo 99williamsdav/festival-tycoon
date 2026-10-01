@@ -64,7 +64,7 @@ public sealed class PreparationReadinessTests
     [TestMethod]
     public void BuildChecklistKeepsEveryRequirementVisibleAcrossCompletionRemovalAndReload()
     {
-        var session = GameSession.CreateBuildCampaign(20260929);
+        var session = GameSession.CreateBuildCampaign(20260929, FestivalStanding.Established);
         var originalHash = session.CaptureSnapshot().AuthoritativeHash;
         var initial = session.GetPreparationStartRequirements();
         CollectionAssert.AreEqual(new[] { "water", "toilet", "first-aid", "steward-post", "programme", "staff", "budget" },

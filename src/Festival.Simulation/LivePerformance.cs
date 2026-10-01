@@ -208,6 +208,7 @@ public sealed partial class GameSession
                     var rigBonus = p.OwnedEquipment.Length > 0 ? 5 : 0;
                     var staffBonus = p.AcceptedOffers.Contains("staff.engineer") ? 3 : 0;
                     var gain = ((listener.Enthusiasm >= 90 ? 15 : listener.Enthusiasm >= 60 ? 10 : 5) + rigBonus + staffBonus) * quality / 100;
+                    if (CurrentFestivalAct is { } playing) gain = gain * MusicExpectationPermille(playing.Popularity, ExpectedPopularity) / 1000;
                     rewardedPeople ??= PeopleIn(PersonView.Roster).ToArray();
                     var personIndex = Array.FindIndex(rewardedPeople, item => item.Id == listener.AgentId);
                     var person = rewardedPeople[personIndex];
@@ -400,7 +401,7 @@ public sealed partial class GameSession
             live.Performers.Select(item => item.AgentId).Distinct().Count() != 3 ||
             live.Listeners.Select(item => item.AgentId).Distinct().Count() != live.Listeners.Length ||
             live.Listeners.Any(item => item.ListenedTicks < 0 || item.ListenedTicks > (snapshot.Programme is null ? LiveSetDurationTicks : FestivalSlotDurationTicks) ||
-                item.EnjoymentEarned < 0 || item.EnjoymentEarned > item.ListenedTicks / 80 * 23 ||
+                item.EnjoymentEarned < 0 || item.EnjoymentEarned > item.ListenedTicks / 80 * 30 ||
                 item.Enthusiasm is < 0 or > 100 || item.LastDecisionTick < -800 || item.LastDecisionTick > snapshot.CurrentTick ||
                 item.Place is { } place && (place.X is < 103 or > 122 || place.Z is < 135 or > 165)))
             return "Live performance state invalid.";

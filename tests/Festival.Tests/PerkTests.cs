@@ -48,9 +48,9 @@ public sealed class PerkTests
         var counts=PerkCatalogue.All.ToDictionary(p=>p.Id,p=>0);
         for(ulong seed=0;seed<800;seed++)
         {
-            var s=GameSession.CreateBuildCampaign(seed);var p=s.CapturePerks()!;
+            var s=GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);var p=s.CapturePerks()!;
             Assert.AreEqual(3,p.Hand.Distinct().Count());foreach(var id in p.Hand)counts[id]++;
-            var legacy=GameSession.CreateBuildCampaign(seed);
+            var legacy=GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);
             Assert.AreEqual(JsonSerializer.Serialize(legacy.CapturePersistenceSnapshot().RandomStreams),JsonSerializer.Serialize(s.CapturePersistenceSnapshot().RandomStreams));
             if(seed<10){s=Restored(s);Assert.AreEqual(JsonSerializer.Serialize(p),JsonSerializer.Serialize(s.CapturePerks()));Accept(s,new RerollPerksCommand(p.DraftAttempt,p.Cursor));var rerolled=s.CapturePerks()!;s=Restored(s);Assert.AreEqual(JsonSerializer.Serialize(rerolled),JsonSerializer.Serialize(s.CapturePerks()));Assert.IsFalse(Send(s,new RerollPerksCommand(rerolled.DraftAttempt,rerolled.Cursor)).IsAccepted);}
         }
@@ -59,7 +59,7 @@ public sealed class PerkTests
     [TestMethod]
     public void FullHandExcludesOwnedAndAllowsRepeatedRemainingThreeReplacementAndSkip()
     {
-        var s=GameSession.CreateBuildCampaign(123);FixturePerks(s,PerkCatalogue.All.Take(5).Select(p=>p.Id).ToArray());FixtureDraft(s);
+        var s=GameSession.CreateBuildCampaign(123, FestivalStanding.Established);FixturePerks(s,PerkCatalogue.All.Take(5).Select(p=>p.Id).ToArray());FixtureDraft(s);
         var p=s.CapturePerks()!;Assert.IsFalse(p.Hand.Any(p.Equipped.Contains));
         var before=p.Hand.Order().ToArray();Accept(s,new RerollPerksCommand(1,p.Cursor));p=s.CapturePerks()!;CollectionAssert.AreEqual(before,p.Hand.Order().ToArray());
         var original=Restored(s);var lost=p.Equipped[0];Accept(s,new ChoosePerkCommand(1,p.Cursor,p.Hand[0],lost));Assert.AreEqual(5,s.CapturePerks()!.Equipped.Length);Assert.IsFalse(s.CapturePerks()!.Equipped.Contains(lost));Restored(s);
@@ -70,7 +70,7 @@ public sealed class PerkTests
     {
         foreach(var role in new[]{ResponseRole.Medic,ResponseRole.Steward})
         {
-            var s=GameSession.CreateBuildCampaign(123);var before=s.GetResponseStaff().ToArray();FixturePerks(s,role==ResponseRole.Medic?"first-responders":"smooth-operators");
+            var s=GameSession.CreateBuildCampaign(123, FestivalStanding.Established);var before=s.GetResponseStaff().ToArray();FixturePerks(s,role==ResponseRole.Medic?"first-responders":"smooth-operators");
             foreach(var profile in s.GetResponseStaff())
             {
                 var old=before.Single(p=>p.AgentId==profile.AgentId);
@@ -86,7 +86,7 @@ public sealed class PerkTests
     public void SaveFailureRetainsHandCursorMoneyAndIdsAndSuccessfulChoiceReloadsExactly()
     {
         var path=Path.Combine(Path.GetTempPath(),"festival-perks-"+Guid.NewGuid());var compat=new SaveCompatibility("perk-test","content","rules");
-        var s=GameSession.CreateBuildCampaign(123);var p=s.CapturePerks()!;var hash=s.CaptureSnapshot().AuthoritativeHash;
+        var s=GameSession.CreateBuildCampaign(123, FestivalStanding.Established);var p=s.CapturePerks()!;var hash=s.CaptureSnapshot().AuthoritativeHash;
         try
         {
             var failed=EquipmentCommandCoordinator.Execute(path,s,new ChoosePerkCommand(1,p.Cursor,p.Hand[0]),compat,DateTimeOffset.UtcNow,0,_=>throw new IOException("test write failure"));
@@ -98,7 +98,7 @@ public sealed class PerkTests
     [TestMethod]
     public void MalformedVersionHandCapacityRngAndEffectsAreRejected()
     {
-        var s=GameSession.CreateBuildCampaign(123);var snap=s.CapturePersistenceSnapshot();var p=s.CapturePerks()!;
+        var s=GameSession.CreateBuildCampaign(123, FestivalStanding.Established);var snap=s.CapturePersistenceSnapshot();var p=s.CapturePerks()!;
         foreach(var bad in new[]{p with {Version=2},p with {Hand=["unknown","unknown","unknown"]},p with {Hand=[p.Hand[0],p.Hand[0],p.Hand[1]]},p with {Equipped=PerkCatalogue.All.Select(x=>x.Id).ToArray()},p with {RandomIncrement=2},p with {RandomState=p.RandomState+1},p with {DraftAttempt=2},p with {Equipped=[p.Hand[0]]},p with {FrozenEffects=["high-pressure"]},p with {Equipped=null!}})
         {
             var semantic=(string?)typeof(GameSession).GetMethod("ValidatePersistenceSnapshot",BindingFlags.NonPublic|BindingFlags.Static)!.Invoke(null,[snap with {Perks=bad}]);
@@ -114,14 +114,14 @@ public sealed class PerkTests
     {
         foreach(var perk in PerkCatalogue.All)
         {
-            var s=GameSession.CreateBuildCampaign(123);FixturePerks(s,perk.Id);FixtureDraft(s);Assert.IsFalse(s.CapturePerks()!.Hand.Contains(perk.Id));FixturePerks(s);
-            var legacy=GameSession.CreateBuildCampaign(123);Assert.AreEqual(JsonSerializer.Serialize(legacy.CapturePreparation()),JsonSerializer.Serialize(s.CapturePreparation()));CollectionAssert.AreEqual(legacy.GetResponseStaff().ToArray(),s.GetResponseStaff().ToArray());
+            var s=GameSession.CreateBuildCampaign(123, FestivalStanding.Established);FixturePerks(s,perk.Id);FixtureDraft(s);Assert.IsFalse(s.CapturePerks()!.Hand.Contains(perk.Id));FixturePerks(s);
+            var legacy=GameSession.CreateBuildCampaign(123, FestivalStanding.Established);Assert.AreEqual(JsonSerializer.Serialize(legacy.CapturePreparation()),JsonSerializer.Serialize(s.CapturePreparation()));CollectionAssert.AreEqual(legacy.GetResponseStaff().ToArray(),s.GetResponseStaff().ToArray());
         }
     }
     [TestMethod]
     public void ActualGuestFreeWaterTicksImproveSatisfactionAndResumeExactlyWhileStaffDoNotGain()
     {
-        var s=GameSession.CreateBuildCampaign(20260922);FixturePerks(s,"something-in-the-water");Start(s);
+        var s=GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);FixturePerks(s,"something-in-the-water");Start(s);
         // Normal no-stock gameplay: paid drinks cannot provide the tested perk reward.
         var found=false;
         for(var i=0;i<18000 && s.PreparedStatus==PreparationStatus.Running;i++)
@@ -154,12 +154,12 @@ public sealed class PerkTests
     [TestMethod]
     public void ActualStaffFreeWaterAndGuestPaidDrinkDoNotEarnPerkHappiness()
     {
-        var s=GameSession.CreateBuildCampaign(20260922);FixturePerks(s,"something-in-the-water");Accept(s,new SetPreparationStockCommand(40, 40, 32));Start(s);s.AdvanceWithoutSnapshot(2000);
+        var s=GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);FixturePerks(s,"something-in-the-water");Accept(s,new SetPreparationStockCommand(40, 40, 32));Start(s);s.AdvanceWithoutSnapshot(2000);
         var m=s.CaptureMedical()!;var id=s.CaptureDisorder()!.SecurityId;var point=s.CaptureWaterPoints().Single();var front=GameSession.WaterPointServiceCell(point);
         PositionServiceFixture(s,id,front,"medical.water");
         BuildSession.SetTap(s,point with {Queue=[id],Overflow=[],OwnerId=id,DrinkTicks=1,QueueCells=[front]});typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,m with {Needs=m.Needs.Select(n=>n.AgentId==id?n with {Thirst=1000,Intent=MedicalIntent.Drinking,WaterPointId="water.main",QueueSlot=0}:n with {QueueSlot=null,WaterPointId="water.main",Intent=n.Intent is MedicalIntent.Drinking or MedicalIntent.SeekWater?MedicalIntent.WatchShow:n.Intent}).ToArray()});
         var before=s.CapturePreparation()!.People.Single(p=>p.AgentId==id).Satisfaction;s.AdvanceWithoutSnapshot(1);Assert.AreEqual(2,s.CaptureWaterPoints().Single().DrinkTicks);Assert.AreEqual(before,s.CapturePreparation()!.People.Single(p=>p.AgentId==id).Satisfaction);Restored(s);
-        var paid=GameSession.CreateBuildCampaign(20260922);FixturePerks(paid,"something-in-the-water");Accept(paid,new SetPreparationStockCommand(40, 40, 32));Start(paid);
+        var paid=GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);FixturePerks(paid,"something-in-the-water");Accept(paid,new SetPreparationStockCommand(40, 40, 32));Start(paid);
         var baseline=Restored(paid);typeof(GameSession).GetField("_perks",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(baseline,null);
         var guest=paid.CapturePreparation()!.People.First(p=>p.Role==ProtectedPersonRole.Guest).AgentId;
         foreach(var target in new[]{paid,baseline})typeof(GameSession).GetMethod("CompleteImmersionSale",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(target,[guest,ImmersionProduct.SoftDrink]);

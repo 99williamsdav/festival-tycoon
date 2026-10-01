@@ -112,7 +112,7 @@ public sealed class SessionHostTests
             Assert.IsTrue(host.Submit(new SetPreparationStockCommand(7, 7, 7)).IsAccepted);
             Assert.IsTrue(host.LoadManual(out var error), error);
             Assert.AreEqual(saved, host.Session.CaptureSnapshot().AuthoritativeHash);
-            var fresh = GameSession.CreateBuildCampaign(99);
+            var fresh = GameSession.CreateBuildCampaign(99, FestivalStanding.Established);
             host.StartNewCampaign(fresh);
             Assert.AreSame(fresh, host.Session);
             Assert.IsNull(host.SaveError);

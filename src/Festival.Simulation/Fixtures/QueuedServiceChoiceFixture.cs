@@ -9,7 +9,7 @@ public sealed partial class GameSession
 {
     public static QueuedServiceChoiceFixtureResult CreateQueuedServiceChoiceFixture()
     {
-        var session = CreateBuildCampaign(20260929);
+        var session = CreateBuildCampaign(20260929, FestivalStanding.Established);
         static void Accept(GameSession s, SessionCommand command)
         {
             var result = s.Execute(new(new(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase,

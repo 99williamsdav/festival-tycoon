@@ -20,7 +20,7 @@ internal static class BuildSession
     /// <summary>A Build campaign with its perk drafted and the default layout placed; no line-up, stock or staff.</summary>
     public static GameSession Drafted(ulong seed = 20260922, int perk = 0)
     {
-        var s = GameSession.CreateBuildCampaign(seed);
+        var s = GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);
         var perks = s.CapturePerks()!;
         Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[perk]));
         Accept(s, new UseDefaultBuildLayoutCommand());
@@ -41,7 +41,7 @@ internal static class BuildSession
     {
         for (var seed = from; seed < from + 500; seed++)
         {
-            var index = Array.IndexOf(GameSession.CreateBuildCampaign(seed).CapturePerks()!.Hand, perkId);
+            var index = Array.IndexOf(GameSession.CreateBuildCampaign(seed, FestivalStanding.Established).CapturePerks()!.Hand, perkId);
             if (index >= 0) return (seed, index);
         }
         throw new InvalidOperationException($"No seed near {from} offers {perkId}.");

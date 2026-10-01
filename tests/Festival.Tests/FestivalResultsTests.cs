@@ -59,6 +59,13 @@ public sealed class FestivalResultsTests
         Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus); Assert.IsNotNull(s.CompletedFestivalResult);
         Assert.IsNotNull(s.CompletedFestivalAccounts); Assert.IsTrue(s.CompletedFestivalAccounts.Reconciles);
         Assert.AreEqual(20, s.CompletedFestivalResult.GuestCount); Assert.AreEqual(prior.People.Length, s.CapturePreparation()!.People.Length);
+        // The completed festival moves the established festival's standing toward its result.
+        var finished = s.CapturePreparation()!;
+        Assert.IsNotNull(finished.StandingBefore);
+        var expected = ActCatalogue.AfterFestival(finished.StandingBefore, s.CompletedFestivalResult.Stars!.Value,
+            new[] { "act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency" }.Select(id => ActCatalogue.Find(id)!.Genre));
+        Assert.AreEqual(expected.Reputation, s.Standing.Reputation);
+        CollectionAssert.AreEqual(expected.SceneCredibility, s.Standing.SceneCredibility);
         var directory = Path.Combine(Path.GetTempPath(), "festival-results-" + Guid.NewGuid()); Directory.CreateDirectory(directory);
         try
         {
@@ -67,6 +74,7 @@ public sealed class FestivalResultsTests
             var loaded = SaveFileAdapter.LoadSlot(directory, "finished", compatibility); Assert.IsTrue(loaded.IsSuccess, loaded.Error);
             var hash = loaded.Session!.CaptureSnapshot().AuthoritativeHash; loaded.Session.AdvanceWithoutSnapshot(500);
             Assert.AreEqual(hash, loaded.Session.CaptureSnapshot().AuthoritativeHash); Assert.AreEqual(s.CompletedFestivalResult, loaded.Session.CompletedFestivalResult);
+            Assert.AreEqual(s.Standing.Reputation, loaded.Session.Standing.Reputation);
             Assert.IsTrue(loaded.Session.CompletedFestivalAccounts!.Reconciles);
             Assert.AreEqual(s.CompletedFestivalAccounts!.ClosingCashPennies, loaded.Session.CompletedFestivalAccounts.ClosingCashPennies);
             Assert.IsTrue(s.CompletedFestivalAccounts.Sales.SequenceEqual(loaded.Session.CompletedFestivalAccounts.Sales));

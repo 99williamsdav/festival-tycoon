@@ -189,6 +189,13 @@ void fragment() {
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
         bar.AddThemeStyleboxOverride("background", Ui.Box(new Color("3a4640"), 4)); bar.AddThemeStyleboxOverride("fill", Ui.Box(Ui.Gold, 4));
         meter.AddChild(bar); meter.AddChild(Ui.Heading(result.SatisfactionPercent is { } percent ? $"{percent:0.0}%" : "–", 18, Newsprint));
+        var preparation = _hud.Session.CapturePreparation();
+        if (preparation?.StandingBefore is { } before)
+        {
+            var reputation = new HBoxContainer(); reputation.AddThemeConstantOverride("separation", Ui.Px(8)); verdictBox.AddChild(reputation);
+            var caption = Ui.Text("Festival reputation", 14, new Color("c9d1c7")); caption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; reputation.AddChild(caption);
+            reputation.AddChild(Ui.Heading($"{before.Reputation} → {preparation.Reputation}", 18, Ui.Gold));
+        }
 
         var story = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; story.AddThemeConstantOverride("separation", Ui.Px(4)); lead.AddChild(story);
         if (_field is not null)
@@ -199,6 +206,13 @@ void fragment() {
             var caption = Ui.Text("The festival field, as the last guests headed home.", 12, new Color("3a4640")); story.AddChild(caption);
         }
         story.AddChild(Paragraph($"The rating reflects the final satisfaction of {result.GuestCount} admitted guests, including early leavers.", 17, Ui.Ink, Ui.Slab));
+        if (preparation?.StandingBefore is { } previous)
+        {
+            var scenes = Enumerable.Range(0, FestivalGenre.Count).Where(genre => preparation.SceneCredibility[genre] != previous.SceneCredibility[genre])
+                .Select(genre => $"{FestivalGenre.Name(genre).ToLowerInvariant()} {previous.SceneCredibility[genre]} → {preparation.SceneCredibility[genre]}").ToArray();
+            if (scenes.Length > 0)
+                story.AddChild(Paragraph("Word gets around the scenes: " + string.Join(", ", scenes) + ".", 13.5f, Body));
+        }
         body.AddChild(Gap(16)); body.AddChild(Line(Ui.Ink, 1)); body.AddChild(Gap(12));
 
         var columns = new HBoxContainer(); columns.AddThemeConstantOverride("separation", Ui.Px(24)); body.AddChild(columns);

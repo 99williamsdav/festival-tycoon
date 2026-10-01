@@ -26,7 +26,8 @@ public sealed class LineupBookingTests
     [TestMethod]
     public void ExactApprovedTraitsAndIntegerFormulasAreMonotonicAndBounded()
     {
-        var acts = New().GetFestivalActs(); CollectionAssert.AreEqual(new[] { 20, 45, 35, 80, 90, 60 }, acts.Select(a => a.Ego).ToArray());
+        var acts = new[] { "act.meadow-lanterns", "act.orchard-chorus", "act.barnstorm-circuit", "act.copper-static", "act.neon-postcards", "act.field-frequency" }
+            .Select(id => ActCatalogue.Find(id)!).ToArray(); CollectionAssert.AreEqual(new[] { 20, 45, 35, 80, 90, 60 }, acts.Select(a => a.Ego).ToArray());
         CollectionAssert.AreEqual(new[] { 80, 90, 65, 70, 85, 75 }, acts.Select(a => a.Professionalism).ToArray());
         var s = New(); var guest = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest);
         foreach (var act in acts)
