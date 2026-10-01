@@ -14,7 +14,7 @@ public partial class Main
     private readonly Dictionary<string, BinView> _binViews = [];
     private readonly Dictionary<ulong, string> _binPickOwners = [];
     private readonly Dictionary<ImmersionProduct, MultiMeshInstance3D> _litterBatches = [];
-    private WastePiece[]? _renderedWaste;
+    private int _renderedLitterVersion = -1;
     private string _renderedBinLayout = "";
     private string? _selectedBinId;
     private Button? _binMoveButton, _cleanupButton;
@@ -78,9 +78,10 @@ public partial class Main
         }
         var pieces = _session.CaptureLitter()?.Pieces ?? [];
         var layout = string.Join('|', bins.Select(b => $"{b.Id}:{b.Cell}"));
-        if (!ReferenceEquals(pieces, _renderedWaste) || layout != _renderedBinLayout)
+        // Carrying and cleanup claims change the piece list often; only ground and bin changes are drawn.
+        if (_session.LitterVisualVersion != _renderedLitterVersion || layout != _renderedBinLayout)
         {
-            _renderedWaste = pieces; _renderedBinLayout = layout;
+            _renderedLitterVersion = _session.LitterVisualVersion; _renderedBinLayout = layout;
             var visible = pieces.Where(p => p.Location == WasteLocation.Ground).Select(p => (Piece: p,
                 Position: new Vector3(p.XMillimetres / 1000f, 0, p.ZMillimetres / 1000f))).ToList();
             foreach (var bin in bins)
@@ -96,7 +97,16 @@ public partial class Main
             {
                 if (!_litterBatches.TryGetValue(product, out var batch)) _litterBatches[product] = batch = LitterBatch(LoadLitterMesh(LitterAsset(product)));
                 var group = visible.Where(v => v.Piece.Product == product).ToArray(); batch.Multimesh.InstanceCount = group.Length;
-                for (var i = 0; i < group.Length; i++) batch.Multimesh.SetInstanceTransform(i, GroundWasteTransform(group[i].Piece, group[i].Position));
+                // One buffer upload per batch rather than a call per instance: 12 floats, row-major basis then origin.
+                var buffer = new float[group.Length * 12];
+                for (var i = 0; i < group.Length; i++)
+                {
+                    var t = GroundWasteTransform(group[i].Piece, group[i].Position); var b = t.Basis; var o = i * 12;
+                    buffer[o] = b.X.X; buffer[o + 1] = b.Y.X; buffer[o + 2] = b.Z.X; buffer[o + 3] = t.Origin.X;
+                    buffer[o + 4] = b.X.Y; buffer[o + 5] = b.Y.Y; buffer[o + 6] = b.Z.Y; buffer[o + 7] = t.Origin.Y;
+                    buffer[o + 8] = b.X.Z; buffer[o + 9] = b.Y.Z; buffer[o + 10] = b.Z.Z; buffer[o + 11] = t.Origin.Z;
+                }
+                if (group.Length > 0) batch.Multimesh.Buffer = buffer;
             }
         }
         // Fixed mesh dimensions. Hover is a function of authoritative simulation time, including pause.
