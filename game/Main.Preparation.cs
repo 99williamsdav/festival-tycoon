@@ -17,7 +17,9 @@ public partial class Main
     private PanelContainer? _contextPanel;
     private readonly Dictionary<string, Button> _offerButtons = [];
     private readonly Dictionary<string, OfferCard> _offerCards = [];
-    private GridContainer? _soundEngineers;
+    private readonly Dictionary<StaffRole, GridContainer> _staffGrids = [];
+    private VBoxContainer? _extraStaffList;
+    private Label? _extraStaffNote;
     private VBoxContainer? _crewList;
     private GridContainer? _rigChoices;
     private ProgressBar? _generatorBar;
@@ -160,8 +162,23 @@ public partial class Main
             var state = chosen ? OfferState.Chosen : issue is not null ? OfferState.Locked : OfferState.Available;
             var copy = OfferCopy(offersById[id], p, chosen, issue);
             card.Show(copy.Initial, copy.Title, copy.Detail, offersById[id].PricePennies, state, copy.Choose, copy.Chosen, copy.Tooltip);
+            if (StaffCatalogue.ForOffer(_session.GetStaffCandidates(), id) is { } candidate) card.SetStats(StaffRatings(candidate));
             card.Action.Disabled = issue is not null;
-            card.Root.Visible = p.Status == PreparationStatus.Preparing;
+            var category = offersById[id].Category;
+            card.Root.Visible = p.Status == PreparationStatus.Preparing &&
+                (category != "extra-medic" || p.ExtraMedicSlotOwned) && (category != "extra-steward" || p.ExtraStewardSlotOwned);
+        }
+        if (_extraStaffNote is not null)
+        {
+            string Perk(string perkId) => PerkCatalogue.All.Single(item => item.Id == perkId).Name;
+            _extraStaffNote.Text = (p.ExtraMedicSlotOwned, p.ExtraStewardSlotOwned) switch
+            {
+                (true, true) => "Your perks add a second medic and a second steward slot. Pick anyone not already hired.",
+                (true, false) => $"Your perk adds a second medic slot. A second steward needs {Perk("extra-pair-of-hands")}.",
+                (false, true) => $"Your perk adds a second steward slot. A second medic needs {Perk("doctors-orders")}.",
+                _ => $"A second medic needs the perk {Perk("doctors-orders")}; a second steward needs {Perk("extra-pair-of-hands")}.",
+            };
+            _extraStaffNote.Visible = p.Status == PreparationStatus.Preparing;
         }
         if (_generatorBar is not null)
         {
@@ -209,23 +226,29 @@ private void RebuildPreparationOffers()
             if (_hudTabs is null) box.MoveChild(Booking.Root!, _preparationOfferInsertIndex++);
         }
         var index = _preparationOfferInsertIndex;
-        static int Order(PreparationOffer offer) => offer.Id switch
-        { "maintenance.worker" => 0, "staff.extra-steward" => 1, "staff.extra-medic" => 2, "equipment.rent" => 0, "equipment.buy" => 1, _ => 3 };
-        foreach (var offer in _session.GetPreparationOffers().OrderBy(Order))
+        static int Order(PreparationOffer offer) => offer.Category switch
+        { "extra-medic" => 1, "extra-steward" => 2, _ => offer.Id switch { "equipment.rent" => 0, "equipment.buy" => 1, _ => 0 } };
+        var candidates = _session.GetStaffCandidates();
+        // Candidates show cheapest first, so the market's internal order is not on show.
+        foreach (var offer in _session.GetPreparationOffers().OrderBy(Order).ThenBy(offer => StaffCatalogue.ForOffer(candidates, offer.Id) is null ? 0 : offer.PricePennies))
         {
             if (_session.CaptureImmersion() is not null && offer.Id == "contract.stock") continue;
             if (_session.CaptureProgramme() is not null && offer.Category == "act") continue;
             var id = offer.Id;
             var (layout, colour, icon, destination) = offer.Category switch
             {
-                "staff" => (OfferLayout.Card, new Color("3e5a8c"), "volume-2", (Container?)_soundEngineers),
+                // Candidates' blurbs read as quotes, so their detail line has no icon.
+                "staff" => (OfferLayout.Card, new Color("3e5a8c"), "", (Container?)_staffGrids.GetValueOrDefault(StaffRole.Sound)),
+                "medic" => (OfferLayout.Card, new Color("2f8a5f"), "", _staffGrids.GetValueOrDefault(StaffRole.Medic)),
+                "steward" => (OfferLayout.Card, Ui.Teal, "", _staffGrids.GetValueOrDefault(StaffRole.Steward)),
                 "maintenance" => (OfferLayout.Row, new Color("8a6a2e"), "wrench", _crewList),
-                "extra-steward" => (OfferLayout.Row, Ui.Teal, "star", _crewList),
-                "extra-medic" => (OfferLayout.Row, new Color("2f8a5f"), "star", _crewList),
+                "extra-steward" => (OfferLayout.Row, Ui.Teal, "", _extraStaffList),
+                "extra-medic" => (OfferLayout.Row, new Color("2f8a5f"), "", _extraStaffList),
                 "equipment" => (OfferLayout.Choice, Ui.Teal, "volume-2", _rigChoices),
                 _ => (OfferLayout.Row, Ui.InkMuted, "package", (Container?)null),
             };
-            var card = new OfferCard(layout, colour, icon, () => PreparationAccept(id));
+            var candidate = StaffCatalogue.ForOffer(candidates, id);
+            var card = new OfferCard(layout, colour, icon, () => PreparationAccept(id), candidate is null ? null : StaffStatLabels(candidate.Role));
             _offerCards.Add(id, card); _offerButtons.Add(id, card.Action);
             if (_hudTabs is null) { box.AddChild(card.Root); box.MoveChild(card.Root, index++); }
             else (destination ?? _hudPages[offer.Category == "contract" ? "Supplies" : "Staff"]).AddChild(card.Root);
@@ -242,21 +265,15 @@ private void RebuildPreparationOffers()
         var tooltip = chosen ? "Remove this unpaid purchase from the setup plan." : issue ?? "Add or replace this choice in the unpaid setup plan. Payment is due at Start.";
         switch (offer.Category)
         {
-            case "staff":
-                return (who[..1], $"{who} · {what.Replace(" sound engineer", "", StringComparison.Ordinal)}", tail.Replace("quality", "sound quality", StringComparison.Ordinal), "Choose", "Hired", tooltip);
+            case "staff" or "medic" or "steward" or "extra-medic" or "extra-steward":
+                var candidate = StaffCatalogue.ForOffer(_session.GetStaffCandidates(), offer.Id)!;
+                var extra = offer.Category.StartsWith("extra-", StringComparison.Ordinal);
+                if (issue is null || chosen)
+                    tooltip = FestivalCopy($"{candidate.Name} · {(extra ? "extra " : "")}{StaffCatalogue.RoleName(candidate.Role)}\n{StaffCandidateAbilities(candidate)}\n" +
+                        $"Weekend contract; {(p.Plan is null ? "paid now" : "unpaid until Start, freely swap")}. Expires on any outcome.");
+                return (candidate.Name[..1], extra ? $"{candidate.Name} · extra {StaffCatalogue.RoleName(candidate.Role)}" : candidate.Name, candidate.Blurb, "Hire", "Hired", tooltip);
             case "maintenance":
                 return (who[..1], $"{who} · {what}", "Fixes physical breakdowns", "Hire", "Hired", tooltip);
-            case "extra-medic" or "extra-steward":
-                var role = offer.Category == "extra-medic" ? ResponseRole.Medic : ResponseRole.Steward;
-                var perk = PerkCatalogue.All.Single(item => item.Id == (role == ResponseRole.Medic ? "doctors-orders" : "extra-pair-of-hands")).Name;
-                var slot = role == ResponseRole.Medic ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned;
-                var roleName = role == ResponseRole.Medic ? "medic" : "steward";
-                var profile = _session.GetOptionalStaffOfferProfile(role);
-                var first = (profile?.Name ?? who).Split(' ')[0];
-                var detail = slot ? $"Slot from your perk: {perk}" : $"Needs a {roleName} slot — unlocked by the perk {perk}";
-                if (profile is not null)
-                    tooltip = FestivalCopy($"{profile.Name}\n{StaffAbilityText(profile)}\n£30 prototype tuning. {(p.Plan is null ? "Paid weekend-only contract" : "Unpaid plan until Start; freely remove")}; expires on any outcome. Requires its role-specific slot.");
-                return (first[..1], $"{first} · {roleName}", detail, "Hire", "Hired", tooltip);
             case "equipment":
                 var rent = offer.Id == "equipment.rent";
                 return ("", rent ? "Rent · this festival" : "Buy · yours to keep", tail.Split(';')[0].Replace("quality", "sound quality", StringComparison.Ordinal), "", "Selected", tooltip);

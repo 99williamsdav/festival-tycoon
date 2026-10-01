@@ -15,6 +15,25 @@ public partial class Main
         (p.Role == ResponseRole.Medic ? $"TREATMENT  {p.TreatmentTicks / 80m:0.0}s at 1× • starts after arrival" :
             $"CALMING  {p.CalmingSkill}/10000\nFIGHTING  {p.ConfrontationSkill}/10000 • abilities, not success chances");
 
+    private static string[] StaffStatLabels(StaffRole role) => role switch
+    {
+        StaffRole.Sound => ["Mixing"],
+        StaffRole.Medic => ["Treatment", "Pace"],
+        _ => ["Calming", "Firmness", "Pace"],
+    };
+
+    private static int[] StaffRatings(StaffCandidate c) => c.Role switch
+    {
+        StaffRole.Sound => [StaffCatalogue.MixingRating(c)],
+        StaffRole.Medic => [StaffCatalogue.TreatmentRating(c), StaffCatalogue.PaceRating(c)],
+        _ => [StaffCatalogue.SkillRating(c.CalmingSkill), StaffCatalogue.SkillRating(c.ConfrontationSkill), StaffCatalogue.PaceRating(c)],
+    };
+
+    /// <summary>A candidate's abilities as the tooltip spells them out, perk training included.</summary>
+    private string StaffCandidateAbilities(StaffCandidate c) => c.Role == StaffRole.Sound
+        ? $"SOUND ABILITIES\nMIXING  {(c.MixingBonus > 0 ? "+" : "")}{c.MixingBonus} enjoyment each time the crowd warms to a set"
+        : StaffAbilityText(_session.GetCandidateProfile(c));
+
     private string ResponseStaffInspectorText(ulong id)
     {
         var profile = _session.GetResponseStaff().SingleOrDefault(item => item.AgentId == id);

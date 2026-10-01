@@ -19,8 +19,8 @@ public sealed class StaffAutonomyTests
     {
         // The extra medic slot comes from drafting Doctor's Orders; the medic is still hired for £30.
         var s = extra ? BuildSession.PlannedWith("doctors-orders") : BuildSession.Planned();
-        if (extra) Accept(s, new AcceptPreparationOfferCommand("staff.extra-medic"));
-        Accept(s, new AcceptPreparationOfferCommand("staff.steward"));
+        if (extra) Accept(s, new AcceptPreparationOfferCommand("staff.extra-medic.2"));
+        foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
         return s;
     }
     private static GameSession Started(bool extra = false)

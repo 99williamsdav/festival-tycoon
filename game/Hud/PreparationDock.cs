@@ -173,12 +173,11 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         {
             var offer = offers[id];
             var who = offer.Name.Split(':')[0];
+            var hire = offer.Name.Split(" · ");
             var label = offer.Category switch
             {
-                "staff" => $"{who} · sound engineer",
                 "maintenance" => $"{who} · maintenance",
-                "extra-medic" => $"{(session.GetOptionalStaffOfferProfile(ResponseRole.Medic)?.Name ?? who).Split(' ')[0]} · medic",
-                "extra-steward" => $"{(session.GetOptionalStaffOfferProfile(ResponseRole.Steward)?.Name ?? who).Split(' ')[0]} · steward",
+                _ when StaffCatalogue.IsWorkCategory(offer.Category) && hire.Length == 2 => $"{hire[0].Split(' ')[0]} · {hire[1]}",
                 "equipment" => id == "equipment.rent" ? "Sound rig rental" : "Sound rig purchase",
                 _ => offer.Name,
             };
@@ -242,6 +241,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         _ => "Build",
     };
 
+    private static int StaffNeeded(GameSession session) => session.GetPreparationStartRequirements().Count(item => item.Owner == PreparationStartOwner.Staff);
+
     /// <summary>Checklist wording: what is in place, and what to do when it is not.</summary>
     private static (string Done, string Todo) Wording(PreparationStartRequirement requirement) => requirement.Id switch
     {
@@ -251,6 +252,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         "steward-post" => ("Steward post", "Place a steward post"),
         "programme" => ("Three acts booked", "Book three acts"),
         "staff" => ("Sound engineer hired", "Hire a sound engineer"),
+        "medic" => ("Medic hired", "Hire a medic"),
+        "steward" => ("Steward hired", "Hire a steward"),
         "budget" => ("Within budget", "Bring the draft within budget"),
         _ => (requirement.Label, requirement.Label),
     };
@@ -258,7 +261,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
     private static string Count(int value) => value switch
     {
         1 => "One thing", 2 => "Two things", 3 => "Three things", 4 => "Four things", 5 => "Five things",
-        6 => "Six things", 7 => "Seven things", _ => $"{value} things",
+        6 => "Six things", 7 => "Seven things", 8 => "Eight things", 9 => "Nine things", _ => $"{value} things",
     };
 
     public void Refresh()
@@ -324,7 +327,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             {
                 "Build" => ($"{placed} placed", owed.Length > 0, owed.Length == 0),
                 "Programme" => ($"{acts} of 3 acts", owed.Length > 0, owed.Length == 0),
-                "Staff" => (owed.Length > 0 ? "Sound needed" : "Sound hired", owed.Length > 0, owed.Length == 0),
+                "Staff" => (owed.Length > 0 ? $"{StaffNeeded(session) - owed.Length} of {StaffNeeded(session)} hired" : "Crew hired", owed.Length > 0, owed.Length == 0),
                 _ => (costs.Supplies > 0 ? $"{FestivalCurrency.Format(costs.Supplies)} planned" : "Optional", false, false),
             };
             status.Text = ((done ? "✓ " : "") + text).ToUpperInvariant();

@@ -26,9 +26,9 @@ public sealed class ImmersionTests
     private static GameSession Open(ulong seed=20260926,bool maintenance=false,bool extraMedic=false)
     {
         var s=extraMedic?BuildSession.PlannedWith("doctors-orders",seed):BuildSession.Planned(seed);
-        Assert.IsTrue(Send(s,new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(s)) Assert.IsTrue(Send(s, hire).IsAccepted);
         if(maintenance)Assert.IsTrue(Send(s,new AcceptPreparationOfferCommand("maintenance.worker")).IsAccepted);
-        if(extraMedic)Assert.IsTrue(Send(s,new AcceptPreparationOfferCommand("staff.extra-medic")).IsAccepted);
+        if(extraMedic)Assert.IsTrue(Send(s,new AcceptPreparationOfferCommand("staff.extra-medic.2")).IsAccepted);
         Assert.IsTrue(Send(s,new StartPreparedEditionCommand()).IsAccepted);
         // Labelled eligibility fixture; admission/navigation itself is covered by physical scenario below.
         var prep=s.CapturePreparation()!;
@@ -128,7 +128,7 @@ public sealed class ImmersionTests
         var s=BuildSession.Planned(20260926);
         Assert.IsTrue(Send(s,new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
         Assert.IsTrue(Send(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.neon-postcards"])).IsAccepted);
-        Assert.IsTrue(Send(s,new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(s)) Assert.IsTrue(Send(s, hire).IsAccepted);
         Assert.IsTrue(Send(s,new StartPreparedEditionCommand()).IsAccepted);
         s.AdvanceWithoutSnapshot(8000);
         Assert.AreEqual(0,s.CapturePreparation()!.StockConsumed);

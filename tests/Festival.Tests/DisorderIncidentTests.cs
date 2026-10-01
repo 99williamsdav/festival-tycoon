@@ -21,7 +21,7 @@ public sealed class DisorderIncidentTests
     private static GameSession Started(ulong seed = 20260925)
     {
         var session = BuildSession.Planned(seed);
-        foreach (var id in new[] { "staff.steward", "equipment.buy" })
+        foreach (var id in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1", "equipment.buy" })
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         return session;

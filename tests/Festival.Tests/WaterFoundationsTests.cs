@@ -27,7 +27,7 @@ public sealed class WaterFoundationsTests
         Assert.IsTrue(placed.IsAccepted, placed.Message);
         if (share) Assert.IsTrue(Send(session, new CommitCommunityWaterShareCommand()).IsAccepted);
         session = Restore(session);
-        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         return Restore(session);
     }
@@ -59,7 +59,7 @@ public sealed class WaterFoundationsTests
     {
         if (session.PreparedStatus == PreparationStatus.Preparing)
         {
-            foreach (var offer in new[] { "staff.steward", "equipment.buy" })
+            foreach (var offer in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1", "equipment.buy" })
                 Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(offer)).IsAccepted);
             Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         }

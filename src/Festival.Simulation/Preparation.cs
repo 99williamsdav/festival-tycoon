@@ -169,16 +169,16 @@ public sealed partial class GameSession
         PreparationOffer[] offers = [
             new("act.folk", "act", "Alex: meadow folk • folk fit", 6_000 + premium, 1_000, 0),
             new("act.punk", "act", "Alex: barn punk • punk fit", 6_000 + premium, 1_000, 1),
-            new("staff.steward", "staff", "Casey: standard sound engineer • +400 quality", 2_000, 400, -1),
-            new("staff.engineer", "staff", "Casey: better sound engineer • +800 quality", 4_000, 800, -1),
             new("equipment.buy", "equipment", "Buy sound rig • +1000 quality; retained", 12_000, 1_000, -1),
             new("equipment.rent", "equipment", "Rent sound rig • +500 quality; this weekend", 3_000, 500, -1),
             new("contract.stock", "contract", "50 refreshments • unused stock resets on retry", 3_000, 0, -1)
         ];
         if (_equipment is not null) offers = offers.Append(new PreparationOffer("maintenance.worker", "maintenance", "Morgan: maintenance worker • physical repair", 1_500, 0, -1)).ToArray();
-        if (_disorder is not null) offers = offers.Concat(new[] {
-            new PreparationOffer("staff.extra-medic", "extra-medic", "Avery Brooks: extra medic • paid weekend contract", 3000, 0, -1),
-            new PreparationOffer("staff.extra-steward", "extra-steward", "Sam Ellis: extra steward • paid weekend contract", 3000, 0, -1) }).ToArray();
+        var candidates = GetStaffCandidates();
+        offers = offers.Concat(candidates.Select(c => new PreparationOffer(c.Id, StaffCatalogue.Category(c.Role, false),
+            $"{c.Name} · {StaffCatalogue.RoleName(c.Role)}", c.WagePennies, 0, -1))).ToArray();
+        if (_disorder is not null) offers = offers.Concat(candidates.Where(c => c.Role != StaffRole.Sound).Select(c => new PreparationOffer(c.ExtraOfferId,
+            StaffCatalogue.Category(c.Role, true), $"{c.Name} · extra {StaffCatalogue.RoleName(c.Role)}", c.WagePennies, 0, -1))).ToArray();
         offers = offers.Where(offer => offer.Category != "act").Concat(FestivalActs.Select(act => new PreparationOffer(act.Id, "act", act.Name, ActFee(act), 1000, act.Genre))).ToArray();
         return offers;
     }
@@ -202,14 +202,24 @@ public sealed partial class GameSession
         requirements.Add(new("programme", PreparationStartOwner.Programme,
             "Three acts booked", (p.Plan?.ActIds ?? _programme!.ActIds).Count(id => id != "") == 3,
             "Choose three different acts before opening. Each selection saves immediately."));
-        requirements.Add(new("staff", PreparationStartOwner.Staff, "Worker hired",
-            (p.Plan?.OfferIds ?? p.WorkContracts).Any(id => id.StartsWith("staff.", StringComparison.Ordinal)),
-            "Hire one worker from the Staff tab before opening."));
+        var hires = p.Plan?.OfferIds ?? p.WorkContracts;
+        requirements.Add(new("staff", PreparationStartOwner.Staff, "Sound engineer hired",
+            hires.Any(id => id.StartsWith("staff.sound.", StringComparison.Ordinal)), "Hire a sound engineer from the Staff tab before opening."));
+        if (_medical is not null)
+            requirements.Add(new("medic", PreparationStartOwner.Staff, "Medic hired",
+                hires.Any(id => id.StartsWith("staff.medic.", StringComparison.Ordinal)), "The licence needs a medic on site. Hire one from the Staff tab."));
+        if (_disorder is not null)
+            requirements.Add(new("steward", PreparationStartOwner.Staff, "Steward hired",
+                hires.Any(id => id.StartsWith("staff.steward.", StringComparison.Ordinal)), "The licence needs a steward on site. Hire one from the Staff tab."));
             requirements.Add(new("budget", PreparationStartOwner.Overview, "Setup within budget",
                 p.Plan is not { Committed: false } || PreparationRemainingCash >= 0,
                 "Setup exceeds available funds. Remove or revise planned purchases."));
         return requirements;
     }
+
+    /// <summary>The person a work offer puts in the contact book; a candidate keeps one contact for either slot.</summary>
+    private static string? ContactFor(PreparationOffer offer) => offer.Category == "maintenance" ? "contact.morgan-finch" :
+        StaffCatalogue.IsWorkCategory(offer.Category) ? "contact." + offer.Id["staff.".Length..].Replace("extra-", "", StringComparison.Ordinal) : null;
 
     public IReadOnlyList<PreparationStartBlocker> GetPreparationStartBlockers() =>
         GetPreparationStartRequirements().Where(requirement => !requirement.Complete)
@@ -229,6 +239,12 @@ public sealed partial class GameSession
             if (offer.Category is "extra-medic" or "extra-steward" &&
                 (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || PeopleIn(PersonView.Roster).Length >= 50))
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Requires the matching role slot and room below 50 active people.");
+            if (StaffCatalogue.ForOffer(GetStaffCandidates(), offer.Id) is { Role: not StaffRole.Sound } candidate)
+            {
+                var other = offer.Category.StartsWith("extra-", StringComparison.Ordinal) ? candidate.Id : candidate.ExtraOfferId;
+                if ((p.Plan is { Committed: false } held ? held.OfferIds : p.AcceptedOffers).Contains(other))
+                    return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, $"{candidate.Name} is already hired as your other {StaffCatalogue.RoleName(candidate.Role)}.");
+            }
             if (p.Plan is null && p.AcceptedOffers.Any(id => offers.Single(item => item.Id == id).Category == offer.Category) ||
                 offer.Category == "equipment" && p.OwnedEquipment.Contains("sound-rig"))
                 return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This category is already supplied for the edition.");
@@ -236,7 +252,7 @@ public sealed partial class GameSession
                 return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, "Insufficient cash for this commitment.");
         }
         else if (GetPreparationStartBlockers().Count != 0)
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Book one act and one worker for the fixed protected roster.");
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Book three acts and hire the required staff before opening.");
         return null;
     }
 
@@ -256,15 +272,17 @@ public sealed partial class GameSession
             AcceptedOffers = p.AcceptedOffers.Append(offer.Id).Order(StringComparer.Ordinal).ToArray(),
             OwnedEquipment = offer.Id == "equipment.buy" ? ["sound-rig"] : p.OwnedEquipment,
             Rentals = offer.Id == "equipment.rent" ? ["sound-rig"] : p.Rentals,
-            Contacts = offer.Category is "staff" or "maintenance" or "extra-medic" or "extra-steward" ? p.Contacts.Append(offer.Category switch {
-                "staff" => "contact.casey-vale", "maintenance" => "contact.morgan-finch", "extra-medic" => "contact.avery-brooks", _ => "contact.sam-ellis" }).Distinct().Order(StringComparer.Ordinal).ToArray() : p.Contacts,
-            WorkContracts = offer.Category is "staff" or "maintenance" or "extra-medic" or "extra-steward" ? p.WorkContracts.Append(offer.Id).Order(StringComparer.Ordinal).ToArray() : p.WorkContracts,
+            Contacts = ContactFor(offer) is { } contact ? p.Contacts.Append(contact).Distinct().Order(StringComparer.Ordinal).ToArray() : p.Contacts,
+            WorkContracts = StaffCatalogue.IsWorkCategory(offer.Category) ? p.WorkContracts.Append(offer.Id).Order(StringComparer.Ordinal).ToArray() : p.WorkContracts,
             Payments = p.Payments.Append(new(p.Payments.Length + 1, offer.Id, p.Attempt, CurrentTick, offer.PricePennies,
                 offer.Category is "equipment" && offer.Id == "equipment.buy" ? LedgerAccountType.EquipmentAsset :
                 offer.Category == "contract" ? LedgerAccountType.InventoryAsset : LedgerAccountType.AdministrationExpense)).ToArray()
         };
-        if (offer.Category is "extra-medic" or "extra-steward")
-            HireOptionalStaff(offer.Category == "extra-medic" ? ResponseRole.Medic : ResponseRole.Steward);
+        if (StaffCatalogue.ForOffer(GetStaffCandidates(), offer.Id) is { } hired)
+        {
+            if (offer.Category is "extra-medic" or "extra-steward") HireOptionalStaff(hired);
+            else if (StaffSlotId(hired.Role) is { } slot) RenameStaffSlot(slot, hired.Name);
+        }
         if (offer.Category == "maintenance")
         {
             var id = p.MaintenanceWorkerId ?? NextEntityId++;
@@ -473,7 +491,7 @@ public sealed partial class GameSession
         var maintenance = snapshot.Equipment?.WorkerId is not null ? 1 : 0;
         var medic = snapshot.Medical is null ? 0 : 1;
         var security = snapshot.Disorder is null ? 0 : 1;
-        var extras = p.AcceptedOffers.Count(id => id is "staff.extra-medic" or "staff.extra-steward");
+        var extras = p.AcceptedOffers.Count(id => id.StartsWith("staff.extra-", StringComparison.Ordinal));
         var performerCount = snapshot.Programme is null ? 3 : 9;
         if (p.People.Length > 50 || p.People.Length != p.Tier * 20 + 1 + performerCount + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != p.Tier * 20 ||
             p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != performerCount ||
@@ -483,12 +501,13 @@ public sealed partial class GameSession
             return "Fixed protected roster invalid.";
         var factory = CreateProgrammeBaseline(snapshot.CampaignSeed).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
+        var candidates = SavedStaffCandidates(snapshot);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })
             if (list.Any(string.IsNullOrWhiteSpace) || !list.SequenceEqual(list.Distinct().Order(StringComparer.Ordinal))) return "Preparation collections must be sorted and unique.";
         if (p.OwnedEquipment.Any(id => id != "sound-rig") || p.Rentals.Any(id => id != "sound-rig") ||
-            p.Contacts.Any(id => id != "contact.casey-vale" && (snapshot.Equipment is null || id != "contact.morgan-finch") &&
-                (snapshot.Disorder is null || id is not ("contact.avery-brooks" or "contact.sam-ellis"))) ||
-            p.WorkContracts.Any(id => !offers.TryGetValue(id, out var offer) || offer.Category is not ("staff" or "maintenance" or "extra-medic" or "extra-steward")) || p.AcceptedOffers.Any(id => !offers.ContainsKey(id)) ||
+            !p.Contacts.SequenceEqual(p.Payments.Where(item => offers.ContainsKey(item.OfferId)).Select(item => ContactFor(offers[item.OfferId])).OfType<string>().Distinct().Order(StringComparer.Ordinal)) ||
+            p.WorkContracts.Any(id => !offers.TryGetValue(id, out var offer) || !StaffCatalogue.IsWorkCategory(offer.Category)) ||
+            p.AcceptedOffers.Select(id => id.Replace("staff.extra-", "staff.", StringComparison.Ordinal)).Distinct().Count() != p.AcceptedOffers.Length || p.AcceptedOffers.Any(id => !offers.ContainsKey(id)) ||
             p.AcceptedOffers.Select(id => offers[id].Category == "act" && snapshot.Programme is not null ? id : offers[id].Category).Distinct().Count() != p.AcceptedOffers.Length)
             return "Preparation entitlement invalid.";
         if (p.Payments.Where((item, index) => item.Id != index + 1 || item.Attempt < 1 || item.Attempt > p.Attempt || item.Tick < 0 || item.Tick > snapshot.CurrentTick ||
@@ -501,9 +520,7 @@ public sealed partial class GameSession
         var settled = p.Status is PreparationStatus.Failed or PreparationStatus.Finished;
         if ((p.OwnedEquipment.Length == 1) != p.Payments.Any(item => item.OfferId == "equipment.buy") ||
             (p.Rentals.Length == 1) != (!settled && p.AcceptedOffers.Contains("equipment.rent")) ||
-            p.Contacts.Contains("contact.casey-vale") != p.Payments.Any(item => offers[item.OfferId].Category == "staff") ||
-            p.Contacts.Contains("contact.morgan-finch") != p.Payments.Any(item => offers[item.OfferId].Category == "maintenance") ||
-            !p.WorkContracts.SequenceEqual(settled ? [] : p.AcceptedOffers.Where(id => offers[id].Category is "staff" or "maintenance" or "extra-medic" or "extra-steward")) ||
+            !p.WorkContracts.SequenceEqual(settled ? [] : p.AcceptedOffers.Where(id => StaffCatalogue.IsWorkCategory(offers[id].Category))) ||
             p.OwnedEquipment.Length + p.Rentals.Length > 1 ||
             p.Payments.Count(item => item.OfferId == "equipment.buy") > 1 ||
             (p.MaintenanceWorkerId is not null) != p.Payments.Any(item => item.OfferId == "maintenance.worker") ||
@@ -514,23 +531,25 @@ public sealed partial class GameSession
             p.Status == PreparationStatus.Failed && snapshot.Immersion is not null && (snapshot.Phase is not ((int)SessionPhase.Live) and not ((int)SessionPhase.Egress) || snapshot.Phase == (int)SessionPhase.Egress && snapshot.CurrentTick < p.StartedTick + PreparedDayTicks) ||
             p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.Phase != (int)SessionPhase.Egress ||
             p.Status == PreparationStatus.Failed && snapshot.Equipment?.Stage != EquipmentStage.Terminal && snapshot.Medical?.Fatal != true && snapshot.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death" ||
-            p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => id.StartsWith("staff.", StringComparison.Ordinal))) ||
+            p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => offers[id].Category == "staff") ||
+                snapshot.Medical is not null && !p.AcceptedOffers.Any(id => offers[id].Category == "medic") ||
+                snapshot.Disorder is not null && !p.AcceptedOffers.Any(id => offers[id].Category == "steward")) ||
             p.Status == PreparationStatus.Finished && p.People.Any(item => !item.Departed))
             return "Preparation phase and protected-person progress disagree.";
         var originalPeople = factory.CapturePreparation()!.People;
         if (maintenance == 1) originalPeople = originalPeople.Append(new EditionPerson(p.MaintenanceWorkerId!.Value, "Morgan Finch", ProtectedPersonRole.Staff, 0)).ToArray();
-        originalPeople = originalPeople.Concat(p.StaffProfiles.Where(profile => p.AcceptedOffers.Contains(profile.Role == ResponseRole.Medic ? "staff.extra-medic" : "staff.extra-steward"))
-            .Select(profile => new EditionPerson(profile.AgentId, profile.Name, ProtectedPersonRole.Staff, 0))).OrderBy(item => item.AgentId).ToArray();
+        StaffCandidate? Extra(ResponseRole role) => StaffCatalogue.Hired(candidates, p.AcceptedOffers, role == ResponseRole.Medic ? StaffRole.Medic : StaffRole.Steward, true);
+        originalPeople = NameHiredStaff(originalPeople.Concat(p.StaffProfiles.Where(profile => Extra(profile.Role) is not null)
+            .Select(profile => new EditionPerson(profile.AgentId, profile.Name, ProtectedPersonRole.Staff, 0))).OrderBy(item => item.AgentId).ToArray(), snapshot, candidates);
         if (snapshot.CampaignPlanning is null || snapshot.Lifecycle is not null && snapshot.Equipment is null ||
             p.MaintenanceWorkerId is { } retainedWorkerId && retainedWorkerId < factory.NextEntityId ||
             p.StaffProfiles.Any(profile => !Enum.IsDefined(profile.Role) || profile.AgentId < factory.NextEntityId || profile.AgentId >= snapshot.NextEntityId ||
                 profile.AgentId == p.MaintenanceWorkerId || !snapshot.Wallets.Any(item => item.OwnerId == profile.AgentId) ||
-                profile != CreateOptionalStaff(snapshot.CampaignSeed, profile.AgentId, profile.Role) ||
+                !candidates.Any(candidate => candidate.Role != StaffRole.Sound && candidate.Profile(profile.AgentId) == profile) ||
+                Extra(profile.Role) is { } extra && extra.Profile(profile.AgentId) != profile ||
                 snapshot.Perks is null && !(profile.Role == ResponseRole.Medic ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned)) ||
-            p.Contacts.Contains("contact.avery-brooks") != p.Payments.Any(item => item.OfferId == "staff.extra-medic") ||
-            p.Contacts.Contains("contact.sam-ellis") != p.Payments.Any(item => item.OfferId == "staff.extra-steward") ||
-            p.Payments.Any(item => item.OfferId == "staff.extra-medic") != p.StaffProfiles.Any(item => item.Role == ResponseRole.Medic) ||
-            p.Payments.Any(item => item.OfferId == "staff.extra-steward") != p.StaffProfiles.Any(item => item.Role == ResponseRole.Steward) ||
+            p.Payments.Any(item => item.OfferId.StartsWith("staff.extra-medic.", StringComparison.Ordinal)) != p.StaffProfiles.Any(item => item.Role == ResponseRole.Medic) ||
+            p.Payments.Any(item => item.OfferId.StartsWith("staff.extra-steward.", StringComparison.Ordinal)) != p.StaffProfiles.Any(item => item.Role == ResponseRole.Steward) ||
             p.People.Where((person, index) => person.AgentId != originalPeople[index].AgentId || person.Name != originalPeople[index].Name ||
                 person.Role != originalPeople[index].Role || person.ExpectedGenre != originalPeople[index].ExpectedGenre).Any() ||
             p.People.Any(person => !snapshot.Wallets.Any(wallet => wallet.OwnerId == person.AgentId)))

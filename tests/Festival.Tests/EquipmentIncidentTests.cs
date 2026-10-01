@@ -11,7 +11,7 @@ public sealed class EquipmentIncidentTests
     private static GameSession Started(ulong seed = 2, bool worker = false, int tier = 1)
     {
         var s = BuildSession.Planned(seed);
-        foreach (var id in new[] { "staff.steward", "equipment.buy" }.Concat(worker ? new[] { "maintenance.worker" } : []))
+        foreach (var id in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1", "equipment.buy" }.Concat(worker ? new[] { "maintenance.worker" } : []))
             Assert.IsTrue(Execute(s, new AcceptPreparationOfferCommand(id)).IsAccepted, id);
         Assert.IsTrue(Execute(s, new StartPreparedEditionCommand()).IsAccepted);
         return s;
@@ -38,7 +38,7 @@ public sealed class EquipmentIncidentTests
         {
             var prep = BuildSession.Planned(seed);
             var offers = prep.GetPreparationOffers();
-            Assert.IsTrue(offers.Where(item => item.Id is "act.folk" or "staff.engineer" or "equipment.buy" or "contract.stock" or "maintenance.worker").Sum(item => item.PricePennies) < prep.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+            Assert.IsTrue(offers.Where(item => item.Id is "act.folk" or "staff.sound.3" or "equipment.buy" or "contract.stock" or "maintenance.worker").Sum(item => item.PricePennies) < prep.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         }
     }
 

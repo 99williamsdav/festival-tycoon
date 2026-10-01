@@ -154,7 +154,7 @@ public partial class Main
               $"LISTENED  {listening.ListenedTicks / 80}s • enjoyment +{listening.EnjoymentEarned / 100m:0.00}%"
             : performer is not null ? $"STAGE  {performer.StageCell.X},{performer.StageCell.Z} • {(performer.OnStage ? "on stage" : "travelling/exit")}\n" +
               $"INSTRUMENT  {(performer.InstrumentAttached ? "attached for set" : "detached")}" :
-              person.Name == "Jordan Hale" ? "STEWARD • autonomous physical route" : "STAFF • autonomous physical route";
+              _session.GetResponseStaff().Any(item => item.AgentId == person.AgentId && item.Role == ResponseRole.Steward) ? "STEWARD • autonomous physical route" : "STAFF • autonomous physical route";
         if (_session.CaptureProgramme() is { } programme)
         {
             if (listening is not null)

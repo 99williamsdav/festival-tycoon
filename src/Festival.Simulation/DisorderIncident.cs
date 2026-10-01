@@ -580,7 +580,7 @@ public sealed partial class GameSession
             d.Version != 1 || d.People is null || d.Evidence is null || d.Incidents is null || d.Stewards is not [{ } security, ..] ||
             d.People.Length != p.Tier * 20 ||
             !d.People.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Select(item => item.AgentId)) ||
-            !p.People.Any(item => item.AgentId == d.SecurityId && item.Name == "Jordan Hale" && item.Role == ProtectedPersonRole.Staff) ||
+            !p.People.Any(item => item.AgentId == d.SecurityId && item.Role == ProtectedPersonRole.Staff) ||
             !medical.Needs.Any(item => item.AgentId == d.SecurityId && item.Profile == MedicalNeedProfile.Staff) ||
             d.CalmingSkill is < 3_500 or > 8_000 || d.ConfrontationSkill is < 3_500 or > 8_000 ||
             !Enum.IsDefined(security.Stage) || string.IsNullOrWhiteSpace(security.Description) ||

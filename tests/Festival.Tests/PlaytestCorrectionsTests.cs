@@ -15,7 +15,7 @@ public sealed class PlaytestCorrectionsTests
     private static GameSession Open()
     {
         var s=BuildSession.Planned(20260929);
-        Send(s,new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(s)) Send(s, hire);
         Send(s,new AcceptPreparationOfferCommand("maintenance.worker"));
         Send(s,new StartPreparedEditionCommand());
         var p=s.CapturePreparation()!; Set(s,"PreparationView",p with { People=p.People.Select(person=>person with { Admitted=true }).ToArray() });

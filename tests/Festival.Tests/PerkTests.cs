@@ -29,7 +29,7 @@ public sealed class PerkTests
     {
         Accept(s,new UseDefaultBuildLayoutCommand());
         Accept(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.field-frequency"]));
-        Accept(s,new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
         Accept(s,new StartPreparedEditionCommand());
     }
     private static void IgnoredResponseFatalFixture(GameSession s)

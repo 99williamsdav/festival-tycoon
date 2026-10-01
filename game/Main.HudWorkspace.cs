@@ -250,7 +250,7 @@ public partial class Main
         _hudDiagnosticsText!.Text = $"Tick {_session.CurrentTick} · hash {_session.CaptureSnapshot().AuthoritativeHash}\nPhase {_session.Phase} · status {p.Status} · paused {_session.IsPaused}\n{_preparationMessage}";
         _preparationSummary.Text = $"{(_session.CaptureProgramme() is null ? "Fixed festival roster" : "Three fixed sets · eight-minute festival day")}\n" +
             $"Programme: {(_session.CaptureProgramme() is { ActIds.Length: 3 } ? "three acts booked" : p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) ? "act booked" : "choose before opening")}\n" +
-            $"Sound: {(p.AcceptedOffers.Contains("staff.steward") ? "Casey · standard sound engineer hired · £20" : p.AcceptedOffers.Contains("staff.engineer") ? "Casey · better sound engineer hired · £40" : "hire a sound engineer before opening")}\n" +
+            $"Sound: {(_session.HiredStaff(StaffRole.Sound) is { } sound ? $"{sound.Name} · sound engineer hired · {FestivalCurrency.Format(sound.WagePennies)}" : "hire a sound engineer before opening")}\n" +
             $"Owned rig {p.OwnedEquipment.Length} · rental {p.Rentals.Length} · equipment & stock optional";
         if (preparing && p.Plan is { } plan)
         {

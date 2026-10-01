@@ -65,7 +65,7 @@ public sealed partial class GameSession
         session._ownedStocks.Add(stock, new OwnedStockState
         { ServiceId = stock, OwnerId = owner, Quantity = 40, UnitCostBasisPennies = 60 });
         var people = Enumerable.Range(0, guests + 4).Select(index => new EditionPerson(
-            session.NextEntityId++, index < guests ? $"Guest {index + 1:00}" : index == guests ? "Casey Vale" : new[] { "Alex Reed", "Blair Moss", "Kit Rowan" }[index - guests - 1],
+            session.NextEntityId++, index < guests ? $"Guest {index + 1:00}" : index == guests ? StaffCatalogue.Vacancy(StaffRole.Sound) : new[] { "Alex Reed", "Blair Moss", "Kit Rowan" }[index - guests - 1],
             index < guests ? ProtectedPersonRole.Guest : index == guests ? ProtectedPersonRole.Staff : ProtectedPersonRole.Performer,
             index % 4 == 0 ? 1 - (int)(seed % 2) : (int)(seed % 2))).ToArray();
         foreach (var person in people)
@@ -91,7 +91,7 @@ public sealed partial class GameSession
         var medicId = session.NextEntityId++;
         session._wallets.Add(new(medicId), new WalletState { OwnerId = new(medicId), CashPennies = 500 });
         session.PreparationView = session.PreparationView! with { People = session.PreparationView.People.Append(
-            new EditionPerson(medicId, "Riley Hart", ProtectedPersonRole.Staff, 0)).ToArray() };
+            new EditionPerson(medicId, StaffCatalogue.Vacancy(StaffRole.Medic), ProtectedPersonRole.Staff, 0)).ToArray() };
         var guests = session.PreparationView!.People.Where(item => item.Role == ProtectedPersonRole.Guest).ToArray();
         var needs = guests.Select((guest, index) => new MedicalNeed(guest.AgentId,
             index < 8 ? 7_600 : 2_000 + (index * 43) % 500, 2_500, MedicalIntent.WatchShow, "Water need below show preference",
@@ -111,7 +111,7 @@ public sealed partial class GameSession
         var securityId = session.NextEntityId++;
         session._wallets.Add(new(securityId), new WalletState { OwnerId = new(securityId), CashPennies = 500 });
         session.PreparationView = session.PreparationView! with { People = session.PreparationView.People.Append(
-            new EditionPerson(securityId, "Jordan Hale", ProtectedPersonRole.Staff, 0)).ToArray() };
+            new EditionPerson(securityId, StaffCatalogue.Vacancy(StaffRole.Steward), ProtectedPersonRole.Staff, 0)).ToArray() };
         session.MedicalView = session.MedicalView! with { Version = 6, Needs = session.MedicalView.Needs.Append(
             new MedicalNeed(securityId, 0, 0, MedicalIntent.WatchShow, "Security on duty", -MedicalDecisionCooldownTicks,
                 null, -1, MedicalNeedProfile.Staff)).ToArray() };

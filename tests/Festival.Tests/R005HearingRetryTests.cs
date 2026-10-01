@@ -21,7 +21,7 @@ public sealed class R005HearingRetryTests
 
     private static void Book(GameSession session, bool buyRig, bool buyStock, bool worker = false)
     {
-        foreach (var id in new[] { "staff.steward" }
+        foreach (var id in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1" }
                      .Concat(buyRig ? ["equipment.buy"] : Array.Empty<string>())
                      .Concat(buyStock ? ["contract.stock"] : Array.Empty<string>())
                      .Concat(worker ? ["maintenance.worker"] : Array.Empty<string>()))

@@ -27,7 +27,7 @@ public sealed class FestivalResultsTests
     {
         var s = BuildSession.Drafted(20260922);
         Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
-        Accept(s, new AcceptPreparationOfferCommand("staff.engineer")); Accept(s, new AcceptPreparationOfferCommand("equipment.buy"));
+        foreach (var id in new[] { "staff.sound.3", "staff.medic.1", "staff.steward.1" }) Accept(s, new AcceptPreparationOfferCommand(id)); Accept(s, new AcceptPreparationOfferCommand("equipment.buy"));
         Accept(s, new SetPreparationStockCommand(40, 40, 32)); Accept(s, new StartPreparedEditionCommand());
         s.AdvanceWithoutSnapshot(1200); return s;
     }

@@ -13,7 +13,7 @@ public partial class Main
     private string PersonPresentationName(EditionPerson person) => _session.FestivalPerformerTitle(person.AgentId) is { } title
         ? $"{title} • {person.Name}" : person.Name;
     private string PersonPresentationRole(EditionPerson person) => _session.FestivalPerformerTitle(person.AgentId) ??
-        (person.Name == "Jordan Hale" ? "Steward" : person.Role.ToString());
+        (_session.GetResponseStaff().SingleOrDefault(item => item.AgentId == person.AgentId)?.Role.ToString() ?? person.Role.ToString());
 
 
 

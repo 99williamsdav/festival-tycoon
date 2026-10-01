@@ -171,7 +171,7 @@ public sealed partial class GameSession
               item.HealthStage == MedicalStage.Collapsed && CurrentTick + 1 >= item.HealthCollapseTick + MedicalCriticalDelayTicks ||
               item.HealthStage == MedicalStage.Critical && CurrentTick + 1 >= item.HealthCollapseTick + MedicalDeathDelayTicks)) ||
          m.Medics[0] is var medic && (medic.Stage == MedicalResponseStage.Travelling && _navigationAgents[new(medic.WorkerId)].Action == AgentNavigationAction.Arrived ||
-         medic.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(medic) && CurrentTick + 1 >= medic.StartedTick + MedicalTreatmentTicks || IntoxicationCareBoundary(medic))));
+         medic.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(medic) && CurrentTick + 1 >= medic.StartedTick + GetResponseStaff().Single(item => item.AgentId == medic.WorkerId).TreatmentTicks || IntoxicationCareBoundary(medic))));
 
 
     private void MedicalEvent(string id, string description) => _medical = _medical! with
@@ -661,7 +661,7 @@ public sealed partial class GameSession
                 item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId)).Select(item => item.AgentId)) ||
             m.Needs.Any(item => item.Profile != (p.People.Single(person => person.AgentId == item.AgentId).Role == ProtectedPersonRole.Performer ? MedicalNeedProfile.Performer :
                 item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null && p.People.Single(person=>person.AgentId==item.AgentId).Role==ProtectedPersonRole.Staff || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId) ? MedicalNeedProfile.Staff : MedicalNeedProfile.Guest)) ||
-            !p.People.Any(item => item.AgentId == m.MedicId && item.Name == "Riley Hart" && item.Role == ProtectedPersonRole.Staff) ||
+            !p.People.Any(item => item.AgentId == m.MedicId && item.Role == ProtectedPersonRole.Staff) ||
             m.Needs.Any(item => item.Thirst is < 0 or > 10_000 || item.HeatExposure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Intent) || !Enum.IsDefined(item.Profile) || !Enum.IsDefined(item.Stage) ||
                 item.QueueSlot is < 0 or >= 10 || item.WaterPointId != "water.main" && !points.Any(point => point.Id == item.WaterPointId) ||

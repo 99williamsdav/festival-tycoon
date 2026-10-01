@@ -179,7 +179,8 @@ public sealed partial class GameSession
             e.Stage == EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + EquipmentDeathDelayTicks)
             return "Equipment causal stages do not reconcile.";
         if (p.Status == PreparationStatus.Preparing && p.Attempt == 1 && s.Lifecycle is not null ||
-            s.Lifecycle is { } lifecycle && (p.People.Any(person => !lifecycle.ProtectedPeople.Any(item => item.PersonId == person.Name && item.Role == (int)person.Role)) ||
+            // Hired staff name their slots only at opening, so a retry's roster is checked once it opens.
+            s.Lifecycle is { } lifecycle && (p.Status != PreparationStatus.Preparing && p.People.Any(person => !lifecycle.ProtectedPeople.Any(item => item.PersonId == person.Name && item.Role == (int)person.Role)) ||
                 (lifecycle.Casualties.LastOrDefault()?.AttemptId == (ulong)p.Attempt) !=
                     (e.Stage == EquipmentStage.Terminal || s.Medical?.Fatal == true || s.Disorder?.Evidence.LastOrDefault()?.Id == "disorder:death")))
             return "Equipment lifecycle must protect the exact physical roster.";

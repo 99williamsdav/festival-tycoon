@@ -199,7 +199,7 @@ public partial class Main
         var position = _session.CaptureSnapshot().NavigationAgents.SingleOrDefault(item => item.Id.Value == d.SecurityId);
         var security = d.Stewards[0];
         var target = security.TargetId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
-        _inspectorTitle.Text = "Steward post • Jordan Hale";
+        _inspectorTitle.Text = $"Steward post • {worker.Name}";
         _inspectorBody.Text = $"POST  open public approach • gate route clear\n" +
             $"WORKER  {(worker.Admitted ? d.SecurityIncapacitated ? "injured • needs medic" : "on site" : "walking in")}\n" +
             $"POSITION  {(position is null ? "not yet arrived" : $"{position.XMillimetres / 1000m:0.00} m, {position.ZMillimetres / 1000m:0.00} m")}\n" +

@@ -32,7 +32,7 @@ public sealed partial class GameSession
         if (extraTap is null) throw new InvalidOperationException("Queue-choice fixture has no second tap site.");
         Accept(session, new PlaceBuildServiceCommand(BuildServiceKind.WaterTap, extraTap.Value));
         Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
-        Accept(session, new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var id in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1" }) Accept(session, new AcceptPreparationOfferCommand(id));
         Accept(session, new AcceptPreparationOfferCommand("equipment.rent"));
         Accept(session, new StartPreparedEditionCommand());
 

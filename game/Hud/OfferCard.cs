@@ -26,12 +26,14 @@ internal sealed class OfferCard
     private readonly PanelContainer? _avatar;
     private readonly Label? _initial;
     private readonly Panel? _radio;
+    private readonly RatingBars[] _stats = [];
 
     public Control Root { get; }
     /// <summary>What the player presses: the button on cards and rows, the whole card for choices.</summary>
     public Button Action { get; }
 
-    public OfferCard(OfferLayout layout, Color avatarColour, string detailIcon, Action press)
+    /// <param name="stats">Labels for 1-5 ability bars shown under the detail line; set them with <see cref="SetStats"/>.</param>
+    public OfferCard(OfferLayout layout, Color avatarColour, string detailIcon, Action press, string[]? stats = null)
     {
         _layout = layout; _avatarColour = avatarColour;
         _title = Ui.Text("", layout == OfferLayout.Row ? 15 : 15.5f, Ui.Ink, Ui.BodyBold);
@@ -51,12 +53,28 @@ internal sealed class OfferCard
         words.AddThemeConstantOverride("separation", Ui.Px(2));
         words.AddChild(_title);
         var detailLine = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore }; detailLine.AddThemeConstantOverride("separation", Ui.Px(5));
-        if (layout != OfferLayout.Choice)
+        if (layout != OfferLayout.Choice && detailIcon != "")
         {
             _detailIcon = Ui.IconRect(detailIcon, 14, Ui.InkMuted); _detailIcon.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
             detailLine.AddChild(_detailIcon);
         }
         detailLine.AddChild(_detail); words.AddChild(detailLine);
+        if (stats is { Length: > 0 })
+        {
+            var grid = new GridContainer { Columns = 2, MouseFilter = Control.MouseFilterEnum.Ignore };
+            grid.AddThemeConstantOverride("h_separation", Ui.Px(8)); grid.AddThemeConstantOverride("v_separation", Ui.Px(3));
+            _stats = new RatingBars[stats.Length];
+            for (var i = 0; i < stats.Length; i++)
+            {
+                var label = Ui.Caps(stats[i], Ui.InkMuted, 9.5f); label.MouseFilter = Control.MouseFilterEnum.Ignore;
+                label.CustomMinimumSize = new Vector2(Ui.S(66), 0);
+                grid.AddChild(label);
+                _stats[i] = new RatingBars { Ink = Ui.TealDeep, MouseFilter = Control.MouseFilterEnum.Ignore, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+                grid.AddChild(_stats[i]);
+            }
+            words.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)), MouseFilter = Control.MouseFilterEnum.Ignore });
+            words.AddChild(grid);
+        }
 
         if (layout == OfferLayout.Choice)
         {
@@ -148,6 +166,12 @@ internal sealed class OfferCard
             foreach (var name in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color" }) Action.AddThemeColorOverride(name, Ui.TealDeep);
         }
         Action.AddThemeConstantOverride("icon_max_width", Ui.Px(15));
+    }
+
+    /// <summary>Ability ratings from 1 to 5, in the order of the labels given at construction.</summary>
+    public void SetStats(int[] ratings)
+    {
+        for (var i = 0; i < _stats.Length && i < ratings.Length; i++) _stats[i].Score = ratings[i] * 20;
     }
 
     private static StyleBoxFlat RowStyle()

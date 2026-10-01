@@ -23,7 +23,7 @@ public sealed class FestivalAccountsTests
         Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
         Accept(session, new UseDefaultBuildLayoutCommand());
         Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
-        Accept(session, new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
         Accept(session, new AcceptPreparationOfferCommand("equipment.buy"));
         Accept(session, new SetPreparationStockCommand(8, 8, 8));
         Accept(session, new StartPreparedEditionCommand());
@@ -58,7 +58,7 @@ public sealed class FestivalAccountsTests
         Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
         Accept(session, new UseDefaultBuildLayoutCommand());
         Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
-        Accept(session, new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
         Accept(session, new AcceptPreparationOfferCommand("equipment.buy"));
         Accept(session, new SetPreparationStockCommand(8, 8, 8));
         Accept(session, new StartPreparedEditionCommand());

@@ -59,9 +59,12 @@ public sealed partial class GameSession
     public IReadOnlyList<StaffProfile> GetResponseStaff()
     {
         var profiles = new List<StaffProfile>();
-        if (_medical is { } m) profiles.Add(new(m.MedicId, "Riley Hart", ResponseRole.Medic,
-            GetWalkingSpeedPermille(new(m.MedicId)), MedicalTreatmentTicks, 0, 0));
-        if (_disorder is { } d) profiles.Add(new(d.SecurityId, "Jordan Hale", ResponseRole.Steward,
+        // A main slot takes the hired candidate's name and abilities; unhired it keeps the slot's standard ones.
+        if (_medical is { } m) profiles.Add(HiredStaff(StaffRole.Medic)?.Profile(m.MedicId) ?? new(m.MedicId,
+            PersonIn(PersonView.Roster, m.MedicId)?.Name ?? StaffCatalogue.Vacancy(StaffRole.Medic), ResponseRole.Medic,
+            GetWalkingSpeedPermille(new(m.MedicId)), StaffCatalogue.UnhiredMedicTreatmentTicks, 0, 0));
+        if (_disorder is { } d) profiles.Add(HiredStaff(StaffRole.Steward)?.Profile(d.SecurityId) ?? new(d.SecurityId,
+            PersonIn(PersonView.Roster, d.SecurityId)?.Name ?? StaffCatalogue.Vacancy(StaffRole.Steward), ResponseRole.Steward,
             GetWalkingSpeedPermille(new(d.SecurityId)), 0, d.CalmingSkill, d.ConfrontationSkill));
         if (_preparation is { } p) profiles.AddRange(p.StaffProfiles.Where(profile => InView(PersonView.Roster, profile.AgentId)));
         return profiles.Select(EffectiveStaffProfile).OrderBy(profile => profile.AgentId).ToArray();
@@ -76,8 +79,8 @@ public sealed partial class GameSession
             ConfrontationSkill = profile.Role == ResponseRole.Steward ? Math.Min(8000, profile.ConfrontationSkill + 500) : 0
         } : profile;
 
-    public StaffProfile? GetOptionalStaffOfferProfile(ResponseRole role) => _preparation is not { } p || _disorder is null ? null :
-        EffectiveStaffProfile(p.StaffProfiles.SingleOrDefault(item => item.Role == role) ?? CreateOptionalStaff(CampaignSeed, NextEntityId, role));
+    /// <summary>A candidate's abilities as they would work here, perk training included.</summary>
+    public StaffProfile GetCandidateProfile(StaffCandidate candidate) => EffectiveStaffProfile(candidate.Profile(0));
 
     // Route-only estimate: occupancy delays are deliberately not promised as a fixed arrival time.
     public int? EstimateStaffTravelTicks(ulong id)
@@ -97,25 +100,17 @@ public sealed partial class GameSession
         return checked((int)((distance + perTick - 1) / perTick));
     }
 
-    private static StaffProfile CreateOptionalStaff(ulong seed, ulong id, ResponseRole role)
-    {
-        var random = RandomStreamFactory.Create(seed ^ (role == ResponseRole.Medic ? 0x52494C4559UL : 0x4A4F5244414EUL), RandomStreamId.IndividualBehaviour);
-        return new(id, role == ResponseRole.Medic ? "Avery Brooks" : "Sam Ellis", role,
-            GetWalkingSpeedPermille(new(id)), role == ResponseRole.Medic ? 360 + 120 * (int)(random.NextUInt32() % 3) : 0,
-            role == ResponseRole.Steward ? 3500 + (int)(random.NextUInt32() % 4501) : 0,
-            role == ResponseRole.Steward ? 3500 + (int)(random.NextUInt32() % 4501) : 0);
-    }
-
-    private void HireOptionalStaff(ResponseRole role)
+    // The extra slot keeps one person id across retries; whoever is hired into it this attempt takes it over.
+    private void HireOptionalStaff(StaffCandidate candidate)
     {
         var p = _preparation!;
-        var profile = p.StaffProfiles.SingleOrDefault(item => item.Role == role);
-        if (profile is null)
-        {
-            profile = CreateOptionalStaff(CampaignSeed, NextEntityId++, role);
-            _wallets.Add(new(profile.AgentId), new WalletState { OwnerId = new(profile.AgentId), CashPennies = 500 });
-        }
-        PreparationView = p with { StaffProfiles = p.StaffProfiles.Append(profile).Distinct().OrderBy(item => item.AgentId).ToArray(),
+        var role = candidate.Role == StaffRole.Medic ? ResponseRole.Medic : ResponseRole.Steward;
+        var previous = p.StaffProfiles.SingleOrDefault(item => item.Role == role);
+        var id = previous?.AgentId ?? NextEntityId++;
+        if (previous is null)
+            _wallets.Add(new(id), new WalletState { OwnerId = new(id), CashPennies = 500 });
+        var profile = candidate.Profile(id);
+        PreparationView = p with { StaffProfiles = p.StaffProfiles.Where(item => item.Role != role).Append(profile).OrderBy(item => item.AgentId).ToArray(),
             People = PreparationView!.People.Append(new EditionPerson(profile.AgentId, profile.Name, ProtectedPersonRole.Staff, 0)).OrderBy(item => item.AgentId).ToArray() };
         if (role == ResponseRole.Medic)
             _medical = _medical! with { Medics = [_medical.Medics[0], new(profile.AgentId, MedicalResponseStage.None, null, -1, "Available")] };
@@ -196,7 +191,8 @@ public sealed partial class GameSession
         if (s.Medical is { Needs: null }) return "Medical needs required for staff jobs.";
         var medics = s.Medical?.Medics ?? [];
         var stewards = s.Disorder?.Stewards ?? [];
-        bool ActiveProfile(StaffProfile profile) => p.AcceptedOffers.Contains(profile.Role == ResponseRole.Medic ? "staff.extra-medic" : "staff.extra-steward");
+        bool ActiveProfile(StaffProfile profile) => p.AcceptedOffers.Any(id => id.StartsWith(profile.Role == ResponseRole.Medic ? "staff.extra-medic." : "staff.extra-steward.", StringComparison.Ordinal));
+        var candidates = SavedStaffCandidates(s);
         if (s.Medical is { Medics: null or [] } || s.Disorder is { Stewards: null or [] } ||
             medics.Any(item => item is null) || stewards.Any(item => item is null) ||
             !medics.Skip(1).Select(item => item.WorkerId).SequenceEqual(p.StaffProfiles.Where(item => item.Role == ResponseRole.Medic && ActiveProfile(item)).Select(item => item.AgentId)) ||
@@ -230,7 +226,7 @@ public sealed partial class GameSession
             {
                 var nav = s.NavigationAgents?.SingleOrDefault(item => item.Id == id);
                 var role = medics.Any(item => item.WorkerId == id) ? ResponseRole.Medic : ResponseRole.Steward;
-                var speed = Math.Min(1150, GetWalkingSpeedPermille(new(id)) + (RoleTrained(p, s.Perks, role) ? 100 : 0));
+                var speed = Math.Min(1150, SavedResponderSpeed(s, candidates, id) + (RoleTrained(p, s.Perks, role) ? 100 : 0));
                 if (nav is not null && nav.WalkingSpeedPermille != speed) return "Staff movement disagrees with saved role training.";
             }
         }

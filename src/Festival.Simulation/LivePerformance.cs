@@ -206,7 +206,7 @@ public sealed partial class GameSession
                 {
                     var quality = (_equipment?.LoadPercent ?? 80) == 80 ? 75 : 100;
                     var rigBonus = p.OwnedEquipment.Length > 0 ? 5 : 0;
-                    var staffBonus = p.AcceptedOffers.Contains("staff.engineer") ? 3 : 0;
+                    var staffBonus = HiredStaff(StaffRole.Sound)?.MixingBonus ?? 0;
                     var gain = ((listener.Enthusiasm >= 90 ? 15 : listener.Enthusiasm >= 60 ? 10 : 5) + rigBonus + staffBonus) * quality / 100;
                     if (CurrentFestivalAct is { } playing) gain = gain * MusicExpectationPermille(playing.Popularity, ExpectedPopularity) / 1000;
                     rewardedPeople ??= PeopleIn(PersonView.Roster).ToArray();

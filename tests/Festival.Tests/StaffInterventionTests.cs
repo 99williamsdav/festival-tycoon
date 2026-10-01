@@ -25,8 +25,8 @@ public sealed class StaffInterventionTests
     private static GameSession Started(bool extra = true)
     {
         var session = extra ? BuildSession.PlannedWith("doctors-orders", 20260926) : BuildSession.Planned(20260926);
-        if (extra) Accept(session, new AcceptPreparationOfferCommand("staff.extra-medic"));
-        Accept(session, new AcceptPreparationOfferCommand("staff.steward"));
+        if (extra) Accept(session, new AcceptPreparationOfferCommand("staff.extra-medic.2"));
+        foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
         Accept(session, new StartPreparedEditionCommand());
         while (!session.CapturePreparation()!.People.All(person => person.Admitted) && session.CurrentTick < 12000) Step(session, 40);
         Assert.IsTrue(session.CapturePreparation()!.People.All(person => person.Admitted));

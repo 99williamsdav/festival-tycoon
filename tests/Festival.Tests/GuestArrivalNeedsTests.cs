@@ -17,7 +17,7 @@ public sealed class GuestArrivalNeedsTests
         var perk=s.CapturePerks()!;Accept(s,new ChoosePerkCommand(perk.DraftAttempt,perk.Cursor,perk.Hand[0]));
         Accept(s,new UseDefaultBuildLayoutCommand());
         Accept(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.neon-postcards"]));
-        Accept(s,new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
         return s;
     }
     private static GameSession Restore(GameSession s)

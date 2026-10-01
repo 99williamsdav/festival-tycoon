@@ -26,7 +26,7 @@ public sealed class PreparationReadinessTests
         if (owners.Length != 0)
         {
             Assert.AreEqual(CommandReasonCode.InvalidParameter, issue!.ReasonCode);
-            Assert.AreEqual("Book one act and one worker for the fixed protected roster.", issue.Message);
+            Assert.AreEqual("Book three acts and hire the required staff before opening.", issue.Message);
         }
         Assert.AreEqual(hash, session.CaptureSnapshot().AuthoritativeHash);
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
@@ -40,10 +40,10 @@ public sealed class PreparationReadinessTests
     public void TimetableShowsBothOwningTabsThenOnlyUnresolvedTabAndClearsWhenReady()
     {
         var session = BuildSession.Drafted(20260927);
-        session = VerifyReadModel(session, PreparationStartOwner.Programme, PreparationStartOwner.Staff);
+        session = VerifyReadModel(session, PreparationStartOwner.Programme, PreparationStartOwner.Staff, PreparationStartOwner.Staff, PreparationStartOwner.Staff);
         Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
-        session = VerifyReadModel(session, PreparationStartOwner.Staff);
-        Accept(session, new AcceptPreparationOfferCommand("staff.steward"));
+        session = VerifyReadModel(session, PreparationStartOwner.Staff, PreparationStartOwner.Staff, PreparationStartOwner.Staff);
+        foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
         session = VerifyReadModel(session);
         Assert.AreEqual(0, session.CapturePreparation()!.OwnedEquipment.Length);
         Assert.AreEqual(0, session.CapturePreparation()!.Rentals.Length);
@@ -58,7 +58,7 @@ public sealed class PreparationReadinessTests
         var session = BuildSession.Planned(20260927);
         Accept(session, new AcceptPreparationOfferCommand("maintenance.worker"));
         Accept(session, new AcceptPreparationOfferCommand("equipment.buy"));
-        VerifyReadModel(session, PreparationStartOwner.Staff);
+        VerifyReadModel(session, PreparationStartOwner.Staff, PreparationStartOwner.Staff, PreparationStartOwner.Staff);
     }
 
     [TestMethod]
@@ -67,9 +67,9 @@ public sealed class PreparationReadinessTests
         var session = GameSession.CreateBuildCampaign(20260929, FestivalStanding.Established);
         var originalHash = session.CaptureSnapshot().AuthoritativeHash;
         var initial = session.GetPreparationStartRequirements();
-        CollectionAssert.AreEqual(new[] { "water", "toilet", "first-aid", "steward-post", "programme", "staff", "budget" },
+        CollectionAssert.AreEqual(new[] { "water", "toilet", "first-aid", "steward-post", "programme", "staff", "medic", "steward", "budget" },
             initial.Select(item => item.Id).ToArray());
-        Assert.AreEqual(6, initial.Count(item => !item.Complete));
+        Assert.AreEqual(8, initial.Count(item => !item.Complete));
         Assert.IsTrue(initial.Single(item => item.Id == "budget").Complete);
         Assert.AreEqual(originalHash, session.CaptureSnapshot().AuthoritativeHash);
 
@@ -79,13 +79,13 @@ public sealed class PreparationReadinessTests
         foreach (var id in new[] { "water", "toilet", "first-aid", "steward-post" })
             Assert.IsTrue(session.GetPreparationStartRequirements().Single(item => item.Id == id).Complete);
         Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
-        Accept(session, new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
         Assert.IsTrue(session.GetPreparationStartRequirements().All(item => item.Complete));
         Assert.AreEqual(0, session.GetPreparationStartBlockers().Count);
 
         Accept(session, new RemoveBuildServiceCommand("water.main"));
         var removed = session.GetPreparationStartRequirements();
-        Assert.AreEqual(7, removed.Count);
+        Assert.AreEqual(9, removed.Count);
         Assert.IsFalse(removed.Single(item => item.Id == "water").Complete);
         Assert.AreEqual(1, session.GetPreparationStartBlockers().Count);
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());

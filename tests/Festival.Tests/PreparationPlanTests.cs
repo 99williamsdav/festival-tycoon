@@ -22,25 +22,15 @@ public sealed class PreparationPlanTests
     private static void Ready(GameSession s)
     {
         Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
-        Accept(s, new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
         Accept(s, new AcceptPreparationOfferCommand("equipment.buy"));
         Accept(s, new SetPreparationStockCommand(40, 40, 32));
-    }
-    [TestMethod]
-    public void SoundEngineerLabelsDescribeExistingQualityAndPrices()
-    {
-        var offers=New().GetPreparationOffers();
-        var standard=offers.Single(o=>o.Id=="staff.steward");var better=offers.Single(o=>o.Id=="staff.engineer");
-        Assert.AreEqual("Casey: standard sound engineer • +400 quality",standard.Name);
-        Assert.AreEqual("Casey: better sound engineer • +800 quality",better.Name);
-        Assert.AreEqual(2000L,standard.PricePennies);Assert.AreEqual(400,standard.MusicQuality);
-        Assert.AreEqual(4000L,better.PricePennies);Assert.AreEqual(800,better.MusicQuality);
     }
     [TestMethod]
     public void MissingRoleSlotRejectsHireWithoutChangingDraftOrIds()
     {
         var s = New(); var p = s.CapturePreparation()!;
-        var missing = p.ExtraMedicSlotOwned ? "staff.extra-steward" : "staff.extra-medic";
+        var missing = p.ExtraMedicSlotOwned ? "staff.extra-steward.2" : "staff.extra-medic.2";
         var hash = s.CaptureSnapshot().AuthoritativeHash; var next = s.NextEntityId;
         Assert.IsFalse(Send(s, new AcceptPreparationOfferCommand(missing)).IsAccepted);
         Assert.AreEqual(hash, s.CaptureSnapshot().AuthoritativeHash); Assert.AreEqual(next, s.NextEntityId); Restored(s);
@@ -61,7 +51,7 @@ public sealed class PreparationPlanTests
         var snapshot = s.CapturePersistenceSnapshot();
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = snapshot.Preparation! with { Plan = null } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = snapshot.Preparation! with { Plan = snapshot.Preparation.Plan! with { Chips = -1 } } }).IsSuccess);
-        Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = snapshot.Preparation! with { Plan = snapshot.Preparation.Plan! with { OfferIds = ["staff.steward", "staff.engineer"] } } }).IsSuccess);
+        Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = snapshot.Preparation! with { Plan = snapshot.Preparation.Plan! with { OfferIds = ["staff.sound.1", "staff.sound.3"] } } }).IsSuccess);
     }
     [TestMethod]
     public void ActualStartCoordinatorIsFailureSafeAndExactlyOnceAcrossLoad()

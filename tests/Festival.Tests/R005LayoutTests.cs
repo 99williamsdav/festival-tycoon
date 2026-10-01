@@ -23,7 +23,7 @@ public sealed class R005LayoutTests
     private static GameSession PaidStaffFixture()
     {
         var s = BuildSession.PlannedWith("doctors-orders");
-        foreach (var offer in new[] { "staff.extra-medic", "staff.steward" }) Accept(s, new AcceptPreparationOfferCommand(offer));
+        foreach (var offer in new[] { "staff.extra-medic.2", "staff.sound.1", "staff.medic.1", "staff.steward.1" }) Accept(s, new AcceptPreparationOfferCommand(offer));
         return s;
     }
 
@@ -61,7 +61,7 @@ public sealed class R005LayoutTests
     {
         var s = BuildSession.Planned(20260922);
         // Starting the actual campaign creates its production vendor obstacles.
-        Accept(s,new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
         Accept(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.field-frequency"]));
         Accept(s,new StartPreparedEditionCommand());
         var grid = new TraversalGrid(s.CapturePersistenceSnapshot().TraversalGrid!.Cells.Select(c =>

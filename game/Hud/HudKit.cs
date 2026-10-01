@@ -190,7 +190,7 @@ internal sealed record PlanCosts(long Services, long Acts, long Staff, long Equi
         long Sum(Func<PreparationOffer, bool> include) => plan.OfferIds.Select(id => offers[id]).Where(include).Sum(offer => (long)offer.PricePennies);
         return new(session.BuildDraftCost,
             plan.ActIds.Where(id => id != "").Sum(id => (long)offers[id].PricePennies),
-            Sum(offer => offer.Category is "staff" or "maintenance" or "extra-medic" or "extra-steward"),
+            Sum(offer => StaffCatalogue.IsWorkCategory(offer.Category)),
             Sum(offer => offer.Category == "equipment"),
             plan.Chips * 100 + plan.SoftDrinks * 60 + plan.Beers * 100);
     }

@@ -213,13 +213,13 @@ public sealed class BuildLayoutTests
         Assert.IsTrue(restored.IsSuccess, restored.Error);
         Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"])).IsAccepted);
-        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("equipment.rent")).IsAccepted);
         Assert.IsTrue(Send(session, new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
         var started = Send(session, new StartPreparedEditionCommand());
         Assert.IsTrue(started.IsAccepted, started.Message);
         Assert.AreEqual(34_000L, session.CapturePreparation()!.SetupPayments!.Single().BuildCostPennies);
-        Assert.AreEqual(13_400L, session.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+        Assert.AreEqual(10_700L, session.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         var paidHash = session.CaptureSnapshot().AuthoritativeHash;
         Assert.IsFalse(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         Assert.AreEqual(paidHash, session.CaptureSnapshot().AuthoritativeHash);
@@ -248,7 +248,7 @@ public sealed class BuildLayoutTests
         Assert.IsNotNull(candidate, "A separated second toilet should have a valid site.");
         Assert.IsTrue(Send(session, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, candidate.Value)).IsAccepted);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"])).IsAccepted);
-        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("equipment.rent")).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         Assert.IsFalse(session.IsPaused);
@@ -304,12 +304,12 @@ public sealed class BuildLayoutTests
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"])).IsAccepted);
-        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("equipment.rent")).IsAccepted);
         Assert.IsTrue(Send(session, new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
         var firstCost = session.PreparationPlanCost;
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
-        Assert.AreEqual(62_600L, firstCost);
+        Assert.AreEqual(65_300L, firstCost);
         var prep = session.CapturePreparation()!;
         typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             prep with { People = prep.People.Select(person => person with { Admitted = true }).ToArray() });

@@ -12,7 +12,7 @@ public sealed class IncidentAudioCueCursorTests
     private static GameSession Started(bool medical)
     {
         var session = medical ? BuildSession.Planned(20260922) : BuildSession.Planned(2);
-        foreach (var offer in new[] { "staff.steward", "equipment.buy" })
+        foreach (var offer in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1", "equipment.buy" })
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(offer)).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         return session;

@@ -12,7 +12,7 @@ public sealed class PreparationTests
         session.NextSubmissionSequence, null, command));
     private static void Book(GameSession session, string equipment = "equipment.buy")
     {
-        foreach (var id in new[] { "staff.steward", equipment })
+        foreach (var id in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1", equipment })
             Assert.IsTrue(Execute(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
     }
     private static GameSession Restore(GameSession session)
@@ -33,7 +33,7 @@ public sealed class PreparationTests
         {
             p with { People = p.People.Skip(1).ToArray() },
             p with { OwnedEquipment = ["sound-rig"] },
-            p with { Contacts = ["staff.engineer"] },
+            p with { Contacts = ["staff.sound.3"] },
             p with { AcceptedOffers = [null!] },
             p with { Payments = [new(1, "act.folk", 1, 0, -1, LedgerAccountType.AdministrationExpense)] },
             p with { People = p.People.Select((person, index) => index == 0 ? person with { AgentId = 9999 } : person).ToArray() }
@@ -81,7 +81,7 @@ public sealed class PreparationTests
                 Assert.IsTrue(session.PreparationBoundaryOnNextTick);
             }
             Assert.AreEqual(1, session.CapturePreparation()!.Rentals.Length);
-            Assert.AreEqual(1, session.CapturePreparation()!.WorkContracts.Length);
+            Assert.AreEqual(3, session.CapturePreparation()!.WorkContracts.Length);
             Assert.IsTrue(AutosaveRotation.Save(directory, session, Compatibility, DateTimeOffset.UnixEpoch, 0).IsSuccess);
             var before = session.CaptureSnapshot().AuthoritativeHash;
             var captured = session.CapturePersistenceSnapshot();
@@ -100,7 +100,7 @@ public sealed class PreparationTests
             var committed = success.Session;
             Assert.AreEqual(completion ? PreparationStatus.Finished : PreparationStatus.Departing, committed.PreparedStatus);
             Assert.AreEqual(completion ? 0 : 1, committed.CapturePreparation()!.Rentals.Length);
-            Assert.AreEqual(completion ? 0 : 1, committed.CapturePreparation()!.WorkContracts.Length);
+            Assert.AreEqual(completion ? 0 : 3, committed.CapturePreparation()!.WorkContracts.Length);
             Assert.AreEqual(committed.CaptureSnapshot().AuthoritativeHash,
                 AutosaveRotation.LoadNewestValid(directory, Compatibility).Session!.CaptureSnapshot().AuthoritativeHash);
         }

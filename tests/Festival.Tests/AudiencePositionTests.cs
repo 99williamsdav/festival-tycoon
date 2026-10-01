@@ -11,9 +11,8 @@ public sealed class AudiencePositionTests
     private static GameSession Started(int tier = 1)
     {
         var session = BuildSession.Planned(2);
-        foreach (var command in new SessionCommand[] {
-            new AcceptPreparationOfferCommand("staff.steward"), new AcceptPreparationOfferCommand("equipment.buy"),
-            new StartPreparedEditionCommand() })
+        foreach (var command in BuildSession.Crew(session).Concat(new SessionCommand[] {
+            new AcceptPreparationOfferCommand("equipment.buy"), new StartPreparedEditionCommand() }))
         {
             var result = session.Execute(new(new CommandId(session.NextSubmissionSequence + 1), session.CampaignId,
                 session.Phase, session.CurrentTick, session.NextSubmissionSequence, null, command));

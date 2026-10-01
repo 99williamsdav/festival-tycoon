@@ -145,7 +145,7 @@ public sealed partial class GameSession
             return "Perk pending choice, replacement or skip result invalid.";
         if (prep.RespondersUpgraded || prep.WaterTowerOwned != SavedPerkEffect(p,"high-pressure") ||
             prep.ExtraMedicSlotOwned != SavedPerkEffect(p,"doctors-orders") || prep.ExtraStewardSlotOwned != SavedPerkEffect(p,"extra-pair-of-hands") ||
-            prep.AcceptedOffers.Contains("staff.extra-medic") && !SavedPerkEffect(p,"doctors-orders") || prep.AcceptedOffers.Contains("staff.extra-steward") && !SavedPerkEffect(p,"extra-pair-of-hands"))
+            prep.AcceptedOffers.Any(id=>id.StartsWith("staff.extra-medic.",StringComparison.Ordinal)) && !SavedPerkEffect(p,"doctors-orders") || prep.AcceptedOffers.Any(id=>id.StartsWith("staff.extra-steward.",StringComparison.Ordinal)) && !SavedPerkEffect(p,"extra-pair-of-hands"))
             return "Perk effects or perk-owned tap disagree with the equipped set.";
         return null;
     }

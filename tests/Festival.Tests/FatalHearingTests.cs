@@ -72,7 +72,7 @@ public sealed class FatalHearingTests
         if (s.CapturePerks() is { Pending: true } perks)
             BuildSession.Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[0]));
         BuildSession.Accept(s, new SetProgrammeCommand(BuildSession.Acts));
-        BuildSession.Accept(s, new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         s.AdvanceWithoutSnapshot(2_000);
         Assert.AreEqual(PreparationStatus.Running, s.PreparedStatus);

@@ -27,7 +27,7 @@ public sealed class FestivalProgrammeTests
         Assert.IsFalse(GameSession.Restore(saved with { Programme = saved.Programme! with { Performers = [null!] } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(saved with { Programme = saved.Programme! with { Version = 5 } }).IsSuccess);
         Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts)).IsAccepted);
-        Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(s)) Assert.IsTrue(Send(s, hire).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
         saved = s.CapturePersistenceSnapshot();
         Assert.IsFalse(GameSession.Restore(saved with { LivePerformance = saved.LivePerformance! with { PlannedTick = 1201 } }).IsSuccess);
@@ -39,7 +39,7 @@ public sealed class FestivalProgrammeTests
     {
         var s = BuildSession.Drafted(20260926);
         Assert.IsTrue(Send(s, new SetProgrammeCommand(Acts)).IsAccepted);
-        Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(s)) Assert.IsTrue(Send(s, hire).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
         // Bounded incoming-patient and late-clock fixtures; no physical-run evidence comes from these hooks.
         var performer = s.CaptureProgramme()!.Performers.First(person => person.SlotIndex == 1).AgentId;
@@ -88,7 +88,7 @@ public sealed class FestivalProgrammeTests
     {
         var s = BuildSession.Drafted(seed);
         Assert.IsTrue(Send(s, new SetProgrammeCommand(seed == 20260922 ? ["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"] : Acts)).IsAccepted);
-        foreach (var id in new[] { "staff.steward", "equipment.buy" }.Concat(maintenance ? ["maintenance.worker"] : Array.Empty<string>())) Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(id)).IsAccepted);
+        foreach (var id in new[] { "staff.sound.1", "staff.medic.1", "staff.steward.1", "equipment.buy" }.Concat(maintenance ? ["maintenance.worker"] : Array.Empty<string>())) Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
         s = Restore(s);
         var ids = s.CapturePreparation()!.People.Select(p => p.AgentId).ToArray();

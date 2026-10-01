@@ -16,7 +16,7 @@ public sealed class LineupBookingTests
     private static void Ready(GameSession s)
     {
         Accept(s, new SetProgrammeCommand(["act.copper-static", "act.meadow-lanterns", "act.neon-postcards"]));
-        Accept(s, new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
     }
     private static void RestoreExact(GameSession s)
     {

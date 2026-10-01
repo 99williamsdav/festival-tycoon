@@ -32,7 +32,7 @@ public sealed class ToiletTests
     {
         var session = BuildSession.Planned(20260928);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"])).IsAccepted);
-        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         var preparation = session.CapturePreparation()!;
         typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
@@ -45,7 +45,7 @@ public sealed class ToiletTests
         var session = BuildSession.Planned(20260928);
         Assert.IsTrue(Send(session, new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"])).IsAccepted);
-        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         var preparation = session.CapturePreparation()!;
         typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
@@ -71,7 +71,7 @@ public sealed class ToiletTests
         Assert.IsNotNull(second, "A second reachable Build toilet site should exist.");
         Assert.IsTrue(Send(session, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, second.Value, 2)).IsAccepted);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"])).IsAccepted);
-        Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);
+        foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("equipment.rent")).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         var baseline = GameSession.Restore(session.CapturePersistenceSnapshot());

@@ -23,7 +23,7 @@ public sealed class FinanceFeedbackTests
     {
         var s=BuildSession.Drafted(20260926);Assert.IsTrue(Send(s,new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
         Assert.IsTrue(Send(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.neon-postcards"])).IsAccepted);
-        Assert.IsTrue(Send(s,new AcceptPreparationOfferCommand("staff.steward")).IsAccepted);Assert.IsTrue(Send(s,new StartPreparedEditionCommand()).IsAccepted);
+        foreach (var hire in BuildSession.Crew(s)) Assert.IsTrue(Send(s, hire).IsAccepted);Assert.IsTrue(Send(s,new StartPreparedEditionCommand()).IsAccepted);
         var cursor=new FestivalCashFeedbackCursor();cursor.Reset(s);var people=s.CaptureImmersion()!.People.Take(2).ToArray();
         var sale=typeof(GameSession).GetMethod("CompleteImmersionSale",BindingFlags.NonPublic|BindingFlags.Instance)!;
         sale.Invoke(s,[people[0].AgentId,ImmersionProduct.Chips]);sale.Invoke(s,[people[1].AgentId,ImmersionProduct.SoftDrink]);

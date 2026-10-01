@@ -54,11 +54,18 @@ internal static class BuildSession
         return Planned(seed, index);
     }
 
+    /// <summary>The standard candidate for every role this campaign offers: sound, medic and steward.</summary>
+    public static string[] CrewIds(GameSession s) => s.GetPreparationOffers()
+        .Where(offer => offer.Id is "staff.sound.1" or "staff.medic.1" or "staff.steward.1").Select(offer => offer.Id).ToArray();
+
+    /// <summary>Hire commands for <see cref="CrewIds"/>.</summary>
+    public static AcceptPreparationOfferCommand[] Crew(GameSession s) => CrewIds(s).Select(id => new AcceptPreparationOfferCommand(id)).ToArray();
+
     /// <summary>A Build campaign in preparation with a legal default plan, ready to start.</summary>
     public static GameSession Ready(ulong seed = 20260922, int perk = 0, params string[] offers)
     {
         var s = Planned(seed, perk);
-        Accept(s, new AcceptPreparationOfferCommand("staff.steward"));
+        foreach (var hire in Crew(s)) Accept(s, hire);
         foreach (var offer in offers) Accept(s, new AcceptPreparationOfferCommand(offer));
         return s;
     }

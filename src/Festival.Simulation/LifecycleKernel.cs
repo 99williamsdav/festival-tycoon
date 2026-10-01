@@ -200,7 +200,7 @@ public sealed partial class GameSession
             ((EditionAttemptStatus)lifecycle.Attempts[^1].Status == EditionAttemptStatus.Failed) !=
                 (preparation.Status == PreparationStatus.Failed))
             return "Real hearing identity, retry attempt and tier must match preparation.";
-        if (lifecycle.ProtectedPeople.Length is < 22 or > 50 ||
+        if (lifecycle.ProtectedPeople.Length is < 22 or > 100 ||
             !lifecycle.ProtectedPeople.Select(item => item.PersonId).SequenceEqual(lifecycle.ProtectedPeople.Select(item => item.PersonId).Order(StringComparer.Ordinal)) ||
             lifecycle.ProtectedPeople.Select(item => item.PersonId).Distinct(StringComparer.Ordinal).Count() != lifecycle.ProtectedPeople.Length ||
             lifecycle.ProtectedPeople.Any(item => string.IsNullOrWhiteSpace(item.PersonId) || !Enum.IsDefined(typeof(ProtectedPersonRole), item.Role)) ||
