@@ -51,7 +51,7 @@ public partial class Main
         var width = size.X; var height = size.Y;
         Top.Build(layer, width);
 
-        var workspaceWidth = width >= 1600 ? 690 : 650;
+        var workspaceWidth = Ui.S(690);
         _hudWorkspace = HudPanel(layer, new Vector2(Ui.Gutter, Ui.ContentTop), new Vector2(workspaceWidth, Math.Min(Ui.S(522), height - Ui.ContentTop - Ui.Dock - Ui.S(12))));
         _hudWorkspace.MinimumSizeChanged += () => Booking.ScheduleLayout();
         _hudWorkspace.AddThemeStyleboxOverride("panel", Ui.Sheet(24, 22));
@@ -74,7 +74,9 @@ public partial class Main
             if (name == "Programme")
                 scroll.VerticalScrollMode = ScrollContainer.ScrollMode.Disabled;
             _hudTabs.AddChild(scroll);
-            var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; box.AddThemeConstantOverride("separation", 12); scroll.AddChild(box); _hudPages.Add(name, box);
+            var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; box.AddThemeConstantOverride("separation", 12);
+            var gutter = new MarginContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; gutter.AddThemeConstantOverride("margin_right", Ui.Px(12));
+            gutter.AddChild(box); scroll.AddChild(gutter); Ui.SlimScrollbar(scroll); _hudPages.Add(name, box);
         }
         _hudTabs.TabChanged += _ => { RefreshHudWorkspace(); Booking.ScheduleLayout(); };
         // A per-tab red border and underline leave the native selected/hover text legible.
@@ -99,16 +101,9 @@ public partial class Main
             var destination = name; var shortcut = ButtonText(label, () => SelectHudTab(destination)); shortcut.CustomMinimumSize = new Vector2(0, 32); overview.AddChild(shortcut);
         }
         Booking.Build(_hudPages["Programme"]);
-        _hudPages["Staff"].AddChild(HudLabel("Festival staff", 21));
-        _hudPages["Staff"].AddChild(HudLabel("Hire at least one sound engineer or unlocked role before opening. Maintenance is optional; extra role hires require their unlocked slot. Pay at Start."));
+        BuildStaffPage(_hudPages["Staff"]);
+        BuildSuppliesPage(_hudPages["Supplies"]);
         _preparationOfferBox = _hudPages["Staff"]; _preparationOfferInsertIndex = _preparationOfferBox.GetChildCount(); RebuildPreparationOffers();
-        _hudPages["Supplies"].AddChild(HudLabel("Food & drink starter stock", 21));
-        _hudPages["Supplies"].AddChild(HudLabel(_session.CapturePreparationPlan() is null ? "Optional fixed bundle • once before opening\n\nPRODUCT              QUANTITY              SALE PRICE\nChips                         40                              £3\nSoft drink                  40                              £2\nBeer                           32                              £3" : "Optional unpaid quantities • change before Start\nSale prices: chips £3 · soft drinks £2 · beer £3"));
-        BuildImmersionControls(_hudPages["Supplies"]);
-        _hudPages["Supplies"].AddThemeConstantOverride("separation", 8);
-        _immersionControls!.GetChild<Control>(0).Visible = false;
-        _hudPages["Supplies"].AddChild(HudLabel("Optional sound rig", 21));
-        _hudPages["Supplies"].AddChild(HudLabel("Buy £120 (+1000 quality, retained) or rent £30 (+500, this festival).\nGenerator: safe 80% baseline."));
         var site = _hudPages["Site & water"];
         site.AddChild(HudLabel("Site & water", 21)); site.AddChild(HudLabel("Manage water choices here. Place taps and other services through Build; select a placed object on the field to move it."));
         site.AddChild(HudLabel("Council water choice • this festival\nShare free water with the neighbouring community. Faster drinkers take longer; queues may grow. Honour the full festival for 1 Council Favour, once per campaign."));
@@ -275,13 +270,10 @@ public partial class Main
             $"Programme: {(_session.CaptureProgramme() is { ActIds.Length: 3 } ? "three acts booked" : p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) ? "act booked" : "choose before opening")}\n" +
             $"Sound: {(p.AcceptedOffers.Contains("staff.steward") ? "Casey · standard sound engineer hired · £20" : p.AcceptedOffers.Contains("staff.engineer") ? "Casey · better sound engineer hired · £40" : "hire a sound engineer before opening")}\n" +
             $"Owned rig {p.OwnedEquipment.Length} · rental {p.Rentals.Length} · equipment & stock optional";
-        if (preparing && _session.CaptureImmersion() is { } stock)
-            _immersionSummary!.Text = $"Current stock: chips {stock.ChipsStock} · soft {stock.SoftStock} · beer {stock.BeerStock}\nFree water remains available. Staff do not buy beer.";
         if (preparing && p.Plan is { } plan)
         {
             _preparationSummary.Text = $"Available {FestivalCurrency.Format(finance.CashPennies)}\nSetup cost {FestivalCurrency.Format(_session.PreparationPlanCost)} · remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}\n" +
                 $"Unpaid lineup: {plan.ActIds.Count(id => id != "")}/3 acts\nPlanned hires: {string.Join(", ", plan.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nOwned rig {p.OwnedEquipment.Length} · selected rig {(plan.OfferIds.SingleOrDefault(id => id.StartsWith("equipment.")) ?? "none")}\nFreely revise purchases. Existing site and perk property stays committed.";
-            _immersionSummary!.Text = $"Planned chips {plan.Chips} · soft {plan.SoftDrinks} · beer {plan.Beers}\nUnpaid; pay at Start. Free water remains available.";
         }
         if (_medicalActionInspector is not null)
         {

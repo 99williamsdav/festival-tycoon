@@ -100,6 +100,29 @@ internal static class Ui
     public static StyleBoxFlat Sheet(float padX = 20, float padY = 18) =>
         Box(Paper, 6, new Color(0, 0, 0, 0.28f), 1, padX, padY, shadow: 14, shadowAlpha: 0.38f);
 
+    /// <summary>A sheet's title with its one-line explanation.</summary>
+    public static VBoxContainer PageHeading(string title, string lead)
+    {
+        var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Px(6));
+        box.AddChild(Heading(title, 27));
+        var words = Text(lead, 13.5f, InkMuted); words.AutowrapMode = TextServer.AutowrapMode.WordSmart; box.AddChild(words);
+        return box;
+    }
+
+    /// <summary>A small-capitals section caption, optionally with an outlined tag such as "Required · choose one".</summary>
+    public static HBoxContainer Section(string caption, string? tag = null)
+    {
+        var line = new HBoxContainer(); line.AddThemeConstantOverride("separation", Px(8));
+        var words = Caps(caption, InkMuted); words.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; line.AddChild(words);
+        if (tag is not null)
+        {
+            var label = Caps(tag, Teal, 9.5f);
+            label.AddThemeStyleboxOverride("normal", Box(new Color(0, 0, 0, 0), 4, Teal, 1, 5, 1));
+            line.AddChild(label);
+        }
+        return line;
+    }
+
     /// <summary>A thin paper-coloured vertical scrollbar.</summary>
     public static void SlimScrollbar(ScrollContainer scroll)
     {

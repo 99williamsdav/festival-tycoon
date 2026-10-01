@@ -16,6 +16,12 @@ public partial class Main
     private ScrollContainer? _preparationRosterScroll;
     private PanelContainer? _contextPanel;
     private readonly Dictionary<string, Button> _offerButtons = [];
+    private readonly Dictionary<string, OfferCard> _offerCards = [];
+    private GridContainer? _soundEngineers;
+    private VBoxContainer? _crewList;
+    private GridContainer? _rigChoices;
+    private ProgressBar? _generatorBar;
+    private Label? _generatorText;
     private VBoxContainer? _preparationOfferBox;
     private int _preparationOfferInsertIndex;
     private Button _preparationStart = null!;
@@ -146,22 +152,22 @@ public partial class Main
             _preparationSummary.Text += $"\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nPlanned hires: {string.Join(", ", planned.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}";
         Booking.Refresh();
         RefreshImmersionControls();
-        foreach (var (id, button) in _offerButtons)
+        var offersById = _session.GetPreparationOffers().ToDictionary(offer => offer.Id);
+        foreach (var (id, card) in _offerCards)
         {
-            button.Disabled = _session.ValidateCommand(CampaignEnvelope(new AcceptPreparationOfferCommand(id))) is not null;
-            button.Visible = p.Status == PreparationStatus.Preparing;
-            if (p.Plan is { } plan)
-            {
-                var offer = _session.GetPreparationOffers().Single(o => o.Id == id);
-                button.Text = $"{(plan.OfferIds.Contains(id) ? "REMOVE" : offer.Category == "staff" || offer.Category == "maintenance" ? "HIRE" : "PLAN")} • {FestivalCopy(offer.Name)} • {FestivalCurrency.Format(offer.PricePennies)}";
-                button.TooltipText = plan.OfferIds.Contains(id) ? "Remove this unpaid purchase from the setup plan." : "Add or replace this choice in the unpaid setup plan. Payment is due at Start.";
-            }
-            if (id is "staff.extra-medic" or "staff.extra-steward" && _session.GetOptionalStaffOfferProfile(id == "staff.extra-medic" ? ResponseRole.Medic : ResponseRole.Steward) is { } profile)
-            {
-                var selected = p.Plan?.OfferIds.Contains(id) == true;
-                button.Text = FestivalCopy($"{(p.Plan is null ? "HIRE" : selected ? "REMOVE" : "HIRE")} {profile.Name.Split(' ')[0].ToUpperInvariant()} • {profile.Role.ToString().ToUpperInvariant()} • £30/WEEKEND");
-                button.TooltipText = FestivalCopy($"{profile.Name}\n{StaffAbilityText(profile)}\n£30 prototype tuning. {(p.Plan is null ? "Paid weekend-only contract" : "Unpaid plan until Start; freely remove")}; expires on any outcome. Requires its role-specific slot.");
-            }
+            var issue = _session.ValidateCommand(CampaignEnvelope(new AcceptPreparationOfferCommand(id)))?.Message;
+            var chosen = p.Plan?.OfferIds.Contains(id) ?? p.AcceptedOffers.Contains(id);
+            var state = chosen ? OfferState.Chosen : issue is not null ? OfferState.Locked : OfferState.Available;
+            var copy = OfferCopy(offersById[id], p, chosen, issue);
+            card.Show(copy.Initial, copy.Title, copy.Detail, offersById[id].PricePennies, state, copy.Choose, copy.Chosen, copy.Tooltip);
+            card.Action.Disabled = issue is not null;
+            card.Root.Visible = p.Status == PreparationStatus.Preparing;
+        }
+        if (_generatorBar is not null)
+        {
+            var load = _session.CaptureEquipment()?.LoadPercent ?? 80;
+            _generatorBar.Value = load;
+            _generatorText!.Text = $"{load}% baseline · {(load <= 80 ? "safe" : "under strain")}";
         }
         _preparationStart.Disabled = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand())) is not null;
         if (_communityShareButton is not null)
@@ -192,27 +198,70 @@ public partial class Main
         RefreshFestivalPaper();
     }
 
-    private void RebuildPreparationOffers()
+private void RebuildPreparationOffers()
     {
         if (_preparationOfferBox is not { } box) return;
-        foreach (var button in _offerButtons.Values) { button.GetParent().RemoveChild(button); button.QueueFree(); }
-        _offerButtons.Clear();
+        foreach (var card in _offerCards.Values) { card.Root.GetParent()?.RemoveChild(card.Root); card.Root.QueueFree(); }
+        _offerCards.Clear(); _offerButtons.Clear();
         if (_session.CaptureProgramme() is not null && !Booking.IsBuilt)
         {
             Booking.Build(_hudPages.GetValueOrDefault("Programme") ?? box);
             if (_hudTabs is null) box.MoveChild(Booking.Root!, _preparationOfferInsertIndex++);
         }
         var index = _preparationOfferInsertIndex;
-        foreach (var offer in _session.GetPreparationOffers().OrderBy(item => item.Category == "maintenance" ? 0 : 1))
+        static int Order(PreparationOffer offer) => offer.Id switch
+        { "maintenance.worker" => 0, "staff.extra-steward" => 1, "staff.extra-medic" => 2, "equipment.rent" => 0, "equipment.buy" => 1, _ => 3 };
+        foreach (var offer in _session.GetPreparationOffers().OrderBy(Order))
         {
             if (_session.CaptureImmersion() is not null && offer.Id == "contract.stock") continue;
             if (_session.CaptureProgramme() is not null && offer.Category == "act") continue;
             var id = offer.Id;
-            var button = ButtonText($"{FestivalCopy(offer.Name)}  £{offer.PricePennies / 100m:0}", () => PreparationAccept(id));
-            button.AddThemeFontSizeOverride("font_size", 14); button.ClipText = true; button.TooltipText = FestivalCopy(offer.Name);
-            var destination = _hudTabs is null ? box : _hudPages[offer.Category switch { "equipment" => "Supplies", "contract" => "Supplies", "act" => "Programme", _ => "Staff" }];
-            _offerButtons.Add(id, button); destination.AddChild(button);
-            if (_hudTabs is null) box.MoveChild(button, index++);
+            var (layout, colour, icon, destination) = offer.Category switch
+            {
+                "staff" => (OfferLayout.Card, new Color("3e5a8c"), "volume-2", (Container?)_soundEngineers),
+                "maintenance" => (OfferLayout.Row, new Color("8a6a2e"), "wrench", _crewList),
+                "extra-steward" => (OfferLayout.Row, Ui.Teal, "star", _crewList),
+                "extra-medic" => (OfferLayout.Row, new Color("2f8a5f"), "star", _crewList),
+                "equipment" => (OfferLayout.Choice, Ui.Teal, "volume-2", _rigChoices),
+                _ => (OfferLayout.Row, Ui.InkMuted, "package", (Container?)null),
+            };
+            var card = new OfferCard(layout, colour, icon, () => PreparationAccept(id));
+            _offerCards.Add(id, card); _offerButtons.Add(id, card.Action);
+            if (_hudTabs is null) { box.AddChild(card.Root); box.MoveChild(card.Root, index++); }
+            else (destination ?? _hudPages[offer.Category == "contract" ? "Supplies" : "Staff"]).AddChild(card.Root);
+        }
+    }
+
+    /// <summary>The name, detail and button wording an offer card shows.</summary>
+    private (string Initial, string Title, string Detail, string Choose, string Chosen, string Tooltip) OfferCopy(PreparationOffer offer, PreparationSnapshot p, bool chosen, string? issue)
+    {
+        var parts = FestivalCopy(offer.Name).Split(" • ");
+        var head = parts[0]; var tail = parts.Length > 1 ? parts[1] : "";
+        var who = head.Contains(": ") ? head[..head.IndexOf(": ", StringComparison.Ordinal)] : head;
+        var what = head.Contains(": ") ? head[(head.IndexOf(": ", StringComparison.Ordinal) + 2)..] : "";
+        var tooltip = chosen ? "Remove this unpaid purchase from the setup plan." : issue ?? "Add or replace this choice in the unpaid setup plan. Payment is due at Start.";
+        switch (offer.Category)
+        {
+            case "staff":
+                return (who[..1], $"{who} · {what.Replace(" sound engineer", "", StringComparison.Ordinal)}", tail.Replace("quality", "sound quality", StringComparison.Ordinal), "Choose", "Hired", tooltip);
+            case "maintenance":
+                return (who[..1], $"{who} · {what}", "Fixes physical breakdowns", "Hire", "Hired", tooltip);
+            case "extra-medic" or "extra-steward":
+                var role = offer.Category == "extra-medic" ? ResponseRole.Medic : ResponseRole.Steward;
+                var perk = PerkCatalogue.All.Single(item => item.Id == (role == ResponseRole.Medic ? "doctors-orders" : "extra-pair-of-hands")).Name;
+                var slot = role == ResponseRole.Medic ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned;
+                var roleName = role == ResponseRole.Medic ? "medic" : "steward";
+                var profile = _session.GetOptionalStaffOfferProfile(role);
+                var first = (profile?.Name ?? who).Split(' ')[0];
+                var detail = slot ? $"Slot from your perk: {perk}" : $"Needs a {roleName} slot — unlocked by the perk {perk}";
+                if (profile is not null)
+                    tooltip = FestivalCopy($"{profile.Name}\n{StaffAbilityText(profile)}\n£30 prototype tuning. {(p.Plan is null ? "Paid weekend-only contract" : "Unpaid plan until Start; freely remove")}; expires on any outcome. Requires its role-specific slot.");
+                return (first[..1], $"{first} · {roleName}", detail, "Hire", "Hired", tooltip);
+            case "equipment":
+                var rent = offer.Id == "equipment.rent";
+                return ("", rent ? "Rent · this festival" : "Buy · yours to keep", tail.Split(';')[0].Replace("quality", "sound quality", StringComparison.Ordinal), "", "Selected", tooltip);
+            default:
+                return (who[..1], head, tail, "Plan", "Planned", tooltip);
         }
     }
 

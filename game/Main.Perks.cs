@@ -39,7 +39,7 @@ public partial class Main
         var bookingPage = Booking.IsBuilt && HudProgrammeSelected();
         if (bookingPage && !constrained) height = Math.Min(Ui.S(530), size.Y - Ui.ContentTop - (_session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock + Ui.S(12) : 60));
         _hudWorkspace.Position = new Vector2(Ui.Gutter, Ui.ContentTop);
-        _hudWorkspace.Size = new Vector2(bookingPage && !constrained ? size.X - 2 * Ui.Gutter : size.X >= 1600 ? 690 : 650, height);
+        _hudWorkspace.Size = new Vector2(bookingPage && !constrained ? size.X - 2 * Ui.Gutter : Ui.S(690), height);
         LayoutOwnedContext(constrained);
         if (!_ownedWorkspaceConstrained && constrained && _hudTabs is not null)
         {

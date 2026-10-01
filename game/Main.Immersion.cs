@@ -12,8 +12,6 @@ public partial class Main
     private VBoxContainer? _immersionControls;
     private Label? _immersionSummary;
     private Button? _immersionStockButton;
-    private readonly SpinBox[] _plannedStockAmounts = new SpinBox[3];
-    private bool _refreshingPlannedStock;
     private Button? _immersionMoveButton;
     private readonly Dictionary<string, StaticBody3D> _immersionVendors = [];
     private readonly Dictionary<ulong, string> _immersionVendorPicks = [];
@@ -132,30 +130,147 @@ public partial class Main
     private static string ImmersionProductName(ImmersionProduct product) => product switch
     { ImmersionProduct.Chips => "Chips", ImmersionProduct.SoftDrink => "Soft drink", _ => "Beer" };
 
-    private void BuildImmersionControls(VBoxContainer parent)
+private void BuildImmersionControls(VBoxContainer parent)
     {
-        _immersionControls = new VBoxContainer(); parent.AddChild(_immersionControls);
-        _immersionControls.AddChild(LabelText("FOOD & DRINK • ADULT FESTIVAL", 14, new Color("29352c")));
-        _immersionSummary = LabelText("", 13, new Color("29352c"));
-        _immersionSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        _immersionControls.AddChild(_immersionSummary);
-        _immersionStockButton = ButtonText("BUY STARTER STOCK • £96", () => CommitEquipmentAction(new SetPreparationStockCommand(40, 40, 32)));
+        _immersionControls = new VBoxContainer(); _immersionControls.AddThemeConstantOverride("separation", 0); parent.AddChild(_immersionControls);
+        var heading = new HBoxContainer(); _immersionControls.AddChild(heading);
+        var caption = Ui.Caps("Food & drink stock", Ui.InkMuted); caption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        caption.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; heading.AddChild(caption);
+        _immersionStockButton = Ui.Style(new Button { Text = "Starter bundle · 40 / 40 / 32", CustomMinimumSize = new Vector2(0, Ui.S(28)),
+            MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Secondary, 12.5f);
+        _immersionStockButton.Pressed += () => CommitEquipmentAction(new SetPreparationStockCommand(40, 40, 32));
         _immersionStockButton.TooltipText = "40 chips (£1 each), 40 soft drinks (60p each), 32 beers (£1 each). Paid from festival funds once before opening; no in-day refill.";
-        _immersionControls.AddChild(_immersionStockButton);
-        if (_session.CapturePreparationPlan() is not null)
+        heading.AddChild(_immersionStockButton);
+        _immersionSummary = Ui.Text("", 13, Ui.InkMuted); _immersionSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        _immersionControls.AddChild(_immersionSummary);
+        if (_session.CapturePreparationPlan() is null) { RefreshImmersionControls(); return; }
+        _immersionSummary.Visible = false;
+        _stockClear = Ui.Style(new Button { Text = "None", CustomMinimumSize = new Vector2(0, Ui.S(28)), TooltipText = "Remove all planned stock.",
+            MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Quiet, 12.5f);
+        _stockClear.Pressed += () => CommitEquipmentAction(new SetPreparationStockCommand(0, 0, 0));
+        heading.AddChild(_stockClear);
+        _immersionControls.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(6)) });
+        var header = StockLine(Ui.Caps("Item", Ui.InkMuted), Ui.Caps("Cost → sells", Ui.InkMuted), Ui.Caps("Quantity", Ui.InkMuted), Ui.Caps("Cost", Ui.InkMuted), true);
+        _immersionControls.AddChild(header);
+        var items = new[] { ("Chips", "utensils", new Color("b85c28"), 100, 300), ("Soft drink", "cup-soda", new Color("b84a3a"), 60, 200), ("Beer", "beer", new Color("a87a1f"), 100, 300) };
+        for (var index = 0; index < 3; index++)
         {
-            var names = new[] { "Chips • £1/unit", "Soft drinks • £0.60/unit", "Beer • £1/unit" };
-            for (var index = 0; index < 3; index++)
+            var (name, icon, tile, cost, sale) = items[index];
+            var label = new HBoxContainer(); label.AddThemeConstantOverride("separation", Ui.Px(10));
+            var badge = new PanelContainer { CustomMinimumSize = Ui.S(32, 32) }; badge.AddThemeStyleboxOverride("panel", Ui.Box(tile, 6));
+            var glyph = Ui.IconRect(icon, 18, Colors.White); glyph.SizeFlagsHorizontal = glyph.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; badge.AddChild(glyph);
+            label.AddChild(badge);
+            var title = Ui.Text(name, 15, Ui.Ink, Ui.BodyBold); title.VerticalAlignment = VerticalAlignment.Center; label.AddChild(title);
+            var prices = Ui.Text($"{FestivalCurrency.Format(cost)} → {FestivalCurrency.Format(sale)}", 14, Ui.Ink);
+            var slot = index;
+            var stepper = new HBoxContainer(); stepper.AddThemeConstantOverride("separation", 0);
+            Button Step(string glyphName, int delta)
             {
-                var row = new HBoxContainer(); _immersionControls.AddChild(row);
-                row.AddChild(LabelText(names[index], 13, new Color("29352c")));
-                var amount = new SpinBox { MinValue = 0, MaxValue = 10000, Step = 1, CustomMinimumSize = new Vector2(110, 32) };
-                _plannedStockAmounts[index] = amount; row.AddChild(amount);
-                amount.ValueChanged += _ => { if (!_refreshingPlannedStock) CommitEquipmentAction(new SetPreparationStockCommand((int)_plannedStockAmounts[0].Value, (int)_plannedStockAmounts[1].Value, (int)_plannedStockAmounts[2].Value)); };
+                var step = new Button { Icon = Ui.Icon(glyphName), ExpandIcon = true, IconAlignment = HorizontalAlignment.Center, CustomMinimumSize = Ui.S(34, 34),
+                    TooltipText = delta > 0 ? $"Plan 4 more {name.ToLowerInvariant()}" : $"Plan 4 fewer {name.ToLowerInvariant()}", MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+                Ui.Style(step, Ui.ButtonKind.Secondary);
+                var face = Ui.Box(Ui.GoldWash, 6, Ui.PaperEdge, 1);
+                foreach (var state in new[] { "normal", "pressed", "focus" }) step.AddThemeStyleboxOverride(state, face);
+                foreach (var state in new[] { "icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color" }) step.AddThemeColorOverride(state, Ui.Ink);
+                step.Pressed += () => CommitPlannedStock(slot, PlannedStock(slot) + delta);
+                return step;
             }
-            _immersionControls.AddChild(ButtonText("REMOVE PLANNED STOCK", () => CommitEquipmentAction(new SetPreparationStockCommand(0, 0, 0))));
+            stepper.AddChild(Step("minus", -4));
+            var amount = new LineEdit { CustomMinimumSize = Ui.S(52, 34), Alignment = HorizontalAlignment.Center, TooltipText = $"Planned {name.ToLowerInvariant()}" };
+            amount.AddThemeFontOverride("font", Ui.SlabBold); amount.AddThemeFontSizeOverride("font_size", Ui.Px(17));
+            amount.AddThemeColorOverride("font_color", Ui.Ink);
+            var field = Ui.Box(Colors.White, 0, Ui.PaperEdge, 1); field.BorderWidthLeft = field.BorderWidthRight = 0;
+            amount.AddThemeStyleboxOverride("normal", field); amount.AddThemeStyleboxOverride("focus", field);
+            amount.TextSubmitted += text => CommitPlannedStock(slot, int.TryParse(text, out var value) ? value : PlannedStock(slot));
+            amount.FocusExited += () => CommitPlannedStock(slot, int.TryParse(amount.Text, out var value) ? value : PlannedStock(slot));
+            stepper.AddChild(amount);
+            stepper.AddChild(Step("plus", 4));
+            var total = Ui.Heading("", 17); total.HorizontalAlignment = HorizontalAlignment.Right;
+            _stockRows[index] = (amount, total);
+            _immersionControls.AddChild(StockLine(label, prices, stepper, total, false));
         }
+        var footer = new HBoxContainer(); footer.AddThemeConstantOverride("separation", Ui.Px(8));
+        var footerMargin = new MarginContainer(); footerMargin.AddThemeConstantOverride("margin_top", Ui.Px(8)); footerMargin.AddThemeConstantOverride("margin_left", Ui.Px(4));
+        footerMargin.AddThemeConstantOverride("margin_right", Ui.Px(4)); footerMargin.AddChild(footer); _immersionControls.AddChild(footerMargin);
+        _stockPotential = Ui.Text("", 13.5f, Ui.InkMuted); _stockPotential.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; footer.AddChild(_stockPotential);
+        var stockCaption = Ui.Caps("Stock", Ui.InkMuted); stockCaption.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; footer.AddChild(stockCaption);
+        _stockTotal = Ui.Heading("", 20); footer.AddChild(_stockTotal);
         RefreshImmersionControls();
+    }
+
+    private readonly (LineEdit Amount, Label Total)[] _stockRows = new (LineEdit, Label)[3];
+    private Button? _stockClear;
+    private Label? _stockPotential;
+    private Label? _stockTotal;
+
+    private static PanelContainer StockLine(Control item, Control prices, Control quantity, Control cost, bool header)
+    {
+        var line = new PanelContainer { CustomMinimumSize = new Vector2(0, header ? 0 : Ui.S(52)) };
+        var rule = Ui.Box(new Color(0, 0, 0, 0), 0, padX: 4, padY: header ? 0 : 0);
+        rule.BorderColor = header ? Ui.Ink : Ui.PaperRule; rule.BorderWidthBottom = header ? Ui.Px(1.5f) : 1;
+        if (header) rule.ContentMarginBottom = Ui.S(6);
+        line.AddThemeStyleboxOverride("panel", rule);
+        var row = new HBoxContainer(); row.AddThemeConstantOverride("separation", Ui.Px(14)); line.AddChild(row);
+        item.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
+        prices.CustomMinimumSize = new Vector2(Ui.S(120), 0);
+        quantity.CustomMinimumSize = new Vector2(Ui.S(150), 0);
+        if (quantity is HBoxContainer stepper) stepper.Alignment = BoxContainer.AlignmentMode.Center;
+        if (quantity is Label quantityLabel) quantityLabel.HorizontalAlignment = HorizontalAlignment.Center;
+        cost.CustomMinimumSize = new Vector2(Ui.S(60), 0);
+        if (cost is Label costLabel) costLabel.HorizontalAlignment = HorizontalAlignment.Right;
+        foreach (var control in new[] { item, prices, quantity, cost })
+        {
+            control.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            if (control is Label label) label.VerticalAlignment = VerticalAlignment.Center;
+            row.AddChild(control);
+        }
+        return line;
+    }
+
+    private int PlannedStock(int slot) => _session.CapturePreparationPlan() is { } plan ? slot switch { 0 => plan.Chips, 1 => plan.SoftDrinks, _ => plan.Beers } : 0;
+
+    private void CommitPlannedStock(int slot, int value)
+    {
+        if (_session.CapturePreparationPlan() is not { } plan || _session.PreparedStatus != PreparationStatus.Preparing) return;
+        var amounts = new[] { plan.Chips, plan.SoftDrinks, plan.Beers };
+        value = Math.Clamp(value, 0, 10000);
+        if (amounts[slot] == value) { RefreshImmersionControls(); return; }
+        amounts[slot] = value;
+        CommitEquipmentAction(new SetPreparationStockCommand(amounts[0], amounts[1], amounts[2]));
+    }
+
+    private void BuildStaffPage(VBoxContainer page)
+    {
+        page.AddChild(Ui.PageHeading("Festival staff", "A sound engineer is required. Everyone is paid at Start."));
+        page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
+        page.AddChild(Ui.Section("Sound engineer", "Required · choose one"));
+        _soundEngineers = new GridContainer { Columns = 2 };
+        _soundEngineers.AddThemeConstantOverride("h_separation", Ui.Px(12)); _soundEngineers.AddThemeConstantOverride("v_separation", Ui.Px(12));
+        page.AddChild(_soundEngineers);
+        page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
+        page.AddChild(Ui.Section("Site crew & safety · optional"));
+        _crewList = new VBoxContainer(); _crewList.AddThemeConstantOverride("separation", 0); page.AddChild(_crewList);
+    }
+
+    private void BuildSuppliesPage(VBoxContainer page)
+    {
+        page.AddChild(Ui.PageHeading("Supplies", "Optional. Stock sells from the food van and bar; free water is always available."));
+        page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(2)) });
+        BuildImmersionControls(page);
+        page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
+        page.AddChild(Ui.Section("Sound rig"));
+        _rigChoices = new GridContainer { Columns = 2 };
+        _rigChoices.AddThemeConstantOverride("h_separation", Ui.Px(12)); page.AddChild(_rigChoices);
+        var generator = new HBoxContainer(); generator.AddThemeConstantOverride("separation", Ui.Px(12)); page.AddChild(generator);
+        var name = new HBoxContainer(); name.AddThemeConstantOverride("separation", Ui.Px(6)); generator.AddChild(name);
+        var bolt = Ui.IconRect("zap", 16, Ui.Ink); bolt.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; name.AddChild(bolt);
+        name.AddChild(Ui.Text("Generator", 13.5f, Ui.Ink, Ui.BodyBold));
+        _generatorBar = new ProgressBar { ShowPercentage = false, MaxValue = 100, Value = 80, CustomMinimumSize = new Vector2(0, Ui.S(8)),
+            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+        _generatorBar.AddThemeStyleboxOverride("background", Ui.Box(Ui.PaperRule, 4));
+        _generatorBar.AddThemeStyleboxOverride("fill", Ui.Box(Ui.Teal, 4));
+        generator.AddChild(_generatorBar);
+        _generatorText = Ui.Text("80% baseline · safe", 13.5f, Ui.InkMuted); generator.AddChild(_generatorText);
     }
 
     private void BuildImmersionVendorInspector(VBoxContainer parent)
@@ -185,15 +300,22 @@ public partial class Main
         var preparing = _session.PreparedStatus == PreparationStatus.Preparing;
         _immersionStockButton!.Visible = preparing;
         _immersionStockButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new SetPreparationStockCommand(40, 40, 32))) is not null;
-        _immersionStockButton.Text = state.StockPurchased ? "STARTER STOCK PURCHASED • £96" : "BUY STARTER STOCK • £96";
+        _immersionStockButton.Text = state.StockPurchased ? "Starter stock purchased · £96" : "Buy starter stock · £96";
         if (_session.CapturePreparationPlan() is { } plan)
         {
-            _immersionStockButton.Text = "PLAN DEFAULT STOCK • £96";
+            _immersionStockButton.Text = "Starter bundle · 40 / 40 / 32";
             _immersionStockButton.TooltipText = "Plan 40 chips, 40 soft drinks and 32 beers. Unpaid until Start; revise quantities or remove freely.";
-            _refreshingPlannedStock = true;
             var values = new[] { plan.Chips, plan.SoftDrinks, plan.Beers };
-            for (var i = 0; i < 3; i++) { _plannedStockAmounts[i].Value = values[i]; _plannedStockAmounts[i].Editable = preparing; }
-            _refreshingPlannedStock = false;
+            var costs = new[] { 100, 60, 100 }; var sales = new[] { 300, 200, 300 };
+            for (var i = 0; i < 3; i++)
+            {
+                if (!_stockRows[i].Amount.HasFocus()) _stockRows[i].Amount.Text = values[i].ToString();
+                _stockRows[i].Amount.Editable = preparing;
+                _stockRows[i].Total.Text = FestivalCurrency.Format(values[i] * costs[i]);
+            }
+            _stockClear!.Disabled = !preparing || values.Sum() == 0;
+            _stockPotential!.Text = $"Sells for up to {FestivalCurrency.Format(values.Select((value, i) => (long)value * sales[i]).Sum())} if every item goes. Staff don't buy beer.";
+            _stockTotal!.Text = FestivalCurrency.Format(values.Select((value, i) => (long)value * costs[i]).Sum());
         }
         _immersionSummary!.Text = $"Chips £3 • soft £2 • beer £3\nStock {state.ChipsStock}/{state.SoftStock}/{state.BeerStock} • sales {state.Purchases.Length}\n" +
             "Free water remains available. Personal spending budgets vary; staff do not buy beer.\n" +

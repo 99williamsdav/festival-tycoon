@@ -48,6 +48,13 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
     private VBoxContainer? _readinessRows;
     private string _readinessKey = "";
 
+    private PanelContainer? _receipt;
+    private VBoxContainer? _receiptLines;
+    private Label? _receiptTotal;
+    private Label? _receiptAfter;
+    private Label? _receiptCheck;
+    private string _receiptKey = "";
+
     public void Build(CanvasLayer layer, Vector2 size)
     {
         _dock = new PanelContainer { Position = new Vector2(0, size.Y - Ui.Dock), Size = new Vector2(size.X, Ui.Dock), Theme = HudTheme() };
@@ -107,6 +114,96 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         _startDetail = Ui.Text("", 13, Ui.Warn, Ui.BodyBold); _startDetail.HorizontalAlignment = HorizontalAlignment.Center; startFace.AddChild(_startDetail);
 
         BuildReadiness(layer, size);
+        BuildReceipt(layer, size);
+    }
+
+    private static readonly Color ReceiptPaper = new("fffdf6");
+
+    /// <summary>The Supplies view's "Paid at Start" receipt, in the readiness card's place.</summary>
+    private void BuildReceipt(CanvasLayer layer, Vector2 size)
+    {
+        _receipt = new PanelContainer { Position = new Vector2(size.X - Ui.Gutter - Ui.S(302), Ui.ContentTop), Size = new Vector2(Ui.S(302), 0), Theme = HudTheme(), Visible = false };
+        var paper = Ui.Box(ReceiptPaper, 0, padX: 20, padY: 18, shadow: 14, shadowAlpha: 0.38f);
+        paper.CornerRadiusTopLeft = paper.CornerRadiusTopRight = Ui.Px(4); paper.ContentMarginBottom = Ui.S(26);
+        _receipt.AddThemeStyleboxOverride("panel", paper);
+        _receipt.Draw += () =>
+        {
+            // A torn edge: small triangles hanging from the bottom.
+            var step = Ui.S(12); var depth = Ui.S(6); var bottom = _receipt.Size.Y - 1;
+            for (var x = 0f; x < _receipt.Size.X; x += step)
+                _receipt.DrawColoredPolygon([new Vector2(x, bottom), new Vector2(Math.Min(x + step, _receipt.Size.X), bottom), new Vector2(Math.Min(x + step / 2, _receipt.Size.X), bottom + depth)], ReceiptPaper);
+        };
+        layer.AddChild(_receipt);
+        var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(2)); _receipt.AddChild(box);
+        var caption = Ui.Caps("Paid at Start", Ui.InkMuted); caption.HorizontalAlignment = HorizontalAlignment.Center; box.AddChild(caption);
+        var title = Ui.Heading("Your festival draft", 21); title.HorizontalAlignment = HorizontalAlignment.Center; box.AddChild(title);
+        box.AddChild(Dashes());
+        _receiptLines = new VBoxContainer(); _receiptLines.AddThemeConstantOverride("separation", Ui.Px(7)); box.AddChild(_receiptLines);
+        box.AddChild(Dashes());
+        var total = new HBoxContainer(); box.AddChild(total);
+        var totalCaption = Ui.Heading("Total", 18); totalCaption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; totalCaption.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; total.AddChild(totalCaption);
+        _receiptTotal = Ui.Heading("", 24); total.AddChild(_receiptTotal);
+        var after = new HBoxContainer(); box.AddChild(after);
+        var afterCaption = Ui.Text("Cash after Start", 14, Ui.InkMuted); afterCaption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; after.AddChild(afterCaption);
+        _receiptAfter = Ui.Text("", 14, Ui.TealDeep, Ui.BodyBold); after.AddChild(_receiptAfter);
+        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
+        _receiptCheck = Ui.Text("", 13, Ui.TealDeep, Ui.BodyBold); box.AddChild(_receiptCheck);
+    }
+
+    private static Control Dashes()
+    {
+        var rule = new Control { CustomMinimumSize = new Vector2(0, Ui.S(20)), MouseFilter = Control.MouseFilterEnum.Ignore };
+        rule.Draw += () => rule.DrawDashedLine(new Vector2(0, rule.Size.Y / 2), new Vector2(rule.Size.X, rule.Size.Y / 2), new Color("c9b994"), Ui.S(1.5f), Ui.S(5));
+        return rule;
+    }
+
+    private void RefreshReceipt(GameSession session, PlanCosts costs, int missing, int checks)
+    {
+        if (session.CapturePreparationPlan() is not { } plan || session.CapturePreparation() is not { } p) return;
+        var offers = session.GetPreparationOffers().ToDictionary(offer => offer.Id);
+        var lines = new List<(string Label, long Pennies)>();
+        if (p.BuildPlacements.Length > 0) lines.Add(($"Site services × {p.BuildPlacements.Length}", costs.Services));
+        var acts = plan.ActIds.Count(id => id != "");
+        if (acts > 0) lines.Add(($"Acts × {acts}", costs.Acts));
+        foreach (var id in plan.OfferIds)
+        {
+            var offer = offers[id];
+            var who = offer.Name.Split(':')[0];
+            var label = offer.Category switch
+            {
+                "staff" => $"{who} · sound engineer",
+                "maintenance" => $"{who} · maintenance",
+                "extra-medic" => $"{(session.GetOptionalStaffOfferProfile(ResponseRole.Medic)?.Name ?? who).Split(' ')[0]} · medic",
+                "extra-steward" => $"{(session.GetOptionalStaffOfferProfile(ResponseRole.Steward)?.Name ?? who).Split(' ')[0]} · steward",
+                "equipment" => id == "equipment.rent" ? "Sound rig rental" : "Sound rig purchase",
+                _ => offer.Name,
+            };
+            if (offer.Category != "equipment") lines.Add((label, offer.PricePennies));
+        }
+        var items = plan.Chips + plan.SoftDrinks + plan.Beers;
+        if (items > 0) lines.Add(($"Stock · {items} items", costs.Stock));
+        foreach (var id in plan.OfferIds.Where(id => offers[id].Category == "equipment"))
+            lines.Add((id == "equipment.rent" ? "Sound rig rental" : "Sound rig purchase", offers[id].PricePennies));
+        var key = string.Join("|", lines.Select(line => line.Label + line.Pennies));
+        if (key != _receiptKey)
+        {
+            _receiptKey = key;
+            foreach (var child in _receiptLines!.GetChildren()) { _receiptLines.RemoveChild(child); child.QueueFree(); }
+            if (lines.Count == 0) _receiptLines.AddChild(Ui.Text("Nothing drafted yet.", 14, Ui.InkMuted));
+            foreach (var (label, pennies) in lines)
+            {
+                var row = new HBoxContainer(); _receiptLines.AddChild(row);
+                var name = Ui.Text(label, 14, Ui.Ink); name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; row.AddChild(name);
+                row.AddChild(Ui.Text(FestivalCurrency.Format(pennies), 14, Ui.Ink, Ui.BodyBold));
+            }
+        }
+        _receiptTotal!.Text = FestivalCurrency.Format(session.PreparationPlanCost);
+        var left = session.PreparationRemainingCash;
+        _receiptAfter!.Text = FestivalCurrency.Format(left);
+        _receiptAfter.AddThemeColorOverride("font_color", left >= 0 ? Ui.TealDeep : Ui.Alert);
+        _receiptCheck!.Text = missing == 0 ? $"✓  All {checks} opening checks pass" : $"!  {missing} of {checks} opening checks still open";
+        _receiptCheck.AddThemeColorOverride("font_color", missing == 0 ? Ui.TealDeep : new Color("7a3312"));
+        _receiptCheck.AddThemeStyleboxOverride("normal", Ui.Box(missing == 0 ? Ui.TealWash : Ui.AlertWash, 6, padX: 10, padY: 8));
     }
 
     private void BuildReadiness(CanvasLayer layer, Vector2 size)
@@ -163,7 +260,9 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var preparing = session.PreparedStatus == PreparationStatus.Preparing;
         var shown = preparing && session.CapturePerks()?.Pending != true;
         _dock.Visible = shown;
-        _readiness!.Visible = shown && !_nav.ReadinessCovered;
+        var supplies = _nav.OpenDestinationName == "Supplies";
+        _readiness!.Visible = shown && !_nav.ReadinessCovered && !supplies;
+        _receipt!.Visible = shown && !_nav.ReadinessCovered && supplies;
         if (!shown) return;
         var requirements = session.GetPreparationStartRequirements();
         var missing = requirements.Where(item => !item.Complete).ToArray();
@@ -197,6 +296,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             : _nav.Placing ? "Finish placement" : missing.Length > 0 ? $"{missing.Length} task{(missing.Length == 1 ? "" : "s")} left" : "Not ready";
 
         RefreshReadiness(requirements, missing);
+        if (_receipt.Visible) RefreshReceipt(session, costs, missing.Length, requirements.Count);
     }
 
     private void RefreshFolders(GameSession session, PreparationStartRequirement[] missing, PlanCosts costs)
@@ -285,6 +385,6 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
     }
 
     /// <summary>The checklist card, for HUD hit-testing.</summary>
-    public Control? Readiness => _readiness;
+    public Control? Readiness => _readiness!.Visible ? _readiness : _receipt;
     public bool Visible => _dock?.Visible == true;
 }
