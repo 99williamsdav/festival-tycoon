@@ -3,6 +3,13 @@ namespace Festival.Simulation;
 // A goody two-shoes with nothing else to do picks up other people's litter nearby and bins it.
 public sealed partial class GameSession
 {
+    /// <summary>
+    /// Arrived somewhere in the piece's cell. A piece in their own cell needs no walk, and arriving there leaves
+    /// them wherever in the cell they stood, so the exact centre is not required.
+    /// </summary>
+    private bool InLitterCell(ulong id, GridCell cell) => _navigationAgents[new(id)] is { Action: AgentNavigationAction.Arrived } nav &&
+        nav.Destination == cell && PersonCell(id) == cell;
+
     private bool IsGoodyTwoShoes(ulong id) => IsGuest(id) && LitterRules.Dickishness(CampaignSeed, id) <= LitterRules.GoodyTwoShoesMaximum;
 
     /// <summary>Gives up a piece they were walking to fetch; it stays where it lies.</summary>
@@ -22,9 +29,9 @@ public sealed partial class GameSession
             var piece = _wasteById[wasteId];
             var route = _navigationAgents[new(picker)];
             if (_persons[picker].Departed || HigherPriorityOwns(picker) || LitterUrgent(picker) || ImmersionDepartureActive ||
-                route.Action == AgentNavigationAction.NoRoute || route.Action == AgentNavigationAction.Arrived && !AtLitterCell(picker, piece.Approach!.Value))
+                route.Action == AgentNavigationAction.NoRoute || route.Action == AgentNavigationAction.Arrived && !InLitterCell(picker, piece.Approach!.Value))
             { ReleaseGoodyPickup(picker); continue; }
-            if (!AtLitterCell(picker, piece.Approach!.Value)) continue;
+            if (!InLitterCell(picker, piece.Approach!.Value)) continue;
             if (piece.ActionTick < 0) { SetWaste(piece with { ActionTick = CurrentTick }); continue; }
             if (CurrentTick - piece.ActionTick < LitterRules.DisposalTicks) continue;
             var nav = _navigationAgents[new(picker)];
@@ -35,8 +42,10 @@ public sealed partial class GameSession
         bool Swept(string id) => _litter!.Sweeps.Any(j => j.Remaining > 0 && !j.TargetIsBin && j.TargetId == id);
         var binCells = CaptureBins().Select(b => b.Cell).ToArray();
         // Only litter they could then carry to a bin: the same walk limit everyone applies to their own rubbish.
+        // ...and with a side of that bin they can actually reach, as the carry step will need.
         bool BinWithinWalk(ulong id, GridCell from) => binCells.Any(b =>
-            EstimateWalkTicks(id, from, b) + EstimateWalkTicks(id, b, new GridCell(b.X + 2, b.Z)) <= LitterRules.BinWalkLimitTicks);
+            EstimateWalkTicks(id, from, b) + EstimateWalkTicks(id, b, new GridCell(b.X + 2, b.Z)) <= LitterRules.BinWalkLimitTicks &&
+            ReachableBinSide(id, b) is not null);
         foreach (var person in PeopleIn(PersonView.Roster).Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed && IsGoodyTwoShoes(p.Id)).ToArray())
         {
             var id = person.Id;

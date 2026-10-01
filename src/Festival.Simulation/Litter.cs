@@ -362,6 +362,8 @@ public sealed partial class GameSession
         var grid = s.TraversalGrid is { } savedGrid ? new TraversalGrid(savedGrid.Cells.Select(c => new TerrainCellOverride(new(c.X, c.Z), (GroundSurface)c.Surface, c.IsWalkable))) : null;
         bool ValidCell(GridCell c) => c.X is >= 0 and < TraversalGrid.Width && c.Z is >= 0 and < TraversalGrid.Depth && (grid?.Get(c).IsWalkable ?? true);
         bool BinSide(GridCell side, string bin) => bins.TryGetValue(bin, out var b) && ValidCell(side) && CellDistanceSquared(side, b.Cell) == 4 && (side.X == b.Cell.X || side.Z == b.Cell.Z);
+        bool InCell(ulong id, GridCell c) => RouteAt(id, c) && s.NavigationAgents!.Single(n => n.Id == id) is { Action: (int)AgentNavigationAction.Arrived } n &&
+            TraversalGrid.WorldToCell(n.XMillimetres, n.ZMillimetres) == c;
         static bool Fetching(WastePiece w) => w.Location == WasteLocation.Ground && w.CarrierId is not null;
         bool RouteAt(ulong id, GridCell c) => s.NavigationAgents?.SingleOrDefault(n => n.Id == id) is { } n &&
             n.DestinationX == c.X && n.DestinationZ == c.Z;
@@ -402,7 +404,7 @@ public sealed partial class GameSession
                 w.ActionTick >= 0 && !ArrivedAt(w.Carrier, approach)))) ||
             litter.Pieces.Any(w => Fetching(w) && (w.Approach != TraversalGrid.WorldToCell(w.XMillimetres, w.ZMillimetres) || !ValidCell(w.Approach!.Value) ||
                 prep.People.Single(p => p.AgentId == w.Carrier).Departed || !RouteAt(w.Carrier, w.Approach.Value) ||
-                w.ActionTick >= 0 && !ArrivedAt(w.Carrier, w.Approach.Value) ||
+                w.ActionTick >= 0 && !InCell(w.Carrier, w.Approach.Value) ||
                 litter.Sweeps.Any(j => j.Remaining > 0 && !j.TargetIsBin && j.TargetId == w.Id))) ||
             litter.Sweeps.Any(j => !ValidCell(j.Centre) || j.UntilTick < 0 || j.UntilTick % LitterRules.SecondTicks != 0 ||
                 j.UntilTick > s.CurrentTick + LitterRules.ManualDurationTicks + LitterRules.SecondTicks ||

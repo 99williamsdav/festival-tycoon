@@ -171,6 +171,44 @@ public sealed class LitterTests
         Assert.Inconclusive("No seed gave a goody and a bin placement in the band.");
     }
     [TestMethod]
+    public void AGoodyTwoShoesLeavesLitterWhenTheBinCannotBeReached()
+    {
+        GameSession? found = null; ulong goody = 0;
+        for (var seed = 20260922UL; seed < 20260960UL && found is null; seed++)
+        {
+            var candidate = BuildSession.Ready(seed);
+            BuildSession.Accept(candidate, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(118, 166)));
+            BuildSession.Accept(candidate, new StartPreparedEditionCommand());
+            var id = candidate.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest)
+                .Select(p => p.AgentId).FirstOrDefault(g => LitterRules.Dickishness(seed, g) <= LitterRules.GoodyTwoShoesMaximum);
+            if (id != 0) { found = candidate; goody = id; }
+        }
+        var s = found ?? throw new InvalidOperationException("No goody two-shoes in the seeds tried.");
+        foreach (var p in s.CapturePreparation()!.People) Mutate(s, p.AgentId, n =>
+        { n.Admitted = true; n.Thirst = 2000; n.HeatExposure = 2000; n.Hunger = 2000; n.ToiletNeed = 2000; });
+        // Hem the bin in: none of the four sides anyone stands at to use it is walkable.
+        var field = typeof(GameSession).GetField("_traversalGrid", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var grid = (TraversalGrid)field.GetValue(s)!;
+        var cells = grid.Overrides.ToDictionary(p => p.Key, p => p.Value);
+        foreach (var side in new GridCell[] { new(118, 168), new(120, 166), new(118, 164), new(116, 166) })
+            cells[side] = new TerrainCellOverride(side, GroundSurface.Grass, false);
+        field.SetValue(s, new TraversalGrid(cells.Values));
+        var litterer = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.AgentId != goody).AgentId;
+        Position(s, litterer, new(114, 162));
+        Invoke(s, "CompleteImmersionSale", litterer, ImmersionProduct.Chips);
+        var duration = GameSession.ImmersionConsumeTicks(ImmersionProduct.Chips);
+        SetTime(s, s.CurrentTick + duration);
+        Mutate(s, litterer, p => p.Held = p.Held! with { ConsumedTicks = duration - 1 });
+        Invoke(s, "AdvanceImmersion");
+        var waste = s.CaptureCarriedWaste(litterer)!;
+        Invoke(s, "DropWaste", waste, false);
+        Position(s, litterer, new(130, 175));
+        Position(s, goody, new(114, 160));
+        Mutate(s, goody, n => { n.Intent = MedicalIntent.WatchShow; n.Held = null; });
+        Step(s);
+        Assert.IsNull(s.CaptureLitter()!.Pieces.Single(w => w.Id == waste.Id).CarrierId, "No fetch for a bin nobody can reach.");
+    }
+    [TestMethod]
     public void PersonalityConvenienceDetourUrgencyAndRolesProduceDifferentDecisions()
     {
         Assert.IsTrue(LitterRules.WillUseBin(5, 80, 0, false, ProtectedPersonRole.Guest));
