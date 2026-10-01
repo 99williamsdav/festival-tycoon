@@ -8,31 +8,45 @@ namespace Festival.Game;
 /// <summary>Shared look and small builders for the HUD: paper panels, labels, buttons and copy.</summary>
 internal static class HudKit
 {
-    internal static readonly Color HudInk = new("293b38");
-    internal static readonly Color HudPaper = new("fff3d3");
-    internal static StyleBoxFlat HudStyle(Color color, int margin = 12) => new()
+    internal static readonly Color HudInk = Ui.Ink;
+    internal static readonly Color HudPaper = Ui.Paper;
+    internal static StyleBoxFlat HudStyle(Color color, int margin = 12)
     {
-        BgColor = color, BorderColor = new Color("aa9f78"), BorderWidthBottom = 1,
-        BorderWidthLeft = 1, BorderWidthRight = 1, BorderWidthTop = 1,
-        ContentMarginLeft = margin, ContentMarginRight = margin,
-        ContentMarginTop = margin, ContentMarginBottom = margin,
-        ShadowColor = new Color(0, 0, 0, .16f), ShadowSize = 4
-    };
+        var box = new StyleBoxFlat
+        {
+            BgColor = color, BorderColor = new Color(0, 0, 0, .22f), AntiAliasing = true,
+            ContentMarginLeft = margin, ContentMarginRight = margin, ContentMarginTop = margin, ContentMarginBottom = margin,
+            ShadowColor = new Color(0, 0, 0, .3f), ShadowSize = 10, ShadowOffset = new Vector2(0, 5),
+        };
+        box.SetBorderWidthAll(1); box.SetCornerRadiusAll(Ui.Px(6));
+        return box;
+    }
+    private static StyleBoxFlat ControlStyle(Color color, Color border)
+    {
+        var box = new StyleBoxFlat { BgColor = color, BorderColor = border, AntiAliasing = true,
+            ContentMarginLeft = 9, ContentMarginRight = 9, ContentMarginTop = 6, ContentMarginBottom = 6 };
+        box.SetBorderWidthAll(1); box.SetCornerRadiusAll(Ui.Px(6));
+        return box;
+    }
     internal static Theme HudTheme()
     {
-        var theme = new Theme { DefaultFontSize = 14 };
+        var theme = new Theme { DefaultFontSize = 14, DefaultFont = Ui.Body };
         foreach (var type in new[] { "Button", "OptionButton" })
         {
-            foreach (var state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
-                theme.SetStylebox(state, type, HudStyle(new Color(state == "hover" ? "d3e8df" : state == "pressed" ? "e5d5aa" : state == "disabled" ? "eee2be" : "fff6df"), 7));
+            theme.SetStylebox("normal", type, ControlStyle(Ui.GoldWash, Ui.PaperEdge));
+            theme.SetStylebox("hover", type, ControlStyle(Ui.TealWash, Ui.TealLine));
+            theme.SetStylebox("pressed", type, ControlStyle(Ui.PaperRule, Ui.PaperEdge));
+            theme.SetStylebox("disabled", type, ControlStyle(new Color(0, 0, 0, 0), Ui.PaperRule));
+            theme.SetStylebox("focus", type, ControlStyle(new Color(0, 0, 0, 0), Ui.Gold));
+            theme.SetFont("font", type, Ui.BodySemi);
             theme.SetColor("font_color", type, HudInk);
             theme.SetColor("font_hover_color", type, HudInk);
             theme.SetColor("font_pressed_color", type, HudInk);
             theme.SetColor("font_focus_color", type, HudInk);
-            theme.SetColor("font_disabled_color", type, new Color("897f63"));
+            theme.SetColor("font_disabled_color", type, Ui.InkMuted);
         }
-        theme.SetStylebox("tab_selected", "TabContainer", HudStyle(HudPaper, 9));
-        theme.SetStylebox("tab_unselected", "TabContainer", HudStyle(new Color("eaddb7"), 9));
+        theme.SetStylebox("tab_selected", "TabContainer", ControlStyle(Ui.Paper, Ui.PaperEdge));
+        theme.SetStylebox("tab_unselected", "TabContainer", ControlStyle(Ui.PaperRule, Ui.PaperEdge));
         theme.SetStylebox("panel", "TabContainer", HudStyle(HudPaper, 14));
         theme.SetColor("font_selected_color", "TabContainer", HudInk);
         theme.SetColor("font_unselected_color", "TabContainer", HudInk);
@@ -92,7 +106,6 @@ internal static class HudKit
     internal static string FestivalGenreName(int genre) => genre switch
     { 0 => "Folk", 1 => "Rock", 2 => "Pop", 3 => "Electronic", _ => "Unknown" };
 
-    internal static SystemFont HearingSerif() => new() { FontNames = ["Georgia", "Times New Roman"] };
     internal static MarginContainer HearingMargins(int horizontal, int vertical)
     {
         var margin = new MarginContainer();

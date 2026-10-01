@@ -66,7 +66,7 @@ internal sealed class HearingPanel(IHudHost _hud, Action<SessionCommand> _decide
         stampMargin.AddChild(LabelText(FestivalWording(_hud.Session, "WEEKEND ENDED"), 17, new Color("fff8ec")));
         headingWords.AddChild(HearingGap(8));
         var title = LabelText("Council hearing", 45, ink);
-        title.AddThemeFontOverride("font", HearingSerif()); headingWords.AddChild(title);
+        title.AddThemeFontOverride("font", Ui.SlabBold); headingWords.AddChild(title);
         headingWords.AddChild(HearingGap(6));
         var lead = LabelText("Someone has died. We explicitly told you this shouldn’t happen. We’re considering revoking your licence.", 24, ink);
         lead.AutowrapMode = TextServer.AutowrapMode.WordSmart;
@@ -81,7 +81,7 @@ internal sealed class HearingPanel(IHudHost _hud, Action<SessionCommand> _decide
         var tokenName = LabelText("COUNCIL\nFAVOUR", 18, new Color("604823"));
         tokenName.HorizontalAlignment = HorizontalAlignment.Center; tokenWords.AddChild(tokenName);
         _hearingBalance = LabelText("", 58, new Color("654a22"));
-        _hearingBalance.AddThemeFontOverride("font", HearingSerif());
+        _hearingBalance.AddThemeFontOverride("font", Ui.SlabBold);
         _hearingBalance.HorizontalAlignment = HorizontalAlignment.Center; tokenWords.AddChild(_hearingBalance);
         _hearingBalanceState = LabelText("", 18, new Color("604823"));
         _hearingBalanceState.HorizontalAlignment = HorizontalAlignment.Center; tokenWords.AddChild(_hearingBalanceState);
@@ -128,7 +128,7 @@ internal sealed class HearingPanel(IHudHost _hud, Action<SessionCommand> _decide
         var confirmMargin = HearingMargins(30, 27); _hearingConfirm.AddChild(confirmMargin);
         var confirmBox = new VBoxContainer(); confirmBox.AddThemeConstantOverride("separation", 11); confirmMargin.AddChild(confirmBox);
         _hearingConfirmTitle = LabelText("", 40, ink);
-        _hearingConfirmTitle.AddThemeFontOverride("font", HearingSerif()); confirmBox.AddChild(_hearingConfirmTitle);
+        _hearingConfirmTitle.AddThemeFontOverride("font", Ui.SlabBold); confirmBox.AddChild(_hearingConfirmTitle);
         _hearingConfirmCopy = LabelText("", 25, ink); _hearingConfirmCopy.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         confirmBox.AddChild(_hearingConfirmCopy);
         var terms = new PanelContainer();

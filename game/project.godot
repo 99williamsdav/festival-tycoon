@@ -23,6 +23,10 @@ window/size/mode=2
 window/stretch/mode="canvas_items"
 window/vsync/vsync_mode=1
 
+[gui]
+
+theme/custom_font="res://assets/ui/fonts/SourceSans3-Regular.tres"
+
 [dotnet]
 
 project/assembly_name="Festival.Game"

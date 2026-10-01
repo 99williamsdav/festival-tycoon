@@ -81,7 +81,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         box.AddThemeConstantOverride("separation", 6);
         scroll.AddChild(box);
         var heading = new HBoxContainer(); box.AddChild(heading);
-        var title = HudLabel("Build your festival", 23); title.AddThemeFontOverride("font", HearingSerif());
+        var title = HudLabel("Build your festival", 23); title.AddThemeFontOverride("font", Ui.SlabBold);
         heading.AddChild(title);
         var close = ButtonText("×", _actions.CloseDrawer);
         close.TooltipText = "Collapse Build drawer"; close.CustomMinimumSize = new Vector2(34, 34); heading.AddChild(close);

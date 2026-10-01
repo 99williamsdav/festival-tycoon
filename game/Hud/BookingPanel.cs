@@ -225,7 +225,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         }
         _bookingMeaning = HudLabel(BookingDefaultMeaning, 12);
         table.AddChild(_bookingMeaning);
-        var heading = HudLabel("Trailer Stage", 24); heading.AddThemeFontOverride("font", HearingSerif()); lineup.AddChild(heading);
+        var heading = HudLabel("Trailer Stage", 24); heading.AddThemeFontOverride("font", Ui.SlabBold); lineup.AddChild(heading);
         lineup.AddChild(HudLabel("Elapsed festival time · mm:ss", 13));
         _bookingLane = new Control { CustomMinimumSize = new Vector2(354, 300), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, MouseFilter = Control.MouseFilterEnum.Stop }; lineup.AddChild(_bookingLane);
         var backdrop = new ColorRect { Color = new Color("eee2be"), Position = new Vector2(54, 0), Size = new Vector2(300, 300), MouseFilter = Control.MouseFilterEnum.Stop }; _bookingLane.AddChild(backdrop);

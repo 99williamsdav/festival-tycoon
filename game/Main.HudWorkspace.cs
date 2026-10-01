@@ -75,7 +75,7 @@ public partial class Main
         _hudWorkspace.MinimumSizeChanged += () => Booking.ScheduleLayout();
         var workspaceBox = new VBoxContainer(); workspaceBox.AddThemeConstantOverride("separation", 12); _hudWorkspace.AddChild(workspaceBox);
         var heading = new HBoxContainer(); workspaceBox.AddChild(heading);
-        var title = HudLabel("Prepare the festival", 25); title.AddThemeFontOverride("font", HearingSerif()); heading.AddChild(title);
+        var title = HudLabel("Prepare the festival", 25); title.AddThemeFontOverride("font", Ui.SlabBold); heading.AddChild(title);
         var collapsePreparation = ButtonText("×", () => { _hudWorkspaceOpen = false; RefreshHudWorkspace(); });
         collapsePreparation.TooltipText = "Collapse preparation"; heading.AddChild(collapsePreparation);
         _hudTabs = new TabContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill }; workspaceBox.AddChild(_hudTabs);

@@ -73,7 +73,7 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         card.AddThemeStyleboxOverride("panel", style);
         var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", 10); card.AddChild(box);
         box.AddChild(HudLabel("FESTIVAL PERK", 10));
-        var title = HudLabel(perk.Name, 25); title.AddThemeFontOverride("font", HearingSerif()); title.CustomMinimumSize = new Vector2(216, 66); box.AddChild(title);
+        var title = HudLabel(perk.Name, 25); title.AddThemeFontOverride("font", Ui.SlabBold); title.CustomMinimumSize = new Vector2(216, 66); box.AddChild(title);
         box.AddChild(PerkArtwork(id, 220));
         box.AddChild(new HSeparator());
         var effect = HudLabel(perk.Effect, 16); effect.CustomMinimumSize = new Vector2(216, 70); box.AddChild(effect);
@@ -85,7 +85,7 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         var card = new PanelContainer { CustomMinimumSize = new Vector2(156, 152), FocusMode = Control.FocusModeEnum.All };
         card.AddThemeStyleboxOverride("panel", HudStyle(new Color("fff4d6"), 6));
         var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", 4); card.AddChild(box);
-        var title = HudLabel(perk.Name, 17); title.AddThemeFontOverride("font", HearingSerif());
+        var title = HudLabel(perk.Name, 17); title.AddThemeFontOverride("font", Ui.SlabBold);
         title.CustomMinimumSize = new Vector2(144, 40); box.AddChild(title);
         box.AddChild(PerkArtwork(id, 144));
         foreach (var child in PerkDescendants(card).OfType<Control>()) child.MouseFilter = Control.MouseFilterEnum.Ignore;
@@ -160,7 +160,7 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         _ownedPerkSignature = ownedSignature;
         HideOwnedEffect(); ClearPerkChildren(_perkBody!);
         var heading = new HBoxContainer(); _perkBody!.AddChild(heading);
-        var title = HudLabel(p.Pending ? "Choose a festival perk" : $"Your Perks · {p.Equipped.Length} / 5 equipped", p.Pending ? 29 : 21); title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; title.AddThemeFontOverride("font", HearingSerif()); heading.AddChild(title);
+        var title = HudLabel(p.Pending ? "Choose a festival perk" : $"Your Perks · {p.Equipped.Length} / 5 equipped", p.Pending ? 29 : 21); title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; title.AddThemeFontOverride("font", Ui.SlabBold); heading.AddChild(title);
         if (p.Pending)
         {
             var reroll = ButtonText(p.RerollUsed ? "Free reroll used" : "Reroll all 3 · 1 free", () => _hud.Commit(new RerollPerksCommand(p.DraftAttempt,p.Cursor)));

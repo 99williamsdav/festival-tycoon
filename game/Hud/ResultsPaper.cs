@@ -67,7 +67,7 @@ internal sealed class ResultsPaper(IHudHost _hud)
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         label.AddThemeColorOverride("font_color", new Color("293b38"));
         label.AddThemeFontSizeOverride("font_size", size);
-        if (serif) label.AddThemeFontOverride("font", HearingSerif());
+        if (serif) label.AddThemeFontOverride("font", Ui.SlabBold);
         return label;
     }
 

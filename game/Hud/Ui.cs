@@ -1,0 +1,144 @@
+using Godot;
+using System;
+
+namespace Festival.Game;
+
+/// <summary>
+/// The HUD redesign's look: palette, fonts, icons and widget styles. The designer's mockups are
+/// drawn at 1280×720 and the HUD canvas is 1600×900, so mockup measurements go through <see cref="S"/>.
+/// </summary>
+internal static class Ui
+{
+    public const float Scale = 1.25f;
+    /// <summary>A mockup measurement in HUD canvas units.</summary>
+    public static float S(float mockup) => Mathf.Round(mockup * Scale);
+    public static int Px(float mockup) => (int)Mathf.Round(mockup * Scale);
+    public static Vector2 S(float x, float y) => new(S(x), S(y));
+
+    // Bars: the top status bar, the dock and dark tooltips.
+    public static readonly Color BarDeep = new("0e1f1a");
+    public static readonly Color Bar = new("17302a");
+    public static readonly Color BarRaised = new("22453a");
+    public static readonly Color BarText = new("f5ebd6");
+    public static readonly Color BarMuted = new("b9c4b8");
+    public static readonly Color BarLine = new(0.96f, 0.92f, 0.84f, 0.16f);
+    public static readonly Color Gold = new("d8a43b");
+    public static readonly Color GoldShadow = new("9c7424");
+    public static readonly Color GoldInk = new("6b4f16");
+    public static readonly Color GoldWash = new("fbf4e4");
+    public static readonly Color Warn = new("f2a65a");
+    public static readonly Color Good = new("8fd1b5");
+    // Paper: sheets, cards and the documents.
+    public static readonly Color Paper = new("f5ebd6");
+    public static readonly Color PaperBright = new("fff8e9");
+    public static readonly Color PaperRule = new("e2d3b3");
+    public static readonly Color PaperEdge = new("d5c39e");
+    public static readonly Color Ink = new("1f2a26");
+    public static readonly Color InkMuted = new("56615a");
+    public static readonly Color Teal = new("2b6e66");
+    public static readonly Color TealDeep = new("1f4f49");
+    public static readonly Color TealWash = new("dceae5");
+    public static readonly Color TealLine = new("bfd7cf");
+    public static readonly Color Alert = new("b8551e");
+    public static readonly Color AlertWash = new("f8dcc3");
+    public static readonly Color Link = new("9a4415");
+
+    private static FontFile? _bodyFile;
+    private static FontVariation? _body, _bodySemi, _bodyBold, _caps;
+    private static FontFile? _slab, _slabBold;
+    private static FontFile BodyFile => _bodyFile ??= GD.Load<FontFile>("res://assets/ui/fonts/SourceSans3-Variable.ttf");
+    /// <summary>Source Sans 3 at regular weight; the variable font's own default is lighter.</summary>
+    public static FontVariation Body => _body ??= Weight(400);
+    public static FontVariation BodySemi => _bodySemi ??= Weight(600);
+    public static FontVariation BodyBold => _bodyBold ??= Weight(700);
+    /// <summary>Small letter-spaced capitals for field labels ("CASH", "FESTIVAL CLOCK").</summary>
+    public static FontVariation CapsFont => _caps ??= new FontVariation { BaseFont = BodyBold, SpacingGlyph = 1 };
+    public static FontFile Slab => _slab ??= GD.Load<FontFile>("res://assets/ui/fonts/ZillaSlab-SemiBold.ttf");
+    public static FontFile SlabBold => _slabBold ??= GD.Load<FontFile>("res://assets/ui/fonts/ZillaSlab-Bold.ttf");
+
+    private static FontVariation Weight(int weight)
+    {
+        var tag = TextServerManager.GetPrimaryInterface().NameToTag("wght");
+        return new FontVariation { BaseFont = BodyFile, VariationOpentype = new Godot.Collections.Dictionary { { tag, weight } } };
+    }
+
+    /// <summary>A white line icon, tinted where it is drawn.</summary>
+    public static Texture2D Icon(string name) => GD.Load<Texture2D>($"res://assets/ui/icons/{name}.svg");
+
+    public static TextureRect IconRect(string name, float mockupSize, Color color) => new()
+    {
+        Texture = Icon(name), ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+        StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, CustomMinimumSize = S(mockupSize, mockupSize),
+        SelfModulate = color, MouseFilter = Control.MouseFilterEnum.Ignore,
+    };
+
+    /// <summary>A rounded box; measurements are mockup pixels.</summary>
+    public static StyleBoxFlat Box(Color background, float radius = 0, Color? border = null, float borderWidth = 0,
+        float padX = 0, float padY = 0, int shadow = 0, float shadowAlpha = 0.35f)
+    {
+        var box = new StyleBoxFlat { BgColor = background, AntiAliasing = true };
+        box.SetCornerRadiusAll(Px(radius));
+        if (border is { } edge && borderWidth > 0) { box.BorderColor = edge; box.SetBorderWidthAll(Math.Max(1, Px(borderWidth))); }
+        box.ContentMarginLeft = box.ContentMarginRight = S(padX);
+        box.ContentMarginTop = box.ContentMarginBottom = S(padY);
+        if (shadow > 0) { box.ShadowSize = Px(shadow); box.ShadowColor = new Color(0, 0, 0, shadowAlpha); box.ShadowOffset = new Vector2(0, S(shadow / 2f)); }
+        return box;
+    }
+
+    /// <summary>A paper sheet floating over the field.</summary>
+    public static StyleBoxFlat Sheet(float padX = 20, float padY = 18) =>
+        Box(Paper, 6, new Color(0, 0, 0, 0.28f), 1, padX, padY, shadow: 14, shadowAlpha: 0.38f);
+
+    public static Label Text(string text, float mockupSize, Color color, Font? font = null)
+    {
+        var label = new Label { Text = text };
+        label.AddThemeFontSizeOverride("font_size", Px(mockupSize));
+        label.AddThemeColorOverride("font_color", color);
+        if (font is not null) label.AddThemeFontOverride("font", font);
+        return label;
+    }
+    public static Label Heading(string text, float mockupSize, Color? color = null) => Text(text, mockupSize, color ?? Ink, SlabBold);
+    public static Label Caps(string text, Color color, float mockupSize = 10.5f) => Text(text.ToUpperInvariant(), mockupSize, color, CapsFont);
+
+    public enum ButtonKind { Primary, Secondary, Accent, Bar, Quiet, Alert }
+
+    /// <summary>Styles a button as one of the mockups' button kinds.</summary>
+    public static T Style<T>(T button, ButtonKind kind, float mockupFont = 14, float radius = 6) where T : Button
+    {
+        var (background, text, border, hover) = kind switch
+        {
+            ButtonKind.Primary => (Gold, Bar, (Color?)null, Gold.Lightened(0.12f)),
+            ButtonKind.Secondary => (GoldWash, GoldInk, (Color?)GoldShadow, new Color("fff9ec")),
+            ButtonKind.Accent => (Teal, Colors.White, (Color?)null, Teal.Lightened(0.12f)),
+            ButtonKind.Bar => (BarRaised, BarText, (Color?)new Color(0.96f, 0.92f, 0.84f, 0.2f), BarRaised.Lightened(0.1f)),
+            ButtonKind.Alert => (Bar, BarText, (Color?)null, BarRaised),
+            _ => (new Color(0, 0, 0, 0), InkMuted, (Color?)PaperEdge, new Color(0, 0, 0, 0.05f)),
+        };
+        var width = kind == ButtonKind.Secondary ? 1.5f : 1f;
+        button.AddThemeStyleboxOverride("normal", Box(background, radius, border, width, 10, 4));
+        button.AddThemeStyleboxOverride("hover", Box(hover, radius, border, width, 10, 4));
+        button.AddThemeStyleboxOverride("pressed", Box(hover.Darkened(0.08f), radius, border, width, 10, 4));
+        button.AddThemeStyleboxOverride("focus", Box(new Color(0, 0, 0, 0), radius, Gold, 2, 10, 4));
+        button.AddThemeStyleboxOverride("disabled", Box(new Color(0, 0, 0, 0), radius, kind is ButtonKind.Bar or ButtonKind.Alert ? BarLine : TealLine, 1, 10, 4));
+        foreach (var state in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color" })
+            button.AddThemeColorOverride(state, text);
+        foreach (var state in new[] { "icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color", "icon_hover_pressed_color" })
+            button.AddThemeColorOverride(state, text);
+        button.AddThemeColorOverride("font_disabled_color", kind is ButtonKind.Bar or ButtonKind.Alert ? BarMuted : Teal);
+        button.AddThemeColorOverride("icon_disabled_color", kind is ButtonKind.Bar or ButtonKind.Alert ? BarMuted : Teal);
+        button.AddThemeFontOverride("font", BodyBold);
+        button.AddThemeFontSizeOverride("font_size", Px(mockupFont));
+        button.AddThemeConstantOverride("icon_max_width", Px(18));
+        button.AddThemeConstantOverride("h_separation", Px(6));
+        return button;
+    }
+
+    /// <summary>A button with a leading icon.</summary>
+    public static Button IconButton(string text, string icon, ButtonKind kind, Action action, float mockupFont = 14)
+    {
+        var button = Style(new Button { Text = text, Icon = Icon(icon), ExpandIcon = true }, kind, mockupFont);
+        button.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
+        button.Pressed += action;
+        return button;
+    }
+}
