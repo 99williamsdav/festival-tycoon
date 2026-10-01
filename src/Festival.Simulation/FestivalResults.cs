@@ -22,12 +22,14 @@ public sealed partial class GameSession
         var guests = p.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && person.Departed).ToArray();
         var payments = p.Payments.Where(payment => payment.Attempt == p.Attempt).ToArray();
         var buildCost = p.SetupPayments?.SingleOrDefault(setup => setup.Attempt == p.Attempt)?.BuildCostPennies ?? 0;
+        // Advance ticket sales are this festival's income too; they arrived as part of the opening budget.
+        var tickets = FestivalTickets.RevenuePennies(p.Tier);
         return new(p.Attempt, tick, guests.Length, guests.Sum(person => (long)person.Satisfaction),
-            immersion?.Purchases.Sum(purchase => (long)purchase.PricePennies) ?? 0,
+            tickets + (immersion?.Purchases.Sum(purchase => (long)purchase.PricePennies) ?? 0),
             payments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense).Sum(payment => (long)payment.AmountPennies) + buildCost,
             p.StockConsumed * 60L + (immersion?.Purchases.Sum(purchase => (long)purchase.CostPennies) ?? 0),
             payments.Where(payment => payment.DebitAccount == LedgerAccountType.EquipmentAsset).Sum(payment => (long)payment.AmountPennies),
-            (immersion?.Purchases.Sum(purchase => (long)purchase.PricePennies) ?? 0) - payments.Sum(payment => (long)payment.AmountPennies) - buildCost -
+            tickets + (immersion?.Purchases.Sum(purchase => (long)purchase.PricePennies) ?? 0) - payments.Sum(payment => (long)payment.AmountPennies) - buildCost -
                 (immersion?.StockPurchase?.Entries.Where(entry => entry.Account == LedgerAccountType.CashAsset && entry.OwnerId.Value == p.FinanceOwnerId).Sum(entry => -entry.AmountPennies) ?? 0),
             p.FinishedBeerIds?.Length,
             p.FinishedBeerIds is null ? null : disorder?.Incidents.Count(incident => guests.Any(guest => guest.AgentId == incident.InitiatorId || guest.AgentId == incident.OpponentId)),

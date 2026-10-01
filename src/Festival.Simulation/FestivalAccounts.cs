@@ -6,11 +6,13 @@ public sealed record FestivalAccountsExpense(string Category, string Label, long
 public sealed record FestivalAccountsStock(string Label, int Quantity, int UnitCostPennies, long AmountPennies);
 public sealed record FestivalAccounts(
     FestivalAccountsSale[] Sales, FestivalAccountsCost[] SoldItemCosts, FestivalAccountsExpense[] OperatingExpenses,
-    FestivalAccountsStock[] PurchasedStock,
+    FestivalAccountsStock[] PurchasedStock, int TicketsSold, int TicketPricePennies,
     long OpeningCashPennies, long ClosingCashPennies, long StockPurchasesPennies, long CapitalPurchasesPennies,
     bool StockPurchaseRecorded, bool StockDetailRecorded, bool FacilityDetailRecorded, bool Reconciles)
 {
-    public long IncomePennies => Sales.Sum(line => line.AmountPennies);
+    /// <summary>Advance ticket sales: received before preparation, as part of the opening budget.</summary>
+    public long TicketSalesPennies => (long)TicketsSold * TicketPricePennies;
+    public long IncomePennies => TicketSalesPennies + Sales.Sum(line => line.AmountPennies);
     public long SoldItemCostPennies => SoldItemCosts.Sum(line => line.AmountPennies);
     public long OperatingExpensesPennies => OperatingExpenses.Sum(line => line.AmountPennies);
     public long OperatingResultPennies => IncomePennies - SoldItemCostPennies - OperatingExpensesPennies;
@@ -92,14 +94,17 @@ public sealed partial class GameSession
             var capital = payments.Where(payment => payment.DebitAccount == LedgerAccountType.EquipmentAsset)
                 .Sum(payment => (long)payment.AmountPennies);
             var closing = _festivalFinances[owner].CashPennies;
-            var accounts = new FestivalAccounts(sales, costs.ToArray(), expenses.ToArray(), purchasedStock, p.OpeningCashPennies,
+            // Opening cash here is the loan: the ticket money in the opening budget is this festival's income.
+            var tickets = FestivalTickets.RevenuePennies(p.Tier);
+            var accounts = new FestivalAccounts(sales, costs.ToArray(), expenses.ToArray(), purchasedStock,
+                FestivalTickets.Sold(p.Tier), FestivalTickets.PricePennies(p.Tier), p.OpeningCashPennies - tickets,
                 closing, stockCash, capital, stockRecorded, stockDetailRecorded, facilityDetailRecorded, false);
             var reconciles = accounts.IncomePennies == result.RevenuePennies &&
                 accounts.SoldItemCostPennies == result.ConsumedStockCostsPennies &&
                 accounts.OperatingExpensesPennies == result.ContractCostsPennies &&
                 accounts.CapitalPurchasesPennies == result.CapitalPurchasesPennies &&
                 accounts.NetCashChangePennies == result.NetCashChangePennies &&
-                closing == p.OpeningCashPennies + accounts.IncomePennies - accounts.OperatingExpensesPennies -
+                closing == accounts.OpeningCashPennies + accounts.IncomePennies - accounts.OperatingExpensesPennies -
                     accounts.StockPurchasesPennies - accounts.CapitalPurchasesPennies;
             return accounts with { Reconciles = reconciles };
         }

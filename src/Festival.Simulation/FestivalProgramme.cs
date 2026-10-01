@@ -26,7 +26,7 @@ public sealed partial class GameSession
     /// <summary>What this festival pays the act, including the stretch-booking premium.</summary>
     public int ActFee(FestivalAct act) => ActCatalogue.Fee(Standing, act);
     public int ActReputationNeeded(FestivalAct act) => ActCatalogue.ReputationNeeded(Standing, act);
-    public int TicketPricePennies => ActCatalogue.TicketPricePennies(_preparation?.Tier ?? 1);
+    public int TicketPricePennies => FestivalTickets.PricePennies(_preparation?.Tier ?? 1);
     /// <summary>The act popularity this ticket price leads guests to expect.</summary>
     public int ExpectedPopularity => ActCatalogue.ExpectedPopularity(TicketPricePennies);
     /// <summary>

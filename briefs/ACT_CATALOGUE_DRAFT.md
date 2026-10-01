@@ -2,7 +2,7 @@
 
 *Drafted and implemented 1 October 2026 (`src/Festival.Simulation/ActCatalogue.cs`). Names are working titles for a tone pass; check them against real bands before they are final.*
 
-**Decided with the user:** a fixed catalogue; six genres with indie replacing rock; 5 greyed acts just out of reach in the table; a shortlist of about 10 with at least one available act per genre. **Expectations come from the ticket price** (fixed per tier for now: £8 at Tier 1, so guests expect popularity around 24). A lineup above that raises arriving guests' satisfaction by up to 8 points and makes sets up to 30% more enjoyable; one below it does the reverse, by at most 8 points and 30%. Local acts therefore suit Tier 1. The six original acts keep their existing fees rather than the curve.
+**Decided with the user:** a fixed catalogue; six genres with indie replacing rock; 5 greyed acts just out of reach in the table; a shortlist of about 10 with at least one available act per genre. **Expectations come from the ticket price** (fixed per tier for now: Tier 1 sells 20 advance tickets at £10, so guests expect popularity around 30). A lineup above that raises arriving guests' satisfaction by up to 8 points and makes sets up to 30% more enjoyable; one below it does the reverse, by at most 8 points and 30%. Local acts therefore suit Tier 1. The six original acts keep their existing fees rather than the curve.
 
 ## How booking would work
 

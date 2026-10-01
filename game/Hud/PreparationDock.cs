@@ -52,6 +52,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
     private VBoxContainer? _receiptLines;
     private Label? _receiptTotal;
     private Label? _receiptAfter;
+    private Label? _receiptFunds;
     private Label? _receiptCheck;
     private string _receiptKey = "";
 
@@ -146,6 +147,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var after = new HBoxContainer(); box.AddChild(after);
         var afterCaption = Ui.Text("Cash after Start", 14, Ui.InkMuted); afterCaption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; after.AddChild(afterCaption);
         _receiptAfter = Ui.Text("", 14, Ui.TealDeep, Ui.BodyBold); after.AddChild(_receiptAfter);
+        _receiptFunds = Ui.Text("", 12.5f, Ui.InkMuted); _receiptFunds.AutowrapMode = TextServer.AutowrapMode.WordSmart; box.AddChild(_receiptFunds);
         box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         _receiptCheck = Ui.Text("", 13, Ui.TealDeep, Ui.BodyBold); box.AddChild(_receiptCheck);
     }
@@ -200,6 +202,10 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         _receiptTotal!.Text = FestivalCurrency.Format(session.PreparationPlanCost);
         var left = session.PreparationRemainingCash;
         _receiptAfter!.Text = FestivalCurrency.Format(left);
+        var tier = session.CapturePreparation()!.Tier;
+        var tickets = FestivalTickets.RevenuePennies(tier);
+        _receiptFunds!.Text = $"Your {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies)}: {FestivalTickets.Sold(tier)} tickets sold at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))} " +
+            $"({FestivalCurrency.Format(tickets)}) and a {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies - tickets)} loan.";
         _receiptAfter.AddThemeColorOverride("font_color", left >= 0 ? Ui.TealDeep : Ui.Alert);
         _receiptCheck!.Text = missing == 0 ? $"✓  All {checks} opening checks pass" : $"!  {missing} of {checks} opening checks still open";
         _receiptCheck.AddThemeColorOverride("font_color", missing == 0 ? Ui.TealDeep : new Color("7a3312"));
@@ -274,6 +280,9 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var left = session.PreparationRemainingCash;
         _drafted!.Text = FestivalCurrency.Format(drafted);
         _draftedOf!.Text = $"drafted of {FestivalCurrency.Format(funds)}";
+        var fundsTier = session.CapturePreparation()!.Tier;
+        _draftedOf.TooltipText = $"{FestivalCurrency.Format(funds)} to spend: {FestivalTickets.Sold(fundsTier)} advance tickets at {FestivalCurrency.Format(FestivalTickets.PricePennies(fundsTier))}, the rest a loan.";
+        _draftedOf.MouseFilter = Control.MouseFilterEnum.Pass;
         _left!.Text = left >= 0 ? $"{FestivalCurrency.Format(left)} left" : $"{FestivalCurrency.Format(-left)} over";
         _left.AddThemeColorOverride("font_color", left >= 0 ? Ui.Good : Ui.Warn);
         _budgetBar!.Value = funds <= 0 ? 0 : Math.Clamp((double)drafted / funds, 0, 1);

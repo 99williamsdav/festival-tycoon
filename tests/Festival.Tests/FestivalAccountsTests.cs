@@ -84,7 +84,9 @@ public sealed class FestivalAccountsTests
         Assert.IsTrue(setup.BuildCostPennies > 0);
         Assert.AreEqual(6, report.Sales.Length);
         CollectionAssert.AreEquivalent(new[] { 300, 150, 200, 100, 300, 150 }, report.Sales.Select(line => line.UnitPricePennies).ToArray());
-        Assert.AreEqual(1_200L, report.IncomePennies);
+        Assert.AreEqual(20, report.TicketsSold); Assert.AreEqual(1_000, report.TicketPricePennies);
+        Assert.AreEqual(20_000L + 1_200L, report.IncomePennies, "Advance ticket sales plus food and drink.");
+        Assert.AreEqual(60_000L, report.OpeningCashPennies, "Opening cash is the loan; the ticket money is income.");
         Assert.AreEqual(520L, report.SoldItemCostPennies);
         Assert.AreEqual(ordinaryPayments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense)
             .Sum(payment => (long)payment.AmountPennies) + setup.BuildCostPennies, report.OperatingExpensesPennies);

@@ -16,6 +16,17 @@ public static class FestivalGenre
     };
 }
 
+/// <summary>
+/// Advance ticket sales: a fixed price and number sold per tier for now (Tier 1: 20 at £10). The
+/// money arrives before preparation and is part of the opening budget; the rest is the starter loan.
+/// </summary>
+public static class FestivalTickets
+{
+    public static int PricePennies(int tier) => tier switch { 1 => 1_000, 2 => 1_800, 3 => 3_500, _ => 6_000 };
+    public static int Sold(int tier) => tier * 20;
+    public static long RevenuePennies(int tier) => (long)PricePennies(tier) * Sold(tier);
+}
+
 /// <summary>Whether an act will play for the festival as it stands now.</summary>
 public enum ActStanding { Available, Stretch, Locked }
 
@@ -156,9 +167,6 @@ public static class ActCatalogue
             .OrderBy(act => act.Popularity - EffectiveReputation(standing, act)).ThenBy(Key).Take(OutOfReachShown);
         return offer.Concat(nearMisses).ToArray();
     }
-
-    /// <summary>What a Tier's ticket costs. Fixed per tier for now; a set price comes later.</summary>
-    public static int TicketPricePennies(int tier) => tier switch { 1 => 800, 2 => 1_800, 3 => 3_500, _ => 6_000 };
 
     /// <summary>The act popularity a ticket at this price leads guests to expect: about three per pound.</summary>
     public static int ExpectedPopularity(int ticketPricePennies) => Math.Clamp(ticketPricePennies * 3 / 100, 0, 100);

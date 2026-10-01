@@ -303,12 +303,12 @@ void fragment() {
             box.AddChild(Ui.Text(note, 12, dark ? new Color("c9d1c7") : Ui.InkMuted));
             tiles.AddChild(tile);
         }
-        Tile("Sales", FestivalCurrency.Format(report.IncomePennies), $"{items} item{(items == 1 ? "" : "s")} sold", Ui.TealDeep);
+        Tile("Income", FestivalCurrency.Format(report.IncomePennies), $"{report.TicketsSold} tickets · {items} item{(items == 1 ? "" : "s")} sold", Ui.TealDeep);
         Tile("Operating spend", FestivalCurrency.Format(report.OperatingExpensesPennies), "Staff, acts and services", Ui.Ink);
         Tile(report.OperatingResultPennies < 0 ? "Operating loss" : "Operating result", FestivalCurrency.Format(report.OperatingResultPennies), "After cost of items sold",
             report.OperatingResultPennies < 0 ? Ui.Link : Ui.TealDeep);
         Tile("Closing cash", FestivalCurrency.Format(report.ClosingCashPennies),
-            $"{(report.NetCashChangePennies < 0 ? "−" : "+")}{FestivalCurrency.Format(Math.Abs(report.NetCashChangePennies))} from {FestivalCurrency.Format(report.OpeningCashPennies)}", Ui.Ink, dark: true);
+            $"{(report.NetCashChangePennies < 0 ? "−" : "+")}{FestivalCurrency.Format(Math.Abs(report.NetCashChangePennies))} on the {FestivalCurrency.Format(report.OpeningCashPennies)} loan", Ui.Ink, dark: true);
         body.AddChild(Gap(14));
 
         var columns = new HBoxContainer(); columns.AddThemeConstantOverride("separation", Ui.Px(26)); body.AddChild(columns);
@@ -316,15 +316,16 @@ void fragment() {
         income.AddChild(ColumnHeading("Income", "Qty · sales"));
         RuledRows(income, list =>
         {
+            MoneyRow(list, $"Tickets · advance sales {FestivalCurrency.Format(report.TicketPricePennies)}", report.TicketsSold.ToString(), FestivalCurrency.Format(report.TicketSalesPennies));
             foreach (var sale in report.Sales)
             {
                 var item = sale.Product switch { ImmersionProduct.Chips => "Chips", ImmersionProduct.SoftDrink => "Soft drink", _ => "Beer" };
                 var rate = sale.UnitPricePennies == GameSession.ImmersionPrice(sale.Product) ? "full price" : "50% rate";
                 MoneyRow(list, $"{item} · {rate} {FestivalCurrency.Format(sale.UnitPricePennies)}", sale.Quantity.ToString(), FestivalCurrency.Format(sale.AmountPennies));
             }
-            if (report.Sales.Length == 0) list.AddChild(Ui.Text("No sales recorded", 13.5f, Ui.InkMuted));
+            if (report.Sales.Length == 0) list.AddChild(Ui.Text("No food or drink sold", 13.5f, Ui.InkMuted));
         });
-        MoneyRow(income, "Total income", items.ToString(), FestivalCurrency.Format(report.IncomePennies), true);
+        MoneyRow(income, "Total income", (items + report.TicketsSold).ToString(), FestivalCurrency.Format(report.IncomePennies), true);
         income.AddChild(Paragraph("50% rate applies to staff and performers; discounted beer is performer-only.", 11.5f, Ui.InkMuted));
 
         var spending = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; spending.AddThemeConstantOverride("separation", 0); columns.AddChild(spending);
@@ -348,7 +349,7 @@ void fragment() {
         body.AddChild(Gap(6));
         var steps = new List<(string Label, long Change, bool Total)>
         {
-            ("Opening", report.OpeningCashPennies, true), ("Sales", report.IncomePennies, false), ("Operating", -report.OperatingExpensesPennies, false),
+            ("Loan", report.OpeningCashPennies, true), ("Tickets", report.TicketSalesPennies, false), ("Sales", report.IncomePennies - report.TicketSalesPennies, false), ("Operating", -report.OperatingExpensesPennies, false),
         };
         if (report.StockPurchaseRecorded) steps.Add(("Stock", -report.StockPurchasesPennies, false));
         steps.Add(("Equipment", -report.CapitalPurchasesPennies, false));

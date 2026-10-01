@@ -20,8 +20,9 @@ public static class CampaignDefaults
     public const string SiteId = "site.lower-wittering-farm";
     public const string BasicAdministrationCommitmentId = "commitment.basic-administration-cover";
     public const long OpeningCashPennies = 80_000;
-    public const long OpeningLoanPrincipalPennies = 80_000;
-    public const long EditionPrincipalPennies = 16_000;
+    /// <summary>The opening budget less Tier 1's advance ticket sales.</summary>
+    public const long OpeningLoanPrincipalPennies = 60_000;
+    public const long EditionPrincipalPennies = 12_000;
     public const int InterestBasisPoints = 800;
     public const int LoanTermEditions = 5;
     public const long BasicAdministrationPennies = 4_000;
@@ -165,11 +166,12 @@ public sealed partial class GameSession
             PlanningCommitmentStatus.Available));
         session._campaignPlanning.LedgerTransactions.Add(new PlanningLedgerTransactionSnapshot(
             1,
-            "Starter loan funding",
+            "Starter loan and advance ticket sales",
             8,
             [
                 new LedgerEntry(financeOwner, LedgerAccountType.CashAsset, CampaignDefaults.OpeningCashPennies),
                 new LedgerEntry(financeOwner, LedgerAccountType.LoanPrincipalLiability, -CampaignDefaults.OpeningLoanPrincipalPennies),
+                new LedgerEntry(financeOwner, LedgerAccountType.SalesRevenue, -(CampaignDefaults.OpeningCashPennies - CampaignDefaults.OpeningLoanPrincipalPennies)),
             ]));
         return session;
     }

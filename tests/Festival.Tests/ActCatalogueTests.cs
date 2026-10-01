@@ -102,8 +102,8 @@ public sealed class ActCatalogueTests
     public void TicketPriceSetsExpectationsThatShapeEnjoyment()
     {
         var s = Fresh();
-        Assert.AreEqual(800, s.TicketPricePennies);
-        Assert.AreEqual(24, s.ExpectedPopularity);
+        Assert.AreEqual(1000, s.TicketPricePennies);
+        Assert.AreEqual(30, s.ExpectedPopularity);
         Assert.AreEqual(0, GameSession.ExpectationAdjustment(24, 24));
         Assert.AreEqual(660, GameSession.ExpectationAdjustment(90, 24));
         Assert.AreEqual(800, GameSession.ExpectationAdjustment(100, 0));
