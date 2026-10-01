@@ -314,6 +314,7 @@ internal static class CanonicalStateHasher
         if (session.PerkCanonicalJson is { } perks) { writer.Write("r0-perks-v1"); writer.Write(perks); writer.Flush(); }
         if (session.FacilitiesCanonicalJson is { } facilities) { writer.Write("facilities-v1"); writer.Write(facilities); writer.Flush(); }
         if (session.LitterCanonicalJson is { } litter) { writer.Write("litter-v1"); writer.Write(litter); writer.Flush(); }
+        if (session.FaultsCanonicalJson is { } faults) { writer.Write("faults-v1"); writer.Write(faults); writer.Flush(); }
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();
     }

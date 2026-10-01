@@ -125,6 +125,7 @@ public sealed partial class GameSession
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray());
         SetToilets(PlacedToilets(p));
         _litter ??= EmptyLitter;
+        _faults ??= EmptyFaults;
     }
 
     /// <summary>Every placed toilet, standing fresh at its placement: the main toilet first, then any others in placement order.</summary>

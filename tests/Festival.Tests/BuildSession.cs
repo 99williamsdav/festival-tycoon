@@ -70,6 +70,17 @@ internal static class BuildSession
             .OrderBy(c => c.Traits.Length > 0).ThenBy(c => c.Grade > 0).ThenBy(c => Math.Abs(c.Grade)).ThenBy(c => c.Id, StringComparer.Ordinal).First().ExtraOfferId;
     }
 
+    /// <summary>
+    /// Labelled fixture: no stuck toilets or broken taps from here on (and none open now), for tests about
+    /// something else that a random fault would disturb. Saved, so restored copies stay fault-free.
+    /// </summary>
+    public static GameSession WithoutFaults(GameSession s)
+    {
+        typeof(GameSession).GetField("_faults", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .SetValue(s, new FaultsSnapshot(1, [], Disabled: true));
+        return s;
+    }
+
     /// <summary>Hire commands for <see cref="CrewIds"/>.</summary>
     public static AcceptPreparationOfferCommand[] Crew(GameSession s) => CrewIds(s).Select(id => new AcceptPreparationOfferCommand(id)).ToArray();
 

@@ -37,6 +37,8 @@ public enum PersonClaim
     Maintaining = 1 << 17,
     WasteDisposal = 1 << 18,
     Cleanup = 1 << 19,
+    /// <summary>A steward or maintenance worker assigned to a stuck toilet or broken tap.</summary>
+    FaultWork = 1 << 20,
 }
 
 public static class PersonClaims
@@ -46,7 +48,7 @@ public static class PersonClaims
         PersonClaim.AwaitingMedic | PersonClaim.Leaving | PersonClaim.Collapsed;
     /// <summary>A staff member's hands and route belong to a job.</summary>
     public const PersonClaim StaffJob = PersonClaim.InterventionWorker | PersonClaim.MedicResponding |
-        PersonClaim.StewardResponding | PersonClaim.Maintaining | PersonClaim.Cleanup;
+        PersonClaim.StewardResponding | PersonClaim.Maintaining | PersonClaim.Cleanup | PersonClaim.FaultWork;
     /// <summary>Claims that stop a person carrying, buying or consuming food and drink.</summary>
     public const PersonClaim HandsBusy = PersonClaim.Performing | PersonClaim.Fighting | PersonClaim.InterventionTarget |
         StaffJob | PersonClaim.WasteDisposal;
@@ -88,6 +90,7 @@ public sealed partial class GameSession
     {
         if (claims.HasFlag(PersonClaim.WasteDisposal) && WasteOwnsNavigation(id)) return true;
         if (claims.HasFlag(PersonClaim.Cleanup) && CleanupOwnsNavigation(id)) return true;
+        if (claims.HasFlag(PersonClaim.FaultWork) && FaultWorkOwns(id)) return true;
         if (claims.HasFlag(PersonClaim.WaterPlace) && WaterPoints().Any(point => point.Queue.Contains(id))) return true;
         if ((claims & (PersonClaim.SeekingWater | PersonClaim.Resting | PersonClaim.AwaitingMedic | PersonClaim.Leaving |
                 PersonClaim.Collapsed)) != 0 && PersonIn(PersonView.Medical, id) is { } need &&

@@ -263,7 +263,8 @@ public partial class Main
             var flow = _session.CommunityWaterShareActive ? tower ? "NORMAL" : "LOW" : tower ? "BOOSTED" : "NORMAL";
             _waterFlowIcon!.Texture = _waterFlowTextures[flow.ToLowerInvariant()];
             _waterFlowLabel!.Text = $"FLOW • {flow}\nCouncil {(_session.CommunityWaterShareActive ? "baseline cap 12" : "not shared")} • tower {(tower ? "+4" : "none")}";
-            _inspectorBody.Text = $"FREE • no stock or payment\nQUEUE  {point.Queue.Length}/10 • VISIBLE TAIL  {point.Overflow.Length}\n" +
+            _inspectorBody.Text = (_session.FaultStatus(point.Id) is { } fault ? fault + "\n" : "") +
+                $"FREE • no stock or payment\nQUEUE  {point.Queue.Length}/10 • VISIBLE TAIL  {point.Overflow.Length}\n" +
                 $"FACING  {point.QuarterTurns * 90}°\n" +
                 $"DRINKING  {owner}\nPACE  {(point.OwnerId is { } drinker ? _session.EffectiveMedicalDrinkThirstPerTickFor(drinker).ToString() : _session.CommunityWaterShareActive ? tower ? "12–16" : "8–12" : tower ? "12–24" : "8–20")} thirst/tick • varies by person{(_session.CommunityWaterShareActive ? " • Council share caps baseline at 12" : "")}{(tower ? " • tower +4" : "")}\n" +
                 "More taps do not reduce personal flow. The physical line grows on arrival; approaching reserves no place.";

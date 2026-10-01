@@ -90,7 +90,8 @@ public sealed class FestivalProgrammeTests
         Assert.IsTrue(Send(s, new SetProgrammeCommand(seed == 20260922 ? ["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"] : Acts)).IsAccepted);
         foreach (var id in BuildSession.CrewIds(s).Concat(new[] { "equipment.buy" }).Concat(maintenance ? ["maintenance.worker"] : Array.Empty<string>())) Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
-        s = Restore(s);
+        // About the stage schedule: no random toilet or tap faults reshuffling the day.
+        s = Restore(BuildSession.WithoutFaults(s));
         var ids = s.CapturePreparation()!.People.Select(p => p.AgentId).ToArray();
         Assert.AreEqual(maintenance ? 33 : 32, ids.Length);
         var played = new HashSet<int>();
@@ -114,7 +115,8 @@ public sealed class FestivalProgrammeTests
             var live = s.CaptureLivePerformance()!;
             if (s.CurrentTick % 80 == 0)
             {
-                var stagePeople = s.CaptureSnapshot().NavigationAgents.Where(agent =>
+                // A medic answering a performer's collapse may cross the stage; only the band counts here.
+                var stagePeople = s.CaptureSnapshot().NavigationAgents.Where(agent => agent.IntentId != "medical.dispatch").Where(agent =>
                 {
                     var cell = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
                     return cell.X is >= 92 and <= 98 && cell.Z is >= 143 and <= 157;

@@ -426,6 +426,7 @@ public sealed partial class GameSession
     private void RetryPreparedWeekend()
     {
         _litter = EmptyLitter;
+        _faults = EmptyFaults;
         var p = _preparation!;
         var baseline = CreateFoodAndDrinkBaseline(CampaignSeed);
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;

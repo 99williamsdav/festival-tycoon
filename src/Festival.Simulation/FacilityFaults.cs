@@ -1,0 +1,274 @@
+namespace Festival.Simulation;
+
+public enum FacilityFaultKind { StuckInToilet, BrokenTap }
+/// <summary>Active blocks the facility; a bodged tap works again at reduced flow; fixed is done with.</summary>
+public enum FacilityFaultStage { Active, Bodged, Fixed }
+
+/// <param name="VictimId">Who is stuck, or who was using the tap when it broke.</param>
+/// <param name="WorkerId">The steward or maintenance worker assigned, while they are on their way or working.</param>
+public sealed record FacilityFault(string Id, FacilityFaultKind Kind, string FacilityId, ulong VictimId, long StartedTick,
+    FacilityFaultStage Stage, ulong? WorkerId = null, long WorkStartedTick = -1, long ResolvedTick = -1);
+/// <param name="Disabled">Labelled test fixture: no new faults. Never set in play.</param>
+public sealed record FaultsSnapshot(int Version, FacilityFault[] Faults, bool Disabled = false);
+
+public static class FaultRules
+{
+    // A small chance on each use, tuned so a Tier 1 toilet (~30 visits) or tap (~60 uses) has about
+    // a 90% chance of at least one incident in a day: 1 - 0.1^(1/30) and 1 - 0.1^(1/60).
+    public const int ToiletStuckChancePer10k = 739;
+    public const int TapBreakChancePer10k = 377;
+    public const int RescueTicks = 480, RepairTicks = 960, BodgeTicks = 1_600;
+    /// <summary>What someone weighing the queue expects to wait before help is even on its way.</summary>
+    public const int UnassignedWaitTicks = 4_800;
+    /// <summary>A bodged tap gives water at half the normal flow.</summary>
+    public const int BodgedFlowDivisor = 2;
+    public const int BrokenTapSatisfactionLoss = 150;
+
+    /// <summary>Deterministic per-use roll from the campaign seed, the facility and the use.</summary>
+    public static bool Roll(ulong seed, string facilityId, long a, ulong b, int chancePer10k)
+    {
+        var value = seed;
+        foreach (var ch in facilityId) value = unchecked((value ^ ch) * 0x100000001B3UL);
+        value = unchecked(value + (ulong)a * 0x9E3779B97F4A7C15UL + b * 0xD1B54A32D192ED03UL);
+        value = (value ^ (value >> 30)) * 0xBF58476D1CE4E5B9UL;
+        value = (value ^ (value >> 27)) * 0x94D049BB133111EBUL;
+        return (int)((value ^ (value >> 31)) % 10_000) < chancePer10k;
+    }
+
+    /// <summary>Satisfaction a stuck person loses each second: one more every 15 seconds as panic grows, up to 8.</summary>
+    public static int PanicLossPerSecond(long stuckTicks) => Math.Min(8, 1 + (int)(stuckTicks / 1_200));
+    public const int ShoutEveryTicks = 400, ShoutTicks = 200, GrumbleTicks = 240;
+    private static readonly string[][] StuckShouts = [
+        ["Hello? The door's stuck!", "Er... the lock's jammed."],
+        ["Help! I can't get out!", "Is anyone out there?!"],
+        ["HELP! GET ME OUT!", "It's boiling in here!"]];
+    private static readonly string[] TapGrumbles = ["Oh, come on!", "It's just spitting at me!", "Brilliant. Broken."];
+
+    /// <summary>
+    /// What the person at the centre of a fault is saying at this tick, if anything: a stuck person shouts
+    /// every few seconds, more desperately the longer they wait; a tap's last user grumbles once as it breaks.
+    /// Presentation only, and a pure function of the fault and the tick, so a reload needs no catching up.
+    /// </summary>
+    public static string? Remark(FacilityFault fault, long tick)
+    {
+        var elapsed = tick - fault.StartedTick;
+        if (elapsed < 0 || fault.Stage != FacilityFaultStage.Active && !(fault.Kind == FacilityFaultKind.BrokenTap && elapsed < GrumbleTicks)) return null;
+        if (fault.Kind == FacilityFaultKind.BrokenTap)
+            return elapsed < GrumbleTicks ? TapGrumbles[(int)(fault.VictimId % (ulong)TapGrumbles.Length)] : null;
+        if (elapsed % ShoutEveryTicks >= ShoutTicks) return null;
+        var band = StuckShouts[Math.Min(StuckShouts.Length - 1, (int)(elapsed / 1_600))];
+        return band[(int)((elapsed / ShoutEveryTicks + (long)(fault.VictimId % 2)) % band.Length)];
+    }
+
+    /// <summary>In hot weather a portaloo cubicle adds this much heat every four ticks on top of the usual gain.</summary>
+    public const int PortalooExtraHeat = 1;
+}
+
+public sealed partial class GameSession
+{
+    private FaultsSnapshot? _faults;
+    private static readonly FaultsSnapshot EmptyFaults = new(1, []);
+    public FaultsSnapshot? CaptureFaults() => _faults;
+    internal string? FaultsCanonicalJson => _faults is null ? null : System.Text.Json.JsonSerializer.Serialize(_faults);
+
+    private IEnumerable<FacilityFault> OpenFaults => (_faults?.Faults ?? []).Where(f => f.Stage != FacilityFaultStage.Fixed);
+    public FacilityFault? ActiveFault(string facilityId) => OpenFaults.FirstOrDefault(f => f.FacilityId == facilityId && f.Stage == FacilityFaultStage.Active);
+    public bool TapBodged(string tapId) => OpenFaults.Any(f => f.FacilityId == tapId && f.Stage == FacilityFaultStage.Bodged);
+    private bool FaultWorkOwns(ulong id) => OpenFaults.Any(f => f.WorkerId == id);
+    public FacilityFault? FaultWorkOf(ulong id) => OpenFaults.FirstOrDefault(f => f.WorkerId == id);
+
+    /// <summary>A line for the toilet or tap inspector while something is wrong with it.</summary>
+    public string? FaultStatus(string facilityId)
+    {
+        if (OpenFaults.FirstOrDefault(f => f.FacilityId == facilityId) is not { } fault) return null;
+        string Who(ulong id) => PersonIn(PersonView.Roster, id)?.Name ?? "someone";
+        var help = fault.WorkerId is { } worker ? $"{Who(worker)} {(fault.WorkStartedTick >= 0 ? "is on it" : "is on the way")}" : "waiting for help";
+        return fault switch
+        {
+            { Kind: FacilityFaultKind.StuckInToilet } => $"STUCK • {Who(fault.VictimId)} can't get out ({(CurrentTick - fault.StartedTick) / 80}s) • {help}",
+            { Stage: FacilityFaultStage.Active } => $"BROKEN • no water until mended • {(_equipment?.WorkerId is null && fault.WorkerId is null ? "a steward can bodge it" : help)}",
+            _ => $"BODGED • half flow{(_equipment?.WorkerId is null ? "" : fault.WorkerId is null ? " • maintenance will mend it" : $" • {help}")}",
+        };
+    }
+
+    private void SetFault(FacilityFault fault) => _faults = _faults! with
+        { Faults = _faults.Faults.Select(f => f.Id == fault.Id ? fault : f).ToArray() };
+
+    /// <param name="id">Names the use that caused it, so the same use can never fault twice.</param>
+    private FacilityFault AddFault(string id, FacilityFaultKind kind, string facilityId, ulong victimId)
+    {
+        _faults ??= EmptyFaults;
+        var fault = new FacilityFault(id, kind, facilityId, victimId, CurrentTick, FacilityFaultStage.Active);
+        // A tap that breaks again loses its earlier bodge: the new break needs mending from scratch.
+        _faults = _faults with { Faults = _faults.Faults
+            .Select(f => f.FacilityId == facilityId && f.Stage == FacilityFaultStage.Bodged ? f with { Stage = FacilityFaultStage.Fixed, WorkerId = null, WorkStartedTick = -1 } : f)
+            .Append(fault).ToArray() };
+        return fault;
+    }
+
+    /// <summary>
+    /// Called as a toilet visit finishes. True while the occupant cannot get out: an existing jam,
+    /// or a fresh one from this visit's roll.
+    /// </summary>
+    private bool ToiletDoorJammed(ToiletFacility toilet, ulong occupant)
+    {
+        if (ActiveFault(toilet.Id) is { Kind: FacilityFaultKind.StuckInToilet } jam) return jam.VictimId == occupant;
+        // The visit count is unchanged until they leave, so a freed occupant's own visit is not rolled again.
+        var visit = toilet.WeeCount + toilet.PooCount;
+        var id = $"stuck:{toilet.Id}:{visit}";
+        if (_faults is null or { Disabled: true } || _faults.Faults.Any(f => f.Id == id) ||
+            !FaultRules.Roll(CampaignSeed, toilet.Id, visit, (ulong)_preparation!.Attempt, FaultRules.ToiletStuckChancePer10k)) return false;
+        AddFault(id, FacilityFaultKind.StuckInToilet, toilet.Id, occupant);
+        MutatePerson(occupant, person => person.Reason = "Stuck in the toilet: the lock has jammed");
+        MedicalEvent("fault:stuck", $"Person {occupant} is stuck in {toilet.Id}; a steward is needed to free them.");
+        return true;
+    }
+
+    /// <summary>Called as someone starts drinking. True when the tap breaks in their hands.</summary>
+    private bool TapBreaksOnUse(WaterPointState point, ulong drinker)
+    {
+        if (_faults is null or { Disabled: true } || !FaultRules.Roll(CampaignSeed, point.Id, CurrentTick, drinker, FaultRules.TapBreakChancePer10k)) return false;
+        AddFault($"broken:{point.Id}:{CurrentTick}", FacilityFaultKind.BrokenTap, point.Id, drinker);
+        MutatePerson(drinker, person => person.Satisfaction = Math.Max(0, person.Satisfaction - FaultRules.BrokenTapSatisfactionLoss));
+        MedicalEvent("fault:broken-tap", $"{point.Id} broke as person {drinker} used it; it needs mending before anyone else can drink there.");
+        return true;
+    }
+
+    /// <summary>Extra time someone weighing this facility expects before it serves again, if it is out of action.</summary>
+    private int FaultDelayTicks(string facilityId)
+    {
+        if (ActiveFault(facilityId) is not { } fault) return 0;
+        var work = fault.Kind == FacilityFaultKind.StuckInToilet ? FaultRules.RescueTicks :
+            _equipment?.WorkerId is not null ? FaultRules.RepairTicks : FaultRules.BodgeTicks;
+        if (fault.WorkerId is not { } worker) return FaultRules.UnassignedWaitTicks + work;
+        if (fault.WorkStartedTick >= 0) return (int)Math.Max(0, work - (CurrentTick - fault.WorkStartedTick));
+        return (EstimateStaffTravelTicks(worker) ?? FaultRules.UnassignedWaitTicks) + work;
+    }
+
+    /// <summary>Where a worker stands to mend a tap: a walkable side away from its queue, or outside the toilet door.</summary>
+    private GridCell? FaultWorkCell(FacilityFault fault, ulong worker)
+    {
+        if (fault.Kind == FacilityFaultKind.StuckInToilet) return ToiletExitCell(GetToilet(fault.FacilityId));
+        if (WaterPoints().SingleOrDefault(p => p.Id == fault.FacilityId) is not { } point) return null;
+        var avoid = point.QueueCells.Append(WaterSlot(point, 0)).Append(WaterApproach(point)).ToHashSet();
+        var here = TraversalGrid.WorldToCell(_navigationAgents[new(worker)].XMillimetres, _navigationAgents[new(worker)].ZMillimetres);
+        return new[] { new GridCell(point.Cell.X, point.Cell.Z + 2), new(point.Cell.X + 2, point.Cell.Z), new(point.Cell.X, point.Cell.Z - 2), new(point.Cell.X - 2, point.Cell.Z) }
+            .Where(c => !avoid.Contains(c) && _traversalGrid!.Contains(c) && _traversalGrid.Get(c).IsWalkable)
+            .OrderBy(c => (long)(c.X - here.X) * (c.X - here.X) + (long)(c.Z - here.Z) * (c.Z - here.Z)).ThenBy(c => c.X).ThenBy(c => c.Z)
+            .Where(c => DeterministicPathfinder.FindPath(_traversalGrid!, here, c).Found).Select(c => (GridCell?)c).FirstOrDefault();
+    }
+
+    private static string FaultIntent(FacilityFault fault, bool maintenance) =>
+        fault.Kind == FacilityFaultKind.StuckInToilet ? "fault.rescue" : maintenance ? "fault.repair" : "fault.bodge";
+
+    private void AdvanceFacilityFaults()
+    {
+        if (_faults is null || _preparation is null) return;
+        if (_preparation.Status != PreparationStatus.Running)
+        {
+            // Departure takes everyone's route: workers are released, and what is broken stays broken.
+            foreach (var held in OpenFaults.Where(f => f.WorkerId is not null).ToArray()) SetFault(held with { WorkerId = null, WorkStartedTick = -1 });
+            // The end of the day opens the door: the toilet sends every occupant out.
+            foreach (var jam in OpenFaults.Where(f => f.Kind == FacilityFaultKind.StuckInToilet && GetToilet(f.FacilityId).OwnerId != f.VictimId).ToArray())
+                ResolveFault(jam, FacilityFaultStage.Fixed);
+            return;
+        }
+        foreach (var original in OpenFaults.ToArray())
+        {
+            var fault = original;
+            if (fault.Kind == FacilityFaultKind.StuckInToilet && fault.Stage == FacilityFaultStage.Active)
+            {
+                // The jam ends if anything else has got them out (another emergency, the day ending).
+                var toilet = GetToilet(fault.FacilityId);
+                if (toilet.OwnerId != fault.VictimId || _persons[fault.VictimId].ToiletStage != ToiletVisitStage.Using)
+                { ResolveFault(fault, FacilityFaultStage.Fixed); continue; }
+                // Panic only costs satisfaction; any collapse comes from ordinary heat and thirst (a hot cubicle helps).
+                var stuck = CurrentTick - fault.StartedTick;
+                if (stuck > 0 && stuck % 80 == 0)
+                {
+                    var loss = FaultRules.PanicLossPerSecond(stuck);
+                    MutatePerson(fault.VictimId, person => person.Satisfaction = Math.Max(0, person.Satisfaction - loss));
+                }
+            }
+            if (fault.Stage == FacilityFaultStage.Bodged && _equipment?.WorkerId is null) continue;
+            AdvanceFaultWorker(fault);
+        }
+    }
+
+    private void AdvanceFaultWorker(FacilityFault fault)
+    {
+        var maintenance = _equipment?.WorkerId;
+        if (fault.WorkerId is { } worker)
+        {
+            var nav = _navigationAgents[new(worker)];
+            // Anything else that takes the worker's route (a fight, a generator call) releases the job.
+            if (nav.IntentId?.StartsWith("fault.", StringComparison.Ordinal) != true || PersonCollapsed(worker) ||
+                PersonIn(PersonView.Roster, worker) is not { Admitted: true, Departed: false } || nav.Action == AgentNavigationAction.NoRoute)
+            { SetFault(fault with { WorkerId = null, WorkStartedTick = -1 }); return; }
+            if (nav.Action != AgentNavigationAction.Arrived || nav.Destination is not { } cell ||
+                (nav.XMillimetres, nav.ZMillimetres) != TraversalGrid.CellCentre(cell)) return;
+            if (fault.WorkStartedTick < 0) { SetFault(fault with { WorkStartedTick = CurrentTick }); return; }
+            var mending = worker == maintenance;
+            var duration = fault.Kind == FacilityFaultKind.StuckInToilet ? FaultRules.RescueTicks : mending ? FaultRules.RepairTicks : FaultRules.BodgeTicks;
+            if (CurrentTick - fault.WorkStartedTick < duration) return;
+            ResolveFault(fault, fault.Kind == FacilityFaultKind.BrokenTap && !mending ? FacilityFaultStage.Bodged : FacilityFaultStage.Fixed);
+            ReturnToListening(worker);
+            return;
+        }
+        if (CurrentTick % 8 != 0) return;
+        // Freeing someone is for stewards. A broken tap is mended by maintenance; without a maintenance
+        // worker, a steward bodges it. A bodged tap waits for maintenance to mend it properly.
+        IEnumerable<ulong> candidates = fault.Kind == FacilityFaultKind.StuckInToilet || fault.Stage == FacilityFaultStage.Active && maintenance is null
+            ? GetStewardResponses().Select(s => s.WorkerId)
+            : maintenance is { } m && _equipment!.JobStage == MaintenanceStage.None ? [m] : [];
+        var facilityCell = fault.Kind == FacilityFaultKind.StuckInToilet ? GetToilet(fault.FacilityId).Cell : WaterPoints().Single(p => p.Id == fault.FacilityId).Cell;
+        foreach (var id in candidates.Where(id => StaffUnavailableReason(id) is null && !FaultWorkOwns(id) && !WasteOwnsNavigation(id))
+                     .OrderBy(id => { var n = _navigationAgents[new(id)]; var c = TraversalGrid.CellCentre(facilityCell);
+                         long dx = n.XMillimetres - c.XMillimetres, dz = n.ZMillimetres - c.ZMillimetres; return dx * dx + dz * dz; })
+                     .ThenBy(id => id))
+        {
+            if (FaultWorkCell(fault, id) is not { } cell) continue;
+            RecallWorker(id, "Called to a facility fault");
+            SetFault(fault with { WorkerId = id, WorkStartedTick = -1 });
+            ApplyAgentDestination(new(id), new(cell, FaultIntent(fault, id == maintenance)));
+            return;
+        }
+    }
+
+    private void ResolveFault(FacilityFault fault, FacilityFaultStage stage)
+    {
+        var resolved = fault with { Stage = stage, ResolvedTick = CurrentTick, WorkerId = null, WorkStartedTick = -1 };
+        SetFault(resolved);
+        MedicalEvent(stage == FacilityFaultStage.Bodged ? "fault:bodged" : "fault:fixed",
+            stage == FacilityFaultStage.Bodged ? $"{fault.FacilityId} bodged back into service at reduced flow." : $"{fault.FacilityId}: {fault.Kind} resolved.");
+    }
+
+    private static string? ValidatePersistedFaults(SessionPersistenceSnapshot s)
+    {
+        if (s.Faults is null) return s.Preparation?.Plan is null ? null : "Current Build save requires facility fault state.";
+        if (s.Faults.Version != 1 || s.Faults.Faults is null || s.Faults.Faults.Any(f => f is null) || s.Preparation is not { } prep)
+            return "Facility fault state shape invalid.";
+        var faults = s.Faults.Faults;
+        if (prep.Status == PreparationStatus.Preparing && faults.Length != 0) return "Draft/retry must clear facility faults.";
+        if (s.Faults.Disabled && faults.Length != 0) return "A fault-free fixture holds no faults.";
+        var toilets = (s.Facilities?.Toilets ?? []).ToDictionary(t => t.Id);
+        var taps = (s.Facilities?.Taps ?? []).Select(t => t.Id).ToHashSet();
+        var stewards = (s.Disorder?.Stewards ?? []).Select(w => w.WorkerId).ToHashSet();
+        var maintenance = s.Equipment?.WorkerId;
+        bool Working(ulong id) => s.NavigationAgents?.SingleOrDefault(n => n.Id == id)?.IntentId?.StartsWith("fault.", StringComparison.Ordinal) == true;
+        if (faults.Select(f => f.Id).Distinct().Count() != faults.Length ||
+            faults.Any(f => !Enum.IsDefined(f.Kind) || !Enum.IsDefined(f.Stage) || f.StartedTick < prep.StartedTick || f.StartedTick > s.CurrentTick ||
+                !prep.People.Any(p => p.AgentId == f.VictimId) ||
+                (f.Kind == FacilityFaultKind.StuckInToilet ? !toilets.ContainsKey(f.FacilityId) || f.Stage == FacilityFaultStage.Bodged : !taps.Contains(f.FacilityId)) ||
+                (f.Stage == FacilityFaultStage.Active) != (f.ResolvedTick < 0) || f.ResolvedTick >= 0 && (f.ResolvedTick < f.StartedTick || f.ResolvedTick > s.CurrentTick) ||
+                f.Stage == FacilityFaultStage.Fixed && (f.WorkerId is not null || f.WorkStartedTick != -1) ||
+                f.WorkerId is { } worker && (!(stewards.Contains(worker) || worker == maintenance) || !Working(worker)) ||
+                f.WorkerId is null && f.WorkStartedTick != -1 || f.WorkStartedTick > s.CurrentTick || f.WorkStartedTick >= 0 && f.WorkStartedTick < f.StartedTick ||
+                f.Stage == FacilityFaultStage.Bodged && f.WorkerId is { } mender && mender != maintenance ||
+                f.Stage == FacilityFaultStage.Active && f.Kind == FacilityFaultKind.StuckInToilet && toilets[f.FacilityId].OwnerId != f.VictimId) ||
+            faults.Where(f => f.Stage != FacilityFaultStage.Fixed).GroupBy(f => f.FacilityId).Any(g => g.Count() > 1) ||
+            faults.Where(f => f.WorkerId is not null).GroupBy(f => f.WorkerId).Any(g => g.Count() > 1))
+            return "Facility fault identity, stage or worker invalid.";
+        return null;
+    }
+}

@@ -25,7 +25,7 @@ public sealed class StaffAutonomyTests
     }
     private static GameSession Started(bool extra = false)
     {
-        var s = Ready(extra); Accept(s, new StartPreparedEditionCommand()); s.AdvanceWithoutSnapshot(1500);
+        var s = Ready(extra); Accept(s, new StartPreparedEditionCommand()); BuildSession.WithoutFaults(s); s.AdvanceWithoutSnapshot(1500);
         while (!s.CapturePreparation()!.People.Where(person => person.Role != ProtectedPersonRole.Performer).All(person => person.Admitted) && s.CurrentTick < 12000)
             s.AdvanceWithoutSnapshot(80);
         // Workers take personal breaks now; start each scenario with none of them mid-service.

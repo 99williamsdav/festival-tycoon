@@ -314,10 +314,12 @@ public sealed partial class GameSession
         var position = fresh ? -1 : Array.IndexOf(members, id);
         var joined = position >= 0 || !fresh && _persons[id].Intent == MedicalIntent.SeekWater && _persons[id].WaterPointId == point.Id;
         var destination = position < 0 ? WaterApproach(point) : position < 10 ? WaterSlot(point, position) : WaterOverflowSlot(point, position - 10);
-        var candidate = new QueuedServiceChoice.Candidate(point.Id, EstimateWalkTicks(id, here, destination), WaterDurationTicks(id), true,
+        // A broken tap adds the expected wait for it to be mended; a bodged one takes twice as long per drink.
+        var flow = TapBodged(point.Id) ? FaultRules.BodgedFlowDivisor : 1;
+        var candidate = new QueuedServiceChoice.Candidate(point.Id, EstimateWalkTicks(id, here, destination), WaterDurationTicks(id) * flow + FaultDelayTicks(point.Id), true,
             joined || members.Length < 20 && (point.QueueCells.Length == 0 || point.QueueCells.Length > members.Length),
-            members.Select(member => new QueuedServiceChoice.Member(member, WaterDurationTicks(member))).ToArray(),
-            point.OwnerId, point.OwnerId is { } owner ? WaterDurationTicks(owner) : 0, []);
+            members.Select(member => new QueuedServiceChoice.Member(member, WaterDurationTicks(member) * flow)).ToArray(),
+            point.OwnerId, point.OwnerId is { } owner ? WaterDurationTicks(owner) * flow : 0, []);
         return QueuedServiceChoice.EstimateTicks(id, candidate);
     }
 
@@ -327,7 +329,7 @@ public sealed partial class GameSession
         var destination = ToiletQueueCell(toilet, position >= 0 ? position : Math.Min(toilet.Queue.Length, ToiletRules.MaximumQueue - 1));
         var active = toilet.OwnerId is { } owner ? _persons[owner] : null;
         var ownerRemaining = active?.ToiletStage switch
-        { ToiletVisitStage.Using => toilet.ServiceTicks, ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 };
+        { ToiletVisitStage.Using => toilet.ServiceTicks, ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 } + FaultDelayTicks(toilet.Id);
         var candidate = new QueuedServiceChoice.Candidate(toilet.Id, EstimateWalkTicks(id, here, destination), ToiletServiceDuration(kind),
             !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind),
             position >= 0 || !fresh && _persons[id].ToiletId == toilet.Id || toilet.Queue.Length < ToiletRules.MaximumQueue,

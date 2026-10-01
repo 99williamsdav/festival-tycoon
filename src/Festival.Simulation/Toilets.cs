@@ -172,7 +172,7 @@ public sealed partial class GameSession
         var active = toilet.OwnerId is { } owner ? people.Single(person => person.Id == owner) : null;
         var ownerRemaining = active?.ToiletStage switch
         { ToiletVisitStage.Using => toilet.ServiceTicks, ToiletVisitStage.Leaving => 0,
-            ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 };
+            ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 } + FaultDelayTicks(toilet.Id);
         return new(toilet.Id, EstimateQueuedServiceWalkTicks(agentId, destination), ToiletServiceDuration(kind),
             !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind),
             toilet.Queue.Length < ToiletRules.MaximumQueue,
@@ -293,6 +293,7 @@ public sealed partial class GameSession
                 SetConsumption(active with { ToiletNeed = Math.Max(1_000, active.ToiletNeed - reduction) });
                 SetToilet(toilet with { ServiceTicks = remaining - 1 });
             }
+            else if (ToiletDoorJammed(toilet, owner)) { } // Stuck: the visit is over but the door won't open.
             else
             {
                 var poo = active.ToiletChoice == ToiletVisitKind.Poo;

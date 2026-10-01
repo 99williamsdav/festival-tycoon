@@ -378,7 +378,7 @@ public sealed partial class GameSession
         var d = _disorder!;
         var workerId = response.WorkerId;
         var profile = GetResponseStaff().Single(item => item.AgentId == workerId);
-        if (!ImmersionOwnsNavigation(workerId) && !MedicalOwnsNavigation(workerId) && !InterventionOwnsWorker(workerId) && !CleanupOwnsNavigation(workerId) && !WasteOwnsNavigation(workerId) && response.Stage == SecurityResponseStage.Completed && !response.Incapacitated &&
+        if (!ImmersionOwnsNavigation(workerId) && !MedicalOwnsNavigation(workerId) && !InterventionOwnsWorker(workerId) && !CleanupOwnsNavigation(workerId) && !WasteOwnsNavigation(workerId) && !FaultWorkOwns(workerId) && response.Stage == SecurityResponseStage.Completed && !response.Incapacitated &&
             _navigationAgents[new(workerId)].Destination != StaffDutyCell(workerId, ResponseRole.Steward))
             ApplyAgentDestination(new(workerId), new(StaffDutyCell(workerId, ResponseRole.Steward), "disorder.return-to-post"));
         if (response.TargetId is not { } targetId || response.Incapacitated) return;
@@ -599,8 +599,9 @@ public sealed partial class GameSession
                 item.GrievanceTick > s.CurrentTick || item.StageTick > s.CurrentTick ||
                 item.QueueJoinedTick > s.CurrentTick || item.InjuryTick > s.CurrentTick ||
                 item.OpponentId is { } opponent && !p.People.Any(person => person.AgentId == opponent) ||
+                // An untreated injury turns critical after the medical delay, like any collapse.
                 item.Stage == DisorderStage.Injured && (item.InjuryTick < 0 ||
-                    medical.Needs.Single(need => need.AgentId == item.AgentId).Stage != MedicalStage.Collapsed)) ||
+                    medical.Needs.Single(need => need.AgentId == item.AgentId).Stage is not (MedicalStage.Collapsed or MedicalStage.Critical))) ||
             d.Evidence.Length > 96 || d.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick ||
                 !p.People.Any(person => person.AgentId == item.PersonId) || string.IsNullOrWhiteSpace(item.Id) ||
                 string.IsNullOrWhiteSpace(item.Description) || item.Pressure is < 0 or > 10_000) ||

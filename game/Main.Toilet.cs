@@ -117,6 +117,7 @@ public partial class Main
             $"Occupied by {_session.CapturePreparation()!.People.Single(p => p.AgentId == occupant).Name}" : "Free")}" +
             $"\nTank {toilet.UsedMillilitres / 1000m:0.0}/{toilet.CapacityMillilitres / 1000m:0.0} L • {toilet.FullPercent}% full" +
             $"\nWees {toilet.WeeCount} • poos {toilet.PooCount} • queue {toilet.Queue.Length}" +
+            (_session.FaultStatus(toilet.Id) is { } fault ? "\n" + fault : "") +
             "\nSmell rises as the tank fills.";
         _highlight.Position = selectedView.Body.Position + new Vector3(0, .08f, 0);
         _highlight.Scale = new Vector3(1.3f, 1, 1.5f); _highlight.Visible = true;

@@ -14,6 +14,7 @@ public sealed partial class GameSession
         if (HasClaim(id, PersonClaims.ResponseAssigned))
             return "Already assigned; finish the current response or manual guidance.";
         if (PersonalActivityInService(id)) return "Finishing a drink, purchase, toilet visit or rest.";
+        if (FaultWorkOwns(id)) return "Busy freeing someone from a toilet or mending a tap.";
         if (_persons[id].Intent is MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed)
             return "Busy with medical care or departure.";
         return null;
@@ -94,6 +95,8 @@ public sealed partial class GameSession
         if (steward?.Stage is SecurityResponseStage.Calming or SecurityResponseStage.Confronting) return "Handling";
         if (steward is not null && StewardBusy(steward)) return "Responding";
         if (CleanupOwnsNavigation(id)) return "Cleaning · bounded sweep";
+        if (FaultWorkOf(id) is { } fault) return fault.Kind == FacilityFaultKind.StuckInToilet ? "Freeing someone stuck in a toilet" :
+            id == _equipment?.WorkerId ? "Mending a broken tap" : "Bodging a broken tap";
         return StaffUnavailableReason(id) is { } issue ? "Unavailable · " + issue : "Idle · available (safe return routes may be reassigned)";
     }
 }

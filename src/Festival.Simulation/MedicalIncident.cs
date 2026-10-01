@@ -523,6 +523,8 @@ public sealed partial class GameSession
                 if (item.NeedProfile == MedicalNeedProfile.Guest && !item.Admitted || GuestWaitingForRelease(item.Id)) continue;
                 // Guests and performers heat up at the same rate; on-duty staff far more slowly.
                 var heat = item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
+                // A portaloo cubicle is a hot box in hot weather, for a normal visit and doubly so for someone stuck.
+                if (m.IsHot && item.ToiletStage == ToiletVisitStage.Using) heat += FaultRules.PortalooExtraHeat;
                 MutatePerson(item.Id, person => { person.Thirst = Math.Min(10_000, person.Thirst + 1); person.HeatExposure = Math.Min(10_000, person.HeatExposure + heat); });
             }
         }
@@ -540,14 +542,19 @@ public sealed partial class GameSession
             if (point.Queue.Length == 0) continue;
             var first = point.Queue[0];
             var atTap = _navigationAgents[new(first)] is { Action: AgentNavigationAction.Arrived, Destination: { } destination } && destination == WaterSlot(point, 0);
+            if (ActiveFault(point.Id) is not null) continue;
             if (point.OwnerId is null && atTap)
             {
+                if (TapBreaksOnUse(point, first)) { LeaveWater(first, "The tap broke as they used it", reroute: true); continue; }
                 SetWaterPoint(point with { OwnerId = first, DrinkTicks = 0 });
                 MutatePerson(first, item => { item.Intent = MedicalIntent.Drinking; item.Reason = $"Drinking at {point.Id} ({EffectiveMedicalDrinkThirstPerTickFor(first)} thirst/tick); thirst and heat improve continuously"; });
                 MedicalEvent("medical:drink-start", $"Person {first} started drinking at {point.Id} after physical arrival.");
                 point = WaterPoints().Single(item => item.Id == selected.Id);
             }
-            if (point.OwnerId == first && atTap)
+            // A bodged tap gives water on every other tick only.
+            if (point.OwnerId == first && atTap && TapBodged(point.Id) && CurrentTick % FaultRules.BodgedFlowDivisor != 0)
+                SetWaterPoint(point with { DrinkTicks = point.DrinkTicks + 1 });
+            else if (point.OwnerId == first && atTap)
             {
                 MutatePerson(first, item => { item.Thirst = Math.Max(0, item.Thirst - EffectiveMedicalDrinkThirstPerTickFor(first)); item.HeatExposure = Math.Max(0, item.HeatExposure - EffectiveMedicalDrinkHeatPerTickFor(first)); });
                 SetWaterPoint(point with { DrinkTicks = point.DrinkTicks + 1 });
