@@ -133,6 +133,17 @@ public sealed partial class GameSession
         }
     }
 
+    /// <summary>
+    /// A steward who collapses from drink drops any response, so another steward can take it.
+    /// Unlike a fight injury this is not marked incapacitated: the intoxication timeline owns their care.
+    /// </summary>
+    private void ReleaseCollapsedStewardResponse(ulong id)
+    {
+        if (GetStewardResponses().SingleOrDefault(job => job.WorkerId == id) is { } job && StewardBusy(job))
+            SetStewardResponse(job with { Stage = SecurityResponseStage.Completed, TargetId = null, StartedTick = -1,
+                Description = "Steward collapsed from drink; response released for another steward" });
+    }
+
     private void AdvanceMedicResponses()
     {
         foreach (var original in GetMedicResponses())
@@ -197,6 +208,14 @@ public sealed partial class GameSession
             SetStewardResponse(job with { Stage = SecurityResponseStage.Completed, TargetId = null, Description = "Weekend ended; response released for physical departure" });
     }
 
+    /// <summary>A fight-injured steward is incapacitated and collapsed; a steward collapsed by drink is collapsed but not incapacitated.</summary>
+    internal static bool StewardCollapseConsistent(SessionPersistenceSnapshot s, StewardResponse steward)
+    {
+        var collapsed = s.Medical?.Needs.SingleOrDefault(need => need.AgentId == steward.WorkerId)?.Stage == MedicalStage.Collapsed;
+        var drunkCollapse = s.Immersion?.People.SingleOrDefault(person => person.AgentId == steward.WorkerId)?.CollapseTick >= 0;
+        return steward.Incapacitated ? collapsed : !collapsed || drunkCollapse;
+    }
+
     private static string? ValidatePersistedStaffResponses(SessionPersistenceSnapshot s)
     {
         if (s.Preparation is not { } p) return null;
@@ -220,7 +239,7 @@ public sealed partial class GameSession
                 item.DispatchedTick < -1 || item.DispatchedTick > s.CurrentTick ||
                 item.TargetId is { } target && s.Disorder?.People.Any(person => person.AgentId == target) != true ||
                 StewardBusy(item) && (item.TargetId is null || item.StartedTick < 0 || item.Incapacitated) ||
-                item.Incapacitated != (s.Medical?.Needs.SingleOrDefault(need => need.AgentId == item.WorkerId)?.Stage == MedicalStage.Collapsed) ||
+                !StewardCollapseConsistent(s, item) ||
                 p.Status == PreparationStatus.Preparing && item.Stage != SecurityResponseStage.None) ||
             medics.Where(MedicBusy).Select(item => item.PatientId).Distinct().Count() != medics.Count(MedicBusy) ||
             stewards.Where(StewardBusy).Select(item => item.TargetId).Distinct().Count() != stewards.Count(StewardBusy) ||

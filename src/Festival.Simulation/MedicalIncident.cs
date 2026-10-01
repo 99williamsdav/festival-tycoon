@@ -520,7 +520,7 @@ public sealed partial class GameSession
             foreach (var item in PeopleIn(PersonView.Medical))
             {
                 // Guests outside the gate do not heat up or get thirsty yet.
-                if (item.NeedProfile == MedicalNeedProfile.Guest && !item.Admitted) continue;
+                if (item.NeedProfile == MedicalNeedProfile.Guest && !item.Admitted || GuestWaitingForRelease(item.Id)) continue;
                 // Guests and performers heat up at the same rate; on-duty staff far more slowly.
                 var heat = item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
                 MutatePerson(item.Id, person => { person.Thirst = Math.Min(10_000, person.Thirst + 1); person.HeatExposure = Math.Min(10_000, person.HeatExposure + heat); });

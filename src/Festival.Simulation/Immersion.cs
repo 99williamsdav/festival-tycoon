@@ -156,7 +156,8 @@ public sealed partial class GameSession
         foreach (var original in PeopleIn(PersonView.Consumption))
         {
             var presence = _persons[original.Id];
-            if (presence.Departed || presence.Role == ProtectedPersonRole.Guest && !presence.Admitted) continue;
+            // Not yet through the gate: guests, and tardy staff still held off site, gain no needs.
+            if (presence.Departed || presence.Role == ProtectedPersonRole.Guest && !presence.Admitted || GuestWaitingForRelease(original.Id)) continue;
             var p = original with { }; // One scratch copy per person; updated in place below.
             var recovery = p.RecoveryResidue + 10; var hunger = p.HungerResidue + 12;
             { p.Intoxication = Math.Max(0,p.Intoxication-recovery/80); p.RecoveryResidue = recovery%80; p.Hunger = Math.Min(10000,p.Hunger+hunger/80); p.HungerResidue = hunger%80; p.FoodProtectionTicks = Math.Max(0,p.FoodProtectionTicks-1); p.ToiletNeed = _preparation!.Status == PreparationStatus.Running && p.ToiletStage != ToiletVisitStage.Using && CurrentTick % ToiletNeedGainEveryTicks(p.Id) == 0 ? Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1) : p.ToiletNeed; }
@@ -183,7 +184,7 @@ public sealed partial class GameSession
                 if (elapsed == duration) RecordCompletedWaste(p.Id, held);
                 p.Held = elapsed == duration ? null : held with { ConsumedTicks = elapsed };
             }
-            if (p.Intoxication >= 7500 && p.IntoxicationWarningTick < 0) { p.IntoxicationWarningTick = CurrentTick; MedicalEvent("intoxication:warning", $"Person {p.Id}: heavy intoxication {p.Intoxication}; no further beer served, water, rest and medic available."); }
+            if (p.Intoxication >= 7500 && p.IntoxicationWarningTick < 0) { p.IntoxicationWarningTick = CurrentTick; MedicalEvent("intoxication:warning", $"Person {p.Id}: heavy intoxication {p.Intoxication}; {(StaffHas(p.Id, StaffTrait.SneakyAlcoholic) ? "still getting served on the sly" : "no further beer served")}, water, rest and medic available."); }
             p.SevereTicks = p.Intoxication >= 8500 ? p.SevereTicks+1 : 0;
             SetConsumption(p);
             if (p.IntoxicationCollapseTick>=0 && PersonIn(PersonView.Medical, p.Id) is { } collapsed)
@@ -198,6 +199,7 @@ public sealed partial class GameSession
                 LeaveImmersionQueue(p.Id,false); LeaveWater(p.Id,"Intoxication collapse",false); MedicalRelinquishPerformerStage(p.Id);
                 var nav=_navigationAgents[new(p.Id)]; ApplyAgentDestination(new(p.Id),new(TraversalGrid.WorldToCell(nav.XMillimetres,nav.ZMillimetres),"medical.intoxication-collapse"));
                 MutatePerson(p.Id, n => { n.HealthStage = MedicalStage.Collapsed; n.HealthWarningTick = p.IntoxicationWarningTick; n.HealthCollapseTick = CurrentTick; n.Intent = MedicalIntent.Collapsed; n.Reason = "Intoxication collapse; physical medic response required"; });
+                ReleaseCollapsedStewardResponse(p.Id);
                 MedicalEvent("intoxication:collapse",$"Person {p.Id}: exposure continuously above8500 for20s after warning {p.IntoxicationWarningTick}; critical and fatal response deadlines begin now.");
                 RecordGuestMedicalCollapse(p.Id);
             }

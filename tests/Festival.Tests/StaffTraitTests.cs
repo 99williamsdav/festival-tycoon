@@ -74,8 +74,12 @@ public sealed class StaffTraitTests
         var (s, id) = StartedWith(StaffRole.Steward, StaffTrait.Tardy);
         var late = s.HiredCandidateFor(id)!.LateTicks;
         Assert.IsTrue(s.GuestWaitingForRelease(id), "Held off site at opening.");
+        (int, int, int, int) Needs() => (s.CaptureMedical()!.Needs.Single(n => n.AgentId == id) is var m ? (m.Thirst, m.HeatExposure, 0, 0) : default) is var (thirst, heat, _, _) &&
+            s.CaptureImmersion()!.People.Single(p => p.AgentId == id) is var c ? (thirst, heat, c.Hunger, c.ToiletNeed) : default;
+        var before = Needs();
         s.AdvanceWithoutSnapshot(late - 80);
         Assert.IsTrue(s.GuestWaitingForRelease(id));
+        Assert.AreEqual(before, Needs(), "Needs wait until they set off, as for late guests.");
         Assert.IsFalse(s.CapturePreparation()!.People.Single(p => p.AgentId == id).Admitted);
         AssertRestores(s);
         s.AdvanceWithoutSnapshot(160);
@@ -149,5 +153,24 @@ public sealed class StaffTraitTests
         var plain = Started(Find(StaffRole.Sound, StaffTrait.Slacker).Seed);
         var plainId = plain.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Staff).Min(p => p.AgentId);
         Assert.IsTrue(Purchases(slacker, slackerId) > Purchases(plain, plainId));
+    }
+
+    [TestMethod]
+    public void ADrunkStewardWhoCollapsesDropsTheirJobAndStillSaves()
+    {
+        var (s, id) = StartedWith(StaffRole.Steward, StaffTrait.SneakyAlcoholic);
+        s.AdvanceWithoutSnapshot(3_000);
+        // Past the warning and close to twenty seconds above the collapse line.
+        var immersion = s.CaptureImmersion()!;
+        typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, immersion with { People = immersion.People
+            .Select(p => p.AgentId == id ? p with { Intoxication = 9_800, WarningTick = s.CurrentTick - 1_600, SevereTicks = 1_590 } : p).ToArray() });
+        for (var guard = 0; guard < 80 && s.CaptureMedical()!.Needs.Single(n => n.AgentId == id).Stage != MedicalStage.Collapsed; guard++) s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalStage.Collapsed, s.CaptureMedical()!.Needs.Single(n => n.AgentId == id).Stage);
+        var job = s.GetStewardResponses().Single(j => j.WorkerId == id);
+        Assert.IsFalse(job.Incapacitated, "Drink, not a fight injury.");
+        Assert.IsFalse(job.Stage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting);
+        AssertRestores(s);
+        s.AdvanceWithoutSnapshot(400);
+        AssertRestores(s);
     }
 }
