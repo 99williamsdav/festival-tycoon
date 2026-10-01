@@ -1,0 +1,11 @@
+OPEN-TOP SLATTED FESTIVAL BIN — CONCEPT ONLY
+
+slatted-bin-concept.png adapts the user reference's lower-left bin: cylindrical vertical metal cage around a dark liner, continuous broad circular rim and fully open mouth. Bench and photographic surroundings excluded. One design only; earlier v1/v2 options preserved and remain unapproved.
+
+Larger intended proportions: approx0.95m high, approx0.65m diameter, relative to1.75m adult. Dimensions indicative, not measured production specification. Adult is a generated scale stand-in, not a new character. Fewer broad matte grey slats give contrast against charcoal liner. Modest bevels and restrained wear suit crafted low-poly direction. Slight gaps above the liner preserve reference cage structure; no lid, hood or flap.
+
+Empty/part-full/full views show dark interior, then paper/cups/food trays below rim, then a modest mound at rim. Fill views are illustrative, not mandated simulation thresholds. Wasps near full are concept cues only, not production VFX, exact insect size/count or animation assets. Small isometric inset approximates gameplay readability; not native Godot camera/performance proof. At runtime zoom, prioritize broad rim, dark opening and fill silhouette over individual slat gaps.
+
+Approved direction retained: full open bins attract wasps; future better enclosed/lidded upgrades contain smell and do not attract wasps. No upgrades drawn or approved here. No capacity, prices, unlock tiers, damage, emptying or placement mechanics invented.
+
+Provenance: built-in imagegen, stylized-concept, adapting supplied photo as reference input. Reference viewed at C:/Users/99wil/AppData/Local/Temp/codex-clipboard-90121be8-0483-4ac3-8da6-9f341e166690.png and copied locally as reference-original.png for durable provenance. Prompt recorded in PROMPTS.txt. Final board visually inspected for reference structure, open top, consistent fill designs and approximate adult scale. No Blender, production mesh, runtime, code or mechanic changes. Return for user review before asset production; coordinator approval counts as user approval.

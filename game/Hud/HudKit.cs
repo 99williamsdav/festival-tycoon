@@ -173,6 +173,7 @@ internal static class HudKit
         BuildServiceKind.Bar => "Bar",
         BuildServiceKind.FirstAid => "First aid",
         BuildServiceKind.StewardPost => "Steward post",
+        BuildServiceKind.Bin => "Litter bin",
         _ => "Service"
     };
 }

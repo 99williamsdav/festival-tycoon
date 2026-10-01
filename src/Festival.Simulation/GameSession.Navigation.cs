@@ -57,6 +57,15 @@ public sealed partial class GameSession
     private void ApplyAgentDestination(EntityId agentId, SetAgentDestinationCommand command, bool avoidanceReplan = false)
     {
         var agent = _navigationAgents[agentId];
+        if (!command.IntentId.StartsWith("litter.", StringComparison.Ordinal))
+        {
+            InterruptCleanup(agentId.Value);
+            if (agent.IntentId == "litter.dispose")
+            {
+                EnsureWasteIndices();
+                if (_carriedByPerson.TryGetValue(agentId.Value, out var waste)) DropWaste(_wasteById[waste], false);
+            }
+        }
         var start = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
         var searchStart = Stopwatch.GetTimestamp();
         var search = DeterministicPathfinder.FindPath(_traversalGrid!, start, command.Destination);

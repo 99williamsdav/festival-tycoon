@@ -16,7 +16,7 @@ public partial class Main
     private int _ownedContextClosedScroll;
     private GameSession? _ownedContextSession;
     private string _ownedContextIdentity = "";
-    private string ContextScrollIdentity => $"{_selected?.StableId}|{_selectedAttendeeId}|{_selectedMedicalFacility}|{_selectedWaterPointId}|{_selectedImmersionVendor}|{_selectedToilet}|{_selectedSecurityPost}|{_selectedGenerator}";
+    private string ContextScrollIdentity => $"{_selected?.StableId}|{_selectedAttendeeId}|{_selectedMedicalFacility}|{_selectedWaterPointId}|{_selectedImmersionVendor}|{_selectedToilet}|{_selectedSecurityPost}|{_selectedGenerator}|{_selectedBinId}";
     private readonly System.Collections.Generic.Dictionary<int, int> _ownedWorkspaceScroll = [];
     private readonly System.Collections.Generic.Dictionary<int, int> _ownedWorkspaceClosedScroll = [];
 

@@ -37,7 +37,7 @@ public partial class Main
     // Performer idle arms share that adult pose, with shoulder origin
     // (.255,1.315,-.005) and lower arm end at local Y -.440 m.
     private void SetImmersionHeldVisual(EntityId id, Node3D body, string? product,
-        bool canHold, int intoxication, double delta)
+        bool canHold, int intoxication, double delta, bool empty = false)
     {
         var path = product switch
         {
@@ -47,6 +47,8 @@ public partial class Main
             null => null,
             _ => throw new ArgumentOutOfRangeException(nameof(product), product, "Unknown immersion product")
         };
+        if (empty && product is not null) path = LitterAsset(product == "chips" ? ImmersionProduct.Chips : product == "beer" ? ImmersionProduct.Beer : ImmersionProduct.SoftDrink);
+        var identity = product + (empty ? ":empty" : "");
         // A kit may have become attached since the caller captured eligibility.
         canHold &= !_performerInstruments.ContainsKey(id);
         if (path is null || !canHold)
@@ -56,13 +58,14 @@ public partial class Main
         }
         if (_immersionHeldVisuals.TryGetValue(id, out var existing) &&
             GodotObject.IsInstanceValid(existing) && existing.GetParent() == body &&
-            _immersionHeldProducts[id] == product)
+            _immersionHeldProducts[id] == identity)
         {
             Bodies.AnchorProp(body, existing, product!);
             return;
         }
         RemoveImmersionHeldVisual(id);
         var prop = InstantiateAsset(path);
+        if (empty) prop.SetMeta("EmptyWasteProp", true);
         prop.Name = "ImmersionHeldItem";
         prop.Position = product == "chips"
             ? new Vector3(.36f, 1.005f, -.075f)
@@ -70,7 +73,7 @@ public partial class Main
         body.AddChild(prop);
         Bodies.AnchorProp(body, prop, product!);
         _immersionHeldVisuals.Add(id, prop);
-        _immersionHeldProducts.Add(id, product!);
+        _immersionHeldProducts.Add(id, identity);
         // intoxication/delta are reserved for caller-owned cosmetic sway. This
         // helper never overwrites medical collapse, navigation or stage transforms.
     }

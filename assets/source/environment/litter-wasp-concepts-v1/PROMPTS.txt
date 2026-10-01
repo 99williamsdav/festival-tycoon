@@ -1,0 +1,15 @@
+Built-in image_gen reference-led concept generation.
+Reference1: held-props-trio-lager-v2/01-held-props-trio-lager.png
+Reference2: bin-slatted-asset-v1/review/hero-approved-adult.png
+Original output: C:/Users/99wil/.codex/generated_images/01a0829d-38d9-75e1-a099-c861ffb5d510/exec-b5d8d2d4-9ca3-491f-9d52-dfecb7f11221.png
+
+Use case: stylized-concept. Asset: Festival Tycoon litter and wasp concept sheet, landscape, restrained crafted faceted low-poly 3D art, matte broad colours, quiet sage ground and cream sheet.
+Input image1 reference: actual held beverage/food props. Image2 reference: actual approved slatted open bin and adult. Do not redesign them.
+Title "LITTER & WASPS".
+Top row three labelled close-up studies of EMPTY versions of those props, each upright and lying naturally on ground:
+"EMPTY BEER CUP": tapered pale clear-plastic cup, rolled pale rim, visibly hollow empty interior, NO beer and NO foam, restrained pale grey opaque approximation acceptable for readability.
+"EMPTY SOFT CUP": coral cup with broad cream middle stripe, cream lid and short sage straw retained, no contents, sideways ground orientation.
+"EMPTY CHIPS TRAY": small shallow kraft rectangular sloped-sided cardboard tray with pale folded edges, all chips removed, flat on ground and second tilted view.
+Lower left panel labelled "FULL BIN / LOCAL BUZZ": exact grey vertical slat bin with dark liner and broad open ring, bin height0.95m diameter0.65m beside reference adult1.75m; small modest waste mound at mouth, same EMPTY cups and trays in mound and a few on ground. Props realistic small hand-held size, cup body0.15m high and0.09m diameter, tray0.18m long, no giant litter.
+Lower right: enlarged detail labelled "WASP STUDY — ENLARGED": simple small yellow-and-charcoal striped faceted wasp body with two pale opaque wing shapes, no giant eyes, no face, no stinger drama; nearby mini study of 5 tiny yellow/dark flecks loosely hovering around upper bin rim, only a small local cluster. Thin dashed curved arrows on study ONLY suggest gentle irregular short loops; no smoke/cloud/radial halo. At close detail wasps body around0.045m long, artistic readability allowance, local cluster within about0.5m of rim.
+Simple clear labels, no other text. Friendly ordinary festival mess and nuisance, no disgust/gore/stinging/medical/people panic, no photorealism, no decorative lids or bin redesign, no bugs chasing attendees. This is conceptual art, not exact gameplay evidence.

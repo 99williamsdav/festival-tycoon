@@ -91,6 +91,8 @@ public sealed class FestivalResultsTests
         Position(s, guest.AgentId, new(120, 125));
         var immersion = s.CaptureImmersion()!;
         Set(s, "ImmersionView", immersion with { People = immersion.People.Select(p => p.AgentId == guest.AgentId ? p with { Held = p.Held! with { ConsumedTicks = 2399 } } : p).ToArray() });
+        // This completion fixture also advances the authoritative clock to the earliest possible finish.
+        typeof(GameSession).GetProperty("CurrentTick")!.SetValue(s, s.CurrentTick + GameSession.ImmersionConsumeTicks(ImmersionProduct.Beer));
         Assert.AreEqual(0, s.CapturePreparation()!.FinishedBeerIds!.Length); Invoke(s, "AdvanceImmersion");
         Assert.AreEqual(1, s.CapturePreparation()!.FinishedBeerIds!.Length); Invoke(s, "AdvanceImmersion"); Assert.AreEqual(1, s.CapturePreparation()!.FinishedBeerIds!.Length);
         Reload(s);
@@ -100,6 +102,7 @@ public sealed class FestivalResultsTests
         Invoke(s, "UpdatePerson", performer.AgentId, (Func<Person,Person>)(n => n with { Intent = MedicalIntent.WatchShow })); Position(s, performer.AgentId, new(124, 125));
         immersion = s.CaptureImmersion()!;
         Set(s, "ImmersionView", immersion with { People = immersion.People.Select(person => person.AgentId == performer.AgentId ? person with { Held = person.Held! with { ConsumedTicks = 2399 } } : person).ToArray() });
+        typeof(GameSession).GetProperty("CurrentTick")!.SetValue(s, s.CurrentTick + GameSession.ImmersionConsumeTicks(ImmersionProduct.Beer));
         Invoke(s, "AdvanceImmersion"); Assert.IsNull(s.CaptureImmersion()!.People.Single(person => person.AgentId == performer.AgentId).Held);
         Assert.AreEqual(1, s.CapturePreparation()!.FinishedBeerIds!.Length); Reload(s);
     }

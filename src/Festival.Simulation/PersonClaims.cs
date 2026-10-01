@@ -35,6 +35,8 @@ public enum PersonClaim
     StewardResponding = 1 << 15,
     StewardTarget = 1 << 16,
     Maintaining = 1 << 17,
+    WasteDisposal = 1 << 18,
+    Cleanup = 1 << 19,
 }
 
 public static class PersonClaims
@@ -44,13 +46,13 @@ public static class PersonClaims
         PersonClaim.AwaitingMedic | PersonClaim.Leaving | PersonClaim.Collapsed;
     /// <summary>A staff member's hands and route belong to a job.</summary>
     public const PersonClaim StaffJob = PersonClaim.InterventionWorker | PersonClaim.MedicResponding |
-        PersonClaim.StewardResponding | PersonClaim.Maintaining;
+        PersonClaim.StewardResponding | PersonClaim.Maintaining | PersonClaim.Cleanup;
     /// <summary>Claims that stop a person carrying, buying or consuming food and drink.</summary>
     public const PersonClaim HandsBusy = PersonClaim.Performing | PersonClaim.Fighting | PersonClaim.InterventionTarget |
-        StaffJob;
+        StaffJob | PersonClaim.WasteDisposal;
     /// <summary>Claims that move a listener away from their audience place.</summary>
     public const PersonClaim AwayFromAudience = PersonClaim.Shopping | PersonClaim.ToiletVisit | MedicalNavigation |
-        PersonClaim.Fighting | PersonClaim.BeingEscorted;
+        PersonClaim.Fighting | PersonClaim.BeingEscorted | PersonClaim.WasteDisposal | PersonClaim.Cleanup;
     /// <summary>A staff response already owns this person, as worker or subject.</summary>
     public const PersonClaim ResponseAssigned = PersonClaim.InterventionWorker | PersonClaim.InterventionTarget |
         PersonClaim.MedicResponding | PersonClaim.MedicPatient | PersonClaim.StewardResponding | PersonClaim.StewardTarget;
@@ -84,6 +86,8 @@ public sealed partial class GameSession
     /// <summary>True when any of the requested claims currently holds; only requested claims are evaluated.</summary>
     private bool HasClaim(ulong id, PersonClaim claims)
     {
+        if (claims.HasFlag(PersonClaim.WasteDisposal) && WasteOwnsNavigation(id)) return true;
+        if (claims.HasFlag(PersonClaim.Cleanup) && CleanupOwnsNavigation(id)) return true;
         if (claims.HasFlag(PersonClaim.WaterPlace) && WaterPoints().Any(point => point.Queue.Contains(id))) return true;
         if ((claims & (PersonClaim.SeekingWater | PersonClaim.Resting | PersonClaim.AwaitingMedic | PersonClaim.Leaving |
                 PersonClaim.Collapsed)) != 0 && PersonIn(PersonView.Medical, id) is { } need &&

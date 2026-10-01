@@ -38,6 +38,7 @@ public sealed partial class GameSession
     /// <summary>Scored, not fixed: on site, free to move, and not already committed to a service or response.</summary>
     private bool ActivityChooserOwns(ulong id)
     {
+        if (WasteOwnsNavigation(id) || CleanupOwnsNavigation(id)) return false;
         var person = _persons[id];
         if (!person.Admitted || person.Departed) return false;
         if (HasClaim(id, PersonClaims.StaffJob) || GetStewardResponses().Any(job => job.WorkerId == id && job.Incapacitated)) return false;
@@ -147,6 +148,7 @@ public sealed partial class GameSession
     /// <summary>Drops a worker's personal errand (not yet in service) so a job can take their route.</summary>
     private void RecallWorker(ulong id, string reason)
     {
+        InterruptCleanup(id);
         var person = _persons[id];
         AbandonActivity(id, CurrentActivity(person), false, reason);
     }

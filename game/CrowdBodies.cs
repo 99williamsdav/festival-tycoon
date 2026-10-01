@@ -158,6 +158,7 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
         var anchor = asset.Anchors[product == "chips" ? "tray" : product];
         prop.Position = new(anchor.X, anchor.Y, anchor.Z);
         prop.RotationDegrees = new(anchor.RotationX, anchor.RotationY, anchor.RotationZ);
+        if (prop.HasMeta("EmptyWasteProp")) prop.Position -= prop.Basis * new Vector3(0, product == "chips" ? .025f : .075f, 0);
         prop.Scale = Vector3.One;
         prop.SetMeta("GuestAnchorKey", anchorKey);
     }
@@ -245,6 +246,7 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
         var anchor = asset.Anchors[product == "chips" ? "tray" : product];
         prop.Position = new(anchor.X, anchor.Y, anchor.Z);
         prop.RotationDegrees = new(anchor.RotationX, anchor.RotationY, anchor.RotationZ);
+        if (prop.HasMeta("EmptyWasteProp")) prop.Position -= prop.Basis * new Vector3(0, product == "chips" ? .025f : .075f, 0);
         prop.Scale = Vector3.One;
         prop.SetMeta("RoleAnchorKey", key);
     }

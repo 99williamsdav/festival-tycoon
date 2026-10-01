@@ -359,6 +359,7 @@ public sealed partial class GameSession
         }
         BlockImmersionVendors();
         BlockToilet();
+        BlockLitterBins();
         for (var index = 0; index < PeopleIn(PersonView.Roster).Length; index++)
         {
             var person = PeopleIn(PersonView.Roster)[index];
@@ -424,6 +425,7 @@ public sealed partial class GameSession
 
     private void RetryPreparedWeekend()
     {
+        _litter = EmptyLitter;
         var p = _preparation!;
         var baseline = CreateFoodAndDrinkBaseline(CampaignSeed);
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;

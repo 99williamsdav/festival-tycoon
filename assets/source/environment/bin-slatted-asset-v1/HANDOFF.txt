@@ -1,0 +1,36 @@
+SLATTED OPEN-TOP BIN — FINISHED ASSET v1
+
+Approved commission: user approved bin-concepts-v3-slatted and requested Blender production, relayed by coordinator. No further aesthetic approval gate used. Earlier concepts and source game repository untouched.
+
+FILES
+source/lwf_bin_slatted_v1.blend — editable Blender4.1 source, packed palette; contains review adult/ground/lights/camera, NOT exported in runtime GLBs.
+runtime/lwf_bin_slatted_shell_v1.glb — reusable empty shell,2016 triangles,1 mesh/1 surface/1 material,122772 bytes.
+runtime/lwf_bin_rubbish_partfull_v1.glb —962 triangles,1 mesh/1 surface/1 material,76020 bytes.
+runtime/lwf_bin_rubbish_full_v1.glb —962 triangles,1 mesh/1 surface/1 material,76012 bytes.
+textures/lwf_bin_palette_v1.png —128×8 opaque16-colour palette, embedded in every GLB and packed in blend.
+build.py — reproducible mesh/source/export/render authoring script.
+verify.cjs — structural/hash/bounds checks and manifest finalizer.
+godot-check/proof.gd + project.godot — standalone actual Godot import/render test.
+manifest.json, verification.json, godot-verification.json — measurements, hashes, checks and captures.
+
+ASSEMBLY CONTRACT
+All runtime files have ground-centre origin and identity transforms; units metres. Blender Z-up; exported Godot Y-up, conventional -Z forward, rotationally symmetric shell. Shell actual bounds0.65×0.65×0.95m. Approved adult imported unchanged at scale1 is measured1.75m, not the AI stand-in. Rim has real open centre; dark liner interior is geometry.16 broad slats and24-sided ring profiles preserve approved shape with restrained palette shading. Maximum filled height1.02877m.
+
+Attach shell and ONE chosen rubbish GLB under the same stable root, all at identity. Empty: no rubbish. Part-full: only PartFull. Full: only Full. The two fills already contain their correct vertical offsets in vertex positions—do NOT centre their origins on their own bounds or add a height offset. Never show both simultaneously. Source fill objects are hidden in viewport/render by default; enable the desired one for editing/rendering.
+
+Expected visible geometry:2016 triangles empty;2978 filled. One surface empty, two filled before engine batching/shadow passes. GLBs may import duplicate material resources despite identical palettes; integration may share a single compatible material resource. This is not a measured FPS/draw-call guarantee. No transparent materials, rigs, animations, baked lights, cameras or collisions in exports. Thin food-tray faces use double-sided opaque material. A compact dark fill base prevents seeing through isolated scraps; no buried bag pile or per-piece runtime node hierarchy.
+
+COLLISION / APPROACH GUIDANCE (NOT IMPLEMENTATION)
+Use a simple upright cylinder radius0.325m,height0.95m,centre Godot(0,0.475,0), or conservative0.65×0.95×0.65 box at same centre. Whole-object collision is appropriate for this prop; do not generate separate slat colliders. Decorative rubbish MUST have no collision/navigation/physics.
+Approach from any clear side. For current actor radius0.38m, minimum centre distance0.705m before extra clearance; suggested initial hold point local(0,0,-0.85), leaving0.145m margin. Rotate/reroute to another clear side as required. Actual reach/animation/navigation integration remains separate and is not verified here. Do not let actor feet or route target sit inside the shell. No capacity/placement cost/emptying frequency inferred from mesh dimensions or fill states.
+
+VISUAL / IMPORT QA
+Blender hero uses actual approved adult. Review includes empty three-quarter, front/back/left/right orthographic and part/full renders. Compared against approved concept: continuous broad rim, grey vertical cage, charcoal liner ending below rim, support rings/feet and open mouth retained; rubbish simplified to paper, three cups and food tray. Initial excessive bevel tessellation removed; rings retain explicit modest bevel sections. Initial flat-looking fill revised with overlapping angular paper and tilted cups.
+Actual Godot4.7.2 GL Compatibility imports and displays all three exports with palette. Captures at1920×1080 for empty/part/full, close camera size2.5 plus size32 and62. Camera yaw45/elevationatan(58/72), matching Main.cs camera construction; default game Size62. Standalone asset proof, not game integration. Structural checks passed for embedded texture, identity transforms, bounds, single mesh/material, no animations and hashes.
+At size32 empty is dark, part-full a small light patch, full a broad bright mouth. Individual cups/paper are not legible at size62; part-full versus empty is subtle at that distance. Do not promise reliable three-state diagnosis at widest zoom without later UI support or closer inspection. No new UI commissioned. Close renders verify actual opening/fill geometry. Environment logs contain shader-cache/root-certificate warnings; no asset import errors, proof errors array empty.
+
+PROVENANCE / SCOPE
+Geometry authored in Blender by build.py from approved slatted concept and supplied park-bin reference, not an AI-generated mesh or downloaded asset. Approved person source reused only for review. No new image generation used for production renders. Palette and mesh created locally. Concept originals preserved.
+Full-bin wasp attraction and later smell-containing lidded upgrades remain recorded design intent only: no wasp mesh/VFX, lid, litter simulation, economy, capacity or runtime placement implemented. No game repository edits or commits.
+
+To reproduce: run Blender background with build.py; run Godot proof.gd with GL Compatibility; then run verify.cjs using Node. Regeneration changes source hashes, so rerun finalizer after any asset edits.

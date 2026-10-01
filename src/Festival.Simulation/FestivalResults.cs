@@ -53,7 +53,10 @@ public sealed partial class GameSession
             var person = people[index];
             var nav = _navigationAgents[new(person.Id)];
             if (!person.Departed && person.Admitted && nav.Action == AgentNavigationAction.Arrived && ImmersionCanMarkDeparted(person.Id, index))
+            {
+                ReleaseWasteAtExit(person.Id);
                 people[index] = person with { Departed = true };
+            }
         }
         foreach (var person in people) SetPresence(person);
         if (!departedAtStart) return;

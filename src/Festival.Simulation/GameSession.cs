@@ -215,6 +215,10 @@ public sealed partial class GameSession
                 ApplyStaffIntervention(intervention);
                 break;
 
+            case CleanUpCommand cleanup:
+                affectedTarget = new(cleanup.WorkerId);
+                ApplyCleanUp(cleanup);
+                break;
             case DisorderCommand disorder:
                 affectedTarget = disorder.PersonId is { } personId ? new EntityId(personId) : null;
                 ApplyDisorderCommand(disorder);
@@ -290,6 +294,7 @@ public sealed partial class GameSession
             if (MedicalOperationsActive) { AdvanceImmersion(); AdvanceToilet(); }
             ReleaseFrozenStaffClaims();
             AdvanceStaffAutonomy();
+            AdvanceLitter();
             FinalizeFestivalDeparture();
             if (_preparation?.Status is PreparationStatus.Departing or PreparationStatus.Finished) CleanupImmersionDeparture();
             if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished) break;
@@ -430,6 +435,7 @@ public sealed partial class GameSession
             Medical = CaptureMedical(),
             Facilities = CaptureFacilities(),
             Disorder = CaptureDisorder(),
+            Litter = CaptureLitter(),
         };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
@@ -497,6 +503,7 @@ public sealed partial class GameSession
         session.DisorderView = snapshot.Disorder is null ? null : System.Text.Json.JsonSerializer.Deserialize<DisorderSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Disorder));
 
+        session._litter = snapshot.Litter is null ? null : System.Text.Json.JsonSerializer.Deserialize<LitterSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Litter));
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
         return SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");
@@ -504,7 +511,7 @@ public sealed partial class GameSession
 
     private static string? ValidatePersistenceSnapshot(SessionPersistenceSnapshot snapshot)
     {
-if (snapshot.Immersion is { } immersion && (immersion.People is null || immersion.Purchases is null || immersion.People.Any(p=>p is null) || immersion.Purchases.Length>112 || immersion.Purchases.Any(p=>p is null || p.Entries is null || p.Entries.Any(e=>e is null) || !Enum.IsDefined(p.Product) || p.PricePennies<0 || p.PricePennies>ImmersionPrice(p.Product) || p.CostPennies!=ImmersionCost(p.Product)))) return "Immersion collections or transaction shape invalid.";
+if (snapshot.Immersion is { } immersion && (immersion.People is null || immersion.Purchases is null || immersion.People.Any(p=>p is null) || immersion.Purchases.Any(p=>p is null || p.Entries is null || p.Entries.Any(e=>e is null) || !Enum.IsDefined(p.Product) || p.PricePennies<0 || p.PricePennies>ImmersionPrice(p.Product) || p.CostPennies!=ImmersionCost(p.Product)))) return "Immersion collections or transaction shape invalid.";
         if (!Enum.IsDefined(typeof(SessionPhase), snapshot.Phase)) return $"Unknown session phase {snapshot.Phase}.";
         if (!string.Equals(snapshot.RandomAlgorithmVersion, Pcg32Random.AlgorithmVersion, StringComparison.Ordinal))
             return $"Random algorithm '{snapshot.RandomAlgorithmVersion}' is incompatible; expected '{Pcg32Random.AlgorithmVersion}'.";
@@ -565,6 +572,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (medicalError is not null) return medicalError;
         var disorderError = ValidatePersistedDisorder(snapshot.Disorder, snapshot);
         if (disorderError is not null) return disorderError;
+        var litterError = ValidatePersistedLitter(snapshot);
+        if (litterError is not null) return litterError;
         var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
             .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();
         if (ownedEntityIds.Distinct().Count() != ownedEntityIds.Length || ownedEntityIds.Any(id => id >= snapshot.NextEntityId))
@@ -660,7 +669,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -674,6 +683,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
             MedicalCommand medical => ValidateMedicalCommand(envelope.TargetId, medical),
             DisorderCommand disorder => ValidateDisorderCommand(envelope.TargetId, disorder),
             StaffInterventionCommand intervention => ValidateStaffIntervention(envelope.TargetId, intervention),
+            CleanUpCommand cleanup => ValidateCleanUp(envelope.TargetId, cleanup),
             SetProgrammeCommand programme => ValidateProgramme(envelope.TargetId, programme),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>

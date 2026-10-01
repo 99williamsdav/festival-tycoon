@@ -180,19 +180,20 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             var limit = GameSession.BuildServiceLimit(kind);
             var fee = FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind));
             row.Meta.Text = limit > 1 ? $"{fee} each" : fee;
-            row.Count.Text = $"{count} of {limit}";
-            if (row.Dots.GetChildCount() != limit)
+            row.Count.Text = kind == BuildServiceKind.Bin ? $"{count} placed" : $"{count} of {limit}";
+            var dotCount = kind == BuildServiceKind.Bin ? 0 : limit;
+            if (row.Dots.GetChildCount() != dotCount)
             {
                 foreach (var child in row.Dots.GetChildren()) { row.Dots.RemoveChild(child); child.QueueFree(); }
-                for (var i = 0; i < limit; i++) row.Dots.AddChild(new Panel { CustomMinimumSize = Ui.S(9, 9), MouseFilter = Control.MouseFilterEnum.Ignore });
+                for (var i = 0; i < dotCount; i++) row.Dots.AddChild(new Panel { CustomMinimumSize = Ui.S(9, 9), MouseFilter = Control.MouseFilterEnum.Ignore });
             }
-            for (var i = 0; i < limit; i++)
+            for (var i = 0; i < dotCount; i++)
                 row.Dots.GetChild<Panel>(i).AddThemeStyleboxOverride("panel", i < count ? Ui.Box(Ui.Teal, 5) : Ui.Box(new Color(0, 0, 0, 0), 5, new Color("9db5ae"), 1.5f));
             var full = count >= limit;
             row.Action.Disabled = full;
             row.Action.Text = full ? "Placed" : "Place";
             row.Action.Icon = Ui.Icon(full ? "check" : "plus");
-            row.Action.TooltipText = $"{BuildName(kind)} costs {fee} at Start. {count} of {limit} placed. " +
+            row.Action.TooltipText = $"{BuildName(kind)} costs {fee} at Start. {count} placed. " +
                 (full ? "Move or remove a placed one below." : "Place an unpaid draft service.");
         }
         foreach (var (kind, buttons) in _buildShortcutButtons)

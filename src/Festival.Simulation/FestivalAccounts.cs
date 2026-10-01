@@ -30,6 +30,7 @@ public sealed partial class GameSession
     };
     private static string FacilityName(BuildServiceKind kind) => kind switch
     {
+        BuildServiceKind.Bin => "Litter bin",
         BuildServiceKind.WaterTap => "Water tap",
         BuildServiceKind.Toilet => "Toilet",
         BuildServiceKind.FoodVan => "Food van",

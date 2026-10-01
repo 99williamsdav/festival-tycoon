@@ -1,0 +1,96 @@
+{
+	"captures": [
+		{
+			"camera_size": 1.2,
+			"file": "01-empty-items-ground-poses.png",
+			"yaw": 45.0
+		},
+		{
+			"camera_size": 1.35,
+			"file": "02-held-anchor-comparison.png",
+			"yaw": 45.0
+		},
+		{
+			"camera_size": 0.18,
+			"file": "03-wasp-detail-actual-mesh.png",
+			"yaw": 45.0
+		},
+		{
+			"camera_size": 2.8,
+			"file": "04-part-full-reuse.png",
+			"yaw": 45.0
+		},
+		{
+			"camera_size": 2.8,
+			"file": "05-full-bin-close-t0.png",
+			"yaw": 45.0
+		},
+		{
+			"camera_size": 2.8,
+			"file": "06-full-bin-close-t06.png",
+			"yaw": 45.0
+		},
+		{
+			"camera_size": 32.0,
+			"file": "07-full-bin-game32.png",
+			"yaw": 45.0
+		},
+		{
+			"camera_size": 62.0,
+			"file": "08-full-bin-wide62.png",
+			"yaw": 45.0
+		},
+		{
+			"camera_size": 2.8,
+			"file": "09-full-bin-yaw135.png",
+			"yaw": 135.0
+		},
+		{
+			"camera_size": 2.8,
+			"file": "09-full-bin-yaw225.png",
+			"yaw": 225.0
+		},
+		{
+			"camera_size": 2.8,
+			"file": "09-full-bin-yaw315.png",
+			"yaw": 315.0
+		}
+	],
+	"engine": {
+		"build": "official",
+		"hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+		"hex": 263938,
+		"major": 4,
+		"minor": 7,
+		"patch": 2,
+		"status": "stable",
+		"string": "4.7.2-stable (official)",
+		"timestamp": 0
+	},
+	"errors": [],
+	"imports": [
+		{
+			"aabb": "[P: (-0.046, 0.0, -0.046), S: (0.092, 0.152, 0.092)]",
+			"key": "LWF_Litter_Beer_Cup_V1",
+			"surfaces": 1
+		},
+		{
+			"aabb": "[P: (-0.047, 0.0, -0.047), S: (0.094, 0.217, 0.094)]",
+			"key": "LWF_Litter_Soft_Cup_V1",
+			"surfaces": 1
+		},
+		{
+			"aabb": "[P: (-0.0915, 0.0, -0.0615), S: (0.183, 0.0505, 0.123)]",
+			"key": "LWF_Litter_Chips_Tray_V1",
+			"surfaces": 1
+		},
+		{
+			"aabb": "[P: (-0.027, -0.005543, -0.022), S: (0.054, 0.016543, 0.045)]",
+			"key": "LWF_Wasp_V1",
+			"surfaces": 1
+		}
+	],
+	"passed": true,
+	"pause_clock_sample": true,
+	"scope": "native standalone GL Compatibility asset proof; fixed-wing instanced wasp pose samples; not integrated gameplay"
+}

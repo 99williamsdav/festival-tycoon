@@ -1,0 +1,24 @@
+LITTER / WASPS - CONCEPT CHECKPOINT
+Board: litter-wasp-board.png
+Scope: three empty-item variants derived from actual current held props; small yellow/black wasp cluster at full/overflowing approved open bins. Bin is reused unchanged.
+
+INSPECTED SOURCE
+game/Main.ImmersionAssets.cs currently maps chips to lwf_chips_tray_v1.glb, soft to lwf_soft_drink_cup_v1.glb, beer to lwf_beer_cup_v2.glb.
+Original authoring: held-props-trio-v1/build_held_props_v1.py and held-props-trio-lager-v2/technical.json. Actual cup body 0.15m height, 0.09m top diameter; soft cup with lid/straw total0.217m; tray0.183x0.123x0.05m. Ground litter will retain those sizes.
+Approved bin manifest read: shell0.65m diameter/0.95m high; origin ground centre; existing fills attach at identity. No shell/fill redesign commissioned. Actual adult1.75m at scale1.
+
+PROPOSED PRODUCTION
+Empty beer: same tapered faceted cup/rim, hollow opening, liquid/foam removed. Pale opaque low-poly shell/rim preferred over alpha-blending for instancing and ground visibility; clear-plastic styling is a deliberate opaque approximation, requires this review.
+Empty soft: same coral/cream bands, lid and sage straw. No new branding.
+Empty tray: same kraft tapered tray/pale folded edges, remove all chips. No wrapper fourth variant needed.
+One reusable mesh per item, ground-origin conventions and deterministic placement transforms recorded. Cup upright/sideways and tray flat/tilted use same mesh with transforms, no per-piece animation/physics needed. Runtime production only after coordinator concept review.
+No cap on ground litter visuals; shared geometry/material/instancing is an integration task. Every recorded piece remains represented.
+
+WASP EFFECT DIRECTION
+Small sparse local cluster near full/overflowing bin mouth; yellow/charcoal body, pale opaque wings. Enlarged anatomical legs in concept are illustrative: production can omit tiny legs, retain simple body/head/wings and broad bands. Body length candidate0.045m (artistic enlargement for readability, to validate at actual cameras). Cluster radius candidate0.35-0.5m, height about0.05-0.35m above rim. ~5 visible flecks is a effect proposal, NOT a litter cap or simulation insect count.
+Gentle short irregular hover loops over2-4s, slight vertical bob; individual phase variation, no synchronized ring, path arrows only on study, not in game. Pause freezes effect clock/positions/wing state; resume continues without catching up. On emptying briefly disperse/fade using simulation time. Satisfaction nuisance only; stings and medical effects excluded from current commission.
+
+VISUAL QA / LIMITATIONS
+Board contains recognisable three empty variants, ground orientations, in/around-bin context and enlarged wasp motion study. Generated scale/geometry approximate: cups/bin in contextual panel drift larger than exact dimensions, wasp detail exaggerates anatomy. Production uses measured dimensions and original meshes, not traced board.
+actual-bin-adult-close.png, actual-bin-adult-game32.png and actual-bin-adult-wide62.png are copied unmodified native Godot asset proofs from bin-slatted-asset-v1, with actual approved adult/bin. They contain previous bin fill and NO new litter/wasp production. They are scale references, not proof of new effects. At32m individual real-sized cups are only a few pixels; at62m fine identity and insect bands cannot be promised. Native new-item/effect proof will follow production.
+Built-in image_gen produced board from inspected references; prompt in PROMPTS.txt. No runtime files/game code changed at this checkpoint.

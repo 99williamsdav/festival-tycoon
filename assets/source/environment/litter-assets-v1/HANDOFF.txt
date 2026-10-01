@@ -1,0 +1,33 @@
+LITTER + WASP PRODUCTION PACKAGE v1 - FROZEN
+Approved concept: ../litter-wasp-concepts-v1/litter-wasp-board.png, coordinator approval 1 October 2026 under standing user delegation.
+Manifest SHA256: 044f7260e076090b75f313a702176630a0f5d10c59e2015dbfac683d4f97a7b8
+
+DELIVERABLES
+source/lwf_litter_and_wasp_v1.blend - editable Blender4.1 source, packed palette. Four named objects at their export origins; isolate desired object for source inspection, they overlap in source deliberately to preserve identity export transforms. .blend1 backup is not a frozen deliverable.
+runtime/lwf_litter_beer_cup_v1.glb -188 triangles,12872 bytes; real hollow interior, opaque pale cup approximation approved. 0.092m diameter/0.152m total height,0.15m cup body.
+runtime/lwf_litter_soft_cup_v1.glb -240 triangles,15872 bytes; matching coral/cream cup/lid/sage straw.0.094m diameter/0.217m total height.
+runtime/lwf_litter_chips_tray_v1.glb -68 triangles,6524 bytes; matching hollow kraft tray with folded pale edge, no chips.0.183x0.123m footprint/0.0505m height.
+runtime/lwf_wasp_v1.glb -108 triangles,9192 bytes; yellow/charcoal faceted body0.045m long,0.054m wing span,0.01654m total vertical extent. Fixed pale opaque wings, no legs/rig/animation.
+textures/lwf_litter_palette_v1.png -80x8 opaque10colour shared palette; embedded in each GLB and packed in source. All four meshes use same named opaque double-sided matte material, one mesh/surface/material per file. Import may create duplicate resources; explicitly share compatible material/texture resources across variants and instances.
+build.py, verify.cjs, manifest.json, verification.json, godot-verification.json; standalone godot-check project/proof.gd and native review PNGs.
+
+AXES / ORIGINS / HAND SOCKETS
+Metres, exported Godot Y-up; upright cups/tray have origin at base centre, identity node transforms. Wasp origin hover centre, forward Godot -Z (Blender +Y). No collision/navigation/physics baked.
+Cup prior held-prop origin was grip at body midheight. To put new empty mesh under same grip socket, set local position(0,-0.075,0) for either cup. Tray local position(0,-0.025,0). Equivalently subtract manifest held_grip_anchor_godot from socket position. These preserve previous mesh grip convention, not a new verified animation/socket implementation. Native02 compares previous filled props and new empty props at the same grip height.
+Ground poses in manifest give quaternion_godot_xyzw and ground_offset_godot_y computed from actual vertices. Upright litter offset0. Side cups: rotate90deg about Godot X then Yoffset0.046 beer /0.047 soft. Tray normally upright (already flat), or tilted pose with computed offset. Side tray pose available but not recommended as default.
+Apply yaw around Godot Y after chosen pose: rotation=YawQuaternion*PoseQuaternion; yaw does not change support height. Position = ground location + Vector3(0,offset,0). On uneven ground support/normal alignment is integration responsibility; proof uses flat ground. Wasp ground pose data is diagnostic only; ignore it for hovering.
+
+BIN REUSE / OVERFLOW
+Original bin shell and part/full hashes verified unchanged. Use shell + at most ONE original fill at identity; new litter assets separate instances, no extra height offset to old fill. Native04 and05 show old part/full overlays compatible, ground litter around shell. Original fills contain stylized existing waste shapes, not per-item authoritative waste state.
+Current exact waste count, type, overflow placement and steward ownership are builder responsibilities. Keep EVERY ground/overflow record represented; no visual litter cap in these assets or proof. Shared meshes/materials/MultiMesh appropriate. Do not scale cups/tray to AI-board proportions. No per-piece physics/animation required. Collision-free decorations should not block bin approach.
+
+WASP EFFECT GUIDANCE
+Proof uses five unscaled instances under one MultiMesh, local radius0.17-0.27m, hover Y0.99-1.15m around bin roof height0.95m, gentle phase-varied motion. Five is an artistic cluster suggestion, unrelated to litter limits. Motion function in proof.gd uses supplied simulation time; fixed wings avoid separate animated resources. Engine integration should freeze positions/clock on pause and continue without catchup, disperse briefly after emptying in simulation time. Only full/overflowing open bins have active cluster; satisfaction annoyance only. Mesh does not implement simulation or damage.
+Actual mesh dimensions stay fixed; do not add giant floating insects for wide zoom. At close camera insects read as tiny yellow/black winged shapes; at32m, roughly1-2pixels and not reliably diagnosable in still images; at62m effectively subpixel/unreliable. Motion can help but this is not an integrated playback/readability guarantee. If UX needs broad full-bin identification, coordinator must decide additional cue later; no uncommissioned warning halo/UI added.
+
+QA
+Native Godot4.7.2 GL Compatibility imports4GLBs with expected bounds,1surface each, embedded opaque palette. Review01 ground upright/side/tilted;02 held comparisons;03 enlarged actual wasp detail;04 partfull;05/06 fullbin phase0/.6;07 game32;08 wide62;09 threeother quarterturns. Actual unchanged approved1.75m adult and0.65x0.95m bin. Standalone asset proof, not game integration. Pause sample checks fixed clock input remains identical; runtime pause testing still required by builder.
+verify.cjs passed hashes, mesh/surface/material counts, triangle counts, no rigs/animations/cameras, embedded texture, exact palette sRGB values, support height under each quaternion pose and original bin hashes. Palette double-linear encoding caught during visual QA and corrected before freeze; all final captures regenerated. Environment logs have user-data/shader-cache/rootcertificate warnings, no asset proof errors.
+No uncapped-count performance/FPS guarantee from this small asset proof. Builder must measure real integrated batching and count preservation.
+Provenance: original local Blender geometry from inspected held-prop authoring dimensions/colours; no downloaded meshes. AI used for concept only. Game repository unmodified/uncommitted by designer. Frozen runtime/source/texture/manifest handed to coordinator and builder for integration.
+Reproduce: Blender --background --python build.py; Godot --path godot-check --script proof.gd --rendering-method gl_compatibility; Node verify.cjs. Regeneration changes source hashes; rerun finalizer before a new freeze.

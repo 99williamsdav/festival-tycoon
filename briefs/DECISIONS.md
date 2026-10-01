@@ -31,6 +31,8 @@ The user approved **basic open-top general-waste bins** whose full state attract
 
 ## Approved directions still awaiting bounded work
 
+1 October 2026 supersession of the 30 September concept-only bin note: producer commissioned the basic litter/bin slice and approved the slatted-bin and litter/wasp production handoffs. [R0.05ah](R0.05ah-litter-bins.md) records £15/20-piece bins, physical disposal, uncapped litter, overflow annoyance and steward cleanup with the user's final **90% minimum emptying** override. No sting damage, bags/collection simulation or lidded upgrade is included.
+
 - A high-ego band's reaction to a genuinely thin audience, possibly escalating to a warned interruption/storm-off, was approved as **future direction**, not implemented by the once-only booking disappointment. Define observation window, intervention and escalation before work; no arbitrary instant failure. [B-012](BACKLOG.md).
 - A realistic displayed day clock with a future lighting relationship was requested; midday–23:00 was an example, not the approved mapping. The current elapsed `/08:00` clock remains. [B-009](BACKLOG.md).
 - Explicit saved gender/model identity, flies near smelly toilets and several visual/audio refinements remain backlog items with separate scopes. Current deterministic cosmetic selection is not a saved gender schema.

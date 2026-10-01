@@ -1,0 +1,101 @@
+{
+  "units": "metres",
+  "origin": "ground centre",
+  "blender_axes": "Z up",
+  "godot_axes": "Y up, -Z forward (rotationally symmetric)",
+  "assets": {
+    "LWF_Bin_Slatted_Shell": {
+      "file": "lwf_bin_slatted_shell_v1.glb",
+      "sha256": "4d6bb53a45db56a6bab4229e7aa11ab315c794a390409cda6f48b6d614f6cc4a",
+      "triangles": 2016,
+      "meshes": 1,
+      "materials": 1,
+      "bounds_blender": [
+        [
+          -0.32499998807907104,
+          -0.32499998807907104,
+          0
+        ],
+        [
+          0.32499998807907104,
+          0.32499998807907104,
+          0.949999988079071
+        ]
+      ]
+    },
+    "LWF_Bin_Rubbish_PartFull": {
+      "file": "lwf_bin_rubbish_partfull_v1.glb",
+      "sha256": "8cb9e36003dd898ed7ae0a9653ac257b31416020333cead2736af7960d953bc0",
+      "triangles": 962,
+      "meshes": 1,
+      "materials": 1,
+      "bounds_blender": [
+        [
+          -0.24400000274181366,
+          -0.24400000274181366,
+          0.550000011920929
+        ],
+        [
+          0.24400000274181366,
+          0.24400000274181366,
+          0.7487699389457703
+        ]
+      ]
+    },
+    "LWF_Bin_Rubbish_Full": {
+      "file": "lwf_bin_rubbish_full_v1.glb",
+      "sha256": "653a1cf20b2fe6df2fc52876ba5d556498123f2b2d85b156e23f5f1773472763",
+      "triangles": 962,
+      "meshes": 1,
+      "materials": 1,
+      "bounds_blender": [
+        [
+          -0.24400000274181366,
+          -0.24400000274181366,
+          0.8299999833106995
+        ],
+        [
+          0.24400000274181366,
+          0.24400000274181366,
+          1.0287699699401855
+        ]
+      ]
+    }
+  },
+  "collision": {
+    "suggested_cylinder_radius": 0.325,
+    "height": 0.95,
+    "centre_godot": [
+      0,
+      0.475,
+      0
+    ],
+    "baked": false
+  },
+  "fill_rule": "shell always present; choose at most ONE fill overlay at identity; empty=no overlay",
+  "adult": {
+    "source": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\direction-a-blender-prototypes-v1\\attendee-neutral-v5\\direction-a-attendee.blend",
+    "height_m": 1.75,
+    "scale": [
+      1,
+      1,
+      1
+    ]
+  },
+  "source_sha256": "b2a3950a918e1a5bba068d244eb3e830fe89f8860201478cd5deba05103c2bd1",
+  "status": "PRODUCTION_ASSET_COMPLETE",
+  "approved_concept": "../bin-concepts-v3-slatted/slatted-bin-concept.png",
+  "palette": {
+    "file": "textures/lwf_bin_palette_v1.png",
+    "sha256": "8a08c15107d80c02783848a5b1ef96b07e7fbdbcd7452af450d0b58afa348ebe",
+    "size": [
+      128,
+      8
+    ]
+  },
+  "verification": {
+    "passed": true,
+    "errors": [],
+    "scope": "GLB structure, hashes, bounds, identity transforms and actual Godot proof; visual checks documented separately"
+  }
+}

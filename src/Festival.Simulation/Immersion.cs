@@ -180,6 +180,7 @@ public sealed partial class GameSession
                 MutatePerson(p.Id, person => person.Satisfaction = Math.Min(10000,person.Satisfaction+gain));
                 if (elapsed == duration && held.Product == ImmersionProduct.Beer && _preparation.FinishedBeerIds is { } finished && PersonIn(PersonView.Roster, p.Id) is { Role: ProtectedPersonRole.Guest, Admitted: true })
                     _preparation = _preparation with { FinishedBeerIds = finished.Append(held.TransactionId).ToArray() };
+                if (elapsed == duration) RecordCompletedWaste(p.Id, held);
                 p.Held = elapsed == duration ? null : held with { ConsumedTicks = elapsed };
             }
             if (p.Intoxication >= 7500 && p.IntoxicationWarningTick < 0) { p.IntoxicationWarningTick = CurrentTick; MedicalEvent("intoxication:warning", $"Person {p.Id}: heavy intoxication {p.Intoxication}; no further beer served, water, rest and medic available."); }

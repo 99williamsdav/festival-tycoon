@@ -242,6 +242,7 @@ public sealed partial class GameSession
                 var nav = _navigationAgents[new(person.Id)];
                 if (nav.Action == AgentNavigationAction.Arrived && nav.Destination == MedicalExitCell)
                 {
+                    ReleaseWasteAtExit(person.Id);
                     MutatePerson(person.Id, item => item.Departed = true);
                     DisorderEvent("disorder:egress-complete", person.Id, null, 0,
                         "Person reached the safe gate; no teleport or casualty.");
@@ -377,7 +378,7 @@ public sealed partial class GameSession
         var d = _disorder!;
         var workerId = response.WorkerId;
         var profile = GetResponseStaff().Single(item => item.AgentId == workerId);
-        if (!ImmersionOwnsNavigation(workerId) && !MedicalOwnsNavigation(workerId) && !InterventionOwnsWorker(workerId) && response.Stage == SecurityResponseStage.Completed && !response.Incapacitated &&
+        if (!ImmersionOwnsNavigation(workerId) && !MedicalOwnsNavigation(workerId) && !InterventionOwnsWorker(workerId) && !CleanupOwnsNavigation(workerId) && !WasteOwnsNavigation(workerId) && response.Stage == SecurityResponseStage.Completed && !response.Incapacitated &&
             _navigationAgents[new(workerId)].Destination != StaffDutyCell(workerId, ResponseRole.Steward))
             ApplyAgentDestination(new(workerId), new(StaffDutyCell(workerId, ResponseRole.Steward), "disorder.return-to-post"));
         if (response.TargetId is not { } targetId || response.Incapacitated) return;

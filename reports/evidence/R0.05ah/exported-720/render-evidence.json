@@ -1,0 +1,49 @@
+{
+  "diagnostic": "staged-litter-render",
+  "debug": false,
+  "resolution": "(1280, 720)",
+  "renderer": "gl_compatibility",
+  "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+  "vsync": "Enabled",
+  "baseline": {
+    "frameMs": {
+      "count": 180,
+      "mean": 124.61263722222222,
+      "p50": 21.9372,
+      "p95": 264.4299,
+      "max": 265.5793
+    },
+    "drawCalls": {
+      "count": 180,
+      "mean": 482,
+      "p50": 482,
+      "p95": 482,
+      "max": 482
+    },
+    "instances": 0
+  },
+  "stress": {
+    "groundRecords": 10000,
+    "overflowRecords": 6,
+    "expectedInstances": 10006,
+    "actualInstances": 10006,
+    "batches": 3,
+    "frameMs": {
+      "count": 180,
+      "mean": 89.33315999999998,
+      "p50": 14.9441,
+      "p95": 247.0286,
+      "max": 258.9565
+    },
+    "drawCalls": {
+      "count": 180,
+      "mean": 488,
+      "p50": 488,
+      "p95": 488,
+      "max": 488
+    }
+  },
+  "pauseExact": true,
+  "peakWorkingSetBytes": 448212992,
+  "caveat": "Staged count/render fixture with simulation paused; behavior and current-version restore checked separately. No FPS certification."
+}

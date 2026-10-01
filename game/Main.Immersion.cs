@@ -293,6 +293,7 @@ private void BuildImmersionControls(VBoxContainer parent)
         _immersionMoveButton.TooltipText = "Choose a new grass site before opening. Comma/period rotate; right-click or Esc cancels.";
         parent.AddChild(_immersionMoveButton);
         BuildToiletInspector(parent);
+        BuildLitterInspector(parent);
     }
 
     private int ImmersionHeavyOnSiteCount()
@@ -403,7 +404,7 @@ private void BuildImmersionControls(VBoxContainer parent)
             (person.ToiletStage != ToiletVisitStage.None ? $"Toilet: {person.ToiletStage.ToString().ToLowerInvariant()}\n" : "") +
             (_session.ToiletSmellPenaltyPerSecond(id) > 0 ? "Nearby toilet smell is gradually reducing satisfaction.\n" : "") +
             (person.Abstains ? "Abstains from beer\n" : "Individual food/drink preferences\n") +
-            (person.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} • {held.ConsumedTicks / 80m:0.0}/{GameSession.ImmersionConsumeTicks(held.Product) / 80}s consumed • {(!_session.IsPaused && _session.ImmersionConsumptionEligible(id) ? "consuming away from counter" : "retained; consumption paused")}\n" : "Hands empty\n") +
+            (person.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} • {held.ConsumedTicks / 80m:0.0}/{GameSession.ImmersionConsumeTicks(held.Product) / 80}s consumed • {(!_session.IsPaused && _session.ImmersionConsumptionEligible(id) ? "consuming away from counter" : "retained; consumption paused")}\n" : _session.CaptureCarriedWaste(id) is not null ? "Carrying empty packaging for disposal\n" : "Hands empty\n") +
             (person.PendingDose > 0 ? "Previously ingested dose still absorbing\n" : "") +
             (person.Intoxication >= 7500 ? "HEAVY INTOXICATION • needs care; no further beer\n" : person.Intoxication >= 5000 ? "IMPAIRED • coordination reduced\n" : person.Intoxication >= 2500 ? "TIPSY\n" : "") +
             (person.Intoxication >= 8500 ? $"Continuously high exposure {person.SevereTicks / 80m:0.0}/20s • collapse risk\n" : "") +
@@ -421,14 +422,17 @@ private void BuildImmersionControls(VBoxContainer parent)
         foreach (var person in state.People)
             if (_attendeeVisuals.TryGetValue(new EntityId(person.AgentId), out var body))
             {
-                var hands = _session.ImmersionHandsAvailable(person.AgentId);
-                Bodies.SetPose(body, AttendeePose.State(person.Held, hands, _session.ImmersionConsumptionEligible(person.AgentId)), person.Held?.Product);
-                SetImmersionHeldVisual(new(person.AgentId), body, person.Held is { } held ? ImmersionProductKey(held.Product) : null, hands, person.Intoxication, delta);
+                var waste = _session.CaptureCarriedWaste(person.AgentId);
+                var hands = waste is null ? _session.ImmersionHandsAvailable(person.AgentId) : _session.WasteCarryEligible(person.AgentId);
+                var shown = person.Held ?? (waste is null ? null : new ImmersionHeldItem(waste.Id, waste.Product, 0));
+                Bodies.SetPose(body, AttendeePose.State(shown, hands, waste is null && _session.ImmersionConsumptionEligible(person.AgentId)), shown?.Product);
+                SetImmersionHeldVisual(new(person.AgentId), body, shown is { } held ? ImmersionProductKey(held.Product) : null, hands, person.Intoxication, delta, waste is not null);
                 if (hands && person.Intoxication >= 5000)
                     body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, Mathf.Sin((float)_characterPresentationSeconds / .35f + person.AgentId) * .035f);
                 else if (Mathf.Abs(body.Rotation.X) < .1f) body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, 0);
             }
         RefreshImmersionVendorInspector();
         RefreshToiletInspector();
+        SyncLitterWorld();
     }
 }

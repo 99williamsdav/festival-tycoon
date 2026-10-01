@@ -20,6 +20,8 @@ The user's [working agreement](../../docs/WORKING-AGREEMENTS.md) records that ap
 
 ## Characters, services, environment and sound
 
+Approved 1 October 2026 and integrated in [R0.05ah](../../briefs/R0.05ah-litter-bins.md): [slatted bin concept](environment/bin-concepts-v3-slatted/) and [source/handoff](environment/bin-slatted-asset-v1/HANDOFF.txt); [litter/wasp board](environment/litter-wasp-concepts-v1/) and [source/handoff](environment/litter-assets-v1/HANDOFF.txt). Both source packages preserve Blender sources, palette, manifest, verification, runtime exports and native proof/review files. Runtime GLBs under `game/assets/environment/` match delivered originals by SHA-256. Stings and lidded upgrades are deferred.
+
 | Design / source | Current status | Implementation / gap |
 | --- | --- | --- |
 | [Portaloo concept](environment/portaloo-concept-v1/CONCEPT.md) · [image](environment/portaloo-concept-v1/portaloo-concept-v1.png) · [prompt](environment/portaloo-concept-v1/PROMPTS.md) | Concept approved; production asset and mechanics **integrated** | [R0.05s result](../../briefs/results/R0.05s.md), [runtime models](../../game/assets/environment/portaloo). The larger original production package/manifest remains in the art workspace `portaloo-asset-v1/`; only the concept is mirrored here. |

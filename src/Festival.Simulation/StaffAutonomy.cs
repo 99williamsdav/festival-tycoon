@@ -93,6 +93,7 @@ public sealed partial class GameSession
         var steward = GetStewardResponses().SingleOrDefault(job => job.WorkerId == id);
         if (steward?.Stage is SecurityResponseStage.Calming or SecurityResponseStage.Confronting) return "Handling";
         if (steward is not null && StewardBusy(steward)) return "Responding";
+        if (CleanupOwnsNavigation(id)) return "Cleaning · bounded sweep";
         return StaffUnavailableReason(id) is { } issue ? "Unavailable · " + issue : "Idle · available (safe return routes may be reassigned)";
     }
 }

@@ -201,6 +201,7 @@ public sealed partial class GameSession
                 continue;
             }
             MutatePerson(job.GuestId, need => { need.HealthStage = MedicalStage.Removed; need.Reason = "Named escort physically completed at the gate"; });
+            ReleaseWasteAtExit(job.GuestId);
             MutatePerson(job.GuestId, person => person.Departed = true);
             if (InView(PersonView.Disorder, job.GuestId))
                 MutatePerson(job.GuestId, person => { person.ConductStage = DisorderStage.Resolved; person.Pressure = 0; person.OpponentId = null; person.Grievance = DisorderGrievance.None; });

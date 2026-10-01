@@ -1,6 +1,6 @@
 namespace Festival.Simulation;
 
-public enum BuildServiceKind { WaterTap, Toilet, FoodVan, Bar, FirstAid, StewardPost }
+public enum BuildServiceKind { WaterTap, Toilet, FoodVan, Bar, FirstAid, StewardPost, Bin }
 public sealed record BuildPlacement(string Id, BuildServiceKind Kind, GridCell Cell, int QuarterTurns);
 public sealed record PlaceBuildServiceCommand(BuildServiceKind Kind, GridCell Cell, int QuarterTurns = 0) : SessionCommand;
 public sealed record MoveBuildServiceCommand(string Id, GridCell Cell, int QuarterTurns = 0) : SessionCommand;
@@ -16,7 +16,8 @@ public sealed partial class GameSession
         (BuildServiceKind.FoodVan, 8_000, 1),
         (BuildServiceKind.Bar, 7_000, 1),
         (BuildServiceKind.FirstAid, 5_000, 1),
-        (BuildServiceKind.StewardPost, 4_000, 1)
+        (BuildServiceKind.StewardPost, 4_000, 1),
+        (BuildServiceKind.Bin, 1_500, int.MaxValue)
     ];
 
     public static int BuildServiceFeePennies(BuildServiceKind kind) =>
@@ -45,8 +46,14 @@ public sealed partial class GameSession
             BuildServiceKind.Bar => "drinks",
             BuildServiceKind.FirstAid => "first-aid",
             BuildServiceKind.StewardPost => "steward-post",
+            BuildServiceKind.Bin => "bin",
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
         };
+        if (kind == BuildServiceKind.Bin)
+        {
+            for (var index = 1; ; index++)
+                if (!placed.Any(p => p.Id == "bin." + index)) return "bin." + index;
+        }
         if (kind is not (BuildServiceKind.WaterTap or BuildServiceKind.Toilet)) return prefix;
         var first = prefix + ".main";
         if (!placed.Any(item => item.Id == first)) return first;
@@ -117,6 +124,7 @@ public sealed partial class GameSession
             .Select(item => NewLooseVendor(new ImmersionVendor(item.Id, item.Cell, item.QuarterTurns, [])))
             .OrderBy(item => item.Id, StringComparer.Ordinal).ToArray());
         SetToilets(PlacedToilets(p));
+        _litter ??= EmptyLitter;
     }
 
     /// <summary>Every placed toilet, standing fresh at its placement: the main toilet first, then any others in placement order.</summary>
@@ -137,6 +145,7 @@ public sealed partial class GameSession
             BuildServiceKind.Bar => item.Id == "drinks",
             BuildServiceKind.FirstAid => item.Id == "first-aid",
             BuildServiceKind.StewardPost => item.Id == "steward-post",
+            BuildServiceKind.Bin => item.Id.StartsWith("bin.", StringComparison.Ordinal) && int.TryParse(item.Id[4..], out var number) && number > 0 && item.Id == "bin." + number,
             _ => false
         };
         if (placements.Any(item => item is null || !Enum.IsDefined(item.Kind) || item.QuarterTurns is < 0 or > 3 ||
@@ -210,6 +219,9 @@ public sealed partial class GameSession
         {
             switch (item.Kind)
             {
+                case BuildServiceKind.Bin:
+                    foreach (var cell in BinSolidCells(item.Cell)) Block(cell);
+                    break;
                 case BuildServiceKind.WaterTap:
                     for (var x = item.Cell.X - 1; x <= item.Cell.X + 1; x++)
                         for (var z = item.Cell.Z - 1; z <= item.Cell.Z + 1; z++) Block(new(x, z));
@@ -252,6 +264,9 @@ public sealed partial class GameSession
         {
             switch (item.Kind)
             {
+                case BuildServiceKind.Bin:
+                    destinations.AddRange(new[] { new GridCell(item.Cell.X, item.Cell.Z + 2), new(item.Cell.X + 2, item.Cell.Z), new(item.Cell.X, item.Cell.Z - 2), new(item.Cell.X - 2, item.Cell.Z) });
+                    break;
                 case BuildServiceKind.WaterTap:
                     destinations.Add(WaterServiceCell(item.Cell, item.QuarterTurns)); break;
                 case BuildServiceKind.Toilet:
@@ -285,6 +300,7 @@ public sealed partial class GameSession
             select new GridCell(x, z);
         return item.Kind switch
         {
+            BuildServiceKind.Bin => Square(item.Cell, 2).ToArray(),
             BuildServiceKind.WaterTap => Square(item.Cell, 2)
                 .Append(WaterServiceCell(item.Cell, item.QuarterTurns)).ToArray(),
             BuildServiceKind.Toilet => ToiletReservedCells(new(item.Id, item.Cell, item.QuarterTurns, [], null,

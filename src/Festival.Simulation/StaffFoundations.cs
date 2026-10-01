@@ -148,7 +148,7 @@ public sealed partial class GameSession
                 SetMedicResponse(job with { Stage = MedicalResponseStage.None, PatientId = null, StartedTick = -1, Description = "Physical route failed; response released without remote treatment" });
                 continue;
             }
-            if (!ImmersionDepartureActive && !ImmersionOwnsNavigation(job.WorkerId) && !MedicalOwnsNavigation(job.WorkerId) && !InterventionOwnsWorker(job.WorkerId) && job.Stage == MedicalResponseStage.Completed &&
+            if (!ImmersionDepartureActive && !ImmersionOwnsNavigation(job.WorkerId) && !MedicalOwnsNavigation(job.WorkerId) && !InterventionOwnsWorker(job.WorkerId) && !WasteOwnsNavigation(job.WorkerId) && !CleanupOwnsNavigation(job.WorkerId) && job.Stage == MedicalResponseStage.Completed &&
                 _navigationAgents[new(job.WorkerId)].Destination != StaffDutyCell(job.WorkerId, ResponseRole.Medic))
                 ApplyAgentDestination(new(job.WorkerId), new(StaffDutyCell(job.WorkerId, ResponseRole.Medic), "medical.return-to-tent"));
             if (job.Stage is not (MedicalResponseStage.Travelling or MedicalResponseStage.Treating)) continue;

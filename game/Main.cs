@@ -34,14 +34,14 @@ public partial class Main : Node, IHudHost
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v10", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v10");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v11", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v11");
 
     public override void _Ready()
     {
         ConfigureCommandLine();
         _host = new SessionHost(_preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
-            GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility);
+            _litterEvidenceOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility);
         BuildWorld();
         if (DisplayServer.GetName() != "headless")
             DisplayServer.SetIcon(GD.Load<Texture2D>("res://assets/branding/festival-tycoon-stage-sun-icon-v3.png").GetImage());
@@ -67,6 +67,7 @@ public partial class Main : Node, IHudHost
     public override void _Process(double delta)
     {
         _rig.Process(delta);
+        ProcessLitterEvidence();
         AdvancePreparationPresentation(delta);
         RefreshContextPanelVisibility();
         AdvanceFinanceFeedback(delta);
@@ -311,6 +312,7 @@ public partial class Main : Node, IHudHost
         else if (collider is not null && collider.GetInstanceId() == _generatorPickId) SelectGenerator();
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
         else if (collider is not null && _toiletPickOwners.TryGetValue(collider.GetInstanceId(), out var toiletId)) SelectToilet(toiletId);
+        else if (collider is not null && _binPickOwners.TryGetValue(collider.GetInstanceId(), out var binId)) SelectBin(binId);
         else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
         else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility))
             SelectMedicalFacility(medicalFacility.Facility, medicalFacility.WaterPointId);
@@ -320,6 +322,7 @@ public partial class Main : Node, IHudHost
 
     private void SelectObject(FarmObjectReadModel item)
     {
+        _selectedBinId = null;
         if (!_visualRegistry.TryGetValue(item.StableId, out var objectVisual)) { ClearSelection(); return; }
         _selectedImmersionVendor = null;
         _selectedToilet = false;
@@ -349,6 +352,7 @@ public partial class Main : Node, IHudHost
 
     private void ClearSelection()
     {
+        _selectedBinId = null;
         RefreshImmersionNeedBars(null);
         _selectedImmersionVendor = null;
         _selectedToilet = false;
@@ -365,6 +369,7 @@ public partial class Main : Node, IHudHost
 
     private void SelectAttendee(EntityId id)
     {
+        _selectedBinId = null;
         if (_session.CapturePreparation()?.People.Any(person => person.AgentId == id.Value && person.Departed) == true) return;
         if (!_attendeeVisuals.TryGetValue(id, out var visual))
         {
@@ -459,6 +464,7 @@ public partial class Main : Node, IHudHost
                 if (i + 1 < args.Length && int.TryParse(args[i + 1], out var guests)) { _profileGuests = guests; i++; }
                 if (i + 1 < args.Length && int.TryParse(args[i + 1], out var seconds)) { _profileSeconds = seconds; i++; }
             }
+            else if (args[i] == "--capture-litter" && i + 1 < args.Length) _litterEvidenceOutput = args[++i];
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');
@@ -484,7 +490,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v5");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v11");
 
 
 

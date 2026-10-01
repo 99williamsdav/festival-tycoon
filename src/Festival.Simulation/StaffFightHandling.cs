@@ -144,6 +144,7 @@ public sealed partial class GameSession
     private void ReleaseFrozenStaffClaims()
     {
         if (!IsLifecycleEditionFrozen()) return;
+        foreach (var sweep in (_litter?.Sweeps ?? []).Where(s => s.Remaining > 0).ToArray()) EndSweep(sweep, false);
         ReleaseFightHandlingForBoundary("First death froze the edition; handling attempt interrupted without a new roll");
         FinishStaffResponsesForDeparture();
     }

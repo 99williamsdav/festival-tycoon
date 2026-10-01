@@ -1,0 +1,326 @@
+{
+  "status": "PRODUCTION_ASSET_COMPLETE",
+  "units": "metres",
+  "axes": "Blender Z up -> Godot Y up; wasp forward Blender +Y -> Godot -Z",
+  "origins": "litter base centre upright; wasp hover centre",
+  "assets": {
+    "LWF_Litter_Beer_Cup_V1": {
+      "file": "lwf_litter_beer_cup_v1.glb",
+      "triangles": 188,
+      "bounds_blender": [
+        [
+          -0.04600000008940697,
+          -0.04600000008940697,
+          0
+        ],
+        [
+          0.04600000008940697,
+          0.04600000008940697,
+          0.15199999511241913
+        ]
+      ],
+      "dimensions_blender": [
+        0.09200000017881393,
+        0.09200000017881393,
+        0.15199999511241913
+      ],
+      "held_grip_anchor_godot": [
+        0,
+        0.075,
+        0
+      ],
+      "ground_poses": {
+        "upright": {
+          "rotation_blender_euler_rad": [
+            0,
+            0,
+            0
+          ],
+          "ground_offset_blender_z": 0,
+          "quaternion_godot_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "ground_offset_godot_y": 0
+        },
+        "side": {
+          "rotation_blender_euler_rad": [
+            1.5707963267948966,
+            0,
+            0
+          ],
+          "ground_offset_blender_z": 0.046000007539987564,
+          "quaternion_godot_xyzw": [
+            0.7071067690849304,
+            0,
+            0,
+            0.7071067690849304
+          ],
+          "ground_offset_godot_y": 0.046000007539987564
+        },
+        "tilted": {
+          "rotation_blender_euler_rad": [
+            0,
+            0.3,
+            0
+          ],
+          "ground_offset_blender_z": 0.009752167388796806,
+          "quaternion_godot_xyzw": [
+            0,
+            0,
+            -0.14943814277648926,
+            0.9887710809707642
+          ],
+          "ground_offset_godot_y": 0.009752167388796806
+        }
+      },
+      "sha256": "bf8df83feedf48636db74cb0a263da67a17ccc4e9aa2eedb07c2c95828dfe29c",
+      "bytes": 12872,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1
+    },
+    "LWF_Litter_Soft_Cup_V1": {
+      "file": "lwf_litter_soft_cup_v1.glb",
+      "triangles": 240,
+      "bounds_blender": [
+        [
+          -0.04699999839067459,
+          -0.04699999839067459,
+          0
+        ],
+        [
+          0.04699999839067459,
+          0.04699999839067459,
+          0.21699999272823334
+        ]
+      ],
+      "dimensions_blender": [
+        0.09399999678134918,
+        0.09399999678134918,
+        0.21699999272823334
+      ],
+      "held_grip_anchor_godot": [
+        0,
+        0.075,
+        0
+      ],
+      "ground_poses": {
+        "upright": {
+          "rotation_blender_euler_rad": [
+            0,
+            0,
+            0
+          ],
+          "ground_offset_blender_z": 0,
+          "quaternion_godot_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "ground_offset_godot_y": 0
+        },
+        "side": {
+          "rotation_blender_euler_rad": [
+            1.5707963267948966,
+            0,
+            0
+          ],
+          "ground_offset_blender_z": 0.04700000584125519,
+          "quaternion_godot_xyzw": [
+            0.7071067690849304,
+            0,
+            0,
+            0.7071067690849304
+          ],
+          "ground_offset_godot_y": 0.04700000584125519
+        },
+        "tilted": {
+          "rotation_blender_euler_rad": [
+            0,
+            0.3,
+            0
+          ],
+          "ground_offset_blender_z": 0.009752167388796806,
+          "quaternion_godot_xyzw": [
+            0,
+            0,
+            -0.14943814277648926,
+            0.9887710809707642
+          ],
+          "ground_offset_godot_y": 0.009752167388796806
+        }
+      },
+      "sha256": "ed4c66c9d63a58c84ac107278c166d75e52e069671d5e5fa9e0a1e6ebb0e20b1",
+      "bytes": 15872,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1
+    },
+    "LWF_Litter_Chips_Tray_V1": {
+      "file": "lwf_litter_chips_tray_v1.glb",
+      "triangles": 68,
+      "bounds_blender": [
+        [
+          -0.09149999916553497,
+          -0.061500001698732376,
+          0
+        ],
+        [
+          0.09149999916553497,
+          0.061500001698732376,
+          0.05050000175833702
+        ]
+      ],
+      "dimensions_blender": [
+        0.18299999833106995,
+        0.12300000339746475,
+        0.05050000175833702
+      ],
+      "held_grip_anchor_godot": [
+        0,
+        0.025,
+        0
+      ],
+      "ground_poses": {
+        "upright": {
+          "rotation_blender_euler_rad": [
+            0,
+            0,
+            0
+          ],
+          "ground_offset_blender_z": 0,
+          "quaternion_godot_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "ground_offset_godot_y": 0
+        },
+        "side": {
+          "rotation_blender_euler_rad": [
+            1.5707963267948966,
+            0,
+            0
+          ],
+          "ground_offset_blender_z": 0.061500005424022675,
+          "quaternion_godot_xyzw": [
+            0.7071067690849304,
+            0,
+            0,
+            0.7071067690849304
+          ],
+          "ground_offset_godot_y": 0.061500005424022675
+        },
+        "tilted": {
+          "rotation_blender_euler_rad": [
+            0,
+            0.3,
+            0
+          ],
+          "ground_offset_blender_z": 0.02216401696205139,
+          "quaternion_godot_xyzw": [
+            0,
+            0,
+            -0.14943814277648926,
+            0.9887710809707642
+          ],
+          "ground_offset_godot_y": 0.02216401696205139
+        }
+      },
+      "sha256": "f078f866f73bad7a1def84d9018eb6438a725bd6bca182e8ae53619d0c1e339e",
+      "bytes": 6524,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1
+    },
+    "LWF_Wasp_V1": {
+      "file": "lwf_wasp_v1.glb",
+      "triangles": 108,
+      "bounds_blender": [
+        [
+          -0.027000000700354576,
+          -0.023000000044703484,
+          -0.005542562808841467
+        ],
+        [
+          0.027000000700354576,
+          0.02199999988079071,
+          0.010999999940395355
+        ]
+      ],
+      "dimensions_blender": [
+        0.05400000140070915,
+        0.044999999925494194,
+        0.016542562749236822
+      ],
+      "held_grip_anchor_godot": null,
+      "ground_poses": {
+        "upright": {
+          "rotation_blender_euler_rad": [
+            0,
+            0,
+            0
+          ],
+          "ground_offset_blender_z": 0.005542562808841467,
+          "quaternion_godot_xyzw": [
+            0,
+            0,
+            0,
+            1
+          ],
+          "ground_offset_godot_y": 0.005542562808841467
+        },
+        "side": {
+          "rotation_blender_euler_rad": [
+            1.5707963267948966,
+            0,
+            0
+          ],
+          "ground_offset_blender_z": 0.023000000044703484,
+          "quaternion_godot_xyzw": [
+            0.7071067690849304,
+            0,
+            0,
+            0.7071067690849304
+          ],
+          "ground_offset_godot_y": 0.023000000044703484
+        },
+        "tilted": {
+          "rotation_blender_euler_rad": [
+            0,
+            0.3,
+            0
+          ],
+          "ground_offset_blender_z": 0.0064770933240652084,
+          "quaternion_godot_xyzw": [
+            0,
+            0,
+            -0.14943814277648926,
+            0.9887710809707642
+          ],
+          "ground_offset_godot_y": 0.0064770933240652084
+        }
+      },
+      "sha256": "ee758e960af98848d4f0cbc5e59c9c443999e49d525ace0855f89a7fd5f965b5",
+      "bytes": 9192,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1
+    }
+  },
+  "palette": "textures/lwf_litter_palette_v1.png",
+  "source_sha256": "5f7afa755b15117add5f3201491b5b100095f2f32d9eed3e5e0dad89186940f5",
+  "approved_concept": "../litter-wasp-concepts-v1/litter-wasp-board.png",
+  "bin_contract": "reuse shell and at most ONE existing fill at identity; extra litter separate, no bin mesh edits",
+  "palette_sha256": "cabaef8be69a7528b3408e8831abbbf298f3fb5225242cbcdf4b0778ea28fd8e",
+  "verification": {
+    "passed": true,
+    "errors": [],
+    "scope": "GLB resources/hashes/triangles, ground contact after rotations, palette sRGB values, original bin hashes and native Godot proof"
+  }
+}

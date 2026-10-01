@@ -1,0 +1,152 @@
+using Festival.Simulation;
+using Godot;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Festival.Game;
+
+public partial class Main
+{
+    private const string BinAsset = "res://assets/environment/bin-slatted-asset-v1/lwf_bin_slatted_shell_v1.glb";
+    private const string LitterAssetRoot = "res://assets/environment/litter-assets-v1/";
+    private sealed record BinView(StaticBody3D Body, Node3D Part, Node3D Full, MultiMeshInstance3D Wasps);
+    private readonly Dictionary<string, BinView> _binViews = [];
+    private readonly Dictionary<ulong, string> _binPickOwners = [];
+    private readonly Dictionary<ImmersionProduct, MultiMeshInstance3D> _litterBatches = [];
+    private WastePiece[]? _renderedWaste;
+    private string _renderedBinLayout = "";
+    private string? _selectedBinId;
+    private Button? _binMoveButton, _cleanupButton;
+    private Material? _sharedLitterMaterial;
+    private Mesh? _waspMesh;
+    private double _waspRenderTick = -1;
+    public int VisibleLitterInstanceCount => _litterBatches.Values.Sum(b => b.Multimesh.InstanceCount);
+    private static string LitterAsset(ImmersionProduct product) => LitterAssetRoot + (product switch
+    { ImmersionProduct.Beer => "lwf_litter_beer_cup_v1.glb", ImmersionProduct.SoftDrink => "lwf_litter_soft_cup_v1.glb", _ => "lwf_litter_chips_tray_v1.glb" });
+    private Mesh LoadLitterMesh(string path)
+    {
+        var root = InstantiateAsset(path);
+        var mesh = root.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().Single().Mesh!;
+        _sharedLitterMaterial ??= mesh.SurfaceGetMaterial(0);
+        root.QueueFree(); return mesh;
+    }
+    private MultiMeshInstance3D LitterBatch(Mesh mesh)
+    {
+        var node = new MultiMeshInstance3D { Multimesh = new MultiMesh { TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, Mesh = mesh },
+            MaterialOverride = _sharedLitterMaterial, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off };
+        AddChild(node); return node;
+    }
+    private static uint WasteVisualSeed(string id)
+    { var hash = 2166136261u; foreach (var ch in id) hash = unchecked((hash ^ ch) * 16777619); return hash; }
+    private static Transform3D GroundWasteTransform(WastePiece piece, Vector3 position)
+    {
+        var seed = WasteVisualSeed(piece.Id); var yaw = seed % 6283 / 1000f;
+        var side = piece.Product != ImmersionProduct.Chips && seed % 3 != 0;
+        var pose = side ? new Quaternion(Vector3.Right, Mathf.Pi / 2) : Quaternion.Identity;
+        var basis = new Basis(new Quaternion(Vector3.Up, yaw) * pose);
+        var support = side ? piece.Product == ImmersionProduct.Beer ? .046f : .047f : 0;
+        return new(basis, position + new Vector3(0, support + .003f, 0));
+    }
+    private void SyncLitterWorld()
+    {
+        var bins = _session.CaptureBins();
+        foreach (var stale in _binViews.Keys.Except(bins.Select(b => b.Id)).ToArray())
+        {
+            var view = _binViews[stale]; _binPickOwners.Remove(view.Body.GetInstanceId()); view.Body.QueueFree(); view.Wasps.QueueFree(); _binViews.Remove(stale);
+        }
+        foreach (var bin in bins)
+        {
+            if (!_binViews.TryGetValue(bin.Id, out var view))
+            {
+                var body = new StaticBody3D { Name = "OwnedBin-" + bin.Id, CollisionLayer = 1, CollisionMask = 0 };
+                body.AddChild(InstantiateAsset(BinAsset));
+                var part = InstantiateAsset("res://assets/environment/bin-slatted-asset-v1/lwf_bin_rubbish_partfull_v1.glb");
+                var full = InstantiateAsset("res://assets/environment/bin-slatted-asset-v1/lwf_bin_rubbish_full_v1.glb");
+                body.AddChild(part); body.AddChild(full);
+                body.AddChild(new CollisionShape3D { Shape = new CylinderShape3D { Radius = .325f, Height = .95f }, Position = new(0, .475f, 0) });
+                AddChild(body); _binPickOwners[body.GetInstanceId()] = bin.Id;
+                _waspMesh ??= LoadLitterMesh(LitterAssetRoot + "lwf_wasp_v1.glb");
+                var wasps = LitterBatch(_waspMesh); wasps.Multimesh.InstanceCount = 5;
+                view = new(body, part, full, wasps); _binViews[bin.Id] = view;
+            }
+            view.Body.Position = ImmersionPosition(bin.Cell); view.Body.RotationDegrees = new(0, bin.QuarterTurns * 90, 0);
+            view.Part.Visible = bin.Pieces is > 0 and < LitterRules.BinCapacity;
+            view.Full.Visible = bin.Pieces >= LitterRules.BinCapacity;
+            view.Wasps.Visible = bin.Wasps;
+            view.Wasps.Position = view.Body.Position;
+        }
+        var pieces = _session.CaptureLitter()?.Pieces ?? [];
+        var layout = string.Join('|', bins.Select(b => $"{b.Id}:{b.Cell}"));
+        if (!ReferenceEquals(pieces, _renderedWaste) || layout != _renderedBinLayout)
+        {
+            _renderedWaste = pieces; _renderedBinLayout = layout;
+            var visible = pieces.Where(p => p.Location == WasteLocation.Ground).Select(p => (Piece: p,
+                Position: new Vector3(p.XMillimetres / 1000f, 0, p.ZMillimetres / 1000f))).ToList();
+            foreach (var bin in bins)
+            {
+                var extras = pieces.Where(p => p.Location == WasteLocation.Bin && p.BinId == bin.Id).Skip(LitterRules.BinCapacity).ToArray();
+                for (var i = 0; i < extras.Length; i++)
+                {
+                    var angle = i * 2.399963f; var radius = .48f + .05f * Mathf.Sqrt(i);
+                    visible.Add((extras[i], ImmersionPosition(bin.Cell) + new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius)));
+                }
+            }
+            foreach (var product in Enum.GetValues<ImmersionProduct>())
+            {
+                if (!_litterBatches.TryGetValue(product, out var batch)) _litterBatches[product] = batch = LitterBatch(LoadLitterMesh(LitterAsset(product)));
+                var group = visible.Where(v => v.Piece.Product == product).ToArray(); batch.Multimesh.InstanceCount = group.Length;
+                for (var i = 0; i < group.Length; i++) batch.Multimesh.SetInstanceTransform(i, GroundWasteTransform(group[i].Piece, group[i].Position));
+            }
+        }
+        // Fixed mesh dimensions. Hover is a function of authoritative simulation time, including pause.
+        if (_waspRenderTick != _session.CurrentTick)
+        {
+            _waspRenderTick = _session.CurrentTick; var time = _session.CurrentTick / 80f;
+            foreach (var (id, view) in _binViews.Where(p => p.Value.Wasps.Visible))
+                for (var i = 0; i < 5; i++)
+                {
+                    var phase = time * 2.2f + i * 1.256637f + WasteVisualSeed(id) % 10;
+                    var r = .17f + i * .025f;
+                    view.Wasps.Multimesh.SetInstanceTransform(i, new Transform3D(new Basis(Vector3.Up, -phase),
+                        new Vector3(Mathf.Cos(phase) * r, 1.05f + .08f * Mathf.Sin(time * 3 + i), Mathf.Sin(phase) * r)));
+                }
+        }
+        RefreshBinInspector(); RefreshCleanupAction();
+    }
+    private void BuildLitterInspector(VBoxContainer parent)
+    {
+        _binMoveButton = ButtonText("Move bin", () => { if (_selectedBinId is { } id) BeginBuildPlacement(BuildServiceKind.Bin, id); });
+        parent.AddChild(_binMoveButton); _binMoveButton.Visible = false;
+        _cleanupButton = ButtonText("Clean up", () =>
+        {
+            if (_selectedAttendeeId is { } id)
+            {
+                _preparationMessage = _host.Execute(new CleanUpCommand(id.Value), out var error) ? "Steward assigned a bounded cleanup sweep." : error!;
+                RefreshPreparationHud();
+            }
+        });
+        parent.AddChild(_cleanupButton); _cleanupButton.Visible = false;
+        _cleanupButton.TooltipText = "Sweep near this steward's current post, then return. Arguments and fights take priority. Bins empty only at 90% or more.";
+    }
+    private void SelectBin(string id) { ClearSelection(); _selectedBinId = id; RefreshBinInspector(); }
+    private void RefreshBinInspector()
+    {
+        if (_binMoveButton is not null) _binMoveButton.Visible = _selectedBinId is not null && _session.PreparedStatus == PreparationStatus.Preparing;
+        if (_selectedBinId is not { } id || _session.CaptureBins().SingleOrDefault(b => b.Id == id) is not { } bin || !_binViews.TryGetValue(id, out var view)) return;
+        RefreshContextPanelVisibility();
+        _inspectorTitle.Text = "Litter bin";
+        _inspectorBody.Text = $"{bin.FullPercent}% full • {bin.Pieces}/{bin.Capacity} pieces\nExtra items: {bin.ExtraPieces}\n" +
+            (bin.Wasps ? "Full bin attracting wasps.\n" : "Open top general waste.\n") +
+            "Stewards empty during cleanup at 90% or more.";
+        _highlight.Position = view.Body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new(.55f, 1, .55f); _highlight.Visible = true;
+    }
+    private void RefreshCleanupAction()
+    {
+        if (_cleanupButton is null) return;
+        var id = _selectedAttendeeId?.Value;
+        _cleanupButton.Visible = id is not null && _session.GetStewardResponses().Any(s => s.WorkerId == id) && _session.PreparedStatus == PreparationStatus.Running;
+        if (id is { } worker) _cleanupButton.Disabled = _session.ValidateCommand(new(new(_session.NextSubmissionSequence + 1), _session.CampaignId,
+            _session.Phase, _session.CurrentTick, _session.NextSubmissionSequence, null, new CleanUpCommand(worker))) is not null;
+    }
+}

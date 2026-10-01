@@ -71,6 +71,7 @@ public partial class Main
             return _immersionVendors.TryGetValue(vendor,out var body) && body.IsVisibleInTree() && !body.IsQueuedForDeletion() ? collider : null;
         if (_toiletPickOwners.TryGetValue(key, out var toiletId)) return _toiletViews.TryGetValue(toiletId, out var view) &&
             view.Body.IsVisibleInTree() && !view.Body.IsQueuedForDeletion() ? collider : null;
+        if (_binPickOwners.TryGetValue(key, out var binId)) return _binViews.TryGetValue(binId, out var binView) && binView.Body.IsVisibleInTree() ? collider : null;
         if (_securityPostPickId != 0 && key == _securityPostPickId) return collider;
         if (_generatorPickId != 0 && key == _generatorPickId)
             return _equipmentVisual is { } generator && generator.IsVisibleInTree() && !generator.IsQueuedForDeletion() ? collider : null;
@@ -134,6 +135,7 @@ public partial class Main
                 }
                 else if (_toiletPickOwners.TryGetValue(key, out var toiletId) && _toiletViews.TryGetValue(toiletId, out var toiletView))
                 { point = toiletView.Body.GlobalPosition; yaw = toiletView.Body.Rotation.Y; scale = new Vector3(1.5f,.3f,1.7f); }
+                else if (_binPickOwners.ContainsKey(key)) { scale = new Vector3(.55f,.3f,.55f); }
                 else if(key==_securityPostPickId){var post=_responsePostVisuals[ResponseRole.Steward];var geometry=BuildingHoverGeometry(post);yaw=post.Rotation.Y;point=post.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 else if(key==_generatorPickId && _equipmentVisual is { } generator){var geometry=BuildingHoverGeometry(generator);yaw=generator.Rotation.Y;point=generator.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 else if(_medicalFacilityPicks.TryGetValue(key,out var medical) && medical.Facility==MedicalFacility.FirstAid)

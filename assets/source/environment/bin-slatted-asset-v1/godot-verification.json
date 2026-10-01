@@ -1,0 +1,107 @@
+{
+	"captures": [
+		{
+			"camera_size": 2.5,
+			"label": "empty-close",
+			"resolution": [
+				1920,
+				1080
+			]
+		},
+		{
+			"camera_size": 32.0,
+			"label": "empty-game32",
+			"resolution": [
+				1920,
+				1080
+			]
+		},
+		{
+			"camera_size": 62.0,
+			"label": "empty-wide62",
+			"resolution": [
+				1920,
+				1080
+			]
+		},
+		{
+			"camera_size": 2.5,
+			"label": "part-full-close",
+			"resolution": [
+				1920,
+				1080
+			]
+		},
+		{
+			"camera_size": 32.0,
+			"label": "part-full-game32",
+			"resolution": [
+				1920,
+				1080
+			]
+		},
+		{
+			"camera_size": 62.0,
+			"label": "part-full-wide62",
+			"resolution": [
+				1920,
+				1080
+			]
+		},
+		{
+			"camera_size": 2.5,
+			"label": "full-close",
+			"resolution": [
+				1920,
+				1080
+			]
+		},
+		{
+			"camera_size": 32.0,
+			"label": "full-game32",
+			"resolution": [
+				1920,
+				1080
+			]
+		},
+		{
+			"camera_size": 62.0,
+			"label": "full-wide62",
+			"resolution": [
+				1920,
+				1080
+			]
+		}
+	],
+	"engine": {
+		"build": "official",
+		"hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+		"hex": 263938,
+		"major": 4,
+		"minor": 7,
+		"patch": 2,
+		"status": "stable",
+		"string": "4.7.2-stable (official)",
+		"timestamp": 0
+	},
+	"errors": [],
+	"imports": [
+		{
+			"aabb": "[P: (-0.325, 0.0, -0.325), S: (0.65, 0.95, 0.65)]",
+			"name": "LWF_Bin_Slatted_Shell",
+			"surfaces": 1
+		},
+		{
+			"aabb": "[P: (-0.244, 0.55, -0.244), S: (0.488, 0.19877, 0.488)]",
+			"name": "LWF_Bin_Rubbish_PartFull",
+			"surfaces": 1
+		},
+		{
+			"aabb": "[P: (-0.244, 0.83, -0.244), S: (0.488, 0.19877, 0.488)]",
+			"name": "LWF_Bin_Rubbish_Full",
+			"surfaces": 1
+		}
+	],
+	"passed": true,
+	"scope": "Standalone actual GL Compatibility import/render, game-matched yaw45 elevationatan(58/72); not game integration"
+}

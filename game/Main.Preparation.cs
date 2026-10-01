@@ -55,6 +55,7 @@ public partial class Main
             _ => false
         };
         _contextPanel.Visible = farm || person || vendor || facility ||
+            (_selectedBinId is { } binId && _binViews.TryGetValue(binId, out var selectedBin) && ContextVisualAvailable(selectedBin.Body)) ||
             (_selectedToilet && _selectedToiletId is { } toiletId && _toiletViews.TryGetValue(toiletId, out var selectedToilet) && ContextVisualAvailable(selectedToilet.Body)) ||
             (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0) ||
             (_selectedGenerator && _session.CaptureEquipment() is not null && ContextVisualAvailable(_equipmentVisual));

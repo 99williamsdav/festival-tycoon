@@ -42,6 +42,7 @@ public partial class Main : IBuildActions
         BuildServiceKind.Bar => InstantiateImmersionVendor(false),
         BuildServiceKind.FirstAid => InstantiateAsset(PostAsset(ResponseRole.Medic)),
         BuildServiceKind.StewardPost => InstantiateAsset(PostAsset(ResponseRole.Steward)),
+        BuildServiceKind.Bin => InstantiateAsset(BinAsset),
         _ => throw new ArgumentOutOfRangeException(nameof(kind))
     };
 
@@ -74,7 +75,7 @@ public partial class Main : IBuildActions
 
     private void SyncBuildWorld()
     {
-        SyncExtraWaterWorld(); SyncResponsePosts(); SyncImmersionWorld(); SyncToiletWorld();
+        SyncExtraWaterWorld(); SyncResponsePosts(); SyncImmersionWorld(); SyncToiletWorld(); SyncLitterWorld();
     }
 
     private void BeginBuildPlacement(BuildServiceKind kind, string? movingId = null)
