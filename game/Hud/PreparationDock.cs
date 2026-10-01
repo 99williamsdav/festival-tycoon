@@ -16,6 +16,8 @@ internal interface IPreparationNavigation
     bool ReadinessCovered { get; }
     /// <summary>A build placement is in progress.</summary>
     bool Placing { get; }
+    /// <summary>The box office briefing is open; planning waits behind it.</summary>
+    bool Briefing { get; }
     void ConfirmStart();
 }
 
@@ -264,7 +266,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         if (_dock is null) return;
         var session = _hud.Session;
         var preparing = session.PreparedStatus == PreparationStatus.Preparing;
-        var shown = preparing && session.CapturePerks()?.Pending != true;
+        var shown = preparing && session.CapturePerks()?.Pending != true && !_nav.Briefing;
         _dock.Visible = shown;
         var supplies = _nav.OpenDestinationName == "Supplies";
         _readiness!.Visible = shown && !_nav.ReadinessCovered && !supplies;

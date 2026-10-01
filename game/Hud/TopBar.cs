@@ -39,6 +39,8 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     private readonly System.Collections.Generic.List<Control> _dayOnly = [];
 
     public bool IsBuilt => _cash is not null;
+    /// <summary>The box office briefing is open: the bar slims down as it does for the perk draft.</summary>
+    public bool Briefing { get; set; }
     /// <summary>The cash figure, where festival cash popups start.</summary>
     public Control? Cash => _cash;
 
@@ -213,9 +215,11 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _perks!.Visible = preparing && perks is { Ended: false, Pending: false };
         if (perks is not null) _perks.Text = $"Perks {perks.Equipped.Length}/5";
         var drafting = perks?.Pending == true;
-        foreach (var control in _dayOnly) control.Visible = !drafting;
-        _people.Visible &= !drafting; _alerts!.Visible = !drafting;
+        var slim = drafting || Briefing;
+        foreach (var control in _dayOnly) control.Visible = !slim;
+        _people.Visible &= !slim; _perks.Visible &= !slim; _alerts!.Visible = !slim;
         if (drafting) _phase.Text = "PREPARATION · PERK DRAFT";
+        else if (Briefing) _phase.Text = "PREPARATION · BOX OFFICE";
         _alertBadge!.Text = alertCount.ToString();
         _alertBadge.Visible = alertCount > 0;
         _alerts!.TooltipText = alertCount == 0 ? "No urgent alerts" : $"{alertCount} urgent alert{(alertCount == 1 ? "" : "s")} · show them";

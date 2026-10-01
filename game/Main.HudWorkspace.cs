@@ -164,7 +164,7 @@ public partial class Main
         _preparationPeople = HudLabel("", 13); _preparationPeople.CustomMinimumSize = new Vector2(300, 0); _preparationRosterScroll.AddChild(_preparationPeople);
         LiveBottom.Build(layer, size); _hudStatus = LiveBottom.Message;
         Perks.Build(layer);
-        Hearing.Build(layer); Drawer.Build(layer, size); Dock.Build(layer, size); BuildMapControls(layer, size); RefreshPreparationHud();
+        Hearing.Build(layer); Drawer.Build(layer, size); Dock.Build(layer, size); BuildMapControls(layer, size); BoxOfficeView.Build(layer, size); RefreshPreparationHud();
     }
 
     private static void ConstrainHudControls(Node root)
@@ -208,8 +208,11 @@ public partial class Main
         if (p.Status == PreparationStatus.Departing)
             _hudStatus.Text = $"Festival finished · Guests leaving: {p.People.Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed)}";
         _hudStatus.TooltipText = _preparationMessage;
-        _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
-        if (Drawer.Panel is not null) Drawer.Panel.Visible = preparing && _buildDrawerOpen && !placing && _session.CapturePerks()?.Pending != true;
+        var briefing = BoxOfficeOpen;
+        _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true && !briefing;
+        if (Drawer.Panel is not null) Drawer.Panel.Visible = preparing && _buildDrawerOpen && !placing && _session.CapturePerks()?.Pending != true && !briefing;
+        BoxOfficeView.Refresh(briefing);
+        Top.Briefing = briefing;
         LayoutOwnedPerkWorkspace();
         LiveBottom.Refresh(!preparing);
         Stage.Refresh(_hudProgrammeOpen);
@@ -346,7 +349,7 @@ public partial class Main
         }
         var key = string.Join("|", alerts.Select(a => a.Alert.Id + a.Alert.Text));
         // Modal documents own the screen; the feed returns when they close.
-        _hudAlerts!.Visible = alerts.Length > 0 && !Hearing.IsOpen && !ResultsPaper.IsOpen && _session.CapturePerks()?.Pending != true;
+        _hudAlerts!.Visible = alerts.Length > 0 && !Hearing.IsOpen && !ResultsPaper.IsOpen && _session.CapturePerks()?.Pending != true && !BoxOfficeOpen;
         for (var i = 0; i < Math.Min(alerts.Length, _hudAlertActions.Count); i++)
             _hudAlertActions[i].Modulate = new Color(1, 1, 1, alerts[i].Opacity);
         if (key == _hudAlertKey) return;

@@ -10,6 +10,14 @@ public partial class Main : IPreparationNavigation, ITopBarActions, ILiveBarActi
     private StageCard Stage => _stageView ??= new(this, () => { _hudProgrammeOpen = !_hudProgrammeOpen; RefreshHudWorkspace(); });
     private LiveBar? _liveBarView;
     private LiveBar LiveBottom => _liveBarView ??= new(this, this);
+    private BoxOffice? _boxOfficeView;
+    private BoxOffice BoxOfficeView => _boxOfficeView ??= new(this, () => { _boxOfficeSeenAttempt = _session.CapturePreparation()!.Attempt; RefreshHudWorkspace(); });
+    /// <summary>The attempt whose box office briefing has been dismissed; a presentation preference, never saved.</summary>
+    private int _boxOfficeSeenAttempt;
+    /// <summary>The box office briefing shows once each attempt, after its perk draft and before planning.</summary>
+    private bool BoxOfficeOpen => _session.CapturePreparation() is { Status: PreparationStatus.Preparing } p &&
+        _session.CapturePerks()?.Pending != true && p.Attempt != _boxOfficeSeenAttempt;
+    bool IPreparationNavigation.Briefing => BoxOfficeOpen;
     private TopBar? _topView;
     private TopBar Top => _topView ??= new(this, this);
     private PreparationDock? _dockView;

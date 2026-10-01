@@ -38,6 +38,7 @@ public partial class Main
         ResetLivePerformancePresentation();
         BuildAttendee(); _host.Clock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
         _hudWorkspaceOpen = false; _buildDrawerOpen = false; _hudProgrammeOpen = false; ClearSelection();
+        _boxOfficeSeenAttempt = _session.CapturePreparation()!.Attempt;
         RefreshPreparationHud();
         _preparationLiveStarted = Stopwatch.GetTimestamp();
     }
