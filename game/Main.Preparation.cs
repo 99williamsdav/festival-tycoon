@@ -161,8 +161,13 @@ public partial class Main
             var chosen = p.Plan?.OfferIds.Contains(id) ?? p.AcceptedOffers.Contains(id);
             var state = chosen ? OfferState.Chosen : issue is not null ? OfferState.Locked : OfferState.Available;
             var copy = OfferCopy(offersById[id], p, chosen, issue);
-            card.Show(copy.Initial, copy.Title, copy.Detail, offersById[id].PricePennies, state, copy.Choose, copy.Chosen, copy.Tooltip);
-            if (StaffCatalogue.ForOffer(_session.GetStaffCandidates(), id) is { } candidate) card.SetStats(StaffRatings(candidate));
+            var candidate = StaffCatalogue.ForOffer(_session.GetStaffCandidates(), id);
+            // A candidate held in the role's other slot is locked because they are already on the crew.
+            var otherSlot = candidate is null ? null : offersById[id].Category.StartsWith("extra-", StringComparison.Ordinal) ? candidate.Id : candidate.ExtraOfferId;
+            var alreadyHired = otherSlot is not null && (p.Plan is { Committed: false } held ? held.OfferIds : p.AcceptedOffers).Contains(otherSlot);
+            card.Show(copy.Initial, copy.Title, copy.Detail, offersById[id].PricePennies, state, copy.Choose, copy.Chosen, copy.Tooltip,
+                alreadyHired ? "Already hired" : "Locked");
+            if (candidate is not null) card.SetStats(StaffRatings(candidate));
             card.Action.Disabled = issue is not null;
             var category = offersById[id].Category;
             card.Root.Visible = p.Status == PreparationStatus.Preparing &&

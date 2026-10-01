@@ -126,7 +126,7 @@ internal sealed class OfferCard
         }
     }
 
-    public void Show(string initial, string title, string detail, long pricePennies, OfferState state, string chooseWord, string chosenWord, string tooltip)
+    public void Show(string initial, string title, string detail, long pricePennies, OfferState state, string chooseWord, string chosenWord, string tooltip, string lockedWord = "Locked")
     {
         _title.Text = title; _detail.Text = detail; _price.Text = FestivalCurrency.Format(pricePennies);
         Root.TooltipText = tooltip; Action.TooltipText = tooltip;
@@ -148,7 +148,7 @@ internal sealed class OfferCard
         if (_detailIcon is not null) _detailIcon.Visible = !locked;
         _frame!.AddThemeStyleboxOverride("panel", _layout == OfferLayout.Row ? RowStyle()
             : chosen ? Ui.Box(Ui.PaperBright, 8, Ui.GoldShadow, 2, 14, 14) : Ui.Box(Ui.GoldWash, 8, Ui.PaperRule, 1, 14, 14));
-        Action.Text = locked ? "Locked" : chosen ? chosenWord : chooseWord;
+        Action.Text = locked ? lockedWord : chosen ? chosenWord : chooseWord;
         Action.Icon = locked ? Ui.Icon("lock") : chosen ? Ui.Icon("check") : null;
         if (locked)
         {
