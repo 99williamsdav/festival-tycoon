@@ -32,7 +32,7 @@ public partial class Main
     private readonly Festival.ContentAdapter.UrgentAlertDisplay _urgentAlertDisplay = new();
     private readonly Dictionary<string, Action> _urgentAlertActions = [];
     private string _hudAlertKey = "uninitialized";
-    private readonly Dictionary<Control, (Vector2 Position, Vector2 Size, Vector2 Applied)> _alertClearance = [];
+    private readonly Dictionary<Control, (Vector2 Position, Vector2 Size, Vector2 Applied, Vector2 AppliedSize)> _alertClearance = [];
     private bool _hudWorkspaceOpen = true;
     private bool _hudProgrammeOpen = true;
     private bool _hudDevelopment;
@@ -54,12 +54,18 @@ public partial class Main
         var workspaceWidth = width >= 1600 ? 690 : 650;
         _hudWorkspace = HudPanel(layer, new Vector2(Ui.Gutter, Ui.ContentTop), new Vector2(workspaceWidth, Math.Min(Ui.S(522), height - Ui.ContentTop - Ui.Dock - Ui.S(12))));
         _hudWorkspace.MinimumSizeChanged += () => Booking.ScheduleLayout();
+        _hudWorkspace.AddThemeStyleboxOverride("panel", Ui.Sheet(24, 22));
+        Ui.Clipboard(_hudWorkspace);
         var workspaceBox = new VBoxContainer(); workspaceBox.AddThemeConstantOverride("separation", 12); _hudWorkspace.AddChild(workspaceBox);
-        var heading = new HBoxContainer(); workspaceBox.AddChild(heading);
-        var title = HudLabel("Prepare the festival", 25); title.AddThemeFontOverride("font", Ui.SlabBold); heading.AddChild(title);
-        var collapsePreparation = ButtonText("×", () => { _hudWorkspaceOpen = false; RefreshHudWorkspace(); });
-        collapsePreparation.TooltipText = "Collapse preparation"; heading.AddChild(collapsePreparation);
         _hudTabs = new TabContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill }; workspaceBox.AddChild(_hudTabs);
+        _hudTabs.AddThemeStyleboxOverride("panel", new StyleBoxEmpty());
+        var corner = new Control { MouseFilter = Control.MouseFilterEnum.Ignore }; _hudWorkspace.AddChild(corner);
+        var collapsePreparation = new Button { Icon = Ui.Icon("x"), ExpandIcon = true, IconAlignment = HorizontalAlignment.Center,
+            TooltipText = "Close", MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+            AnchorLeft = 1, AnchorRight = 1, OffsetLeft = -Ui.S(26), OffsetRight = Ui.S(6), OffsetTop = -Ui.S(14), OffsetBottom = Ui.S(18) };
+        Ui.Style(collapsePreparation, Ui.ButtonKind.Quiet);
+        collapsePreparation.Pressed += () => { _hudWorkspaceOpen = false; RefreshHudWorkspace(); };
+        corner.AddChild(collapsePreparation);
         _hudTabs.TabsVisible = false;
         _hudTabs.UseHiddenTabsForMinSize = false;
         foreach (var name in new[] { "Build", "Overview", "Programme", "Staff", "Supplies", "Site & water" })
@@ -358,13 +364,13 @@ public partial class Main
         foreach (var panel in new Control?[] { Drawer.Panel, _hudWorkspace })
         {
             if (panel is null) continue;
-            if (!_alertClearance.TryGetValue(panel, out var layout) || panel.Position != layout.Applied)
-                layout = (panel.Position, panel.Size, panel.Position);
+            if (!_alertClearance.TryGetValue(panel, out var layout) || panel.Position != layout.Applied || panel.Size != layout.AppliedSize)
+                layout = (panel.Position, panel.Size, panel.Position, panel.Size);
             var y = alerts.Length == 0 ? layout.Position.Y : Math.Max(layout.Position.Y, Ui.ContentTop + alerts.Length * 32);
             panel.Position = new Vector2(layout.Position.X, y);
             // Scrollable preparation content keeps its original lower edge above the dock.
             panel.Size = new Vector2(layout.Size.X, Math.Max(65, layout.Size.Y - (y - layout.Position.Y)));
-            _alertClearance[panel] = (layout.Position, layout.Size, panel.Position);
+            _alertClearance[panel] = (layout.Position, layout.Size, panel.Position, panel.Size);
         }
         var key = string.Join("|", alerts.Select(a => a.Alert.Id + a.Alert.Text));
         _hudAlerts!.Visible = alerts.Length > 0;
