@@ -20,8 +20,9 @@ public sealed partial class GameSession
         foreach (var (picker, wasteId) in _pickupByPerson.OrderBy(p => p.Key).ToArray())
         {
             var piece = _wasteById[wasteId];
+            var route = _navigationAgents[new(picker)];
             if (_persons[picker].Departed || HigherPriorityOwns(picker) || LitterUrgent(picker) || ImmersionDepartureActive ||
-                _navigationAgents[new(picker)].Action == AgentNavigationAction.NoRoute)
+                route.Action == AgentNavigationAction.NoRoute || route.Action == AgentNavigationAction.Arrived && !AtLitterCell(picker, piece.Approach!.Value))
             { ReleaseGoodyPickup(picker); continue; }
             if (!AtLitterCell(picker, piece.Approach!.Value)) continue;
             if (piece.ActionTick < 0) { SetWaste(piece with { ActionTick = CurrentTick }); continue; }
@@ -34,7 +35,8 @@ public sealed partial class GameSession
         bool Swept(string id) => _litter!.Sweeps.Any(j => j.Remaining > 0 && !j.TargetIsBin && j.TargetId == id);
         var binCells = CaptureBins().Select(b => b.Cell).ToArray();
         // Only litter they could then carry to a bin: the same walk limit everyone applies to their own rubbish.
-        bool BinWithinWalk(ulong id, GridCell from) => binCells.Any(b => EstimateWalkTicks(id, from, b) <= LitterRules.BinWalkLimitTicks);
+        bool BinWithinWalk(ulong id, GridCell from) => binCells.Any(b =>
+            EstimateWalkTicks(id, from, b) + EstimateWalkTicks(id, b, new GridCell(b.X + 2, b.Z)) <= LitterRules.BinWalkLimitTicks);
         foreach (var person in PeopleIn(PersonView.Roster).Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed && IsGoodyTwoShoes(p.Id)).ToArray())
         {
             var id = person.Id;

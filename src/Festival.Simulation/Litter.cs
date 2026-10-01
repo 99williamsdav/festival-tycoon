@@ -167,6 +167,7 @@ public sealed partial class GameSession
             var choice = CaptureBins().OrderBy(b => CellDistanceSquared(b.Cell, here)).ThenBy(b => b.Id, StringComparer.Ordinal)
                 .Take(4).Select(b => (Bin: b, Side: ReachableBinSide(id, b.Cell))).FirstOrDefault(c => c.Side is not null &&
                     LitterRules.WillUseBin(LitterRules.Dickishness(CampaignSeed, id), EstimateWalkTicks(id, here, c.Side.Value),
+                        piece.CarrierId is not null ? 0 :
                         EstimateWalkTicks(id, here, c.Side.Value) + EstimateWalkTicks(id, c.Side.Value, destination) - EstimateWalkTicks(id, here, destination), false, p.Role));
             if (choice.Side is { } side)
             {
@@ -383,7 +384,8 @@ public sealed partial class GameSession
             w.Location is WasteLocation.Ground or WasteLocation.Removed && (w.BinId is not null || w.Approach is not null && !Fetching(w)) ||
             w.Approach is not null && !(w.Location == WasteLocation.Carried && w.BinId is not null || Fetching(w)) ||
             // Someone else handles a piece only while fetching it from the ground or carrying it; their clock starts at the pick-up.
-            w.CarrierId is { } other && (w.Location is not (WasteLocation.Carried or WasteLocation.Ground) || !prep.People.Any(p => p.AgentId == other && p.Role == ProtectedPersonRole.Guest)) ||
+            w.CarrierId is { } other && (w.Location is not (WasteLocation.Carried or WasteLocation.Ground) || !prep.People.Any(p => p.AgentId == other && p.Role == ProtectedPersonRole.Guest) ||
+                LitterRules.Dickishness(s.CampaignSeed, other) > LitterRules.GoodyTwoShoesMaximum) ||
             (w.PickedUpTick >= 0) != (w.Location == WasteLocation.Carried && w.CarrierId is not null) || w.PickedUpTick > s.CurrentTick ||
             w.PickedUpTick >= 0 && w.PickedUpTick < w.CompletedTick ||
             held.Contains(w.Id))) return "Litter identity, completion or location invalid.";

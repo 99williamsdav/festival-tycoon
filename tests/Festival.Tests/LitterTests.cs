@@ -104,6 +104,73 @@ public sealed class LitterTests
         Assert.IsTrue(end.IsSuccess, end.Error);
     }
     [TestMethod]
+    public void AGoodyTwoShoesNeverPicksUpTheSamePieceTwiceOverADay()
+    {
+        // Seed with two goody two-shoes and a bin by the audience, where they spend the day.
+        var s = BuildSession.Ready(20261007);
+        BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(110, 140)));
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        var pickups = new Dictionary<string, int>(); var held = new HashSet<string>();
+        while (s.PreparedStatus == PreparationStatus.Running)
+        {
+            s.AdvanceWithoutSnapshot(40);
+            var now = s.CaptureLitter()!.Pieces.Where(w => w.Location == WasteLocation.Carried && w.CarrierId is not null).Select(w => w.Id).ToHashSet();
+            foreach (var id in now.Where(id => !held.Contains(id))) pickups[id] = pickups.GetValueOrDefault(id) + 1;
+            held = now;
+        }
+        Assert.IsTrue(pickups.Count > 0, "The goodies did pick some up.");
+        Assert.IsFalse(pickups.Any(p => p.Value > 1), $"Picked up again: {string.Join(", ", pickups.Where(p => p.Value > 1).Select(p => p.Key))}");
+        // Most end in the bin; a goody drops what they carry if something urgent takes over, like anyone.
+        var binned = pickups.Keys.Count(id => s.CaptureLitter()!.Pieces.Single(w => w.Id == id).Location is WasteLocation.Bin or WasteLocation.Removed);
+        Assert.IsTrue(binned * 10 >= pickups.Count * 8, $"{binned} of {pickups.Count} binned.");
+    }
+    [TestMethod]
+    public void AGoodyTwoShoesOnlyFetchesWhatTheyWillBinEvenWithAFarBin()
+    {
+        // Litter lands at (116,166) (where Complete stands the litterer). Put the bin far enough that the walk to it
+        // sits just under the bin walk limit, where a bin-detour rule would refuse to finish the errand.
+        foreach (var seed in Enumerable.Range(0, 40).Select(i => 20260922UL + (ulong)i))
+        {
+            var probe = BuildSession.Ready(seed);
+            BuildSession.Accept(probe, new StartPreparedEditionCommand());
+            var goody = probe.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest)
+                .Select(p => p.AgentId).FirstOrDefault(g => LitterRules.Dickishness(seed, g) <= LitterRules.GoodyTwoShoesMaximum);
+            if (goody == 0) continue;
+            int Walk(GridCell to) => (int)typeof(GameSession).GetMethod("EstimateWalkTicks", BindingFlags.Instance | BindingFlags.NonPublic)!
+                .Invoke(probe, [goody, new GridCell(116, 166), to])!;
+            var binCell = Enumerable.Range(4, 60).Select(dx => new GridCell(116 + dx, 166)).FirstOrDefault(c => Walk(new GridCell(c.X - 2, c.Z)) is > 575 and < 605);
+            if (binCell == default) continue;
+            var s = BuildSession.Ready(seed);
+            if (!BuildSession.Send(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, binCell)).IsAccepted) continue;
+            BuildSession.Accept(s, new StartPreparedEditionCommand());
+            foreach (var p in s.CapturePreparation()!.People) Mutate(s, p.AgentId, n =>
+            { n.Admitted = true; n.Thirst = 2000; n.HeatExposure = 2000; n.Hunger = 2000; n.ToiletNeed = 2000; });
+            var litterer = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.AgentId != goody).AgentId;
+            Complete(s, litterer, ImmersionProduct.Chips);
+            var waste = s.CaptureCarriedWaste(litterer)!;
+            Invoke(s, "DropWaste", waste, false);
+            Position(s, litterer, new(130, 175));
+            Position(s, goody, new(116, 162));
+            Mutate(s, goody, n => { n.Intent = MedicalIntent.WatchShow; n.Held = null; });
+            var pickups = 0; var wasHeld = false;
+            for (var second = 0; second < 40; second++)
+            {
+                Step(s);
+                for (var i = 0; i < 2; i++) s.AdvanceWithoutSnapshot(39);
+                var piece = s.CaptureLitter()!.Pieces.Single(w => w.Id == waste.Id);
+                var held = piece.Location == WasteLocation.Carried && piece.CarrierId == goody;
+                if (held && !wasHeld) pickups++;
+                wasHeld = held;
+                Mutate(s, goody, n => { n.Thirst = 2000; n.HeatExposure = 2000; n.Hunger = 2000; n.ToiletNeed = 2000; });
+            }
+            var end = s.CaptureLitter()!.Pieces.Single(w => w.Id == waste.Id).Location;
+            Assert.IsTrue(pickups <= 1, $"Picked up {pickups} times");
+            Assert.IsTrue(pickups == 0 || end == WasteLocation.Bin, $"Picked up but ended {end}");
+            return;
+        }
+        Assert.Inconclusive("No seed gave a goody and a bin placement in the band.");
+    }
+    [TestMethod]
     public void PersonalityConvenienceDetourUrgencyAndRolesProduceDifferentDecisions()
     {
         Assert.IsTrue(LitterRules.WillUseBin(5, 80, 0, false, ProtectedPersonRole.Guest));
