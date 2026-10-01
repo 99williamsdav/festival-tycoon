@@ -134,8 +134,8 @@ public sealed partial class GameSession
     }
 
     /// <summary>
-    /// A steward who collapses from drink drops any response, so another steward can take it.
-    /// Unlike a fight injury this is not marked incapacitated: the intoxication timeline owns their care.
+    /// A steward who collapses other than in a fight (drink, heat) drops any response, so another steward
+    /// can take it. Unlike a fight injury this is not marked incapacitated: the medical timeline owns their care.
     /// </summary>
     private void ReleaseCollapsedStewardResponse(ulong id)
     {
@@ -208,12 +208,14 @@ public sealed partial class GameSession
             SetStewardResponse(job with { Stage = SecurityResponseStage.Completed, TargetId = null, Description = "Weekend ended; response released for physical departure" });
     }
 
-    /// <summary>A fight-injured steward is incapacitated and collapsed; a steward collapsed by drink is collapsed but not incapacitated.</summary>
+    /// <summary>
+    /// Whatever the cause: an incapacitated (fight-injured) steward is collapsed, and a steward collapsed
+    /// any other way holds no active response.
+    /// </summary>
     internal static bool StewardCollapseConsistent(SessionPersistenceSnapshot s, StewardResponse steward)
     {
         var collapsed = s.Medical?.Needs.SingleOrDefault(need => need.AgentId == steward.WorkerId)?.Stage == MedicalStage.Collapsed;
-        var drunkCollapse = s.Immersion?.People.SingleOrDefault(person => person.AgentId == steward.WorkerId)?.CollapseTick >= 0;
-        return steward.Incapacitated ? collapsed : !collapsed || drunkCollapse;
+        return steward.Incapacitated ? collapsed : !collapsed || !StewardBusy(steward);
     }
 
     private static string? ValidatePersistedStaffResponses(SessionPersistenceSnapshot s)

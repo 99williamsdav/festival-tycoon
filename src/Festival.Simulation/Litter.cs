@@ -256,8 +256,11 @@ public sealed partial class GameSession
                 {
                     // Recheck the user's 90% threshold at the actual bin, even for manual cleanup.
                     if (CaptureBins().Single(b => b.Id == job.TargetId).CanEmpty)
+                    {
                         _litter = _litter with { Pieces = _litter.Pieces.Select(w => w.Location == WasteLocation.Bin && w.BinId == job.TargetId ?
                             w with { Location = WasteLocation.Removed, BinId = null } : w).ToArray() };
+                        LitterVisualVersion++; // Also bumped by the index rebuild; explicit so no reader depends on that order.
+                    }
                 }
                 else if (CaptureWaste(job.TargetId!) is { Location: WasteLocation.Ground } waste)
                     SetWaste(waste with { Location = WasteLocation.Removed });

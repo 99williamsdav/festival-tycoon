@@ -160,16 +160,23 @@ public sealed class StaffTraitTests
     {
         var (s, id) = StartedWith(StaffRole.Steward, StaffTrait.SneakyAlcoholic);
         s.AdvanceWithoutSnapshot(3_000);
-        // Past the warning and close to twenty seconds above the collapse line.
+        // On a job when it happens: heading to a guest, as a dispatch would leave them.
+        var target = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed).AgentId;
+        typeof(GameSession).GetMethod("SetStewardResponse", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [s.GetStewardResponses().Single(j => j.WorkerId == id) with
+            { Stage = SecurityResponseStage.Travelling, TargetId = target, StartedTick = s.CurrentTick, DispatchedTick = s.CurrentTick, Description = "Test dispatch" }]);
+        // Past the warning and a tick short of twenty seconds above the collapse line.
         var immersion = s.CaptureImmersion()!;
         typeof(GameSession).GetProperty("ImmersionView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, immersion with { People = immersion.People
-            .Select(p => p.AgentId == id ? p with { Intoxication = 9_800, WarningTick = s.CurrentTick - 1_600, SevereTicks = 1_590 } : p).ToArray() });
-        for (var guard = 0; guard < 80 && s.CaptureMedical()!.Needs.Single(n => n.AgentId == id).Stage != MedicalStage.Collapsed; guard++) s.AdvanceWithoutSnapshot(1);
+            .Select(p => p.AgentId == id ? p with { Intoxication = 9_800, WarningTick = s.CurrentTick - 1_600, SevereTicks = 1_599 } : p).ToArray() });
+        // One tick short of collapse, so it lands while the job is still live.
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(MedicalStage.Collapsed, s.CaptureMedical()!.Needs.Single(n => n.AgentId == id).Stage);
         Assert.AreEqual(MedicalStage.Collapsed, s.CaptureMedical()!.Needs.Single(n => n.AgentId == id).Stage);
         var job = s.GetStewardResponses().Single(j => j.WorkerId == id);
         Assert.IsFalse(job.Incapacitated, "Drink, not a fight injury.");
-        Assert.IsFalse(job.Stage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting);
-        AssertRestores(s);
+        Assert.IsFalse(job.Stage is SecurityResponseStage.Travelling or SecurityResponseStage.Calming or SecurityResponseStage.Confronting, "The job is released.");
+        Assert.IsNull(job.TargetId);
+        AssertRestores(s); // On the collapse tick itself.
         s.AdvanceWithoutSnapshot(400);
         AssertRestores(s);
     }

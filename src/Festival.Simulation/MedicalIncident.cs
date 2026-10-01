@@ -609,6 +609,7 @@ public sealed partial class GameSession
                 var patient = _navigationAgents[new(need.Id)];
                 ApplyAgentDestination(new(need.Id), new(TraversalGrid.WorldToCell(patient.XMillimetres, patient.ZMillimetres), "medical.collapsed"));
                 MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Collapsed; item.HealthCollapseTick = CurrentTick; item.Intent = MedicalIntent.Collapsed; item.Reason = "Collapsed; needs physical medic response"; item.WaterQueueSlot = null; });
+                ReleaseCollapsedStewardResponse(need.Id);
                 MedicalEvent("medical:collapse", $"{need.Name} ({need.Id}) collapsed after visible distress.");
                 RecordGuestMedicalCollapse(need.Id);
             }
