@@ -75,7 +75,7 @@ public partial class Main
     }
     private void ProcessLitterEvidence()
     {
-        if (_litterEvidenceOutput is null) return;
+        if (_litterEvidenceOutput is null || _cleanupEvidenceOutput is not null) return;
         if (_litterEvidenceFrame == 0) SetupLitterEvidence();
         _litterEvidenceFrame++;
         if (_litterEvidenceFrame == 8)

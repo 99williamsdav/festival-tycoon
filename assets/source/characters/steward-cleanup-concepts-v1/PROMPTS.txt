@@ -1,0 +1,19 @@
+Built-in image_gen reference-led generation, then precise inset edit.
+References: person-role-assets-v1/review/lwf_steward_male_overlay_v1.png, lwf_steward_female_overlay_v1.png; litter-assets-v1/review/01-empty-items-ground-poses.png.
+Initial original: C:/Users/99wil/.codex/generated_images/01a0829d-38d9-75e1-a099-c861ffb5d510/exec-e0b2c6b0-f77a-4104-89d6-79d41f407205.png
+Selected original: C:/Users/99wil/.codex/generated_images/01a0829d-38d9-75e1-a099-c861ffb5d510/exec-b885ddb3-032f-4f2b-8071-9e714f9c8364.png
+
+INITIAL PROMPT
+Use case: stylized-concept. Asset: Festival Tycoon steward cleanup equipment and pose CONCEPT BOARD, landscape.
+Inputs1and2: authoritative actual male/female steward character/hi-vis overlay references. Input3: actual empty litter prop shape reference. Generate concept only, preserve existing low-poly adult body, face, hair, hands, chunky shoes, teal short sleeves, fluorescent yellow vest with two silver horizontal reflective bands and silver shoulder strips, dark straight trousers. Matte faceted game style, cream background, sage ground vignette.
+Title exactly "STEWARD CLEANUP".
+Main row three full-body male panels, consistent person scale, no cropping:
+"1 / EQUIPPED": relaxed walking-ready stance, right hand holds simple dark trigger grip on straight aluminium grey litter picker shaft, two small black jaws at lower end. Total picker0.8m, no rake/net/broom. Left hand holds open mouth of modest dark charcoal faceted flexible rubbish bag at side, bag about0.35m wide0.48m high, held aroundhip, bottom well above ground. Equipment clear of body.
+"2 / REACH": same steward inclines torso moderately forward, slight knee flex, BOTH feet flat ground, right hand lowers picker in front of body to reach a tiny sideways coral/cream soft cup atground, jaws touching its side. Cup only0.15m body long with straw, diameter0.09m; steward1.75m, no oversized litter. Left hand keeps open bag beside left hip, bag away from knees/ground. No deep crouch.
+"3 / INTO BAG": same steward returns mostly upright, right hand brings picker jaws carrying the SAME small cup directly over left-hand open bag mouth, modest short reach, shaft passes in front and outside torso, hands/shaft/bag no clipping.
+Secondary bottom panel "FEMALE ADAPTATION": female reference steward same tool/bag on same hands, modest ready pose, same workwear and dimensions. Bottom corner "GAME VIEW / CONCEPTUAL": small elevated isometric inset with male steward, fluorescent vest, dark bag and thin picker silhouette on quiet sageground. Draw inset intentionally tiny: adult about65pixels high in large sheet, tiny small litter onground, no enlargedprops or callouts covering subject.
+Small equipment close-up of picker handle/pinch jaws and bag opening with labels "GRIP / HANDLE PIVOT" and "OPEN BAG / CLEAR OF LEGS".
+Keep anatomy practical and characteridentity consistent acrossposes, no new clothes, gloves, accessories, reflective photoreal material, skeletal diagrams, gianttrash, bag dragging, dramatic movement. Pose studies conceptual for compact1secondpickup, no exact rig claims. Clean readable typography, only requested labels, no extra annotations.
+
+INSET EDIT PROMPT
+Edit only the bottom-right "GAME VIEW / CONCEPTUAL" inset of this board. Keep its panel background and label, but reduce the steward, bag, picker, cup and ground shadow together to ONE THIRD their current height and width, centred inside the inset, with the rest of the inset plain sageground. This represents wide gameplay zoom, small figure about55pixels high on1536pixel-wide sheet. Do not enlarge picker/cup/bag independently. Preserve every other panel, all main poses, text, face, outfits, composition, colours, equipment close-ups unchanged.

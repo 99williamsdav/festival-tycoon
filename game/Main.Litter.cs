@@ -16,6 +16,7 @@ public partial class Main
     private readonly Dictionary<ImmersionProduct, MultiMeshInstance3D> _litterBatches = [];
     private int _renderedLitterVersion = -1;
     private string _renderedBinLayout = "";
+    private string _renderedLiftedWaste = "";
     private string? _selectedBinId;
     private Button? _binMoveButton, _cleanupButton;
     private Material? _sharedLitterMaterial;
@@ -78,11 +79,13 @@ public partial class Main
         }
         var pieces = _session.CaptureLitter()?.Pieces ?? [];
         var layout = string.Join('|', bins.Select(b => $"{b.Id}:{b.Cell}"));
+        var lifted = string.Join('|', _cleanupLiftedWaste.Order(StringComparer.Ordinal));
         // Carrying and cleanup claims change the piece list often; only ground and bin changes are drawn.
-        if (_session.LitterVisualVersion != _renderedLitterVersion || layout != _renderedBinLayout)
+        if (_session.LitterVisualVersion != _renderedLitterVersion || layout != _renderedBinLayout || lifted != _renderedLiftedWaste)
         {
             _renderedLitterVersion = _session.LitterVisualVersion; _renderedBinLayout = layout;
-            var visible = pieces.Where(p => p.Location == WasteLocation.Ground).Select(p => (Piece: p,
+            _renderedLiftedWaste = lifted;
+            var visible = pieces.Where(p => p.Location == WasteLocation.Ground && !_cleanupLiftedWaste.Contains(p.Id)).Select(p => (Piece: p,
                 Position: new Vector3(p.XMillimetres / 1000f, 0, p.ZMillimetres / 1000f))).ToList();
             foreach (var bin in bins)
             {

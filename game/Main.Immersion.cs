@@ -414,9 +414,11 @@ private void BuildImmersionControls(VBoxContainer parent)
     {
         if (_session.CaptureImmersion() is not { } state)
         {
+            ResetStewardCleanupPresentation();
             ResetImmersionHeldVisuals();
             foreach (var root in _attendeeVisuals.Values)
                 Bodies.SetPose(root, "relaxed", null);
+            SyncLitterWorld();
             return;
         }
         foreach (var person in state.People)
@@ -433,6 +435,7 @@ private void BuildImmersionControls(VBoxContainer parent)
             }
         RefreshImmersionVendorInspector();
         RefreshToiletInspector();
+        AdvanceStewardCleanupPresentation();
         SyncLitterWorld();
     }
 }

@@ -1,0 +1,283 @@
+{
+  "units": "metres",
+  "forward": "Godot -Z / Blender +Y",
+  "status": "PRODUCTION_ASSET_COMPLETE",
+  "assets": {
+    "lwf_steward_litter_picker_v1": {
+      "file": "lwf_steward_litter_picker_v1.glb",
+      "sha256": "ed8ab0d71ca2fe97cc6f072136b47a4faf9b760f07fd1296ff2af6c260229b45",
+      "bytes": 8384,
+      "triangles": 96,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "nodes": [
+        "PickerJawSocket",
+        "PickerMesh",
+        "CleanupPicker"
+      ],
+      "source": "lwf_steward_litter_picker_v1.blend",
+      "source_sha256": "d052be40d53100f185ec4b4c0808f7c61ca32012a6face0fa6f7379cac13053a"
+    },
+    "lwf_steward_bin_bag_v1": {
+      "file": "lwf_steward_bin_bag_v1.glb",
+      "sha256": "4e874aa0ce8abe5507d4225fccf18058a988eb5e41829a1d4df7143d55c59fcd",
+      "bytes": 8912,
+      "triangles": 108,
+      "meshes": 1,
+      "surfaces": 1,
+      "materials": 1,
+      "nodes": [
+        "BagMesh",
+        "BagMouthSocket",
+        "CleanupBag"
+      ],
+      "source": "lwf_steward_bin_bag_v1.blend",
+      "source_sha256": "2fea10828610a982526129737e9add724376cbeda796bee7a31b481bf2b1102c"
+    },
+    "lwf_steward_cleanup_male_v1": {
+      "file": "lwf_steward_cleanup_male_v1.glb",
+      "sha256": "d674f9ddb3f4dcdd8a40d53cadcb2ab864b02301cbb6d2fb1d18687f16e40da5",
+      "bytes": 206632,
+      "triangles": 2940,
+      "meshes": 9,
+      "surfaces": 9,
+      "materials": 2,
+      "nodes": [
+        "LeftForearm",
+        "LeftForePivot",
+        "LeftHand",
+        "LeftHandPivot",
+        "LeftUpperArm",
+        "LeftUpperPivot",
+        "LowerBody",
+        "RightForearm",
+        "RightForePivot",
+        "RightHand",
+        "RightHandPivot",
+        "RightUpperArm",
+        "RightUpperPivot",
+        "FittedVest",
+        "UpperBody",
+        "UpperPivot",
+        "CleanupBody"
+      ],
+      "source": "lwf_steward_cleanup_male_v1.blend",
+      "source_sha256": "814a574722de901dddcea81f39a75f3a76783567680dd1200afa1072f3d9939e"
+    },
+    "lwf_steward_cleanup_female_v1": {
+      "file": "lwf_steward_cleanup_female_v1.glb",
+      "sha256": "f47874deab9048f63551ecf1c4500ddae71161a3b38b91e237056867e74decd4",
+      "bytes": 265664,
+      "triangles": 3756,
+      "meshes": 9,
+      "surfaces": 9,
+      "materials": 2,
+      "nodes": [
+        "LeftForearm",
+        "LeftForePivot",
+        "LeftHand",
+        "LeftHandPivot",
+        "LeftUpperArm",
+        "LeftUpperPivot",
+        "LowerBody",
+        "RightForearm",
+        "RightForePivot",
+        "RightHand",
+        "RightHandPivot",
+        "RightUpperArm",
+        "RightUpperPivot",
+        "FittedVest",
+        "UpperBody",
+        "UpperPivot",
+        "CleanupBody"
+      ],
+      "source": "lwf_steward_cleanup_female_v1.blend",
+      "source_sha256": "c23719a52b4a9bd36358bcdd3b448e2bbe59e0aa85bd32c00a27c164953c83a3"
+    }
+  },
+  "variants": {
+    "male": {
+      "hip_godot": [
+        0,
+        0.8999999761581421,
+        0
+      ],
+      "height_m": 1.78,
+      "joint_nodes": {
+        "Left": {
+          "shoulder_godot": [
+            -0.17542196810245514,
+            1.2722914218902588,
+            0.0038554281927645206
+          ],
+          "elbow_godot": [
+            -0.22168712317943573,
+            1.0477691888809204,
+            0.011566284112632275
+          ],
+          "wrist_godot": [
+            -0.23518112301826477,
+            0.8382154107093811,
+            -0.013493997044861317
+          ],
+          "hand_pivot_godot": [
+            -0.23518112301826477,
+            0.8382154107093811,
+            -0.013493997976183891
+          ],
+          "upper_length": 0.22936903721160268,
+          "fore_length": 0.21147787761926246,
+          "hand_grip_offset_godot": [
+            0,
+            -0.044,
+            0
+          ]
+        },
+        "Right": {
+          "shoulder_godot": [
+            0.17542196810245514,
+            1.2722911834716797,
+            0.0038554281927645206
+          ],
+          "elbow_godot": [
+            0.22168712317943573,
+            1.04776930809021,
+            0.011566284112632275
+          ],
+          "wrist_godot": [
+            0.23518110811710358,
+            0.8382154107093811,
+            -0.013493997044861317
+          ],
+          "hand_pivot_godot": [
+            0.23518110811710358,
+            0.8382154703140259,
+            -0.013493997976183891
+          ],
+          "upper_length": 0.22936868801973548,
+          "fore_length": 0.21147792953683803,
+          "hand_grip_offset_godot": [
+            0,
+            -0.044,
+            0
+          ]
+        }
+      },
+      "body_palette_rule": "Only LowerBody/UpperBody/arm/hand/joint meshes use96x8 body palette; FittedVest uses128x8 trim and MUST NOT receive role body palette replacement."
+    },
+    "female": {
+      "hip_godot": [
+        0,
+        0.8650000095367432,
+        0
+      ],
+      "height_m": 1.7,
+      "joint_nodes": {
+        "Left": {
+          "shoulder_godot": [
+            -0.14926214516162872,
+            1.21993088722229,
+            0.0038272347301244736
+          ],
+          "elbow_godot": [
+            -0.19518893957138062,
+            1.0046489238739014,
+            0.011481702327728271
+          ],
+          "wrist_godot": [
+            -0.208584263920784,
+            0.803719162940979,
+            -0.013395321555435658
+          ],
+          "hand_pivot_godot": [
+            -0.2085842490196228,
+            0.803719162940979,
+            -0.013395318761467934
+          ],
+          "upper_length": 0.22025936267237514,
+          "fore_length": 0.20290655674561267,
+          "hand_grip_offset_godot": [
+            0,
+            -0.044,
+            0
+          ]
+        },
+        "Right": {
+          "shoulder_godot": [
+            0.14926213026046753,
+            1.21993088722229,
+            0.0038272347301244736
+          ],
+          "elbow_godot": [
+            0.19518893957138062,
+            1.0046488046646118,
+            0.011481702327728271
+          ],
+          "wrist_godot": [
+            0.208584263920784,
+            0.803719162940979,
+            -0.013395321555435658
+          ],
+          "hand_pivot_godot": [
+            0.2085842490196228,
+            0.803719162940979,
+            -0.013395318761467934
+          ],
+          "upper_length": 0.22025947525082315,
+          "fore_length": 0.20290643740795078,
+          "hand_grip_offset_godot": [
+            0,
+            -0.044,
+            0
+          ]
+        }
+      },
+      "body_palette_rule": "Only LowerBody/UpperBody/arm/hand/joint meshes use96x8 body palette; FittedVest uses128x8 trim and MUST NOT receive role body palette replacement."
+    }
+  },
+  "source_authority": {
+    "male": {
+      "body": "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\attendee-v6-draft\\male-attendee-v6.blend",
+      "body_sha256": "a772bbd8de8201556a7adab97141d07ae7bf6a22e0b1cf1eadf7d1e6dac358be",
+      "vest": "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\role-assets-v2\\lwf_steward_male_overlay_v2.blend",
+      "vest_sha256": "5b5314fb64422e23d566d681abe814e403999f802e7022bee4ded09b44423666"
+    },
+    "female": {
+      "body": "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\attendee-v6-draft\\female-attendee-v6.blend",
+      "body_sha256": "6a2c3bbb0658e0520976e60b6a4d5959a64d5583973b09ada5ce4346bfd3e697",
+      "vest": "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\role-assets-v2\\lwf_steward_female_overlay_v2.blend",
+      "vest_sha256": "182e60361f7e429f7badca42b2dfc23b28d75175fb687aeab38cc09585dcf6d1"
+    }
+  },
+  "reference_pose": {
+    "file": "godot-check/cleanup_pose.gd",
+    "sha256": "e827463b52e9e2ef9e0b09ff08382d01f79d3146aeb73aecf9363e70c6070ba1",
+    "phase": "walking=-1; ground contact .45-.5; lift .5-.85; bag hold .85-1; optional post-completion cosmetic recovery1-1.15",
+    "target_contract": "cleanup-child yaw faces actual contact; canonical target X0,Z-negative,Y-.015..+.10; radius<=.428554m; actor/litter world position unchanged",
+    "hip_bend_max_degrees": 32,
+    "tool_grip_to_jaw_m": 0.8,
+    "bag_grip_y": {
+      "male": 0.93,
+      "female": 0.89
+    },
+    "reach_grip_x": {
+      "male": 0.18,
+      "female": 0.17
+    },
+    "reach_grip_z_formula": "-.14-.25*horizontal_target_radius",
+    "transfer_grip_x": {
+      "male": 0.26,
+      "female": 0.24
+    },
+    "transfer_grip_z": -0.34,
+    "hand_grip_offset_y": -0.044,
+    "elbow_pole": "(side*.2,-.2,-1)"
+  },
+  "approved_concept": "../steward-cleanup-concepts-v1/steward-cleanup-board.png",
+  "verification": {
+    "passed": true,
+    "errors": [],
+    "scope": "native analytic contact/arm reach/planted lowerbody, GLB source hashes/nodes/palette compatibility/resources/sockets and preserved current source authority"
+  }
+}

@@ -251,17 +251,21 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
         prop.SetMeta("RoleAnchorKey", key);
     }
 
-    private void ApplyRoleBodyPalette(Node3D root, Node3D body)
+    public void ApplyRoleBodyPalette(Node3D root, Node3D body)
     {
         var role = root.GetMeta("RoleKey").AsString();
         var hair = root.GetMeta("RoleHair").AsInt32();
         foreach (var mesh in body.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
+        {
+            // The cleanup body contains a fitted vest with its own approved trim palette.
+            if (mesh.Name == "FittedVest") continue;
             for (var surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
                 if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D source)
                     throw new InvalidOperationException("Role body requires the approved 96x8 standard palette material.");
                 mesh.SetSurfaceOverrideMaterial(surface, RoleBodyMaterial(source, role, hair));
             }
+        }
     }
 
     public void PaintPlayingArms(Node3D root, Node3D kit)

@@ -68,7 +68,9 @@ public partial class Main : Node, IHudHost
     {
         _rig.Process(delta);
         ProcessLitterEvidence();
+        ProcessCleanupEvidence();
         AdvancePreparationPresentation(delta);
+        FinalizeCleanupEvidenceFrame();
         RefreshContextPanelVisibility();
         AdvanceFinanceFeedback(delta);
         _urgentAlertDisplay.Advance(delta); RenderUrgentAlerts();
@@ -465,6 +467,8 @@ public partial class Main : Node, IHudHost
                 if (i + 1 < args.Length && int.TryParse(args[i + 1], out var seconds)) { _profileSeconds = seconds; i++; }
             }
             else if (args[i] == "--capture-litter" && i + 1 < args.Length) _litterEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-steward-cleanup" && i + 1 < args.Length)
+                _litterEvidenceOutput = _cleanupEvidenceOutput = args[++i];
             else if (args[i] == "--capture-size" && i + 1 < args.Length)
             {
                 var size = args[++i].Split('x');

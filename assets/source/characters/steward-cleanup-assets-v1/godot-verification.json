@@ -1,0 +1,66 @@
+{
+	"captures": [
+		"01-equipped",
+		"05-equipped-game32",
+		"06-equipped-wide62",
+		"02-ground-reach",
+		"04-reach-yaw135",
+		"04-reach-yaw225",
+		"04-reach-yaw315",
+		"03-bag-transfer",
+		"07-centre-contact",
+		"08-centre-contact-front"
+	],
+	"checks": [
+		{
+			"contact_heights": [
+				-0.015,
+				0.01,
+				0.04,
+				0.055,
+				0.1
+			],
+			"extra_horizontal_offsets": [
+				0,
+				0.075
+			],
+			"phases_per_target": 116,
+			"sex": "male",
+			"target_grid_count": 9,
+			"target_normalized_by_child_yaw": true,
+			"unreachable_samples": []
+		},
+		{
+			"contact_heights": [
+				-0.015,
+				0.01,
+				0.04,
+				0.055,
+				0.1
+			],
+			"extra_horizontal_offsets": [
+				0,
+				0.075
+			],
+			"phases_per_target": 116,
+			"sex": "female",
+			"target_grid_count": 9,
+			"target_normalized_by_child_yaw": true,
+			"unreachable_samples": []
+		}
+	],
+	"engine": {
+		"build": "official",
+		"hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+		"hex": 263938,
+		"major": 4,
+		"minor": 7,
+		"patch": 2,
+		"status": "stable",
+		"string": "4.7.2-stable (official)",
+		"timestamp": 0
+	},
+	"errors": [],
+	"passed": true,
+	"scope": "native standalone cleanup geometry/analytic poses; not integrated gameplay; targetgrid contact and arm lengths/groundedfeet"
+}

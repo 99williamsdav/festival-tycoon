@@ -1,0 +1,53 @@
+STEWARD CLEANUP PRODUCTION v1 - FROZEN
+Approved by user through coordinator 1 October2026; approved board ../steward-cleanup-concepts-v1/steward-cleanup-board.png.
+Manifest SHA256 59c307034947639e331f8e0c0bde36a5968886401b06ec9a80be9a5360a316f3
+Reference pose SHA256 e827463b52e9e2ef9e0b09ff08382d01f79d3146aeb73aecf9363e70c6070ba1
+
+FILES / COST
+runtime/lwf_steward_litter_picker_v1.glb:96triangles,1mesh/surface/material,8384bytes.
+runtime/lwf_steward_bin_bag_v1.glb:108triangles,1mesh/surface/material,8912bytes.
+runtime/lwf_steward_cleanup_male_v1.glb:2940triangles,9meshes/surfaces,2materials.
+runtime/lwf_steward_cleanup_female_v1.glb:3756triangles,9meshes/surfaces,2materials.
+source/ has4matching editable .blend files with packed palette images; .blend1 backups not frozen deliverables.
+textures/lwf_cleanup_equipment_palette_v1.png:40x8 opaque5colour, shared by both props.
+manifest.json includes everyGLB/source hash, exact namednodes/joints/lengths/source authority and frozen motion constants.
+build.py original Blender authoring/partition script; verify.cjs structural finalizer.
+godot-check/cleanup_pose.gd precise reference analytic motion (port supplied to builder), proof.gd + project.godot native verification. review/ actual Godot PNGs.
+No Skeleton3D, skins or baked animation clips: rigless named rigid partitions and deterministic analytic pose function provide motion, seek and exact target adjustment. No broad attendee catalogue rewrite.
+
+ACTUAL CURRENT CHARACTER AUTHORITY
+Inspected game/CrowdBodies.cs and attendee_poses_v6_manifest.json. Current actual source is assets/source/characters/attendee-v6-draft/{sex}-attendee-v6.blend, actual fitted steward vest is role-assets-v2/lwf_steward_{sex}_overlay_v2.blend.
+Male1.78m/female1.70m, NOT historical concept-reference1.75m. Face/head/hair, tee, trousers/shoes preserved from those actual models; arms partitioned from actual current skin and mitten geometry. Source originals checked unchanged by hash.
+Role painting applies only96x8 BODY meshes; FittedVest is128x8 trim palette and MUST be excluded. Current runtime RoleBodyMaterial applies role teal and existing perpersonhair; reuse that for cleanup body's8body surfaces only. Do not recolour props/vest. Two elbow seam covers merged into forearm mesh, avoiding extra draw surfaces.
+No collision/navigation/physics meshes.
+
+AXES / ROOT / HIERARCHY
+Metres; Godot Y-up/-Zforward (Blender Z-up/+Yforward). Actor stable foot-root position/yaw/collider/navigation remain builder-owned.
+CleanupBody child atidentity. LowerBody fixed identity contains unchanged shoes/trousers. UpperPivot at(0,.9,0)male/(0,.865,0)female contains UpperBody and FittedVest, both with vertices made hip-local; apply SAME torso bend to them. Torso bends about X, not whole-model tilt.
+Left/RightUpperPivot,ForePivot,HandPivot are direct children of CleanupBody, positions root-local rather than parented elbow chain. Each upper/fore/hand mesh vertices are its own pivot-local. Shoulder tracks torso via analytic calculation; right/left arm joints solved at original lengths. Manifest variants.joint_nodes supplies shoulder/elbow/handpivot, segment lengths and grip offset. The example computes shortest-axis delta rotations from each source-rest segment; all node scales remain1.
+Picker scene external child at handle grip pivot, local shaft down-Y. PickerJawSocket=(0,-.8,0), actual total tool extent about0.863m including grip and tip. Thin17mm shaft, modest charcoal two-prong jaws, fixed aperture; no jaw animation required.
+Bag scene external child at INNER rim grasp pivot; body extends left outward. BagMouthSocket=(-.175,0,0), about0.36m maximum width/0.25m mouth depth/0.48m height; real open mouth/dark interior. Ready grip(-.28,.93,-.07)male/(-.26,.89,-.07)female, bag bottom .45/.41m ROOT-local (+.04 world rootheight in current game).
+Hand pivots follow grip +handBasis*(0,.044,0); source mitten extends down to surround handle/rim. Do not parent props to hand AND also apply root transform; choose one transform path.
+
+EXACT PICKUP TARGET / MOTION
+Authoritative steward arrives SAME0.5mcellcentre as litter; no forward stopping/translation authorized.
+Compute contact from ACTUAL GroundWasteTransform*old held gripanchor: cups(0,.075,0), tray(0,.025,0). Convert worldcontact through cleanup visual inverse. Includes orientation offset; do not target generic litter origin or invented Y.055.
+Current person worldrootY=.04; lyingcups contact rootY around.009/.010, flattray-.012. Reference tested contactY[-.015,.01,.04,.055,.10], horizontal radii through cornercell0.353554m +.075m grip offset.
+Face actual contact by yawing cleanup child around unchanged actor origin, then freeze that heading throughout pickup. Canonical contact X=0,Z=-horizontalradius. World actor/litter positions do not change. Centre-contact fallback heading based on existing deterministic post direction; if transformed cup grip has nonzero horizontaloffset, face that point even if litter base is atroot. LowerBody stays fixed throughout each seeked action after heading selection.
+Frozen reference maximum32deg hip bend (needed for low actual contacts), reachgripX=.18male/.17female, Z=-.14-.25*contactradius, Y=contactY+sqrt(.8²-horizontaldistance²). TransfergripX=.26male/.24female,Z=-.34,Y similarly derived from fixed bagmouth. Elbowpole(side*.2,-.2,-1) keeps elbows forward. Do NOT port earlier provisional18/26deg, Z-.06/-.16 or highbag constants.
+phase=-1 walkingequipped. phase0→.45 smooth reach; .45-.5contacthold; .5-.85smoothlift/bag; .85-1holdoverbag. Smooth curve t²*(3-2t), normalized phase supplied from authoritative one-second action ticks; no duration changes.
+Optional purely cosmetic reset phase1→1.15 recovers to equipped pose after authoritative completion only; use pause-aware visual time and no new simulation action. Can immediately stow on safety preemption; never delay response for reset.
+Copy groundpiece orientation to cosmetic jaw instance; positionbase=jawPosition-pieceBasis*gripAnchor. Keep sameID represented exactlyonce, no piece relocation before contact. Builder suppresses ground instance only from contact onward, holds cosmetic at bagmouth until authoritative completion and restores exact ground representation on preemption. No inventory, bagcapacity or disposal trips added.
+Reference IK reports reachable; verified domain covers current contacts. Do not ignore false or stretch limbs outside domain; preserve geometry and coordinate future domain changes.
+
+NATIVE QA / READABILITY / LIMITS
+Godot4.7.2 GL Compatibility proof passed4GLB imports, actorworldY=.04, actual current male/female rolepaint excluding vest, real-size emptysoftcup, native ready/reach/transfer and reach quarterturns, root-centredcup contact from measured grip point, game32/wide62.
+9targetoffset cases x5contactheights x2horizontalextras x116phase samples EACHsex =20880 tested samples across action and optional reset. No unreachable arm samples, no scales/roottranslation, LowerBody identity; exact jaw/contact and bagmouth endpoint checks passed. Cup-to-jaw native transform verified to measured grip, not guessed offset.
+The targetgrid is normalized by cleanupchildyaw; raw unturned left/back offsets are NOT guaranteed by this reference. Runtime must implement heading step.
+Close poses checked for vest following torso, bag opening and leg/ground clearance, shaft ahead of torso duringtransfer, wrist/grip match. At32m yellow vest/darkbag/picker silhouette readable; fine trigger/jaws/cup identity tiny, at62 subtler. Standalone proof is not integrated gameplay or a frame-rate benchmark. Builder owns native action playback/safety/stow/pause/ownership/save reconstruction tests.
+Foot-centre litter can already intersect narrow fixed shoe footprint depending orientation; centreproof preserves ground record and planted current shoes. No guarantee of zero inherited shoe/litter overlap or visibility from every viewing angle. Do not silently move litter/actor or widen shoes to hide this. Geometry targetcontact is exact; feet may occlude it in some quarterviews. No sourcebody redesign commissioned.
+No collision-aware swept mesh intersection solver claimed by numeric checks; native visual examples cover current contact/transfer. Bag is kept outside leg/body by fixed grip offset; watch other animations/picking variants on integration.
+Environment logs contain restricted userdata/shadercache/rootcertificate warnings; native asset/pose errors empty. No game repository edits/commits by designer.
+Original local Blender prop geometry and partitions of actual approved source; no AI-generated mesh. Concept uses image_gen only.
+Reproduce Blender build.py, Godot proof.gd, Node verify.cjs in order; rerun finalizer after any regeneration. Frozen manifest/reference hashes above identify this delivery.
+

@@ -1,0 +1,19 @@
+STEWARD CLEANUP - CONCEPT ONLY
+Board: steward-cleanup-board.png. Coordinator relays user's concept-only request, 1 October2026.
+Inspected actual male/female steward overlay renders, female eating-fit render, person-role-assets-v1/manifest.json and attendee-poses-v2/manifest.json. Existing relaxed/drink_hold/food_hold/drinking/eating static poses are not pickup animation proof.
+Existing yellow vest/silver bands over teal sleeves, dark trousers/chunky shoes, same head/hair/body direction retained. Board shows equipped walking-ready, modest reach with planted feet, lifted cup into bag, female adaptation and equipment details.
+Actual litter reference: litter-assets-v1/review/01-empty-items-ground-poses.png; cup body0.15m high/~0.09diameter, soft0.217m total including straw; tray0.183x0.123x0.0505m. Use measured assets, never trace generated proportions for size.
+Gameplay inset explicitly conceptual, reduced by targeted image edit. Approximate elevated view only, NOT native Godot output. Actual adult at camera32 is about50-65pixels tall; camera62 roughlyhalf; bag/vest/shaft silhouette matters, tiny jaws/trigger/litter do not reliably read.
+
+PROPOSED EQUIPMENT / ATTACHMENTS IF APPROVED
+Picker about0.8m total, thin matte-grey shaft0.015-0.02m diameter, charcoal trigger grip/two pinch jaws. Pivot centre of handle grip, local forward down shaft toward tips, exact axis/anchor measured later. Jaw opening candidate0.09-0.10m for cup. Right hand grips handle, rotate about grip rather than slide shaft through fist.
+Open charcoal bag about0.35m wide x0.48m high, mouth0.25-0.3m, faceted dark interior. Left hand grips rim; bag bottom candidate0.35-0.45m above ground in ready pose, positive clearance throughout walk/reach, candidate5cm thigh/vest gap. Keep shaft in front/outside torso, jaw over mouth on transfer, bag clear of knee and ground.
+Male/female use same equipment and hands. Generated reach leans sideways slightly; production should favour controlled forward/down reach, modest knee flex, both feet planted and balanced. No deep crouch.
+Hi-vis overlay currently attached to stable person root: torso bending needs matching garment fit, not bending body beneath fixed vest. Hand socket/pose/bag/shaft clearance at allquarterturns must be verified in production.
+Visual bag is equipment decoration, no new capacity/inventory/disposal trips authorized. Held litter ownership/transfer must follow existing action exactly, no early disappearance or duplication.
+
+COMPACT ONE-SECOND VISUAL SUGGESTION
+0-.15s aim/modestbend; .15-.45s lower jaw/contact/close; .45-.8s recover/lift towardbag; .8-1s release/settle. Existing authoritative pickupduration remains unchanged. If fulltransfer cannot read in1s, prioritize clear jawcontact/lift rather than lengthen simulation.
+Safety response takes priority; equipment stowed/hidden when returning to post or responding to argument/fight. Stowing does not delete claimed litter. Pause freezes pose/equipment/heldpiece transfer; resume continues same phase.
+Built-in image_gen used actual references, plus targeted inset-size edit. Visual QA covers3poses, clearbagmouth, workwear, groundedfeet, smallcup, female adaptation; anatomy/contact approximate, not socket/rig proof.
+No Blenderprops/runtime/rig/gameplay changed at this checkpoint. Prior litter/bin assets unchanged. Prompt/provenance in PROMPTS.txt.
