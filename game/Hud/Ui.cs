@@ -100,6 +100,30 @@ internal static class Ui
     public static StyleBoxFlat Sheet(float padX = 20, float padY = 18) =>
         Box(Paper, 6, new Color(0, 0, 0, 0.28f), 1, padX, padY, shadow: 14, shadowAlpha: 0.38f);
 
+    /// <summary>A thin paper-coloured vertical scrollbar.</summary>
+    public static void SlimScrollbar(ScrollContainer scroll)
+    {
+        var bar = scroll.GetVScrollBar();
+        bar.AddThemeStyleboxOverride("scroll", Box(new Color(0, 0, 0, 0.05f), 3));
+        bar.AddThemeStyleboxOverride("grabber", Box(PaperEdge, 3));
+        bar.AddThemeStyleboxOverride("grabber_highlight", Box(PaperEdge.Darkened(0.1f), 3));
+        bar.AddThemeStyleboxOverride("grabber_pressed", Box(PaperEdge.Darkened(0.15f), 3));
+        bar.CustomMinimumSize = new Vector2(S(6), 0);
+    }
+
+    /// <summary>Draws the clipboard clip above a sheet's top edge.</summary>
+    public static void Clipboard(Control sheet, float mockupX = 150)
+    {
+        var clip = Box(new Color("2b2f2c"), 5);
+        var lip = Box(new Color("474c47"), 5);
+        sheet.Draw += () =>
+        {
+            var rect = new Rect2(S(mockupX), -S(9), S(64), S(20));
+            sheet.DrawStyleBox(clip, rect);
+            sheet.DrawStyleBox(lip, new Rect2(rect.Position + new Vector2(0, rect.Size.Y - S(5)), new Vector2(rect.Size.X, S(5))));
+        };
+    }
+
     public static Label Text(string text, float mockupSize, Color color, Font? font = null)
     {
         var label = new Label { Text = text };
@@ -147,7 +171,7 @@ internal static class Ui
     /// <summary>A button with a leading icon.</summary>
     public static Button IconButton(string text, string icon, ButtonKind kind, Action action, float mockupFont = 14)
     {
-        var button = Style(new Button { Text = text, Icon = Icon(icon), ExpandIcon = true }, kind, mockupFont);
+        var button = Style(new Button { Text = text, Icon = Icon(icon) }, kind, mockupFont);
         button.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
         button.Pressed += action;
         return button;

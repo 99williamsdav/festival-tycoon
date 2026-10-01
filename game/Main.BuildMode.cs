@@ -17,7 +17,6 @@ public partial class Main : IBuildActions
     void IBuildActions.CloseDrawer() { _buildDrawerOpen = false; RefreshHudWorkspace(); }
     void IBuildActions.OpenCatalogue(BuildServiceKind kind) => OpenBuildCatalogue(kind);
     void IBuildActions.OpenTab(string name) => SelectHudTab(name);
-    Node3D IBuildActions.BuildAsset(BuildServiceKind kind) => BuildAsset(kind);
     private bool _buildDrawerOpen;
     private BuildServiceKind? _buildGhostKind;
     private string? _buildMovingId;
