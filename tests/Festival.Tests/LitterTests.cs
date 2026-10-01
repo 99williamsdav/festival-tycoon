@@ -251,4 +251,26 @@ public sealed class LitterTests
         var saved = s.CapturePersistenceSnapshot(); Assert.IsFalse(GameSession.Restore(saved with { Litter = null }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(saved with { Litter = saved.Litter! with { Pieces = [saved.Litter.Pieces[0], saved.Litter.Pieces[0]] } }).IsSuccess);
     }
+
+    [TestMethod]
+    public void AManualSweepStartedMidSecondEndsOnALitterSecondAndAlwaysSaves()
+    {
+        var s = Open(); var worker = s.GetStewardResponses()[0].WorkerId;
+        s.AdvanceWithoutSnapshot(41 - (int)(s.CurrentTick % LitterRules.SecondTicks) + LitterRules.SecondTicks);
+        Assert.AreNotEqual(0, s.CurrentTick % LitterRules.SecondTicks, "The command lands mid-second.");
+        var issued = s.CurrentTick;
+        BuildSession.Accept(s, new CleanUpCommand(worker));
+        var until = s.CaptureLitter()!.Sweeps.Single(j => j.WorkerId == worker).UntilTick;
+        Assert.AreEqual(0, until % LitterRules.SecondTicks);
+        Assert.IsTrue(until >= issued + LitterRules.ManualDurationTicks && until < issued + LitterRules.ManualDurationTicks + LitterRules.SecondTicks);
+        // Skip to just before the deadline with the sweep still working, then save on each tick across it.
+        SetTime(s, until - 3);
+        for (var tick = 0; tick < 6; tick++)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+            Assert.IsTrue(restored.IsSuccess, $"tick {s.CurrentTick}: {restored.Error}");
+        }
+        Assert.AreEqual(0, s.CaptureLitter()!.Sweeps.Single(j => j.WorkerId == worker).Remaining, "The sweep ended at its deadline.");
+    }
 }

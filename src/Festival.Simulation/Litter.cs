@@ -30,6 +30,8 @@ public static class LitterRules
     public const int LocalDurationTicks = 2400, ManualDurationTicks = 4800, CooldownTicks = 800;
     public const int GroundEffectRadiusCells = 8, WaspRadiusCells = 6;
     public const int GroundLossCap = 5, WaspLoss = 4;
+    /// <summary>Litter, cleanup and nuisance advance once per festival second.</summary>
+    public const int SecondTicks = 80;
 
     public static int Dickishness(ulong seed, ulong id)
     {
@@ -160,9 +162,12 @@ public sealed partial class GameSession
     {
         RecallWorker(id, "Steward starting a bounded cleanup sweep");
         var centre = StaffDutyCell(id, ResponseRole.Steward);
+        // Litter advances once a second, so the deadline lands on a litter second: a manual sweep
+        // started mid-second would otherwise outlive its deadline until the next one.
+        var until = CurrentTick + (manual ? LitterRules.ManualDurationTicks : LitterRules.LocalDurationTicks);
+        until += (LitterRules.SecondTicks - until % LitterRules.SecondTicks) % LitterRules.SecondTicks;
         SetSweep(new(id, centre, manual ? LitterRules.ManualRadiusCells : LitterRules.LocalRadiusCells,
-            manual ? LitterRules.ManualTargets : LitterRules.LocalTargets,
-            CurrentTick + (manual ? LitterRules.ManualDurationTicks : LitterRules.LocalDurationTicks), manual));
+            manual ? LitterRules.ManualTargets : LitterRules.LocalTargets, until, manual));
     }
     private void EndSweep(CleanupSweep job, bool returnToPost)
     {
@@ -248,8 +253,10 @@ public sealed partial class GameSession
             bool Claimed(string target, bool bin) => _litter.Sweeps.Any(s => s.Remaining > 0 && s.TargetId == target && s.TargetIsBin == bin);
             var targets = CaptureBins().Where(b => b.CanEmpty && CellDistanceSquared(b.Cell, job.Centre) <= (long)job.RadiusCells * job.RadiusCells && !Claimed(b.Id, true))
                 .Select(b => (Id: b.Id, Bin: true, Cell: b.Cell))
-                .Concat(GroundNear(job.Centre, job.RadiusCells).Where(w => !Claimed(w.Id, false)).Take(128)
+                .Concat(GroundNear(job.Centre, job.RadiusCells).Where(w => !Claimed(w.Id, false))
                     .Select(w => (Id: w.Id, Bin: false, Cell: TraversalGrid.WorldToCell(w.XMillimetres, w.ZMillimetres))))
+                // Sort the whole candidate set before capping it: the spatial index's bucket order
+                // depends on history (a restored game rebuilds it in array order), so it must never pick.
                 .OrderBy(t => CellDistanceSquared(t.Cell, PersonCell(id))).ThenBy(t => t.Id, StringComparer.Ordinal).Take(8);
             var assigned = false;
             foreach (var t in targets)
@@ -276,7 +283,7 @@ public sealed partial class GameSession
     }
     private void AdvanceLitter()
     {
-        if (_litter is null || !MedicalOperationsActive || CurrentTick % 80 != 0) return;
+        if (_litter is null || !MedicalOperationsActive || CurrentTick % LitterRules.SecondTicks != 0) return;
         AdvanceCarriedWaste(); AdvanceCleanup();
         var wasps = CaptureBins().Where(b => b.Wasps).ToArray();
         foreach (var p in PeopleIn(PersonView.Roster).Where(p => p.Admitted && !p.Departed))
@@ -340,7 +347,8 @@ public sealed partial class GameSession
             (prep.People.Single(p => p.AgentId == w.ProducerId).Departed ||
              w.Approach is { } approach && (!BinSide(approach, w.BinId!) || !RouteAt(w.ProducerId, approach) ||
                 w.ActionTick >= 0 && !ArrivedAt(w.ProducerId, approach)))) ||
-            litter.Sweeps.Any(j => !ValidCell(j.Centre) || j.UntilTick < 0 || j.UntilTick > s.CurrentTick + LitterRules.ManualDurationTicks ||
+            litter.Sweeps.Any(j => !ValidCell(j.Centre) || j.UntilTick < 0 || j.UntilTick % LitterRules.SecondTicks != 0 ||
+                j.UntilTick > s.CurrentTick + LitterRules.ManualDurationTicks + LitterRules.SecondTicks ||
                 j.CooldownUntil < 0 || j.CooldownUntil > s.CurrentTick + LitterRules.CooldownTicks ||
                 j.TargetId is null && j.ActionTick != -1 || j.Remaining > 0 && j.UntilTick < s.CurrentTick ||
                 j.Approach is { } c && (!ValidCell(c) || !RouteAt(j.WorkerId, c) || j.ActionTick >= 0 && !ArrivedAt(j.WorkerId, c) ||
