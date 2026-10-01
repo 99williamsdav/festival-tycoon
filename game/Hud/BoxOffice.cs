@@ -16,15 +16,57 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
     private static readonly string[] Calibres = ["Pub back room", "Village fete", "Regional favourites", "Festival circuit", "Headliners"];
     private static readonly string[] FanNames = ["Folk fans", "Indie kids", "Pop fans", "Ravers", "Punks", "Metalheads"];
     private static readonly string[] FanName = ["folk fan", "indie kid", "pop fan", "raver", "punk", "metalhead"];
-    /// <summary>Two lines per genre; "{price}" becomes "A tenner" or the ticket price.</summary>
+    /// <summary>Lines per genre, one picked per speaker; "{price}" becomes "A tenner" or the ticket price.</summary>
     private static readonly string[][] Quotes =
     [
-        ["As long as there's a band and a bar, I'm happy.", "Bring a fiddle and I'll bring my own tankard."],
-        ["{price}? I want a proper band. Not Gary from the pub again.", "If they've been on local radio, I'm in."],
-        ["I'll know every word or I'm going home.", "Something I can dance to with my nan."],
-        ["One decent drop and I'll stay till they switch the lights off.", "As long as the speakers are louder than the cows."],
-        ["Three chords and an attitude. That's all I've paid for.", "If nobody gets told off by the vicar, what's the point?"],
-        ["If there's no mosh pit I'm asking for my money back.", "Heavier than the tractor or I'm not interested."],
+        [
+            "As long as there's a band and a bar, I'm happy.",
+            "Bring a fiddle and I'll bring my own tankard.",
+            "I've ironed my good waistcoat for this.",
+            "If there's no sea shanty, I'm starting one.",
+            "I just want a hay bale, a cider and something with an accordion.",
+            "{price} for a singalong? I'll be singing the whole thing, then.",
+        ],
+        [
+            "{price}? I want a proper band. Not Gary from the pub again.",
+            "If they've been on local radio, I'm in.",
+            "I'll be at the front, arms folded, deciding if they're any good.",
+            "I liked them before anyone else did. I'll be telling everyone.",
+            "Bringing my tote bag. Not explaining why.",
+            "If the guitarist hasn't got a fringe, I'm asking questions.",
+        ],
+        [
+            "I'll know every word or I'm going home.",
+            "Something I can dance to with my nan.",
+            "Glitter is not optional. I've brought spares.",
+            "If there's no key change, it doesn't count.",
+            "I've been rehearsing the dance in the kitchen since March.",
+            "I've made a sign. It has a pun on it. You're welcome.",
+        ],
+        [
+            "One decent drop and I'll stay till they switch the lights off.",
+            "As long as the speakers are louder than the cows.",
+            "I'll be the one waving a glow stick at a sheep.",
+            "I don't need a band. I need a bassline and somewhere to stand.",
+            "If my fillings aren't rattling, they're not trying.",
+            "{price}? I've paid more for a taxi home from a rave.",
+        ],
+        [
+            "Three chords and an attitude. That's all I've paid for.",
+            "If nobody gets told off by the vicar, what's the point?",
+            "I'm here to be disappointed, loudly.",
+            "I've safety-pinned my jacket specially. Don't touch it.",
+            "If they sell out by the second song, I'm leaving. After the second song.",
+            "I've already written the angry review. Just need the band.",
+        ],
+        [
+            "If there's no mosh pit I'm asking for my money back.",
+            "Heavier than the tractor or I'm not interested.",
+            "I've got earplugs. I won't be using them.",
+            "My mum knitted me a black jumper with a skull on. I'm wearing it.",
+            "If the cows aren't scared, it wasn't loud enough.",
+            "I'll headbang to anything. Even the safety announcements.",
+        ],
     ];
 
     private PanelContainer? _root;
@@ -67,13 +109,14 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         Place(FansCard(), 436, 182, 320);
         Place(ExpectationCard(), 780, 182, 428);
 
-        var footer = new HBoxContainer(); footer.AddThemeConstantOverride("separation", Ui.Px(12));
-        var next = Ui.Text("Next: build your site, book three acts and hire a sound engineer.", 13.5f, Ui.BarMuted);
-        next.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; next.VerticalAlignment = VerticalAlignment.Center; footer.AddChild(next);
+        // Under the budget, so the expectations card can grow with longer quotes.
+        var footer = new VBoxContainer(); footer.AddThemeConstantOverride("separation", Ui.Px(8));
         var start = Ui.Style(new Button { Text = "Start planning", Icon = Ui.Icon("chevron-right"), IconAlignment = HorizontalAlignment.Right,
             CustomMinimumSize = new Vector2(0, Ui.S(48)), MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Primary, 16, 8);
         start.Pressed += _startPlanning; footer.AddChild(start);
-        Place(footer, 72, 642, 1136);
+        var next = Ui.Text("Next: build your site, book three acts and hire a sound engineer.", 13, Ui.BarMuted);
+        next.AutowrapMode = TextServer.AutowrapMode.WordSmart; footer.AddChild(next);
+        Place(footer, 72, 594, 340);
     }
 
     private static PanelContainer Card(Color? colour = null, float padX = 18, float padY = 18)
