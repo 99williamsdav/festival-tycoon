@@ -27,6 +27,7 @@ internal sealed class OfferCard
     private readonly Label? _initial;
     private readonly Panel? _radio;
     private readonly RatingBars[] _stats = [];
+    private readonly HFlowContainer? _tags;
 
     public Control Root { get; }
     /// <summary>What the player presses: the button on cards and rows, the whole card for choices.</summary>
@@ -52,6 +53,12 @@ internal sealed class OfferCard
         var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
         words.AddThemeConstantOverride("separation", Ui.Px(2));
         words.AddChild(_title);
+        if (stats is { Length: > 0 })
+        {
+            _tags = new HFlowContainer { MouseFilter = Control.MouseFilterEnum.Ignore, Visible = false };
+            _tags.AddThemeConstantOverride("h_separation", Ui.Px(4)); _tags.AddThemeConstantOverride("v_separation", Ui.Px(4));
+            words.AddChild(_tags);
+        }
         var detailLine = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore }; detailLine.AddThemeConstantOverride("separation", Ui.Px(5));
         if (layout != OfferLayout.Choice && detailIcon != "")
         {
@@ -166,6 +173,26 @@ internal sealed class OfferCard
             foreach (var name in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color" }) Action.AddThemeColorOverride(name, Ui.TealDeep);
         }
         Action.AddThemeConstantOverride("icon_max_width", Ui.Px(15));
+    }
+
+    private string _tagKey = "";
+
+    /// <summary>Small chips under the name: teal for a good trait, amber for a bad one.</summary>
+    public void SetTags((string Text, bool Good)[] tags)
+    {
+        if (_tags is null) return;
+        var key = string.Join("|", tags.Select(tag => tag.Text + tag.Good));
+        if (key == _tagKey) return;
+        _tagKey = key;
+        foreach (var child in _tags.GetChildren()) { _tags.RemoveChild(child); child.QueueFree(); }
+        foreach (var (text, good) in tags)
+        {
+            var chip = Ui.Caps(text, good ? Ui.TealDeep : new Color("8a5a12"), 9.5f);
+            chip.AddThemeStyleboxOverride("normal", Ui.Box(good ? Ui.TealWash : new Color("f6e2b8"), 4, padX: 6, padY: 2));
+            chip.MouseFilter = Control.MouseFilterEnum.Ignore;
+            _tags.AddChild(chip);
+        }
+        _tags.Visible = tags.Length > 0;
     }
 
     /// <summary>Ability ratings from 1 to 5, in the order of the labels given at construction.</summary>

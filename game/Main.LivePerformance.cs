@@ -155,6 +155,7 @@ public partial class Main
             : performer is not null ? $"STAGE  {performer.StageCell.X},{performer.StageCell.Z} • {(performer.OnStage ? "on stage" : "travelling/exit")}\n" +
               $"INSTRUMENT  {(performer.InstrumentAttached ? "attached for set" : "detached")}" :
               _session.GetResponseStaff().Any(item => item.AgentId == person.AgentId && item.Role == ResponseRole.Steward) ? "STEWARD • autonomous physical route" : "STAFF • autonomous physical route";
+        if (person.Role == ProtectedPersonRole.Staff) detail = StaffTraitText(person.AgentId) + detail;
         if (_session.CaptureProgramme() is { } programme)
         {
             if (listening is not null)

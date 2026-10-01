@@ -64,6 +64,41 @@ public sealed partial class GameSession
         return people.Select(person => names.TryGetValue(person.AgentId, out var name) ? person with { Name = name } : person).ToArray();
     }
 
+    private (PreparationSnapshot Key, Dictionary<ulong, StaffCandidate> Map)? _hiredByAgent;
+
+    /// <summary>The candidate working as this person this attempt, if any.</summary>
+    public StaffCandidate? HiredCandidateFor(ulong id)
+    {
+        if (_preparation is not { } p) return null;
+        if (_hiredByAgent is not { } cached || !ReferenceEquals(cached.Key, p))
+            _hiredByAgent = cached = (p, HiredAgents(GetStaffCandidates().ToArray(), p.AcceptedOffers, p.StaffProfiles,
+                SoundSlotId(PeopleIn(PersonView.Roster).Select(person => (person.Id, person.Role))), _medical?.MedicId, _disorder?.SecurityId));
+        return cached.Map.GetValueOrDefault(id);
+    }
+
+    public bool StaffHas(ulong id, StaffTrait trait) => HiredCandidateFor(id)?.Has(trait) == true;
+
+    private static Dictionary<ulong, StaffCandidate> HiredAgents(StaffCandidate[] candidates, string[] accepted, StaffProfile[] extras,
+        ulong? soundSlot, ulong? medicId, ulong? stewardId)
+    {
+        var map = new Dictionary<ulong, StaffCandidate>();
+        void Add(ulong? id, StaffRole role, bool extra)
+        {
+            if (id is { } agent && StaffCatalogue.Hired(candidates, accepted, role, extra) is { } hired) map[agent] = hired;
+        }
+        Add(soundSlot, StaffRole.Sound, false);
+        Add(medicId, StaffRole.Medic, false);
+        Add(stewardId, StaffRole.Steward, false);
+        Add(extras.SingleOrDefault(item => item.Role == ResponseRole.Medic)?.AgentId, StaffRole.Medic, true);
+        Add(extras.SingleOrDefault(item => item.Role == ResponseRole.Steward)?.AgentId, StaffRole.Steward, true);
+        return map;
+    }
+
+    /// <summary>Who was hired as whom, from a saved snapshot.</summary>
+    private static Dictionary<ulong, StaffCandidate> SavedHiredAgents(SessionPersistenceSnapshot s) =>
+        s.Preparation is not { } p ? [] : HiredAgents(SavedStaffCandidates(s), p.AcceptedOffers, p.StaffProfiles,
+            SoundSlotId(p.People.Select(person => (person.AgentId, person.Role))), s.Medical?.MedicId, s.Disorder?.SecurityId);
+
     /// <summary>Saved walking speed for a medic or steward: the hired candidate's, else the slot's own.</summary>
     private static int SavedResponderSpeed(SessionPersistenceSnapshot s, StaffCandidate[] candidates, ulong id)
     {

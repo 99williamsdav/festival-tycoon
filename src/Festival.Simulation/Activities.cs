@@ -67,7 +67,7 @@ public sealed partial class GameSession
         if (extra is not null) options.Add(extra);
         // On-duty staff heat up an eighth as fast (see AdvanceMedical).
         var growth = new NeedGrowth(20 + (HasPerk("thirsty-crowd") && person.NeedProfile == MedicalNeedProfile.Guest ? 2 : 0),
-            IsStaffMember(id) ? 2 : 20, 12, 20);
+            IsStaffMember(id) ? 2 : 20, 12, 80 / ToiletNeedGainEveryTicks(id));
         var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed);
         return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options);
     }
@@ -268,10 +268,10 @@ public sealed partial class GameSession
             var price = ImmersionPriceFor(id, product) * (2L + person.PriceReluctance / 25) * PurchaseValueScale;
             var enjoyment = product switch
             {
-                ImmersionProduct.Beer => (3_000L + person.BeerTaste * 45) * PurchaseValueScale,
+                ImmersionProduct.Beer => (3_000L + (StaffHas(id, StaffTrait.SneakyAlcoholic) ? AlcoholicBeerTaste : person.BeerTaste) * 45) * PurchaseValueScale,
                 ImmersionProduct.SoftDrink => person.SoftTaste * 35L * PurchaseValueScale,
                 _ => 0L
-            };
+            } + (StaffHas(id, StaffTrait.Slacker) ? SlackerTreatValue : 0);
             foreach (var vendor in Vendors.Where(vendor => vendor.Id == vendorId && (underWay || VendorHasRoom(vendor))))
                 Add(kind, vendor.Id, vendor.Cell, LightVendorTicks(id, product, vendor, from, fresh), enjoyment, price);
         }
@@ -284,7 +284,7 @@ public sealed partial class GameSession
         person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat && !IsCurrentProgrammePerformer(person.Id) &&
         ImmersionHandsAvailable(person.Id) && ImmersionStock(product) > 0 &&
         _wallets[new(person.Id)].CashPennies >= ImmersionPriceFor(person.Id, product) &&
-        (product != ImmersionProduct.Beer || !person.Abstains && person.Intoxication < 7_000 && person.Role != ProtectedPersonRole.Staff);
+        (product != ImmersionProduct.Beer || BeerAllowed(person));
 
     private bool VendorHasRoom(ImmersionVendor vendor)
     {
@@ -297,7 +297,7 @@ public sealed partial class GameSession
     {
         var dx = Math.Abs(from.X - to.X); var dz = Math.Abs(from.Z - to.Z);
         var thousandthCells = (long)Math.Max(dx, dz) * 1_000 + (long)Math.Min(dx, dz) * 414;
-        var perTick = (long)RouteProgressMicrometresPerTick * _navigationAgents[new(id)].WalkingSpeedPermille / 1_000;
+        var perTick = (long)RouteProgressMicrometresPerTick * _navigationAgents[new(id)].WalkingSpeedPermille / 1_000 * StaffGaitPermille(id) / 1_000;
         return perTick <= 0 ? int.MaxValue : (int)(thousandthCells * 500 / perTick);
     }
 

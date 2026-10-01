@@ -2,14 +2,18 @@ namespace Festival.Simulation;
 
 public enum StaffRole { Sound, Medic, Steward }
 
+/// <summary>Character quirks a candidate brings to any role. All show on the staff page; the alcoholic only as a hint.</summary>
+public enum StaffTrait { Slacker, SneakyAlcoholic, WeakBladder, IronBladder, DodgyKnee, Charismatic, Abrasive, Tardy }
+
 /// <summary>
 /// One person on the staff market. Grade -2..2 sets their abilities against the slot's baseline;
 /// the wage follows the grade with some haggling noise, so a bargain or a dud is possible.
-/// Traits are reserved for later character quirks and are empty for now.
+/// Traits shift the wage too; a tardy candidate turns up <see cref="LateTicks"/> after the gates open.
 /// </summary>
 public sealed record StaffCandidate(string Id, StaffRole Role, string Name, string Blurb, int WagePennies, int Grade,
-    int WalkingSpeedPermille, int TreatmentTicks, int CalmingSkill, int ConfrontationSkill, int MixingBonus, string[] Traits)
+    int WalkingSpeedPermille, int TreatmentTicks, int CalmingSkill, int ConfrontationSkill, int MixingBonus, StaffTrait[] Traits, int LateTicks = 0)
 {
+    public bool Has(StaffTrait trait) => Traits.Contains(trait);
     public int Number => Id[^1] - '0';
     public string Contact => "contact." + Id["staff.".Length..];
     public string ExtraOfferId => $"staff.extra-{StaffCatalogue.Key(Role)}.{Number}";
@@ -46,8 +50,43 @@ public static class StaffCatalogue
         return offerIds.Where(id => id.StartsWith(prefix, StringComparison.Ordinal)).Select(id => ForOffer(candidates, id)).FirstOrDefault(item => item is not null);
     }
 
-    // 1-5 ratings for the staff page; each spans the generator's full range.
-    public static int PaceRating(StaffCandidate c) => Math.Clamp((c.WalkingSpeedPermille - 850) / 75 + 1, 1, 5);
+    /// <summary>A dodgy knee walks at this share of normal pace, on top of any other slowing.</summary>
+    public const int DodgyKneePacePermille = 800;
+
+    /// <summary>The label the staff page shows. The alcoholic is only ever hinted at.</summary>
+    public static string TraitLabel(StaffTrait trait) => trait switch
+    {
+        StaffTrait.Slacker => "Slacker",
+        StaffTrait.SneakyAlcoholic => "Acts suspicious",
+        StaffTrait.WeakBladder => "Weak bladder",
+        StaffTrait.IronBladder => "Iron bladder",
+        StaffTrait.DodgyKnee => "Dodgy knee",
+        StaffTrait.Charismatic => "Charismatic",
+        StaffTrait.Abrasive => "Abrasive",
+        _ => "Tardy",
+    };
+
+    public static string TraitDescription(StaffTrait trait) => trait switch
+    {
+        StaffTrait.Slacker => "Easily distracted by food and drink.",
+        StaffTrait.SneakyAlcoholic => "Acts suspicious and occasionally slurs words.",
+        StaffTrait.WeakBladder => "Needs the toilet a lot.",
+        StaffTrait.IronBladder => "Rarely needs the toilet.",
+        StaffTrait.DodgyKnee => "Hobbles; walks slowly.",
+        StaffTrait.Charismatic => "Guests near them enjoy themselves more.",
+        StaffTrait.Abrasive => "Guests near them enjoy themselves less.",
+        _ => "Turns up late.",
+    };
+
+    public static bool IsPositive(StaffTrait trait) => trait is StaffTrait.IronBladder or StaffTrait.Charismatic;
+
+    private static int TraitWage(StaffTrait trait) => trait switch
+    {
+        StaffTrait.Charismatic => 300, StaffTrait.IronBladder => 100, StaffTrait.WeakBladder => -100, _ => -200,
+    };
+
+    // 1-5 ratings for the staff page; each spans the generator's full range. A dodgy knee counts against pace.
+    public static int PaceRating(StaffCandidate c) => Math.Clamp(((c.Has(StaffTrait.DodgyKnee) ? c.WalkingSpeedPermille * DodgyKneePacePermille / 1_000 : c.WalkingSpeedPermille) - 850) / 75 + 1, 1, 5);
     public static int TreatmentRating(StaffCandidate c) => Math.Clamp((600 - c.TreatmentTicks) / 60 + 1, 1, 5);
     public static int SkillRating(int skill) => Math.Clamp((skill - 3_500) * 4 / 4_500 + 1, 1, 5);
     public static int MixingRating(StaffCandidate c) => c.MixingBonus switch { <= -2 => 1, -1 => 2, 0 => 3, <= 2 => 4, _ => 5 };
@@ -101,6 +140,8 @@ public static class StaffCatalogue
         foreach (var role in new[] { StaffRole.Sound, StaffRole.Medic, StaffRole.Steward })
         {
             var random = RandomStreamFactory.Create(seed ^ (0x4352455700UL + (ulong)role), RandomStreamId.IndividualBehaviour);
+            // Traits draw from their own stream so abilities and wages stay as they were without them.
+            var quirks = RandomStreamFactory.Create(seed ^ (0x5452414954UL + (ulong)role), RandomStreamId.IndividualBehaviour);
             int Next(int count) => (int)(random.NextUInt32() % (uint)count);
             for (var number = 1; number <= PerRole; number++)
             {
@@ -118,7 +159,7 @@ public static class StaffCatalogue
                         Speed(baseline.MedicSpeedPermille), UnhiredMedicTreatmentTicks - grade * 60, 0, 0, 0, []),
                     _ => Steward(id, name, blurb, Math.Max(800, 1_200 + grade * 500 + noise), grade)
                 };
-                result.Add(candidate);
+                result.Add(WithTraits(candidate, quirks));
 
                 int Speed(int standard) => grade == 0 ? standard : Math.Clamp(standard + grade * 75 + (Next(3) - 1) * 50, 850, 1_150);
                 StaffCandidate Steward(string stewardId, string stewardName, string stewardBlurb, int wage, int stewardGrade)
@@ -133,4 +174,37 @@ public static class StaffCatalogue
         }
         return result.ToArray();
     }
+
+    /// <summary>
+    /// The standard candidate is plain; the others have none (1 in 4), one (2 in 4) or two (1 in 4)
+    /// traits, so about half the market has a quirk. Opposites never pair up.
+    /// </summary>
+    private static StaffCandidate WithTraits(StaffCandidate candidate, Pcg32Random random)
+    {
+        if (candidate.Grade == 0) return candidate;
+        var roll = random.NextUInt32() % 4;
+        var count = roll == 0 ? 0 : roll == 3 ? 2 : 1;
+        var all = Enum.GetValues<StaffTrait>();
+        var traits = new List<StaffTrait>(2);
+        while (traits.Count < count)
+        {
+            var trait = all[random.NextUInt32() % (uint)all.Length];
+            if (traits.Contains(trait) || traits.Contains(Opposite(trait))) continue;
+            traits.Add(trait);
+        }
+        traits.Sort();
+        var late = traits.Contains(StaffTrait.Tardy) ? (30 + (int)(random.NextUInt32() % 61)) * 80 : 0;
+        return candidate with
+        {
+            Traits = traits.ToArray(), LateTicks = late,
+            WagePennies = Math.Max(500, candidate.WagePennies + traits.Sum(TraitWage)),
+        };
+    }
+
+    private static StaffTrait Opposite(StaffTrait trait) => trait switch
+    {
+        StaffTrait.WeakBladder => StaffTrait.IronBladder, StaffTrait.IronBladder => StaffTrait.WeakBladder,
+        StaffTrait.Charismatic => StaffTrait.Abrasive, StaffTrait.Abrasive => StaffTrait.Charismatic,
+        _ => trait,
+    };
 }

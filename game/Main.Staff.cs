@@ -34,6 +34,15 @@ public partial class Main
         ? $"SOUND ABILITIES\nMIXING  {(c.MixingBonus > 0 ? "+" : "")}{c.MixingBonus} enjoyment each time the crowd warms to a set"
         : StaffAbilityText(_session.GetCandidateProfile(c));
 
+    /// <summary>The inspector's trait line. The alcoholic stays a hint until they are caught buying beer.</summary>
+    private string StaffTraitText(ulong id)
+    {
+        if (_session.HiredCandidateFor(id) is not { Traits.Length: > 0 } hired) return "";
+        var caught = _session.CaptureImmersion()?.Purchases.Any(item => item.AgentId == id && item.Product == ImmersionProduct.Beer) == true;
+        return "TRAITS  " + string.Join(", ", hired.Traits.Select(trait => trait == StaffTrait.SneakyAlcoholic && caught
+            ? "Sneaky alcoholic (caught at the bar)" : StaffCatalogue.TraitLabel(trait))) + "\n";
+    }
+
     private string ResponseStaffInspectorText(ulong id)
     {
         var profile = _session.GetResponseStaff().SingleOrDefault(item => item.AgentId == id);

@@ -15,7 +15,7 @@ public sealed class StaffCatalogueTests
             Assert.AreEqual(StaffCatalogue.PerRole, candidates.Count(c => c.Role == role), role.ToString());
         Assert.AreEqual(candidates.Count, candidates.Select(c => c.Name).Distinct().Count());
         Assert.AreEqual(candidates.Count, candidates.Select(c => c.Name.Split(' ')[0]).Distinct().Count(), "First names are unique so the staff page can use them.");
-        Assert.IsTrue(candidates.All(c => c.Grade is >= -2 and <= 2 && c.WagePennies >= 800 && c.Traits.Length == 0 && c.Blurb.Length > 0));
+        Assert.IsTrue(candidates.All(c => c.Grade is >= -2 and <= 2 && c.WagePennies >= 500 && c.Blurb.Length > 0));
         var standard = candidates.Single(c => c.Id == "staff.medic.1");
         Assert.AreEqual(0, standard.Grade);
         Assert.AreEqual(StaffCatalogue.UnhiredMedicTreatmentTicks, standard.TreatmentTicks);

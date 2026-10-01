@@ -167,7 +167,11 @@ public partial class Main
             var alreadyHired = otherSlot is not null && (p.Plan is { Committed: false } held ? held.OfferIds : p.AcceptedOffers).Contains(otherSlot);
             card.Show(copy.Initial, copy.Title, copy.Detail, offersById[id].PricePennies, state, copy.Choose, copy.Chosen, copy.Tooltip,
                 alreadyHired ? "Already hired" : "Locked");
-            if (candidate is not null) card.SetStats(StaffRatings(candidate));
+            if (candidate is not null)
+            {
+                card.SetStats(StaffRatings(candidate));
+                card.SetTags(candidate.Traits.Select(trait => (StaffCatalogue.TraitLabel(trait), StaffCatalogue.IsPositive(trait))).ToArray());
+            }
             card.Action.Disabled = issue is not null;
             var category = offersById[id].Category;
             card.Root.Visible = p.Status == PreparationStatus.Preparing &&
@@ -275,6 +279,7 @@ private void RebuildPreparationOffers()
                 var extra = offer.Category.StartsWith("extra-", StringComparison.Ordinal);
                 if (issue is null || chosen)
                     tooltip = FestivalCopy($"{candidate.Name} · {(extra ? "extra " : "")}{StaffCatalogue.RoleName(candidate.Role)}\n{StaffCandidateAbilities(candidate)}\n" +
+                        string.Concat(candidate.Traits.Select(trait => $"{StaffCatalogue.TraitLabel(trait).ToUpperInvariant()}  {StaffCatalogue.TraitDescription(trait)}\n")) +
                         $"Weekend contract; {(p.Plan is null ? "paid now" : "unpaid until Start, freely swap")}. Expires on any outcome.");
                 return (candidate.Name[..1], extra ? $"{candidate.Name} · extra {StaffCatalogue.RoleName(candidate.Role)}" : candidate.Name, candidate.Blurb, "Hire", "Hired", tooltip);
             case "maintenance":
@@ -346,6 +351,11 @@ private void RebuildPreparationOffers()
             if (Mathf.Abs(visual.Rotation.X) > .1f) visual.Rotation = new Vector3(0, visual.Rotation.Y, 0);
             UpdatePersonFacing(agent.Id, visual, renderedPosition, agent.Action,
                 watching.Contains(agent.Id), onStage.Contains(agent.Id), characterDelta);
+            // A dodgy knee hobbles: a dip and a sideways lurch on every other step.
+            var hobble = agent.Action == AgentNavigationAction.Travelling && _session.StaffHas(agent.Id.Value, StaffTrait.DodgyKnee)
+                ? Mathf.Sin((float)_characterPresentationSeconds * 7f) : 0f;
+            if (hobble != 0) visual.Position -= new Vector3(0, Mathf.Abs(hobble) * .05f, 0);
+            if (hobble != 0 || visual.Rotation.Z != 0) visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y, hobble * .1f);
         }
         AdvanceLivePerformancePresentation(characterDelta);
         AdvanceImmersionPresentation(characterDelta);

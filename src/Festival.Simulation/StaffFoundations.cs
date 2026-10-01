@@ -71,13 +71,24 @@ public sealed partial class GameSession
     }
     private static bool RoleTrained(PreparationSnapshot? prep, PerkSnapshot? perks, ResponseRole role) =>
         prep?.RespondersUpgraded == true || SavedPerkEffect(perks, role == ResponseRole.Medic ? "first-responders" : "smooth-operators");
-    private StaffProfile EffectiveStaffProfile(StaffProfile profile) => RoleTrained(_preparation, _perks, profile.Role) ? profile with
+    private StaffProfile EffectiveStaffProfile(StaffProfile profile)
+    {
+        var trained = RoleTrained(_preparation, _perks, profile.Role) ? profile with
         {
             WalkingSpeedPermille = Math.Min(1150, profile.WalkingSpeedPermille + 100),
             TreatmentTicks = profile.Role == ResponseRole.Medic ? Math.Max(360, profile.TreatmentTicks - 120) : 0,
             CalmingSkill = profile.Role == ResponseRole.Steward ? Math.Min(8000, profile.CalmingSkill + 500) : 0,
             ConfrontationSkill = profile.Role == ResponseRole.Steward ? Math.Min(8000, profile.ConfrontationSkill + 500) : 0
         } : profile;
+        // Drink dulls the work: slower treatment and weaker steward skills, in proportion to intoxication.
+        var drunk = profile.AgentId == 0 ? 0 : PersonIn(PersonView.Consumption, profile.AgentId)?.Intoxication ?? 0;
+        return drunk == 0 ? trained : trained with
+        {
+            TreatmentTicks = trained.TreatmentTicks + trained.TreatmentTicks * drunk / 10_000,
+            CalmingSkill = Math.Max(0, trained.CalmingSkill - drunk / 3),
+            ConfrontationSkill = Math.Max(0, trained.ConfrontationSkill - drunk / 3)
+        };
+    }
 
     /// <summary>A candidate's abilities as they would work here, perk training included.</summary>
     public StaffProfile GetCandidateProfile(StaffCandidate candidate) => EffectiveStaffProfile(candidate.Profile(0));
@@ -96,7 +107,7 @@ public sealed partial class GameSession
             distance += IntegerSquareRoot((long)dx * dx * 1_000_000L + (long)dz * dz * 1_000_000L) * _traversalGrid.Get(cell).CostPermille / 1000;
             x = centre.XMillimetres; z = centre.ZMillimetres;
         }
-        var perTick = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000;
+        var perTick = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000 * StaffGaitPermille(id) / 1000;
         return checked((int)((distance + perTick - 1) / perTick));
     }
 

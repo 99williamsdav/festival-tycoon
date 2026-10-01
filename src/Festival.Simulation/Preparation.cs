@@ -372,7 +372,7 @@ public sealed partial class GameSession
             });
             var profile = GetResponseStaff().SingleOrDefault(item => item.AgentId == person.Id);
             var dutyCell = StaffAssignedPost(person.Id) ?? PreparedPlace(index);
-            if (person.Role != ProtectedPersonRole.Guest || GuestReleaseTick(CampaignSeed, person.Id) == 0)
+            if (person.Role != ProtectedPersonRole.Guest && StaffLateTicks(person.Id) == 0 || person.Role == ProtectedPersonRole.Guest && GuestReleaseTick(CampaignSeed, person.Id) == 0)
                 ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
         }
         _preparation = p with { Status = PreparationStatus.Running, StartedTick = CurrentTick };
@@ -402,6 +402,9 @@ public sealed partial class GameSession
                 !person.Admitted && agent.Destination is null &&
                 CurrentTick - p.StartedTick >= GuestReleaseTick(CampaignSeed, person.Id))
                 ApplyAgentDestination(new(person.Id), new(PreparedPlace(index), "edition.arrival"));
+            if (p.Status == PreparationStatus.Running && person.Role == ProtectedPersonRole.Staff &&
+                !person.Admitted && agent.Destination is null && StaffLateTicks(person.Id) is > 0 and var late && CurrentTick - p.StartedTick >= late)
+                ApplyAgentDestination(new(person.Id), new(StaffAssignedPost(person.Id) ?? PreparedPlace(index), "edition.arrival"));
             if (agent.Action != AgentNavigationAction.Arrived) continue;
             if (p.Status == PreparationStatus.Running && !person.Admitted)
             {
@@ -410,6 +413,7 @@ public sealed partial class GameSession
             }
         }
         foreach (var person in people) SetPresence(person);
+        if (p.Status == PreparationStatus.Running && (CurrentTick - p.StartedTick) % 80 == 0) ApplyStaffPresence();
         if (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks && transitionAtStart)
         {
             _preparation = p with { Status = PreparationStatus.Departing };
