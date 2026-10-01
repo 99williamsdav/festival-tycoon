@@ -36,6 +36,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     private Button? _perks;
     private Button? _alerts;
     private Label? _alertBadge;
+    private readonly System.Collections.Generic.List<Control> _dayOnly = [];
 
     public bool IsBuilt => _cash is not null;
     /// <summary>The cash figure, where festival cash popups start.</summary>
@@ -72,6 +73,10 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         (_guests, var guestLine) = Stat(row, "Guests", glyph: null, icon: "users", divider: true);
         _guestsOf = Ui.Text("", 14, Ui.BarMuted, Ui.Slab); guestLine.AddChild(_guestsOf);
         _weather = Stat(row, "Weather", glyph: null, icon: "sun", divider: false).Value;
+        // Clock, guests and weather (with their dividers) step aside during the perk draft.
+        var cashGroup = _cash.GetParent().GetParent().GetParent().GetParent<Control>();
+        // Cash's divider, then clock, divider, guests, divider and weather.
+        for (var i = cashGroup.GetIndex() + 1; i <= cashGroup.GetIndex() + 6; i++) _dayOnly.Add(row.GetChild<Control>(i));
 
         row.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
         var buttons = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
@@ -206,6 +211,10 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _people!.Visible = preparing;
         _perks!.Visible = preparing && perks is { Ended: false, Pending: false };
         if (perks is not null) _perks.Text = $"Perks {perks.Equipped.Length}/5";
+        var drafting = perks?.Pending == true;
+        foreach (var control in _dayOnly) control.Visible = !drafting;
+        _people.Visible &= !drafting; _alerts!.Visible = !drafting;
+        if (drafting) _phase.Text = "PREPARATION · PERK DRAFT";
         _alertBadge!.Text = alertCount.ToString();
         _alertBadge.Visible = alertCount > 0;
         _alerts!.TooltipText = alertCount == 0 ? "No urgent alerts" : $"{alertCount} urgent alert{(alertCount == 1 ? "" : "s")} · show them";

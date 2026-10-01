@@ -63,20 +63,25 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
     {
         foreach (var child in parent.GetChildren()) { parent.RemoveChild(child); child.QueueFree(); }
     }
-    private PanelContainer PerkCard(string id)
+    private PanelContainer PerkCard(string id, Button choose)
     {
         var perk = PerkCatalogue.All.Single(item => item.Id == id);
-        var card = new PanelContainer { CustomMinimumSize = new Vector2(248, 358) };
-        var style = HudStyle(new Color("fff4d6"), 14);
-        style.BorderColor = new Color("596450"); style.BorderWidthTop = style.BorderWidthBottom = style.BorderWidthLeft = style.BorderWidthRight = 2;
-        style.CornerRadiusTopLeft = style.CornerRadiusTopRight = style.CornerRadiusBottomLeft = style.CornerRadiusBottomRight = 10;
-        card.AddThemeStyleboxOverride("panel", style);
-        var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", 10); card.AddChild(box);
-        box.AddChild(HudLabel("FESTIVAL PERK", 10));
-        var title = HudLabel(perk.Name, 25); title.AddThemeFontOverride("font", Ui.SlabBold); title.CustomMinimumSize = new Vector2(216, 66); box.AddChild(title);
-        box.AddChild(PerkArtwork(id, 220));
-        box.AddChild(new HSeparator());
-        var effect = HudLabel(perk.Effect, 16); effect.CustomMinimumSize = new Vector2(216, 70); box.AddChild(effect);
+        var card = new PanelContainer { CustomMinimumSize = new Vector2(Ui.S(300), 0), ClipContents = true };
+        card.AddThemeStyleboxOverride("panel", Ui.Box(Ui.Paper, 10, shadow: 16, shadowAlpha: 0.45f));
+        var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", 0); card.AddChild(box);
+        var art = PerkArtwork(id, Ui.S(300)); art.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered; art.CustomMinimumSize = Ui.S(300, 200);
+        box.AddChild(art);
+        var body = new MarginContainer();
+        foreach (var (side, value) in new[] { ("margin_left", 18f), ("margin_right", 18f), ("margin_top", 14f), ("margin_bottom", 18f) })
+            body.AddThemeConstantOverride(side, Ui.Px(value));
+        box.AddChild(body);
+        var words = new VBoxContainer(); words.AddThemeConstantOverride("separation", Ui.Px(8)); body.AddChild(words);
+        var tag = Ui.Caps("Festival perk", Ui.TealDeep, 9.5f); tag.SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin;
+        tag.AddThemeStyleboxOverride("normal", Ui.Box(Ui.TealWash, 4, padX: 7, padY: 3)); words.AddChild(tag);
+        var title = Ui.Heading(perk.Name, 25); title.AutowrapMode = TextServer.AutowrapMode.WordSmart; words.AddChild(title);
+        var effect = Ui.Text(perk.Effect, 14.5f, new Color("3a4640")); effect.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        effect.CustomMinimumSize = new Vector2(0, Ui.S(60)); words.AddChild(effect);
+        words.AddChild(choose);
         return card;
     }
     private PanelContainer OwnedPerkCard(string id)
@@ -158,31 +163,11 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         else _ownedPerkOffset = 0;
         _ownedPerkSignature = ownedSignature;
         HideOwnedEffect(); ClearPerkChildren(_perkBody!);
-        var heading = new HBoxContainer(); _perkBody!.AddChild(heading);
-        var title = HudLabel(p.Pending ? "Choose a festival perk" : $"Your Perks · {p.Equipped.Length} / 5 equipped", p.Pending ? 29 : 21); title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; title.AddThemeFontOverride("font", Ui.SlabBold); heading.AddChild(title);
-        if (p.Pending)
-        {
-            var reroll = ButtonText(p.RerollUsed ? "Free reroll used" : "Reroll all 3 · 1 free", () => _hud.Commit(new RerollPerksCommand(p.DraftAttempt,p.Cursor)));
-            reroll.Disabled = p.RerollUsed || _pendingPerkChoice is not null || _pendingPerkSkip; reroll.TooltipText = "Owned perks excluded; options may repeat"; heading.AddChild(reroll);
-        }
-        else heading.AddChild(ButtonText("Collapse perks ▴", () => { _perksExpanded = false; Refresh(); }));
-        if(p.Pending) _perkBody.AddChild(HudLabel($"Keep it across retries while equipped. · {p.Equipped.Length} / 5 equipped", 14));
         if (_pendingPerkChoice is not null || _pendingPerkSkip) { BuildPerkConfirmation(p); return; }
-        if (p.Pending)
-        {
-            var hand = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center }; hand.AddThemeConstantOverride("separation",26); _perkBody.AddChild(hand);
-            foreach (var id in p.Hand)
-            {
-                var wrap = new VBoxContainer(); wrap.AddThemeConstantOverride("separation",12); hand.AddChild(wrap);
-                var card = PerkCard(id); card.Name = "DraftPerkCard_" + id; wrap.AddChild(card);
-                var choose = ButtonText(p.Equipped.Length == 5 ? "Replace a perk…" : "Choose this perk", () => BeginPerkChoice(id));
-                choose.Name = "ChooseDraftPerk_" + id; wrap.AddChild(choose);
-            }
-            var footer = new HBoxContainer(); _perkBody.AddChild(footer);
-            footer.AddChild(HudLabel("Three distinct eligible choices, equally likely. Owned perks excluded; options may repeat.\nYour choice joins the next timed save; opening saves it immediately.",13));
-            if (p.Equipped.Length == 5) footer.AddChild(ButtonText("Skip this choice", () => { _confirmationDraftAttempt=p.DraftAttempt;_confirmationCursor=p.Cursor;_pendingPerkSkip = true; _perkHudKey = ""; Refresh(); }));
-        }
-        if(p.Pending){ _perkBody.AddChild(HudLabel("Equipped: " + (p.Equipped.Length == 0 ? "none yet" : string.Join(" · ",p.Equipped.Select(id=>PerkCatalogue.All.Single(item=>item.Id==id).Name))),12)); return; }
+        if (p.Pending) { BuildDraft(p); return; }
+        var heading = new HBoxContainer(); _perkBody!.AddChild(heading);
+        var title = Ui.Heading($"Your Perks · {p.Equipped.Length} / 5 equipped", 21); title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; heading.AddChild(title);
+        heading.AddChild(ButtonText("Collapse perks ▴", () => { _perksExpanded = false; Refresh(); }));
         _ownedPerkScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, VerticalScrollMode = ScrollContainer.ScrollMode.Disabled,
             SizeFlagsVertical = Control.SizeFlags.ExpandFill };
         _perkBody.AddChild(_ownedPerkScroll);
@@ -198,8 +183,9 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
             else
             {
                 var empty = new PanelContainer { CustomMinimumSize = new Vector2(156,152) };
-                empty.AddThemeStyleboxOverride("panel",HudStyle(new Color("c7cbb8"),14));
-                empty.AddChild(HudLabel($"Slot {i+1}\nEmpty",20)); slot.AddChild(empty);
+                empty.AddThemeStyleboxOverride("panel", Ui.Box(new Color(0, 0, 0, 0), 8, Ui.PaperEdge, 1.5f, 12, 12));
+                var words = Ui.Text($"Slot {i+1}\nEmpty", 16, Ui.InkMuted); words.HorizontalAlignment = HorizontalAlignment.Center; words.VerticalAlignment = VerticalAlignment.Center;
+                empty.AddChild(words); slot.AddChild(empty);
             }
         }
         // Rebuilt containers release the preceding draft/card minimum on the next layout pass.
@@ -221,18 +207,100 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         _perkToggle!.Position = new Vector2((size.X - 90) / 2, size.Y - 50);
         _perkToggle.CustomMinimumSize = new Vector2(90, 38);
         _perkToggle.AddThemeFontSizeOverride("font_size", 12);
-        _perkPanel!.AddThemeStyleboxOverride("panel", HudStyle(new Color("d8d6bd"), draft ? 22 : 10));
+        _perkPanel!.AddThemeStyleboxOverride("panel", draft ? Ui.Box(new Color(Ui.BarDeep, 0.74f), 0) : Ui.Sheet(14, 10));
         _perkScroll!.HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled;
         _perkScroll.VerticalScrollMode = draft ? ScrollContainer.ScrollMode.Auto : ScrollContainer.ScrollMode.Disabled;
         _perkBody!.AddThemeConstantOverride("separation", draft ? 9 : 6);
-        var width = draft ? size.X - 120 : size.X - 20;
-        var height = draft ? size.Y - Ui.TopBar - 63 : 220;
-        _perkPanel.Position = draft ? new Vector2(60, Ui.TopBar + 8) : new Vector2((size.X-width)/2,
+        var width = draft ? size.X : size.X - 20;
+        var height = draft ? size.Y - Ui.TopBar : 220;
+        _perkPanel.Position = draft ? new Vector2(0, Ui.TopBar) : new Vector2((size.X-width)/2,
             size.Y - (_hud.Session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock + 8 : Ui.S(64) + 8) - height);
         _perkPanel.Size = new Vector2(width,height);
     }
+    /// <summary>The draft: heading with reroll, three cards, and the equipped slots.</summary>
+    private void BuildDraft(PerkSnapshot p)
+    {
+        var column = new VBoxContainer { CustomMinimumSize = new Vector2(Ui.S(956), 0), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter };
+        column.AddThemeConstantOverride("separation", 0);
+        _perkBody!.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(24)) });
+        _perkBody.AddChild(column);
+        var heading = new HBoxContainer(); column.AddChild(heading);
+        var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; words.AddThemeConstantOverride("separation", Ui.Px(4)); heading.AddChild(words);
+        words.AddChild(Ui.Caps("Before you build", Ui.Gold));
+        words.AddChild(Ui.Heading("Choose a festival perk", 36, Ui.BarText));
+        words.AddChild(Ui.Text("It stays equipped across retries. Three distinct choices, equally likely.", 14.5f, Ui.BarMuted));
+        var reroll = new Button { MouseDefaultCursorShape = Control.CursorShape.PointingHand, SizeFlagsVertical = Control.SizeFlags.ShrinkEnd,
+            Disabled = p.RerollUsed, TooltipText = "Owned perks excluded; options may repeat" };
+        reroll.Pressed += () => _hud.Commit(new RerollPerksCommand(p.DraftAttempt, p.Cursor));
+        var outline = Ui.Box(new Color(0, 0, 0, 0), 8, Ui.Gold, 1.5f);
+        foreach (var state in new[] { "normal", "pressed", "focus" }) reroll.AddThemeStyleboxOverride(state, outline);
+        reroll.AddThemeStyleboxOverride("hover", Ui.Box(new Color(Ui.Gold, 0.12f), 8, Ui.Gold, 1.5f));
+        reroll.AddThemeStyleboxOverride("disabled", Ui.Box(new Color(0, 0, 0, 0), 8, Ui.BarLine, 1.5f));
+        var face = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore, Alignment = BoxContainer.AlignmentMode.Center };
+        face.SetAnchorsPreset(Control.LayoutPreset.FullRect); face.AddThemeConstantOverride("separation", Ui.Px(8));
+        var spin = Ui.IconRect("refresh-cw", 18, p.RerollUsed ? Ui.BarMuted : Ui.Gold); spin.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; face.AddChild(spin);
+        var label = Ui.Text(p.RerollUsed ? "Free reroll used" : "Reroll all three", 14.5f, p.RerollUsed ? Ui.BarMuted : Ui.BarText, Ui.BodyBold);
+        label.VerticalAlignment = VerticalAlignment.Center; face.AddChild(label);
+        if (!p.RerollUsed)
+        {
+            var free = Ui.Text("1 free", 12, Ui.Bar, Ui.BodyBold); free.AddThemeStyleboxOverride("normal", Ui.Box(Ui.Gold, 4, padX: 6, padY: 1));
+            free.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; face.AddChild(free);
+        }
+        reroll.AddChild(face);
+        reroll.CustomMinimumSize = new Vector2(face.GetCombinedMinimumSize().X + Ui.S(32), Ui.S(42));
+        heading.AddChild(reroll);
+        column.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(26)) });
+        var hand = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center }; hand.AddThemeConstantOverride("separation", Ui.Px(28)); column.AddChild(hand);
+        foreach (var id in p.Hand)
+        {
+            var choose = Ui.Style(new Button { Text = p.Equipped.Length == 5 ? "Replace a perk…" : "Take this perk", Name = "ChooseDraftPerk_" + id,
+                CustomMinimumSize = new Vector2(0, Ui.S(44)), MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Primary, 15, 8);
+            var quiet = Ui.Box(new Color(0, 0, 0, 0), 8, Ui.Bar, 1.5f, 10, 4);
+            foreach (var state in new[] { "normal", "focus" }) choose.AddThemeStyleboxOverride(state, quiet);
+            foreach (var state in new[] { "font_color", "font_focus_color" }) choose.AddThemeColorOverride(state, Ui.Bar);
+            var perkId = id; choose.Pressed += () => BeginPerkChoice(perkId);
+            var card = PerkCard(id, choose); card.Name = "DraftPerkCard_" + id; card.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin;
+            hand.AddChild(card);
+        }
+        column.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(28)) });
+        var equipped = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center }; equipped.AddThemeConstantOverride("separation", Ui.Px(14)); column.AddChild(equipped);
+        var caption = Ui.Caps("Equipped", Ui.BarMuted); caption.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; equipped.AddChild(caption);
+        var slots = new HBoxContainer(); slots.AddThemeConstantOverride("separation", Ui.Px(8)); equipped.AddChild(slots);
+        for (var i = 0; i < 5; i++)
+        {
+            var slot = new PanelContainer { CustomMinimumSize = Ui.S(34, 34), ClipContents = true };
+            if (i < p.Equipped.Length)
+            {
+                slot.AddThemeStyleboxOverride("panel", Ui.Box(Ui.Gold, 8, Ui.Gold, 1.5f));
+                var art = PerkArtwork(p.Equipped[i], Ui.S(34)); art.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered; art.CustomMinimumSize = Ui.S(34, 34);
+                slot.AddChild(art); slot.TooltipText = PerkCatalogue.All.Single(item => item.Id == p.Equipped[i]).Name;
+            }
+            else slot.AddThemeStyleboxOverride("panel", Ui.Box(new Color(0, 0, 0, 0), 8, new Color(Ui.Gold, 0.6f), 1.5f));
+            slots.AddChild(slot);
+        }
+        var note = Ui.Text($"{p.Equipped.Length} of 5 · your choice joins the next timed save; opening saves it immediately", 13.5f, Ui.BarMuted);
+        note.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; equipped.AddChild(note);
+        if (p.Equipped.Length == 5)
+        {
+            var skip = ButtonText("Skip this choice", () => { _confirmationDraftAttempt=p.DraftAttempt;_confirmationCursor=p.Cursor;_pendingPerkSkip = true; _perkHudKey = ""; Refresh(); });
+            equipped.AddChild(skip);
+        }
+    }
+
     private void BuildPerkConfirmation(PerkSnapshot p)
     {
+        if (p.Pending)
+        {
+            // On the dark draft scrim, the confirmation sits on its own paper sheet.
+            var sheet = new PanelContainer { CustomMinimumSize = new Vector2(Ui.S(760), 0), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter };
+            sheet.AddThemeStyleboxOverride("panel", Ui.Sheet(24, 22));
+            var inner = new VBoxContainer(); inner.AddThemeConstantOverride("separation", 9); sheet.AddChild(inner);
+            _perkBody!.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(40)) });
+            _perkBody.AddChild(sheet);
+            var outer = _perkBody; _perkBody = inner;
+            try { BuildPerkConfirmation(p with { Pending = false }); } finally { _perkBody = outer; }
+            return;
+        }
         _perkBody!.AddChild(HudLabel(_pendingPerkSkip ? "Skip this choice?" : _pendingPerkReplacement is null ? "Choose an equipped perk to give up" : "Confirm replacement",26));
         if (_pendingPerkChoice is { } choice)
         {
