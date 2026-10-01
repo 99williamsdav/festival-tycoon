@@ -65,6 +65,7 @@ public sealed partial class GameSession
                 EnsureWasteIndices();
                 if (_carriedByPerson.TryGetValue(agentId.Value, out var waste)) DropWaste(_wasteById[waste], false);
             }
+            if (agent.IntentId == "litter.goody-pickup") ReleaseGoodyPickup(agentId.Value);
         }
         var start = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
         var searchStart = Stopwatch.GetTimestamp();

@@ -646,7 +646,7 @@ public sealed partial class GameSession
     {
         var m = _medical!; var p = _preparation!;
         var victim = _persons[victimId];
-        var cause = _persons[victimId].Reason?.StartsWith("Anaphylaxis", StringComparison.Ordinal) == true
+        var cause = StungByWasp(victimId)
             ? $"{victim.Name} died of an allergic reaction to a wasp sting; collapse tick {collapseTick}, critical tick {criticalTick}, untreated."
             : PersonIn(PersonView.Consumption, victimId) is { IntoxicationCollapseTick: >=0 } alcohol
             ? $"{victim.Name} died after sustained intoxication {alcohol.Intoxication}/10000; visible intoxication warning tick {alcohol.IntoxicationWarningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."

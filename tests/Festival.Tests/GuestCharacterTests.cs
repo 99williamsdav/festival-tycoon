@@ -110,5 +110,15 @@ public sealed class GuestCharacterTests
         Assert.IsTrue(session.GuestLabels(victim).Contains("Allergic to wasps"));
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
+
+        // A medic is sent, which rewrites their status text, but arrives too late: the death is still a sting.
+        var medical = session.CaptureMedical()!;
+        var stungAt = session.CurrentTick - GameSession.MedicalDeathDelayTicks;
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session, medical with { Needs = medical.Needs
+            .Select(n => n.AgentId == victim ? n with { Stage = MedicalStage.Critical, WarningTick = stungAt, CollapseTick = stungAt, CriticalTick = stungAt + GameSession.MedicalCriticalDelayTicks,
+                Reason = "Awaiting physically dispatched medic" } : n).ToArray() });
+        for (var guard = 0; guard < 4 && session.PreparedStatus != PreparationStatus.Failed; guard++) session.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(PreparationStatus.Failed, session.PreparedStatus);
+        StringAssert.Contains(session.CaptureMedical()!.Evidence.Last(e => e.Id == "medical:death").Description, "wasp sting");
     }
 }

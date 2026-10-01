@@ -3,9 +3,16 @@ using System.Text.Json;
 namespace Festival.Simulation;
 
 public enum WasteLocation { Carried, Ground, Bin, Removed }
+/// <param name="CarrierId">Someone other than the producer handling it: a goody two-shoes walking to pick it up (still on
+/// the ground, with an Approach) or carrying it to a bin. Null when the producer carries it or nobody does.</param>
+/// <param name="PickedUpTick">When a goody two-shoes picked it up: their carrying clock starts there, not at the meal.</param>
 public sealed record WastePiece(string Id, ulong ProducerId, ImmersionProduct Product, long CompletedTick,
     WasteLocation Location, int XMillimetres, int ZMillimetres, string? BinId = null,
-    GridCell? Approach = null, long ActionTick = -1);
+    GridCell? Approach = null, long ActionTick = -1, ulong? CarrierId = null, long PickedUpTick = -1)
+{
+    [System.Text.Json.Serialization.JsonIgnore] public ulong Carrier => CarrierId ?? ProducerId;
+    [System.Text.Json.Serialization.JsonIgnore] public long CarryStartTick => PickedUpTick >= 0 ? PickedUpTick : CompletedTick;
+}
 public sealed record CleanupSweep(ulong WorkerId, GridCell Centre, int RadiusCells, int Remaining,
     long UntilTick, bool Manual, string? TargetId = null, bool TargetIsBin = false,
     GridCell? Approach = null, long ActionTick = -1, long CooldownUntil = 0);
@@ -31,6 +38,12 @@ public static class LitterRules
     public const int LocalDurationTicks = 2400, ManualDurationTicks = 4800, CooldownTicks = 800;
     public const int GroundEffectRadiusCells = 8, WaspRadiusCells = 6;
     public const int GroundLossCap = 5, WaspLoss = 4;
+    /// <summary>A guest this careful (litter carelessness at most this) is a goody two-shoes and picks up others' litter.</summary>
+    public const int GoodyTwoShoesMaximum = 7;
+    /// <summary>How near a piece must be for an idle goody two-shoes to fetch it.</summary>
+    public const int GoodyReachCells = 12;
+    /// <summary>The longest walk anyone will make to a bin (see <see cref="WillUseBin"/>).</summary>
+    public const int BinWalkLimitTicks = 640;
     /// <summary>Litter, cleanup and nuisance advance once per festival second.</summary>
     public const int SecondTicks = 80;
 
@@ -43,7 +56,7 @@ public static class LitterRules
     }
     // A short detour is acceptable to most people; the personality is deliberately hidden.
     public static bool WillUseBin(int dickishness, int walkTicks, int detourTicks, bool urgent, ProtectedPersonRole role) =>
-        !urgent && walkTicks <= 640 && (role != ProtectedPersonRole.Guest ||
+        !urgent && walkTicks <= BinWalkLimitTicks && (role != ProtectedPersonRole.Guest ||
             dickishness + walkTicks / 16 + Math.Max(0, detourTicks) / 16 < 105);
 }
 
@@ -77,7 +90,7 @@ public sealed partial class GameSession
     }
     private void SetSweep(CleanupSweep sweep) => _litter = _litter! with
         { Sweeps = _litter.Sweeps.Where(s => s.WorkerId != sweep.WorkerId).Append(sweep).OrderBy(s => s.WorkerId).ToArray() };
-    private bool WasteOwnsNavigation(ulong id) { EnsureWasteIndices(); return _carriedByPerson.ContainsKey(id); }
+    private bool WasteOwnsNavigation(ulong id) { EnsureWasteIndices(); return _carriedByPerson.ContainsKey(id) || _pickupByPerson.ContainsKey(id); }
     private bool CleanupOwnsNavigation(ulong id) => _litter?.Sweeps.Any(s => s.WorkerId == id && s.Remaining > 0) == true;
     private void RecordCompletedWaste(ulong id, ImmersionHeldItem held)
     {
@@ -109,14 +122,16 @@ public sealed partial class GameSession
     }
     private void DropWaste(WastePiece piece, bool reroute)
     {
-        var nav = _navigationAgents[new(piece.ProducerId)];
+        var carrier = piece.Carrier;
+        var nav = _navigationAgents[new(carrier)];
         SetWaste(piece with { Location = WasteLocation.Ground, XMillimetres = nav.XMillimetres, ZMillimetres = nav.ZMillimetres,
-            BinId = null, Approach = null, ActionTick = -1 });
-        if (reroute) ReturnToListening(piece.ProducerId);
+            BinId = null, Approach = null, ActionTick = -1, CarrierId = null, PickedUpTick = -1 });
+        if (reroute) ReturnToListening(carrier);
     }
     private void ReleaseWasteAtExit(ulong id)
     {
         if (CaptureCarriedWaste(id) is { } waste) DropWaste(waste, false);
+        ReleaseGoodyPickup(id);
         InterruptCleanup(id);
     }
     private void AdvanceCarriedWaste()
@@ -124,12 +139,12 @@ public sealed partial class GameSession
         EnsureWasteIndices();
         foreach (var original in _carriedByPerson.OrderBy(p => p.Key).Select(p => _wasteById[p.Value]).ToArray())
         {
-            var id = original.ProducerId; var p = _persons[id]; var piece = original;
+            var id = original.Carrier; var p = _persons[id]; var piece = original;
             // Release the rubbish at the actual position; a safety/service/departure route is never replaced.
             if (p.Departed || HigherPriorityOwns(id) || LitterUrgent(id) || ImmersionDepartureActive)
             { DropWaste(piece, false); continue; }
-            if (CurrentTick - piece.CompletedTick < LitterRules.CarryTicks) continue;
-            if (CurrentTick - piece.CompletedTick >= LitterRules.MaximumCarryTicks)
+            if (CurrentTick - piece.CarryStartTick < LitterRules.CarryTicks) continue;
+            if (CurrentTick - piece.CarryStartTick >= LitterRules.MaximumCarryTicks)
             { DropWaste(piece, true); continue; }
             if (piece.Approach is { } approach && piece.BinId is not null)
             {
@@ -138,7 +153,7 @@ public sealed partial class GameSession
                 if (piece.ActionTick < 0) SetWaste(piece with { ActionTick = CurrentTick });
                 else if (CurrentTick - piece.ActionTick >= LitterRules.DisposalTicks)
                 {
-                    SetWaste(piece with { Location = WasteLocation.Bin, Approach = null, ActionTick = -1 });
+                    SetWaste(piece with { Location = WasteLocation.Bin, Approach = null, ActionTick = -1, CarrierId = null, PickedUpTick = -1 });
                     ReturnToListening(id);
                 }
                 continue;
@@ -196,6 +211,7 @@ public sealed partial class GameSession
     private readonly Dictionary<ulong, string> _carriedByPerson = [];
     private readonly Dictionary<string, int> _binCounts = new(StringComparer.Ordinal);
     private readonly Dictionary<string, int> _wasteSlot = new(StringComparer.Ordinal);
+    private readonly Dictionary<ulong, string> _pickupByPerson = [];
     /// <summary>
     /// Presentation-only change counter: moves whenever ground litter or bin contents change, so the
     /// renderer redraws only then. Not saved or hashed; a restored session starts it afresh.
@@ -206,7 +222,8 @@ public sealed partial class GameSession
     private void IndexWaste(WastePiece p)
     {
         _wasteById[p.Id] = p;
-        if (p.Location == WasteLocation.Carried) _carriedByPerson[p.ProducerId] = p.Id;
+        if (p.Location == WasteLocation.Carried) _carriedByPerson[p.Carrier] = p.Id;
+        if (p.Location == WasteLocation.Ground && p.CarrierId is { } picker) _pickupByPerson[picker] = p.Id;
         if (p.Location == WasteLocation.Bin) _binCounts[p.BinId!] = _binCounts.GetValueOrDefault(p.BinId!) + 1;
         if (p.Location == WasteLocation.Ground)
         {
@@ -218,7 +235,8 @@ public sealed partial class GameSession
     private void UnindexWaste(WastePiece p)
     {
         _wasteById.Remove(p.Id);
-        if (p.Location == WasteLocation.Carried) _carriedByPerson.Remove(p.ProducerId);
+        if (p.Location == WasteLocation.Carried) _carriedByPerson.Remove(p.Carrier);
+        if (p.Location == WasteLocation.Ground && p.CarrierId is { } picker) _pickupByPerson.Remove(picker);
         if (p.Location == WasteLocation.Bin) _binCounts[p.BinId!]--;
         if (p.Location == WasteLocation.Ground) _groundBuckets[GroundBucket(p)].Remove(p);
     }
@@ -226,7 +244,7 @@ public sealed partial class GameSession
     {
         var pieces = _litter?.Pieces;
         if (ReferenceEquals(_indexedPieces, pieces)) return;
-        _groundBuckets.Clear(); _wasteById.Clear(); _carriedByPerson.Clear(); _binCounts.Clear(); _wasteSlot.Clear();
+        _groundBuckets.Clear(); _wasteById.Clear(); _carriedByPerson.Clear(); _binCounts.Clear(); _wasteSlot.Clear(); _pickupByPerson.Clear();
         for (var i = 0; i < (pieces?.Length ?? 0); i++) { IndexWaste(pieces![i]); _wasteSlot[pieces[i].Id] = i; }
         _indexedPieces = pieces;
         LitterVisualVersion++;
@@ -272,7 +290,7 @@ public sealed partial class GameSession
             bool Claimed(string target, bool bin) => _litter.Sweeps.Any(s => s.Remaining > 0 && s.TargetId == target && s.TargetIsBin == bin);
             var targets = CaptureBins().Where(b => b.CanEmpty && CellDistanceSquared(b.Cell, job.Centre) <= (long)job.RadiusCells * job.RadiusCells && !Claimed(b.Id, true))
                 .Select(b => (Id: b.Id, Bin: true, Cell: b.Cell))
-                .Concat(GroundNear(job.Centre, job.RadiusCells).Where(w => !Claimed(w.Id, false))
+                .Concat(GroundNear(job.Centre, job.RadiusCells).Where(w => w.CarrierId is null && !Claimed(w.Id, false))
                     .Select(w => (Id: w.Id, Bin: false, Cell: TraversalGrid.WorldToCell(w.XMillimetres, w.ZMillimetres))))
                 // Sort the whole candidate set before capping it: the spatial index's bucket order
                 // depends on history (a restored game rebuilds it in array order), so it must never pick.
@@ -303,7 +321,7 @@ public sealed partial class GameSession
     private void AdvanceLitter()
     {
         if (_litter is null || !MedicalOperationsActive || CurrentTick % LitterRules.SecondTicks != 0) return;
-        AdvanceCarriedWaste(); AdvanceCleanup();
+        AdvanceGoodyPickups(); AdvanceCarriedWaste(); AdvanceCleanup();
         var wasps = CaptureBins().Where(b => b.Wasps).ToArray();
         foreach (var p in PeopleIn(PersonView.Roster).Where(p => p.Admitted && !p.Departed))
         {
@@ -343,6 +361,7 @@ public sealed partial class GameSession
         var grid = s.TraversalGrid is { } savedGrid ? new TraversalGrid(savedGrid.Cells.Select(c => new TerrainCellOverride(new(c.X, c.Z), (GroundSurface)c.Surface, c.IsWalkable))) : null;
         bool ValidCell(GridCell c) => c.X is >= 0 and < TraversalGrid.Width && c.Z is >= 0 and < TraversalGrid.Depth && (grid?.Get(c).IsWalkable ?? true);
         bool BinSide(GridCell side, string bin) => bins.TryGetValue(bin, out var b) && ValidCell(side) && CellDistanceSquared(side, b.Cell) == 4 && (side.X == b.Cell.X || side.Z == b.Cell.Z);
+        static bool Fetching(WastePiece w) => w.Location == WasteLocation.Ground && w.CarrierId is not null;
         bool RouteAt(ulong id, GridCell c) => s.NavigationAgents?.SingleOrDefault(n => n.Id == id) is { } n &&
             n.DestinationX == c.X && n.DestinationZ == c.Z;
         bool ArrivedAt(ulong id, GridCell c) => RouteAt(id, c) && s.NavigationAgents!.Single(n => n.Id == id) is { Action: (int)AgentNavigationAction.Arrived } n &&
@@ -359,12 +378,16 @@ public sealed partial class GameSession
             w.CompletedTick > s.CurrentTick || w.ActionTick < -1 || w.ActionTick > s.CurrentTick ||
             w.XMillimetres < TraversalGrid.OriginMillimetres || w.XMillimetres >= TraversalGrid.OriginMillimetres + TraversalGrid.Width * TraversalGrid.CellSizeMillimetres ||
             w.ZMillimetres < TraversalGrid.OriginMillimetres || w.ZMillimetres >= TraversalGrid.OriginMillimetres + TraversalGrid.Depth * TraversalGrid.CellSizeMillimetres ||
-            w.ActionTick >= 0 && (w.Location != WasteLocation.Carried || w.ActionTick < w.CompletedTick) ||
+            w.ActionTick >= 0 && (w.Location != WasteLocation.Carried && !Fetching(w) || w.ActionTick < w.CompletedTick) ||
             w.BinId is not null && !bins.ContainsKey(w.BinId) || w.Location == WasteLocation.Bin && w.BinId is null ||
-            w.Location is WasteLocation.Ground or WasteLocation.Removed && (w.BinId is not null || w.Approach is not null) ||
-            w.Approach is not null && (w.Location != WasteLocation.Carried || w.BinId is null) ||
+            w.Location is WasteLocation.Ground or WasteLocation.Removed && (w.BinId is not null || w.Approach is not null && !Fetching(w)) ||
+            w.Approach is not null && !(w.Location == WasteLocation.Carried && w.BinId is not null || Fetching(w)) ||
+            // Someone else handles a piece only while fetching it from the ground or carrying it; their clock starts at the pick-up.
+            w.CarrierId is { } other && (w.Location is not (WasteLocation.Carried or WasteLocation.Ground) || !prep.People.Any(p => p.AgentId == other && p.Role == ProtectedPersonRole.Guest)) ||
+            (w.PickedUpTick >= 0) != (w.Location == WasteLocation.Carried && w.CarrierId is not null) || w.PickedUpTick > s.CurrentTick ||
+            w.PickedUpTick >= 0 && w.PickedUpTick < w.CompletedTick ||
             held.Contains(w.Id))) return "Litter identity, completion or location invalid.";
-        if (litter.Pieces.Where(w => w.Location == WasteLocation.Carried).GroupBy(w => w.ProducerId).Any(g => g.Count() > 1) ||
+        if (litter.Pieces.Where(w => w.Location == WasteLocation.Carried || Fetching(w)).GroupBy(w => w.Carrier).Any(g => g.Count() > 1) ||
             litter.Sweeps.Select(j => j.WorkerId).Distinct().Count() != litter.Sweeps.Length ||
             litter.Sweeps.Any(j => s.Disorder?.Stewards.Any(w => w.WorkerId == j.WorkerId) != true || j.Remaining < 0 || j.Remaining > (j.Manual ? LitterRules.ManualTargets : LitterRules.LocalTargets) ||
                 j.RadiusCells != (j.Manual ? LitterRules.ManualRadiusCells : LitterRules.LocalRadiusCells) || j.ActionTick < -1 || j.ActionTick > s.CurrentTick ||
@@ -372,9 +395,13 @@ public sealed partial class GameSession
             litter.Sweeps.Where(j => j.TargetId is not null).GroupBy(j => (j.TargetId, j.TargetIsBin)).Any(g => g.Count() > 1)) return "Litter cleanup ownership invalid.";
         if (prep.Status == PreparationStatus.Preparing && (litter.Pieces.Length != 0 || litter.Sweeps.Length != 0)) return "Draft/retry must clear waste.";
         if (litter.Pieces.Any(w => w.Location == WasteLocation.Carried &&
-            (prep.People.Single(p => p.AgentId == w.ProducerId).Departed ||
-             w.Approach is { } approach && (!BinSide(approach, w.BinId!) || !RouteAt(w.ProducerId, approach) ||
-                w.ActionTick >= 0 && !ArrivedAt(w.ProducerId, approach)))) ||
+            (prep.People.Single(p => p.AgentId == w.Carrier).Departed ||
+             w.Approach is { } approach && (!BinSide(approach, w.BinId!) || !RouteAt(w.Carrier, approach) ||
+                w.ActionTick >= 0 && !ArrivedAt(w.Carrier, approach)))) ||
+            litter.Pieces.Any(w => Fetching(w) && (w.Approach != TraversalGrid.WorldToCell(w.XMillimetres, w.ZMillimetres) || !ValidCell(w.Approach!.Value) ||
+                prep.People.Single(p => p.AgentId == w.Carrier).Departed || !RouteAt(w.Carrier, w.Approach.Value) ||
+                w.ActionTick >= 0 && !ArrivedAt(w.Carrier, w.Approach.Value) ||
+                litter.Sweeps.Any(j => j.Remaining > 0 && !j.TargetIsBin && j.TargetId == w.Id))) ||
             litter.Sweeps.Any(j => !ValidCell(j.Centre) || j.UntilTick < 0 || j.UntilTick % LitterRules.SecondTicks != 0 ||
                 j.UntilTick > s.CurrentTick + LitterRules.ManualDurationTicks + LitterRules.SecondTicks ||
                 j.CooldownUntil < 0 || j.CooldownUntil > s.CurrentTick + LitterRules.CooldownTicks ||

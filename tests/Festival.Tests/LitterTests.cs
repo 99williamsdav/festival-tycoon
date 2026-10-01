@@ -57,6 +57,53 @@ public sealed class LitterTests
         SetLitter(s, new(1, Enumerable.Range(1, count).Select(i => Ground("fixture:" + i, bin.Cell) with { Location = WasteLocation.Bin, BinId = bin.Id }).ToArray(), []));
     }
     [TestMethod]
+    public void AnIdleGoodyTwoShoesFetchesNearbyLitterAndBinsIt()
+    {
+        GameSession? found = null; ulong goody = 0;
+        for (var seed = 20260922UL; seed < 20260960UL && found is null; seed++)
+        {
+            var candidate = BuildSession.Ready(seed);
+            BuildSession.Accept(candidate, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(118, 166)));
+            BuildSession.Accept(candidate, new StartPreparedEditionCommand());
+            var id = candidate.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest)
+                .Select(p => p.AgentId).FirstOrDefault(g => LitterRules.Dickishness(seed, g) <= LitterRules.GoodyTwoShoesMaximum);
+            if (id != 0) { found = candidate; goody = id; }
+        }
+        var s = found ?? throw new InvalidOperationException("No goody two-shoes in the seeds tried.");
+        foreach (var p in s.CapturePreparation()!.People) Mutate(s, p.AgentId, n =>
+        { n.Admitted = true; n.Thirst = 2000; n.HeatExposure = 2000; n.Hunger = 2000; n.ToiletNeed = 2000; });
+        Assert.IsTrue(s.GuestLabels(goody).Contains("Goody two-shoes"));
+        // Someone else drops their chips tray (where Complete stands them) a couple of steps from the goody, who is settled and watching.
+        var litterer = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.AgentId != goody).AgentId;
+        Complete(s, litterer, ImmersionProduct.Chips);
+        var waste = s.CaptureCarriedWaste(litterer)!;
+        Invoke(s, "DropWaste", waste, false);
+        Position(s, litterer, new(130, 175));
+        Position(s, goody, new(116, 162));
+        Mutate(s, goody, n => { n.Intent = MedicalIntent.WatchShow; n.Held = null; });
+        Step(s);
+        var fetching = s.CaptureLitter()!.Pieces.Single(w => w.Id == waste.Id);
+        Assert.AreEqual(goody, fetching.CarrierId, "They set off to fetch it.");
+        Assert.AreEqual(WasteLocation.Ground, fetching.Location);
+        var carried = false;
+        for (var guard = 0; guard < 120 && s.CaptureLitter()!.Pieces.Single(w => w.Id == waste.Id).Location != WasteLocation.Bin; guard++)
+        {
+            s.AdvanceWithoutSnapshot(40);
+            if (s.CaptureCarriedWaste(goody)?.Id == waste.Id && !carried)
+            {
+                carried = true;
+                var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+                Assert.IsTrue(restored.IsSuccess, restored.Error);
+            }
+        }
+        Assert.IsTrue(carried, "Picked it up and carried it.");
+        var binned = s.CaptureLitter()!.Pieces.Single(w => w.Id == waste.Id);
+        Assert.AreEqual(WasteLocation.Bin, binned.Location, "Into the bin.");
+        Assert.IsNull(binned.CarrierId);
+        var end = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(end.IsSuccess, end.Error);
+    }
+    [TestMethod]
     public void PersonalityConvenienceDetourUrgencyAndRolesProduceDifferentDecisions()
     {
         Assert.IsTrue(LitterRules.WillUseBin(5, 80, 0, false, ProtectedPersonRole.Guest));

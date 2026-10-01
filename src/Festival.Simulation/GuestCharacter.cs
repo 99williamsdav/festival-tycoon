@@ -98,7 +98,7 @@ public sealed partial class GameSession
         if (c.WaspAllergy) labels.Add("Allergic to wasps");
         if (c.Ibs) labels.Add("Irritably-boweled");
         if (dickishness >= 85 && InView(PersonView.Disorder, id) && person.QueueToleranceTicks <= 600) labels.Add("Twat");
-        if (dickishness <= 7) labels.Add("Goody two-shoes");
+        if (dickishness <= LitterRules.GoodyTwoShoesMaximum) labels.Add("Goody two-shoes");
         if (c.Prissiness >= 90) labels.Add("Princess");
         else if (c.Prissiness <= 30 && person.ExpectedGenre == (int)FestivalGenre.Folk) labels.Add("Hippie"); // Unfussy and here for the folk.
         if (c.HeatSensitivity >= 80) labels.Add("Easy to overheat");
@@ -108,13 +108,20 @@ public sealed partial class GameSession
         return labels.Take(GuestCharacters.MaximumLabels).ToArray();
     }
 
+    /// <summary>
+    /// Whether this collapse is a sting. Reason text is overwritten once a medic is sent, so this reads the stable
+    /// signature instead: only a sting collapses an allergic guest with no warning (warning tick equal to collapse tick).
+    /// </summary>
+    private bool StungByWasp(ulong id) => IsGuest(id) && GuestCharacterOf(id).WaspAllergy && _persons[id] is { HealthCollapseTick: >= 0 } p &&
+        p.HealthWarningTick == p.HealthCollapseTick;
+
     /// <summary>An allergic guest by a wasp-filled bin can be stung: a collapse that needs the medic like any other.</summary>
     private void MaybeWaspSting(ulong id)
     {
-        if (!IsGuest(id) || !GuestCharacterOf(id).WaspAllergy || StuckInToilet(id) ||
+        if (_preparation?.Status != PreparationStatus.Running || !IsGuest(id) || !GuestCharacterOf(id).WaspAllergy || StuckInToilet(id) ||
             _persons[id].HealthStage is not (MedicalStage.Clear or MedicalStage.Distress or MedicalStage.Treated)) return;
         if (!FaultRules.Roll(CampaignSeed, "wasp-sting", CurrentTick, id, GuestCharacters.StingChancePercent * 100)) return;
-        LeaveWater(id, "Stung by a wasp", reroute: false);
+        LeaveWater(id, "Stung by a wasp", reroute: false); LeaveImmersionQueue(id, false);
         var nav = _navigationAgents[new(id)];
         ApplyAgentDestination(new(id), new(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres), "medical.collapsed"));
         MutatePerson(id, item => { item.HealthStage = MedicalStage.Collapsed; item.HealthWarningTick = CurrentTick; item.HealthCollapseTick = CurrentTick;
