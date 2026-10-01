@@ -475,8 +475,8 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             var standing = session.ActStandingOf(act);
             row.Fee.Text = FestivalCurrency.Format(session.ActFee(act));
             row.Fee.AddThemeColorOverride("font_color", standing == ActStanding.Stretch ? Ui.Link : Ui.Ink);
-            row.Detail.Text = assigned >= 0 ? $"Set {assigned + 1}" : standing == ActStanding.Locked ? $"Needs rep {session.ActReputationNeeded(act)}" :
-                standing == ActStanding.Stretch ? "Stretch ×1.5" : ExpectsToHeadline(act) ? "Headliner" : "";
+            row.Detail.Text = assigned >= 0 ? $"Booked · Set {assigned + 1}" : standing == ActStanding.Locked ? $"Needs reputation {session.ActReputationNeeded(act)}" :
+                standing == ActStanding.Stretch ? "Stretch booking · fee ×1.5" : ExpectsToHeadline(act) ? "Expects to headline" : "Available";
             row.Detail.AddThemeColorOverride("font_color", assigned >= 0 ? Ui.Teal : standing == ActStanding.Locked ? Ui.InkMuted :
                 standing == ActStanding.Stretch || ExpectsToHeadline(act) ? Ui.Link : Ui.InkMuted);
             row.Detail.AddThemeFontOverride("font", assigned >= 0 || standing == ActStanding.Stretch || ExpectsToHeadline(act) ? Ui.BodyBold : Ui.Body);
