@@ -295,7 +295,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         _bookingTableBody = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         _bookingTableBody.AddThemeConstantOverride("separation", 0);
         // About six rows show at once; the rest of the offer, then the acts out of reach, scroll.
-        var tableScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, CustomMinimumSize = new Vector2(0, Ui.S(290)) };
+        var tableScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, CustomMinimumSize = new Vector2(0, Ui.S(300)) };
         Ui.SlimScrollbar(tableScroll); tableScroll.AddChild(_bookingTableBody); table.AddChild(tableScroll);
         SyncRows(_hud.Session.GetFestivalActs());
         table.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
@@ -322,15 +322,18 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
     private BookingDragButton ActLine(FestivalAct act)
     {
         var id = act.Id;
-        var card = new BookingDragButton { Text = "", CustomMinimumSize = new Vector2(0, Ui.S(48)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+        var card = new BookingDragButton { Text = "", CustomMinimumSize = new Vector2(0, Ui.S(30)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             FocusMode = Control.FocusModeEnum.All, MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = ExactTooltip(act) };
         card.DragPreviewText = () => $"{act.Name} · {FestivalGenreName(act.Genre)} · {FestivalCurrency.Format(_hud.Session.ActFee(act))}";
         var line = TableLine(); line.SetAnchorsPreset(Control.LayoutPreset.FullRect); line.OffsetLeft = Ui.S(10); line.OffsetRight = -Ui.S(10);
         card.AddChild(line);
-        var name = new VBoxContainer(); name.AddThemeConstantOverride("separation", 0);
-        var title = Ui.Text(act.Name, 15, Ui.Ink, Ui.BodyBold); title.ClipText = true; title.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
-        title.CustomMinimumSize = new Vector2(1, 0); name.AddChild(title);
-        var detail = Ui.Text("", 12, Ui.InkMuted, Ui.BodyBold); name.AddChild(detail);
+        // One line per act: the name, then a small status tag only when there is something to say.
+        var name = new HBoxContainer(); name.AddThemeConstantOverride("separation", Ui.Px(8));
+        var title = Ui.Text(act.Name, 14, Ui.Ink, Ui.BodyBold); title.ClipText = true; title.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        title.CustomMinimumSize = new Vector2(1, 0); title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; title.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        title.MouseFilter = Control.MouseFilterEnum.Ignore; name.AddChild(title);
+        var detail = Ui.Text("", 11.5f, Ui.InkMuted, Ui.BodyBold); detail.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        detail.MouseFilter = Control.MouseFilterEnum.Ignore; name.AddChild(detail);
         Cell(line, 0, name);
         var genre = new HBoxContainer(); genre.AddThemeConstantOverride("separation", Ui.Px(6));
         var dot = new Panel { CustomMinimumSize = Ui.S(10, 10), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -450,8 +453,8 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             var standing = session.ActStandingOf(act);
             row.Fee.Text = FestivalCurrency.Format(session.ActFee(act));
             row.Fee.AddThemeColorOverride("font_color", standing == ActStanding.Stretch ? Ui.Link : Ui.Ink);
-            row.Detail.Text = assigned >= 0 ? $"Booked · Set {assigned + 1}" : standing == ActStanding.Locked ? $"Needs reputation {session.ActReputationNeeded(act)}" :
-                standing == ActStanding.Stretch ? "Stretch booking · fee ×1.5" : ExpectsToHeadline(act) ? "Expects to headline" : "Available";
+            row.Detail.Text = assigned >= 0 ? $"Set {assigned + 1}" : standing == ActStanding.Locked ? $"Needs rep {session.ActReputationNeeded(act)}" :
+                standing == ActStanding.Stretch ? "Stretch ×1.5" : ExpectsToHeadline(act) ? "Headliner" : "";
             row.Detail.AddThemeColorOverride("font_color", assigned >= 0 ? Ui.Teal : standing == ActStanding.Locked ? Ui.InkMuted :
                 standing == ActStanding.Stretch || ExpectsToHeadline(act) ? Ui.Link : Ui.InkMuted);
             row.Detail.AddThemeFontOverride("font", assigned >= 0 || standing == ActStanding.Stretch || ExpectsToHeadline(act) ? Ui.BodyBold : Ui.Body);
