@@ -92,7 +92,25 @@ public sealed class FacilityFaultTests
         Assert.IsFalse(Send(s, new StaffInterventionCommand(fault.VictimId, steward, StaffInterventionAction.GuideToWater)).IsAccepted);
         Assert.IsFalse(Send(s, new StaffInterventionCommand(fault.VictimId, medic, StaffInterventionAction.GuideToRest)).IsAccepted);
         Assert.IsFalse(Send(s, new MedicalCommand(fault.VictimId, MedicalAction.DispatchMedic, medic)).IsAccepted);
+        Assert.IsFalse(Send(s, new DisorderCommand(DisorderAction.DispatchSecurity, fault.VictimId, steward)).IsAccepted);
         Assert.AreEqual(fault.VictimId, s.CaptureToilets().Single(t => t.Id == fault.FacilityId).OwnerId);
+    }
+
+    [TestMethod]
+    public void GuidanceOrderedBeforeTheJamStandsDownOnceTheyAreStuck()
+    {
+        var (s, fault) = Find(FacilityFaultKind.StuckInToilet);
+        // As if issued while the visit was still ordinary: the command is applied without today's refusal.
+        var steward = s.GetStewardResponses().Where(r => r.WorkerId != s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).WorkerId).Select(r => r.WorkerId)
+            .DefaultIfEmpty(s.GetStewardResponses()[0].WorkerId).First();
+        typeof(GameSession).GetMethod("ApplyStaffIntervention", BindingFlags.Instance | BindingFlags.NonPublic)!
+            .Invoke(s, [new StaffInterventionCommand(fault.VictimId, steward, StaffInterventionAction.GuideToWater)]);
+        s.AdvanceWithoutSnapshot(2);
+        Assert.IsFalse(s.CaptureStaffInterventions().Any(j => j.GuestId == fault.VictimId && j.Stage is StaffInterventionStage.Travelling or StaffInterventionStage.Guiding or StaffInterventionStage.Escorting),
+            "The guidance stood down.");
+        Assert.AreEqual(fault.VictimId, s.CaptureToilets().Single(t => t.Id == fault.FacilityId).OwnerId, "Still inside until the rescue.");
+        Assert.IsTrue(s.StuckInToilet(fault.VictimId));
+        AssertRestores(s);
     }
 
     [TestMethod]

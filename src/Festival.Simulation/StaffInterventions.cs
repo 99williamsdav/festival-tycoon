@@ -144,6 +144,9 @@ public sealed partial class GameSession
             if (PersonCollapsed(job.GuestId) || PersonCollapsed(job.WorkerId) ||
                 PeopleIn(PersonView.Disorder).Any(person => (person.Id == job.GuestId || person.Id == job.WorkerId) && person.ConductStage is DisorderStage.Fight or DisorderStage.Injured))
             { EndIntervention(job, false, "Stopped for actual collapse/confrontation; physical first aid or resolution required"); continue; }
+            // Ordered while they were mid-visit, before the door jammed: only the steward's rescue gets them out.
+            if (StuckInToilet(job.GuestId))
+            { EndIntervention(job, false, "They got stuck in the toilet; a steward has to free them at the door first"); continue; }
             if (CurrentTick >= job.DispatchedTick + InterventionMaximumTicks ||
                 _navigationAgents[new(job.WorkerId)].Action == AgentNavigationAction.NoRoute ||
                 job.Stage == StaffInterventionStage.Escorting && _navigationAgents[new(job.GuestId)].Action == AgentNavigationAction.NoRoute)

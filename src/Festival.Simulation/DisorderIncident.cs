@@ -66,6 +66,8 @@ public sealed partial class GameSession
                 SelectRoleResponse(ResponseRole.Steward, roleTarget, out var roleIssue) is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, roleIssue!) : null;
         if (command.Action == DisorderAction.SafeEgress && command.PersonId is { } escortId)
             return ValidateStaffIntervention(target, new(escortId, command.WorkerId ?? _disorder?.SecurityId ?? 0, StaffInterventionAction.EscortOut));
+        if (command.Action == DisorderAction.DispatchSecurity && command.PersonId is { } locked && StuckInToilet(locked))
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "They're stuck in the toilet: a steward has to free them at the door first.");
         if (target is not null || _disorder is not { } d || _preparation?.Status != PreparationStatus.Running ||
             !Enum.IsDefined(command.Action))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Disorder actions require a live edition.");
