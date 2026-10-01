@@ -13,9 +13,10 @@ public partial class Main
     private void AdvanceFaultCuePresentation()
     {
         var shown = new HashSet<string>();
+        var hot = _session.CaptureMedical()?.IsHot == true;
         foreach (var fault in _session.CaptureFaults()?.Faults ?? [])
         {
-            if (FaultRules.Remark(fault, _session.CurrentTick) is not { } text) continue;
+            if (FaultRules.Remark(fault, _session.CurrentTick, hot) is not { } text) continue;
             Vector3 position;
             if (fault.Kind == FacilityFaultKind.StuckInToilet)
             {

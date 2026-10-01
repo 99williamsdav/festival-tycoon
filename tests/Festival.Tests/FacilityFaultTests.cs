@@ -186,6 +186,9 @@ public sealed class FacilityFaultTests
         Assert.IsNull(FaultRules.Remark(stuck, 1_000 + FaultRules.ShoutTicks), "Shouts come and go.");
         Assert.AreNotEqual(FaultRules.Remark(stuck, 1_000), FaultRules.Remark(stuck, 1_000 + 3_200), "Later shouts are more desperate.");
         Assert.IsNull(FaultRules.Remark(stuck with { Stage = FacilityFaultStage.Fixed }, 1_000), "Quiet once freed.");
+        var shouts = Enumerable.Range(0, 30).Select(n => 1_000L + n * FaultRules.ShoutEveryTicks).ToArray();
+        Assert.AreEqual(10, shouts.Count(tick => FaultRules.Remark(stuck, tick, hot: true) == FaultRules.HotShout), "Every third shout in a heatwave.");
+        Assert.IsFalse(shouts.Any(tick => FaultRules.Remark(stuck, tick)!.Contains("hot", StringComparison.OrdinalIgnoreCase)), "No heat complaints in mild weather.");
         var tap = new FacilityFault("broken:water.main:500", FacilityFaultKind.BrokenTap, "water.main", 9, 500, FacilityFaultStage.Active);
         Assert.IsNotNull(FaultRules.Remark(tap, 600));
         Assert.IsNull(FaultRules.Remark(tap, 500 + FaultRules.GrumbleTicks), "One grumble, not a running commentary.");
