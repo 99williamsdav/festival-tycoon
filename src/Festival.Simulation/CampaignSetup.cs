@@ -64,8 +64,9 @@ public sealed partial class GameSession
         var stock = new EntityId(session.NextEntityId++);
         session._ownedStocks.Add(stock, new OwnedStockState
         { ServiceId = stock, OwnerId = owner, Quantity = 40, UnitCostBasisPennies = 60 });
+        var guestNames = GuestCharacters.Names(seed, guests);
         var people = Enumerable.Range(0, guests + 4).Select(index => new EditionPerson(
-            session.NextEntityId++, index < guests ? $"Guest {index + 1:00}" : index == guests ? StaffCatalogue.Vacancy(StaffRole.Sound) : new[] { "Alex Reed", "Blair Moss", "Kit Rowan" }[index - guests - 1],
+            session.NextEntityId++, index < guests ? guestNames[index] : index == guests ? StaffCatalogue.Vacancy(StaffRole.Sound) : new[] { "Alex Reed", "Blair Moss", "Kit Rowan" }[index - guests - 1],
             index < guests ? ProtectedPersonRole.Guest : index == guests ? ProtectedPersonRole.Staff : ProtectedPersonRole.Performer,
             index % 4 == 0 ? 1 - (int)(seed % 2) : (int)(seed % 2))).ToArray();
         foreach (var person in people)

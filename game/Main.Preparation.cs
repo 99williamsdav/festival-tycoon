@@ -43,6 +43,7 @@ public partial class Main
     private void RefreshContextPanelVisibility()
     {
         if (_contextPanel is null) return;
+        if (_selectedAttendeeId is null && _inspectorTraits is not null) _inspectorTraits.Visible = false;
         var farm = _selected is { } item && _visualRegistry.TryGetValue(item.StableId, out var farmVisual) && ContextVisualAvailable(farmVisual);
         var person = _selectedAttendeeId is { } id && _attendeeVisuals.TryGetValue(id, out var personVisual) && ContextVisualAvailable(personVisual);
         var vendor = _selectedImmersionVendor is { } vendorId && _session.CaptureVendors().Any(v => v.Id == vendorId) &&

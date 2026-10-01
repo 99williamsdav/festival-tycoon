@@ -15,7 +15,7 @@ public sealed partial class GameSession
 
     /// <summary>Ticks between each point of toilet need: twice as often for a weak bladder, half as often for an iron one.</summary>
     private int ToiletNeedGainEveryTicks(ulong id) =>
-        StaffHas(id, StaffTrait.WeakBladder) ? ToiletRules.NeedGainEveryTicks / 2 :
+        StaffHas(id, StaffTrait.WeakBladder) || HasIbs(id) ? ToiletRules.NeedGainEveryTicks / 2 :
         StaffHas(id, StaffTrait.IronBladder) ? ToiletRules.NeedGainEveryTicks * 2 : ToiletRules.NeedGainEveryTicks;
 
     /// <summary>The bar's rule: no beer for abstainers, the very drunk or staff. A sneaky alcoholic gets served anyway, with no limit.</summary>

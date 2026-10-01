@@ -156,6 +156,12 @@ public partial class Main
               $"INSTRUMENT  {(performer.InstrumentAttached ? "attached for set" : "detached")}" :
               _session.GetResponseStaff().Any(item => item.AgentId == person.AgentId && item.Role == ResponseRole.Steward) ? "STEWARD • autonomous physical route" : "STAFF • autonomous physical route";
         if (person.Role == ProtectedPersonRole.Staff) detail = StaffTraitText(person.AgentId) + detail;
+        if (_inspectorTraits is not null)
+        {
+            var traits = person.Role == ProtectedPersonRole.Guest ? _session.GuestLabels(person.AgentId) : [];
+            _inspectorTraits.Text = string.Join(" · ", traits);
+            _inspectorTraits.Visible = traits.Count > 0;
+        }
         if (_session.CaptureProgramme() is { } programme)
         {
             if (listening is not null)

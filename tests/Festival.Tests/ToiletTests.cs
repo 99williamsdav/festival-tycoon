@@ -248,7 +248,7 @@ public sealed class ToiletTests
         Assert.AreEqual(0, session.ToiletSmellPenaltyPerSecond(other));
         var before = session.CapturePreparation()!.People.Single(p => p.AgentId == id).Satisfaction;
         Invoke(session, "ApplyToiletSmell");
-        Assert.AreEqual(before - near, session.CapturePreparation()!.People.Single(p => p.AgentId == id).Satisfaction);
+        Assert.AreEqual(before - GuestCharacters.Unpleasant(near, session.GuestCharacterOf(id).Prissiness), session.CapturePreparation()!.People.Single(p => p.AgentId == id).Satisfaction);
         state = session.CaptureImmersion()!;
         BuildSession.SetToilet(session, session.CaptureToilet()! with { Queue = [id] });
         SetImmersion(session, state with {

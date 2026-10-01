@@ -43,8 +43,11 @@ public sealed partial class GameSession
     // Stable per-person service pace. Tap count never divides or reduces this rate.
     public static int MedicalDrinkThirstPerTickFor(ulong agentId) => 8 + (int)(agentId % 4) * 4;
     public static int MedicalDrinkHeatPerTickFor(ulong agentId) => MedicalDrinkThirstPerTickFor(agentId) / 4;
+    /// <summary>A slow-drinking guest sips more slowly than anyone else at a tap.</summary>
+    private int BaseDrinkThirstPerTickFor(ulong agentId) =>
+        IsGuest(agentId) && GuestCharacterOf(agentId).SlowDrinker ? GuestCharacters.SlowDrinkerThirstPerTick : MedicalDrinkThirstPerTickFor(agentId);
     public int EffectiveMedicalDrinkThirstPerTickFor(ulong agentId) =>
-        (CommunityWaterShareActive ? Math.Min(12, MedicalDrinkThirstPerTickFor(agentId)) : MedicalDrinkThirstPerTickFor(agentId)) +
+        (CommunityWaterShareActive ? Math.Min(12, BaseDrinkThirstPerTickFor(agentId)) : BaseDrinkThirstPerTickFor(agentId)) +
         (_preparation?.WaterTowerOwned == true ? 4 : 0);
     public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => EffectiveMedicalDrinkThirstPerTickFor(agentId) / 4;
     public const int MedicalDecisionCooldownTicks = 240;   // 3 real seconds at 1×.
@@ -527,6 +530,7 @@ public sealed partial class GameSession
                 var heat = item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
                 // A portaloo cubicle is a hot box in hot weather, for a normal visit and doubly so for someone stuck.
                 if (m.IsHot && item.ToiletStage == ToiletVisitStage.Using) heat += FaultRules.PortalooExtraHeat;
+                if (ExtraHeatThisTick(item.Id)) heat += 1; // Easy to overheat.
                 MutatePerson(item.Id, person => { person.Thirst = Math.Min(10_000, person.Thirst + 1); person.HeatExposure = Math.Min(10_000, person.HeatExposure + heat); });
             }
         }
@@ -642,7 +646,9 @@ public sealed partial class GameSession
     {
         var m = _medical!; var p = _preparation!;
         var victim = _persons[victimId];
-        var cause = PersonIn(PersonView.Consumption, victimId) is { IntoxicationCollapseTick: >=0 } alcohol
+        var cause = _persons[victimId].Reason?.StartsWith("Anaphylaxis", StringComparison.Ordinal) == true
+            ? $"{victim.Name} died of an allergic reaction to a wasp sting; collapse tick {collapseTick}, critical tick {criticalTick}, untreated."
+            : PersonIn(PersonView.Consumption, victimId) is { IntoxicationCollapseTick: >=0 } alcohol
             ? $"{victim.Name} died after sustained intoxication {alcohol.Intoxication}/10000; visible intoxication warning tick {alcohol.IntoxicationWarningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
             : $"In fixed Hot conditions {victim.Name} dried up after thirst {_persons[victim.Id].Thirst}/10000 and heat exposure; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}.";
         _medical = m with { Fatal = true };

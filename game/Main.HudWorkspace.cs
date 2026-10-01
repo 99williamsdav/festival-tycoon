@@ -133,6 +133,8 @@ public partial class Main
         var contextClose = ButtonText("×", ClearSelection); contextClose.Name = "CloseSelectedPanel";
         contextClose.TooltipText = "Close selected object panel"; contextHeading.AddChild(contextClose);
         _inspectorTitle = HudLabel("", 20); detail.AddChild(_inspectorTitle);
+        _inspectorTraits = HudLabel("", 13); _inspectorTraits.AddThemeColorOverride("font_color", Ui.TealDeep);
+        _inspectorTraits.AutowrapMode = TextServer.AutowrapMode.WordSmart; _inspectorTraits.Visible = false; detail.AddChild(_inspectorTraits);
         BuildWaterFlowInspector(detail); BuildSatisfactionBar(detail); BuildMedicalNeedBars(detail); BuildImmersionNeedBars(detail);
         // Essential actions precede optional prose and remain accessible by scroll.
         BuildImmersionVendorInspector(detail); BuildMedicalActionInspector(detail); BuildDisorderActionInspector();

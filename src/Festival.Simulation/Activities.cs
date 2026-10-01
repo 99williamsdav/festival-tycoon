@@ -68,7 +68,7 @@ public sealed partial class GameSession
         if (extra is not null) options.Add(extra);
         // On-duty staff heat up an eighth as fast (see AdvanceMedical).
         var growth = new NeedGrowth(20 + (HasPerk("thirsty-crowd") && person.NeedProfile == MedicalNeedProfile.Guest ? 2 : 0),
-            IsStaffMember(id) ? 2 : 20, 12, 80 / ToiletNeedGainEveryTicks(id));
+            IsStaffMember(id) ? 2 : 20 * (200 + (IsGuest(id) ? GuestCharacterOf(id).HeatSensitivity : 0)) / 200, 12, 80 / ToiletNeedGainEveryTicks(id));
         var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed);
         return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options);
     }

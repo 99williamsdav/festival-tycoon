@@ -25,6 +25,8 @@ public sealed class FacilityFaultTests
         while (s.PreparedStatus == PreparationStatus.Running)
         {
             s.AdvanceWithoutSnapshot(80);
+            // Only a fault with most of a minute of the day left, so the help has time to arrive.
+            if (s.CurrentTick - s.CapturePreparation()!.StartedTick > GameSession.PreparedDayTicks - 4_800) return null;
             if (s.CaptureFaults()!.Faults.FirstOrDefault(f => f.Kind == kind && f.Stage == FacilityFaultStage.Active) is { } fault) return (s, fault);
         }
         return null;
@@ -115,7 +117,9 @@ public sealed class FacilityFaultTests
         Assert.AreEqual((outside.XMillimetres, outside.ZMillimetres), (body.XMillimetres, body.ZMillimetres), "Lying just outside the door.");
         Assert.IsTrue(s.CaptureMedical()!.Needs.Single(n => n.AgentId == victim).Stage is MedicalStage.Collapsed or MedicalStage.Critical);
         AssertRestores(s);
-        Assert.IsNotNull(s.SelectRoleResponse(ResponseRole.Medic, victim, out var issue), $"A medic can reach them now: {issue}");
+        // The automatic pass may already have sent one; otherwise one can be sent now.
+        Assert.IsTrue(s.GetMedicResponses().Any(r => r.PatientId == victim) || s.SelectRoleResponse(ResponseRole.Medic, victim, out _) is not null,
+            "A medic can reach them now.");
     }
 
     [TestMethod]

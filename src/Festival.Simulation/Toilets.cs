@@ -122,8 +122,9 @@ public sealed partial class GameSession
         _traversalGrid = new TraversalGrid(terrain.Values);
     }
 
-    private static ToiletVisitKind ChooseToiletVisit(Person person) =>
-        (person.Id + (ulong)person.ToiletVisits) % 4 == 0 ? ToiletVisitKind.Poo : ToiletVisitKind.Wee;
+    // Irritable bowels make every other visit a long one rather than one in four.
+    private ToiletVisitKind ChooseToiletVisit(Person person) =>
+        (person.Id + (ulong)person.ToiletVisits) % (HasIbs(person.Id) ? 2UL : 4UL) == 0 ? ToiletVisitKind.Poo : ToiletVisitKind.Wee;
 
     private void ReleaseToiletPerson(ulong id, bool returnToListening)
     {
@@ -331,7 +332,7 @@ public sealed partial class GameSession
         {
             if (person.Role != ProtectedPersonRole.Guest || !person.Admitted || person.Departed ||
                 !_navigationAgents.ContainsKey(new(person.Id))) return person;
-            var penalty = ToiletSmellPenaltyPerSecond(person.Id);
+            var penalty = UnpleasantFor(person.Id, ToiletSmellPenaltyPerSecond(person.Id));
             return person with { Satisfaction = Math.Max(0, person.Satisfaction - penalty) };
         }).ToArray())
             SetPresence(person);

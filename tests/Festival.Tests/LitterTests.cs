@@ -150,11 +150,13 @@ public sealed class LitterTests
     {
         var s = Open(); var id = Guest(s); var bin = s.CaptureBins().Single(); Position(s, id, new(bin.Cell.X + 3, bin.Cell.Z));
         Fill(s, 20); var p = s.CapturePerson(id)!; Step(s);
-        Assert.AreEqual(p.Satisfaction - LitterRules.WaspLoss, s.CapturePerson(id)!.Satisfaction);
+        // Losses scale with how prissy this guest is.
+        int Felt(int loss) => GuestCharacters.Unpleasant(loss, s.GuestCharacterOf(id).Prissiness);
+        Assert.AreEqual(p.Satisfaction - Felt(LitterRules.WaspLoss), s.CapturePerson(id)!.Satisfaction);
         Assert.AreEqual("litter.avoid-wasps", s.CaptureObservation().NavigationAgents.Single(n => n.Id.Value == id).IntentId);
         var c = new GridCell(135, 126); Position(s, id, c);
         SetLitter(s, new(1, Enumerable.Range(0, 1000).Select(i => Ground("large:" + i, c)).ToArray(), []));
-        var before = s.CapturePerson(id)!.Satisfaction; Step(s); Assert.AreEqual(before - LitterRules.GroundLossCap, s.CapturePerson(id)!.Satisfaction);
+        var before = s.CapturePerson(id)!.Satisfaction; Step(s); Assert.AreEqual(before - Felt(LitterRules.GroundLossCap), s.CapturePerson(id)!.Satisfaction);
         Assert.AreEqual(1000, s.CaptureLitter()!.Pieces.Count(w => w.Location == WasteLocation.Ground));
         BuildSession.Accept(s, new SetPausedCommand(true)); var hash = s.CaptureSnapshot().AuthoritativeHash; s.AdvanceWithoutSnapshot(200);
         Assert.AreEqual(hash, s.CaptureSnapshot().AuthoritativeHash);
