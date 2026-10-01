@@ -17,167 +17,274 @@ internal interface IPreparationNavigation
     /// <summary>A build placement is in progress.</summary>
     bool Placing { get; }
     void ConfirmStart();
-    void ToggleRoster();
-    void TogglePerks();
-    void RotateView();
 }
 
 /// <summary>
-/// The bottom bar during preparation: destination buttons with required-task badges, the budget line,
-/// Start festival, and the "Before opening" checklist whose rows open the matching panel.
+/// The bottom dock during preparation: four folders (Build, Programme, Staff, Supplies) with their
+/// status, the budget with its breakdown, and Start festival; plus the "Ready to open?" card whose
+/// missing items open the folder that fixes them.
 /// </summary>
 internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav)
 {
-    private PanelContainer? _preparationDock;
-    private PanelContainer? _preparationReadiness;
-    private VBoxContainer? _preparationReadinessRows;
-    private Label? _preparationDockCost;
-    private Button? _preparationDockStart;
-    private Button? _preparationDockReason;
-    private readonly Dictionary<string, Button> _preparationDockTabs = [];
-    private readonly Dictionary<string, Label> _preparationDockBadges = [];
-    private string _preparationReadinessKey = "";
+    private static readonly (string Name, string Icon)[] Folders =
+        [("Build", "hammer"), ("Programme", "music"), ("Staff", "users"), ("Supplies", "package")];
+
+    private PanelContainer? _dock;
+    private readonly Dictionary<string, (Button Button, Label Status, Control Notch)> _folders = [];
+    private Label? _drafted;
+    private Label? _draftedOf;
+    private Label? _left;
+    private ProgressBar? _budgetBar;
+    private Label? _breakdown;
+    private Button? _start;
+    private Label? _startTitle;
+    private TextureRect? _startLock;
+    private Label? _startDetail;
+
+    private PanelContainer? _readiness;
+    private ProgressRing? _ring;
+    private Label? _readinessTitle;
+    private Label? _readinessDetail;
+    private VBoxContainer? _readinessRows;
+    private string _readinessKey = "";
 
     public void Build(CanvasLayer layer, Vector2 size)
     {
-        _preparationDock = HudPanel(layer, new Vector2(8, size.Y - 124), new Vector2(size.X - 16, 116), HudInk);
-        _preparationDock.AddThemeStyleboxOverride("panel", HudStyle(HudInk, 5));
-        var stack = new VBoxContainer(); stack.AddThemeConstantOverride("separation", 4); _preparationDock.AddChild(stack);
-        var navigation = new HBoxContainer(); navigation.AddThemeConstantOverride("separation", 5); stack.AddChild(navigation);
-        foreach (var (name, icon) in new[] { ("Build", "⚒"), ("Programme", "♫"), ("Staff", "♟"),
-                     ("Equipment", "▣"), ("Stock", "▤") })
+        _dock = new PanelContainer { Position = new Vector2(0, size.Y - Ui.Dock), Size = new Vector2(size.X, Ui.Dock), Theme = HudTheme() };
+        var style = Ui.Box(Ui.Bar, 0, padX: 16, padY: 14);
+        style.BorderColor = Ui.Gold; style.BorderWidthTop = Ui.Px(2);
+        _dock.AddThemeStyleboxOverride("panel", style); layer.AddChild(_dock);
+        var row = new HBoxContainer(); row.AddThemeConstantOverride("separation", Ui.Px(10)); _dock.AddChild(row);
+
+        foreach (var (name, icon) in Folders)
         {
             var destination = name;
-            var button = ButtonText($"{icon}  {name}", () => _nav.OpenDestination(destination));
-            button.CustomMinimumSize = new Vector2(120, 54);
-            button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            button.AddThemeFontSizeOverride("font_size", 16);
-            button.TooltipText = $"Open {name} preparation";
-            navigation.AddChild(button);
-            _preparationDockTabs.Add(name, button);
-            var badge = HudLabel("!", 20);
-            badge.MouseFilter = Control.MouseFilterEnum.Ignore;
-            badge.AddThemeColorOverride("font_color", new Color("b9212a"));
-            badge.SetAnchorsPreset(Control.LayoutPreset.TopRight);
-            badge.Position = new Vector2(-19, 0);
-            badge.CustomMinimumSize = new Vector2(18, 22);
-            badge.Visible = false;
-            button.AddChild(badge);
-            _preparationDockBadges.Add(name, badge);
+            var button = new Button { CustomMinimumSize = new Vector2(Ui.S(142), 0), TooltipText = $"Open {name}",
+                MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+            button.Pressed += () => _nav.OpenDestination(destination);
+            row.AddChild(button);
+            var face = new VBoxContainer { Name = "Face", Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
+            face.SetAnchorsPreset(Control.LayoutPreset.FullRect); face.AddThemeConstantOverride("separation", Ui.Px(2));
+            button.AddChild(face);
+            var image = Ui.IconRect(icon, 22, Ui.BarText); image.Name = "Icon"; image.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter; face.AddChild(image);
+            var title = Ui.Text(name, 16, Ui.BarText, Ui.BodyBold); title.Name = "Title"; title.HorizontalAlignment = HorizontalAlignment.Center; face.AddChild(title);
+            var status = Ui.Caps("", Ui.BarMuted, 9.5f); status.HorizontalAlignment = HorizontalAlignment.Center; face.AddChild(status);
+            var notch = new ColorRect { Color = Ui.Gold, Size = Ui.S(14, 14), Rotation = Mathf.Pi / 4, MouseFilter = Control.MouseFilterEnum.Ignore,
+                Position = new Vector2(Ui.S(71), -Ui.S(18)), Visible = false };
+            button.AddChild(notch);
+            _folders.Add(name, (button, status, notch));
         }
-        var ancillary = new HBoxContainer(); ancillary.AddThemeConstantOverride("separation", 3);
-        ancillary.CustomMinimumSize = new Vector2(size.X >= 1600 ? 330 : 275, 0); navigation.AddChild(ancillary);
-        foreach (var (text, action) in new (string, Action)[]
-                 { ("People", _nav.ToggleRoster),
-                   ("Your Perks", _nav.TogglePerks),
-                   ("Rotate view", _nav.RotateView) })
-        {
-            var button = ButtonText(text, action); button.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            button.CustomMinimumSize = new Vector2(70, 54); button.AddThemeFontSizeOverride("font_size", 12);
-            button.TooltipText = text; ancillary.AddChild(button);
-        }
+        row.AddChild(new ColorRect { Color = Ui.BarLine, CustomMinimumSize = new Vector2(1, 0), SizeFlagsVertical = Control.SizeFlags.Fill });
 
-        var accounts = new HBoxContainer(); accounts.AddThemeConstantOverride("separation", 8); stack.AddChild(accounts);
-        _preparationDockCost = HudLabel("", 13); _preparationDockCost.AddThemeColorOverride("font_color", HudPaper);
-        accounts.AddChild(_preparationDockCost);
-        _preparationDockStart = ButtonText("Start festival", _nav.ConfirmStart);
-        _preparationDockStart.CustomMinimumSize = new Vector2(148, 41); accounts.AddChild(_preparationDockStart);
-        _preparationDockReason = ButtonText("! Required tasks", OpenFirstPreparationBlocker);
-        _preparationDockReason.CustomMinimumSize = new Vector2(210, 41);
-        _preparationDockReason.AddThemeColorOverride("font_color", new Color("a52028"));
-        accounts.AddChild(_preparationDockReason);
+        var budget = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, Alignment = BoxContainer.AlignmentMode.Center };
+        budget.AddThemeConstantOverride("separation", Ui.Px(6));
+        var budgetMargin = new MarginContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        budgetMargin.AddThemeConstantOverride("margin_left", Ui.Px(6)); budgetMargin.AddThemeConstantOverride("margin_right", Ui.Px(6));
+        budgetMargin.AddChild(budget); row.AddChild(budgetMargin);
+        var headline = new HBoxContainer(); headline.AddThemeConstantOverride("separation", Ui.Px(8)); budget.AddChild(headline);
+        var caption = Ui.Caps("Budget", Ui.BarMuted); caption.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; headline.AddChild(caption);
+        _drafted = Ui.Text("", 24, Ui.BarText, Ui.SlabBold); headline.AddChild(_drafted);
+        _draftedOf = Ui.Text("", 14, Ui.BarMuted); _draftedOf.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; headline.AddChild(_draftedOf);
+        headline.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
+        _left = Ui.Text("", 14, Ui.Good, Ui.BodyBold); _left.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; headline.AddChild(_left);
+        _budgetBar = new ProgressBar { ShowPercentage = false, CustomMinimumSize = new Vector2(0, Ui.S(10)), MaxValue = 1 };
+        _budgetBar.AddThemeStyleboxOverride("background", Ui.Box(Ui.BarDeep, 5));
+        _budgetBar.AddThemeStyleboxOverride("fill", Ui.Box(Ui.Gold, 5));
+        budget.AddChild(_budgetBar);
+        _breakdown = Ui.Text("", 12.5f, Ui.BarMuted); budget.AddChild(_breakdown);
+        _breakdown.ClipText = true; _breakdown.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
+        _breakdown.CustomMinimumSize = new Vector2(1, 0);
 
-        _preparationReadiness = HudPanel(layer, new Vector2(size.X - 292, 77), new Vector2(277, 305));
-        var readiness = new VBoxContainer(); readiness.AddThemeConstantOverride("separation", 5);
-        _preparationReadiness.AddChild(readiness);
-        readiness.AddChild(HudLabel("Before opening", 20));
-        readiness.AddChild(new HSeparator());
-        _preparationReadinessRows = new VBoxContainer(); _preparationReadinessRows.AddThemeConstantOverride("separation", 3);
-        readiness.AddChild(_preparationReadinessRows);
-        readiness.AddChild(new HSeparator());
-        readiness.AddChild(HudLabel("Equipment & stock optional", 12));
+        _start = new Button { CustomMinimumSize = new Vector2(Ui.S(236), 0), MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+        _start.Pressed += _nav.ConfirmStart; row.AddChild(_start);
+        var startFace = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
+        startFace.SetAnchorsPreset(Control.LayoutPreset.FullRect); startFace.AddThemeConstantOverride("separation", Ui.Px(2));
+        _start.AddChild(startFace);
+        var startLine = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center, MouseFilter = Control.MouseFilterEnum.Ignore };
+        startLine.AddThemeConstantOverride("separation", Ui.Px(8)); startFace.AddChild(startLine);
+        _startLock = Ui.IconRect("lock", 18, Ui.BarText); _startLock.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; startLine.AddChild(_startLock);
+        _startTitle = Ui.Text("Start festival", 21, Ui.BarText, Ui.SlabBold); startLine.AddChild(_startTitle);
+        _startDetail = Ui.Text("", 13, Ui.Warn, Ui.BodyBold); _startDetail.HorizontalAlignment = HorizontalAlignment.Center; startFace.AddChild(_startDetail);
+
+        BuildReadiness(layer, size);
     }
 
-
-    private void OpenFirstPreparationBlocker()
+    private void BuildReadiness(CanvasLayer layer, Vector2 size)
     {
-        var blocker = _hud.Session.GetPreparationStartBlockers().FirstOrDefault();
-        if (blocker is null) return;
-        OpenPreparationBlocker(blocker.Owner);
+        _readiness = new PanelContainer { Position = new Vector2(size.X - Ui.Gutter - Ui.S(302), Ui.ContentTop),
+            Size = new Vector2(Ui.S(302), 0), Theme = HudTheme() };
+        _readiness.AddThemeStyleboxOverride("panel", Ui.Sheet(16, 14));
+        layer.AddChild(_readiness);
+        var card = new VBoxContainer(); card.AddThemeConstantOverride("separation", Ui.Px(2)); _readiness.AddChild(card);
+        var heading = new HBoxContainer(); heading.AddThemeConstantOverride("separation", Ui.Px(12)); card.AddChild(heading);
+        _ring = new ProgressRing { CustomMinimumSize = Ui.S(48, 48), Track = Ui.PaperRule, Fill = Ui.Teal, TextColor = Ui.Ink,
+            Thickness = Ui.S(5), Font = Ui.SlabBold, FontSize = Ui.Px(15) };
+        heading.AddChild(_ring);
+        var words = new VBoxContainer { SizeFlagsVertical = Control.SizeFlags.ShrinkCenter }; words.AddThemeConstantOverride("separation", 0); heading.AddChild(words);
+        _readinessTitle = Ui.Heading("", 21); words.AddChild(_readinessTitle);
+        _readinessDetail = Ui.Text("", 13, Ui.InkMuted); words.AddChild(_readinessDetail);
+        card.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
+        _readinessRows = new VBoxContainer(); _readinessRows.AddThemeConstantOverride("separation", Ui.Px(2)); card.AddChild(_readinessRows);
+        var rule = new ColorRect { Color = Ui.PaperRule, CustomMinimumSize = new Vector2(0, 1) };
+        card.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(6)) }); card.AddChild(rule);
+        var note = Ui.Text("Equipment and stock are optional.", 12.5f, Ui.InkMuted); card.AddChild(note);
     }
 
-    private void OpenPreparationBlocker(PreparationStartOwner owner)
+    private static string Destination(PreparationStartOwner owner) => owner switch
     {
-        switch (owner)
-        {
-            case PreparationStartOwner.Programme: _nav.OpenDestination("Programme"); break;
-            case PreparationStartOwner.Staff: _nav.OpenDestination("Staff"); break;
-            default: _nav.OpenDestination("Build"); break;
-        }
-    }
+        PreparationStartOwner.Programme => "Programme",
+        PreparationStartOwner.Staff => "Staff",
+        _ => "Build",
+    };
+
+    /// <summary>Checklist wording: what is in place, and what to do when it is not.</summary>
+    private static (string Done, string Todo) Wording(PreparationStartRequirement requirement) => requirement.Id switch
+    {
+        "water" => ("Water tap", "Place a water tap"),
+        "toilet" => ("Toilet", "Place a toilet"),
+        "first-aid" => ("First aid", "Place first aid"),
+        "steward-post" => ("Steward post", "Place a steward post"),
+        "programme" => ("Three acts booked", "Book three acts"),
+        "staff" => ("Sound engineer hired", "Hire a sound engineer"),
+        "budget" => ("Within budget", "Bring the draft within budget"),
+        _ => (requirement.Label, requirement.Label),
+    };
+
+    private static string Count(int value) => value switch
+    {
+        1 => "One thing", 2 => "Two things", 3 => "Three things", 4 => "Four things", 5 => "Five things",
+        6 => "Six things", 7 => "Seven things", _ => $"{value} things",
+    };
 
     public void Refresh()
     {
-        if (_preparationDock is null) return;
-        var preparing = _hud.Session.PreparedStatus == PreparationStatus.Preparing;
-        var shown = preparing && _hud.Session.CapturePerks()?.Pending != true;
-        _preparationDock.Visible = shown;
-        _preparationReadiness!.Visible = shown && !_nav.ReadinessCovered;
+        if (_dock is null) return;
+        var session = _hud.Session;
+        var preparing = session.PreparedStatus == PreparationStatus.Preparing;
+        var shown = preparing && session.CapturePerks()?.Pending != true;
+        _dock.Visible = shown;
+        _readiness!.Visible = shown && !_nav.ReadinessCovered;
         if (!shown) return;
-        var blockers = _hud.Session.GetPreparationStartBlockers();
+        var requirements = session.GetPreparationStartRequirements();
+        var missing = requirements.Where(item => !item.Complete).ToArray();
+        var costs = PlanCosts.Of(session);
+        RefreshFolders(session, missing, costs);
+
+        var funds = session.CaptureSnapshot().FestivalFinances.Single().CashPennies;
+        var drafted = session.PreparationPlanCost;
+        var left = session.PreparationRemainingCash;
+        _drafted!.Text = FestivalCurrency.Format(drafted);
+        _draftedOf!.Text = $"drafted of {FestivalCurrency.Format(funds)}";
+        _left!.Text = left >= 0 ? $"{FestivalCurrency.Format(left)} left" : $"{FestivalCurrency.Format(-left)} over";
+        _left.AddThemeColorOverride("font_color", left >= 0 ? Ui.Good : Ui.Warn);
+        _budgetBar!.Value = funds <= 0 ? 0 : Math.Clamp((double)drafted / funds, 0, 1);
+        _breakdown!.Text = _nav.Placing ? _hud.Message :
+            $"Build {FestivalCurrency.Format(costs.Services)} · acts {FestivalCurrency.Format(costs.Acts)} · staff {FestivalCurrency.Format(costs.Staff)} · " +
+            $"supplies {FestivalCurrency.Format(costs.Supplies)} — paid only at Start";
+
+        var issue = _nav.Placing ? "Finish or cancel placement" :
+            missing.FirstOrDefault()?.Detail ?? session.ValidateCommand(_hud.Host.Envelope(new StartPreparedEditionCommand()))?.Message;
+        var ready = issue is null;
+        _start!.Disabled = !ready;
+        _start.TooltipText = issue ?? "Review the full setup charge, then open the festival.";
+        var startStyle = ready ? Ui.Box(Ui.Gold, 10, shadow: 2) : Ui.Box(new Color("1c3a31"), 10, new Color(Ui.Gold, 0.55f), 2);
+        foreach (var state in new[] { "normal", "hover", "pressed", "disabled", "focus" })
+            _start.AddThemeStyleboxOverride(state, state == "hover" && ready ? Ui.Box(Ui.Gold.Lightened(0.12f), 10) : startStyle);
+        _startLock!.Visible = !ready;
+        _startTitle!.AddThemeColorOverride("font_color", ready ? Ui.Bar : new Color(Ui.BarText, 0.8f));
+        _startDetail!.AddThemeColorOverride("font_color", ready ? Ui.Bar : Ui.Warn);
+        _startDetail.Text = ready ? $"Pay {FestivalCurrency.Format(drafted)} and open the gates"
+            : _nav.Placing ? "Finish placement" : missing.Length > 0 ? $"{missing.Length} task{(missing.Length == 1 ? "" : "s")} left" : "Not ready";
+
+        RefreshReadiness(requirements, missing);
+    }
+
+    private void RefreshFolders(GameSession session, PreparationStartRequirement[] missing, PlanCosts costs)
+    {
         var selected = _nav.OpenDestinationName;
-        foreach (var (name, button) in _preparationDockTabs)
+        var plan = session.CapturePreparationPlan();
+        var placed = session.CapturePreparation()?.BuildPlacements.Length ?? 0;
+        var acts = plan?.ActIds.Count(id => id != "") ?? 0;
+        foreach (var (name, (button, status, notch)) in _folders)
         {
             var active = selected == name;
-            var fill = active ? new Color("126c70") : HudPaper;
-            foreach (var state in new[] { "normal", "pressed", "hover", "focus" })
-                button.AddThemeStyleboxOverride(state, HudStyle(fill, 8));
-            foreach (var state in new[] { "font_color", "font_pressed_color", "font_hover_color", "font_focus_color" })
-                button.AddThemeColorOverride(state, active ? Colors.White : HudInk);
-            var relevant = blockers.Where(blocker => name switch
+            var owed = missing.Where(item => Destination(item.Owner) == name && (name != "Build" || item.Id != "budget")).ToArray();
+            var (text, attention, done) = name switch
             {
-                "Build" => blocker.Owner == PreparationStartOwner.Overview,
-                "Programme" => blocker.Owner == PreparationStartOwner.Programme,
-                "Staff" => blocker.Owner == PreparationStartOwner.Staff,
-                _ => false
-            }).ToArray();
-            _preparationDockBadges[name].Visible = relevant.Length != 0;
-            button.TooltipText = relevant.Length == 0 ? $"Open {name} preparation" :
-                $"{name}: required before Start festival. " + string.Join(" ", relevant.Select(item => item.Message));
-        }
-        var funds = _hud.Session.CaptureSnapshot().FestivalFinances.Single().CashPennies;
-        _preparationDockCost!.Text = $"Budget {FestivalCurrency.Format(funds)}   ·   Full draft {FestivalCurrency.Format(_hud.Session.PreparationPlanCost)}   ·   " +
-            $"Remaining {FestivalCurrency.Format(_hud.Session.PreparationRemainingCash)}   ·   Pay only at Start";
-        if (_nav.Placing)
-            _preparationDockCost.Text += "\n" + _hud.Message;
-        var issue = _nav.Placing ? "Finish or cancel placement" :
-            blockers.FirstOrDefault()?.Message ?? _hud.Session.ValidateCommand(_hud.Host.Envelope(new StartPreparedEditionCommand()))?.Message;
-        _preparationDockStart!.Disabled = issue is not null;
-        _preparationDockStart.TooltipText = issue ?? "Review the full setup charge, then open the festival.";
-        _preparationDockReason!.Visible = issue is not null;
-        _preparationDockReason.Text = issue is null ? "Ready to open" : "! " + (blockers.Count == 0 ? "Finish placement" : "Required tasks");
-        _preparationDockReason.TooltipText = issue ?? "Ready to open";
-        var requirements = _hud.Session.GetPreparationStartRequirements();
-        var key = string.Join("|", requirements.Select(item => item.Id + ":" + item.Complete));
-        if (key == _preparationReadinessKey) return;
-        _preparationReadinessKey = key;
-        foreach (var child in _preparationReadinessRows!.GetChildren()) child.QueueFree();
-        foreach (var requirement in requirements)
-        {
-            var owner = requirement.Owner;
-            var row = ButtonText((requirement.Complete ? "✓ " : "! ") + requirement.Label,
-                () => OpenPreparationBlocker(owner));
-            row.TooltipText = requirement.Complete
-                ? requirement.Label + " complete. Open the matching preparation panel to review or revise it."
-                : requirement.Detail + " Open the matching preparation panel.";
-            row.AddThemeColorOverride("font_color", requirement.Complete ? new Color("126c70") : new Color("aa242b"));
-            row.AddThemeFontSizeOverride("font_size", 12);
-            row.CustomMinimumSize = new Vector2(0, 30);
-            _preparationReadinessRows.AddChild(row);
+                "Build" => ($"{placed} placed", owed.Length > 0, owed.Length == 0),
+                "Programme" => ($"{acts} of 3 acts", owed.Length > 0, owed.Length == 0),
+                "Staff" => (owed.Length > 0 ? "Sound needed" : "Sound hired", owed.Length > 0, owed.Length == 0),
+                _ => (costs.Supplies > 0 ? $"{FestivalCurrency.Format(costs.Supplies)} planned" : "Optional", false, false),
+            };
+            status.Text = ((done ? "✓ " : "") + text).ToUpperInvariant();
+            var ink = active ? Ui.Bar : Ui.BarText;
+            status.AddThemeColorOverride("font_color", active ? Ui.Bar : attention ? Ui.Warn : done ? Ui.Good : Ui.BarMuted);
+            button.GetNode<TextureRect>("Face/Icon").SelfModulate = ink;
+            button.GetNode<Label>("Face/Title").AddThemeColorOverride("font_color", ink);
+            var fill = active ? Ui.Box(Ui.Gold, 8) : Ui.Box(Ui.BarRaised, 8, new Color(Ui.BarText, 0.14f), 1);
+            foreach (var state in new[] { "normal", "pressed", "focus" }) button.AddThemeStyleboxOverride(state, fill);
+            button.AddThemeStyleboxOverride("hover", active ? fill : Ui.Box(Ui.BarRaised.Lightened(0.08f), 8, new Color(Ui.BarText, 0.2f), 1));
+            notch.Visible = active;
+            button.TooltipText = owed.Length == 0 ? $"Open {name}" : $"{name}: required before Start festival. " + string.Join(" ", owed.Select(item => item.Detail));
         }
     }
 
-    /// <summary>The checklist panel, for HUD hit-testing.</summary>
-    public Control? Readiness => _preparationReadiness;
-    public bool Visible => _preparationDock?.Visible == true;
+    private void RefreshReadiness(IReadOnlyList<PreparationStartRequirement> requirements, PreparationStartRequirement[] missing)
+    {
+        var done = requirements.Count - missing.Length;
+        _ring!.Fraction = requirements.Count == 0 ? 0 : (float)done / requirements.Count;
+        _ring.Text = $"{done}/{requirements.Count}";
+        _readinessTitle!.Text = missing.Length == 0 ? "Ready to open" : "Ready to open?";
+        _readinessDetail!.Text = missing.Length == 0 ? "Everything required is in place" : $"{Count(missing.Length)} left before Start";
+        var key = string.Join("|", requirements.Select(item => item.Id + ":" + item.Complete));
+        if (key == _readinessKey) return;
+        _readinessKey = key;
+        foreach (var child in _readinessRows!.GetChildren()) child.QueueFree();
+        foreach (var requirement in requirements)
+            _readinessRows.AddChild(ReadinessRow(requirement));
+    }
+
+    private PanelContainer ReadinessRow(PreparationStartRequirement requirement)
+    {
+        var (doneText, todoText) = Wording(requirement);
+        var destination = Destination(requirement.Owner);
+        var complete = requirement.Complete;
+        var row = new PanelContainer { CustomMinimumSize = new Vector2(0, Ui.S(complete ? 30 : 34)), MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+            MouseFilter = Control.MouseFilterEnum.Stop, TooltipText = complete ? $"{doneText} · open {destination} to review" : requirement.Detail };
+        var rest = complete ? Ui.Box(new Color(0, 0, 0, 0), 6, padX: 6) : Ui.Box(Ui.AlertWash, 6, padX: 6);
+        var hover = complete ? Ui.Box(new Color(0, 0, 0, 0.04f), 6, padX: 6) : Ui.Box(Ui.AlertWash.Darkened(0.04f), 6, padX: 6);
+        row.AddThemeStyleboxOverride("panel", rest);
+        row.MouseEntered += () => row.AddThemeStyleboxOverride("panel", hover);
+        row.MouseExited += () => row.AddThemeStyleboxOverride("panel", rest);
+        row.GuiInput += input =>
+        {
+            if (input is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: true }) { _nav.OpenDestination(destination); row.AcceptEvent(); }
+        };
+        var line = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+        line.AddThemeConstantOverride("separation", Ui.Px(10)); row.AddChild(line);
+        var mark = new PanelContainer { CustomMinimumSize = Ui.S(20, 20), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
+        mark.AddThemeStyleboxOverride("panel", Ui.Box(complete ? Ui.Teal : Ui.Alert, 10));
+        line.AddChild(mark);
+        if (complete)
+        {
+            var tick = Ui.IconRect("check", 13, Colors.White); tick.SizeFlagsHorizontal = tick.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; mark.AddChild(tick);
+        }
+        else
+        {
+            var bang = Ui.Text("!", 13, Colors.White, Ui.BodyBold); bang.HorizontalAlignment = HorizontalAlignment.Center; bang.VerticalAlignment = VerticalAlignment.Center;
+            mark.AddChild(bang);
+        }
+        var label = Ui.Text(complete ? doneText : todoText, 14, Ui.Ink, complete ? null : Ui.BodyBold);
+        label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; label.VerticalAlignment = VerticalAlignment.Center; line.AddChild(label);
+        if (!complete)
+        {
+            var link = Ui.Text(destination, 13, Ui.Link, Ui.BodySemi); link.VerticalAlignment = VerticalAlignment.Center; line.AddChild(link);
+            var chevron = Ui.IconRect("chevron-right", 15, Ui.Link); chevron.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; line.AddChild(chevron);
+        }
+        return row;
+    }
+
+    /// <summary>The checklist card, for HUD hit-testing.</summary>
+    public Control? Readiness => _readiness;
+    public bool Visible => _dock?.Visible == true;
 }

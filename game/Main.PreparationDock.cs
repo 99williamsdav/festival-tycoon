@@ -4,8 +4,10 @@ using System.Linq;
 
 namespace Festival.Game;
 
-public partial class Main : IPreparationNavigation
+public partial class Main : IPreparationNavigation, ITopBarActions
 {
+    private TopBar? _topView;
+    private TopBar Top => _topView ??= new(this, this);
     private PreparationDock? _dockView;
     private PreparationDock Dock => _dockView ??= new(this, this);
 
@@ -29,7 +31,9 @@ public partial class Main : IPreparationNavigation
     bool IPreparationNavigation.ReadinessCovered => (_hudWorkspaceOpen && !_buildDrawerOpen && HudProgrammeSelected()) || _contextPanel?.Visible == true;
     bool IPreparationNavigation.Placing => _buildGhostKind is not null;
     void IPreparationNavigation.ConfirmStart() => ShowHudStartConfirmation();
-    void IPreparationNavigation.ToggleRoster() => _hudRoster!.Visible = !_hudRoster.Visible;
-    void IPreparationNavigation.TogglePerks() => Perks.ToggleExpanded();
-    void IPreparationNavigation.RotateView() => _rig.Rotate(1);
+    void ITopBarActions.TogglePause() { _host.Submit(new SetPausedCommand(!_session.IsPaused)); RefreshPreparationHud(); }
+    void ITopBarActions.ShowAlerts() { _urgentAlertDisplay.ShowNextPage(); RenderUrgentAlerts(); }
+    void ITopBarActions.ToggleMenu() => _hudMenu!.Visible = !_hudMenu.Visible;
+    void ITopBarActions.TogglePerks() => Perks.ToggleExpanded();
+    void ITopBarActions.ToggleRoster() => _hudRoster!.Visible = !_hudRoster.Visible;
 }

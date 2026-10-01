@@ -109,7 +109,7 @@ public partial class Main
         _immersionHungerBar!.Value = person.Hunger / 100d;
         _immersionToiletBar!.Value = person.ToiletNeed / 100d;
         _immersionIntoxBar!.Value = person.Intoxication / 100d;
-        if (_hudMoney is not null)
+        if (Top.IsBuilt)
         {
             _immersionHungerLabel!.Text = $"HUNGER  {person.Hunger / 100m:0}%";
             _immersionToiletLabel!.Text = $"TOILET NEED  {person.ToiletNeed / 100m:0}%";

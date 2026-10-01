@@ -210,7 +210,7 @@ public partial class Main
             var id = offer.Id;
             var button = ButtonText($"{FestivalCopy(offer.Name)}  £{offer.PricePennies / 100m:0}", () => PreparationAccept(id));
             button.AddThemeFontSizeOverride("font_size", 14); button.ClipText = true; button.TooltipText = FestivalCopy(offer.Name);
-            var destination = _hudTabs is null ? box : _hudPages[offer.Category switch { "equipment" => "Equipment", "contract" => "Stock", "act" => "Programme", _ => "Staff" }];
+            var destination = _hudTabs is null ? box : _hudPages[offer.Category switch { "equipment" => "Supplies", "contract" => "Supplies", "act" => "Programme", _ => "Staff" }];
             _offerButtons.Add(id, button); destination.AddChild(button);
             if (_hudTabs is null) box.MoveChild(button, index++);
         }

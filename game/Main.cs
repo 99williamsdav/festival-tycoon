@@ -343,7 +343,7 @@ public partial class Main : Node, IHudHost
         _inspectorTitle.Text = item.DisplayName;
         var permanence = item.IsPermanent ? "Permanent • Immovable" : "Inherited • Fixed for this blockout";
         _inspectorBody.Text = $"ID  {item.StableId}\nTYPE  {DisplayKind(item.Kind)}\nSTATE  {item.State}\nSITE  {item.XMetres:0.#} m, {item.ZMetres:0.#} m\n{permanence}";
-        if (_hudMoney is not null && !_hudDevelopment) _inspectorBody.Text = $"{DisplayKind(item.Kind)} · {item.State}\n{permanence}";
+        if (Top.IsBuilt && !_hudDevelopment) _inspectorBody.Text = $"{DisplayKind(item.Kind)} · {item.State}\n{permanence}";
         GD.Print($"FARM_SELECTED id={item.StableId} orientation={_rig.OrientationName}");
     }
 

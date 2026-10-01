@@ -24,7 +24,7 @@ public partial class Main
     {
         if (_hudWorkspace is null) return;
         var size = GetViewport().GetVisibleRect().Size;
-        var height = Math.Min(520, size.Y - 150);
+        var height = Math.Min(Ui.S(522), size.Y - Ui.ContentTop - Ui.Dock - Ui.S(12));
         var constrained = Perks.Panel?.Visible == true && _session.CapturePerks()?.Pending == false;
         if(constrained != _ownedWorkspaceConstrained) _ownedWorkspaceLayoutGeneration++;
         if (_ownedWorkspaceConstrained && !constrained && _hudTabs is not null)
@@ -35,11 +35,11 @@ public partial class Main
             CaptureOwnedWorkspaceClosedScroll();
         }
         if (constrained)
-            height = Math.Min(height, size.Y - 60 - 220 - 10 - 77);
+            height = Math.Min(height, size.Y - Ui.Dock - 8 - 220 - 10 - Ui.ContentTop);
         var bookingPage = Booking.IsBuilt && HudProgrammeSelected();
-        if (bookingPage && !constrained) height = Math.Min(660, size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? 210 : 138));
-        _hudWorkspace.Position = bookingPage && !constrained ? new Vector2(16, 72) : new Vector2(15, 77);
-        _hudWorkspace.Size = new Vector2(bookingPage && !constrained ? size.X - 32 : size.X >= 1600 ? 690 : 650, height);
+        if (bookingPage && !constrained) height = Math.Min(Ui.S(530), size.Y - Ui.ContentTop - (_session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock + Ui.S(12) : 60));
+        _hudWorkspace.Position = new Vector2(Ui.Gutter, Ui.ContentTop);
+        _hudWorkspace.Size = new Vector2(bookingPage && !constrained ? size.X - 2 * Ui.Gutter : size.X >= 1600 ? 690 : 650, height);
         LayoutOwnedContext(constrained);
         if (!_ownedWorkspaceConstrained && constrained && _hudTabs is not null)
         {
@@ -60,7 +60,7 @@ public partial class Main
     {
         if (_contextPanel is null) return;
         var size = GetViewport().GetVisibleRect().Size;
-        var y = _session.PreparedStatus == PreparationStatus.Preparing ? 77 : _hudProgrammeOpen ? 280 : 99;
+        var y = _session.PreparedStatus == PreparationStatus.Preparing ? Ui.ContentTop : _hudProgrammeOpen ? Ui.TopBar + 222 : Ui.TopBar + 41;
         var height = Math.Min(380, size.Y - y - 60);
         if (constrained) height = Math.Min(height, size.Y - 60 - 220 - 10 - y);
         _contextPanel.Position = new Vector2(size.X - 300, y);

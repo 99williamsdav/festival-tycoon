@@ -71,8 +71,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     public void Build(CanvasLayer layer, Vector2 size)
     {
         var width = size.X >= 1600 ? 390f : 318f;
-        _buildDrawer = HudPanel(layer, new Vector2(15, 77), new Vector2(width,
-            Math.Min(size.X >= 1600 ? 735 : 530, size.Y - 212)));
+        _buildDrawer = HudPanel(layer, new Vector2(Ui.Gutter, Ui.ContentTop), new Vector2(width,
+            Math.Min(size.X >= 1600 ? 735 : 530, size.Y - Ui.ContentTop - Ui.Dock - Ui.S(12))));
         _buildDrawer.Visible = false;
         var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
         _buildCatalogueScroll = scroll;
@@ -199,16 +199,9 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     }
     public string CostSummary()
     {
-        var plan = _hud.Session.CapturePreparationPlan()!;
-        var offers = _hud.Session.GetPreparationOffers();
-        var acts = plan.ActIds.Where(id => id != "").Sum(id => offers.Single(offer => offer.Id == id).PricePennies);
-        var staff = plan.OfferIds.Where(id => offers.Single(offer => offer.Id == id).Category is "staff" or "maintenance" or "extra-medic" or "extra-steward")
-            .Sum(id => offers.Single(offer => offer.Id == id).PricePennies);
-        var equipment = plan.OfferIds.Where(id => offers.Single(offer => offer.Id == id).Category == "equipment")
-            .Sum(id => offers.Single(offer => offer.Id == id).PricePennies);
-        var stock = plan.Chips * 100 + plan.SoftDrinks * 60 + plan.Beers * 100;
-        return $"Services {FestivalCurrency.Format(_hud.Session.BuildDraftCost)} · Acts {FestivalCurrency.Format(acts)} · Staff {FestivalCurrency.Format(staff)}\n" +
-            $"Equipment {FestivalCurrency.Format(equipment)} · Stock {FestivalCurrency.Format(stock)}\n" +
+        var costs = PlanCosts.Of(_hud.Session);
+        return $"Services {FestivalCurrency.Format(costs.Services)} · Acts {FestivalCurrency.Format(costs.Acts)} · Staff {FestivalCurrency.Format(costs.Staff)}\n" +
+            $"Equipment {FestivalCurrency.Format(costs.Equipment)} · Stock {FestivalCurrency.Format(costs.Stock)}\n" +
             $"Complete setup {FestivalCurrency.Format(_hud.Session.PreparationPlanCost)} · Remaining {FestivalCurrency.Format(_hud.Session.PreparationRemainingCash)}";
     }
     private void ShowDefaults()

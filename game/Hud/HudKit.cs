@@ -2,6 +2,7 @@ global using static Festival.Game.HudKit;
 using Festival.Simulation;
 using Godot;
 using System;
+using System.Linq;
 
 namespace Festival.Game;
 
@@ -162,6 +163,9 @@ internal static class HudKit
         text.Replace("weekend", "festival", StringComparison.Ordinal).Replace("Weekend", "Festival", StringComparison.Ordinal)
             .Replace("WEEKEND", "FESTIVAL", StringComparison.Ordinal);
 
+    /// <summary>Elapsed festival time as mm:ss (80 ticks a second).</summary>
+    internal static string FestivalClockText(long ticks) => $"{Math.Max(0, ticks) / 80 / 60:00}:{Math.Max(0, ticks) / 80 % 60:00}";
+
     internal static string BuildName(BuildServiceKind kind) => kind switch
     {
         BuildServiceKind.WaterTap => "Water tap",
@@ -172,4 +176,23 @@ internal static class HudKit
         BuildServiceKind.StewardPost => "Steward post",
         _ => "Service"
     };
+}
+
+/// <summary>The unpaid preparation draft split the way the HUD reports it, in pennies.</summary>
+internal sealed record PlanCosts(long Services, long Acts, long Staff, long Equipment, long Stock)
+{
+    public long Supplies => Equipment + Stock;
+
+    public static PlanCosts Of(GameSession session)
+    {
+        var plan = session.CapturePreparationPlan();
+        if (plan is null) return new(0, 0, 0, 0, 0);
+        var offers = session.GetPreparationOffers().ToDictionary(offer => offer.Id);
+        long Sum(Func<PreparationOffer, bool> include) => plan.OfferIds.Select(id => offers[id]).Where(include).Sum(offer => (long)offer.PricePennies);
+        return new(session.BuildDraftCost,
+            plan.ActIds.Where(id => id != "").Sum(id => (long)offers[id].PricePennies),
+            Sum(offer => offer.Category is "staff" or "maintenance" or "extra-medic" or "extra-steward"),
+            Sum(offer => offer.Category == "equipment"),
+            plan.Chips * 100 + plan.SoftDrinks * 60 + plan.Beers * 100);
+    }
 }

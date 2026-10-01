@@ -5,15 +5,26 @@ namespace Festival.Game;
 
 /// <summary>
 /// The HUD redesign's look: palette, fonts, icons and widget styles. The designer's mockups are
-/// drawn at 1280×720 and the HUD canvas is 1600×900, so mockup measurements go through <see cref="S"/>.
+/// drawn for a 1280-wide screen, so mockup measurements go through <see cref="S"/>, which scales
+/// them to the HUD canvas (1600 wide in play; 1280 in captures, where they match the mockups exactly).
 /// </summary>
 internal static class Ui
 {
-    public const float Scale = 1.25f;
+    public static float Scale { get; private set; } = 1.25f;
+    /// <summary>Sets the mockup scale from the HUD canvas size, before any HUD is built.</summary>
+    public static void Configure(Vector2 canvas) => Scale = canvas.X / 1280f;
     /// <summary>A mockup measurement in HUD canvas units.</summary>
     public static float S(float mockup) => Mathf.Round(mockup * Scale);
     public static int Px(float mockup) => (int)Mathf.Round(mockup * Scale);
     public static Vector2 S(float x, float y) => new(S(x), S(y));
+
+    /// <summary>The top status bar's height.</summary>
+    public static float TopBar => S(60);
+    /// <summary>Where sheets and cards start below the top bar.</summary>
+    public static float ContentTop => S(78);
+    /// <summary>The preparation dock's height.</summary>
+    public static float Dock => S(108);
+    public static float Gutter => S(16);
 
     // Bars: the top status bar, the dock and dark tooltips.
     public static readonly Color BarDeep = new("0e1f1a");

@@ -15,16 +15,9 @@ public partial class Main
     private PanelContainer? _hudProgramme;
     private Control? _hudAlerts;
     private PanelContainer? _hudDiagnostics;
-    private Label? _hudMoney;
-    private Label? _hudPhase;
-    private Label? _hudClock;
-    private Label? _hudAttendance;
-    private Label? _hudWeather;
     private Label? _hudStatus;
     private Label? _hudStartReason;
     private Label? _hudDiagnosticsText;
-    private Button? _hudPause;
-    private Button? _hudAlertToggle;
     private Button? _hudPreparationToggle;
     private Button? _hudProgrammeToggle;
     private Button? _hudRosterToggle;
@@ -54,24 +47,12 @@ public partial class Main
         if (_session.CaptureProgramme() is not null) _preparationMessage = "Choose three different acts and hire a sound engineer. Equipment and stock are optional.";
         var layer = new CanvasLayer(); AddChild(layer);
         var size = GetViewport().GetVisibleRect().Size;
+        Ui.Configure(size);
         var width = size.X; var height = size.Y;
-        var top = HudPanel(layer, Vector2.Zero, new Vector2(width, 58), HudInk);
-        top.AddThemeStyleboxOverride("panel", HudStyle(HudInk, 6));
-        var topRow = new HBoxContainer(); topRow.AddThemeConstantOverride("separation", 22); top.AddChild(topRow);
-        _hudPhase = LabelText("", 14, HudPaper); _hudPhase.CustomMinimumSize = new Vector2(228, 0); topRow.AddChild(_hudPhase);
-        _hudMoney = LabelText("", 15, HudPaper); _hudMoney.CustomMinimumSize = new Vector2(90, 0); topRow.AddChild(_hudMoney);
-        _hudClock = LabelText("", 15, HudPaper); _hudClock.CustomMinimumSize = new Vector2(155, 0); topRow.AddChild(_hudClock);
-        _hudAttendance = LabelText("", 15, HudPaper); _hudAttendance.CustomMinimumSize = new Vector2(125, 0); topRow.AddChild(_hudAttendance);
-        _hudWeather = LabelText("", 15, HudPaper); topRow.AddChild(_hudWeather);
-        topRow.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
-        _hudAlertToggle = ButtonText("Alerts · 0", () => { _urgentAlertDisplay.ShowNextPage(); RenderUrgentAlerts(); }); topRow.AddChild(_hudAlertToggle);
-        _hudAlertToggle.TooltipText = "Show current urgent alerts; press again for the next group. Select an alert to locate it.";
-        _hudPause = ButtonText("Pause", () => { _host.Submit(new SetPausedCommand(!_session.IsPaused)); RefreshPreparationHud(); }); topRow.AddChild(_hudPause);
-        _buildToggleButton = ButtonText("Build", ToggleBuildDrawer); topRow.AddChild(_buildToggleButton);
-        topRow.AddChild(ButtonText("Menu", () => { _hudMenu!.Visible = !_hudMenu.Visible; }));
+        Top.Build(layer, width);
 
         var workspaceWidth = width >= 1600 ? 690 : 650;
-        _hudWorkspace = HudPanel(layer, new Vector2(15, 77), new Vector2(workspaceWidth, Math.Min(520, height - 150)));
+        _hudWorkspace = HudPanel(layer, new Vector2(Ui.Gutter, Ui.ContentTop), new Vector2(workspaceWidth, Math.Min(Ui.S(522), height - Ui.ContentTop - Ui.Dock - Ui.S(12))));
         _hudWorkspace.MinimumSizeChanged += () => Booking.ScheduleLayout();
         var workspaceBox = new VBoxContainer(); workspaceBox.AddThemeConstantOverride("separation", 12); _hudWorkspace.AddChild(workspaceBox);
         var heading = new HBoxContainer(); workspaceBox.AddChild(heading);
@@ -81,7 +62,7 @@ public partial class Main
         _hudTabs = new TabContainer { SizeFlagsVertical = Control.SizeFlags.ExpandFill }; workspaceBox.AddChild(_hudTabs);
         _hudTabs.TabsVisible = false;
         _hudTabs.UseHiddenTabsForMinSize = false;
-        foreach (var name in new[] { "Build", "Overview", "Programme", "Staff", "Equipment", "Stock", "Site & water" })
+        foreach (var name in new[] { "Build", "Overview", "Programme", "Staff", "Supplies", "Site & water" })
         {
             var scroll = new ScrollContainer { Name = name, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
             if (name == "Programme")
@@ -107,21 +88,21 @@ public partial class Main
         overview.AddChild(ButtonText("Open Build catalogue", () => OpenBuildCatalogue()));
         Drawer.AddChecklistShortcuts(overview);
 
-        foreach (var (name, label) in new[] { ("Programme", "Choose acts"), ("Staff", "Manage staff"), ("Stock", "Review stock"), ("Site & water", "Review site") })
+        foreach (var (name, label) in new[] { ("Programme", "Choose acts"), ("Staff", "Manage staff"), ("Supplies", "Review supplies"), ("Site & water", "Review site") })
         {
             var destination = name; var shortcut = ButtonText(label, () => SelectHudTab(destination)); shortcut.CustomMinimumSize = new Vector2(0, 32); overview.AddChild(shortcut);
         }
         Booking.Build(_hudPages["Programme"]);
-        _hudPages["Equipment"].AddChild(HudLabel("Optional sound rig", 21));
-        _hudPages["Equipment"].AddChild(HudLabel("Buy £120 (+1000 quality, retained) or rent £30 (+500, this festival).\nGenerator: safe 80% baseline."));
         _hudPages["Staff"].AddChild(HudLabel("Festival staff", 21));
         _hudPages["Staff"].AddChild(HudLabel("Hire at least one sound engineer or unlocked role before opening. Maintenance is optional; extra role hires require their unlocked slot. Pay at Start."));
         _preparationOfferBox = _hudPages["Staff"]; _preparationOfferInsertIndex = _preparationOfferBox.GetChildCount(); RebuildPreparationOffers();
-        _hudPages["Stock"].AddChild(HudLabel("Food & drink starter stock", 21));
-        _hudPages["Stock"].AddChild(HudLabel(_session.CapturePreparationPlan() is null ? "Optional fixed bundle • once before opening\n\nPRODUCT              QUANTITY              SALE PRICE\nChips                         40                              £3\nSoft drink                  40                              £2\nBeer                           32                              £3" : "Optional unpaid quantities • change before Start\nSale prices: chips £3 · soft drinks £2 · beer £3"));
-        BuildImmersionControls(_hudPages["Stock"]);
-        _hudPages["Stock"].AddThemeConstantOverride("separation", 8);
+        _hudPages["Supplies"].AddChild(HudLabel("Food & drink starter stock", 21));
+        _hudPages["Supplies"].AddChild(HudLabel(_session.CapturePreparationPlan() is null ? "Optional fixed bundle • once before opening\n\nPRODUCT              QUANTITY              SALE PRICE\nChips                         40                              £3\nSoft drink                  40                              £2\nBeer                           32                              £3" : "Optional unpaid quantities • change before Start\nSale prices: chips £3 · soft drinks £2 · beer £3"));
+        BuildImmersionControls(_hudPages["Supplies"]);
+        _hudPages["Supplies"].AddThemeConstantOverride("separation", 8);
         _immersionControls!.GetChild<Control>(0).Visible = false;
+        _hudPages["Supplies"].AddChild(HudLabel("Optional sound rig", 21));
+        _hudPages["Supplies"].AddChild(HudLabel("Buy £120 (+1000 quality, retained) or rent £30 (+500, this festival).\nGenerator: safe 80% baseline."));
         var site = _hudPages["Site & water"];
         site.AddChild(HudLabel("Site & water", 21)); site.AddChild(HudLabel("Manage water choices here. Place taps and other services through Build; select a placed object on the field to move it."));
         site.AddChild(HudLabel("Council water choice • this festival\nShare free water with the neighbouring community. Faster drinkers take longer; queues may grow. Honour the full festival for 1 Council Favour, once per campaign."));
@@ -148,8 +129,8 @@ public partial class Main
         _hudStartConfirmation.Confirmed += PreparationStart; layer.AddChild(_hudStartConfirmation);
 
         _hudProgrammeToggle = ButtonText("Programme ▴", () => { _hudProgrammeOpen = !_hudProgrammeOpen; RefreshHudWorkspace(); });
-        _hudProgrammeToggle.Position = new Vector2(width - 150, 58); _hudProgrammeToggle.Size = new Vector2(150, 34); _hudProgrammeToggle.Theme = HudTheme(); layer.AddChild(_hudProgrammeToggle);
-        _hudProgramme = HudPanel(layer, new Vector2(width - 300, 92), new Vector2(300, 172));
+        _hudProgrammeToggle.Position = new Vector2(width - 150, Ui.TopBar); _hudProgrammeToggle.Size = new Vector2(150, 34); _hudProgrammeToggle.Theme = HudTheme(); layer.AddChild(_hudProgrammeToggle);
+        _hudProgramme = HudPanel(layer, new Vector2(width - 300, Ui.TopBar + 34), new Vector2(300, 172));
         var programmeBox = new VBoxContainer(); _hudProgramme.AddChild(programmeBox);
         _liveSetCue = HudLabel("", 15); programmeBox.AddChild(_liveSetCue);
 
@@ -168,7 +149,7 @@ public partial class Main
         ConstrainHudControls(detail);
         contextClose.CustomMinimumSize = new Vector2(38, 38); contextClose.SizeFlagsHorizontal = Control.SizeFlags.Fill;
 
-        _hudMenu = HudPanel(layer, new Vector2(width - 265, 65), new Vector2(250, 180)); _hudMenu.Visible = false;
+        _hudMenu = HudPanel(layer, new Vector2(width - 265, Ui.TopBar + 6), new Vector2(250, 180)); _hudMenu.Visible = false;
         var menuScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _hudMenu.AddChild(menuScroll);
         var menuBox = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; menuBox.AddThemeConstantOverride("separation", 6); menuScroll.AddChild(menuBox);
         menuBox.AddChild(HudLabel("Festival menu", 14)); menuBox.AddChild(ButtonText("Save", PreparationSave)); menuBox.AddChild(ButtonText("Load", PreparationLoad));
@@ -184,7 +165,7 @@ public partial class Main
         if (_session.CaptureMedical() is not null) BuildMedicalControls(diagnosticBox);
         if (_session.CaptureDisorder() is not null) BuildDisorderControls(diagnosticBox);
 
-        _hudAlerts = new Control { Position = new Vector2(15, 70), Size = new Vector2(400, 130), MouseFilter = Control.MouseFilterEnum.Ignore, ZIndex = 20 }; layer.AddChild(_hudAlerts);
+        _hudAlerts = new Control { Position = new Vector2(Ui.Gutter, Ui.TopBar + 10), Size = new Vector2(400, 130), MouseFilter = Control.MouseFilterEnum.Ignore, ZIndex = 20 }; layer.AddChild(_hudAlerts);
         _hudAlertBox = new VBoxContainer { Size = new Vector2(400, 0), MouseFilter = Control.MouseFilterEnum.Ignore }; _hudAlerts.AddChild(_hudAlertBox);
         _hudRoster = HudPanel(layer, new Vector2(15, height - 422), new Vector2(330, 280)); _hudRoster.Visible = false;
         _preparationRosterScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _hudRoster.AddChild(_preparationRosterScroll);
@@ -197,7 +178,7 @@ public partial class Main
         statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
         _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
         Perks.Build(layer);
-        Hearing.Build(layer); Drawer.Build(layer, size); Dock.Build(layer, size); RefreshPreparationHud();
+        Hearing.Build(layer); Drawer.Build(layer, size); Dock.Build(layer, size); BuildMapControls(layer, size); RefreshPreparationHud();
     }
 
     private static void ConstrainHudControls(Node root)
@@ -228,36 +209,25 @@ public partial class Main
         _hudStartConfirmation!.PopupCentered(new Vector2I(480, 180));
     }
 
-    private static string HudTime(long ticks) => $"{Math.Max(0, ticks) / 80 / 60:00}:{Math.Max(0, ticks) / 80 % 60:00}";
 
     private void RefreshHudWorkspace()
     {
-        if (_hudMoney is null || _session.CapturePreparation() is not { } p) return;
+        if (!Top.IsBuilt || _session.CapturePreparation() is not { } p) return;
         var preparing = p.Status == PreparationStatus.Preparing;
         var placing = _buildGhostKind is not null;
         if (placing) _hudWorkspaceOpen = false;
         var finance = _session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);
-        _hudPhase!.Text = $"Lower Wittering\n{(preparing ? "PREPARATION · BEFORE OPENING" : "LIVE · FESTIVAL DAY")}";
-        if (p.Status == PreparationStatus.Departing) _hudPhase.Text = "Lower Wittering\nDEPARTING · FESTIVAL FINISHED";
-        _hudMoney.Text = $"MONEY\n{FestivalCurrency.Format(finance.CashPennies)}";
-        _hudClock!.Text = preparing ? "FESTIVAL CLOCK\nNot started" : $"FESTIVAL CLOCK\n{HudTime(_session.CurrentTick - p.StartedTick)} / 08:00";
-        _hudAttendance!.Text = $"Attendees\n{_session.OnSiteAttendeeCount} / {p.People.Count(person => person.Role == ProtectedPersonRole.Guest)}";
-        _hudWeather!.Text = "WEATHER\n" + (_session.CaptureMedical() is { IsHot: true } ? "☀ Hot" : "Unavailable");
-        _hudPause!.Visible = !preparing; _hudPause.Text = _session.IsPaused ? "Resume" : "Pause";
-        _hudPause.TooltipText = "Pause / resume (Space)";
         _hudStatus!.Text = placing ? "Placement preview · no change until a valid click" : _preparationMessage;
         if (_buildGhostKind is not null) _hudStatus.Text = _preparationMessage;
         if (p.Status == PreparationStatus.Departing)
             _hudStatus.Text = $"Festival finished · Guests leaving: {p.People.Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed)}";
         _hudStatus.TooltipText = _preparationMessage;
         _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
-        if (_buildToggleButton is not null) _buildToggleButton.Visible = preparing;
         if (Drawer.Panel is not null) Drawer.Panel.Visible = preparing && _buildDrawerOpen && !placing && _session.CapturePerks()?.Pending != true;
         LayoutOwnedPerkWorkspace();
         _hudPreparationToggle!.Visible = false; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
         _hudLegacyBottom!.Visible = !preparing;
         _hudLegacyStatusPanel!.Visible = !preparing;
-        if (_buildToggleButton is not null) _buildToggleButton.Visible = false;
         if (Perks.Toggle is not null && _session.CapturePerks()?.Pending != true) Perks.Toggle.Visible = !preparing;
 
         _hudRosterToggle!.Text = $"People · {p.People.Length} ▸";
@@ -314,8 +284,8 @@ public partial class Main
         }
         RefreshHudAlerts();
         Drawer.Refresh();
-        if (_buildToggleButton is not null) _buildToggleButton.Text = _buildDrawerOpen ? "Build ×" : "Build";
         Dock.Refresh();
+        if (_mapControls is not null) _mapControls.Visible = Dock.Visible && !(_hudWorkspaceOpen && !_buildDrawerOpen && HudProgrammeSelected());
     }
 
     private void RefreshHudPreparationReadiness()
@@ -376,7 +346,7 @@ public partial class Main
             }
         if (_session.CaptureEquipment() is { Stage: EquipmentStage.Warning or EquipmentStage.DangerousFault })
             Add("generator", "Generator overload · inspect power", 80, () => SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.trailer-stage")));
-        _hudAlertToggle!.Text = alerts.Count == 0 ? "Alerts · 0" : $"{alerts.Count} urgent alert{(alerts.Count == 1 ? "" : "s")}";
+        Top.Refresh(alerts.Count);
         _urgentAlertDisplay.Observe(alerts);
         RenderUrgentAlerts();
     }
@@ -390,7 +360,7 @@ public partial class Main
             if (panel is null) continue;
             if (!_alertClearance.TryGetValue(panel, out var layout) || panel.Position != layout.Applied)
                 layout = (panel.Position, panel.Size, panel.Position);
-            var y = alerts.Length == 0 ? layout.Position.Y : Math.Max(layout.Position.Y, 78 + alerts.Length * 32);
+            var y = alerts.Length == 0 ? layout.Position.Y : Math.Max(layout.Position.Y, Ui.ContentTop + alerts.Length * 32);
             panel.Position = new Vector2(layout.Position.X, y);
             // Scrollable preparation content keeps its original lower edge above the dock.
             panel.Size = new Vector2(layout.Size.X, Math.Max(65, layout.Size.Y - (y - layout.Position.Y)));
@@ -430,9 +400,31 @@ public partial class Main
     {
         if(Perks.Panel?.Visible==true && Perks.Panel.GetGlobalRect().HasPoint(screen))return true;
         if(Perks.EffectPopup?.Visible==true && Perks.EffectPopup.GetGlobalRect().HasPoint(screen))return true;
-        if (_hudMoney is null) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
-        if (screen.Y < 60 || screen.Y > GetViewport().GetVisibleRect().Size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? 128 : 54)) return true;
-        return new Control?[] { _hudWorkspace, Drawer.Panel, Dock.Readiness, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
+        if (!Top.IsBuilt) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
+        if (screen.Y < Ui.TopBar || screen.Y > GetViewport().GetVisibleRect().Size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock : 54)) return true;
+        return new Control?[] { _hudWorkspace, Drawer.Panel, Dock.Readiness, _mapControls, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
             .Any(control => control?.IsVisibleInTree() == true && control.GetGlobalRect().HasPoint(screen));
+    }
+
+    private VBoxContainer? _mapControls;
+
+    /// <summary>Round rotate and zoom buttons at the field's right edge during preparation.</summary>
+    private void BuildMapControls(CanvasLayer layer, Vector2 size)
+    {
+        _mapControls = new VBoxContainer();
+        _mapControls.AddThemeConstantOverride("separation", Ui.Px(8));
+        foreach (var (icon, tip, action) in new (string, string, Action)[]
+                 { ("rotate-cw", "Rotate view (Q / E)", () => _rig.Rotate(1)), ("plus", "Zoom in (wheel)", () => _rig.Zoom(-4)), ("minus", "Zoom out (wheel)", () => _rig.Zoom(4)) })
+        {
+            var button = new Button { Icon = Ui.Icon(icon), ExpandIcon = true, IconAlignment = HorizontalAlignment.Center, TooltipText = tip,
+                CustomMinimumSize = Ui.S(44, 44), MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+            Ui.Style(button, Ui.ButtonKind.Bar, radius: 22);
+            var round = Ui.Box(Ui.Bar, 22, new Color(Ui.BarText, 0.25f), 1, shadow: 4, shadowAlpha: 0.3f);
+            foreach (var state in new[] { "normal", "focus", "pressed" }) button.AddThemeStyleboxOverride(state, round);
+            button.AddThemeStyleboxOverride("hover", Ui.Box(Ui.BarRaised, 22, new Color(Ui.BarText, 0.3f), 1, shadow: 4, shadowAlpha: 0.3f));
+            button.Pressed += action; _mapControls.AddChild(button);
+        }
+        _mapControls.Position = new Vector2(size.X - Ui.Gutter - Ui.S(44), size.Y - Ui.Dock - Ui.S(20) - Ui.S(44) * 3 - Ui.S(8) * 2);
+        layer.AddChild(_mapControls);
     }
 }

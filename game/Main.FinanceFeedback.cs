@@ -54,14 +54,14 @@ public partial class Main
         Control? control = key switch
         {
             "stock" => _immersionStockButton,
-            _ => key.StartsWith("offer:", StringComparison.Ordinal) && _offerButtons.TryGetValue(key[6..], out var button) ? button : _hudMoney ?? _preparationSummary
+            _ => key.StartsWith("offer:", StringComparison.Ordinal) && _offerButtons.TryGetValue(key[6..], out var button) ? button : Top.Cash ?? _preparationSummary
         };
         if (control is null) return null;
         // Paid offers can disappear when opening. The finance summary remains
         // the relevant panel anchor when the original control is no longer shown.
-        if (!FinanceFeedbackControlVisible(control)) control = _hudMoney ?? _preparationSummary;
+        if (!FinanceFeedbackControlVisible(control)) control = Top.Cash ?? _preparationSummary;
         var rect = control.GetGlobalRect();
-        if (control == _hudMoney)
+        if (control == Top.Cash)
             // The flush bar has no room above it for drift/stacking. Reserve
             // that cosmetic space immediately below its actual money chip.
             return new Vector2(rect.Position.X + rect.Size.X / 2, rect.End.Y + 110);

@@ -18,7 +18,6 @@ public partial class Main : IBuildActions
     void IBuildActions.OpenCatalogue(BuildServiceKind kind) => OpenBuildCatalogue(kind);
     void IBuildActions.OpenTab(string name) => SelectHudTab(name);
     Node3D IBuildActions.BuildAsset(BuildServiceKind kind) => BuildAsset(kind);
-    private Button? _buildToggleButton;
     private bool _buildDrawerOpen;
     private BuildServiceKind? _buildGhostKind;
     private string? _buildMovingId;
@@ -49,14 +48,6 @@ public partial class Main : IBuildActions
 
 
 
-    private void ToggleBuildDrawer()
-    {
-        if (_session.PreparedStatus != PreparationStatus.Preparing) return;
-        if (_buildGhostKind is not null) CancelBuildPlacement();
-        _buildDrawerOpen = !_buildDrawerOpen;
-        if (_buildDrawerOpen) _hudWorkspaceOpen = false;
-        RefreshHudWorkspace();
-    }
 
     private void OpenBuildCatalogue(BuildServiceKind? focus = null)
     {

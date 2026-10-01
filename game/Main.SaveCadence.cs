@@ -33,7 +33,7 @@ public partial class Main
             _cadenceErrorLayer = new CanvasLayer { Layer = 30 };
             AddChild(_cadenceErrorLayer);
             var width = Math.Min(480, GetViewport().GetVisibleRect().Size.X - 30);
-            var panel = HudPanel(_cadenceErrorLayer, new Vector2(15, 65), new Vector2(width, 130));
+            var panel = HudPanel(_cadenceErrorLayer, new Vector2(Ui.Gutter, Ui.TopBar + 8), new Vector2(width, 130));
             var column = new VBoxContainer();
             panel.AddChild(column);
             column.AddChild(HudLabel("Campaign save needs attention", 18));

@@ -85,7 +85,7 @@ public partial class Main
         if (ResultsPaper.IsOpen || StartMenu.IsOpen || _hudStartConfirmation?.Visible == true || Hearing.IsOpen || HoverPopupActive) return true;
         if (Perks.Panel?.IsVisibleInTree() == true && Perks.Panel.GetGlobalRect().HasPoint(screen)) return true;
         if (Perks.EffectPopup?.IsVisibleInTree() == true && Perks.EffectPopup.GetGlobalRect().HasPoint(screen)) return true;
-        if (_hudMoney is not null && HudBlocksPlacement(screen)) return true;
+        if (Top.IsBuilt && HudBlocksPlacement(screen)) return true;
         // Godot resolves Ignore/Pass/Stop and child ordering; a label inside a
         // panel still blocks the world through its receiving ancestor.
         if (screen.IsEqualApprox(GetViewport().GetMousePosition()))

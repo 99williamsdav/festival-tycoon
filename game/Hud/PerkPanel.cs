@@ -227,9 +227,9 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         _perkScroll.VerticalScrollMode = draft ? ScrollContainer.ScrollMode.Auto : ScrollContainer.ScrollMode.Disabled;
         _perkBody!.AddThemeConstantOverride("separation", draft ? 9 : 6);
         var width = draft ? size.X - 120 : size.X - 20;
-        var height = draft ? size.Y - 120 : 220;
-        _perkPanel.Position = draft ? new Vector2(60,65) : new Vector2((size.X-width)/2,
-            size.Y - (_hud.Session.PreparedStatus == PreparationStatus.Preparing ? 132 : 60) - height);
+        var height = draft ? size.Y - Ui.TopBar - 63 : 220;
+        _perkPanel.Position = draft ? new Vector2(60, Ui.TopBar + 8) : new Vector2((size.X-width)/2,
+            size.Y - (_hud.Session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock + 8 : 60) - height);
         _perkPanel.Size = new Vector2(width,height);
     }
     private void BuildPerkConfirmation(PerkSnapshot p)

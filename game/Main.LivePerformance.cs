@@ -119,16 +119,16 @@ public partial class Main
             if (ImmersionHeavyOnSiteCount() is var heavy && heavy > 0)
                 _liveSetCue.Text += $"\n! {heavy} HEAVY INTOXICATION • SELECT FOR MEDIC CARE";
         }
-        if (_hudMoney is not null)
+        if (Top.IsBuilt)
         {
             var compactProgramme = _session.CaptureProgramme();
             var act = _session.CurrentFestivalAct;
             var next = _session.UpcomingFestivalAct;
             var remaining = compactProgramme is not null ? Math.Max(0, compactProgramme.SlotEndTick - _session.CurrentTick) : Math.Max(0, live.StartedTick + GameSession.LiveSetDurationTicks - _session.CurrentTick);
             _liveSetCue.Text = $"ON STAGE · {live.Stage}\n{act?.Name ?? (_session.PreparedStatus == PreparationStatus.Preparing ? "Awaiting booking" : "Booked act")}\n" +
-                (live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted ? $"{FestivalGenreName(act?.Genre ?? 0)} · {HudTime(remaining)} remaining" :
+                (live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted ? $"{FestivalGenreName(act?.Genre ?? 0)} · {FestivalClockText(remaining)} remaining" :
                     _session.PreparedStatus == PreparationStatus.Departing ? "Final set finished · physical departures in progress" : compactProgramme?.Status ?? "Performers approaching stage") +
-                $"\n\nNEXT · {(_session.UpcomingFestivalTick < 0 ? "—" : HudTime(_session.UpcomingFestivalTick - _session.CapturePreparation()!.StartedTick))}\n{next?.Name ?? "No further set"}";
+                $"\n\nNEXT · {(_session.UpcomingFestivalTick < 0 ? "—" : FestivalClockText(_session.UpcomingFestivalTick - _session.CapturePreparation()!.StartedTick))}\n{next?.Name ?? "No further set"}";
         }
     }
 
@@ -178,7 +178,7 @@ public partial class Main
                 (_session.CaptureWaterPoints().Any(point => point.OwnerId == id.Value)
                     ? $"DRINKING • thirst {need.Thirst / 100m:0}% • heat {need.HeatExposure / 100m:0}%\n"
                 : "")) + StaffInterventionTargetText(id.Value) + DisorderPersonInspectorText(id.Value) + detail + ImmersionPersonInspectorText(id.Value);
-        if (_hudMoney is not null && !_hudDevelopment)
+        if (Top.IsBuilt && !_hudDevelopment)
         {
             var immersion = _session.CaptureImmersion()?.People.SingleOrDefault(item => item.AgentId == id.Value);
             var disorder = _session.CaptureDisorder()?.People.SingleOrDefault(item => item.AgentId == id.Value);
