@@ -25,6 +25,9 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     private Panel? _liveDot;
     private Label? _cash;
     private Label? _clock;
+    private Control? _clockTrack;
+    private float _clockFraction;
+    private readonly (float Start, float End, Color Colour)[] _clockSets = new (float, float, Color)[3];
     private Label? _guests;
     private Label? _guestsOf;
     private Label? _weather;
@@ -62,7 +65,10 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _phase = Ui.Caps("", Ui.Gold); phaseRow.AddChild(_phase);
 
         _cash = Stat(row, "Cash", glyph: "£", icon: null, divider: true).Value;
-        _clock = Stat(row, "Festival clock", glyph: null, icon: "clock", divider: true).Value;
+        (_clock, var clockLine) = Stat(row, "Festival clock", glyph: null, icon: "clock", divider: true);
+        _clockTrack = new Control { CustomMinimumSize = new Vector2(Ui.S(240), Ui.S(12)), Visible = false, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _clockTrack.Draw += DrawClockTrack;
+        ((VBoxContainer)clockLine.GetParent()).AddChild(_clockTrack);
         (_guests, var guestLine) = Stat(row, "Guests", glyph: null, icon: "users", divider: true);
         _guestsOf = Ui.Text("", 14, Ui.BarMuted, Ui.Slab); guestLine.AddChild(_guestsOf);
         _weather = Stat(row, "Weather", glyph: null, icon: "sun", divider: false).Value;
@@ -90,6 +96,24 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _alerts.AddChild(_alertBadge);
         buttons.AddChild(BarIconButton("menu", "Festival menu", _actions.ToggleMenu));
     }
+
+    /// <summary>The live day as a track: elapsed time, each set in its genre's colour, and a playhead.</summary>
+    private void DrawClockTrack()
+    {
+        var track = _clockTrack!; var size = track.Size;
+        track.DrawStyleBox(Ui.Box(Ui.BarDeep, 6), new Rect2(Vector2.Zero, size));
+        if (_clockFraction > 0) track.DrawStyleBox(Ui.Box(new Color(Ui.BarText, 0.28f), 6), new Rect2(Vector2.Zero, new Vector2(size.X * _clockFraction, size.Y)));
+        foreach (var (start, end, colour) in _clockSets)
+            if (end > start) track.DrawStyleBox(Ui.Box(colour, 3), new Rect2(size.X * start, Ui.S(2), size.X * (end - start), size.Y - Ui.S(4)));
+        var x = size.X * _clockFraction;
+        track.DrawRect(new Rect2(x - Ui.S(2.5f), -Ui.S(4), Ui.S(5), size.Y + Ui.S(8)), Ui.Bar);
+        track.DrawRect(new Rect2(x - Ui.S(1.5f), -Ui.S(4), Ui.S(3), size.Y + Ui.S(8)), Ui.BarText);
+    }
+
+    private static Color SetColour(int genre) => genre switch
+    {
+        0 => new Color("8fb27a"), 1 => new Color("d98a63"), 2 => new Color("e7c15a"), 3 => new Color("7fa9c9"), _ => Ui.BarMuted,
+    };
 
     private static HBoxContainer Group(HBoxContainer row, bool divider, bool first = false)
     {
@@ -161,6 +185,18 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         var finance = session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);
         _cash.Text = FestivalCurrency.Format(finance.CashPennies);
         _clock!.Text = preparing ? "Not started" : $"{FestivalClockText(session.CurrentTick - p.StartedTick)} / 08:00";
+        var programme = session.CaptureProgramme();
+        _clockTrack!.Visible = !preparing && programme is not null;
+        if (_clockTrack.Visible)
+        {
+            float day = GameSession.PreparedDayTicks;
+            _clockFraction = Math.Clamp((session.CurrentTick - p.StartedTick) / day, 0, 1);
+            var acts = session.GetFestivalActs().ToDictionary(act => act.Id);
+            for (var i = 0; i < 3; i++)
+                _clockSets[i] = (GameSession.FestivalSlotStarts[i] / day, GameSession.FestivalSlotEnds[i] / day,
+                    SetColour(acts.TryGetValue(programme!.ActIds[i], out var act) ? act.Genre : -1));
+            _clockTrack.QueueRedraw();
+        }
         _guests!.Text = session.OnSiteAttendeeCount.ToString();
         _guestsOf!.Text = $"/ {p.People.Count(person => person.Role == ProtectedPersonRole.Guest)}";
         _weather!.Text = session.CaptureMedical() is { IsHot: true } ? "Hot" : "Unavailable";

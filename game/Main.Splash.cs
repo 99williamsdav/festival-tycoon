@@ -32,7 +32,7 @@ public partial class Main
             _foundationPresentation.Reset(_session.CaptureObservation());
             Perks.Reset();
             Booking.Reset();
-            _hudWorkspaceOpen = true; _hudProgrammeOpen = false;
+            _hudWorkspaceOpen = true; _hudProgrammeOpen = true;
             _preparationMessage = "Choose three different acts and hire a sound engineer. Equipment and stock are optional.";
             ResetFinanceFeedback(); ResetLivePerformancePresentation();
             ResetMedicalCuePresentation(); ResetDisorderCuePresentation();

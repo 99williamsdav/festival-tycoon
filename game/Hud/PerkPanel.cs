@@ -139,9 +139,8 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
     {
         if (_perkPanel is null) return;
         var p = _hud.Session.CapturePerks();
-        _perkToggle!.Visible = p is { Ended: false };
-        if (_hud.Session.PreparedStatus == PreparationStatus.Preparing && p?.Pending == false)
-            _perkToggle.Visible = false;
+        // The top bar (preparation) and the live bar own the Perks button now.
+        _perkToggle!.Visible = false;
         _perkPanel.Visible = p is { Ended: false } && (p.Pending || _perksExpanded);
         if (!_perkPanel.Visible || p?.Pending != false) HideOwnedEffect();
         _layoutWorkspace();
@@ -229,7 +228,7 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         var width = draft ? size.X - 120 : size.X - 20;
         var height = draft ? size.Y - Ui.TopBar - 63 : 220;
         _perkPanel.Position = draft ? new Vector2(60, Ui.TopBar + 8) : new Vector2((size.X-width)/2,
-            size.Y - (_hud.Session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock + 8 : 60) - height);
+            size.Y - (_hud.Session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock + 8 : Ui.S(64) + 8) - height);
         _perkPanel.Size = new Vector2(width,height);
     }
     private void BuildPerkConfirmation(PerkSnapshot p)

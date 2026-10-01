@@ -12,26 +12,21 @@ public partial class Main
     private PanelContainer? _hudWorkspace;
     private PanelContainer? _hudMenu;
     private PanelContainer? _hudRoster;
-    private PanelContainer? _hudProgramme;
     private Control? _hudAlerts;
     private PanelContainer? _hudDiagnostics;
     private Label? _hudStatus;
     private Label? _hudStartReason;
     private Label? _hudDiagnosticsText;
-    private Button? _hudPreparationToggle;
-    private Button? _hudProgrammeToggle;
-    private Button? _hudRosterToggle;
-    private HBoxContainer? _hudLegacyBottom;
-    private PanelContainer? _hudLegacyStatusPanel;
     private ConfirmationDialog? _hudStartConfirmation;
     private ScrollContainer? _hudContextScroll;
     private TabContainer? _hudTabs;
     private readonly Dictionary<string, VBoxContainer> _hudPages = [];
-    private readonly List<Button> _hudAlertActions = [];
+    private readonly List<Control> _hudAlertActions = [];
     private VBoxContainer? _hudAlertBox;
     private readonly Festival.ContentAdapter.UrgentAlertDisplay _urgentAlertDisplay = new();
     private readonly Dictionary<string, Action> _urgentAlertActions = [];
     private string _hudAlertKey = "uninitialized";
+    private int _activeAlertCount;
     private readonly Dictionary<Control, (Vector2 Position, Vector2 Size, Vector2 Applied, Vector2 AppliedSize)> _alertClearance = [];
     private bool _hudWorkspaceOpen = true;
     private bool _hudProgrammeOpen = true;
@@ -129,11 +124,7 @@ public partial class Main
         }
         _hudStartConfirmation.Confirmed += PreparationStart; layer.AddChild(_hudStartConfirmation);
 
-        _hudProgrammeToggle = ButtonText("Programme ▴", () => { _hudProgrammeOpen = !_hudProgrammeOpen; RefreshHudWorkspace(); });
-        _hudProgrammeToggle.Position = new Vector2(width - 150, Ui.TopBar); _hudProgrammeToggle.Size = new Vector2(150, 34); _hudProgrammeToggle.Theme = HudTheme(); layer.AddChild(_hudProgrammeToggle);
-        _hudProgramme = HudPanel(layer, new Vector2(width - 300, Ui.TopBar + 34), new Vector2(300, 172));
-        var programmeBox = new VBoxContainer(); _hudProgramme.AddChild(programmeBox);
-        _liveSetCue = HudLabel("", 15); programmeBox.AddChild(_liveSetCue);
+        Stage.Build(layer, size); _liveSetCue = Stage.Summary;
 
         _contextPanel = HudPanel(layer, new Vector2(width - 300, 280), new Vector2(300, Math.Min(380, height - 340))); _contextPanel.Visible = false;
         _hudContextScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _contextPanel.AddChild(_hudContextScroll);
@@ -166,18 +157,12 @@ public partial class Main
         if (_session.CaptureMedical() is not null) BuildMedicalControls(diagnosticBox);
         if (_session.CaptureDisorder() is not null) BuildDisorderControls(diagnosticBox);
 
-        _hudAlerts = new Control { Position = new Vector2(Ui.Gutter, Ui.TopBar + 10), Size = new Vector2(400, 130), MouseFilter = Control.MouseFilterEnum.Ignore, ZIndex = 20 }; layer.AddChild(_hudAlerts);
-        _hudAlertBox = new VBoxContainer { Size = new Vector2(400, 0), MouseFilter = Control.MouseFilterEnum.Ignore }; _hudAlerts.AddChild(_hudAlertBox);
-        _hudRoster = HudPanel(layer, new Vector2(15, height - 422), new Vector2(330, 280)); _hudRoster.Visible = false;
+        _hudAlerts = new Control { Position = new Vector2(Ui.Gutter, Ui.S(76)), Size = new Vector2(Ui.S(320), 130), MouseFilter = Control.MouseFilterEnum.Ignore, ZIndex = 20 }; layer.AddChild(_hudAlerts);
+        _hudAlertBox = new VBoxContainer { Size = new Vector2(Ui.S(320), 0), MouseFilter = Control.MouseFilterEnum.Ignore }; _hudAlertBox.AddThemeConstantOverride("separation", Ui.Px(8)); _hudAlerts.AddChild(_hudAlertBox);
+        _hudRoster = HudPanel(layer, new Vector2(Ui.Gutter, height - Ui.Dock - 8 - 280), new Vector2(330, 280)); _hudRoster.Visible = false;
         _preparationRosterScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _hudRoster.AddChild(_preparationRosterScroll);
         _preparationPeople = HudLabel("", 13); _preparationPeople.CustomMinimumSize = new Vector2(300, 0); _preparationRosterScroll.AddChild(_preparationPeople);
-        var bottom = new HBoxContainer { Position = new Vector2(15, height - 50), Theme = HudTheme() }; layer.AddChild(bottom); _hudLegacyBottom = bottom;
-        _hudPreparationToggle = ButtonText("Preparation ▾", () => { _buildDrawerOpen = false; _hudWorkspaceOpen = !_hudWorkspaceOpen; RefreshHudWorkspace(); }); bottom.AddChild(_hudPreparationToggle);
-        _hudRosterToggle = ButtonText("People ▸", () => { _hudRoster.Visible = !_hudRoster.Visible; }); bottom.AddChild(_hudRosterToggle);
-        bottom.AddChild(ButtonText("Rotate view", () => _rig.Rotate(1)));
-        var statusPanel = HudPanel(layer, new Vector2(width - 510, height - 50), new Vector2(495, 40)); _hudLegacyStatusPanel = statusPanel;
-        statusPanel.AddThemeStyleboxOverride("panel", HudStyle(HudPaper, 6));
-        _hudStatus = HudLabel("", 12); _hudStatus.MaxLinesVisible = 2; statusPanel.AddChild(_hudStatus);
+        LiveBottom.Build(layer, size); _hudStatus = LiveBottom.Message;
         Perks.Build(layer);
         Hearing.Build(layer); Drawer.Build(layer, size); Dock.Build(layer, size); BuildMapControls(layer, size); RefreshPreparationHud();
     }
@@ -226,14 +211,8 @@ public partial class Main
         _hudWorkspace!.Visible = preparing && _hudWorkspaceOpen && !placing && _session.CapturePerks()?.Pending != true;
         if (Drawer.Panel is not null) Drawer.Panel.Visible = preparing && _buildDrawerOpen && !placing && _session.CapturePerks()?.Pending != true;
         LayoutOwnedPerkWorkspace();
-        _hudPreparationToggle!.Visible = false; _hudPreparationToggle.Text = _hudWorkspaceOpen ? "Preparation ▴" : "Preparation ▾";
-        _hudLegacyBottom!.Visible = !preparing;
-        _hudLegacyStatusPanel!.Visible = !preparing;
-        if (Perks.Toggle is not null && _session.CapturePerks()?.Pending != true) Perks.Toggle.Visible = !preparing;
-
-        _hudRosterToggle!.Text = $"People · {p.People.Length} ▸";
-        _hudProgrammeToggle!.Visible = !preparing; _hudProgramme!.Visible = !preparing && _hudProgrammeOpen;
-        _hudProgrammeToggle.Text = _hudProgrammeOpen ? "Programme ▴" : "Programme ▾";
+        LiveBottom.Refresh(!preparing);
+        Stage.Refresh(_hudProgrammeOpen);
         LayoutOwnedContext(_ownedWorkspaceConstrained);
         var issue = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand()));
         var blockers = _session.GetPreparationStartBlockers();
@@ -344,6 +323,7 @@ public partial class Main
             }
         if (_session.CaptureEquipment() is { Stage: EquipmentStage.Warning or EquipmentStage.DangerousFault })
             Add("generator", "Generator overload · inspect power", 80, () => SelectObject(LowerWitteringFarmScenario.CreateReadModel().GetRequiredObject("farm.trailer-stage")));
+        _activeAlertCount = alerts.Count;
         Top.Refresh(alerts.Count);
         _urgentAlertDisplay.Observe(alerts);
         RenderUrgentAlerts();
@@ -358,33 +338,68 @@ public partial class Main
             if (panel is null) continue;
             if (!_alertClearance.TryGetValue(panel, out var layout) || panel.Position != layout.Applied || panel.Size != layout.AppliedSize)
                 layout = (panel.Position, panel.Size, panel.Position, panel.Size);
-            var y = alerts.Length == 0 ? layout.Position.Y : Math.Max(layout.Position.Y, Ui.ContentTop + alerts.Length * 32);
+            var y = alerts.Length == 0 ? layout.Position.Y : Math.Max(layout.Position.Y, Ui.S(76) + _hudAlertBox.GetCombinedMinimumSize().Y + Ui.S(10));
             panel.Position = new Vector2(layout.Position.X, y);
             // Scrollable preparation content keeps its original lower edge above the dock.
             panel.Size = new Vector2(layout.Size.X, Math.Max(65, layout.Size.Y - (y - layout.Position.Y)));
             _alertClearance[panel] = (layout.Position, layout.Size, panel.Position, panel.Size);
         }
         var key = string.Join("|", alerts.Select(a => a.Alert.Id + a.Alert.Text));
-        _hudAlerts!.Visible = alerts.Length > 0;
+        // Modal documents own the screen; the feed returns when they close.
+        _hudAlerts!.Visible = alerts.Length > 0 && !Hearing.IsOpen && !ResultsPaper.IsOpen;
         for (var i = 0; i < Math.Min(alerts.Length, _hudAlertActions.Count); i++)
             _hudAlertActions[i].Modulate = new Color(1, 1, 1, alerts[i].Opacity);
         if (key == _hudAlertKey) return;
         _hudAlertKey = key;
         foreach (var child in _hudAlertBox!.GetChildren()) { _hudAlertBox.RemoveChild(child); child.QueueFree(); }
         _hudAlertActions.Clear();
+        if (alerts.Length > 0)
+        {
+            var header = new PanelContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
+            header.AddThemeStyleboxOverride("panel", Ui.Box(new Color(Ui.Bar, 0.88f), 6, padX: 10, padY: 7));
+            var line = new HBoxContainer(); header.AddChild(line);
+            var caption = Ui.Caps("Incidents", Ui.BarText); caption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; line.AddChild(caption);
+            line.AddChild(Ui.Caps($"{Math.Max(_activeAlertCount, alerts.Length)} urgent", Ui.Warn));
+            _hudAlertBox.AddChild(header);
+        }
         foreach (var entry in alerts)
         {
             var id = entry.Alert.Id;
-            var button = ButtonText(entry.Alert.Text, () => { if (_urgentAlertActions.TryGetValue(id, out var action)) action(); });
-            button.Alignment = HorizontalAlignment.Left; button.Flat = true; button.ClipText = true;
-            button.CustomMinimumSize = new Vector2(400, 28); button.TooltipText = entry.Alert.Text;
-            foreach (var state in new[] { "normal", "hover", "pressed", "focus", "disabled" }) button.AddThemeStyleboxOverride(state, new StyleBoxEmpty());
-            foreach (var state in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color" }) button.AddThemeColorOverride(state, new Color("fff3d3"));
-            button.AddThemeColorOverride("font_outline_color", new Color("202828")); button.AddThemeConstantOverride("outline_size", 5);
-            button.AddThemeFontSizeOverride("font_size", 16); button.Modulate = new Color(1, 1, 1, entry.Opacity);
-            _hudAlertBox.AddChild(button); _hudAlertActions.Add(button);
+            var card = IncidentCard(entry.Alert, () => { if (_urgentAlertActions.TryGetValue(id, out var action)) action(); });
+            card.Modulate = new Color(1, 1, 1, entry.Opacity);
+            _hudAlertBox.AddChild(card); _hudAlertActions.Add(card);
         }
-        _hudAlerts.Size = new Vector2(400, alerts.Length * 32);
+        _hudAlerts.Size = new Vector2(Ui.S(320), _hudAlertBox.GetCombinedMinimumSize().Y);
+    }
+
+    /// <summary>An urgent alert as a card: what is happening, to whom, and Locate.</summary>
+    private static PanelContainer IncidentCard(Festival.ContentAdapter.UrgentAlert alert, Action locate)
+    {
+        // Alert text reads "Who: what · locate" for people and "What · inspect ..." for equipment.
+        var text = alert.Text;
+        var cut = text.LastIndexOf(" · ", StringComparison.Ordinal);
+        var core = cut >= 0 ? text[..cut] : text;
+        var colon = core.IndexOf(": ", StringComparison.Ordinal);
+        var (title, subject) = colon >= 0 ? (core[(colon + 2)..], core[..colon]) : (core, cut >= 0 ? text[(cut + 3)..] : "");
+        title = title.Length > 0 ? char.ToUpperInvariant(title[0]) + title[1..] : title;
+        subject = subject.Length > 0 ? char.ToUpperInvariant(subject[0]) + subject[1..] : subject;
+        var card = new PanelContainer { TooltipText = text, MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+        card.AddThemeStyleboxOverride("panel", Ui.Box(Ui.Paper, 8, padX: 12, padY: 10, shadow: 9, shadowAlpha: 0.3f));
+        card.GuiInput += input => { if (input is InputEventMouseButton { ButtonIndex: MouseButton.Left, Pressed: true }) { locate(); card.AcceptEvent(); } };
+        var row = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore }; row.AddThemeConstantOverride("separation", Ui.Px(10)); card.AddChild(row);
+        var badge = new PanelContainer { CustomMinimumSize = Ui.S(34, 34), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
+        badge.AddThemeStyleboxOverride("panel", Ui.Box(alert.Priority >= 60 ? Ui.Alert : Ui.GoldShadow, 17));
+        var warning = Ui.IconRect("triangle-alert", 18, Colors.White); warning.SizeFlagsHorizontal = warning.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        badge.AddChild(warning); row.AddChild(badge);
+        var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
+        words.AddThemeConstantOverride("separation", 0); row.AddChild(words);
+        var heading = Ui.Heading(title, 17); heading.ClipText = true; heading.MouseFilter = Control.MouseFilterEnum.Ignore; words.AddChild(heading);
+        var who = Ui.Text(subject, 13, Ui.InkMuted); who.ClipText = true; who.MouseFilter = Control.MouseFilterEnum.Ignore; words.AddChild(who);
+        var button = Ui.IconButton("Locate", "crosshair", Ui.ButtonKind.Alert, locate, 13.5f);
+        button.CustomMinimumSize = new Vector2(0, Ui.S(34)); button.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        button.AddThemeConstantOverride("icon_max_width", Ui.Px(15));
+        row.AddChild(button);
+        return card;
     }
 
     private void HudLocatePerson(ulong id)
@@ -399,8 +414,8 @@ public partial class Main
         if(Perks.Panel?.Visible==true && Perks.Panel.GetGlobalRect().HasPoint(screen))return true;
         if(Perks.EffectPopup?.Visible==true && Perks.EffectPopup.GetGlobalRect().HasPoint(screen))return true;
         if (!Top.IsBuilt) return screen.X < 435 || screen.X > GetViewport().GetVisibleRect().Size.X - 435 || screen.Y < 110;
-        if (screen.Y < Ui.TopBar || screen.Y > GetViewport().GetVisibleRect().Size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock : 54)) return true;
-        return new Control?[] { _hudWorkspace, Drawer.Panel, Dock.Readiness, _mapControls, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, _hudProgramme }
+        if (screen.Y < Ui.TopBar || screen.Y > GetViewport().GetVisibleRect().Size.Y - (_session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock : Ui.S(64))) return true;
+        return new Control?[] { _hudWorkspace, Drawer.Panel, Dock.Readiness, _mapControls, _hudMenu, _contextPanel, _hudAlerts, _hudRoster, _hudDiagnostics, Stage.Panel, LiveBottom.Panel }
             .Any(control => control?.IsVisibleInTree() == true && control.GetGlobalRect().HasPoint(screen));
     }
 

@@ -4,8 +4,12 @@ using System.Linq;
 
 namespace Festival.Game;
 
-public partial class Main : IPreparationNavigation, ITopBarActions
+public partial class Main : IPreparationNavigation, ITopBarActions, ILiveBarActions
 {
+    private StageCard? _stageView;
+    private StageCard Stage => _stageView ??= new(this, () => { _hudProgrammeOpen = !_hudProgrammeOpen; RefreshHudWorkspace(); });
+    private LiveBar? _liveBarView;
+    private LiveBar LiveBottom => _liveBarView ??= new(this, this);
     private TopBar? _topView;
     private TopBar Top => _topView ??= new(this, this);
     private PreparationDock? _dockView;
@@ -36,4 +40,8 @@ public partial class Main : IPreparationNavigation, ITopBarActions
     void ITopBarActions.ToggleMenu() => _hudMenu!.Visible = !_hudMenu.Visible;
     void ITopBarActions.TogglePerks() => Perks.ToggleExpanded();
     void ITopBarActions.ToggleRoster() => _hudRoster!.Visible = !_hudRoster.Visible;
+    void ILiveBarActions.ToggleRoster() => _hudRoster!.Visible = !_hudRoster.Visible;
+    void ILiveBarActions.TogglePerks() => Perks.ToggleExpanded();
+    void ILiveBarActions.RotateView() => _rig.Rotate(1);
+    void ILiveBarActions.Zoom(float amount) => _rig.Zoom(amount);
 }

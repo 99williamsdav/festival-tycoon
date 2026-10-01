@@ -60,9 +60,9 @@ public partial class Main
     {
         if (_contextPanel is null) return;
         var size = GetViewport().GetVisibleRect().Size;
-        var y = _session.PreparedStatus == PreparationStatus.Preparing ? Ui.ContentTop : _hudProgrammeOpen ? Ui.TopBar + 222 : Ui.TopBar + 41;
-        var height = Math.Min(380, size.Y - y - 60);
-        if (constrained) height = Math.Min(height, size.Y - 60 - 220 - 10 - y);
+        var y = _session.PreparedStatus == PreparationStatus.Preparing ? Ui.ContentTop : Stage.Bottom + Ui.S(12);
+        var height = Math.Min(380, size.Y - y - Ui.S(64) - 12);
+        if (constrained) height = Math.Min(height, size.Y - Ui.S(64) - 8 - 220 - 10 - y);
         _contextPanel.Position = new Vector2(size.X - 300, y);
         _contextPanel.Size = new Vector2(300, height);
     }
