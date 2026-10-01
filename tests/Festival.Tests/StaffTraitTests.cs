@@ -49,6 +49,19 @@ public sealed class StaffTraitTests
     }
 
     [TestMethod]
+    public void TraitsMoveTheWageByAPercentageThatMatchesTheirSign()
+    {
+        foreach (var trait in Enum.GetValues<StaffTrait>())
+        {
+            var percent = StaffCatalogue.TraitWagePercent(trait);
+            Assert.AreEqual(StaffCatalogue.IsPositive(trait), percent > 0, trait.ToString());
+            Assert.IsTrue(percent is >= -20 and <= 25 and not 0, trait.ToString());
+        }
+        var all = Enumerable.Range(0, 100).SelectMany(offset => StaffCatalogue.Candidates(20260922UL + (ulong)offset, new(1_000, 1_000, 5_000, 5_000))).ToArray();
+        Assert.IsTrue(all.All(c => c.WagePennies % 100 == 0 && c.WagePennies >= 500), "Whole pounds, never below the floor.");
+    }
+
+    [TestMethod]
     public void ADodgyKneeCountsAgainstPace()
     {
         var plain = StaffCatalogue.Candidates(20260922, new(1_000, 1_000, 5_000, 5_000)).First(c => c.Role == StaffRole.Medic) with { WalkingSpeedPermille = 1_150 };

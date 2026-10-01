@@ -80,9 +80,10 @@ public static class StaffCatalogue
 
     public static bool IsPositive(StaffTrait trait) => trait is StaffTrait.IronBladder or StaffTrait.Charismatic;
 
-    private static int TraitWage(StaffTrait trait) => trait switch
+    /// <summary>How a trait moves the wage, in percent; two traits multiply.</summary>
+    public static int TraitWagePercent(StaffTrait trait) => trait switch
     {
-        StaffTrait.Charismatic => 300, StaffTrait.IronBladder => 100, StaffTrait.WeakBladder => -100, _ => -200,
+        StaffTrait.Charismatic => 25, StaffTrait.IronBladder => 10, StaffTrait.WeakBladder => -10, StaffTrait.SneakyAlcoholic => -20, _ => -15,
     };
 
     // 1-5 ratings for the staff page; each spans the generator's full range. A dodgy knee counts against pace.
@@ -196,7 +197,7 @@ public static class StaffCatalogue
         return candidate with
         {
             Traits = traits.ToArray(), LateTicks = late,
-            WagePennies = Math.Max(500, candidate.WagePennies + traits.Sum(TraitWage)),
+            WagePennies = Math.Max(500, traits.Aggregate(candidate.WagePennies, (wage, trait) => wage * (100 + TraitWagePercent(trait)) / 100) / 100 * 100),
         };
     }
 
