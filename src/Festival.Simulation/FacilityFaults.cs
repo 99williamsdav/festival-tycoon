@@ -179,6 +179,8 @@ public sealed partial class GameSession
         {
             // Departure takes everyone's route: workers are released, and what is broken stays broken.
             foreach (var held in OpenFaults.Where(f => f.WorkerId is not null).ToArray()) SetFault(held with { WorkerId = null, WorkStartedTick = -1 });
+            // A death froze the edition: the scene stays as found, door shut, for the hearing.
+            if (_preparation.Status == PreparationStatus.Failed) return;
             // The end of the day opens every jammed door: the toilet sends every occupant out.
             foreach (var jam in OpenFaults.Where(f => f.Kind == FacilityFaultKind.StuckInToilet && f.Stage == FacilityFaultStage.Active).ToArray())
                 ResolveFault(jam, FacilityFaultStage.Fixed);

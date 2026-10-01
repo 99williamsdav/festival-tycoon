@@ -119,6 +119,29 @@ public sealed class FacilityFaultTests
     }
 
     [TestMethod]
+    public void ADeathBehindTheLockedDoorFreezesTheSceneAsFound()
+    {
+        (GameSession Session, FacilityFault Fault)? found = null;
+        for (var seed = 20260922UL; seed < 20260942UL && found is null; seed++)
+            if (FirstFault(FacilityFaultKind.StuckInToilet, seed) is { } candidate &&
+                candidate.Session.CapturePreparation()!.People.Single(p => p.AgentId == candidate.Fault.VictimId).Role == ProtectedPersonRole.Guest)
+                found = candidate;
+        var (s, fault) = found ?? throw new InvalidOperationException("No guest stuck in twenty days.");
+        var victim = fault.VictimId;
+        // Collapsed inside and critical long enough that the next tick is fatal.
+        var medical = s.CaptureMedical()!;
+        typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, medical with { Needs = medical.Needs
+            .Select(n => n.AgentId == victim ? n with { Stage = MedicalStage.Critical, Intent = MedicalIntent.Collapsed, Thirst = 9_500, HeatExposure = 9_000,
+                WarningTick = s.CurrentTick - GameSession.MedicalDeathDelayTicks - 1_600, CollapseTick = s.CurrentTick - GameSession.MedicalDeathDelayTicks,
+                CriticalTick = s.CurrentTick - GameSession.MedicalDeathDelayTicks + GameSession.MedicalCriticalDelayTicks } : n).ToArray() });
+        for (var guard = 0; guard < 4 && s.PreparedStatus != PreparationStatus.Failed; guard++) s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus);
+        Assert.AreEqual(victim, s.CaptureToilets().Single(t => t.Id == fault.FacilityId).OwnerId, "Found behind the door, not carried out after the freeze.");
+        Assert.AreEqual(FacilityFaultStage.Active, s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).Stage);
+        AssertRestores(s);
+    }
+
+    [TestMethod]
     public void NobodyCanGuideAStuckGuestOutAroundTheRescue()
     {
         var (s, fault) = Find(FacilityFaultKind.StuckInToilet);
