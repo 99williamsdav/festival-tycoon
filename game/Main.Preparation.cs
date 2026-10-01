@@ -363,6 +363,7 @@ private void RebuildPreparationOffers()
         AdvanceMedicalCuePresentation();
         AdvanceDisorderCuePresentation();
         AdvanceImmersionCuePresentation();
+        AdvanceLitterCuePresentation();
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         EnsureStage(); Audio.AdvanceIncidents(_session, _rig.Focus);
         SyncPresentationPause();
