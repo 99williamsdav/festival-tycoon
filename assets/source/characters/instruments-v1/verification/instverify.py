@@ -57,3 +57,25 @@ elif S == "electronic":
     kit_performer("male", "lwf_keyboardist_male_kit_v2", M1, costume("3E3F44", "4F6B4A", "26262A", "6A5040"))
     kit_performer("male", "lwf_drummer_male_kit_v2", M2, costume("A0A0A0", "4F6B4A", "3E3F44", "3F2F28"), external=False)
     drums("lwf_drum_hardware_electronic_v1"); stage_set("lwf_stage_set_electronic_v1")
+elif S in ("folk2", "pop2"):
+    P2 = INST
+    INST_SAVE = INST
+    def kp(sex, path, mark, cos):
+        M = frame(*mark, -90.0)
+        e = bpy.data.objects.new("body", None); e.instance_type = 'COLLECTION'
+        e.instance_collection = recoloured(CH + f"lwf_performer_{sex}_body_v2.glb", cos, drop=("IdleLeftArm", "IdleRightArm"))
+        e.matrix_world = M; sc.collection.objects.link(e)
+        before = set(bpy.data.objects); bpy.ops.import_scene.gltf(filepath=path)
+        root = bpy.data.objects.new("kitroot", None); sc.collection.objects.link(root); root.matrix_world = M
+        for o in [o for o in bpy.data.objects if o not in before and o.parent is None and o is not root]: o.parent = root
+        sc.frame_set(int(OPTS.get("frame", 1)))
+    if S == "folk2":
+        kit_performer("female", "lwf_guitarist_female_kit_v2", M0, costume("B8935A", "E8DCC0", "6B5440", "9A5A30"), external=False); mic("female", M0)
+        kp("male", P2 + "lwf_accordionist_male_kit_v2.glb", M1, costume("6E7F5A", "E8DCC0", "6B5440", "8E8A84"))
+        kit_performer("female", "lwf_drummer_female_kit_v2", M2, costume("C9A3A0", "F2EBDD", "4E5A44", "3F2F28"), external=False)
+        drums("lwf_drum_hardware_compact_v1"); stage_set("lwf_stage_set_folk_v1")
+    else:
+        kp("female", P2 + "lwf_singer_female_kit_v2.glb", M0, costume("D86A9A", "F2EBDD", "2E2E3A", "3F2F28")); mic("female", M0)
+        kit_performer("male", "lwf_bassist_male_kit_v2", M1, costume("F2EBDD", "D86A9A", "2E2E3A", "6A5040"), external=False)
+        kit_performer("male", "lwf_drummer_male_kit_v2", M2, costume("2E2E3A", "D86A9A", "3E3F44", "3F2F28"), external=False)
+        drums("lwf_drum_hardware_only_v2", external=False); stage_set("lwf_stage_set_pop_v1")

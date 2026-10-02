@@ -1,0 +1,170 @@
+{
+ "lwf_accordionist_male_kit_v2": {
+  "tris": 1712,
+  "nodes": [
+   "LWF_Accordion_BassEnd",
+   "LWF_Accordion_Bellows",
+   "LWF_Accordion_Straps",
+   "LWF_Accordion_TrebleEnd",
+   "LWF_Accordionist_LeftPlayingArm",
+   "LWF_Accordionist_RightPlayingArm"
+  ],
+  "frames": 49,
+  "fps": 24,
+  "layout": {
+   "f": 1.0,
+   "H": 0.36,
+   "D": 0.17,
+   "zc": 1.072,
+   "zb": 0.892,
+   "zt": 1.252,
+   "yb": 0.13,
+   "yf": 0.3,
+   "yc": 0.215,
+   "x_t1": 0.154,
+   "x_t0": 0.054,
+   "B0": 0.11,
+   "B1": 0.18,
+   "Bw": 0.075,
+   "key_h": 0.02,
+   "chest": 0.115
+  },
+  "bellows": "LWF_Accordion_Bellows scales along its local x (Godot x) from 1 to 1.64; LWF_Accordion_BassEnd slides 70 mm to the performer's left with it",
+  "left_arm": "morph target BellowsOpen (IK pose with the hand on the open bass end), weight in step with the bellows",
+  "right_arm": "rigid rotation about the shoulder's x axis, about 2 degrees: the hand works up and down the keys",
+  "arm_verts_inside_accordion": {
+   "left": [
+    0,
+    0
+   ],
+   "right": [
+    0,
+    0
+   ]
+  },
+  "forearm_gap_to_body_mm": {
+   "left": [
+    72.5,
+    108.5
+   ],
+   "right": [
+    94.7,
+    94.7
+   ]
+  },
+  "accordion_gap_to_chest_mm": 15.0,
+  "reach_fraction": {
+   "left": [
+    0.547,
+    0.562
+   ],
+   "right": [
+    0.572,
+    0.572
+   ]
+  },
+  "recolour": "lwf_accordion_palette (192x8, 24 slots, material LWF_Accordion_MattePalette): 12 body back/sides/top, 13 body front, 14 bellows, 11 bass buttons and register tabs, 15 bellows end frames, 16 white keys, 17 black keys, 18 grille, 19 straps, 20 bellows corners, 21 trim"
+ },
+ "lwf_singer_male_kit_v2": {
+  "tris": 740,
+  "nodes": [
+   "LWF_Singer_LeftPlayingArm",
+   "LWF_Singer_RightPlayingArm"
+  ],
+  "frames": 121,
+  "fps": 24,
+  "left_arm": "20 morph samples of IK poses (one every 6 frames), weights blended linearly between neighbours",
+  "loop": "0 rest, 0.75 s reach out to the crowd (with a lean further out), 2.5 s raised fist with a pump, 3.8 s point that sweeps across the crowd, back to rest at 5 s",
+  "reach_fraction_max": 0.995,
+  "left_forearm_gap_to_body_mm_min": 36.6,
+  "left_forearm_verts_inside_body": 0,
+  "right_forearm_gap_to_body_mm": 44.8,
+  "mic_head_y": 1.5,
+  "mic_hand_closest_to_handle_mm": 1.2,
+  "mic_reach_fraction": 0.735
+ },
+ "lwf_accordionist_female_kit_v2": {
+  "tris": 1736,
+  "nodes": [
+   "LWF_Accordion_BassEnd",
+   "LWF_Accordion_Bellows",
+   "LWF_Accordion_Straps",
+   "LWF_Accordion_TrebleEnd",
+   "LWF_Accordionist_LeftPlayingArm",
+   "LWF_Accordionist_RightPlayingArm"
+  ],
+  "frames": 49,
+  "fps": 24,
+  "layout": {
+   "f": 0.94,
+   "H": 0.338,
+   "D": 0.16,
+   "zc": 1.032,
+   "zb": 0.863,
+   "zt": 1.201,
+   "yb": 0.139,
+   "yf": 0.299,
+   "yc": 0.219,
+   "x_t1": 0.131,
+   "x_t0": 0.037,
+   "B0": 0.103,
+   "B1": 0.169,
+   "Bw": 0.07,
+   "key_h": 0.02,
+   "chest": 0.124
+  },
+  "bellows": "LWF_Accordion_Bellows scales along its local x (Godot x) from 1 to 1.64; LWF_Accordion_BassEnd slides 66 mm to the performer's left with it",
+  "left_arm": "morph target BellowsOpen (IK pose with the hand on the open bass end), weight in step with the bellows",
+  "right_arm": "rigid rotation about the shoulder's x axis, about 2 degrees: the hand works up and down the keys",
+  "arm_verts_inside_accordion": {
+   "left": [
+    0,
+    0
+   ],
+   "right": [
+    0,
+    0
+   ]
+  },
+  "forearm_gap_to_body_mm": {
+   "left": [
+    95.3,
+    122.0
+   ],
+   "right": [
+    100.5,
+    100.5
+   ]
+  },
+  "accordion_gap_to_chest_mm": 15.0,
+  "reach_fraction": {
+   "left": [
+    0.558,
+    0.59
+   ],
+   "right": [
+    0.584,
+    0.584
+   ]
+  },
+  "recolour": "lwf_accordion_palette (192x8, 24 slots, material LWF_Accordion_MattePalette): 12 body back/sides/top, 13 body front, 14 bellows, 11 bass buttons and register tabs, 15 bellows end frames, 16 white keys, 17 black keys, 18 grille, 19 straps, 20 bellows corners, 21 trim"
+ },
+ "lwf_singer_female_kit_v2": {
+  "tris": 764,
+  "nodes": [
+   "LWF_Singer_LeftPlayingArm",
+   "LWF_Singer_RightPlayingArm"
+  ],
+  "frames": 121,
+  "fps": 24,
+  "left_arm": "20 morph samples of IK poses (one every 6 frames), weights blended linearly between neighbours",
+  "loop": "0 rest, 0.75 s reach out to the crowd (with a lean further out), 2.5 s raised fist with a pump, 3.8 s point that sweeps across the crowd, back to rest at 5 s",
+  "reach_fraction_max": 0.994,
+  "left_forearm_gap_to_body_mm_min": 32.3,
+  "left_forearm_verts_inside_body": 0,
+  "right_forearm_gap_to_body_mm": 56.1,
+  "mic_head_y": 1.43,
+  "mic_hand_closest_to_handle_mm": 0.8,
+  "mic_reach_fraction": 0.713
+ }
+}

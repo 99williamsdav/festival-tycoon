@@ -8,8 +8,8 @@ namespace Festival.Game;
 
 /// <summary>
 /// Which instruments a band plays for its genre, and in what colours. The lead sings at a mic stand in every genre
-/// but Electronic, and Pop's lead only sings. Folk plays acoustic on a compact kit, Metal a flying-V over a double
-/// kick, Electronic a laptop and mixing desk. Each act's guitars and drums take their own colours.
+/// but Electronic, and Pop's lead only sings, one hand on the mic. Folk plays acoustic and accordion on a compact
+/// kit, Metal a flying-V over a double kick, Electronic a laptop and mixing desk with keys. Each act's guitars and drums take their own colours.
 /// </summary>
 public partial class Main
 {
@@ -28,7 +28,7 @@ public partial class Main
         programme.Performers.FirstOrDefault(p => p.AgentId == id) is { SlotIndex: >= 0 } performer && performer.SlotIndex < programme.ActIds.Length
             ? programme.ActIds[performer.SlotIndex] : null;
 
-    /// <summary>The kit a performer plays, or null for a lead who only sings.</summary>
+    /// <summary>The kit a performer plays.</summary>
     private static string? PerformerKitPath(int role, string variant, int genre) => role switch
     {
         0 => genre switch
@@ -36,12 +36,15 @@ public partial class Main
             FestivalGenre.Folk => $"res://assets/characters/lwf_guitarist_{variant}_acoustic_kit_v2.glb",
             FestivalGenre.Metal => $"res://assets/characters/lwf_guitarist_{variant}_flyingv_kit_v2.glb",
             FestivalGenre.Electronic => $"res://assets/characters/lwf_electronic_{variant}_desk_kit_v2.glb",
-            FestivalGenre.Pop => null,
+            FestivalGenre.Pop => $"res://assets/characters/lwf_singer_{variant}_kit_v2.glb",
             _ => $"res://assets/characters/lwf_guitarist_{variant}_electric_kit_v2.glb",
         },
-        1 => genre == FestivalGenre.Electronic && ResourceLoader.Exists($"res://assets/characters/lwf_keyboardist_{variant}_kit_v2.glb")
-            ? $"res://assets/characters/lwf_keyboardist_{variant}_kit_v2.glb"
-            : $"res://assets/characters/lwf_bassist_{variant}_kit_v2.glb",
+        1 => genre switch
+        {
+            FestivalGenre.Electronic => $"res://assets/characters/lwf_keyboardist_{variant}_kit_v2.glb",
+            FestivalGenre.Folk => $"res://assets/characters/lwf_accordionist_{variant}_kit_v2.glb",
+            _ => $"res://assets/characters/lwf_bassist_{variant}_kit_v2.glb",
+        },
         2 => $"res://assets/characters/lwf_drummer_{variant}_kit_v2.glb",
         _ => throw new ArgumentOutOfRangeException(nameof(role)),
     };

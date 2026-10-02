@@ -73,6 +73,80 @@ The v2 geometry with only a palette recolour: charcoal shells (slots 12/13), bla
 head (14), rubber cymbal pads (22) and silver stands (15/21). Same nodes, origin and orientation, so the v2
 drummer arms line up.
 
+## Second pass: accordionist and singer kits (`build_posed_kits.py`)
+
+Rebuild: `blender -b --python build_posed_kits.py -- out`, then
+`python merge_animations.py out/lwf_accordionist_*_kit_v2.glb out/lwf_singer_*_kit_v2.glb`. Build report:
+`out/posed_kits_report.json`.
+
+- **Arms.** The arms are new poses from the designer's v6 generator (`attendee-v6-draft/build_attendee.py`), run the same
+  way as `role-assets-v2/build_performer_v6.py`: two-bone IK on the relaxed segment lengths, the sleeve following the
+  upper arm, and a v6 mitten hand. The hand gains an index finger, which stays hidden inside the palm unless pointing.
+  - An arm that changes shape over the loop is one mesh with a **morph target** per sampled IK pose, animated by
+    blend-shape weights in the single merged "Animation". An arm that only nudges is a rigid rotation, as in the other
+    kits.
+  - Node names, the role body palette material and the shoulder origins follow the v2 conventions, so
+    `PaintPlayingArms` and the idle-arm hiding work unchanged.
+- **The tee torso is in a playing arm, as in every v2 kit.** The v2 split never matches the torso island, because it
+  compares with `is`, so the torso always lands in the left playing arm and `LWF_Performer_BodyCore` has no torso at
+  all. These kits keep that contract on purpose, so hiding the idle arms never hides the shirt.
+  - Accordionist: the torso is in the left arm.
+  - Singer: the torso is in the static right arm, so the morph targets stay small.
+  - Side effect in the v2 kits: wherever the left arm is a rigid rotation (the drummer, for example), the torso turns
+    with it slightly.
+
+### Accordionist — `lwf_accordionist_{male,female}_kit_v2` (1712 / 1736 tris), Folk role 1 at (94,146)
+
+- **Nodes:**
+  - `LWF_Accordion_TrebleEnd`: body, keyboard on the outer right face, grille, trim and register tabs.
+  - `LWF_Accordion_Bellows`: six pleats and front corner protectors.
+  - `LWF_Accordion_BassEnd`: body, bass buttons and the hand strap.
+  - `LWF_Accordion_Straps`: two shoulder straps over the shoulders, down the back to a cross strap. They are draped on
+    the body and lie under the female's hair.
+  - `LWF_Accordionist_LeftPlayingArm` / `RightPlayingArm`.
+- **Size and position:** 0.36 × 0.17 m (female 0.34 × 0.16), hung 15 mm off the chest, below the shoulders. It is
+  0.29 m wide when closed and 0.36 m when open.
+- **Loop:** 49 frames (2 s) at 24 fps.
+  - The bellows draw open and squeeze shut once. `LWF_Accordion_Bellows` scales along its local x from 1 to 1.64, and
+    `LWF_Accordion_BassEnd` slides 70 mm (female 66 mm) to the performer's left with it.
+  - The left hand stays on the bass buttons under the strap through the morph target `BellowsOpen` (an IK pose with
+    the hand on the open bass end), whose weight follows the bellows.
+  - The right hand works up and down the keys with a rotation of about 2° about the shoulder's x axis.
+- **Checks** (per pose):
+  - No arm vertex is inside the accordion.
+  - The forearm gap to the body is at least 72 mm.
+  - Reach is at most 0.59 of full arm length.
+- **Recolour:** `lwf_accordion_palette`, 192×8 with 24 slots, material `LWF_Accordion_MattePalette`. It uses the
+  guitar's slot convention, so `RecolourInstrument`'s 12/13/14 colours work unchanged:
+  - **12** body back, sides and top
+  - **13** body front
+  - **14** bellows (the pickguard colours work well: cream, white, tortoiseshell, black)
+  - Fixed slots: 11 bass buttons and register tabs, 15 bellows end frames, 16 white keys, 17 black keys, 18 grille,
+    19 straps, 20 bellows corners, 21 trim.
+  - Defaults: red body (front C9553A, back and sides B8442E) with black bellows.
+
+### Singer — `lwf_singer_{male,female}_kit_v2` (740 / 764 tris), Pop role 0 at the mic stand
+
+- **Arms only, no instrument.** `LWF_Singer_RightPlayingArm` is a fist round the mic handle just behind the grille,
+  matched to `lwf_mic_stand_v1` with MicHead at 1.50 (male) or 1.43 (female). The closest hand vertex is 1.2 mm
+  (male) or 0.8 mm (female) from the handle axis, so the fist closes round the handle. The forearm is clear of the
+  chest and face by at least 45 mm.
+- **Loop:** `LWF_Singer_LeftPlayingArm` is 121 frames (5 s) at 24 fps:
+  - rest
+  - 0.75 s: reach out to the crowd, open palm up, leaning further out
+  - 2.5 s: raised fist with a pump
+  - 3.8 s: a point that sweeps across the crowd
+  - back to rest at 5 s
+
+  The arm uses 20 morph samples (one IK pose every 6 frames), blended linearly between neighbours. The forearm stays
+  at least 32 mm from the body, with no vertex inside it. GLB size is about 300 KB.
+
+Verification renders are in `verification/`:
+- `accordionist-{male,female}.png`, `singer-{male,female}.png`: four views per row, with the accordion closed and open
+  or the singer's key frames.
+- `folk-accordion-on-stage.png`, `pop-singer-on-stage.png`: the game camera on the trailer stage.
+- `review_kit.py` and `instverify.py`: the scripts that made them.
+
 ## Per-act instrument colours
 
 **Guitars and bass all use the same slots** in their own 24-slot palettes (`lwf_guitarist_palette` /
