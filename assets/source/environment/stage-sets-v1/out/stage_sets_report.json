@@ -84,17 +84,34 @@
   ],
   "table": {
    "centre": [
-    0.45,
+    -0.25,
     1.2,
-    -1.75
+    0.825
    ],
    "size_m": [
     1.5,
     0.55,
-    0.78
+    0.98
    ],
-   "top_y": 1.98,
-   "contents": "laptop (lid on the audience side) and a mixing desk"
+   "top_y": 2.18,
+   "contents": "laptop (lid on the audience side) and a mixing desk",
+   "performer_spot": [
+    -0.25,
+    1.2,
+    0.25
+   ],
+   "performer_cell": [
+    96,
+    150
+   ],
+   "table_cells_x": [
+    97,
+    98
+   ],
+   "table_cells_z": [
+    149,
+    151
+   ]
   }
  },
  "lwf_stage_set_metal_v1": {

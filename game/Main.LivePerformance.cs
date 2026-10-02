@@ -77,14 +77,6 @@ public partial class Main
             Mathf.Clamp((float)delta * 7f, 0f, 1f)), 0);
     }
 
-    private static string PerformerKitPath(int role, string variant) => role switch
-    {
-        0 => $"res://assets/characters/lwf_guitarist_{variant}_kit_v2.glb",
-        1 => $"res://assets/characters/lwf_bassist_{variant}_kit_v2.glb",
-        2 => $"res://assets/characters/lwf_drummer_{variant}_kit_v2.glb",
-        _ => throw new ArgumentOutOfRangeException(nameof(role))
-    };
-
     private void RefreshLivePerformanceHud()
     {
         var live = _session.CaptureLivePerformance();
@@ -265,9 +257,10 @@ public partial class Main
             if (performer.InstrumentAttached && !_performerInstruments.ContainsKey(id))
             {
                 var name = roster.Single(item => item.AgentId == performer.AgentId).Name;
-                var kit = InstantiateAsset(PerformerKitPath(PerformerPresentationRole(performer.AgentId, name),
-                    body.GetMeta("RoleVariant").AsString()));
-                Bodies.PaintPlayingArms(body, kit);
+                var kit = BuildPerformerKit(performer.AgentId, PerformerPresentationRole(performer.AgentId, name),
+                    body.GetMeta("RoleVariant").AsString());
+                var arms = !kit.HasMeta("NoArms");
+                if (arms) Bodies.PaintPlayingArms(body, kit);
                 body.AddChild(kit);
                 foreach (var player in kit.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>())
                     foreach (var animationName in player.GetAnimationList())
@@ -276,7 +269,7 @@ public partial class Main
                         player.Play(animationName);
                     }
                 _performerInstruments.Add(id, kit);
-                CrowdBodies.SetNeutralArmsVisible(body, false);
+                if (arms) CrowdBodies.SetNeutralArmsVisible(body, false);
             }
             else if (!performer.InstrumentAttached && _performerInstruments.Remove(id, out var kit))
             {

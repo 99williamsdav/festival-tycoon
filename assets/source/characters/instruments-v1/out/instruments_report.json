@@ -1,0 +1,145 @@
+{
+ "lwf_guitarist_male_electric_kit_v2": {
+  "tris": 993,
+  "nodes": [
+   "LWF_Fitted_LeatherStrap",
+   "LWF_Guitarist_ElectricGuitar",
+   "LWF_Guitarist_LeftPlayingArm",
+   "LWF_Guitarist_RightPlayingArm"
+  ],
+  "body_slots": {
+   "sides_back": 12,
+   "top": 13,
+   "pickguard": 14
+  },
+  "palette": "lwf_guitarist_palette (192x8, 24 slots)"
+ },
+ "lwf_guitarist_male_flyingv_kit_v2": {
+  "tris": 959,
+  "nodes": [
+   "LWF_Fitted_LeatherStrap",
+   "LWF_Guitarist_FlyingVGuitar",
+   "LWF_Guitarist_LeftPlayingArm",
+   "LWF_Guitarist_RightPlayingArm"
+  ],
+  "body_slots": {
+   "sides_back": 12,
+   "top": 13,
+   "pickguard": 14
+  },
+  "palette": "lwf_guitarist_palette (192x8, 24 slots)"
+ },
+ "lwf_guitarist_female_electric_kit_v2": {
+  "tris": 1017,
+  "nodes": [
+   "LWF_Fitted_LeatherStrap",
+   "LWF_Guitarist_ElectricGuitar",
+   "LWF_Guitarist_LeftPlayingArm",
+   "LWF_Guitarist_RightPlayingArm"
+  ],
+  "body_slots": {
+   "sides_back": 12,
+   "top": 13,
+   "pickguard": 14
+  },
+  "palette": "lwf_guitarist_palette (192x8, 24 slots)"
+ },
+ "lwf_guitarist_female_flyingv_kit_v2": {
+  "tris": 983,
+  "nodes": [
+   "LWF_Fitted_LeatherStrap",
+   "LWF_Guitarist_FlyingVGuitar",
+   "LWF_Guitarist_LeftPlayingArm",
+   "LWF_Guitarist_RightPlayingArm"
+  ],
+  "body_slots": {
+   "sides_back": 12,
+   "top": 13,
+   "pickguard": 14
+  },
+  "palette": "lwf_guitarist_palette (192x8, 24 slots)"
+ },
+ "lwf_drum_hardware_compact_v1": {
+  "tris": 358,
+  "nodes": [
+   "LWF_Drummer_CymbalsHardware",
+   "LWF_Drummer_DrumShells"
+  ],
+  "kept": "kick, snare (+stand), right rack tom, crash (+stand); removed left tom and ride"
+ },
+ "lwf_drum_hardware_double_kick_v1": {
+  "tris": 627,
+  "nodes": [
+   "LWF_Drummer_CymbalsHardware",
+   "LWF_Drummer_DrumShells"
+  ],
+  "kept": "all v2 pieces; the kick is scaled 0.85 and doubled at x = -0.29 / +0.29"
+ },
+ "lwf_mic_stand_v1": {
+  "tris": 172,
+  "nodes": [
+   "MicHead",
+   "MicStand"
+  ],
+  "frame": "performer-local (same as the kits); place at the performer's position and facing",
+  "stand_y_in_front_m": 0.5,
+  "mic_capsule_local": [
+   0,
+   0.155,
+   "MicHead y"
+  ],
+  "MicHead_y": {
+   "male": 1.5,
+   "female": 1.43
+  },
+  "mic_to_face_gap_m": 0.06
+ },
+ "lwf_electronic_male_desk_kit_v2": {
+  "tris": 676,
+  "nodes": [
+   "LWF_Desk_LeftPlayingArm",
+   "LWF_Desk_RightPlayingArm"
+  ],
+  "animation": "one 49-frame loop at 24 fps: left fader nudge + right knob twiddle",
+  "hands_reach_m": "about 0.40-0.45 in front, 1.04-1.12 above the feet"
+ },
+ "lwf_electronic_female_desk_kit_v2": {
+  "tris": 700,
+  "nodes": [
+   "LWF_Desk_LeftPlayingArm",
+   "LWF_Desk_RightPlayingArm"
+  ],
+  "animation": "one 49-frame loop at 24 fps: left fader nudge + right knob twiddle",
+  "hands_reach_m": "about 0.40-0.45 in front, 1.04-1.12 above the feet"
+ },
+ "lwf_keyboardist_male_kit_v2": {
+  "tris": 940,
+  "nodes": [
+   "LWF_Keyboardist_Keyboard",
+   "LWF_Keyboardist_LeftPlayingArm",
+   "LWF_Keyboardist_RightPlayingArm"
+  ],
+  "key_top_m": 1.135,
+  "keyboard_centre_y_m": 0.499,
+  "recolour": "lwf_keyboard_palette (64x8, 8 slots): 0 body, 1 white keys, 2 black keys, 3 stand, 4 accent strip, 5 end cheeks"
+ },
+ "lwf_keyboardist_female_kit_v2": {
+  "tris": 964,
+  "nodes": [
+   "LWF_Keyboardist_Keyboard",
+   "LWF_Keyboardist_LeftPlayingArm",
+   "LWF_Keyboardist_RightPlayingArm"
+  ],
+  "key_top_m": 1.135,
+  "keyboard_centre_y_m": 0.497,
+  "recolour": "lwf_keyboard_palette (64x8, 8 slots): 0 body, 1 white keys, 2 black keys, 3 stand, 4 accent strip, 5 end cheeks"
+ },
+ "lwf_drum_hardware_electronic_v1": {
+  "tris": 496,
+  "nodes": [
+   "LWF_Drummer_CymbalsHardware",
+   "LWF_Drummer_DrumShells"
+  ],
+  "note": "v2 geometry; palette recolour: charcoal shells, black rubber pads/heads, rubber cymbal pads, silver stands"
+ }
+}

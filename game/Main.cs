@@ -31,7 +31,7 @@ public partial class Main : Node, IHudHost
     private SessionHost _host = null!;
     private CameraRig _rig = null!;
     private CrowdBodies? _bodiesView;
-    private CrowdBodies Bodies => _bodiesView ??= new(this, () => _session, PerformerPresentationRole, id => _performerInstruments.ContainsKey(id));
+    private CrowdBodies Bodies => _bodiesView ??= new(this, () => _session, PerformerPresentationRole, id => _performerInstruments.TryGetValue(id, out var kit) && !kit.HasMeta("NoArms"));
     private GameSession _session => _host.Session;
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];

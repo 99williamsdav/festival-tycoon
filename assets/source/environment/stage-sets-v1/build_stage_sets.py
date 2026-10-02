@@ -108,24 +108,25 @@ reset(); PAL = palette_material(); props = Mesh("Props")
 r, e = rug("electronic", 0.3, -0.4, 3.6, 2.2)
 shade = standard_lamp(props, 2.4, -1.85, shade_hex="F2D9A0")
 props.cyl(T(G(2.4, DECK + 1.83, -1.85)), 0.09, 0.09, 0.04, TEAL, seg=10)          # teal cap on the shade
-# set dressing only (nobody plays it this pass): a trestle table on the back half, between the drum kit and mark (94,146),
-# with a laptop and a small mixing desk; whoever would use it stands on the back-rail side.
-TX, TZ, TL, TD, TH = 0.45, -1.75, 1.5, 0.55, 0.78
+# the electronic desk performer (role 0) stands at the front-centre mark (96,150) = stage-local (-0.25, 1.2, 0.25), facing the
+# audience, 0.30 m behind the table's near edge; top at 0.98 m to meet the desk-kit hands. The table crosses the front
+# walkway (fine for this genre); the steps stay clear. Mixer centred under the hands, laptop to one side.
+TX, TZ, TL, TD, TH = -0.25, 0.825, 1.5, 0.55, 0.98
 props.box(G(TX, DECK + TH - 0.02, TZ), (TL, TD, 0.04), TABLE)
 for dx in (-TL / 2 + 0.12, TL / 2 - 0.12):
     for dz in (-TD / 2 + 0.06, TD / 2 - 0.06):
         props.box(G(TX + dx, DECK + (TH - 0.04) / 2, TZ + dz), (0.04, 0.04, TH - 0.04), TABLE_LEG)
 top = DECK + TH
-props.box(G(TX - 0.4, top + 0.01, TZ - 0.05), (0.36, 0.25, 0.02), LAPTOP)                     # laptop base
-lid = T(G(TX - 0.4, top + 0.12, TZ + 0.09)) @ Matrix.Rotation(math.radians(15), 4, 'X')
+props.box(G(TX + 0.5, top + 0.01, TZ - 0.05), (0.36, 0.25, 0.02), LAPTOP)                     # laptop base
+lid = T(G(TX + 0.5, top + 0.12, TZ + 0.09)) @ Matrix.Rotation(math.radians(15), 4, 'X')
 props._paint(bmesh.ops.create_cube(props.bm, size=1.0, matrix=lid @ D(0.36, 0.02, 0.24)), LAPTOP)  # lid on the audience side
-props.box(G(TX + 0.28, top + 0.04, TZ), (0.6, 0.38, 0.07), BLACK)                            # mixing desk body
+props.box(G(TX - 0.05, top + 0.035, TZ - 0.08), (0.62, 0.36, 0.07), BLACK)                    # mixing desk body
 for i in range(6):                                                                           # fader caps and knobs
-    props.box(G(TX + 0.05 + i * 0.09, top + 0.085, TZ + 0.06), (0.03, 0.06, 0.02), SILVER)
-    props.box(G(TX + 0.05 + i * 0.09, top + 0.085, TZ - 0.11), (0.03, 0.03, 0.02), (PINK, TEAL, CREAM)[i % 3])
+    props.box(G(TX - 0.28 + i * 0.09, top + 0.08, TZ - 0.02), (0.03, 0.06, 0.02), SILVER)
+    props.box(G(TX - 0.28 + i * 0.09, top + 0.08, TZ - 0.17), (0.03, 0.03, 0.02), (PINK, TEAL, CREAM)[i % 3])
 finish("lwf_stage_set_electronic_v1", [r, props.link([PAL]), shade],
        dict(e, lamp=[2.4, DECK, -1.85], table=dict(centre=[TX, DECK, TZ], size_m=[TL, TD, TH], top_y=round(DECK + TH, 3),
-                                                    contents="laptop (lid on the audience side) and a mixing desk")))
+                                                    contents="laptop (lid on the audience side) and a mixing desk", performer_spot=[-0.25, 1.2, 0.25], performer_cell=[96, 150], table_cells_x=[97, 98], table_cells_z=[149, 151])))
 # ---------------------------------------------------------------- metal: one small stack on a black rug that runs under it
 reset(); PAL = palette_material(); props = Mesh("Props")
 r, e = rug("metal", 0.65, -0.55, 4.3, 2.9)

@@ -1,7 +1,7 @@
 # Tier-1 stage sets — v1
 
 2 October 2026. Production assets from the approved tier-1 stage-set concept, with the user's changes applied:
-electronic is a rug, a lamp and a trestle table with a laptop and mixing desk as set dressing on the back half (nobody plays it this pass), metal has a black rug
+electronic is a rug, a lamp and the desk performer's table in front of the front-centre mark, metal has a black rug
 under its stack, and the pop curtain is lowered and thinned so it never hides the band from the other three
 camera rotations. Project-original geometry (Blender 4.1.1, Pillow palette). Static and presentation only:
 no colliders, no animation, and no picking or simulation identity.
@@ -28,7 +28,7 @@ drum mark (93,152) → (−1.25, 1.2, −1.25). Nothing tall stands on a mark or
 |---|---:|---|---|
 | `lwf_stage_set_folk_v1.glb` | 96 | Rug, Props, LampShade | Rug #A8432F, 3.6 × 2.2 at (0.3, 1.2, −0.4); standard lamp 0.45 × 0.45 × 1.81 at (2.4, 1.2, −1.85) |
 | `lwf_stage_set_indie_v1.glb` | 36 | Rug, Props | Rug #7E6A9A, as folk; cream combo amp 0.8 × 0.3 × 0.62 at (2.5, 1.2, −1.6), facing +Z |
-| `lwf_stage_set_electronic_v1.glb` | 372 | Rug, Props, LampShade | Rug #2F4A35 (dark green), as folk; standard lamp with a teal cap at (2.4, 1.2, −1.85); trestle table 1.5 × 0.55 × 0.78 (top y 1.98) centred (0.45, 1.2, −1.75) on the back half between the drum kit and mark (94,146), with a laptop (lid on the audience side) and a small mixing desk. Set dressing only: nobody plays it this pass. |
+| `lwf_stage_set_electronic_v1.glb` | 372 | Rug, Props, LampShade | Rug #2F4A35 (dark green), as folk; standard lamp with a teal cap at (2.4, 1.2, −1.85); the role-0 desk performer's table, 1.5 × 0.55 × 0.98, centred (−0.25, 1.2, 0.825), directly in front of the front-centre mark (96,150), with a mixing desk under the hands and a laptop (lid on the audience side). It crosses the front walkway; the steps stay clear. |
 | `lwf_stage_set_metal_v1.glb` | 72 | Rug, Props | Rug #1C1C1C, 4.3 × 2.9 at (0.65, 1.2, −0.55), running under the stack; amp stack (2 cabs + head) 0.75 × 0.3 × 1.68 at (2.3, 1.215, −1.8) |
 | `lwf_stage_set_pop_v1.glb` | 396 | Curtain, Props | Tinsel curtain, pink and silver strips 0.07 wide at a 0.2 m pitch, 1.6 tall, x −3.4 to 2.6 at z −2.0, on a grey rail with end posts |
 | `lwf_stage_set_punk_v1.glb` | 96 | Props, Banner, LetteringArea | Bedsheet 5.0 × 0.95, bottom 1.45 above the deck, centred (−0.1, 3.125, −2.0), on two poles at the back rail |
