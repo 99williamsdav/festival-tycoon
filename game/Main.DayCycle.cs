@@ -1,0 +1,287 @@
+using Festival.Simulation;
+using Godot;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Festival.Game;
+
+/// <summary>
+/// Light and weather over the festival day: the sun sinks from a hot early afternoon to dusk as the festival clock
+/// runs, clouds pass mid-afternoon, a breeze stirs the hedges, and lights come on for the last set. Presentation only:
+/// it reads the clock and never feeds the simulation.
+/// </summary>
+public partial class Main
+{
+    /// <param name="At">Share of the festival day, 0 at the gates and 1 at the close.</param>
+    /// <param name="Elevation">Sun height in degrees.</param>
+    private sealed record DayKey(float At, float Elevation, float Yaw, Color Sun, float SunEnergy, Color Ambient, float AmbientEnergy, Color Sky);
+
+    // Dusk and golden hour are kept lighter than a real evening so guests, rings and labels stay easy to read.
+    private static readonly DayKey[] DayKeys =
+    [
+        new(0.00f, 62, -32, new("fff1c5"), 1.25f, new("d9e7c2"), 0.72f, new("8fc4dc")),
+        new(0.25f, 54, -30, new("fff1cf"), 1.22f, new("d6e4cb"), 0.72f, new("9ccbe0")),
+        new(0.56f, 36, -28, new("ffe6b4"), 1.18f, new("d3dbd6"), 0.76f, new("bcd3dd")),
+        new(0.66f, 22, -26, new("ffbe82"), 1.15f, new("cdd3e2"), 0.86f, new("f0d9b4")),
+        new(0.76f, 12, -24, new("ffa684"), 0.80f, new("b8c6e0"), 0.98f, new("b3a8c0")),
+        new(1.00f, 6, -22, new("ff9a80"), 0.50f, new("a4b6dc"), 1.08f, new("6a7098")),
+    ];
+    // A heatwave bleaches the early-afternoon sky and hardens the sun until the clouds come.
+    private static readonly Color HeatSky = new("d3e6ec"), HeatSun = new("fff7de");
+    private const float HeatSunEnergy = 1.32f;
+    private const float CloudsFrom = 0.22f, CloudsFull = 0.30f, CloudsFading = 0.50f, CloudsGone = 0.60f, CloudCoverage = 0.5f;
+    private const float LightsFrom = 0.70f, LightsFull = 0.78f;
+    private static readonly Vector3 Wind = new Vector3(1, 0, 0.55f).Normalized();
+    private const float WindMetresPerSecond = 1.8f;
+
+    private DirectionalLight3D _sun = null!;
+    private Godot.Environment _environment = null!;
+    private ShaderMaterial _cloudMaterial = null!;
+    private Vector2 _cloudOffset;
+    private double _breezeSeconds, _dayFittingsSync;
+    private readonly List<(Node3D Node, Transform3D Home, float Phase)> _breezeHedges = [];
+    private readonly List<(Node3D Pole, Node3D[] Strings)> _festoonPoles = [];
+    private readonly List<Node3D> _festoonStrings = [];
+    private StandardMaterial3D _bulbMaterial = null!;
+    private readonly List<Light3D> _dayPracticals = [];
+    private readonly Dictionary<string, OmniLight3D> _vendorGlows = new(StringComparer.Ordinal);
+    /// <summary>For verification captures: pins the day to a share of the festival instead of the clock.</summary>
+    private float? _dayFractionOverride;
+
+    private void BuildDayCycle(Godot.Environment environment, DirectionalLight3D sun)
+    {
+        _environment = environment; _sun = sun;
+        foreach (var arg in OS.GetCmdlineUserArgs())
+            if (arg.StartsWith("--day-fraction=", StringComparison.Ordinal) &&
+                float.TryParse(arg["--day-fraction=".Length..], System.Globalization.CultureInfo.InvariantCulture, out var pinned))
+                _dayFractionOverride = Math.Clamp(pinned, 0, 1);
+        // Long golden-hour shadows reach across the whole field from the orthographic camera.
+        _sun.DirectionalShadowMaxDistance = 240;
+        BuildCloudShadows();
+        BuildDuskPracticals();
+        ApplyDayCycle(0);
+    }
+
+    /// <summary>
+    /// Cloud shadows are a soft, partial darkening drifting over the field's ground. Real shadows would be either
+    /// fully dark or absent; these only take the edge off the light so nothing on the field is ever hidden.
+    /// </summary>
+    private void BuildCloudShadows()
+    {
+        var shader = new Shader
+        {
+            Code = """
+                shader_type spatial;
+                render_mode unshaded, blend_mul, depth_draw_never, cull_disabled, shadows_disabled, fog_disabled;
+                uniform sampler2D noise : repeat_enable, filter_linear;
+                uniform vec2 offset;
+                uniform float coverage;
+                uniform float darkness = 0.3;
+                uniform float scale = 0.006;
+                void fragment() {
+                    vec2 world = (INV_VIEW_MATRIX * vec4(VERTEX, 1.0)).xz;
+                    float n = texture(noise, world * scale + offset).r;
+                    float shade = smoothstep(1.0 - coverage - 0.06, 1.0 - coverage + 0.06, n) * step(0.001, coverage);
+                    ALBEDO = vec3(1.0 - darkness * shade);
+                }
+                """,
+        };
+        _cloudMaterial = new ShaderMaterial { Shader = shader };
+        _cloudMaterial.SetShaderParameter("noise", new NoiseTexture2D
+        {
+            Width = 256, Height = 256, Seamless = true,
+            Noise = new FastNoiseLite { Frequency = 0.012f, FractalOctaves = 3, Seed = 7 },
+        });
+        _cloudMaterial.SetShaderParameter("coverage", 0f);
+        // Just above the track; the field only, so the sky behind it never darkens.
+        AddChild(new MeshInstance3D
+        {
+            Name = "CloudShadows", Position = new Vector3(0, 0.09f, 0),
+            Mesh = new PlaneMesh { Size = new Vector2(64, 64) }, MaterialOverride = _cloudMaterial,
+            CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+        });
+    }
+
+    /// <summary>
+    /// The last set's lights: festoons from the stage front to two poles framing the audience, warm light over the
+    /// crowd, an amber and rose wash on the stage, the farmhouse windows, and glow at each stall.
+    /// </summary>
+    private void BuildDuskPracticals()
+    {
+        _bulbMaterial = new StandardMaterial3D
+        {
+            AlbedoColor = new Color("efe6cc"), EmissionEnabled = true, Emission = new Color("ffcf7a"), EmissionEnergyMultiplier = 0,
+        };
+        var wood = new StandardMaterial3D { AlbedoColor = new Color("6e4c31"), Roughness = 1 };
+        var cord = new StandardMaterial3D { AlbedoColor = new Color("2d2a26"), Roughness = 1 };
+        // The trailer stage stands at (-16, 11) facing +X, its front edge at about x = -13.6.
+        Vector3 stageNorth = new(-13.6f, 2.3f, 6.4f), stageSouth = new(-13.6f, 2.3f, 15.6f);
+        Vector3 poleNorth = new(-5f, 0, 4.5f), poleSouth = new(-5f, 0, 17.5f);
+        const float poleHeight = 3.6f;
+        Node3D Pole(Vector3 at)
+        {
+            var pole = new MeshInstance3D
+            {
+                Mesh = new CylinderMesh { TopRadius = .06f, BottomRadius = .08f, Height = poleHeight, RadialSegments = 6 },
+                MaterialOverride = wood, Position = at + new Vector3(0, poleHeight / 2, 0),
+            };
+            AddChild(pole); return pole;
+        }
+        var north = Pole(poleNorth); var south = Pole(poleSouth);
+        var topNorth = poleNorth + new Vector3(0, poleHeight - .1f, 0); var topSouth = poleSouth + new Vector3(0, poleHeight - .1f, 0);
+        var front = Festoon(stageNorth, stageSouth, .45f, cord);
+        var toNorth = Festoon(stageNorth, topNorth, .55f, cord);
+        var toSouth = Festoon(stageSouth, topSouth, .55f, cord);
+        var back = Festoon(topNorth, topSouth, .7f, cord);
+        _festoonPoles.Add((north, [toNorth, back]));
+        _festoonPoles.Add((south, [toSouth, back]));
+        _festoonStrings.AddRange([front, toNorth, toSouth, back]);
+
+        OmniLight3D Glow(Vector3 at, Color colour, float range)
+        {
+            var light = new OmniLight3D { Position = at, LightColor = colour, OmniRange = range, LightEnergy = 0, ShadowEnabled = false };
+            AddChild(light); _dayPracticals.Add(light); light.SetMeta("full", 1f); return light;
+        }
+        Glow(new(-9, 3.4f, 8), new("ffc477"), 9).SetMeta("full", 2f);
+        Glow(new(-9, 3.4f, 14), new("ffc477"), 9).SetMeta("full", 2f);
+        Glow(new(-22, 2.4f, -8.4f), new("ffbd6a"), 6).SetMeta("full", 2f); // Farmhouse windows.
+        SpotLight3D Wash(Vector3 at, Color colour)
+        {
+            var spot = new SpotLight3D { Position = at, LightColor = colour, SpotRange = 16, SpotAngle = 28, LightEnergy = 0 };
+            AddChild(spot); spot.LookAt(new Vector3(-15.5f, 1.4f, 11), Vector3.Up);
+            _dayPracticals.Add(spot); spot.SetMeta("full", 14f); return spot;
+        }
+        Wash(new(-6.5f, 5, 8.5f), new("ffb24f"));
+        Wash(new(-6.5f, 5, 13.5f), new("ff6f8e"));
+    }
+
+    /// <summary>A sagging cord between two points, hung with bulbs about every 0.9 m.</summary>
+    private Node3D Festoon(Vector3 from, Vector3 to, float sag, Material cord)
+    {
+        var root = new Node3D { Position = from };
+        AddChild(root);
+        var span = to - from;
+        var bulbs = Math.Max(2, Mathf.RoundToInt(span.Length() / .9f));
+        Vector3 At(float t) => span * t + new Vector3(0, -4 * sag * t * (1 - t), 0);
+        const int segments = 16;
+        for (var i = 0; i < segments; i++)
+        {
+            Vector3 a = At(i / (float)segments), b = At((i + 1) / (float)segments);
+            var piece = new MeshInstance3D
+            {
+                Mesh = new CylinderMesh { TopRadius = .015f, BottomRadius = .015f, Height = (b - a).Length(), RadialSegments = 4 },
+                MaterialOverride = cord, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+            };
+            root.AddChild(piece);
+            piece.Position = (a + b) / 2;
+            piece.Basis = new Basis(new Quaternion(Vector3.Up, (b - a).Normalized()));
+        }
+        var multimesh = new MultiMesh
+        {
+            TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, InstanceCount = bulbs,
+            Mesh = new SphereMesh { Radius = .08f, Height = .16f, RadialSegments = 6, Rings = 3 },
+        };
+        for (var i = 0; i < bulbs; i++)
+            multimesh.SetInstanceTransform(i, new Transform3D(Basis.Identity, At((i + .5f) / bulbs) + new Vector3(0, -.09f, 0)));
+        root.AddChild(new MultiMeshInstance3D
+        {
+            Multimesh = multimesh, MaterialOverride = _bulbMaterial, CastShadow = GeometryInstance3D.ShadowCastingSetting.Off,
+        });
+        return root;
+    }
+
+    private void RegisterBreezeHedge(Node3D hedge) => _breezeHedges.Add((hedge, hedge.Transform, _breezeHedges.Count * 0.9f));
+
+    /// <summary>The share of the festival day the light shows: the clock while running, dusk while guests leave.</summary>
+    private float DayFraction()
+    {
+        if (_dayFractionOverride is { } pinned) return pinned;
+        if (_session.CapturePreparation() is not { } p) return 0;
+        return p.Status switch
+        {
+            PreparationStatus.Running => Math.Clamp((_session.CurrentTick - p.StartedTick) / (float)GameSession.PreparedDayTicks, 0, 1),
+            PreparationStatus.Departing => 1,
+            _ => 0,
+        };
+    }
+
+    private static float Smooth(float from, float to, float x) => Mathf.SmoothStep(from, to, x);
+
+    private void ProcessDayCycle(double delta)
+    {
+        var running = !_session.IsPaused || _dayFractionOverride is not null;
+        if (running) _breezeSeconds += delta;
+        var day = DayFraction();
+        ApplyDayCycle(day);
+        // Clouds drift with the wind and the breeze gusts about every 20 seconds.
+        if (running) _cloudOffset += new Vector2(Wind.X, Wind.Z) * (float)(WindMetresPerSecond * delta * 0.006);
+        _cloudMaterial.SetShaderParameter("offset", -_cloudOffset);
+        var t = (float)_breezeSeconds;
+        var gust = Mathf.Pow(Mathf.Max(0, Mathf.Sin(t * Mathf.Tau / 20f)), 4);
+        foreach (var (node, home, phase) in _breezeHedges)
+        {
+            var lean = (.012f + .035f * gust) * Mathf.Sin(t * 1.7f + phase);
+            // Lean the hedge top downwind while its base stays planted: a shear, not a tilt.
+            var shear = new Basis(Vector3.Right, new Vector3(Wind.X * lean, 1, Wind.Z * lean), Vector3.Back);
+            node.Transform = new Transform3D(shear * home.Basis, home.Origin);
+        }
+        _dayFittingsSync -= delta;
+        if (_dayFittingsSync <= 0) { _dayFittingsSync = .5; SyncDayFittings(); }
+    }
+
+    private void ApplyDayCycle(float day)
+    {
+        var next = Array.FindIndex(DayKeys, key => key.At >= day);
+        if (next <= 0) next = 1;
+        DayKey a = DayKeys[next - 1], b = DayKeys[next];
+        var w = Smooth(0, 1, Math.Clamp((day - a.At) / (b.At - a.At), 0, 1));
+        var sun = a.Sun.Lerp(b.Sun, w); var sky = a.Sky.Lerp(b.Sky, w);
+        var sunEnergy = Mathf.Lerp(a.SunEnergy, b.SunEnergy, w);
+        // The heatwave look holds until the clouds arrive.
+        if (_session.CaptureMedical() is { IsHot: true })
+        {
+            var heat = 1 - Smooth(CloudsFrom, CloudsFull + .05f, day);
+            sky = sky.Lerp(HeatSky, heat); sun = sun.Lerp(HeatSun, heat); sunEnergy = Mathf.Lerp(sunEnergy, HeatSunEnergy, heat);
+        }
+        var clouds = CloudCoverage * Smooth(CloudsFrom, CloudsFull, day) * (1 - Smooth(CloudsFading, CloudsGone, day));
+        _cloudMaterial.SetShaderParameter("coverage", clouds);
+        _sun.RotationDegrees = new Vector3(-Mathf.Lerp(a.Elevation, b.Elevation, w), Mathf.Lerp(a.Yaw, b.Yaw, w), 0);
+        _sun.LightColor = sun; _sun.LightEnergy = sunEnergy;
+        // A sun on the horizon would throw shadows across the whole field; they fade as it sets.
+        _sun.ShadowOpacity = 1 - .45f * Smooth(.7f, 1, day);
+        _environment.BackgroundColor = sky;
+        _environment.AmbientLightColor = a.Ambient.Lerp(b.Ambient, w);
+        _environment.AmbientLightEnergy = Mathf.Lerp(a.AmbientEnergy, b.AmbientEnergy, w);
+        var lights = Smooth(LightsFrom, LightsFull, day);
+        _bulbMaterial.EmissionEnergyMultiplier = 2.4f * lights;
+        foreach (var light in _dayPracticals) light.LightEnergy = lights * (float)light.GetMeta("full");
+        foreach (var glow in _vendorGlows.Values) glow.LightEnergy = 2.4f * lights;
+    }
+
+    /// <summary>Stall glows follow wherever the stalls are built; a pole gives way to anything built on its spot.</summary>
+    private void SyncDayFittings()
+    {
+        foreach (var id in _vendorGlows.Keys.Where(id => !_immersionVendors.ContainsKey(id)).ToArray())
+        { _vendorGlows[id].QueueFree(); _vendorGlows.Remove(id); }
+        foreach (var (id, body) in _immersionVendors)
+        {
+            if (!_vendorGlows.TryGetValue(id, out var glow))
+            {
+                glow = new OmniLight3D { LightColor = new Color("ffd59a"), OmniRange = 6, LightEnergy = 0, ShadowEnabled = false };
+                AddChild(glow); _vendorGlows.Add(id, glow);
+            }
+            glow.Position = body.Position + new Vector3(0, 2.6f, 0);
+        }
+        var built = _session.CaptureBuildPlacements().Select(item => ImmersionPosition(item.Cell)).ToArray();
+        var hidden = new HashSet<Node3D>();
+        foreach (var (pole, strings) in _festoonPoles)
+        {
+            var at = new Vector2(pole.Position.X, pole.Position.Z);
+            var blocked = built.Any(item => new Vector2(item.X, item.Z).DistanceTo(at) < 3f);
+            pole.Visible = !blocked;
+            if (blocked) foreach (var festoon in strings) hidden.Add(festoon);
+        }
+        foreach (var festoon in _festoonStrings) festoon.Visible = !hidden.Contains(festoon);
+    }
+}

@@ -71,6 +71,7 @@ public partial class Main : Node, IHudHost
     {
         if (_genreAudioVerificationOutput is not null) return;
         _rig.Process(delta);
+        ProcessDayCycle(delta);
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
         AdvancePreparationPresentation(delta);
@@ -129,26 +130,25 @@ public partial class Main : Node, IHudHost
 
     private void BuildWorld()
     {
-        var worldEnvironment = new WorldEnvironment
+        var environment = new Godot.Environment
         {
-            Environment = new Godot.Environment
-            {
-                BackgroundMode = Godot.Environment.BGMode.Color,
-                BackgroundColor = new Color("8fc4dc"),
-                AmbientLightSource = Godot.Environment.AmbientSource.Color,
-                AmbientLightColor = new Color("d9e7c2"),
-                AmbientLightEnergy = 0.72f,
-            },
+            BackgroundMode = Godot.Environment.BGMode.Color,
+            BackgroundColor = new Color("8fc4dc"),
+            AmbientLightSource = Godot.Environment.AmbientSource.Color,
+            AmbientLightColor = new Color("d9e7c2"),
+            AmbientLightEnergy = 0.72f,
         };
-        AddChild(worldEnvironment);
-        AddChild(new DirectionalLight3D
+        AddChild(new WorldEnvironment { Environment = environment });
+        var sun = new DirectionalLight3D
         {
             RotationDegrees = new Vector3(-54, -32, 0), LightColor = new Color("fff1c5"),
             LightEnergy = 1.25f, ShadowEnabled = true,
-        });
+        };
+        AddChild(sun);
         BuildGrass();
         BuildTrack();
         BuildHedgeBoundary();
+        BuildDayCycle(environment, sun);
         foreach (var item in LowerWitteringFarmScenario.CreateReadModel().Objects)
             if (item.Kind != FarmObjectKind.ServicePoint) AddFarmObject(item);
         _highlight = new MeshInstance3D
@@ -225,13 +225,14 @@ public partial class Main : Node, IHudHost
         const string hedge = "res://assets/environment/lwf_hedge_straight_8m_a_v1.glb";
         for (var i = -4; i < 4; i++)
         {
-            AddAsset(hedge, new Vector3(i * 8, 0, -32));
-            if (i is not -1 and not 0) AddAsset(hedge, new Vector3(i * 8, 0, 32));
+            RegisterBreezeHedge(AddAsset(hedge, new Vector3(i * 8, 0, -32)));
+            if (i is not -1 and not 0) RegisterBreezeHedge(AddAsset(hedge, new Vector3(i * 8, 0, 32)));
             var left = AddAsset(hedge, new Vector3(-32, 0, i * 8)); left.RotationDegrees = new Vector3(0, 90, 0);
             var right = AddAsset(hedge, new Vector3(32, 0, i * 8)); right.RotationDegrees = new Vector3(0, 90, 0);
+            RegisterBreezeHedge(left); RegisterBreezeHedge(right);
         }
-        AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(-8, 0, 32));
-        AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(4, 0, 32));
+        RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(-8, 0, 32)));
+        RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(4, 0, 32)));
         AddAsset("res://assets/environment/lwf_hedge_gate_end_v1.glb", new Vector3(-3, 0, 32));
         var northRight = AddAsset("res://assets/environment/lwf_hedge_gate_end_v1.glb", new Vector3(3, 0, 32));
         northRight.RotationDegrees = new Vector3(0, 180, 0);
