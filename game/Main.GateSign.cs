@@ -6,7 +6,8 @@ namespace Festival.Game;
 /// <summary>
 /// The festival's sign at the farm gate, standing on a little apron of verge and lane outside it. The sign grows
 /// with the festival: a painted old door at tier 1, a proper board at tier 2, an arch over the lane from tier 3.
-/// Its lettering is the festival's own name, set at runtime so any name the player chooses fits.
+/// Its lettering is the festival's own name, set at runtime so any name the player chooses fits. The sign fonts
+/// are SIL Open Font License; their licences sit beside them in assets/fonts/sign.
 /// </summary>
 public partial class Main
 {
@@ -36,23 +37,55 @@ public partial class Main
         if (_gateSign.FindChild("LetteringArea", true, false) is Node3D area) Letter(area, name, tier);
     }
 
-    /// <summary>The name, on one line if it fits or two if not, sized to the board's clear rectangle.</summary>
+    // Each tier's sign-writing: a rough painted hand, a casual brush script, then a confident serif.
+    private static Font GateLetteringFont(int tier) => tier switch
+    {
+        1 => GD.Load<FontFile>("res://assets/fonts/sign/CaveatBrush-Regular.ttf"),
+        2 => GD.Load<FontFile>("res://assets/fonts/sign/Kalam-Bold.ttf"),
+        _ => new FontVariation
+        {
+            BaseFont = GD.Load<FontFile>("res://assets/fonts/sign/PlayfairDisplay-Variable.ttf"),
+            VariationOpentype = new Godot.Collections.Dictionary { { "wght", 700 } },
+        },
+    };
+
+    /// <summary>
+    /// The name, on one line if it fits or two if not, sized to the board's clear rectangle. A name too long to
+    /// stay legible is cut short with an ellipsis rather than shrunk to nothing.
+    /// </summary>
     private static void Letter(Node3D area, string name, int tier)
     {
         var size = GateLetteringSizes[tier - 1];
-        var font = GD.Load<FontFile>("res://assets/ui/fonts/ZillaSlab-Bold.ttf");
+        var font = GateLetteringFont(tier);
         const int fontSize = 96;
-        var lineWidth = font.GetStringSize(name, HorizontalAlignment.Left, -1, fontSize).X;
-        var lines = lineWidth > size.X / size.Y * font.GetHeight(fontSize) * 1.6f && name.Contains(' ') ? 2 : 1;
-        var widest = lines == 1 ? lineWidth : HalfWidth(font, name, fontSize);
-        var pixel = Math.Min(size.X * .92f / widest, size.Y * .88f / (lines * font.GetHeight(fontSize)));
-        area.AddChild(new Label3D
+        var minimumPixel = size.Y * .3f / font.GetHeight(fontSize);
+        var (text, pixel) = Fit(font, name, size, fontSize);
+        while (pixel < minimumPixel && name.Length > 4)
         {
-            Text = lines == 1 ? name : Split(name), Font = font, FontSize = fontSize, PixelSize = pixel,
-            Modulate = GateLetteringInk[tier - 1], OutlineSize = 0, Shaded = true, DoubleSided = false,
-            HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center,
-            Position = new Vector3(0, 0, .004f),
-        });
+            name = name[..^2].TrimEnd() + "…";
+            (text, pixel) = Fit(font, name, size, fontSize);
+        }
+        Label3D Label(Color ink, Vector3 at) => new()
+        {
+            Text = text, Font = font, FontSize = fontSize, PixelSize = pixel,
+            Modulate = ink, OutlineSize = 0, Shaded = true, DoubleSided = false,
+            HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Position = at,
+        };
+        // The arch is sign-written with a dark drop shade; the homemade signs are painted flat, the door a touch askew.
+        if (tier == 3) area.AddChild(Label(new Color("1d2a22"), new Vector3(.035f, -.035f, .006f)));
+        var top = Label(GateLetteringInk[tier - 1], new Vector3(0, 0, .01f));
+        if (tier == 1) top.RotationDegrees = new Vector3(0, 0, -2.5f);
+        area.AddChild(top);
+    }
+
+    /// <summary>One line or two, whichever lets the lettering be larger.</summary>
+    private static (string Text, float Pixel) Fit(Font font, string name, Vector2 size, int fontSize)
+    {
+        float Pixel(int lines, float widest) => Math.Min(size.X * .92f / widest, size.Y * .88f / (lines * font.GetHeight(fontSize)));
+        var one = Pixel(1, font.GetStringSize(name, HorizontalAlignment.Left, -1, fontSize).X);
+        if (!name.Contains(' ')) return (name, one);
+        var two = Pixel(2, HalfWidth(font, name, fontSize));
+        return two > one ? (Split(name), two) : (name, one);
     }
 
     /// <summary>Breaks a name at the space nearest its middle.</summary>
@@ -64,7 +97,7 @@ public partial class Main
         return best < 0 ? name : name[..best] + "\n" + name[(best + 1)..];
     }
 
-    private static float HalfWidth(FontFile font, string name, int fontSize)
+    private static float HalfWidth(Font font, string name, int fontSize)
     {
         var width = 0f;
         foreach (var line in Split(name).Split('\n'))
