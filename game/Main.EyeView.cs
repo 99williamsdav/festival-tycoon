@@ -23,7 +23,8 @@ public partial class Main
     private readonly List<Label3D> _eyeHiddenLabels = [];
     private double _eyeLabelSweep;
     private float _eyeYaw;
-    private bool _eyeFogWas;
+    private (bool Enabled, float Density, float SkyAffect, Color Colour) _eyeFogWas;
+    private GameSession? _eyeSession;
 
     private bool EyeViewActive => _eyeTarget is not null;
     private const uint EyeSelfLayer = 1u << 19, EyeHiddenLayer = 1u << 18;
@@ -52,6 +53,7 @@ public partial class Main
     {
         if (!_attendeeVisuals.TryGetValue(id, out var visual)) return;
         _eyeTarget = id;
+        _eyeSession = _session;
         // The eyes can't see the head they sit in: that person's meshes go on a layer this camera skips.
         _eyeCamera ??= new Camera3D { Projection = Camera3D.ProjectionType.Perspective, Fov = 72, Near = 0.05f, Far = 600,
             CullMask = 0xFFFFF & ~EyeSelfLayer & ~EyeHiddenLayer };
@@ -69,7 +71,7 @@ public partial class Main
         };
         if (_eyeGround.GetParent() is null) AddChild(_eyeGround);
         _eyeGround.Visible = true;
-        _eyeFogWas = _environment.FogEnabled;
+        _eyeFogWas = (_environment.FogEnabled, _environment.FogDensity, _environment.FogSkyAffect, _environment.FogLightColor);
         _environment.FogEnabled = true;
         _environment.FogDensity = 0.012f;
         _environment.FogSkyAffect = 0;
@@ -97,7 +99,8 @@ public partial class Main
         if (_eyeCamera is not null) _eyeCamera.Current = false;
         _rig.Camera.Current = true;
         if (_eyeGround is not null) _eyeGround.Visible = false;
-        _environment.FogEnabled = _eyeFogWas;
+        (_environment.FogEnabled, _environment.FogDensity, _environment.FogSkyAffect, _environment.FogLightColor) = _eyeFogWas;
+        _eyeSession = null;
         foreach (var label in _eyeHiddenLabels.Where(IsInstanceValid)) label.Layers = 1u;
         _eyeHiddenLabels.Clear();
         if (_eyeOverlay is not null) _eyeOverlay.Visible = false;
@@ -133,7 +136,9 @@ public partial class Main
             _eyeViewButton.Visible = !EyeViewActive && _selectedAttendeeId is { } selected && _attendeeVisuals.ContainsKey(selected) &&
                 _session.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing;
         if (_eyeTarget is not { } id) return;
-        if (!_attendeeVisuals.TryGetValue(id, out var visual) || !IsInstanceValid(visual) ||
+        // Ids are reused across sessions, and a stopped or finished day has nobody to follow.
+        if (_session != _eyeSession || _session.PreparedStatus is not (PreparationStatus.Running or PreparationStatus.Departing) ||
+            !_attendeeVisuals.TryGetValue(id, out var visual) || !IsInstanceValid(visual) ||
             _session.CapturePreparation()?.People.FirstOrDefault(p => p.AgentId == id.Value)?.Departed == true)
         { ExitEyeView(); return; }
         SetEyeSelfLayer(visual, true); // Poses, kits and held things come and go.
