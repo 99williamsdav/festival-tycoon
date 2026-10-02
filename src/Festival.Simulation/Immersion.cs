@@ -265,7 +265,7 @@ public sealed partial class GameSession
     public bool ImmersionBoundaryOnNextTick => !IsPaused && MedicalOperationsActive && _immersion is { } m &&
         (EffectiveToilets(_facilities).Any(toilet => toilet.OwnerId is not null && toilet.ServiceTicks <= 1 &&
              (toilet.OwnerId is { } owner && PersonIn(PersonView.Consumption, owner) is { ToiletStage: ToiletVisitStage.Using })) ||
-         Vendors.Any(v=>v.OwnerId is not null && v.ServiceTicks<=1) || PeopleIn(PersonView.Consumption).Any(p=>!_persons[p.Id].Departed && (p.IntoxicationWarningTick<0 && p.Intoxication>=7499 || p.SevereTicks>=1599 && p.Intoxication>=8500 && p.IntoxicationWarningTick>=0 && p.IntoxicationCollapseTick<0 && !ExistingMedicalHazardOwns(p.Id) || p.IntoxicationCollapseTick>=0 && (CurrentTick+1==p.IntoxicationCollapseTick+MedicalCriticalDelayTicks || CurrentTick+1==p.IntoxicationCollapseTick+MedicalDeathDelayTicks))));
+         Vendors.Any(v=>v.OwnerId is not null && v.ServiceTicks<=1) || PeopleIn(PersonView.Consumption).Any(p=>!_persons[p.Id].Departed && (p.IntoxicationWarningTick<0 && p.Intoxication>=7500-GuestCharacters.LightweightAbsorption || p.SevereTicks>=1599 && p.Intoxication>=8500 && p.IntoxicationWarningTick>=0 && p.IntoxicationCollapseTick<0 && !ExistingMedicalHazardOwns(p.Id) || p.IntoxicationCollapseTick>=0 && (CurrentTick+1==p.IntoxicationCollapseTick+MedicalCriticalDelayTicks || CurrentTick+1==p.IntoxicationCollapseTick+MedicalDeathDelayTicks))));
     private bool IntoxicationCareBoundary(MedicResponse job) => IntoxicationCareOwns(job) && _persons[job.PatientId!.Value].CareTicks>=1599;
     private void CleanupImmersionDeparture()
     {
