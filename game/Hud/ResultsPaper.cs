@@ -319,7 +319,7 @@ void fragment() {
             MoneyRow(list, $"Tickets · advance sales {FestivalCurrency.Format(report.TicketPricePennies)}", report.TicketsSold.ToString(), FestivalCurrency.Format(report.TicketSalesPennies));
             foreach (var sale in report.Sales)
             {
-                var item = sale.Product switch { ImmersionProduct.Chips => "Chips", ImmersionProduct.SoftDrink => "Soft drink", _ => "Beer" };
+                var item = sale.Product switch { ImmersionProduct.Chips => "Chips", ImmersionProduct.SoftDrink => "Soft drink", ImmersionProduct.Water => "Free water", _ => "Beer" };
                 var rate = sale.UnitPricePennies == GameSession.ImmersionPrice(sale.Product) ? "full price" : "50% rate";
                 MoneyRow(list, $"{item} · {rate} {FestivalCurrency.Format(sale.UnitPricePennies)}", sale.Quantity.ToString(), FestivalCurrency.Format(sale.AmountPennies));
             }

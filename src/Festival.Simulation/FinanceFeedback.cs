@@ -39,6 +39,10 @@ public static class FestivalCashFeedbackProjection
                 [new(owner, payment.DebitAccount, payment.AmountPennies), new(owner, LedgerAccountType.CashAsset, -payment.AmountPennies)]);
         if (preparation.Plan is null && immersion?.StockPurchase is { } stock)
             Add($"stock:{stock.Id}", stock.Attempt, stock.Tick, "stock", stock.Entries);
+        var festival = new EntityId(preparation.FinanceOwnerId);
+        foreach (var (tick, index) in (immersion?.FreeWaterChargeTicks ?? []).Select((tick, index) => (tick, index)))
+            Add($"free-water:{preparation.Attempt}:{index + 1}", preparation.Attempt, tick, "vendor.drinks",
+                [new(festival, LedgerAccountType.AdministrationExpense, GameSession.FreeWaterChargePennies), new(festival, LedgerAccountType.CashAsset, -GameSession.FreeWaterChargePennies)]);
         foreach (var sale in immersion?.Purchases ?? [])
             Add($"sale:{sale.Id}", preparation.Attempt, sale.Tick, sale.Product == ImmersionProduct.Chips ? "vendor.food" : "vendor.drinks", sale.Entries);
         return events.OrderBy(item => item.Tick).ThenBy(item => item.TransactionId, StringComparer.Ordinal).ToList().AsReadOnly();

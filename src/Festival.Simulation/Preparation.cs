@@ -564,7 +564,7 @@ public sealed partial class GameSession
         var finance = snapshot.FestivalFinances.SingleOrDefault(item => item.OwnerId == p.FinanceOwnerId);
         var stock = snapshot.OwnedStocks.SingleOrDefault(item => item.ServiceId == p.StockId);
         if (finance is null || stock is null || stock.OwnerId != p.FinanceOwnerId || stock.UnitCostBasisPennies != 60 ||
-            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? p.Plan is null ? 9600 : PlannedStockCost(p.Plan) : 0) - (p.Plan?.Committed == true ? p.SetupPayments?.LastOrDefault()?.BuildCostPennies ?? 0 : 0) + (snapshot.Immersion?.Purchases?.Sum(item => (long)item.PricePennies) ?? 0) ||
+            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? p.Plan is null ? 9600 : PlannedStockCost(p.Plan) : 0) - (p.Plan?.Committed == true ? p.SetupPayments?.LastOrDefault()?.BuildCostPennies ?? 0 : 0) + (snapshot.Immersion?.Purchases?.Sum(item => (long)item.PricePennies) ?? 0) - FreeWaterSpend(snapshot.Immersion) ||
             stock.Quantity != 40 + 50 * p.Payments.Count(item => item.OfferId == "contract.stock" && item.Attempt == p.Attempt) - p.StockConsumed)
             return "Preparation cash or stock does not reconcile.";
         if (p.Status != PreparationStatus.Preparing &&

@@ -56,7 +56,7 @@ public sealed partial class GameSession
         person.Intent == MedicalIntent.SeekWater ? ActivityKind.Water :
         person.ToiletStage != ToiletVisitStage.None ? ActivityKind.Toilet :
         person.VendorId is not null ? person.Order switch
-        { ImmersionProduct.Chips => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, _ => ActivityKind.Beer } :
+        { ImmersionProduct.Chips => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater, _ => ActivityKind.Beer } :
         ActivityKind.Watch;
 
     private bool IsStaffMember(ulong id) => _persons[id].NeedProfile == MedicalNeedProfile.Staff;
@@ -109,7 +109,7 @@ public sealed partial class GameSession
     private static string ActivityLabel(ActivityKind kind, bool staff = false) => kind switch
     {
         ActivityKind.Watch => staff ? "post" : "music", ActivityKind.Water => "water", ActivityKind.Rest => "rest", ActivityKind.Food => "chips",
-        ActivityKind.SoftDrink => "soft drink", ActivityKind.Beer => "beer", ActivityKind.Respond => "respond", _ => "toilet"
+        ActivityKind.SoftDrink => "soft drink", ActivityKind.Beer => "beer", ActivityKind.Respond => "respond", ActivityKind.BarWater => "free water at the bar", _ => "toilet"
     };
 
     /// <summary>
@@ -159,7 +159,7 @@ public sealed partial class GameSession
         {
             case ActivityKind.Water: LeaveWater(id, reason, reroute: returnToMusic); break;
             case ActivityKind.Toilet: ReleaseToiletPerson(id, returnToMusic); break;
-            case ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer: LeaveImmersionQueue(id, returnToMusic); break;
+            case ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer or ActivityKind.BarWater: LeaveImmersionQueue(id, returnToMusic); break;
         }
     }
 
@@ -191,7 +191,7 @@ public sealed partial class GameSession
             default:
                 var vendor = Vendors.Single(item => item.Id == option.FacilityId);
                 var product = option.Kind switch
-                { ActivityKind.Food => ImmersionProduct.Chips, ActivityKind.SoftDrink => ImmersionProduct.SoftDrink, _ => ImmersionProduct.Beer };
+                { ActivityKind.Food => ImmersionProduct.Chips, ActivityKind.SoftDrink => ImmersionProduct.SoftDrink, ActivityKind.BarWater => ImmersionProduct.Water, _ => ImmersionProduct.Beer };
                 SetConsumption(_persons[id] with { VendorId = vendor.Id, Order = product, ShoppingDecisionTick = CurrentTick });
                 MutatePerson(id, item => { item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
                 ApplyAgentDestination(new(id), new(ImmersionQueueCell(vendor, vendor.Queue.Length), "immersion.approach"));
@@ -233,7 +233,7 @@ public sealed partial class GameSession
         return options;
     }
 
-    private static bool IsPurchase(ActivityKind kind) => kind is ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer;
+    private static bool IsPurchase(ActivityKind kind) => kind is ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer or ActivityKind.BarWater;
 
     private static string? CurrentFacility(Person person) =>
         person.Intent == MedicalIntent.SeekWater ? person.WaterPointId : person.ToiletStage != ToiletVisitStage.None ? person.ToiletId : person.VendorId;
@@ -263,7 +263,7 @@ public sealed partial class GameSession
         if (after is { } previous && IsPurchase(previous)) return stops;
         foreach (var product in Enum.GetValues<ImmersionProduct>())
         {
-            var kind = product switch { ImmersionProduct.Chips => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, _ => ActivityKind.Beer };
+            var kind = product switch { ImmersionProduct.Chips => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater, _ => ActivityKind.Beer };
             var underWay = !fresh && current == kind;
             if (!underWay && !ActivityPurchaseEligible(person, product)) continue;
             var vendorId = product == ImmersionProduct.Chips ? "food" : "drinks";
@@ -273,7 +273,7 @@ public sealed partial class GameSession
                 ImmersionProduct.Beer => (3_000L + (StaffHas(id, StaffTrait.SneakyAlcoholic) ? AlcoholicBeerTaste : person.BeerTaste) * 45) * PurchaseValueScale,
                 ImmersionProduct.SoftDrink => person.SoftTaste * 35L * PurchaseValueScale,
                 _ => 0L
-            } + (StaffHas(id, StaffTrait.Slacker) ? SlackerTreatValue : 0);
+            } + (StaffHas(id, StaffTrait.Slacker) && product != ImmersionProduct.Water ? SlackerTreatValue : 0);
             foreach (var vendor in Vendors.Where(vendor => vendor.Id == vendorId && (underWay || VendorHasRoom(vendor))))
                 Add(kind, vendor.Id, vendor.Cell, LightVendorTicks(id, product, vendor, from, fresh), enjoyment, price);
         }

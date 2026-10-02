@@ -26,10 +26,10 @@ public sealed partial class GameSession
         var tickets = FestivalTickets.RevenuePennies(p.Tier);
         return new(p.Attempt, tick, guests.Length, guests.Sum(person => (long)person.Satisfaction),
             tickets + (immersion?.Purchases.Sum(purchase => (long)purchase.PricePennies) ?? 0),
-            payments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense).Sum(payment => (long)payment.AmountPennies) + buildCost,
+            payments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense).Sum(payment => (long)payment.AmountPennies) + buildCost + FreeWaterSpend(immersion),
             p.StockConsumed * 60L + (immersion?.Purchases.Sum(purchase => (long)purchase.CostPennies) ?? 0),
             payments.Where(payment => payment.DebitAccount == LedgerAccountType.EquipmentAsset).Sum(payment => (long)payment.AmountPennies),
-            tickets + (immersion?.Purchases.Sum(purchase => (long)purchase.PricePennies) ?? 0) - payments.Sum(payment => (long)payment.AmountPennies) - buildCost -
+            tickets + (immersion?.Purchases.Sum(purchase => (long)purchase.PricePennies) ?? 0) - payments.Sum(payment => (long)payment.AmountPennies) - buildCost - FreeWaterSpend(immersion) -
                 (immersion?.StockPurchase?.Entries.Where(entry => entry.Account == LedgerAccountType.CashAsset && entry.OwnerId.Value == p.FinanceOwnerId).Sum(entry => -entry.AmountPennies) ?? 0),
             p.FinishedBeerIds?.Length,
             p.FinishedBeerIds is null ? null : disorder?.Incidents.Count(incident => guests.Any(guest => guest.AgentId == incident.InitiatorId || guest.AgentId == incident.OpponentId)),

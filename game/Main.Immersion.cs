@@ -13,6 +13,7 @@ public partial class Main
     private Label? _immersionSummary;
     private Button? _immersionStockButton;
     private Button? _immersionMoveButton;
+    private Button? _freeWaterButton;
     private readonly Dictionary<string, StaticBody3D> _immersionVendors = [];
     private readonly Dictionary<ulong, string> _immersionVendorPicks = [];
     private string? _selectedImmersionVendor;
@@ -126,9 +127,9 @@ public partial class Main
         return new(centre.XMillimetres / 1000f, 0, centre.ZMillimetres / 1000f);
     }
     private static string ImmersionProductKey(ImmersionProduct product) => product switch
-    { ImmersionProduct.Chips => "chips", ImmersionProduct.SoftDrink => "soft", _ => "beer" };
+    { ImmersionProduct.Chips => "chips", ImmersionProduct.SoftDrink or ImmersionProduct.Water => "soft", _ => "beer" };
     private static string ImmersionProductName(ImmersionProduct product) => product switch
-    { ImmersionProduct.Chips => "Chips", ImmersionProduct.SoftDrink => "Soft drink", _ => "Beer" };
+    { ImmersionProduct.Chips => "Chips", ImmersionProduct.SoftDrink => "Soft drink", ImmersionProduct.Water => "Free water", _ => "Beer" };
 
 private void BuildImmersionControls(VBoxContainer parent)
     {
@@ -292,6 +293,14 @@ private void BuildImmersionControls(VBoxContainer parent)
         _immersionMoveButton.Visible = false;
         _immersionMoveButton.TooltipText = "Choose a new grass site before opening. Comma/period rotate; right-click or Esc cancels.";
         parent.AddChild(_immersionMoveButton);
+        _freeWaterButton = ButtonText("Free water at the bar", () =>
+        {
+            _preparationMessage = _host.Execute(new SetFreeWaterCommand(!_session.FreeWaterOn), out var error)
+                ? _session.FreeWaterOn ? "The bar is handing out free water." : "Free water stopped; anyone already queuing still gets a cup." : error!;
+            RefreshPreparationHud();
+        });
+        _freeWaterButton.Visible = false;
+        parent.AddChild(_freeWaterButton);
         BuildToiletInspector(parent);
         BuildLitterInspector(parent);
     }
@@ -385,13 +394,22 @@ private void BuildImmersionControls(VBoxContainer parent)
         if (_immersionMoveButton is not null)
             _immersionMoveButton.Visible = _selectedImmersionVendor is not null &&
                 _session.PreparedStatus == PreparationStatus.Preparing && _session.CaptureImmersion() is not null;
+        if (_freeWaterButton is not null)
+        {
+            _freeWaterButton.Visible = _selectedImmersionVendor == "drinks" && _session.PreparedStatus == PreparationStatus.Running;
+            _freeWaterButton.Text = _session.FreeWaterOn ? "Stop free water" : $"Free water at the bar · {FestivalCurrency.Format(GameSession.FreeWaterChargePennies)}";
+            _freeWaterButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new SetFreeWaterCommand(!_session.FreeWaterOn))) is not null;
+            _freeWaterButton.TooltipText = _session.FreeWaterOn
+                ? "Stop handing out water. No refund; switching it back on costs again."
+                : "Hand out free cups of water from the bar for the rest of the day. Thirsty guests will use it, especially if the taps are broken or busy, and the bar queue will grow.";
+        }
         if (_selectedImmersionVendor is not { } id || _session.CaptureImmersion() is not { } state || !_immersionVendors.TryGetValue(id, out var body)) return;
         var vendor = _session.CaptureVendors().Single(v => v.Id == id);
         _inspectorTitle.Text = id == "food" ? "Food van • chips" : "Drinks stall • soft drinks & beer";
         _inspectorBody.Text = $"Queue: {vendor.Queue.Length}\n" +
             (vendor.OwnerId is { } owner ? $"Serving {_session.CapturePreparation()!.People.Single(p => p.AgentId == owner).Name} • {vendor.ServiceTicks / 80m:0.0}s remaining\n" : "Counter ready\n") +
             (id == "food" ? $"Chips {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Chips))} • stock {state.ChipsStock}" : $"Soft {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.SoftDrink))} • stock {state.SoftStock}\nBeer {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Beer))} • stock {state.BeerStock}\nNo beer for staff or heavily intoxicated customers.") +
-            "\nStaff & band: half price.";
+            "\nStaff & band: half price." + (id == "drinks" && state.FreeWater ? "\nFREE WATER • cups for the thirsty" : "");
         _highlight.Position = body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new Vector3(id == "food" ? 3.5f : 2, 1, id == "food" ? 3.5f : 2); _highlight.Visible = true;
     }
     private string ImmersionPersonInspectorText(ulong id)

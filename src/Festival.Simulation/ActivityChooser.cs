@@ -1,7 +1,7 @@
 namespace Festival.Simulation;
 
 /// <summary>Watch is the default: the music for guests and performers, the post for staff. Respond is a staff job.</summary>
-public enum ActivityKind { Watch, Water, Rest, Food, SoftDrink, Beer, Toilet, Respond }
+public enum ActivityKind { Watch, Water, Rest, Food, SoftDrink, Beer, Toilet, Respond, BarWater }
 
 /// <summary>Need levels on the shared 0–10,000 scale.</summary>
 public readonly record struct NeedLevels(int Thirst, int Heat, int Hunger, int Toilet);
@@ -67,7 +67,7 @@ public static class ActivityChooser
         ActivityKind.Water => at with { Thirst = 0, Heat = Math.Max(0, at.Heat - at.Thirst / 4) },
         ActivityKind.Rest => at with { Heat = Math.Min(at.Heat, RestHeatTarget) },
         ActivityKind.Food => at with { Hunger = Math.Max(0, at.Hunger - FoodHungerRelief) },
-        ActivityKind.SoftDrink => at with { Thirst = Math.Max(0, at.Thirst - SoftDrinkThirstRelief) },
+        ActivityKind.SoftDrink or ActivityKind.BarWater => at with { Thirst = Math.Max(0, at.Thirst - SoftDrinkThirstRelief) },
         ActivityKind.Beer => at with { Thirst = Math.Max(0, at.Thirst - BeerThirstRelief), Toilet = Math.Min(10_000, at.Toilet + BeerToiletGain) },
         ActivityKind.Toilet => at with { Toilet = Math.Min(at.Toilet, ToiletAfterVisit) },
         _ => at

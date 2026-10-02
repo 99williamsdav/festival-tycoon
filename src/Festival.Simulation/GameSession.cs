@@ -219,6 +219,10 @@ public sealed partial class GameSession
                 affectedTarget = new(cleanup.WorkerId);
                 ApplyCleanUp(cleanup);
                 break;
+            case SetFreeWaterCommand freeWater:
+                affectedTarget = null;
+                ApplyFreeWater(freeWater);
+                break;
             case DisorderCommand disorder:
                 affectedTarget = disorder.PersonId is { } personId ? new EntityId(personId) : null;
                 ApplyDisorderCommand(disorder);
@@ -674,7 +678,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -689,6 +693,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
             DisorderCommand disorder => ValidateDisorderCommand(envelope.TargetId, disorder),
             StaffInterventionCommand intervention => ValidateStaffIntervention(envelope.TargetId, intervention),
             CleanUpCommand cleanup => ValidateCleanUp(envelope.TargetId, cleanup),
+            SetFreeWaterCommand freeWater => ValidateFreeWaterCommand(envelope.TargetId, freeWater),
             SetProgrammeCommand programme => ValidateProgramme(envelope.TargetId, programme),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>

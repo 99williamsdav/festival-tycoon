@@ -24,7 +24,7 @@ public partial class Main
     private double _waspRenderTick = -1;
     public int VisibleLitterInstanceCount => _litterBatches.Values.Sum(b => b.Multimesh.InstanceCount);
     private static string LitterAsset(ImmersionProduct product) => LitterAssetRoot + (product switch
-    { ImmersionProduct.Beer => "lwf_litter_beer_cup_v1.glb", ImmersionProduct.SoftDrink => "lwf_litter_soft_cup_v1.glb", _ => "lwf_litter_chips_tray_v1.glb" });
+    { ImmersionProduct.Beer => "lwf_litter_beer_cup_v1.glb", ImmersionProduct.SoftDrink or ImmersionProduct.Water => "lwf_litter_soft_cup_v1.glb", _ => "lwf_litter_chips_tray_v1.glb" });
     private Mesh LoadLitterMesh(string path)
     {
         var root = InstantiateAsset(path);

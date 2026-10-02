@@ -26,6 +26,7 @@ public sealed partial class GameSession
         ImmersionProduct.Chips => "Chips",
         ImmersionProduct.SoftDrink => "Soft drink",
         ImmersionProduct.Beer => "Beer",
+        ImmersionProduct.Water => "Free water",
         _ => product.ToString()
     };
     private static string FacilityName(BuildServiceKind kind) => kind switch
@@ -79,6 +80,8 @@ public sealed partial class GameSession
                 else expenses.Add(new("Facilities", "Facilities (recorded total)", buildCost));
             }
 
+            if (_immersion is { FreeWaterChargeTicks.Length: > 0 } water)
+                expenses.Add(new("Emergency measures", $"Free water at the bar × {water.FreeWaterChargeTicks.Length}", FreeWaterSpend(water)));
             var owner = new EntityId(p.FinanceOwnerId);
             var stockPurchase = _immersion?.StockPurchase;
             var stockRecorded = stockPurchase is not null || p.Plan is { Committed: true };
