@@ -174,6 +174,19 @@ public sealed class GroundTests
     }
 
     [TestMethod]
+    public void AFreshPuddleSlowsWalkersBeforeAnyMudFormsAnywhere()
+    {
+        var s = WithoutFaults(Started());
+        s.AdvanceWithoutSnapshot(3_000);
+        BreakMainTap(s);
+        s.AdvanceWithoutSnapshot(GroundRules.FootfallEveryTicks * 6);
+        Assert.AreEqual(0, Cells(c => s.GroundStateAt(c) is GroundState.Mud or GroundState.Swamp).Length, "Too soon for any mud.");
+        var puddle = Cells(c => s.GroundStateAt(c) == GroundState.Puddle).First();
+        var slow = (int)typeof(GameSession).GetMethod("GroundSlowPermille", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [puddle])!;
+        Assert.AreEqual(GroundRules.SlowPermille(GroundState.Puddle), slow);
+    }
+
+    [TestMethod]
     public void WadingThroughASwampUpsetsAGuestAndMudsTheirBoots()
     {
         GameSession Day() { var day = WithoutFaults(Started()); day.AdvanceWithoutSnapshot(6_000); return day; }

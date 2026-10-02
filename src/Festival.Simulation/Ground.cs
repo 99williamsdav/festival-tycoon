@@ -53,7 +53,7 @@ public static class GroundRules
     {
         GroundState.Swamp => 3_000, GroundState.Mud => 300, _ => 0,
     };
-    /// <summary>Satisfaction a guest loses each step on this ground, before their prissiness scales it.</summary>
+    /// <summary>Satisfaction a guest loses each second on this ground, before their prissiness scales it.</summary>
     public static int Unpleasantness(GroundState state) => state switch
     {
         GroundState.Swamp => 12, GroundState.Mud => 6, GroundState.Puddle => 3, _ => 0,
@@ -136,7 +136,7 @@ public sealed partial class GameSession
     }
 
     /// <summary>How much longer a step onto this cell takes, per mille, for its water and mud.</summary>
-    private int GroundSlowPermille(GridCell cell) => _groundRouteCost is null ? 1_000 : GroundRules.SlowPermille(GroundStateAt(cell));
+    private int GroundSlowPermille(GridCell cell) => GroundRules.SlowPermille(GroundStateAt(cell));
 
     private void RefreshGroundRouteCost()
     {
@@ -186,8 +186,9 @@ public sealed partial class GameSession
                 if (steps <= 1) _muddyBoots.Remove(id); else _muddyBoots[id] = steps - 1;
                 changed = true;
             }
+            // Felt once a second, every other step, like the other nuisances.
             var loss = GroundRules.Unpleasantness(GroundRules.StateOf(wet[index], mud[index]));
-            if (loss > 0 && IsGuest(id))
+            if (loss > 0 && CurrentTick / GroundRules.FootfallEveryTicks % 2 == 0 && IsGuest(id))
             {
                 var felt = UnpleasantFor(id, loss);
                 MutatePerson(id, item => item.Satisfaction = Math.Clamp(item.Satisfaction - felt, 0, 10_000));
