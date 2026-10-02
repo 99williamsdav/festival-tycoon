@@ -175,7 +175,7 @@ public sealed partial class GameSession
             { p.Intoxication = Math.Max(0,p.Intoxication-recovery/80); p.RecoveryResidue = recovery%80; p.Hunger = Math.Min(10000,p.Hunger+hunger/80); p.HungerResidue = hunger%80; p.FoodProtectionTicks = Math.Max(0,p.FoodProtectionTicks-1); p.ToiletNeed = _preparation!.Status == PreparationStatus.Running && p.ToiletStage != ToiletVisitStage.Using && CurrentTick % ToiletNeedGainEveryTicks(p.Id) == 0 ? Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1) : p.ToiletNeed; }
             if(!InView(PersonView.Medical, p.Id)&&CurrentTick%4==0)p.StaffThirst = Math.Min(10000,p.StaffThirst+1);
             // Previously ingested dose keeps absorbing even when hands are owned by stage or care.
-            if (p.PendingDose > 0) { var absorb = Math.Min(1,p.PendingDose); var residue = p.AbsorptionResidue + absorb*(p.FoodProtectionTicks>0 ? 1 : 2); { p.PendingDose = p.PendingDose-absorb; p.Intoxication = Math.Min(10000,p.Intoxication+residue/2); p.AbsorptionResidue = residue%2; } }
+            if (p.PendingDose > 0) { var absorb = Math.Min(1,p.PendingDose); var residue = p.AbsorptionResidue + absorb*(p.FoodProtectionTicks>0 ? 1 : 2)*AbsorptionFactor(p.Id); { p.PendingDose = p.PendingDose-absorb; p.Intoxication = Math.Min(10000,p.Intoxication+residue/2); p.AbsorptionResidue = residue%2; } }
             if (p.Held is { } held && ImmersionConsumptionEligible(p.Id))
             {
                 var duration = ImmersionConsumeTicks(held.Product); var elapsed = held.ConsumedTicks+1;

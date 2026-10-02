@@ -45,7 +45,7 @@ public sealed class GuestCharacterTests
                 seen.UnionWith(labels);
             }
         }
-        foreach (var label in new[] { "Allergic to wasps", "Irritably-boweled", "Twat", "Goody two-shoes", "Princess", "Hippie", "Easy to overheat", "Alcoholic", "Rich", "Slow drinker" })
+        foreach (var label in new[] { "Allergic to wasps", "Irritably-boweled", "Twat", "Goody two-shoes", "Princess", "Hippie", "Easy to overheat", "Alcoholic", "Rich", "Slow drinker", "Lightweight" })
             Assert.IsTrue(seen.Contains(label), label);
         var share = labelled * 100 / total;
         Assert.IsTrue(share is >= 35 and <= 85, $"{share}% of guests show a label.");
@@ -83,6 +83,32 @@ public sealed class GuestCharacterTests
             Assert.AreEqual(c.Ibs ? ToiletRules.NeedGainEveryTicks / 2 : ToiletRules.NeedGainEveryTicks, Call<int>(s, "ToiletNeedGainEveryTicks", id));
             if (c.SlowDrinker) Assert.IsTrue(s.EffectiveMedicalDrinkThirstPerTickFor(id) <= GuestCharacters.SlowDrinkerThirstPerTick + 4, "Slower than any ordinary drinker.");
         }
+    }
+
+    [TestMethod]
+    public void ALightweightGetsDrunkTwiceAsFastOnTheSameBeer()
+    {
+        GameSession? session = null; ulong light = 0, ordinary = 0;
+        bool Drinker(GameSession s, ulong g) => s.CapturePerson(g) is { Admitted: true, Departed: false } &&
+            s.CaptureImmersion()!.People.Single(p => p.AgentId == g) is { Abstains: false };
+        for (var seed = 20260922UL; seed < 20260960UL && session is null; seed++)
+        {
+            var s = WithoutFaults(Started(seed));
+            s.AdvanceWithoutSnapshot(4_000);
+            light = Guests(s).FirstOrDefault(g => s.GuestCharacterOf(g).Lightweight && Drinker(s, g));
+            ordinary = Guests(s).FirstOrDefault(g => !s.GuestCharacterOf(g).Lightweight && Drinker(s, g));
+            if (light != 0 && ordinary != 0) session = s;
+        }
+        Assert.IsNotNull(session, "An admitted lightweight and an ordinary drinker within a few seeds.");
+        Assert.IsTrue(session.GuestLabels(light).Contains("Lightweight") || session.GuestLabels(light).Count == GuestCharacters.MaximumLabels);
+        // The same beer waiting to be absorbed, nothing eaten, sober to start.
+        var mutate = typeof(GameSession).GetMethod("MutatePerson", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        foreach (var id in new[] { light, ordinary })
+            mutate.Invoke(session, [id, (Action<Person>)(p => { p.PendingDose = 2_000; p.Intoxication = 0; p.FoodProtectionTicks = 0; })]);
+        session.AdvanceWithoutSnapshot(400);
+        int Drunk(ulong id) => session.CaptureImmersion()!.People.Single(p => p.AgentId == id).Intoxication;
+        Assert.IsTrue(Drunk(ordinary) > 200, $"The ordinary drinker felt it ({Drunk(ordinary)}).");
+        Assert.IsTrue(Drunk(light) >= Drunk(ordinary) * 18 / 10, $"Lightweight {Drunk(light)} against ordinary {Drunk(ordinary)}.");
     }
 
     [TestMethod]

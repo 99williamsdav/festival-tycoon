@@ -6,11 +6,14 @@ namespace Festival.Simulation;
 /// </summary>
 /// <param name="HeatSensitivity">How much faster than usual heat builds: up to half as fast again. Skewed low.</param>
 /// <param name="Prissiness">How much more (or less) the unpleasant things cost them: half to one and a half times.</param>
-public sealed record GuestCharacter(int HeatSensitivity, int Prissiness, bool WaspAllergy, bool Ibs, bool SlowDrinker);
+/// <param name="Lightweight">Drinks like anyone else but gets drunk twice as fast on the same beer.</param>
+public sealed record GuestCharacter(int HeatSensitivity, int Prissiness, bool WaspAllergy, bool Ibs, bool SlowDrinker, bool Lightweight);
 
 public static class GuestCharacters
 {
-    public const int WaspAllergyPercent = 5, IbsPercent = 6, SlowDrinkerPercent = 10;
+    public const int WaspAllergyPercent = 5, IbsPercent = 6, SlowDrinkerPercent = 10, LightweightPercent = 8;
+    /// <summary>How many times faster a lightweight's beer goes to their head.</summary>
+    public const int LightweightAbsorption = 2;
     public const int SlowDrinkerThirstPerTick = 5;
     /// <summary>Chance each second near a wasp nest that an allergic guest is stung, in percent.</summary>
     public const int StingChancePercent = 10;
@@ -30,7 +33,8 @@ public static class GuestCharacters
         return new(heat * heat / 100, (int)(Roll(seed, id, 0x5052495353UL) % 101),
             Roll(seed, id, 0x57415350UL) % 100 < WaspAllergyPercent,
             Roll(seed, id, 0x494253UL) % 100 < IbsPercent,
-            Roll(seed, id, 0x534950UL) % 100 < SlowDrinkerPercent);
+            Roll(seed, id, 0x534950UL) % 100 < SlowDrinkerPercent,
+            Roll(seed, id, 0x4C49474854UL) % 100 < LightweightPercent);
     }
 
     /// <summary>A loss of satisfaction scaled by how prissy they are: half for the easy-going, half as much again for the fussiest.</summary>
@@ -83,6 +87,7 @@ public sealed partial class GameSession
     }
 
     private bool HasIbs(ulong id) => IsGuest(id) && GuestCharacterOf(id).Ibs;
+    private int AbsorptionFactor(ulong id) => IsGuest(id) && GuestCharacterOf(id).Lightweight ? GuestCharacters.LightweightAbsorption : 1;
 
     /// <summary>
     /// The labels a guest's inspector shows: their conditions, then any score far enough from the middle to
@@ -97,6 +102,7 @@ public sealed partial class GameSession
         var labels = new List<string>();
         if (c.WaspAllergy) labels.Add("Allergic to wasps");
         if (c.Ibs) labels.Add("Irritably-boweled");
+        if (c.Lightweight && InView(PersonView.Consumption, id) && !person.Abstains) labels.Add("Lightweight");
         if (dickishness >= 85 && InView(PersonView.Disorder, id) && person.QueueToleranceTicks <= 600) labels.Add("Twat");
         if (dickishness <= LitterRules.GoodyTwoShoesMaximum) labels.Add("Goody two-shoes");
         if (c.Prissiness >= 90) labels.Add("Princess");
