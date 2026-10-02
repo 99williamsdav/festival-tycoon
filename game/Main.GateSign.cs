@@ -62,7 +62,10 @@ public partial class Main
         var (text, pixel) = Fit(font, name, size, fontSize);
         while (pixel < minimumPixel && name.Length > 4)
         {
-            name = name[..^2].TrimEnd() + "…";
+            // Cut whole characters, never half of a surrogate pair.
+            var keep = name.Length - 2;
+            if (keep > 0 && char.IsLowSurrogate(name[keep])) keep--;
+            name = name[..keep].TrimEnd() + "…";
             (text, pixel) = Fit(font, name, size, fontSize);
         }
         Label3D Label(Color ink, Vector3 at) => new()
@@ -74,18 +77,19 @@ public partial class Main
         // The arch is sign-written with a dark drop shade; the homemade signs are painted flat, the door a touch askew.
         if (tier == 3) area.AddChild(Label(new Color("1d2a22"), new Vector3(.035f, -.035f, .006f)));
         var top = Label(GateLetteringInk[tier - 1], new Vector3(0, 0, .01f));
+        top.RenderPriority = 1; // Always over the shade, whatever the sort order.
         if (tier == 1) top.RotationDegrees = new Vector3(0, 0, -2.5f);
         area.AddChild(top);
     }
 
-    /// <summary>One line or two, whichever lets the lettering be larger.</summary>
+    /// <summary>One line or two, whichever lets the lettering be larger; one line wins unless two are clearly bigger.</summary>
     private static (string Text, float Pixel) Fit(Font font, string name, Vector2 size, int fontSize)
     {
         float Pixel(int lines, float widest) => Math.Min(size.X * .92f / widest, size.Y * .88f / (lines * font.GetHeight(fontSize)));
         var one = Pixel(1, font.GetStringSize(name, HorizontalAlignment.Left, -1, fontSize).X);
         if (!name.Contains(' ')) return (name, one);
         var two = Pixel(2, HalfWidth(font, name, fontSize));
-        return two > one ? (Split(name), two) : (name, one);
+        return two > one / .85f ? (Split(name), two) : (name, one);
     }
 
     /// <summary>Breaks a name at the space nearest its middle.</summary>

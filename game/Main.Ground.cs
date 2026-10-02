@@ -141,6 +141,9 @@ public partial class Main
             vec3 c = texture(palette, UV).rgb;
             vec2 p = field;
             float n1 = texture(noise, p * 0.035).r;
+            // A slow tint drift over about 30 m, lusher one way and drier the other, so the 8 m tile never repeats.
+            float tint = texture(noise, p * 0.011 + vec2(0.61, 0.29)).r;
+            c *= mix(vec3(0.95, 0.96, 0.97), vec3(1.05, 1.04, 0.97), smoothstep(0.3, 0.7, tint));
             // Mown stripes, 4 m wide, running with the track.
             c *= mod(floor((p.x + 32.0) / 4.0), 2.0) > 0.5 ? 1.04 : 0.965;
             // Darker clover drifts.
