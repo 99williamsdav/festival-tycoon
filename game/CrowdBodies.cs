@@ -163,7 +163,7 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
         prop.SetMeta("GuestAnchorKey", anchorKey);
     }
 
-    private readonly Dictionary<(ulong SourceMaterial, string Role, int Hair), StandardMaterial3D> _roleBodyMaterials = [];
+    private readonly Dictionary<(ulong SourceMaterial, string Role, int Hair, PerformerOutfits.Outfit? Outfit), StandardMaterial3D> _roleBodyMaterials = [];
 
     private string RoleKey(EditionPerson person)
     {
@@ -183,6 +183,10 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
         var variant = AttendeePose.Variant(_session().CampaignSeed, person.AgentId);
         var root = CreateRoleBodyRoot(role, variant,
             AttendeePalette.Choice(_session().CampaignSeed, person.AgentId).Hair, person.AgentId, position);
+        // A band dresses for its genre.
+        if (person.Role == ProtectedPersonRole.Performer)
+            root.SetMeta("RoleOutfit", PerformerOutfits.For(_session(), person.AgentId, _performerRole(person.AgentId, person.Name)) is { } outfit
+                ? $"{outfit.Tee},{outfit.Patch},{outfit.Trousers},{outfit.Hair}" : "");
         if (role == "maintenance")
             root.AddChild(new Label3D { Text = person.Name.Split(' ')[0].ToUpperInvariant() + "\nMAINTENANCE",
                 Position = new Vector3(0, 2.1f, 0), FontSize = 36, PixelSize = .009f,
@@ -251,10 +255,18 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
         prop.SetMeta("RoleAnchorKey", key);
     }
 
+    private static PerformerOutfits.Outfit? RoleOutfit(Node3D root)
+    {
+        if (!root.HasMeta("RoleOutfit") || root.GetMeta("RoleOutfit").AsString() is not { Length: > 0 } text) return null;
+        var parts = text.Split(',');
+        return new(parts[0], parts[1], parts[2], parts[3].Length > 0 ? parts[3] : null);
+    }
+
     public void ApplyRoleBodyPalette(Node3D root, Node3D body)
     {
         var role = root.GetMeta("RoleKey").AsString();
         var hair = root.GetMeta("RoleHair").AsInt32();
+        var outfit = RoleOutfit(root);
         foreach (var mesh in body.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
         {
             // The cleanup body contains a fitted vest with its own approved trim palette.
@@ -263,7 +275,7 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
             {
                 if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D source)
                     throw new InvalidOperationException("Role body requires the approved 96x8 standard palette material.");
-                mesh.SetSurfaceOverrideMaterial(surface, RoleBodyMaterial(source, role, hair));
+                mesh.SetSurfaceOverrideMaterial(surface, RoleBodyMaterial(source, role, hair, outfit));
             }
         }
     }
@@ -272,6 +284,7 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
     {
         var role = root.GetMeta("RoleKey").AsString();
         var hair = root.GetMeta("RoleHair").AsInt32();
+        var outfit = RoleOutfit(root);
         var arms = kit.FindChildren("*PlayingArm", "MeshInstance3D", true, false).OfType<MeshInstance3D>().ToArray();
         if (arms.Length != 2) throw new InvalidOperationException("A performer kit must have both fitted playing arms.");
         foreach (var mesh in arms)
@@ -279,13 +292,13 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
             {
                 if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D source)
                     throw new InvalidOperationException("Playing arm requires the approved role body palette.");
-                mesh.SetSurfaceOverrideMaterial(surface, RoleBodyMaterial(source, role, hair));
+                mesh.SetSurfaceOverrideMaterial(surface, RoleBodyMaterial(source, role, hair, outfit));
             }
     }
 
-    private StandardMaterial3D RoleBodyMaterial(StandardMaterial3D source, string role, int hair)
+    private StandardMaterial3D RoleBodyMaterial(StandardMaterial3D source, string role, int hair, PerformerOutfits.Outfit? outfit = null)
     {
-        var key = (source.GetInstanceId(), role, hair);
+        var key = (source.GetInstanceId(), role, hair, outfit);
         if (_roleBodyMaterials.TryGetValue(key, out var cached)) return cached;
         var original = GuestPaletteBytes(source);
         var hairPalette = GuestPaletteContract.Apply(original, new AttendeeColourChoice(0, hair));
@@ -305,6 +318,23 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
             for (var slot = 10; slot <= 11; slot++)
                 Array.Copy(hairPalette, (row * AttendeePalette.Width + slot * 8) * 4,
                     original, (row * AttendeePalette.Width + slot * 8) * 4, 8 * 4);
+        if (outfit is not null)
+        {
+            // Base and light-reserve swatches take the same colour, as on the concept board.
+            void Paint(int slot, string hex)
+            {
+                var colour = Color.FromHtml(hex);
+                for (var row = 0; row < AttendeePalette.Height; row++)
+                    for (var x = 0; x < 8; x++)
+                    {
+                        var at = (row * AttendeePalette.Width + slot * 8 + x) * 4;
+                        original[at] = (byte)colour.R8; original[at + 1] = (byte)colour.G8; original[at + 2] = (byte)colour.B8;
+                    }
+            }
+            Paint(3, outfit.Tee); Paint(4, outfit.Tee); Paint(5, outfit.Patch); Paint(6, outfit.Patch);
+            Paint(7, outfit.Trousers); Paint(8, outfit.Trousers);
+            if (outfit.Hair is { } dyed) { Paint(10, dyed); Paint(11, dyed); }
+        }
         using var image = Image.CreateFromData(AttendeePalette.Width, AttendeePalette.Height, false,
             Image.Format.Rgba8, original);
         var result = (StandardMaterial3D)source.Duplicate(false);
