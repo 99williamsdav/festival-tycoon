@@ -427,6 +427,7 @@ public sealed partial class GameSession
     {
         _litter = EmptyLitter;
         _faults = EmptyFaults;
+        ResetGround();
         var p = _preparation!;
         var baseline = CreateFoodAndDrinkBaseline(CampaignSeed);
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;

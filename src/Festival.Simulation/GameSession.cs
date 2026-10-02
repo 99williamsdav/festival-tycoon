@@ -299,6 +299,7 @@ public sealed partial class GameSession
             ReleaseFrozenStaffClaims();
             AdvanceStaffAutonomy();
             AdvanceLitter();
+            AdvanceGround();
             AdvanceFacilityFaults();
             FinalizeFestivalDeparture();
             if (_preparation?.Status is PreparationStatus.Departing or PreparationStatus.Finished) CleanupImmersionDeparture();
@@ -441,6 +442,7 @@ public sealed partial class GameSession
             Facilities = CaptureFacilities(),
             Disorder = CaptureDisorder(),
             Litter = CaptureLitter(),
+            Ground = CaptureGround(),
             Faults = CaptureFaults(),
         };
 
@@ -511,6 +513,7 @@ public sealed partial class GameSession
 
         session._litter = snapshot.Litter is null ? null : System.Text.Json.JsonSerializer.Deserialize<LitterSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Litter));
         session._faults = snapshot.Faults is null ? null : System.Text.Json.JsonSerializer.Deserialize<FaultsSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Faults));
+        session.RestoreGround(snapshot.Ground);
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
         return SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");
@@ -583,6 +586,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (litterError is not null) return litterError;
         var faultError = ValidatePersistedFaults(snapshot);
         if (faultError is not null) return faultError;
+        var groundError = ValidatePersistedGround(snapshot);
+        if (groundError is not null) return groundError;
         var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
             .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();
         if (ownedEntityIds.Distinct().Count() != ownedEntityIds.Length || ownedEntityIds.Any(id => id >= snapshot.NextEntityId))

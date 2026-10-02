@@ -36,7 +36,7 @@ public partial class Main : Node, IHudHost
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v16", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v16");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v17", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v17");
 
     public override void _Ready()
     {
@@ -72,6 +72,7 @@ public partial class Main : Node, IHudHost
         if (_genreAudioVerificationOutput is not null) return;
         _rig.Process(delta);
         ProcessDayCycle(delta);
+        ProcessGround(delta);
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
         AdvancePreparationPresentation(delta);
@@ -207,7 +208,7 @@ public partial class Main : Node, IHudHost
         {
             // Imported bounds are local X 0..8, Z -8..0. The +8 Z origin offset
             // therefore covers world -32..32 instead of leaving the north edge bare.
-            AddAsset("res://assets/environment/lwf_field_grass_tile_8m_v1.glb", new Vector3(x * 8, 0, (z + 1) * 8));
+            ApplyGroundMaterial(AddAsset("res://assets/environment/lwf_field_grass_tile_8m_v1.glb", new Vector3(x * 8, 0, (z + 1) * 8)));
         }
     }
 
@@ -500,7 +501,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v16");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v17");
 
 
 

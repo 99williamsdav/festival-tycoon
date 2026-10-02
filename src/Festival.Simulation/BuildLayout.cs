@@ -126,6 +126,7 @@ public sealed partial class GameSession
         SetToilets(PlacedToilets(p));
         _litter ??= EmptyLitter;
         _faults ??= EmptyFaults;
+        if (_groundWear is null) ResetGround();
     }
 
     /// <summary>Every placed toilet, standing fresh at its placement: the main toilet first, then any others in placement order.</summary>
