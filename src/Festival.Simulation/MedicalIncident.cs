@@ -321,18 +321,19 @@ public sealed partial class GameSession
 
     private void SeekWater(ulong id, string reason, string? pointId = null)
     {
-        // Heading for a tap gives up any place in a bar or food queue (a free cup included).
-        if (PersonIn(PersonView.Consumption, id) is { VendorId: not null }) LeaveImmersionQueue(id, false);
         if (_disorder?.WaterClosed == true)
         {
             var need = _persons[id];
             if (need.NeedProfile == MedicalNeedProfile.Performer || need.NeedProfile == MedicalNeedProfile.Guest && need.HeatExposure >= MedicalDistressHeat)
             {
+                if (PersonIn(PersonView.Consumption, id) is { VendorId: not null }) LeaveImmersionQueue(id, false);
                 MutatePerson(id, item => { item.Intent = MedicalIntent.Rest; item.Reason = "Water service closed; physically seeking first-aid rest"; });
                 ApplyAgentDestination(new(id), new(MedicalRestCell, "disorder.water-closure-rest"));
             }
             return;
         }
+        // Heading for a tap gives up any place in a bar or food queue (a free cup included).
+        if (PersonIn(PersonView.Consumption, id) is { VendorId: not null }) LeaveImmersionQueue(id, false);
         foreach (var item in WaterPoints()) GrowWaterQueue(item.Id);
         var m = _medical!;
         if (WaterPoints().Any(point => point.Queue.Contains(id)) ||
