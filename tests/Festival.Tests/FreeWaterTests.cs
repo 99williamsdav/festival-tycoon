@@ -144,4 +144,21 @@ public sealed class FreeWaterTests
         Assert.IsTrue(need.Thirst < 800, $"Thirst {need.Thirst}");
         Assert.IsTrue(need.HeatExposure >= 6_000 - 2_000 / 4, $"Heat {need.HeatExposure}");
     }
+
+    [TestMethod]
+    public void GuidingAFreeCupQueuerToATapGivesUpTheirBarPlace()
+    {
+        var (s, guest) = QueuedForWater();
+        Accept(s, new DisorderCommand(DisorderAction.ReopenWater));
+        Mutate(s, guest, n => n.Thirst = 8_000);
+        var steward = s.GetStewardResponses()[0].WorkerId;
+        Accept(s, new StaffInterventionCommand(guest, steward, StaffInterventionAction.GuideToWater));
+        for (var guard = 0; guard < 200 && s.CaptureMedical()!.Needs.Single(n => n.AgentId == guest).Intent != MedicalIntent.SeekWater; guard++)
+            s.AdvanceWithoutSnapshot(20);
+        Assert.AreEqual(MedicalIntent.SeekWater, s.CaptureMedical()!.Needs.Single(n => n.AgentId == guest).Intent, "Guided to a tap.");
+        var consumer = s.CaptureImmersion()!.People.Single(p => p.AgentId == guest);
+        Assert.IsNull(consumer.VendorId, "No longer in the bar queue.");
+        Assert.IsFalse(s.CaptureVendors().Any(v => v.Queue.Contains(guest)));
+        AssertRestores(s);
+    }
 }

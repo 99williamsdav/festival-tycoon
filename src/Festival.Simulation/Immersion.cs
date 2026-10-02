@@ -117,7 +117,7 @@ public sealed partial class GameSession
     private bool ImmersionShoppingEligible(ulong id, ImmersionProduct? product = null) => _preparation?.Status == PreparationStatus.Running && ImmersionHandsAvailable(id) && !IsCurrentProgrammePerformer(id) &&
         !ToiletOwnsNavigation(id) &&
         (PersonIn(PersonView.Medical, id) is null or { Intent: MedicalIntent.WatchShow, Thirst: < MedicalDistressThirst, HeatExposure: < MedicalDistressHeat } ||
-         product == ImmersionProduct.Water && PersonIn(PersonView.Medical, id) is { Intent: MedicalIntent.WatchShow or MedicalIntent.SeekWater });
+         product == ImmersionProduct.Water && PersonIn(PersonView.Medical, id) is { Intent: MedicalIntent.WatchShow });
     // The same read-only eligibility drives ingestion and its presentation. Pause
     // freezes the tick scheduler, not this predicate, so a paused sip stays a sip.
     public bool ImmersionConsumptionEligible(ulong id) => MedicalOperationsActive &&

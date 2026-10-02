@@ -321,6 +321,8 @@ public sealed partial class GameSession
 
     private void SeekWater(ulong id, string reason, string? pointId = null)
     {
+        // Heading for a tap gives up any place in a bar or food queue (a free cup included).
+        if (PersonIn(PersonView.Consumption, id) is { VendorId: not null }) LeaveImmersionQueue(id, false);
         if (_disorder?.WaterClosed == true)
         {
             var need = _persons[id];
