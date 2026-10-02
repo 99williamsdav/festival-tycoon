@@ -120,7 +120,8 @@ public partial class Main
         // Festoons along the south-east side of the track, pole to pole down the middle of the field: light and
         // a bit of atmosphere where people cross between the stage and the stalls, without fencing anyone in.
         const float poleHeight = 3.6f, side = 2.9f;
-        float[] poleZ = [27, 19, 11, 3, -5, -13];
+        // The first pole stands well back from the gate lane, where everyone arrives and leaves.
+        float[] poleZ = [22, 14, 6, -2, -10];
         Node3D Pole(Vector3 at)
         {
             var pole = new MeshInstance3D
