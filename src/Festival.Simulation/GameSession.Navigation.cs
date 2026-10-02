@@ -73,7 +73,8 @@ public sealed partial class GameSession
         }
         var start = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
         var searchStart = Stopwatch.GetTimestamp();
-        var search = DeterministicPathfinder.FindPath(_traversalGrid!, start, command.Destination);
+        // Wet and muddy ground costs more, so people go round a swamp if there is a reasonable way.
+        var search = DeterministicPathfinder.FindPath(_traversalGrid!, start, command.Destination, _groundRouteCost);
         ScaleDiagnosticProbe?.AddRouteSearch(Stopwatch.GetTimestamp() - searchStart, search.ExpandedNodes, avoidanceReplan);
         agent.Destination = command.Destination;
         agent.Route = search.Path.ToList();
@@ -148,7 +149,7 @@ public sealed partial class GameSession
     private bool AdvanceAgentOneTick(NavigationAgentState agent)
     {
             var terrainCost = _traversalGrid!.Get(agent.Route[agent.RouteIndex]).CostPermille;
-            var effectiveCost = checked(terrainCost * 1000);
+            var effectiveCost = checked(terrainCost * GroundSlowPermille(agent.Route[agent.RouteIndex]));
             var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * Math.Max(800,AudienceWalkingPace(agent) * ImmersionCoordinationPace(agent.Id.Value) / 1000) * StaffGaitPermille(agent.Id.Value) / 1000 + agent.MovementRemainder);
             var allowance = checked((int)(numerator / effectiveCost));
             agent.MovementRemainder = checked((int)(numerator % effectiveCost));

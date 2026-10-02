@@ -6,8 +6,9 @@ namespace Festival.Game;
 
 /// <summary>
 /// The field's grass: mown stripes, clover drifts, a wildflower margin by the hedges and the odd buttercup drift,
-/// worn by the day's footfall from flattened grass through browned to bare earth. The wear comes from the
-/// simulation's per-cell ground state; this only draws it.
+/// worn by the day's footfall from flattened grass through browned to bare earth, and where water lies, soaked
+/// grass, puddles, churned mud and sludge. It all comes from the simulation's per-cell ground state; this only
+/// draws it.
 /// </summary>
 public partial class Main
 {
@@ -15,6 +16,8 @@ public partial class Main
     private ShaderMaterial _groundMaterial = null!;
     private Image _groundImage = null!;
     private ImageTexture _groundTexture = null!;
+    private Image _wetImage = null!;
+    private ImageTexture _wetTexture = null!;
     private (GameSession? Session, long Version) _groundShown;
     private double _groundSync;
 
@@ -23,9 +26,12 @@ public partial class Main
         if (_groundMaterial is not null) return _groundMaterial;
         _groundImage = Image.CreateEmpty(GroundMapCells, GroundMapCells, false, Image.Format.L8);
         _groundTexture = ImageTexture.CreateFromImage(_groundImage);
+        _wetImage = Image.CreateEmpty(GroundMapCells, GroundMapCells, false, Image.Format.Rg8);
+        _wetTexture = ImageTexture.CreateFromImage(_wetImage);
         _groundMaterial = new ShaderMaterial { Shader = new Shader { Code = GroundShader } };
         _groundMaterial.SetShaderParameter("palette", GD.Load<Texture2D>("res://assets/environment/lwf_field_grass_tile_8m_v1_field_track_palette.png"));
         _groundMaterial.SetShaderParameter("wear_map", _groundTexture);
+        _groundMaterial.SetShaderParameter("wet_map", _wetTexture);
         _groundMaterial.SetShaderParameter("noise", new NoiseTexture2D
         {
             Width = 256, Height = 256, Seamless = true,
@@ -48,6 +54,41 @@ public partial class Main
         if (_groundShown.Session == _session && _groundShown.Version == _session.GroundVersion) return;
         _groundShown = (_session, _session.GroundVersion);
         RedrawGroundWear();
+        RedrawGroundWater();
+    }
+
+    /// <summary>
+    /// Water in red and mud in green, softened only a little so a puddle keeps its shape: a quarter of the way to
+    /// red is a puddle, half is brimming; a third of the way to green is mud, two thirds is a swamp's sludge.
+    /// </summary>
+    private void RedrawGroundWater()
+    {
+        const int n = GroundMapCells, first = GroundRules.FieldFirstCell;
+        const float wetScale = GroundRules.WetSpill * 2, mudScale = GroundRules.SwampMud * 1.5f;
+        var wet = new float[n * n]; var mud = new float[n * n];
+        for (var z = 0; z < n; z++)
+        for (var x = 0; x < n; x++)
+        {
+            var cell = new GridCell(first + x, first + z);
+            wet[z * n + x] = Math.Min(1f, _session.GroundWetAt(cell) / wetScale);
+            mud[z * n + x] = Math.Min(1f, _session.GroundMudAt(cell) / mudScale);
+        }
+        var pixels = new byte[n * n * 2];
+        for (var z = 0; z < n; z++)
+        for (var x = 0; x < n; x++)
+        {
+            float Soft(float[] layer)
+            {
+                float sum = 4 * layer[z * n + x];
+                sum += layer[z * n + Math.Max(0, x - 1)] + layer[z * n + Math.Min(n - 1, x + 1)];
+                sum += layer[Math.Max(0, z - 1) * n + x] + layer[Math.Min(n - 1, z + 1) * n + x];
+                return sum / 8;
+            }
+            pixels[(z * n + x) * 2] = (byte)Mathf.RoundToInt(255 * Soft(wet));
+            pixels[(z * n + x) * 2 + 1] = (byte)Mathf.RoundToInt(255 * Soft(mud));
+        }
+        _wetImage.SetData(n, n, false, Image.Format.Rg8, pixels);
+        _wetTexture.Update(_wetImage);
     }
 
     /// <summary>
@@ -87,6 +128,7 @@ public partial class Main
         shader_type spatial;
         uniform sampler2D palette : source_color, filter_nearest;
         uniform sampler2D wear_map : filter_linear;
+        uniform sampler2D wet_map : filter_linear;
         uniform sampler2D noise : filter_linear, repeat_enable;
         varying vec2 field;
 
@@ -128,8 +170,24 @@ public partial class Main
             // Pale, dusty and matte: never the dark of mud or the orange of the track.
             c = mix(c, mix(lin(vec3(0.69, 0.66, 0.6)) * (0.9 + 0.2 * scuff), c, tuft * 0.6), earth);
             c = mix(c, bloom, flower * (1.0 - flattened));
+
+            // Water and mud win over dry wear: soaked grass, then puddles, churned mud and a swamp's sludge.
+            vec2 wm = texture(wet_map, (p + 32.0) / 64.0).rg;
+            // Broad lobes plus fine fray, so a pool spreads unevenly instead of in a ring.
+            float ragged = (texture(noise, p * 0.12 + vec2(0.21, 0.73)).r - 0.5) * 0.5 + (texture(noise, p * 0.5).r - 0.5) * 0.12;
+            float water = clamp(wm.r + ragged * step(0.02, wm.r), 0.0, 1.0);
+            float mud = clamp(wm.g + ragged * step(0.02, wm.g), 0.0, 1.0);
+            float soaked = smoothstep(0.08, 0.14, water);
+            c = mix(c, c * vec3(0.62, 0.7, 0.66), soaked * (1.0 - flower));
+            float churned = smoothstep(0.28, 0.36, mud);
+            c = mix(c, lin(vec3(0.36, 0.28, 0.2)) * (0.8 + 0.35 * texture(noise, p * 0.7).r), churned);
+            float pooled = smoothstep(0.42, 0.5, water);
+            float sludge = smoothstep(0.6, 0.7, mud);
+            vec3 pool = mix(lin(vec3(0.42, 0.5, 0.54)), lin(vec3(0.5, 0.41, 0.29)) * (0.85 + 0.3 * texture(noise, p * 0.3).r), sludge);
+            c = mix(c, pool, pooled);
             ALBEDO = c;
-            ROUGHNESS = 0.97;
+            ROUGHNESS = mix(0.97, mix(0.55, 0.12, pooled), max(pooled, churned * 0.6));
+            SPECULAR = mix(0.5, 0.7, pooled);
         }
         """;
 }

@@ -157,7 +157,8 @@ public static class DeterministicPathfinder
         (1, -1, 1414), (1, 1, 1414), (-1, 1, 1414), (-1, -1, 1414),
     ];
 
-    public static PathSearchResult FindPath(TraversalGrid grid, GridCell start, GridCell target)
+    /// <param name="extraCostPermille">Optional added cost per flat cell index, on top of the terrain's own.</param>
+    public static PathSearchResult FindPath(TraversalGrid grid, GridCell start, GridCell target, int[]? extraCostPermille = null)
     {
         if (!grid.Contains(start) || !grid.Contains(target) || !grid.Get(start).IsWalkable || !grid.Get(target).IsWalkable)
             return new PathSearchResult(false, Array.Empty<GridCell>(), 0);
@@ -201,7 +202,7 @@ public static class DeterministicPathfinder
                 if (dx != 0 && dz != 0 &&
                     (!walkable[ToIndex(new GridCell(current.X + dx, current.Z))] ||
                      !walkable[ToIndex(new GridCell(current.X, current.Z + dz))])) continue;
-                var stepCost = checked(baseCost * cellCost[neighbourIndex] / 1000);
+                var stepCost = checked(baseCost * (cellCost[neighbourIndex] + (extraCostPermille?[neighbourIndex] ?? 0)) / 1000);
                 var tentative = checked(scores[currentIndex] + stepCost);
                 var state = stamp[neighbourIndex] == generation ? states[neighbourIndex] : (byte)0;
                 if (state != 0 && tentative >= scores[neighbourIndex]) continue;
