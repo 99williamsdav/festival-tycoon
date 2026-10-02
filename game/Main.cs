@@ -70,7 +70,8 @@ public partial class Main : Node, IHudHost
     public override void _Process(double delta)
     {
         if (_genreAudioVerificationOutput is not null) return;
-        _rig.Process(delta);
+        if (!EyeViewActive) _rig.Process(delta);
+        ProcessEyeView(delta);
         ProcessDayCycle(delta);
         ProcessGround(delta);
         ProcessGateSign(delta);
@@ -104,7 +105,9 @@ public partial class Main : Node, IHudHost
             if (_buildGhostKind is not null && key.Keycode is Key.Comma or Key.Period)
             { RotateBuildGhost(key.Keycode == Key.Comma ? -1 : 1); return; }
             if(key.Keycode==Key.Escape && Perks.ConfirmationPending){Perks.CancelConfirmation();return;}
+            if (key.Keycode == Key.Escape && EyeViewActive) { ExitEyeView(); return; }
             if (key.Keycode == Key.Escape) { ClearSelection(); return; }
+            if (EyeViewActive) { if (key.Keycode == Key.Space) { _host.Submit(new SetPausedCommand(!_session.IsPaused)); RefreshPreparationHud(); } return; }
             if (key.Keycode == Key.Q) _rig.Rotate(-1);
             else if (key.Keycode == Key.E) _rig.Rotate(1);
             else if (key.Keycode == Key.Space)
@@ -120,11 +123,13 @@ public partial class Main : Node, IHudHost
             { CancelBuildPlacement(); RefreshHudWorkspace(); return; }
             if (_buildGhostKind is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
             { CommitBuildPlacement(mouse.Position); return; }
+            if (EyeViewActive) return;
             if (_rig.HandleButton(mouse)) return;
             if (mouse.ButtonIndex == MouseButton.Left && mouse.Pressed) Pick(mouse.Position);
         }
         else if (inputEvent is InputEventMouseMotion motion)
         {
+            if (EyeViewActive) return;
             _rig.HandleMotion(motion);
             if (_buildGhostKind is not null) UpdateBuildGhost(motion.Position);
         }

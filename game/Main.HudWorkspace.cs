@@ -138,7 +138,7 @@ public partial class Main
         BuildWaterFlowInspector(detail); BuildSatisfactionBar(detail); BuildMedicalNeedBars(detail); BuildImmersionNeedBars(detail);
         // Essential actions precede optional prose and remain accessible by scroll.
         BuildImmersionVendorInspector(detail); BuildMedicalActionInspector(detail); BuildDisorderActionInspector();
-        BuildDisorderStageInspector(detail); BuildStagePowerAction(detail); BuildSecurityPostInspectorAction(detail);
+        BuildDisorderStageInspector(detail); BuildStagePowerAction(detail); BuildSecurityPostInspectorAction(detail); BuildEyeViewAction(detail);
         _inspectorBody = HudLabel("", 13); detail.AddChild(_inspectorBody);
         ConstrainHudControls(detail);
         contextClose.CustomMinimumSize = new Vector2(38, 38); contextClose.SizeFlagsHorizontal = Control.SizeFlags.Fill;

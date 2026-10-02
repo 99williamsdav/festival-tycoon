@@ -290,7 +290,7 @@ public partial class Main
         _stageWorldCue!.Text = "TRAILER STAGE";
         foreach (var light in _stageLights!) light.LightEnergy = live.Stage == LiveSetStage.Live ?
             power == 0 ? 0 : power == 80 ? 0.35f : 0.8f : 0;
-        Audio.AdvanceStage(_session, live, power, _rig.Focus, delta);
+        Audio.AdvanceStage(_session, live, power, ListenerPoint, delta);
     }
 
     private void ToggleStageMute()
