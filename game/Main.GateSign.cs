@@ -25,8 +25,10 @@ public partial class Main
         _gateSignSync -= delta;
         if (_gateSignSync > 0 || _session is null) return;
         _gateSignSync = .5;
-        var tier = Math.Clamp(_session.CaptureLifecycleSnapshot()?.TierOrdinal ?? 1, 1, 3);
-        var name = _session.CaptureCampaignPlanningSnapshot()?.FestivalName ?? "Lower Wittering Festival";
+        // Preparation knows the tier before the gates first open; the lifecycle only exists from then.
+        var tier = Math.Clamp(_session.CapturePreparation()?.Tier ?? _session.CaptureLifecycleSnapshot()?.TierOrdinal ?? 1, 1, 3);
+        var named = _session.CaptureCampaignPlanningSnapshot()?.FestivalName;
+        var name = string.IsNullOrWhiteSpace(named) ? "Lower Wittering Festival" : named.Trim();
         if (_gateSignShown == (tier, name)) return;
         _gateSignShown = (tier, name);
         _gateSign?.QueueFree();
