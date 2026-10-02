@@ -106,21 +106,21 @@ public partial class Main
     }
 
     /// <summary>
-    /// The last set's lights: festoons from the stage front to two poles framing the audience, warm light over the
-    /// crowd, an amber and rose wash on the stage, the farmhouse windows, and glow at each stall.
+    /// The last set's lights: festoons along the track through the middle of the field, an amber and rose wash on
+    /// the stage, the farmhouse windows, and glow at each stall.
     /// </summary>
     private void BuildDuskPracticals()
     {
         _bulbMaterial = new StandardMaterial3D
         {
-            AlbedoColor = new Color("efe6cc"), EmissionEnabled = true, Emission = new Color("ffcf7a"), EmissionEnergyMultiplier = 0,
+            AlbedoColor = new Color("f2d9a6"), EmissionEnabled = true, Emission = new Color("ffbf5e"), EmissionEnergyMultiplier = 0,
         };
         var wood = new StandardMaterial3D { AlbedoColor = new Color("6e4c31"), Roughness = 1 };
         var cord = new StandardMaterial3D { AlbedoColor = new Color("2d2a26"), Roughness = 1 };
-        // The trailer stage stands at (-16, 11) facing +X, its front edge at about x = -13.6.
-        Vector3 stageNorth = new(-13.6f, 2.3f, 6.4f), stageSouth = new(-13.6f, 2.3f, 15.6f);
-        Vector3 poleNorth = new(-5f, 0, 4.5f), poleSouth = new(-5f, 0, 17.5f);
-        const float poleHeight = 3.6f;
+        // Festoons along the south-east side of the track, pole to pole down the middle of the field: light and
+        // a bit of atmosphere where people cross between the stage and the stalls, without fencing anyone in.
+        const float poleHeight = 3.6f, side = 2.9f;
+        float[] poleZ = [27, 19, 11, 3, -5, -13];
         Node3D Pole(Vector3 at)
         {
             var pole = new MeshInstance3D
@@ -130,23 +130,27 @@ public partial class Main
             };
             AddChild(pole); return pole;
         }
-        var north = Pole(poleNorth); var south = Pole(poleSouth);
-        var topNorth = poleNorth + new Vector3(0, poleHeight - .1f, 0); var topSouth = poleSouth + new Vector3(0, poleHeight - .1f, 0);
-        var front = Festoon(stageNorth, stageSouth, .45f, cord);
-        var toNorth = Festoon(stageNorth, topNorth, .55f, cord);
-        var toSouth = Festoon(stageSouth, topSouth, .55f, cord);
-        var back = Festoon(topNorth, topSouth, .7f, cord);
-        _festoonPoles.Add((north, [toNorth, back]));
-        _festoonPoles.Add((south, [toSouth, back]));
-        _festoonStrings.AddRange([front, toNorth, toSouth, back]);
+        var poles = poleZ.Select(z => Pole(new Vector3(side, 0, z))).ToArray();
+        var runs = new Node3D[poleZ.Length - 1];
+        for (var i = 0; i < runs.Length; i++)
+        {
+            Vector3 from = new(side, poleHeight - .1f, poleZ[i]), to = new(side, poleHeight - .1f, poleZ[i + 1]);
+            runs[i] = Festoon(from, to, .6f, cord);
+            // A little warm light pooled under each run; it goes dark with its run if a pole has to give way.
+            var glow = new OmniLight3D { Position = (to - from) / 2 + new Vector3(0, -1, 0), LightColor = new Color("ffc477"),
+                OmniRange = 6.5f, LightEnergy = 0, ShadowEnabled = false };
+            glow.SetMeta("full", 1.4f);
+            runs[i].AddChild(glow); _dayPracticals.Add(glow);
+        }
+        for (var i = 0; i < poles.Length; i++)
+            _festoonPoles.Add((poles[i], runs.Where((_, run) => run == i - 1 || run == i).ToArray()));
+        _festoonStrings.AddRange(runs);
 
         OmniLight3D Glow(Vector3 at, Color colour, float range)
         {
             var light = new OmniLight3D { Position = at, LightColor = colour, OmniRange = range, LightEnergy = 0, ShadowEnabled = false };
             AddChild(light); _dayPracticals.Add(light); light.SetMeta("full", 1f); return light;
         }
-        Glow(new(-9, 3.4f, 8), new("ffc477"), 9).SetMeta("full", 2f);
-        Glow(new(-9, 3.4f, 14), new("ffc477"), 9).SetMeta("full", 2f);
         Glow(new(-22, 2.4f, -8.4f), new("ffbd6a"), 6).SetMeta("full", 2f); // Farmhouse windows.
         SpotLight3D Wash(Vector3 at, Color colour)
         {
@@ -164,7 +168,7 @@ public partial class Main
         var root = new Node3D { Position = from };
         AddChild(root);
         var span = to - from;
-        var bulbs = Math.Max(2, Mathf.RoundToInt(span.Length() / .9f));
+        var bulbs = Math.Max(2, Mathf.RoundToInt(span.Length() / 1.3f));
         Vector3 At(float t) => span * t + new Vector3(0, -4 * sag * t * (1 - t), 0);
         const int segments = 16;
         for (var i = 0; i < segments; i++)
@@ -182,7 +186,7 @@ public partial class Main
         var multimesh = new MultiMesh
         {
             TransformFormat = MultiMesh.TransformFormatEnum.Transform3D, InstanceCount = bulbs,
-            Mesh = new SphereMesh { Radius = .08f, Height = .16f, RadialSegments = 6, Rings = 3 },
+            Mesh = new SphereMesh { Radius = .12f, Height = .24f, RadialSegments = 6, Rings = 3 },
         };
         for (var i = 0; i < bulbs; i++)
             multimesh.SetInstanceTransform(i, new Transform3D(Basis.Identity, At((i + .5f) / bulbs) + new Vector3(0, -.09f, 0)));
@@ -265,7 +269,7 @@ public partial class Main
         _environment.AmbientLightEnergy = Mathf.Lerp(a.AmbientEnergy, b.AmbientEnergy, w);
         var lights = Smooth(LightsFrom, LightsFull, day);
         // A dark light still costs a lighting pass for everything it reaches, so it is hidden until it comes on.
-        _bulbMaterial.EmissionEnergyMultiplier = 2.4f * lights;
+        _bulbMaterial.EmissionEnergyMultiplier = 1.5f * lights;
         foreach (var light in _dayPracticals) { light.LightEnergy = lights * (float)light.GetMeta("full"); light.Visible = lights > 0; }
         foreach (var glow in _vendorGlows.Values) { glow.LightEnergy = 2.4f * lights; glow.Visible = lights > 0; }
     }
