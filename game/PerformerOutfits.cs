@@ -30,6 +30,12 @@ internal static class PerformerOutfits
         [new("3F5F8A", "1A1A1A", "1E1F24", "1A1716"), new("1A1A1A", "3F5F8A", "1E1F24", "1A1716"), new("3F5F8A", "1A1A1A", "1E1F24", "6A5A4A")],
     ];
 
+    /// <summary>The genre of a booked performer's act, or -1.</summary>
+    internal static int Genre(GameSession session, ulong performerId) =>
+        session.CaptureProgramme() is { } programme && programme.Performers.FirstOrDefault(p => p.AgentId == performerId) is { SlotIndex: >= 0 } performer &&
+        performer.SlotIndex < programme.ActIds.Length
+            ? session.GetFestivalActs().FirstOrDefault(a => a.Id == programme.ActIds[performer.SlotIndex])?.Genre ?? -1 : -1;
+
     /// <summary>The outfit for a booked performer, from their act's genre and their place in the band; null if unknown.</summary>
     internal static Outfit? For(GameSession session, ulong performerId, int roleIndex)
     {

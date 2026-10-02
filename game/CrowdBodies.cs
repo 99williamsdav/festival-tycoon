@@ -15,7 +15,7 @@ namespace Festival.Game;
 /// material scenes are cached. <c>performerRole</c> gives a performer's instrument slot and
 /// <c>playing</c> whether their kit is attached, which hides the idle arms.
 /// </summary>
-internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func<ulong, string, int> _performerRole, Func<EntityId, bool> _playing)
+internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _session, Func<ulong, string, int> _performerRole, Func<EntityId, bool> _playing)
 {
     /// <summary>Re-poses a guest or role body; unchanged poses keep their scene.</summary>
     public void SetPose(Node3D root, string state, ImmersionProduct? product)
@@ -121,6 +121,7 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
         root.SetMeta("GuestClothing", colours.Clothing); root.SetMeta("GuestHair", colours.Hair);
         _parent.AddChild(root);
         SetGuestBodyPose(root, "relaxed", null);
+        AddGuestHead(root, id.Value, root.GetMeta("GuestPoseVariant").AsString());
         return root;
     }
 
@@ -187,6 +188,7 @@ internal sealed class CrowdBodies(Node _parent, Func<GameSession> _session, Func
         if (person.Role == ProtectedPersonRole.Performer)
             root.SetMeta("RoleOutfit", PerformerOutfits.For(_session(), person.AgentId, _performerRole(person.AgentId, person.Name)) is { } outfit
                 ? $"{outfit.Tee},{outfit.Patch},{outfit.Trousers},{outfit.Hair}" : "");
+        AddRoleHead(root, person, variant);
         if (role == "maintenance")
             root.AddChild(new Label3D { Text = person.Name.Split(' ')[0].ToUpperInvariant() + "\nMAINTENANCE",
                 Position = new Vector3(0, 2.1f, 0), FontSize = 36, PixelSize = .009f,

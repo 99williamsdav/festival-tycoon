@@ -33,6 +33,8 @@ public partial class Main
     {
         if (actor.GetNodeOrNull<Node3D>("RoleBody") is { } body) body.Visible = visible;
         if (actor.GetNodeOrNull<Node3D>("RoleGarment") is { } garment) garment.Visible = visible;
+        // The cleanup body carries its own hair, so the separate head pieces step aside while it bends.
+        if (actor.GetNodeOrNull<Node3D>("HeadPieces") is { } head) head.Visible = visible;
     }
     private static void StowCleanupView(CleanupView view)
     {

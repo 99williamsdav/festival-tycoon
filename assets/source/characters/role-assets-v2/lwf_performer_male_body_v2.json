@@ -7,6 +7,7 @@
   "LWF_Performer_IdleLeftArm",
   "LWF_Performer_IdleRightArm"
  ],
- "triangles": 1776,
- "sha256": "3c6759de0980d94dca7b9bc37c948b35a4f62d5480e6655e7d1a396707dcde66"
+ "triangles": 1592,
+ "sha256": "99ff7aa1b9ef08b840063278c847c2992831c15756a48cdde3a450130a9805af",
+ "hair": "baked hair stripped (crowd-hair-hats-v1/apply_bald_bodies.py); wear lwf_hair_male_default_v1 or another hair piece"
 }

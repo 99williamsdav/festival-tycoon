@@ -1,0 +1,136 @@
+{
+ "lwf_hair_male_default_v1": {
+  "file": "lwf_hair_male_default_v1.glb",
+  "nodes": [
+   "LWF_Hair_Default"
+  ],
+  "triangles": 184,
+  "sha256": "66e002d3d812fc54f4fb80a2738eadfb2e5f5acca850a94367c1fd08e6dff89d",
+  "note": "today's baked hair, unchanged geometry"
+ },
+ "lwf_hair_male_default_under_cap_v1": {
+  "file": "lwf_hair_male_default_under_cap_v1.glb",
+  "nodes": [
+   "LWF_Hair_DefaultUnderCap"
+  ],
+  "triangles": 44,
+  "sha256": "26f9d30aa5ee6a4bb1ea3bcd20a85f4629083140b397a268410617d3e387d702",
+  "note": "default hair with everything above the cap band removed"
+ },
+ "lwf_hat_cap_male_v1": {
+  "file": "lwf_hat_cap_male_v1.glb",
+  "nodes": [
+   "LWF_Hat_Cap"
+  ],
+  "triangles": 187,
+  "sha256": "99e9f16d4a8ddcb0d1089116b517b61ca649e58cb1a9ff920e32705e493f5097",
+  "note": "wear with lwf_hair_*_default_under_cap_v1 (or bald); never with the mohawk"
+ },
+ "lwf_hat_flower_crown_male_v1": {
+  "file": "lwf_hat_flower_crown_male_v1.glb",
+  "nodes": [
+   "LWF_Hat_FlowerCrown"
+  ],
+  "triangles": 114,
+  "sha256": "42ddee2dfba038c27a88134c27d8629eb4f33ec20d1b4d6e4d913e5b38ee5519",
+  "note": "sits on the default hair (not bald, not the mohawk)"
+ },
+ "lwf_sunglasses_male_v1": {
+  "file": "lwf_sunglasses_male_v1.glb",
+  "nodes": [
+   "LWF_Sunglasses"
+  ],
+  "triangles": 72,
+  "sha256": "4c4a1c8b8a2aad14b2614d7a8d1f5ba7db55e962b56d4399ca8bb21abe9593d6"
+ },
+ "lwf_hair_male_mohawk_v1": {
+  "file": "lwf_hair_male_mohawk_v1.glb",
+  "nodes": [
+   "LWF_Hair_Mohawk"
+  ],
+  "triangles": 86,
+  "sha256": "674057aa4395c6952bc07b99fd86d1c2c6fe9fe7ce1a31faeec77723bd16f4a0",
+  "note": "guests: punk fans only; punk bands: same mesh, any palette"
+ },
+ "lwf_beard_male_v1": {
+  "file": "lwf_beard_male_v1.glb",
+  "nodes": [
+   "LWF_Beard"
+  ],
+  "triangles": 168,
+  "sha256": "0204725d690dcc5b4c777bf8e464ca615f02eb6e29a5dfce5c2d825be228b778",
+  "note": "combines with every male style; mouth notch for the drinking and eating poses",
+  "mouth": [
+   0.0,
+   0.082,
+   1.4973
+  ]
+ },
+ "_heads": {
+  "male": {
+   "eyeZ": 1.5969,
+   "top": 1.7279,
+   "band_front": 1.6469,
+   "band_back": 1.6109
+  },
+  "female": {
+   "eyeZ": 1.5278,
+   "top": 1.6577,
+   "band_front": 1.5778,
+   "band_back": 1.5418
+  }
+ },
+ "lwf_hair_female_default_v1": {
+  "file": "lwf_hair_female_default_v1.glb",
+  "nodes": [
+   "LWF_Hair_Default"
+  ],
+  "triangles": 972,
+  "sha256": "6fa6dc3f4f370ebe6fc6aa9983eec26219b95f52ef1cdc810613b1abb8a75fc2",
+  "note": "today's baked hair, unchanged geometry"
+ },
+ "lwf_hair_female_default_under_cap_v1": {
+  "file": "lwf_hair_female_default_under_cap_v1.glb",
+  "nodes": [
+   "LWF_Hair_DefaultUnderCap"
+  ],
+  "triangles": 496,
+  "sha256": "ce94f1d7cfcb92ec92fc64dc9a2ae931e1a33104b2de212d7f0e224d0e7a7ea1",
+  "note": "default hair with everything above the cap band removed"
+ },
+ "lwf_hat_cap_female_v1": {
+  "file": "lwf_hat_cap_female_v1.glb",
+  "nodes": [
+   "LWF_Hat_Cap"
+  ],
+  "triangles": 187,
+  "sha256": "9c1cf0b181c2f83eecc7f8987a2013dfa0a870ab880b1bc142b1bf98fe61b59b",
+  "note": "wear with lwf_hair_*_default_under_cap_v1 (or bald); never with the mohawk"
+ },
+ "lwf_hat_flower_crown_female_v1": {
+  "file": "lwf_hat_flower_crown_female_v1.glb",
+  "nodes": [
+   "LWF_Hat_FlowerCrown"
+  ],
+  "triangles": 114,
+  "sha256": "d0d9bf7e3ccd0ce8e3815c59a4e816f23c412ccad31af395c3b3dc4638886c18",
+  "note": "sits on the default hair (not bald, not the mohawk)"
+ },
+ "lwf_sunglasses_female_v1": {
+  "file": "lwf_sunglasses_female_v1.glb",
+  "nodes": [
+   "LWF_Sunglasses"
+  ],
+  "triangles": 72,
+  "sha256": "f753d5f673689f2c3d406ecde2dfd43ffa783281bffab0b894c2bb706de94b6d"
+ },
+ "lwf_hair_female_mohawk_v1": {
+  "file": "lwf_hair_female_mohawk_v1.glb",
+  "nodes": [
+   "LWF_Hair_Mohawk"
+  ],
+  "triangles": 86,
+  "sha256": "a25c98aacd53a9e00834e9955f193227a5d37dfc392133bf2774420122992523",
+  "note": "guests: punk fans only; punk bands: same mesh, any palette"
+ }
+}
