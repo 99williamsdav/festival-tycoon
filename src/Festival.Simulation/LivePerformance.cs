@@ -302,6 +302,19 @@ public sealed partial class GameSession
                 Performers = live.Performers.Select(item => item with { OnStage = false, InstrumentAttached = false }).ToArray() };
     }
 
+    private static readonly (int MinX, int MaxX, int MinZ, int MaxZ) AudienceBounds =
+        (ListeningPlaces().Min(c => c.X), ListeningPlaces().Max(c => c.X), ListeningPlaces().Min(c => c.Z), ListeningPlaces().Max(c => c.Z));
+
+    /// <summary>
+    /// The audience's ground in front of the stage: every place a listener can stand, as one rectangle. Nothing is
+    /// built here and no queue grows into it, so the crowd always has somewhere to watch from.
+    /// </summary>
+    public static bool InAudienceArea(GridCell cell) =>
+        cell.X >= AudienceBounds.MinX && cell.X <= AudienceBounds.MaxX && cell.Z >= AudienceBounds.MinZ && cell.Z <= AudienceBounds.MaxZ;
+
+    /// <summary>The audience area's corners, in grid cells.</summary>
+    public static (GridCell Min, GridCell Max) AudienceArea => (new(AudienceBounds.MinX, AudienceBounds.MinZ), new(AudienceBounds.MaxX, AudienceBounds.MaxZ));
+
     private static IEnumerable<GridCell> ListeningPlaces()
     {
         // The rotated trailer faces increasing X. This irregular apron sits between

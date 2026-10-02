@@ -87,6 +87,7 @@ CancelBuildPlacement();
         _buildQuarterTurns = movingId is null ? kind == BuildServiceKind.Toilet ? 2 : 0 :
             _session.CaptureBuildPlacements().Single(item => item.Id == movingId).QuarterTurns;
         _buildGhost = BuildAsset(kind); AddChild(_buildGhost);
+        ShowAudienceArea(true);
         foreach (var mesh in _buildGhost.FindChildren("*", "MeshInstance3D", true, false))
             if (mesh is GeometryInstance3D geometry) geometry.Transparency = .12f;
         _buildDrawerOpen = false; _hudWorkspaceOpen = false;
@@ -100,6 +101,7 @@ CancelBuildPlacement();
         _buildClickRejected = false;
         ClearBuildOriginOverlay();
         if (_buildGhost is not null) { _buildGhost.QueueFree(); _buildGhost = null; }
+        ShowAudienceArea(false);
         Drawer.Refresh();
     }
 

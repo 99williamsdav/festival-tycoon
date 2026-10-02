@@ -23,6 +23,19 @@ public sealed class ToiletQueueGrowthTests
     }
 
     [TestMethod]
+    public void TheAudienceAreaInFrontOfTheStageStaysClearOfServicesButNotBins()
+    {
+        var s = Drafted();
+        Accept(s, new UseDefaultBuildLayoutCommand());
+        var crowd = TraversalGrid.WorldToCell(-7_000, 11_000);
+        Assert.IsTrue(GameSession.InAudienceArea(crowd));
+        foreach (var kind in new[] { BuildServiceKind.WaterTap, BuildServiceKind.Toilet })
+            StringAssert.Contains(Place(s, kind, crowd, 0), "audience area");
+        Assert.IsNull(Place(s, BuildServiceKind.Bin, crowd, 0), "A bin can stand among the crowd.");
+        Assert.IsNull(Place(s, BuildServiceKind.WaterTap, TraversalGrid.WorldToCell(-7_000, 21_000), 0), "Just beyond it is fine.");
+    }
+
+    [TestMethod]
     public void NobodyNewPicksAToiletWhoseQueueHasNoRoomToGrow()
     {
         var s = WithoutFaults(Started());

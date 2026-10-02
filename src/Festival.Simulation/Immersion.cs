@@ -79,6 +79,7 @@ public sealed partial class GameSession
         var otherCorridors=WaterPoints().SelectMany(point=>LooseQueueGeometry.Corridor(CaptureWaterQueueCells(point.Id))).Concat(ImmersionQueueCorridor(proposed.Id));
         var service=ImmersionServiceCell(proposed);
         if(otherCorridors.Any(cell=>Math.Abs(cell.X-service.X)<=1&&Math.Abs(cell.Z-service.Z)<=1))return "Vendor service overlaps an existing physical queue corridor.";
+        if(needed.Any(InAudienceArea))return "Keep the audience area in front of the stage clear.";
         if(needed.Any(c=>!terrain.Contains(c)||!terrain.Get(c).IsWalkable||reserved.Contains(c)))return "Vendor footprint or queue overlaps an obstacle, protected service or stage.";
         if((FirstAidPlacement(_preparation) is not null || StewardPostPlacement(_preparation) is not null) && !PlacementAccessClear(_preparation,_equipment,ImmersionView,_medical,(_facilities ?? NoFacilities) with{Vendors=Vendors.Select(v=>v.Id==proposed.Id?proposed:v).ToArray()}))return "Vendor blocks a response post or essential approach.";
         var blocked=terrain.Overrides.ToDictionary(p=>p.Key,p=>p.Value);

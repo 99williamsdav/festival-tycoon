@@ -177,6 +177,8 @@ public sealed partial class GameSession
             if (cells.Any(cell => cell.X is < 68 or > 190 || cell.Z is < 108 or > 190 ||
                 !terrain.Contains(cell) || terrain.Get(cell) is not { IsWalkable: true, Surface: GroundSurface.Grass }))
                 return "Service footprint or entrance needs clear grass inside the festival site.";
+            // Bins are the exception: a crowd makes litter, and a bin is small enough to stand among it.
+            if (item.Kind != BuildServiceKind.Bin && cells.Any(InAudienceArea)) return "Keep the audience area in front of the stage clear.";
             if (cells.Any(cell => !reserved.Add(cell))) return "Service footprint or access overlaps another placement.";
         }
         if (!BuildAccessClear(placements, equipment, waterTowerOwned))
