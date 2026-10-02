@@ -35,7 +35,9 @@ public partial class Main
         var act = onStage ? _session.CurrentFestivalAct : _session.UpcomingFestivalAct ?? _session.CurrentFestivalAct;
         // Once the day is over the last band's things stay where they were left.
         if (act is null && _session.PreparedStatus is PreparationStatus.Departing or PreparationStatus.Finished) return;
-        SetStageDrumHardware(act);
+        // The drums stay the outgoing band's until their drummer has put the sticks down.
+        var drummerStillPlaying = live?.Performers.Any(p => p.InstrumentAttached) == true;
+        SetStageDrumHardware(drummerStillPlaying ? _session.CurrentFestivalAct ?? act : act);
         if (act?.Id == _stageSetActId && (act is null || _stageSet is not null && IsInstanceValid(_stageSet))) return;
         _stageSetActId = act?.Id;
         _stageSet?.QueueFree();
