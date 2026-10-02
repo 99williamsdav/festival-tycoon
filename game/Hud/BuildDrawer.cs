@@ -18,32 +18,42 @@ internal interface IBuildActions
 }
 
 /// <summary>
-/// The Build sheet: one row per service (tile, Required/Optional, fee, placed dots, Place), the placed
-/// services with Move and Remove, and Use default layout with a replace confirmation.
+/// The Build sheet, kept compact: services grouped into Essentials, Food and drink, and Site tabs, one slim row each
+/// (tile, name, Req chip, fee, placed dots, count, and a small Place button). A row opens to its placed services with
+/// Move and Remove, and Use default layout asks before replacing. A tab shows ! while a required service in it is
+/// missing and a tick once they're all placed. Placed services can also be moved or removed by right-clicking them
+/// on the farm.
 /// </summary>
 internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
 {
-    private sealed record CatalogueRow(PanelContainer Row, Label Meta, HBoxContainer Dots, Label Count, Button Action);
+    private sealed record CatalogueRow(Button Chevron, Label Price, HBoxContainer Dots, Label Count, Button Action, VBoxContainer Placed);
+
+    private static readonly (string Name, BuildServiceKind[] Kinds)[] Categories =
+    [
+        ("Essentials", [BuildServiceKind.WaterTap, BuildServiceKind.Toilet, BuildServiceKind.FirstAid, BuildServiceKind.StewardPost]),
+        ("Food & drink", [BuildServiceKind.FoodVan, BuildServiceKind.Bar]),
+        ("Site", [BuildServiceKind.Bin]),
+    ];
 
     private PanelContainer? _buildDrawer;
-    private ScrollContainer? _buildCatalogueScroll;
     private Label? _servicesTotal;
     private Button? _defaultsButton;
-    private VBoxContainer? _buildPlacedList;
-    private Label? _placedHeading;
     private ConfirmationDialog? _buildDefaultsDialog;
+    private readonly List<Button> _tabs = [];
+    private readonly List<VBoxContainer> _tabPages = [];
+    private readonly HashSet<BuildServiceKind> _expanded = [];
     private readonly Dictionary<BuildServiceKind, CatalogueRow> _buildCatalogueRows = [];
     private readonly Dictionary<BuildServiceKind, List<Button>> _buildShortcutButtons = [];
     private string _buildPlacedKey = "";
 
     public PanelContainer? Panel => _buildDrawer;
 
-    /// <summary>Scrolls the catalogue to a service's row and focuses its Place button.</summary>
+    /// <summary>Opens the tab holding a service and focuses its Place button.</summary>
     public void FocusRow(BuildServiceKind kind)
     {
-        if (!_buildCatalogueRows.TryGetValue(kind, out var entry)) return;
-        _buildCatalogueScroll?.EnsureControlVisible(entry.Row);
-        if (!entry.Action.Disabled) entry.Action.GrabFocus();
+        var tab = Array.FindIndex(Categories, category => category.Kinds.Contains(kind));
+        if (tab >= 0) SelectTab(tab);
+        if (_buildCatalogueRows.TryGetValue(kind, out var entry) && !entry.Action.Disabled) entry.Action.GrabFocus();
     }
 
     private static (string Icon, Color Tile, bool Required) Look(BuildServiceKind kind) => kind switch
@@ -59,52 +69,54 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
 
     public void Build(CanvasLayer layer, Vector2 size)
     {
+        // Sized by its contents: no scrolling, and only as tall as the open tab needs.
         _buildDrawer = new PanelContainer { Position = new Vector2(Ui.Gutter, Ui.ContentTop), Theme = HudTheme(),
-            Size = new Vector2(Ui.S(364), Math.Min(Ui.S(522), size.Y - Ui.ContentTop - Ui.Dock - Ui.S(12))) };
-        _buildDrawer.AddThemeStyleboxOverride("panel", Ui.Sheet(20, 0));
-        Ui.Clipboard(_buildDrawer);
+            Size = new Vector2(Ui.S(330), 0) };
+        _buildDrawer.AddThemeStyleboxOverride("panel", Ui.Sheet(16, 0));
+        Ui.Clipboard(_buildDrawer, 112);
         layer.AddChild(_buildDrawer);
         _buildDrawer.Visible = false;
-        var scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-        _buildCatalogueScroll = scroll;
-        _buildDrawer.AddChild(scroll);
         var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         box.AddThemeConstantOverride("separation", 0);
-        var gutter = new MarginContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-        gutter.AddThemeConstantOverride("margin_right", Ui.Px(10));
-        gutter.AddChild(box); scroll.AddChild(gutter);
-        Ui.SlimScrollbar(scroll);
-        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(24)) });
+        _buildDrawer.AddChild(box);
+        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(18)) });
         var heading = new HBoxContainer(); box.AddChild(heading);
-        var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; words.AddThemeConstantOverride("separation", Ui.Px(6)); heading.AddChild(words);
-        words.AddChild(Ui.Heading("Build your site", 27));
-        var lead = Ui.Text("Place services on the farm. Nothing is paid until Start.", 13.5f, Ui.InkMuted);
-        lead.AutowrapMode = TextServer.AutowrapMode.WordSmart; words.AddChild(lead);
+        var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        words.AddThemeConstantOverride("separation", Ui.Px(2)); heading.AddChild(words);
+        words.AddChild(Ui.Heading("Build your site", 22));
+        _servicesTotal = Ui.Text("", 12, Ui.InkMuted); words.AddChild(_servicesTotal);
         var close = new Button { Icon = Ui.Icon("x"), ExpandIcon = true, IconAlignment = HorizontalAlignment.Center, TooltipText = "Close Build",
-            CustomMinimumSize = Ui.S(32, 32), SizeFlagsVertical = Control.SizeFlags.ShrinkBegin, MouseDefaultCursorShape = Control.CursorShape.PointingHand };
-        Ui.Style(close, Ui.ButtonKind.Quiet); close.Pressed += _actions.CloseDrawer; heading.AddChild(close);
-        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(14)) });
-        var actions = new HBoxContainer(); actions.AddThemeConstantOverride("separation", Ui.Px(8)); box.AddChild(actions);
-        _defaultsButton = Ui.Style(new Button { CustomMinimumSize = new Vector2(0, Ui.S(36)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            CustomMinimumSize = Ui.S(26, 26), SizeFlagsVertical = Control.SizeFlags.ShrinkBegin, MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+        Tight(Ui.Style(close, Ui.ButtonKind.Quiet), 12); close.Pressed += _actions.CloseDrawer; heading.AddChild(close);
+        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
+
+        var tabs = new HBoxContainer(); tabs.AddThemeConstantOverride("separation", Ui.Px(2)); box.AddChild(tabs);
+        var pages = new PanelContainer();
+        pages.AddThemeStyleboxOverride("panel", Ui.Box(Ui.PaperBright, 8, Ui.PaperRule, 1, 8, 2));
+        box.AddChild(pages);
+        var pageStack = new VBoxContainer(); pages.AddChild(pageStack);
+        for (var index = 0; index < Categories.Length; index++)
+        {
+            var (name, kinds) = Categories[index];
+            var tab = new Button { Text = name, ToggleMode = true, MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+                SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+            var chosen = index;
+            tab.Pressed += () => SelectTab(chosen);
+            tabs.AddChild(tab); _tabs.Add(tab);
+            var page = new VBoxContainer(); page.AddThemeConstantOverride("separation", 0); pageStack.AddChild(page); _tabPages.Add(page);
+            foreach (var kind in kinds) page.AddChild(CatalogueEntry(kind, kind == kinds[0]));
+        }
+        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
+        var actions = new HBoxContainer(); actions.AddThemeConstantOverride("separation", Ui.Px(6)); box.AddChild(actions);
+        _defaultsButton = Ui.Style(new Button { CustomMinimumSize = new Vector2(0, Ui.S(30)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
             TooltipText = "Restore standard service positions at normal draft cost; other preparation choices stay.",
-            MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Secondary, 13.5f);
+            MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Secondary, 12.5f);
         _defaultsButton.Pressed += ShowDefaults; actions.AddChild(_defaultsButton);
-        var water = Ui.Style(new Button { Text = "Site & water", CustomMinimumSize = new Vector2(0, Ui.S(36)),
+        var water = Ui.Style(new Button { Text = "Site & water", CustomMinimumSize = new Vector2(0, Ui.S(30)),
             TooltipText = "Water sharing and additional tap choices; placement stays in Build.", MouseDefaultCursorShape = Control.CursorShape.PointingHand },
-            Ui.ButtonKind.Quiet, 13.5f);
+            Ui.ButtonKind.Quiet, 12.5f);
         water.Pressed += () => _actions.OpenTab("Site & water"); actions.AddChild(water);
-        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(16)) });
-        var caption = new HBoxContainer(); box.AddChild(caption);
-        var services = Ui.Caps("Services", Ui.InkMuted); services.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; caption.AddChild(services);
-        _servicesTotal = Ui.Caps("", Ui.InkMuted); caption.AddChild(_servicesTotal);
-        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
-        foreach (var kind in Enum.GetValues<BuildServiceKind>().OrderBy(kind => Look(kind).Required ? 0 : 1))
-            box.AddChild(CatalogueEntry(kind));
-        box.AddChild(Rule());
         box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(14)) });
-        _placedHeading = Ui.Caps("On the field · move or remove", Ui.InkMuted); box.AddChild(_placedHeading);
-        _buildPlacedList = new VBoxContainer(); _buildPlacedList.AddThemeConstantOverride("separation", Ui.Px(2)); box.AddChild(_buildPlacedList);
-        box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(16)) });
 
         _buildDefaultsDialog = new ConfirmationDialog { Title = "Replace service layout?", OkButtonText = "Replace layout",
             CancelButtonText = "Keep my layout", Theme = HudTheme() };
@@ -113,40 +125,73 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         _buildDefaultsDialog.GetLabel().CustomMinimumSize = new Vector2(440, 84);
         _buildDefaultsDialog.Confirmed += _actions.ApplyDefaults;
         layer.AddChild(_buildDefaultsDialog);
+        SelectTab(0);
         Refresh();
+    }
+
+    private void SelectTab(int index)
+    {
+        for (var i = 0; i < _tabs.Count; i++)
+        {
+            _tabPages[i].Visible = i == index;
+            _tabs[i].SetPressedNoSignal(i == index);
+            Ui.Style(_tabs[i], i == index ? Ui.ButtonKind.Secondary : Ui.ButtonKind.Quiet, 12.5f);
+            _tabs[i].CustomMinimumSize = new Vector2(0, Ui.S(28));
+        }
+        Shrink();
+    }
+
+    /// <summary>The sheet shrinks back to fit whatever is open.</summary>
+    private void Shrink()
+    {
+        if (_buildDrawer is not null) _buildDrawer.Size = new Vector2(_buildDrawer.Size.X, 0);
     }
 
     private static ColorRect Rule() => new() { Color = Ui.PaperRule, CustomMinimumSize = new Vector2(0, 1), MouseFilter = Control.MouseFilterEnum.Ignore };
 
-    private PanelContainer CatalogueEntry(BuildServiceKind kind)
+    private VBoxContainer CatalogueEntry(BuildServiceKind kind, bool first)
     {
         var (icon, tile, required) = Look(kind);
-        var row = new PanelContainer();
-        var lined = Ui.Box(new Color(0, 0, 0, 0), 0, padY: 8);
-        lined.BorderColor = Ui.PaperRule; lined.BorderWidthTop = 1;
-        row.AddThemeStyleboxOverride("panel", lined);
-        var line = new HBoxContainer(); line.AddThemeConstantOverride("separation", Ui.Px(12)); row.AddChild(line);
-        var badge = new PanelContainer { CustomMinimumSize = Ui.S(42, 42), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
-        badge.AddThemeStyleboxOverride("panel", Ui.Box(tile, 8));
-        var glyph = Ui.IconRect(icon, 22, Colors.White); glyph.SizeFlagsHorizontal = glyph.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        var block = new VBoxContainer(); block.AddThemeConstantOverride("separation", 0);
+        if (!first) block.AddChild(Rule());
+        var line = new HBoxContainer { CustomMinimumSize = new Vector2(0, Ui.S(34)) };
+        line.AddThemeConstantOverride("separation", Ui.Px(6)); block.AddChild(line);
+        var chevron = new Button { Icon = Ui.Icon("chevron-right"), ExpandIcon = true, Flat = true, CustomMinimumSize = Ui.S(16, 16),
+            SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+            TooltipText = $"Show placed {BuildName(kind).ToLowerInvariant()}s to move or remove" };
+        Tight(chevron, 12, flat: true);
+        chevron.AddThemeColorOverride("icon_normal_color", Ui.InkMuted);
+        chevron.AddThemeColorOverride("icon_hover_color", Ui.Ink);
+        chevron.Pressed += () => { if (!_expanded.Remove(kind)) _expanded.Add(kind); Refresh(); };
+        line.AddChild(chevron);
+        var badge = new PanelContainer { CustomMinimumSize = Ui.S(24, 24), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+        badge.AddThemeStyleboxOverride("panel", Ui.Box(tile, 6));
+        var glyph = Ui.IconRect(icon, 14, Colors.White);
+        glyph.SizeFlagsHorizontal = glyph.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
         badge.AddChild(glyph); line.AddChild(badge);
-        var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
-        words.AddThemeConstantOverride("separation", Ui.Px(3)); line.AddChild(words);
-        var title = new HBoxContainer(); title.AddThemeConstantOverride("separation", Ui.Px(8)); words.AddChild(title);
-        title.AddChild(Ui.Text(BuildName(kind), 15.5f, Ui.Ink, Ui.BodyBold));
-        var tag = Ui.Caps(required ? "Required" : "Optional", required ? Ui.Teal : Ui.InkMuted, 9.5f);
-        var tagBox = Ui.Box(new Color(0, 0, 0, 0), 4, required ? Ui.Teal : new Color("c9b994"), 1, 5, 1);
-        tag.AddThemeStyleboxOverride("normal", tagBox); tag.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; title.AddChild(tag);
-        var meta = new HBoxContainer(); meta.AddThemeConstantOverride("separation", Ui.Px(8)); words.AddChild(meta);
-        var price = Ui.Text("", 13, Ui.InkMuted); meta.AddChild(price);
-        var dots = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ShrinkCenter }; dots.AddThemeConstantOverride("separation", Ui.Px(3)); meta.AddChild(dots);
-        var count = Ui.Text("", 13, Ui.InkMuted); meta.AddChild(count);
-        var action = Ui.IconButton("Place", "plus", Ui.ButtonKind.Accent, () => _actions.BeginPlacement(kind, null), 13.5f);
-        action.CustomMinimumSize = new Vector2(0, Ui.S(34)); action.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
-        action.AddThemeConstantOverride("icon_max_width", Ui.Px(15));
+        var name = Ui.Text(BuildName(kind), 13.5f, Ui.Ink, Ui.BodyBold); name.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; line.AddChild(name);
+        if (required)
+        {
+            var tag = Ui.Caps("Req", Ui.Teal, 8.5f);
+            tag.AddThemeStyleboxOverride("normal", Ui.Box(new Color(0, 0, 0, 0), 3, Ui.Teal, 1, 4, 0));
+            tag.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            tag.TooltipText = "Required before the festival can open."; tag.MouseFilter = Control.MouseFilterEnum.Pass;
+            line.AddChild(tag);
+        }
+        line.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
+        var price = Ui.Text("", 12, Ui.InkMuted); price.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; line.AddChild(price);
+        var dots = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+        dots.AddThemeConstantOverride("separation", Ui.Px(2)); line.AddChild(dots);
+        var count = Ui.Text("", 12, Ui.Ink, Ui.BodySemi); count.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        count.CustomMinimumSize = new Vector2(Ui.S(24), 0); count.HorizontalAlignment = HorizontalAlignment.Right; line.AddChild(count);
+        var action = new Button { Icon = Ui.Icon("plus"), ExpandIcon = true, IconAlignment = HorizontalAlignment.Center,
+            CustomMinimumSize = Ui.S(26, 26), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+        Tight(Ui.Style(action, Ui.ButtonKind.Accent), 14);
+        action.Pressed += () => _actions.BeginPlacement(kind, null);
         line.AddChild(action);
-        _buildCatalogueRows.Add(kind, new CatalogueRow(row, price, dots, count, action));
-        return row;
+        var placed = new VBoxContainer { Visible = false }; placed.AddThemeConstantOverride("separation", 0); block.AddChild(placed);
+        _buildCatalogueRows.Add(kind, new CatalogueRow(chevron, price, dots, count, action, placed));
+        return block;
     }
 
     public void AddChecklistShortcuts(VBoxContainer parent)
@@ -167,34 +212,51 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             existing.Add(button);
         }
     }
+
     public void Refresh()
     {
-        if (_buildDrawer is null || _hud.Session.CapturePreparationPlan() is not { } plan) return;
+        if (_buildDrawer is null || _hud.Session.CapturePreparationPlan() is null) return;
         var placements = _hud.Session.CaptureBuildPlacements();
-        _servicesTotal!.Text = $"{placements.Count} placed · {FestivalCurrency.Format(_hud.Session.BuildDraftCost)}".ToUpperInvariant();
+        _servicesTotal!.Text = $"{placements.Count} placed · {FestivalCurrency.Format(_hud.Session.BuildDraftCost)} · nothing paid until Start";
         var standard = GameSession.StandardBuildLayout().Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
-        _defaultsButton!.Text = $"Use default layout · {FestivalCurrency.Format(standard)}";
+        _defaultsButton!.Text = $"Default layout · {FestivalCurrency.Format(standard)}";
+        for (var index = 0; index < Categories.Length; index++)
+        {
+            var (name, kinds) = Categories[index];
+            var placedHere = placements.Count(item => kinds.Contains(item.Kind));
+            var required = kinds.Where(kind => Look(kind).Required).ToArray();
+            var missing = required.Any(kind => !placements.Any(item => item.Kind == kind));
+            var mark = required.Length == 0 ? "" : missing ? " !" : " ✓";
+            _tabs[index].Text = $"{name} {placedHere}{mark}";
+            _tabs[index].TooltipText = missing ? $"{name}: a required service still needs placing." : name;
+        }
         foreach (var (kind, row) in _buildCatalogueRows)
         {
             var count = placements.Count(item => item.Kind == kind);
             var limit = GameSession.BuildServiceLimit(kind);
             var fee = FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind));
-            row.Meta.Text = limit > 1 ? $"{fee} each" : fee;
-            row.Count.Text = kind == BuildServiceKind.Bin ? $"{count} placed" : $"{count} of {limit}";
+            row.Price.Text = fee;
+            row.Count.Text = kind == BuildServiceKind.Bin ? $"{count}" : $"{count}/{limit}";
             var dotCount = kind == BuildServiceKind.Bin ? 0 : limit;
             if (row.Dots.GetChildCount() != dotCount)
             {
                 foreach (var child in row.Dots.GetChildren()) { row.Dots.RemoveChild(child); child.QueueFree(); }
-                for (var i = 0; i < dotCount; i++) row.Dots.AddChild(new Panel { CustomMinimumSize = Ui.S(9, 9), MouseFilter = Control.MouseFilterEnum.Ignore });
+                for (var i = 0; i < dotCount; i++) row.Dots.AddChild(new Panel { CustomMinimumSize = Ui.S(7, 7), MouseFilter = Control.MouseFilterEnum.Ignore });
             }
             for (var i = 0; i < dotCount; i++)
-                row.Dots.GetChild<Panel>(i).AddThemeStyleboxOverride("panel", i < count ? Ui.Box(Ui.Teal, 5) : Ui.Box(new Color(0, 0, 0, 0), 5, new Color("9db5ae"), 1.5f));
+                row.Dots.GetChild<Panel>(i).AddThemeStyleboxOverride("panel",
+                    i < count ? Ui.Box(Ui.Teal, 4) : Ui.Box(new Color(0, 0, 0, 0), 4, new Color("9db5ae"), 1.5f));
             var full = count >= limit;
             row.Action.Disabled = full;
-            row.Action.Text = full ? "Placed" : "Place";
             row.Action.Icon = Ui.Icon(full ? "check" : "plus");
-            row.Action.TooltipText = $"{BuildName(kind)} costs {fee} at Start. {count} placed. " +
-                (full ? "Move or remove a placed one below." : "Place an unpaid draft service.");
+            Tight(Ui.Style(row.Action, full ? Ui.ButtonKind.Quiet : Ui.ButtonKind.Accent), 14);
+            row.Action.TooltipText = full
+                ? $"{BuildName(kind)}: all {limit} placed. Open the row, or right-click one on the farm, to move or remove it."
+                : $"Place a {BuildName(kind).ToLowerInvariant()} ({fee} at Start). {count} placed.";
+            if (count == 0) _expanded.Remove(kind);
+            row.Chevron.Disabled = count == 0;
+            row.Chevron.Modulate = count == 0 ? new Color(1, 1, 1, .3f) : Colors.White;
+            row.Chevron.Icon = Ui.Icon(_expanded.Contains(kind) ? "chevron-down" : "chevron-right");
         }
         foreach (var (kind, buttons) in _buildShortcutButtons)
         {
@@ -215,24 +277,68 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
                     : $"{BuildName(kind)} is required before opening. Open its Build row to place one.";
             }
         }
-        var key = string.Join("|", placements.Select(item => $"{item.Id}:{item.Cell.X}:{item.Cell.Z}:{item.QuarterTurns}"));
+        var key = string.Join("|", placements.Select(item => $"{item.Id}:{item.Cell.X}:{item.Cell.Z}:{item.QuarterTurns}")) +
+            "#" + string.Join(",", _expanded.Order());
         if (key == _buildPlacedKey) return;
         _buildPlacedKey = key;
-        _placedHeading!.Visible = placements.Count > 0;
-        foreach (var child in _buildPlacedList!.GetChildren()) child.QueueFree();
-        foreach (var item in placements)
+        foreach (var (kind, row) in _buildCatalogueRows)
         {
-            var row = new HBoxContainer(); row.AddThemeConstantOverride("separation", Ui.Px(6)); _buildPlacedList.AddChild(row);
-            var name = Ui.Text($"{BuildName(item.Kind)} {item.Id.Split('.').Last()}", 13.5f, Ui.Ink); name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
-            name.VerticalAlignment = VerticalAlignment.Center; row.AddChild(name);
-            var move = Ui.Style(new Button { Text = "Move", CustomMinimumSize = new Vector2(0, Ui.S(28)), MouseDefaultCursorShape = Control.CursorShape.PointingHand,
-                TooltipText = $"Move {BuildName(item.Kind)} without changing its draft cost." }, Ui.ButtonKind.Quiet, 12.5f);
-            move.Pressed += () => _actions.BeginPlacement(item.Kind, item.Id); row.AddChild(move);
-            var remove = Ui.Style(new Button { Text = "Remove", CustomMinimumSize = new Vector2(0, Ui.S(28)), MouseDefaultCursorShape = Control.CursorShape.PointingHand,
-                TooltipText = $"Remove {BuildName(item.Kind)} from the unpaid draft; deduct its fee from draft total." }, Ui.ButtonKind.Quiet, 12.5f);
-            remove.Pressed += () => _actions.RemovePlacement(item.Id); row.AddChild(remove);
+            foreach (var child in row.Placed.GetChildren()) { row.Placed.RemoveChild(child); child.QueueFree(); }
+            row.Placed.Visible = _expanded.Contains(kind);
+            if (!row.Placed.Visible) continue;
+            foreach (var item in placements.Where(item => item.Kind == kind))
+            {
+                var line = new HBoxContainer { CustomMinimumSize = new Vector2(0, Ui.S(28)) };
+                line.AddThemeConstantOverride("separation", Ui.Px(4)); row.Placed.AddChild(line);
+                line.AddChild(new Control { CustomMinimumSize = new Vector2(Ui.S(46), 0) });
+                var name = Ui.Text($"{PlacedName(item)} · on the field", 12, Ui.InkMuted);
+                name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; name.VerticalAlignment = VerticalAlignment.Center; line.AddChild(name);
+                line.AddChild(SmallIcon("move", $"Move {BuildName(item.Kind)} without changing its draft cost.",
+                    () => _actions.BeginPlacement(item.Kind, item.Id)));
+                line.AddChild(SmallIcon("trash-2", $"Remove {BuildName(item.Kind)} from the unpaid draft; its fee comes off the total.",
+                    () => _actions.RemovePlacement(item.Id)));
+            }
         }
+        Shrink();
     }
+
+    /// <summary>
+    /// An icon-only button at row size: the shared button padding would squeeze a small icon to nothing, so it's
+    /// trimmed, and the icon drawn at its own size.
+    /// </summary>
+    private static T Tight<T>(T button, float iconPx, bool flat = false) where T : Button
+    {
+        foreach (var state in new[] { "normal", "hover", "pressed", "focus", "disabled", "hover_pressed" })
+        {
+            if (flat) { button.AddThemeStyleboxOverride(state, new StyleBoxEmpty()); continue; }
+            if (button.GetThemeStylebox(state) is not StyleBoxFlat box) continue;
+            var tight = (StyleBoxFlat)box.Duplicate();
+            tight.ContentMarginLeft = tight.ContentMarginRight = tight.ContentMarginTop = tight.ContentMarginBottom = Ui.S(2);
+            button.AddThemeStyleboxOverride(state, tight);
+        }
+        button.ExpandIcon = false;
+        button.AddThemeConstantOverride("icon_max_width", Ui.Px(iconPx));
+        return button;
+    }
+
+    private static Button SmallIcon(string icon, string tooltip, Action pressed)
+    {
+        var button = new Button { Icon = Ui.Icon(icon), ExpandIcon = true, IconAlignment = HorizontalAlignment.Center, TooltipText = tooltip,
+            CustomMinimumSize = Ui.S(24, 24), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+        Tight(Ui.Style(button, Ui.ButtonKind.Quiet), 13);
+        button.Pressed += pressed;
+        return button;
+    }
+
+    /// <summary>"Toilet 2" rather than "toilet.extra-1".</summary>
+    internal static string PlacedName(BuildPlacement item)
+    {
+        var suffix = item.Id.Split('.').Last();
+        var number = suffix == "main" ? "1" : suffix.StartsWith("extra-", StringComparison.Ordinal) && int.TryParse(suffix[6..], out var extra)
+            ? (extra + 1).ToString() : suffix;
+        return GameSession.BuildServiceLimit(item.Kind) == 1 ? BuildName(item.Kind) : $"{BuildName(item.Kind)} {number}";
+    }
+
     public string CostSummary()
     {
         var costs = PlanCosts.Of(_hud.Session);
@@ -240,6 +346,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             $"Equipment {FestivalCurrency.Format(costs.Equipment)} · Stock {FestivalCurrency.Format(costs.Stock)}\n" +
             $"Complete setup {FestivalCurrency.Format(_hud.Session.PreparationPlanCost)} · Remaining {FestivalCurrency.Format(_hud.Session.PreparationRemainingCash)}";
     }
+
     private void ShowDefaults()
     {
         var old = _hud.Session.CaptureBuildPlacements();

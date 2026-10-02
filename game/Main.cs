@@ -124,6 +124,7 @@ public partial class Main : Node, IHudHost
             if (_buildGhostKind is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
             { CommitBuildPlacement(mouse.Position); return; }
             if (EyeViewActive) return;
+            if (mouse.Pressed && mouse.ButtonIndex == MouseButton.Right && OpenBuildContextMenu(mouse.Position)) return;
             if (_rig.HandleButton(mouse)) return;
             if (mouse.ButtonIndex == MouseButton.Left && mouse.Pressed) Pick(mouse.Position);
         }
