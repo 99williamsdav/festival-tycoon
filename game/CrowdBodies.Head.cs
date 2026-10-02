@@ -35,6 +35,13 @@ internal sealed partial class CrowdBodies
         BuildHead(root, sex, look, pieces => ApplyRoleBodyPalette(root, pieces));
     }
 
+    /// <summary>Rebuilds a staff member's head after their body variant changes (verification fixtures only).</summary>
+    public void RebuildHead(Node3D root)
+    {
+        if (root.GetNodeOrNull<Node3D>(HeadPieces) is { } old) { root.RemoveChild(old); old.QueueFree(); }
+        BuildHead(root, root.GetMeta("RoleVariant").AsString(), AttendeeLook.Plain, pieces => ApplyRoleBodyPalette(root, pieces));
+    }
+
     private void BuildHead(Node3D root, string sex, AttendeeLook look, Action<Node3D> paintHair)
     {
         var head = new Node3D { Name = HeadPieces };
