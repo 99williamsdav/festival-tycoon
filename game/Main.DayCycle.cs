@@ -48,6 +48,8 @@ public partial class Main
     private readonly Dictionary<string, OmniLight3D> _vendorGlows = new(StringComparer.Ordinal);
     /// <summary>For verification captures: pins the day to a share of the festival instead of the clock.</summary>
     private float? _dayFractionOverride;
+    private bool _dayIsHot;
+    private MeshInstance3D _cloudShadows = null!;
 
     private void BuildDayCycle(Godot.Environment environment, DirectionalLight3D sun)
     {
@@ -56,8 +58,8 @@ public partial class Main
             if (arg.StartsWith("--day-fraction=", StringComparison.Ordinal) &&
                 float.TryParse(arg["--day-fraction=".Length..], System.Globalization.CultureInfo.InvariantCulture, out var pinned))
                 _dayFractionOverride = Math.Clamp(pinned, 0, 1);
-        // Long golden-hour shadows reach across the whole field from the orthographic camera.
-        _sun.DirectionalShadowMaxDistance = 240;
+        // The default 100 m leaves the far corner of the field unshadowed from the rig's camera distance.
+        _sun.DirectionalShadowMaxDistance = 160;
         BuildCloudShadows();
         BuildDuskPracticals();
         ApplyDayCycle(0);
@@ -95,7 +97,7 @@ public partial class Main
         });
         _cloudMaterial.SetShaderParameter("coverage", 0f);
         // Just above the track; the field only, so the sky behind it never darkens.
-        AddChild(new MeshInstance3D
+        AddChild(_cloudShadows = new MeshInstance3D
         {
             Name = "CloudShadows", Position = new Vector3(0, 0.09f, 0),
             Mesh = new PlaneMesh { Size = new Vector2(64, 64) }, MaterialOverride = _cloudMaterial,
@@ -193,15 +195,19 @@ public partial class Main
 
     private void RegisterBreezeHedge(Node3D hedge) => _breezeHedges.Add((hedge, hedge.Transform, _breezeHedges.Count * 0.9f));
 
-    /// <summary>The share of the festival day the light shows: the clock while running, dusk while guests leave.</summary>
+    /// <summary>
+    /// The share of the festival day the light shows: the clock while running (held where it stopped if the day
+    /// failed), dusk once guests leave, and early afternoon while preparing.
+    /// </summary>
     private float DayFraction()
     {
         if (_dayFractionOverride is { } pinned) return pinned;
-        if (_session.CapturePreparation() is not { } p) return 0;
+        if (_session?.CapturePreparation() is not { } p) return 0;
         return p.Status switch
         {
-            PreparationStatus.Running => Math.Clamp((_session.CurrentTick - p.StartedTick) / (float)GameSession.PreparedDayTicks, 0, 1),
-            PreparationStatus.Departing => 1,
+            PreparationStatus.Running or PreparationStatus.Failed =>
+                Math.Clamp((_session.CurrentTick - p.StartedTick) / (float)GameSession.PreparedDayTicks, 0, 1),
+            PreparationStatus.Departing or PreparationStatus.Finished => 1,
             _ => 0,
         };
     }
@@ -210,6 +216,7 @@ public partial class Main
 
     private void ProcessDayCycle(double delta)
     {
+        if (_session is null) return;
         var running = !_session.IsPaused || _dayFractionOverride is not null;
         if (running) _breezeSeconds += delta;
         var day = DayFraction();
@@ -239,13 +246,14 @@ public partial class Main
         var sun = a.Sun.Lerp(b.Sun, w); var sky = a.Sky.Lerp(b.Sky, w);
         var sunEnergy = Mathf.Lerp(a.SunEnergy, b.SunEnergy, w);
         // The heatwave look holds until the clouds arrive.
-        if (_session.CaptureMedical() is { IsHot: true })
+        if (_dayIsHot)
         {
             var heat = 1 - Smooth(CloudsFrom, CloudsFull + .05f, day);
             sky = sky.Lerp(HeatSky, heat); sun = sun.Lerp(HeatSun, heat); sunEnergy = Mathf.Lerp(sunEnergy, HeatSunEnergy, heat);
         }
         var clouds = CloudCoverage * Smooth(CloudsFrom, CloudsFull, day) * (1 - Smooth(CloudsFading, CloudsGone, day));
         _cloudMaterial.SetShaderParameter("coverage", clouds);
+        _cloudShadows.Visible = clouds > 0;
         _sun.RotationDegrees = new Vector3(-Mathf.Lerp(a.Elevation, b.Elevation, w), Mathf.Lerp(a.Yaw, b.Yaw, w), 0);
         _sun.LightColor = sun; _sun.LightEnergy = sunEnergy;
         // A sun on the horizon would throw shadows across the whole field; they fade as it sets.
@@ -254,21 +262,23 @@ public partial class Main
         _environment.AmbientLightColor = a.Ambient.Lerp(b.Ambient, w);
         _environment.AmbientLightEnergy = Mathf.Lerp(a.AmbientEnergy, b.AmbientEnergy, w);
         var lights = Smooth(LightsFrom, LightsFull, day);
+        // A dark light still costs a lighting pass for everything it reaches, so it is hidden until it comes on.
         _bulbMaterial.EmissionEnergyMultiplier = 2.4f * lights;
-        foreach (var light in _dayPracticals) light.LightEnergy = lights * (float)light.GetMeta("full");
-        foreach (var glow in _vendorGlows.Values) glow.LightEnergy = 2.4f * lights;
+        foreach (var light in _dayPracticals) { light.LightEnergy = lights * (float)light.GetMeta("full"); light.Visible = lights > 0; }
+        foreach (var glow in _vendorGlows.Values) { glow.LightEnergy = 2.4f * lights; glow.Visible = lights > 0; }
     }
 
     /// <summary>Stall glows follow wherever the stalls are built; a pole gives way to anything built on its spot.</summary>
     private void SyncDayFittings()
     {
+        _dayIsHot = _session.CaptureMedical() is { IsHot: true };
         foreach (var id in _vendorGlows.Keys.Where(id => !_immersionVendors.ContainsKey(id)).ToArray())
         { _vendorGlows[id].QueueFree(); _vendorGlows.Remove(id); }
         foreach (var (id, body) in _immersionVendors)
         {
             if (!_vendorGlows.TryGetValue(id, out var glow))
             {
-                glow = new OmniLight3D { LightColor = new Color("ffd59a"), OmniRange = 6, LightEnergy = 0, ShadowEnabled = false };
+                glow = new OmniLight3D { LightColor = new Color("ffd59a"), OmniRange = 6, LightEnergy = 0, ShadowEnabled = false, Visible = false };
                 AddChild(glow); _vendorGlows.Add(id, glow);
             }
             glow.Position = body.Position + new Vector3(0, 2.6f, 0);
