@@ -12,7 +12,7 @@ public sealed partial class GameSession
     public IReadOnlyList<GridCell> CaptureImmersionQueueCells(string vendorId)=>_immersion is null?[]:VendorQueueCells(Vendors.Single(vendor=>vendor.Id==vendorId)).ToArray();
     private GridCell[] ImmersionQueueCorridor(string? except=null)=>_immersion is null?[]:Vendors.Where(vendor=>vendor.Id!=except)
         .SelectMany(vendor=>LooseQueueGeometry.Corridor(VendorQueueCells(vendor)))
-        .Concat(EffectiveToilets(_facilities).SelectMany(ToiletReservedCells)).ToArray();
+        .Concat(ToiletQueueCorridor()).ToArray();
     private static bool QueueGroundAllowed(GridCell cell,PreparationSnapshot? prep)=>!(cell.X is >=90 and <=101 && cell.Z is >=139 and <=160) &&
         !(Math.Abs(cell.X-ResponsePost(prep,ResponseRole.Medic).Cell.X)<=3 && Math.Abs(cell.Z-ResponsePost(prep,ResponseRole.Medic).Cell.Z)<=3) &&
         (StewardPostPlacement(prep) is not { } steward || !(Math.Abs(cell.X-steward.Cell.X)<=2 && Math.Abs(cell.Z-steward.Cell.Z)<=2)) &&

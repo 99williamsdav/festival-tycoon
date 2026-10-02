@@ -43,6 +43,12 @@ public sealed record ToiletFacility(string Id, GridCell Cell, int QuarterTurns, 
     public bool IsFull => UsedMillilitres + ToiletRules.WeeMillilitres > CapacityMillilitres;
     public bool CanAccept(ToiletVisitKind kind) => UsedMillilitres +
         (kind == ToiletVisitKind.Poo ? ToiletRules.PooMillilitres : ToiletRules.WeeMillilitres) <= CapacityMillilitres;
+    /// <summary>
+    /// The queue's places, from the doorstep out, grown one at a time into free ground as people arrive, like the
+    /// taps' and the stalls'. Nothing is set aside for a queue that hasn't formed.
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public GridCell[]? QueueCells { get; init; }
 }
 
 
@@ -57,6 +63,14 @@ public sealed partial class GameSession
 
     public static GridCell ToiletInsideCell(ToiletFacility toilet) => toilet.Cell;
     public static GridCell ToiletQueueCell(ToiletFacility toilet, int index)
+    {
+        // Anyone past the queue's grown end waits at its tail until there's room.
+        if (toilet.QueueCells is { Length: > 0 } cells) return cells[Math.Clamp(index, 0, cells.Length - 1)];
+        return ToiletDoorstepCell(toilet, index);
+    }
+
+    /// <summary>The first place, at the door; and the old straight line, kept for saves without grown geometry.</summary>
+    private static GridCell ToiletDoorstepCell(ToiletFacility toilet, int index = 0)
     {
         var offset = RotateWaterOffset(new(0, -5 - Math.Min(index, ToiletRules.MaximumQueue - 1) * 2), toilet.QuarterTurns);
         return new(toilet.Cell.X + offset.X, toilet.Cell.Z + offset.Z);
@@ -103,9 +117,8 @@ public sealed partial class GameSession
                 var offset = RotateWaterOffset(new(x, z), toilet.QuarterTurns);
                 cells.Add(new(toilet.Cell.X + offset.X, toilet.Cell.Z + offset.Z));
             }
-        // Reserve every possible physical queue slot and the cells between them,
-        // not merely the first waiting position near the door.
-        for (var z = -5 - (ToiletRules.MaximumQueue - 1) * 2; z <= -5; z++)
+        // The doorstep only: the rest of the queue grows into whatever space is free once people arrive.
+        for (var z = -5; z <= -5; z++)
             for (var x = -1; x <= 1; x++)
             {
                 var offset = RotateWaterOffset(new(x, z), toilet.QuarterTurns);
@@ -140,6 +153,7 @@ public sealed partial class GameSession
     private void AdvanceToilet()
     {
         if (_immersion is null || _preparation is null || !MedicalOperationsActive) return;
+        GrowToiletQueues();
         foreach (var facility in EffectiveToilets(_facilities).ToArray())
             AdvanceSingleToilet(GetToilet(facility.Id));
         ApplyToiletSmell();
@@ -176,7 +190,7 @@ public sealed partial class GameSession
             ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 } + FaultDelayTicks(toilet.Id);
         return new(toilet.Id, EstimateQueuedServiceWalkTicks(agentId, destination), ToiletServiceDuration(kind),
             !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind),
-            toilet.Queue.Length < ToiletRules.MaximumQueue,
+            toilet.Queue.Length < ToiletRules.MaximumQueue && ToiletQueueHasRoom(toilet, agentId),
             toilet.Queue.Select(id => new QueuedServiceChoice.Member(id,
                 ToiletServiceDuration(people.Single(person => person.Id == id).ToiletChoice))).ToArray(),
             toilet.OwnerId, ownerRemaining, approaching);
@@ -417,6 +431,10 @@ public sealed partial class GameSession
                 person.ToiletStage != ToiletVisitStage.Using && toilet.ServiceTicks != 0)
                 return "Toilet door or service owner stage invalid.";
         }
+        var queueGrid = snapshot.TraversalGrid is { } savedTerrain
+            ? new TraversalGrid(savedTerrain.Cells.Select(c => new TerrainCellOverride(new(c.X, c.Z), (GroundSurface)c.Surface, c.IsWalkable)))
+            : new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
+        if (ValidateToiletQueueGeometry(toilet, queueGrid, snapshot.Preparation) is { } queueIssue) return queueIssue;
         if (snapshot.Preparation is { Status: not PreparationStatus.Preparing } &&
             (snapshot.TraversalGrid is null || ToiletSolidCells(toilet).Any(cell =>
                 !snapshot.TraversalGrid.Cells.Any(saved => saved.X == cell.X && saved.Z == cell.Z && !saved.IsWalkable))))

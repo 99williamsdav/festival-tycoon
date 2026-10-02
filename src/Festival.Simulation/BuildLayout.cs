@@ -134,7 +134,8 @@ public sealed partial class GameSession
         p.BuildPlacements.Where(item => item.Id == "toilet.main")
             .Concat(p.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet && item.Id != "toilet.main"))
             .Select(item => new ToiletFacility(item.Id, item.Cell, item.QuarterTurns, [], null, false, 0, 0, 0,
-                ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille)).ToArray();
+                ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille))
+            .Select(toilet => toilet with { QueueCells = [ToiletDoorstepCell(toilet)] }).ToArray();
 
     private static string? ValidateBuildLayout(IReadOnlyList<BuildPlacement> placements,
         EquipmentSnapshot? equipment = null, bool waterTowerOwned = false)

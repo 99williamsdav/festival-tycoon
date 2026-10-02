@@ -36,7 +36,7 @@ public partial class Main : Node, IHudHost
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v20", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v20");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v21", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v21");
 
     public override void _Ready()
     {
@@ -529,7 +529,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v20");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v21");
 
 
 
