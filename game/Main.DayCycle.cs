@@ -40,7 +40,7 @@ public partial class Main
     private ShaderMaterial _cloudMaterial = null!;
     private Vector2 _cloudOffset;
     private double _breezeSeconds, _dayFittingsSync;
-    private readonly List<(Node3D Node, Transform3D Home, float Phase)> _breezeHedges = [];
+    private readonly List<(Node3D Node, Transform3D Home, float Phase, float Strength)> _breezeHedges = [];
     private readonly List<(Node3D Pole, Node3D[] Strings)> _festoonPoles = [];
     private readonly List<Node3D> _festoonStrings = [];
     private StandardMaterial3D _bulbMaterial = null!;
@@ -193,7 +193,9 @@ public partial class Main
         return root;
     }
 
-    private void RegisterBreezeHedge(Node3D hedge) => _breezeHedges.Add((hedge, hedge.Transform, _breezeHedges.Count * 0.9f));
+    /// <param name="strength">How far it leans relative to a hedge; a tall crown needs much less to look right.</param>
+    private void RegisterBreezeHedge(Node3D hedge, float strength = 1) =>
+        _breezeHedges.Add((hedge, hedge.Transform, _breezeHedges.Count * 0.9f, strength));
 
     /// <summary>
     /// The share of the festival day the light shows: the clock while running (held where it stopped if the day
@@ -226,9 +228,9 @@ public partial class Main
         _cloudMaterial.SetShaderParameter("offset", -_cloudOffset);
         var t = (float)_breezeSeconds;
         var gust = Mathf.Pow(Mathf.Max(0, Mathf.Sin(t * Mathf.Tau / 20f)), 4);
-        foreach (var (node, home, phase) in _breezeHedges)
+        foreach (var (node, home, phase, strength) in _breezeHedges)
         {
-            var lean = (.012f + .035f * gust) * Mathf.Sin(t * 1.7f + phase);
+            var lean = strength * (.012f + .035f * gust) * Mathf.Sin(t * 1.7f + phase);
             // Lean the hedge top downwind while its base stays planted: a shear, not a tilt.
             var shear = new Basis(Vector3.Right, new Vector3(Wind.X * lean, 1, Wind.Z * lean), Vector3.Back);
             node.Transform = new Transform3D(shear * home.Basis, home.Origin);

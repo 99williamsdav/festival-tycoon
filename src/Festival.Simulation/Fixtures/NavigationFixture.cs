@@ -41,8 +41,27 @@ public static class NavigationFixture
         BlockRectangle(cells, -28_500, -15_500, -19_500, -8_500); // farmhouse
         BlockRectangle(cells, 11_000, 27_000, -22_500, -11_500);  // small barn +Z front; same padded extents rotated to yaw0
         BlockRectangle(cells, -11_000, 11_000, -30_000, -16_000); // large barn in the rear field
+        // Tree trunks, a quarter-metre clear around each; their crowns overhang freely.
+        BlockRectangle(cells, -32_700, -31_300, 8_300, 9_700);     // oak in the west hedge
+        BlockRectangle(cells, 28_950, 30_050, -30_050, -28_950);   // field maple behind the small barn
+        BlockRectangle(cells, -29_630, -28_770, -7_030, -6_170);   // old apple at the farmhouse corner
+        // The farm pond in the south-east corner: its water and muddy margin, one run of cells per column.
+        foreach (var (x, fromZ, toZ) in PondColumns)
+            for (var z = fromZ; z <= toZ; z++)
+            {
+                var cell = new GridCell(x, z);
+                cells[cell] = new TerrainCellOverride(cell, GroundSurface.Grass, false);
+            }
         return cells.Values.ToArray();
     }
+
+    private static readonly (int X, int FromZ, int ToZ)[] PondColumns =
+    [
+        (165, 173, 180), (166, 173, 180), (167, 172, 181), (168, 172, 182), (169, 171, 182), (170, 170, 182),
+        (171, 170, 183), (172, 169, 184), (173, 169, 185), (174, 169, 185), (175, 169, 185), (176, 169, 185),
+        (177, 169, 185), (178, 169, 185), (179, 169, 184), (180, 169, 184), (181, 170, 184), (182, 171, 184),
+        (183, 172, 183), (184, 173, 182), (185, 174, 181), (186, 176, 179),
+    ];
 
     private static void BlockRectangle(IDictionary<GridCell, TerrainCellOverride> cells, int minX, int maxX, int minZ, int maxZ)
     {

@@ -36,7 +36,7 @@ public partial class Main : Node, IHudHost
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v18", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v18");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v19", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v19");
 
     public override void _Ready()
     {
@@ -151,6 +151,7 @@ public partial class Main : Node, IHudHost
         BuildTrack();
         BuildHedgeBoundary();
         BuildGateApron();
+        BuildFarmBeauty();
         BuildDayCycle(environment, sun);
         foreach (var item in LowerWitteringFarmScenario.CreateReadModel().Objects)
             if (item.Kind != FarmObjectKind.ServicePoint) AddFarmObject(item);
@@ -225,13 +226,14 @@ public partial class Main : Node, IHudHost
 
     private void BuildHedgeBoundary()
     {
-        const string hedge = "res://assets/environment/lwf_hedge_straight_8m_a_v1.glb";
+        // Four 8 m hedgerow runs in turn, offset per side, so no stretch of the boundary repeats its neighbour.
+        string Hedge(int run) => $"res://assets/environment/lwf_hedge_straight_8m_{"abcd"[run % 4]}_v1.glb";
         for (var i = -4; i < 4; i++)
         {
-            RegisterBreezeHedge(AddAsset(hedge, new Vector3(i * 8, 0, -32)));
-            if (i is not -1 and not 0) RegisterBreezeHedge(AddAsset(hedge, new Vector3(i * 8, 0, 32)));
-            var left = AddAsset(hedge, new Vector3(-32, 0, i * 8)); left.RotationDegrees = new Vector3(0, 90, 0);
-            var right = AddAsset(hedge, new Vector3(32, 0, i * 8)); right.RotationDegrees = new Vector3(0, 90, 0);
+            RegisterBreezeHedge(AddAsset(Hedge(i + 4), new Vector3(i * 8, 0, -32)));
+            if (i is not -1 and not 0) RegisterBreezeHedge(AddAsset(Hedge(i + 5), new Vector3(i * 8, 0, 32)));
+            var left = AddAsset(Hedge(i + 6), new Vector3(-32, 0, i * 8)); left.RotationDegrees = new Vector3(0, 90, 0);
+            var right = AddAsset(Hedge(i + 7), new Vector3(32, 0, i * 8)); right.RotationDegrees = new Vector3(0, 90, 0);
             RegisterBreezeHedge(left); RegisterBreezeHedge(right);
         }
         RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(-8, 0, 32)));
@@ -239,6 +241,24 @@ public partial class Main : Node, IHudHost
         AddAsset("res://assets/environment/lwf_hedge_gate_end_v1.glb", new Vector3(-3, 0, 32));
         var northRight = AddAsset("res://assets/environment/lwf_hedge_gate_end_v1.glb", new Vector3(3, 0, 32));
         northRight.RotationDegrees = new Vector3(0, 180, 0);
+    }
+
+    /// <summary>
+    /// The odd tree and the farm pond: an oak in the west hedge, a field maple behind the small barn, an old apple by
+    /// the farmhouse, and a pond in the south-east corner. Their trunks and the pond are blocked in the terrain.
+    /// </summary>
+    private void BuildFarmBeauty()
+    {
+        foreach (var (asset, at) in new[]
+                 {
+                     ("lwf_tree_oak_v1", new Vector3(-32, 0, 9)), ("lwf_tree_field_maple_v1", new Vector3(29.5f, 0, -29.5f)),
+                     ("lwf_tree_old_apple_v1", new Vector3(-29.2f, 0, -6.6f)),
+                 })
+        {
+            var tree = AddAsset($"res://assets/environment/{asset}.glb", at);
+            if (tree.FindChild("Crown", true, false) is Node3D crown) RegisterBreezeHedge(crown, .2f);
+        }
+        AddAsset("res://assets/environment/lwf_farm_pond_v1.glb", new Vector3(24, 0, 24.5f));
     }
 
     private void AddFarmObject(FarmObjectReadModel item)
@@ -503,7 +523,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v18");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v19");
 
 
 

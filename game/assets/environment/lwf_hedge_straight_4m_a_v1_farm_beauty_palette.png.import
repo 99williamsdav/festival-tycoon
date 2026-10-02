@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://8quf4l0voeo8"
-path="res://.godot/imported/lwf_hedge_straight_4m_a_v1_hedge_palette.png-35f005a7f8fe124025d5a54bfdd356e3.ctex"
+uid="uid://c3odrdv18lax"
+path="res://.godot/imported/lwf_hedge_straight_4m_a_v1_farm_beauty_palette.png-125eb34c6a01bc0cbef9757aa3e6abb5.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "bdfc621c077bdc6d98c7d48a68b0c16e"
+"md5": "8e603169a2769351c7ea720c36f58363"
 }
 
 [deps]
 
-source_file="res://assets/environment/lwf_hedge_straight_4m_a_v1_hedge_palette.png"
-dest_files=["res://.godot/imported/lwf_hedge_straight_4m_a_v1_hedge_palette.png-35f005a7f8fe124025d5a54bfdd356e3.ctex"]
+source_file="res://assets/environment/lwf_hedge_straight_4m_a_v1_farm_beauty_palette.png"
+dest_files=["res://.godot/imported/lwf_hedge_straight_4m_a_v1_farm_beauty_palette.png-125eb34c6a01bc0cbef9757aa3e6abb5.ctex"]
 
 [params]
 

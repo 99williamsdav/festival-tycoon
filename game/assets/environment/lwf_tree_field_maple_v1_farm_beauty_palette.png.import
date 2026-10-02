@@ -2,19 +2,19 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dpyavvx6wl3n"
-path="res://.godot/imported/lwf_hedge_straight_8m_a_v1_hedge_palette.png-d3d2472ea4073f2d9214fada2d0f3e2e.ctex"
+uid="uid://bs3h2atdd8vcm"
+path="res://.godot/imported/lwf_tree_field_maple_v1_farm_beauty_palette.png-b1e2178b09e79fa5da32001693e9bb79.ctex"
 metadata={
 "vram_texture": false
 }
 generator_parameters={
-"md5": "bdfc621c077bdc6d98c7d48a68b0c16e"
+"md5": "8e603169a2769351c7ea720c36f58363"
 }
 
 [deps]
 
-source_file="res://assets/environment/lwf_hedge_straight_8m_a_v1_hedge_palette.png"
-dest_files=["res://.godot/imported/lwf_hedge_straight_8m_a_v1_hedge_palette.png-d3d2472ea4073f2d9214fada2d0f3e2e.ctex"]
+source_file="res://assets/environment/lwf_tree_field_maple_v1_farm_beauty_palette.png"
+dest_files=["res://.godot/imported/lwf_tree_field_maple_v1_farm_beauty_palette.png-b1e2178b09e79fa5da32001693e9bb79.ctex"]
 
 [params]
 

@@ -28,7 +28,7 @@ public static class LowerWitteringFarmScenario
     // face toward increasing world X; the visible steps meet the south end.
     public const int TrailerStageXMillimetres = -16_000;
     public const int TrailerStageZMillimetres = 11_000;
-    public const string LayoutRevision = "r0.05h-aligned-barn-fronts-v1";
+    public const string LayoutRevision = "r0.05i-pond-and-trees-v1";
     private const string BaseAssetContentHash = "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9";
 
     private static readonly FarmSceneReadModel Model = new(

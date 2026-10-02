@@ -11,6 +11,6 @@ public sealed class HoverFeedbackTests
     public void FactualThirstyCopyKeepsExistingLayoutContentIdentity()
     {
         Assert.AreEqual("Guests grow thirsty faster.",PerkCatalogue.All.Single(p=>p.Id=="thirsty-crowd").Effect);
-        Assert.AreEqual("0e6fa18d57decc54430afd5931e220b4477aa7cf793859883fc337ad600baa18",LowerWitteringFarmScenario.ContentCompatibilityHash);
+        Assert.AreEqual("aacc3f0797ddcceddda385a9aa07273797944a4a818bbb98c6459c2bd9e49a54",LowerWitteringFarmScenario.ContentCompatibilityHash);
     }
 }
