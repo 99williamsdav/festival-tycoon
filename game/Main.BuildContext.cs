@@ -13,14 +13,26 @@ public partial class Main
     private string? _buildContextId;
     private const float BuildContextReachMetres = 2.6f;
 
-    /// <summary>The placed service nearest the ground under the cursor, if it's close enough to be the one clicked.</summary>
+    /// <summary>
+    /// The placed service under the cursor. The ray is followed down through head height to the ground, and the first
+    /// service whose footprint it crosses wins, so clicking a van's roof or far end finds the van, not the grass
+    /// behind it. Failing that, the nearest service centre within reach of where it meets the ground.
+    /// </summary>
     private BuildPlacement? PlacementUnder(Vector2 screen)
     {
         var ray = _rig.Camera.ProjectRayNormal(screen); var origin = _rig.Camera.ProjectRayOrigin(screen);
         if (Mathf.Abs(ray.Y) < .001f || -origin.Y / ray.Y <= 0) return null;
-        var point = origin + ray * (-origin.Y / ray.Y);
-        return _session.CaptureBuildPlacements()
-            .Select(item => (Item: item, Distance: new Vector2(ImmersionPosition(item.Cell).X - point.X, ImmersionPosition(item.Cell).Z - point.Z).Length()))
+        var placements = _session.CaptureBuildPlacements();
+        var footprints = placements.Select(item => (Item: item, Cells: GameSession.BuildFootprint(item).ToHashSet())).ToArray();
+        for (var height = 3.0f; height >= 0; height -= 0.25f)
+        {
+            var point = origin + ray * ((height - origin.Y) / ray.Y);
+            var cell = TraversalGrid.WorldToCell(Mathf.RoundToInt(point.X * 1000), Mathf.RoundToInt(point.Z * 1000));
+            if (footprints.FirstOrDefault(pair => pair.Cells.Contains(cell)).Item is { } hit) return hit;
+        }
+        var ground = origin + ray * (-origin.Y / ray.Y);
+        return placements
+            .Select(item => (Item: item, Distance: new Vector2(ImmersionPosition(item.Cell).X - ground.X, ImmersionPosition(item.Cell).Z - ground.Z).Length()))
             .Where(pair => pair.Distance <= BuildContextReachMetres)
             .OrderBy(pair => pair.Distance).Select(pair => pair.Item).FirstOrDefault();
     }
@@ -50,8 +62,8 @@ public partial class Main
         _buildContextMenu.AddSeparator(name);
         _buildContextMenu.AddIconItem(Ui.Icon("move"), $"Move {BuildName(item.Kind).ToLowerInvariant()}", 0);
         _buildContextMenu.AddIconItem(Ui.Icon("trash-2"), $"Remove · {FestivalCurrency.Format(GameSession.BuildServiceFeePennies(item.Kind))} back", 1);
-        _buildContextMenu.Position = (Vector2I)(screen + GetViewport().GetVisibleRect().Position);
-        _buildContextMenu.Popup();
+        // From canvas units to window pixels, so it opens at the cursor whatever the window size or display scale.
+        _buildContextMenu.Popup(new Rect2I((Vector2I)(GetViewport().GetScreenTransform() * screen), Vector2I.Zero));
         return true;
     }
 }

@@ -36,6 +36,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     ];
 
     private PanelContainer? _buildDrawer;
+    private ScrollContainer? _scroll;
+    private float _maxHeight;
     private Label? _servicesTotal;
     private Button? _defaultsButton;
     private ConfirmationDialog? _buildDefaultsDialog;
@@ -76,9 +78,15 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         Ui.Clipboard(_buildDrawer, 112);
         layer.AddChild(_buildDrawer);
         _buildDrawer.Visible = false;
+        // Scrolls only if what's open won't fit on screen; otherwise the sheet is just as tall as its contents.
+        _scroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, FollowFocus = true };
+        _maxHeight = size.Y - Ui.ContentTop - Ui.Dock - Ui.S(12);
+        _buildDrawer.AddChild(_scroll);
+        Ui.SlimScrollbar(_scroll);
         var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
         box.AddThemeConstantOverride("separation", 0);
-        _buildDrawer.AddChild(box);
+        _scroll.AddChild(box);
+        box.Resized += Shrink;
         box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(18)) });
         var heading = new HBoxContainer(); box.AddChild(heading);
         var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
@@ -141,10 +149,13 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         Shrink();
     }
 
-    /// <summary>The sheet shrinks back to fit whatever is open.</summary>
+    /// <summary>The sheet fits whatever is open, up to the room on screen, scrolling beyond that.</summary>
     private void Shrink()
     {
-        if (_buildDrawer is not null) _buildDrawer.Size = new Vector2(_buildDrawer.Size.X, 0);
+        if (_buildDrawer is null || _scroll?.GetChild(0) is not Control content) return;
+        var wanted = content.GetCombinedMinimumSize().Y;
+        _scroll.CustomMinimumSize = new Vector2(0, Mathf.Min(wanted, _maxHeight));
+        _buildDrawer.Size = new Vector2(_buildDrawer.Size.X, 0);
     }
 
     private static ColorRect Rule() => new() { Color = Ui.PaperRule, CustomMinimumSize = new Vector2(0, 1), MouseFilter = Control.MouseFilterEnum.Ignore };

@@ -295,6 +295,9 @@ public sealed partial class GameSession
         return destinations.All(cell => DeterministicPathfinder.FindPath(grid, MedicalExitCell, cell).Found);
     }
 
+    /// <summary>The ground a placed service stands on (and its doorstep or service cell), as build validation sees it.</summary>
+    public static GridCell[] BuildFootprint(BuildPlacement item) => BuildReservedCells(item);
+
     private static GridCell[] BuildReservedCells(BuildPlacement item)
     {
         static IEnumerable<GridCell> Square(GridCell centre, int radius) =>
