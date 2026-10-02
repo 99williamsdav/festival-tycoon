@@ -74,6 +74,7 @@ public partial class Main : Node, IHudHost
         ProcessDayCycle(delta);
         ProcessGround(delta);
         ProcessGateSign(delta);
+        ProcessStageSet(delta);
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
         AdvancePreparationPresentation(delta);
