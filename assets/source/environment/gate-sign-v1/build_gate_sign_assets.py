@@ -123,7 +123,18 @@ def export(name, objs):
     print(f"EXPORTED {path} tris={tris}")
 
 # ====================================================================== gate apron
-reset(); PAL = palette_material(); rng = random.Random(12)
+# Uses the field/track palette itself (tex/field_track_palette.png, a copy of the grass tile's embedded palette) so the
+# apron grass and lane are the same swatches as lwf_field_grass_tile_8m_v1 and lwf_vehicle_track_straight_8x4m_v1.
+from mathutils.geometry import delaunay_2d_cdt
+reset(); rng = random.Random(12)
+FIELD = bpy.data.materials.new("LWF_FieldTrack_MattePalette"); FIELD.use_nodes = True
+_tx = FIELD.node_tree.nodes.new("ShaderNodeTexImage"); _tx.image = bpy.data.images.load(os.path.join(TEX, "field_track_palette.png"))
+_tx.interpolation = 'Closest'
+_b = FIELD.node_tree.nodes["Principled BSDF"]; _b.inputs["Roughness"].default_value = 0.9
+FIELD.node_tree.links.new(_tx.outputs[0], _b.inputs["Base Color"])
+F_GRASS = (0, 1, 2, 3, 4, 5)          # the tile uses all six greens (counts 7/5/5/7/4/4 per 32 faces)
+F_EDGE, F_MID, F_RUT, F_SOIL = 8, 9, 10, 11
+
 HALF_W, DEPTH, BACK = 8.0, 9.0, 0.5           # 16 m wide, ~9 m beyond the hedge line, tucked 0.5 m under the hedge
 def outline():
     pts = []
@@ -135,59 +146,60 @@ def outline():
         pts.append(Vector((HALF_W * sx * j, BACK - (DEPTH + BACK) * sy * j, 0.0)))
     return pts
 OUTL = outline()
-CENTRE = Vector((0, -DEPTH * 0.42, 0))
-RINGS = 6
-TOP = 0.03                                   # grass tile tops are ~0.05; the apron sits just under the track
+
+def inside(x, y):
+    n = len(OUTL); c = False
+    for i in range(n):
+        a, b = OUTL[i], OUTL[(i + 1) % n]
+        if (a.y > y) != (b.y > y) and x < (b.x - a.x) * (y - a.y) / (b.y - a.y) + a.x:
+            c = not c
+    return c
+
+# grass: interior points on the field's 2 m grid (world-aligned: local x = Godot x, local z + 32 = Godot z), constrained
+# Delaunay with the island outline, so facets are the tile's 2 m scale and the seam at the hedge lines up.
+pts2 = [(p.x, p.y) for p in OUTL]
+heights = [0.0] * len(OUTL)                  # outline at tile-edge height
+for gx in range(-8, 9, 2):
+    for gy in range(0, -12, -2):
+        x, y = float(gx), float(gy)
+        if inside(x, y) and min((Vector((x, y, 0)) - p).length for p in OUTL) > 0.9:
+            pts2.append((x, y)); heights.append(rng.choice((0.0, 0.02, 0.03, 0.05)) if gy < 0 else 0.0)
+edges = [(i, (i + 1) % len(OUTL)) for i in range(len(OUTL))]
+vout, eout, fout, _, _, _ = delaunay_2d_cdt([Vector(p) for p in pts2], edges, [], 2, 1e-6)
+hmap = {}
+for i, v in enumerate(vout):
+    best = min(range(len(pts2)), key=lambda k: (pts2[k][0] - v.x) ** 2 + (pts2[k][1] - v.y) ** 2)
+    hmap[i] = heights[best]
 ap = Mesh("GateApron")
-rings = []
-for k in range(RINGS + 1):
-    s = 1 - k / RINGS
-    ring = []
-    for i, p in enumerate(OUTL):
-        q = CENTRE + (p - CENTRE) * s
-        if 0 < k < RINGS:
-            q += Vector((rng.uniform(-.25, .25), rng.uniform(-.25, .25), 0))
-        q.z = TOP + (rng.uniform(-0.015, 0.015) if k else 0.0)
-        ring.append(q)
-    rings.append(ring)
-for k in range(RINGS):
-    a, b = rings[k], rings[k + 1]
-    for i in range(len(OUTL) - 1):
-        for tri in ((a[i], a[i + 1], b[i + 1]), (a[i], b[i + 1], b[i])):
-            ap.tri(*[v.copy() for v in tri], rng.choice((GRASS, GRASS, GRASS_D, GRASS_L)))
-# close the back edge (along the hedge line) with a fan from the centre
-for i in (0,):
-    pass
-back_a, back_b = OUTL[0], OUTL[-1]
-for k in range(RINGS):
-    ap.tri(rings[k][-1].copy(), rings[k][0].copy(), rings[k + 1][0].copy(), GRASS_D)
-    ap.tri(rings[k][-1].copy(), rings[k + 1][0].copy(), rings[k + 1][-1].copy(), GRASS_D)
-# soil skirt with a slight inward taper so the island has a deliberate edge against the sky
+for f in fout:
+    vs = [Vector((vout[k].x, vout[k].y, hmap[k])) for k in f]
+    for k in range(1, len(vs) - 1):
+        ap.tri(vs[0].copy(), vs[k].copy(), vs[k + 1].copy(), rng.choice(F_GRASS))
+# soil skirt with a slight inward taper so the island has a deliberate edge against the sky (kept from the first cut)
 SKIRT = 0.45
+CENTRE = Vector((0, -DEPTH * 0.42, 0))
 for p, q in zip(OUTL[:-1], OUTL[1:]):
     pi = Vector((p.x * 0.97, CENTRE.y + (p.y - CENTRE.y) * 0.97, -SKIRT)); qi = Vector((q.x * 0.97, CENTRE.y + (q.y - CENTRE.y) * 0.97, -SKIRT))
-    lp = Vector((p.x, p.y, TOP - 0.06)); lq = Vector((q.x, q.y, TOP - 0.06))
-    ap.quad([Vector((p.x, p.y, TOP)), lp, lq, Vector((q.x, q.y, TOP))], GRASS_D)     # grass lip
-    ap.quad([lp, pi, qi, lq], SOIL)
-# the lane continuing out of the gate (track is 4 m wide at x = 0), ending at the island edge
+    lp = Vector((p.x, p.y, -0.06)); lq = Vector((q.x, q.y, -0.06))
+    ap.quad([Vector((p.x, p.y, 0.0)), lp, lq, Vector((q.x, q.y, 0.0))], 0)        # grass lip
+    ap.quad([lp, pi, qi, lq], F_SOIL)
+
+# the lane: the in-field track's exact cross-section (lwf_vehicle_track_straight_8x4m_v1), placed like the track
+# (base y 0.052), running from under the hedge to the island edge.
 lane = Mesh("Lane")
+PROFILE = [(-2.0, 0.03), (-1.45, 0.03), (-1.05, 0.02), (-0.72, 0.02), (0.0, 0.03), (0.72, 0.02), (1.05, 0.02), (1.45, 0.03), (2.0, 0.03)]
+BANDS = [F_EDGE, F_MID, F_RUT, F_MID, F_MID, F_RUT, F_MID, F_EDGE]
 def front_y(x):
     best = min(OUTL[1:-1], key=lambda p: abs(p.x - x)); return best.y
 LY0, LY1 = BACK, front_y(0.0) + 0.05
-steps = 8
-lrng = random.Random(4)
-def strip(x0, x1, slot_fn, z):
-    for i in range(steps):
-        y0 = LY0 + (LY1 - LY0) * i / steps; y1 = LY0 + (LY1 - LY0) * (i + 1) / steps
-        a, b_, c, d_ = Vector((x0, y0, z)), Vector((x1, y0, z)), Vector((x1, y1, z)), Vector((x0, y1, z))
-        lane.tri(a, b_, c, slot_fn()); lane.tri(a, c, d_, slot_fn())
-strip(-2.0, 2.0, lambda: LANE, 0.052)          # lane surface, like the track
-for rx in (-1.05, 0.95):                                                            # two darker wheel ruts
-    strip(rx - 0.22, rx + 0.22, lambda: LANE_D, 0.056)
-for x in (-2.0, 2.0):   # lane end lip down the skirt
-    pass
-lane.quad([Vector((-2.0, LY1, 0.052)), Vector((2.0, LY1, 0.052)), Vector((2.0, LY1 - 0.02, -SKIRT * 0.8)), Vector((-2.0, LY1 - 0.02, -SKIRT * 0.8))], LANE_D)
-objs = [ap.link([PAL]), lane.link([PAL])]
+rows = [LY0 + (LY1 - LY0) * i / 7 for i in range(8)]
+BASE = 0.052
+for y0, y1 in zip(rows, rows[1:]):
+    for (x0, h0), (x1, h1), slot in zip(PROFILE, PROFILE[1:], BANDS):
+        a, b_, c, d_ = (Vector((x0, y0, BASE + h0)), Vector((x1, y0, BASE + h1)), Vector((x1, y1, BASE + h1)), Vector((x0, y1, BASE + h0)))
+        lane.tri(a, b_, c, slot); lane.tri(a, c, d_, slot)
+lane.quad([Vector((-2.0, LY1, BASE + 0.03)), Vector((2.0, LY1, BASE + 0.03)), Vector((2.0, LY1 - 0.02, -SKIRT * 0.8)), Vector((-2.0, LY1 - 0.02, -SKIRT * 0.8))], F_MID)
+objs = [ap.link([FIELD]), lane.link([FIELD])]
 export("lwf_gate_apron_v1", objs)
 
 # ====================================================================== tier 1: the old door

@@ -10,7 +10,7 @@ Presentation only: no picking, navigation or simulation identity comes from thes
 
 | File | Tris | Nodes |
 |---|---:|---|
-| `lwf_gate_apron_v1.glb` | 510 | `GateApron`, `Lane` |
+| `lwf_gate_apron_v1.glb` | 309 | `GateApron`, `Lane` |
 | `lwf_gate_sign_tier1_v1.glb` | 64 | `GateSignTier1`, `GateSignTier1_Board`, `LetteringArea` |
 | `lwf_gate_sign_tier2_v1.glb` | 89 | `GateSignTier2`, `GateSignTier2_Board`, `Pennants`, `LetteringArea` |
 | `lwf_gate_sign_tier3_v1.glb` | 632 | `GateSignTier3`, `GateSignTier3_Board`, `Pennants`, `LetteringArea` |
@@ -30,9 +30,15 @@ Every asset shares one origin: the gate centre line, on the ground, at the hedge
 
 None of it touches the gate leaf, the track inside the farm or buildable ground.
 
+Apron revision (in-game review): the apron now uses the field/track palette itself (`tex/field_track_palette.png`,
+a copy of the grass tile's embedded palette) as `LWF_FieldTrack_MattePalette`. Its grass is a 2 m triangle grid on
+the tile's world grid, constrained to the island outline, using all six tile greens with the tile's 0–0.05 m
+height variation. The lane copies the vehicle track's exact cross-section: light edges (slot 8), mid fill (slot 9)
+and dark ruts (slot 10) at the same widths and heights. The island edge and soil skirt are unchanged.
+
 ## Materials
 
-- `LWF_GateSign_MattePalette`: a 96×8 embedded palette with **Closest** filtering and UVs at swatch centres, the same
+- Signs: `LWF_GateSign_MattePalette`, a 96×8 embedded palette with **Closest** filtering and UVs at swatch centres, the same
   approach as the other farm assets. Slots 0–5 reuse the field/track palette colours exactly (grass 0–2, lane 3–4,
   soil 5), then wood, dark wood, green paint, gold, terracotta and cream.
 - Board art (Linear filtering): `LWF_GateSign_Tier1_DoorArt`, `…Tier1_ArrowArt`, `…Tier2_BoardArt`,
