@@ -64,10 +64,10 @@ public static class ActivityChooser
     /// <summary>The needs just after an activity's relief lands.</summary>
     public static NeedLevels Relieve(ActivityKind kind, NeedLevels at) => kind switch
     {
-        ActivityKind.Water => at with { Thirst = 0, Heat = Math.Max(0, at.Heat - at.Thirst / 4) },
+        ActivityKind.Water or ActivityKind.BarWater => at with { Thirst = 0, Heat = Math.Max(0, at.Heat - at.Thirst / 4) },
         ActivityKind.Rest => at with { Heat = Math.Min(at.Heat, RestHeatTarget) },
         ActivityKind.Food => at with { Hunger = Math.Max(0, at.Hunger - FoodHungerRelief) },
-        ActivityKind.SoftDrink or ActivityKind.BarWater => at with { Thirst = Math.Max(0, at.Thirst - SoftDrinkThirstRelief) },
+        ActivityKind.SoftDrink => at with { Thirst = Math.Max(0, at.Thirst - SoftDrinkThirstRelief) },
         ActivityKind.Beer => at with { Thirst = Math.Max(0, at.Thirst - BeerThirstRelief), Toilet = Math.Min(10_000, at.Toilet + BeerToiletGain) },
         ActivityKind.Toilet => at with { Toilet = Math.Min(at.Toilet, ToiletAfterVisit) },
         _ => at

@@ -178,10 +178,12 @@ public sealed partial class GameSession
                 if (held.Product == ImmersionProduct.Beer && _preparation.Status == PreparationStatus.Running &&
                     CurrentTick % ToiletRules.BeerConsumptionExtraGainEveryTicks == 0)
                     p.ToiletNeed = Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1);
-                var effect = held.Product == ImmersionProduct.Chips ? 5500 : held.Product is ImmersionProduct.SoftDrink or ImmersionProduct.Water ? 6000 : 1500;
+                // A free cup of water quenches thirst fully and cools a little, as a tap does.
+                var effect = held.Product switch { ImmersionProduct.Chips => 5500, ImmersionProduct.SoftDrink => 6000, ImmersionProduct.Water => 10_000, _ => 1500 };
                 var delta = elapsed*effect/duration-held.ConsumedTicks*effect/duration;
                 if (held.Product == ImmersionProduct.Chips) { p.Hunger = Math.Max(0,p.Hunger-delta); p.FoodProtectionTicks = 4800; }
-                else if (InView(PersonView.Medical, p.Id)) MutatePerson(p.Id, n => n.Thirst = Math.Max(0,n.Thirst-delta));
+                else if (InView(PersonView.Medical, p.Id)) MutatePerson(p.Id, n => { n.Thirst = Math.Max(0,n.Thirst-delta);
+                    if (held.Product == ImmersionProduct.Water) n.HeatExposure = Math.Max(0, n.HeatExposure - delta / 4); });
                 else p.StaffThirst = Math.Max(0,p.StaffThirst-delta);
                 if (held.Product == ImmersionProduct.Beer) p.PendingDose = p.PendingDose + elapsed*2400/duration-held.ConsumedTicks*2400/duration;
                 var enjoyment = held.Product switch { ImmersionProduct.Chips => 100, ImmersionProduct.SoftDrink => 75, ImmersionProduct.Water => 0, _ => 150*p.BeerTaste/100 };
