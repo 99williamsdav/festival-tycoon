@@ -1,0 +1,92 @@
+{
+ "placement": "Place every asset root at Godot (0, 0, 32), no rotation. Local +Z points down the lane away from the farm.",
+ "lettering_areas": {
+  "tier1": {
+   "LetteringArea": {
+    "node": "LetteringArea",
+    "centre_godot_local": [
+     -5.3974,
+     1.15,
+     2.6042
+    ],
+    "size_m": [
+     2.2,
+     0.78
+    ],
+    "facing_godot": [
+     0.5299,
+     0.0,
+     0.848
+    ],
+    "text_right_godot": [
+     0.846,
+     0.0698,
+     -0.5286
+    ],
+    "up_godot": [
+     -0.0592,
+     0.9976,
+     0.037
+    ]
+   }
+  },
+  "tier2": {
+   "LetteringArea": {
+    "node": "LetteringArea",
+    "centre_godot_local": [
+     -5.1345,
+     1.65,
+     2.44
+    ],
+    "size_m": [
+     2.48,
+     0.78
+    ],
+    "facing_godot": [
+     0.5299,
+     0.0,
+     0.848
+    ],
+    "text_right_godot": [
+     0.848,
+     0.0,
+     -0.5299
+    ],
+    "up_godot": [
+     0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  },
+  "tier3": {
+   "LetteringArea": {
+    "node": "LetteringArea",
+    "centre_godot_local": [
+     0.0,
+     4.15,
+     3.385
+    ],
+    "size_m": [
+     4.0,
+     1.15
+    ],
+    "facing_godot": [
+     0.0,
+     0.0,
+     1.0
+    ],
+    "text_right_godot": [
+     1.0,
+     0.0,
+     -0.0
+    ],
+    "up_godot": [
+     0.0,
+     1.0,
+     -0.0
+    ]
+   }
+  }
+ }
+}

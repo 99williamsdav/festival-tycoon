@@ -73,6 +73,7 @@ public partial class Main : Node, IHudHost
         _rig.Process(delta);
         ProcessDayCycle(delta);
         ProcessGround(delta);
+        ProcessGateSign(delta);
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
         AdvancePreparationPresentation(delta);
@@ -149,6 +150,7 @@ public partial class Main : Node, IHudHost
         BuildGrass();
         BuildTrack();
         BuildHedgeBoundary();
+        BuildGateApron();
         BuildDayCycle(environment, sun);
         foreach (var item in LowerWitteringFarmScenario.CreateReadModel().Objects)
             if (item.Kind != FarmObjectKind.ServicePoint) AddFarmObject(item);
