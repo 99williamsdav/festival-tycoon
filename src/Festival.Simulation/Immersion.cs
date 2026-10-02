@@ -113,9 +113,11 @@ public sealed partial class GameSession
         foreach (var person in PeopleIn(PersonView.Roster).Where(person=>!InView(PersonView.Consumption, person.Id)).ToArray()) { var p=NewImmersionPerson(CampaignSeed,person.ToEditionPerson()); _wallets[new(p.AgentId)].CashPennies=p.OpeningBudgetPennies; ImmersionView=ImmersionView! with { People=ImmersionView.People.Append(p).OrderBy(n=>n.AgentId).ToArray() }; }
         if(_medical is not null) foreach(var person in PeopleIn(PersonView.Roster).Where(p=>!InView(PersonView.Medical, p.Id)).ToArray()) MedicalView=MedicalView! with { Needs=MedicalView.Needs.Append(new MedicalNeed(person.Id,3000,2500,MedicalIntent.WatchShow,"Idle staff: food, soft drinks and free water available",-MedicalDecisionCooldownTicks,null,-1,MedicalNeedProfile.Staff)).OrderBy(n=>n.AgentId).ToArray() };
     }
-    private bool ImmersionShoppingEligible(ulong id) => _preparation?.Status == PreparationStatus.Running && ImmersionHandsAvailable(id) && !IsCurrentProgrammePerformer(id) &&
+    // Free water is the emergency measure, so the thirsty and overheated are exactly who may queue for it.
+    private bool ImmersionShoppingEligible(ulong id, ImmersionProduct? product = null) => _preparation?.Status == PreparationStatus.Running && ImmersionHandsAvailable(id) && !IsCurrentProgrammePerformer(id) &&
         !ToiletOwnsNavigation(id) &&
-        (PersonIn(PersonView.Medical, id) is null or { Intent: MedicalIntent.WatchShow, Thirst: < MedicalDistressThirst, HeatExposure: < MedicalDistressHeat });
+        (PersonIn(PersonView.Medical, id) is null or { Intent: MedicalIntent.WatchShow, Thirst: < MedicalDistressThirst, HeatExposure: < MedicalDistressHeat } ||
+         product == ImmersionProduct.Water && PersonIn(PersonView.Medical, id) is { Intent: MedicalIntent.WatchShow or MedicalIntent.SeekWater });
     // The same read-only eligibility drives ingestion and its presentation. Pause
     // freezes the tick scheduler, not this predicate, so a paused sip stays a sip.
     public bool ImmersionConsumptionEligible(ulong id) => MedicalOperationsActive &&
@@ -138,7 +140,9 @@ public sealed partial class GameSession
     // Free water is from the tap behind the bar: no stock to run out of, and only while it is on.
     private int ImmersionStock(ImmersionProduct product) => product switch { ImmersionProduct.Chips => _immersion!.ChipsStock, ImmersionProduct.SoftDrink => _immersion!.SoftStock,
         ImmersionProduct.Water => _immersion!.FreeWater ? int.MaxValue : 0, _ => _immersion!.BeerStock };
-    private bool ImmersionOrderEligible(Person p, ImmersionProduct product) => p.Held is null && ImmersionShoppingEligible(p.Id) && ImmersionStock(product) > 0 &&
+    // Switching free water off stops new cups, but anyone already queuing for one is still served.
+    private bool ImmersionOrderEligible(Person p, ImmersionProduct product) => p.Held is null && ImmersionShoppingEligible(p.Id, product) &&
+        (ImmersionStock(product) > 0 || product == ImmersionProduct.Water && p.VendorId is not null && p.Order == ImmersionProduct.Water) &&
         _wallets[new(p.Id)].CashPennies >= ImmersionPriceFor(p.Id, product) && (product != ImmersionProduct.Beer || BeerAllowed(p));
     private void LeaveImmersionQueue(ulong id, bool reroute)
     {
@@ -182,8 +186,9 @@ public sealed partial class GameSession
                 var effect = held.Product switch { ImmersionProduct.Chips => 5500, ImmersionProduct.SoftDrink => 6000, ImmersionProduct.Water => 10_000, _ => 1500 };
                 var delta = elapsed*effect/duration-held.ConsumedTicks*effect/duration;
                 if (held.Product == ImmersionProduct.Chips) { p.Hunger = Math.Max(0,p.Hunger-delta); p.FoodProtectionTicks = 4800; }
-                else if (InView(PersonView.Medical, p.Id)) MutatePerson(p.Id, n => { n.Thirst = Math.Max(0,n.Thirst-delta);
-                    if (held.Product == ImmersionProduct.Water) n.HeatExposure = Math.Max(0, n.HeatExposure - delta / 4); });
+                // Heat falls with the thirst actually relieved, as at a tap and as the activity chooser projects.
+                else if (InView(PersonView.Medical, p.Id)) MutatePerson(p.Id, n => { var removed = Math.Min(delta, n.Thirst); n.Thirst -= removed;
+                    if (held.Product == ImmersionProduct.Water) n.HeatExposure = Math.Max(0, n.HeatExposure - removed / 4); });
                 else p.StaffThirst = Math.Max(0,p.StaffThirst-delta);
                 if (held.Product == ImmersionProduct.Beer) p.PendingDose = p.PendingDose + elapsed*2400/duration-held.ConsumedTicks*2400/duration;
                 var enjoyment = held.Product switch { ImmersionProduct.Chips => 100, ImmersionProduct.SoftDrink => 75, ImmersionProduct.Water => 0, _ => 150*p.BeerTaste/100 };

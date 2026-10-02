@@ -283,7 +283,7 @@ public sealed partial class GameSession
     private bool ActivityPurchaseEligible(Person person, ImmersionProduct product) =>
         // The vendor's own rule, less what abandoning the current activity would clear.
         person.Held is null && person.VendorId is null && person.Intent is MedicalIntent.WatchShow or MedicalIntent.SeekWater &&
-        person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat && !IsCurrentProgrammePerformer(person.Id) &&
+        (product == ImmersionProduct.Water || person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat) && !IsCurrentProgrammePerformer(person.Id) &&
         ImmersionHandsAvailable(person.Id) && ImmersionStock(product) > 0 &&
         _wallets[new(person.Id)].CashPennies >= ImmersionPriceFor(person.Id, product) &&
         (product != ImmersionProduct.Beer || BeerAllowed(person));
