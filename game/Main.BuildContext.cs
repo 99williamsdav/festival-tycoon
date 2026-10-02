@@ -24,11 +24,18 @@ public partial class Main
         if (Mathf.Abs(ray.Y) < .001f || -origin.Y / ray.Y <= 0) return null;
         var placements = _session.CaptureBuildPlacements();
         var footprints = placements.Select(item => (Item: item, Cells: GameSession.BuildFootprint(item).ToHashSet())).ToArray();
+        // A low thing only counts once the ray has come down to its height, so a bin in front of a toilet doesn't
+        // steal a click aimed at the toilet's door.
+        static float Tall(BuildServiceKind kind) => kind switch
+        {
+            BuildServiceKind.Bin => 1.0f, BuildServiceKind.WaterTap => 1.3f, BuildServiceKind.StewardPost => 2.0f,
+            BuildServiceKind.FoodVan => 3.0f, _ => 2.6f,
+        };
         for (var height = 3.0f; height >= 0; height -= 0.25f)
         {
             var point = origin + ray * ((height - origin.Y) / ray.Y);
             var cell = TraversalGrid.WorldToCell(Mathf.RoundToInt(point.X * 1000), Mathf.RoundToInt(point.Z * 1000));
-            if (footprints.FirstOrDefault(pair => pair.Cells.Contains(cell)).Item is { } hit) return hit;
+            if (footprints.FirstOrDefault(pair => height <= Tall(pair.Item.Kind) && pair.Cells.Contains(cell)).Item is { } hit) return hit;
         }
         var ground = origin + ray * (-origin.Y / ray.Y);
         return placements
