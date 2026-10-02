@@ -64,6 +64,7 @@ public partial class Main
         for (var x = 0; x < n; x++)
             raw[z * n + x] = _session.GroundWearAt(new GridCell(first + x, first + z));
         var across = new float[n * n];
+        var pixels = new byte[n * n];
         for (var z = 0; z < n; z++)
         for (var x = 0; x < n; x++)
         {
@@ -76,9 +77,9 @@ public partial class Main
         {
             float sum = 0;
             for (var k = -3; k <= 3; k++) sum += kernel[k + 3] * across[Math.Clamp(z + k, 0, n - 1) * n + x];
-            var wear = Mathf.Sqrt(Math.Min(1f, sum / total / GroundRules.BareEarthWear));
-            _groundImage.SetPixel(x, z, new Color(wear, wear, wear));
+            pixels[z * n + x] = (byte)Mathf.RoundToInt(255 * Mathf.Sqrt(Math.Min(1f, sum / total / GroundRules.BareEarthWear)));
         }
+        _groundImage.SetData(n, n, false, Image.Format.L8, pixels);
         _groundTexture.Update(_groundImage);
     }
 

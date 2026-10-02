@@ -38,6 +38,30 @@ public sealed class GroundTests
     }
 
     [TestMethod]
+    public void NobodyWaitingOutsideOrGoneHomeWearsTheGateway()
+    {
+        var s = Started();
+        GridCell Cell(ulong id) { var a = s.CaptureSnapshot().NavigationAgents.Single(x => x.Id.Value == id); return TraversalGrid.WorldToCell(a.XMillimetres, a.ZMillimetres); }
+        var waiting = s.CapturePreparation()!.People.First(p => s.GuestWaitingForRelease(p.AgentId)).AgentId;
+        var held = Cell(waiting);
+        var before = s.GroundWearAt(held);
+        for (var guard = 0; guard < 20 && s.GuestWaitingForRelease(waiting); guard++) s.AdvanceWithoutSnapshot(40);
+        Assert.IsTrue(s.GroundWearAt(held) - before <= 2, "A guest held at the gate doesn't wear their spot while they wait.");
+        for (var guard = 0; guard < 2_000 && s.PreparedStatus != PreparationStatus.Departing; guard++) s.AdvanceWithoutSnapshot(40);
+        ulong? home = null;
+        for (var guard = 0; guard < 2_000 && home is null && s.PreparedStatus == PreparationStatus.Departing; guard++)
+        {
+            s.AdvanceWithoutSnapshot(40);
+            home = s.CapturePreparation()!.People.FirstOrDefault(p => p.Departed)?.AgentId;
+        }
+        Assert.IsNotNull(home, "Someone has gone home while others are still leaving.");
+        var spot = Cell(home.Value);
+        var parked = s.GroundWearAt(spot);
+        for (var i = 0; i < 10 && s.PreparedStatus == PreparationStatus.Departing; i++) s.AdvanceWithoutSnapshot(40);
+        Assert.IsTrue(s.GroundWearAt(spot) - parked <= 2, "Someone gone home no longer wears the ground where they left.");
+    }
+
+    [TestMethod]
     public void ARetriedWeekendStartsOnFreshGrass()
     {
         var s = Started();

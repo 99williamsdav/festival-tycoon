@@ -30,16 +30,28 @@ public sealed partial class GameSession
     /// <summary>Rises whenever any cell's wear changes, so a view can tell when to redraw.</summary>
     public long GroundVersion { get; private set; }
 
-    public GroundSnapshot? CaptureGround()
+    // The snapshot is hashed with every state snapshot but changes only every 40 ticks, so it is kept until it does.
+    private (long Version, GroundSnapshot Snapshot, string Json)? _groundCapture;
+
+    public GroundSnapshot? CaptureGround() => CachedGround()?.Snapshot;
+
+    internal string? GroundCanonicalJson => CachedGround()?.Json;
+
+    private (long Version, GroundSnapshot Snapshot, string Json)? CachedGround()
     {
         if (_groundWear is not { } wear) return null;
+        if (_groundCapture is { } cached && cached.Version == GroundVersion) return cached;
         var cells = new List<int>(); var amounts = new List<int>();
-        for (var i = 0; i < wear.Length; i++)
-            if (wear[i] > 0) { cells.Add(i); amounts.Add(wear[i]); }
-        return new(1, cells.ToArray(), amounts.ToArray());
+        for (var z = GroundRules.FieldFirstCell; z <= GroundRules.FieldLastCell; z++)
+        for (var x = GroundRules.FieldFirstCell; x <= GroundRules.FieldLastCell; x++)
+        {
+            var index = z * TraversalGrid.Width + x;
+            if (wear[index] > 0) { cells.Add(index); amounts.Add(wear[index]); }
+        }
+        var snapshot = new GroundSnapshot(1, cells.ToArray(), amounts.ToArray());
+        _groundCapture = (GroundVersion, snapshot, JsonSerializer.Serialize(snapshot));
+        return _groundCapture;
     }
-
-    internal string? GroundCanonicalJson => CaptureGround() is { } ground ? JsonSerializer.Serialize(ground) : null;
 
     /// <summary>How worn a cell is, 0 for fresh grass up to <see cref="GroundRules.MaximumWear"/>.</summary>
     public int GroundWearAt(GridCell cell) => _groundWear is { } wear && GroundRules.InField(cell) ? wear[cell.Z * TraversalGrid.Width + cell.X] : 0;
@@ -69,6 +81,9 @@ public sealed partial class GameSession
         var changed = false;
         foreach (var agent in _navigationAgents.Values)
         {
+            // Only feet actually on the field: not those still waiting outside to be let in, nor anyone gone home.
+            if (PersonIn(PersonView.Roster, agent.Id.Value) is { } person &&
+                (person.Departed || !person.Admitted && agent.Destination is null)) continue;
             var cell = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
             if (!GroundRules.InField(cell)) continue;
             ref var amount = ref wear[cell.Z * TraversalGrid.Width + cell.X];
