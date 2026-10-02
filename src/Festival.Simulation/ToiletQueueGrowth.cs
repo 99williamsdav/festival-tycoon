@@ -18,8 +18,9 @@ public sealed partial class GameSession
 
     /// <summary>
     /// Each toilet's queue grows a place at a time from its doorstep into free ground, for those queuing and those on
-    /// their way plus one more, as the taps' and stalls' queues do. Grown places never move; a queue with no room
-    /// left stops growing, and nobody else picks that toilet until it shortens.
+    /// their way plus one more, as the taps' and stalls' queues do. Grown places never move while in use, but the tail
+    /// is trimmed as the queue shortens and may regrow elsewhere if another queue took that ground meanwhile. A queue
+    /// with no room left stops growing, and nobody else picks that toilet until it shortens.
     /// </summary>
     private void GrowToiletQueues()
     {

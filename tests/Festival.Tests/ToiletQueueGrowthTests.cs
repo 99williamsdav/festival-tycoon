@@ -23,6 +23,30 @@ public sealed class ToiletQueueGrowthTests
     }
 
     [TestMethod]
+    public void NobodyNewPicksAToiletWhoseQueueHasNoRoomToGrow()
+    {
+        var s = WithoutFaults(Started());
+        s.AdvanceWithoutSnapshot(2_000);
+        var guests = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed)
+            .Select(p => p.AgentId).Where(id => s.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletStage == ToiletVisitStage.None).Take(3).ToArray();
+        Assert.AreEqual(3, guests.Length);
+        var toilet = s.CaptureToilets().First();
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var mutate = typeof(GameSession).GetMethod("MutatePerson", flags)!;
+        // One already queuing, one on the way, and a queue boxed in after two places.
+        mutate.Invoke(s, [guests[0], (Action<Person>)(p => { p.ToiletStage = ToiletVisitStage.Queued; p.ToiletId = toilet.Id; p.ToiletChoice = ToiletVisitKind.Wee; })]);
+        mutate.Invoke(s, [guests[1], (Action<Person>)(p => { p.ToiletStage = ToiletVisitStage.Approaching; p.ToiletId = toilet.Id; p.ToiletChoice = ToiletVisitKind.Wee; })]);
+        var doorstep = GameSession.ToiletQueueCell(toilet, 0);
+        var second = GameSession.ToiletQueueCell(toilet with { QueueCells = null }, 1);
+        int Ticks(ToiletFacility t) => (int)typeof(GameSession).GetMethod("LightToiletTicks", flags)!
+            .Invoke(s, [guests[2], ToiletVisitKind.Wee, t, doorstep, true])!;
+        var boxedIn = toilet with { Queue = [guests[0]], QueueCells = [doorstep, second] };
+        Assert.AreEqual(int.MaxValue, Ticks(boxedIn), "Two places, both spoken for: no room for a third.");
+        var roomy = boxedIn with { QueueCells = [doorstep, second, second with { X = second.X + 2 }] };
+        Assert.AreNotEqual(int.MaxValue, Ticks(roomy), "With a spare place it can be chosen.");
+    }
+
+    [TestMethod]
     public void AToiletQueueGrowsFromItsDoorstepAsPeopleArriveAndSurvivesASave()
     {
         var s = Started();

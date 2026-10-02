@@ -332,7 +332,8 @@ public sealed partial class GameSession
         { ToiletVisitStage.Using => toilet.ServiceTicks, ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 } + FaultDelayTicks(toilet.Id);
         var candidate = new QueuedServiceChoice.Candidate(toilet.Id, EstimateWalkTicks(id, here, destination), ToiletServiceDuration(kind),
             !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind),
-            position >= 0 || !fresh && _persons[id].ToiletId == toilet.Id || toilet.Queue.Length < ToiletRules.MaximumQueue,
+            position >= 0 || !fresh && _persons[id].ToiletId == toilet.Id ||
+                toilet.Queue.Length < ToiletRules.MaximumQueue && ToiletQueueHasRoom(toilet, id),
             toilet.Queue.Select(member => new QueuedServiceChoice.Member(member, ToiletServiceDuration(_persons[member].ToiletChoice))).ToArray(),
             toilet.OwnerId, ownerRemaining, []);
         return QueuedServiceChoice.EstimateTicks(id, candidate);
