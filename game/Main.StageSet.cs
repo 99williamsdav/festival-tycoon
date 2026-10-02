@@ -28,12 +28,14 @@ public partial class Main
         if (_stageSetSync > 0 || _session is null) return;
         _stageSetSync = .5;
         if (!_visualRegistry.TryGetValue("farm.trailer-stage", out var stage)) return;
+        // A day stopped by a death stays as found: the band that was playing keeps its kit up.
+        if (_session.PreparedStatus == PreparationStatus.Failed && _stageSet is not null && IsInstanceValid(_stageSet)) return;
         var live = _session.CaptureLivePerformance();
         var onStage = live?.Stage is LiveSetStage.Live or LiveSetStage.Interrupted;
         var act = onStage ? _session.CurrentFestivalAct : _session.UpcomingFestivalAct ?? _session.CurrentFestivalAct;
         // Once the day is over the last band's things stay where they were left.
         if (act is null && _session.PreparedStatus is PreparationStatus.Departing or PreparationStatus.Finished) return;
-        if (act?.Id == _stageSetActId) return;
+        if (act?.Id == _stageSetActId && (act is null || _stageSet is not null && IsInstanceValid(_stageSet))) return;
         _stageSetActId = act?.Id;
         _stageSet?.QueueFree();
         _stageSet = null;
