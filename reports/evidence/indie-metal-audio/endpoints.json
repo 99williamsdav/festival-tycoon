@@ -1,0 +1,14 @@
+[
+  {
+    "file": "indie_loop_v1.wav",
+    "firstStereoFrameZero": true,
+    "finalStereoFrameZero": true,
+    "bytes": 3024044
+  },
+  {
+    "file": "metal_loop_v1.wav",
+    "firstStereoFrameZero": true,
+    "finalStereoFrameZero": true,
+    "bytes": 2288476
+  }
+]

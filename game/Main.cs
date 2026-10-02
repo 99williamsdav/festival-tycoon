@@ -43,7 +43,7 @@ public partial class Main : Node, IHudHost
         ConfigureCommandLine();
         _host = new SessionHost(_preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
-            _litterEvidenceOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility);
+            _litterEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility);
         BuildWorld();
         if (DisplayServer.GetName() != "headless")
             DisplayServer.SetIcon(GD.Load<Texture2D>("res://assets/branding/festival-tycoon-stage-sun-icon-v3.png").GetImage());
@@ -64,10 +64,12 @@ public partial class Main : Node, IHudHost
         GD.Print($"FARM_SCENE_READY scenario={LowerWitteringFarmScenario.ScenarioId} objects={_visualRegistry.Count} hash={_session.CaptureSnapshot().AuthoritativeHash}");
         if (OS.GetCmdlineUserArgs().Length == 0)
             GD.Print($"INITIAL_BUILD_CAMPAIGN id={_session.CampaignId.Value} seed={_session.CampaignSeed}");
+        if (_genreAudioVerificationOutput is not null) VerifyGenreAudio();
     }
 
     public override void _Process(double delta)
     {
+        if (_genreAudioVerificationOutput is not null) return;
         _rig.Process(delta);
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
@@ -469,6 +471,7 @@ public partial class Main : Node, IHudHost
                 if (i + 1 < args.Length && int.TryParse(args[i + 1], out var seconds)) { _profileSeconds = seconds; i++; }
             }
             else if (args[i] == "--capture-litter" && i + 1 < args.Length) _litterEvidenceOutput = args[++i];
+            else if (args[i] == "--verify-genre-audio" && i + 1 < args.Length) _genreAudioVerificationOutput = args[++i];
             else if (args[i] == "--capture-steward-cleanup" && i + 1 < args.Length)
                 _litterEvidenceOutput = _cleanupEvidenceOutput = args[++i];
             else if (args[i] == "--capture-size" && i + 1 < args.Length)

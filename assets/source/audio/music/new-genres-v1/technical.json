@@ -1,0 +1,29 @@
+{
+  "provenance": "Original procedural synthesis; no external samples or artist imitation; temporary live-set instrumentals.",
+  "files": [
+    {
+      "file": "indie_loop_v1.wav",
+      "bpm": 112,
+      "bars": 16,
+      "seconds": 34.285714285714285,
+      "sampleRate": 22050,
+      "channels": 2,
+      "bits": 16,
+      "peakDbfs": -6.509285941534108,
+      "rmsDbfs": -19.247904691385916,
+      "sha256": "ac95fb1016a7c5fea95da0dfb3a9c8a80122ba6fde4c187ece3d1ed3719a528a"
+    },
+    {
+      "file": "metal_loop_v1.wav",
+      "bpm": 148,
+      "bars": 16,
+      "seconds": 25.9459410430839,
+      "sampleRate": 22050,
+      "channels": 2,
+      "bits": 16,
+      "peakDbfs": -6.569069037958677,
+      "rmsDbfs": -18.42776787999756,
+      "sha256": "dfd78c1e5590878d7d0e3cc41a90640ea78c73e40570233e35e07fc02b3e8bee"
+    }
+  ]
+}

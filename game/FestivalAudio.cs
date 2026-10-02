@@ -13,7 +13,6 @@ namespace Festival.Game;
 /// </summary>
 internal sealed class FestivalAudio(Node _parent)
 {
-    private const bool RockAudioApproved = true;
     private AudioStreamPlayer? _stageMusic;
     private AudioStreamPlayer? _crowdBoo;
     private AudioStreamPlayer? _crowdCheer;
@@ -199,12 +198,10 @@ internal sealed class FestivalAudio(Node _parent)
             if (audible)
             {
                 var genre = session.CurrentFestivalAct?.Genre ?? (session.CapturePreparation()!.AcceptedOffers.Contains("act.punk") ? 1 : 0);
-                var path = genre switch { 1 => session.CaptureProgramme() is null ? "res://assets/audio/punk_loop_v1.wav" : "res://assets/audio/rock_loop_v2.wav", 2 => "res://assets/audio/pop_loop_v1.wav",
-                    4 => "res://assets/audio/punk_loop_v1.wav", 5 => "res://assets/audio/rock_loop_v2.wav",
+                var path = genre switch { 1 => session.CaptureProgramme() is null ? "res://assets/audio/punk_loop_v1.wav" : "res://assets/audio/indie_loop_v1.wav", 2 => "res://assets/audio/pop_loop_v1.wav",
+                    4 => "res://assets/audio/punk_loop_v1.wav", 5 => "res://assets/audio/metal_loop_v1.wav",
                     3 => "res://assets/audio/electronic_loop_v1.wav", _ => "res://assets/audio/folk_loop_v1.wav" };
-                // Exact genre assets are integrated only after their approval gate.
-                var approved = session.CaptureProgramme() is null || genre != 1 || RockAudioApproved;
-                _stageMusic!.Stream = approved && ResourceLoader.Exists(path) ? GD.Load<AudioStream>(path) : null;
+                _stageMusic!.Stream = ResourceLoader.Exists(path) ? GD.Load<AudioStream>(path) : null;
                 if (_stageMusic.Stream is not null) _stageMusic.Play();
             }
             else _stageMusic!.Stop();

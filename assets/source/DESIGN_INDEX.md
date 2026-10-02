@@ -20,6 +20,8 @@ The user's [working agreement](../../docs/WORKING-AGREEMENTS.md) records that ap
 
 ## Characters, services, environment and sound
 
+Indie and Metal basic live-set placeholders are integrated in [2 October audio result](../../briefs/results/R0.05-indie-metal-audio.md). [Original procedural source/metadata](audio/music/new-genres-v1/) are preserved; runtime and game WAVs match producer hashes. These two programme genres now have distinct tracks, with native/exported loop and pause/changeover checks. Existing Folk, Pop, Electronic, Punk and legacy routes remain unchanged; Rock v2 is retained as historical audio provenance.
+
 Approved cleanup concept and frozen picker/bag/fitted body production are integrated in [R0.05ai](../../briefs/results/R0.05ai-steward-cleanup-presentation.md): [concept](characters/steward-cleanup-concepts-v1/) and [production handoff](characters/steward-cleanup-assets-v1/HANDOFF.txt). Both body variants use the existing pickup action clock; role body painting excludes the fitted vest. Runtime hashes match the frozen manifest. Native and exported 720p/1080p lifecycle/contact evidence and a short pickup clip are recorded in the result.
 
 Approved 1 October 2026 and integrated in [R0.05ah](../../briefs/R0.05ah-litter-bins.md): [slatted bin concept](environment/bin-concepts-v3-slatted/) and [source/handoff](environment/bin-slatted-asset-v1/HANDOFF.txt); [litter/wasp board](environment/litter-wasp-concepts-v1/) and [source/handoff](environment/litter-assets-v1/HANDOFF.txt). Both source packages preserve Blender sources, palette, manifest, verification, runtime exports and native proof/review files. Runtime GLBs under `game/assets/environment/` match delivered originals by SHA-256. Stings and lidded upgrades are deferred.
