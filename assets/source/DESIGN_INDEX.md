@@ -8,7 +8,9 @@ The user's [working agreement](../../docs/WORKING-AGREEMENTS.md) records that ap
 
 ## Current UI and presentation designs
 
-Perk mosaic batch 2 adds six existing-catalogue artworks under user-requested integration and producer authorization on 3 October 2026: [full source/reviews](perks/mosaic-suite-batch2/) and [integration result](../../briefs/results/perk-mosaic-batch2.md). The active suite-v1 manifest now indexes fourteen cards while preserving the original eight. Separate user aesthetic approval for this new batch is not claimed; no gameplay or layout changes accompany the assets.
+Perk mosaic batch 2 adds six existing-catalogue artworks under user-requested integration and producer authorization on 3 October 2026: [full source/reviews](perks/mosaic-suite-batch2/) and [integration result](../../briefs/results/perk-mosaic-batch2.md). The active suite-v1 manifest now indexes fourteen cards while preserving the original eight. Initial integration did not claim separate user aesthetic approval; subsequent feedback is recorded below. No gameplay or layout changes accompany the assets.
+
+Batch 2 revision: user approved Beer Festival, Bring Your Own Bottle and Alcoholics; requested Friendly Queues smileys and clipboard-free Robot Workers are integrated. The new Cola Fiends candidate remains source/review only pending selection, with canonical runtime unchanged. [Revision scope](perks/mosaic-suite-batch2/revisions-v2/INTEGRATION.md).
 
 | Design / repo copy | Current status | Implementation / supersession |
 | --- | --- | --- |

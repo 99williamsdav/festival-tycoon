@@ -1,5 +1,15 @@
 # Perk mosaic batch 2 integration
 
+## Requested revision 2 — 3 October 2026
+
+Updated only Friendly Queues and Robot Workers runtime PNGs: smileys replace the dots; the robot clipboard is removed. Corresponding active manifest subjects/hashes and both SVG fallbacks now match. Other twelve PNGs/card entries, including canonical Cola Fiends, were checked unchanged. User approval of Beer Festival, Bring Your Own Bottle and Alcoholics is recorded in the manifest; the edited two are recorded as requested revisions, not a new user aesthetic endorsement.
+
+Friendly Queues SHA-256: `a6544f7969a585aeb57247da5c8254af1a856ebce9000b65195330854e31a442`. Robot Workers: `1d7b85257f06ff413f7a3df5265bfac387696a0ebb26e02d2a0def0068bebf9e`.
+
+Full source/review package refreshed, including [revision prompts, originals and integration scope](../../assets/source/perks/mosaic-suite-batch2/revisions-v2/INTEGRATION.md). Two old SVGs are archived alongside original PNGs; only their canonical repo placeholders were edited. The new Cola Fiends image is source preview only, pending user selection, and was not copied into game assets or its active card entry.
+
+Fourteen focused artwork/catalogue/perk tests pass again; native Godot loads all fourteen PNG and SVG resources. All eighteen regenerated review previews retain exact dimensions. [Revision evidence](../../reports/evidence/perk-mosaic-batch2/revision2/). No gameplay/layout or EXE change. The original integration record below remains historical.
+
 3 October 2026. User-requested asset integration authorized by the producer. Added existing-catalogue artwork for Beer Festival, Friendly Queues, Bring Your Own Bottle, Cola Fiends, Alcoholics and Robot Workers. No new images were generated during integration. No separate user aesthetic-approval claim is made.
 
 ## Files and provenance
