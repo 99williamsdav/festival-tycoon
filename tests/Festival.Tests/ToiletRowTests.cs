@@ -21,12 +21,23 @@ public sealed class ToiletRowTests
         foreach (var hire in Crew(s)) Accept(s, hire);
         Accept(s, new StartPreparedEditionCommand());
         var used = new HashSet<string>();
+        var longest = new Dictionary<string, int>();
+        var mutate = typeof(GameSession).GetMethod("MutatePerson", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
         for (var k = 0; k < 30; k++)
         {
             s.AdvanceWithoutSnapshot(800);
-            foreach (var toilet in s.CaptureToilets()) if (toilet.OwnerId is not null) used.Add(toilet.Id);
+            // A rush on the loos, so both rows of queue have to grow.
+            if (k == 4)
+                foreach (var guest in s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted))
+                    mutate.Invoke(s, [guest.AgentId, (Action<Person>)(p => p.ToiletNeed = 9_000)]);
+            foreach (var toilet in s.CaptureToilets())
+            {
+                if (toilet.OwnerId is not null) used.Add(toilet.Id);
+                longest[toilet.Id] = Math.Max(longest.GetValueOrDefault(toilet.Id), toilet.QueueCells?.Length ?? 0);
+            }
         }
         Assert.AreEqual(2, used.Count, "Both loos in the row are used.");
+        Assert.IsTrue(longest.Values.All(length => length >= 3), $"Both queues grow: {string.Join(", ", longest)}.");
         var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
     }

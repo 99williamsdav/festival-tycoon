@@ -114,7 +114,9 @@ public sealed partial class GameSession
     /// </summary>
     public static GridCell[] ToiletAccessCells(ToiletFacility toilet)
     {
-        var cells = new List<GridCell>();
+        // The doorway itself, between the cubicle's side walls, then the open ground in front.
+        var door = RotateWaterOffset(new(0, -1), toilet.QuarterTurns);
+        var cells = new List<GridCell> { new(toilet.Cell.X + door.X, toilet.Cell.Z + door.Z) };
         for (var x = -1; x <= 4; x++)
             for (var z = -5; z <= -2; z++)
             {

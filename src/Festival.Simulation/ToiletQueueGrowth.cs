@@ -5,9 +5,12 @@ public sealed partial class GameSession
     /// <summary>A toilet's grown queue places, or the doorstep alone for older saves.</summary>
     private static GridCell[] ToiletQueuePlaces(ToiletFacility toilet) => toilet.QueueCells ?? [ToiletDoorstepCell(toilet)];
 
-    /// <summary>Every toilet's footprint and its grown queue, which other queues keep clear of.</summary>
-    private GridCell[] ToiletQueueCorridor(string? except = null) => EffectiveToilets(_facilities).Where(toilet => toilet.Id != except)
-        .SelectMany(toilet => ToiletReservedCells(toilet).Concat(LooseQueueGeometry.Corridor(ToiletQueuePlaces(toilet)))).ToArray();
+    /// <summary>
+    /// Every toilet's footprint and its grown queue, which other queues keep clear of. Another toilet's queue only
+    /// avoids the cubicles: the walkway in front of a row of loos is shared, and the next door's doorstep is on it.
+    /// </summary>
+    private GridCell[] ToiletQueueCorridor(string? except = null, bool cubiclesOnly = false) => EffectiveToilets(_facilities).Where(toilet => toilet.Id != except)
+        .SelectMany(toilet => (cubiclesOnly ? ToiletSolidCells(toilet) : ToiletReservedCells(toilet)).Concat(LooseQueueGeometry.Corridor(ToiletQueuePlaces(toilet)))).ToArray();
 
     private int ToiletApproachers(string toiletId, ulong? except = null) => PeopleIn(PersonView.Consumption)
         .Count(person => person.Id != except && person.ToiletId == toiletId && person.ToiletStage == ToiletVisitStage.Approaching);
@@ -33,7 +36,7 @@ public sealed partial class GameSession
             {
                 var reserved = WaterPoints().SelectMany(point => LooseQueueGeometry.Corridor(CaptureWaterQueueCells(point.Id)))
                     .Concat(_immersion is null ? [] : Vendors.SelectMany(vendor => LooseQueueGeometry.Corridor(VendorQueueCells(vendor))))
-                    .Concat(ToiletQueueCorridor(toilet.Id)).ToArray();
+                    .Concat(ToiletQueueCorridor(toilet.Id, cubiclesOnly: true)).ToArray();
                 var outward = RotateWaterOffset(new(0, -1), toilet.QuarterTurns);
                 while (cells.Count < wanted)
                 {
