@@ -45,6 +45,13 @@ public static class NavigationFixture
         BlockRectangle(cells, -32_700, -31_300, 8_300, 9_700);     // oak in the west hedge
         BlockRectangle(cells, 28_950, 30_050, -30_050, -28_950);   // field maple behind the small barn
         BlockRectangle(cells, -29_630, -28_770, -7_030, -6_170);   // old apple at the farmhouse corner
+        // The hedgerow round the field, a metre thick, with the gate gap in the north side: everyone comes and goes
+        // through the gate. It cuts the vehicle track where the track meets the south hedge.
+        BlockRectangle(cells, -32_500, 32_499, -32_500, -31_500); // south
+        BlockRectangle(cells, -32_500, -31_500, -32_500, 32_499); // west
+        BlockRectangle(cells, 31_500, 32_499, -32_500, 32_499);   // east
+        BlockRectangle(cells, -32_500, -3_001, 31_500, 32_499);   // north, west of the gate
+        BlockRectangle(cells, 3_000, 32_499, 31_500, 32_499);     // north, east of the gate
         // The farm pond in the south-east corner: its water and muddy margin, one run of cells per column.
         foreach (var (x, fromZ, toZ) in PondColumns)
             for (var z = fromZ; z <= toZ; z++)

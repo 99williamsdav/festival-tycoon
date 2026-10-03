@@ -88,12 +88,25 @@ public sealed class FacilityFaultTests
     [TestMethod]
     public void SomeoneWhoCollapsesWhileStuckStaysInsideUntilTheDoorOpensThenLiesOutside()
     {
+        // A day where a steward gets the door open within the half-minute before a collapse would turn fatal; on some
+        // days the only steward is tied up for longer, which is a different story.
+        static bool HelpInTime((GameSession Session, FacilityFault Fault) c)
+        {
+            var copy = GameSession.Restore(c.Session.CapturePersistenceSnapshot()).Session!;
+            for (var guard = 0; guard < 500; guard++)
+            {
+                copy.AdvanceWithoutSnapshot(4);
+                if (copy.CaptureFaults()!.Faults.Single(f => f.Id == c.Fault.Id).Stage != FacilityFaultStage.Active) return true;
+            }
+            return false;
+        }
         (GameSession Session, FacilityFault Fault)? found = null;
-        for (var seed = 20260922UL; seed < 20260942UL && found is null; seed++)
+        for (var seed = 20260922UL; seed < 20260962UL && found is null; seed++)
             if (FirstFault(FacilityFaultKind.StuckInToilet, seed) is { } candidate &&
-                candidate.Session.CapturePreparation()!.People.Single(p => p.AgentId == candidate.Fault.VictimId).Role == ProtectedPersonRole.Guest)
+                candidate.Session.CapturePreparation()!.People.Single(p => p.AgentId == candidate.Fault.VictimId).Role == ProtectedPersonRole.Guest &&
+                HelpInTime(candidate))
                 found = candidate;
-        var (s, fault) = found ?? throw new InvalidOperationException("No guest stuck in twenty days.");
+        var (s, fault) = found ?? throw new InvalidOperationException("No guest stuck with help in reach in forty days.");
         var victim = fault.VictimId;
         // Distressed long enough ago that the next tick is their collapse.
         var medical = s.CaptureMedical()!;
