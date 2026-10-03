@@ -10,11 +10,15 @@ internal static class WorldText
 {
     private static FontVariation? _speech;
 
-    /// <summary>The HUD body face at bold weight, drawn as a distance field with room for an outline up to size 55.</summary>
+    /// <summary>
+    /// The HUD body face, drawn as a distance field with room for an outline up to size 55. The variable font's
+    /// weight axis doesn't reach the distance-field rasteriser (400 and 900 render the same), so the strokes are
+    /// thickened before the field is built instead.
+    /// </summary>
     public static FontVariation SpeechFont => _speech ??= new FontVariation
     {
         BaseFont = Msdf("res://assets/ui/fonts/SourceSans3-Variable.ttf"),
-        VariationOpentype = new Godot.Collections.Dictionary { { "wght", 700 } },
+        VariationEmbolden = 0.7f,
     };
 
     public static FontFile Msdf(string path)
