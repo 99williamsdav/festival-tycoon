@@ -42,7 +42,8 @@ public sealed class GroundTests
     {
         var s = Started();
         GridCell Cell(ulong id) { var a = s.CaptureSnapshot().NavigationAgents.Single(x => x.Id.Value == id); return TraversalGrid.WorldToCell(a.XMillimetres, a.ZMillimetres); }
-        var waiting = s.CapturePreparation()!.People.First(p => s.GuestWaitingForRelease(p.AgentId)).AgentId;
+        // The one held furthest out, beyond the gate, where nobody else walks past them on their way in.
+        var waiting = s.CapturePreparation()!.People.Where(p => s.GuestWaitingForRelease(p.AgentId)).OrderByDescending(p => Cell(p.AgentId).Z).First().AgentId;
         var held = Cell(waiting);
         var before = s.GroundWearAt(held);
         for (var guard = 0; guard < 20 && s.GuestWaitingForRelease(waiting); guard++) s.AdvanceWithoutSnapshot(40);

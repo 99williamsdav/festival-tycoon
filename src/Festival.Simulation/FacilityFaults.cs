@@ -162,10 +162,16 @@ public sealed partial class GameSession
     /// <summary>Where a worker stands to mend a tap: a walkable side away from its queue; or right at a jammed toilet's door.</summary>
     private GridCell? FaultWorkCell(FacilityFault fault, ulong worker)
     {
-        if (fault.Kind == FacilityFaultKind.StuckInToilet) return ToiletDoorFrontCell(GetToilet(fault.FacilityId));
+        var here = TraversalGrid.WorldToCell(_navigationAgents[new(worker)].XMillimetres, _navigationAgents[new(worker)].ZMillimetres);
+        if (fault.Kind == FacilityFaultKind.StuckInToilet)
+        {
+            // At the door if it can be reached, else the exit spot beside it, so a steward never loops on no route.
+            var toilet = GetToilet(fault.FacilityId);
+            var door = ToiletDoorFrontCell(toilet);
+            return DeterministicPathfinder.FindPath(_traversalGrid!, here, door).Found ? door : ToiletExitCell(toilet);
+        }
         if (WaterPoints().SingleOrDefault(p => p.Id == fault.FacilityId) is not { } point) return null;
         var avoid = point.QueueCells.Append(WaterSlot(point, 0)).Append(WaterApproach(point)).ToHashSet();
-        var here = TraversalGrid.WorldToCell(_navigationAgents[new(worker)].XMillimetres, _navigationAgents[new(worker)].ZMillimetres);
         return new[] { new GridCell(point.Cell.X, point.Cell.Z + 2), new(point.Cell.X + 2, point.Cell.Z), new(point.Cell.X, point.Cell.Z - 2), new(point.Cell.X - 2, point.Cell.Z) }
             .Where(c => !avoid.Contains(c) && _traversalGrid!.Contains(c) && _traversalGrid.Get(c).IsWalkable)
             .OrderBy(c => (long)(c.X - here.X) * (c.X - here.X) + (long)(c.Z - here.Z) * (c.Z - here.Z)).ThenBy(c => c.X).ThenBy(c => c.Z)

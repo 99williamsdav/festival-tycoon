@@ -227,7 +227,7 @@ public sealed class BuildLayoutTests
         var started = Send(session, new StartPreparedEditionCommand());
         Assert.IsTrue(started.IsAccepted, started.Message);
         Assert.AreEqual(34_000L, session.CapturePreparation()!.SetupPayments!.Single().BuildCostPennies);
-        Assert.AreEqual(10_600L, session.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+        Assert.AreEqual(11_100L, session.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         var paidHash = session.CaptureSnapshot().AuthoritativeHash;
         Assert.IsFalse(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         Assert.AreEqual(paidHash, session.CaptureSnapshot().AuthoritativeHash);
@@ -317,7 +317,7 @@ public sealed class BuildLayoutTests
         Assert.IsTrue(Send(session, new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
         var firstCost = session.PreparationPlanCost;
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
-        Assert.AreEqual(65_400L, firstCost);
+        Assert.AreEqual(64_900L, firstCost);
         var prep = session.CapturePreparation()!;
         typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             prep with { People = prep.People.Select(person => person with { Admitted = true }).ToArray() });

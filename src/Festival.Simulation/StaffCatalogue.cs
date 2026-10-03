@@ -25,7 +25,7 @@ public sealed record StaffBaseline(int MedicSpeedPermille, int StewardSpeedPermi
 
 public static class StaffCatalogue
 {
-    public const int PerRole = 3;
+    public const int PerRole = 6;
     public const int UnhiredMedicTreatmentTicks = 480;
 
     public static string Key(StaffRole role) => role switch { StaffRole.Sound => "sound", StaffRole.Medic => "medic", _ => "steward" };
@@ -118,9 +118,9 @@ public static class StaffCatalogue
         ["Calmed a riot at a darts final. Allegedly.", "Large, polite and somehow everywhere at once."]];
 
     /// <summary>
-    /// Three candidates per role for this edition's seed. Candidate 1 has standard abilities (exactly the
-    /// slot's baseline abilities), candidate 2 below it and candidate 3 above it; the staff page
-    /// sorts by wage, so the order is not on show.
+    /// Six candidates per role for this edition's seed. Candidate 1 has standard abilities (exactly the
+    /// slot's baseline abilities), candidates 2 and 4 are below it, 3 and 5 above it, and 6 anywhere from a
+    /// little below to a little above; the staff page sorts by wage, so the order is not on show.
     /// </summary>
     public static StaffCandidate[] Candidates(ulong seed, StaffBaseline baseline)
     {
@@ -146,7 +146,7 @@ public static class StaffCatalogue
             int Next(int count) => (int)(random.NextUInt32() % (uint)count);
             for (var number = 1; number <= PerRole; number++)
             {
-                var grade = number switch { 1 => 0, 2 => -1 - Next(2), _ => 1 + Next(2) };
+                var grade = number switch { 1 => 0, 2 or 4 => -1 - Next(2), 6 => Next(3) - 1, _ => 1 + Next(2) };
                 var noise = grade == 0 ? 0 : (Next(7) - 3) * 100;
                 var blurbs = (role switch { StaffRole.Sound => SoundBlurbs, StaffRole.Medic => MedicBlurbs, _ => StewardBlurbs })[grade + 2];
                 var blurb = blurbs[Next(2)];

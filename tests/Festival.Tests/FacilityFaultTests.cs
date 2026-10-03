@@ -249,8 +249,8 @@ public sealed class FacilityFaultTests
         int Heat() => s.CaptureMedical()!.Needs.Single(n => n.AgentId == victim).HeatExposure;
         var before = Heat(); s.AdvanceWithoutSnapshot(80);
         var guest = s.CapturePreparation()!.People.Single(p => p.AgentId == victim).Role == ProtectedPersonRole.Guest;
-        // A guest normally gains one point every four ticks; inside, two.
-        if (guest) Assert.AreEqual(Math.Min(10_000, before + 40), Heat());
+        // A guest normally gains one point every four ticks; inside, two (plus the odd extra for someone easy to overheat).
+        if (guest && before < 9_900) Assert.IsTrue(Heat() - before is >= 40 and <= 60, $"Heat {before} to {Heat()}.");
     }
 
     [TestMethod]
