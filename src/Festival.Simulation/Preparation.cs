@@ -90,8 +90,9 @@ public sealed partial class GameSession
 
     public string? WaterTapAdditionUnavailableReason => _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p
         ? "Taps can only be added during preparation."
-        : p.BuildPlacements.Count(item => item.Kind == BuildServiceKind.WaterTap) >= BuildServiceLimit(BuildServiceKind.WaterTap)
-            ? "Both paid tap slots are placed; select one to move or remove it." : null;
+        : p.BuildPlacements.Count(item => item.Kind == BuildServiceKind.WaterTap) >= ServiceLimit(BuildServiceKind.WaterTap)
+            ? HasPerk("another-round") ? "Both tap slots are placed; select one to move or remove it."
+                : "The tap is placed; the Another Round perk allows a second." : null;
 
     public IReadOnlyList<LedgerEntry> GetPreparationLedgerEntries()
     {

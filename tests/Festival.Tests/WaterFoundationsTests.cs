@@ -22,7 +22,8 @@ public sealed class WaterFoundationsTests
 
     private static GameSession StartWithExtra(bool tower = false, bool share = false)
     {
-        var session = tower ? BuildSession.PlannedWith("high-pressure") : BuildSession.Planned();
+        // The extra tap is the Another Round perk's.
+        var session = BuildSession.PlannedWith(tower ? "high-pressure" : "another-round");
         var placed = Send(session, new PlaceBuildServiceCommand(BuildServiceKind.WaterTap, ExtraSite));
         Assert.IsTrue(placed.IsAccepted, placed.Message);
         if (share) Assert.IsTrue(Send(session, new CommitCommunityWaterShareCommand()).IsAccepted);

@@ -25,7 +25,8 @@ public sealed class ToiletQueueGrowthTests
     [TestMethod]
     public void TheAudienceAreaInFrontOfTheStageStaysClearOfServicesButNotBins()
     {
-        var s = Drafted();
+        var (seed, index) = SeedOffering("another-round");
+        var s = Drafted(seed, index);
         Accept(s, new UseDefaultBuildLayoutCommand());
         var crowd = TraversalGrid.WorldToCell(-7_000, 11_000);
         Assert.IsTrue(GameSession.InAudienceArea(crowd));
@@ -38,7 +39,8 @@ public sealed class ToiletQueueGrowthTests
     [TestMethod]
     public void TapsNeedMuchTheSameRoomWhicheverWayTheyAreSpaced()
     {
-        var s = Drafted();
+        var (seed, index) = SeedOffering("another-round");
+        var s = Drafted(seed, index);
         Accept(s, new UseDefaultBuildLayoutCommand());
         var main = s.CaptureBuildPlacements().Single(p => p.Id == "water.main").Cell;
         string? At(int dx, int dz) => Place(s, BuildServiceKind.WaterTap, new GridCell(main.X + dx, main.Z + dz), 0);

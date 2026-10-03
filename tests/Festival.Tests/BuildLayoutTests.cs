@@ -132,13 +132,21 @@ public sealed class BuildLayoutTests
     }
 
     [TestMethod]
-    public void PaidSecondTapDoesNotRequireOrDisappearWithAnotherRound()
+    public void ASecondTapNeedsTheAnotherRoundPerk()
     {
-        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
+        var without = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
+        var hand = without.CapturePerks()!;
+        Assert.IsTrue(Send(without, new ChoosePerkCommand(hand.DraftAttempt, hand.Cursor, hand.Hand.First(id => id != "another-round"))).IsAccepted);
+        Assert.IsTrue(Send(without, new UseDefaultBuildLayoutCommand()).IsAccepted);
+        Assert.AreEqual(1, without.ServiceLimit(BuildServiceKind.WaterTap));
+        StringAssert.Contains(Send(without, new PlaceBuildServiceCommand(BuildServiceKind.WaterTap, new(150, 160))).Message, "Another Round");
+
+        var (seed, index) = BuildSession.SeedOffering("another-round");
+        var session = GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);
         var perk = session.CapturePerks()!;
-        Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor,
-            perk.Hand.First(id => id != "another-round"))).IsAccepted);
+        Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[index])).IsAccepted);
         Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);
+        Assert.AreEqual(2, session.ServiceLimit(BuildServiceKind.WaterTap));
         GridCell? second = null;
         for (var x = 105; x <= 180 && second is null; x += 5)
         for (var z = 115; z <= 180 && second is null; z += 5)

@@ -22,6 +22,14 @@ public sealed partial class GameSession
 
     public static int BuildServiceFeePennies(BuildServiceKind kind) =>
         BuildCatalogue.Single(item => item.Kind == kind).FeePennies;
+    /// <summary>
+    /// How many of a service this festival may place: one water tap, or two with the Another Round perk; the
+    /// catalogue limit for everything else.
+    /// </summary>
+    public int ServiceLimit(BuildServiceKind kind) =>
+        kind == BuildServiceKind.WaterTap ? (HasPerk("another-round") ? 2 : 1) : BuildServiceLimit(kind);
+
+    /// <summary>The most of a service any festival may place (the tap's assumes the perk).</summary>
     public static int BuildServiceLimit(BuildServiceKind kind) =>
         BuildCatalogue.Single(item => item.Kind == kind).Limit;
     public IReadOnlyList<BuildPlacement> CaptureBuildPlacements() => _preparation?.BuildPlacements.ToArray() ?? [];
@@ -79,8 +87,10 @@ public sealed partial class GameSession
         if (command is PlaceBuildServiceCommand place)
         {
             if (!Enum.IsDefined(place.Kind)) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown service.");
-            if (p.BuildPlacements.Count(item => item.Kind == place.Kind) >= BuildServiceLimit(place.Kind))
-                return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "All slots for this service are placed; select one to move it.");
+            if (p.BuildPlacements.Count(item => item.Kind == place.Kind) >= ServiceLimit(place.Kind))
+                return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, place.Kind == BuildServiceKind.WaterTap && !HasPerk("another-round")
+                    ? "One water tap is placed; the Another Round perk allows a second."
+                    : "All slots for this service are placed; select one to move it.");
             proposed = new(NextBuildId(place.Kind, p.BuildPlacements), place.Kind, place.Cell, place.QuarterTurns);
         }
         else if (command is MoveBuildServiceCommand move)

@@ -244,7 +244,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         foreach (var (kind, row) in _buildCatalogueRows)
         {
             var count = placements.Count(item => item.Kind == kind);
-            var limit = GameSession.BuildServiceLimit(kind);
+            var limit = _hud.Session.ServiceLimit(kind);
             var fee = FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind));
             row.Price.Text = fee;
             row.Count.Text = kind == BuildServiceKind.Bin ? $"{count}" : $"{count}/{limit}";

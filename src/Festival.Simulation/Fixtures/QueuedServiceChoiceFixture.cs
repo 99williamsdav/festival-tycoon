@@ -9,7 +9,10 @@ public sealed partial class GameSession
 {
     public static QueuedServiceChoiceFixtureResult CreateQueuedServiceChoiceFixture()
     {
-        var session = CreateBuildCampaign(20260929, FestivalStanding.Established);
+        // The second tap needs the Another Round perk: the first seed from here whose opening hand offers it.
+        var seed = 20260929UL;
+        while (Array.IndexOf(CreateBuildCampaign(seed, FestivalStanding.Established).CapturePerks()!.Hand, "another-round") < 0) seed++;
+        var session = CreateBuildCampaign(seed, FestivalStanding.Established);
         static void Accept(GameSession s, SessionCommand command)
         {
             var result = s.Execute(new(new(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase,
@@ -17,7 +20,7 @@ public sealed partial class GameSession
             if (!result.IsAccepted) throw new InvalidOperationException($"Queue-choice fixture command rejected: {result.Message}");
         }
         var perk = session.CapturePerks()!;
-        Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
+        Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, "another-round"));
         Accept(session, new UseDefaultBuildLayoutCommand());
         Accept(session, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, new(140, 160), 2));
         GridCell? extraTap = null;
