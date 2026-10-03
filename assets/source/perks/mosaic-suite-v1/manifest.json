@@ -1,5 +1,5 @@
 {
-  "status": "Original eight approved 2026-09-27; batch 2 user approved Beer Festival, Bring Your Own Bottle, Alcoholics and Robot Workers; requested Friendly Queues v3 integrated 2026-10-03; Cola Fiends replacement candidate pending",
+  "status": "Original eight approved 2026-09-27; batch 2 user approved Beer Festival, Bring Your Own Bottle, Alcoholics and Robot Workers; requested Friendly Queues v3 integrated 2026-10-03; user-approved Cola Fiends v5 integrated 2026-10-03",
   "catalogueSource": "C:/Projects/festival-tycoon/src/Festival.Simulation/Perks.cs",
   "date": "2026-09-27",
   "generator": "built-in image_gen",
@@ -154,11 +154,11 @@
       "id": "cola-fiends",
       "name": "Cola Fiends",
       "effect": "Guests prefer soft drinks to free water.",
-      "subject": "A generic tall festival soft-drink cup: body cream with a teal band, lid domed, straw a bent golden straw. The dark teal-brown fizzy drink shows at the rim, with lots of round turquoise and cream bubble tiles rising around it. Golden sun rays; sage leaves low. No brand, logo, lettering, red, ribbon or wave stripe, bottle or can shape that resembles a real brand. No water tap.",
+      "subject": "User-approved v5: cropped geometric teal adult face in three-quarter view, angular sage nose and cream eye shapes. A straight golden straw rises diagonally from the lower edge toward the mouth/nose area, with the drink out of shot. Cream background, golden rays and tile border, teal/sage foliage. Text-free, no red, branding, cups or substances.",
       "artwork": "artwork/cola-fiends.png",
       "width": 1536,
       "height": 1024,
-      "sha256": "1471716fe185ab649e63a59c8c3fd2a4d66265fa95ca025467d7180109b290da",
+      "sha256": "058c9a837ee9ef4734ef61bb98a205f650a0ba43f04f2b2b54e808a584ca561d",
       "fullReview": "cards/cola-fiends-744x1074.png",
       "draftPreview": "small/cola-fiends-248x358.png",
       "ownedPreview": "small/cola-fiends-250x142.png",
@@ -217,7 +217,7 @@
   "batch2": {
     "date": "2026-10-03",
     "sourcePackage": "../mosaic-suite-batch2",
-    "status": "Beer Festival, Bring Your Own Bottle, Alcoholics and Robot Workers approved by user; Friendly Queues v3 revised as requested; Cola Fiends v3 preview pending selection",
+    "status": "Beer Festival, Bring Your Own Bottle, Alcoholics and Robot Workers approved by user; Friendly Queues v3 revised as requested; Cola Fiends v5 user-approved and integrated",
     "ids": [
       "beer-festival",
       "friendly-queues",
@@ -248,6 +248,13 @@
       "requestedEdit": "friendly-queues",
       "colaCandidate": "../mosaic-suite-batch2/revisions-v3/cola-fiends-v3.png",
       "colaCandidateStatus": "Preview only; canonical Cola Fiends remains unchanged"
+    },
+    "revision5": {
+      "date": "2026-10-03",
+      "userApproved": "cola-fiends",
+      "approval": "../mosaic-suite-batch2/revisions-v5/APPROVAL.md",
+      "sha256": "058c9a837ee9ef4734ef61bb98a205f650a0ba43f04f2b2b54e808a584ca561d",
+      "earlierCandidates": "Retained as source alternatives; v5 is selected"
     }
   }
 }

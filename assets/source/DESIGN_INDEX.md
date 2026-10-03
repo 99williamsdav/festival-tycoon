@@ -10,9 +10,9 @@ The user's [working agreement](../../docs/WORKING-AGREEMENTS.md) records that ap
 
 Perk mosaic batch 2 adds six existing-catalogue artworks under user-requested integration and producer authorization on 3 October 2026: [full source/reviews](perks/mosaic-suite-batch2/) and [integration result](../../briefs/results/perk-mosaic-batch2.md). The active suite-v1 manifest now indexes fourteen cards while preserving the original eight. Initial integration did not claim separate user aesthetic approval; subsequent feedback is recorded below. No gameplay or layout changes accompany the assets.
 
-Batch 2 revision: user approved Beer Festival, Bring Your Own Bottle and Alcoholics; requested Friendly Queues smileys and clipboard-free Robot Workers are integrated. The new Cola Fiends candidate remains source/review only pending selection, with canonical runtime unchanged. [Revision scope](perks/mosaic-suite-batch2/revisions-v2/INTEGRATION.md).
+Batch 2 revision: user approved Beer Festival, Bring Your Own Bottle and Alcoholics; requested Friendly Queues smileys and clipboard-free Robot Workers are integrated. At that revision, Cola Fiends remained source/review only; v5 selection is recorded below. [Revision scope](perks/mosaic-suite-batch2/revisions-v2/INTEGRATION.md).
 
-Latest batch 2 revision supersedes the circular Friendly Queues faces with blue eyes and smiles directly on cream bubbles. Robot Workers v2 is user-approved and unchanged. Cola Fiends v3 stays preview-only pending selection. [Current revision scope](perks/mosaic-suite-batch2/revisions-v3/INTEGRATION.md).
+Batch 2 revision 3 supersedes the circular Friendly Queues faces with blue eyes and smiles directly on cream bubbles. Robot Workers v2 is user-approved and unchanged. Cola Fiends v3 remains a source alternative. [Current revision scope](perks/mosaic-suite-batch2/revisions-v3/INTEGRATION.md).
 
 | Design / repo copy | Current status | Implementation / supersession |
 | --- | --- | --- |
@@ -50,3 +50,5 @@ Approved 1 October 2026 and integrated in [R0.05ah](../../briefs/R0.05ah-litter-
 - Any link inside an older copied handoff that points to `../portaloo-asset-v1/`, sibling original art-workspace directories or old absolute `C:/Projects/...` evidence paths must be read as **historical source context**, not guaranteed repo-local links. The current index links above are verified repo files; missing original siblings are explicitly external. Broken or inaccessible source references should be resolved against the art workspace before asset work, not silently replaced with a similar-looking file.
 
 The [current-design entrypoint](../../CURRENT_DESIGN.md), [dated decisions](../../briefs/DECISIONS.md) and [backlog](../../briefs/BACKLOG.md) classify implementation and pending status. This index establishes source location and provenance only.
+
+Latest batch 2 revision: user-approved Cola Fiends v5 is integrated with matching SVG and refreshed previews. Earlier candidates remain source alternatives. [Approval](perks/mosaic-suite-batch2/revisions-v5/APPROVAL.md) and [integration](perks/mosaic-suite-batch2/revisions-v5/INTEGRATION.md).

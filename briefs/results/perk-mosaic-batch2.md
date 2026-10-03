@@ -1,4 +1,11 @@
 # Perk mosaic batch 2 integration
+## Approved Cola Fiends v5 — 3 October 2026
+
+User-approved v5 is the canonical source/runtime PNG, with matching geometric face/straight-straw SVG. SHA-256: `058c9a837ee9ef4734ef61bb98a205f650a0ba43f04f2b2b54e808a584ca561d`. Effect remains exactly "Guests prefer soft drinks to free water." Original PNG/SVG and v2–v4 candidates remain source alternatives. [Approval and integration](../../assets/source/perks/mosaic-suite-batch2/revisions-v5/INTEGRATION.md).
+
+Fourteen focused tests passed; all fourteen PNG/SVG pairs loaded in native Godot; review renderer passed exact catalogue/master/copy checks; all eighteen previews have exact dimensions. Inspected master and full/draft/owned cards. Other thirteen runtime PNG/SVG pairs and manifest entries match the previous commit exactly. [Evidence](../../reports/evidence/perk-mosaic-batch2/revision5/).
+
+No gameplay/layout/code change or EXE. Review compositions are not native UI screenshots; no manual playthrough claimed. Godot emitted environment log/certificate warnings but resource checks passed. The first dotnet wrapper ignored its filter and was stopped; the freshly built test executable ran the exact filter successfully. Existing unrelated character import edits/source work are excluded. Older records below are historical.
 
 ## Requested revision 3 — 3 October 2026
 

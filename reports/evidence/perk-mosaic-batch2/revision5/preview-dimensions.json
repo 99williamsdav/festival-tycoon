@@ -1,0 +1,114 @@
+{
+  "passed": true,
+  "checks": [
+    {
+      "id": "beer-festival",
+      "preview": "fullReview",
+      "width": 744,
+      "height": 1074
+    },
+    {
+      "id": "beer-festival",
+      "preview": "draftPreview",
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "beer-festival",
+      "preview": "ownedPreview",
+      "width": 250,
+      "height": 142
+    },
+    {
+      "id": "friendly-queues",
+      "preview": "fullReview",
+      "width": 744,
+      "height": 1074
+    },
+    {
+      "id": "friendly-queues",
+      "preview": "draftPreview",
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "friendly-queues",
+      "preview": "ownedPreview",
+      "width": 250,
+      "height": 142
+    },
+    {
+      "id": "bring-your-own-bottle",
+      "preview": "fullReview",
+      "width": 744,
+      "height": 1074
+    },
+    {
+      "id": "bring-your-own-bottle",
+      "preview": "draftPreview",
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "bring-your-own-bottle",
+      "preview": "ownedPreview",
+      "width": 250,
+      "height": 142
+    },
+    {
+      "id": "cola-fiends",
+      "preview": "fullReview",
+      "width": 744,
+      "height": 1074
+    },
+    {
+      "id": "cola-fiends",
+      "preview": "draftPreview",
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "cola-fiends",
+      "preview": "ownedPreview",
+      "width": 250,
+      "height": 142
+    },
+    {
+      "id": "alcoholics",
+      "preview": "fullReview",
+      "width": 744,
+      "height": 1074
+    },
+    {
+      "id": "alcoholics",
+      "preview": "draftPreview",
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "alcoholics",
+      "preview": "ownedPreview",
+      "width": 250,
+      "height": 142
+    },
+    {
+      "id": "robot-workers",
+      "preview": "fullReview",
+      "width": 744,
+      "height": 1074
+    },
+    {
+      "id": "robot-workers",
+      "preview": "draftPreview",
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "robot-workers",
+      "preview": "ownedPreview",
+      "width": 250,
+      "height": 142
+    }
+  ],
+  "otherThirteenRuntimePairsAndManifestCardsUnchanged": true
+}
