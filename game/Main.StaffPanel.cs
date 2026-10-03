@@ -48,15 +48,20 @@ public partial class Main
         root.AddThemeConstantOverride("separation", Ui.Px(22)); page.AddChild(root);
 
         var crew = new VBoxContainer { CustomMinimumSize = new Vector2(Ui.S(300), 0) };
-        crew.AddThemeConstantOverride("separation", Ui.Px(6)); root.AddChild(crew);
+        crew.AddThemeConstantOverride("separation", Ui.Px(5)); root.AddChild(crew);
         crew.AddChild(Ui.Heading("Your crew", 27));
         crew.AddChild(WithWrap(Ui.Text("A sound engineer, a medic and a steward are required. Paid at Start.", 13.5f, Ui.InkMuted)));
         crew.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
+        // Up to six slots with perks and a maintenance worker: they scroll rather than run off the sheet.
+        var slotScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, CustomMinimumSize = new Vector2(0, Ui.S(372)) };
+        Ui.SlimScrollbar(slotScroll); crew.AddChild(slotScroll);
+        var slots = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        slots.AddThemeConstantOverride("separation", Ui.Px(5)); slotScroll.AddChild(slots);
         foreach (var (key, role, _, name) in StaffSlots)
         {
             var slotKey = key;
-            var card = new PanelContainer { CustomMinimumSize = new Vector2(0, Ui.S(64)), MouseFilter = Control.MouseFilterEnum.Pass };
-            crew.AddChild(card);
+            var card = new PanelContainer { CustomMinimumSize = new Vector2(0, Ui.S(52)), MouseFilter = Control.MouseFilterEnum.Pass };
+            slots.AddChild(card);
             var line = new HBoxContainer(); line.AddThemeConstantOverride("separation", Ui.Px(8)); card.AddChild(line);
             var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, Alignment = BoxContainer.AlignmentMode.Center };
             words.AddThemeConstantOverride("separation", Ui.Px(1)); line.AddChild(words);
@@ -240,7 +245,7 @@ public partial class Main
             var colour = StaffRoleColour(role);
             if (held is not null)
             {
-                var style = Ui.Box(colour.Lerp(Ui.Paper, 0.82f), 6, padX: 12, padY: 8);
+                var style = Ui.Box(colour.Lerp(Ui.Paper, 0.82f), 6, padX: 12, padY: 5);
                 view.Card.AddThemeStyleboxOverride("panel", style);
                 view.Caption.AddThemeColorOverride("font_color", colour.Darkened(0.2f));
                 view.Title.Text = who?.Name ?? "Morgan Finch";
@@ -252,7 +257,7 @@ public partial class Main
             }
             else
             {
-                view.Card.AddThemeStyleboxOverride("panel", Ui.Box(new Color(Ui.Gold, required ? 0.2f : 0.1f), 6, Ui.GoldShadow, required ? 2 : 1, 12, 8));
+                view.Card.AddThemeStyleboxOverride("panel", Ui.Box(new Color(Ui.Gold, required ? 0.2f : 0.1f), 6, Ui.GoldShadow, required ? 2 : 1, 12, 5));
                 view.Caption.AddThemeColorOverride("font_color", Ui.GoldInk);
                 view.Title.AddThemeColorOverride("font_color", Ui.GoldInk);
                 if (key == "maintenance")
@@ -277,7 +282,8 @@ public partial class Main
             var main = hires.Contains(c.Id); var second = hires.Contains(c.ExtraOfferId);
             row.Status.Text = main || second ? "On your crew" : "";
             var target = HireTarget(c, p);
-            var issue = _session.ValidateCommand(CampaignEnvelope(new AcceptPreparationOfferCommand(target)))?.Message;
+            // Once the festival is open the market is closed, so there is nothing to check.
+            var issue = preparing ? _session.ValidateCommand(CampaignEnvelope(new AcceptPreparationOfferCommand(target)))?.Message : null;
             var replacing = hires.FirstOrDefault(id => offers.TryGetValue(id, out var o) && o.Category == offers[target].Category);
             var replacedName = replacing is null ? null : StaffCatalogue.ForOffer(candidates, replacing)?.Name;
             row.Hire.Text = main || second ? "Hired" : replacing is null ? "Hire" : "Swap in";
