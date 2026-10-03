@@ -108,24 +108,25 @@ public sealed partial class GameSession
         }
         return false;
     }
-    public static GridCell[] ToiletReservedCells(ToiletFacility toilet)
+    /// <summary>
+    /// The open ground a toilet needs in front of its door: the apron out to the doorstep, where its queue starts, and
+    /// the way round to the exit spot beside it. Toilets in a row share this walkway, so they can stand side by side.
+    /// </summary>
+    public static GridCell[] ToiletAccessCells(ToiletFacility toilet)
     {
-        var cells = new HashSet<GridCell>();
-        for (var x = -3; x <= 3; x++)
-            for (var z = -4; z <= 2; z++)
+        var cells = new List<GridCell>();
+        for (var x = -1; x <= 4; x++)
+            for (var z = -5; z <= -2; z++)
             {
                 var offset = RotateWaterOffset(new(x, z), toilet.QuarterTurns);
                 cells.Add(new(toilet.Cell.X + offset.X, toilet.Cell.Z + offset.Z));
             }
-        // The doorstep only: the rest of the queue grows into whatever space is free once people arrive.
-        for (var z = -5; z <= -5; z++)
-            for (var x = -1; x <= 1; x++)
-            {
-                var offset = RotateWaterOffset(new(x, z), toilet.QuarterTurns);
-                cells.Add(new(toilet.Cell.X + offset.X, toilet.Cell.Z + offset.Z));
-            }
-        return cells.OrderBy(cell => cell.X).ThenBy(cell => cell.Z).ToArray();
+        return cells.ToArray();
     }
+
+    /// <summary>The cubicle and the ground in front of it; the rest of the queue grows into free space once people arrive.</summary>
+    public static GridCell[] ToiletReservedCells(ToiletFacility toilet) =>
+        ToiletSolidCells(toilet).Concat(ToiletAccessCells(toilet)).Distinct().OrderBy(cell => cell.X).ThenBy(cell => cell.Z).ToArray();
 
     private void BlockToilet()
     {

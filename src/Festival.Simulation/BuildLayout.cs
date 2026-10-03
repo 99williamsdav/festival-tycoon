@@ -181,6 +181,7 @@ public sealed partial class GameSession
         if (waterTowerOwned)
             for (var x = WaterTowerCell.X - 4; x <= WaterTowerCell.X + 4; x++)
                 for (var z = WaterTowerCell.Z - 4; z <= WaterTowerCell.Z + 4; z++) reserved.Add(new(x, z));
+        var sharedAccess = new HashSet<GridCell>();
         foreach (var item in placements)
         {
             var cells = BuildReservedCells(item).Distinct().ToArray();
@@ -189,7 +190,15 @@ public sealed partial class GameSession
                 return "Service footprint or entrance needs clear grass inside the festival site.";
             // Bins are the exception: a crowd makes litter, and a bin is small enough to stand among it.
             if (item.Kind != BuildServiceKind.Bin && cells.Any(InAudienceArea)) return "Keep the audience area in front of the stage clear.";
-            if (cells.Any(cell => !reserved.Add(cell))) return "Service footprint or access overlaps another placement.";
+            // A toilet's walkway in front of its door may be shared with the toilet beside it, so a row of loos can
+            // stand side by side; nothing else may stand on it, and nothing may overlap a cubicle.
+            var access = item.Kind == BuildServiceKind.Toilet ? ToiletAccessCells(ToiletOf(item)).ToHashSet() : [];
+            foreach (var cell in cells)
+            {
+                if (access.Contains(cell) && sharedAccess.Contains(cell)) continue;
+                if (!reserved.Add(cell)) return "Service footprint or access overlaps another placement.";
+                if (access.Contains(cell)) sharedAccess.Add(cell);
+            }
         }
         if (!BuildAccessClear(placements, equipment, waterTowerOwned))
             return "Service blocks the route from the gate to a required entrance or exit.";
@@ -309,6 +318,8 @@ public sealed partial class GameSession
 
     /// <summary>The ground a placed service stands on (and its doorstep or service cell), as build validation sees it.</summary>
     public static GridCell[] BuildFootprint(BuildPlacement item) => BuildReservedCells(item);
+    private static ToiletFacility ToiletOf(BuildPlacement item) => new(item.Id, item.Cell, item.QuarterTurns, [], null,
+        false, 0, 0, 0, ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille);
 
     private static GridCell[] BuildReservedCells(BuildPlacement item)
     {
@@ -325,10 +336,7 @@ public sealed partial class GameSession
             BuildServiceKind.Bin => Round(item.Cell).ToArray(),
             BuildServiceKind.WaterTap => Round(item.Cell)
                 .Append(WaterServiceCell(item.Cell, item.QuarterTurns)).ToArray(),
-            BuildServiceKind.Toilet => ToiletReservedCells(new(item.Id, item.Cell, item.QuarterTurns, [], null,
-                false, 0, 0, 0, ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille))
-                .Append(ToiletExitCell(new(item.Id, item.Cell, item.QuarterTurns, [], null,
-                    false, 0, 0, 0, ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille))).ToArray(),
+            BuildServiceKind.Toilet => ToiletReservedCells(ToiletOf(item)),
             BuildServiceKind.FoodVan or BuildServiceKind.Bar => ImmersionFootprint(new(item.Kind == BuildServiceKind.FoodVan ? "food" : "drinks",
                 item.Cell, item.QuarterTurns, []))
                 .Append(ImmersionServiceCell(new(item.Kind == BuildServiceKind.FoodVan ? "food" : "drinks",
