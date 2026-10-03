@@ -65,7 +65,8 @@ public sealed partial class GameSession
     {
         var terrain=new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
         var reserved=new HashSet<GridCell>();
-        foreach(var point in WaterPoints()) for(var x=point.Cell.X-3;x<=point.Cell.X+3;x++) for(var z=point.Cell.Z-3;z<=point.Cell.Z+3;z++) reserved.Add(new(x,z));
+        // A round berth around each tap, as taps and bins keep from each other, not a square that reads as a diamond on screen.
+        foreach(var point in WaterPoints()) for(var x=point.Cell.X-3;x<=point.Cell.X+3;x++) for(var z=point.Cell.Z-3;z<=point.Cell.Z+3;z++) if((x-point.Cell.X)*(x-point.Cell.X)+(z-point.Cell.Z)*(z-point.Cell.Z)<=11) reserved.Add(new(x,z));
         foreach(var point in WaterPoints())foreach(var cell in LooseQueueGeometry.Corridor(CaptureWaterQueueCells(point.Id)))reserved.Add(cell);
         foreach(var vendor in Vendors.Where(v=>v.Id!=proposed.Id)) { foreach(var cell in ImmersionFootprint(vendor).Concat(LooseQueueGeometry.Corridor(VendorQueueCells(vendor))))reserved.Add(cell); }
         foreach (var toilet in EffectiveToilets(_facilities))

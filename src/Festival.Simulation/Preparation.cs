@@ -93,60 +93,6 @@ public sealed partial class GameSession
         : p.BuildPlacements.Count(item => item.Kind == BuildServiceKind.WaterTap) >= BuildServiceLimit(BuildServiceKind.WaterTap)
             ? "Both paid tap slots are placed; select one to move or remove it." : null;
 
-    private static string? ValidateWaterPlacementCell(GridCell cell, PreparationSnapshot p, string? movingId,
-        EquipmentSnapshot? equipment, int quarterTurns = 0, int geometryVersion = 1)
-    {
-        // This deliberately bounds the first placeable-object interaction to the open festival field.
-        // The approved tower stays fixed; there is no general building editor or pipe network.
-        if (cell.X is < 68 or > 119 || cell.Z is < 112 or > 140)
-            return "Choose a grass site inside the open festival field.";
-        var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
-        var placed = EffectiveWaterPlacements(p);
-        var others = placed.Where(item => item.Id != movingId).Select(item => new WaterPointState(item.Id, item.Cell, [], [], null, 0) { QuarterTurns = item.QuarterTurns, GeometryVersion = item.GeometryVersion }).ToList();
-        if (movingId != "water.main") others.Insert(0, new WaterPointState("water.main", PrimaryWaterCell(p), [], [], null, 0) { QuarterTurns = PrimaryWaterQuarterTurns(p), GeometryVersion = PrimaryWaterGeometryVersion(p) });
-        var proposed = new WaterPointState(movingId ?? "water.proposed", cell, [], [], null, 0) { QuarterTurns = quarterTurns, GeometryVersion = geometryVersion };
-        var occupied = new HashSet<GridCell>();
-        static void Footprint(HashSet<GridCell> cells, GridCell centre, int radius)
-        {
-            for (var z = centre.Z - radius; z <= centre.Z + radius; z++)
-            for (var x = centre.X - radius; x <= centre.X + radius; x++) cells.Add(new GridCell(x, z));
-        }
-        foreach (var point in others) Footprint(occupied, point.Cell, WaterFootprintRadius(point) + 1);
-        Footprint(occupied, ResponsePost(p, ResponseRole.Medic).Cell, 4);
-        Footprint(occupied, MedicalRestCell, 1);
-        Footprint(occupied, ResponsePostHome(p, ResponseRole.Medic), 1);
-        foreach(var postCell in ResponsePostReserved(p)) occupied.Add(postCell);
-        if (p.WaterTowerOwned) Footprint(occupied, WaterTowerCell, 4);
-        if (equipment is { } unit) Footprint(occupied, TraversalGrid.WorldToCell(unit.XMillimetres, unit.ZMillimetres), 5);
-        for (var z = 139; z <= 160; z++)
-        for (var x = 90; x <= 101; x++) occupied.Add(new GridCell(x, z));
-        var proposedCells = new HashSet<GridCell>();
-        Footprint(proposedCells, cell, WaterFootprintRadius(proposed));
-        proposedCells.Add(WaterPointServiceCell(proposed));
-        foreach (var point in others) Footprint(occupied, WaterPointServiceCell(point), 1);
-        if (proposedCells.Any(candidate => !terrain.Contains(candidate) ||
-            terrain.Get(candidate) is not { IsWalkable: true, Surface: GroundSurface.Grass }))
-            return "The tap footprint and service front need clear grass.";
-        if (proposedCells.Any(occupied.Contains))
-            return "The tap or queue overlaps a building, another line, the stage or a protected route.";
-        // Reserve the proposed solid footprint and prove all service fronts and first-aid rest
-        // remain reachable from the gate. Queue slots remain walkable and cannot be occupied by it.
-        var overrides = terrain.Overrides.ToDictionary(item => item.Key, item => item.Value);
-        foreach (var point in others.Append(proposed))
-        for (var z = point.Cell.Z - WaterFootprintRadius(point); z <= point.Cell.Z + WaterFootprintRadius(point); z++)
-        for (var x = point.Cell.X - WaterFootprintRadius(point); x <= point.Cell.X + WaterFootprintRadius(point); x++)
-        {
-            var blocked = new GridCell(x, z);
-            overrides[blocked] = new(blocked, GroundSurface.Grass, false);
-        }
-        var grid = new TraversalGrid(overrides.Values);
-        foreach (var destination in others.Append(proposed).Select(WaterPointServiceCell).Append(MedicalRestCell))
-            if (!DeterministicPathfinder.FindPath(grid, MedicalExitCell, destination).Found)
-                return "This position blocks a walkable route to water or first aid.";
-        return null;
-    }
-
-
     public IReadOnlyList<LedgerEntry> GetPreparationLedgerEntries()
     {
         if (_preparation is not { } p) return [];
