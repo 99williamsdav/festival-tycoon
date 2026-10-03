@@ -32,6 +32,8 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     private Label? _guests;
     private Label? _guestsOf;
     private Label? _weather;
+    private Label? _mood;
+    private ProgressBar? _moodBar;
     private Button? _pause;
     private Button? _speed;
     private Button? _people;
@@ -76,11 +78,17 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         ((VBoxContainer)clockLine.GetParent()).AddChild(_clockTrack);
         (_guests, var guestLine) = Stat(row, "Guests", glyph: null, icon: "users", divider: true);
         _guestsOf = Ui.Text("", 14, Ui.BarMuted, Ui.Slab); guestLine.AddChild(_guestsOf);
+        // How the crowd feels overall: the average satisfaction the newspaper's rating is built from.
+        (_mood, var moodLine) = Stat(row, "Crowd mood", glyph: null, icon: "star", divider: true);
+        _moodBar = new ProgressBar { ShowPercentage = false, MaxValue = 100, CustomMinimumSize = new Vector2(Ui.S(64), Ui.S(8)),
+            SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
+        _moodBar.AddThemeStyleboxOverride("background", Ui.Box(Ui.BarDeep, 4));
+        moodLine.AddChild(_moodBar);
         _weather = Stat(row, "Weather", glyph: null, icon: "sun", divider: false).Value;
         // Clock, guests and weather (with their dividers) step aside during the perk draft.
         var cashGroup = _cash.GetParent().GetParent().GetParent().GetParent<Control>();
-        // Cash's divider, then clock, divider, guests, divider and weather.
-        for (var i = cashGroup.GetIndex() + 1; i <= cashGroup.GetIndex() + 6; i++) _dayOnly.Add(row.GetChild<Control>(i));
+        // Cash's divider, then clock, divider, guests, divider, mood, divider and weather.
+        for (var i = cashGroup.GetIndex() + 1; i <= cashGroup.GetIndex() + 8; i++) _dayOnly.Add(row.GetChild<Control>(i));
 
         row.AddChild(new Control { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill });
         var buttons = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
@@ -214,6 +222,14 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _guests!.Text = session.OnSiteAttendeeCount.ToString();
         _guestsOf!.Text = $"/ {p.People.Count(person => person.Role == ProtectedPersonRole.Guest)}";
         _weather!.Text = session.CaptureMedical() is { IsHot: true } ? "Hot" : "Unavailable";
+        var admitted = p.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted).ToArray();
+        var mood = admitted.Length == 0 ? (int?)null : (int)admitted.Average(person => person.Satisfaction) / 100;
+        _mood!.Text = mood is { } percent ? $"{percent}%" : "–";
+        _moodBar!.Value = mood ?? 0;
+        // The newspaper's bands: below 40% is a one- or two-star day, 60% and up four or five.
+        _moodBar.AddThemeStyleboxOverride("fill", Ui.Box(mood < 40 ? new Color("df5750") : mood < 60 ? Ui.Warn : new Color("53bb72"), 4));
+        _mood.GetParent().GetParent().GetParent().GetParent<Control>().TooltipText =
+            "The crowd's average satisfaction, which the newspaper's star rating is based on.";
         _pause!.Visible = !preparing;
         _pause.Icon = Ui.Icon(session.IsPaused ? "play" : "pause");
         _speed!.Visible = _pause.Visible;

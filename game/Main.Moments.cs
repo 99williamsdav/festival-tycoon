@@ -135,7 +135,22 @@ public partial class Main
                 yield return ($"collapse:{need.AgentId}:{need.CollapseTick}", new("heart-pulse", why, bad, LocatePerson(need.AgentId)));
             }
         }
-        foreach (var person in _session.CaptureDisorder()?.People ?? [])
+        // Trouble brewing, before it comes to blows: anger, then arguments, said once a minute while it lasts.
+        var disorder = _session.CaptureDisorder()?.People ?? [];
+        static string About(IEnumerable<DisorderPerson> people) => people.GroupBy(p => p.Grievance).OrderByDescending(g => g.Count()).First().Key switch
+        {
+            DisorderGrievance.WaterWait => " about the water queue",
+            DisorderGrievance.BandDelayed => " about the late band",
+            DisorderGrievance.MusicCutoff => " about the music cutting out",
+            _ => "",
+        };
+        var angry = disorder.Where(p => p.Stage == DisorderStage.Agitated).ToArray();
+        if (angry.Length >= 2)
+            yield return ($"angry:{angry.Min(p => p.StageTick) / 4_800}", new("zap", $"Some people are getting angry{About(angry)}", warm, LocatePerson(angry[0].AgentId)));
+        var arguing = disorder.Where(p => p.Stage == DisorderStage.Argument).ToArray();
+        if (arguing.Length > 0)
+            yield return ($"arguments:{arguing.Min(p => p.StageTick) / 4_800}", new("zap", $"Rising discontent is causing arguments{About(arguing)}", bad, LocatePerson(arguing[0].AgentId)));
+        foreach (var person in disorder)
             if (person.Stage == DisorderStage.Fight && person.OpponentId is { } other && person.AgentId < other)
                 yield return ($"fight:{person.AgentId}:{person.StageTick}", new("zap", $"{NameOf(person.AgentId)} and {NameOf(other)} are fighting!", bad, LocatePerson(person.AgentId)));
         // Told once per guest per day: it's a trait worth noticing, not every piece they pick up.
