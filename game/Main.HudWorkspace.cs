@@ -66,7 +66,8 @@ public partial class Main
         foreach (var name in new[] { "Build", "Overview", "Programme", "Staff", "Supplies", "Site & water" })
         {
             var scroll = new ScrollContainer { Name = name, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
-            if (name == "Programme")
+            // These sheets scroll their own tables, keeping the running order or crew in view.
+            if (name is "Programme" or "Staff")
                 scroll.VerticalScrollMode = ScrollContainer.ScrollMode.Disabled;
             _hudTabs.AddChild(scroll);
             var box = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; box.AddThemeConstantOverride("separation", 12);
@@ -187,8 +188,9 @@ public partial class Main
         _buildDrawerOpen = false; _hudWorkspaceOpen = true; _hudTabs.CurrentTab = Array.IndexOf(_hudPages.Keys.ToArray(), name); RefreshHudWorkspace();
     }
 
-    private bool HudProgrammeSelected() => _hudTabs is not null &&
-        _hudTabs.CurrentTab == Array.IndexOf(_hudPages.Keys.ToArray(), "Programme");
+    private bool HudProgrammeSelected() => HudPageSelected("Programme");
+    private bool HudPageSelected(string name) => _hudTabs is not null &&
+        _hudTabs.CurrentTab == Array.IndexOf(_hudPages.Keys.ToArray(), name);
 
     private void ShowHudStartConfirmation()
     {
@@ -273,7 +275,7 @@ public partial class Main
         RefreshHudAlerts();
         Drawer.Refresh();
         Dock.Refresh();
-        if (_mapControls is not null) _mapControls.Visible = Dock.Visible && !(_hudWorkspaceOpen && !_buildDrawerOpen && HudProgrammeSelected());
+        if (_mapControls is not null) _mapControls.Visible = Dock.Visible && !(_hudWorkspaceOpen && !_buildDrawerOpen && (HudProgrammeSelected() || HudPageSelected("Staff")));
     }
 
     private void RefreshHudPreparationReadiness()

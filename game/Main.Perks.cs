@@ -36,7 +36,8 @@ public partial class Main
         }
         if (constrained)
             height = Math.Min(height, size.Y - Ui.Dock - 8 - 220 - 10 - Ui.ContentTop);
-        var bookingPage = Booking.IsBuilt && HudProgrammeSelected();
+        // The Programme and Staff sheets are tables with a column beside them, so they take the full width.
+        var bookingPage = Booking.IsBuilt && HudProgrammeSelected() || _staffPanelBuilt && HudPageSelected("Staff");
         if (bookingPage && !constrained) height = Math.Min(Ui.S(530), size.Y - Ui.ContentTop - (_session.PreparedStatus == PreparationStatus.Preparing ? Ui.Dock + Ui.S(12) : 60));
         _hudWorkspace.Position = new Vector2(Ui.Gutter, Ui.ContentTop);
         _hudWorkspace.Size = new Vector2(bookingPage && !constrained ? size.X - 2 * Ui.Gutter : Ui.S(690), height);

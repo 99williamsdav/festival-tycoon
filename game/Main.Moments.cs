@@ -47,6 +47,8 @@ public partial class Main
         }
         var running = _session.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing;
         _momentsBox.Visible = running && !EyeViewActive;
+        // Under the incident cards when there are any, so the two never overlap.
+        _momentsBox.Position = new Vector2(Ui.Gutter, _hudAlerts is { Visible: true } alerts ? alerts.Position.Y + alerts.Size.Y + Ui.S(10) : Ui.ContentTop);
         var day = (_session, _session.CapturePreparation()?.Attempt ?? 0);
         if (_momentsDay != day)
         {

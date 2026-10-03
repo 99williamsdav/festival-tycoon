@@ -245,28 +245,8 @@ private void BuildImmersionControls(VBoxContainer parent)
         CommitEquipmentAction(new SetPreparationStockCommand(amounts[0], amounts[1], amounts[2]));
     }
 
-    private void BuildStaffPage(VBoxContainer page)
-    {
-        page.AddChild(Ui.PageHeading("Festival staff", "The licence needs a sound engineer, a medic and a steward. Everyone is paid at Start."));
-        _staffGrids.Clear();
-        foreach (var role in new[] { StaffRole.Sound, StaffRole.Medic, StaffRole.Steward })
-        {
-            page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
-            var name = StaffCatalogue.RoleName(role);
-            page.AddChild(Ui.Section(char.ToUpperInvariant(name[0]) + name[1..], "Required · choose one"));
-            var grid = new GridContainer { Columns = 3 };
-            grid.AddThemeConstantOverride("h_separation", Ui.Px(12)); grid.AddThemeConstantOverride("v_separation", Ui.Px(12));
-            page.AddChild(grid); _staffGrids[role] = grid;
-        }
-        page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
-        page.AddChild(Ui.Section("Extra hands", "Needs a perk slot"));
-        _extraStaffNote = Ui.Text("", 13, Ui.InkMuted); _extraStaffNote.AutowrapMode = TextServer.AutowrapMode.WordSmart;
-        page.AddChild(_extraStaffNote);
-        _extraStaffList = new VBoxContainer(); _extraStaffList.AddThemeConstantOverride("separation", 0); page.AddChild(_extraStaffList);
-        page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
-        page.AddChild(Ui.Section("Site crew · optional"));
-        _crewList = new VBoxContainer(); _crewList.AddThemeConstantOverride("separation", 0); page.AddChild(_crewList);
-    }
+    // The crew slots and candidate table, laid out like the Programme sheet.
+    private void BuildStaffPage(VBoxContainer page) => BuildStaffPanel(page);
 
     private void BuildSuppliesPage(VBoxContainer page)
     {

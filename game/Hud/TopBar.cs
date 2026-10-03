@@ -80,10 +80,11 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _guestsOf = Ui.Text("", 14, Ui.BarMuted, Ui.Slab); guestLine.AddChild(_guestsOf);
         // How the crowd feels overall: the average satisfaction the newspaper's rating is built from.
         (_mood, var moodLine) = Stat(row, "Crowd mood", glyph: null, icon: "star", divider: true);
-        _moodBar = new ProgressBar { ShowPercentage = false, MaxValue = 100, CustomMinimumSize = new Vector2(Ui.S(64), Ui.S(8)),
-            SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
-        _moodBar.AddThemeStyleboxOverride("background", Ui.Box(Ui.BarDeep, 4));
-        moodLine.AddChild(_moodBar);
+        // The bar sits under the figure, as the clock's track does, to keep the bar narrow.
+        _moodBar = new ProgressBar { ShowPercentage = false, MaxValue = 100, CustomMinimumSize = new Vector2(Ui.S(70), Ui.S(6)),
+            MouseFilter = Control.MouseFilterEnum.Ignore };
+        _moodBar.AddThemeStyleboxOverride("background", Ui.Box(Ui.BarDeep, 3));
+        ((VBoxContainer)moodLine.GetParent()).AddChild(_moodBar);
         _weather = Stat(row, "Weather", glyph: null, icon: "sun", divider: false).Value;
         // Clock, guests and weather (with their dividers) step aside during the perk draft.
         var cashGroup = _cash.GetParent().GetParent().GetParent().GetParent<Control>();
@@ -228,8 +229,10 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _moodBar!.Value = mood ?? 0;
         // The newspaper's bands: below 40% is a one- or two-star day, 60% and up four or five.
         _moodBar.AddThemeStyleboxOverride("fill", Ui.Box(mood < 40 ? new Color("df5750") : mood < 60 ? Ui.Warn : new Color("53bb72"), 4));
-        _mood.GetParent().GetParent().GetParent().GetParent<Control>().TooltipText =
-            "The crowd's average satisfaction, which the newspaper's star rating is based on.";
+        var moodGroup = _mood.GetParent().GetParent().GetParent().GetParent<Control>();
+        moodGroup.TooltipText = "The crowd's average satisfaction, which the newspaper's star rating is based on.";
+        // Nothing to show before anyone's through the gate.
+        moodGroup.Modulate = preparing ? new Color(1, 1, 1, 0) : Colors.White;
         _pause!.Visible = !preparing;
         _pause.Icon = Ui.Icon(session.IsPaused ? "play" : "pause");
         _speed!.Visible = _pause.Visible;

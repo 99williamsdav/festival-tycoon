@@ -17,10 +17,6 @@ public partial class Main
     private PanelContainer? _contextPanel;
     private readonly Dictionary<string, Button> _offerButtons = [];
     private readonly Dictionary<string, OfferCard> _offerCards = [];
-    private readonly Dictionary<StaffRole, GridContainer> _staffGrids = [];
-    private VBoxContainer? _extraStaffList;
-    private Label? _extraStaffNote;
-    private VBoxContainer? _crewList;
     private GridContainer? _rigChoices;
     private ProgressBar? _generatorBar;
     private Label? _generatorText;
@@ -61,7 +57,7 @@ public partial class Main
             (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0) ||
             (_selectedGenerator && _session.CaptureEquipment() is not null && ContextVisualAvailable(_equipmentVisual));
         if (Dock.Readiness is { } readiness)
-            readiness.Visible = Dock.Visible && !(_hudWorkspaceOpen && !_buildDrawerOpen && HudProgrammeSelected()) && !_contextPanel.Visible;
+            readiness.Visible = Dock.Visible && !((IPreparationNavigation)this).ReadinessCovered;
     }
 
 
@@ -155,6 +151,7 @@ public partial class Main
         if (p.Plan is { Committed: false } planned)
             _preparationSummary.Text += $"\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nPlanned hires: {string.Join(", ", planned.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}";
         Booking.Refresh();
+        RefreshStaffPanel();
         RefreshImmersionControls();
         var offersById = _session.GetPreparationOffers().ToDictionary(offer => offer.Id);
         foreach (var (id, card) in _offerCards)
@@ -178,18 +175,6 @@ public partial class Main
             var category = offersById[id].Category;
             card.Root.Visible = p.Status == PreparationStatus.Preparing &&
                 (category != "extra-medic" || p.ExtraMedicSlotOwned) && (category != "extra-steward" || p.ExtraStewardSlotOwned);
-        }
-        if (_extraStaffNote is not null)
-        {
-            string Perk(string perkId) => PerkCatalogue.All.Single(item => item.Id == perkId).Name;
-            _extraStaffNote.Text = (p.ExtraMedicSlotOwned, p.ExtraStewardSlotOwned) switch
-            {
-                (true, true) => "Your perks add a second medic and a second steward slot. Pick anyone not already hired.",
-                (true, false) => $"Your perk adds a second medic slot. A second steward needs {Perk("extra-pair-of-hands")}.",
-                (false, true) => $"Your perk adds a second steward slot. A second medic needs {Perk("doctors-orders")}.",
-                _ => $"A second medic needs the perk {Perk("doctors-orders")}; a second steward needs {Perk("extra-pair-of-hands")}.",
-            };
-            _extraStaffNote.Visible = p.Status == PreparationStatus.Preparing;
         }
         if (_generatorBar is not null)
         {
@@ -245,17 +230,12 @@ private void RebuildPreparationOffers()
         {
             if (_session.CaptureImmersion() is not null && offer.Id == "contract.stock") continue;
             if (_session.CaptureProgramme() is not null && offer.Category == "act") continue;
+            // Hiring lives in the Staff sheet's crew slots and candidate table.
+            if (StaffCatalogue.IsWorkCategory(offer.Category)) continue;
             var id = offer.Id;
             var (layout, colour, icon, destination) = offer.Category switch
             {
-                // Candidates' blurbs read as quotes, so their detail line has no icon.
-                "staff" => (OfferLayout.Card, new Color("3e5a8c"), "", (Container?)_staffGrids.GetValueOrDefault(StaffRole.Sound)),
-                "medic" => (OfferLayout.Card, new Color("2f8a5f"), "", _staffGrids.GetValueOrDefault(StaffRole.Medic)),
-                "steward" => (OfferLayout.Card, Ui.Teal, "", _staffGrids.GetValueOrDefault(StaffRole.Steward)),
-                "maintenance" => (OfferLayout.Row, new Color("8a6a2e"), "wrench", _crewList),
-                "extra-steward" => (OfferLayout.Row, Ui.Teal, "", _extraStaffList),
-                "extra-medic" => (OfferLayout.Row, new Color("2f8a5f"), "", _extraStaffList),
-                "equipment" => (OfferLayout.Choice, Ui.Teal, "volume-2", _rigChoices),
+                "equipment" => (OfferLayout.Choice, Ui.Teal, "volume-2", (Container?)_rigChoices),
                 _ => (OfferLayout.Row, Ui.InkMuted, "package", (Container?)null),
             };
             var candidate = StaffCatalogue.ForOffer(candidates, id);

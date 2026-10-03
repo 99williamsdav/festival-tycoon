@@ -40,7 +40,7 @@ public partial class Main : IPreparationNavigation, ITopBarActions, ILiveBarActi
     string IPreparationNavigation.OpenDestinationName => _buildDrawerOpen ? "Build" : _hudWorkspaceOpen && _hudTabs is not null
         ? _hudPages.Keys.ElementAt(_hudTabs.CurrentTab) : "";
     void IPreparationNavigation.OpenDestination(string destination) => OpenPreparationDestination(destination);
-    bool IPreparationNavigation.ReadinessCovered => (_hudWorkspaceOpen && !_buildDrawerOpen && HudProgrammeSelected()) || _contextPanel?.Visible == true;
+    bool IPreparationNavigation.ReadinessCovered => (_hudWorkspaceOpen && !_buildDrawerOpen && (HudProgrammeSelected() || HudPageSelected("Staff"))) || _contextPanel?.Visible == true;
     bool IPreparationNavigation.Placing => _buildGhostKind is not null;
     void IPreparationNavigation.ConfirmStart() => ShowHudStartConfirmation();
     void ITopBarActions.TogglePause() { _host.Submit(new SetPausedCommand(!_session.IsPaused)); RefreshPreparationHud(); }
