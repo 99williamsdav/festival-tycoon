@@ -69,8 +69,10 @@ public partial class Main
                 if (key.Split(':') is ["collapse", var who, var when]) _momentsCollapsed[ulong.Parse(who)] = long.Parse(when);
             }
         // Recoveries are only news for someone we saw collapse.
+        // Anyone no longer down is forgotten, so a later drink of water can't pass for the medic's work.
         foreach (var need in _session.CaptureMedical()?.Needs ?? [])
-            if (need.Stage == MedicalStage.Treated && _momentsCollapsed.Remove(need.AgentId))
+            if (need.Stage is not (MedicalStage.Collapsed or MedicalStage.Critical) && _momentsCollapsed.Remove(need.AgentId) &&
+                need.Stage == MedicalStage.Treated)
                 ShowMoment(new("heart-pulse", $"The medic has {NameOf(need.AgentId)} back on their feet", new Color("53bb72"), LocatePerson(need.AgentId)));
     }
 
@@ -126,6 +128,7 @@ public partial class Main
                 {
                     CollapseCause.WaspSting => $"{name} was stung by a wasp and collapsed!",
                     CollapseCause.Drink => $"{name} has had far too much to drink and collapsed!",
+                    CollapseCause.Injury => $"{name} was hurt in the fight and is down!",
                     _ => $"{name} has collapsed in the heat!",
                 };
                 yield return ($"collapse:{need.AgentId}:{need.CollapseTick}", new("heart-pulse", why, bad, LocatePerson(need.AgentId)));

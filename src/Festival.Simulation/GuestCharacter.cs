@@ -9,7 +9,7 @@ namespace Festival.Simulation;
 /// <param name="Lightweight">Drinks like anyone else but gets drunk twice as fast on the same beer.</param>
 public sealed record GuestCharacter(int HeatSensitivity, int Prissiness, bool WaspAllergy, bool Ibs, bool SlowDrinker, bool Lightweight);
 
-public enum CollapseCause { Heat, Drink, WaspSting }
+public enum CollapseCause { Heat, Drink, WaspSting, Injury }
 
 public static class GuestCharacters
 {
@@ -125,10 +125,12 @@ public sealed partial class GameSession
 
     /// <summary>
     /// Why someone collapsed, from signals that outlast the medic's dispatch overwriting their Reason text: a sting
-    /// leaves no warning before the collapse, drink leaves an intoxication collapse tick, and anything else is heat.
+    /// leaves no warning before the collapse, drink leaves an intoxication collapse tick, a fight leaves an injury,
+    /// and anything else is heat.
     /// </summary>
     public CollapseCause CollapseCauseOf(ulong id) =>
         StungByWasp(id) ? CollapseCause.WaspSting :
+        PersonIn(PersonView.Disorder, id)?.ConductStage == DisorderStage.Injured ? CollapseCause.Injury :
         _persons[id].IntoxicationCollapseTick >= 0 ? CollapseCause.Drink : CollapseCause.Heat;
 
     /// <summary>An allergic guest by a wasp-filled bin can be stung: a collapse that needs the medic like any other.</summary>
