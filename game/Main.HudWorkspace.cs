@@ -195,7 +195,12 @@ public partial class Main
         if (_buildGhostKind is not null) { _preparationMessage = "Finish or cancel placement before opening."; RefreshPreparationHud(); return; }
         var issue = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand()));
         if (issue is not null) { _preparationMessage = issue.Message; RefreshPreparationHud(); return; }
-        _hudStartConfirmation!.PopupCentered(new Vector2I(480, 180));
+        // Stock is optional, but opening with none is almost always a mistake: say so before the money goes.
+        var noStock = _session.CapturePreparationPlan() is { Chips: 0, SoftDrinks: 0, Beers: 0 };
+        const string warning = "\n\nNo stock ordered: the bar and food van will have nothing to sell. Open anyway, or order some in Supplies.";
+        var text = _hudStartConfirmation!.DialogText.Replace(warning, "");
+        _hudStartConfirmation.DialogText = noStock ? text + warning : text;
+        _hudStartConfirmation.PopupCentered(new Vector2I(480, noStock ? 240 : 180));
     }
 
 

@@ -350,23 +350,29 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         _ring.Text = $"{done}/{requirements.Count}";
         _readinessTitle!.Text = missing.Length == 0 ? "Ready to open" : "Ready to open?";
         _readinessDetail!.Text = missing.Length == 0 ? "Everything required is in place" : $"{Count(missing.Length)} left before Start";
-        var key = string.Join("|", requirements.Select(item => item.Id + ":" + item.Complete));
+        var stocked = _hud.Session.CapturePreparationPlan() is not { Chips: 0, SoftDrinks: 0, Beers: 0 };
+        var key = string.Join("|", requirements.Select(item => item.Id + ":" + item.Complete)) + "|stock:" + stocked;
         if (key == _readinessKey) return;
         _readinessKey = key;
         foreach (var child in _readinessRows!.GetChildren()) child.QueueFree();
         foreach (var requirement in requirements)
             _readinessRows.AddChild(ReadinessRow(requirement));
+        // Not a requirement, so it never holds up Start, but worth a warning: no stock means nothing to sell.
+        _readinessRows.AddChild(ReadinessRow(new PreparationStartRequirement("stock", PreparationStartOwner.Overview, "Stock", stocked,
+            "Optional, but the bar and food van will have nothing to sell."), advisory: true));
     }
 
-    private PanelContainer ReadinessRow(PreparationStartRequirement requirement)
+    private PanelContainer ReadinessRow(PreparationStartRequirement requirement, bool advisory = false)
     {
-        var (doneText, todoText) = Wording(requirement);
-        var destination = Destination(requirement.Owner);
+        var (doneText, todoText) = advisory ? ("Stock ordered", "No stock ordered") : Wording(requirement);
+        var destination = advisory ? "Supplies" : Destination(requirement.Owner);
         var complete = requirement.Complete;
         var row = new PanelContainer { CustomMinimumSize = new Vector2(0, Ui.S(complete ? 30 : 34)), MouseDefaultCursorShape = Control.CursorShape.PointingHand,
             MouseFilter = Control.MouseFilterEnum.Stop, TooltipText = complete ? $"{doneText} · open {destination} to review" : requirement.Detail };
-        var rest = complete ? Ui.Box(new Color(0, 0, 0, 0), 6, padX: 6) : Ui.Box(Ui.AlertWash, 6, padX: 6);
-        var hover = complete ? Ui.Box(new Color(0, 0, 0, 0.04f), 6, padX: 6) : Ui.Box(Ui.AlertWash.Darkened(0.04f), 6, padX: 6);
+        // An advisory is a softer amber, not the alert colour of something that blocks Start.
+        var wash = advisory ? new Color(Ui.Warn, 0.16f) : Ui.AlertWash;
+        var rest = complete ? Ui.Box(new Color(0, 0, 0, 0), 6, padX: 6) : Ui.Box(wash, 6, padX: 6);
+        var hover = complete ? Ui.Box(new Color(0, 0, 0, 0.04f), 6, padX: 6) : Ui.Box(wash.Darkened(0.04f), 6, padX: 6);
         row.AddThemeStyleboxOverride("panel", rest);
         row.MouseEntered += () => row.AddThemeStyleboxOverride("panel", hover);
         row.MouseExited += () => row.AddThemeStyleboxOverride("panel", rest);
@@ -377,7 +383,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var line = new HBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore };
         line.AddThemeConstantOverride("separation", Ui.Px(10)); row.AddChild(line);
         var mark = new PanelContainer { CustomMinimumSize = Ui.S(20, 20), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore };
-        mark.AddThemeStyleboxOverride("panel", Ui.Box(complete ? Ui.Teal : Ui.Alert, 10));
+        mark.AddThemeStyleboxOverride("panel", Ui.Box(complete ? Ui.Teal : advisory ? Ui.Warn : Ui.Alert, 10));
         line.AddChild(mark);
         if (complete)
         {
