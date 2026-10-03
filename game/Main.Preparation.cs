@@ -309,6 +309,7 @@ private void RebuildPreparationOffers()
             ? live.Listeners.Where(item => item.AtPlace).Select(item => new EntityId(item.AgentId)).ToHashSet()
             : [];
         var onStage = live?.Performers.Where(item => item.OnStage).Select(item => new EntityId(item.AgentId)).ToHashSet() ?? [];
+        PrepareCrowdDance(live);
         var casualtyName = _session.CapturePreparation()?.Status == PreparationStatus.Failed
             ? _session.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.PersonId : null;
         var casualtyId = casualtyName is null ? (EntityId?)null : _session.CapturePreparation()!.People
@@ -350,7 +351,8 @@ private void RebuildPreparationOffers()
                 visual.Rotation = new Vector3(Mathf.Pi / 2f, visual.Rotation.Y, 0);
                 continue;
             }
-            if (Mathf.Abs(visual.Rotation.X) > .1f) visual.Rotation = new Vector3(0, visual.Rotation.Y, 0);
+            // Upright again after a collapse, or after nodding along to a set.
+            if (visual.Rotation.X != 0) visual.Rotation = new Vector3(0, visual.Rotation.Y, visual.Rotation.Z);
             UpdatePersonFacing(agent.Id, visual, renderedPosition, agent.Action,
                 watching.Contains(agent.Id), onStage.Contains(agent.Id), characterDelta);
             // A dodgy knee hobbles: a dip and a sideways lurch on every other step.
@@ -358,6 +360,7 @@ private void RebuildPreparationOffers()
                 ? Mathf.Sin((float)_characterPresentationSeconds * 7f) : 0f;
             if (hobble != 0) visual.Position -= new Vector3(0, Mathf.Abs(hobble) * .05f, 0);
             if (hobble != 0 || visual.Rotation.Z != 0) visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y, hobble * .1f);
+            ApplyCrowdDance(agent.Id, visual);
         }
         AdvanceLivePerformancePresentation(characterDelta);
         AdvanceImmersionPresentation(characterDelta);
