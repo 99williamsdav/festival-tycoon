@@ -36,7 +36,7 @@ public sealed class LitterCuePlanner
     public static readonly string[] FullBinLines = ["This bin's full!", "Someone needs to empty this!", "It's overflowing!",
         "There's no room in here!", "Does no one empty the bins?", "Are there any other bins?"];
     public static readonly string[] GroundLines = ["What a mess!", "Rubbish everywhere!", "Someone needs to clean this up.",
-        "Ew, it's sticky", "Grim.", "Where's the bin?"];
+        "Grim.", "Where's the bin?"];
     private sealed record Pending(ulong AgentId, bool FullBin, long Tick);
     private readonly Dictionary<ulong, LitterRemarkSituation> _previous = [];
     private readonly Dictionary<ulong, long> _lastPersonCue = [];

@@ -13,9 +13,10 @@ public sealed record FaultsSnapshot(int Version, FacilityFault[] Faults, bool Di
 
 public static class FaultRules
 {
-    // A small chance on each use, tuned so a Tier 1 toilet (~30 visits) or tap (~60 uses) has about
-    // a 90% chance of at least one incident in a day: 1 - 0.1^(1/30) and 1 - 0.1^(1/60).
-    public const int ToiletStuckChancePer10k = 739;
+    // A small chance on each use. A Tier 1 toilet (~30 visits) has about an even chance of one jam in a day,
+    // 1 - 0.5^(1/30), after playtesting found two or more a day too many; a tap (~60 uses) about a 90% chance of
+    // breaking, 1 - 0.1^(1/60).
+    public const int ToiletStuckChancePer10k = 228;
     public const int TapBreakChancePer10k = 377;
     public const int RescueTicks = 480, RepairTicks = 960, BodgeTicks = 1_600;
     /// <summary>What someone weighing the queue expects to wait before help is even on its way.</summary>

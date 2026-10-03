@@ -467,7 +467,9 @@ public partial class Main : Node, IHudHost
     private void RefreshStagePowerAction()
     {
         if (_stagePowerButton is null) return;
-        _stagePowerButton.Visible = _selected?.Kind == FarmObjectKind.TrailerStage || _selectedGenerator;
+        // Only once the festival is running: before then there's no supply to shut off.
+        _stagePowerButton.Visible = (_selected?.Kind == FarmObjectKind.TrailerStage || _selectedGenerator) &&
+            _session.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing;
         if (!_stagePowerButton.Visible) return;
         var error = _session.ValidateCommand(CampaignEnvelope(new EquipmentCommand(EquipmentAction.Isolate)));
         _stagePowerButton.Disabled = error is not null;

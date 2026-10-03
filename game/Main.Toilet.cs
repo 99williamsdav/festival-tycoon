@@ -71,7 +71,7 @@ public partial class Main
                 socket.AddChild(occupied);
                 AddChild(body);
                 AddToiletCollision(body, door, toilet.Id);
-                var name = BuildingName("TOILET", new Vector3(0, 2.8f, 0));
+                var name = BuildingName("TOILET", new Vector3(0, 2.8f, 0), 28);
                 body.AddChild(name);
                 view = new(body, door, free, occupied); _toiletViews.Add(toilet.Id, view);
             }

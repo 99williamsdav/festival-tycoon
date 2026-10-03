@@ -27,8 +27,9 @@ public partial class Main
 
     private void BuildMoments(CanvasLayer layer, Vector2 size)
     {
-        _momentsBox = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore, GrowVertical = Control.GrowDirection.Begin,
-            Position = new Vector2(Ui.Gutter, size.Y - Ui.Dock - Ui.S(14)), Size = new Vector2(Ui.S(330), 0) };
+        // Top left, under the bar, where it's seen: the day's story matters.
+        _momentsBox = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore,
+            Position = new Vector2(Ui.Gutter, Ui.ContentTop), Size = new Vector2(Ui.S(330), 0) };
         _momentsBox.AddThemeConstantOverride("separation", Ui.Px(6));
         layer.AddChild(_momentsBox);
     }
@@ -176,6 +177,7 @@ public partial class Main
         card.AddThemeConstantOverride("icon_max_width", Ui.Px(15));
         card.Pressed += moment.Locate;
         _momentsBox!.AddChild(card);
+        _momentsBox.MoveChild(card, 0); // Newest at the top.
         _momentCards.Add((card, 0));
         while (_momentCards.Count > MomentsShown) { _momentCards[0].Card.QueueFree(); _momentCards.RemoveAt(0); }
     }

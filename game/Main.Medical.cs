@@ -64,7 +64,7 @@ public partial class Main
         _responsePostVisuals[ResponseRole.Medic]=AddAsset(PostAsset(ResponseRole.Medic),At(_session.CaptureResponsePost(ResponseRole.Medic).Cell));
         _primaryWaterPick = RegisterMedicalPick(MedicalFacility.Water, "water.main", waterPosition + new Vector3(0, 1.05f, 0), new Vector3(2.3f, 2.1f, 1.1f));
         _responsePostPicks[ResponseRole.Medic]=RegisterMedicalPick(MedicalFacility.FirstAid, null, At(GameSession.MedicalTentCell) + new Vector3(0, 1.35f, 0), new Vector3(3.5f, 2.7f, 3.5f));
-        var tentName=BuildingName("FIRST AID",Vector3.Zero);AddChild(tentName);_responsePostLabels[ResponseRole.Medic]=tentName;SyncResponsePosts();
+        var tentName=BuildingName("FIRST AID",Vector3.Zero,28);AddChild(tentName);_responsePostLabels[ResponseRole.Medic]=tentName;SyncResponsePosts();
         _waterPlacementPreview = new MeshInstance3D
         {
             Mesh = new CylinderMesh { TopRadius = .75f, BottomRadius = .75f, Height = 0.07f },

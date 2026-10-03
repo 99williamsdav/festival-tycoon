@@ -150,7 +150,7 @@ public partial class Main
         AddChild(pick);
         _securityPostPickId = pick.GetInstanceId();
         _responsePostVisuals[ResponseRole.Steward]=post;_responsePostPicks[ResponseRole.Steward]=pick;
-        var postName=BuildingName("STEWARD POST",Vector3.Zero);AddChild(postName);_responsePostLabels[ResponseRole.Steward]=postName;SyncResponsePosts();
+        var postName=BuildingName("STEWARD POST",Vector3.Zero,28);AddChild(postName);_responsePostLabels[ResponseRole.Steward]=postName;SyncResponsePosts();
     }
 
     private void BuildSecurityPostInspectorAction(VBoxContainer parent)

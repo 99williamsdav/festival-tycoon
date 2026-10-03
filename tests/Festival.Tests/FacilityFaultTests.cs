@@ -43,10 +43,10 @@ public sealed class FacilityFaultTests
     public void EachUseHasTheCalibratedSmallChance()
     {
         int Hits(int chance) => Enumerable.Range(0, 100_000).Count(i => FaultRules.Roll(20260922, "toilet.main", i, 7, chance));
-        Assert.AreEqual(739, Hits(FaultRules.ToiletStuckChancePer10k) / 10.0, 40);
+        Assert.AreEqual(228, Hits(FaultRules.ToiletStuckChancePer10k) / 10.0, 25);
         Assert.AreEqual(377, Hits(FaultRules.TapBreakChancePer10k) / 10.0, 30);
-        // About a 90% chance of at least one incident in a typical day's uses.
-        Assert.AreEqual(0.9, 1 - Math.Pow(1 - FaultRules.ToiletStuckChancePer10k / 10_000.0, 30), 0.01);
+        // About an even chance of a jam per toilet, and a 90% chance of a broken tap, in a typical day.
+        Assert.AreEqual(0.5, 1 - Math.Pow(1 - FaultRules.ToiletStuckChancePer10k / 10_000.0, 30), 0.01);
         Assert.AreEqual(0.9, 1 - Math.Pow(1 - FaultRules.TapBreakChancePer10k / 10_000.0, 60), 0.01);
     }
 
