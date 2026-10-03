@@ -6,6 +6,7 @@ public sealed record PerkDefinition(string Id, string Name, string Effect);
 public static class PerkCatalogue
 {
     public const string TapId = "water.extra-1";
+    public const string BeerFestival = "beer-festival";
     public static readonly PerkDefinition[] All = [
         new("extra-pair-of-hands", "Extra Pair of Hands", "+1 steward hiring slot. Hire separately for £30 per weekend."),
         new("doctors-orders", "Doctor's Orders", "+1 medic hiring slot. Hire separately for £30 per weekend."),
@@ -14,7 +15,8 @@ public static class PerkCatalogue
         new("smooth-operators", "Smooth Operators", "All stewards walk faster and gain calming and confrontation skill."),
         new("first-responders", "First Responders", "All medics walk faster and treat more quickly."),
         new("something-in-the-water", "Something in the Water", "Drinking free water improves satisfaction."),
-        new("thirsty-crowd", "Thirsty Crowd", "Guests grow thirsty faster.")
+        new("thirsty-crowd", "Thirsty Crowd", "Guests grow thirsty faster."),
+        new(BeerFestival, "Beer Festival", "Beer costs 50% more. No teetotallers, and everyone drinks a little more.")
     ];
 }
 // This RNG is deliberately separate from the established stream collection: adding an enum

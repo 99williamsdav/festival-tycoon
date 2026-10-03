@@ -20,7 +20,7 @@ public sealed class FacilityFaultTests
     /// <summary>An edition advanced, second by second, to the first fault of the kind; null if the day passes without one.</summary>
     private static (GameSession Session, FacilityFault Fault)? FirstFault(FacilityFaultKind kind, ulong seed, params string[] offers)
     {
-        var s = Ready(seed, 0, offers);
+        var s = Ready(seed, QuietPerk, offers);
         Accept(s, new StartPreparedEditionCommand());
         while (s.PreparedStatus == PreparationStatus.Running)
         {

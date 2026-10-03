@@ -16,7 +16,7 @@ public sealed class PerkArtworkTests
         Assert.IsNotNull(root);
         using var manifest = JsonDocument.Parse(File.ReadAllText(Path.Combine(root.FullName,"assets/source/perks/mosaic-suite-v1/manifest.json")));
         var cards = manifest.RootElement.GetProperty("cards").EnumerateArray().ToArray();
-        Assert.AreEqual(8,cards.Length);
+        Assert.AreEqual(PerkCatalogue.All.Length,cards.Length);
         CollectionAssert.AreEquivalent(PerkCatalogue.All.Select(p=>p.Id).ToArray(),cards.Select(c=>c.GetProperty("id").GetString()!).ToArray());
         foreach(var card in cards)
         {

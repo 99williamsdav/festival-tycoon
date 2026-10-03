@@ -17,20 +17,46 @@ internal static class BuildSession
         Assert.IsTrue(result.IsAccepted, $"{command.GetType().Name}: {result.ReasonCode} {result.Message}");
     }
 
+    /// <summary>
+    /// Draft a quiet perk (a hiring slot no crew fills), redrawing the hand until it's offered, so
+    /// a test's world doesn't change whenever a perk joins the catalogue and reshuffles every opening hand.
+    /// </summary>
+    public const int QuietPerk = -1;
+
     /// <summary>A Build campaign with its perk drafted and the default layout placed; no line-up, stock or staff.</summary>
-    public static GameSession Drafted(ulong seed = 20260922, int perk = 0)
+    public static GameSession Drafted(ulong seed = 20260922, int perk = QuietPerk) =>
+        Drafted(seed, perk == QuietPerk ? Quiet : null, perk);
+
+    // Hiring slots that no test crew fills, so drafting either changes nothing on the day.
+    private static readonly string[] Quiet = ["extra-pair-of-hands", "doctors-orders"];
+
+    /// <summary>A Build campaign that drafted the named perk, redrawing its opening hand until it's offered.</summary>
+    public static GameSession Drafted(ulong seed, string perkId) => Drafted(seed, [perkId]);
+
+    private static GameSession Drafted(ulong seed, string[]? perkIds, int index = 0)
     {
         var s = GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);
         var perks = s.CapturePerks()!;
-        Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[perk]));
+        var redraw = typeof(GameSession).GetMethod("OpenPerkDraft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
+        for (var draws = 0; perkIds is not null && !perks.Hand.Any(perkIds.Contains); draws++)
+        {
+            Assert.IsTrue(draws < 8, $"Seed {seed} never offered {string.Join(" or ", perkIds)}.");
+            redraw.Invoke(s, []); perks = s.CapturePerks()!;
+        }
+        Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perkIds is null ? perks.Hand[index] : perks.Hand.First(perkIds.Contains)));
         Accept(s, new UseDefaultBuildLayoutCommand());
         return s;
     }
 
     /// <summary>A drafted campaign with a line-up and stock, but no staff.</summary>
-    public static GameSession Planned(ulong seed = 20260922, int perk = 0)
+    public static GameSession Planned(ulong seed = 20260922, int perk = QuietPerk) =>
+        Planned(Drafted(seed, perk));
+
+    /// <summary>A drafted campaign, with the named perk, a line-up and stock, but no staff.</summary>
+    public static GameSession Planned(ulong seed, string perkId) => Planned(Drafted(seed, perkId));
+
+    private static GameSession Planned(GameSession s)
     {
-        var s = Drafted(seed, perk);
         Accept(s, new SetProgrammeCommand(Acts));
         Accept(s, new SetPreparationStockCommand(40, 40, 32));
         return s;
@@ -85,7 +111,7 @@ internal static class BuildSession
     public static AcceptPreparationOfferCommand[] Crew(GameSession s) => CrewIds(s).Select(id => new AcceptPreparationOfferCommand(id)).ToArray();
 
     /// <summary>A Build campaign in preparation with a legal default plan, ready to start.</summary>
-    public static GameSession Ready(ulong seed = 20260922, int perk = 0, params string[] offers)
+    public static GameSession Ready(ulong seed = 20260922, int perk = QuietPerk, params string[] offers)
     {
         var s = Planned(seed, perk);
         foreach (var hire in Crew(s)) Accept(s, hire);
@@ -93,8 +119,17 @@ internal static class BuildSession
         return s;
     }
 
+    /// <summary>A Build campaign that drafted the named perk, crewed and started.</summary>
+    public static GameSession Started(ulong seed, string perkId)
+    {
+        var s = Planned(seed, perkId);
+        foreach (var hire in Crew(s)) Accept(s, hire);
+        Accept(s, new StartPreparedEditionCommand());
+        return s;
+    }
+
     /// <summary>A Build campaign whose edition has started.</summary>
-    public static GameSession Started(ulong seed = 20260922, int perk = 0, params string[] offers)
+    public static GameSession Started(ulong seed = 20260922, int perk = QuietPerk, params string[] offers)
     {
         var s = Ready(seed, perk, offers);
         Accept(s, new StartPreparedEditionCommand());

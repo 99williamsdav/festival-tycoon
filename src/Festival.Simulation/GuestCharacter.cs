@@ -104,13 +104,13 @@ public sealed partial class GameSession
         var labels = new List<string>();
         if (c.WaspAllergy) labels.Add("Allergic to wasps");
         if (c.Ibs) labels.Add("Irritably-boweled");
-        if (c.Lightweight && InView(PersonView.Consumption, id) && !person.Abstains) labels.Add("Lightweight");
+        if (c.Lightweight && InView(PersonView.Consumption, id) && !Teetotal(person)) labels.Add("Lightweight");
         if (dickishness >= 85 && InView(PersonView.Disorder, id) && person.QueueToleranceTicks <= 600) labels.Add("Twat");
         if (dickishness <= LitterRules.GoodyTwoShoesMaximum) labels.Add("Goody two-shoes");
         if (c.Prissiness >= 90) labels.Add("Princess");
         else if (c.Prissiness <= 30 && person.ExpectedGenre == (int)FestivalGenre.Folk) labels.Add("Hippie"); // Unfussy and here for the folk.
         if (c.HeatSensitivity >= 80) labels.Add("Easy to overheat");
-        if (InView(PersonView.Consumption, id) && !person.Abstains && person.BeerTaste >= 92) labels.Add("Alcoholic");
+        if (InView(PersonView.Consumption, id) && !Teetotal(person) && person.BeerTaste >= 92) labels.Add("Alcoholic");
         if (InView(PersonView.Consumption, id) && person.OpeningBudgetPennies >= 2_300) labels.Add("Rich");
         if (c.SlowDrinker) labels.Add("Slow drinker");
         return labels.Take(GuestCharacters.MaximumLabels).ToArray();

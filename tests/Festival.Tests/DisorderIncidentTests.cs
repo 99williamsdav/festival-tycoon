@@ -20,7 +20,8 @@ public sealed class DisorderIncidentTests
 
     private static GameSession Started(ulong seed = 20260925)
     {
-        var session = BuildSession.Planned(seed);
+        // High Pressure is the perk these worlds were tuned with, before the catalogue grew and reshuffled the hands.
+        var session = BuildSession.Planned(seed, "high-pressure");
         foreach (var id in BuildSession.CrewIds(session).Concat(new[] { "equipment.buy" }))
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);

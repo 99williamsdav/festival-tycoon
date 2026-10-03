@@ -61,7 +61,7 @@ public sealed class PerkTests
     {
         var s=GameSession.CreateBuildCampaign(123, FestivalStanding.Established);FixturePerks(s,PerkCatalogue.All.Take(5).Select(p=>p.Id).ToArray());FixtureDraft(s);
         var p=s.CapturePerks()!;Assert.IsFalse(p.Hand.Any(p.Equipped.Contains));
-        var before=p.Hand.Order().ToArray();Accept(s,new RerollPerksCommand(1,p.Cursor));p=s.CapturePerks()!;CollectionAssert.AreEqual(before,p.Hand.Order().ToArray());
+        var remaining=PerkCatalogue.All.Select(x=>x.Id).Except(p.Equipped).ToArray();CollectionAssert.IsSubsetOf(p.Hand,remaining);Accept(s,new RerollPerksCommand(1,p.Cursor));p=s.CapturePerks()!;CollectionAssert.IsSubsetOf(p.Hand,remaining);
         var original=Restored(s);var lost=p.Equipped[0];Accept(s,new ChoosePerkCommand(1,p.Cursor,p.Hand[0],lost));Assert.AreEqual(5,s.CapturePerks()!.Equipped.Length);Assert.IsFalse(s.CapturePerks()!.Equipped.Contains(lost));Restored(s);
         Accept(original,new SkipPerksCommand(1,p.Cursor));CollectionAssert.AreEqual(p.Equipped,original.CapturePerks()!.Equipped);Restored(original);
     }

@@ -270,7 +270,7 @@ public sealed partial class GameSession
             var price = ImmersionPriceFor(id, product) * (2L + person.PriceReluctance / 25) * PurchaseValueScale;
             var enjoyment = product switch
             {
-                ImmersionProduct.Beer => (3_000L + (StaffHas(id, StaffTrait.SneakyAlcoholic) ? AlcoholicBeerTaste : person.BeerTaste) * 45) * PurchaseValueScale,
+                ImmersionProduct.Beer => (3_000L + (StaffHas(id, StaffTrait.SneakyAlcoholic) ? AlcoholicBeerTaste : BeerTasteOf(person)) * 45) * PurchaseValueScale,
                 ImmersionProduct.SoftDrink => person.SoftTaste * 35L * PurchaseValueScale,
                 _ => 0L
             } + (StaffHas(id, StaffTrait.Slacker) && product != ImmersionProduct.Water ? SlackerTreatValue : 0);

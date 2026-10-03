@@ -21,11 +21,11 @@ public sealed partial class GameSession
     /// <summary>The bar's rule: no beer for abstainers, the very drunk or staff. A sneaky alcoholic gets served anyway, with no limit.</summary>
     private bool BeerAllowed(Person person) =>
         StaffHas(person.Id, StaffTrait.SneakyAlcoholic) ||
-        !person.Abstains && person.Intoxication < 7_000 && person.Role != ProtectedPersonRole.Staff;
+        !Teetotal(person) && person.Intoxication < 7_000 && person.Role != ProtectedPersonRole.Staff;
 
-    private static bool SavedBeerBarred(ImmersionPerson person, PreparationSnapshot prep, Dictionary<ulong, StaffCandidate> hired) =>
+    private static bool SavedBeerBarred(ImmersionPerson person, PreparationSnapshot prep, Dictionary<ulong, StaffCandidate> hired, bool beerFestival) =>
         !(hired.GetValueOrDefault(person.AgentId)?.Has(StaffTrait.SneakyAlcoholic) ?? false) &&
-        (person.Abstains || prep.People.Single(n => n.AgentId == person.AgentId).Role == ProtectedPersonRole.Staff);
+        (person.Abstains && !beerFestival || prep.People.Single(n => n.AgentId == person.AgentId).Role == ProtectedPersonRole.Staff);
 
     /// <summary>Walking pace share from a dodgy knee.</summary>
     private int StaffGaitPermille(ulong id) => StaffHas(id, StaffTrait.DodgyKnee) ? StaffCatalogue.DodgyKneePacePermille : 1_000;

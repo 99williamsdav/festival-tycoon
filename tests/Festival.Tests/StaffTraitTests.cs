@@ -98,6 +98,9 @@ public sealed class StaffTraitTests
             drank = s.CaptureImmersion()!.Purchases.Any(p => p.AgentId == id && p.Product == ImmersionProduct.Beer);
         }
         Assert.IsTrue(drank, "The bar serves them despite the staff rule.");
+        Assert.AreEqual(GameSession.ImmersionPrice(ImmersionProduct.Beer), s.CaptureImmersion()!.Purchases.First(p => p.AgentId == id && p.Product == ImmersionProduct.Beer).PricePennies,
+            "The bar doesn't know they're staff, so no staff discount on the beer.");
+        Assert.AreEqual(GameSession.ImmersionPrice(ImmersionProduct.SoftDrink) / 2, s.ImmersionPriceFor(id, ImmersionProduct.SoftDrink), "Soft drinks they buy as staff.");
         s.AdvanceWithoutSnapshot(2_400);
         AssertRestores(s);
         var intoxication = s.CaptureImmersion()!.People.Single(p => p.AgentId == id).Intoxication;

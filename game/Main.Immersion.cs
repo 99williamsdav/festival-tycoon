@@ -408,7 +408,7 @@ private void BuildImmersionControls(VBoxContainer parent)
         _inspectorTitle.Text = id == "food" ? "Food van • chips" : "Drinks stall • soft drinks & beer";
         _inspectorBody.Text = $"Queue: {vendor.Queue.Length}\n" +
             (vendor.OwnerId is { } owner ? $"Serving {_session.CapturePreparation()!.People.Single(p => p.AgentId == owner).Name} • {vendor.ServiceTicks / 80m:0.0}s remaining\n" : "Counter ready\n") +
-            (id == "food" ? $"Chips {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Chips))} • stock {state.ChipsStock}" : $"Soft {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.SoftDrink))} • stock {state.SoftStock}\nBeer {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Beer))} • stock {state.BeerStock}\nNo beer for staff or heavily intoxicated customers.") +
+            (id == "food" ? $"Chips {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Chips))} • stock {state.ChipsStock}" : $"Soft {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.SoftDrink))} • stock {state.SoftStock}\nBeer {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} • stock {state.BeerStock}\nNo beer for staff or heavily intoxicated customers.") +
             "\nStaff & band: half price." + (id == "drinks" && state.FreeWater ? "\nFREE WATER • cups for the thirsty" : "");
         _highlight.Position = body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new Vector3(id == "food" ? 3.5f : 2, 1, id == "food" ? 3.5f : 2); _highlight.Visible = true;
     }
@@ -421,7 +421,7 @@ private void BuildImmersionControls(VBoxContainer parent)
             $"Hunger {person.Hunger / 100m:0}% • toilet need {person.ToiletNeed / 100m:0}% • intoxication {person.Intoxication / 100m:0}%\n" +
             (person.ToiletStage != ToiletVisitStage.None ? $"Toilet: {person.ToiletStage.ToString().ToLowerInvariant()}\n" : "") +
             (_session.ToiletSmellPenaltyPerSecond(id) > 0 ? "Nearby toilet smell is gradually reducing satisfaction.\n" : "") +
-            (person.Abstains ? "Abstains from beer\n" : "Individual food/drink preferences\n") +
+            (_session.Teetotal(id) ? "Abstains from beer\n" : "Individual food/drink preferences\n") +
             (person.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} • {held.ConsumedTicks / 80m:0.0}/{GameSession.ImmersionConsumeTicks(held.Product) / 80}s consumed • {(!_session.IsPaused && _session.ImmersionConsumptionEligible(id) ? "consuming away from counter" : "retained; consumption paused")}\n" : _session.CaptureCarriedWaste(id) is not null ? "Carrying empty packaging for disposal\n" : "Hands empty\n") +
             (person.PendingDose > 0 ? "Previously ingested dose still absorbing\n" : "") +
             (person.Intoxication >= 7500 ? "HEAVY INTOXICATION • needs care; no further beer\n" : person.Intoxication >= 5000 ? "IMPAIRED • coordination reduced\n" : person.Intoxication >= 2500 ? "TIPSY\n" : "") +
