@@ -12,6 +12,8 @@ Perk mosaic batch 2 adds six existing-catalogue artworks under user-requested in
 
 Batch 2 revision: user approved Beer Festival, Bring Your Own Bottle and Alcoholics; requested Friendly Queues smileys and clipboard-free Robot Workers are integrated. The new Cola Fiends candidate remains source/review only pending selection, with canonical runtime unchanged. [Revision scope](perks/mosaic-suite-batch2/revisions-v2/INTEGRATION.md).
 
+Latest batch 2 revision supersedes the circular Friendly Queues faces with blue eyes and smiles directly on cream bubbles. Robot Workers v2 is user-approved and unchanged. Cola Fiends v3 stays preview-only pending selection. [Current revision scope](perks/mosaic-suite-batch2/revisions-v3/INTEGRATION.md).
+
 | Design / repo copy | Current status | Implementation / supersession |
 | --- | --- | --- |
 | [Build mode board and handoff](ui/build-mode-concept-v1/HANDOFF.md) · [image](ui/build-mode-concept-v1/build-mode-design-board.png) · [prompt](ui/build-mode-concept-v1/PROMPTS.md) | Approved direction, **implemented** within R0.05v/w | [Build result](../../briefs/results/R0.05v-build-mode.md); Debug origin diagnostic and default/open behavior [follow-up](../../briefs/results/R0.05w-build-entry-toilet-followup.md). Image prices/layout were illustrative; runtime/validation own facts. |

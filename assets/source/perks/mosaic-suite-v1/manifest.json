@@ -1,5 +1,5 @@
 {
-  "status": "Original eight approved 2026-09-27; batch 2 user approved Beer Festival, Bring Your Own Bottle and Alcoholics, requested Friendly Queues and Robot Workers edits integrated 2026-10-03; Cola Fiends replacement candidate pending",
+  "status": "Original eight approved 2026-09-27; batch 2 user approved Beer Festival, Bring Your Own Bottle, Alcoholics and Robot Workers; requested Friendly Queues v3 integrated 2026-10-03; Cola Fiends replacement candidate pending",
   "catalogueSource": "C:/Projects/festival-tycoon/src/Festival.Simulation/Perks.cs",
   "date": "2026-09-27",
   "generator": "built-in image_gen",
@@ -126,11 +126,11 @@
       "id": "friendly-queues",
       "name": "Friendly Queues",
       "effect": "Guests chat in queues and gain satisfaction while they wait.",
-      "subject": "Two overlapping cream speech bubbles containing happy turquoise smiley faces, above two dark teal queue posts with a sagging gold rope. Golden rays and sage/teal foliage; no lettering or people.",
+      "subject": "Two overlapping cream speech bubbles with only turquoise eyes and smiling mouths directly on the cream tiles, no circular backing. Below are two dark teal queue posts and a sagging gold rope, golden rays and sage/teal foliage. No lettering or people.",
       "artwork": "artwork/friendly-queues.png",
       "width": 1536,
       "height": 1024,
-      "sha256": "a6544f7969a585aeb57247da5c8254af1a856ebce9000b65195330854e31a442",
+      "sha256": "2a9c08f170c83020aa9f625083ba5c90d9565da504af85b1581ba4ebb00332f0",
       "fullReview": "cards/friendly-queues-744x1074.png",
       "draftPreview": "small/friendly-queues-248x358.png",
       "ownedPreview": "small/friendly-queues-250x142.png",
@@ -217,7 +217,7 @@
   "batch2": {
     "date": "2026-10-03",
     "sourcePackage": "../mosaic-suite-batch2",
-    "status": "Beer Festival, Bring Your Own Bottle and Alcoholics approved by user; Friendly Queues and Robot Workers revised as requested; Cola Fiends replacement candidate pending selection",
+    "status": "Beer Festival, Bring Your Own Bottle, Alcoholics and Robot Workers approved by user; Friendly Queues v3 revised as requested; Cola Fiends v3 preview pending selection",
     "ids": [
       "beer-festival",
       "friendly-queues",
@@ -239,6 +239,15 @@
       ],
       "colaCandidate": "../mosaic-suite-batch2/revisions-v2/cola-fiends-v2.png",
       "colaCandidateStatus": "Preview only; do not use as runtime or canonical Cola Fiends artwork"
+    },
+    "revision3": {
+      "date": "2026-10-03",
+      "userApprovedAdditional": [
+        "robot-workers"
+      ],
+      "requestedEdit": "friendly-queues",
+      "colaCandidate": "../mosaic-suite-batch2/revisions-v3/cola-fiends-v3.png",
+      "colaCandidateStatus": "Preview only; canonical Cola Fiends remains unchanged"
     }
   }
 }

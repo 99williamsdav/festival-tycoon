@@ -1,0 +1,7 @@
+const fs=require('fs'),path=require('path');
+const {chromium}=require('C:/Users/99wil/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const items=[['friendly-queues','Friendly Queues · blue eyes and smiles'],['cola-fiends','Cola Fiends · abstract silhouette']];
+for(const [id] of items){const bytes=fs.readFileSync(path.join(__dirname,id+'-v3.png'));if(bytes.readUInt32BE(16)!==1536||bytes.readUInt32BE(20)!==1024)throw Error('Wrong master dimensions '+id)}
+const html='<!doctype html><meta charset="utf-8"><title>Perk revisions v3</title><style>*{box-sizing:border-box}body{margin:0;padding:20px;background:#fff4d6;color:#164e4d;font:22px Georgia}main{display:grid;grid-template-columns:repeat(2,480px);gap:20px}h2{font:22px Georgia;height:30px;margin:0 0 12px}img{display:block;width:480px;height:320px}</style><main>'+items.map(([id,name])=>'<section><h2>'+name+'</h2><img src="'+id+'-v3.png"></section>').join('')+'</main>';
+fs.writeFileSync(path.join(__dirname,'review.html'),html);
+(async()=>{const b=await chromium.launch({headless:true,channel:'msedge'});try{const p=await b.newPage({viewport:{width:1020,height:402},deviceScaleFactor:1});await p.goto('file:///'+path.join(__dirname,'review.html').replaceAll('\\','/'));await p.locator('img').evaluateAll(xs=>Promise.all(xs.map(x=>x.decode())));await p.screenshot({path:path.join(__dirname,'revision-sheet.png')});console.log('PASS: two 1536x1024 masters and revised review sheet.')}finally{await b.close()}})().catch(e=>{console.error(e);process.exitCode=1});

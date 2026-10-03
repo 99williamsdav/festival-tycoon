@@ -1,5 +1,13 @@
 # Perk mosaic batch 2 integration
 
+## Requested revision 3 — 3 October 2026
+
+Friendly Queues now has only blue eyes and smiling mouths directly on cream bubbles; v2 circular face backings are removed. Matching SVG updated. Master SHA-256: `2a9c08f170c83020aa9f625083ba5c90d9565da504af85b1581ba4ebb00332f0`. Other thirteen runtime PNGs and card entries are unchanged, including user-approved clipboard-free Robot Workers v2 and canonical Cola Fiends.
+
+Package/reviews and [v3 prompt/history](../../assets/source/perks/mosaic-suite-batch2/revisions-v3/INTEGRATION.md) are preserved. Robot Workers user approval is recorded; the new abstract Cola Fiends v3 candidate remains source/review only pending selection. No new generation, gameplay/layout change or EXE during integration.
+
+Fourteen focused tests pass; all fourteen PNG/SVG imports load in Godot; all eighteen refreshed previews have exact requested dimensions. [Revision 3 evidence](../../reports/evidence/perk-mosaic-batch2/revision3/). Older records below are historical.
+
 ## Requested revision 2 — 3 October 2026
 
 Updated only Friendly Queues and Robot Workers runtime PNGs: smileys replace the dots; the robot clipboard is removed. Corresponding active manifest subjects/hashes and both SVG fallbacks now match. Other twelve PNGs/card entries, including canonical Cola Fiends, were checked unchanged. User approval of Beer Festival, Bring Your Own Bottle and Alcoholics is recorded in the manifest; the edited two are recorded as requested revisions, not a new user aesthetic endorsement.
