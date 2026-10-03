@@ -50,6 +50,20 @@ public sealed class ToiletQueueGrowthTests
     }
 
     [TestMethod]
+    public void AStallCantOverlapTheCornerOfTheBigWaterMain()
+    {
+        var s = Started();
+        var tap = MainTap(s);
+        SetTap(s, tap with { GeometryVersion = 0 }); // The big water main: solid over 7×7.
+        var vendor = s.CaptureVendors().Single(v => v.Id == "drinks");
+        // The bar's footprint corner (-3, -2) lands exactly on the main's corner cell (+3, +3).
+        var proposed = vendor with { Cell = new GridCell(tap.Cell.X + 6, tap.Cell.Z + 5), QuarterTurns = 0 };
+        var error = (string?)typeof(GameSession).GetMethod("ImmersionPlacementError", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!
+            .Invoke(s, [proposed]);
+        StringAssert.Contains(error, "obstacle");
+    }
+
+    [TestMethod]
     public void NobodyNewPicksAToiletWhoseQueueHasNoRoomToGrow()
     {
         var s = WithoutFaults(Started());
