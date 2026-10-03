@@ -143,6 +143,7 @@ public sealed class GuestCharacterTests
         typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session, medical with { Needs = medical.Needs
             .Select(n => n.AgentId == victim ? n with { Stage = MedicalStage.Critical, WarningTick = stungAt, CollapseTick = stungAt, CriticalTick = stungAt + GameSession.MedicalCriticalDelayTicks,
                 Reason = "Awaiting physically dispatched medic" } : n).ToArray() });
+        Assert.AreEqual(CollapseCause.WaspSting, session.CollapseCauseOf(victim), "The cause survives the status text being rewritten.");
         for (var guard = 0; guard < 4 && session.PreparedStatus != PreparationStatus.Failed; guard++) session.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(PreparationStatus.Failed, session.PreparedStatus);
         StringAssert.Contains(session.CaptureMedical()!.Evidence.Last(e => e.Id == "medical:death").Description, "wasp sting");

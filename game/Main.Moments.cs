@@ -21,7 +21,9 @@ public partial class Main
     private readonly List<(Control Card, double Age)> _momentCards = [];
     private readonly HashSet<string> _momentsSeen = [];
     private double _momentsPoll;
-    private GameSession? _momentsSession;
+    private (GameSession? Session, int Attempt) _momentsDay;
+    // Who we've told collapsed, and when: only they get a "back on their feet" card, once per collapse.
+    private readonly Dictionary<ulong, long> _momentsCollapsed = [];
 
     private void BuildMoments(CanvasLayer layer, Vector2 size)
     {
@@ -44,10 +46,13 @@ public partial class Main
         }
         var running = _session.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing;
         _momentsBox.Visible = running && !EyeViewActive;
-        if (_momentsSession != _session)
+        var day = (_session, _session.CapturePreparation()?.Attempt ?? 0);
+        if (_momentsDay != day)
         {
-            // A new day or a loaded save: nothing that already happened is news.
-            _momentsSession = _session; _momentsSeen.Clear();
+            // A new day, a retried weekend or a loaded save: nothing that already happened is news, and the day
+            // starts at normal speed.
+            _momentsDay = day; _momentsSeen.Clear(); _momentsCollapsed.Clear();
+            _host.Clock.RequestedSpeed = RequestedSpeed.OneX;
             foreach (var (card, _) in _momentCards) card.QueueFree();
             _momentCards.Clear();
             foreach (var moment in CurrentMoments()) _momentsSeen.Add(moment.Key);
@@ -58,7 +63,15 @@ public partial class Main
         if (_momentsPoll > 0) return;
         _momentsPoll = .5;
         foreach (var (key, moment) in CurrentMoments())
-            if (_momentsSeen.Add(key)) ShowMoment(moment);
+            if (_momentsSeen.Add(key))
+            {
+                ShowMoment(moment);
+                if (key.Split(':') is ["collapse", var who, var when]) _momentsCollapsed[ulong.Parse(who)] = long.Parse(when);
+            }
+        // Recoveries are only news for someone we saw collapse.
+        foreach (var need in _session.CaptureMedical()?.Needs ?? [])
+            if (need.Stage == MedicalStage.Treated && _momentsCollapsed.Remove(need.AgentId))
+                ShowMoment(new("heart-pulse", $"The medic has {NameOf(need.AgentId)} back on their feet", new Color("53bb72"), LocatePerson(need.AgentId)));
     }
 
     private string NameOf(ulong id) => _session.CapturePreparation()?.People.FirstOrDefault(p => p.AgentId == id)?.Name ?? "Someone";
@@ -109,17 +122,19 @@ public partial class Main
             var name = NameOf(need.AgentId);
             if (need.Stage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal && need.CollapseTick >= 0)
             {
-                var why = need.Reason.Contains("wasp", StringComparison.OrdinalIgnoreCase) ? $"{name} was stung by a wasp and collapsed!"
-                    : need.Reason.Contains("Intoxication", StringComparison.OrdinalIgnoreCase) ? $"{name} has had far too much to drink and collapsed!"
-                    : $"{name} has collapsed in the heat!";
+                var why = _session.CollapseCauseOf(need.AgentId) switch
+                {
+                    CollapseCause.WaspSting => $"{name} was stung by a wasp and collapsed!",
+                    CollapseCause.Drink => $"{name} has had far too much to drink and collapsed!",
+                    _ => $"{name} has collapsed in the heat!",
+                };
                 yield return ($"collapse:{need.AgentId}:{need.CollapseTick}", new("heart-pulse", why, bad, LocatePerson(need.AgentId)));
             }
-            if (need.Stage == MedicalStage.Treated)
-                yield return ($"treated:{need.AgentId}:{need.CollapseTick}", new("heart-pulse", $"The medic has {name} back on their feet", good, LocatePerson(need.AgentId)));
         }
         foreach (var person in _session.CaptureDisorder()?.People ?? [])
             if (person.Stage == DisorderStage.Fight && person.OpponentId is { } other && person.AgentId < other)
                 yield return ($"fight:{person.AgentId}:{person.StageTick}", new("zap", $"{NameOf(person.AgentId)} and {NameOf(other)} are fighting!", bad, LocatePerson(person.AgentId)));
+        // Told once per guest per day: it's a trait worth noticing, not every piece they pick up.
         foreach (var piece in _session.CaptureLitter()?.Pieces ?? [])
             if (piece.CarrierId is { } carrier && piece.CarrierId != piece.ProducerId && _session.GuestLabels(carrier).Contains("Goody two-shoes"))
                 yield return ($"goody:{carrier}", new("star", $"{NameOf(carrier)} is picking up other people's litter", good, LocatePerson(carrier)));

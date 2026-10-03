@@ -32,7 +32,8 @@ public partial class Main
     private static void SetEyeSelfLayer(Node3D visual, bool self)
     {
         foreach (var mesh in visual.FindChildren("*", "VisualInstance3D", true, false).OfType<VisualInstance3D>())
-            mesh.Layers = self ? EyeSelfLayer : 1u;
+            // Mood faces float over people but belong out of first person, wherever they are.
+            mesh.Layers = self ? EyeSelfLayer : mesh is Sprite3D ? EyeHiddenLayer : 1u;
     }
 
     /// <summary>Where the ears are: the person's head in first person, otherwise the camera's focus.</summary>
