@@ -9,6 +9,7 @@ namespace Festival.Game;
 internal interface ITopBarActions
 {
     void TogglePause();
+    void CycleSpeed();
     void ShowAlerts();
     void ToggleMenu();
     void TogglePerks();
@@ -32,6 +33,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     private Label? _guestsOf;
     private Label? _weather;
     private Button? _pause;
+    private Button? _speed;
     private Button? _people;
     private Button? _perks;
     private Button? _alerts;
@@ -84,6 +86,10 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         var buttons = new HBoxContainer { SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
         buttons.AddThemeConstantOverride("separation", Ui.Px(8)); row.AddChild(buttons);
         _pause = BarIconButton("pause", "Pause / resume (Space)", _actions.TogglePause); buttons.AddChild(_pause);
+        // Day speed: 1×, 2× or 4×, for the quieter stretches.
+        _speed = Ui.Style(new Button { Text = "1×", CustomMinimumSize = Ui.S(48, 40), TooltipText = "Day speed 1× · 2× · 4× (keys 1, 2, 3)",
+            MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Bar, 15);
+        _speed.Pressed += _actions.CycleSpeed; buttons.AddChild(_speed);
         _people = Ui.IconButton("People", "users", Ui.ButtonKind.Bar, _actions.ToggleRoster);
         _people.CustomMinimumSize = new Vector2(0, Ui.S(40)); _people.TooltipText = "Everyone on the farm"; buttons.AddChild(_people);
         _perks = Ui.IconButton("Perks", "star", Ui.ButtonKind.Bar, _actions.TogglePerks);
@@ -210,6 +216,8 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _weather!.Text = session.CaptureMedical() is { IsHot: true } ? "Hot" : "Unavailable";
         _pause!.Visible = !preparing;
         _pause.Icon = Ui.Icon(session.IsPaused ? "play" : "pause");
+        _speed!.Visible = _pause.Visible;
+        _speed.Text = $"{(int)_hud.Host.Clock.RequestedSpeed}×";
         var perks = session.CapturePerks();
         _people!.Visible = preparing;
         _perks!.Visible = preparing && perks is { Ended: false, Pending: false };

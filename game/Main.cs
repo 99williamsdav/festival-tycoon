@@ -108,6 +108,8 @@ public partial class Main : Node, IHudHost
             if (key.Keycode == Key.Escape && EyeViewActive) { ExitEyeView(); return; }
             if (key.Keycode == Key.Escape) { ClearSelection(); return; }
             if (EyeViewActive) { if (key.Keycode == Key.Space) { _host.Submit(new SetPausedCommand(!_session.IsPaused)); RefreshPreparationHud(); } return; }
+            if (key.Keycode is Key.Key1 or Key.Key2 or Key.Key3 && _session.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing)
+            { SetDaySpeed(key.Keycode == Key.Key1 ? RequestedSpeed.OneX : key.Keycode == Key.Key2 ? RequestedSpeed.TwoX : RequestedSpeed.FourX); return; }
             if (key.Keycode == Key.Q) _rig.Rotate(-1);
             else if (key.Keycode == Key.E) _rig.Rotate(1);
             else if (key.Keycode == Key.Space)

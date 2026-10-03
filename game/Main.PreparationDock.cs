@@ -44,6 +44,11 @@ public partial class Main : IPreparationNavigation, ITopBarActions, ILiveBarActi
     bool IPreparationNavigation.Placing => _buildGhostKind is not null;
     void IPreparationNavigation.ConfirmStart() => ShowHudStartConfirmation();
     void ITopBarActions.TogglePause() { _host.Submit(new SetPausedCommand(!_session.IsPaused)); RefreshPreparationHud(); }
+    void ITopBarActions.CycleSpeed() => SetDaySpeed(_host.Clock.RequestedSpeed switch
+        { RequestedSpeed.OneX => RequestedSpeed.TwoX, RequestedSpeed.TwoX => RequestedSpeed.FourX, _ => RequestedSpeed.OneX });
+
+    /// <summary>How fast the day runs. Presentation pacing only: the same ticks run, just more of them per second.</summary>
+    private void SetDaySpeed(RequestedSpeed speed) { _host.Clock.RequestedSpeed = speed; RefreshPreparationHud(); }
     void ITopBarActions.ShowAlerts() { _urgentAlertDisplay.ShowNextPage(); RenderUrgentAlerts(); }
     void ITopBarActions.ToggleMenu() => _hudMenu!.Visible = !_hudMenu.Visible;
     void ITopBarActions.TogglePerks() => Perks.ToggleExpanded();
