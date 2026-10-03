@@ -44,6 +44,10 @@ public partial class Main
         }
     }
 
+    private static readonly string[] ArguerLines = ["What did you say?!", "Watch where you're going!", "You spilled my pint!"];
+    private static readonly HashSet<string> AngryShouts =
+        [.. DisorderCuePlanner.BandLateAngry, .. DisorderCuePlanner.WaterWaitAngry, .. DisorderCuePlanner.MusicCutAngry];
+
     private void AdvanceDisorderCuePresentation()
     {
         if (_session.CaptureDisorder() is not { } disorder) return;
@@ -60,18 +64,19 @@ public partial class Main
         }
         foreach (var cue in cues)
         {
-            if (_hudAlerts is not null && cue.Kind is DisorderCueKind.Argument or DisorderCueKind.Fight) continue;
             if (!_disorderCueLabels.TryGetValue(cue.AgentId, out var label) ||
                 !_attendeeVisuals.TryGetValue(new EntityId(cue.AgentId), out var visual)) continue;
             if (_medicalCueLabels.TryGetValue(cue.AgentId, out var medicalLabel)) medicalLabel.Visible = false;
-            label.Text = cue.Text;
+            // With the alert cards telling the player what's happening, the people themselves say it instead of a tag.
+            label.Text = _hudAlerts is not null && cue.Kind is DisorderCueKind.Argument or DisorderCueKind.Fight
+                ? ArguerLines[(int)((cue.AgentId * 2654435761UL + (ulong)(_session.CurrentTick / 400)) % (ulong)ArguerLines.Length)] : cue.Text;
             label.Position = visual.Position + new Vector3(0, cue.Kind == DisorderCueKind.Shout ? 2.95f :
                 (cue.AgentId % 2 == 0 ? 3.05f : 3.55f), 0);
             label.Modulate = cue.Kind switch
             {
                 DisorderCueKind.Fight => new Color("ff6b65"),
-                DisorderCueKind.Argument => new Color("ffb061"),
-                _ => new Color("ffe4a1")
+                DisorderCueKind.Argument => MoodColour(Mood.Angry),
+                _ => MoodColour(AngryShouts.Contains(cue.Text) ? Mood.Angry : Mood.Grumble)
             };
             label.Visible = true;
         }

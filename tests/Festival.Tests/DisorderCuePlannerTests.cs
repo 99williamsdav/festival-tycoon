@@ -16,7 +16,7 @@ public sealed class DisorderCuePlannerTests
             { Grievance = DisorderGrievance.BandDelayed, GrievanceTick = 800 }).ToArray() };
         var mild = planner.Observe(waiting, medical, 800);
         Assert.AreEqual(1, mild.Count);
-        Assert.IsTrue(mild.Single().Text is "Where is the band?" or "When are they starting?" or "Are they ready yet?" or "What's the hold-up?" or "Shouldn't the band be on?");
+        CollectionAssert.Contains(DisorderCuePlanner.BandLateMild, mild.Single().Text);
         Assert.IsTrue(planner.Observe(waiting, medical, 920).Count <= DisorderCuePlanner.MaximumVisibleShouts);
         var angry = waiting with { People = waiting.People.Select(person => person.AgentId == id
             ? person with { Stage = DisorderStage.Agitated, StageTick = 1_440, Pressure = 3_000 } : person).ToArray() };
@@ -69,7 +69,7 @@ public sealed class DisorderCuePlannerTests
                 : item).ToArray() };
         var first = planner.Observe(complaining, medical, 100);
         Assert.AreEqual(1, first.Count);
-        Assert.IsTrue(first.Single().Text is "What the hell?!" or "This is ridiculous!" or "It's an outrage!" or "FFS!" or "Grrrr!" or "Hurry up!" or "This queue is ridiculous!");
+        CollectionAssert.Contains(DisorderCuePlanner.MusicCutMild.Concat(DisorderCuePlanner.MusicCutAngry).Concat(DisorderCuePlanner.WaterWaitMild).Concat(DisorderCuePlanner.WaterWaitAngry).ToArray(), first.Single().Text);
         Assert.AreEqual(first.Single(), planner.Observe(complaining, medical, 101).Single());
         Assert.IsTrue(planner.Observe(complaining, medical, 220).Count <= 1);
         Assert.AreEqual(secondId, planner.Observe(complaining, medical, 500).Single().AgentId,

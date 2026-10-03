@@ -167,12 +167,11 @@ public partial class Main
         foreach (var label in _medicalCueLabels.Values) label.Visible = false;
         foreach (var cue in _medicalCuePlanner.Observe(medical, _session.CurrentTick))
         {
-            if (_hudAlerts is not null && cue.Urgent) continue;
             if (!_medicalCueLabels.TryGetValue(cue.AgentId, out var label) ||
                 !_attendeeVisuals.TryGetValue(new EntityId(cue.AgentId), out var visual)) continue;
             label.Text = cue.Text;
             label.Position = visual.Position + new Vector3(0, cue.Urgent ? 2.7f : 2.35f, 0);
-            label.Modulate = cue.Urgent ? new Color("ffdb73") : new Color("fff7e1");
+            label.Modulate = MoodColour(cue.Urgent ? Mood.Angry : Mood.Neutral);
             label.Visible = true;
         }
     }

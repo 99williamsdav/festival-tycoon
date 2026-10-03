@@ -131,15 +131,25 @@ public sealed class DisorderCuePlanner
         return cues.OrderByDescending(item => item.Kind).ThenBy(item => item.AgentId).ToArray();
     }
 
+    // What a grumbling guest shouts, mild while complaining and angry once agitated. Each says what's wrong.
+    public static readonly string[] BandLateMild = ["Where is the band?", "When are they starting?", "Are they ready yet?", "What's the hold-up?",
+        "Shouldn't the band be on?", "Is there even a band?", "Tick tock…", "I paid for music, not silence", "Did they get lost?"];
+    public static readonly string[] BandLateAngry = ["Start the music!", "We've waited long enough!", "Where the hell is the band?!", "This delay is ridiculous!",
+        "Get on with it!", "BORING!", "We want music!", "Oi! Get on stage!"];
+    public static readonly string[] WaterWaitMild = ["I'm parched…", "Come on, it's just water!", "How long does it take?!", "Is this the tap queue?"];
+    public static readonly string[] WaterWaitAngry = ["I'm dying of thirst here!", "Some of us are thirsty!", "Hurry UP!", "This queue is ridiculous!"];
+    public static readonly string[] MusicCutMild = ["Has the power gone?", "Who pulled the plug?!", "Noooo, I love this one!"];
+    public static readonly string[] MusicCutAngry = ["Oi! Turn it back on!", "Bring back the music!", "Who pulled the plug?!"];
+
     private static string ShoutText(Pending pending)
     {
-        var variant = (pending.AgentId + (ulong)Math.Max(0, pending.StageTick)) % 5;
-        if (pending.Grievance == DisorderGrievance.BandDelayed)
-            return pending.Stage == DisorderStage.Agitated
-                ? variant switch { 0 => "Start the music!", 1 => "We've waited long enough!", 2 => "Where the hell is the band?!", 3 => "This delay is ridiculous!", _ => "Get on with it!" }
-                : variant switch { 0 => "Where is the band?", 1 => "When are they starting?", 2 => "Are they ready yet?", 3 => "What's the hold-up?", _ => "Shouldn't the band be on?" };
-        return pending.Grievance == DisorderGrievance.WaterWait
-            ? variant switch { 0 => "Hurry up!", 1 => "This queue is ridiculous!", 2 => "It's an outrage!", 3 => "FFS!", _ => "Grrrr!" }
-            : variant switch { 0 => "What the hell?!", 1 => "This is ridiculous!", 2 => "It's an outrage!", 3 => "FFS!", _ => "Grrrr!" };
+        var angry = pending.Stage == DisorderStage.Agitated;
+        var lines = pending.Grievance switch
+        {
+            DisorderGrievance.BandDelayed => angry ? BandLateAngry : BandLateMild,
+            DisorderGrievance.WaterWait => angry ? WaterWaitAngry : WaterWaitMild,
+            _ => angry ? MusicCutAngry : MusicCutMild,
+        };
+        return lines[(int)((pending.AgentId + (ulong)Math.Max(0, pending.StageTick)) % (ulong)lines.Length)];
     }
 }

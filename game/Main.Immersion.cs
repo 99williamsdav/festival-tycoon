@@ -62,8 +62,8 @@ public partial class Main
             }
             label.Position = body.Position + new Vector3(0, 2.7f, 0); label.Visible = true;
         }
-        // Existing medical/disorder routine or urgent speech always takes priority.
-        if (_medicalCueLabels.Values.Any(l => l.Visible) || _disorderCueLabels.Values.Any(l => l.Visible) || _immersionWarningLabels.Values.Any(l => l.Visible)) return;
+        // Others' speech comes first; this waits for a gap in the crowd's three bubbles.
+        if (_immersionRemarkPerson is null || _session.CurrentTick >= _immersionRemarkUntil) { if (SpeechCrowded()) return; }
         if (_immersionRemarkPerson is { } active && _session.CurrentTick < _immersionRemarkUntil &&
             _attendeeVisuals.TryGetValue(new EntityId(active), out var activeBody))
         { _immersionRemark!.Position = activeBody.Position + new Vector3(0, 2.35f, 0); _immersionRemark.Visible = true; return; }
@@ -76,7 +76,12 @@ public partial class Main
             _immersionRemark = WorldText.Speech(new Label3D { Billboard = BaseMaterial3D.BillboardModeEnum.Enabled }, 36);
             AddChild(_immersionRemark);
         }
-        _immersionRemark.Text = candidate.Intoxication >= 5000 ? "Feeling wobbly • time for a rest" : "Feeling a bit tipsy";
+        var lightweight = _session.GuestCharacterOf(candidate.AgentId).Lightweight && candidate.AgentId % 2 == 0;
+        string[] lines = candidate.Intoxication >= 5000 ? ["Feeling wobbly • time for a rest", "Everything's a bit spinny", "Need to sit down…"]
+            : lightweight ? ["I've only had one!", "That's gone to my head"]
+            : ["Feeling a bit tipsy", "Woo! Love this lot!", "Who wants another?", "I'm not drunk, you're drunk"];
+        _immersionRemark.Text = lines[(int)((candidate.AgentId + (ulong)_session.CurrentTick / 80) % (ulong)lines.Length)];
+        _immersionRemark.Modulate = MoodColour(candidate.Intoxication >= 5000 ? Mood.Grumble : Mood.Happy);
         _immersionRemark.Position = visual.Position + new Vector3(0, 2.35f, 0); _immersionRemark.Visible = true;
         _immersionRemarkPerson = candidate.AgentId; _immersionRemarkUntil = _session.CurrentTick + 240;
         _immersionLastGlobalRemark = _session.CurrentTick; _immersionLastRemark[candidate.AgentId] = _session.CurrentTick;

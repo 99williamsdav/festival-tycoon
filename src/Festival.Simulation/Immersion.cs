@@ -58,6 +58,9 @@ public sealed partial class GameSession
             ? ImmersionPrice(product, beerFestival) / 2 : ImmersionPrice(product, beerFestival);
     public int ImmersionPriceFor(ulong id, ImmersionProduct product) =>
         ImmersionPrice(product, _persons[id].Role, HasPerk(PerkCatalogue.BeerFestival), StaffHas(id, StaffTrait.SneakyAlcoholic));
+    /// <summary>Whether someone has the money for one, at their price.</summary>
+    public bool CanAffordImmersion(ulong id, ImmersionProduct product) =>
+        PersonIn(PersonView.Roster, id) is not null && _wallets.TryGetValue(new(id), out var wallet) && wallet.CashPennies >= ImmersionPriceFor(id, product);
     /// <summary>What the stall's board says a customer pays.</summary>
     public int ImmersionListPrice(ImmersionProduct product) => ImmersionPrice(product, HasPerk(PerkCatalogue.BeerFestival));
     /// <summary>Abstains from beer: never at a Beer Festival, where everyone came for it.</summary>

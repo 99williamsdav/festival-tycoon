@@ -33,6 +33,9 @@ public partial class Main
                 AddChild(label); _faultRemarkLabels[fault.Id] = label;
             }
             label.Text = text; label.Position = position; label.Visible = true; shown.Add(fault.Id);
+            // A broken tap and the first calls from a stuck loo are grumbles; panic is angry.
+            label.Modulate = MoodColour(fault.Kind == FacilityFaultKind.StuckInToilet && !FaultRules.StuckShouts[0].Contains(text) &&
+                !FaultRules.HotShouts.Contains(text) ? Mood.Angry : Mood.Grumble);
         }
         foreach (var (id, label) in _faultRemarkLabels) if (!shown.Contains(id)) label.Visible = false;
     }

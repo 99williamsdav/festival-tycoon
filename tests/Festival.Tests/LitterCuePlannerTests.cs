@@ -14,7 +14,7 @@ public sealed class LitterCuePlannerTests
         Assert.IsNull(planner.Observe([new(1, null, 0)], 80)); // Approaching is not disposal.
         var atBin = new LitterRemarkSituation[] { new(1, "purchase.1", 0) };
         var cue = planner.Observe(atBin, 160); Assert.IsNotNull(cue);
-        Assert.IsTrue(cue.Text.Contains("full") || cue.Text.Contains("empty") || cue.Text.Contains("overflowing"));
+        CollectionAssert.Contains(LitterCuePlanner.FullBinLines, cue.Text);
         Assert.AreEqual(cue, planner.Observe(atBin, 160), "Pause does not advance the cue lifetime.");
         Assert.IsNull(planner.Observe(atBin, 400));
         Assert.IsNull(planner.Observe(atBin, 800), "The same disposal cannot repeat.");

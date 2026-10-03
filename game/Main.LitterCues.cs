@@ -35,8 +35,8 @@ public partial class Main
         {
             _litterCueSampleTick = tick; _litterCueSituations = _session.CaptureLitterRemarkSituations();
         }
-        var speechBlocked = _medicalCueLabels.Values.Any(l => l.Visible) || _disorderCueLabels.Values.Any(l => l.Visible) ||
-            _immersionWarningLabels.Values.Any(l => l.Visible) || _immersionRemark?.Visible == true ||
+        // Waits for a gap in the crowd's three bubbles, and for any emergency to pass.
+        var speechBlocked = _litterRemarkLabel?.Visible != true && SpeechCrowded() ||
             (_session.CaptureMedical()?.Needs.Any(p => p.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical) ?? false) ||
             (_session.CaptureDisorder()?.People.Any(p => p.Stage is DisorderStage.Argument or DisorderStage.Fight) ?? false);
         var cue = _litterCuePlanner.Observe(_litterCueSituations, tick, speechBlocked);
@@ -45,7 +45,7 @@ public partial class Main
         if (_litterRemarkLabel is null)
         {
             _litterRemarkLabel = WorldText.Speech(new Label3D {
-                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = new Color("fff7e1") }, 36);
+                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = MoodColour(Mood.Grumble) }, 36);
             AddChild(_litterRemarkLabel);
         }
         _litterRemarkLabel.Text = cue.Text; _litterRemarkLabel.Position = body.Position + new Vector3(0, 2.35f, 0);
@@ -79,13 +79,13 @@ public partial class Main
         if (_litterEvidenceFrame == 8)
         {
             _fullBinRemarkProved = _litterRemarkLabel?.Visible == true &&
-                (_litterRemarkLabel.Text.Contains("full") || _litterRemarkLabel.Text.Contains("empty") || _litterRemarkLabel.Text.Contains("overflowing"));
+                LitterCuePlanner.FullBinLines.Contains(_litterRemarkLabel.Text);
             SaveLitterFrame("08-full-bin-remark");
         }
         if (_litterEvidenceFrame == 20)
         {
             _groundRemarkProved = _litterRemarkLabel?.Visible == true &&
-                (_litterRemarkLabel.Text.Contains("mess") || _litterRemarkLabel.Text.Contains("Rubbish") || _litterRemarkLabel.Text.Contains("clean"));
+                LitterCuePlanner.GroundLines.Contains(_litterRemarkLabel.Text);
             SaveLitterFrame("09-ground-litter-remark");
         }
         if (_litterEvidenceFrame == 22)

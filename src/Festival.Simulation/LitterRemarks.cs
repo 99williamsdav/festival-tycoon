@@ -33,6 +33,10 @@ public sealed class LitterCuePlanner
 {
     public const int LotsOfLitterPieces = 4;
     public const int DurationTicks = 240, GlobalSpacingTicks = 640, PersonCooldownTicks = 3200;
+    public static readonly string[] FullBinLines = ["This bin's full!", "Someone needs to empty this!", "It's overflowing!",
+        "There's no room in here!", "Does no one empty the bins?", "Are there any other bins?"];
+    public static readonly string[] GroundLines = ["What a mess!", "Rubbish everywhere!", "Someone needs to clean this up.",
+        "Ew, it's sticky", "Grim.", "Where's the bin?"];
     private sealed record Pending(ulong AgentId, bool FullBin, long Tick);
     private readonly Dictionary<ulong, LitterRemarkSituation> _previous = [];
     private readonly Dictionary<ulong, long> _lastPersonCue = [];
@@ -74,10 +78,8 @@ public sealed class LitterCuePlanner
             .FirstOrDefault(p => !_lastPersonCue.TryGetValue(p.AgentId, out var last) || tick - last >= PersonCooldownTicks);
         if (next is null) return null;
         _pending.Remove(next);
-        var variant = (next.AgentId + (ulong)next.Tick) % 3;
-        var text = next.FullBin
-            ? variant switch { 0 => "This bin's full!", 1 => "Someone needs to empty this!", _ => "It's overflowing!" }
-            : variant switch { 0 => "What a mess!", 1 => "Rubbish everywhere!", _ => "Someone needs to clean this up." };
+        var lines = next.FullBin ? FullBinLines : GroundLines;
+        var text = lines[(int)((next.AgentId + (ulong)next.Tick) % (ulong)lines.Length)];
         _lastPersonCue[next.AgentId] = _lastCueTick = tick; _activeUntil = tick + DurationTicks;
         return _active = new(next.AgentId, text);
     }

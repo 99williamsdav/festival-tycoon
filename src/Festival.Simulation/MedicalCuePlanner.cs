@@ -42,12 +42,15 @@ public sealed class MedicalCuePlanner
         _ => null
     };
 
-    private static string RoutineText(RoutineKind kind) => kind switch
+    public static readonly string[] SeekWaterLines = ["I'm going to get water", "Water break!", "Back in a sec, need a drink"];
+    public static readonly string[] TradeoffLines = ["Need water, but I don't\nwant to miss this band","Thirsty… but this is a good one",
+        "Water can wait, I love this song"];
+
+    private static string RoutineText(RoutineKind kind, ulong agentId, long tick)
     {
-        RoutineKind.Tradeoff => "Need water, but I don't\nwant to miss this band",
-        RoutineKind.SeekWater => "I'm going to get water",
-        _ => throw new ArgumentOutOfRangeException(nameof(kind))
-    };
+        var lines = kind switch { RoutineKind.Tradeoff => TradeoffLines, RoutineKind.SeekWater => SeekWaterLines, _ => throw new ArgumentOutOfRangeException(nameof(kind)) };
+        return lines[(int)((agentId + (ulong)Math.Max(0, tick)) % (ulong)lines.Length)];
+    }
 
     public void Reset(MedicalSnapshot? medical, long tick)
     {
@@ -127,7 +130,7 @@ public sealed class MedicalCuePlanner
         }
         urgent.Sort((a, b) => a.AgentId.CompareTo(b.AgentId));
         urgent.AddRange(_active.OrderBy(item => item.Key)
-            .Select(item => new MedicalPersonCue(item.Key, RoutineText(item.Value.Kind), false)));
+            .Select(item => new MedicalPersonCue(item.Key, RoutineText(item.Value.Kind, item.Key, item.Value.UntilTick), false)));
         return urgent;
     }
 }

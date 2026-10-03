@@ -38,12 +38,13 @@ public static class FaultRules
     /// <summary>Satisfaction a stuck person loses each second: one more every 15 seconds as panic grows, up to 8.</summary>
     public static int PanicLossPerSecond(long stuckTicks) => Math.Min(8, 1 + (int)(stuckTicks / 1_200));
     public const int ShoutEveryTicks = 400, ShoutTicks = 200, GrumbleTicks = 240;
-    private static readonly string[][] StuckShouts = [
-        ["Hello? The door's stuck!", "Er... the lock's jammed."],
-        ["Help! I can't get out!", "Is anyone out there?!"],
-        ["HELP! GET ME OUT!", "Why won't it open?!"]];
-    public const string HotShout = "It's so hot in here!";
-    private static readonly string[] TapGrumbles = ["Oh, come on!", "It's just spitting at me!", "Brilliant. Broken."];
+    public static readonly string[][] StuckShouts = [
+        ["Hello? The door's stuck!", "Er... the lock's jammed.", "Erm… hello?", "Can someone get a steward?"],
+        ["Help! I can't get out!", "Is anyone out there?!", "I've been in here for ages!", "Not funny! Open up!"],
+        ["HELP! GET ME OUT!", "Why won't it open?!", "I CAN HEAR YOU OUT THERE!"]];
+    public static readonly string[] HotShouts = ["It's so hot in here!", "I'm cooking in here!"];
+    public static readonly string[] TapGrumbles = ["Oh, come on!", "It's just spitting at me!", "Brilliant. Broken.",
+        "Great, now my shoes are wet", "Water everywhere!", "Who broke the tap?"];
 
     /// <summary>
     /// What the person at the centre of a fault is saying at this tick, if anything: a stuck person shouts
@@ -60,9 +61,9 @@ public static class FaultRules
             return elapsed < GrumbleTicks ? TapGrumbles[(int)(fault.VictimId % (ulong)TapGrumbles.Length)] : null;
         if (elapsed % ShoutEveryTicks >= ShoutTicks) return null;
         var shout = elapsed / ShoutEveryTicks;
-        if (hot && shout % 3 == 2) return HotShout;
+        if (hot && shout % 3 == 2) return HotShouts[(int)(shout / 3 % HotShouts.Length)];
         var band = StuckShouts[Math.Min(StuckShouts.Length - 1, (int)(elapsed / 1_600))];
-        return band[(int)((shout + (long)(fault.VictimId % 2)) % band.Length)];
+        return band[(int)((shout + (long)(fault.VictimId % (ulong)band.Length)) % band.Length)];
     }
 
     /// <summary>In hot weather a portaloo cubicle adds this much heat every four ticks on top of the usual gain.</summary>

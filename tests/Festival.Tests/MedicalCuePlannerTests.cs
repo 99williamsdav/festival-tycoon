@@ -34,7 +34,7 @@ public sealed class MedicalCuePlannerTests
         var water = planner.Observe(choices, 320);
         Assert.AreEqual(1, water.Count);
         Assert.AreEqual(waterId, water.Single().AgentId);
-        Assert.AreEqual("I'm going to get water", water.Single().Text);
+        CollectionAssert.Contains(MedicalCuePlanner.SeekWaterLines, water.Single().Text);
         Assert.AreEqual(0, planner.Observe(choices, 560).Count(item => !item.Urgent));
         Assert.AreEqual(0, planner.Observe(choices, 600).Count(item => !item.Urgent));
         var noTradeoff = choices with { Needs = choices.Needs.Select(item => item.AgentId == tradeoffId
