@@ -1,0 +1,42 @@
+{
+  "catalogue": "6 exact current matches",
+  "pngMasters": "6 PNGs, each 1536x1024",
+  "checks": [
+    {
+      "id": "card-beer-festival",
+      "textFits": true,
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "card-friendly-queues",
+      "textFits": true,
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "card-bring-your-own-bottle",
+      "textFits": true,
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "card-cola-fiends",
+      "textFits": true,
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "card-alcoholics",
+      "textFits": true,
+      "width": 248,
+      "height": 358
+    },
+    {
+      "id": "card-robot-workers",
+      "textFits": true,
+      "width": 248,
+      "height": 358
+    }
+  ]
+}

@@ -1,0 +1,104 @@
+{
+  "checks": [
+    {
+      "height": 1024,
+      "id": "extra-pair-of-hands",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "doctors-orders",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "another-round",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "high-pressure",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "smooth-operators",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "first-responders",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "something-in-the-water",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "thirsty-crowd",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "beer-festival",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "friendly-queues",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "bring-your-own-bottle",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "cola-fiends",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "alcoholics",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    },
+    {
+      "height": 1024,
+      "id": "robot-workers",
+      "pngLoaded": true,
+      "svgLoaded": true,
+      "width": 1536
+    }
+  ],
+  "passed": true,
+  "scope": "Native texture loading only; batch review cards are supplied previews, not in-game screenshots."
+}

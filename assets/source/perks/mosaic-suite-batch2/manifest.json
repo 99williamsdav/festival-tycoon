@@ -1,0 +1,86 @@
+{
+  "status": "Generated batch 2; visual review ready, not a gameplay or executable change",
+  "catalogueSource": "C:/Projects/festival-tycoon/src/Festival.Simulation/Perks.cs",
+  "date": "2026-10-03",
+  "generator": "built-in image_gen; one call per card; same two suite-v1 style references",
+  "cards": [
+    {
+      "id": "beer-festival",
+      "name": "Beer Festival",
+      "effect": "Beer costs 50% more. No teetotallers, and everyone drinks a little more.",
+      "subject": "Two frothy golden-amber pint glasses raised and clinking in a cheers at the centre: cream foam heads, with a few small splash tesserae; one glass slightly nearer and larger. Behind the glasses, a short string of three or four triangular bunting pennants (teal, golden yellow, cream) runs across the top. Warm gold sun rays; sage and teal leaves in the low corners. No people, hands, faces, bottles, kegs, tap handles, price tags, £ signs, numerals or text. No drunkenness cues. A celebratory drinks festival, not water.",
+      "artwork": "artwork/beer-festival.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "9727c99fe81b2d4ec75667a593e91a6f02924bfc7e6be5c66f82462d11e09c65",
+      "fullReview": "cards/beer-festival-744x1074.png",
+      "draftPreview": "small/beer-festival-248x358.png",
+      "ownedPreview": "small/beer-festival-250x142.png"
+    },
+    {
+      "id": "friendly-queues",
+      "name": "Friendly Queues",
+      "effect": "Guests chat in queues and gain satisfaction while they wait.",
+      "subject": "A short festival rope queue barrier across the lower middle: two dark teal posts with a sagging golden rope. Above it, two rounded cream speech bubbles side by side and overlapping slightly, each with a small turquoise tile inside (as if chatting). Small golden sun rays; sage leaves in the low corners. Warm and sociable. No faces, people, letters, symbols inside the bubbles, cups, money or numerals.",
+      "artwork": "artwork/friendly-queues.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "7b5102d27b36ae2c7bf9e6f4cb0dfedeea4a73e5ac3870b329b2cd8d40a979d3",
+      "fullReview": "cards/friendly-queues-744x1074.png",
+      "draftPreview": "small/friendly-queues-248x358.png",
+      "ownedPreview": "small/friendly-queues-250x142.png"
+    },
+    {
+      "id": "bring-your-own-bottle",
+      "name": "Bring Your Own Bottle",
+      "effect": "Guests get thirsty more slowly, but take longer to fill up at taps.",
+      "subject": "A reusable teal water bottle with a cream cap and band, upright under one dark teal standpipe tap (the same tap design as the suite) at the left. A big, generous turquoise stream glugs from the spout into the bottle's neck, with a few large droplets. Golden sun rays upper right; sage leaves low. One tap only, no plus symbol, no cup, no people. Reads as a big bottle that lasts, filled slowly: the stream can be steady rather than gushing.",
+      "artwork": "artwork/bring-your-own-bottle.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "9eeeae1c6c15eb1db59d164010643fa7a7181ee5df8ea16df567013a662b5441",
+      "fullReview": "cards/bring-your-own-bottle-744x1074.png",
+      "draftPreview": "small/bring-your-own-bottle-248x358.png",
+      "ownedPreview": "small/bring-your-own-bottle-250x142.png"
+    },
+    {
+      "id": "cola-fiends",
+      "name": "Cola Fiends",
+      "effect": "Guests prefer soft drinks to free water.",
+      "subject": "A generic tall festival soft-drink cup: body cream with a teal band, lid domed, straw a bent golden straw. The dark teal-brown fizzy drink shows at the rim, with lots of round turquoise and cream bubble tiles rising around it. Golden sun rays; sage leaves low. No brand, logo, lettering, red, ribbon or wave stripe, bottle or can shape that resembles a real brand. No water tap.",
+      "artwork": "artwork/cola-fiends.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "1471716fe185ab649e63a59c8c3fd2a4d66265fa95ca025467d7180109b290da",
+      "fullReview": "cards/cola-fiends-744x1074.png",
+      "draftPreview": "small/cola-fiends-248x358.png",
+      "ownedPreview": "small/cola-fiends-250x142.png"
+    },
+    {
+      "id": "alcoholics",
+      "name": "Alcoholics",
+      "effect": "Guests buy much more beer, and get drunk more.",
+      "subject": "A stack of three empty pint glasses: two at the base, one balanced on top. The stack is tipping slightly to one side. A little amber dregs and foam at the bottom of each glass. Three short golden wobble or motion lines beside the top glass hint at risk. Muted sun rays; sage leaves low. No people, faces, vomit, bottles, money or numerals. Light-hearted caution, not squalor.",
+      "artwork": "artwork/alcoholics.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "82a2cbaa36949aa8229a1adf6476293d4ead39af43534a0e0ded21b4f5cde0eb",
+      "fullReview": "cards/alcoholics-744x1074.png",
+      "draftPreview": "small/alcoholics-248x358.png",
+      "ownedPreview": "small/alcoholics-250x142.png"
+    },
+    {
+      "id": "robot-workers",
+      "name": "Robot Workers",
+      "effect": "Staff never need to drink, eat, cool off or use the loo.",
+      "subject": "A friendly simple robot, front-on and standing. Head a rounded rectangle with two round turquoise eye tiles; antenna a small one with a golden tip; wearing the suite's teal steward safety vest with cream reflective bands; holding a cream clipboard with blank golden lines in one hand. Golden sun rays; sage leaves low. No mouth or face expression beyond the eyes, no text on the clipboard, no plus symbol, no medical bag. One robot only.",
+      "artwork": "artwork/robot-workers.png",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "40885eb84454c656f814e290523e370e0d36410e3f9de9d4ced711ae880a6cd1",
+      "fullReview": "cards/robot-workers-744x1074.png",
+      "draftPreview": "small/robot-workers-248x358.png",
+      "ownedPreview": "small/robot-workers-250x142.png"
+    }
+  ]
+}

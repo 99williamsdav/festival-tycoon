@@ -8,6 +8,8 @@ The user's [working agreement](../../docs/WORKING-AGREEMENTS.md) records that ap
 
 ## Current UI and presentation designs
 
+Perk mosaic batch 2 adds six existing-catalogue artworks under user-requested integration and producer authorization on 3 October 2026: [full source/reviews](perks/mosaic-suite-batch2/) and [integration result](../../briefs/results/perk-mosaic-batch2.md). The active suite-v1 manifest now indexes fourteen cards while preserving the original eight. Separate user aesthetic approval for this new batch is not claimed; no gameplay or layout changes accompany the assets.
+
 | Design / repo copy | Current status | Implementation / supersession |
 | --- | --- | --- |
 | [Build mode board and handoff](ui/build-mode-concept-v1/HANDOFF.md) · [image](ui/build-mode-concept-v1/build-mode-design-board.png) · [prompt](ui/build-mode-concept-v1/PROMPTS.md) | Approved direction, **implemented** within R0.05v/w | [Build result](../../briefs/results/R0.05v-build-mode.md); Debug origin diagnostic and default/open behavior [follow-up](../../briefs/results/R0.05w-build-entry-toilet-followup.md). Image prices/layout were illustrative; runtime/validation own facts. |

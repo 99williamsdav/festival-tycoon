@@ -1,5 +1,7 @@
 # Mosaic perk suite v1 — eight-card review
 
+Historical eight-card review record. On 3 October 2026, six additional existing-catalogue artworks were integrated under user request and producer authorization. The active manifest now indexes fourteen cards; [batch 2 source/reviews](../mosaic-suite-batch2/) and [integration result](../../../../briefs/results/perk-mosaic-batch2.md) record that addition without a separate user aesthetic-approval claim. The original eight entries and runtime files remain unchanged.
+
 The user and coordinator approved the original Something in the Water mosaic direction, then commissioned and approved these eight existing perks on 27 September 2026. See APPROVAL.md. Builder integration of the standalone artwork is authorized with native text and current layouts unchanged. Designer has preserved placeholder SVGs and the original water concept and made no game changes. No ninth perk, mechanics change or commit.
 
 ## Deliverables
