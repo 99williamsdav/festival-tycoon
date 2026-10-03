@@ -13,8 +13,16 @@ if (Test-Path -LiteralPath $executable) {
 # Godot reports progress on stderr. Under Windows PowerShell 5.1 with 'Stop', a redirected stderr
 # line from a native program is a terminating error, so the export runs with 'Continue' and is
 # judged by its exit code, its log and the executable it writes.
+#
+# The console Godot is a wrapper that returns only once its output pipe closes. The export runs
+# 'dotnet publish', whose reused MSBuild nodes and shared Roslyn compiler server outlive it and inherit
+# that pipe, so the wrapper would wait until they idle out (up to ~15 minutes). Keep both in-process.
 $previousPreference = $ErrorActionPreference
+$previousNodeReuse = $env:MSBUILDDISABLENODEREUSE
+$previousSharedCompilation = $env:UseSharedCompilation
 $ErrorActionPreference = 'Continue'
+$env:MSBUILDDISABLENODEREUSE = '1'
+$env:UseSharedCompilation = 'false'
 try {
     $output = & $godotExe.FullName --headless --path (Join-Path $repoRoot 'game') --export-release 'Windows Desktop' $executable 2>&1 |
         ForEach-Object { "$_" }
@@ -22,6 +30,8 @@ try {
 }
 finally {
     $ErrorActionPreference = $previousPreference
+    $env:MSBUILDDISABLENODEREUSE = $previousNodeReuse
+    $env:UseSharedCompilation = $previousSharedCompilation
 }
 $escape = [char]27
 $plain = $output | ForEach-Object { $_ -replace "$escape\[[0-9;]*m", '' }
