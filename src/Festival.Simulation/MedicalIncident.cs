@@ -53,7 +53,8 @@ public sealed partial class GameSession
     private int TapDrinkThirstPerTickFor(ulong agentId) =>
         (CommunityWaterShareActive ? Math.Min(12, BaseDrinkThirstPerTickFor(agentId)) : BaseDrinkThirstPerTickFor(agentId)) +
         (_preparation?.WaterTowerOwned == true ? 4 : 0);
-    public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => EffectiveMedicalDrinkThirstPerTickFor(agentId) / 4;
+    // Never below one, so even a slow drinker filling a bottle is cooled by the tap.
+    public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => Math.Max(1, EffectiveMedicalDrinkThirstPerTickFor(agentId) / 4);
     public const int MedicalDecisionCooldownTicks = 240;   // 3 real seconds at 1×.
     public const int MedicalCollapseDelayTicks = 1_600;   // 20 real seconds after distress.
     public const int MedicalCriticalDelayTicks = 800;     // 10 real seconds after collapse.

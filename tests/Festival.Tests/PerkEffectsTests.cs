@@ -49,7 +49,11 @@ public sealed class PerkEffectsTests
         var guest = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
         var plain = Started(20260922);
         Assert.AreEqual(Math.Max(1, plain.EffectiveMedicalDrinkThirstPerTickFor(guest) * GameSession.ByobFillPercent / 100), s.EffectiveMedicalDrinkThirstPerTickFor(guest));
-        Assert.AreEqual(s.EffectiveMedicalDrinkThirstPerTickFor(guest) / 4, s.EffectiveMedicalDrinkHeatPerTickFor(guest), "The same drink cools them the same amount.");
+        Assert.AreEqual(Math.Max(1, s.EffectiveMedicalDrinkThirstPerTickFor(guest) / 4), s.EffectiveMedicalDrinkHeatPerTickFor(guest), "The same drink cools them the same amount.");
+        var guests = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest).Select(p => p.AgentId).ToArray();
+        var slow = guests.FirstOrDefault(g => s.GuestCharacterOf(g).SlowDrinker);
+        Assert.AreNotEqual(0UL, slow, "A slow drinker on this roster.");
+        Assert.IsTrue(guests.All(g => s.EffectiveMedicalDrinkHeatPerTickFor(g) >= 1), "Even a slow drinker filling a bottle is cooled.");
         var (before, after) = (Days(null), Days(PerkCatalogue.BringYourOwnBottle));
         Assert.IsTrue(after.Taps < before.Taps, $"Tap visits {before.Taps} to {after.Taps}.");
     }
