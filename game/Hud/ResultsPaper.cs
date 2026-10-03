@@ -170,6 +170,8 @@ void fragment() {
             3 => "A mixed reception in the field", 2 => "Festival leaves room for improvement",
             1 => "A difficult day in the field", _ => "The field falls quiet" };
         var head = Ui.Heading(headline, 44); head.AutowrapMode = TextServer.AutowrapMode.WordSmart; body.AddChild(head);
+        // A completed festival never had a death (that ends the day), so a poor review can always offer this much.
+        if (result.Stars is <= 2) { body.AddChild(Gap(4)); body.AddChild(Paragraph("At least no one died.", 20, new Color("3a4640"), Ui.Slab)); }
         body.AddChild(Gap(16));
 
         var lead = new HBoxContainer(); lead.AddThemeConstantOverride("separation", Ui.Px(22)); body.AddChild(lead);
