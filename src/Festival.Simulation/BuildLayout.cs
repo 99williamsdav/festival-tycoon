@@ -306,10 +306,14 @@ public sealed partial class GameSession
             from x in Enumerable.Range(centre.X - radius, radius * 2 + 1)
             from z in Enumerable.Range(centre.Z - radius, radius * 2 + 1)
             select new GridCell(x, z);
+        // Small things keep a round berth rather than a square one: a grid square looks like a diamond from the
+        // isometric camera, so it asked for half as much room again along the screen's up-down and left-right.
+        static IEnumerable<GridCell> Round(GridCell centre) =>
+            Square(centre, 2).Where(cell => (cell.X - centre.X) * (cell.X - centre.X) + (cell.Z - centre.Z) * (cell.Z - centre.Z) <= 5);
         return item.Kind switch
         {
-            BuildServiceKind.Bin => Square(item.Cell, 2).ToArray(),
-            BuildServiceKind.WaterTap => Square(item.Cell, 2)
+            BuildServiceKind.Bin => Round(item.Cell).ToArray(),
+            BuildServiceKind.WaterTap => Round(item.Cell)
                 .Append(WaterServiceCell(item.Cell, item.QuarterTurns)).ToArray(),
             BuildServiceKind.Toilet => ToiletReservedCells(new(item.Id, item.Cell, item.QuarterTurns, [], null,
                 false, 0, 0, 0, ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille))
