@@ -7,7 +7,16 @@ namespace Festival.Tests;
 public sealed class StaffCatalogueTests
 {
     [TestMethod]
-    public void EachRoleOffersThreeNamedCandidatesWithAStandardOne()
+    public void TheNamePoolsCoverTheWholeMarket()
+    {
+        // Every candidate has a first name and a surname nobody else on the market has, so the pools must hold enough.
+        int Pool(string name) => ((string[])typeof(StaffCatalogue).GetField(name, System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!.GetValue(null)!).Length;
+        Assert.IsTrue(StaffCatalogue.PerRole * 3 <= Pool("FirstNames") && StaffCatalogue.PerRole * 3 <= Pool("LastNames"),
+            "Unique names for every candidate need bigger pools, or the market generator never finishes.");
+    }
+
+    [TestMethod]
+    public void EachRoleOffersSixNamedCandidatesWithAStandardOne()
     {
         var s = Planned();
         var candidates = s.GetStaffCandidates();
