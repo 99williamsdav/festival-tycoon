@@ -46,10 +46,13 @@ public sealed partial class GameSession
     /// <summary>A slow-drinking guest sips more slowly than anyone else at a tap.</summary>
     private int BaseDrinkThirstPerTickFor(ulong agentId) =>
         IsGuest(agentId) && GuestCharacterOf(agentId).SlowDrinker ? GuestCharacters.SlowDrinkerThirstPerTick : MedicalDrinkThirstPerTickFor(agentId);
-    public int EffectiveMedicalDrinkThirstPerTickFor(ulong agentId) =>
+    // Filling a bottle is slower than drinking straight from the tap; it cools them as the tap always did.
+    public int EffectiveMedicalDrinkThirstPerTickFor(ulong agentId) => BringsOwnBottle(agentId)
+        ? Math.Max(1, TapDrinkThirstPerTickFor(agentId) * ByobFillPercent / 100) : TapDrinkThirstPerTickFor(agentId);
+    private int TapDrinkThirstPerTickFor(ulong agentId) =>
         (CommunityWaterShareActive ? Math.Min(12, BaseDrinkThirstPerTickFor(agentId)) : BaseDrinkThirstPerTickFor(agentId)) +
         (_preparation?.WaterTowerOwned == true ? 4 : 0);
-    public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => EffectiveMedicalDrinkThirstPerTickFor(agentId) / 4;
+    public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => TapDrinkThirstPerTickFor(agentId) / 4;
     public const int MedicalDecisionCooldownTicks = 240;   // 3 real seconds at 1×.
     public const int MedicalCollapseDelayTicks = 1_600;   // 20 real seconds after distress.
     public const int MedicalCriticalDelayTicks = 800;     // 10 real seconds after collapse.
@@ -529,18 +532,22 @@ public sealed partial class GameSession
             {
                 // Guests outside the gate do not heat up or get thirsty yet.
                 if (item.NeedProfile == MedicalNeedProfile.Guest && !item.Admitted || GuestWaitingForRelease(item.Id)) continue;
+                if (RobotWorker(item.Id)) { MutatePerson(item.Id, person => { person.Thirst = 0; person.HeatExposure = 0; }); continue; }
                 // Guests and performers heat up at the same rate; on-duty staff far more slowly.
                 var heat = item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
                 // A portaloo cubicle is a hot box in hot weather, for a normal visit and doubly so for someone stuck.
                 if (m.IsHot && item.ToiletStage == ToiletVisitStage.Using) heat += FaultRules.PortalooExtraHeat;
                 if (ExtraHeatThisTick(item.Id)) heat += 1; // Easy to overheat.
-                MutatePerson(item.Id, person => { person.Thirst = Math.Min(10_000, person.Thirst + 1); person.HeatExposure = Math.Min(10_000, person.HeatExposure + heat); });
+                // A guest with their own bottle sips from it between taps, so misses one thirst step in four.
+                var thirst = BringsOwnBottle(item.Id) && CurrentTick % 16 == 0 ? 0 : 1;
+                MutatePerson(item.Id, person => { person.Thirst = Math.Min(10_000, person.Thirst + thirst); person.HeatExposure = Math.Min(10_000, person.HeatExposure + heat); });
             }
         }
         if (HasPerk("thirsty-crowd") && CurrentTick % 40 == 0)
             foreach (var item in PeopleIn(PersonView.Medical))
                 if (item.NeedProfile == MedicalNeedProfile.Guest && PersonIn(PersonView.Roster, item.Id) is { Admitted: true })
                     MutatePerson(item.Id, person => person.Thirst = Math.Min(10_000, person.Thirst + 1));
+        AdvanceFriendlyQueues();
         AdvanceActivityChoices();
         m = _medical!;
         AdmitWaterArrivals();

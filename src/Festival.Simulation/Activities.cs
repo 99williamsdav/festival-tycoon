@@ -67,7 +67,8 @@ public sealed partial class GameSession
         var options = ActivityOptions(id, current);
         if (extra is not null) options.Add(extra);
         // On-duty staff heat up an eighth as fast (see AdvanceMedical).
-        var growth = new NeedGrowth(20 + (HasPerk("thirsty-crowd") && person.NeedProfile == MedicalNeedProfile.Guest ? 2 : 0),
+        var growth = RobotWorker(id) ? new NeedGrowth(0, 0, 0, 0) : new NeedGrowth(
+            (20 + (HasPerk("thirsty-crowd") && person.NeedProfile == MedicalNeedProfile.Guest ? 2 : 0)) * (BringsOwnBottle(id) ? ByobThirstQuarters : 4) / 4,
             IsStaffMember(id) ? 2 : 20 * (200 + (IsGuest(id) ? GuestCharacterOf(id).HeatSensitivity : 0)) / 200, 12, 80 / ToiletNeedGainEveryTicks(id));
         var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed);
         return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options);
@@ -271,7 +272,7 @@ public sealed partial class GameSession
             var enjoyment = product switch
             {
                 ImmersionProduct.Beer => (3_000L + (StaffHas(id, StaffTrait.SneakyAlcoholic) ? AlcoholicBeerTaste : BeerTasteOf(person)) * 45) * PurchaseValueScale,
-                ImmersionProduct.SoftDrink => person.SoftTaste * 35L * PurchaseValueScale,
+                ImmersionProduct.SoftDrink => SoftTasteOf(person) * 35L * PurchaseValueScale,
                 _ => 0L
             } + (StaffHas(id, StaffTrait.Slacker) && product != ImmersionProduct.Water ? SlackerTreatValue : 0);
             foreach (var vendor in Vendors.Where(vendor => vendor.Id == vendorId && (underWay || VendorHasRoom(vendor))))

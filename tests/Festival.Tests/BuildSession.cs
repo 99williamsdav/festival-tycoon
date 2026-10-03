@@ -40,7 +40,7 @@ internal static class BuildSession
         var redraw = typeof(GameSession).GetMethod("OpenPerkDraft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
         for (var draws = 0; perkIds is not null && !perks.Hand.Any(perkIds.Contains); draws++)
         {
-            Assert.IsTrue(draws < 8, $"Seed {seed} never offered {string.Join(" or ", perkIds)}.");
+            Assert.IsTrue(draws < 28, $"Seed {seed} never offered {string.Join(" or ", perkIds)}.");
             redraw.Invoke(s, []); perks = s.CapturePerks()!;
         }
         Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perkIds is null ? perks.Hand[index] : perks.Hand.First(perkIds.Contains)));

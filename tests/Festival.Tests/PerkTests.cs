@@ -54,7 +54,7 @@ public sealed class PerkTests
             Assert.AreEqual(JsonSerializer.Serialize(legacy.CapturePersistenceSnapshot().RandomStreams),JsonSerializer.Serialize(s.CapturePersistenceSnapshot().RandomStreams));
             if(seed<10){s=Restored(s);Assert.AreEqual(JsonSerializer.Serialize(p),JsonSerializer.Serialize(s.CapturePerks()));Accept(s,new RerollPerksCommand(p.DraftAttempt,p.Cursor));var rerolled=s.CapturePerks()!;s=Restored(s);Assert.AreEqual(JsonSerializer.Serialize(rerolled),JsonSerializer.Serialize(s.CapturePerks()));Assert.IsFalse(Send(s,new RerollPerksCommand(rerolled.DraftAttempt,rerolled.Cursor)).IsAccepted);}
         }
-        foreach(var count in counts.Values)Assert.IsTrue(count is >230 and <380,$"Distribution {count}/2400 outside broad equal-weight diagnostic.");
+        var expected=2400/PerkCatalogue.All.Length;foreach(var count in counts.Values)Assert.IsTrue(count>expected*7/10 && count<expected*13/10,$"Distribution {count}/2400 outside broad equal-weight diagnostic around {expected}.");
     }
     [TestMethod]
     public void FullHandExcludesOwnedAndAllowsRepeatedRemainingThreeReplacementAndSkip()

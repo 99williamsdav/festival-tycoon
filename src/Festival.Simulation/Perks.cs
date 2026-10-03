@@ -6,7 +6,8 @@ public sealed record PerkDefinition(string Id, string Name, string Effect);
 public static class PerkCatalogue
 {
     public const string TapId = "water.extra-1";
-    public const string BeerFestival = "beer-festival";
+    public const string BeerFestival = "beer-festival", FriendlyQueues = "friendly-queues", BringYourOwnBottle = "bring-your-own-bottle",
+        ColaFiends = "cola-fiends", Alcoholics = "alcoholics", RobotWorkers = "robot-workers";
     public static readonly PerkDefinition[] All = [
         new("extra-pair-of-hands", "Extra Pair of Hands", "+1 steward hiring slot. Hire separately for £30 per weekend."),
         new("doctors-orders", "Doctor's Orders", "+1 medic hiring slot. Hire separately for £30 per weekend."),
@@ -16,7 +17,12 @@ public static class PerkCatalogue
         new("first-responders", "First Responders", "All medics walk faster and treat more quickly."),
         new("something-in-the-water", "Something in the Water", "Drinking free water improves satisfaction."),
         new("thirsty-crowd", "Thirsty Crowd", "Guests grow thirsty faster."),
-        new(BeerFestival, "Beer Festival", "Beer costs 50% more. No teetotallers, and everyone drinks a little more.")
+        new(BeerFestival, "Beer Festival", "Beer costs 50% more. No teetotallers, and everyone drinks a little more."),
+        new(FriendlyQueues, "Friendly Queues", "Guests chat in queues and gain satisfaction while they wait."),
+        new(BringYourOwnBottle, "Bring Your Own Bottle", "Guests get thirsty more slowly, but take longer to fill up at taps."),
+        new(ColaFiends, "Cola Fiends", "Guests prefer soft drinks to free water."),
+        new(Alcoholics, "Alcoholics", "Guests buy much more beer, and get drunk more."),
+        new(RobotWorkers, "Robot Workers", "Staff never need to drink, eat, cool off or use the loo.")
     ];
 }
 // This RNG is deliberately separate from the established stream collection: adding an enum
@@ -107,13 +113,16 @@ public sealed partial class GameSession
     {
         if (_perks is { Ended: false } p) _perks = p with { Equipped = [], FrozenEffects = p.Equipped, Ended = true, Pending = false, Hand = [] };
     }
+    // A plausibility bound on draws per attempt: play makes at most two (the hand and one reroll), each about three
+    // values; the slack lets test fixtures redraw an opening hand until it offers the perk they need.
+    private const ulong MaxPerkCursorPerAttempt = 96;
     private static bool SavedPerkEffect(PerkSnapshot? p, string id) => p is not null && (p.Ended ? p.FrozenEffects : p.Equipped)?.Contains(id) == true;
     private static string? ValidatePersistedPerks(SessionPersistenceSnapshot s)
     {
         if (s.Perks is not { } p) return null;
         if (p.Version != 1 || p.Equipped is null || p.Hand is null || p.FrozenEffects is null || p.StartingEquipped is null || p.DrawnHand is null || p.StartingEquipped.Length > 5 || p.Equipped.Length > 5 || p.FrozenEffects.Length > 5 ||
             s.Preparation is not { } prep || s.Immersion is null || s.Lifecycle is null && (prep.Attempt != 1 || prep.Status != PreparationStatus.Preparing) ||
-            p.DraftAttempt != prep.Attempt || p.RandomIncrement % 2 != 1 || p.Cursor < 3 || p.Cursor > (ulong)prep.Attempt * 32 ||
+            p.DraftAttempt != prep.Attempt || p.RandomIncrement % 2 != 1 || p.Cursor < 3 || p.Cursor > (ulong)prep.Attempt * MaxPerkCursorPerAttempt ||
             !p.Equipped.SequenceEqual(p.Equipped.Distinct().Order(StringComparer.Ordinal)) || !p.FrozenEffects.SequenceEqual(p.FrozenEffects.Distinct().Order(StringComparer.Ordinal)) ||
             !p.StartingEquipped.SequenceEqual(p.StartingEquipped.Distinct().Order(StringComparer.Ordinal)) ||
             p.Equipped.Concat(p.Hand).Concat(p.FrozenEffects).Concat(p.StartingEquipped).Concat(p.DrawnHand).Any(id => !PerkCatalogue.All.Any(item => item.Id == id)) ||

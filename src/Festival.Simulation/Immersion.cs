@@ -49,8 +49,6 @@ public sealed partial class GameSession
     public ImmersionSnapshot? CaptureImmersion() => ImmersionView;
     internal string? ImmersionCanonicalJson => ImmersionView is not { } view ? null : JsonSerializer.Serialize(view);
     public static int ImmersionPrice(ImmersionProduct product) => product switch { ImmersionProduct.Water => 0, ImmersionProduct.SoftDrink => 200, _ => 300 };
-    /// <summary>Beer Festival marks beer up by half, relative to whatever the base price is.</summary>
-    public const int BeerFestivalPricePercent = 150, BeerFestivalTasteBoost = 4;
     public static int ImmersionPrice(ImmersionProduct product, bool beerFestival) =>
         beerFestival && product == ImmersionProduct.Beer ? ImmersionPrice(product) * BeerFestivalPricePercent / 100 : ImmersionPrice(product);
     // Whole-penny prices: round a half-penny down in the buyer's favour. A sneaky drinker buys beer as a punter, since
@@ -65,9 +63,7 @@ public sealed partial class GameSession
     /// <summary>Abstains from beer: never at a Beer Festival, where everyone came for it.</summary>
     public bool Teetotal(ulong id) => PersonIn(PersonView.Roster, id) is not null && Teetotal(_persons[id]);
     private bool Teetotal(Person person) => person.Abstains && !HasPerk(PerkCatalogue.BeerFestival);
-    /// <summary>How much someone likes beer, a little more at a Beer Festival.</summary>
-    private int BeerTasteOf(Person person) =>
-        HasPerk(PerkCatalogue.BeerFestival) ? Math.Min(100, person.BeerTaste + BeerFestivalTasteBoost) : person.BeerTaste;
+
     public static int ImmersionCost(ImmersionProduct product) => product switch { ImmersionProduct.Water => 0, ImmersionProduct.SoftDrink => 60, _ => 100 };
     // A cup of water goes down quicker than anything bought.
     public static int ImmersionConsumeTicks(ImmersionProduct product) => product switch { ImmersionProduct.Chips => 3200, ImmersionProduct.SoftDrink => 2800, ImmersionProduct.Water => 1600, _ => 2400 };
@@ -191,6 +187,7 @@ public sealed partial class GameSession
             var recovery = p.RecoveryResidue + 10; var hunger = p.HungerResidue + 12;
             { p.Intoxication = Math.Max(0,p.Intoxication-recovery/80); p.RecoveryResidue = recovery%80; p.Hunger = Math.Min(10000,p.Hunger+hunger/80); p.HungerResidue = hunger%80; p.FoodProtectionTicks = Math.Max(0,p.FoodProtectionTicks-1); p.ToiletNeed = _preparation!.Status == PreparationStatus.Running && p.ToiletStage != ToiletVisitStage.Using && CurrentTick % ToiletNeedGainEveryTicks(p.Id) == 0 ? Math.Min(ToiletRules.NeedMaximum, p.ToiletNeed + 1) : p.ToiletNeed; }
             if(!InView(PersonView.Medical, p.Id)&&CurrentTick%4==0)p.StaffThirst = Math.Min(10000,p.StaffThirst+1);
+            if (RobotWorker(p.Id)) { p.Hunger = 0; p.ToiletNeed = 0; }
             // Previously ingested dose keeps absorbing even when hands are owned by stage or care.
             if (p.PendingDose > 0) { var absorb = Math.Min(1,p.PendingDose); var residue = p.AbsorptionResidue + absorb*(p.FoodProtectionTicks>0 ? 1 : 2)*AbsorptionFactor(p.Id); { p.PendingDose = p.PendingDose-absorb; p.Intoxication = Math.Min(10000,p.Intoxication+residue/2); p.AbsorptionResidue = residue%2; } }
             if (p.Held is { } held && ImmersionConsumptionEligible(p.Id))
