@@ -55,6 +55,23 @@ public partial class Main
                 return;
             }
         }
+        // A medic treating someone faces their patient, collapsed or not; a steward at a jammed loo faces its door.
+        if (action == AgentNavigationAction.Arrived && (!hasPrevious || direction.LengthSquared() < 0.000036f))
+        {
+            Vector3? focus = null;
+            if (_session.GetMedicResponses().FirstOrDefault(job => job.WorkerId == id.Value && job.Stage == MedicalResponseStage.Treating)?.PatientId is { } patient &&
+                _attendeeVisuals.TryGetValue(new EntityId(patient), out var patientVisual))
+                focus = patientVisual.Position;
+            else if (_session.CaptureFaults()?.Faults.FirstOrDefault(f => f.WorkerId == id.Value && f.Kind == FacilityFaultKind.StuckInToilet) is { } jam &&
+                _session.CaptureToilets().FirstOrDefault(t => t.Id == jam.FacilityId) is { } loo)
+                focus = ImmersionPosition(loo.Cell);
+            if (focus is { } point && new Vector3(point.X - position.X, 0, point.Z - position.Z) is var toward && toward.LengthSquared() > 0.000001f)
+            {
+                visual.Rotation = new Vector3(0, Mathf.LerpAngle(visual.Rotation.Y, Mathf.Atan2(-toward.X, -toward.Z),
+                    Mathf.Clamp((float)delta * 7f, 0f, 1f)), 0);
+                return;
+            }
+        }
         // Actual rendered motion wins, including the final interpolated step after
         // authoritative arrival. Actor GLBs face -Z; facilities face +Z.
         if ((!hasPrevious || direction.LengthSquared() < 0.0000000001f) &&

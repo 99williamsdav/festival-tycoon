@@ -75,6 +75,12 @@ public sealed partial class GameSession
         var offset = RotateWaterOffset(new(0, -5 - Math.Min(index, ToiletRules.MaximumQueue - 1) * 2), toilet.QuarterTurns);
         return new(toilet.Cell.X + offset.X, toilet.Cell.Z + offset.Z);
     }
+    /// <summary>Just outside the door, where a steward works at a jammed lock.</summary>
+    public static GridCell ToiletDoorFrontCell(ToiletFacility toilet)
+    {
+        var offset = RotateWaterOffset(new(0, -2), toilet.QuarterTurns);
+        return new(toilet.Cell.X + offset.X, toilet.Cell.Z + offset.Z);
+    }
     public static GridCell ToiletExitCell(ToiletFacility toilet)
     {
         var offset = RotateWaterOffset(new(4, -5), toilet.QuarterTurns);

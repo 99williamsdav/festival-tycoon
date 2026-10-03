@@ -159,10 +159,10 @@ public sealed partial class GameSession
         return (EstimateStaffTravelTicks(worker) ?? FaultRules.UnassignedWaitTicks) + work;
     }
 
-    /// <summary>Where a worker stands to mend a tap: a walkable side away from its queue, or outside the toilet door.</summary>
+    /// <summary>Where a worker stands to mend a tap: a walkable side away from its queue; or right at a jammed toilet's door.</summary>
     private GridCell? FaultWorkCell(FacilityFault fault, ulong worker)
     {
-        if (fault.Kind == FacilityFaultKind.StuckInToilet) return ToiletExitCell(GetToilet(fault.FacilityId));
+        if (fault.Kind == FacilityFaultKind.StuckInToilet) return ToiletDoorFrontCell(GetToilet(fault.FacilityId));
         if (WaterPoints().SingleOrDefault(p => p.Id == fault.FacilityId) is not { } point) return null;
         var avoid = point.QueueCells.Append(WaterSlot(point, 0)).Append(WaterApproach(point)).ToHashSet();
         var here = TraversalGrid.WorldToCell(_navigationAgents[new(worker)].XMillimetres, _navigationAgents[new(worker)].ZMillimetres);

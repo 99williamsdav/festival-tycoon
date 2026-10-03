@@ -8,7 +8,7 @@ public sealed class PerkEffectsTests
 {
     private sealed record Day(int Beers, int Softs, int Taps, int DrunkSamples, long Satisfaction, int StaffPurchases, int StaffToiletVisits);
 
-    private static readonly ulong[] Seeds = [20260922, 20260924];
+    private static readonly ulong[] Seeds = [20260922, 20260924, 20260925, 20260928];
 
     /// <summary>Two seeded days, with plenty of stock, totalled; and each must still restore.</summary>
     private static Day Days(string? perk)
