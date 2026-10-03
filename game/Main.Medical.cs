@@ -153,9 +153,8 @@ public partial class Main
         foreach (var need in medical.Needs)
         {
             if (!_attendeeVisuals.ContainsKey(new EntityId(need.AgentId))) continue;
-            var label = new Label3D { Visible = false, FontSize = 42, PixelSize = .010f,
-                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-                OutlineSize = 14, OutlineModulate = new Color("2b2825") };
+            var label = WorldText.Speech(new Label3D { Visible = false,
+                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, OutlineModulate = new Color("2b2825") }, 36);
             AddChild(label);
             _medicalCueLabels.Add(need.AgentId, label);
         }

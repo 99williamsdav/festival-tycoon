@@ -203,8 +203,8 @@ public partial class Main : Node, IHudHost
         }
         foreach (var profile in _session.GetResponseStaff())
             if (_attendeeVisuals.TryGetValue(new EntityId(profile.AgentId), out var responderVisual))
-                responderVisual.AddChild(new Label3D { Text = profile.Name.Split(' ')[0].ToUpperInvariant(), Position = new Vector3(0, 2.1f, 0),
-                    FontSize = 30, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
+                responderVisual.AddChild(WorldText.Speech(new Label3D { Text = profile.Name.Split(' ')[0].ToUpperInvariant(), Position = new Vector3(0, 2.1f, 0),
+                    Billboard = BaseMaterial3D.BillboardModeEnum.Enabled }, 28));
         ResetMedicalCuePresentation();
         ResetDisorderCuePresentation();
         _urgentAlertDisplay.Reset(); _urgentAlertActions.Clear(); _hudAlertKey = "uninitialized";

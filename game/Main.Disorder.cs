@@ -37,9 +37,8 @@ public partial class Main
         foreach (var id in disorder.People.Select(item => item.AgentId).Concat(_session.GetStewardResponses().Select(item => item.WorkerId)).Distinct())
         {
             if (!_attendeeVisuals.ContainsKey(new EntityId(id))) continue;
-            var label = new Label3D { Visible = false, FontSize = 52, PixelSize = .011f,
-                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-                OutlineSize = 18, OutlineModulate = new Color("2c2020"), NoDepthTest = true };
+            var label = WorldText.Speech(new Label3D { Visible = false,
+                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, OutlineModulate = new Color("2c2020") }, 38);
             AddChild(label);
             _disorderCueLabels.Add(id, label);
         }

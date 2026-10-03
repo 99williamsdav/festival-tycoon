@@ -44,8 +44,8 @@ public partial class Main
             _session.CapturePerson(cue.AgentId) is not { Admitted: true, Departed: false }) return;
         if (_litterRemarkLabel is null)
         {
-            _litterRemarkLabel = new Label3D { FontSize = 38, PixelSize = .009f,
-                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = new Color("fff7e1"), OutlineSize = 14 };
+            _litterRemarkLabel = WorldText.Speech(new Label3D {
+                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = new Color("fff7e1") }, 36);
             AddChild(_litterRemarkLabel);
         }
         _litterRemarkLabel.Text = cue.Text; _litterRemarkLabel.Position = body.Position + new Vector3(0, 2.35f, 0);

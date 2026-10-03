@@ -18,15 +18,8 @@ public partial class Main
     /// <summary>The signs' lettering: the HUD's Zilla Slab, slightly spaced, drawn from a distance field so it stays crisp.</summary>
     private static FontVariation SignFont => _signFont ??= new FontVariation
     {
-        BaseFont = SignFontFile(), SpacingGlyph = 2,
+        BaseFont = WorldText.Msdf("res://assets/ui/fonts/ZillaSlab-Bold.ttf"), SpacingGlyph = 2,
     };
-    private static FontFile SignFontFile()
-    {
-        var font = (FontFile)GD.Load<FontFile>("res://assets/ui/fonts/ZillaSlab-Bold.ttf").Duplicate();
-        font.MultichannelSignedDistanceField = true;
-        font.MsdfPixelRange = 40; // At least twice the outline in MSDF units, so the outline isn't clipped by the field.
-        return font;
-    }
 
     /// <summary>
     /// A building's name on the field. It keeps the same size on screen at every zoom, so it never shrinks to an

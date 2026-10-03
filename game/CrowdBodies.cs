@@ -190,9 +190,8 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
                 ? $"{outfit.Tee},{outfit.Patch},{outfit.Trousers},{outfit.Hair}" : "");
         AddRoleHead(root, person, variant);
         if (role == "maintenance")
-            root.AddChild(new Label3D { Text = person.Name.Split(' ')[0].ToUpperInvariant() + "\nMAINTENANCE",
-                Position = new Vector3(0, 2.1f, 0), FontSize = 36, PixelSize = .009f,
-                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled });
+            root.AddChild(WorldText.Speech(new Label3D { Text = person.Name.Split(' ')[0].ToUpperInvariant() + "\nMAINTENANCE",
+                Position = new Vector3(0, 2.1f, 0), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled }, 28));
         return root;
     }
 

@@ -56,8 +56,8 @@ public partial class Main
                 _disorderCueLabels.TryGetValue(person.AgentId, out var disorder) && disorder.Visible) continue;
             if (!_immersionWarningLabels.TryGetValue(person.AgentId, out var label))
             {
-                label = new Label3D { Text = "! Too much beer • need care!", FontSize = 38, PixelSize = .009f,
-                    Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = new Color("ffdb73"), OutlineSize = 14 };
+                label = WorldText.Speech(new Label3D { Text = "! Too much beer • need care!",
+                    Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = new Color("ffdb73") }, 36);
                 AddChild(label); _immersionWarningLabels.Add(person.AgentId, label);
             }
             label.Position = body.Position + new Vector3(0, 2.7f, 0); label.Visible = true;
@@ -73,7 +73,7 @@ public partial class Main
         if (candidate is null || !_attendeeVisuals.TryGetValue(new EntityId(candidate.AgentId), out var visual)) return;
         if (_immersionRemark is null)
         {
-            _immersionRemark = new Label3D { FontSize = 38, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, OutlineSize = 14 };
+            _immersionRemark = WorldText.Speech(new Label3D { Billboard = BaseMaterial3D.BillboardModeEnum.Enabled }, 36);
             AddChild(_immersionRemark);
         }
         _immersionRemark.Text = candidate.Intoxication >= 5000 ? "Feeling wobbly • time for a rest" : "Feeling a bit tipsy";

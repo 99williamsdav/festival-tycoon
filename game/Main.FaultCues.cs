@@ -28,8 +28,8 @@ public partial class Main
             else continue;
             if (!_faultRemarkLabels.TryGetValue(fault.Id, out var label))
             {
-                label = new Label3D { FontSize = 38, PixelSize = .009f, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
-                    Modulate = new Color("fff7e1"), OutlineSize = 14 };
+                label = WorldText.Speech(new Label3D { Billboard = BaseMaterial3D.BillboardModeEnum.Enabled,
+                    Modulate = new Color("fff7e1") }, 36);
                 AddChild(label); _faultRemarkLabels[fault.Id] = label;
             }
             label.Text = text; label.Position = position; label.Visible = true; shown.Add(fault.Id);
