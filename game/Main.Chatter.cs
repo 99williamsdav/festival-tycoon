@@ -38,7 +38,7 @@ public partial class Main
     private readonly Dictionary<string, long> _chatterFreed = [];
     private readonly Dictionary<ulong, MedicalStage> _chatterStages = [];
     private readonly Dictionary<ulong, long> _chatterRecovered = [];
-    private List<(ulong Id, ImmersionProduct Product, long Tick)> _chatterBought = [];
+    private List<(ulong Id, ImmersionProduct Product, long Tick, int Index)> _chatterBought = [];
 
     internal static Color MoodColour(Mood mood) => mood switch
     {
@@ -166,7 +166,9 @@ public partial class Main
         {
             if (tick - since > 800) { _chatterArrived.Remove(id); continue; }
             if (!Free(id)) continue;
-            var wanted = _session.CaptureProgramme()?.ActIds.Select(ActCatalogue.Find).FirstOrDefault(a => a?.Genre == guests[id].ExpectedGenre);
+            var programme = _session.CaptureProgramme();
+            // Only an act still to come, for someone arriving late.
+            var wanted = programme?.ActIds.Skip(Math.Max(0, programme.CurrentSlot)).Select(ActCatalogue.Find).FirstOrDefault(a => a?.Genre == guests[id].ExpectedGenre);
             var line = wanted is not null && Hash(id, 7) % 3 == 0 ? $"Can't wait for {wanted.Name}!"
                 : Pick(id, "We made it!", "Right, where's the bar?", "This better be worth the journey");
             remarks.Add(new(id, line, Mood.Happy, 2, "arrive", 4, $"arrive:{id}"));
@@ -247,14 +249,14 @@ public partial class Main
                             : Pick(id, "How much?!", "Skint already…"), Mood.Grumble, 2, "skint", 10, $"skint:{id}"));
                 }
             }
-            foreach (var purchase in immersion.Purchases.Skip(_chatterPurchases))
-                if (purchase.Product != ImmersionProduct.Water) _chatterBought.Add((purchase.AgentId, purchase.Product, tick));
+            for (var index = _chatterPurchases; index < immersion.Purchases.Length; index++)
+                if (immersion.Purchases[index] is { Product: not ImmersionProduct.Water } purchase) _chatterBought.Add((purchase.AgentId, purchase.Product, tick, index));
             _chatterPurchases = immersion.Purchases.Length;
             _chatterBought.RemoveAll(b => tick - b.Tick > 400);
-            foreach (var (id, product, _) in _chatterBought.Where(b => Free(b.Id)))
+            foreach (var (id, product, _, index) in _chatterBought.Where(b => Free(b.Id)))
                 remarks.Add(new(id, product == ImmersionProduct.Beer
                     ? beerFestival && Hash(id, 5) % 2 == 0 ? "Now THAT'S a pint!" : Pick(id, "Cheers!", "Ahh, lovely")
-                    : "Ahh, lovely", Mood.Happy, 1, "bought", 5, $"bought:{id}:{_chatterPurchases}"));
+                    : "Ahh, lovely", Mood.Happy, 1, "bought", 5, $"bought:{index}"));
         }
 
         // The heat, the loos' smell and wasps at a full bin.
@@ -309,7 +311,8 @@ public partial class Main
         foreach (var piece in _session.CaptureLitter()?.Pieces ?? [])
             if (piece.CarrierId is { } carrier && carrier != piece.ProducerId && Free(carrier) && _session.GuestLabels(carrier).Contains("Goody two-shoes"))
                 remarks.Add(new(carrier, Pick(carrier, "I'll get that", "Leave no trace!"), Mood.Happy, 1, "goody", 8, $"goody:{carrier}"));
-        foreach (var need in needs.Values.Where(n => n.Intent == MedicalIntent.Leaving && Free(n.AgentId)))
+        // Only at the end of the day: someone escorted out or sent home after care earlier isn't reviewing the day.
+        foreach (var need in needs.Values.Where(n => _session.PreparedStatus == PreparationStatus.Departing && n.Intent == MedicalIntent.Leaving && Free(n.AgentId)))
         {
             var id = need.AgentId; var satisfaction = guests[id].Satisfaction;
             remarks.Add(satisfaction >= 6_500
