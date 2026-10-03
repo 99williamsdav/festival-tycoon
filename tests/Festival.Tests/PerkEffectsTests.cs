@@ -49,7 +49,7 @@ public sealed class PerkEffectsTests
         var guest = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
         var plain = Started(20260922);
         Assert.AreEqual(Math.Max(1, plain.EffectiveMedicalDrinkThirstPerTickFor(guest) * GameSession.ByobFillPercent / 100), s.EffectiveMedicalDrinkThirstPerTickFor(guest));
-        Assert.AreEqual(plain.EffectiveMedicalDrinkHeatPerTickFor(guest), s.EffectiveMedicalDrinkHeatPerTickFor(guest), "The tap cools them as before.");
+        Assert.AreEqual(s.EffectiveMedicalDrinkThirstPerTickFor(guest) / 4, s.EffectiveMedicalDrinkHeatPerTickFor(guest), "The same drink cools them the same amount.");
         var (before, after) = (Days(null), Days(PerkCatalogue.BringYourOwnBottle));
         Assert.IsTrue(after.Taps < before.Taps, $"Tap visits {before.Taps} to {after.Taps}.");
     }
@@ -80,6 +80,6 @@ public sealed class PerkEffectsTests
         var s = Started(20260922, PerkCatalogue.RobotWorkers);
         s.AdvanceWithoutSnapshot(4_000);
         var staff = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Staff).Select(p => p.AgentId).ToArray();
-        Assert.IsTrue(staff.All(id => s.CapturePerson(id) is { Thirst: 0, HeatExposure: 0, Hunger: 0, ToiletNeed: 0 }), "No needs of their own.");
+        Assert.IsTrue(staff.All(id => s.CapturePerson(id) is { Thirst: 0, HeatExposure: 0, Hunger: 0, ToiletNeed: 0, StaffThirst: 0 }), "No needs of their own.");
     }
 }

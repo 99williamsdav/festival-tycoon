@@ -46,13 +46,14 @@ public sealed partial class GameSession
     /// <summary>A slow-drinking guest sips more slowly than anyone else at a tap.</summary>
     private int BaseDrinkThirstPerTickFor(ulong agentId) =>
         IsGuest(agentId) && GuestCharacterOf(agentId).SlowDrinker ? GuestCharacters.SlowDrinkerThirstPerTick : MedicalDrinkThirstPerTickFor(agentId);
-    // Filling a bottle is slower than drinking straight from the tap; it cools them as the tap always did.
+    // Filling a bottle is slower than drinking straight from the tap. Cooling slows with it, so the same drink cools
+    // the same amount (a quarter of the thirst it relieves), as the activity chooser projects.
     public int EffectiveMedicalDrinkThirstPerTickFor(ulong agentId) => BringsOwnBottle(agentId)
         ? Math.Max(1, TapDrinkThirstPerTickFor(agentId) * ByobFillPercent / 100) : TapDrinkThirstPerTickFor(agentId);
     private int TapDrinkThirstPerTickFor(ulong agentId) =>
         (CommunityWaterShareActive ? Math.Min(12, BaseDrinkThirstPerTickFor(agentId)) : BaseDrinkThirstPerTickFor(agentId)) +
         (_preparation?.WaterTowerOwned == true ? 4 : 0);
-    public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => TapDrinkThirstPerTickFor(agentId) / 4;
+    public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => EffectiveMedicalDrinkThirstPerTickFor(agentId) / 4;
     public const int MedicalDecisionCooldownTicks = 240;   // 3 real seconds at 1×.
     public const int MedicalCollapseDelayTicks = 1_600;   // 20 real seconds after distress.
     public const int MedicalCriticalDelayTicks = 800;     // 10 real seconds after collapse.
