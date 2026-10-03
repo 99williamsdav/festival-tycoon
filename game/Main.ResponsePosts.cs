@@ -24,7 +24,7 @@ public partial class Main
     {
         var font = (FontFile)GD.Load<FontFile>("res://assets/ui/fonts/ZillaSlab-Bold.ttf").Duplicate();
         font.MultichannelSignedDistanceField = true;
-        font.MsdfPixelRange = 16;
+        font.MsdfPixelRange = 40; // At least twice the outline in MSDF units, so the outline isn't clipped by the field.
         return font;
     }
 
