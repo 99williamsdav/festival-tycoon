@@ -72,7 +72,6 @@ public partial class Main
                 AddChild(body);
                 AddToiletCollision(body, door, toilet.Id);
                 var name = BuildingName("TOILET", new Vector3(0, 2.8f, 0));
-                name.FontSize = 54; name.PixelSize = .009f;
                 body.AddChild(name);
                 view = new(body, door, free, occupied); _toiletViews.Add(toilet.Id, view);
             }

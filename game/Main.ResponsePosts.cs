@@ -14,9 +14,27 @@ public partial class Main
     private Button? _firstAidMoveButton;
     private Button? _stewardMoveButton;
     private static string PostAsset(ResponseRole role)=>role==ResponseRole.Medic?"res://assets/environment/lwf_first_aid_point_v2.glb":"res://assets/environment/lwf_security_post_v1.glb";
-    private static Label3D BuildingName(string text,Vector3 position)=>new() { Text=text,Position=position,
-        FontSize=80,PixelSize=.014f,OutlineSize=9,OutlineModulate=new Color("26332f"),
-        Modulate=new Color("fff3d6"),Billboard=BaseMaterial3D.BillboardModeEnum.Enabled };
+    private static FontVariation? _signFont;
+    /// <summary>The signs' lettering: the HUD's Zilla Slab, slightly spaced, drawn from a distance field so it stays crisp.</summary>
+    private static FontVariation SignFont => _signFont ??= new FontVariation
+    {
+        BaseFont = SignFontFile(), SpacingGlyph = 2,
+    };
+    private static FontFile SignFontFile()
+    {
+        var font = (FontFile)GD.Load<FontFile>("res://assets/ui/fonts/ZillaSlab-Bold.ttf").Duplicate();
+        font.MultichannelSignedDistanceField = true;
+        font.MsdfPixelRange = 16;
+        return font;
+    }
+
+    /// <summary>
+    /// A building's name on the field. It keeps the same size on screen at every zoom, so it never shrinks to an
+    /// illegible smudge zoomed out or swamps the view zoomed in, and it's lettered in the HUD's slab face.
+    /// </summary>
+    private static Label3D BuildingName(string text,Vector3 position,int size=40)=>new() { Text=text,Position=position,
+        Font=SignFont,FontSize=size,PixelSize=.0011f,FixedSize=true,OutlineSize=size*3/10,OutlineModulate=new Color("1d2a25"),
+        Modulate=new Color("fff3d6"),Billboard=BaseMaterial3D.BillboardModeEnum.Enabled,RenderPriority=2,NoDepthTest=true };
     private void SyncResponsePosts()
     {
         foreach(var role in _responsePostVisuals.Keys)

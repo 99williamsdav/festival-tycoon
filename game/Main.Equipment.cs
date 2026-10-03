@@ -92,8 +92,8 @@ public partial class Main
             Scale = new Vector3(1, .04f, 1), Position = new Vector3(0, .07f, 0),
             MaterialOverride = new StandardMaterial3D { AlbedoColor = new Color("e0ad45") } };
         _equipmentVisual.AddChild(marker);
-        var sign = new Label3D { Text = "GENERATOR", Position = new Vector3(0, 2.7f, 0), FontSize = 48, PixelSize = .010f,
-            Billboard = BaseMaterial3D.BillboardModeEnum.Enabled };
+        // Smaller and lower than the stage it powers, so the two names don't collide.
+        var sign = BuildingName("GENERATOR", new Vector3(0, 1.4f, 0), 28);
         _equipmentVisual.AddChild(sign); _equipmentVisualStage = e.Stage;
     }
 
