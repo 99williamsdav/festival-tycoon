@@ -165,6 +165,7 @@ public partial class Main
         _preparationRosterScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _hudRoster.AddChild(_preparationRosterScroll);
         _preparationPeople = HudLabel("", 13); _preparationPeople.CustomMinimumSize = new Vector2(300, 0); _preparationRosterScroll.AddChild(_preparationPeople);
         LiveBottom.Build(layer, size); _hudStatus = LiveBottom.Message;
+        BuildMoments(layer, size);
         Perks.Build(layer);
         Hearing.Build(layer); Drawer.Build(layer, size); Dock.Build(layer, size); BuildMapControls(layer, size); BoxOfficeView.Build(layer, size); RefreshPreparationHud();
     }

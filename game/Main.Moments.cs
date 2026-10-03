@@ -1,0 +1,164 @@
+using Festival.Simulation;
+using Godot;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Festival.Game;
+
+/// <summary>
+/// The day's stories as they happen: a wasp sting, someone stuck in the loo, a tap bursting into a swamp, a band
+/// finishing to cheers or boos, a goody two-shoes tidying up. Each appears briefly in the corner; click one to look.
+/// Read from the simulation's state twice a second; presentation only.
+/// </summary>
+public partial class Main
+{
+    private sealed record Moment(string Icon, string Text, Color Tint, Action Locate);
+
+    private const int MomentsShown = 4;
+    private const double MomentSeconds = 18;
+    private VBoxContainer? _momentsBox;
+    private readonly List<(Control Card, double Age)> _momentCards = [];
+    private readonly HashSet<string> _momentsSeen = [];
+    private double _momentsPoll;
+    private GameSession? _momentsSession;
+
+    private void BuildMoments(CanvasLayer layer, Vector2 size)
+    {
+        _momentsBox = new VBoxContainer { MouseFilter = Control.MouseFilterEnum.Ignore, GrowVertical = Control.GrowDirection.Begin,
+            Position = new Vector2(Ui.Gutter, size.Y - Ui.Dock - Ui.S(14)), Size = new Vector2(Ui.S(330), 0) };
+        _momentsBox.AddThemeConstantOverride("separation", Ui.Px(6));
+        layer.AddChild(_momentsBox);
+    }
+
+    private void ProcessMoments(double delta)
+    {
+        if (_momentsBox is null) return;
+        for (var i = _momentCards.Count - 1; i >= 0; i--)
+        {
+            var (card, age) = _momentCards[i];
+            age += _session.IsPaused ? 0 : delta;
+            _momentCards[i] = (card, age);
+            card.Modulate = new Color(1, 1, 1, Mathf.Clamp((float)(MomentSeconds - age) / 2f, 0, 1));
+            if (age >= MomentSeconds) { card.QueueFree(); _momentCards.RemoveAt(i); }
+        }
+        var running = _session.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing;
+        _momentsBox.Visible = running && !EyeViewActive;
+        if (_momentsSession != _session)
+        {
+            // A new day or a loaded save: nothing that already happened is news.
+            _momentsSession = _session; _momentsSeen.Clear();
+            foreach (var (card, _) in _momentCards) card.QueueFree();
+            _momentCards.Clear();
+            foreach (var moment in CurrentMoments()) _momentsSeen.Add(moment.Key);
+            return;
+        }
+        if (!running) return;
+        _momentsPoll -= delta;
+        if (_momentsPoll > 0) return;
+        _momentsPoll = .5;
+        foreach (var (key, moment) in CurrentMoments())
+            if (_momentsSeen.Add(key)) ShowMoment(moment);
+    }
+
+    private string NameOf(ulong id) => _session.CapturePreparation()?.People.FirstOrDefault(p => p.AgentId == id)?.Name ?? "Someone";
+
+    private Action LocatePerson(ulong id) => () =>
+    {
+        if (!_attendeeVisuals.ContainsKey(new EntityId(id))) return;
+        SelectAttendee(new EntityId(id));
+        _rig.Frame(_attendeeVisuals[new EntityId(id)].Position, Math.Min(_rig.Camera.Size, 30));
+    };
+
+    private Action LocateCell(GridCell cell) => () => _rig.Frame(ImmersionPosition(cell), Math.Min(_rig.Camera.Size, 30));
+
+    /// <summary>Every story the current state tells, each with a stable key so it's only told once.</summary>
+    private IEnumerable<(string Key, Moment Moment)> CurrentMoments()
+    {
+        var warm = new Color("f2a65a"); var bad = new Color("df5750"); var good = new Color("53bb72"); var calm = new Color("459ad1");
+        foreach (var fault in _session.CaptureFaults()?.Faults ?? [])
+        {
+            if (fault.Kind == FacilityFaultKind.StuckInToilet)
+            {
+                var toilet = _session.CaptureToilets().FirstOrDefault(t => t.Id == fault.FacilityId);
+                yield return ($"stuck:{fault.Id}", new("door-closed", $"{NameOf(fault.VictimId)} is stuck in the loo!", warm,
+                    toilet is null ? LocatePerson(fault.VictimId) : LocateCell(toilet.Cell)));
+                if (fault.Stage == FacilityFaultStage.Fixed)
+                    yield return ($"freed:{fault.Id}", new("door-closed", $"{NameOf(fault.VictimId)} is out of the loo at last", good,
+                        LocatePerson(fault.VictimId)));
+            }
+            else
+            {
+                var tap = _session.CaptureWaterPoints().FirstOrDefault(t => t.Id == fault.FacilityId);
+                var at = tap is null ? (Action)(() => { }) : LocateCell(tap.Cell);
+                yield return ($"tap:{fault.Id}", new("droplet", "A water tap has burst!", warm, at));
+                if (fault.Stage != FacilityFaultStage.Active)
+                    yield return ($"tapfix:{fault.Id}", new("wrench", fault.Stage == FacilityFaultStage.Bodged ? "The tap's been bodged back into use" : "The tap's mended", good, at));
+            }
+        }
+        foreach (var tap in _session.CaptureWaterPoints())
+        {
+            var swampy = 0;
+            for (var dz = -6; dz <= 6; dz++)
+                for (var dx = -6; dx <= 6; dx++)
+                    if (_session.GroundStateAt(new GridCell(tap.Cell.X + dx, tap.Cell.Z + dz)) == GroundState.Swamp) swampy++;
+            if (swampy >= 8) yield return ($"swamp:{tap.Id}", new("cloud-rain", "The ground by the tap has turned to swamp", calm, LocateCell(tap.Cell)));
+        }
+        foreach (var need in _session.CaptureMedical()?.Needs ?? [])
+        {
+            var name = NameOf(need.AgentId);
+            if (need.Stage is MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal && need.CollapseTick >= 0)
+            {
+                var why = need.Reason.Contains("wasp", StringComparison.OrdinalIgnoreCase) ? $"{name} was stung by a wasp and collapsed!"
+                    : need.Reason.Contains("Intoxication", StringComparison.OrdinalIgnoreCase) ? $"{name} has had far too much to drink and collapsed!"
+                    : $"{name} has collapsed in the heat!";
+                yield return ($"collapse:{need.AgentId}:{need.CollapseTick}", new("heart-pulse", why, bad, LocatePerson(need.AgentId)));
+            }
+            if (need.Stage == MedicalStage.Treated)
+                yield return ($"treated:{need.AgentId}:{need.CollapseTick}", new("heart-pulse", $"The medic has {name} back on their feet", good, LocatePerson(need.AgentId)));
+        }
+        foreach (var person in _session.CaptureDisorder()?.People ?? [])
+            if (person.Stage == DisorderStage.Fight && person.OpponentId is { } other && person.AgentId < other)
+                yield return ($"fight:{person.AgentId}:{person.StageTick}", new("zap", $"{NameOf(person.AgentId)} and {NameOf(other)} are fighting!", bad, LocatePerson(person.AgentId)));
+        foreach (var piece in _session.CaptureLitter()?.Pieces ?? [])
+            if (piece.CarrierId is { } carrier && piece.CarrierId != piece.ProducerId && _session.GuestLabels(carrier).Contains("Goody two-shoes"))
+                yield return ($"goody:{carrier}", new("star", $"{NameOf(carrier)} is picking up other people's litter", good, LocatePerson(carrier)));
+        if (_session.CaptureLivePerformance() is { } live && _session.CaptureProgramme() is { } programme && programme.CurrentSlot >= 0)
+        {
+            var act = _session.CurrentFestivalAct?.Name ?? "The band";
+            var slot = programme.CurrentSlot;
+            if (live.Stage == LiveSetStage.Live)
+                yield return ($"set:{slot}", new("music", $"{act} take the stage", calm, LocateCell(new GridCell(96, 150))));
+            if (live.Stage == LiveSetStage.Finished && live.EndedTick >= 0)
+            {
+                var (text, tint) = live.LastReaction switch
+                {
+                    "set-finished-applause" => ($"{act} finish to big cheers", good),
+                    "set-finished-interrupted" => ($"{act}'s set was cut short", bad),
+                    _ => ($"{act} finish to polite applause", calm),
+                };
+                yield return ($"setend:{slot}", new("music", text, tint, LocateCell(new GridCell(96, 150))));
+            }
+            if (live.LastReaction == "sustained-boo")
+                yield return ($"boo:{slot}", new("music", $"The crowd is booing {act}!", bad, LocateCell(new GridCell(96, 150))));
+        }
+    }
+
+    private void ShowMoment(Moment moment)
+    {
+        var card = new Button { Text = moment.Text, Icon = Ui.Icon(moment.Icon), Alignment = HorizontalAlignment.Left,
+            MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = "Look",
+            CustomMinimumSize = new Vector2(0, Ui.S(32)), SizeFlagsHorizontal = Control.SizeFlags.ShrinkBegin };
+        Ui.Style(card, Ui.ButtonKind.Bar, 12.5f, radius: 16);
+        var style = Ui.Box(new Color(Ui.Bar, .92f), 16, moment.Tint, 1.5f, 12, 4, shadow: 4, shadowAlpha: .25f);
+        foreach (var state in new[] { "normal", "focus" }) card.AddThemeStyleboxOverride(state, style);
+        card.AddThemeStyleboxOverride("hover", Ui.Box(Ui.BarRaised, 16, moment.Tint, 1.5f, 12, 4, shadow: 4, shadowAlpha: .25f));
+        foreach (var state in new[] { "icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color" })
+            card.AddThemeColorOverride(state, moment.Tint);
+        card.AddThemeConstantOverride("icon_max_width", Ui.Px(15));
+        card.Pressed += moment.Locate;
+        _momentsBox!.AddChild(card);
+        _momentCards.Add((card, 0));
+        while (_momentCards.Count > MomentsShown) { _momentCards[0].Card.QueueFree(); _momentCards.RemoveAt(0); }
+    }
+}
