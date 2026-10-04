@@ -47,6 +47,7 @@ public sealed partial class GameSession
 
     public bool EquipmentBoundaryOnNextTick => !IsPaused && _equipment is { } e && _preparation is { Status: PreparationStatus.Running } p &&
         (e.Version != 3 && e.Stage == EquipmentStage.Normal && CurrentTick + 1 >= p.StartedTick + EquipmentWarningDelayTicks ||
+         e.Version == 3 && PowerTransitionOnNextTick(e) ||
          e.Stage == EquipmentStage.Warning && CurrentTick + 1 >= e.WarningTick + EquipmentDangerDelayTicks ||
          e.Stage == EquipmentStage.DangerousFault && CurrentTick + 1 >= e.WarningTick + EquipmentDeathDelayTicks && NearbyEquipmentPerson() is not null ||
          e.JobStage == MaintenanceStage.Travelling && _navigationAgents[new(e.WorkerId!.Value)].Action == AgentNavigationAction.Arrived ||
@@ -80,8 +81,11 @@ public sealed partial class GameSession
         return null;
     }
 
+    // On the power budget warnings can come and go all day, so only the latest are kept, after the opening load line.
     private void EquipmentEvent(string id, string description) => _equipment = _equipment! with
-    { Evidence = _equipment.Evidence.Append(new EquipmentEvidence(id, CurrentTick, description)).ToArray() };
+    { Evidence = _equipment.Version == 3
+        ? [_equipment.Evidence[0], .. _equipment.Evidence.Skip(1).Append(new EquipmentEvidence(id, CurrentTick, description)).TakeLast(63)]
+        : _equipment.Evidence.Append(new EquipmentEvidence(id, CurrentTick, description)).ToArray() };
 
     private void ApplyEquipmentCommand(EquipmentCommand command)
     {

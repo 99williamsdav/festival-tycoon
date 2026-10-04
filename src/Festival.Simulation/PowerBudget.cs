@@ -92,6 +92,16 @@ public sealed partial class GameSession
         }
     }
 
+    /// <summary>Whether next tick's strain crosses into the warning or eases to nothing, as AdvancePowerBudget will find.</summary>
+    private bool PowerTransitionOnNextTick(EquipmentSnapshot e)
+    {
+        var draw = CapturePower();
+        var over = draw.Total - draw.Capacity;
+        var next = over > 0 ? Math.Min(PowerRules.StrainMaximum, e.Strain + over) : Math.Max(0, e.Strain - PowerRules.StrainRecoveryPerTick);
+        return e.Stage is EquipmentStage.Normal or EquipmentStage.Resolved && next >= PowerRules.StrainWarning ||
+            e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault && next == 0;
+    }
+
     /// <summary>A power switch for the bar, the food van or the festoon lights. A stall switched off stops serving.</summary>
     private void TogglePowerSwitch(EquipmentAction action)
     {

@@ -83,6 +83,28 @@ public sealed class PowerBudgetTests
     }
 
     [TestMethod]
+    public void AGeneratorThatKeepsTippingOverStillSaves()
+    {
+        var s = StartedWith(PowerRules.ProRigOffer);
+        var cycles = 0;
+        for (var guard = 0; guard < 40_000 && cycles < 40 && s.PreparedStatus == PreparationStatus.Running; guard++)
+        {
+            s.AdvanceWithoutSnapshot(8);
+            var e = s.CaptureEquipment()!;
+            // Shed the bar the moment it warns, and put it back once it settles: it tips over again and again.
+            if (e.Stage == EquipmentStage.Warning && e.BarPowered) { Accept(s, new EquipmentCommand(EquipmentAction.ToggleBarPower)); cycles++; }
+            else if (e.Stage == EquipmentStage.Resolved && !e.BarPowered) Accept(s, new EquipmentCommand(EquipmentAction.ToggleBarPower));
+        }
+        Assert.IsTrue(cycles >= 3, $"{cycles} cycles.");
+        // Far more than any day could log: the opening line stays first and only the latest are kept.
+        var log = typeof(GameSession).GetMethod("EquipmentEvent", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        for (var i = 0; i < 100; i++) log.Invoke(s, [$"equipment:test:{i}", "A test entry."]);
+        Assert.AreEqual("equipment:load", s.CaptureEquipment()!.Evidence[0].Id);
+        Assert.IsTrue(s.CaptureEquipment()!.Evidence.Length <= 64);
+        Restores(s);
+    }
+
+    [TestMethod]
     public void AHiredGeneratorCarriesAProRigAllDay()
     {
         var s = StartedWith(PowerRules.ProRigOffer, PowerRules.GeneratorOffer);
