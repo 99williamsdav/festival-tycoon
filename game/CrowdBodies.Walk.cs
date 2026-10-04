@@ -111,6 +111,6 @@ internal sealed partial class CrowdBodies
         var sex = root.GetMeta("GuestPoseVariant").AsString();
         var walkingClip = clip.StartsWith("walk", System.StringComparison.Ordinal) || clip == "carry_litter";
         var natural = clip.Contains("brisk") ? BriskSpeedAt1x : WalkSpeedAt1x(sex);
-        player.SpeedScale = paused ? 0 : walkingClip ? Mathf.Clamp(metresPerSecond / natural, .3f, 8f) : 1;
+        player.SpeedScale = paused ? 0 : walkingClip ? Mathf.Clamp(metresPerSecond / natural, .05f, 8f) : 1;
     }
 }

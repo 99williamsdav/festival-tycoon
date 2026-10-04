@@ -133,6 +133,8 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         var file = rigged ? RiggedFile(root.GetMeta("GuestPoseVariant").AsString()) : asset.File;
         // The rig covers several states with one body: only what it's doing changes.
         if (root.HasMeta("GuestPoseFile") && root.GetMeta("GuestPoseFile").AsString() == file) { root.SetMeta("GuestPoseState", state); return; }
+        // The head rides on a rigged body's head bone: take it back before that body goes, or it goes with it.
+        if (root.FindChild(HeadPieces, true, false) is Node3D head && head.GetParent() != root) { head.GetParent().RemoveChild(head); root.AddChild(head); }
         if (root.GetNodeOrNull<Node3D>("GuestBody") is { } previous)
         {
             previous.Visible = false;
@@ -140,7 +142,6 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
             previous.QueueFree();
         }
         // Hands free, a guest walks and stands on the rigged body; in any other pose, that pose's still body.
-        if (root.FindChild(HeadPieces, true, false) is Node3D head && head.GetParent() != root) { head.GetParent().RemoveChild(head); root.AddChild(head); }
         if (!rigged && !_guestPoseScenes.TryGetValue(asset.File, out _))
             _guestPoseScenes.Add(asset.File, GD.Load<PackedScene>($"res://assets/characters/{asset.File}"));
         var body = rigged ? RiggedBody(root.GetMeta("GuestPoseVariant").AsString()) : _guestPoseScenes[asset.File].Instantiate<Node3D>();
