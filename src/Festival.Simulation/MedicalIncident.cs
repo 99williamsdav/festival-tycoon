@@ -660,6 +660,8 @@ public sealed partial class GameSession
         var victim = _persons[victimId];
         var cause = StungByWasp(victimId)
             ? $"{victim.Name} died of an allergic reaction to a wasp sting; collapse tick {collapseTick}, critical tick {criticalTick}, untreated."
+            : PoisonedByFumes(victimId)
+            ? $"{victim.Name} was poisoned by the fumes of a jammed, nearly full toilet; collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
             : PersonIn(PersonView.Consumption, victimId) is { IntoxicationCollapseTick: >=0 } alcohol
             ? $"{victim.Name} died after sustained intoxication {alcohol.Intoxication}/10000; visible intoxication warning tick {alcohol.IntoxicationWarningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
             : $"In fixed Hot conditions {victim.Name} dried up after thirst {_persons[victim.Id].Thirst}/10000 and heat exposure; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}.";

@@ -17,7 +17,8 @@ public partial class Main
         foreach (var fault in _session.CaptureFaults()?.Faults ?? [])
         {
             var conscious = _session.CaptureMedical()?.Needs.SingleOrDefault(n => n.AgentId == fault.VictimId)?.Stage is not (MedicalStage.Collapsed or MedicalStage.Critical);
-            if (FaultRules.Remark(fault, _session.CurrentTick, hot, conscious) is not { } text) continue;
+            var toxic = fault.Kind == FacilityFaultKind.StuckInToilet && _session.ToiletToxic(fault.FacilityId);
+            if (FaultRules.Remark(fault, _session.CurrentTick, hot, conscious, toxic) is not { } text) continue;
             Vector3 position;
             if (fault.Kind == FacilityFaultKind.StuckInToilet)
             {
@@ -34,7 +35,7 @@ public partial class Main
             }
             label.Text = text; label.Position = position; label.Visible = true; shown.Add(fault.Id);
             // A broken tap and the first calls from a stuck loo are grumbles; panic is angry.
-            label.Modulate = MoodColour(fault.Kind == FacilityFaultKind.StuckInToilet && !FaultRules.StuckShouts[0].Contains(text) &&
+            label.Modulate = MoodColour(FaultRules.ToxicShouts.Contains(text) || fault.Kind == FacilityFaultKind.StuckInToilet && !FaultRules.StuckShouts[0].Contains(text) &&
                 !FaultRules.HotShouts.Contains(text) ? Mood.Angry : Mood.Grumble);
         }
         foreach (var (id, label) in _faultRemarkLabels) if (!shown.Contains(id)) label.Visible = false;

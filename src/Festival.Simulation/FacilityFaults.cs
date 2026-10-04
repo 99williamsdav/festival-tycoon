@@ -7,7 +7,11 @@ public enum FacilityFaultStage { Active, Bodged, Fixed }
 /// <param name="VictimId">Who is stuck, or who was using the tap when it broke.</param>
 /// <param name="WorkerId">The steward or maintenance worker assigned, while they are on their way or working.</param>
 public sealed record FacilityFault(string Id, FacilityFaultKind Kind, string FacilityId, ulong VictimId, long StartedTick,
-    FacilityFaultStage Stage, ulong? WorkerId = null, long WorkStartedTick = -1, long ResolvedTick = -1);
+    FacilityFaultStage Stage, ulong? WorkerId = null, long WorkStartedTick = -1, long ResolvedTick = -1)
+{
+    /// <summary>When the fumes of a nearly full toilet overcame the person stuck in it; -1 if they never did.</summary>
+    public long PoisonedTick { get; init; } = -1;
+}
 /// <param name="Disabled">Labelled test fixture: no new faults. Never set in play.</param>
 public sealed record FaultsSnapshot(int Version, FacilityFault[] Faults, bool Disabled = false);
 
@@ -39,6 +43,12 @@ public static class FaultRules
     /// <summary>Satisfaction a stuck person loses each second: one more every 15 seconds as panic grows, up to 8.</summary>
     public static int PanicLossPerSecond(long stuckTicks) => Math.Min(8, 1 + (int)(stuckTicks / 1_200));
     public const int ShoutEveryTicks = 400, ShoutTicks = 200, GrumbleTicks = 240;
+    /// <summary>
+    /// A toilet this full is toxic to anyone jammed inside it: they lose heart faster, and after this long they're
+    /// overcome by the fumes and collapse, needing the door opened and a medic before they die.
+    /// </summary>
+    public const int ToxicFullPercent = 90, PoisonCollapseTicks = 3_600, PoisonLossPerSecond = 3;
+    public static readonly string[] ToxicShouts = ["It stinks in here!", "I feel sick…", "I can't breathe in here!"];
     public static readonly string[][] StuckShouts = [
         ["Hello? The door's stuck!", "Er... the lock's jammed.", "Erm… hello?", "Can someone get a steward?"],
         ["Help! I can't get out!", "Is anyone out there?!", "I've been in here for ages!", "Not funny! Open up!"],
@@ -53,7 +63,7 @@ public static class FaultRules
     /// the heat); a tap's last user grumbles once as it breaks.
     /// Presentation only, and a pure function of the fault, the tick and the weather, so a reload needs no catching up.
     /// </summary>
-    public static string? Remark(FacilityFault fault, long tick, bool hot = false, bool conscious = true)
+    public static string? Remark(FacilityFault fault, long tick, bool hot = false, bool conscious = true, bool toxic = false)
     {
         if (!conscious) return null;
         var elapsed = tick - fault.StartedTick;
@@ -62,6 +72,7 @@ public static class FaultRules
             return elapsed < GrumbleTicks ? TapGrumbles[(int)(fault.VictimId % (ulong)TapGrumbles.Length)] : null;
         if (elapsed % ShoutEveryTicks >= ShoutTicks) return null;
         var shout = elapsed / ShoutEveryTicks;
+        if (toxic && shout % 2 == 1) return ToxicShouts[(int)(shout / 2 % ToxicShouts.Length)];
         if (hot && shout % 3 == 2) return HotShouts[(int)(shout / 3 % HotShouts.Length)];
         var band = StuckShouts[Math.Min(StuckShouts.Length - 1, (int)(elapsed / 1_600))];
         return band[(int)((shout + (long)(fault.VictimId % (ulong)band.Length)) % band.Length)];
@@ -83,6 +94,23 @@ public sealed partial class GameSession
     public bool TapBodged(string tapId) => OpenFaults.Any(f => f.FacilityId == tapId && f.Stage == FacilityFaultStage.Bodged);
     private bool FaultWorkOwns(ulong id) => OpenFaults.Any(f => f.WorkerId == id);
     private bool Unconscious(ulong id) => _persons[id].HealthStage is MedicalStage.Collapsed or MedicalStage.Critical;
+
+    /// <summary>Whether a toilet is full enough to poison anyone jammed inside it.</summary>
+    public bool ToiletToxic(string toiletId) => EffectiveToilets(_facilities).FirstOrDefault(t => t.Id == toiletId)?.FullPercent >= FaultRules.ToxicFullPercent;
+
+    /// <summary>Whether someone collapsed from a toxic toilet's fumes, which outlasts the medic rewriting their status.</summary>
+    private bool PoisonedByFumes(ulong id) => _faults?.Faults.Any(f => f.VictimId == id && f.PoisonedTick >= 0 && f.PoisonedTick == _persons[id].HealthCollapseTick) == true;
+
+    /// <summary>The fumes overcome someone jammed in a nearly full toilet: they collapse inside, behind the locked door.</summary>
+    private void OvercomeByFumes(FacilityFault fault)
+    {
+        var id = fault.VictimId;
+        SetFault(fault with { PoisonedTick = CurrentTick });
+        MutatePerson(id, item => { item.HealthStage = MedicalStage.Collapsed; item.HealthWarningTick = CurrentTick; item.HealthCollapseTick = CurrentTick;
+            item.Intent = MedicalIntent.Collapsed; item.Reason = "Overcome by the fumes in a jammed, nearly full toilet; needs the door opened and a medic"; });
+        MedicalEvent("medical:collapse", $"{_persons[id].Name} ({id}) collapsed from the fumes while stuck in {fault.FacilityId}.");
+        if (IsGuest(id)) RecordGuestMedicalCollapse(id);
+    }
     /// <summary>Locked in a cubicle: only a steward's rescue at the door gets them out.</summary>
     public bool StuckInToilet(ulong id) => OpenFaults.Any(f => f.Kind == FacilityFaultKind.StuckInToilet && f.Stage == FacilityFaultStage.Active && f.VictimId == id);
     public FacilityFault? FaultWorkOf(ulong id) => OpenFaults.FirstOrDefault(f => f.WorkerId == id);
@@ -96,6 +124,7 @@ public sealed partial class GameSession
         return fault switch
         {
             { Kind: FacilityFaultKind.StuckInToilet } when Unconscious(fault.VictimId) => $"COLLAPSED INSIDE • {Who(fault.VictimId)} needs the door opened for first aid • {help}",
+            { Kind: FacilityFaultKind.StuckInToilet } when ToiletToxic(fault.FacilityId) => $"TOXIC • {Who(fault.VictimId)} is choking on the fumes ({(CurrentTick - fault.StartedTick) / 80}s of {FaultRules.PoisonCollapseTicks / 80}s) • {help}",
             { Kind: FacilityFaultKind.StuckInToilet } => $"STUCK • {Who(fault.VictimId)} can't get out ({(CurrentTick - fault.StartedTick) / 80}s) • {help}",
             { Stage: FacilityFaultStage.Active } => $"BROKEN • no water until mended • {(_equipment?.WorkerId is null && fault.WorkerId is null ? "a steward can bodge it" : help)}",
             _ => $"BODGED • half flow{(_equipment?.WorkerId is null ? "" : fault.WorkerId is null ? " • maintenance will mend it" : $" • {help}")}",
@@ -204,13 +233,19 @@ public sealed partial class GameSession
                 var toilet = GetToilet(fault.FacilityId);
                 if (toilet.OwnerId != fault.VictimId || _persons[fault.VictimId].ToiletStage != ToiletVisitStage.Using)
                 { ResolveFault(fault, FacilityFaultStage.Fixed); continue; }
-                // Panic only costs satisfaction; any collapse comes from ordinary heat and thirst (a hot cubicle helps).
+                // Panic costs satisfaction, more in a toxic cubicle. A collapse comes from heat and thirst (a hot cubicle
+                // helps), or from the fumes of a nearly full one.
                 var stuck = CurrentTick - fault.StartedTick;
+                var toxic = ToiletToxic(fault.FacilityId);
                 if (stuck > 0 && stuck % 80 == 0 && !Unconscious(fault.VictimId))
                 {
-                    var loss = UnpleasantFor(fault.VictimId, FaultRules.PanicLossPerSecond(stuck));
+                    var loss = UnpleasantFor(fault.VictimId, FaultRules.PanicLossPerSecond(stuck) + (toxic ? FaultRules.PoisonLossPerSecond : 0));
                     MutatePerson(fault.VictimId, person => person.Satisfaction = Math.Max(0, person.Satisfaction - loss));
                 }
+                // Guests and performers collapse; on-duty staff ride it out, as their own health track only rests them.
+                if (toxic && stuck >= FaultRules.PoisonCollapseTicks && fault.PoisonedTick < 0 && !Unconscious(fault.VictimId) &&
+                    _persons[fault.VictimId].NeedProfile != MedicalNeedProfile.Staff)
+                    OvercomeByFumes(fault);
             }
             if (fault.Stage == FacilityFaultStage.Bodged && _equipment?.WorkerId is null) continue;
             AdvanceFaultWorker(fault);
@@ -329,6 +364,7 @@ public sealed partial class GameSession
                 f.WorkerId is { } worker && (!RightWorker(f, worker) || !Working(worker) || Nav(worker)!.IntentId != ExpectedIntent(f, worker) ||
                     f.WorkStartedTick >= 0 && !Standing(worker)) ||
                 f.WorkerId is null && f.WorkStartedTick != -1 || f.WorkStartedTick > s.CurrentTick || f.WorkStartedTick >= 0 && f.WorkStartedTick < f.StartedTick ||
+                f.PoisonedTick != -1 && (f.Kind != FacilityFaultKind.StuckInToilet || f.PoisonedTick < f.StartedTick + FaultRules.PoisonCollapseTicks || f.PoisonedTick > s.CurrentTick) ||
                 f.Stage == FacilityFaultStage.Bodged && f.WorkerId is { } mender && mender != maintenance ||
                 f.Stage == FacilityFaultStage.Active && f.Kind == FacilityFaultKind.StuckInToilet &&
                     (toilets[f.FacilityId].OwnerId != f.VictimId || occupants.GetValueOrDefault(f.VictimId)?.ToiletStage != ToiletVisitStage.Using) ||

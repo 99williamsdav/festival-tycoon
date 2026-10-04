@@ -132,6 +132,7 @@ public partial class Main
                     CollapseCause.WaspSting => $"{name} was stung by a wasp and collapsed!",
                     CollapseCause.Drink => $"{name} has had far too much to drink and collapsed!",
                     CollapseCause.Injury => $"{name} was hurt in the fight and is down!",
+                    CollapseCause.ToiletFumes => $"{name} was overcome by the fumes in a jammed loo!",
                     _ => $"{name} has collapsed in the heat!",
                 };
                 yield return ($"collapse:{need.AgentId}:{need.CollapseTick}", new("heart-pulse", why, bad, LocatePerson(need.AgentId)));

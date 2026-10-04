@@ -9,7 +9,7 @@ namespace Festival.Simulation;
 /// <param name="Lightweight">Drinks like anyone else but gets drunk twice as fast on the same beer.</param>
 public sealed record GuestCharacter(int HeatSensitivity, int Prissiness, bool WaspAllergy, bool Ibs, bool SlowDrinker, bool Lightweight);
 
-public enum CollapseCause { Heat, Drink, WaspSting, Injury }
+public enum CollapseCause { Heat, Drink, WaspSting, Injury, ToiletFumes }
 
 public static class GuestCharacters
 {
@@ -130,6 +130,7 @@ public sealed partial class GameSession
     /// </summary>
     public CollapseCause CollapseCauseOf(ulong id) =>
         StungByWasp(id) ? CollapseCause.WaspSting :
+        PoisonedByFumes(id) ? CollapseCause.ToiletFumes :
         PersonIn(PersonView.Disorder, id)?.ConductStage == DisorderStage.Injured ? CollapseCause.Injury :
         _persons[id].IntoxicationCollapseTick >= 0 ? CollapseCause.Drink : CollapseCause.Heat;
 

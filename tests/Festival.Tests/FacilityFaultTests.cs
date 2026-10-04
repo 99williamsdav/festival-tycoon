@@ -243,6 +243,34 @@ public sealed class FacilityFaultTests
     }
 
     [TestMethod]
+    public void StuckInANearlyFullLooTheFumesOvercomeThem()
+    {
+        (GameSession Session, FacilityFault Fault)? found = null;
+        for (var seed = 20260922UL; seed < 20260962UL && found is null; seed++)
+            if (FirstFault(FacilityFaultKind.StuckInToilet, seed) is { } candidate &&
+                candidate.Session.CapturePreparation()!.People.Single(p => p.AgentId == candidate.Fault.VictimId).Role == ProtectedPersonRole.Guest)
+                found = candidate;
+        var (s, fault) = found ?? throw new InvalidOperationException("No guest stuck in forty days.");
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        // A toilet ninety per cent full, and they've been stuck in it nearly long enough.
+        var toilet = s.CaptureToilets().Single(t => t.Id == fault.FacilityId);
+        typeof(GameSession).GetMethod("SetToilet", flags)!.Invoke(s, [toilet with { WeeCount = toilet.WeeCount + 36 - toilet.UsedMillilitres / ToiletRules.WeeMillilitres }]);
+        Assert.IsTrue(s.ToiletToxic(fault.FacilityId));
+        StringAssert.StartsWith(s.FaultStatus(fault.FacilityId)!, "TOXIC");
+        Assert.IsTrue(FaultRules.ToxicShouts.Contains(FaultRules.Remark(fault, fault.StartedTick + FaultRules.ShoutEveryTicks, toxic: true)), "They say what's wrong.");
+        typeof(GameSession).GetMethod("SetFault", flags)!.Invoke(s, [s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id) with
+            { StartedTick = Math.Max(s.CapturePreparation()!.StartedTick, s.CurrentTick - FaultRules.PoisonCollapseTicks + 16) }]);
+        var started = s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).StartedTick;
+        for (var guard = 0; guard < 600 && s.CaptureMedical()!.Needs.Single(n => n.AgentId == fault.VictimId).Stage != MedicalStage.Collapsed; guard++)
+            s.AdvanceWithoutSnapshot(8);
+        Assert.AreEqual(MedicalStage.Collapsed, s.CaptureMedical()!.Needs.Single(n => n.AgentId == fault.VictimId).Stage);
+        Assert.AreEqual(CollapseCause.ToiletFumes, s.CollapseCauseOf(fault.VictimId));
+        Assert.IsTrue(s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).PoisonedTick >= started + FaultRules.PoisonCollapseTicks);
+        StringAssert.StartsWith(s.FaultStatus(fault.FacilityId) ?? "COLLAPSED INSIDE", "COLLAPSED INSIDE");
+        AssertRestores(s);
+    }
+
+    [TestMethod]
     public void APortalooIsAHotBoxInHotWeather()
     {
         var (s, fault) = Find(FacilityFaultKind.StuckInToilet);
