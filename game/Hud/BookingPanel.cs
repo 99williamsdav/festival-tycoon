@@ -61,7 +61,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
     private bool _detailOpen;
     private HBoxContainer? _detailTags;
     private Label? _detailName;
-    private readonly (Label Value, ProgressBar Bar)[] _detailMetrics = new (Label, ProgressBar)[3];
+    private readonly (Label Value, ProgressBar Bar)[] _detailMetrics = new (Label, ProgressBar)[4];
     private Label? _detailFee;
     private Label? _detailLeft;
     private Button? _detailBook;
@@ -387,8 +387,9 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         _detail.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         _detailName = Ui.Heading("", 29); _detailName.AutowrapMode = TextServer.AutowrapMode.WordSmart; _detail.AddChild(_detailName);
         _detail.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(16)) });
-        var metrics = new[] { ("Popularity", Ui.Teal), ("Ego", Ui.Alert), ("Professionalism", new Color("3e5a8c")) };
-        for (var i = 0; i < 3; i++)
+        // Talent shows only once an act has played for you; until then it's a question mark.
+        var metrics = new[] { ("Popularity", Ui.Teal), ("Ego", Ui.Alert), ("Professionalism", new Color("3e5a8c")), ("Talent live", new Color("8a5a2e")) };
+        for (var i = 0; i < 4; i++)
         {
             var row = new HBoxContainer(); _detail.AddChild(row);
             var name = Ui.Text(metrics[i].Item1, 13.5f, Ui.Ink, Ui.BodyBold); name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; row.AddChild(name);
@@ -577,6 +578,12 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             _detailMetrics[i].Value.Text = Halves(scores[i]);
             _detailMetrics[i].Bar.Value = BookingTableView.HalfStarUnits(scores[i]) * 10;
         }
+        var known = _hud.Session.TalentKnown(act);
+        var talent = PerformanceRules.Talent(act);
+        _detailMetrics[3].Value.Text = known ? Halves(talent) : "? · not seen live";
+        _detailMetrics[3].Bar.Value = known ? BookingTableView.HalfStarUnits(talent) * 10 : 0;
+        _detailMetrics[3].Value.TooltipText = known ? "How good they are live, from when they played for you." : "You'll know how good they are live once they've played for you.";
+        _detailMetrics[3].Value.MouseFilter = Control.MouseFilterEnum.Pass;
         var fee = _hud.Session.ActFee(act);
         var standing = _hud.Session.ActStandingOf(act);
         _detailFee!.Text = FestivalCurrency.Format(fee);

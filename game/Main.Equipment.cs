@@ -34,6 +34,7 @@ public partial class Main
         RefreshStagePowerAction(); RefreshPowerSwitches(); RefreshContextPanelVisibility();
     }
     private EquipmentStage? _equipmentVisualStage;
+    private string? _equipmentVisualModel;
 
     private void BuildEquipmentControls(VBoxContainer box)
     {
@@ -82,10 +83,14 @@ public partial class Main
                 (_host.SaveError is not null ? "\nSave failed; use the visible Retry save control." : "\nThe failure checkpoint has been saved.");
         foreach (var (action, button) in _equipmentButtons)
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new EquipmentCommand(action))) is not null;
-        if (_equipmentVisualStage == e.Stage) return;
+        // On the power budget it's the farm's little diesel, or the hired set once one is booked.
+        var model = !_session.PowerBudgetActive ? "towable_generator" : _session.GeneratorCapacity > PowerRules.FarmDieselCapacity ? "hire_generator" : "farm_diesel";
+        if (_equipmentVisualStage == e.Stage && _equipmentVisualModel == model) return;
         _equipmentVisual?.QueueFree();
         var variant = e.Stage switch { EquipmentStage.Warning => "overloaded", EquipmentStage.DangerousFault or EquipmentStage.Terminal => "fault", EquipmentStage.Isolated => "isolated", _ => "normal" };
-        _equipmentVisual = AddAsset($"res://assets/equipment/lwf_towable_generator_{variant}_v1.glb", new Vector3(e.XMillimetres / 1000f, 0, e.ZMillimetres / 1000f));
+        _equipmentVisual = AddAsset($"res://assets/equipment/lwf_{model}_{variant}_v1.glb", new Vector3(e.XMillimetres / 1000f, 0, e.ZMillimetres / 1000f));
+        _equipmentVisualModel = model;
+        AttachGeneratorEffects(_equipmentVisual, model, e.Stage);
         var pick = new StaticBody3D { CollisionLayer = 1, CollisionMask = 1, Position = new Vector3(0, 1.3f, 0) };
         pick.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = new Vector3(5, 2.6f, 3) } });
         _equipmentVisual.AddChild(pick); _generatorPickId = pick.GetInstanceId();

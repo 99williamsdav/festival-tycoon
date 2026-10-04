@@ -371,6 +371,47 @@ public partial class Main
             if (_attendeeVisuals.ContainsKey(new EntityId(medic.WorkerId)))
                 remarks.Add(new(medic.WorkerId, "Medic! Make some room!", Mood.Neutral, 3, "medic", 4));
 
+        // How the set is going: the band's play and the sound, each said so the cause is plain, and the surprises.
+        if (live?.Stage == LiveSetStage.Live && _session.PowerBudgetActive && _session.CurrentPerformance is { } play)
+        {
+            var known = play.Act.Popularity;
+            var drunkest = _session.CaptureProgramme()?.Performers.Where(m => m.SlotIndex == _session.CaptureProgramme()!.CurrentSlot)
+                .OrderByDescending(m => consumers.TryGetValue(m.AgentId, out var c) ? c.Intoxication : 0).FirstOrDefault();
+            var drunkestIntoxication = drunkest is not null && consumers.TryGetValue(drunkest.AgentId, out var dc) ? dc.Intoxication : 0;
+            foreach (var listener in live.Listeners.Where(l => l.AtPlace && Free(l.AgentId)))
+            {
+                var id = listener.AgentId;
+                if (drunkest is not null && drunkestIntoxication >= 4_500)
+                    remarks.Add(new(id, $"Is the {BandRoleName(drunkest.RoleIndex, play.Act.Genre)} drunk?!", Mood.Grumble, 3, "band-drunk-seen", 10));
+                if (play.Band < 35)
+                    remarks.Add(new(id, Pick(id, "Are they out of tune?", "Did they even rehearse?", "My nan could play better"), Mood.Grumble, 2, "band-poor", 10));
+                else if (play.Overall >= 75)
+                    remarks.Add(new(id, Pick(id, "They're so tight!", "What a voice!"), Mood.Happy, 1, "band-great", 8));
+                if (play.Sound < 40)
+                    remarks.Add(new(id, Pick(id, "Can't hear the vocals!", "Turn it up!"), Mood.Grumble, 2, "sound-poor", 10));
+                else if (play.Sound >= 80)
+                    remarks.Add(new(id, "This sounds incredible!", Mood.Happy, 1, "sound-great", 12));
+                // Fame and talent at odds, or a good band let down by the rig.
+                if (known >= 60 && play.Talent <= known - 20 && play.Band < 55)
+                    remarks.Add(new(id, Pick(id, "Not as good as I thought they'd be", "Overrated.", "Better on the radio"), Mood.Grumble, 2, "overrated", 12));
+                if (known <= 35 && play.Talent >= known + 20 && play.Band >= 60)
+                    remarks.Add(new(id, Pick(id, "Wow, I didn't know they could do this!", "Who ARE these? They're brilliant", "New favourite band"), Mood.Happy, 2, "discovery", 12));
+                if (play.Talent >= 60 && play.Sound < 40)
+                    remarks.Add(new(id, Pick(id, "They deserve a better sound system than this", "They normally sound a lot better than this"), Mood.Grumble, 2, "deserve-better", 12));
+            }
+            foreach (var performer in live.Performers.Where(p => p.OnStage && _attendeeVisuals.ContainsKey(new EntityId(p.AgentId))))
+            {
+                var id = performer.AgentId;
+                if (consumers.TryGetValue(id, out var c) && c.Intoxication >= 4_500)
+                    remarks.Add(new(id, Pick(id, "Thish one's… which one is thish?", "Cheers everyone! *hic*"), Mood.Neutral, 2, "band-drunk", 15));
+                if (play.Sound < 40)
+                    remarks.Add(new(id, play.Act.Ego >= 70 ? Pick(id, "Sounds shit!", "We're not playing through this crap again") : Pick(id, "Sounds shit!", "I can't hear myself at all!", "Can we get more monitor?"),
+                        play.Act.Ego >= 70 ? Mood.Angry : Mood.Grumble, 3, "band-sound", 15));
+                else if (play.Sound >= 80)
+                    remarks.Add(new(id, "Sounds massive tonight!", Mood.Happy, 1, "band-sound-great", 20));
+            }
+        }
+
         // The band, now and then from the stage, and when the crowd turns on them.
         if (live?.Stage == LiveSetStage.Live)
             foreach (var performer in live.Performers.Where(p => p.OnStage && _attendeeVisuals.ContainsKey(new EntityId(p.AgentId))))
@@ -380,6 +421,14 @@ public partial class Main
                         Mood.Happy, 1, "band", 20));
         return remarks;
     }
+
+    /// <summary>A band member by what they play: the lead sings (or DJs), the second plays bass, accordion or keys, the third drums.</summary>
+    private static string BandRoleName(int role, int genre) => role switch
+    {
+        0 => genre == FestivalGenre.Electronic ? "DJ" : "singer",
+        1 => genre switch { FestivalGenre.Folk => "accordion player", FestivalGenre.Electronic => "keyboard player", _ => "bassist" },
+        _ => "drummer",
+    };
 
     private string FestivalName() => _session.CaptureCampaignPlanningSnapshot()?.FestivalName ?? "everyone";
 

@@ -11,6 +11,68 @@ namespace Festival.Game;
 public partial class Main
 {
     private Button? _barPowerButton, _foodPowerButton, _lightsPowerButton;
+    private Node3D? _powerChip;
+    private Label3D? _powerChipText;
+    private Sprite3D? _powerChipIcon;
+    private bool _generatorShaking;
+    private double _generatorClock;
+
+    /// <summary>Smoke from the exhaust, thicker and darker as the generator strains; and a shake when it's struggling.</summary>
+    private void AttachGeneratorEffects(Node3D visual, string model, EquipmentStage stage)
+    {
+        _generatorShaking = stage is EquipmentStage.Warning or EquipmentStage.DangerousFault;
+        if (model == "towable_generator" || stage is EquipmentStage.Isolated or EquipmentStage.Terminal) return;
+        var (rate, colour) = stage switch
+        {
+            EquipmentStage.Warning => (4f, new Color("3d3a36")),
+            EquipmentStage.DangerousFault => (6f, new Color("1b1a19")),
+            _ => (1.5f, new Color("b9b6ae")),
+        };
+        // Each puff doubles in size as it rises.
+        var swell = new Curve { MinValue = 0, MaxValue = 2 };
+        swell.AddPoint(new Vector2(0, 1)); swell.AddPoint(new Vector2(1, 2));
+        var smoke = new CpuParticles3D
+        {
+            Position = model == "hire_generator" ? new Vector3(-0.45f, 1.72f, -0.25f) : new Vector3(-0.32f, 1.35f, 0.25f),
+            Amount = (int)(rate * 2) + 2, Lifetime = 1.5, Mesh = new SphereMesh { Radius = .12f, Height = .24f, RadialSegments = 6, Rings = 3 },
+            Direction = Vector3.Up, Spread = 12, InitialVelocityMin = .5f, InitialVelocityMax = .7f, Gravity = Vector3.Zero,
+            ScaleAmountMin = 1, ScaleAmountMax = 1.2f,
+            ScaleAmountCurve = swell,
+            MaterialOverride = new StandardMaterial3D { AlbedoColor = colour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
+        };
+        visual.AddChild(smoke);
+    }
+
+    /// <summary>The generator's shake, and its power chip: shown when it's selected, while planning supplies, or whenever it's over capacity.</summary>
+    private void ProcessGenerator(double delta)
+    {
+        if (_equipmentVisual is null || !IsInstanceValid(_equipmentVisual) || _session.CaptureEquipment() is not { } e) return;
+        _generatorClock += _session.IsPaused ? 0 : delta;
+        var home = new Vector3(e.XMillimetres / 1000f, 0, e.ZMillimetres / 1000f);
+        _equipmentVisual.Position = _generatorShaking && !_session.IsPaused
+            ? home + new Vector3(Mathf.Sin((float)_generatorClock * 125f) * .015f, 0, Mathf.Cos((float)_generatorClock * 97f) * .015f) : home;
+        if (!_session.PowerBudgetActive) return;
+        if (_powerChip is null)
+        {
+            _powerChip = new Node3D();
+            AddChild(_powerChip);
+            _powerChipIcon = new Sprite3D { PixelSize = .0018f, FixedSize = true, Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, NoDepthTest = true,
+                RenderPriority = 3, Offset = new Vector2(-16, 0), Layers = EyeHiddenLayer };
+            _powerChip.AddChild(_powerChipIcon);
+            _powerChipText = WorldText.Speech(new Label3D { Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, HorizontalAlignment = HorizontalAlignment.Left,
+                Offset = new Vector2(4, 0), OutlineModulate = new Color("17302a") }, 28);
+            _powerChipText.Layers = EyeHiddenLayer;
+            _powerChip.AddChild(_powerChipText);
+        }
+        var power = _session.CapturePower();
+        var trouble = e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault || power.Over && _session.PreparedStatus == PreparationStatus.Running;
+        var planning = _session.PreparedStatus == PreparationStatus.Preparing && _hudWorkspaceOpen && HudPageSelected("Supplies");
+        _powerChip.Visible = (trouble || _selectedGenerator || planning) && !EyeViewActive;
+        _powerChip.Position = home + new Vector3(0, 2.6f, 0);
+        _powerChipText!.Text = $"{power.Total} / {power.Capacity}";
+        _powerChipText.Modulate = trouble ? new Color("ffb08a") : new Color("fff7e1");
+        _powerChipIcon!.Texture = GD.Load<Texture2D>(trouble ? "res://assets/ui/lwf_power_chip_zap_alert_v1.svg" : "res://assets/ui/lwf_power_chip_zap_v1.svg");
+    }
 
     /// <summary>The evening peak a plan would draw with this rig: the rig, both stalls and the festoon lights.</summary>
     private PowerDraw PlannedPeakWith(SoundRig rig)

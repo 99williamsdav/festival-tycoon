@@ -1,0 +1,258 @@
+{
+ "lwf_farm_diesel_normal_v1": {
+  "file": "lwf_farm_diesel_normal_v1.glb",
+  "nodes": [
+   "LWF_FarmDiesel_Base",
+   "LWF_FarmDiesel_State_Normal"
+  ],
+  "triangles": 1376,
+  "bounds_blender_m": [
+   [
+    -0.725,
+    -0.828,
+    0.0
+   ],
+   [
+    2.06,
+    0.5,
+    1.588
+   ]
+  ],
+  "sha256": "0df9edb19022098440ef58839df5668df03db31184935357b5987a71d06e8ef4",
+  "palette": "lwf_farm_diesel_palette (248x8, slots: green, green_dk, rust, rust2, steel, steel_dk, engine, wood, wood_dk, tank, tank_dk, cable, jerry, chrome, plug_y, plug_b, cream, cream_dk, stripe, stripe2, tyre, smoke, smoke_dk, smoke_bk, soot, tag, shake, hot, glow, spark, flash)",
+  "smoke_origin": [
+   -0.32,
+   -0.25,
+   1.35
+  ],
+  "sockets": [
+   0.695,
+   -0.12,
+   0.79
+  ]
+ },
+ "lwf_hire_generator_normal_v1": {
+  "file": "lwf_hire_generator_normal_v1.glb",
+  "nodes": [
+   "LWF_HireGenerator_Base",
+   "LWF_HireGenerator_State_Normal"
+  ],
+  "triangles": 916,
+  "bounds_blender_m": [
+   [
+    -1.73,
+    -0.73,
+    -0.04
+   ],
+   [
+    2.061,
+    0.73,
+    1.977
+   ]
+  ],
+  "sha256": "9b36f1075b250cbd19f16c06440adcfc8cafb4fc34d9cfd08deb1776b1051e92",
+  "palette": "lwf_hire_generator_palette (248x8, slots: green, green_dk, rust, rust2, steel, steel_dk, engine, wood, wood_dk, tank, tank_dk, cable, jerry, chrome, plug_y, plug_b, cream, cream_dk, stripe, stripe2, tyre, smoke, smoke_dk, smoke_bk, soot, tag, shake, hot, glow, spark, flash)",
+  "smoke_origin": [
+   -0.45,
+   0.25,
+   1.72
+  ],
+  "control_door": [
+   0.945,
+   -0.25,
+   0.98
+  ]
+ },
+ "lwf_farm_diesel_overloaded_v1": {
+  "file": "lwf_farm_diesel_overloaded_v1.glb",
+  "nodes": [
+   "LWF_FarmDiesel_Base",
+   "LWF_FarmDiesel_State_Overloaded"
+  ],
+  "triangles": 1500,
+  "bounds_blender_m": [
+   [
+    -1.002,
+    -0.828,
+    0.0
+   ],
+   [
+    2.06,
+    0.5,
+    2.066
+   ]
+  ],
+  "sha256": "053bedf92768a4756ecd6bcf97d6b06f608e00c6a0caac029716bf31df49815a",
+  "palette": "lwf_farm_diesel_palette (248x8, slots: green, green_dk, rust, rust2, steel, steel_dk, engine, wood, wood_dk, tank, tank_dk, cable, jerry, chrome, plug_y, plug_b, cream, cream_dk, stripe, stripe2, tyre, smoke, smoke_dk, smoke_bk, soot, tag, shake, hot, glow, spark, flash)",
+  "smoke_origin": [
+   -0.32,
+   -0.25,
+   1.35
+  ],
+  "sockets": [
+   0.695,
+   -0.12,
+   0.79
+  ]
+ },
+ "lwf_hire_generator_overloaded_v1": {
+  "file": "lwf_hire_generator_overloaded_v1.glb",
+  "nodes": [
+   "LWF_HireGenerator_Base",
+   "LWF_HireGenerator_State_Overloaded"
+  ],
+  "triangles": 1100,
+  "bounds_blender_m": [
+   [
+    -1.73,
+    -0.73,
+    -0.04
+   ],
+   [
+    2.061,
+    0.73,
+    2.513
+   ]
+  ],
+  "sha256": "2959b939b9d7abaa660b8eb50e80dbe92b9c16520080f9b4b19046944e5523eb",
+  "palette": "lwf_hire_generator_palette (248x8, slots: green, green_dk, rust, rust2, steel, steel_dk, engine, wood, wood_dk, tank, tank_dk, cable, jerry, chrome, plug_y, plug_b, cream, cream_dk, stripe, stripe2, tyre, smoke, smoke_dk, smoke_bk, soot, tag, shake, hot, glow, spark, flash)",
+  "smoke_origin": [
+   -0.45,
+   0.25,
+   1.72
+  ],
+  "control_door": [
+   0.945,
+   -0.25,
+   0.98
+  ]
+ },
+ "lwf_farm_diesel_fault_v1": {
+  "file": "lwf_farm_diesel_fault_v1.glb",
+  "nodes": [
+   "LWF_FarmDiesel_Base",
+   "LWF_FarmDiesel_State_Fault"
+  ],
+  "triangles": 1596,
+  "bounds_blender_m": [
+   [
+    -0.725,
+    -0.828,
+    0.0
+   ],
+   [
+    2.06,
+    0.5,
+    2.457
+   ]
+  ],
+  "sha256": "61c17af1f567796ad2f93ea944747b686b50d292270338d19da8b9f55a736268",
+  "palette": "lwf_farm_diesel_palette (248x8, slots: green, green_dk, rust, rust2, steel, steel_dk, engine, wood, wood_dk, tank, tank_dk, cable, jerry, chrome, plug_y, plug_b, cream, cream_dk, stripe, stripe2, tyre, smoke, smoke_dk, smoke_bk, soot, tag, shake, hot, glow, spark, flash)",
+  "smoke_origin": [
+   -0.32,
+   -0.25,
+   1.35
+  ],
+  "sockets": [
+   0.695,
+   -0.12,
+   0.79
+  ]
+ },
+ "lwf_hire_generator_fault_v1": {
+  "file": "lwf_hire_generator_fault_v1.glb",
+  "nodes": [
+   "LWF_HireGenerator_Base",
+   "LWF_HireGenerator_State_Fault"
+  ],
+  "triangles": 1116,
+  "bounds_blender_m": [
+   [
+    -1.73,
+    -0.73,
+    -0.04
+   ],
+   [
+    2.061,
+    0.73,
+    2.924
+   ]
+  ],
+  "sha256": "ac20823b5bbac7835759d3485bd10d4324bdcbc33246d1107e18079b90880a10",
+  "palette": "lwf_hire_generator_palette (248x8, slots: green, green_dk, rust, rust2, steel, steel_dk, engine, wood, wood_dk, tank, tank_dk, cable, jerry, chrome, plug_y, plug_b, cream, cream_dk, stripe, stripe2, tyre, smoke, smoke_dk, smoke_bk, soot, tag, shake, hot, glow, spark, flash)",
+  "smoke_origin": [
+   -0.45,
+   0.25,
+   1.72
+  ],
+  "control_door": [
+   0.945,
+   -0.25,
+   0.98
+  ]
+ },
+ "lwf_farm_diesel_isolated_v1": {
+  "file": "lwf_farm_diesel_isolated_v1.glb",
+  "nodes": [
+   "LWF_FarmDiesel_Base",
+   "LWF_FarmDiesel_State_Isolated"
+  ],
+  "triangles": 1316,
+  "bounds_blender_m": [
+   [
+    -0.725,
+    -0.828,
+    0.0
+   ],
+   [
+    2.06,
+    0.5,
+    1.353
+   ]
+  ],
+  "sha256": "6fcad80ba2ffb074f9176aa393c5852237c8ab8e74a01533a43e091c6b210c33",
+  "palette": "lwf_farm_diesel_palette (248x8, slots: green, green_dk, rust, rust2, steel, steel_dk, engine, wood, wood_dk, tank, tank_dk, cable, jerry, chrome, plug_y, plug_b, cream, cream_dk, stripe, stripe2, tyre, smoke, smoke_dk, smoke_bk, soot, tag, shake, hot, glow, spark, flash)",
+  "smoke_origin": [
+   -0.32,
+   -0.25,
+   1.35
+  ],
+  "sockets": [
+   0.695,
+   -0.12,
+   0.79
+  ]
+ },
+ "lwf_hire_generator_isolated_v1": {
+  "file": "lwf_hire_generator_isolated_v1.glb",
+  "nodes": [
+   "LWF_HireGenerator_Base",
+   "LWF_HireGenerator_State_Isolated"
+  ],
+  "triangles": 884,
+  "bounds_blender_m": [
+   [
+    -1.73,
+    -0.73,
+    -0.04
+   ],
+   [
+    2.061,
+    0.73,
+    1.69
+   ]
+  ],
+  "sha256": "7023cd74c586aa2268dee58689b4f32de3bd844f3b46371851a7c653ca1dffd6",
+  "palette": "lwf_hire_generator_palette (248x8, slots: green, green_dk, rust, rust2, steel, steel_dk, engine, wood, wood_dk, tank, tank_dk, cable, jerry, chrome, plug_y, plug_b, cream, cream_dk, stripe, stripe2, tyre, smoke, smoke_dk, smoke_bk, soot, tag, shake, hot, glow, spark, flash)",
+  "smoke_origin": [
+   -0.45,
+   0.25,
+   1.72
+  ],
+  "control_door": [
+   0.945,
+   -0.25,
+   0.98
+  ]
+ }
+}

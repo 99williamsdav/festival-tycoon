@@ -19,6 +19,8 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
     private Label? _countdownCaption;
     private Label? _countdown;
     private readonly Label[] _sets = new Label[3];
+    private HBoxContainer? _play;
+    private Label? _bandWord, _soundWord;
 
     public Control? Panel => _card;
     /// <summary>The older multi-line stage summary, kept as the card's tooltip.</summary>
@@ -60,6 +62,17 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
             _sets[i].CustomMinimumSize = new Vector2(0, Ui.S(26)); _sets[i].SizeFlagsHorizontal = Control.SizeFlags.ExpandFill;
             pills.AddChild(_sets[i]);
         }
+        // How the set is going: the band and the sound, so a poor set says which is to blame.
+        _play = new HBoxContainer { Visible = false }; _play.AddThemeConstantOverride("separation", Ui.Px(14));
+        content.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(8)) }); content.AddChild(_play);
+        Label Reading(string caption)
+        {
+            var pair = new HBoxContainer(); pair.AddThemeConstantOverride("separation", Ui.Px(6)); _play.AddChild(pair);
+            var label = Ui.Caps(caption, Ui.InkMuted, 9.5f); label.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; pair.AddChild(label);
+            var word = Ui.Text("", 13.5f, Ui.Ink, Ui.BodyBold); pair.AddChild(word);
+            return word;
+        }
+        _bandWord = Reading("Band"); _soundWord = Reading("Sound");
         Summary = new Label { Visible = false }; content.AddChild(Summary);
 
         _reopen = Ui.IconButton("Trailer Stage", "chevron-down", Ui.ButtonKind.Bar, _toggle, 13);
@@ -107,6 +120,17 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
             $"{FestivalGenreName(act.Genre)} · Set {slot + 1}" + (slot >= 0 ? $" · {FestivalClockText(GameSession.FestivalSlotStarts[slot])}–{FestivalClockText(GameSession.FestivalSlotEnds[slot])}" : "");
         long? until = finished ? null : onStage ? programme?.SlotEndTick - session.CurrentTick : session.UpcomingFestivalTick >= 0 ? session.UpcomingFestivalTick - session.CurrentTick : null;
         _countdownCaption!.Text = until is null ? "" : onStage ? "ENDS IN" : "STARTS IN";
+        var performance = onStage && session.PowerBudgetActive ? session.CurrentPerformance : null;
+        _play!.Visible = performance is not null;
+        if (performance is not null)
+        {
+            static Color Ink(int score) => score < 40 ? Ui.Alert : score < 60 ? Ui.Link : Ui.TealDeep;
+            _bandWord!.Text = performance.BandWord; _bandWord.AddThemeColorOverride("font_color", Ink(performance.Band));
+            _soundWord!.Text = performance.SoundWord; _soundWord.AddThemeColorOverride("font_color", Ink(performance.Sound));
+            _play.TooltipText = $"Band {performance.Band}/100 (talent {performance.Talent}" + (performance.Drunkenness > 0 ? $", less {performance.Drunkenness} for drink on stage" : "") +
+                $")\nSound {performance.Sound}/100 ({PowerRules.RigName(session.Rig)}, the engineer's mixing, the generator)";
+            _play.MouseFilter = Control.MouseFilterEnum.Pass;
+        }
         _countdown!.Text = until is { } ticks ? $"{Math.Max(0, ticks) / 80 / 60}:{Math.Max(0, ticks) / 80 % 60:00}" : "";
         for (var i = 0; i < 3; i++)
         {
