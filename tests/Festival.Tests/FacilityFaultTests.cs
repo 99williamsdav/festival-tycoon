@@ -265,11 +265,22 @@ public sealed class FacilityFaultTests
             s.AdvanceWithoutSnapshot(8);
         Assert.AreEqual(MedicalStage.Collapsed, s.CaptureMedical()!.Needs.Single(n => n.AgentId == fault.VictimId).Stage);
         Assert.AreEqual(CollapseCause.ToiletFumes, s.CollapseCauseOf(fault.VictimId));
-        Assert.IsFalse((bool)typeof(GameSession).GetMethod("StungByWasp", flags)!.Invoke(s, [fault.VictimId])!,
-            "A fumes collapse looks like a sting's (no warning), but is never taken for one, allergic or not.");
         Assert.IsTrue(s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).PoisonedTick >= started + FaultRules.PoisonCollapseTicks);
         StringAssert.StartsWith(s.FaultStatus(fault.FacilityId) ?? "COLLAPSED INSIDE", "COLLAPSED INSIDE");
+        Assert.IsFalse((bool)typeof(GameSession).GetMethod("StungByWasp", flags)!.Invoke(s, [fault.VictimId])!,
+            "A fumes collapse looks like a sting's (no warning), but is never taken for one.");
         AssertRestores(s);
+        // The same for a guest allergic to wasps, whose collapse without warning would otherwise read as a sting.
+        // (Staged by hand from here on, so not saved.)
+        var allergic = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.AgentId != fault.VictimId &&
+            s.GuestCharacterOf(p.AgentId).WaspAllergy).AgentId;
+        typeof(GameSession).GetMethod("MutatePerson", flags)!.Invoke(s, [allergic, (Action<Person>)(p => { p.HealthStage = MedicalStage.Collapsed;
+            p.HealthWarningTick = s.CurrentTick; p.HealthCollapseTick = s.CurrentTick; })]);
+        Assert.AreEqual(CollapseCause.WaspSting, s.CollapseCauseOf(allergic), "Without fumes, that signature is a sting.");
+        var faults = s.CaptureFaults()!;
+        typeof(GameSession).GetField("_faults", flags)!.SetValue(s, faults with { Faults = [.. faults.Faults,
+            fault with { Id = "stuck:test:allergic", VictimId = allergic, Stage = FacilityFaultStage.Fixed, ResolvedTick = s.CurrentTick, PoisonedTick = s.CurrentTick }] });
+        Assert.AreEqual(CollapseCause.ToiletFumes, s.CollapseCauseOf(allergic), "With fumes, it's the fumes, allergy or not.");
     }
 
     [TestMethod]
