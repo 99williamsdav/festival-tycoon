@@ -160,13 +160,17 @@ public sealed class MedicalIncidentTests
             s.AdvanceWithoutSnapshot(1);
         Assert.IsTrue(s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted);
         var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var performerId = s.CaptureMedical()!.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
+        // Band members walk in to backstage, the far side of the field from the gate.
+        while (!s.CapturePreparation()!.People.Single(item => item.AgentId == performerId).Admitted && s.CurrentTick < 6_000)
+            s.AdvanceWithoutSnapshot(1);
         var m = s.CaptureMedical()!;
-        var performerId = m.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
         field.SetValue(s, m with { Needs = m.Needs.Select(item => item.AgentId == performerId
             ? item with { Thirst = 9_000, HeatExposure = 8_000, Stage = MedicalStage.Distress,
                 WarningTick = s.CurrentTick, LastDecisionTick = s.CurrentTick }
             : item).ToArray() });
-        Assert.IsTrue(Send(s, new MedicalCommand(performerId, MedicalAction.DispatchMedic)).IsAccepted);
+        var dispatched = Send(s, new MedicalCommand(performerId, MedicalAction.DispatchMedic));
+        Assert.IsTrue(dispatched.IsAccepted, dispatched.Message);
         Assert.AreEqual(performerId, s.CaptureMedical()!.Medics[0].PatientId);
         s = Restored(s);
         while (s.CaptureMedical()!.Needs.Single(item => item.AgentId == performerId).Stage != MedicalStage.Treated &&
@@ -204,14 +208,18 @@ public sealed class MedicalIncidentTests
         while (!s.CapturePreparation()!.People.Single(item => item.AgentId == medicId).Admitted && s.CurrentTick < 1_500)
             s.AdvanceWithoutSnapshot(1);
         var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var performerId = s.CaptureMedical()!.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
+        // Band members walk in to backstage, the far side of the field from the gate.
+        while (!s.CapturePreparation()!.People.Single(item => item.AgentId == performerId).Admitted && s.CurrentTick < 6_000)
+            s.AdvanceWithoutSnapshot(1);
         var m = s.CaptureMedical()!;
-        var performerId = m.Needs.First(item => item.Profile == MedicalNeedProfile.Performer).AgentId;
         field.SetValue(s, m with {
             Needs = m.Needs.Select(item => item.AgentId == performerId
                 ? item with { Thirst = 9_000, HeatExposure = 8_000, Stage = MedicalStage.Distress,
                     WarningTick = s.CurrentTick, LastDecisionTick = s.CurrentTick }
                 : item).ToArray() });
-        Assert.IsTrue(Send(s, new MedicalCommand(performerId, MedicalAction.DispatchMedic)).IsAccepted);
+        var dispatched = Send(s, new MedicalCommand(performerId, MedicalAction.DispatchMedic));
+        Assert.IsTrue(dispatched.IsAccepted, dispatched.Message);
         s.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(performerId, s.CaptureMedical()!.Medics[0].PatientId);
         Assert.IsTrue(s.CaptureMedical()!.Medics[0].Stage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating);

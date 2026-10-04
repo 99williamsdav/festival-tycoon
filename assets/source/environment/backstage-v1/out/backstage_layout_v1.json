@@ -1,0 +1,185 @@
+{
+ "units": "metres, Godot world axes; yaw in degrees about +Y; barrier origin = centre bottom, length along local +X",
+ "barrier_file": "lwf_crowd_barrier_v1.glb",
+ "barrier_length_m": 2.3,
+ "barrier_feet_depth_m": 0.64,
+ "barriers": [
+  {
+   "run": "east",
+   "x": -14.0,
+   "z": 5.65,
+   "yaw": 90.0
+  },
+  {
+   "run": "east",
+   "x": -14.0,
+   "z": 3.25,
+   "yaw": 90.0
+  },
+  {
+   "run": "east",
+   "x": -14.0,
+   "z": 0.85,
+   "yaw": 90.0
+  },
+  {
+   "run": "east",
+   "x": -14.0,
+   "z": -1.55,
+   "yaw": 90.0
+  },
+  {
+   "run": "east",
+   "x": -14.0,
+   "z": -3.95,
+   "yaw": 90.0
+  },
+  {
+   "run": "east_end_angled",
+   "x": -14.937,
+   "z": -5.866,
+   "yaw": 144.61
+  },
+  {
+   "run": "west_closure",
+   "x": -19.45,
+   "z": 7.75,
+   "yaw": 180.0
+  },
+  {
+   "run": "west_closure",
+   "x": -21.85,
+   "z": 7.75,
+   "yaw": 180.0
+  },
+  {
+   "run": "west_closure",
+   "x": -24.25,
+   "z": 7.75,
+   "yaw": 180.0
+  },
+  {
+   "run": "west_closure",
+   "x": -26.65,
+   "z": 7.75,
+   "yaw": 180.0
+  },
+  {
+   "run": "west_closure",
+   "x": -29.05,
+   "z": 7.75,
+   "yaw": 180.0
+  }
+ ],
+ "props": [
+  {
+   "file": "lwf_backstage_flight_case_stack_v1.glb",
+   "x": -18.6,
+   "z": 3.6,
+   "yaw": 11.5
+  },
+  {
+   "file": "lwf_backstage_flight_case_tall_v1.glb",
+   "x": -19.5,
+   "z": 2.2,
+   "yaw": -23.0
+  },
+  {
+   "file": "lwf_backstage_crate_pile_v1.glb",
+   "x": -20.5,
+   "z": -1.5,
+   "yaw": 17.0
+  },
+  {
+   "file": "lwf_folding_chair_v1.glb",
+   "x": -18.5,
+   "z": -2.6,
+   "yaw": 34.0
+  },
+  {
+   "file": "lwf_folding_chair_v1.glb",
+   "x": -17.65,
+   "z": -2.2,
+   "yaw": -17.0
+  }
+ ],
+ "gaps": {
+  "stage_front": {
+   "start": [
+    -14.0,
+    6.8
+   ],
+   "to": [
+    -15.08,
+    7.89
+   ],
+   "width_m": 1.53
+  },
+  "house": {
+   "start": [
+    -15.875,
+    -6.532
+   ],
+   "to_house_wall_z": -8.5,
+   "width_m": 1.97
+  }
+ },
+ "lines": {
+  "east": [
+   [
+    -14.0,
+    6.8
+   ],
+   [
+    -14.0,
+    -5.1
+   ]
+  ],
+  "east_end": [
+   [
+    -14.0,
+    -5.2
+   ],
+   [
+    -15.875,
+    -6.532
+   ]
+  ],
+  "west_closure": [
+   [
+    -18.3,
+    7.75
+   ],
+   [
+    -30.2,
+    7.75
+   ]
+  ]
+ },
+ "stage": {
+  "x": [
+   -17.22,
+   -16.02
+  ],
+  "top_edge_z": 7.89,
+  "bottom_step_front_z": 5.72,
+  "risers": 8,
+  "rise_m": 0.15,
+  "going_m": 0.31
+ },
+ "drawbar": {
+  "z": [
+   15.82,
+   17.66
+  ],
+  "x_at_deck": [
+   -18.26,
+   -14.97
+  ],
+  "x_at_hitch": [
+   -16.83,
+   -16.41
+  ],
+  "ground_contact": false
+ }
+}

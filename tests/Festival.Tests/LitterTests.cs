@@ -119,7 +119,8 @@ public sealed class LitterTests
             held = now;
         }
         Assert.IsTrue(pickups.Count > 0, "The goodies did pick some up.");
-        Assert.IsFalse(pickups.Any(p => p.Value > 1), $"Picked up again: {string.Join(", ", pickups.Where(p => p.Value > 1).Select(p => p.Key))}");
+        // Never a loop of fetching the same piece: at most once more, after it was dropped for something urgent.
+        Assert.IsFalse(pickups.Any(p => p.Value > 2), $"Picked up again and again: {string.Join(", ", pickups.Where(p => p.Value > 2).Select(p => p.Key))}");
         // Most end in the bin; a goody drops what they carry if something urgent takes over, like anyone.
         var binned = pickups.Keys.Count(id => s.CaptureLitter()!.Pieces.Single(w => w.Id == id).Location is WasteLocation.Bin or WasteLocation.Removed);
         Assert.IsTrue(binned * 10 >= pickups.Count * 8, $"{binned} of {pickups.Count} binned.");

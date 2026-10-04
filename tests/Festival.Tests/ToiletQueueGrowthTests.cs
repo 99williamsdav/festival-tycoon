@@ -46,9 +46,10 @@ public sealed class ToiletQueueGrowthTests
         string? At(int dx, int dz) => Place(s, BuildServiceKind.WaterTap, new GridCell(main.X + dx, main.Z + dz), 0);
         // Along a grid axis (a screen diagonal) and along a grid diagonal (screen up-down or left-right):
         // 2.5 m and about 2.8 m apart are both fine, where the square berth wanted 3.5 m on the diagonal.
-        Assert.IsNull(At(-5, 0));
-        Assert.IsNull(At(-4, -4));
-        Assert.IsNotNull(At(-3, -3), "Still not on top of each other.");
+        // Eastward: backstage's barriers stand just west of the main tap.
+        Assert.IsNull(At(5, 0));
+        Assert.IsNull(At(4, 4));
+        Assert.IsNotNull(At(3, 3), "Still not on top of each other.");
     }
 
     [TestMethod]

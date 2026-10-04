@@ -248,7 +248,10 @@ public sealed class FacilityFaultTests
         (GameSession Session, FacilityFault Fault)? found = null;
         for (var seed = 20260922UL; seed < 20260962UL && found is null; seed++)
             if (FirstFault(FacilityFaultKind.StuckInToilet, seed) is { } candidate &&
-                candidate.Session.CapturePreparation()!.People.Single(p => p.AgentId == candidate.Fault.VictimId).Role == ProtectedPersonRole.Guest)
+                candidate.Session.CapturePreparation()!.People.Single(p => p.AgentId == candidate.Fault.VictimId).Role == ProtectedPersonRole.Guest &&
+                // The second half needs another guest allergic to wasps on the roster.
+                candidate.Session.CapturePreparation()!.People.Any(p => p.Role == ProtectedPersonRole.Guest && p.AgentId != candidate.Fault.VictimId &&
+                    candidate.Session.GuestCharacterOf(p.AgentId).WaspAllergy))
                 found = candidate;
         var (s, fault) = found ?? throw new InvalidOperationException("No guest stuck in forty days.");
         var flags = BindingFlags.Instance | BindingFlags.NonPublic;

@@ -39,14 +39,18 @@ public sealed partial class GameSession
          live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted && CurrentTick + 1 >= _programme!.SlotEndTick ||
          _programme is { CurrentSlot: < 2 } q && live.Stage == LiveSetStage.Finished && _preparation is { } p && CurrentTick + 1 == p.StartedTick + FestivalSlotStarts[q.CurrentSlot + 1] - LiveSetStageEntryLeadTicks);
 
+    // Backstage at the foot of the trailer's north stairs, then a step on the flight, one column for each player.
+    private static readonly GridCell[] StageAccessCells = [new(93, 137), new(94, 137), new(95, 137)];
+    private static readonly GridCell[] StageStairCells = [new(93, 141), new(94, 141), new(95, 141)];
+
     private void StartLivePerformance()
     {
         var p = _preparation!;
         if (_programme is { } programme)
             _programme = programme with { CurrentSlot = Math.Max(0, programme.CurrentSlot), SlotEndTick = p.StartedTick + FestivalSlotEnds[Math.Max(0, programme.CurrentSlot)], Status = "Performers approaching stage" };
         GridCell[] positions = [new(96, 150), new(94, 146), new(93, 152)];
-        GridCell[] access = [new(101, 156), new(101, 157), new(101, 158)];
-        GridCell[] stairs = [new(99, 156), new(99, 157), new(99, 158)];
+        GridCell[] access = StageAccessCells;
+        GridCell[] stairs = StageStairCells;
         var performers = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Performer && _programme!.Performers.Any(role => role.AgentId == item.Id && role.SlotIndex == _programme.CurrentSlot)).Select((item, index) =>
             new LivePerformer(item.Id, positions[index], access[index], stairs[index], false, false, false, false)).ToArray();
         foreach (var performer in performers)
@@ -129,7 +133,7 @@ public sealed partial class GameSession
                 agent.Destination == performer.AccessCell && agent.IntentId == "performance.stage-exit-access")
             {
                 var index = Array.FindIndex(PeopleIn(PersonView.Roster), item => item.Id == performer.AgentId);
-                ApplyAgentDestination(new(performer.AgentId), new(PreparedPlace(index), "performance.stage-exit"));
+                ApplyAgentDestination(new(performer.AgentId), new(IdlePlace(index), "performance.stage-exit"));
                 agent = _navigationAgents[new(performer.AgentId)];
             }
             performers[i] = performer with { OnStage = live.Stage != LiveSetStage.Finished && performer.StairReached &&
@@ -441,8 +445,8 @@ public sealed partial class GameSession
              live.Stage == LiveSetStage.Finished && preparation.Status != PreparationStatus.Failed && live.EndedTick != programme.SlotEndTick))
             return "Live programme progress exceeds its fixed slot window.";
         GridCell[] stageCells = [new(96, 150), new(94, 146), new(93, 152)];
-        GridCell[] accessCells = [new(101, 156), new(101, 157), new(101, 158)];
-        GridCell[] stairCells = [new(99, 156), new(99, 157), new(99, 158)];
+        var accessCells = StageAccessCells;
+        var stairCells = StageStairCells;
         var roster = preparation.People.Where(item => item.Role == ProtectedPersonRole.Performer && (snapshot.Programme is null || snapshot.Programme.Performers.Any(role => role.AgentId == item.AgentId && role.SlotIndex == snapshot.Programme.CurrentSlot))).ToArray();
         for (var i = 0; i < 3; i++)
         {

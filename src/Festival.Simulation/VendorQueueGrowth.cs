@@ -14,7 +14,7 @@ public sealed partial class GameSession
         .SelectMany(vendor=>LooseQueueGeometry.Corridor(VendorQueueCells(vendor)))
         .Concat(ToiletQueueCorridor()).ToArray();
     // Queues keep off the stage approach and the audience's ground.
-    private static bool QueueGroundAllowed(GridCell cell,PreparationSnapshot? prep)=>!(cell.X is >=90 and <=101 && cell.Z is >=139 and <=160) && !InAudienceArea(cell) &&
+    private static bool QueueGroundAllowed(GridCell cell,PreparationSnapshot? prep)=>!Backstage.StageReserve(cell) && !Backstage.Area(cell) && !InAudienceArea(cell) &&
         !(Math.Abs(cell.X-ResponsePost(prep,ResponseRole.Medic).Cell.X)<=3 && Math.Abs(cell.Z-ResponsePost(prep,ResponseRole.Medic).Cell.Z)<=3) &&
         (StewardPostPlacement(prep) is not { } steward || !(Math.Abs(cell.X-steward.Cell.X)<=2 && Math.Abs(cell.Z-steward.Cell.Z)<=2)) &&
         (FirstAidPlacement(prep) is null || !new[]{ResponsePostHome(prep,ResponseRole.Medic),ResponsePostHome(prep,ResponseRole.Medic,true)}.Contains(cell)) &&

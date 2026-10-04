@@ -268,19 +268,11 @@ public sealed partial class GameSession
             }
             _traversalGrid = new TraversalGrid(terrain.Values);
         }
-        // The trailer is solid except for its visible stair at the south end and
-        // the walkable deck. Performers use ground -> stair -> deck marks;
-        // guests cannot cut through the trailer as if it were bare grass.
+        // The trailer is solid except for its stairs at the house end and the walkable deck. Performers use
+        // backstage -> stair -> deck marks; guests cannot cut through the trailer as if it were bare grass.
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
-            for (var z = 140; z <= 159; z++)
-            for (var x = 91; x <= 100; x++)
-            {
-                var cell = new GridCell(x, z);
-                var deck = x is >= 92 and <= 98 && z is >= 143 and <= 157;
-                var steps = x is >= 98 and <= 100 && z is >= 156 and <= 158;
-                terrain[cell] = new(cell, GroundSurface.Grass, deck || steps);
-            }
+            foreach (var (cell, walkable) in Backstage.TrailerCells()) terrain[cell] = new(cell, GroundSurface.Grass, walkable);
             _traversalGrid = new TraversalGrid(terrain.Values);
         }
         if (_medical is not null)
@@ -328,7 +320,7 @@ public sealed partial class GameSession
                 WalkingSpeedPermille = GetResponseStaff().SingleOrDefault(item => item.AgentId == id.Value)?.WalkingSpeedPermille ?? GetWalkingSpeedPermille(id), Action = AgentNavigationAction.Idle
             });
             var profile = GetResponseStaff().SingleOrDefault(item => item.AgentId == person.Id);
-            var dutyCell = StaffAssignedPost(person.Id) ?? PreparedPlace(index);
+            var dutyCell = StaffAssignedPost(person.Id) ?? IdlePlace(index);
             if (person.Role != ProtectedPersonRole.Guest && StaffLateTicks(person.Id) == 0 || person.Role == ProtectedPersonRole.Guest && GuestReleaseTick(CampaignSeed, person.Id) == 0)
                 ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
         }
@@ -342,6 +334,13 @@ public sealed partial class GameSession
     // Physical presence includes collapsed guests until their recorded departure.
     public int OnSiteAttendeeCount => PeopleIn(PersonView.Roster).Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed);
     private static GridCell PreparedPlace(int index) => new(122 + index % 6 * 2, 156 + index / 6 * 2);
+    /// <summary>Where someone off duty settles: band members backstage, everyone else at their prepared place.</summary>
+    private GridCell IdlePlace(int index)
+    {
+        var roster = PeopleIn(PersonView.Roster);
+        return roster[index].Role == ProtectedPersonRole.Performer
+            ? Backstage.Place(roster.Take(index).Count(person => person.Role == ProtectedPersonRole.Performer)) : PreparedPlace(index);
+    }
 
     private void AdvancePreparation()
     {

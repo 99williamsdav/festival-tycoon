@@ -308,7 +308,7 @@ public sealed partial class GameSession
     private GridCell MusicReturnCell(ulong id, GridCell here) =>
         StaffAssignedPost(id) ??
         _livePerformance?.Listeners.FirstOrDefault(item => item.AgentId == id)?.Place ??
-        (_persons[id].NeedProfile == MedicalNeedProfile.Performer ? here : PreparedPlace(Array.FindIndex(PeopleIn(PersonView.Roster), item => item.Id == id)));
+        IdlePlace(Array.FindIndex(PeopleIn(PersonView.Roster), item => item.Id == id));
 
     private int LightWaterTicks(ulong id, WaterPointState point, GridCell here, bool fresh = false)
     {

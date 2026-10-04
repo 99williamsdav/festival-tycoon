@@ -91,8 +91,13 @@ public sealed class TimetableNeedsTests
         var performer = session.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Performer && person.Admitted && !session.IsCurrentProgrammePerformer(person.AgentId)).AgentId;
         SetMedical(session, need => need.AgentId == performer ? need with { Thirst = 2_000, HeatExposure = 8_500, LastDecisionTick = -240 } : need);
         session.AdvanceWithoutSnapshot(80);
+        // The tap stands just outside backstage, so a hot band member may top up there on the way to rest.
+        var waterDeadline = session.CurrentTick + 4_000;
+        while (session.CaptureMedical()!.Needs.Single(item => item.AgentId == performer).Intent is MedicalIntent.SeekWater or MedicalIntent.Drinking &&
+               session.CurrentTick < waterDeadline)
+            session.AdvanceWithoutSnapshot(1);
         var need = session.CaptureMedical()!.Needs.Single(item => item.AgentId == performer);
-        Assert.AreEqual(MedicalIntent.Rest, need.Intent);
+        Assert.AreEqual(MedicalIntent.Rest, need.Intent, need.Reason);
         var agent = session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == performer);
         Assert.AreEqual(GameSession.MedicalRestCell, agent.Destination);
         Assert.IsFalse(session.IsCurrentProgrammePerformer(performer));

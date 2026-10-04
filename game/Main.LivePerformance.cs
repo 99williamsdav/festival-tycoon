@@ -295,11 +295,11 @@ public partial class Main
             }
             // Heading is assigned with every other protected person's rendered motion.
             // Instrument kits are children, so they follow that same body yaw.
-            // The visible south-end stair rises along world X after trailer yaw;
+            // The band stairs rise along world Z from backstage to the deck's north edge;
             // the body remains grounded before the stair and after exit.
             var deckRoute = navigation[id].IntentId is "performance.visible-stairs" or "performance.stage-entry" or
                 "performance.stage-exit-stair" or "performance.stage-exit-access";
-            var ramp = deckRoute || performer.OnStage ? Mathf.Clamp((-body.Position.X - 13.55f) / 1.6f, 0f, 1f) : 0f;
+            var ramp = deckRoute || performer.OnStage ? Mathf.Clamp((body.Position.Z - 5.72f) / 2.17f, 0f, 1f) : 0f;
             if (!collapsed.Contains(performer.AgentId))
                 body.Position = new Vector3(body.Position.X, 0.04f + ramp * 1.15f, body.Position.Z);
         }

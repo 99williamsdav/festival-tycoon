@@ -24,9 +24,11 @@ public sealed class PerkEffectsTests
             var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
             Assert.IsTrue(restored.IsSuccess, restored.Error);
             var staff = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Staff).Select(p => p.AgentId).ToHashSet();
+            var guests = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest).Select(p => p.AgentId).ToHashSet();
             var m = s.CaptureImmersion()!;
             return new Day(m.Purchases.Count(p => p.Product == ImmersionProduct.Beer), m.Purchases.Count(p => p.Product == ImmersionProduct.SoftDrink),
-                s.CaptureMedical()!.Evidence.Count(e => e.Id == "medical:water"), drunk,
+                // Guests' trips only: they're the ones who bring bottles, and band members backstage use the tap beside them.
+                s.CaptureMedical()!.Evidence.Count(e => e.Id == "medical:water" && guests.Contains(ulong.Parse(e.Description.Split(' ')[1]))), drunk,
                 s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted).Sum(p => (long)p.Satisfaction),
                 m.Purchases.Count(p => staff.Contains(p.AgentId)), m.People.Where(p => staff.Contains(p.AgentId)).Sum(p => p.ToiletVisits));
         }).ToArray();

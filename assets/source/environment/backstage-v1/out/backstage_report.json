@@ -1,0 +1,164 @@
+{
+ "lwf_trailer_stage_v3": {
+  "file": "lwf_trailer_stage_v3.glb",
+  "nodes": [
+   "LWF_TrailerStage_Base",
+   "LWF_TrailerStage_Rails",
+   "LWF_TrailerStage_Fittings",
+   "LWF_TrailerStage_BandStairs"
+  ],
+  "triangles": 3850,
+  "bounds_godot": [
+   [
+    -6.663,
+    -0.021,
+    -2.457
+   ],
+   [
+    5.309,
+    2.2,
+    1.223
+   ]
+  ],
+  "sha256": "4a53ec5e4eaac0a38557c85d3e2fc3bde1607f5a82629ddb5b5ffaec44395edf",
+  "placement": "identical to v2: same scene node transform (world (-16, 0, 11), rotated 90 degrees)",
+  "changes": [
+   "chassis (Base, Rails) mirrored about stage-local x -0.855: drawbar at the south end, deck unchanged",
+   "LWF_TrailerStage_Access removed",
+   "new LWF_TrailerStage_BandStairs at the north end",
+   "1.2 m opening in the north end rail"
+  ],
+  "stairs_world": {
+   "x": [
+    -17.22,
+    -16.02
+   ],
+   "top_edge_z": 7.89,
+   "bottom_step_front_z": 5.72,
+   "risers": 8,
+   "rise_m": 0.15,
+   "going_m": 0.31
+  },
+  "drawbar_world": {
+   "z": [
+    15.82,
+    17.66
+   ],
+   "x_at_deck": [
+    -18.26,
+    -14.97
+   ],
+   "x_at_hitch": [
+    -16.83,
+    -16.41
+   ],
+   "ground_contact": false
+  }
+ },
+ "lwf_crowd_barrier_v1": {
+  "file": "lwf_crowd_barrier_v1.glb",
+  "nodes": [
+   "LWF_CrowdBarrier"
+  ],
+  "triangles": 612,
+  "bounds_godot": [
+   [
+    -1.189,
+    -0.005,
+    -0.32
+   ],
+   [
+    1.24,
+    1.123,
+    0.32
+   ]
+  ],
+  "sha256": "d362470cd9e071b7993268c6e4e7bb5e81f75e66d79ee1f8399bff10a01ca52e",
+  "length_m": 2.3,
+  "height_m": 1.1,
+  "pitch_m": 2.4,
+  "origin": "centre bottom",
+  "length_axis": "local +X (hook end)",
+  "feet_depth_m": 0.64
+ },
+ "lwf_backstage_flight_case_stack_v1": {
+  "file": "lwf_backstage_flight_case_stack_v1.glb",
+  "nodes": [
+   "LWF_FlightCaseStack"
+  ],
+  "triangles": 96,
+  "bounds_godot": [
+   [
+    -0.556,
+    0.0,
+    -0.306
+   ],
+   [
+    0.556,
+    0.92,
+    0.306
+   ]
+  ],
+  "sha256": "791cb979ef466914e6a4e3048f484b4dd300e796af8cbe6a7187b66de1e38fb5"
+ },
+ "lwf_backstage_flight_case_tall_v1": {
+  "file": "lwf_backstage_flight_case_tall_v1.glb",
+  "nodes": [
+   "LWF_FlightCaseTall"
+  ],
+  "triangles": 48,
+  "bounds_godot": [
+   [
+    -0.306,
+    0.0,
+    -0.306
+   ],
+   [
+    0.306,
+    0.8,
+    0.306
+   ]
+  ],
+  "sha256": "24584258e51afc9dec05e8887539916f8d71b2f4d6f5ab8c3f324cd9424157dd"
+ },
+ "lwf_backstage_crate_pile_v1": {
+  "file": "lwf_backstage_crate_pile_v1.glb",
+  "nodes": [
+   "LWF_CratePile"
+  ],
+  "triangles": 144,
+  "bounds_godot": [
+   [
+    -0.655,
+    0.0,
+    -0.337
+   ],
+   [
+    0.615,
+    0.8,
+    0.286
+   ]
+  ],
+  "sha256": "b14989ba646fa4e3510b069c750f50e2d9e3fec3d3bb93427299f9f081f18087"
+ },
+ "lwf_folding_chair_v1": {
+  "file": "lwf_folding_chair_v1.glb",
+  "nodes": [
+   "LWF_FoldingChair"
+  ],
+  "triangles": 120,
+  "bounds_godot": [
+   [
+    -0.211,
+    -0.009,
+    -0.212
+   ],
+   [
+    0.211,
+    0.855,
+    0.236
+   ]
+  ],
+  "sha256": "b64dd1f418d5b64ba0aaf7c8a3c62519f3891e3f5ea7a016b742ad6c11152772"
+ }
+}

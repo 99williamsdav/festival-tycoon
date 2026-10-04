@@ -29,7 +29,11 @@ public sealed class FestivalResultsTests
         Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
         foreach (var id in new[] { "staff.sound.3", "staff.medic.1", "staff.steward.1" }) Accept(s, new AcceptPreparationOfferCommand(id)); Accept(s, new AcceptPreparationOfferCommand("equipment.rent"));
         Accept(s, new SetPreparationStockCommand(40, 40, 32)); Accept(s, new StartPreparedEditionCommand());
-        s.AdvanceWithoutSnapshot(1200); return s;
+        s.AdvanceWithoutSnapshot(1200);
+        // Band members walk in to backstage, the far side of the field from the gate.
+        while (s.CapturePreparation()!.People.Any(person => person.Role == ProtectedPersonRole.Performer && !person.Admitted) && s.CurrentTick < 4_000)
+            s.AdvanceWithoutSnapshot(1);
+        return s;
     }
     private static GameSession Reload(GameSession s)
     {

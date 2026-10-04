@@ -36,7 +36,7 @@ public partial class Main : Node, IHudHost
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v29", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v29");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v30", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v30");
 
     public override void _Ready()
     {
@@ -170,6 +170,7 @@ public partial class Main : Node, IHudHost
         BuildDayCycle(environment, sun);
         foreach (var item in LowerWitteringFarmScenario.CreateReadModel().Objects)
             if (item.Kind != FarmObjectKind.ServicePoint) AddFarmObject(item);
+        BuildBackstage();
         _highlight = new MeshInstance3D
         {
             Mesh = new CylinderMesh { TopRadius = 1f, BottomRadius = 1f, Height = 0.08f },
@@ -283,7 +284,8 @@ public partial class Main : Node, IHudHost
             FarmObjectKind.Farmhouse => ("res://assets/environment/lwf_farmhouse_v1.glb", new Vector3(12.64f, 9.93f, 10.29f)),
             FarmObjectKind.SmallBarn => ("res://assets/environment/lwf_barn_v2.glb", new Vector3(14.65f, 7.1f, 10.06f)),
             FarmObjectKind.LargeBarn => ("res://assets/environment/lwf_large_barn_v1.glb", new Vector3(20.93f, 11.14f, 13.42f)),
-            FarmObjectKind.TrailerStage => ("res://assets/environment/lwf_trailer_stage_v2.glb", new Vector3(9.91f, 2.2f, 4.92f)),
+            // Turned round: the drawbar at the south end, the band stairs coming off the north end into backstage.
+            FarmObjectKind.TrailerStage => ("res://assets/environment/lwf_trailer_stage_v3.glb", new Vector3(9.91f, 2.2f, 4.92f)),
             FarmObjectKind.ServicePoint => ("res://assets/environment/lwf_service_point_v2.glb", new Vector3(4.13f, 3.09f, 3.8f)),
             FarmObjectKind.Gate => ("res://assets/environment/lwf_farm_gate_posts_v1.glb", new Vector3(4f, 1.7f, 1.2f)),
             _ => throw new ArgumentOutOfRangeException(),
@@ -550,7 +552,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v29");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v30");
 
 
 

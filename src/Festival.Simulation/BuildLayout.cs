@@ -168,8 +168,10 @@ public sealed partial class GameSession
             return "Build identities or service limits are invalid.";
         var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
         var reserved = new HashSet<GridCell>();
-        for (var x = 90; x <= 101; x++)
-            for (var z = 139; z <= 160; z++) reserved.Add(new(x, z));
+        // The stage, its stairs and drawbar, and backstage behind the barriers.
+        for (var x = 66; x <= 101; x++)
+            for (var z = 112; z <= 164; z++)
+                if (Backstage.StageReserve(new(x, z)) || Backstage.Area(new(x, z))) reserved.Add(new(x, z));
         for (var x = MedicalRestCell.X - 1; x <= MedicalRestCell.X + 1; x++)
             for (var z = MedicalRestCell.Z - 1; z <= MedicalRestCell.Z + 1; z++) reserved.Add(new(x, z));
         if (equipment is { } unit)
@@ -275,13 +277,7 @@ public sealed partial class GameSession
             for (var x = lower.X; x <= upper.X; x++)
                 for (var z = lower.Z; z <= upper.Z; z++) Block(new(x, z));
         }
-        for (var x = 91; x <= 100; x++)
-            for (var z = 140; z <= 159; z++)
-            {
-                var cell = new GridCell(x, z);
-                blocked[cell] = new(cell, GroundSurface.Grass,
-                    x is >= 92 and <= 98 && z is >= 143 and <= 157 || x is >= 98 and <= 100 && z is >= 156 and <= 158);
-            }
+        foreach (var (cell, walkable) in Backstage.TrailerCells()) blocked[cell] = new(cell, GroundSurface.Grass, walkable);
         var grid = new TraversalGrid(blocked.Values);
         var destinations = new List<GridCell> { MedicalRestCell };
         foreach (var item in placements)

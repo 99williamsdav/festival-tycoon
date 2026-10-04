@@ -18,7 +18,7 @@ public sealed class WaterFoundationsTests
         return result.Session;
     }
 
-    private static readonly GridCell ExtraSite = new(70, 120);
+    private static readonly GridCell ExtraSite = new(70, 170);
 
     private static GameSession StartWithExtra(bool tower = false, bool share = false)
     {

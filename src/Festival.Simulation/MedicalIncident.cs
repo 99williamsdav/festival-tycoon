@@ -62,7 +62,7 @@ public sealed partial class GameSession
     public const int MedicalTreatmentTicks = 480;        // 6 real seconds after physical arrival.
     public const int MedicalDistressThirst = 9_000;
     public const int MedicalDistressHeat = 8_000;
-    public static readonly GridCell MedicalWaterCell = new(95, 123);    // (-16.25, -2.25) m; upper-right overview, away from the audience.
+    public static readonly GridCell MedicalWaterCell = new(103, 123);   // (-12.25, -2.25) m; just outside backstage's barriers, away from the audience.
     public static readonly GridCell WaterTowerCell = TraversalGrid.WorldToCell(-12_300, -14_000);
     public static readonly GridCell MedicalTentCell = new(116, 119);    // (-5.75, -4.25) m; tent frontage aligns with the water point.
     public static readonly GridCell MedicalMedicCell = new(116, 125);   // (-5.75, -1.25) m; Riley stands in front of the tent.
@@ -506,7 +506,7 @@ public sealed partial class GameSession
         else
         {
             var index = Array.FindIndex(PeopleIn(PersonView.Roster), item => item.Id == id);
-            ApplyAgentDestination(new(id), new(PreparedPlace(index), "medical.return"));
+            ApplyAgentDestination(new(id), new(IdlePlace(index), "medical.return"));
         }
     }
 

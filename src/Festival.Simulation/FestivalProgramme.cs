@@ -140,8 +140,7 @@ public sealed partial class GameSession
     }
     private static bool ProgrammeStageAccessOccupied(NavigationAgentState nav)
     {
-        var cell = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
-        return cell.X is >= 91 and <= 101 && cell.Z is >= 140 and <= 159;
+        return Backstage.StageAccess(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres));
     }
     private static string? ValidatePersistedProgramme(SessionPersistenceSnapshot snapshot)
     {
