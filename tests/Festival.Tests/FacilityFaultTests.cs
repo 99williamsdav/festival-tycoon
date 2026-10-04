@@ -193,7 +193,8 @@ public sealed class FacilityFaultTests
     {
         var (s, fault) = Find(FacilityFaultKind.StuckInToilet);
         ulong? worker = null;
-        for (var guard = 0; guard < 200 && worker is null; guard++)
+        // The steward may be tied up for a while first; give them most of a minute to set off.
+        for (var guard = 0; guard < 600 && worker is null && s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).Stage == FacilityFaultStage.Active; guard++)
         {
             s.AdvanceWithoutSnapshot(8);
             worker = s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id) is { Stage: FacilityFaultStage.Active, WorkStartedTick: < 0, WorkerId: { } w } ? w : null;

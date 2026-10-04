@@ -204,10 +204,16 @@ public sealed partial class GameSession
                 var earned = listener.EnjoymentEarned;
                 if (listenedTicks % 80 == 0)
                 {
-                    var quality = _equipment?.Version == 3 || (_equipment?.LoadPercent ?? 80) == 80 ? 75 : 100;
-                    var rigBonus = p.OwnedEquipment.Length > 0 ? 5 : 0;
-                    var staffBonus = SoundMixingBonus();
-                    var gain = ((listener.Enthusiasm >= 90 ? 15 : listener.Enthusiasm >= 60 ? 10 : 5) + rigBonus + staffBonus) * quality / 100;
+                    var basis = listener.Enthusiasm >= 90 ? 15 : listener.Enthusiasm >= 60 ? 10 : 5;
+                    int gain;
+                    // On the power budget the band's play and the sound scale the set; the older scenario keeps its bonuses.
+                    if (_equipment?.Version == 3) gain = basis * PerformanceRules.MusicPermille(CurrentPerformance?.Overall ?? 50) / 1000;
+                    else
+                    {
+                        var quality = (_equipment?.LoadPercent ?? 80) == 80 ? 75 : 100;
+                        var rigBonus = p.OwnedEquipment.Length > 0 ? 5 : 0;
+                        gain = (basis + rigBonus + SoundMixingBonus()) * quality / 100;
+                    }
                     if (CurrentFestivalAct is { } playing) gain = gain * MusicExpectationPermille(playing.Popularity, ExpectedPopularity) / 1000;
                     rewardedPeople ??= PeopleIn(PersonView.Roster).ToArray();
                     var personIndex = Array.FindIndex(rewardedPeople, item => item.Id == listener.AgentId);
@@ -286,6 +292,14 @@ public sealed partial class GameSession
         _livePerformance = live with { Stage = stage, StartedTick = started, EndedTick = ended,
             InterruptedTick = interrupted, ReactionSequence = sequence, LastReaction = reaction,
             Performers = performers, Listeners = listeners, SetEndAudienceIds = setEndAudienceIds };
+        // An act that played is known from then on: its talent shows in the booking table.
+        if (stage == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished && started >= 0 && CurrentFestivalAct is { } played &&
+            _preparation is { } seen && !seen.SeenActs.Contains(played.Id))
+            _preparation = seen with { SeenActs = seen.SeenActs.Append(played.Id).Order(StringComparer.Ordinal).ToArray() };
+        // A high-ego act takes a poor sound system personally.
+        if (stage == LiveSetStage.Live && CurrentTick % 80 == 0 && CurrentFestivalAct is { Ego: >= 70 } proud && SoundScore < 40)
+            foreach (var performer in performers.Where(item => item.OnStage))
+                MutatePerson(performer.AgentId, person => person.Satisfaction = Math.Max(0, person.Satisfaction - 2));
         if (stage == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished)
             foreach (var performer in performers)
             {

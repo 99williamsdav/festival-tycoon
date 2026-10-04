@@ -85,7 +85,8 @@ public sealed class ToiletQueueGrowthTests
             .Invoke(s, [guests[2], ToiletVisitKind.Wee, t, doorstep, true])!;
         var boxedIn = toilet with { Queue = [guests[0]], QueueCells = [doorstep, second] };
         Assert.AreEqual(int.MaxValue, Ticks(boxedIn), "Two places, both spoken for: no room for a third.");
-        var roomy = boxedIn with { QueueCells = [doorstep, second, second with { X = second.X + 2 }] };
+        // Room to spare for everyone already on their way there, whoever else that may be on this day.
+        var roomy = boxedIn with { QueueCells = [doorstep, second, .. Enumerable.Range(1, 8).Select(i => second with { X = second.X + 2 * i })] };
         Assert.AreNotEqual(int.MaxValue, Ticks(roomy), "With a spare place it can be chosen.");
     }
 

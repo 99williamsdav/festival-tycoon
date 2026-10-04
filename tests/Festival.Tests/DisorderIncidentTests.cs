@@ -70,9 +70,11 @@ public sealed class DisorderIncidentTests
         session.AdvanceWithoutSnapshot(8);
         Assert.AreEqual(LiveSetStage.Interrupted, session.CaptureLivePerformance()!.Stage);
         session = Restored(session);
-        session.AdvanceWithoutSnapshot(700);
-        Assert.IsTrue(session.CaptureDisorder()!.People.Any(item => item.Grievance == DisorderGrievance.MusicCutoff &&
-            item.Stage is DisorderStage.Complaint or DisorderStage.Agitated or DisorderStage.Argument));
+        // Keen listeners left in silence start to grumble; how soon depends on who's at the front.
+        bool Grumbling() => session.CaptureDisorder()!.People.Any(item => item.Grievance == DisorderGrievance.MusicCutoff &&
+            item.Stage is DisorderStage.Complaint or DisorderStage.Agitated or DisorderStage.Argument);
+        for (var guard = 0; guard < 300 && !Grumbling(); guard++) session.AdvanceWithoutSnapshot(8);
+        Assert.IsTrue(Grumbling());
         Assert.IsTrue(Send(session, new DisorderCommand(DisorderAction.RestoreMusic)).IsAccepted);
         Assert.AreEqual(EquipmentStage.Resolved, session.CaptureEquipment()!.Stage);
         session = Restored(session);

@@ -16,7 +16,7 @@ public sealed partial class GameSession
     public const int FriendlyQueueGainEveryTicks = 5;
 
     /// <summary>How much someone likes beer, more at a Beer Festival and much more with Alcoholics.</summary>
-    private int BeerTasteOf(Person person) => Math.Min(100, person.BeerTaste +
+    private int BeerTasteOf(Person person) => Math.Min(100, (person.Role == ProtectedPersonRole.Performer ? PerformerBeerTaste(person) : person.BeerTaste) +
         (HasPerk(PerkCatalogue.BeerFestival) ? BeerFestivalTasteBoost : 0) + (HasPerk(PerkCatalogue.Alcoholics) && IsGuest(person.Id) ? AlcoholicsTasteBoost : 0));
 
     /// <summary>How much someone likes soft drinks, much more among Cola Fiends.</summary>

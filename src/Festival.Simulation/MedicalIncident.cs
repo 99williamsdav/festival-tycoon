@@ -737,7 +737,8 @@ public sealed partial class GameSession
             medic.Stage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing && medic.PatientId is null ||
             !Enum.IsDefined(medic.Stage) ||
             m.Fatal && (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1) ||
-            p.Status == PreparationStatus.Failed && !m.Fatal && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death")
+            p.Status == PreparationStatus.Failed && !m.Fatal && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death" &&
+            s.Equipment?.Stage != EquipmentStage.Terminal) // A generator death on the power budget fails the day too.
             return "Medical Hot state, queue ownership or causal stage invalid.";
         return null;
     }

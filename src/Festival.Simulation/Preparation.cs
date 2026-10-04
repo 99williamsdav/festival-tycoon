@@ -30,6 +30,8 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public int Reputation { get; init; }
     /// <summary>Credibility in each genre's scene, 0–100, indexed by <see cref="FestivalGenre"/>.</summary>
     public int[] SceneCredibility { get; init; } = new int[FestivalGenre.Count];
+    /// <summary>Acts that have played a set for you, sorted: their talent is known from then on.</summary>
+    public string[] SeenActs { get; init; } = [];
     /// <summary>Standing before the completed festival changed it, for the results.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public FestivalStanding? StandingBefore { get; init; }
@@ -423,6 +425,8 @@ public sealed partial class GameSession
     private static string? ValidatePersistedPreparation(PreparationSnapshot? p, SessionPersistenceSnapshot snapshot)
     {
         if (p is null) return null;
+        if (p.SeenActs is null || p.SeenActs.Any(id => ActCatalogue.Find(id) is null) || !p.SeenActs.SequenceEqual(p.SeenActs.Distinct().Order(StringComparer.Ordinal)))
+            return "Seen acts invalid.";
         if (p.Reputation is < 0 or > 100 || p.SceneCredibility is not { Length: FestivalGenre.Count } || p.SceneCredibility.Any(value => value is < 0 or > 100) ||
             p.StandingBefore is { } before && (before.Reputation is < 0 or > 100 || before.SceneCredibility is not { Length: FestivalGenre.Count } || before.SceneCredibility.Any(value => value is < 0 or > 100)))
             return "Festival reputation or scene credibility invalid.";
