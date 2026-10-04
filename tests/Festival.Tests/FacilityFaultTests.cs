@@ -265,6 +265,8 @@ public sealed class FacilityFaultTests
             s.AdvanceWithoutSnapshot(8);
         Assert.AreEqual(MedicalStage.Collapsed, s.CaptureMedical()!.Needs.Single(n => n.AgentId == fault.VictimId).Stage);
         Assert.AreEqual(CollapseCause.ToiletFumes, s.CollapseCauseOf(fault.VictimId));
+        Assert.IsFalse((bool)typeof(GameSession).GetMethod("StungByWasp", flags)!.Invoke(s, [fault.VictimId])!,
+            "A fumes collapse looks like a sting's (no warning), but is never taken for one, allergic or not.");
         Assert.IsTrue(s.CaptureFaults()!.Faults.Single(f => f.Id == fault.Id).PoisonedTick >= started + FaultRules.PoisonCollapseTicks);
         StringAssert.StartsWith(s.FaultStatus(fault.FacilityId) ?? "COLLAPSED INSIDE", "COLLAPSED INSIDE");
         AssertRestores(s);

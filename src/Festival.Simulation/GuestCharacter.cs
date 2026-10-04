@@ -121,7 +121,7 @@ public sealed partial class GameSession
     /// signature instead: only a sting collapses an allergic guest with no warning (warning tick equal to collapse tick).
     /// </summary>
     private bool StungByWasp(ulong id) => IsGuest(id) && GuestCharacterOf(id).WaspAllergy && _persons[id] is { HealthCollapseTick: >= 0 } p &&
-        p.HealthWarningTick == p.HealthCollapseTick;
+        p.HealthWarningTick == p.HealthCollapseTick && !PoisonedByFumes(id); // Fumes collapse without warning too.
 
     /// <summary>
     /// Why someone collapsed, from signals that outlast the medic's dispatch overwriting their Reason text: a sting
