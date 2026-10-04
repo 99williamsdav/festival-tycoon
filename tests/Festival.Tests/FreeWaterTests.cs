@@ -57,7 +57,7 @@ public sealed class FreeWaterTests
         Assert.AreEqual(0, cup.CostPennies);
         AssertRestores(s);
         // Drunk down, and the cup becomes litter like any other.
-        for (var guard = 0; guard < 100 && s.CaptureLitter()!.Pieces.All(w => w.Id != cup.Id); guard++) s.AdvanceWithoutSnapshot(40);
+        for (var guard = 0; guard < 300 && s.CaptureLitter()!.Pieces.All(w => w.Id != cup.Id); guard++) s.AdvanceWithoutSnapshot(40);
         Assert.AreEqual(ImmersionProduct.Water, s.CaptureLitter()!.Pieces.Single(w => w.Id == cup.Id).Product);
         AssertRestores(s);
     }

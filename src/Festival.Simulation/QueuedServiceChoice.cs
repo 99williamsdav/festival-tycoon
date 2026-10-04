@@ -90,7 +90,7 @@ public sealed partial class GameSession
             weightedMicrometres += segment * _traversalGrid!.Get(cell).CostPermille / 1000;
             x = centre.XMillimetres; z = centre.ZMillimetres;
         }
-        var perTick = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000;
+        var perTick = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000 * PersonPacePermille(id) / 1000;
         return perTick <= 0 ? int.MaxValue : checked((int)((weightedMicrometres + perTick - 1) / perTick));
     }
 }

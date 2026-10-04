@@ -6,6 +6,13 @@ public sealed partial class GameSession
 {
     public const int WalkingSpeedMillimetresPerFestivalSecond = 120;
     private const int RouteProgressMicrometresPerTick = 30_000;
+    /// <summary>Guests stroll at seven-tenths of the staff's pace; anyone carrying food or drink at 85% of their own.</summary>
+    public const int GuestPacePermille = 700, CarryingPacePermille = 850;
+
+    /// <summary>Someone's own pace: a guest's festival stroll, slowed further while carrying food or drink.</summary>
+    private int PersonPacePermille(ulong id, bool includeCarrying = true) =>
+        (_persons.TryGet(id, out var person) && person.Role == ProtectedPersonRole.Guest ? GuestPacePermille : 1_000) *
+        (includeCarrying && PersonIn(PersonView.Consumption, id)?.Held is not null ? CarryingPacePermille : 1_000) / 1_000;
     private static readonly int[] WalkingSpeedPermillePattern = [850, 900, 950, 1_000, 1_050, 1_100, 1_150];
     // Prototype centre clearance: below the 500 mm queue-slot spacing, but large enough to
     // prevent sustained near-superposition while still allowing compressed single-file flow.
@@ -150,7 +157,8 @@ public sealed partial class GameSession
     {
             var terrainCost = _traversalGrid!.Get(agent.Route[agent.RouteIndex]).CostPermille;
             var effectiveCost = checked(terrainCost * GroundSlowPermille(agent.Route[agent.RouteIndex]));
-            var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * Math.Max(800,AudienceWalkingPace(agent) * ImmersionCoordinationPace(agent.Id.Value) / 1000) * StaffGaitPermille(agent.Id.Value) / 1000 + agent.MovementRemainder);
+            var numerator = checked((long)RouteProgressMicrometresPerTick * agent.WalkingSpeedPermille * Math.Max(800,AudienceWalkingPace(agent) * ImmersionCoordinationPace(agent.Id.Value) / 1000) * StaffGaitPermille(agent.Id.Value) / 1000 *
+                PersonPacePermille(agent.Id.Value) / 1000 + agent.MovementRemainder);
             var allowance = checked((int)(numerator / effectiveCost));
             agent.MovementRemainder = checked((int)(numerator % effectiveCost));
             var arrived = false;

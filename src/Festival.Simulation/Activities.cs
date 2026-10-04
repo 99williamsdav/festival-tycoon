@@ -301,7 +301,7 @@ public sealed partial class GameSession
     {
         var dx = Math.Abs(from.X - to.X); var dz = Math.Abs(from.Z - to.Z);
         var thousandthCells = (long)Math.Max(dx, dz) * 1_000 + (long)Math.Min(dx, dz) * 414;
-        var perTick = (long)RouteProgressMicrometresPerTick * _navigationAgents[new(id)].WalkingSpeedPermille / 1_000 * StaffGaitPermille(id) / 1_000;
+        var perTick = (long)RouteProgressMicrometresPerTick * _navigationAgents[new(id)].WalkingSpeedPermille / 1_000 * StaffGaitPermille(id) / 1_000 * PersonPacePermille(id, false) / 1_000;
         return perTick <= 0 ? int.MaxValue : (int)(thousandthCells * 500 / perTick);
     }
 

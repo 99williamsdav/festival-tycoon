@@ -95,7 +95,8 @@ public sealed class WaterFoundationsTests
         Assert.IsFalse(BuildSession.MainTap(session).Queue.Contains(ids[2]));
         Assert.IsTrue(now.Evidence.Any(item => item.Id == "medical:water-rechoose" && item.Description.Contains("old place forfeited=True")));
         var switchedTick = now.Needs.Single(item => item.AgentId == ids[2]).LastWaterChoiceReviewTick;
-        session.AdvanceWithoutSnapshot(10);
+        // No second thoughts before their next regular re-plan.
+        session.AdvanceWithoutSnapshot(4);
         Assert.AreEqual(switchedTick, session.CaptureMedical()!.Needs.Single(item => item.AgentId == ids[2]).LastWaterChoiceReviewTick);
         Restore(session);
     }

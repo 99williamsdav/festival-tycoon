@@ -29,10 +29,12 @@ public sealed class EquipmentIncidentTests
     {
         var s = Started(); s.AdvanceWithoutSnapshot(7_199);
         var cash = s.CaptureSnapshot().FestivalFinances.Single().CashPennies;
+        var sold = s.CaptureImmersion()!.Purchases.Length;
         Assert.IsTrue(Execute(s, new EquipmentCommand(EquipmentAction.Isolate)).IsAccepted);
         s = Restore(s); s.AdvanceWithoutSnapshot(200);
         Assert.AreEqual(0, s.CaptureLifecycleSnapshot()!.Casualties.Count);
-        Assert.AreEqual(cash, s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+        // The cutoff costs nothing: cash moves only by what the stalls sold meanwhile.
+        Assert.AreEqual(cash + s.CaptureImmersion()!.Purchases.Skip(sold).Sum(p => (long)p.PricePennies), s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         Assert.IsNull(s.CaptureEquipment()!.WorkerId);
         for (ulong seed = 0; seed < 100; seed++)
         {
