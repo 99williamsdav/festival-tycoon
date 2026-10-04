@@ -133,7 +133,7 @@ public partial class Main : Node, IHudHost
             if (EyeViewActive) return;
             if (mouse.Pressed && mouse.ButtonIndex == MouseButton.Right && OpenBuildContextMenu(mouse.Position)) return;
             if (_rig.HandleButton(mouse)) return;
-            if (mouse.ButtonIndex == MouseButton.Left && mouse.Pressed) Pick(mouse.Position);
+            if (mouse.ButtonIndex == MouseButton.Left && mouse.Pressed) Pick(mouse.Position, mouse.DoubleClick);
         }
         else if (inputEvent is InputEventMouseMotion motion)
         {
@@ -347,7 +347,7 @@ public partial class Main : Node, IHudHost
 
 
 
-    private void Pick(Vector2 screenPosition)
+    private void Pick(Vector2 screenPosition, bool doubleClick = false)
     {
         if (WorldInputOccluded(screenPosition)) return;
         _selectedImmersionVendor = null;
@@ -356,7 +356,12 @@ public partial class Main : Node, IHudHost
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
         else if (collider is not null && collider.GetInstanceId() == _generatorPickId) SelectGenerator();
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
-        else if (collider is not null && _toiletPickOwners.TryGetValue(collider.GetInstanceId(), out var toiletId)) SelectToilet(toiletId);
+        // A double-click on an occupied toilet picks whoever is inside, as there's nothing else of them to click.
+        else if (collider is not null && _toiletPickOwners.TryGetValue(collider.GetInstanceId(), out var toiletId))
+        {
+            if (doubleClick && ToiletOccupant(toiletId) is { } occupant) SelectAttendee(new EntityId(occupant));
+            else SelectToilet(toiletId);
+        }
         else if (collider is not null && _binPickOwners.TryGetValue(collider.GetInstanceId(), out var binId)) SelectBin(binId);
         else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
         else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility))

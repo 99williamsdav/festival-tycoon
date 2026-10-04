@@ -94,7 +94,20 @@ public partial class Main
         _toiletMoveButton.Visible = false;
         _toiletMoveButton.TooltipText = "Move before opening. Comma/period rotate; right-click or Esc cancels.";
         parent.AddChild(_toiletMoveButton);
+        _toiletOccupantButton = ButtonText("", () =>
+        {
+            if (_selectedToiletId is { } id && ToiletOccupant(id) is { } occupant) SelectAttendee(new EntityId(occupant));
+        });
+        _toiletOccupantButton.Visible = false;
+        _toiletOccupantButton.TooltipText = "Select whoever is inside (or double-click the toilet).";
+        parent.AddChild(_toiletOccupantButton);
     }
+
+    private Button? _toiletOccupantButton;
+
+    /// <summary>Whoever is inside a toilet: its user, or someone it is waiting to let out.</summary>
+    private ulong? ToiletOccupant(string toiletId) =>
+        _session.CaptureToilets().SingleOrDefault(t => t.Id == toiletId) is { } toilet ? toilet.OwnerId ?? toilet.InterruptedOccupantId : null;
 
     private void SelectToilet(string? id = null)
     {
@@ -107,6 +120,9 @@ public partial class Main
         if (_toiletMoveButton is null) return;
         _toiletMoveButton.Visible = _selectedToilet && _session.PreparedStatus == PreparationStatus.Preparing;
         _toiletMoveButton.Text = false ? "Cancel move" : "Move";
+        var inside = _selectedToilet && _selectedToiletId is { } shownId ? ToiletOccupant(shownId) : null;
+        _toiletOccupantButton!.Visible = inside is not null;
+        if (inside is { } who) _toiletOccupantButton.Text = $"Select {_session.CapturePreparation()!.People.Single(p => p.AgentId == who).Name} (inside)";
         if (!_selectedToilet || _selectedToiletId is null || !_toiletViews.TryGetValue(_selectedToiletId, out var selectedView) ||
             _session.CaptureToilets().SingleOrDefault(item => item.Id == _selectedToiletId) is not { } toilet) return;
         _inspectorTitle.Text = "Portaloo • owned";
