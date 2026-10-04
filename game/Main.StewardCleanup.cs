@@ -32,7 +32,8 @@ public partial class Main
     private static void CleanupOrdinaryBody(Node3D actor, bool visible)
     {
         if (actor.GetNodeOrNull<Node3D>("RoleBody") is { } body) body.Visible = visible;
-        if (actor.GetNodeOrNull<Node3D>("RoleGarment") is { } garment) garment.Visible = visible;
+        // A rigged body wears its own skinned garment, so the separate overlay stays hidden on it.
+        if (actor.GetNodeOrNull<Node3D>("RoleGarment") is { } garment) garment.Visible = visible && !(actor.HasMeta("GuestRigged") && actor.GetMeta("GuestRigged").AsBool());
         // The cleanup body carries its own hair, so the separate head pieces step aside while it bends.
         if (actor.GetNodeOrNull<Node3D>("HeadPieces") is { } head) head.Visible = visible;
     }

@@ -51,6 +51,7 @@ public partial class Main
             var old = actor.GetNode<Node3D>("RoleGarment"); actor.RemoveChild(old); old.QueueFree();
             var garment = InstantiateAsset($"res://assets/characters/lwf_steward_{variant}_overlay_v2.glb");
             garment.Name = "RoleGarment"; actor.AddChild(garment);
+            garment.Visible = !(actor.HasMeta("GuestRigged") && actor.GetMeta("GuestRigged").AsBool());
             actor.SetMeta("RoleVariant", variant);
             Bodies.RebuildHead(actor);
         }
