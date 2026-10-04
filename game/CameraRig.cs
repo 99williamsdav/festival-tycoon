@@ -10,8 +10,8 @@ namespace Festival.Game;
 internal sealed class CameraRig
 {
     private const float MinZoom = 18f;
-    private const float MaxZoom = 82f;
-    private const float PanLimit = 24f;
+    internal const float MaxZoom = 82f;
+    internal const float PanLimit = 24f;
     private static readonly string[] OrientationNames = ["South", "West", "North", "East"];
     private Vector3 _focus = Vector3.Zero;
     private int _orientation;

@@ -57,3 +57,9 @@ The user approved **basic open-top general-waste bins** whose full state attract
 ## Discussions, not approvals
 
 Reputation-based unlock tiers and their anti-grind trade-off; additional Council Favour sources (electricity sharing, local band, worker loan or cows); overtime anger; procedural rigs/animation; night lighting; and distant cosmetic fan T-shirts have no implementation authorization in this snapshot. See [future ideas](FUTURE_IDEAS.md). Missing or ambiguous approval evidence must be checked with the producer/user before a bounded commission, not inferred from this log.
+
+## 4 October 2026 — farm surround A and future fields
+
+The user selected concept A (fields and lane), then approved trying softer background colours, lower contrast and gentle distant atmospheric haze while keeping the near hedge surround sharp. Producer relayed the bounded implementation commission. Existing game transforms remain authoritative; the AI concept is mood/composition reference only. The surround is decorative, with continuous ground, extended entrance lane, broad fields, low divisions and sparse shared trees. No playable-terrain restyle, collision/picking/navigation, night-cycle change or B/C scenery is commissioned. [Concept and original handoff](../assets/source/environment/farm-background-concept-a/).
+
+The user intends later tiers to unlock additional surrounding usable fields. Record this as future direction, not implemented progression. Geometry is isolated from playable-area logic so it can be revisited/replaced. Unlock rules, field layouts, navigation/placement expansion and saves need a later bounded design/build brief; no premature tier framework in this scenery update.

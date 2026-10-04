@@ -81,6 +81,7 @@ public partial class Main : Node, IHudHost
         ProcessChatter(delta);
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
+        ProcessSurroundEvidence();
         AdvancePreparationPresentation(delta);
         FinalizeCleanupEvidenceFrame();
         RefreshContextPanelVisibility();
@@ -160,6 +161,7 @@ public partial class Main : Node, IHudHost
         };
         AddChild(sun);
         BuildGrass();
+        BuildFarmSurround();
         BuildTrack();
         BuildHedgeBoundary();
         BuildGateApron();
@@ -509,6 +511,7 @@ public partial class Main : Node, IHudHost
                 if (i + 1 < args.Length && int.TryParse(args[i + 1], out var seconds)) { _profileSeconds = seconds; i++; }
             }
             else if (args[i] == "--capture-litter" && i + 1 < args.Length) _litterEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-surround" && i + 1 < args.Length) _surroundEvidenceOutput = args[++i];
             else if (args[i] == "--verify-genre-audio" && i + 1 < args.Length) _genreAudioVerificationOutput = args[++i];
             else if (args[i] == "--capture-steward-cleanup" && i + 1 < args.Length)
                 _litterEvidenceOutput = _cleanupEvidenceOutput = args[++i];

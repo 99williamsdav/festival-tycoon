@@ -1,0 +1,8 @@
+Fresh build: dotnet build game/Festival.Game.csproj --no-restore -p:UseSharedCompilation=false -nodeReuse:false — 0 warnings/errors.
+Tests built from current source, then:
+tests/Festival.Tests/bin/Debug/net8.0/Festival.Tests.exe --filter "FullyQualifiedName~FoundationSceneTests.CameraKeyboardPan|FullyQualifiedName~HedgeBoundaryTests|FullyQualifiedName~FarmSceneTests|FullyQualifiedName~BuildLayoutTests|FullyQualifiedName~NavigationTests" --timeout 180s --no-ansi --results-directory artifacts/farm-surround/tests
+Passed 28, failed 0, skipped 0; 2s 923ms.
+Native and release EXE: -- --capture-surround <output-directory> --capture-size <width>x<height>
+24 checked views/run: four rotations, each overview, four maximum-pan corners at max zoom 82 and gate close-up at min zoom 18.
+Eight outside placement probes use Bin (not subject to the water-tap limit); all rejected. Eight downward outside physics pick rays miss. No CollisionObject3D or NavigationRegion3D under scenery. Simulation hash unchanged throughout captures/profiling.
+Exported runs: 1920x1080, 1280x720, 2560x720 aspect-ratio stress. All passed. Wide HUD layout is not certified (existing checklist overflow visible); scenery coverage is what is tested at 32:9.

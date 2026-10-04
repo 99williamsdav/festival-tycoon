@@ -27,3 +27,7 @@ Updated **30 September 2026** against [current design](../CURRENT_DESIGN.md). Th
 | B-013 | Done | Deterministic clothing/hair colour integration for both body families. No new saved cosmetic fields. [Evidence](results/R0.05e-attendee-poses.md). |
 
 **Superseded routing note:** The 27 September overnight sequence authorized attendee integration, departure/results and deeper band/booking work in bounded briefs. Those slices have since been delivered through R0.05n/o/p, R0.05af and R0.05ag. The old paragraph was never blanket permission for Tier 2, profit carryover, new Council choices, night lighting or overtime anger. Keep later authorization and evidence in the owning briefs rather than replaying that historical queue.
+
+## 4 October 2026 — surrounding field expansion
+
+B-022 · approved future direction, not implemented: later tiers should unlock more usable surrounding fields. Define unlock conditions, playable bounds, placement/navigation and persistence in a separate bounded brief. Current concept-A countryside is decorative and does not grant usable land. See [decision](DECISIONS.md#4-october-2026--farm-surround-a-and-future-fields).

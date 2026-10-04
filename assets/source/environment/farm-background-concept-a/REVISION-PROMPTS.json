@@ -1,0 +1,10 @@
+{
+  "method": "Built-in image_gen",
+  "c_revision": "Use case: precise-object-edit. Edit this farm background concept only to remove the pond, water, reeds and water plants in lower-left foreground, replacing them with simple plain meadow grass continuous with surrounding land. Remove all sheep in lower-right pasture and replace with grass. Remove hay bales from upper-left field leaving plain broad ochre field. Preserve the entire central farm, all buildings and props, hedge and gate positions, orchard in upper-right, distant small farm roofs, lane, camera, composition, colour and rendering exactly. No added objects, no text. This is economical static non-playable rural background scenery.",
+  "selected_outputs": {
+    "a": "exec-6592414a-8a17-4db2-b2ed-f27936bade1e.png",
+    "b": "exec-011f6e7b-a97b-4e46-9da1-b1608e9096b8.png",
+    "c": "exec-57c5a57e-faf1-4e93-8283-b68f4580f4cf.png"
+  },
+  "output_directory": "C:/Users/99wil/.codex/generated_images/01a0829d-38d9-75e1-a099-c861ffb5d510"
+}

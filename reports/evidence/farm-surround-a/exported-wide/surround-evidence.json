@@ -1,0 +1,364 @@
+{
+  "passed": true,
+  "resolution": "(2560, 720)",
+  "views": [
+    {
+      "name": "0-south-overview",
+      "maxGroundCorner": 131.10973,
+      "extent": 684,
+      "covered": true,
+      "zoom": 72,
+      "focus": "(0, 0, 0)"
+    },
+    {
+      "name": "0-south-pan-1",
+      "maxGroundCorner": 173.31638,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(-24, 0, -24)"
+    },
+    {
+      "name": "0-south-pan-2",
+      "maxGroundCorner": 173.31636,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(-24, 0, 24)"
+    },
+    {
+      "name": "0-south-pan-3",
+      "maxGroundCorner": 173.31636,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(24, 0, -24)"
+    },
+    {
+      "name": "0-south-pan-4",
+      "maxGroundCorner": 173.27248,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(24, 0, 24)"
+    },
+    {
+      "name": "0-south-gate-close",
+      "maxGroundCorner": 56.75,
+      "extent": 684,
+      "covered": true,
+      "zoom": 18,
+      "focus": "(0, 0, 24)"
+    },
+    {
+      "name": "1-west-overview",
+      "maxGroundCorner": 131.10973,
+      "extent": 684,
+      "covered": true,
+      "zoom": 72,
+      "focus": "(0, 0, 0)"
+    },
+    {
+      "name": "1-west-pan-1",
+      "maxGroundCorner": 173.31638,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(-24, 0, -24)"
+    },
+    {
+      "name": "1-west-pan-2",
+      "maxGroundCorner": 173.31638,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(-24, 0, 24)"
+    },
+    {
+      "name": "1-west-pan-3",
+      "maxGroundCorner": 173.27248,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(24, 0, -24)"
+    },
+    {
+      "name": "1-west-pan-4",
+      "maxGroundCorner": 173.31638,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(24, 0, 24)"
+    },
+    {
+      "name": "1-west-gate-close",
+      "maxGroundCorner": 56.793884,
+      "extent": 684,
+      "covered": true,
+      "zoom": 18,
+      "focus": "(0, 0, 24)"
+    },
+    {
+      "name": "2-north-overview",
+      "maxGroundCorner": 131.10973,
+      "extent": 684,
+      "covered": true,
+      "zoom": 72,
+      "focus": "(0, 0, 0)"
+    },
+    {
+      "name": "2-north-pan-1",
+      "maxGroundCorner": 173.27248,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(-24, 0, -24)"
+    },
+    {
+      "name": "2-north-pan-2",
+      "maxGroundCorner": 173.31638,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(-24, 0, 24)"
+    },
+    {
+      "name": "2-north-pan-3",
+      "maxGroundCorner": 173.31638,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(24, 0, -24)"
+    },
+    {
+      "name": "2-north-pan-4",
+      "maxGroundCorner": 173.31638,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(24, 0, 24)"
+    },
+    {
+      "name": "2-north-gate-close",
+      "maxGroundCorner": 56.793884,
+      "extent": 684,
+      "covered": true,
+      "zoom": 18,
+      "focus": "(0, 0, 24)"
+    },
+    {
+      "name": "3-east-overview",
+      "maxGroundCorner": 131.10971,
+      "extent": 684,
+      "covered": true,
+      "zoom": 72,
+      "focus": "(0, 0, 0)"
+    },
+    {
+      "name": "3-east-pan-1",
+      "maxGroundCorner": 173.31638,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(-24, 0, -24)"
+    },
+    {
+      "name": "3-east-pan-2",
+      "maxGroundCorner": 173.27248,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(-24, 0, 24)"
+    },
+    {
+      "name": "3-east-pan-3",
+      "maxGroundCorner": 173.31638,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(24, 0, -24)"
+    },
+    {
+      "name": "3-east-pan-4",
+      "maxGroundCorner": 173.31635,
+      "extent": 684,
+      "covered": true,
+      "zoom": 82,
+      "focus": "(24, 0, 24)"
+    },
+    {
+      "name": "3-east-gate-close",
+      "maxGroundCorner": 56.75,
+      "extent": 684,
+      "covered": true,
+      "zoom": 18,
+      "focus": "(0, 0, 24)"
+    }
+  ],
+  "simulationUnchanged": true,
+  "noCollisionOrNavigationNodes": true,
+  "eightOutsidePlacementAndPickProbesRejected": true,
+  "performance": [
+    {
+      "orientation": "South",
+      "scenery": false,
+      "frames": 90,
+      "frameMs": {
+        "mean": 2.9937177777777766,
+        "median": 2.3994,
+        "p95": 12.3998
+      },
+      "drawCalls": {
+        "mean": 554,
+        "median": 554,
+        "p95": 554
+      },
+      "primitives": {
+        "mean": 156857,
+        "median": 156857,
+        "p95": 156857
+      }
+    },
+    {
+      "orientation": "South",
+      "scenery": true,
+      "frames": 90,
+      "frameMs": {
+        "mean": 2.37309888888889,
+        "median": 1.481,
+        "p95": 12.088
+      },
+      "drawCalls": {
+        "mean": 562,
+        "median": 562,
+        "p95": 562
+      },
+      "primitives": {
+        "mean": 223821,
+        "median": 223821,
+        "p95": 223821
+      }
+    },
+    {
+      "orientation": "West",
+      "scenery": false,
+      "frames": 90,
+      "frameMs": {
+        "mean": 2.269794444444444,
+        "median": 1.336,
+        "p95": 12.0215
+      },
+      "drawCalls": {
+        "mean": 554,
+        "median": 554,
+        "p95": 554
+      },
+      "primitives": {
+        "mean": 156977,
+        "median": 156977,
+        "p95": 156977
+      }
+    },
+    {
+      "orientation": "West",
+      "scenery": true,
+      "frames": 90,
+      "frameMs": {
+        "mean": 2.2656855555555553,
+        "median": 1.4098,
+        "p95": 12.0499
+      },
+      "drawCalls": {
+        "mean": 562,
+        "median": 562,
+        "p95": 562
+      },
+      "primitives": {
+        "mean": 223941,
+        "median": 223941,
+        "p95": 223941
+      }
+    },
+    {
+      "orientation": "North",
+      "scenery": false,
+      "frames": 90,
+      "frameMs": {
+        "mean": 2.1501099999999997,
+        "median": 1.2912,
+        "p95": 11.1445
+      },
+      "drawCalls": {
+        "mean": 554,
+        "median": 554,
+        "p95": 554
+      },
+      "primitives": {
+        "mean": 156977,
+        "median": 156977,
+        "p95": 156977
+      }
+    },
+    {
+      "orientation": "North",
+      "scenery": true,
+      "frames": 90,
+      "frameMs": {
+        "mean": 2.342802222222222,
+        "median": 1.5129,
+        "p95": 11.4176
+      },
+      "drawCalls": {
+        "mean": 562,
+        "median": 562,
+        "p95": 562
+      },
+      "primitives": {
+        "mean": 223941,
+        "median": 223941,
+        "p95": 223941
+      }
+    },
+    {
+      "orientation": "East",
+      "scenery": false,
+      "frames": 90,
+      "frameMs": {
+        "mean": 2.2651222222222223,
+        "median": 1.3657,
+        "p95": 12.3401
+      },
+      "drawCalls": {
+        "mean": 554,
+        "median": 554,
+        "p95": 554
+      },
+      "primitives": {
+        "mean": 156857,
+        "median": 156857,
+        "p95": 156857
+      }
+    },
+    {
+      "orientation": "East",
+      "scenery": true,
+      "frames": 90,
+      "frameMs": {
+        "mean": 2.288155555555555,
+        "median": 1.4404,
+        "p95": 12.016
+      },
+      "drawCalls": {
+        "mean": 564,
+        "median": 564,
+        "p95": 564
+      },
+      "primitives": {
+        "mean": 226821,
+        "median": 226821,
+        "p95": 226821
+      }
+    }
+  ],
+  "caveat": "Uncapped vsync-off paused preparation fixture, 90 samples/state after warm-up; wall-frame timing includes whole app and desktop noise, not isolated GPU timing or live-festival FPS certification. Captures are scripted, no human playthrough."
+}

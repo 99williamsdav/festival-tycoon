@@ -52,3 +52,5 @@ Approved 1 October 2026 and integrated in [R0.05ah](../../briefs/R0.05ah-litter-
 The [current-design entrypoint](../../CURRENT_DESIGN.md), [dated decisions](../../briefs/DECISIONS.md) and [backlog](../../briefs/BACKLOG.md) classify implementation and pending status. This index establishes source location and provenance only.
 
 Latest batch 2 revision: user-approved Cola Fiends v5 is integrated with matching SVG and refreshed previews. Earlier candidates remain source alternatives. [Approval](perks/mosaic-suite-batch2/revisions-v5/APPROVAL.md) and [integration](perks/mosaic-suite-batch2/revisions-v5/INTEGRATION.md).
+
+4 October 2026: [approved fields-and-lane concept A](environment/farm-background-concept-a/APPROVAL.md) commissions decorative countryside with a sharp open near buffer and muted far scenery. Existing arena transforms remain authoritative. Runtime source is `game/FarmSurround.cs`; future usable fields are recorded in B-022, not implemented.

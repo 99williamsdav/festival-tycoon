@@ -1,0 +1,34 @@
+FESTIVAL TYCOON — FARM BACKGROUND CONCEPTS V1
+4 October 2026
+
+Status: AI-generated concept art only. No Blender assets, game changes, or performance measurements. User review precedes implementation.
+
+BRIEF
+Ground the existing playable farm in a wider English rural landscape. Retain its square footprint, boundary hedge, gate, straight internal dirt track, farmhouse, two barns and festival arrangement. All scenery beyond the current perimeter is non-playable.
+
+REFERENCES
+Primary current spatial reference: C:/Projects/festival-tycoon/reports/evidence/R0.05ah/exported-1080/07-ten-thousand-pieces-wide.png (1 October 2026). Its litter dots are a stress-test fixture and excluded from concepts.
+Current close spatial reference inspected: C:/Projects/festival-tycoon/reports/evidence/R0.05ai/exported-1080/female-wide-equipped.png.
+Opposite farm views inspected: C:/Projects/festival-tycoon/artifacts/review-m009-final-farm/farm-south-1920x1080.png and farm-north-1920x1080.png.
+Approved style: C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/environment-directions-v1/a-crafted-low-poly.png.
+Game screenshots govern placement; approved artwork governs the crafted low-poly mood. These generated images are composition studies, not surveyed layouts or proof of exact building preservation. Existing game transforms remain authoritative in any later implementation.
+
+OPTIONS
+A — Fields and lane: flat pasture, broad field colours, sparse low hedges and a few distant tree groups. The entrance lane continues naturally into the surrounding land. Lowest-cost recommended starting point.
+B — Rolling countryside: the same open near surround, with shallow hills and distant grouped trees for greater depth. More terrain shaping and four-direction silhouette work.
+C — Meadow and orchard: an open meadow verge, a small set-back orchard and tiny distant farm silhouettes. More local character, with extra prop placement and visibility checks.
+
+PRACTICAL LAYERS FOR A LATER IMPLEMENTATION
+Near ground skirt: continuous ground at the existing farm elevation, meeting just beneath the perimeter hedge. Keep it low and open around every side. Extend the existing entrance lane beyond its gate. Retain the hedge as the readable play boundary. Size the skirt from the actual maximum camera zoom/pan envelope, not an arbitrary distance; no outer cut edge should enter the permitted views.
+Mid-distance scenery: broad pasture/crop colour regions, simple low hedge strips and sparse repeated tree clusters. Prefer shared materials and instanced tree meshes. Keep taller objects outside the sightlines to the farm from all four camera directions. C's orchard should be sparse enough to read as a pattern of crowns, not dozens of detailed individual plants.
+Far backdrop: muted low terrain silhouettes distributed around the whole farm, with a few simple tree masses; B uses shallow hills, C may use tiny roof shapes. Use surrounding geometry that holds up under quarter-turn rotation. A single flat scenic image behind one side would break when rotated. No distant interactive destinations are implied.
+
+RECOMMENDATION
+Start with A: one simple continuous terrain surround, a continued lane, a small shared palette of field colours, low hedges and a handful of instanced tree groups. This addresses the floating-square problem with the fewest new assets and the least visual distraction. B's shallow distant relief can be added later if A feels too flat.
+Use broad natural colour variation and restrained faceting rather than the game's current high-contrast triangular ground pattern. This is art direction for the surrounding scenery; it does not commission a replacement of the playable ground.
+
+FOUR-SIDE CONTINUITY
+Continue ground beyond every edge and corner. Keep a low open buffer around the entire playable boundary, including behind buildings. Place any orchard, hill or tree group far enough back that it cannot obscure the centre from the opposite camera. Inspect all four quarter-turns at the widest supported zoom and pan extremes before any production sign-off. The concept images show one shared view for comparison; four-view native validation has not been performed.
+
+SCOPE
+Static decorative terrain and scenery only: no new playable area, navigation, collisions, structures inside the arena, expanded festival facilities, night cycle or other mechanics. The generator may simplify small props and building details; those are not requested game changes. No runtime performance claims are made.
