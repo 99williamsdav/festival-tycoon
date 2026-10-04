@@ -204,7 +204,7 @@ public sealed partial class GameSession
                 var earned = listener.EnjoymentEarned;
                 if (listenedTicks % 80 == 0)
                 {
-                    var quality = (_equipment?.LoadPercent ?? 80) == 80 ? 75 : 100;
+                    var quality = _equipment?.Version == 3 || (_equipment?.LoadPercent ?? 80) == 80 ? 75 : 100;
                     var rigBonus = p.OwnedEquipment.Length > 0 ? 5 : 0;
                     var staffBonus = SoundMixingBonus();
                     var gain = ((listener.Enthusiasm >= 90 ? 15 : listener.Enthusiasm >= 60 ? 10 : 5) + rigBonus + staffBonus) * quality / 100;

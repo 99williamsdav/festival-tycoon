@@ -36,7 +36,7 @@ public partial class Main : Node, IHudHost
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v25", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v25");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v26", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v26");
 
     public override void _Ready()
     {
@@ -464,6 +464,7 @@ public partial class Main : Node, IHudHost
             CommitEquipmentAction(new EquipmentCommand(EquipmentAction.Isolate)));
         _stagePowerButton.Visible = false;
         parent.AddChild(_stagePowerButton);
+        BuildPowerSwitches(parent);
     }
 
     private void RefreshStagePowerAction()
@@ -475,7 +476,10 @@ public partial class Main : Node, IHudHost
         if (!_stagePowerButton.Visible) return;
         var error = _session.ValidateCommand(CampaignEnvelope(new EquipmentCommand(EquipmentAction.Isolate)));
         _stagePowerButton.Disabled = error is not null;
-        _stagePowerButton.TooltipText = "This generator currently supplies the trailer stage only. Isolation removes its modeled load, stops overload escalation and interrupts stage music.\n" + (error?.Message ?? "Isolate the trailer-stage circuit.");
+        _stagePowerButton.TooltipText = _session.PowerBudgetActive
+            ? "Cuts the stage off the generator: the music stops, but the rig's draw comes off at once.\n" + (error?.Message ?? "Cut the stage's power.")
+            : "This generator currently supplies the trailer stage only. Isolation removes its modeled load, stops overload escalation and interrupts stage music.\n" + (error?.Message ?? "Isolate the trailer-stage circuit.");
+        _stagePowerButton.Text = _session.PowerBudgetActive ? "Cut stage power" : "Shut off stage supply";
     }
 
     private void RefreshAttendeeInspector(SessionObservation? supplied = null)
@@ -540,7 +544,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v25");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v26");
 
 
 

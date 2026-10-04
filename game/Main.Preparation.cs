@@ -18,6 +18,7 @@ public partial class Main
     private readonly Dictionary<string, Button> _offerButtons = [];
     private readonly Dictionary<string, OfferCard> _offerCards = [];
     private GridContainer? _rigChoices;
+    private GridContainer? _generatorChoices;
     private ProgressBar? _generatorBar;
     private Label? _generatorText;
     private VBoxContainer? _preparationOfferBox;
@@ -178,9 +179,13 @@ public partial class Main
         }
         if (_generatorBar is not null)
         {
-            var load = _session.CaptureEquipment()?.LoadPercent ?? 80;
-            _generatorBar.Value = load;
-            _generatorText!.Text = $"{load}% baseline · {(load <= 80 ? "safe" : "under strain")}";
+            // The plan's busiest moment: the rig, both stalls and the festoon lights all on at dusk.
+            var power = _session.CapturePower();
+            _generatorBar.Value = Math.Min(100, power.Total * 100 / power.Capacity);
+            _generatorBar.AddThemeStyleboxOverride("fill", Ui.Box(power.Over ? Ui.Alert : power.Total * 100 >= power.Capacity * 90 ? Ui.Warn : Ui.Teal, 4));
+            _generatorText!.Text = power.Over ? $"{power.Total} of {power.Capacity} power · stretches the generator: overload risk" : $"{power.Total} of {power.Capacity} power · within capacity";
+            _generatorText.AddThemeColorOverride("font_color", power.Over ? Ui.Link : Ui.InkMuted);
+            _generatorText.TooltipText = $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)}) · bar {power.Bar} · food van {power.Food} · festoon lights {power.Lights} (from dusk)";
         }
         _preparationStart.Disabled = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand())) is not null;
         if (_communityShareButton is not null)
@@ -236,6 +241,7 @@ private void RebuildPreparationOffers()
             var (layout, colour, icon, destination) = offer.Category switch
             {
                 "equipment" => (OfferLayout.Choice, Ui.Teal, "volume-2", (Container?)_rigChoices),
+                "generator" => (OfferLayout.Choice, Ui.Teal, "zap", _generatorChoices),
                 _ => (OfferLayout.Row, Ui.InkMuted, "package", (Container?)null),
             };
             var candidate = StaffCatalogue.ForOffer(candidates, id);
@@ -266,6 +272,17 @@ private void RebuildPreparationOffers()
                 return (candidate.Name[..1], extra ? $"{candidate.Name} · extra {StaffCatalogue.RoleName(candidate.Role)}" : candidate.Name, candidate.Blurb, "Hire", "Hired", tooltip);
             case "maintenance":
                 return (who[..1], $"{who} · {what}", "Fixes physical breakdowns", "Hire", "Hired", tooltip);
+            case "equipment" when _session.PowerBudgetActive:
+            {
+                var pro = offer.Id == PowerRules.ProRigOffer;
+                var draw = pro ? PowerRules.ProRigDraw : PowerRules.StandardRigDraw;
+                var peak = PlannedPeakWith(rig: pro ? SoundRig.Pro : SoundRig.Standard);
+                return ("", pro ? "Pro rig · hire" : "Standard rig · hire",
+                    $"{(pro ? "Great" : "Good")} sound · draws {draw} power" + (peak.Over ? " · stretches the generator" : ""), "", "Selected",
+                    peak.Over ? $"With this rig the evening peak is {peak.Total} of {peak.Capacity} power: the generator is stretched and may overload. Hire a bigger generator to be safe.\n{tooltip}" : tooltip);
+            }
+            case "generator":
+                return ("", "Bigger generator · hire", $"{PowerRules.HiredGeneratorCapacity} power · room for a bigger rig", "", "Selected", tooltip);
             case "equipment":
                 var rent = offer.Id == "equipment.rent";
                 return ("", rent ? "Rent · this festival" : "Buy · yours to keep", tail.Split(';')[0].Replace("quality", "sound quality", StringComparison.Ordinal), "", "Selected", tooltip);

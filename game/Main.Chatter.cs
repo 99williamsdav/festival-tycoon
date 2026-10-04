@@ -237,7 +237,8 @@ public partial class Main
             foreach (var vendor in _session.CaptureVendors())
             {
                 var at = ImmersionPosition(vendor.Cell);
-                var out_ = vendor.Id == "food" ? immersion.StockPurchased && immersion.ChipsStock == 0 ? "No chips? Seriously?" : null
+                var out_ = !_session.StallPowered(vendor.Id) ? vendor.Id == "food" ? "The food van's shut?!" : "The bar's closed?!"
+                    : vendor.Id == "food" ? immersion.StockPurchased && immersion.ChipsStock == 0 ? "No chips? Seriously?" : null
                     : immersion.StockPurchased && immersion.BeerStock == 0 ? "Out of beer?! At a festival?!"
                     : immersion.StockPurchased && immersion.SoftStock == 0 ? "No cola?!" : null;
                 foreach (var id in Near(at, 10))

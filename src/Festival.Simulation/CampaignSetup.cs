@@ -87,8 +87,10 @@ public sealed partial class GameSession
     /// <summary>Hot conditions: free water, the baseline medic and every person's thirst and heat.</summary>
     private static void SetUpHotWeather(GameSession session)
     {
-        session._equipment = session._equipment! with { Stage = EquipmentStage.Resolved, LoadPercent = 80,
-            Response = "Hot scenario baseline: generator load balanced before opening" };
+        // The farm's diesel on a power budget: the included rig and stalls stay within it, bigger hires may not.
+        session._equipment = session._equipment! with { Version = 3, Stage = EquipmentStage.Resolved, LoadPercent = 80,
+            Response = "Farm generator running within capacity",
+            Evidence = [new("equipment:load", 0, "The farm's diesel supplies 100 power: the stage rig, bar, food van and, from dusk, the festoon lights draw from it.")] };
         var medicId = session.NextEntityId++;
         session._wallets.Add(new(medicId), new WalletState { OwnerId = new(medicId), CashPennies = 500 });
         session.PreparationView = session.PreparationView! with { People = session.PreparationView.People.Append(

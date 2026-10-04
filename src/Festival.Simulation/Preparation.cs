@@ -118,9 +118,15 @@ public sealed partial class GameSession
             new("act.punk", "act", "Alex: barn punk • punk fit", 6_000 + premium, 1_000, 1),
             new("equipment.buy", "equipment", "Buy sound rig • +1000 quality; retained", 12_000, 1_000, -1),
             new("equipment.rent", "equipment", "Rent sound rig • +500 quality; this weekend", 3_000, 500, -1),
+            new(PowerRules.ProRigOffer, "equipment", "Rent pro sound rig • great sound; draws 80 power", 6_000, 1_000, -1),
+            new(PowerRules.GeneratorOffer, "generator", "Hire a bigger generator • 140 power", 4_000, 0, -1),
             new("contract.stock", "contract", "50 refreshments • unused stock resets on retry", 3_000, 0, -1)
         ];
         if (_equipment is not null) offers = offers.Append(new PreparationOffer("maintenance.worker", "maintenance", "Morgan: maintenance worker • physical repair", 1_500, 0, -1)).ToArray();
+        // On the power budget rigs are hired, never bought, and a bigger generator can be hired; otherwise neither exists.
+        offers = PowerBudgetActive
+            ? offers.Where(o => o.Id != "equipment.buy").Select(o => o.Id == "equipment.rent" ? o with { Name = "Rent standard sound rig • good sound; draws 65 power" } : o).ToArray()
+            : offers.Where(o => o.Id is not (PowerRules.ProRigOffer or PowerRules.GeneratorOffer)).ToArray();
         var candidates = GetStaffCandidates();
         offers = offers.Concat(candidates.Select(c => new PreparationOffer(c.Id, StaffCatalogue.Category(c.Role, false),
             $"{c.Name} · {StaffCatalogue.RoleName(c.Role)}", c.WagePennies, 0, -1))).ToArray();
@@ -218,7 +224,8 @@ public sealed partial class GameSession
         {
             AcceptedOffers = p.AcceptedOffers.Append(offer.Id).Order(StringComparer.Ordinal).ToArray(),
             OwnedEquipment = offer.Id == "equipment.buy" ? ["sound-rig"] : p.OwnedEquipment,
-            Rentals = offer.Id == "equipment.rent" ? ["sound-rig"] : p.Rentals,
+            Rentals = offer.Id is "equipment.rent" or PowerRules.ProRigOffer ? p.Rentals.Append("sound-rig").Order(StringComparer.Ordinal).ToArray() :
+                offer.Id == PowerRules.GeneratorOffer ? p.Rentals.Append("generator").Order(StringComparer.Ordinal).ToArray() : p.Rentals,
             Contacts = ContactFor(offer) is { } contact ? p.Contacts.Append(contact).Distinct().Order(StringComparer.Ordinal).ToArray() : p.Contacts,
             WorkContracts = StaffCatalogue.IsWorkCategory(offer.Category) ? p.WorkContracts.Append(offer.Id).Order(StringComparer.Ordinal).ToArray() : p.WorkContracts,
             Payments = p.Payments.Append(new(p.Payments.Length + 1, offer.Id, p.Attempt, CurrentTick, offer.PricePennies,
@@ -459,7 +466,7 @@ public sealed partial class GameSession
         var candidates = SavedStaffCandidates(snapshot);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })
             if (list.Any(string.IsNullOrWhiteSpace) || !list.SequenceEqual(list.Distinct().Order(StringComparer.Ordinal))) return "Preparation collections must be sorted and unique.";
-        if (p.OwnedEquipment.Any(id => id != "sound-rig") || p.Rentals.Any(id => id != "sound-rig") ||
+        if (p.OwnedEquipment.Any(id => id != "sound-rig") || p.Rentals.Any(id => id is not ("sound-rig" or "generator")) ||
             !p.Contacts.SequenceEqual(p.Payments.Where(item => offers.ContainsKey(item.OfferId)).Select(item => ContactFor(offers[item.OfferId])).OfType<string>().Distinct().Order(StringComparer.Ordinal)) ||
             p.WorkContracts.Any(id => !offers.TryGetValue(id, out var offer) || !StaffCatalogue.IsWorkCategory(offer.Category)) ||
             p.AcceptedOffers.Select(id => id.Replace("staff.extra-", "staff.", StringComparison.Ordinal)).Distinct().Count() != p.AcceptedOffers.Length || p.AcceptedOffers.Any(id => !offers.ContainsKey(id)) ||
@@ -474,9 +481,10 @@ public sealed partial class GameSession
             return "Preparation commitments do not reconcile.";
         var settled = p.Status is PreparationStatus.Failed or PreparationStatus.Finished;
         if ((p.OwnedEquipment.Length == 1) != p.Payments.Any(item => item.OfferId == "equipment.buy") ||
-            (p.Rentals.Length == 1) != (!settled && p.AcceptedOffers.Contains("equipment.rent")) ||
+            p.Rentals.Contains("sound-rig") != (!settled && p.AcceptedOffers.Any(id => id is "equipment.rent" or PowerRules.ProRigOffer)) ||
+            p.Rentals.Contains("generator") != (!settled && p.AcceptedOffers.Contains(PowerRules.GeneratorOffer)) ||
             !p.WorkContracts.SequenceEqual(settled ? [] : p.AcceptedOffers.Where(id => StaffCatalogue.IsWorkCategory(offers[id].Category))) ||
-            p.OwnedEquipment.Length + p.Rentals.Length > 1 ||
+            p.OwnedEquipment.Length + p.Rentals.Count(id => id == "sound-rig") > 1 ||
             p.Payments.Count(item => item.OfferId == "equipment.buy") > 1 ||
             (p.MaintenanceWorkerId is not null) != p.Payments.Any(item => item.OfferId == "maintenance.worker") ||
             snapshot.Equipment?.WorkerId is { } activeWorker && activeWorker != p.MaintenanceWorkerId)

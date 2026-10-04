@@ -22,7 +22,7 @@ public sealed class R005HearingRetryTests
     private static void Book(GameSession session, bool buyRig, bool buyStock, bool worker = false)
     {
         foreach (var id in BuildSession.CrewIds(session)
-                     .Concat(buyRig ? ["equipment.buy"] : Array.Empty<string>())
+                     .Concat(buyRig ? ["equipment.rent"] : Array.Empty<string>())
                      .Concat(buyStock ? ["contract.stock"] : Array.Empty<string>())
                      .Concat(worker ? ["maintenance.worker"] : Array.Empty<string>()))
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(id)).IsAccepted, id);

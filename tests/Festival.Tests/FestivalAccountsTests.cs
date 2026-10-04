@@ -24,7 +24,7 @@ public sealed class FestivalAccountsTests
         Accept(session, new UseDefaultBuildLayoutCommand());
         Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
         foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
-        Accept(session, new AcceptPreparationOfferCommand("equipment.buy"));
+        Accept(session, new AcceptPreparationOfferCommand("equipment.rent"));
         Accept(session, new SetPreparationStockCommand(8, 8, 8));
         Accept(session, new StartPreparedEditionCommand());
         session.AdvanceWithoutSnapshot((int)session.PreparedEditionDurationTicks + 15000);
@@ -59,7 +59,7 @@ public sealed class FestivalAccountsTests
         Accept(session, new UseDefaultBuildLayoutCommand());
         Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
         foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
-        Accept(session, new AcceptPreparationOfferCommand("equipment.buy"));
+        Accept(session, new AcceptPreparationOfferCommand("equipment.rent"));
         Accept(session, new SetPreparationStockCommand(8, 8, 8));
         Accept(session, new StartPreparedEditionCommand());
         var people = session.CapturePreparation()!.People;
@@ -93,7 +93,7 @@ public sealed class FestivalAccountsTests
         Assert.AreEqual(setup.BuildCostPennies, report.OperatingExpenses.Where(line => line.Category == "Facilities").Sum(line => line.AmountPennies));
         Assert.IsTrue(report.FacilityDetailRecorded && report.StockDetailRecorded);
         Assert.AreEqual(2_080L, report.StockPurchasesPennies);
-        Assert.AreEqual(12_000L, report.CapitalPurchasesPennies);
+        Assert.AreEqual(0L, report.CapitalPurchasesPennies, "Rigs are hired, not bought, so nothing is capital.");
         Assert.AreEqual(report.OperatingExpensesPennies, result.ContractCostsPennies);
         Assert.AreEqual(report.ClosingCashPennies - report.OpeningCashPennies, result.NetCashChangePennies);
         Assert.AreEqual(report.IncomePennies - report.SoldItemCostPennies - report.OperatingExpensesPennies, result.ProfitPennies);

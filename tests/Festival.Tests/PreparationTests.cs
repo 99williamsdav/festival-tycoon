@@ -10,7 +10,7 @@ public sealed class PreparationTests
     private static CommandResult Execute(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase, session.CurrentTick,
         session.NextSubmissionSequence, null, command));
-    private static void Book(GameSession session, string equipment = "equipment.buy")
+    private static void Book(GameSession session, string equipment = "equipment.rent")
     {
         foreach (var id in BuildSession.CrewIds(session).Concat(new[] { equipment }))
             Assert.IsTrue(Execute(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
@@ -46,16 +46,16 @@ public sealed class PreparationTests
     }
 
     [TestMethod]
-    public void PurchasedRigCostsMoreNowAndImprovesActualMusicQuality()
+    public void RigsAreHiredNotBoughtAndAProRigCostsMore()
     {
-        var owned = BuildSession.Planned(2);
-        var rented = BuildSession.Planned(2);
-        Book(owned); Book(rented, equipment: "equipment.rent");
-        Execute(owned, new StartPreparedEditionCommand()); Execute(rented, new StartPreparedEditionCommand());
-        owned.AdvanceWithoutSnapshot(3_000); rented.AdvanceWithoutSnapshot(3_000);
-        Assert.AreEqual(9_000L, rented.CaptureSnapshot().FestivalFinances.Single().CashPennies - owned.CaptureSnapshot().FestivalFinances.Single().CashPennies);
-        Assert.IsTrue(owned.CapturePreparation()!.People[1].Satisfaction >= rented.CapturePreparation()!.People[1].Satisfaction);
-        Assert.AreEqual(owned.CapturePreparation()!.People[1].AgentId, rented.CapturePreparation()!.People[1].AgentId);
+        var pro = BuildSession.Planned(2);
+        var standard = BuildSession.Planned(2);
+        Assert.IsFalse(pro.GetPreparationOffers().Any(offer => offer.Id == "equipment.buy"), "No rig to buy.");
+        Book(pro, equipment: PowerRules.ProRigOffer); Book(standard, equipment: "equipment.rent");
+        Assert.AreEqual(SoundRig.Pro, pro.Rig); Assert.AreEqual(SoundRig.Standard, standard.Rig);
+        Execute(pro, new StartPreparedEditionCommand()); Execute(standard, new StartPreparedEditionCommand());
+        Assert.AreEqual(3_000L, standard.CaptureSnapshot().FestivalFinances.Single().CashPennies - pro.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+        Assert.IsTrue(pro.CapturePreparation()!.OwnedEquipment.Length == 0 && pro.CapturePreparation()!.Rentals.Contains("sound-rig"));
     }
 
     [TestCategory("Slow")]

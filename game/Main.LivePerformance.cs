@@ -303,7 +303,10 @@ public partial class Main
             if (!collapsed.Contains(performer.AgentId))
                 body.Position = new Vector3(body.Position.X, 0.04f + ramp * 1.15f, body.Position.Z);
         }
-        var power = _session.CaptureEquipment()?.LoadPercent ?? 80;
+        // The stage lights and sound read the old load figures: off, normal (80) or straining (120).
+        var power = _session.CaptureEquipment() is { Version: 3 } budget
+            ? budget.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? 0 : budget.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? 120 : 80
+            : _session.CaptureEquipment()?.LoadPercent ?? 80;
         _stageWorldCue!.Text = "TRAILER STAGE";
         foreach (var light in _stageLights!) light.LightEnergy = live.Stage == LiveSetStage.Live ?
             power == 0 ? 0 : power == 80 ? 0.35f : 0.8f : 0;

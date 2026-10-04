@@ -159,7 +159,9 @@ public sealed partial class GameSession
     // Switching free water off stops new cups, but anyone already queuing for one is still served.
     private bool ImmersionOrderEligible(Person p, ImmersionProduct product) => p.Held is null && ImmersionShoppingEligible(p.Id, product) &&
         (ImmersionStock(product) > 0 || product == ImmersionProduct.Water && p.VendorId is not null && p.Order == ImmersionProduct.Water) &&
-        _wallets[new(p.Id)].CashPennies >= ImmersionPriceFor(p.Id, product) && (product != ImmersionProduct.Beer || BeerAllowed(p));
+        _wallets[new(p.Id)].CashPennies >= ImmersionPriceFor(p.Id, product) && (product != ImmersionProduct.Beer || BeerAllowed(p)) &&
+        // A stall switched off to spare the generator sells nothing; free water from the bar's tap needs no power.
+        (product == ImmersionProduct.Water || StallPowered(product == ImmersionProduct.Chips ? "food" : "drinks"));
     private void LeaveImmersionQueue(ulong id, bool reroute)
     {
         var p = _persons[id];

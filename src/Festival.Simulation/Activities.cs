@@ -287,7 +287,8 @@ public sealed partial class GameSession
         (product == ImmersionProduct.Water || person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat) && !IsCurrentProgrammePerformer(person.Id) &&
         ImmersionHandsAvailable(person.Id) && ImmersionStock(product) > 0 &&
         _wallets[new(person.Id)].CashPennies >= ImmersionPriceFor(person.Id, product) &&
-        (product != ImmersionProduct.Beer || BeerAllowed(person));
+        (product != ImmersionProduct.Beer || BeerAllowed(person)) &&
+        (product == ImmersionProduct.Water || StallPowered(product == ImmersionProduct.Chips ? "food" : "drinks"));
 
     private bool VendorHasRoom(ImmersionVendor vendor)
     {

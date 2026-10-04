@@ -17,7 +17,7 @@ public sealed class MedicalIncidentTests
     private static GameSession Started(ulong seed = 20260922, int tier = 1)
     {
         var s = BuildSession.Planned(seed);
-        foreach (var offer in BuildSession.CrewIds(s).Concat(new[] { "equipment.buy" }))
+        foreach (var offer in BuildSession.CrewIds(s).Concat(new[] { "equipment.rent" }))
             Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(offer)).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
         return s;

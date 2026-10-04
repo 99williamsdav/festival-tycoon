@@ -57,7 +57,7 @@ public sealed class PreparationReadinessTests
     {
         var session = BuildSession.Planned(20260927);
         Accept(session, new AcceptPreparationOfferCommand("maintenance.worker"));
-        Accept(session, new AcceptPreparationOfferCommand("equipment.buy"));
+        Accept(session, new AcceptPreparationOfferCommand("equipment.rent"));
         VerifyReadModel(session, PreparationStartOwner.Staff, PreparationStartOwner.Staff, PreparationStartOwner.Staff);
     }
 

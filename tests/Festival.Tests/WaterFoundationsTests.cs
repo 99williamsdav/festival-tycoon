@@ -60,7 +60,7 @@ public sealed class WaterFoundationsTests
     {
         if (session.PreparedStatus == PreparationStatus.Preparing)
         {
-            foreach (var offer in BuildSession.CrewIds(session).Concat(new[] { "equipment.buy" }))
+            foreach (var offer in BuildSession.CrewIds(session).Concat(new[] { "equipment.rent" }))
                 Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(offer)).IsAccepted);
             Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         }

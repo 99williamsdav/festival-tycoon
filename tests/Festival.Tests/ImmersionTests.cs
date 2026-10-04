@@ -184,7 +184,7 @@ public sealed class ImmersionTests
     public void MaintenanceOwnershipSuspendsHeldItemAndPreventsShoppingRouteTheft()
     {
         var s=Open(maintenance:true);var worker=s.CapturePreparation()!.MaintenanceWorkerId!.Value;Invoke(s,"CompleteImmersionSale",worker,ImmersionProduct.SoftDrink);
-        var equipment=s.CaptureEquipment()!;typeof(GameSession).GetField("_equipment",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,equipment with { Stage=EquipmentStage.Normal,LoadPercent=120,WarningTick=-1 });
+        var equipment=s.CaptureEquipment()!;typeof(GameSession).GetField("_equipment",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,equipment with { Stage=EquipmentStage.Resolved });
         Assert.IsTrue(Send(s,new EquipmentCommand(EquipmentAction.DispatchMaintenance)).IsAccepted);Assert.IsFalse(s.ImmersionHandsAvailable(worker));
         s.AdvanceWithoutSnapshot(80);Assert.AreEqual(0,s.CaptureImmersion()!.People.Single(p=>p.AgentId==worker).Held!.ConsumedTicks);
         Assert.Contains("equipment",s.CaptureSnapshot().NavigationAgents.Single(n=>n.Id.Value==worker).IntentId!);Assert.AreNotEqual(MaintenanceStage.Completed,s.CaptureEquipment()!.JobStage);Restore(s);

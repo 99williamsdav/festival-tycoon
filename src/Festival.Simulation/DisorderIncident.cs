@@ -114,7 +114,7 @@ public sealed partial class GameSession
             command.Action == DisorderAction.ReopenWater && !d.WaterClosed)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Water closure state is unchanged.");
         if (command.Action == DisorderAction.RestoreMusic &&
-            (_equipment is not { Stage: EquipmentStage.Isolated, LoadPercent: 0 } e || e.Condition < 7_000 ||
+            (_equipment is not { Stage: EquipmentStage.Isolated } e || e.Version != 3 && e.LoadPercent != 0 || e.Condition < 7_000 ||
              _livePerformance?.Stage != LiveSetStage.Interrupted))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter,
                 "Safe reset needs an isolated, non-faulted generator and interrupted set; unresolved overload stays off.");
@@ -178,8 +178,8 @@ public sealed partial class GameSession
         }
         // Isolation already removed the dangerous load. A reset is permitted only
         // above the safe condition floor; it restores the existing 80% baseline.
-        _equipment = _equipment! with { Stage = EquipmentStage.Resolved, LoadPercent = 80,
-            Response = "Explicit safe reset at 80% after isolation" };
+        _equipment = _equipment! with { Stage = EquipmentStage.Resolved, LoadPercent = _equipment.Version == 3 ? _equipment.LoadPercent : 80,
+            Response = _equipment.Version == 3 ? "Stage power restored" : "Explicit safe reset at 80% after isolation" };
         EquipmentEvent("equipment:safe-reset", _equipment.Response);
         DisorderEvent("disorder:music-safe-reset", PeopleIn(PersonView.Disorder)[0].Id, null, 0,
             "Stage power safely restored at 80%; music resumes on the next set update.");

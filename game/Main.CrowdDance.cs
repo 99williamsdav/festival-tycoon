@@ -33,7 +33,7 @@ public partial class Main
     private void PrepareCrowdDance(LivePerformanceSnapshot? live)
     {
         _dance = null;
-        if (live?.Stage != LiveSetStage.Live || (_session.CaptureEquipment()?.LoadPercent ?? 80) == 0 ||
+        if (live?.Stage != LiveSetStage.Live || _session.CaptureEquipment()?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ||
             _session.CurrentFestivalAct is not { } act || DanceFor(act.Genre) is not { } style) return;
         _dance = (style, live.Listeners.Where(l => l.AtPlace).ToDictionary(l => l.AgentId, l => l.Enthusiasm));
     }

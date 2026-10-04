@@ -12,7 +12,7 @@ public sealed class AudiencePositionTests
     {
         var session = BuildSession.Planned(2);
         foreach (var command in BuildSession.Crew(session).Concat(new SessionCommand[] {
-            new AcceptPreparationOfferCommand("equipment.buy"), new StartPreparedEditionCommand() }))
+            new AcceptPreparationOfferCommand("equipment.rent"), new StartPreparedEditionCommand() }))
         {
             var result = session.Execute(new(new CommandId(session.NextSubmissionSequence + 1), session.CampaignId,
                 session.Phase, session.CurrentTick, session.NextSubmissionSequence, null, command));

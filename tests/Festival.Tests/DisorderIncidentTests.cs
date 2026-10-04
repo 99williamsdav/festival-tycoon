@@ -22,7 +22,7 @@ public sealed class DisorderIncidentTests
     {
         // High Pressure is the perk these worlds were tuned with, before the catalogue grew and reshuffled the hands.
         var session = BuildSession.Planned(seed, "high-pressure");
-        foreach (var id in BuildSession.CrewIds(session).Concat(new[] { "equipment.buy" }))
+        foreach (var id in BuildSession.CrewIds(session).Concat(new[] { "equipment.rent" }))
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         return session;
@@ -74,7 +74,7 @@ public sealed class DisorderIncidentTests
         Assert.IsTrue(session.CaptureDisorder()!.People.Any(item => item.Grievance == DisorderGrievance.MusicCutoff &&
             item.Stage is DisorderStage.Complaint or DisorderStage.Agitated or DisorderStage.Argument));
         Assert.IsTrue(Send(session, new DisorderCommand(DisorderAction.RestoreMusic)).IsAccepted);
-        Assert.AreEqual(80, session.CaptureEquipment()!.LoadPercent);
+        Assert.AreEqual(EquipmentStage.Resolved, session.CaptureEquipment()!.Stage);
         session = Restored(session);
         session.AdvanceWithoutSnapshot(8);
         Assert.AreEqual(LiveSetStage.Live, session.CaptureLivePerformance()!.Stage);

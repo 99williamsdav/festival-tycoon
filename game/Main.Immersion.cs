@@ -254,13 +254,17 @@ private void BuildImmersionControls(VBoxContainer parent)
         page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(2)) });
         BuildImmersionControls(page);
         page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
-        page.AddChild(Ui.Section("Sound rig"));
+        page.AddChild(Ui.Section("Sound rig", "Basic PA included · hire a bigger rig for better sound"));
         _rigChoices = new GridContainer { Columns = 2 };
         _rigChoices.AddThemeConstantOverride("h_separation", Ui.Px(12)); page.AddChild(_rigChoices);
+        page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
+        page.AddChild(Ui.Section("Generator", "The farm's diesel included · 100 power"));
+        _generatorChoices = new GridContainer { Columns = 2 };
+        _generatorChoices.AddThemeConstantOverride("h_separation", Ui.Px(12)); page.AddChild(_generatorChoices);
         var generator = new HBoxContainer(); generator.AddThemeConstantOverride("separation", Ui.Px(12)); page.AddChild(generator);
         var name = new HBoxContainer(); name.AddThemeConstantOverride("separation", Ui.Px(6)); generator.AddChild(name);
         var bolt = Ui.IconRect("zap", 16, Ui.Ink); bolt.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; name.AddChild(bolt);
-        name.AddChild(Ui.Text("Generator", 13.5f, Ui.Ink, Ui.BodyBold));
+        name.AddChild(Ui.Text("Evening peak", 13.5f, Ui.Ink, Ui.BodyBold));
         _generatorBar = new ProgressBar { ShowPercentage = false, MaxValue = 100, Value = 80, CustomMinimumSize = new Vector2(0, Ui.S(8)),
             SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
         _generatorBar.AddThemeStyleboxOverride("background", Ui.Box(Ui.PaperRule, 4));

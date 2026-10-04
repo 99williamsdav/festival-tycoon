@@ -28,9 +28,10 @@ public partial class Main
     private void RefreshGeneratorInspector()
     {
         if (!_selectedGenerator || _session.CaptureEquipment() is not { } equipment) return;
-        _inspectorTitle.Text = "Stage generator";
-        _inspectorBody.Text = $"This generator currently supplies the trailer stage only.\nCircuit: {equipment.Stage} · load {equipment.LoadPercent}% · condition {equipment.Condition / 100}%\nIsolation removes the modeled load, stops overload escalation and interrupts stage music.";
-        RefreshStagePowerAction(); RefreshContextPanelVisibility();
+        _inspectorTitle.Text = _session.PowerBudgetActive ? (_session.GeneratorCapacity > PowerRules.FarmDieselCapacity ? "Hired generator" : "Farm generator") : "Stage generator";
+        _inspectorBody.Text = _session.PowerBudgetActive ? PowerBreakdownText()
+            : $"This generator currently supplies the trailer stage only.\nCircuit: {equipment.Stage} · load {equipment.LoadPercent}% · condition {equipment.Condition / 100}%\nIsolation removes the modeled load, stops overload escalation and interrupts stage music.";
+        RefreshStagePowerAction(); RefreshPowerSwitches(); RefreshContextPanelVisibility();
     }
     private EquipmentStage? _equipmentVisualStage;
 

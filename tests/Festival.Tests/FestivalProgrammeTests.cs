@@ -88,7 +88,7 @@ public sealed class FestivalProgrammeTests
     {
         var s = BuildSession.Drafted(seed);
         Assert.IsTrue(Send(s, new SetProgrammeCommand(seed == 20260922 ? ["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"] : Acts)).IsAccepted);
-        foreach (var id in BuildSession.CrewIds(s).Concat(new[] { "equipment.buy" }).Concat(maintenance ? ["maintenance.worker"] : Array.Empty<string>())) Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(id)).IsAccepted);
+        foreach (var id in BuildSession.CrewIds(s).Concat(new[] { "equipment.rent" }).Concat(maintenance ? ["maintenance.worker"] : Array.Empty<string>())) Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
         // About the stage schedule: no random toilet or tap faults reshuffling the day.
         s = Restore(BuildSession.WithoutFaults(s));

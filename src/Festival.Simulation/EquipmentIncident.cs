@@ -4,13 +4,21 @@ namespace Festival.Simulation;
 
 public enum EquipmentStage { Normal, Warning, DangerousFault, Resolved, Isolated, Terminal }
 public enum MaintenanceStage { None, Travelling, Repairing, Completed, Cancelled }
-public enum EquipmentAction { Acknowledge, ShedLoad, Isolate, DispatchMaintenance }
+public enum EquipmentAction { Acknowledge, ShedLoad, Isolate, DispatchMaintenance, ToggleBarPower, ToggleFoodPower, ToggleLights }
 public sealed record EquipmentCommand(EquipmentAction Action) : SessionCommand;
 public sealed record EquipmentEvidence(string Id, long Tick, string Description);
 public sealed record EquipmentSnapshot(int Version, int XMillimetres, int ZMillimetres, int LoadPercent,
     int Condition, EquipmentStage Stage, long WarningTick, bool WarningAcknowledged, string Response,
     ulong? WorkerId, MaintenanceStage JobStage, long JobDispatchedTick, long RepairStartedTick,
-    EquipmentEvidence[] Evidence);
+    EquipmentEvidence[] Evidence)
+{
+    // Version 3 runs on the power budget (see PowerRules); version 2 is the older scripted overload.
+    public int Capacity { get; init; } = PowerRules.FarmDieselCapacity;
+    public int Strain { get; init; }
+    public bool BarPowered { get; init; } = true;
+    public bool FoodPowered { get; init; } = true;
+    public bool LightsPowered { get; init; } = true;
+}
 
 public sealed partial class GameSession
 {
@@ -38,7 +46,7 @@ public sealed partial class GameSession
         (long)EquipmentHazardRadiusMillimetres * EquipmentHazardRadiusMillimetres);
 
     public bool EquipmentBoundaryOnNextTick => !IsPaused && _equipment is { } e && _preparation is { Status: PreparationStatus.Running } p &&
-        (e.Stage == EquipmentStage.Normal && CurrentTick + 1 >= p.StartedTick + EquipmentWarningDelayTicks ||
+        (e.Version != 3 && e.Stage == EquipmentStage.Normal && CurrentTick + 1 >= p.StartedTick + EquipmentWarningDelayTicks ||
          e.Stage == EquipmentStage.Warning && CurrentTick + 1 >= e.WarningTick + EquipmentDangerDelayTicks ||
          e.Stage == EquipmentStage.DangerousFault && CurrentTick + 1 >= e.WarningTick + EquipmentDeathDelayTicks && NearbyEquipmentPerson() is not null ||
          e.JobStage == MaintenanceStage.Travelling && _navigationAgents[new(e.WorkerId!.Value)].Action == AgentNavigationAction.Arrived ||
@@ -48,6 +56,20 @@ public sealed partial class GameSession
     {
         if (target is not null || _equipment is not { } e || _preparation?.Status is not (PreparationStatus.Preparing or PreparationStatus.Running) || !Enum.IsDefined(command.Action))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Equipment controls require a preparing or live edition.");
+        if (e.Version == 3)
+        {
+            // The power budget: switches and the stage cutoff while the festival runs; nothing once a death has ended it.
+            if (command.Action == EquipmentAction.ShedLoad || command.Action != EquipmentAction.DispatchMaintenance && command.Action != EquipmentAction.Acknowledge &&
+                _preparation!.Status != PreparationStatus.Running || e.Stage == EquipmentStage.Terminal)
+                return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Switch the bar, food van or lights off, or cut the stage, while the festival runs.");
+            if (command.Action == EquipmentAction.Isolate && e.Stage == EquipmentStage.Isolated)
+                return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The stage is already cut off.");
+            if (command.Action is EquipmentAction.ToggleBarPower or EquipmentAction.ToggleFoodPower && _immersion is null)
+                return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "There are no stalls on this generator.");
+        }
+        else if (command.Action is EquipmentAction.ToggleBarPower or EquipmentAction.ToggleFoodPower or EquipmentAction.ToggleLights)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This generator has no separate switches.");
+        else
         if (e.Stage is EquipmentStage.Isolated or EquipmentStage.Resolved or EquipmentStage.Terminal &&
             !(_disorder is not null && e.Stage == EquipmentStage.Resolved && command.Action == EquipmentAction.Isolate))
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The unit is already safe or terminal.");
@@ -75,6 +97,18 @@ public sealed partial class GameSession
             ApplyAgentDestination(new(e.WorkerId!.Value), new(EquipmentWorkCell, "equipment.maintenance"));
             _equipment = e with { JobStage = MaintenanceStage.Travelling, JobDispatchedTick = CurrentTick, Response = "Maintenance dispatched; travel and 20-second repair must finish before escalation" };
             EquipmentEvent("equipment:dispatch", _equipment.Response);
+            return;
+        }
+        if (command.Action is EquipmentAction.ToggleBarPower or EquipmentAction.ToggleFoodPower or EquipmentAction.ToggleLights)
+        {
+            TogglePowerSwitch(command.Action);
+            return;
+        }
+        if (e.Version == 3)
+        {
+            // Cutting the stage takes the rig off the generator; the stalls and lights stay on.
+            _equipment = e with { Stage = EquipmentStage.Isolated, Response = "Emergency cutoff: stage power isolated" };
+            EquipmentEvent($"equipment:isolated:{CurrentTick}", _equipment.Response);
             return;
         }
         if (e.JobStage is MaintenanceStage.Travelling or MaintenanceStage.Repairing)
@@ -115,11 +149,13 @@ public sealed partial class GameSession
         }
         if (e.JobStage == MaintenanceStage.Repairing && CurrentTick >= e.RepairStartedTick + EquipmentRepairTicks)
         {
-            _equipment = e with { JobStage = MaintenanceStage.Completed, Stage = EquipmentStage.Resolved, LoadPercent = 80, Condition = 9_500,
-                Response = "Physical repair completed and load balanced to 80%" };
+            _equipment = e with { JobStage = MaintenanceStage.Completed, Stage = e.Version == 3 && e.Stage == EquipmentStage.Isolated ? EquipmentStage.Isolated : EquipmentStage.Resolved,
+                LoadPercent = e.Version == 3 ? e.LoadPercent : 80, Condition = 9_500, Strain = 0,
+                Response = e.Version == 3 ? "Physical repair completed; the generator is sound again" : "Physical repair completed and load balanced to 80%" };
             EquipmentEvent("equipment:repair-complete", _equipment.Response);
             return;
         }
+        if (e.Version == 3) { AdvancePowerBudget(e); return; }
         if (e.Stage == EquipmentStage.Normal && CurrentTick >= p.StartedTick + EquipmentWarningDelayTicks)
         {
             _equipment = e with { Stage = EquipmentStage.Warning, WarningTick = CurrentTick, Condition = 7_000 };
@@ -131,6 +167,13 @@ public sealed partial class GameSession
             EquipmentEvent("equipment:fault", "Dangerous generator fault: 120% load, condition 30%. Cutoff or shedding still prevents death. Unfinished maintenance is not protection.");
         }
         else if (e.Stage == EquipmentStage.DangerousFault && CurrentTick >= e.WarningTick + EquipmentDeathDelayTicks && NearbyEquipmentPerson() is { } victim)
+            EquipmentDeath(e, victim);
+    }
+
+    /// <summary>A dangerous fault kills someone standing by the unit: the day fails and the Council hearing opens.</summary>
+    private void EquipmentDeath(EquipmentSnapshot e, Person victim)
+    {
+        var p = _preparation!;
         {
             var agent = _navigationAgents[new(victim.Id)];
             var cause = $"Generator overload killed {victim.Name} ({victim.Role}) at ({agent.XMillimetres},{agent.ZMillimetres}) near unit ({e.XMillimetres},{e.ZMillimetres}); load {e.LoadPercent}%; condition {e.Condition / 100}%; warning tick {e.WarningTick}, acknowledged {e.WarningAcknowledged}; response: {e.Response}; job {e.JobStage}.";
@@ -155,9 +198,13 @@ public sealed partial class GameSession
     private static string? ValidatePersistedEquipment(EquipmentSnapshot? e, SessionPersistenceSnapshot s)
     {
         if (e is null) return null;
-        if (s.Preparation is not { } p || e.Version != 2 || e.XMillimetres != EquipmentXMillimetres || e.ZMillimetres != EquipmentZMillimetres ||
-            !Enum.IsDefined(e.Stage) || !Enum.IsDefined(e.JobStage) || e.LoadPercent is not (0 or 80 or 120) || e.Condition is not (3_000 or 7_000 or 8_000 or 9_500) ||
-            e.Evidence is null || e.Evidence.Length is < 1 or > 8 || e.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick || string.IsNullOrWhiteSpace(item.Id) || string.IsNullOrWhiteSpace(item.Description)) ||
+        var budget = e.Version == 3;
+        if (s.Preparation is not { } p || e.Version is not (2 or 3) || e.XMillimetres != EquipmentXMillimetres || e.ZMillimetres != EquipmentZMillimetres ||
+            !Enum.IsDefined(e.Stage) || !Enum.IsDefined(e.JobStage) || (budget ? e.LoadPercent is < 0 or > 300 : e.LoadPercent is not (0 or 80 or 120)) ||
+            e.Condition is not (3_000 or 7_000 or 8_000 or 9_500) ||
+            budget && (e.Capacity is not (PowerRules.FarmDieselCapacity or PowerRules.HiredGeneratorCapacity) || e.Strain is < 0 or > PowerRules.StrainMaximum ||
+                e.Stage == EquipmentStage.Normal) ||
+            e.Evidence is null || e.Evidence.Length < 1 || e.Evidence.Length > (budget ? 64 : 8) || e.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick || string.IsNullOrWhiteSpace(item.Id) || string.IsNullOrWhiteSpace(item.Description)) ||
             e.Evidence.Select(item => item.Id).Distinct().Count() != e.Evidence.Length || !e.Evidence.Select(item => item.Tick).SequenceEqual(e.Evidence.Select(item => item.Tick).Order()) || string.IsNullOrWhiteSpace(e.Response))
             return "Equipment identity, stage or evidence invalid.";
         if ((e.WorkerId is not null) != p.AcceptedOffers.Contains("maintenance.worker") ||
@@ -165,11 +212,17 @@ public sealed partial class GameSession
             e.JobStage != MaintenanceStage.None && (e.WorkerId is null || e.JobDispatchedTick < p.StartedTick || e.JobDispatchedTick > s.CurrentTick) ||
             e.JobStage is MaintenanceStage.Repairing or MaintenanceStage.Completed && (e.RepairStartedTick < e.JobDispatchedTick || e.RepairStartedTick > s.CurrentTick) ||
             e.WarningTick < -1 || e.WarningTick > s.CurrentTick || e.WarningAcknowledged && e.WarningTick < 0 ||
-            e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick != p.StartedTick + EquipmentWarningDelayTicks ||
+            !budget && e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick != p.StartedTick + EquipmentWarningDelayTicks ||
+            budget && e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick < p.StartedTick ||
             (e.Stage == EquipmentStage.Terminal) != (p.Status == PreparationStatus.Failed && s.Medical?.Fatal != true && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death") ||
             p.Status != PreparationStatus.Preparing && s.Lifecycle is null)
             return "Equipment warning, response ownership or lifecycle invalid.";
-        if (e.Evidence[0].Id != "equipment:load" || e.Evidence[0].Tick != 0 ||
+        if (budget ? e.Evidence[0].Id != "equipment:load" || e.Evidence[0].Tick != 0 ||
+                e.Stage is EquipmentStage.DangerousFault or EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + EquipmentDangerDelayTicks ||
+                e.Stage == EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + EquipmentDeathDelayTicks ||
+                e.JobStage == MaintenanceStage.Completed && (e.Condition != 9_500 && e.Stage is not (EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal) ||
+                    s.CurrentTick < e.RepairStartedTick + EquipmentRepairTicks)
+            : e.Evidence[0].Id != "equipment:load" || e.Evidence[0].Tick != 0 ||
             (e.WarningTick >= 0) != e.Evidence.Any(item => item.Id == "equipment:warning" && item.Tick == e.WarningTick) ||
             e.WarningAcknowledged != e.Evidence.Any(item => item.Id == "equipment:ack") ||
             e.Stage is EquipmentStage.Normal or EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.LoadPercent != 120 ||

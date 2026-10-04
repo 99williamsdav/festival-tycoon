@@ -178,7 +178,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             {
                 "maintenance" => $"{who} · maintenance",
                 _ when StaffCatalogue.IsWorkCategory(offer.Category) && hire.Length == 2 => $"{hire[0].Split(' ')[0]} · {hire[1]}",
-                "equipment" => id == "equipment.rent" ? "Sound rig rental" : "Sound rig purchase",
+                "equipment" => RigLabel(id),
+                "generator" => "Bigger generator hire",
                 _ => offer.Name,
             };
             if (offer.Category != "equipment") lines.Add((label, offer.PricePennies));
@@ -186,7 +187,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var items = plan.Chips + plan.SoftDrinks + plan.Beers;
         if (items > 0) lines.Add(($"Stock · {items} items", costs.Stock));
         foreach (var id in plan.OfferIds.Where(id => offers[id].Category == "equipment"))
-            lines.Add((id == "equipment.rent" ? "Sound rig rental" : "Sound rig purchase", offers[id].PricePennies));
+            lines.Add((RigLabel(id), offers[id].PricePennies));
         var key = string.Join("|", lines.Select(line => line.Label + line.Pennies));
         if (key != _receiptKey)
         {
@@ -212,6 +213,11 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         _receiptCheck.AddThemeColorOverride("font_color", missing == 0 ? Ui.TealDeep : new Color("7a3312"));
         _receiptCheck.AddThemeStyleboxOverride("normal", Ui.Box(missing == 0 ? Ui.TealWash : Ui.AlertWash, 6, padX: 10, padY: 8));
     }
+
+    private static string RigLabel(string id) => id switch
+    {
+        "equipment.rent" => "Standard rig hire", PowerRules.ProRigOffer => "Pro rig hire", _ => "Sound rig purchase",
+    };
 
     private void BuildReadiness(CanvasLayer layer, Vector2 size)
     {

@@ -23,7 +23,7 @@ public sealed class PreparationPlanTests
     {
         Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
         foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
-        Accept(s, new AcceptPreparationOfferCommand("equipment.buy"));
+        Accept(s, new AcceptPreparationOfferCommand("equipment.rent"));
         Accept(s, new SetPreparationStockCommand(40, 40, 32));
     }
     [TestMethod]

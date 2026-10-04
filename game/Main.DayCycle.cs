@@ -268,11 +268,18 @@ public partial class Main
         _environment.BackgroundColor = sky;
         _environment.AmbientLightColor = a.Ambient.Lerp(b.Ambient, w);
         _environment.AmbientLightEnergy = Mathf.Lerp(a.AmbientEnergy, b.AmbientEnergy, w);
-        var lights = Smooth(LightsFrom, LightsFull, day);
+        var dusk = Smooth(LightsFrom, LightsFull, day);
+        // Switched off at the generator, the festoons go dark; a stall without power has no glow.
+        var equipment = _session.CaptureEquipment();
+        var lights = equipment is { LightsPowered: false } ? 0 : dusk;
         // A dark light still costs a lighting pass for everything it reaches, so it is hidden until it comes on.
         _bulbMaterial.EmissionEnergyMultiplier = 1.5f * lights;
         foreach (var light in _dayPracticals) { light.LightEnergy = lights * (float)light.GetMeta("full"); light.Visible = lights > 0; }
-        foreach (var glow in _vendorGlows.Values) { glow.LightEnergy = 2.4f * lights; glow.Visible = lights > 0; }
+        foreach (var (id, glow) in _vendorGlows)
+        {
+            var on = _session.StallPowered(id) ? dusk : 0;
+            glow.LightEnergy = 2.4f * on; glow.Visible = on > 0;
+        }
     }
 
     /// <summary>Stall glows follow wherever the stalls are built; a pole gives way to anything built on its spot.</summary>

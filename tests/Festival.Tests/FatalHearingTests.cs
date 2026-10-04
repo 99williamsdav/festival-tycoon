@@ -29,14 +29,14 @@ public sealed class FatalHearingTests
     }
 
     [TestMethod]
-    public void FavourRetryAfterBuyingEquipmentKeepsItAndSaves()
+    public void FavourRetryKeepsTheHiredRigInThePlanButNotTheRental()
     {
-        var s = BuildSession.Ready(offers: "equipment.buy");
+        var s = BuildSession.Ready(offers: "equipment.rent");
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         s = Fatal(s);
         BuildSession.Accept(s, new SpendCouncilFavourCommand());
-        Assert.IsTrue(s.CapturePreparation()!.OwnedEquipment.Length > 0, "Bought equipment survives the retry.");
-        Assert.IsFalse(s.CapturePreparation()!.Plan!.OfferIds.Any(id => id.StartsWith("equipment.")), "The retry plan must not buy it again.");
+        Assert.AreEqual(0, s.CapturePreparation()!.Rentals.Length, "The hire ended with the failed day.");
+        Assert.IsTrue(s.CapturePreparation()!.Plan!.OfferIds.Contains("equipment.rent"), "The retry plans the same hire again.");
         BuildSession.Restored(s);
     }
 
