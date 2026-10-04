@@ -170,6 +170,43 @@ Verification:
 - `walk_hurry_side_view.png`
 - `staffrender.py`
 
+## Weights at the feet (fix, 5 October 2026)
+
+Black slivers stretched from the heels and shoes when the ankle flexed. There were two causes, both fixed:
+
+1. **Inner-thigh trouser vertices were weighted to Hips down the whole leg.** The pelvis rule caught every vertex
+   within 2 cm of the centre line. The trouser legs and shoes are also wide enough that their inner faces cross
+   x = 0, so splitting left from right by the sign of x put those vertices on the wrong leg.
+   - Fix: each vertex's side now comes from its own connected loft. Only the centred pelvis loft is Hips.
+2. **The ankle seam split between shoe and hem.** The shoe tops were partly on LowerLeg, and later a hem blend to
+   Foot stretched the trouser front by up to about 3 cm at toe-off.
+   - Fix: shoes are 100% Foot. Below the knee blend the trousers are 100% LowerLeg, so the hem hangs over the shoe,
+     as real trousers do, instead of bending with it.
+
+3. **Garment weights.** Some pieces on the hip, such as the maintenance tool pouch, took weights from the hanging
+   arm, and vest armholes took about 65% UpperArm. Thigh pockets lagged up to 3 cm at the hurry walk's widest stride.
+   - Fix: garments now take weights only from the torso (arms, hands and sleeves removed from the transfer source).
+   - Below the hip line they take exactly the trouser-leg weights of the leg beneath (`leg_weights`).
+   - Measured drift from the body surface over `walk` and `walk_hurry`:
+     - medic and steward vests: 3 mm or less
+     - maintenance knee pads: about 16 mm
+     - the sound waist pack: about 25 mm
+     - the last two are flexing offset shapes over a fully bent knee or hip; see `garments_walk_hurry.png`.
+   - A thin pocket strip can still show behind a fully bent knee. It's under a pixel at game zoom.
+
+Plus weight hygiene on every mesh:
+- at most four influences, nothing under 2%, normalised
+- garment vertices below 0.30 m are limited to their own leg's LowerLeg and Foot
+
+Check, run in every build: the largest change in edge length for every edge below 0.30 m, over every frame of
+`walk`, `walk_brisk` and `walk_hurry`, is **0.0 mm** for the body and the garments in all ten files
+(`foot_edge_stretch_mm` in the json).
+
+`verification/garments_walk_hurry.png`: female maintenance and male sound staff at four hurry frames, three views each. `drift.py` measures the drift.
+
+`verification/feet_extremes.png`: feet at heel strike and toe-off for all three walks, from the side and from behind.
+Shown for the male and female guests, the female maintenance and the male steward.
+
 ## Attachment points
 
 Positions are Godot rest-pose, root-local:

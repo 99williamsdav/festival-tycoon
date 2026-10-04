@@ -56,6 +56,14 @@
   "frames": 17
  },
  "role": "medic",
+ "foot_edge_stretch_mm": {
+  "LWF_Attendee_Body walk": 0.0,
+  "LWF_Attendee_Body walk_brisk": 0.0,
+  "LWF_Attendee_Body walk_hurry": 0.0,
+  "LWF_Medic_Garment walk": 0.0,
+  "LWF_Medic_Garment walk_brisk": 0.0,
+  "LWF_Medic_Garment walk_hurry": 0.0
+ },
  "stride": {
   "step_length_m": 0.515,
   "metres_per_cycle": 1.03,
@@ -79,5 +87,5 @@
    -0.0134
   ]
  },
- "sha256": "0d4131e592c1027f912636fb47c772849735b7632d50d0646e303007450679d0"
+ "sha256": "f51fddc7a6ab26adebab0d7358e63f0f768075e93b5f99680993bcb99bf7ee3d"
 }

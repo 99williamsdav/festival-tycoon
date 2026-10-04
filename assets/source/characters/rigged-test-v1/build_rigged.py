@@ -110,10 +110,35 @@ def chain_weights(p, joints, names, band):
     u = smooth((d2 - (L2 - band * 0.5)) / band)
     return {names[0]: 1 - t, names[1]: t * (1 - u), names[2]: t * u}
 
+# side of every vertex from its connected island (legs and shoes are wide enough that their inner faces cross x = 0)
+_bm = bmesh.new(); _bm.from_mesh(me); _bm.verts.ensure_lookup_table()
+ISLAND_X = [0.0] * len(me.vertices); _seen = set()
+for _v in _bm.verts:
+    if _v.index in _seen: continue
+    _st, _comp = [_v], []
+    while _st:
+        _x = _st.pop()
+        if _x.index in _seen: continue
+        _seen.add(_x.index); _comp.append(_x.index)
+        _st += [e.other_vert(_x) for e in _x.link_edges if e.other_vert(_x).index not in _seen]
+    _cx = sum(me.vertices[j].co.x for j in _comp) / len(_comp)
+    for j in _comp: ISLAND_X[j] = _cx
+_bm.free()
+def leg_weights(p, sx, side):
+    """trouser-leg weights: Hips -> UpperLeg below the hip line, UpperLeg -> LowerLeg at the knee, shin-only below it
+    (the hem hangs over the shoe rather than bending with the foot)"""
+    if p.z < knee[sx].z - 0.06:
+        return {f"{side}LowerLeg": 1.0}
+    top = smooth((hip[sx].z - p.z) / 0.08)                                 # 0 at the hip line, 1 a little below
+    leg = chain_weights(p, [hip[sx], knee[sx], ankle[sx]], [f"{side}UpperLeg", f"{side}LowerLeg"], 0.06)
+    w = {k_: v_ * top for k_, v_ in leg.items()}; w["Hips"] = 1 - top
+    return w
+
 W = []
 for i, v in enumerate(me.vertices):
     p, part = V(v.co), vpart[i]
-    sx = -1 if p.x < 0 else 1; side = "Left" if sx < 0 else "Right"
+    ix = ISLAND_X[i] if part in ("Trousers", "Shoes") and abs(ISLAND_X[i]) > 0.02 else p.x
+    sx = -1 if ix < 0 else 1; side = "Left" if sx < 0 else "Right"
     if part in ("Head", "Nose", "Eyes", "Mouth", "Ears"):
         if part == "Head" and p.z < chin + 0.01:
             t = smooth((p.z - (chin - 0.03)) / 0.04)
@@ -130,15 +155,10 @@ for i, v in enumerate(me.vertices):
     elif part == "Arms":
         w = chain_weights(p, [sh[sx], el[sx], wr[sx], hand_end[sx]], [f"{side}UpperArm", f"{side}LowerArm", f"{side}Hand"], 0.045)
     elif part == "Trousers":
-        if p.z > hipz + 0.02 or abs(p.x) < 0.02:
+        if p.z > hipz + 0.02 or abs(ISLAND_X[i]) <= 0.02:                # the pelvis loft (centred island) is all Hips
             w = {"Hips": 1.0}
         else:
-            top = smooth((hip[sx].z + 0.0 - p.z) / 0.08)       # 0 at the hip line, 1 a little below
-            leg = chain_weights(p, [hip[sx], knee[sx], ankle[sx]], [f"{side}UpperLeg", f"{side}LowerLeg"], 0.06)
-            w = {k_: v_ * top for k_, v_ in leg.items()}; w["Hips"] = 1 - top
-            if p.z < ankle[sx].z + 0.06:                                   # hem: a short LowerLeg -> Foot blend only
-                fo = smooth(((ankle[sx].z + 0.035) - p.z) / 0.05)
-                w = {f"{side}LowerLeg": 1 - fo, f"{side}Foot": fo}
+            w = leg_weights(p, sx, side)
     elif part == "Shoes":
         w = {f"{side}Foot": 1.0}                                        # shoes are rigid with the foot
     else:
@@ -550,10 +570,25 @@ if ROLE:
     garment = bpy.context.view_layer.objects.active
     garment.name = f"LWF_{ROLE.capitalize()}_Garment"
     for name in BONES: garment.vertex_groups.new(name=name)
-    dt = garment.modifiers.new("WeightTransfer", 'DATA_TRANSFER'); dt.object = body
+    # transfer source: the body without arms, hands and sleeves, so belts and pouches never pick up arm weights
+    src = body.copy(); src.data = body.data.copy(); bpy.context.scene.collection.objects.link(src)
+    src.modifiers.clear(); src.parent = None; src.matrix_world = Matrix.Identity(4)
+    _bm = bmesh.new(); _bm.from_mesh(src.data); _bm.verts.ensure_lookup_table()
+    _arm = [_bm.verts[j] for j in range(len(_bm.verts)) if vpart[j] in ("Arms", "SleeveLining") or (vpart[j] == "Tee" and j not in torso_verts)]
+    bmesh.ops.delete(_bm, geom=_arm, context='VERTS'); _bm.to_mesh(src.data); _bm.free()
+    dt = garment.modifiers.new("WeightTransfer", 'DATA_TRANSFER'); dt.object = src
     dt.use_vert_data = True; dt.data_types_verts = {'VGROUP_WEIGHTS'}; dt.vert_mapping = 'POLYINTERP_NEAREST'
     dt.layers_vgroup_select_src = 'ALL'; dt.layers_vgroup_select_dst = 'NAME'
     bpy.ops.object.modifier_apply(modifier="WeightTransfer")
+    bpy.data.objects.remove(src)
+    # below the hip line, garment pieces take exactly the trouser-leg weights of the leg beneath them
+    for v in garment.data.vertices:
+        p = V(v.co)
+        if p.z < hipz + 0.02 and abs(p.x) > 0.02:
+            sx = -1 if p.x < 0 else 1; ws = leg_weights(p, sx, "Left" if sx < 0 else "Right")
+            for g in list(v.groups): garment.vertex_groups[g.group].remove([v.index])
+            for k_, w_ in ws.items():
+                if w_ > 1e-4: garment.vertex_groups[k_].add([v.index], w_, 'REPLACE')
     garment.parent = rig
     gm = garment.modifiers.new("Armature", 'ARMATURE'); gm.object = rig
 

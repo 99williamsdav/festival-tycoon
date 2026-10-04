@@ -57,9 +57,9 @@
  },
  "role": null,
  "foot_edge_stretch_mm": {
-  "LWF_Attendee_Body walk": 286.6,
-  "LWF_Attendee_Body walk_brisk": 352.2,
-  "LWF_Attendee_Body walk_hurry": 368.6
+  "LWF_Attendee_Body walk": 0.0,
+  "LWF_Attendee_Body walk_brisk": 0.0,
+  "LWF_Attendee_Body walk_hurry": 0.0
  },
  "stride": {
   "step_length_m": 0.53,
@@ -84,5 +84,5 @@
    -0.0135
   ]
  },
- "sha256": "1512f72e9c63fb7cfe0e11ee56f998038157037fa88ce2679b53c741a22475ef"
+ "sha256": "7da044fe2cd366b6ef98a36f61dfa578bc32f9cf341be9a2800cb7020889314c"
 }

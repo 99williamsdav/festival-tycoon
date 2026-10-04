@@ -56,6 +56,14 @@
   "frames": 17
  },
  "role": "sound",
+ "foot_edge_stretch_mm": {
+  "LWF_Attendee_Body walk": 0.0,
+  "LWF_Attendee_Body walk_brisk": 0.0,
+  "LWF_Attendee_Body walk_hurry": 0.0,
+  "LWF_Sound_Garment walk": 0.0,
+  "LWF_Sound_Garment walk_brisk": 0.0,
+  "LWF_Sound_Garment walk_hurry": 0.0
+ },
  "stride": {
   "step_length_m": 0.515,
   "metres_per_cycle": 1.03,
@@ -79,5 +87,5 @@
    -0.0134
   ]
  },
- "sha256": "2083a8222d1ef2f372cb961b934fb9412b6cee1c4db8a328be619ca77d302d89"
+ "sha256": "a8d9fead838942fddb7ce4b86d1e439a95a031e3473641fa92e5aebdf8b56ef2"
 }

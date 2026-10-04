@@ -57,9 +57,9 @@
  },
  "role": "maintenance",
  "foot_edge_stretch_mm": {
-  "LWF_Attendee_Body walk": 286.6,
-  "LWF_Attendee_Body walk_brisk": 352.2,
-  "LWF_Attendee_Body walk_hurry": 368.6,
+  "LWF_Attendee_Body walk": 0.0,
+  "LWF_Attendee_Body walk_brisk": 0.0,
+  "LWF_Attendee_Body walk_hurry": 0.0,
   "LWF_Maintenance_Garment walk": 0.0,
   "LWF_Maintenance_Garment walk_brisk": 0.0,
   "LWF_Maintenance_Garment walk_hurry": 0.0
@@ -87,5 +87,5 @@
    -0.0135
   ]
  },
- "sha256": "09547a0173134f54f152bafb61d2b78c86950b6fd1ea7769a1e5db10dd1d040e"
+ "sha256": "4cbb6c0132e4dcdb888a7f621ceecf326f1e57c3daa5ace02fef1dc6530e910a"
 }
