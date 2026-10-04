@@ -14,7 +14,8 @@ public partial class Main
         var paused = CharacterPresentationPaused;
         foreach (var body in _attendeeVisuals.Values)
             foreach (var player in body.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>())
-                player.SpeedScale = paused ? 0 : 1;
+                // A walking guest's pace is set from their speed each frame, pause included.
+                if (!player.HasMeta("GuestWalkPlayer")) player.SpeedScale = paused ? 0 : 1;
         foreach (var player in Audio.Players)
             if (player is not null) player.StreamPaused = paused;
     }

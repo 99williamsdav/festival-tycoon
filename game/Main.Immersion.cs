@@ -434,7 +434,9 @@ private void BuildImmersionControls(VBoxContainer parent)
                 var waste = _session.CaptureCarriedWaste(person.AgentId);
                 var hands = waste is null ? _session.ImmersionHandsAvailable(person.AgentId) : _session.WasteCarryEligible(person.AgentId);
                 var shown = person.Held ?? (waste is null ? null : new ImmersionHeldItem(waste.Id, waste.Product, 0));
-                Bodies.SetPose(body, AttendeePose.State(shown, hands, waste is null && _session.ImmersionConsumptionEligible(person.AgentId)), shown?.Product);
+                var drinking = waste is null && _session.ImmersionConsumptionEligible(person.AgentId);
+                Bodies.SetPose(body, AttendeePose.State(shown, hands, drinking), shown?.Product);
+                Bodies.SetRigActivity(body, drinking && shown is not null, waste is not null && hands, shown?.Product);
                 SetImmersionHeldVisual(new(person.AgentId), body, shown is { } held ? ImmersionProductKey(held.Product) : null, hands, person.Intoxication, delta, waste is not null);
                 if (hands && person.Intoxication >= 5000)
                     body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, Mathf.Sin((float)_characterPresentationSeconds / .35f + person.AgentId) * .035f);

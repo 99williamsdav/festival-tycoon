@@ -17,6 +17,7 @@ public partial class Main
     private PanelContainer? _contextPanel;
     private readonly Dictionary<string, Button> _offerButtons = [];
     private readonly Dictionary<string, OfferCard> _offerCards = [];
+    private readonly Dictionary<EntityId, float> _personPace = [];
     private GridContainer? _rigChoices;
     private GridContainer? _generatorChoices;
     private ProgressBar? _generatorBar;
@@ -340,6 +341,12 @@ private void RebuildPreparationOffers()
                     if (body is StaticBody3D collider) collider.CollisionLayer = 1;
             }
             var renderedPosition = new Vector3((float)(position.XMillimetres / 1000), 0.04f, (float)(position.ZMillimetres / 1000));
+            // How fast they're really moving, smoothed over a few frames, sets a walking guest's stride.
+            var moved = _lastPresentedPersonPositions.TryGetValue(agent.Id, out var before) && characterDelta > 0
+                ? new Vector3(renderedPosition.X - before.X, 0, renderedPosition.Z - before.Z).Length() / (float)characterDelta : 0f;
+            var pace = _personPace.GetValueOrDefault(agent.Id) * .75f + moved * .25f;
+            _personPace[agent.Id] = pace;
+            Bodies.AnimateGuest(visual, pace, CharacterPresentationPaused);
             visual.Position = renderedPosition;
             if (agent.Id == casualtyId || collapsed.Contains(agent.Id))
             {

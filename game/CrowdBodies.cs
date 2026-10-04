@@ -122,35 +122,41 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         _parent.AddChild(root);
         SetGuestBodyPose(root, "relaxed", null);
         AddGuestHead(root, id.Value, root.GetMeta("GuestPoseVariant").AsString());
+        SyncGuestHead(root);
         return root;
     }
 
     private void SetGuestBodyPose(Node3D root, string state, ImmersionProduct? product)
     {
         var asset = GuestPoseCatalog.Get(root.GetMeta("GuestPoseVariant").AsString(), state, product);
-        if (root.HasMeta("GuestPoseFile") && root.GetMeta("GuestPoseFile").AsString() == asset.File) return;
+        var rigged = UsesRig(state, product);
+        var file = rigged ? RiggedFile(root.GetMeta("GuestPoseVariant").AsString()) : asset.File;
+        // The rig covers several states with one body: only what it's doing changes.
+        if (root.HasMeta("GuestPoseFile") && root.GetMeta("GuestPoseFile").AsString() == file) { root.SetMeta("GuestPoseState", state); return; }
         if (root.GetNodeOrNull<Node3D>("GuestBody") is { } previous)
         {
             previous.Visible = false;
             root.RemoveChild(previous);
             previous.QueueFree();
         }
-        if (!_guestPoseScenes.TryGetValue(asset.File, out var scene))
-        {
-            scene = GD.Load<PackedScene>($"res://assets/characters/{asset.File}");
-            _guestPoseScenes.Add(asset.File, scene);
-        }
-        var body = scene.Instantiate<Node3D>();
+        // Hands free, a guest walks and stands on the rigged body; in any other pose, that pose's still body.
+        if (root.FindChild(HeadPieces, true, false) is Node3D head && head.GetParent() != root) { head.GetParent().RemoveChild(head); root.AddChild(head); }
+        if (!rigged && !_guestPoseScenes.TryGetValue(asset.File, out _))
+            _guestPoseScenes.Add(asset.File, GD.Load<PackedScene>($"res://assets/characters/{asset.File}"));
+        var body = rigged ? RiggedBody(root.GetMeta("GuestPoseVariant").AsString()) : _guestPoseScenes[asset.File].Instantiate<Node3D>();
         body.Name = "GuestBody";
         body.Transform = Transform3D.Identity;
         root.AddChild(body);
         ApplyGuestPalette(root, body);
-        root.SetMeta("GuestPoseFile", asset.File);
+        root.SetMeta("GuestPoseFile", file);
         root.SetMeta("GuestPoseState", state);
+        root.SetMeta(RigMeta, rigged);
+        if (root.IsInsideTree()) SyncGuestHead(root);
     }
 
     private void ApplyGuestPropAnchor(Node3D root, Node3D prop, string product)
     {
+        if (AnchorPropToRig(root, prop)) { prop.RemoveMeta("GuestAnchorKey"); return; }
         var anchorKey = root.GetMeta("GuestPoseFile").AsString() + ":" + product;
         if (prop.HasMeta("GuestAnchorKey") && prop.GetMeta("GuestAnchorKey").AsString() == anchorKey) return;
         var state = root.GetMeta("GuestPoseState").AsString();
