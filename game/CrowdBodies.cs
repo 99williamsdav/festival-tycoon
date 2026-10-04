@@ -216,6 +216,7 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         {
             var overlay = Main.InstantiateAsset($"res://assets/characters/lwf_{role}_{variant}_overlay_v2.glb");
             overlay.Name = "RoleGarment";
+            overlay.Visible = !(root.HasMeta(RigMeta) && root.GetMeta(RigMeta).AsBool());
             root.AddChild(overlay);
         }
         return root;
@@ -229,26 +230,35 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         // free. Held food/drink temporarily uses the approved body-specific
         // pose, then returns to the partitioned body before the playing kit.
         var modular = role is "guitarist" or "bassist" or "drummer" && state == "relaxed";
-        var file = modular ? $"lwf_performer_{variant}_body_v2.glb" : GuestPoseCatalog.Get(variant, state, product).File;
-        if (root.HasMeta("RolePoseFile") && root.GetMeta("RolePoseFile").AsString() == file) return;
+        // Staff walk, carry and drink on their rigged body (garment included) once it exists, like guests.
+        var rigFile = UsesRig(state, product) ? RiggedRoleFile(role, variant) : null;
+        var file = rigFile ?? (modular ? $"lwf_performer_{variant}_body_v2.glb" : GuestPoseCatalog.Get(variant, state, product).File);
+        if (root.HasMeta("RolePoseFile") && root.GetMeta("RolePoseFile").AsString() == file) { root.SetMeta("RolePoseState", state); return; }
+        // The head rides on a rigged body's head bone: take it back before that body goes.
+        if (root.FindChild(HeadPieces, true, false) is Node3D head && head.GetParent() != root) { head.GetParent().RemoveChild(head); root.AddChild(head); }
         if (root.GetNodeOrNull<Node3D>("RoleBody") is { } previous)
         {
             previous.Visible = false;
             root.RemoveChild(previous);
             previous.QueueFree();
         }
-        var body = Main.InstantiateAsset($"res://assets/characters/{file}");
+        var body = rigFile is not null ? RiggedBody(variant, rigFile) : Main.InstantiateAsset($"res://assets/characters/{file}");
         body.Name = "RoleBody";
         root.AddChild(body);
         ApplyRoleBodyPalette(root, body);
         root.SetMeta("RolePoseFile", file);
         root.SetMeta("RolePoseState", state);
+        root.SetMeta(RigMeta, rigFile is not null);
+        // The rigged body wears its garment; the still poses wear the separate overlay.
+        if (root.GetNodeOrNull<Node3D>("RoleGarment") is { } garment) garment.Visible = rigFile is null;
+        if (root.IsInsideTree()) SyncGuestHead(root);
         var id = new EntityId(root.GetMeta("RolePersonId").AsUInt64());
         if (_playing(id)) SetNeutralArmsVisible(body, false);
     }
 
     private void ApplyRolePropAnchor(Node3D root, Node3D prop, string product)
     {
+        if (AnchorPropToRig(root, prop)) { prop.RemoveMeta("RoleAnchorKey"); return; }
         var key = root.GetMeta("RolePoseFile").AsString() + ":" + product;
         if (prop.HasMeta("RoleAnchorKey") && prop.GetMeta("RoleAnchorKey").AsString() == key) return;
         var variant = root.GetMeta("RoleVariant").AsString();
@@ -277,8 +287,9 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         var outfit = RoleOutfit(root);
         foreach (var mesh in body.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
         {
-            // The cleanup body contains a fitted vest with its own approved trim palette.
-            if (mesh.Name == "FittedVest") continue;
+            // The cleanup body contains a fitted vest with its own approved trim palette; a rigged staff body's garment
+            // keeps its own palette too.
+            if (mesh.Name == "FittedVest" || mesh.Name.ToString().Contains("Garment")) continue;
             for (var surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
                 if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D source)

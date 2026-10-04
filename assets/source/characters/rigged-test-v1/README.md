@@ -134,6 +134,42 @@ ground through stance), with faster, longer-striding parameters.
 - **Verification:** `walk_brisk.gif`, `walk_brisk_zoom30.gif`, `walk_brisk_zoom62.gif` (root moving at 1.70 m/s over
   the 0.5 m grid) and `walk_brisk_side_view.png`.
 
+## Staff bodies and the hurry walk
+
+### Staff: `lwf_{medic,steward,maintenance,sound}_{male,female}_rigged_test_v1.glb`
+
+Build with `blender -b --python build_rigged.py -- <sex> out <role>`.
+
+- The same rigged body as the guest file: mesh `LWF_Attendee_Body`, the guest palette material, the same skeleton,
+  every clip, and the `LWF_RightHand_Cup` socket. `ApplyRoleBodyPalette` repaints it as before.
+- Plus the role garment `LWF_<Role>_Garment`: the v2 overlay (`lwf_<role>_<sex>_overlay_v2.glb`) with unchanged
+  geometry and its own `lwf_crew_trim_palette_v1` material. It's skinned to the same armature by transferring the
+  body's weights from the nearest surface, so vests, belts and pouches follow the torso, hips and arms.
+- Exclude the garment from the body repaint, as with the overlays today. It is a separate mesh with its own material.
+
+### `walk_hurry` (in all ten files, guests included)
+
+A staff power walk, tuned to 2.4 m/s at 1×, using the same foot-planted IK as the other walks.
+
+| | Step length | Metres per cycle | Cycle | Speed at 1× | Planted-foot slide | Pelvis drop |
+|---|---:|---:|---:|---:|---:|---:|
+| Male | 0.80 m | 1.60 m | 0.667 s (17 frames) | 2.40 m/s | ≤ 7.4 mm | 6.5 cm |
+| Female | 0.80 m | 1.60 m | 0.667 s (17 frames) | 2.40 m/s | ≤ 7.3 mm | 7.5 cm |
+
+- **Cadence and stance:** 180 steps a minute with 52% stance. That's still just a walk, since a short double-support
+  phase remains.
+- **Rockers and clearance:** a 20° heel strike, a 42° toe-off, and 11 cm of swing clearance.
+- **Upper body:** a 9° lean, with arms pumping at about ±29° and elbows bent to about 60°.
+- **Faster staff:** 2.8 m/s is speed_scale 1.17. The feet stay planted at any rate, and cadence reaches about 210
+  steps a minute, a fast power walk. Beyond about 1.25× it starts to read as a jog.
+- The `stride_hurry` block in `out/*.json` has these figures.
+
+Verification:
+- `staff_walk_hurry.gif`, `staff_walk_hurry_zoom30.gif`, `staff_walk_hurry_zoom62.gif`: the four roles with the
+  role palettes, the root at 2.4 m/s.
+- `walk_hurry_side_view.png`
+- `staffrender.py`
+
 ## Attachment points
 
 Positions are Godot rest-pose, root-local:

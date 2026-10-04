@@ -31,6 +31,7 @@
   "carry_litter": "as walk, right hand low carrying litter",
   "walk_brisk": "21 frames: brisk walk, see stride_brisk",
   "walk_brisk_carry": "walk_brisk with the cup held (as walk_carry)",
+  "walk_hurry": "17 frames: staff power walk, see stride_hurry",
   "walk": "28 frames at 24 fps (1.125 s, two steps), loops",
   "idle": "49 frames at 24 fps (2.0 s), loops"
  },
@@ -43,6 +44,22 @@
   "stance_share": 0.56,
   "pelvis_drop_m": 0.06,
   "frames": 21
+ },
+ "stride_hurry": {
+  "step_length_m": 0.8,
+  "metres_per_cycle": 1.6,
+  "cycle_seconds": 0.6667,
+  "walk_speed_m_per_s": 2.4,
+  "planted_foot_max_slide_mm": 7.4,
+  "stance_share": 0.52,
+  "pelvis_drop_m": 0.065,
+  "frames": 17
+ },
+ "role": null,
+ "foot_edge_stretch_mm": {
+  "LWF_Attendee_Body walk": 286.6,
+  "LWF_Attendee_Body walk_brisk": 352.2,
+  "LWF_Attendee_Body walk_hurry": 368.6
  },
  "stride": {
   "step_length_m": 0.53,
@@ -67,5 +84,5 @@
    -0.0135
   ]
  },
- "sha256": "3b633da791d6009a65dc5d255d0f9d6091ed55c49420ed6571c5bfbf09ac1471"
+ "sha256": "1512f72e9c63fb7cfe0e11ee56f998038157037fa88ce2679b53c741a22475ef"
 }

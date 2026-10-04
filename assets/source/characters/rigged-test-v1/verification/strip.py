@@ -25,7 +25,7 @@ for row, sex in enumerate(("male", "female")):
 for sex, rig in rigs:
     acts = [x for x in bpy.data.actions if x.name.startswith(ACT)]
 cam = bpy.data.objects.new("cam", bpy.data.cameras.new("cam")); sc.collection.objects.link(cam); sc.camera = cam; cam.data.type = 'ORTHO'
-N = 8; SPAN = 20 if ACT.startswith("walk_brisk") else 27; frames = [1 + round(i * SPAN / N) for i in range(N)] if ACT.startswith("walk") or ACT == "carry_litter" else [1 + i * 6 for i in range(N)]
+N = 8; SPAN = 20 if ACT.startswith("walk_brisk") else (16 if ACT == "walk_hurry" else 27); frames = [1 + round(i * SPAN / N) for i in range(N)] if ACT.startswith("walk") or ACT == "carry_litter" else [1 + i * 6 for i in range(N)]
 sc.render.resolution_x, sc.render.resolution_y = 260, 300
 tiles = []
 for row, (sex, rig) in enumerate(rigs):

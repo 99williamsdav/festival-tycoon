@@ -9,9 +9,10 @@ from mathutils import Vector as V, Matrix, Quaternion
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 SEX, OUT = argv[0], argv[1]; os.makedirs(OUT, exist_ok=True)
+ROLE = argv[2] if len(argv) > 2 else None              # medic | steward | maintenance | sound: add that role's garment
 ROOT = "C:/Projects/festival-tycoon/assets/source/characters/"
 GEN = ROOT + "attendee-v6-draft/build_attendee.py"
-NAME = f"lwf_attendee_{SEX}_rigged_test_v1"
+NAME = f"lwf_{ROLE or 'attendee'}_{SEX}_rigged_test_v1"
 FPS, WALK_N, IDLE_N = 24, 28, 49            # walk: 27 intervals = 1.125 s per two steps; idle: 2.0 s
 
 # ---------------------------------------------------------------- generate the relaxed v6 body
@@ -135,9 +136,11 @@ for i, v in enumerate(me.vertices):
             top = smooth((hip[sx].z + 0.0 - p.z) / 0.08)       # 0 at the hip line, 1 a little below
             leg = chain_weights(p, [hip[sx], knee[sx], ankle[sx]], [f"{side}UpperLeg", f"{side}LowerLeg"], 0.06)
             w = {k_: v_ * top for k_, v_ in leg.items()}; w["Hips"] = 1 - top
+            if p.z < ankle[sx].z + 0.06:                                   # hem: a short LowerLeg -> Foot blend only
+                fo = smooth(((ankle[sx].z + 0.035) - p.z) / 0.05)
+                w = {f"{side}LowerLeg": 1 - fo, f"{side}Foot": fo}
     elif part == "Shoes":
-        t = smooth((p.z - 0.07) / 0.06)
-        w = {f"{side}Foot": 1 - t * 0.6, f"{side}LowerLeg": t * 0.6}
+        w = {f"{side}Foot": 1.0}                                        # shoes are rigid with the foot
     else:
         w = {"Hips": 1.0}
     W.append(w)
@@ -508,12 +511,92 @@ BRISK = dict(step_length_m=round(STRIDE / 2, 3), metres_per_cycle=round(STRIDE, 
              walk_speed_m_per_s=round(SPEED, 3), planted_foot_max_slide_mm=round(brisk_slide * 1000, 1), stance_share=DUTY,
              pelvis_drop_m=round(-BOB0, 3), frames=BRISK_N)
 globals().update(WALK_GAIT)
+
+# ---------------------------------------------------------------- hurry walk (staff on duty): power-walk cadence, deeper knees
+HURRY_TARGET = 2.40
+HURRY_N = 17                                        # 16 intervals = 0.667 s per two steps (180 steps a minute)
+globals().update(WALK_N=HURRY_N, CYCLE=(HURRY_N - 1) / FPS, DUTY=0.52, HEEL_PH=0.14, TOE_PH=0.60, HEEL_UP=20.0, TOE_DOWN=42.0,
+                 LIFT=0.11, BOBA=0.016, LIVE=1.5, ARM=1.5, ELBOW=60.0, LEAN=9.0)
+_want = HURRY_TARGET * CYCLE
+BOB0 = -0.040
+while stride_fits(_want) > 0.99 and BOB0 > -0.13: BOB0 -= 0.005
+STRIDE = _want
+while stride_fits(STRIDE) > 0.99 and STRIDE > 0.8: STRIDE -= 0.01
+SPEED = STRIDE / CYCLE
+make_action("walk_hurry", HURRY_N, walk)
+hurry_slide = measure_slide("walk_hurry")
+HURRY = dict(step_length_m=round(STRIDE / 2, 3), metres_per_cycle=round(STRIDE, 3), cycle_seconds=round(CYCLE, 4),
+             walk_speed_m_per_s=round(SPEED, 3), planted_foot_max_slide_mm=round(hurry_slide * 1000, 1), stance_share=DUTY,
+             pelvis_drop_m=round(-BOB0, 3), frames=HURRY_N)
+globals().update(WALK_GAIT)
 step = STRIDE / 2; speed = SPEED
 rig.animation_data.action = None; bpy.context.scene.frame_set(1)
 for b in pb: b.rotation_quaternion = Quaternion(); b.location = V()
 
+# ---------------------------------------------------------------- role garment: the v2 overlay, skinned by weight transfer
+garment = None
+if ROLE:
+    _b = set(bpy.data.objects)
+    bpy.ops.import_scene.gltf(filepath=f"C:/Projects/festival-tycoon/game/assets/characters/lwf_{ROLE}_{SEX}_overlay_v2.glb")
+    _new = [o for o in bpy.data.objects if o not in _b]
+    _meshes = [o for o in _new if o.type == 'MESH']
+    for o in _meshes: o.data.transform(o.matrix_world); o.parent = None; o.matrix_world = Matrix.Identity(4)
+    for o in _new:
+        if o.type != 'MESH': bpy.data.objects.remove(o)
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in _meshes: o.select_set(True)
+    bpy.context.view_layer.objects.active = _meshes[0]
+    if len(_meshes) > 1: bpy.ops.object.join()
+    garment = bpy.context.view_layer.objects.active
+    garment.name = f"LWF_{ROLE.capitalize()}_Garment"
+    for name in BONES: garment.vertex_groups.new(name=name)
+    dt = garment.modifiers.new("WeightTransfer", 'DATA_TRANSFER'); dt.object = body
+    dt.use_vert_data = True; dt.data_types_verts = {'VGROUP_WEIGHTS'}; dt.vert_mapping = 'POLYINTERP_NEAREST'
+    dt.layers_vgroup_select_src = 'ALL'; dt.layers_vgroup_select_dst = 'NAME'
+    bpy.ops.object.modifier_apply(modifier="WeightTransfer")
+    garment.parent = rig
+    gm = garment.modifiers.new("Armature", 'ARMATURE'); gm.object = rig
+
+# ---------------------------------------------------------------- weight hygiene: <= 4 influences, no slivers, legs clean at the ankle
+def tidy_weights(ob, ankle_clamp=False):
+    names = {vg.index: vg.name for vg in ob.vertex_groups}
+    for v in ob.data.vertices:
+        p = ob.matrix_world @ v.co
+        ws = {names[g.group]: g.weight for g in v.groups if g.weight > 0.0}
+        if ankle_clamp and p.z < 0.30:                                    # near the feet only this leg's shin/foot
+            side = "Left" if p.x < 0 else "Right"
+            ws = {k_: w_ for k_, w_ in ws.items() if k_ in (f"{side}LowerLeg", f"{side}Foot")} or {f"{side}LowerLeg": 1.0}
+        ws = dict(sorted(ws.items(), key=lambda kv: -kv[1])[:4])
+        ws = {k_: w_ for k_, w_ in ws.items() if w_ >= 0.02} or ws
+        tot = sum(ws.values()) or 1.0
+        for g in list(v.groups): ob.vertex_groups[g.group].remove([v.index])
+        for k_, w_ in ws.items(): ob.vertex_groups[k_].add([v.index], w_ / tot, 'REPLACE')
+tidy_weights(body)
+if garment: tidy_weights(garment, ankle_clamp=True)
+
+def foot_stretch(actions):
+    """largest change in edge length (mm) for edges below 0.30 m, over every frame of the given clips"""
+    worst = {}
+    sc_ = bpy.context.scene
+    for ob in [o for o in (body, garment) if o]:
+        rest = [(e.vertices[0], e.vertices[1], (ob.data.vertices[e.vertices[0]].co - ob.data.vertices[e.vertices[1]].co).length)
+                for e in ob.data.edges if ob.data.vertices[e.vertices[0]].co.z < 0.30 and ob.data.vertices[e.vertices[1]].co.z < 0.30]
+        for act in actions:
+            rig.animation_data.action = bpy.data.actions[act]; n = int(bpy.data.actions[act].frame_range[1])
+            for f in range(1, n + 1):
+                sc_.frame_set(f); dg = bpy.context.evaluated_depsgraph_get(); em = ob.evaluated_get(dg).to_mesh()
+                m = max(abs((em.vertices[a].co - em.vertices[b].co).length - L) for a, b, L in rest) if rest else 0.0
+                key_ = (ob.name, act); worst[key_] = max(worst.get(key_, 0.0), m)
+                ob.evaluated_get(dg).to_mesh_clear()
+    rig.animation_data.action = None; sc_.frame_set(1)
+    for b in pb: b.rotation_quaternion = Quaternion(); b.location = V()
+    return {f"{k_[0]} {k_[1]}": round(v_ * 1000, 1) for k_, v_ in worst.items()}
+FOOT_STRETCH = foot_stretch(["walk", "walk_brisk", "walk_hurry"])
+print("FOOTSTRETCH", FOOT_STRETCH)
+
 # ---------------------------------------------------------------- export
 bpy.ops.object.select_all(action='DESELECT'); rig.select_set(True); body.select_set(True); socket.select_set(True)
+if garment: garment.select_set(True)
 bpy.context.view_layer.objects.active = rig
 path = os.path.join(OUT, NAME + ".glb")
 bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True, export_yup=True, export_skins=True,
@@ -522,8 +605,8 @@ bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, NAME + ".blend"))
 def godot(v): return [round(v.x, 4), round(v.z, 4), round(-v.y, 4)]
 rep = dict(file=NAME + ".glb", sex=SEX, triangles=sum(len(p.vertices) - 2 for p in me.polygons), vertices=len(me.vertices),
-           bones=list(BONES), cup_socket="LWF_RightHand_Cup (child of RightHand)", animations={"walk_carry": "as walk, right hand holding a cup at drink_hold", "idle_carry": "as idle, right hand holding a cup", "drink": f"{DRINK_N} frames (2.75 s): beer sip, cup tilts 55 deg at the lips", "drink_soft": f"{DRINK_N} frames: soft-drink sip, 25 deg", "carry_litter": "as walk, right hand low carrying litter", "walk_brisk": f"{BRISK_N} frames: brisk walk, see stride_brisk", "walk_brisk_carry": "walk_brisk with the cup held (as walk_carry)", "walk": f"{WALK_N} frames at {FPS} fps ({CYCLE:.3f} s, two steps), loops", "idle": f"{IDLE_N} frames at {FPS} fps (2.0 s), loops"},
-           stride_brisk=BRISK,
+           bones=list(BONES), cup_socket="LWF_RightHand_Cup (child of RightHand)", animations={"walk_carry": "as walk, right hand holding a cup at drink_hold", "idle_carry": "as idle, right hand holding a cup", "drink": f"{DRINK_N} frames (2.75 s): beer sip, cup tilts 55 deg at the lips", "drink_soft": f"{DRINK_N} frames: soft-drink sip, 25 deg", "carry_litter": "as walk, right hand low carrying litter", "walk_brisk": f"{BRISK_N} frames: brisk walk, see stride_brisk", "walk_brisk_carry": "walk_brisk with the cup held (as walk_carry)", "walk_hurry": f"{HURRY_N} frames: staff power walk, see stride_hurry", "walk": f"{WALK_N} frames at {FPS} fps ({CYCLE:.3f} s, two steps), loops", "idle": f"{IDLE_N} frames at {FPS} fps (2.0 s), loops"},
+           stride_brisk=BRISK, stride_hurry=HURRY, role=ROLE, foot_edge_stretch_mm=FOOT_STRETCH,
            stride=dict(step_length_m=round(step, 3), metres_per_cycle=round(STRIDE, 3), cycle_seconds=round(CYCLE, 4), walk_speed_m_per_s=round(speed, 3),
                        planted_foot_max_slide_mm=round(slide * 1000, 1), stance_share=DUTY,
                        note="move the guest at metres_per_cycle per 1.0 s cycle (scale playback speed by actual speed / walk_speed_m_per_s)"),

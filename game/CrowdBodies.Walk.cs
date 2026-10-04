@@ -15,18 +15,27 @@ internal sealed partial class CrowdBodies
     private const string RigMeta = "GuestRigged", WalkPlayerMeta = "GuestWalkPlayer", RigModeMeta = "GuestRigMode", CupSocket = "LWF_RightHand_Cup";
     // Metres a body covers per second at 1× playback, from the rig's measured strides.
     private static float WalkSpeedAt1x(string sex) => sex == "male" ? 0.942f : 0.916f;
-    private const float BriskSpeedAt1x = 1.70f, BriskFrom = 1.25f, MovingFrom = .12f;
+    private const float BriskSpeedAt1x = 1.70f, BriskFrom = 1.25f, MovingFrom = .12f, HurrySpeedAt1x = 2.40f, HurryFrom = 2.05f;
     private static string RiggedFile(string sex) => $"lwf_attendee_{sex}_rigged_test_v1.glb";
-    private static readonly string[] LoopedClips = ["walk", "idle", "walk_brisk", "walk_carry", "idle_carry", "walk_brisk_carry", "drink", "drink_soft", "carry_litter"];
+    /// <summary>A staff member's rigged body, garment and all; null until it exists, when they keep their still poses.</summary>
+    private static string? RiggedRoleFile(string role, string sex) =>
+        role is "medic" or "steward" or "maintenance" or "sound" && ResourceLoader.Exists($"res://assets/characters/lwf_{role}_{sex}_rigged_test_v1.glb")
+            ? $"lwf_{role}_{sex}_rigged_test_v1.glb" : null;
+    private static readonly string[] LoopedClips = ["walk", "idle", "walk_brisk", "walk_carry", "idle_carry", "walk_brisk_carry", "drink", "drink_soft", "carry_litter", "walk_hurry"];
+
+    // Guests and staff share the rig; their roots name the body, the variant and the pose a little differently.
+    private static Node3D? RigBody(Node3D root) => root.GetNodeOrNull<Node3D>("GuestBody") ?? root.GetNodeOrNull<Node3D>("RoleBody");
+    private static string RigSex(Node3D root) => (root.HasMeta("GuestPoseVariant") ? root.GetMeta("GuestPoseVariant") : root.GetMeta("RoleVariant")).AsString();
+    private static string RigState(Node3D root) => (root.HasMeta("GuestPoseState") ? root.GetMeta("GuestPoseState") : root.GetMeta("RolePoseState")).AsString();
 
     /// <summary>Hands free, holding a cup or drinking from one: the rig. A tray of chips: the still pose.</summary>
     private static bool UsesRig(string state, ImmersionProduct? product) =>
         state == "relaxed" || state is "drink_hold" or "drinking" && product is not ImmersionProduct.Chips;
 
     /// <summary>A rigged body ready with its clips.</summary>
-    private Node3D RiggedBody(string sex)
+    private Node3D RiggedBody(string sex, string? file = null)
     {
-        var file = RiggedFile(sex);
+        file ??= RiggedFile(sex);
         if (!_guestPoseScenes.TryGetValue(file, out var scene))
         {
             scene = GD.Load<PackedScene>($"res://assets/characters/{file}");
@@ -47,7 +56,7 @@ internal sealed partial class CrowdBodies
     public void SetRigActivity(Node3D root, bool drinking, bool litter, ImmersionProduct? product)
     {
         if (!root.HasMeta(RigMeta) || !root.GetMeta(RigMeta).AsBool()) return;
-        var state = root.GetMeta("GuestPoseState").AsString();
+        var state = RigState(root);
         root.SetMeta(RigModeMeta, state == "relaxed" ? "free" : litter ? "litter" : drinking ? product == ImmersionProduct.Beer ? "drink" : "drink_soft" : "carry");
     }
 
@@ -55,7 +64,7 @@ internal sealed partial class CrowdBodies
     private static void SyncGuestHead(Node3D root)
     {
         if (root.FindChild(HeadPieces, true, false) is not Node3D head) return;
-        var body = root.GetNodeOrNull<Node3D>("GuestBody");
+        var body = RigBody(root);
         var skeleton = body?.FindChildren("*", "Skeleton3D", true, false).OfType<Skeleton3D>().FirstOrDefault();
         var bone = skeleton?.FindBone("Head") ?? -1;
         if (skeleton is null || bone < 0)
@@ -80,7 +89,7 @@ internal sealed partial class CrowdBodies
     private static bool AnchorPropToRig(Node3D root, Node3D prop)
     {
         if (!root.HasMeta(RigMeta) || !root.GetMeta(RigMeta).AsBool() ||
-            root.GetNodeOrNull<Node3D>("GuestBody")?.FindChild(CupSocket, true, false) is not Node3D socket || !socket.IsInsideTree()) return false;
+            RigBody(root)?.FindChild(CupSocket, true, false) is not Node3D socket || !socket.IsInsideTree()) return false;
         // An empty cup on its way to a bin hangs from the low hand, so it's turned upright there.
         var turn = prop.HasMeta("EmptyWasteProp") ? new Transform3D(new Basis(Vector3.Right, Mathf.Pi / 2), Vector3.Zero) : Transform3D.Identity;
         prop.GlobalTransform = socket.GlobalTransform * turn;
@@ -92,14 +101,16 @@ internal sealed partial class CrowdBodies
     public void AnimateGuest(Node3D root, float metresPerSecond, bool paused)
     {
         if (!root.HasMeta(RigMeta) || !root.GetMeta(RigMeta).AsBool()) return;
-        if (root.GetNodeOrNull<Node3D>("GuestBody")?.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>().FirstOrDefault() is not { } player) return;
+        if (RigBody(root)?.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>().FirstOrDefault() is not { } player) return;
         var mode = root.HasMeta(RigModeMeta) ? root.GetMeta(RigModeMeta).AsString() : "free";
         var moving = metresPerSecond > MovingFrom;
         var brisk = metresPerSecond >= BriskFrom;
+        // Staff on duty keep a quicker pace than the crowd: a hurry once they're going faster than any stroll.
+        var hurry = metresPerSecond >= HurryFrom && player.HasAnimation("walk_hurry");
         var clip = (mode, moving) switch
         {
             ("free", false) => "idle",
-            ("free", true) => brisk ? "walk_brisk" : "walk",
+            ("free", true) => hurry ? "walk_hurry" : brisk ? "walk_brisk" : "walk",
             ("litter", false) => "idle_carry",
             ("litter", true) => "carry_litter",
             ("drink" or "drink_soft", false) => mode,
@@ -108,9 +119,9 @@ internal sealed partial class CrowdBodies
         };
         if (!player.HasAnimation(clip)) clip = moving ? "walk" : "idle";
         if (player.CurrentAnimation != clip) player.Play(clip, customBlend: .2);
-        var sex = root.GetMeta("GuestPoseVariant").AsString();
+        var sex = RigSex(root);
         var walkingClip = clip.StartsWith("walk", System.StringComparison.Ordinal) || clip == "carry_litter";
-        var natural = clip.Contains("brisk") ? BriskSpeedAt1x : WalkSpeedAt1x(sex);
+        var natural = clip == "walk_hurry" ? HurrySpeedAt1x : clip.Contains("brisk") ? BriskSpeedAt1x : WalkSpeedAt1x(sex);
         player.SpeedScale = paused ? 0 : walkingClip ? Mathf.Clamp(metresPerSecond / natural, .05f, 8f) : 1;
     }
 }
