@@ -188,6 +188,8 @@ public sealed partial class GameSession
             }
         }
         Person[]? rewardedPeople = null;
+        // How the set is playing, once for every listener this tick.
+        var overall = _equipment?.Version == 3 ? CurrentPerformance?.Overall ?? 50 : 50;
         for (var i = 0; i < listeners.Length; i++)
         {
             var listener = listeners[i];
@@ -207,7 +209,7 @@ public sealed partial class GameSession
                     var basis = listener.Enthusiasm >= 90 ? 15 : listener.Enthusiasm >= 60 ? 10 : 5;
                     int gain;
                     // On the power budget the band's play and the sound scale the set; the older scenario keeps its bonuses.
-                    if (_equipment?.Version == 3) gain = basis * PerformanceRules.MusicPermille(CurrentPerformance?.Overall ?? 50) / 1000;
+                    if (_equipment?.Version == 3) gain = basis * PerformanceRules.MusicPermille(overall) / 1000;
                     else
                     {
                         var quality = (_equipment?.LoadPercent ?? 80) == 80 ? 75 : 100;

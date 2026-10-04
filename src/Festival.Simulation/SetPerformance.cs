@@ -59,7 +59,7 @@ public sealed partial class GameSession
     {
         get
         {
-            if (CurrentFestivalAct is not { } act) return null;
+            if (CurrentFestivalAct is not { } act || _livePerformance?.Stage is not (LiveSetStage.Live or LiveSetStage.Interrupted)) return null;
             var talent = PerformanceRules.Talent(act);
             var drunk = Math.Max(0, StageDrunkenness() - PerformanceRules.SoberLimit) / PerformanceRules.DrunkStep;
             var band = Math.Clamp(talent - drunk, 0, 100);
