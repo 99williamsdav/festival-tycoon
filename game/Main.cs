@@ -77,6 +77,7 @@ public partial class Main : Node, IHudHost
         ProcessGateSign(delta);
         ProcessStageSet(delta);
         ProcessMoments(delta);
+        ProcessFieldNotes(delta);
         ProcessMoods(delta);
         ProcessChatter(delta);
         ProcessGenerator(delta);
