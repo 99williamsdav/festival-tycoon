@@ -97,7 +97,7 @@ REPORT["lwf_trailer_stage_v3"].update(
     drawbar_world=dict(z=[15.82, 17.66], x_at_deck=[-18.26, -14.97], x_at_hitch=[-16.83, -16.41], ground_contact=False))
 
 # ================================================================ 2. barrier and props (shared palette)
-PAL = {0: "a7adb0", 1: "7f868a", 2: "232527", 3: "b9bec2", 4: "b08a5a", 5: "8d6b44", 6: "2e3a4f", 7: "9a9da2"}
+PAL = {0: "8a9093", 1: "6b7276", 2: "232527", 3: "b9bec2", 4: "b08a5a", 5: "8d6b44", 6: "2e3a4f", 7: "9a9da2"}
 def U(slot): return ((8 * slot + 4) / 64.0, 0.5)
 def palette_mat():
     m = bpy.data.materials.new("LWF_Backstage_MattePalette"); m.use_nodes = True
@@ -107,20 +107,21 @@ def palette_mat():
             hx = PAL[s]; px += ([int(hx[i:i + 2], 16) / 255 for i in (0, 2, 4)] + [1.0]) * 8
     img.pixels = px; img.pack()
     tx = m.node_tree.nodes.new("ShaderNodeTexImage"); tx.image = img; tx.interpolation = 'Closest'
-    b = m.node_tree.nodes["Principled BSDF"]; b.inputs["Roughness"].default_value = 0.75
+    b = m.node_tree.nodes["Principled BSDF"]; b.inputs["Roughness"].default_value = 0.9; b.inputs["Specular IOR Level"].default_value = 0.25
     m.node_tree.links.new(tx.outputs[0], b.inputs["Base Color"]); return m
 
 BAR_L = 2.3
 reset(); pm = palette_mat()
 k = Kit("LWF_CrowdBarrier")
-r, zb, zt, t = 0.13, 0.20, 1.10, 0.022; X0 = -BAR_L / 2
+r, zb, zt, t = 0.13, 0.20, 1.088, 0.036; X0 = -BAR_L / 2   # zt + t keeps the old 1.12 m top
 pts = []
 for cx, cz, a0 in ((BAR_L / 2 - r, zt - r, 0), (X0 + r, zt - r, 90), (X0 + r, zb + r, 180), (BAR_L / 2 - r, zb + r, 270)):
     for j in range(4):
         a = math.radians(a0 + j * 30); pts.append((cx + r * math.cos(a), 0, cz + r * math.sin(a)))
-pts.append(pts[0]); k.tube(pts, t, U(0))
-for i in range(1, 15):
-    x = X0 + r * 0.6 + i * (BAR_L - 1.2 * r) / 15; k.box((x, 0, (zb + zt) / 2), (0.01, 0.01, zt - zb - 0.02), U(0))
+pts.append(pts[0]); k.tube(pts, t, U(0), seg=6)
+NBAR = 6                                   # 5 bars of 40 mm at about 0.36 m, so each stays whole at zoom 62 (was 14 of 10 mm)
+for i in range(1, NBAR):
+    x = X0 + r * 0.6 + i * (BAR_L - 1.2 * r) / NBAR; k.box((x, 0, (zb + zt) / 2), (0.04, 0.04, zt - zb - 0.02), U(0))
 for x in (X0 + 0.32, BAR_L / 2 - 0.32):
     for sy in (-1, 1): k.tube([(x, 0, zb + 0.02), (x + 0.02 * sy, sy * 0.30, 0.01)], 0.018, U(0), seg=5)
     k.box((x, 0, 0.012), (0.05, 0.64, 0.02), U(1))

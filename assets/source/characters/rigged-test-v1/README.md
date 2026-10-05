@@ -48,11 +48,13 @@ The knees and elbows keep their volume through the walk's bends: up to about 60�
 
 ## Animations
 
-- **`walk`:** 28 frames at 24 fps (27 intervals, 1.125 s for two steps), loop. It's in place and **foot-planted**.
-  - Legs are solved with two-bone IK against a planned foot path. Through stance (62% of each leg's cycle) the heel,
+- **`walk`:** 21 frames at 24 fps (20 intervals, 0.833 s for two steps, 144 steps a minute), loop. It's in place and **foot-planted**.
+  - Legs are solved with two-bone IK against a planned foot path. Through stance (60% of each leg's cycle) the heel,
     then the whole foot, then the ball stay fixed on the ground: heel-strike rocker, flat, then toe-off rocker. The
-    swing lifts the foot 7.5 cm.
-  - Soft knees: the pelvis rides about 4 cm lower than rest, with a ±1.2 cm bob that peaks at mid-stance.
+    swing lifts the foot 6.5 cm.
+  - Soft knees: the pelvis rides about 4 cm lower than rest, with a ±1.0 cm bob that peaks at mid-stance.
+  - Trunk about 2° forward of the hips (Spine `LEAN = -2.5`; negative is forward), with the head counter-tilted so the gaze stays level.
+    Before 2026-10-05 the sign was wrong and every walk leaned back (walk −2.6°, brisk −5.1°, hurry −7.6°).
   - Opposite arm swing of about ±19° (female ±17°), ±1.2 cm hip sway, a 4° pelvis turn against an 8° chest
     counter-turn, and a small head stabilise.
 - **`idle`:** 49 frames, 2.0 s, loop. Breathing (chest and spine), a small weight shift, and slight arm drift.
@@ -61,10 +63,13 @@ The knees and elbows keep their volume through the walk's bends: up to about 60�
 
 | | Step length | Metres per cycle | Cycle | Speed at 1× playback | Planted-foot slide |
 |---|---:|---:|---:|---:|---:|
-| Male | 0.53 m | 1.06 m | 1.125 s | 0.942 m/s | ≤ 5 mm |
-| Female | 0.515 m | 1.03 m | 1.125 s | 0.916 m/s | ≤ 5 mm |
+| Male | 0.50 m | 1.00 m | 0.833 s | 1.200 m/s | ≤ 3.3 mm |
+| Female | 0.485 m | 0.97 m | 0.833 s | 1.164 m/s | ≤ 3.3 mm |
 
-- Move the guest's root at exactly metres-per-cycle ÷ 1.125 s at 1× playback. The planted foot then stays put: the
+Short, quick steps tuned to guest pace (about 1.19 m/s), so walk plays at about 1× (0.99 male, 1.02 female).
+Until 2026-10-05 it was 0.53/0.515 m steps over 1.125 s (0.942/0.916 m/s), which played at about 1.27× and read as big strides.
+
+- Move the guest's root at exactly metres-per-cycle ÷ 0.833 s at 1× playback. The planted foot then stays put: the
   build measures each contact point with the root moving at that speed and reports the worst slip
   (`planted_foot_max_slide_mm` in the json).
 - For other walking speeds, set `AnimationPlayer.speed_scale = guestSpeed / speedAt1x`. Feet stay planted at any
@@ -81,11 +86,11 @@ and speed figures above are unchanged.
 
 | Animation | Frames | What it does |
 |---|---|---|
-| `walk_carry` | 28 (1.125 s) | Walk, right hand holding the cup in front at the pose bodies' `drink_hold` anchor. The cup rides with the chest, with a 1.2 cm swing. |
+| `walk_carry` | 21 (0.833 s) | Walk, right hand holding the cup in front at the pose bodies' `drink_hold` anchor. The cup rides with the chest, with a 1.2 cm swing. |
 | `idle_carry` | 49 (2.0 s) | Idle, holding the cup. |
 | `drink` | 67 (2.75 s) | Standing beer sip from the hold position: hold 0.35 s, raise 0.6 s, sip 1.0 s with small sips and the head tipped back, lower 0.6 s, hold. At the lips the cup matches the `drinking` beer anchor: rim at the mouth, tilted 55°. |
 | `drink_soft` | 67 (2.75 s) | The same, to the soft-drink anchor (tilted 25°, straw at the lips). |
-| `carry_litter` | 28 (1.125 s) | Walk, right hand low in front, for carrying a bit of litter or an empty cup to a bin. |
+| `carry_litter` | 21 (0.833 s) | Walk, right hand low in front, for carrying a bit of litter or an empty cup to a bin. |
 
 ### Cup socket: `LWF_RightHand_Cup`
 
@@ -101,7 +106,7 @@ and speed figures above are unchanged.
 | Male | (0.197, 1.142, −0.236), rot 0 | (0.197, 1.142, −0.236) | (−0.003, 1.491, −0.172), rot x 56° | (0, 1.491, −0.172), rot x 55° |
 | Female | (0.171, 1.090, −0.236), rot 0 | (0.171, 1.090, −0.236) | (−0.003, 1.423, −0.168), rot x 56° | (0, 1.423, −0.169), rot x 55° |
 
-- In `walk_carry` the cup tilts about 3° forward with the walk's spine lean, and swings ±1.2 cm.
+- In `walk_carry` the cup tilts about 2.5° with the walk's spine lean, and swings ±1.2 cm.
 - In `carry_litter` the socket points along the hanging hand (rotated −90° about X compared with the carry pose).
   That suits a crumpled item. An empty cup would need a +90° X rotation under the socket to read upright.
 
@@ -112,19 +117,19 @@ measurement).
 ## Brisk walk (`walk_brisk`, `walk_brisk_carry`)
 
 Tuned to the game's guest pace. It uses the same foot-planted IK as `walk` (heel, then flat, then ball fixed on the
-ground through stance), with faster, longer-striding parameters.
+ground through stance), with a faster cadence and a longer step.
 
 | | Step length | Metres per cycle | Cycle | Speed at 1× | Planted-foot slide | Pelvis drop |
 |---|---:|---:|---:|---:|---:|---:|
-| Male | 0.708 m | 1.417 m | 0.833 s (21 frames) | 1.70 m/s | ≤ 6 mm | 6.0 cm |
-| Female | 0.708 m | 1.417 m | 0.833 s (21 frames) | 1.70 m/s | ≤ 6 mm | 6.5 cm |
+| Male | 0.602 m | 1.204 m | 0.708 s (18 frames) | 1.70 m/s | ≤ 7.3 mm | 4.0 cm |
+| Female | 0.602 m | 1.204 m | 0.708 s (18 frames) | 1.70 m/s | ≤ 7.3 mm | 4.0 cm |
 
-- **Cadence and stance:** 144 steps a minute, with 56% of each leg's cycle in stance. That's still a walk, since a
+- **Cadence and stance:** 169 steps a minute (was 144 with 0.71 m steps), with 56% of each leg's cycle in stance. That's still a walk, since a
   double-support phase remains; the walk-to-run change is around 50%.
 - **Bigger rockers:** a heel strike of 18° and a toe-off of 38°, with 9.5 cm of swing clearance.
 - **Liveliness:** 1.8 cm of bounce, 1.4× the hip sway and pelvis turn, about ±26° of arm swing with bent elbows,
-  and a 6° forward lean.
-- **Why the knees bend more:** these legs are straight at rest, so a 1.42 m stride needs the pelvis about 6 cm lower
+  and a forward lean of about 3.5° (Spine `LEAN = -4.5`).
+- **Why the knees bend more:** these legs are straight at rest, so a 1.2 m stride needs the pelvis about 4 cm lower
   than at rest. The build searches for the smallest drop that fits, which reads as a purposeful, slightly bent-knee
   stride.
 - **`walk_brisk_carry`:** the same legs, with the right arm on the cup socket as in `walk_carry`. For carrying at
@@ -153,14 +158,14 @@ A staff power walk, tuned to 2.4 m/s at 1×, using the same foot-planted IK as t
 
 | | Step length | Metres per cycle | Cycle | Speed at 1× | Planted-foot slide | Pelvis drop |
 |---|---:|---:|---:|---:|---:|---:|
-| Male | 0.80 m | 1.60 m | 0.667 s (17 frames) | 2.40 m/s | ≤ 7.4 mm | 6.5 cm |
-| Female | 0.80 m | 1.60 m | 0.667 s (17 frames) | 2.40 m/s | ≤ 7.3 mm | 7.5 cm |
+| Male | 0.75 m | 1.50 m | 0.625 s (16 frames) | 2.40 m/s | ≤ 5.9 mm | 5.5 cm |
+| Female | 0.75 m | 1.50 m | 0.625 s (16 frames) | 2.40 m/s | ≤ 5.9 mm | 6.0 cm |
 
-- **Cadence and stance:** 180 steps a minute with 52% stance. That's still just a walk, since a short double-support
+- **Cadence and stance:** 192 steps a minute (was 180 with 0.80 m steps) with 52% stance. That's still just a walk, since a short double-support
   phase remains.
 - **Rockers and clearance:** a 20° heel strike, a 42° toe-off, and 11 cm of swing clearance.
-- **Upper body:** a 9° lean, with arms pumping at about ±29° and elbows bent to about 60°.
-- **Faster staff:** 2.8 m/s is speed_scale 1.17. The feet stay planted at any rate, and cadence reaches about 210
+- **Upper body:** about 5.5° forward (Spine `LEAN = -7`; it leaned 7.6° back before 2026-10-05), with arms pumping at about ±29° and elbows bent to about 60°.
+- **Faster staff:** 2.8 m/s is speed_scale 1.17. The feet stay planted at any rate, and cadence reaches about 225
   steps a minute, a fast power walk. Beyond about 1.25× it starts to read as a jog.
 - The `stride_hurry` block in `out/*.json` has these figures.
 

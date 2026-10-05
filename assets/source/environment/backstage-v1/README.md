@@ -19,14 +19,14 @@ placements.
 | File | Tris | Notes |
 |---|---:|---|
 | `lwf_trailer_stage_v3.glb` | 3850 | v2 with the chassis turned round: drawbar at the south end, band stairs centred on the north end. |
-| `lwf_crowd_barrier_v1.glb` | 612 | One steel pedestrian barrier, 2.3 × 1.1 m. Origin at the centre bottom. Length along local +X (hook at +X, eye at −X). Feet 0.64 m deep. |
+| `lwf_crowd_barrier_v1.glb` | 504 | One steel pedestrian barrier, 2.3 × 1.12 m. Origin at the centre bottom. Length along local +X (hook at +X, eye at −X). Feet 0.64 m deep. Built to read at zoom 62: a 72 mm frame tube and five 40 mm bars (it was 44 mm and fourteen 10 mm bars, which dropped in and out of the pixel grid as the camera moved), and a darker matte galvanised grey (`8a9093`). |
 | `lwf_backstage_flight_case_stack_v1.glb` | 96 | Two black flight cases, 1.1 × 0.6 m footprint, 0.92 m tall. |
 | `lwf_backstage_flight_case_tall_v1.glb` | 48 | One tall case, 0.6 × 0.6 × 0.8 m. |
 | `lwf_backstage_crate_pile_v1.glb` | 144 | Three wooden crates, 1.27 × 0.62 m footprint, 0.8 m tall. |
 | `lwf_folding_chair_v1.glb` | 120 | Navy folding chair, facing local −Z (Godot forward). |
 
 All props have their origin at the ground centre. The barrier and props share `LWF_Backstage_MattePalette`
-(`lwf_backstage_palette`, 64×8, Closest filtering).
+(`lwf_backstage_palette`, 64×8, Closest filtering, roughness 0.9, specular 0.25). Slots 0 and 1 (galvanised) are used only by the barrier.
 
 ## Trailer stage v3
 

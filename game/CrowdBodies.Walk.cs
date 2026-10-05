@@ -14,8 +14,8 @@ internal sealed partial class CrowdBodies
 {
     private const string RigMeta = "GuestRigged", WalkPlayerMeta = "GuestWalkPlayer", RigModeMeta = "GuestRigMode", CupSocket = "LWF_RightHand_Cup";
     // Metres a body covers per second at 1× playback, from the rig's measured strides.
-    private static float WalkSpeedAt1x(string sex) => sex == "male" ? 0.942f : 0.916f;
-    private const float BriskSpeedAt1x = 1.70f, BriskFrom = 1.25f, MovingFrom = .12f, HurrySpeedAt1x = 2.40f, HurryFrom = 2.05f;
+    private static float WalkSpeedAt1x(string sex) => sex == "male" ? 1.200f : 1.164f;
+    private const float BriskSpeedAt1x = 1.70f, BriskFrom = 1.45f, MovingFrom = .12f, HurrySpeedAt1x = 2.40f, HurryFrom = 2.05f;
     private static string RiggedFile(string sex) => $"lwf_attendee_{sex}_rigged_test_v1.glb";
     /// <summary>A staff member's rigged body, garment and all; null until it exists, when they keep their still poses.</summary>
     private static string? RiggedRoleFile(string role, string sex) =>

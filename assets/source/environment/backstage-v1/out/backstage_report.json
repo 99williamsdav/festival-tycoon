@@ -60,7 +60,7 @@
   "nodes": [
    "LWF_CrowdBarrier"
   ],
-  "triangles": 612,
+  "triangles": 504,
   "bounds_godot": [
    [
     -1.189,
@@ -69,13 +69,13 @@
    ],
    [
     1.24,
-    1.123,
+    1.126,
     0.32
    ]
   ],
-  "sha256": "d362470cd9e071b7993268c6e4e7bb5e81f75e66d79ee1f8399bff10a01ca52e",
+  "sha256": "1fbfb142733abf9fe3bdc9f384d0fac4f1155777b0d0aed831c160e54258b5a1",
   "length_m": 2.3,
-  "height_m": 1.1,
+  "height_m": 1.088,
   "pitch_m": 2.4,
   "origin": "centre bottom",
   "length_axis": "local +X (hook end)",
@@ -99,7 +99,7 @@
     0.306
    ]
   ],
-  "sha256": "791cb979ef466914e6a4e3048f484b4dd300e796af8cbe6a7187b66de1e38fb5"
+  "sha256": "bcf8b08c5e82ef342e99aee719cd8d1c5c0125f390033ca7a2d4b5daec230375"
  },
  "lwf_backstage_flight_case_tall_v1": {
   "file": "lwf_backstage_flight_case_tall_v1.glb",
@@ -119,7 +119,7 @@
     0.306
    ]
   ],
-  "sha256": "24584258e51afc9dec05e8887539916f8d71b2f4d6f5ab8c3f324cd9424157dd"
+  "sha256": "5e24f8811c0dc4a00c9d09cfa67b58f3666260d6727636f06694208bd9bcc209"
  },
  "lwf_backstage_crate_pile_v1": {
   "file": "lwf_backstage_crate_pile_v1.glb",
@@ -139,7 +139,7 @@
     0.286
    ]
   ],
-  "sha256": "b14989ba646fa4e3510b069c750f50e2d9e3fec3d3bb93427299f9f081f18087"
+  "sha256": "ade1cc7dfb72fb24bf977d01cd28d18ed0a33bdaad51d0c15ca499106c00fdc1"
  },
  "lwf_folding_chair_v1": {
   "file": "lwf_folding_chair_v1.glb",
@@ -159,6 +159,6 @@
     0.236
    ]
   ],
-  "sha256": "b64dd1f418d5b64ba0aaf7c8a3c62519f3891e3f5ea7a016b742ad6c11152772"
+  "sha256": "6a6a6f828258ebca81534f6341c0dcc9ad1fdcf772c4d15aa99e077c15ef7c5a"
  }
 }

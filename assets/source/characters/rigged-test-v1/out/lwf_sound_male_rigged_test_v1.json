@@ -29,31 +29,31 @@
   "drink": "67 frames (2.75 s): beer sip, cup tilts 55 deg at the lips",
   "drink_soft": "67 frames: soft-drink sip, 25 deg",
   "carry_litter": "as walk, right hand low carrying litter",
-  "walk_brisk": "21 frames: brisk walk, see stride_brisk",
+  "walk_brisk": "18 frames: brisk walk, see stride_brisk",
   "walk_brisk_carry": "walk_brisk with the cup held (as walk_carry)",
-  "walk_hurry": "17 frames: staff power walk, see stride_hurry",
-  "walk": "28 frames at 24 fps (1.125 s, two steps), loops",
+  "walk_hurry": "16 frames: staff power walk, see stride_hurry",
+  "walk": "21 frames at 24 fps (0.833 s, two steps), loops",
   "idle": "49 frames at 24 fps (2.0 s), loops"
  },
  "stride_brisk": {
-  "step_length_m": 0.708,
-  "metres_per_cycle": 1.417,
-  "cycle_seconds": 0.8333,
+  "step_length_m": 0.602,
+  "metres_per_cycle": 1.204,
+  "cycle_seconds": 0.7083,
   "walk_speed_m_per_s": 1.7,
-  "planted_foot_max_slide_mm": 6.0,
+  "planted_foot_max_slide_mm": 7.3,
   "stance_share": 0.56,
-  "pelvis_drop_m": 0.06,
-  "frames": 21
+  "pelvis_drop_m": 0.04,
+  "frames": 18
  },
  "stride_hurry": {
-  "step_length_m": 0.8,
-  "metres_per_cycle": 1.6,
-  "cycle_seconds": 0.6667,
+  "step_length_m": 0.75,
+  "metres_per_cycle": 1.5,
+  "cycle_seconds": 0.625,
   "walk_speed_m_per_s": 2.4,
-  "planted_foot_max_slide_mm": 7.4,
+  "planted_foot_max_slide_mm": 5.9,
   "stance_share": 0.52,
-  "pelvis_drop_m": 0.065,
-  "frames": 17
+  "pelvis_drop_m": 0.055,
+  "frames": 16
  },
  "role": "sound",
  "foot_edge_stretch_mm": {
@@ -65,13 +65,13 @@
   "LWF_Sound_Garment walk_hurry": 0.0
  },
  "stride": {
-  "step_length_m": 0.53,
-  "metres_per_cycle": 1.06,
-  "cycle_seconds": 1.125,
-  "walk_speed_m_per_s": 0.942,
-  "planted_foot_max_slide_mm": 4.8,
-  "stance_share": 0.62,
-  "note": "move the guest at metres_per_cycle per 1.0 s cycle (scale playback speed by actual speed / walk_speed_m_per_s)"
+  "step_length_m": 0.5,
+  "metres_per_cycle": 1.0,
+  "cycle_seconds": 0.8333,
+  "walk_speed_m_per_s": 1.2,
+  "planted_foot_max_slide_mm": 3.3,
+  "stance_share": 0.6,
+  "note": "move the guest at metres_per_cycle per cycle_seconds (scale playback speed by actual speed / walk_speed_m_per_s)"
  },
  "attach": {
   "head_bone": "Head",
@@ -87,5 +87,5 @@
    -0.0135
   ]
  },
- "sha256": "a447c5e5eb59d1bb991df26f849b994391549450664f04da76e8e9eed72037d0"
+ "sha256": "84208b5108e46bd0ddc1a534a2d4dbbd2472136dbad6497e3a990afe6aed4e04"
 }

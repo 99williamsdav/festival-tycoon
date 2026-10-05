@@ -13,7 +13,7 @@ ROLE = argv[2] if len(argv) > 2 else None              # medic | steward | maint
 ROOT = "C:/Projects/festival-tycoon/assets/source/characters/"
 GEN = ROOT + "attendee-v6-draft/build_attendee.py"
 NAME = f"lwf_{ROLE or 'attendee'}_{SEX}_rigged_test_v1"
-FPS, WALK_N, IDLE_N = 24, 28, 49            # walk: 27 intervals = 1.125 s per two steps; idle: 2.0 s
+FPS, WALK_N, IDLE_N = 24, 21, 49            # walk: 20 intervals = 0.833 s per two steps (144 steps a minute); idle: 2.0 s
 
 # ---------------------------------------------------------------- generate the relaxed v6 body
 g = dict(__name__="__gen__")
@@ -204,13 +204,14 @@ def make_action(name, frames, fn):
 
 # ---- walk: foot-planted IK. During stance each foot's heel and ball stay fixed on the ground (heel-strike rocker,
 # flat, toe-off rocker about the ball) while the root moves forward at SPEED, so a planted foot does not slide.
-CYCLE = (WALK_N - 1) / FPS                          # 1.125 s for two steps
-DUTY = 0.62                                         # stance share of each leg's cycle
-STEP_WANT = 0.58 if not F else 0.53                 # metres per step (half a cycle)
+CYCLE = (WALK_N - 1) / FPS                          # 0.833 s for two steps
+DUTY = 0.60                                         # stance share of each leg's cycle
+STEP_WANT = 0.50 if not F else 0.485                # metres per step (half a cycle): short, quick steps, ~1.2 m/s
 HEEL_PH, TOE_PH = 0.12, 0.70                        # stance phases where the heel rocker ends and the toe rocker starts
 HEEL_UP, TOE_DOWN = 14.0, 32.0                      # foot pitch at heel strike / at toe-off (degrees)
-LIFT = 0.075                                        # swing clearance (m)
-BOB0, BOBA, LIVE, ARM, ELBOW, LEAN = -0.040, 0.012, 1.0, 1.0, 14.0, 3.0   # pelvis height/bounce, liveliness, arm swing, elbow, lean
+LIFT = 0.065                                        # swing clearance (m)
+BOB0, BOBA, LIVE, ARM, ELBOW, LEAN = -0.040, 0.010, 1.0, 1.0, 14.0, -2.5  # pelvis height/bounce, liveliness, arm swing, elbow, lean
+# LEAN is a world-X turn of the Spine: negative tips the trunk FORWARD (+Y), positive tips it back
 
 
 def yz(v): return V((v.y, v.z))
@@ -323,7 +324,7 @@ def walk(f, t):
     key("Spine", rot_world("Spine", X, LEAN), fr)
     key("Chest", combine(rot_world("Chest", Z, -2 * yaw), rot_world("Chest", Y, -0.6 * roll)), fr)
     key("Neck", rot_world("Neck", Z, 0.5 * yaw), fr)
-    key("Head", combine(rot_world("Head", Y, -0.5 * roll), rot_world("Head", X, -2)), fr)
+    key("Head", combine(rot_world("Head", Y, -0.5 * roll), rot_world("Head", X, -0.4 * LEAN)), fr)   # gaze stays level over the lean
 
 def idle(f, t):
     fr = f + 1
@@ -515,9 +516,9 @@ slide = measure_slide("walk")
 WALK_GAIT = dict(WALK_N=WALK_N, CYCLE=CYCLE, DUTY=DUTY, HEEL_PH=HEEL_PH, TOE_PH=TOE_PH, HEEL_UP=HEEL_UP, TOE_DOWN=TOE_DOWN, LIFT=LIFT,
                  BOB0=BOB0, BOBA=BOBA, LIVE=LIVE, ARM=ARM, ELBOW=ELBOW, LEAN=LEAN, STRIDE=STRIDE, SPEED=SPEED)
 BRISK_TARGET = 1.70
-BRISK_N = 21                                        # 20 intervals = 0.833 s per two steps (144 steps a minute)
+BRISK_N = 18                                        # 17 intervals = 0.708 s per two steps (169 steps a minute)
 globals().update(WALK_N=BRISK_N, CYCLE=(BRISK_N - 1) / FPS, DUTY=0.56, HEEL_PH=0.13, TOE_PH=0.62, HEEL_UP=18.0, TOE_DOWN=38.0,
-                 LIFT=0.095, BOBA=0.018, LIVE=1.4, ARM=1.35, ELBOW=22.0, LEAN=6.0)
+                 LIFT=0.095, BOBA=0.018, LIVE=1.4, ARM=1.35, ELBOW=22.0, LEAN=-4.5)
 _want = BRISK_TARGET * CYCLE
 BOB0 = -0.040
 while stride_fits(_want) > 0.99 and BOB0 > -0.11: BOB0 -= 0.005
@@ -534,9 +535,9 @@ globals().update(WALK_GAIT)
 
 # ---------------------------------------------------------------- hurry walk (staff on duty): power-walk cadence, deeper knees
 HURRY_TARGET = 2.40
-HURRY_N = 17                                        # 16 intervals = 0.667 s per two steps (180 steps a minute)
+HURRY_N = 16                                        # 15 intervals = 0.625 s per two steps (192 steps a minute)
 globals().update(WALK_N=HURRY_N, CYCLE=(HURRY_N - 1) / FPS, DUTY=0.52, HEEL_PH=0.14, TOE_PH=0.60, HEEL_UP=20.0, TOE_DOWN=42.0,
-                 LIFT=0.11, BOBA=0.016, LIVE=1.5, ARM=1.5, ELBOW=60.0, LEAN=9.0)
+                 LIFT=0.11, BOBA=0.016, LIVE=1.5, ARM=1.5, ELBOW=60.0, LEAN=-7.0)
 _want = HURRY_TARGET * CYCLE
 BOB0 = -0.040
 while stride_fits(_want) > 0.99 and BOB0 > -0.13: BOB0 -= 0.005
@@ -644,7 +645,7 @@ rep = dict(file=NAME + ".glb", sex=SEX, triangles=sum(len(p.vertices) - 2 for p 
            stride_brisk=BRISK, stride_hurry=HURRY, role=ROLE, foot_edge_stretch_mm=FOOT_STRETCH,
            stride=dict(step_length_m=round(step, 3), metres_per_cycle=round(STRIDE, 3), cycle_seconds=round(CYCLE, 4), walk_speed_m_per_s=round(speed, 3),
                        planted_foot_max_slide_mm=round(slide * 1000, 1), stance_share=DUTY,
-                       note="move the guest at metres_per_cycle per 1.0 s cycle (scale playback speed by actual speed / walk_speed_m_per_s)"),
+                       note="move the guest at metres_per_cycle per cycle_seconds (scale playback speed by actual speed / walk_speed_m_per_s)"),
            attach=dict(head_bone="Head", head_bone_rest_godot=godot(BONES["Head"][0]), right_hand_bone="RightHand",
                        right_hand_rest_godot=godot(BONES["RightHand"][0])),
            sha256=hashlib.sha256(open(path, "rb").read()).hexdigest())
