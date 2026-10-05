@@ -154,14 +154,16 @@ public static class StaffCatalogue
                 var id = $"staff.{Key(role)}.{number}";
                 StaffCandidate candidate = role switch
                 {
-                    StaffRole.Sound => new(id, role, name, blurb, Math.Max(800, 2_000 + grade * 900 + noise), grade,
+                    StaffRole.Sound => new(id, role, name, blurb, Wage(2_000), grade,
                         1_000, 0, 0, 0, grade switch { -2 => -2, -1 => -1, 0 => 0, 1 => 2, _ => 3 }, []),
-                    StaffRole.Medic => new(id, role, name, blurb, Math.Max(800, 1_500 + grade * 600 + noise), grade,
+                    StaffRole.Medic => new(id, role, name, blurb, Wage(1_500), grade,
                         Speed(baseline.MedicSpeedPermille), UnhiredMedicTreatmentTicks - grade * 60, 0, 0, 0, []),
-                    _ => Steward(id, name, blurb, Math.Max(800, 1_200 + grade * 500 + noise), grade)
+                    _ => Steward(id, name, blurb, Wage(1_200), grade)
                 };
                 result.Add(WithTraits(candidate, quirks));
 
+                // The best cost far more than the standard hire: 60%, 80%, 100%, 150% and 225% of it by grade.
+                int Wage(int standard) => Math.Max(500, standard * (grade switch { -2 => 60, -1 => 80, 0 => 100, 1 => 150, _ => 225 }) / 100 + noise);
                 int Speed(int standard) => grade == 0 ? standard : Math.Clamp(standard + grade * 75 + (Next(3) - 1) * 50, 850, 1_150);
                 StaffCandidate Steward(string stewardId, string stewardName, string stewardBlurb, int wage, int stewardGrade)
                 {
