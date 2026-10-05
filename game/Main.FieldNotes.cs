@@ -80,13 +80,15 @@ public partial class Main
 
     private IEnumerable<ulong> AllergicGuestsNear(BinReadModel[] bins)
     {
+        if (bins.Length == 0) yield break;
+        var agents = _session.CaptureObservation().NavigationAgents.ToDictionary(a => a.Id.Value);
         foreach (var person in _session.CapturePreparation()?.People ?? [])
         {
-            if (person.Role != ProtectedPersonRole.Guest || !person.Admitted || person.Departed || !_session.GuestCharacterOf(person.AgentId).WaspAllergy) continue;
-            var nav = _session.CaptureObservation().NavigationAgents.FirstOrDefault(a => a.Id.Value == person.AgentId);
-            if (nav is null) continue;
+            if (person.Role != ProtectedPersonRole.Guest || !person.Admitted || person.Departed || !_session.GuestCharacterOf(person.AgentId).WaspAllergy ||
+                !agents.TryGetValue(person.AgentId, out var nav)) continue;
             var cell = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
-            if (bins.Any(b => Math.Abs(b.Cell.X - cell.X) <= LitterRules.WaspRadiusCells && Math.Abs(b.Cell.Z - cell.Z) <= LitterRules.WaspRadiusCells))
+            // The same round reach the wasps sting within.
+            if (bins.Any(b => (b.Cell.X - cell.X) * (b.Cell.X - cell.X) + (b.Cell.Z - cell.Z) * (b.Cell.Z - cell.Z) <= LitterRules.WaspRadiusCells * LitterRules.WaspRadiusCells))
                 yield return person.AgentId;
         }
     }
