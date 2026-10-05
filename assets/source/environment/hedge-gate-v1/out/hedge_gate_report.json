@@ -1,0 +1,130 @@
+{
+ "lwf_garden_gate_iron_v1": {
+  "file": "lwf_garden_gate_iron_v1.glb",
+  "nodes": [
+   "LWF_GardenGate_Piers",
+   "LWF_GardenGate_Leaf"
+  ],
+  "triangles": 1404,
+  "bounds_godot": [
+   [
+    -0.26,
+    0.006,
+    -1.06
+   ],
+   [
+    0.26,
+    2.64,
+    1.06
+   ]
+  ],
+  "sha256": "fbd4a0bf3a92c19cc7e527c1f43575ca4ec04d7954308e9b878968ec27e072cf",
+  "origin": "opening centre on the ground; gate line along local z, field side +x",
+  "leaf_node": "LWF_GardenGate_Leaf",
+  "leaf_pivot_local": [
+   0.0,
+   0.0,
+   -0.55
+  ],
+  "leaf_length_m": 1.1,
+  "leaf_shut_yaw_deg": -90.0,
+  "leaf_open_yaw_deg": 0.0,
+  "clear_opening_m": 1.16,
+  "note": "leaf geometry runs along its own +x from the hinge; rotation.y -90 = shut (runs to +z), 0 = open (+x, into the field)"
+ },
+ "lwf_garden_path_flagstones_v1": {
+  "file": "lwf_garden_path_flagstones_v1.glb",
+  "nodes": [
+   "LWF_GardenPath_Flagstones"
+  ],
+  "triangles": 804,
+  "bounds_godot": [
+   [
+    -0.3,
+    -0.004,
+    -6.64
+   ],
+   [
+    11.258,
+    0.074,
+    0.593
+   ]
+  ],
+  "sha256": "4863f2c99846c171f410f909d45a18d95baca0b158f16fa0d6a01c91389f93d6",
+  "origin": "the gate opening centre, world (-32, 0, -2), yaw 0",
+  "route_world": [
+   [
+    -31.95,
+    -2.0
+   ],
+   [
+    -26.2,
+    -2.0
+   ],
+   [
+    -21.35,
+    -6.3
+   ],
+   [
+    -21.35,
+    -8.55
+   ]
+  ],
+  "width_m": 0.95,
+  "top_m": 0.074
+ },
+ "lwf_garden_pot_flowers_v1": {
+  "file": "lwf_garden_pot_flowers_v1.glb",
+  "nodes": [
+   "LWF_GardenPot"
+  ],
+  "triangles": 196,
+  "bounds_godot": [
+   [
+    -0.19,
+    0.0,
+    -0.19
+   ],
+   [
+    0.19,
+    0.62,
+    0.19
+   ]
+  ],
+  "sha256": "b0cec140ff922cbb0cfed6a913c6e0c417d725341776d55bb30dc9e99c970f7c",
+  "origin": "ground centre",
+  "height_m": 0.6
+ },
+ "lwf_hedge_gate_lane_v1": {
+  "file": "lwf_hedge_gate_lane_v1.glb",
+  "nodes": [
+   "LWF_HedgeGateLane"
+  ],
+  "triangles": 196,
+  "bounds_godot": [
+   [
+    -6.1,
+    -0.018,
+    -12.0
+   ],
+   [
+    0.02,
+    -0.006,
+    10.0
+   ]
+  ],
+  "sha256": "6dc1fe9860f42ca48b1d70368bc33b6c037bea018e1c06273f546b9a48d2d773",
+  "origin": "the gate opening centre, world (-32, 0, -2), yaw 0",
+  "world_extent": {
+   "x": [
+    -38.1,
+    -31.95
+   ],
+   "z": [
+    -14.0,
+    8.0
+   ]
+  },
+  "heights": "y -0.018 .. -0.006, under the field"
+ }
+}

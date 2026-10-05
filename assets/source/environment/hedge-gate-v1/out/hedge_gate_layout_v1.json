@@ -1,0 +1,102 @@
+{
+ "note": "Godot world metres; yaw degrees about +Y (turns local +x). Built by build_hedge_gate.py.",
+ "hedge_remove": [
+  {
+   "file": "lwf_hedge_straight_8m_c_v1.glb",
+   "x": -32.0,
+   "z": 0.0,
+   "yaw": 90,
+   "why": "Main.BuildHedgeBoundary west run i = 0 (Hedge(i + 6) = 'c'), covers z 0 .. -8"
+  }
+ ],
+ "hedge_add": [
+  {
+   "file": "lwf_hedge_gate_end_v1.glb",
+   "x": -32.0,
+   "z": 0.0,
+   "yaw": 90,
+   "covers_z": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "file": "lwf_hedge_gate_end_v1.glb",
+   "x": -32.0,
+   "z": -4.0,
+   "yaw": 270,
+   "covers_z": [
+    -4.0,
+    -3.0
+   ]
+  },
+  {
+   "file": "lwf_hedge_straight_4m_a_v1.glb",
+   "x": -32.0,
+   "z": -4.0,
+   "yaw": 90,
+   "covers_z": [
+    -4.0,
+    -8.0
+   ]
+  }
+ ],
+ "gate": {
+  "file": "lwf_garden_gate_iron_v1.glb",
+  "x": -32.0,
+  "z": -2.0,
+  "yaw": 0,
+  "leaf_node": "LWF_GardenGate_Leaf",
+  "hinge_world": [
+   -32.0,
+   -2.55
+  ],
+  "leaf_shut_yaw": -90.0,
+  "leaf_open_yaw": 0.0,
+  "clear_opening_m": 1.16,
+  "leaf_length_m": 1.1
+ },
+ "path": {
+  "file": "lwf_garden_path_flagstones_v1.glb",
+  "x": -32.0,
+  "z": -2.0,
+  "yaw": 0
+ },
+ "pots": [
+  {
+   "file": "lwf_garden_pot_flowers_v1.glb",
+   "x": -22.45,
+   "z": -8.85,
+   "yaw": 0
+  },
+  {
+   "file": "lwf_garden_pot_flowers_v1.glb",
+   "x": -20.25,
+   "z": -8.85,
+   "yaw": 40
+  },
+  {
+   "file": "lwf_garden_pot_flowers_v1.glb",
+   "x": -31.2,
+   "z": -0.75,
+   "yaw": 15
+  }
+ ],
+ "lane": {
+  "file": "lwf_hedge_gate_lane_v1.glb",
+  "x": -32.0,
+  "z": -2.0,
+  "yaw": 0
+ },
+ "barrier_gap_closure": {
+  "file": "lwf_hedge_gate_end_v1.glb",
+  "x": -31.45,
+  "z": 7.75,
+  "yaw": 0,
+  "covers_x": [
+   -31.55,
+   -30.45
+  ],
+  "why": "a short hedge spur from the west hedge towards the backstage west closure's end at x -30.2"
+ }
+}

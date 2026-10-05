@@ -330,7 +330,21 @@ public sealed partial class GameSession
         StartLivePerformance();
     }
 
-    private static GridCell PreparedStart(int index) => new(122 + index % 6 * 2, 190 + index / 6 * 2);
+    /// <summary>
+    /// Where someone comes in, and leaves again: guests by the main gate, bands off the lane through the garden gate in the
+    /// west hedge, and staff out of the farmhouse front door.
+    /// </summary>
+    private GridCell PreparedStart(int index)
+    {
+        var roster = PeopleIn(PersonView.Roster);
+        var ordinal = roster.Take(index).Count(person => person.Role == roster[index].Role);
+        return roster[index].Role switch
+        {
+            ProtectedPersonRole.Performer => Backstage.LaneStart(ordinal),
+            ProtectedPersonRole.Staff => Backstage.DoorStart(ordinal),
+            _ => new(122 + index % 6 * 2, 190 + index / 6 * 2),
+        };
+    }
     // Physical presence includes collapsed guests until their recorded departure.
     public int OnSiteAttendeeCount => PeopleIn(PersonView.Roster).Count(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed);
     private static GridCell PreparedPlace(int index) => new(122 + index % 6 * 2, 156 + index / 6 * 2);

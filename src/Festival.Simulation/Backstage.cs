@@ -51,6 +51,15 @@ public static class Backstage
     /// <summary>Where a band member waits: a loose cluster on the stage side of backstage, by roster order among the performers.</summary>
     public static GridCell Place(int performerIndex) => new(76 + performerIndex % 4 * 3, 126 + performerIndex / 4 % 3 * 3);
 
+    /// <summary>The garden gate in the west hedge, from the lane into backstage: two cells clear between its stone piers.</summary>
+    public static bool HedgeGate(GridCell cell) => cell.X is >= 63 and <= 65 && cell.Z is 123 or 124;
+
+    /// <summary>Where a band member steps off the lane, in a loose line along it outside the garden gate.</summary>
+    public static GridCell LaneStart(int performerIndex) => new(56 + performerIndex % 2 * 2, 112 + performerIndex * 3);
+
+    /// <summary>Where a member of staff comes out of the farmhouse front door.</summary>
+    public static GridCell DoorStart(int staffIndex) => new(84 + staffIndex % 3, 112 + staffIndex / 3);
+
     /// <summary>The flight cases and crate pile, world millimetres: solid, so nobody walks through them.</summary>
     public static readonly (int X, int Z)[] Props = [(-18_600, 3_600), (-19_500, 2_200), (-20_500, -1_500)];
 

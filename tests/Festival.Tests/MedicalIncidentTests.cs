@@ -132,6 +132,10 @@ public sealed class MedicalIncidentTests
         var s = Started();
         var field = typeof(GameSession).GetProperty("MedicalView", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var medical = s.CaptureMedical()!;
+        // Nobody comes: the medic, out of the farmhouse by the band's backstage, would otherwise be there in time.
+        typeof(GameSession).GetMethod("MutatePerson", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s,
+            [medical.MedicId, (Action<Person>)(p => p.Intent = MedicalIntent.Leaving)]);
+        medical = s.CaptureMedical()!;
         var performer = medical.Needs.First(item => item.Profile == MedicalNeedProfile.Performer);
         field.SetValue(s, medical with { Needs = medical.Needs.Select(item => item.AgentId == performer.AgentId
             ? item with { Thirst = 9_000, HeatExposure = 8_000, Stage = MedicalStage.Distress,

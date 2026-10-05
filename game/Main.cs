@@ -36,7 +36,7 @@ public partial class Main : Node, IHudHost
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v31", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v31");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v32", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v32");
 
     public override void _Ready()
     {
@@ -78,6 +78,7 @@ public partial class Main : Node, IHudHost
         ProcessStageSet(delta);
         ProcessMoments(delta);
         ProcessFieldNotes(delta);
+        ProcessGardenGate(delta);
         ProcessMoods(delta);
         ProcessChatter(delta);
         ProcessGenerator(delta);
@@ -249,9 +250,10 @@ public partial class Main : Node, IHudHost
         {
             RegisterBreezeHedge(AddAsset(Hedge(i + 4), new Vector3(i * 8, 0, -32)));
             if (i is not -1 and not 0) RegisterBreezeHedge(AddAsset(Hedge(i + 5), new Vector3(i * 8, 0, 32)));
-            var left = AddAsset(Hedge(i + 6), new Vector3(-32, 0, i * 8)); left.RotationDegrees = new Vector3(0, 90, 0);
+            // The west run beside the farmhouse is cut for the bands' garden gate (Main.Backstage).
+            if (i != 0) { var left = AddAsset(Hedge(i + 6), new Vector3(-32, 0, i * 8)); left.RotationDegrees = new Vector3(0, 90, 0); RegisterBreezeHedge(left); }
             var right = AddAsset(Hedge(i + 7), new Vector3(32, 0, i * 8)); right.RotationDegrees = new Vector3(0, 90, 0);
-            RegisterBreezeHedge(left); RegisterBreezeHedge(right);
+            RegisterBreezeHedge(right);
         }
         RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(-8, 0, 32)));
         RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(4, 0, 32)));
@@ -553,7 +555,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v31");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v32");
 
 
 

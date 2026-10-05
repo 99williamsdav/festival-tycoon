@@ -359,7 +359,7 @@ public sealed class LitterTests
         typeof(GameSession).GetProperty("Phase")!.SetValue(s, SessionPhase.Egress);
         typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, prep with { Status = PreparationStatus.Departing });
         var index = Array.FindIndex(prep.People, p => p.AgentId == id);
-        var exit = (GridCell)typeof(GameSession).GetMethod("PreparedStart", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [index])!;
+        var exit = (GridCell)typeof(GameSession).GetMethod("PreparedStart", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [index])!;
         Position(s, id, exit);
         var navs = (IDictionary)typeof(GameSession).GetField("_navigationAgents", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(s)!;
         var nav = navs[new EntityId(id)]!; nav.GetType().GetProperty("IntentId")!.SetValue(nav, "edition.departure");
