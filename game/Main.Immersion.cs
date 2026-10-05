@@ -79,7 +79,10 @@ public partial class Main
         var lightweight = _session.GuestCharacterOf(candidate.AgentId).Lightweight && candidate.AgentId % 2 == 0;
         string[] lines = candidate.Intoxication >= 5000 ? ["Feeling wobbly • time for a rest", "Everything's a bit spinny", "Need to sit down…"]
             : lightweight ? ["I've only had one!", "That's gone to my head"]
-            : ["Feeling a bit tipsy", "Woo! Love this lot!", "Who wants another?", "I'm not drunk, you're drunk"];
+            // Loving the band needs a band playing.
+            : _session.CaptureLivePerformance()?.Stage == LiveSetStage.Live
+                ? ["Feeling a bit tipsy", "Woo! Love this lot!", "Who wants another?", "I'm not drunk, you're drunk"]
+                : ["Feeling a bit tipsy", "Who wants another?", "I'm not drunk, you're drunk"];
         _immersionRemark.Text = lines[(int)((candidate.AgentId + (ulong)_session.CurrentTick / 80) % (ulong)lines.Length)];
         _immersionRemark.Modulate = MoodColour(candidate.Intoxication >= 5000 ? Mood.Grumble : Mood.Happy);
         _immersionRemark.Position = visual.Position + new Vector3(0, 2.35f, 0); _immersionRemark.Visible = true;

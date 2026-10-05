@@ -1,13 +1,14 @@
 namespace Festival.Simulation;
 
 // Cosmetic projection only. Neither order nor filter enters GameSession state.
-public enum BookingSortField { Band, Genre, Price, Popularity, Ego, Professionalism }
+public enum BookingSortField { Band, Genre, Price, Popularity, Ego, Professionalism, Talent }
 
 public static class BookingTableView
 {
     public static int HalfStarUnits(int score) => (Math.Clamp(score, 0, 100) + 5) / 10;
 
-    public static FestivalAct[] Project(IEnumerable<FestivalAct> acts, int? genre, BookingSortField field, bool descending)
+    /// <param name="talent">Live talent where the player has seen the act, else null; unknown acts sort after known ones.</param>
+    public static FestivalAct[] Project(IEnumerable<FestivalAct> acts, int? genre, BookingSortField field, bool descending, Func<FestivalAct, int?>? talent = null)
     {
         if (genre is < 0 or > 3) throw new ArgumentOutOfRangeException(nameof(genre));
         var selected = genre is { } value ? acts.Where(act => act.Genre == value) : acts;
@@ -19,6 +20,8 @@ public static class BookingTableView
             BookingSortField.Popularity => Sort(selected, act => act.Popularity, descending),
             BookingSortField.Ego => Sort(selected, act => act.Ego, descending),
             BookingSortField.Professionalism => Sort(selected, act => act.Professionalism, descending),
+            BookingSortField.Talent => selected.OrderBy(act => talent?.Invoke(act) is null ? 1 : 0)
+                .ThenBy(act => descending ? -(talent?.Invoke(act) ?? 0) : talent?.Invoke(act) ?? 0),
             _ => throw new ArgumentOutOfRangeException(nameof(field))
         };
         return sorted.ThenBy(act => act.Name, StringComparer.Ordinal).ThenBy(act => act.Id, StringComparer.Ordinal).ToArray();

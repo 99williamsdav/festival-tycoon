@@ -120,10 +120,6 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             TooltipText = "Restore standard service positions at normal draft cost; other preparation choices stay.",
             MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Secondary, 12.5f);
         _defaultsButton.Pressed += ShowDefaults; actions.AddChild(_defaultsButton);
-        var water = Ui.Style(new Button { Text = "Site & water", CustomMinimumSize = new Vector2(0, Ui.S(30)),
-            TooltipText = "Water sharing and additional tap choices; placement stays in Build.", MouseDefaultCursorShape = Control.CursorShape.PointingHand },
-            Ui.ButtonKind.Quiet, 12.5f);
-        water.Pressed += () => _actions.OpenTab("Site & water"); actions.AddChild(water);
         box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(14)) });
 
         _buildDefaultsDialog = new ConfirmationDialog { Title = "Replace service layout?", OkButtonText = "Replace layout",

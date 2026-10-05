@@ -9,7 +9,7 @@ public static class PerkCatalogue
     public const string BeerFestival = "beer-festival", FriendlyQueues = "friendly-queues", BringYourOwnBottle = "bring-your-own-bottle",
         ColaFiends = "cola-fiends", Alcoholics = "alcoholics", RobotWorkers = "robot-workers";
     public static readonly PerkDefinition[] All = [
-        new("extra-pair-of-hands", "Extra Pair of Hands", "+1 steward hiring slot. Hire separately for £30 per weekend."),
+        new("extra-pair-of-hands", "Extra Pair of Hands", "+1 steward hiring slot"),
         new("doctors-orders", "Doctor's Orders", "+1 medic hiring slot. Hire separately for £30 per weekend."),
         new("another-round", "Another Round", "+1 placeable free-water tap above the guaranteed baseline."),
         new("high-pressure", "High Pressure", "Water tower adds +4 flow to each tap."),
@@ -17,11 +17,11 @@ public static class PerkCatalogue
         new("first-responders", "First Responders", "All medics walk faster and treat more quickly."),
         new("something-in-the-water", "Something in the Water", "Drinking free water improves satisfaction."),
         new("thirsty-crowd", "Thirsty Crowd", "Guests grow thirsty faster."),
-        new(BeerFestival, "Beer Festival", "Beer costs 50% more. No teetotallers, and everyone drinks a little more."),
+        new(BeerFestival, "Beer Festival", "Charge 50% more for beer and everyone loves it."),
         new(FriendlyQueues, "Friendly Queues", "Guests chat in queues and gain satisfaction while they wait."),
         new(BringYourOwnBottle, "Bring Your Own Bottle", "Guests get thirsty more slowly, but take longer to fill up at taps."),
         new(ColaFiends, "Cola Fiends", "Guests prefer soft drinks to free water."),
-        new(Alcoholics, "Alcoholics", "Guests buy much more beer, and get drunk more."),
+        new(Alcoholics, "Alcoholics", "Guests buy more beer... For better or worse."),
         new(RobotWorkers, "Robot Workers", "Staff never need to drink, eat, cool off or use the loo.")
     ];
 }

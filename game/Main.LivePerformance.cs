@@ -231,7 +231,7 @@ public partial class Main
             new OmniLight3D { Position = new Vector3(-14.5f, 2.2f, 10), OmniRange = 8,
                 LightColor = new Color("eaa8ff"), LightEnergy = 0.8f }];
         foreach (var light in _stageLights) AddChild(light);
-        _stageWorldCue = BuildingName("TRAILER STAGE",new Vector3(-16,4.2f,11));
+        _stageWorldCue = BuildingName("TRAILER STAGE",new Vector3(-16,5.2f,11));
         AddChild(_stageWorldCue);
     }
 

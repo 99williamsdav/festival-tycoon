@@ -31,7 +31,6 @@ public partial class Main
     private bool _hudWorkspaceOpen = true;
     private bool _hudProgrammeOpen = true;
     private bool _hudDevelopment;
-    private bool _hudWaterExact;
 
 
 
@@ -63,7 +62,7 @@ public partial class Main
         corner.AddChild(collapsePreparation);
         _hudTabs.TabsVisible = false;
         _hudTabs.UseHiddenTabsForMinSize = false;
-        foreach (var name in new[] { "Build", "Overview", "Programme", "Staff", "Supplies", "Site & water" })
+        foreach (var name in new[] { "Build", "Overview", "Programme", "Staff", "Supplies" })
         {
             var scroll = new ScrollContainer { Name = name, HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled };
             // These sheets scroll their own tables, keeping the running order or crew in view.
@@ -92,7 +91,7 @@ public partial class Main
         overview.AddChild(ButtonText("Open Build catalogue", () => OpenBuildCatalogue()));
         Drawer.AddChecklistShortcuts(overview);
 
-        foreach (var (name, label) in new[] { ("Programme", "Choose acts"), ("Staff", "Manage staff"), ("Supplies", "Review supplies"), ("Site & water", "Review site") })
+        foreach (var (name, label) in new[] { ("Programme", "Choose acts"), ("Staff", "Manage staff"), ("Supplies", "Review supplies") })
         {
             var destination = name; var shortcut = ButtonText(label, () => SelectHudTab(destination)); shortcut.CustomMinimumSize = new Vector2(0, 32); overview.AddChild(shortcut);
         }
@@ -100,12 +99,6 @@ public partial class Main
         BuildStaffPage(_hudPages["Staff"]);
         BuildSuppliesPage(_hudPages["Supplies"]);
         _preparationOfferBox = _hudPages["Staff"]; _preparationOfferInsertIndex = _preparationOfferBox.GetChildCount(); RebuildPreparationOffers();
-        var site = _hudPages["Site & water"];
-        site.AddChild(HudLabel("Site & water", 21)); site.AddChild(HudLabel("Manage water choices here. Place taps and other services through Build; select a placed object on the field to move it."));
-        site.AddChild(HudLabel("Council water choice • this festival\nShare free water with the neighbouring community. Faster drinkers take longer; queues may grow. Honour the full festival for 1 Council Favour, once per campaign."));
-        _communityShareInfo = HudLabel(""); _communityShareInfo.Visible = false; site.AddChild(_communityShareInfo);
-        site.AddChild(ButtonText("Exact effect ▸", () => { _hudWaterExact = !_hudWaterExact; RefreshHudWorkspace(); }));
-        _communityShareButton = ButtonText("Commit water sharing", () => CommitEquipmentAction(new CommitCommunityWaterShareCommand())); site.AddChild(_communityShareButton);
         var footer = new HBoxContainer(); var footerSeparator = new HSeparator(); workspaceBox.AddChild(footerSeparator); workspaceBox.AddChild(footer);
         footer.Visible = false; footerSeparator.Visible = false;
         _hudStartReason = HudLabel(""); footer.AddChild(_hudStartReason);
@@ -256,7 +249,6 @@ public partial class Main
         }
         _preparationStart.TooltipText = _hudStartReason.Text;
         _hudMenu!.Size = new Vector2(250, 270);
-        if (_communityShareInfo is not null) _communityShareInfo.Visible = _hudWaterExact;
         _hudDiagnosticsText!.Text = $"Tick {_session.CurrentTick} · hash {_session.CaptureSnapshot().AuthoritativeHash}\nPhase {_session.Phase} · status {p.Status} · paused {_session.IsPaused}\n{_preparationMessage}";
         _preparationSummary.Text = $"{(_session.CaptureProgramme() is null ? "Fixed festival roster" : "Three fixed sets · eight-minute festival day")}\n" +
             $"Programme: {(_session.CaptureProgramme() is { ActIds.Length: 3 } ? "three acts booked" : p.AcceptedOffers.Any(id => id.StartsWith("act.", StringComparison.Ordinal)) ? "act booked" : "choose before opening")}\n" +

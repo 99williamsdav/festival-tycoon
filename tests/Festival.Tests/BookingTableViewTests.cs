@@ -36,7 +36,7 @@ public sealed class BookingTableViewTests
             [BookingSortField.Ego] = (["a", "z", "b", "f", "c", "n"], ["n", "c", "f", "b", "a", "z"]),
             [BookingSortField.Professionalism] = (["b", "c", "f", "a", "z", "n"], ["n", "a", "z", "f", "c", "b"])
         };
-        foreach (var field in Enum.GetValues<BookingSortField>())
+        foreach (var field in Enum.GetValues<BookingSortField>().Where(field => field != BookingSortField.Talent))
         {
             foreach (var descending in new[] { false, true })
             {

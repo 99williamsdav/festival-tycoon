@@ -31,15 +31,15 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
     }
 
     private sealed record SetCard(BookingDragButton Target, Label Caption, Label Title, Label Detail, Button Remove);
-    private sealed record ActRow(BookingDragButton Card, Label Detail, Label Fee);
+    private sealed record ActRow(BookingDragButton Card, Label Detail, Label Fee, RatingBars Talent, Label TalentUnknown);
 
-    private static readonly string[] ColumnTitles = ["Act", "Genre", "Fee", "Popular", "Ego", "Pro"];
-    private static readonly string[] SortWords = ["name", "genre", "fee", "popularity", "ego", "professionalism"];
+    private static readonly string[] ColumnTitles = ["Act", "Genre", "Fee", "Popular", "Ego", "Pro", "Talent"];
+    private static readonly string[] SortWords = ["name", "genre", "fee", "popularity", "ego", "professionalism", "talent"];
     private const string BookingDefaultMeaning = "Bars show intensity, not quality. High ego = more demanding and headline-sensitive.";
 
     private Control? _bookingLane;
     private readonly Dictionary<string, ActRow> _bookingRows = [];
-    private readonly Button[] _bookingHeaders = new Button[6];
+    private readonly Button[] _bookingHeaders = new Button[7];
     private VBoxContainer? _bookingTableBody;
     private OptionButton? _bookingGenreFilter;
     private Label? _bookingTableCount;
@@ -353,13 +353,20 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         Cell(line, 3, new RatingBars { Score = act.Popularity, Ink = Ui.Teal });
         Cell(line, 4, new RatingBars { Score = act.Ego, Ink = Ui.Alert });
         Cell(line, 5, new RatingBars { Score = act.Professionalism, Ink = new Color("3e5a8c") });
+        // How good they are live: a question mark until they've played for you.
+        var talentCell = new Control { MouseFilter = Control.MouseFilterEnum.Ignore };
+        var talent = new RatingBars { Ink = Ui.Gold, Visible = false, MouseFilter = Control.MouseFilterEnum.Ignore };
+        talent.SetAnchorsPreset(Control.LayoutPreset.CenterLeft); talentCell.AddChild(talent);
+        var unknown = Ui.Text("?", 14, Ui.InkMuted, Ui.BodyBold); unknown.MouseFilter = Control.MouseFilterEnum.Ignore;
+        unknown.SetAnchorsPreset(Control.LayoutPreset.CenterLeft); unknown.GrowVertical = Control.GrowDirection.Both; talentCell.AddChild(unknown);
+        Cell(line, 6, talentCell);
         card.DragPayload = () => BeginBookingDrag(id); card.Pressed += () => SelectBookingBand(id);
         card.GuiInput += input => HandleBookingKey(card, input, () => SelectBookingBand(id));
         card.FocusEntered += () => ShowExactScores(act);
         card.MouseEntered += () => ShowExactScores(act);
         card.FocusExited += () => { if (_bookingMeaning is not null) _bookingMeaning.Text = BookingDefaultMeaning; };
         card.MouseExited += () => { if (!card.HasFocus() && _bookingMeaning is not null) _bookingMeaning.Text = BookingDefaultMeaning; };
-        _bookingRows.Add(id, new ActRow(card, detail, fee));
+        _bookingRows.Add(id, new ActRow(card, detail, fee, talent, unknown));
         return card;
     }
 
@@ -455,7 +462,8 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         SyncRows(acts);
         if (_bookingSelected is { } stale && !_bookingRows.ContainsKey(stale)) _bookingSelected = null;
         // Acts who won't play yet sit below the ones who will, whatever the sort.
-        var projected = BookingTableView.Project(acts, _bookingGenre, _bookingSort, _bookingDescending)
+        var projected = BookingTableView.Project(acts, _bookingGenre, _bookingSort, _bookingDescending,
+                act => session.TalentKnown(act) ? PerformanceRules.Talent(act) : null)
             .OrderBy(act => session.ActStandingOf(act) == ActStanding.Locked ? 1 : 0).ToArray();
         for (var index = 0; index < projected.Length; index++) _bookingTableBody!.MoveChild(_bookingRows[projected[index].Id].Card, index);
         var willPlay = acts.Count(act => session.ActStandingOf(act) != ActStanding.Locked);
@@ -475,6 +483,9 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             row.Card.Visible = _bookingGenre is null || act.Genre == _bookingGenre;
             var standing = session.ActStandingOf(act);
             row.Fee.Text = FestivalCurrency.Format(session.ActFee(act));
+            var seen = session.TalentKnown(act);
+            row.Talent.Visible = seen; row.TalentUnknown.Visible = !seen;
+            if (seen) row.Talent.Score = PerformanceRules.Talent(act);
             row.Fee.AddThemeColorOverride("font_color", standing == ActStanding.Stretch ? Ui.Link : Ui.Ink);
             row.Detail.Text = assigned >= 0 ? $"Booked · Set {assigned + 1}" : standing == ActStanding.Locked ? $"Needs reputation {session.ActReputationNeeded(act)}" :
                 standing == ActStanding.Stretch ? "Stretch booking · fee ×1.5" : ExpectsToHeadline(act) ? "Expects to headline" : "Available";

@@ -7,7 +7,7 @@
     {
       "id": "extra-pair-of-hands",
       "name": "Extra Pair of Hands",
-      "effect": "+1 steward hiring slot. Hire separately for £30 per weekend.",
+      "effect": "+1 steward hiring slot",
       "subject": "A pair of upright teal festival steward safety vests side by side, the nearer vest larger, simple cream reflective bands and a small golden addition-plus symbol between them. No people, no medical equipment. This means an additional steward hiring slot, not training.",
       "artwork": "artwork/extra-pair-of-hands.png",
       "width": 1536,
@@ -111,7 +111,7 @@
     {
       "id": "beer-festival",
       "name": "Beer Festival",
-      "effect": "Beer costs 50% more. No teetotallers, and everyone drinks a little more.",
+      "effect": "Charge 50% more for beer and everyone loves it.",
       "subject": "Two frothy golden-amber pint glasses raised and clinking in a cheers at the centre: cream foam heads, with a few small splash tesserae; one glass slightly nearer and larger. Behind the glasses, a short string of three or four triangular bunting pennants (teal, golden yellow, cream) runs across the top. Warm gold sun rays; sage and teal leaves in the low corners. No people, hands, faces, bottles, kegs, tap handles, price tags, £ signs, numerals or text. No drunkenness cues. A celebratory drinks festival, not water.",
       "artwork": "artwork/beer-festival.png",
       "width": 1536,
@@ -167,7 +167,7 @@
     {
       "id": "alcoholics",
       "name": "Alcoholics",
-      "effect": "Guests buy much more beer, and get drunk more.",
+      "effect": "Guests buy more beer... For better or worse.",
       "subject": "A stack of three empty pint glasses: two at the base, one balanced on top. The stack is tipping slightly to one side. A little amber dregs and foam at the bottom of each glass. Three short golden wobble or motion lines beside the top glass hint at risk. Muted sun rays; sage leaves low. No people, faces, vomit, bottles, money or numerals. Light-hearted caution, not squalor.",
       "artwork": "artwork/alcoholics.png",
       "width": 1536,

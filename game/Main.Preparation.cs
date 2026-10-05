@@ -25,8 +25,6 @@ public partial class Main
     private VBoxContainer? _preparationOfferBox;
     private int _preparationOfferInsertIndex;
     private Button _preparationStart = null!;
-    private Button? _communityShareButton;
-    private Label? _communityShareInfo;
     private string _preparationMessage = "Choose one act and one worker. Equipment and stock are optional.";
     private long _preparationLiveStarted;
 
@@ -189,15 +187,6 @@ public partial class Main
             _generatorText.TooltipText = $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)}) · bar {power.Bar} · food van {power.Food} · festoon lights {power.Lights} (from dusk)";
         }
         _preparationStart.Disabled = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand())) is not null;
-        if (_communityShareButton is not null)
-        {
-            _communityShareButton.Visible = p.Status == PreparationStatus.Preparing;
-            _communityShareButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new CommitCommunityWaterShareCommand())) is not null;
-            _communityShareInfo!.Text = p.CommunityShareAttempt == 0 ? _session.CommunityWaterShareDisclosure ?? "Council sharing is unavailable in this saved mode." :
-                $"SHARING COMMITTED • weekend attempt {p.CommunityShareAttempt}. Personal baseline cap 12 thirst units/tick for faster drinkers before tower +4; queues may grow. " +
-                (p.CommunityFavourClaimed ? "1 Council Favour awarded after the full weekend." : "1 Council Favour only after the full weekend is honoured.");
-        }
-        if (_communityShareInfo is not null) _communityShareInfo.Text = FestivalCopy(_communityShareInfo.Text);
         _preparationSummary.TooltipText = FestivalCopy(_preparationMessage);
         var examples = p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Take(2)
             .Concat(p.People.Where(item => item.Role != ProtectedPersonRole.Guest));
