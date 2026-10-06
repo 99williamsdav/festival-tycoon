@@ -9,6 +9,9 @@ public sealed partial class GameSession
     public string? CouncilLesson()
     {
         if (_equipment?.Stage == EquipmentStage.Terminal) return "Perhaps keeping an eye on the generator capacity would have been smart.";
+        // A fight's death goes on record as a disorder death, never a medical one.
+        if (_lifecycle?.Casualties.LastOrDefault()?.TransactionId.StartsWith("disorder-death:", StringComparison.Ordinal) == true)
+            return InjuryLesson;
         // The death on record names who died; names are unique on a roster.
         if (CaptureMedical() is not { Fatal: true } || _lifecycle?.Casualties.LastOrDefault() is not { } casualty ||
             PeopleIn(PersonView.Roster).FirstOrDefault(p => p.Name == casualty.PersonId) is not { } victim) return null;
@@ -22,15 +25,20 @@ public sealed partial class GameSession
                 : "Perhaps someone could have emptied that bin before the wasps moved in.",
             CollapseCause.ToiletFumes => "How someone can be left stuck in a loo long enough to die is beyond me.",
             CollapseCause.Drink => "A festival can survive without that last round, you know.",
-            CollapseCause.Injury => "Perhaps someone could have stepped in before it came to blows?",
+            CollapseCause.Injury => InjuryLesson,
             _ => "It was hot. People get thirsty. Perhaps more water than one tap's worth?",
         };
     }
 
+    private const string InjuryLesson = "Perhaps someone could have stepped in before it came to blows?";
+
     /// <summary>A below-standard medic was hired, or nobody was sent to them before they died.</summary>
     private bool MedicWasTheWeakLink(ulong id) =>
         HiredStaff(StaffRole.Medic) is { Grade: < 0 } ||
-        !_medical!.Evidence.Any(e => e.Id == "medical:dispatch" && e.Description.EndsWith($"dispatched to patient {id}.", StringComparison.Ordinal));
+        !_medical!.Evidence.Any(e => e.Id == "medical:dispatch" && e.Description.EndsWith(MedicDispatchedTo(id), StringComparison.Ordinal));
+
+    /// <summary>The tail of the dispatch record naming the patient: shared with where it's written.</summary>
+    private static string MedicDispatchedTo(ulong patientId) => $"dispatched to patient {patientId}.";
 
     /// <summary>The wasp bin nearest the victim stood among the audience, or with a crowd round it.</summary>
     private bool StungByACrowdedBin(ulong id)

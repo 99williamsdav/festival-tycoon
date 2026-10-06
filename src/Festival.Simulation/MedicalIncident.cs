@@ -321,7 +321,7 @@ public sealed partial class GameSession
         var responseCell = MedicalResponseCell(workerId, command.GuestId)!.Value;
         ApplyAgentDestination(new(workerId), new(responseCell, "medical.dispatch"));
         SetMedicResponse(new(workerId, MedicalResponseStage.Travelling, command.GuestId, -1, "Medic dispatched; physical travel and treatment required", CurrentTick));
-        MedicalEvent("medical:dispatch", $"Worker {workerId} dispatched to patient {command.GuestId}.");
+        MedicalEvent("medical:dispatch", $"Worker {workerId} {MedicDispatchedTo(command.GuestId)}");
     }
 
     private void SeekWater(ulong id, string reason, string? pointId = null)
