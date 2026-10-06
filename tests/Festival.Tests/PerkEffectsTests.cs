@@ -41,6 +41,22 @@ public sealed class PerkEffectsTests
     {
         var (before, after) = (Days(null), Days(PerkCatalogue.FriendlyQueues));
         Assert.IsTrue(after.Satisfaction > before.Satisfaction, $"{before.Satisfaction} to {after.Satisfaction}.");
+        // Fewer people lose patience in a queue over the same days.
+        static int Impatient(string? perk) => Seeds.AsParallel().Sum(seed =>
+        {
+            var s = perk is null ? Planned(seed) : Planned(seed, perk);
+            foreach (var hire in Crew(s)) Accept(s, hire);
+            Accept(s, new StartPreparedEditionCommand());
+            var samples = 0;
+            for (var k = 0; k < 120; k++)
+            {
+                s.AdvanceWithoutSnapshot(160);
+                samples += s.CaptureDisorder()!.People.Count(p => p.Grievance is DisorderGrievance.QueueWait or DisorderGrievance.WaterWait);
+            }
+            return samples;
+        });
+        var (plain, friendly) = (Impatient(null), Impatient(PerkCatalogue.FriendlyQueues));
+        Assert.IsTrue(friendly < plain, $"Queue impatience {plain} to {friendly}.");
     }
 
     [TestMethod]
