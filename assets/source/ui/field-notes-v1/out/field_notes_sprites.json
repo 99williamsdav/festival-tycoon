@@ -1,0 +1,279 @@
+{
+ "pin_wasps.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_heat.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_drink.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_stuck.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_toxic.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_power.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_tempers.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_late.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_litter.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_dusk.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
+ "pin_glow.png": {
+  "size": [
+   96,
+   96
+  ],
+  "centre_px": [
+   48,
+   48
+  ],
+  "note": "centre on the pin's disc centre, behind the pin, dusk only"
+ },
+ "wasp_marker.png": {
+  "size": [
+   32,
+   32
+  ],
+  "note": "2x; shows 16 px at 1280 x 720"
+ },
+ "wasp_marker_16.png": {
+  "size": [
+   16,
+   16
+  ],
+  "note": "1x, for small or 1x screens"
+ },
+ "doodle_wasps.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_heat.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_drink.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_stuck.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_toxic.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_power.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_tempers.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_late.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_litter.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_dusk.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_unknown.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "ring.png": {
+  "size": [
+   92,
+   92
+  ],
+  "note": "hand-drawn gold ring with a small gap at the top right; 46 px card, 50 px guide (1280 x 720)"
+ },
+ "ring_blank.png": {
+  "size": [
+   100,
+   100
+  ],
+  "note": "dashed ring for unseen guide entries, 50 px (1280 x 720)"
+ },
+ "torn_edge.png": {
+  "size": [
+   256,
+   14
+  ],
+  "note": "paper colour with a torn lower edge; tile horizontally under the card body, 7 px tall at 1280 x 720"
+ },
+ "tape.png": {
+  "size": [
+   156,
+   44
+  ],
+  "note": "washi tape, 78 x 22 at 1280 x 720, rotated -7 degrees, alpha in the texture"
+ },
+ "guide_gutter.png": {
+  "size": [
+   56,
+   8
+  ],
+  "note": "tiles vertically down the middle of the guide spread, 28 px wide at 1280 x 720"
+ }
+}

@@ -12,7 +12,7 @@ internal sealed class StartMenu
 
     public void Close() { _layer?.QueueFree(); _layer = null; }
 
-    public void Open(Node parent, Action enter)
+    public void Open(Node parent, Action enter, Action fieldGuide)
     {
         _layer = new CanvasLayer { Layer = 20 };
         parent.AddChild(_layer);
@@ -49,6 +49,11 @@ internal sealed class StartMenu
         button.AddThemeFontSizeOverride("font_size", 21);
         button.Pressed += enter;
         content.AddChild(button);
+        var guide = new Button { Name = "FieldGuide", Text = "Field guide", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+            MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+        guide.AddThemeColorOverride("font_color", new Color("f3e8c9")); guide.AddThemeFontSizeOverride("font_size", 16);
+        guide.Pressed += fieldGuide;
+        content.AddChild(guide);
         button.GrabFocus();
     }
 }

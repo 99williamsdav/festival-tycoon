@@ -15,7 +15,7 @@ public partial class Main
     private StartMenu? _startMenuView;
     private StartMenu StartMenu => _startMenuView ??= new();
 
-    private void BuildStartSplash() => StartMenu.Open(this, EnterFestival);
+    private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide);
 
     private void EnterFestival()
     {

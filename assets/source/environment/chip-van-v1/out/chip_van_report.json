@@ -1,0 +1,17 @@
+{
+ "file": "lwf_food_van_name_panel_chip_block_v1.glb",
+ "node": "LWF_FoodVan_NamePanel",
+ "size_m": [
+  2.5,
+  0.31
+ ],
+ "faces": "+Z (Godot)",
+ "triangles": 2,
+ "place": "child of the fascia node, Position (0, 0, 0.056)",
+ "sha256": "a0c246986ab9d25a864634c5397fd9b0a5224a80e947e7907343fe02babae2d0",
+ "normal_blender": [
+  0.0,
+  -1.0,
+  -0.0
+ ]
+}

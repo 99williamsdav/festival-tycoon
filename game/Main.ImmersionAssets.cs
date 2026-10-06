@@ -27,7 +27,32 @@ public partial class Main
         var fascia = InstantiateAsset("res://assets/environment/lwf_food_van_fascia_v1.glb");
         fascia.Position = new Vector3(2.15f, 2.49f, 1.18f);
         assembly.AddChild(fascia);
+        // The trader's livery: their colours on the van, and their name painted across the fascia.
+        var panel = InstantiateAsset("res://assets/environment/lwf_food_van_name_panel_chip_block_v1.glb");
+        panel.Position = new Vector3(0, 0, 0.056f);
+        fascia.AddChild(panel);
+        ApplyFoodVanLivery(assembly, "res://assets/environment/lwf_food_van_palette_chip_block_v1.png");
         return vendor;
+    }
+
+    private StandardMaterial3D? _foodVanLivery;
+
+    /// <summary>Swaps the van's palette for the trader's; wheels, counter and hatch keep their swatches.</summary>
+    private void ApplyFoodVanLivery(Node3D van, string palette)
+    {
+        foreach (var mesh in van.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
+            for (var surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
+            {
+                if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D source ||
+                    !source.ResourceName.StartsWith("LWF_FoodVan_MattePalette", StringComparison.Ordinal)) continue;
+                if (_foodVanLivery is null)
+                {
+                    _foodVanLivery = (StandardMaterial3D)source.Duplicate();
+                    _foodVanLivery.AlbedoTexture = GD.Load<Texture2D>(palette);
+                    _foodVanLivery.TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest;
+                }
+                mesh.SetSurfaceOverrideMaterial(surface, _foodVanLivery);
+            }
     }
 
     // Presentation only: product identity and hands eligibility come from simulation.
