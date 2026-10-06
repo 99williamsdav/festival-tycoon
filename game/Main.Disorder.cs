@@ -46,7 +46,7 @@ public partial class Main
 
     private static readonly string[] ArguerLines = ["What did you say?!", "Watch where you're going!", "You spilled my pint!"];
     private static readonly HashSet<string> AngryShouts =
-        [.. DisorderCuePlanner.BandLateAngry, .. DisorderCuePlanner.WaterWaitAngry, .. DisorderCuePlanner.MusicCutAngry];
+        [.. DisorderCuePlanner.BandLateAngry, .. DisorderCuePlanner.WaterWaitAngry, .. DisorderCuePlanner.QueueWaitAngry, .. DisorderCuePlanner.MusicCutAngry];
 
     private void AdvanceDisorderCuePresentation()
     {

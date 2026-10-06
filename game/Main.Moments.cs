@@ -143,6 +143,7 @@ public partial class Main
         static string About(IEnumerable<DisorderPerson> people) => people.GroupBy(p => p.Grievance).OrderByDescending(g => g.Count()).First().Key switch
         {
             DisorderGrievance.WaterWait => " about the water queue",
+            DisorderGrievance.QueueWait => " about the queues",
             DisorderGrievance.BandDelayed => " about the late band",
             DisorderGrievance.MusicCutoff => " about the music cutting out",
             _ => "",

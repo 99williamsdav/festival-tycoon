@@ -2,7 +2,8 @@ using System.Text.Json;
 
 namespace Festival.Simulation;
 
-public enum DisorderGrievance { None, MusicCutoff, WaterWait, BandDelayed }
+/// <param name="QueueWait">Stood too long in any other queue: the food van, the bar or the toilets.</param>
+public enum DisorderGrievance { None, MusicCutoff, WaterWait, BandDelayed, QueueWait }
 public enum DisorderStage { Calm, Complaint, Agitated, Argument, Fight, Injured, Resolved }
 public enum SecurityResponseStage { None, Travelling, Calming, Confronting, Completed, Failed }
 public enum DisorderAction { DispatchSecurity, SafeEgress, CloseWater, ReopenWater, RestoreMusic }
@@ -39,6 +40,8 @@ public sealed partial class GameSession
     public const int DisorderFightEligiblePressure = 8_000;
     public const int DisorderCalmingTicks = 240;
     public const int DisorderConfrontationTicks = 160;
+    /// <summary>Hunger (of 10000) from which a guest is hangry: shorter patience in a queue, quicker to anger.</summary>
+    public const int DisorderHangryHunger = 6_500, DisorderHangryPatiencePercent = 60;
     public const int DisorderFightDurationTicks = 800;   // 10 seconds of visible confrontation at 1×.
     public const int DisorderInjuryDeathTicks = 2_400;
     // Rotated open-sided visual post faces east toward the path. Its walkable
@@ -253,8 +256,14 @@ public sealed partial class GameSession
             }
             var inWaterLine = !d.WaterClosed && WaterPoints().Any(point =>
                 point.Queue.Contains(person.Id) || point.Overflow.Contains(person.Id));
-            var joined = inWaterLine ? person.QueueJoinedTick < 0 ? CurrentTick : person.QueueJoinedTick : -1;
+            // Any long queue wears on people, not just the water: the food van, the bar, the toilets.
+            var inOtherLine = !inWaterLine && (Vendors.Any(vendor => vendor.Queue.Contains(person.Id) && vendor.OwnerId != person.Id) ||
+                EffectiveToilets(_facilities).Any(toilet => toilet.Queue.Contains(person.Id) && toilet.OwnerId != person.Id));
+            var joined = inWaterLine || inOtherLine ? person.QueueJoinedTick < 0 ? CurrentTick : person.QueueJoinedTick : -1;
             var need = _persons[person.Id];
+            // Hangry: a hungry person runs out of patience sooner, whatever's annoying them.
+            var hangry = IsGuest(person.Id) && need.Hunger >= DisorderHangryHunger;
+            var tolerance = hangry ? person.QueueToleranceTicks * DisorderHangryPatiencePercent / 100 : person.QueueToleranceTicks;
             var listener = _livePerformance?.Listeners.SingleOrDefault(item => item.AgentId == person.Id);
             var lateAct = LateReadyFestivalAct;
             var lateEnthusiasm = lateAct is null ? 0 : FestivalAffinity(person.Id, lateAct);
@@ -267,8 +276,9 @@ public sealed partial class GameSession
                     _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal) &&
                 listener is { AtPlace: true, Enthusiasm: >= 65 }
                 ? DisorderGrievance.MusicCutoff
-                : inWaterLine && need.Thirst >= 6_000 && CurrentTick - joined >= person.QueueToleranceTicks
-                    ? DisorderGrievance.WaterWait : waitingForBand ? DisorderGrievance.BandDelayed : DisorderGrievance.None;
+                : inWaterLine && need.Thirst >= 6_000 && CurrentTick - joined >= tolerance
+                    ? DisorderGrievance.WaterWait : waitingForBand ? DisorderGrievance.BandDelayed
+                    : inOtherLine && CurrentTick - joined >= tolerance ? DisorderGrievance.QueueWait : DisorderGrievance.None;
             var pressure = person.Pressure;
             if (grievance != DisorderGrievance.None && CurrentTick >= person.CooldownUntilTick)
             {
@@ -278,7 +288,10 @@ public sealed partial class GameSession
                         : Math.Clamp(2 + lateEnthusiasm / 50 + person.Temperament / 2_500, 2, 5)
                     : grievance == DisorderGrievance.MusicCutoff
                     ? 2 + (listener?.Enthusiasm ?? 0) / 100 + person.Temperament / 2_500
+                    : grievance == DisorderGrievance.QueueWait
+                    ? 1 + person.Temperament / 2_500
                     : 2 + need.Thirst / 3_500 + person.Temperament / 2_500;
+                if (hangry) rate++;
                 // A sustained strongest grievance reaches fight eligibility no
                 // earlier than 1,600 ticks (20 real seconds), without a timer gate.
                 rate = Math.Min(5, rate);
@@ -304,7 +317,7 @@ public sealed partial class GameSession
             {
                 var label = stage switch
                 {
-                    DisorderStage.Complaint => grievance == DisorderGrievance.WaterWait ? "Hurry up!" :
+                    DisorderStage.Complaint => grievance is DisorderGrievance.WaterWait or DisorderGrievance.QueueWait ? "Hurry up!" :
                         grievance == DisorderGrievance.BandDelayed ? "When is the band starting?" : "Why did the music stop?",
                     DisorderStage.Agitated => "Visibly agitated",
                     DisorderStage.Argument => "Argument forming",

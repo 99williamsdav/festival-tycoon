@@ -27,15 +27,24 @@ public partial class Main
         var fascia = InstantiateAsset("res://assets/environment/lwf_food_van_fascia_v1.glb");
         fascia.Position = new Vector3(2.15f, 2.49f, 1.18f);
         assembly.AddChild(fascia);
-        // The trader's livery: their colours on the van, and their name painted across the fascia.
-        var panel = InstantiateAsset("res://assets/environment/lwf_food_van_name_panel_chip_block_v1.glb");
-        panel.Position = new Vector3(0, 0, 0.056f);
-        fascia.AddChild(panel);
-        ApplyFoodVanLivery(assembly, "res://assets/environment/lwf_food_van_palette_chip_block_v1.png");
+        // The trader's livery: their colours on the van, their name painted across the fascia, and a big picture sign
+        // of what they sell. Each piece waits for its artwork.
+        var art = _session.FoodTrader.Art;
+        if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_name_panel_{art}_v1.glb"))
+        {
+            var panel = InstantiateAsset($"res://assets/environment/lwf_food_van_name_panel_{art}_v1.glb");
+            panel.Position = new Vector3(0, 0, 0.056f);
+            fascia.AddChild(panel);
+        }
+        if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_palette_{art}_v1.png"))
+            ApplyFoodVanLivery(assembly, $"res://assets/environment/lwf_food_van_palette_{art}_v1.png");
+        var sign = _session.FoodTrader.Menu == "Pizza" ? "pizza" : "chips";
+        if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_sign_{sign}_v1.glb"))
+            assembly.AddChild(InstantiateAsset($"res://assets/environment/lwf_food_van_sign_{sign}_v1.glb"));
         return vendor;
     }
 
-    private StandardMaterial3D? _foodVanLivery;
+    private readonly Dictionary<string, StandardMaterial3D> _foodVanLiveries = [];
 
     /// <summary>Swaps the van's palette for the trader's; wheels, counter and hatch keep their swatches.</summary>
     private void ApplyFoodVanLivery(Node3D van, string palette)
@@ -45,13 +54,14 @@ public partial class Main
             {
                 if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D source ||
                     !source.ResourceName.StartsWith("LWF_FoodVan_MattePalette", StringComparison.Ordinal)) continue;
-                if (_foodVanLivery is null)
+                if (!_foodVanLiveries.TryGetValue(palette, out var livery))
                 {
-                    _foodVanLivery = (StandardMaterial3D)source.Duplicate();
-                    _foodVanLivery.AlbedoTexture = GD.Load<Texture2D>(palette);
-                    _foodVanLivery.TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest;
+                    livery = (StandardMaterial3D)source.Duplicate();
+                    livery.AlbedoTexture = GD.Load<Texture2D>(palette);
+                    livery.TextureFilter = BaseMaterial3D.TextureFilterEnum.Nearest;
+                    _foodVanLiveries.Add(palette, livery);
                 }
-                mesh.SetSurfaceOverrideMaterial(surface, _foodVanLivery);
+                mesh.SetSurfaceOverrideMaterial(surface, livery);
             }
     }
 

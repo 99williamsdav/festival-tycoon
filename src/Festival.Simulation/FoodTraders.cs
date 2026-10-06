@@ -5,18 +5,30 @@ namespace Festival.Simulation;
 /// Tier 1 has one, a chip van; later cuisines will differ by how fast they serve, how much they earn and how
 /// satisfying they are (chips: quick, cheap, not very filling).
 /// </summary>
+/// <param name="Menu">What they sell, as the crowd and the player see it.</param>
+/// <param name="Art">The van's livery and sign artwork.</param>
 /// <param name="ServicePermille">How long they take to serve a portion, against the standard 4 seconds.</param>
 /// <param name="Portions">How much they bring: once it's gone, they've sold out.</param>
-public sealed record FoodTrader(string Id, string Name, string Blurb, int PitchFeePennies, int ServicePermille, int Portions);
+/// <param name="EnjoymentPercent">How satisfying a portion is, against chips. Not shown to the player.</param>
+/// <param name="FillingPercent">How much hunger a portion takes away, against chips.</param>
+public sealed record FoodTrader(string Id, string Name, string Menu, string Art, string Blurb, int PitchFeePennies, int ServicePermille, int Portions,
+    int EnjoymentPercent = 100, int FillingPercent = 100)
+{
+    /// <summary>Slower to serve than the standard chip van: the one thing the picker warns about.</summary>
+    public bool SlowService => ServicePermille > 1_000;
+}
 
 public sealed record ChooseFoodTraderCommand(string TraderId) : SessionCommand;
 
 public static class FoodTraders
 {
-    // Tier 1: the one chip van.
+    // Tier 1: chips, quick and plain; or pizza, which pays more to pitch but is slow to serve. A queue that long has a
+    // way of costing more than the extra pitch fee, though a well-run pizza van is a little more satisfying.
     public static readonly FoodTrader[] All =
     [
-        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "A cheerful chip van: quick, cheap and cheerful.", 4_000, 1_000, 60),
+        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 60),
+        new("trader.pizza-the-action", "Pizza the Action", "Pizza", "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 45,
+            EnjoymentPercent: 140, FillingPercent: 115),
     ];
 
     public static FoodTrader Default => All[0];

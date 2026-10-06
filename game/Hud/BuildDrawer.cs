@@ -241,7 +241,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         }
         foreach (var trader in FoodTraders.All)
         {
-            var button = new Button { Text = $"{trader.Name} · pays {FestivalCurrency.Format(trader.PitchFeePennies)}", ToggleMode = true,
+            var button = new Button { Text = $"{trader.Name} · {trader.Menu.ToLowerInvariant()} · pays {FestivalCurrency.Format(trader.PitchFeePennies)}" +
+                    (trader.SlowService ? " · slower service" : ""), ToggleMode = true,
                 Alignment = HorizontalAlignment.Left, TooltipText = $"{trader.Blurb}\nBrings {trader.Portions} portions.",
                 MouseDefaultCursorShape = Control.CursorShape.PointingHand, CustomMinimumSize = new Vector2(0, Ui.S(26)) };
             var chosen = trader;

@@ -138,6 +138,8 @@ public sealed class DisorderCuePlanner
         "Get on with it!", "BORING!", "We want music!", "Oi! Get on stage!"];
     public static readonly string[] WaterWaitMild = ["I'm parched…", "Come on, it's just water!", "How long does it take?!", "Is this the tap queue?"];
     public static readonly string[] WaterWaitAngry = ["I'm dying of thirst here!", "Some of us are thirsty!", "Hurry UP!", "This queue is ridiculous!"];
+    public static readonly string[] QueueWaitMild = ["How long can it take?!", "Is this queue even moving?", "I'll miss the band at this rate", "Come ON…"];
+    public static readonly string[] QueueWaitAngry = ["This queue is a joke!", "I've been stood here for ages!", "Some of us want to see the band!", "Hurry UP!"];
     public static readonly string[] MusicCutMild = ["Has the power gone?", "Who pulled the plug?!", "Noooo, I love this one!"];
     public static readonly string[] MusicCutAngry = ["Oi! Turn it back on!", "Bring back the music!", "Who pulled the plug?!"];
 
@@ -148,6 +150,7 @@ public sealed class DisorderCuePlanner
         {
             DisorderGrievance.BandDelayed => angry ? BandLateAngry : BandLateMild,
             DisorderGrievance.WaterWait => angry ? WaterWaitAngry : WaterWaitMild,
+            DisorderGrievance.QueueWait => angry ? QueueWaitAngry : QueueWaitMild,
             _ => angry ? MusicCutAngry : MusicCutMild,
         };
         return lines[(int)((pending.AgentId + (ulong)Math.Max(0, pending.StageTick)) % (ulong)lines.Length)];
