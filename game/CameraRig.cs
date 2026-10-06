@@ -5,7 +5,7 @@ namespace Festival.Game;
 
 /// <summary>
 /// The isometric orthographic camera: four 90-degree views around a focus point, wheel zoom by
-/// orthographic size, and WASD/arrow or middle-drag panning in screen axes, clamped to the site.
+/// orthographic size, WASD/arrow panning in screen axes, and middle-drag that grabs the ground, clamped to the site.
 /// </summary>
 internal sealed class CameraRig
 {
@@ -69,9 +69,22 @@ internal sealed class CameraRig
         return false;
     }
 
+    /// <summary>Middle-drag grabs the ground: the spot under the cursor stays under it as the mouse moves.</summary>
     public void HandleMotion(InputEventMouseMotion motion)
     {
-        if (_middleDragging) Pan(motion.Relative * 0.055f);
+        if (!_middleDragging) return;
+        if (Ground(motion.Position - motion.Relative) is not { } from || Ground(motion.Position) is not { } to) return;
+        _focus += from - to;
+        _focus.X = Mathf.Clamp(_focus.X, -PanLimit, PanLimit); _focus.Z = Mathf.Clamp(_focus.Z, -PanLimit, PanLimit); Apply();
+    }
+
+    /// <summary>Where a screen point meets the ground plane.</summary>
+    private Vector3? Ground(Vector2 screen)
+    {
+        var origin = Camera.ProjectRayOrigin(screen); var direction = Camera.ProjectRayNormal(screen);
+        if (Mathf.Abs(direction.Y) < 1e-4f) return null;
+        var distance = -origin.Y / direction.Y;
+        return distance < 0 ? null : origin + direction * distance;
     }
 
     private void Apply()
