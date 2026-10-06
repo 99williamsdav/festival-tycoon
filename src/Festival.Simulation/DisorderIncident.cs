@@ -43,7 +43,7 @@ public sealed partial class GameSession
     /// <summary>Hunger (of 10000) from which a guest is hangry: shorter patience in a queue, quicker to anger.</summary>
     public const int DisorderHangryHunger = 6_500, DisorderHangryPatiencePercent = 60;
     /// <summary>Patience in a queue against the water's and the toilet's: double for food, half as much again for the bar.</summary>
-    public const int DisorderFoodPatiencePercent = 200, DisorderBarPatiencePercent = 150;
+    public const int DisorderFoodPatiencePercent = 200, DisorderBarPatiencePercent = 150, FriendlyQueuePatiencePercent = 150;
     public const int DisorderFightDurationTicks = 800;   // 10 seconds of visible confrontation at 1×.
     public const int DisorderInjuryDeathTicks = 2_400;
     // Rotated open-sided visual post faces east toward the path. Its walkable
@@ -266,6 +266,8 @@ public sealed partial class GameSession
             var joined = inWaterLine || inOtherLine ? person.QueueJoinedTick < 0 ? CurrentTick : person.QueueJoinedTick : -1;
             var need = _persons[person.Id];
             var patiencePercent = vendorLine?.Id switch { "food" => DisorderFoodPatiencePercent, "drinks" => DisorderBarPatiencePercent, _ => 100 };
+            // Friendly Queues: people chatting in line wait half as long again before it gets to them.
+            if (HasPerk(PerkCatalogue.FriendlyQueues)) patiencePercent = patiencePercent * FriendlyQueuePatiencePercent / 100;
             // Hangry: a hungry person runs out of patience sooner, whatever's annoying them.
             var hangry = IsGuest(person.Id) && need.Hunger >= DisorderHangryHunger;
             var tolerance = person.QueueToleranceTicks * patiencePercent / 100 * (hangry ? DisorderHangryPatiencePercent : 100) / 100;

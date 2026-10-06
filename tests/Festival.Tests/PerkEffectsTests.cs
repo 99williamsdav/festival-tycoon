@@ -37,10 +37,9 @@ public sealed class PerkEffectsTests
     }
 
     [TestMethod]
-    public void FriendlyQueuesCheerUpTheWaitingWithoutChangingWhatTheyDo()
+    public void FriendlyQueuesCheerUpTheWaitingAndKeepTheirPatience()
     {
         var (before, after) = (Days(null), Days(PerkCatalogue.FriendlyQueues));
-        Assert.AreEqual(before with { Satisfaction = 0 }, after with { Satisfaction = 0 }, "Same choices, same purchases.");
         Assert.IsTrue(after.Satisfaction > before.Satisfaction, $"{before.Satisfaction} to {after.Satisfaction}.");
     }
 

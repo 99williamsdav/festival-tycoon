@@ -21,7 +21,7 @@ public static class PerkCatalogue
         new("something-in-the-water", "Something in the Water", "Drinking free water improves satisfaction.", PerkRarity.Common, 110),
         new("thirsty-crowd", "Thirsty Crowd", "Guests grow thirsty faster.", PerkRarity.Common, 130),
         new(BeerFestival, "Beer Festival", "Charge 50% more for beer and everyone loves it.", PerkRarity.Uncommon, 45),
-        new(FriendlyQueues, "Friendly Queues", "Guests chat in queues and gain satisfaction while they wait.", PerkRarity.Uncommon, 45),
+        new(FriendlyQueues, "Friendly Queues", "Guests chat in queues: happier while they wait, and slower to lose patience.", PerkRarity.Uncommon, 45),
         new(BringYourOwnBottle, "Bring Your Own Bottle", "Guests get thirsty more slowly, but take longer to fill up at taps.", PerkRarity.Common, 120),
         new(ColaFiends, "Cola Fiends", "Guests prefer soft drinks to free water.", PerkRarity.Common, 120),
         new(Alcoholics, "Alcoholics", "Guests buy more beer... For better or worse.", PerkRarity.Common, 120),
