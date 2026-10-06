@@ -193,6 +193,6 @@ internal sealed record PlanCosts(long Services, long Acts, long Staff, long Equi
             plan.ActIds.Where(id => id != "").Sum(id => (long)offers[id].PricePennies),
             Sum(offer => StaffCatalogue.IsWorkCategory(offer.Category)),
             Sum(offer => offer.Category == "equipment"),
-            plan.Chips * 100 + plan.SoftDrinks * 60 + plan.Beers * 100);
+            plan.SoftDrinks * GameSession.ImmersionCost(ImmersionProduct.SoftDrink) + plan.Beers * GameSession.ImmersionCost(ImmersionProduct.Beer));
     }
 }

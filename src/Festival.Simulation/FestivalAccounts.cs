@@ -12,7 +12,10 @@ public sealed record FestivalAccounts(
 {
     /// <summary>Advance ticket sales: received before preparation, as part of the opening budget.</summary>
     public long TicketSalesPennies => (long)TicketsSold * TicketPricePennies;
-    public long IncomePennies => TicketSalesPennies + Sales.Sum(line => line.AmountPennies);
+    /// <summary>What the food trader paid to pitch, and who they were.</summary>
+    public long PitchFeePennies { get; init; }
+    public string PitchFeeTrader { get; init; } = "";
+    public long IncomePennies => TicketSalesPennies + PitchFeePennies + Sales.Sum(line => line.AmountPennies);
     public long SoldItemCostPennies => SoldItemCosts.Sum(line => line.AmountPennies);
     public long OperatingExpensesPennies => OperatingExpenses.Sum(line => line.AmountPennies);
     public long OperatingResultPennies => IncomePennies - SoldItemCostPennies - OperatingExpensesPennies;
@@ -46,7 +49,8 @@ public sealed partial class GameSession
         get
         {
             if (_preparation is not { Result: { } result } p) return null;
-            var purchases = _immersion?.Purchases ?? [];
+            // The food trader's chips are their own takings; the festival's are the bar's.
+            var purchases = (_immersion?.Purchases ?? []).Where(purchase => purchase.Product != ImmersionProduct.Chips).ToArray();
             var sales = purchases.GroupBy(purchase => (purchase.Product, purchase.PricePennies))
                 .OrderBy(group => group.Key.Product).ThenByDescending(group => group.Key.PricePennies)
                 .Select(group => new FestivalAccountsSale(group.Key.Product, group.Key.PricePennies, group.Count(),
@@ -72,6 +76,7 @@ public sealed partial class GameSession
             {
                 var facilities = p.BuildPlacements is not null
                     ? p.BuildPlacements.GroupBy(placement => placement.Kind).OrderBy(group => group.Key)
+                        .Where(group => BuildServiceFeePennies(group.Key) > 0)
                         .Select(group => new FestivalAccountsExpense("Facilities",
                             $"{FacilityName(group.Key)} × {group.Count()}", group.Count() * (long)BuildServiceFeePennies(group.Key))).ToArray()
                     : [];
@@ -90,9 +95,8 @@ public sealed partial class GameSession
                     .Sum(entry => -entry.AmountPennies) : 0;
             var purchasedStock = p.Plan is { Committed: true } plan
                 ? new FestivalAccountsStock[] {
-                    new("Chips", plan.Chips, 100, plan.Chips * 100L),
-                    new("Soft drink", plan.SoftDrinks, 60, plan.SoftDrinks * 60L),
-                    new("Beer", plan.Beers, 100, plan.Beers * 100L)
+                    new("Soft drink", plan.SoftDrinks, ImmersionCost(ImmersionProduct.SoftDrink), plan.SoftDrinks * (long)ImmersionCost(ImmersionProduct.SoftDrink)),
+                    new("Beer", plan.Beers, ImmersionCost(ImmersionProduct.Beer), plan.Beers * (long)ImmersionCost(ImmersionProduct.Beer))
                 }.Where(line => line.Quantity > 0).ToArray() : [];
             var stockDetailRecorded = p.Plan is { Committed: true } && purchasedStock.Sum(line => line.AmountPennies) == stockCash;
             var capital = payments.Where(payment => payment.DebitAccount == LedgerAccountType.EquipmentAsset)
@@ -102,7 +106,8 @@ public sealed partial class GameSession
             var tickets = FestivalTickets.RevenuePennies(p.Tier);
             var accounts = new FestivalAccounts(sales, costs.ToArray(), expenses.ToArray(), purchasedStock,
                 FestivalTickets.Sold(p.Tier), FestivalTickets.PricePennies(p.Tier), p.OpeningCashPennies - tickets,
-                closing, stockCash, capital, stockRecorded, stockDetailRecorded, facilityDetailRecorded, false);
+                closing, stockCash, capital, stockRecorded, stockDetailRecorded, facilityDetailRecorded, false)
+                { PitchFeePennies = ReceivedPitchFee(p), PitchFeeTrader = FoodTraders.Find(p.Plan?.TraderId)?.Name ?? "" };
             var reconciles = accounts.IncomePennies == result.RevenuePennies &&
                 accounts.SoldItemCostPennies == result.ConsumedStockCostsPennies &&
                 accounts.OperatingExpensesPennies == result.ContractCostsPennies &&

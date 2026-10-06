@@ -8,7 +8,7 @@ namespace Festival.Simulation;
 public sealed partial class GameSession
 {
     /// <summary>Beer Festival marks beer up by half, relative to whatever the base price is.</summary>
-    public const int BeerFestivalPricePercent = 150, BeerFestivalTasteBoost = 4;
+    public const int BeerFestivalPricePercent = 150, BeerFestivalTasteBoost = 10;
     public const int AlcoholicsTasteBoost = 30, ColaFiendsTasteBoost = 30;
     /// <summary>Bring Your Own Bottle: guests' thirst grows at three-quarters the rate, and a tap fills them at 60%.</summary>
     public const int ByobThirstQuarters = 3, ByobFillPercent = 60;

@@ -76,7 +76,7 @@ public sealed class PowerBudgetTests
             s.CaptureVendors().Single(v => v.Id == "drinks").OwnerId != id), "Its queue went back to their day.");
         s.AdvanceWithoutSnapshot(4_000);
         Assert.IsFalse(s.CaptureImmersion()!.Purchases.Skip(sold).Any(p => p.Product is ImmersionProduct.Beer or ImmersionProduct.SoftDrink &&
-            p.Tick > s.CurrentTick - 4_000 + GameSession.ImmersionServiceDuration(p.Product)), "No drinks sold at a dark bar.");
+            p.Tick > s.CurrentTick - 4_000 + GameSession.ImmersionServiceDuration(p.Product, s.FoodTrader)), "No drinks sold at a dark bar.");
         Restores(s);
         Accept(s, new EquipmentCommand(EquipmentAction.ToggleBarPower));
         Assert.IsTrue(s.StallPowered("drinks"));

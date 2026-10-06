@@ -21,14 +21,15 @@ public sealed class FinanceFeedbackTests
     [TestMethod]
     public void SameTickSalesProjectFestivalCashNotBuyerDebitOrCostAndLoadResetsHistory()
     {
-        var s=BuildSession.Drafted(20260926);Assert.IsTrue(Send(s,new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
-        Assert.IsTrue(Send(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.neon-postcards"])).IsAccepted);
+        var s=BuildSession.Drafted(20260926);Assert.IsTrue(Send(s,new SetPreparationStockCommand(40, 32)).IsAccepted);
+        Assert.IsTrue(Send(s,new SetProgrammeCommand(["act.meadow-lanterns","act.overdue-library-books","act.glitter-rota"])).IsAccepted);
         foreach (var hire in BuildSession.Crew(s)) Assert.IsTrue(Send(s, hire).IsAccepted);Assert.IsTrue(Send(s,new StartPreparedEditionCommand()).IsAccepted);
         var cursor=new FestivalCashFeedbackCursor();cursor.Reset(s);var people=s.CaptureImmersion()!.People.Take(2).ToArray();
         var sale=typeof(GameSession).GetMethod("CompleteImmersionSale",BindingFlags.NonPublic|BindingFlags.Instance)!;
         sale.Invoke(s,[people[0].AgentId,ImmersionProduct.Chips]);sale.Invoke(s,[people[1].AgentId,ImmersionProduct.SoftDrink]);
-        var events=cursor.Observe(s);Assert.AreEqual(2,events.Count);Assert.AreEqual(500L,events.Sum(e=>e.FestivalCashPennies));Assert.AreEqual(300L,events.Single(e=>e.AnchorKey=="vendor.food").FestivalCashPennies);Assert.AreEqual(200L,events.Single(e=>e.AnchorKey=="vendor.drinks").FestivalCashPennies);Assert.AreEqual(events[0].Tick,events[1].Tick);Assert.AreEqual(0,cursor.Observe(events.Concat(events)).Count);
+        // The chips are the food trader's takings: only the bar's sale moves festival cash.
+        var events=cursor.Observe(s);Assert.AreEqual(1,events.Count);Assert.AreEqual(250L,events.Single(e=>e.AnchorKey=="vendor.drinks").FestivalCashPennies);Assert.IsFalse(events.Any(e=>e.AnchorKey=="vendor.food"));Assert.AreEqual(0,cursor.Observe(events.Concat(events)).Count);
         var restored=GameSession.Restore(s.CapturePersistenceSnapshot());Assert.IsTrue(restored.IsSuccess,restored.Error);Assert.AreEqual(0,cursor.Observe(restored.Session!).Count);var cold=new FestivalCashFeedbackCursor();cold.Reset(restored.Session!);Assert.AreEqual(0,cold.Observe(restored.Session!).Count);
-        sale.Invoke(restored.Session,[restored.Session!.CaptureImmersion()!.People.Skip(2).First().AgentId,ImmersionProduct.SoftDrink]);Assert.AreEqual(200L,cold.Observe(restored.Session).Single().FestivalCashPennies);
+        sale.Invoke(restored.Session,[restored.Session!.CaptureImmersion()!.People.Skip(2).First().AgentId,ImmersionProduct.SoftDrink]);Assert.AreEqual(250L,cold.Observe(restored.Session).Single().FestivalCashPennies);
     }
 }

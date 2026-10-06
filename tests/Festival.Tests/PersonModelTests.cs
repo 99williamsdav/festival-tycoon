@@ -17,9 +17,9 @@ public sealed class PersonModelTests
         var perk = s.CapturePerks()!;
         Accept(s, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
         Accept(s, new UseDefaultBuildLayoutCommand());
-        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
+        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"]));
         foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
-        Accept(s, new SetPreparationStockCommand(40, 40, 32));
+        Accept(s, new SetPreparationStockCommand(40, 32));
         Accept(s, new StartPreparedEditionCommand());
         return s;
     }

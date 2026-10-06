@@ -143,7 +143,7 @@ public partial class Main
             $"chips {immersion.ChipsStock} • soft {immersion.SoftStock} • beer {immersion.BeerStock}";
         var day = _session.CaptureProgramme() is not null ? "FESTIVAL DAY" : new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Min(2, (int)((_session.CurrentTick - p.StartedTick) / 12_800))];
         _preparationSummary.Text = $"Tier {p.Tier} • {p.Status}{(_session.IsPaused ? " • PAUSED" : "")} • {day}\n" +
-            $"{FestivalCurrency.Format(finance.CashPennies)} • debt £800 • {stockDescription}\n" +
+            $"{FestivalCurrency.Format(finance.CashPennies)} • {stockDescription}\n" +
             $"{p.Tier * 20} mandatory guests + {p.People.Count(item => item.Role == ProtectedPersonRole.Staff)} staff + {p.People.Count(item => item.Role == ProtectedPersonRole.Performer)} performers\n" +
             $"Owned rig: {p.OwnedEquipment.Length} • rental: {p.Rentals.Length} • known staff: {p.Contacts.Length}\n" +
             $"8 live minutes + preparation/pauses; provisional pace.\n{_preparationMessage}";

@@ -16,7 +16,7 @@ public sealed class PerkEffectsTests
         var days = Seeds.AsParallel().Select(seed =>
         {
             var s = perk is null ? Planned(seed) : Planned(seed, perk);
-            Accept(s, new SetPreparationStockCommand(60, 90, 90));
+            Accept(s, new SetPreparationStockCommand(90, 90));
             foreach (var hire in Crew(s)) Accept(s, hire);
             Accept(s, new StartPreparedEditionCommand());
             var drunk = 0;

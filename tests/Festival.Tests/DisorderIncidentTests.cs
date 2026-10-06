@@ -87,7 +87,8 @@ public sealed class DisorderIncidentTests
     [TestMethod]
     public void SecurityDispatchTravelsAndEitherCalmsOrHonestlyEscalates()
     {
-        var session = Started();
+        // No jammed loo or burst tap to keep the steward busy elsewhere.
+        var session = BuildSession.WithoutFaults(Started());
         var atRisk = BuildSession.LastGuest(session);
         while (session.CaptureLivePerformance()!.Stage != LiveSetStage.Live && session.CurrentTick < 8_000)
             session.AdvanceWithoutSnapshot(1);

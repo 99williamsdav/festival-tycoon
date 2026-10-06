@@ -345,8 +345,8 @@ public sealed partial class GameSession
     {
         var position = fresh ? -1 : Array.IndexOf(vendor.Queue, id);
         var destination = ImmersionQueueCell(vendor, position >= 0 ? position : vendor.Queue.Length);
-        var candidate = new QueuedServiceChoice.Candidate(vendor.Id, EstimateWalkTicks(id, here, destination), ImmersionServiceDuration(product), true, true,
-            vendor.Queue.Select(member => new QueuedServiceChoice.Member(member, ImmersionServiceDuration(_persons[member].Order ?? ImmersionProduct.SoftDrink))).ToArray(),
+        var candidate = new QueuedServiceChoice.Candidate(vendor.Id, EstimateWalkTicks(id, here, destination), ImmersionServiceDuration(product, FoodTrader), true, true,
+            vendor.Queue.Select(member => new QueuedServiceChoice.Member(member, ImmersionServiceDuration(_persons[member].Order ?? ImmersionProduct.SoftDrink, FoodTrader))).ToArray(),
             vendor.OwnerId, vendor.ServiceTicks, []);
         return QueuedServiceChoice.EstimateTicks(id, candidate);
     }

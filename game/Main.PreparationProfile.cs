@@ -29,7 +29,7 @@ public partial class Main
         var perk = _session.CapturePerks()!;
         foreach (var command in new SessionCommand[] { new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]),
                      new UseDefaultBuildLayoutCommand(), new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]),
-                     new AcceptPreparationOfferCommand("staff.sound.1"), new AcceptPreparationOfferCommand("staff.medic.1"), new AcceptPreparationOfferCommand("staff.steward.1"), new SetPreparationStockCommand(40, 40, 32), new StartPreparedEditionCommand() })
+                     new AcceptPreparationOfferCommand("staff.sound.1"), new AcceptPreparationOfferCommand("staff.medic.1"), new AcceptPreparationOfferCommand("staff.steward.1"), new SetPreparationStockCommand(40, 32), new StartPreparedEditionCommand() })
         {
             var result = _host.Submit(command);
             if (!result.IsAccepted) { GD.PushError($"BUILD_PROFILE_SETUP_FAILED {command.GetType().Name}: {result.Message}"); GetTree().Quit(2); return; }

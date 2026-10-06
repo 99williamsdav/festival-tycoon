@@ -77,6 +77,10 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyPlanEdit(envelope.Command);
                 break;
+            case ChooseFoodTraderCommand trader:
+                affectedTarget = null;
+                ApplyChooseFoodTrader(trader);
+                break;
             case PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand:
                 affectedTarget = null;
                 ApplyBuildCommand(envelope.Command);
@@ -548,7 +552,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (!snapshot.AppliedCommands.Select(item => item.CommandId).Order().SequenceEqual(snapshot.AcceptedCommandIds))
             return "Accepted command IDs must exactly match applied commands.";
         if (snapshot.FixtureRecords.Any(item => item.Id == 0 || item.RemainingTicks < 0)) return "Fixture record identity/progress is invalid.";
-        if (snapshot.Wallets.Any(item => item.OwnerId == 0 || item.CashPennies < 0) || snapshot.FestivalFinances.Any(item => item.OwnerId == 0 || item.CashPennies < 0))
+        if (snapshot.Wallets.Any(item => item.OwnerId == 0 || item.CashPennies < 0) || snapshot.FestivalFinances.Any(item => item.OwnerId == 0 || item.CashPennies < -CampaignDefaults.OverdraftPennies))
             return "Wallet and festival cash owners must be present with nonnegative cash.";
         var festivalIds = snapshot.FestivalFinances.Select(item => item.OwnerId).ToHashSet();
         if (snapshot.OwnedStocks.Any(item => item.ServiceId == 0 || !festivalIds.Contains(item.OwnerId) || item.Quantity < 0 || item.UnitCostBasisPennies < 0))
@@ -683,7 +687,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -691,6 +695,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         return envelope.Command switch
         {
             RemovePreparationOfferCommand or SetPreparationStockCommand => ValidatePlanEdit(envelope.TargetId, envelope.Command),
+            ChooseFoodTraderCommand trader => ValidateChooseFoodTrader(envelope.TargetId, trader),
             PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand => ValidateBuildCommand(envelope.TargetId, envelope.Command),
             PerkCommand perk => ValidatePerkCommand(envelope.TargetId, perk),
             EquipmentCommand equipment => ValidateEquipmentCommand(envelope.TargetId, equipment),

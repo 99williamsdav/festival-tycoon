@@ -62,7 +62,7 @@ public sealed class R005LayoutTests
         var s = BuildSession.Planned(20260922);
         // Starting the actual campaign creates its production vendor obstacles.
         foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
-        Accept(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.field-frequency"]));
+        Accept(s,new SetProgrammeCommand(["act.meadow-lanterns","act.overdue-library-books","act.low-battery"]));
         Accept(s,new StartPreparedEditionCommand());
         var grid = new TraversalGrid(s.CapturePersistenceSnapshot().TraversalGrid!.Cells.Select(c =>
             new TerrainCellOverride(new(c.X,c.Z),(GroundSurface)c.Surface,c.IsWalkable)));

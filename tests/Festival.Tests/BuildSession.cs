@@ -6,7 +6,7 @@ namespace Festival.Tests;
 // line-up, staff it and stock the bars. Tests that need a live edition start here.
 internal static class BuildSession
 {
-    public static readonly string[] Acts = ["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"];
+    public static readonly string[] Acts = ["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"];
 
     public static CommandResult Send(GameSession s, SessionCommand command) => s.Execute(new(
         new(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase, s.CurrentTick, s.NextSubmissionSequence, null, command));
@@ -58,7 +58,7 @@ internal static class BuildSession
     private static GameSession Planned(GameSession s)
     {
         Accept(s, new SetProgrammeCommand(Acts));
-        Accept(s, new SetPreparationStockCommand(40, 40, 32));
+        Accept(s, new SetPreparationStockCommand(40, 32));
         return s;
     }
 

@@ -25,7 +25,7 @@ public sealed class PerformanceApplauseTests
     private static GameSession Started()
     {
         var session = BuildSession.Planned(20260926);
-        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"])).IsAccepted);
+        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.glitter-rota", "act.low-battery"])).IsAccepted);
         foreach (var id in BuildSession.CrewIds(session).Concat(new[] { "equipment.rent" }))
             Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);

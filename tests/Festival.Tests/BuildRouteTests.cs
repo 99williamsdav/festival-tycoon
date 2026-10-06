@@ -109,7 +109,7 @@ public sealed class BuildRouteTests
         BuildSession.Accept(s, new ChoosePerkCommand(perks.DraftAttempt, perks.Cursor, perks.Hand[0]));
         BuildSession.Accept(s, new UseDefaultBuildLayoutCommand());
         BuildSession.Accept(s, new SetProgrammeCommand(BuildSession.Acts));
-        BuildSession.Accept(s, new SetPreparationStockCommand(40, 40, 32));
+        BuildSession.Accept(s, new SetPreparationStockCommand(40, 32));
         foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         HashSet<DisorderStage> stages = [];

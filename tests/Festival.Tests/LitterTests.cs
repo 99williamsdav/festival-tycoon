@@ -370,7 +370,7 @@ public sealed class LitterTests
         BuildSession.Restored(s);
         SetTime(s, s.CurrentTick + 1); Invoke(s, "FinalizeFestivalDeparture");
         Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus); BuildSession.Restored(s);
-        Assert.AreEqual(1500L, s.CompletedFestivalAccounts!.OperatingExpenses.Single(e => e.Label == "Litter bin × 1").AmountPennies);
+        Assert.AreEqual(1000L, s.CompletedFestivalAccounts!.OperatingExpenses.Single(e => e.Label == "Litter bin × 1").AmountPennies);
         Assert.IsTrue(s.CompletedFestivalAccounts.Reconciles);
     }
     [TestMethod]
@@ -395,9 +395,9 @@ public sealed class LitterTests
         var s = BuildSession.Ready(); var before = s.PreparationPlanCost;
         BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(118, 130)));
         BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(140, 130)));
-        Assert.AreEqual(before + 3000, s.PreparationPlanCost); BuildSession.Restored(s);
+        Assert.AreEqual(before + 2000, s.PreparationPlanCost); BuildSession.Restored(s);
         BuildSession.Accept(s, new StartPreparedEditionCommand()); BuildSession.Restored(s);
-        Assert.AreEqual(33000L, s.CapturePreparation()!.SetupPayments!.Single().BuildCostPennies);
+        Assert.AreEqual(17500L, s.CapturePreparation()!.SetupPayments!.Single().BuildCostPennies);
         Assert.IsFalse(BuildSession.Send(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(142, 120))).IsAccepted);
         // Real completion fixture records a ledger-backed purchase and enough elapsed time.
         var id = Guest(s); Mutate(s, id, p => { p.Admitted = true; p.ToiletNeed = 2000; });

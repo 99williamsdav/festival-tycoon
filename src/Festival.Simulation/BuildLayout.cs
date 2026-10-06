@@ -11,13 +11,13 @@ public sealed partial class GameSession
 {
     private static readonly (BuildServiceKind Kind, int FeePennies, int Limit)[] BuildCatalogue =
     [
-        (BuildServiceKind.WaterTap, 2_000, 2),
-        (BuildServiceKind.Toilet, 4_000, 2),
-        (BuildServiceKind.FoodVan, 8_000, 1),
-        (BuildServiceKind.Bar, 7_000, 1),
-        (BuildServiceKind.FirstAid, 5_000, 1),
-        (BuildServiceKind.StewardPost, 4_000, 1),
-        (BuildServiceKind.Bin, 1_500, int.MaxValue)
+        (BuildServiceKind.WaterTap, 1_500, 2),
+        (BuildServiceKind.Toilet, 3_000, 2),
+        (BuildServiceKind.FoodVan, 0, 1), // the food trader pays the festival to pitch, instead (FoodTraders)
+        (BuildServiceKind.Bar, 5_000, 1),
+        (BuildServiceKind.FirstAid, 3_500, 1),
+        (BuildServiceKind.StewardPost, 2_500, 1),
+        (BuildServiceKind.Bin, 1_000, int.MaxValue)
     ];
 
     public static int BuildServiceFeePennies(BuildServiceKind kind) =>

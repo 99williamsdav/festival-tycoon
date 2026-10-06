@@ -51,7 +51,7 @@ public partial class Main
         Send(new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(118, 166)));
         Send(new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
         foreach (var group in _session.GetStaffCandidates().GroupBy(c => c.Role)) Send(new AcceptPreparationOfferCommand(group.OrderBy(c => c.Traits.Length).ThenBy(c => c.Grade > 0).First().Id));
-        Send(new SetPreparationStockCommand(40, 40, 32)); Send(new StartPreparedEditionCommand()); Send(new SetPausedCommand(true));
+        Send(new SetPreparationStockCommand(40, 32)); Send(new StartPreparedEditionCommand()); Send(new SetPausedCommand(true));
         var guests = _session.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest).ToArray();
         var agents = (IDictionary)typeof(GameSession).GetField("_navigationAgents", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(_session)!;
         for (var i = 0; i < 3; i++)

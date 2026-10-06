@@ -32,7 +32,7 @@ public sealed class SessionHostTests
         try
         {
             var host = new SessionHost(BuildSession.Ready(), directory, Compatibility);
-            Assert.IsTrue(host.Submit(new SetPreparationStockCommand(10, 10, 10)).IsAccepted);
+            Assert.IsTrue(host.Submit(new SetPreparationStockCommand(10, 10)).IsAccepted);
             host.AdvanceSaves(RealTimeAutosaveScheduler.ProductionCadenceSeconds - 1);
             Assert.AreEqual(0, Directory.EnumerateFiles(directory).Count(), "Nothing is written before the cadence.");
             host.AdvanceSaves(2);
@@ -109,7 +109,7 @@ public sealed class SessionHostTests
             Assert.IsFalse(host.LoadManual(out _), "No manual save yet.");
             Assert.IsTrue(host.SaveManual().IsSuccess);
             var saved = host.Session.CaptureSnapshot().AuthoritativeHash;
-            Assert.IsTrue(host.Submit(new SetPreparationStockCommand(7, 7, 7)).IsAccepted);
+            Assert.IsTrue(host.Submit(new SetPreparationStockCommand(7, 7)).IsAccepted);
             Assert.IsTrue(host.LoadManual(out var error), error);
             Assert.AreEqual(saved, host.Session.CaptureSnapshot().AuthoritativeHash);
             var fresh = GameSession.CreateBuildCampaign(99, FestivalStanding.Established);

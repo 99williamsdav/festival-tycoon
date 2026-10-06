@@ -9,7 +9,7 @@ namespace Festival.Tests;
 public sealed class FestivalProgrammeTests
 {
     private static CommandResult Send(GameSession s, SessionCommand command) => s.Execute(new(new CommandId(s.NextSubmissionSequence + 1), s.CampaignId, s.Phase, s.CurrentTick, s.NextSubmissionSequence, null, command));
-    private static readonly string[] Acts = ["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"];
+    private static readonly string[] Acts = ["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"];
     private static GameSession Restore(GameSession s)
     {
         var result = GameSession.Restore(s.CapturePersistenceSnapshot());
@@ -87,7 +87,7 @@ public sealed class FestivalProgrammeTests
     public void ThreeFixedSlotsPhysicallyRunAndFullRosterRemainsOnFarm(ulong seed, bool maintenance)
     {
         var s = BuildSession.Drafted(seed);
-        Assert.IsTrue(Send(s, new SetProgrammeCommand(seed == 20260922 ? ["act.meadow-lanterns", "act.neon-postcards", "act.field-frequency"] : Acts)).IsAccepted);
+        Assert.IsTrue(Send(s, new SetProgrammeCommand(seed == 20260922 ? ["act.meadow-lanterns", "act.glitter-rota", "act.low-battery"] : Acts)).IsAccepted);
         foreach (var id in BuildSession.CrewIds(s).Concat(new[] { "equipment.rent" }).Concat(maintenance ? ["maintenance.worker"] : Array.Empty<string>())) Assert.IsTrue(Send(s, new AcceptPreparationOfferCommand(id)).IsAccepted);
         Assert.IsTrue(Send(s, new StartPreparedEditionCommand()).IsAccepted);
         // About the stage schedule: no random toilet or tap faults reshuffling the day.

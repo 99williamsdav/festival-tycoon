@@ -41,7 +41,7 @@ public sealed class PreparationReadinessTests
     {
         var session = BuildSession.Drafted(20260927);
         session = VerifyReadModel(session, PreparationStartOwner.Programme, PreparationStartOwner.Staff, PreparationStartOwner.Staff, PreparationStartOwner.Staff);
-        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
+        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"]));
         session = VerifyReadModel(session, PreparationStartOwner.Staff, PreparationStartOwner.Staff, PreparationStartOwner.Staff);
         foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
         session = VerifyReadModel(session);
@@ -78,7 +78,7 @@ public sealed class PreparationReadinessTests
         Accept(session, new UseDefaultBuildLayoutCommand());
         foreach (var id in new[] { "water", "toilet", "first-aid", "steward-post" })
             Assert.IsTrue(session.GetPreparationStartRequirements().Single(item => item.Id == id).Complete);
-        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
+        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"]));
         foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
         Assert.IsTrue(session.GetPreparationStartRequirements().All(item => item.Complete));
         Assert.AreEqual(0, session.GetPreparationStartBlockers().Count);

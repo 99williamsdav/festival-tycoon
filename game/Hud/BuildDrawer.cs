@@ -198,6 +198,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         line.AddChild(action);
         var placed = new VBoxContainer { Visible = false }; placed.AddThemeConstantOverride("separation", 0); block.AddChild(placed);
         _buildCatalogueRows.Add(kind, new CatalogueRow(chevron, price, dots, count, action, placed));
+        if (kind == BuildServiceKind.FoodVan) block.AddChild(TraderPicker());
         return block;
     }
 
@@ -220,9 +221,36 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         }
     }
 
+    private readonly List<(FoodTrader Trader, Button Button)> _traderButtons = [];
+
+    /// <summary>The chip vans to choose from: each pays the festival to pitch, and the ones that pay more cut corners.</summary>
+    private VBoxContainer TraderPicker()
+    {
+        var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(3));
+        var margin = new MarginContainer(); margin.AddThemeConstantOverride("margin_left", Ui.Px(46)); margin.AddThemeConstantOverride("margin_bottom", Ui.Px(6));
+        var wrapper = new VBoxContainer(); wrapper.AddChild(margin); margin.AddChild(box);
+        box.AddChild(Ui.Caps("Trader · they pay you to pitch", Ui.InkMuted, 9.5f));
+        foreach (var trader in FoodTraders.All)
+        {
+            var button = new Button { Text = $"{trader.Name} · pays {FestivalCurrency.Format(trader.PitchFeePennies)}", ToggleMode = true,
+                Alignment = HorizontalAlignment.Left, TooltipText = $"{trader.Blurb}\nBrings {trader.Portions} portions.",
+                MouseDefaultCursorShape = Control.CursorShape.PointingHand, CustomMinimumSize = new Vector2(0, Ui.S(26)) };
+            var chosen = trader;
+            button.Pressed += () => _hud.Commit(new ChooseFoodTraderCommand(chosen.Id));
+            box.AddChild(button); _traderButtons.Add((trader, button));
+        }
+        return wrapper;
+    }
+
     public void Refresh()
     {
         if (_buildDrawer is null || _hud.Session.CapturePreparationPlan() is null) return;
+        var current = _hud.Session.FoodTrader;
+        foreach (var (trader, button) in _traderButtons)
+        {
+            button.SetPressedNoSignal(trader.Id == current.Id);
+            Tight(Ui.Style(button, trader.Id == current.Id ? Ui.ButtonKind.Secondary : Ui.ButtonKind.Quiet, 12), 12);
+        }
         var placements = _hud.Session.CaptureBuildPlacements();
         _servicesTotal!.Text = $"{placements.Count} placed · {FestivalCurrency.Format(_hud.Session.BuildDraftCost)} · nothing paid until Start";
         var standard = GameSession.StandardBuildLayout().Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
@@ -241,8 +269,9 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         {
             var count = placements.Count(item => item.Kind == kind);
             var limit = _hud.Session.ServiceLimit(kind);
-            var fee = FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind));
-            row.Price.Text = fee;
+            // The food van costs nothing to place: its trader pays to pitch.
+            row.Price.Text = kind == BuildServiceKind.FoodVan ? $"+{FestivalCurrency.Format(_hud.Session.FoodTrader.PitchFeePennies)}"
+                : FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind));
             row.Count.Text = kind == BuildServiceKind.Bin ? $"{count}" : $"{count}/{limit}";
             var dotCount = kind == BuildServiceKind.Bin ? 0 : limit;
             if (row.Dots.GetChildCount() != dotCount)
@@ -259,7 +288,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             Tight(Ui.Style(row.Action, full ? Ui.ButtonKind.Quiet : Ui.ButtonKind.Accent), 14);
             row.Action.TooltipText = full
                 ? $"{BuildName(kind)}: all {limit} placed. Open the row, or right-click one on the farm, to move or remove it."
-                : $"Place a {BuildName(kind).ToLowerInvariant()} ({fee} at Start). {count} placed.";
+                : kind == BuildServiceKind.FoodVan ? $"Pitch the food van: {_hud.Session.FoodTrader.Name} pays {FestivalCurrency.Format(_hud.Session.FoodTrader.PitchFeePennies)} at Start. {count} placed."
+                : $"Place a {BuildName(kind).ToLowerInvariant()} ({FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind))} at Start). {count} placed.";
             if (count == 0) _expanded.Remove(kind);
             row.Chevron.Disabled = count == 0;
             row.Chevron.Modulate = count == 0 ? new Color(1, 1, 1, .3f) : Colors.White;

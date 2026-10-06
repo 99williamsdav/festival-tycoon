@@ -167,8 +167,8 @@ public sealed partial class GameSession
             requirements.Add(new("steward", PreparationStartOwner.Staff, "Steward hired",
                 hires.Any(id => id.StartsWith("staff.steward.", StringComparison.Ordinal)), "The licence needs a steward on site. Hire one from the Staff tab."));
             requirements.Add(new("budget", PreparationStartOwner.Overview, "Setup within budget",
-                p.Plan is not { Committed: false } || PreparationRemainingCash >= 0,
-                "Setup exceeds available funds. Remove or revise planned purchases."));
+                p.Plan is not { Committed: false } || PreparationRemainingCash >= -CampaignDefaults.OverdraftPennies,
+                $"Setup goes past the £{CampaignDefaults.OverdraftPennies / 100} overdraft. Remove or revise planned purchases."));
         return requirements;
     }
 
@@ -537,7 +537,7 @@ public sealed partial class GameSession
         var finance = snapshot.FestivalFinances.SingleOrDefault(item => item.OwnerId == p.FinanceOwnerId);
         var stock = snapshot.OwnedStocks.SingleOrDefault(item => item.ServiceId == p.StockId);
         if (finance is null || stock is null || stock.OwnerId != p.FinanceOwnerId || stock.UnitCostBasisPennies != 60 ||
-            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? p.Plan is null ? 9600 : PlannedStockCost(p.Plan) : 0) - (p.Plan?.Committed == true ? p.SetupPayments?.LastOrDefault()?.BuildCostPennies ?? 0 : 0) + (snapshot.Immersion?.Purchases?.Sum(item => (long)item.PricePennies) ?? 0) - FreeWaterSpend(snapshot.Immersion) ||
+            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? p.Plan is null ? StockCost(40, 32) : PlannedStockCost(p.Plan) : 0) - (p.Plan?.Committed == true ? p.SetupPayments?.LastOrDefault()?.BuildCostPennies ?? 0 : 0) + ReceivedPitchFee(p) + FestivalTakings(snapshot.Immersion) - FreeWaterSpend(snapshot.Immersion) ||
             stock.Quantity != 40 + 50 * p.Payments.Count(item => item.OfferId == "contract.stock" && item.Attempt == p.Attempt) - p.StockConsumed)
             return "Preparation cash or stock does not reconcile.";
         if (p.Status != PreparationStatus.Preparing &&

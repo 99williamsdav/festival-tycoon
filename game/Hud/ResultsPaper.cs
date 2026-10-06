@@ -319,13 +319,15 @@ void fragment() {
         RuledRows(income, list =>
         {
             MoneyRow(list, $"Tickets · advance sales {FestivalCurrency.Format(report.TicketPricePennies)}", report.TicketsSold.ToString(), FestivalCurrency.Format(report.TicketSalesPennies));
+            if (report.PitchFeePennies > 0)
+                MoneyRow(list, $"Pitch fee · {report.PitchFeeTrader}", "1", FestivalCurrency.Format(report.PitchFeePennies));
             foreach (var sale in report.Sales)
             {
                 var item = sale.Product switch { ImmersionProduct.Chips => "Chips", ImmersionProduct.SoftDrink => "Soft drink", ImmersionProduct.Water => "Free water", _ => "Beer" };
                 var rate = sale.UnitPricePennies >= GameSession.ImmersionPrice(sale.Product) ? "full price" : "50% rate";
                 MoneyRow(list, $"{item} · {rate} {FestivalCurrency.Format(sale.UnitPricePennies)}", sale.Quantity.ToString(), FestivalCurrency.Format(sale.AmountPennies));
             }
-            if (report.Sales.Length == 0) list.AddChild(Ui.Text("No food or drink sold", 13.5f, Ui.InkMuted));
+            if (report.Sales.Length == 0) list.AddChild(Ui.Text("Nothing sold at the bar", 13.5f, Ui.InkMuted));
         });
         MoneyRow(income, "Total income", (items + report.TicketsSold).ToString(), FestivalCurrency.Format(report.IncomePennies), true);
         income.AddChild(Paragraph("50% rate applies to staff and performers; discounted beer is performer-only.", 11.5f, Ui.InkMuted));
@@ -351,7 +353,7 @@ void fragment() {
         body.AddChild(Gap(6));
         var steps = new List<(string Label, long Change, bool Total)>
         {
-            ("Loan", report.OpeningCashPennies, true), ("Tickets", report.TicketSalesPennies, false), ("Sales", report.IncomePennies - report.TicketSalesPennies, false), ("Operating", -report.OperatingExpensesPennies, false),
+            ("Loan", report.OpeningCashPennies, true), ("Tickets", report.TicketSalesPennies, false), ("Sales & pitch", report.IncomePennies - report.TicketSalesPennies, false), ("Operating", -report.OperatingExpensesPennies, false),
         };
         if (report.StockPurchaseRecorded) steps.Add(("Stock", -report.StockPurchasesPennies, false));
         steps.Add(("Equipment", -report.CapitalPurchasesPennies, false));

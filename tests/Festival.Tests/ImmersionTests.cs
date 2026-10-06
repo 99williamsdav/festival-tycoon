@@ -126,8 +126,8 @@ public sealed class ImmersionTests
     public void PhysicalDayCreatesSalesAndSaveReplayWithoutFreeAdmissionStock()
     {
         var s=BuildSession.Planned(20260926);
-        Assert.IsTrue(Send(s,new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
-        Assert.IsTrue(Send(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.neon-postcards"])).IsAccepted);
+        Assert.IsTrue(Send(s,new SetPreparationStockCommand(40, 32)).IsAccepted);
+        Assert.IsTrue(Send(s,new SetProgrammeCommand(["act.meadow-lanterns","act.overdue-library-books","act.glitter-rota"])).IsAccepted);
         foreach (var hire in BuildSession.Crew(s)) Assert.IsTrue(Send(s, hire).IsAccepted);
         Assert.IsTrue(Send(s,new StartPreparedEditionCommand()).IsAccepted);
         s.AdvanceWithoutSnapshot(8000);

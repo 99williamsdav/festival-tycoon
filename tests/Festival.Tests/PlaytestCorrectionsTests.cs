@@ -51,7 +51,8 @@ public sealed class PlaytestCorrectionsTests
         var after=s.CaptureImmersion()!;var sale=after.Purchases.Single();var expected=GameSession.ImmersionPrice(product)/(role==ProtectedPersonRole.Guest?1:2);
         Assert.AreEqual(expected,sale.PricePennies);Assert.AreEqual(expected,s.ImmersionPriceFor(person.AgentId,product));
         Assert.AreEqual(cash-expected,s.CaptureSnapshot().Wallets.Single(w=>w.OwnerId.Value==person.AgentId).CashPennies);
-        Assert.AreEqual(revenue+expected,s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+        // Chips money goes to the food trader, not the festival.
+        Assert.AreEqual(revenue+(product==ImmersionProduct.Chips?0:expected),s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         Assert.AreEqual(0L,sale.Entries.Sum(e=>e.AmountPennies));
         Assert.AreEqual(1,before.ChipsStock+before.SoftStock+before.BeerStock-after.ChipsStock-after.SoftStock-after.BeerStock);
         var restored=Restore(s); Assert.AreEqual(expected,restored.CaptureImmersion()!.Purchases.Single().PricePennies);

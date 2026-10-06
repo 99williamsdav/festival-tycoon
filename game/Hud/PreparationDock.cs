@@ -184,7 +184,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             };
             if (offer.Category != "equipment") lines.Add((label, offer.PricePennies));
         }
-        var items = plan.Chips + plan.SoftDrinks + plan.Beers;
+        var items = plan.SoftDrinks + plan.Beers;
         if (items > 0) lines.Add(($"Stock · {items} items", costs.Stock));
         foreach (var id in plan.OfferIds.Where(id => offers[id].Category == "equipment"))
             lines.Add((RigLabel(id), offers[id].PricePennies));
@@ -206,9 +206,13 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         _receiptAfter!.Text = FestivalCurrency.Format(left);
         var tier = session.CapturePreparation()!.Tier;
         var tickets = FestivalTickets.RevenuePennies(tier);
+        var pitch = session.PlannedPitchFeePennies;
         _receiptFunds!.Text = $"Your {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies)}: {FestivalTickets.Sold(tier)} tickets sold at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))} " +
-            $"({FestivalCurrency.Format(tickets)}) and a {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies - tickets)} loan.";
-        _receiptAfter.AddThemeColorOverride("font_color", left >= 0 ? Ui.TealDeep : Ui.Alert);
+            $"({FestivalCurrency.Format(tickets)}) and a {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies - tickets)} loan" +
+            (pitch > 0 ? $", plus {FestivalCurrency.Format(pitch)} from {session.FoodTrader.Name} to pitch." : ".") +
+            (left < 0 ? $" Into the £{CampaignDefaults.OverdraftPennies / 100} overdraft." : "");
+        // In the red is allowed, as far as the overdraft; beyond it, Start is refused.
+        _receiptAfter.AddThemeColorOverride("font_color", left >= 0 ? Ui.TealDeep : left >= -CampaignDefaults.OverdraftPennies ? Ui.Link : Ui.Alert);
         _receiptCheck!.Text = missing == 0 ? $"✓  All {checks} opening checks pass" : $"!  {missing} of {checks} opening checks still open";
         _receiptCheck.AddThemeColorOverride("font_color", missing == 0 ? Ui.TealDeep : new Color("7a3312"));
         _receiptCheck.AddThemeStyleboxOverride("normal", Ui.Box(missing == 0 ? Ui.TealWash : Ui.AlertWash, 6, padX: 10, padY: 8));
@@ -356,7 +360,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         _ring.Text = $"{done}/{requirements.Count}";
         _readinessTitle!.Text = missing.Length == 0 ? "Ready to open" : "Ready to open?";
         _readinessDetail!.Text = missing.Length == 0 ? "Everything required is in place" : $"{Count(missing.Length)} left before Start";
-        var stocked = _hud.Session.CapturePreparationPlan() is not { Chips: 0, SoftDrinks: 0, Beers: 0 };
+        var stocked = _hud.Session.CapturePreparationPlan() is not { SoftDrinks: 0, Beers: 0 };
         var key = string.Join("|", requirements.Select(item => item.Id + ":" + item.Complete)) + "|stock:" + stocked;
         if (key == _readinessKey) return;
         _readinessKey = key;

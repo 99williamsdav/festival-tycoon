@@ -10,7 +10,7 @@ public sealed class BeerFestivalTests
     {
         var s = beerFestival ? Planned(seed, PerkCatalogue.BeerFestival) : Planned(seed);
         // Enough beer that the stock isn't what limits sales.
-        Accept(s, new SetPreparationStockCommand(40, 40, 90));
+        Accept(s, new SetPreparationStockCommand(40, 90));
         foreach (var hire in Crew(s)) Accept(s, hire);
         Accept(s, new StartPreparedEditionCommand());
         return s;

@@ -28,7 +28,7 @@ public sealed class PerkTests
     private static void Start(GameSession s)
     {
         Accept(s,new UseDefaultBuildLayoutCommand());
-        Accept(s,new SetProgrammeCommand(["act.meadow-lanterns","act.barnstorm-circuit","act.field-frequency"]));
+        Accept(s,new SetProgrammeCommand(["act.meadow-lanterns","act.overdue-library-books","act.low-battery"]));
         foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
         Accept(s,new StartPreparedEditionCommand());
     }
@@ -154,12 +154,12 @@ public sealed class PerkTests
     [TestMethod]
     public void ActualStaffFreeWaterAndGuestPaidDrinkDoNotEarnPerkHappiness()
     {
-        var s=GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);FixturePerks(s,"something-in-the-water");Accept(s,new SetPreparationStockCommand(40, 40, 32));Start(s);s.AdvanceWithoutSnapshot(2000);
+        var s=GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);FixturePerks(s,"something-in-the-water");Accept(s,new SetPreparationStockCommand(40, 32));Start(s);s.AdvanceWithoutSnapshot(2000);
         var m=s.CaptureMedical()!;var id=s.CaptureDisorder()!.SecurityId;var point=s.CaptureWaterPoints().Single();var front=GameSession.WaterPointServiceCell(point);
         PositionServiceFixture(s,id,front,"medical.water");
         BuildSession.SetTap(s,point with {Queue=[id],Overflow=[],OwnerId=id,DrinkTicks=1,QueueCells=[front]});typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,m with {Needs=m.Needs.Select(n=>n.AgentId==id?n with {Thirst=1000,Intent=MedicalIntent.Drinking,WaterPointId="water.main",QueueSlot=0}:n with {QueueSlot=null,WaterPointId="water.main",Intent=n.Intent is MedicalIntent.Drinking or MedicalIntent.SeekWater?MedicalIntent.WatchShow:n.Intent}).ToArray()});
         var before=s.CapturePreparation()!.People.Single(p=>p.AgentId==id).Satisfaction;s.AdvanceWithoutSnapshot(1);Assert.AreEqual(2,s.CaptureWaterPoints().Single().DrinkTicks);Assert.AreEqual(before,s.CapturePreparation()!.People.Single(p=>p.AgentId==id).Satisfaction);Restored(s);
-        var paid=GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);FixturePerks(paid,"something-in-the-water");Accept(paid,new SetPreparationStockCommand(40, 40, 32));Start(paid);
+        var paid=GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);FixturePerks(paid,"something-in-the-water");Accept(paid,new SetPreparationStockCommand(40, 32));Start(paid);
         var baseline=Restored(paid);typeof(GameSession).GetField("_perks",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(baseline,null);
         var guest=paid.CapturePreparation()!.People.First(p=>p.Role==ProtectedPersonRole.Guest).AgentId;
         foreach(var target in new[]{paid,baseline})typeof(GameSession).GetMethod("CompleteImmersionSale",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(target,[guest,ImmersionProduct.SoftDrink]);

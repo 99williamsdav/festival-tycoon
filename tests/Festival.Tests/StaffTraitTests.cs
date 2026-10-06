@@ -155,7 +155,8 @@ public sealed class StaffTraitTests
         var (slacker, slackerId) = StartedWith(StaffRole.Sound, StaffTrait.Slacker);
         var plain = Started(Find(StaffRole.Sound, StaffTrait.Slacker).Seed);
         var plainId = plain.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Staff).Min(p => p.AgentId);
-        Assert.IsTrue(Purchases(slacker, slackerId) > Purchases(plain, plainId));
+        var (slackerBuys, plainBuys) = (Purchases(slacker, slackerId), Purchases(plain, plainId));
+        Assert.IsTrue(slackerBuys > plainBuys, $"Slacker {slackerBuys}, standard {plainBuys}.");
     }
 
     [TestMethod]

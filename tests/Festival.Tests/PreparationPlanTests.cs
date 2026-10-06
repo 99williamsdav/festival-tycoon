@@ -21,10 +21,10 @@ public sealed class PreparationPlanTests
     }
     private static void Ready(GameSession s)
     {
-        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
+        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.low-battery"]));
         foreach (var hire in BuildSession.Crew(s)) Accept(s, hire);
         Accept(s, new AcceptPreparationOfferCommand("equipment.rent"));
-        Accept(s, new SetPreparationStockCommand(40, 40, 32));
+        Accept(s, new SetPreparationStockCommand(40, 32));
     }
     [TestMethod]
     public void MissingRoleSlotRejectsHireWithoutChangingDraftOrIds()
@@ -38,7 +38,7 @@ public sealed class PreparationPlanTests
     [TestMethod]
     public void OverBudgetDraftSavesButCannotOpenAndMalformedPlanRejects()
     {
-        var s = New(); Ready(s); Accept(s, new SetPreparationStockCommand(10000, 10000, 10000));
+        var s = New(); Ready(s); Accept(s, new SetPreparationStockCommand(10000, 10000));
         var before = s.CaptureSnapshot().AuthoritativeHash; Assert.IsTrue(s.PreparationRemainingCash < 0);
         var budget = s.GetPreparationStartRequirements().Single(item => item.Id == "budget");
         Assert.IsFalse(budget.Complete);
@@ -50,7 +50,7 @@ public sealed class PreparationPlanTests
         Assert.IsTrue(SaveFileAdapter.LoadSlot(directory, "draft", Compatibility).IsSuccess);
         var snapshot = s.CapturePersistenceSnapshot();
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = snapshot.Preparation! with { Plan = null } }).IsSuccess);
-        Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = snapshot.Preparation! with { Plan = snapshot.Preparation.Plan! with { Chips = -1 } } }).IsSuccess);
+        Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = snapshot.Preparation! with { Plan = snapshot.Preparation.Plan! with { SoftDrinks = -1 } } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = snapshot.Preparation! with { Plan = snapshot.Preparation.Plan! with { OfferIds = ["staff.sound.1", "staff.sound.3"] } } }).IsSuccess);
     }
     [TestMethod]
@@ -64,9 +64,9 @@ public sealed class PreparationPlanTests
         Assert.IsFalse(failed.IsSuccess); Assert.AreSame(s, failed.Session); Assert.AreEqual(before, s.CaptureSnapshot().AuthoritativeHash);
         var started = EquipmentCommandCoordinator.Execute(directory, s, new StartPreparedEditionCommand(), Compatibility, DateTimeOffset.UtcNow, 1);
         Assert.IsTrue(started.IsSuccess, started.Error); s = started.Session;
-        Assert.AreEqual(80000L - total, s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+        Assert.AreEqual(CampaignDefaults.OpeningCashPennies - total + s.CapturePreparation()!.SetupPayments!.Last().PitchFeePennies, s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         Assert.AreEqual(1, s.CapturePreparation()!.SetupPayments!.Length);
-        Assert.AreEqual(-total, s.CaptureFestivalCashFeedbackEvents().Single().FestivalCashPennies);
+        Assert.AreEqual(-total + s.CapturePreparation()!.SetupPayments!.Last().PitchFeePennies, s.CaptureFestivalCashFeedbackEvents().Single().FestivalCashPennies);
         Assert.AreEqual(0L, s.CapturePreparation()!.SetupPayments!.Single().Entries.Sum(e => e.AmountPennies));
         Assert.IsTrue(s.CaptureImmersion()!.StockPurchased); Assert.IsNotNull(s.CaptureEquipment()!.WorkerId);
         s = Restored(s); var loaded = AutosaveRotation.LoadNewestValid(directory, Compatibility); Assert.IsTrue(loaded.IsSuccess, loaded.Error);
@@ -80,7 +80,7 @@ public sealed class PreparationPlanTests
     public void MalformedSetupAndCollectionsRejectWithoutThrowing()
     {
         var s = New(); Ready(s); Accept(s, new StartPreparedEditionCommand()); var snapshot = s.CapturePersistenceSnapshot(); var p = snapshot.Preparation!; var payment = p.SetupPayments!.Single();
-        foreach (var malformed in new[] { payment with { Id = "wrong" }, payment with { Chips = -1 }, payment with { TotalPennies = payment.TotalPennies + 1 }, payment with { Entries = [] } })
+        foreach (var malformed in new[] { payment with { Id = "wrong" }, payment with { SoftDrinks = -1 }, payment with { TotalPennies = payment.TotalPennies + 1 }, payment with { Entries = [] } })
             Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { SetupPayments = [malformed] } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { Payments = null! } }).IsSuccess);
         Assert.IsFalse(GameSession.Restore(snapshot with { Preparation = p with { Payments = [null!] } }).IsSuccess);

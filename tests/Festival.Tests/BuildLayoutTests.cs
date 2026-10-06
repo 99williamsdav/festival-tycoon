@@ -63,7 +63,7 @@ public sealed class BuildLayoutTests
         var cash = session.CaptureSnapshot().FestivalFinances.Single().CashPennies;
         var water = GameSession.StandardBuildLayout().Single(item => item.Kind == BuildServiceKind.WaterTap);
         Assert.IsTrue(Send(session, new PlaceBuildServiceCommand(water.Kind, water.Cell)).IsAccepted);
-        Assert.AreEqual(2_000L, session.BuildDraftCost);
+        Assert.AreEqual(1_500L, session.BuildDraftCost);
         Assert.AreEqual(1, session.CaptureWaterPoints().Count);
         var before = session.CaptureSnapshot().AuthoritativeHash;
         Assert.IsFalse(Send(session, new PlaceBuildServiceCommand(BuildServiceKind.WaterTap, water.Cell)).IsAccepted);
@@ -159,7 +159,7 @@ public sealed class BuildLayoutTests
         Assert.IsNotNull(second);
         Assert.IsTrue(Send(session, new PlaceBuildServiceCommand(BuildServiceKind.WaterTap, second.Value)).IsAccepted);
         Assert.AreEqual(2, session.CaptureWaterPoints().Count);
-        Assert.AreEqual(32_000L, session.BuildDraftCost);
+        Assert.AreEqual(17_000L, session.BuildDraftCost); // default layout £155 (the food van is free: its trader pays) + a £15 tap
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
         Assert.AreEqual(2, restored.Session!.CaptureWaterPoints().Count);
@@ -216,18 +216,19 @@ public sealed class BuildLayoutTests
         Assert.AreEqual(2, session.CaptureToilets().Count);
         Assert.AreNotEqual(session.CaptureToilets()[0].Id, session.CaptureToilets()[1].Id);
         Assert.AreNotEqual(session.CaptureToilets()[0].Cell, session.CaptureToilets()[1].Cell);
-        Assert.AreEqual(34_000L, session.BuildDraftCost);
+        Assert.AreEqual(18_500L, session.BuildDraftCost);
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
         Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
-        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"])).IsAccepted);
+        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.low-battery"])).IsAccepted);
         foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("equipment.rent")).IsAccepted);
-        Assert.IsTrue(Send(session, new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
+        Assert.IsTrue(Send(session, new SetPreparationStockCommand(40, 32)).IsAccepted);
         var started = Send(session, new StartPreparedEditionCommand());
         Assert.IsTrue(started.IsAccepted, started.Message);
-        Assert.AreEqual(34_000L, session.CapturePreparation()!.SetupPayments!.Single().BuildCostPennies);
-        Assert.AreEqual(11_100L, session.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+        var setup = session.CapturePreparation()!.SetupPayments!.Single();
+        Assert.AreEqual(18_500L, setup.BuildCostPennies);
+        Assert.AreEqual(CampaignDefaults.OpeningCashPennies - setup.TotalPennies + setup.PitchFeePennies, session.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         var paidHash = session.CaptureSnapshot().AuthoritativeHash;
         Assert.IsFalse(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         Assert.AreEqual(paidHash, session.CaptureSnapshot().AuthoritativeHash);
@@ -255,7 +256,7 @@ public sealed class BuildLayoutTests
         }
         Assert.IsNotNull(candidate, "A separated second toilet should have a valid site.");
         Assert.IsTrue(Send(session, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, candidate.Value)).IsAccepted);
-        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"])).IsAccepted);
+        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.low-battery"])).IsAccepted);
         foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("equipment.rent")).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
@@ -311,13 +312,13 @@ public sealed class BuildLayoutTests
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);
-        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"])).IsAccepted);
+        Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.low-battery"])).IsAccepted);
         foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("equipment.rent")).IsAccepted);
-        Assert.IsTrue(Send(session, new SetPreparationStockCommand(40, 40, 32)).IsAccepted);
+        Assert.IsTrue(Send(session, new SetPreparationStockCommand(40, 32)).IsAccepted);
         var firstCost = session.PreparationPlanCost;
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
-        Assert.AreEqual(64_900L, firstCost);
+        Assert.AreEqual(session.CapturePreparation()!.SetupPayments!.Single().TotalPennies, firstCost);
         var prep = session.CapturePreparation()!;
         typeof(GameSession).GetProperty("PreparationView", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(session,
             prep with { People = prep.People.Select(person => person with { Admitted = true }).ToArray() });
@@ -339,7 +340,7 @@ public sealed class BuildLayoutTests
         CollectionAssert.AreEqual(GameSession.StandardBuildLayout().Select(item => item.Id).Order().ToArray(),
             session.CaptureBuildPlacements().Select(item => item.Id).Order().ToArray());
         Assert.AreEqual(firstCost, session.PreparationPlanCost);
-        Assert.AreEqual(80_000L, session.CaptureSnapshot().FestivalFinances.Single().CashPennies);
+        Assert.AreEqual(CampaignDefaults.OpeningCashPennies, session.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         Assert.AreEqual(6, session.CaptureBuildPlacements().Count);
         Assert.AreEqual(0, session.CaptureToilets().Single().WeeCount);
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
@@ -348,9 +349,11 @@ public sealed class BuildLayoutTests
         var secondPerk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(secondPerk.DraftAttempt, secondPerk.Cursor, secondPerk.Hand[0])).IsAccepted);
         Assert.IsTrue(Send(session, new RemoveBuildServiceCommand("drinks")).IsAccepted);
-        Assert.AreEqual(firstCost - 7_000, session.PreparationPlanCost);
+        Assert.AreEqual(firstCost - 5_000, session.PreparationPlanCost);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         Assert.AreEqual(2, session.CapturePreparation()!.SetupPayments!.Length);
-        Assert.AreEqual(7_000L, session.CaptureSnapshot().FestivalFinances.Single().CashPennies + firstCost - 80_000L);
+        // The bar's £50 saved, and the food trader's pitch fee received.
+        Assert.AreEqual(5_000L + session.CapturePreparation()!.SetupPayments!.Last().PitchFeePennies,
+            session.CaptureSnapshot().FestivalFinances.Single().CashPennies + firstCost - CampaignDefaults.OpeningCashPennies);
     }
 }

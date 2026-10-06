@@ -26,9 +26,9 @@ public sealed class FestivalResultsTests
     private static GameSession Open()
     {
         var s = BuildSession.Drafted(20260922);
-        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency"]));
+        Accept(s, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.low-battery"]));
         foreach (var id in new[] { "staff.sound.3", "staff.medic.1", "staff.steward.1" }) Accept(s, new AcceptPreparationOfferCommand(id)); Accept(s, new AcceptPreparationOfferCommand("equipment.rent"));
-        Accept(s, new SetPreparationStockCommand(40, 40, 32)); Accept(s, new StartPreparedEditionCommand());
+        Accept(s, new SetPreparationStockCommand(40, 32)); Accept(s, new StartPreparedEditionCommand());
         s.AdvanceWithoutSnapshot(1200);
         // Band members walk in to backstage, the far side of the field from the gate.
         while (s.CapturePreparation()!.People.Any(person => person.Role == ProtectedPersonRole.Performer && !person.Admitted) && s.CurrentTick < 4_000)
@@ -67,7 +67,7 @@ public sealed class FestivalResultsTests
         var finished = s.CapturePreparation()!;
         Assert.IsNotNull(finished.StandingBefore);
         var expected = ActCatalogue.AfterFestival(finished.StandingBefore, s.CompletedFestivalResult.Stars!.Value,
-            new[] { "act.meadow-lanterns", "act.barnstorm-circuit", "act.field-frequency" }.Select(id => ActCatalogue.Find(id)!.Genre));
+            new[] { "act.meadow-lanterns", "act.overdue-library-books", "act.low-battery" }.Select(id => ActCatalogue.Find(id)!.Genre));
         Assert.AreEqual(expected.Reputation, s.Standing.Reputation);
         CollectionAssert.AreEqual(expected.SceneCredibility, s.Standing.SceneCredibility);
         var directory = Path.Combine(Path.GetTempPath(), "festival-results-" + Guid.NewGuid()); Directory.CreateDirectory(directory);

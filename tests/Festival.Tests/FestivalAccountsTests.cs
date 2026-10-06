@@ -22,10 +22,10 @@ public sealed class FestivalAccountsTests
         var perk = session.CapturePerks()!;
         Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
         Accept(session, new UseDefaultBuildLayoutCommand());
-        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
+        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"]));
         foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
         Accept(session, new AcceptPreparationOfferCommand("equipment.rent"));
-        Accept(session, new SetPreparationStockCommand(8, 8, 8));
+        Accept(session, new SetPreparationStockCommand(8, 8));
         Accept(session, new StartPreparedEditionCommand());
         session.AdvanceWithoutSnapshot((int)session.PreparedEditionDurationTicks + 15000);
         Assert.AreEqual(PreparationStatus.Finished, session.PreparedStatus);
@@ -57,10 +57,10 @@ public sealed class FestivalAccountsTests
         var perk = session.CapturePerks()!;
         Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
         Accept(session, new UseDefaultBuildLayoutCommand());
-        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.barnstorm-circuit", "act.neon-postcards"]));
+        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"]));
         foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
         Accept(session, new AcceptPreparationOfferCommand("equipment.rent"));
-        Accept(session, new SetPreparationStockCommand(8, 8, 8));
+        Accept(session, new SetPreparationStockCommand(8, 8));
         Accept(session, new StartPreparedEditionCommand());
         var people = session.CapturePreparation()!.People;
         var guests = people.Where(person => person.Role == ProtectedPersonRole.Guest).Take(3).ToArray();
@@ -82,17 +82,19 @@ public sealed class FestivalAccountsTests
         var setup = preparation.SetupPayments!.Single(payment => payment.Attempt == preparation.Attempt);
         var ordinaryPayments = preparation.Payments.Where(payment => payment.Attempt == preparation.Attempt).ToArray();
         Assert.IsTrue(setup.BuildCostPennies > 0);
-        Assert.AreEqual(6, report.Sales.Length);
-        CollectionAssert.AreEquivalent(new[] { 300, 150, 200, 100, 300, 150 }, report.Sales.Select(line => line.UnitPricePennies).ToArray());
+        // The chips were the trader's sales: only the bar's count, and the trader's pitch fee.
+        Assert.AreEqual(4, report.Sales.Length);
+        CollectionAssert.AreEquivalent(new[] { 250, 125, 400, 200 }, report.Sales.Select(line => line.UnitPricePennies).ToArray());
         Assert.AreEqual(20, report.TicketsSold); Assert.AreEqual(1_000, report.TicketPricePennies);
-        Assert.AreEqual(20_000L + 1_200L, report.IncomePennies, "Advance ticket sales plus food and drink.");
-        Assert.AreEqual(60_000L, report.OpeningCashPennies, "Opening cash is the loan; the ticket money is income.");
-        Assert.AreEqual(520L, report.SoldItemCostPennies);
+        Assert.AreEqual(FoodTraders.Default.PitchFeePennies, report.PitchFeePennies);
+        Assert.AreEqual(20_000L + FoodTraders.Default.PitchFeePennies + 975L, report.IncomePennies, "Advance ticket sales, the pitch fee and the bar.");
+        Assert.AreEqual(20_000L, report.OpeningCashPennies, "Opening cash is the loan; the ticket money is income.");
+        Assert.AreEqual(360L, report.SoldItemCostPennies);
         Assert.AreEqual(ordinaryPayments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense)
             .Sum(payment => (long)payment.AmountPennies) + setup.BuildCostPennies, report.OperatingExpensesPennies);
         Assert.AreEqual(setup.BuildCostPennies, report.OperatingExpenses.Where(line => line.Category == "Facilities").Sum(line => line.AmountPennies));
         Assert.IsTrue(report.FacilityDetailRecorded && report.StockDetailRecorded);
-        Assert.AreEqual(2_080L, report.StockPurchasesPennies);
+        Assert.AreEqual(1_440L, report.StockPurchasesPennies);
         Assert.AreEqual(0L, report.CapitalPurchasesPennies, "Rigs are hired, not bought, so nothing is capital.");
         Assert.AreEqual(report.OperatingExpensesPennies, result.ContractCostsPennies);
         Assert.AreEqual(report.ClosingCashPennies - report.OpeningCashPennies, result.NetCashChangePennies);

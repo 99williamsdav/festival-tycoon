@@ -19,7 +19,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Free water at the bar is only for the festival day itself.");
         if (command.Enabled == _immersion.FreeWater)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, command.Enabled ? "The bar is already giving out free water." : "The bar isn't giving out free water.");
-        if (command.Enabled && _festivalFinances[new(_preparation.FinanceOwnerId)].CashPennies < FreeWaterChargePennies)
+        if (command.Enabled && _festivalFinances[new(_preparation.FinanceOwnerId)].CashPennies + CampaignDefaults.OverdraftPennies < FreeWaterChargePennies)
             return CommandResult.Rejected(CommandReasonCode.InsufficientFunds, $"Free water costs {FreeWaterChargePennies / 100} pounds up front.");
         return null;
     }
