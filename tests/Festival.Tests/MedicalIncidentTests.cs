@@ -152,6 +152,8 @@ public sealed class MedicalIncidentTests
         s.AdvanceWithoutSnapshot(GameSession.MedicalDeathDelayTicks - GameSession.MedicalCriticalDelayTicks);
         Assert.IsTrue(s.CaptureMedical()!.Fatal);
         Assert.AreEqual(ProtectedPersonRole.Performer, s.CaptureLifecycleSnapshot()!.Casualties.Single().Role);
+        // Nobody was sent, so the council blames the medic rather than the heat.
+        Assert.AreEqual("Maybe don't cheap out on lifesaving medics?", s.CouncilLesson());
         Restored(s);
     }
 

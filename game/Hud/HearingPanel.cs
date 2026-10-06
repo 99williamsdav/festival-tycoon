@@ -16,6 +16,7 @@ internal sealed class HearingPanel(IHudHost _hud, Action<SessionCommand> _decide
     private Label? _hearingPerson;
     private Label? _hearingMast;
     private Label? _hearingSequence;
+    private Label? _hearingLesson;
     private Label? _hearingBalance;
     private Label? _hearingBalanceState;
     private Label? _hearingOutcome;
@@ -100,6 +101,10 @@ internal sealed class HearingPanel(IHudHost _hud, Action<SessionCommand> _decide
         var sequenceMargin = HearingMargins(10, 8); sequenceStrip.AddChild(sequenceMargin);
         _hearingSequence = LabelText("", 19, new Color("594c3f"));
         _hearingSequence.AutowrapMode = TextServer.AutowrapMode.WordSmart; sequenceMargin.AddChild(_hearingSequence);
+        // The councillor's pointed remark: the lesson, said the way they'd say it.
+        box.AddChild(HearingGap(10));
+        _hearingLesson = LabelText("", 19, new Color("995541")); _hearingLesson.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+        _hearingLesson.HorizontalAlignment = HorizontalAlignment.Center; box.AddChild(_hearingLesson);
         box.AddChild(HearingGap(16)); box.AddChild(HearingRule()); box.AddChild(HearingGap(15));
         box.AddChild(LabelText("Licence decision", 25, ink)); box.AddChild(HearingGap(12));
         _hearingChoices = new HBoxContainer(); _hearingChoices.AddThemeConstantOverride("separation", 12); box.AddChild(_hearingChoices);
@@ -176,6 +181,9 @@ internal sealed class HearingPanel(IHudHost _hud, Action<SessionCommand> _decide
         _hearingPerson!.Text = account.Person;
         _hearingRecord!.Text = account.Cause;
         _hearingSequence!.Text = account.Sequence;
+        var lesson = _hud.Session.CouncilLesson();
+        _hearingLesson!.Visible = lesson is not null;
+        _hearingLesson.Text = lesson is null ? "" : $"“{lesson}”";
         var showChoices = hearing.Status == HearingStatus.Open && lifecycle.FavourBalance > 0;
         _hearingChoices!.Visible = showChoices;
         _hearingRetryDetail!.Text = $"Retry Tier {preparation.Tier} · same tier · balance {lifecycle.FavourBalance} → {lifecycle.FavourBalance - 1}";
