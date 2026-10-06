@@ -41,7 +41,7 @@ public sealed partial class GameSession
 
     /// <summary>The pitch fee received for this attempt, once it opened.</summary>
     private static long ReceivedPitchFee(PreparationSnapshot p) =>
-        p.Plan is { Committed: true } ? p.SetupPayments?.SingleOrDefault(setup => setup.Attempt == p.Attempt)?.PitchFeePennies ?? 0 : 0;
+        p.Plan is { Committed: true } ? p.SetupPayments?.LastOrDefault(setup => setup.Attempt == p.Attempt)?.PitchFeePennies ?? 0 : 0;
 
     private CommandResult? ValidateChooseFoodTrader(EntityId? target, ChooseFoodTraderCommand command) =>
         target is not null || _preparation is not { Status: PreparationStatus.Preparing, Plan: { Committed: false } }
