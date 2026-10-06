@@ -78,6 +78,15 @@ internal sealed class CameraRig
         _focus.X = Mathf.Clamp(_focus.X, -PanLimit, PanLimit); _focus.Z = Mathf.Clamp(_focus.Z, -PanLimit, PanLimit); Apply();
     }
 
+    /// <summary>A two-finger trackpad drag pans, further when zoomed out.</summary>
+    public void HandlePanGesture(InputEventPanGesture pan) => Pan(pan.Delta * Camera.Size * 0.02f);
+
+    /// <summary>A trackpad pinch zooms: spreading fingers zooms in.</summary>
+    public void HandlePinch(InputEventMagnifyGesture pinch)
+    {
+        if (pinch.Factor > 0) Camera.Size = Mathf.Clamp(Camera.Size / pinch.Factor, MinZoom, MaxZoom);
+    }
+
     /// <summary>Where a screen point meets the ground plane.</summary>
     private Vector3? Ground(Vector2 screen)
     {

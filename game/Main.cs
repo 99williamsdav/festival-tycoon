@@ -149,6 +149,9 @@ public partial class Main : Node, IHudHost
             _rig.HandleMotion(motion);
             if (_buildGhostKind is not null) UpdateBuildGhost(motion.Position);
         }
+        // Trackpads (a Mac has no middle button): two fingers drag the view, a pinch zooms it.
+        else if (inputEvent is InputEventPanGesture pan && !EyeViewActive && !WorldInputOccluded(pan.Position)) _rig.HandlePanGesture(pan);
+        else if (inputEvent is InputEventMagnifyGesture pinch && !EyeViewActive && !WorldInputOccluded(pinch.Position)) _rig.HandlePinch(pinch);
     }
 
 
