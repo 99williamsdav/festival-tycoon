@@ -42,6 +42,8 @@ public sealed partial class GameSession
     public const int DisorderConfrontationTicks = 160;
     /// <summary>Hunger (of 10000) from which a guest is hangry: shorter patience in a queue, quicker to anger.</summary>
     public const int DisorderHangryHunger = 6_500, DisorderHangryPatiencePercent = 60;
+    /// <summary>Patience in a queue against the water's and the toilet's: double for food, half as much again for the bar.</summary>
+    public const int DisorderFoodPatiencePercent = 200, DisorderBarPatiencePercent = 150;
     public const int DisorderFightDurationTicks = 800;   // 10 seconds of visible confrontation at 1×.
     public const int DisorderInjuryDeathTicks = 2_400;
     // Rotated open-sided visual post faces east toward the path. Its walkable
@@ -256,14 +258,17 @@ public sealed partial class GameSession
             }
             var inWaterLine = !d.WaterClosed && WaterPoints().Any(point =>
                 point.Queue.Contains(person.Id) || point.Overflow.Contains(person.Id));
-            // Any long queue wears on people, not just the water: the food van, the bar, the toilets.
-            var inOtherLine = !inWaterLine && (Vendors.Any(vendor => vendor.Queue.Contains(person.Id) && vendor.OwnerId != person.Id) ||
+            // Any long queue wears on people, not just the water. How long they'll wait depends on what for: people expect
+            // to queue for food, a pint is worth a wait, but nobody wants to wait for the toilet.
+            var vendorLine = inWaterLine ? null : Vendors.FirstOrDefault(vendor => vendor.Queue.Contains(person.Id) && vendor.OwnerId != person.Id);
+            var inOtherLine = !inWaterLine && (vendorLine is not null ||
                 EffectiveToilets(_facilities).Any(toilet => toilet.Queue.Contains(person.Id) && toilet.OwnerId != person.Id));
             var joined = inWaterLine || inOtherLine ? person.QueueJoinedTick < 0 ? CurrentTick : person.QueueJoinedTick : -1;
             var need = _persons[person.Id];
+            var patiencePercent = vendorLine?.Id switch { "food" => DisorderFoodPatiencePercent, "drinks" => DisorderBarPatiencePercent, _ => 100 };
             // Hangry: a hungry person runs out of patience sooner, whatever's annoying them.
             var hangry = IsGuest(person.Id) && need.Hunger >= DisorderHangryHunger;
-            var tolerance = hangry ? person.QueueToleranceTicks * DisorderHangryPatiencePercent / 100 : person.QueueToleranceTicks;
+            var tolerance = person.QueueToleranceTicks * patiencePercent / 100 * (hangry ? DisorderHangryPatiencePercent : 100) / 100;
             var listener = _livePerformance?.Listeners.SingleOrDefault(item => item.AgentId == person.Id);
             var lateAct = LateReadyFestivalAct;
             var lateEnthusiasm = lateAct is null ? 0 : FestivalAffinity(person.Id, lateAct);
