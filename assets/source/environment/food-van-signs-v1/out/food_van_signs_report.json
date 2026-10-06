@@ -1,0 +1,28 @@
+{
+ "lwf_food_van_sign_chips_v1": {
+  "file": "lwf_food_van_sign_chips_v1.glb",
+  "node": "LWF_FoodVan_Sign_Chips",
+  "board_m": [
+   1.4,
+   1.75
+  ],
+  "board_bottom_m": 0.3,
+  "top_m": 2.05,
+  "triangles": 28,
+  "place": "child of ApprovedFoodVanAssembly at (2.10, 2.75, 0.0); in vendor space (-0.05, 2.75, 0.0)",
+  "sha256": "1a8eb8e07c87857f358eb4f6aac72d64657147ff2235d1e0b67ef537b1878676"
+ },
+ "lwf_food_van_sign_pizza_v1": {
+  "file": "lwf_food_van_sign_pizza_v1.glb",
+  "node": "LWF_FoodVan_Sign_Pizza",
+  "board_m": [
+   1.55,
+   1.55
+  ],
+  "board_bottom_m": 0.3,
+  "top_m": 1.85,
+  "triangles": 28,
+  "place": "child of ApprovedFoodVanAssembly at (2.10, 2.75, 0.0); in vendor space (-0.05, 2.75, 0.0)",
+  "sha256": "df395552aa515b94d2a398f73addc6686371be95645dcc1e6436dc3f3dcd1e33"
+ }
+}

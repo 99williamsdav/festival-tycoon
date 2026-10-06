@@ -373,7 +373,8 @@ private void BuildImmersionControls(VBoxContainer parent)
                 if (vendor.Id == "food") body.SetMeta("TraderArt", _session.FoodTrader.Art);
                 var size = vendor.Id == "food" ? new Vector3(6, 2.8f, 3) : new Vector3(3.5f, 3.1f, 2.5f);
                 body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size }, Position = new Vector3(vendor.Id == "food" ? -.5f : 0, size.Y / 2, 0) });
-                var name=BuildingName(vendor.Id=="food"?"FOOD":"BAR",new Vector3(0,3.4f,0));name.Name="VendorCategoryLabel";body.AddChild(name);
+                var name=BuildingName(vendor.Id=="food"?"FOOD":"BAR",new Vector3(0,vendor.Id=="food"?5.3f:3.4f,0)); // the food van's label clears its roof sign
+                name.Name="VendorCategoryLabel";body.AddChild(name);
                 AddChild(body); _immersionVendors.Add(vendor.Id, body); _immersionVendorPicks.Add(body.GetInstanceId(), vendor.Id);
             }
             body.Position = ImmersionPosition(vendor.Cell); body.RotationDegrees = new Vector3(0, 90 * vendor.QuarterTurns, 0);

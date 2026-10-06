@@ -92,6 +92,12 @@ def doodle(d, name, cx, cy, s, col, w, seed=1):
         St(circ(*P(0, -3), 7 * u, 140, 400)); St([P(-4, 3), P(-3, 7), P(3, 7), P(4, 3)]); St([P(-3, 9.5), P(3, 9.5)])
         for a in (200, 270, 340): St([P(10 * math.cos(math.radians(a)), -3 + 10 * math.sin(math.radians(a))),
                                       P(13 * math.cos(math.radians(a)), -3 + 13 * math.sin(math.radians(a)))], w * 0.7)
+    elif name == "queue":                            # three people in a line; the one at the back taps a watch
+        for i, (x, sc_) in enumerate(((-8.5, 1.0), (-0.5, 1.0), (8, 1.0))):
+            d.ellipse([P(x - 2.6, -9), P(x + 2.6, -3.8)], fill=col)                       # head
+            St([P(x - 3.6, 10), P(x - 3.4, 0.5), P(x - 1.6, -1.8), P(x + 1.6, -1.8), P(x + 3.4, 0.5), P(x + 3.6, 10)], w * 0.85)
+        St([P(5.2, 3.5), P(8.5, 2.2)], w * 0.8); d.ellipse([P(7.6, 1.2), P(10.2, 3.6)], outline=col, width=max(1, int(w * 0.6)))   # wrist + watch
+        St([P(11.5, -1.0), P(12.8, -2.4)], w * 0.6); St([P(12.2, 1.6), P(13.8, 1.2)], w * 0.6)                                    # tap marks
     elif name == "unknown":
         f = font("slabb", int(17 * u)); d.text((cx, cy + u), "?", font=f, fill=col, anchor="mm")
 
@@ -105,7 +111,8 @@ NOTES = [("wasps", "Wasps", "A full bin is a wasp magnet, which can be more than
          ("tempers", "Tempers", "Long waits and short tempers don't mix, and words can turn into something worse..."),
          ("late", "Late", "The crowd came for the music, and their patience won't last forever..."),
          ("litter", "Litter", "Not everyone makes it to a bin, and nobody likes standing in rubbish..."),
-         ("dusk", "Lights", "The lights are coming on, and they want their share of the power too...")]
+         ("dusk", "Lights", "The lights are coming on, and they want their share of the power too..."),
+         ("queue", "Queue", "A long queue for food is a long time away from the music...")]
 
 
 # ---------------------------------------------------------------- the note card

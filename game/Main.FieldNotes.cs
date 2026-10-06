@@ -37,6 +37,7 @@ public partial class Main
         new("band-late", "late", "Late", "The crowd came for the music, and their patience won't last forever..."),
         new("litter", "litter", "Litter", "Not everyone makes it to a bin, and nobody likes standing in rubbish..."),
         new("dusk", "dusk", "Lights", "The lights are coming on, and they want their share of the power too..."),
+        new("queue", "queue", "Queue", "A long queue for food is a long time away from the music..."),
     ];
 
     private HashSet<string>? _fieldNotesSeen;
@@ -67,6 +68,9 @@ public partial class Main
                 Person(q.Performers.Where(r => r.SlotIndex == q.CurrentSlot).Select(r => r.AgentId)),
             "litter" => () => _session.CaptureLitter()?.Pieces.FirstOrDefault(w => w.Location == WasteLocation.Ground) is { } piece
                 ? [new Vector3(piece.XMillimetres / 1000f, 1.1f, piece.ZMillimetres / 1000f)] : null,
+            // A queue of four or more at the food van; the pin sits above its roof sign.
+            "queue" => () => _session.CaptureVendors().FirstOrDefault(v => v.Id == "food" && v.Queue.Length >= 4) is { } van
+                ? [ImmersionPosition(van.Cell) + Vector3.Up * 5.4f] : null,
             _ => () => _session.PowerBudgetActive && _session.CapturePower().Lights > 0 ? Generator() : null,
         };
         return FieldNoteTexts.Select(text => new FieldNote(text, Find(text.Id))).ToArray();
@@ -327,7 +331,7 @@ public partial class Main
             if (left) { paper.CornerRadiusTopRight = paper.CornerRadiusBottomRight = 0; } else { paper.CornerRadiusTopLeft = paper.CornerRadiusBottomLeft = 0; }
             panel.AddThemeStyleboxOverride("panel", paper);
             panel.AddChild(new RuledPaper { Pitch = 24, FirstRule = 120, Rule = new Color(Ui.PaperRule, .47f) });
-            var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(14)); panel.AddChild(box);
+            var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(12)); panel.AddChild(box);
             spread.AddChild(panel);
             return box;
         }
@@ -349,8 +353,9 @@ public partial class Main
         {
             var note = FieldNoteTexts[i];
             var known = seen.Contains(note.Id);
-            var entry = new HBoxContainer { CustomMinimumSize = new Vector2(0, Ui.S(84)) }; entry.AddThemeConstantOverride("separation", Ui.Px(17));
-            (i < 5 ? leftPage : rightPage).AddChild(entry);
+            // Six on the left, the rest on the right.
+            var entry = new HBoxContainer { CustomMinimumSize = new Vector2(0, Ui.S(70)) }; entry.AddThemeConstantOverride("separation", Ui.Px(17));
+            (i < 6 ? leftPage : rightPage).AddChild(entry);
             entry.AddChild(DoodleRing(known ? "ring" : "ring_blank", known ? "doodle_" + note.Art : "doodle_unknown", 50, 28, out _));
             var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; words.AddThemeConstantOverride("separation", Ui.Px(4));
             entry.AddChild(words);

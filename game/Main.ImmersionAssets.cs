@@ -40,7 +40,12 @@ public partial class Main
             ApplyFoodVanLivery(assembly, $"res://assets/environment/lwf_food_van_palette_{art}_v1.png");
         var sign = _session.FoodTrader.Menu == "Pizza" ? "pizza" : "chips";
         if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_sign_{sign}_v1.glb"))
-            assembly.AddChild(InstantiateAsset($"res://assets/environment/lwf_food_van_sign_{sign}_v1.glb"));
+        {
+            // On a pole from the middle of the roof.
+            var board = InstantiateAsset($"res://assets/environment/lwf_food_van_sign_{sign}_v1.glb");
+            board.Position = new Vector3(2.10f, 2.75f, 0);
+            assembly.AddChild(board);
+        }
         return vendor;
     }
 

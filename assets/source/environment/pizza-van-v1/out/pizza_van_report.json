@@ -1,0 +1,17 @@
+{
+ "file": "lwf_food_van_name_panel_pizza_v1.glb",
+ "node": "LWF_FoodVan_NamePanel",
+ "size_m": [
+  2.5,
+  0.31
+ ],
+ "faces": "+Z (Godot)",
+ "triangles": 2,
+ "place": "child of the fascia node, Position (0, 0, 0.056)",
+ "sha256": "2d16b3b65411bfba6f3e08310c295469be4587813c123f9f127787df450f9e17",
+ "normal_blender": [
+  0.0,
+  -1.0,
+  -0.0
+ ]
+}
