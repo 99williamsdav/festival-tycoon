@@ -173,7 +173,8 @@ public partial class Main
             BobPins();
             return;
         }
-        if (!running) return;
+        // Not while the field guide is open: a note behind it would be left up when the guide unpauses the day.
+        if (!running || _fieldGuide is not null) return;
         _fieldNotePoll -= delta;
         if (_fieldNotePoll > 0) return;
         _fieldNotePoll = .5;
