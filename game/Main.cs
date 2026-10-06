@@ -103,6 +103,12 @@ public partial class Main : Node, IHudHost
 
     public override void _UnhandledInput(InputEvent inputEvent)
     {
+        // The field guide is modal: Esc closes it and nothing else reaches the field.
+        if (_fieldGuide is not null)
+        {
+            if (inputEvent is InputEventKey { Pressed: true, Keycode: Key.Escape }) CloseFieldGuide();
+            GetViewport().SetInputAsHandled(); return;
+        }
         if (ResultsPaper.IsOpen || StartMenu.IsOpen) return;
         if (Perks.Panel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && Perks.Panel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }

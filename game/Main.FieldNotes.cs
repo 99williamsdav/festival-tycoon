@@ -189,7 +189,7 @@ public partial class Main
     {
         _fieldNoteShown = note;
         _fieldNoteTitle!.Text = " " + note.Text.Title.ToUpperInvariant();
-        _fieldNoteCount!.Text = $"{_fieldNotesSeen!.Count + 1} of {FieldNoteTexts.Length}";
+        _fieldNoteCount!.Text = $"{FieldNoteTexts.Count(n => _fieldNotesSeen!.Contains(n.Id)) + 1} of {FieldNoteTexts.Length}";
         _fieldNoteLine!.Text = note.Text.Line;
         _fieldNoteDoodle!.Texture = FieldTexture("doodle_" + note.Text.Art);
         _fieldNoteCard!.Visible = true;
@@ -299,12 +299,16 @@ public partial class Main
     // ---- The field guide: every note seen so far, in a cloth-bound notebook. ----
 
     private CanvasLayer? _fieldGuide;
+    private bool _fieldGuidePaused;
 
     /// <summary>Opens the field guide over whatever's on screen: from the festival menu or the title screen.</summary>
     private void OpenFieldGuide()
     {
         if (_fieldGuide is not null) return;
         var seen = _fieldNotesSeen ?? LoadFieldNotesSeen();
+        // Mid-festival, the day waits while the guide is read.
+        _fieldGuidePaused = _session.PreparedStatus == PreparationStatus.Running && !_session.IsPaused;
+        if (_fieldGuidePaused) { _host.Submit(new SetPausedCommand(true)); RefreshPreparationHud(); }
         _fieldGuide = new CanvasLayer { Layer = 30 }; AddChild(_fieldGuide);
         var dim = new ColorRect { Color = new Color("0e1f1a", .59f), MouseFilter = Control.MouseFilterEnum.Stop };
         dim.SetAnchorsPreset(Control.LayoutPreset.FullRect); _fieldGuide.AddChild(dim);
@@ -367,5 +371,10 @@ public partial class Main
         rightPage.AddChild(new Control { SizeFlagsVertical = Control.SizeFlags.ExpandFill }); rightPage.AddChild(footer);
     }
 
-    private void CloseFieldGuide() { _fieldGuide?.QueueFree(); _fieldGuide = null; }
+    private void CloseFieldGuide()
+    {
+        _fieldGuide?.QueueFree(); _fieldGuide = null;
+        if (_fieldGuidePaused && _session.IsPaused) { _host.Submit(new SetPausedCommand(false)); RefreshPreparationHud(); }
+        _fieldGuidePaused = false;
+    }
 }
