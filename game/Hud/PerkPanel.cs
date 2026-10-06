@@ -102,7 +102,7 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         return card;
     }
     private TextureRect PerkArtwork(string id, float width) => new() { Name = "PerkArtwork", Texture = GD.Load<Texture2D>($"res://assets/ui/perks/{id}.png"),
-        TextureFilter = CanvasItem.TextureFilterEnum.Linear, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+        TextureFilter = CanvasItem.TextureFilterEnum.LinearWithMipmaps, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
         StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered, CustomMinimumSize = new Vector2(width, width * 2 / 3),
         SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
     private void ShowOwnedEffect(Control card, string effect)
