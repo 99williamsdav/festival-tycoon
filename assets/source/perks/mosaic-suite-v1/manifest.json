@@ -20,7 +20,7 @@
     {
       "id": "doctors-orders",
       "name": "Doctor's Orders",
-      "effect": "+1 medic hiring slot. Hire separately for £30 per weekend.",
+      "effect": "+1 medic hiring slot",
       "subject": "One prominent dark teal medical carry bag with a large cream heart emblem, a second smaller matching bag behind, and a golden addition-plus symbol beside them. Clearly a medical hiring-capacity symbol. No red cross, no stewards or vest.",
       "artwork": "artwork/doctors-orders.png",
       "width": 1536,

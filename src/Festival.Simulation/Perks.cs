@@ -2,28 +2,52 @@ using System.Text.Json;
 
 namespace Festival.Simulation;
 
-public sealed record PerkDefinition(string Id, string Name, string Effect);
+public enum PerkRarity { Common, Uncommon, Rare }
+/// <param name="Weight">How often the card is drawn, against the others (the whole deck sums to 1000: commons 600,
+/// uncommons 300, rares 100). Cards in one rarity may differ.</param>
+public sealed record PerkDefinition(string Id, string Name, string Effect, PerkRarity Rarity, int Weight);
 public static class PerkCatalogue
 {
     public const string TapId = "water.extra-1";
     public const string BeerFestival = "beer-festival", FriendlyQueues = "friendly-queues", BringYourOwnBottle = "bring-your-own-bottle",
         ColaFiends = "cola-fiends", Alcoholics = "alcoholics", RobotWorkers = "robot-workers";
     public static readonly PerkDefinition[] All = [
-        new("extra-pair-of-hands", "Extra Pair of Hands", "+1 steward hiring slot"),
-        new("doctors-orders", "Doctor's Orders", "+1 medic hiring slot. Hire separately for £30 per weekend."),
-        new("another-round", "Another Round", "+1 placeable free-water tap above the guaranteed baseline."),
-        new("high-pressure", "High Pressure", "Water tower adds +4 flow to each tap."),
-        new("smooth-operators", "Smooth Operators", "All stewards walk faster and gain calming and confrontation skill."),
-        new("first-responders", "First Responders", "All medics walk faster and treat more quickly."),
-        new("something-in-the-water", "Something in the Water", "Drinking free water improves satisfaction."),
-        new("thirsty-crowd", "Thirsty Crowd", "Guests grow thirsty faster."),
-        new(BeerFestival, "Beer Festival", "Charge 50% more for beer and everyone loves it."),
-        new(FriendlyQueues, "Friendly Queues", "Guests chat in queues and gain satisfaction while they wait."),
-        new(BringYourOwnBottle, "Bring Your Own Bottle", "Guests get thirsty more slowly, but take longer to fill up at taps."),
-        new(ColaFiends, "Cola Fiends", "Guests prefer soft drinks to free water."),
-        new(Alcoholics, "Alcoholics", "Guests buy more beer... For better or worse."),
-        new(RobotWorkers, "Robot Workers", "Staff never need to drink, eat, cool off or use the loo.")
+        new("extra-pair-of-hands", "Extra Pair of Hands", "+1 steward hiring slot", PerkRarity.Uncommon, 55),
+        new("doctors-orders", "Doctor's Orders", "+1 medic hiring slot", PerkRarity.Uncommon, 55),
+        new("another-round", "Another Round", "+1 placeable free-water tap above the guaranteed baseline.", PerkRarity.Uncommon, 55),
+        new("high-pressure", "High Pressure", "Water tower adds +4 flow to each tap.", PerkRarity.Uncommon, 45),
+        new("smooth-operators", "Smooth Operators", "All stewards walk faster and gain calming and confrontation skill.", PerkRarity.Rare, 40),
+        new("first-responders", "First Responders", "All medics walk faster and treat more quickly.", PerkRarity.Rare, 40),
+        new("something-in-the-water", "Something in the Water", "Drinking free water improves satisfaction.", PerkRarity.Common, 110),
+        new("thirsty-crowd", "Thirsty Crowd", "Guests grow thirsty faster.", PerkRarity.Common, 130),
+        new(BeerFestival, "Beer Festival", "Charge 50% more for beer and everyone loves it.", PerkRarity.Uncommon, 45),
+        new(FriendlyQueues, "Friendly Queues", "Guests chat in queues and gain satisfaction while they wait.", PerkRarity.Uncommon, 45),
+        new(BringYourOwnBottle, "Bring Your Own Bottle", "Guests get thirsty more slowly, but take longer to fill up at taps.", PerkRarity.Common, 120),
+        new(ColaFiends, "Cola Fiends", "Guests prefer soft drinks to free water.", PerkRarity.Common, 120),
+        new(Alcoholics, "Alcoholics", "Guests buy more beer... For better or worse.", PerkRarity.Common, 120),
+        new(RobotWorkers, "Robot Workers", "Staff never need to drink, eat, cool off or use the loo.", PerkRarity.Rare, 20)
     ];
+
+    /// <summary>
+    /// Three different cards, each drawn by weight from those not already equipped, by unbiased rejection on the
+    /// remaining total. Shared by the live draft and the saved-draft check, so both make the same hand.
+    /// </summary>
+    internal static string[]? DrawHand(Pcg32Random random, ref ulong cursor, IReadOnlyCollection<string> equipped, ulong? cursorLimit = null)
+    {
+        var remaining = All.Where(item => !equipped.Contains(item.Id)).ToList();
+        var hand = new string[3];
+        for (var index = 0; index < 3; index++)
+        {
+            var bound = (uint)remaining.Sum(item => item.Weight);
+            var threshold = unchecked(0u - bound) % bound;
+            uint value;
+            do { value = random.NextUInt32(); cursor++; if (cursor > cursorLimit) return null; } while (value < threshold);
+            var roll = (int)(value % bound);
+            var pick = remaining.First(item => (roll -= item.Weight) < 0);
+            hand[index] = pick.Id; remaining.Remove(pick);
+        }
+        return hand;
+    }
 }
 // This RNG is deliberately separate from the established stream collection: adding an enum
 // member there would change the canonical state and checksums of every legacy save.
@@ -60,19 +84,10 @@ public sealed partial class GameSession
     private void DrawPerkHand()
     {
         var p = _perks!;
-        var eligible = PerkCatalogue.All.Select(item => item.Id).Where(id => !p.Equipped.Contains(id)).ToArray();
         var random = new Pcg32Random(p.RandomState, p.RandomIncrement);
         var cursor = p.Cursor;
-        for (var index = 0; index < 3; index++)
-        {
-            var bound = (uint)(eligible.Length - index);
-            var threshold = unchecked(0u - bound) % bound;
-            uint value;
-            do { value = random.NextUInt32(); cursor++; } while (value < threshold);
-            var selected = index + (int)(value % bound);
-            (eligible[index], eligible[selected]) = (eligible[selected], eligible[index]);
-        }
-        _perks = p with { Hand = eligible.Take(3).ToArray(), DrawnHand = eligible.Take(3).ToArray(), RandomState = random.State, Cursor = cursor };
+        var hand = PerkCatalogue.DrawHand(random, ref cursor, p.Equipped)!;
+        _perks = p with { Hand = hand, DrawnHand = hand.ToArray(), RandomState = random.State, Cursor = cursor };
     }
     private CommandResult? ValidatePerkCommand(EntityId? target, PerkCommand command)
     {
@@ -115,7 +130,8 @@ public sealed partial class GameSession
     }
     // A plausibility bound on draws per attempt: play makes at most two (the hand and one reroll), each about three
     // values; the slack lets test fixtures redraw an opening hand until it offers the perk they need.
-    private const ulong MaxPerkCursorPerAttempt = 96;
+    // A sanity bound on perk rolls per attempt: play uses about six (a hand and a reroll); fixtures fishing for a rare card use more.
+    private const ulong MaxPerkCursorPerAttempt = 2_048;
     private static bool SavedPerkEffect(PerkSnapshot? p, string id) => p is not null && (p.Ended ? p.FrozenEffects : p.Equipped)?.Contains(id) == true;
     private static string? ValidatePersistedPerks(SessionPersistenceSnapshot s)
     {
@@ -138,14 +154,8 @@ public sealed partial class GameSession
         string[] drawn=[];
         for(var roll=0;roll<(p.RerollUsed?2:1);roll++)
         {
-            var eligible=PerkCatalogue.All.Select(item=>item.Id).Where(id=>!p.StartingEquipped.Contains(id)).ToArray();
-            for(var index=0;index<3;index++)
-            {
-                var bound=(uint)(eligible.Length-index);var threshold=unchecked(0u-bound)%bound;uint value;
-                do{value=expected.NextUInt32();cursor++;if(cursor>p.Cursor)return "Perk roll correspondence invalid.";}while(value<threshold);
-                var selected=index+(int)(value%bound);(eligible[index],eligible[selected])=(eligible[selected],eligible[index]);
-            }
-            drawn=eligible.Take(3).ToArray();
+            if(PerkCatalogue.DrawHand(expected,ref cursor,p.StartingEquipped,p.Cursor) is not { } hand)return "Perk roll correspondence invalid.";
+            drawn=hand;
         }
         if (cursor!=p.Cursor || expected.State != p.RandomState || expected.Increment != p.RandomIncrement || !drawn.SequenceEqual(p.DrawnHand)) return "Perk random cursor or saved hand invalid.";
         var result=p.Ended?p.FrozenEffects:p.Equipped;

@@ -43,7 +43,7 @@ public sealed class PerkTests
         s.AdvanceWithoutSnapshot(4000);Assert.AreEqual(PreparationStatus.Failed,s.PreparedStatus);
     }
     [TestMethod]
-    public void ThreeDistinctUniformChoicesUseSeparateSavedEntropyAndOneReroll()
+    public void ThreeDistinctWeightedChoicesUseSeparateSavedEntropyAndOneReroll()
     {
         var counts=PerkCatalogue.All.ToDictionary(p=>p.Id,p=>0);
         for(ulong seed=0;seed<800;seed++)
@@ -54,7 +54,8 @@ public sealed class PerkTests
             Assert.AreEqual(JsonSerializer.Serialize(legacy.CapturePersistenceSnapshot().RandomStreams),JsonSerializer.Serialize(s.CapturePersistenceSnapshot().RandomStreams));
             if(seed<10){s=Restored(s);Assert.AreEqual(JsonSerializer.Serialize(p),JsonSerializer.Serialize(s.CapturePerks()));Accept(s,new RerollPerksCommand(p.DraftAttempt,p.Cursor));var rerolled=s.CapturePerks()!;s=Restored(s);Assert.AreEqual(JsonSerializer.Serialize(rerolled),JsonSerializer.Serialize(s.CapturePerks()));Assert.IsFalse(Send(s,new RerollPerksCommand(rerolled.DraftAttempt,rerolled.Cursor)).IsAccepted);}
         }
-        var expected=2400/PerkCatalogue.All.Length;foreach(var count in counts.Values)Assert.IsTrue(count>expected*7/10 && count<expected*13/10,$"Distribution {count}/2400 outside broad equal-weight diagnostic around {expected}.");
+        // Each card turns up roughly in proportion to its weight (three distinct cards a hand pull the rarer ones up a little).
+        foreach(var perk in PerkCatalogue.All){var expected=2400*perk.Weight/1000;Assert.IsTrue(counts[perk.Id]>expected*6/10 && counts[perk.Id]<expected*2+10,$"{perk.Id}: {counts[perk.Id]}/2400 against about {expected} by weight.");}
     }
     [TestMethod]
     public void FullHandExcludesOwnedAndAllowsRepeatedRemainingThreeReplacementAndSkip()

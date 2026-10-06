@@ -67,10 +67,17 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
     {
         var perk = PerkCatalogue.All.Single(item => item.Id == id);
         var card = new PanelContainer { CustomMinimumSize = new Vector2(Ui.S(300), 0), ClipContents = true };
-        card.AddThemeStyleboxOverride("panel", Ui.Box(Ui.Paper, 10, shadow: 16, shadowAlpha: 0.45f));
+        // A rare card is edged in gold.
+        card.AddThemeStyleboxOverride("panel", perk.Rarity == PerkRarity.Rare
+            ? Ui.Box(Ui.Paper, 10, Ui.Gold, 3, shadow: 16, shadowAlpha: 0.45f) : Ui.Box(Ui.Paper, 10, shadow: 16, shadowAlpha: 0.45f));
         var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", 0); card.AddChild(box);
         var art = PerkArtwork(id, Ui.S(300)); art.StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered; art.CustomMinimumSize = Ui.S(300, 200);
         box.AddChild(art);
+        // How rare it is, pinned to the top of the card.
+        var (rarityInk, rarityWash) = RarityColours(perk.Rarity);
+        var rarity = Ui.Caps(perk.Rarity.ToString(), rarityWash, 12);
+        rarity.AddThemeStyleboxOverride("normal", Ui.Box(rarityInk, 4, padX: 9, padY: 4, shadow: 4, shadowAlpha: .3f));
+        rarity.Position = Ui.S(10, 10); rarity.MouseFilter = Control.MouseFilterEnum.Ignore; art.AddChild(rarity);
         var body = new MarginContainer();
         foreach (var (side, value) in new[] { ("margin_left", 18f), ("margin_right", 18f), ("margin_top", 14f), ("margin_bottom", 18f) })
             body.AddThemeConstantOverride(side, Ui.Px(value));
@@ -84,6 +91,14 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         words.AddChild(choose);
         return card;
     }
+    private static (Color Ink, Color Wash) RarityColours(PerkRarity rarity) => rarity switch
+    {
+        // A solid label in the rarity's colour, readable over the mosaic.
+        PerkRarity.Rare => (Ui.Gold, new Color("2b2112")),
+        PerkRarity.Uncommon => (Ui.TealDeep, Colors.White),
+        _ => (new Color("4f6a4a"), Colors.White),
+    };
+
     private PanelContainer OwnedPerkCard(string id)
     {
         var perk = PerkCatalogue.All.Single(item => item.Id == id);
@@ -228,7 +243,7 @@ internal sealed class PerkPanel(IHudHost _hud, Action _layoutWorkspace)
         var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; words.AddThemeConstantOverride("separation", Ui.Px(4)); heading.AddChild(words);
         words.AddChild(Ui.Caps("Before you build", Ui.Gold));
         words.AddChild(Ui.Heading("Choose a festival perk", 36, Ui.BarText));
-        words.AddChild(Ui.Text("It stays equipped across retries. Three distinct choices, equally likely.", 14.5f, Ui.BarMuted));
+        words.AddChild(Ui.Text("It stays equipped across retries. Three distinct choices, rarer ones turn up less often.", 14.5f, Ui.BarMuted));
         var reroll = new Button { MouseDefaultCursorShape = Control.CursorShape.PointingHand, SizeFlagsVertical = Control.SizeFlags.ShrinkEnd,
             Disabled = p.RerollUsed, TooltipText = "Owned perks excluded; options may repeat" };
         reroll.Pressed += () => _hud.Commit(new RerollPerksCommand(p.DraftAttempt, p.Cursor));
