@@ -230,6 +230,15 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         var margin = new MarginContainer(); margin.AddThemeConstantOverride("margin_left", Ui.Px(46)); margin.AddThemeConstantOverride("margin_bottom", Ui.Px(6));
         var wrapper = new VBoxContainer(); wrapper.AddChild(margin); margin.AddChild(box);
         box.AddChild(Ui.Caps("Trader · they pay you to pitch", Ui.InkMuted, 9.5f));
+        // One trader so far: named, not chosen.
+        if (FoodTraders.All.Length == 1)
+        {
+            var only = FoodTraders.All[0];
+            var line = Ui.Text($"{only.Name} · pays {FestivalCurrency.Format(only.PitchFeePennies)}", 12, Ui.Ink, Ui.BodySemi);
+            line.TooltipText = $"{only.Blurb}\nBrings {only.Portions} portions."; line.MouseFilter = Control.MouseFilterEnum.Pass;
+            box.AddChild(line);
+            return wrapper;
+        }
         foreach (var trader in FoodTraders.All)
         {
             var button = new Button { Text = $"{trader.Name} · pays {FestivalCurrency.Format(trader.PitchFeePennies)}", ToggleMode = true,

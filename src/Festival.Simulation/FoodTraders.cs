@@ -2,7 +2,8 @@ namespace Festival.Simulation;
 
 /// <summary>
 /// A food trader: they bring their own van and stock, keep what they take, and pay the festival a pitch fee to trade.
-/// A trader who pays more is one who cuts corners: slower to serve, or with less to sell before running out.
+/// Tier 1 has one, a chip van; later cuisines will differ by how fast they serve, how much they earn and how
+/// satisfying they are (chips: quick, cheap, not very filling).
 /// </summary>
 /// <param name="ServicePermille">How long they take to serve a portion, against the standard 4 seconds.</param>
 /// <param name="Portions">How much they bring: once it's gone, they've sold out.</param>
@@ -12,12 +13,10 @@ public sealed record ChooseFoodTraderCommand(string TraderId) : SessionCommand;
 
 public static class FoodTraders
 {
-    // Tier 1: three chip vans.
+    // Tier 1: the one chip van.
     public static readonly FoodTrader[] All =
     [
-        new("trader.frying-tonight", "Frying Tonight", "A steady family chippy. Pays a fair pitch fee.", 3_000, 1_000, 60),
-        new("trader.codfather", "The Codfather", "Pays handsomely for the pitch, but takes his time and brings too little.", 4_500, 1_500, 30),
-        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Quick, generous portions, and a pitch fee to match: barely any.", 1_500, 750, 80),
+        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "A cheerful chip van: quick, cheap and cheerful.", 4_000, 1_000, 60),
     ];
 
     public static FoodTrader Default => All[0];
