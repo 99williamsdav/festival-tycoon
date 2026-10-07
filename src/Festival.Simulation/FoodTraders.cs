@@ -9,12 +9,16 @@ namespace Festival.Simulation;
 /// <param name="Product">What a portion is: each trader sells their own food, and it fills and pleases by what it is.</param>
 /// <param name="Art">The van's livery and sign artwork.</param>
 /// <param name="ServicePermille">How long they take to serve a portion, against the standard 4 seconds.</param>
-/// <param name="Portions">How much they bring: once it's gone, they've sold out.</param>
 /// <param name="EnjoymentPercent">How satisfying a portion is, against chips. Not shown to the player.</param>
 /// <param name="FillingPercent">How much hunger a portion takes away, against chips.</param>
-/// <param name="PortionCostPennies">What each portion they bring costs them, sold or not. Not shown to the player.</param>
-public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionProduct Product, string Art, string Blurb, int PitchFeePennies, int ServicePermille, int Portions,
-    int PortionCostPennies, int EnjoymentPercent = 100, int FillingPercent = 100)
+/// <param name="PricePennies">What a portion costs a guest.</param>
+/// <param name="PortionCostPennies">What a portion they sell costs them to make. They bring what they need, so nothing's wasted.
+/// Not shown to the player.</param>
+/// <param name="AppealPennies">How much more than plain chips a guest would happily pay for it, at average thrift. Thrifty
+/// guests weigh the price more and lean to cheap food, better-off guests to good food; at average thrift a trader's appeal
+/// and price balance out against chips', so two vans side by side would share the crowd.</param>
+public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionProduct Product, string Art, string Blurb, int PitchFeePennies, int ServicePermille,
+    int PricePennies, int PortionCostPennies, int AppealPennies, int EnjoymentPercent = 100, int FillingPercent = 100)
 {
     /// <summary>Slower to serve than the standard chip van: the one thing the picker warns about.</summary>
     public bool SlowService => ServicePermille > 1_000;
@@ -27,10 +31,9 @@ public sealed record ChooseFoodTraderCommand(string TraderId) : SessionCommand;
 /// pitch cost them, and so what they've made. Kept for the trader's own mood later (a van that loses money, because of
 /// where it was put or a poor festival, isn't happy); never shown to the player.
 /// </summary>
-public sealed record FoodTraderAccount(string TraderId, int PortionsBrought, int PortionsSold, long TakingsPennies,
-    long StockCostPennies, long PitchFeePennies)
+public sealed record FoodTraderAccount(string TraderId, int PortionsSold, long TakingsPennies, long IngredientCostPennies, long PitchFeePennies)
 {
-    public long ProfitPennies => TakingsPennies - StockCostPennies - PitchFeePennies;
+    public long ProfitPennies => TakingsPennies - IngredientCostPennies - PitchFeePennies;
     public bool MadeALoss => ProfitPennies < 0;
 }
 
@@ -40,8 +43,8 @@ public static class FoodTraders
     // way of costing more than the extra pitch fee, though a well-run pizza van is a little more satisfying.
     public static readonly FoodTrader[] All =
     [
-        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", ImmersionProduct.Chips, "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 60, 40),
-        new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 45, 60,
+        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", ImmersionProduct.Chips, "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 300, 40, 0),
+        new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 450, 60, 150,
             EnjoymentPercent: 140, FillingPercent: 115),
     ];
 
@@ -74,8 +77,7 @@ public sealed partial class GameSession
     private static FoodTraderAccount TraderAccount(FoodTrader trader, ImmersionSnapshot immersion, long pitchFee)
     {
         var sold = immersion.Purchases.Where(purchase => purchase.Product == trader.Product).ToArray();
-        return new(trader.Id, trader.Portions, sold.Length, sold.Sum(purchase => (long)purchase.PricePennies),
-            (long)trader.Portions * trader.PortionCostPennies, pitchFee);
+        return new(trader.Id, sold.Length, sold.Sum(purchase => (long)purchase.PricePennies), (long)sold.Length * trader.PortionCostPennies, pitchFee);
     }
 
     /// <summary>The pitch fee received for this attempt, once it opened.</summary>

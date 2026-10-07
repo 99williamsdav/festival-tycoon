@@ -15,6 +15,16 @@ public sealed partial class GameSession
     public const int OnStageDutyPerSecond = 50_000;     // A performer is needed on stage for their own set.
     public const int PerformerCallLeadTicks = 1_600;    // Stage call before a slot opens.
     public const int PurchaseValueScale = 13;
+    // How much a guest of middling thrift weighs each penny of a price (price × (2 + reluctance / 25)): appeal is quoted
+    // at that guest's rate, so it balances a price difference exactly for them, and less or more for thriftier or richer.
+    internal const int AverageThrift = 4;
+
+    /// <summary>
+    /// What a portion is worth to a guest of this thrift, over what it costs them, as the activity chooser weighs it: its
+    /// appeal against its price. Of two vans side by side, a guest leans to the one worth more.
+    /// </summary>
+    public static long FoodWorth(ImmersionProduct product, int priceReluctance) =>
+        ((long)FoodTraders.Selling(product).AppealPennies * AverageThrift - ImmersionPrice(product) * (2L + priceReluctance / 25)) * PurchaseValueScale;
     // Music's worth per second, as a share of an act's appeal, against need discomfort.
     public const long MusicValuePermille = 800;
     // How much better another tap or toilet of the same kind must score before a person swaps lines.
@@ -275,6 +285,8 @@ public sealed partial class GameSession
             {
                 ImmersionProduct.Beer => (3_000L + (StaffHas(id, StaffTrait.SneakyAlcoholic) ? AlcoholicBeerTaste : BeerTasteOf(person)) * 45) * PurchaseValueScale,
                 ImmersionProduct.SoftDrink => SoftTasteOf(person) * 35L * PurchaseValueScale,
+                // Good food is worth paying for: weighed against its price at the same exchange rate.
+                _ when product.IsFood() => FoodTraders.Selling(product).AppealPennies * AverageThrift * PurchaseValueScale,
                 _ => 0L
             } + (StaffHas(id, StaffTrait.Slacker) && product != ImmersionProduct.Water ? SlackerTreatValue : 0);
             foreach (var vendor in Vendors.Where(vendor => vendor.Id == vendorId && (underWay || VendorHasRoom(vendor))))

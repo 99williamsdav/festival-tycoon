@@ -16,7 +16,6 @@ public sealed class QueueTemperTests
         foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         Assert.AreEqual(pizza.PitchFeePennies, s.CapturePreparation()!.SetupPayments!.Last().PitchFeePennies);
-        Assert.AreEqual(pizza.Portions, s.CaptureImmersion()!.FoodStock);
         // Somebody, somewhere, gets fed up waiting in a queue that isn't the water's.
         var fedUp = false;
         while (!fedUp && s.PreparedStatus == PreparationStatus.Running && s.CurrentTick < 40_000)

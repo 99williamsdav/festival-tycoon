@@ -28,7 +28,6 @@ public sealed class FoodTraderTests
         var food = s.CaptureImmersion()!.Purchases.Where(p => p.Product.IsFood()).ToArray();
         Assert.IsTrue(food.Length > 0, "Someone bought food.");
         Assert.IsTrue(food.All(p => p.Product == ImmersionProduct.Pizza), "A pizza van sells pizza, not chips.");
-        Assert.AreEqual(pizza.Portions - food.Length, s.CaptureImmersion()!.FoodStock);
         Assert.IsTrue(s.CaptureLitter()!.Pieces.Where(p => p.Product.IsFood()).All(p => p.Product == ImmersionProduct.Pizza),
             "And what's left on the ground is a pizza plate.");
         Assert.IsTrue(food.All(p => p.Entries.Length == 2), "The trader keeps their takings: only the buyer's entries.");
@@ -63,7 +62,7 @@ public sealed class FoodTraderTests
     }
 
     [TestMethod]
-    public void TheVanKeepsItsOwnAccountOfSalesStockAndPitchFeeAndItSurvivesASave()
+    public void TheVanKeepsItsOwnAccountOfSalesIngredientsAndPitchFeeAndItSurvivesASave()
     {
         var s = BuildSession.Planned();
         Assert.IsNull(s.FoodTraderAccount, "Nothing to account for before opening.");
@@ -73,8 +72,8 @@ public sealed class FoodTraderTests
         var opening = s.FoodTraderAccount!;
         Assert.AreEqual(0, opening.PortionsSold);
         Assert.AreEqual(trader.PitchFeePennies, opening.PitchFeePennies);
-        Assert.AreEqual((long)trader.Portions * trader.PortionCostPennies, opening.StockCostPennies, "Their stock is paid for, sold or not.");
-        Assert.IsTrue(opening.MadeALoss, "Out of pocket until they sell something.");
+        Assert.AreEqual(0, opening.IngredientCostPennies, "Nothing wasted: they only pay for what they sell.");
+        Assert.IsTrue(opening.MadeALoss, "Out of pocket by the pitch fee until they sell something.");
 
         s.AdvanceWithoutSnapshot(20_000);
         var food = s.CaptureImmersion()!.Purchases.Where(p => p.Product == trader.Product).ToArray();
@@ -82,11 +81,26 @@ public sealed class FoodTraderTests
         Assert.IsTrue(food.Length > 0);
         Assert.AreEqual(food.Length, account.PortionsSold);
         Assert.AreEqual(food.Sum(p => (long)p.PricePennies), account.TakingsPennies);
-        Assert.AreEqual(account.TakingsPennies - account.StockCostPennies - account.PitchFeePennies, account.ProfitPennies);
-        Assert.AreEqual(trader.Portions - food.Length, s.CaptureImmersion()!.FoodStock);
+        Assert.AreEqual((long)food.Length * trader.PortionCostPennies, account.IngredientCostPennies);
+        Assert.AreEqual(account.TakingsPennies - account.IngredientCostPennies - account.PitchFeePennies, account.ProfitPennies);
 
         var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
         Assert.AreEqual(account, restored.Session!.FoodTraderAccount);
+    }
+
+    [TestMethod]
+    public void SideBySideBetterOffGuestsLeanToPizzaThriftyOnesToChipsAndTheCrowdSplits()
+    {
+        int pizza = 0, chips = 0;
+        for (var thrift = 0; thrift <= 100; thrift++)
+        {
+            var lean = GameSession.FoodWorth(ImmersionProduct.Pizza, thrift).CompareTo(GameSession.FoodWorth(ImmersionProduct.Chips, thrift));
+            if (lean > 0) pizza++; else if (lean < 0) chips++;
+        }
+        Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 0) > GameSession.FoodWorth(ImmersionProduct.Chips, 0), "The well-off pay for good food.");
+        Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 100) < GameSession.FoodWorth(ImmersionProduct.Chips, 100), "The thrifty buy cheap.");
+        Assert.IsTrue(Math.Abs(pizza - chips) <= 30, $"A middling crowd splits: {pizza} lean to pizza, {chips} to chips.");
+        Assert.IsTrue(GameSession.ImmersionPrice(ImmersionProduct.Pizza) > GameSession.ImmersionPrice(ImmersionProduct.Chips));
     }
 }

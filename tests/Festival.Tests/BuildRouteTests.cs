@@ -11,7 +11,7 @@ public sealed class BuildRouteTests
     private sealed record EditionRun(
         GameSession Session,
         long StartingCash,
-        (int Chips, int Soft, int Beer) StartingStock,
+        (int FoodSold, int Soft, int Beer) StartingStock,
         HashSet<LiveSetStage> LiveStages,
         HashSet<long> LiveSetTicks,
         long ListenedTicks,
@@ -51,7 +51,7 @@ public sealed class BuildRouteTests
                 hash = probe.CaptureSnapshot().AuthoritativeHash;
             }
         }
-        return new(s, cash, (immersion.FoodStock, immersion.SoftStock, immersion.BeerStock),
+        return new(s, cash, (immersion.Purchases.Count(p => p.Product.IsFood()), immersion.SoftStock, immersion.BeerStock),
             liveStages, liveSets, listened, medical, disorder, hash!, checkpoint!);
     }
 
@@ -82,7 +82,7 @@ public sealed class BuildRouteTests
         var run = Run.Value;
         Assert.IsTrue(run.Session.CaptureToilets().Sum(toilet => toilet.WeeCount + toilet.PooCount) > 0);
         var stock = run.Session.CaptureImmersion()!;
-        Assert.IsTrue(stock.FoodStock < run.StartingStock.Chips);
+        Assert.IsTrue(stock.Purchases.Count(p => p.Product.IsFood()) > run.StartingStock.FoodSold, "The food van kept selling.");
         Assert.IsTrue(stock.SoftStock < run.StartingStock.Soft);
         Assert.IsTrue(stock.BeerStock < run.StartingStock.Beer);
         Assert.IsTrue(run.Session.CaptureSnapshot().FestivalFinances.Single().CashPennies > run.StartingCash);

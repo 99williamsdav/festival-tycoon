@@ -54,7 +54,7 @@ public sealed class PlaytestCorrectionsTests
         // Chips money goes to the food trader, not the festival.
         Assert.AreEqual(revenue+(product==ImmersionProduct.Chips?0:expected),s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
         Assert.AreEqual(0L,sale.Entries.Sum(e=>e.AmountPennies));
-        Assert.AreEqual(1,before.FoodStock+before.SoftStock+before.BeerStock-after.FoodStock-after.SoftStock-after.BeerStock);
+        Assert.AreEqual(product.IsFood()?0:1,before.SoftStock+before.BeerStock-after.SoftStock-after.BeerStock, "Only the bar keeps stock.");
         var restored=Restore(s); Assert.AreEqual(expected,restored.CaptureImmersion()!.Purchases.Single().PricePennies);
         Assert.AreEqual(after.People.Single(p=>p.AgentId==person.AgentId).Held,restored.CaptureImmersion()!.People.Single(p=>p.AgentId==person.AgentId).Held);
     }

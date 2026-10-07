@@ -235,7 +235,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         {
             var only = FoodTraders.All[0];
             var line = Ui.Text($"{only.Name} · pays {FestivalCurrency.Format(only.PitchFeePennies)}", 12, Ui.Ink, Ui.BodySemi);
-            line.TooltipText = $"{only.Blurb}\nBrings {only.Portions} portions."; line.MouseFilter = Control.MouseFilterEnum.Pass;
+            line.TooltipText = only.Blurb; line.MouseFilter = Control.MouseFilterEnum.Pass;
             box.AddChild(line);
             return wrapper;
         }
@@ -243,7 +243,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         {
             var button = new Button { Text = $"{trader.Name} · {trader.Menu.ToLowerInvariant()} · pays {FestivalCurrency.Format(trader.PitchFeePennies)}" +
                     (trader.SlowService ? " · slower service" : ""), ToggleMode = true,
-                Alignment = HorizontalAlignment.Left, TooltipText = $"{trader.Blurb}\nBrings {trader.Portions} portions.",
+                Alignment = HorizontalAlignment.Left, TooltipText = trader.Blurb,
                 MouseDefaultCursorShape = Control.CursorShape.PointingHand, CustomMinimumSize = new Vector2(0, Ui.S(26)) };
             var chosen = trader;
             button.Pressed += () => _hud.Commit(new ChooseFoodTraderCommand(chosen.Id));
