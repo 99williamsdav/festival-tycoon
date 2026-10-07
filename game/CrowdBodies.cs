@@ -157,7 +157,7 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
 
     private void ApplyGuestPropAnchor(Node3D root, Node3D prop, string product)
     {
-        if (AnchorPropToRig(root, prop)) { prop.RemoveMeta("GuestAnchorKey"); return; }
+        if (AnchorPropToRig(root, prop, product)) { prop.RemoveMeta("GuestAnchorKey"); return; }
         var anchorKey = root.GetMeta("GuestPoseFile").AsString() + ":" + product;
         if (prop.HasMeta("GuestAnchorKey") && prop.GetMeta("GuestAnchorKey").AsString() == anchorKey) return;
         var state = root.GetMeta("GuestPoseState").AsString();
@@ -270,7 +270,7 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
 
     private void ApplyRolePropAnchor(Node3D root, Node3D prop, string product)
     {
-        if (AnchorPropToRig(root, prop)) { prop.RemoveMeta("RoleAnchorKey"); return; }
+        if (AnchorPropToRig(root, prop, product)) { prop.RemoveMeta("RoleAnchorKey"); return; }
         var key = root.GetMeta("RolePoseFile").AsString() + ":" + product;
         if (prop.HasMeta("RoleAnchorKey") && prop.GetMeta("RoleAnchorKey").AsString() == key) return;
         var variant = root.GetMeta("RoleVariant").AsString();

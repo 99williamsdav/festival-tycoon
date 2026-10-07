@@ -23,7 +23,12 @@
   "RightFoot"
  ],
  "cup_socket": "LWF_RightHand_Cup (child of RightHand)",
+ "food_socket": "LWF_RightHand_Food (child of RightHand)",
  "animations": {
+  "walk_food": "as walk, a tray or plate flat on the right palm at the food_hold anchor",
+  "idle_food": "as idle, holding the tray",
+  "eat": "61 frames (2.5 s): holding the tray, left hand to the mouth and back",
+  "walk_brisk_food": "walk_brisk holding the tray",
   "walk_carry": "as walk, right hand holding a cup at drink_hold",
   "idle_carry": "as idle, right hand holding a cup",
   "drink": "67 frames (2.75 s): beer sip, cup tilts 55 deg at the lips",
@@ -87,5 +92,5 @@
    -0.0134
   ]
  },
- "sha256": "aca597e48ab0a68a1f15a0f7e0e57c2b1201ad3f74d2c0b593e74f5229a0bb3a"
+ "sha256": "fa66b69770f8c46df04833ed06e5ef21c18f8384f567bbab33aeebf181664a19"
 }

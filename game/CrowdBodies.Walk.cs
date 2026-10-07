@@ -7,12 +7,12 @@ namespace Festival.Game;
 /// <summary>
 /// Guests walk, stand, carry and drink on a rigged body: walk cycles played at the speed they're actually moving (a
 /// gentle walk when slow, a brisk festival walk at their usual pace), so their feet stay planted; the same with a cup
-/// in hand; and a sip while they drink. Hair and hats ride on the head bone and a held cup on the hand. Someone with a
-/// tray of chips keeps that pose's still body for now.
+/// in hand, or a tray of food flat on the palm; and a sip while they drink or a bite while they eat. Hair and hats ride
+/// on the head bone, and a held cup or tray on the hand.
 /// </summary>
 internal sealed partial class CrowdBodies
 {
-    private const string RigMeta = "GuestRigged", WalkPlayerMeta = "GuestWalkPlayer", RigModeMeta = "GuestRigMode", CupSocket = "LWF_RightHand_Cup";
+    private const string RigMeta = "GuestRigged", WalkPlayerMeta = "GuestWalkPlayer", RigModeMeta = "GuestRigMode", CupSocket = "LWF_RightHand_Cup", FoodSocket = "LWF_RightHand_Food";
     // Metres a body covers per second at 1× playback, from the rig's measured strides.
     private static float WalkSpeedAt1x(string sex) => sex == "male" ? 1.200f : 1.164f;
     private const float BriskSpeedAt1x = 1.70f, BriskFrom = 1.45f, MovingFrom = .12f, HurrySpeedAt1x = 2.40f, HurryFrom = 2.05f;
@@ -21,16 +21,16 @@ internal sealed partial class CrowdBodies
     private static string? RiggedRoleFile(string role, string sex) =>
         role is "medic" or "steward" or "maintenance" or "sound" && ResourceLoader.Exists($"res://assets/characters/lwf_{role}_{sex}_rigged_test_v1.glb")
             ? $"lwf_{role}_{sex}_rigged_test_v1.glb" : null;
-    private static readonly string[] LoopedClips = ["walk", "idle", "walk_brisk", "walk_carry", "idle_carry", "walk_brisk_carry", "drink", "drink_soft", "carry_litter", "walk_hurry"];
+    private static readonly string[] LoopedClips = ["walk", "idle", "walk_brisk", "walk_carry", "idle_carry", "walk_brisk_carry", "drink", "drink_soft", "carry_litter", "walk_hurry",
+        "walk_food", "idle_food", "walk_brisk_food", "eat"];
 
     // Guests and staff share the rig; their roots name the body, the variant and the pose a little differently.
     private static Node3D? RigBody(Node3D root) => root.GetNodeOrNull<Node3D>("GuestBody") ?? root.GetNodeOrNull<Node3D>("RoleBody");
     private static string RigSex(Node3D root) => (root.HasMeta("GuestPoseVariant") ? root.GetMeta("GuestPoseVariant") : root.GetMeta("RoleVariant")).AsString();
     private static string RigState(Node3D root) => (root.HasMeta("GuestPoseState") ? root.GetMeta("GuestPoseState") : root.GetMeta("RolePoseState")).AsString();
 
-    /// <summary>Hands free, holding a cup or drinking from one: the rig. A tray of chips: the still pose.</summary>
-    private static bool UsesRig(string state, ImmersionProduct? product) =>
-        state == "relaxed" || state is "drink_hold" or "drinking" && product is not ImmersionProduct.Chips;
+    /// <summary>Hands free, holding a cup or a tray of food, drinking or eating: the rig.</summary>
+    private static bool UsesRig(string state, ImmersionProduct? product) => state is "relaxed" or "drink_hold" or "drinking" or "food_hold" or "eating";
 
     /// <summary>A rigged body ready with its clips.</summary>
     private Node3D RiggedBody(string sex, string? file = null)
@@ -57,7 +57,8 @@ internal sealed partial class CrowdBodies
     {
         if (!root.HasMeta(RigMeta) || !root.GetMeta(RigMeta).AsBool()) return;
         var state = RigState(root);
-        root.SetMeta(RigModeMeta, state == "relaxed" ? "free" : litter ? "litter" : drinking ? product == ImmersionProduct.Beer ? "drink" : "drink_soft" : "carry");
+        root.SetMeta(RigModeMeta, state == "relaxed" ? "free" : litter ? "litter" : product == ImmersionProduct.Chips ? drinking ? "eat" : "food" :
+            drinking ? product == ImmersionProduct.Beer ? "drink" : "drink_soft" : "carry");
     }
 
     /// <summary>Puts the head's pieces on the head bone of a rigged body, or back on the root for a still one.</summary>
@@ -86,10 +87,12 @@ internal sealed partial class CrowdBodies
     }
 
     /// <summary>Keeps a held cup in a rigged hand; false for a still body, whose pose anchors place it instead.</summary>
-    private static bool AnchorPropToRig(Node3D root, Node3D prop)
+    private static bool AnchorPropToRig(Node3D root, Node3D prop, string product)
     {
+        // Food rides flat on the palm; a cup, or anything empty on its way to a bin, in the cup grip.
+        var food = product == "chips" && !prop.HasMeta("EmptyWasteProp");
         if (!root.HasMeta(RigMeta) || !root.GetMeta(RigMeta).AsBool() ||
-            RigBody(root)?.FindChild(CupSocket, true, false) is not Node3D socket || !socket.IsInsideTree()) return false;
+            RigBody(root)?.FindChild(food ? FoodSocket : CupSocket, true, false) is not Node3D socket || !socket.IsInsideTree()) return false;
         // An empty cup on its way to a bin hangs from the low hand, so it's turned upright there.
         var turn = prop.HasMeta("EmptyWasteProp") ? new Transform3D(new Basis(Vector3.Right, Mathf.Pi / 2), Vector3.Zero) : Transform3D.Identity;
         prop.GlobalTransform = socket.GlobalTransform * turn;
@@ -113,7 +116,9 @@ internal sealed partial class CrowdBodies
             ("free", true) => hurry ? "walk_hurry" : brisk ? "walk_brisk" : "walk",
             ("litter", false) => "idle_carry",
             ("litter", true) => "carry_litter",
-            ("drink" or "drink_soft", false) => mode,
+            ("drink" or "drink_soft" or "eat", false) => mode,
+            ("food", false) => "idle_food",
+            ("food" or "eat", true) => brisk ? "walk_brisk_food" : "walk_food",
             (_, false) => "idle_carry",
             _ => brisk ? "walk_brisk_carry" : "walk_carry",
         };

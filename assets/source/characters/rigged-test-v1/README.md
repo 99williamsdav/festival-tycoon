@@ -1,7 +1,8 @@
 # Rigged walk test v1
 
 4 October 2026. A one-session test of the skeletal route for guests: one skinned male and one skinned female v6 body,
-each with `walk` and `idle` animations. This is a test, not a replacement for the pose bodies.
+each with `walk` and `idle` animations. It has since replaced the pose bodies off stage: guests, staff and (off stage)
+band members all walk, carry, drink and eat on these rigs; only the instrument kits still use the partitioned body.
 
 Rebuild: `blender -b --python build_rigged.py -- <female|male> out`, then copy `out/*.glb` to
 `game/assets/characters/` and `assets/runtime/characters/`. Each build writes `out/<name>.json` (bones, stride,
@@ -11,7 +12,7 @@ attachment points, sha256).
 
 | File | Tris | Bones | Animations |
 |---|---:|---:|---|
-| `lwf_attendee_male_rigged_test_v1.glb` | 1592 | 17 | `walk`, `idle`, `walk_carry`, `idle_carry`, `drink`, `drink_soft`, `carry_litter`, `walk_brisk`, `walk_brisk_carry` |
+| `lwf_attendee_male_rigged_test_v1.glb` | 1592 | 17 | `walk`, `idle`, `walk_carry`, `idle_carry`, `drink`, `drink_soft`, `carry_litter`, `walk_brisk`, `walk_brisk_carry`, `walk_hurry`, `walk_food`, `idle_food`, `walk_brisk_food`, `eat` |
 | `lwf_attendee_female_rigged_test_v1.glb` | 1620 | 17 | the same |
 
 - **Source body:** the designer's generator, `attendee-v6-draft/build_attendee.py`, in its relaxed pose. That means
@@ -113,6 +114,30 @@ and speed figures above are unchanged.
 Verification: `walk_carry.gif`, `drink.gif` (game camera, beer and soft cups attached to the socket),
 `walk_carry_side_view.png`, `carry_litter_side_view.png`, and `carrycheck.py` (the socket-against-anchor
 measurement).
+
+## Food (`walk_food`, `idle_food`, `walk_brisk_food`, `eat`)
+
+A tray of chips or a plate of pizza, held flat on the right palm at the pose bodies' `food_hold` tray anchor, as the pose
+generator's `tray_hand` does (palm up under the tray, fingers forward). The rig's hand can't change shape, so it turns
+palm-up as a whole: a quarter turn about X brings the fingers forward, then a quarter turn about the forearm brings the
+palm up. Legs, hips and the left arm are as in the walks and idle, so the stride figures are unchanged.
+
+| Animation | Frames | What it does |
+|---|---|---|
+| `walk_food` | 21 (0.833 s) | Walk with the tray flat in front, riding with the chest, swinging 1 cm. |
+| `idle_food` | 49 (2.0 s) | Idle, holding the tray. |
+| `walk_brisk_food` | 18 (0.708 s) | Brisk walk holding the tray. |
+| `eat` | 61 (2.5 s) | Idle holding the tray; the left hand rests by it 0.4 s, rises to the lips 0.5 s, stays 0.6 s with a small chew, and drops back 0.5 s. The mouth comes from the beer sip anchor, as the pose generator places it. |
+
+### Food socket: `LWF_RightHand_Food`
+
+A second node on the `RightHand` bone, placed at the tray anchor while the rig holds `idle_food`. Add the tray (or the
+pizza plate, which shares its origin convention) as a child at the identity transform. Empties on their way to a bin
+still use the cup socket and `carry_litter`.
+
+The arm IK is now `arm_to(side, ...)`, used for both arms; the cup clips keep `right_arm_to`.
+
+Verification: `verification/foodrender.py` (front three-quarter and side, every food clip, the chip tray on the socket).
 
 ## Brisk walk (`walk_brisk`, `walk_brisk_carry`)
 
@@ -224,8 +249,7 @@ Positions are Godot rest-pose, root-local:
 - Attach with `BoneAttachment3D` on the imported `Skeleton3D`.
 - The hair and head pieces are authored in the root frame. Add them under the BoneAttachment with the inverse of the
   head bone's rest transform, i.e. keep their root-space rest position. That's what the verification renders do.
-- Held drinks: the relaxed hand hangs at the side. The pose bodies' cup anchors belong to differently posed arms, so
-  drinking while walking would need a held-arm overlay. That's a later step if the test is approved.
+- Held drinks and food ride the hand sockets (`LWF_RightHand_Cup`, `LWF_RightHand_Food`); see the sections above.
 
 ## Verification (`verification/`)
 

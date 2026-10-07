@@ -473,6 +473,82 @@ make_action("drink", DRINK_N, make_drink(C_BEER, DRINK_POLE))
 make_action("drink_soft", DRINK_N, make_drink(C_SOFT, DRINK_POLE))
 make_action("carry_litter", WALK_N, carry_litter)
 
+# ---------------------------------------------------------------- food: a tray or plate held flat on the right palm
+# The pose bodies' food_hold / eating anchor (the tray frame), with the hand palm-up under it and fingers forward as the
+# pose generator's tray_hand does. The rig's hand can't change shape, so it turns palm-up as a whole: from rest (hanging,
+# palm in) a quarter turn about X brings the fingers forward, then a quarter turn about the forearm brings the palm up.
+C_TRAY = anchor("food_hold", None, "tray")
+_palm_up = Matrix.Rotation(math.radians(90), 3, 'Y') @ Matrix.Rotation(math.radians(90), 3, 'X') @ _hand_rest
+HAND_IN_TRAY = Matrix.Translation(V((0.022, -0.090, -0.0426))) @ _palm_up.to_4x4()
+TRAY_POLE = (0.35, -0.55, -1.0)
+# The mouth, recovered from the beer sip anchor the way the pose generator placed it.
+MOUTH = C_BEER.translation + (Matrix.Rotation(math.radians(55), 3, 'X') @ V((0, -0.046, 0.077))) - V((0, 0.001, 0))
+
+
+def arm_to(side, fr, H, pole):
+    """solve one arm so its hand bone lands on frame H (armature space)"""
+    W = H.translation.copy()
+    bpy.context.view_layer.update()
+    S = pb[f"{side}UpperArm"].matrix.translation.copy()
+    Lu = arm_data.bones[f"{side}UpperArm"].length; Lf = arm_data.bones[f"{side}LowerArm"].length
+    d = (W - S).length
+    if d > (Lu + Lf) * 0.999: W = S + (W - S).normalized() * (Lu + Lf) * 0.999; d = (W - S).length
+    a = (Lu * Lu - Lf * Lf + d * d) / (2 * d); h = math.sqrt(max(Lu * Lu - a * a, 0))
+    ax = (W - S).normalized(); p = V(pole) - ax * V(pole).dot(ax)
+    E = S + ax * a + p.normalized() * h
+    set_bone_dir(f"{side}UpperArm", E)
+    set_bone_dir(f"{side}LowerArm", W)
+    b = pb[f"{side}Hand"]; b.rotation_quaternion = Quaternion(); b.location = V(); bpy.context.view_layer.update()
+    b.matrix = Matrix.Translation(b.matrix.translation) @ H.to_3x3().to_4x4()
+    bpy.context.view_layer.update()
+    for n in (f"{side}UpperArm", f"{side}LowerArm", f"{side}Hand"):
+        pb[n].keyframe_insert("rotation_quaternion", frame=fr); pb[n].keyframe_insert("location", frame=fr)
+
+
+def tray_at(fr, C):
+    arm_to("Right", fr, C @ HAND_IN_TRAY, TRAY_POLE)
+
+
+def walk_food(f, t):
+    walk(f, t)
+    swing = 0.010 * math.sin(2 * math.pi * f / (WALK_N - 1) - 1.2)
+    tray_at(f + 1, chest_delta() @ Matrix.Translation(V((0, swing, 0.005 * math.cos(4 * math.pi * f / (WALK_N - 1))))) @ C_TRAY)
+
+
+def idle_food(f, t):
+    idle(f, t)
+    tray_at(f + 1, chest_delta() @ Matrix.Translation(V((0, 0, 0.003 * math.sin(t)))) @ C_TRAY)
+
+
+# Eating: the left hand rests low at the side, rises to the lips with a chip (or a bite of pizza), pauses, and drops back.
+EAT_N = 61                                                       # 60 intervals = 2.5 s
+_lw_rest = wr[-1]
+_l_hand_rest = arm_data.bones["LeftHand"].matrix_local.to_3x3()
+_lw_mouth = MOUTH + V((-0.062, 0.040, -0.088))
+_l_fingers = MOUTH + V((-0.006, 0.006, -0.002))
+_l_dir = (_l_fingers - _lw_mouth).normalized()
+L_MOUTH = Matrix.Translation(_lw_mouth) @ (_l_hand_rest.col[1].rotation_difference(_l_dir).to_matrix() @ _l_hand_rest).to_4x4()
+L_LOW = Matrix.Translation(_lw_rest + V((0.03, 0.10, 0.06))) @ _l_hand_rest.to_4x4()     # hand eased forward, by the tray
+EAT_POLE_LOW, EAT_POLE_MOUTH = (-0.6, -0.4, -1.0), (-1.0, 0.1, -0.7)
+
+
+def eat_curve(f):
+    """0 = hand low, 1 = at the mouth: rest 0.4 s, raise 0.5 s, at the lips 0.6 s, lower 0.5 s, rest"""
+    s = f / 24.0
+    return _ss((s - 0.4) / 0.5) * (1 - _ss((s - 1.5) / 0.5))
+
+
+def eat(f, t):
+    idle_food(f, t)
+    u = eat_curve(f)
+    key("Head", rot_world("Head", X, 0.8 * math.sin(t) - 3 * u + 1.5 * u * math.sin(2 * math.pi * f / 8)), f + 1)  # a chew
+    arm_to("Left", f + 1, chest_delta() @ interp(L_LOW, L_MOUTH, u), V(EAT_POLE_LOW).lerp(V(EAT_POLE_MOUTH), u))
+
+
+make_action("walk_food", WALK_N, walk_food)
+make_action("idle_food", IDLE_N, idle_food)
+make_action("eat", EAT_N, eat)
+
 # cup socket on the RightHand bone, placed while the rig holds the carry pose
 rig.animation_data.action = bpy.data.actions["idle_carry"]; bpy.context.scene.frame_set(1); bpy.context.view_layer.update()
 CUP_TARGET = chest_delta() @ C_HOLD
@@ -480,6 +556,16 @@ socket = bpy.data.objects.new("LWF_RightHand_Cup", None); bpy.context.scene.coll
 socket.empty_display_size = 0.05
 socket.parent = rig; socket.parent_type = 'BONE'; socket.parent_bone = "RightHand"
 bpy.context.view_layer.update(); socket.matrix_world = rig.matrix_world @ CUP_TARGET
+bpy.context.view_layer.update()
+rig.animation_data.action = None
+for b in pb: b.rotation_quaternion = Quaternion(); b.location = V()
+# food socket on the RightHand bone, placed while the rig holds the tray; a tray or plate goes on it unrotated
+rig.animation_data.action = bpy.data.actions["idle_food"]; bpy.context.scene.frame_set(1); bpy.context.view_layer.update()
+FOOD_TARGET = chest_delta() @ C_TRAY
+food_socket = bpy.data.objects.new("LWF_RightHand_Food", None); bpy.context.scene.collection.objects.link(food_socket)
+food_socket.empty_display_size = 0.05
+food_socket.parent = rig; food_socket.parent_type = 'BONE'; food_socket.parent_bone = "RightHand"
+bpy.context.view_layer.update(); food_socket.matrix_world = rig.matrix_world @ FOOD_TARGET
 bpy.context.view_layer.update()
 rig.animation_data.action = None
 for b in pb: b.rotation_quaternion = Quaternion(); b.location = V()
@@ -527,6 +613,7 @@ while stride_fits(STRIDE) > 0.99 and STRIDE > 0.8: STRIDE -= 0.01
 SPEED = STRIDE / CYCLE
 make_action("walk_brisk", BRISK_N, walk)
 make_action("walk_brisk_carry", BRISK_N, walk_carry)
+make_action("walk_brisk_food", BRISK_N, walk_food)
 brisk_slide = measure_slide("walk_brisk")
 BRISK = dict(step_length_m=round(STRIDE / 2, 3), metres_per_cycle=round(STRIDE, 3), cycle_seconds=round(CYCLE, 4),
              walk_speed_m_per_s=round(SPEED, 3), planted_foot_max_slide_mm=round(brisk_slide * 1000, 1), stance_share=DUTY,
@@ -631,7 +718,7 @@ FOOT_STRETCH = foot_stretch(["walk", "walk_brisk", "walk_hurry"])
 print("FOOTSTRETCH", FOOT_STRETCH)
 
 # ---------------------------------------------------------------- export
-bpy.ops.object.select_all(action='DESELECT'); rig.select_set(True); body.select_set(True); socket.select_set(True)
+bpy.ops.object.select_all(action='DESELECT'); rig.select_set(True); body.select_set(True); socket.select_set(True); food_socket.select_set(True)
 if garment: garment.select_set(True)
 bpy.context.view_layer.objects.active = rig
 path = os.path.join(OUT, NAME + ".glb")
@@ -641,7 +728,7 @@ bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, NAME + ".blend"))
 def godot(v): return [round(v.x, 4), round(v.z, 4), round(-v.y, 4)]
 rep = dict(file=NAME + ".glb", sex=SEX, triangles=sum(len(p.vertices) - 2 for p in me.polygons), vertices=len(me.vertices),
-           bones=list(BONES), cup_socket="LWF_RightHand_Cup (child of RightHand)", animations={"walk_carry": "as walk, right hand holding a cup at drink_hold", "idle_carry": "as idle, right hand holding a cup", "drink": f"{DRINK_N} frames (2.75 s): beer sip, cup tilts 55 deg at the lips", "drink_soft": f"{DRINK_N} frames: soft-drink sip, 25 deg", "carry_litter": "as walk, right hand low carrying litter", "walk_brisk": f"{BRISK_N} frames: brisk walk, see stride_brisk", "walk_brisk_carry": "walk_brisk with the cup held (as walk_carry)", "walk_hurry": f"{HURRY_N} frames: staff power walk, see stride_hurry", "walk": f"{WALK_N} frames at {FPS} fps ({CYCLE:.3f} s, two steps), loops", "idle": f"{IDLE_N} frames at {FPS} fps (2.0 s), loops"},
+           bones=list(BONES), cup_socket="LWF_RightHand_Cup (child of RightHand)", food_socket="LWF_RightHand_Food (child of RightHand)", animations={"walk_food": "as walk, a tray or plate flat on the right palm at the food_hold anchor", "idle_food": "as idle, holding the tray", "eat": f"{EAT_N} frames (2.5 s): holding the tray, left hand to the mouth and back", "walk_brisk_food": "walk_brisk holding the tray", "walk_carry": "as walk, right hand holding a cup at drink_hold", "idle_carry": "as idle, right hand holding a cup", "drink": f"{DRINK_N} frames (2.75 s): beer sip, cup tilts 55 deg at the lips", "drink_soft": f"{DRINK_N} frames: soft-drink sip, 25 deg", "carry_litter": "as walk, right hand low carrying litter", "walk_brisk": f"{BRISK_N} frames: brisk walk, see stride_brisk", "walk_brisk_carry": "walk_brisk with the cup held (as walk_carry)", "walk_hurry": f"{HURRY_N} frames: staff power walk, see stride_hurry", "walk": f"{WALK_N} frames at {FPS} fps ({CYCLE:.3f} s, two steps), loops", "idle": f"{IDLE_N} frames at {FPS} fps (2.0 s), loops"},
            stride_brisk=BRISK, stride_hurry=HURRY, role=ROLE, foot_edge_stretch_mm=FOOT_STRETCH,
            stride=dict(step_length_m=round(step, 3), metres_per_cycle=round(STRIDE, 3), cycle_seconds=round(CYCLE, 4), walk_speed_m_per_s=round(speed, 3),
                        planted_foot_max_slide_mm=round(slide * 1000, 1), stance_share=DUTY,
