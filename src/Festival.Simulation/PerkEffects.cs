@@ -41,6 +41,6 @@ public sealed partial class GameSession
             if (person.ToiletStage == ToiletVisitStage.Queued) waiting.Add(person.Id);
         foreach (var id in waiting.Order())
             if (IsGuest(id) && _persons[id] is { Admitted: true, Departed: false })
-                MutatePerson(id, person => person.Satisfaction = Math.Min(10_000, person.Satisfaction + 1));
+                ChangeSatisfaction(id, 1, MoodCause.FriendlyQueues);
     }
 }

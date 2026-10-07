@@ -379,7 +379,7 @@ public sealed partial class GameSession
             var nearby = wasps.FirstOrDefault(b => CellDistanceSquared(b.Cell, here) <= LitterRules.WaspRadiusCells * LitterRules.WaspRadiusCells);
             if (nearby is not null) nuisance += LitterRules.WaspLoss;
             nuisance = UnpleasantFor(p.Id, nuisance);
-            if (nuisance > 0) MutatePerson(p.Id, person => person.Satisfaction = Math.Max(0, person.Satisfaction - nuisance));
+            if (nuisance > 0) ChangeSatisfaction(p.Id, -nuisance, MoodCause.LitterAndWasps);
             if (nearby is not null) MaybeWaspSting(p.Id);
             if (nearby is not null && !HigherPriorityOwns(p.Id) && !WasteOwnsNavigation(p.Id) && !CleanupOwnsNavigation(p.Id) &&
                 !LitterUrgent(p.Id) && p.Role == ProtectedPersonRole.Guest && _navigationAgents[new(p.Id)].Action == AgentNavigationAction.Arrived)

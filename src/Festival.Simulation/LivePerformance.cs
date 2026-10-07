@@ -225,6 +225,7 @@ public sealed partial class GameSession
                     rewardedPeople ??= PeopleIn(PersonView.Roster).ToArray();
                     var personIndex = Array.FindIndex(rewardedPeople, item => item.Id == listener.AgentId);
                     var person = rewardedPeople[personIndex];
+                    RecordMood(person.Id, Math.Min(10_000, person.Satisfaction + gain) - person.Satisfaction, MoodCause.Music);
                     rewardedPeople[personIndex] = person with { Satisfaction = Math.Min(10_000, person.Satisfaction + gain),
                         MusicRisk = Math.Min(3_000, person.MusicRisk + (listener.Enthusiasm >= 60 ? 0 : 5)) };
                     earned += gain;
@@ -270,6 +271,8 @@ public sealed partial class GameSession
                 var disappointed = listeners.Where(item => item.AtPlace).Select(item => item.AgentId).ToHashSet();
                 var people = PeopleIn(PersonView.Roster).Select(item => disappointed.Contains(item.Id) ? item with
                 { Satisfaction = Math.Max(0, item.Satisfaction - 100), MusicRisk = Math.Min(3_000, item.MusicRisk + 200) } : item).ToArray();
+                foreach (var item in PeopleIn(PersonView.Roster).Where(item => disappointed.Contains(item.Id)))
+                    RecordMood(item.Id, Math.Max(0, item.Satisfaction - 100) - item.Satisfaction, MoodCause.MusicCutOff);
                 foreach (var person in people) SetPresence(person);
                 reaction = disappointed.Count >= 5 ? "sustained-boo" : "sustained-muted";
                 sequence++;

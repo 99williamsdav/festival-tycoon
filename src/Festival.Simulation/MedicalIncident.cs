@@ -582,7 +582,7 @@ public sealed partial class GameSession
                 MutatePerson(first, item => { item.Thirst = Math.Max(0, item.Thirst - EffectiveMedicalDrinkThirstPerTickFor(first)); item.HeatExposure = Math.Max(0, item.HeatExposure - EffectiveMedicalDrinkHeatPerTickFor(first)); });
                 SetWaterPoint(point with { DrinkTicks = point.DrinkTicks + 1 });
                 if (HasPerk("something-in-the-water") && PersonIn(PersonView.Roster, first) is { Role: ProtectedPersonRole.Guest })
-                    MutatePerson(first, person => person.Satisfaction = Math.Min(10_000, person.Satisfaction + 1));
+                    ChangeSatisfaction(first, 1, MoodCause.FreeWaterPerk);
                 if (_persons[first].Thirst == 0)
                 {
                     var drankTicks = point.DrinkTicks + 1;

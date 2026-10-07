@@ -239,7 +239,7 @@ public sealed partial class GameSession
                 if (held.Product == ImmersionProduct.Beer) p.PendingDose = p.PendingDose + elapsed*2400/duration-held.ConsumedTicks*2400/duration;
                 var enjoyment = held.Product switch { _ when held.Product.IsFood() => FoodTraders.Selling(held.Product).EnjoymentPercent, ImmersionProduct.SoftDrink => 75, ImmersionProduct.Water => 0, _ => 150*BeerTasteOf(p)/100 };
                 var gain = elapsed*enjoyment/duration-held.ConsumedTicks*enjoyment/duration;
-                MutatePerson(p.Id, person => person.Satisfaction = Math.Min(10000,person.Satisfaction+gain));
+                ChangeSatisfaction(p.Id, gain, MoodCause.FoodAndDrink);
                 if (elapsed == duration && held.Product == ImmersionProduct.Beer && _preparation.FinishedBeerIds is { } finished && PersonIn(PersonView.Roster, p.Id) is { Role: ProtectedPersonRole.Guest, Admitted: true })
                     _preparation = _preparation with { FinishedBeerIds = finished.Append(held.TransactionId).ToArray() };
                 if (elapsed == duration) RecordCompletedWaste(p.Id, held);

@@ -34,6 +34,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     private Label? _weather;
     private Label? _mood;
     private ProgressBar? _moodBar;
+    private TextureRect? _moodTrend;
     private Button? _pause;
     private Button? _speed;
     private Button? _people;
@@ -80,6 +81,10 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _guestsOf = Ui.Text("", 14, Ui.BarMuted, Ui.Slab); guestLine.AddChild(_guestsOf);
         // How the crowd feels overall: the average satisfaction the newspaper's rating is built from.
         (_mood, var moodLine) = Stat(row, "Crowd mood", glyph: null, icon: "star", divider: true);
+        // Which way it's heading over the last few festival minutes; the tooltip says why.
+        _moodTrend = new TextureRect { ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize, StretchMode = TextureRect.StretchModeEnum.KeepAspectCentered,
+            CustomMinimumSize = Ui.S(16, 16), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseFilter = Control.MouseFilterEnum.Ignore, Visible = false };
+        moodLine.AddChild(_moodTrend);
         // The bar sits under the figure, as the clock's track does, to keep the bar narrow.
         _moodBar = new ProgressBar { ShowPercentage = false, MaxValue = 100, CustomMinimumSize = new Vector2(Ui.S(70), Ui.S(6)),
             MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -159,6 +164,42 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         return stack;
     }
 
+    // A change under a quarter of a point over the window doesn't count as the mood going anywhere.
+    private const double MoodSteadyPoints = 0.25, MoodCausePoints = 0.05;
+
+    /// <summary>The trend arrow and the tooltip's reasons: each cause's push on the crowd's average over the last few minutes.</summary>
+    private string MoodBreakdown(IReadOnlyList<MoodChange> changes, int guests)
+    {
+        double Points(long change) => change / 100.0 / guests;
+        var total = Points(changes.Sum(change => change.Change));
+        _moodTrend!.Visible = Math.Abs(total) >= MoodSteadyPoints;
+        _moodTrend.Texture = Ui.Icon(total > 0 ? "chevron-up" : "chevron-down");
+        _moodTrend.Modulate = total > 0 ? new Color("53bb72") : new Color("df5750");
+        string Line(MoodChange change) => $"\n  {MoodCauseName(change)}  {(Points(change.Change) > 0 ? "+" : "−")}{Math.Abs(Points(change.Change)):0.0}%";
+        var up = changes.Where(change => Points(change.Change) >= MoodCausePoints).ToArray();
+        var down = changes.Where(change => Points(change.Change) <= -MoodCausePoints).ToArray();
+        var heading = Math.Abs(total) < MoodSteadyPoints ? "Steady" : total > 0 ? $"Rising, +{total:0.0}%" : $"Falling, −{-total:0.0}%";
+        return $"\n\n{heading} over the last {GameSession.MoodWindowMinutes} minutes." +
+            (up.Length > 0 ? "\nLifting it:" + string.Concat(up.Select(Line)) : "") +
+            (down.Length > 0 ? "\nDragging it down:" + string.Concat(down.Select(Line)) : "");
+    }
+
+    private static string MoodCauseName(MoodChange change) => change.Cause switch
+    {
+        MoodCause.Music => "The music",
+        MoodCause.MusicCutOff => "The music cutting out",
+        MoodCause.FoodAndDrink => "Food and drink",
+        MoodCause.FriendlyQueues => "Chatting in queues",
+        MoodCause.FreeWaterPerk => "Something in the water",
+        MoodCause.StaffNearby => change.Change > 0 ? "Friendly staff" : "Grumpy staff",
+        MoodCause.MudAndPuddles => "Mud and puddles",
+        MoodCause.LitterAndWasps => "Litter and wasps",
+        MoodCause.ToiletSmell => "Toilet smell",
+        MoodCause.BrokenTap => "A broken tap",
+        MoodCause.StuckInToilet => "Someone stuck in the loo",
+        _ => change.Cause.ToString(),
+    };
+
     private static (Label Value, HBoxContainer Line) Stat(HBoxContainer row, string caption, string? glyph, string? icon, bool divider)
     {
         var group = Group(row, divider);
@@ -232,7 +273,8 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         // The newspaper's bands: below 40% is a one- or two-star day, 60% and up four or five.
         _moodBar.AddThemeStyleboxOverride("fill", Ui.Box(mood < 40 ? new Color("df5750") : mood < 60 ? Ui.Warn : new Color("53bb72"), 4));
         var moodGroup = _mood.GetParent().GetParent().GetParent().GetParent<Control>();
-        moodGroup.TooltipText = "The crowd's average satisfaction, which the newspaper's star rating is based on.";
+        moodGroup.TooltipText = "The crowd's average satisfaction, which the newspaper's star rating is based on." +
+            (admitted.Length == 0 ? "" : MoodBreakdown(session.RecentMoodChanges(), admitted.Length));
         // Nothing to show before anyone's through the gate.
         moodGroup.Modulate = preparing ? new Color(1, 1, 1, 0) : Colors.White;
         _pause!.Visible = !preparing;

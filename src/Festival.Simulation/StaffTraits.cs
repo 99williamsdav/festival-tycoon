@@ -60,7 +60,7 @@ public sealed partial class GameSession
                 long dx = here.XMillimetres - there.XMillimetres, dz = here.ZMillimetres - there.ZMillimetres;
                 if (dx * dx + dz * dz <= radius) change += effect;
             }
-            if (change != 0) MutatePerson(guest.Id, person => person.Satisfaction = Math.Clamp(person.Satisfaction + change, 0, 10_000));
+            if (change != 0) ChangeSatisfaction(guest.Id, change, MoodCause.StaffNearby);
         }
     }
 }

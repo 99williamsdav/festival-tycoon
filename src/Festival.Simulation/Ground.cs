@@ -191,7 +191,7 @@ public sealed partial class GameSession
             if (loss > 0 && CurrentTick / GroundRules.FootfallEveryTicks % 2 == 0 && IsGuest(id))
             {
                 var felt = UnpleasantFor(id, loss);
-                MutatePerson(id, item => item.Satisfaction = Math.Clamp(item.Satisfaction - felt, 0, 10_000));
+                ChangeSatisfaction(id, -felt, MoodCause.MudAndPuddles);
             }
         }
         if (changed) { GroundVersion++; RefreshGroundRouteCost(); }

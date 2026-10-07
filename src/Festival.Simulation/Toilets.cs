@@ -350,6 +350,7 @@ public sealed partial class GameSession
             if (person.Role != ProtectedPersonRole.Guest || !person.Admitted || person.Departed ||
                 !_navigationAgents.ContainsKey(new(person.Id))) return person;
             var penalty = UnpleasantFor(person.Id, ToiletSmellPenaltyPerSecond(person.Id));
+            RecordMood(person.Id, Math.Max(0, person.Satisfaction - penalty) - person.Satisfaction, MoodCause.ToiletSmell);
             return person with { Satisfaction = Math.Max(0, person.Satisfaction - penalty) };
         }).ToArray())
             SetPresence(person);

@@ -172,7 +172,7 @@ public sealed partial class GameSession
         if (_faults is null or { Disabled: true } || !FaultRules.Roll(CampaignSeed, point.Id, CurrentTick, drinker, FaultRules.TapBreakChancePer10k)) return false;
         AddFault($"broken:{point.Id}:{CurrentTick}", FacilityFaultKind.BrokenTap, point.Id, drinker);
         var loss = UnpleasantFor(drinker, FaultRules.BrokenTapSatisfactionLoss);
-        MutatePerson(drinker, person => person.Satisfaction = Math.Max(0, person.Satisfaction - loss));
+        ChangeSatisfaction(drinker, -loss, MoodCause.BrokenTap);
         MedicalEvent("fault:broken-tap", $"{point.Id} broke as person {drinker} used it; it needs mending before anyone else can drink there.");
         return true;
     }
@@ -240,7 +240,7 @@ public sealed partial class GameSession
                 if (stuck > 0 && stuck % 80 == 0 && !Unconscious(fault.VictimId))
                 {
                     var loss = UnpleasantFor(fault.VictimId, FaultRules.PanicLossPerSecond(stuck) + (toxic ? FaultRules.PoisonLossPerSecond : 0));
-                    MutatePerson(fault.VictimId, person => person.Satisfaction = Math.Max(0, person.Satisfaction - loss));
+                    ChangeSatisfaction(fault.VictimId, -loss, MoodCause.StuckInToilet);
                 }
                 // Guests and performers collapse; on-duty staff ride it out, as their own health track only rests them.
                 if (toxic && stuck >= FaultRules.PoisonCollapseTicks && fault.PoisonedTick < 0 && !Unconscious(fault.VictimId) &&
