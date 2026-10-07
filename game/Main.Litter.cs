@@ -27,7 +27,7 @@ public partial class Main
     public int VisibleLitterInstanceCount => _litterBatches.Values.Sum(b => b.Multimesh.InstanceCount);
     private string LitterAsset(ImmersionProduct product) => LitterAssetRoot + (product switch
     { ImmersionProduct.Beer => "lwf_litter_beer_cup_v1.glb", ImmersionProduct.SoftDrink or ImmersionProduct.Water => "lwf_litter_soft_cup_v1.glb",
-        _ => PizzaDay && ResourceLoader.Exists(LitterAssetRoot + "lwf_litter_pizza_plate_v1.glb") ? "lwf_litter_pizza_plate_v1.glb" : "lwf_litter_chips_tray_v1.glb" });
+        _ => PizzaDay && HasPizzaProps ? "lwf_litter_pizza_plate_v1.glb" : "lwf_litter_chips_tray_v1.glb" });
     // The food litter's mesh, so a change of trader between days swaps it.
     private string? _foodLitterFile;
     private Mesh LoadLitterMesh(string path)

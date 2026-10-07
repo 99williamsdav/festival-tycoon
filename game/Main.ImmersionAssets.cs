@@ -77,9 +77,12 @@ public partial class Main
     // Performer idle arms share that adult pose, with shoulder origin
     // (.255,1.315,-.005) and lower arm end at local Y -.440 m.
     /// <summary>What a guest carries from the food van: the day's trader decides, chips by default.</summary>
-    private string HeldFoodAsset() => PizzaDay && ResourceLoader.Exists(HeldPizza) ? HeldPizza : "res://assets/props/lwf_chips_tray_v1.glb";
+    private string HeldFoodAsset() => PizzaDay && HasPizzaProps ? HeldPizza : "res://assets/props/lwf_chips_tray_v1.glb";
     private const string HeldPizza = "res://assets/props/lwf_pizza_plate_v1.glb";
     private bool PizzaDay => _session.FoodTrader.Menu == "Pizza";
+    // Checked once: the asset set can't change while the game runs.
+    private static readonly bool HasPizzaProps = ResourceLoader.Exists(HeldPizza) &&
+        ResourceLoader.Exists(LitterAssetRoot + "lwf_litter_pizza_plate_v1.glb");
 
     private void SetImmersionHeldVisual(EntityId id, Node3D body, string? product,
         bool canHold, int intoxication, double delta, bool empty = false)
