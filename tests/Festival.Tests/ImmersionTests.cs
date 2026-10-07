@@ -292,10 +292,10 @@ public sealed class ImmersionTests
         var s=Open();var id=s.CaptureImmersion()!.People.First().AgentId;Invoke(s,"CompleteImmersionSale",id,ImmersionProduct.SoftDrink);
         PositionFixture(s,id,new(120,125),"audience.watch");DepartureFixture(s);
         var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=1000,PendingDose=80 }:p).ToArray() });
-        var r=Restore(s);var purchases=m.Purchases.Length;var stock=(m.ChipsStock,m.SoftStock,m.BeerStock);
+        var r=Restore(s);var purchases=m.Purchases.Length;var stock=(m.FoodStock,m.SoftStock,m.BeerStock);
         s.AdvanceWithoutSnapshot(80);r.AdvanceWithoutSnapshot(80);Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash,r.CaptureSnapshot().AuthoritativeHash);
         var person=s.CaptureImmersion()!.People.Single(p=>p.AgentId==id);Assert.AreEqual(0,person.PendingDose);Assert.AreEqual(1070,person.Intoxication);Assert.AreEqual(80,person.Held!.ConsumedTicks);
-        Assert.AreEqual(purchases,s.CaptureImmersion()!.Purchases.Length);Assert.AreEqual(stock,(s.CaptureImmersion()!.ChipsStock,s.CaptureImmersion()!.SoftStock,s.CaptureImmersion()!.BeerStock));
+        Assert.AreEqual(purchases,s.CaptureImmersion()!.Purchases.Length);Assert.AreEqual(stock,(s.CaptureImmersion()!.FoodStock,s.CaptureImmersion()!.SoftStock,s.CaptureImmersion()!.BeerStock));
         var prep=s.CapturePreparation()!;typeof(GameSession).GetProperty("PreparationView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,prep with { People=prep.People.Select(p=>p.AgentId==id?p with { Departed=true }:p).ToArray() });
         Invoke(s,"CleanupImmersionDeparture");m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { PendingDose=500,Intoxication=9000,WarningTick=-1 }:p).ToArray() });
         Assert.IsFalse(s.ImmersionBoundaryOnNextTick);s.AdvanceWithoutSnapshot(80);person=s.CaptureImmersion()!.People.Single(p=>p.AgentId==id);Assert.AreEqual(500,person.PendingDose);Assert.AreEqual(9000,person.Intoxication);Assert.IsNull(person.Held);

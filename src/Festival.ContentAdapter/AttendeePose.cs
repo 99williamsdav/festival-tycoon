@@ -18,7 +18,7 @@ public static class AttendeePose
     {
         if (held is null || !handsAvailable) return "relaxed";
         var lifted = consumptionEligible && held.ConsumedTicks % CycleTicks >= LiftStartTicks;
-        return held.Product == ImmersionProduct.Chips ? lifted ? "eating" : "food_hold" : lifted ? "drinking" : "drink_hold";
+        return held.Product.IsFood() ? lifted ? "eating" : "food_hold" : lifted ? "drinking" : "drink_hold";
     }
     // Only the lifted drinking state has a product-specific body; holds share one grip.
     public static string Key(string variant, string state, ImmersionProduct? product) =>

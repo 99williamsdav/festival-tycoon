@@ -100,7 +100,7 @@ public partial class Main
         {
             var piece = _session.CaptureLitter()!.Pieces.Single();
             var ground = GroundWasteTransform(piece, new(piece.XMillimetres / 1000f, 0, piece.ZMillimetres / 1000f));
-            var target = name.EndsWith("contact") ? ground * new Vector3(0, piece.Product == ImmersionProduct.Chips ? .025f : .075f, 0) : ((Node3D)view.Bag.FindChild("BagMouthSocket", true, false)).GlobalPosition;
+            var target = name.EndsWith("contact") ? ground * new Vector3(0, CrowdBodies.EmptyDrop(piece.Product), 0) : ((Node3D)view.Bag.FindChild("BagMouthSocket", true, false)).GlobalPosition;
             endpoint = view.Jaw.GlobalPosition.DistanceTo(target) < .0001f;
         }
         var passed = pauseExact && represented == 1 && equipmentCorrect && footFixed && lowerFixed && endpoint;

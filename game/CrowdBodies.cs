@@ -25,7 +25,7 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
     }
 
     /// <summary>Places a held prop at the current pose's hand anchor.</summary>
-    public void AnchorProp(Node3D root, Node3D prop, string product)
+    public void AnchorProp(Node3D root, Node3D prop, ImmersionProduct product)
     {
         if (root.HasMeta("GuestPoseVariant")) ApplyGuestPropAnchor(root, prop, product);
         else if (root.HasMeta("RoleVariant")) ApplyRolePropAnchor(root, prop, product);
@@ -155,18 +155,22 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         if (root.IsInsideTree()) SyncGuestHead(root);
     }
 
-    private void ApplyGuestPropAnchor(Node3D root, Node3D prop, string product)
+    /// <summary>The pose manifest's anchor for what's held: food on the tray anchor, drinks by cup.</summary>
+    private static string PoseAnchorKey(ImmersionProduct product) => product.IsFood() ? "tray" : product == ImmersionProduct.Beer ? "beer" : "soft";
+    /// <summary>How far an empty sits below the full one's anchor: a flat tray or plate less than a cup.</summary>
+    internal static float EmptyDrop(ImmersionProduct product) => product.IsFood() ? .025f : .075f;
+
+    private void ApplyGuestPropAnchor(Node3D root, Node3D prop, ImmersionProduct product)
     {
         if (AnchorPropToRig(root, prop, product)) { prop.RemoveMeta("GuestAnchorKey"); return; }
         var anchorKey = root.GetMeta("GuestPoseFile").AsString() + ":" + product;
         if (prop.HasMeta("GuestAnchorKey") && prop.GetMeta("GuestAnchorKey").AsString() == anchorKey) return;
         var state = root.GetMeta("GuestPoseState").AsString();
-        var kind = product == "chips" ? ImmersionProduct.Chips : product == "beer" ? ImmersionProduct.Beer : ImmersionProduct.SoftDrink;
-        var asset = GuestPoseCatalog.Get(root.GetMeta("GuestPoseVariant").AsString(), state, kind);
-        var anchor = asset.Anchors[product == "chips" ? "tray" : product];
+        var asset = GuestPoseCatalog.Get(root.GetMeta("GuestPoseVariant").AsString(), state, product);
+        var anchor = asset.Anchors[PoseAnchorKey(product)];
         prop.Position = new(anchor.X, anchor.Y, anchor.Z);
         prop.RotationDegrees = new(anchor.RotationX, anchor.RotationY, anchor.RotationZ);
-        if (prop.HasMeta("EmptyWasteProp")) prop.Position -= prop.Basis * new Vector3(0, product == "chips" ? .025f : .075f, 0);
+        if (prop.HasMeta("EmptyWasteProp")) prop.Position -= prop.Basis * new Vector3(0, EmptyDrop(product), 0);
         prop.Scale = Vector3.One;
         prop.SetMeta("GuestAnchorKey", anchorKey);
     }
@@ -267,19 +271,18 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         SetRoleBodyPose(root, onStage ? "relaxed" : root.GetMeta("RolePoseState").AsString(), null);
     }
 
-    private void ApplyRolePropAnchor(Node3D root, Node3D prop, string product)
+    private void ApplyRolePropAnchor(Node3D root, Node3D prop, ImmersionProduct product)
     {
         if (AnchorPropToRig(root, prop, product)) { prop.RemoveMeta("RoleAnchorKey"); return; }
         var key = root.GetMeta("RolePoseFile").AsString() + ":" + product;
         if (prop.HasMeta("RoleAnchorKey") && prop.GetMeta("RoleAnchorKey").AsString() == key) return;
         var variant = root.GetMeta("RoleVariant").AsString();
         var state = root.GetMeta("RolePoseState").AsString();
-        var kind = product == "chips" ? ImmersionProduct.Chips : product == "beer" ? ImmersionProduct.Beer : ImmersionProduct.SoftDrink;
-        var asset = GuestPoseCatalog.Get(variant, state, kind);
-        var anchor = asset.Anchors[product == "chips" ? "tray" : product];
+        var asset = GuestPoseCatalog.Get(variant, state, product);
+        var anchor = asset.Anchors[PoseAnchorKey(product)];
         prop.Position = new(anchor.X, anchor.Y, anchor.Z);
         prop.RotationDegrees = new(anchor.RotationX, anchor.RotationY, anchor.RotationZ);
-        if (prop.HasMeta("EmptyWasteProp")) prop.Position -= prop.Basis * new Vector3(0, product == "chips" ? .025f : .075f, 0);
+        if (prop.HasMeta("EmptyWasteProp")) prop.Position -= prop.Basis * new Vector3(0, EmptyDrop(product), 0);
         prop.Scale = Vector3.One;
         prop.SetMeta("RoleAnchorKey", key);
     }

@@ -108,7 +108,7 @@ public partial class Main
             if (visual.Waste is { } waste)
             {
                 ground = GroundWasteTransform(waste, new(waste.XMillimetres / 1000f, 0, waste.ZMillimetres / 1000f));
-                centre = new Vector3(0, waste.Product == ImmersionProduct.Chips ? .025f : .075f, 0);
+                centre = new Vector3(0, CrowdBodies.EmptyDrop(waste.Product), 0);
                 var worldContact = ground * centre;
                 var footing = _session.CaptureCleanupFooting(steward.WorkerId)!.Value;
                 var feet = new Vector3(footing.XMillimetres / 1000f, .04f, footing.ZMillimetres / 1000f);

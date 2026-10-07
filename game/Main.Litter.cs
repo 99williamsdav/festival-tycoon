@@ -25,11 +25,10 @@ public partial class Main
     private Mesh? _waspMesh;
     private double _waspRenderTick = -1;
     public int VisibleLitterInstanceCount => _litterBatches.Values.Sum(b => b.Multimesh.InstanceCount);
-    private string LitterAsset(ImmersionProduct product) => LitterAssetRoot + (product switch
+    private static string LitterAsset(ImmersionProduct product) => LitterAssetRoot + (product switch
     { ImmersionProduct.Beer => "lwf_litter_beer_cup_v1.glb", ImmersionProduct.SoftDrink or ImmersionProduct.Water => "lwf_litter_soft_cup_v1.glb",
-        _ => PizzaDay && HasPizzaProps ? "lwf_litter_pizza_plate_v1.glb" : "lwf_litter_chips_tray_v1.glb" });
-    // The food litter's mesh, so a change of trader between days swaps it.
-    private string? _foodLitterFile;
+        ImmersionProduct.Chips => "lwf_litter_chips_tray_v1.glb", ImmersionProduct.Pizza => "lwf_litter_pizza_plate_v1.glb",
+        _ => throw new ArgumentOutOfRangeException(nameof(product), product, "Unknown immersion product") });
     private Mesh LoadLitterMesh(string path)
     {
         var root = InstantiateAsset(path);
@@ -48,7 +47,7 @@ public partial class Main
     private static Transform3D GroundWasteTransform(WastePiece piece, Vector3 position)
     {
         var seed = WasteVisualSeed(piece.Id); var yaw = seed % 6283 / 1000f;
-        var side = piece.Product != ImmersionProduct.Chips && seed % 3 != 0;
+        var side = !piece.Product.IsFood() && seed % 3 != 0;
         var pose = side ? new Quaternion(Vector3.Right, Mathf.Pi / 2) : Quaternion.Identity;
         var basis = new Basis(new Quaternion(Vector3.Up, yaw) * pose);
         var support = side ? piece.Product == ImmersionProduct.Beer ? .046f : .047f : 0;
@@ -100,12 +99,6 @@ public partial class Main
                     var angle = i * 2.399963f; var radius = .48f + .05f * Mathf.Sqrt(i);
                     visible.Add((extras[i], ImmersionPosition(bin.Cell) + new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius)));
                 }
-            }
-            if (_foodLitterFile != LitterAsset(ImmersionProduct.Chips))
-            {
-                _foodLitterFile = LitterAsset(ImmersionProduct.Chips);
-                if (_litterBatches.Remove(ImmersionProduct.Chips, out var stale)) stale.QueueFree();
-                _cleanupWasteMeshes.Remove(ImmersionProduct.Chips);
             }
             foreach (var product in Enum.GetValues<ImmersionProduct>())
             {

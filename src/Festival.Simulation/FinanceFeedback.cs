@@ -44,7 +44,7 @@ public static class FestivalCashFeedbackProjection
             Add($"free-water:{preparation.Attempt}:{index + 1}", preparation.Attempt, tick, "vendor.drinks",
                 [new(festival, LedgerAccountType.AdministrationExpense, GameSession.FreeWaterChargePennies), new(festival, LedgerAccountType.CashAsset, -GameSession.FreeWaterChargePennies)]);
         foreach (var sale in immersion?.Purchases ?? [])
-            Add($"sale:{sale.Id}", preparation.Attempt, sale.Tick, sale.Product == ImmersionProduct.Chips ? "vendor.food" : "vendor.drinks", sale.Entries);
+            Add($"sale:{sale.Id}", preparation.Attempt, sale.Tick, "vendor." + GameSession.ImmersionVendorFor(sale.Product), sale.Entries);
         return events.OrderBy(item => item.Tick).ThenBy(item => item.TransactionId, StringComparer.Ordinal).ToList().AsReadOnly();
     }
 }

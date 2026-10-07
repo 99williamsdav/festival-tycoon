@@ -143,7 +143,7 @@ public partial class Main
         var finance = snapshot.FestivalFinances.Single(item => item.OwnerId.Value == p.FinanceOwnerId);
         var immersion = _session.CaptureImmersion();
         var stockDescription = immersion is null ? $"stock {snapshot.OwnedStocks.Single(item => item.ServiceId.Value == p.StockId).Quantity}" :
-            $"chips {immersion.ChipsStock} • soft {immersion.SoftStock} • beer {immersion.BeerStock}";
+            $"chips {immersion.FoodStock} • soft {immersion.SoftStock} • beer {immersion.BeerStock}";
         var day = _session.CaptureProgramme() is not null ? "FESTIVAL DAY" : new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Min(2, (int)((_session.CurrentTick - p.StartedTick) / 12_800))];
         _preparationSummary.Text = $"Tier {p.Tier} • {p.Status}{(_session.IsPaused ? " • PAUSED" : "")} • {day}\n" +
             $"{FestivalCurrency.Format(finance.CashPennies)} • {stockDescription}\n" +

@@ -6,12 +6,13 @@ namespace Festival.Simulation;
 /// satisfying they are (chips: quick, cheap, not very filling).
 /// </summary>
 /// <param name="Menu">What they sell, as the crowd and the player see it.</param>
+/// <param name="Product">What a portion is: each trader sells their own food, and it fills and pleases by what it is.</param>
 /// <param name="Art">The van's livery and sign artwork.</param>
 /// <param name="ServicePermille">How long they take to serve a portion, against the standard 4 seconds.</param>
 /// <param name="Portions">How much they bring: once it's gone, they've sold out.</param>
 /// <param name="EnjoymentPercent">How satisfying a portion is, against chips. Not shown to the player.</param>
 /// <param name="FillingPercent">How much hunger a portion takes away, against chips.</param>
-public sealed record FoodTrader(string Id, string Name, string Menu, string Art, string Blurb, int PitchFeePennies, int ServicePermille, int Portions,
+public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionProduct Product, string Art, string Blurb, int PitchFeePennies, int ServicePermille, int Portions,
     int EnjoymentPercent = 100, int FillingPercent = 100)
 {
     /// <summary>Slower to serve than the standard chip van: the one thing the picker warns about.</summary>
@@ -26,13 +27,15 @@ public static class FoodTraders
     // way of costing more than the extra pitch fee, though a well-run pizza van is a little more satisfying.
     public static readonly FoodTrader[] All =
     [
-        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 60),
-        new("trader.pizza-the-action", "Pizza the Action", "Pizza", "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 45,
+        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", ImmersionProduct.Chips, "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 60),
+        new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 45,
             EnjoymentPercent: 140, FillingPercent: 115),
     ];
 
     public static FoodTrader Default => All[0];
     public static FoodTrader? Find(string? id) => All.FirstOrDefault(t => t.Id == id);
+    /// <summary>The trader whose food this is.</summary>
+    public static FoodTrader Selling(ImmersionProduct product) => All.First(t => t.Product == product);
 }
 
 public sealed partial class GameSession
@@ -48,7 +51,7 @@ public sealed partial class GameSession
 
     /// <summary>What the festival itself took at its stalls: the bar's sales, not the food trader's.</summary>
     private static long FestivalTakings(ImmersionSnapshot? immersion) =>
-        immersion?.Purchases.Where(purchase => purchase.Product != ImmersionProduct.Chips).Sum(purchase => (long)purchase.PricePennies) ?? 0;
+        immersion?.Purchases.Where(purchase => !purchase.Product.IsFood()).Sum(purchase => (long)purchase.PricePennies) ?? 0;
 
     /// <summary>The pitch fee received for this attempt, once it opened.</summary>
     private static long ReceivedPitchFee(PreparationSnapshot p) =>

@@ -57,7 +57,7 @@ internal sealed partial class CrowdBodies
     {
         if (!root.HasMeta(RigMeta) || !root.GetMeta(RigMeta).AsBool()) return;
         var state = RigState(root);
-        root.SetMeta(RigModeMeta, state == "relaxed" ? "free" : litter ? "litter" : product == ImmersionProduct.Chips ? drinking ? "eat" : "food" :
+        root.SetMeta(RigModeMeta, state == "relaxed" ? "free" : litter ? "litter" : product?.IsFood() == true ? drinking ? "eat" : "food" :
             drinking ? product == ImmersionProduct.Beer ? "drink" : "drink_soft" : "carry");
     }
 
@@ -87,10 +87,10 @@ internal sealed partial class CrowdBodies
     }
 
     /// <summary>Keeps a held cup in a rigged hand; false for a still body, whose pose anchors place it instead.</summary>
-    private static bool AnchorPropToRig(Node3D root, Node3D prop, string product)
+    private static bool AnchorPropToRig(Node3D root, Node3D prop, ImmersionProduct product)
     {
         // Food rides flat on the palm; a cup, or anything empty on its way to a bin, in the cup grip.
-        var food = product == "chips" && !prop.HasMeta("EmptyWasteProp");
+        var food = product.IsFood() && !prop.HasMeta("EmptyWasteProp");
         if (!root.HasMeta(RigMeta) || !root.GetMeta(RigMeta).AsBool() ||
             RigBody(root)?.FindChild(food ? FoodSocket : CupSocket, true, false) is not Node3D socket || !socket.IsInsideTree()) return false;
         // An empty cup on its way to a bin hangs from the low hand, so it's turned upright there.

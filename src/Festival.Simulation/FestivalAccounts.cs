@@ -24,13 +24,15 @@ public sealed record FestivalAccounts(
 
 public sealed partial class GameSession
 {
-    private static string ProductName(ImmersionProduct product) => product switch
+    /// <summary>What it's called on a receipt or in a sentence: "Chips", "Free water".</summary>
+    public static string ProductName(ImmersionProduct product) => product switch
     {
         ImmersionProduct.Chips => "Chips",
+        ImmersionProduct.Pizza => "Pizza",
         ImmersionProduct.SoftDrink => "Soft drink",
         ImmersionProduct.Beer => "Beer",
         ImmersionProduct.Water => "Free water",
-        _ => product.ToString()
+        _ => throw new ArgumentOutOfRangeException(nameof(product))
     };
     private static string FacilityName(BuildServiceKind kind) => kind switch
     {
@@ -49,8 +51,8 @@ public sealed partial class GameSession
         get
         {
             if (_preparation is not { Result: { } result } p) return null;
-            // The food trader's chips are their own takings; the festival's are the bar's.
-            var purchases = (_immersion?.Purchases ?? []).Where(purchase => purchase.Product != ImmersionProduct.Chips).ToArray();
+            // The food trader's sales are their own takings; the festival's are the bar's.
+            var purchases = (_immersion?.Purchases ?? []).Where(purchase => !purchase.Product.IsFood()).ToArray();
             var sales = purchases.GroupBy(purchase => (purchase.Product, purchase.PricePennies))
                 .OrderBy(group => group.Key.Product).ThenByDescending(group => group.Key.PricePennies)
                 .Select(group => new FestivalAccountsSale(group.Key.Product, group.Key.PricePennies, group.Count(),

@@ -134,10 +134,7 @@ public partial class Main
         var centre = TraversalGrid.CellCentre(cell);
         return new(centre.XMillimetres / 1000f, 0, centre.ZMillimetres / 1000f);
     }
-    private static string ImmersionProductKey(ImmersionProduct product) => product switch
-    { ImmersionProduct.Chips => "chips", ImmersionProduct.SoftDrink or ImmersionProduct.Water => "soft", _ => "beer" };
-    private static string ImmersionProductName(ImmersionProduct product) => product switch
-    { ImmersionProduct.Chips => "Chips", ImmersionProduct.SoftDrink => "Soft drink", ImmersionProduct.Water => "Free water", _ => "Beer" };
+    private static string ImmersionProductName(ImmersionProduct product) => GameSession.ProductName(product);
 
 private void BuildImmersionControls(VBoxContainer parent)
     {
@@ -332,7 +329,7 @@ private void BuildImmersionControls(VBoxContainer parent)
             _stockPotential!.Text = $"Sells for up to {FestivalCurrency.Format(values.Select((value, i) => (long)value * sales[i]).Sum())} if every item goes. Staff don't buy beer.";
             _stockTotal!.Text = FestivalCurrency.Format(values.Select((value, i) => (long)value * costs[i]).Sum());
         }
-        _immersionSummary!.Text = $"Chips {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Chips))} • soft {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.SoftDrink))} • beer {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Beer))}\nStock {state.ChipsStock}/{state.SoftStock}/{state.BeerStock} • sales {state.Purchases.Length}\n" +
+        _immersionSummary!.Text = $"{_session.FoodTrader.Menu} {FestivalCurrency.Format(GameSession.ImmersionPrice(_session.FoodTrader.Product))} • soft {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.SoftDrink))} • beer {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Beer))}\nStock {state.FoodStock}/{state.SoftStock}/{state.BeerStock} • sales {state.Purchases.Length}\n" +
             "Free water remains available. Personal spending budgets vary; staff do not buy beer.\n" +
             string.Join("\n", _session.CaptureVendors().Select(v => $"{(v.Id == "food" ? "Food van" : "Drinks stall")}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}")) +
             (_session.CaptureToilet() is { } toilet ? $"\nPortaloo: {toilet.FullPercent}% full • {(toilet.InterruptedOccupantId is not null ? "unavailable" : toilet.IsFull ? "full" : toilet.OwnerId is null ? "free" : "occupied")}" : "");
@@ -410,7 +407,7 @@ private void BuildImmersionControls(VBoxContainer parent)
         _inspectorTitle.Text = id == "food" ? $"{_session.FoodTrader.Name} • {_session.FoodTrader.Menu.ToLowerInvariant()}" : "Drinks stall • soft drinks & beer";
         _inspectorBody.Text = $"Queue: {vendor.Queue.Length}\n" +
             (vendor.OwnerId is { } owner ? $"Serving {_session.CapturePreparation()!.People.Single(p => p.AgentId == owner).Name} • {vendor.ServiceTicks / 80m:0.0}s remaining\n" : "Counter ready\n") +
-            (id == "food" ? $"{_session.FoodTrader.Menu} {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Chips))} • {(state.ChipsStock > 0 || _session.PreparedStatus == PreparationStatus.Preparing ? $"{(_session.PreparedStatus == PreparationStatus.Preparing ? _session.FoodTrader.Portions : state.ChipsStock)} portions left" : "sold out")}\nTheir own food and takings; they pay {FestivalCurrency.Format(_session.FoodTrader.PitchFeePennies)} to pitch." : $"Soft {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.SoftDrink))} • {BarStock(state.SoftStock, true)}\nBeer {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} • {BarStock(state.BeerStock, false)}\nNo beer for staff or heavily intoxicated customers.") +
+            (id == "food" ? $"{_session.FoodTrader.Menu} {FestivalCurrency.Format(_session.ImmersionListPrice(_session.FoodTrader.Product))} • {(state.FoodStock > 0 || _session.PreparedStatus == PreparationStatus.Preparing ? $"{(_session.PreparedStatus == PreparationStatus.Preparing ? _session.FoodTrader.Portions : state.FoodStock)} portions left" : "sold out")}\nTheir own food and takings; they pay {FestivalCurrency.Format(_session.FoodTrader.PitchFeePennies)} to pitch." : $"Soft {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.SoftDrink))} • {BarStock(state.SoftStock, true)}\nBeer {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} • {BarStock(state.BeerStock, false)}\nNo beer for staff or heavily intoxicated customers.") +
             "\nStaff & band: half price." + (id == "drinks" && state.FreeWater ? "\nFREE WATER • cups for the thirsty" : "");
         _highlight.Position = body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new Vector3(id == "food" ? 3.5f : 2, 1, id == "food" ? 3.5f : 2); _highlight.Visible = true;
     }
@@ -454,7 +451,7 @@ private void BuildImmersionControls(VBoxContainer parent)
                 var drinking = waste is null && _session.ImmersionConsumptionEligible(person.AgentId);
                 Bodies.SetPose(body, AttendeePose.State(shown, hands, drinking), shown?.Product);
                 Bodies.SetRigActivity(body, drinking && shown is not null, waste is not null && hands, shown?.Product);
-                SetImmersionHeldVisual(new(person.AgentId), body, shown is { } held ? ImmersionProductKey(held.Product) : null, hands, person.Intoxication, delta, waste is not null);
+                SetImmersionHeldVisual(new(person.AgentId), body, shown?.Product, hands, person.Intoxication, delta, waste is not null);
                 if (hands && person.Intoxication >= 5000)
                     body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, Mathf.Sin((float)_characterPresentationSeconds / .35f + person.AgentId) * .035f);
                 else if (Mathf.Abs(body.Rotation.X) < .1f) body.Rotation = new Vector3(body.Rotation.X, body.Rotation.Y, 0);

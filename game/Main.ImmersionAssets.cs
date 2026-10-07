@@ -38,7 +38,7 @@ public partial class Main
         }
         if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_palette_{art}_v1.png"))
             ApplyFoodVanLivery(assembly, $"res://assets/environment/lwf_food_van_palette_{art}_v1.png");
-        var sign = _session.FoodTrader.Menu == "Pizza" ? "pizza" : "chips";
+        var sign = _session.FoodTrader.Product.ToString().ToLowerInvariant();
         if (ResourceLoader.Exists($"res://assets/environment/lwf_food_van_sign_{sign}_v1.glb"))
         {
             // On a pole from the middle of the roof.
@@ -76,26 +76,20 @@ public partial class Main
     // scaling is used. Cup edge meets the outer palm; the tray rests atop it.
     // Performer idle arms share that adult pose, with shoulder origin
     // (.255,1.315,-.005) and lower arm end at local Y -.440 m.
-    /// <summary>What a guest carries from the food van: the day's trader decides, chips by default.</summary>
-    private string HeldFoodAsset() => PizzaDay && HasPizzaProps ? HeldPizza : "res://assets/props/lwf_chips_tray_v1.glb";
-    private const string HeldPizza = "res://assets/props/lwf_pizza_plate_v1.glb";
-    private bool PizzaDay => _session.FoodTrader.Menu == "Pizza";
-    // Checked once: the asset set can't change while the game runs.
-    private static readonly bool HasPizzaProps = ResourceLoader.Exists(HeldPizza) &&
-        ResourceLoader.Exists(LitterAssetRoot + "lwf_litter_pizza_plate_v1.glb");
+    /// <summary>The prop in someone's hand for what they're holding.</summary>
+    private static string HeldAsset(ImmersionProduct product) => product switch
+    {
+        ImmersionProduct.Chips => "res://assets/props/lwf_chips_tray_v1.glb",
+        ImmersionProduct.Pizza => "res://assets/props/lwf_pizza_plate_v1.glb",
+        ImmersionProduct.SoftDrink or ImmersionProduct.Water => "res://assets/props/lwf_soft_drink_cup_v1.glb",
+        ImmersionProduct.Beer => "res://assets/props/lwf_beer_cup_v2.glb",
+        _ => throw new ArgumentOutOfRangeException(nameof(product), product, "Unknown immersion product")
+    };
 
-    private void SetImmersionHeldVisual(EntityId id, Node3D body, string? product,
+    private void SetImmersionHeldVisual(EntityId id, Node3D body, ImmersionProduct? product,
         bool canHold, int intoxication, double delta, bool empty = false)
     {
-        var path = product switch
-        {
-            "chips" => HeldFoodAsset(),
-            "soft" => "res://assets/props/lwf_soft_drink_cup_v1.glb",
-            "beer" => "res://assets/props/lwf_beer_cup_v2.glb",
-            null => null,
-            _ => throw new ArgumentOutOfRangeException(nameof(product), product, "Unknown immersion product")
-        };
-        if (empty && product is not null) path = LitterAsset(product == "chips" ? ImmersionProduct.Chips : product == "beer" ? ImmersionProduct.Beer : ImmersionProduct.SoftDrink);
+        var path = product is { } held ? empty ? LitterAsset(held) : HeldAsset(held) : null;
         var identity = path + (empty ? ":empty" : "");
         // A kit may have become attached since the caller captured eligibility.
         canHold &= !_performerInstruments.ContainsKey(id);
@@ -108,18 +102,18 @@ public partial class Main
             GodotObject.IsInstanceValid(existing) && existing.GetParent() == body &&
             _immersionHeldProducts[id] == identity)
         {
-            Bodies.AnchorProp(body, existing, product!);
+            Bodies.AnchorProp(body, existing, product!.Value);
             return;
         }
         RemoveImmersionHeldVisual(id);
         var prop = InstantiateAsset(path);
         if (empty) prop.SetMeta("EmptyWasteProp", true);
         prop.Name = "ImmersionHeldItem";
-        prop.Position = product == "chips"
+        prop.Position = product!.Value.IsFood()
             ? new Vector3(.36f, 1.005f, -.075f)
             : new Vector3(.405f, .94f, -.04f);
         body.AddChild(prop);
-        Bodies.AnchorProp(body, prop, product!);
+        Bodies.AnchorProp(body, prop, product!.Value);
         _immersionHeldVisuals.Add(id, prop);
         _immersionHeldProducts.Add(id, identity);
         // intoxication/delta are reserved for caller-owned cosmetic sway. This

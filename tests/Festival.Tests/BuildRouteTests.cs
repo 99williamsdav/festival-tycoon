@@ -51,7 +51,7 @@ public sealed class BuildRouteTests
                 hash = probe.CaptureSnapshot().AuthoritativeHash;
             }
         }
-        return new(s, cash, (immersion.ChipsStock, immersion.SoftStock, immersion.BeerStock),
+        return new(s, cash, (immersion.FoodStock, immersion.SoftStock, immersion.BeerStock),
             liveStages, liveSets, listened, medical, disorder, hash!, checkpoint!);
     }
 
@@ -82,7 +82,7 @@ public sealed class BuildRouteTests
         var run = Run.Value;
         Assert.IsTrue(run.Session.CaptureToilets().Sum(toilet => toilet.WeeCount + toilet.PooCount) > 0);
         var stock = run.Session.CaptureImmersion()!;
-        Assert.IsTrue(stock.ChipsStock < run.StartingStock.Chips);
+        Assert.IsTrue(stock.FoodStock < run.StartingStock.Chips);
         Assert.IsTrue(stock.SoftStock < run.StartingStock.Soft);
         Assert.IsTrue(stock.BeerStock < run.StartingStock.Beer);
         Assert.IsTrue(run.Session.CaptureSnapshot().FestivalFinances.Single().CashPennies > run.StartingCash);

@@ -274,7 +274,7 @@ public partial class Main
                 var at = ImmersionPosition(vendor.Cell);
                 var out_ = !_session.StallPowered(vendor.Id) ? vendor.Id == "food" ? "The food van's shut?!" : "The bar's closed?!"
                     // The trader's own stock: sold out is sold out, whatever the bar ordered.
-                    : vendor.Id == "food" ? immersion.ChipsStock == 0 ? _session.FoodTrader.Menu == "Pizza" ? "No pizza left?!" : "No chips? Seriously?" : null
+                    : vendor.Id == "food" ? immersion.FoodStock == 0 ? _session.FoodTrader.Product == ImmersionProduct.Pizza ? "No pizza left?!" : "No chips? Seriously?" : null
                     : immersion.StockPurchased && immersion.BeerStock == 0 ? "Out of beer?! At a festival?!"
                     : immersion.StockPurchased && immersion.SoftStock == 0 ? "No cola?!" : null;
                 foreach (var id in Near(at, 10))

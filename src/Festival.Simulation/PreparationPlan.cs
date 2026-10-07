@@ -1,7 +1,7 @@
 namespace Festival.Simulation;
 
 // A saved unpaid intention. No purchased effect or contract exists until opening.
-/// <param name="TraderId">The food trader pitched at the food van; they bring their own chips.</param>
+/// <param name="TraderId">The food trader pitched at the food van; they bring their own food.</param>
 public sealed record PreparationPlan(int Version, string[] OfferIds, string[] ActIds,
     int SoftDrinks, int Beers, bool Committed = false, string? TraderId = null);
 public sealed record RemovePreparationOfferCommand(string OfferId) : SessionCommand;
@@ -64,8 +64,8 @@ public sealed partial class GameSession
             SynchronizeImmersionPeople();
             var cost = PlannedStockCost(plan);
             var pitchFee = PlannedPitchFeePennies;
-            // The trader arrives with their own chips, and pays to pitch.
-            _immersion = _immersion! with { ChipsStock = FoodVanPitched ? FoodTrader.Portions : 0 };
+            // The trader arrives with their own food, and pays to pitch.
+            _immersion = _immersion! with { FoodStock = FoodVanPitched ? FoodTrader.Portions : 0 };
             if (pitchFee > 0) _festivalFinances[new(_preparation!.FinanceOwnerId)].CashPennies += pitchFee;
             if (cost > 0)
             {
