@@ -17,8 +17,9 @@ HAIR_U = (8 * 10 + 4) / 96            # guest palette slot 10 (hair base); slot 
 REPORT = {}
 
 # accessory palette (128x8, 16 slots, u = (8*slot+4)/128). Recolour per guest: 0-1 cap, 4-5 sunglasses, 8-10 flowers.
-ACC = {0: "C9553A", 1: "A8432F", 2: "C9553A", 4: "1A1A1A", 5: "2A3540", 8: "E58FA5", 9: "F2EBDD", 10: "E8C547",
-       11: "D9A33A", 12: "5E8A4A"}
+# 3, 9 and 15 are the daisy crown (v1 daisy chain, 2026-10-07): 3 dark plum outline, 9 white petals, 15 sunflower centre.
+ACC = {0: "C9553A", 1: "A8432F", 2: "C9553A", 3: "3A1F2A", 4: "1A1A1A", 5: "2A3540", 8: "E58FA5", 9: "FBF7EE", 10: "E8C547",
+       11: "D9A33A", 12: "5E8A4A", 15: "FFD21F"}
 
 
 def reset():
@@ -99,9 +100,10 @@ class Mesh:
         except ValueError: return None
         for l in f.loops: l[self.uv].uv = ((8 * slot + 4) / self.W, 0.5)
         return f
-    def link(self, mat):
+    def link(self, mat, recalc=True):
+        """recalc=False keeps the authored winding (single-sided open parts that must face out, like the crown's flowers)"""
         bmesh.ops.remove_doubles(self.bm, verts=self.bm.verts, dist=1e-5)
-        bmesh.ops.recalc_face_normals(self.bm, faces=list(self.bm.faces))
+        if recalc: bmesh.ops.recalc_face_normals(self.bm, faces=list(self.bm.faces))
         me = bpy.data.meshes.new(self.name); self.bm.to_mesh(me); self.bm.free(); me.materials.append(mat)
         for p in me.polygons: p.use_smooth = False
         o = bpy.data.objects.new(self.name, me); bpy.context.scene.collection.objects.link(o); return o
@@ -250,30 +252,39 @@ def build_sex(sex):
     cap = m.link(acc)
     only(cap); export([cap], f"lwf_hat_cap_{sex}_v1", dict(note="wear with lwf_hair_*_default_under_cap_v1 (or bald); never with the mohawk"))
 
-    # ---- flower crown: one generous fit over the default hair
+    # ---- flower crown: a daisy chain, one generous fit over the default hair (approved option C, flower-crown board).
+    # Seven 6.8 cm white daisies with sunflower centres and dark plum outlines, tilted up to face the game camera, on a 14 mm
+    # vine band. Every part is single-sided and wound to face out/up (the inside of the band sits against the hair), so
+    # the mesh is linked without recalculating normals.
     m = Mesh("LWF_Hat_FlowerCrown", 128)
     zf = lambda az: H.top - 0.050 + 0.012 * math.cos(math.radians(az))
-    N = 12
+    N = 14
     pts = []
     for k in range(N):
         az = -180 + 360 * k / N
         el = H.el_for_z(az, zf(az), H.full_tree)
         S, n, d = H.hit(az, el, H.full_tree)
-        pts.append((S + V3((d.x, d.y, 0)).normalized() * 0.006, V3((d.x, d.y, 0)).normalized()))
-    lo = [m.v(p) for p, _ in pts]; hi = [m.v(p + V3((0, 0, 0.007))) for p, _ in pts]
-    ring_faces(m, lo, hi, 12); ring_faces(m, hi, lo, 12)
-    cols = [8, 9, 10, 8, 9, 10]
-    for k in range(6):
-        p, out = pts[2 * k]
-        p = p + V3((0, 0, 0.0035)); nrm = (out + V3((0, 0, 0.7))).normalized()
-        s = nrm.cross(V3((0, 0, 1))).normalized(); u = s.cross(nrm)
-        c = m.v(p + nrm * 0.006)
-        pet = [m.v(p + (s * math.cos(t) + u * math.sin(t)) * (0.019 if i % 2 == 0 else 0.008)) for i, t in enumerate(2 * math.pi * j / 10 for j in range(10))]
-        for i in range(10): m.face((pet[i], pet[(i + 1) % 10], c), cols[k] if i % 2 == 0 else 11)
-        back = m.v(p - nrm * 0.003)
-        for i in range(0, 10, 2): m.face((pet[(i + 2) % 10], pet[i], back), cols[k])
-    crown = m.link(acc)
-    only(crown); export([crown], f"lwf_hat_flower_crown_{sex}_v1", dict(note="sits on the default hair (not bald, not the mohawk)"))
+        out = V3((d.x, d.y, 0)).normalized(); pts.append((S + out * 0.005, out, az))
+    BH, BT = 0.014, 0.005
+    lo = [m.v(p + o * BT) for p, o, _ in pts]; hi = [m.v(p + o * BT + V3((0, 0, BH))) for p, o, _ in pts]
+    hin = [m.v(p + V3((0, 0, BH))) for p, o, _ in pts]
+    ring_faces(m, lo, hi, 12); ring_faces(m, hi, hin, 12)                 # outer face and top of the band
+
+    def fan(ring, centre, slot):
+        for j in range(len(ring)): m.face((ring[j], ring[(j + 1) % len(ring)], centre), slot)
+
+    def daisy(p, nrm, R):
+        s = nrm.cross(V3((0, 0, 1))).normalized(); u = s.cross(nrm).normalized()
+        circ = lambda r, k, off, inner=1.0: [m.v(p + nrm * off + (s * math.cos(2 * math.pi * j / k) + u * math.sin(2 * math.pi * j / k)) * (r if j % 2 == 0 else r * inner)) for j in range(k)]
+        fan(circ(R * 1.18, 8, -0.0025), m.v(p + nrm * -0.0025), 3)          # outline disc behind the petals
+        fan(circ(R, 16, 0.0, 0.55), m.v(p + nrm * 0.004), 9)               # eight white petals, slightly cupped
+        fan(circ(R * 0.36, 6, 0.0055), m.v(p + nrm * 0.008), 15)           # sunflower centre
+
+    for az in (0, 51.4, 102.9, 154.3, -154.3, -102.9, -51.4):
+        p, out, _ = min(pts, key=lambda q: abs(((q[2] - az + 180) % 360) - 180))
+        daisy(p + out * 0.008 + V3((0, 0, 0.011)), (out * 0.6 + V3((0, 0, 1))).normalized(), 0.034)
+    crown = m.link(acc, recalc=False)
+    only(crown); export([crown], f"lwf_hat_flower_crown_{sex}_v1", dict(note="daisy chain; sits on the default hair (not bald, not the mohawk)"))
 
     # ---- sunglasses: fitted to the face; arms to the ear line (under long hair)
     m = Mesh("LWF_Sunglasses", 128)

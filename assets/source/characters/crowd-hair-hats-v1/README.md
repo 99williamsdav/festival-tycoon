@@ -53,7 +53,7 @@ Files are in `game/assets/characters/`, with copies in `assets/runtime/character
 | `lwf_hair_{male,female}_mohawk_v1.glb` | 86 | `LWF_Hair_Mohawk` | guest palette | Shaved sides (bare scalp) and a spiked fin, peak about 15 cm. Guests: punk fans only. Punk band performers: the same mesh. Dye it through the palette's hair slots, not with another mesh. |
 | `lwf_beard_male_v1.glb` | 168 | `LWF_Beard` | guest palette | Jaw, chin and moustache with a mouth notch (an open slot at the mouth, thinner round it) for the drinking and eating poses. Combines with every male style, cap and glasses. |
 | `lwf_hat_cap_{male,female}_v1.glb` | 187 | `LWF_Hat_Cap` | accessory palette | Crown over the scalp, eased out over the remaining hair at the band so the trim edge is hidden. Front visor, top button. Works bald (a slightly loose band). Not with the mohawk. |
-| `lwf_hat_flower_crown_{male,female}_v1.glb` | 114 | `LWF_Hat_FlowerCrown` | accessory palette | One generous fit per sex over the **default hair**: a vine ring and six flowers. Default hair only (it would float on bald, and the mohawk is in the way). |
+| `lwf_hat_flower_crown_{male,female}_v1.glb` | 266 | `LWF_Hat_FlowerCrown` | accessory palette | One generous fit per sex over the **default hair**: a daisy chain. A 14 mm vine band carries seven 6.8 cm white daisies with sunflower centres and dark plum outlines. The daisies tilt up to face the game camera, so the crown reads from zoom 24 in and as a white fleck at 62. All parts are single-sided and wound outwards, linked without recalculating normals. Default hair only (it would float on bald, and the mohawk is in the way). Until 2026-10-07 it was six small pastel flowers (114 tris), which playtesters couldn't make out; see `Documents/Festival Tycoon concepts/flower-crown/`. |
 | `lwf_sunglasses_{male,female}_v1.glb` | 72 | `LWF_Sunglasses` | accessory palette | Fitted to the face. The arms run to the ear line, under long hair. Combines with everything. |
 
 ### Combination rules
@@ -79,11 +79,13 @@ palette material, copied from the bodies, on **slot 10** (hair base).
 | 0 | C9553A | cap crown | **yes**: the cap colour |
 | 1 | A8432F | cap visor and band rim | **yes**: about 15% darker than slot 0 |
 | 2 | C9553A | cap button | **yes**: same as slot 0 |
+| 3 | 3A1F2A | daisy outlines (dark plum) | no |
 | 4 | 1A1A1A | sunglasses frame | **yes**: the frame colour |
 | 5 | 2A3540 | sunglasses lenses | **yes**: the lens tint |
-| 8, 9, 10 | E58FA5, F2EBDD, E8C547 | flower petals (pink, white, yellow) | optional |
-| 11 | D9A33A | flower inner petals | no |
-| 12 | 5E8A4A | vine | no |
+| 8, 10, 11 | E58FA5, E8C547, D9A33A | unused since the daisy crown (old pastel crown) | no |
+| 9 | FBF7EE | daisy petals (white) | no |
+| 12 | 5E8A4A | vine band | no |
+| 15 | FFD21F | daisy centres (sunflower) | no |
 
 ## Checks (`verification/`)
 

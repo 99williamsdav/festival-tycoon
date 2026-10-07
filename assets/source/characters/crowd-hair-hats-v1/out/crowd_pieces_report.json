@@ -23,7 +23,7 @@
    "LWF_Hat_Cap"
   ],
   "triangles": 187,
-  "sha256": "99e9f16d4a8ddcb0d1089116b517b61ca649e58cb1a9ff920e32705e493f5097",
+  "sha256": "db4c63c1db99355285dc4010eb4572df292253fea49c8574783edd9c1a6e17ae",
   "note": "wear with lwf_hair_*_default_under_cap_v1 (or bald); never with the mohawk"
  },
  "lwf_hat_flower_crown_male_v1": {
@@ -31,9 +31,9 @@
   "nodes": [
    "LWF_Hat_FlowerCrown"
   ],
-  "triangles": 114,
-  "sha256": "42ddee2dfba038c27a88134c27d8629eb4f33ec20d1b4d6e4d913e5b38ee5519",
-  "note": "sits on the default hair (not bald, not the mohawk)"
+  "triangles": 266,
+  "sha256": "a352861019fea20d772f7a8112610af26e268fbc183535e88c8c824fe1ddc00f",
+  "note": "daisy chain; sits on the default hair (not bald, not the mohawk)"
  },
  "lwf_sunglasses_male_v1": {
   "file": "lwf_sunglasses_male_v1.glb",
@@ -41,7 +41,7 @@
    "LWF_Sunglasses"
   ],
   "triangles": 72,
-  "sha256": "4c4a1c8b8a2aad14b2614d7a8d1f5ba7db55e962b56d4399ca8bb21abe9593d6"
+  "sha256": "83df378aa528ba43796d44ea5112a0d5500580e50e2a29072826f7b9ed7ee4fa"
  },
  "lwf_hair_male_mohawk_v1": {
   "file": "lwf_hair_male_mohawk_v1.glb",
@@ -104,7 +104,7 @@
    "LWF_Hat_Cap"
   ],
   "triangles": 187,
-  "sha256": "9c1cf0b181c2f83eecc7f8987a2013dfa0a870ab880b1bc142b1bf98fe61b59b",
+  "sha256": "9c4c2aace949ba6473d7b2d97f9c34bd55f298392376b93362e8b22487ea8d05",
   "note": "wear with lwf_hair_*_default_under_cap_v1 (or bald); never with the mohawk"
  },
  "lwf_hat_flower_crown_female_v1": {
@@ -112,9 +112,9 @@
   "nodes": [
    "LWF_Hat_FlowerCrown"
   ],
-  "triangles": 114,
-  "sha256": "d0d9bf7e3ccd0ce8e3815c59a4e816f23c412ccad31af395c3b3dc4638886c18",
-  "note": "sits on the default hair (not bald, not the mohawk)"
+  "triangles": 266,
+  "sha256": "ee4f45d23a4a6b680069c3c233763b893ee60c9989de16eddaeae85c25959088",
+  "note": "daisy chain; sits on the default hair (not bald, not the mohawk)"
  },
  "lwf_sunglasses_female_v1": {
   "file": "lwf_sunglasses_female_v1.glb",
@@ -122,7 +122,7 @@
    "LWF_Sunglasses"
   ],
   "triangles": 72,
-  "sha256": "f753d5f673689f2c3d406ecde2dfd43ffa783281bffab0b894c2bb706de94b6d"
+  "sha256": "f74cd735dee2c3ed89ca0071a949503dfedfe478d664a55a6af0bcf4df77ab2c"
  },
  "lwf_hair_female_mohawk_v1": {
   "file": "lwf_hair_female_mohawk_v1.glb",
