@@ -259,9 +259,13 @@ public sealed partial class GameSession
             foreach (var id in toilet.Queue.Where(id => id != toilet.OwnerId).ToArray()) ReleaseToiletPerson(id, false);
             toilet = GetToilet(toilet.Id);
         }
-        foreach (var person in PeopleIn(PersonView.Consumption).Where(p => (p.ToiletId ?? "toilet.main") == toilet.Id && p.ToiletStage == ToiletVisitStage.Approaching).OrderBy(p => p.Id))
+        // The next free place goes to whoever is nearest the end of the line, so nobody is sent past the queue and back.
+        var approachers = NearestFirst(PeopleIn(PersonView.Consumption).Where(p => (p.ToiletId ?? "toilet.main") == toilet.Id && p.ToiletStage == ToiletVisitStage.Approaching)
+            .Select(p => p.Id), ToiletQueueCell(toilet, toilet.Queue.Length));
+        for (var rank = 0; rank < approachers.Length; rank++)
         {
-            var index = Math.Min(toilet.Queue.Length + PeopleIn(PersonView.Consumption).Count(p => (p.ToiletId ?? "toilet.main") == toilet.Id && p.ToiletStage == ToiletVisitStage.Approaching && p.Id < person.Id), ToiletRules.MaximumQueue - 1);
+            var person = _persons[approachers[rank]];
+            var index = Math.Min(toilet.Queue.Length + rank, ToiletRules.MaximumQueue - 1);
             var cell = ToiletQueueCell(toilet, index);
             if (_navigationAgents[new(person.Id)].Destination != cell)
                 ApplyAgentDestination(new(person.Id), new(cell, "toilet.approach"));
@@ -330,6 +334,18 @@ public sealed partial class GameSession
         }
         else if (active.ToiletStage == ToiletVisitStage.Leaving && activeNav.Action == AgentNavigationAction.Arrived && activeNav.IntentId == "toilet.exit")
             ReleaseToiletPerson(owner, running);
+    }
+
+    /// <summary>People heading for a queue, nearest its end first (ties by id): the order they're handed its free places.</summary>
+    private ulong[] NearestFirst(IEnumerable<ulong> ids, GridCell end)
+    {
+        var at = TraversalGrid.CellCentre(end);
+        return ids.OrderBy(id =>
+        {
+            var nav = _navigationAgents[new(id)];
+            long dx = nav.XMillimetres - at.XMillimetres, dz = nav.ZMillimetres - at.ZMillimetres;
+            return dx * dx + dz * dz;
+        }).ThenBy(id => id).ToArray();
     }
 
     private void InterruptToiletOwner(ulong id)

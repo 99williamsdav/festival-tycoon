@@ -92,6 +92,34 @@ public sealed class ToiletQueueGrowthTests
     }
 
     [TestMethod]
+    public void WhoeverIsNearestTheEndOfTheLineTakesTheNextPlace()
+    {
+        var s = WithoutFaults(Started());
+        s.AdvanceWithoutSnapshot(2_000);
+        var toilet = s.CaptureToilets().First(t => t.Queue.Length == 0 && t.OwnerId is null);
+        var door = TraversalGrid.CellCentre(GameSession.ToiletQueueCell(toilet, 0));
+        var nav = s.CaptureSnapshot().NavigationAgents.ToDictionary(a => a.Id.Value);
+        long Distance(ulong id) => Math.Abs((long)nav[id].XMillimetres - door.XMillimetres) + Math.Abs((long)nav[id].ZMillimetres - door.ZMillimetres);
+        var idle = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed)
+            .Select(p => p.AgentId).Where(id => s.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletStage == ToiletVisitStage.None).ToArray();
+        // A pair where the later arrival on the list stands far nearer the loo than the earlier one.
+        var (far, near) = (from a in idle from b in idle where a < b && Distance(a) > Distance(b) + 8_000 select (a, b)).First();
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var mutate = typeof(GameSession).GetMethod("MutatePerson", flags)!;
+        var destination = typeof(GameSession).GetMethod("ApplyAgentDestination", flags)!;
+        foreach (var id in new[] { far, near })
+        {
+            mutate.Invoke(s, [id, (Action<Person>)(p => { p.ToiletStage = ToiletVisitStage.Approaching; p.ToiletId = toilet.Id; p.ToiletChoice = ToiletVisitKind.Wee; })]);
+            destination.Invoke(s, [new EntityId(id), new SetAgentDestinationCommand(GameSession.ToiletQueueCell(toilet, 0), "toilet.approach"), false]);
+        }
+        s.AdvanceWithoutSnapshot(1);
+        var after = s.CaptureSnapshot().NavigationAgents.ToDictionary(a => a.Id.Value);
+        var grown = s.CaptureToilets().Single(t => t.Id == toilet.Id);
+        Assert.AreEqual(GameSession.ToiletQueueCell(grown, 0), after[near].Destination, "The one nearly there goes to the door...");
+        Assert.AreEqual(GameSession.ToiletQueueCell(grown, 1), after[far].Destination, "...not past the queue to its far end and back.");
+    }
+
+    [TestMethod]
     public void AToiletQueueGrowsFromItsDoorstepAsPeopleArriveAndSurvivesASave()
     {
         var s = Started();
