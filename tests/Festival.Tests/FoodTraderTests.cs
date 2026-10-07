@@ -90,7 +90,7 @@ public sealed class FoodTraderTests
     }
 
     [TestMethod]
-    public void SideBySideBetterOffGuestsLeanToPizzaThriftyOnesToChipsAndTheCrowdSplits()
+    public void SideBySideBetterOffGuestsLeanToPizzaThriftyOnesToChipsAndPizzaIsTheMorePopular()
     {
         int pizza = 0, chips = 0;
         for (var thrift = 0; thrift <= 100; thrift++)
@@ -100,7 +100,7 @@ public sealed class FoodTraderTests
         }
         Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 0) > GameSession.FoodWorth(ImmersionProduct.Chips, 0), "The well-off pay for good food.");
         Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 100) < GameSession.FoodWorth(ImmersionProduct.Chips, 100), "The thrifty buy cheap.");
-        Assert.IsTrue(Math.Abs(pizza - chips) <= 2, $"An even crowd splits evenly: {pizza} lean to pizza, {chips} to chips.");
+        Assert.IsTrue(pizza > chips && chips >= 20, $"Pizza's the more popular, but not with everyone: {pizza} lean to pizza, {chips} to chips.");
         Assert.IsTrue(GameSession.ImmersionPrice(ImmersionProduct.Pizza) > GameSession.ImmersionPrice(ImmersionProduct.Chips));
     }
 }

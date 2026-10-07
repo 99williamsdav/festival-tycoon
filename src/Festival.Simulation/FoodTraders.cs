@@ -16,7 +16,8 @@ namespace Festival.Simulation;
 /// Not shown to the player.</param>
 /// <param name="AppealPennies">How much more than plain chips the average guest would happily pay for it. Thriftier guests
 /// weigh the price more and lean to cheap food, freer spenders to good food; quoted at the crowd's mean thrift, so with
-/// appeal matching the price difference two vans side by side would split the crowd evenly.</param>
+/// appeal matching the price difference two vans side by side would split the crowd evenly. Pizza's is a little more than
+/// that: side by side, it would take about three guests in four.</param>
 public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionProduct Product, string Art, string Blurb, int PitchFeePennies, int ServicePermille,
     int PricePennies, int PortionCostPennies, int AppealPennies, int EnjoymentPercent = 100, int FillingPercent = 100)
 {
@@ -44,7 +45,7 @@ public static class FoodTraders
     public static readonly FoodTrader[] All =
     [
         new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", ImmersionProduct.Chips, "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 300, 40, 0),
-        new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 450, 60, 150,
+        new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 450, 60, 175,
             EnjoymentPercent: 140, FillingPercent: 115),
     ];
 
