@@ -69,6 +69,19 @@ public sealed class MedicalCuePlannerTests
     }
 
     [TestMethod]
+    public void NobodySaysTheyLoveThisSongWhenNoBandIsPlaying()
+    {
+        var baseline = Baseline();
+        var tradeoffId = baseline.Needs.Last(item => item.Profile == MedicalNeedProfile.Guest).AgentId;
+        var choices = baseline with { Needs = baseline.Needs.Select(item => item.AgentId == tradeoffId
+            ? item with { Thirst = 9_100, Reason = "Watching band: music 19000 vs water 10900 incl. travel/wait", LastDecisionTick = 80 } : item).ToArray() };
+        var quiet = new MedicalCuePlanner(); quiet.Reset(baseline, 0);
+        Assert.AreEqual(0, quiet.Observe(choices, 80, musicPlaying: false).Count(item => !item.Urgent), "Between sets, no band to stay for.");
+        var playing = new MedicalCuePlanner(); playing.Reset(baseline, 0);
+        Assert.AreEqual(1, playing.Observe(choices, 80, musicPlaying: true).Count(item => !item.Urgent));
+    }
+
+    [TestMethod]
     public void FiftyProtectedPeopleStayWithinRoutineBudgetDuringRepeatedObservation()
     {
         var baseline = Baseline();

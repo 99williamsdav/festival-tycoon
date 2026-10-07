@@ -23,10 +23,12 @@ public sealed class MedicalCuePlanner
     private long _lastObservedTick = -1;
     private bool _initialized;
 
-    private static RoutineKind RoutineFor(MedicalNeed need) => need.Intent switch
+    // Staying put for the band only makes sense to say while a band is actually playing.
+    private bool _musicPlaying = true;
+    private RoutineKind RoutineFor(MedicalNeed need) => need.Intent switch
     {
         MedicalIntent.SeekWater => RoutineKind.SeekWater,
-        MedicalIntent.WatchShow when need.Thirst >= 6_500 &&
+        MedicalIntent.WatchShow when _musicPlaying && need.Thirst >= 6_500 &&
             (need.Reason.StartsWith("Watching band:", StringComparison.Ordinal) ||
              need.Reason.StartsWith("Band appeal ", StringComparison.Ordinal)) => RoutineKind.Tradeoff,
         _ => RoutineKind.None
@@ -65,8 +67,9 @@ public sealed class MedicalCuePlanner
             }
     }
 
-    public IReadOnlyList<MedicalPersonCue> Observe(MedicalSnapshot medical, long tick)
+    public IReadOnlyList<MedicalPersonCue> Observe(MedicalSnapshot medical, long tick, bool musicPlaying = true)
     {
+        _musicPlaying = musicPlaying;
         if (!_initialized || tick < _lastObservedTick) Reset(medical, tick);
         var urgent = new List<MedicalPersonCue>();
         var candidates = new List<Pending>();

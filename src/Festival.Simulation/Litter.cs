@@ -215,14 +215,16 @@ public sealed partial class GameSession
         target is not null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Empty a bin by its id.") :
         BinEmptier(command.BinId, out var reason) is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, reason!) : null;
 
-    private void ApplyEmptyBin(EmptyBinCommand command)
+    private void ApplyEmptyBin(EmptyBinCommand command) => SendToEmptyBin(command.BinId, BinEmptier(command.BinId, out _)!.Value, "Steward sent to empty a bin");
+
+    private void SendToEmptyBin(string binId, (ulong Worker, GridCell Side) pick, string reason)
     {
-        var (id, side) = BinEmptier(command.BinId, out _)!.Value;
-        RecallWorker(id, "Steward sent to empty a bin");
+        var (id, side) = pick;
+        RecallWorker(id, reason);
         // Time enough to walk to any bin on the site, however slow the steward.
         var until = CurrentTick + OrderedDurationTicks;
         until += (LitterRules.SecondTicks - until % LitterRules.SecondTicks) % LitterRules.SecondTicks;
-        SetSweep(new(id, StaffDutyCell(id, ResponseRole.Steward), LitterRules.ManualRadiusCells, 1, until, true, command.BinId, true, side) { Ordered = true });
+        SetSweep(new(id, StaffDutyCell(id, ResponseRole.Steward), LitterRules.ManualRadiusCells, 1, until, true, binId, true, side) { Ordered = true });
         ApplyAgentDestination(new(id), new(side, "litter.empty-bin"));
     }
     private void BeginSweep(ulong id, bool manual)
@@ -361,6 +363,9 @@ public sealed partial class GameSession
             if (GroundNear(centre, LitterRules.LocalRadiusCells).Take(LitterRules.TriggerPieces).Count() >= LitterRules.TriggerPieces ||
                 CaptureBins().Any(b => b.CanEmpty && CellDistanceSquared(b.Cell, centre) <= LitterRules.LocalRadiusCells * LitterRules.LocalRadiusCells)) BeginSweep(id, false);
         }
+        // A full bin out of reach of every post still gets emptied: the nearest free steward walks over, as for "Empty now".
+        foreach (var bin in CaptureBins().Where(b => b.CanEmpty).OrderBy(b => b.Id, StringComparer.Ordinal))
+            if (BinEmptier(bin.Id, out _) is { } pick) SendToEmptyBin(bin.Id, pick, "Steward off to empty a full bin");
     }
     private void AdvanceLitter()
     {

@@ -165,7 +165,7 @@ public partial class Main
         var medical = _session.CaptureMedical();
         if (medical is null) return;
         foreach (var label in _medicalCueLabels.Values) label.Visible = false;
-        foreach (var cue in _medicalCuePlanner.Observe(medical, _session.CurrentTick))
+        foreach (var cue in _medicalCuePlanner.Observe(medical, _session.CurrentTick, _session.CaptureLivePerformance()?.Stage == LiveSetStage.Live))
         {
             if (!_medicalCueLabels.TryGetValue(cue.AgentId, out var label) ||
                 !_attendeeVisuals.TryGetValue(new EntityId(cue.AgentId), out var visual)) continue;
@@ -316,7 +316,6 @@ public partial class Main
             button.CustomMinimumSize = new Vector2(183, 30);
             _medicalActionInspector.AddChild(button); _medicalButtons.Add(action, button);
         }
-        BuildStaffInterventionControls(detail);
     }
 
     private void BuildWaterFlowInspector(VBoxContainer detail)
@@ -418,7 +417,6 @@ public partial class Main
             button.Disabled = issue is not null;
             button.TooltipText = issue ?? "Send nearest available suitable medic; physical arrival and treatment required.";
         }
-        RefreshStaffInterventionControls();
         RefreshImmersionVendorInspector();
     }
 
