@@ -19,9 +19,10 @@ public sealed partial class GameSession
         }
         var forward = RotateWaterOffset(new(0, 1), point.QuarterTurns);
         var reserved=WaterPoints().Where(other=>other.Id!=pointId).SelectMany(other=>LooseQueueGeometry.Corridor(CaptureWaterQueueCells(other.Id))).Concat(ImmersionQueueCorridor()).ToArray();
+        var allowed=QueueGrowthAllowed();
         while (cells.Count < wanted)
         {
-            var next=LooseQueueGeometry.Extend(pointId,cells,forward,_traversalGrid!,cell=>QueueGroundAllowed(cell,_preparation),reserved);
+            var next=LooseQueueGeometry.Extend(pointId,cells,forward,_traversalGrid!,allowed,reserved);
             if(next is null)break;
             cells.Add(next.Value);
         }

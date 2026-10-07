@@ -146,6 +146,7 @@ public sealed partial class GameSession
         for (var i = 0; i < listeners.Length; i++) _listenerIndex.TryAdd(listeners[i].AgentId, i);
         // Places held by listeners still on site, for the one-cell spacing rule below.
         var occupied = new Dictionary<GridCell, int>();
+        HashSet<GridCell>? queueGround = null;
         foreach (var item in listeners)
             if (item.Place is { } held && !departed.Contains(item.AgentId)) occupied[held] = occupied.GetValueOrDefault(held) + 1;
         // Four identity cohorts spread bounded decisions. Dwell and a material improvement
@@ -166,7 +167,7 @@ public sealed partial class GameSession
             var options = ListeningPlaces().Distinct().Where(cell => !reserved.Contains(cell) &&
                 (listener.Place is null || AudienceDistanceSquared(cell, startCell) <= 16) &&
                 _traversalGrid!.Get(cell).IsWalkable &&
-                !MedicalQueueExcludesListening(cell))
+                !NearQueue(cell, queueGround ??= AllQueueGround()))
                 .Where(cell => !PlaceCrowded(cell, listener, departed, occupied))
                 .Select(cell => (Cell: cell, Score: PlaceScore(listener, cell, startCell, listeners)))
                 .Where(item => listener.Place is null || item.Score + 6 <= currentScore)
@@ -327,7 +328,7 @@ public sealed partial class GameSession
 
     /// <summary>
     /// The audience's ground in front of the stage: every place a listener can stand, as one rectangle. Nothing is
-    /// built here and no queue grows into it, so the crowd always has somewhere to watch from.
+    /// built here, and a queue only grows into it where nobody's watching from, so the crowd always has somewhere to stand.
     /// </summary>
     public static bool InAudienceArea(GridCell cell) =>
         cell.X >= AudienceBounds.MinX && cell.X <= AudienceBounds.MaxX && cell.Z >= AudienceBounds.MinZ && cell.Z <= AudienceBounds.MaxZ;

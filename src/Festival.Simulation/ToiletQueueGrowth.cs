@@ -38,10 +38,11 @@ public sealed partial class GameSession
                     .Concat(_immersion is null ? [] : Vendors.SelectMany(vendor => LooseQueueGeometry.Corridor(VendorQueueCells(vendor))))
                     .Concat(ToiletQueueCorridor(toilet.Id, cubiclesOnly: true)).ToArray();
                 var outward = RotateWaterOffset(new(0, -1), toilet.QuarterTurns);
+                var allowed = QueueGrowthAllowed();
                 while (cells.Count < wanted)
                 {
                     var next = LooseQueueGeometry.Extend("toilet." + toilet.Id, cells, outward, _traversalGrid!,
-                        cell => QueueGroundAllowed(cell, _preparation), reserved);
+                        allowed, reserved);
                     if (next is null) break;
                     cells.Add(next.Value);
                 }

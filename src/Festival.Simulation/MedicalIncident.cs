@@ -164,9 +164,14 @@ public sealed partial class GameSession
     public static GridCell MedicalQueueSlot(int index) => WaterSlots[index];
     public static GridCell MedicalQueueApproach(int queuedCount, int overflowCount = 0) =>
         queuedCount < WaterSlots.Length ? WaterSlots[queuedCount] : WaterOverflowSlots[Math.Min(overflowCount, WaterOverflowSlots.Length - 1)];
-    private bool MedicalQueueExcludesListening(GridCell cell) => _medical is not null &&
-        WaterPoints().Any(point => CaptureWaterQueueCells(point.Id)
-            .Any(slot => Math.Abs(cell.X - slot.X) <= 2 && Math.Abs(cell.Z - slot.Z) <= 2));
+    /// <summary>Listeners keep two cells clear of every queue: water, bar, food and toilet.</summary>
+    private static bool NearQueue(GridCell cell, HashSet<GridCell> queueGround)
+    {
+        for (var dx = -2; dx <= 2; dx++)
+        for (var dz = -2; dz <= 2; dz++)
+            if (queueGround.Contains(new(cell.X + dx, cell.Z + dz))) return true;
+        return false;
+    }
 
 
     /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
