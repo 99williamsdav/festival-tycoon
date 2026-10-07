@@ -1,0 +1,62 @@
+{
+ "lwf_pizza_plate_v1": {
+  "file": "lwf_pizza_plate_v1.glb",
+  "triangles": 256,
+  "materials": [
+   "Paper plate",
+   "Paper plate rim",
+   "Plate fluting",
+   "Cheese",
+   "Cheese melt",
+   "Tomato",
+   "Pepperoni",
+   "Crust",
+   "Pizza base"
+  ],
+  "bounds_blender": [
+   [
+    -0.075,
+    -0.075,
+    -0.0388
+   ],
+   [
+    0.075,
+    0.098,
+    -0.0008
+   ]
+  ],
+  "sha256": "ac43c37abd26e261a725ccf046039ae6a5483a45550cdf0c6b796403ae318d49",
+  "origin": "grip centre; plate underside at Blender z -0.025 (Godot y -0.025)",
+  "plate_diameter_m": 0.15,
+  "droop": "slice tip over the +Y edge (Godot -Z), away from the palm under the -Y half",
+  "socket": "LWF_RightHand_Food / tray anchor"
+ },
+ "lwf_litter_pizza_plate_v1": {
+  "file": "lwf_litter_pizza_plate_v1.glb",
+  "triangles": 158,
+  "materials": [
+   "LWF_Litter_Shared_Opaque"
+  ],
+  "bounds_blender": [
+   [
+    -0.095,
+    -0.095,
+    0.0
+   ],
+   [
+    0.095,
+    0.095,
+    0.066
+   ]
+  ],
+  "sha256": "c0cd7f9e9386ff221b9cadd3537878cd6ff08be4401f2963b829e2843cf7b6e7",
+  "origin": "base centre resting on z 0, as lwf_litter_chips_tray_v1",
+  "plate_diameter_m": 0.19,
+  "palette": "lwf_litter_palette_v1: 9 paper, 3 rim, 6 grease, 5 crust, 2 tomato smear",
+  "held_grip_anchor_godot": [
+   0,
+   0.025,
+   0
+  ]
+ }
+}
