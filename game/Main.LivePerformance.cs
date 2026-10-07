@@ -265,7 +265,7 @@ public partial class Main
         foreach (var oldId in _performerInstruments.Keys.Where(id => !attachedIds.Contains(id)).ToArray())
         {
             _performerInstruments[oldId].QueueFree(); _performerInstruments.Remove(oldId);
-            if (_attendeeVisuals.TryGetValue(oldId, out var oldBody)) CrowdBodies.SetNeutralArmsVisible(oldBody, true);
+            if (_attendeeVisuals.TryGetValue(oldId, out var oldBody)) { CrowdBodies.SetNeutralArmsVisible(oldBody, true); Bodies.SetOnStage(oldBody, false); }
         }
         foreach (var performer in live.Performers)
         {
@@ -274,6 +274,7 @@ public partial class Main
             if (performer.InstrumentAttached && !_performerInstruments.ContainsKey(id))
             {
                 var name = roster.Single(item => item.AgentId == performer.AgentId).Name;
+                Bodies.SetOnStage(body, true);
                 var kit = BuildPerformerKit(performer.AgentId, PerformerPresentationRole(performer.AgentId, name),
                     body.GetMeta("RoleVariant").AsString());
                 var arms = !kit.HasMeta("NoArms");
@@ -292,6 +293,7 @@ public partial class Main
             {
                 kit.QueueFree();
                 CrowdBodies.SetNeutralArmsVisible(body, true);
+                Bodies.SetOnStage(body, false);
             }
             // Heading is assigned with every other protected person's rendered motion.
             // Instrument kits are children, so they follow that same body yaw.

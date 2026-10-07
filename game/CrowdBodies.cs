@@ -230,8 +230,10 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         // free. Held food/drink temporarily uses the approved body-specific
         // pose, then returns to the partitioned body before the playing kit.
         var modular = role is "guitarist" or "bassist" or "drummer" && state == "relaxed";
-        // Staff walk, carry and drink on their rigged body (garment included) once it exists, like guests.
-        var rigFile = UsesRig(state, product) ? RiggedRoleFile(role, variant) : null;
+        // Staff walk, carry and drink on their rigged body (garment included) once it exists, like guests. The band
+        // share the guests' rig off stage; with an instrument on they keep the partitioned body the kit's arms fit.
+        var onStage = root.HasMeta(OnStageMeta) && root.GetMeta(OnStageMeta).AsBool();
+        var rigFile = !UsesRig(state, product) || onStage ? null : role is "guitarist" or "bassist" or "drummer" ? RiggedFile(variant) : RiggedRoleFile(role, variant);
         var file = rigFile ?? (modular ? $"lwf_performer_{variant}_body_v2.glb" : GuestPoseCatalog.Get(variant, state, product).File);
         if (root.HasMeta("RolePoseFile") && root.GetMeta("RolePoseFile").AsString() == file) { root.SetMeta("RolePoseState", state); return; }
         // The head rides on a rigged body's head bone: take it back before that body goes.
@@ -254,6 +256,16 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         if (root.IsInsideTree()) SyncGuestHead(root);
         var id = new EntityId(root.GetMeta("RolePersonId").AsUInt64());
         if (_playing(id)) SetNeutralArmsVisible(body, false);
+    }
+
+    public const string OnStageMeta = "PerformerOnStage";
+
+    /// <summary>A band member takes up or puts down their instrument: swap between the rig and the body the kit fits.</summary>
+    public void SetOnStage(Node3D root, bool onStage)
+    {
+        if (root.HasMeta(OnStageMeta) && root.GetMeta(OnStageMeta).AsBool() == onStage) return;
+        root.SetMeta(OnStageMeta, onStage);
+        SetRoleBodyPose(root, onStage ? "relaxed" : root.GetMeta("RolePoseState").AsString(), null);
     }
 
     private void ApplyRolePropAnchor(Node3D root, Node3D prop, string product)
