@@ -61,4 +61,32 @@ public sealed class FoodTraderTests
         var food = options.Where(o => o.Kind == ActivityKind.Food && o.Then is null).ToArray();
         Assert.AreEqual(1, food.Length, "One way to stay in the queue: the pizza one.");
     }
+
+    [TestMethod]
+    public void TheVanKeepsItsOwnAccountOfSalesStockAndPitchFeeAndItSurvivesASave()
+    {
+        var s = BuildSession.Planned();
+        Assert.IsNull(s.FoodTraderAccount, "Nothing to account for before opening.");
+        foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        var trader = s.FoodTrader;
+        var opening = s.FoodTraderAccount!;
+        Assert.AreEqual(0, opening.PortionsSold);
+        Assert.AreEqual(trader.PitchFeePennies, opening.PitchFeePennies);
+        Assert.AreEqual((long)trader.Portions * trader.PortionCostPennies, opening.StockCostPennies, "Their stock is paid for, sold or not.");
+        Assert.IsTrue(opening.MadeALoss, "Out of pocket until they sell something.");
+
+        s.AdvanceWithoutSnapshot(20_000);
+        var food = s.CaptureImmersion()!.Purchases.Where(p => p.Product == trader.Product).ToArray();
+        var account = s.FoodTraderAccount!;
+        Assert.IsTrue(food.Length > 0);
+        Assert.AreEqual(food.Length, account.PortionsSold);
+        Assert.AreEqual(food.Sum(p => (long)p.PricePennies), account.TakingsPennies);
+        Assert.AreEqual(account.TakingsPennies - account.StockCostPennies - account.PitchFeePennies, account.ProfitPennies);
+        Assert.AreEqual(trader.Portions - food.Length, s.CaptureImmersion()!.FoodStock);
+
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        Assert.AreEqual(account, restored.Session!.FoodTraderAccount);
+    }
 }

@@ -12,8 +12,9 @@ namespace Festival.Simulation;
 /// <param name="Portions">How much they bring: once it's gone, they've sold out.</param>
 /// <param name="EnjoymentPercent">How satisfying a portion is, against chips. Not shown to the player.</param>
 /// <param name="FillingPercent">How much hunger a portion takes away, against chips.</param>
+/// <param name="PortionCostPennies">What each portion they bring costs them, sold or not. Not shown to the player.</param>
 public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionProduct Product, string Art, string Blurb, int PitchFeePennies, int ServicePermille, int Portions,
-    int EnjoymentPercent = 100, int FillingPercent = 100)
+    int PortionCostPennies, int EnjoymentPercent = 100, int FillingPercent = 100)
 {
     /// <summary>Slower to serve than the standard chip van: the one thing the picker warns about.</summary>
     public bool SlowService => ServicePermille > 1_000;
@@ -21,14 +22,26 @@ public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionPr
 
 public sealed record ChooseFoodTraderCommand(string TraderId) : SessionCommand;
 
+/// <summary>
+/// How a food trader's day is going, from their side of the counter: what they've sold and taken, what their stock and
+/// pitch cost them, and so what they've made. Kept for the trader's own mood later (a van that loses money, because of
+/// where it was put or a poor festival, isn't happy); never shown to the player.
+/// </summary>
+public sealed record FoodTraderAccount(string TraderId, int PortionsBrought, int PortionsSold, long TakingsPennies,
+    long StockCostPennies, long PitchFeePennies)
+{
+    public long ProfitPennies => TakingsPennies - StockCostPennies - PitchFeePennies;
+    public bool MadeALoss => ProfitPennies < 0;
+}
+
 public static class FoodTraders
 {
     // Tier 1: chips, quick and plain; or pizza, which pays more to pitch but is slow to serve. A queue that long has a
     // way of costing more than the extra pitch fee, though a well-run pizza van is a little more satisfying.
     public static readonly FoodTrader[] All =
     [
-        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", ImmersionProduct.Chips, "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 60),
-        new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 45,
+        new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", ImmersionProduct.Chips, "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 60, 40),
+        new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 45, 60,
             EnjoymentPercent: 140, FillingPercent: 115),
     ];
 
@@ -52,6 +65,18 @@ public sealed partial class GameSession
     /// <summary>What the festival itself took at its stalls: the bar's sales, not the food trader's.</summary>
     private static long FestivalTakings(ImmersionSnapshot? immersion) =>
         immersion?.Purchases.Where(purchase => !purchase.Product.IsFood()).Sum(purchase => (long)purchase.PricePennies) ?? 0;
+
+    /// <summary>The food van's trader's account for this festival, once they've pitched; null before opening or with no van.</summary>
+    public FoodTraderAccount? FoodTraderAccount =>
+        _immersion is null || _preparation is not { Plan: { Committed: true } } || !FoodVanPitched ? null : TraderAccount(FoodTrader, _immersion, ReceivedPitchFee(_preparation));
+
+    // Derived from the day's sales, so there's nothing extra to save and it can't drift from them.
+    private static FoodTraderAccount TraderAccount(FoodTrader trader, ImmersionSnapshot immersion, long pitchFee)
+    {
+        var sold = immersion.Purchases.Where(purchase => purchase.Product == trader.Product).ToArray();
+        return new(trader.Id, trader.Portions, sold.Length, sold.Sum(purchase => (long)purchase.PricePennies),
+            (long)trader.Portions * trader.PortionCostPennies, pitchFee);
+    }
 
     /// <summary>The pitch fee received for this attempt, once it opened.</summary>
     private static long ReceivedPitchFee(PreparationSnapshot p) =>
