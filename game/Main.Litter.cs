@@ -25,8 +25,11 @@ public partial class Main
     private Mesh? _waspMesh;
     private double _waspRenderTick = -1;
     public int VisibleLitterInstanceCount => _litterBatches.Values.Sum(b => b.Multimesh.InstanceCount);
-    private static string LitterAsset(ImmersionProduct product) => LitterAssetRoot + (product switch
-    { ImmersionProduct.Beer => "lwf_litter_beer_cup_v1.glb", ImmersionProduct.SoftDrink or ImmersionProduct.Water => "lwf_litter_soft_cup_v1.glb", _ => "lwf_litter_chips_tray_v1.glb" });
+    private string LitterAsset(ImmersionProduct product) => LitterAssetRoot + (product switch
+    { ImmersionProduct.Beer => "lwf_litter_beer_cup_v1.glb", ImmersionProduct.SoftDrink or ImmersionProduct.Water => "lwf_litter_soft_cup_v1.glb",
+        _ => PizzaDay && ResourceLoader.Exists(LitterAssetRoot + "lwf_litter_pizza_plate_v1.glb") ? "lwf_litter_pizza_plate_v1.glb" : "lwf_litter_chips_tray_v1.glb" });
+    // The food litter's mesh, so a change of trader between days swaps it.
+    private string? _foodLitterFile;
     private Mesh LoadLitterMesh(string path)
     {
         var root = InstantiateAsset(path);
@@ -97,6 +100,12 @@ public partial class Main
                     var angle = i * 2.399963f; var radius = .48f + .05f * Mathf.Sqrt(i);
                     visible.Add((extras[i], ImmersionPosition(bin.Cell) + new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius)));
                 }
+            }
+            if (_foodLitterFile != LitterAsset(ImmersionProduct.Chips))
+            {
+                _foodLitterFile = LitterAsset(ImmersionProduct.Chips);
+                if (_litterBatches.Remove(ImmersionProduct.Chips, out var stale)) stale.QueueFree();
+                _cleanupWasteMeshes.Remove(ImmersionProduct.Chips);
             }
             foreach (var product in Enum.GetValues<ImmersionProduct>())
             {

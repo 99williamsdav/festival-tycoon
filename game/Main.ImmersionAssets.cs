@@ -76,19 +76,24 @@ public partial class Main
     // scaling is used. Cup edge meets the outer palm; the tray rests atop it.
     // Performer idle arms share that adult pose, with shoulder origin
     // (.255,1.315,-.005) and lower arm end at local Y -.440 m.
+    /// <summary>What a guest carries from the food van: the day's trader decides, chips by default.</summary>
+    private string HeldFoodAsset() => PizzaDay && ResourceLoader.Exists(HeldPizza) ? HeldPizza : "res://assets/props/lwf_chips_tray_v1.glb";
+    private const string HeldPizza = "res://assets/props/lwf_pizza_plate_v1.glb";
+    private bool PizzaDay => _session.FoodTrader.Menu == "Pizza";
+
     private void SetImmersionHeldVisual(EntityId id, Node3D body, string? product,
         bool canHold, int intoxication, double delta, bool empty = false)
     {
         var path = product switch
         {
-            "chips" => "res://assets/props/lwf_chips_tray_v1.glb",
+            "chips" => HeldFoodAsset(),
             "soft" => "res://assets/props/lwf_soft_drink_cup_v1.glb",
             "beer" => "res://assets/props/lwf_beer_cup_v2.glb",
             null => null,
             _ => throw new ArgumentOutOfRangeException(nameof(product), product, "Unknown immersion product")
         };
         if (empty && product is not null) path = LitterAsset(product == "chips" ? ImmersionProduct.Chips : product == "beer" ? ImmersionProduct.Beer : ImmersionProduct.SoftDrink);
-        var identity = product + (empty ? ":empty" : "");
+        var identity = path + (empty ? ":empty" : "");
         // A kit may have become attached since the caller captured eligibility.
         canHold &= !_performerInstruments.ContainsKey(id);
         if (path is null || !canHold)
