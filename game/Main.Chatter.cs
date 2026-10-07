@@ -80,10 +80,13 @@ public partial class Main
         {
             // Speech is drawn at a fixed screen size: a label pixel is PixelSize × half the viewport's height on screen.
             var scale = label.PixelSize * screen / 2;
+            // Some remarks run to two lines: measure the longest line's width and every line's height.
+            var lines = label.Text.Split('\n');
             var lineHeight = label.FontSize * 1.25f * scale;
-            var half = label.Text.Length * label.FontSize * 0.5f * scale / 2;
+            var height = lineHeight * lines.Length;
+            var half = lines.Max(line => line.Length) * label.FontSize * 0.5f * scale / 2;
             var centre = camera.UnprojectPosition(label.GlobalPosition);
-            return (label, rect: new Rect2(centre.X - half, centre.Y - lineHeight / 2, half * 2, lineHeight), lineHeight);
+            return (label, rect: new Rect2(centre.X - half, centre.Y - height / 2, half * 2, height), lineHeight);
         }).OrderByDescending(item => item.rect.Position.Y).ToList();
         foreach (var (label, start, lineHeight) in items)
         {
