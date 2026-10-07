@@ -226,9 +226,8 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
     {
         var role = root.GetMeta("RoleKey").AsString();
         var variant = root.GetMeta("RoleVariant").AsString();
-        // The performer uses exact partitioned idle arms whenever hands are
-        // free. Held food/drink temporarily uses the approved body-specific
-        // pose, then returns to the partitioned body before the playing kit.
+        // On stage with an instrument, a performer uses the partitioned body whose idle arms the kit's playing arms
+        // replace; off stage they're on the guest rig like everyone else.
         var modular = role is "guitarist" or "bassist" or "drummer" && state == "relaxed";
         // Staff walk, carry and drink on their rigged body (garment included) once it exists, like guests. The band
         // share the guests' rig off stage; with an instrument on they keep the partitioned body the kit's arms fit.
