@@ -26,6 +26,7 @@ public static class ToiletRules
 }
 
 public enum ToiletVisitKind { Wee, Poo }
+/// <summary>InterruptedLeaving is retired: kept so the numbering holds, but no save may contain it.</summary>
 public enum ToiletVisitStage { None, Approaching, Queued, Entering, Using, Leaving, InterruptedLeaving }
 
 public sealed record ToiletFacility(string Id, GridCell Cell, int QuarterTurns, ulong[] Queue,
@@ -413,10 +414,10 @@ public sealed partial class GameSession
         // Geometry was already checked as one complete layout in ValidatePersistedPreparation.
         if (immersion.People.Any(person => person.ToiletNeed is < 0 or > ToiletRules.NeedMaximum ||
             person.LastToiletChoiceReviewTick is { } reviewed && (reviewed < 0 || reviewed > snapshot.CurrentTick) ||
-            person.ToiletVisits < 0 || !Enum.IsDefined(person.ToiletStage) ||
+            person.ToiletVisits < 0 || !Enum.IsDefined(person.ToiletStage) || person.ToiletStage == ToiletVisitStage.InterruptedLeaving ||
             (person.ToiletStage == ToiletVisitStage.None) != (person.ToiletChoice is null) ||
             person.ToiletChoice is { } choice && !Enum.IsDefined(choice) ||
-            person.ToiletStage is ToiletVisitStage.Queued or ToiletVisitStage.Entering or ToiletVisitStage.Using or ToiletVisitStage.Leaving or ToiletVisitStage.InterruptedLeaving &&
+            person.ToiletStage is ToiletVisitStage.Queued or ToiletVisitStage.Entering or ToiletVisitStage.Using or ToiletVisitStage.Leaving &&
             (person.ToiletId ?? "") == toilet.Id && !toilet.Queue.Contains(person.AgentId)))
             return "Toilet person need, choice or queue ownership invalid.";
         if (toilet.Queue.Any(id => !immersion.People.Any(person => person.AgentId == id &&
@@ -426,7 +427,7 @@ public sealed partial class GameSession
         {
             var person = immersion.People.Single(p => p.AgentId == current);
             var maxTicks = person.ToiletChoice == ToiletVisitKind.Poo ? ToiletRules.PooServiceTicks : ToiletRules.WeeServiceTicks;
-            if (person.ToiletStage is not (ToiletVisitStage.Entering or ToiletVisitStage.Using or ToiletVisitStage.Leaving or ToiletVisitStage.InterruptedLeaving) ||
+            if (person.ToiletStage is not (ToiletVisitStage.Entering or ToiletVisitStage.Using or ToiletVisitStage.Leaving) ||
                 toilet.DoorOpen != (person.ToiletStage != ToiletVisitStage.Using) ||
                 person.ToiletStage == ToiletVisitStage.Using && toilet.ServiceTicks is < 1 ||
                 toilet.ServiceTicks > maxTicks ||
