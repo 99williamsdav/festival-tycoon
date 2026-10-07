@@ -86,6 +86,8 @@ public partial class Main : Node, IHudHost
         ProcessCleanupEvidence();
         ProcessSurroundEvidence();
         AdvancePreparationPresentation(delta);
+        if (_pondEvidenceOutput is null) ProcessPond(delta);
+        ProcessPondEvidence();
         SeparateSpeech();
         FinalizeCleanupEvidenceFrame();
         RefreshContextPanelVisibility();
@@ -287,7 +289,7 @@ public partial class Main : Node, IHudHost
             var tree = AddAsset($"res://assets/environment/{asset}.glb", at);
             if (tree.FindChild("Crown", true, false) is Node3D crown) RegisterBreezeHedge(crown, .2f);
         }
-        AddAsset("res://assets/environment/lwf_farm_pond_v1.glb", new Vector3(24, 0, 24.5f));
+        BuildPondWorld();
     }
 
     private void AddFarmObject(FarmObjectReadModel item)
@@ -537,6 +539,7 @@ public partial class Main : Node, IHudHost
             }
             else if (args[i] == "--capture-litter" && i + 1 < args.Length) _litterEvidenceOutput = args[++i];
             else if (args[i] == "--capture-surround" && i + 1 < args.Length) _surroundEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-pond" && i + 1 < args.Length) _pondEvidenceOutput = args[++i];
             else if (args[i] == "--verify-genre-audio" && i + 1 < args.Length) _genreAudioVerificationOutput = args[++i];
             else if (args[i] == "--capture-steward-cleanup" && i + 1 < args.Length)
                 _litterEvidenceOutput = _cleanupEvidenceOutput = args[++i];

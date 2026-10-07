@@ -1,0 +1,125 @@
+POND POLISH — VERIFIED STATIC ASSET HANDOFF — 7 OCTOBER 2026
+
+DELIVERY / APPROVAL
+Ready for Builder integration, not a claim of completed gameplay integration.
+Approved concept: references/pond-polish-concept-sheet.png; crafted style:
+references/a-crafted-low-poly.png. Approval and authorization to build and then
+integrate were relayed in this Designer commission by Producer chat
+01a07a8e-690e-7792-a604-650d0091a797, under WORKING-AGREEMENTS.md.
+No additional aesthetic approval gate is required. The older concept HANDOFF's
+"await review" status predates this approval. No game repository files edited.
+
+FILES TO USE
+runtime/lwf_pond_polish_static_v1.glb — PondMargin, PondWater, BankDetails.
+runtime/lwf_duck_drake_v1.glb — one DuckDrake mesh, separate movable root.
+runtime/lwf_duck_brown_v1.glb — one DuckBrown mesh, separate movable root.
+textures/lwf_pond_polish_palette_v1.png — 192 x 8, 24 colour swatches, sRGB.
+Palette embedded in each GLB; nearest sampling, matte roughness 0.92.
+source/lwf_pond_polish_v1.blend — editable source, ducks in preview positions.
+build.py — deterministic procedural build using packaged reference snapshot.
+render_review.py — imports delivered GLBs and renders actual exported geometry.
+verify_assets.py + verification.json — measured boundary/clearance checks.
+godot-check/verify.gd + import-report.json + verify.log — native GLB decode check.
+manifest.json — geometry, positions, authoritative footprint/cells and hashes.
+
+RECOVERY AND PROVENANCE
+Recovered the existing incomplete package, not rebuilt blindly. Original partial
+files and initial failure renders remain in sibling pond-polish-asset-v1-partial-preserved.
+Fixed corrupt WaterTint data caused by an invalidated Blender UV-layer reference,
+reversed water normals, palette colour-space mismatch on GLB export, hovering
+wing plates and excessive bank striping. Wings now have inset faceted volume;
+short tilted necks, bills, eyes and colour blocks remain crafted low-poly.
+All geometry is procedural/project-original; no third-party meshes or textures.
+Concept image is generated artwork (original prompt in references/concept-PROMPTS.txt),
+not used as an image texture or falsely represented as a model render.
+references retains read-only snapshots of original pond GLB, source report and
+NavigationFixture.cs; these are reference evidence, never replacement code.
+Recovery patch scripts in recovery/ are historical, not build entry points.
+
+REPRODUCE (Blender 4.1.1 used)
+blender -b --python build.py
+blender -b --python verify_assets.py
+blender -b --python render_review.py
+godot --headless --path godot-check --script verify.gd
+Run from this package folder, or pass absolute script/package paths. No external
+Python modules, source art downloads or mutable game-repo dependencies required.
+
+GEOMETRY / MATERIAL COST
+Static: 957 triangles, three mesh surfaces, two material definitions.
+  PondMargin 216; PondWater 162; BankDetails 579.
+Drake: 620 triangles, one mesh surface, one palette material.
+Brown duck: 600 triangles, one mesh surface, one palette material.
+Total 2,177 triangles / five mesh surfaces before shadows or runtime effects.
+Shared palette appearance; separate GLBs may create separate material resources.
+Builder may share identical palette material instances. No rig or animation clips.
+Previous pond was 381 triangles; this is a deliberate geometry increase for
+crafted ducks and sparse detail, not a measured performance guarantee.
+
+COORDINATES / PIVOTS / AUTHORITATIVE WORLD CONTRACT
+One Blender/Godot unit = one metre. Static root at Godot (24,0,24.5), identity
+rotation and unit scale. Preserve existing placement, navigation, collision and
+all 289 blocked cells; don't regenerate navigation from the new silhouette.
+Margin retains the exact 18-point authoritative outer polygon, subdivided to
+54 collinear edge vertices. Bounds X -5.198..5.147, Z -3.881..4.230 relative to
+root. Water Y=0.075, approximately 8.559 x 6.430 m, separate PondWater mesh.
+Bank max Y=0.090, sparse details max Y=0.485; some stones embed below ground.
+WaterTint vertex colours, WaterPlanarUV, upward normals, opaque water material
+PondWater_RuntimeSurface. Replace only its material for runtime effects.
+
+Duck export origin is (0,0,0), body centre at waterline, +X forward, +Y up in
+Godot; model underside reaches -0.030 m. Set root Y=0.075 relative to pond root.
+Length incl. bill/tail 0.671 m, width 0.316 m, height 0.436 m; body about 0.49 m.
+No extra mesh offset or corrective scale. Godot positive yaw rotates +X toward
+-Z; for desired XZ velocity use yaw=atan2(-velocity.z, velocity.x).
+Bob/pitch around waterline origin. Suggested amplitude <=0.006 m and pitch <=2
+ degrees, leaving underside below water; final motion belongs to Builder.
+Initial local roots: drake (-1,0.075,0.6), brown (-0.2,0.075,1.3).
+Preview Blender rotations are illustrative, not mandatory animation data.
+
+SAFE SWIMMING CONTRACT
+verification.json contains a convex 32-point safe_duck_root_polygon_local_xz,
+approximating ellipse radii (1.55,1.45) centred at pond local origin. Both initial
+roots are inside it. Every straight segment between points in this polygon is
+contained; curved paths must also keep their complete trajectory inside it.
+The boundary was sampled at 101 points per edge: minimum shore distance 1.5037 m,
+minimum lily-pad-edge distance 0.5982 m. Allow 0.42 m swept radius for each duck;
+no second shore inset is needed for this conservative polygon. Keep two roots
+at least 0.85 m apart and avoid crossing trajectories. Don't use the entire
+visible water polygon as an unconstrained centre path. Lily locations/radii
+and full water boundary are in manifest.json if Builder needs more freedom.
+No duck or wake collision/navigation bodies are implied or requested.
+
+REPLACEMENT / NO DOUBLE DUCKS
+Replace the old pond visual, including its old baked Ducks node. Do not overlay
+this package on the old pond. New static GLB contains exactly PondMargin,
+PondWater and BankDetails, no ducks; instantiate exactly one independent drake
+and one brown duck. Keep existing navigation/collision data authoritative.
+
+WHAT WAS ACTUALLY CHECKED
+- Built successfully with Blender 4.1.1; source and all three GLBs saved.
+- Inspected actual GLB-import renders: pond/duck closeups and four orientations.
+- Isolated Godot 4.7.2 GLTFDocument decode/generate_scene passed for all exports.
+  Verified expected mesh counts, material existence, identity mesh positions and
+  scale, water normals/tints, triangle counts and no baked Ducks node.
+- Margin boundary and blocked-cell list match original authoritative snapshots.
+- Safe swim polygon, initial positions and clearance measured as above.
+- Review evidence: review/pond-close.png, ducks-close.png; game-scale-0..3.png
+  are South, West, North, East camera-equivalent views (72 horizontal / 58 high,
+  vertical size 18, 1280x720). default-zoom.png uses vertical size 62.
+  These are isolated Blender renders of runtime GLBs on a review ground plane,
+  NOT gameplay screenshots. Ground/lighting are not shipped with the asset.
+  Ducks are naturally tiny at default zoom; no scale inflation used for review.
+- Godot log has sandbox environment warnings about user log directory/root
+  certificate store; asset decode and assertions completed successfully.
+
+REMAINING BUILDER WORK / LIMITS
+Implement slow independent glide/turn/rest/bob and low-opacity wakes/ripples.
+Use one pause-controlled simulation-time input for transforms, shader phase,
+wakes and fades; freeze together and resume without a wall-clock jump.
+Current water is a restrained opaque colour/vertex-tint base. The concept's
+painterly reflection/highlight treatment is not fully reproduced by static
+geometry; runtime broad gentle drift/highlights remain a target. No reflection
+camera, SSR/refraction or expensive particle requirement is supplied.
+Actual in-game lighting, all four views in farm context, overlapping old visuals,
+pause/resume, trajectory clearance and native runtime performance must be checked
+after integration. No gameplay, feeding, needs, interactions or layout changes.

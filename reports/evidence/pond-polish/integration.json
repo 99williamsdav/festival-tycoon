@@ -1,0 +1,24 @@
+{
+  "selectedPackage": "pond-polish-asset-v1",
+  "date": "2026-10-07",
+  "sourceHashes": {
+    "source/lwf_pond_polish_v1.blend": "1029d634900983f468fb28620f5c4696dfc6c42c6b092d0b40495b6cd88ac61b",
+    "textures/lwf_pond_polish_palette_v1.png": "6971f59a92b58b2c75f45d052fdb84349bc3df6e9da6888a8dd599d41b2948d0",
+    "build.py": "31efc02dc37fc7c9eec95e4a8fd552c015898e5386d18d80dcfdc363a2c3b67d",
+    "runtime/lwf_duck_brown_v1.glb": "e0619b698a9f5b2d2144463fe26c465e2f4d11275db1d2737aa7152e0627c0a3",
+    "runtime/lwf_duck_drake_v1.glb": "11d0d5755dbb2740805981fdc7dab3559e2247171ef363a44dffacd13362aeef",
+    "runtime/lwf_pond_polish_static_v1.glb": "8ca0a754ed93b2c79006d2aab5fee84e01edd29c3d1608b696319b3c67ba4114"
+  },
+  "runtimeDirectory": "game/assets/environment/pond-polish-v1",
+  "placement": [
+    24,
+    0,
+    24.5
+  ],
+  "originalPondPreservedSha256": "80abe2e1599745234bcf01767b7b490be39fda504ab3d8f43fe7e9e4fd771a77",
+  "originalPondBlendSha256": "5d849b536dbf555f6fe13a0e67683aaa0b35835a11f4b87e8625c8cdf5ea00ad",
+  "blockedCells": 289,
+  "cosmeticClock": "Scene-local; paused/Failed/Finished/hidden/title-menu gated, no shader TIME",
+  "sourceGeometryUnchangedAtIntegration": true,
+  "presentationMaterialCorrections": "Bank/detail diffuse multiplier 0.55, ducks 0.8; converted vertex tint and broad water drift/highlight; no source palette edits"
+}

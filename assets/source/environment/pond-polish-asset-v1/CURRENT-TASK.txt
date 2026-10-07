@@ -1,0 +1,4 @@
+CURRENT TASK COMPLETE: approved pond polish static assets delivered and checked.
+Read HANDOFF.txt for exact deliverables, evidence and unresolved runtime integration.
+Only use current runtime/ GLBs, not sibling partial-preserved package.
+No game repository edits performed. Producer retrieves completion here.

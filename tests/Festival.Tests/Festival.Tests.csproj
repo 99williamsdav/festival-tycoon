@@ -6,6 +6,7 @@
     <TestingExtensionsProfile>None</TestingExtensionsProfile>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="..\..\game\PondMotion.cs" Link="Presentation\PondMotion.cs" />
     <ProjectReference Include="..\..\src\Festival.Simulation\Festival.Simulation.csproj" />
     <ProjectReference Include="..\..\src\Festival.ContentAdapter\Festival.ContentAdapter.csproj" />
     <ProjectReference Include="..\..\src\Festival.Persistence\Festival.Persistence.csproj" />

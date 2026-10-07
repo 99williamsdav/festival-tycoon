@@ -1,0 +1,31 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Info: Total files 1 | Changed 1 | Failed 0
+20:01:48 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+20:01:49 | INFO: Starting glTF 2.0 export
+20:01:49 | INFO: Extracting primitive: PondMargin_Mesh
+20:01:49 | INFO: Primitives created: 1
+20:01:49 | INFO: Extracting primitive: PondWater_Mesh
+20:01:49 | INFO: Primitives created: 1
+20:01:49 | WARNING: Mesh BankDetails_Mesh is not valid, and may be exported wrongly
+20:01:49 | INFO: Extracting primitive: BankDetails_Mesh
+20:01:49 | INFO: Primitives created: 1
+20:01:49 | INFO: Finished glTF 2.0 export in 0.03253364562988281 s
+
+20:01:49 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+20:01:49 | INFO: Starting glTF 2.0 export
+20:01:49 | INFO: Extracting primitive: DuckDrake_Mesh
+20:01:49 | INFO: Primitives created: 1
+20:01:49 | INFO: Finished glTF 2.0 export in 0.018980741500854492 s
+
+20:01:49 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+20:01:49 | INFO: Starting glTF 2.0 export
+20:01:49 | INFO: Extracting primitive: DuckBrown_Mesh
+20:01:49 | INFO: Primitives created: 1
+20:01:49 | INFO: Finished glTF 2.0 export in 0.013789892196655273 s
+
+Info: Saved "lwf_pond_polish_v1.blend"
+POND_BUILD_PASSED
+
+Blender quit

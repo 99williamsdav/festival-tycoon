@@ -1,0 +1,29 @@
+from pathlib import Path
+p=Path(__file__).resolve().parent/'build.py'
+s=p.read_text()
+s=s.replace("'8C876C','A29A7C','747859','929B69'","'99917B','A19880','899064','92996D'")
+s=s.replace("im.pixels=[channel", "im.colorspace_settings.name='Non-Color'\nim.pixels=[channel")
+# Blender layer additions invalidate previously held RNA layer references.
+s=s.replace("me.from_pydata(wv,[],wf)","me.from_pydata(wv,[],[tuple(reversed(f)) for f in wf]);me.update()")
+s=s.replace("domain='CORNER')\nfor face", "domain='CORNER');uv=me.uv_layers['WaterPlanarUV'];col=me.color_attributes['WaterTint']\nfor face")
+s=s.replace("wb.inputs['Roughness'].default_value=.32","wb.inputs['Roughness'].default_value=.65")
+a=s.index(' # Breast blending');b=s.index(' # Broad flattened',a)
+s=s[:a]+''' # Continuous tilted neck built from horizontal elliptical cross-sections.
+ neck=[]
+ for x,z,rx,ry in [(.12,.10,.09,.09),(.17,.18,.064,.065),(.18,.25,.044,.047),(.195,.315,.05,.051)]:
+  neck += [(x+rx*math.cos(math.tau*j/10),ry*math.sin(math.tau*j/10),z) for j in range(10)]
+ faces=[tuple(reversed(range(10))),tuple(30+j for j in range(10))]
+ for k in range(3):
+  for j in range(10):faces.append((k*10+j,k*10+(j+1)%10,(k+1)*10+(j+1)%10,(k+1)*10+j))
+ g.add(neck,faces,16 if drake else 18)
+ if drake:
+  vv=[(.184+.046*math.cos(math.tau*j/10),.049*math.sin(math.tau*j/10),z) for z in [.266,.283] for j in range(10)]
+  g.add(vv,[(j,(j+1)%10,10+(j+1)%10,10+j) for j in range(10)],23)
+ g.blob((.20,0,.328),(.077,.066,.078),12 if drake else 18,sub=2)
+''' + s[b:]
+a=s.index('  # Folded swept wing');b=s.index(' return g.obj()',a)
+s=s[:a]+'''  # Volumetric folded wing embedded in the body's side, no hovering plates.
+  g.blob((-.055,side*.103,.137),(.162,.055,.066),15 if drake else 18,sub=2,angle=side*.06)
+ g.blob((-.255,0,.14),(.085,.068,.033),22 if drake else 16,sub=1)
+''' +s[b:]
+p.write_text(s)

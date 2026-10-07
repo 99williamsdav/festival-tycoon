@@ -1,0 +1,79 @@
+FARM POND POLISH — CONCEPT ONLY — 2026-10-07
+
+Artwork: pond-polish-concept-sheet.png. Built-in image_gen, imagegen skill.
+Exact prompt and generation provenance in PROMPTS.txt. No Blender model,
+runtime animation, shader, game code or navigation data modified.
+Await visual review before implementation.
+
+CURRENT AUTHORITATIVE ANCHOR (inspected read-only)
+Game asset: C:/Projects/festival-tycoon/game/assets/environment/lwf_farm_pond_v1.glb
+Source: assets/source/environment/farm-beauty-v1/build_farm_beauty_assets.py
+Source .blend: same directory /out/lwf_farm_pond_v1.blend (not modified).
+Main.cs BuildFarmBeauty places asset at Godot (24,0,24.5); preserve transform.
+Current GLB has PondMargin, PondWater and Ducks mesh nodes with no node
+translation/scale overrides. Source reports 381 triangles, two materials.
+Bank envelope roughly 10 x 8 m; water about 8 x 6 m at local Y=0.075;
+bank Y=0.06. Existing 18-point boundary and 289 blocked grid cells recorded in
+references/current-asset-report.json and current-asset-readme.md; preserve them.
+NavigationFixture.cs already blocks pond terrain. Do not replace/recompute this
+with the concept silhouette or add collision/nav restrictions.
+Current source includes 70 reed stems, 7 lily pads and two ducks joined into
+one Ducks mesh. A drake and a brown duck are retained, not new wildlife counts.
+
+REFERENCE MATERIAL
+references/current-game-pond-context.png is actual farm-surround-a exported
+north-overview evidence, showing pond inside the far hedge corner. Main concept
+is not a screenshot. Approved crafted style reference also retained. Source,
+README and asset report snapshots are provenance, not implementation edits.
+
+STATIC POLISH DIRECTION
+- Preserve outer footprint; shape the visible waterline/bank WITHIN it. Avoid
+  adding inaccessible-looking water beyond existing blocked cells.
+- Replace uniform orange-brown ring with quiet grey-brown mud, sage grassy
+  transition and uneven narrow exposed bank. Nearly flush, not a raised bowl.
+- Sparse small rounded faceted stones in groups, not a continuous stone rim.
+- A few low reed clusters and sparse lily pads; simplify the current reed fence.
+  Concentrate planting at existing planted side. Keep arena-facing lip open.
+  Artwork reed height is illustrative: aim low, roughly 0.3–0.5 m for most tufts,
+  and check all four game cameras before accepting taller accents. No new trees.
+- Shared opaque matte palette for bank/rocks/plants/ducks; separate water
+  material as today. Reuse small stone/reed meshes. No microtexture requirement.
+- Duck silhouette: rounded faceted body, short neck/head, ochre bill, simple
+  tail and eye; green drake head / warm brown alternative, broad colour blocks.
+  Keep approximately current half-metre body scale. Closeup is magnified.
+
+INEXPENSIVE RUNTIME MOTION PROPOSAL (NOT IMPLEMENTED)
+- Split existing combined Ducks into two independent transform roots, with
+  shared base geometry and palette variants. A full skeleton is not needed
+  for slow translation/yaw and subtle whole-body bobbing.
+- Slow short asymmetric glide segments, eased turns, occasional stillness and
+  tiny vertical/pitch bob; different timing/phase for each duck. Avoid circular
+  conveyor motion, synchronized pairs or sharp turns. Confine paths to a safe
+  inset of existing water polygon and keep away from reeds/pads and each other.
+  This is cosmetic path playback, not feeding/needs or simulation AI.
+- Small low-opacity trailing wake marks following moving ducks; fade when
+  stopped. Optional occasional gentle ripple arc during bob, no splash particles.
+- One restrained water material: muted blue-green base, broad shallow colour
+  drift/highlight variation. Use cheap local highlight/normal modulation if
+  available; no planar reflection camera, SSR dependency, refraction or new
+  render pipeline. Concept reflections are stylized colour cues, not a promise
+  of mirrored buildings/trees. Avoid constant glitter or high-contrast ripples.
+- ALL cosmetic motion uses one explicitly pause-controlled game-time input:
+  duck transforms, bob, wakes, fades and shader phase freeze together on pause.
+  Do not assume a wall-clock shader time uniform stops with game simulation.
+  Resume continuously without elapsed-time jumps. Verify actual pause mechanism.
+
+REVIEW / LIMITS
+Sheet includes main three-quarter, gameplay-distance context, duck detail and
+glide/turn/bob studies with static/motion distinction. Its 'same footprint'
+wording expresses intent, not measured fidelity. The inset approximates actual
+placement and uses old-layout cues; source transforms/polygon take precedence.
+Foreground reeds/stone density and enlarged ripple marks should be restrained
+in production; studies exaggerate motion slightly to communicate it.
+No exact triangle/draw-call budget promised; retain economical small meshes and
+simple materials, profile native gameplay after implementation is authorized.
+Later checks: four orientations, small ducks readable without enlarging them,
+no arena sightline obstruction, no footprint change, path containment, no
+shoreline clipping, pause/resume of every effect and native performance.
+No pond mechanics, feeding, new collision, night-cycle features, relocation,
+farm rebuild or other asset work authorized by this concept.

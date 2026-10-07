@@ -1,0 +1,59 @@
+{
+  "passed": true,
+  "resolution": "(1920, 1080)",
+  "checks": [
+    {
+      "name": "game-pause",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "terminal-Failed",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "terminal-Finished",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "pond-hidden",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "start-menu",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "existing-pond-footprint",
+      "blockedCells": 289,
+      "unchanged": true,
+      "noNewPickingBodies": true
+    }
+  ],
+  "performance": [
+    {
+      "pondVisible": false,
+      "frames": 90,
+      "medianFrameMs": 2.1096,
+      "p95FrameMs": 16.0318,
+      "drawCalls": 324
+    },
+    {
+      "pondVisible": true,
+      "frames": 90,
+      "medianFrameMs": 1.9532,
+      "p95FrameMs": 16.6001,
+      "drawCalls": 336
+    }
+  ],
+  "caveat": "Scripted staged preparation fixture. Whole-app vsync-off wall-frame comparison of full pond hidden/visible, not isolated GPU cost or live-festival FPS certification; no manual playthrough."
+}

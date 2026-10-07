@@ -1,0 +1,6 @@
+Game/test builds succeeded with zero warnings/errors.
+Command: tests/Festival.Tests/bin/Debug/net8.0/Festival.Tests.exe --filter "FullyQualifiedName~PondPresentationTests|FullyQualifiedName~BuildLayoutTests|FullyQualifiedName~NavigationTests|FullyQualifiedName~HedgeBoundaryTests|FullyQualifiedName~FarmSceneTests" --timeout 180s --no-ansi --results-directory artifacts/pond-polish/tests
+29 passed, 0 failed, 0 skipped, duration 2s 851ms.
+Pond path check: 20 minutes at 0.1-second intervals; complete swept duck radius clear of bank/lilies, both curves inside supplied conservative safe polygon, ducks separated by more than radius*2 + 0.1 m, bounded gentle turns/speed and <=3 mm bob.
+Actual native/exported fixture: game-pause, Failed, Finished, hidden pond and title menu freeze clock/transforms/wake parameters/water phase together, with 0.02-second continuous resume. Cosmetic advance does not alter authoritative simulation hash. All 289 original pond cells remain unwalkable/unplaceable. Original transform, no new pick/collision bodies.
+Exported 1080p and 720p: 12 captures per run (four orientations, close/game32/full farm). 1080p motion clip: 180 actual export frames at 12 fps, 15 seconds of cosmetic time.

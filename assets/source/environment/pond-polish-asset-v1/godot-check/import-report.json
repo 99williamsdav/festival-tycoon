@@ -1,0 +1,49 @@
+{
+  "lwf_duck_brown_v1": [
+    {
+      "aabb": "[P: (-0.331026, -0.03, -0.157901), S: (0.671026, 0.436, 0.315802)]",
+      "name": "DuckBrown",
+      "position": "(0.0, 0.0, 0.0)",
+      "scale": "(1.0, 1.0, 1.0)",
+      "surfaces": 1,
+      "triangles": 600
+    }
+  ],
+  "lwf_duck_drake_v1": [
+    {
+      "aabb": "[P: (-0.331026, -0.03, -0.157901), S: (0.671026, 0.436, 0.315802)]",
+      "name": "DuckDrake",
+      "position": "(0.0, 0.0, 0.0)",
+      "scale": "(1.0, 1.0, 1.0)",
+      "surfaces": 1,
+      "triangles": 620
+    }
+  ],
+  "lwf_pond_polish_static_v1": [
+    {
+      "aabb": "[P: (-5.198, 0.018, -3.881), S: (10.345, 0.071814, 8.111)]",
+      "name": "PondMargin",
+      "position": "(0.0, 0.0, 0.0)",
+      "scale": "(1.0, 1.0, 1.0)",
+      "surfaces": 1,
+      "triangles": 216
+    },
+    {
+      "aabb": "[P: (-4.348416, 0.075, -3.030504), S: (8.558662, 0.00001, 6.430058)]",
+      "name": "PondWater",
+      "position": "(0.0, 0.0, 0.0)",
+      "scale": "(1.0, 1.0, 1.0)",
+      "surfaces": 1,
+      "triangles": 162,
+      "water_upward_normals_and_colors": true
+    },
+    {
+      "aabb": "[P: (-4.927077, -0.056492, -3.487726), S: (9.608944, 0.541741, 6.325458)]",
+      "name": "BankDetails",
+      "position": "(0.0, 0.0, 0.0)",
+      "scale": "(1.0, 1.0, 1.0)",
+      "surfaces": 1,
+      "triangles": 579
+    }
+  ]
+}
