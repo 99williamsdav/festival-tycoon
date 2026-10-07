@@ -209,6 +209,8 @@ public sealed partial class GameSession
         return null;
     }
 
+    private const int OrderedDurationTicks = LitterRules.ManualDurationTicks * 2;
+
     private CommandResult? ValidateEmptyBin(EntityId? target, EmptyBinCommand command) =>
         target is not null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Empty a bin by its id.") :
         BinEmptier(command.BinId, out var reason) is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, reason!) : null;
@@ -217,7 +219,8 @@ public sealed partial class GameSession
     {
         var (id, side) = BinEmptier(command.BinId, out _)!.Value;
         RecallWorker(id, "Steward sent to empty a bin");
-        var until = CurrentTick + LitterRules.ManualDurationTicks;
+        // Time enough to walk to any bin on the site, however slow the steward.
+        var until = CurrentTick + OrderedDurationTicks;
         until += (LitterRules.SecondTicks - until % LitterRules.SecondTicks) % LitterRules.SecondTicks;
         SetSweep(new(id, StaffDutyCell(id, ResponseRole.Steward), LitterRules.ManualRadiusCells, 1, until, true, command.BinId, true, side) { Ordered = true });
         ApplyAgentDestination(new(id), new(side, "litter.empty-bin"));
@@ -235,7 +238,7 @@ public sealed partial class GameSession
     }
     private void EndSweep(CleanupSweep job, bool returnToPost)
     {
-        SetSweep(job with { Remaining = 0, TargetId = null, Approach = null, ActionTick = -1, CooldownUntil = CurrentTick + LitterRules.CooldownTicks });
+        SetSweep(job with { Remaining = 0, TargetId = null, Approach = null, ActionTick = -1, CooldownUntil = CurrentTick + LitterRules.CooldownTicks, Ordered = false });
         if (returnToPost && !HigherPriorityOwns(job.WorkerId)) ReturnToListening(job.WorkerId);
     }
     private void InterruptCleanup(ulong id)
@@ -447,7 +450,8 @@ public sealed partial class GameSession
                 w.ActionTick >= 0 && !InCell(w.Carrier, w.Approach.Value) ||
                 litter.Sweeps.Any(j => j.Remaining > 0 && !j.TargetIsBin && j.TargetId == w.Id))) ||
             litter.Sweeps.Any(j => !ValidCell(j.Centre) || j.UntilTick < 0 || j.UntilTick % LitterRules.SecondTicks != 0 ||
-                j.UntilTick > s.CurrentTick + LitterRules.ManualDurationTicks + LitterRules.SecondTicks ||
+                j.UntilTick > s.CurrentTick + (j.Ordered ? OrderedDurationTicks : LitterRules.ManualDurationTicks) + LitterRules.SecondTicks ||
+                j.Ordered && (!j.Manual || !j.TargetIsBin || j.Remaining != 1 || j.TargetId is null) ||
                 j.CooldownUntil < 0 || j.CooldownUntil > s.CurrentTick + LitterRules.CooldownTicks ||
                 j.TargetId is null && j.ActionTick != -1 || j.Remaining > 0 && j.UntilTick < s.CurrentTick ||
                 j.Approach is { } c && (!ValidCell(c) || !RouteAt(j.WorkerId, c) || j.ActionTick >= 0 && !ArrivedAt(j.WorkerId, c) ||

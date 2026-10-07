@@ -22,6 +22,9 @@ public sealed class EmptyBinTests
         Assert.IsFalse(BuildSession.Send(s, new EmptyBinCommand(bin.Id)).IsAccepted, "Already on their way.");
         var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
+        Assert.IsTrue(restored.Session!.CaptureLitter()!.Sweeps.Single(j => j.TargetId == bin.Id).Ordered, "The order survives a save.");
+        // Carry on from the save, so the emptying itself is proven after a load.
+        s = restored.Session;
         // Watch for the moment the steward finishes: the bin is empty then (a busy crowd soon starts refilling it).
         var emptied = false;
         for (var guard = 0; guard < 3_000 && !emptied; guard++)

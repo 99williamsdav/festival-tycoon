@@ -19,6 +19,7 @@ public partial class Main
     private string _renderedLiftedWaste = "";
     private string? _selectedBinId;
     private Button? _binEmptyButton;
+    private (string?, long) _binEmptierKey;
     private Button? _binMoveButton, _cleanupButton;
     private Material? _sharedLitterMaterial;
     private Mesh? _waspMesh;
@@ -158,9 +159,14 @@ public partial class Main
         {
             // Bring the emptying forward: the nearest free steward goes now, whatever the bin's level.
             _binEmptyButton.Visible = _selectedBinId is not null && _session.PreparedStatus == PreparationStatus.Running;
-            var ready = _selectedBinId is { } chosen && _session.BinEmptier(chosen, out _) is not null;
-            _binEmptyButton.Disabled = !ready;
-            _binEmptyButton.TooltipText = ready ? "Send the nearest free steward to empty this bin now." : _selectedBinId is { } shown && _session.BinEmptier(shown, out var why) is null ? why : "";
+            // Finding the steward pathfinds, so it's worked out once a tick at most, not every frame.
+            if (_binEmptyButton.Visible && (_selectedBinId, _session.CurrentTick) != _binEmptierKey)
+            {
+                _binEmptierKey = (_selectedBinId, _session.CurrentTick);
+                var ready = _session.BinEmptier(_selectedBinId!, out var why) is not null;
+                _binEmptyButton.Disabled = !ready;
+                _binEmptyButton.TooltipText = ready ? "Send the nearest free steward to empty this bin now." : why;
+            }
         }
         if (_selectedBinId is not { } id || _session.CaptureBins().SingleOrDefault(b => b.Id == id) is not { } bin || !_binViews.TryGetValue(id, out var view)) return;
         RefreshContextPanelVisibility();
