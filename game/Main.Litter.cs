@@ -18,6 +18,7 @@ public partial class Main
     private string _renderedBinLayout = "";
     private string _renderedLiftedWaste = "";
     private string? _selectedBinId;
+    private Button? _binEmptyButton;
     private Button? _binMoveButton, _cleanupButton;
     private Material? _sharedLitterMaterial;
     private Mesh? _waspMesh;
@@ -130,7 +131,14 @@ public partial class Main
     private void BuildLitterInspector(VBoxContainer parent)
     {
         _binMoveButton = ButtonText("Move bin", () => { if (_selectedBinId is { } id) BeginBuildPlacement(BuildServiceKind.Bin, id); });
-        parent.AddChild(_binMoveButton); _binMoveButton.Visible = false;
+        _binEmptyButton = ButtonText("Empty now", () =>
+        {
+            if (_selectedBinId is not { } id) return;
+            _preparationMessage = _host.Execute(new EmptyBinCommand(id), out var error) ? "A steward is on their way to empty the bin." : error!;
+            RefreshPreparationHud(); RefreshBinInspector();
+        });
+        _binEmptyButton.Visible = false;
+        parent.AddChild(_binMoveButton); _binMoveButton.Visible = false; parent.AddChild(_binEmptyButton);
         _cleanupButton = ButtonText("Clean up", () =>
         {
             if (_selectedAttendeeId is { } id)
@@ -146,6 +154,14 @@ public partial class Main
     private void RefreshBinInspector()
     {
         if (_binMoveButton is not null) _binMoveButton.Visible = _selectedBinId is not null && _session.PreparedStatus == PreparationStatus.Preparing;
+        if (_binEmptyButton is not null)
+        {
+            // Bring the emptying forward: the nearest free steward goes now, whatever the bin's level.
+            _binEmptyButton.Visible = _selectedBinId is not null && _session.PreparedStatus == PreparationStatus.Running;
+            var ready = _selectedBinId is { } chosen && _session.BinEmptier(chosen, out _) is not null;
+            _binEmptyButton.Disabled = !ready;
+            _binEmptyButton.TooltipText = ready ? "Send the nearest free steward to empty this bin now." : _selectedBinId is { } shown && _session.BinEmptier(shown, out var why) is null ? why : "";
+        }
         if (_selectedBinId is not { } id || _session.CaptureBins().SingleOrDefault(b => b.Id == id) is not { } bin || !_binViews.TryGetValue(id, out var view)) return;
         RefreshContextPanelVisibility();
         _inspectorTitle.Text = "Litter bin";

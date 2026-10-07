@@ -39,6 +39,9 @@ public partial class Main
     private void RefreshContextPanelVisibility()
     {
         if (_contextPanel is null) return;
+        // The generator's power switches belong to the generator alone: selecting anything else hides them.
+        RefreshPowerSwitches();
+        if (_selectedBinId is null && _binEmptyButton is not null) _binEmptyButton.Visible = false;
         if (_selectedAttendeeId is null && _inspectorTraits is not null) _inspectorTraits.Visible = false;
         var farm = _selected is { } item && _visualRegistry.TryGetValue(item.StableId, out var farmVisual) && ContextVisualAvailable(farmVisual);
         var person = _selectedAttendeeId is { } id && _attendeeVisuals.TryGetValue(id, out var personVisual) && ContextVisualAvailable(personVisual);

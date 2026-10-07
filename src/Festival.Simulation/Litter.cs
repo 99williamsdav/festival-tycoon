@@ -15,7 +15,14 @@ public sealed record WastePiece(string Id, ulong ProducerId, ImmersionProduct Pr
 }
 public sealed record CleanupSweep(ulong WorkerId, GridCell Centre, int RadiusCells, int Remaining,
     long UntilTick, bool Manual, string? TargetId = null, bool TargetIsBin = false,
-    GridCell? Approach = null, long ActionTick = -1, long CooldownUntil = 0);
+    GridCell? Approach = null, long ActionTick = -1, long CooldownUntil = 0)
+{
+    /// <summary>Sent to empty one particular bin now, however full and however far from their post.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool Ordered { get; init; }
+}
+/// <summary>Sends the nearest free steward to empty a bin now, rather than waiting for it to reach 90%.</summary>
+public sealed record EmptyBinCommand(string BinId) : SessionCommand;
 public sealed record LitterSnapshot(int Version, WastePiece[] Pieces, CleanupSweep[] Sweeps);
 internal readonly record struct PersistedImmersionPurchaseLookup(ulong AgentId, ImmersionProduct Product, long Tick);
 public sealed record CleanUpCommand(ulong WorkerId) : SessionCommand;
@@ -183,6 +190,38 @@ public sealed partial class GameSession
         StaffUnavailableReason(command.WorkerId) is { } || WasteOwnsNavigation(command.WorkerId)
         ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Choose an available on-duty steward for cleanup.") : null;
     private void ApplyCleanUp(CleanUpCommand command) => BeginSweep(command.WorkerId, true);
+
+    /// <summary>The steward who'd empty this bin now, and the side they'd stand at; null with the reason when nobody can.</summary>
+    public (ulong Worker, GridCell Side)? BinEmptier(string binId, out string? reason)
+    {
+        reason = null;
+        if (_preparation?.Status != PreparationStatus.Running || _litter is null) { reason = "Bins are emptied during the festival."; return null; }
+        if (CaptureBins().FirstOrDefault(b => b.Id == binId) is not { } bin) { reason = "No such bin."; return null; }
+        if (bin.Pieces == 0) { reason = "It's already empty."; return null; }
+        if (_litter.Sweeps.Any(s => s.Remaining > 0 && s.TargetIsBin && s.TargetId == binId)) { reason = "A steward is already on their way to it."; return null; }
+        foreach (var worker in GetStewardResponses().OrderBy(s => CellDistanceSquared(PersonCell(s.WorkerId), bin.Cell)).ThenBy(s => s.WorkerId))
+        {
+            var id = worker.WorkerId;
+            if (StaffUnavailableReason(id) is not null || CleanupOwnsNavigation(id) || WasteOwnsNavigation(id) || LitterUrgent(id)) continue;
+            if (ReachableBinSide(id, bin.Cell) is { } side) return (id, side);
+        }
+        reason = "No steward is free to go.";
+        return null;
+    }
+
+    private CommandResult? ValidateEmptyBin(EntityId? target, EmptyBinCommand command) =>
+        target is not null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Empty a bin by its id.") :
+        BinEmptier(command.BinId, out var reason) is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, reason!) : null;
+
+    private void ApplyEmptyBin(EmptyBinCommand command)
+    {
+        var (id, side) = BinEmptier(command.BinId, out _)!.Value;
+        RecallWorker(id, "Steward sent to empty a bin");
+        var until = CurrentTick + LitterRules.ManualDurationTicks;
+        until += (LitterRules.SecondTicks - until % LitterRules.SecondTicks) % LitterRules.SecondTicks;
+        SetSweep(new(id, StaffDutyCell(id, ResponseRole.Steward), LitterRules.ManualRadiusCells, 1, until, true, command.BinId, true, side) { Ordered = true });
+        ApplyAgentDestination(new(id), new(side, "litter.empty-bin"));
+    }
     private void BeginSweep(ulong id, bool manual)
     {
         RecallWorker(id, "Steward starting a bounded cleanup sweep");
@@ -273,8 +312,9 @@ public sealed partial class GameSession
                 if (CurrentTick - job.ActionTick < (job.TargetIsBin ? LitterRules.EmptyTicks : LitterRules.DisposalTicks)) continue;
                 if (job.TargetIsBin)
                 {
-                    // Recheck the user's 90% threshold at the actual bin, even for manual cleanup.
-                    if (CaptureBins().Single(b => b.Id == job.TargetId).CanEmpty)
+                    // Recheck the user's 90% threshold at the actual bin, even for manual cleanup; a bin ordered
+                    // emptied is emptied whatever is in it.
+                    if (job.Ordered || CaptureBins().Single(b => b.Id == job.TargetId).CanEmpty)
                     {
                         _litter = _litter with { Pieces = _litter.Pieces.Select(w => w.Location == WasteLocation.Bin && w.BinId == job.TargetId ?
                             w with { Location = WasteLocation.Removed, BinId = null } : w).ToArray() };
@@ -411,7 +451,8 @@ public sealed partial class GameSession
                 j.CooldownUntil < 0 || j.CooldownUntil > s.CurrentTick + LitterRules.CooldownTicks ||
                 j.TargetId is null && j.ActionTick != -1 || j.Remaining > 0 && j.UntilTick < s.CurrentTick ||
                 j.Approach is { } c && (!ValidCell(c) || !RouteAt(j.WorkerId, c) || j.ActionTick >= 0 && !ArrivedAt(j.WorkerId, c) ||
-                    CellDistanceSquared(j.Centre, j.TargetIsBin ? bins[j.TargetId!].Cell : c) > (long)j.RadiusCells * j.RadiusCells ||
+                    !j.Ordered && CellDistanceSquared(j.Centre, j.TargetIsBin ? bins[j.TargetId!].Cell : c) > (long)j.RadiusCells * j.RadiusCells ||
+                    j.Ordered && (!j.Manual || !j.TargetIsBin) ||
                     j.TargetIsBin && !BinSide(c, j.TargetId!) || !j.TargetIsBin && c != TraversalGrid.WorldToCell(byId[j.TargetId!].XMillimetres, byId[j.TargetId!].ZMillimetres))))
             return "Litter physical route or action timing invalid.";
         return null;

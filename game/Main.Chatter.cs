@@ -431,7 +431,8 @@ public partial class Main
         _ => "drummer",
     };
 
-    private string FestivalName() => _session.CaptureCampaignPlanningSnapshot()?.FestivalName ?? "everyone";
+    // What the band calls the crowd: the festival's name as the top bar and box office give it.
+    private static string FestivalName() => "Lower Wittering";
 
     private string GenreCheer(int genre) => genre switch
     {

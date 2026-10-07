@@ -28,8 +28,8 @@ public partial class Main
         _gateSignSync = .5;
         // Preparation knows the tier before the gates first open; the lifecycle only exists from then.
         var tier = Math.Clamp(_session.CapturePreparation()?.Tier ?? _session.CaptureLifecycleSnapshot()?.TierOrdinal ?? 1, 1, 3);
-        var named = _session.CaptureCampaignPlanningSnapshot()?.FestivalName;
-        var name = string.IsNullOrWhiteSpace(named) ? "Lower Wittering Festival" : named.Trim();
+        // One name everywhere: the gate, the top bar, the box office and the band.
+        const string name = "Lower Wittering Festival";
         if (_gateSignShown == (tier, name)) return;
         _gateSignShown = (tier, name);
         _gateSign?.QueueFree();
