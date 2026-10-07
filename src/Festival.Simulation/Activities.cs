@@ -15,16 +15,20 @@ public sealed partial class GameSession
     public const int OnStageDutyPerSecond = 50_000;     // A performer is needed on stage for their own set.
     public const int PerformerCallLeadTicks = 1_600;    // Stage call before a slot opens.
     public const int PurchaseValueScale = 13;
-    // How much a guest of middling thrift weighs each penny of a price (price × (2 + reluctance / 25)): appeal is quoted
-    // at that guest's rate, so it balances a price difference exactly for them, and less or more for thriftier or richer.
-    internal const int AverageThrift = 4;
+    /// <summary>How heavily a guest weighs each penny of a price: 2 for the freest spenders up to 6 for the thriftiest.</summary>
+    internal static long ThriftWeight(int priceReluctance) => 2L + priceReluctance / 25;
+    // Reluctance is spread evenly over 0..100, so the crowd's mean thrift weight is 3.5 (2, 3, 4 and 5 a quarter each). A
+    // food's appeal is quoted at that mean, as halves (7/2): appeal balances a price difference for the average guest,
+    // the freer half lean to the dearer, better food and the thriftier half to the cheaper, so two vans share the crowd.
+    private const long MeanThriftWeightHalves = 7;
+    internal static long AppealValue(ImmersionProduct product) => FoodTraders.Selling(product).AppealPennies * MeanThriftWeightHalves * PurchaseValueScale / 2;
 
     /// <summary>
     /// What a portion is worth to a guest of this thrift, over what it costs them, as the activity chooser weighs it: its
     /// appeal against its price. Of two vans side by side, a guest leans to the one worth more.
     /// </summary>
     public static long FoodWorth(ImmersionProduct product, int priceReluctance) =>
-        ((long)FoodTraders.Selling(product).AppealPennies * AverageThrift - ImmersionPrice(product) * (2L + priceReluctance / 25)) * PurchaseValueScale;
+        AppealValue(product) - ImmersionPrice(product) * ThriftWeight(priceReluctance) * PurchaseValueScale;
     // Music's worth per second, as a share of an act's appeal, against need discomfort.
     public const long MusicValuePermille = 800;
     // How much better another tap or toilet of the same kind must score before a person swaps lines.
@@ -280,13 +284,13 @@ public sealed partial class GameSession
             var underWay = !fresh && current == kind;
             if (!underWay && !ActivityPurchaseEligible(person, product)) continue;
             var vendorId = ImmersionVendorFor(product);
-            var price = ImmersionPriceFor(id, product) * (2L + person.PriceReluctance / 25) * PurchaseValueScale;
+            var price = ImmersionPriceFor(id, product) * ThriftWeight(person.PriceReluctance) * PurchaseValueScale;
             var enjoyment = product switch
             {
                 ImmersionProduct.Beer => (3_000L + (StaffHas(id, StaffTrait.SneakyAlcoholic) ? AlcoholicBeerTaste : BeerTasteOf(person)) * 45) * PurchaseValueScale,
                 ImmersionProduct.SoftDrink => SoftTasteOf(person) * 35L * PurchaseValueScale,
                 // Good food is worth paying for: weighed against its price at the same exchange rate.
-                _ when product.IsFood() => FoodTraders.Selling(product).AppealPennies * AverageThrift * PurchaseValueScale,
+                _ when product.IsFood() => AppealValue(product),
                 _ => 0L
             } + (StaffHas(id, StaffTrait.Slacker) && product != ImmersionProduct.Water ? SlackerTreatValue : 0);
             foreach (var vendor in Vendors.Where(vendor => vendor.Id == vendorId && (underWay || VendorHasRoom(vendor))))

@@ -100,7 +100,7 @@ public sealed class FoodTraderTests
         }
         Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 0) > GameSession.FoodWorth(ImmersionProduct.Chips, 0), "The well-off pay for good food.");
         Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 100) < GameSession.FoodWorth(ImmersionProduct.Chips, 100), "The thrifty buy cheap.");
-        Assert.IsTrue(Math.Abs(pizza - chips) <= 30, $"A middling crowd splits: {pizza} lean to pizza, {chips} to chips.");
+        Assert.IsTrue(Math.Abs(pizza - chips) <= 2, $"An even crowd splits evenly: {pizza} lean to pizza, {chips} to chips.");
         Assert.IsTrue(GameSession.ImmersionPrice(ImmersionProduct.Pizza) > GameSession.ImmersionPrice(ImmersionProduct.Chips));
     }
 }

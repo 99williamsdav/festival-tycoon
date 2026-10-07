@@ -14,9 +14,9 @@ namespace Festival.Simulation;
 /// <param name="PricePennies">What a portion costs a guest.</param>
 /// <param name="PortionCostPennies">What a portion they sell costs them to make. They bring what they need, so nothing's wasted.
 /// Not shown to the player.</param>
-/// <param name="AppealPennies">How much more than plain chips a guest would happily pay for it, at average thrift. Thrifty
-/// guests weigh the price more and lean to cheap food, better-off guests to good food; at average thrift a trader's appeal
-/// and price balance out against chips', so two vans side by side would share the crowd.</param>
+/// <param name="AppealPennies">How much more than plain chips the average guest would happily pay for it. Thriftier guests
+/// weigh the price more and lean to cheap food, freer spenders to good food; quoted at the crowd's mean thrift, so with
+/// appeal matching the price difference two vans side by side would split the crowd evenly.</param>
 public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionProduct Product, string Art, string Blurb, int PitchFeePennies, int ServicePermille,
     int PricePennies, int PortionCostPennies, int AppealPennies, int EnjoymentPercent = 100, int FillingPercent = 100)
 {
