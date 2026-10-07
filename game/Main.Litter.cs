@@ -136,7 +136,7 @@ public partial class Main
         {
             if (_selectedBinId is not { } id) return;
             _preparationMessage = _host.Execute(new EmptyBinCommand(id), out var error) ? "A steward is on their way to empty the bin." : error!;
-            RefreshPreparationHud(); RefreshBinInspector();
+            _binEmptierKey = default; RefreshPreparationHud(); RefreshBinInspector();
         });
         _binEmptyButton.Visible = false;
         parent.AddChild(_binMoveButton); _binMoveButton.Visible = false; parent.AddChild(_binEmptyButton);

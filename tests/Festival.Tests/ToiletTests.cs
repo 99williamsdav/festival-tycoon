@@ -292,4 +292,27 @@ public sealed class ToiletTests
         Assert.AreEqual(0, session.CaptureToilet()!.UsedMillilitres);
     }
 
+    [TestMethod]
+    public void InterruptedVisitorWaitingJustOutsideDoesNotKeepTheToiletShut()
+    {
+        var session = Open();
+        var id = session.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
+        var state = session.CaptureImmersion()!;
+        var toilet = session.CaptureToilet()!;
+        BuildSession.SetToilet(session, toilet with { Queue = [id], OwnerId = id, DoorOpen = true });
+        SetImmersion(session, state with
+        {
+            People = state.People.Select(p => p.AgentId == id ? p with
+            { ToiletStage = ToiletVisitStage.Entering, ToiletChoice = ToiletVisitKind.Wee } : p).ToArray()
+        });
+        // Called away on the doorstep, they stop just beside it (say, at the end of the water queue). They're out of the
+        // cubicle, so it's free again, though they're well inside the old 1.6 m clearance.
+        Position(session, id, new GridCell(toilet.Cell.X + 1, toilet.Cell.Z + 1), "drink.queue");
+        Invoke(session, "AdvanceToilet");
+        Assert.AreEqual(id, session.CaptureToilet()!.InterruptedOccupantId);
+        Invoke(session, "AdvanceToilet");
+        Assert.IsNull(session.CaptureToilet()!.InterruptedOccupantId);
+        Assert.IsFalse(session.CaptureToilet()!.DoorOpen);
+    }
+
 }

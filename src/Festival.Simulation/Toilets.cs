@@ -218,12 +218,12 @@ public sealed partial class GameSession
         var prep = _preparation!;
         if (toilet.InterruptedOccupantId is { } interrupted)
         {
-            var nav = _navigationAgents[new(interrupted)];
-            var centre = TraversalGrid.CellCentre(toilet.Cell);
-            var dx = (long)nav.XMillimetres - centre.XMillimetres;
-            var dz = (long)nav.ZMillimetres - centre.ZMillimetres;
+            // Shut only while they're still in the cubicle or its doorway; anyone waiting outside, even at the head
+            // of the queue, mustn't hold it shut.
+            var door = RotateWaterOffset(new(0, -1), toilet.QuarterTurns);
+            var at = PersonCell(interrupted);
             if (_persons[interrupted].Departed ||
-                dx * dx + dz * dz > 2_500_000)
+                at != toilet.Cell && at != new GridCell(toilet.Cell.X + door.X, toilet.Cell.Z + door.Z))
             {
                 SetToilet(toilet with { InterruptedOccupantId = null, DoorOpen = false });
                 toilet = GetToilet(toilet.Id);
