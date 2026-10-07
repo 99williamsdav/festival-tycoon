@@ -264,6 +264,8 @@ public sealed partial class GameSession
         if (after is { } previous && IsPurchase(previous)) return stops;
         foreach (var product in Enum.GetValues<ImmersionProduct>())
         {
+            // The van sells only its trader's food; another food would be a phantom option even for someone already queuing.
+            if (product.IsFood() && product != FoodTrader.Product) continue;
             var kind = product switch { ImmersionProduct.Chips or ImmersionProduct.Pizza => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater, _ => ActivityKind.Beer };
             var underWay = !fresh && current == kind;
             if (!underWay && !ActivityPurchaseEligible(person, product)) continue;

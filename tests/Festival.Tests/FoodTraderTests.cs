@@ -45,4 +45,20 @@ public sealed class FoodTraderTests
         Assert.AreEqual(0, GameSession.ImmersionCost(ImmersionProduct.Pizza), "The trader's stock, not the festival's.");
         Assert.AreEqual("Pizza", GameSession.ProductName(ImmersionProduct.Pizza));
     }
+
+    [TestMethod]
+    public void SomeoneQueuingAtAPizzaVanWeighsStayingAtPizzasPaceNotAPhantomChipsQueue()
+    {
+        var s = BuildSession.Planned();
+        BuildSession.Accept(s, new ChooseFoodTraderCommand("trader.pizza-the-action"));
+        foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        s.AdvanceWithoutSnapshot(2_000);
+        var guest = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed).AgentId;
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        typeof(GameSession).GetMethod("MutatePerson", flags)!.Invoke(s, [guest, (Action<Person>)(p => { p.VendorId = "food"; p.Order = ImmersionProduct.Pizza; })]);
+        var options = (List<ActivityOption>)typeof(GameSession).GetMethod("ActivityOptions", flags)!.Invoke(s, [guest, ActivityKind.Food])!;
+        var food = options.Where(o => o.Kind == ActivityKind.Food && o.Then is null).ToArray();
+        Assert.AreEqual(1, food.Length, "One way to stay in the queue: the pizza one.");
+    }
 }
