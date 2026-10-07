@@ -275,6 +275,8 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         var moodGroup = _mood.GetParent().GetParent().GetParent().GetParent<Control>();
         moodGroup.TooltipText = "The crowd's average satisfaction, which the newspaper's star rating is based on." +
             (admitted.Length == 0 ? "" : MoodBreakdown(session.RecentMoodChanges(), admitted.Length));
+        // Nobody on site (or not yet): no direction to show, whatever the last guests left behind.
+        if (admitted.Length == 0 || preparing) _moodTrend!.Visible = false;
         // Nothing to show before anyone's through the gate.
         moodGroup.Modulate = preparing ? new Color(1, 1, 1, 0) : Colors.White;
         _pause!.Visible = !preparing;
