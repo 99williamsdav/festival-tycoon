@@ -329,13 +329,6 @@ public sealed partial class GameSession
         }
         else if (active.ToiletStage == ToiletVisitStage.Leaving && activeNav.Action == AgentNavigationAction.Arrived && activeNav.IntentId == "toilet.exit")
             ReleaseToiletPerson(owner, running);
-        else if (active.ToiletStage == ToiletVisitStage.InterruptedLeaving)
-        {
-            var centre = TraversalGrid.CellCentre(toilet.Cell);
-            var dx = (long)activeNav.XMillimetres - centre.XMillimetres;
-            var dz = (long)activeNav.ZMillimetres - centre.ZMillimetres;
-            if (dx * dx + dz * dz > 2_500_000) ReleaseToiletPerson(owner, false);
-        }
     }
 
     private void InterruptToiletOwner(ulong id)
