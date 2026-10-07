@@ -1,0 +1,39 @@
+{
+  "animations": [
+    "Alert",
+    "Idle",
+    "WalkPreview"
+  ],
+  "bones": 19,
+  "captures": [
+    "model-three-quarter",
+    "model-side",
+    "model-front",
+    "model-rear",
+    "quarter-45-close",
+    "quarter-45-game32",
+    "quarter-135-close",
+    "quarter-135-game32",
+    "quarter-225-close",
+    "quarter-225-game32",
+    "quarter-315-close",
+    "quarter-315-game32",
+    "pose-Alert",
+    "pose-Idle",
+    "pose-WalkPreview",
+    "scale-attendee"
+  ],
+  "engine": {
+    "build": "official",
+    "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+    "hex": 263938,
+    "major": 4,
+    "minor": 7,
+    "patch": 2,
+    "status": "stable",
+    "string": "4.7.2-stable (official)",
+    "timestamp": 0
+  },
+  "passed": true,
+  "scope": "Standalone native import/render, not gameplay integration"
+}

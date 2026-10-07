@@ -1,0 +1,41 @@
+{
+  "selectedVersion": 3,
+  "status": "User-authorized reusable asset commit; gameplay integration not commissioned",
+  "date": "2026-10-07",
+  "origin": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/cow-asset-v3",
+  "concept": "../cow-asset-concepts-v1/cow-concept-sheet-v1.png",
+  "conceptSha256": "3c8e1fabc4461212d027c97c068b069d18b310c2c5ba51b9a0a5e1a31c4d7006",
+  "files": [
+    {
+      "path": "runtime/lwf_cow_v3.glb",
+      "sha256": "4ed96cfd5456817f6c21cabf23803a051d788511f51e575f0fc540ee2e58acfa"
+    },
+    {
+      "path": "source/lwf_cow_v3.blend",
+      "sha256": "1f28388e209ba8c756a907eeacbe0b75badb127ce2f052d109131779d846a94a"
+    },
+    {
+      "path": "textures/lwf_cow_palette_v3.png",
+      "sha256": "7d61086a6bc4a36815579f2fb1f40086971a7ce2edb8520e389c757572e311c0"
+    }
+  ],
+  "runtime": {
+    "glb": "game/assets/characters/animals/lwf_cow_v3.glb",
+    "palette": "game/assets/characters/animals/lwf_cow_v3_lwf_cow_palette_v3.png",
+    "glbSha256": "4ed96cfd5456817f6c21cabf23803a051d788511f51e575f0fc540ee2e58acfa",
+    "paletteSha256": "7d61086a6bc4a36815579f2fb1f40086971a7ce2edb8520e389c757572e311c0"
+  },
+  "triangles": 2546,
+  "bones": 19,
+  "previewActions": [
+    "Idle",
+    "WalkPreview",
+    "Alert"
+  ],
+  "limitations": [
+    "Preview actions, not finished locomotion",
+    "No gameplay spawning, AI or Council integration",
+    "Prior v1/v2 remain in original delivery workspace and are not runtime candidates",
+    "verify.py supports COW_HISTORY_ROOT and COW_VERIFY_OUTPUT for historical comparisons without changing originals"
+  ]
+}

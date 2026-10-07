@@ -1,0 +1,1150 @@
+{
+  "passed": true,
+  "source_animation_samples": [
+    {
+      "action": "Alert",
+      "frame": 1,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 2,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 3,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 4,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 5,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 6,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 7,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 8,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 9,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 10,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 11,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 12,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 13,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 14,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 15,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 16,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 17,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 18,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 19,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 20,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 21,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 22,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 23,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 24,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 25,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 26,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 27,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 28,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 29,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 30,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 31,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 32,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 33,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 34,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 35,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 36,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Alert",
+      "frame": 37,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 1,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 2,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 3,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 4,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 5,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 6,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 7,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 8,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 9,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 10,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 11,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 12,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 13,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 14,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 15,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 16,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 17,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 18,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 19,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 20,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 21,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 22,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 23,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 24,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 25,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 26,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 27,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 28,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 29,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 30,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 31,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 32,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 33,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 34,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 35,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 36,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 37,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 38,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 39,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 40,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 41,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 42,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 43,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 44,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 45,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 46,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 47,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 48,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "Idle",
+      "frame": 49,
+      "sole_heights": {
+        "FrontL": -4.191869962255623e-09,
+        "FrontR": 4.191869962255623e-09,
+        "HindL": -4.191869962255623e-09,
+        "HindR": 4.191869962255623e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 1,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 0.0781831443309784
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 2,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 0.09555727243423462
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 3,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 0.09972038865089417
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 4,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 0.09009689092636108
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 5,
+      "sole_heights": {
+        "FrontL": 0.014904224313795567,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 0.06801727414131165
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 6,
+      "sole_heights": {
+        "FrontL": 0.049999989569187164,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 0.03653410077095032
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 7,
+      "sole_heights": {
+        "FrontL": 0.0781831368803978,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 8,
+      "sole_heights": {
+        "FrontL": 0.09555726498365402,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 9,
+      "sole_heights": {
+        "FrontL": 0.09972038120031357,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 10,
+      "sole_heights": {
+        "FrontL": 0.09009688347578049,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 11,
+      "sole_heights": {
+        "FrontL": 0.06801726669073105,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": 0.014904224313795567,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 12,
+      "sole_heights": {
+        "FrontL": 0.03653409332036972,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": 0.049999989569187164,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 13,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": 0.0781831368803978,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 14,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": 0.09555726498365402,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 15,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": 0.09972038120031357,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 16,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": 0.09009688347578049,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 17,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 0.014904232695698738,
+        "HindL": 0.06801726669073105,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 18,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 0.04999999701976776,
+        "HindL": 0.03653409332036972,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 19,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 0.0781831443309784,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 20,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 0.09555727243423462,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 21,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 0.09972038865089417,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 22,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 0.09009689092636108,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 1.4817649329756932e-09
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 23,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 0.06801727414131165,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 0.014904232695698738
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 24,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 0.03653410077095032,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 0.04999999701976776
+      }
+    },
+    {
+      "action": "WalkPreview",
+      "frame": 25,
+      "sole_heights": {
+        "FrontL": -6.901976767892393e-09,
+        "FrontR": 1.4817649329756932e-09,
+        "HindL": -6.901976767892393e-09,
+        "HindR": 0.0781831443309784
+      }
+    }
+  ],
+  "glb_joints": 19,
+  "glb_materials": 1,
+  "glb_meshes": 1,
+  "glb_animations": [
+    "Alert",
+    "Idle",
+    "WalkPreview"
+  ],
+  "checks": [
+    "normalized skin weights",
+    "finite animated vertices",
+    "sampled hoof soles above ground within 2mm",
+    "walk stance and swing sole heights agree with targets within 2mm",
+    "idle and alert hooves planted within 2mm",
+    "Blender GLB reimport",
+    "GLB skin and animation presence",
+    "v1 source/export/palette hashes unchanged"
+  ],
+  "limitations": [
+    "No locomotion controller/root motion test",
+    "No exhaustive self-intersection solver",
+    "WalkPreview poses are not final production gait"
+  ],
+  "sha256": {
+    "runtime\\lwf_cow_v3.glb": "4ed96cfd5456817f6c21cabf23803a051d788511f51e575f0fc540ee2e58acfa",
+    "source\\lwf_cow_v3.blend": "1f28388e209ba8c756a907eeacbe0b75badb127ce2f052d109131779d846a94a",
+    "textures\\lwf_cow_palette_v3.png": "7d61086a6bc4a36815579f2fb1f40086971a7ce2edb8520e389c757572e311c0"
+  },
+  "v3_specific": {
+    "v2_hashes_unchanged": true,
+    "ear_shape_error_after_undoing_head_pitch_m": 1.3328003749250113e-07,
+    "leg_geometry_error_m": 0,
+    "sampled_head_ground_clearance_above_m": 0.7,
+    "rest_head_pitch_down_degrees": 7
+  }
+}

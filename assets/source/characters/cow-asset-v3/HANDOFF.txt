@@ -1,0 +1,53 @@
+COW V3 — NARROW USER-REQUESTED REVISION — 2026-10-06
+Separate package; v2 source/export/palette preserved and hash-checked.
+
+Changes only:
+- Torso/ribcage up to 16% wider and 12% deeper, tapering to unchanged neck.
+- Default head pitched down 7 degrees around existing head pivot; no whole-head
+  shrink. Ear shape/material unchanged, moving rigidly with head's new posture.
+- Pink muzzle/nostril area 20% narrower/shallower and 12% shorter. Existing
+  nostril details retained and resized with it.
+- Coat boundaries, palette direction, legs/hooves, tail and accepted details
+  preserved; no ear or leg redesign.
+
+Files relative to package:
+source/lwf_cow_v3.blend — editable mesh, 19-bone rig and preview actions.
+runtime/lwf_cow_v3.glb — embedded palette, one skinned mesh/material.
+textures/lwf_cow_palette_v3.png — unchanged colour palette.
+build.py and verify.py — reproducible Blender construction/checks.
+godot-check/proof.gd + project.godot — standalone native proof.
+review/comparison.html — v2/v3 matched three-quarter, side and gameplay views.
+review/*.png — 16 actual Godot captures: construction views, four close/gameplay
+orientations, current attendee scale and three action poses. Not concept art.
+build-report.json, verification.json, godot-verification.json — evidence/hashes.
+
+Stats: 2,546 triangles, 1 mesh/surface/material, 1 skin, 19 bones.
+Metres; ground origin beneath torso; Godot +Y up, +X forward, as v2.
+Exact revised rest bounds are recorded in build-report.json (Blender x,y,z;
+map to Godot x,z,-y). Scale, camera and proof lighting remain consistent with v2.
+
+Checks: Blender build and GLB reimport; named skin/joints/actions; normalized
+weights and finite animated vertices. All 111 integer source animation frames
+sampled: hoof stance/swing heights agree with targets within 2 mm; idle/alert
+hooves planted within 2 mm; head stays more than 0.70 m above ground.
+Ear shape equals v2 after undoing head pitch to within 1 micrometre; leg rest
+geometry equals v2 to same tolerance. V1 and v2 source/export/palette hashes
+unchanged. Godot native import/render checked separately in its report.
+No exhaustive self-intersection, terrain or controller-clearance simulation.
+
+Idle, WalkPreview and Alert remain EXPORTED PREVIEW ACTIONS, not finished
+locomotion. In-place walk lacks final body weight transfer, speed matching,
+turns/terrain and gameplay foot locking. Existing directly posed leg hierarchy
+and overlapping head/limb attachments retained; no full creature rig rebuild.
+Blender NLA tracks muted for neutral inspection; preview one at a time.
+
+No game integration, AI, random-event or Council mechanics. Ready for visual
+review of exactly the requested changes, not automatic runtime approval.
+Restricted Godot user:// logging/cache and certificate warnings are environmental;
+see native proof completion rather than treating warnings as asset failures.
+
+Reproduce from package directory:
+Blender 4.1.1 --background --python build.py
+Blender 4.1.1 --background --python verify.py
+Godot 4.7.2 native --path <package>/godot-check --script proof.gd
+Proof uses absolute workspace/current attendee paths; adjust if relocating.

@@ -1,0 +1,30 @@
+{
+  "actions": [
+    {
+      "length": 2.04166674613953,
+      "name": "Idle",
+      "previewOnly": true,
+      "tracks": 25
+    },
+    {
+      "length": 1.04166662693024,
+      "name": "WalkPreview",
+      "previewOnly": true,
+      "tracks": 25
+    },
+    {
+      "length": 1.54166662693024,
+      "name": "Alert",
+      "previewOnly": true,
+      "tracks": 25
+    }
+  ],
+  "bones": 19,
+  "engine": "4.7.2-stable (official)",
+  "meshes": 1,
+  "paletteLoaded": true,
+  "passed": true,
+  "scope": "Reusable asset import and finite midpoint preview poses; no gameplay or locomotion-controller validation.",
+  "skinPresent": true,
+  "surfaces": 1
+}

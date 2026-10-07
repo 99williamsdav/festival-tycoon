@@ -1,0 +1,46 @@
+DAIRY COW — CONCEPT ONLY — 2026-10-05
+
+One shared adult cow design for random arrivals and Council Favours. No event
+costs, quantities, odds, effects or mechanics are specified by this artwork.
+No Blender mesh, rig, animation, GLB or game implementation has been created.
+Coordinator visual review is required before modelling.
+
+Direction: friendly, mildly comic hornless dairy cow; crafted matte low-poly
+English farm style. Cream and charcoal broad coat patches, subdued pink muzzle,
+dark split hooves. Optional warm-brown recolour should reuse the same mesh.
+Humour comes from curious head/ear poses, not oversized eyes or mascot anatomy.
+
+Sheet includes main three-quarter, side/front/rear construction guidance,
+adult attendee scale, stand/walk/alert studies, palette and distance-read inset.
+AI concept views are guidance, not exact orthographic blueprints; resolve patch
+continuity and joint locations in the eventual model. The distance inset is
+illustrative and does not constitute native Godot readability verification.
+
+Modelling guidance after approval:
+- Keep adult proportions: long barrel torso, defined shoulder/hip transition,
+  tapered face and broad muzzle. Withers around adult attendee chest height;
+  validate against actual attendee meshes rather than copying image pixels.
+- Use economical faceted surfaces and broad patches; no fur/noise texture.
+  Proposed opaque palette: cream, charcoal, muted pink and dark hoof, with
+  brown replacing charcoal for alternate coat. No exact material count promised.
+- Keep torso continuous; provide deformable head/neck and four leg chains with
+  correct shoulder/hip, carpal/stifle, hock and hoof articulation. Plan weight
+  transitions, not visibly detached rigid toy limbs.
+- Ears and a short segmented tail chain need independent motion. Hooves can
+  remain rigid weighted ends; muzzle/eyes and restrained udder need no complex
+  facial or secondary rig initially. Callouts indicate regions, not bone pivots.
+- Standing: four hooves planted. Walking: deliberate weight transfer, no sliding.
+  Alert/agitated: raised head, redirected ears, braced stance/tail movement;
+  no attacking or rearing behaviour implied. These are pose ideas, not clips.
+- Later native checks: attendee scale, ground contact, joint deformation, four
+  camera orientations and actual gameplay-distance silhouette/coat readability.
+
+References inspected:
+environment-directions-v1/a-crafted-low-poly.png — primary approved style.
+C:/Projects/festival-tycoon/artifacts/evidence/r005ae-exported-final-1080/02-live-before-pause.png
+— current gameplay camera and environment simplicity.
+upgraded-toilet-cabin-asset-v1/review/godot-scale-basic-upgraded-male-female.png
+— current adult attendee proportions only, no toilet design carried into cows.
+
+Method: imagegen skill, built-in image_gen, reference-led generation then
+targeted scale/walk revision. Exact prompts saved in PROMPTS.txt.

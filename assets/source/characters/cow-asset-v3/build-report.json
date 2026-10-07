@@ -1,0 +1,629 @@
+{
+  "triangles": 2546,
+  "vertices": 2959,
+  "mesh_count": 1,
+  "materials": 1,
+  "bones": 19,
+  "forward": "Godot +X",
+  "units": "metres",
+  "bounds_blender": [
+    [
+      -1.1448915004730225,
+      -0.5199999809265137,
+      0.0
+    ],
+    [
+      1.3920395374298096,
+      0.5199999809265137,
+      1.6701878309249878
+    ]
+  ],
+  "animations": [
+    "Idle",
+    "WalkPreview",
+    "Alert"
+  ],
+  "walk_contact_targets": [
+    {
+      "frame": 1,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 1,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 1,
+      "leg": "HindR",
+      "sole_height": 0.078183,
+      "stance": false
+    },
+    {
+      "frame": 1,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 2,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 2,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 2,
+      "leg": "HindR",
+      "sole_height": 0.095557,
+      "stance": false
+    },
+    {
+      "frame": 2,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 3,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 3,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 3,
+      "leg": "HindR",
+      "sole_height": 0.09972,
+      "stance": false
+    },
+    {
+      "frame": 3,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 4,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 4,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 4,
+      "leg": "HindR",
+      "sole_height": 0.090097,
+      "stance": false
+    },
+    {
+      "frame": 4,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 5,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 5,
+      "leg": "FrontL",
+      "sole_height": 0.014904,
+      "stance": false
+    },
+    {
+      "frame": 5,
+      "leg": "HindR",
+      "sole_height": 0.068017,
+      "stance": false
+    },
+    {
+      "frame": 5,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 6,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 6,
+      "leg": "FrontL",
+      "sole_height": 0.05,
+      "stance": false
+    },
+    {
+      "frame": 6,
+      "leg": "HindR",
+      "sole_height": 0.036534,
+      "stance": false
+    },
+    {
+      "frame": 6,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 7,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 7,
+      "leg": "FrontL",
+      "sole_height": 0.078183,
+      "stance": false
+    },
+    {
+      "frame": 7,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 7,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 8,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 8,
+      "leg": "FrontL",
+      "sole_height": 0.095557,
+      "stance": false
+    },
+    {
+      "frame": 8,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 8,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 9,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 9,
+      "leg": "FrontL",
+      "sole_height": 0.09972,
+      "stance": false
+    },
+    {
+      "frame": 9,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 9,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 10,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 10,
+      "leg": "FrontL",
+      "sole_height": 0.090097,
+      "stance": false
+    },
+    {
+      "frame": 10,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 10,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 11,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 11,
+      "leg": "FrontL",
+      "sole_height": 0.068017,
+      "stance": false
+    },
+    {
+      "frame": 11,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 11,
+      "leg": "HindL",
+      "sole_height": 0.014904,
+      "stance": false
+    },
+    {
+      "frame": 12,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 12,
+      "leg": "FrontL",
+      "sole_height": 0.036534,
+      "stance": false
+    },
+    {
+      "frame": 12,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 12,
+      "leg": "HindL",
+      "sole_height": 0.05,
+      "stance": false
+    },
+    {
+      "frame": 13,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 13,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 13,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 13,
+      "leg": "HindL",
+      "sole_height": 0.078183,
+      "stance": false
+    },
+    {
+      "frame": 14,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 14,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 14,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 14,
+      "leg": "HindL",
+      "sole_height": 0.095557,
+      "stance": false
+    },
+    {
+      "frame": 15,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 15,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 15,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 15,
+      "leg": "HindL",
+      "sole_height": 0.09972,
+      "stance": false
+    },
+    {
+      "frame": 16,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 16,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 16,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 16,
+      "leg": "HindL",
+      "sole_height": 0.090097,
+      "stance": false
+    },
+    {
+      "frame": 17,
+      "leg": "FrontR",
+      "sole_height": 0.014904,
+      "stance": false
+    },
+    {
+      "frame": 17,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 17,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 17,
+      "leg": "HindL",
+      "sole_height": 0.068017,
+      "stance": false
+    },
+    {
+      "frame": 18,
+      "leg": "FrontR",
+      "sole_height": 0.05,
+      "stance": false
+    },
+    {
+      "frame": 18,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 18,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 18,
+      "leg": "HindL",
+      "sole_height": 0.036534,
+      "stance": false
+    },
+    {
+      "frame": 19,
+      "leg": "FrontR",
+      "sole_height": 0.078183,
+      "stance": false
+    },
+    {
+      "frame": 19,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 19,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 19,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 20,
+      "leg": "FrontR",
+      "sole_height": 0.095557,
+      "stance": false
+    },
+    {
+      "frame": 20,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 20,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 20,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 21,
+      "leg": "FrontR",
+      "sole_height": 0.09972,
+      "stance": false
+    },
+    {
+      "frame": 21,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 21,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 21,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 22,
+      "leg": "FrontR",
+      "sole_height": 0.090097,
+      "stance": false
+    },
+    {
+      "frame": 22,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 22,
+      "leg": "HindR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 22,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 23,
+      "leg": "FrontR",
+      "sole_height": 0.068017,
+      "stance": false
+    },
+    {
+      "frame": 23,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 23,
+      "leg": "HindR",
+      "sole_height": 0.014904,
+      "stance": false
+    },
+    {
+      "frame": 23,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 24,
+      "leg": "FrontR",
+      "sole_height": 0.036534,
+      "stance": false
+    },
+    {
+      "frame": 24,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 24,
+      "leg": "HindR",
+      "sole_height": 0.05,
+      "stance": false
+    },
+    {
+      "frame": 24,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 25,
+      "leg": "FrontR",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 25,
+      "leg": "FrontL",
+      "sole_height": 0,
+      "stance": true
+    },
+    {
+      "frame": 25,
+      "leg": "HindR",
+      "sole_height": 0.078183,
+      "stance": false
+    },
+    {
+      "frame": 25,
+      "leg": "HindL",
+      "sole_height": 0,
+      "stance": true
+    }
+  ],
+  "concept_sha256": "3c8e1fabc4461212d027c97c068b069d18b310c2c5ba51b9a0a5e1a31c4d7006"
+}
