@@ -25,6 +25,7 @@ internal sealed class LiveBar(IHudHost _hud, ILiveBarActions _actions)
     private Label? _message;
     private Label? _stamp;
     private string _lastMessage = "";
+    private long _messageTick;
 
     public Control? Panel => _bar;
     /// <summary>The message line; the shell writes status and outcome messages here.</summary>
@@ -74,9 +75,12 @@ internal sealed class LiveBar(IHudHost _hud, ILiveBarActions _actions)
         if (perks is not null) _perks.Text = $"Perks {perks.Equipped.Length}/5";
         if (_message!.Text != _lastMessage)
         {
-            _lastMessage = _message.Text;
+            _lastMessage = _message.Text; _messageTick = session.CurrentTick;
             _stamp!.Text = FestivalClockText(session.CurrentTick - p.StartedTick);
         }
+        // Twenty festival minutes on, the message is old news: fade it rather than leave it reading as current.
+        var faded = session.CurrentTick - _messageTick > 20 * 80;
+        _message.Modulate = _stamp!.Modulate = new Color(1, 1, 1, faded ? 0.45f : 1f);
         _message.TooltipText = _message.Text;
     }
 }

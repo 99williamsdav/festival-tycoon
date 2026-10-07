@@ -11,9 +11,10 @@ namespace Festival.Game;
 public partial class Main
 {
 
-    private static string StaffAbilityText(StaffProfile p) => $"{p.Role.ToString().ToUpperInvariant()} ABILITIES\nWALKING  {p.WalkingSpeedPermille / 10m:0}% of standard speed\n" +
-        (p.Role == ResponseRole.Medic ? $"TREATMENT  {p.TreatmentTicks / 80m:0.0}s at 1× • starts after arrival" :
-            $"CALMING  {p.CalmingSkill}/10000\nFIGHTING  {p.ConfrontationSkill}/10000 • abilities, not success chances");
+    // One festival minute is 80 ticks; skills are out of 10,000, shown out of 10.
+    private static string StaffAbilityText(StaffProfile p) => $"Walks at {p.WalkingSpeedPermille / 10m:0}% of normal pace\n" +
+        (p.Role == ResponseRole.Medic ? $"Treats someone in about {Math.Max(1, (int)Math.Round(p.TreatmentTicks / 80m))} min once there" :
+            $"Calming {p.CalmingSkill / 1000m:0.#}/10 · standing firm {p.ConfrontationSkill / 1000m:0.#}/10");
 
     private static string[] StaffStatLabels(StaffRole role) => role switch
     {
@@ -43,7 +44,30 @@ public partial class Main
             ? "Sneaky alcoholic (caught at the bar)" : StaffCatalogue.TraitLabel(trait))) + "\n";
     }
 
+    /// <summary>What a medic or steward is up to, in a line, for the person panel.</summary>
     private string ResponseStaffInspectorText(ulong id)
+    {
+        if (_hudDevelopment) return ResponseStaffDiagnosticText(id);
+        if (_session.GetResponseStaff().SingleOrDefault(item => item.AgentId == id) is null) return "";
+        var medic = _session.GetMedicResponses().SingleOrDefault(item => item.WorkerId == id);
+        var steward = _session.GetStewardResponses().SingleOrDefault(item => item.WorkerId == id);
+        var intervention = _session.CaptureStaffInterventions().SingleOrDefault(item => item.WorkerId == id &&
+            item.Stage is StaffInterventionStage.Travelling or StaffInterventionStage.Guiding or StaffInterventionStage.Escorting);
+        string Name(ulong person) => _session.CapturePreparation()!.People.Single(item => item.AgentId == person).Name;
+        var status = _session.ResponseStaffStatus(id);
+        var line = status.StartsWith("Unavailable · incapacitated", StringComparison.Ordinal) ? "Hurt: needs first aid" :
+            intervention is not null ? (intervention.Stage == StaffInterventionStage.Travelling ? $"On the way to {Name(intervention.GuestId)}" : $"Helping {Name(intervention.GuestId)}") :
+            medic is { Stage: MedicalResponseStage.Treating, PatientId: { } treating } ? $"Treating {Name(treating)}" :
+            medic is { Stage: MedicalResponseStage.Travelling or MedicalResponseStage.Removing, PatientId: { } patient } ? $"On the way to {Name(patient)}" :
+            steward?.Stage is SecurityResponseStage.Calming or SecurityResponseStage.Confronting && steward.TargetId is { } calming ? $"Dealing with {Name(calming)}" :
+            steward?.Stage == SecurityResponseStage.Travelling && steward.TargetId is { } heading ? $"On the way to {Name(heading)}" :
+            status.StartsWith("Cleaning", StringComparison.Ordinal) ? "Picking up litter" :
+            status.StartsWith("Idle", StringComparison.Ordinal) ? "Free to help" :
+            status.StartsWith("Unavailable · ", StringComparison.Ordinal) ? status["Unavailable · ".Length..] : status;
+        return line + "\n";
+    }
+
+    private string ResponseStaffDiagnosticText(ulong id)
     {
         var profile = _session.GetResponseStaff().SingleOrDefault(item => item.AgentId == id);
         if (profile is null) return "";

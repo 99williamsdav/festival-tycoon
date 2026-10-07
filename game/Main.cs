@@ -86,6 +86,7 @@ public partial class Main : Node, IHudHost
         ProcessCleanupEvidence();
         ProcessSurroundEvidence();
         AdvancePreparationPresentation(delta);
+        SeparateSpeech();
         FinalizeCleanupEvidenceFrame();
         RefreshContextPanelVisibility();
         AdvanceFinanceFeedback(delta);

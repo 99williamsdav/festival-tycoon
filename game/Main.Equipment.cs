@@ -62,8 +62,7 @@ public partial class Main
             _preparationMessage = "Plan updated; saves every 30 unpaused seconds and at opening.";
             if (command is ChoosePerkCommand)
             {
-                if (_session.CapturePreparation()?.Attempt == 1) OpenBuildCatalogue();
-                else SelectHudTab("Overview");
+                OpenBuildCatalogue();
             }
         }
         else _preparationMessage = error!;

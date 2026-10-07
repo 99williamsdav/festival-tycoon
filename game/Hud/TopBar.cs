@@ -114,7 +114,8 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _alertBadge.AddThemeStyleboxOverride("normal", badge);
         _alertBadge.HorizontalAlignment = HorizontalAlignment.Center; _alertBadge.VerticalAlignment = VerticalAlignment.Center;
         _alertBadge.CustomMinimumSize = Ui.S(20, 20); _alertBadge.MouseFilter = Control.MouseFilterEnum.Ignore;
-        _alertBadge.SetAnchorsPreset(Control.LayoutPreset.TopRight); _alertBadge.Position = new Vector2(Ui.S(44) - Ui.S(14), -Ui.S(6));
+        // Placed from the bell's top-left: anchored to its right edge, it slid off when the bell took its size.
+        _alertBadge.Position = new Vector2(Ui.S(44) - Ui.S(14), -Ui.S(6));
         _alerts.AddChild(_alertBadge);
         buttons.AddChild(BarIconButton("menu", "Festival menu", _actions.ToggleMenu));
     }
@@ -207,7 +208,8 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _liveDot!.Visible = live;
         var finance = session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);
         _cash.Text = FestivalCurrency.Format(finance.CashPennies);
-        _clock!.Text = preparing ? "Not started" : $"{FestivalClockText(session.CurrentTick - p.StartedTick)} / 08:00";
+        // Eight festival hours, at 80 ticks a minute; past that, people are only leaving.
+        _clock!.Text = preparing ? "Not started" : session.CurrentTick - p.StartedTick >= 8 * 60 * 80 ? "Closing time" : $"{FestivalClockText(session.CurrentTick - p.StartedTick)} / 08:00";
         var programme = session.CaptureProgramme();
         _clockTrack!.Visible = !preparing && programme is not null;
         if (_clockTrack.Visible)

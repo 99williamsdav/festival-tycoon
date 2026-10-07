@@ -129,9 +129,9 @@ public partial class Main
         _inspectorTitle = HudLabel("", 20); detail.AddChild(_inspectorTitle);
         _inspectorTraits = HudLabel("", 13); _inspectorTraits.AddThemeColorOverride("font_color", Ui.TealDeep);
         _inspectorTraits.AutowrapMode = TextServer.AutowrapMode.WordSmart; _inspectorTraits.Visible = false; detail.AddChild(_inspectorTraits);
-        BuildWaterFlowInspector(detail); BuildSatisfactionBar(detail); BuildMedicalNeedBars(detail); BuildImmersionNeedBars(detail);
-        // Essential actions precede optional prose and remain accessible by scroll.
-        BuildImmersionVendorInspector(detail); BuildMedicalActionInspector(detail); BuildDisorderActionInspector();
+        // Essential actions come before the need bars and prose, so they show without scrolling on a short screen.
+        BuildWaterFlowInspector(detail); BuildImmersionVendorInspector(detail); BuildMedicalActionInspector(detail); BuildDisorderActionInspector();
+        BuildSatisfactionBar(detail); BuildMedicalNeedBars(detail); BuildImmersionNeedBars(detail);
         BuildDisorderStageInspector(detail); BuildStagePowerAction(detail); BuildSecurityPostInspectorAction(detail); BuildEyeViewAction(detail);
         _inspectorBody = HudLabel("", 13); detail.AddChild(_inspectorBody);
         ConstrainHudControls(detail);
@@ -426,12 +426,13 @@ public partial class Main
             .Any(control => control?.IsVisibleInTree() == true && control.GetGlobalRect().HasPoint(screen));
     }
 
-    private VBoxContainer? _mapControls;
+    private HBoxContainer? _mapControls;
 
-    /// <summary>Round rotate and zoom buttons at the field's right edge during preparation.</summary>
+    /// <summary>Round rotate and zoom buttons in a row at the field's bottom-right during preparation, below the
+    /// right-hand cards so they never sit on top of one.</summary>
     private void BuildMapControls(CanvasLayer layer, Vector2 size)
     {
-        _mapControls = new VBoxContainer();
+        _mapControls = new HBoxContainer();
         _mapControls.AddThemeConstantOverride("separation", Ui.Px(8));
         foreach (var (icon, tip, action) in new (string, string, Action)[]
                  { ("rotate-cw", "Rotate view (Q / E)", () => _rig.Rotate(1)), ("plus", "Zoom in (wheel)", () => _rig.Zoom(-4)), ("minus", "Zoom out (wheel)", () => _rig.Zoom(4)) })
@@ -444,7 +445,7 @@ public partial class Main
             button.AddThemeStyleboxOverride("hover", Ui.Box(Ui.BarRaised, 22, new Color(Ui.BarText, 0.3f), 1, shadow: 4, shadowAlpha: 0.3f));
             button.Pressed += action; _mapControls.AddChild(button);
         }
-        _mapControls.Position = new Vector2(size.X - Ui.Gutter - Ui.S(44), size.Y - Ui.Dock - Ui.S(20) - Ui.S(44) * 3 - Ui.S(8) * 2);
+        _mapControls.Position = new Vector2(size.X - Ui.Gutter - Ui.S(44) * 3 - Ui.S(8) * 2, size.Y - Ui.Dock - Ui.S(16) - Ui.S(44));
         layer.AddChild(_mapControls);
     }
 }

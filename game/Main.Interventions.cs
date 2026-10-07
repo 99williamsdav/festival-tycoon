@@ -18,7 +18,7 @@ public partial class Main
     {
         _staffInterventionInspector = new VBoxContainer { Visible = false };
         detail.AddChild(_staffInterventionInspector);
-        _staffInterventionInspector.AddChild(LabelText("PHYSICAL STAFF HELP • ARRIVAL FIRST", 12, new Color("29352c")));
+        _staffInterventionInspector.AddChild(LabelText("ASK STAFF TO HELP", 12, new Color("29352c")));
         foreach (var role in new[] { ResponseRole.Steward, ResponseRole.Medic })
         {
             var choice = new OptionButton { CustomMinimumSize = new Vector2(365, 32) };
@@ -65,6 +65,9 @@ public partial class Main
                 foreach (var profile in profiles) choice.AddItem($"{role}: {profile.Name}");
                 if (ids.Length > 0) choice.Select(Math.Max(0, Array.IndexOf(ids, previous ?? 0)));
             }
+            // Names change when the planned hires take up their posts at Start, though the people don't.
+            for (var i = 0; i < profiles.Length; i++)
+                if (choice.GetItemText(i) != $"{role}: {profiles[i].Name}") choice.SetItemText(i, $"{role}: {profiles[i].Name}");
             choice.Disabled = ids.Length == 0;
             var workerId = ChosenInterventionWorker(role);
             var worker = profiles.SingleOrDefault(profile => profile.AgentId == workerId);
@@ -78,7 +81,7 @@ public partial class Main
                 var issue = command is null ? "Choose an on-duty worker and a person." : _session.ValidateCommand(CampaignEnvelope(command))?.Message;
                 button.Disabled = issue is not null;
                 button.TooltipText = (worker is null ? "" : StaffAbilityText(worker) + "\n") +
-                    (issue ?? "Worker must physically reach this person first. Escort completes only at the gate; deadlines remain active.");
+                    (issue ?? "They walk over first; an escort only ends at the gate.");
             }
         }
     }
@@ -87,7 +90,7 @@ public partial class Main
     {
         if (MedicalSelectedGuest() is not { } guest || ChosenInterventionWorker(role) is not { } worker) return;
         _preparationMessage = _host.Execute(new StaffInterventionCommand(guest, worker, action), out var error)
-            ? "Staff request applied; next background save is within 30 unpaused seconds. Physical arrival comes first." : error!;
+            ? $"{_session.CapturePreparation()!.People.Single(person => person.AgentId == worker).Name} is on the way." : error!;
         RefreshPreparationHud();
     }
 
@@ -97,7 +100,7 @@ public partial class Main
             item.Stage is StaffInterventionStage.Travelling or StaffInterventionStage.Guiding or StaffInterventionStage.Escorting);
         if (job is null) return "";
         var name = _session.CapturePreparation()!.People.Single(person => person.AgentId == job.WorkerId).Name;
-        return $"STAFF HELP  {name} • {job.Action} • {job.Stage}\n{job.Description}\n";
+        return job.Stage == StaffInterventionStage.Travelling ? $"{name} is on the way to help\n" : $"{name} is helping\n";
     }
 
     private string? ActiveStaffInterventionSummary(ulong workerId)

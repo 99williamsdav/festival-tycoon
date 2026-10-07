@@ -49,10 +49,12 @@ public partial class Main
     };
 
     /// <summary>Every speech bubble showing now, from any system, so the budget and spacing apply across them all.</summary>
-    private List<Vector3> VisibleSpeech()
+    private List<Vector3> VisibleSpeech() => SpeechLabels().Select(label => label.Position).ToList();
+
+    private List<Label3D> SpeechLabels()
     {
-        var shown = new List<Vector3>();
-        void Add(Label3D? label) { if (label is not null && IsInstanceValid(label) && label.Visible) shown.Add(label.Position); }
+        var shown = new List<Label3D>();
+        void Add(Label3D? label) { if (label is not null && IsInstanceValid(label) && label.Visible) shown.Add(label); }
         foreach (var label in _medicalCueLabels.Values) Add(label);
         foreach (var label in _disorderCueLabels.Values) Add(label);
         foreach (var label in _immersionWarningLabels.Values) Add(label);
@@ -60,6 +62,36 @@ public partial class Main
         Add(_immersionRemark); Add(_litterRemarkLabel);
         foreach (var (label, _, _) in _chatter) Add(label);
         return shown;
+    }
+
+    /// <summary>
+    /// Lifts any bubble that would overlap another on screen by a line at a time, lowest first, so an argument's two
+    /// shouts or two passers-by never print over each other. Only the labels' pixel offsets move, reset every frame.
+    /// </summary>
+    private void SeparateSpeech()
+    {
+        var camera = GetViewport().GetCamera3D();
+        if (camera is null) return;
+        var placed = new List<Rect2>();
+        var labels = SpeechLabels();
+        foreach (var label in labels) label.Offset = Vector2.Zero;
+        var screen = GetViewport().GetVisibleRect().Size.Y;
+        var items = labels.Where(label => !camera.IsPositionBehind(label.GlobalPosition)).Select(label =>
+        {
+            // Speech is drawn at a fixed screen size: a label pixel is PixelSize × half the viewport's height on screen.
+            var scale = label.PixelSize * screen / 2;
+            var lineHeight = label.FontSize * 1.25f * scale;
+            var half = label.Text.Length * label.FontSize * 0.5f * scale / 2;
+            var centre = camera.UnprojectPosition(label.GlobalPosition);
+            return (label, rect: new Rect2(centre.X - half, centre.Y - lineHeight / 2, half * 2, lineHeight), lineHeight);
+        }).OrderByDescending(item => item.rect.Position.Y).ToList();
+        foreach (var (label, start, lineHeight) in items)
+        {
+            var rect = start; var lifts = 0;
+            while (lifts < 4 && placed.Any(other => other.Intersects(rect))) { rect.Position -= new Vector2(0, lineHeight); lifts++; }
+            if (lifts > 0) label.Offset = new Vector2(0, lifts * label.FontSize * 1.25f);
+            placed.Add(rect);
+        }
     }
 
     private bool SpeechCrowded() => VisibleSpeech().Count >= SpeechMaxVisible;

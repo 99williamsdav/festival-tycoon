@@ -126,7 +126,7 @@ public partial class Main
         _immersionHungerBar.Modulate = MedicalNeedColor(person.Hunger);
         _immersionToiletBar.Modulate = MedicalNeedColor(person.ToiletNeed);
         _immersionIntoxBar.Modulate = new Color(person.Intoxication >= 7500 ? "ff7566" : person.Intoxication >= 5000 ? "e8b45b" : "a6c887");
-        _immersionNeedLabel!.Text = person.Intoxication >= 7500 ? "HEAVY INTOXICATION • CARE AVAILABLE" : person.Intoxication >= 5000 ? "IMPAIRED • COORDINATION REDUCED" : person.Intoxication >= 2500 ? "TIPSY" : "ADULT FOOD & DRINK NEEDS";
+        _immersionNeedLabel!.Text = person.Intoxication >= 7500 ? "HEAVY INTOXICATION • CARE AVAILABLE" : person.Intoxication >= 5000 ? "IMPAIRED • COORDINATION REDUCED" : person.Intoxication >= 2500 ? "TIPSY" : "FOOD & DRINK";
     }
 
     private static Vector3 ImmersionPosition(GridCell cell)
@@ -410,10 +410,14 @@ private void BuildImmersionControls(VBoxContainer parent)
         _inspectorTitle.Text = id == "food" ? $"{_session.FoodTrader.Name} • {_session.FoodTrader.Menu.ToLowerInvariant()}" : "Drinks stall • soft drinks & beer";
         _inspectorBody.Text = $"Queue: {vendor.Queue.Length}\n" +
             (vendor.OwnerId is { } owner ? $"Serving {_session.CapturePreparation()!.People.Single(p => p.AgentId == owner).Name} • {vendor.ServiceTicks / 80m:0.0}s remaining\n" : "Counter ready\n") +
-            (id == "food" ? $"{_session.FoodTrader.Menu} {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Chips))} • {(state.ChipsStock > 0 || _session.PreparedStatus == PreparationStatus.Preparing ? $"{(_session.PreparedStatus == PreparationStatus.Preparing ? _session.FoodTrader.Portions : state.ChipsStock)} portions left" : "sold out")}\nTheir own food and takings; they pay {FestivalCurrency.Format(_session.FoodTrader.PitchFeePennies)} to pitch." : $"Soft {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.SoftDrink))} • stock {state.SoftStock}\nBeer {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} • stock {state.BeerStock}\nNo beer for staff or heavily intoxicated customers.") +
+            (id == "food" ? $"{_session.FoodTrader.Menu} {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Chips))} • {(state.ChipsStock > 0 || _session.PreparedStatus == PreparationStatus.Preparing ? $"{(_session.PreparedStatus == PreparationStatus.Preparing ? _session.FoodTrader.Portions : state.ChipsStock)} portions left" : "sold out")}\nTheir own food and takings; they pay {FestivalCurrency.Format(_session.FoodTrader.PitchFeePennies)} to pitch." : $"Soft {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.SoftDrink))} • {BarStock(state.SoftStock, true)}\nBeer {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} • {BarStock(state.BeerStock, false)}\nNo beer for staff or heavily intoxicated customers.") +
             "\nStaff & band: half price." + (id == "drinks" && state.FreeWater ? "\nFREE WATER • cups for the thirsty" : "");
         _highlight.Position = body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new Vector3(id == "food" ? 3.5f : 2, 1, id == "food" ? 3.5f : 2); _highlight.Visible = true;
     }
+    /// <summary>Stock on the counter, or before opening what's been ordered (it arrives at Start).</summary>
+    private string BarStock(int onCounter, bool soft) => _session.PreparedStatus == PreparationStatus.Preparing && _session.CapturePreparationPlan() is { } plan
+        ? $"{(soft ? plan.SoftDrinks : plan.Beers)} ordered" : $"stock {onCounter}";
+
     private string ImmersionPersonInspectorText(ulong id)
     {
         RefreshImmersionNeedBars(id);

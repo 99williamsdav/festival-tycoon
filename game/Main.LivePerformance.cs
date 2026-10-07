@@ -201,10 +201,10 @@ public partial class Main
             var worker = _session.GetResponseStaff().SingleOrDefault(item => item.AgentId == id.Value);
             var activity = person.Departed ? "Left the festival" : need?.Intent == MedicalIntent.Collapsed ? "Collapsed · needs care" :
                 need is not null ? StewardWording(System.Text.RegularExpressions.Regex.Replace(need.Reason, @"\s+at tick \d+", "")) : performer?.OnStage == true ? "Performing on stage" : "Walking through the festival";
-            _inspectorBody.Text = $"{(person.Role == ProtectedPersonRole.Guest ? "Adult · prefers " + FestivalGenreName(person.ExpectedGenre) : "Protected festival worker")}\n{activity}\n" +
+            _inspectorBody.Text = $"{(person.Role == ProtectedPersonRole.Guest ? "Likes " + FestivalGenreName(person.ExpectedGenre) : "Festival crew")}\n{activity}\n" +
                 (listening is null ? "" : $"{placeActivity} · interest {listening.Enthusiasm}%\n") +
-                (disorder is null || disorder.Stage is DisorderStage.Calm or DisorderStage.Resolved ? "" : $"{disorder.Stage} · pressure {disorder.Pressure / 100m:0}% · {disorder.Grievance}\n" +
-                    (DisorderCuePlanner.CurrentOpponentId(_session.CaptureDisorder()!, disorder) is { } opponent ? $"COUNTERPART · {preparation.People.SingleOrDefault(item => item.AgentId == opponent)?.Name ?? "festival worker"}\n" : "") + "Reduce pressure or ask a steward for help. Injury needs a medic.\n") +
+                (disorder is null || disorder.Stage is DisorderStage.Calm or DisorderStage.Resolved ? "" : TroubleLine(disorder,
+                    DisorderCuePlanner.CurrentOpponentId(_session.CaptureDisorder()!, disorder) is { } opponent ? preparation.People.SingleOrDefault(item => item.AgentId == opponent)?.Name ?? "one of the crew" : null) + "\n") +
                 (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} · {(!_session.IsPaused && _session.ImmersionConsumptionEligible(id.Value) ? "consuming" : "retained; consumption paused")}\n" : "") +
                 (immersion is null ? "" : $"Personal budget {FestivalCurrency.Format(_session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id.Value).CashPennies)}\n") +
                 StaffInterventionTargetText(id.Value) +

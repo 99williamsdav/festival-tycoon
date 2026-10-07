@@ -255,30 +255,37 @@ public partial class Main
         if (facility == MedicalFacility.Water)
         {
             var point = _session.CaptureWaterPoints().Single(item => item.Id == _selectedWaterPointId);
-            _inspectorTitle.Text = $"Free water • {point.Id}";
-            var owner = point.OwnerId is { } id ? PersonPresentationName(people.Single(item => item.AgentId == id)) : "None";
+            _inspectorTitle.Text = "Free water tap";
+            var owner = point.OwnerId is { } id ? PersonPresentationName(people.Single(item => item.AgentId == id)) : null;
             var tower = _session.CapturePreparation()!.WaterTowerOwned;
             var flow = _session.CommunityWaterShareActive ? tower ? "NORMAL" : "LOW" : tower ? "BOOSTED" : "NORMAL";
             _waterFlowIcon!.Texture = _waterFlowTextures[flow.ToLowerInvariant()];
-            _waterFlowLabel!.Text = $"FLOW • {flow}\nCouncil {(_session.CommunityWaterShareActive ? "baseline cap 12" : "not shared")} • tower {(tower ? "+4" : "none")}";
+            _waterFlowLabel!.Text = $"Flow: {flow.ToLowerInvariant()}" +
+                (_session.CommunityWaterShareActive ? "\nShared with the village, so slower" : "") + (tower ? "\nThe water tower speeds it up" : "");
+            var waiting = point.Queue.Length + point.Overflow.Length;
             _inspectorBody.Text = (_session.FaultStatus(point.Id) is { } fault ? fault + "\n" : "") +
-                $"FREE • no stock or payment\nQUEUE  {point.Queue.Length}/10 • VISIBLE TAIL  {point.Overflow.Length}\n" +
-                $"FACING  {point.QuarterTurns * 90}°\n" +
-                $"DRINKING  {owner}\nPACE  {(point.OwnerId is { } drinker ? _session.EffectiveMedicalDrinkThirstPerTickFor(drinker).ToString() : _session.CommunityWaterShareActive ? tower ? "12–16" : "8–12" : tower ? "12–24" : "8–20")} thirst/tick • varies by person{(_session.CommunityWaterShareActive ? " • Council share caps baseline at 12" : "")}{(tower ? " • tower +4" : "")}\n" +
-                "More taps do not reduce personal flow. The physical line grows on arrival; approaching reserves no place.";
+                "Free to drink: no stock needed\n" +
+                (owner is null ? "Nobody drinking" : $"{owner} is drinking") + $" · {(waiting == 0 ? "no queue" : $"{waiting} queuing")}\n" +
+                "More taps mean shorter queues; each drink takes as long.";
         }
         else if (facility == MedicalFacility.WaterTower)
         {
             _inspectorTitle.Text = "Water tower • owned";
-            _inspectorBody.Text = "Approved farmyard tower • durable property\n+4 thirst relief per tick for every drinker at every tap. " +
-                "Council sharing still caps the personal baseline at 12 before this bonus. No additional tap or shared-pressure penalty.";
+            _inspectorBody.Text = "Yours to keep.\nEvery tap runs faster, even when the water's shared with the village.";
         }
         else
         {
-            _inspectorTitle.Text = "First aid • named medic coverage";
-            _inspectorBody.Text = string.Join("\n", _session.GetMedicResponses().Select(job =>
-                $"{people.Single(item => item.AgentId == job.WorkerId).Name}: {job.Stage} • patient {(job.PatientId is { } id ? PersonPresentationName(people.Single(item => item.AgentId == id)) : "none")}")) +
-                "\nREST reduces heat after arrival. Select a distressed person to choose an available named medic.";
+            _inspectorTitle.Text = "First aid";
+            string Patient(ulong? id) => id is { } patient ? PersonPresentationName(people.Single(item => item.AgentId == patient)) : "someone";
+            _inspectorBody.Text = (_session.PreparedStatus == PreparationStatus.Preparing ? "Your medic works from here once the gates open." :
+                string.Join("\n", _session.GetMedicResponses().Select(job => $"{people.Single(item => item.AgentId == job.WorkerId).Name}: " + job.Stage switch
+                {
+                    MedicalResponseStage.Travelling => $"on the way to {Patient(job.PatientId)}",
+                    MedicalResponseStage.Treating => $"treating {Patient(job.PatientId)}",
+                    MedicalResponseStage.Removing => $"bringing {Patient(job.PatientId)} in",
+                    _ => "free to help",
+                }))) +
+                "\nOverheated guests cool off here. Select someone who's unwell to send a medic.";
         }
     }
 
@@ -294,7 +301,7 @@ public partial class Main
     private void BuildMedicalActionInspector(VBoxContainer detail)
     {
         if (_session.CaptureMedical() is null) return;
-        _selectedWaterMoveButton = ButtonText("MOVE THIS TAP • PREPARATION ONLY", () => BeginWaterPlacementFor(_selectedWaterPointId));
+        _selectedWaterMoveButton = ButtonText("Move", () => BeginWaterPlacementFor(_selectedWaterPointId));
         _selectedWaterMoveButton.Visible = false;
         _selectedWaterMoveButton.TooltipText = "Choose a new grass site. Comma/period rotate the tap and its service access; Esc cancels.";
         detail.AddChild(_selectedWaterMoveButton);

@@ -193,7 +193,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         var column = new VBoxContainer { CustomMinimumSize = new Vector2(Ui.S(300), 0) };
         column.AddThemeConstantOverride("separation", Ui.Px(4)); parent.AddChild(column);
         column.AddChild(Ui.Heading("Running order", 27));
-        column.AddChild(Ui.Text("Trailer Stage · festival time mm:ss", 13.5f, Ui.InkMuted));
+        column.AddChild(Ui.Text("Trailer Stage · times from the gates opening", 13.5f, Ui.InkMuted));
         column.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(8)) });
         _bookingLane = new Control { CustomMinimumSize = new Vector2(Ui.S(300), Ui.S(420)), MouseFilter = Control.MouseFilterEnum.Pass };
         column.AddChild(_bookingLane);
@@ -467,7 +467,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             .OrderBy(act => session.ActStandingOf(act) == ActStanding.Locked ? 1 : 0).ToArray();
         for (var index = 0; index < projected.Length; index++) _bookingTableBody!.MoveChild(_bookingRows[projected[index].Id].Card, index);
         var willPlay = acts.Count(act => session.ActStandingOf(act) != ActStanding.Locked);
-        _bookingTableCount!.Text = $"{willPlay} acts will play · sorted by {SortWords[(int)_bookingSort]}{(_bookingDescending ? ", high first" : "")}";
+        _bookingTableCount!.Text = $"{willPlay} acts available · sorted by {SortWords[(int)_bookingSort]}{(_bookingDescending ? ", high first" : "")}";
         _standingLine!.Text = $"Festival reputation {session.Standing.Reputation} · {FestivalCurrency.Format(session.TicketPricePennies)} tickets: guests expect popularity around {session.ExpectedPopularity}";
         _standingLine.TooltipText = "Acts more popular than the ticket promises delight guests; less popular acts disappoint them. Reputation decides who will play for you.";
         _standingLine.MouseFilter = Control.MouseFilterEnum.Pass;

@@ -201,18 +201,26 @@ public partial class Main
             _securityPostWorkerButton.Visible = workerAvailable;
             _securityPostWorkerButton.Disabled = !workerAvailable;
         }
-        var position = _session.CaptureSnapshot().NavigationAgents.SingleOrDefault(item => item.Id.Value == d.SecurityId);
         var security = d.Stewards[0];
-        var target = security.TargetId is { } id ? people.Single(item => item.AgentId == id).Name : "None";
+        var target = security.TargetId is { } id ? people.Single(item => item.AgentId == id).Name : "someone";
+        if (_securityPostWorkerButton is not null) _securityPostWorkerButton.Text = $"Select {worker.Name}";
+        if (_session.PreparedStatus == PreparationStatus.Preparing)
+        {
+            _inspectorTitle.Text = "Steward post";
+            _inspectorBody.Text = "Your steward works from here once the gates open.\nSelect a guest who's causing trouble to send them over.";
+            return;
+        }
         _inspectorTitle.Text = $"Steward post • {worker.Name}";
-        _inspectorBody.Text = $"POST  open public approach • gate route clear\n" +
-            $"WORKER  {(worker.Admitted ? d.SecurityIncapacitated ? "injured • needs medic" : "on site" : "walking in")}\n" +
-            $"POSITION  {(position is null ? "not yet arrived" : $"{position.XMillimetres / 1000m:0.00} m, {position.ZMillimetres / 1000m:0.00} m")}\n" +
-            $"RESPONSE  {security.Stage} • target {target}\n{StewardWording(security.Description)}\n" +
-            "Select an affected guest to dispatch a steward, or ask a named steward/medic to physically escort them to the gate. " +
-            (workerAvailable ? "Select Jordan here if he needs medical help. " :
-                "Jordan can be selected after the weekend starts and his physical visual exists. ") +
-            "Stewards do not teleport or guarantee de-escalation.";
+        var status = !worker.Admitted ? "On their way in" : d.SecurityIncapacitated ? "Hurt: needs a medic" : security.Stage switch
+        {
+            SecurityResponseStage.Travelling => $"On the way to {target}",
+            SecurityResponseStage.Calming => $"Calming {target} down",
+            SecurityResponseStage.Confronting => $"Dealing with {target}",
+            _ => "Free to help",
+        };
+        _inspectorBody.Text = $"{status}\n" +
+            "Select a guest who's causing trouble to send the steward, or to have them walked out of the gate. " +
+            "Stewards have to walk there, and can't always calm things down.";
     }
 
     private void BuildDisorderControls(VBoxContainer box)
@@ -245,6 +253,28 @@ public partial class Main
             _medicalActionInspector.AddChild(button);
             _disorderButtons.Add(action, button);
         }
+    }
+
+    /// <summary>A guest's trouble in a line: how far it's gone, over what, and with whom.</summary>
+    private static string TroubleLine(DisorderPerson person, string? opponent)
+    {
+        var over = person.Grievance switch
+        {
+            DisorderGrievance.MusicCutoff => "the music cutting out",
+            DisorderGrievance.WaterWait => "the wait for water",
+            DisorderGrievance.BandDelayed => "the band running late",
+            DisorderGrievance.QueueWait => "the queue",
+            _ => "something",
+        };
+        return person.Stage switch
+        {
+            DisorderStage.Complaint => $"Grumbling about {over}",
+            DisorderStage.Agitated => $"Getting wound up about {over}",
+            DisorderStage.Argument => opponent is null ? $"Arguing about {over}" : $"Arguing with {opponent} about {over}",
+            DisorderStage.Fight => opponent is null ? "In a fight" : $"Fighting {opponent}",
+            DisorderStage.Injured => "Hurt in a fight: needs a medic",
+            _ => "",
+        } + (person.Stage is DisorderStage.Agitated or DisorderStage.Argument or DisorderStage.Fight ? ". A steward can calm things down." : "");
     }
 
     private string DisorderPersonInspectorText(ulong id)

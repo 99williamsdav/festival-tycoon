@@ -62,8 +62,14 @@ public partial class Main
         if (_contextPanel is null) return;
         var size = GetViewport().GetVisibleRect().Size;
         var y = _session.PreparedStatus == PreparationStatus.Preparing ? Ui.ContentTop : Stage.Bottom + Ui.S(12);
-        var height = Math.Min(380, size.Y - y - Ui.S(64) - 12);
+        var height = size.Y - y - Ui.S(64) - 12;
         if (constrained) height = Math.Min(height, size.Y - Ui.S(64) - 8 - 220 - 10 - y);
+        // Stop above the rotate and zoom row during preparation.
+        if (_session.PreparedStatus == PreparationStatus.Preparing) height = Math.Min(height, size.Y - Ui.Dock - Ui.S(16) - Ui.S(44) - Ui.S(8) - y);
+        // Fit the contents, so a short panel isn't mostly empty and a long one (a person, with their buttons) gets
+        // the room it needs before it has to scroll.
+        if (_hudContextScroll?.GetChildCount() > 0 && _hudContextScroll.GetChild(0) is Control detail)
+            height = Math.Min(height, detail.GetCombinedMinimumSize().Y + _contextPanel.GetThemeStylebox("panel").GetMinimumSize().Y + 2);
         _contextPanel.Position = new Vector2(size.X - 300, y);
         _contextPanel.Size = new Vector2(300, height);
     }
