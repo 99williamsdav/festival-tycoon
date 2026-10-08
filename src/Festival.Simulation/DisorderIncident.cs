@@ -167,7 +167,7 @@ public sealed partial class GameSession
                 if (need.NeedProfile == MedicalNeedProfile.Performer || need.NeedProfile == MedicalNeedProfile.Guest && need.HeatExposure >= MedicalDistressHeat)
                 {
                     MutatePerson(id, item => { item.Intent = MedicalIntent.Rest; item.Reason = "Closed-water relief at first-aid rest"; });
-                    ApplyAgentDestination(new(id), new(MedicalRestCell, "disorder.water-closure-rest"));
+                    ApplyAgentDestination(new(id), new(RestSpotFor(id), "disorder.water-closure-rest"));
                 }
                 else ReturnToListening(id);
             }

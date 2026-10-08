@@ -191,7 +191,7 @@ public sealed partial class GameSession
             case ActivityKind.Rest:
                 MedicalRelinquishPerformerStage(id);
                 MutatePerson(id, item => { item.Intent = MedicalIntent.Rest; item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
-                ApplyAgentDestination(new(id), new(MedicalRestCell, "medical.rest"));
+                ApplyAgentDestination(new(id), new(RestSpotFor(id), "medical.rest"));
                 break;
             case ActivityKind.Toilet:
                 var person = _persons[id];

@@ -192,7 +192,7 @@ public sealed partial class GameSession
                     LeaveWater(job.GuestId, "Medic physically arrived to guide first-aid rest", reroute: false);
                     MutatePerson(job.GuestId, need => { need.Intent = MedicalIntent.Rest; need.WaterQueueSlot = null; need.Reason = "A named medic physically guided first-aid rest"; });
                     MedicalRelinquishPerformerStage(job.GuestId);
-                    ApplyAgentDestination(new(job.GuestId), new(MedicalRestCell, "medical.rest"));
+                    ApplyAgentDestination(new(job.GuestId), new(RestSpotFor(job.GuestId), "medical.rest"));
                 }
                 continue;
             }

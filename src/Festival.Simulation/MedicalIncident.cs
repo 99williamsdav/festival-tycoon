@@ -68,6 +68,67 @@ public sealed partial class GameSession
     public static readonly GridCell MedicalMedicCell = new(116, 125);   // (-5.75, -1.25) m; Riley stands in front of the tent.
     public static readonly GridCell MedicalRestCell = new(120, 125);    // (-3.75, -1.25) m; beside the tent's new front approach.
     public static readonly GridCell MedicalExitCell = new(128, 186);    // (0.25, 29.25) m.
+    // The first-aid rest area: the rest cell and the cells round it on a checkerboard, ring by ring.
+    // Resting only counts once someone has arrived at their spot, and only one body fits a spot, so
+    // sending every hot guest to the one rest cell left the rest walking at an occupied goal, bunched
+    // in a knot and sidestepping back and forth until whoever was resting cooled down and left.
+    // Checkerboard spots stand at least 707 mm apart, so a walker can always pass between two resters.
+    private static readonly (int X, int Z)[][] RestSpotRings =
+    [
+        [(0, 0)],
+        [(-1, -1), (1, -1), (-1, 1), (1, 1)],
+        [(0, -2), (-2, 0), (2, 0), (0, 2)],
+        [(-2, -2), (2, -2), (-2, 2), (2, 2)],
+    ];
+
+    /// <summary>Whether this cell is one of the rest area's spots.</summary>
+    public static bool IsRestSpot(GridCell cell) => RestSpotRings.Any(ring => ring.Any(offset =>
+        cell.X == MedicalRestCell.X + offset.X && cell.Z == MedicalRestCell.Z + offset.Z));
+
+    private static bool RestNavigationIntent(string? intent) => intent is "medical.rest" or "disorder.water-closure-rest";
+
+    /// <summary>
+    /// Where this person should rest: their current spot if they already hold one, else the free spot
+    /// in the innermost ring with room, nearest them. Spots fill from the middle out, so nobody's spot is
+    /// walled in by resters who got there first. With every spot taken they share the rest cell, as before.
+    /// </summary>
+    private GridCell RestSpotFor(ulong id)
+    {
+        var self = new EntityId(id);
+        var agent = _navigationAgents[self];
+        if (RestNavigationIntent(agent.IntentId) && agent.Destination is { } held && IsRestSpot(held) &&
+            agent.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived) return held;
+        var others = _navigationAgents.Values.Where(other => other.Id != self && MovementOccupant(other.Id.Value)).ToArray();
+        bool Taken(GridCell spot)
+        {
+            var centre = TraversalGrid.CellCentre(spot);
+            foreach (var other in others)
+            {
+                if (RestNavigationIntent(other.IntentId) && other.Destination == spot &&
+                    other.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived) return true;
+                // Someone else standing on it (a medic, say) holds it as surely as a rester does.
+                long dx = other.XMillimetres - centre.XMillimetres, dz = other.ZMillimetres - centre.ZMillimetres;
+                if (other.Action != AgentNavigationAction.Travelling && dx * dx + dz * dz < (long)SeparationRadiusMillimetres * SeparationRadiusMillimetres)
+                    return true;
+            }
+            return false;
+        }
+        foreach (var ring in RestSpotRings)
+        {
+            GridCell? best = null; var bestDistance = long.MaxValue;
+            foreach (var offset in ring)
+            {
+                var spot = new GridCell(MedicalRestCell.X + offset.X, MedicalRestCell.Z + offset.Z);
+                if (_traversalGrid is not { } grid || !grid.Contains(spot) || !grid.Get(spot).IsWalkable || CubicleClosedTo(id, spot) || Taken(spot)) continue;
+                var centre = TraversalGrid.CellCentre(spot);
+                long dx = centre.XMillimetres - agent.XMillimetres, dz = centre.ZMillimetres - agent.ZMillimetres;
+                // Strictly nearer only, so equal distances keep the ring's fixed order.
+                if (dx * dx + dz * dz < bestDistance) { best = spot; bestDistance = dx * dx + dz * dz; }
+            }
+            if (best is { } chosen) return chosen;
+        }
+        return MedicalRestCell;
+    }
     // One compact line behind the single tap, with a slight human offset and no branches.
     // Slot zero alone owns the tap. Approaching the tail does not reserve a slot.
     private static readonly GridCell[] WaterSlots =
@@ -338,7 +399,7 @@ public sealed partial class GameSession
             {
                 if (PersonIn(PersonView.Consumption, id) is { VendorId: not null }) LeaveImmersionQueue(id, false);
                 MutatePerson(id, item => { item.Intent = MedicalIntent.Rest; item.Reason = "Water service closed; physically seeking first-aid rest"; });
-                ApplyAgentDestination(new(id), new(MedicalRestCell, "disorder.water-closure-rest"));
+                ApplyAgentDestination(new(id), new(RestSpotFor(id), "disorder.water-closure-rest"));
             }
             return;
         }
@@ -595,7 +656,7 @@ public sealed partial class GameSession
         m = _medical!;
         foreach (var resting in PeopleIn(PersonView.Medical).Where(item => item.NeedProfile != MedicalNeedProfile.Staff && item.Intent == MedicalIntent.Rest).ToArray())
         {
-            if (_navigationAgents[new(resting.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } restCell } && restCell == MedicalRestCell)
+            if (_navigationAgents[new(resting.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } restCell } && IsRestSpot(restCell))
             {
                 // Recovery is judged on the state before this tick's relief.
                 var (stageBefore, heatBefore) = (resting.HealthStage, resting.HeatExposure);
