@@ -153,6 +153,20 @@
    26
   ]
  },
+ "pin_cows.png": {
+  "size": [
+   60,
+   76
+  ],
+  "tip_px": [
+   30,
+   66
+  ],
+  "disc_centre_px": [
+   30,
+   26
+  ]
+ },
  "pin_glow.png": {
   "size": [
    96,
@@ -249,6 +263,13 @@
   "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
  },
  "doodle_queue.png": {
+  "size": [
+   128,
+   128
+  ],
+  "note": "draw at 26 px in the card ring, 28 px in the guide ring (1280 x 720)"
+ },
+ "doodle_cows.png": {
   "size": [
    128,
    128

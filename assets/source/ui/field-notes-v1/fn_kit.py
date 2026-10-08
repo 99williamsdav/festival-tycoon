@@ -98,6 +98,16 @@ def doodle(d, name, cx, cy, s, col, w, seed=1):
             St([P(x - 3.6, 10), P(x - 3.4, 0.5), P(x - 1.6, -1.8), P(x + 1.6, -1.8), P(x + 3.4, 0.5), P(x + 3.6, 10)], w * 0.85)
         St([P(5.2, 3.5), P(8.5, 2.2)], w * 0.8); d.ellipse([P(7.6, 1.2), P(10.2, 3.6)], outline=col, width=max(1, int(w * 0.6)))   # wrist + watch
         St([P(11.5, -1.0), P(12.8, -2.4)], w * 0.6); St([P(12.2, 1.6), P(13.8, 1.2)], w * 0.6)                                    # tap marks
+    elif name == "cows":                             # a cow's face, front on: ears out wide, a patch over one eye, big muzzle
+        for sx in (-1, 1):                                                             # ears
+            d.polygon(wob([P(sx * 6.5, -5.5), P(sx * 12, -7.5), P(sx * 11.5, -3.8), P(sx * 6.5, -2.5)], rng, 0.2 * u), fill=col)
+            St([P(sx * 4.5, -8), P(sx * 6.5, -11.5)], w * 0.9)                         # little horns
+        St([P(-6.5, -8), P(6.5, -8), P(7, -1), P(5.5, 4), P(-5.5, 4), P(-7, -1), P(-6.5, -8)])   # head
+        d.polygon(wob([P(-6.3, -7.6), P(-0.5, -7.6), P(-1.2, -3.0), P(-4.2, -0.8), P(-6.6, -1.6)], rng, 0.25 * u), fill=col)   # patch
+        d.ellipse([P(-3.6, -3.4), P(-1.6, -1.4)], fill=hx("f5ebd6") if col[:3] == INK[:3] else col)      # eye inside the patch (paper)
+        d.ellipse([P(1.6, -3.4), P(3.6, -1.4)], fill=col)                                                 # other eye
+        St(circ(*P(0, 6.2), 6.6 * u, 0, 360, sq=0.62))                                                    # muzzle
+        for sx in (-1, 1): d.ellipse([P(sx * 2.6 - 0.9, 5.6), P(sx * 2.6 + 0.9, 7.4)], fill=col)          # nostrils
     elif name == "unknown":
         f = font("slabb", int(17 * u)); d.text((cx, cy + u), "?", font=f, fill=col, anchor="mm")
 
@@ -112,7 +122,8 @@ NOTES = [("wasps", "Wasps", "A full bin is a wasp magnet, which can be more than
          ("late", "Late", "The crowd came for the music, and their patience won't last forever..."),
          ("litter", "Litter", "Not everyone makes it to a bin, and nobody likes standing in rubbish..."),
          ("dusk", "Lights", "The lights are coming on, and they want their share of the power too..."),
-         ("queue", "Queue", "A long queue for food is a long time away from the music...")]
+         ("queue", "Queue", "A long queue for food is a long time away from the music..."),
+         ("cows", "Cows", "Cows have no interest in the music, but they'll happily wander off with your power if nobody walks them home...")]
 
 
 # ---------------------------------------------------------------- the note card

@@ -38,6 +38,7 @@ public partial class Main
         new("litter", "litter", "Litter", "Not everyone makes it to a bin, and nobody likes standing in rubbish..."),
         new("dusk", "dusk", "Lights", "The lights are coming on, and they want their share of the power too..."),
         new("queue", "queue", "Queue", "A long queue for food is a long time away from the music..."),
+        new("cows", "cows", "Cows", "Cows have no interest in the music, but they'll happily wander off with your power if nobody walks them home..."),
     ];
 
     private HashSet<string>? _fieldNotesSeen;
@@ -68,6 +69,9 @@ public partial class Main
                 Person(q.Performers.Where(r => r.SlotIndex == q.CurrentSlot).Select(r => r.AgentId)),
             "litter" => () => _session.CaptureLitter()?.Pieces.FirstOrDefault(w => w.Location == WasteLocation.Ground) is { } piece
                 ? [new Vector3(piece.XMillimetres / 1000f, 1.1f, piece.ZMillimetres / 1000f)] : null,
+            // Loose cows: the pin over each, at about head height.
+            "cows" => () => _session.CaptureCows()?.Loose is { Length: > 0 } loose
+                ? loose.Select(c => new Vector3(c.XMillimetres / 1000f, 2.2f, c.ZMillimetres / 1000f)).ToArray() : null,
             // A queue of four or more at the food van; the pin sits above its roof sign.
             "queue" => () => _session.CaptureVendors().FirstOrDefault(v => v.Id == "food" && v.Queue.Length >= 4) is { } van
                 ? [ImmersionPosition(van.Cell) + Vector3.Up * 5.4f] : null,

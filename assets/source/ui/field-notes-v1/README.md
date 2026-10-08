@@ -19,10 +19,10 @@ GoldInk `6b4f16`, Ink `1f2a26`, InkMuted `56615a`, outline `1d2a25` and wasp yel
 
 | File | Size | Use |
 |---|---|---|
-| `pin_<id>.png` × 11 | 60 × 76 | World pin per note id (`wasps heat drink stuck toxic power tempers late litter dusk queue`). The tip is at pixel (30, 66). |
+| `pin_<id>.png` × 12 | 60 × 76 | World pin per note id (`wasps heat drink stuck toxic power tempers late litter dusk queue cows`). The tip is at pixel (30, 66). |
 | `pin_glow.png` | 96 × 96 | Dusk halo behind a pin, centred on the pin's disc centre. |
 | `wasp_marker.png` / `wasp_marker_16.png` | 32 / 16 | Striped badge over allergic guests. |
-| `doodle_<id>.png` × 11, `doodle_unknown.png` | 128 | Ink doodles for the card and guide rings. `unknown` is the "?" for blanks. |
+| `doodle_<id>.png` × 12, `doodle_unknown.png` | 128 | Ink doodles for the card and guide rings. `unknown` is the "?" for blanks. |
 | `ring.png` | 92 | Hand-drawn gold ring (card and guide). |
 | `ring_blank.png` | 100 | Dashed ring for unseen guide entries. |
 | `torn_edge.png` | 256 × 14 | The card's torn bottom edge. Tiles horizontally, period 256. |
