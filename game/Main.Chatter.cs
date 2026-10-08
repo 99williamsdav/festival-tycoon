@@ -296,6 +296,17 @@ public partial class Main
                     : "Ahh, lovely", Mood.Happy, 1, "bought", 5, $"bought:{index}"));
         }
 
+        // Dav's tanker, which everyone calls Dirty Henry: cheered in, then cursed while it pumps.
+        foreach (var call in _session.CaptureLavSucker()?.Calls ?? [])
+        {
+            if (call.Stage == LavSuckerStage.Gone) continue;
+            var truck = new Vector3(call.XMillimetres / 1000f, 0, call.ZMillimetres / 1000f);
+            foreach (var id in Near(truck, 8))
+                remarks.Add(call.Stage == LavSuckerStage.Pumping
+                    ? new(id, Pick(id, "Oh, that's rank!", "Who ordered the smell?", "Dirty Henry's at it again", "I'm never unseeing that", "Eurgh, not near the food!"), Mood.Grumble, 2, "henry:pump", 12)
+                    : new(id, Pick(id, "Here comes Dirty Henry!", "It's Dirty Henry!", "Make way for Dirty Henry", "Dirty Henry's here!"), Mood.Neutral, 1, "henry:drive", 20));
+        }
+
         // The heat, the loos' smell and wasps at a full bin.
         foreach (var id in guests.Keys.Where(Free))
         {
