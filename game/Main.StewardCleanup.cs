@@ -67,6 +67,26 @@ public partial class Main
             Jaw = (Node3D)picker.FindChild("PickerJawSocket", true, false), Rig = rig,
             Pivots = names.ToDictionary(n => n, n => (Node3D)body.FindChild(n, true, false)) };
     }
+    /// <summary>The kit carried by a walking rigged steward: false for a still body, which keeps the posed cleanup body.</summary>
+    private bool CarryCleanupKit(Node3D actor, CleanupView view)
+    {
+        if (!actor.HasMeta("GuestRigged") || !actor.GetMeta("GuestRigged").AsBool() ||
+            actor.FindChild("LWF_RightHand_Cup", true, false) is not Node3D grip ||
+            actor.FindChildren("*", "Skeleton3D", true, false).OfType<Skeleton3D>().FirstOrDefault() is not { } skeleton ||
+            skeleton.FindBone("LeftHand") is var left && left < 0) return false;
+        CleanupOrdinaryBody(actor, true); view.Body.Visible = false;
+        if (view.Waste is not null) view.Waste.Visible = false;
+        Bodies.SetRigMode(actor, "litter");
+        // Upright in the steward's facing whatever the hand bones are doing: the picker hangs from the grip, tip a
+        // little ahead; the bag hangs from its mouth under the left hand.
+        var facing = skeleton.GlobalBasis.Orthonormalized();
+        var yaw = new Basis(Vector3.Up, Mathf.Atan2(facing.Z.X, facing.Z.Z));
+        view.Picker.GlobalTransform = new(yaw * new Basis(Vector3.Right, Mathf.DegToRad(22)), grip.GlobalPosition);
+        var hand = (skeleton.GlobalTransform * skeleton.GetBoneGlobalPose(left)).Origin;
+        view.Bag.GlobalTransform = new(yaw, hand - yaw * new Vector3(-.175f, .02f, 0));
+        return true;
+    }
+
     private static void ApplyCleanupPose(CleanupView view, CleanupPoseFrame frame)
     {
         view.Pivots["UpperPivot"].Transform = CleanupTransform(frame.Hip);
@@ -102,7 +122,11 @@ public partial class Main
             if (visual.Mode == StewardCleanupMode.Stowed || !_attendeeVisuals.TryGetValue(id, out var actor) ||
                 !actor.HasMeta("RoleKey") || actor.GetMeta("RoleKey").AsString() != "steward") continue;
             if (!_cleanupViews.TryGetValue(id, out var view)) _cleanupViews[id] = view = CreateCleanupView(actor);
-            view.Root.Visible = true; CleanupOrdinaryBody(actor, false);
+            view.Root.Visible = true;
+            // On the move between pieces, a rigged steward keeps their own walking body, picker in the right hand
+            // and bag in the left; the posed cleanup body takes over only to bend for a piece or empty a bin.
+            if (visual.Mode == StewardCleanupMode.Equipped && CarryCleanupKit(actor, view)) continue;
+            view.Body.Visible = true; CleanupOrdinaryBody(actor, false);
             view.Root.Transform = Transform3D.Identity;
             var contact = new Vector3(0, 0, -.2f); var ground = Transform3D.Identity; var centre = Vector3.Zero;
             if (visual.Waste is { } waste)

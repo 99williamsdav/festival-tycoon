@@ -77,6 +77,9 @@ public partial class Main
             }
             view.Body.Position = ImmersionPosition(bin.Cell); view.Body.RotationDegrees = new(0, bin.QuarterTurns * 90, 0);
             view.Part.Visible = bin.Pieces is > 0 and < LitterRules.BinCapacity;
+            // The part-full layer (modelled at 0.55-0.75 m) rises with the fill: near the floor when a few pieces are in,
+            // just under the full heap's level at the brim.
+            view.Part.Position = new Vector3(0, -.45f + .65f * Mathf.Clamp(bin.Pieces / (float)LitterRules.BinCapacity, 0, 1), 0);
             view.Full.Visible = bin.Pieces >= LitterRules.BinCapacity;
             view.Wasps.Visible = bin.Wasps;
             view.Wasps.Position = view.Body.Position;

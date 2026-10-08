@@ -69,6 +69,12 @@ internal sealed partial class CrowdBodies
             drinking ? product == ImmersionProduct.Beer ? "drink" : "drink_soft" : "carry");
     }
 
+    /// <summary>Sets a rigged body's hands mode directly (as "litter" for a steward walking with the cleanup kit).</summary>
+    public void SetRigMode(Node3D root, string mode)
+    {
+        if (root.HasMeta(RigMeta) && root.GetMeta(RigMeta).AsBool()) root.SetMeta(RigModeMeta, mode);
+    }
+
     /// <summary>Puts the head's pieces on the head bone of a rigged body, or back on the root for a still one.</summary>
     private static void SyncGuestHead(Node3D root)
     {

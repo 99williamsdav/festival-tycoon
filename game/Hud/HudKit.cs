@@ -52,6 +52,13 @@ internal static class HudKit
         theme.SetColor("font_selected_color", "TabContainer", HudInk);
         theme.SetColor("font_unselected_color", "TabContainer", HudInk);
         theme.SetColor("font_color", "Label", HudInk);
+        // Tooltips are a Label variation, so they'd take the dark ink above onto Godot's dark tooltip panel: give them paper.
+        theme.SetColor("font_color", "TooltipLabel", HudInk);
+        theme.SetFont("font", "TooltipLabel", Ui.Body);
+        theme.SetFontSize("font_size", "TooltipLabel", 14);
+        var tip = new StyleBoxFlat { BgColor = HudPaper, BorderColor = Ui.PaperEdge, ShadowColor = new Color(0, 0, 0, .25f), ShadowSize = 4 };
+        tip.SetBorderWidthAll(1); tip.SetCornerRadiusAll(4); tip.SetContentMarginAll(7);
+        theme.SetStylebox("panel", "TooltipPanel", tip);
         theme.SetStylebox("background", "ProgressBar", new StyleBoxFlat { BgColor = new Color("d7cfb0") });
         theme.SetStylebox("fill", "ProgressBar", new StyleBoxFlat { BgColor = Colors.White });
         return theme;
