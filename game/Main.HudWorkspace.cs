@@ -230,7 +230,7 @@ public partial class Main
         if (_session.CapturePreparationPlan() is { Committed: false })
         {
             var funds = _session.CaptureSnapshot().FestivalFinances.Single().CashPennies;
-            var costs = $"Available {FestivalCurrency.Format(funds)} • Setup {FestivalCurrency.Format(_session.PreparationPlanCost)} • Remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}";
+            var costs = $"Available {FestivalCurrency.Format(funds + _session.PlannedPitchFeePennies)} • Setup {FestivalCurrency.Format(_session.PreparationPlanCost)} • Remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}";
             _hudStartReason.Text = costs + "\n" + _hudStartReason.Text;
             _hudStartConfirmation!.DialogText = costs + "\nPay the complete setup once and open for the full fixed roster.";
             _hudStartConfirmation.DialogText = Drawer.CostSummary() + "\nPay this complete setup once and open the festival?";
@@ -258,7 +258,7 @@ public partial class Main
             $"Owned rig {p.OwnedEquipment.Length} · rental {p.Rentals.Length} · equipment & stock optional";
         if (preparing && p.Plan is { } plan)
         {
-            _preparationSummary.Text = $"Available {FestivalCurrency.Format(finance.CashPennies)}\nSetup cost {FestivalCurrency.Format(_session.PreparationPlanCost)} · remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}\n" +
+            _preparationSummary.Text = $"Available {FestivalCurrency.Format(finance.CashPennies + _session.PlannedPitchFeePennies)}\nSetup cost {FestivalCurrency.Format(_session.PreparationPlanCost)} · remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}\n" +
                 $"Unpaid lineup: {plan.ActIds.Count(id => id != "")}/3 acts\nPlanned hires: {string.Join(", ", plan.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nOwned rig {p.OwnedEquipment.Length} · selected rig {(plan.OfferIds.SingleOrDefault(id => id.StartsWith("equipment.")) ?? "none")}\nFreely revise purchases. Existing site and perk property stays committed.";
         }
         if (_medicalActionInspector is not null)

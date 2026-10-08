@@ -294,16 +294,21 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var drafted = session.PreparationPlanCost;
         var left = session.PreparationRemainingCash;
         _drafted!.Text = FestivalCurrency.Format(drafted);
-        _draftedOf!.Text = $"drafted of {FestivalCurrency.Format(funds)}";
+        // The food trader's pitch fee comes in at Start, so it's part of what there is to spend.
+        var pitch = session.PlannedPitchFeePennies;
+        var spendable = funds + pitch;
+        _draftedOf!.Text = $"drafted of {FestivalCurrency.Format(spendable)}";
         var fundsTier = session.CapturePreparation()!.Tier;
-        _draftedOf.TooltipText = $"{FestivalCurrency.Format(funds)} to spend: {FestivalTickets.Sold(fundsTier)} advance tickets at {FestivalCurrency.Format(FestivalTickets.PricePennies(fundsTier))}, the rest a loan.";
+        _draftedOf.TooltipText = $"{FestivalCurrency.Format(funds)} in hand: {FestivalTickets.Sold(fundsTier)} advance tickets at {FestivalCurrency.Format(FestivalTickets.PricePennies(fundsTier))}, the rest a loan." +
+            (pitch > 0 ? $" Plus {FestivalCurrency.Format(pitch)} from {session.FoodTrader.Name} to pitch." : "") +
+            $" You can go up to {FestivalCurrency.Format(CampaignDefaults.OverdraftPennies)} into overdraft.";
         _draftedOf.MouseFilter = Control.MouseFilterEnum.Pass;
         _left!.Text = left >= 0 ? $"{FestivalCurrency.Format(left)} left" : $"{FestivalCurrency.Format(-left)} over";
         _left.AddThemeColorOverride("font_color", left >= 0 ? Ui.Good : Ui.Warn);
-        _budgetBar!.Value = funds <= 0 ? 0 : Math.Clamp((double)drafted / funds, 0, 1);
+        _budgetBar!.Value = spendable <= 0 ? 0 : Math.Clamp((double)drafted / spendable, 0, 1);
         _breakdown!.Text = _nav.Placing ? _hud.Message :
             $"Build {FestivalCurrency.Format(costs.Services)} · acts {FestivalCurrency.Format(costs.Acts)} · staff {FestivalCurrency.Format(costs.Staff)} · " +
-            $"supplies {FestivalCurrency.Format(costs.Supplies)} — paid only at Start";
+            $"supplies {FestivalCurrency.Format(costs.Supplies)}" + (pitch > 0 ? $" · van pays {FestivalCurrency.Format(pitch)}" : "");
 
         var issue = _nav.Placing ? "Finish or cancel placement" :
             missing.FirstOrDefault()?.Detail ?? session.ValidateCommand(_hud.Host.Envelope(new StartPreparedEditionCommand()))?.Message;
