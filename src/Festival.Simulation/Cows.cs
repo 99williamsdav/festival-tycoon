@@ -11,6 +11,8 @@ public sealed record LooseCow(string Id, int XMillimetres, int ZMillimetres, Cow
 {
     /// <summary>The steward sent to drive it home, once the player has asked.</summary>
     public ulong? HerderId { get; init; }
+    /// <summary>When the steward was sent; -1 when nobody is herding it.</summary>
+    public long HerdStartedTick { get; init; } = -1;
     /// <summary>The steward has reached it and is walking it back to the gate.</summary>
     public bool Driving { get; init; }
 }
@@ -40,6 +42,8 @@ public static class CowRules
     public const int ChewChancePer10k = 200;
     /// <summary>How close a steward must get before the cow walks on ahead of them.</summary>
     public const int HerdReachCells = 2;
+    /// <summary>Long enough to cross the site twice at a cow's pace; a herd that takes longer has gone wrong and gives up.</summary>
+    public const int HerdDeadlineTicks = 9_600;
     /// <summary>Loose cows keep to the festival site, a cow's length clear of its hedges.</summary>
     public const int SiteMinCell = 69, SiteMaxCell = 186;
 
@@ -188,7 +192,7 @@ public sealed partial class GameSession
             long dx = at.XMillimetres - cow.XMillimetres, dz = at.ZMillimetres - cow.ZMillimetres;
             if (dx * dx + dz * dz > (long)CowRules.CableReachMillimetres * CowRules.CableReachMillimetres) continue;
             if (OpenFaults.Any(f => f.FacilityId == "cable." + utility)) continue;
-            if (CowRules.Draw(CampaignSeed, "cable." + utility, CurrentTick, (ulong)cow.Id.GetHashCode(StringComparison.Ordinal) & 0xFFFF, 10_000) >= CowRules.ChewChancePer10k) continue;
+            if (CowRules.Draw(CampaignSeed, $"cable.{utility}:{cow.Id}", CurrentTick, 0, 10_000) >= CowRules.ChewChancePer10k) continue;
             AddFault($"cable:{utility}:{CurrentTick}", FacilityFaultKind.ChewedCable, "cable." + utility, 0);
             MedicalEvent("cows:cable", $"A loose cow chewed through the {utility} cable.");
             return;
@@ -198,10 +202,15 @@ public sealed partial class GameSession
     private LooseCow? AdvanceHerdedCow(LooseCow cow, ulong herder)
     {
         var nav = _navigationAgents[new(herder)];
-        // Anything else that takes the steward's route (a fight, a collapse) lets the cow go back to grazing.
-        if (nav.IntentId?.StartsWith("cow.", StringComparison.Ordinal) != true || PersonCollapsed(herder) ||
-            PersonIn(PersonView.Roster, herder) is not { Admitted: true, Departed: false })
-            return cow with { HerderId = null, Driving = false, Activity = CowActivity.Grazing, Route = [], RouteIndex = 0, UntilTick = CurrentTick + 400 };
+        // Anything else that takes the steward's route (a fight, a collapse) lets the cow go back to grazing; so does a cow
+        // the steward can't reach, or a herd that's run far too long.
+        var lost = nav.IntentId?.StartsWith("cow.", StringComparison.Ordinal) != true || PersonCollapsed(herder) ||
+            PersonIn(PersonView.Roster, herder) is not { Admitted: true, Departed: false };
+        if (lost || nav.Action == AgentNavigationAction.NoRoute || CurrentTick - cow.HerdStartedTick > CowRules.HerdDeadlineTicks)
+        {
+            if (!lost) ReturnToListening(herder);
+            return cow with { HerderId = null, HerdStartedTick = -1, Driving = false, Activity = CowActivity.Grazing, Route = [], RouteIndex = 0, UntilTick = CurrentTick + 400 };
+        }
         var cowCell = TraversalGrid.WorldToCell(cow.XMillimetres, cow.ZMillimetres);
         if (!cow.Driving)
         {
@@ -240,24 +249,34 @@ public sealed partial class GameSession
         var (steward, _) = CowHerder(command.CowId);
         var cow = _cows!.Loose.Single(c => c.Id == command.CowId);
         RecallWorker(steward, "Steward sent to herd a cow");
-        _cows = _cows with { Loose = _cows.Loose.Select(c => c.Id == cow.Id ? c with { HerderId = steward, Activity = CowActivity.Herded, Route = [], RouteIndex = 0 } : c).ToArray() };
+        _cows = _cows with { Loose = _cows.Loose.Select(c => c.Id == cow.Id ? c with { HerderId = steward, HerdStartedTick = CurrentTick, Activity = CowActivity.Herded, Route = [], RouteIndex = 0 } : c).ToArray() };
         ApplyAgentDestination(new(steward), new(WalkableNear(TraversalGrid.WorldToCell(cow.XMillimetres, cow.ZMillimetres)), "cow.fetch"));
     }
 
     private static string? ValidatePersistedCows(SessionPersistenceSnapshot s)
     {
-        if (s.Cows is not { } c) return null;
+        if (s.Cows is not { } c) return s.Preparation?.Plan is null ? null : "Current Build save requires cow state.";
         if (c.Version != 1 || !Enum.IsDefined(c.Gate) || c.Loose is null || c.Escaped < 0 || c.Escaped > CowRules.HerdSize * 4 ||
             c.Loose.Length > c.Escaped || c.Loose.Select(cow => cow.Id).Distinct().Count() != c.Loose.Length ||
             c.Gate == PastureGateState.Closed && c.Escaped != 0)
             return "Cow state shape invalid.";
+        // The gate's state and its fault agree: broken while the fault's open, repaired once it's mended.
+        var gateFaults = (s.Faults?.Faults ?? []).Where(f => f.Kind == FacilityFaultKind.BrokenGate).ToArray();
+        if (c.Gate == PastureGateState.Closed ? gateFaults.Length != 0 :
+            gateFaults.Length != 1 || (gateFaults[0].Stage == FacilityFaultStage.Active) != (c.Gate == PastureGateState.Broken))
+            return "Pasture gate and its fault disagree.";
         var grid = new TraversalGrid();
         var stewards = (s.Disorder?.Stewards ?? []).Select(w => w.WorkerId).ToHashSet();
+        static bool OnSite(GridCell cell) => cell.X >= CowRules.SiteMinCell && cell.X <= CowRules.GateInside.X + 1 && cell.Z >= CowRules.SiteMinCell && cell.Z <= CowRules.SiteMaxCell;
         foreach (var cow in c.Loose)
         {
             var cell = TraversalGrid.WorldToCell(cow.XMillimetres, cow.ZMillimetres);
-            if (!Enum.IsDefined(cow.Activity) || !grid.Contains(cell) || cow.Route is null || cow.RouteIndex < 0 || cow.RouteIndex > cow.Route.Length ||
+            if (!Enum.IsDefined(cow.Activity) || !grid.Contains(cell) || !OnSite(cell) || cow.Route is null || cow.RouteIndex < 0 || cow.RouteIndex > cow.Route.Length ||
+                cow.Route.Any(r => !grid.Contains(r) || !OnSite(r)) ||
+                cow.Route.Zip(cow.Route.Skip(1)).Any(pair => Math.Max(Math.Abs(pair.First.X - pair.Second.X), Math.Abs(pair.First.Z - pair.Second.Z)) > 1) ||
+                cow.Activity == CowActivity.Grazing && cow.Route.Length != 0 || cow.Activity == CowActivity.Ambling && cow.RouteIndex >= cow.Route.Length ||
                 (cow.HerderId is null) == (cow.Activity == CowActivity.Herded) || cow.Driving && cow.HerderId is null ||
+                (cow.HerderId is null) != (cow.HerdStartedTick < 0) || cow.HerdStartedTick > s.CurrentTick ||
                 cow.HerderId is { } h && (!stewards.Contains(h) || s.NavigationAgents?.SingleOrDefault(n => n.Id == h)?.IntentId?.StartsWith("cow.", StringComparison.Ordinal) != true))
                 return "Loose cow invalid.";
         }

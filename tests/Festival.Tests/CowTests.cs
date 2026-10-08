@@ -119,4 +119,22 @@ public sealed class CowTests
         Assert.AreEqual(count, s.CaptureCows()!.Loose.Length, "Stewards leave cows alone until told.");
         Assert.IsTrue(s.CaptureCows()!.Loose.All(c => c.HerderId is null));
     }
+
+    [TestMethod]
+    public void AHerdThatRunsFarTooLongGivesUpAndFreesTheSteward()
+    {
+        var s = WithCowsLoose();
+        var cow = s.CaptureCows()!.Loose.First();
+        Assert.IsTrue(Send(s, new HerdCowCommand(cow.Id)).IsAccepted);
+        var field = typeof(GameSession).GetField("_cows", Private)!;
+        var cows = (CowsSnapshot)field.GetValue(s)!;
+        var steward = cows.Loose.Single(c => c.Id == cow.Id).HerderId!.Value;
+        // As if the steward had been trying, and failing, to reach it for longer than any herd should take.
+        field.SetValue(s, cows with { Loose = cows.Loose.Select(c => c.Id == cow.Id ? c with { HerdStartedTick = s.CurrentTick - CowRules.HerdDeadlineTicks - 1 } : c).ToArray() });
+        s.AdvanceWithoutSnapshot(1);
+        var after = s.CaptureCows()!.Loose.Single(c => c.Id == cow.Id);
+        Assert.IsNull(after.HerderId, "The herd's called off.");
+        Assert.AreEqual(CowActivity.Grazing, after.Activity);
+        Assert.IsNull(typeof(GameSession).GetMethod("StaffUnavailableReason", Private)!.Invoke(s, [steward]), "The steward's free for other work.");
+    }
 }
