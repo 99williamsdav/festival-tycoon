@@ -14,7 +14,7 @@ public sealed partial class GameSession
         if (HasClaim(id, PersonClaims.ResponseAssigned))
             return "Already assigned; finish the current response or manual guidance.";
         if (PersonalActivityInService(id)) return "Finishing a drink, purchase, toilet visit or rest.";
-        if (FaultWorkOwns(id)) return "Busy freeing someone from a toilet or mending a tap.";
+        if (FaultWorkOwns(id)) return CowWorkOwns(id) ? "Busy herding a cow." : "Busy with a repair or freeing someone from a toilet.";
         if (_persons[id].Intent is MedicalIntent.AwaitMedic or MedicalIntent.Leaving or MedicalIntent.Collapsed)
             return "Busy with medical care or departure.";
         return null;

@@ -58,7 +58,8 @@ public partial class Main
             (_selectedBinId is { } binId && _binViews.TryGetValue(binId, out var selectedBin) && ContextVisualAvailable(selectedBin.Body)) ||
             (_selectedToilet && _selectedToiletId is { } toiletId && _toiletViews.TryGetValue(toiletId, out var selectedToilet) && ContextVisualAvailable(selectedToilet.Body)) ||
             (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0) ||
-            (_selectedGenerator && _session.CaptureEquipment() is not null && ContextVisualAvailable(_equipmentVisual));
+            (_selectedGenerator && _session.CaptureEquipment() is not null && ContextVisualAvailable(_equipmentVisual)) ||
+            (_selectedCowId is { } cowId && _looseCows.ContainsKey(cowId));
         if (Dock.Readiness is { } readiness)
             readiness.Visible = Dock.Visible && !((IPreparationNavigation)this).ReadinessCovered;
     }

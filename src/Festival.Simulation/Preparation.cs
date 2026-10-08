@@ -396,6 +396,7 @@ public sealed partial class GameSession
     {
         _litter = EmptyLitter;
         _faults = EmptyFaults;
+        _cows = EmptyCows;
         ResetGround();
         var p = _preparation!;
         var baseline = CreateFoodAndDrinkBaseline(CampaignSeed);

@@ -1,0 +1,154 @@
+{
+ "note": "Godot world metres; yaw degrees about +Y. Built by build_cow_pasture.py.",
+ "hedge_remove": [
+  {
+   "file": "lwf_hedge_straight_8m_d_v1.glb",
+   "x": 32.0,
+   "z": 0.0,
+   "yaw": 90,
+   "why": "Main.BuildHedgeBoundary east run i = 0 (Hedge(i + 7) = 'd'), covers z 0 .. -8"
+  }
+ ],
+ "hedge_add": [
+  {
+   "file": "lwf_hedge_gate_end_v1.glb",
+   "x": 32.0,
+   "z": 0.0,
+   "yaw": 90,
+   "covers_z": [
+    0.0,
+    -1.0
+   ]
+  },
+  {
+   "file": "lwf_hedge_gate_end_v1.glb",
+   "x": 32.0,
+   "z": -5.3,
+   "yaw": 270,
+   "covers_z": [
+    -5.4,
+    -4.3
+   ]
+  },
+  {
+   "file": "lwf_hedge_straight_4m_a_v1.glb",
+   "x": 32.0,
+   "z": -4.6,
+   "yaw": 90,
+   "covers_z": [
+    -4.6,
+    -8.6
+   ]
+  }
+ ],
+ "opening_z": [
+  -1.0,
+  -4.3
+ ],
+ "gate": {
+  "file": "lwf_field_gate_oak_v1.glb",
+  "x": 32.0,
+  "z": -2.65,
+  "yaw": 0,
+  "pivot_node": "LWF_FieldGate_LeafPivot",
+  "closed_rotation_y": 90.0,
+  "open_rotation_y": 0.0,
+  "leaves": {
+   "intact": "LWF_FieldGate_LeafIntact",
+   "broken": "LWF_FieldGate_LeafBroken",
+   "repaired": "LWF_FieldGate_LeafRepaired"
+  },
+  "repair_node": "LWF_FieldGate_Repair"
+ },
+ "pasture": {
+  "ground": {
+   "file": "lwf_cow_pasture_ground_v1.glb",
+   "x": 45.2,
+   "z": -2.0,
+   "yaw": 0
+  },
+  "fence": {
+   "file": "lwf_cow_pasture_fence_v1.glb",
+   "x": 45.2,
+   "z": -2.0,
+   "yaw": 0
+  },
+  "trough": {
+   "file": "lwf_water_trough_v1.glb",
+   "x": 35.5,
+   "z": -6.6,
+   "yaw": 0
+  },
+  "feeder": {
+   "file": "lwf_hay_ring_feeder_v1.glb",
+   "x": 44.0,
+   "z": 6.0,
+   "yaw": 0
+  },
+  "cows_suggested": [
+   {
+    "x": 38.5,
+    "z": -3.0,
+    "yaw": 200
+   },
+   {
+    "x": 36.4,
+    "z": -7.8,
+    "yaw": 105
+   },
+   {
+    "x": 41.0,
+    "z": -9.5,
+    "yaw": 30
+   },
+   {
+    "x": 44.5,
+    "z": -2.5,
+    "yaw": 260
+   },
+   {
+    "x": 40.0,
+    "z": 4.5,
+    "yaw": 150
+   },
+   {
+    "x": 47.5,
+    "z": 9.5,
+    "yaw": 320
+   },
+   {
+    "x": 43.0,
+    "z": 11.5,
+    "yaw": 80
+   },
+   {
+    "x": 50.5,
+    "z": -6.0,
+    "yaw": 190
+   },
+   {
+    "x": 52.0,
+    "z": 3.5,
+    "yaw": 10
+   },
+   {
+    "x": 46.0,
+    "z": -14.0,
+    "yaw": 120
+   }
+  ]
+ },
+ "cable": {
+  "intact": "lwf_power_lead_v1.glb",
+  "chewed": "lwf_power_lead_chewed_v1.glb",
+  "spark_anchor": "LWF_Spark_Anchor",
+  "spark_node": "LWF_Spark",
+  "icon": "game/assets/ui/field-notes/pin_chewed_cable.png",
+  "example": {
+   "at": "hire generator socket side",
+   "x": 28.1,
+   "z": -5.8,
+   "yaw": 0
+  }
+ }
+}

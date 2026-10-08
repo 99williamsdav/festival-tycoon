@@ -105,6 +105,21 @@ public partial class Main
                     yield return ($"freed:{fault.Id}", new("door-closed", $"{NameOf(fault.VictimId)} is out of the loo at last", good,
                         LocatePerson(fault.VictimId)));
             }
+            else if (fault.Kind == FacilityFaultKind.BrokenGate)
+            {
+                yield return ($"gate:{fault.Id}", new("triangle-alert", "The field gate's broken: cows are loose!", warm, LocateCell(CowRules.GateInside)));
+                if (fault.Stage != FacilityFaultStage.Active)
+                    yield return ($"gatefix:{fault.Id}", new("wrench", "The field gate's mended", good, LocateCell(CowRules.GateInside)));
+            }
+            else if (fault.Kind == FacilityFaultKind.ChewedCable)
+            {
+                var utility = fault.FacilityId["cable.".Length..];
+                var name = utility switch { "generator" => "the generator", "drinks" => "the bar", _ => "the food van" };
+                var spot = _session.CableSpots().Where(s => s.Utility == utility).Select(s => s.Spot).DefaultIfEmpty(CowRules.GateInside).First();
+                yield return ($"cable:{fault.Id}", new("zap", $"A cow has chewed through {name}'s cable!", bad, LocateCell(spot)));
+                if (fault.Stage != FacilityFaultStage.Active)
+                    yield return ($"cablefix:{fault.Id}", new("wrench", $"{char.ToUpper(name[0])}{name[1..]}'s cable is spliced", good, LocateCell(spot)));
+            }
             else
             {
                 var tap = _session.CaptureWaterPoints().FirstOrDefault(t => t.Id == fault.FacilityId);

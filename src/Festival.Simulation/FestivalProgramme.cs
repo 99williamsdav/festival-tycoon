@@ -127,7 +127,7 @@ public sealed partial class GameSession
         if (live.Stage != LiveSetStage.Finished)
         {
             var ready = live.Performers.All(person => person.OnStage);
-            _programme = q with { Status = live.Stage == LiveSetStage.Live ? "Playing" : live.Stage == LiveSetStage.Interrupted ? (_equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? "Power interrupted" : "Paused: performer away from stage marks") : CurrentTick >= live.PlannedTick && !ready ? "Late: performers not on marks" : "Performers approaching stage" };
+            _programme = q with { Status = live.Stage == LiveSetStage.Live ? "Playing" : live.Stage == LiveSetStage.Interrupted ? (!StagePowered ? "Power interrupted" : "Paused: performer away from stage marks") : CurrentTick >= live.PlannedTick && !ready ? "Late: performers not on marks" : "Performers approaching stage" };
             return;
         }
         if (q.CurrentSlot >= 2) { _programme = q with { Status = "Final set finished; performers remain on farm" }; return; }

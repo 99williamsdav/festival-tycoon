@@ -136,6 +136,7 @@ public sealed partial class GameSession
         SetToilets(PlacedToilets(p));
         _litter ??= EmptyLitter;
         _faults ??= EmptyFaults;
+        _cows ??= EmptyCows;
         if (_groundWear is null) ResetGround();
     }
 

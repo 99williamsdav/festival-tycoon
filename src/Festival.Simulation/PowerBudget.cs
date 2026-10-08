@@ -53,7 +53,7 @@ public sealed partial class GameSession
         var e = _equipment;
         var live = _preparation?.Status is PreparationStatus.Running or PreparationStatus.Departing or PreparationStatus.Failed or PreparationStatus.Finished;
         // A rig draws its full power only while a set is playing; before opening, the plan shows that peak.
-        var stage = e?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? 0 :
+        var stage = !StagePowered ? 0 :
             !live || _livePerformance?.Stage == LiveSetStage.Live ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
         int Stall(string id, bool powered) => _immersion is not null && Vendors.Any(v => v.Id == id) && (!live || powered) ? PowerRules.StallDraw : 0;
         var lightsOn = !live || _preparation!.StartedTick >= 0 && CurrentTick >= _preparation.StartedTick + PowerRules.LightsOnTick;
@@ -62,7 +62,8 @@ public sealed partial class GameSession
     }
 
     /// <summary>Whether a stall has power to serve: the bar or food van may be switched off to spare the generator.</summary>
-    public bool StallPowered(string vendorId) => !PowerBudgetActive || (vendorId == "drinks" ? _equipment!.BarPowered : _equipment!.FoodPowered);
+    public bool StallPowered(string vendorId) => (!PowerBudgetActive || (vendorId == "drinks" ? _equipment!.BarPowered : _equipment!.FoodPowered)) &&
+        !CableCut(vendorId) && !CableCut("generator");
 
     /// <summary>One tick of the power budget: strain builds over capacity and eases under it, and drives the warning.</summary>
     private void AdvancePowerBudget(EquipmentSnapshot e)

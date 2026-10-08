@@ -1,6 +1,6 @@
 namespace Festival.Simulation;
 
-public enum FacilityFaultKind { StuckInToilet, BrokenTap }
+public enum FacilityFaultKind { StuckInToilet, BrokenTap, ChewedCable, BrokenGate }
 /// <summary>Active blocks the facility; a bodged tap works again at reduced flow; fixed is done with.</summary>
 public enum FacilityFaultStage { Active, Bodged, Fixed }
 
@@ -92,7 +92,9 @@ public sealed partial class GameSession
     private IEnumerable<FacilityFault> OpenFaults => (_faults?.Faults ?? []).Where(f => f.Stage != FacilityFaultStage.Fixed);
     public FacilityFault? ActiveFault(string facilityId) => OpenFaults.FirstOrDefault(f => f.FacilityId == facilityId && f.Stage == FacilityFaultStage.Active);
     public bool TapBodged(string tapId) => OpenFaults.Any(f => f.FacilityId == tapId && f.Stage == FacilityFaultStage.Bodged);
-    private bool FaultWorkOwns(ulong id) => OpenFaults.Any(f => f.WorkerId == id);
+    private bool FaultWorkOwns(ulong id) => OpenFaults.Any(f => f.WorkerId == id) || CowWorkOwns(id);
+    /// <summary>A cow's doing: a chewed cable or the broken pasture gate, which only the maintenance worker can mend.</summary>
+    private static bool CowFault(FacilityFaultKind kind) => kind is FacilityFaultKind.ChewedCable or FacilityFaultKind.BrokenGate;
     private bool Unconscious(ulong id) => _persons[id].HealthStage is MedicalStage.Collapsed or MedicalStage.Critical;
 
     /// <summary>Whether a toilet is full enough to poison anyone jammed inside it.</summary>
@@ -126,6 +128,8 @@ public sealed partial class GameSession
             { Kind: FacilityFaultKind.StuckInToilet } when Unconscious(fault.VictimId) => $"COLLAPSED INSIDE • {Who(fault.VictimId)} needs the door opened for first aid • {help}",
             { Kind: FacilityFaultKind.StuckInToilet } when ToiletToxic(fault.FacilityId) => $"TOXIC • {Who(fault.VictimId)} is choking on the fumes ({(CurrentTick - fault.StartedTick) / 80}s of {FaultRules.PoisonCollapseTicks / 80}s) • {help}",
             { Kind: FacilityFaultKind.StuckInToilet } => $"STUCK • {Who(fault.VictimId)} can't get out ({(CurrentTick - fault.StartedTick) / 80}s) • {help}",
+            { Kind: FacilityFaultKind.ChewedCable } => $"CABLE CHEWED • no power until it's spliced • {(_equipment?.WorkerId is null ? "needs a maintenance worker" : help)}",
+            { Kind: FacilityFaultKind.BrokenGate } => $"GATE BROKEN • cows can get out • {(_equipment?.WorkerId is null ? "needs a maintenance worker" : help)}",
             { Stage: FacilityFaultStage.Active } => $"BROKEN • no water until mended • {(_equipment?.WorkerId is null && fault.WorkerId is null ? "a steward can bodge it" : help)}",
             _ => $"BODGED • half flow{(_equipment?.WorkerId is null ? "" : fault.WorkerId is null ? " • maintenance will mend it" : $" • {help}")}",
         };
@@ -192,6 +196,11 @@ public sealed partial class GameSession
     private GridCell? FaultWorkCell(FacilityFault fault, ulong worker)
     {
         var here = TraversalGrid.WorldToCell(_navigationAgents[new(worker)].XMillimetres, _navigationAgents[new(worker)].ZMillimetres);
+        if (CowFault(fault.Kind))
+        {
+            var spot = CowFaultCell(fault);
+            return DeterministicPathfinder.FindPath(_traversalGrid!, here, spot).Found ? spot : null;
+        }
         if (fault.Kind == FacilityFaultKind.StuckInToilet)
         {
             // At the door if it can be reached, else the exit spot beside it, so a steward never loops on no route.
@@ -206,6 +215,9 @@ public sealed partial class GameSession
             .OrderBy(c => (long)(c.X - here.X) * (c.X - here.X) + (long)(c.Z - here.Z) * (c.Z - here.Z)).ThenBy(c => c.X).ThenBy(c => c.Z)
             .Where(c => DeterministicPathfinder.FindPath(_traversalGrid!, here, c).Found).Select(c => (GridCell?)c).FirstOrDefault();
     }
+
+    private GridCell CowFaultCell(FacilityFault fault) => fault.Kind == FacilityFaultKind.BrokenGate ? CowRules.GateInside :
+        CableSpots().Where(spot => "cable." + spot.Utility == fault.FacilityId).Select(spot => spot.Spot).DefaultIfEmpty(CowRules.GateInside).First();
 
     private static string FaultIntent(FacilityFault fault, bool maintenance) =>
         fault.Kind == FacilityFaultKind.StuckInToilet ? "fault.rescue" : maintenance ? "fault.repair" : "fault.bodge";
@@ -274,10 +286,11 @@ public sealed partial class GameSession
         if (CurrentTick % 8 != 0) return;
         // Freeing someone is for stewards. A broken tap is mended by maintenance; without a maintenance
         // worker, a steward bodges it. A bodged tap waits for maintenance to mend it properly.
-        IEnumerable<ulong> candidates = fault.Kind == FacilityFaultKind.StuckInToilet || fault.Stage == FacilityFaultStage.Active && maintenance is null
+        IEnumerable<ulong> candidates = CowFault(fault.Kind) ? maintenance is { } mender && _equipment!.JobStage == MaintenanceStage.None ? [mender] : []
+            : fault.Kind == FacilityFaultKind.StuckInToilet || fault.Stage == FacilityFaultStage.Active && maintenance is null
             ? GetStewardResponses().Select(s => s.WorkerId)
             : maintenance is { } m && _equipment!.JobStage == MaintenanceStage.None ? [m] : [];
-        var facilityCell = fault.Kind == FacilityFaultKind.StuckInToilet ? GetToilet(fault.FacilityId).Cell : WaterPoints().Single(p => p.Id == fault.FacilityId).Cell;
+        var facilityCell = CowFault(fault.Kind) ? CowFaultCell(fault) : fault.Kind == FacilityFaultKind.StuckInToilet ? GetToilet(fault.FacilityId).Cell : WaterPoints().Single(p => p.Id == fault.FacilityId).Cell;
         foreach (var id in candidates.Where(id => StaffUnavailableReason(id) is null && !FaultWorkOwns(id) && !WasteOwnsNavigation(id))
                      .OrderBy(id => { var n = _navigationAgents[new(id)]; var c = TraversalGrid.CellCentre(facilityCell);
                          long dx = n.XMillimetres - c.XMillimetres, dz = n.ZMillimetres - c.ZMillimetres; return dx * dx + dz * dz; })
@@ -325,6 +338,7 @@ public sealed partial class GameSession
         if (fault.WorkerId is { } worker) { SetFault(fault with { WorkerId = null, WorkStartedTick = -1 }); SendWorkerBack(worker); }
         var resolved = fault with { Stage = stage, ResolvedTick = CurrentTick, WorkerId = null, WorkStartedTick = -1 };
         SetFault(resolved);
+        if (fault.Kind == FacilityFaultKind.BrokenGate && _cows is { } cows) _cows = cows with { Gate = PastureGateState.Repaired };
         if (fault.Kind == FacilityFaultKind.StuckInToilet && GetToilet(fault.FacilityId).OwnerId == fault.VictimId && Unconscious(fault.VictimId))
             CarryOutCollapsed(fault);
         MedicalEvent(stage == FacilityFaultStage.Bodged ? "fault:bodged" : "fault:fixed",
@@ -351,14 +365,16 @@ public sealed partial class GameSession
         // The worker's route names the job, and only the right role does it: stewards free people and bodge
         // taps when no maintenance worker is hired; maintenance mends taps.
         string ExpectedIntent(FacilityFault f, ulong worker) => f.Kind == FacilityFaultKind.StuckInToilet ? "fault.rescue" : worker == maintenance ? "fault.repair" : "fault.bodge";
-        bool RightWorker(FacilityFault f, ulong worker) => f.Kind == FacilityFaultKind.StuckInToilet ? stewards.Contains(worker) :
+        bool RightWorker(FacilityFault f, ulong worker) => CowFault(f.Kind) ? worker == maintenance : f.Kind == FacilityFaultKind.StuckInToilet ? stewards.Contains(worker) :
             f.Stage == FacilityFaultStage.Bodged || maintenance is not null ? worker == maintenance : stewards.Contains(worker);
         bool Standing(ulong id) => Nav(id) is { Action: (int)AgentNavigationAction.Arrived, DestinationX: { } x, DestinationZ: { } z } n &&
             (n.XMillimetres, n.ZMillimetres) == TraversalGrid.CellCentre(new GridCell(x, z));
         if (faults.Select(f => f.Id).Distinct().Count() != faults.Length ||
             faults.Any(f => !Enum.IsDefined(f.Kind) || !Enum.IsDefined(f.Stage) || f.StartedTick < prep.StartedTick || f.StartedTick > s.CurrentTick ||
-                !prep.People.Any(p => p.AgentId == f.VictimId) ||
-                (f.Kind == FacilityFaultKind.StuckInToilet ? !toilets.ContainsKey(f.FacilityId) || f.Stage == FacilityFaultStage.Bodged : !taps.Contains(f.FacilityId)) ||
+                (CowFault(f.Kind) ? f.VictimId != 0 || f.Stage == FacilityFaultStage.Bodged ||
+                    !(f.Kind == FacilityFaultKind.BrokenGate ? f.FacilityId == "gate.pasture" : f.FacilityId is "cable.generator" or "cable.drinks" or "cable.food")
+                : !prep.People.Any(p => p.AgentId == f.VictimId) ||
+                (f.Kind == FacilityFaultKind.StuckInToilet ? !toilets.ContainsKey(f.FacilityId) || f.Stage == FacilityFaultStage.Bodged : !taps.Contains(f.FacilityId))) ||
                 (f.Stage == FacilityFaultStage.Active) != (f.ResolvedTick < 0) || f.ResolvedTick >= 0 && (f.ResolvedTick < f.StartedTick || f.ResolvedTick > s.CurrentTick) ||
                 f.Stage == FacilityFaultStage.Fixed && (f.WorkerId is not null || f.WorkStartedTick != -1) ||
                 f.WorkerId is { } worker && (!RightWorker(f, worker) || !Working(worker) || Nav(worker)!.IntentId != ExpectedIntent(f, worker) ||

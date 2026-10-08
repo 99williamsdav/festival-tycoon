@@ -73,7 +73,7 @@ public sealed partial class GameSession
     {
         AdvanceProgramme();
         if (_livePerformance is not { } live || _preparation is not { Status: PreparationStatus.Running } p) return;
-        var hasPower = _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal);
+        var hasPower = StagePowered;
         var periodic = CurrentTick % 80 == 0;
         var stageEntryDue = live.Stage != LiveSetStage.Finished &&
             (live.Stage != LiveSetStage.BeforeSet || CurrentTick >= live.PlannedTick - LiveSetStageEntryLeadTicks);
@@ -251,7 +251,7 @@ public sealed partial class GameSession
         }
         if (stage is LiveSetStage.Live or LiveSetStage.Interrupted)
         {
-            var powered = _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal) && (performers.All(person => person.OnStage));
+            var powered = StagePowered && (performers.All(person => person.OnStage));
             if (!powered && stage == LiveSetStage.Live)
             {
                 stage = LiveSetStage.Interrupted;
@@ -266,7 +266,7 @@ public sealed partial class GameSession
                 reaction = "resumed";
                 sequence++;
             }
-            if (stage == LiveSetStage.Interrupted && _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal && CurrentTick - interrupted == SustainedBooDelayTicks)
+            if (stage == LiveSetStage.Interrupted && !StagePowered && CurrentTick - interrupted == SustainedBooDelayTicks)
             {
                 var disappointed = listeners.Where(item => item.AtPlace).Select(item => item.AgentId).ToHashSet();
                 var people = PeopleIn(PersonView.Roster).Select(item => disappointed.Contains(item.Id) ? item with

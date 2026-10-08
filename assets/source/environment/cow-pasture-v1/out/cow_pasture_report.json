@@ -1,0 +1,104 @@
+{
+ "lwf_field_gate_oak_v1": {
+  "file": "lwf_field_gate_oak_v1.glb",
+  "nodes": [
+   "LWF_FieldGate_LeafBroken",
+   "LWF_FieldGate_LeafIntact",
+   "LWF_FieldGate_LeafPivot",
+   "LWF_FieldGate_LeafRepaired",
+   "LWF_FieldGate_Posts",
+   "LWF_FieldGate_Repair"
+  ],
+  "triangles": 924,
+  "sha256": "31cb4db5951a9175549960e4d2ff9326284a2993b8f790472ccc20e662731c02",
+  "origin": "hedge opening centre on the ground; gate line along local Z; pasture +X, site -X",
+  "pivot_node": "LWF_FieldGate_LeafPivot",
+  "pivot_local": [
+   0.0,
+   0.0,
+   1.37
+  ],
+  "closed_rotation_y": 90.0,
+  "open_rotation_y": 0.0,
+  "states": {
+   "intact": "show LeafIntact; hide LeafBroken, LeafRepaired, Repair; pivot yaw 90 shut .. 0 open",
+   "broken": "show LeafBroken only (pivot at 90); the gap is open",
+   "repaired": "show LeafRepaired and Repair (pivot at 90)"
+  }
+ },
+ "lwf_cow_pasture_ground_v1": {
+  "file": "lwf_cow_pasture_ground_v1.glb",
+  "nodes": [
+   "LWF_CowPasture_Ground"
+  ],
+  "triangles": 2426,
+  "sha256": "acb92e0e24e5e777849e65c9712ad785150c4d1b624e0abd695704943afde545",
+  "origin": "pasture centre, world (45.2, 0, -2)",
+  "extent_world": {
+   "x": [
+    32.4,
+    58.0
+   ],
+   "z": [
+    -26.0,
+    22.0
+   ]
+  },
+  "heights": "base y -0.018 (above FarmSurround's -0.025); patches stepped up from it"
+ },
+ "lwf_cow_pasture_fence_v1": {
+  "file": "lwf_cow_pasture_fence_v1.glb",
+  "nodes": [
+   "LWF_CowPasture_Fence"
+  ],
+  "triangles": 576,
+  "sha256": "92fad9378527988398f891a3ec5d415cfa1fa73dd43c8dbfebd57d6c5d27ae5b",
+  "origin": "pasture centre, world (45.2, 0, -2)",
+  "note": "post-and-rail on the three outer sides; the hedge is the fourth"
+ },
+ "lwf_water_trough_v1": {
+  "file": "lwf_water_trough_v1.glb",
+  "nodes": [
+   "LWF_WaterTrough"
+  ],
+  "triangles": 48,
+  "sha256": "90a3fdbb6e33f2752b0d2440eb5d4bf5519b335ed9ddda8d7248e9df51652d3a",
+  "origin": "base centre; long axis along local Z",
+  "size_m": [
+   0.65,
+   0.6,
+   2.3
+  ]
+ },
+ "lwf_hay_ring_feeder_v1": {
+  "file": "lwf_hay_ring_feeder_v1.glb",
+  "nodes": [
+   "LWF_HayRingFeeder"
+  ],
+  "triangles": 612,
+  "sha256": "8a4ec31f7455d7a089880f5b1a330ba7b1bc9d79a6f4d93affac5fbb8789d06c",
+  "origin": "base centre",
+  "diameter_m": 2.06
+ },
+ "lwf_power_lead_v1": {
+  "file": "lwf_power_lead_v1.glb",
+  "nodes": [
+   "LWF_PowerLead"
+  ],
+  "triangles": 108,
+  "sha256": "dae5f1d461b0e8e94107d02374cbe6d0f753002eb47625e139c458929dd7e68a",
+  "origin": "where the lead leaves the equipment, on the ground; runs along local +X"
+ },
+ "lwf_power_lead_chewed_v1": {
+  "file": "lwf_power_lead_chewed_v1.glb",
+  "nodes": [
+   "LWF_PowerLead_Chewed",
+   "LWF_Spark",
+   "LWF_Spark_Anchor"
+  ],
+  "triangles": 296,
+  "sha256": "d2c5092b6394fc6aa5c06defd86b99737927dd5848796c294823108692a53d01",
+  "origin": "where the lead leaves the equipment, on the ground; runs along local +X",
+  "spark_anchor": "LWF_Spark_Anchor at local (2.45, 0.12, 0.62); its child LWF_Spark (emissive) is the flash to flicker"
+ }
+}

@@ -227,6 +227,10 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyEmptyBin(emptyBin);
                 break;
+            case HerdCowCommand herd:
+                affectedTarget = null;
+                ApplyHerdCow(herd);
+                break;
             case SetFreeWaterCommand freeWater:
                 affectedTarget = null;
                 ApplyFreeWater(freeWater);
@@ -309,6 +313,7 @@ public sealed partial class GameSession
             AdvanceLitter();
             AdvanceGround();
             AdvanceFacilityFaults();
+            AdvanceCows();
             FinalizeFestivalDeparture();
             if (_preparation?.Status is PreparationStatus.Departing or PreparationStatus.Finished) CleanupImmersionDeparture();
             if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished) break;
@@ -452,6 +457,7 @@ public sealed partial class GameSession
             Litter = CaptureLitter(),
             Ground = CaptureGround(),
             Faults = CaptureFaults(),
+            Cows = CaptureCows(),
         };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
@@ -521,6 +527,7 @@ public sealed partial class GameSession
 
         session._litter = snapshot.Litter is null ? null : System.Text.Json.JsonSerializer.Deserialize<LitterSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Litter));
         session._faults = snapshot.Faults is null ? null : System.Text.Json.JsonSerializer.Deserialize<FaultsSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Faults));
+        session._cows = snapshot.Cows is null ? null : System.Text.Json.JsonSerializer.Deserialize<CowsSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Cows));
         session.RestoreGround(snapshot.Ground);
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
@@ -592,6 +599,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (disorderError is not null) return disorderError;
         var litterError = ValidatePersistedLitter(snapshot);
         if (litterError is not null) return litterError;
+        var cowError = ValidatePersistedCows(snapshot);
+        if (cowError is not null) return cowError;
         var faultError = ValidatePersistedFaults(snapshot);
         if (faultError is not null) return faultError;
         var groundError = ValidatePersistedGround(snapshot);
@@ -691,7 +700,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -708,6 +717,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
             StaffInterventionCommand intervention => ValidateStaffIntervention(envelope.TargetId, intervention),
             CleanUpCommand cleanup => ValidateCleanUp(envelope.TargetId, cleanup),
             EmptyBinCommand emptyBin => ValidateEmptyBin(envelope.TargetId, emptyBin),
+            HerdCowCommand herd => ValidateHerdCow(envelope.TargetId, herd),
             SetFreeWaterCommand freeWater => ValidateFreeWaterCommand(envelope.TargetId, freeWater),
             SetProgrammeCommand programme => ValidateProgramme(envelope.TargetId, programme),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),

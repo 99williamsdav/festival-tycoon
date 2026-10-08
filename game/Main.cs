@@ -36,7 +36,7 @@ public partial class Main : Node, IHudHost
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v38", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v38");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v39", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v39");
 
     public override void _Ready()
     {
@@ -79,6 +79,7 @@ public partial class Main : Node, IHudHost
         ProcessMoments(delta);
         ProcessFieldNotes(delta);
         ProcessGardenGate(delta);
+        ProcessCows(delta);
         ProcessMoods(delta);
         ProcessChatter(delta);
         ProcessGenerator(delta);
@@ -185,6 +186,7 @@ public partial class Main : Node, IHudHost
         foreach (var item in LowerWitteringFarmScenario.CreateReadModel().Objects)
             if (item.Kind != FarmObjectKind.ServicePoint) AddFarmObject(item);
         BuildBackstage();
+        BuildPasture();
         _highlight = new MeshInstance3D
         {
             Mesh = new CylinderMesh { TopRadius = 1f, BottomRadius = 1f, Height = 0.08f },
@@ -264,6 +266,8 @@ public partial class Main : Node, IHudHost
             if (i is not -1 and not 0) RegisterBreezeHedge(AddAsset(Hedge(i + 5), new Vector3(i * 8, 0, 32)));
             // The west run beside the farmhouse is cut for the bands' garden gate (Main.Backstage).
             if (i != 0) { var left = AddAsset(Hedge(i + 6), new Vector3(-32, 0, i * 8)); left.RotationDegrees = new Vector3(0, 90, 0); RegisterBreezeHedge(left); }
+            // The east run beside the pasture is cut for the field gate (Main.Cows).
+            if (i == 0) continue;
             var right = AddAsset(Hedge(i + 7), new Vector3(32, 0, i * 8)); right.RotationDegrees = new Vector3(0, 90, 0);
             RegisterBreezeHedge(right);
         }
@@ -371,6 +375,7 @@ public partial class Main : Node, IHudHost
         _selectedToilet = false;
         var collider = ResolveWorldHit(screenPosition);
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
+        else if (collider is not null && TrySelectCow(collider)) { }
         else if (collider is not null && collider.GetInstanceId() == _generatorPickId) SelectGenerator();
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
         // A double-click on an occupied toilet picks whoever is inside, as there's nothing else of them to click.
@@ -426,6 +431,7 @@ public partial class Main : Node, IHudHost
         ClearSecurityPostSelection();
         RefreshMedicalNeedBars(null);
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _selectedWaterPointId = "water.main";
+        _selectedCowId = null; if (_herdCowButton is not null) _herdCowButton.Visible = false;
         _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
         RefreshStagePowerAction();
         RefreshSatisfactionBar(null);
@@ -569,7 +575,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v38");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v39");
 
 
 

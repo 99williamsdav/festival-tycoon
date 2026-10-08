@@ -1,0 +1,30 @@
+{
+ "speed": 0.5,
+ "cycle": 1.6667,
+ "drift": {
+  "HindL": {
+   "stances": 2,
+   "max_planted_drift_mm": 0.0,
+   "max_swing_ground_creep_mm": 0.0,
+   "max_sole_height_in_stance_mm": 0.0
+  },
+  "FrontL": {
+   "stances": 3,
+   "max_planted_drift_mm": 0.0,
+   "max_swing_ground_creep_mm": 0.0,
+   "max_sole_height_in_stance_mm": 0.0
+  },
+  "HindR": {
+   "stances": 3,
+   "max_planted_drift_mm": 0.0,
+   "max_swing_ground_creep_mm": 0.0,
+   "max_sole_height_in_stance_mm": 0.0
+  },
+  "FrontR": {
+   "stances": 2,
+   "max_planted_drift_mm": 0.0,
+   "max_swing_ground_creep_mm": 0.0,
+   "max_sole_height_in_stance_mm": 0.0
+  }
+ }
+}

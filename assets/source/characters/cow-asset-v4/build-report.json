@@ -1,0 +1,42 @@
+{
+  "base": "cow v3 mesh, rig, weights and palette unchanged",
+  "forward": "Godot +X",
+  "fps": 24,
+  "animations": {
+    "walk": "41 frames (1.6667 s), loops",
+    "graze": "97 frames (4.0 s), loops",
+    "idle": "97 frames (4.0 s), loops",
+    "alert": "v3 Alert, unchanged (37 frames)"
+  },
+  "walk": {
+    "speed_m_per_s_at_1x": 0.5,
+    "metres_per_cycle": 0.8333,
+    "cycle_seconds": 1.6667,
+    "stance_share": 0.66,
+    "footfall_order": "LH 0, LF 0.25, RH 0.5, RF 0.75 (lateral-sequence walk)",
+    "body_drop_m": 0.04,
+    "planted_hoof_slide": {
+      "HindL": {
+        "heel_mm": 0.0,
+        "toe_mm": 0.0,
+        "sole_height_mm": 0.0
+      },
+      "FrontL": {
+        "heel_mm": 0.0,
+        "toe_mm": 0.0,
+        "sole_height_mm": 0.0
+      },
+      "HindR": {
+        "heel_mm": 0.0,
+        "toe_mm": 0.0,
+        "sole_height_mm": 0.0
+      },
+      "FrontR": {
+        "heel_mm": 0.0,
+        "toe_mm": 0.0,
+        "sole_height_mm": 0.0
+      }
+    },
+    "note": "move the root forward at metres_per_cycle per cycle_seconds; scale playback by actual speed / 0.5"
+  }
+}

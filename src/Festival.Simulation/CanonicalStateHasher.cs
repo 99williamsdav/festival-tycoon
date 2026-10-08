@@ -316,6 +316,7 @@ internal static class CanonicalStateHasher
         if (session.LitterCanonicalJson is { } litter) { writer.Write("litter-v1"); writer.Write(litter); writer.Flush(); }
         if (session.FaultsCanonicalJson is { } faults) { writer.Write("faults-v1"); writer.Write(faults); writer.Flush(); }
         if (session.GroundCanonicalJson is { } ground) { writer.Write("ground-v1"); writer.Write(ground); writer.Flush(); }
+        if (session.CowsCanonicalJson is { } cows) { writer.Write("cows-v1"); writer.Write(cows); writer.Flush(); }
         return Convert.ToHexString(SHA256.HashData(memory.GetBuffer().AsSpan(0, checked((int)memory.Length))))
             .ToLowerInvariant();
     }

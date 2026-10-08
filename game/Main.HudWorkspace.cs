@@ -132,7 +132,7 @@ public partial class Main
         // Essential actions come before the need bars and prose, so they show without scrolling on a short screen.
         BuildWaterFlowInspector(detail); BuildImmersionVendorInspector(detail); BuildMedicalActionInspector(detail); BuildDisorderActionInspector();
         BuildSatisfactionBar(detail); BuildMedicalNeedBars(detail); BuildImmersionNeedBars(detail);
-        BuildDisorderStageInspector(detail); BuildStagePowerAction(detail); BuildSecurityPostInspectorAction(detail); BuildEyeViewAction(detail);
+        BuildDisorderStageInspector(detail); BuildStagePowerAction(detail); BuildSecurityPostInspectorAction(detail); BuildCowInspectorAction(detail); BuildEyeViewAction(detail);
         _inspectorBody = HudLabel("", 13); detail.AddChild(_inspectorBody);
         ConstrainHudControls(detail);
         contextClose.CustomMinimumSize = new Vector2(38, 38); contextClose.SizeFlagsHorizontal = Control.SizeFlags.Fill;

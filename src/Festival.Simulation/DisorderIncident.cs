@@ -280,7 +280,7 @@ public sealed partial class GameSession
                 !InterventionOwnsTarget(person.Id) && !InterventionOwnsWorker(person.Id);
             var grievance = _livePerformance?.Stage == LiveSetStage.Interrupted && !ScheduledSilence &&
                 (CurrentTick >= _livePerformance.PlannedTick && CurrentTick < _programme!.SlotEndTick &&
-                    _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal) &&
+                    !StagePowered) &&
                 listener is { AtPlace: true, Enthusiasm: >= 65 }
                 ? DisorderGrievance.MusicCutoff
                 : inWaterLine && need.Thirst >= 6_000 && CurrentTick - joined >= tolerance
