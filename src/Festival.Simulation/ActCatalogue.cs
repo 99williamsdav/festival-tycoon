@@ -23,7 +23,9 @@ public static class FestivalGenre
 public static class FestivalTickets
 {
     public static int PricePennies(int tier) => tier switch { 1 => 1_000, 2 => 1_800, 3 => 3_500, _ => 6_000 };
-    public static int Sold(int tier) => tier * 20;
+    /// <summary>Guests (and tickets) per tier: the crowd a festival plans and builds for.</summary>
+    public const int GuestsPerTier = 20;
+    public static int Sold(int tier) => tier * GuestsPerTier;
     public static long RevenuePennies(int tier) => (long)PricePennies(tier) * Sold(tier);
 }
 

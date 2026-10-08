@@ -433,7 +433,7 @@ public sealed partial class GameSession
             live.SetEndAudienceIds.Length > 0 && (snapshot.Programme is null || live.Stage != LiveSetStage.Finished || live.StartedTick < 0 ||
                 live.EndedTick != snapshot.Programme.SlotEndTick || live.InterruptedTick != -1 || live.LastReaction != "set-finished-applause") ||
             live.LastReaction == "set-finished-applause" && live.SetEndAudienceIds.Length == 0 ||
-            live.Listeners.Length != preparation.Tier * 20 || live.PlannedTick < preparation.StartedTick ||
+            live.Listeners.Length != FestivalTickets.Sold(preparation.Tier) || live.PlannedTick < preparation.StartedTick ||
             live.StartedTick > snapshot.CurrentTick || live.EndedTick > snapshot.CurrentTick ||
             live.Performers.Select(item => item.AgentId).Distinct().Count() != 3 ||
             live.Listeners.Select(item => item.AgentId).Distinct().Count() != live.Listeners.Length ||

@@ -40,7 +40,7 @@ public sealed partial class GameSession
     }
 
     /// <summary>The campaign through its programme stage: the saved roster's reference identities.</summary>
-    private const int TierOneGuests = 20;
+    private const int TierOneGuests = FestivalTickets.GuestsPerTier;
 
     private static GameSession CreateProgrammeBaseline(ulong seed, int guests = TierOneGuests)
     {

@@ -604,7 +604,7 @@ public sealed partial class GameSession
         if (d is null) return null;
         if (s.Preparation is not { } p || s.Medical is not { Version: 6 } medical ||
             d.Version != 1 || d.People is null || d.Evidence is null || d.Incidents is null || d.Stewards is not [{ } security, ..] ||
-            d.People.Length != p.Tier * 20 ||
+            d.People.Length != FestivalTickets.Sold(p.Tier) ||
             !d.People.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role == ProtectedPersonRole.Guest).Select(item => item.AgentId)) ||
             !p.People.Any(item => item.AgentId == d.SecurityId && item.Role == ProtectedPersonRole.Staff) ||
             !medical.Needs.Any(item => item.AgentId == d.SecurityId && item.Profile == MedicalNeedProfile.Staff) ||

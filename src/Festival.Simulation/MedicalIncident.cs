@@ -694,7 +694,7 @@ public sealed partial class GameSession
         if (s.Facilities?.Taps is not { } points || points.Any(point => point is null)) return "Saved facilities have no taps.";
         var extraTaps = points.Where(point => point.Id != "water.main").ToArray();
         if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || !m.IsHot || m.Needs is null ||
-            m.Evidence is null || m.Needs.Length != (s.Immersion is not null ? p.People.Length : p.Tier * 20 + p.People.Count(item => item.Role == ProtectedPersonRole.Performer) + (s.Disorder is null ? 0 : 1) + p.AcceptedOffers.Count(id => id == "staff.extra-steward")) ||
+            m.Evidence is null || m.Needs.Length != (s.Immersion is not null ? p.People.Length : FestivalTickets.Sold(p.Tier) + p.People.Count(item => item.Role == ProtectedPersonRole.Performer) + (s.Disorder is null ? 0 : 1) + p.AcceptedOffers.Count(id => id == "staff.extra-steward")) ||
             !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role is ProtectedPersonRole.Guest or ProtectedPersonRole.Performer ||
                 item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId)).Select(item => item.AgentId)) ||
             m.Needs.Any(item => item.Profile != (p.People.Single(person => person.AgentId == item.AgentId).Role == ProtectedPersonRole.Performer ? MedicalNeedProfile.Performer :
