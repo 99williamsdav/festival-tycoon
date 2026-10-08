@@ -40,8 +40,10 @@ public static class CowRules
     public const int CableReachMillimetres = 2_500;
     /// <summary>The chance each festival minute that a cow grazing by an intact cable chews through it.</summary>
     public const int ChewChancePer10k = 200;
-    /// <summary>How close a steward must get before the cow walks on ahead of them.</summary>
-    public const int HerdReachCells = 2;
+    /// <summary>How close a steward must get before the cow walks on ahead of them (a cow keeps people a body's width off).</summary>
+    public const int HerdReachCells = 3;
+    /// <summary>A cow's bulk, for people stepping round it: its centre and four points this far out.</summary>
+    public const int BodyMillimetres = 650;
     /// <summary>Long enough to cross the site twice at a cow's pace; a herd that takes longer has gone wrong and gives up.</summary>
     public const int HerdDeadlineTicks = 9_600;
     /// <summary>Loose cows keep to the festival site, a cow's length clear of its hedges.</summary>
@@ -65,6 +67,19 @@ public sealed partial class GameSession
     private static readonly CowsSnapshot EmptyCows = new(1, PastureGateState.Closed, [], 0);
     public CowsSnapshot? CaptureCows() => _cows;
     internal string? CowsCanonicalJson => _cows is null ? null : System.Text.Json.JsonSerializer.Serialize(_cows);
+
+    /// <summary>
+    /// Loose cows are obstacles in the crowd: people step round them as they do round each other. Each stands for its
+    /// centre and four points about it, under ids no person can have.
+    /// </summary>
+    private void AddCowOccupancy(SpatialNeighbourIndex occupied)
+    {
+        if (_cows is not { Loose.Length: > 0 } cows) return;
+        var id = ulong.MaxValue;
+        foreach (var cow in cows.Loose)
+            foreach (var (dx, dz) in new[] { (0, 0), (CowRules.BodyMillimetres, 0), (-CowRules.BodyMillimetres, 0), (0, CowRules.BodyMillimetres), (0, -CowRules.BodyMillimetres) })
+                occupied.Add(new EntityId(id--), cow.XMillimetres + dx, cow.ZMillimetres + dz);
+    }
 
     /// <summary>Whether a steward is out herding a cow: like a fault job, it holds their route until it's done.</summary>
     private bool CowWorkOwns(ulong id) => _cows?.Loose.Any(cow => cow.HerderId == id) == true;

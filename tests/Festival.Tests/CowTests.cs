@@ -137,4 +137,37 @@ public sealed class CowTests
         Assert.AreEqual(CowActivity.Grazing, after.Activity);
         Assert.IsNull(typeof(GameSession).GetMethod("StaffUnavailableReason", Private)!.Invoke(s, [steward]), "The steward's free for other work.");
     }
+
+    [TestMethod]
+    public void PeopleWalkRoundACowRatherThanThroughIt()
+    {
+        var s = WithCowsLoose();
+        var field = typeof(GameSession).GetField("_cows", Private)!;
+        var cows = (CowsSnapshot)field.GetValue(s)!;
+        // One cow grazing squarely on open ground, the others back in the field.
+        var middle = TraversalGrid.CellCentre(new GridCell(112, 150));
+        var cow = cows.Loose[0] with { XMillimetres = middle.XMillimetres, ZMillimetres = middle.ZMillimetres, Activity = CowActivity.Grazing, Route = [], RouteIndex = 0, UntilTick = s.CurrentTick + 100_000 };
+        field.SetValue(s, cows with { Loose = [cow] });
+        var walker = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed).Select(p => p.AgentId).First();
+        var agents = (System.Collections.IDictionary)typeof(GameSession).GetField("_navigationAgents", Private)!.GetValue(s)!;
+        var agent = agents[new EntityId(walker)]!;
+        void Set(string name, object value) => agent.GetType().GetProperty(name)!.SetValue(agent, value);
+        var start = TraversalGrid.CellCentre(new GridCell(104, 150));
+        Set("XMillimetres", start.XMillimetres); Set("ZMillimetres", start.ZMillimetres);
+        Set("SegmentOriginXMillimetres", start.XMillimetres); Set("SegmentOriginZMillimetres", start.ZMillimetres);
+        Set("Route", new List<GridCell>()); Set("RouteIndex", 0); Set("SegmentProgressMicrometres", 0);
+        typeof(GameSession).GetMethod("ApplyAgentDestination", Private)!.Invoke(s, [new EntityId(walker), new SetAgentDestinationCommand(new GridCell(121, 150), "test.walk"), false]);
+        var closest = long.MaxValue; var passed = false;
+        for (var tick = 0; tick < 1_600; tick++)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            var at = s.CaptureSnapshot().NavigationAgents.Single(a => a.Id.Value == walker);
+            if (at.IntentId != "test.walk") break;
+            passed |= at.XMillimetres > middle.XMillimetres + 1_000;
+            long dx = at.XMillimetres - middle.XMillimetres, dz = at.ZMillimetres - middle.ZMillimetres;
+            closest = Math.Min(closest, (long)Math.Sqrt(dx * dx + dz * dz));
+        }
+        Assert.IsTrue(passed, "The walk got past the cow.");
+        Assert.IsTrue(closest >= GameSession.SeparationRadiusMillimetres, $"Kept clear of the cow's middle (closest {closest} mm).");
+    }
 }

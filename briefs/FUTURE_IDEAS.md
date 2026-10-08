@@ -37,3 +37,5 @@ Procedural rigs, richer dance and instrument/holding animations have been discus
 Recorded 1 October 2026: full-bin wasp stings and later lidded bin upgrades remain deferred. The basic open-top litter/bin slice uses satisfaction annoyance and safe avoidance only; no sting damage or medical consequence. See [R0.05ah](R0.05ah-litter-bins.md) and [B-021](BACKLOG.md).
 
 Zombies/casualty returns, camping/families, bigger crowds, sponsors/rivals, absurd endless days, a traditional annual tycoon or sandbox remain the explicitly deferred [roguelike-pivot](../ROGUELIKE_DESIGN.md) horizon. This list records curiosity, not a roadmap date.
+
+**Emergency call-out workers (raised 8 Oct).** Without the optional maintenance worker, a cable a cow chews stays cut until closing (the user's choice). A later mechanic could let the player pay a call-out fee for a contractor who arrives after a delay to splice cables or mend the gate.
