@@ -36,8 +36,11 @@ public sealed record ToiletFacility(string Id, GridCell Cell, int QuarterTurns, 
     // Door signal only; ownership/fullness still independently controls admission.
     [System.Text.Json.Serialization.JsonIgnore]
     public bool OccupiedIndicator => !DoorOpen && (OwnerId is not null || InterruptedOccupantId is not null);
+    /// <summary>What Dav's Lav-Sucker has taken away today; the visit counts themselves keep going up.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int EmptiedMillilitres { get; init; }
     [System.Text.Json.Serialization.JsonIgnore]
-    public int UsedMillilitres => WeeCount * ToiletRules.WeeMillilitres + PooCount * ToiletRules.PooMillilitres;
+    public int UsedMillilitres => WeeCount * ToiletRules.WeeMillilitres + PooCount * ToiletRules.PooMillilitres - EmptiedMillilitres;
     [System.Text.Json.Serialization.JsonIgnore]
     public int FullPercent => Math.Clamp((UsedMillilitres * 100 + CapacityMillilitres - 1) / CapacityMillilitres, 0, 100);
     [System.Text.Json.Serialization.JsonIgnore]
@@ -199,7 +202,7 @@ public sealed partial class GameSession
         { ToiletVisitStage.Using => toilet.ServiceTicks, ToiletVisitStage.Leaving => 0,
             ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 } + FaultDelayTicks(toilet.Id);
         return new(toilet.Id, EstimateQueuedServiceWalkTicks(agentId, destination), ToiletServiceDuration(kind),
-            !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind),
+            !toilet.IsFull && toilet.InterruptedOccupantId is null && !ToiletBeingEmptied(toilet.Id) && toilet.CanAccept(kind),
             toilet.Queue.Length < ToiletRules.MaximumQueue && ToiletQueueHasRoom(toilet, agentId),
             toilet.Queue.Select(id => new QueuedServiceChoice.Member(id,
                 ToiletServiceDuration(people.Single(person => person.Id == id).ToiletChoice))).ToArray(),
@@ -279,7 +282,7 @@ public sealed partial class GameSession
                 ApplyAgentDestination(new(id), new(cell, "toilet.queue"));
         }
         toilet = GetToilet(toilet.Id);
-        if (running && !toilet.IsFull && toilet.InterruptedOccupantId is null &&
+        if (running && !toilet.IsFull && toilet.InterruptedOccupantId is null && !ToiletBeingEmptied(toilet.Id) &&
             toilet.OwnerId is null && toilet.Queue.Length > 0)
         {
             var id = toilet.Queue[0]; var nav = _navigationAgents[new(id)];
@@ -419,7 +422,7 @@ public sealed partial class GameSession
         if (toilet.QuarterTurns is < 0 or > 3 ||
             toilet.CapacityMillilitres != ToiletRules.CapacityMillilitres ||
             toilet.ContainmentPermille != ToiletRules.ContainmentPermille ||
-            toilet.WeeCount < 0 || toilet.PooCount < 0 || toilet.UsedMillilitres > toilet.CapacityMillilitres ||
+            toilet.WeeCount < 0 || toilet.PooCount < 0 || toilet.UsedMillilitres > toilet.CapacityMillilitres || toilet.EmptiedMillilitres < 0 || toilet.UsedMillilitres < 0 ||
             toilet.Queue is null || toilet.Queue.Length > ToiletRules.MaximumQueue ||
             toilet.Queue.Distinct().Count() != toilet.Queue.Length ||
             toilet.OwnerId is { } owner && (toilet.Queue.Length == 0 || toilet.Queue[0] != owner) ||

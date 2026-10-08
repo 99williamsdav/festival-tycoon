@@ -16,7 +16,7 @@ public sealed record FestivalCashFeedbackEvent(string TransactionId, long Festiv
 
 public static class FestivalCashFeedbackProjection
 {
-    public static IReadOnlyList<FestivalCashFeedbackEvent> Capture(ulong campaignId, PreparationSnapshot? preparation, ImmersionSnapshot? immersion)
+    public static IReadOnlyList<FestivalCashFeedbackEvent> Capture(ulong campaignId, PreparationSnapshot? preparation, ImmersionSnapshot? immersion, LavSuckerSnapshot? lav = null)
     {
         if (preparation is null) return Array.Empty<FestivalCashFeedbackEvent>();
         var events = new List<FestivalCashFeedbackEvent>();
@@ -43,6 +43,9 @@ public static class FestivalCashFeedbackProjection
         foreach (var (tick, index) in (immersion?.FreeWaterChargeTicks ?? []).Select((tick, index) => (tick, index)))
             Add($"free-water:{preparation.Attempt}:{index + 1}", preparation.Attempt, tick, "vendor.drinks",
                 [new(festival, LedgerAccountType.AdministrationExpense, GameSession.FreeWaterChargePennies), new(festival, LedgerAccountType.CashAsset, -GameSession.FreeWaterChargePennies)]);
+        foreach (var call in lav?.Calls ?? [])
+            Add($"lav:{call.Id}", preparation.Attempt, call.CalledTick, "toilet." + call.ToiletId,
+                [new(festival, LedgerAccountType.AdministrationExpense, LavSuckerRules.FeePennies), new(festival, LedgerAccountType.CashAsset, -LavSuckerRules.FeePennies)]);
         foreach (var sale in immersion?.Purchases ?? [])
             Add($"sale:{sale.Id}", preparation.Attempt, sale.Tick, "vendor." + GameSession.ImmersionVendorFor(sale.Product), sale.Entries);
         return events.OrderBy(item => item.Tick).ThenBy(item => item.TransactionId, StringComparer.Ordinal).ToList().AsReadOnly();
@@ -77,5 +80,5 @@ public sealed class FestivalCashFeedbackCursor
 public sealed partial class GameSession
 {
     public IReadOnlyList<FestivalCashFeedbackEvent> CaptureFestivalCashFeedbackEvents() =>
-        FestivalCashFeedbackProjection.Capture(CampaignId.Value, _preparation, _immersion);
+        FestivalCashFeedbackProjection.Capture(CampaignId.Value, _preparation, _immersion, _lavSucker);
 }

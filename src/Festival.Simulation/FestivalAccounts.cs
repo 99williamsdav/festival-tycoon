@@ -89,6 +89,8 @@ public sealed partial class GameSession
 
             if (_immersion is { FreeWaterChargeTicks.Length: > 0 } water)
                 expenses.Add(new("Emergency measures", $"Free water at the bar × {water.FreeWaterChargeTicks.Length}", FreeWaterSpend(water)));
+            if (_lavSucker is { Calls.Length: > 0 } lav)
+                expenses.Add(new("Emergency measures", $"Dav's Lav-Sucker × {lav.Calls.Length}", LavSuckerSpend(lav)));
             var owner = new EntityId(p.FinanceOwnerId);
             var stockPurchase = _immersion?.StockPurchase;
             var stockRecorded = stockPurchase is not null || p.Plan is { Committed: true };

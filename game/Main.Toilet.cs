@@ -101,9 +101,18 @@ public partial class Main
         _toiletOccupantButton.Visible = false;
         _toiletOccupantButton.TooltipText = "Select whoever is inside (or double-click the toilet).";
         parent.AddChild(_toiletOccupantButton);
+        _lavSuckerButton = ButtonText($"Call Dav's Lav-Sucker ({FestivalCurrency.Format(LavSuckerRules.FeePennies)})", () =>
+        {
+            if (_selectedToiletId is not { } id) return;
+            _preparationMessage = _host.Execute(new CallLavSuckerCommand(id), out var error) ? "Dav's Lav-Sucker is on the way." : error!;
+            RefreshPreparationHud(); RefreshToiletInspector();
+        });
+        _lavSuckerButton.Visible = false;
+        parent.AddChild(_lavSuckerButton);
     }
 
     private Button? _toiletOccupantButton;
+    private Button? _lavSuckerButton;
 
     /// <summary>Whoever is inside a toilet: its user, or someone it is waiting to let out.</summary>
     private ulong? ToiletOccupant(string toiletId) =>
@@ -120,6 +129,14 @@ public partial class Main
         if (_toiletMoveButton is null) return;
         _toiletMoveButton.Visible = _selectedToilet && _session.PreparedStatus == PreparationStatus.Preparing;
         _toiletMoveButton.Text = false ? "Cancel move" : "Move";
+        if (_lavSuckerButton is not null)
+        {
+            // The emptying company: only on the day, and only for a loo with something in it.
+            _lavSuckerButton.Visible = _selectedToilet && _session.PreparedStatus == PreparationStatus.Running;
+            var why = _selectedToiletId is { } lavId ? _session.LavSuckerUnavailable(lavId) : "";
+            _lavSuckerButton.Disabled = why is not null;
+            _lavSuckerButton.TooltipText = why ?? "Pay Dav to drive in and suck it empty. It takes about a quarter of an hour.";
+        }
         var inside = _selectedToilet && _selectedToiletId is { } shownId ? ToiletOccupant(shownId) : null;
         _toiletOccupantButton!.Visible = inside is not null;
         if (inside is { } who) _toiletOccupantButton.Text = $"Select {_session.CapturePreparation()!.People.Single(p => p.AgentId == who).Name} (inside)";
@@ -128,7 +145,9 @@ public partial class Main
         _inspectorTitle.Text = "Portaloo • owned";
         _inspectorBody.Text = $"{(toilet.InterruptedOccupantId is { } interrupted ?
             $"Unavailable • {_session.CapturePreparation()!.People.Single(p => p.AgentId == interrupted).Name} needs a clear exit" :
-            toilet.IsFull ? "FULL • no new visits" : toilet.OwnerId is { } occupant ?
+            _session.ToiletBeingEmptied(toilet.Id) ? "Dav's Lav-Sucker is emptying it" :
+            toilet.IsFull ? _session.LavSuckerBooked(toilet.Id) ? "OUT OF ORDER • Dav's Lav-Sucker is on the way" : "OUT OF ORDER • full, no new visits" :
+            _session.LavSuckerBooked(toilet.Id) && toilet.OwnerId is null ? "Free • Dav's Lav-Sucker is on the way" : toilet.OwnerId is { } occupant ?
             $"Occupied by {_session.CapturePreparation()!.People.Single(p => p.AgentId == occupant).Name}" : "Free")}" +
             $"\nTank {toilet.UsedMillilitres / 1000m:0.0}/{toilet.CapacityMillilitres / 1000m:0.0} L • {toilet.FullPercent}% full" +
             $"\nWees {toilet.WeeCount} • poos {toilet.PooCount} • queue {toilet.Queue.Length}" +

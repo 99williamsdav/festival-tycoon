@@ -197,7 +197,7 @@ public sealed partial class GameSession
                 var person = _persons[id];
                 var kind = ChooseToiletVisit(person);
                 var toilet = GetToilet(option.FacilityId!);
-                if (toilet.IsFull || toilet.InterruptedOccupantId is not null || !toilet.CanAccept(kind)) { ReturnToListening(id); break; }
+                if (toilet.IsFull || toilet.InterruptedOccupantId is not null || ToiletBeingEmptied(toilet.Id) || !toilet.CanAccept(kind)) { ReturnToListening(id); break; }
                 SetConsumption(person with { ToiletStage = ToiletVisitStage.Approaching, ToiletChoice = kind, ToiletId = toilet.Id,
                     LastToiletChoiceReviewTick = CurrentTick });
                 MutatePerson(id, item => { item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
@@ -351,7 +351,7 @@ public sealed partial class GameSession
         var ownerRemaining = active?.ToiletStage switch
         { ToiletVisitStage.Using => toilet.ServiceTicks, ToiletVisitStage.Entering => ToiletServiceDuration(active.ToiletChoice), _ => 0 } + FaultDelayTicks(toilet.Id);
         var candidate = new QueuedServiceChoice.Candidate(toilet.Id, EstimateWalkTicks(id, here, destination), ToiletServiceDuration(kind),
-            !toilet.IsFull && toilet.InterruptedOccupantId is null && toilet.CanAccept(kind),
+            !toilet.IsFull && toilet.InterruptedOccupantId is null && !ToiletBeingEmptied(toilet.Id) && toilet.CanAccept(kind),
             position >= 0 || !fresh && _persons[id].ToiletId == toilet.Id ||
                 toilet.Queue.Length < ToiletRules.MaximumQueue && ToiletQueueHasRoom(toilet, id),
             toilet.Queue.Select(member => new QueuedServiceChoice.Member(member, ToiletServiceDuration(_persons[member].ToiletChoice))).ToArray(),

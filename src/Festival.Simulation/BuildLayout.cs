@@ -137,6 +137,7 @@ public sealed partial class GameSession
         _litter ??= EmptyLitter;
         _faults ??= EmptyFaults;
         _cows ??= EmptyCows;
+        _lavSucker ??= EmptyLavSucker;
         if (_groundWear is null) ResetGround();
     }
 

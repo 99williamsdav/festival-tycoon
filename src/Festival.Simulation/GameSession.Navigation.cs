@@ -122,6 +122,7 @@ public sealed partial class GameSession
         foreach (var agent in _navigationAgents.Values.Where(item => !backups.ContainsKey(item.Id) && MovementOccupant(item.Id.Value)))
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         AddCowOccupancy(occupied);
+        AddLavSuckerOccupancy(occupied);
         foreach (var agent in moving.OrderBy(item => item.Route.Count - item.RouteIndex).ThenBy(item => item.Id))
         {
             var proposalConflicts = !TraversalSweep.IsWalkable(_traversalGrid, backups[agent.Id].X, backups[agent.Id].Z, agent.XMillimetres, agent.ZMillimetres) ||

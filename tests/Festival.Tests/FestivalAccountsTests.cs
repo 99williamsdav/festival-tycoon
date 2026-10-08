@@ -75,7 +75,7 @@ public sealed class FestivalAccountsTests
         var preparation = session.CapturePreparation()!;
         var make = typeof(GameSession).GetMethod("MakeFestivalResult", BindingFlags.NonPublic | BindingFlags.Static)!;
         var result = (FestivalResult)make.Invoke(null, [preparation, session.CaptureImmersion(),
-            session.CaptureMedical(), session.CaptureDisorder(), session.CurrentTick])!;
+            session.CaptureMedical(), session.CaptureDisorder(), session.CurrentTick, session.CaptureLavSucker()])!;
         typeof(GameSession).GetProperty("PreparationView", BindingFlags.NonPublic | BindingFlags.Instance)!
             .SetValue(session, preparation with { Result = result });
         var report = session.CompletedFestivalAccounts!;

@@ -17,7 +17,7 @@ public sealed partial class GameSession
     public FestivalResult? CompletedFestivalResult => _preparation?.Result;
 
     private static FestivalResult MakeFestivalResult(PreparationSnapshot p, ImmersionSnapshot? immersion,
-        MedicalSnapshot? medical, DisorderSnapshot? disorder, long tick)
+        MedicalSnapshot? medical, DisorderSnapshot? disorder, long tick, LavSuckerSnapshot? lav = null)
     {
         var guests = p.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && person.Departed).ToArray();
         var payments = p.Payments.Where(payment => payment.Attempt == p.Attempt).ToArray();
@@ -26,10 +26,10 @@ public sealed partial class GameSession
         var tickets = FestivalTickets.RevenuePennies(p.Tier);
         return new(p.Attempt, tick, guests.Length, guests.Sum(person => (long)person.Satisfaction),
             tickets + FestivalTakings(immersion) + ReceivedPitchFee(p),
-            payments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense).Sum(payment => (long)payment.AmountPennies) + buildCost + FreeWaterSpend(immersion),
+            payments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense).Sum(payment => (long)payment.AmountPennies) + buildCost + FreeWaterSpend(immersion) + LavSuckerSpend(lav),
             p.StockConsumed * 60L + (immersion?.Purchases.Sum(purchase => (long)purchase.CostPennies) ?? 0),
             payments.Where(payment => payment.DebitAccount == LedgerAccountType.EquipmentAsset).Sum(payment => (long)payment.AmountPennies),
-            tickets + FestivalTakings(immersion) + ReceivedPitchFee(p) - payments.Sum(payment => (long)payment.AmountPennies) - buildCost - FreeWaterSpend(immersion) -
+            tickets + FestivalTakings(immersion) + ReceivedPitchFee(p) - payments.Sum(payment => (long)payment.AmountPennies) - buildCost - FreeWaterSpend(immersion) - LavSuckerSpend(lav) -
                 (immersion?.StockPurchase?.Entries.Where(entry => entry.Account == LedgerAccountType.CashAsset && entry.OwnerId.Value == p.FinanceOwnerId).Sum(entry => -entry.AmountPennies) ?? 0),
             p.FinishedBeerIds?.Length,
             p.FinishedBeerIds is null ? null : disorder?.Incidents.Count(incident => guests.Any(guest => guest.AgentId == incident.InitiatorId || guest.AgentId == incident.OpponentId)),
@@ -61,7 +61,7 @@ public sealed partial class GameSession
         foreach (var person in people) SetPresence(person);
         if (!departedAtStart) return;
         _preparation = p with { Status = PreparationStatus.Finished, Rentals = [], WorkContracts = [],
-            Result = MakeFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick) };
+            Result = MakeFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick, _lavSucker) };
         if (_preparation.Result!.Stars is { } stars && _programme is { ActIds.Length: 3 } programme)
         {
             var before = new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray());
@@ -97,7 +97,7 @@ public sealed partial class GameSession
         }
         else if (p.StandingBefore is not null) return "Standing change recorded without a completed festival.";
         if (p.Result is { } result && (result.Tick != s.CurrentTick || s.Lifecycle?.Casualties.Any(c => c.AttemptId == s.Lifecycle.CurrentAttemptId) == true ||
-            result != MakeFestivalResult(p, s.Immersion, s.Medical, s.Disorder, result.Tick))) return "Terminal festival report does not match final authoritative state.";
+            result != MakeFestivalResult(p, s.Immersion, s.Medical, s.Disorder, result.Tick, s.LavSucker))) return "Terminal festival report does not match final authoritative state.";
         return null;
     }
 }

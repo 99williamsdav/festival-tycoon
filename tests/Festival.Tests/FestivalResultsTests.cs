@@ -183,7 +183,7 @@ public sealed class FestivalResultsTests
         Set(s, "DisorderView", disorder with { Incidents = disorder.Incidents.Append(new(performers[0].AgentId, performers[1].AgentId, DisorderGrievance.None, 0, s.CurrentTick, s.CurrentTick, -1, null)).ToArray() });
         var method = typeof(GameSession).GetMethod("MakeFestivalResult", BindingFlags.NonPublic | BindingFlags.Static)!;
         p = s.CapturePreparation()! with { People = s.CapturePreparation()!.People.Select(person => person with { Departed = true }).ToArray() };
-        var result = (FestivalResult)method.Invoke(null, [p, s.CaptureImmersion(), s.CaptureMedical(), s.CaptureDisorder(), s.CurrentTick])!;
+        var result = (FestivalResult)method.Invoke(null, [p, s.CaptureImmersion(), s.CaptureMedical(), s.CaptureDisorder(), s.CurrentTick, s.CaptureLavSucker()])!;
         Assert.AreEqual(1, result.Fights); Assert.AreEqual(2, s.CaptureDisorder()!.Incidents.Length);
     }
 }
