@@ -25,6 +25,9 @@
  "cup_socket": "LWF_RightHand_Cup (child of RightHand)",
  "food_socket": "LWF_RightHand_Food (child of RightHand)",
  "animations": {
+  "dance_sway": "49 frames (one bar at 120 bpm): weight shift and a nod",
+  "dance_bop": "a bounce on every beat, arms pumping in turn",
+  "dance_full": "a deep bounce, both arms up and pumping",
   "walk_food": "as walk, a tray or plate flat on the right palm at the food_hold anchor",
   "idle_food": "as idle, holding the tray",
   "eat": "61 frames (2.5 s): holding the tray, left hand to the mouth and back",
@@ -89,5 +92,5 @@
    -0.0135
   ]
  },
- "sha256": "e9cf813fa0ee5d888089b36d17f76015c8959ef205d31c4f46cc3cb416803c64"
+ "sha256": "a1693f9c8df2b3bd56810485b27d708bdb1ed61b439211410c9274f45f85f97d"
 }

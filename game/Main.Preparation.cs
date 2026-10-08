@@ -339,6 +339,7 @@ private void RebuildPreparationOffers()
                 ? new Vector3(renderedPosition.X - before.X, 0, renderedPosition.Z - before.Z).Length() / (float)characterDelta : 0f;
             var pace = _personPace.GetValueOrDefault(agent.Id) * .75f + moved * .25f;
             _personPace[agent.Id] = pace;
+            SetCrowdDance(agent.Id, visual);
             Bodies.AnimateGuest(visual, pace, CharacterPresentationPaused);
             visual.Position = renderedPosition;
             if (agent.Id == casualtyId || collapsed.Contains(agent.Id))
@@ -357,7 +358,6 @@ private void RebuildPreparationOffers()
                 ? Mathf.Sin((float)_characterPresentationSeconds * 7f) : 0f;
             if (hobble != 0) visual.Position -= new Vector3(0, Mathf.Abs(hobble) * .05f, 0);
             if (hobble != 0 || visual.Rotation.Z != 0) visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y, hobble * .1f);
-            ApplyCrowdDance(agent.Id, visual);
         }
         AdvanceLivePerformancePresentation(characterDelta);
         AdvanceImmersionPresentation(characterDelta);

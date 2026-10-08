@@ -7,57 +7,44 @@ using System.Linq;
 namespace Festival.Game;
 
 /// <summary>
-/// The audience moves to the music while a set is live: folk fans sway, indie fans nod, pop and electronic fans
-/// bounce, punks pogo and metalheads headbang. Mostly on the beat, each a touch off it. How much they move follows
-/// how much they're enjoying it: their taste for the act, taken down by a poor performance; anyone not enjoying it
-/// just stands and watches. It follows the festival clock, so it stops when paused and quickens at 2× and 4×. Presentation only.
+/// The audience dances while a set is live: a sway when they're mildly into it, a bop when they're enjoying it, arms up
+/// when they love it, at the tempo of the act's genre, each a touch off the beat. How much they move follows how much
+/// they're enjoying it: their taste for the act, taken down by a poor performance; anyone not enjoying it just stands
+/// and watches. It follows the festival clock, so it stops when paused and quickens at 2× and 4×. Presentation only.
 /// </summary>
 public partial class Main
 {
-    private sealed record DanceStyle(float Bpm, float Bounce, float Sway, float Nod);
-
-    // Bounce in metres, sway and nod in radians.
-    private static DanceStyle? DanceFor(int genre) => genre switch
+    // The dance clips are one bar at 120 bpm; each genre plays them at its own tempo.
+    private const float DanceClipBpm = 120;
+    private static float? DanceBpm(int genre) => genre switch
     {
-        FestivalGenre.Folk => new(96, .02f, .07f, 0),
-        FestivalGenre.Indie => new(118, .03f, 0, .08f),
-        FestivalGenre.Pop => new(120, .07f, .03f, 0),
-        FestivalGenre.Electronic => new(126, .06f, 0, .05f),
-        FestivalGenre.Punk => new(170, .16f, 0, 0),
-        FestivalGenre.Metal => new(140, 0, 0, .22f),
-        _ => null,
+        FestivalGenre.Folk => 96, FestivalGenre.Indie => 118, FestivalGenre.Pop => 120,
+        FestivalGenre.Electronic => 126, FestivalGenre.Punk => 170, FestivalGenre.Metal => 140, _ => null,
     };
 
-    private (DanceStyle Style, Dictionary<ulong, int> Keenness)? _dance;
-    // Below this much enjoyment they don't dance at all.
-    private const int DanceFrom = 40;
+    private (float Bpm, Dictionary<ulong, int> Keenness)? _dance;
+    // Below this much enjoyment they don't dance at all; above the next two they bop, then let go.
+    private const int DanceFrom = 40, BopFrom = 60, FullFrom = 80;
 
     /// <summary>Works out once a frame whether the crowd should be dancing, and to what.</summary>
     private void PrepareCrowdDance(LivePerformanceSnapshot? live)
     {
         _dance = null;
-        if (live?.Stage != LiveSetStage.Live || _session.CaptureEquipment()?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ||
-            _session.CurrentFestivalAct is not { } act || DanceFor(act.Genre) is not { } style) return;
+        if (live?.Stage != LiveSetStage.Live || !_session.StagePowered ||
+            _session.CurrentFestivalAct is not { } act || DanceBpm(act.Genre) is not { } bpm) return;
         // A sloppy or badly mixed set takes the edge off even a fan's enjoyment.
         var played = _session.CurrentPerformance is { } performance ? 50 + Math.Clamp(performance.Overall, 0, 100) / 2 : 100;
-        _dance = (style, live.Listeners.Where(l => l.AtPlace).ToDictionary(l => l.AgentId, l => l.Enthusiasm * played / 100));
+        _dance = (bpm, live.Listeners.Where(l => l.AtPlace).ToDictionary(l => l.AgentId, l => l.Enthusiasm * played / 100));
     }
 
-    /// <summary>Moves one listener to the beat; their resting position and facing have already been set this frame.</summary>
-    private void ApplyCrowdDance(EntityId id, Node3D visual)
+    /// <summary>Tells a listener's rig which dance to do this frame, if any; the rig plays it when they're standing with free hands.</summary>
+    private void SetCrowdDance(EntityId id, Node3D visual)
     {
-        if (_dance is not { } dance || !dance.Keenness.TryGetValue(id.Value, out var keenness) || keenness < DanceFrom) return;
-        var style = dance.Style;
-        var seconds = (_session.CurrentTick + _host.Clock.InterpolationFraction) / 80.0;
+        if (_dance is not { } dance || !dance.Keenness.TryGetValue(id.Value, out var keenness) || keenness < DanceFrom)
+        { Bodies.SetDance(visual, null, 0, 0); return; }
+        var clip = keenness >= FullFrom ? "dance_full" : keenness >= BopFrom ? "dance_bop" : "dance_sway";
         // Each person a little off the beat, so it reads as a crowd rather than a drill.
         var offset = (id.Value * 2654435761UL % 1000) / 1000f * .35f;
-        var beat = (float)(seconds * style.Bpm / 60.0) + offset;
-        var phase = beat - MathF.Floor(beat);
-        var keen = .2f + (Math.Clamp(keenness, DanceFrom, 100) - DanceFrom) / (100f - DanceFrom);
-        // A bounce is a quick lift and a drop on every beat; a sway and a nod swing back and forth over two.
-        var lift = MathF.Sin(phase * MathF.PI);
-        var swing = MathF.Sin(beat * MathF.PI);
-        visual.Position += new Vector3(0, style.Bounce * keen * lift, 0);
-        visual.Rotation = new Vector3(style.Nod * keen * lift, visual.Rotation.Y, style.Sway * keen * swing);
+        Bodies.SetDance(visual, clip, dance.Bpm / DanceClipBpm * (float)_host.Clock.RequestedSpeed, offset);
     }
 }

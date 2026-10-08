@@ -13,6 +13,7 @@ namespace Festival.Game;
 internal sealed partial class CrowdBodies
 {
     private const string RigMeta = "GuestRigged", WalkPlayerMeta = "GuestWalkPlayer", RigModeMeta = "GuestRigMode", CupSocket = "LWF_RightHand_Cup", FoodSocket = "LWF_RightHand_Food";
+    private const string DanceMeta = "GuestDance", DanceSpeedMeta = "GuestDanceSpeed", DanceOffsetMeta = "GuestDanceOffset";
     // Metres a body covers per second at 1× playback, from the rig's measured strides.
     private static float WalkSpeedAt1x(string sex) => sex == "male" ? 1.200f : 1.164f;
     private const float BriskSpeedAt1x = 1.70f, BriskFrom = 1.45f, MovingFrom = .12f, HurrySpeedAt1x = 2.40f, HurryFrom = 2.05f;
@@ -22,7 +23,14 @@ internal sealed partial class CrowdBodies
         role is "medic" or "steward" or "maintenance" or "sound" && ResourceLoader.Exists($"res://assets/characters/lwf_{role}_{sex}_rigged_test_v1.glb")
             ? $"lwf_{role}_{sex}_rigged_test_v1.glb" : null;
     private static readonly string[] LoopedClips = ["walk", "idle", "walk_brisk", "walk_carry", "idle_carry", "walk_brisk_carry", "drink", "drink_soft", "carry_litter", "walk_hurry",
-        "walk_food", "idle_food", "walk_brisk_food", "eat"];
+        "walk_food", "idle_food", "walk_brisk_food", "eat", "dance_sway", "dance_bop", "dance_full"];
+
+    /// <summary>The dance a listener should be doing this frame (null for none), its playback speed, and how far off the beat.</summary>
+    public void SetDance(Node3D root, string? clip, float speed, float beatOffset)
+    {
+        if (clip is null) { root.RemoveMeta(DanceMeta); return; }
+        root.SetMeta(DanceMeta, clip); root.SetMeta(DanceSpeedMeta, speed); root.SetMeta(DanceOffsetMeta, beatOffset);
+    }
 
     // Guests and staff share the rig; their roots name the body, the variant and the pose a little differently.
     private static Node3D? RigBody(Node3D root) => root.GetNodeOrNull<Node3D>("GuestBody") ?? root.GetNodeOrNull<Node3D>("RoleBody");
@@ -110,9 +118,12 @@ internal sealed partial class CrowdBodies
         var brisk = metresPerSecond >= BriskFrom;
         // Staff on duty keep a quicker pace than the crowd: a hurry once they're going faster than any stroll.
         var hurry = metresPerSecond >= HurryFrom && player.HasAnimation("walk_hurry");
+        // Standing with free hands at a live set they're enjoying: they dance.
+        var dance = mode == "free" && !moving && root.HasMeta(DanceMeta) && player.HasAnimation(root.GetMeta(DanceMeta).AsString())
+            ? root.GetMeta(DanceMeta).AsString() : null;
         var clip = (mode, moving) switch
         {
-            ("free", false) => "idle",
+            ("free", false) => dance ?? "idle",
             ("free", true) => hurry ? "walk_hurry" : brisk ? "walk_brisk" : "walk",
             ("litter", false) => "idle_carry",
             ("litter", true) => "carry_litter",
@@ -123,10 +134,16 @@ internal sealed partial class CrowdBodies
             _ => brisk ? "walk_brisk_carry" : "walk_carry",
         };
         if (!player.HasAnimation(clip)) clip = moving ? "walk" : "idle";
-        if (player.CurrentAnimation != clip) player.Play(clip, customBlend: .2);
+        if (player.CurrentAnimation != clip)
+        {
+            player.Play(clip, customBlend: .3);
+            // Start a dance part-way into the bar, so each person keeps their own place relative to the beat.
+            if (dance is not null) player.Seek(root.GetMeta(DanceOffsetMeta).AsSingle() * (float)player.CurrentAnimationLength, true);
+        }
         var sex = RigSex(root);
         var walkingClip = clip.StartsWith("walk", System.StringComparison.Ordinal) || clip == "carry_litter";
         var natural = clip == "walk_hurry" ? HurrySpeedAt1x : clip.Contains("brisk") ? BriskSpeedAt1x : WalkSpeedAt1x(sex);
-        player.SpeedScale = paused ? 0 : walkingClip ? Mathf.Clamp(metresPerSecond / natural, .05f, 8f) : 1;
+        player.SpeedScale = paused ? 0 : walkingClip ? Mathf.Clamp(metresPerSecond / natural, .05f, 8f) :
+            dance is not null ? root.GetMeta(DanceSpeedMeta).AsSingle() : 1;
     }
 }

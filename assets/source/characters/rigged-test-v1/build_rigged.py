@@ -342,6 +342,92 @@ def idle(f, t):
 
 make_action("walk", WALK_N, walk)
 make_action("idle", IDLE_N, idle)
+
+# ---------------------------------------------------------------- dancing: three loops by how much they're enjoying it
+# Each loop is one bar, four beats at 120 bpm (2.0 s, 49 frames); play it faster or slower to match a band's tempo.
+# The feet stay planted: the knees take the bounce (two-bone IK in the leg's sagittal plane, as the walk), and a sideways
+# sway rolls the thighs so the feet stay put.
+DANCE_N = 49
+_ANK = {sx: ankle[sx] for sx in (-1, 1)}
+
+
+def planted_leg(side, sx, drop):
+    """thigh and shin angles (degrees from rest) that keep this foot where it stands with the hips lowered by drop"""
+    leg = LEGS[side]
+    a = V((_ANK[sx].y - hip[sx].y, _ANK[sx].z))
+    hip_z = leg["hip"].z - drop
+    d = V((a.x, a.y - hip_z))
+    D = d.length; Lsum = leg["L1"] + leg["L2"]
+    if D > Lsum * 0.995: d = d * (Lsum * 0.995 / D); D = d.length
+    alpha = math.atan2(d.x, -d.y)
+    beta = math.acos(max(-1.0, min(1.0, (leg["L1"] ** 2 + D * D - leg["L2"] ** 2) / (2 * leg["L1"] * D))))
+    phi1 = alpha + beta
+    kp = V((leg["L1"] * math.sin(phi1), -leg["L1"] * math.cos(phi1)))
+    phi2 = math.atan2(d.x - kp.x, -(d.y - kp.y))
+    return math.degrees(phi1 - leg["a1r"]), math.degrees(phi2 - leg["a2r"])
+
+
+def dance_body(fr, drop, sway, roll, nod, lean=0.0):
+    """hips lowered and swayed, legs planted beneath, trunk and head following"""
+    key("Hips", rot_world("Hips", Y, roll), fr, loc=(sway, 0, -drop))
+    leg_len = LEGS["Left"]["L1"] + LEGS["Left"]["L2"]
+    splay = math.degrees(math.atan2(sway, leg_len))
+    for sx, side in ((-1, "Left"), (1, "Right")):
+        th, shn = planted_leg(side, sx, drop)
+        # The same world-frame conversion as the walk, so the knees bend forward; then the sideways roll.
+        key(f"{side}UpperLeg", combine(world_q(f"{side}UpperLeg", RX(th)), rot_world(f"{side}UpperLeg", Y, -roll + splay)), fr)
+        key(f"{side}LowerLeg", world_q(f"{side}LowerLeg", RX(shn - th)), fr)
+        key(f"{side}Foot", combine(world_q(f"{side}Foot", RX(-shn)), rot_world(f"{side}Foot", Y, -splay)), fr)
+    key("Spine", rot_world("Spine", X, lean), fr)
+    key("Chest", rot_world("Chest", Y, -1.4 * roll), fr)
+    key("Neck", Quaternion(), fr)
+    key("Head", combine(rot_world("Head", X, -nod - 0.4 * lean), rot_world("Head", Y, 0.6 * roll)), fr)   # nods forward on the beat
+
+
+def beat_of(f): return 4.0 * f / (DANCE_N - 1)
+def pulse(b, sharp=1.0):
+    """1 on each beat, 0 between: how far down the bounce is"""
+    return (0.5 + 0.5 * math.cos(2 * math.pi * b)) ** sharp
+
+
+def dance_sway(f, t):
+    """not fussed: a slow weight shift side to side over the bar, a little give in the knees, a nod on the beat"""
+    fr = f + 1; b = beat_of(f)
+    side = math.sin(t)                                   # one sway each way per bar
+    dance_body(fr, 0.010 + 0.010 * pulse(b), 0.030 * side, 3.0 * side, 3.0 * pulse(b, 2))
+    for sx, s in ((-1, "Left"), (1, "Right")):
+        key(f"{s}UpperArm", combine(rot_world(f"{s}UpperArm", Y, sx * -(3 + 2 * side * sx)), rot_world(f"{s}UpperArm", X, 4 * side * sx)), fr)
+        key(f"{s}LowerArm", rot_world(f"{s}LowerArm", X, 12), fr)
+        key(f"{s}Hand", Quaternion(), fr)
+
+
+def dance_bop(f, t):
+    """into it: a bounce on every beat, elbows bent and arms pumping in turn"""
+    fr = f + 1; b = beat_of(f)
+    side = math.sin(t)
+    dance_body(fr, 0.020 + 0.040 * pulse(b, 1.5), 0.015 * side, 4.0 * math.sin(math.pi * b), 6.0 * pulse(b, 2), lean=-3.0)
+    for sx, s in ((-1, "Left"), (1, "Right")):
+        swing = 18 * math.sin(math.pi * b + (0 if sx < 0 else math.pi))     # left forward on beats 1 and 3, right on 2 and 4
+        key(f"{s}UpperArm", combine(rot_world(f"{s}UpperArm", X, 25 + swing), rot_world(f"{s}UpperArm", Y, sx * -10)), fr)
+        key(f"{s}LowerArm", rot_world(f"{s}LowerArm", X, 80 + 10 * pulse(b)), fr)
+        key(f"{s}Hand", Quaternion(), fr)
+
+
+def dance_full(f, t):
+    """loving it: a deep bounce, both arms up and pumping on the beat"""
+    fr = f + 1; b = beat_of(f)
+    side = math.sin(t)
+    dance_body(fr, 0.030 + 0.060 * pulse(b, 1.5), 0.020 * side, 5.0 * math.sin(math.pi * b), 9.0 * pulse(b, 2), lean=-2.0)
+    for sx, s in ((-1, "Left"), (1, "Right")):
+        pump = pulse(b + (0.0 if sx < 0 else 0.5), 2)                       # the arms pump a half-beat apart
+        key(f"{s}UpperArm", combine(rot_world(f"{s}UpperArm", X, 135 + 12 * pump), rot_world(f"{s}UpperArm", Y, sx * -24)), fr)
+        key(f"{s}LowerArm", rot_world(f"{s}LowerArm", X, 8 + 22 * (1 - pump)), fr)
+        key(f"{s}Hand", Quaternion(), fr)
+
+
+make_action("dance_sway", DANCE_N, dance_sway)
+make_action("dance_bop", DANCE_N, dance_bop)
+make_action("dance_full", DANCE_N, dance_full)
 # ---------------------------------------------------------------- carrying and drinking (right arm solved to a cup frame)
 # Cup frames reuse the pose bodies' anchors (attendee_poses_v6_manifest.json): drink_hold for carrying (upright), drinking
 # beer / soft for the sip. The hand grips the cup as the pose generator's cup_hand does; the cup socket
@@ -728,7 +814,7 @@ bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', use_selection=True
 bpy.ops.wm.save_as_mainfile(filepath=os.path.join(OUT, NAME + ".blend"))
 def godot(v): return [round(v.x, 4), round(v.z, 4), round(-v.y, 4)]
 rep = dict(file=NAME + ".glb", sex=SEX, triangles=sum(len(p.vertices) - 2 for p in me.polygons), vertices=len(me.vertices),
-           bones=list(BONES), cup_socket="LWF_RightHand_Cup (child of RightHand)", food_socket="LWF_RightHand_Food (child of RightHand)", animations={"walk_food": "as walk, a tray or plate flat on the right palm at the food_hold anchor", "idle_food": "as idle, holding the tray", "eat": f"{EAT_N} frames (2.5 s): holding the tray, left hand to the mouth and back", "walk_brisk_food": "walk_brisk holding the tray", "walk_carry": "as walk, right hand holding a cup at drink_hold", "idle_carry": "as idle, right hand holding a cup", "drink": f"{DRINK_N} frames (2.75 s): beer sip, cup tilts 55 deg at the lips", "drink_soft": f"{DRINK_N} frames: soft-drink sip, 25 deg", "carry_litter": "as walk, right hand low carrying litter", "walk_brisk": f"{BRISK_N} frames: brisk walk, see stride_brisk", "walk_brisk_carry": "walk_brisk with the cup held (as walk_carry)", "walk_hurry": f"{HURRY_N} frames: staff power walk, see stride_hurry", "walk": f"{WALK_N} frames at {FPS} fps ({CYCLE:.3f} s, two steps), loops", "idle": f"{IDLE_N} frames at {FPS} fps (2.0 s), loops"},
+           bones=list(BONES), cup_socket="LWF_RightHand_Cup (child of RightHand)", food_socket="LWF_RightHand_Food (child of RightHand)", animations={"dance_sway": f"{DANCE_N} frames (one bar at 120 bpm): weight shift and a nod", "dance_bop": "a bounce on every beat, arms pumping in turn", "dance_full": "a deep bounce, both arms up and pumping", "walk_food": "as walk, a tray or plate flat on the right palm at the food_hold anchor", "idle_food": "as idle, holding the tray", "eat": f"{EAT_N} frames (2.5 s): holding the tray, left hand to the mouth and back", "walk_brisk_food": "walk_brisk holding the tray", "walk_carry": "as walk, right hand holding a cup at drink_hold", "idle_carry": "as idle, right hand holding a cup", "drink": f"{DRINK_N} frames (2.75 s): beer sip, cup tilts 55 deg at the lips", "drink_soft": f"{DRINK_N} frames: soft-drink sip, 25 deg", "carry_litter": "as walk, right hand low carrying litter", "walk_brisk": f"{BRISK_N} frames: brisk walk, see stride_brisk", "walk_brisk_carry": "walk_brisk with the cup held (as walk_carry)", "walk_hurry": f"{HURRY_N} frames: staff power walk, see stride_hurry", "walk": f"{WALK_N} frames at {FPS} fps ({CYCLE:.3f} s, two steps), loops", "idle": f"{IDLE_N} frames at {FPS} fps (2.0 s), loops"},
            stride_brisk=BRISK, stride_hurry=HURRY, role=ROLE, foot_edge_stretch_mm=FOOT_STRETCH,
            stride=dict(step_length_m=round(step, 3), metres_per_cycle=round(STRIDE, 3), cycle_seconds=round(CYCLE, 4), walk_speed_m_per_s=round(speed, 3),
                        planted_foot_max_slide_mm=round(slide * 1000, 1), stance_share=DUTY,
