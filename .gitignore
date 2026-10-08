@@ -46,3 +46,6 @@ reports/evidence/**/*.etl
 # Reproducible local toolchain and build artifacts
 .tools/
 artifacts/
+
+# Blender rewrites these backups on every save; nothing reads them.
+*.blend1
