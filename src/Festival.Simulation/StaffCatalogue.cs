@@ -26,6 +26,11 @@ public sealed record StaffBaseline(int MedicSpeedPermille, int StewardSpeedPermi
 public static class StaffCatalogue
 {
     public const int PerRole = 6;
+    /// <summary>
+    /// The best grade on the market at a tier. A small village do can't get the A&amp;E nurse or the riot-calming
+    /// steward; those are for bigger festivals.
+    /// </summary>
+    public static int MaxGrade(int tier) => tier <= 1 ? 1 : 2;
     public const int UnhiredMedicTreatmentTicks = 480;
 
     public static string Key(StaffRole role) => role switch { StaffRole.Sound => "sound", StaffRole.Medic => "medic", _ => "steward" };
@@ -120,9 +125,10 @@ public static class StaffCatalogue
     /// <summary>
     /// Six candidates per role for this edition's seed. Candidate 1 has standard abilities (exactly the
     /// slot's baseline abilities), candidates 2 and 4 are below it, 3 and 5 above it, and 6 anywhere from a
-    /// little below to a little above; the staff page sorts by wage, so the order is not on show.
+    /// little below to a little above; the staff page sorts by wage, so the order is not on show. Nobody is
+    /// better than <paramref name="maxGrade"/>.
     /// </summary>
-    public static StaffCandidate[] Candidates(ulong seed, StaffBaseline baseline)
+    public static StaffCandidate[] Candidates(ulong seed, StaffBaseline baseline, int maxGrade = 2)
     {
         var names = RandomStreamFactory.Create(seed ^ 0x5354414646UL, RandomStreamId.IndividualBehaviour);
         var firsts = new HashSet<string>(); var lasts = new HashSet<string>();
@@ -146,7 +152,7 @@ public static class StaffCatalogue
             int Next(int count) => (int)(random.NextUInt32() % (uint)count);
             for (var number = 1; number <= PerRole; number++)
             {
-                var grade = number switch { 1 => 0, 2 or 4 => -1 - Next(2), 6 => Next(3) - 1, _ => 1 + Next(2) };
+                var grade = Math.Min(maxGrade, number switch { 1 => 0, 2 or 4 => -1 - Next(2), 6 => Next(3) - 1, _ => 1 + Next(2) });
                 var noise = grade == 0 ? 0 : (Next(7) - 3) * 100;
                 var blurbs = (role switch { StaffRole.Sound => SoundBlurbs, StaffRole.Medic => MedicBlurbs, _ => StewardBlurbs })[grade + 2];
                 var blurb = blurbs[Next(2)];

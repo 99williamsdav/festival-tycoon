@@ -35,6 +35,19 @@ public sealed class StaffTraitTests
     }
 
     [TestMethod]
+    public void ATierOneMarketTopsOutOneGradeAboveStandard()
+    {
+        // A village do gets the retired practice nurse at best, never the A&E nurse or the riot-calming steward.
+        var market = Enumerable.Range(0, 40).SelectMany(offset => GameSession.CreateBuildCampaign(20260922UL + (ulong)offset, FestivalStanding.Established).GetStaffCandidates()).ToArray();
+        Assert.AreEqual(1, market.Max(c => c.Grade), "Capped at Tier 1.");
+        Assert.IsTrue(market.Where(c => c.Number is 3 or 5).All(c => c.Grade == 1), "The above-standard pair is still above standard.");
+        var uncapped = Enumerable.Range(0, 40).SelectMany(offset => StaffCatalogue.Candidates(20260922UL + (ulong)offset, new(1_000, 1_000, 5_000, 5_000))).ToArray();
+        Assert.IsTrue(uncapped.Any(c => c.Grade == 2), "Bigger festivals can still find the best.");
+        Assert.AreEqual(1, StaffCatalogue.MaxGrade(1));
+        Assert.AreEqual(2, StaffCatalogue.MaxGrade(2));
+    }
+
+    [TestMethod]
     public void AboutHalfTheMarketHasAQuirkAndOppositesNeverPair()
     {
         var all = Enumerable.Range(0, 200).SelectMany(offset => StaffCatalogue.Candidates(20260922UL + (ulong)offset, new(1_000, 1_000, 5_000, 5_000))).ToArray();

@@ -13,18 +13,18 @@ public sealed partial class GameSession
         var key = (p.OfferSeed, _medical?.MedicId, _disorder?.SecurityId, _disorder?.CalmingSkill ?? 0, _disorder?.ConfrontationSkill ?? 0);
         if (_staffCandidates is not { } cached || (cached.Seed, cached.MedicId, cached.StewardId, cached.Calming, cached.Confrontation) != key)
             _staffCandidates = cached = (key.OfferSeed, key.Item2, key.Item3, key.Item4, key.Item5,
-                StaffCandidatesFor(key.OfferSeed, key.Item2, key.Item3, key.Item4, key.Item5));
+                StaffCandidatesFor(key.OfferSeed, p.Tier, key.Item2, key.Item3, key.Item4, key.Item5));
         return cached.Candidates;
     }
 
-    private static StaffCandidate[] StaffCandidatesFor(ulong seed, ulong? medicId, ulong? stewardId, int calming, int confrontation) =>
+    private static StaffCandidate[] StaffCandidatesFor(ulong seed, int tier, ulong? medicId, ulong? stewardId, int calming, int confrontation) =>
         StaffCatalogue.Candidates(seed, new(medicId is { } m ? GetWalkingSpeedPermille(new(m)) : 1_000,
-                stewardId is { } s ? GetWalkingSpeedPermille(new(s)) : 1_000, calming, confrontation))
+                stewardId is { } s ? GetWalkingSpeedPermille(new(s)) : 1_000, calming, confrontation), StaffCatalogue.MaxGrade(tier))
             .Where(c => c.Role == StaffRole.Sound || c.Role == StaffRole.Medic && medicId is not null || c.Role == StaffRole.Steward && stewardId is not null)
             .ToArray();
 
     private static StaffCandidate[] SavedStaffCandidates(SessionPersistenceSnapshot s) =>
-        StaffCandidatesFor(s.Preparation!.OfferSeed, s.Medical?.MedicId, s.Disorder?.SecurityId, s.Disorder?.CalmingSkill ?? 0, s.Disorder?.ConfrontationSkill ?? 0);
+        StaffCandidatesFor(s.Preparation!.OfferSeed, s.Preparation.Tier, s.Medical?.MedicId, s.Disorder?.SecurityId, s.Disorder?.CalmingSkill ?? 0, s.Disorder?.ConfrontationSkill ?? 0);
 
     /// <summary>The candidate paid for in a role's main or extra slot this attempt.</summary>
     public StaffCandidate? HiredStaff(StaffRole role, bool extra = false) =>
