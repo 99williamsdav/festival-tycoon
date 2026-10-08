@@ -105,7 +105,9 @@ public sealed partial class GameSession
         if (claims.HasFlag(PersonClaim.Fighting) &&
             (PersonIn(PersonView.Disorder, id)?.ConductStage == DisorderStage.Fight || IsFightOpponent(id))) return true;
         if (claims.HasFlag(PersonClaim.Performing) &&
-            _livePerformance?.Performers.Any(performer => performer.AgentId == id && (performer.OnStage || performer.InstrumentAttached)) == true) return true;
+            _livePerformance?.Performers.Any(performer => performer.AgentId == id && (performer.OnStage || performer.InstrumentAttached ||
+                // Still on the way off: across the deck and down the band stairs, before anything else can call them away.
+                _navigationAgents.TryGetValue(new(id), out var exit) && exit.IntentId is "performance.stage-exit-stair" or "performance.stage-exit-access")) == true) return true;
         if ((claims & (PersonClaim.InterventionTarget | PersonClaim.BeingEscorted | PersonClaim.InterventionWorker)) != 0 &&
             (_medical?.StaffInterventions ?? []).Any(job =>
                 claims.HasFlag(PersonClaim.InterventionTarget) && InterventionBusy(job) && job.GuestId == id ||

@@ -60,6 +60,31 @@ public sealed class FestivalProgrammeTests
         Restore(s);
     }
     [TestMethod]
+    public void AfterTheirSetTheBandWalkOffDownTheStairsBeforeDoingAnythingElse()
+    {
+        var s = BuildSession.WithoutFaults(BuildSession.Started());
+        s.AdvanceWithoutSnapshot(GameSession.FestivalSlotEnds[0] - (int)s.CurrentTick + 40);
+        var live = s.CaptureLivePerformance()!;
+        Assert.AreEqual(LiveSetStage.Finished, live.Stage, "The first set is over.");
+        var band = live.Performers.Where(p => p.StairReached).Select(p => p.AgentId).ToArray();
+        Assert.AreNotEqual(0, band.Length, "Somebody played.");
+        var seen = band.ToDictionary(id => id, _ => new List<string>());
+        for (var tick = 0; tick < 2_400; tick += 8)
+        {
+            foreach (var agent in s.CaptureSnapshot().NavigationAgents.Where(a => seen.ContainsKey(a.Id.Value)))
+                if (seen[agent.Id.Value].LastOrDefault() != agent.IntentId) seen[agent.Id.Value].Add(agent.IntentId ?? "");
+            s.AdvanceWithoutSnapshot(8);
+        }
+        foreach (var (id, intents) in seen)
+        {
+            // Across the deck to the stairs, down them to the access point, and only then free to wander.
+            var exit = intents.SkipWhile(i => i != "performance.stage-exit-stair").ToList();
+            Assert.IsTrue(exit.Count >= 3, $"{id}: {string.Join(" > ", intents)}");
+            CollectionAssert.AreEqual(new[] { "performance.stage-exit-stair", "performance.stage-exit-access", "performance.stage-exit" }, exit.Take(3).ToArray(),
+                $"{id}: {string.Join(" > ", intents)}");
+        }
+    }
+    [TestMethod]
     public void DayTimingIsExplicitAndOldTimetableVersionsAreNotSilentlyMigrated()
     {
         var s = BuildSession.Drafted(20260926);
