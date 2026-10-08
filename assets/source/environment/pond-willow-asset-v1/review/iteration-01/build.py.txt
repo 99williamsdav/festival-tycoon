@@ -1,0 +1,98 @@
+"""Approved deep-weeping willow, static project-original geometry. Blender 4.1."""
+import bpy,bmesh,math,random,json,hashlib
+from pathlib import Path
+from mathutils import Vector
+R=Path(__file__).resolve().parent
+bpy.ops.wm.read_factory_settings(use_empty=True)
+bpy.context.preferences.filepaths.save_version=0
+rng=random.Random(81026)
+PAL=['61533B','796649','928060','A9946D','4E6435','63783D','788944','8D9D4E','A3AF60','B7BE70','C3C780','71864C']
+im=bpy.data.images.new('WillowPalette',width=96,height=8);im.colorspace_settings.name='sRGB'
+im.pixels=[c for y in range(8) for h in PAL for x in range(8) for c in [*[int(h[i:i+2],16)/255 for i in (0,2,4)],1]]
+im.filepath_raw=str(R/'textures/lwf_willow_palette_v1.png');im.file_format='PNG';im.save();im.pack()
+mat=bpy.data.materials.new('Willow_MattePalette');mat.use_nodes=True
+bs=mat.node_tree.nodes['Principled BSDF'];bs.inputs['Roughness'].default_value=.94
+tex=mat.node_tree.nodes.new('ShaderNodeTexImage');tex.image=im;tex.interpolation='Closest';mat.node_tree.links.new(tex.outputs['Color'],bs.inputs['Base Color'])
+class Geo:
+ def __init__(self,name):self.name=name;self.v=[];self.f=[];self.c=[]
+ def add(self,v,f,c):
+  o=len(self.v);self.v.extend(v);self.f.extend([tuple(o+i for i in f0) for f0 in f]);self.c.extend(c if isinstance(c,list) else [c]*len(f))
+ def tube(self,pts,radii,n=7):
+  pts=[Vector(p) for p in pts];v=[]
+  for k,p in enumerate(pts):
+   d=pts[min(k+1,len(pts)-1)]-pts[max(0,k-1)];q=d.to_track_quat('Z','Y')
+   for j in range(n):v.append(tuple(p+q@Vector((radii[k]*math.cos(j*math.tau/n),radii[k]*math.sin(j*math.tau/n),0))))
+  f=[tuple(reversed(range(n))),tuple((len(pts)-1)*n+j for j in range(n))];c=[0,1]
+  for k in range(len(pts)-1):
+   for j in range(n):f.append((k*n+j,k*n+(j+1)%n,(k+1)*n+(j+1)%n,(k+1)*n+j));c.append([1,2,1,0,1,2,3][j%7])
+  self.add(v,f,c)
+ def obj(self):
+  me=bpy.data.meshes.new(self.name+'_Mesh');me.from_pydata(self.v,[],self.f);me.update();me.materials.append(mat)
+  uv=me.uv_layers.new(name='PaletteUV')
+  for p,c in zip(me.polygons,self.c):
+   for i in p.loop_indices:uv.data[i].uv=((c+.5)/len(PAL),.5)
+  bm=bmesh.new();bm.from_mesh(me);bmesh.ops.recalc_face_normals(bm,faces=list(bm.faces));bm.to_mesh(me);bm.free()
+  ob=bpy.data.objects.new(self.name,me);bpy.context.collection.objects.link(ob);return ob
+wood=Geo('WillowTrunkBranches')
+wood.tube([(0,0,.025),(.02,.015,.45),(.11,.06,1.0),(.25,.04,1.65),(.44,-.06,2.25),(.68,-.13,2.8),(.89,-.12,3.25)], [.24,.20,.177,.15,.12,.087,.043],9)
+for a in [.2,1.9,3.2,4.8]:
+ wood.tube([(0,0,.24),(.24*math.cos(a),.24*math.sin(a),.055),(.33*math.cos(a),.33*math.sin(a),.023)],[.1,.065,.008],6)
+# Each arch feeds multiple unequal tapered curtains; no spherical canopy fillers.
+groups=[
+ (.85,-.25,4.5,.46,.08), (1.25,.48,4.2,.48,.09),
+ (.35,-.95,3.9,.48,.12), (1.05,-1.4,3.65,.42,.10),
+ (1.68,-.82,3.9,.49,.075), (1.8,.03,3.82,.43,.08),
+ (1.62,.98,3.7,.46,.09), (.88,1.5,3.45,.46,.10),
+ (.02,.95,3.85,.42,.13),(-.25,.25,3.65,.43,.18),
+ (.08,-1.55,3.15,.39,.13),(1.95,1.52,3.12,.35,.095),
+ (1.95,-1.48,3.03,.34,.075)]
+leaf=Geo('WillowHangingFoliage')
+strand_records=[]
+for gi,(cx,cy,top,spread,bottom) in enumerate(groups):
+ # Main curved limbs reach each peak, then slender tips turn down.
+ wood.tube([(.25,.02,1.5),(.5,cy*.23,2.3),(cx*.64,cy*.6,top-.3),(cx,cy,top-.10),(cx+.10,cy,top-.55)],[.10,.075,.044,.022,.004],6)
+ for j in range(11):
+  a=j*math.tau/11+rng.uniform(-.12,.12);rad=spread*(.45 if j==0 else rng.uniform(.65,1.0))
+  ox,oy=math.cos(a)*rad,math.sin(a)*rad
+  endz=bottom+rng.uniform(0,.22)+(0.22 if j%5==0 else 0)
+  height=top-rng.uniform(.05,.45)
+  endx=min(2.02,cx+ox+.12);endy=cy+oy
+  # Closed four-sided leafy tassel core: irregular widths, curved start, narrow fringe.
+  points=[];widths=[]
+  for k in range(9):
+   t=k/8;z=height*(1-t)+endz*t
+   x=cx+ox*(.3+.7*t)+.20*math.sin(t*math.pi);y=cy+oy*(.3+.7*t)+.04*math.sin(t*7+gi)
+   x=x*(1-t*t)+endx*t*t
+   width=(.09+.065*math.sin(t*math.pi))*(1-t**4)*(1 if k%2 else .82)
+   points.append(Vector((x,y,z)));widths.append(max(.005,width))
+  v=[]
+  for p,w in zip(points,widths):
+   for n in range(4):
+    ang=a+n*math.pi/2;v.append(tuple(p+Vector((w*math.cos(ang),w*math.sin(ang),0))))
+  f=[(3,2,1,0)];cs=[7]
+  base=[6,7,8,9,8,7,9,6,8,10,7][j]
+  for k in range(8):
+   for n in range(4):f.append((k*4+n,k*4+(n+1)%4,(k+1)*4+(n+1)%4,(k+1)*4+n));cs.append(max(4,min(10,base+(1 if n==0 else -1 if n==2 else 0))))
+  f.append(tuple(32+n for n in range(4)));cs.append(base);leaf.add(v,f,cs)
+  # Paired long lance-shaped clumps break edges; each is a folded group, not animated leaves.
+  for k in range(1,8):
+   p=points[k];w=widths[k]
+   for sign in [-1,1]:
+    angle=a+sign*1.1+k*.23;side=Vector((math.cos(angle),math.sin(angle),0));across=Vector((-side.y,side.x,0))
+    length=rng.uniform(.23,.43);root=p+side*w*.3;tip=p+side*(w+rng.uniform(.035,.085))-Vector((0,0,length))
+    mid=root.lerp(tip,.48)+side*.05;ww=rng.uniform(.035,.057)
+    leaf.add([tuple(root),tuple(mid+across*ww),tuple(tip),tuple(mid-across*ww),tuple(mid+side*.025)],[(0,1,4),(1,2,4),(2,3,4),(3,0,4),(4,1,0),(4,2,1),(4,3,2),(4,0,3)],min(10,base+1) if k%3 else base)
+  strand_records.append({'group':gi,'tip_blender':list(points[-1]),'height':height-endz})
+trunk=wood.obj();foliage=leaf.obj()
+obs=[trunk,foliage]
+bpy.ops.object.select_all(action='DESELECT')
+for ob in obs:ob.select_set(True)
+bpy.context.view_layer.objects.active=trunk
+bpy.ops.export_scene.gltf(filepath=str(R/'runtime/lwf_pond_willow_v1.glb'),export_format='GLB',use_selection=True,export_yup=True,export_animations=False)
+bpy.ops.wm.save_as_mainfile(filepath=str(R/'source/lwf_pond_willow_v1.blend'))
+stats={}
+for ob in obs:
+ ob.data.calc_loop_triangles();pts=[v.co for v in ob.data.vertices]
+ stats[ob.name]={'vertices':len(pts),'triangles':len(ob.data.loop_triangles),'bounds_blender':[[min(p[i] for p in pts) for i in range(3)],[max(p[i] for p in pts) for i in range(3)]]}
+report={'asset':'lwf_pond_willow_v1.glb','parts':stats,'materials':1,'palette_size':[96,8],'placement_local_godot':[1.7,0,3.4],'placement_world_godot':[25.7,0,27.9],'yaw_radians':math.pi/2,'forward':'local +X is overhang direction; Godot positive Y yaw pi/2 points it toward pond -Z','strand_count':len(strand_records),'curtain_group_count':len(groups),'strands':strand_records,'sha256':hashlib.sha256((R/'runtime/lwf_pond_willow_v1.glb').read_bytes()).hexdigest()}
+(R/'manifest.json').write_text(json.dumps(report,indent=2));print('WILLOW_BUILD_PASSED',stats)

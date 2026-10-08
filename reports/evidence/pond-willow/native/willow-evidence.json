@@ -1,0 +1,82 @@
+{
+  "passed": true,
+  "resolution": "(1920, 1080)",
+  "checks": [
+    {
+      "name": "game-pause",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "terminal-Failed",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "terminal-Finished",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "pond-hidden",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "start-menu",
+      "frozen": true,
+      "simulationUnchanged": true,
+      "resumedWithoutJump": true
+    },
+    {
+      "name": "existing-pond-footprint",
+      "blockedCells": 289,
+      "unchanged": true,
+      "noNewPickingBodies": true
+    },
+    {
+      "name": "decorative-willow",
+      "noCollisionNavigationPickingOrAnimation": true,
+      "localPosition": "(4.5, 0, 0.5)",
+      "yaw": 3.1415927,
+      "staticTransform": true,
+      "meshSurfaces": 2,
+      "sharedMaterials": 1
+    },
+    {
+      "name": "sightline-fixture",
+      "visualStandIns": [
+        "(19, 0, 24)",
+        "(20, 0, 28)",
+        "(24, 0, 19)",
+        "(28, 0, 20)",
+        "(29, 0, 25)",
+        "(25, 0, 30)"
+      ],
+      "caveat": "Existing static body meshes are visual scale markers only, not active guests or a crowd-load test."
+    }
+  ],
+  "performance": [
+    {
+      "pondVisible": true,
+      "willowVisible": false,
+      "frames": 90,
+      "medianFrameMs": 4.0424,
+      "p95FrameMs": 28.1331,
+      "drawCalls": 360
+    },
+    {
+      "pondVisible": true,
+      "willowVisible": true,
+      "frames": 90,
+      "medianFrameMs": 3.854,
+      "p95FrameMs": 27.4479,
+      "drawCalls": 364
+    }
+  ],
+  "caveat": "Scripted staged preparation fixture with labelled visual guest stand-ins. Whole-app vsync-off comparison of willow hidden/visible with pond retained; not isolated GPU timing or live-festival FPS certification; no manual playthrough."
+}

@@ -14,6 +14,7 @@ namespace Festival.Game;
 public partial class Main
 {
     private string? _pondEvidenceOutput;
+    private bool _willowEvidence;
     private int _pondEvidenceFrame;
     private readonly List<object> _pondEvidenceChecks=[];
     private readonly List<object> _pondEvidencePerformance=[];
@@ -70,6 +71,7 @@ public partial class Main
                 throw new InvalidOperationException("Pond cell became navigable/placeable: "+cell);
         }
         _pondEvidenceChecks.Add(new{name="existing-pond-footprint",blockedCells=cells.Length,unchanged=true,noNewPickingBodies=true});
+        if (_willowEvidence) SetupWillowEvidence();
     }
 
     private void ProcessPondEvidence()
@@ -81,20 +83,30 @@ public partial class Main
             catch(Exception error){GD.PushError(error.ToString());GetTree().Quit(2);_pondEvidenceOutput=null;return;}
         }
         Dock.Readiness?.Hide();
+        if (_willowEvidence) _willowEvidenceReceipt?.CallDeferred(CanvasItem.MethodName.Hide);
         var frame=_pondEvidenceFrame++;
-        const int poses=12,framesPerPose=8;
+        var viewsPerOrientation=_willowEvidence?4:3;
+        var poses=4*viewsPerOrientation;const int framesPerPose=8;
         if(frame<poses*framesPerPose)
         {
-            var index=frame/framesPerPose;var view=index%3;
+            var index=frame/framesPerPose;var view=index%viewsPerOrientation;
             if(frame%framesPerPose==0)
             {
                 if(view==0&&index>0)_rig.Rotate(1);
-                _rig.Frame(view==2?Vector3.Zero:new(24,0,24.5f),view==0?11:view==1?32:66);
+                _rig.Frame(view==2?Vector3.Zero:new(24,0,24.5f),view==0?11:view==1?32:view==2?66:18);
                 _pondClock.Reset(32+index*9);ApplyPondPose();
+            }
+            if (_willowEvidence && view is 1 or 2)
+            {
+                if (frame%framesPerPose==1) _pondWillow.Hide();
+                if (frame%framesPerPose==2)
+                    GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_pondEvidenceOutput,
+                        $"{index/viewsPerOrientation}-{_rig.OrientationName.ToLowerInvariant()}-{(view==1?"game32":"farm")}-without-willow.png"));
+                if (frame%framesPerPose==3) _pondWillow.Show();
             }
             if(frame%framesPerPose==6)
             {
-                var name=$"{index/3}-{_rig.OrientationName.ToLowerInvariant()}-{(view==0?"close":view==1?"game32":"farm")}";
+                var name=$"{index/viewsPerOrientation}-{_rig.OrientationName.ToLowerInvariant()}-{(view==0?"close":view==1?"game32":view==2?"farm":"min18")}";
                 GetViewport().GetTexture().GetImage().SavePng(Path.Combine(_pondEvidenceOutput,name+".png"));
             }
             return;
@@ -113,7 +125,8 @@ public partial class Main
         {
             if(within==0)
             {
-                _rig.Frame(new(24,0,24.5f),32);_pondWorld.Visible=phase==1;
+                _rig.Frame(new(24,0,24.5f),32);
+                if (_willowEvidence) _pondWillow.Visible=phase==1; else _pondWorld.Visible=phase==1;
                 _pondEvidenceTimes.Clear();_pondEvidenceDraws.Clear();
             }
             var now=Stopwatch.GetTimestamp();
@@ -126,13 +139,13 @@ public partial class Main
             if(within==119)
             {
                 var sorted=_pondEvidenceTimes.Order().ToArray();
-                _pondEvidencePerformance.Add(new{pondVisible=_pondWorld.Visible,frames=90,medianFrameMs=sorted[45],p95FrameMs=sorted[85],drawCalls=_pondEvidenceDraws.Average()});
+                _pondEvidencePerformance.Add(new{pondVisible=_pondWorld.Visible,willowVisible=_willowEvidence?_pondWillow.Visible:(bool?)null,frames=90,medianFrameMs=sorted[45],p95FrameMs=sorted[85],drawCalls=_pondEvidenceDraws.Average()});
             }
             return;
         }
-        File.WriteAllText(Path.Combine(_pondEvidenceOutput,"pond-evidence.json"),JsonSerializer.Serialize(new {
+        File.WriteAllText(Path.Combine(_pondEvidenceOutput,_willowEvidence?"willow-evidence.json":"pond-evidence.json"),JsonSerializer.Serialize(new {
             passed=true,resolution=GetWindow().Size.ToString(),checks=_pondEvidenceChecks,performance=_pondEvidencePerformance,
-            caveat="Scripted staged preparation fixture. Whole-app vsync-off wall-frame comparison of full pond hidden/visible, not isolated GPU cost or live-festival FPS certification; no manual playthrough."},new JsonSerializerOptions{WriteIndented=true}));
+            caveat=_willowEvidence?"Scripted staged preparation fixture with labelled visual guest stand-ins. Whole-app vsync-off comparison of willow hidden/visible with pond retained; not isolated GPU timing or live-festival FPS certification; no manual playthrough.":"Scripted staged preparation fixture. Whole-app vsync-off wall-frame comparison of full pond hidden/visible, not isolated GPU cost or live-festival FPS certification; no manual playthrough."},new JsonSerializerOptions{WriteIndented=true}));
         GD.Print("POND_EVIDENCE_COMPLETE passed=true");GetTree().Quit();
     }
 }

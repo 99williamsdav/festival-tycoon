@@ -1,0 +1,16 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Info: Total files 1 | Changed 1 | Failed 0
+06:15:13 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+06:15:14 | INFO: Starting glTF 2.0 export
+06:15:14 | INFO: Extracting primitive: WillowTrunkBranches_Mesh
+06:15:14 | INFO: Primitives created: 1
+06:15:14 | INFO: Extracting primitive: WillowHangingFoliage_Mesh
+06:15:14 | INFO: Primitives created: 1
+06:15:14 | INFO: Finished glTF 2.0 export in 0.04245162010192871 s
+
+Info: Saved "lwf_pond_willow_v1.blend"
+WILLOW_BUILD_PASSED {'WillowTrunkBranches': {'vertices': 525, 'triangles': 978, 'bounds_blender': [[-0.33986353874206543, -1.5590875148773193, 0.007966101169586182], [2.5667271614074707, 1.5375314950942993, 4.41635274887085]]}, 'WillowHangingFoliage': {'vertices': 23166, 'triangles': 26884, 'bounds_blender': [[-0.8628882169723511, -2.0075747966766357, 0.054999999701976776], [3.0938265323638916, 2.125260591506958, 4.704488277435303]]}}
+
+Blender quit

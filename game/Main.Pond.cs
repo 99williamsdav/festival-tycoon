@@ -46,6 +46,7 @@ public partial class Main
             _pondWorld.AddChild(_pondWakes[i]);
         }
         ApplyPondPose();
+        BuildPondWillow();
     }
 
     private void ProcessPond(double delta)

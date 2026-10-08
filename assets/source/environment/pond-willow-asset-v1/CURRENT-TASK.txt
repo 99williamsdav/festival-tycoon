@@ -1,0 +1,5 @@
+COMPLETE: approved deep-weeping willow v2 static model package.
+Use runtime/lwf_pond_willow_v1.glb and HANDOFF.txt. No game edits performed.
+Recommended pond-local (4.5,0,.5), yaw PI. Native import passed; dense sampled
+route clearance passed. Brown duck occlusion South/West is explicitly documented.
+Builder owns integration/native runtime checks; do not resume old concept or unrelated work.

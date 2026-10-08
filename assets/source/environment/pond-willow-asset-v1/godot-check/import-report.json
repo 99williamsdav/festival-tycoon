@@ -1,0 +1,34 @@
+{
+  "engine": {
+    "build": "official",
+    "hash": "ed1daf0bf001b61586d9930840f2f1394092c079",
+    "hex": 263938,
+    "major": 4,
+    "minor": 7,
+    "patch": 2,
+    "status": "stable",
+    "string": "4.7.2-stable (official)",
+    "timestamp": 0
+  },
+  "meshes": [
+    {
+      "aabb_godot": "[P: (-0.339864, 0.007966, -1.537531), S: (2.906591, 4.408387, 3.096619)]",
+      "cull_mode": 2,
+      "name": "WillowTrunkBranches",
+      "palette_size": "(96.0, 8.0)",
+      "roughness": 0.939999997615814,
+      "surfaces": 1,
+      "triangles": 978
+    },
+    {
+      "aabb_godot": "[P: (-0.862888, 0.055, -2.125261), S: (3.956715, 4.649488, 4.132835)]",
+      "cull_mode": 2,
+      "name": "WillowHangingFoliage",
+      "palette_size": "(96.0, 8.0)",
+      "roughness": 0.939999997615814,
+      "surfaces": 1,
+      "triangles": 26884
+    }
+  ],
+  "no_collision_or_animation_nodes": true
+}

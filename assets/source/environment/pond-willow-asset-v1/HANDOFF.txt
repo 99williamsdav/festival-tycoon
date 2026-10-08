@@ -1,0 +1,129 @@
+WEEPING WILLOW — STATIC ASSET HANDOFF — 8 OCTOBER 2026
+
+STATUS / AUTHORIZATION
+Ready for Builder integration. Selected art is the approved deep-weeping v2,
+references/pond-willow-concept-sheet-v2.png, not the shorter first candidate.
+Producer 01a07a8e-690e-7792-a604-650d0091a797 relayed the user's approval and
+explicit authorization for Blender build and integration. WORKING-AGREEMENTS.md
+accepts this relay. No further aesthetic gate requested. This package completes
+the Designer asset task; it does not claim gameplay integration is complete.
+No game repository edits made; Builder handles runtime integration.
+
+USE THESE FILES
+runtime/lwf_pond_willow_v1.glb — independent willow ONLY. No pond/ducks/ground.
+source/lwf_pond_willow_v1.blend — editable origin-centred tree, two mesh parts.
+build.py — seeded procedural source, no external Python modules required.
+textures/lwf_willow_palette_v1.png — embedded 96 x 8 sRGB palette, 12 swatches.
+render_review.py — imports actual delivered GLBs for close and four-view renders.
+verify_assets.py / verification.json — route clearance and visibility sampling.
+godot-check/verify.gd / import-report.json / verify.log — native import evidence.
+manifest.json — bounds, counts, placement, curtain data and runtime SHA256.
+references/ — approved art, user's photo, pond GLBs/manifest, actual four-camera
+integrated pond captures, and PondMotion.cs route snapshot. Reference assets are
+review dependencies, not replacements to copy over the existing pond.
+
+REPRODUCE
+Blender 4.1.1 used. Run from this package directory:
+  blender -b --python build.py
+  blender -b --python verify_assets.py
+  blender -b --python render_review.py
+  godot --headless --path godot-check --script verify.gd
+No mutable game-repo path is required to rebuild or render the delivered package.
+Palette and geometry are original procedural work. Imagegen concept and user's
+photo are design references, not runtime textures or downloaded mesh sources.
+Earlier rejected geometry/renders retained under review/iteration-01 and -02.
+
+MODEL / APPROVED SILHOUETTE
+Curved leaning trunk with arching limbs feeding 13 asymmetrical foliage groups,
+143 tapered hanging strands, folded narrow clumps and irregular long fringes.
+The v2 water-reaching length was preserved, rather than a raised round crown or
+short skirt. Lowest foliage Y=0.055, 0.020 m beneath the existing waterline .075.
+Maximum height 4.704 m. Tree bounds about 3.957 m along local X (overhang) by
+4.133 m across. Lowest strands and overlapping curtains approach/trail into water;
+upper foliage reaches roughly 2.7 m inward from the bank's inner edge.
+Generated concept painting has finer painterly leaf marks/reflections; production
+geometry uses faceted opaque groups. It does not include painted reflections,
+reflection cameras, wind, cloth, bones, particles or individual leaf simulation.
+
+TECHNICAL COST
+WillowTrunkBranches: 978 triangles / 525 source mesh vertices.
+WillowHangingFoliage: 26,884 triangles / 23,166 source mesh vertices.
+Total 27,862 triangles, two surfaces, ONE matte palette material; GLB 2,514,300 bytes.
+Flat faceted normals and palette UV; nearest texture sampling; roughness .94.
+Opaque double-sided material (Godot cull_mode=2), no alpha sorting/cutout cost.
+All foliage is one mesh, not 143 runtime nodes/draws. Trunk/branches are the other.
+This is more geometry than existing very simple farm trees. Native performance
+has NOT been profiled; two surfaces alone are not a performance guarantee.
+
+ORIGIN / FORWARD / PLACEMENT CONTRACT
+1 unit = 1 metre. Root at trunk ground centre (0,0,0), identity transforms in GLB.
+Godot +Y up; local +X is canopy's principal inward-overhang direction.
+Recommended as child of existing FarmPond root:
+  Position = (4.5, 0, 0.5); Rotation.Y = PI; Scale = (1,1,1).
+Equivalent world root: (28.5,0,25.0), since existing pond root is (24,0,24.5).
+Yaw PI turns +X overhang toward pond -X. Do not apply any extra 90-degree import
+correction. GLB already uses Godot/glTF Y-up conversion. Origin is NOT waterline:
+leave root Y=0; don't add pond water Y=.075 to this tree.
+Root and low trunk geometry fit INSIDE the authoritative pond outer boundary;
+no new nav/collider area needed. Keep pond footprint, 289 blocked cells, placement,
+water/ducks and surrounding game assets unchanged. Add willow once, do not
+replace the existing pond with reference GLBs from this package.
+The canopy extends beyond the bank at its landward edge in places: foliage is
+visual only, not a new physical boundary. Inspect nearby guest visibility during
+integration; no collision, navigation, interactions or gameplay shade rules added.
+Tree is static; do not silently enrol it in a new wind/weather system.
+
+ACTUAL CHECKS
+- Blender build, source save and GLB export passed.
+- Actual GLB-import renders inspected, including closeup and four camera views.
+  Early straight-sided curtain tops were reshaped into rounded arches, long
+  foliage edges broken up, and foliage floor brought to waterline level.
+- Godot 4.7.2 GLTFDocument decode/generate_scene passed: exactly two expected
+  meshes, one surface each, palette present, identity mesh transforms, no
+  animation player or collision nodes. Full report under godot-check/.
+- Geometry checked against actual PondMotion.cs spline knots, not only an
+  assumed central rectangle: 201 parameter samples per segment; .42 m
+  conservative sphere centred at duck root height Y=.25 for swept body clearance.
+  Drake minimum surface distance 2.4624 m (2.0424 m beyond sphere).
+  Brown minimum surface distance .5243 m (.1043 m beyond sphere).
+  This is a dense sampled check, not a formal continuous collision proof.
+  It includes the present routes only; changing tree placement/scale or routes
+  invalidates these numbers. No route changes are needed for this recommendation.
+- Vertical rays on .1 m grid measure 17.61% of actual water area directly covered
+  by mesh, with irregular gaps. Perspective occlusion is larger than that number.
+- Root-low geometry checked inside original pond boundary. No gameplay data edited.
+- Godot emitted environment warnings for sandbox user log directory/root
+  certificate store; asset import and assertions completed successfully.
+
+FOUR-VIEW VISIBILITY — IMPORTANT INTEGRATION LIMIT
+Full dense overhang necessarily hides parts of the pond. Head-point ray tests
+at Y=.4 give these occluded fractions of uniformly sampled spline parameters:
+                 South       West        North       East
+  Drake          19.0%        0%          0%          0%
+  Brown         100.0%       80.1%         0%          0%
+These are geometric sample fractions, NOT percentages of playback time, whole
+body visibility, or native gameplay validation. At some South route positions
+both head points are obscured. This is documented rather than shortening the
+approved long drapes to force complete visibility. North/East afford open views;
+the four actual render files show the same model and one fixed duck pose.
+
+REVIEW FILES / WHAT THEY ARE
+review/pond-willow-close.png — actual exported model with existing pond/ducks.
+review/willow-detail.png — actual exported foliage and branch detail.
+review/game-scale-0..3.png — South, West, North, East, same fixed tree placement;
+1280x720, vertical orthographic span 18, game camera 72 horizontal / 58 high,
+pond-centred focus with .4 m vertical framing offset. No game UI or farm layout.
+review/top-clearance.png — actual model top view for canopy coverage.
+These are Blender/Cycles GLB renders on a review-only ground plane, NOT gameplay
+screenshots. Only references/*game32.png are actual integrated pond captures,
+which predate the willow. No baked review ground/light/shadow included in runtime.
+
+REMAINING BUILDER VALIDATION
+Instantiate at recommendation; confirm only one tree, no pond/duck duplication,
+no nav/collision/gameplay changes. Inspect all four cameras with moving ducks,
+nearby guests, native farm lighting/shadows and native performance. The farm's
+existing strong warm lighting uses material colour modulation for other pond
+assets; inspect willow colours there before choosing any matching adjustment.
+Static foliage needs no animation clock. Existing pond pause-safe water/ducks
+remain untouched. This handoff makes no claim of native lighting/performance,
+reflection fidelity or perfect visibility from every view.

@@ -1,0 +1,26 @@
+[
+  {
+    "Path": "C:\\Projects\\festival-tycoon\\game\\Main.Pond.cs",
+    "Hash": "ED3A73313187DF2EC2BB1A2026656F3F7D18FB16B4889B585985408F82F7EE05"
+  },
+  {
+    "Path": "C:\\Projects\\festival-tycoon\\game\\PondMotion.cs",
+    "Hash": "6375375EF097BCAC07823202C2E89457104D714FCFD0F050BB7D3B96E57451F7"
+  },
+  {
+    "Path": "C:\\Projects\\festival-tycoon\\src\\Festival.Simulation\\Fixtures\\NavigationFixture.cs",
+    "Hash": "4315FA25AF7975D7444CAFE4249EDE2DDBC999D6A6D56A61387C9CCFB788C203"
+  },
+  {
+    "Path": "C:\\Projects\\festival-tycoon\\game\\assets\\environment\\pond-polish-v1\\lwf_pond_polish_static_v1.glb",
+    "Hash": "8CA0A754ED93B2C79006D2AAB5FEE84E01EDD29C3D1608B696319B3C67BA4114"
+  },
+  {
+    "Path": "C:\\Projects\\festival-tycoon\\game\\assets\\environment\\pond-polish-v1\\lwf_duck_drake_v1.glb",
+    "Hash": "11D0D5755DBB2740805981FDC7DAB3559E2247171EF363A44DFFACD13362AEEF"
+  },
+  {
+    "Path": "C:\\Projects\\festival-tycoon\\game\\assets\\environment\\pond-polish-v1\\lwf_duck_brown_v1.glb",
+    "Hash": "E0619B698A9F5B2D2144463FE26C465E2F4D11275DB1D2737AA7152E0627C0A3"
+  }
+]

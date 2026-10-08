@@ -1,0 +1,19 @@
+{
+  "runtime": "6A1F072690B2EA968B083861271E456496E3FC6C4C53BAD33034FE0A61474D32",
+  "source": "E698C613796BC1983187386E36D94344CCDF691E49F2DD7D5657DC49B7F2C45E",
+  "exe": "A340391363D9103253CE528DD228BF0EE5B262C81A7AC85E89032990F79BDA90",
+  "placement_local": [
+    4.5,
+    0,
+    0.5
+  ],
+  "yaw": "PI",
+  "scale": [
+    1,
+    1,
+    1
+  ],
+  "shared_diffuse_multiplier": 0.6,
+  "baseline_head": "16dc36a5b1d58b8609a3a95b67cdb8b9faf1aba8",
+  "export_note": "Current shared workspace; unrelated concurrent work excluded from willow commit."
+}

@@ -1,0 +1,7 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+WILLOW_GEOMETRY_PASSED {"paths_snapshot_sha256": "6375375ef097bcac07823202c2e89457104d714fcfd0f050bb7d3b96e57451f7", "sampling": "201 uniformly spaced spline parameters per segment; conservative radius 0.42 m centred Y=0.25; actual game knots from snapshot", "routes": {"drake": {"minimum_mesh_distance_m": 2.4623634815216064, "sphere_clearance_m": 2.0423634815216065, "samples": 804, "headpoint_occlusion_fraction_S_W_N_E": [0.19029850746268656, 0.0, 0.0, 0.0]}, "brown": {"minimum_mesh_distance_m": 0.5243435502052307, "sphere_clearance_m": 0.10434355020523073, "samples": 1005, "headpoint_occlusion_fraction_S_W_N_E": [1.0, 0.8009950248756219, 0.0, 0.0]}}, "water_projected_canopy_coverage_fraction_grid_0_1m": 0.1760581016779364, "root_low_geometry_inside_existing_pond_boundary": true, "runtime_sha256": "6a1f072690b2ea968b083861271e456496e3fc6c4c53bad33034fe0a61474d32"}
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\pond-willow-asset-v1\source\lwf_pond_willow_v1.blend"
+
+Blender quit

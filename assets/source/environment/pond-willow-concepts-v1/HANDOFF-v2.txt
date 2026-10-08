@@ -1,0 +1,34 @@
+WILLOW POND CONCEPT — REVISION 2 — 8 OCTOBER 2026
+
+Selected artwork: pond-willow-concept-sheet-v2.png.
+Prior candidate pond-willow-concept-sheet.png remains unchanged.
+Built-in image_gen edit; exact prompt and source path in PROMPTS-v2.txt.
+User photo copied to references/user-weeping-willow-photo.png for provenance.
+
+USER REVISION TAKES PRECEDENCE
+User requested willow 'a bit more weeping, fully into the pond like the attached
+image'. This supersedes v1 HANDOFF's narrow overhang, short inner curtains and
+centre-opening restraint. Do not implement those earlier limits as requirements.
+
+REVISED DESIGN
+Dense layered long drooping curtains cascade substantially over the pond from
+one bank, down to touch/nearly trail at the waterline. Narrow foliage rhythm,
+asymmetric arches and deep gaps replace the earlier short tidy hanging groups.
+Soft reflected foliage and shaded water show the contact/overhang relationship.
+Some open water remains naturally left/front for two ducks; the drapes are not
+shortened to expose every part of the pond. Gameplay-scale inset shows coverage.
+Construction inset separates curved trunk, extended arched branches and long
+tapered grouped curtain meshes. Simplify painted leaf detail to achievable
+faceted groups; no individually simulated leaves or new wind/weather system.
+
+INSPECTED / LIMITS
+Inspected user's photo and prior sheet before generation, then inspected actual
+revised artwork. Main scene now clearly has long water-reaching curtains,
+substantial water overlap, both ducks and existing pond bank language.
+Photo supplied shape/overhang only: no photo materials, distant buildings or
+extra wildlife copied. Existing pond assets, footprint/position and game code
+untouched. Generated scene is illustrative, not measured placement or a model.
+Four-camera panel remains explicitly unverified intent. Any future approved
+build must judge coverage/guest visibility in-engine without automatically
+restoring v1's reduced drapes or relocating pond/surrounding assets.
+No Blender asset or game implementation made. This revision is for user review.
