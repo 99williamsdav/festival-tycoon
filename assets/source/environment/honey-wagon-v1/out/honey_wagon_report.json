@@ -1,0 +1,113 @@
+{
+ "lwf_honey_wagon_v1": {
+  "file": "lwf_honey_wagon_v1.glb",
+  "nodes": [
+   "LWF_HoneyWagon_Beacon",
+   "LWF_HoneyWagon_Body",
+   "LWF_HoneyWagon_HosePort",
+   "LWF_HoneyWagon_NameBoard_L",
+   "LWF_HoneyWagon_NameBoard_R",
+   "LWF_HoneyWagon_RearFace",
+   "LWF_HoneyWagon_RearPlate",
+   "LWF_HoneyWagon_Wheel_FL",
+   "LWF_HoneyWagon_Wheel_FR",
+   "LWF_HoneyWagon_Wheel_RL",
+   "LWF_HoneyWagon_Wheel_RR"
+  ],
+  "triangles": 1454,
+  "sha256": "f38887fd7f31c12200cb63e84149d582c4ca579351c883fd8c09f0a072684cfe",
+  "origin": "ground centre of the footprint; forward Godot -Z (cab), rear +Z",
+  "size_m": [
+   2.0,
+   2.6,
+   5.2
+  ],
+  "named_nodes": {
+   "body": "LWF_HoneyWagon_Body",
+   "wheels": [
+    "LWF_HoneyWagon_Wheel_FL",
+    "LWF_HoneyWagon_Wheel_FR",
+    "LWF_HoneyWagon_Wheel_RL",
+    "LWF_HoneyWagon_Wheel_RR"
+   ],
+   "beacon": "LWF_HoneyWagon_Beacon (material LWF_HoneyWagon_BeaconLamp; raise its emission to flash)",
+   "hose_port": "LWF_HoneyWagon_HosePort at (0, 1.45, 2.72): the end of the rear valve, facing +Z",
+   "face": "LWF_HoneyWagon_RearFace",
+   "name_boards": [
+    "LWF_HoneyWagon_NameBoard_L",
+    "LWF_HoneyWagon_NameBoard_R"
+   ],
+   "rear_plate": "LWF_HoneyWagon_RearPlate"
+  },
+  "wheel_radius_m": 0.42
+ },
+ "lwf_honey_wagon_hose_v1": {
+  "file": "lwf_honey_wagon_hose_v1.glb",
+  "nodes": [
+   "LWF_Hose_Coupling",
+   "LWF_Hose_PortCoupling",
+   "LWF_Hose_Seg_00",
+   "LWF_Hose_Seg_01",
+   "LWF_Hose_Seg_02",
+   "LWF_Hose_Seg_03",
+   "LWF_Hose_Seg_04",
+   "LWF_Hose_Seg_05",
+   "LWF_Hose_Seg_06",
+   "LWF_Hose_Seg_07",
+   "LWF_Hose_Seg_08",
+   "LWF_Hose_Seg_09",
+   "LWF_Hose_Seg_10",
+   "LWF_Hose_Seg_11",
+   "LWF_Hose_Seg_12",
+   "LWF_Hose_Seg_13",
+   "LWF_Hose_Seg_14",
+   "LWF_Hose_Seg_15",
+   "LWF_Hose_Seg_16",
+   "LWF_Hose_Seg_17",
+   "LWF_Hose_Seg_18",
+   "LWF_Hose_Seg_19",
+   "LWF_Hose_Seg_20",
+   "LWF_Hose_Seg_21",
+   "LWF_Hose_Seg_22",
+   "LWF_Hose_Seg_23",
+   "LWF_Hose_Seg_24",
+   "LWF_Hose_Seg_25",
+   "LWF_Hose_Seg_26",
+   "LWF_Hose_Seg_27",
+   "LWF_Hose_Seg_28",
+   "LWF_Hose_Seg_29",
+   "LWF_Hose_Seg_30",
+   "LWF_Hose_Seg_31",
+   "LWF_Hose_Seg_32",
+   "LWF_Hose_Seg_33",
+   "LWF_Hose_Seg_34",
+   "LWF_Hose_Seg_35",
+   "LWF_Hose_Seg_36",
+   "LWF_Hose_Seg_37",
+   "LWF_Hose_Seg_38",
+   "LWF_Hose_Seg_39"
+  ],
+  "triangles": 2312,
+  "sha256": "87728814eec9a9137ecf1cb60ae96f2caf620dfd269793c5638d152670a2845a",
+  "origin": "the portaloo's origin; authored in the portaloo frame (door faces -Z)",
+  "segments": 40,
+  "segment_length_m": 0.1717,
+  "length_m": 6.869,
+  "segment_nodes": "LWF_Hose_Seg_00 (at the truck) .. LWF_Hose_Seg_39 (at the loo); each pivots at its own centre with local +Y along the hose, so scaling local X and Z bulges it",
+  "outlet": "LWF_Hose_Coupling on the door face at (-0.52, 0.13, -0.92); LWF_Hose_PortCoupling at the truck end (-3.4, 1.45, -3.62)"
+ },
+ "lwf_portaloo_out_of_order_sign_v1": {
+  "file": "lwf_portaloo_out_of_order_sign_v1.glb",
+  "nodes": [
+   "LWF_OutOfOrderSign"
+  ],
+  "triangles": 2,
+  "sha256": "f888d7bb28acd411b6e405820b7e7a89dde23970871445205426b9782627d50e",
+  "origin": "sign centre; faces Godot -Z; 7 degree tilt baked in",
+  "size_m": [
+   0.72,
+   0.52
+  ],
+  "parent": "portaloo node DoorPivot, local position (-0.45, 1.34, -0.04): 1.5 cm proud of the door leaf, so it swings with the door"
+ }
+}

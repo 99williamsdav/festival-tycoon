@@ -50,10 +50,11 @@ public sealed partial class GameSession
     /// <summary>Whether this toilet already has a tanker on the way or at work.</summary>
     public bool LavSuckerBooked(string toiletId) => _lavSucker?.Calls.Any(c => c.ToiletId == toiletId && c.Stage is LavSuckerStage.Arriving or LavSuckerStage.Pumping) == true;
 
-    /// <summary>Where the tanker parks for a toilet: behind it, clear of the door and its queue.</summary>
+    /// <summary>Where the tanker parks for a toilet: alongside it, rear to the door side, where its hose reaches the door.</summary>
+    public static GridCell LavSuckerBayOffset(int quarterTurns) => RotateWaterOffset(new(-7, -2), quarterTurns);
     private GridCell LavSuckerBay(ToiletFacility toilet)
     {
-        var back = RotateWaterOffset(new(0, 4), toilet.QuarterTurns);
+        var back = LavSuckerBayOffset(toilet.QuarterTurns);
         return WalkableNear(new(toilet.Cell.X + back.X, toilet.Cell.Z + back.Z));
     }
 

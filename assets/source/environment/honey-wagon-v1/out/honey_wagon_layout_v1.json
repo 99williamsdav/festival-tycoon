@@ -1,0 +1,38 @@
+{
+ "note": "Godot metres and degrees, in the portaloo's local frame (lwf_portaloo_v1: door faces local -Z, DoorPivot at (0.45, 0.08, -0.795)).",
+ "truck": {
+  "file": "lwf_honey_wagon_v1.glb",
+  "local": [
+   -3.4,
+   0.0,
+   -0.9
+  ],
+  "yaw": 180,
+  "hose_port": "LWF_HoneyWagon_HosePort",
+  "beacon": "LWF_HoneyWagon_Beacon"
+ },
+ "hose": {
+  "file": "lwf_honey_wagon_hose_v1.glb",
+  "local": [
+   0,
+   0,
+   0
+  ],
+  "yaw": 0,
+  "segments": 40,
+  "order": "Seg_00 at the truck .. last at the loo",
+  "bulge_suggestion": "scale local X and Z of consecutive segments to ~1.9 in a travelling wave from the loo end to the truck end, one slug every ~2 s, each passing over ~0.6 s"
+ },
+ "sign": {
+  "file": "lwf_portaloo_out_of_order_sign_v1.glb",
+  "parent": "DoorPivot",
+  "local": [
+   -0.45,
+   1.34,
+   -0.04
+  ],
+  "yaw": 0
+ },
+ "indicator": "swap the portaloo's indicator to lwf_portaloo_indicator_occupied_v1 while the sign is up",
+ "approach": "the truck drives in down the entrance lane (x = 0) and parks with its rear by the loo's door side"
+}

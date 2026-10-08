@@ -71,6 +71,10 @@ public partial class Main
                 socket.AddChild(occupied);
                 AddChild(body);
                 AddToiletCollision(body, door, toilet.Id);
+                // Taped to the door, swinging with it; shown while the loo is full.
+                var sign = InstantiateAsset("res://assets/environment/portaloo/lwf_portaloo_out_of_order_sign_v1.glb");
+                sign.Name = "OutOfOrderSign"; sign.Position = new Vector3(-0.45f, 1.34f, -0.04f); sign.Visible = false;
+                door.AddChild(sign);
                 var name = BuildingName("TOILET", new Vector3(0, 2.8f, 0), 28);
                 body.AddChild(name);
                 view = new(body, door, free, occupied); _toiletViews.Add(toilet.Id, view);
@@ -78,8 +82,11 @@ public partial class Main
             view.Body.Position = ImmersionPosition(toilet.Cell);
             view.Body.RotationDegrees = new Vector3(0, toilet.QuarterTurns * 90, 0);
             view.Door.RotationDegrees = new Vector3(0, toilet.DoorOpen ? -110 : 0, 0);
-            view.Occupied.Visible = toilet.OccupiedIndicator;
-            view.Free.Visible = !toilet.OccupiedIndicator;
+            // Out of order: the sign's up and the indicator says engaged, as it does while Dav's at work.
+            var outOfOrder = toilet.IsFull || _session.ToiletBeingEmptied(toilet.Id);
+            if (view.Door.GetNodeOrNull<Node3D>("OutOfOrderSign") is { } doorSign) doorSign.Visible = toilet.IsFull;
+            view.Occupied.Visible = toilet.OccupiedIndicator || outOfOrder;
+            view.Free.Visible = !view.Occupied.Visible;
         }
         RefreshToiletInspector();
     }

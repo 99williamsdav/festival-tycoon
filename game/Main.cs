@@ -80,6 +80,7 @@ public partial class Main : Node, IHudHost
         ProcessFieldNotes(delta);
         ProcessGardenGate(delta);
         ProcessCows(delta);
+        ProcessLavSucker(delta);
         ProcessMoods(delta);
         ProcessChatter(delta);
         ProcessGenerator(delta);
