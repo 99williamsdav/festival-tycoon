@@ -75,7 +75,7 @@ public sealed partial class GameSession
     private void AddCowOccupancy(SpatialNeighbourIndex occupied)
     {
         if (_cows is not { Loose.Length: > 0 } cows) return;
-        var id = ulong.MaxValue;
+        var id = CowOccupancyBase;
         foreach (var cow in cows.Loose)
             foreach (var (dx, dz) in new[] { (0, 0), (CowRules.BodyMillimetres, 0), (-CowRules.BodyMillimetres, 0), (0, CowRules.BodyMillimetres), (0, -CowRules.BodyMillimetres) })
                 occupied.Add(new EntityId(id--), cow.XMillimetres + dx, cow.ZMillimetres + dz);

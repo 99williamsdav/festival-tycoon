@@ -9,7 +9,11 @@ public enum LavSuckerStage { Arriving, Pumping, Leaving, Gone }
 /// <param name="Route">The cells the tanker is driving; empty while it's parked.</param>
 /// <param name="StageTick">When the current stage began (pumping counts from here).</param>
 public sealed record LavSuckerCall(string Id, string ToiletId, long CalledTick, LavSuckerStage Stage, int XMillimetres, int ZMillimetres,
-    GridCell[] Route, int RouteIndex, long StageTick);
+    GridCell[] Route, int RouteIndex, long StageTick)
+{
+    /// <summary>What this call sucked out, once pumping's done: a toilet's emptied amount is exactly the sum of its calls'.</summary>
+    public int EmptiedMillilitres { get; init; }
+}
 
 public sealed record LavSuckerSnapshot(int Version, LavSuckerCall[] Calls);
 
@@ -101,7 +105,9 @@ public sealed partial class GameSession
             case LavSuckerStage.Pumping:
                 if (CurrentTick - call.StageTick < LavSuckerRules.PumpTicks) return call;
                 var emptied = GetToilet(call.ToiletId);
-                SetToilet(emptied with { EmptiedMillilitres = emptied.EmptiedMillilitres + emptied.UsedMillilitres });
+                var amount = emptied.UsedMillilitres;
+                SetToilet(emptied with { EmptiedMillilitres = emptied.EmptiedMillilitres + amount });
+                call = call with { EmptiedMillilitres = amount };
                 MedicalEvent("lav:emptied", $"Dav's Lav-Sucker emptied {call.ToiletId}.");
                 var here = TraversalGrid.WorldToCell(call.XMillimetres, call.ZMillimetres);
                 var home = DeterministicPathfinder.FindPath(_traversalGrid!, here, LavSuckerRules.Gate);
@@ -141,11 +147,15 @@ public sealed partial class GameSession
         }
     }
 
+    // Obstacle points in the crowd's occupancy use ids no person can have, counting down: cows from the very top (at most
+    // 5 × 40 points), tankers from far below (9 points each, one per toilet), so the two ranges can never meet.
+    internal const ulong CowOccupancyBase = ulong.MaxValue, LavOccupancyBase = ulong.MaxValue - 4_096;
+
     /// <summary>The tanker on the move or parked is a large obstacle: people step round it as they do a cow.</summary>
     private void AddLavSuckerOccupancy(SpatialNeighbourIndex occupied)
     {
         if (_lavSucker is null) return;
-        var id = ulong.MaxValue - 4_096;
+        var id = LavOccupancyBase;
         foreach (var call in _lavSucker.Calls.Where(c => c.Stage != LavSuckerStage.Gone))
             foreach (var (dx, dz) in new[] { (0, 0), (900, 0), (-900, 0), (0, 900), (0, -900), (1_800, 0), (-1_800, 0), (0, 1_800), (0, -1_800) })
                 occupied.Add(new EntityId(id--), call.XMillimetres + dx, call.ZMillimetres + dz);
@@ -155,10 +165,20 @@ public sealed partial class GameSession
     {
         if (s.LavSucker is not { } lav) return s.Preparation?.Plan is null ? null : "Current Build save requires the emptying service's state.";
         if (lav.Version != 1 || lav.Calls is null || lav.Calls.Select(c => c.Id).Distinct().Count() != lav.Calls.Length) return "Emptying service state invalid.";
-        var toilets = (s.Facilities?.Toilets ?? []).Select(t => t.Id).ToHashSet();
+        var toilets = (s.Facilities?.Toilets ?? []).ToDictionary(t => t.Id);
         var grid = new TraversalGrid();
+        var attempt = s.Preparation?.Attempt ?? 0;
+        if (lav.Calls.Where((c, index) => c.Id != $"lav:{attempt}:{index + 1}").Any()) return "Emptying service call identity invalid.";
+        // Only Dav empties a toilet: what each toilet's had taken away is exactly what its finished calls took.
+        foreach (var toilet in toilets.Values)
+            if (toilet.EmptiedMillilitres != lav.Calls.Where(c => c.ToiletId == toilet.Id && c.Stage is LavSuckerStage.Leaving or LavSuckerStage.Gone).Sum(c => c.EmptiedMillilitres))
+                return "A toilet was emptied without a call.";
         foreach (var c in lav.Calls)
-            if (!Enum.IsDefined(c.Stage) || !toilets.Contains(c.ToiletId) || c.CalledTick < 0 || c.CalledTick > s.CurrentTick || c.StageTick < c.CalledTick ||
+            if (!Enum.IsDefined(c.Stage) || !toilets.ContainsKey(c.ToiletId) ||
+                (c.Stage is LavSuckerStage.Leaving or LavSuckerStage.Gone ? c.EmptiedMillilitres <= 0 : c.EmptiedMillilitres != 0) ||
+                c.Stage == LavSuckerStage.Pumping && (toilets[c.ToiletId].OwnerId is not null || toilets[c.ToiletId].InterruptedOccupantId is not null) ||
+                c.Route.Length > 0 && c.RouteIndex == c.Route.Length && c.Stage is LavSuckerStage.Arriving or LavSuckerStage.Pumping &&
+                    (c.XMillimetres, c.ZMillimetres) != TraversalGrid.CellCentre(c.Route[^1]) || c.CalledTick < 0 || c.CalledTick > s.CurrentTick || c.StageTick < c.CalledTick ||
                 c.StageTick > s.CurrentTick || c.Route is null || c.RouteIndex < 0 || c.RouteIndex > c.Route.Length || c.Route.Any(r => !grid.Contains(r)) ||
                 !grid.Contains(TraversalGrid.WorldToCell(c.XMillimetres, c.ZMillimetres)) ||
                 c.Stage == LavSuckerStage.Pumping && (c.Route.Length != 0 && c.RouteIndex != c.Route.Length || s.CurrentTick - c.StageTick >= LavSuckerRules.PumpTicks))
