@@ -197,6 +197,9 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         MoodCause.ToiletSmell => "Toilet smell",
         MoodCause.BrokenTap => "A broken tap",
         MoodCause.StuckInToilet => "Someone stuck in the loo",
+        MoodCause.Heat => "Heat",
+        MoodCause.Thirst => "Thirst",
+        MoodCause.LongQueues => "Long queues",
         _ => change.Cause.ToString(),
     };
 

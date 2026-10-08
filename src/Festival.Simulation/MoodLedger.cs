@@ -1,7 +1,8 @@
 namespace Festival.Simulation;
 
 /// <summary>What moves a guest's satisfaction, as the crowd-mood breakdown names it.</summary>
-public enum MoodCause { Music, MusicCutOff, FoodAndDrink, FriendlyQueues, FreeWaterPerk, StaffNearby, MudAndPuddles, LitterAndWasps, ToiletSmell, BrokenTap, StuckInToilet }
+public enum MoodCause { Music, MusicCutOff, FoodAndDrink, FriendlyQueues, FreeWaterPerk, StaffNearby, MudAndPuddles, LitterAndWasps, ToiletSmell, BrokenTap, StuckInToilet,
+    Heat, Thirst, LongQueues }
 
 /// <summary>A cause's share of the crowd's recent mood change, in hundredths of a satisfaction percent per guest.</summary>
 public sealed record MoodChange(MoodCause Cause, long Change);
@@ -19,6 +20,24 @@ public sealed partial class GameSession
     private readonly long[] _moodBucketMinute = Enumerable.Repeat(-1L, MoodWindowMinutes).ToArray();
     /// <summary>Everything recorded since this session began, for checking that no change slips past the ledger.</summary>
     public long MoodRecordedTotal { get; private set; }
+
+    /// <summary>Thirst (of 10,000) from which a guest feels it in their mood: 1 point a second, rising to 5 near the top.</summary>
+    public const int MoodThirstFrom = 6_000, MoodThirstStep = 1_000;
+    /// <summary>Heat more gently (from 70%, at most 2 a second): there's little the player can do about the weather yet.</summary>
+    public const int MoodHeatFrom = 7_000, MoodHeatStep = 3_000;
+    /// <summary>What a second in a queue past a guest's own patience costs them.</summary>
+    public const int MoodQueueLossPerSecond = 3;
+
+    /// <summary>Once a second: hot and thirsty guests feel it, before it ever comes to a collapse.</summary>
+    private void ApplyHeatAndThirstMood()
+    {
+        if (CurrentTick % MinuteTicks != 0 || _preparation?.Status != PreparationStatus.Running) return;
+        foreach (var person in PeopleIn(PersonView.Medical).Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed).ToArray())
+        {
+            if (person.Thirst >= MoodThirstFrom) ChangeSatisfaction(person.Id, -UnpleasantFor(person.Id, 1 + (person.Thirst - MoodThirstFrom) / MoodThirstStep), MoodCause.Thirst);
+            if (person.HeatExposure >= MoodHeatFrom) ChangeSatisfaction(person.Id, -UnpleasantFor(person.Id, 1 + (person.HeatExposure - MoodHeatFrom) / MoodHeatStep), MoodCause.Heat);
+        }
+    }
 
     /// <summary>Changes a guest's satisfaction by up to <paramref name="delta"/> (kept within 0..10,000) and notes why.</summary>
     private void ChangeSatisfaction(ulong id, int delta, MoodCause cause)

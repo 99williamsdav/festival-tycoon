@@ -303,7 +303,7 @@ public sealed partial class GameSession
             AdvanceMedical();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceDisorder();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceStaffInterventions();
-            if (MedicalOperationsActive) { AdvanceImmersion(); AdvanceToilet(); }
+            if (MedicalOperationsActive) { AdvanceImmersion(); AdvanceToilet(); ApplyHeatAndThirstMood(); }
             ReleaseFrozenStaffClaims();
             AdvanceStaffAutonomy();
             AdvanceLitter();
