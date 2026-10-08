@@ -21,14 +21,14 @@ public sealed partial class GameSession
     /// <summary>Everything recorded since this session began, for checking that no change slips past the ledger.</summary>
     public long MoodRecordedTotal { get; private set; }
 
-    /// <summary>Thirst (of 10,000) from which a guest feels it in their mood: 1 point a second, rising to 5 near the top.</summary>
+    /// <summary>Thirst (of 10,000) from which a guest feels it in their mood: 1 point a festival minute, rising to 5 near the top.</summary>
     public const int MoodThirstFrom = 6_000, MoodThirstStep = 1_000;
-    /// <summary>Heat more gently (from 70%, at most 2 a second): there's little the player can do about the weather yet.</summary>
+    /// <summary>Heat more gently (from 70%, at most 2 a festival minute): there's little the player can do about the weather yet.</summary>
     public const int MoodHeatFrom = 7_000, MoodHeatStep = 3_000;
-    /// <summary>What a second in a queue past a guest's own patience costs them.</summary>
+    /// <summary>What a festival minute in a queue past a guest's own patience costs them.</summary>
     public const int MoodQueueLossPerSecond = 3;
 
-    /// <summary>Once a second: hot and thirsty guests feel it, before it ever comes to a collapse.</summary>
+    /// <summary>Once a festival minute: hot and thirsty guests feel it, before it ever comes to a collapse.</summary>
     private void ApplyHeatAndThirstMood()
     {
         if (CurrentTick % MinuteTicks != 0 || _preparation?.Status != PreparationStatus.Running) return;

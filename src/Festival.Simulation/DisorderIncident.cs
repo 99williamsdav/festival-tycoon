@@ -286,7 +286,7 @@ public sealed partial class GameSession
                 : inWaterLine && need.Thirst >= 6_000 && CurrentTick - joined >= tolerance
                     ? DisorderGrievance.WaterWait : waitingForBand ? DisorderGrievance.BandDelayed
                     : inOtherLine && CurrentTick - joined >= tolerance ? DisorderGrievance.QueueWait : DisorderGrievance.None;
-            // A wait past their patience wears on a guest's mood too, a little every second, whether or not it comes to words.
+            // A wait past their patience wears on a guest's mood too, a little every festival minute, whether or not it comes to words.
             if ((inWaterLine || inOtherLine) && CurrentTick - joined >= tolerance && CurrentTick % 80 == 0 && IsGuest(person.Id))
                 ChangeSatisfaction(person.Id, -UnpleasantFor(person.Id, MoodQueueLossPerSecond), MoodCause.LongQueues);
             var pressure = person.Pressure;
