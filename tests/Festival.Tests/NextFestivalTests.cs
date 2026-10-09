@@ -37,15 +37,11 @@ public sealed class NextFestivalTests
         return s;
     }
 
-    /// <summary>
-    /// Tier 2's second tap and third toilet, at the first sites that fit. The default layout alone (one tap, one medic)
-    /// lost a guest on each of three probed Tier 2 days; with these all three finished.
-    /// </summary>
-    internal static GameSession WithTierTwoExtras(GameSession s)
+    /// <summary>Tier 2's default layout less its second tap and third toilet: Tier 1's layout, for comparison.</summary>
+    internal static GameSession WithTierOneLayout(GameSession s)
     {
-        foreach (var kind in new[] { BuildServiceKind.WaterTap, BuildServiceKind.Toilet })
-            _ = (from x in Enumerable.Range(0, 23) from z in Enumerable.Range(0, 20) select new GridCell(100 + x * 4, 112 + z * 4))
-                .First(cell => BuildSession.Send(s, new PlaceBuildServiceCommand(kind, cell)).IsAccepted);
+        BuildSession.Accept(s, new RemoveBuildServiceCommand("water.extra-1"));
+        BuildSession.Accept(s, new RemoveBuildServiceCommand("toilet.extra-2"));
         return s;
     }
 
@@ -76,6 +72,10 @@ public sealed class NextFestivalTests
 
         // A third toilet and a second tap stand at Tier 2 only, and save and restore.
         foreach (var s in new[] { one, two }) Drafted(s);
+        // Tier 2's default already stands them; take them away to place them by hand.
+        Assert.AreEqual(2, two.CaptureWaterPoints().Count);
+        Assert.AreEqual(3, two.CaptureToilets().Count);
+        WithTierOneLayout(two);
         GridCell? toiletSite = null, tapSite = null;
         for (var x = 145; x <= 190 && (toiletSite is null || tapSite is null); x += 5)
         for (var z = 115; z <= 190 && (toiletSite is null || tapSite is null); z += 5)
@@ -184,7 +184,7 @@ public sealed class NextFestivalTests
     [TestMethod]
     public void TierTwoPlaysToTheEndAndItsAccountsShowTheCarriedCashAndDebt()
     {
-        var s = WithTierTwoExtras(Ready(TierTwo()));
+        var s = Ready(TierTwo());
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         Assert.AreEqual(2, s.CaptureLifecycleSnapshot()!.TierOrdinal);
         Assert.AreEqual("tier-2", s.CaptureLifecycleSnapshot()!.CurrentTierId);
@@ -365,7 +365,7 @@ public sealed class NextFestivalTests
         Assert.IsFalse(GameSession.CreateDevelopmentFestival(20260922, 2).PondStageOpen);
 
         // The default layout still stands with the pond open, and Tier 2's extra tap and toilet keep off both stages.
-        WithTierTwoExtras(ReadyOnEveryStage(s));
+        ReadyOnEveryStage(s);
         var stages = s.Stages;
         Assert.AreEqual(2, stages.Count);
         foreach (var placement in s.CaptureBuildPlacements())

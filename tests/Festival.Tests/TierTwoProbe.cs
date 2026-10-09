@@ -18,18 +18,18 @@ public sealed class TierTwoProbe
     {
         var report = new StringBuilder();
         report.AppendLine("tier,layout,seed,status,death,stars,mood%,guests,toiletPeak%,toiletsFull,davCalls,maxTapQ,maxBarQ,maxFoodQ,maxToiletQ,openCash,closeCash,debt,stuck,noRoute,ticks,ticksPerSec");
-        foreach (var (tier, extras) in new[] { (2, false), (2, true), (1, false) })
+        foreach (var (tier, tierOneLayout) in new[] { (2, false), (2, true), (1, false) })
         foreach (var seed in new ulong[] { 20260922, 20260923, 20260924 })
-            report.AppendLine(Day(tier, seed, extras));
+            report.AppendLine(Day(tier, seed, tierOneLayout));
         if (Environment.GetEnvironmentVariable("PROBE_OUT") is { Length: > 0 } path) File.WriteAllText(path, report.ToString());
         TestContext.WriteLine(report.ToString());
     }
 
-    /// <summary><paramref name="extras"/> adds Tier 2's second tap and third toilet to the default layout, at the first sites that fit.</summary>
-    private static string Day(int tier, ulong seed, bool extras)
+    /// <summary><paramref name="tierOneLayout"/> takes Tier 2's second tap and third toilet back out of its default layout.</summary>
+    private static string Day(int tier, ulong seed, bool tierOneLayout)
     {
         var s = NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(seed, tier));
-        if (extras) NextFestivalTests.WithTierTwoExtras(s);
+        if (tierOneLayout) NextFestivalTests.WithTierOneLayout(s);
         var opening = s.CapturePreparation()!.OpeningCashPennies;
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         int toiletPeak = 0, tapQ = 0, barQ = 0, foodQ = 0, toiletQ = 0, calls = 0;
@@ -71,7 +71,7 @@ public sealed class TierTwoProbe
         var death = s.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault() is { } c ? $"{c.Role}:{c.Cause.Replace(',', ';')}" : "-";
         var guests = p.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted).ToArray();
         var mood = p.Result?.SatisfactionPercent ?? (guests.Length == 0 ? 0 : (decimal)guests.Average(person => person.Satisfaction) / 100m);
-        return string.Join(",", tier, extras ? "default+tap+toilet" : "default", seed, p.Status, death, p.Result?.Stars?.ToString() ?? "-", $"{mood:0.0}", p.People.Count(x => x.Role == ProtectedPersonRole.Guest),
+        return string.Join(",", tier, tierOneLayout ? "tier1-layout" : "default", seed, p.Status, death, p.Result?.Stars?.ToString() ?? "-", $"{mood:0.0}", p.People.Count(x => x.Role == ProtectedPersonRole.Guest),
             toiletPeak, full.Count, calls, tapQ, barQ, foodQ, toiletQ, opening, s.CaptureSnapshot().FestivalFinances.Single().CashPennies,
             s.CaptureCampaignPlanningSnapshot()!.Loan.OutstandingPrincipalPennies, stuck.Count, noRoute.Count, ticks, $"{ticks / clock.Elapsed.TotalSeconds:0}");
     }

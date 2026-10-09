@@ -263,7 +263,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         }
         var placements = _hud.Session.CaptureBuildPlacements();
         _servicesTotal!.Text = $"{placements.Count} placed · {FestivalCurrency.Format(_hud.Session.BuildDraftCost)} · nothing paid until Start";
-        var standard = GameSession.StandardBuildLayout().Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
+        var standard = GameSession.StandardBuildLayout(_hud.Session.CapturePreparation()?.Tier ?? 1).Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
         _defaultsButton!.Text = $"Default layout · {FestivalCurrency.Format(standard)}";
         for (var index = 0; index < Categories.Length; index++)
         {
@@ -397,7 +397,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     private void ShowDefaults()
     {
         var old = _hud.Session.CaptureBuildPlacements();
-        var defaults = GameSession.StandardBuildLayout();
+        var defaults = GameSession.StandardBuildLayout(_hud.Session.CapturePreparation()?.Tier ?? 1);
         var oldCost = _hud.Session.BuildDraftCost;
         var newCost = defaults.Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
         _buildDefaultsDialog!.DialogText = $"Replace {old.Count} placed services ({FestivalCurrency.Format(oldCost)}) with {defaults.Length} standard services ({FestivalCurrency.Format(newCost)})?\n" +
