@@ -373,22 +373,29 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         _readinessTitle!.Text = missing.Length == 0 ? "Ready to open" : "Ready to open?";
         _readinessDetail!.Text = missing.Length == 0 ? "Everything required is in place" : $"{Count(missing.Length)} left before Start";
         var stocked = _hud.Session.CapturePreparationPlan() is not { SoftDrinks: 0, Beers: 0 };
-        var key = string.Join("|", requirements.Select(item => item.Id + ":" + item.Complete)) + "|stock:" + stocked;
+        // Shown only when the plan overloads the generator: every bar and van draws from it, so a second of each takes a
+        // basic day past the farm diesel.
+        var power = _hud.Session.PowerBudgetActive && _hud.Session.CapturePower() is { Over: true } over ? over : null;
+        var key = string.Join("|", requirements.Select(item => item.Id + ":" + item.Complete)) + "|stock:" + stocked + "|power:" + power?.Total + "/" + power?.Capacity;
         if (key == _readinessKey) return;
         _readinessKey = key;
         foreach (var child in _readinessRows!.GetChildren()) child.QueueFree();
         // A second stage adds two rows: the list closes up so it still clears the camera buttons.
-        _compactRows = requirements.Count + 1 > 10;
+        _compactRows = requirements.Count + 1 + (power is null ? 0 : 1) > 10;
         foreach (var requirement in requirements)
             _readinessRows.AddChild(ReadinessRow(requirement));
         // Not a requirement, so it never holds up Start, but worth a warning: no stock means nothing to sell.
         _readinessRows.AddChild(ReadinessRow(new PreparationStartRequirement("stock", PreparationStartOwner.Overview, "Stock", stocked,
             "Optional, but the bar and food van will have nothing to sell."), advisory: true));
+        if (power is not null)
+            _readinessRows.AddChild(ReadinessRow(new PreparationStartRequirement("power", PreparationStartOwner.Overview, "Power", false,
+                $"The evening peak draws {power.Total} of the generator's {power.Capacity}, and each bar and food van draws {PowerRules.StallDraw}. Hire a bigger generator in Supplies, or switch things off when it strains."),
+                advisory: true, ("Power within capacity", "Generator over capacity")));
     }
 
-    private PanelContainer ReadinessRow(PreparationStartRequirement requirement, bool advisory = false)
+    private PanelContainer ReadinessRow(PreparationStartRequirement requirement, bool advisory = false, (string Done, string Todo)? words = null)
     {
-        var (doneText, todoText) = advisory ? ("Stock ordered", "No stock ordered") : Wording(requirement);
+        var (doneText, todoText) = words ?? (advisory ? ("Stock ordered", "No stock ordered") : Wording(requirement));
         var destination = advisory ? "Supplies" : Destination(requirement.Owner);
         var complete = requirement.Complete;
         var row = new PanelContainer { CustomMinimumSize = new Vector2(0, Ui.S(_compactRows ? complete ? 25 : 29 : complete ? 30 : 34)), MouseDefaultCursorShape = Control.CursorShape.PointingHand,
