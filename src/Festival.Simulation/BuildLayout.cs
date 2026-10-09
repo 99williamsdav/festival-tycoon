@@ -182,8 +182,9 @@ public sealed partial class GameSession
                 if (Backstage.StageReserve(new(x, z)) || Backstage.Area(new(x, z))) reserved.Add(new(x, z));
         // The rest area out in front of first aid stays clear.
         var restCentre = RestCentre(placements);
+        var restArea = new HashSet<GridCell>();
         for (var x = restCentre.X - 1; x <= restCentre.X + 1; x++)
-            for (var z = restCentre.Z - 1; z <= restCentre.Z + 1; z++) reserved.Add(new(x, z));
+            for (var z = restCentre.Z - 1; z <= restCentre.Z + 1; z++) { reserved.Add(new(x, z)); restArea.Add(new(x, z)); }
         if (equipment is { } unit)
         {
             var centre = TraversalGrid.WorldToCell(unit.XMillimetres, unit.ZMillimetres);
@@ -208,6 +209,8 @@ public sealed partial class GameSession
             foreach (var cell in cells)
             {
                 if (access.Contains(cell) && sharedAccess.Contains(cell)) continue;
+                // The rest area moves with first aid, so say which one is in the way.
+                if (restArea.Contains(cell)) return "First aid needs clear ground in front of it, where overheated guests rest.";
                 if (!reserved.Add(cell)) return "Service footprint or access overlaps another placement.";
                 if (access.Contains(cell)) sharedAccess.Add(cell);
             }
