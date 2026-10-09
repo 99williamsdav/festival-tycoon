@@ -37,7 +37,8 @@ public partial class Main
     private void BuildPondStageWorld()
     {
         // The riser and its speakers share the stage's own frame: ground origin, turned half round so it faces -Z.
-        _pondStage = new Node3D { Name = "PondStage", Position = PondStageOrigin,
+        // Built hidden, so the first show below also cuts the hedge for the gate.
+        _pondStage = new Node3D { Name = "PondStage", Position = PondStageOrigin, Visible = false,
             RotationDegrees = new Vector3(0, FestivalStages.Pond.Placement.YawDegrees, 0) };
         AddChild(_pondStage);
         _pondStage.AddChild(InstantiateAsset("res://assets/environment/modular-riser-v1/lwf_modular_riser_stage_v1.glb"));
@@ -61,7 +62,7 @@ public partial class Main
         // The bands' gate: the east hedge's run here (z 24..16) is cut for a garden gate at z 17, cells 161..162, with
         // a rounded hedge end either side as at the farmhouse gate, and the lane beyond. Gate and lane turn half round
         // so the lane lies outside the east hedge.
-        _pondGate = new Node3D { Name = "PondGate" };
+        _pondGate = new Node3D { Name = "PondGate", Visible = false };
         AddChild(_pondGate);
         string Env(string name) => $"res://assets/environment/{name}.glb";
         foreach (var (name, z, yaw) in new (string, float, float)[]
