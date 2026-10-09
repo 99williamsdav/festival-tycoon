@@ -128,7 +128,13 @@ public sealed class GroundTests
         var early = Reach(s, tap);
         Assert.IsTrue(early is >= 0 and <= 1.5, $"Early on the water lies right at the tap (reach {early}).");
         var reaches = new List<double>();
-        for (var i = 0; i < 6; i++) { BreakMainTap(s); s.AdvanceWithoutSnapshot(1_500); reaches.Add(Reach(s, tap)); }
+        // Kept broken throughout: maintenance comes and bodges it (a trickle) partway through, sooner or later depending on
+        // what else the crowd has them doing, so break it again at every ground step rather than once per stretch.
+        for (var i = 0; i < 6; i++)
+        {
+            for (var t = 0; t < 1_500; t += GroundRules.FootfallEveryTicks) { BreakMainTap(s); s.AdvanceWithoutSnapshot(GroundRules.FootfallEveryTicks); }
+            reaches.Add(Reach(s, tap));
+        }
         Assert.IsTrue(reaches.Last() >= early + 4, $"The puddle spreads cell by cell from the tap: {early} then {string.Join(", ", reaches)}.");
         Assert.IsTrue(reaches.Zip(reaches.Skip(1)).All(pair => pair.Second >= pair.First - 0.5), "It grows steadily while the tap stays broken.");
     }

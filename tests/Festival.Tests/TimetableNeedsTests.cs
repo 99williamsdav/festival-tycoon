@@ -47,7 +47,7 @@ public sealed class TimetableNeedsTests
         Assert.IsTrue(performers.All(person => session.CaptureMedical()!.Needs.Any(need => need.AgentId == person.AgentId)));
         Restored(session);
         session = Started();
-        Assert.IsTrue(session.CapturePreparation()!.People.Length <= 35);
+        Assert.IsTrue(session.CapturePreparation()!.People.Length <= FestivalTickets.Sold(1) + 15);
         Restored(session);
     }
 

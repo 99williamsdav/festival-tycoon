@@ -24,7 +24,7 @@ public sealed class MedicalCuePlannerTests
         var first = planner.Observe(choices, 80);
         Assert.AreEqual(1, first.Count(item => !item.Urgent));
         Assert.AreEqual(tradeoffId, first.Single().AgentId);
-        StringAssert.Contains(first.Single().Text, "want to miss this band");
+        CollectionAssert.Contains(MedicalCuePlanner.TradeoffLines, first.Single().Text, "The trade-off choice barks a trade-off line.");
         for (var tick = 81; tick < 200; tick++)
             Assert.AreEqual(1, planner.Observe(choices, tick).Count(item => !item.Urgent));
         var second = planner.Observe(choices, 200);

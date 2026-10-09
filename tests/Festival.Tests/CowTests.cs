@@ -148,7 +148,18 @@ public sealed class CowTests
         var middle = TraversalGrid.CellCentre(new GridCell(112, 150));
         var cow = cows.Loose[0] with { XMillimetres = middle.XMillimetres, ZMillimetres = middle.ZMillimetres, Activity = CowActivity.Grazing, Route = [], RouteIndex = 0, UntilTick = s.CurrentTick + 100_000 };
         field.SetValue(s, cows with { Loose = [cow] });
-        var walker = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed).Select(p => p.AgentId).First();
+        // A guest with nothing else on: not in or heading for a water line, loo or stall, whose place there would call them off
+        // the walk; and already holding a listening place, so the audience doesn't send them off to find one mid-walk.
+        var medical = s.CaptureMedical()!.Needs.ToDictionary(n => n.AgentId);
+        var immersion = s.CaptureImmersion()!.People.ToDictionary(p => p.AgentId);
+        var placed = s.CaptureLivePerformance()!.Listeners.Where(l => l.Place is not null).Select(l => l.AgentId).ToHashSet();
+        var walker = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed).Select(p => p.AgentId)
+            .First(id => placed.Contains(id) && medical[id] is { Intent: MedicalIntent.WatchShow, QueueSlot: null } &&
+                immersion[id] is { ToiletStage: ToiletVisitStage.None, VendorId: null });
+        // Content and skint for the walk's length, so the activity chooser doesn't call them off to the tap, the loo or a stall.
+        typeof(GameSession).GetMethod("MutatePerson", Private)!.Invoke(s, [walker, (Action<Person>)(p => { p.Thirst = 0; p.HeatExposure = 0; p.Hunger = 0; p.ToiletNeed = 0; })]);
+        var wallet = ((System.Collections.IDictionary)typeof(GameSession).GetField("_wallets", Private)!.GetValue(s)!)[new EntityId(walker)]!;
+        wallet.GetType().GetProperty("CashPennies")!.SetValue(wallet, 0L);
         var agents = (System.Collections.IDictionary)typeof(GameSession).GetField("_navigationAgents", Private)!.GetValue(s)!;
         var agent = agents[new EntityId(walker)]!;
         void Set(string name, object value) => agent.GetType().GetProperty(name)!.SetValue(agent, value);
@@ -157,17 +168,18 @@ public sealed class CowTests
         Set("SegmentOriginXMillimetres", start.XMillimetres); Set("SegmentOriginZMillimetres", start.ZMillimetres);
         Set("Route", new List<GridCell>()); Set("RouteIndex", 0); Set("SegmentProgressMicrometres", 0);
         typeof(GameSession).GetMethod("ApplyAgentDestination", Private)!.Invoke(s, [new EntityId(walker), new SetAgentDestinationCommand(new GridCell(121, 150), "test.walk"), false]);
-        var closest = long.MaxValue; var passed = false;
+        var closest = long.MaxValue; var passed = false; var last = "";
         for (var tick = 0; tick < 1_600; tick++)
         {
             s.AdvanceWithoutSnapshot(1);
             var at = s.CaptureSnapshot().NavigationAgents.Single(a => a.Id.Value == walker);
+            last = $"tick {tick}: {at.IntentId} {at.Action} at ({at.XMillimetres},{at.ZMillimetres}) to {at.Destination}";
             if (at.IntentId != "test.walk") break;
             passed |= at.XMillimetres > middle.XMillimetres + 1_000;
             long dx = at.XMillimetres - middle.XMillimetres, dz = at.ZMillimetres - middle.ZMillimetres;
             closest = Math.Min(closest, (long)Math.Sqrt(dx * dx + dz * dz));
         }
-        Assert.IsTrue(passed, "The walk got past the cow.");
+        Assert.IsTrue(passed, $"The walk got past the cow ({last}).");
         Assert.IsTrue(closest >= GameSession.SeparationRadiusMillimetres, $"Kept clear of the cow's middle (closest {closest} mm).");
     }
 }

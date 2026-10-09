@@ -85,9 +85,9 @@ public sealed class FestivalAccountsTests
         // The chips were the trader's sales: only the bar's count, and the trader's pitch fee.
         Assert.AreEqual(4, report.Sales.Length);
         CollectionAssert.AreEquivalent(new[] { 250, 125, 400, 200 }, report.Sales.Select(line => line.UnitPricePennies).ToArray());
-        Assert.AreEqual(20, report.TicketsSold); Assert.AreEqual(1_000, report.TicketPricePennies);
+        Assert.AreEqual(FestivalTickets.Sold(1), report.TicketsSold); Assert.AreEqual(1_000, report.TicketPricePennies);
         Assert.AreEqual(FoodTraders.Default.PitchFeePennies, report.PitchFeePennies);
-        Assert.AreEqual(20_000L + FoodTraders.Default.PitchFeePennies + 975L, report.IncomePennies, "Advance ticket sales, the pitch fee and the bar.");
+        Assert.AreEqual(FestivalTickets.RevenuePennies(1) + FoodTraders.Default.PitchFeePennies + 975L, report.IncomePennies, "Advance ticket sales, the pitch fee and the bar.");
         Assert.AreEqual(20_000L, report.OpeningCashPennies, "Opening cash is the loan; the ticket money is income.");
         Assert.AreEqual(360L, report.SoldItemCostPennies);
         Assert.AreEqual(ordinaryPayments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense)

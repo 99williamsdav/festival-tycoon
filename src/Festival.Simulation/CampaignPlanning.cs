@@ -20,7 +20,7 @@ public static class CampaignDefaults
     public const string SiteId = "site.lower-wittering-farm";
     public const string BasicAdministrationCommitmentId = "commitment.basic-administration-cover";
     /// <summary>A tight Tier 1 budget: little more than a sensible setup costs.</summary>
-    public const long OpeningCashPennies = 40_000;
+    public const long OpeningCashPennies = 45_000;
     /// <summary>The opening budget less Tier 1's advance ticket sales.</summary>
     public const long OpeningLoanPrincipalPennies = 20_000;
     /// <summary>How far into the red the bank lets the festival go: spending can't be committed beyond it.</summary>

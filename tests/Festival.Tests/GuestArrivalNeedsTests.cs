@@ -58,7 +58,7 @@ public sealed class GuestArrivalNeedsTests
             Assert.IsTrue(nonGuests.All(p=>s.StaffHas(p.AgentId,StaffTrait.Tardy)
                 ? s.GuestWaitingForRelease(p.AgentId)
                 : s.CaptureSnapshot().NavigationAgents.Single(n=>n.Id.Value==p.AgentId).Destination is not null));
-            Assert.AreEqual(20,s.CapturePreparation()!.People.Count(p=>p.Role==ProtectedPersonRole.Guest));
+            Assert.AreEqual(FestivalTickets.Sold(1),s.CapturePreparation()!.People.Count(p=>p.Role==ProtectedPersonRole.Guest));
             Restore(s);
         }
         Assert.AreEqual(3,signatures.Count,"Different seeds should change the arrivals and needs.");

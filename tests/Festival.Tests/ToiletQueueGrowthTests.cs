@@ -113,7 +113,9 @@ public sealed class ToiletQueueGrowthTests
             var nav = s.CaptureSnapshot().NavigationAgents.ToDictionary(a => a.Id.Value);
             var idle = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed)
                 .Select(p => p.AgentId).Where(id => s.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletStage == ToiletVisitStage.None).ToArray();
-            foreach (var free in s.CaptureToilets().Where(t => t.Queue.Length == 0 && t.OwnerId is null))
+            // Free means nobody else on their way there either: with a bigger crowd someone often is, and they'd take a place first.
+            var heading = s.CaptureImmersion()!.People.Where(p => p.ToiletStage != ToiletVisitStage.None).Select(p => p.ToiletId).ToHashSet();
+            foreach (var free in s.CaptureToilets().Where(t => t.Queue.Length == 0 && t.OwnerId is null && !heading.Contains(t.Id)))
             {
                 var door = TraversalGrid.CellCentre(GameSession.ToiletQueueCell(free, 0));
                 long Distance(ulong id) => Math.Abs((long)nav[id].XMillimetres - door.XMillimetres) + Math.Abs((long)nav[id].ZMillimetres - door.ZMillimetres);

@@ -56,11 +56,12 @@ public sealed class CrowdCrossingTests
         var offset = GameSession.RotateWaterOffset(new(4, 6), tent.QuarterTurns);
         Assert.AreEqual(new GridCell(tent.Cell.X + offset.X, tent.Cell.Z + offset.Z), moved.CaptureRestCentre());
         Assert.AreEqual(GameSession.MedicalRestCell, GameSession.RestCentreFor(null), "With no first aid placed, the old rest cell stands.");
-        var resters = RestScenario(moved);
+        // Judged where each rester actually rested: once cooled, a rester may already have moved on.
+        var restedAt = RestScenario(moved);
         var centre = moved.CaptureRestCentre();
-        foreach (var agent in moved.CaptureSnapshot().NavigationAgents.Where(agent => resters.Contains(agent.Id.Value)))
-            Assert.IsTrue(Math.Abs(agent.Destination!.Value.X - centre.X) <= 2 && Math.Abs(agent.Destination!.Value.Z - centre.Z) <= 2,
-                $"{agent.Id.Value} rests at {agent.Destination}, not beside the moved first aid at {tent.Cell}.");
+        foreach (var (id, spot) in restedAt)
+            Assert.IsTrue(Math.Abs(spot.X - centre.X) <= 2 && Math.Abs(spot.Z - centre.Z) <= 2,
+                $"{id} rested at {spot}, not beside the moved first aid at {tent.Cell} (rest centre {centre}).");
     }
 
     /// <summary>A started festival with a quiet crowd; first aid optionally moved away from its standard place first.</summary>
@@ -84,8 +85,8 @@ public sealed class CrowdCrossingTests
         return session;
     }
 
-    /// <summary>Six guests overheat at once; each heads for a rest spot of their own and gets there promptly. Returns the resters.</summary>
-    private static ulong[] RestScenario(GameSession session)
+    /// <summary>Six guests overheat at once; each heads for a rest spot of their own and gets there promptly. Returns where each rester rested.</summary>
+    private static Dictionary<ulong, GridCell> RestScenario(GameSession session)
     {
         // Six guests overheat together: not thirsty, so the planner sends them all to first-aid rest.
         var hot = session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed)
@@ -107,15 +108,15 @@ public sealed class CrowdCrossingTests
             var dx = (double)spot.XMillimetres - agent.XMillimetres; var dz = (double)spot.ZMillimetres - agent.ZMillimetres;
             return session.CurrentTick + (long)(Math.Sqrt(dx * dx + dz * dz) * 1.5 / (30 * 0.7 * 0.85)) + 3 * 80;
         });
-        var rested = new HashSet<ulong>();
+        var rested = new Dictionary<ulong, GridCell>();
         while (rested.Count < resters.Length && session.CurrentTick <= deadline.Values.Max())
         {
             session.AdvanceWithoutSnapshot(1);
             foreach (var agent in session.CaptureSnapshot().NavigationAgents.Where(agent => resters.Contains(agent.Id.Value)))
                 if (agent.Action == AgentNavigationAction.Arrived && agent.Destination is { } spot && session.IsRestSpot(spot) &&
-                    session.CurrentTick <= deadline[agent.Id.Value]) rested.Add(agent.Id.Value);
+                    session.CurrentTick <= deadline[agent.Id.Value]) rested.TryAdd(agent.Id.Value, spot);
         }
-        var late = resters.Where(id => !rested.Contains(id)).Select(id =>
+        var late = resters.Where(id => !rested.ContainsKey(id)).Select(id =>
         {
             var agent = session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == id);
             return $"{id}@({agent.XMillimetres},{agent.ZMillimetres}) {agent.Action} {agent.IntentId} to {agent.Destination}";
@@ -123,7 +124,7 @@ public sealed class CrowdCrossingTests
         Assert.AreEqual(0, late.Length, $"Still not resting: {string.Join("; ", late)}");
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
-        return resters;
+        return rested;
     }
 
     [TestMethod]

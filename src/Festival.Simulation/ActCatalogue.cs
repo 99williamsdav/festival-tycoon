@@ -17,14 +17,14 @@ public static class FestivalGenre
 }
 
 /// <summary>
-/// Advance ticket sales: a fixed price and number sold per tier for now (Tier 1: 20 at £10). The
+/// Advance ticket sales: a fixed price and number sold per tier for now (Tier 1: 25 at £10). The
 /// money arrives before preparation and is part of the opening budget; the rest is the starter loan.
 /// </summary>
 public static class FestivalTickets
 {
     public static int PricePennies(int tier) => tier switch { 1 => 1_000, 2 => 1_800, 3 => 3_500, _ => 6_000 };
     /// <summary>Guests (and tickets) per tier: the crowd a festival plans and builds for.</summary>
-    public const int GuestsPerTier = 20;
+    public const int GuestsPerTier = 25;
     public static int Sold(int tier) => tier * GuestsPerTier;
     public static long RevenuePennies(int tier) => (long)PricePennies(tier) * Sold(tier);
 }
