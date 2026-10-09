@@ -40,7 +40,7 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v51", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v51");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v52", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v52");
 
     public override void _Ready()
     {
@@ -596,7 +596,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v51");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v52");
 
 
 
