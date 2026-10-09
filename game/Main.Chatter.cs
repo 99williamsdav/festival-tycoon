@@ -32,8 +32,9 @@ public partial class Main
     private readonly HashSet<ulong> _chatterAdmitted = [];
     private readonly Dictionary<ulong, long> _chatterQueuedSince = [];
     private readonly Dictionary<ulong, long> _chatterArrived = [];
-    private int _chatterPurchases, _chatterReactionSequence;
-    private long _chatterReactionTick = long.MinValue;
+    private int _chatterPurchases;
+    // Each stage's last crowd reaction seen, and when it came.
+    private readonly Dictionary<string, (int Sequence, long Tick)> _chatterReactions = [];
     private readonly HashSet<string> _chatterStuck = [];
     private readonly Dictionary<string, long> _chatterFreed = [];
     private readonly Dictionary<ulong, MedicalStage> _chatterStages = [];
@@ -159,8 +160,8 @@ public partial class Main
         _chatterAdmitted.Clear();
         foreach (var person in _session.CapturePreparation()?.People ?? []) if (person.Admitted) _chatterAdmitted.Add(person.AgentId);
         _chatterPurchases = _session.CaptureImmersion()?.Purchases.Length ?? 0;
-        _chatterReactionSequence = _session.CaptureLivePerformance()?.ReactionSequence ?? 0;
-        _chatterReactionTick = long.MinValue;
+        _chatterReactions.Clear();
+        foreach (var live in _session.CaptureLivePerformances()) _chatterReactions[live.StageId] = (live.ReactionSequence, long.MinValue);
         _chatterStages.Clear();
         foreach (var need in _session.CaptureMedical()?.Needs ?? []) _chatterStages[need.AgentId] = need.Stage;
         foreach (var fault in _session.CaptureFaults()?.Faults ?? [])
@@ -192,8 +193,7 @@ public partial class Main
         var consumers = immersion?.People.ToDictionary(p => p.AgentId) ?? [];
         var perks = _session.CapturePerks() is { } p ? (p.Ended ? p.FrozenEffects : p.Equipped) : [];
         var beerFestival = perks.Contains(PerkCatalogue.BeerFestival);
-        var live = _session.CaptureLivePerformance();
-        var act = _session.CurrentFestivalAct;
+        var lives = _session.CaptureLivePerformances();
 
         // Arrivals: a few seconds to say something as they come through the gate.
         foreach (var id in guests.Keys) if (_chatterAdmitted.Add(id)) _chatterArrived[id] = tick;
@@ -210,10 +210,12 @@ public partial class Main
         }
 
         // The music: loving it, sitting through it, booing, an encore, or relief when it comes back.
-        if (live is not null)
+        foreach (var live in lives)
         {
-            if (live.ReactionSequence != _chatterReactionSequence) { _chatterReactionSequence = live.ReactionSequence; _chatterReactionTick = tick; }
-            var fresh = tick - _chatterReactionTick <= 400;
+            var act = _session.CurrentStageAct(live.StageId);
+            var (sequence, reactionTick) = _chatterReactions.GetValueOrDefault(live.StageId, (0, long.MinValue));
+            if (live.ReactionSequence != sequence) { (sequence, reactionTick) = (live.ReactionSequence, tick); _chatterReactions[live.StageId] = (sequence, reactionTick); }
+            var fresh = tick - reactionTick <= 400;
             foreach (var listener in live.Listeners.Where(l => l.AtPlace && Free(l.AgentId)))
             {
                 var id = listener.AgentId;
@@ -226,12 +228,12 @@ public partial class Main
                 if (live.LastReaction == "sustained-boo")
                     remarks.Add(new(id, Pick(id, "Boo! Get off!", "Rubbish!"), Mood.Angry, 3, "boo", 4));
                 if (fresh && live.LastReaction == "set-finished-applause")
-                    remarks.Add(new(id, Pick(id, "Encore!", "One more song!"), Mood.Happy, 3, "encore", 1.5, $"encore:{id}:{_chatterReactionSequence}"));
+                    remarks.Add(new(id, Pick(id, "Encore!", "One more song!"), Mood.Happy, 3, "encore", 1.5, $"encore:{id}:{sequence}"));
                 if (fresh && live.LastReaction == "set-finished-interrupted")
-                    remarks.Add(new(id, "That's it?!", Mood.Grumble, 3, "cut-short", 2, $"cut:{id}:{_chatterReactionSequence}"));
+                    remarks.Add(new(id, "That's it?!", Mood.Grumble, 3, "cut-short", 2, $"cut:{id}:{sequence}"));
                 if (fresh && live.LastReaction == "resumed")
-                    remarks.Add(new(id, Pick(id, "YES! It's back!", "Finally!"), Mood.Happy, 3, "resumed", 1.5, $"resumed:{id}:{_chatterReactionSequence}"));
-                if (_session.CaptureEquipment()?.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault)
+                    remarks.Add(new(id, Pick(id, "YES! It's back!", "Finally!"), Mood.Happy, 3, "resumed", 1.5, $"resumed:{id}:{sequence}"));
+                if ((live.StageId == FestivalStages.MainId ? _session.CaptureEquipment()?.Stage : _session.CaptureStageGenerator(live.StageId)?.Stage) is EquipmentStage.Warning or EquipmentStage.DangerousFault)
                     remarks.Add(new(id, Pick(id, "What's that burning smell?", "Is the generator meant to make that noise?"), Mood.Grumble, 3, "generator", 10));
             }
         }
@@ -384,7 +386,7 @@ public partial class Main
         {
             var labels = _session.GuestLabels(id);
             if (labels.Count == 0) continue;
-            var listening = live?.Stage == LiveSetStage.Live && live.Listeners.Any(l => l.AgentId == id && l.AtPlace);
+            var listening = lives.Any(live => live.Stage == LiveSetStage.Live && live.Listeners.Any(l => l.AgentId == id && l.AtPlace));
             if (labels.Contains("Twat"))
                 remarks.Add(new(id, queued.ContainsKey(id) ? "Oi, move!" : listening ? "This band's crap" : "Out the way!", Mood.Grumble, 1, "twat", 15));
             if (labels.Contains("Princess"))
@@ -419,10 +421,12 @@ public partial class Main
                 remarks.Add(new(medic.WorkerId, "Medic! Make some room!", Mood.Neutral, 3, "medic", 4));
 
         // How the set is going: the band's play and the sound, each said so the cause is plain, and the surprises.
-        if (live?.Stage == LiveSetStage.Live && _session.PowerBudgetActive && _session.CurrentPerformance is { } play)
+        foreach (var live in lives)
         {
+            if (live.Stage != LiveSetStage.Live || !_session.PowerBudgetActive || _session.CurrentStagePerformance(live.StageId) is not { } play) continue;
             var known = play.Act.Popularity;
-            var drunkest = _session.CaptureProgramme()?.Performers.Where(m => m.SlotIndex == _session.CaptureProgramme()!.CurrentSlot)
+            var programme = _session.CaptureProgramme(live.StageId);
+            var drunkest = programme?.Performers.Where(m => m.SlotIndex == programme.CurrentSlot)
                 .OrderByDescending(m => consumers.TryGetValue(m.AgentId, out var c) ? c.Intoxication : 0).FirstOrDefault();
             var drunkestIntoxication = drunkest is not null && consumers.TryGetValue(drunkest.AgentId, out var dc) ? dc.Intoxication : 0;
             foreach (var listener in live.Listeners.Where(l => l.AtPlace && Free(l.AgentId)))
@@ -460,7 +464,7 @@ public partial class Main
         }
 
         // The band, now and then from the stage, and when the crowd turns on them.
-        if (live?.Stage == LiveSetStage.Live)
+        foreach (var live in lives.Where(set => set.Stage == LiveSetStage.Live))
             foreach (var performer in live.Performers.Where(p => p.OnStage && _attendeeVisuals.ContainsKey(new EntityId(p.AgentId))))
                 remarks.Add(live.LastReaction == "sustained-boo"
                     ? new(performer.AgentId, "Tough crowd…", Mood.Neutral, 3, "band-boo", 15)

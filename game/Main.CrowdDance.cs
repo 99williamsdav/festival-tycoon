@@ -22,26 +22,31 @@ public partial class Main
         FestivalGenre.Electronic => 126, FestivalGenre.Punk => 170, FestivalGenre.Metal => 140, _ => null,
     };
 
-    private (float Bpm, Dictionary<ulong, int> Keenness)? _dance;
+    // Each dancing listener's tempo and how into it they are, from their own stage's set.
+    private readonly Dictionary<ulong, (float Bpm, int Keenness)> _dance = [];
     // Below this much enjoyment they don't dance at all; above the next two they bop, then let go.
     private const int DanceFrom = 40, BopFrom = 60, FullFrom = 80;
 
-    /// <summary>Works out once a frame whether the crowd should be dancing, and to what.</summary>
-    private void PrepareCrowdDance(LivePerformanceSnapshot? live)
+    /// <summary>Works out once a frame which crowds should be dancing, and to what: each to its own stage's act.</summary>
+    private void PrepareCrowdDance(IReadOnlyList<LivePerformanceSnapshot> lives)
     {
-        _dance = null;
-        if (live?.Stage != LiveSetStage.Live || !_session.StagePowered ||
-            _session.CurrentFestivalAct is not { } act || DanceBpm(act.Genre) is not { } bpm) return;
-        // A sloppy or badly mixed set takes the edge off even a fan's enjoyment.
-        var played = _session.CurrentPerformance is { } performance ? 50 + Math.Clamp(performance.Overall, 0, 100) / 2 : 100;
-        _dance = (bpm, live.Listeners.Where(l => l.AtPlace).ToDictionary(l => l.AgentId, l => l.Enthusiasm * played / 100));
+        _dance.Clear();
+        foreach (var live in lives)
+        {
+            if (live.Stage != LiveSetStage.Live || !_session.StagePoweredAt(live.StageId) ||
+                _session.CurrentStageAct(live.StageId) is not { } act || DanceBpm(act.Genre) is not { } bpm) continue;
+            // A sloppy or badly mixed set takes the edge off even a fan's enjoyment.
+            var played = _session.CurrentStagePerformance(live.StageId) is { } performance ? 50 + Math.Clamp(performance.Overall, 0, 100) / 2 : 100;
+            foreach (var listener in live.Listeners.Where(l => l.AtPlace)) _dance[listener.AgentId] = (bpm, listener.Enthusiasm * played / 100);
+        }
     }
 
     /// <summary>Tells a listener's rig which dance to do this frame, if any; the rig plays it when they're standing with free hands.</summary>
     private void SetCrowdDance(EntityId id, Node3D visual)
     {
-        if (_dance is not { } dance || !dance.Keenness.TryGetValue(id.Value, out var keenness) || keenness < DanceFrom)
+        if (!_dance.TryGetValue(id.Value, out var dance) || dance.Keenness < DanceFrom)
         { Bodies.SetDance(visual, null, 0, 0); return; }
+        var keenness = dance.Keenness;
         var clip = keenness >= FullFrom ? "dance_full" : keenness >= BopFrom ? "dance_bop" : "dance_sway";
         // Each person a little off the beat, so it reads as a crowd rather than a drill.
         var offset = (id.Value * 2654435761UL % 1000) / 1000f * .35f;

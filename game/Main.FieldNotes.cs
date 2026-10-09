@@ -65,8 +65,8 @@ public partial class Main
             "toxic" => () => Places(_session.CaptureToilets().Where(t => _session.ToiletToxic(t.Id)).Select(t => (GridCell?)t.Cell), 3.4f),
             "generator" => () => _session.PowerBudgetActive && _session.CapturePower().Over ? Generator() : null,
             "argument" => () => Person(_session.CaptureDisorder()?.People.Where(p => p.Stage == DisorderStage.Argument).Select(p => p.AgentId)),
-            "band-late" => () => !_session.FestivalBandLate || _session.CaptureProgramme() is not { } q ? null :
-                Person(q.Performers.Where(r => r.SlotIndex == q.CurrentSlot).Select(r => r.AgentId)),
+            "band-late" => () => !_session.FestivalBandLate || _session.Stages.FirstOrDefault(stage => _session.StageBandLate(stage.Id)) is not { } late ||
+                _session.CaptureProgramme(late.Id) is not { } q ? null : Person(q.Performers.Where(r => r.SlotIndex == q.CurrentSlot).Select(r => r.AgentId)),
             "litter" => () => _session.CaptureLitter()?.Pieces.FirstOrDefault(w => w.Location == WasteLocation.Ground) is { } piece
                 ? [new Vector3(piece.XMillimetres / 1000f, 1.1f, piece.ZMillimetres / 1000f)] : null,
             // Loose cows: the pin over each, at about head height.

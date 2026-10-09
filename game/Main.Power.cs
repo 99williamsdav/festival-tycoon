@@ -18,10 +18,13 @@ public partial class Main
     private double _generatorClock;
 
     /// <summary>Smoke from the exhaust, thicker and darker as the generator strains; and a shake when it's struggling.</summary>
-    private void AttachGeneratorEffects(Node3D visual, string model, EquipmentStage stage)
+    private void AttachGeneratorEffects(Node3D visual, string model, EquipmentStage stage) => _generatorShaking = AddGeneratorSmoke(visual, model, stage);
+
+    /// <summary>A generator's exhaust smoke for its state; true when it's straining enough to shake.</summary>
+    private static bool AddGeneratorSmoke(Node3D visual, string model, EquipmentStage stage)
     {
-        _generatorShaking = stage is EquipmentStage.Warning or EquipmentStage.DangerousFault;
-        if (model == "towable_generator" || stage is EquipmentStage.Isolated or EquipmentStage.Terminal) return;
+        var shaking = stage is EquipmentStage.Warning or EquipmentStage.DangerousFault;
+        if (model == "towable_generator" || stage is EquipmentStage.Isolated or EquipmentStage.Terminal) return shaking;
         var (rate, colour) = stage switch
         {
             EquipmentStage.Warning => (4f, new Color("3d3a36")),
@@ -41,6 +44,7 @@ public partial class Main
             MaterialOverride = new StandardMaterial3D { AlbedoColor = colour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
         };
         visual.AddChild(smoke);
+        return shaking;
     }
 
     /// <summary>The generator's shake, and its power chip: shown when it's selected, while planning supplies, or whenever it's over capacity.</summary>

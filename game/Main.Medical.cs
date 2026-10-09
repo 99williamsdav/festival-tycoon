@@ -165,7 +165,7 @@ public partial class Main
         var medical = _session.CaptureMedical();
         if (medical is null) return;
         foreach (var label in _medicalCueLabels.Values) label.Visible = false;
-        foreach (var cue in _medicalCuePlanner.Observe(medical, _session.CurrentTick, _session.CaptureLivePerformance()?.Stage == LiveSetStage.Live))
+        foreach (var cue in _medicalCuePlanner.Observe(medical, _session.CurrentTick, _session.CaptureLivePerformances().Any(live => live.Stage == LiveSetStage.Live)))
         {
             if (!_medicalCueLabels.TryGetValue(cue.AgentId, out var label) ||
                 !_attendeeVisuals.TryGetValue(new EntityId(cue.AgentId), out var visual)) continue;

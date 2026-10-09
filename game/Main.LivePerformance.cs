@@ -20,17 +20,17 @@ public partial class Main
     private Label3D? _stageWorldCue;
 
     private void UpdatePersonFacing(EntityId id, Node3D visual, Vector3 position,
-        AgentNavigationAction action, bool watchingStage, bool onStage, double delta)
+        AgentNavigationAction action, FestivalStage? crowdStage, bool watchingStage, FestivalStage? onStage, double delta)
     {
         var hasPrevious = _lastPresentedPersonPositions.TryGetValue(id, out var previous);
         _lastPresentedPersonPositions[id] = position;
         var direction = position - previous;
         direction.Y = 0;
         // All protected people face actual rendered travel. A desired path is not a visual heading.
-        if (onStage)
+        if (onStage is not null)
         {
-            // Approved GLBs face -Z; the yawed trailer opens toward world +X.
-            visual.Rotation = new Vector3(0, -Mathf.Pi / 2f, 0);
+            // Approved GLBs face -Z; a band faces its stage's audience (the trailer's +X, the riser's -Z).
+            visual.Rotation = new Vector3(0, BandYaw(onStage), 0);
             return;
         }
         // Once physically attending, face the live person. Travel still follows
@@ -85,8 +85,9 @@ public partial class Main
         if (backstepping || action != AgentNavigationAction.Travelling || !hasPrevious || direction.LengthSquared() < 0.000036f)
         {
             if (!watchingStage && !backstepping) return;
-            direction = new Vector3(AudienceFacingMath.StageXMillimetres / 1000f - position.X, 0,
-                AudienceFacingMath.StageZMillimetres / 1000f - position.Z);
+            // Each listener faces their own stage's crowd point.
+            var stage = (crowdStage ?? FestivalStages.Main).Placement;
+            direction = new Vector3(stage.XMillimetres / 1000f - position.X, 0, stage.ZMillimetres / 1000f - position.Z);
         }
         if (direction.LengthSquared() < 0.000036f) return;
         var targetYaw = Mathf.Atan2(-direction.X, -direction.Z);
@@ -145,7 +146,10 @@ public partial class Main
     {
         var person = preparation.People.Single(item => item.AgentId == id.Value);
         RefreshSatisfactionBar(person.Role == ProtectedPersonRole.Guest ? person.Satisfaction : null);
-        var live = _session.CaptureLivePerformance();
+        // The set this person is in the crowd or the band of; otherwise the trailer stage's.
+        var live = _session.CaptureLivePerformances().FirstOrDefault(set => set.Listeners.Any(item => item.AgentId == id.Value) ||
+            set.Performers.Any(item => item.AgentId == id.Value)) ?? _session.CaptureLivePerformance();
+        var stageId = live?.StageId ?? FestivalStages.MainId;
         var medical = _session.CaptureMedical();
         var need = medical?.Needs.SingleOrDefault(item => item.AgentId == id.Value);
         RefreshMedicalNeedBars(need);
@@ -171,14 +175,14 @@ public partial class Main
             _inspectorTraits.Text = string.Join(" · ", traits);
             _inspectorTraits.Visible = traits.Count > 0;
         }
-        if (_session.CaptureProgramme() is { } programme)
+        if (_session.CaptureProgramme() is not null)
         {
             if (listening is not null)
                 detail = $"MAIN TASTE {FestivalGenreName(person.ExpectedGenre)}\n" +
-                    $"CURRENT {_session.CurrentFestivalAct?.Name ?? "none"} • interest {listening.Enthusiasm}%\n" +
-                    $"UPCOMING {_session.UpcomingFestivalAct?.Name ?? "none"}" +
-                    (_session.UpcomingFestivalAct is { } next ? $" • interest {_session.FestivalAffinity(id.Value, next)}%" : "") + "\n" + detail;
-            else if (programme.Performers.SingleOrDefault(item => item.AgentId == id.Value) is { } bandMember)
+                    $"CURRENT {_session.CurrentStageAct(stageId)?.Name ?? "none"} • interest {listening.Enthusiasm}%\n" +
+                    $"UPCOMING {_session.UpcomingStageAct(stageId)?.Name ?? "none"}" +
+                    (_session.UpcomingStageAct(stageId) is { } next ? $" • interest {_session.FestivalAffinity(id.Value, next)}%" : "") + "\n" + detail;
+            else if (PerformerOutfits.Booking(_session, id.Value) is ({ } programme, { } bandMember))
                 detail = $"SET {bandMember.SlotIndex + 1} • " +
                     (programme.ActIds.Length == 3 ? _session.GetFestivalActs().Single(act => act.Id == programme.ActIds[bandMember.SlotIndex]).Name : "not booked") +
                     "\nProtected all festival; ordinary water/rest and physical departure.\n" + detail;
@@ -215,10 +219,31 @@ public partial class Main
     private void EnsureStageDrumKit()
     {
         if (_stageDrumKit is not null) return;
-        var drumMark = TraversalGrid.CellCentre(new GridCell(93, 152));
-        _stageDrumKit = AddAsset("res://assets/characters/lwf_drum_hardware_only_v2.glb",
-            new Vector3(drumMark.XMillimetres / 1000f, 1.19f, drumMark.ZMillimetres / 1000f));
+        _stageDrumKit = AddAsset("res://assets/characters/lwf_drum_hardware_only_v2.glb", DrumHardwarePosition(FestivalStages.Main));
         _stageDrumKit.RotationDegrees = new Vector3(0, -90, 0);
+    }
+
+    /// <summary>Which way a band faces on its stage: towards its audience, as the stage model is turned.</summary>
+    private static float BandYaw(FestivalStage stage) => Mathf.DegToRad(stage.Placement.YawDegrees + 180);
+
+    /// <summary>The drum hardware's place: the drummer's mark, at deck height.</summary>
+    private static Vector3 DrumHardwarePosition(FestivalStage stage)
+    {
+        var mark = TraversalGrid.CellCentre(stage.PerformerMarks[2]);
+        return new Vector3(mark.XMillimetres / 1000f, stage.Placement.DeckHeightMillimetres / 1000f, mark.ZMillimetres / 1000f);
+    }
+
+    /// <summary>
+    /// How high a band member stands, climbing to the deck. The trailer's band stairs rise along world Z from backstage to
+    /// the deck's north edge; the riser's side stair rises along world -X from its toe (24.8 m) to the top tread (23.0 m).
+    /// Anyone off the stage route stays on the ground.
+    /// </summary>
+    private static float BandHeight(FestivalStage stage, Vector3 position, bool raised)
+    {
+        if (!raised) return 0.04f;
+        if (stage.Id == FestivalStages.MainId) return 0.04f + Mathf.Clamp((position.Z - 5.72f) / 2.17f, 0f, 1f) * 1.15f;
+        // Five 0.18 m treads, 0.36 m deep: this line runs through each tread's top.
+        return Mathf.Lerp(0.04f, 0.9f, Mathf.Clamp((24.98f - position.X) / 1.8f, 0f, 1f));
     }
 
     private void EnsureStage()
@@ -250,69 +275,81 @@ public partial class Main
         }
         if (_stageLights is not null)
             foreach (var light in _stageLights) light.LightEnergy = 0;
+        foreach (var light in _pondStageLights) light.LightEnergy = 0;
+    }
+
+    /// <summary>The stage lights and sound read the old load figures: off, normal (80) or straining (120).</summary>
+    private int StageLoad(string stageId)
+    {
+        if (stageId != FestivalStages.MainId)
+            return _session.CaptureStageGenerator(stageId) is not { } generator ? 80 : generator.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? 0 :
+                generator.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? 120 : 80;
+        return _session.CaptureEquipment() is { Version: 3 } budget
+            ? budget.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? 0 : budget.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? 120 : 80
+            : _session.CaptureEquipment()?.LoadPercent ?? 80;
     }
 
     private void AdvanceLivePerformancePresentation(double delta)
     {
-        var live = _session.CaptureLivePerformance();
-        if (live is null) return;
+        var lives = _session.CaptureLivePerformances();
+        if (lives.Count == 0) return;
         EnsureStage();
         var roster = _session.CapturePreparation()!.People;
         var navigation = _session.CaptureObservation().NavigationAgents.ToDictionary(item => item.Id);
         var collapsed = _session.CaptureMedical()?.Needs.Where(item => item.Intent == MedicalIntent.Collapsed)
             .Select(item => item.AgentId).ToHashSet() ?? [];
-        var attachedIds = live.Performers.Where(item => item.InstrumentAttached).Select(item => new EntityId(item.AgentId)).ToHashSet();
+        var attachedIds = lives.SelectMany(live => live.Performers).Where(item => item.InstrumentAttached).Select(item => new EntityId(item.AgentId)).ToHashSet();
         foreach (var oldId in _performerInstruments.Keys.Where(id => !attachedIds.Contains(id)).ToArray())
         {
             _performerInstruments[oldId].QueueFree(); _performerInstruments.Remove(oldId);
             if (_attendeeVisuals.TryGetValue(oldId, out var oldBody)) { CrowdBodies.SetNeutralArmsVisible(oldBody, true); Bodies.SetOnStage(oldBody, false); }
         }
-        foreach (var performer in live.Performers)
+        foreach (var live in lives)
         {
-            var id = new EntityId(performer.AgentId);
-            if (!_attendeeVisuals.TryGetValue(id, out var body)) continue;
-            if (performer.InstrumentAttached && !_performerInstruments.ContainsKey(id))
+            var stage = FestivalStages.Find(live.StageId) ?? FestivalStages.Main;
+            foreach (var performer in live.Performers)
             {
-                var name = roster.Single(item => item.AgentId == performer.AgentId).Name;
-                Bodies.SetOnStage(body, true);
-                var kit = BuildPerformerKit(performer.AgentId, PerformerPresentationRole(performer.AgentId, name),
-                    body.GetMeta("RoleVariant").AsString());
-                var arms = !kit.HasMeta("NoArms");
-                if (arms) Bodies.PaintPlayingArms(body, kit);
-                body.AddChild(kit);
-                foreach (var player in kit.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>())
-                    foreach (var animationName in player.GetAnimationList())
-                    {
-                        player.GetAnimation(animationName).LoopMode = Animation.LoopModeEnum.Linear;
-                        player.Play(animationName);
-                    }
-                _performerInstruments.Add(id, kit);
-                if (arms) CrowdBodies.SetNeutralArmsVisible(body, false);
+                var id = new EntityId(performer.AgentId);
+                if (!_attendeeVisuals.TryGetValue(id, out var body)) continue;
+                if (performer.InstrumentAttached && !_performerInstruments.ContainsKey(id))
+                {
+                    var name = roster.Single(item => item.AgentId == performer.AgentId).Name;
+                    Bodies.SetOnStage(body, true);
+                    var kit = BuildPerformerKit(performer.AgentId, PerformerPresentationRole(performer.AgentId, name),
+                        body.GetMeta("RoleVariant").AsString());
+                    var arms = !kit.HasMeta("NoArms");
+                    if (arms) Bodies.PaintPlayingArms(body, kit);
+                    body.AddChild(kit);
+                    foreach (var player in kit.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>())
+                        foreach (var animationName in player.GetAnimationList())
+                        {
+                            player.GetAnimation(animationName).LoopMode = Animation.LoopModeEnum.Linear;
+                            player.Play(animationName);
+                        }
+                    _performerInstruments.Add(id, kit);
+                    if (arms) CrowdBodies.SetNeutralArmsVisible(body, false);
+                }
+                else if (!performer.InstrumentAttached && _performerInstruments.Remove(id, out var kit))
+                {
+                    kit.QueueFree();
+                    CrowdBodies.SetNeutralArmsVisible(body, true);
+                    Bodies.SetOnStage(body, false);
+                }
+                // Heading is assigned with every other protected person's rendered motion.
+                // Instrument kits are children, so they follow that same body yaw.
+                // The body remains grounded before the stair and after exit.
+                var deckRoute = navigation[id].IntentId is "performance.visible-stairs" or "performance.stage-entry" or
+                    "performance.stage-exit-stair" or "performance.stage-exit-access";
+                if (!collapsed.Contains(performer.AgentId))
+                    body.Position = new Vector3(body.Position.X, BandHeight(stage, body.Position, deckRoute || performer.OnStage), body.Position.Z);
             }
-            else if (!performer.InstrumentAttached && _performerInstruments.Remove(id, out var kit))
-            {
-                kit.QueueFree();
-                CrowdBodies.SetNeutralArmsVisible(body, true);
-                Bodies.SetOnStage(body, false);
-            }
-            // Heading is assigned with every other protected person's rendered motion.
-            // Instrument kits are children, so they follow that same body yaw.
-            // The band stairs rise along world Z from backstage to the deck's north edge;
-            // the body remains grounded before the stair and after exit.
-            var deckRoute = navigation[id].IntentId is "performance.visible-stairs" or "performance.stage-entry" or
-                "performance.stage-exit-stair" or "performance.stage-exit-access";
-            var ramp = deckRoute || performer.OnStage ? Mathf.Clamp((body.Position.Z - 5.72f) / 2.17f, 0f, 1f) : 0f;
-            if (!collapsed.Contains(performer.AgentId))
-                body.Position = new Vector3(body.Position.X, 0.04f + ramp * 1.15f, body.Position.Z);
+            var power = StageLoad(live.StageId);
+            var lights = stage.Id == FestivalStages.MainId ? _stageLights! : _pondStageLights;
+            foreach (var light in lights) light.LightEnergy = live.Stage == LiveSetStage.Live ?
+                power == 0 ? 0 : power == 80 ? 0.35f : 0.8f : 0;
+            Audio.AdvanceStage(_session, live, power, ListenerPoint, delta);
         }
-        // The stage lights and sound read the old load figures: off, normal (80) or straining (120).
-        var power = _session.CaptureEquipment() is { Version: 3 } budget
-            ? budget.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? 0 : budget.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? 120 : 80
-            : _session.CaptureEquipment()?.LoadPercent ?? 80;
         _stageWorldCue!.Text = "TRAILER STAGE";
-        foreach (var light in _stageLights!) light.LightEnergy = live.Stage == LiveSetStage.Live ?
-            power == 0 ? 0 : power == 80 ? 0.35f : 0.8f : 0;
-        Audio.AdvanceStage(_session, live, power, ListenerPoint, delta);
     }
 
     private void ToggleStageMute()

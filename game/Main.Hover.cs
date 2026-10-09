@@ -137,6 +137,8 @@ public partial class Main
                 { point = toiletView.Body.GlobalPosition; yaw = toiletView.Body.Rotation.Y; scale = new Vector3(1.5f,.3f,1.7f); }
                 else if (_binPickOwners.ContainsKey(key)) { scale = new Vector3(.55f,.3f,.55f); }
                 else if(key==_securityPostPickId){var post=_responsePostVisuals[ResponseRole.Steward];var geometry=BuildingHoverGeometry(post);yaw=post.Rotation.Y;point=post.ToGlobal(geometry.Centre);scale=geometry.Scale;}
+                else if(key==_pondStagePickId){point=PondStageOrigin;scale=new Vector3(5.2f,.3f,5.2f);}
+                else if(key==_pondGeneratorPickId && _pondGeneratorVisual is { } pondGenerator){var geometry=BuildingHoverGeometry(pondGenerator);point=pondGenerator.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 else if(key==_generatorPickId && _equipmentVisual is { } generator){var geometry=BuildingHoverGeometry(generator);yaw=generator.Rotation.Y;point=generator.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 else if(_medicalFacilityPicks.TryGetValue(key,out var medical) && medical.Facility==MedicalFacility.FirstAid)
                 {var tent=_responsePostVisuals[ResponseRole.Medic];var geometry=BuildingHoverGeometry(tent);yaw=tent.Rotation.Y;point=tent.ToGlobal(geometry.Centre);scale=geometry.Scale;}
