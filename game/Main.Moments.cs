@@ -184,11 +184,17 @@ public partial class Main
                 yield return ($"set:{slot}", new("music", $"{act} take the stage", calm, LocateCell(new GridCell(96, 150))));
             if (live.Stage == LiveSetStage.Finished && live.EndedTick >= 0)
             {
+                // The send-off matches who's actually there at the end, and the applause you hear: big cheers only
+                // from a sizeable crowd that enjoyed it, a couple of fans just clap.
+                var there = live.SetEndAudienceCount;
                 var (text, tint) = live.LastReaction switch
                 {
-                    "set-finished-applause" => ($"{act} finish to big cheers", good),
+                    "set-finished-applause" when PerformanceApplauseMath.IsEnthusiastic(there, live.SetEndEnjoymentTotal) => ($"{act} finish to big cheers", good),
+                    "set-finished-applause" when there >= 5 => ($"{act} finish to warm applause", calm),
+                    "set-finished-applause" when there == 1 => ($"{act} finish to a lone cheer", calm),
+                    "set-finished-applause" => ($"{act} finish to a smattering of applause from {there} fans", calm),
                     "set-finished-interrupted" => ($"{act}'s set was cut short", bad),
-                    _ => ($"{act} finish to polite applause", calm),
+                    _ => ($"{act} finish to an empty field", calm),
                 };
                 yield return ($"setend:{slot}", new("music", text, tint, LocateCell(new GridCell(96, 150))));
             }
