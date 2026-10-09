@@ -188,6 +188,24 @@ internal static class BuildSession
     public static void SetToilet(GameSession s, ToiletFacility toilet) => typeof(GameSession)
         .GetMethod("SetToilet", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.Invoke(s, [toilet]);
 
+    /// <summary>Test fixture: replaces the main stage's live set.</summary>
+    public static void SetMainLive(GameSession s, LivePerformanceSnapshot? live) =>
+        ((LivePerformanceSnapshot?[])typeof(GameSession).GetField("_livePerformances", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(s)!)[0] = live;
+
+    /// <summary>Test fixture: replaces the main stage's running order.</summary>
+    public static void SetMainProgramme(GameSession s, StageProgrammeSnapshot programme)
+    {
+        var field = typeof(GameSession).GetField("_programme", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var all = (ProgrammeSnapshot)field.GetValue(s)!;
+        field.SetValue(s, all with { Stages = [programme, .. all.Stages.Skip(1)] });
+    }
+
+    /// <summary>A save with its main stage's running order or live set changed, for restore validation tests.</summary>
+    public static SessionPersistenceSnapshot WithMainProgramme(SessionPersistenceSnapshot saved, Func<StageProgrammeSnapshot, StageProgrammeSnapshot> change) =>
+        saved with { Programme = saved.Programme! with { Stages = [change(saved.Programme.Stages[0]), .. saved.Programme.Stages.Skip(1)] } };
+    public static SessionPersistenceSnapshot WithMainLive(SessionPersistenceSnapshot saved, Func<LivePerformanceSnapshot, LivePerformanceSnapshot> change) =>
+        saved with { LivePerformances = [change(saved.LivePerformances![0]), .. saved.LivePerformances.Skip(1)] };
+
     public static GameSession Restored(GameSession s)
     {
         var loaded = GameSession.Restore(s.CapturePersistenceSnapshot());

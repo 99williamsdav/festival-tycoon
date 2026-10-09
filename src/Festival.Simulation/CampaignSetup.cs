@@ -145,7 +145,9 @@ public sealed partial class GameSession
         }
         session.PreparationView = p with { People = people.OrderBy(person => person.AgentId).ToArray() };
         session.MedicalView = session.MedicalView! with { Needs = session.MedicalView.Needs.Select(need => need.Profile == MedicalNeedProfile.Performer ? need with { Thirst = 2500, HeatExposure = 2500 } : need).OrderBy(need => need.AgentId).ToArray() };
-        session._programme = new(4, [], people.Where(person => person.Role == ProtectedPersonRole.Performer).Select((person, i) => new ProgrammePerformer(person.AgentId, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts");
+        // Every band plays the main stage, three to a set.
+        session._programme = new(ProgrammeVersion, [new(FestivalStages.MainId, [], people.Where(person => person.Role == ProtectedPersonRole.Performer)
+            .Select((person, i) => new ProgrammePerformer(person.AgentId, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts")]);
     }
 
     /// <summary>Vendors, the toilet, stock and each person's tastes and budget.</summary>

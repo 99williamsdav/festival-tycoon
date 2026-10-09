@@ -99,7 +99,7 @@ public sealed class ImmersionTests
         Assert.AreEqual(false,eligible.Invoke(s,[s.CapturePerson(abstainer.AgentId),ImmersionProduct.Beer]));Assert.AreEqual(false,eligible.Invoke(s,[s.CapturePerson(staff.AgentId),ImmersionProduct.Beer]));
         var performer=s.CaptureLivePerformance()!.Performers.First();var id=performer.AgentId;
         Invoke(s,"CompleteImmersionSale",id,ImmersionProduct.Beer);
-        var live=s.CaptureLivePerformance()!;typeof(GameSession).GetField("_livePerformance",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,live with { Performers=live.Performers.Select(p=>p.AgentId==id?p with { OnStage=true,InstrumentAttached=true }:p).ToArray() });
+        var live=s.CaptureLivePerformance()!;BuildSession.SetMainLive(s,live with { Performers=live.Performers.Select(p=>p.AgentId==id?p with { OnStage=true,InstrumentAttached=true }:p).ToArray() });
         m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { PendingDose=80,Intoxication=1000 }:p).ToArray() });
         Assert.IsFalse(s.ImmersionHandsAvailable(id));for(var i=0;i<80;i++)Invoke(s,"AdvanceImmersion");
         var after=s.CaptureImmersion()!.People.Single(p=>p.AgentId==id);Assert.AreEqual(0,after.Held!.ConsumedTicks);Assert.AreEqual(0,after.PendingDose);Assert.AreEqual(1070,after.Intoxication);

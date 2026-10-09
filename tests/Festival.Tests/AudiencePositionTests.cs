@@ -27,7 +27,7 @@ public sealed class AudiencePositionTests
         Assert.AreEqual(session.CaptureSnapshot().AuthoritativeHash, result.Session!.CaptureSnapshot().AuthoritativeHash);
         return result.Session;
     }
-    private static void Live(GameSession session, LivePerformanceSnapshot live) => typeof(GameSession).GetField("_livePerformance", Hidden)!.SetValue(session, live);
+    private static void Live(GameSession session, LivePerformanceSnapshot live) => BuildSession.SetMainLive(session, live);
     private static void Route(GameSession session, ulong id, GridCell cell, string intent) => typeof(GameSession).GetMethod("ApplyAgentDestination", Hidden)!.Invoke(session,
         [new EntityId(id), new SetAgentDestinationCommand(cell, intent), false]);
     // Labelled initial geometry only. Every subsequent displacement uses the shared walker.
@@ -62,7 +62,7 @@ public sealed class AudiencePositionTests
         Place(session,live.Listeners[2].AgentId,new(103,151));
         var centre=new GridCell(106,150);var side=new GridCell(103,164);
         int Score(GridCell cell)=>(int)typeof(GameSession).GetMethod("PlaceScore",Hidden)!.Invoke(session,
-            [Listener(session,id),cell,new GridCell(105,157),session.CaptureLivePerformance()!.Listeners])!;
+            [FestivalStages.Main,Listener(session,id),cell,new GridCell(105,157),session.CaptureLivePerformance()!.Listeners])!;
         var clearCenter=Score(centre);var clearSide=Score(side);
         Assert.IsTrue(clearCenter<clearSide,$"Behind-front central {clearCenter} versus extreme side {clearSide}");
         GridCell[] addedCrowd=[new(106,148),new(106,152),new(108,150),new(104,150)];

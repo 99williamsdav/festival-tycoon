@@ -327,7 +327,7 @@ public sealed partial class GameSession
 
     private GridCell MusicReturnCell(ulong id, GridCell here) =>
         StaffAssignedPost(id) ??
-        _livePerformance?.Listeners.FirstOrDefault(item => item.AgentId == id)?.Place ??
+        LiveListenerOf(id)?.Place ??
         IdlePlace(Array.FindIndex(PeopleIn(PersonView.Roster), item => item.Id == id));
 
     private int LightWaterTicks(ulong id, WaterPointState point, GridCell here, bool fresh = false)
@@ -384,24 +384,38 @@ public sealed partial class GameSession
             return values;
         }
         var started = _preparation!.StartedTick;
-        var q = _programme;
-        var ownSlot = q?.Performers.FirstOrDefault(item => item.AgentId == id)?.SlotIndex ?? -1;
-        var slotAppeal = new int[FestivalSlotStarts.Length];
-        for (var slot = 0; slot < slotAppeal.Length; slot++)
-            slotAppeal[slot] = q is { ActIds.Length: 3 }
-                ? 2_500 + FestivalAffinity(id, FestivalActs.Single(act => act.Id == q.ActIds[slot])) * 50 + FestivalActs.Single(act => act.Id == q.ActIds[slot]).Popularity * 10
-                : 2_500;
+        var stages = FestivalStages.All;
+        // A band member is only called to their own stage.
+        var ownStage = PerformerStage(id);
+        var ownSlot = ownStage >= 0 ? StageProgramme(ownStage)!.Performers.First(item => item.AgentId == id).SlotIndex : -1;
+        var slotAppeal = new int[stages.Count][];
+        for (var stage = 0; stage < stages.Count; stage++)
+        {
+            var q = StageProgramme(stage);
+            slotAppeal[stage] = new int[stages[stage].SlotCount];
+            for (var slot = 0; slot < slotAppeal[stage].Length; slot++)
+                slotAppeal[stage][slot] = q is not null && q.ActIds.Length == stages[stage].SlotCount
+                    ? 2_500 + FestivalAffinity(id, FestivalActs.Single(act => act.Id == q.ActIds[slot])) * 50 + FestivalActs.Single(act => act.Id == q.ActIds[slot]).Popularity * 10
+                    : 2_500;
+        }
         for (var sample = 0; sample < values.Length; sample++)
         {
             var tick = CurrentTick + (sample + 1L) * ActivityChooser.SampleTicks;
             var appeal = 2_500;
-            for (var slot = 0; slot < FestivalSlotStarts.Length; slot++)
+            // Stages in catalogue order; a later one's set overrides an earlier one's, as a later slot does.
+            for (var stage = 0; stage < stages.Count; stage++)
             {
-                var start = started + FestivalSlotStarts[slot];
-                var end = q?.CurrentSlot == slot && _livePerformance?.Stage is LiveSetStage.Live or LiveSetStage.Interrupted ? Math.Max(q.SlotEndTick, started + FestivalSlotEnds[slot]) : started + FestivalSlotEnds[slot];
-                var finished = q is { } programme && (slot < programme.CurrentSlot || slot == programme.CurrentSlot && _livePerformance?.Stage == LiveSetStage.Finished);
-                if (!finished && tick >= start && tick < end) appeal = slotAppeal[slot];
-                if (slot == ownSlot && !finished && tick >= start - PerformerCallLeadTicks && tick < end) appeal = (int)(OnStageDutyPerSecond * 1_000L / MusicValuePermille);
+                var def = stages[stage];
+                var q = StageProgramme(stage);
+                var live = _livePerformances[stage];
+                for (var slot = 0; slot < def.SlotCount; slot++)
+                {
+                    var start = started + def.SlotStarts[slot];
+                    var end = q?.CurrentSlot == slot && live?.Stage is LiveSetStage.Live or LiveSetStage.Interrupted ? Math.Max(q.SlotEndTick, started + def.SlotEnds[slot]) : started + def.SlotEnds[slot];
+                    var finished = q is { } programme && (slot < programme.CurrentSlot || slot == programme.CurrentSlot && live?.Stage == LiveSetStage.Finished);
+                    if (!finished && tick >= start && tick < end) appeal = slotAppeal[stage][slot];
+                    if (stage == ownStage && slot == ownSlot && !finished && tick >= start - PerformerCallLeadTicks && tick < end) appeal = (int)(OnStageDutyPerSecond * 1_000L / MusicValuePermille);
+                }
             }
             values[sample] = appeal * MusicValuePermille / 1_000;
         }

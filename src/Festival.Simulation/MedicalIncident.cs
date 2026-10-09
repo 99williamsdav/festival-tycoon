@@ -595,11 +595,12 @@ public sealed partial class GameSession
             ApplyAgentDestination(new(id), new(duty, "staff.return-to-post"));
             return;
         }
-        var place = _livePerformance?.Listeners.SingleOrDefault(item => item.AgentId == id)?.Place;
+        var place = LiveListenerOf(id)?.Place;
         if (place is { } cell) ApplyAgentDestination(new(id), new(cell, "performance.listen"));
-        else if (_livePerformance?.Performers.SingleOrDefault(item => item.AgentId == id) is { } performer &&
+        else if (LivePerformerStage(id) is var stage and >= 0 && _livePerformances[stage] is { } live &&
+                 live.Performers.Single(item => item.AgentId == id) is { } performer &&
                  (IsCurrentProgrammePerformer(id)) &&
-                 _livePerformance.Stage is LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted)
+                 live.Stage is LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted)
             ApplyAgentDestination(new(id), new(performer.AccessCell, "medical.return-to-stage-access"));
         else
         {
@@ -610,15 +611,14 @@ public sealed partial class GameSession
 
     private void MedicalRelinquishPerformerStage(ulong id)
     {
-        if (_livePerformance is not { } live) return;
+        if (LivePerformerStage(id) is not (var stage and >= 0) || _livePerformances[stage] is not { } live) return;
         var index = Array.FindIndex(live.Performers, item => item.AgentId == id);
-        if (index < 0) return;
         var performers = live.Performers.ToArray();
         performers[index] = performers[index] with
         { AccessReached = false, StairReached = false, OnStage = false, InstrumentAttached = false };
-        _livePerformance = live with { Performers = performers };
+        _livePerformances[stage] = live with { Performers = performers };
         if (live.Stage == LiveSetStage.Live)
-            _livePerformance = _livePerformance with { Stage = LiveSetStage.Interrupted, InterruptedTick = CurrentTick,
+            _livePerformances[stage] = _livePerformances[stage]! with { Stage = LiveSetStage.Interrupted, InterruptedTick = CurrentTick,
                 LastReaction = "performer-unavailable", ReactionSequence = live.ReactionSequence + 1 };
     }
 

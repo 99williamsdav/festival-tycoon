@@ -58,7 +58,7 @@ public sealed partial class GameSession
                 if(LooseQueueGeometry.Corridor([previous,cell]).Any(part=>!QueueGroundAllowed(part,prep)))return false;
                 if (Math.Abs(dx)>3 || Math.Abs(dz)>3 || Math.Max(Math.Abs(dx),Math.Abs(dz))<2 ||
                     dx * forward.X + dz * forward.Z < 0 ||
-                    Backstage.StageReserve(cell) || Backstage.Area(cell)) return false;
+                    FestivalStages.InAnyReserve(cell) || Backstage.Area(cell)) return false;
                 if (index > 1)
                 {
                     var before = point.QueueCells[index - 2];

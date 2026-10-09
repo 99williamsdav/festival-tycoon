@@ -105,7 +105,7 @@ public sealed partial class GameSession
         if (claims.HasFlag(PersonClaim.Fighting) &&
             (PersonIn(PersonView.Disorder, id)?.ConductStage == DisorderStage.Fight || IsFightOpponent(id))) return true;
         if (claims.HasFlag(PersonClaim.Performing) &&
-            _livePerformance?.Performers.Any(performer => performer.AgentId == id && (performer.OnStage || performer.InstrumentAttached ||
+            LivePerformerStage(id) is var stage and >= 0 && _livePerformances[stage]?.Performers.Any(performer => performer.AgentId == id && (performer.OnStage || performer.InstrumentAttached ||
                 // Still on the way off: across the deck and down the band stairs, before anything else can call them away.
                 _navigationAgents.TryGetValue(new(id), out var exit) && exit.IntentId is "performance.stage-exit-stair" or "performance.stage-exit-access" &&
                 // A blocked way down lets go, so a stranded performer can still be called off by anything else.

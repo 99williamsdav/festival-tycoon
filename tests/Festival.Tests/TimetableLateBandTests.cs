@@ -168,8 +168,7 @@ public sealed class TimetableLateBandTests
         var restored = Restored(session);
         Assert.IsFalse(restored.BandDelayRemarkEligible, "Save/resume preserves the physical progress checkpoint.");
         var stalled = moving with { LastStageProgressTick = session.CurrentTick - GameSession.BandStageProgressWindowTicks - 1 };
-        typeof(GameSession).GetField("_livePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!
-            .SetValue(restored, restored.CaptureLivePerformance()! with { Performers = restored.CaptureLivePerformance()!.Performers.Select(item =>
+        BuildSession.SetMainLive(restored, restored.CaptureLivePerformance()! with { Performers = restored.CaptureLivePerformance()!.Performers.Select(item =>
                 item.AgentId == stalled.AgentId ? stalled : item).ToArray() });
         Assert.IsTrue(restored.BandDelayRemarkEligible, "A stale route intent cannot silence a persistent stall.");
         Restored(restored);

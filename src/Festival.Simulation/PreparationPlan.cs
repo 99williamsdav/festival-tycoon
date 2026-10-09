@@ -60,7 +60,7 @@ public sealed partial class GameSession
             foreach (var id in plan.OfferIds.Concat(plan.ActIds)) ApplyPreparationOffer(new(id));
             var buildCost = BuildDraftCost;
             if (buildCost > 0) _festivalFinances[new(_preparation!.FinanceOwnerId)].CashPennies -= buildCost;
-            _programme = _programme! with { ActIds = plan.ActIds.ToArray(), Status = "Programme booked" };
+            SetStageProgramme(0, MainProgramme! with { ActIds = plan.ActIds.ToArray(), Status = "Programme booked" });
             SynchronizeImmersionPeople();
             var cost = PlannedStockCost(plan);
             var pitchFee = PlannedPitchFeePennies;
@@ -110,7 +110,7 @@ public sealed partial class GameSession
             !plan.Committed && plan.OfferIds.Any(id => id.StartsWith("equipment.")) && p.OwnedEquipment.Length > 0)
             return "Preparation plan offers or slots invalid.";
         if (!plan.Committed && (p.AcceptedOffers.Length != 0 || p.WorkContracts.Length != 0 || p.Rentals.Length != 0 || s.Immersion.StockPurchased ||
-            s.Programme.ActIds.Length != 0 || p.Payments.Any(payment => payment.Attempt == p.Attempt) || s.Equipment?.WorkerId is not null))
+            s.Programme.Stages.Any(q => q.ActIds.Length != 0) || p.Payments.Any(payment => payment.Attempt == p.Attempt) || s.Equipment?.WorkerId is not null))
             return "Unpaid preparation plan contains active purchases.";
         if (plan.Committed && !p.AcceptedOffers.SequenceEqual(plan.OfferIds.Concat(plan.ActIds).Order(StringComparer.Ordinal)))
             return "Opening payment and committed plan disagree.";

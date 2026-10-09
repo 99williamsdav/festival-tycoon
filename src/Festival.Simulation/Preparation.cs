@@ -155,7 +155,7 @@ public sealed partial class GameSession
                 p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.StewardPost), "Place a steward post before opening."));
         }
         requirements.Add(new("programme", PreparationStartOwner.Programme,
-            "Three acts booked", (p.Plan?.ActIds ?? _programme!.ActIds).Count(id => id != "") == 3,
+            "Three acts booked", (p.Plan?.ActIds ?? MainProgramme!.ActIds).Count(id => id != "") == 3,
             "Choose three different acts before opening. Each selection saves immediately."));
         var hires = p.Plan?.OfferIds ?? p.WorkContracts;
         requirements.Add(new("staff", PreparationStartOwner.Staff, "Sound engineer hired",
@@ -272,7 +272,7 @@ public sealed partial class GameSession
         // backstage -> stair -> deck marks; guests cannot cut through the trailer as if it were bare grass.
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
-            foreach (var (cell, walkable) in Backstage.TrailerCells()) terrain[cell] = new(cell, GroundSurface.Grass, walkable);
+            foreach (var (cell, walkable) in FestivalStages.All.SelectMany(stage => stage.Cells())) terrain[cell] = new(cell, GroundSurface.Grass, walkable);
             _traversalGrid = new TraversalGrid(terrain.Values);
         }
         if (_medical is not null)
@@ -340,7 +340,7 @@ public sealed partial class GameSession
         var ordinal = roster.Take(index).Count(person => person.Role == roster[index].Role);
         return roster[index].Role switch
         {
-            ProtectedPersonRole.Performer => Backstage.LaneStart(ordinal),
+            ProtectedPersonRole.Performer => BandStage(roster[index].Id).ArrivalStart(ordinal),
             ProtectedPersonRole.Staff => Backstage.DoorStart(ordinal),
             _ => new(122 + index % 6 * 2, 190 + index / 6 * 2),
         };
@@ -353,7 +353,7 @@ public sealed partial class GameSession
     {
         var roster = PeopleIn(PersonView.Roster);
         return roster[index].Role == ProtectedPersonRole.Performer
-            ? Backstage.Place(roster.Take(index).Count(person => person.Role == ProtectedPersonRole.Performer)) : PreparedPlace(index);
+            ? BandStage(roster[index].Id).BackstagePlace(roster.Take(index).Count(person => person.Role == ProtectedPersonRole.Performer)) : PreparedPlace(index);
     }
 
     private void AdvancePreparation()
@@ -404,7 +404,7 @@ public sealed partial class GameSession
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;
         _ownedStocks[new(p.StockId)].Quantity = 40;
         _navigationAgents.Clear();
-        _livePerformance = null;
+        Array.Clear(_livePerformances);
         _programme = baseline._programme;
         if (_immersion is not null)
         {

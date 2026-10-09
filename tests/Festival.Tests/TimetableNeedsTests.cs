@@ -126,11 +126,10 @@ public sealed class TimetableNeedsTests
         Assert.IsTrue(session.CaptureDisorder()!.People.All(person => person.Grievance != DisorderGrievance.MusicCutoff));
         session.AdvanceWithoutSnapshot(896); // Keep the isolated eligibility call on its eight-tick decision cadence.
         // Isolate eligibility from physical timing: existing listener positions are not moved.
-        var liveField = typeof(GameSession).GetField("_livePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var live = session.CaptureLivePerformance()!;
         var equipmentField = typeof(GameSession).GetField("_equipment", BindingFlags.Instance | BindingFlags.NonPublic)!;
         var equipment = session.CaptureEquipment()!;
-        liveField.SetValue(session, live with { Stage = LiveSetStage.Interrupted,
+        BuildSession.SetMainLive(session, live with { Stage = LiveSetStage.Interrupted,
             Listeners = live.Listeners.Select(listener => listener with { Enthusiasm = 100, AtPlace = true }).ToArray() });
         equipmentField.SetValue(session, equipment with { Stage = EquipmentStage.Isolated });
         typeof(GameSession).GetMethod("AdvanceDisorder", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(session, null);

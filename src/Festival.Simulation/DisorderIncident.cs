@@ -120,7 +120,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Water closure state is unchanged.");
         if (command.Action == DisorderAction.RestoreMusic &&
             (_equipment is not { Stage: EquipmentStage.Isolated } e || e.Version != 3 && e.LoadPercent != 0 || e.Condition < 7_000 ||
-             _livePerformance?.Stage != LiveSetStage.Interrupted))
+             !_livePerformances.Any(live => live?.Stage == LiveSetStage.Interrupted)))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter,
                 "Safe reset needs an isolated, non-faulted generator and interrupted set; unresolved overload stays off.");
         return null;
@@ -271,15 +271,18 @@ public sealed partial class GameSession
             // Hangry: a hungry person runs out of patience sooner, whatever's annoying them.
             var hangry = IsGuest(person.Id) && need.Hunger >= DisorderHangryHunger;
             var tolerance = person.QueueToleranceTicks * patiencePercent / 100 * (hangry ? DisorderHangryPatiencePercent : 100) / 100;
-            var listener = _livePerformance?.Listeners.SingleOrDefault(item => item.AgentId == person.Id);
+            // A guest minds a cut-off at the stage they're watching.
+            var watchedStage = LiveListenerStage(person.Id);
+            var watched = watchedStage < 0 ? null : _livePerformances[watchedStage];
+            var listener = watched?.Listeners.SingleOrDefault(item => item.AgentId == person.Id);
             var lateAct = LateReadyFestivalAct;
             var lateEnthusiasm = lateAct is null ? 0 : FestivalAffinity(person.Id, lateAct);
             var waitingForBand = BandDelayRemarkEligible && listener is { AtPlace: true } && lateEnthusiasm >= 35 &&
                 need.Intent == MedicalIntent.WatchShow && need.HealthStage is MedicalStage.Clear or MedicalStage.Treated &&
                 need.Thirst < MedicalDistressThirst && need.HeatExposure < MedicalDistressHeat &&
                 !InterventionOwnsTarget(person.Id) && !InterventionOwnsWorker(person.Id);
-            var grievance = _livePerformance?.Stage == LiveSetStage.Interrupted && !ScheduledSilence &&
-                (CurrentTick >= _livePerformance.PlannedTick && CurrentTick < _programme!.SlotEndTick &&
+            var grievance = watched?.Stage == LiveSetStage.Interrupted && !ScheduledSilence &&
+                (CurrentTick >= watched.PlannedTick && CurrentTick < StageProgramme(watchedStage)!.SlotEndTick &&
                     !StagePowered) &&
                 listener is { AtPlace: true, Enthusiasm: >= 65 }
                 ? DisorderGrievance.MusicCutoff
@@ -619,8 +622,8 @@ public sealed partial class GameSession
                 item.QueueToleranceTicks is < 320 or > 1_120 || item.Pressure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Grievance) || !Enum.IsDefined(item.Stage) ||
                 item.Grievance == DisorderGrievance.BandDelayed && (s.Programme is null || item.GrievanceTick < 0 ||
-                    !FestivalSlotStarts.Where((start, index) => item.GrievanceTick >= p.StartedTick + start &&
-                        item.GrievanceTick < p.StartedTick + FestivalSlotEnds[index]).Any()) ||
+                    !FestivalStages.All.Any(stage => stage.SlotStarts.Where((start, index) => item.GrievanceTick >= p.StartedTick + start &&
+                        item.GrievanceTick < p.StartedTick + stage.SlotEnds[index]).Any())) ||
                 item.GrievanceTick > s.CurrentTick || item.StageTick > s.CurrentTick ||
                 item.QueueJoinedTick > s.CurrentTick || item.InjuryTick > s.CurrentTick ||
                 item.OpponentId is { } opponent && !p.People.Any(person => person.AgentId == opponent) ||

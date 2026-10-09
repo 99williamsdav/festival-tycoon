@@ -54,7 +54,7 @@ public sealed partial class GameSession
         var live = _preparation?.Status is PreparationStatus.Running or PreparationStatus.Departing or PreparationStatus.Failed or PreparationStatus.Finished;
         // A rig draws its full power only while a set is playing; before opening, the plan shows that peak.
         var stage = !StagePowered ? 0 :
-            !live || _livePerformance?.Stage == LiveSetStage.Live ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
+            !live || _livePerformances.Any(set => set?.Stage == LiveSetStage.Live) ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
         int Stall(string id, bool powered) => _immersion is not null && Vendors.Any(v => v.Id == id) && (!live || powered) ? PowerRules.StallDraw : 0;
         var lightsOn = !live || _preparation!.StartedTick >= 0 && CurrentTick >= _preparation.StartedTick + PowerRules.LightsOnTick;
         return new(stage, Stall("drinks", e?.BarPowered ?? true), Stall("food", e?.FoodPowered ?? true),

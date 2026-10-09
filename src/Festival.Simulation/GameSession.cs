@@ -451,11 +451,11 @@ public sealed partial class GameSession
             CampaignPlanning = CapturePersistedCampaignPlanning(),
             Lifecycle = CapturePersistedLifecycle(),
             Preparation = CapturePreparation(),
-            Programme = CaptureProgramme(),
+            Programme = CaptureProgrammes(),
             Perks = CapturePerks(),
             Immersion = CaptureImmersion(),
             Equipment = CaptureEquipment(),
-            LivePerformance = CaptureLivePerformance(),
+            LivePerformances = CapturePersistedLivePerformances(),
             Medical = CaptureMedical(),
             Facilities = CaptureFacilities(),
             Disorder = CaptureDisorder(),
@@ -522,8 +522,9 @@ public sealed partial class GameSession
         session.ImmersionView = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));
         session.PreparationView = snapshot.Preparation is null ? null : System.Text.Json.JsonSerializer.Deserialize<PreparationSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Preparation));
-        session._livePerformance = snapshot.LivePerformance is null ? null : System.Text.Json.JsonSerializer.Deserialize<LivePerformanceSnapshot>(
-            System.Text.Json.JsonSerializer.Serialize(snapshot.LivePerformance));
+        for (var stage = 0; stage < (snapshot.LivePerformances?.Length ?? 0); stage++)
+            session._livePerformances[stage] = System.Text.Json.JsonSerializer.Deserialize<LivePerformanceSnapshot>(
+                System.Text.Json.JsonSerializer.Serialize(snapshot.LivePerformances![stage]));
         session.MedicalView = snapshot.Medical is null ? null : System.Text.Json.JsonSerializer.Deserialize<MedicalSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Medical));
         session._facilities = snapshot.Facilities is null ? null : System.Text.Json.JsonSerializer.Deserialize<FacilitiesSnapshot>(
@@ -596,7 +597,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (perkError is not null) return perkError;
         var equipmentError = ValidatePersistedEquipment(snapshot.Equipment, snapshot);
         if (equipmentError is not null) return equipmentError;
-        var livePerformanceError = ValidatePersistedLivePerformance(snapshot.LivePerformance, snapshot);
+        var livePerformanceError = ValidatePersistedLivePerformances(snapshot);
         if (livePerformanceError is not null) return livePerformanceError;
         var immersionError = ValidatePersistedImmersion(snapshot);
         if (immersionError is not null) return immersionError;

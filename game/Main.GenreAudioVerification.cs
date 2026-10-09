@@ -36,7 +36,7 @@ public partial class Main
             foreach (var role in _session.GetStaffCandidates().GroupBy(c => c.Role))
                 Send(new AcceptPreparationOfferCommand(role.OrderBy(c => c.Traits.Length).ThenBy(c => c.Grade > 0).First().Id));
             Send(new StartPreparedEditionCommand());
-            var programme = _session.CaptureProgramme()!; var preparation = _session.CapturePreparation()!;
+            var programmes = _session.CaptureProgrammes()!; var programme = programmes.Stages[0]; var preparation = _session.CapturePreparation()!;
             var live = _session.CaptureLivePerformance()! with { Stage = LiveSetStage.Live,
                 Performers = [], Listeners = [], LastReaction = "none" };
             Audio.EnsureStage(); Audio.ToggleMute(); // Test actual playback clocks without audible fixture music.
@@ -56,7 +56,7 @@ public partial class Main
                 else
                 {
                     var act = ActCatalogue.All.First(a => a.Genre == route);
-                    Stage("_programme", programme with { ActIds = [act.Id, programme.ActIds[1], programme.ActIds[2]], CurrentSlot = 0 });
+                    Stage("_programme", programmes with { Stages = [programme with { ActIds = [act.Id, programme.ActIds[1], programme.ActIds[2]], CurrentSlot = 0 }, .. programmes.Stages.Skip(1)] });
                 }
                 Audio.Reset(_session); SyncPresentationPause();
                 Audio.AdvanceStage(_session, live, 100, Vector3.Zero, 0);

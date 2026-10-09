@@ -15,18 +15,20 @@ public sealed partial class GameSession
         1500 * act.Ego * (200 - act.Professionalism) / 20000;
     private int AdmissionLineupAdjustment(Person person)
     {
-        if (_programme is not { ActIds.Length: 3 } programme) return 0;
+        // Guests weigh the whole line-up, across every stage; a band member only their own set.
+        if (BookedActIds(_programme) is not { } lineup) return 0;
         if (person.Role == ProtectedPersonRole.Guest)
-            return GuestLineupAdjustment(programme.ActIds.Sum(id => FestivalAffinity(person.Id, FestivalActs.Single(a => a.Id == id)))) +
-                ExpectationAdjustment((int)Math.Round(programme.ActIds.Average(id => FestivalActs.Single(a => a.Id == id).Popularity)), ExpectedPopularity);
+            return GuestLineupAdjustment(lineup.Sum(id => FestivalAffinity(person.Id, FestivalActs.Single(a => a.Id == id)))) +
+                ExpectationAdjustment((int)Math.Round(lineup.Average(id => FestivalActs.Single(a => a.Id == id).Popularity)), ExpectedPopularity);
         if (person.Role != ProtectedPersonRole.Performer) return 0;
+        var programme = StageProgramme(PerformerStage(person.Id))!;
         var mapping = programme.Performers.Single(p => p.AgentId == person.Id);
         return -PerformerLineupPenalty(FestivalActs.Single(a => a.Id == programme.ActIds[mapping.SlotIndex]), mapping.SlotIndex);
     }
     // Shared presentation resolver: stable IDs and source slots, never a mutable node or paid preview.
     public LineupEditResult PreviewLineupEdit(string actId, int sourceSlot, int targetSlot, bool remove = false)
     {
-        var p = _preparation; var q = _programme;
+        var p = _preparation; var q = MainProgramme;
         var ids = (p?.Plan?.ActIds ?? q?.ActIds ?? []).Length == 3 ? (p?.Plan?.ActIds ?? q!.ActIds).ToArray() : new[] { "", "", "" };
         LineupEditResult Invalid(string reason) => new(false, false, reason, ids);
         if (p?.Status != PreparationStatus.Preparing || q is null) return Invalid("Programme locked after Start.");

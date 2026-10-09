@@ -179,7 +179,7 @@ public sealed partial class GameSession
         // The stage, its stairs and drawbar, and backstage behind the barriers.
         for (var x = 66; x <= 101; x++)
             for (var z = 112; z <= 164; z++)
-                if (Backstage.StageReserve(new(x, z)) || Backstage.Area(new(x, z))) reserved.Add(new(x, z));
+                if (FestivalStages.InAnyReserve(new(x, z)) || Backstage.Area(new(x, z))) reserved.Add(new(x, z));
         // The rest area out in front of first aid stays clear.
         var restCentre = RestCentre(placements);
         var restArea = new HashSet<GridCell>();
@@ -290,7 +290,7 @@ public sealed partial class GameSession
             for (var x = lower.X; x <= upper.X; x++)
                 for (var z = lower.Z; z <= upper.Z; z++) Block(new(x, z));
         }
-        foreach (var (cell, walkable) in Backstage.TrailerCells()) blocked[cell] = new(cell, GroundSurface.Grass, walkable);
+        foreach (var (cell, walkable) in FestivalStages.All.SelectMany(stage => stage.Cells())) blocked[cell] = new(cell, GroundSurface.Grass, walkable);
         var grid = new TraversalGrid(blocked.Values);
         var destinations = new List<GridCell> { RestCentre(placements) };
         foreach (var item in placements)

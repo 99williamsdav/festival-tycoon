@@ -15,7 +15,8 @@ public sealed record LivePerformer(ulong AgentId, GridCell StageCell, GridCell A
 }
 public sealed record LiveListener(ulong AgentId, GridCell? Place, int Enthusiasm, int ListenedTicks, int EnjoymentEarned, bool AtPlace,
     long LastDecisionTick = -800);
-public sealed record LivePerformanceSnapshot(int Version, LiveSetStage Stage, long PlannedTick, long StartedTick,
+/// <summary>One stage's set now: its band on the way up or playing, and the crowd watching it.</summary>
+public sealed record LivePerformanceSnapshot(int Version, string StageId, LiveSetStage Stage, long PlannedTick, long StartedTick,
     long EndedTick, long InterruptedTick, int ReactionSequence, string LastReaction, LivePerformer[] Performers,
     LiveListener[] Listeners)
 {
@@ -30,35 +31,63 @@ public sealed partial class GameSession
     public const int LiveSetArrivalDelayTicks = 2_400;
     public const int LiveSetStageEntryLeadTicks = 640;
     public const int SustainedBooDelayTicks = 320;
-    private LivePerformanceSnapshot? _livePerformance;
-    public LivePerformanceSnapshot? CaptureLivePerformance() => _livePerformance is null ? null : _livePerformance with
-    { Performers = _livePerformance.Performers.ToArray(), Listeners = _livePerformance.Listeners.ToArray(), SetEndAudienceIds = _livePerformance.SetEndAudienceIds.ToArray() };
-    internal string? LivePerformanceCanonicalJson => _livePerformance is null ? null : System.Text.Json.JsonSerializer.Serialize(_livePerformance);
-    public bool LivePerformanceBoundaryOnNextTick => !IsPaused && _livePerformance is { } live &&
+    // Version 3 names its stage.
+    public const int LivePerformanceVersion = 3;
+    // One live set per stage, in the stage catalogue's order; empty until the festival opens.
+    private readonly LivePerformanceSnapshot?[] _livePerformances = new LivePerformanceSnapshot?[FestivalStages.All.Count];
+    /// <summary>The main stage's set, which the stage panel, audio and band presentation follow.</summary>
+    public LivePerformanceSnapshot? CaptureLivePerformance() => CaptureLivePerformance(FestivalStages.MainId);
+    public LivePerformanceSnapshot? CaptureLivePerformance(string stageId) =>
+        FestivalStages.IndexOf(stageId) is var stage and >= 0 && _livePerformances[stage] is { } live ? CopyOf(live) : null;
+    /// <summary>Every stage's set, in stage order.</summary>
+    public IReadOnlyList<LivePerformanceSnapshot> CaptureLivePerformances() => _livePerformances.OfType<LivePerformanceSnapshot>().Select(CopyOf).ToArray();
+    private static LivePerformanceSnapshot CopyOf(LivePerformanceSnapshot live) => live with
+    { Performers = live.Performers.ToArray(), Listeners = live.Listeners.ToArray(), SetEndAudienceIds = live.SetEndAudienceIds.ToArray() };
+    // Saved only once every stage has a set, so a save holds all of them or none.
+    private LivePerformanceSnapshot[]? CapturePersistedLivePerformances() =>
+        _livePerformances.All(live => live is not null) ? _livePerformances.Select(live => CopyOf(live!)).ToArray() : null;
+    internal IEnumerable<(string StageId, string Json)> LivePerformanceCanonicalJson()
+    {
+        foreach (var live in _livePerformances)
+            if (live is not null) yield return (live.StageId, JsonSerializer.Serialize(live));
+    }
+    public bool LivePerformanceBoundaryOnNextTick
+    {
+        get
+        {
+            if (IsPaused) return false;
+            for (var stage = 0; stage < _livePerformances.Length; stage++)
+                if (LiveBoundaryOnNextTick(stage)) return true;
+            return false;
+        }
+    }
+    private bool LiveBoundaryOnNextTick(int stage) => _livePerformances[stage] is { } live &&
         (live.Stage == LiveSetStage.BeforeSet && CurrentTick + 1 >= live.PlannedTick && live.Performers.All(item => item.OnStage) ||
-         live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted && CurrentTick + 1 >= _programme!.SlotEndTick ||
-         _programme is { CurrentSlot: < 2 } q && live.Stage == LiveSetStage.Finished && _preparation is { } p && CurrentTick + 1 == p.StartedTick + FestivalSlotStarts[q.CurrentSlot + 1] - LiveSetStageEntryLeadTicks);
+         live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted && CurrentTick + 1 >= StageProgramme(stage)!.SlotEndTick ||
+         StageProgramme(stage) is { } q && q.CurrentSlot < FestivalStages.All[stage].SlotCount - 1 && live.Stage == LiveSetStage.Finished && _preparation is { } p &&
+             CurrentTick + 1 == p.StartedTick + FestivalStages.All[stage].SlotStarts[q.CurrentSlot + 1] - LiveSetStageEntryLeadTicks);
 
-    // Backstage at the foot of the trailer's north stairs, then a step on the flight, one column for each player.
-    private static readonly GridCell[] StageAccessCells = [new(93, 137), new(94, 137), new(95, 137)];
-    private static readonly GridCell[] StageStairCells = [new(93, 141), new(94, 141), new(95, 141)];
-
+    /// <summary>Every stage's first set, as the festival opens.</summary>
     private void StartLivePerformance()
     {
+        for (var stage = 0; stage < _livePerformances.Length; stage++) StartStagePerformance(stage);
+    }
+
+    private void StartStagePerformance(int stage)
+    {
         var p = _preparation!;
-        if (_programme is { } programme)
-            _programme = programme with { CurrentSlot = Math.Max(0, programme.CurrentSlot), SlotEndTick = p.StartedTick + FestivalSlotEnds[Math.Max(0, programme.CurrentSlot)], Status = "Performers approaching stage" };
-        GridCell[] positions = [new(96, 150), new(94, 146), new(93, 152)];
-        GridCell[] access = StageAccessCells;
-        GridCell[] stairs = StageStairCells;
-        var performers = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Performer && _programme!.Performers.Any(role => role.AgentId == item.Id && role.SlotIndex == _programme.CurrentSlot)).Select((item, index) =>
-            new LivePerformer(item.Id, positions[index], access[index], stairs[index], false, false, false, false)).ToArray();
+        var def = FestivalStages.All[stage];
+        if (StageProgramme(stage) is { } programme)
+            SetStageProgramme(stage, programme with { CurrentSlot = Math.Max(0, programme.CurrentSlot), SlotEndTick = p.StartedTick + def.SlotEnds[Math.Max(0, programme.CurrentSlot)], Status = "Performers approaching stage" });
+        var q = StageProgramme(stage)!;
+        var performers = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Performer && q.Performers.Any(role => role.AgentId == item.Id && role.SlotIndex == q.CurrentSlot)).Select((item, index) =>
+            new LivePerformer(item.Id, def.PerformerMarks[index], def.AccessCells[index], def.StairCells[index], false, false, false, false)).ToArray();
         foreach (var performer in performers)
-            if (!MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < _programme!.SlotEndTick)
+            if (!MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < q.SlotEndTick)
                 ApplyAgentDestination(new(performer.AgentId), new(performer.AccessCell, "performance.side-entry"));
         var listeners = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Guest).Select(item =>
-            new LiveListener(item.Id, null, FestivalAffinity(item.Id, CurrentFestivalAct!), 0, 0, false)).ToArray();
-        _livePerformance = new(2, LiveSetStage.BeforeSet, p.StartedTick + FestivalSlotStarts[_programme!.CurrentSlot], -1, -1, -1,
+            new LiveListener(item.Id, null, FestivalAffinity(item.Id, StageAct(stage)!), 0, 0, false)).ToArray();
+        _livePerformances[stage] = new(LivePerformanceVersion, def.Id, LiveSetStage.BeforeSet, p.StartedTick + def.SlotStarts[q.CurrentSlot], -1, -1, -1,
             0, "none", performers, listeners);
     }
 
@@ -69,10 +98,20 @@ public sealed partial class GameSession
         !performer.StairReached ? agent.IntentId == "performance.visible-stairs" && agent.Destination == performer.StairCell :
         !performer.OnStage && agent.IntentId == "performance.stage-entry" && agent.Destination == performer.StageCell;
 
+    /// <summary>Each stage's running order and set, one stage after another in catalogue order.</summary>
     private void AdvanceLivePerformance()
     {
-        AdvanceProgramme();
-        if (_livePerformance is not { } live || _preparation is not { Status: PreparationStatus.Running } p) return;
+        for (var stage = 0; stage < _livePerformances.Length; stage++)
+        {
+            AdvanceProgramme(stage);
+            AdvanceStagePerformance(stage);
+        }
+    }
+
+    private void AdvanceStagePerformance(int stage)
+    {
+        if (_livePerformances[stage] is not { } live || _preparation is not { Status: PreparationStatus.Running } p) return;
+        var def = FestivalStages.All[stage];
         var hasPower = StagePowered;
         var periodic = CurrentTick % 80 == 0;
         var stageEntryDue = live.Stage != LiveSetStage.Finished &&
@@ -163,13 +202,13 @@ public sealed partial class GameSession
             var start = _navigationAgents[new(listener.AgentId)];
             var startCell = TraversalGrid.WorldToCell(start.XMillimetres, start.ZMillimetres);
             if (listener.Place is not null && (start.Action != AgentNavigationAction.Arrived || start.Destination != listener.Place)) continue;
-            var currentScore = listener.Place is { } current ? PlaceScore(listener, current, startCell, listeners) : int.MaxValue;
-            var options = ListeningPlaces().Distinct().Where(cell => !reserved.Contains(cell) &&
+            var currentScore = listener.Place is { } current ? PlaceScore(def, listener, current, startCell, listeners) : int.MaxValue;
+            var options = def.ListeningPlaces.Distinct().Where(cell => !reserved.Contains(cell) &&
                 (listener.Place is null || AudienceDistanceSquared(cell, startCell) <= 16) &&
                 _traversalGrid!.Get(cell).IsWalkable &&
                 !NearQueue(cell, queueGround ??= AllQueueGround()))
                 .Where(cell => !PlaceCrowded(cell, listener, departed, occupied))
-                .Select(cell => (Cell: cell, Score: PlaceScore(listener, cell, startCell, listeners)))
+                .Select(cell => (Cell: cell, Score: PlaceScore(def, listener, cell, startCell, listeners)))
                 .Where(item => listener.Place is null || item.Score + 6 <= currentScore)
                 .OrderBy(item => item.Score).ThenBy(item => item.Cell).Take(8);
             foreach (var option in options)
@@ -184,7 +223,8 @@ public sealed partial class GameSession
                     occupied[option.Cell] = occupied.GetValueOrDefault(option.Cell) + 1;
                 }
                 listeners[index] = listener with { Place = option.Cell, AtPlace = false };
-                var local = startCell.X is >= 103 and <= 126 && startCell.Z is >= 131 and <= 169;
+                var near = def.NearGround;
+                var local = startCell.X >= near.MinX && startCell.X <= near.MaxX && startCell.Z >= near.MinZ && startCell.Z <= near.MaxZ;
                 var densityRetreat = local && listener.Place is not null && option.Cell.X > startCell.X &&
                     AudienceDensity(listener, startCell, listeners) > AudienceComfortTolerance(listener);
                 ApplyAgentDestination(new(listener.AgentId), new(option.Cell,
@@ -194,7 +234,8 @@ public sealed partial class GameSession
         }
         Person[]? rewardedPeople = null;
         // How the set is playing, once for every listener this tick.
-        var overall = _equipment?.Version == 3 ? CurrentPerformance?.Overall ?? 50 : 50;
+        var overall = _equipment?.Version == 3 ? StagePerformance(stage)?.Overall ?? 50 : 50;
+        var playing = StageAct(stage);
         for (var i = 0; i < listeners.Length; i++)
         {
             var listener = listeners[i];
@@ -205,7 +246,7 @@ public sealed partial class GameSession
             // or restored power cannot award an entire second at this boundary.
             if (live.Stage == LiveSetStage.Live && hasPower && (performers.All(person => person.OnStage)) && listener.AtPlace && atPlace &&
                 PersonIn(PersonView.Roster, listener.AgentId)?.Departed != true &&
-                CurrentTick > live.StartedTick && CurrentTick <= _programme!.SlotEndTick)
+                CurrentTick > live.StartedTick && CurrentTick <= StageProgramme(stage)!.SlotEndTick)
             {
                 var listenedTicks = listener.ListenedTicks + 1;
                 var earned = listener.EnjoymentEarned;
@@ -221,7 +262,7 @@ public sealed partial class GameSession
                         var rigBonus = p.OwnedEquipment.Length > 0 ? 5 : 0;
                         gain = (basis + rigBonus + SoundMixingBonus()) * quality / 100;
                     }
-                    if (CurrentFestivalAct is { } playing) gain = gain * MusicExpectationPermille(playing.Popularity, ExpectedPopularity) / 1000;
+                    if (playing is not null) gain = gain * MusicExpectationPermille(playing.Popularity, ExpectedPopularity) / 1000;
                     rewardedPeople ??= PeopleIn(PersonView.Roster).ToArray();
                     var personIndex = Array.FindIndex(rewardedPeople, item => item.Id == listener.AgentId);
                     var person = rewardedPeople[personIndex];
@@ -235,38 +276,38 @@ public sealed partial class GameSession
             listeners[i] = listener.AtPlace == atPlace ? listener : listener with { AtPlace = atPlace };
         }
         if (rewardedPeople is not null) foreach (var person in rewardedPeople) SetPresence(person);
-        var stage = live.Stage;
+        var stageState = live.Stage;
         var started = live.StartedTick;
         var ended = live.EndedTick;
         var interrupted = live.InterruptedTick;
         var reaction = live.LastReaction;
         var sequence = live.ReactionSequence;
         var setEndAudienceIds = live.SetEndAudienceIds;
-        if (stage == LiveSetStage.BeforeSet && CurrentTick >= live.PlannedTick && CurrentTick < _programme!.SlotEndTick && performers.All(item => item.OnStage))
+        if (stageState == LiveSetStage.BeforeSet && CurrentTick >= live.PlannedTick && CurrentTick < StageProgramme(stage)!.SlotEndTick && performers.All(item => item.OnStage))
         {
-            stage = LiveSetStage.Live;
+            stageState = LiveSetStage.Live;
             started = CurrentTick;
             reaction = listeners.Count(item => item.AtPlace && item.Enthusiasm >= 65) >= 5 ? "set-start-cheer" : "set-start-muted";
             sequence++;
         }
-        if (stage is LiveSetStage.Live or LiveSetStage.Interrupted)
+        if (stageState is LiveSetStage.Live or LiveSetStage.Interrupted)
         {
             var powered = StagePowered && (performers.All(person => person.OnStage));
-            if (!powered && stage == LiveSetStage.Live)
+            if (!powered && stageState == LiveSetStage.Live)
             {
-                stage = LiveSetStage.Interrupted;
+                stageState = LiveSetStage.Interrupted;
                 interrupted = CurrentTick;
                 reaction = _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? "silence" : "performer-unavailable";
                 sequence++;
             }
-            else if (powered && stage == LiveSetStage.Interrupted)
+            else if (powered && stageState == LiveSetStage.Interrupted)
             {
-                stage = LiveSetStage.Live;
+                stageState = LiveSetStage.Live;
                 interrupted = -1;
                 reaction = "resumed";
                 sequence++;
             }
-            if (stage == LiveSetStage.Interrupted && !StagePowered && CurrentTick - interrupted == SustainedBooDelayTicks)
+            if (stageState == LiveSetStage.Interrupted && !StagePowered && CurrentTick - interrupted == SustainedBooDelayTicks)
             {
                 var disappointed = listeners.Where(item => item.AtPlace).Select(item => item.AgentId).ToHashSet();
                 var people = PeopleIn(PersonView.Roster).Select(item => disappointed.Contains(item.Id) ? item with
@@ -277,82 +318,92 @@ public sealed partial class GameSession
                 reaction = disappointed.Count >= 5 ? "sustained-boo" : "sustained-muted";
                 sequence++;
             }
-            if (CurrentTick >= _programme!.SlotEndTick)
+            if (CurrentTick >= StageProgramme(stage)!.SlotEndTick)
             {
-                var applauseEligible = live.Stage == LiveSetStage.Live && stage == LiveSetStage.Live && powered && started >= 0;
+                var applauseEligible = live.Stage == LiveSetStage.Live && stageState == LiveSetStage.Live && powered && started >= 0;
                 if (applauseEligible)
                     setEndAudienceIds = listeners.Where(listener => listener.AtPlace && listener.ListenedTicks > 0 &&
                         !AudienceNavigationOwned(listener.AgentId)).Select(listener => listener.AgentId).ToArray();
-                stage = LiveSetStage.Finished;
+                stageState = LiveSetStage.Finished;
                 ended = CurrentTick;
                 reaction = setEndAudienceIds.Length > 0 ? "set-finished-applause" : applauseEligible ? "set-finished-muted" : "set-finished-interrupted";
                 sequence++;
             }
         }
-        if (_programme is { } programme && CurrentTick >= programme.SlotEndTick && stage == LiveSetStage.BeforeSet)
+        if (StageProgramme(stage) is { } programme && CurrentTick >= programme.SlotEndTick && stageState == LiveSetStage.BeforeSet)
         {
-            stage = LiveSetStage.Finished;
+            stageState = LiveSetStage.Finished;
             ended = programme.SlotEndTick;
             reaction = "slot-missed-not-ready";
             sequence++;
         }
-        performers = performers.Select(item => stage == LiveSetStage.Finished
+        performers = performers.Select(item => stageState == LiveSetStage.Finished
             ? item with { OnStage = false, InstrumentAttached = false }
             : item with { InstrumentAttached = item.OnStage }).ToArray();
-        _livePerformance = live with { Stage = stage, StartedTick = started, EndedTick = ended,
+        _livePerformances[stage] = live with { Stage = stageState, StartedTick = started, EndedTick = ended,
             InterruptedTick = interrupted, ReactionSequence = sequence, LastReaction = reaction,
             Performers = performers, Listeners = listeners, SetEndAudienceIds = setEndAudienceIds };
         // An act that played is known from then on: its talent shows in the booking table.
-        if (stage == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished && started >= 0 && CurrentFestivalAct is { } played &&
+        if (stageState == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished && started >= 0 && StageAct(stage) is { } played &&
             _preparation is { } seen && !seen.SeenActs.Contains(played.Id))
             _preparation = seen with { SeenActs = seen.SeenActs.Append(played.Id).Order(StringComparer.Ordinal).ToArray() };
         // A high-ego act takes a poor sound system personally.
-        if (stage == LiveSetStage.Live && CurrentTick % 80 == 0 && CurrentFestivalAct is { Ego: >= 70 } proud && SoundScore < 40)
+        if (stageState == LiveSetStage.Live && CurrentTick % 80 == 0 && StageAct(stage) is { Ego: >= 70 } && SoundScore < 40)
             foreach (var performer in performers.Where(item => item.OnStage))
                 MutatePerson(performer.AgentId, person => person.Satisfaction = Math.Max(0, person.Satisfaction - 2));
-        if (stage == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished)
+        if (stageState == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished)
             foreach (var performer in performers)
             {
                 if (MedicalOwnsNavigation(performer.AgentId)) continue;
-                if (!performer.StairReached && !ProgrammeStageAccessOccupied(_navigationAgents[new(performer.AgentId)])) continue;
+                if (!performer.StairReached && !ProgrammeStageAccessOccupied(def, _navigationAgents[new(performer.AgentId)])) continue;
                 ApplyAgentDestination(new(performer.AgentId), new(performer.StairCell, "performance.stage-exit-stair"));
             }
     }
 
+    /// <summary>Ends every stage's set at once, as a failed or abandoned day does.</summary>
     private void FinishLivePerformance()
     {
-        if (_livePerformance is { } live && live.Stage != LiveSetStage.Finished)
-            _livePerformance = live with { Stage = LiveSetStage.Finished, EndedTick = CurrentTick,
-                Performers = live.Performers.Select(item => item with { OnStage = false, InstrumentAttached = false }).ToArray() };
+        for (var stage = 0; stage < _livePerformances.Length; stage++)
+            if (_livePerformances[stage] is { } live && live.Stage != LiveSetStage.Finished)
+                _livePerformances[stage] = live with { Stage = LiveSetStage.Finished, EndedTick = CurrentTick,
+                    Performers = live.Performers.Select(item => item with { OnStage = false, InstrumentAttached = false }).ToArray() };
     }
 
-    private static readonly (int MinX, int MaxX, int MinZ, int MaxZ) AudienceBounds =
-        (ListeningPlaces().Min(c => c.X), ListeningPlaces().Max(c => c.X), ListeningPlaces().Min(c => c.Z), ListeningPlaces().Max(c => c.Z));
+    /// <summary>The stage whose current band this person is in; -1 for none.</summary>
+    private int LivePerformerStage(ulong id)
+    {
+        for (var stage = 0; stage < _livePerformances.Length; stage++)
+            if (_livePerformances[stage]?.Performers.Any(item => item.AgentId == id) == true) return stage;
+        return -1;
+    }
+
+    /// <summary>The first stage, in catalogue order, with this guest in its crowd; -1 for none.</summary>
+    private int LiveListenerStage(ulong id)
+    {
+        for (var stage = 0; stage < _livePerformances.Length; stage++)
+            if (_livePerformances[stage]?.Listeners.Any(item => item.AgentId == id) == true) return stage;
+        return -1;
+    }
+
+    /// <summary>A guest's listening record at <see cref="LiveListenerStage"/>.</summary>
+    private LiveListener? LiveListenerOf(ulong id) =>
+        LiveListenerStage(id) is var stage and >= 0 ? _livePerformances[stage]!.Listeners.First(item => item.AgentId == id) : null;
 
     /// <summary>
-    /// The audience's ground in front of the stage: every place a listener can stand, as one rectangle. Nothing is
+    /// The audience's ground in front of any stage: every place a listener can stand, as one rectangle a stage. Nothing is
     /// built here, and a queue only grows into it where nobody's watching from, so the crowd always has somewhere to stand.
     /// </summary>
-    public static bool InAudienceArea(GridCell cell) =>
-        cell.X >= AudienceBounds.MinX && cell.X <= AudienceBounds.MaxX && cell.Z >= AudienceBounds.MinZ && cell.Z <= AudienceBounds.MaxZ;
-
-    /// <summary>The audience area's corners, in grid cells.</summary>
-    public static (GridCell Min, GridCell Max) AudienceArea => (new(AudienceBounds.MinX, AudienceBounds.MinZ), new(AudienceBounds.MaxX, AudienceBounds.MaxZ));
-
-    private static IEnumerable<GridCell> ListeningPlaces()
+    public static bool InAudienceArea(GridCell cell)
     {
-        // The rotated trailer faces increasing X. This irregular apron sits between
-        // the front edge and vehicle track, leaving the visible south-end stairs
-        // and generator footprint to terrain/route exclusions.
-        for (var band = 0; band < 9; band++)
-        for (var lane = -7; lane <= 7; lane++)
-        {
-            var x = 103 + band * 2 + Math.Abs((lane * 7 + band * 11) % 3);
-            var z = 150 + lane * 2 + Math.Abs((band * 5 + lane * 3) % 3) - 1;
-            yield return new GridCell(x, z);
-        }
+        foreach (var stage in FestivalStages.All)
+            if (stage.InAudienceArea(cell)) return true;
+        return false;
     }
 
+    /// <summary>The main stage's audience area corners, in grid cells.</summary>
+    public static (GridCell Min, GridCell Max) AudienceArea => AudienceAreaOf(FestivalStages.Main);
+    public static (GridCell Min, GridCell Max) AudienceAreaOf(FestivalStage stage) =>
+        (new(stage.AudienceBounds.MinX, stage.AudienceBounds.MinZ), new(stage.AudienceBounds.MaxX, stage.AudienceBounds.MaxZ));
 
     private static int AudienceDistanceSquared(GridCell a, GridCell b) => (a.X - b.X) * (a.X - b.X) + (a.Z - b.Z) * (a.Z - b.Z);
 
@@ -365,8 +416,7 @@ public sealed partial class GameSession
     {
         if (!_navigationAgents.TryGetValue(id, out var agent) || agent.Destination is not { } cell ||
             agent.IntentId is not { } intent || AudienceNavigationOwned(id.Value) ||
-            _livePerformance is null or { Stage: LiveSetStage.Finished } ||
-            !_livePerformance.Listeners.Any(listener => listener.AgentId == id.Value) ||
+            !_livePerformances.Any(live => live is { Stage: not LiveSetStage.Finished } && live.Listeners.Any(listener => listener.AgentId == id.Value)) ||
             PersonIn(PersonView.Roster, id.Value) is not { Admitted: true, Departed: false })
             return false;
         var destination = TraversalGrid.CellCentre(cell);
@@ -375,15 +425,15 @@ public sealed partial class GameSession
     }
 
     private int AudienceWalkingPace(NavigationAgentState agent) => agent.IntentId is "performance.listen-local" or "performance.listen-local-retreat" &&
-        !AudienceNavigationOwned(agent.Id.Value) && _livePerformance?.Listeners.FirstOrDefault(item => item.AgentId == agent.Id.Value) is { } listener
+        !AudienceNavigationOwned(agent.Id.Value) && LiveListenerOf(agent.Id.Value) is { } listener
             ? AudiencePacePermille(listener.Enthusiasm) : 1000;
 
-    private int PlaceScore(LiveListener listener, GridCell cell, GridCell start, LiveListener[] listeners)
+    private int PlaceScore(FestivalStage stage, LiveListener listener, GridCell cell, GridCell start, LiveListener[] listeners)
     {
         var travel = Math.Abs(cell.X - start.X) + Math.Abs(cell.Z - start.Z);
-        var sightline = Math.Abs(cell.Z - 150);
+        var sightline = Math.Abs(cell.Z - stage.SightlineZ);
         var stableOffset = (int)((listener.AgentId * 17 + (ulong)(cell.X * 13 + cell.Z * 7)) % 5);
-        return (cell.X - 103) * 6 + sightline + Math.Max(0, sightline - 10) * 2 + travel + stableOffset +
+        return (cell.X - stage.FrontX) * 6 + sightline + Math.Max(0, sightline - 10) * 2 + travel + stableOffset +
             Math.Max(0, AudienceDensity(listener, cell, listeners) - AudienceComfortTolerance(listener)) / 20;
     }
 
@@ -423,41 +473,52 @@ public sealed partial class GameSession
         return density;
     }
 
-    private static string? ValidatePersistedLivePerformance(LivePerformanceSnapshot? live, SessionPersistenceSnapshot snapshot)
+    /// <summary>Every stage's saved set: none before opening, or one for each stage, in stage order.</summary>
+    private static string? ValidatePersistedLivePerformances(SessionPersistenceSnapshot snapshot)
     {
-        if (live is null) return null;
-        if (snapshot.Preparation is not { } preparation || live.Version != 2 || !Enum.IsDefined(live.Stage) ||
-            live.Performers is null || live.Listeners is null || live.Performers.Length != 3 ||
+        if (snapshot.LivePerformances is not { } lives) return null;
+        if (lives.Length != FestivalStages.All.Count) return "Live performance state invalid.";
+        for (var stage = 0; stage < lives.Length; stage++)
+            if (ValidatePersistedLivePerformance(lives[stage], stage, snapshot) is { } error) return error;
+        return null;
+    }
+
+    private static string? ValidatePersistedLivePerformance(LivePerformanceSnapshot? live, int stage, SessionPersistenceSnapshot snapshot)
+    {
+        if (live is null) return "Live performance state invalid.";
+        var def = FestivalStages.All[stage];
+        var programme = snapshot.Programme?.Stages[stage];
+        var limits = def.PlaceLimits;
+        var band = def.PerformerMarks.Count;
+        if (snapshot.Preparation is not { } preparation || live.Version != LivePerformanceVersion || live.StageId != def.Id || !Enum.IsDefined(live.Stage) ||
+            live.Performers is null || live.Listeners is null || live.Performers.Length != band ||
             live.SetEndAudienceIds is null || live.SetEndAudienceIds.Distinct().Count() != live.SetEndAudienceIds.Length ||
             live.SetEndAudienceIds.Any(id => !live.Listeners.Any(listener => listener.AgentId == id && listener.ListenedTicks > 0)) ||
-            live.SetEndAudienceIds.Length > 0 && (snapshot.Programme is null || live.Stage != LiveSetStage.Finished || live.StartedTick < 0 ||
-                live.EndedTick != snapshot.Programme.SlotEndTick || live.InterruptedTick != -1 || live.LastReaction != "set-finished-applause") ||
+            live.SetEndAudienceIds.Length > 0 && (programme is null || live.Stage != LiveSetStage.Finished || live.StartedTick < 0 ||
+                live.EndedTick != programme.SlotEndTick || live.InterruptedTick != -1 || live.LastReaction != "set-finished-applause") ||
             live.LastReaction == "set-finished-applause" && live.SetEndAudienceIds.Length == 0 ||
             live.Listeners.Length != FestivalTickets.Sold(preparation.Tier) || live.PlannedTick < preparation.StartedTick ||
             live.StartedTick > snapshot.CurrentTick || live.EndedTick > snapshot.CurrentTick ||
-            live.Performers.Select(item => item.AgentId).Distinct().Count() != 3 ||
+            live.Performers.Select(item => item.AgentId).Distinct().Count() != band ||
             live.Listeners.Select(item => item.AgentId).Distinct().Count() != live.Listeners.Length ||
-            live.Listeners.Any(item => item.ListenedTicks < 0 || item.ListenedTicks > (snapshot.Programme is null ? LiveSetDurationTicks : FestivalSlotDurationTicks) ||
+            live.Listeners.Any(item => item.ListenedTicks < 0 || item.ListenedTicks > (programme is null ? LiveSetDurationTicks : FestivalSlotDurationTicks) ||
                 item.EnjoymentEarned < 0 || item.EnjoymentEarned > item.ListenedTicks / 80 * 30 ||
                 item.Enthusiasm is < 0 or > 100 || item.LastDecisionTick < -800 || item.LastDecisionTick > snapshot.CurrentTick ||
-                item.Place is { } place && (place.X is < 103 or > 122 || place.Z is < 135 or > 165)))
+                item.Place is { } place && (place.X < limits.MinX || place.X > limits.MaxX || place.Z < limits.MinZ || place.Z > limits.MaxZ)))
             return "Live performance state invalid.";
-        if (snapshot.Programme is { } programme &&
-            (live.PlannedTick != preparation.StartedTick + FestivalSlotStarts[programme.CurrentSlot] ||
+        if (programme is not null &&
+            (live.PlannedTick != preparation.StartedTick + def.SlotStarts[programme.CurrentSlot] ||
              live.StartedTick != -1 && (live.StartedTick < live.PlannedTick || live.StartedTick >= programme.SlotEndTick) ||
              live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted && (live.StartedTick < 0 || snapshot.CurrentTick >= programme.SlotEndTick) ||
              live.Stage == LiveSetStage.Finished && preparation.Status != PreparationStatus.Failed && live.EndedTick != programme.SlotEndTick))
             return "Live programme progress exceeds its fixed slot window.";
-        GridCell[] stageCells = [new(96, 150), new(94, 146), new(93, 152)];
-        var accessCells = StageAccessCells;
-        var stairCells = StageStairCells;
-        var roster = preparation.People.Where(item => item.Role == ProtectedPersonRole.Performer && (snapshot.Programme is null || snapshot.Programme.Performers.Any(role => role.AgentId == item.AgentId && role.SlotIndex == snapshot.Programme.CurrentSlot))).ToArray();
-        for (var i = 0; i < 3; i++)
+        var roster = preparation.People.Where(item => item.Role == ProtectedPersonRole.Performer && (programme is null || programme.Performers.Any(role => role.AgentId == item.AgentId && role.SlotIndex == programme.CurrentSlot))).ToArray();
+        for (var i = 0; i < band; i++)
         {
             var performer = live.Performers[i];
             var nav = snapshot.NavigationAgents?.SingleOrDefault(item => item.Id == performer.AgentId);
-            if (performer.AgentId != roster[i].AgentId || performer.StageCell != stageCells[i] ||
-                performer.AccessCell != accessCells[i] || performer.StairCell != stairCells[i] || nav is null ||
+            if (performer.AgentId != roster[i].AgentId || performer.StageCell != def.PerformerMarks[i] ||
+                performer.AccessCell != def.AccessCells[i] || performer.StairCell != def.StairCells[i] || nav is null ||
                 performer.StairReached && !performer.AccessReached || performer.OnStage && !performer.StairReached ||
                 (performer.LastStageProgressTick is null) != (performer.ObservedStageXMillimetres is null) ||
                 (performer.LastStageProgressTick is null) != (performer.ObservedStageZMillimetres is null) ||

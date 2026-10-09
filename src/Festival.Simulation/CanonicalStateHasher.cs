@@ -281,7 +281,7 @@ internal static class CanonicalStateHasher
 
         if (session.ProgrammeCanonicalJson is { } programme)
         {
-            writer.Write("r0-programme-v3");
+            writer.Write("r0-programme-v4");
             writer.Write(programme);
         }
         if (session.PreparationCanonicalJson is { } preparation)
@@ -294,9 +294,11 @@ internal static class CanonicalStateHasher
             writer.Write("r0-equipment-v2");
             writer.Write(equipment);
         }
-        if (session.LivePerformanceCanonicalJson is { } livePerformance)
+        // One entry per stage that has a set, in the stage catalogue's fixed order.
+        foreach (var (stageId, livePerformance) in session.LivePerformanceCanonicalJson())
         {
-            writer.Write("r0-live-performance-v2");
+            writer.Write("r0-live-performance-v3");
+            writer.Write(stageId);
             writer.Write(livePerformance);
         }
         if (session.MedicalCanonicalJson is { } medical)

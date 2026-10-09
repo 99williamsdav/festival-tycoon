@@ -51,25 +51,26 @@ public sealed partial class GameSession
         (_equipment?.Stage switch { EquipmentStage.Warning => PerformanceRules.StrainedSoundPenalty, EquipmentStage.DangerousFault => PerformanceRules.FaultSoundPenalty, _ => 0 }), 0, 100);
 
     /// <summary>The playing act's band members' drunkenness: the worst of them sets the tone.</summary>
-    private int StageDrunkenness() => _programme is not { CurrentSlot: >= 0 } q ? 0 :
+    private int StageDrunkenness(int stage) => StageProgramme(stage) is not { CurrentSlot: >= 0 } q ? 0 :
         q.Performers.Where(p => p.SlotIndex == q.CurrentSlot).Select(p => PersonIn(PersonView.Consumption, p.AgentId)?.Intoxication ?? 0).DefaultIfEmpty(0).Max();
 
-    /// <summary>How the current set is going, or nothing between sets.</summary>
-    public SetPerformance? CurrentPerformance
+    /// <summary>How the main stage's set is going, or nothing between sets.</summary>
+    public SetPerformance? CurrentPerformance => StagePerformance(0);
+
+    /// <summary>How a stage's set is going, or nothing between sets.</summary>
+    private SetPerformance? StagePerformance(int stage)
     {
-        get
-        {
-            if (CurrentFestivalAct is not { } act || _livePerformance?.Stage is not (LiveSetStage.Live or LiveSetStage.Interrupted)) return null;
-            var talent = PerformanceRules.Talent(act);
-            var drunk = Math.Max(0, StageDrunkenness() - PerformanceRules.SoberLimit) / PerformanceRules.DrunkStep;
-            var band = Math.Clamp(talent - drunk, 0, 100);
-            var sound = SoundScore;
-            return new(act, talent, drunk, band, sound, PerformanceRules.Overall(band, sound));
-        }
+        if (StageAct(stage) is not { } act || _livePerformances[stage]?.Stage is not (LiveSetStage.Live or LiveSetStage.Interrupted)) return null;
+        var talent = PerformanceRules.Talent(act);
+        var drunk = Math.Max(0, StageDrunkenness(stage) - PerformanceRules.SoberLimit) / PerformanceRules.DrunkStep;
+        var band = Math.Clamp(talent - drunk, 0, 100);
+        var sound = SoundScore;
+        return new(act, talent, drunk, band, sound, PerformanceRules.Overall(band, sound));
     }
 
     /// <summary>The act a performer plays in, for how professionally they treat the bar.</summary>
-    private FestivalAct? PerformerAct(ulong id) => _programme is { ActIds.Length: 3 } q && q.Performers.FirstOrDefault(p => p.AgentId == id) is { } member
+    private FestivalAct? PerformerAct(ulong id) => PerformerStage(id) is var stage and >= 0 && StageProgramme(stage) is { } q &&
+        q.ActIds.Length == FestivalStages.All[stage].SlotCount && q.Performers.FirstOrDefault(p => p.AgentId == id) is { } member
         ? FestivalActs.SingleOrDefault(a => a.Id == q.ActIds[member.SlotIndex]) : null;
 
     /// <summary>A performer's thirst for beer: their own taste, tempered by how professional their act is.</summary>

@@ -181,7 +181,7 @@ public partial class Main
             var act = _session.CurrentFestivalAct?.Name ?? "The band";
             var slot = programme.CurrentSlot;
             if (live.Stage == LiveSetStage.Live)
-                yield return ($"set:{slot}", new("music", $"{act} take the stage", calm, LocateCell(new GridCell(96, 150))));
+                yield return ($"set:{slot}", new("music", $"{act} take the stage", calm, LocateCell(FestivalStages.Main.PerformerMarks[0])));
             if (live.Stage == LiveSetStage.Finished && live.EndedTick >= 0)
             {
                 // The send-off matches who's actually there at the end, and the applause you hear: big cheers only
@@ -198,10 +198,10 @@ public partial class Main
                     "slot-missed-not-ready" => ($"{act} never made it on stage", bad),
                     _ => ($"{act}'s set is over", calm),
                 };
-                yield return ($"setend:{slot}", new("music", text, tint, LocateCell(new GridCell(96, 150))));
+                yield return ($"setend:{slot}", new("music", text, tint, LocateCell(FestivalStages.Main.PerformerMarks[0])));
             }
             if (live.LastReaction == "sustained-boo")
-                yield return ($"boo:{slot}", new("music", $"The crowd is booing {act}!", bad, LocateCell(new GridCell(96, 150))));
+                yield return ($"boo:{slot}", new("music", $"The crowd is booing {act}!", bad, LocateCell(FestivalStages.Main.PerformerMarks[0])));
         }
     }
 

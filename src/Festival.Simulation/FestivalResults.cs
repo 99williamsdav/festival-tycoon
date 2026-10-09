@@ -62,10 +62,10 @@ public sealed partial class GameSession
         if (!departedAtStart) return;
         _preparation = p with { Status = PreparationStatus.Finished, Rentals = [], WorkContracts = [],
             Result = MakeFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick, _lavSucker) };
-        if (_preparation.Result!.Stars is { } stars && _programme is { ActIds.Length: 3 } programme)
+        if (_preparation.Result!.Stars is { } stars && BookedActIds(_programme) is { } played)
         {
             var before = new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray());
-            var after = ActCatalogue.AfterFestival(before, stars, programme.ActIds.Select(id => ActCatalogue.Find(id)!.Genre));
+            var after = ActCatalogue.AfterFestival(before, stars, played.Select(id => ActCatalogue.Find(id)!.Genre));
             _preparation = _preparation with { Reputation = after.Reputation, SceneCredibility = after.SceneCredibility, StandingBefore = before };
         }
         if (p.CommunityShareAttempt == p.Attempt && !p.CommunityFavourClaimed && _lifecycle is { } lifecycle)
@@ -88,10 +88,10 @@ public sealed partial class GameSession
             s.Immersion?.People.Any(person => person.Held is { } held && ids.Contains(held.TransactionId)) == true)
             return "Completed beer identities invalid.";
         if ((p.Status == PreparationStatus.Finished) != (p.Result is not null)) return "Terminal festival report missing or premature.";
-        if (p.Result is { Stars: { } stars } && s.Programme is { ActIds.Length: 3 } programme)
+        if (p.Result is { Stars: { } stars } && BookedActIds(s.Programme) is { } played)
         {
             if (p.StandingBefore is not { } before) return "Completed festival must record the standing it changed.";
-            var after = ActCatalogue.AfterFestival(before, stars, programme.ActIds.Select(id => ActCatalogue.Find(id)!.Genre));
+            var after = ActCatalogue.AfterFestival(before, stars, played.Select(id => ActCatalogue.Find(id)!.Genre));
             if (after.Reputation != p.Reputation || !after.SceneCredibility.SequenceEqual(p.SceneCredibility))
                 return "Festival standing does not follow from the completed festival.";
         }
