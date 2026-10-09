@@ -239,7 +239,13 @@ public sealed class PondStageTests
 
         var saved = s.CapturePersistenceSnapshot();
         Assert.IsTrue(saved.PondStageTrial && saved.StageGenerators!.Length == 1 && saved.LivePerformances!.Length == 2);
-        void Rejects(SessionPersistenceSnapshot broken, string why) => Assert.IsFalse(GameSession.Restore(broken).IsSuccess, why);
+        // Each must be caught by validation, not merely by the state hash no longer matching.
+        void Rejects(SessionPersistenceSnapshot broken, string why)
+        {
+            var result = GameSession.Restore(broken);
+            Assert.IsFalse(result.IsSuccess, why);
+            Assert.IsFalse(result.Error!.Contains("hash mismatch", StringComparison.Ordinal), $"{why} {result.Error}");
+        }
         var main = saved.LivePerformances[0]!;
         var pond = saved.LivePerformances[1]!;
         var someone = main.Listeners[0];
