@@ -100,7 +100,7 @@ public sealed partial class GameSession
                 !plan.Committed && ActCatalogue.StandingOf(new(p.Reputation, p.SceneCredibility), act) == ActStanding.Locked)) ||
             plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 || FoodTraders.Find(plan.TraderId) is null ||
             plan.Committed != (p.Status != PreparationStatus.Preparing)) return "Preparation plan header or quantities invalid.";
-        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed).WithPaymentStanding(p);
+        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, p.Tier).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers();
         if (plan.OfferIds.Any(id => !offers.Any(o => o.Id == id && o.Category is not ("act" or "contract"))) ||
             plan.OfferIds.Select(id => offers.Single(o => o.Id == id).Category).Distinct().Count() != plan.OfferIds.Length ||

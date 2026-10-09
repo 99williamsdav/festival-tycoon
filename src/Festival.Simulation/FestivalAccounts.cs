@@ -15,6 +15,10 @@ public sealed record FestivalAccounts(
     /// <summary>What the food trader paid to pitch, and who they were.</summary>
     public long PitchFeePennies { get; init; }
     public string PitchFeeTrader { get; init; } = "";
+    /// <summary>The cash the previous festival closed on, from Tier 2; null at Tier 1, where the opening cash is the starter loan.</summary>
+    public long? CarriedInPennies { get; init; }
+    /// <summary>The loan principal still owed at the close. Settlement is parked, so nothing has been repaid.</summary>
+    public long DebtOwedPennies { get; init; }
     public long IncomePennies => TicketSalesPennies + PitchFeePennies + Sales.Sum(line => line.AmountPennies);
     public long SoldItemCostPennies => SoldItemCosts.Sum(line => line.AmountPennies);
     public long OperatingExpensesPennies => OperatingExpenses.Sum(line => line.AmountPennies);
@@ -106,12 +110,14 @@ public sealed partial class GameSession
             var capital = payments.Where(payment => payment.DebitAccount == LedgerAccountType.EquipmentAsset)
                 .Sum(payment => (long)payment.AmountPennies);
             var closing = _festivalFinances[owner].CashPennies;
-            // Opening cash here is the loan: the ticket money in the opening budget is this festival's income.
+            // Opening cash here is the loan (Tier 1) or the cash carried in (later tiers): the ticket money in the
+            // opening budget is this festival's income.
             var tickets = FestivalTickets.RevenuePennies(p.Tier);
             var accounts = new FestivalAccounts(sales, costs.ToArray(), expenses.ToArray(), purchasedStock,
                 FestivalTickets.Sold(p.Tier), FestivalTickets.PricePennies(p.Tier), p.OpeningCashPennies - tickets,
                 closing, stockCash, capital, stockRecorded, stockDetailRecorded, facilityDetailRecorded, false)
-                { PitchFeePennies = ReceivedPitchFee(p), PitchFeeTrader = FoodTraders.Find(p.Plan?.TraderId)?.Name ?? "" };
+                { PitchFeePennies = ReceivedPitchFee(p), PitchFeeTrader = FoodTraders.Find(p.Plan?.TraderId)?.Name ?? "",
+                  CarriedInPennies = p.CarriedIn?.CashPennies, DebtOwedPennies = _campaignPlanning?.Loan.OutstandingPrincipalPennies ?? 0 };
             var reconciles = accounts.IncomePennies == result.RevenuePennies &&
                 accounts.SoldItemCostPennies == result.ConsumedStockCostsPennies &&
                 accounts.OperatingExpensesPennies == result.ContractCostsPennies &&

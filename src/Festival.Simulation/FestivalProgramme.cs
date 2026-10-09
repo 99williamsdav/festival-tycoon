@@ -228,7 +228,7 @@ public sealed partial class GameSession
             _ => "Unsupported festival programme version; load it with its matching build."
         };
         const string invalid = "Festival programme identity, booking or fixed window invalid.";
-        if (snapshot.Preparation is not { Tier: 1 } p || p.People is null || p.People.Any(person => person is null) || p.AcceptedOffers is null || snapshot.Disorder is null ||
+        if (snapshot.Preparation is not { Tier: >= 1 and <= HighestTier } p || p.People is null || p.People.Any(person => person is null) || p.AcceptedOffers is null || snapshot.Disorder is null ||
             programme.Stages is null || programme.Stages.Length != FestivalStages.All.Count || programme.Stages.Any(stage => stage is null) ||
             p.Status == PreparationStatus.Preparing && snapshot.LivePerformances is not null ||
             p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.CurrentTick < p.StartedTick + PreparedDayTicks)

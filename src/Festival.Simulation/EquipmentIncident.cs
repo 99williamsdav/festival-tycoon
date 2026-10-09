@@ -135,7 +135,7 @@ public sealed partial class GameSession
         {
             _lifecycle = new LifecycleState {
                 CurrentTierId = $"tier-{p.Tier}", TierOrdinal = p.Tier, CurrentAttemptId = 1, NextAttemptId = 2,
-                NextCasualtyId = 1, NextHearingId = 1, FavourBalance = 1 };
+                NextCasualtyId = 1, NextHearingId = 1, FavourBalance = p.CarriedIn?.FavourBalance ?? 1 };
             _lifecycle.Attempts.Add(new(1, _lifecycle.CurrentTierId, EditionAttemptStatus.Active, null));
         }
         foreach (var person in PeopleIn(PersonView.Roster))

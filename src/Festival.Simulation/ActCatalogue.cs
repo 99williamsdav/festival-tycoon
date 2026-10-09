@@ -22,7 +22,7 @@ public static class FestivalGenre
 /// </summary>
 public static class FestivalTickets
 {
-    public static int PricePennies(int tier) => tier switch { 1 => 1_000, 2 => 1_800, 3 => 3_500, _ => 6_000 };
+    public static int PricePennies(int tier) => tier switch { 1 => 1_000, 2 => 1_500, 3 => 3_500, _ => 6_000 };
     /// <summary>Guests (and tickets) per tier: the crowd a festival plans and builds for.</summary>
     public const int GuestsPerTier = 25;
     public static int Sold(int tier) => tier * GuestsPerTier;

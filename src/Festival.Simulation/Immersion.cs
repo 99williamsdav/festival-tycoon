@@ -331,7 +331,7 @@ public sealed partial class GameSession
         if (((!vendors.Select(v=>v.Id).SequenceEqual(prep.BuildPlacements.Where(item=>item.Kind is BuildServiceKind.FoodVan or BuildServiceKind.Bar).Select(item=>item.Id).Order(StringComparer.Ordinal)) ||
                  savedToilets.Any(item=>item.Id=="toilet.main") != prep.BuildPlacements.Any(item=>item.Id=="toilet.main"))) ||
             vendors.Any(v=>v.QuarterTurns is <0 or >3))return "Immersion vendor identities invalid.";
-        var geometry=CreateFoodAndDrinkBaseline(s.CampaignSeed);geometry.ImmersionView=m;geometry._facilities=f;geometry.PreparationView=prep;geometry.MedicalView=s.Medical;geometry._equipment=s.Equipment;
+        var geometry=CreateFoodAndDrinkBaseline(s.CampaignSeed, prep.Tier);geometry.ImmersionView=m;geometry._facilities=f;geometry.PreparationView=prep;geometry.MedicalView=s.Medical;geometry._equipment=s.Equipment;
         foreach(var vendor in vendors)if(geometry.ImmersionPlacementError(vendor) is { } issue)return issue;
         if (ValidatePersistedToilets(s, m, f, geometry) is { } toiletError) return toiletError;
         var queueGrid=s.TraversalGrid is { } savedTerrain?new TraversalGrid(savedTerrain.Cells.Select(c=>new TerrainCellOverride(new(c.X,c.Z),(GroundSurface)c.Surface,c.IsWalkable))):new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());

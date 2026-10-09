@@ -200,7 +200,7 @@ public sealed partial class GameSession
             ((EditionAttemptStatus)lifecycle.Attempts[^1].Status == EditionAttemptStatus.Failed) !=
                 (preparation.Status == PreparationStatus.Failed))
             return "Real hearing identity, retry attempt and tier must match preparation.";
-        if (lifecycle.ProtectedPeople.Length is < 22 or > 100 ||
+        if (lifecycle.ProtectedPeople.Length is < 22 or > MaxActivePeople ||
             !lifecycle.ProtectedPeople.Select(item => item.PersonId).SequenceEqual(lifecycle.ProtectedPeople.Select(item => item.PersonId).Order(StringComparer.Ordinal)) ||
             lifecycle.ProtectedPeople.Select(item => item.PersonId).Distinct(StringComparer.Ordinal).Count() != lifecycle.ProtectedPeople.Length ||
             lifecycle.ProtectedPeople.Any(item => string.IsNullOrWhiteSpace(item.PersonId) || !Enum.IsDefined(typeof(ProtectedPersonRole), item.Role)) ||
@@ -236,9 +236,9 @@ public sealed partial class GameSession
             .Order(StringComparer.Ordinal).ToArray();
         if (!lifecycle.CompletedOutcomeTransactionIds.SequenceEqual(expectedTransactions) || expectedTransactions.Distinct(StringComparer.Ordinal).Count() != expectedTransactions.Length)
             return "Lifecycle completed transaction IDs must exactly match terminal, hearing, Favour and safe outcomes.";
-        if (lifecycle.FavourBalance != 1 + (preparation.CommunityFavourClaimed ? 1 : 0) -
+        if (lifecycle.FavourBalance != (preparation.CarriedIn?.FavourBalance ?? 1) + (preparation.CommunityFavourClaimed ? 1 : 0) -
             lifecycle.Hearings.Count(item => item.Status == (int)HearingStatus.FavourSpent))
-            return "Favour balance must reconcile with the starting grant, community claim and hearing spends.";
+            return "Favour balance must reconcile with the starting grant or carried Favour, community claim and hearing spends.";
         return null;
     }
 }

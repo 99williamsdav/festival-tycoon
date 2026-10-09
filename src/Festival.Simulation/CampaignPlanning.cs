@@ -45,6 +45,21 @@ public static class CampaignDefaults
     public static ulong SiteSeedFor(ulong campaignSeed) => campaignSeed ^ 0x4c6f776572576974UL;
 }
 
+/// <summary>
+/// What a festival brings forward from the one before it, from Tier 2 on: the closing cash, the loan still owed,
+/// Council Favour, whether the once-per-campaign water share is spent, and bought kit. Reputation, scene
+/// credibility and seen acts ride on the preparation itself. Perks, staff, bookings, stock and the build start fresh.
+/// </summary>
+public sealed record FestivalCarryOver(int FromTier, long CashPennies, long DebtPennies, int FavourBalance,
+    bool CommunityWaterUsed, string[] OwnedEquipment)
+{
+    /// <summary>Equality by value, arrays included, so a saved carry compares with its rebuilt self.</summary>
+    public bool Equals(FestivalCarryOver? other) => other is not null && FromTier == other.FromTier && CashPennies == other.CashPennies &&
+        DebtPennies == other.DebtPennies && FavourBalance == other.FavourBalance && CommunityWaterUsed == other.CommunityWaterUsed &&
+        OwnedEquipment.SequenceEqual(other.OwnedEquipment);
+    public override int GetHashCode() => HashCode.Combine(FromTier, CashPennies, DebtPennies, FavourBalance, CommunityWaterUsed, OwnedEquipment.Length);
+}
+
 public sealed record LoanSnapshot(
     long OpeningPrincipalPennies,
     long OutstandingPrincipalPennies,
@@ -134,28 +149,37 @@ public sealed partial class GameSession
 
     internal CampaignPlanningState? CampaignPlanningState => _campaignPlanning;
 
-    public static GameSession CreateCampaign(ulong campaignSeed, CampaignId? campaignId = null)
+    public static GameSession CreateCampaign(ulong campaignSeed, CampaignId? campaignId = null) => CreateCampaign(campaignSeed, campaignId, 1, null);
+
+    /// <summary>The cash a festival opens with: Tier 1's loan plus tickets, or what came forward plus this tier's tickets.</summary>
+    public static long OpeningCashFor(int tier, FestivalCarryOver? carry) =>
+        carry is null ? CampaignDefaults.OpeningCashPennies : carry.CashPennies + FestivalTickets.RevenuePennies(tier);
+
+    internal static GameSession CreateCampaign(ulong campaignSeed, CampaignId? campaignId, int tier, FestivalCarryOver? carry)
     {
         var session = new GameSession(campaignSeed, campaignId) { Phase = SessionPhase.Planning };
         var financeOwner = new EntityId(session.NextEntityId++);
+        var opening = OpeningCashFor(tier, carry);
         session._festivalFinances.Add(financeOwner, new FestivalFinanceState
         {
             OwnerId = financeOwner,
-            CashPennies = CampaignDefaults.OpeningCashPennies,
+            CashPennies = opening,
         });
-        var interest = CampaignDefaults.OpeningLoanPrincipalPennies * CampaignDefaults.InterestBasisPoints / 10_000;
+        var debt = carry?.DebtPennies ?? CampaignDefaults.OpeningLoanPrincipalPennies;
+        var interest = debt * CampaignDefaults.InterestBasisPoints / 10_000;
         session._campaignPlanning = new CampaignPlanningState
         {
             FestivalName = CampaignDefaults.NameFor(campaignSeed),
             Palette = CampaignDefaults.PaletteFor(campaignSeed),
             SiteId = CampaignDefaults.SiteId,
             SiteSeed = CampaignDefaults.SiteSeedFor(campaignSeed),
-            EditionNumber = 1,
+            EditionNumber = tier,
             PlanningWeek = 8,
             FinanceOwnerId = financeOwner,
+            // Settlement is parked: the starter loan's principal is simply still owed at each later festival.
             Loan = new LoanSnapshot(
                 CampaignDefaults.OpeningLoanPrincipalPennies,
-                CampaignDefaults.OpeningLoanPrincipalPennies,
+                debt,
                 CampaignDefaults.EditionPrincipalPennies,
                 interest,
                 CampaignDefaults.LoanTermEditions,
@@ -167,17 +191,34 @@ public sealed partial class GameSession
             CampaignDefaults.BasicAdministrationPennies,
             8,
             PlanningCommitmentStatus.Available));
-        session._campaignPlanning.LedgerTransactions.Add(new PlanningLedgerTransactionSnapshot(
-            1,
-            "Starter loan and advance ticket sales",
-            8,
-            [
-                new LedgerEntry(financeOwner, LedgerAccountType.CashAsset, CampaignDefaults.OpeningCashPennies),
-                new LedgerEntry(financeOwner, LedgerAccountType.LoanPrincipalLiability, -CampaignDefaults.OpeningLoanPrincipalPennies),
-                new LedgerEntry(financeOwner, LedgerAccountType.SalesRevenue, -(CampaignDefaults.OpeningCashPennies - CampaignDefaults.OpeningLoanPrincipalPennies)),
-            ]));
+        session._campaignPlanning.LedgerTransactions.Add(carry is null
+            ? new PlanningLedgerTransactionSnapshot(
+                1,
+                "Starter loan and advance ticket sales",
+                8,
+                [
+                    new LedgerEntry(financeOwner, LedgerAccountType.CashAsset, CampaignDefaults.OpeningCashPennies),
+                    new LedgerEntry(financeOwner, LedgerAccountType.LoanPrincipalLiability, -CampaignDefaults.OpeningLoanPrincipalPennies),
+                    new LedgerEntry(financeOwner, LedgerAccountType.SalesRevenue, -(CampaignDefaults.OpeningCashPennies - CampaignDefaults.OpeningLoanPrincipalPennies)),
+                ])
+            : CarriedOpeningTransaction(financeOwner, tier, carry));
         return session;
     }
+
+    /// <summary>
+    /// A later festival's opening: the carried cash and this tier's tickets in the bank, the loan still owed, and the
+    /// difference between carried cash and debt as the balance brought forward.
+    /// </summary>
+    private static PlanningLedgerTransactionSnapshot CarriedOpeningTransaction(EntityId owner, int tier, FestivalCarryOver carry) => new(
+        1,
+        $"Carried forward from Tier {carry.FromTier} and advance ticket sales",
+        8,
+        [
+            new LedgerEntry(owner, LedgerAccountType.CashAsset, OpeningCashFor(tier, carry)),
+            new LedgerEntry(owner, LedgerAccountType.LoanPrincipalLiability, -carry.DebtPennies),
+            new LedgerEntry(owner, LedgerAccountType.SalesRevenue, -FestivalTickets.RevenuePennies(tier)),
+            new LedgerEntry(owner, LedgerAccountType.CarriedBalance, carry.DebtPennies - carry.CashPennies),
+        ]);
 
     public CampaignPlanningSnapshot? CaptureCampaignPlanningSnapshot()
     {
@@ -300,7 +341,7 @@ public sealed partial class GameSession
         if (campaign is null) return null; // M0 v1 saves intentionally carry no M1 campaign extension.
         if (string.IsNullOrWhiteSpace(campaign.FestivalName) || campaign.FestivalName.Length > 48 || campaign.FestivalName.Any(char.IsControl) ||
             !Enum.IsDefined(typeof(FestivalPalette), campaign.Palette) || campaign.SiteId != CampaignDefaults.SiteId || campaign.SiteSeed == 0 ||
-            campaign.EditionNumber != 1 || campaign.PlanningWeek is < 0 or > 8 || campaign.FinanceOwnerId == 0 ||
+            campaign.EditionNumber != (snapshot.Preparation?.Tier ?? 1) || campaign.PlanningWeek is < 0 or > 8 || campaign.FinanceOwnerId == 0 ||
             !snapshot.FestivalFinances.Any(item => item.OwnerId == campaign.FinanceOwnerId))
             return "Campaign identity, inherited site, edition, week or finance owner is invalid.";
         if (snapshot.Preparation is null && (snapshot.Phase == (int)SessionPhase.Planning && campaign.PlanningWeek is < 1 or > 8 ||
@@ -337,6 +378,12 @@ public sealed partial class GameSession
             !campaign.DismissedTipIds.SequenceEqual(campaign.DismissedTipIds.Order(StringComparer.Ordinal)) ||
             campaign.DismissedTipIds.Distinct(StringComparer.Ordinal).Count() != campaign.DismissedTipIds.Length)
             return "Dismissed campaign tip IDs must be nonempty, sorted and unique.";
+        // A later festival opens on exactly what came forward: the carried cash, tickets and debt.
+        if (snapshot.Preparation is { CarriedIn: { } carry } carried && (campaign.LoanOutstandingPrincipalPennies != carry.DebtPennies ||
+            campaign.LedgerTransactions.Length == 0 || campaign.LedgerTransactions[0].Reason != CarriedOpeningTransaction(new(campaign.FinanceOwnerId), carried.Tier, carry).Reason ||
+            !campaign.LedgerTransactions[0].Entries.Select(entry => new LedgerEntry(new(entry.OwnerId), (LedgerAccountType)entry.Account, entry.AmountPennies))
+                .SequenceEqual(CarriedOpeningTransaction(new(campaign.FinanceOwnerId), carried.Tier, carry).Entries)))
+            return "A later festival's loan or opening ledger does not match what was carried forward.";
         return null;
     }
 }

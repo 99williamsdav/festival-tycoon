@@ -6,32 +6,59 @@ public sealed record PlaceBuildServiceCommand(BuildServiceKind Kind, GridCell Ce
 public sealed record MoveBuildServiceCommand(string Id, GridCell Cell, int QuarterTurns = 0) : SessionCommand;
 public sealed record RemoveBuildServiceCommand(string Id) : SessionCommand;
 public sealed record UseDefaultBuildLayoutCommand : SessionCommand;
+/// <summary>How many of each service one festival at a tier may place. The tap count is before the Another Round perk's +1.</summary>
+public sealed record TierBuildLimits(int Taps, int Toilets, int FoodVans, int Bars, int FirstAid, int StewardPosts);
 
 public sealed partial class GameSession
 {
-    private static readonly (BuildServiceKind Kind, int FeePennies, int Limit)[] BuildCatalogue =
+    private static readonly (BuildServiceKind Kind, int FeePennies)[] BuildCatalogue =
     [
-        (BuildServiceKind.WaterTap, 1_500, 2),
-        (BuildServiceKind.Toilet, 3_000, 2),
-        (BuildServiceKind.FoodVan, 0, 1), // the food trader pays the festival to pitch, instead (FoodTraders)
-        (BuildServiceKind.Bar, 5_000, 1),
-        (BuildServiceKind.FirstAid, 3_500, 1),
-        (BuildServiceKind.StewardPost, 2_500, 1),
-        (BuildServiceKind.Bin, 1_000, int.MaxValue)
+        (BuildServiceKind.WaterTap, 1_500),
+        (BuildServiceKind.Toilet, 3_000),
+        (BuildServiceKind.FoodVan, 0), // the food trader pays the festival to pitch, instead (FoodTraders)
+        (BuildServiceKind.Bar, 5_000),
+        (BuildServiceKind.FirstAid, 3_500),
+        (BuildServiceKind.StewardPost, 2_500),
+        (BuildServiceKind.Bin, 1_000)
     ];
+
+    /// <summary>
+    /// Build limits by tier: one more tap and toilet at Tier 2. Bins are unlimited.
+    /// TODO(multi-vendor): bars and food vans go to 2 at Tier 2 once the single "food" and "drinks" vendor ids are refactored.
+    /// </summary>
+    private static readonly TierBuildLimits[] BuildLimitsByTier =
+    [
+        new(Taps: 1, Toilets: 2, FoodVans: 1, Bars: 1, FirstAid: 1, StewardPosts: 1),
+        new(Taps: 2, Toilets: 3, FoodVans: 1, Bars: 1, FirstAid: 1, StewardPosts: 1),
+    ];
+
+    public static TierBuildLimits BuildLimits(int tier) => BuildLimitsByTier[Math.Clamp(tier, 1, BuildLimitsByTier.Length) - 1];
 
     public static int BuildServiceFeePennies(BuildServiceKind kind) =>
         BuildCatalogue.Single(item => item.Kind == kind).FeePennies;
-    /// <summary>
-    /// How many of a service this festival may place: one water tap, or two with the Another Round perk; the
-    /// catalogue limit for everything else.
-    /// </summary>
+    /// <summary>How many of a service this festival may place: the tier's limit, and one more tap with the Another Round perk.</summary>
     public int ServiceLimit(BuildServiceKind kind) =>
-        kind == BuildServiceKind.WaterTap ? (HasPerk("another-round") ? 2 : 1) : BuildServiceLimit(kind);
+        BuildServiceLimit(kind, _preparation?.Tier ?? 1) - (kind == BuildServiceKind.WaterTap && !HasPerk("another-round") ? 1 : 0);
 
-    /// <summary>The most of a service any festival may place (the tap's assumes the perk).</summary>
-    public static int BuildServiceLimit(BuildServiceKind kind) =>
-        BuildCatalogue.Single(item => item.Kind == kind).Limit;
+    /// <summary>The most of a service any festival at this tier may place (the tap's assumes the perk).</summary>
+    public static int BuildServiceLimit(BuildServiceKind kind, int tier)
+    {
+        var limits = BuildLimits(tier);
+        return kind switch
+        {
+            BuildServiceKind.WaterTap => limits.Taps + 1,
+            BuildServiceKind.Toilet => limits.Toilets,
+            BuildServiceKind.FoodVan => limits.FoodVans,
+            BuildServiceKind.Bar => limits.Bars,
+            BuildServiceKind.FirstAid => limits.FirstAid,
+            BuildServiceKind.StewardPost => limits.StewardPosts,
+            BuildServiceKind.Bin => int.MaxValue,
+            _ => throw new ArgumentOutOfRangeException(nameof(kind))
+        };
+    }
+
+    /// <summary>"One water tap is", "Two water taps are".</summary>
+    private static string TapCount(int taps) => taps == 1 ? "One water tap is" : $"{(taps == 2 ? "Two" : taps.ToString())} water taps are";
     public IReadOnlyList<BuildPlacement> CaptureBuildPlacements() => _preparation?.BuildPlacements.ToArray() ?? [];
     public long BuildDraftCost => _preparation?.BuildPlacements?.Sum(item => (long)BuildServiceFeePennies(item.Kind)) ?? 0;
     /// <summary>
@@ -71,12 +98,11 @@ public sealed partial class GameSession
         if (kind is not (BuildServiceKind.WaterTap or BuildServiceKind.Toilet)) return prefix;
         var first = prefix + ".main";
         if (!placed.Any(item => item.Id == first)) return first;
-        for (var index = 1; index <= BuildServiceLimit(kind); index++)
+        for (var index = 1; ; index++)
         {
             var id = prefix + ".extra-" + index;
             if (!placed.Any(item => item.Id == id)) return id;
         }
-        throw new InvalidOperationException("No free build identity remains.");
     }
 
     private CommandResult? ValidateBuildCommand(EntityId? target, SessionCommand command)
@@ -87,7 +113,7 @@ public sealed partial class GameSession
             return p.BuildPlacements.Any(item => item.Id == remove.Id) ? null :
                 CommandResult.Rejected(CommandReasonCode.UnknownTarget, "This service is not in the draft.");
         if (command is UseDefaultBuildLayoutCommand)
-            return ValidateBuildLayout(StandardBuildLayout(), _equipment, p.WaterTowerOwned) is { } defaultsError ?
+            return ValidateBuildLayout(StandardBuildLayout(), _equipment, p.WaterTowerOwned, p.Tier) is { } defaultsError ?
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, defaultsError) : null;
         BuildPlacement proposed;
         if (command is PlaceBuildServiceCommand place)
@@ -95,7 +121,7 @@ public sealed partial class GameSession
             if (!Enum.IsDefined(place.Kind)) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown service.");
             if (p.BuildPlacements.Count(item => item.Kind == place.Kind) >= ServiceLimit(place.Kind))
                 return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, place.Kind == BuildServiceKind.WaterTap && !HasPerk("another-round")
-                    ? "One water tap is placed; the Another Round perk allows a second."
+                    ? $"{TapCount(ServiceLimit(place.Kind))} placed; the Another Round perk allows {(ServiceLimit(place.Kind) == 1 ? "a second" : "one more")}."
                     : "All slots for this service are placed; select one to move it.");
             proposed = new(NextBuildId(place.Kind, p.BuildPlacements), place.Kind, place.Cell, place.QuarterTurns);
         }
@@ -107,7 +133,7 @@ public sealed partial class GameSession
         }
         else return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Unknown build edit.");
         var next = p.BuildPlacements.Where(item => item.Id != proposed.Id).Append(proposed).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
-        return ValidateBuildLayout(next, _equipment, p.WaterTowerOwned) is { } issue ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue) : null;
+        return ValidateBuildLayout(next, _equipment, p.WaterTowerOwned, p.Tier) is { } issue ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue) : null;
     }
 
     private void ApplyBuildCommand(SessionCommand command)
@@ -156,12 +182,15 @@ public sealed partial class GameSession
             .Select(toilet => toilet with { QueueCells = [ToiletDoorstepCell(toilet)] }).ToArray();
 
     private static string? ValidateBuildLayout(IReadOnlyList<BuildPlacement> placements,
-        EquipmentSnapshot? equipment = null, bool waterTowerOwned = false)
+        EquipmentSnapshot? equipment = null, bool waterTowerOwned = false, int tier = 1)
     {
-        static bool IdentityMatchesKind(BuildPlacement item) => item.Kind switch
+        // A main one, then numbered extras up to the tier's limit.
+        bool Numbered(BuildPlacement item, string prefix) => item.Id == prefix + ".main" ||
+            Enumerable.Range(1, BuildServiceLimit(item.Kind, tier) - 1).Any(index => item.Id == $"{prefix}.extra-{index}");
+        bool IdentityMatchesKind(BuildPlacement item) => item.Kind switch
         {
-            BuildServiceKind.WaterTap => item.Id is "water.main" or "water.extra-1",
-            BuildServiceKind.Toilet => item.Id is "toilet.main" or "toilet.extra-1",
+            BuildServiceKind.WaterTap => Numbered(item, "water"),
+            BuildServiceKind.Toilet => Numbered(item, "toilet"),
             BuildServiceKind.FoodVan => item.Id == "food",
             BuildServiceKind.Bar => item.Id == "drinks",
             BuildServiceKind.FirstAid => item.Id == "first-aid",
@@ -172,7 +201,7 @@ public sealed partial class GameSession
         if (placements.Any(item => item is null || !Enum.IsDefined(item.Kind) || item.QuarterTurns is < 0 or > 3 ||
             string.IsNullOrWhiteSpace(item.Id) || !IdentityMatchesKind(item)) ||
             placements.Select(item => item.Id).Distinct(StringComparer.Ordinal).Count() != placements.Count ||
-            BuildCatalogue.Any(entry => placements.Count(item => item.Kind == entry.Kind) > entry.Limit))
+            BuildCatalogue.Any(entry => placements.Count(item => item.Kind == entry.Kind) > BuildServiceLimit(entry.Kind, tier)))
             return "Build identities or service limits are invalid.";
         var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
         var reserved = new HashSet<GridCell>();

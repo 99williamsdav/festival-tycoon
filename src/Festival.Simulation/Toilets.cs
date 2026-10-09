@@ -405,7 +405,7 @@ public sealed partial class GameSession
             toilets.Select(item => item.Id).Distinct(StringComparer.Ordinal).Count() != toilets.Length ||
             (!toilets.Select(item => item.Id).Order(StringComparer.Ordinal).SequenceEqual(
                 snapshot.Preparation!.BuildPlacements.Where(item => item.Kind == BuildServiceKind.Toilet)
-                    .Select(item => item.Id).Order(StringComparer.Ordinal)) || toilets.Length > BuildServiceLimit(BuildServiceKind.Toilet)) ||
+                    .Select(item => item.Id).Order(StringComparer.Ordinal)) || toilets.Length > BuildServiceLimit(BuildServiceKind.Toilet, snapshot.Preparation.Tier)) ||
             immersion.People.Any(person => person.ToiletStage != ToiletVisitStage.None &&
                 !toilets.Any(toilet => toilet.Id == (person.ToiletId ?? "")) ||
                 person.ToiletStage == ToiletVisitStage.None && person.ToiletId is not null) ||

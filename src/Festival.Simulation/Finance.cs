@@ -12,6 +12,8 @@ public enum LedgerAccountType
     LoanPrincipalLiability = 6,
     AdministrationExpense = 7,
     EquipmentAsset = 8,
+    /// <summary>What earlier festivals left the campaign worth: carried cash less the debt still owed.</summary>
+    CarriedBalance = 9,
 }
 
 /// <summary>

@@ -21,10 +21,16 @@ public sealed partial class GameSession
     }
 
     /// <summary>A Build campaign with a non-standard guest count, for scale diagnostics only.</summary>
-    internal static GameSession CreateBuildCampaign(ulong seed, int guests)
+    internal static GameSession CreateBuildCampaign(ulong seed, int guests) => CreateBuildCampaign(seed, 1, null, null, guests);
+
+    /// <summary>
+    /// A Build campaign at a tier: Tier 1 on the New Game route, or a later festival opening on what the previous one
+    /// carried forward. The same seed, tier and guest count always give the same identities.
+    /// </summary>
+    private static GameSession CreateBuildCampaign(ulong seed, int tier, FestivalCarryOver? carry, CampaignId? campaignId, int? guests = null)
     {
-        var session = CreateFoodAndDrinkBaseline(seed, guests);
-        SetUpPerks(session, seed);
+        var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId);
+        SetUpPerks(session, seed, tier);
         SetUpEditablePlan(session);
         SetUpResults(session);
         SetUpBuild(session);
@@ -32,21 +38,23 @@ public sealed partial class GameSession
     }
 
     /// <summary>The campaign through its food-and-drink stage: the baseline a retried edition resets to.</summary>
-    private static GameSession CreateFoodAndDrinkBaseline(ulong seed, int guests = TierOneGuests)
+    private static GameSession CreateFoodAndDrinkBaseline(ulong seed, int tier = 1, int? guests = null,
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null)
     {
-        var session = CreateProgrammeBaseline(seed, guests);
+        var session = CreateProgrammeBaseline(seed, tier, guests, carry, campaignId);
         SetUpFoodAndDrink(session, seed);
         return session;
     }
 
-    /// <summary>The campaign through its programme stage: the saved roster's reference identities.</summary>
     private const int TierOneGuests = FestivalTickets.GuestsPerTier;
 
-    private static GameSession CreateProgrammeBaseline(ulong seed, int guests = TierOneGuests)
+    /// <summary>The campaign through its programme stage: the saved roster's reference identities.</summary>
+    private static GameSession CreateProgrammeBaseline(ulong seed, int tier = 1, int? guests = null,
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null)
     {
-        const int tier = 1;
-        var session = CreateCampaign(seed);
-        SetUpEdition(session, seed, tier, guests);
+        var session = CreateCampaign(seed, campaignId, tier, carry);
+        if (tier > 1) ReseedForTier(session, seed, tier);
+        SetUpEdition(session, seed, tier, guests ?? FestivalTickets.Sold(tier), carry);
         SetUpStagePower(session);
         SetUpHotWeather(session);
         SetUpSecurity(session, seed);
@@ -54,8 +62,18 @@ public sealed partial class GameSession
         return session;
     }
 
+    /// <summary>A later festival's day runs on its own random streams, so faults and moods don't replay the last one's.</summary>
+    private static void ReseedForTier(GameSession session, ulong seed, int tier)
+    {
+        foreach (var id in session._randomStreams.Keys.ToArray())
+            session._randomStreams[id] = RandomStreamFactory.Create(TierSeed(seed, tier), id);
+    }
+
+    /// <summary>The campaign seed, mixed with the tier from Tier 2 on; Tier 1 keeps the seed itself.</summary>
+    internal static ulong TierSeed(ulong seed, int tier) => tier <= 1 ? seed : seed ^ ((ulong)tier * 0xD1B54A32D192ED03UL);
+
     /// <summary>The edition roster, stock and preparation plan on the inherited farm.</summary>
-    private static void SetUpEdition(GameSession session, ulong seed, int tier, int guests)
+    private static void SetUpEdition(GameSession session, ulong seed, int tier, int guests, FestivalCarryOver? carry)
     {
         session.Phase = SessionPhase.OpeningCheck;
         // Retain campaign identity, inherited farm and opening loan. The old planning-week
@@ -73,7 +91,7 @@ public sealed partial class GameSession
             session._wallets.Add(new(person.AgentId), new WalletState { OwnerId = new(person.AgentId), CashPennies = 500 });
         session.PreparationView = new(1, tier, seed ^ ((ulong)tier * 0x9E3779B97F4A7C15UL), 1,
             PreparationStatus.Preparing, owner.Value, stock.Value, 0,
-            [], [], [], [], [], people, [], 0, CampaignDefaults.OpeningCashPennies);
+            carry?.OwnedEquipment.ToArray() ?? [], [], [], [], [], people, [], 0, OpeningCashFor(tier, carry)) { CarriedIn = carry };
     }
 
     /// <summary>The trailer stage generator and its overload chain.</summary>
@@ -161,12 +179,15 @@ public sealed partial class GameSession
     }
 
     /// <summary>The perk deck and opening draft.</summary>
-    private static void SetUpPerks(GameSession session, ulong seed)
+    private static void SetUpPerks(GameSession session, ulong seed, int tier)
     {
-        var rng = RandomStreamFactory.Create(seed ^ 0x5045524B44524146UL, RandomStreamId.ArtistDecisions);
+        var rng = RandomStreamFactory.Create(PerkSeed(seed, tier), RandomStreamId.ArtistDecisions);
         session._perks = new(1, [], 0, false, false, [], rng.State, rng.Increment, 0, false, []);
         session.OpenPerkDraft();
     }
+
+    /// <summary>Each festival deals its perks from its own deck.</summary>
+    private static ulong PerkSeed(ulong seed, int tier) => TierSeed(seed, tier) ^ 0x5045524B44524146UL;
 
     /// <summary>The unpaid, editable preparation plan.</summary>
     private static void SetUpEditablePlan(GameSession session)

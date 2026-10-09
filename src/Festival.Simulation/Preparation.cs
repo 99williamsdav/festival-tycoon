@@ -48,6 +48,9 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public int? GuestMedicalCollapses { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public FestivalResult? Result { get; init; }
+    /// <summary>What came forward from the previous festival; none at Tier 1.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public FestivalCarryOver? CarriedIn { get; init; }
 }
 public sealed record AcceptPreparationOfferCommand(string OfferId) : SessionCommand;
 public sealed record StartPreparedEditionCommand : SessionCommand;
@@ -58,6 +61,11 @@ public sealed partial class GameSession
     // 160 festival minutes = eight live real minutes at the unchanged 80 ticks/s;
     // preparation and pauses target the remaining two minutes, pending playtesting.
     public const int PreparedWeekendTicks = 38_400;
+    /// <summary>
+    /// The most people (guests, crew and band members) one festival may hold: Tier 2's 50 guests, six crew and two
+    /// stages of nine band members fit with room to spare, and so would Tier 3's 75 guests.
+    /// </summary>
+    public const int MaxActivePeople = 100;
     public const int PreparedDayTicks = 38_400;
     public int PreparedEditionDurationTicks => PreparedDayTicks;
 
@@ -81,7 +89,7 @@ public sealed partial class GameSession
     {
         if (target is not null || _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Water sharing must be committed before a Hot weekend.");
-        if (p.CommunityShareAttempt != 0)
+        if (p.CommunityShareAttempt != 0 || p.CarriedIn?.CommunityWaterUsed == true)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The once-per-campaign water choice was already made.");
         return null;
     }
@@ -93,8 +101,9 @@ public sealed partial class GameSession
     public string? WaterTapAdditionUnavailableReason => _medical is null || _preparation is not { Status: PreparationStatus.Preparing } p
         ? "Taps can only be added during preparation."
         : p.BuildPlacements.Count(item => item.Kind == BuildServiceKind.WaterTap) >= ServiceLimit(BuildServiceKind.WaterTap)
-            ? HasPerk("another-round") ? "Both tap slots are placed; select one to move or remove it."
-                : "The tap is placed; the Another Round perk allows a second." : null;
+            ? HasPerk("another-round") ? $"{(ServiceLimit(BuildServiceKind.WaterTap) == 2 ? "Both" : "All")} tap slots are placed; select one to move or remove it."
+                : ServiceLimit(BuildServiceKind.WaterTap) == 1 ? "The tap is placed; the Another Round perk allows a second."
+                : $"{TapCount(ServiceLimit(BuildServiceKind.WaterTap))} placed; the Another Round perk allows one more." : null;
 
     public IReadOnlyList<LedgerEntry> GetPreparationLedgerEntries()
     {
@@ -192,8 +201,8 @@ public sealed partial class GameSession
             if (offer is null) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown preparation offer.");
             if (offer.Category == "act") return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Confirm all three acts together through the programme.");
             if (offer.Category is "extra-medic" or "extra-steward" &&
-                (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || PeopleIn(PersonView.Roster).Length >= 50))
-                return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Requires the matching role slot and room below 50 active people.");
+                (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || PeopleIn(PersonView.Roster).Length >= MaxActivePeople))
+                return CommandResult.Rejected(CommandReasonCode.InvalidParameter, $"Requires the matching role slot and room below {MaxActivePeople} active people.");
             if (StaffCatalogue.ForOffer(GetStaffCandidates(), offer.Id) is { Role: not StaffRole.Sound } candidate)
             {
                 var other = offer.Category.StartsWith("extra-", StringComparison.Ordinal) ? candidate.Id : candidate.ExtraOfferId;
@@ -400,7 +409,7 @@ public sealed partial class GameSession
         _lavSucker = EmptyLavSucker;
         ResetGround();
         var p = _preparation!;
-        var baseline = CreateFoodAndDrinkBaseline(CampaignSeed);
+        var baseline = CreateFoodAndDrinkBaseline(CampaignSeed, p.Tier);
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;
         _ownedStocks[new(p.StockId)].Quantity = 40;
         _navigationAgents.Clear();
@@ -447,13 +456,16 @@ public sealed partial class GameSession
             return "Festival reputation or scene credibility invalid.";
         if ((p.BuildPlacements is null || p.Plan is null ||
             !p.BuildPlacements.Select(item => item.Id).SequenceEqual(p.BuildPlacements.Select(item => item.Id).Order(StringComparer.Ordinal)) ||
-            ValidateBuildLayout(p.BuildPlacements, snapshot.Equipment, p.WaterTowerOwned) is not null))
+            ValidateBuildLayout(p.BuildPlacements, snapshot.Equipment, p.WaterTowerOwned, p.Tier) is not null))
             return "Saved build layout is invalid.";
         if (ValidateBuildFacilities(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
         if (p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null)
             return "Lineup reaction identity requires the current saved programme and results plan.";
-        if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > 2 || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
-            p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != CampaignDefaults.OpeningCashPennies || p.StockConsumed < 0 ||
+        if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > HighestTier || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
+            p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != OpeningCashFor(p.Tier, p.CarriedIn) || p.StockConsumed < 0 ||
+            (p.Tier == 1) != (p.CarriedIn is null) || p.CarriedIn is { } carry && (carry.FromTier != p.Tier - 1 || carry.DebtPennies < 0 ||
+                carry.FavourBalance is < 0 or > 2 || carry.OwnedEquipment is null || !carry.OwnedEquipment.SequenceEqual(carry.OwnedEquipment.Distinct().Order(StringComparer.Ordinal)) ||
+                carry.CommunityWaterUsed && p.CommunityShareAttempt != 0) ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||
             p.StaffProfiles is null ||
@@ -474,13 +486,13 @@ public sealed partial class GameSession
         var security = snapshot.Disorder is null ? 0 : 1;
         var extras = p.AcceptedOffers.Count(id => id.StartsWith("staff.extra-", StringComparison.Ordinal));
         var performerCount = snapshot.Programme is null ? 3 : 9;
-        if (p.People.Length > 50 || p.People.Length != FestivalTickets.Sold(p.Tier) + 1 + performerCount + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != FestivalTickets.Sold(p.Tier) ||
+        if (p.People.Length > MaxActivePeople || p.People.Length != FestivalTickets.Sold(p.Tier) + 1 + performerCount + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != FestivalTickets.Sold(p.Tier) ||
             p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != performerCount ||
             p.People.Any(item => item.AgentId == 0 || item.AgentId >= snapshot.NextEntityId || string.IsNullOrWhiteSpace(item.Name) || item.ExpectedGenre < 0 || item.ExpectedGenre > (snapshot.Programme is null ? 1 : FestivalGenre.Count - 1) ||
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
             p.People.Select(item => item.AgentId).Distinct().Count() != p.People.Length)
             return "Fixed protected roster invalid.";
-        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed).WithPaymentStanding(p);
+        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed, p.Tier).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
         var candidates = SavedStaffCandidates(snapshot);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })
@@ -499,7 +511,9 @@ public sealed partial class GameSession
             !p.AcceptedOffers.SequenceEqual(p.Payments.Where(item => item.Attempt == p.Attempt).Select(item => item.OfferId).Order(StringComparer.Ordinal)))
             return "Preparation commitments do not reconcile.";
         var settled = p.Status is PreparationStatus.Failed or PreparationStatus.Finished;
-        if ((p.OwnedEquipment.Length == 1) != p.Payments.Any(item => item.OfferId == "equipment.buy") ||
+        var carriedRig = p.CarriedIn?.OwnedEquipment.Contains("sound-rig") == true;
+        if ((p.OwnedEquipment.Length == 1) != (carriedRig || p.Payments.Any(item => item.OfferId == "equipment.buy")) ||
+            carriedRig && p.Payments.Any(item => item.OfferId == "equipment.buy") ||
             p.Rentals.Contains("sound-rig") != (!settled && p.AcceptedOffers.Any(id => id is "equipment.rent" or PowerRules.ProRigOffer)) ||
             p.Rentals.Contains("generator") != (!settled && p.AcceptedOffers.Contains(PowerRules.GeneratorOffer)) ||
             !p.WorkContracts.SequenceEqual(settled ? [] : p.AcceptedOffers.Where(id => StaffCatalogue.IsWorkCategory(offers[id].Category))) ||
