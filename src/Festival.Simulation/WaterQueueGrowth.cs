@@ -30,7 +30,7 @@ public sealed partial class GameSession
         return cells.Count > members || members == 20;
     }
 
-    private static bool ValidSavedWaterGeometry(IReadOnlyList<WaterPointState> points, TraversalGrid? grid, PreparationSnapshot? prep)
+    private static bool ValidSavedWaterGeometry(IReadOnlyList<WaterPointState> points, TraversalGrid? grid, PreparationSnapshot? prep, IReadOnlyList<FestivalStage> stages)
     {
         static GridCell[] Cells(WaterPointState point) => point.QueueCells.Length > 0 ? point.QueueCells :
             Enumerable.Range(0, Math.Min(20, point.Queue.Length + point.Overflow.Length + 1)).Select(index =>
@@ -55,10 +55,10 @@ public sealed partial class GameSession
                 if (index == 0) { if (cell != WaterPointServiceCell(point)) return false; continue; }
                 var previous = point.QueueCells[index - 1];
                 var dx = cell.X - previous.X; var dz = cell.Z - previous.Z;
-                if(LooseQueueGeometry.Corridor([previous,cell]).Any(part=>!QueueGroundAllowed(part,prep)))return false;
+                if(LooseQueueGeometry.Corridor([previous,cell]).Any(part=>!QueueGroundAllowed(part,prep,stages)))return false;
                 if (Math.Abs(dx)>3 || Math.Abs(dz)>3 || Math.Max(Math.Abs(dx),Math.Abs(dz))<2 ||
                     dx * forward.X + dz * forward.Z < 0 ||
-                    FestivalStages.InAnyReserve(cell) || Backstage.Area(cell)) return false;
+                    FestivalStages.InAnyReserve(stages, cell) || Backstage.Area(cell)) return false;
                 if (index > 1)
                 {
                     var before = point.QueueCells[index - 2];

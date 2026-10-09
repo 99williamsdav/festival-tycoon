@@ -283,7 +283,7 @@ public sealed partial class GameSession
                 !InterventionOwnsTarget(person.Id) && !InterventionOwnsWorker(person.Id);
             var grievance = watched?.Stage == LiveSetStage.Interrupted && !ScheduledSilence &&
                 (CurrentTick >= watched.PlannedTick && CurrentTick < StageProgramme(watchedStage)!.SlotEndTick &&
-                    !StagePowered) &&
+                    !StagePoweredAt(watchedStage)) &&
                 listener is { AtPlace: true, Enthusiasm: >= 65 }
                 ? DisorderGrievance.MusicCutoff
                 : inWaterLine && need.Thirst >= 6_000 && CurrentTick - joined >= tolerance
@@ -622,7 +622,7 @@ public sealed partial class GameSession
                 item.QueueToleranceTicks is < 320 or > 1_120 || item.Pressure is < 0 or > 10_000 ||
                 !Enum.IsDefined(item.Grievance) || !Enum.IsDefined(item.Stage) ||
                 item.Grievance == DisorderGrievance.BandDelayed && (s.Programme is null || item.GrievanceTick < 0 ||
-                    !FestivalStages.All.Any(stage => stage.SlotStarts.Where((start, index) => item.GrievanceTick >= p.StartedTick + start &&
+                    !SavedStages(s).Any(stage => stage.SlotStarts.Where((start, index) => item.GrievanceTick >= p.StartedTick + start &&
                         item.GrievanceTick < p.StartedTick + stage.SlotEnds[index]).Any())) ||
                 item.GrievanceTick > s.CurrentTick || item.StageTick > s.CurrentTick ||
                 item.QueueJoinedTick > s.CurrentTick || item.InjuryTick > s.CurrentTick ||

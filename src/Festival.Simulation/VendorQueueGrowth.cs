@@ -20,7 +20,7 @@ public sealed partial class GameSession
     private Func<GridCell,bool> QueueGrowthAllowed()
     {
         HashSet<GridCell>? inUse=null;
-        return cell=>QueueGroundAllowed(cell,_preparation) && (!InAudienceArea(cell) || !(inUse??=AudienceGroundInUse()).Contains(cell));
+        return cell=>QueueGroundAllowed(cell,_preparation,Stages) && (!InStagesAudience(cell) || !(inUse??=AudienceGroundInUse()).Contains(cell));
     }
     private HashSet<GridCell> AudienceGroundInUse()
     {
@@ -39,7 +39,7 @@ public sealed partial class GameSession
     private HashSet<GridCell> AllQueueGround()=>WaterPoints().SelectMany(point=>LooseQueueGeometry.Corridor(CaptureWaterQueueCells(point.Id)))
         .Concat(ImmersionQueueCorridor()).ToHashSet();
     // Queues always keep off the stage approach and backstage; audience ground is decided as they grow.
-    private static bool QueueGroundAllowed(GridCell cell,PreparationSnapshot? prep)=>!FestivalStages.InAnyReserve(cell) &&!Backstage.Area(cell) &&
+    private static bool QueueGroundAllowed(GridCell cell,PreparationSnapshot? prep,IReadOnlyList<FestivalStage> stages)=>!FestivalStages.InAnyReserve(stages,cell) &&!Backstage.Area(cell) &&
         !(Math.Abs(cell.X-ResponsePost(prep,ResponseRole.Medic).Cell.X)<=3 && Math.Abs(cell.Z-ResponsePost(prep,ResponseRole.Medic).Cell.Z)<=3) &&
         (StewardPostPlacement(prep) is not { } steward || !(Math.Abs(cell.X-steward.Cell.X)<=2 && Math.Abs(cell.Z-steward.Cell.Z)<=2)) &&
         (FirstAidPlacement(prep) is null || !new[]{ResponsePostHome(prep,ResponseRole.Medic),ResponsePostHome(prep,ResponseRole.Medic,true)}.Contains(cell)) &&

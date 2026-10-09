@@ -38,7 +38,7 @@ public partial class Main : Node, IHudHost
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
     /// <summary>The tier --start-tier opens on; never set in normal play.</summary>
     private int? _startTier;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v46", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v46");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v47", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v47");
 
     public override void _Ready()
     {
@@ -583,7 +583,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v46");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v47");
 
 
 

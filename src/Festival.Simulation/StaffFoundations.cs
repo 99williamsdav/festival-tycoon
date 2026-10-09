@@ -37,6 +37,8 @@ public sealed partial class GameSession
         if (GetResponseStaff().SingleOrDefault(person => person.AgentId == id) is { } response)
             return StaffDutyCell(id, response.Role);
         if (_equipment?.WorkerId == id) return EquipmentWorkCell;
+        // Another stage's engineer mixes behind that stage's crowd.
+        if (EngineerStage(id) is var stage and > 0 && Stages[stage].MixingPlace is { } mixing) return mixing;
         // The sound engineer's established listening/mixing location in the audience apron.
         return PreparedPlace(Array.FindIndex(PeopleIn(PersonView.Roster), person => person.Id == id));
     }
