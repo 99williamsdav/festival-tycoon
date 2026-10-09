@@ -1,0 +1,129 @@
+{
+ "version": 1,
+ "status": "designer-approved colour set; concept precedes implementation; review in game",
+ "concept": "attendee-colour-concept.png",
+ "colour_space": "sRGB hex bytes; convert only as required by renderer texture pipeline",
+ "palette": {
+  "width": 96,
+  "height": 8,
+  "swatch_width": 8,
+  "uv_centre_formula": "u=(8*slot+4)/96, v=0.5",
+  "filter": "nearest",
+  "wrap": "clamp",
+  "alpha": 255
+ },
+ "original_hex": [
+  "C88F65",
+  "B98260",
+  "E0B087",
+  "397677",
+  "4D8B89",
+  "C2A055",
+  "D0AF63",
+  "343B42",
+  "454C54",
+  "252B31",
+  "3F2F28",
+  "5D4436"
+ ],
+ "protected_slots": {
+  "0": "skin base incl arms/hands/face",
+  "1": "skin shade / female mouth",
+  "2": "skin light",
+  "9": "eyes AND shoes; never recolour"
+ },
+ "editable_slots": {
+  "3": "tee base",
+  "4": "tee light reserve",
+  "5": "existing flush chest patch",
+  "6": "patch light reserve",
+  "7": "trousers / hip base",
+  "8": "trousers light reserve",
+  "10": "hair base",
+  "11": "hair light reserve"
+ },
+ "clothing_colourways": [
+  {
+   "id": "field-teal-soaked",
+   "slots": {
+    "3": "214445",
+    "4": "2D514F",
+    "5": "C2A055",
+    "6": "D0AF63",
+    "7": "1E2226",
+    "8": "282C31"
+   }
+  },
+  {
+   "id": "clay-rust-soaked",
+   "slots": {
+    "3": "58362A",
+    "4": "634235",
+    "5": "D0B989",
+    "6": "DEC99B",
+    "7": "232729",
+    "8": "2D3134"
+   }
+  },
+  {
+   "id": "meadow-sage-soaked",
+   "slots": {
+    "3": "404633",
+    "4": "4D543F",
+    "5": "D2BE8D",
+    "6": "E0CE9F",
+    "7": "26292A",
+    "8": "313536"
+   }
+  },
+  {
+   "id": "dusk-blue-soaked",
+   "slots": {
+    "3": "303F4D",
+    "4": "3D4D5A",
+    "5": "B9C3BF",
+    "6": "CDD5CF",
+    "7": "222327",
+    "8": "2D2E33"
+   }
+  }
+ ],
+ "hair_colours": [
+  {
+   "id": "dark-brown-soaked",
+   "slots": {
+    "10": "251B17",
+    "11": "36271F"
+   }
+  },
+  {
+   "id": "soft-black-soaked",
+   "slots": {
+    "10": "181715",
+    "11": "25221F"
+   }
+  },
+  {
+   "id": "dark-blonde-soaked",
+   "slots": {
+    "10": "594A32",
+    "11": "675941"
+   }
+  },
+  {
+   "id": "auburn-soaked",
+   "slots": {
+    "10": "462E22",
+    "11": "563C2C"
+   }
+  }
+ ],
+ "combination_policy": "All 4 clothing sets x 4 hair colours approved for either body. Keep tee/patch/trouser values as a coordinated tuple, choose hair independently. No random RGB or arbitrary cross-pairing of cloth regions.",
+ "application": "Guest body palette texture/material variant only, shared cached resources by (clothingId,hairId). Do not modulate whole body, material albedo, scene root or props. No source mesh/UV/GLB modifications. All poses of a guest use same cosmetic choice.",
+ "excluded": "skin-tone variation, eye/mouth recolouring, hairstyle/geometry edits, new outfits or patterns, staff/performer recolouring, props, customization UI, gameplay traits or save fields",
+ "soaked": {
+  "source": "attendee_palette_v1_contract.json",
+  "rule": "slot hex x 0.58 on slots [3, 4, 7, 8, 10, 11]",
+  "built_by": "assets/source/characters/rain-guests-v1/make_soaked_palette.py"
+ }
+}

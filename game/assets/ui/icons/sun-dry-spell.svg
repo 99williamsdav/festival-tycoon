@@ -1,0 +1,21 @@
+<!-- Festival Tycoon rain forecast icon, Lucide style. Cloud outline from lucide-static v0.460.0 (ISC). -->
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="24"
+  height="24"
+  viewBox="0 0 24 24"
+  fill="none"
+  stroke="#ffffff"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+>
+  <path d="M12 2v6" />
+  <path d="m8.5 5 3.5-3.5L15.5 5" />
+  <path d="M4.22 10.22l1.42 1.42" />
+  <path d="M2 18h2" />
+  <path d="M20 18h2" />
+  <path d="M19.78 10.22l-1.42 1.42" />
+  <path d="M22 22H2" />
+  <path d="M16 18a4 4 0 0 0-8 0" />
+</svg>

@@ -1,0 +1,19 @@
+{
+ "file": "lwf_track_mat_grid_v1.glb",
+ "node": "LWF_TrackMat_Grid",
+ "size_m": [
+  2.0,
+  0.03,
+  1.0
+ ],
+ "cells": [
+  4,
+  2
+ ],
+ "triangles": 10,
+ "materials": [
+  "LWF_TrackMat_Grid (alpha scissor 0.5)",
+  "LWF_TrackMat_Rim"
+ ],
+ "sha256": "1c323b88546d1791d40e59db62168e61c4d4c7d0c300ee23c2111e204cb7aeed"
+}

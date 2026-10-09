@@ -1,0 +1,53 @@
+{
+ "lwf_attendee_female_rain_clips_v1.glb": {
+  "sha256": "a3232a13d3375464daeccdd4b0137e6bf0b654e038323ce529bd6c3a0e5e261b",
+  "nodes": [
+   "LWF_Attendee_Rig"
+  ],
+  "clips": {
+   "rain_hunched": {
+    "frames": 49,
+    "base": "idle"
+   },
+   "rain_huddle": {
+    "frames": 49,
+    "base": "idle"
+   },
+   "rain_hands_head": {
+    "frames": 21,
+    "base": "walk"
+   },
+   "rain_hurry": {
+    "frames": 16,
+    "base": "walk_hurry"
+   }
+  }
+ },
+ "lwf_attendee_female_poncho_clear_v1.glb": {
+  "sha256": "2879471b2518456439bc0356b3d38567eb18f60d9f5c0e2393796e1d65b399e5",
+  "nodes": [
+   "LWF_Attendee_Rig",
+   "LWF_Poncho_Clear"
+  ],
+  "triangles": 7424,
+  "materials": [
+   "LWF_Poncho_Clear",
+   "LWF_Poncho_Trim"
+  ],
+  "vertex_groups": [
+   "Chest",
+   "Head",
+   "Hips",
+   "LeftHand",
+   "LeftLowerArm",
+   "LeftUpperArm",
+   "LeftUpperLeg",
+   "Neck",
+   "RightHand",
+   "RightLowerArm",
+   "RightUpperArm",
+   "RightUpperLeg",
+   "Spine"
+  ]
+ }
+}
