@@ -1,13 +1,13 @@
 namespace Festival.Simulation;
 
-public enum BuildServiceKind { WaterTap, Toilet, FoodVan, Bar, FirstAid, StewardPost, Bin }
+public enum BuildServiceKind { WaterTap, Toilet, FoodVan, Bar, FirstAid, StewardPost, Bin, Marquee }
 public sealed record BuildPlacement(string Id, BuildServiceKind Kind, GridCell Cell, int QuarterTurns);
 public sealed record PlaceBuildServiceCommand(BuildServiceKind Kind, GridCell Cell, int QuarterTurns = 0) : SessionCommand;
 public sealed record MoveBuildServiceCommand(string Id, GridCell Cell, int QuarterTurns = 0) : SessionCommand;
 public sealed record RemoveBuildServiceCommand(string Id) : SessionCommand;
 public sealed record UseDefaultBuildLayoutCommand : SessionCommand;
 /// <summary>How many of each service one festival at a tier may place. The tap count is before the Another Round perk's +1.</summary>
-public sealed record TierBuildLimits(int Taps, int Toilets, int FoodVans, int Bars, int FirstAid, int StewardPosts);
+public sealed record TierBuildLimits(int Taps, int Toilets, int FoodVans, int Bars, int FirstAid, int StewardPosts, int Marquees);
 
 public sealed partial class GameSession
 {
@@ -19,17 +19,18 @@ public sealed partial class GameSession
         (BuildServiceKind.Bar, 5_000),
         (BuildServiceKind.FirstAid, 3_500),
         (BuildServiceKind.StewardPost, 2_500),
-        (BuildServiceKind.Bin, 1_000)
+        (BuildServiceKind.Bin, 1_000),
+        (BuildServiceKind.Marquee, MarqueeRules.FeePennies)
     ];
 
     /// <summary>
-    /// Build limits by tier: one more tap and toilet at Tier 2. Bins are unlimited.
+    /// Build limits by tier: one more tap, toilet and marquee at Tier 2. Bins are unlimited.
     /// TODO(multi-vendor): bars and food vans go to 2 at Tier 2 once the single "food" and "drinks" vendor ids are refactored.
     /// </summary>
     private static readonly TierBuildLimits[] BuildLimitsByTier =
     [
-        new(Taps: 1, Toilets: 2, FoodVans: 1, Bars: 1, FirstAid: 1, StewardPosts: 1),
-        new(Taps: 2, Toilets: 3, FoodVans: 1, Bars: 1, FirstAid: 1, StewardPosts: 1),
+        new(Taps: 1, Toilets: 2, FoodVans: 1, Bars: 1, FirstAid: 1, StewardPosts: 1, Marquees: 1),
+        new(Taps: 2, Toilets: 3, FoodVans: 1, Bars: 1, FirstAid: 1, StewardPosts: 1, Marquees: 2),
     ];
 
     public static TierBuildLimits BuildLimits(int tier) => BuildLimitsByTier[Math.Clamp(tier, 1, BuildLimitsByTier.Length) - 1];
@@ -53,6 +54,7 @@ public sealed partial class GameSession
             BuildServiceKind.FirstAid => limits.FirstAid,
             BuildServiceKind.StewardPost => limits.StewardPosts,
             BuildServiceKind.Bin => int.MaxValue,
+            BuildServiceKind.Marquee => limits.Marquees,
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
         };
     }
@@ -100,6 +102,7 @@ public sealed partial class GameSession
             BuildServiceKind.FirstAid => "first-aid",
             BuildServiceKind.StewardPost => "steward-post",
             BuildServiceKind.Bin => "bin",
+            BuildServiceKind.Marquee => "marquee",
             _ => throw new ArgumentOutOfRangeException(nameof(kind))
         };
         if (kind == BuildServiceKind.Bin)
@@ -107,7 +110,7 @@ public sealed partial class GameSession
             for (var index = 1; ; index++)
                 if (!placed.Any(p => p.Id == "bin." + index)) return "bin." + index;
         }
-        if (kind is not (BuildServiceKind.WaterTap or BuildServiceKind.Toilet)) return prefix;
+        if (kind is not (BuildServiceKind.WaterTap or BuildServiceKind.Toilet or BuildServiceKind.Marquee)) return prefix;
         var first = prefix + ".main";
         if (!placed.Any(item => item.Id == first)) return first;
         for (var index = 1; ; index++)
@@ -203,6 +206,7 @@ public sealed partial class GameSession
         {
             BuildServiceKind.WaterTap => Numbered(item, "water"),
             BuildServiceKind.Toilet => Numbered(item, "toilet"),
+            BuildServiceKind.Marquee => Numbered(item, "marquee"),
             BuildServiceKind.FoodVan => item.Id == "food",
             BuildServiceKind.Bar => item.Id == "drinks",
             BuildServiceKind.FirstAid => item.Id == "first-aid",
@@ -308,6 +312,9 @@ public sealed partial class GameSession
                 case BuildServiceKind.Bin:
                     foreach (var cell in BinSolidCells(item.Cell)) Block(cell);
                     break;
+                case BuildServiceKind.Marquee:
+                    foreach (var cell in MarqueeSolidCells(item.Cell, item.QuarterTurns)) Block(cell);
+                    break;
                 case BuildServiceKind.WaterTap:
                     for (var x = item.Cell.X - 1; x <= item.Cell.X + 1; x++)
                         for (var z = item.Cell.Z - 1; z <= item.Cell.Z + 1; z++) Block(new(x, z));
@@ -349,6 +356,8 @@ public sealed partial class GameSession
                     break;
                 case BuildServiceKind.WaterTap:
                     destinations.Add(WaterServiceCell(item.Cell, item.QuarterTurns)); break;
+                case BuildServiceKind.Marquee:
+                    destinations.Add(item.Cell); break;
                 case BuildServiceKind.Toilet:
                     var toilet = new ToiletFacility(item.Id, item.Cell, item.QuarterTurns, [], null, false, 0, 0, 0,
                         ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille);
@@ -390,6 +399,8 @@ public sealed partial class GameSession
         return item.Kind switch
         {
             BuildServiceKind.Bin => Round(item.Cell).ToArray(),
+            // The whole tent, pegs included: its shade is open ground, but nothing else is built under it.
+            BuildServiceKind.Marquee => MarqueeFootprintCells(item.Cell, item.QuarterTurns),
             BuildServiceKind.WaterTap => Round(item.Cell)
                 .Append(WaterServiceCell(item.Cell, item.QuarterTurns)).ToArray(),
             BuildServiceKind.Toilet => ToiletReservedCells(ToiletOf(item)),

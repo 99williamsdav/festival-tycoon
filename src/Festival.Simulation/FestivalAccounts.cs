@@ -47,6 +47,7 @@ public sealed partial class GameSession
         BuildServiceKind.Bar => "Bar",
         BuildServiceKind.FirstAid => "First aid",
         BuildServiceKind.StewardPost => "Steward post",
+        BuildServiceKind.Marquee => "Marquee hire",
         _ => kind.ToString()
     };
 

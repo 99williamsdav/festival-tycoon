@@ -32,7 +32,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     [
         ("Essentials", [BuildServiceKind.WaterTap, BuildServiceKind.Toilet, BuildServiceKind.FirstAid, BuildServiceKind.StewardPost]),
         ("Food & drink", [BuildServiceKind.FoodVan, BuildServiceKind.Bar]),
-        ("Site", [BuildServiceKind.Bin]),
+        ("Site", [BuildServiceKind.Bin, BuildServiceKind.Marquee]),
     ];
 
     private PanelContainer? _buildDrawer;
@@ -66,6 +66,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         BuildServiceKind.StewardPost => ("shield", new Color("3e5a8c"), true),
         BuildServiceKind.FoodVan => ("truck", new Color("b85c28"), false),
         BuildServiceKind.Bar => ("beer", new Color("a87a1f"), false),
+        BuildServiceKind.Marquee => ("sun", new Color("1f7a78"), false),
         _ => ("package", Ui.InkMuted, false),
     };
 
@@ -176,7 +177,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         var glyph = Ui.IconRect(icon, 14, Colors.White);
         glyph.SizeFlagsHorizontal = glyph.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
         badge.AddChild(glyph); line.AddChild(badge);
-        var name = Ui.Text(BuildName(kind), 13.5f, Ui.Ink, Ui.BodyBold); name.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; line.AddChild(name);
+        var name = Ui.Text(RowName(kind), 13.5f, Ui.Ink, Ui.BodyBold); name.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; line.AddChild(name);
+        if (Blurb(kind) is { } blurb) { name.TooltipText = blurb; name.MouseFilter = Control.MouseFilterEnum.Pass; }
         if (required)
         {
             var tag = Ui.Caps("Req", Ui.Teal, 8.5f);
@@ -196,6 +198,12 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         Tight(Ui.Style(action, Ui.ButtonKind.Accent), 14);
         action.Pressed += () => _actions.BeginPlacement(kind, null);
         line.AddChild(action);
+        if (Blurb(kind) is { } note)
+        {
+            var margin = new MarginContainer(); margin.AddThemeConstantOverride("margin_left", Ui.Px(46)); margin.AddThemeConstantOverride("margin_bottom", Ui.Px(6));
+            var words = Ui.Text(note, 11.5f, Ui.InkMuted); words.AutowrapMode = TextServer.AutowrapMode.WordSmart;
+            margin.AddChild(words); block.AddChild(margin);
+        }
         var placed = new VBoxContainer { Visible = false }; placed.AddThemeConstantOverride("separation", 0); block.AddChild(placed);
         _buildCatalogueRows.Add(kind, new CatalogueRow(chevron, price, dots, count, action, placed));
         if (kind == BuildServiceKind.FoodVan) block.AddChild(TraderPicker());
@@ -376,6 +384,14 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         button.Pressed += pressed;
         return button;
     }
+
+    /// <summary>The catalogue's name for a service: the marquee goes by its banner.</summary>
+    private static string RowName(BuildServiceKind kind) => kind == BuildServiceKind.Marquee ? Main.MarqueeTitle : BuildName(kind);
+
+    /// <summary>A line under the row for a service that needs saying what it's for.</summary>
+    private static string? Blurb(BuildServiceKind kind) => kind == BuildServiceKind.Marquee
+        ? "Stretch tent. Shade in a heatwave: nobody heats up under it, and up to 15 overheated guests rest there instead of first aid. Shelter from rain comes later."
+        : null;
 
     /// <summary>"Toilet 2" rather than "toilet.extra-1".</summary>
     internal static string PlacedName(BuildPlacement item)

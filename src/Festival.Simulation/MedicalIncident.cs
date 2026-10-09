@@ -127,23 +127,11 @@ public sealed partial class GameSession
         var posts = Enum.GetValues<ResponseRole>().SelectMany(role => new[] { ResponsePostHome(_preparation, role), ResponsePostHome(_preparation, role, true) }).ToHashSet();
         var self = new EntityId(id);
         var agent = _navigationAgents[self];
-        if (RestNavigationIntent(agent.IntentId) && agent.Destination is { } held && IsRestSpot(held) &&
+        // A place already held is kept, by first aid or under a marquee.
+        if (RestNavigationIntent(agent.IntentId) && agent.Destination is { } held && IsAnyRestSpot(held) &&
             agent.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived) return held;
         var others = _navigationAgents.Values.Where(other => other.Id != self && MovementOccupant(other.Id.Value)).ToArray();
-        bool Taken(GridCell spot)
-        {
-            var centre = TraversalGrid.CellCentre(spot);
-            foreach (var other in others)
-            {
-                if (RestNavigationIntent(other.IntentId) && other.Destination == spot &&
-                    other.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived) return true;
-                // Someone else standing on it (a medic, say) holds it as surely as a rester does.
-                long dx = other.XMillimetres - centre.XMillimetres, dz = other.ZMillimetres - centre.ZMillimetres;
-                if (other.Action != AgentNavigationAction.Travelling && dx * dx + dz * dz < (long)SeparationRadiusMillimetres * SeparationRadiusMillimetres)
-                    return true;
-            }
-            return false;
-        }
+        bool Taken(GridCell spot) => RestSpotTaken(spot, others);
         foreach (var ring in RestSpotRings)
         {
             GridCell? best = null; var bestDistance = long.MaxValue;
@@ -160,6 +148,22 @@ public sealed partial class GameSession
             if (best is { } chosen) return chosen;
         }
         return restCentre;
+    }
+
+    /// <summary>A rest place someone else is resting at or heading for, or standing on.</summary>
+    private static bool RestSpotTaken(GridCell spot, NavigationAgentState[] others)
+    {
+        var centre = TraversalGrid.CellCentre(spot);
+        foreach (var other in others)
+        {
+            if (RestNavigationIntent(other.IntentId) && other.Destination == spot &&
+                other.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived) return true;
+            // Someone else standing on it (a medic, say) holds it as surely as a rester does.
+            long dx = other.XMillimetres - centre.XMillimetres, dz = other.ZMillimetres - centre.ZMillimetres;
+            if (other.Action != AgentNavigationAction.Travelling && dx * dx + dz * dz < (long)SeparationRadiusMillimetres * SeparationRadiusMillimetres)
+                return true;
+        }
+        return false;
     }
     // One compact line behind the single tap, with a slight human offset and no branches.
     // Slot zero alone owns the tap. Approaching the tail does not reserve a slot.
@@ -638,6 +642,8 @@ public sealed partial class GameSession
                 // A portaloo cubicle is a hot box in hot weather, for a normal visit and doubly so for someone stuck.
                 if (m.IsHot && item.ToiletStage == ToiletVisitStage.Using) heat += FaultRules.PortalooExtraHeat;
                 if (ExtraHeatThisTick(item.Id)) heat += 1; // Easy to overheat.
+                // Out of the sun under a marquee, nobody heats up at all.
+                if (heat > 0 && InShade(item.Id)) heat = 0;
                 // A guest with their own bottle sips from it between taps, so misses one thirst step in four.
                 var thirst = BringsOwnBottle(item.Id) && CurrentTick % 16 == 0 ? 0 : 1;
                 MutatePerson(item.Id, person => { person.Thirst = Math.Min(10_000, person.Thirst + thirst); person.HeatExposure = Math.Min(10_000, person.HeatExposure + heat); });
@@ -688,7 +694,7 @@ public sealed partial class GameSession
         m = _medical!;
         foreach (var resting in PeopleIn(PersonView.Medical).Where(item => item.NeedProfile != MedicalNeedProfile.Staff && item.Intent == MedicalIntent.Rest).ToArray())
         {
-            if (_navigationAgents[new(resting.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } restCell } && IsRestSpot(restCell))
+            if (_navigationAgents[new(resting.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } restCell } && IsAnyRestSpot(restCell))
             {
                 // Recovery is judged on the state before this tick's relief.
                 var (stageBefore, heatBefore) = (resting.HealthStage, resting.HeatExposure);
@@ -702,7 +708,7 @@ public sealed partial class GameSession
             // Someone resting at a spot that is no longer part of the rest area (a save from before the
             // area followed the first-aid tent) walks over to a spot beside the tent instead of waiting forever.
             else if (_navigationAgents[new(resting.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } staleCell, IntentId: var restIntent } &&
-                     RestNavigationIntent(restIntent) && !IsRestSpot(staleCell))
+                     RestNavigationIntent(restIntent) && !IsAnyRestSpot(staleCell))
                 ApplyAgentDestination(new(resting.Id), new(RestSpotFor(resting.Id), restIntent!));
         }
         AdvanceMedicResponses();

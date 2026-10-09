@@ -187,7 +187,7 @@ public partial class Main
 
     private void SelectMedicalFacility(MedicalFacility facility, string? waterPointId = null)
     {
-        _selectedBinId = null;
+        _selectedBinId = null; _selectedMarqueeId = null;
         _selectedImmersionVendor = null;
         ClearSecurityPostSelection();
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = facility;

@@ -40,7 +40,7 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v49", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v49");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v50", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v50");
 
     public override void _Ready()
     {
@@ -382,6 +382,7 @@ public partial class Main : Node, IHudHost
     {
         if (WorldInputOccluded(screenPosition)) return;
         _selectedImmersionVendor = null;
+        _selectedMarqueeId = null;
         _selectedToilet = false;
         var collider = ResolveWorldHit(screenPosition);
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
@@ -396,6 +397,7 @@ public partial class Main : Node, IHudHost
             else SelectToilet(toiletId);
         }
         else if (collider is not null && _binPickOwners.TryGetValue(collider.GetInstanceId(), out var binId)) SelectBin(binId);
+        else if (collider is not null && _marqueePickOwners.TryGetValue(collider.GetInstanceId(), out var marqueeId)) SelectMarquee(marqueeId);
         else if (collider is not null && _securityPostPickId != 0 && collider.GetInstanceId() == _securityPostPickId) SelectSecurityPost();
         else if (collider is not null && _medicalFacilityPicks.TryGetValue(collider.GetInstanceId(), out var medicalFacility))
             SelectMedicalFacility(medicalFacility.Facility, medicalFacility.WaterPointId);
@@ -405,7 +407,7 @@ public partial class Main : Node, IHudHost
 
     private void SelectObject(FarmObjectReadModel item)
     {
-        _selectedBinId = null;
+        _selectedBinId = null; _selectedMarqueeId = null;
         if (!_visualRegistry.TryGetValue(item.StableId, out var objectVisual)) { ClearSelection(); return; }
         _selectedImmersionVendor = null;
         _selectedToilet = false;
@@ -435,7 +437,7 @@ public partial class Main : Node, IHudHost
 
     private void ClearSelection()
     {
-        _selectedBinId = null;
+        _selectedBinId = null; _selectedMarqueeId = null;
         RefreshImmersionNeedBars(null);
         _selectedImmersionVendor = null;
         _selectedToilet = false;
@@ -453,7 +455,7 @@ public partial class Main : Node, IHudHost
 
     private void SelectAttendee(EntityId id)
     {
-        _selectedBinId = null;
+        _selectedBinId = null; _selectedMarqueeId = null;
         if (_session.CapturePreparation()?.People.Any(person => person.AgentId == id.Value && person.Departed) == true) return;
         if (!_attendeeVisuals.TryGetValue(id, out var visual))
         {
@@ -593,7 +595,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v49");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v50");
 
 
 

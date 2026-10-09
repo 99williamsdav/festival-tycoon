@@ -136,7 +136,11 @@ public sealed partial class GameSession
     }
 
     private static string PlanLabel(ActivityOption option, bool staff) => option.Then is { } then
-        ? $"{ActivityLabel(option.Kind, staff)} then {ActivityLabel(then.Kind, staff)}" : ActivityLabel(option.Kind, staff);
+        ? $"{StopLabel(option.Kind, option.FacilityId, staff)} then {StopLabel(then.Kind, then.FacilityId, staff)}" : StopLabel(option.Kind, option.FacilityId, staff);
+
+    /// <summary>Rest under a marquee reads as shade.</summary>
+    private static string StopLabel(ActivityKind kind, string? facility, bool staff) =>
+        kind == ActivityKind.Rest && facility?.StartsWith("marquee.", StringComparison.Ordinal) == true ? "rest in the shade" : ActivityLabel(kind, staff);
 
     private static string ActivityLabel(ActivityKind kind, bool staff = false) => kind switch
     {
@@ -208,7 +212,8 @@ public sealed partial class GameSession
             case ActivityKind.Rest:
                 MedicalRelinquishPerformerStage(id);
                 MutatePerson(id, item => { item.Intent = MedicalIntent.Rest; item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
-                ApplyAgentDestination(new(id), new(RestSpotFor(id), "medical.rest"));
+                var shade = option.FacilityId is { } place && place != "rest" ? MarqueeRestSpotFor(id, place) : null;
+                ApplyAgentDestination(new(id), new(shade ?? RestSpotFor(id), "medical.rest"));
                 break;
             case ActivityKind.Toilet:
                 var person = _persons[id];
@@ -286,7 +291,13 @@ public sealed partial class GameSession
         if (_disorder?.WaterClosed != true)
             foreach (var point in WaterPoints()) Add(ActivityKind.Water, point.Id, point.Cell, LightWaterTicks(id, point, from, fresh));
         if (person.HeatExposure > ActivityChooser.RestHeatTarget)
-            Add(ActivityKind.Rest, "rest", CaptureRestCentre(), EstimateWalkTicks(id, from, CaptureRestCentre()) + (person.HeatExposure - ActivityChooser.RestHeatTarget) / 8);
+        {
+            // Rest cools as fast by first aid as in a marquee's shade, so the nearer one wins; a full marquee isn't offered.
+            var restTicks = (person.HeatExposure - ActivityChooser.RestHeatTarget) / 8;
+            Add(ActivityKind.Rest, "rest", CaptureRestCentre(), EstimateWalkTicks(id, from, CaptureRestCentre()) + restTicks);
+            foreach (var tent in Marquees())
+                if (MarqueeRestSpotFor(id, tent.Id) is not null) Add(ActivityKind.Rest, tent.Id, tent.Cell, EstimateWalkTicks(id, from, tent.Cell) + restTicks);
+        }
         if (!fresh && current == ActivityKind.Toilet || ImmersionHandsAvailable(id) && person.Intent is MedicalIntent.WatchShow or MedicalIntent.SeekWater)
         {
             var visit = person.ToiletChoice ?? ChooseToiletVisit(person);
