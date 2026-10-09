@@ -390,7 +390,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
 
     /// <summary>A line under the row for a service that needs saying what it's for.</summary>
     private static string? Blurb(BuildServiceKind kind) => kind == BuildServiceKind.Marquee
-        ? "Stretch tent. Shade in a heatwave: nobody heats up under it, and up to 15 overheated guests rest there instead of first aid. Shelter from rain comes later."
+        ? "Shade in a heatwave: no heat builds up under it, and 15 can rest there. Rain cover later."
         : null;
 
     /// <summary>"Toilet 2" rather than "toilet.extra-1".</summary>

@@ -13,7 +13,7 @@ namespace Festival.Game;
 public partial class Main
 {
     private const string MarqueeAsset = "res://assets/environment/lwf_stretch_tent_v1.glb";
-    private sealed record MarqueeView(StaticBody3D Body, RoofFade Roof);
+    private sealed record MarqueeView(StaticBody3D Body, RoofFade Roof, Node3D Outline);
     private readonly Dictionary<string, MarqueeView> _marqueeViews = [];
     private readonly Dictionary<ulong, string> _marqueePickOwners = [];
     private string? _selectedMarqueeId;
@@ -53,14 +53,33 @@ public partial class Main
                 body.AddChild(BuildingName("MARQUEE", new Vector3(0, 4.4f, 0), 28));
                 AddChild(body);
                 _marqueePickOwners[body.GetInstanceId()] = tent.Id;
-                view = new(body, RoofFade.Attach(model)); _marqueeViews[tent.Id] = view;
+                var outline = MarqueeOutline(); body.AddChild(outline);
+                view = new(body, RoofFade.Attach(model), outline); _marqueeViews[tent.Id] = view;
             }
             view.Body.Position = ImmersionPosition(tent.Cell);
             view.Body.RotationDegrees = new(0, tent.QuarterTurns * 90, 0);
+            view.Outline.Visible = _selectedMarqueeId == tent.Id;
             // Faded while anyone is under it, or while it's selected so the player can see in.
             view.Roof.Update(tent.Sheltering > 0 || _selectedMarqueeId == tent.Id, now);
         }
         RefreshMarqueeInspector();
+    }
+
+    /// <summary>A thin amber line round the footprint, pegs included, in the selection highlight's colour.</summary>
+    private static Node3D MarqueeOutline()
+    {
+        var outline = new Node3D { Name = "SelectionOutline", Visible = false };
+        var material = new StandardMaterial3D { AlbedoColor = new Color(1f, .73f, .08f, .9f), Transparency = BaseMaterial3D.TransparencyEnum.Alpha,
+            ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded };
+        const float halfX = (MarqueeRules.HalfWidthCells + .5f) * .5f, halfZ = (MarqueeRules.HalfDepthCells + .5f) * .5f, width = .1f;
+        foreach (var (centre, size) in new[]
+        {
+            (new Vector3(0, .05f, -halfZ), new Vector3(halfX * 2 + width, .04f, width)), (new Vector3(0, .05f, halfZ), new Vector3(halfX * 2 + width, .04f, width)),
+            (new Vector3(-halfX, .05f, 0), new Vector3(width, .04f, halfZ * 2)), (new Vector3(halfX, .05f, 0), new Vector3(width, .04f, halfZ * 2)),
+        })
+            outline.AddChild(new MeshInstance3D { Mesh = new BoxMesh { Size = size }, Position = centre, MaterialOverride = material,
+                CastShadow = GeometryInstance3D.ShadowCastingSetting.Off });
+        return outline;
     }
 
     private void BuildMarqueeInspector(VBoxContainer parent)
@@ -84,6 +103,7 @@ public partial class Main
               $"Shade for up to {tent.RestCapacity} overheated guests to rest in.\nNobody heats up under the sail."
             : $"{tent.Sheltering} under the sail · {tent.Resting}/{tent.RestCapacity} resting in the shade\n" +
               "Nobody heats up under the sail. Overheated guests rest here when it's nearer than first aid; once it's full they go to first aid.";
-        _highlight.Position = view.Body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new(4.4f, 1, 4.4f); _highlight.Visible = true;
+        // A disc big enough to cover the tent swamped it, so the selection is a thin line round its footprint instead.
+        _highlight.Visible = false; view.Outline.Visible = true;
     }
 }

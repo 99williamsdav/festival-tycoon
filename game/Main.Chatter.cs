@@ -309,11 +309,18 @@ public partial class Main
                     : new(id, Pick(id, "Here comes Dirty Henry!", "It's Dirty Henry!", "Make way for Dirty Henry", "Dirty Henry's here!"), Mood.Neutral, 1, "henry:drive", 20));
         }
 
-        // The heat, the loos' smell and wasps at a full bin.
+        // The heat, the loos' smell and wasps at a full bin. With a marquee up, the hot point at it, and those under it are glad.
+        var tents = _session.CaptureMarquees().Select(tent => ImmersionPosition(tent.Cell)).ToArray();
+        bool Shaded(ulong id) { var at = At(id); return tents.Length > 0 && _session.InMarqueeShade(TraversalGrid.WorldToCell((int)(at.X * 1000), (int)(at.Z * 1000))); }
+        bool TentNearby(ulong id) => tents.Any(tent => At(id).DistanceTo(tent) <= 25);
+        Remark HeatLine(ulong id, string otherwise, string topic, double rest) => Shaded(id)
+            ? new(id, Pick(id, "Ahh, shade!", "Oh, that's better", "Not moving from here"), Mood.Happy, 2, topic, rest)
+            : TentNearby(id) ? new(id, Pick(id, "Under the tent, quick", "Shade's over there!", "To the marquee!"), Mood.Grumble, 2, topic, rest)
+            : new(id, otherwise, Mood.Grumble, 2, topic, rest);
         foreach (var id in guests.Keys.Where(Free))
         {
             if (medical?.IsHot == true && needs.TryGetValue(id, out var need) && need.HeatExposure >= 6_000)
-                remarks.Add(new(id, Pick(id, "It's boiling!", "Need some shade", "I'm melting"), Mood.Grumble, 2, "heat", 10));
+                remarks.Add(HeatLine(id, Pick(id, "It's boiling!", "Need some shade", "I'm melting"), "heat", 10));
             if (_session.ToiletSmellPenaltyPerSecond(id) > 0)
                 remarks.Add(new(id, _session.GuestLabels(id).Contains("Princess") ? "I think I'm going to be sick"
                     : Pick(id, "What is that smell?!", "Ugh, the loos…"), Mood.Grumble, 2, "smell", 10));
@@ -396,7 +403,7 @@ public partial class Main
             if (labels.Contains("Alcoholic") && consumers.TryGetValue(id, out var c) && c.Held is null)
                 remarks.Add(new(id, "Another pint, I think", Mood.Neutral, 1, "alcoholic", 15));
             if (labels.Contains("Easy to overheat") && medical?.IsHot == true && needs.TryGetValue(id, out var hot) && hot.HeatExposure >= 4_000)
-                remarks.Add(new(id, "I need shade, now", Mood.Grumble, 2, "overheat", 12));
+                remarks.Add(HeatLine(id, "I need shade, now", "overheat", 12));
         }
 
         // Staff: slackers and sneaky drinkers on a break, stewards calming things, a medic on the way, and robots.
