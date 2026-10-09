@@ -42,6 +42,7 @@ public partial class Main
         // The generator's power switches belong to the generator alone: selecting anything else hides them.
         RefreshPowerSwitches();
         if (_selectedBinId is null && _binEmptyButton is not null) _binEmptyButton.Visible = false;
+        if (_selectedMarqueeId is null && _marqueeMoveButton is not null) _marqueeMoveButton.Visible = false;
         if (_selectedAttendeeId is null && _inspectorTraits is not null) _inspectorTraits.Visible = false;
         var farm = _selected is { } item && _visualRegistry.TryGetValue(item.StableId, out var farmVisual) && ContextVisualAvailable(farmVisual);
         var person = _selectedAttendeeId is { } id && _attendeeVisuals.TryGetValue(id, out var personVisual) && ContextVisualAvailable(personVisual);
@@ -56,6 +57,7 @@ public partial class Main
         };
         _contextPanel.Visible = farm || person || vendor || facility ||
             (_selectedBinId is { } binId && _binViews.TryGetValue(binId, out var selectedBin) && ContextVisualAvailable(selectedBin.Body)) ||
+            (_selectedMarqueeId is { } marqueeId && _marqueeViews.TryGetValue(marqueeId, out var selectedMarquee) && ContextVisualAvailable(selectedMarquee.Body)) ||
             (_selectedToilet && _selectedToiletId is { } toiletId && _toiletViews.TryGetValue(toiletId, out var selectedToilet) && ContextVisualAvailable(selectedToilet.Body)) ||
             (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0) ||
             (_selectedGenerator && _session.CaptureEquipment() is not null && ContextVisualAvailable(_equipmentVisual)) ||

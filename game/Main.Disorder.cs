@@ -165,7 +165,7 @@ public partial class Main
 
     private void SelectSecurityPost()
     {
-        _selectedBinId = null;
+        _selectedBinId = null; _selectedMarqueeId = null;
         _selectedGenerator = false;
         _selectedImmersionVendor = null;
         _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null;

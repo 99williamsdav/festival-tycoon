@@ -293,6 +293,7 @@ private void BuildImmersionControls(VBoxContainer parent)
         parent.AddChild(_freeWaterButton);
         BuildToiletInspector(parent);
         BuildLitterInspector(parent);
+        BuildMarqueeInspector(parent);
     }
 
     private int ImmersionHeavyOnSiteCount()
@@ -433,6 +434,7 @@ private void BuildImmersionControls(VBoxContainer parent)
     }
     private void AdvanceImmersionPresentation(double delta)
     {
+        SyncMarqueeWorld();
         if (_session.CaptureImmersion() is not { } state)
         {
             ResetStewardCleanupPresentation();
