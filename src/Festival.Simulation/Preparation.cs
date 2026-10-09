@@ -475,8 +475,7 @@ public sealed partial class GameSession
             return "Lineup reaction identity requires the current saved programme and results plan.";
         if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > HighestTier || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
             p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != OpeningCashFor(p.Tier, p.CarriedIn) || p.StockConsumed < 0 ||
-            (p.Tier == 1) != (p.CarriedIn is null) || p.CarriedIn is { } carry && (carry.FromTier != p.Tier - 1 || carry.DebtPennies < 0 ||
-                carry.FavourBalance is < 0 or > 2 || carry.OwnedEquipment is null || !carry.OwnedEquipment.SequenceEqual(carry.OwnedEquipment.Distinct().Order(StringComparer.Ordinal)) ||
+            (p.Tier == 1) != (p.CarriedIn is null) || p.CarriedIn is { } carry && (CarryIssue(carry, p.Tier) is not null ||
                 carry.CommunityWaterUsed && p.CommunityShareAttempt != 0) ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||

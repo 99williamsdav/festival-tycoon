@@ -38,6 +38,8 @@ public partial class Main : Node, IHudHost
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
     /// <summary>The tier --start-tier opens on; never set in normal play.</summary>
     private int? _startTier;
+    /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
+    private bool _pondStageTrialFlag;
     private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v47", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v47");
 
     public override void _Ready()
@@ -45,7 +47,7 @@ public partial class Main : Node, IHudHost
         ConfigureCommandLine();
         _host = new SessionHost(_preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
-            _startTier is { } tier ? GameSession.CreateDevelopmentFestival(20260922, tier) :
+            _startTier is not null || _pondStageTrialFlag ? GameSession.CreateDevelopmentFestival(20260922, _startTier ?? 1, _pondStageTrialFlag) :
             _litterEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility);
         BuildWorld();
         if (DisplayServer.GetName() != "headless")
@@ -550,6 +552,7 @@ public partial class Main : Node, IHudHost
             }
             // --start-tier <n>: playtests and scripted tours only; opens that tier as if the ones below were just completed.
             else if (args[i] == "--start-tier" && i + 1 < args.Length && int.TryParse(args[++i], out var tier)) _startTier = Math.Clamp(tier, 1, GameSession.HighestTier);
+            else if (args[i] == "--pond-stage-trial") _pondStageTrialFlag = true;
             else if (args[i] == "--capture-litter" && i + 1 < args.Length) _litterEvidenceOutput = args[++i];
             else if (args[i] == "--capture-surround" && i + 1 < args.Length) _surroundEvidenceOutput = args[++i];
             else if (args[i] == "--capture-pond" && i + 1 < args.Length) _pondEvidenceOutput = args[++i];
