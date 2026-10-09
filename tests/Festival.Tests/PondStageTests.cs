@@ -23,8 +23,8 @@ public sealed class PondStageTests
         var terrain = bare.Overrides.ToDictionary(pair => pair.Key, pair => pair.Value);
         foreach (var (cell, walkable) in FestivalStages.All.SelectMany(stage => stage.Cells())) terrain[cell] = new(cell, GroundSurface.Grass, walkable);
         var grid = new TraversalGrid(terrain.Values);
-        // Everything the riser stands on was open grass, off the farm track and inside the hedge; only its gate cuts the hedge.
-        foreach (var (cell, _) in Pond.Cells().Where(item => !PondRiser.Gate(item.Cell)))
+        // Everything the riser stands on was open grass, off the farm track and inside the hedge, which stays whole.
+        foreach (var (cell, _) in Pond.Cells())
         {
             Assert.IsTrue(bare.Get(cell) is { IsWalkable: true, Surface: GroundSurface.Grass }, $"{cell} was not open grass.");
             Assert.IsTrue(cell.X is > 131 and <= 190 && cell.Z is >= 108 and <= 190, $"{cell} is on the track or past the hedge.");
@@ -46,9 +46,11 @@ public sealed class PondStageTests
             Assert.IsTrue(Pond.Deck(Pond.PerformerMarks[role]) && Pond.Stairs(Pond.StairCells[role]) && !Pond.Stairs(Pond.AccessCells[role]) && !Pond.Deck(Pond.AccessCells[role]));
             for (var member = role; member < 9; member += 3)
             {
-                // In off the lane through the pond gate, to the band's waiting ground, then to the foot of the stair.
+                // In off the trailer bands' lane through the garden gate, across the field to the band's waiting ground,
+                // then to the foot of the stair; never on a trailer band member's spot on the lane.
+                Assert.IsFalse(Enumerable.Range(0, 9).Any(other => FestivalStages.Main.ArrivalStart(other) == Pond.ArrivalStart(member)));
                 var lane = DeterministicPathfinder.FindPath(grid, Pond.ArrivalStart(member), Pond.BackstagePlace(member));
-                Assert.IsTrue(lane.Found && lane.Path.Any(PondRiser.Gate), $"Band member {member} doesn't come in by the pond gate.");
+                Assert.IsTrue(lane.Found && lane.Path.Any(Backstage.HedgeGate), $"Band member {member} doesn't come in by the garden gate.");
                 Assert.IsTrue(DeterministicPathfinder.FindPath(grid, Pond.BackstagePlace(member), Pond.AccessCells[role]).Found);
             }
             // Up the side stair: from its foot every step to the mark is on the flight or the deck.
@@ -77,18 +79,34 @@ public sealed class PondStageTests
     // ---- The band ----
 
     [TestMethod]
-    public void PondBandsComeInByThePondGateClimbTheStairPlayOnTimeAndClearOff()
+    public void PondBandsComeInByTheGardenGateClimbTheStairPlayOnTimeAndClearOff()
     {
         var day = PondDay.Value;
         foreach (var slot in new[] { 0, 1 })
             Assert.AreEqual((long)Pond.SlotStarts[slot], day.LiveAt[(FestivalStages.PondId, slot)], $"Pond set {slot + 1} didn't start on time.");
         CollectionAssert.AreEqual(new[] { 9_000, 20_600, 32_800 }, Pond.SlotStarts.ToArray());
         CollectionAssert.AreEqual(new[] { 17_400, 29_000, 41_200 }, Pond.SlotEnds.ToArray());
+        foreach (var (id, track) in day.PondBand)
+            Assert.IsTrue(track.Cells.Any(Backstage.HedgeGate), $"Pond band member {id} never came in by the garden gate.");
         foreach (var (id, track) in day.PondBand.Where(item => item.Value.Slot < 2))
         {
-            Assert.IsTrue(track.Cells.Any(PondRiser.Gate), $"Pond band member {id} never came in by the pond gate.");
             Assert.IsTrue(track.Cells.Any(Pond.Stairs), $"Pond band member {id} never climbed the stair.");
             Assert.IsTrue(track.OnMark, $"Pond band member {id} never stood on their mark.");
+        }
+        // Every pond band member left the lane on their own tick, after the trailer's bands had all set off, and walked
+        // straight over: no longer than the release's own generous walk estimate.
+        var leftAt = day.PondBand.Select(item => item.Value.LeftLane).ToArray();
+        Assert.AreEqual(leftAt.Length, leftAt.Distinct().Count(), "Two pond band members left the lane together.");
+        Assert.IsTrue(leftAt.All(tick => tick >= GameSession.BandReleaseStartTicks), string.Join(",", leftAt));
+        Assert.IsTrue(day.TrailerBandLeft.Count == 9 && day.TrailerBandLeft.All(tick => tick < GameSession.BandReleaseStartTicks / 4), "The trailer's bands still set off at once.");
+        foreach (var (id, track) in day.PondBand)
+        {
+            Assert.IsTrue(track.Arrived > track.LeftLane, $"Pond band member {id} never got there.");
+            var walk = GameSession.BandWalkTicks(Pond.ArrivalStart(track.Ordinal), Pond.AccessCells[track.Ordinal % 3]);
+            Assert.IsTrue(track.Arrived - track.LeftLane <= walk, $"Pond band member {id} took {track.Arrived - track.LeftLane} ticks against {walk}.");
+            if (track.Slot == 0)
+                Assert.IsTrue(track.Arrived <= Pond.SlotStarts[0] - GameSession.LiveSetStageEntryLeadTicks - GameSession.BandArrivalSlackTicks / 2,
+                    $"Pond band member {id} reached the stair at {track.Arrived}, cutting it fine.");
         }
         // Set 1's band came back down the stair and off the riser before set 2's band went up.
         foreach (var (id, track) in day.PondBand.Where(item => item.Value.Slot == 0))
@@ -340,13 +358,15 @@ public sealed class PondStageTests
         public int Slot, Ordinal;
         public HashSet<GridCell> Cells = [], AfterSet = [];
         public bool OnMark;
-        public GridCell BeforeChangeover;
+        public GridCell BeforeChangeover, Start;
+        public long LeftLane = -1, Arrived = -1;
     }
 
     private sealed class DayRecord
     {
         public readonly Dictionary<(string Stage, int Slot), long> LiveAt = [];
         public readonly Dictionary<ulong, BandTrack> PondBand = [];
+        public readonly List<long> TrailerBandLeft = [];
         public readonly List<Switch> Switches = [];
         public readonly SortedDictionary<long, (ulong[] Main, ulong[] Pond)> Crowds = [];
         // How much more a guest wants the pond's act than the trailer's, at each crowd sample.
@@ -359,7 +379,11 @@ public sealed class PondStageTests
             var start = s.CapturePreparation()!.StartedTick;
             var pondProgramme = s.CaptureProgramme(FestivalStages.PondId)!;
             foreach (var role in pondProgramme.Performers)
-                record.PondBand[role.AgentId] = new BandTrack { Slot = role.SlotIndex, Ordinal = Array.IndexOf(pondProgramme.Performers, role) };
+                record.PondBand[role.AgentId] = new BandTrack { Slot = role.SlotIndex, Ordinal = Array.IndexOf(pondProgramme.Performers, role),
+                    Start = Pond.ArrivalStart(Array.IndexOf(pondProgramme.Performers, role)) };
+            var mainPerformers = s.CaptureProgramme()!.Performers;
+            var trailerBand = mainPerformers.Select((role, ordinal) => (role.AgentId, Cell: FestivalStages.Main.ArrivalStart(ordinal))).ToDictionary(item => item.AgentId, item => item.Cell);
+
             var guests = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest).Select(p => p.AgentId).ToArray();
             var lastStage = guests.ToDictionary(id => id, s.ListeningStageId);
             var lastAtPlace = new Dictionary<ulong, bool>();
@@ -393,13 +417,19 @@ public sealed class PondStageTests
                     foreach (var id in guests)
                         record.Preference[(tick, id)] = s.StageWantToSee(id, FestivalStages.PondId) - s.StageWantToSee(id, FestivalStages.MainId);
                 }
-                if (tick % 4 == 0 || s.CurrentTick == changeover)
                 {
                     var pondLive = lives[1];
                     foreach (var agent in s.CaptureObservation().NavigationAgents)
                     {
-                        if (!record.PondBand.TryGetValue(agent.Id.Value, out var track)) continue;
                         var cell = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
+                        if (trailerBand.TryGetValue(agent.Id.Value, out var lane) && cell != lane)
+                        {
+                            trailerBand.Remove(agent.Id.Value);
+                            record.TrailerBandLeft.Add(tick);
+                        }
+                        if (!record.PondBand.TryGetValue(agent.Id.Value, out var track)) continue;
+                        if (track.LeftLane < 0 && cell != track.Start) track.LeftLane = tick;
+                        if (track.LeftLane >= 0 && track.Arrived < 0 && agent.Action == AgentNavigationAction.Arrived) track.Arrived = tick;
                         track.Cells.Add(cell);
                         if (tick > Pond.SlotEnds[track.Slot]) track.AfterSet.Add(cell);
                         if (pondLive.Performers.SingleOrDefault(p => p.AgentId == agent.Id.Value) is { OnStage: true } performer && cell == performer.StageCell) track.OnMark = true;

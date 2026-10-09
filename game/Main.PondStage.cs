@@ -6,14 +6,13 @@ namespace Festival.Game;
 
 /// <summary>
 /// The Pond Stage as the player sees it, while a festival runs it: the modular riser and its speakers by the pond, its
-/// own hired generator off the deck's west end, and the bands' garden gate cut in the east hedge with the lane beyond.
-/// The riser and generator can be picked; the generator has the farm generator's strain, warning and cutoff. With
-/// the Pond Stage closed none of it shows and the east hedge runs unbroken. Presentation only.
+/// own hired generator off the deck's west end. Its bands come in by the trailer bands' garden gate. The riser and
+/// generator can be picked; the generator has the farm generator's strain, warning and cutoff. With the Pond Stage
+/// closed none of it shows. Presentation only.
 /// </summary>
 public partial class Main
 {
-    private Node3D? _pondStage, _pondGate, _pondHedgeRun, _pondGateLeaf, _pondDrumKit;
-    private float _pondGateOpen;
+    private Node3D? _pondStage, _pondDrumKit;
     private OmniLight3D[] _pondStageLights = [];
     private ulong _pondStagePickId, _pondGeneratorPickId;
     private Node3D? _pondGeneratorVisual;
@@ -37,7 +36,6 @@ public partial class Main
     private void BuildPondStageWorld()
     {
         // The riser and its speakers share the stage's own frame: ground origin, turned half round so it faces -Z.
-        // Built hidden, so the first show below also cuts the hedge for the gate.
         _pondStage = new Node3D { Name = "PondStage", Position = PondStageOrigin, Visible = false,
             RotationDegrees = new Vector3(0, FestivalStages.Pond.Placement.YawDegrees, 0) };
         AddChild(_pondStage);
@@ -58,22 +56,9 @@ public partial class Main
             new OmniLight3D { Position = new Vector3(1.6f, 2.4f, 1.6f), OmniRange = 7, LightColor = new Color("eaa8ff"), LightEnergy = 0 }];
         foreach (var light in _pondStageLights) _pondStage.AddChild(light);
         _pondStage.AddChild(BuildingName("POND STAGE", new Vector3(0, 5.2f, 0)));
-
-        // The bands' gate: the east hedge's run here (z 24..16) is cut for a garden gate at z 17, cells 161..162, with
-        // a rounded hedge end either side as at the farmhouse gate, and the lane beyond. Gate and lane turn half round
-        // so the lane lies outside the east hedge.
-        _pondGate = new Node3D { Name = "PondGate", Visible = false };
-        AddChild(_pondGate);
-        string Env(string name) => $"res://assets/environment/{name}.glb";
-        foreach (var (name, z, yaw) in new (string, float, float)[]
-                 { ("lwf_hedge_straight_4m_a_v1", 24, 90), ("lwf_hedge_straight_4m_a_v1", 23, 90), ("lwf_hedge_gate_end_v1", 19, 90), ("lwf_hedge_gate_end_v1", 15, 270) })
-            RegisterBreezeHedge(PlaceBackstagePiece(_pondGate, Env(name), 32, z, yaw));
-        var gate = PlaceBackstagePiece(_pondGate, Env("lwf_garden_gate_iron_v1"), 32, 17, 180);
-        _pondGateLeaf = gate.FindChild("LWF_GardenGate_Leaf", true, false) as Node3D;
-        PlaceBackstagePiece(_pondGate, Env("lwf_hedge_gate_lane_v1"), 32, 17, 180);
     }
 
-    /// <summary>Shows the Pond Stage while this festival runs it, keeps its generator, drums and gate in step, and its chip.</summary>
+    /// <summary>Shows the Pond Stage while this festival runs it, keeps its generator and drums in step, and its chip.</summary>
     private void ProcessPondStage(double delta)
     {
         var open = _session.PondStageOpen;
@@ -81,8 +66,7 @@ public partial class Main
         if (_pondStage is null) return;
         if (_pondStage.Visible != open)
         {
-            _pondStage.Visible = _pondGate!.Visible = open;
-            if (_pondHedgeRun is not null) _pondHedgeRun.Visible = !open;
+            _pondStage.Visible = open;
             foreach (var body in _pondStage.FindChildren("*", "StaticBody3D", true, false).OfType<StaticBody3D>()) body.CollisionLayer = open ? 1u : 0;
         }
         if (!open)
@@ -94,13 +78,6 @@ public partial class Main
             return;
         }
         SyncPondGenerator(delta);
-        // The garden gate swings open as a band member comes through, as the farmhouse gate does.
-        if (_pondGateLeaf is not null)
-        {
-            var near = _attendeeVisuals.Values.Any(body => body.Visible && new Vector2(body.Position.X - 32, body.Position.Z - 17).LengthSquared() < 2.2f * 2.2f);
-            _pondGateOpen = Mathf.MoveToward(_pondGateOpen, near ? 1 : 0, _session.IsPaused ? 0 : (float)delta * 2.5f);
-            _pondGateLeaf.RotationDegrees = new Vector3(0, -90 + 90 * Mathf.SmoothStep(0, 1, _pondGateOpen), 0);
-        }
         _pondStageSync -= delta;
         if (_pondStageSync > 0) return;
         _pondStageSync = .5;

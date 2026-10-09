@@ -90,7 +90,8 @@ public sealed partial class GameSession
         var performers = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Performer && q.Performers.Any(role => role.AgentId == item.Id && role.SlotIndex == q.CurrentSlot)).Select((item, index) =>
             new LivePerformer(item.Id, def.PerformerMarks[index], def.AccessCells[index], def.StairCells[index], false, false, false, false)).ToArray();
         foreach (var performer in performers)
-            if (!MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < q.SlotEndTick)
+            if (!MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < q.SlotEndTick &&
+                !WaitingOnTheLane(performer.AgentId))
                 ApplyAgentDestination(new(performer.AgentId), new(performer.AccessCell, "performance.side-entry"));
         // The day's first sets: every guest starts in the trailer stage's crowd. Later sets keep the crowd each stage has.
         var crowd = Stages.Count == 1 || _livePerformances[stage] is not { } previous

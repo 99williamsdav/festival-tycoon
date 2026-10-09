@@ -112,7 +112,8 @@ public static class FestivalStages
     /// <summary>
     /// The Pond Stage: the modular riser in the pond corner of the field (+X, +Z), its back to the farm pond and its crowd
     /// on the open grass towards the barns (-Z), well away from the trailer's crowd and the farm track. Its band comes in
-    /// off the lane by a small gate in the +X hedge, waits beside the riser and climbs its side stair at the +X end.
+    /// off the lane by the trailer bands' garden gate, crosses the field to wait beside the riser and climbs its side
+    /// stair at the +X end.
     /// </summary>
     public static readonly FestivalStage Pond = new()
     {
@@ -202,7 +203,7 @@ public static class FestivalStages
 /// so its audience is out along world -Z and its side stair, on the model's -X end, comes down at the world +X end.
 /// In cells: the deck covers x 162..173, z 158..165 and stands 0.9 m high; the stair runs x 174..177 on rows 159..161,
 /// with its foot at x 178. The pond's own generator stands off the deck's -X end; the band waits past the stair, between
-/// the riser and the hedge, and comes in by a gate cut in the +X hedge at z 161..162.
+/// the riser and the hedge, having come in by the garden gate in the west hedge.
 /// </summary>
 public static class PondRiser
 {
@@ -214,8 +215,6 @@ public static class PondRiser
     public static bool Deck(GridCell cell) => cell.X is >= 163 and <= 172 && cell.Z is >= 159 and <= 164 || cell.X == 173 && cell.Z is >= 159 and <= 161;
     /// <summary>The side stair, from its toe at x 177 to the top tread at x 174.</summary>
     public static bool Stairs(GridCell cell) => cell.X is >= 174 and <= 177 && cell.Z is >= 159 and <= 161;
-    /// <summary>The pond gate: two cells clear through the +X hedge.</summary>
-    public static bool Gate(GridCell cell) => cell.X is 191 or 192 && cell.Z is 161 or 162;
 
     /// <summary>The generator's body cells.</summary>
     public static bool Generator(GridCell cell)
@@ -227,8 +226,7 @@ public static class PondRiser
 
     /// <summary>
     /// The riser's cells and whether each can be walked: the deck's rim and the ground under it are solid (it stands
-    /// 0.9 m up), the boards and stair are open, the stair's sides are closed, and the generator is solid. The pond
-    /// gate is opened through the hedge.
+    /// 0.9 m up), the boards and stair are open, the stair's sides are closed, and the generator is solid.
     /// </summary>
     public static IEnumerable<(GridCell Cell, bool Walkable)> Cells()
     {
@@ -244,19 +242,19 @@ public static class PondRiser
         for (var z = 150; z <= 175; z++)
         for (var x = 150; x <= 161; x++)
             if (Generator(new(x, z))) yield return (new(x, z), false);
-        for (var z = 161; z <= 162; z++)
-        for (var x = 191; x <= 192; x++)
-            yield return (new(x, z), true);
     }
 
     public static readonly (int MinX, int MaxX, int MinZ, int MaxZ) ReserveBounds = (150, 190, 156, 168);
-    /// <summary>The riser, its stair foot, the generator, the band's waiting ground and the way in from the gate.</summary>
+    /// <summary>The riser, its stair foot, the generator and the band's waiting ground.</summary>
     public static bool Reserve(GridCell cell) => cell.X >= ReserveBounds.MinX && cell.X <= ReserveBounds.MaxX &&
         cell.Z >= ReserveBounds.MinZ && cell.Z <= ReserveBounds.MaxZ;
     /// <summary>The riser and the ground at the foot of its stair, which an outgoing band must clear for the next.</summary>
     public static bool Access(GridCell cell) => cell.X is >= 162 and <= 179 && cell.Z is >= 157 and <= 166;
     /// <summary>Where a band member waits: a loose cluster between the stair and the hedge, by order in the stage's band list.</summary>
     public static GridCell Place(int performerIndex) => new(182 + performerIndex % 3 * 3, 157 + performerIndex / 3 % 3 * 3);
-    /// <summary>Where a band member steps off the lane outside the +X hedge, in a loose line along it.</summary>
-    public static GridCell LaneStart(int performerIndex) => new(196 + performerIndex % 2 * 2, 150 + performerIndex * 2);
+    /// <summary>
+    /// Where a band member steps off the lane outside the west hedge: a second line just beyond the trailer bands'
+    /// (Backstage.LaneStart), level with the garden gate, so the two never share a spot.
+    /// </summary>
+    public static GridCell LaneStart(int performerIndex) => new(52 + performerIndex % 2 * 2, 112 + performerIndex * 3);
 }

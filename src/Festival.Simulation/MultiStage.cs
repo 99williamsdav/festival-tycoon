@@ -37,6 +37,52 @@ public sealed partial class GameSession
     /// <summary>The Pond Stage comes with Tier 2 (and its own generator); a trial campaign has it from the start.</summary>
     public const int PondStageFromTier = 2;
     public bool PondStageOpen => _pondStageTrial || (_preparation?.Tier ?? 1) >= PondStageFromTier;
+
+    // ---- Bands off the lane ----
+
+    // The trailer's bands set off from the lane as the gates open. Every other stage's bands follow through the same
+    // garden gate once those have gone, a band at a time and each member a few seconds after the last.
+    public const int BandReleaseStartTicks = 1_600, BandReleaseBandGapTicks = 960, BandReleaseMemberGapTicks = 240;
+    // Spare time a later stage's band keeps in hand: it reaches the foot of its stair this long before it's called up.
+    public const int BandArrivalSlackTicks = 1_600;
+
+    /// <summary>
+    /// How long after opening a band member leaves the lane: at once for the trailer's bands; for any other stage's, by
+    /// the stagger above, but never so late that the walk (straight-line distance, half again for the way round, at a
+    /// slow walker's pace) and the slack wouldn't get them to the foot of the stair before their set's call.
+    /// </summary>
+    public int BandReleaseTicks(ulong id)
+    {
+        if (_programme is null || PerformerStage(id) is not (var stage and > 0)) return 0;
+        var def = Stages[stage];
+        var q = StageProgramme(stage)!;
+        var ordinal = Array.FindIndex(q.Performers, role => role.AgentId == id);
+        var role = q.Performers[ordinal];
+        var planned = BandReleaseStartTicks + ((stage - 1) * def.SlotCount + role.SlotIndex) * BandReleaseBandGapTicks + role.RoleIndex * BandReleaseMemberGapTicks;
+        var latest = def.SlotStarts[role.SlotIndex] - LiveSetStageEntryLeadTicks - BandArrivalSlackTicks - BandWalkTicks(def.ArrivalStart(ordinal), def.AccessCells[role.RoleIndex]);
+        return Math.Max(1, Math.Min(planned, latest));
+    }
+
+    /// <summary>A generous walk estimate: octile distance, half again for the way round, at 24 mm a tick.</summary>
+    public static int BandWalkTicks(GridCell from, GridCell to)
+    {
+        var dx = Math.Abs(from.X - to.X); var dz = Math.Abs(from.Z - to.Z);
+        var millimetres = ((long)Math.Max(dx, dz) * 1_000 + (long)Math.Min(dx, dz) * 414) * TraversalGrid.CellSizeMillimetres / 1_000;
+        return (int)(millimetres * 3 / 2 / 24);
+    }
+
+    /// <summary>A band member still standing on the lane, waiting for their time to come in.</summary>
+    private bool WaitingOnTheLane(ulong id) =>
+        _preparation is { Status: PreparationStatus.Running } && PersonIn(PersonView.Roster, id) is { Role: ProtectedPersonRole.Performer, Admitted: false } &&
+        _navigationAgents.TryGetValue(new(id), out var nav) && nav.Destination is null && BandReleaseTicks(id) > 0;
+
+    /// <summary>A band member leaves the lane: to the foot of the stair if they're on now, otherwise to the waiting ground.</summary>
+    private void LeaveTheLane(ulong id, int index)
+    {
+        if (LivePerformerStage(id) is var stage and >= 0 && _livePerformances[stage] is { Stage: not LiveSetStage.Finished } live && IsCurrentProgrammePerformer(id))
+            ApplyAgentDestination(new(id), new(live.Performers.Single(item => item.AgentId == id).AccessCell, "performance.side-entry"));
+        else ApplyAgentDestination(new(id), new(IdlePlace(index), "edition.arrival"));
+    }
     /// <summary>The stages this festival runs, in stage order.</summary>
     public IReadOnlyList<FestivalStage> Stages => FestivalStages.For(PondStageOpen);
     private static IReadOnlyList<FestivalStage> SavedStages(SessionPersistenceSnapshot s) =>

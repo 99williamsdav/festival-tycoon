@@ -40,7 +40,7 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v48", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v48");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v49", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v49");
 
     public override void _Ready()
     {
@@ -278,8 +278,6 @@ public partial class Main : Node, IHudHost
             if (i == 0) continue;
             var right = AddAsset(Hedge(i + 7), new Vector3(32, 0, i * 8)); right.RotationDegrees = new Vector3(0, 90, 0);
             RegisterBreezeHedge(right);
-            // This run (z 24..16) gives way to the Pond Stage's gate while that stage is open (Main.PondStage).
-            if (i == 3) _pondHedgeRun = right;
         }
         RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(-8, 0, 32)));
         RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(4, 0, 32)));
@@ -592,7 +590,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v48");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v49");
 
 
 
