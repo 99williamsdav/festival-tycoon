@@ -63,10 +63,10 @@ public partial class Main
             "stuck" => () => Places(_session.CaptureFaults()?.Faults.Where(f => f.Kind == FacilityFaultKind.StuckInToilet && f.Stage == FacilityFaultStage.Active)
                 .Select(f => _session.CaptureToilets().FirstOrDefault(t => t.Id == f.FacilityId)?.Cell), 3.4f),
             "toxic" => () => Places(_session.CaptureToilets().Where(t => _session.ToiletToxic(t.Id)).Select(t => (GridCell?)t.Cell), 3.4f),
-            "generator" => () => _session.PowerBudgetActive && _session.CapturePower().Over ? Generator() : null,
+            "generator" => Generators,
             "argument" => () => Person(_session.CaptureDisorder()?.People.Where(p => p.Stage == DisorderStage.Argument).Select(p => p.AgentId)),
             "band-late" => () => !_session.FestivalBandLate || _session.Stages.FirstOrDefault(stage => _session.StageBandLate(stage.Id)) is not { } late ||
-                _session.CaptureProgramme(late.Id) is not { } q ? null : Person(q.Performers.Where(r => r.SlotIndex == q.CurrentSlot).Select(r => r.AgentId)),
+                _session.CaptureProgramme(late.Id) is not { } q ? null : Person(q.Performers.Where(r => r.SlotIndex == LateSlot(late, q)).Select(r => r.AgentId)),
             "litter" => () => _session.CaptureLitter()?.Pieces.FirstOrDefault(w => w.Location == WasteLocation.Ground) is { } piece
                 ? [new Vector3(piece.XMillimetres / 1000f, 1.1f, piece.ZMillimetres / 1000f)] : null,
             // Loose cows: the pin over each, at about head height.
@@ -95,6 +95,29 @@ public partial class Main
     }
 
     private Vector3[]? Generator() => _session.CaptureEquipment() is { } e ? [new Vector3(e.XMillimetres / 1000f, 2.6f, e.ZMillimetres / 1000f)] : null;
+
+    /// <summary>Every generator in trouble: the farm's when it's over capacity, the Pond Stage's once it warns or faults.</summary>
+    private Vector3[]? Generators()
+    {
+        var pins = new List<Vector3>();
+        if (_session.PowerBudgetActive && _session.CapturePower().Over && Generator() is { } farm) pins.AddRange(farm);
+        if (_session.CaptureStageGenerator(FestivalStages.PondId)?.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault)
+            pins.Add(PondGeneratorHome + new Vector3(0, 2.6f, 0));
+        return pins.Count > 0 ? pins.ToArray() : null;
+    }
+
+    /// <summary>
+    /// The set a late stage is waiting on: its current one while that band is still getting to their marks, or the
+    /// later set whose time has come while the last one is over.
+    /// </summary>
+    private int LateSlot(FestivalStage stage, StageProgrammeSnapshot q)
+    {
+        if (_session.CaptureLivePerformance(stage.Id)?.Stage != LiveSetStage.Finished || _session.CapturePreparation() is not { } p) return q.CurrentSlot;
+        var now = _session.CurrentTick - p.StartedTick;
+        for (var slot = q.CurrentSlot + 1; slot < stage.SlotCount; slot++)
+            if (now >= stage.SlotStarts[slot] && now < stage.SlotEnds[slot]) return slot;
+        return q.CurrentSlot;
+    }
 
     private IEnumerable<ulong> AllergicGuestsNear(BinReadModel[] bins)
     {

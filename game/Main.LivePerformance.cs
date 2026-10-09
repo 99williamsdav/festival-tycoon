@@ -289,9 +289,22 @@ public partial class Main
             : _session.CaptureEquipment()?.LoadPercent ?? 80;
     }
 
+    private (ulong Frame, long Tick, GameSession Session, IReadOnlyList<LivePerformanceSnapshot> Sets)? _framePerformances;
+    /// <summary>Every stage's set, captured once a frame for every view that reads it; read only.</summary>
+    private IReadOnlyList<LivePerformanceSnapshot> FramePerformances
+    {
+        get
+        {
+            var frame = Engine.GetProcessFrames();
+            if (_framePerformances is not { } cached || cached.Frame != frame || cached.Tick != _session.CurrentTick || !ReferenceEquals(cached.Session, _session))
+                _framePerformances = cached = (frame, _session.CurrentTick, _session, _session.CaptureLivePerformances());
+            return cached.Sets;
+        }
+    }
+
     private void AdvanceLivePerformancePresentation(double delta)
     {
-        var lives = _session.CaptureLivePerformances();
+        var lives = FramePerformances;
         if (lives.Count == 0) return;
         EnsureStage();
         var roster = _session.CapturePreparation()!.People;

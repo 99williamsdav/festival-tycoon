@@ -300,7 +300,7 @@ private void RebuildPreparationOffers()
         var crowd = new Dictionary<EntityId, FestivalStage>();
         var watching = new HashSet<EntityId>();
         var onStage = new Dictionary<EntityId, FestivalStage>();
-        var lives = _session.CaptureLivePerformances();
+        var lives = FramePerformances;
         foreach (var set in lives)
         {
             var stage = FestivalStages.Find(set.StageId) ?? FestivalStages.Main;

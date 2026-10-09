@@ -51,16 +51,16 @@ internal sealed class StartMenu
         content.AddChild(button);
         var guide = new Button { Name = "FieldGuide", Text = "Field guide", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
             MouseDefaultCursorShape = Control.CursorShape.PointingHand };
-        guide.AddThemeColorOverride("font_color", new Color("f3e8c9")); guide.AddThemeFontSizeOverride("font_size", 16);
+        guide.AddThemeColorOverride("font_color", new Color("f3e8c9")); guide.AddThemeFontSizeOverride("font_size", Ui.Px(16));
         guide.Pressed += fieldGuide;
         content.AddChild(guide);
         if (tryPondStage is not null)
         {
-            // A new campaign with the second stage open from the start; it doesn't touch the saved festival.
+            // A new campaign with the second stage open from the start; like Enter on a finished day, it takes over the autosaves.
             var pond = new Button { Name = "TryPondStage", Text = "Try the Pond Stage · trial", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
                 MouseDefaultCursorShape = Control.CursorShape.PointingHand,
                 TooltipText = "Start a new trial festival with a second stage by the pond, before it would normally open." };
-            pond.AddThemeColorOverride("font_color", new Color("9fd3c2")); pond.AddThemeFontSizeOverride("font_size", 16);
+            pond.AddThemeColorOverride("font_color", new Color("9fd3c2")); pond.AddThemeFontSizeOverride("font_size", Ui.Px(16));
             pond.Pressed += tryPondStage;
             content.AddChild(pond);
         }

@@ -29,6 +29,8 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     private Control? _clockTrack;
     private float _clockFraction;
     private readonly (float Start, float End, Color Colour)[] _clockSets = new (float, float, Color)[3];
+    // The Pond Stage's sets, a second thin row under the trailer's; null on a one-stage day.
+    private (float Start, float End, Color Colour)[]? _pondClockSets;
     private Label? _guests;
     private Label? _guestsOf;
     private Label? _weather;
@@ -131,8 +133,18 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         var track = _clockTrack!; var size = track.Size;
         track.DrawStyleBox(Ui.Box(Ui.BarDeep, 6), new Rect2(Vector2.Zero, size));
         if (_clockFraction > 0) track.DrawStyleBox(Ui.Box(new Color(Ui.BarText, 0.28f), 6), new Rect2(Vector2.Zero, new Vector2(size.X * _clockFraction, size.Y)));
-        foreach (var (start, end, colour) in _clockSets)
-            if (end > start) track.DrawStyleBox(Ui.Box(colour, 3), new Rect2(size.X * start, Ui.S(2), size.X * (end - start), size.Y - Ui.S(4)));
+        if (_pondClockSets is { } pond)
+        {
+            // Two stages: the trailer's sets along the top half, the Pond Stage's half-offset sets along the bottom.
+            var half = (size.Y - Ui.S(4)) / 2;
+            foreach (var (start, end, colour) in _clockSets)
+                if (end > start) track.DrawStyleBox(Ui.Box(colour, 2), new Rect2(size.X * start, Ui.S(2), size.X * (end - start), half - Ui.S(0.5f)));
+            foreach (var (start, end, colour) in pond)
+                if (end > start) track.DrawStyleBox(Ui.Box(colour, 2), new Rect2(size.X * start, Ui.S(2) + half + Ui.S(0.5f), size.X * (end - start), half - Ui.S(0.5f)));
+        }
+        else
+            foreach (var (start, end, colour) in _clockSets)
+                if (end > start) track.DrawStyleBox(Ui.Box(colour, 3), new Rect2(size.X * start, Ui.S(2), size.X * (end - start), size.Y - Ui.S(4)));
         var x = size.X * _clockFraction;
         track.DrawRect(new Rect2(x - Ui.S(2.5f), -Ui.S(4), Ui.S(5), size.Y + Ui.S(8)), Ui.Bar);
         track.DrawRect(new Rect2(x - Ui.S(1.5f), -Ui.S(4), Ui.S(3), size.Y + Ui.S(8)), Ui.BarText);
@@ -265,6 +277,13 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
             for (var i = 0; i < 3; i++)
                 _clockSets[i] = (GameSession.FestivalSlotStarts[i] / day, GameSession.FestivalSlotEnds[i] / day,
                     SetColour(acts.TryGetValue(programme!.ActIds[i], out var act) ? act.Genre : -1));
+            _pondClockSets = null;
+            if (session.CaptureProgramme(FestivalStages.PondId) is { ActIds.Length: 3 } pond)
+            {
+                var stage = FestivalStages.Pond;
+                _pondClockSets = Enumerable.Range(0, 3).Select(i => (stage.SlotStarts[i] / day, stage.SlotEnds[i] / day,
+                    SetColour(acts.TryGetValue(pond.ActIds[i], out var act) ? act.Genre : -1))).ToArray();
+            }
             _clockTrack.QueueRedraw();
         }
         _guests!.Text = session.OnSiteAttendeeCount.ToString();
