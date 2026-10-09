@@ -1,0 +1,41 @@
+{
+  "lwf_modular_riser_speaker_v1": [
+    {
+      "aabb_godot": "[P: (-0.23, 0.0, -0.19), S: (0.46, 0.8, 0.428)]",
+      "name": "RiserSpeaker",
+      "palette_size": "(128.0, 8.0)",
+      "surfaces": 1,
+      "triangles": 308
+    }
+  ],
+  "lwf_modular_riser_stage_v1": [
+    {
+      "aabb_godot": "[P: (-3.011, 0.7, -2.011), S: (6.022, 0.203, 4.022)]",
+      "name": "RiserDeck",
+      "palette_size": "(128.0, 8.0)",
+      "surfaces": 1,
+      "triangles": 888
+    },
+    {
+      "aabb_godot": "[P: (-3.14, 0.0, -2.14), S: (6.28, 0.87, 4.28)]",
+      "name": "RiserSteelFrame",
+      "palette_size": "(128.0, 8.0)",
+      "surfaces": 1,
+      "triangles": 1924
+    },
+    {
+      "aabb_godot": "[P: (-4.885, 0.0, 0.18), S: (1.899176, 1.602594, 1.24)]",
+      "name": "RiserAccess",
+      "palette_size": "(128.0, 8.0)",
+      "surfaces": 1,
+      "triangles": 312
+    },
+    {
+      "aabb_godot": "[P: (-3.005, 0.89, -2.015), S: (6.01, 0.682, 0.09)]",
+      "name": "RiserCornerRails",
+      "palette_size": "(128.0, 8.0)",
+      "surfaces": 1,
+      "triangles": 272
+    }
+  ]
+}

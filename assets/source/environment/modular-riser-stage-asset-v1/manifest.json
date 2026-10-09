@@ -1,0 +1,105 @@
+{
+  "assets": {
+    "structure": {
+      "RiserDeck": {
+        "triangles": 888,
+        "vertices": 528,
+        "bounds_blender": [
+          [
+            -3.010999917984009,
+            -2.010999917984009,
+            0.699999988079071
+          ],
+          [
+            3.010999917984009,
+            2.010999917984009,
+            0.902999997138977
+          ]
+        ]
+      },
+      "RiserSteelFrame": {
+        "triangles": 1924,
+        "vertices": 1176,
+        "bounds_blender": [
+          [
+            -3.140000104904175,
+            -2.140000104904175,
+            0.0
+          ],
+          [
+            3.140000104904175,
+            2.140000104904175,
+            0.8700000047683716
+          ]
+        ]
+      },
+      "RiserAccess": {
+        "triangles": 312,
+        "vertices": 200,
+        "bounds_blender": [
+          [
+            -4.884999752044678,
+            -1.4200000762939453,
+            0.0
+          ],
+          [
+            -2.9858238697052,
+            -0.18000000715255737,
+            1.6025935411453247
+          ]
+        ]
+      },
+      "RiserCornerRails": {
+        "triangles": 272,
+        "vertices": 160,
+        "bounds_blender": [
+          [
+            -3.005000114440918,
+            1.9250000715255737,
+            0.8899999856948853
+          ],
+          [
+            3.005000114440918,
+            2.015000104904175,
+            1.5719999074935913
+          ]
+        ]
+      }
+    },
+    "speaker": {
+      "RiserSpeaker": {
+        "triangles": 308,
+        "vertices": 176,
+        "bounds_blender": [
+          [
+            -0.23000000417232513,
+            -0.23800000548362732,
+            0.0
+          ],
+          [
+            0.23000000417232513,
+            0.1899999976158142,
+            0.800000011920929
+          ]
+        ]
+      }
+    }
+  },
+  "palette": [
+    128,
+    8
+  ],
+  "materials": 1,
+  "references_sha256": {
+    "approved-C.png": "d70943a29f5daf405ccf19846b41be301e5fafdfeb3b641e93e80893949c1196",
+    "LivePerformance.cs": "c12e8a4e05a4dbe8004914e4a070dea4d70122359b5b682fc0468bbc0c36c6ab",
+    "lwf_attendee_male_relaxed_v2.glb": "15c48205eaf53275f3398804c5a97fa5b7abc5b18b744f7ca6e65ee36111010a",
+    "lwf_drum_hardware_only_v2.glb": "9c8e40248a15ea2a47f85f928f79885e6bf56d4a0e6b3c4d65ee9b560ab7ea41",
+    "lwf_trailer_stage_v3.glb": "4a53ec5e4eaac0a38557c85d3e2fc3bde1607f5a82629ddb5b5ffaec44395edf",
+    "Main.LivePerformance.cs": "b01fdcd5d9a1af83416a75f09d866d06cac557bcddbfe3232b519bf3fb58e7f3"
+  },
+  "runtime_sha256": {
+    "lwf_modular_riser_speaker_v1.glb": "2144d593a2aaa65d1823cbe360113d7cce411dd6ab55d5b5a9915359be63b2d0",
+    "lwf_modular_riser_stage_v1.glb": "3ba3b4fdff84ec5c7cc1109e7aaa808503db3aa1f1b54cba90ff638d0e147759"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "lwf_modular_riser_speaker_v1": {
+    "identity_mesh_transforms": true,
+    "palette": [
+      128,
+      8
+    ],
+    "surfaces": 1,
+    "triangles": 308,
+    "visual_only": true
+  },
+  "lwf_modular_riser_stage_v1": {
+    "identity_mesh_transforms": true,
+    "palette": [
+      128,
+      8
+    ],
+    "surfaces": 4,
+    "triangles": 3396,
+    "visual_only": true
+  }
+}

@@ -1,0 +1,26 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Info: Total files 1 | Changed 1 | Failed 0
+15:22:24 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+15:22:24 | INFO: Starting glTF 2.0 export
+15:22:24 | INFO: Extracting primitive: RiserDeck_Mesh
+15:22:24 | INFO: Primitives created: 1
+15:22:24 | INFO: Extracting primitive: RiserSteelFrame_Mesh
+15:22:24 | INFO: Primitives created: 1
+15:22:24 | INFO: Extracting primitive: RiserAccess_Mesh
+15:22:24 | INFO: Primitives created: 1
+15:22:24 | INFO: Extracting primitive: RiserCornerRails_Mesh
+15:22:24 | INFO: Primitives created: 1
+15:22:24 | INFO: Finished glTF 2.0 export in 0.0096588134765625 s
+
+15:22:24 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+15:22:24 | INFO: Starting glTF 2.0 export
+15:22:24 | INFO: Extracting primitive: RiserSpeaker_Mesh
+15:22:24 | INFO: Primitives created: 1
+15:22:24 | INFO: Finished glTF 2.0 export in 0.003999948501586914 s
+
+Info: Saved "lwf_modular_riser_stage_v1.blend"
+RISER_BUILD_PASSED
+
+Blender quit

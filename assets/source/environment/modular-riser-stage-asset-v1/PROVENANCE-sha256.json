@@ -1,0 +1,34 @@
+[
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\modular-riser-stage-asset-v1\\build.py",
+    "Hash": "41028EBC3A3C9E98E18D3A269460BF1ABB2F1FC9194E4F46B5F29B58D0398149"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\modular-riser-stage-asset-v1\\verify_assets.py",
+    "Hash": "A273401FDF839E362FC67A81FA58B798C75B68156D56F82F6DEE15E47454FA7E"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\modular-riser-stage-asset-v1\\render_review.py",
+    "Hash": "B52E7622A47053E7521983C537E6A76BDB2C48BDAFB41E50B944718EC7B52C9E"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\modular-riser-stage-asset-v1\\render_empty.py",
+    "Hash": "A63E7133629D8DD76AD1EE9E83E368D87E66D8B9622F080E95D7DD2D9CADA618"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\modular-riser-stage-asset-v1\\source\\lwf_modular_riser_stage_v1.blend",
+    "Hash": "D08440CD9B7EDDA2F9C6D092400329CE10C161D41BCD23D01DF28E343C14E0A4"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\modular-riser-stage-asset-v1\\references\\approved-C.png",
+    "Hash": "D70943A29F5DAF405CCF19846B41BE301E5FAFDFEB3B641E93E80893949C1196"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\modular-riser-stage-asset-v1\\runtime\\lwf_modular_riser_speaker_v1.glb",
+    "Hash": "2144D593A2AAA65D1823CBE360113D7CCE411DD6AB55D5B5A9915359BE63B2D0"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\modular-riser-stage-asset-v1\\runtime\\lwf_modular_riser_stage_v1.glb",
+    "Hash": "3BA3B4FDFF84EC5C7CC1109E7AAA808503DB3AA1F1B54CBA90FF638D0E147759"
+  }
+]

@@ -1,0 +1,81 @@
+SECOND STAGE — THREE CONCEPT OPTIONS — 9 OCTOBER 2026
+
+DELIVERY
+comparison-board.png: three directions at common illustrative displayed scale,
+matching adult scale cues, same front three-quarter angle and removable kit.
+a-timber-dais.png, b-farmyard-platform.png, c-modular-riser.png: individual sheets
+with main three-quarter, empty rear deck, side/scale and construction cue.
+Built-in image_gen used for all four images; exact prompts in PROMPTS.json and
+COMPARISON-PROMPT.txt. Actual generated images were inspected after each call.
+No Blender models, game edits, tier/unlock, price or capacity specification.
+Second stage means an additional design choice, not replacement of current trailer.
+
+CHOICES / PRACTICAL MODELLING NOTES
+A — TIMBER DAIS
+Low chamfered front, broad integrated step, stout exposed timber support frame.
+Cleanest open silhouette and the simplest carpentry language. Distinct from the
+previous taller rectangular rail-enclosed upgraded-stage concept: no perimeter
+rail enclosure; front step and chamfered outline are defining features.
+Model deck/slab, step, posts and repeated short braces as separate simple parts.
+Use broad warm timber palette blocks; no need for every painted grain/nail.
+Keep corner stubs low and stairs readable. Main sheet's performers are context.
+
+B — FARMYARD PLATFORM (RECOMMENDED FOR FARM CHARACTER)
+Low rectangular deck, sleeper perimeter, reclaimed vertical front fascia, squat
+masonry piers, side stair and bunting fixed below deck level. It feels deliberately
+assembled for this farm yet retains more handmade character than hired equipment.
+Model a stable continuous floor above the frame; no pallet holes or loose bales.
+Reuse plank strips and a few pier meshes. Bunting is one sparse simple strip;
+keep it below performers. Rear remains open rather than a wall/backdrop.
+This is the strongest rural fit while visibly moving beyond a wheeled trailer.
+
+C — MODULAR RISER
+Charcoal panel deck, exposed dull steel support grid, underdeck diagonals and
+separate metal stair. Strongest visual contrast to the trailer and most clearly
+purpose-made stage equipment, while still modest hire-kit rather than arena rig.
+Repeat a small deck-panel/frame module and leg/foot unit. Keep braces under deck,
+short guard sections at corners only and central rear open. Avoid increasing
+rail height/length into a cage. Small bolts can be palette cues at game scale.
+Generated sheet's descriptive 'affordable/easy to set up' wording expresses the
+visual hire-kit idea; it is not an assigned game cost or setup-time mechanic.
+
+SHARED CONSTRAINTS
+Uncovered in every direction: no roof, awning, overhead crossbeam, tall backdrop,
+large banner, lighting tower or new effects. No mosaic 3D treatment. Instruments,
+microphone, speakers and people are removable context, not merged stage geometry.
+Open low silhouettes are intended to preserve performance readability from all
+four camera rotations. Rear/side illustrations were inspected; four native
+camera visibility is NOT verified because no models exist yet. Precise deck
+height, footprint, performer marks, access and operational clearance remain
+implementation questions after selection, not specifications inferred from pixels.
+Generated projections are visual studies, not orthographic construction drawings.
+Same illustrated adult height and comparable deck widths on comparison board
+support fair visual comparison; no exact dimensional equivalence is claimed.
+No new crowd/interaction/placement rules or automatic upgrade progression.
+
+REFERENCES / PROVENANCE
+references/a-crafted-low-poly.png: approved rural style reference.
+references/current-trailer-scale.png: actual trailer asset scale render.
+references/current-game-stage.png: actual exported game capture (historical
+R0.05aa evidence), inspected for stage/attendee scale, not assumed current UI.
+references/prior-open-stage-concept.png: prior upgraded uncovered-stage direction,
+inspected to avoid merely repeating its tall rectangular platform and rails.
+Reference 1 style and reference 2 game capture supplied to each initial image call.
+The three completed sheets supplied to comparison-board generation.
+All original outputs retained by image_gen; workspace copies are the deliverables.
+
+GENERATED ORIGINALS
+A: exec-fbd99549-074d-45af-95e0-802db7d3e88f.png
+B: exec-7d1dd17d-02d3-40df-b808-ca9e8a71ad2e.png
+C: exec-55342e59-5202-4393-aa8e-a2b686fd72c8.png
+Board: exec-0751d5cd-8fd3-43ab-8e73-d7257c6643ea.png
+Original directory: C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/
+
+SEPARATE WILLOW STATE
+pond-willow-asset-v1 was already delivered complete before this commission.
+It remains preserved unchanged. Builder owns willow integration and native checks;
+this concept assignment does not report that integration as complete or inspect it.
+
+NEXT DECISION
+User chooses a direction or requests a blend/revision. Do not automatically build
+or integrate any of these options; current authorization is concept art only.

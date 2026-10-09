@@ -1,0 +1,1 @@
+COMPLETE: approved option C modular riser asset ready for user model review. HANDOFF.txt contains dimensions, anchors, current trailer-contract mismatch and verification. Runtime GLBs, source/script/palette and actual renders delivered. No game integration or replacement performed. Existing willow/other work preserved.

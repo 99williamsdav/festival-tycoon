@@ -1,0 +1,28 @@
+{
+  "stage_bounds_blender": [
+    [
+      -4.884999752044678,
+      -2.140000104904175,
+      0.0
+    ],
+    [
+      3.140000104904175,
+      2.140000104904175,
+      1.6025935411453247
+    ]
+  ],
+  "deck_raycast_samples": 35,
+  "deck_height_range": [
+    0.8989996910095215,
+    0.9000003337860107
+  ],
+  "five_treads_match_anchors": true,
+  "top_landing_matches_deck": true,
+  "review_band_marks_on_deck": true,
+  "triangles": 3396,
+  "runtime_sha256": {
+    "lwf_modular_riser_speaker_v1.glb": "2144d593a2aaa65d1823cbe360113d7cce411dd6ab55d5b5a9915359be63b2d0",
+    "lwf_modular_riser_stage_v1.glb": "3ba3b4fdff84ec5c7cc1109e7aaa808503db3aa1f1b54cba90ff638d0e147759"
+  },
+  "reference_attendee_height_m": 1.7266348594566807
+}

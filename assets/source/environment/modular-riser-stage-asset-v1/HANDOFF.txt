@@ -1,0 +1,129 @@
+MODULAR RISER STAGE — MODEL REVIEW HANDOFF — 9 OCTOBER 2026
+
+STATUS / AUTHORIZATION
+User selected C: 'Let's get C (modular riser) made'. This explicitly authorizes
+this separate Blender asset build, relayed by Producer
+01a07a8e-690e-7792-a604-650d0091a797 under WORKING-AGREEMENTS.md.
+Approved reference: references/approved-C.png from second-stage-concepts-v1.
+This is the model for user review. No game code, runtime deployment, second-stage
+mechanics or replacement of the trailer was authorized/performed in this task.
+No price, capacity, tier, audience size or unlock rule assigned.
+
+DELIVERY
+runtime/lwf_modular_riser_stage_v1.glb — structural stage, four reusable parts:
+  RiserDeck, RiserSteelFrame, RiserAccess, RiserCornerRails.
+runtime/lwf_modular_riser_speaker_v1.glb — optional independent speaker, one mesh;
+  instantiate twice at documented positions, or use other existing equipment.
+source/lwf_modular_riser_stage_v1.blend — editable procedural mesh assembly,
+  including two optional speaker objects. No performers/instrument kit baked in.
+build.py — deterministic original geometry/palette generation in Blender 4.1.1.
+textures/lwf_modular_riser_palette_v1.png — 128 x 8 sRGB, 16 swatches, also embedded.
+anchors.json — local Godot coordinate deck, access and review band/equipment marks.
+manifest.json — per-part geometry, source/reference hashes and runtime hashes.
+verify_assets.py / verification.json — checks on actual GLB reimport geometry.
+godot-check/verify.gd / import-report.json / verify.log — Godot 4.7.2 import check.
+render_review.py + render_empty.py — actual GLB render reproduction.
+
+REPRODUCE
+From this package, or use absolute script paths:
+  blender -b --python build.py
+  blender -b --python verify_assets.py
+  blender -b --python render_review.py
+  blender -b --python render_empty.py
+  godot --headless --path godot-check --script verify.gd
+No external Python modules or mutable game-repo dependencies are needed.
+References contain snapshots of current trailer v3, current relaxed attendee v2,
+existing drum hardware, and the inspected current performance contracts.
+Those copied meshes are REVIEW REFERENCES, not new deliverables/replacements.
+
+DIMENSIONS / AXES
+Units metres. Godot +Y up, audience forward +Z (Blender -Y); width along X.
+Origin ground centre directly beneath the rectangular deck; all four structural
+parts share that origin with identity transforms. Scale 1, no import correction.
+Nominal deck 6.0 x 4.0 m; performance plane Y=.900. Steel trim reaches
+6.022 x 4.022 m; small deck fasteners reach .903. Deck substrate is continuous,
+with six inset 2 x 2 m panel modules and narrow visual seams, no floor holes.
+Overall structure including stair/feet: X -4.885..3.140, Z -2.140..2.140,
+Y 0..1.603 (about 8.025 x 4.280 x 1.603 m). No world placement prescribed.
+Twelve stout flat-foot supports, steel crossmembers directly under substrate,
+underdeck cross-bracing, warm timber edge inserts and visible corner plates.
+Two short rear-corner rails only, about .65 m above deck; centre/open sides clear.
+No roof, tall wall, overhead beam, canopy, lighting rig, wheels or hitch.
+These dimensions describe the model only.
+
+ACCESS / LOCAL ANCHORS
+Left-end stair centre at Z=+.8. Approach (-5.15,0,+.8), toe (-4.8,0,+.8),
+stair top (-3,.9,+.8), then clear deck entry (-2.65,.9,+.8).
+Five .18 m rises; each tread .36 m along X, 1.04 m overall width, .97 m inset
+walking surface. Top tread joins deck. Rail is on outer/front side only.
+Tread-centre anchors are listed explicitly in anchors.json. For future rendered
+walking, follow those heights or a documented visual ramp; no movement code is
+included. Keep the approach clear and do not infer a new nav footprint from GLB.
+Suggested review-only band marks: front left (-1.25,.9,+.5), front right
+(+1.25,.9,+.5), drum/root context (0,.9,-.85). All lie on the deck. These merely
+show practical small-band spacing and are NOT a new band-size/capacity contract.
+Existing instrument rigs/poses will need per-role alignment if later integrated;
+review uses two neutral standing attendees and existing removable drum hardware,
+not a staged/animated performance with seated drummer, held guitars or microphone.
+Optional speaker roots (-2.42,.9,+1.37) and (+2.42,.9,+1.37), yaw 0, +Z faces
+listener. Speaker origin bottom centre, dimensions .46 wide x .428 deep x .8 high.
+No microphone or instrument asset is newly delivered; reuse existing separate
+props if chosen later. Keep them separate from structural stage meshes.
+
+IMPORTANT: CURRENT TRAILER CONTRACT IS DIFFERENT
+Inspected Main.LivePerformance.cs and simulation LivePerformance.cs snapshots:
+current stage access cells (93..95,137), stair cells (93..95,141), performer cells
+(96,150), (94,146), (93,152). The current renderer raises bodies using world Z
+5.72..7.89 and Y=.04 + ramp*1.15 (1.19 m on deck), and positions drum hardware
+at Y=1.19 with yaw -90 degrees. These are fixed WORLD/GRID contracts for the
+existing trailer, not local anchors suitable for this riser's .9 m deck and
+-X side stairs. Do not drop this model into that pipeline unchanged or move
+those cells as part of asset review. Any eventual integration is a separate task.
+
+COST / MATERIALS
+Structure 3,396 triangles: Deck 888; SteelFrame 1,924; Access 312; CornerRails 272.
+Speaker 308 triangles each. With two speakers: 4,012 triangles / six surfaces.
+One shared palette appearance, matte roughness .8, nearest sampling, opaque.
+Separate GLBs may load separate material resource instances; share if desired.
+No skin, animation, collision, navigation, functional audio or attached effects.
+GLBs: structure 222,768 bytes, speaker 20,548 bytes.
+
+CHECKED
+- Blender build/save and runtime export passed.
+- Actual GLB reimport: expected parts and palette; 35 deck raycast samples at
+  .899..900; all five tread centres and final landing align with anchors; interior
+  supports meet substrate underside; proposed review band marks lie on the deck.
+- Native Godot 4.7.2 decode/generate_scene passed: four structural mesh nodes,
+  one separate speaker node, one surface each, palette present, identity mesh
+  transforms, no collision nodes or AnimationPlayer.
+- Imported attendee reference measured 1.7266 m high; review uses it unscaled.
+- Real closeup, access detail, empty rear structure, four-angle gameplay-scale
+  views and current-trailer/person scale comparison inspected.
+- Corrected coplanar tread surfaces, a narrow lowered landing-edge strip and
+  an internal support-to-deck gap during verification; final checks pass.
+- Godot warned about sandbox user-log directory access, but import passed.
+
+REVIEW / FIDELITY / LIMITS
+review/riser-close.png: actual exported model, speaker pair and review props.
+review/structure-rear.png: empty structural model from the rear.
+review/stairs-detail.png: actual access tread/rail/frame detail.
+review/game-scale-0..3.png: South, West, North, East; 1280x720, vertical orthographic
+span 18 m and game's 72-horizontal/58-high camera direction; same fixed assembly.
+review/current-stage-scale-comparison.png: candidate left/current trailer v3 right,
+current attendee and both stages at scale 1, same camera (1600x900).
+All are Blender/Cycles renders of exported models, NOT in-game screenshots.
+Review ground/lighting, current person/trailer and drum kit are not in runtime export.
+Model preserves C's panel deck, exposed steel, feet, braces, timber edge accents,
+side stair, short isolated corner rails and modest separate speakers. Fine painted
+wear/fasteners in the concept are simplified for game scale; no phototexture or
+mosaic surfaces. The rear centre stays open and no structural element hides heads
+at the reviewed standing marks from the four camera views. Native lighting,
+animated performer rigs/routes, audience sightlines and runtime performance are
+not tested because integration is not part of this commission.
+No existing trailer/source, willow package or other work changed. Willow Designer
+checkpoint remains delivered; this task makes no new claim about its integration.
+
+NEXT STATE
+Model ready for user review. No automatic game integration, stage replacement,
+second-stage gameplay, commit or deployment performed.
+

@@ -1,0 +1,68 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Fra:1 Mem:12.46M (Peak 12.46M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | RiserDeck
+Fra:1 Mem:12.47M (Peak 12.47M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:1 Mem:14.47M (Peak 14.47M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | RiserSteelFrame
+Fra:1 Mem:14.48M (Peak 14.48M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | RiserAccess
+Fra:1 Mem:14.49M (Peak 14.49M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | RiserCornerRails
+Fra:1 Mem:15.15M (Peak 15.79M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:1 Mem:15.13M (Peak 15.79M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_modular_riser_palette_v1
+Fra:1 Mem:14.86M (Peak 15.79M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Waiting for render to start
+Fra:1 Mem:14.86M (Peak 15.79M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:1 Mem:14.86M (Peak 15.79M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Scene
+Fra:1 Mem:14.86M (Peak 15.79M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Shaders
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Procedurals
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Background
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Camera
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Meshes Flags
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Objects
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Particle Systems
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:1 Mem:14.94M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Meshes
+Fra:1 Mem:14.99M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:1 Mem:15.19M (Peak 15.79M) | Time:00:00.00 | Mem:0.01M, Peak:0.01M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:1 Mem:15.19M (Peak 15.79M) | Time:00:00.00 | Mem:0.20M, Peak:0.20M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:1 Mem:15.19M (Peak 15.79M) | Time:00:00.00 | Mem:0.20M, Peak:0.20M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:1 Mem:15.19M (Peak 15.79M) | Time:00:00.00 | Mem:0.30M, Peak:0.30M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:1 Mem:15.19M (Peak 15.79M) | Time:00:00.00 | Mem:0.43M, Peak:0.54M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:1 Mem:15.19M (Peak 15.79M) | Time:00:00.00 | Mem:0.43M, Peak:0.54M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.43M, Peak:0.54M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.81M, Peak:0.81M | Scene, ViewLayer | Updating Objects Flags
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.81M, Peak:0.81M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.81M, Peak:0.81M | Scene, ViewLayer | Updating Images
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.81M, Peak:0.81M | Scene, ViewLayer | Updating Camera Volume
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.81M, Peak:0.81M | Scene, ViewLayer | Updating Lookup Tables
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.89M, Peak:0.89M | Scene, ViewLayer | Updating Lights
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.89M, Peak:0.89M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.89M, Peak:0.89M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:1 Mem:15.56M (Peak 15.79M) | Time:00:00.00 | Mem:0.89M, Peak:0.89M | Scene, ViewLayer | Updating Integrator
+Fra:1 Mem:16.56M (Peak 16.56M) | Time:00:00.00 | Mem:1.89M, Peak:1.89M | Scene, ViewLayer | Updating Film
+Fra:1 Mem:16.57M (Peak 16.57M) | Time:00:00.00 | Mem:1.81M, Peak:1.89M | Scene, ViewLayer | Updating Lookup Tables
+Fra:1 Mem:16.57M (Peak 16.57M) | Time:00:00.00 | Mem:1.89M, Peak:1.89M | Scene, ViewLayer | Updating Baking
+Fra:1 Mem:16.57M (Peak 16.57M) | Time:00:00.00 | Mem:1.89M, Peak:1.89M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:1 Mem:16.57M (Peak 16.57M) | Time:00:00.00 | Mem:1.89M, Peak:1.89M | Scene, ViewLayer | Sample 0/16
+Fra:1 Mem:105.65M (Peak 105.65M) | Time:00:00.32 | Remaining:00:04.80 | Mem:90.96M, Peak:90.96M | Scene, ViewLayer | Sample 1/16
+Fra:1 Mem:143.15M (Peak 199.41M) | Time:00:08.10 | Mem:90.96M, Peak:90.96M | Scene, ViewLayer | Sample 16/16
+Fra:1 Mem:143.15M (Peak 199.41M) | Time:00:08.10 | Mem:90.96M, Peak:90.96M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\modular-riser-stage-asset-v1\review\structure-rear.png'
+Time: 00:08.20 (Saving: 00:00.10)
+
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+
+Blender quit
