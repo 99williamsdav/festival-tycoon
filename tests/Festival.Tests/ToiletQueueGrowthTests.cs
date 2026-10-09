@@ -38,6 +38,21 @@ public sealed class ToiletQueueGrowthTests
     }
 
     [TestMethod]
+    public void NothingIsKeptClearForRestUntilFirstAidIsPlaced()
+    {
+        var s = WithOneToilet(Drafted());
+        Assert.IsTrue(Send(s, new RemoveBuildServiceCommand("first-aid")).IsAccepted);
+        // With no tent there's no rest area, so the old fallback spot round MedicalRestCell is ordinary grass to build on.
+        var legacy = GameSession.MedicalRestCell;
+        bool OnLegacy(GridCell cell) => Math.Abs(cell.X - legacy.X) <= 1 && Math.Abs(cell.Z - legacy.Z) <= 1;
+        var placed = (from x in Enumerable.Range(legacy.X - 3, 7) from z in Enumerable.Range(legacy.Z - 3, 7) from turns in Enumerable.Range(0, 4)
+                      let cell = new GridCell(x, z)
+                      where GameSession.BuildFootprint(new("probe", BuildServiceKind.Toilet, cell, turns)).Any(OnLegacy)
+                      select Place(s, BuildServiceKind.Toilet, cell, turns)).FirstOrDefault(result => result is null, "none");
+        Assert.IsNull(placed, "A toilet can stand where the rest area would be while there's no first aid.");
+    }
+
+    [TestMethod]
     public void TapsNeedMuchTheSameRoomWhicheverWayTheyAreSpaced()
     {
         var (seed, index) = SeedOffering("another-round");

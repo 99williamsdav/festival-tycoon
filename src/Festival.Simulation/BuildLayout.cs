@@ -180,10 +180,11 @@ public sealed partial class GameSession
         for (var x = 66; x <= 101; x++)
             for (var z = 112; z <= 164; z++)
                 if (FestivalStages.InAnyReserve(new(x, z)) || Backstage.Area(new(x, z))) reserved.Add(new(x, z));
-        // The rest area out in front of first aid stays clear.
+        // The rest area out in front of first aid stays clear; it moves with first aid, and only exists once it's placed.
         var restCentre = RestCentre(placements);
         var restArea = new HashSet<GridCell>();
-        for (var x = restCentre.X - 1; x <= restCentre.X + 1; x++)
+        if (placements.Any(item => item.Kind == BuildServiceKind.FirstAid))
+            for (var x = restCentre.X - 1; x <= restCentre.X + 1; x++)
             for (var z = restCentre.Z - 1; z <= restCentre.Z + 1; z++) { reserved.Add(new(x, z)); restArea.Add(new(x, z)); }
         if (equipment is { } unit)
         {
@@ -292,7 +293,7 @@ public sealed partial class GameSession
         }
         foreach (var (cell, walkable) in FestivalStages.All.SelectMany(stage => stage.Cells())) blocked[cell] = new(cell, GroundSurface.Grass, walkable);
         var grid = new TraversalGrid(blocked.Values);
-        var destinations = new List<GridCell> { RestCentre(placements) };
+        var destinations = placements.Any(item => item.Kind == BuildServiceKind.FirstAid) ? new List<GridCell> { RestCentre(placements) } : [];
         foreach (var item in placements)
         {
             switch (item.Kind)
