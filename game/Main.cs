@@ -36,13 +36,16 @@ public partial class Main : Node, IHudHost
     private Node3D _gateLeafCollider = null!;
     private readonly Dictionary<EntityId, Node3D> _attendeeVisuals = [];
     private readonly FoundationPresentationInterpolator _foundationPresentation = new();
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v44", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v44");
+    /// <summary>The tier --start-tier opens on; never set in normal play.</summary>
+    private int? _startTier;
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v46", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v46");
 
     public override void _Ready()
     {
         ConfigureCommandLine();
         _host = new SessionHost(_preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
+            _startTier is { } tier ? GameSession.CreateDevelopmentFestival(20260922, tier) :
             _litterEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility);
         BuildWorld();
         if (DisplayServer.GetName() != "headless")
@@ -545,6 +548,8 @@ public partial class Main : Node, IHudHost
                 if (i + 1 < args.Length && int.TryParse(args[i + 1], out var guests)) { _profileGuests = guests; i++; }
                 if (i + 1 < args.Length && int.TryParse(args[i + 1], out var seconds)) { _profileSeconds = seconds; i++; }
             }
+            // --start-tier <n>: playtests and scripted tours only; opens that tier as if the ones below were just completed.
+            else if (args[i] == "--start-tier" && i + 1 < args.Length && int.TryParse(args[++i], out var tier)) _startTier = Math.Clamp(tier, 1, GameSession.HighestTier);
             else if (args[i] == "--capture-litter" && i + 1 < args.Length) _litterEvidenceOutput = args[++i];
             else if (args[i] == "--capture-surround" && i + 1 < args.Length) _surroundEvidenceOutput = args[++i];
             else if (args[i] == "--capture-pond" && i + 1 < args.Length) _pondEvidenceOutput = args[++i];
@@ -578,7 +583,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v44");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v46");
 
 
 

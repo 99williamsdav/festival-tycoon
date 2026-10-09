@@ -32,8 +32,11 @@ internal sealed class ResultsPaper(IHudHost _hud)
 
     public void Close() { _layer?.QueueFree(); _layer = null; _field = null; }
 
-    /// <summary>Opens on the newspaper. <paramref name="returnToMenu"/> reports whether leaving succeeded.</summary>
-    public void Open(Node parent, Func<bool> returnToMenu)
+    /// <summary>
+    /// Opens on the newspaper. <paramref name="returnToMenu"/> reports whether leaving succeeded; <paramref name="nextFestival"/>,
+    /// when the festival unlocked the next tier, opens it the same way.
+    /// </summary>
+    public void Open(Node parent, Func<bool> returnToMenu, Func<bool>? nextFestival = null)
     {
         _showingAccounts = false; _newspaperScroll = _accountsScroll = 0;
         // The field as it looks now becomes the backdrop and the front-page photograph.
@@ -81,6 +84,25 @@ internal sealed class ResultsPaper(IHudHost _hud)
         menu.Size = Ui.S(188, 46);
         menu.Position = new Vector2(Math.Min(sheetLeft + Ui.S(846), size.X - Ui.S(204)), sheetTop + sheetHeight - Ui.S(66));
         root.AddChild(menu);
+        if (nextFestival is not null && _hud.Session.NextFestivalCarryOver is { } carry)
+        {
+            // Completing a festival unlocks the next tier: cash, debt, reputation and owned kit come forward.
+            var tier = carry.FromTier + 1;
+            Button? next = null;
+            next = Ui.Style(new Button { Text = "Next festival", Name = "NextFestival", MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+                TooltipText = $"Tier {tier}: {FestivalTickets.Sold(tier)} guests at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))}. " +
+                    $"Brings {FestivalCurrency.Format(carry.CashPennies)} cash, {FestivalCurrency.Format(carry.DebtPennies)} of loan still owed, " +
+                    "your reputation and owned kit. Perks, staff, bookings, stock and the build start fresh." }, Ui.ButtonKind.Primary, 15, 8);
+            next.Pressed += () =>
+            {
+                if (nextFestival()) return;
+                next!.Text = "Save failed · retry";
+                next.TooltipText = _hud.Message;
+            };
+            next.Size = menu.Size;
+            next.Position = menu.Position - new Vector2(0, Ui.S(58));
+            root.AddChild(next);
+        }
         Show(false, first: true);
     }
 
@@ -310,7 +332,14 @@ void fragment() {
         Tile(report.OperatingResultPennies < 0 ? "Operating loss" : "Operating result", FestivalCurrency.Format(report.OperatingResultPennies), "After cost of items sold",
             report.OperatingResultPennies < 0 ? Ui.Link : Ui.TealDeep);
         Tile("Closing cash", FestivalCurrency.Format(report.ClosingCashPennies),
-            $"{(report.NetCashChangePennies < 0 ? "−" : "+")}{FestivalCurrency.Format(Math.Abs(report.NetCashChangePennies))} on the {FestivalCurrency.Format(report.OpeningCashPennies)} loan", Ui.Ink, dark: true);
+            $"{(report.NetCashChangePennies < 0 ? "−" : "+")}{FestivalCurrency.Format(Math.Abs(report.NetCashChangePennies))} on the {FestivalCurrency.Format(report.OpeningCashPennies)} " +
+            (report.CarriedInPennies is null ? "loan" : "carried in"), Ui.Ink, dark: true);
+        body.AddChild(Gap(8));
+        // What came in from the last festival, and the loan still owed (settlement is parked, so nothing is repaid yet).
+        body.AddChild(Paragraph((report.CarriedInPennies is { } carried
+                ? $"Carried in from the last festival: {FestivalCurrency.Format(carried)}. "
+                : $"Starter loan: {FestivalCurrency.Format(report.OpeningCashPennies)}. ") +
+            $"Loan still owed: {FestivalCurrency.Format(report.DebtOwedPennies)}; no repayments are due yet.", 13, Ui.Ink, Ui.BodyBold));
         body.AddChild(Gap(14));
 
         var columns = new HBoxContainer(); columns.AddThemeConstantOverride("separation", Ui.Px(26)); body.AddChild(columns);
@@ -353,7 +382,7 @@ void fragment() {
         body.AddChild(Gap(6));
         var steps = new List<(string Label, long Change, bool Total)>
         {
-            ("Loan", report.OpeningCashPennies, true), ("Tickets", report.TicketSalesPennies, false), ("Sales & pitch", report.IncomePennies - report.TicketSalesPennies, false), ("Operating", -report.OperatingExpensesPennies, false),
+            (report.CarriedInPennies is null ? "Loan" : "Carried in", report.OpeningCashPennies, true), ("Tickets", report.TicketSalesPennies, false), ("Sales & pitch", report.IncomePennies - report.TicketSalesPennies, false), ("Operating", -report.OperatingExpensesPennies, false),
         };
         if (report.StockPurchaseRecorded) steps.Add(("Stock", -report.StockPurchasesPennies, false));
         steps.Add(("Equipment", -report.CapitalPurchasesPennies, false));

@@ -245,6 +245,8 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         _ticketLine!.GetParent().GetNode<Label>("Caption").Text = $"Ticket sales · {sold} × {FestivalCurrency.Format(price)}";
         _ticketLine.Text = FestivalCurrency.Format(tickets);
         _loanLine!.Text = FestivalCurrency.Format(p.OpeningCashPennies - tickets);
+        // From Tier 2 there's no new loan: the rest is what the last festival closed on.
+        _loanLine.GetParent().GetNode<Label>("Caption").Text = p.CarriedIn is { } carry ? $"Carried from Tier {carry.FromTier}" : "Starter loan";
         _budget!.Text = FestivalCurrency.Format(p.OpeningCashPennies);
 
         var guests = p.People.Where(person => person.Role == ProtectedPersonRole.Guest).ToArray();

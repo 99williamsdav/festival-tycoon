@@ -27,6 +27,21 @@ public partial class Main
             if (!SaveMilestone("Return to menu")) return false;
             _newCampaignOnEnter = true; ResultsPaper.Close(); BuildStartSplash();
             return true;
-        });
+        }, _session.CanStartNextFestival ? StartNextFestival : null);
+    }
+
+    /// <summary>The paper's "Next festival": save the completed festival, then open the next tier's preparation.</summary>
+    private bool StartNextFestival()
+    {
+        if (!_session.CanStartNextFestival || !SaveMilestone("Next festival")) return false;
+        var next = _session.CreateNextFestival();
+        ResultsPaper.Close();
+        SwitchToFestival(next);
+        var p = _session.CapturePreparation()!;
+        _preparationMessage = $"Tier {p.Tier}: {FestivalTickets.Sold(p.Tier)} guests at {FestivalCurrency.Format(FestivalTickets.PricePennies(p.Tier))}. " +
+            $"{FestivalCurrency.Format(p.CarriedIn!.CashPennies)} carried forward; {FestivalCurrency.Format(p.CarriedIn.DebtPennies)} of loan still owed.";
+        RefreshPreparationHud();
+        GD.Print($"NEXT_FESTIVAL_STARTED id={_session.CampaignId.Value} tier={p.Tier} cash={p.OpeningCashPennies} debt={p.CarriedIn.DebtPennies}");
+        return true;
     }
 }

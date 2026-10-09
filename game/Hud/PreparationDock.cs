@@ -208,7 +208,9 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var tickets = FestivalTickets.RevenuePennies(tier);
         var pitch = session.PlannedPitchFeePennies;
         _receiptFunds!.Text = $"Your {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies)}: {FestivalTickets.Sold(tier)} tickets sold at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))} " +
-            $"({FestivalCurrency.Format(tickets)}) and a {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies - tickets)} loan" +
+            (session.CapturePreparation()!.CarriedIn is { } carry
+                ? $"({FestivalCurrency.Format(tickets)}) and {FestivalCurrency.Format(carry.CashPennies)} carried from Tier {carry.FromTier}, with {FestivalCurrency.Format(carry.DebtPennies)} of loan still owed"
+                : $"({FestivalCurrency.Format(tickets)}) and a {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies - tickets)} loan") +
             (pitch > 0 ? $", plus {FestivalCurrency.Format(pitch)} from {session.FoodTrader.Name} to pitch." : ".") +
             (left < 0 ? $" Into the £{CampaignDefaults.OverdraftPennies / 100} overdraft." : "");
         // In the red is allowed, as far as the overdraft; beyond it, Start is refused.
@@ -299,7 +301,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var spendable = funds + pitch;
         _draftedOf!.Text = $"drafted of {FestivalCurrency.Format(spendable)}";
         var fundsTier = session.CapturePreparation()!.Tier;
-        _draftedOf.TooltipText = $"{FestivalCurrency.Format(funds)} in hand: {FestivalTickets.Sold(fundsTier)} advance tickets at {FestivalCurrency.Format(FestivalTickets.PricePennies(fundsTier))}, the rest a loan." +
+        _draftedOf.TooltipText = $"{FestivalCurrency.Format(funds)} in hand: {FestivalTickets.Sold(fundsTier)} advance tickets at {FestivalCurrency.Format(FestivalTickets.PricePennies(fundsTier))}, " +
+            (session.CapturePreparation()!.CarriedIn is { } carried ? $"the rest carried from Tier {carried.FromTier}." : "the rest a loan.") +
             (pitch > 0 ? $" Plus {FestivalCurrency.Format(pitch)} from {session.FoodTrader.Name} to pitch." : "") +
             $" You can go up to {FestivalCurrency.Format(CampaignDefaults.OverdraftPennies)} into overdraft.";
         _draftedOf.MouseFilter = Control.MouseFilterEnum.Pass;

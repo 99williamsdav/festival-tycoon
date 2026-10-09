@@ -383,7 +383,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         var suffix = item.Id.Split('.').Last();
         var number = suffix == "main" ? "1" : suffix.StartsWith("extra-", StringComparison.Ordinal) && int.TryParse(suffix[6..], out var extra)
             ? (extra + 1).ToString() : suffix;
-        return GameSession.BuildServiceLimit(item.Kind) == 1 ? BuildName(item.Kind) : $"{BuildName(item.Kind)} {number}";
+        return GameSession.BuildServiceLimit(item.Kind, GameSession.HighestTier) == 1 ? BuildName(item.Kind) : $"{BuildName(item.Kind)} {number}";
     }
 
     public string CostSummary()
