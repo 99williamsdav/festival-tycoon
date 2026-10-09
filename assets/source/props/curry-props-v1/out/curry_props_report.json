@@ -1,0 +1,65 @@
+{
+ "lwf_curry_tray_v1": {
+  "file": "lwf_curry_tray_v1.glb",
+  "triangles": 452,
+  "materials": [
+   "Black tray",
+   "Rice",
+   "Curry sauce",
+   "Curry chunks",
+   "Naan",
+   "Naan char",
+   "Coriander"
+  ],
+  "bounds_blender": [
+   [
+    -0.096,
+    -0.068,
+    -0.025
+   ],
+   [
+    0.096,
+    0.068,
+    0.0288
+   ]
+  ],
+  "sha256": "6b1e9f792d497ab13b60866769f6d27480665d8e31885f5f547f3ed96bb62f49",
+  "origin": "grip centre; tray underside at Blender z -0.025 (Godot y -0.025)",
+  "tray_size_m": [
+   0.192,
+   0.136
+  ],
+  "socket": "LWF_RightHand_Food / tray anchor"
+ },
+ "lwf_litter_curry_tray_v1": {
+  "file": "lwf_litter_curry_tray_v1.glb",
+  "triangles": 266,
+  "materials": [
+   "LWF_Litter_Shared_Opaque"
+  ],
+  "bounds_blender": [
+   [
+    -0.096,
+    -0.068,
+    0.0
+   ],
+   [
+    0.096,
+    0.068,
+    0.037
+   ]
+  ],
+  "sha256": "36a83c33441c6687a9fba2e470748e22eaa8c9300add7a122c62c17976aa1bc0",
+  "origin": "base centre resting on z 0, as lwf_litter_chips_tray_v1",
+  "tray_size_m": [
+   0.192,
+   0.136
+  ],
+  "palette": "lwf_litter_palette_v1: 8 tray, 2 curry smear, 3 rice, 7 naan, 6 naan char",
+  "held_grip_anchor_godot": [
+   0,
+   0.025,
+   0
+  ]
+ }
+}

@@ -1,0 +1,90 @@
+{
+ "lwf_food_van_name_panel_korma_v1": {
+  "file": "lwf_food_van_name_panel_korma_v1.glb",
+  "nodes": [
+   "LWF_FoodVan_NamePanel"
+  ],
+  "triangles": 2,
+  "sha256": "1cfe423dc19e81ddec5994f35d50420fa1bde841cfa6caa47e3494c0b03c63ab",
+  "size_m": [
+   2.5,
+   0.31
+  ],
+  "faces": "+Z (Godot)",
+  "place": "child of the fascia node at (0, 0, 0.056)"
+ },
+ "lwf_food_van_sign_curry_v1": {
+  "file": "lwf_food_van_sign_curry_v1.glb",
+  "nodes": [
+   "LWF_FoodVan_Sign_Curry"
+  ],
+  "triangles": 28,
+  "sha256": "46e5e38f1d84e859e8969c75cd28f4e7872dc3092bfaa68ff7c3b20b1e30bb70",
+  "board_m": [
+   1.55,
+   1.55
+  ],
+  "board_bottom_m": 0.3,
+  "top_m": 1.85,
+  "place": "child of ApprovedFoodVanAssembly at (2.10, 2.75, 0.0); in vendor space (-0.05, 2.75, 0.0)"
+ },
+ "lwf_food_van_kitchen_dressing_v1": {
+  "file": "lwf_food_van_kitchen_dressing_v1.glb",
+  "nodes": [
+   "LWF_FoodVan_KitchenDressing",
+   "LWF_FoodVan_SteamVent_L",
+   "LWF_FoodVan_SteamVent_R"
+  ],
+  "triangles": 496,
+  "sha256": "2e5baf7c86a4c289cb0a3adfbdb0f15b7fe1e837100d55b3fca70c491a1dece9",
+  "place": "child of ApprovedFoodVanAssembly at (0, 0, 0)",
+  "steam_markers": {
+   "LWF_FoodVan_SteamVent_L": [
+    0.95,
+    2.9,
+    0.55
+   ],
+   "LWF_FoodVan_SteamVent_R": [
+    3.5,
+    2.9,
+    0.55
+   ]
+  },
+  "tray_stacks": [
+   {
+    "x": 1.3,
+    "z": 1.36,
+    "trays": 3
+   },
+   {
+    "x": 1.55,
+    "z": 1.3,
+    "trays": 2
+   },
+   {
+    "x": 2.85,
+    "z": 1.34,
+    "trays": 2
+   },
+   {
+    "x": 3.12,
+    "z": 1.38,
+    "trays": 4
+   }
+  ]
+ },
+ "lwf_food_van_menu_board_korma_v1": {
+  "file": "lwf_food_van_menu_board_korma_v1.glb",
+  "nodes": [
+   "LWF_FoodVan_MenuBoard_Korma"
+  ],
+  "triangles": 40,
+  "sha256": "ee211cac019e88b2c1a8c4136466a5828d66a37c217f7b3957e23dadf614e3c8",
+  "size_m": [
+   0.44,
+   0.624,
+   0.297
+  ],
+  "place": "child of ApprovedFoodVanAssembly at (4.10, 0, 2.30), yaw 0 (faces +Z and -Z); vendor space (1.95, 0, 2.30)"
+ }
+}
