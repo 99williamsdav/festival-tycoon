@@ -76,9 +76,12 @@ public sealed class TimetableLateBandTests
     {
         var session = Started(holdFirstPerformer: true);
         session.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0]);
-        while (!session.CaptureLivePerformance()!.Listeners.Any(listener => listener.AtPlace && listener.Enthusiasm >= 65) &&
+        // Someone empty-handed: a listener who finishes their chips steps out of the crowd to get rid of the tray,
+        // and stops waiting on the band while they do.
+        bool Waiting(LiveListener item) => item.AtPlace && session.CapturePerson(item.AgentId)!.Held is null;
+        while (!session.CaptureLivePerformance()!.Listeners.Any(listener => Waiting(listener) && listener.Enthusiasm >= 65) &&
                session.CurrentTick < GameSession.FestivalSlotStarts[0] + 600) session.AdvanceWithoutSnapshot(8);
-        var listener = session.CaptureLivePerformance()!.Listeners.Where(item => item.AtPlace).OrderByDescending(item => item.Enthusiasm).First();
+        var listener = session.CaptureLivePerformance()!.Listeners.Where(Waiting).OrderByDescending(item => item.Enthusiasm).First();
         var id = listener.AgentId;
         var planner = new DisorderCuePlanner();
         planner.Reset(session.CaptureDisorder(), session.CurrentTick);

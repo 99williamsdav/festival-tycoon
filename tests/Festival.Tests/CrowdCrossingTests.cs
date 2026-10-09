@@ -6,7 +6,8 @@ namespace Festival.Tests;
 /// <summary>
 /// Small groups in open ground must not knot together and jostle in place (the playtest "clustering").
 /// Walkers crossing one another sidestep and get through; hot guests heading for first-aid rest each
-/// get a spot of their own instead of all pressing on the one rest cell.
+/// get a spot of their own beside first aid instead of all pressing on the one rest cell; and a walker
+/// whose goal is under a standing person's feet stops instead of shuffling against them.
 /// </summary>
 [TestClass]
 public sealed class CrowdCrossingTests
@@ -42,16 +43,50 @@ public sealed class CrowdCrossingTests
     }
 
     [TestMethod]
-    public void HotGuestsHeadingForRestEachGetASpotAndRestPromptly()
+    public void HotGuestsHeadingForRestEachGetASpotAndRestPromptly() => RestScenario(RestSession(moveFirstAid: false));
+
+    [TestMethod]
+    public void TheRestAreaFollowsFirstAidWhereverItIsPlaced()
+    {
+        var standard = RestSession(moveFirstAid: false);
+        var moved = RestSession(moveFirstAid: true);
+        Assert.AreNotEqual(standard.CaptureRestCentre(), moved.CaptureRestCentre());
+        // Out in front of the tent, four cells along from the medic's post, turned with the tent.
+        var tent = moved.CaptureResponsePost(ResponseRole.Medic);
+        var offset = GameSession.RotateWaterOffset(new(4, 6), tent.QuarterTurns);
+        Assert.AreEqual(new GridCell(tent.Cell.X + offset.X, tent.Cell.Z + offset.Z), moved.CaptureRestCentre());
+        Assert.AreEqual(GameSession.MedicalRestCell, GameSession.RestCentreFor(null), "With no first aid placed, the old rest cell stands.");
+        var resters = RestScenario(moved);
+        var centre = moved.CaptureRestCentre();
+        foreach (var agent in moved.CaptureSnapshot().NavigationAgents.Where(agent => resters.Contains(agent.Id.Value)))
+            Assert.IsTrue(Math.Abs(agent.Destination!.Value.X - centre.X) <= 2 && Math.Abs(agent.Destination!.Value.Z - centre.Z) <= 2,
+                $"{agent.Id.Value} rests at {agent.Destination}, not beside the moved first aid at {tent.Cell}.");
+    }
+
+    /// <summary>A started festival with a quiet crowd; first aid optionally moved away from its standard place first.</summary>
+    private static GameSession RestSession(bool moveFirstAid)
     {
         var session = BuildSession.Planned(20260926);
+        if (moveFirstAid)
+        {
+            var aid = session.CaptureBuildPlacements().Single(item => item.Kind == BuildServiceKind.FirstAid);
+            GridCell[] sites = [new(150, 132), new(130, 120), new(150, 125), new(146, 136), new(125, 118), new(155, 140)];
+            var site = sites.Where(cell => Math.Abs(cell.X - aid.Cell.X) + Math.Abs(cell.Z - aid.Cell.Z) >= 6)
+                .FirstOrDefault(cell => BuildSession.Send(session, new MoveBuildServiceCommand(aid.Id, cell, 1)).IsAccepted);
+            Assert.AreNotEqual(default, site, "Found nowhere to move first aid to.");
+        }
         Assert.IsTrue(BuildSession.Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.glitter-rota", "act.low-battery"])).IsAccepted);
         foreach (var offer in BuildSession.CrewIds(session).Append("equipment.rent"))
             Assert.IsTrue(BuildSession.Send(session, new AcceptPreparationOfferCommand(offer)).IsAccepted);
         Assert.IsTrue(BuildSession.Send(session, new StartPreparedEditionCommand()).IsAccepted);
         SetMedical(session, need => need with { Thirst = 0, HeatExposure = 0 });
         session.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0] + 400);
+        return session;
+    }
 
+    /// <summary>Six guests overheat at once; each heads for a rest spot of their own and gets there promptly. Returns the resters.</summary>
+    private static ulong[] RestScenario(GameSession session)
+    {
         // Six guests overheat together: not thirsty, so the planner sends them all to first-aid rest.
         var hot = session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed)
             .Select(person => person.AgentId).Take(6).ToArray();
@@ -62,7 +97,7 @@ public sealed class CrowdCrossingTests
         Assert.IsTrue(resters.Length >= 4, $"Only {resters.Length} of the hot guests chose rest.");
         var agents = session.CaptureSnapshot().NavigationAgents.Where(agent => resters.Contains(agent.Id.Value)).ToArray();
         CollectionAssert.AllItemsAreUnique(agents.Select(agent => agent.Destination).ToArray(), "Each rester heads for a spot of their own.");
-        Assert.IsTrue(agents.All(agent => agent.Destination is { } spot && GameSession.IsRestSpot(spot)));
+        Assert.IsTrue(agents.All(agent => agent.Destination is { } spot && session.IsRestSpot(spot)));
 
         // Each reaches their spot in about the time the walk takes, rather than circling an occupied
         // cell until whoever got there first has cooled off and gone (about five seconds each).
@@ -77,7 +112,7 @@ public sealed class CrowdCrossingTests
         {
             session.AdvanceWithoutSnapshot(1);
             foreach (var agent in session.CaptureSnapshot().NavigationAgents.Where(agent => resters.Contains(agent.Id.Value)))
-                if (agent.Action == AgentNavigationAction.Arrived && agent.Destination is { } spot && GameSession.IsRestSpot(spot) &&
+                if (agent.Action == AgentNavigationAction.Arrived && agent.Destination is { } spot && session.IsRestSpot(spot) &&
                     session.CurrentTick <= deadline[agent.Id.Value]) rested.Add(agent.Id.Value);
         }
         var late = resters.Where(id => !rested.Contains(id)).Select(id =>
@@ -88,6 +123,82 @@ public sealed class CrowdCrossingTests
         Assert.AreEqual(0, late.Length, $"Still not resting: {string.Join("; ", late)}");
         var restored = GameSession.Restore(session.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
+        return resters;
+    }
+
+    [TestMethod]
+    [DataRow("performance.listen")]
+    [DataRow("litter.goody-pickup")]
+    [DataRow("medical.return")]
+    public void AWalkerWhoseSpotIsUnderSomeoneStandingStopsBesideThemRatherThanShuffling(string intent)
+    {
+        // Someone stands on the cell; a walker comes from 5 m away to that very cell.
+        var spot = new GridCell(Centre, Centre);
+        var session = OpenGround([(new(Centre - 10, Centre), spot), (spot, spot)], out var ids, [intent, "test.stand"]);
+        var walker = ids[0];
+        var (jumps, arrivedAt) = Watch(session, walker, 600);
+        var final = session.CaptureSnapshot().NavigationAgents.Single(agent => agent.Id == walker);
+        Assert.AreEqual(AgentNavigationAction.Arrived, final.Action, $"{intent}: still walking at ({final.XMillimetres},{final.ZMillimetres}).");
+        Assert.AreEqual(spot, final.Destination, "Arriving a step short keeps the goal the systems asked for.");
+        Assert.IsTrue(arrivedAt <= Ticks((new(Centre - 10, Centre), spot)) + 40, $"Arrived late, at tick {arrivedAt}.");
+        Assert.AreEqual(0, jumps, "No sidestep jumps against the stander.");
+        var centre = TraversalGrid.CellCentre(spot);
+        var gap = Math.Sqrt(Math.Pow(final.XMillimetres - centre.XMillimetres, 2) + Math.Pow(final.ZMillimetres - centre.ZMillimetres, 2));
+        Assert.IsTrue(gap >= GameSession.SeparationRadiusMillimetres && gap <= GameSession.NearArrivalMillimetres, $"Stopped {gap:0} mm from the spot.");
+    }
+
+    [TestMethod]
+    public void AWalkerNeedingTheExactCellWaitsBesideTheStanderThenStepsOnWhenTheyLeave()
+    {
+        var spot = new GridCell(Centre, Centre);
+        var session = OpenGround([(new(Centre - 10, Centre), spot), (spot, spot)], out var ids, ["toilet.queue", "test.stand"]);
+        var (jumps, _) = Watch(session, ids[0], 600);
+        var waiting = session.CaptureSnapshot().NavigationAgents.Single(agent => agent.Id == ids[0]);
+        Assert.AreEqual(AgentNavigationAction.Travelling, waiting.Action, "A queue place needs the exact cell, so they wait.");
+        Assert.AreEqual(0, jumps, "Waiting, not shuffling.");
+        // The stander walks off; the waiter steps onto the exact cell.
+        typeof(GameSession).GetMethod("ApplyAgentDestination", Private)!.Invoke(session,
+            [ids[1], new SetAgentDestinationCommand(new(Centre, Centre + 10), "test.stand"), false]);
+        Watch(session, ids[0], 200);
+        var done = session.CaptureSnapshot().NavigationAgents.Single(agent => agent.Id == ids[0]);
+        var centre = TraversalGrid.CellCentre(spot);
+        Assert.AreEqual(AgentNavigationAction.Arrived, done.Action);
+        Assert.AreEqual((centre.XMillimetres, centre.ZMillimetres), (done.XMillimetres, done.ZMillimetres));
+    }
+
+    [TestMethod]
+    public void TwoWalkersSentToTheSameSpotBothSettleWithoutAKnot()
+    {
+        var spot = new GridCell(Centre, Centre);
+        var session = OpenGround([(new(Centre - 8, Centre), spot), (new(Centre + 8, Centre + 1), spot)], out var ids,
+            ["performance.listen", "performance.listen"]);
+        var jumps = 0;
+        for (var tick = 0; tick < 600; tick++)
+        {
+            var before = session.CaptureSnapshot().NavigationAgents.Where(agent => ids.Contains(agent.Id)).ToDictionary(agent => agent.Id);
+            session.AdvanceWithoutSnapshot(1);
+            foreach (var agent in session.CaptureSnapshot().NavigationAgents.Where(agent => ids.Contains(agent.Id)))
+                if (Math.Abs(agent.XMillimetres - before[agent.Id].XMillimetres) + Math.Abs(agent.ZMillimetres - before[agent.Id].ZMillimetres) > 80) jumps++;
+        }
+        var agents = session.CaptureSnapshot().NavigationAgents.Where(agent => ids.Contains(agent.Id)).ToArray();
+        Assert.IsTrue(agents.All(agent => agent.Action == AgentNavigationAction.Arrived), string.Join("; ", agents.Select(a => $"{a.Id.Value} {a.Action}")));
+        Assert.AreEqual(0, jumps, "Whoever gets there second stops beside the first, without sidestep jumps.");
+    }
+
+    /// <summary>Advances a number of ticks, counting the walker's sidestep jumps and when it first arrived.</summary>
+    private static (int Jumps, int ArrivedAt) Watch(GameSession session, EntityId walker, int ticks)
+    {
+        var jumps = 0; var arrivedAt = int.MaxValue;
+        var last = session.CaptureSnapshot().NavigationAgents.Single(agent => agent.Id == walker);
+        for (var tick = 1; tick <= ticks; tick++)
+        {
+            session.AdvanceWithoutSnapshot(1);
+            var now = session.CaptureSnapshot().NavigationAgents.Single(agent => agent.Id == walker);
+            if (Math.Abs(now.XMillimetres - last.XMillimetres) + Math.Abs(now.ZMillimetres - last.ZMillimetres) > 80) jumps++;
+            if (now.Action == AgentNavigationAction.Arrived && arrivedAt == int.MaxValue) arrivedAt = tick;
+            last = now;
+        }
+        return (jumps, arrivedAt);
     }
 
     private static void SetMedical(GameSession session, Func<MedicalNeed, MedicalNeed> change)
@@ -122,7 +233,7 @@ public sealed class CrowdCrossingTests
     }
 
     /// <summary>An empty grid with one navigation agent per walk, all setting off on the same tick.</summary>
-    private static GameSession OpenGround((GridCell From, GridCell To)[] walks, out EntityId[] ids)
+    private static GameSession OpenGround((GridCell From, GridCell To)[] walks, out EntityId[] ids, string[]? intents = null)
     {
         var session = new GameSession(77);
         var created = session.Execute(new CommandEnvelope(new CommandId(1), session.CampaignId, session.Phase, session.CurrentTick,
@@ -149,7 +260,7 @@ public sealed class CrowdCrossingTests
         {
             var state = agents[list[index]]!;
             stateType.GetProperty("WalkingSpeedPermille")!.SetValue(state, GameSession.GetWalkingSpeedPermille(list[index]) * GameSession.GuestPacePermille / 1000);
-            apply.Invoke(session, [list[index], new SetAgentDestinationCommand(walks[index].To, "test.cross"), false]);
+            apply.Invoke(session, [list[index], new SetAgentDestinationCommand(walks[index].To, intents?[index] ?? "test.cross"), false]);
         }
         ids = list.ToArray();
         return session;

@@ -9,7 +9,7 @@ public sealed class ToiletRowTests
     [TestMethod]
     public void ToiletsCanStandSideBySideAndBothServeTheDay()
     {
-        var s = Planned();
+        var s = WithOneToilet(Planned());
         var main = s.CapturePreparation()!.BuildPlacements.Single(p => p.Id == "toilet.main");
         // Cubicles touching, sharing the walkway in front of their doors.
         var placed = Send(s, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, new(main.Cell.X + 3, main.Cell.Z), main.QuarterTurns));

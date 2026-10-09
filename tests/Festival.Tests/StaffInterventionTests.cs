@@ -30,6 +30,13 @@ public sealed class StaffInterventionTests
         Accept(session, new StartPreparedEditionCommand());
         while (!session.CapturePreparation()!.People.All(person => person.Admitted) && session.CurrentTick < 12000) Step(session, 40);
         Assert.IsTrue(session.CapturePreparation()!.People.All(person => person.Admitted));
+        // The steward is the worker these tests send: let them finish any break of their own (the bar is on their way in) first.
+        var steward = session.CaptureDisorder()!.SecurityId;
+        bool OnABreak() => session.CapturePerson(steward) is { } p && (p.Intent is MedicalIntent.Drinking or MedicalIntent.Rest ||
+            p.ToiletStage is not (ToiletVisitStage.None or ToiletVisitStage.Approaching or ToiletVisitStage.Queued) ||
+            session.CaptureVendors().Any(v => v.OwnerId == steward) || session.CaptureWaterPoints().Any(w => w.OwnerId == steward));
+        while (OnABreak() && session.CurrentTick < 16000) Step(session, 40);
+        Assert.IsFalse(OnABreak());
         return session;
     }
     private static GameSession Restore(GameSession session)

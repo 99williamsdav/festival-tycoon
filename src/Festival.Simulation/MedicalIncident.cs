@@ -66,6 +66,7 @@ public sealed partial class GameSession
     public static readonly GridCell WaterTowerCell = TraversalGrid.WorldToCell(-12_300, -14_000);
     public static readonly GridCell MedicalTentCell = new(116, 119);    // (-5.75, -4.25) m; tent frontage aligns with the water point.
     public static readonly GridCell MedicalMedicCell = new(116, 125);   // (-5.75, -1.25) m; Riley stands in front of the tent.
+    /// <summary>The rest area's middle before any first aid is placed (and in older saves): beside the legacy tent's front approach.</summary>
     public static readonly GridCell MedicalRestCell = new(120, 125);    // (-3.75, -1.25) m; beside the tent's new front approach.
     public static readonly GridCell MedicalExitCell = new(128, 186);    // (0.25, 29.25) m.
     // The first-aid rest area: the rest cell and the cells round it on a checkerboard, ring by ring.
@@ -81,19 +82,49 @@ public sealed partial class GameSession
         [(-2, -2), (2, -2), (-2, 2), (2, 2)],
     ];
 
-    /// <summary>Whether this cell is one of the rest area's spots.</summary>
-    public static bool IsRestSpot(GridCell cell) => RestSpotRings.Any(ring => ring.Any(offset =>
-        cell.X == MedicalRestCell.X + offset.X && cell.Z == MedicalRestCell.Z + offset.Z));
+    /// <summary>
+    /// Where the rest area sits beside a first-aid tent: out front, four cells along from where the
+    /// medic stands (the same front the medic's post uses, turned with the tent). For the legacy fixed
+    /// tent this is exactly <see cref="MedicalRestCell"/>.
+    /// </summary>
+    private static readonly GridCell RestOffsetFromFirstAid = new(4, 6);
+
+    /// <summary>The middle of the rest area for a placed first-aid tent, or the fixed rest cell when none is placed.</summary>
+    public static GridCell RestCentreFor(ResponsePostPlacement? firstAid)
+    {
+        if (firstAid is null) return MedicalRestCell;
+        var offset = RotateWaterOffset(RestOffsetFromFirstAid, firstAid.QuarterTurns);
+        return new(firstAid.Cell.X + offset.X, firstAid.Cell.Z + offset.Z);
+    }
+
+    /// <summary>The middle of the rest area for this preparation's first aid.</summary>
+    public static GridCell RestCentre(PreparationSnapshot? p) => RestCentreFor(FirstAidPlacement(p));
+
+    /// <summary>The middle of the rest area for a Build layout's first aid.</summary>
+    public static GridCell RestCentre(IEnumerable<BuildPlacement> placements) =>
+        RestCentreFor(placements.FirstOrDefault(item => item.Kind == BuildServiceKind.FirstAid) is { } post ? new(post.Cell, post.QuarterTurns) : null);
+
+    /// <summary>The middle of this festival's rest area, where overheated people go to cool off.</summary>
+    public GridCell CaptureRestCentre() => RestCentre(_preparation);
+
+    private static bool IsRestSpotAround(GridCell centre, GridCell cell) => RestSpotRings.Any(ring => ring.Any(offset =>
+        cell.X == centre.X + offset.X && cell.Z == centre.Z + offset.Z));
+
+    /// <summary>Whether this cell is one of the rest area's spots, beside this festival's first aid.</summary>
+    public bool IsRestSpot(GridCell cell) => IsRestSpotAround(CaptureRestCentre(), cell);
 
     private static bool RestNavigationIntent(string? intent) => intent is "medical.rest" or "disorder.water-closure-rest";
 
     /// <summary>
     /// Where this person should rest: their current spot if they already hold one, else the free spot
     /// in the innermost ring with room, nearest them. Spots fill from the middle out, so nobody's spot is
-    /// walled in by resters who got there first. With every spot taken they share the rest cell, as before.
+    /// walled in by resters who got there first. Spots that are blocked, or where the medic or steward
+    /// stand at their posts, are skipped. With every spot taken they share the middle, as before.
     /// </summary>
     private GridCell RestSpotFor(ulong id)
     {
+        var restCentre = CaptureRestCentre();
+        var posts = Enum.GetValues<ResponseRole>().SelectMany(role => new[] { ResponsePostHome(_preparation, role), ResponsePostHome(_preparation, role, true) }).ToHashSet();
         var self = new EntityId(id);
         var agent = _navigationAgents[self];
         if (RestNavigationIntent(agent.IntentId) && agent.Destination is { } held && IsRestSpot(held) &&
@@ -118,8 +149,9 @@ public sealed partial class GameSession
             GridCell? best = null; var bestDistance = long.MaxValue;
             foreach (var offset in ring)
             {
-                var spot = new GridCell(MedicalRestCell.X + offset.X, MedicalRestCell.Z + offset.Z);
-                if (_traversalGrid is not { } grid || !grid.Contains(spot) || !grid.Get(spot).IsWalkable || CubicleClosedTo(id, spot) || Taken(spot)) continue;
+                var spot = new GridCell(restCentre.X + offset.X, restCentre.Z + offset.Z);
+                if (_traversalGrid is not { } grid || !grid.Contains(spot) || !grid.Get(spot).IsWalkable || CubicleClosedTo(id, spot) ||
+                    posts.Contains(spot) || Taken(spot)) continue;
                 var centre = TraversalGrid.CellCentre(spot);
                 long dx = centre.XMillimetres - agent.XMillimetres, dz = centre.ZMillimetres - agent.ZMillimetres;
                 // Strictly nearer only, so equal distances keep the ring's fixed order.
@@ -127,7 +159,7 @@ public sealed partial class GameSession
             }
             if (best is { } chosen) return chosen;
         }
-        return MedicalRestCell;
+        return restCentre;
     }
     // One compact line behind the single tap, with a slight human offset and no branches.
     // Slot zero alone owns the tap. Approaching the tail does not reserve a slot.
@@ -667,6 +699,11 @@ public sealed partial class GameSession
                     ReturnToListening(resting.Id);
                 }
             }
+            // Someone resting at a spot that is no longer part of the rest area (a save from before the
+            // area followed the first-aid tent) walks over to a spot beside the tent instead of waiting forever.
+            else if (_navigationAgents[new(resting.Id)] is { Action: AgentNavigationAction.Arrived, Destination: { } staleCell, IntentId: var restIntent } &&
+                     RestNavigationIntent(restIntent) && !IsRestSpot(staleCell))
+                ApplyAgentDestination(new(resting.Id), new(RestSpotFor(resting.Id), restIntent!));
         }
         AdvanceMedicResponses();
         m = _medical!;

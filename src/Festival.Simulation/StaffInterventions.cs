@@ -56,7 +56,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Only an actual water visitor can be asked to leave its queue.");
         if (command.Action == StaffInterventionAction.GuideToRest && need.NeedProfile == MedicalNeedProfile.Staff)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "The first-aid rest point is for guests and performers.");
-        if (command.Action == StaffInterventionAction.GuideToRest && !MedicalRouteExists(command.GuestId, MedicalRestCell) ||
+        if (command.Action == StaffInterventionAction.GuideToRest && !MedicalRouteExists(command.GuestId, CaptureRestCentre()) ||
             command.Action == StaffInterventionAction.EscortOut && !MedicalRouteExists(command.GuestId, MedicalExitCell))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "The person's destination is not reachable.");
         if (command.Action == StaffInterventionAction.EscortOut && need.HealthStage != MedicalStage.Distress &&
@@ -167,7 +167,7 @@ public sealed partial class GameSession
                 if (job.Action == StaffInterventionAction.GuideToWater && (_disorder?.WaterClosed == true ||
                     !MedicalRouteExists(job.GuestId, WaterApproach(ChooseWaterPoint(job.GuestId)))))
                 { EndIntervention(job, false, "Water closed or became unreachable before physical arrival; no substitute rest guidance"); continue; }
-                if (job.Action == StaffInterventionAction.GuideToRest && !MedicalRouteExists(job.GuestId, MedicalRestCell))
+                if (job.Action == StaffInterventionAction.GuideToRest && !MedicalRouteExists(job.GuestId, CaptureRestCentre()))
                 { EndIntervention(job, false, "Rest became unreachable before physical arrival; no remote reroute"); continue; }
                 job = job with { StartedTick = CurrentTick, Stage = StaffInterventionStage.Guiding, Description = "Physically reached the person; guidance underway" };
                 SetIntervention(job);

@@ -13,21 +13,22 @@ public sealed class ToiletQueueGrowthTests
     [TestMethod]
     public void AToiletOnlyNeedsRoomForItselfAndItsDoorstepNotAWholeQueue()
     {
-        var s = Drafted();
-        Accept(s, new UseDefaultBuildLayoutCommand());
+        var s = WithOneToilet(Drafted());
+        // The bar out on the east grass, square on, with room around it.
+        var bar = new GridCell(160, 120);
+        Accept(s, new MoveBuildServiceCommand("drinks", bar, 0));
         // Beside the bar, with the door facing it: the old ten-place lane ran straight through the bar.
-        var beside = TraversalGrid.WorldToCell(20_000, -6_000);
+        var beside = new GridCell(bar.X + 8, bar.Z - 4);
         Assert.IsNull(Place(s, BuildServiceKind.Toilet, beside, 2));
         // The cubicle itself still can't overlap anything.
-        StringAssert.Contains(Place(s, BuildServiceKind.Toilet, TraversalGrid.WorldToCell(16_000, -4_000), 2), "overlaps");
+        StringAssert.Contains(Place(s, BuildServiceKind.Toilet, bar, 2), "overlaps");
     }
 
     [TestMethod]
     public void TheAudienceAreaInFrontOfTheStageStaysClearOfServicesButNotBins()
     {
         var (seed, index) = SeedOffering("another-round");
-        var s = Drafted(seed, index);
-        Accept(s, new UseDefaultBuildLayoutCommand());
+        var s = WithOneToilet(Drafted(seed, index));
         var crowd = TraversalGrid.WorldToCell(-7_000, 11_000);
         Assert.IsTrue(GameSession.InAudienceArea(crowd));
         foreach (var kind in new[] { BuildServiceKind.WaterTap, BuildServiceKind.Toilet })
@@ -41,7 +42,11 @@ public sealed class ToiletQueueGrowthTests
     {
         var (seed, index) = SeedOffering("another-round");
         var s = Drafted(seed, index);
-        Accept(s, new UseDefaultBuildLayoutCommand());
+        // The main tap on its old spot, just east of backstage's barriers, square on, with open grass east of it
+        // (the default's loos stand there).
+        Accept(s, new RemoveBuildServiceCommand("toilet.main"));
+        Accept(s, new RemoveBuildServiceCommand("toilet.extra-1"));
+        Accept(s, new MoveBuildServiceCommand("water.main", GameSession.MedicalWaterCell, 0));
         var main = s.CaptureBuildPlacements().Single(p => p.Id == "water.main").Cell;
         string? At(int dx, int dz) => Place(s, BuildServiceKind.WaterTap, new GridCell(main.X + dx, main.Z + dz), 0);
         // Along a grid axis (a screen diagonal) and along a grid diagonal (screen up-down or left-right):
@@ -55,7 +60,10 @@ public sealed class ToiletQueueGrowthTests
     [TestMethod]
     public void AStallCantOverlapTheCornerOfTheBigWaterMain()
     {
-        var s = Started();
+        var s = Ready();
+        // The main tap on its old spot by backstage, square on, clear of the audience area.
+        Accept(s, new MoveBuildServiceCommand("water.main", GameSession.MedicalWaterCell, 0));
+        Accept(s, new StartPreparedEditionCommand());
         var tap = MainTap(s);
         SetTap(s, tap with { GeometryVersion = 0 }); // The big water main: solid over 7×7.
         var vendor = s.CaptureVendors().Single(v => v.Id == "drinks");
@@ -96,14 +104,25 @@ public sealed class ToiletQueueGrowthTests
     {
         var s = WithoutFaults(Started());
         s.AdvanceWithoutSnapshot(2_000);
-        var toilet = s.CaptureToilets().First(t => t.Queue.Length == 0 && t.OwnerId is null);
-        var door = TraversalGrid.CellCentre(GameSession.ToiletQueueCell(toilet, 0));
-        var nav = s.CaptureSnapshot().NavigationAgents.ToDictionary(a => a.Id.Value);
-        long Distance(ulong id) => Math.Abs((long)nav[id].XMillimetres - door.XMillimetres) + Math.Abs((long)nav[id].ZMillimetres - door.ZMillimetres);
-        var idle = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed)
-            .Select(p => p.AgentId).Where(id => s.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletStage == ToiletVisitStage.None).ToArray();
-        // A pair where the later arrival on the list stands far nearer the loo than the earlier one.
-        var (far, near) = (from a in idle from b in idle where a < b && Distance(a) > Distance(b) + 8_000 select (a, b)).First();
+        // A free loo and a pair where the later arrival on the list stands far nearer it than the earlier one. The loos stand
+        // by the stage, where the first arrivals gather, so wait for the field to fill out enough to have such a pair.
+        ToiletFacility toilet = null!; (ulong, ulong)? pair = null;
+        for (var wait = 0; wait < 40 && pair is null; wait++)
+        {
+            if (wait > 0) s.AdvanceWithoutSnapshot(200);
+            var nav = s.CaptureSnapshot().NavigationAgents.ToDictionary(a => a.Id.Value);
+            var idle = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed)
+                .Select(p => p.AgentId).Where(id => s.CaptureImmersion()!.People.Single(p => p.AgentId == id).ToiletStage == ToiletVisitStage.None).ToArray();
+            foreach (var free in s.CaptureToilets().Where(t => t.Queue.Length == 0 && t.OwnerId is null))
+            {
+                var door = TraversalGrid.CellCentre(GameSession.ToiletQueueCell(free, 0));
+                long Distance(ulong id) => Math.Abs((long)nav[id].XMillimetres - door.XMillimetres) + Math.Abs((long)nav[id].ZMillimetres - door.ZMillimetres);
+                pair = (from a in idle from b in idle where a < b && Distance(a) > Distance(b) + 8_000 select ((ulong, ulong)?)(a, b)).FirstOrDefault();
+                if (pair is not null) { toilet = free; break; }
+            }
+        }
+        Assert.IsNotNull(pair, "A far and a near guest for a free loo.");
+        var (far, near) = pair.Value;
         var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
         var mutate = typeof(GameSession).GetMethod("MutatePerson", flags)!;
         var destination = typeof(GameSession).GetMethod("ApplyAgentDestination", flags)!;

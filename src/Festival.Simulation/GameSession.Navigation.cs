@@ -123,6 +123,16 @@ public sealed partial class GameSession
             occupied.Add(agent.Id, agent.XMillimetres, agent.ZMillimetres);
         AddCowOccupancy(occupied);
         AddLavSuckerOccupancy(occupied);
+        // Walkers sharing a goal: the one nearest it (then lowest ID) has it; the others treat it as held.
+        var goalLeaders = new Dictionary<GridCell, (long DistanceSquared, EntityId Id)>();
+        foreach (var agent in moving.OrderBy(item => item.Id))
+        {
+            if (agent.Destination is not { } goal) continue;
+            var centre = TraversalGrid.CellCentre(goal);
+            long gx = centre.XMillimetres - backups[agent.Id].X, gz = centre.ZMillimetres - backups[agent.Id].Z;
+            if (!goalLeaders.TryGetValue(goal, out var leader) || gx * gx + gz * gz < leader.DistanceSquared)
+                goalLeaders[goal] = (gx * gx + gz * gz, agent.Id);
+        }
         foreach (var agent in moving.OrderBy(item => item.Route.Count - item.RouteIndex).ThenBy(item => item.Id))
         {
             var proposalConflicts = !TraversalSweep.IsWalkable(_traversalGrid, backups[agent.Id].X, backups[agent.Id].Z, agent.XMillimetres, agent.ZMillimetres) ||
@@ -134,7 +144,26 @@ public sealed partial class GameSession
             {
                 var destination = agent.Destination;
                 var intent = agent.IntentId;
-                if (!arrived.Contains(agent.Id) && destination is { } target && intent is not null &&
+                if (GoalHeld(agent, backups[agent.Id], occupied, goalLeaders) is { } goalDistance)
+                {
+                    // Sidestepping round someone standing on your own goal only bounces you back into
+                    // them: the old knot of a walker shuffling against a stander. Stop instead. Where
+                    // standing just short of the spot does the job, that counts as arriving; anywhere
+                    // that needs the exact cell, wait here until the stander moves off.
+                    backups[agent.Id].Restore(agent);
+                    arrived.Remove(agent.Id);
+                    if (goalDistance <= NearArrivalMillimetres && NearArrivalAllowed(intent))
+                    {
+                        agent.Action = AgentNavigationAction.Arrived;
+                        agent.RouteIndex = Math.Max(0, agent.Route.Count - 1);
+                        agent.SegmentOriginXMillimetres = agent.XMillimetres;
+                        agent.SegmentOriginZMillimetres = agent.ZMillimetres;
+                        agent.SegmentProgressMicrometres = 0;
+                        arrived.Add(agent.Id);
+                    }
+                    ScaleDiagnosticProbe?.RecordBlocked(agent.Id);
+                }
+                else if (!arrived.Contains(agent.Id) && destination is { } target && intent is not null &&
                     TryApplySeparationOffset(agent, backups[agent.Id], occupied, priorMovingOccupancy))
                 {
                     // The offset is authoritative movement, so rebase route interpolation at
@@ -199,6 +228,56 @@ public sealed partial class GameSession
                 }
             }
             return arrived;
+    }
+
+    /// <summary>How close a walker must be to a goal held by someone standing to count as having arrived.</summary>
+    public const int NearArrivalMillimetres = 600;
+    /// <summary>Within this of its goal, a walker whose goal is held by someone standing stops rather than sidesteps.</summary>
+    private const int HeldGoalStopMillimetres = 1_000;
+
+    /// <summary>
+    /// Goals where standing a step short of the cell serves as well as standing on it: watching the
+    /// show, resting, settling back at an idle place, or a goody fetching litter (who gives the piece
+    /// up rather than reach under someone's feet). Queues, services, doors, posts and repairs need
+    /// the exact cell, so those walkers wait instead.
+    /// </summary>
+    private static bool NearArrivalAllowed(string? intent) => intent is "performance.listen" or "performance.listen-local" or
+        "performance.listen-local-retreat" or "medical.return" or "medical.rest" or "disorder.water-closure-rest" or "litter.goody-pickup";
+
+    /// <summary>
+    /// The distance to this walker's goal when it is close to it and the goal is held: someone (or a cow,
+    /// or the tanker) is standing on the goal cell or has already stepped onto it this tick, or another
+    /// walker bound for the same cell is nearer it. Otherwise null. Measured from where the walker stood
+    /// before this tick.
+    /// </summary>
+    private static long? GoalHeld(NavigationAgentState agent, MovementBackup before, SpatialNeighbourIndex occupied,
+        IReadOnlyDictionary<GridCell, (long DistanceSquared, EntityId Id)> goalLeaders)
+    {
+        if (agent.Destination is not { } goal) return null;
+        var centre = TraversalGrid.CellCentre(goal);
+        long dx = centre.XMillimetres - before.X, dz = centre.ZMillimetres - before.Z;
+        var distanceSquared = dx * dx + dz * dz;
+        if (distanceSquared > (long)HeldGoalStopMillimetres * HeldGoalStopMillimetres) return null;
+        var standing = occupied.Query(centre.XMillimetres, centre.ZMillimetres, SeparationRadiusMillimetres - 1).Any(id => id != agent.Id);
+        var sharedAhead = goalLeaders.TryGetValue(goal, out var leader) && leader.Id != agent.Id;
+        return standing || sharedAhead ? IntegerSquareRoot(distanceSquared) : null;
+    }
+
+    /// <summary>
+    /// Whether someone other than <paramref name="except"/> stands (rather than walks) on this cell's
+    /// centre. Used when choosing a goal, so nobody is sent to a cell already under someone's feet.
+    /// </summary>
+    private bool CellHeldByStander(GridCell cell, ulong except)
+    {
+        var centre = TraversalGrid.CellCentre(cell);
+        const long reach = (long)SeparationRadiusMillimetres * SeparationRadiusMillimetres;
+        foreach (var other in _navigationAgents.Values)
+        {
+            if (other.Id.Value == except || other.Action == AgentNavigationAction.Travelling || !MovementOccupant(other.Id.Value)) continue;
+            long dx = other.XMillimetres - centre.XMillimetres, dz = other.ZMillimetres - centre.ZMillimetres;
+            if (dx * dx + dz * dz < reach) return true;
+        }
+        return false;
     }
 
     private static bool HasConflict(SpatialNeighbourIndex occupied, int x, int z) =>

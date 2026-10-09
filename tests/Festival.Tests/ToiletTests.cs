@@ -59,23 +59,14 @@ public sealed class ToiletTests
         var perk = session.CapturePerks()!;
         Assert.IsTrue(Send(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0])).IsAccepted);
         Assert.IsTrue(Send(session, new UseDefaultBuildLayoutCommand()).IsAccepted);
-        GridCell? second = null;
-        for (var x = 140; x <= 185 && second is null; x += 5)
-        for (var z = 160; z <= 175 && second is null; z += 5)
-        {
-            var cell = new GridCell(x, z);
-            if (session.ValidateCommand(new(new(session.NextSubmissionSequence + 1), session.CampaignId,
-                session.Phase, session.CurrentTick, session.NextSubmissionSequence, null,
-                new PlaceBuildServiceCommand(BuildServiceKind.Toilet, cell, 2))) is null) second = cell;
-        }
-        Assert.IsNotNull(second, "A second reachable Build toilet site should exist.");
-        Assert.IsTrue(Send(session, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, second.Value, 2)).IsAccepted);
+        // The default layout stands two loos side by side by the stage: a long line at one, an empty one beside it.
+        Assert.AreEqual(2, session.CaptureToilets().Count);
         Assert.IsTrue(Send(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"])).IsAccepted);
         foreach (var hire in BuildSession.Crew(session)) Assert.IsTrue(Send(session, hire).IsAccepted);
         Assert.IsTrue(Send(session, new AcceptPreparationOfferCommand("equipment.rent")).IsAccepted);
         Assert.IsTrue(Send(session, new StartPreparedEditionCommand()).IsAccepted);
         var baseline = GameSession.Restore(session.CapturePersistenceSnapshot());
-        Assert.IsTrue(baseline.IsSuccess, $"second={second}: {baseline.Error}");
+        Assert.IsTrue(baseline.IsSuccess, baseline.Error);
         return session;
     }
 
@@ -98,7 +89,7 @@ public sealed class ToiletTests
             prep with { People = prep.People.Select(person => members.Contains(person.AgentId)
                 ? person with { Admitted = true } : person).ToArray() });
         var immersion = session.CaptureImmersion()!;
-        BuildSession.SetToilet(session, session.CaptureToilet()! with { Queue = members, OwnerId = ahead[0], DoorOpen = false,
+        BuildSession.SetToilet(session, longLine with { Queue = members, OwnerId = ahead[0], DoorOpen = false,
             ServiceTicks = ToiletRules.PooServiceTicks });
         SetImmersion(session, immersion with
         {

@@ -52,7 +52,7 @@ public sealed class LitterCuePlannerTests
     [TestMethod]
     public void SituationQueryRequiresPhysicalDisposalAndMovingPastLitter()
     {
-        var s = BuildSession.Ready(); BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(118, 166)));
+        var s = BuildSession.WithLitterCorner(BuildSession.Ready()); BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(118, 166)));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         var person = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
         typeof(GameSession).GetMethod("MutatePerson", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s,

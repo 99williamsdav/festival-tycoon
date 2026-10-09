@@ -68,7 +68,8 @@ public sealed class StewardCleanupPresentationTests
     [TestMethod]
     public void RealSavedPickupReconstructsTheSamePhaseAndTargetWithoutCosmeticFields()
     {
-        var s = BuildSession.Started(); var worker = s.CaptureDisorder()!.SecurityId;
+        var s = BuildSession.WithLitterCorner(BuildSession.Ready());
+        BuildSession.Accept(s, new StartPreparedEditionCommand()); var worker = s.CaptureDisorder()!.SecurityId;
         var guest = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest).AgentId;
         foreach (var id in new[] { guest, worker }) Mutate(s, id, p => { p.Admitted = true; p.Thirst = p.Hunger = p.HeatExposure = p.ToiletNeed = 2000; });
         var post = s.StaffAssignedPost(worker)!.Value; Position(s, guest, new(post.X, post.Z + 4));

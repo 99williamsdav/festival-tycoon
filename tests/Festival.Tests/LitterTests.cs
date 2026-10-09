@@ -23,7 +23,7 @@ public sealed class LitterTests
     }
     private static GameSession Open(bool bin = true)
     {
-        var s = BuildSession.Ready();
+        var s = BuildSession.WithLitterCorner(BuildSession.Ready());
         if (bin) BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(118, 166)));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         // Labelled isolated-system fixture: mark actors physically present with quiet needs.
@@ -62,7 +62,7 @@ public sealed class LitterTests
         GameSession? found = null; ulong goody = 0;
         for (var seed = 20260922UL; seed < 20260960UL && found is null; seed++)
         {
-            var candidate = BuildSession.Ready(seed);
+            var candidate = BuildSession.WithLitterCorner(BuildSession.Ready(seed));
             BuildSession.Accept(candidate, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(118, 166)));
             BuildSession.Accept(candidate, new StartPreparedEditionCommand());
             var id = candidate.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest)
@@ -177,7 +177,7 @@ public sealed class LitterTests
         GameSession? found = null; ulong goody = 0;
         for (var seed = 20260922UL; seed < 20260960UL && found is null; seed++)
         {
-            var candidate = BuildSession.Ready(seed);
+            var candidate = BuildSession.WithLitterCorner(BuildSession.Ready(seed));
             BuildSession.Accept(candidate, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(118, 166)));
             BuildSession.Accept(candidate, new StartPreparedEditionCommand());
             var id = candidate.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest)
@@ -329,6 +329,7 @@ public sealed class LitterTests
         s = Open(false); id = Guest(s); Complete(s, id, ImmersionProduct.Chips);
         var worker = s.CaptureDisorder()!.SecurityId; var centre = s.StaffAssignedPost(worker)!.Value;
         Position(s, id, new(centre.X, centre.Z + 4)); Invoke(s, "DropWaste", s.CaptureLitter()!.Pieces.Single(), false);
+        Position(s, id, new(centre.X + 4, centre.Z + 4)); // stepped off it: litter under someone's feet waits for them to move
         BuildSession.Accept(s, new CleanUpCommand(worker)); Step(s);
         Position(s, worker, s.CaptureLitter()!.Sweeps.Single().Approach!.Value); Step(s);
         saved = s.CapturePersistenceSnapshot(); r = BuildSession.Restored(s);
@@ -339,7 +340,7 @@ public sealed class LitterTests
     [TestMethod]
     public void TwoStewardsCannotClaimTheSameWaste()
     {
-        var s = BuildSession.PlannedWith("extra-pair-of-hands");
+        var s = BuildSession.WithLitterCorner(BuildSession.PlannedWith("extra-pair-of-hands"));
         foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
         BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Steward)));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
@@ -397,7 +398,7 @@ public sealed class LitterTests
         BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(140, 130)));
         Assert.AreEqual(before + 2000, s.PreparationPlanCost); BuildSession.Restored(s);
         BuildSession.Accept(s, new StartPreparedEditionCommand()); BuildSession.Restored(s);
-        Assert.AreEqual(17500L, s.CapturePreparation()!.SetupPayments!.Single().BuildCostPennies);
+        Assert.AreEqual(21500L, s.CapturePreparation()!.SetupPayments!.Single().BuildCostPennies); // default £195 + two bins
         Assert.IsFalse(BuildSession.Send(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(142, 120))).IsAccepted);
         // Real completion fixture records a ledger-backed purchase and enough elapsed time.
         var id = Guest(s); Mutate(s, id, p => { p.Admitted = true; p.ToiletNeed = 2000; });

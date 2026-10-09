@@ -90,16 +90,22 @@ public sealed class TimetableNeedsTests
         var session = Started();
         var performer = session.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Performer && person.Admitted && !session.IsCurrentProgrammePerformer(person.AgentId)).AgentId;
         SetMedical(session, need => need.AgentId == performer ? need with { Thirst = 2_000, HeatExposure = 8_500, LastDecisionTick = -240 } : need);
+        // Rest is out in front of first aid, a long walk from backstage, so nothing else may be pressing
+        // or the planner fairly fits a loo trip in on the way.
+        typeof(GameSession).GetMethod("MutatePerson", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(session,
+            [performer, (Action<Person>)(person => { person.ToiletNeed = 0; person.Hunger = 0; })]);
         session.AdvanceWithoutSnapshot(80);
-        // The tap stands just outside backstage, so a hot band member may top up there on the way to rest.
+        // The tap stands just outside backstage and the loos by the stage, so a hot band member may top up or nip
+        // into a loo on the way to rest.
         var waterDeadline = session.CurrentTick + 4_000;
-        while (session.CaptureMedical()!.Needs.Single(item => item.AgentId == performer).Intent is MedicalIntent.SeekWater or MedicalIntent.Drinking &&
+        while ((session.CaptureMedical()!.Needs.Single(item => item.AgentId == performer).Intent is MedicalIntent.SeekWater or MedicalIntent.Drinking ||
+                session.CapturePerson(performer)!.ToiletStage != ToiletVisitStage.None) &&
                session.CurrentTick < waterDeadline)
             session.AdvanceWithoutSnapshot(1);
         var need = session.CaptureMedical()!.Needs.Single(item => item.AgentId == performer);
         Assert.AreEqual(MedicalIntent.Rest, need.Intent, need.Reason);
         var agent = session.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == performer);
-        Assert.AreEqual(GameSession.MedicalRestCell, agent.Destination);
+        Assert.AreEqual(session.CaptureRestCentre(), agent.Destination);
         Assert.IsFalse(session.IsCurrentProgrammePerformer(performer));
         Restored(session);
         // Prior treatment must not trap a later ordinary rest choice forever.

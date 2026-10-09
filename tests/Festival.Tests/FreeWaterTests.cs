@@ -132,8 +132,12 @@ public sealed class FreeWaterTests
         var s = WithoutFaults(Started());
         s.AdvanceWithoutSnapshot(3_000);
         Accept(s, new SetFreeWaterCommand(true));
-        var guest = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed &&
-            s.CaptureImmersion()!.People.Single(c => c.AgentId == p.AgentId) is { Held: null, VendorId: null }).AgentId;
+        // Someone on site with free hands, not in a queue (early on, the first few in may all be at the bar).
+        ulong Free() => s.CapturePreparation()!.People.FirstOrDefault(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed &&
+            s.CaptureImmersion()!.People.Single(c => c.AgentId == p.AgentId) is { Held: null, VendorId: null })?.AgentId ?? 0;
+        for (var wait = 0; wait < 40 && Free() == 0; wait++) s.AdvanceWithoutSnapshot(80);
+        var guest = Free();
+        Assert.AreNotEqual(0UL, guest, "A guest with free hands.");
         typeof(GameSession).GetMethod("CompleteImmersionSale", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [guest, ImmersionProduct.Water]);
         Mutate(s, guest, n => { n.Thirst = 2_000; n.HeatExposure = 6_000; });
         for (var guard = 0; guard < 200 && s.CaptureImmersion()!.People.Single(p => p.AgentId == guest).Held is not null; guard++) s.AdvanceWithoutSnapshot(20);

@@ -344,7 +344,8 @@ public sealed partial class GameSession
             var assigned = false;
             foreach (var t in targets)
             {
-                var side = t.Bin ? ReachableBinSide(id, t.Cell) : _traversalGrid!.Get(t.Cell).IsWalkable &&
+                // Litter under someone's feet waits until they move off; reaching for it would only shove them.
+                var side = t.Bin ? ReachableBinSide(id, t.Cell) : _traversalGrid!.Get(t.Cell).IsWalkable && !CellHeldByStander(t.Cell, id) &&
                     DeterministicPathfinder.FindPath(_traversalGrid, PersonCell(id), t.Cell).Found ? (GridCell?)t.Cell : null;
                 if (side is null) continue;
                 SetSweep(job with { TargetId = t.Id, TargetIsBin = t.Bin, Approach = side });
@@ -455,7 +456,8 @@ public sealed partial class GameSession
                 w.ActionTick >= 0 && !InCell(w.Carrier, w.Approach.Value) ||
                 litter.Sweeps.Any(j => j.Remaining > 0 && !j.TargetIsBin && j.TargetId == w.Id))) ||
             litter.Sweeps.Any(j => !ValidCell(j.Centre) || j.UntilTick < 0 || j.UntilTick % LitterRules.SecondTicks != 0 ||
-                j.UntilTick > s.CurrentTick + (j.Ordered ? OrderedDurationTicks : LitterRules.ManualDurationTicks) + LitterRules.SecondTicks ||
+                // An ordered trip that has ended clears Ordered but keeps its longer deadline until the next sweep replaces it.
+                j.UntilTick > s.CurrentTick + (j.Ordered || j.Manual && j.Remaining == 0 ? OrderedDurationTicks : LitterRules.ManualDurationTicks) + LitterRules.SecondTicks ||
                 j.Ordered && (!j.Manual || !j.TargetIsBin || j.Remaining != 1 || j.TargetId is null) ||
                 j.CooldownUntil < 0 || j.CooldownUntil > s.CurrentTick + LitterRules.CooldownTicks ||
                 j.TargetId is null && j.ActionTick != -1 || j.Remaining > 0 && j.UntilTick < s.CurrentTick ||

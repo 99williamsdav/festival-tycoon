@@ -22,7 +22,7 @@ public sealed partial class GameSession
         var perk = session.CapturePerks()!;
         Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, "another-round"));
         Accept(session, new UseDefaultBuildLayoutCommand());
-        Accept(session, new PlaceBuildServiceCommand(BuildServiceKind.Toilet, new(140, 160), 2));
+        // The default layout already stands a second toilet (toilet.extra-1) beside the main one to switch to.
         GridCell? extraTap = null;
         for (var x = 70; x <= 125 && extraTap is null; x += 5)
         for (var z = 115; z <= 170 && extraTap is null; z += 5)

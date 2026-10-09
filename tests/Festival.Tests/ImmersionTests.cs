@@ -162,14 +162,23 @@ public sealed class ImmersionTests
         var stock=s.CaptureImmersion()!.BeerStock;for(var i=0;i<160;i++)Invoke(s,"AdvanceImmersion");Assert.AreEqual(stock,s.CaptureImmersion()!.BeerStock);Assert.AreEqual(2,s.CaptureImmersion()!.Purchases.Length);Restore(s);
     }
     [TestMethod]
-    public void NewDefaultVendorsFormTentFrontRowOnEastGrassWithAlignedEntrances()
+    public void NewDefaultVendorsStandInARowAlongTheLaneWithAlignedEntrances()
     {
         var s=BuildSession.Planned(20260926);var vendors=s.CaptureVendors();
-        Assert.AreEqual(new GridCell(144,119),vendors.Single(v=>v.Id=="food").Cell);Assert.AreEqual(new GridCell(160,120),vendors.Single(v=>v.Id=="drinks").Cell);
-        Assert.IsTrue(vendors.All(v=>v.QuarterTurns==0));Assert.IsTrue(vendors.SelectMany(GameSession.ImmersionFootprint).All(c=>c.X>=137));
-        Assert.AreEqual(16,vendors.Single(v=>v.Id=="drinks").Cell.X-vendors.Single(v=>v.Id=="food").Cell.X);
+        var food=vendors.Single(v=>v.Id=="food");var drinks=vendors.Single(v=>v.Id=="drinks");
+        GridCell Queue(ImmersionVendor v,int i)=>GameSession.ImmersionQueueCell(v with { QueueCells=null },i); // the line a full queue would make
+        Assert.AreEqual(new GridCell(140,162),food.Cell);Assert.AreEqual(new GridCell(140,148),drinks.Cell);
+        // Side by side down the lane, both facing the same way.
+        Assert.IsTrue(vendors.All(v=>v.QuarterTurns==3));Assert.AreEqual(food.Cell.X,drinks.Cell.X);Assert.AreEqual(14,food.Cell.Z-drinks.Cell.Z);
         Assert.IsFalse(GameSession.ImmersionFootprint(vendors[0]).Intersect(GameSession.ImmersionFootprint(vendors[1])).Any());
-        foreach(var vendor in vendors)Assert.IsTrue(Enumerable.Range(0,10).Select(i=>GameSession.ImmersionQueueCell(vendor,i)).All(c=>c.X==vendor.Cell.X&&c.Z>vendor.Cell.Z));Restore(s);
+        // Each queue runs straight out from its counter, the two in parallel, so the entrances line up.
+        var step=new GridCell(Queue(food,1).X-Queue(food,0).X,Queue(food,1).Z-Queue(food,0).Z);
+        Assert.AreEqual(2,Math.Abs(step.X)+Math.Abs(step.Z));Assert.IsTrue(step.X==0||step.Z==0);
+        Assert.AreEqual(Queue(food,0).X,Queue(drinks,0).X);
+        foreach(var vendor in vendors){var first=Queue(vendor,0);Assert.AreEqual(first,GameSession.ImmersionQueueCell(vendor,0),"The queue starts at the counter.");
+            Assert.IsTrue(Enumerable.Range(0,10).All(i=>Queue(vendor,i)==new GridCell(first.X+i*step.X,first.Z+i*step.Z)));
+            Assert.IsFalse(Enumerable.Range(0,10).Select(i=>Queue(vendor,i)).Intersect(vendors.SelectMany(GameSession.ImmersionFootprint)).Any());}
+        Restore(s);
     }
     [TestMethod]
     public void QueuedHeavyBeerRefusalCancelsWithoutCashStockOrReceipt()

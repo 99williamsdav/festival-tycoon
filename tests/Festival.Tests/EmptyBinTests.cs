@@ -8,7 +8,7 @@ public sealed class EmptyBinTests
     [TestMethod]
     public void EmptyNowSendsAStewardToEmptyABinWhateverItsLevel()
     {
-        var s = BuildSession.Ready(20261007);
+        var s = BuildSession.WithoutBins(BuildSession.Ready(20261007));
         BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(110, 140)));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         // No burst tap to call the steward away mid-job (a fault outranks litter).
@@ -33,12 +33,15 @@ public sealed class EmptyBinTests
             emptied = s.CaptureBins().Single().Pieces == 0;
         }
         Assert.IsTrue(emptied, "Emptied.");
+        // The finished trip keeps its long ordered deadline after it stops being an order; a save then still loads.
+        var after = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(after.IsSuccess, after.Error);
     }
 
     [TestMethod]
     public void AFullBinFarFromTheStewardPostStillGetsEmptied()
     {
-        var s = BuildSession.Ready(20261007);
+        var s = BuildSession.WithoutBins(BuildSession.Ready(20261007));
         var far = new GridCell(150, 160);
         BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, far));
         BuildSession.Accept(s, new StartPreparedEditionCommand());

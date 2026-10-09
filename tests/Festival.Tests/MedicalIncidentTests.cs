@@ -195,13 +195,15 @@ public sealed class MedicalIncidentTests
         Assert.AreEqual(0, s.CaptureLifecycleSnapshot()!.Casualties.Count);
         s = Restored(s);
         var returning = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == medicId);
-        while ((returning.Destination != GameSession.MedicalMedicCell || returning.Action != AgentNavigationAction.Arrived) &&
+        // Back to their post in front of wherever first aid stands.
+        var post = s.StaffAssignedPost(medicId)!.Value;
+        while ((returning.Destination != post || returning.Action != AgentNavigationAction.Arrived) &&
                s.CurrentTick < 8_000)
         {
             s.AdvanceWithoutSnapshot(1);
             returning = s.CaptureSnapshot().NavigationAgents.Single(item => item.Id.Value == medicId);
         }
-        Assert.AreEqual(GameSession.MedicalMedicCell, returning.Destination);
+        Assert.AreEqual(post, returning.Destination);
         Assert.AreEqual(AgentNavigationAction.Arrived, returning.Action);
         Restored(s);
     }

@@ -64,7 +64,7 @@ public sealed partial class GameSession
             var target = nearby
                 .Where(t => BinWithinWalk(id, t.Cell, reachable))
                 .OrderBy(t => CellDistanceSquared(t.Cell, here)).ThenBy(t => t.Piece.Id, StringComparer.Ordinal).Take(4)
-                .FirstOrDefault(t => _traversalGrid!.Get(t.Cell).IsWalkable && DeterministicPathfinder.FindPath(_traversalGrid, here, t.Cell).Found);
+                .FirstOrDefault(t => _traversalGrid!.Get(t.Cell).IsWalkable && !CellHeldByStander(t.Cell, id) && DeterministicPathfinder.FindPath(_traversalGrid, here, t.Cell).Found);
             if (target.Piece is null) continue;
             SetWaste(target.Piece with { CarrierId = id, Approach = target.Cell, ActionTick = -1 });
             ApplyAgentDestination(new(id), new(target.Cell, "litter.goody-pickup"));

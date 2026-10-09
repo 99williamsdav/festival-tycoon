@@ -100,7 +100,7 @@ public sealed partial class GameSession
             foreach (var cell in ToiletReservedCells(toilet).Append(ToiletQueueCell(toilet, 0)).Append(ToiletExitCell(toilet))) reserved.Add(cell);
         for(var x=90;x<=101;x++)for(var z=140;z<=159;z++)reserved.Add(new(x,z));
         foreach(var cell in ResponsePostReserved(_preparation))reserved.Add(cell);
-        for(var x=MedicalRestCell.X-1;x<=MedicalRestCell.X+1;x++)for(var z=MedicalRestCell.Z-1;z<=MedicalRestCell.Z+1;z++)reserved.Add(new(x,z));
+        var restCentre=CaptureRestCentre();for(var x=restCentre.X-1;x<=restCentre.X+1;x++)for(var z=restCentre.Z-1;z<=restCentre.Z+1;z++)reserved.Add(new(x,z));
         if(_equipment is { } unit) { var centre=TraversalGrid.WorldToCell(unit.XMillimetres,unit.ZMillimetres);for(var x=centre.X-5;x<=centre.X+5;x++)for(var z=centre.Z-5;z<=centre.Z+5;z++)reserved.Add(new(x,z)); }
         if(_preparation!.WaterTowerOwned)for(var x=WaterTowerCell.X-4;x<=WaterTowerCell.X+4;x++)for(var z=WaterTowerCell.Z-4;z<=WaterTowerCell.Z+4;z++)reserved.Add(new(x,z));
         var needed=ImmersionFootprint(proposed).Append(ImmersionServiceCell(proposed)).ToArray();
@@ -113,7 +113,7 @@ public sealed partial class GameSession
         var blocked=terrain.Overrides.ToDictionary(p=>p.Key,p=>p.Value);
         foreach(var vendor in Vendors.Where(v=>v.Id!=proposed.Id).Append(proposed))foreach(var cell in ImmersionFootprint(vendor))blocked[cell]=new(cell,GroundSurface.Grass,false);
         var grid=new TraversalGrid(blocked.Values);
-        foreach(var cell in Vendors.Where(v=>v.Id!=proposed.Id).Append(proposed).Select(ImmersionServiceCell).Append(MedicalRestCell))if(!DeterministicPathfinder.FindPath(grid,MedicalExitCell,cell).Found)return "Vendor blocks an essential approach.";
+        foreach(var cell in Vendors.Where(v=>v.Id!=proposed.Id).Append(proposed).Select(ImmersionServiceCell).Append(CaptureRestCentre()))if(!DeterministicPathfinder.FindPath(grid,MedicalExitCell,cell).Found)return "Vendor blocks an essential approach.";
         return null;
     }
     private void BlockImmersionVendors()

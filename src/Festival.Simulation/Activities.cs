@@ -269,7 +269,7 @@ public sealed partial class GameSession
         if (_disorder?.WaterClosed != true)
             foreach (var point in WaterPoints()) Add(ActivityKind.Water, point.Id, point.Cell, LightWaterTicks(id, point, from, fresh));
         if (person.HeatExposure > ActivityChooser.RestHeatTarget)
-            Add(ActivityKind.Rest, "rest", MedicalRestCell, EstimateWalkTicks(id, from, MedicalRestCell) + (person.HeatExposure - ActivityChooser.RestHeatTarget) / 8);
+            Add(ActivityKind.Rest, "rest", CaptureRestCentre(), EstimateWalkTicks(id, from, CaptureRestCentre()) + (person.HeatExposure - ActivityChooser.RestHeatTarget) / 8);
         if (!fresh && current == ActivityKind.Toilet || ImmersionHandsAvailable(id) && person.Intent is MedicalIntent.WatchShow or MedicalIntent.SeekWater)
         {
             var visit = person.ToiletChoice ?? ChooseToiletVisit(person);
@@ -301,6 +301,8 @@ public sealed partial class GameSession
 
     private bool ActivityPurchaseEligible(Person person, ImmersionProduct product) =>
         // The vendor's own rule, less what abandoning the current activity would clear.
+        // Robot workers never stop for themselves, not even for a treat they pass on the way to their post.
+        !RobotWorker(person.Id) &&
         person.Held is null && person.VendorId is null && person.Intent is MedicalIntent.WatchShow or MedicalIntent.SeekWater &&
         (product == ImmersionProduct.Water || person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat) && !IsCurrentProgrammePerformer(person.Id) &&
         ImmersionHandsAvailable(person.Id) && ImmersionStock(product) > 0 &&

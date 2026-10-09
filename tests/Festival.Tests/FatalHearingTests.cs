@@ -81,7 +81,7 @@ public sealed class FatalHearingTests
     [TestMethod]
     public void FavourRetryRebuildsEveryPlacedToiletFresh()
     {
-        var s = BuildSession.Ready();
+        var s = BuildSession.WithOneToilet(BuildSession.Ready());
         GridCell? second = null;
         for (var x = 145; x <= 190 && second is null; x += 5)
         for (var z = 115; z <= 190 && second is null; z += 5)

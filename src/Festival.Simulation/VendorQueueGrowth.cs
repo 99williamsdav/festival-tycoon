@@ -45,7 +45,7 @@ public sealed partial class GameSession
         (StewardPostPlacement(prep) is not { } steward || !(Math.Abs(cell.X-steward.Cell.X)<=2 && Math.Abs(cell.Z-steward.Cell.Z)<=2)) &&
         (FirstAidPlacement(prep) is null || !new[]{ResponsePostHome(prep,ResponseRole.Medic),ResponsePostHome(prep,ResponseRole.Medic,true)}.Contains(cell)) &&
         (StewardPostPlacement(prep) is null || !new[]{ResponsePostHome(prep,ResponseRole.Steward),ResponsePostHome(prep,ResponseRole.Steward,true)}.Contains(cell)) &&
-        !(Math.Abs(cell.X-MedicalRestCell.X)<=1&&Math.Abs(cell.Z-MedicalRestCell.Z)<=1) &&
+        !(Math.Abs(cell.X-RestCentre(prep).X)<=1&&Math.Abs(cell.Z-RestCentre(prep).Z)<=1) &&
         !(Math.Abs(cell.X-ResponsePostHome(prep,ResponseRole.Medic).X)<=1&&Math.Abs(cell.Z-ResponsePostHome(prep,ResponseRole.Medic).Z)<=1);
     private void GrowImmersionQueues()
     {

@@ -34,14 +34,20 @@ public sealed partial class GameSession
         BuildCatalogue.Single(item => item.Kind == kind).Limit;
     public IReadOnlyList<BuildPlacement> CaptureBuildPlacements() => _preparation?.BuildPlacements.ToArray() ?? [];
     public long BuildDraftCost => _preparation?.BuildPlacements?.Sum(item => (long)BuildServiceFeePennies(item.Kind)) ?? 0;
+    /// <summary>
+    /// The suggested layout, taken from how the user actually lays out a Tier 1 field: two loos by the stage, a bin
+    /// between stage and lane, chips and bar along the lane, first aid across it and the steward post by the gate.
+    /// </summary>
     public static BuildPlacement[] StandardBuildLayout() =>
     [
-        new("water.main", BuildServiceKind.WaterTap, MedicalWaterCell, 0),
-        new("toilet.main", BuildServiceKind.Toilet, new(172, 140), 0),
-        new("food", BuildServiceKind.FoodVan, new(144, 119), 0),
-        new("drinks", BuildServiceKind.Bar, new(160, 120), 0),
-        new("first-aid", BuildServiceKind.FirstAid, MedicalTentCell, 0),
-        new("steward-post", BuildServiceKind.StewardPost, DisorderSecurityPostCell, 1)
+        new("water.main", BuildServiceKind.WaterTap, new(103, 128), 1),
+        new("toilet.main", BuildServiceKind.Toilet, new(117, 121), 2),
+        new("toilet.extra-1", BuildServiceKind.Toilet, new(112, 121), 2),
+        new("food", BuildServiceKind.FoodVan, new(140, 162), 3),
+        new("drinks", BuildServiceKind.Bar, new(140, 148), 3),
+        new("first-aid", BuildServiceKind.FirstAid, new(139, 120), 0),
+        new("steward-post", BuildServiceKind.StewardPost, new(119, 171), 2),
+        new("bin.1", BuildServiceKind.Bin, new(121, 148), 0),
     ];
 
     private static string NextBuildId(BuildServiceKind kind, IReadOnlyList<BuildPlacement> placed)
@@ -174,8 +180,10 @@ public sealed partial class GameSession
         for (var x = 66; x <= 101; x++)
             for (var z = 112; z <= 164; z++)
                 if (Backstage.StageReserve(new(x, z)) || Backstage.Area(new(x, z))) reserved.Add(new(x, z));
-        for (var x = MedicalRestCell.X - 1; x <= MedicalRestCell.X + 1; x++)
-            for (var z = MedicalRestCell.Z - 1; z <= MedicalRestCell.Z + 1; z++) reserved.Add(new(x, z));
+        // The rest area out in front of first aid stays clear.
+        var restCentre = RestCentre(placements);
+        for (var x = restCentre.X - 1; x <= restCentre.X + 1; x++)
+            for (var z = restCentre.Z - 1; z <= restCentre.Z + 1; z++) reserved.Add(new(x, z));
         if (equipment is { } unit)
         {
             var centre = TraversalGrid.WorldToCell(unit.XMillimetres, unit.ZMillimetres);
@@ -281,7 +289,7 @@ public sealed partial class GameSession
         }
         foreach (var (cell, walkable) in Backstage.TrailerCells()) blocked[cell] = new(cell, GroundSurface.Grass, walkable);
         var grid = new TraversalGrid(blocked.Values);
-        var destinations = new List<GridCell> { MedicalRestCell };
+        var destinations = new List<GridCell> { RestCentre(placements) };
         foreach (var item in placements)
         {
             switch (item.Kind)

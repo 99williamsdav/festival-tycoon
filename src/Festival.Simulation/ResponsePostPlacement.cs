@@ -48,7 +48,7 @@ public sealed partial class GameSession
             foreach(var c in ToiletSolidCells(toilet))blocked[c]=new(c,GroundSurface.Grass,false);
         var grid=new TraversalGrid(blocked.Values);
         var access=Enum.GetValues<ResponseRole>().SelectMany(role=>new[]{ResponsePostHome(p,role),ResponsePostHome(p,role,true)})
-            .Append(MedicalRestCell).Concat(points.Select(WaterPointServiceCell)).Concat(vendors.Select(ImmersionServiceCell))
+            .Append(RestCentre(p)).Concat(points.Select(WaterPointServiceCell)).Concat(vendors.Select(ImmersionServiceCell))
             .Concat((immersion is null?[]:EffectiveToilets(facilities)).SelectMany(accessToilet => new[] { ToiletInsideCell(accessToilet), ToiletQueueCell(accessToilet,0), ToiletExitCell(accessToilet) }))
             .Concat(medical is null?[]:taps.Where(w=>w.Id!="water.main").SelectMany(w=>w.QueueCells));
         return access.All(c=>DeterministicPathfinder.FindPath(grid,MedicalExitCell,c).Found);

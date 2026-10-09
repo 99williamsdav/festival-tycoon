@@ -49,6 +49,35 @@ internal static class BuildSession
         return s;
     }
 
+    /// <summary>
+    /// Takes the default layout's second toilet away, so a test about placing a toilet of its own has the slot free.
+    /// </summary>
+    public static GameSession WithOneToilet(GameSession s)
+    {
+        Accept(s, new RemoveBuildServiceCommand("toilet.extra-1"));
+        return s;
+    }
+
+    /// <summary>Takes every bin away, so a test about bins places exactly the ones it means.</summary>
+    public static GameSession WithoutBins(GameSession s)
+    {
+        foreach (var bin in s.CaptureBuildPlacements().Where(p => p.Kind == BuildServiceKind.Bin).ToArray())
+            Accept(s, new RemoveBuildServiceCommand(bin.Id));
+        return s;
+    }
+
+    /// <summary>
+    /// The corner of the field the litter tests are drawn on: no bins of the default's, and the steward post on its
+    /// old spot by the gate (<see cref="GameSession.DisorderSecurityPostCell"/>), so the cells round it they stand
+    /// people, litter and bins on are open grass.
+    /// </summary>
+    public static GameSession WithLitterCorner(GameSession s)
+    {
+        WithoutBins(s);
+        Accept(s, new MoveBuildServiceCommand("steward-post", GameSession.DisorderSecurityPostCell, 1));
+        return s;
+    }
+
     /// <summary>A drafted campaign with a line-up and stock, but no staff.</summary>
     public static GameSession Planned(ulong seed = 20260922, int perk = QuietPerk) =>
         Planned(Drafted(seed, perk));
