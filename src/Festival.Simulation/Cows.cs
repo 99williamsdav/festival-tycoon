@@ -90,20 +90,42 @@ public sealed partial class GameSession
     private int[]? CowDetourCost(NavigationAgentState agent)
     {
         if (_cows is not { Loose.Length: > 0 } cows) return null;
-        const int Near = 3_000, Covered = CowRules.BodyMillimetres + TraversalGrid.CellSizeMillimetres / 2, Extra = 20_000;
-        int[]? cost = null;
+        const int Near = 3_000, Covered = CowRules.BodyMillimetres + TraversalGrid.CellSizeMillimetres / 2;
+        // The cows near this walker, by the cells their bodies cover; walkers near the same cows share one overlay.
+        _cowDetourBounds.Clear();
         foreach (var cow in cows.Loose)
         {
             if (Math.Abs(cow.XMillimetres - agent.XMillimetres) > Near || Math.Abs(cow.ZMillimetres - agent.ZMillimetres) > Near) continue;
-            cost ??= _groundRouteCost?.ToArray() ?? new int[TraversalGrid.Width * TraversalGrid.Depth];
-            var lower = TraversalGrid.WorldToCell(cow.XMillimetres - Covered, cow.ZMillimetres - Covered);
-            var upper = TraversalGrid.WorldToCell(cow.XMillimetres + Covered, cow.ZMillimetres + Covered);
+            _cowDetourBounds.Add((TraversalGrid.WorldToCell(cow.XMillimetres - Covered, cow.ZMillimetres - Covered),
+                TraversalGrid.WorldToCell(cow.XMillimetres + Covered, cow.ZMillimetres + Covered)));
+        }
+        if (_cowDetourBounds.Count == 0) return null;
+        // Overlays last one tick and one ground cost; their buffers are reused rather than reallocated (64k cells each).
+        if (_cowDetourTick != CurrentTick || !ReferenceEquals(_cowDetourBase, _groundRouteCost))
+        {
+            foreach (var overlay in _cowDetours.Values) _cowDetourSpare.Push(overlay);
+            _cowDetours.Clear();
+            _cowDetourTick = CurrentTick; _cowDetourBase = _groundRouteCost;
+        }
+        var key = string.Join(';', _cowDetourBounds.Select(b => $"{b.Lower.X},{b.Lower.Z},{b.Upper.X},{b.Upper.Z}"));
+        if (_cowDetours.TryGetValue(key, out var cached)) return cached;
+        var cost = _cowDetourSpare.TryPop(out var spare) ? spare : new int[TraversalGrid.Width * TraversalGrid.Depth];
+        if (_groundRouteCost is { } ground) Array.Copy(ground, cost, cost.Length); else Array.Clear(cost);
+        // Cells a cow's body covers cost twenty times as much, added once for each cow covering them.
+        foreach (var (lower, upper) in _cowDetourBounds)
             for (var z = Math.Max(0, lower.Z); z <= Math.Min(TraversalGrid.Depth - 1, upper.Z); z++)
             for (var x = Math.Max(0, lower.X); x <= Math.Min(TraversalGrid.Width - 1, upper.X); x++)
-                cost[z * TraversalGrid.Width + x] += Extra;
-        }
+                cost[z * TraversalGrid.Width + x] += CowDetourExtra;
+        _cowDetours.Add(key, cost);
         return cost;
     }
+    private const int CowDetourExtra = 20_000;
+    // Derived each tick from the cows and the ground, never saved.
+    private readonly Dictionary<string, int[]> _cowDetours = new(StringComparer.Ordinal);
+    private readonly Stack<int[]> _cowDetourSpare = new();
+    private long _cowDetourTick = -1;
+    private int[]? _cowDetourBase;
+    private readonly List<(GridCell Lower, GridCell Upper)> _cowDetourBounds = [];
 
     /// <summary>Whether a steward is out herding a cow: like a fault job, it holds their route until it's done.</summary>
     private bool CowWorkOwns(ulong id) => _cows?.Loose.Any(cow => cow.HerderId == id) == true;
