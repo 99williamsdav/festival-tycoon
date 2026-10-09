@@ -176,12 +176,18 @@ public partial class Main
         foreach (var piece in _session.CaptureLitter()?.Pieces ?? [])
             if (piece.CarrierId is { } carrier && piece.CarrierId != piece.ProducerId && _session.GuestLabels(carrier).Contains("Goody two-shoes"))
                 yield return ($"goody:{carrier}", new("star", $"{NameOf(carrier)} is picking up other people's litter", good, LocatePerson(carrier)));
-        if (_session.CaptureLivePerformance() is { } live && _session.CaptureProgramme() is { } programme && programme.CurrentSlot >= 0)
+        // Each stage's sets; with two stages each says which stage, and keeps its own keys.
+        var stages = _session.Stages;
+        foreach (var live in _session.CaptureLivePerformances())
         {
-            var act = _session.CurrentFestivalAct?.Name ?? "The band";
+            if (_session.CaptureProgramme(live.StageId) is not { CurrentSlot: >= 0 } programme || FestivalStages.Find(live.StageId) is not { } stage) continue;
+            var act = _session.CurrentStageAct(live.StageId)?.Name ?? "The band";
             var slot = programme.CurrentSlot;
+            var key = stage.Id == FestivalStages.MainId ? "" : stage.Id + ":";
+            var where = stages.Count > 1 ? $" on the {StageTitle(stage)}" : "";
+            var mark = LocateCell(stage.PerformerMarks[0]);
             if (live.Stage == LiveSetStage.Live)
-                yield return ($"set:{slot}", new("music", $"{act} take the stage", calm, LocateCell(FestivalStages.Main.PerformerMarks[0])));
+                yield return ($"set:{key}{slot}", new("music", $"{act} take the stage{where}", calm, mark));
             if (live.Stage == LiveSetStage.Finished && live.EndedTick >= 0)
             {
                 // The send-off matches who's actually there at the end, and the applause you hear: big cheers only
@@ -189,19 +195,19 @@ public partial class Main
                 var there = live.SetEndAudienceCount;
                 var (text, tint) = live.LastReaction switch
                 {
-                    "set-finished-applause" when PerformanceApplauseMath.IsEnthusiastic(there, live.SetEndEnjoymentTotal) => ($"{act} finish to big cheers", good),
-                    "set-finished-applause" when there >= 5 => ($"{act} finish to warm applause", calm),
-                    "set-finished-applause" when there == 1 => ($"{act} finish to a lone cheer", calm),
-                    "set-finished-applause" => ($"{act} finish to a smattering of applause from {there} fans", calm),
-                    "set-finished-interrupted" => ($"{act}'s set was cut short", bad),
-                    "set-finished-muted" => ($"{act} finish to an empty field", calm),
-                    "slot-missed-not-ready" => ($"{act} never made it on stage", bad),
-                    _ => ($"{act}'s set is over", calm),
+                    "set-finished-applause" when PerformanceApplauseMath.IsEnthusiastic(there, live.SetEndEnjoymentTotal) => ($"{act} finish{where} to big cheers", good),
+                    "set-finished-applause" when there >= 5 => ($"{act} finish{where} to warm applause", calm),
+                    "set-finished-applause" when there == 1 => ($"{act} finish{where} to a lone cheer", calm),
+                    "set-finished-applause" => ($"{act} finish{where} to a smattering of applause from {there} fans", calm),
+                    "set-finished-interrupted" => ($"{act}'s set{where} was cut short", bad),
+                    "set-finished-muted" => ($"{act} finish{where} to an empty field", calm),
+                    "slot-missed-not-ready" => ($"{act} never made it on stage{where}", bad),
+                    _ => ($"{act}'s set{where} is over", calm),
                 };
-                yield return ($"setend:{slot}", new("music", text, tint, LocateCell(FestivalStages.Main.PerformerMarks[0])));
+                yield return ($"setend:{key}{slot}", new("music", text, tint, mark));
             }
             if (live.LastReaction == "sustained-boo")
-                yield return ($"boo:{slot}", new("music", $"The crowd is booing {act}!", bad, LocateCell(FestivalStages.Main.PerformerMarks[0])));
+                yield return ($"boo:{key}{slot}", new("music", $"The crowd{where} is booing {act}!", bad, mark));
         }
     }
 

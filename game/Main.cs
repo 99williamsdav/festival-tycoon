@@ -79,6 +79,7 @@ public partial class Main : Node, IHudHost
         ProcessGround(delta);
         ProcessGateSign(delta);
         ProcessStageSet(delta);
+        ProcessPondStage(delta);
         ProcessMoments(delta);
         ProcessFieldNotes(delta);
         ProcessGardenGate(delta);
@@ -275,6 +276,8 @@ public partial class Main : Node, IHudHost
             if (i == 0) continue;
             var right = AddAsset(Hedge(i + 7), new Vector3(32, 0, i * 8)); right.RotationDegrees = new Vector3(0, 90, 0);
             RegisterBreezeHedge(right);
+            // This run (z 24..16) gives way to the Pond Stage's gate while that stage is open (Main.PondStage).
+            if (i == 3) _pondHedgeRun = right;
         }
         RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(-8, 0, 32)));
         RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(4, 0, 32)));
@@ -382,6 +385,7 @@ public partial class Main : Node, IHudHost
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
         else if (collider is not null && TrySelectCow(collider)) { }
         else if (collider is not null && collider.GetInstanceId() == _generatorPickId) SelectGenerator();
+        else if (collider is not null && TrySelectPond(collider)) { }
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
         // A double-click on an occupied toilet picks whoever is inside, as there's nothing else of them to click.
         else if (collider is not null && _toiletPickOwners.TryGetValue(collider.GetInstanceId(), out var toiletId))
@@ -435,7 +439,7 @@ public partial class Main : Node, IHudHost
         _selectedToilet = false;
         ClearSecurityPostSelection();
         RefreshMedicalNeedBars(null);
-        _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _selectedWaterPointId = "water.main";
+        _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _selectedWaterPointId = "water.main"; _selectedPond = null;
         _selectedCowId = null; if (_herdCowButton is not null) _herdCowButton.Visible = false;
         _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
         RefreshStagePowerAction();
@@ -494,6 +498,7 @@ public partial class Main : Node, IHudHost
     private void BuildStagePowerAction(VBoxContainer parent)
     {
         if (_session.CaptureEquipment() is null) return;
+        BuildPondStageAction(parent);
         _stagePowerButton = ButtonText("Shut off stage supply", () =>
             CommitEquipmentAction(new EquipmentCommand(EquipmentAction.Isolate)));
         _stagePowerButton.Visible = false;
@@ -503,6 +508,7 @@ public partial class Main : Node, IHudHost
 
     private void RefreshStagePowerAction()
     {
+        RefreshPondCutButton();
         if (_stagePowerButton is null) return;
         // Only once the festival is running: before then there's no supply to shut off.
         _stagePowerButton.Visible = (_selected?.Kind == FarmObjectKind.TrailerStage || _selectedGenerator) &&

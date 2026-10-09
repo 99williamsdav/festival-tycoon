@@ -107,6 +107,16 @@ public sealed partial class GameSession
         UpcomingProgrammeSlot(0) is var slot and >= 0 && slot < FestivalStages.Main.SlotCount ? FestivalActs.Single(a => a.Id == q.ActIds[slot]) : null;
     public long UpcomingFestivalTick => UpcomingProgrammeSlot(0) is var slot and >= 0 && slot < FestivalStages.Main.SlotCount && _preparation is { } p
         ? p.StartedTick + FestivalStages.Main.SlotStarts[slot] : -1;
+    /// <summary>A stage's next act, by stage id, once its sets are booked.</summary>
+    public FestivalAct? UpcomingStageAct(string stageId) => FestivalStages.IndexOf(Stages, stageId) is var stage and >= 0 && stage < _livePerformances.Length &&
+        StageProgramme(stage) is { } q && q.ActIds.Length == Stages[stage].SlotCount && UpcomingProgrammeSlot(stage) is var slot and >= 0 &&
+        slot < Stages[stage].SlotCount ? FestivalActs.Single(a => a.Id == q.ActIds[slot]) : null;
+    /// <summary>When a stage's next set is due, or -1 when it has none to come.</summary>
+    public long UpcomingStageTick(string stageId) => FestivalStages.IndexOf(Stages, stageId) is var stage and >= 0 && stage < _livePerformances.Length &&
+        UpcomingProgrammeSlot(stage) is var slot and >= 0 && slot < Stages[stage].SlotCount && _preparation is { } p
+            ? p.StartedTick + Stages[stage].SlotStarts[slot] : -1;
+    /// <summary>Whether a stage's band is late for its set.</summary>
+    public bool StageBandLate(string stageId) => FestivalStages.IndexOf(Stages, stageId) is var stage and >= 0 && stage < _livePerformances.Length && LateReadyScheduledTickOf(stage) >= 0;
     /// <summary>No stage is playing, or paused mid-set.</summary>
     public bool ScheduledSilence
     {

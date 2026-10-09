@@ -32,15 +32,22 @@ internal static class PerformerOutfits
 
     /// <summary>The genre of a booked performer's act, or -1.</summary>
     internal static int Genre(GameSession session, ulong performerId) =>
-        session.CaptureProgramme() is { } programme && programme.Performers.FirstOrDefault(p => p.AgentId == performerId) is { SlotIndex: >= 0 } performer &&
+        Booking(session, performerId) is ({ } programme, { SlotIndex: >= 0 } performer) &&
         performer.SlotIndex < programme.ActIds.Length
             ? session.GetFestivalActs().FirstOrDefault(a => a.Id == programme.ActIds[performer.SlotIndex])?.Genre ?? -1 : -1;
+
+    /// <summary>The running order a band member plays in, on whichever stage, and their place in it; null for anyone else.</summary>
+    internal static (StageProgrammeSnapshot Programme, ProgrammePerformer Performer)? Booking(GameSession session, ulong performerId)
+    {
+        foreach (var programme in session.CaptureProgrammes()?.Stages ?? [])
+            if (programme.Performers.FirstOrDefault(p => p.AgentId == performerId) is { } performer) return (programme, performer);
+        return null;
+    }
 
     /// <summary>The outfit for a booked performer, from their act's genre and their place in the band; null if unknown.</summary>
     internal static Outfit? For(GameSession session, ulong performerId, int roleIndex)
     {
-        if (session.CaptureProgramme() is not { } programme ||
-            programme.Performers.FirstOrDefault(p => p.AgentId == performerId) is not { } performer ||
+        if (Booking(session, performerId) is not ({ } programme, { } performer) ||
             performer.SlotIndex < 0 || performer.SlotIndex >= programme.ActIds.Length ||
             session.GetFestivalActs().FirstOrDefault(a => a.Id == programme.ActIds[performer.SlotIndex]) is not { } act ||
             act.Genre < 0 || act.Genre >= ByGenre.Length)

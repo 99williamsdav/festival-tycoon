@@ -21,7 +21,7 @@ public partial class Main
 
     private int PerformerPresentationRole(ulong id, string name)
     {
-        var performer = _session.CaptureProgramme()?.Performers.FirstOrDefault(item => item.AgentId == id);
+        var performer = PerformerOutfits.Booking(_session, id)?.Performer;
         return performer?.RoleIndex ?? (name == "Alex Reed" ? 0 : name == "Blair Moss" ? 1 : 2);
     }
 

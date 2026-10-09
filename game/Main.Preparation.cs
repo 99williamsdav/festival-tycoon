@@ -59,6 +59,7 @@ public partial class Main
             (_selectedToilet && _selectedToiletId is { } toiletId && _toiletViews.TryGetValue(toiletId, out var selectedToilet) && ContextVisualAvailable(selectedToilet.Body)) ||
             (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0) ||
             (_selectedGenerator && _session.CaptureEquipment() is not null && ContextVisualAvailable(_equipmentVisual)) ||
+            (_selectedPond is not null && _pondStage is { Visible: true }) ||
             (_selectedCowId is { } cowId && _looseCows.ContainsKey(cowId));
         if (Dock.Readiness is { } readiness)
             readiness.Visible = Dock.Visible && !((IPreparationNavigation)this).ReadinessCovered;
@@ -295,12 +296,20 @@ private void RebuildPreparationOffers()
         _characterPresentationSeconds += characterDelta;
         SyncPresentationPause();
         if (_preparationProfileOutput is not null) _profileSimulationMs = Stopwatch.GetElapsedTime(workStarted, presentationStarted).TotalMilliseconds;
-        var live = _session.CaptureLivePerformance();
-        var watching = live is { Stage: LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted }
-            ? live.Listeners.Where(item => item.AtPlace).Select(item => new EntityId(item.AgentId)).ToHashSet()
-            : [];
-        var onStage = live?.Performers.Where(item => item.OnStage).Select(item => new EntityId(item.AgentId)).ToHashSet() ?? [];
-        PrepareCrowdDance(live);
+        // Each stage's crowd and band: who is in which crowd, who is watching, and who is up on which deck.
+        var crowd = new Dictionary<EntityId, FestivalStage>();
+        var watching = new HashSet<EntityId>();
+        var onStage = new Dictionary<EntityId, FestivalStage>();
+        var lives = _session.CaptureLivePerformances();
+        foreach (var set in lives)
+        {
+            var stage = FestivalStages.Find(set.StageId) ?? FestivalStages.Main;
+            foreach (var listener in set.Listeners) crowd[new EntityId(listener.AgentId)] = stage;
+            if (set.Stage is LiveSetStage.BeforeSet or LiveSetStage.Live or LiveSetStage.Interrupted)
+                foreach (var listener in set.Listeners.Where(item => item.AtPlace)) watching.Add(new EntityId(listener.AgentId));
+            foreach (var performer in set.Performers.Where(item => item.OnStage)) onStage[new EntityId(performer.AgentId)] = stage;
+        }
+        PrepareCrowdDance(lives);
         var casualtyName = _session.CapturePreparation()?.Status == PreparationStatus.Failed
             ? _session.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.PersonId : null;
         var casualtyId = casualtyName is null ? (EntityId?)null : _session.CapturePreparation()!.People
@@ -352,7 +361,7 @@ private void RebuildPreparationOffers()
             // Upright again after a collapse, or after nodding along to a set.
             if (visual.Rotation.X != 0) visual.Rotation = new Vector3(0, visual.Rotation.Y, visual.Rotation.Z);
             UpdatePersonFacing(agent.Id, visual, renderedPosition, agent.Action,
-                watching.Contains(agent.Id), onStage.Contains(agent.Id), characterDelta);
+                crowd.GetValueOrDefault(agent.Id), watching.Contains(agent.Id), onStage.GetValueOrDefault(agent.Id), characterDelta);
             // A dodgy knee hobbles: a dip and a sideways lurch on every other step.
             var hobble = agent.Action == AgentNavigationAction.Travelling && _session.StaffHas(agent.Id.Value, StaffTrait.DodgyKnee)
                 ? Mathf.Sin((float)_characterPresentationSeconds * 7f) : 0f;

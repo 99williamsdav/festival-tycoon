@@ -16,17 +16,10 @@ public partial class Main
     private string? _stageDrumHardware;
 
     /// <summary>The genre of the act a performer plays in, or -1 if they aren't booked.</summary>
-    private int PerformerGenre(ulong id)
-    {
-        if (_session.CaptureProgramme() is not { } programme ||
-            programme.Performers.FirstOrDefault(p => p.AgentId == id) is not { } performer ||
-            performer.SlotIndex < 0 || performer.SlotIndex >= programme.ActIds.Length) return -1;
-        return _session.GetFestivalActs().FirstOrDefault(a => a.Id == programme.ActIds[performer.SlotIndex])?.Genre ?? -1;
-    }
+    private int PerformerGenre(ulong id) => PerformerOutfits.Genre(_session, id);
 
-    private string? PerformerActId(ulong id) => _session.CaptureProgramme() is { } programme &&
-        programme.Performers.FirstOrDefault(p => p.AgentId == id) is { SlotIndex: >= 0 } performer && performer.SlotIndex < programme.ActIds.Length
-            ? programme.ActIds[performer.SlotIndex] : null;
+    private string? PerformerActId(ulong id) => PerformerOutfits.Booking(_session, id) is ({ } programme, { SlotIndex: >= 0 } performer) &&
+        performer.SlotIndex < programme.ActIds.Length ? programme.ActIds[performer.SlotIndex] : null;
 
     /// <summary>The kit a performer plays.</summary>
     private static string? PerformerKitPath(int role, string variant, int genre) => role switch
@@ -139,7 +132,11 @@ public partial class Main
     }
 
     /// <summary>The drum hardware for the act on stage (or next up): compact for folk, a double kick for metal, pads for electronic.</summary>
-    private void SetStageDrumHardware(FestivalAct? act)
+    private void SetStageDrumHardware(FestivalAct? act) =>
+        _stageDrumKit = DrumHardware(FestivalStages.Main, act, ref _stageDrumHardware, _stageDrumKit);
+
+    /// <summary>A stage's drum hardware, replaced only when the act's kit or colours change.</summary>
+    private Node3D DrumHardware(FestivalStage stage, FestivalAct? act, ref string? shown, Node3D? kit)
     {
         var file = act?.Genre switch
         {
@@ -150,13 +147,12 @@ public partial class Main
         };
         var colours = ActColours(act?.Id ?? "", 2);
         var wanted = file + "|" + string.Join(",", colours.Select(c => c.Hex));
-        if (_stageDrumHardware == wanted && _stageDrumKit is not null && IsInstanceValid(_stageDrumKit)) return;
-        _stageDrumHardware = wanted;
-        _stageDrumKit?.QueueFree();
-        var drumMark = TraversalGrid.CellCentre(new GridCell(93, 152));
-        _stageDrumKit = AddAsset($"res://assets/characters/{file}.glb",
-            new Vector3(drumMark.XMillimetres / 1000f, 1.19f, drumMark.ZMillimetres / 1000f));
-        _stageDrumKit.RotationDegrees = new Vector3(0, -90, 0);
-        if (act is not null) RecolourInstrument(_stageDrumKit, colours);
+        if (shown == wanted && kit is not null && IsInstanceValid(kit)) return kit;
+        shown = wanted;
+        kit?.QueueFree();
+        kit = AddAsset($"res://assets/characters/{file}.glb", DrumHardwarePosition(stage));
+        kit.Rotation = new Vector3(0, BandYaw(stage), 0);
+        if (act is not null) RecolourInstrument(kit, colours);
+        return kit;
     }
 }

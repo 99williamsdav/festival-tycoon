@@ -80,7 +80,7 @@ public partial class Main
         string[] lines = candidate.Intoxication >= 5000 ? ["Feeling wobbly • time for a rest", "Everything's a bit spinny", "Need to sit down…"]
             : lightweight ? ["I've only had one!", "That's gone to my head"]
             // Loving the band needs a band playing.
-            : _session.CaptureLivePerformance()?.Stage == LiveSetStage.Live
+            : _session.CaptureLivePerformances().Any(live => live.Stage == LiveSetStage.Live)
                 ? ["Feeling a bit tipsy", "Woo! Love this lot!", "Who wants another?", "I'm not drunk, you're drunk"]
                 : ["Feeling a bit tipsy", "Who wants another?", "I'm not drunk, you're drunk"];
         _immersionRemark.Text = lines[(int)((candidate.AgentId + (ulong)_session.CurrentTick / 80) % (ulong)lines.Length)];

@@ -185,6 +185,7 @@ public partial class Main
     private void ClearSecurityPostSelection()
     {
         _selectedGenerator = false;
+        _selectedPond = null;
         _selectedSecurityPost = false;
         if (_securityPostWorkerButton is not null) _securityPostWorkerButton.Visible = false;
     }
