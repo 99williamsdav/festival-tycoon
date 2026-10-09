@@ -14,10 +14,10 @@ public sealed partial class GameSession
     /// <summary>
     /// The most cash a festival opening on <paramref name="openingCashPennies"/> can close on: the bar only takes money
     /// people brought, so at most every guest's top budget and every other person's spending money (up to the people
-    /// cap), plus the dearest food trader's pitch fee. Nothing else pays in; tickets are already in the opening cash.
+    /// cap), plus the dearest food traders' pitch fees, one per van. Nothing else pays in; tickets are already in the opening cash.
     /// </summary>
     public static long MostClosingCashPennies(int tier, long openingCashPennies) =>
-        openingCashPennies + FoodTraders.All.Max(trader => (long)trader.PitchFeePennies) +
+        openingCashPennies + FoodTraders.All.Select(trader => (long)trader.PitchFeePennies).OrderDescending().Take(GameSession.BuildServiceLimit(BuildServiceKind.FoodVan, tier)).Sum() +
         (long)FestivalTickets.Sold(tier) * MostGuestBudgetPennies + (long)(MaxActivePeople - FestivalTickets.Sold(tier)) * CrewBudgetPennies;
 
     /// <summary>

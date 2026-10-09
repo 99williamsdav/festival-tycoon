@@ -372,7 +372,7 @@ public sealed partial class GameSession
         if (faults.Select(f => f.Id).Distinct().Count() != faults.Length ||
             faults.Any(f => !Enum.IsDefined(f.Kind) || !Enum.IsDefined(f.Stage) || f.StartedTick < prep.StartedTick || f.StartedTick > s.CurrentTick ||
                 (CowFault(f.Kind) ? f.VictimId != 0 || f.Stage == FacilityFaultStage.Bodged ||
-                    !(f.Kind == FacilityFaultKind.BrokenGate ? f.FacilityId == "gate.pasture" : f.FacilityId is "cable.generator" or "cable.drinks" or "cable.food")
+                    !(f.Kind == FacilityFaultKind.BrokenGate ? f.FacilityId == "gate.pasture" : (f.FacilityId == "cable.generator" || f.FacilityId.StartsWith("cable.", StringComparison.Ordinal) && s.Facilities?.Vendors?.Any(v => v.Id == f.FacilityId["cable.".Length..]) == true))
                 : !prep.People.Any(p => p.AgentId == f.VictimId) ||
                 (f.Kind == FacilityFaultKind.StuckInToilet ? !toilets.ContainsKey(f.FacilityId) || f.Stage == FacilityFaultStage.Bodged : !taps.Contains(f.FacilityId))) ||
                 (f.Stage == FacilityFaultStage.Active) != (f.ResolvedTick < 0) || f.ResolvedTick >= 0 && (f.ResolvedTick < f.StartedTick || f.ResolvedTick > s.CurrentTick) ||

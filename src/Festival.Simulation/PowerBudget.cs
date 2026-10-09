@@ -57,14 +57,15 @@ public sealed partial class GameSession
         // The trailer's rig draws its full power only while its set is playing; before opening, the plan shows that peak.
         var stage = !StagePowered ? 0 :
             !live || _livePerformances[0]?.Stage == LiveSetStage.Live ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
-        int Stall(string id, bool powered) => _immersion is not null && Vendors.Any(v => v.Id == id) && (!live || powered) ? PowerRules.StallDraw : 0;
+        // Every bar and every van draws its own share; each switch covers all of its kind.
+        int Stalls(Func<string, bool> kind, bool powered) => _immersion is null || live && !powered ? 0 : Vendors.Count(v => kind(v.Id)) * PowerRules.StallDraw;
         var lightsOn = !live || _preparation!.StartedTick >= 0 && CurrentTick >= _preparation.StartedTick + PowerRules.LightsOnTickFor(PreparedEditionDurationTicks);
-        return new(stage, Stall("drinks", e?.BarPowered ?? true), Stall("food", e?.FoodPowered ?? true),
+        return new(stage, Stalls(Festival.Simulation.Stalls.IsBar, e?.BarPowered ?? true), Stalls(Festival.Simulation.Stalls.IsVan, e?.FoodPowered ?? true),
             lightsOn && (!live || (e?.LightsPowered ?? true)) ? PowerRules.LightsDraw : 0, GeneratorCapacity);
     }
 
-    /// <summary>Whether a stall has power to serve: the bar or food van may be switched off to spare the generator.</summary>
-    public bool StallPowered(string vendorId) => (!PowerBudgetActive || (vendorId == "drinks" ? _equipment!.BarPowered : _equipment!.FoodPowered)) &&
+    /// <summary>Whether a stall has power to serve: the bars or the food vans may be switched off to spare the generator.</summary>
+    public bool StallPowered(string vendorId) => (!PowerBudgetActive || (Festival.Simulation.Stalls.IsBar(vendorId) ? _equipment!.BarPowered : _equipment!.FoodPowered)) &&
         !CableCut(vendorId) && !CableCut("generator");
 
     /// <summary>One tick of the power budget: strain builds over capacity and eases under it, and drives the warning.</summary>
@@ -117,9 +118,8 @@ public sealed partial class GameSession
         };
         // A stall without power can't serve its queue; those waiting for something it sells go back to their day.
         if (_immersion is null || action == EquipmentAction.ToggleLights) return;
-        var id = action == EquipmentAction.ToggleBarPower ? "drinks" : "food";
-        if (StallPowered(id)) return;
-        foreach (var vendor in Vendors.Where(v => v.Id == id).ToArray())
+        Func<string, bool> kind = action == EquipmentAction.ToggleBarPower ? Festival.Simulation.Stalls.IsBar : Festival.Simulation.Stalls.IsVan;
+        foreach (var vendor in Vendors.Where(v => kind(v.Id) && !StallPowered(v.Id)).ToArray())
             foreach (var waiting in vendor.Queue.Where(q => q != vendor.OwnerId).ToArray())
                 if (_persons[waiting].Order != ImmersionProduct.Water) LeaveImmersionQueue(waiting, true);
     }

@@ -1,6 +1,12 @@
 namespace Festival.Simulation;
 
-public sealed record FestivalAccountsSale(ImmersionProduct Product, int UnitPricePennies, int Quantity, long AmountPennies);
+public sealed record FestivalAccountsSale(ImmersionProduct Product, int UnitPricePennies, int Quantity, long AmountPennies)
+{
+    /// <summary>The bar it was sold at.</summary>
+    public string Stall { get; init; } = Stalls.FirstBar;
+}
+/// <summary>One food trader's pitch fee.</summary>
+public sealed record FestivalAccountsPitch(string Trader, long FeePennies);
 public sealed record FestivalAccountsCost(string Label, int Quantity, int UnitCostPennies, long AmountPennies);
 public sealed record FestivalAccountsExpense(string Category, string Label, long AmountPennies);
 public sealed record FestivalAccountsStock(string Label, int Quantity, int UnitCostPennies, long AmountPennies);
@@ -12,9 +18,11 @@ public sealed record FestivalAccounts(
 {
     /// <summary>Advance ticket sales: received before preparation, as part of the opening budget.</summary>
     public long TicketSalesPennies => (long)TicketsSold * TicketPricePennies;
-    /// <summary>What the food trader paid to pitch, and who they were.</summary>
+    /// <summary>What the food traders paid to pitch, and who they were.</summary>
     public long PitchFeePennies { get; init; }
     public string PitchFeeTrader { get; init; } = "";
+    /// <summary>Each van's trader and their fee, in van order.</summary>
+    public FestivalAccountsPitch[] PitchFees { get; init; } = [];
     /// <summary>The cash the previous festival closed on, from Tier 2; null at Tier 1, where the opening cash is the starter loan.</summary>
     public long? CarriedInPennies { get; init; }
     /// <summary>The loan principal still owed at the close. Settlement is parked, so nothing has been repaid.</summary>
@@ -33,6 +41,7 @@ public sealed partial class GameSession
     {
         ImmersionProduct.Chips => "Chips",
         ImmersionProduct.Pizza => "Pizza",
+        ImmersionProduct.Curry => "Curry",
         ImmersionProduct.SoftDrink => "Soft drink",
         ImmersionProduct.Beer => "Beer",
         ImmersionProduct.Water => "Free water",
@@ -56,12 +65,12 @@ public sealed partial class GameSession
         get
         {
             if (_preparation is not { Result: { } result } p) return null;
-            // The food trader's sales are their own takings; the festival's are the bar's.
+            // The food traders' sales are their own takings; the festival's are the bars', a line for each bar.
             var purchases = (_immersion?.Purchases ?? []).Where(purchase => !purchase.Product.IsFood()).ToArray();
-            var sales = purchases.GroupBy(purchase => (purchase.Product, purchase.PricePennies))
-                .OrderBy(group => group.Key.Product).ThenByDescending(group => group.Key.PricePennies)
+            var sales = purchases.GroupBy(purchase => (Stall: Stalls.Of(purchase), purchase.Product, purchase.PricePennies))
+                .OrderBy(group => Stalls.Number(group.Key.Stall)).ThenBy(group => group.Key.Product).ThenByDescending(group => group.Key.PricePennies)
                 .Select(group => new FestivalAccountsSale(group.Key.Product, group.Key.PricePennies, group.Count(),
-                    group.Sum(purchase => (long)purchase.PricePennies))).ToArray();
+                    group.Sum(purchase => (long)purchase.PricePennies)) { Stall = group.Key.Stall }).ToArray();
             var costs = purchases.GroupBy(purchase => (purchase.Product, purchase.CostPennies))
                 .OrderBy(group => group.Key.Product).ThenBy(group => group.Key.CostPennies)
                 .Select(group => new FestivalAccountsCost(ProductName(group.Key.Product), group.Count(), group.Key.CostPennies,
@@ -117,7 +126,8 @@ public sealed partial class GameSession
             var accounts = new FestivalAccounts(sales, costs.ToArray(), expenses.ToArray(), purchasedStock,
                 FestivalTickets.Sold(p.Tier), FestivalTickets.PricePennies(p.Tier), p.OpeningCashPennies - tickets,
                 closing, stockCash, capital, stockRecorded, stockDetailRecorded, facilityDetailRecorded, false)
-                { PitchFeePennies = ReceivedPitchFee(p), PitchFeeTrader = FoodTraders.Find(p.Plan?.TraderId)?.Name ?? "",
+                { PitchFeePennies = ReceivedPitchFee(p), PitchFeeTrader = string.Join(" and ", PitchedVans(p).Select(van => TraderAt(p, van).Name)),
+                  PitchFees = p.Plan is { Committed: true } ? PitchedVans(p).Select(van => new FestivalAccountsPitch(TraderAt(p, van).Name, TraderAt(p, van).PitchFeePennies)).ToArray() : [],
                   CarriedInPennies = p.CarriedIn?.CashPennies, DebtOwedPennies = _campaignPlanning?.Loan.OutstandingPrincipalPennies ?? 0 };
             var reconciles = accounts.IncomePennies == result.RevenuePennies &&
                 accounts.SoldItemCostPennies == result.ConsumedStockCostsPennies &&

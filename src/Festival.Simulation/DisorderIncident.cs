@@ -265,7 +265,7 @@ public sealed partial class GameSession
                 EffectiveToilets(_facilities).Any(toilet => toilet.Queue.Contains(person.Id) && toilet.OwnerId != person.Id));
             var joined = inWaterLine || inOtherLine ? person.QueueJoinedTick < 0 ? CurrentTick : person.QueueJoinedTick : -1;
             var need = _persons[person.Id];
-            var patiencePercent = vendorLine?.Id switch { "food" => DisorderFoodPatiencePercent, "drinks" => DisorderBarPatiencePercent, _ => 100 };
+            var patiencePercent = vendorLine is null ? 100 : Stalls.IsVan(vendorLine.Id) ? DisorderFoodPatiencePercent : DisorderBarPatiencePercent;
             // Friendly Queues: people chatting in line wait half as long again before it gets to them.
             if (HasPerk(PerkCatalogue.FriendlyQueues)) patiencePercent = patiencePercent * FriendlyQueuePatiencePercent / 100;
             // Hangry: a hungry person runs out of patience sooner, whatever's annoying them.

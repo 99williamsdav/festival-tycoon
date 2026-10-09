@@ -88,11 +88,10 @@ public sealed class NextFestivalTests
     }
 
     [TestMethod]
-    public void BuildLimitsGoUpByOneTapAndToiletAtTierTwo()
+    public void BuildLimitsGoUpByOneTapToiletBarAndVanAtTierTwo()
     {
         Assert.AreEqual(new TierBuildLimits(1, 2, 1, 1, 1, 1, 1), GameSession.BuildLimits(1));
-        // TODO(multi-vendor): bars and food vans become 2 here once vendors are no longer the single "food"/"drinks".
-        Assert.AreEqual(new TierBuildLimits(2, 3, 1, 1, 1, 1, 2), GameSession.BuildLimits(2));
+        Assert.AreEqual(new TierBuildLimits(2, 3, 2, 2, 1, 1, 2), GameSession.BuildLimits(2));
         Assert.AreEqual(2, GameSession.BuildServiceLimit(BuildServiceKind.WaterTap, 1), "Tier 1: one tap, two with Another Round.");
         Assert.AreEqual(3, GameSession.BuildServiceLimit(BuildServiceKind.WaterTap, 2), "Tier 2: two taps, three with Another Round.");
 
@@ -102,8 +101,8 @@ public sealed class NextFestivalTests
         Assert.AreEqual(2, two.ServiceLimit(BuildServiceKind.WaterTap));
         Assert.AreEqual(2, one.ServiceLimit(BuildServiceKind.Toilet));
         Assert.AreEqual(3, two.ServiceLimit(BuildServiceKind.Toilet));
-        Assert.AreEqual(1, two.ServiceLimit(BuildServiceKind.Bar));
-        Assert.AreEqual(1, two.ServiceLimit(BuildServiceKind.FoodVan));
+        Assert.AreEqual(2, two.ServiceLimit(BuildServiceKind.Bar));
+        Assert.AreEqual(2, two.ServiceLimit(BuildServiceKind.FoodVan));
 
         // A third toilet and a second tap stand at Tier 2 only, and save and restore.
         foreach (var s in new[] { one, two }) Drafted(s);

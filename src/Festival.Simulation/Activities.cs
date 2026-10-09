@@ -70,7 +70,7 @@ public sealed partial class GameSession
         person.Intent == MedicalIntent.SeekWater ? ActivityKind.Water :
         person.ToiletStage != ToiletVisitStage.None ? ActivityKind.Toilet :
         person.VendorId is not null ? person.Order switch
-        { ImmersionProduct.Chips or ImmersionProduct.Pizza => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater, _ => ActivityKind.Beer } :
+        { { } food when food.IsFood() => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater, _ => ActivityKind.Beer } :
         ActivityKind.Watch;
 
     private bool IsStaffMember(ulong id) => _persons[id].NeedProfile == MedicalNeedProfile.Staff;
@@ -231,7 +231,7 @@ public sealed partial class GameSession
             default:
                 var vendor = Vendors.Single(item => item.Id == option.FacilityId);
                 var product = option.Kind switch
-                { ActivityKind.Food => FoodTrader.Product, ActivityKind.SoftDrink => ImmersionProduct.SoftDrink, ActivityKind.BarWater => ImmersionProduct.Water, _ => ImmersionProduct.Beer };
+                { ActivityKind.Food => TraderAt(vendor.Id).Product, ActivityKind.SoftDrink => ImmersionProduct.SoftDrink, ActivityKind.BarWater => ImmersionProduct.Water, _ => ImmersionProduct.Beer };
                 SetConsumption(_persons[id] with { VendorId = vendor.Id, Order = product, ShoppingDecisionTick = CurrentTick });
                 MutatePerson(id, item => { item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
                 ApplyAgentDestination(new(id), new(ImmersionQueueCell(vendor, vendor.Queue.Length), "immersion.approach"));
@@ -245,7 +245,7 @@ public sealed partial class GameSession
     /// <summary>
     /// Every plan open to this person: staying put, one stop, or one stop then another of a different
     /// kind. First stops keep the two quickest facilities of each kind (and always the one already
-    /// under way); each is followed by the quickest stop of every other kind, reached from there.
+    /// under way); each is followed by the quickest stop of every other kind (every stall, for a purchase), reached from there.
     /// Two purchases in a row are left out: hands stay full until the first is finished.
     /// </summary>
     private List<ActivityOption> ActivityOptions(ulong id, ActivityKind current)
@@ -263,8 +263,9 @@ public sealed partial class GameSession
         foreach (var first in firsts)
         {
             options.Add(new(first.Kind, first.Facility, first.CompleteTicks, first.CompleteTicks + EstimateWalkTicks(id, first.Cell, music), first.Enjoyment, first.Cost));
+            // The quickest of each kind; for something bought, of each stall, since two vans differ by more than the walk.
             foreach (var second in StopCandidates(id, person, current, first.Cell, first.CompleteTicks, first.Kind)
-                         .GroupBy(stop => stop.Kind)
+                         .GroupBy(stop => (stop.Kind, Stall: IsPurchase(stop.Kind) ? stop.Facility : null))
                          .Select(group => group.OrderBy(stop => stop.CompleteTicks).ThenBy(stop => stop.Facility, StringComparer.Ordinal).First()))
                 options.Add(new ActivityOption(first.Kind, first.Facility, first.CompleteTicks,
                     second.CompleteTicks + EstimateWalkTicks(id, second.Cell, music), first.Enjoyment + second.Enjoyment, first.Cost + second.Cost)
@@ -309,12 +310,13 @@ public sealed partial class GameSession
         if (after is { } previous && IsPurchase(previous)) return stops;
         foreach (var product in Enum.GetValues<ImmersionProduct>())
         {
-            // The van sells only its trader's food; another food would be a phantom option even for someone already queuing.
-            if (product.IsFood() && product != FoodTrader.Product) continue;
-            var kind = product switch { ImmersionProduct.Chips or ImmersionProduct.Pizza => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater, _ => ActivityKind.Beer };
+            // A van sells only its trader's food; another food would be a phantom option even for someone already queuing.
+            var sellers = Vendors.Where(vendor => Sells(vendor.Id, product)).ToArray();
+            if (sellers.Length == 0) continue;
+            var kind = product switch { _ when product.IsFood() => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater, _ => ActivityKind.Beer };
             var underWay = !fresh && current == kind;
-            if (!underWay && !ActivityPurchaseEligible(person, product)) continue;
-            var vendorId = ImmersionVendorFor(product);
+            var eligible = ActivityPurchaseEligible(person, product);
+            if (!underWay && !eligible) continue;
             var price = ImmersionPriceFor(id, product) * ThriftWeight(person.PriceReluctance) * PurchaseValueScale;
             var enjoyment = product switch
             {
@@ -324,7 +326,10 @@ public sealed partial class GameSession
                 _ when product.IsFood() => AppealValue(product),
                 _ => 0L
             } + (StaffHas(id, StaffTrait.Slacker) && product != ImmersionProduct.Water ? SlackerTreatValue : 0);
-            foreach (var vendor in Vendors.Where(vendor => vendor.Id == vendorId && (underWay || VendorHasRoom(vendor))))
+            // Every stall that sells it, each by its own walk and queue: the one they're queuing at stays on offer, and any
+            // other needs room and power.
+            foreach (var vendor in sellers.Where(vendor => underWay && vendor.Id == person.VendorId ||
+                         eligible && VendorHasRoom(vendor) && (product == ImmersionProduct.Water || StallPowered(vendor.Id))))
                 Add(kind, vendor.Id, vendor.Cell, LightVendorTicks(id, product, vendor, from, fresh), enjoyment, price);
         }
         return stops;
@@ -338,8 +343,7 @@ public sealed partial class GameSession
         (product == ImmersionProduct.Water || person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat) && !IsCurrentProgrammePerformer(person.Id) &&
         ImmersionHandsAvailable(person.Id) && ImmersionStock(product) > 0 &&
         _wallets[new(person.Id)].CashPennies >= ImmersionPriceFor(person.Id, product) &&
-        (product != ImmersionProduct.Beer || BeerAllowed(person)) &&
-        (product == ImmersionProduct.Water || StallPowered(ImmersionVendorFor(product)));
+        (product != ImmersionProduct.Beer || BeerAllowed(person));
 
     private bool VendorHasRoom(ImmersionVendor vendor)
     {

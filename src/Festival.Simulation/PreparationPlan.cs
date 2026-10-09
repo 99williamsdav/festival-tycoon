@@ -1,9 +1,14 @@
 namespace Festival.Simulation;
 
 // A saved unpaid intention. No purchased effect or contract exists until opening.
-/// <param name="TraderId">The food trader pitched at the food van; they bring their own food.</param>
+/// <param name="TraderId">The food trader pitched at the first food van; they bring their own food.</param>
 public sealed record PreparationPlan(int Version, string[] OfferIds, string[] ActIds,
-    int SoftDrinks, int Beers, bool Committed = false, string? TraderId = null);
+    int SoftDrinks, int Beers, bool Committed = false, string? TraderId = null)
+{
+    /// <summary>The traders chosen for vans after the first, in van order; absent when there are none.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public VanTrader[]? VanTraders { get; init; }
+}
 public sealed record RemovePreparationOfferCommand(string OfferId) : SessionCommand;
 /// <summary>The bar's stock: the food trader brings their own.</summary>
 public sealed record SetPreparationStockCommand(int SoftDrinks, int Beers) : SessionCommand;
@@ -100,7 +105,10 @@ public sealed partial class GameSession
             !plan.OfferIds.SequenceEqual(plan.OfferIds.Distinct().Order(StringComparer.Ordinal)) ||
             plan.ActIds.Length != 0 && plan.ActIds.Length != SavedStages(s).Count * 3 || plan.ActIds.Where(id => id != "").Distinct().Count() != plan.ActIds.Count(id => id != "") || plan.ActIds.Any(id => id != "" && (ActCatalogue.Find(id) is not { } act ||
                 !plan.Committed && ActCatalogue.StandingOf(new(p.Reputation, p.SceneCredibility), act) == ActStanding.Locked)) ||
-            plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 || FoodTraders.Find(plan.TraderId) is null ||
+            plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 || FoodTraders.Find(plan.TraderId) is not { } firstTrader || firstTrader.FromTier > p.Tier ||
+            plan.VanTraders is { } vanTraders && (vanTraders.Length == 0 || vanTraders.Any(item => item is null || !Stalls.IsVan(item.VanId) || item.VanId == Stalls.FirstVan ||
+                Stalls.Number(item.VanId) > BuildServiceLimit(BuildServiceKind.FoodVan, p.Tier) || FoodTraders.Find(item.TraderId) is not { } trader || trader.FromTier > p.Tier) ||
+                !vanTraders.Select(item => item.VanId).SequenceEqual(vanTraders.Select(item => item.VanId).Distinct().OrderBy(Stalls.Number))) ||
             plan.Committed != (p.Status != PreparationStatus.Preparing)) return "Preparation plan header or quantities invalid.";
         var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, p.Tier, pondStageTrial: s.PondStageTrial).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers();
@@ -132,7 +140,7 @@ public sealed partial class GameSession
                 new(owner, LedgerAccountType.CashAsset, -setup.BuildCostPennies) });
             if (setup.PitchFeePennies > 0) expected = expected.Concat(PitchFeeEntries(owner, setup.PitchFeePennies));
             if (setup.BuildCostPennies < 0 || !setup.Entries.SequenceEqual(expected) || setup.TotalPennies != payments.Sum(payment => (long)payment.AmountPennies) + stockCost + setup.BuildCostPennies || payments.Any(payment => payment.Tick != setup.Tick) ||
-                setup.Attempt == p.Attempt && (!plan.Committed || setup.PitchFeePennies != (p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.FoodVan) ? FoodTraders.Find(plan.TraderId)!.PitchFeePennies : 0) || setup.SoftDrinks != plan.SoftDrinks || setup.Beers != plan.Beers || setup.TotalPennies != plan.OfferIds.Concat(plan.ActIds).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + p.BuildPlacements.Sum(item => (long)BuildServiceFeePennies(item.Kind))))
+                setup.Attempt == p.Attempt && (!plan.Committed || setup.PitchFeePennies != PlannedPitchFee(p) || setup.SoftDrinks != plan.SoftDrinks || setup.Beers != plan.Beers || setup.TotalPennies != plan.OfferIds.Concat(plan.ActIds).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + p.BuildPlacements.Sum(item => (long)BuildServiceFeePennies(item.Kind))))
                 return "Setup payment ledger or planned total does not reconcile.";
         }
         return null;

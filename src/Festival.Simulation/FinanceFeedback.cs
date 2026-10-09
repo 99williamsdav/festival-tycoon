@@ -47,7 +47,7 @@ public static class FestivalCashFeedbackProjection
             Add($"lav:{call.Id}", preparation.Attempt, call.CalledTick, "toilet." + call.ToiletId,
                 [new(festival, LedgerAccountType.AdministrationExpense, LavSuckerRules.FeePennies), new(festival, LedgerAccountType.CashAsset, -LavSuckerRules.FeePennies)]);
         foreach (var sale in immersion?.Purchases ?? [])
-            Add($"sale:{sale.Id}", preparation.Attempt, sale.Tick, "vendor." + GameSession.ImmersionVendorFor(sale.Product), sale.Entries);
+            Add($"sale:{sale.Id}", preparation.Attempt, sale.Tick, "vendor." + Stalls.Of(sale), sale.Entries);
         return events.OrderBy(item => item.Tick).ThenBy(item => item.TransactionId, StringComparer.Ordinal).ToList().AsReadOnly();
     }
 }

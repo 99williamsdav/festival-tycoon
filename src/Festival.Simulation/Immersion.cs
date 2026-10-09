@@ -3,12 +3,12 @@ using System.Text.Json;
 namespace Festival.Simulation;
 
 /// <summary>Water is the bar's free cup when free water is on: no price, no stock, no pleasure, just thirst relief.</summary>
-public enum ImmersionProduct { Chips, SoftDrink, Beer, Water, Pizza }
+public enum ImmersionProduct { Chips, SoftDrink, Beer, Water, Pizza, Curry }
 
 public static class ImmersionProducts
 {
     /// <summary>Sold at a food van by its trader, rather than at the festival's own bar.</summary>
-    public static bool IsFood(this ImmersionProduct product) => product is ImmersionProduct.Chips or ImmersionProduct.Pizza;
+    public static bool IsFood(this ImmersionProduct product) => product is ImmersionProduct.Chips or ImmersionProduct.Pizza or ImmersionProduct.Curry;
 }
 public sealed record ImmersionHeldItem(string TransactionId, ImmersionProduct Product, int ConsumedTicks);
 public sealed record ImmersionPerson(ulong AgentId, int OpeningBudgetPennies, int Hunger, bool Abstains, int BeerTaste, int SoftTaste, int PriceReluctance,
@@ -36,7 +36,12 @@ public sealed record ImmersionVendor(string Id, GridCell Cell, int QuarterTurns,
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public GridCell[]? QueueCells { get; init; }
 }
-public sealed record ImmersionPurchase(string Id, ulong AgentId, ImmersionProduct Product, long Tick, int PricePennies, int CostPennies, LedgerEntry[] Entries);
+public sealed record ImmersionPurchase(string Id, ulong AgentId, ImmersionProduct Product, long Tick, int PricePennies, int CostPennies, LedgerEntry[] Entries)
+{
+    /// <summary>The stall it was bought at, when that isn't the first of its kind (see <see cref="Stalls.Of"/>).</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string? VendorId { get; init; }
+}
 public sealed record ImmersionStockPurchase(string Id,int Attempt,long Tick,LedgerEntry[] Entries);
 public sealed record ImmersionSnapshot(int Version, bool StockPurchased, int SoftStock, int BeerStock,
     ImmersionPerson[] People, ImmersionPurchase[] Purchases)
@@ -55,7 +60,7 @@ public sealed partial class GameSession
     public ImmersionSnapshot? CaptureImmersion() => ImmersionView;
     internal string? ImmersionCanonicalJson => ImmersionView is not { } view ? null : JsonSerializer.Serialize(view);
     public static int ImmersionPrice(ImmersionProduct product) => product switch
-    { ImmersionProduct.Water => 0, ImmersionProduct.SoftDrink => 250, ImmersionProduct.Beer => 400, ImmersionProduct.Chips or ImmersionProduct.Pizza => FoodTraders.Selling(product).PricePennies,
+    { ImmersionProduct.Water => 0, ImmersionProduct.SoftDrink => 250, ImmersionProduct.Beer => 400, _ when product.IsFood() => FoodTraders.Selling(product).PricePennies,
         _ => throw new ArgumentOutOfRangeException(nameof(product)) };
     public static int ImmersionPrice(ImmersionProduct product, bool beerFestival) =>
         beerFestival && product == ImmersionProduct.Beer ? ImmersionPrice(product) * BeerFestivalPricePercent / 100 : ImmersionPrice(product);
@@ -77,16 +82,16 @@ public sealed partial class GameSession
 
     /// <summary>What a sale costs the festival: the bar's stock. Food is the trader's, bought and sold by them.</summary>
     public static int ImmersionCost(ImmersionProduct product) => product switch
-    { ImmersionProduct.Water or ImmersionProduct.Chips or ImmersionProduct.Pizza => 0, ImmersionProduct.SoftDrink => 60, ImmersionProduct.Beer => 120,
+    { ImmersionProduct.Water => 0, _ when product.IsFood() => 0, ImmersionProduct.SoftDrink => 60, ImmersionProduct.Beer => 120,
         _ => throw new ArgumentOutOfRangeException(nameof(product)) };
     // A cup of water goes down quicker than anything bought.
-    public static int ImmersionConsumeTicks(ImmersionProduct product) => product switch { ImmersionProduct.Chips or ImmersionProduct.Pizza => 3200, ImmersionProduct.SoftDrink => 2800, ImmersionProduct.Water => 1600, _ => 2400 };
+    public static int ImmersionConsumeTicks(ImmersionProduct product) => product switch { _ when product.IsFood() => 3200, ImmersionProduct.SoftDrink => 2800, ImmersionProduct.Water => 1600, _ => 2400 };
     /// <summary>How long a serving takes: food at the pace of the trader who sells it, drinks quicker.</summary>
     public static int ImmersionServiceDuration(ImmersionProduct product) =>
         product.IsFood() ? 320 * FoodTraders.Selling(product).ServicePermille / 1000 : 160;
     public static GridCell ImmersionServiceCell(ImmersionVendor vendor) { var d=RotateWaterOffset(new(0,4),vendor.QuarterTurns);return new(vendor.Cell.X+d.X,vendor.Cell.Z+d.Z); }
     public static GridCell ImmersionQueueCell(ImmersionVendor vendor, int index) { if(vendor.QueueCells is { Length:>0 } cells)return cells[Math.Min(index,cells.Length-1)];var d = RotateWaterOffset(new(0, 4 + index * 2), vendor.QuarterTurns); return new(vendor.Cell.X + d.X, vendor.Cell.Z + d.Z); }
-    public static GridCell[] ImmersionFootprint(ImmersionVendor vendor) => Enumerable.Range(vendor.Id=="food"?-7:-3,vendor.Id=="food"?13:7).SelectMany(x=>Enumerable.Range(vendor.Id=="food"?-3:-2,vendor.Id=="food"?7:5).Select(z=>{var offset=RotateWaterOffset(new(x,z),vendor.QuarterTurns); return new GridCell(vendor.Cell.X+offset.X,vendor.Cell.Z+offset.Z);})).ToArray();
+    public static GridCell[] ImmersionFootprint(ImmersionVendor vendor) => Enumerable.Range(Stalls.IsVan(vendor.Id)?-7:-3,Stalls.IsVan(vendor.Id)?13:7).SelectMany(x=>Enumerable.Range(Stalls.IsVan(vendor.Id)?-3:-2,Stalls.IsVan(vendor.Id)?7:5).Select(z=>{var offset=RotateWaterOffset(new(x,z),vendor.QuarterTurns); return new GridCell(vendor.Cell.X+offset.X,vendor.Cell.Z+offset.Z);})).ToArray();
     private string? ImmersionPlacementError(ImmersionVendor proposed)
     {
         var terrain=new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
@@ -138,7 +143,7 @@ public sealed partial class GameSession
     private static ImmersionSnapshot NewImmersion(ulong seed, EditionPerson[] people) => new(3, false, 0, 0,
         people.Select(p => NewImmersionPerson(seed, p)).ToArray(), []);
     /// <summary>The food van and bar a campaign opens with before any Build layout exists.</summary>
-    private static ImmersionVendor[] OpeningVendors() => [new("food", new(144, 119), 0, []), new("drinks", new(160, 120), 0, [])];
+    private static ImmersionVendor[] OpeningVendors() => [new(Stalls.FirstVan, new(144, 119), 0, []), new(Stalls.FirstBar, new(160, 120), 0, [])];
     private void SynchronizeImmersionPeople()
     {
         if (_immersion is null || _preparation is null) return;
@@ -170,17 +175,18 @@ public sealed partial class GameSession
     }
     private void SetImmersionVendor(ImmersionVendor vendor) => SetVendors(Vendors.Select(v => v.Id == vendor.Id ? vendor : v).ToArray());
     // Free water is from the tap behind the bar: no stock to run out of, and only while it is on.
-    // A food trader brings what they need and never sells out; the van sells only its own trader's food, once it's open.
-    private int ImmersionStock(ImmersionProduct product) => product switch { _ when product.IsFood() => product == FoodTrader.Product && FoodVanPitched && _preparation!.Plan is { Committed: true } ? int.MaxValue : 0, ImmersionProduct.SoftDrink => _immersion!.SoftStock,
+    // A food trader brings what they need and never sells out; a van sells only its own trader's food, once it's open.
+    // The bars share one order of stock.
+    private int ImmersionStock(ImmersionProduct product) => product switch { _ when product.IsFood() => _preparation!.Plan is { Committed: true } && PitchedVans(_preparation).Any(van => TraderAt(van).Product == product) ? int.MaxValue : 0, ImmersionProduct.SoftDrink => _immersion!.SoftStock,
         ImmersionProduct.Water => _immersion!.FreeWater ? int.MaxValue : 0, _ => _immersion!.BeerStock };
     // Switching free water off stops new cups, but anyone already queuing for one is still served.
     private bool ImmersionOrderEligible(Person p, ImmersionProduct product) => p.Held is null && ImmersionShoppingEligible(p.Id, product) &&
         (ImmersionStock(product) > 0 || product == ImmersionProduct.Water && p.VendorId is not null && p.Order == ImmersionProduct.Water) &&
         _wallets[new(p.Id)].CashPennies >= ImmersionPriceFor(p.Id, product) && (product != ImmersionProduct.Beer || BeerAllowed(p)) &&
         // A stall switched off to spare the generator sells nothing; free water from the bar's tap needs no power.
-        (product == ImmersionProduct.Water || StallPowered(ImmersionVendorFor(product)));
-    /// <summary>The stall that sells it: food at the food van, everything else at the bar.</summary>
-    internal static string ImmersionVendorFor(ImmersionProduct product) => product.IsFood() ? "food" : "drinks";
+        (product == ImmersionProduct.Water || (p.VendorId is { } at ? StallPowered(at) : Vendors.Any(v => Sells(v.Id, product) && StallPowered(v.Id))));
+    /// <summary>Whether a stall sells it: a van its own trader's food, a bar everything else.</summary>
+    private bool Sells(string vendorId, ImmersionProduct product) => product.IsFood() ? Stalls.IsVan(vendorId) && TraderAt(vendorId).Product == product : Stalls.IsBar(vendorId);
     private void LeaveImmersionQueue(ulong id, bool reroute)
     {
         var p = _persons[id];
@@ -195,7 +201,8 @@ public sealed partial class GameSession
         _wallets[buyer].CashPennies -= price;
         // Food money goes to the trader; the bar's takings to the festival.
         if (!product.IsFood()) _festivalFinances[owner].CashPennies += price;
-        var purchase = new ImmersionPurchase(transaction, id, product, CurrentTick, price, cost, SaleEntries(buyer, owner, product, price, cost));
+        var purchase = new ImmersionPurchase(transaction, id, product, CurrentTick, price, cost, SaleEntries(buyer, owner, product, price, cost))
+            { VendorId = p.VendorId is { } at ? Stalls.Recorded(at) : null };
         _immersion = _immersion with { SoftStock = _immersion.SoftStock - (product == ImmersionProduct.SoftDrink ? 1 : 0), BeerStock = _immersion.BeerStock - (product == ImmersionProduct.Beer ? 1 : 0), Purchases = _immersion.Purchases.Append(purchase).ToArray() };
         LeaveImmersionQueue(id, true); SetConsumption(_persons[id] with { Held = new(transaction, product, 0) });
     }
@@ -205,8 +212,6 @@ public sealed partial class GameSession
             : [new(buyer, LedgerAccountType.CashAsset, -price), new(buyer, LedgerAccountType.GuestSpending, price), new(festival, LedgerAccountType.CashAsset, price),
                new(festival, LedgerAccountType.SalesRevenue, -price), new(festival, LedgerAccountType.CostOfGoodsSold, cost), new(festival, LedgerAccountType.InventoryAsset, -cost)];
 
-    /// <summary>The trader a saved festival pitched at its food van, and how many portions they brought.</summary>
-    private static FoodTrader SavedFoodTrader(PreparationSnapshot prep) => FoodTraders.Find(prep.Plan?.TraderId) ?? FoodTraders.Default;
 
     private void AdvanceImmersion()
     {
@@ -323,6 +328,9 @@ public sealed partial class GameSession
         SetVendors(Vendors.Select(v=>v with { Queue=[],OwnerId=null,ServiceTicks=0 }).ToArray());
         ImmersionView=ImmersionView! with { People=ImmersionView.People.Select(person=>person with { VendorId=null,Order=null,Held=_persons[person.AgentId].Departed?null:person.Held }).ToArray() };
     }
+    /// <summary>Whether a saved festival's stall sells it, as <see cref="Sells"/> does live.</summary>
+    private static bool SavedSells(PreparationSnapshot prep, string vendorId, ImmersionProduct product) =>
+        product.IsFood() ? Stalls.IsVan(vendorId) && TraderAt(prep, vendorId).Product == product : Stalls.IsBar(vendorId);
     private static string? ValidatePersistedImmersion(SessionPersistenceSnapshot s)
     {
         if (s.Immersion is not { } m) return null;
@@ -362,8 +370,8 @@ public sealed partial class GameSession
         if(m.People.Any(p=>p.StaffThirst is <0 or >10000 || p.CareTicks<0 || !Enum.IsDefined(p.PriorMedicalStage) || p.CollapseTick>s.CurrentTick || p.CollapseTick>=0 && (p.WarningTick<0 || p.CollapseTick<p.WarningTick+1599) || p.Order==ImmersionProduct.Beer && SavedBeerBarred(p, prep, hired, beerFestival)) || vendors.Any(v=>v.Queue.Length>10 || v.OwnerId is { } owner && (!m.People.Any(p=>p.AgentId==owner && p.Order is { } order && v.ServiceTicks<=ImmersionServiceDuration(order)) || s.NavigationAgents?.SingleOrDefault(n=>n.Id==owner) is not { Action:(int)AgentNavigationAction.Arrived } nav || nav.DestinationX!=ImmersionServiceCell(v).X || nav.DestinationZ!=ImmersionServiceCell(v).Z)))return "Immersion cause/role/physical service owner invalid.";
         if(prep.Status is PreparationStatus.Departing or PreparationStatus.Finished && (vendors.Any(v=>v.Queue.Length>0||v.OwnerId is not null)||m.People.Any(p=>p.VendorId is not null||prep.People.Single(n=>n.AgentId==p.AgentId).Departed&&p.Held is not null)))return "Immersion departure ownership invalid.";
         if (!m.People.Select(p=>p.AgentId).SequenceEqual(prep.People.Select(p=>p.AgentId)) || vendors.Any(v=>v.QuarterTurns is <0 or >3 || !new TraversalGrid().Contains(v.Cell) || v.ServiceTicks<0 || v.OwnerId is { } id && (v.Queue.Length==0 || v.Queue[0]!=id) || v.OwnerId is null && v.ServiceTicks!=0) || vendors.SelectMany(v=>v.Queue).Distinct().Count()!=vendors.Sum(v=>v.Queue.Length)) return "Immersion vendor identity/ownership invalid.";
-        foreach (var p in m.People) { var stable=NewImmersionPerson(s.CampaignSeed,prep.People.Single(n=>n.AgentId==p.AgentId)); if (p.OpeningBudgetPennies!=stable.OpeningBudgetPennies || p.Abstains!=stable.Abstains || p.BeerTaste!=stable.BeerTaste || p.SoftTaste!=stable.SoftTaste || p.PriceReluctance!=stable.PriceReluctance || p.Hunger is <0 or >10000 || p.Intoxication is <0 or >10000 || p.PendingDose is <0 or >2400 || p.FoodProtectionTicks is <0 or >4800 || p.HungerResidue is <0 or >79 || p.RecoveryResidue is <0 or >79 || p.AbsorptionResidue is <0 or >1 || p.LastDecisionTick>s.CurrentTick || p.WarningTick>s.CurrentTick || p.SevereTicks<0 || (p.VendorId is null)!=(p.Order is null) || p.VendorId is not null && !vendors.Any(v=>v.Id==p.VendorId) || p.Order is { } order && (!Enum.IsDefined(order) || order.IsFood() && order != SavedFoodTrader(prep).Product) || p.Held is { } h && (!Enum.IsDefined(h.Product) || h.ConsumedTicks<0 || h.ConsumedTicks>=ImmersionConsumeTicks(h.Product) || p.VendorId is not null || !m.Purchases.Any(t=>t.Id==h.TransactionId && t.AgentId==p.AgentId && t.Product==h.Product)) || s.Wallets.Single(w=>w.OwnerId==p.AgentId).CashPennies!=p.OpeningBudgetPennies-m.Purchases.Where(t=>t.AgentId==p.AgentId).Sum(t=>t.PricePennies)) return "Immersion person, wallet or retained item invalid."; }
-if (m.Purchases.Select(p=>p.Id).Distinct().Count()!=m.Purchases.Length || m.Purchases.Any(p=>!Enum.IsDefined(p.Product) || !m.People.Any(n=>n.AgentId==p.AgentId) || p.PricePennies!=SavedPrice(p) || p.CostPennies!=ImmersionCost(p.Product) || p.Tick<0 || p.Tick>s.CurrentTick || p.Entries.Sum(e=>e.AmountPennies)!=0) || m.Purchases.Any(p=>p.Product.IsFood() && (p.Product!=SavedFoodTrader(prep).Product || !(prep.Plan is { Committed: true } && prep.BuildPlacements.Any(b=>b.Kind==BuildServiceKind.FoodVan)))) || m.SoftStock!=(m.StockPurchased?prep.Plan?.SoftDrinks??40:0)-m.Purchases.Count(p=>p.Product==ImmersionProduct.SoftDrink) || m.BeerStock!=(m.StockPurchased?prep.Plan?.Beers??32:0)-m.Purchases.Count(p=>p.Product==ImmersionProduct.Beer) || Math.Min(m.SoftStock,m.BeerStock)<0 || vendors.Any(v=>v.Queue.Any(id=>!m.People.Any(p=>p.AgentId==id && p.VendorId==v.Id)))) return "Immersion stock/transactions/FIFO invalid.";
+        foreach (var p in m.People) { var stable=NewImmersionPerson(s.CampaignSeed,prep.People.Single(n=>n.AgentId==p.AgentId)); if (p.OpeningBudgetPennies!=stable.OpeningBudgetPennies || p.Abstains!=stable.Abstains || p.BeerTaste!=stable.BeerTaste || p.SoftTaste!=stable.SoftTaste || p.PriceReluctance!=stable.PriceReluctance || p.Hunger is <0 or >10000 || p.Intoxication is <0 or >10000 || p.PendingDose is <0 or >2400 || p.FoodProtectionTicks is <0 or >4800 || p.HungerResidue is <0 or >79 || p.RecoveryResidue is <0 or >79 || p.AbsorptionResidue is <0 or >1 || p.LastDecisionTick>s.CurrentTick || p.WarningTick>s.CurrentTick || p.SevereTicks<0 || (p.VendorId is null)!=(p.Order is null) || p.VendorId is not null && !vendors.Any(v=>v.Id==p.VendorId) || p.Order is { } order && (!Enum.IsDefined(order) || !SavedSells(prep, p.VendorId!, order)) || p.Held is { } h && (!Enum.IsDefined(h.Product) || h.ConsumedTicks<0 || h.ConsumedTicks>=ImmersionConsumeTicks(h.Product) || p.VendorId is not null || !m.Purchases.Any(t=>t.Id==h.TransactionId && t.AgentId==p.AgentId && t.Product==h.Product)) || s.Wallets.Single(w=>w.OwnerId==p.AgentId).CashPennies!=p.OpeningBudgetPennies-m.Purchases.Where(t=>t.AgentId==p.AgentId).Sum(t=>t.PricePennies)) return "Immersion person, wallet or retained item invalid."; }
+if (m.Purchases.Select(p=>p.Id).Distinct().Count()!=m.Purchases.Length || m.Purchases.Any(p=>!Enum.IsDefined(p.Product) || !m.People.Any(n=>n.AgentId==p.AgentId) || p.PricePennies!=SavedPrice(p) || p.CostPennies!=ImmersionCost(p.Product) || p.Tick<0 || p.Tick>s.CurrentTick || p.Entries.Sum(e=>e.AmountPennies)!=0) || m.Purchases.Any(p=>p.VendorId is { } at && (Stalls.Number(at)<2 || !prep.BuildPlacements.Any(b=>b.Id==at) || !SavedSells(prep,at,p.Product)) || p.Product.IsFood() && !(prep.Plan is { Committed: true } && prep.BuildPlacements.Any(b=>b.Id==Stalls.Of(p)) && SavedSells(prep,Stalls.Of(p),p.Product))) || m.SoftStock!=(m.StockPurchased?prep.Plan?.SoftDrinks??40:0)-m.Purchases.Count(p=>p.Product==ImmersionProduct.SoftDrink) || m.BeerStock!=(m.StockPurchased?prep.Plan?.Beers??32:0)-m.Purchases.Count(p=>p.Product==ImmersionProduct.Beer) || Math.Min(m.SoftStock,m.BeerStock)<0 || vendors.Any(v=>v.Queue.Any(id=>!m.People.Any(p=>p.AgentId==id && p.VendorId==v.Id)))) return "Immersion stock/transactions/FIFO invalid.";
         return null;
     }
 }

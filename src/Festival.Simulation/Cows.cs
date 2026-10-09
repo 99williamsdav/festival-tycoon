@@ -157,7 +157,7 @@ public sealed partial class GameSession
         return cell;
     }
 
-    /// <summary>A chewed cable has cut this utility's power: "generator", "drinks" or "food".</summary>
+    /// <summary>A chewed cable has cut this utility's power: "generator", or a bar or van's id.</summary>
     public bool CableCut(string utility) => OpenFaults.Any(f => f.Kind == FacilityFaultKind.ChewedCable && f.FacilityId == "cable." + utility && f.Stage == FacilityFaultStage.Active);
 
     /// <summary>The stage has power: no emergency cut-off and the generator's lead intact.</summary>

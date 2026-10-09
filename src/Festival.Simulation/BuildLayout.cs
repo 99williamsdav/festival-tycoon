@@ -24,13 +24,12 @@ public sealed partial class GameSession
     ];
 
     /// <summary>
-    /// Build limits by tier: one more tap, toilet and marquee at Tier 2. Bins are unlimited.
-    /// TODO(multi-vendor): bars and food vans go to 2 at Tier 2 once the single "food" and "drinks" vendor ids are refactored.
+    /// Build limits by tier: one more tap, toilet, marquee, bar and food van at Tier 2. Bins are unlimited.
     /// </summary>
     private static readonly TierBuildLimits[] BuildLimitsByTier =
     [
         new(Taps: 1, Toilets: 2, FoodVans: 1, Bars: 1, FirstAid: 1, StewardPosts: 1, Marquees: 1),
-        new(Taps: 2, Toilets: 3, FoodVans: 1, Bars: 1, FirstAid: 1, StewardPosts: 1, Marquees: 2),
+        new(Taps: 2, Toilets: 3, FoodVans: 2, Bars: 2, FirstAid: 1, StewardPosts: 1, Marquees: 2),
     ];
 
     public static TierBuildLimits BuildLimits(int tier) => BuildLimitsByTier[Math.Clamp(tier, 1, BuildLimitsByTier.Length) - 1];
@@ -84,8 +83,8 @@ public sealed partial class GameSession
         new("water.main", BuildServiceKind.WaterTap, new(103, 128), 1),
         new("toilet.main", BuildServiceKind.Toilet, new(117, 121), 2),
         new("toilet.extra-1", BuildServiceKind.Toilet, new(112, 121), 2),
-        new("food", BuildServiceKind.FoodVan, new(140, 162), 3),
-        new("drinks", BuildServiceKind.Bar, new(140, 148), 3),
+        new(Stalls.FirstVan, BuildServiceKind.FoodVan, new(140, 162), 3),
+        new(Stalls.FirstBar, BuildServiceKind.Bar, new(140, 148), 3),
         new("first-aid", BuildServiceKind.FirstAid, new(139, 120), 0),
         new("steward-post", BuildServiceKind.StewardPost, new(119, 171), 2),
         new("bin.1", BuildServiceKind.Bin, new(121, 148), 0),
@@ -93,12 +92,11 @@ public sealed partial class GameSession
 
     private static string NextBuildId(BuildServiceKind kind, IReadOnlyList<BuildPlacement> placed)
     {
+        if (Stalls.IsStall(kind)) return Stalls.Next(kind, placed.Select(item => item.Id));
         var prefix = kind switch
         {
             BuildServiceKind.WaterTap => "water",
             BuildServiceKind.Toilet => "toilet",
-            BuildServiceKind.FoodVan => "food",
-            BuildServiceKind.Bar => "drinks",
             BuildServiceKind.FirstAid => "first-aid",
             BuildServiceKind.StewardPost => "steward-post",
             BuildServiceKind.Bin => "bin",
@@ -207,8 +205,7 @@ public sealed partial class GameSession
             BuildServiceKind.WaterTap => Numbered(item, "water"),
             BuildServiceKind.Toilet => Numbered(item, "toilet"),
             BuildServiceKind.Marquee => Numbered(item, "marquee"),
-            BuildServiceKind.FoodVan => item.Id == "food",
-            BuildServiceKind.Bar => item.Id == "drinks",
+            BuildServiceKind.FoodVan or BuildServiceKind.Bar => Stalls.Number(item.Id) is var number and > 0 && Stalls.KindOf(item.Id) == item.Kind && number <= BuildServiceLimit(item.Kind, tier),
             BuildServiceKind.FirstAid => item.Id == "first-aid",
             BuildServiceKind.StewardPost => item.Id == "steward-post",
             BuildServiceKind.Bin => item.Id.StartsWith("bin.", StringComparison.Ordinal) && int.TryParse(item.Id[4..], out var number) && number > 0 && item.Id == "bin." + number,
@@ -324,7 +321,7 @@ public sealed partial class GameSession
                         false, 0, 0, 0, ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille))) Block(cell);
                     break;
                 case BuildServiceKind.FoodVan or BuildServiceKind.Bar:
-                    foreach (var cell in ImmersionFootprint(new(item.Kind == BuildServiceKind.FoodVan ? "food" : "drinks",
+                    foreach (var cell in ImmersionFootprint(new(Stalls.Id(item.Kind, 1),
                         item.Cell, item.QuarterTurns, []))) Block(cell);
                     break;
                 case BuildServiceKind.FirstAid or BuildServiceKind.StewardPost:
@@ -366,7 +363,7 @@ public sealed partial class GameSession
                     destinations.Add(ToiletExitCell(toilet));
                     break;
                 case BuildServiceKind.FoodVan or BuildServiceKind.Bar:
-                    destinations.Add(ImmersionServiceCell(new(item.Kind == BuildServiceKind.FoodVan ? "food" : "drinks",
+                    destinations.Add(ImmersionServiceCell(new(Stalls.Id(item.Kind, 1),
                         item.Cell, item.QuarterTurns, []))); break;
                 case BuildServiceKind.FirstAid or BuildServiceKind.StewardPost:
                     var offset = item.Kind == BuildServiceKind.FirstAid ? 6 : 5;
@@ -404,9 +401,9 @@ public sealed partial class GameSession
             BuildServiceKind.WaterTap => Round(item.Cell)
                 .Append(WaterServiceCell(item.Cell, item.QuarterTurns)).ToArray(),
             BuildServiceKind.Toilet => ToiletReservedCells(ToiletOf(item)),
-            BuildServiceKind.FoodVan or BuildServiceKind.Bar => ImmersionFootprint(new(item.Kind == BuildServiceKind.FoodVan ? "food" : "drinks",
+            BuildServiceKind.FoodVan or BuildServiceKind.Bar => ImmersionFootprint(new(Stalls.Id(item.Kind, 1),
                 item.Cell, item.QuarterTurns, []))
-                .Append(ImmersionServiceCell(new(item.Kind == BuildServiceKind.FoodVan ? "food" : "drinks",
+                .Append(ImmersionServiceCell(new(Stalls.Id(item.Kind, 1),
                     item.Cell, item.QuarterTurns, []))).ToArray(),
             BuildServiceKind.FirstAid => Square(item.Cell, 3)
                 .Concat(new[] { RotateWaterOffset(new(0, 6), item.QuarterTurns), RotateWaterOffset(new(2, 6), item.QuarterTurns) }
