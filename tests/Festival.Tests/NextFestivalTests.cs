@@ -37,15 +37,11 @@ public sealed class NextFestivalTests
         return s;
     }
 
-    /// <summary>
-    /// Tier 2's second tap and third toilet, at the first sites that fit. The default layout alone (one tap, one medic)
-    /// lost a guest on each of three probed Tier 2 days; with these all three finished.
-    /// </summary>
-    internal static GameSession WithTierTwoExtras(GameSession s)
+    /// <summary>Tier 2's default layout less its second tap and third toilet: Tier 1's layout, for comparison.</summary>
+    internal static GameSession WithTierOneLayout(GameSession s)
     {
-        foreach (var kind in new[] { BuildServiceKind.WaterTap, BuildServiceKind.Toilet })
-            _ = (from x in Enumerable.Range(0, 23) from z in Enumerable.Range(0, 20) select new GridCell(100 + x * 4, 112 + z * 4))
-                .First(cell => BuildSession.Send(s, new PlaceBuildServiceCommand(kind, cell)).IsAccepted);
+        BuildSession.Accept(s, new RemoveBuildServiceCommand("water.extra-1"));
+        BuildSession.Accept(s, new RemoveBuildServiceCommand("toilet.extra-2"));
         return s;
     }
 
@@ -76,6 +72,10 @@ public sealed class NextFestivalTests
 
         // A third toilet and a second tap stand at Tier 2 only, and save and restore.
         foreach (var s in new[] { one, two }) Drafted(s);
+        // Tier 2's default already stands them; take them away to place them by hand.
+        Assert.AreEqual(2, two.CaptureWaterPoints().Count);
+        Assert.AreEqual(3, two.CaptureToilets().Count);
+        WithTierOneLayout(two);
         GridCell? toiletSite = null, tapSite = null;
         for (var x = 145; x <= 190 && (toiletSite is null || tapSite is null); x += 5)
         for (var z = 115; z <= 190 && (toiletSite is null || tapSite is null); z += 5)
@@ -184,7 +184,7 @@ public sealed class NextFestivalTests
     [TestMethod]
     public void TierTwoPlaysToTheEndAndItsAccountsShowTheCarriedCashAndDebt()
     {
-        var s = WithTierTwoExtras(Ready(TierTwo()));
+        var s = Ready(TierTwo());
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         Assert.AreEqual(2, s.CaptureLifecycleSnapshot()!.TierOrdinal);
         Assert.AreEqual("tier-2", s.CaptureLifecycleSnapshot()!.CurrentTierId);
@@ -257,7 +257,7 @@ public sealed class NextFestivalTests
     {
         var spent = new FestivalCarryOver(1, 30_000, 20_000, 0, true, []);
         var s = (GameSession)typeof(GameSession).GetMethod("CreateLaterFestival", BindingFlags.NonPublic | BindingFlags.Static)!
-            .Invoke(null, [20260922UL, new CampaignId(20260922), 2, spent, FestivalStanding.New, Array.Empty<string>(), null])!;
+            .Invoke(null, [20260922UL, new CampaignId(20260922), 2, spent, FestivalStanding.New, Array.Empty<string>(), null, false])!;
         Assert.IsFalse(BuildSession.Send(s, new CommitCommunityWaterShareCommand()).IsAccepted, "The water share is once per campaign.");
         Ready(s);
         BuildSession.Accept(s, new StartPreparedEditionCommand());
@@ -275,5 +275,141 @@ public sealed class NextFestivalTests
         Assert.IsFalse(GameSession.Restore(debtFree).IsSuccess, "The loan still owed must match what was carried.");
         var noCarry = saved with { Preparation = saved.Preparation! with { CarriedIn = null } };
         Assert.IsFalse(GameSession.Restore(noCarry).IsSuccess, "Tier 2 always opens on a carried state.");
+    }
+
+    /// <summary>
+    /// A Tier 2 save with its carry changed and every field that follows from it changed to match: opening cash, the
+    /// bank balance, the loan still owed and the opening ledger (which still balances).
+    /// </summary>
+    private static SessionPersistenceSnapshot WithCoordinatedCarry(SessionPersistenceSnapshot saved, FestivalCarryOver carry)
+    {
+        var opening = carry.CashPennies + FestivalTickets.RevenuePennies(2);
+        var campaign = saved.CampaignPlanning!;
+        var owner = campaign.FinanceOwnerId;
+        PersistedLedgerEntry[] entries = [new(owner, (int)LedgerAccountType.CashAsset, opening), new(owner, (int)LedgerAccountType.LoanPrincipalLiability, -carry.DebtPennies),
+            new(owner, (int)LedgerAccountType.SalesRevenue, -FestivalTickets.RevenuePennies(2)), new(owner, (int)LedgerAccountType.CarriedBalance, carry.DebtPennies - carry.CashPennies)];
+        Assert.AreEqual(0L, entries.Sum(entry => entry.AmountPennies), "The edited ledger still balances.");
+        return saved with
+        {
+            Preparation = saved.Preparation! with { CarriedIn = carry, OpeningCashPennies = opening },
+            FestivalFinances = saved.FestivalFinances.Select(finance => finance.OwnerId == owner ? finance with { CashPennies = opening } : finance).ToArray(),
+            CampaignPlanning = campaign with { LoanOutstandingPrincipalPennies = carry.DebtPennies,
+                LedgerTransactions = [campaign.LedgerTransactions[0] with { Entries = entries }, .. campaign.LedgerTransactions.Skip(1)] },
+        };
+    }
+
+    [TestMethod]
+    public void ACarryEditedConsistentlyStillCannotEraseDebtOrInventCashFavourOrKit()
+    {
+        var saved = TierTwo().CapturePersistenceSnapshot();
+        var carry = saved.Preparation!.CarriedIn!;
+        // The edit itself is complete: re-applying the real carry restores.
+        Assert.IsTrue(GameSession.Restore(WithCoordinatedCarry(saved, carry)).IsSuccess);
+        void Rejects(FestivalCarryOver edited, string why)
+        {
+            var result = GameSession.Restore(WithCoordinatedCarry(saved, edited));
+            Assert.IsFalse(result.IsSuccess, why);
+            Assert.IsFalse(result.Error!.Contains("hash mismatch", StringComparison.Ordinal), $"{why} {result.Error}");
+        }
+        Rejects(carry with { DebtPennies = 0 }, "Settlement is parked: the starter loan is still owed in full.");
+        Rejects(carry with { CashPennies = 10_000_000 }, "More than Tier 1 could ever close on.");
+        Rejects(carry with { CashPennies = GameSession.MostClosingCashPennies(1, CampaignDefaults.OpeningCashPennies) + 1 }, "Just past the most Tier 1 could close on.");
+        Rejects(carry with { CashPennies = -CampaignDefaults.OverdraftPennies - 1 }, "Further into the red than the overdraft allows.");
+        Rejects(carry with { FavourBalance = 2 }, "A second Favour needs the honoured water share.");
+        Rejects(carry with { OwnedEquipment = ["golden-rig"] }, "Only known kit can be carried.");
+        // The edges themselves are possible closes: validation passes them, and only the saved state hash (written for the
+        // real carry) objects.
+        foreach (var edge in new[] { -CampaignDefaults.OverdraftPennies, GameSession.MostClosingCashPennies(1, CampaignDefaults.OpeningCashPennies) })
+            StringAssert.Contains(GameSession.Restore(WithCoordinatedCarry(saved, carry with { CashPennies = edge })).Error, "hash mismatch");
+        StringAssert.Contains(GameSession.Restore(WithCoordinatedCarry(saved, carry with { FavourBalance = 2, CommunityWaterUsed = true })).Error, "hash mismatch");
+    }
+
+    [TestMethod]
+    public void NoTierOneBudgetIsMoreThanTheCarryBoundAllows()
+    {
+        // MostClosingCashPennies assumes a guest brings at most £25 and anyone else £15.
+        foreach (var seed in new ulong[] { 20260922, 1, 99 })
+        {
+            var s = GameSession.CreateBuildCampaign(seed, pondStageTrial: true);
+            var people = s.CapturePreparation()!.People.ToDictionary(person => person.AgentId);
+            foreach (var person in s.CaptureImmersion()!.People)
+                Assert.IsTrue(person.OpeningBudgetPennies <= (people[person.AgentId].Role == ProtectedPersonRole.Guest ? 2_500 : 1_500));
+        }
+    }
+
+    /// <summary>A festival with three affordable acts on each open stage, crew, the Pond Stage's engineer if it plays, and stock.</summary>
+    private static GameSession ReadyOnEveryStage(GameSession s)
+    {
+        Drafted(s);
+        var acts = s.GetFestivalActs().Where(act => s.ActStandingOf(act) == ActStanding.Available)
+            .OrderBy(act => s.ActFee(act)).ThenBy(act => act.Id, StringComparer.Ordinal).Select(act => act.Id).ToArray();
+        BuildSession.Accept(s, new SetProgrammeCommand(acts[..3]));
+        if (s.PondStageOpen) BuildSession.Accept(s, new SetProgrammeCommand(acts[3..6]) { StageId = FestivalStages.PondId });
+        BuildSession.Accept(s, new SetPreparationStockCommand(40, 32));
+        foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
+        if (s.PondStageOpen) BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Sound)));
+        return s;
+    }
+
+    [TestMethod]
+    public void APondStageTrialKeepsThePondAtTierTwo()
+    {
+        var one = BuildSession.PondStarted();
+        RunToEnd(one);
+        Assert.AreEqual(PreparationStatus.Finished, one.PreparedStatus);
+        var s = one.CreateNextFestival();
+        Assert.IsTrue(s.PondStageTrial && s.PondStageOpen, "The trial carries across Next festival.");
+        Assert.AreEqual(2, s.CapturePreparation()!.Tier);
+        Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 2, pondStageTrial: true).PondStageOpen);
+        Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 1, pondStageTrial: true).PondStageOpen);
+        Assert.IsFalse(GameSession.CreateDevelopmentFestival(20260922, 2).PondStageOpen);
+
+        // The default layout still stands with the pond open, and Tier 2's extra tap and toilet keep off both stages.
+        ReadyOnEveryStage(s);
+        var stages = s.Stages;
+        Assert.AreEqual(2, stages.Count);
+        foreach (var placement in s.CaptureBuildPlacements())
+            foreach (var cell in GameSession.BuildFootprint(placement))
+            {
+                Assert.IsFalse(FestivalStages.InAnyReserve(stages, cell), $"{placement.Id} stands in a stage's reserve at {cell}.");
+                if (placement.Kind != BuildServiceKind.Bin)
+                    Assert.IsFalse(GameSession.InAudienceArea(stages, cell), $"{placement.Id} stands in an audience at {cell}.");
+            }
+        Assert.AreEqual(2, s.CaptureWaterPoints().Count);
+        Assert.AreEqual(3, s.CaptureToilets().Count);
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+
+        // Queues may borrow empty audience ground, but never a stage's reserve.
+        void QueuesKeepOffTheStages()
+        {
+            var cells = s.CaptureWaterPoints().SelectMany(tap => s.CaptureWaterQueueCells(tap.Id))
+                .Concat(s.CaptureToilets().SelectMany(toilet => toilet.QueueCells ?? []))
+                .Concat(s.CaptureVendors().SelectMany(vendor => s.CaptureImmersionQueueCells(vendor.Id)));
+            foreach (var cell in cells) Assert.IsFalse(FestivalStages.InAnyReserve(stages, cell), $"A queue reaches a stage's reserve at {cell}.");
+        }
+        for (var i = 0; i < 9; i++) { s.AdvanceWithoutSnapshot(1_000); QueuesKeepOffTheStages(); }
+        var middle = BuildSession.Restored(s);
+        var directory = Path.Combine(Path.GetTempPath(), "festival-tier2-pond-" + Guid.NewGuid());
+        Directory.CreateDirectory(directory);
+        try
+        {
+            var compatibility = new SaveCompatibility("tier2", "content", "tier2");
+            Assert.IsTrue(SaveFileAdapter.SaveSlot(directory, "middle", new(s, compatibility, "test", DateTimeOffset.UtcNow)).IsSuccess);
+            var loaded = SaveFileAdapter.LoadSlot(directory, "middle", compatibility);
+            Assert.IsTrue(loaded.IsSuccess, loaded.Error);
+            Assert.IsTrue(loaded.Session!.PondStageTrial);
+            Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, loaded.Session.CaptureSnapshot().AuthoritativeHash);
+        }
+        finally { Directory.Delete(directory, true); }
+        for (var i = 0; i < 80 && s.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing; i++)
+        {
+            s.AdvanceWithoutSnapshot(1_000);
+            if (i % 4 == 0) QueuesKeepOffTheStages();
+        }
+        RunToEnd(middle);
+        Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, middle.CaptureSnapshot().AuthoritativeHash, "A restored day plays out the same.");
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus, s.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.Cause);
+        Assert.IsTrue(s.CompletedFestivalAccounts!.Reconciles);
+        BuildSession.Restored(s);
     }
 }

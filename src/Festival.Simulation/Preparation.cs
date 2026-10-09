@@ -66,8 +66,14 @@ public sealed partial class GameSession
     /// stages of nine band members fit with room to spare, and so would Tier 3's 75 guests.
     /// </summary>
     public const int MaxActivePeople = 100;
+    /// <summary>The single-stage day: the trailer's last set ends at 37,600 and the gates close 800 ticks later.</summary>
     public const int PreparedDayTicks = 38_400;
-    public int PreparedEditionDurationTicks => PreparedDayTicks;
+    /// <summary>The ten festival minutes between the last set ending and closing time.</summary>
+    public const int ClosingAfterLastSetTicks = 800;
+    /// <summary>A day runs until the latest of its stages' last sets ends, then closes as a single-stage day does.</summary>
+    public static int DayTicksFor(IReadOnlyList<FestivalStage> stages) => stages.Max(stage => stage.SlotEnds[^1]) + ClosingAfterLastSetTicks;
+    /// <summary>This festival's day: 38,400 ticks on the trailer alone, longer with the Pond Stage's full third set.</summary>
+    public int PreparedEditionDurationTicks => DayTicksFor(Stages);
 
     public PreparationStatus? PreparedStatus => _preparation?.Status;
     /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
@@ -475,8 +481,7 @@ public sealed partial class GameSession
             return "Lineup reaction identity requires the current saved programme and results plan.";
         if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > HighestTier || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
             p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != OpeningCashFor(p.Tier, p.CarriedIn) || p.StockConsumed < 0 ||
-            (p.Tier == 1) != (p.CarriedIn is null) || p.CarriedIn is { } carry && (carry.FromTier != p.Tier - 1 || carry.DebtPennies < 0 ||
-                carry.FavourBalance is < 0 or > 2 || carry.OwnedEquipment is null || !carry.OwnedEquipment.SequenceEqual(carry.OwnedEquipment.Distinct().Order(StringComparer.Ordinal)) ||
+            (p.Tier == 1) != (p.CarriedIn is null) || p.CarriedIn is { } carry && (CarryIssue(carry, p.Tier) is not null ||
                 carry.CommunityWaterUsed && p.CommunityShareAttempt != 0) ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||
@@ -539,7 +544,7 @@ public sealed partial class GameSession
             return "Preparation property or contracts lack matching paid commitments.";
         if (p.Status == PreparationStatus.Preparing && (snapshot.Phase != (int)SessionPhase.OpeningCheck || (snapshot.NavigationAgents?.Length ?? 0) != 0 || p.People.Any(item => item.Admitted || item.Departed)) ||
             (p.Status == PreparationStatus.Running || p.Status == PreparationStatus.Failed && snapshot.Immersion is null) && snapshot.Phase != (int)SessionPhase.Live ||
-            p.Status == PreparationStatus.Failed && snapshot.Immersion is not null && (snapshot.Phase is not ((int)SessionPhase.Live) and not ((int)SessionPhase.Egress) || snapshot.Phase == (int)SessionPhase.Egress && snapshot.CurrentTick < p.StartedTick + PreparedDayTicks) ||
+            p.Status == PreparationStatus.Failed && snapshot.Immersion is not null && (snapshot.Phase is not ((int)SessionPhase.Live) and not ((int)SessionPhase.Egress) || snapshot.Phase == (int)SessionPhase.Egress && snapshot.CurrentTick < p.StartedTick + DayTicksFor(SavedStages(snapshot))) ||
             p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.Phase != (int)SessionPhase.Egress ||
             p.Status == PreparationStatus.Failed && snapshot.Equipment?.Stage != EquipmentStage.Terminal && snapshot.Medical?.Fatal != true && snapshot.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death" ||
             p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => offers[id].Category == "staff") ||

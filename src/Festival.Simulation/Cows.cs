@@ -122,7 +122,7 @@ public sealed partial class GameSession
         if (_cows is null || _preparation is not { Status: PreparationStatus.Running } p || _traversalGrid is null) return;
         var cows = _cows;
         if (cows.Gate == PastureGateState.Closed && CurrentTick % 80 == 0 && _faults is not { Disabled: true } &&
-            CurrentTick - p.StartedTick < PreparedDayTicks * 9 / 10 &&
+            CurrentTick - p.StartedTick < PreparedEditionDurationTicks * 9 / 10 &&
             FaultRules.Roll(CampaignSeed, "gate.pasture", CurrentTick, (ulong)p.Attempt, CowRules.GateBreakChancePer10k))
             cows = BreakGate(cows, p);
         var loose = new List<LooseCow>();

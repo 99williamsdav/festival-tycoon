@@ -31,7 +31,7 @@ public sealed class PondStageProbeTests
     {
         var text = new StringBuilder($"== {title}\n");
         var start = s.CapturePreparation()!.StartedTick;
-        var end = start + GameSession.PreparedDayTicks;
+        var end = start + s.PreparedEditionDurationTicks;
         var stages = s.Stages;
         var stageOf = stages.Select(stage => (LiveSetStage?)null).ToArray();
         var history = new Dictionary<ulong, (int X, int Z)>[3];

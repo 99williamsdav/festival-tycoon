@@ -65,7 +65,18 @@ public sealed partial class GameSession
     /// The suggested layout, taken from how the user actually lays out a Tier 1 field: two loos by the stage, a bin
     /// between stage and lane, chips and bar along the lane, first aid across it and the steward post by the gate.
     /// </summary>
-    public static BuildPlacement[] StandardBuildLayout() =>
+    /// <remarks>
+    /// From Tier 2, the tier's second tap and third toilet join it: the tap a few metres along from the first, towards
+    /// the field, and the toilet on the lane end of the row. Both keep clear of either stage, the rest area and the lane.
+    /// </remarks>
+    public static BuildPlacement[] StandardBuildLayout(int tier = 1) => tier < 2 ? TierOneBuildLayout() :
+    [
+        .. TierOneBuildLayout(),
+        new("water.extra-1", BuildServiceKind.WaterTap, new(110, 130), 1),
+        new("toilet.extra-2", BuildServiceKind.Toilet, new(122, 121), 2),
+    ];
+
+    private static BuildPlacement[] TierOneBuildLayout() =>
     [
         new("water.main", BuildServiceKind.WaterTap, new(103, 128), 1),
         new("toilet.main", BuildServiceKind.Toilet, new(117, 121), 2),
@@ -113,7 +124,7 @@ public sealed partial class GameSession
             return p.BuildPlacements.Any(item => item.Id == remove.Id) ? null :
                 CommandResult.Rejected(CommandReasonCode.UnknownTarget, "This service is not in the draft.");
         if (command is UseDefaultBuildLayoutCommand)
-            return ValidateBuildLayout(StandardBuildLayout(), Stages, _equipment, p.WaterTowerOwned, p.Tier) is { } defaultsError ?
+            return ValidateBuildLayout(StandardBuildLayout(p.Tier), Stages, _equipment, p.WaterTowerOwned, p.Tier) is { } defaultsError ?
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, defaultsError) : null;
         BuildPlacement proposed;
         if (command is PlaceBuildServiceCommand place)
@@ -146,7 +157,7 @@ public sealed partial class GameSession
             MoveBuildServiceCommand move => p.BuildPlacements.Select(item => item.Id == move.Id ? item with
                 { Cell = move.Cell, QuarterTurns = move.QuarterTurns } : item).ToArray(),
             RemoveBuildServiceCommand remove => p.BuildPlacements.Where(item => item.Id != remove.Id).ToArray(),
-            UseDefaultBuildLayoutCommand => StandardBuildLayout().OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(),
+            UseDefaultBuildLayoutCommand => StandardBuildLayout(p.Tier).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(),
             _ => throw new InvalidOperationException("Unknown build edit.")
         } };
         SyncBuildPhysicalLayout();

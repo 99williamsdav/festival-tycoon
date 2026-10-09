@@ -213,7 +213,7 @@ public partial class Main
         return p.Status switch
         {
             PreparationStatus.Running or PreparationStatus.Failed =>
-                Math.Clamp((_session.CurrentTick - p.StartedTick) / (float)GameSession.PreparedDayTicks, 0, 1),
+                Math.Clamp((_session.CurrentTick - p.StartedTick) / (float)_session.PreparedEditionDurationTicks, 0, 1),
             PreparationStatus.Departing or PreparationStatus.Finished => 1,
             _ => 0,
         };

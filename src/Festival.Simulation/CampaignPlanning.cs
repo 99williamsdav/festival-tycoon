@@ -56,8 +56,10 @@ public sealed record FestivalCarryOver(int FromTier, long CashPennies, long Debt
     /// <summary>Equality by value, arrays included, so a saved carry compares with its rebuilt self.</summary>
     public bool Equals(FestivalCarryOver? other) => other is not null && FromTier == other.FromTier && CashPennies == other.CashPennies &&
         DebtPennies == other.DebtPennies && FavourBalance == other.FavourBalance && CommunityWaterUsed == other.CommunityWaterUsed &&
-        OwnedEquipment.SequenceEqual(other.OwnedEquipment);
-    public override int GetHashCode() => HashCode.Combine(FromTier, CashPennies, DebtPennies, FavourBalance, CommunityWaterUsed, OwnedEquipment.Length);
+        (OwnedEquipment ?? []).SequenceEqual(other.OwnedEquipment ?? []);
+    /// <summary>Deterministic (no per-process seed), and safe on a save with no kit list.</summary>
+    public override int GetHashCode() => unchecked(((FromTier * 31 + CashPennies.GetHashCode()) * 31 + DebtPennies.GetHashCode()) * 31 +
+        FavourBalance * 2 + (CommunityWaterUsed ? 1 : 0) + (OwnedEquipment?.Length ?? 0) * 7919);
 }
 
 public sealed record LoanSnapshot(

@@ -283,7 +283,7 @@ public sealed partial class GameSession
         if (snapshot.Preparation is not { Tier: >= 1 and <= HighestTier } p || p.People is null || p.People.Any(person => person is null) || p.AcceptedOffers is null || snapshot.Disorder is null ||
             programme.Stages is null || programme.Stages.Length != stages.Count || programme.Stages.Any(stage => stage is null) ||
             p.Status == PreparationStatus.Preparing && snapshot.LivePerformances is not null ||
-            p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.CurrentTick < p.StartedTick + PreparedDayTicks)
+            p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.CurrentTick < p.StartedTick + DayTicksFor(stages))
             return invalid;
         for (var stage = 0; stage < programme.Stages.Length; stage++)
         {
