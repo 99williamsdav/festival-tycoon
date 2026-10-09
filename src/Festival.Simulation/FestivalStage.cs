@@ -118,9 +118,10 @@ public static class FestivalStages
     {
         Id = PondId,
         Name = "The Pond Stage",
-        // Each set starts about halfway through the trailer's; the last is cut short to finish with the trailer's.
+        // Each set starts about halfway through the trailer's and runs full length, so the last ends after the
+        // trailer's and the day runs on to close after it (DayTicksFor).
         SlotStarts = [9_000, 20_600, 32_800],
-        SlotEnds = [17_400, 29_000, 37_600],
+        SlotEnds = [17_400, 29_000, 41_200],
         // Front left, front right and the drums, as the riser's review marks.
         PerformerMarks = [new(170, 161), new(165, 161), new(168, 163)],
         AccessCells = [new(178, 159), new(178, 160), new(178, 161)],

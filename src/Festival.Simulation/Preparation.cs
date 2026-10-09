@@ -66,8 +66,14 @@ public sealed partial class GameSession
     /// stages of nine band members fit with room to spare, and so would Tier 3's 75 guests.
     /// </summary>
     public const int MaxActivePeople = 100;
+    /// <summary>The single-stage day: the trailer's last set ends at 37,600 and the gates close 800 ticks later.</summary>
     public const int PreparedDayTicks = 38_400;
-    public int PreparedEditionDurationTicks => PreparedDayTicks;
+    /// <summary>The ten festival minutes between the last set ending and closing time.</summary>
+    public const int ClosingAfterLastSetTicks = 800;
+    /// <summary>A day runs until the latest of its stages' last sets ends, then closes as a single-stage day does.</summary>
+    public static int DayTicksFor(IReadOnlyList<FestivalStage> stages) => stages.Max(stage => stage.SlotEnds[^1]) + ClosingAfterLastSetTicks;
+    /// <summary>This festival's day: 38,400 ticks on the trailer alone, longer with the Pond Stage's full third set.</summary>
+    public int PreparedEditionDurationTicks => DayTicksFor(Stages);
 
     public PreparationStatus? PreparedStatus => _preparation?.Status;
     /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
@@ -538,7 +544,7 @@ public sealed partial class GameSession
             return "Preparation property or contracts lack matching paid commitments.";
         if (p.Status == PreparationStatus.Preparing && (snapshot.Phase != (int)SessionPhase.OpeningCheck || (snapshot.NavigationAgents?.Length ?? 0) != 0 || p.People.Any(item => item.Admitted || item.Departed)) ||
             (p.Status == PreparationStatus.Running || p.Status == PreparationStatus.Failed && snapshot.Immersion is null) && snapshot.Phase != (int)SessionPhase.Live ||
-            p.Status == PreparationStatus.Failed && snapshot.Immersion is not null && (snapshot.Phase is not ((int)SessionPhase.Live) and not ((int)SessionPhase.Egress) || snapshot.Phase == (int)SessionPhase.Egress && snapshot.CurrentTick < p.StartedTick + PreparedDayTicks) ||
+            p.Status == PreparationStatus.Failed && snapshot.Immersion is not null && (snapshot.Phase is not ((int)SessionPhase.Live) and not ((int)SessionPhase.Egress) || snapshot.Phase == (int)SessionPhase.Egress && snapshot.CurrentTick < p.StartedTick + DayTicksFor(SavedStages(snapshot))) ||
             p.Status is PreparationStatus.Departing or PreparationStatus.Finished && snapshot.Phase != (int)SessionPhase.Egress ||
             p.Status == PreparationStatus.Failed && snapshot.Equipment?.Stage != EquipmentStage.Terminal && snapshot.Medical?.Fatal != true && snapshot.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death" ||
             p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => offers[id].Category == "staff") ||

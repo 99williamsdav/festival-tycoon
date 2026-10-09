@@ -26,8 +26,10 @@ public static class PowerRules
     public const int StrainWarning = 32_000, StrainMaximum = 64_000;
     /// <summary>How fast strain eases once the load is back within capacity: about ten seconds from the warning.</summary>
     public const int StrainRecoveryPerTick = 40;
-    /// <summary>The festoon lights come on at seven-tenths of the day, as the presentation's dusk does.</summary>
+    /// <summary>The festoon lights come on at seven-tenths of the day, as the presentation's dusk does (single-stage day).</summary>
     public const int LightsOnTick = GameSession.PreparedDayTicks * 70 / 100;
+    /// <summary>Seven-tenths of a day of this length.</summary>
+    public static int LightsOnTickFor(int dayTicks) => dayTicks * 70 / 100;
     public const string StandardRigOffer = "equipment.rent", ProRigOffer = "equipment.pro", GeneratorOffer = "generator.hire";
 
     public static int RigDraw(SoundRig rig) => rig switch { SoundRig.Pro => ProRigDraw, SoundRig.Standard => StandardRigDraw, _ => BasicRigDraw };
@@ -56,7 +58,7 @@ public sealed partial class GameSession
         var stage = !StagePowered ? 0 :
             !live || _livePerformances[0]?.Stage == LiveSetStage.Live ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
         int Stall(string id, bool powered) => _immersion is not null && Vendors.Any(v => v.Id == id) && (!live || powered) ? PowerRules.StallDraw : 0;
-        var lightsOn = !live || _preparation!.StartedTick >= 0 && CurrentTick >= _preparation.StartedTick + PowerRules.LightsOnTick;
+        var lightsOn = !live || _preparation!.StartedTick >= 0 && CurrentTick >= _preparation.StartedTick + PowerRules.LightsOnTickFor(PreparedEditionDurationTicks);
         return new(stage, Stall("drinks", e?.BarPowered ?? true), Stall("food", e?.FoodPowered ?? true),
             lightsOn && (!live || (e?.LightsPowered ?? true)) ? PowerRules.LightsDraw : 0, GeneratorCapacity);
     }

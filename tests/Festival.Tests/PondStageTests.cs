@@ -83,7 +83,7 @@ public sealed class PondStageTests
         foreach (var slot in new[] { 0, 1 })
             Assert.AreEqual((long)Pond.SlotStarts[slot], day.LiveAt[(FestivalStages.PondId, slot)], $"Pond set {slot + 1} didn't start on time.");
         CollectionAssert.AreEqual(new[] { 9_000, 20_600, 32_800 }, Pond.SlotStarts.ToArray());
-        CollectionAssert.AreEqual(new[] { 17_400, 29_000, 37_600 }, Pond.SlotEnds.ToArray());
+        CollectionAssert.AreEqual(new[] { 17_400, 29_000, 41_200 }, Pond.SlotEnds.ToArray());
         foreach (var (id, track) in day.PondBand.Where(item => item.Value.Slot < 2))
         {
             Assert.IsTrue(track.Cells.Any(PondRiser.Gate), $"Pond band member {id} never came in by the pond gate.");
