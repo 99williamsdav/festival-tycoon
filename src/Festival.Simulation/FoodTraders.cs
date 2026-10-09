@@ -94,17 +94,25 @@ public sealed partial class GameSession
     {
         var tier = p?.Tier ?? 1;
         var vans = PitchedVans(p).Append(vanId).Distinct().OrderBy(Stalls.Number).ToArray();
+        // A van left to the default never takes a food another van's player picked, so a pick is never pushed aside.
+        var picked = ChosenTraders(p?.Plan).Select(item => item.Trader).ToArray();
         var taken = new List<FoodTrader>();
         foreach (var van in vans)
         {
             var wanted = FoodTraders.Find(ChosenTraderId(p?.Plan, van));
             var trader = wanted is not null && wanted.FromTier <= tier && !taken.Contains(wanted) ? wanted
-                : FoodTraders.AtTier(tier).FirstOrDefault(t => !taken.Contains(t)) ?? FoodTraders.Default;
+                : FoodTraders.AtTier(tier).Where(t => !taken.Contains(t)).OrderBy(t => picked.Contains(t)).FirstOrDefault() ?? FoodTraders.Default;
             if (van == vanId) return trader;
             taken.Add(trader);
         }
         return FoodTraders.Default;
     }
+
+    /// <summary>Every van's pick in the plan, placed or not, in van order.</summary>
+    private static IEnumerable<(string VanId, FoodTrader Trader)> ChosenTraders(PreparationPlan? plan) =>
+        new[] { Stalls.FirstVan }.Concat((plan?.VanTraders ?? []).Select(item => item.VanId))
+            .Select(van => (VanId: van, Trader: FoodTraders.Find(ChosenTraderId(plan, van))))
+            .Where(item => item.Trader is not null).Select(item => (item.VanId, item.Trader!));
 
     /// <summary>What the plan says for a van: the plan's TraderId for the first, its van list for the rest.</summary>
     private static string? ChosenTraderId(PreparationPlan? plan, string vanId) => vanId == Stalls.FirstVan ? plan?.TraderId :
@@ -156,8 +164,12 @@ public sealed partial class GameSession
     /// <summary>Why a van can't have this trader, or null if it can.</summary>
     public string? TraderUnavailable(string vanId, FoodTrader trader) =>
         trader.FromTier > (_preparation?.Tier ?? 1) ? $"{trader.Name} trade from Tier {trader.FromTier}."
-        // Two vans selling the same food would just split one queue: one cuisine per van, for now.
-        : PitchedVans(_preparation).Any(van => van != vanId && TraderAt(van).Id == trader.Id) ? $"{trader.Name} already have a van here: pick a different food."
+        // Two vans selling the same food would just split one queue: one cuisine per van, for now. A pick for a van not yet
+        // placed counts too, so placing it later never switches anyone's food.
+        : PitchedVans(_preparation).Where(van => van != vanId).Select(van => (VanId: van, Trader: TraderAt(van)))
+            .Concat(ChosenTraders(_preparation?.Plan).Where(item => item.VanId != vanId))
+            .FirstOrDefault(item => item.Trader.Id == trader.Id) is { VanId: { } other }
+            ? $"{trader.Name} are already at van {Stalls.Number(other)}: pick a different food, or change that van first."
         : null;
 
     private CommandResult? ValidateChooseFoodTrader(EntityId? target, ChooseFoodTraderCommand command)

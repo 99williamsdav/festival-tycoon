@@ -224,6 +224,43 @@ public sealed class MultiVendorTests
     }
 
     [TestMethod]
+    public void ASaleAtTheFirstBarIsRefusedOnRestoreWhenOnlyTheSecondBarStands()
+    {
+        // Tier 2 with the first bar taken away: only drinks.2 stands, so every drink is sold there and names it.
+        var s = TierTwoWithFourStalls();
+        BuildSession.Accept(s, new RemoveBuildServiceCommand("drinks"));
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        for (var i = 0; i < 40 && !s.CaptureImmersion()!.Purchases.Any(p => !p.Product.IsFood()); i++) s.AdvanceWithoutSnapshot(400);
+        var snapshot = s.CapturePersistenceSnapshot();
+        Assert.IsTrue(snapshot.Immersion!.Purchases.Where(p => !p.Product.IsFood()).All(p => p.VendorId == "drinks.2"));
+        Assert.IsTrue(GameSession.Restore(snapshot).IsSuccess);
+        // Strip the stall from a drink sale: it would claim the first bar, which isn't there.
+        var stripped = snapshot.Immersion with { Purchases = snapshot.Immersion.Purchases.Select(p => p.Product.IsFood() ? p : p with { VendorId = null }).ToArray() };
+        Assert.IsFalse(GameSession.Restore(snapshot with { Immersion = stripped }).IsSuccess);
+    }
+
+    [TestMethod]
+    public void APickForAVanNotYetPlacedIsNeverSwitchedLater()
+    {
+        var s = NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(20260922, 2));
+        // Curry for van 2 before it's placed; van 1 can't then take curry, so placing van 2 keeps it.
+        BuildSession.Accept(s, new ChooseFoodTraderCommand(Curry.Id, "food.2"));
+        var refused = BuildSession.Send(s, new ChooseFoodTraderCommand(Curry.Id));
+        Assert.IsFalse(refused.IsAccepted);
+        StringAssert.Contains(refused.Message, "van 2");
+        BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.FoodVan, CurryVanCell, CurryVanTurns));
+        Assert.AreEqual(Curry, s.TraderAt("food.2"));
+        Assert.AreEqual(FoodTraders.Default, s.TraderAt("food"));
+
+        // Placed the other way round: van 2 first, then van 1 placed again, and still nobody's pick moves.
+        BuildSession.Accept(s, new RemoveBuildServiceCommand("food"));
+        BuildSession.Accept(s, new ChooseFoodTraderCommand("trader.pizza-the-action"));
+        BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.FoodVan, new(140, 162), 3));
+        Assert.AreEqual(ImmersionProduct.Pizza, s.TraderAt("food").Product);
+        Assert.AreEqual(Curry, s.TraderAt("food.2"));
+    }
+
+    [TestMethod]
     public void AOneVanOneBarSaveWritesNoStallOrVanTraderFields()
     {
         var s = BuildSession.Started();

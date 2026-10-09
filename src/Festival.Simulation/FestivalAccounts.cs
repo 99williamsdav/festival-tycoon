@@ -126,7 +126,7 @@ public sealed partial class GameSession
             var accounts = new FestivalAccounts(sales, costs.ToArray(), expenses.ToArray(), purchasedStock,
                 FestivalTickets.Sold(p.Tier), FestivalTickets.PricePennies(p.Tier), p.OpeningCashPennies - tickets,
                 closing, stockCash, capital, stockRecorded, stockDetailRecorded, facilityDetailRecorded, false)
-                { PitchFeePennies = ReceivedPitchFee(p), PitchFeeTrader = string.Join(" and ", PitchedVans(p).Select(van => TraderAt(p, van).Name)),
+                { PitchFeePennies = ReceivedPitchFee(p), PitchFeeTrader = p.Plan is { Committed: true } ? string.Join(" and ", PitchedVans(p).Select(van => TraderAt(p, van).Name)) : "",
                   PitchFees = p.Plan is { Committed: true } ? PitchedVans(p).Select(van => new FestivalAccountsPitch(TraderAt(p, van).Name, TraderAt(p, van).PitchFeePennies)).ToArray() : [],
                   CarriedInPennies = p.CarriedIn?.CashPennies, DebtOwedPennies = _campaignPlanning?.Loan.OutstandingPrincipalPennies ?? 0 };
             var reconciles = accounts.IncomePennies == result.RevenuePennies &&

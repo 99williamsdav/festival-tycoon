@@ -255,7 +255,7 @@ public sealed partial class GameSession
             if (OpenFaults.Any(f => f.FacilityId == "cable." + utility)) continue;
             if (CowRules.Draw(CampaignSeed, $"cable.{utility}:{cow.Id}", CurrentTick, 0, 10_000) >= CowRules.ChewChancePer10k) continue;
             AddFault($"cable:{utility}:{CurrentTick}", FacilityFaultKind.ChewedCable, "cable." + utility, 0);
-            MedicalEvent("cows:cable", $"A loose cow chewed through the {utility} cable.");
+            MedicalEvent("cows:cable", $"A loose cow chewed through the {(utility == "generator" ? utility : Stalls.Label(utility).ToLowerInvariant())} cable.");
             return;
         }
     }

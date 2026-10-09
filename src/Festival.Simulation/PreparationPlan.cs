@@ -108,7 +108,9 @@ public sealed partial class GameSession
             plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 || FoodTraders.Find(plan.TraderId) is not { } firstTrader || firstTrader.FromTier > p.Tier ||
             plan.VanTraders is { } vanTraders && (vanTraders.Length == 0 || vanTraders.Any(item => item is null || !Stalls.IsVan(item.VanId) || item.VanId == Stalls.FirstVan ||
                 Stalls.Number(item.VanId) > BuildServiceLimit(BuildServiceKind.FoodVan, p.Tier) || FoodTraders.Find(item.TraderId) is not { } trader || trader.FromTier > p.Tier) ||
-                !vanTraders.Select(item => item.VanId).SequenceEqual(vanTraders.Select(item => item.VanId).Distinct().OrderBy(Stalls.Number))) ||
+                !vanTraders.Select(item => item.VanId).SequenceEqual(vanTraders.Select(item => item.VanId).Distinct().OrderBy(Stalls.Number)) ||
+                // No two vans' picks are the same food.
+                vanTraders.Select(item => item.TraderId).Append(plan.TraderId).Distinct().Count() != vanTraders.Length + 1) ||
             plan.Committed != (p.Status != PreparationStatus.Preparing)) return "Preparation plan header or quantities invalid.";
         var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, p.Tier, pondStageTrial: s.PondStageTrial).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers();
