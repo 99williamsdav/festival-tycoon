@@ -64,13 +64,13 @@ public sealed partial class GameSession
         var talent = PerformanceRules.Talent(act);
         var drunk = Math.Max(0, StageDrunkenness(stage) - PerformanceRules.SoberLimit) / PerformanceRules.DrunkStep;
         var band = Math.Clamp(talent - drunk, 0, 100);
-        var sound = SoundScore;
+        var sound = SoundScoreAt(stage);
         return new(act, talent, drunk, band, sound, PerformanceRules.Overall(band, sound));
     }
 
     /// <summary>The act a performer plays in, for how professionally they treat the bar.</summary>
     private FestivalAct? PerformerAct(ulong id) => PerformerStage(id) is var stage and >= 0 && StageProgramme(stage) is { } q &&
-        q.ActIds.Length == FestivalStages.All[stage].SlotCount && q.Performers.FirstOrDefault(p => p.AgentId == id) is { } member
+        q.ActIds.Length == Stages[stage].SlotCount && q.Performers.FirstOrDefault(p => p.AgentId == id) is { } member
         ? FestivalActs.SingleOrDefault(a => a.Id == q.ActIds[member.SlotIndex]) : null;
 
     /// <summary>A performer's thirst for beer: their own taste, tempered by how professional their act is.</summary>

@@ -87,7 +87,7 @@ public sealed partial class GameSession
             return p.BuildPlacements.Any(item => item.Id == remove.Id) ? null :
                 CommandResult.Rejected(CommandReasonCode.UnknownTarget, "This service is not in the draft.");
         if (command is UseDefaultBuildLayoutCommand)
-            return ValidateBuildLayout(StandardBuildLayout(), _equipment, p.WaterTowerOwned) is { } defaultsError ?
+            return ValidateBuildLayout(StandardBuildLayout(), Stages, _equipment, p.WaterTowerOwned) is { } defaultsError ?
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, defaultsError) : null;
         BuildPlacement proposed;
         if (command is PlaceBuildServiceCommand place)
@@ -107,7 +107,7 @@ public sealed partial class GameSession
         }
         else return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Unknown build edit.");
         var next = p.BuildPlacements.Where(item => item.Id != proposed.Id).Append(proposed).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
-        return ValidateBuildLayout(next, _equipment, p.WaterTowerOwned) is { } issue ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue) : null;
+        return ValidateBuildLayout(next, Stages, _equipment, p.WaterTowerOwned) is { } issue ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue) : null;
     }
 
     private void ApplyBuildCommand(SessionCommand command)
@@ -155,7 +155,7 @@ public sealed partial class GameSession
                 ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille))
             .Select(toilet => toilet with { QueueCells = [ToiletDoorstepCell(toilet)] }).ToArray();
 
-    private static string? ValidateBuildLayout(IReadOnlyList<BuildPlacement> placements,
+    private static string? ValidateBuildLayout(IReadOnlyList<BuildPlacement> placements, IReadOnlyList<FestivalStage> stages,
         EquipmentSnapshot? equipment = null, bool waterTowerOwned = false)
     {
         static bool IdentityMatchesKind(BuildPlacement item) => item.Kind switch
@@ -179,7 +179,12 @@ public sealed partial class GameSession
         // The stage, its stairs and drawbar, and backstage behind the barriers.
         for (var x = 66; x <= 101; x++)
             for (var z = 112; z <= 164; z++)
-                if (FestivalStages.InAnyReserve(new(x, z)) || Backstage.Area(new(x, z))) reserved.Add(new(x, z));
+                if (FestivalStages.Main.Reserve(new(x, z)) || Backstage.Area(new(x, z))) reserved.Add(new(x, z));
+        // Any other stage's riser, stair foot, generator and band ground.
+        foreach (var stage in stages.Skip(1))
+            for (var x = stage.ReserveBounds.MinX; x <= stage.ReserveBounds.MaxX; x++)
+                for (var z = stage.ReserveBounds.MinZ; z <= stage.ReserveBounds.MaxZ; z++)
+                    if (stage.Reserve(new(x, z))) reserved.Add(new(x, z));
         // The rest area out in front of first aid stays clear.
         var restCentre = RestCentre(placements);
         var restArea = new HashSet<GridCell>();
@@ -202,7 +207,7 @@ public sealed partial class GameSession
                 !terrain.Contains(cell) || terrain.Get(cell) is not { IsWalkable: true, Surface: GroundSurface.Grass }))
                 return "Service footprint or entrance needs clear grass inside the festival site.";
             // Bins are the exception: a crowd makes litter, and a bin is small enough to stand among it.
-            if (item.Kind != BuildServiceKind.Bin && cells.Any(InAudienceArea)) return "Keep the audience area in front of the stage clear.";
+            if (item.Kind != BuildServiceKind.Bin && cells.Any(cell => InAudienceArea(stages, cell))) return "Keep the audience area in front of the stage clear.";
             // A toilet's walkway in front of its door may be shared with the toilet beside it, so a row of loos can
             // stand side by side; nothing else may stand on it, and nothing may overlap a cubicle.
             var access = item.Kind == BuildServiceKind.Toilet ? ToiletAccessCells(ToiletOf(item)).ToHashSet() : [];
@@ -215,7 +220,7 @@ public sealed partial class GameSession
                 if (access.Contains(cell)) sharedAccess.Add(cell);
             }
         }
-        if (!BuildAccessClear(placements, equipment, waterTowerOwned))
+        if (!BuildAccessClear(placements, stages, equipment, waterTowerOwned))
             return "Service blocks the route from the gate to a required entrance or exit.";
         return null;
     }
@@ -248,7 +253,7 @@ public sealed partial class GameSession
         return null;
     }
 
-    private static bool BuildAccessClear(IReadOnlyList<BuildPlacement> placements,
+    private static bool BuildAccessClear(IReadOnlyList<BuildPlacement> placements, IReadOnlyList<FestivalStage> stages,
         EquipmentSnapshot? equipment, bool waterTowerOwned)
     {
         var blocked = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain())
@@ -290,7 +295,7 @@ public sealed partial class GameSession
             for (var x = lower.X; x <= upper.X; x++)
                 for (var z = lower.Z; z <= upper.Z; z++) Block(new(x, z));
         }
-        foreach (var (cell, walkable) in FestivalStages.All.SelectMany(stage => stage.Cells())) blocked[cell] = new(cell, GroundSurface.Grass, walkable);
+        foreach (var (cell, walkable) in stages.SelectMany(stage => stage.Cells())) blocked[cell] = new(cell, GroundSurface.Grass, walkable);
         var grid = new TraversalGrid(blocked.Values);
         var destinations = new List<GridCell> { RestCentre(placements) };
         foreach (var item in placements)

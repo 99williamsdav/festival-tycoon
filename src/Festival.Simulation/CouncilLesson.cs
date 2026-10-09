@@ -47,7 +47,7 @@ public sealed partial class GameSession
         var bin = CaptureBins().Where(b => b.Wasps).OrderBy(b => CellDistanceSquared(b.Cell, at)).FirstOrDefault() ??
                   CaptureBins().OrderBy(b => CellDistanceSquared(b.Cell, at)).FirstOrDefault();
         if (bin is null) return false;
-        if (InAudienceArea(bin.Cell)) return true;
+        if (InStagesAudience(bin.Cell)) return true;
         const int crowd = 8, reach = 12;
         return PeopleIn(PersonView.Roster).Count(p => p.Admitted && !p.Departed && CellDistanceSquared(PersonCell(p.Id), bin.Cell) <= reach * reach) >= crowd;
     }

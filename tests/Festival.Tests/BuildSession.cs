@@ -33,9 +33,9 @@ internal static class BuildSession
     /// <summary>A Build campaign that drafted the named perk, redrawing its opening hand until it's offered.</summary>
     public static GameSession Drafted(ulong seed, string perkId) => Drafted(seed, [perkId]);
 
-    private static GameSession Drafted(ulong seed, string[]? perkIds, int index = 0)
+    private static GameSession Drafted(ulong seed, string[]? perkIds, int index = 0, bool pond = false)
     {
-        var s = GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);
+        var s = pond ? GameSession.CreateBuildCampaign(seed, FestivalStanding.Established, pondStageTrial: true) : GameSession.CreateBuildCampaign(seed, FestivalStanding.Established);
         var perks = s.CapturePerks()!;
         var redraw = typeof(GameSession).GetMethod("OpenPerkDraft", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!;
         for (var draws = 0; perkIds is not null && !perks.Hand.Any(perkIds.Contains); draws++)
@@ -166,6 +166,33 @@ internal static class BuildSession
         return s;
     }
 
+    /// <summary>Three acts for the Pond Stage, none of them in <see cref="Acts"/>.</summary>
+    public static readonly string[] PondActs = ["act.low-battery", "act.unlicensed-bouncy-castle", "act.septic-tank"];
+
+    /// <summary>A Pond Stage trial campaign with its perk drafted and the default layout placed; no line-up, stock or staff.</summary>
+    public static GameSession PondDrafted(ulong seed = 20260922) => Drafted(seed, Quiet, 0, pond: true);
+
+    /// <summary>A Pond Stage trial campaign booked on both stages, stocked and fully crewed, its Pond Stage engineer included; not started.</summary>
+    public static GameSession PondReady(ulong seed = 20260922, params string[] offers)
+    {
+        var s = PondDrafted(seed);
+        Accept(s, new SetProgrammeCommand(Acts));
+        Accept(s, new SetProgrammeCommand(PondActs) { StageId = FestivalStages.PondId });
+        Accept(s, new SetPreparationStockCommand(40, 32));
+        foreach (var hire in Crew(s)) Accept(s, hire);
+        Accept(s, new AcceptPreparationOfferCommand(ExtraId(s, StaffRole.Sound)));
+        foreach (var offer in offers) Accept(s, new AcceptPreparationOfferCommand(offer));
+        return s;
+    }
+
+    /// <summary>A Pond Stage trial campaign whose edition has started.</summary>
+    public static GameSession PondStarted(ulong seed = 20260922, params string[] offers)
+    {
+        var s = PondReady(seed, offers);
+        Accept(s, new StartPreparedEditionCommand());
+        return s;
+    }
+
     /// <summary>The last guest on the roster: the person the retired at-risk scenario used to single out.</summary>
     public static ulong LastGuest(GameSession s) => s.CapturePreparation()!.People.Last(person => person.Role == ProtectedPersonRole.Guest).AgentId;
 
@@ -204,7 +231,7 @@ internal static class BuildSession
     public static SessionPersistenceSnapshot WithMainProgramme(SessionPersistenceSnapshot saved, Func<StageProgrammeSnapshot, StageProgrammeSnapshot> change) =>
         saved with { Programme = saved.Programme! with { Stages = [change(saved.Programme.Stages[0]), .. saved.Programme.Stages.Skip(1)] } };
     public static SessionPersistenceSnapshot WithMainLive(SessionPersistenceSnapshot saved, Func<LivePerformanceSnapshot, LivePerformanceSnapshot> change) =>
-        saved with { LivePerformances = [change(saved.LivePerformances![0]), .. saved.LivePerformances.Skip(1)] };
+        saved with { LivePerformances = [change(saved.LivePerformances![0]!), .. saved.LivePerformances.Skip(1)] };
 
     public static GameSession Restored(GameSession s)
     {

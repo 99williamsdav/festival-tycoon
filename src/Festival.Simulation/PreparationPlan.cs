@@ -30,7 +30,8 @@ public sealed partial class GameSession
     public long PreparationRemainingCash => _preparation is { } p ? _festivalFinances[new(p.FinanceOwnerId)].CashPennies -
         (p.Plan is { Committed: false } ? PreparationPlanCost - PlannedPitchFeePennies : 0) : 0;
     public int ExpectedPreparedPeopleCount => _preparation is not { } p ? 0 : PeopleIn(PersonView.Roster).Length +
-        (p.Plan is { Committed: false } plan ? plan.OfferIds.Count(id => id == "maintenance.worker" || id.StartsWith("staff.extra-", StringComparison.Ordinal)) : 0);
+        (p.Plan is { Committed: false } plan ? plan.OfferIds.Count(id => id == "maintenance.worker" ||
+            id.StartsWith("staff.extra-", StringComparison.Ordinal) && !id.StartsWith("staff.extra-sound.", StringComparison.Ordinal)) : 0);
     private CommandResult? ValidatePlanEdit(EntityId? target, SessionCommand command)
     {
         if (target is not null || _preparation is not { Status: PreparationStatus.Preparing, Plan: { Committed: false } } p)
@@ -60,7 +61,8 @@ public sealed partial class GameSession
             foreach (var id in plan.OfferIds.Concat(plan.ActIds)) ApplyPreparationOffer(new(id));
             var buildCost = BuildDraftCost;
             if (buildCost > 0) _festivalFinances[new(_preparation!.FinanceOwnerId)].CashPennies -= buildCost;
-            SetStageProgramme(0, MainProgramme! with { ActIds = plan.ActIds.ToArray(), Status = "Programme booked" });
+            for (var stage = 0; stage < Stages.Count; stage++)
+                SetStageProgramme(stage, StageProgramme(stage)! with { ActIds = Stages.Count == 1 ? plan.ActIds.ToArray() : PlanStageActs(plan, stage), Status = "Programme booked" });
             SynchronizeImmersionPeople();
             var cost = PlannedStockCost(plan);
             var pitchFee = PlannedPitchFeePennies;
@@ -96,11 +98,11 @@ public sealed partial class GameSession
         if (p.SetupPayments is null || p.SetupPayments.Any(payment => payment is null || payment.Entries is null)) return "Preparation setup history missing.";
         if (plan.Version != 1 || s.Immersion is null || s.Programme is null || s.Perks is null || plan.OfferIds is null || plan.ActIds is null ||
             !plan.OfferIds.SequenceEqual(plan.OfferIds.Distinct().Order(StringComparer.Ordinal)) ||
-            plan.ActIds.Length is not (0 or 3) || plan.ActIds.Where(id => id != "").Distinct().Count() != plan.ActIds.Count(id => id != "") || plan.ActIds.Any(id => id != "" && (ActCatalogue.Find(id) is not { } act ||
+            plan.ActIds.Length != 0 && plan.ActIds.Length != SavedStages(s).Count * 3 || plan.ActIds.Where(id => id != "").Distinct().Count() != plan.ActIds.Count(id => id != "") || plan.ActIds.Any(id => id != "" && (ActCatalogue.Find(id) is not { } act ||
                 !plan.Committed && ActCatalogue.StandingOf(new(p.Reputation, p.SceneCredibility), act) == ActStanding.Locked)) ||
             plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 || FoodTraders.Find(plan.TraderId) is null ||
             plan.Committed != (p.Status != PreparationStatus.Preparing)) return "Preparation plan header or quantities invalid.";
-        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed).WithPaymentStanding(p);
+        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, pondStageTrial: s.PondStageTrial).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers();
         if (plan.OfferIds.Any(id => !offers.Any(o => o.Id == id && o.Category is not ("act" or "contract"))) ||
             plan.OfferIds.Select(id => offers.Single(o => o.Id == id).Category).Distinct().Count() != plan.OfferIds.Length ||

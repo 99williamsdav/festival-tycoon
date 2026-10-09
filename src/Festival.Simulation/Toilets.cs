@@ -457,7 +457,7 @@ public sealed partial class GameSession
         var queueGrid = snapshot.TraversalGrid is { } savedTerrain
             ? new TraversalGrid(savedTerrain.Cells.Select(c => new TerrainCellOverride(new(c.X, c.Z), (GroundSurface)c.Surface, c.IsWalkable)))
             : new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
-        if (ValidateToiletQueueGeometry(toilet, queueGrid, snapshot.Preparation) is { } queueIssue) return queueIssue;
+        if (ValidateToiletQueueGeometry(toilet, queueGrid, snapshot.Preparation, SavedStages(snapshot)) is { } queueIssue) return queueIssue;
         if (snapshot.Preparation is { Status: not PreparationStatus.Preparing } &&
             (snapshot.TraversalGrid is null || ToiletSolidCells(toilet).Any(cell =>
                 !snapshot.TraversalGrid.Cells.Any(saved => saved.X == cell.X && saved.Z == cell.Z && !saved.IsWalkable))))

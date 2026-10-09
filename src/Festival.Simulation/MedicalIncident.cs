@@ -828,7 +828,7 @@ public sealed partial class GameSession
                 point.DrinkTicks < 0 || point.DrinkTicks > s.CurrentTick || point.OwnerId is null && point.DrinkTicks != 0) ||
             points.SelectMany(point => point.Queue.Concat(point.Overflow)).Distinct().Count() !=
                 points.Sum(point => point.Queue.Length + point.Overflow.Length) ||
-            !ValidSavedWaterGeometry(points, savedGrid, p) ||
+            !ValidSavedWaterGeometry(points, savedGrid, p, SavedStages(s)) ||
             m.Needs.Any(item => item.QueueSlot is not null && !points.Any(point => point.Id == item.WaterPointId && point.Queue.Contains(item.AgentId))) ||
             m.Needs.Any(item => item.QueueSlot is not null && item.Intent is not (MedicalIntent.SeekWater or MedicalIntent.Drinking)) ||
             m.Needs.Any(item => item.Intent == MedicalIntent.SeekWater && item.QueueSlot is null &&

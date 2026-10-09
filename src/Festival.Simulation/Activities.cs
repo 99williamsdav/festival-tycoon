@@ -384,7 +384,7 @@ public sealed partial class GameSession
             return values;
         }
         var started = _preparation!.StartedTick;
-        var stages = FestivalStages.All;
+        var stages = Stages;
         // A band member is only called to their own stage.
         var ownStage = PerformerStage(id);
         var ownSlot = ownStage >= 0 ? StageProgramme(ownStage)!.Performers.First(item => item.AgentId == id).SlotIndex : -1;
@@ -402,7 +402,7 @@ public sealed partial class GameSession
         {
             var tick = CurrentTick + (sample + 1L) * ActivityChooser.SampleTicks;
             var appeal = 2_500;
-            // Stages in catalogue order; a later one's set overrides an earlier one's, as a later slot does.
+            // The best music on any stage; a band member's own set call outweighs it all.
             for (var stage = 0; stage < stages.Count; stage++)
             {
                 var def = stages[stage];
@@ -413,7 +413,7 @@ public sealed partial class GameSession
                     var start = started + def.SlotStarts[slot];
                     var end = q?.CurrentSlot == slot && live?.Stage is LiveSetStage.Live or LiveSetStage.Interrupted ? Math.Max(q.SlotEndTick, started + def.SlotEnds[slot]) : started + def.SlotEnds[slot];
                     var finished = q is { } programme && (slot < programme.CurrentSlot || slot == programme.CurrentSlot && live?.Stage == LiveSetStage.Finished);
-                    if (!finished && tick >= start && tick < end) appeal = slotAppeal[stage][slot];
+                    if (!finished && tick >= start && tick < end) appeal = Math.Max(appeal, slotAppeal[stage][slot]);
                     if (stage == ownStage && slot == ownSlot && !finished && tick >= start - PerformerCallLeadTicks && tick < end) appeal = (int)(OnStageDutyPerSecond * 1_000L / MusicValuePermille);
                 }
             }

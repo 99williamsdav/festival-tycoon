@@ -11,19 +11,27 @@ public sealed partial class GameSession
     /// <summary>A Tier 1 Build campaign whose festival already has this reputation and scene credibility.</summary>
     public static GameSession CreateBuildCampaign(ulong seed, FestivalStanding standing) => CreateBuildCampaign(seed, TierOneGuests, standing);
 
-    internal static GameSession CreateBuildCampaign(ulong seed, int guests, FestivalStanding standing)
+    /// <summary>
+    /// A Tier 1 Build campaign that tries the Pond Stage, which otherwise opens at Tier 2: a second stage with its own
+    /// three sets, band, sound engineer and generator. The choice is fixed for the campaign.
+    /// </summary>
+    public static GameSession CreateBuildCampaign(ulong seed, bool pondStageTrial) => CreateBuildCampaign(seed, TierOneGuests, pondStageTrial);
+    public static GameSession CreateBuildCampaign(ulong seed, FestivalStanding standing, bool pondStageTrial) =>
+        CreateBuildCampaign(seed, TierOneGuests, standing, pondStageTrial);
+
+    internal static GameSession CreateBuildCampaign(ulong seed, int guests, FestivalStanding standing, bool pondStageTrial = false)
     {
         if (standing.Reputation is < 0 or > 100 || standing.SceneCredibility is not { Length: FestivalGenre.Count } || standing.SceneCredibility.Any(value => value is < 0 or > 100))
             throw new ArgumentOutOfRangeException(nameof(standing), "Reputation and each scene's credibility run 0–100 across six genres.");
-        var session = CreateBuildCampaign(seed, guests);
+        var session = CreateBuildCampaign(seed, guests, pondStageTrial);
         session.PreparationView = session.PreparationView! with { Reputation = standing.Reputation, SceneCredibility = standing.SceneCredibility.ToArray() };
         return session;
     }
 
     /// <summary>A Build campaign with a non-standard guest count, for scale diagnostics only.</summary>
-    internal static GameSession CreateBuildCampaign(ulong seed, int guests)
+    internal static GameSession CreateBuildCampaign(ulong seed, int guests, bool pondStageTrial = false)
     {
-        var session = CreateFoodAndDrinkBaseline(seed, guests);
+        var session = CreateFoodAndDrinkBaseline(seed, guests, pondStageTrial);
         SetUpPerks(session, seed);
         SetUpEditablePlan(session);
         SetUpResults(session);
@@ -32,9 +40,9 @@ public sealed partial class GameSession
     }
 
     /// <summary>The campaign through its food-and-drink stage: the baseline a retried edition resets to.</summary>
-    private static GameSession CreateFoodAndDrinkBaseline(ulong seed, int guests = TierOneGuests)
+    private static GameSession CreateFoodAndDrinkBaseline(ulong seed, int guests = TierOneGuests, bool pondStageTrial = false)
     {
-        var session = CreateProgrammeBaseline(seed, guests);
+        var session = CreateProgrammeBaseline(seed, guests, pondStageTrial);
         SetUpFoodAndDrink(session, seed);
         return session;
     }
@@ -42,15 +50,17 @@ public sealed partial class GameSession
     /// <summary>The campaign through its programme stage: the saved roster's reference identities.</summary>
     private const int TierOneGuests = FestivalTickets.GuestsPerTier;
 
-    private static GameSession CreateProgrammeBaseline(ulong seed, int guests = TierOneGuests)
+    private static GameSession CreateProgrammeBaseline(ulong seed, int guests = TierOneGuests, bool pondStageTrial = false)
     {
         const int tier = 1;
         var session = CreateCampaign(seed);
+        session._pondStageTrial = pondStageTrial;
         SetUpEdition(session, seed, tier, guests);
         SetUpStagePower(session);
         SetUpHotWeather(session);
         SetUpSecurity(session, seed);
         SetUpProgramme(session, seed);
+        if (session.PondStageOpen) SetUpPondStage(session);
         return session;
     }
 
@@ -148,7 +158,37 @@ public sealed partial class GameSession
         // Every band plays the main stage, three to a set.
         session._programme = new(ProgrammeVersion, [new(FestivalStages.MainId, [], people.Where(person => person.Role == ProtectedPersonRole.Performer)
             .Select((person, i) => new ProgrammePerformer(person.AgentId, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts")]);
+        session._livePerformances = new LivePerformanceSnapshot?[1];
     }
+
+    /// <summary>The Pond Stage: its sound engineer's slot, its nine band members and three sets, and its own generator.</summary>
+    private static void SetUpPondStage(GameSession session)
+    {
+        var p = session.PreparationView!;
+        var people = p.People.ToList();
+        var engineer = session.NextEntityId++;
+        session._wallets.Add(new(engineer), new WalletState { OwnerId = new(engineer), CashPennies = 500 });
+        people.Add(new(engineer, StaffCatalogue.PondSoundVacancy, ProtectedPersonRole.Staff, 0));
+        var band = new List<ulong>();
+        foreach (var name in PondBandNames)
+        {
+            var id = session.NextEntityId++;
+            session._wallets.Add(new(id), new WalletState { OwnerId = new(id), CashPennies = 500 });
+            people.Add(new(id, name, ProtectedPersonRole.Performer, 0));
+            band.Add(id);
+            session.MedicalView = session.MedicalView! with { Needs = session.MedicalView.Needs.Append(new MedicalNeed(id, 2500, 2500, MedicalIntent.WatchShow,
+                "Awaiting set; water and rest available", -MedicalDecisionCooldownTicks, null, -1, MedicalNeedProfile.Performer)).ToArray() };
+        }
+        session.PreparationView = p with { People = people.OrderBy(person => person.AgentId).ToArray() };
+        session.MedicalView = session.MedicalView! with { Needs = session.MedicalView.Needs.OrderBy(need => need.AgentId).ToArray() };
+        session._programme = session._programme! with { Stages = [.. session._programme.Stages,
+            new(FestivalStages.PondId, [], band.Select((id, i) => new ProgrammePerformer(id, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts") { EngineerId = engineer }] };
+        session._livePerformances = new LivePerformanceSnapshot?[session.Stages.Count];
+        if (session._equipment?.Version == 3) session._stageGenerators = [NewPondGenerator()];
+    }
+
+    private static readonly string[] PondBandNames =
+        ["Frankie Wren", "Jordan Pike", "Sam Teal", "Quinn Ashby", "Remy Fox", "Lou Marsh", "Dee Hale", "Nico Bell", "Jo Starling"];
 
     /// <summary>Vendors, the toilet, stock and each person's tastes and budget.</summary>
     private static void SetUpFoodAndDrink(GameSession session, ulong seed)

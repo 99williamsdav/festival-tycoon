@@ -51,12 +51,12 @@ public sealed partial class GameSession
         }
     }
 
-    private static string? ValidateToiletQueueGeometry(ToiletFacility toilet, TraversalGrid grid, PreparationSnapshot? prep)
+    private static string? ValidateToiletQueueGeometry(ToiletFacility toilet, TraversalGrid grid, PreparationSnapshot? prep, IReadOnlyList<FestivalStage> stages)
     {
         if (toilet.QueueCells is not { } cells) return null;
         return cells.Length is < 1 or > ToiletRules.MaximumQueue || cells[0] != ToiletDoorstepCell(toilet) ||
             // The doorstep belongs to the toilet's placement; only the grown places must be open queue ground.
-            LooseQueueGeometry.Corridor(cells).Where(cell => cell != cells[0]).Any(cell => !QueueGroundAllowed(cell, prep)) ||
+            LooseQueueGeometry.Corridor(cells).Where(cell => cell != cells[0]).Any(cell => !QueueGroundAllowed(cell, prep, stages)) ||
             !LooseQueueGeometry.Valid(cells, RotateWaterOffset(new(0, -1), toilet.QuarterTurns), grid, [])
             ? "Toilet saved loose queue geometry invalid." : null;
     }

@@ -284,6 +284,8 @@ internal static class CanonicalStateHasher
             writer.Write("r0-programme-v4");
             writer.Write(programme);
         }
+        // Written only for a trial campaign, so every other campaign hashes as before.
+        if (session.PondStageTrial) writer.Write("pond-stage-trial-v1");
         if (session.PreparationCanonicalJson is { } preparation)
         {
             writer.Write("r0-preparation-v1");
@@ -293,6 +295,12 @@ internal static class CanonicalStateHasher
         {
             writer.Write("r0-equipment-v2");
             writer.Write(equipment);
+        }
+        // Each later stage's own generator, in stage order.
+        foreach (var generator in session.StageGeneratorCanonicalJson())
+        {
+            writer.Write("r0-stage-generator-v1");
+            writer.Write(generator);
         }
         // One entry per stage that has a set, in the stage catalogue's fixed order.
         foreach (var (stageId, livePerformance) in session.LivePerformanceCanonicalJson())

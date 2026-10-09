@@ -59,6 +59,7 @@ public sealed partial class GameSession
             if (slot is { } id && StaffCatalogue.Hired(candidates, accepted, role, false) is { } hired) names[id] = hired.Name;
         }
         Name(SoundSlotId(people.Select(person => (person.AgentId, person.Role))), StaffRole.Sound);
+        if (SavedPondEngineerId(s) is { } pond && StaffCatalogue.Hired(candidates, accepted, StaffRole.Sound, true) is { } pondHire) names[pond] = pondHire.Name;
         Name(s.Medical?.MedicId, StaffRole.Medic);
         Name(s.Disorder?.SecurityId, StaffRole.Steward);
         return people.Select(person => names.TryGetValue(person.AgentId, out var name) ? person with { Name = name } : person).ToArray();
@@ -74,14 +75,15 @@ public sealed partial class GameSession
         var candidates = GetStaffCandidates();
         if (_hiredByAgent is not { } cached || !ReferenceEquals(cached.Key, p) || !ReferenceEquals(cached.Candidates, candidates))
             _hiredByAgent = cached = (p, candidates, HiredAgents(candidates.ToArray(), p.AcceptedOffers, p.StaffProfiles,
-                SoundSlotId(PeopleIn(PersonView.Roster).Select(person => (person.Id, person.Role))), _medical?.MedicId, _disorder?.SecurityId));
+                SoundSlotId(PeopleIn(PersonView.Roster).Select(person => (person.Id, person.Role))), _medical?.MedicId, _disorder?.SecurityId,
+                Stages.Count > 1 ? StageEngineerId(1) : null));
         return cached.Map.GetValueOrDefault(id);
     }
 
     public bool StaffHas(ulong id, StaffTrait trait) => HiredCandidateFor(id)?.Has(trait) == true;
 
     private static Dictionary<ulong, StaffCandidate> HiredAgents(StaffCandidate[] candidates, string[] accepted, StaffProfile[] extras,
-        ulong? soundSlot, ulong? medicId, ulong? stewardId)
+        ulong? soundSlot, ulong? medicId, ulong? stewardId, ulong? pondSoundSlot)
     {
         var map = new Dictionary<ulong, StaffCandidate>();
         void Add(ulong? id, StaffRole role, bool extra)
@@ -89,6 +91,8 @@ public sealed partial class GameSession
             if (id is { } agent && StaffCatalogue.Hired(candidates, accepted, role, extra) is { } hired) map[agent] = hired;
         }
         Add(soundSlot, StaffRole.Sound, false);
+        // The Pond Stage's engineer is hired as the extra sound engineer.
+        Add(pondSoundSlot, StaffRole.Sound, true);
         Add(medicId, StaffRole.Medic, false);
         Add(stewardId, StaffRole.Steward, false);
         Add(extras.SingleOrDefault(item => item.Role == ResponseRole.Medic)?.AgentId, StaffRole.Medic, true);
@@ -99,7 +103,10 @@ public sealed partial class GameSession
     /// <summary>Who was hired as whom, from a saved snapshot.</summary>
     private static Dictionary<ulong, StaffCandidate> SavedHiredAgents(SessionPersistenceSnapshot s) =>
         s.Preparation is not { } p ? [] : HiredAgents(SavedStaffCandidates(s), p.AcceptedOffers, p.StaffProfiles,
-            SoundSlotId(p.People.Select(person => (person.AgentId, person.Role))), s.Medical?.MedicId, s.Disorder?.SecurityId);
+            SoundSlotId(p.People.Select(person => (person.AgentId, person.Role))), s.Medical?.MedicId, s.Disorder?.SecurityId, SavedPondEngineerId(s));
+
+    /// <summary>The Pond Stage engineer's slot in a save, if it runs the Pond Stage.</summary>
+    private static ulong? SavedPondEngineerId(SessionPersistenceSnapshot s) => s.Programme?.Stages is { Length: > 1 } stages ? stages[1]?.EngineerId : null;
 
     /// <summary>Saved walking speed for a medic or steward: the hired candidate's, else the slot's own.</summary>
     private static int SavedResponderSpeed(SessionPersistenceSnapshot s, StaffCandidate[] candidates, ulong id)

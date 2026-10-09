@@ -141,11 +141,11 @@ public static class ActCatalogue
         Math.Clamp(standing.Reputation + act.Popularity - StretchReach - EffectiveReputation(standing, act), 0, 100);
 
     /// <summary>
-    /// This run's offer: about ten acts who will play (at least one available act per genre where one
+    /// This run's offer: about ten acts who will play, or more for more stages (at least one available act per genre where one
     /// exists), then the five locked acts nearest to reach, shown greyed out. Seeded, so a retry or a
     /// reload offers the same acts; booked acts are always included.
     /// </summary>
-    public static FestivalAct[] Offer(FestivalStanding standing, ulong seed, int tier, IEnumerable<string> booked)
+    public static FestivalAct[] Offer(FestivalStanding standing, ulong seed, int tier, IEnumerable<string> booked, int shortlistSize = ShortlistSize)
     {
         ulong Key(FestivalAct act)
         {
@@ -160,7 +160,7 @@ public static class ActCatalogue
             if (reachable.FirstOrDefault(act => act.Genre == genre && StandingOf(standing, act) == ActStanding.Available) is { } pick) offer.Add(pick);
         foreach (var act in reachable)
         {
-            if (offer.Count >= ShortlistSize) break;
+            if (offer.Count >= shortlistSize) break;
             if (!offer.Contains(act)) offer.Add(act);
         }
         foreach (var id in booked)

@@ -45,13 +45,13 @@ public sealed partial class GameSession
         (long)(agent.ZMillimetres - _equipment.ZMillimetres) * (agent.ZMillimetres - _equipment.ZMillimetres) <=
         (long)EquipmentHazardRadiusMillimetres * EquipmentHazardRadiusMillimetres);
 
-    public bool EquipmentBoundaryOnNextTick => !IsPaused && _equipment is { } e && _preparation is { Status: PreparationStatus.Running } p &&
+    public bool EquipmentBoundaryOnNextTick => !IsPaused && (StageGeneratorBoundaryOnNextTick || _equipment is { } e && _preparation is { Status: PreparationStatus.Running } p &&
         (e.Version != 3 && e.Stage == EquipmentStage.Normal && CurrentTick + 1 >= p.StartedTick + EquipmentWarningDelayTicks ||
          e.Version == 3 && PowerTransitionOnNextTick(e) ||
          e.Stage == EquipmentStage.Warning && CurrentTick + 1 >= e.WarningTick + EquipmentDangerDelayTicks ||
          e.Stage == EquipmentStage.DangerousFault && CurrentTick + 1 >= e.WarningTick + EquipmentDeathDelayTicks && NearbyEquipmentPerson() is not null ||
          e.JobStage == MaintenanceStage.Travelling && _navigationAgents[new(e.WorkerId!.Value)].Action == AgentNavigationAction.Arrived ||
-         e.JobStage == MaintenanceStage.Repairing && CurrentTick + 1 >= e.RepairStartedTick + EquipmentRepairTicks);
+         e.JobStage == MaintenanceStage.Repairing && CurrentTick + 1 >= e.RepairStartedTick + EquipmentRepairTicks));
 
     private CommandResult? ValidateEquipmentCommand(EntityId? target, EquipmentCommand command)
     {

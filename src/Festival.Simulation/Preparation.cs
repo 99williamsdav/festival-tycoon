@@ -134,6 +134,9 @@ public sealed partial class GameSession
             $"{c.Name} · {StaffCatalogue.RoleName(c.Role)}", c.WagePennies, 0, -1))).ToArray();
         if (_disorder is not null) offers = offers.Concat(candidates.Where(c => c.Role != StaffRole.Sound).Select(c => new PreparationOffer(c.ExtraOfferId,
             StaffCatalogue.Category(c.Role, true), $"{c.Name} · extra {StaffCatalogue.RoleName(c.Role)}", c.WagePennies, 0, -1))).ToArray();
+        // The Pond Stage's own engineer comes from the same sound market, as the extra sound slot.
+        if (PondStageOpen) offers = offers.Concat(candidates.Where(c => c.Role == StaffRole.Sound).Select(c => new PreparationOffer(c.ExtraOfferId,
+            StaffCatalogue.Category(c.Role, true), $"{c.Name} · Pond Stage {StaffCatalogue.RoleName(c.Role)}", c.WagePennies, 0, -1))).ToArray();
         offers = offers.Where(offer => offer.Category != "act").Concat(FestivalActs.Select(act => new PreparationOffer(act.Id, "act", act.Name, ActFee(act), 1000, act.Genre))).ToArray();
         return offers;
     }
@@ -155,11 +158,18 @@ public sealed partial class GameSession
                 p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.StewardPost), "Place a steward post before opening."));
         }
         requirements.Add(new("programme", PreparationStartOwner.Programme,
-            "Three acts booked", (p.Plan?.ActIds ?? MainProgramme!.ActIds).Count(id => id != "") == 3,
+            "Three acts booked", (p.Plan is { } plan ? PlanStageActs(plan, 0) : MainProgramme!.ActIds).Count(id => id != "") == 3,
             "Choose three different acts before opening. Each selection saves immediately."));
+        for (var stage = 1; stage < Stages.Count; stage++)
+            requirements.Add(new("programme." + Stages[stage].Id, PreparationStartOwner.Programme, $"{Stages[stage].Name}: three acts booked",
+                (p.Plan is { } stagePlan ? PlanStageActs(stagePlan, stage) : StageProgramme(stage)!.ActIds).Count(id => id != "") == 3,
+                $"Choose three different acts for {Stages[stage].Name} before opening."));
         var hires = p.Plan?.OfferIds ?? p.WorkContracts;
         requirements.Add(new("staff", PreparationStartOwner.Staff, "Sound engineer hired",
             hires.Any(id => id.StartsWith("staff.sound.", StringComparison.Ordinal)), "Hire a sound engineer from the Staff tab before opening."));
+        if (PondStageOpen)
+            requirements.Add(new("staff.pond", PreparationStartOwner.Staff, "Pond Stage sound engineer hired",
+                hires.Any(id => id.StartsWith("staff.extra-sound.", StringComparison.Ordinal)), "Hire a second sound engineer for the Pond Stage from the Staff tab before opening."));
         if (_medical is not null)
             requirements.Add(new("medic", PreparationStartOwner.Staff, "Medic hired",
                 hires.Any(id => id.StartsWith("staff.medic.", StringComparison.Ordinal)), "The licence needs a medic on site. Hire one from the Staff tab."));
@@ -194,7 +204,7 @@ public sealed partial class GameSession
             if (offer.Category is "extra-medic" or "extra-steward" &&
                 (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || PeopleIn(PersonView.Roster).Length >= 50))
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Requires the matching role slot and room below 50 active people.");
-            if (StaffCatalogue.ForOffer(GetStaffCandidates(), offer.Id) is { Role: not StaffRole.Sound } candidate)
+            if (StaffCatalogue.ForOffer(GetStaffCandidates(), offer.Id) is { } candidate && (candidate.Role != StaffRole.Sound || PondStageOpen))
             {
                 var other = offer.Category.StartsWith("extra-", StringComparison.Ordinal) ? candidate.Id : candidate.ExtraOfferId;
                 if ((p.Plan is { Committed: false } held ? held.OfferIds : p.AcceptedOffers).Contains(other))
@@ -237,6 +247,7 @@ public sealed partial class GameSession
         if (StaffCatalogue.ForOffer(GetStaffCandidates(), offer.Id) is { } hired)
         {
             if (offer.Category is "extra-medic" or "extra-steward") HireOptionalStaff(hired);
+            else if (offer.Category == "extra-sound") RenameStaffSlot(StageEngineerId(1)!.Value, hired.Name);
             else if (StaffSlotId(hired.Role) is { } slot) RenameStaffSlot(slot, hired.Name);
         }
         if (offer.Category == "maintenance")
@@ -272,7 +283,7 @@ public sealed partial class GameSession
         // backstage -> stair -> deck marks; guests cannot cut through the trailer as if it were bare grass.
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);
-            foreach (var (cell, walkable) in FestivalStages.All.SelectMany(stage => stage.Cells())) terrain[cell] = new(cell, GroundSurface.Grass, walkable);
+            foreach (var (cell, walkable) in Stages.SelectMany(stage => stage.Cells())) terrain[cell] = new(cell, GroundSurface.Grass, walkable);
             _traversalGrid = new TraversalGrid(terrain.Values);
         }
         if (_medical is not null)
@@ -340,7 +351,7 @@ public sealed partial class GameSession
         var ordinal = roster.Take(index).Count(person => person.Role == roster[index].Role);
         return roster[index].Role switch
         {
-            ProtectedPersonRole.Performer => BandStage(roster[index].Id).ArrivalStart(ordinal),
+            ProtectedPersonRole.Performer => BandStage(roster[index].Id).ArrivalStart(BandOrdinal(roster[index].Id)),
             ProtectedPersonRole.Staff => Backstage.DoorStart(ordinal),
             _ => new(122 + index % 6 * 2, 190 + index / 6 * 2),
         };
@@ -353,7 +364,7 @@ public sealed partial class GameSession
     {
         var roster = PeopleIn(PersonView.Roster);
         return roster[index].Role == ProtectedPersonRole.Performer
-            ? BandStage(roster[index].Id).BackstagePlace(roster.Take(index).Count(person => person.Role == ProtectedPersonRole.Performer)) : PreparedPlace(index);
+            ? BandStage(roster[index].Id).BackstagePlace(BandOrdinal(roster[index].Id)) : PreparedPlace(index);
     }
 
     private void AdvancePreparation()
@@ -400,7 +411,7 @@ public sealed partial class GameSession
         _lavSucker = EmptyLavSucker;
         ResetGround();
         var p = _preparation!;
-        var baseline = CreateFoodAndDrinkBaseline(CampaignSeed);
+        var baseline = CreateFoodAndDrinkBaseline(CampaignSeed, pondStageTrial: _pondStageTrial);
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;
         _ownedStocks[new(p.StockId)].Quantity = 40;
         _navigationAgents.Clear();
@@ -414,6 +425,7 @@ public sealed partial class GameSession
             foreach (var person in PeopleIn(PersonView.Consumption)) _wallets[new(person.Id)].CashPennies = person.OpeningBudgetPennies;
         }
         _equipment = baseline._equipment;
+        _stageGenerators = baseline._stageGenerators;
         MedicalView = baseline.MedicalView;
         if (_medical is not null)
             SetTaps((MainTapStanding(p) ? new[] { OpeningMainTap() with { Cell = PrimaryWaterCell(p), QuarterTurns = PrimaryWaterQuarterTurns(p), GeometryVersion = PrimaryWaterGeometryVersion(p) } } : [])
@@ -447,7 +459,7 @@ public sealed partial class GameSession
             return "Festival reputation or scene credibility invalid.";
         if ((p.BuildPlacements is null || p.Plan is null ||
             !p.BuildPlacements.Select(item => item.Id).SequenceEqual(p.BuildPlacements.Select(item => item.Id).Order(StringComparer.Ordinal)) ||
-            ValidateBuildLayout(p.BuildPlacements, snapshot.Equipment, p.WaterTowerOwned) is not null))
+            ValidateBuildLayout(p.BuildPlacements, SavedStages(snapshot), snapshot.Equipment, p.WaterTowerOwned) is not null))
             return "Saved build layout is invalid.";
         if (ValidateBuildFacilities(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
         if (p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null)
@@ -472,15 +484,18 @@ public sealed partial class GameSession
         var maintenance = snapshot.Equipment?.WorkerId is not null ? 1 : 0;
         var medic = snapshot.Medical is null ? 0 : 1;
         var security = snapshot.Disorder is null ? 0 : 1;
-        var extras = p.AcceptedOffers.Count(id => id.StartsWith("staff.extra-", StringComparison.Ordinal));
-        var performerCount = snapshot.Programme is null ? 3 : 9;
-        if (p.People.Length > 50 || p.People.Length != FestivalTickets.Sold(p.Tier) + 1 + performerCount + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != FestivalTickets.Sold(p.Tier) ||
-            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != performerCount ||
+        // The Pond Stage's engineer slot stands on the roster whether or not anyone is hired into it.
+        var extras = p.AcceptedOffers.Count(id => id.StartsWith("staff.extra-", StringComparison.Ordinal) && !id.StartsWith("staff.extra-sound.", StringComparison.Ordinal));
+        var stages = SavedStages(snapshot);
+        var stageEngineers = stages.Count - 1;
+        var performerCount = snapshot.Programme is null ? 3 : 9 * stages.Count;
+        if (p.People.Length > 50 || p.People.Length != FestivalTickets.Sold(p.Tier) + 1 + stageEngineers + performerCount + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != FestivalTickets.Sold(p.Tier) ||
+            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + stageEngineers + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != performerCount ||
             p.People.Any(item => item.AgentId == 0 || item.AgentId >= snapshot.NextEntityId || string.IsNullOrWhiteSpace(item.Name) || item.ExpectedGenre < 0 || item.ExpectedGenre > (snapshot.Programme is null ? 1 : FestivalGenre.Count - 1) ||
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
             p.People.Select(item => item.AgentId).Distinct().Count() != p.People.Length)
             return "Fixed protected roster invalid.";
-        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed).WithPaymentStanding(p);
+        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed, pondStageTrial: snapshot.PondStageTrial).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
         var candidates = SavedStaffCandidates(snapshot);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })
@@ -515,7 +530,8 @@ public sealed partial class GameSession
             p.Status == PreparationStatus.Failed && snapshot.Equipment?.Stage != EquipmentStage.Terminal && snapshot.Medical?.Fatal != true && snapshot.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death" ||
             p.Status != PreparationStatus.Preparing && (!p.AcceptedOffers.Any(id => offers[id].Category == "act") || !p.AcceptedOffers.Any(id => offers[id].Category == "staff") ||
                 snapshot.Medical is not null && !p.AcceptedOffers.Any(id => offers[id].Category == "medic") ||
-                snapshot.Disorder is not null && !p.AcceptedOffers.Any(id => offers[id].Category == "steward")) ||
+                snapshot.Disorder is not null && !p.AcceptedOffers.Any(id => offers[id].Category == "steward") ||
+                stageEngineers > 0 && !p.AcceptedOffers.Any(id => offers[id].Category == "extra-sound")) ||
             p.Status == PreparationStatus.Finished && p.People.Any(item => !item.Departed))
             return "Preparation phase and protected-person progress disagree.";
         var originalPeople = factory.CapturePreparation()!.People;
@@ -524,6 +540,8 @@ public sealed partial class GameSession
         originalPeople = NameHiredStaff(originalPeople.Concat(p.StaffProfiles.Where(profile => Extra(profile.Role) is not null)
             .Select(profile => new EditionPerson(profile.AgentId, profile.Name, ProtectedPersonRole.Staff, 0))).OrderBy(item => item.AgentId).ToArray(), snapshot, candidates);
         if (snapshot.CampaignPlanning is null || snapshot.Lifecycle is not null && snapshot.Equipment is null ||
+            // Each stage's engineer slot is the one the campaign set up.
+            snapshot.Programme is { } savedProgramme && !savedProgramme.Stages.Select(q => q.EngineerId).SequenceEqual(factory._programme!.Stages.Select(q => q.EngineerId)) ||
             p.MaintenanceWorkerId is { } retainedWorkerId && retainedWorkerId < factory.NextEntityId ||
             p.StaffProfiles.Any(profile => !Enum.IsDefined(profile.Role) || profile.AgentId < factory.NextEntityId || profile.AgentId >= snapshot.NextEntityId ||
                 profile.AgentId == p.MaintenanceWorkerId || !snapshot.Wallets.Any(item => item.OwnerId == profile.AgentId) ||

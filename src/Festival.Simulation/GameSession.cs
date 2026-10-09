@@ -97,6 +97,10 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyEquipmentCommand(equipment);
                 break;
+            case StageGeneratorCommand generator:
+                affectedTarget = null;
+                ApplyStageGeneratorCommand(generator);
+                break;
             case AcceptPreparationOfferCommand offer:
                 affectedTarget = null;
                 ApplyPreparationOffer(offer);
@@ -282,6 +286,7 @@ public sealed partial class GameSession
             // A terminal hazard freezes before any other work at this tick.
             AdvanceEquipment();
             if (IsLifecycleEditionFrozen()) { ReleaseFrozenStaffClaims(); break; }
+            AdvanceStageGenerators();
             foreach (var record in _fixtureRecords.Values)
             {
                 if (record.HasExpired || record.RemainingTicks <= 0)
@@ -456,6 +461,8 @@ public sealed partial class GameSession
             Immersion = CaptureImmersion(),
             Equipment = CaptureEquipment(),
             LivePerformances = CapturePersistedLivePerformances(),
+            StageGenerators = _stageGenerators?.ToArray(),
+            PondStageTrial = _pondStageTrial,
             Medical = CaptureMedical(),
             Facilities = CaptureFacilities(),
             Disorder = CaptureDisorder(),
@@ -518,13 +525,16 @@ public sealed partial class GameSession
         session.RestoreLifecycle(snapshot.Lifecycle);
         session._perks = snapshot.Perks is null ? null : System.Text.Json.JsonSerializer.Deserialize<PerkSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Perks));
         session._equipment = snapshot.Equipment is null ? null : snapshot.Equipment with { Evidence = snapshot.Equipment.Evidence.ToArray() };
+        session._pondStageTrial = snapshot.PondStageTrial;
+        session._stageGenerators = snapshot.StageGenerators?.ToArray();
         session._programme = snapshot.Programme is null ? null : System.Text.Json.JsonSerializer.Deserialize<ProgrammeSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Programme));
         session.ImmersionView = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));
         session.PreparationView = snapshot.Preparation is null ? null : System.Text.Json.JsonSerializer.Deserialize<PreparationSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Preparation));
+        session._livePerformances = new LivePerformanceSnapshot?[SavedStages(snapshot).Count];
         for (var stage = 0; stage < (snapshot.LivePerformances?.Length ?? 0); stage++)
-            session._livePerformances[stage] = System.Text.Json.JsonSerializer.Deserialize<LivePerformanceSnapshot>(
-                System.Text.Json.JsonSerializer.Serialize(snapshot.LivePerformances![stage]));
+            session._livePerformances[stage] = snapshot.LivePerformances![stage] is null ? null : System.Text.Json.JsonSerializer.Deserialize<LivePerformanceSnapshot>(
+                System.Text.Json.JsonSerializer.Serialize(snapshot.LivePerformances[stage]));
         session.MedicalView = snapshot.Medical is null ? null : System.Text.Json.JsonSerializer.Deserialize<MedicalSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Medical));
         session._facilities = snapshot.Facilities is null ? null : System.Text.Json.JsonSerializer.Deserialize<FacilitiesSnapshot>(
@@ -597,6 +607,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (perkError is not null) return perkError;
         var equipmentError = ValidatePersistedEquipment(snapshot.Equipment, snapshot);
         if (equipmentError is not null) return equipmentError;
+        var stageGeneratorError = ValidatePersistedStageGenerators(snapshot);
+        if (stageGeneratorError is not null) return stageGeneratorError;
         var livePerformanceError = ValidatePersistedLivePerformances(snapshot);
         if (livePerformanceError is not null) return livePerformanceError;
         var immersionError = ValidatePersistedImmersion(snapshot);
@@ -710,7 +722,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -722,6 +734,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
             PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand => ValidateBuildCommand(envelope.TargetId, envelope.Command),
             PerkCommand perk => ValidatePerkCommand(envelope.TargetId, perk),
             EquipmentCommand equipment => ValidateEquipmentCommand(envelope.TargetId, equipment),
+            StageGeneratorCommand generator => ValidateStageGeneratorCommand(envelope.TargetId, generator),
             MedicalCommand medical => ValidateMedicalCommand(envelope.TargetId, medical),
             DisorderCommand disorder => ValidateDisorderCommand(envelope.TargetId, disorder),
             StaffInterventionCommand intervention => ValidateStaffIntervention(envelope.TargetId, intervention),
