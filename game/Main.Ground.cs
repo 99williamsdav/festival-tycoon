@@ -5,7 +5,7 @@ using System;
 namespace Festival.Game;
 
 /// <summary>
-/// The field's grass: mown stripes, clover drifts, a wildflower margin by the hedges and the odd buttercup drift,
+/// The field's grass: soft pasture, clover drifts, a wildflower margin by the hedges and the odd buttercup drift,
 /// worn by the day's footfall from flattened grass through browned to bare earth, and where water lies, soaked
 /// grass, puddles, churned mud and sludge. It all comes from the simulation's per-cell ground state; this only
 /// draws it.
@@ -161,6 +161,19 @@ public partial class Main
             c *= 0.95 + 0.10 * n1;
             // Short irregular strokes fade with projected pixel size rather than sparkling at farm zoom.
             float pixel = max(length(dFdx(p)), length(dFdy(p)));
+            // Half-metre tufts carry texture at the normal farm view; tiny blades remain close-up detail.
+            float tuft_detail = 1.0 - smoothstep(0.10, 0.28, pixel);
+            float grain = texture(noise, p * 0.65 + vec2(0.13, 0.47)).r;
+            c *= 1.0 + (grain - 0.5) * 0.14 * tuft_detail;
+            vec2 tuft_cell = floor(p / 0.55);
+            vec2 tuft_jitter = vec2(hash(tuft_cell + 3.1), hash(tuft_cell + 27.4));
+            vec2 tuft_pos = (fract(p / 0.55) - (0.25 + 0.5 * tuft_jitter)) * 0.55;
+            tuft_pos.x += tuft_pos.y * (tuft_jitter.x - 0.5);
+            float tuft_aa = max(0.012, pixel * 0.65);
+            float grass_tuft = (1.0 - smoothstep(0.025, 0.025 + tuft_aa, abs(tuft_pos.x)))
+                * (1.0 - smoothstep(0.09, 0.17 + tuft_aa, abs(tuft_pos.y)));
+            grass_tuft *= smoothstep(0.30, 0.55, grain);
+            c *= 1.0 + grass_tuft * (tuft_jitter.y < 0.55 ? -0.16 : 0.11) * tuft_detail;
             float detail = 1.0 - smoothstep(0.018, 0.08, pixel);
             vec2 blade_cell = floor(p / 0.12);
             vec2 blade_jitter = vec2(hash(blade_cell), hash(blade_cell + vec2(17.3, 6.7)));
