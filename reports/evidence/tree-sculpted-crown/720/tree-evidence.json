@@ -1,0 +1,26 @@
+{
+  "passed": true,
+  "simulationUnchanged": true,
+  "crownSwayObserved": true,
+  "pauseExact": true,
+  "trees": 2,
+  "crownTrunkNodesRetained": true,
+  "noCollisionNavigationAnimationSkeletonNodes": true,
+  "measurements": [
+    {
+      "before": true,
+      "frames": 90,
+      "medianMs": 3.094,
+      "p95Ms": 18.8524,
+      "draws": 659
+    },
+    {
+      "before": false,
+      "frames": 90,
+      "medianMs": 2.9716,
+      "p95Ms": 18.6706,
+      "draws": 659
+    }
+  ],
+  "caveat": "Scripted preparation fixture; ambient poses may differ. Whole-app uncapped wall-frame timings, not isolated GPU cost or live-festival FPS certification. No manual playthrough."
+}

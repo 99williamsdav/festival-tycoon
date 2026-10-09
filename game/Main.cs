@@ -97,6 +97,7 @@ public partial class Main : Node, IHudHost
         if (_pondEvidenceOutput is null) ProcessPond(delta);
         ProcessPondEvidence();
         ProcessGrassEvidence();
+        ProcessTreeEvidence();
         SeparateSpeech();
         FinalizeCleanupEvidenceFrame();
         RefreshContextPanelVisibility();
@@ -294,11 +295,12 @@ public partial class Main : Node, IHudHost
     {
         foreach (var (asset, at) in new[]
                  {
-                     ("lwf_tree_oak_v1", new Vector3(-32, 0, 9)), ("lwf_tree_field_maple_v1", new Vector3(29.5f, 0, -29.5f)),
-                     ("lwf_tree_old_apple_v1", new Vector3(-29.2f, 0, -6.6f)),
+                     ("lwf_tree_oak_v2", new Vector3(-32, 0, 9)), ("lwf_tree_field_maple_v1", new Vector3(29.5f, 0, -29.5f)),
+                     ("lwf_tree_old_apple_v2", new Vector3(-29.2f, 0, -6.6f)),
                  })
         {
             var tree = AddAsset($"res://assets/environment/{asset}.glb", at);
+            RegisterTreeEvidence(tree, asset, at);
             if (tree.FindChild("Crown", true, false) is Node3D crown) RegisterBreezeHedge(crown, .2f);
         }
         BuildPondWorld();
@@ -562,6 +564,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-pond" && i + 1 < args.Length) _pondEvidenceOutput = args[++i];
             else if (args[i] == "--capture-willow" && i + 1 < args.Length) { _pondEvidenceOutput = args[++i]; _willowEvidence = true; }
             else if (args[i] == "--capture-grass" && i + 1 < args.Length) _grassEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-trees" && i + 1 < args.Length) _treeEvidenceOutput = args[++i];
             else if (args[i] == "--verify-genre-audio" && i + 1 < args.Length) _genreAudioVerificationOutput = args[++i];
             else if (args[i] == "--capture-steward-cleanup" && i + 1 < args.Length)
                 _litterEvidenceOutput = _cleanupEvidenceOutput = args[++i];

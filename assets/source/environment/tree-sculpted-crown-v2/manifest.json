@@ -1,0 +1,50 @@
+{
+  "lwf_tree_oak_v2": {
+    "triangles": 1522,
+    "blenderBounds": [
+      [
+        -3.704,
+        -3.653,
+        0.0
+      ],
+      [
+        4.459,
+        4.631,
+        10.326
+      ]
+    ],
+    "nodes": [
+      "Trunk",
+      "Crown"
+    ],
+    "blockedTrunkRadius": 0.45,
+    "sha256": "0f3b49eae3d59d37e44a3fab34361856f3ad53fbf93a387cf05bfc20eeb6a3f7",
+    "concept": "A Sculpted Crown",
+    "individualLeaves": false,
+    "connectedCanopy": true
+  },
+  "lwf_tree_old_apple_v2": {
+    "triangles": 2262,
+    "blenderBounds": [
+      [
+        -1.6641,
+        -1.5561,
+        0.0
+      ],
+      [
+        1.6,
+        1.6023,
+        4.831
+      ]
+    ],
+    "nodes": [
+      "Trunk",
+      "Crown"
+    ],
+    "blockedTrunkRadius": 0.18,
+    "sha256": "8f592cea108eccb04448b97c5786c0d2abe42e144d19dbd9acf1532f4465f5e8",
+    "concept": "A Sculpted Crown",
+    "individualLeaves": false,
+    "connectedCanopy": true
+  }
+}

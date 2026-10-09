@@ -1,0 +1,54 @@
+{
+  "lwf_tree_oak_v2": {
+    "passed": true,
+    "triangles": 1522,
+    "lowTrunkRadius": 0.44999998807907104,
+    "importedBounds": [
+      [
+        -3.7039999961853027,
+        -3.6530001163482666,
+        0.0
+      ],
+      [
+        4.459000110626221,
+        4.63100004196167,
+        10.326000213623047
+      ]
+    ],
+    "components": 1,
+    "connectedFoliageSkin": true,
+    "fruitComponents": 0,
+    "meshNodes": [
+      "Crown",
+      "Trunk"
+    ],
+    "animations": 0,
+    "skeletons": 0
+  },
+  "lwf_tree_old_apple_v2": {
+    "passed": true,
+    "triangles": 2262,
+    "lowTrunkRadius": 0.18000000715255737,
+    "importedBounds": [
+      [
+        -1.6641125679016113,
+        -1.5560635328292847,
+        0.0
+      ],
+      [
+        1.600000023841858,
+        1.60233473777771,
+        4.830999851226807
+      ]
+    ],
+    "components": 10,
+    "connectedFoliageSkin": true,
+    "fruitComponents": 9,
+    "meshNodes": [
+      "Crown",
+      "Trunk"
+    ],
+    "animations": 0,
+    "skeletons": 0
+  }
+}

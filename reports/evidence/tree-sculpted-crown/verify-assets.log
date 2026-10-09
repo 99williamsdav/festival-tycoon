@@ -1,0 +1,63 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.02s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.02s
+{
+  "lwf_tree_oak_v2": {
+    "passed": true,
+    "triangles": 1522,
+    "lowTrunkRadius": 0.44999998807907104,
+    "importedBounds": [
+      [
+        -3.7039999961853027,
+        -3.6530001163482666,
+        0.0
+      ],
+      [
+        4.459000110626221,
+        4.63100004196167,
+        10.326000213623047
+      ]
+    ],
+    "components": 1,
+    "connectedFoliageSkin": true,
+    "fruitComponents": 0,
+    "meshNodes": [
+      "Crown",
+      "Trunk"
+    ],
+    "animations": 0,
+    "skeletons": 0
+  },
+  "lwf_tree_old_apple_v2": {
+    "passed": true,
+    "triangles": 2262,
+    "lowTrunkRadius": 0.18000000715255737,
+    "importedBounds": [
+      [
+        -1.6641125679016113,
+        -1.5560635328292847,
+        0.0
+      ],
+      [
+        1.600000023841858,
+        1.60233473777771,
+        4.830999851226807
+      ]
+    ],
+    "components": 10,
+    "connectedFoliageSkin": true,
+    "fruitComponents": 9,
+    "meshNodes": [
+      "Crown",
+      "Trunk"
+    ],
+    "animations": 0,
+    "skeletons": 0
+  }
+}
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+
+Blender quit
