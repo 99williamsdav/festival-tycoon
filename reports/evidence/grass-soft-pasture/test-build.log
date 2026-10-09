@@ -1,0 +1,10 @@
+  Festival.Simulation -> C:\Projects\festival-tycoon\src\Festival.Simulation\bin\Debug\net8.0\Festival.Simulation.dll
+  Festival.Persistence -> C:\Projects\festival-tycoon\src\Festival.Persistence\bin\Debug\net8.0\Festival.Persistence.dll
+  Festival.ContentAdapter -> C:\Projects\festival-tycoon\src\Festival.ContentAdapter\bin\Debug\net8.0\Festival.ContentAdapter.dll
+  Festival.Tests -> C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll
+
+Build succeeded.
+    0 Warning(s)
+    0 Error(s)
+
+Time Elapsed 00:00:03.30

@@ -1,0 +1,18 @@
+{
+  "approval": "User selected A: Soft Pasture, 9 October 2026",
+  "baselineHead": "8b8da0f8dffc7d8700bd96287e54cc77992c1bea",
+  "exeSha256": "c243078c2b05455c1463dd8ef63f72d32c98cca5c16f29b806211ea27a8c9cd8",
+  "verifiedDeliveryFiles": 194,
+  "unchangedModels": [
+    {
+      "path": "game/assets/environment/lwf_field_grass_tile_8m_v1.glb",
+      "gitBlob": "124267c031d229c72468ed54593cef664ea185f2",
+      "unchanged": true
+    },
+    {
+      "path": "game/assets/environment/lwf_cow_pasture_ground_v1.glb",
+      "gitBlob": "33ddbeca44f24a9ac22819c1e95bf968f314307c",
+      "unchanged": true
+    }
+  ]
+}

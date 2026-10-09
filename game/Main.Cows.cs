@@ -32,7 +32,7 @@ public partial class Main
         foreach (var (name, x, z, yaw) in new (string, float, float, float)[]
                  { ("lwf_hedge_gate_end_v1", 32, 0, 90), ("lwf_hedge_gate_end_v1", 32, -5.3f, 270), ("lwf_hedge_straight_4m_a_v1", 32, -4.6f, 90) })
             RegisterBreezeHedge(PlaceBackstagePiece(root, Env(name), x, z, yaw));
-        PlaceBackstagePiece(root, Env("lwf_cow_pasture_ground_v1"), 45.2f, -2, 0);
+        ApplyPastureGrass(PlaceBackstagePiece(root, Env("lwf_cow_pasture_ground_v1"), 45.2f, -2, 0));
         PlaceBackstagePiece(root, Env("lwf_cow_pasture_fence_v1"), 45.2f, -2, 0);
         PlaceBackstagePiece(root, Env("lwf_water_trough_v1"), 35.5f, -6.6f, 0);
         PlaceBackstagePiece(root, Env("lwf_hay_ring_feeder_v1"), 44, 6, 0);

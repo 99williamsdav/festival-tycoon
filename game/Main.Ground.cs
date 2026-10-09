@@ -20,6 +20,19 @@ public partial class Main
     private ImageTexture _wetTexture = null!;
     private (GameSession? Session, long Version) _groundShown;
     private double _groundSync;
+    private MeshInstance3D? _pastureGrassMesh;
+    private Material? _pastureGrassOriginal;
+    private ShaderMaterial? _pastureGrassMaterial;
+
+    private void ApplyPastureGrass(Node3D pasture)
+    {
+        _pastureGrassMesh = (MeshInstance3D)pasture.FindChildren("*", "MeshInstance3D", true, false)[0];
+        _pastureGrassOriginal = _pastureGrassMesh.GetActiveMaterial(0);
+        _pastureGrassMaterial = (ShaderMaterial)GroundMaterial().Duplicate();
+        _pastureGrassMaterial.SetShaderParameter("pasture", true);
+        _pastureGrassMaterial.SetShaderParameter("palette", ((StandardMaterial3D)_pastureGrassOriginal).AlbedoTexture);
+        _pastureGrassMesh.MaterialOverride = _pastureGrassMaterial;
+    }
 
     private ShaderMaterial GroundMaterial()
     {
@@ -126,10 +139,12 @@ public partial class Main
 
     private const string GroundShader = """
         shader_type spatial;
+        render_mode cull_disabled;
         uniform sampler2D palette : source_color, filter_nearest;
         uniform sampler2D wear_map : filter_linear;
         uniform sampler2D wet_map : filter_linear;
         uniform sampler2D noise : filter_linear, repeat_enable;
+        uniform bool pasture = false;
         varying vec2 field;
 
         vec3 lin(vec3 srgb) { return pow(srgb, vec3(2.2)); }
@@ -138,30 +153,48 @@ public partial class Main
         void vertex() { field = (MODEL_MATRIX * vec4(VERTEX, 1.0)).xz; }
 
         void fragment() {
-            vec3 c = texture(palette, UV).rgb;
             vec2 p = field;
             float n1 = texture(noise, p * 0.035).r;
-            // A slow tint drift over about 30 m, lusher one way and drier the other, so the 8 m tile never repeats.
             float tint = texture(noise, p * 0.011 + vec2(0.61, 0.29)).r;
-            c *= mix(vec3(0.95, 0.96, 0.97), vec3(1.05, 1.04, 0.97), smoothstep(0.3, 0.7, tint));
-            // Mown stripes, 4 m wide, running with the track.
-            c *= mod(floor((p.x + 32.0) / 4.0), 2.0) > 0.5 ? 1.04 : 0.965;
+            // Approved Soft Pasture: world-space colour replaces the repeating per-face lime palette.
+            vec3 c = mix(lin(vec3(0.51, 0.57, 0.34)), lin(vec3(0.53, 0.61, 0.39)), smoothstep(0.25, 0.75, tint));
+            c *= 0.95 + 0.10 * n1;
+            // Short irregular strokes fade with projected pixel size rather than sparkling at farm zoom.
+            float pixel = max(length(dFdx(p)), length(dFdy(p)));
+            float detail = 1.0 - smoothstep(0.018, 0.08, pixel);
+            vec2 blade_cell = floor(p / 0.12);
+            vec2 blade_jitter = vec2(hash(blade_cell), hash(blade_cell + vec2(17.3, 6.7)));
+            vec2 blade = fract(p / 0.12) - (0.25 + 0.5 * blade_jitter);
+            blade.x += blade.y * (blade_jitter.x - 0.5);
+            float stroke = (1.0 - smoothstep(0.06, 0.16, abs(blade.x))) * (1.0 - smoothstep(0.18, 0.4, abs(blade.y)));
+            stroke *= step(0.6, blade_jitter.y);
+            c *= 1.0 + (stroke - 0.12) * 0.12 * detail;
             // Darker clover drifts.
             float clover = smoothstep(0.6, 0.68, n1);
-            c = mix(c, c * vec3(0.84, 0.92, 0.9), clover * 0.75);
+            c = mix(c, c * vec3(0.88, 0.94, 0.9), clover * 0.55);
             // The uncut margin along the hedges, longer and yellower, broken at the gate.
             float edge = 32.0 - max(abs(p.x), abs(p.y));
             float margin = (1.0 - smoothstep(2.6, 3.6, edge + (n1 - 0.5) * 1.5)) * (1.0 - step(abs(p.x), 4.0) * step(27.0, p.y));
-            c = mix(c, c * vec3(1.06, 1.04, 0.86), margin * 0.7);
-            // Flowers: buttercups and daisies in the margin, a few in drifts out in the field.
-            vec2 g = floor(p / 0.45);
+            c = mix(c, c * vec3(1.015, 1.015, 0.92), margin * 0.5);
+            // Sparse, offset little blossoms, mostly at the hedge; no regularly centred confetti dots.
+            vec2 g = floor(p / 0.75);
             float h = hash(g);
             float drift = smoothstep(0.68, 0.74, texture(noise, p * 0.05 + vec2(0.37, 0.11)).r);
-            float flower = step(length(fract(p / 0.45) - 0.5), 0.17) * step(h, margin * 0.24 + drift * 0.12 + clover * 0.04);
-            vec3 bloom = fract(h * 13.0) < 0.6 ? lin(vec3(1.0, 0.85, 0.22)) : lin(vec3(0.96, 0.95, 0.88));
+            vec2 blossom = (fract(p / 0.75) - (0.2 + 0.6 * vec2(hash(g + 4.7), hash(g + 19.2)))) * 0.75;
+            float flower = (1.0 - smoothstep(0.022, 0.045 + pixel, length(blossom))) * step(h, margin * 0.09 + drift * 0.004 + clover * 0.006);
+            flower *= 1.0 - smoothstep(0.045, 0.12, pixel);
+            vec3 bloom = fract(h * 13.0) < 0.5 ? lin(vec3(0.75, 0.67, 0.32)) : lin(vec3(0.78, 0.79, 0.65));
+            if (pasture) {
+                // Delivered pasture palette slots 7/8/9: grass, grazed grass and worn grass.
+                int slot = int(floor(UV.x * 24.0));
+                if (slot == 8) c *= vec3(0.90, 0.94, 0.88);
+                else if (slot == 9) c = mix(c, lin(vec3(0.55, 0.53, 0.36)), 0.55);
+                else if (slot != 7) c = texture(palette, UV).rgb;
+                flower = 0.0;
+            }
 
             // Wear: flattened, then dry and browned, then dry earth, with ragged edges.
-            float w = texture(wear_map, (p + 32.0) / 64.0).r;
+            float w = pasture ? 0.0 : texture(wear_map, (p + 32.0) / 64.0).r;
             w = clamp(w + (texture(noise, p * 0.25).r - 0.5) * 0.2 * step(0.04, w), 0.0, 1.0);
             float flattened = smoothstep(0.1, 0.16, w), browned = smoothstep(0.42, 0.48, w), earth = smoothstep(0.7, 0.75, w);
             float grey = dot(c, vec3(0.3, 0.59, 0.11));
@@ -175,7 +208,7 @@ public partial class Main
             c = mix(c, bloom, flower * (1.0 - flattened));
 
             // Water and mud win over dry wear: soaked grass, then puddles, churned mud and a swamp's sludge.
-            vec2 wm = texture(wet_map, (p + 32.0) / 64.0).rg;
+            vec2 wm = pasture ? vec2(0.0) : texture(wet_map, (p + 32.0) / 64.0).rg;
             // Broad lobes plus fine fray, so a pool spreads unevenly instead of in a ring.
             float ragged = (texture(noise, p * 0.12 + vec2(0.21, 0.73)).r - 0.5) * 0.5 + (texture(noise, p * 0.5).r - 0.5) * 0.12;
             float water = clamp(wm.r + ragged * step(0.02, wm.r), 0.0, 1.0);

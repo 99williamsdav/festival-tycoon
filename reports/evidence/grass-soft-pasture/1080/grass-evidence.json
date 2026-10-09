@@ -1,0 +1,31 @@
+{
+  "passed": true,
+  "simulationUnchanged": true,
+  "measurements": [
+    {
+      "before": true,
+      "frames": 90,
+      "medianMs": 4.0829,
+      "p95Ms": 21.2771,
+      "draws": 659
+    },
+    {
+      "before": false,
+      "frames": 90,
+      "medianMs": 3.7536,
+      "p95Ms": 20.9085,
+      "draws": 659
+    }
+  ],
+  "bandOrder": [
+    "healthy",
+    "flattened",
+    "browned",
+    "earth",
+    "soaked",
+    "puddle",
+    "mud",
+    "sludge"
+  ],
+  "caveat": "Scripted preparation comparison, synthetic display maps only. Whole-app uncapped wall-frame timings, not isolated GPU cost or live-festival FPS certification. No manual playthrough."
+}

@@ -1,0 +1,17 @@
+GRASS MATERIAL DIRECTIONS — 9 OCTOBER 2026
+
+User requested nicer grass because the current surface looks poor.
+Three visual directions generated with built-in imagegen after inspecting the actual game capture and Main.Ground.cs. Final image inspected. These are illustrative concepts, not implemented textures, seamless tiles or native game captures.
+
+A / Soft pasture is the recommended starting point: muted olive/sage, irregular soft drifts, restrained fine grass detail, sparse clover and edge flowers.
+B / Mown field retains gentle mowing bands.
+C / Meadow margins concentrates richer clover/flowers near the hedge. Its generated close swatch is comparatively busy; keep the central arena quiet if selected.
+
+Diagnosis: the base material samples per-face palette UVs from the 8 m grass mesh, so the large bright triangles remain prominent even beneath current procedural tint/clover. Existing shader adds regular flower dots and mowing bands. Improvement must address the base contrast/repetition rather than only add more detail.
+
+Future bounded implementation should preserve ground-map sampling, flattened/browned/bare-earth wear, soaked grass/puddles/mud/sludge readability, terrain/nav/placement and saves. Fine texture must remain calm at farm zoom and avoid shimmering or obvious tiling. Do not introduce geometry grass or new growth/weather systems automatically.
+
+Source image is an actual historical exported farm capture; game layout serves as context. Generated farm insets approximate this layout and lighting but are not exact screenshots. Current repository code/assets were not modified for this concept request. Selection/approval still needed under CURRENT_DESIGN.md's concept-first graphics workflow.
+
+Original generation preserved at C:/Users/99wil/.codex/generated_images/01a10215-0b78-7fa1-bcb3-1118a77c250a/exec-1a9ef719-c6b8-4933-b6e6-4f2318ee515d.png.
+Exact prompt in PROMPT.txt; source capture in references/current-grass-game-capture.png.

@@ -90,6 +90,7 @@ public partial class Main : Node, IHudHost
         AdvancePreparationPresentation(delta);
         if (_pondEvidenceOutput is null) ProcessPond(delta);
         ProcessPondEvidence();
+        ProcessGrassEvidence();
         SeparateSpeech();
         FinalizeCleanupEvidenceFrame();
         RefreshContextPanelVisibility();
@@ -548,6 +549,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-surround" && i + 1 < args.Length) _surroundEvidenceOutput = args[++i];
             else if (args[i] == "--capture-pond" && i + 1 < args.Length) _pondEvidenceOutput = args[++i];
             else if (args[i] == "--capture-willow" && i + 1 < args.Length) { _pondEvidenceOutput = args[++i]; _willowEvidence = true; }
+            else if (args[i] == "--capture-grass" && i + 1 < args.Length) _grassEvidenceOutput = args[++i];
             else if (args[i] == "--verify-genre-audio" && i + 1 < args.Length) _genreAudioVerificationOutput = args[++i];
             else if (args[i] == "--capture-steward-cleanup" && i + 1 < args.Length)
                 _litterEvidenceOutput = _cleanupEvidenceOutput = args[++i];
