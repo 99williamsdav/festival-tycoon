@@ -14,6 +14,7 @@ public sealed record LavSuckerCall(string Id, string ToiletId, long CalledTick, 
     /// <summary>What this call sucked out, once pumping's done: a toilet's emptied amount is exactly the sum of its calls'.</summary>
     public int EmptiedMillilitres { get; init; }
     /// <summary>How long the tanker has been held up by someone in front of it; it noses on regardless after a while.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public int BlockedTicks { get; init; }
 }
 
@@ -131,8 +132,8 @@ public sealed partial class GameSession
 
     // A lorry keeps to the farm track as long as it can: grass costs it five times as much, so it only turns off
     // across the field where the track runs nearest the loo.
-    private static (TraversalGrid Grid, int[] Cost)? _lavRoadCost;
-    private static int[] LavRoadCost(TraversalGrid grid)
+    private (TraversalGrid Grid, int[] Cost)? _lavRoadCost;
+    private int[] LavRoadCost(TraversalGrid grid)
     {
         if (_lavRoadCost is { } cached && ReferenceEquals(cached.Grid, grid)) return cached.Cost;
         var cost = new int[TraversalGrid.Width * TraversalGrid.Depth];
