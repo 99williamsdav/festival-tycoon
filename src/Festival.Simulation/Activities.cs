@@ -78,7 +78,10 @@ public sealed partial class GameSession
     private ActivityScore[] RankActivities(ulong id, ActivityKind current, ActivityOption? extra = null)
     {
         var person = _persons[id];
-        var options = ActivityOptions(id, current);
+        _restScratch = new(id);
+        List<ActivityOption> options;
+        try { options = ActivityOptions(id, current); }
+        finally { _restScratch = null; }
         if (extra is not null) options.Add(extra);
         // On-duty staff heat up an eighth as fast (see AdvanceMedical).
         var growth = RobotWorker(id) ? new NeedGrowth(0, 0, 0, 0) : new NeedGrowth(

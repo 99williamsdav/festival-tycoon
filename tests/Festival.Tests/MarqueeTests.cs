@@ -223,6 +223,45 @@ public sealed class MarqueeTests
     }
 
     [TestMethod]
+    public void AStrandedResterDoesNotCountAgainstAFullMarqueeOnRestore()
+    {
+        var s = Live(marquee: true);
+        var guests = FreeGuests(s, bands: true);
+        var nearTent = new GridCell(ByTheCrowd.X + 4, ByTheCrowd.Z - 10);
+        var hot = guests.Take(MarqueeRules.RestCapacity + 3).ToArray();
+        SetMedical(s, need => hot.Contains(need.AgentId) ? need with { Thirst = 0, HeatExposure = 9_500 } : need);
+        foreach (var id in hot) { Calm(s, id); StandAt(s, id, nearTent); }
+        s.AdvanceWithoutSnapshot(80);
+        Assert.AreEqual(MarqueeRules.RestCapacity, s.CaptureMarquees().Single().Resting);
+        // Someone resting by first aid finds no way back to a tent place they'd once headed for: the runtime cap ignores
+        // them, so a sixteenth tent destination can be saved and must load.
+        var agents = s.CaptureSnapshot().NavigationAgents;
+        var stranded = agents.First(agent => hot.Contains(agent.Id.Value) && agent.Destination is { } spot && s.IsRestSpot(spot)).Id;
+        var held = agents.First(agent => agent.Destination is { } spot && s.IsMarqueeRestSpot(spot)).Destination!.Value;
+        var all = (IDictionary)typeof(GameSession).GetField("_navigationAgents", Private)!.GetValue(s)!;
+        var state = all[stranded]!;
+        void Set(string name, object? value) => state.GetType().GetProperty(name)!.SetValue(state, value);
+        Set("Destination", held); Set("Route", new List<GridCell>()); Set("RouteIndex", 0); Set("Action", AgentNavigationAction.NoRoute);
+        var saved = s.CapturePersistenceSnapshot();
+        Assert.AreEqual(MarqueeRules.RestCapacity + 1, saved.NavigationAgents!.Count(agent => agent.IntentId == "medical.rest" &&
+            agent.DestinationX is { } x && agent.DestinationZ is { } z && s.IsMarqueeRestSpot(new(x, z))));
+        BuildSession.Restored(s);
+        // A sixteenth on their way (or there) is more than the tent ever admits, and is refused.
+        var crowded = saved with { NavigationAgents = saved.NavigationAgents!.Select(agent => agent.Id == stranded.Value
+            ? Arrived(agent) : agent).ToArray() };
+        static PersistedNavigationAgent Arrived(PersistedNavigationAgent agent)
+        {
+            var centre = TraversalGrid.CellCentre(new(agent.DestinationX!.Value, agent.DestinationZ!.Value));
+            return agent with { Action = (int)AgentNavigationAction.Arrived, XMillimetres = centre.XMillimetres, ZMillimetres = centre.ZMillimetres,
+                SegmentOriginXMillimetres = centre.XMillimetres, SegmentOriginZMillimetres = centre.ZMillimetres,
+                Route = [new(agent.DestinationX.Value, agent.DestinationZ.Value)], RouteIndex = 0 };
+        }
+        var refused = GameSession.Restore(crowded);
+        Assert.IsFalse(refused.IsSuccess);
+        StringAssert.Contains(refused.Error, "Marquee holds more resting guests");
+    }
+
+    [TestMethod]
     public void ASaveRestoresWithAMarqueeAndGuestsShelteringUnderIt()
     {
         var (need, _, s) = HotGuestChooses(true, new(ByTheCrowd.X + 4, ByTheCrowd.Z - 10));

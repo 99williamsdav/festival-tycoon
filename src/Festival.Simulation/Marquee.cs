@@ -111,22 +111,43 @@ public sealed partial class GameSession
     /// </summary>
     private GridCell? MarqueeRestSpotFor(ulong id, string marqueeId)
     {
+        // One plan scores the same tent many times over, as a first stop and after every other; nothing moves meanwhile.
+        if (_restScratch is { } scratch && scratch.Self == id && scratch.Spots.TryGetValue(marqueeId, out var known)) return known;
+        var found = FindMarqueeRestSpot(id, marqueeId);
+        if (_restScratch is { } held && held.Self == id) held.Spots[marqueeId] = found;
+        return found;
+    }
+
+    private GridCell? FindMarqueeRestSpot(ulong id, string marqueeId)
+    {
         EnsureMarqueeCache();
         if (Marquees().FirstOrDefault(item => item.Id == marqueeId) is not { } tent || _traversalGrid is not { } grid) return null;
         var self = new EntityId(id);
         var agent = _navigationAgents[self];
         if (RestingAtMarquee(agent, marqueeId)) return agent.Destination;
-        var others = _navigationAgents.Values.Where(other => other.Id != self && MovementOccupant(other.Id.Value)).ToArray();
+        var scratch = _restScratch is { } own && own.Self == id ? own : null;
+        var others = scratch?.Others ?? _navigationAgents.Values.Where(other => other.Id != self && MovementOccupant(other.Id.Value)).ToArray();
+        if (scratch is not null) scratch.Others = others;
         if (others.Count(other => RestingAtMarquee(other, marqueeId)) >= MarqueeRules.RestCapacity) return null;
-        HashSet<GridCell>? queues = null;
         foreach (var spot in MarqueeRestSpots(tent.Cell, tent.QuarterTurns))
         {
             if (!grid.Contains(spot) || !grid.Get(spot).IsWalkable || RestSpotTaken(spot, others)) continue;
-            queues ??= AllQueueGround().Concat(EffectiveToilets(_facilities).SelectMany(toilet => toilet.QueueCells ?? [])).ToHashSet();
+            var queues = scratch?.Queues ?? AllQueueGround().Concat(EffectiveToilets(_facilities).SelectMany(toilet => toilet.QueueCells ?? [])).ToHashSet();
+            if (scratch is not null) scratch.Queues = queues;
             if (!queues.Contains(spot)) return spot;
         }
         return null;
     }
+
+    /// <summary>What one person's plan has already worked out about the marquees, while it's being scored.</summary>
+    private sealed class MarqueeRestScratch(ulong self)
+    {
+        public ulong Self { get; } = self;
+        public NavigationAgentState[]? Others { get; set; }
+        public HashSet<GridCell>? Queues { get; set; }
+        public Dictionary<string, GridCell?> Spots { get; } = new(StringComparer.Ordinal);
+    }
+    private MarqueeRestScratch? _restScratch;
 
     public IReadOnlyList<MarqueeReadModel> CaptureMarquees()
     {
@@ -161,11 +182,15 @@ public sealed partial class GameSession
         var solid = grid.Cells.Where(cell => !cell.IsWalkable).Select(cell => new GridCell(cell.X, cell.Z)).ToHashSet();
         if (tents.Any(tent => MarqueeSolidCells(tent.Cell, tent.QuarterTurns).Any(cell => !solid.Contains(cell))))
             return "Marquee poles absent from saved traversal.";
+        // Counted as the runtime cap counts: resters on their way or arrived, not collapsed and not gone home.
+        var active = (s.NavigationAgents ?? []).Where(agent => RestNavigationIntent(agent.IntentId) &&
+            agent.Action is (int)AgentNavigationAction.Travelling or (int)AgentNavigationAction.Arrived &&
+            s.Medical?.Needs.FirstOrDefault(need => need.AgentId == agent.Id)?.Stage is not (MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal) &&
+            p.People.FirstOrDefault(person => person.AgentId == agent.Id)?.Departed != true).ToArray();
         foreach (var tent in tents)
         {
             var spots = MarqueeRestSpots(tent.Cell, tent.QuarterTurns).ToHashSet();
-            if ((s.NavigationAgents ?? []).Count(agent => RestNavigationIntent(agent.IntentId) && agent.DestinationX is { } x && agent.DestinationZ is { } z &&
-                    spots.Contains(new(x, z))) > MarqueeRules.RestCapacity)
+            if (active.Count(agent => agent.DestinationX is { } x && agent.DestinationZ is { } z && spots.Contains(new(x, z))) > MarqueeRules.RestCapacity)
                 return "Marquee holds more resting guests than it has places.";
         }
         return null;
