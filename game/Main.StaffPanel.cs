@@ -247,7 +247,9 @@ public partial class Main
             var held = hires.FirstOrDefault(id => key == "maintenance" ? id == "maintenance.worker" : id.StartsWith(SlotPrefix(key), StringComparison.Ordinal));
             var who = held is null ? null : StaffCatalogue.ForOffer(candidates, held);
             var required = !extra && key != "maintenance" || key == "extra-sound";
-            view.Caption.Text = $"{name} · {(required ? "required" : extra ? "perk slot" : "optional")}".ToUpperInvariant();
+            // From Tier 2 the second medic slot comes with the tier, not a perk.
+            var tierSlot = key == "extra-medic" && p.Tier >= GameSession.FreeExtraMedicFromTier;
+            view.Caption.Text = $"{name} · {(required ? "required" : tierSlot ? "optional" : extra ? "perk slot" : "optional")}".ToUpperInvariant();
             var colour = StaffRoleColour(role);
             if (held is not null)
             {

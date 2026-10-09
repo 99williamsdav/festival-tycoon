@@ -8,18 +8,11 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class NextFestivalTests
 {
-    /// <summary>A festival in preparation with a quiet perk, the default layout, three affordable acts, crew and stock.</summary>
-    internal static GameSession Ready(GameSession s)
-    {
-        Drafted(s);
-        var acts = s.GetFestivalActs().Where(act => s.ActStandingOf(act) == ActStanding.Available)
-            .OrderBy(act => s.ActFee(act)).ThenBy(act => act.Id, StringComparer.Ordinal).Take(3).Select(act => act.Id).ToArray();
-        Assert.AreEqual(3, acts.Length, "Three acts should play for the festival.");
-        BuildSession.Accept(s, new SetProgrammeCommand(acts));
-        BuildSession.Accept(s, new SetPreparationStockCommand(40, 32));
-        foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
-        return s;
-    }
+    /// <summary>
+    /// A festival in preparation with a quiet perk, the default layout, three affordable acts on each open stage, crew
+    /// (and the Pond Stage's engineer from Tier 2) and stock.
+    /// </summary>
+    internal static GameSession Ready(GameSession s) => ReadyOnEveryStage(s);
 
     /// <summary>A quiet perk (a hiring slot no crew fills) drafted and the default layout placed.</summary>
     internal static GameSession Drafted(GameSession s)
@@ -50,6 +43,48 @@ public sealed class NextFestivalTests
     private static void RunToEnd(GameSession s)
     {
         for (var i = 0; i < 80 && s.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing; i++) s.AdvanceWithoutSnapshot(1_000);
+    }
+
+    [TestMethod]
+    public void TierTwosDefaultLayoutPutsItsSecondTapByThePondAndStandsWithOrWithoutThePond()
+    {
+        var tap = GameSession.StandardBuildLayout(2).Single(item => item.Id == "water.extra-1");
+        Assert.AreEqual((new GridCell(159, 139), 0), (tap.Cell, tap.QuarterTurns));
+        var validate = typeof(GameSession).GetMethod("ValidateBuildLayout", BindingFlags.NonPublic | BindingFlags.Static)!;
+        foreach (var pond in new[] { false, true })
+            Assert.IsNull(validate.Invoke(null, [GameSession.StandardBuildLayout(2), FestivalStages.For(pond), null, false, 2]), $"pond open: {pond}");
+        // Tier 1's default is unchanged.
+        Assert.IsFalse(GameSession.StandardBuildLayout(1).Any(item => item.Id is "water.extra-1" or "toilet.extra-2"));
+        var s = Drafted(TierTwo());
+        Assert.IsTrue(s.PondStageOpen);
+        Assert.AreEqual(new GridCell(159, 139), s.CaptureWaterPoints().Single(point => point.Id == "water.extra-1").Cell);
+    }
+
+    [TestMethod]
+    public void TierTwoHasAFreeSecondMedicSlotAndDoesNotDealDoctorsOrders()
+    {
+        var one = GameSession.CreateBuildCampaign(20260922);
+        Assert.IsFalse(one.CapturePreparation()!.ExtraMedicSlotOwned, "Tier 1 still needs Doctor's Orders for a second medic.");
+        var s = Drafted(TierTwo());
+        var p = s.CapturePreparation()!;
+        Assert.IsTrue(p.ExtraMedicSlotOwned);
+        Assert.IsFalse(s.CapturePerks()!.Equipped.Contains("doctors-orders"));
+        // Doctor's Orders would be a dead card here, so no Tier 2 hand deals it, through any number of redraws.
+        var redraw = typeof(GameSession).GetMethod("OpenPerkDraft", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var dealer = TierTwo();
+        for (var i = 0; i < 200; i++) { Assert.IsFalse(dealer.CapturePerks()!.Hand.Contains("doctors-orders")); redraw.Invoke(dealer, []); }
+        // The slot is free; the medic isn't. The second medic is optional.
+        var ready = Ready(TierTwo());
+        Assert.AreEqual(0, ready.GetPreparationStartBlockers().Count);
+        var before = ready.PreparationPlanCost;
+        var extra = BuildSession.ExtraId(ready, StaffRole.Medic);
+        BuildSession.Accept(ready, new AcceptPreparationOfferCommand(extra));
+        Assert.AreEqual(before + ready.GetPreparationOffers().Single(offer => offer.Id == extra).PricePennies, ready.PreparationPlanCost);
+        BuildSession.Accept(ready, new StartPreparedEditionCommand());
+        Assert.AreEqual(2, ready.CapturePreparation()!.People.Count(person => person.Role == ProtectedPersonRole.Staff && person.Name.Length > 0 &&
+            ready.GetResponseStaff().Any(staff => staff.AgentId == person.AgentId && staff.Role == ResponseRole.Medic)));
+        BuildSession.Restored(ready);
+        BuildSession.Restored(s);
     }
 
     [TestMethod]
@@ -146,7 +181,7 @@ public sealed class NextFestivalTests
     {
         var s = BuildSession.Started();
         RunToEnd(s);
-        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus);
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus, $"status {s.PreparedStatus}, tick {s.CurrentTick - s.CapturePreparation()!.StartedTick} of {s.PreparedEditionDurationTicks}");
         Assert.IsTrue(s.CanStartNextFestival);
         var closing = s.CaptureSnapshot().FestivalFinances.Single().CashPennies;
         var finished = s.CapturePreparation()!;
@@ -184,7 +219,10 @@ public sealed class NextFestivalTests
     [TestMethod]
     public void TierTwoPlaysToTheEndAndItsAccountsShowTheCarriedCashAndDebt()
     {
+        // A sensible Tier 2 plan fills the free second medic slot: with one medic for 50 guests and two bands, two of
+        // three probed days lost someone waiting for treatment; with two, all three finished.
         var s = Ready(TierTwo());
+        BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Medic)));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         Assert.AreEqual(2, s.CaptureLifecycleSnapshot()!.TierOrdinal);
         Assert.AreEqual("tier-2", s.CaptureLifecycleSnapshot()!.CurrentTierId);
@@ -206,7 +244,7 @@ public sealed class NextFestivalTests
         RunToEnd(s);
         RunToEnd(middle);
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, middle.CaptureSnapshot().AuthoritativeHash, "A restored day plays out the same.");
-        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus);
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus, $"status {s.PreparedStatus}, tick {s.CurrentTick - s.CapturePreparation()!.StartedTick} of {s.PreparedEditionDurationTicks}");
         var accounts = s.CompletedFestivalAccounts!;
         Assert.IsTrue(accounts.Reconciles);
         Assert.AreEqual(50, accounts.TicketsSold);
@@ -338,7 +376,7 @@ public sealed class NextFestivalTests
     }
 
     /// <summary>A festival with three affordable acts on each open stage, crew, the Pond Stage's engineer if it plays, and stock.</summary>
-    private static GameSession ReadyOnEveryStage(GameSession s)
+    internal static GameSession ReadyOnEveryStage(GameSession s)
     {
         Drafted(s);
         var acts = s.GetFestivalActs().Where(act => s.ActStandingOf(act) == ActStanding.Available)
@@ -362,7 +400,8 @@ public sealed class NextFestivalTests
         Assert.AreEqual(2, s.CapturePreparation()!.Tier);
         Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 2, pondStageTrial: true).PondStageOpen);
         Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 1, pondStageTrial: true).PondStageOpen);
-        Assert.IsFalse(GameSession.CreateDevelopmentFestival(20260922, 2).PondStageOpen);
+        Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 2).PondStageOpen, "Tier 2 comes with the Pond Stage anyway.");
+        Assert.IsFalse(GameSession.CreateDevelopmentFestival(20260922, 1).PondStageOpen);
 
         // The default layout still stands with the pond open, and Tier 2's extra tap and toilet keep off both stages.
         ReadyOnEveryStage(s);

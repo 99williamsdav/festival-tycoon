@@ -34,11 +34,8 @@ public sealed partial class GameSession
     private bool _pondStageTrial;
     /// <summary>Set when the campaign was created to try the Pond Stage before Tier 2.</summary>
     public bool PondStageTrial => _pondStageTrial;
-    /// <summary>
-    /// The Pond Stage runs on a trial campaign. It belongs to Tier 2, but stays trial-only until the game can show
-    /// it and book its acts; then this becomes "trial or Tier 2 and up" (and SavedStages with it).
-    /// </summary>
-    public const int PondStageFromTier = int.MaxValue;
+    /// <summary>The Pond Stage comes with Tier 2 (and its own generator); a trial campaign has it from the start.</summary>
+    public const int PondStageFromTier = 2;
     public bool PondStageOpen => _pondStageTrial || (_preparation?.Tier ?? 1) >= PondStageFromTier;
     /// <summary>The stages this festival runs, in stage order.</summary>
     public IReadOnlyList<FestivalStage> Stages => FestivalStages.For(PondStageOpen);

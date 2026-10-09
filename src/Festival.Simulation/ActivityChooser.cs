@@ -58,8 +58,10 @@ public static class ActivityChooser
     public const long DistressPerSecond = 20_000;
 
     public static long Discomfort(NeedLevels levels) => ThirstDiscomfort(levels.Thirst) + HeatDiscomfort(levels.Heat) +
-        HungerDiscomfort(levels.Hunger) + ToiletDiscomfort(levels.Toilet) +
-        (levels.Thirst >= GameSession.MedicalDistressThirst && levels.Heat >= GameSession.MedicalDistressHeat ? DistressPerSecond : 0);
+        HungerDiscomfort(levels.Hunger) + ToiletDiscomfort(levels.Toilet) + (InDistress(levels) ? DistressPerSecond : 0);
+
+    /// <summary>Parched and overheated: the state that leads to collapse.</summary>
+    public static bool InDistress(NeedLevels levels) => levels.Thirst >= GameSession.MedicalDistressThirst && levels.Heat >= GameSession.MedicalDistressHeat;
 
     /// <summary>The needs just after an activity's relief lands.</summary>
     public static NeedLevels Relieve(ActivityKind kind, NeedLevels at) => kind switch
@@ -79,8 +81,14 @@ public static class ActivityChooser
         Math.Min(10_000, from.Hunger + (int)((long)growth.Hunger * ticks / SampleTicks)),
         Math.Min(10_000, from.Toilet + (int)((long)growth.Toilet * ticks / SampleTicks)));
 
-    /// <summary>Scores one plan. <paramref name="musicPerSecond"/> has one value per sample.</summary>
-    public static long Score(NeedLevels now, NeedGrowth growth, IReadOnlyList<long> musicPerSecond, ActivityOption option)
+    /// <summary>
+    /// Scores one plan. <paramref name="musicPerSecond"/> has one value per sample. <paramref name="committedTicks"/> is
+    /// time just past the horizon the person is already committed to and can relieve nothing in (a band member's own
+    /// set running on past it): each second of it they'd spend in distress counts, so someone about to go on stage for a
+    /// long set drinks first rather than collapsing on stage. Ordinary discomfort there is left out, as it is for anyone
+    /// else past the horizon.
+    /// </summary>
+    public static long Score(NeedLevels now, NeedGrowth growth, IReadOnlyList<long> musicPerSecond, ActivityOption option, int committedTicks = 0)
     {
         long score = option.Enjoyment - option.Cost;
         // Relief lands at each stop in turn; a stop beyond the horizon never lands.
@@ -95,13 +103,19 @@ public static class ActivityChooser
                 : first is { } after && tick >= option.CompleteTicks ? Grow(after, growth, tick - option.CompleteTicks) : Grow(now, growth, tick);
             if (tick > option.AwayTicks) score += musicPerSecond[sample];
             score -= Discomfort(levels);
-            if (sample == Samples - 1) score -= Discomfort(levels) * TailSeconds;
+            if (sample == Samples - 1)
+            {
+                score -= Discomfort(levels) * TailSeconds;
+                for (var beyond = SampleTicks; beyond <= committedTicks; beyond += SampleTicks)
+                    if (InDistress(Grow(levels, growth, beyond))) score -= DistressPerSecond;
+            }
         }
         return score;
     }
 
     /// <summary>All options, best first; ties keep the caller's option order.</summary>
-    public static ActivityScore[] Rank(NeedLevels now, NeedGrowth growth, IReadOnlyList<long> musicPerSecond, IReadOnlyList<ActivityOption> options) =>
-        options.Select((option, index) => (Score: new ActivityScore(option, Score(now, growth, musicPerSecond, option)), index))
+    public static ActivityScore[] Rank(NeedLevels now, NeedGrowth growth, IReadOnlyList<long> musicPerSecond, IReadOnlyList<ActivityOption> options,
+        int committedTicks = 0) =>
+        options.Select((option, index) => (Score: new ActivityScore(option, Score(now, growth, musicPerSecond, option, committedTicks)), index))
             .OrderByDescending(item => item.Score.Score).ThenBy(item => item.index).Select(item => item.Score).ToArray();
 }

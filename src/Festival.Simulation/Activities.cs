@@ -85,7 +85,24 @@ public sealed partial class GameSession
             (20 + (HasPerk("thirsty-crowd") && person.NeedProfile == MedicalNeedProfile.Guest ? 2 : 0)) * (BringsOwnBottle(id) ? ByobThirstQuarters : 4) / 4,
             IsStaffMember(id) ? 2 : 20 * (200 + (IsGuest(id) ? GuestCharacterOf(id).HeatSensitivity : 0)) / 200, 12, 80 / ToiletNeedGainEveryTicks(id));
         var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed);
-        return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options);
+        return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options, CommittedPastHorizonTicks(id));
+    }
+
+    /// <summary>
+    /// How much of a band member's own set, once its stage call falls inside the look-ahead, runs on past it: time on
+    /// stage with no chance to drink or rest. Zero for everyone else, and for a set whose call is still further off.
+    /// </summary>
+    private int CommittedPastHorizonTicks(ulong id)
+    {
+        var stage = PerformerStage(id);
+        if (stage < 0 || _preparation is not { } p || StageProgramme(stage) is not { } q) return 0;
+        var slot = q.Performers.First(item => item.AgentId == id).SlotIndex;
+        var def = Stages[stage];
+        if (slot < q.CurrentSlot || slot == q.CurrentSlot && _livePerformances[stage]?.Stage == LiveSetStage.Finished) return 0;
+        var horizonEnd = CurrentTick + ActivityChooser.HorizonTicks;
+        var call = p.StartedTick + def.SlotStarts[slot] - PerformerCallLeadTicks;
+        var end = p.StartedTick + def.SlotEnds[slot];
+        return call < horizonEnd && end > horizonEnd ? (int)(end - horizonEnd) : 0;
     }
 
     private void ChooseActivity(ulong id)

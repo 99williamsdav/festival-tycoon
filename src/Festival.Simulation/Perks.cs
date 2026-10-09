@@ -32,6 +32,11 @@ public static class PerkCatalogue
     /// Three different cards, each drawn by weight from those not already equipped, by unbiased rejection on the
     /// remaining total. Shared by the live draft and the saved-draft check, so both make the same hand.
     /// </summary>
+    /// <summary>
+    /// Cards a tier doesn't deal: from Tier 2 the second medic slot comes free, so Doctor's Orders would be a dead card.
+    /// </summary>
+    public static string[] NotDealtAt(int tier) => tier >= GameSession.FreeExtraMedicFromTier ? ["doctors-orders"] : [];
+
     internal static string[]? DrawHand(Pcg32Random random, ref ulong cursor, IReadOnlyCollection<string> equipped, ulong? cursorLimit = null)
     {
         var remaining = All.Where(item => !equipped.Contains(item.Id)).ToList();
@@ -86,7 +91,7 @@ public sealed partial class GameSession
         var p = _perks!;
         var random = new Pcg32Random(p.RandomState, p.RandomIncrement);
         var cursor = p.Cursor;
-        var hand = PerkCatalogue.DrawHand(random, ref cursor, p.Equipped)!;
+        var hand = PerkCatalogue.DrawHand(random, ref cursor, [.. p.Equipped, .. PerkCatalogue.NotDealtAt(_preparation!.Tier)])!;
         _perks = p with { Hand = hand, DrawnHand = hand.ToArray(), RandomState = random.State, Cursor = cursor };
     }
     private CommandResult? ValidatePerkCommand(EntityId? target, PerkCommand command)
@@ -118,7 +123,7 @@ public sealed partial class GameSession
     private void SynchronizePerkEffects()
     {
         var p = _preparation!;
-        _preparation = p with { ExtraMedicSlotOwned = HasPerk("doctors-orders"), ExtraStewardSlotOwned = HasPerk("extra-pair-of-hands"),
+        _preparation = p with { ExtraMedicSlotOwned = HasPerk("doctors-orders") || p.Tier >= FreeExtraMedicFromTier, ExtraStewardSlotOwned = HasPerk("extra-pair-of-hands"),
             WaterTowerOwned = HasPerk("high-pressure"), RespondersUpgraded = false };
     }
     // Loss retires active perks, but keeps the exact failed-world geometry and derived
@@ -154,7 +159,7 @@ public sealed partial class GameSession
         string[] drawn=[];
         for(var roll=0;roll<(p.RerollUsed?2:1);roll++)
         {
-            if(PerkCatalogue.DrawHand(expected,ref cursor,p.StartingEquipped,p.Cursor) is not { } hand)return "Perk roll correspondence invalid.";
+            if(PerkCatalogue.DrawHand(expected,ref cursor,[.. p.StartingEquipped, .. PerkCatalogue.NotDealtAt(prep.Tier)],p.Cursor) is not { } hand)return "Perk roll correspondence invalid.";
             drawn=hand;
         }
         if (cursor!=p.Cursor || expected.State != p.RandomState || expected.Increment != p.RandomIncrement || !drawn.SequenceEqual(p.DrawnHand)) return "Perk random cursor or saved hand invalid.";
@@ -165,8 +170,8 @@ public sealed partial class GameSession
                 !result.SequenceEqual(p.StartingEquipped.Where(id=>id!=p.ReplacedId).Append(p.ChosenId).Order(StringComparer.Ordinal)))
             return "Perk pending choice, replacement or skip result invalid.";
         if (prep.RespondersUpgraded || prep.WaterTowerOwned != SavedPerkEffect(p,"high-pressure") ||
-            prep.ExtraMedicSlotOwned != SavedPerkEffect(p,"doctors-orders") || prep.ExtraStewardSlotOwned != SavedPerkEffect(p,"extra-pair-of-hands") ||
-            prep.AcceptedOffers.Any(id=>id.StartsWith("staff.extra-medic.",StringComparison.Ordinal)) && !SavedPerkEffect(p,"doctors-orders") || prep.AcceptedOffers.Any(id=>id.StartsWith("staff.extra-steward.",StringComparison.Ordinal)) && !SavedPerkEffect(p,"extra-pair-of-hands"))
+            prep.ExtraMedicSlotOwned != (SavedPerkEffect(p,"doctors-orders") || prep.Tier >= FreeExtraMedicFromTier) || prep.ExtraStewardSlotOwned != SavedPerkEffect(p,"extra-pair-of-hands") ||
+            prep.AcceptedOffers.Any(id=>id.StartsWith("staff.extra-medic.",StringComparison.Ordinal)) && !prep.ExtraMedicSlotOwned || prep.AcceptedOffers.Any(id=>id.StartsWith("staff.extra-steward.",StringComparison.Ordinal)) && !SavedPerkEffect(p,"extra-pair-of-hands"))
             return "Perk effects or perk-owned tap disagree with the equipped set.";
         return null;
     }
