@@ -72,8 +72,8 @@ public partial class Main
             // Loose cows: the pin over each, at about head height.
             "cows" => () => _session.CaptureCows()?.Loose is { Length: > 0 } loose
                 ? loose.Select(c => new Vector3(c.XMillimetres / 1000f, 2.2f, c.ZMillimetres / 1000f)).ToArray() : null,
-            // A queue of four or more at the food van; the pin sits above its roof sign.
-            "queue" => () => _session.CaptureVendors().FirstOrDefault(v => v.Id == "food" && v.Queue.Length >= 4) is { } van
+            // A queue of four or more at a food van; the pin sits above its roof sign.
+            "queue" => () => _session.CaptureVendors().FirstOrDefault(v => Stalls.IsVan(v.Id) && v.Queue.Length >= 4) is { } van
                 ? [ImmersionPosition(van.Cell) + Vector3.Up * 5.4f] : null,
             _ => () => _session.PowerBudgetActive && _session.CapturePower().Lights > 0 ? Generator() : null,
         };

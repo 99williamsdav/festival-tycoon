@@ -253,9 +253,9 @@ public partial class Main
             if (perks.Contains(PerkCatalogue.FriendlyQueues))
                 remarks.Add(new(id, Pick(id, "Who are you here for?", "Love your hat!", "Seen them live before?"), Mood.Happy, 1, "queue-chat", 6));
             if (tick - since < 1_200) continue;
-            if (where == "drinks")
+            if (Stalls.IsBar(where))
                 remarks.Add(new(id, Pick(id, "Is the barman on a break?", "I'll be sober by the time I'm served"), Mood.Grumble, 2, "queue-bar", 8));
-            else if (where == "food")
+            else if (Stalls.IsVan(where))
                 remarks.Add(new(id, Pick(id, "I need food!", "How long can it take?!"), Mood.Grumble, 2, "queue-food", 8));
             else if (where == "toilet")
             {
@@ -274,15 +274,15 @@ public partial class Main
             foreach (var vendor in _session.CaptureVendors())
             {
                 var at = ImmersionPosition(vendor.Cell);
-                var out_ = !_session.StallPowered(vendor.Id) ? vendor.Id == "food" ? "The food van's shut?!" : "The bar's closed?!"
+                var out_ = !_session.StallPowered(vendor.Id) ? Stalls.IsVan(vendor.Id) ? "The food van's shut?!" : "The bar's closed?!"
                     // The food trader never runs out; only the bar's stock can.
-                    : vendor.Id == "food" ? null
+                    : Stalls.IsVan(vendor.Id) ? null
                     : immersion.StockPurchased && immersion.BeerStock == 0 ? "Out of beer?! At a festival?!"
                     : immersion.StockPurchased && immersion.SoftStock == 0 ? "No cola?!" : null;
                 foreach (var id in Near(at, 10))
                 {
                     if (out_ is not null) remarks.Add(new(id, out_, Mood.Grumble, 2, $"soldout:{vendor.Id}", 15));
-                    if (vendor.Id == "drinks" && consumers.TryGetValue(id, out var c) && !_session.Teetotal(id) && c.BeerTaste >= 50 &&
+                    if (Stalls.IsBar(vendor.Id) && consumers.TryGetValue(id, out var c) && !_session.Teetotal(id) && c.BeerTaste >= 50 &&
                         immersion.BeerStock > 0 && !_session.CanAffordImmersion(id, ImmersionProduct.Beer))
                         remarks.Add(new(id, beerFestival && Hash(id, 3) % 2 == 0 ? $"{FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} a pint?!"
                             : Pick(id, "How much?!", "Skint already…"), Mood.Grumble, 2, "skint", 10, $"skint:{id}"));
@@ -412,7 +412,7 @@ public partial class Main
         foreach (var id in staff)
         {
             consumers.TryGetValue(id, out var c);
-            var atBar = c is not null && (c.VendorId == "drinks" && c.Order == ImmersionProduct.Beer || c.Held?.Product == ImmersionProduct.Beer);
+            var atBar = c is not null && (Stalls.IsBar(c.VendorId) && c.Order == ImmersionProduct.Beer || c.Held?.Product == ImmersionProduct.Beer);
             if (atBar && _session.StaffHas(id, StaffTrait.SneakyAlcoholic))
                 remarks.Add(new(id, Pick(id, "Just the one…", "Don't tell the boss"), Mood.Neutral, 2, "staff-sneaky", 15));
             else if (c is not null && (c.VendorId is not null || c.Held is not null) && _session.StaffHas(id, StaffTrait.Slacker))

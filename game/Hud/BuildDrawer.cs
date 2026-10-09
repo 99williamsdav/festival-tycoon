@@ -229,46 +229,66 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         }
     }
 
-    private readonly List<(FoodTrader Trader, Button Button)> _traderButtons = [];
+    private readonly List<(string Van, FoodTrader Trader, Button Button)> _traderButtons = [];
+    private VBoxContainer? _traderBox;
+    private string? _traderKey;
 
-    /// <summary>The chip vans to choose from: each pays the festival to pitch, and the ones that pay more cut corners.</summary>
+    /// <summary>The traders to choose from, a set for each van the tier allows: each pays the festival to pitch.</summary>
     private VBoxContainer TraderPicker()
     {
-        var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(3));
+        _traderBox = new VBoxContainer(); _traderBox.AddThemeConstantOverride("separation", Ui.Px(3));
         var margin = new MarginContainer(); margin.AddThemeConstantOverride("margin_left", Ui.Px(46)); margin.AddThemeConstantOverride("margin_bottom", Ui.Px(6));
-        var wrapper = new VBoxContainer(); wrapper.AddChild(margin); margin.AddChild(box);
-        box.AddChild(Ui.Caps("Trader · they pay you to pitch", Ui.InkMuted, 9.5f));
-        // One trader so far: named, not chosen.
-        if (FoodTraders.All.Length == 1)
-        {
-            var only = FoodTraders.All[0];
-            var line = Ui.Text($"{only.Name} · pays {FestivalCurrency.Format(only.PitchFeePennies)}", 12, Ui.Ink, Ui.BodySemi);
-            line.TooltipText = only.Blurb; line.MouseFilter = Control.MouseFilterEnum.Pass;
-            box.AddChild(line);
-            return wrapper;
-        }
-        foreach (var trader in FoodTraders.All)
-        {
-            var button = new Button { Text = $"{trader.Name} · {trader.Menu.ToLowerInvariant()} · pays {FestivalCurrency.Format(trader.PitchFeePennies)}" +
-                    (trader.SlowService ? " · slower service" : ""), ToggleMode = true,
-                Alignment = HorizontalAlignment.Left, TooltipText = trader.Blurb,
-                MouseDefaultCursorShape = Control.CursorShape.PointingHand, CustomMinimumSize = new Vector2(0, Ui.S(26)) };
-            var chosen = trader;
-            button.Pressed += () => _hud.Commit(new ChooseFoodTraderCommand(chosen.Id));
-            box.AddChild(button); _traderButtons.Add((trader, button));
-        }
+        var wrapper = new VBoxContainer(); wrapper.AddChild(margin); margin.AddChild(_traderBox);
         return wrapper;
+    }
+
+    /// <summary>
+    /// One picker per van. A trader another van already has, or one the tier can't book yet, is shown but can't be
+    /// picked, and says why.
+    /// </summary>
+    private void RefreshTraderPicker()
+    {
+        if (_traderBox is null) return;
+        var session = _hud.Session;
+        var vans = Enumerable.Range(1, session.ServiceLimit(BuildServiceKind.FoodVan)).Select(number => Stalls.Id(BuildServiceKind.FoodVan, number)).ToArray();
+        var placed = session.PlacedVans;
+        var key = $"{session.CapturePreparation()?.Tier}:" + string.Join(",", vans.Select(van => van + (placed.Contains(van) ? "+" : "-")));
+        if (key != _traderKey)
+        {
+            _traderKey = key;
+            foreach (var child in _traderBox.GetChildren()) { _traderBox.RemoveChild(child); child.QueueFree(); }
+            _traderButtons.Clear();
+            foreach (var van in vans)
+            {
+                _traderBox.AddChild(Ui.Caps(vans.Length == 1 ? "Trader · they pay you to pitch"
+                    : $"Van {Stalls.Number(van)} trader · {(placed.Contains(van) ? "pays you to pitch" : "if you place it")}", Ui.InkMuted, 9.5f));
+                foreach (var trader in FoodTraders.All)
+                {
+                    var button = new Button { Text = $"{trader.Name} · {trader.Menu.ToLowerInvariant()} · pays {FestivalCurrency.Format(trader.PitchFeePennies)}" +
+                            (trader.SlowService ? " · slower service" : "") + (trader.FromTier > (session.CapturePreparation()?.Tier ?? 1) ? $" · from Tier {trader.FromTier}" : ""), ToggleMode = true,
+                        Alignment = HorizontalAlignment.Left, MouseDefaultCursorShape = Control.CursorShape.PointingHand, CustomMinimumSize = new Vector2(0, Ui.S(26)) };
+                    var (chosen, at) = (trader, van);
+                    button.Pressed += () => _hud.Commit(new ChooseFoodTraderCommand(chosen.Id, at));
+                    _traderBox.AddChild(button); _traderButtons.Add((van, trader, button));
+                }
+            }
+        }
+        foreach (var (van, trader, button) in _traderButtons)
+        {
+            var current = session.TraderAt(van).Id == trader.Id;
+            var issue = current ? null : session.TraderUnavailable(van, trader);
+            button.SetPressedNoSignal(current);
+            button.Disabled = issue is not null;
+            button.Modulate = issue is null ? Colors.White : new Color(1, 1, 1, .5f);
+            button.TooltipText = issue ?? trader.Blurb;
+            Tight(Ui.Style(button, current ? Ui.ButtonKind.Secondary : Ui.ButtonKind.Quiet, 12), 12);
+        }
     }
 
     public void Refresh()
     {
         if (_buildDrawer is null || _hud.Session.CapturePreparationPlan() is null) return;
-        var current = _hud.Session.FoodTrader;
-        foreach (var (trader, button) in _traderButtons)
-        {
-            button.SetPressedNoSignal(trader.Id == current.Id);
-            Tight(Ui.Style(button, trader.Id == current.Id ? Ui.ButtonKind.Secondary : Ui.ButtonKind.Quiet, 12), 12);
-        }
+        RefreshTraderPicker();
         var placements = _hud.Session.CaptureBuildPlacements();
         _servicesTotal!.Text = $"{placements.Count} placed · {FestivalCurrency.Format(_hud.Session.BuildDraftCost)} · nothing paid until Start";
         var standard = GameSession.StandardBuildLayout(_hud.Session.CapturePreparation()?.Tier ?? 1).Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
@@ -288,7 +308,10 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             var count = placements.Count(item => item.Kind == kind);
             var limit = _hud.Session.ServiceLimit(kind);
             // The food van costs nothing to place: its trader pays to pitch.
-            row.Price.Text = kind == BuildServiceKind.FoodVan ? $"+{FestivalCurrency.Format(_hud.Session.FoodTrader.PitchFeePennies)}"
+            // The next van's trader, or with every van placed, the last one's.
+            var nextVan = _hud.Session.TraderAt(_hud.Session.PlacedVans.Count < _hud.Session.ServiceLimit(BuildServiceKind.FoodVan) || _hud.Session.PlacedVans.Count == 0
+                ? Stalls.Next(BuildServiceKind.FoodVan, placements.Select(item => item.Id)) : _hud.Session.PlacedVans[^1]);
+            row.Price.Text = kind == BuildServiceKind.FoodVan ? $"+{FestivalCurrency.Format(nextVan.PitchFeePennies)}"
                 : FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind));
             row.Count.Text = kind == BuildServiceKind.Bin ? $"{count}" : $"{count}/{limit}";
             var dotCount = kind == BuildServiceKind.Bin ? 0 : limit;
@@ -306,7 +329,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             Tight(Ui.Style(row.Action, full ? Ui.ButtonKind.Quiet : Ui.ButtonKind.Accent), 14);
             row.Action.TooltipText = full
                 ? $"{BuildName(kind)}: all {limit} placed. Open the row, or right-click one on the farm, to move or remove it."
-                : kind == BuildServiceKind.FoodVan ? $"Pitch the food van: {_hud.Session.FoodTrader.Name} pays {FestivalCurrency.Format(_hud.Session.FoodTrader.PitchFeePennies)} at Start. {count} placed."
+                : kind == BuildServiceKind.FoodVan ? $"Pitch a food van: {nextVan.Name} pays {FestivalCurrency.Format(nextVan.PitchFeePennies)} at Start. {count} placed."
                 : $"Place a {BuildName(kind).ToLowerInvariant()} ({FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind))} at Start). {count} placed.";
             if (count == 0) _expanded.Remove(kind);
             row.Chevron.Disabled = count == 0;
@@ -397,7 +420,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     internal static string PlacedName(BuildPlacement item)
     {
         var suffix = item.Id.Split('.').Last();
-        var number = suffix == "main" ? "1" : suffix.StartsWith("extra-", StringComparison.Ordinal) && int.TryParse(suffix[6..], out var extra)
+        var number = Stalls.IsStall(item.Kind) ? Stalls.Number(item.Id).ToString() :
+            suffix == "main" ? "1" : suffix.StartsWith("extra-", StringComparison.Ordinal) && int.TryParse(suffix[6..], out var extra)
             ? (extra + 1).ToString() : suffix;
         return GameSession.BuildServiceLimit(item.Kind, GameSession.HighestTier) == 1 ? BuildName(item.Kind) : $"{BuildName(item.Kind)} {number}";
     }

@@ -211,7 +211,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             (session.CapturePreparation()!.CarriedIn is { } carry
                 ? $"({FestivalCurrency.Format(tickets)}) and {FestivalCurrency.Format(carry.CashPennies)} carried from Tier {carry.FromTier}, with {FestivalCurrency.Format(carry.DebtPennies)} of loan still owed"
                 : $"({FestivalCurrency.Format(tickets)}) and a {FestivalCurrency.Format(session.CapturePreparation()!.OpeningCashPennies - tickets)} loan") +
-            (pitch > 0 ? $", plus {FestivalCurrency.Format(pitch)} from {session.FoodTrader.Name} to pitch." : ".") +
+            (pitch > 0 ? $", plus {FestivalCurrency.Format(pitch)} from {session.PitchingTraders} to pitch." : ".") +
             (left < 0 ? $" Into the £{CampaignDefaults.OverdraftPennies / 100} overdraft." : "");
         // In the red is allowed, as far as the overdraft; beyond it, Start is refused.
         _receiptAfter.AddThemeColorOverride("font_color", left >= 0 ? Ui.TealDeep : left >= -CampaignDefaults.OverdraftPennies ? Ui.Link : Ui.Alert);
@@ -305,7 +305,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var fundsTier = session.CapturePreparation()!.Tier;
         _draftedOf.TooltipText = $"{FestivalCurrency.Format(funds)} in hand: {FestivalTickets.Sold(fundsTier)} advance tickets at {FestivalCurrency.Format(FestivalTickets.PricePennies(fundsTier))}, " +
             (session.CapturePreparation()!.CarriedIn is { } carried ? $"the rest carried from Tier {carried.FromTier}." : "the rest a loan.") +
-            (pitch > 0 ? $" Plus {FestivalCurrency.Format(pitch)} from {session.FoodTrader.Name} to pitch." : "") +
+            (pitch > 0 ? $" Plus {FestivalCurrency.Format(pitch)} from {session.PitchingTraders} to pitch." : "") +
             $" You can go up to {FestivalCurrency.Format(CampaignDefaults.OverdraftPennies)} into overdraft.";
         _draftedOf.MouseFilter = Control.MouseFilterEnum.Pass;
         _left!.Text = left >= 0 ? $"{FestivalCurrency.Format(left)} left" : $"{FestivalCurrency.Format(-left)} over";

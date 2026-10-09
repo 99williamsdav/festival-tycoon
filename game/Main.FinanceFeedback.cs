@@ -19,7 +19,7 @@ public partial class Main
 
     private string FinanceFeedbackAnchor(string key)
     {
-        if (key is "vendor.food" or "vendor.drinks") return key;
+        if (key.StartsWith("vendor.", StringComparison.Ordinal) && Stalls.Number(key[7..]) > 0) return key;
         if (key == "stock") return FinanceFeedbackControlVisible(_immersionStockButton) ? key : "preparation";
         if (key.StartsWith("offer:", StringComparison.Ordinal))
         {

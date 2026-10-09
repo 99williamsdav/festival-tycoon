@@ -27,7 +27,7 @@ public partial class Main
     public int VisibleLitterInstanceCount => _litterBatches.Values.Sum(b => b.Multimesh.InstanceCount);
     private static string LitterAsset(ImmersionProduct product) => LitterAssetRoot + (product switch
     { ImmersionProduct.Beer => "lwf_litter_beer_cup_v1.glb", ImmersionProduct.SoftDrink or ImmersionProduct.Water => "lwf_litter_soft_cup_v1.glb",
-        ImmersionProduct.Chips => "lwf_litter_chips_tray_v1.glb", ImmersionProduct.Pizza => "lwf_litter_pizza_plate_v1.glb",
+        ImmersionProduct.Chips => "lwf_litter_chips_tray_v1.glb", ImmersionProduct.Pizza => "lwf_litter_pizza_plate_v1.glb", ImmersionProduct.Curry => "lwf_litter_curry_tray_v1.glb",
         _ => throw new ArgumentOutOfRangeException(nameof(product), product, "Unknown immersion product") });
     private Mesh LoadLitterMesh(string path)
     {

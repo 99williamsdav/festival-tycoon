@@ -34,12 +34,12 @@ public partial class Main : IBuildActions
     };
 
 
-    private Node3D BuildAsset(BuildServiceKind kind) => kind switch
+    private Node3D BuildAsset(BuildServiceKind kind, string? movingId = null) => kind switch
     {
         BuildServiceKind.WaterTap => InstantiateAsset("res://assets/environment/lwf_free_water_point_v4.glb"),
         BuildServiceKind.Toilet => InstantiateAsset(ToiletAsset),
-        BuildServiceKind.FoodVan => InstantiateImmersionVendor(true),
-        BuildServiceKind.Bar => InstantiateImmersionVendor(false),
+        BuildServiceKind.FoodVan => InstantiateImmersionVendor(_session.TraderAt(movingId ?? Stalls.Next(kind, _session.CaptureBuildPlacements().Select(item => item.Id)))),
+        BuildServiceKind.Bar => InstantiateImmersionVendor(null),
         BuildServiceKind.FirstAid => InstantiateAsset(PostAsset(ResponseRole.Medic)),
         BuildServiceKind.StewardPost => InstantiateAsset(PostAsset(ResponseRole.Steward)),
         BuildServiceKind.Bin => InstantiateAsset(BinAsset),
@@ -87,7 +87,7 @@ CancelBuildPlacement();
         _buildClickRejected = false;
         _buildQuarterTurns = movingId is null ? kind == BuildServiceKind.Toilet ? 2 : 0 :
             _session.CaptureBuildPlacements().Single(item => item.Id == movingId).QuarterTurns;
-        _buildGhost = BuildAsset(kind); AddChild(_buildGhost);
+        _buildGhost = BuildAsset(kind, movingId); AddChild(_buildGhost);
         ShowAudienceArea(true);
         foreach (var mesh in _buildGhost.FindChildren("*", "MeshInstance3D", true, false))
             if (mesh is GeometryInstance3D geometry) geometry.Transparency = .12f;

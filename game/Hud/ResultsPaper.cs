@@ -349,11 +349,15 @@ void fragment() {
         RuledRows(income, list =>
         {
             MoneyRow(list, $"Tickets · advance sales {FestivalCurrency.Format(report.TicketPricePennies)}", report.TicketsSold.ToString(), FestivalCurrency.Format(report.TicketSalesPennies));
-            if (report.PitchFeePennies > 0)
+            // A row for each van's trader.
+            if (report.PitchFees.Length > 0 && report.PitchFees.Sum(pitch => pitch.FeePennies) == report.PitchFeePennies)
+                foreach (var pitch in report.PitchFees) MoneyRow(list, $"Pitch fee · {pitch.Trader}", "1", FestivalCurrency.Format(pitch.FeePennies));
+            else if (report.PitchFeePennies > 0)
                 MoneyRow(list, $"Pitch fee · {report.PitchFeeTrader}", "1", FestivalCurrency.Format(report.PitchFeePennies));
+            var bars = report.Sales.Select(sale => sale.Stall).Distinct().Count();
             foreach (var sale in report.Sales)
             {
-                var item = GameSession.ProductName(sale.Product);
+                var item = (bars > 1 ? $"{Stalls.Label(sale.Stall)} · " : "") + GameSession.ProductName(sale.Product);
                 var rate = sale.UnitPricePennies >= GameSession.ImmersionPrice(sale.Product) ? "full price" : "50% rate";
                 MoneyRow(list, $"{item} · {rate} {FestivalCurrency.Format(sale.UnitPricePennies)}", sale.Quantity.ToString(), FestivalCurrency.Format(sale.AmountPennies));
             }

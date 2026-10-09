@@ -330,9 +330,11 @@ private void BuildImmersionControls(VBoxContainer parent)
             _stockPotential!.Text = $"Sells for up to {FestivalCurrency.Format(values.Select((value, i) => (long)value * sales[i]).Sum())} if every item goes. Staff don't buy beer.";
             _stockTotal!.Text = FestivalCurrency.Format(values.Select((value, i) => (long)value * costs[i]).Sum());
         }
-        _immersionSummary!.Text = $"{_session.FoodTrader.Menu} {FestivalCurrency.Format(GameSession.ImmersionPrice(_session.FoodTrader.Product))} • soft {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.SoftDrink))} • beer {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Beer))}\nBar stock {state.SoftStock} soft/{state.BeerStock} beer • sales {state.Purchases.Length}\n" +
+        var menus = string.Join(" • ", _session.PlacedVans.DefaultIfEmpty(Stalls.FirstVan).Select(van => _session.TraderAt(van))
+            .Select(trader => $"{trader.Menu} {FestivalCurrency.Format(GameSession.ImmersionPrice(trader.Product))}"));
+        _immersionSummary!.Text = $"{menus} • soft {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.SoftDrink))} • beer {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Beer))}\nBar stock {state.SoftStock} soft/{state.BeerStock} beer • sales {state.Purchases.Length}\n" +
             "Free water remains available. Personal spending budgets vary; staff do not buy beer.\n" +
-            string.Join("\n", _session.CaptureVendors().Select(v => $"{(v.Id == "food" ? "Food van" : "Drinks stall")}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}")) +
+            string.Join("\n", _session.CaptureVendors().Select(v => $"{(Stalls.IsVan(v.Id) ? Stalls.Label(v.Id) : Stalls.Label(v.Id).Replace("Bar", "Drinks stall"))}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}")) +
             (_session.CaptureToilet() is { } toilet ? $"\nPortaloo: {toilet.FullPercent}% full • {(toilet.InterruptedOccupantId is not null ? "unavailable" : toilet.IsFull ? "full" : toilet.OwnerId is null ? "free" : "occupied")}" : "");
         if (_session.PreparedStatus == PreparationStatus.Departing) _immersionSummary.Text += "\nCOUNTERS CLOSED • on-site alcohol risk and medic response continue until physical exit.";
         if (ImmersionHeavyOnSiteCount() > 0) _immersionSummary.Text = "! HEAVY INTOXICATION • select affected people for medic care\n" + _immersionSummary.Text;
@@ -359,19 +361,21 @@ private void BuildImmersionControls(VBoxContainer parent)
         }
         foreach (var vendor in _session.CaptureVendors())
         {
-            // A different trader at the food van means a different van.
-            if (vendor.Id == "food" && _immersionVendors.TryGetValue(vendor.Id, out var pitched) && pitched.GetMeta("TraderArt", "").AsString() != _session.FoodTrader.Art)
+            // A different trader at a food van means a different van.
+            var van = Stalls.IsVan(vendor.Id);
+            var trader = van ? _session.TraderAt(vendor.Id) : null;
+            if (trader is not null && _immersionVendors.TryGetValue(vendor.Id, out var pitched) && pitched.GetMeta("TraderArt", "").AsString() != trader.Art)
             {
                 _immersionVendorPicks.Remove(pitched.GetInstanceId()); pitched.QueueFree(); _immersionVendors.Remove(vendor.Id);
             }
             if (!_immersionVendors.TryGetValue(vendor.Id, out var body))
             {
                 body = new StaticBody3D { CollisionLayer = 1, CollisionMask = 0 };
-                body.AddChild(InstantiateImmersionVendor(vendor.Id == "food"));
-                if (vendor.Id == "food") body.SetMeta("TraderArt", _session.FoodTrader.Art);
-                var size = vendor.Id == "food" ? new Vector3(6, 2.8f, 3) : new Vector3(3.5f, 3.1f, 2.5f);
-                body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size }, Position = new Vector3(vendor.Id == "food" ? -.5f : 0, size.Y / 2, 0) });
-                var name=BuildingName(vendor.Id=="food"?_session.FoodTrader.Menu.ToUpperInvariant():"BAR",new Vector3(0,vendor.Id=="food"?5.3f:3.4f,0)); // the food van's label clears its roof sign
+                body.AddChild(InstantiateImmersionVendor(trader));
+                if (trader is not null) body.SetMeta("TraderArt", trader.Art);
+                var size = van ? new Vector3(6, 2.8f, 3) : new Vector3(3.5f, 3.1f, 2.5f);
+                body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size }, Position = new Vector3(van ? -.5f : 0, size.Y / 2, 0) });
+                var name=BuildingName(trader?.Menu.ToUpperInvariant() ?? (Stalls.Number(vendor.Id) > 1 ? $"BAR {Stalls.Number(vendor.Id)}" : "BAR"),new Vector3(0,van?5.3f:3.4f,0)); // a van's label clears its roof sign
                 name.Name="VendorCategoryLabel";body.AddChild(name);
                 AddChild(body); _immersionVendors.Add(vendor.Id, body); _immersionVendorPicks.Add(body.GetInstanceId(), vendor.Id);
             }
@@ -381,7 +385,7 @@ private void BuildImmersionControls(VBoxContainer parent)
 
     private void BeginImmersionPlacement(string id)
     {
-        BeginBuildPlacement(id == "food" ? BuildServiceKind.FoodVan : BuildServiceKind.Bar, id);
+        BeginBuildPlacement(Stalls.KindOf(id), id);
     }
     private void SelectImmersionVendor(string id)
     {
@@ -396,8 +400,8 @@ private void BuildImmersionControls(VBoxContainer parent)
                 _session.PreparedStatus == PreparationStatus.Preparing && _session.CaptureImmersion() is not null;
         if (_freeWaterButton is not null)
         {
-            _freeWaterButton.Visible = _selectedImmersionVendor == "drinks" && _session.PreparedStatus == PreparationStatus.Running;
-            _freeWaterButton.Text = _session.FreeWaterOn ? "Stop free water" : $"Free water at the bar · {FestivalCurrency.Format(GameSession.FreeWaterChargePennies)}";
+            _freeWaterButton.Visible = Stalls.IsBar(_selectedImmersionVendor) && _session.PreparedStatus == PreparationStatus.Running;
+            _freeWaterButton.Text = _session.FreeWaterOn ? "Stop free water" : $"Free water at the {(_session.CaptureVendors().Count(v => Stalls.IsBar(v.Id)) > 1 ? "bars" : "bar")} · {FestivalCurrency.Format(GameSession.FreeWaterChargePennies)}";
             _freeWaterButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new SetFreeWaterCommand(!_session.FreeWaterOn))) is not null;
             _freeWaterButton.TooltipText = _session.FreeWaterOn
                 ? "Stop handing out water. No refund; switching it back on costs again."
@@ -405,12 +409,15 @@ private void BuildImmersionControls(VBoxContainer parent)
         }
         if (_selectedImmersionVendor is not { } id || _session.CaptureImmersion() is not { } state || !_immersionVendors.TryGetValue(id, out var body)) return;
         var vendor = _session.CaptureVendors().Single(v => v.Id == id);
-        _inspectorTitle.Text = id == "food" ? $"{_session.FoodTrader.Name} • {_session.FoodTrader.Menu.ToLowerInvariant()}" : "Drinks stall • soft drinks & beer";
+        var trader = Stalls.IsVan(id) ? _session.TraderAt(id) : null;
+        _inspectorTitle.Text = trader is not null ? $"{trader.Name} • {trader.Menu.ToLowerInvariant()}" : $"{Stalls.Label(id).Replace("Bar", "Drinks stall")} • soft drinks & beer";
         _inspectorBody.Text = $"Queue: {vendor.Queue.Length}\n" +
             (vendor.OwnerId is { } owner ? $"Serving {_session.CapturePreparation()!.People.Single(p => p.AgentId == owner).Name} • {vendor.ServiceTicks / 80m:0.0}s remaining\n" : "Counter ready\n") +
-            (id == "food" ? $"{_session.FoodTrader.Menu} {FestivalCurrency.Format(_session.ImmersionListPrice(_session.FoodTrader.Product))}\nTheir own food and takings; they pay {FestivalCurrency.Format(_session.FoodTrader.PitchFeePennies)} to pitch." : $"Soft {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.SoftDrink))} • {BarStock(state.SoftStock, true)}\nBeer {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} • {BarStock(state.BeerStock, false)}\nNo beer for staff or heavily intoxicated customers.") +
-            "\nStaff & band: half price." + (id == "drinks" && state.FreeWater ? "\nFREE WATER • cups for the thirsty" : "");
-        _highlight.Position = body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new Vector3(id == "food" ? 3.5f : 2, 1, id == "food" ? 3.5f : 2); _highlight.Visible = true;
+            (trader is not null ? $"{trader.Menu} {FestivalCurrency.Format(_session.ImmersionListPrice(trader.Product))}\nTheir own food and takings; they pay {FestivalCurrency.Format(trader.PitchFeePennies)} to pitch." +
+                (trader.SlowService ? "\nSlower to serve: expect a queue." : "") : $"Soft {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.SoftDrink))} • {BarStock(state.SoftStock, true)}\nBeer {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} • {BarStock(state.BeerStock, false)}\nNo beer for staff or heavily intoxicated customers.") +
+            (_session.CaptureVendors().Count(v => Stalls.IsBar(v.Id)) > 1 && trader is null ? "\nThe bars share one order of stock." : "") +
+            "\nStaff & band: half price." + (trader is null && state.FreeWater ? "\nFREE WATER • cups for the thirsty" : "");
+        _highlight.Position = body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new Vector3(trader is not null ? 3.5f : 2, 1, trader is not null ? 3.5f : 2); _highlight.Visible = true;
     }
     /// <summary>Stock on the counter, or before opening what's been ordered (it arrives at Start).</summary>
     private string BarStock(int onCounter, bool soft) => _session.PreparedStatus == PreparationStatus.Preparing && _session.CapturePreparationPlan() is { } plan

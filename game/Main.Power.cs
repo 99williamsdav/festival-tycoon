@@ -78,10 +78,10 @@ public partial class Main
         _powerChipIcon!.Texture = GD.Load<Texture2D>(trouble ? "res://assets/ui/lwf_power_chip_zap_alert_v1.svg" : "res://assets/ui/lwf_power_chip_zap_v1.svg");
     }
 
-    /// <summary>The evening peak a plan would draw with this rig: the rig, both stalls and the festoon lights.</summary>
+    /// <summary>The evening peak a plan would draw with this rig: the rig, every bar and van, and the festoon lights.</summary>
     private PowerDraw PlannedPeakWith(SoundRig rig)
     {
-        var stalls = _session.CaptureVendors().Count(v => v.Id is "drinks" or "food") * PowerRules.StallDraw;
+        var stalls = _session.CaptureVendors().Count * PowerRules.StallDraw;
         return new PowerDraw(PowerRules.RigDraw(rig), stalls, 0, PowerRules.LightsDraw, _session.GeneratorCapacity);
     }
 
@@ -110,8 +110,10 @@ public partial class Main
             button.Text = on ? $"Switch off the {what} (saves {draw})" : $"Switch the {what} back on";
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new EquipmentCommand(action))) is not null;
         }
-        Set(_barPowerButton, EquipmentAction.ToggleBarPower, equipment.BarPowered, "bar", PowerRules.StallDraw);
-        Set(_foodPowerButton!, EquipmentAction.ToggleFoodPower, equipment.FoodPowered, "food van", PowerRules.StallDraw);
+        // One switch for every bar and one for every van.
+        var bars = _session.CaptureVendors().Count(v => Stalls.IsBar(v.Id)); var vans = _session.CaptureVendors().Count(v => Stalls.IsVan(v.Id));
+        Set(_barPowerButton, EquipmentAction.ToggleBarPower, equipment.BarPowered, bars > 1 ? "bars" : "bar", PowerRules.StallDraw * Math.Max(1, bars));
+        Set(_foodPowerButton!, EquipmentAction.ToggleFoodPower, equipment.FoodPowered, vans > 1 ? "food vans" : "food van", PowerRules.StallDraw * Math.Max(1, vans));
         Set(_lightsPowerButton!, EquipmentAction.ToggleLights, equipment.LightsPowered, "festoon lights", PowerRules.LightsDraw);
     }
 
@@ -129,7 +131,7 @@ public partial class Main
             _ => power.Over ? "Over capacity · strain building" : "Running within capacity",
         };
         return $"POWER {power.Total} / {power.Capacity} · {state}\n" +
-            $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)}) · bar {power.Bar} · food van {power.Food} · lights {power.Lights}" +
+            $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)}) · {(power.Bar > PowerRules.StallDraw ? "bars" : "bar")} {power.Bar} · {(power.Food > PowerRules.StallDraw ? "food vans" : "food van")} {power.Food} · lights {power.Lights}" +
             (_session.PreparedStatus == PreparationStatus.Preparing ? " (evening peak)" : "") +
             $"\nCondition {e.Condition / 100}%";
     }

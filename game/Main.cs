@@ -90,6 +90,7 @@ public partial class Main : Node, IHudHost
         ProcessMoods(delta);
         ProcessChatter(delta);
         ProcessGenerator(delta);
+        ProcessVanSteam();
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
         ProcessSurroundEvidence();
