@@ -15,7 +15,16 @@ public partial class Main
     private StartMenu? _startMenuView;
     private StartMenu StartMenu => _startMenuView ??= new();
 
-    private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide);
+    private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide, TryPondStage);
+
+    /// <summary>A fresh trial campaign with the Pond Stage open from the start, before its tier.</summary>
+    private void TryPondStage()
+    {
+        var next = CreateFreshBuildCampaign(out var seed, pondStageTrial: true);
+        SwitchToFestival(next);
+        GD.Print($"POND_STAGE_TRIAL_STARTED id={_session.CampaignId.Value} seed={seed} status={_session.PreparedStatus}");
+        StartMenu.Close();
+    }
 
     private void EnterFestival()
     {
@@ -51,7 +60,7 @@ public partial class Main
         _newCampaignOnEnter = false;
     }
 
-    private GameSession CreateFreshBuildCampaign(out ulong seed)
+    private GameSession CreateFreshBuildCampaign(out ulong seed, bool pondStageTrial = false)
     {
         // Entropy belongs at the user-facing creation boundary, never inside the
         // deterministic simulation factory. Keep previous campaigns distinct in
@@ -60,7 +69,7 @@ public partial class Main
         do seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
         while (seed == 0 || _menuCampaignIds.Contains(seed));
         _menuCampaignIds.Add(seed);
-        return GameSession.CreateBuildCampaign(seed);
+        return pondStageTrial ? GameSession.CreateBuildCampaign(seed, pondStageTrial: true) : GameSession.CreateBuildCampaign(seed);
     }
 
 }

@@ -25,10 +25,12 @@ public partial class Main
     private Label? _staffTableCount;
     private string _staffMarketKey = "";
     private bool _staffPanelBuilt;
+    private Label? _staffCrewNote;
 
     private static readonly (string Key, StaffRole? Role, bool Extra, string Name)[] StaffSlots =
     [
-        ("sound", StaffRole.Sound, false, "Sound engineer"), ("medic", StaffRole.Medic, false, "Medic"), ("steward", StaffRole.Steward, false, "Steward"),
+        ("sound", StaffRole.Sound, false, "Sound engineer"), ("extra-sound", StaffRole.Sound, true, "Pond Stage sound engineer"),
+        ("medic", StaffRole.Medic, false, "Medic"), ("steward", StaffRole.Steward, false, "Steward"),
         ("extra-medic", StaffRole.Medic, true, "Extra medic"), ("extra-steward", StaffRole.Steward, true, "Extra steward"), ("maintenance", null, false, "Maintenance"),
     ];
 
@@ -50,7 +52,7 @@ public partial class Main
         var crew = new VBoxContainer { CustomMinimumSize = new Vector2(Ui.S(300), 0) };
         crew.AddThemeConstantOverride("separation", Ui.Px(5)); root.AddChild(crew);
         crew.AddChild(Ui.Heading("Your crew", 27));
-        crew.AddChild(WithWrap(Ui.Text("A sound engineer, a medic and a steward are required. Paid at Start.", 13.5f, Ui.InkMuted)));
+        _staffCrewNote = WithWrap(Ui.Text("", 13.5f, Ui.InkMuted)); crew.AddChild(_staffCrewNote);
         crew.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
         // Up to six slots with perks and a maintenance worker: they scroll rather than run off the sheet.
         var slotScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled, CustomMinimumSize = new Vector2(0, Ui.S(372)) };
@@ -196,7 +198,8 @@ public partial class Main
         var hires = StaffHires(p);
         var key = StaffCatalogue.Key(c.Role);
         if (!hires.Any(id => id.StartsWith($"staff.{key}.", StringComparison.Ordinal))) return c.Id;
-        var extraOwned = c.Role == StaffRole.Medic ? p.ExtraMedicSlotOwned : c.Role == StaffRole.Steward && p.ExtraStewardSlotOwned;
+        // A second sound engineer runs the Pond Stage while it's open.
+        var extraOwned = c.Role == StaffRole.Medic ? p.ExtraMedicSlotOwned : c.Role == StaffRole.Steward ? p.ExtraStewardSlotOwned : _session.PondStageOpen;
         return extraOwned && !hires.Any(id => id.StartsWith($"staff.extra-{key}.", StringComparison.Ordinal)) ? c.ExtraOfferId : c.Id;
     }
 
@@ -229,18 +232,21 @@ public partial class Main
         if (!_staffPanelBuilt || _session.CapturePreparation() is not { } p) return;
         var candidates = _session.GetStaffCandidates();
         SyncStaffRows(candidates);
+        _staffCrewNote!.Text = _session.PondStageOpen ? "A sound engineer for each stage, a medic and a steward are required. Paid at Start."
+            : "A sound engineer, a medic and a steward are required. Paid at Start.";
         var hires = StaffHires(p);
         var preparing = p.Status == PreparationStatus.Preparing;
         var offers = _session.GetPreparationOffers().ToDictionary(o => o.Id);
         foreach (var (key, role, extra, name) in StaffSlots)
         {
             var view = _staffSlots[key];
-            var owned = key switch { "extra-medic" => p.ExtraMedicSlotOwned, "extra-steward" => p.ExtraStewardSlotOwned, "maintenance" => offers.ContainsKey("maintenance.worker"), _ => true };
+            var owned = key switch { "extra-medic" => p.ExtraMedicSlotOwned, "extra-steward" => p.ExtraStewardSlotOwned, "extra-sound" => _session.PondStageOpen,
+                "maintenance" => offers.ContainsKey("maintenance.worker"), _ => true };
             view.Card.Visible = owned;
             if (!owned) continue;
             var held = hires.FirstOrDefault(id => key == "maintenance" ? id == "maintenance.worker" : id.StartsWith(SlotPrefix(key), StringComparison.Ordinal));
             var who = held is null ? null : StaffCatalogue.ForOffer(candidates, held);
-            var required = !extra && key != "maintenance";
+            var required = !extra && key != "maintenance" || key == "extra-sound";
             view.Caption.Text = $"{name} · {(required ? "required" : extra ? "perk slot" : "optional")}".ToUpperInvariant();
             var colour = StaffRoleColour(role);
             if (held is not null)
@@ -269,8 +275,8 @@ public partial class Main
                 }
                 else
                 {
-                    view.Title.Text = $"Hire a{(role == StaffRole.Sound ? "" : extra ? "nother" : "")} {StaffCatalogue.RoleName(role!.Value)}";
-                    view.Detail.Text = required ? "Required before Start · pick from the list" : "Your perk adds this slot";
+                    view.Title.Text = key == "extra-sound" ? "Hire a second sound engineer" : $"Hire a{(role == StaffRole.Sound ? "" : extra ? "nother" : "")} {StaffCatalogue.RoleName(role!.Value)}";
+                    view.Detail.Text = key == "extra-sound" ? "Mixes the Pond Stage · pick from the list" : required ? "Required before Start · pick from the list" : "Your perk adds this slot";
                     view.Action.Visible = false;
                 }
             }
@@ -289,7 +295,8 @@ public partial class Main
             row.Hire.Text = main || second ? "Hired" : replacing is null ? "Hire" : "Swap in";
             row.Hire.Disabled = !preparing || main || second || issue is not null;
             row.Hire.TooltipText = main || second ? $"{c.Name} is on your crew; remove them from the slot on the left." :
-                issue ?? (replacedName is not null ? $"Hire {c.Name} in place of {replacedName}." : $"Hire {c.Name} as your {(target == c.ExtraOfferId ? "extra " : "")}{StaffCatalogue.RoleName(c.Role)}.");
+                issue ?? (replacedName is not null ? $"Hire {c.Name} in place of {replacedName}." :
+                    $"Hire {c.Name} as your {(target == c.ExtraOfferId ? c.Role == StaffRole.Sound ? "Pond Stage " : "extra " : "")}{StaffCatalogue.RoleName(c.Role)}.");
             row.Row.Modulate = main || second ? new Color(1, 1, 1, 0.6f) : Colors.White;
         }
         var shown = candidates.Count(c => _staffRoleShown is null || c.Role == _staffRoleShown);

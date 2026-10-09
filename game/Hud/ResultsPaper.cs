@@ -92,7 +92,8 @@ internal sealed class ResultsPaper(IHudHost _hud)
             next = Ui.Style(new Button { Text = "Next festival", Name = "NextFestival", MouseDefaultCursorShape = Control.CursorShape.PointingHand,
                 TooltipText = $"Tier {tier}: {FestivalTickets.Sold(tier)} guests at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))}. " +
                     $"Brings {FestivalCurrency.Format(carry.CashPennies)} cash, {FestivalCurrency.Format(carry.DebtPennies)} of loan still owed, " +
-                    "your reputation and owned kit. Perks, staff, bookings, stock and the build start fresh." }, Ui.ButtonKind.Primary, 15, 8);
+                    "your reputation and owned kit. Perks, staff, bookings, stock and the build start fresh." +
+                    (tier >= GameSession.PondStageFromTier ? "\nWe've upgraded with a second stage, the Pond Stage, which comes with its own generator." : "") }, Ui.ButtonKind.Primary, 15, 8);
             next.Pressed += () =>
             {
                 if (nextFestival()) return;

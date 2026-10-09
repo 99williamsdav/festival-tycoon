@@ -264,6 +264,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         "steward-post" => ("Steward post", "Place a steward post"),
         "programme" => ("Three acts booked", "Book three acts"),
         "staff" => ("Sound engineer hired", "Hire a sound engineer"),
+        "programme.stage.pond" => ("Pond Stage acts booked", "Book three Pond Stage acts"),
+        "staff.pond" => ("Pond Stage engineer hired", "Hire a Pond Stage engineer"),
         "medic" => ("Medic hired", "Hire a medic"),
         "steward" => ("Steward hired", "Hire a steward"),
         "budget" => ("Within budget", "Bring the draft within budget"),
@@ -344,7 +346,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             var (text, attention, done) = name switch
             {
                 "Build" => ($"{placed} placed", owed.Length > 0, owed.Length == 0),
-                "Programme" => ($"{acts} of 3 acts", owed.Length > 0, owed.Length == 0),
+                "Programme" => ($"{acts} of {session.Stages.Count * 3} acts", owed.Length > 0, owed.Length == 0),
                 "Staff" => (owed.Length > 0 ? $"{StaffNeeded(session) - owed.Length} of {StaffNeeded(session)} hired" : "Crew hired", owed.Length > 0, owed.Length == 0),
                 _ => (costs.Supplies > 0 ? $"{FestivalCurrency.Format(costs.Supplies)} planned" : "Optional", false, false),
             };
@@ -361,6 +363,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         }
     }
 
+    private bool _compactRows;
+
     private void RefreshReadiness(IReadOnlyList<PreparationStartRequirement> requirements, PreparationStartRequirement[] missing)
     {
         var done = requirements.Count - missing.Length;
@@ -373,6 +377,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         if (key == _readinessKey) return;
         _readinessKey = key;
         foreach (var child in _readinessRows!.GetChildren()) child.QueueFree();
+        // A second stage adds two rows: the list closes up so it still clears the camera buttons.
+        _compactRows = requirements.Count + 1 > 10;
         foreach (var requirement in requirements)
             _readinessRows.AddChild(ReadinessRow(requirement));
         // Not a requirement, so it never holds up Start, but worth a warning: no stock means nothing to sell.
@@ -385,7 +391,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         var (doneText, todoText) = advisory ? ("Stock ordered", "No stock ordered") : Wording(requirement);
         var destination = advisory ? "Supplies" : Destination(requirement.Owner);
         var complete = requirement.Complete;
-        var row = new PanelContainer { CustomMinimumSize = new Vector2(0, Ui.S(complete ? 30 : 34)), MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+        var row = new PanelContainer { CustomMinimumSize = new Vector2(0, Ui.S(_compactRows ? complete ? 25 : 29 : complete ? 30 : 34)), MouseDefaultCursorShape = Control.CursorShape.PointingHand,
             MouseFilter = Control.MouseFilterEnum.Stop, TooltipText = complete ? $"{doneText} · open {destination} to review" : requirement.Detail };
         // An advisory is a softer amber, not the alert colour of something that blocks Start.
         var wash = advisory ? new Color(Ui.Warn, 0.16f) : Ui.AlertWash;

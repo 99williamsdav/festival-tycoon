@@ -83,6 +83,7 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
     private Label? _expectSummary;
     private VBoxContainer? _quotes;
     private string _key = "";
+    private Label? _upgrade, _nextLine, _sets;
 
     public bool Visible => _root?.Visible == true;
 
@@ -102,7 +103,7 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         var heading = new VBoxContainer(); heading.AddThemeConstantOverride("separation", Ui.Px(4));
         heading.AddChild(Ui.Caps("Before you plan", Ui.Gold));
         heading.AddChild(Ui.Heading("The box office", 36, Ui.BarText));
-        heading.AddChild(Ui.Text("Tickets went on sale in the spring. Here's who's coming, and what they think they've paid for.", 14.5f, Ui.BarMuted));
+        _upgrade = Ui.Text("", 14.5f, Ui.BarMuted); heading.AddChild(_upgrade);
         Place(heading, 72, 82, 1136);
 
         Place(TicketColumn(), 72, 182, 340);
@@ -114,7 +115,7 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         var start = Ui.Style(new Button { Text = "Start planning", Icon = Ui.Icon("chevron-right"), IconAlignment = HorizontalAlignment.Right,
             CustomMinimumSize = new Vector2(0, Ui.S(48)), MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Primary, 16, 8);
         start.Pressed += _startPlanning; footer.AddChild(start);
-        var next = Ui.Text("Next: build your site, book three acts and hire a sound engineer.", 13, Ui.BarMuted);
+        var next = _nextLine = Ui.Text("Next: build your site, book three acts and hire a sound engineer.", 13, Ui.BarMuted);
         next.AutowrapMode = TextServer.AutowrapMode.WordSmart; footer.AddChild(next);
         Place(footer, 72, 594, 340);
     }
@@ -138,7 +139,7 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         var words = new VBoxContainer(); words.AddThemeConstantOverride("separation", Ui.Px(4)); face.AddChild(words);
         words.AddChild(Ui.Caps("Admit one · Tier 1", Ui.Link));
         var name = Ui.Heading("Lower Wittering Festival", 25); name.AutowrapMode = TextServer.AutowrapMode.WordSmart; words.AddChild(name);
-        words.AddChild(Ui.Text("One day on the farm · three sets", 13, Ui.InkMuted));
+        _sets = Ui.Text("One day on the farm · three sets", 13, Ui.InkMuted); words.AddChild(_sets);
         words.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(8)) });
         var price = new HBoxContainer(); price.AddThemeConstantOverride("separation", Ui.Px(8)); words.AddChild(price);
         _ticketPrice = Ui.Heading("", 44); price.AddChild(_ticketPrice);
@@ -173,7 +174,8 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         }
         var tickets = Line("", out _ticketLine, Ui.TealDeep); lines.AddChild(tickets);
         tickets.GetChild<Label>(0).Name = "Caption";
-        lines.AddChild(Line("Starter loan", out _loanLine, Ui.Ink));
+        var loan = Line("Starter loan", out _loanLine, Ui.Ink); lines.AddChild(loan);
+        loan.GetChild<Label>(0).Name = "Caption";
         lines.AddChild(new ColorRect { Color = Ui.Ink, CustomMinimumSize = new Vector2(0, Math.Max(1, Ui.S(1.5f))) });
         var total = new HBoxContainer(); lines.AddChild(total);
         var spend = Ui.Heading("To spend", 18); spend.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; spend.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; total.AddChild(spend);
@@ -236,9 +238,17 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         var p = session.CapturePreparation()!;
         var price = FestivalTickets.PricePennies(p.Tier);
         var sold = FestivalTickets.Sold(p.Tier);
-        var key = $"{session.CampaignSeed}:{p.Attempt}:{price}:{sold}";
+        var key = $"{session.CampaignSeed}:{p.Attempt}:{price}:{sold}:{session.PondStageOpen}";
         if (key == _key) return;
         _key = key;
+        // A festival with the Pond Stage leads with its news: the second stage, with its own generator thrown in.
+        _upgrade!.Text = session.PondStageOpen ? "Big news: we've upgraded with a second stage, the Pond Stage, which comes with its own generator. Here's who's coming."
+            : "Tickets went on sale in the spring. Here's who's coming, and what they think they've paid for.";
+        _upgrade.AddThemeColorOverride("font_color", session.PondStageOpen ? Ui.Gold : Ui.BarMuted);
+        _upgrade.AddThemeFontOverride("font", session.PondStageOpen ? Ui.BodyBold : Ui.Body);
+        _sets!.Text = session.PondStageOpen ? "One day on the farm · two stages, six sets" : "One day on the farm · three sets";
+        _nextLine!.Text = session.PondStageOpen ? "Next: build your site, book three acts for each stage and hire a sound engineer for each."
+            : "Next: build your site, book three acts and hire a sound engineer.";
         var tickets = FestivalTickets.RevenuePennies(p.Tier);
         _ticketPrice!.Text = FestivalCurrency.Format(price);
         _sold!.Text = sold.ToString(); _soldOf!.Text = $"of {sold} sold";

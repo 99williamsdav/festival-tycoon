@@ -3,7 +3,7 @@ using System;
 
 namespace Festival.Game;
 
-/// <summary>The title screen: the festival logo and one Enter button.</summary>
+/// <summary>The title screen: the festival logo, the Enter button, and a way into the Pond Stage trial.</summary>
 internal sealed class StartMenu
 {
     private CanvasLayer? _layer;
@@ -12,7 +12,7 @@ internal sealed class StartMenu
 
     public void Close() { _layer?.QueueFree(); _layer = null; }
 
-    public void Open(Node parent, Action enter, Action fieldGuide)
+    public void Open(Node parent, Action enter, Action fieldGuide, Action? tryPondStage = null)
     {
         _layer = new CanvasLayer { Layer = 20 };
         parent.AddChild(_layer);
@@ -54,6 +54,16 @@ internal sealed class StartMenu
         guide.AddThemeColorOverride("font_color", new Color("f3e8c9")); guide.AddThemeFontSizeOverride("font_size", 16);
         guide.Pressed += fieldGuide;
         content.AddChild(guide);
+        if (tryPondStage is not null)
+        {
+            // A new campaign with the second stage open from the start; it doesn't touch the saved festival.
+            var pond = new Button { Name = "TryPondStage", Text = "Try the Pond Stage · trial", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+                MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+                TooltipText = "Start a new trial festival with a second stage by the pond, before it would normally open." };
+            pond.AddThemeColorOverride("font_color", new Color("9fd3c2")); pond.AddThemeFontSizeOverride("font_size", 16);
+            pond.Pressed += tryPondStage;
+            content.AddChild(pond);
+        }
         button.GrabFocus();
     }
 }
