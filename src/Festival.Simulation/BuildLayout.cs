@@ -210,7 +210,7 @@ public sealed partial class GameSession
             {
                 if (access.Contains(cell) && sharedAccess.Contains(cell)) continue;
                 // The rest area moves with first aid, so say which one is in the way.
-                if (restArea.Contains(cell)) return "First aid needs clear ground in front of it, where overheated guests rest.";
+                if (restArea.Contains(cell)) return "Keep clear of the ground in front of first aid, where overheated guests rest.";
                 if (!reserved.Add(cell)) return "Service footprint or access overlaps another placement.";
                 if (access.Contains(cell)) sharedAccess.Add(cell);
             }
