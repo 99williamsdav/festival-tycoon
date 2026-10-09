@@ -66,13 +66,14 @@ public sealed partial class GameSession
     /// between stage and lane, chips and bar along the lane, first aid across it and the steward post by the gate.
     /// </summary>
     /// <remarks>
-    /// From Tier 2, the tier's second tap and third toilet join it: the tap a few metres along from the first, towards
-    /// the field, and the toilet on the lane end of the row. Both keep clear of either stage, the rest area and the lane.
+    /// From Tier 2, the tier's second tap and third toilet join it: the tap beside the Pond Stage's crowd, east of the
+    /// lane, so its listeners and band don't walk the width of the field for water; the toilet on
+    /// the lane end of the row. Both keep clear of either stage, the rest area and the lane, with or without the pond.
     /// </remarks>
     public static BuildPlacement[] StandardBuildLayout(int tier = 1) => tier < 2 ? TierOneBuildLayout() :
     [
         .. TierOneBuildLayout(),
-        new("water.extra-1", BuildServiceKind.WaterTap, new(110, 130), 1),
+        new("water.extra-1", BuildServiceKind.WaterTap, new(159, 139), 0),
         new("toilet.extra-2", BuildServiceKind.Toilet, new(122, 121), 2),
     ];
 

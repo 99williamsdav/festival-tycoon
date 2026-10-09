@@ -46,6 +46,48 @@ public sealed class NextFestivalTests
     }
 
     [TestMethod]
+    public void TierTwosDefaultLayoutPutsItsSecondTapByThePondAndStandsWithOrWithoutThePond()
+    {
+        var tap = GameSession.StandardBuildLayout(2).Single(item => item.Id == "water.extra-1");
+        Assert.AreEqual((new GridCell(159, 139), 0), (tap.Cell, tap.QuarterTurns));
+        var validate = typeof(GameSession).GetMethod("ValidateBuildLayout", BindingFlags.NonPublic | BindingFlags.Static)!;
+        foreach (var pond in new[] { false, true })
+            Assert.IsNull(validate.Invoke(null, [GameSession.StandardBuildLayout(2), FestivalStages.For(pond), null, false, 2]), $"pond open: {pond}");
+        // Tier 1's default is unchanged.
+        Assert.IsFalse(GameSession.StandardBuildLayout(1).Any(item => item.Id is "water.extra-1" or "toilet.extra-2"));
+        var s = Drafted(TierTwo());
+        Assert.IsTrue(s.PondStageOpen);
+        Assert.AreEqual(new GridCell(159, 139), s.CaptureWaterPoints().Single(point => point.Id == "water.extra-1").Cell);
+    }
+
+    [TestMethod]
+    public void TierTwoHasAFreeSecondMedicSlotAndDoesNotDealDoctorsOrders()
+    {
+        var one = GameSession.CreateBuildCampaign(20260922);
+        Assert.IsFalse(one.CapturePreparation()!.ExtraMedicSlotOwned, "Tier 1 still needs Doctor's Orders for a second medic.");
+        var s = Drafted(TierTwo());
+        var p = s.CapturePreparation()!;
+        Assert.IsTrue(p.ExtraMedicSlotOwned);
+        Assert.IsFalse(s.CapturePerks()!.Equipped.Contains("doctors-orders"));
+        // Doctor's Orders would be a dead card here, so no Tier 2 hand deals it, through any number of redraws.
+        var redraw = typeof(GameSession).GetMethod("OpenPerkDraft", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var dealer = TierTwo();
+        for (var i = 0; i < 200; i++) { Assert.IsFalse(dealer.CapturePerks()!.Hand.Contains("doctors-orders")); redraw.Invoke(dealer, []); }
+        // The slot is free; the medic isn't. The second medic is optional.
+        var ready = Ready(TierTwo());
+        Assert.AreEqual(0, ready.GetPreparationStartBlockers().Count);
+        var before = ready.PreparationPlanCost;
+        var extra = BuildSession.ExtraId(ready, StaffRole.Medic);
+        BuildSession.Accept(ready, new AcceptPreparationOfferCommand(extra));
+        Assert.AreEqual(before + ready.GetPreparationOffers().Single(offer => offer.Id == extra).PricePennies, ready.PreparationPlanCost);
+        BuildSession.Accept(ready, new StartPreparedEditionCommand());
+        Assert.AreEqual(2, ready.CapturePreparation()!.People.Count(person => person.Role == ProtectedPersonRole.Staff && person.Name.Length > 0 &&
+            ready.GetResponseStaff().Any(staff => staff.AgentId == person.AgentId && staff.Role == ResponseRole.Medic)));
+        BuildSession.Restored(ready);
+        BuildSession.Restored(s);
+    }
+
+    [TestMethod]
     public void BuildLimitsGoUpByOneTapAndToiletAtTierTwo()
     {
         Assert.AreEqual(new TierBuildLimits(1, 2, 1, 1, 1, 1), GameSession.BuildLimits(1));
@@ -177,7 +219,10 @@ public sealed class NextFestivalTests
     [TestMethod]
     public void TierTwoPlaysToTheEndAndItsAccountsShowTheCarriedCashAndDebt()
     {
+        // A sensible Tier 2 plan fills the free second medic slot: with one medic for 50 guests and two bands, two of
+        // three probed days lost someone waiting for treatment; with two, all three finished.
         var s = Ready(TierTwo());
+        BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Medic)));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         Assert.AreEqual(2, s.CaptureLifecycleSnapshot()!.TierOrdinal);
         Assert.AreEqual("tier-2", s.CaptureLifecycleSnapshot()!.CurrentTierId);

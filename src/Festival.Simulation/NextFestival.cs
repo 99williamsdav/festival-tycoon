@@ -4,6 +4,8 @@ public sealed partial class GameSession
 {
     /// <summary>The highest tier with its parameters set; a festival there has no next festival yet.</summary>
     public const int HighestTier = 2;
+    /// <summary>The tier from which a festival has a second medic slot without the Doctor's Orders perk (it isn't dealt there).</summary>
+    public const int FreeExtraMedicFromTier = 2;
     /// <summary>The kit a festival can own and so carry forward: the bought sound rig.</summary>
     public static readonly string[] CarriableKit = ["sound-rig"];
     // Spending money a person brings (see NewImmersionPerson): a guest at most £25, crew and band £15.

@@ -41,6 +41,8 @@ public sealed partial class GameSession
     {
         var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial);
         SetUpPerks(session, seed, tier);
+        // From Tier 2 a second medic can be hired without a perk; hiring them still costs their wage.
+        if (tier >= FreeExtraMedicFromTier) session._preparation = session._preparation! with { ExtraMedicSlotOwned = true };
         SetUpEditablePlan(session);
         SetUpResults(session);
         SetUpBuild(session);
