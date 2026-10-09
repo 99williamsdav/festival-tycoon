@@ -81,6 +81,30 @@ public sealed partial class GameSession
                 occupied.Add(new EntityId(id--), cow.XMillimetres + dx, cow.ZMillimetres + dz);
     }
 
+    /// <summary>
+    /// A walker sidestepping near a loose cow plans its new route round the cow, not back through it: the path grid
+    /// doesn't know about cows, so a grazing cow on the only planned line otherwise holds a walker shuffling in front
+    /// of it for good (a guest who never left a Tier 2 pond day). Cells the cow's body covers cost twenty times as
+    /// much; null when no cow is close enough to matter, so every other replan is unchanged.
+    /// </summary>
+    private int[]? CowDetourCost(NavigationAgentState agent)
+    {
+        if (_cows is not { Loose.Length: > 0 } cows) return null;
+        const int Near = 3_000, Covered = CowRules.BodyMillimetres + TraversalGrid.CellSizeMillimetres / 2, Extra = 20_000;
+        int[]? cost = null;
+        foreach (var cow in cows.Loose)
+        {
+            if (Math.Abs(cow.XMillimetres - agent.XMillimetres) > Near || Math.Abs(cow.ZMillimetres - agent.ZMillimetres) > Near) continue;
+            cost ??= _groundRouteCost?.ToArray() ?? new int[TraversalGrid.Width * TraversalGrid.Depth];
+            var lower = TraversalGrid.WorldToCell(cow.XMillimetres - Covered, cow.ZMillimetres - Covered);
+            var upper = TraversalGrid.WorldToCell(cow.XMillimetres + Covered, cow.ZMillimetres + Covered);
+            for (var z = Math.Max(0, lower.Z); z <= Math.Min(TraversalGrid.Depth - 1, upper.Z); z++)
+            for (var x = Math.Max(0, lower.X); x <= Math.Min(TraversalGrid.Width - 1, upper.X); x++)
+                cost[z * TraversalGrid.Width + x] += Extra;
+        }
+        return cost;
+    }
+
     /// <summary>Whether a steward is out herding a cow: like a fault job, it holds their route until it's done.</summary>
     private bool CowWorkOwns(ulong id) => _cows?.Loose.Any(cow => cow.HerderId == id) == true;
 

@@ -81,7 +81,8 @@ public sealed partial class GameSession
         var start = TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres);
         var searchStart = Stopwatch.GetTimestamp();
         // Wet and muddy ground costs more, so people go round a swamp if there is a reasonable way.
-        var search = DeterministicPathfinder.FindPath(_traversalGrid!, start, command.Destination, _groundRouteCost);
+        var search = DeterministicPathfinder.FindPath(_traversalGrid!, start, command.Destination,
+            avoidanceReplan ? CowDetourCost(agent) ?? _groundRouteCost : _groundRouteCost);
         ScaleDiagnosticProbe?.AddRouteSearch(Stopwatch.GetTimestamp() - searchStart, search.ExpandedNodes, avoidanceReplan);
         agent.Destination = command.Destination;
         agent.Route = search.Path.ToList();
