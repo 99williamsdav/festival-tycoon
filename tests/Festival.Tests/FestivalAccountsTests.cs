@@ -53,7 +53,7 @@ public sealed class FestivalAccountsTests
     [TestMethod]
     public void TheOpeningBudgetIsExactlyTierOneTicketsPlusTheStarterLoan() =>
         // Change the crowd or the ticket price and the opening cash has to move with it, or the books stop agreeing.
-        Assert.AreEqual(FestivalTickets.RevenuePennies(1), CampaignDefaults.OpeningCashPennies - CampaignDefaults.OpeningLoanPrincipalPennies);
+        Assert.AreEqual(CampaignDefaults.OpeningCashPennies - CampaignDefaults.OpeningLoanPrincipalPennies, FestivalTickets.RevenuePennies(1));
 
     [TestMethod]
     public void RecordedRatesBuildFeesStockAndCapitalReconcileWithoutDoubleCounting()
