@@ -105,4 +105,22 @@ public sealed class ActivityChooserTests
         var second = new ActivityOption(ActivityKind.Toilet, "b", 800, 800);
         Assert.AreEqual("a", ActivityChooser.Rank(new(0, 0, 0, 6_000), Growth, Music(0), [first, second])[0].Option.FacilityId);
     }
+
+    [TestMethod]
+    public void ABandMemberAboutToPlayALongSetDrinksFirstRatherThanCollapseOnStage()
+    {
+        // Parched but not yet hot: inside the two-minute look-ahead heat stays under distress, so a long trip to the tap
+        // looks worse than staying for the music. The set they're committed to runs on past the look-ahead, though,
+        // and with no water they'd be in distress for most of it. Counting that, the tap wins.
+        var now = new NeedLevels(9_500, 5_000, 0, 0);
+        var growth = new NeedGrowth(20, 20, 0, 0);
+        var water = new ActivityOption(ActivityKind.Water, "water.main", 3_000, 6_000);
+        var stay = new ActivityOption(ActivityKind.Watch, null, 0, 0);
+        Assert.AreEqual(ActivityKind.Watch, ActivityChooser.Rank(now, growth, Music(4_000), [stay, water])[0].Option.Kind,
+            "Without the set in view, staying looks better: the flaw this guards.");
+        Assert.AreEqual(ActivityKind.Water, ActivityChooser.Rank(now, growth, Music(4_000), [stay, water], committedTicks: 8_400)[0].Option.Kind);
+        // Committed time only counts distress: an ordinary need past the look-ahead doesn't tip a choice.
+        var cool = new NeedLevels(5_000, 0, 0, 0);
+        Assert.AreEqual(ActivityChooser.Score(cool, growth, Music(4_000), stay), ActivityChooser.Score(cool, growth, Music(4_000), stay, 8_400));
+    }
 }
