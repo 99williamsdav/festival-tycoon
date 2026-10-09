@@ -8,18 +8,11 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class NextFestivalTests
 {
-    /// <summary>A festival in preparation with a quiet perk, the default layout, three affordable acts, crew and stock.</summary>
-    internal static GameSession Ready(GameSession s)
-    {
-        Drafted(s);
-        var acts = s.GetFestivalActs().Where(act => s.ActStandingOf(act) == ActStanding.Available)
-            .OrderBy(act => s.ActFee(act)).ThenBy(act => act.Id, StringComparer.Ordinal).Take(3).Select(act => act.Id).ToArray();
-        Assert.AreEqual(3, acts.Length, "Three acts should play for the festival.");
-        BuildSession.Accept(s, new SetProgrammeCommand(acts));
-        BuildSession.Accept(s, new SetPreparationStockCommand(40, 32));
-        foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
-        return s;
-    }
+    /// <summary>
+    /// A festival in preparation with a quiet perk, the default layout, three affordable acts on each open stage, crew
+    /// (and the Pond Stage's engineer from Tier 2) and stock.
+    /// </summary>
+    internal static GameSession Ready(GameSession s) => ReadyOnEveryStage(s);
 
     /// <summary>A quiet perk (a hiring slot no crew fills) drafted and the default layout placed.</summary>
     internal static GameSession Drafted(GameSession s)
@@ -146,7 +139,7 @@ public sealed class NextFestivalTests
     {
         var s = BuildSession.Started();
         RunToEnd(s);
-        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus);
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus, $"status {s.PreparedStatus}, tick {s.CurrentTick - s.CapturePreparation()!.StartedTick} of {s.PreparedEditionDurationTicks}");
         Assert.IsTrue(s.CanStartNextFestival);
         var closing = s.CaptureSnapshot().FestivalFinances.Single().CashPennies;
         var finished = s.CapturePreparation()!;
@@ -206,7 +199,7 @@ public sealed class NextFestivalTests
         RunToEnd(s);
         RunToEnd(middle);
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, middle.CaptureSnapshot().AuthoritativeHash, "A restored day plays out the same.");
-        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus);
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus, $"status {s.PreparedStatus}, tick {s.CurrentTick - s.CapturePreparation()!.StartedTick} of {s.PreparedEditionDurationTicks}");
         var accounts = s.CompletedFestivalAccounts!;
         Assert.IsTrue(accounts.Reconciles);
         Assert.AreEqual(50, accounts.TicketsSold);
@@ -338,7 +331,7 @@ public sealed class NextFestivalTests
     }
 
     /// <summary>A festival with three affordable acts on each open stage, crew, the Pond Stage's engineer if it plays, and stock.</summary>
-    private static GameSession ReadyOnEveryStage(GameSession s)
+    internal static GameSession ReadyOnEveryStage(GameSession s)
     {
         Drafted(s);
         var acts = s.GetFestivalActs().Where(act => s.ActStandingOf(act) == ActStanding.Available)
@@ -362,7 +355,8 @@ public sealed class NextFestivalTests
         Assert.AreEqual(2, s.CapturePreparation()!.Tier);
         Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 2, pondStageTrial: true).PondStageOpen);
         Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 1, pondStageTrial: true).PondStageOpen);
-        Assert.IsFalse(GameSession.CreateDevelopmentFestival(20260922, 2).PondStageOpen);
+        Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 2).PondStageOpen, "Tier 2 comes with the Pond Stage anyway.");
+        Assert.IsFalse(GameSession.CreateDevelopmentFestival(20260922, 1).PondStageOpen);
 
         // The default layout still stands with the pond open, and Tier 2's extra tap and toilet keep off both stages.
         ReadyOnEveryStage(s);
