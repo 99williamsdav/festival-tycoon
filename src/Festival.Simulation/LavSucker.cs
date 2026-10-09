@@ -13,6 +13,8 @@ public sealed record LavSuckerCall(string Id, string ToiletId, long CalledTick, 
 {
     /// <summary>What this call sucked out, once pumping's done: a toilet's emptied amount is exactly the sum of its calls'.</summary>
     public int EmptiedMillilitres { get; init; }
+    /// <summary>How long the tanker has been held up by someone in front of it; it noses on regardless after a while.</summary>
+    public int BlockedTicks { get; init; }
 }
 
 public sealed record LavSuckerSnapshot(int Version, LavSuckerCall[] Calls);
@@ -31,6 +33,12 @@ public static class LavSuckerRules
     public const int PumpTicks = 800;
     /// <summary>The stink while it pumps, a second, out to this far.</summary>
     public const int StinkPerSecond = 6, StinkReachMillimetres = 7_000;
+    /// <summary>Extra cost of a grass cell to the lorry's route-finder, so it sticks to the farm track.</summary>
+    public const int GrassCostPermille = 4_000;
+    /// <summary>The cab's front is this far ahead of the lorry's middle; it stops for anyone within the stopping distance of it.</summary>
+    public const int CabFrontMillimetres = 2_700, HalfWidthMillimetres = 1_200, StopDistanceMillimetres = 1_500;
+    /// <summary>How long Dav waits for someone to move before he edges on anyway (10 s).</summary>
+    public const int PatienceTicks = 800;
 }
 
 public sealed partial class GameSession
@@ -78,7 +86,7 @@ public sealed partial class GameSession
         _festivalFinances[new(_preparation!.FinanceOwnerId)].CashPennies -= LavSuckerRules.FeePennies;
         var toilet = EffectiveToilets(_facilities).Single(t => t.Id == command.ToiletId);
         var gate = TraversalGrid.CellCentre(LavSuckerRules.Gate);
-        var path = DeterministicPathfinder.FindPath(_traversalGrid!, LavSuckerRules.Gate, LavSuckerBay(toilet));
+        var path = DeterministicPathfinder.FindPath(_traversalGrid!, LavSuckerRules.Gate, LavSuckerBay(toilet), LavRoadCost(_traversalGrid!));
         var call = new LavSuckerCall($"lav:{_preparation.Attempt}:{_lavSucker!.Calls.Length + 1}", toilet.Id, CurrentTick, LavSuckerStage.Arriving,
             gate.XMillimetres, gate.ZMillimetres, path.Found ? path.Path.ToArray() : [LavSuckerBay(toilet)], 0, CurrentTick);
         _lavSucker = _lavSucker with { Calls = _lavSucker.Calls.Append(call).ToArray() };
@@ -111,7 +119,7 @@ public sealed partial class GameSession
                 call = call with { EmptiedMillilitres = amount };
                 MedicalEvent("lav:emptied", $"Dav's Lav-Sucker emptied {call.ToiletId}.");
                 var here = TraversalGrid.WorldToCell(call.XMillimetres, call.ZMillimetres);
-                var home = DeterministicPathfinder.FindPath(_traversalGrid!, here, LavSuckerRules.Gate);
+                var home = DeterministicPathfinder.FindPath(_traversalGrid!, here, LavSuckerRules.Gate, LavRoadCost(_traversalGrid!));
                 return call with { Stage = LavSuckerStage.Leaving, StageTick = CurrentTick, Route = home.Found ? home.Path.ToArray() : [LavSuckerRules.Gate], RouteIndex = 0 };
             case LavSuckerStage.Leaving:
                 if (call.RouteIndex < call.Route.Length) return DriveLavSucker(call);
@@ -121,8 +129,60 @@ public sealed partial class GameSession
         }
     }
 
-    private static LavSuckerCall DriveLavSucker(LavSuckerCall call)
+    // A lorry keeps to the farm track as long as it can: grass costs it five times as much, so it only turns off
+    // across the field where the track runs nearest the loo.
+    private static (TraversalGrid Grid, int[] Cost)? _lavRoadCost;
+    private static int[] LavRoadCost(TraversalGrid grid)
     {
+        if (_lavRoadCost is { } cached && ReferenceEquals(cached.Grid, grid)) return cached.Cost;
+        var cost = new int[TraversalGrid.Width * TraversalGrid.Depth];
+        for (var z = 0; z < TraversalGrid.Depth; z++)
+            for (var x = 0; x < TraversalGrid.Width; x++)
+                if (grid.Get(new(x, z)).Surface != GroundSurface.VehicleTrack) cost[z * TraversalGrid.Width + x] = LavSuckerRules.GrassCostPermille;
+        _lavRoadCost = (grid, cost);
+        return cost;
+    }
+
+    /// <summary>Which way the lorry faces (a unit vector): toward the next cell while driving; parked, the way the art parks it.</summary>
+    private (double X, double Z) LavSuckerHeading(LavSuckerCall call)
+    {
+        if (call.RouteIndex < call.Route.Length)
+        {
+            var next = TraversalGrid.CellCentre(call.Route[call.RouteIndex]);
+            double dx = next.XMillimetres - call.XMillimetres, dz = next.ZMillimetres - call.ZMillimetres;
+            var length = Math.Sqrt(dx * dx + dz * dz);
+            if (length >= 1) return (dx / length, dz / length);
+        }
+        var turns = EffectiveToilets(_facilities).FirstOrDefault(t => t.Id == call.ToiletId)?.QuarterTurns ?? 0;
+        var facing = RotateWaterOffset(new(0, 1), turns);
+        return (facing.X, facing.Z);
+    }
+
+    /// <summary>Someone standing or walking just ahead of the cab, where the lorry would run them over.</summary>
+    private bool LavSuckerPathBlocked(LavSuckerCall call)
+    {
+        if (call.RouteIndex >= call.Route.Length) return false;
+        var (hx, hz) = LavSuckerHeading(call);
+        foreach (var agent in _navigationAgents.Values)
+        {
+            if (PersonIn(PersonView.Roster, agent.Id.Value) is not { Admitted: true, Departed: false }) continue;
+            double dx = agent.XMillimetres - call.XMillimetres, dz = agent.ZMillimetres - call.ZMillimetres;
+            var along = dx * hx + dz * hz;
+            var across = Math.Abs(dx * hz - dz * hx);
+            if (along is > LavSuckerRules.CabFrontMillimetres - 300 and < LavSuckerRules.CabFrontMillimetres + LavSuckerRules.StopDistanceMillimetres &&
+                across < LavSuckerRules.HalfWidthMillimetres + 400) return true;
+        }
+        return false;
+    }
+
+    private LavSuckerCall DriveLavSucker(LavSuckerCall call)
+    {
+        // Wait for whoever's in front to get out of the way; a crowd that won't shift gets nosed through after a while.
+        if (LavSuckerPathBlocked(call))
+        {
+            if (call.BlockedTicks < LavSuckerRules.PatienceTicks) return call with { BlockedTicks = call.BlockedTicks + 1 };
+        }
+        else if (call.BlockedTicks != 0) call = call with { BlockedTicks = 0 };
         int x = call.XMillimetres, z = call.ZMillimetres, index = call.RouteIndex, budget = LavSuckerRules.MillimetresPerTick;
         while (budget > 0 && index < call.Route.Length)
         {
@@ -157,9 +217,15 @@ public sealed partial class GameSession
     {
         if (_lavSucker is null) return;
         var id = LavOccupancyBase;
+        // The lorry's whole body, lying along the way it's facing: three rows down its length, cab to tank.
         foreach (var call in _lavSucker.Calls.Where(c => c.Stage != LavSuckerStage.Gone))
-            foreach (var (dx, dz) in new[] { (0, 0), (900, 0), (-900, 0), (0, 900), (0, -900), (1_800, 0), (-1_800, 0), (0, 1_800), (0, -1_800) })
-                occupied.Add(new EntityId(id--), call.XMillimetres + dx, call.ZMillimetres + dz);
+        {
+            var (hx, hz) = LavSuckerHeading(call);
+            for (var along = -LavSuckerRules.CabFrontMillimetres; along <= LavSuckerRules.CabFrontMillimetres; along += 900)
+                for (var across = -900; across <= 900; across += 900)
+                    occupied.Add(new EntityId(id--), call.XMillimetres + (int)Math.Round(hx * along + hz * across),
+                        call.ZMillimetres + (int)Math.Round(hz * along - hx * across));
+        }
     }
 
     private static string? ValidatePersistedLavSucker(SessionPersistenceSnapshot s)
@@ -180,7 +246,7 @@ public sealed partial class GameSession
                 c.Stage == LavSuckerStage.Pumping && (toilets[c.ToiletId].OwnerId is not null || toilets[c.ToiletId].InterruptedOccupantId is not null) ||
                 c.Route.Length > 0 && c.RouteIndex == c.Route.Length && c.Stage is LavSuckerStage.Arriving or LavSuckerStage.Pumping &&
                     (c.XMillimetres, c.ZMillimetres) != TraversalGrid.CellCentre(c.Route[^1]) || c.CalledTick < 0 || c.CalledTick > s.CurrentTick || c.StageTick < c.CalledTick ||
-                c.StageTick > s.CurrentTick || c.Route is null || c.RouteIndex < 0 || c.RouteIndex > c.Route.Length || c.Route.Any(r => !grid.Contains(r)) ||
+                c.StageTick > s.CurrentTick || c.BlockedTicks is < 0 or > LavSuckerRules.PatienceTicks || c.Route is null || c.RouteIndex < 0 || c.RouteIndex > c.Route.Length || c.Route.Any(r => !grid.Contains(r)) ||
                 !grid.Contains(TraversalGrid.WorldToCell(c.XMillimetres, c.ZMillimetres)) ||
                 c.Stage == LavSuckerStage.Pumping && (c.Route.Length != 0 && c.RouteIndex != c.Route.Length || s.CurrentTick - c.StageTick >= LavSuckerRules.PumpTicks))
                 return "Emptying service call invalid.";

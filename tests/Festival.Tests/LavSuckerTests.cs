@@ -50,6 +50,48 @@ public sealed class LavSuckerTests
     }
 
     [TestMethod]
+    public void DavKeepsToTheFarmTrackUntilHeHasToTurnOffForTheLoo()
+    {
+        var (s, id) = WithAFullToilet();
+        Assert.IsTrue(Send(s, new CallLavSuckerCommand(id)).IsAccepted);
+        var route = s.CaptureLavSucker()!.Calls.Single().Route;
+        var grid = (TraversalGrid)typeof(GameSession).GetField("_traversalGrid", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(s)!;
+        // On the track from the gate, then one turn off across the grass: never back onto the track once he's left it.
+        var onTrack = route.TakeWhile(cell => grid.Get(cell).Surface == GroundSurface.VehicleTrack).Count();
+        Assert.IsTrue(onTrack >= route.Length / 2, $"{onTrack} of {route.Length} cells on the track.");
+        Assert.IsFalse(route.Skip(onTrack).Any(cell => grid.Get(cell).Surface == GroundSurface.VehicleTrack && cell != route[^1]), "Left the track once.");
+    }
+
+    [TestMethod]
+    public void DavStopsForSomeoneInFrontOfTheCabAndEdgesOnIfTheyWontMove()
+    {
+        var (s, id) = WithAFullToilet();
+        Assert.IsTrue(Send(s, new CallLavSuckerCommand(id)).IsAccepted);
+        s.AdvanceWithoutSnapshot(160);
+        var call = s.CaptureLavSucker()!.Calls.Single();
+        Assert.IsTrue(call.RouteIndex < call.Route.Length - 4, "Still on the way in.");
+        // Plant a guest just ahead of the cab, along the way it's driving, and hold them there.
+        var next = TraversalGrid.CellCentre(call.Route[call.RouteIndex + 2]);
+        double hx = next.XMillimetres - call.XMillimetres, hz = next.ZMillimetres - call.ZMillimetres, length = Math.Sqrt(hx * hx + hz * hz);
+        int ax = call.XMillimetres + (int)(hx / length * (LavSuckerRules.CabFrontMillimetres + 600)), az = call.ZMillimetres + (int)(hz / length * (LavSuckerRules.CabFrontMillimetres + 600));
+        var guest = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed).AgentId;
+        var agents = (System.Collections.IDictionary)typeof(GameSession).GetField("_navigationAgents", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(s)!;
+        var agent = agents[new EntityId(guest)]!;
+        void Hold() { agent.GetType().GetProperty("XMillimetres")!.SetValue(agent, ax); agent.GetType().GetProperty("ZMillimetres")!.SetValue(agent, az); }
+        var at = (call.XMillimetres, call.ZMillimetres);
+        for (var tick = 0; tick < 400; tick++) { Hold(); s.AdvanceWithoutSnapshot(1); }
+        var waiting = s.CaptureLavSucker()!.Calls.Single();
+        // Unhindered it would have covered 15 m in that time; held up, it gets no further than a pace before stopping.
+        var crept = Math.Sqrt(Math.Pow(waiting.XMillimetres - at.XMillimetres, 2) + Math.Pow(waiting.ZMillimetres - at.ZMillimetres, 2));
+        Assert.IsTrue(crept < 1_000, $"Stopped short of them, not {crept:0} mm on.");
+        Assert.IsTrue(waiting.BlockedTicks > 300, $"Held up {waiting.BlockedTicks} ticks.");
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, "A held-up tanker saves: " + restored.Error);
+        for (var tick = 0; tick < LavSuckerRules.PatienceTicks; tick++) { Hold(); s.AdvanceWithoutSnapshot(1); }
+        Assert.AreNotEqual((waiting.XMillimetres, waiting.ZMillimetres), (s.CaptureLavSucker()!.Calls.Single().XMillimetres, s.CaptureLavSucker()!.Calls.Single().ZMillimetres), "Edges on after ten seconds.");
+    }
+
+    [TestMethod]
     public void AnEmptyLooNeedsNoCallAndDavWantsPayingUpFront()
     {
         var s = WithoutFaults(Started());
