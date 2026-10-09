@@ -194,7 +194,9 @@ public partial class Main
                     "set-finished-applause" when there == 1 => ($"{act} finish to a lone cheer", calm),
                     "set-finished-applause" => ($"{act} finish to a smattering of applause from {there} fans", calm),
                     "set-finished-interrupted" => ($"{act}'s set was cut short", bad),
-                    _ => ($"{act} finish to an empty field", calm),
+                    "set-finished-muted" => ($"{act} finish to an empty field", calm),
+                    "slot-missed-not-ready" => ($"{act} never made it on stage", bad),
+                    _ => ($"{act}'s set is over", calm),
                 };
                 yield return ($"setend:{slot}", new("music", text, tint, LocateCell(new GridCell(96, 150))));
             }
