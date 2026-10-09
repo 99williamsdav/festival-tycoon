@@ -334,6 +334,7 @@ public sealed partial class GameSession
         BlockImmersionVendors();
         BlockToilet();
         BlockLitterBins();
+        BlockMarquees();
         for (var index = 0; index < PeopleIn(PersonView.Roster).Length; index++)
         {
             var person = PeopleIn(PersonView.Roster)[index];
@@ -477,6 +478,7 @@ public sealed partial class GameSession
             ValidateBuildLayout(p.BuildPlacements, SavedStages(snapshot), snapshot.Equipment, p.WaterTowerOwned, p.Tier) is not null))
             return "Saved build layout is invalid.";
         if (ValidateBuildFacilities(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
+        if (ValidatePersistedMarquees(p, snapshot) is { } marqueeIssue) return marqueeIssue;
         if (p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null)
             return "Lineup reaction identity requires the current saved programme and results plan.";
         if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > HighestTier || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||

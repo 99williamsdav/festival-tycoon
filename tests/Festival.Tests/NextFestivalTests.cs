@@ -90,9 +90,9 @@ public sealed class NextFestivalTests
     [TestMethod]
     public void BuildLimitsGoUpByOneTapAndToiletAtTierTwo()
     {
-        Assert.AreEqual(new TierBuildLimits(1, 2, 1, 1, 1, 1), GameSession.BuildLimits(1));
+        Assert.AreEqual(new TierBuildLimits(1, 2, 1, 1, 1, 1, 1), GameSession.BuildLimits(1));
         // TODO(multi-vendor): bars and food vans become 2 here once vendors are no longer the single "food"/"drinks".
-        Assert.AreEqual(new TierBuildLimits(2, 3, 1, 1, 1, 1), GameSession.BuildLimits(2));
+        Assert.AreEqual(new TierBuildLimits(2, 3, 1, 1, 1, 1, 2), GameSession.BuildLimits(2));
         Assert.AreEqual(2, GameSession.BuildServiceLimit(BuildServiceKind.WaterTap, 1), "Tier 1: one tap, two with Another Round.");
         Assert.AreEqual(3, GameSession.BuildServiceLimit(BuildServiceKind.WaterTap, 2), "Tier 2: two taps, three with Another Round.");
 
