@@ -89,6 +89,7 @@ public partial class Main : Node, IHudHost
         ProcessStageSet(delta);
         ProcessPondStage(delta);
         ProcessMoments(delta);
+        ProcessPressPhoto(delta);
         ProcessFieldNotes(delta);
         ProcessGardenGate(delta);
         ProcessCows(delta);

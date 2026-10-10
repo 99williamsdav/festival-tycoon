@@ -16,10 +16,14 @@ public sealed class SessionHostTests
         return directory;
     }
 
+    // The save runs on a worker thread; with the whole suite running in parallel it can take seconds, so wait a while
+    // and fail loudly if it never lands, rather than carry on as if a save were missing.
     private static void WaitForSave(SessionHost host)
     {
-        for (var i = 0; i < 200 && host.Notice is not "Background save complete."; i++)
+        var clock = System.Diagnostics.Stopwatch.StartNew();
+        while (host.Notice is not "Background save complete.")
         {
+            if (clock.Elapsed > TimeSpan.FromSeconds(30)) Assert.Fail("Background save didn't finish within 30 s: " + host.Notice);
             Thread.Sleep(20);
             host.AdvanceSaves(0);
         }

@@ -161,7 +161,7 @@ public partial class Main
             }
         });
         parent.AddChild(_cleanupButton); _cleanupButton.Visible = false;
-        _cleanupButton.TooltipText = "Sweep round their post, then come back.";
+        _cleanupButton.TooltipText = "Sweep round their post, then come back. Arguments and fights come first.";
         _spreadStrawButton = ButtonText("Spread straw", () =>
         {
             if (_selectedAttendeeId is not { } id) return;
@@ -211,7 +211,9 @@ public partial class Main
         RefreshContextPanelVisibility();
         _inspectorTitle.Text = "Litter bin";
         _inspectorBody.Text = $"{bin.FullPercent}% full" + (bin.ExtraPieces > 0 ? $" • {bin.ExtraPieces} overflowing" : "") +
-            (bin.Wasps ? "\nWasps!" : "") + (_session.BinEmptyRequested(id) ? "\nWaiting for a steward…" : "");
+            (bin.Wasps ? "\nWasps!" : "") + (_session.BinEmptyRequested(id) ? "\nWaiting for a steward…" : "") +
+            // Why a bin sits at 85%: stewards only empty it at 90%.
+            (_session.PreparedStatus == PreparationStatus.Running ? "\nStewards empty it at 90% · Empty now for sooner" : "\nStewards empty it at 90%");
         _highlight.Position = view.Body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new(.55f, 1, .55f); _highlight.Visible = true;
     }
     private void RefreshCleanupAction()
