@@ -7,10 +7,11 @@ using System.Linq;
 namespace Festival.Game;
 
 /// <summary>
-/// The morning after: the Lower Wittering Gazette's review, the festival accounts and how every set went, on a sheet
+/// The morning after: the Wittering Echo's review, the festival accounts and how every set went, on a sheet
 /// over a blurred view of the field, with Newspaper, Accounts and Performances tabs and Return to menu.
+/// <paramref name="_photograph"/> gives the paper its photo of the day, when one was taken.
 /// </summary>
-internal sealed class ResultsPaper(IHudHost _hud)
+internal sealed class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _photograph)
 {
     private static readonly Color Newsprint = new("f4eede");
     private static readonly Color Ledger = new("f7f2e4");
@@ -31,10 +32,12 @@ internal sealed class ResultsPaper(IHudHost _hud)
     private Page _page;
     private readonly int[] _scrolls = new int[3];
     private ImageTexture? _field;
+    private PressPhoto? _photo;
+    private ImageTexture? _photoTexture;
 
     public bool IsOpen => _layer is not null;
 
-    public void Close() { _layer?.QueueFree(); _layer = null; _field = null; }
+    public void Close() { _layer?.QueueFree(); _layer = null; _field = null; _photo = null; _photoTexture = null; }
 
     /// <summary>
     /// Opens on the newspaper. <paramref name="returnToMenu"/> reports whether leaving succeeded; <paramref name="nextFestival"/>,
@@ -43,9 +46,11 @@ internal sealed class ResultsPaper(IHudHost _hud)
     public void Open(Node parent, Func<bool> returnToMenu, Func<bool>? nextFestival = null)
     {
         _page = Page.Newspaper; Array.Clear(_scrolls);
-        // The field as it looks now becomes the backdrop and the front-page photograph.
+        // The field as it looks now becomes the backdrop; the front page has the photographer's best shot.
         var image = parent.GetViewport().GetTexture().GetImage();
         _field = image is null || image.IsEmpty() ? null : ImageTexture.CreateFromImage(image);
+        _photo = _photograph();
+        _photoTexture = _photo is null ? null : ImageTexture.CreateFromImage(_photo.Image);
         _layer = new CanvasLayer { Layer = 19 }; parent.AddChild(_layer);
         var size = _hud.Viewport.GetVisibleRect().Size;
         var root = new Control { MouseFilter = Control.MouseFilterEnum.Stop }; root.SetAnchorsPreset(Control.LayoutPreset.FullRect); _layer.AddChild(root);
@@ -145,11 +150,14 @@ void fragment() {
     float g = dot(c, vec3(0.299, 0.587, 0.114));
     COLOR = vec4(mix(vec3(g), c, 0.6), 1.0);
 }";
+    // Newsprint colour: a little faded and warm, with a soft vignette.
     private const string PhotoShader = @"shader_type canvas_item;
 void fragment() {
-    vec4 c = texture(TEXTURE, UV);
-    float g = clamp((dot(c.rgb, vec3(0.299, 0.587, 0.114)) - 0.5) * 1.15 + 0.5, 0.0, 1.0);
-    COLOR = vec4(mix(vec3(g), vec3(g) * vec3(1.07, 0.99, 0.86), 0.15), 1.0);
+    vec3 c = texture(TEXTURE, UV).rgb;
+    float g = dot(c, vec3(0.299, 0.587, 0.114));
+    c = clamp((mix(vec3(g), c, 0.6) - 0.5) * 1.1 + 0.5, 0.0, 1.0) * vec3(1.04, 1.0, 0.9);
+    float v = smoothstep(0.85, 0.4, length((UV - 0.5) * vec2(1.0, 0.75)));
+    COLOR = vec4(c * mix(0.7, 1.0, v), 1.0);
 }";
     private static ShaderMaterial Shaded(string code) => new() { Shader = new Shader { Code = code } };
 
@@ -189,89 +197,238 @@ void fragment() {
         label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; return label;
     }
 
+    /// <summary>What the review is written from: the result, the sets, and what the field's records say happened.</summary>
+    private ReviewFacts ReviewFacts()
+    {
+        var session = _hud.Session;
+        var result = session.CompletedFestivalResult!;
+        var p = session.CapturePreparation()!;
+        var sets = session.PerformanceRecords
+            .OrderBy(record => record.ScheduledStartTick).ThenBy(record => FestivalStages.IndexOf(FestivalStages.All, record.StageId))
+            .Select(record =>
+            {
+                var act = ActCatalogue.Find(record.ActId);
+                var stage = FestivalStages.Find(record.StageId);
+                return new ReviewSet(record, act?.Name ?? record.ActId, act is null ? "Live" : FestivalGenre.Name(act.Genre), stage is null ? record.StageId : Main.StageTitle(stage));
+            }).ToArray();
+        var weather = session.CaptureWeather();
+        var rain = weather?.Kind == WeatherKind.Rain;
+        // A good few square metres of churned ground, not one wet footprint.
+        var muddy = rain && session.CaptureGround() is { } ground && ground.Mud.Count(mud => mud >= GroundRules.MudLevel) >= 300;
+        var medical = session.CaptureMedical()?.Evidence ?? [];
+        var faults = session.CaptureFaults()?.Faults ?? [];
+        var lifecycle = session.CaptureLifecycleSnapshot();
+        var tier = lifecycle?.Attempts.FirstOrDefault(attempt => attempt.AttemptId == lifecycle.CurrentAttemptId)?.TierId;
+        var tragedy = lifecycle is not null && lifecycle.Casualties.Any(casualty => casualty.AttemptId != lifecycle.CurrentAttemptId &&
+            lifecycle.Attempts.Any(attempt => attempt.AttemptId == casualty.AttemptId && attempt.TierId == tier));
+        var scenes = p.StandingBefore is { } before
+            ? Enumerable.Range(0, FestivalGenre.Count).Select(genre => new SceneMove(FestivalGenre.Name(genre), before.SceneCredibility[genre], p.SceneCredibility[genre])).ToArray()
+            : [];
+        return new ReviewFacts(result, p.Tier, FestivalTickets.Sold(p.Tier), rain, weather?.Spells.Length ?? 0,
+            weather?.Spells.Any(spell => spell.Intensity == RainIntensity.Downpour) == true, muddy, sets,
+            p.People.ToDictionary(person => person.AgentId, person => person.Name),
+            medical.Any(item => item.Id == "medical:collapse" && item.Description.Contains("wasp")),
+            medical.Any(item => item.Id == "medical:collapse" && item.Description.Contains("fumes")),
+            medical.Any(item => item.Id == "intoxication:collapse"),
+            medical.Any(item => item.Id == "medical:collapse" && item.Description.Contains("visible distress")),
+            session.CaptureCows()?.Escaped ?? 0, faults.Count(fault => fault.Kind == FacilityFaultKind.ChewedCable),
+            faults.Count(fault => fault.Kind == FacilityFaultKind.StuckInToilet), faults.Count(fault => fault.Kind == FacilityFaultKind.BrokenTap),
+            session.CaptureLavSucker()?.Calls.Length ?? 0,
+            session.CaptureEquipment()?.Evidence.Any(item => item.Id is "equipment:warning" or "equipment:fault") == true,
+            tragedy, p.StandingBefore is { } standing ? (standing.Reputation, p.Reputation) : null, scenes)
+        {
+            Lifts = Moods(session, up: true), Grumbles = Moods(session, up: false),
+        };
+    }
+
+    /// <summary>
+    /// The two causes that moved the crowd's mood most one way over the day, in words. The ledger only covers the day
+    /// as it was watched, so a reloaded save has none and the review leaves the sentence out.
+    /// </summary>
+    private static string[] Moods(GameSession session, bool up)
+    {
+        if (session.MoodRecordedTotal == 0) return [];
+        return Enum.GetValues<MoodCause>().Select(cause => (Cause: cause, Total: session.MoodTotal(cause)))
+            .Where(item => up ? item.Total > 0 : item.Total < 0).OrderByDescending(item => Math.Abs(item.Total)).Take(2)
+            .Select(item => item.Cause switch
+            {
+                MoodCause.Music => "the music", MoodCause.MusicCutOff => "the music cutting out", MoodCause.FoodAndDrink => "the food and drink",
+                MoodCause.FriendlyQueues => "the friendly queues", MoodCause.FreeWaterPerk => "the free water", MoodCause.StaffNearby => "the helpful staff",
+                MoodCause.MudAndPuddles => "the mud and puddles", MoodCause.LitterAndWasps => "the litter and wasps", MoodCause.ToiletSmell => "the smell from the loos",
+                MoodCause.BrokenTap => "broken taps", MoodCause.StuckInToilet => "getting stuck in the loos", MoodCause.Heat => "the heat",
+                MoodCause.Thirst => "going thirsty", MoodCause.LongQueues => "the queues", MoodCause.Rain => "the rain", _ => "",
+            }).Where(words => words.Length > 0).ToArray();
+    }
+
     private void RenderFestivalNewspaper(VBoxContainer body)
     {
-        var result = _hud.Session.CompletedFestivalResult!;
-        body.AddChild(Line(Ui.Ink, 3)); body.AddChild(Gap(8));
-        var masthead = Ui.Heading("The Lower Wittering Gazette", 46); masthead.HorizontalAlignment = HorizontalAlignment.Center; body.AddChild(masthead);
-        body.AddChild(Gap(6)); body.AddChild(Line(Ui.Ink, 1)); body.AddChild(Gap(6));
+        var facts = ReviewFacts();
+        var review = FestivalReview.Write(facts);
+        var result = facts.Result;
+        var grey = new Color("3a4640");
+
+        // The masthead.
+        body.AddChild(Line(Ui.Ink, 3)); body.AddChild(Gap(6));
+        var masthead = Ui.Heading(FestivalReview.Masthead, 46); masthead.HorizontalAlignment = HorizontalAlignment.Center; body.AddChild(masthead);
+        var motto = Ui.Text(FestivalReview.Motto, 13, grey, Ui.Slab); motto.HorizontalAlignment = HorizontalAlignment.Center; body.AddChild(motto);
+        body.AddChild(Gap(6)); body.AddChild(Line(Ui.Ink, 1)); body.AddChild(Gap(5));
         var edition = new HBoxContainer(); body.AddChild(edition);
-        foreach (var (text, align) in new[] { ("Local edition", HorizontalAlignment.Left), ("Festival review", HorizontalAlignment.Center), ("Day after the festival", HorizontalAlignment.Right) })
+        foreach (var (text, align) in new[] { (review.Issue, HorizontalAlignment.Left), ("Festival review", HorizontalAlignment.Center), ("Lower Wittering & District", HorizontalAlignment.Right) })
         {
-            var label = Ui.Caps(text, new Color("3a4640")); label.HorizontalAlignment = align; label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; edition.AddChild(label);
+            var label = Ui.Caps(text, grey); label.HorizontalAlignment = align; label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; edition.AddChild(label);
         }
-        body.AddChild(Gap(6)); body.AddChild(Line(Ui.Ink, 1)); body.AddChild(Gap(2)); body.AddChild(Line(Ui.Ink, 1));
-        body.AddChild(Gap(14));
-        var headline = result.Stars switch { 5 => "A day to remember", 4 => "Festival hits the right note",
-            3 => "A mixed reception in the field", 2 => "Festival leaves room for improvement",
-            1 => "A difficult day in the field", _ => "The field falls quiet" };
-        var head = Ui.Heading(headline, 44); head.AutowrapMode = TextServer.AutowrapMode.WordSmart; body.AddChild(head);
-        // A completed festival never had a death (that ends the day), so a poor review can always offer this much.
-        if (result.Stars is <= 2) { body.AddChild(Gap(4)); body.AddChild(Paragraph("At least no one died.", 20, new Color("3a4640"), Ui.Slab)); }
-        body.AddChild(Gap(16));
+        body.AddChild(Gap(5)); body.AddChild(Line(Ui.Ink, 1)); body.AddChild(Gap(2)); body.AddChild(Line(Ui.Ink, 1));
+        body.AddChild(Gap(12));
 
-        var lead = new HBoxContainer(); lead.AddThemeConstantOverride("separation", Ui.Px(22)); body.AddChild(lead);
-        var verdict = new PanelContainer { CustomMinimumSize = new Vector2(Ui.S(250), 0) };
-        verdict.AddThemeStyleboxOverride("panel", Ui.Box(Ui.Ink, 0, padX: 16, padY: 14)); lead.AddChild(verdict);
-        var verdictBox = new VBoxContainer(); verdictBox.AddThemeConstantOverride("separation", Ui.Px(8)); verdict.AddChild(verdictBox);
-        verdictBox.AddChild(Ui.Caps("Our verdict", Ui.Gold));
-        var stars = new HBoxContainer(); stars.AddThemeConstantOverride("separation", Ui.Px(4)); verdictBox.AddChild(stars);
-        for (var i = 0; i < 5; i++)
-            stars.AddChild(Ui.IconRect("star", 22, i < (result.Stars ?? 0) ? Ui.Gold : new Color(Ui.Gold, 0.35f)));
-        var score = new HBoxContainer(); score.AddThemeConstantOverride("separation", Ui.Px(8)); verdictBox.AddChild(score);
-        score.AddChild(Ui.Heading(result.Stars?.ToString() ?? "–", 40, Newsprint));
-        var outOf = Ui.Text(result.Stars is null ? "unrated · no admitted guests" : "out of 5", 16, new Color("c9d1c7")); outOf.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; score.AddChild(outOf);
-        verdictBox.AddChild(Ui.Text("Guest satisfaction", 14, new Color("c9d1c7")));
-        var meter = new HBoxContainer(); meter.AddThemeConstantOverride("separation", Ui.Px(8)); verdictBox.AddChild(meter);
-        var bar = new ProgressBar { ShowPercentage = false, MaxValue = 100, Value = (double)(result.SatisfactionPercent ?? 0), CustomMinimumSize = new Vector2(0, Ui.S(8)),
-            SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
-        bar.AddThemeStyleboxOverride("background", Ui.Box(new Color("3a4640"), 4)); bar.AddThemeStyleboxOverride("fill", Ui.Box(Ui.Gold, 4));
-        meter.AddChild(bar); meter.AddChild(Ui.Heading(result.SatisfactionPercent is { } percent ? $"{percent:0.0}%" : "–", 18, Newsprint));
-        var preparation = _hud.Session.CapturePreparation();
-        if (preparation?.StandingBefore is { } before)
-        {
-            var reputation = new HBoxContainer(); reputation.AddThemeConstantOverride("separation", Ui.Px(8)); verdictBox.AddChild(reputation);
-            var caption = Ui.Text("Festival reputation", 14, new Color("c9d1c7")); caption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; reputation.AddChild(caption);
-            reputation.AddChild(Ui.Heading($"{before.Reputation} → {preparation.Reputation}", 18, Ui.Gold));
-        }
+        // Headline, standfirst and byline.
+        var head = Ui.Heading(review.Headline, 40); head.AutowrapMode = TextServer.AutowrapMode.WordSmart; body.AddChild(head);
+        body.AddChild(Gap(4));
+        body.AddChild(Paragraph(review.Standfirst, 17, Body, Ui.Slab));
+        body.AddChild(Gap(6));
+        body.AddChild(Ui.Caps(review.Byline, Ui.InkMuted, 9.5f));
+        body.AddChild(Gap(10));
 
-        var story = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; story.AddThemeConstantOverride("separation", Ui.Px(4)); lead.AddChild(story);
-        if (_field is not null)
+        // The photograph beside the verdict.
+        var lead = new HBoxContainer(); lead.AddThemeConstantOverride("separation", Ui.Px(18)); body.AddChild(lead);
+        var picture = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; picture.AddThemeConstantOverride("separation", Ui.Px(4)); lead.AddChild(picture);
+        if (_photoTexture is not null && _photo is { } photo)
         {
-            var region = new Rect2(_field.GetSize() * new Vector2(0.18f, 0.28f), _field.GetSize() * new Vector2(0.5f, 0.3f));
-            story.AddChild(new TextureRect { Texture = new AtlasTexture { Atlas = _field, Region = region }, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
-                StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered, CustomMinimumSize = new Vector2(0, Ui.S(150)), ClipContents = true, Material = Shaded(PhotoShader) });
-            var caption = Ui.Text("The festival field, as the last guests headed home.", 12, new Color("3a4640")); story.AddChild(caption);
+            picture.AddChild(new TextureRect { Texture = _photoTexture, ExpandMode = TextureRect.ExpandModeEnum.IgnoreSize,
+                StretchMode = TextureRect.StretchModeEnum.KeepAspectCovered, CustomMinimumSize = new Vector2(0, Ui.S(270)), ClipContents = true, Material = Shaded(PhotoShader) });
+            picture.AddChild(Caption(PhotoCaption(photo, facts), "Picture: " + FestivalReview.Photographer));
         }
-        story.AddChild(Paragraph($"The rating reflects the final satisfaction of {result.GuestCount} admitted guests, including early leavers.", 17, Ui.Ink, Ui.Slab));
-        if (preparation?.StandingBefore is { } previous)
+        else
         {
-            var scenes = Enumerable.Range(0, FestivalGenre.Count).Where(genre => preparation.SceneCredibility[genre] != previous.SceneCredibility[genre])
-                .Select(genre => $"{FestivalGenre.Name(genre).ToLowerInvariant()} {previous.SceneCredibility[genre]} → {preparation.SceneCredibility[genre]}").ToArray();
-            if (scenes.Length > 0)
-                story.AddChild(Paragraph("Word gets around the scenes: " + string.Join(", ", scenes) + ".", 13.5f, Body));
+            picture.AddChild(Poster(facts));
+            picture.AddChild(Caption("The day’s line-up, as it appeared on posters around the village.", null));
         }
-        body.AddChild(Gap(16)); body.AddChild(Line(Ui.Ink, 1)); body.AddChild(Gap(12));
+        lead.AddChild(VerdictBox(review, result));
 
+        // The story in two columns.
+        body.AddChild(Gap(14)); body.AddChild(Line(Ui.Ink, 1)); body.AddChild(Gap(12));
         var columns = new HBoxContainer(); columns.AddThemeConstantOverride("separation", Ui.Px(24)); body.AddChild(columns);
-        var crowd = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; crowd.AddThemeConstantOverride("separation", Ui.Px(6)); columns.AddChild(crowd);
-        crowd.AddChild(Ui.Heading("The crowd's verdict", 22));
-        crowd.AddChild(Paragraph("Every admitted guest has physically left the farm. Their final satisfaction shapes the public review.", 14.5f, Body));
-        var around = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; around.AddThemeConstantOverride("separation", Ui.Px(8)); columns.AddChild(around);
-        around.AddChild(Ui.Heading("Around the field", 22));
-        var facts = new HBoxContainer(); facts.AddThemeConstantOverride("separation", Ui.Px(8)); around.AddChild(facts);
-        foreach (var (value, singular, plural) in new[] { (result.BeersFinished, "beer finished", "beers finished"), (result.Fights, "fight", "fights"), (result.MedicalCollapses, "medical collapse", "medical collapses") })
+        VBoxContainer Column()
         {
-            var box = new PanelContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
-            box.AddThemeStyleboxOverride("panel", Ui.Box(new Color(0, 0, 0, 0), 0, Ui.Ink, 1, 10, 8));
-            var words = new VBoxContainer(); words.AddThemeConstantOverride("separation", Ui.Px(2)); box.AddChild(words);
-            words.AddChild(Ui.Heading(value?.ToString() ?? "–", 28));
-            words.AddChild(Ui.Text(value is null ? "not recorded" : value == 1 ? singular : plural, 12.5f, new Color("3a4640")));
-            facts.AddChild(box);
+            var column = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, SizeFlagsStretchRatio = 1 };
+            column.AddThemeConstantOverride("separation", Ui.Px(10)); columns.AddChild(column); return column;
         }
-        around.AddChild(Paragraph("Fights include encounters involving a guest; collapses count guest rescue deadlines. Fight knockouts are excluded.", 11.5f, Ui.InkMuted));
-        body.AddChild(Gap(18)); body.AddChild(Line(new Color("c9bfa6"), 1)); body.AddChild(Gap(6));
-        body.AddChild(Paragraph("Rating guide: below 20 / 40 / 60 / 80% earns 1 / 2 / 3 / 4 stars; 80% or above earns 5. Provisional thresholds.", 11.5f, Ui.InkMuted));
+        var left = Column();
+        var right = Column();
+        foreach (var paragraph in review.Paragraphs.Take(2)) left.AddChild(Paragraph(paragraph, 14.5f, Ui.Ink));
+        if (review.Paragraphs.Length > 2)
+        {
+            right.AddChild(Ui.Caps("Around the field", Ui.InkMuted, 9.5f));
+            right.AddChild(Paragraph(review.Paragraphs[2], 14.5f, Ui.Ink));
+        }
+        right.AddChild(Ui.Caps("The verdict", Ui.InkMuted, 9.5f));
+        right.AddChild(Paragraph(review.Verdict, 14.5f, Ui.Ink, Ui.SlabBold));
+        if (review.Buzz.Length > 0) right.AddChild(BuzzBox(review));
+
+        // A few numbers along the foot of the page.
+        body.AddChild(Gap(16)); body.AddChild(Line(Ui.Ink, 1)); body.AddChild(Gap(8));
+        body.AddChild(Ui.Caps("By the numbers", Ui.InkMuted, 9.5f)); body.AddChild(Gap(6));
+        var numbers = new HBoxContainer(); numbers.AddThemeConstantOverride("separation", Ui.Px(8)); body.AddChild(numbers);
+        foreach (var (value, singular, plural, tip) in new (int?, string, string, string)[]
+        {
+            (result.GuestCount, "punter through the gate", "punters through the gate", $"{result.GuestCount} of {facts.Sold} ticket-holders came in."),
+            (result.BeersFinished, "pint sunk", "pints sunk", "Beers bought and finished by guests."),
+            (result.Fights, "scuffle", "scuffles", "Fights involving a guest; fight knockouts aren't counted."),
+            (result.MedicalCollapses, "trip to first aid", "trips to first aid", "Guests who collapsed and needed help."),
+        })
+        {
+            var box = new PanelContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, TooltipText = tip };
+            box.AddThemeStyleboxOverride("panel", Ui.Box(new Color(0, 0, 0, 0), 0, Ui.Ink, 1, 10, 6));
+            var words = new HBoxContainer(); words.AddThemeConstantOverride("separation", Ui.Px(8)); box.AddChild(words);
+            words.AddChild(Ui.Heading(value?.ToString() ?? "–", 24));
+            var what = Ui.Text(value is null ? "not recorded" : value == 1 ? singular : plural, 12, grey); what.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            what.AutowrapMode = TextServer.AutowrapMode.WordSmart; what.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; words.AddChild(what);
+            numbers.AddChild(box);
+        }
+        body.AddChild(Gap(70));
+    }
+
+    private static Control Caption(string text, string? credit)
+    {
+        var line = new HBoxContainer(); line.AddThemeConstantOverride("separation", Ui.Px(10));
+        var words = Paragraph(text, 12.5f, new Color("3a4640"), Ui.Slab); line.AddChild(words);
+        if (credit is not null) { var by = Ui.Caps(credit, Ui.InkMuted, 8.5f); by.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin; line.AddChild(by); }
+        return line;
+    }
+
+    /// <summary>What the photo shows, in the photographer's words; only what was in front of the lens.</summary>
+    private string PhotoCaption(PressPhoto photo, ReviewFacts facts)
+    {
+        var act = ActCatalogue.Find(photo.ActId)?.Name ?? "The band";
+        var stage = FestivalStages.Find(photo.StageId) is { } found ? "the " + Main.StageTitle(found) : "the stage";
+        var reaction = facts.Sets.FirstOrDefault(set => set.Record.StageId == photo.StageId && set.Record.Slot == photo.Slot)?.Record.Reaction;
+        if (photo.Aerial) return $"{act} on {stage}, seen from above.";
+        return reaction switch
+        {
+            GigRules.Enthusiastic => $"{act} in full voice on {stage}.",
+            GigRules.Warm => $"{act} on {stage}, the crowd with them.",
+            GigRules.Smattering or GigRules.EmptyField => $"{act} play on at {stage}.",
+            GigRules.CutShort => $"{act} on {stage}, before their set was cut short.",
+            _ => $"{act} on {stage}.",
+        };
+    }
+
+    /// <summary>When there's no photograph: the festival's poster, with the day's line-up.</summary>
+    private static Control Poster(ReviewFacts facts)
+    {
+        var poster = new PanelContainer { CustomMinimumSize = new Vector2(0, Ui.S(270)) };
+        poster.AddThemeStyleboxOverride("panel", Ui.Box(new Color("ebe2cb"), 0, Ui.Ink, 2, 18, 16));
+        var words = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center }; words.AddThemeConstantOverride("separation", Ui.Px(6)); poster.AddChild(words);
+        Label Centre(Label label) { label.HorizontalAlignment = HorizontalAlignment.Center; label.AutowrapMode = TextServer.AutowrapMode.WordSmart; label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; return label; }
+        var music = Ui.IconRect("music", 26, Ui.Ink); music.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter; words.AddChild(music);
+        words.AddChild(Centre(Ui.Caps("Live on the farm", Ui.InkMuted)));
+        words.AddChild(Centre(Ui.Heading(FestivalReview.FestivalName, 30)));
+        var acts = facts.Sets.Select(set => set.Act).Distinct().ToArray();
+        words.AddChild(Centre(Ui.Text(acts.Length == 0 ? "Line-up to be announced" : string.Join("  ·  ", acts), 15, Ui.Ink, Ui.Slab)));
+        words.AddChild(Centre(Ui.Caps($"{facts.Sold} tickets · Lower Wittering", Ui.InkMuted, 9.5f)));
+        return poster;
+    }
+
+    private static Control VerdictBox(Review review, FestivalResult result)
+    {
+        var verdict = new PanelContainer { CustomMinimumSize = new Vector2(Ui.S(240), 0),
+            TooltipText = result.SatisfactionPercent is { } percent
+                ? $"Guest satisfaction {percent:0.0}%. Below 20 / 40 / 60 / 80% earns 1 / 2 / 3 / 4 stars; 80% or above earns 5."
+                : "No guests came in, so there's nothing to rate." };
+        verdict.AddThemeStyleboxOverride("panel", Ui.Box(Ui.Ink, 0, padX: 16, padY: 14));
+        var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(8)); verdict.AddChild(box);
+        box.AddChild(Ui.Caps("Our verdict", Ui.Gold));
+        var stars = new HBoxContainer(); stars.AddThemeConstantOverride("separation", Ui.Px(4)); box.AddChild(stars);
+        for (var i = 0; i < 5; i++)
+            stars.AddChild(Ui.IconRect("star", 24, i < (result.Stars ?? 0) ? Ui.Gold : new Color(Ui.Gold, 0.3f)));
+        box.AddChild(Ui.Heading(result.Stars is { } count ? $"{count} out of 5" : "Unrated", 22, Newsprint));
+        if (review.PullQuote is { } quote)
+        {
+            box.AddChild(Line(new Color(Ui.Gold, 0.5f), 1));
+            var said = Paragraph($"“{quote.Line}”", 16, Newsprint, Ui.Slab); said.CustomMinimumSize = new Vector2(Ui.S(208), 0); box.AddChild(said);
+            var who = Paragraph("— " + quote.Who, 12, new Color("c9d1c7")); who.CustomMinimumSize = new Vector2(Ui.S(208), 0); box.AddChild(who);
+        }
+        if (review.Standing is { } standing)
+        {
+            box.AddChild(Line(new Color(Ui.Gold, 0.5f), 1));
+            var line = Paragraph(standing, 12, new Color("c9d1c7")); line.CustomMinimumSize = new Vector2(Ui.S(208), 0); box.AddChild(line);
+        }
+        return verdict;
+    }
+
+    private static Control BuzzBox(Review review)
+    {
+        var buzz = new PanelContainer();
+        buzz.AddThemeStyleboxOverride("panel", Ui.Box(new Color("ece4cf"), 0, Ui.Ink, 1, 12, 10));
+        var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(4)); buzz.AddChild(box);
+        box.AddChild(Ui.Caps("Scene buzz", Ui.Ink, 9.5f));
+        foreach (var (words, numbers, up) in review.Buzz)
+        {
+            var row = new HBoxContainer(); row.AddThemeConstantOverride("separation", Ui.Px(8)); box.AddChild(row);
+            var text = Paragraph(words, 13.5f, Ui.Ink, Ui.Slab); row.AddChild(text);
+            var count = Ui.Text(numbers, 11, up ? Ui.TealDeep : new Color("7a3312")); count.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            count.TooltipText = "Scene credibility with these fans"; count.MouseFilter = Control.MouseFilterEnum.Stop; row.AddChild(count);
+        }
+        return buzz;
     }
 
     /// <summary>
