@@ -414,8 +414,12 @@ public partial class Main
         {
             string? issue = "Select a person first.";
             if (selected is { } id) _session.SelectRoleResponse(ResponseRole.Medic, id, out issue);
+            // Only for someone who's unwell or hurt; when they are but no medic can go, the button stays with the reason.
+            var unwell = selected is { } who && (_session.CaptureMedical()?.Needs.Any(n => n.AgentId == who && n.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical) == true ||
+                _session.CaptureDisorder()?.People.Any(p => p.AgentId == who && p.Stage == DisorderStage.Injured) == true);
+            button.Visible = issue is null || unwell;
             button.Disabled = issue is not null;
-            button.TooltipText = issue ?? "Send nearest available suitable medic; physical arrival and treatment required.";
+            button.TooltipText = issue ?? "Send the nearest free medic.";
         }
         RefreshImmersionVendorInspector();
     }

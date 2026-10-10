@@ -330,8 +330,12 @@ public partial class Main
             var selected = _selectedAttendeeId?.Value;
             string? issue = "Select an affected guest.";
             if (selected is { } id) _session.SelectRoleResponse(ResponseRole.Steward, id, out issue);
+            // Only for someone causing trouble; when they are but no steward can go, the button stays with the reason.
+            var trouble = selected is { } who && d.People.Any(p => p.AgentId == who &&
+                p.Stage is DisorderStage.Complaint or DisorderStage.Agitated or DisorderStage.Argument or DisorderStage.Fight);
+            button.Visible = issue is null || trouble;
             button.Disabled = issue is not null;
-            button.TooltipText = StewardWording(issue ?? "Send nearest available suitable steward; physical arrival required.");
+            button.TooltipText = StewardWording(issue ?? "Send the nearest free steward.");
         }
     }
 
