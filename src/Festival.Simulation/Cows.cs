@@ -44,6 +44,17 @@ public static class CowRules
     public const int HerdReachCells = 3;
     /// <summary>A cow's bulk, for people stepping round it: its centre and four points this far out.</summary>
     public const int BodyMillimetres = 650;
+    /// <summary>
+    /// How close one cow's middle comes to another's: a cow's length (2.2 m), so one walking behind another is nose to tail, not
+    /// inside it. A walking cow never steps closer than this to another; it stops to graze, or waits for a herded cow ahead to move on.
+    /// </summary>
+    public const int SpacingMillimetres = 2_200;
+    /// <summary>A cow ambles off to grass with no other cow standing, or heading, within this many cells (three metres).</summary>
+    public const int TargetClearCells = 6;
+    /// <summary>How far a grazing cow in a driven one's way is moved aside, in cells (two and a half metres).</summary>
+    public const int AsideCells = 5;
+    /// <summary>Where the cows come in, fanned out inside the gate rather than stacked on its one cell (cells from it).</summary>
+    public static readonly (int X, int Z)[] EntryOffsets = [(-2, 0), (-5, -4), (-5, 4), (-8, 0)];
     /// <summary>Long enough to cross the site twice at a cow's pace; a herd that takes longer has gone wrong and gives up.</summary>
     public const int HerdDeadlineTicks = 9_600;
     /// <summary>Loose cows keep to the festival site, a cow's length clear of its hedges.</summary>
@@ -171,31 +182,39 @@ public sealed partial class GameSession
             CurrentTick - p.StartedTick < PreparedEditionDurationTicks * 9 / 10 &&
             FaultRules.Roll(CampaignSeed, "gate.pasture", CurrentTick, (ulong)p.Attempt, CowRules.GateBreakChancePer10k))
             cows = BreakGate(cows, p);
-        var loose = new List<LooseCow>();
-        foreach (var cow in cows.Loose)
-            if (AdvanceCow(cow) is { } still) loose.Add(still);
-        _cows = cows with { Loose = loose.ToArray() };
+        // Each cow moves in turn against where the others stand now (those already moved this tick at their new place), and
+        // may nudge a grazing cow in a herded one's way; one that's gone home leaves a gap.
+        var herd = cows.Loose.ToArray();
+        for (var i = 0; i < herd.Length; i++) herd[i] = AdvanceCow(herd, i)!;
+        _cows = cows with { Loose = herd.Where(cow => cow is not null).ToArray() };
     }
 
     private CowsSnapshot BreakGate(CowsSnapshot cows, PreparationSnapshot p)
     {
         AddFault($"gate:{CurrentTick}", FacilityFaultKind.BrokenGate, "gate.pasture", 0);
         var count = CowRules.EscapeMin + CowRules.Draw(CampaignSeed, "gate.escape", CurrentTick, (ulong)p.Attempt, CowRules.EscapeMax - CowRules.EscapeMin + 1);
-        var centre = TraversalGrid.CellCentre(CowRules.GateInside);
-        var escaped = Enumerable.Range(0, count).Select(i => new LooseCow($"cow.{cows.Escaped + i + 1}", centre.XMillimetres, centre.ZMillimetres,
-            CowActivity.Grazing, [], 0, CurrentTick + 160L * (i + 1))).ToArray();
+        // Each comes through to its own patch just inside the gate, a body or two from the next, and they set off in turn.
+        var escaped = Enumerable.Range(0, count).Select(i =>
+        {
+            var (dx, dz) = CowRules.EntryOffsets[i % CowRules.EntryOffsets.Length];
+            var at = TraversalGrid.CellCentre(WalkableNear(new(CowRules.GateInside.X + dx, CowRules.GateInside.Z + dz)));
+            return new LooseCow($"cow.{cows.Escaped + i + 1}", at.XMillimetres, at.ZMillimetres, CowActivity.Grazing, [], 0, CurrentTick + 160L * (i + 1));
+        }).ToArray();
         MedicalEvent("cows:loose", $"The pasture gate broke and {count} cows wandered into the festival.");
         return cows with { Gate = PastureGateState.Broken, Loose = cows.Loose.Concat(escaped).ToArray(), Escaped = cows.Escaped + count };
     }
 
     /// <summary>One tick for a loose cow; null once it's back in its field.</summary>
-    private LooseCow? AdvanceCow(LooseCow cow)
+    /// <param name="herd">Every loose cow this tick, already-moved ones at their new place; null where one has gone home.</param>
+    private LooseCow? AdvanceCow(LooseCow?[] herd, int index)
     {
-        if (cow.HerderId is { } herder) return AdvanceHerdedCow(cow, herder);
+        var cow = herd[index]!;
+        if (cow.HerderId is { } herder) return AdvanceHerdedCow(herd, index, herder);
         if (cow.Activity == CowActivity.Ambling)
         {
-            var moved = StepCow(cow, CowRules.AmbleMillimetresPerTick);
-            return moved.RouteIndex < moved.Route.Length ? moved : moved with
+            var (moved, blocker) = StepCowApart(herd, index, CowRules.AmbleMillimetresPerTick);
+            // A cow that would walk into another stops where it is and grazes, rather than pushing through.
+            return moved.RouteIndex < moved.Route.Length && blocker < 0 ? moved : moved with
             {
                 Activity = CowActivity.Grazing, Route = [], RouteIndex = 0,
                 UntilTick = CurrentTick + CowRules.GrazeMinTicks + CowRules.Draw(CampaignSeed, cow.Id, CurrentTick, 1, CowRules.GrazeMaxTicks - CowRules.GrazeMinTicks)
@@ -203,18 +222,53 @@ public sealed partial class GameSession
         }
         if (CurrentTick % 80 == 0) MaybeChewCable(cow);
         if (CurrentTick < cow.UntilTick) return cow;
-        return CowWander(cow);
+        return CowWander(herd, cow);
     }
 
-    private LooseCow CowWander(LooseCow cow)
+    /// <summary>
+    /// Steps a cow along its route unless another cow stands within <see cref="CowRules.SpacingMillimetres"/> of where it
+    /// would be and more or less straight ahead (within 60 degrees of the way it's stepping). It walks on past one off to
+    /// the side, which keeps them better than a metre and a half apart, and away from one already that close. Returns the
+    /// cow unmoved and the index of the cow in its way when blocked, or -1.
+    /// </summary>
+    private static (LooseCow Cow, int Blocker) StepCowApart(LooseCow?[] herd, int index, int pace)
+    {
+        var cow = herd[index]!;
+        var moved = StepCow(cow, pace);
+        long sx = moved.XMillimetres - cow.XMillimetres, sz = moved.ZMillimetres - cow.ZMillimetres;
+        if (sx == 0 && sz == 0) return (moved, -1);
+        const long Spacing = (long)CowRules.SpacingMillimetres * CowRules.SpacingMillimetres;
+        for (var j = 0; j < herd.Length; j++)
+        {
+            if (j == index || herd[j] is not { } other) continue;
+            long ax = moved.XMillimetres - other.XMillimetres, az = moved.ZMillimetres - other.ZMillimetres;
+            if (ax * ax + az * az >= Spacing) continue;
+            // Ahead: the step and the way to the other cow within 60 degrees, i.e. cos > 1/2.
+            long tx = other.XMillimetres - cow.XMillimetres, tz = other.ZMillimetres - cow.ZMillimetres;
+            var dot = sx * tx + sz * tz;
+            if (dot > 0 && 4 * dot * dot > (sx * sx + sz * sz) * (tx * tx + tz * tz)) return (cow, j);
+        }
+        return (moved, -1);
+    }
+
+    private LooseCow CowWander(LooseCow?[] herd, LooseCow cow)
     {
         var here = TraversalGrid.WorldToCell(cow.XMillimetres, cow.ZMillimetres);
         var spots = CableSpots();
+        // Grass no other cow is standing on or heading for, so they spread over the site rather than trailing each other.
+        bool Taken(GridCell target) => herd.Any(other => other is not null && other.Id != cow.Id &&
+            (Close(TraversalGrid.WorldToCell(other.XMillimetres, other.ZMillimetres), target) || other.Route.Length > 0 && Close(other.Route[^1], target)));
+        static bool Close(GridCell a, GridCell b) => Math.Max(Math.Abs(a.X - b.X), Math.Abs(a.Z - b.Z)) < CowRules.TargetClearCells;
         for (var attempt = 0; attempt < 6; attempt++)
         {
             GridCell target;
             if (spots.Count > 0 && CowRules.Draw(CampaignSeed, cow.Id + ":cable", CurrentTick, (ulong)attempt, 100) < CowRules.CableBiasPercent)
-                target = spots[CowRules.Draw(CampaignSeed, cow.Id + ":which", CurrentTick, (ulong)attempt, spots.Count)].Spot;
+            {
+                // Somewhere by the cable, not on the one cell every cow by it would pick.
+                var spot = spots[CowRules.Draw(CampaignSeed, cow.Id + ":which", CurrentTick, (ulong)attempt, spots.Count)].Spot;
+                target = new(spot.X - 3 + CowRules.Draw(CampaignSeed, cow.Id + ":cx", CurrentTick, (ulong)attempt, 7),
+                    spot.Z - 3 + CowRules.Draw(CampaignSeed, cow.Id + ":cz", CurrentTick, (ulong)attempt, 7));
+            }
             else
             {
                 var span = CowRules.WanderRadiusCells * 2 + 1;
@@ -222,12 +276,41 @@ public sealed partial class GameSession
                     here.Z - CowRules.WanderRadiusCells + CowRules.Draw(CampaignSeed, cow.Id + ":z", CurrentTick, (ulong)attempt, span));
             }
             if (target.X is < CowRules.SiteMinCell or > CowRules.SiteMaxCell || target.Z is < CowRules.SiteMinCell or > CowRules.SiteMaxCell ||
-                !_traversalGrid!.Contains(target) || !_traversalGrid.Get(target).IsWalkable || target == here) continue;
+                !_traversalGrid!.Contains(target) || !_traversalGrid.Get(target).IsWalkable || target == here || Taken(target)) continue;
             var path = DeterministicPathfinder.FindPath(_traversalGrid, here, target);
             if (!path.Found || path.Path.Count == 0) continue;
             return cow with { Activity = CowActivity.Ambling, Route = path.Path.ToArray(), RouteIndex = 0 };
         }
         return cow with { UntilTick = CurrentTick + CowRules.GrazeMinTicks };
+    }
+
+    /// <summary>
+    /// A grazing cow in a driven one's way ambles a few metres off, always away from the driven cow and as square to its
+    /// line home as that allows (its own side of the line first); unchanged if there's nowhere open.
+    /// </summary>
+    private LooseCow MoveAside(LooseCow grazer, LooseCow driven)
+    {
+        var next = TraversalGrid.CellCentre(driven.Route[Math.Min(driven.RouteIndex, driven.Route.Length - 1)]);
+        long hx = next.XMillimetres - driven.XMillimetres, hz = next.ZMillimetres - driven.ZMillimetres;
+        long ax = grazer.XMillimetres - driven.XMillimetres, az = grazer.ZMillimetres - driven.ZMillimetres;
+        var side = Math.Sign(hx * az - hz * ax);
+        var here = TraversalGrid.WorldToCell(grazer.XMillimetres, grazer.ZMillimetres);
+        // The eight ways out, those leading away from the driven cow only, squarest to its heading first.
+        var ways = new (int X, int Z)[] { (1, 0), (1, 1), (0, 1), (-1, 1), (-1, 0), (-1, -1), (0, -1), (1, -1) }
+            .Where(w => w.X * ax + w.Z * az > 0)
+            .OrderBy(w => Math.Abs(w.X * hx + w.Z * hz) * 1_000 / (w.X != 0 && w.Z != 0 ? 1_414 : 1_000))
+            .ThenBy(w => Math.Sign(hx * w.Z - hz * w.X) == side ? 0 : 1);
+        foreach (var (dx, dz) in ways)
+        {
+            var target = new GridCell(here.X + dx * CowRules.AsideCells, here.Z + dz * CowRules.AsideCells);
+            if (target.X is < CowRules.SiteMinCell or > CowRules.SiteMaxCell || target.Z is < CowRules.SiteMinCell or > CowRules.SiteMaxCell ||
+                !_traversalGrid!.Contains(target) || !_traversalGrid.Get(target).IsWalkable) continue;
+            var path = DeterministicPathfinder.FindPath(_traversalGrid, here, target);
+            // From where it stands, not back via the middle of its own cell.
+            var route = path.Path.SkipWhile(cell => cell == here).ToArray();
+            if (path.Found && route.Length > 0) return grazer with { Activity = CowActivity.Ambling, Route = route, RouteIndex = 0 };
+        }
+        return grazer;
     }
 
     /// <summary>Moves a cow along its route at the given pace, a cell centre at a time.</summary>
@@ -260,8 +343,9 @@ public sealed partial class GameSession
         }
     }
 
-    private LooseCow? AdvanceHerdedCow(LooseCow cow, ulong herder)
+    private LooseCow? AdvanceHerdedCow(LooseCow?[] herd, int index, ulong herder)
     {
+        var cow = herd[index]!;
         var nav = _navigationAgents[new(herder)];
         // Anything else that takes the steward's route (a fight, a collapse) lets the cow go back to grazing; so does a cow
         // the steward can't reach, or a herd that's run far too long.
@@ -281,7 +365,14 @@ public sealed partial class GameSession
             ApplyAgentDestination(new(herder), new(WalkableNear(new(CowRules.GateInside.X - 2, CowRules.GateInside.Z)), "cow.drive"));
             return cow with { Driving = true, Route = home.Found ? home.Path.ToArray() : [CowRules.GateInside], RouteIndex = 0 };
         }
-        var moved = StepCow(cow, CowRules.DrivenMillimetresPerTick);
+        var (moved, blocker) = StepCowApart(herd, index, CowRules.DrivenMillimetresPerTick);
+        if (blocker >= 0)
+        {
+            // Another cow in the way: one grazing there is moved aside by the steward behind, off to one side of the line
+            // home; one walking or being driven is waited for.
+            if (herd[blocker] is { HerderId: null, Activity: CowActivity.Grazing } grazer) herd[blocker] = MoveAside(grazer, cow);
+            return cow;
+        }
         if (moved.RouteIndex < moved.Route.Length) return moved;
         MedicalEvent("cows:home", $"{cow.Id} was driven back into its field.");
         ReturnToListening(herder);

@@ -138,6 +138,51 @@ public sealed class CowTests
         Assert.IsNull(typeof(GameSession).GetMethod("StaffUnavailableReason", Private)!.Invoke(s, [steward]), "The steward's free for other work.");
     }
 
+    /// <summary>
+    /// Four cows out (the most a broken gate lets go), left to graze and amble for a long spell, then each driven home
+    /// by whichever steward is free: no two cows' middles come within 1.2 m of each other for more than a moment.
+    /// </summary>
+    [TestMethod]
+    public void LooseCowsKeepABodysWidthApartGrazingAmblingAndDriven()
+    {
+        var s = WithoutFaults(Started());
+        s.AdvanceWithoutSnapshot(2_000);
+        // Wait for a tick on which the gate would let the most cows go, then break it.
+        while (CowRules.Draw(s.CampaignSeed, "gate.escape", s.CurrentTick, (ulong)s.CapturePreparation()!.Attempt, CowRules.EscapeMax - CowRules.EscapeMin + 1) != CowRules.EscapeMax - CowRules.EscapeMin)
+            s.AdvanceWithoutSnapshot(1);
+        var field = typeof(GameSession).GetField("_cows", Private)!;
+        field.SetValue(s, typeof(GameSession).GetMethod("BreakGate", Private)!.Invoke(s, [field.GetValue(s)!, s.CapturePreparation()!])!);
+        Faulty(s);
+        Assert.AreEqual(CowRules.EscapeMax, s.CaptureCows()!.Loose.Length);
+        const long Close = 1_200, Moment = 160;
+        var streaks = new Dictionary<(string, string), int>();
+        var worst = (Pair: "", Ticks: 0, Phase: "");
+        void Measure(string phase)
+        {
+            var loose = s.CaptureCows()!.Loose;
+            for (var i = 0; i < loose.Length; i++)
+                for (var j = i + 1; j < loose.Length; j++)
+                {
+                    long dx = loose[i].XMillimetres - loose[j].XMillimetres, dz = loose[i].ZMillimetres - loose[j].ZMillimetres;
+                    var key = (loose[i].Id, loose[j].Id);
+                    var run = dx * dx + dz * dz < Close * Close ? streaks.GetValueOrDefault(key) + 1 : 0;
+                    streaks[key] = run;
+                    if (run > worst.Ticks) worst = ($"{key.Item1}/{key.Item2} at ({loose[i].XMillimetres},{loose[i].ZMillimetres}) tick {s.CurrentTick}", run, phase);
+                }
+        }
+        for (var tick = 0; tick < 10_000; tick++) { s.AdvanceWithoutSnapshot(1); Measure("grazing"); }
+        var sent = new HashSet<string>();
+        for (var tick = 0; tick < 30_000 && s.CaptureCows()!.Loose.Length > 0; tick++)
+        {
+            if (tick % 80 == 0)
+                foreach (var cow in s.CaptureCows()!.Loose.Where(c => c.HerderId is null))
+                    if (s.CowHerder(cow.Id).Reason is null && Send(s, new HerdCowCommand(cow.Id)).IsAccepted) sent.Add(cow.Id);
+            s.AdvanceWithoutSnapshot(1); Measure("herded");
+        }
+        Assert.AreEqual(0, s.CaptureCows()!.Loose.Length, $"All back in the field ({sent.Count} sent).");
+        Assert.IsTrue(worst.Ticks <= Moment, $"Two cows stood within {Close} mm of each other for {worst.Ticks} ticks ({worst.Pair}, {worst.Phase}).");
+    }
+
     [TestMethod]
     public void PeopleWalkRoundACowRatherThanThroughIt()
     {
