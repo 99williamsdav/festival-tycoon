@@ -204,7 +204,7 @@ public partial class Main
             var disorder = _session.CaptureDisorder()?.People.SingleOrDefault(item => item.AgentId == id.Value);
             var worker = _session.GetResponseStaff().SingleOrDefault(item => item.AgentId == id.Value);
             var activity = person.Departed ? "Left the festival" : need?.Intent == MedicalIntent.Collapsed ? "Collapsed · needs care" :
-                need is not null ? StewardWording(System.Text.RegularExpressions.Regex.Replace(need.Reason, @"\s+at tick \d+", "")) : performer?.OnStage == true ? "Performing on stage" : "Walking through the festival";
+                need is not null ? ActivityLine(need.Reason) : performer?.OnStage == true ? "Performing on stage" : "Walking through the festival";
             _inspectorBody.Text = $"{(person.Role == ProtectedPersonRole.Guest ? "Likes " + FestivalGenreName(person.ExpectedGenre) : "Festival crew")}\n{activity}\n" +
                 (listening is null ? "" : $"{placeActivity} · interest {listening.Enthusiasm}%\n") +
                 (disorder is null || disorder.Stage is DisorderStage.Calm or DisorderStage.Resolved ? "" : TroubleLine(disorder,
@@ -214,6 +214,21 @@ public partial class Main
                 StaffInterventionTargetText(id.Value) +
                 (worker is null ? "" : ResponseStaffInspectorText(id.Value));
         }
+    }
+
+    /// <summary>
+    /// What someone's doing, in a few words: the chooser's scores ("music 392 vs toilet 332 incl. travel/wait") and
+    /// tick stamps are for debugging, not the inspector.
+    /// </summary>
+    private string ActivityLine(string reason)
+    {
+        var line = System.Text.RegularExpressions.Regex.Replace(reason, @"\s+at tick \d+", "");
+        line = System.Text.RegularExpressions.Regex.Replace(line, @"\s+-?\d+(\s+vs\s.*)?$", "");
+        line = line.StartsWith("Watching band", StringComparison.Ordinal) ? "Watching the band"
+            : line.StartsWith("On duty", StringComparison.Ordinal) ? "On duty"
+            : line.StartsWith("Chose ", StringComparison.Ordinal) ? "Next: " + line["Chose ".Length..]
+            : line.StartsWith("Staying with ", StringComparison.Ordinal) ? "Carrying on: " + line["Staying with ".Length..] : line;
+        return StewardWording(line);
     }
 
     private void EnsureStageDrumKit()
