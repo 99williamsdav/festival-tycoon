@@ -40,7 +40,7 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v57", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v57");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v58", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v58");
 
     public override void _Ready()
     {
@@ -78,7 +78,9 @@ public partial class Main : Node, IHudHost
         if (!EyeViewActive) _rig.Process(delta);
         ProcessEyeView(delta);
         ProcessDayCycle(delta);
+        ProcessRain();
         ProcessGround(delta);
+        ProcessGroundCover();
         ProcessGateSign(delta);
         ProcessStageSet(delta);
         ProcessPondStage(delta);
@@ -129,6 +131,8 @@ public partial class Main : Node, IHudHost
         if (inputEvent is InputEventKey key && key.Pressed && !key.Echo)
         {
             if (_buildGhostKind is not null && key.Keycode == Key.Escape) { CancelBuildPlacement(); RefreshHudWorkspace(); return; }
+            if (_coverTool is not null && key.Keycode == Key.Escape) { CancelCoverTool(); RefreshHudWorkspace(); return; }
+            if (_strawPicker is not null && key.Keycode == Key.Escape) { _strawPicker = null; _preparationMessage = ""; RefreshPreparationHud(); return; }
             if (_buildGhostKind is not null && key.Keycode is Key.Comma or Key.Period)
             { RotateBuildGhost(key.Keycode == Key.Comma ? -1 : 1); return; }
             if(key.Keycode==Key.Escape && Perks.ConfirmationPending){Perks.CancelConfirmation();return;}
@@ -147,7 +151,9 @@ public partial class Main : Node, IHudHost
         }
         else if (inputEvent is InputEventMouseButton mouse)
         {
-            if (WorldInputOccluded(mouse.Position)) return;
+            if (WorldInputOccluded(mouse.Position) && !(_coverTool is not null && !mouse.Pressed)) return;
+            if (HandleCoverMouse(mouse)) return;
+            if (HandleStrawPick(mouse)) return;
             if (_buildGhostKind is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Right)
             { CancelBuildPlacement(); RefreshHudWorkspace(); return; }
             if (_buildGhostKind is not null && mouse.Pressed && mouse.ButtonIndex == MouseButton.Left)
@@ -162,6 +168,7 @@ public partial class Main : Node, IHudHost
             if (EyeViewActive) return;
             _rig.HandleMotion(motion);
             if (_buildGhostKind is not null) UpdateBuildGhost(motion.Position);
+            if (_coverTool is not null) UpdateCoverPreview(motion.Position);
         }
         // Trackpads (a Mac has no middle button): two fingers drag the view, a pinch zooms it.
         else if (inputEvent is InputEventPanGesture pan && !EyeViewActive && !WorldInputOccluded(pan.Position)) _rig.HandlePanGesture(pan);
@@ -193,6 +200,7 @@ public partial class Main : Node, IHudHost
         BuildGateApron();
         BuildFarmBeauty();
         BuildDayCycle(environment, sun);
+        BuildRain();
         foreach (var item in LowerWitteringFarmScenario.CreateReadModel().Objects)
             if (item.Kind != FarmObjectKind.ServicePoint) AddFarmObject(item);
         BuildBackstage();
@@ -596,7 +604,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v57");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v58");
 
 
 

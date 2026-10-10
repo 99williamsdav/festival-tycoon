@@ -224,6 +224,7 @@ public partial class Main
     private void ProcessDayCycle(double delta)
     {
         if (_session is null) return;
+        UpdateRainLevel();
         var running = !_session.IsPaused || _dayFractionOverride is not null;
         if (running) _breezeSeconds += delta;
         var day = DayFraction();
@@ -263,6 +264,8 @@ public partial class Main
         _cloudShadows.Visible = clouds > 0;
         _sun.RotationDegrees = new Vector3(-Mathf.Lerp(a.Elevation, b.Elevation, w), Mathf.Lerp(a.Yaw, b.Yaw, w), 0);
         _sun.LightColor = sun; _sun.LightEnergy = sunEnergy;
+        _sun.LightAngularDistance = 0;
+        _environment.TonemapExposure = 1;
         // A sun on the horizon would throw shadows across the whole field; they fade as it sets.
         _sun.ShadowOpacity = 1 - .45f * Smooth(.7f, 1, day);
         _environment.BackgroundColor = sky;
@@ -280,6 +283,7 @@ public partial class Main
             var on = _session.StallPowered(id) ? dusk : 0;
             glow.LightEnergy = 2.4f * on; glow.Visible = on > 0;
         }
+        ApplyShowerLight();
     }
 
     /// <summary>Stall glows follow wherever the stalls are built; a pole gives way to anything built on its spot.</summary>

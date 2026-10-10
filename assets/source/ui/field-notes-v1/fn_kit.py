@@ -108,6 +108,10 @@ def doodle(d, name, cx, cy, s, col, w, seed=1):
         d.ellipse([P(1.6, -3.4), P(3.6, -1.4)], fill=col)                                                 # other eye
         St(circ(*P(0, 6.2), 6.6 * u, 0, 360, sq=0.62))                                                    # muzzle
         for sx in (-1, 1): d.ellipse([P(sx * 2.6 - 0.9, 5.6), P(sx * 2.6 + 0.9, 7.4)], fill=col)          # nostrils
+    elif name == "rain":                             # a cloud with three slanted drops falling from it
+        St(circ(*P(-4, -4), 4.6 * u, 140, 300)); St(circ(*P(2, -6.5), 5.6 * u, 190, 350)); St(circ(*P(7.2, -2.6), 3.8 * u, 250, 430))
+        St([P(-8.4, -1.6), P(-8, 1.2), P(10.6, 1.2)])
+        for x in (-5.5, 0.5, 6.5): St([P(x, 5), P(x - 1.6, 10)], w * 0.85)
     elif name == "unknown":
         f = font("slabb", int(17 * u)); d.text((cx, cy + u), "?", font=f, fill=col, anchor="mm")
 

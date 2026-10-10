@@ -153,13 +153,16 @@ private void BuildImmersionControls(VBoxContainer parent)
         _immersionSummary.Visible = false;
         _stockClear = Ui.Style(new Button { Text = "None", CustomMinimumSize = new Vector2(0, Ui.S(28)), TooltipText = "Remove all planned stock.",
             MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Quiet, 12.5f);
-        _stockClear.Pressed += () => CommitEquipmentAction(new SetPreparationStockCommand(0, 0));
+        _stockClear.Pressed += () => CommitEquipmentAction(new SetPreparationStockCommand(0, 0) { Ponchos = 0, StrawBales = 0 });
         heading.AddChild(_stockClear);
         _immersionControls.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(6)) });
         var header = StockLine(Ui.Caps("Item", Ui.InkMuted), Ui.Caps("Cost → sells", Ui.InkMuted), Ui.Caps("Quantity", Ui.InkMuted), Ui.Caps("Cost", Ui.InkMuted), true);
         _immersionControls.AddChild(header);
+        // Rain supplies from Tier 2: ponchos the bars sell, and straw bales for stewards to spread on the mud.
         var items = new[] { ("Soft drink", "cup-soda", new Color("b84a3a"), GameSession.ImmersionCost(ImmersionProduct.SoftDrink), GameSession.ImmersionPrice(ImmersionProduct.SoftDrink)),
-            ("Beer", "beer", new Color("a87a1f"), GameSession.ImmersionCost(ImmersionProduct.Beer), GameSession.ImmersionPrice(ImmersionProduct.Beer)) };
+            ("Beer", "beer", new Color("a87a1f"), GameSession.ImmersionCost(ImmersionProduct.Beer), GameSession.ImmersionPrice(ImmersionProduct.Beer)),
+            ("Poncho", "cloud-showers", new Color("2f7d8a"), GameSession.ImmersionCost(ImmersionProduct.Poncho), GameSession.ImmersionPrice(ImmersionProduct.Poncho)),
+            ("Straw bale", "package", new Color("9a7a2c"), GroundCoverRules.BalePennies, 0) };
         for (var index = 0; index < items.Length; index++)
         {
             var (name, icon, tile, cost, sale) = items[index];
@@ -168,7 +171,10 @@ private void BuildImmersionControls(VBoxContainer parent)
             var glyph = Ui.IconRect(icon, 18, Colors.White); glyph.SizeFlagsHorizontal = glyph.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; badge.AddChild(glyph);
             label.AddChild(badge);
             var title = Ui.Text(name, 15, Ui.Ink, Ui.BodyBold); title.VerticalAlignment = VerticalAlignment.Center; label.AddChild(title);
-            var prices = Ui.Text($"{FestivalCurrency.Format(cost)} → {FestivalCurrency.Format(sale)}", 14, Ui.Ink);
+            var prices = Ui.Text(sale > 0 ? $"{FestivalCurrency.Format(cost)} → {FestivalCurrency.Format(sale)}" : $"{FestivalCurrency.Format(cost)} · stewards", 14, Ui.Ink);
+            if (index == 2) title.TooltipText = "Sold at the bars in the rain. A guest who buys one stays dry all day.";
+            if (index == 3) title.TooltipText = "Kept in the store: select a steward or the maintenance worker and send them to spread a bale on the mud.";
+            title.MouseFilter = Control.MouseFilterEnum.Pass;
             var slot = index;
             var stepper = new HBoxContainer(); stepper.AddThemeConstantOverride("separation", 0);
             Button Step(string glyphName, int delta)
@@ -193,8 +199,9 @@ private void BuildImmersionControls(VBoxContainer parent)
             stepper.AddChild(amount);
             stepper.AddChild(Step("plus", 4));
             var total = Ui.Heading("", 17); total.HorizontalAlignment = HorizontalAlignment.Right;
-            _stockRows[index] = (amount, total);
-            _immersionControls.AddChild(StockLine(label, prices, stepper, total, false));
+            var line = StockLine(label, prices, stepper, total, false);
+            _stockRows[index] = (amount, total, line);
+            _immersionControls.AddChild(line);
         }
         var footer = new HBoxContainer(); footer.AddThemeConstantOverride("separation", Ui.Px(8));
         var footerMargin = new MarginContainer(); footerMargin.AddThemeConstantOverride("margin_top", Ui.Px(8)); footerMargin.AddThemeConstantOverride("margin_left", Ui.Px(4));
@@ -205,7 +212,7 @@ private void BuildImmersionControls(VBoxContainer parent)
         RefreshImmersionControls();
     }
 
-    private readonly (LineEdit Amount, Label Total)[] _stockRows = new (LineEdit, Label)[2];
+    private readonly (LineEdit Amount, Label Total, Control Line)[] _stockRows = new (LineEdit, Label, Control)[4];
     private Button? _stockClear;
     private Label? _stockPotential;
     private Label? _stockTotal;
@@ -234,16 +241,18 @@ private void BuildImmersionControls(VBoxContainer parent)
         return line;
     }
 
-    private int PlannedStock(int slot) => _session.CapturePreparationPlan() is { } plan ? slot == 0 ? plan.SoftDrinks : plan.Beers : 0;
+    private int PlannedStock(int slot) => _session.CapturePreparationPlan() is { } plan ? PlannedAmounts(plan)[slot] : 0;
+
+    private static int[] PlannedAmounts(PreparationPlan plan) => [plan.SoftDrinks, plan.Beers, plan.Ponchos, plan.StrawBales];
 
     private void CommitPlannedStock(int slot, int value)
     {
         if (_session.CapturePreparationPlan() is not { } plan || _session.PreparedStatus != PreparationStatus.Preparing) return;
-        var amounts = new[] { plan.SoftDrinks, plan.Beers };
+        var amounts = PlannedAmounts(plan);
         value = Math.Clamp(value, 0, 10000);
         if (amounts[slot] == value) { RefreshImmersionControls(); return; }
         amounts[slot] = value;
-        CommitEquipmentAction(new SetPreparationStockCommand(amounts[0], amounts[1]));
+        CommitEquipmentAction(new SetPreparationStockCommand(amounts[0], amounts[1]) { Ponchos = amounts[2], StrawBales = amounts[3] });
     }
 
     // The crew slots and candidate table, laid out like the Programme sheet.
@@ -317,14 +326,19 @@ private void BuildImmersionControls(VBoxContainer parent)
         {
             _immersionStockButton.Text = "Starter bundle · 40 / 32";
             _immersionStockButton.TooltipText = "Plan 40 soft drinks and 32 beers. Unpaid until Start; revise quantities or remove freely.";
-            var values = new[] { plan.SoftDrinks, plan.Beers };
-            var costs = new[] { GameSession.ImmersionCost(ImmersionProduct.SoftDrink), GameSession.ImmersionCost(ImmersionProduct.Beer) };
-            var sales = new[] { GameSession.ImmersionPrice(ImmersionProduct.SoftDrink), GameSession.ImmersionPrice(ImmersionProduct.Beer) };
+            var values = PlannedAmounts(plan);
+            var costs = new[] { GameSession.ImmersionCost(ImmersionProduct.SoftDrink), GameSession.ImmersionCost(ImmersionProduct.Beer),
+                GameSession.ImmersionCost(ImmersionProduct.Poncho), GroundCoverRules.BalePennies };
+            var sales = new[] { GameSession.ImmersionPrice(ImmersionProduct.SoftDrink), GameSession.ImmersionPrice(ImmersionProduct.Beer),
+                GameSession.ImmersionPrice(ImmersionProduct.Poncho), 0 };
+            var rainy = _session.IsRainyFestival;
             for (var i = 0; i < values.Length; i++)
             {
                 if (!_stockRows[i].Amount.HasFocus()) _stockRows[i].Amount.Text = values[i].ToString();
                 _stockRows[i].Amount.Editable = preparing;
                 _stockRows[i].Total.Text = FestivalCurrency.Format(values[i] * costs[i]);
+                // Ponchos and straw only for a rainy festival.
+                _stockRows[i].Line.Visible = i < 2 || rainy;
             }
             _stockClear!.Disabled = !preparing || values.Sum() == 0;
             _stockPotential!.Text = $"Sells for up to {FestivalCurrency.Format(values.Select((value, i) => (long)value * sales[i]).Sum())} if every item goes. Staff don't buy beer.";

@@ -325,6 +325,22 @@ public partial class Main
                 remarks.Add(new(id, _session.GuestLabels(id).Contains("Princess") ? "I think I'm going to be sick"
                     : Pick(id, "What is that smell?!", "Ugh, the loos…"), Mood.Grumble, 2, "smell", 10));
         }
+        // The rain: soaked grumbles out in it, relief under cover, and a poncho wearer feeling smug.
+        if (_session.RainNow is var rain and not RainIntensity.Dry)
+            foreach (var id in guests.Keys.Where(Free))
+            {
+                var at = At(id);
+                var cell = TraversalGrid.WorldToCell((int)(at.X * 1000), (int)(at.Z * 1000));
+                if (_session.OwnsPoncho(id))
+                    remarks.Add(new(id, Pick(id, "Best £3 I ever spent", "Poncho power!", "Dry as a bone in here", "Let it rain"), Mood.Happy, 1, "poncho", 15));
+                else if (_session.CoveredCell(cell))
+                    remarks.Add(new(id, Pick(id, "Not moving till it stops", "Shelter from the storm", "Room for one more?", "Under my umbrella, at last"), Mood.Neutral, 1, "shelter", 12));
+                else if (_session.Soaked(id))
+                    remarks.Add(new(id, rain == RainIntensity.Downpour
+                        ? Pick(id, "It's biblical!", "Who'll stop the rain?!", "Riders on the storm, more like swimmers", "I'm drowning here!")
+                        : Pick(id, "Here comes the rain again…", "Purple Rain? More like brown mud", "Soaked to the pants", "Singing in the rain… not",
+                            "Raindrops keep falling on my head", "November Rain? In summer?"), Mood.Grumble, 2, "rain", 10));
+            }
         foreach (var bin in _session.CaptureBins().Where(b => b.Wasps))
             foreach (var id in Near(ImmersionPosition(bin.Cell), LitterRules.WaspRadiusCells * TraversalGrid.CellSizeMillimetres / 1000f))
                 remarks.Add(_session.GuestCharacterOf(id).WaspAllergy
@@ -378,14 +394,16 @@ public partial class Main
                 ? new(id, Pick(id, "Not bad, I suppose", "It was alright", "Decent enough", "Can't complain"), Mood.Neutral, 2, "home", 2, $"home:{id}")
                 : new(id, Pick(id, "Never coming back", "What a waste of money", "Worst festival ever", "I want a refund"), Mood.Angry, 2, "home", 2, $"home:{id}"));
         }
-        // Mud underfoot. Only rain mud would cheer a hippie, and there's no rain yet.
+        // Mud underfoot. Only rain mud would cheer a hippie.
         foreach (var id in guests.Keys.Where(Free))
         {
             var at = At(id);
             var ground = _session.GroundStateAt(TraversalGrid.WorldToCell((int)(at.X * 1000), (int)(at.Z * 1000)));
             if (ground is GroundState.Mud or GroundState.Swamp)
-                remarks.Add(new(id, ground == GroundState.Swamp ? Pick(id, "It's like a swamp!", "Ugh, my shoes!") : Pick(id, "Ugh, my shoes!", "Squelch…"),
-                    Mood.Grumble, 2, "mud", 10));
+                remarks.Add(_session.IsRainyFestival && _session.GuestLabels(id).Contains("Hippie")
+                    ? new(id, Pick(id, "Mud, glorious mud!", "Proper festival, this", "Get your wellies on, man"), Mood.Happy, 2, "mud", 10)
+                    : new(id, ground == GroundState.Swamp ? Pick(id, "It's like a swamp!", "Ugh, my shoes!") : Pick(id, "Ugh, my shoes!", "Squelch…",
+                        _session.IsRainyFestival ? "Should've brought wellies" : "Ugh, my shoes!"), Mood.Grumble, 2, "mud", 10));
         }
 
         // Personalities: the twat, the princess, the hippie, the alcoholic and the one who overheats.

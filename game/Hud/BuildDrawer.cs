@@ -15,6 +15,7 @@ internal interface IBuildActions
     void CloseDrawer();
     void OpenCatalogue(BuildServiceKind kind);
     void OpenTab(string name);
+    void BeginCover(GroundCoverAction action);
 }
 
 /// <summary>
@@ -114,6 +115,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             tabs.AddChild(tab); _tabs.Add(tab);
             var page = new VBoxContainer(); page.AddThemeConstantOverride("separation", 0); pageStack.AddChild(page); _tabPages.Add(page);
             foreach (var kind in kinds) page.AddChild(CatalogueEntry(kind, kind == kinds[0]));
+            if (name == "Site") page.AddChild(GroundCoverEntry());
         }
         box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         var actions = new HBoxContainer(); actions.AddThemeConstantOverride("separation", Ui.Px(6)); box.AddChild(actions);
@@ -210,6 +212,61 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         return block;
     }
 
+    private Label? _coverSummary;
+    private readonly List<Button> _coverButtons = [];
+
+    /// <summary>
+    /// Straw and track matting, from Tier 2: walked on, never built on. Straw keeps a path from churning to mud until it's
+    /// trampled flat; matting never churns.
+    /// </summary>
+    private VBoxContainer GroundCoverEntry()
+    {
+        var block = new VBoxContainer(); block.AddThemeConstantOverride("separation", Ui.Px(4));
+        block.AddChild(Rule());
+        var line = new HBoxContainer { CustomMinimumSize = new Vector2(0, Ui.S(30)) };
+        line.AddThemeConstantOverride("separation", Ui.Px(6)); block.AddChild(line);
+        line.AddChild(new Control { CustomMinimumSize = new Vector2(Ui.S(16), 0) });
+        var badge = new PanelContainer { CustomMinimumSize = Ui.S(24, 24), SizeFlagsVertical = Control.SizeFlags.ShrinkCenter };
+        badge.AddThemeStyleboxOverride("panel", Ui.Box(new Color("9a7a2c"), 6));
+        var glyph = Ui.IconRect("cloud-heavy-showers", 14, Colors.White);
+        glyph.SizeFlagsHorizontal = glyph.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+        badge.AddChild(glyph); line.AddChild(badge);
+        var name = Ui.Text("Straw & matting", 13.5f, Ui.Ink, Ui.BodyBold); name.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; line.AddChild(name);
+        var margin = new MarginContainer(); margin.AddThemeConstantOverride("margin_left", Ui.Px(46)); margin.AddThemeConstantOverride("margin_bottom", Ui.Px(8));
+        var stack = new VBoxContainer(); stack.AddThemeConstantOverride("separation", Ui.Px(4)); margin.AddChild(stack); block.AddChild(margin);
+        var words = Ui.Text("Paths for the rain: drag along the way people walk. Straw (" + FestivalCurrency.Format(GroundCoverRules.BalePennies) +
+            " a bale, 4 m of path) stops mud until it's trampled flat; matting (" + FestivalCurrency.Format(GroundCoverRules.MatPanelPennies) +
+            " a panel) never churns. Walked on, never built on.", 11.5f, Ui.InkMuted);
+        words.AutowrapMode = TextServer.AutowrapMode.WordSmart; stack.AddChild(words);
+        var buttons = new HBoxContainer(); buttons.AddThemeConstantOverride("separation", Ui.Px(4)); stack.AddChild(buttons);
+        foreach (var (text, action) in new[] { ("Straw", GroundCoverAction.Straw), ("Matting", GroundCoverAction.Matting), ("Lift", GroundCoverAction.Lift) })
+        {
+            var button = Ui.Style(new Button { Text = text, CustomMinimumSize = new Vector2(0, Ui.S(26)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+                MouseDefaultCursorShape = Control.CursorShape.PointingHand }, action == GroundCoverAction.Lift ? Ui.ButtonKind.Quiet : Ui.ButtonKind.Secondary, 12);
+            var chosen = action;
+            button.Pressed += () => _actions.BeginCover(chosen);
+            buttons.AddChild(button); _coverButtons.Add(button);
+        }
+        _coverSummary = Ui.Text("", 11.5f, Ui.InkMuted); stack.AddChild(_coverSummary);
+        return block;
+    }
+
+    private void RefreshGroundCover()
+    {
+        if (_coverSummary is null) return;
+        var p = _hud.Session.CapturePreparation();
+        var open = (p?.Tier ?? 1) >= GroundCoverRules.FromTier;
+        foreach (var button in _coverButtons)
+        {
+            button.Disabled = !open;
+            button.TooltipText = open ? "" : "Straw and matting come with Tier 2's wet weather.";
+        }
+        var straw = p?.StrawCells?.Length ?? 0; var panels = p?.MatPanels?.Length ?? 0;
+        _coverSummary.Text = !open ? "From Tier 2." : straw + panels == 0 ? "None laid." :
+            $"{(straw == 0 ? "" : $"Straw {straw / 2f:0} m² · {GroundCoverRules.BalesFor(straw)} bales")}{(straw > 0 && panels > 0 ? " · " : "")}" +
+            $"{(panels == 0 ? "" : $"matting {panels} panels")} · {FestivalCurrency.Format(GameSession.GroundCoverCost(p))}";
+    }
+
     public void AddChecklistShortcuts(VBoxContainer parent)
     {
         foreach (var (kind, caption) in new[]
@@ -289,6 +346,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     {
         if (_buildDrawer is null || _hud.Session.CapturePreparationPlan() is null) return;
         RefreshTraderPicker();
+        RefreshGroundCover();
         var placements = _hud.Session.CaptureBuildPlacements();
         _servicesTotal!.Text = $"{placements.Count} placed · {FestivalCurrency.Format(_hud.Session.BuildDraftCost)} · nothing paid until Start";
         var standard = GameSession.StandardBuildLayout(_hud.Session.CapturePreparation()?.Tier ?? 1).Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
@@ -413,7 +471,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
 
     /// <summary>A line under the row for a service that needs saying what it's for.</summary>
     private static string? Blurb(BuildServiceKind kind) => kind == BuildServiceKind.Marquee
-        ? "Shade in a heatwave: no heat builds up under it, and 15 can rest there. Rain cover later."
+        ? "Shade in a heatwave: no heat builds up under it, and 15 can rest there. In the rain, 15 can shelter under it and dry off."
         : null;
 
     /// <summary>"Toilet 2" rather than "toilet.extra-1".</summary>
