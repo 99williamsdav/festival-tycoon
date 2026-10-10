@@ -118,8 +118,11 @@ public sealed partial class GameSession
         if (command.Action == DisorderAction.CloseWater && d.WaterClosed ||
             command.Action == DisorderAction.ReopenWater && !d.WaterClosed)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Water closure state is unchanged.");
+        // The stage is off either isolated or, with the generators pooled, cut while the generator runs on; a pooled cut
+        // comes back only once the supply isn't overloaded.
         if (command.Action == DisorderAction.RestoreMusic &&
-            (_equipment is not { Stage: EquipmentStage.Isolated } e || e.Version != 3 && e.LoadPercent != 0 || e.Condition < 7_000 ||
+            (_equipment is not { } e || !(e.Stage == EquipmentStage.Isolated || e.StageCut && e.Stage is EquipmentStage.Normal or EquipmentStage.Resolved) ||
+             e.Version != 3 && e.LoadPercent != 0 || e.Condition < 7_000 ||
              !_livePerformances.Any(live => live?.Stage == LiveSetStage.Interrupted)))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter,
                 "Safe reset needs an isolated, non-faulted generator and interrupted set; unresolved overload stays off.");
@@ -183,7 +186,7 @@ public sealed partial class GameSession
         }
         // Isolation already removed the dangerous load. A reset is permitted only
         // above the safe condition floor; it restores the existing 80% baseline.
-        _equipment = _equipment! with { Stage = EquipmentStage.Resolved, LoadPercent = _equipment.Version == 3 ? _equipment.LoadPercent : 80,
+        _equipment = _equipment! with { Stage = EquipmentStage.Resolved, StageCut = false, LoadPercent = _equipment.Version == 3 ? _equipment.LoadPercent : 80,
             Response = _equipment.Version == 3 ? "Stage power restored" : "Explicit safe reset at 80% after isolation" };
         EquipmentEvent("equipment:safe-reset", _equipment.Response);
         DisorderEvent("disorder:music-safe-reset", PeopleIn(PersonView.Disorder)[0].Id, null, 0,

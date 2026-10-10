@@ -225,7 +225,9 @@ public sealed partial class GameSession
             e.Evidence is null || e.Evidence.Length < 1 || e.Evidence.Length > (budget ? 64 : 8) || e.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick || string.IsNullOrWhiteSpace(item.Id) || string.IsNullOrWhiteSpace(item.Description)) ||
             e.Evidence.Select(item => item.Id).Distinct().Count() != e.Evidence.Length || !e.Evidence.Select(item => item.Tick).SequenceEqual(e.Evidence.Select(item => item.Tick).Order()) || string.IsNullOrWhiteSpace(e.Response) ||
             // A cut that leaves the generator running only exists with a pooled supply, once the festival has opened.
-            e.StageCut && (!budget || s.StageGenerators is not { Length: > 0 } || p.Status == PreparationStatus.Preparing))
+            e.StageCut && (!budget || s.StageGenerators is not { Length: > 0 } || p.Status == PreparationStatus.Preparing || e.Stage == EquipmentStage.Isolated) ||
+            // Pooled, the trailer's cut is StageCut: an isolated farm generator would keep its capacity yet never warn or fault.
+            budget && s.StageGenerators is { Length: > 0 } && e.Stage == EquipmentStage.Isolated)
             return "Equipment identity, stage or evidence invalid.";
         if ((e.WorkerId is not null) != p.AcceptedOffers.Contains("maintenance.worker") ||
             e.WorkerId is { } worker && !p.People.Any(item => item.AgentId == worker && item.Name == "Morgan Finch" && item.Role == ProtectedPersonRole.Staff) ||

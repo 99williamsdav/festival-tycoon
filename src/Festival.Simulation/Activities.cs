@@ -86,7 +86,7 @@ public sealed partial class GameSession
         // On-duty staff heat up an eighth as fast (see AdvanceMedical).
         var growth = RobotWorker(id) ? new NeedGrowth(0, 0, 0, 0) : new NeedGrowth(
             (20 + (HasPerk("thirsty-crowd") && person.NeedProfile == MedicalNeedProfile.Guest ? 2 : 0)) * (BringsOwnBottle(id) ? ByobThirstQuarters : 4) / 4,
-            IsStaffMember(id) ? 2 : 20 * (200 + (IsGuest(id) ? GuestCharacterOf(id).HeatSensitivity : 0)) / 200, 12, 80 / ToiletNeedGainEveryTicks(id));
+            IsStaffMember(id) ? 2 : 20 * (200 + (IsGuest(id) ? GuestCharacterOf(id).HeatSensitivity : 0)) / 200, HungerPerSecond, 80 / ToiletNeedGainEveryTicks(id));
         var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed);
         return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options, CommittedPastHorizonTicks(id));
     }
@@ -350,18 +350,20 @@ public sealed partial class GameSession
     /// </summary>
     public static long FoodValue(ImmersionProduct product, int hunger, int ticks)
     {
-        var then = Math.Min(10_000, hunger + (long)GuestHungerPerSecond * ticks / ActivityChooser.SampleTicks);
+        var then = Math.Min(10_000, hunger + (long)HungerPerSecond * ticks / ActivityChooser.SampleTicks);
         return AppealValue(product) * Math.Min(then, FoodRelief(product)) / ActivityChooser.FoodHungerRelief;
     }
-    private const int GuestHungerPerSecond = 12;
+    /// <summary>How fast everyone gets hungry, of 10,000 a second: what the day adds and what the chooser projects.</summary>
+    public const int HungerPerSecond = 12;
 
     private bool ActivityPurchaseEligible(Person person, ImmersionProduct product) =>
         // The vendor's own rule, less what abandoning the current activity would clear.
         // Robot workers never stop for themselves, not even for a treat they pass on the way to their post.
         !RobotWorker(person.Id) &&
         person.Held is null && person.VendorId is null && person.Intent is MedicalIntent.WatchShow or MedicalIntent.SeekWater &&
-        // Food only once they're peckish: not hungry, it would sate nothing.
-        (!product.IsFood() || person.Hunger >= ActivityChooser.PeckishHunger) &&
+        // Food only once they're peckish: not hungry, it would sate nothing. A slacker snacks early anyway, as a treat, and
+        // gets no pleasure from it until they're hungry.
+        (!product.IsFood() || person.Hunger >= ActivityChooser.PeckishHunger || StaffHas(person.Id, StaffTrait.Slacker)) &&
         (product == ImmersionProduct.Water || person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat) && !IsCurrentProgrammePerformer(person.Id) &&
         ImmersionHandsAvailable(person.Id) && ImmersionStock(product) > 0 &&
         _wallets[new(person.Id)].CashPennies >= ImmersionPriceFor(person.Id, product) &&

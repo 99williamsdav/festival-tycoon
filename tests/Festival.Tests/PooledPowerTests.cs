@@ -133,6 +133,40 @@ public sealed class PooledPowerTests
     }
 
     [TestMethod]
+    public void APooledSaveRefusesAnIsolatedFarmGeneratorAndAStrainThatHasDriftedApart()
+    {
+        var s = OverloadedOnBothStages();
+        s.AdvanceWithoutSnapshot(400);
+        var saved = s.CapturePersistenceSnapshot();
+        Assert.IsTrue(saved.Equipment!.Strain > 0 && saved.StageGenerators![0].Strain == saved.Equipment.Strain);
+        Assert.IsTrue(GameSession.Restore(saved).IsSuccess);
+        // Isolated, the farm generator would keep its capacity in the pool yet never warn, fault or hurt anyone.
+        Assert.IsFalse(GameSession.Restore(saved with { Equipment = saved.Equipment with { Stage = EquipmentStage.Isolated } }).IsSuccess);
+        Assert.IsFalse(GameSession.Restore(saved with { Equipment = saved.Equipment with { Stage = EquipmentStage.Isolated, StageCut = true } }).IsSuccess);
+        // One supply, one strain.
+        Assert.IsFalse(GameSession.Restore(saved with { StageGenerators = [saved.StageGenerators[0] with { Strain = saved.Equipment.Strain + 1 }] }).IsSuccess);
+    }
+
+    [TestMethod]
+    public void ACutTrailerStageOnAPooledSupplyCanBeRestoredAndTheMusicComesBack()
+    {
+        var s = NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(20260922, 2));
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        var start = s.CapturePreparation()!.StartedTick;
+        s.AdvanceWithoutSnapshot((int)(start + FestivalStages.Main.SlotStarts[0] + 400 - s.CurrentTick));
+        Assert.AreEqual(LiveSetStage.Live, s.CaptureLivePerformance(FestivalStages.MainId)!.Stage);
+        BuildSession.Accept(s, new EquipmentCommand(EquipmentAction.Isolate));
+        s.AdvanceWithoutSnapshot(2);
+        Assert.AreEqual(LiveSetStage.Interrupted, s.CaptureLivePerformance(FestivalStages.MainId)!.Stage);
+        BuildSession.Accept(s, new DisorderCommand(DisorderAction.RestoreMusic));
+        Assert.IsFalse(s.CaptureEquipment()!.StageCut);
+        Assert.IsTrue(s.StagePowered);
+        for (var i = 0; i < 40 && s.CaptureLivePerformance(FestivalStages.MainId)!.Stage != LiveSetStage.Live; i++) s.AdvanceWithoutSnapshot(40);
+        Assert.AreEqual(LiveSetStage.Live, s.CaptureLivePerformance(FestivalStages.MainId)!.Stage, "The music's back.");
+        Assert.IsTrue(BuildSession.Send(s, new EquipmentCommand(EquipmentAction.Isolate)).IsAccepted, "And it can be cut again.");
+    }
+
+    [TestMethod]
     public void ASingleStageKeepsTheFarmDieselAlone()
     {
         var s = BuildSession.Ready();

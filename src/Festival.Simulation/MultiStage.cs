@@ -246,7 +246,10 @@ public sealed partial class GameSession
                 g.WarningTick < -1 || g.WarningTick > s.CurrentTick ||
                 g.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault && g.WarningTick < p.StartedTick ||
                 g.Stage == EquipmentStage.DangerousFault && s.CurrentTick < g.WarningTick + EquipmentDangerDelayTicks ||
-                p.Status == PreparationStatus.Preparing && (g.Stage != EquipmentStage.Resolved || g.Strain != 0 || g.WarningTick != -1))
+                p.Status == PreparationStatus.Preparing && (g.Stage != EquipmentStage.Resolved || g.Strain != 0 || g.WarningTick != -1) ||
+                // One supply, one strain: while the day runs, every generator in the pool carries the farm generator's.
+                p.Status == PreparationStatus.Running && s.Equipment is { Version: 3, Stage: not EquipmentStage.Terminal } farm &&
+                    g.Stage != EquipmentStage.Terminal && g.Strain != farm.Strain)
                 return invalid;
         }
         return null;

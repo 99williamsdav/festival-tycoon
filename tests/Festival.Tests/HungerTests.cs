@@ -91,4 +91,20 @@ public sealed class HungerTests
         Assert.IsTrue(held.Relieved <= (s.CurrentTick - from) * 12 / 80 + 1, $"{held.Relieved} sated in {s.CurrentTick - from} ticks.");
         Assert.IsTrue(GameSession.FoodSatisfaction(held.Relieved, 100) <= 5);
     }
+
+    [TestMethod]
+    public void ASaveCantClaimMoreHungerSatedThanTheFoodEatenSoFarCouldSate()
+    {
+        var s = BuildSession.Started();
+        for (var i = 0; i < 100 && !s.CaptureImmersion()!.People.Any(p => p.Held is { Product: ImmersionProduct.Chips, ConsumedTicks: > 0 }); i++) s.AdvanceWithoutSnapshot(200);
+        var saved = s.CapturePersistenceSnapshot();
+        var eater = saved.Immersion!.People.First(p => p.Held is { Product: ImmersionProduct.Chips, ConsumedTicks: > 0 });
+        Assert.IsTrue(GameSession.Restore(saved).IsSuccess);
+        var most = eater.Held!.ConsumedTicks * GameSession.FoodRelief(ImmersionProduct.Chips) / GameSession.ImmersionConsumeTicks(ImmersionProduct.Chips);
+        Assert.IsTrue(eater.Held.Relieved <= most);
+        SessionPersistenceSnapshot With(int relieved) => saved with { Immersion = saved.Immersion with { People = saved.Immersion.People
+            .Select(p => p.AgentId == eater.AgentId ? p with { Held = p.Held! with { Relieved = relieved } } : p).ToArray() } };
+        Assert.IsTrue(GameSession.Restore(With(most)).IsSuccess, GameSession.Restore(With(most)).Error);
+        Assert.IsFalse(GameSession.Restore(With(most + 1)).IsSuccess);
+    }
 }
