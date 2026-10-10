@@ -339,6 +339,34 @@ public sealed class RainTests
     }
 
     /// <summary>
+    /// Being a fan only counts for the act on your own stage: a fan of the Pond Stage's act standing in the trailer crowd
+    /// feels the rain in full, like anyone lukewarm, while a fan of the trailer act there puts up with it.
+    /// </summary>
+    [TestMethod]
+    public void OnlyTheActOnYourOwnStageKeepsYouOutInTheRain()
+    {
+        var s = Started();
+        var felt = typeof(GameSession).GetMethod("RainFeltPercent", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var listenerStage = typeof(GameSession).GetMethod("LiveListenerStage", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        bool pondFanChecked = false, trailerFanChecked = false;
+        while (s.PreparedStatus == PreparationStatus.Running && !(pondFanChecked && trailerFanChecked))
+        {
+            s.AdvanceWithoutSnapshot(400);
+            FestivalAct? Playing(string stageId) => s.CaptureLivePerformance(stageId)?.Stage == LiveSetStage.Live && s.CaptureProgramme(stageId) is { CurrentSlot: >= 0 } q
+                ? ActCatalogue.Find(q.ActIds[q.CurrentSlot]) : null;
+            if (Playing(FestivalStages.MainId) is not { } trailer || Playing(FestivalStages.PondId) is not { } pond) continue;
+            foreach (var guest in Guests(s).Where(id => (int)listenerStage.Invoke(s, [id])! == 0))
+            {
+                if (s.FestivalAffinity(guest, pond) >= WeatherRules.FanKeenness && s.FestivalAffinity(guest, trailer) < WeatherRules.FanKeenness)
+                { Assert.AreEqual(100, (int)felt.Invoke(s, [guest])!, "A pond fan in the trailer crowd feels it all."); pondFanChecked = true; }
+                if (s.FestivalAffinity(guest, trailer) >= WeatherRules.FanKeenness)
+                { Assert.AreEqual(25, (int)felt.Invoke(s, [guest])!, "A fan of the trailer act there puts up with it."); trailerFanChecked = true; }
+            }
+        }
+        Assert.IsTrue(pondFanChecked && trailerFanChecked, "Both kinds of guest turned up in the trailer crowd.");
+    }
+
+    /// <summary>
     /// The user's rule: a poncho wearer never leaves a set for cover, a fan of the act on stays and suffers, the lukewarm go,
     /// and everyone's back out once the shower passes.
     /// </summary>
