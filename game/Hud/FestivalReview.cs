@@ -21,6 +21,8 @@ internal sealed record ReviewFacts(FestivalResult Result, int Tier, int Sold, bo
     /// <summary>What lifted and what dragged the crowd's mood most, in words; empty when the day wasn't watched (a loaded save).</summary>
     public string[] Lifts { get; init; } = [];
     public string[] Grumbles { get; init; } = [];
+    /// <summary>A heatwave day; neither this nor rain when the weather isn't known.</summary>
+    public bool Heat { get; init; }
 }
 
 /// <summary>The review as printed: headline, standfirst, body, verdict and scene buzz.</summary>
@@ -72,7 +74,7 @@ internal static class FestivalReview
         else if (bad && powerCuts > 0) headline = Pick("Unplugged — and Not in a Good Way", "Lights Out at Lower Wittering", "Power Ballad, Minus the Power");
         else if (bad && played.Length == 0 && f.Sets.Count > 0) headline = Pick("No Show, No Glory", "The Band Played On? Not Quite");
         else if (bad && r.Fights >= 3) headline = Pick("Bad Vibrations as Tempers Flare", "Festival Hits a Bum Note as Fists Fly");
-        else if (bad && r.MedicalCollapses >= 2 && !f.Rain) headline = Pick("Some Like It Hot — Not These Punters", "Heatwave Takes Its Toll on the Field");
+        else if (bad && r.MedicalCollapses >= 2 && f.Heat && f.Distress) headline = Pick("Some Like It Hot — Not These Punters", "Heatwave Takes Its Toll on the Field");
         else if (bad && f.CowsEscaped > 0) headline = Pick("Udder Chaos in Lower Wittering", "Herd It Through the Grapevine: Cows Crash Festival");
         else if (bad && f.Rain) headline = f.Muddy ? Pick("Stuck in the Mud", "Wittering Washout") : Pick("Rain Stops Play", "Here Comes the Rain Again", "Wittering Washout");
         else if (bad && f.StuckInLoo + (f.LooFumes ? 1 : 0) > 0) headline = Pick("Loo-sing Battle in Lower Wittering", "Something in the Air at Lower Wittering");
@@ -95,8 +97,6 @@ internal static class FestivalReview
             ? $"The tickets were sold and the bands were booked, but nobody came through the gate of the {edition} {FestivalName}."
             : $"{Capitalise(Count(r.GuestCount, "punter"))}, {Count(played.Length, "set")} and {Weather(f)}: our reviewer gives the {edition} {FestivalName} {Words(stars.Value)} out of five.";
 
-        var paragraphs = new List<string> { Day(f, played.Length), Music(f, best, lows) };
-        if (Field(f) is { } field) paragraphs.Add(field);
         var verdict = stars switch
         {
             5 => "A near-perfect day out. If the organisers can do this again, book early.",
@@ -114,6 +114,8 @@ internal static class FestivalReview
         var quoteSet = (bad ? lows.Select(low => low.Set).Where(set => set.Record.Quotes.Length > 0) : Array.Empty<ReviewSet>())
             .Concat(best is not null && best.Record.Quotes.Length > 0 ? [best] : []).FirstOrDefault();
         var pull = quoteSet is { } q && QuoteOf(q, f.Names, 0) is { } said ? said : ((string, string)?)null;
+        var paragraphs = new List<string> { Day(f, played.Length), Music(f, best, lows, pull) };
+        if (Field(f) is { } field) paragraphs.Add(field);
 
         // Genres that moved alike share a line.
         string[] ups = ["{0} fans are already talking about it", "Word has reached the {0} crowd", "{0} fans are buzzing", "The {0} scene is taking notice"];
@@ -140,7 +142,7 @@ internal static class FestivalReview
         var text = f.EarlierTragedy ? "The organisers reopened their gates after the tragedy that ended their previous weekend. " : "";
         text += $"The {Ordinal(f.Tier)} {FestivalName} {(f.EarlierTragedy ? "went ahead" : f.Tier == 1 ? "opened" : "returned to the farm")} " +
             (f.Rain ? $"under grey skies, with {Count(f.Showers, "heavy shower")}{(f.Downpour ? " and one proper downpour" : "")} across the day. "
-                : "under a blazing sun, in the middle of a heatwave. ");
+                : f.Heat ? "under a blazing sun, in the middle of a heatwave. " : "under open skies. ");
         if (f.Tier >= GameSession.PondStageFromTier && f.Sets.Any(set => set.Record.StageId == FestivalStages.PondId))
             text += "New this year was a second stage down by the farm pond. ";
         text += r.GuestCount == 0 ? $"All {f.Sold} tickets were sold, yet nobody turned up to use one." :
@@ -149,7 +151,7 @@ internal static class FestivalReview
         return text;
     }
 
-    private static string Music(ReviewFacts f, ReviewSet? best, IReadOnlyList<(ReviewSet Set, string Words)> lows)
+    private static string Music(ReviewFacts f, ReviewSet? best, IReadOnlyList<(ReviewSet Set, string Words)> lows, (string Line, string Who)? pull)
     {
         if (f.Sets.Count == 0) return "Not a note was played all day.";
         if (f.Result.GuestCount == 0)
@@ -166,8 +168,8 @@ internal static class FestivalReview
             GigRules.EmptyField => ", which is to say they played to a near-empty field.",
             _ => ", before it was cut short.",
         };
-        // The pull quote takes the first line on a good day; the body takes another.
-        if ((QuoteOf(best, f.Names, 1) ?? (f.Result.Stars <= 2 ? QuoteOf(best, f.Names, 0) : null)) is { } said) text += $" As {said.Who}{(said.Who.Contains(',') ? "," : "")} put it: “{said.Line}”";
+        // Another punter than the pull quote's, if the set has one.
+        if (new[] { QuoteOf(best, f.Names, 1), QuoteOf(best, f.Names, 0) }.FirstOrDefault(quote => quote is not null && quote != pull) is { } said) text += $" As {said.Who}{(said.Who.Contains(',') ? "," : "")} put it: “{said.Line}”";
         if (lows.Count > 0) text += " " + string.Join(" ", lows.Select(low => low.Words));
         return text;
     }
@@ -214,14 +216,14 @@ internal static class FestivalReview
         if (r.MedicalCollapses > 0)
         {
             var causes = new List<string>();
-            if (f.Distress && !f.Rain) causes.Add("the heat");
+            if (f.Distress && f.Heat) causes.Add("the heat");
             if (f.WaspSting) causes.Add("a wasp sting");
             if (f.Drink) causes.Add("too much to drink");
             if (f.LooFumes) causes.Add("fumes from a jammed loo");
             parts.Add($"First aiders were called to {Count(r.MedicalCollapses.Value, "punter")} who collapsed." +
                 (causes.Count > 0 ? $" The day’s first-aid cases included {List(causes)}." : ""));
         }
-        else if (r.MedicalCollapses == 0 && !f.Rain && r.GuestCount > 0) parts.Add("Despite the heat, nobody needed carrying to first aid.");
+        else if (r.MedicalCollapses == 0 && f.Heat && r.GuestCount > 0) parts.Add("Despite the heat, nobody needed carrying to first aid.");
         if (r.Fights > 0) parts.Add($"Stewards broke up {Count(r.Fights.Value, "scuffle")}.");
         if (f.CowsEscaped > 0)
             parts.Add($"{Capitalise(Count(f.CowsEscaped, "cow"))} from the neighbouring field got in and wandered among the crowd" +
@@ -232,7 +234,8 @@ internal static class FestivalReview
         if (f.GeneratorScare) parts.Add("The farm generator gave the organisers a scare.");
         if (f.Rain && f.Muddy) parts.Add("By the evening, much of the field had been churned to mud.");
         if (r.BeersFinished > 0) parts.Add($"Punters got through {(r.BeersFinished < 5 ? "just " : "")}{Count(r.BeersFinished.Value, "pint")} at the bar.");
-        var trouble = r.MedicalCollapses > 0 || r.Fights > 0 || f.CowsEscaped > 0 || f.StuckInLoo > 0 || f.BrokenTaps > 0 || f.GeneratorScare;
+        var trouble = r.MedicalCollapses > 0 || r.Fights > 0 || f.CowsEscaped > 0 || f.StuckInLoo > 0 || f.BrokenTaps > 0 || f.GeneratorScare ||
+            f.Sets.Any(set => set.Record.Reaction is GigRules.CutShort or GigRules.NoShow || set.Record.Hiccups.Contains(GigRules.PowerCut));
         if (!trouble && r.Fights == 0 && r.GuestCount > 0) parts.Insert(0, "Stewards reported a trouble-free day.");
         return parts.Count == 0 ? null : string.Join(" ", parts);
     }
@@ -248,7 +251,7 @@ internal static class FestivalReview
         return (line, quote.Fan ? $"{name}, {("aeiou".Contains(genre[0]) ? "an" : "a")} {genre} fan" : name);
     }
 
-    private static string Weather(ReviewFacts f) => f.Rain ? (f.Downpour ? "a downpour" : "the rain") : "a heatwave";
+    private static string Weather(ReviewFacts f) => f.Rain ? (f.Downpour ? "a downpour" : "the rain") : f.Heat ? "a heatwave" : "a day in a field";
     private static string Ordinal(int n) => n switch { 1 => "first", 2 => "second", 3 => "third", 4 => "fourth", 5 => "fifth", _ => $"{n}th" };
     private static string Words(int stars) => stars switch { 1 => "one star", 2 => "two stars", 3 => "three stars", 4 => "four stars", _ => "five stars" };
     private static string Times(int n) => n switch { 1 => "once", 2 => "twice", _ => $"{n} times" };

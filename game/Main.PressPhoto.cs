@@ -29,12 +29,18 @@ public partial class Main
     // A fresh viewport's first frame can come out without its sky, so a shot renders a couple of frames before it's read.
     private int _pressFrames;
     private readonly List<(VisualInstance3D Node, uint Layers)> _pressHidden = [];
+    // Names, speech and mood faces, noted as they enter the tree, so a shot needn't search the scene for them.
+    private HashSet<VisualInstance3D>? _pressLabels;
 
     private void ProcessPressPhoto(double delta)
     {
         if (_pressPending is { } pending) { if (--_pressFrames <= 0) FinishPressShot(pending); return; }
         if (_session.CapturePreparation() is not { } p) return;
-        if (_pressPhotoDay != (_session, p.Attempt)) { _pressPhotos.Clear(); _pressLastShot.Clear(); _pressPhotoDay = (_session, p.Attempt); }
+        if (_pressPhotoDay != (_session, p.Attempt))
+        {
+            foreach (var photo in _pressPhotos.Values) photo.Image.Dispose();
+            _pressPhotos.Clear(); _pressLastShot.Clear(); _pressPhotoDay = (_session, p.Attempt);
+        }
         // First person moves the labels between layers itself; the photographer waits.
         if (p.Status != PreparationStatus.Running || EyeViewActive) return;
         if ((_pressPoll -= delta) > 0) return;
@@ -47,8 +53,8 @@ public partial class Main
             var key = (live.StageId, programme.CurrentSlot);
             var crowd = live.Listeners.Count(listener => listener.AtPlace);
             var best = _pressPhotos.TryGetValue(key, out var shot) ? shot.Crowd : -1;
-            // A new high, by enough to be worth another frame, and not more than every few seconds.
-            if (crowd <= best + Math.Max(0, best / 8) || _pressLastShot.TryGetValue(key, out var last) && now - last < 3) continue;
+            // A new high, by enough to be worth another frame (two more, or 15%), and not more than every five seconds.
+            if (crowd < best + Math.Max(2, best * 15 / 100) || _pressLastShot.TryGetValue(key, out var last) && now - last < 5) continue;
             if (StartPressShot(live, programme.CurrentSlot, programme.ActIds[programme.CurrentSlot], crowd)) { _pressLastShot[key] = now; return; }
         }
     }
@@ -109,8 +115,14 @@ public partial class Main
         _pressCamera.Fov = Mathf.Clamp(Mathf.RadToDeg(2 * Mathf.Atan(across / 2 / distance * 9 / 16)), 22, 55);
 
         // Names, speech and mood faces are for the overview: onto a layer only the main camera sees, for this one frame.
-        foreach (var node in FindChildren("*", "VisualInstance3D", true, false).OfType<VisualInstance3D>())
-            if (node is Label3D or Sprite3D && node.Layers == 1u && !IsGateLettering(node)) { _pressHidden.Add((node, node.Layers)); node.Layers = PressHiddenLayer; }
+        if (_pressLabels is null)
+        {
+            _pressLabels = [.. FindChildren("*", "VisualInstance3D", true, false).OfType<VisualInstance3D>().Where(node => node is Label3D or Sprite3D)];
+            GetTree().NodeAdded += node => { if (node is Label3D or Sprite3D) _pressLabels.Add((VisualInstance3D)node); };
+        }
+        _pressLabels.RemoveWhere(node => !IsInstanceValid(node));
+        foreach (var node in _pressLabels)
+            if (node.Layers == 1u && node.IsInsideTree() && !IsGateLettering(node)) { _pressHidden.Add((node, node.Layers)); node.Layers = PressHiddenLayer; }
         _pressViewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Always;
         _pressFrames = 2;
         _pressPending = (live.StageId, slot, actId, crowd, aerial);
@@ -128,7 +140,8 @@ public partial class Main
         if (image is null || image.IsEmpty()) return;
         var key = (pending.Stage, pending.Slot);
         // A crowd shot beats any aerial one of the same set.
-        if (_pressPhotos.TryGetValue(key, out var held) && !held.Aerial && pending.Aerial) return;
+        if (_pressPhotos.TryGetValue(key, out var held) && !held.Aerial && pending.Aerial) { image.Dispose(); return; }
+        held?.Image.Dispose();
         _pressPhotos[key] = new PressPhoto(image, pending.Stage, pending.Slot, pending.ActId, pending.Crowd, pending.Aerial);
     }
 
@@ -148,7 +161,7 @@ public partial class Main
             try
             {
                 Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                chosen.Image.SavePng(path + ".png");
+                if (chosen.Image.SavePng(path + ".png") is not Error.Ok and var error) throw new IOException(error.ToString());
                 File.WriteAllText(path + ".txt", $"{chosen.StageId}|{chosen.Slot}|{chosen.ActId}|{chosen.Crowd}|{(chosen.Aerial ? 1 : 0)}");
             }
             catch (Exception exception) { GD.PushWarning("Press photo not kept: " + exception.Message); }
@@ -160,7 +173,10 @@ public partial class Main
             var parts = File.ReadAllText(path + ".txt").Split('|');
             var image = Image.LoadFromFile(path + ".png");
             if (parts.Length != 5 || image is null || image.IsEmpty()) return null;
-            return new PressPhoto(image, parts[0], int.Parse(parts[1]), parts[2], int.Parse(parts[3]), parts[4] == "1");
+            // The startup campaign's id repeats every launch: only a photo of one of this festival's own sets will do.
+            var slot = int.Parse(parts[1]);
+            if (!_session.PerformanceRecords.Any(record => record.StageId == parts[0] && record.Slot == slot && record.ActId == parts[2])) { image.Dispose(); return null; }
+            return new PressPhoto(image, parts[0], slot, parts[2], int.Parse(parts[3]), parts[4] == "1");
         }
         catch (Exception) { return null; }
     }

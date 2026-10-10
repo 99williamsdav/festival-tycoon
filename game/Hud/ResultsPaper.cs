@@ -18,6 +18,9 @@ internal sealed class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _photograph)
     private static readonly Color Rule = new("e8dfc8");
     private static readonly Color Body = new("2e3833");
     private static readonly Color Programme = new("f6f0e2");
+    // The newspaper's own greys and wash; the rest come from the HUD palette.
+    private static readonly Color Dateline = new("3a4640");
+    private static readonly Color Wash = new("ece4cf");
 
     /// <summary>The sheet's pages, one per tab.</summary>
     public enum Page { Newspaper, Accounts, Performances }
@@ -224,7 +227,11 @@ void fragment() {
         var scenes = p.StandingBefore is { } before
             ? Enumerable.Range(0, FestivalGenre.Count).Select(genre => new SceneMove(FestivalGenre.Name(genre), before.SceneCredibility[genre], p.SceneCredibility[genre])).ToArray()
             : [];
-        return new ReviewFacts(result, p.Tier, FestivalTickets.Sold(p.Tier), rain, weather?.Spells.Length ?? 0,
+        // A downpour sits inside a shower: back-to-back spells are one shower, as the forecast counts them.
+        var showers = weather?.Spells.Where((spell, i) => i == 0 || weather.Spells[i - 1].EndTick != spell.StartTick).Count() ?? 0;
+        // No weather snapshot on a heatwave day; the medical record says whether the day was hot.
+        var heat = !rain && (session.CaptureMedical()?.IsHot ?? WeatherRules.ForTier(p.Tier) == WeatherKind.Heatwave);
+        return new ReviewFacts(result, p.Tier, FestivalTickets.Sold(p.Tier), rain, showers,
             weather?.Spells.Any(spell => spell.Intensity == RainIntensity.Downpour) == true, muddy, sets,
             p.People.ToDictionary(person => person.AgentId, person => person.Name),
             medical.Any(item => item.Id == "medical:collapse" && item.Description.Contains("wasp")),
@@ -237,7 +244,7 @@ void fragment() {
             session.CaptureEquipment()?.Evidence.Any(item => item.Id is "equipment:warning" or "equipment:fault") == true,
             tragedy, p.StandingBefore is { } standing ? (standing.Reputation, p.Reputation) : null, scenes)
         {
-            Lifts = Moods(session, up: true), Grumbles = Moods(session, up: false),
+            Lifts = Moods(session, up: true), Grumbles = Moods(session, up: false), Heat = heat,
         };
     }
 
@@ -265,7 +272,7 @@ void fragment() {
         var facts = ReviewFacts();
         var review = FestivalReview.Write(facts);
         var result = facts.Result;
-        var grey = new Color("3a4640");
+        var grey = Dateline;
 
         // The masthead.
         body.AddChild(Line(Ui.Ink, 3)); body.AddChild(Gap(6));
@@ -350,7 +357,7 @@ void fragment() {
     private static Control Caption(string text, string? credit)
     {
         var line = new HBoxContainer(); line.AddThemeConstantOverride("separation", Ui.Px(10));
-        var words = Paragraph(text, 12.5f, new Color("3a4640"), Ui.Slab); line.AddChild(words);
+        var words = Paragraph(text, 12.5f, Dateline, Ui.Slab); line.AddChild(words);
         if (credit is not null) { var by = Ui.Caps(credit, Ui.InkMuted, 8.5f); by.SizeFlagsVertical = Control.SizeFlags.ShrinkBegin; line.AddChild(by); }
         return line;
     }
@@ -376,7 +383,7 @@ void fragment() {
     private static Control Poster(ReviewFacts facts)
     {
         var poster = new PanelContainer { CustomMinimumSize = new Vector2(0, Ui.S(270)) };
-        poster.AddThemeStyleboxOverride("panel", Ui.Box(new Color("ebe2cb"), 0, Ui.Ink, 2, 18, 16));
+        poster.AddThemeStyleboxOverride("panel", Ui.Box(Wash, 0, Ui.Ink, 2, 18, 16));
         var words = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center }; words.AddThemeConstantOverride("separation", Ui.Px(6)); poster.AddChild(words);
         Label Centre(Label label) { label.HorizontalAlignment = HorizontalAlignment.Center; label.AutowrapMode = TextServer.AutowrapMode.WordSmart; label.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; return label; }
         var music = Ui.IconRect("music", 26, Ui.Ink); music.SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter; words.AddChild(music);
@@ -405,12 +412,12 @@ void fragment() {
         {
             box.AddChild(Line(new Color(Ui.Gold, 0.5f), 1));
             var said = Paragraph($"“{quote.Line}”", 16, Newsprint, Ui.Slab); said.CustomMinimumSize = new Vector2(Ui.S(208), 0); box.AddChild(said);
-            var who = Paragraph("— " + quote.Who, 12, new Color("c9d1c7")); who.CustomMinimumSize = new Vector2(Ui.S(208), 0); box.AddChild(who);
+            var who = Paragraph("— " + quote.Who, 12, Ui.BarMuted); who.CustomMinimumSize = new Vector2(Ui.S(208), 0); box.AddChild(who);
         }
         if (review.Standing is { } standing)
         {
             box.AddChild(Line(new Color(Ui.Gold, 0.5f), 1));
-            var line = Paragraph(standing, 12, new Color("c9d1c7")); line.CustomMinimumSize = new Vector2(Ui.S(208), 0); box.AddChild(line);
+            var line = Paragraph(standing, 12, Ui.BarMuted); line.CustomMinimumSize = new Vector2(Ui.S(208), 0); box.AddChild(line);
         }
         return verdict;
     }
@@ -418,14 +425,14 @@ void fragment() {
     private static Control BuzzBox(Review review)
     {
         var buzz = new PanelContainer();
-        buzz.AddThemeStyleboxOverride("panel", Ui.Box(new Color("ece4cf"), 0, Ui.Ink, 1, 12, 10));
+        buzz.AddThemeStyleboxOverride("panel", Ui.Box(Wash, 0, Ui.Ink, 1, 12, 10));
         var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(4)); buzz.AddChild(box);
         box.AddChild(Ui.Caps("Scene buzz", Ui.Ink, 9.5f));
         foreach (var (words, numbers, up) in review.Buzz)
         {
             var row = new HBoxContainer(); row.AddThemeConstantOverride("separation", Ui.Px(8)); box.AddChild(row);
             var text = Paragraph(words, 13.5f, Ui.Ink, Ui.Slab); row.AddChild(text);
-            var count = Ui.Text(numbers, 11, up ? Ui.TealDeep : new Color("7a3312")); count.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
+            var count = Ui.Text(numbers, 11, up ? Ui.TealDeep : Ui.Link); count.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
             count.TooltipText = "Scene credibility with these fans"; count.MouseFilter = Control.MouseFilterEnum.Stop; row.AddChild(count);
         }
         return buzz;
