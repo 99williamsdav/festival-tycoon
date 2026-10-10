@@ -347,12 +347,16 @@ public sealed partial class GameSession
         if(p.CareTicks==0 && p.IntoxicationCollapseTick<0)p=p with { PriorMedicalStage=need.HealthStage };
         // Only the physical treating owner calls this; neither dispatch nor water sobers.
         var care=p.CareTicks+1; p=p with { CareTicks=care,Intoxication=Math.Max(0,p.Intoxication-4) }; SetConsumption(p);
-        if (care<1600 || p.Intoxication>=7500) return true;
+        // Care takes the medic's own treatment time, as first aid for heat does, and goes on until they're back under the
+        // heavy line. It used to take a fixed 1,600 ticks while the collapse's 2,400-tick death clock ran on, so a medic
+        // had to arrive within 800 ticks of a drink collapse (the heat window is 1,200 to 2,040): a patient reached in
+        // good time, sobering under care, still died.
+        if (care<job.TreatmentTicks || p.Intoxication>=7500) return true;
         var restored=p.PriorMedicalStage==MedicalStage.Treated?MedicalStage.Treated:MedicalStage.Clear;
         SetConsumption(p with { IntoxicationWarningTick=-1,IntoxicationCollapseTick=-1,SevereTicks=0,CareTicks=0 });
         MutatePerson(id, n => { n.HealthStage = restored; n.Intent = MedicalIntent.WatchShow; n.Reason = "Gradual intoxication stabilization completed; future exposure can warn again"; n.HealthWarningTick = -1; n.HealthCollapseTick = -1; n.HealthCriticalTick = -1; });
         SetMedicResponse(job with { Stage=MedicalResponseStage.Completed,Description="Gradual intoxication stabilization completed" }); ReturnToListening(id);
-        MedicalEvent("intoxication:treatment-complete",$"Physical medic {job.WorkerId} stabilized {id} gradually over20s; exposure remains {p.Intoxication}."); return true;
+        MedicalEvent("intoxication:treatment-complete",$"Physical medic {job.WorkerId} stabilized {id} gradually over {care} ticks; exposure remains {p.Intoxication}."); return true;
     }
     private int ImmersionAggression(ulong id,int temperament) => PersonIn(PersonView.Consumption, id) is { } person ? Math.Clamp(person.Intoxication*temperament/25000000,0,2) : 0;
     private int ImmersionCoordinationPace(ulong id) => PersonIn(PersonView.Consumption, id) is { Intoxication:>=5000 } person && (_persons[id].Role==ProtectedPersonRole.Guest || StaffHas(id, StaffTrait.SneakyAlcoholic)) && !MedicalOwnsNavigation(id) && !DisorderOwnsNavigation(id) && !InterventionOwnsTarget(id) ? Math.Max(800,1000-(person.Intoxication-5000)/25) : 1000;
@@ -360,7 +364,7 @@ public sealed partial class GameSession
         (EffectiveToilets(_facilities).Any(toilet => toilet.OwnerId is not null && toilet.ServiceTicks <= 1 &&
              (toilet.OwnerId is { } owner && PersonIn(PersonView.Consumption, owner) is { ToiletStage: ToiletVisitStage.Using })) ||
          Vendors.Any(v=>v.OwnerId is not null && v.ServiceTicks<=1) || PeopleIn(PersonView.Consumption).Any(p=>!_persons[p.Id].Departed && (p.IntoxicationWarningTick<0 && p.Intoxication>=7500-GuestCharacters.LightweightAbsorption || p.SevereTicks>=1599 && p.Intoxication>=8500 && p.IntoxicationWarningTick>=0 && p.IntoxicationCollapseTick<0 && !ExistingMedicalHazardOwns(p.Id) || p.IntoxicationCollapseTick>=0 && (CurrentTick+1==p.IntoxicationCollapseTick+MedicalCriticalDelayTicks || CurrentTick+1==p.IntoxicationCollapseTick+MedicalDeathDelayTicks))));
-    private bool IntoxicationCareBoundary(MedicResponse job) => IntoxicationCareOwns(job) && _persons[job.PatientId!.Value].CareTicks>=1599;
+    private bool IntoxicationCareBoundary(MedicResponse job) => IntoxicationCareOwns(job) && _persons[job.PatientId!.Value].CareTicks>=job.TreatmentTicks-1;
     private void CleanupImmersionDeparture()
     {
         if(_immersion is null||_preparation is not { Status:PreparationStatus.Departing or PreparationStatus.Finished } p)return;
