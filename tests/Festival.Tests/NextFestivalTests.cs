@@ -243,7 +243,7 @@ public sealed class NextFestivalTests
         RunToEnd(s);
         RunToEnd(middle);
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, middle.CaptureSnapshot().AuthoritativeHash, "A restored day plays out the same.");
-        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus, $"status {s.PreparedStatus}, tick {s.CurrentTick - s.CapturePreparation()!.StartedTick} of {s.PreparedEditionDurationTicks}");
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus, $"status {s.PreparedStatus}, tick {s.CurrentTick - s.CapturePreparation()!.StartedTick} of {s.PreparedEditionDurationTicks}, {s.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.Cause} {string.Join("; ", s.CapturePreparation()!.People.Where(p => p.Admitted && !p.Departed).Select(p => s.CaptureSnapshot().NavigationAgents.Single(a => a.Id.Value == p.AgentId)).Select(a => $"{a.Id.Value} {a.XMillimetres},{a.ZMillimetres} {a.Action} {a.IntentId} {a.Destination}"))}");
         var accounts = s.CompletedFestivalAccounts!;
         Assert.IsTrue(accounts.Reconciles);
         Assert.AreEqual(50, accounts.TicketsSold);
@@ -393,7 +393,7 @@ public sealed class NextFestivalTests
     {
         var one = BuildSession.PondStarted();
         RunToEnd(one);
-        Assert.AreEqual(PreparationStatus.Finished, one.PreparedStatus);
+        Assert.AreEqual(PreparationStatus.Finished, one.PreparedStatus, $"{one.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.Cause}");
         var s = one.CreateNextFestival();
         Assert.IsTrue(s.PondStageTrial && s.PondStageOpen, "The trial carries across Next festival.");
         Assert.AreEqual(2, s.CapturePreparation()!.Tier);
@@ -404,6 +404,8 @@ public sealed class NextFestivalTests
 
         // The default layout still stands with the pond open, and Tier 2's extra tap and toilet keep off both stages.
         ReadyOnEveryStage(s);
+        // Two bars sell more beer: a Tier 2 plan with one medic for 50 guests lost someone to drink on this seed.
+        BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Medic)));
         var stages = s.Stages;
         Assert.AreEqual(2, stages.Count);
         foreach (var placement in s.CaptureBuildPlacements())
@@ -446,7 +448,7 @@ public sealed class NextFestivalTests
         }
         RunToEnd(middle);
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, middle.CaptureSnapshot().AuthoritativeHash, "A restored day plays out the same.");
-        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus, s.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.Cause);
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus, $"{s.PreparedStatus} {s.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.Cause} {string.Join("; ", s.CapturePreparation()!.People.Where(p => p.Admitted && !p.Departed).Select(p => s.CaptureSnapshot().NavigationAgents.Single(a => a.Id.Value == p.AgentId)).Select(a => $"{a.Id.Value} {a.XMillimetres},{a.ZMillimetres} {a.Action} {a.IntentId}"))}");
         Assert.IsTrue(s.CompletedFestivalAccounts!.Reconciles);
         BuildSession.Restored(s);
     }

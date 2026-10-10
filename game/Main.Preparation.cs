@@ -191,7 +191,7 @@ public partial class Main
             _generatorBar.AddThemeStyleboxOverride("fill", Ui.Box(power.Over ? Ui.Alert : power.Total * 100 >= power.Capacity * 90 ? Ui.Warn : Ui.Teal, 4));
             _generatorText!.Text = power.Over ? $"{power.Total} of {power.Capacity} power · stretches the generator: overload risk" : $"{power.Total} of {power.Capacity} power · within capacity";
             _generatorText.AddThemeColorOverride("font_color", power.Over ? Ui.Link : Ui.InkMuted);
-            _generatorText.TooltipText = $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)}) · {(power.Bar > PowerRules.StallDraw ? "bars" : "bar")} {power.Bar} · {(power.Food > PowerRules.StallDraw ? "food vans" : "food van")} {power.Food} · festoon lights {power.Lights} (from dusk)";
+            _generatorText.TooltipText = PowerParts(power) + " (lights from dusk)" + PooledSupplyText();
         }
         _preparationStart.Disabled = _session.ValidateCommand(CampaignEnvelope(new StartPreparedEditionCommand())) is not null;
         _preparationSummary.TooltipText = FestivalCopy(_preparationMessage);

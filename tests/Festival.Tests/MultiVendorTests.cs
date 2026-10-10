@@ -7,28 +7,33 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class MultiVendorTests
 {
-    // Back to back with the first bar, serving the Pond Stage's crowd; and the curry van north of the main crowd, by the gate, facing it.
+    // Tier 2's default spots: back to back with the first bar, serving the Pond Stage's crowd; and the curry van facing
+    // that crowd from the south.
     internal static readonly GridCell SecondBarCell = new(152, 146), CurryVanCell = new(170, 128);
     internal const int SecondBarTurns = 1, CurryVanTurns = 0;
     internal static FoodTrader Curry => FoodTraders.Selling(ImmersionProduct.Curry);
+    private static readonly string[] SecondStallsAndBins = ["drinks.2", "food.2", "bin.2", "bin.3"];
 
     /// <summary>
-    /// Tier 2's default layout and plan, plus a second bar, Korma Chameleon at a second van, the bigger generator they
-    /// need and twice the starter stock, as two bars would sell.
+    /// Tier 2's default layout and plan (two bars, chips and curry, a bin by each new stall) with twice the starter
+    /// stock, as two bars would sell; any of the second bar, the curry van and their bins can be left out.
     /// </summary>
-    internal static GameSession TierTwoWithFourStalls(ulong seed = 20260922, bool generator = true, bool secondBar = true, bool curryVan = true, bool bins = false)
+    internal static GameSession TierTwoWithFourStalls(ulong seed = 20260922, bool secondBar = true, bool curryVan = true, bool bins = true)
     {
         var s = NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(seed, 2));
         BuildSession.Accept(s, new SetPreparationStockCommand(80, 64));
-        if (secondBar) BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bar, SecondBarCell, SecondBarTurns));
-        if (curryVan)
-        {
-            BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.FoodVan, CurryVanCell, CurryVanTurns));
-            BuildSession.Accept(s, new ChooseFoodTraderCommand(Curry.Id, "food.2"));
-        }
-        if (generator) BuildSession.Accept(s, new AcceptPreparationOfferCommand(PowerRules.GeneratorOffer));
-        // A bin by each new stall, for the litter they bring.
-        if (bins) foreach (var bin in new GridCell[] { new(163, 136), new(178, 134) }) BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, bin));
+        // And the free second medic, as a sensible Tier 2 plan has: two bars sell more beer.
+        BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Medic)));
+        if (!secondBar) BuildSession.Accept(s, new RemoveBuildServiceCommand("drinks.2"));
+        if (!curryVan) BuildSession.Accept(s, new RemoveBuildServiceCommand("food.2"));
+        if (!bins) foreach (var bin in new[] { "bin.2", "bin.3" }) BuildSession.Accept(s, new RemoveBuildServiceCommand(bin));
+        return s;
+    }
+
+    /// <summary>Tier 2's default without its second bar, second van and their bins: one of each, as Tier 1 lays out.</summary>
+    internal static GameSession TierTwoOneOfEach(GameSession s)
+    {
+        foreach (var id in SecondStallsAndBins) BuildSession.Accept(s, new RemoveBuildServiceCommand(id));
         return s;
     }
 
@@ -66,7 +71,7 @@ public sealed class MultiVendorTests
         Assert.IsFalse(BuildSession.Send(one, new PlaceBuildServiceCommand(BuildServiceKind.Bar, SecondBarCell, SecondBarTurns)).IsAccepted, "One bar at Tier 1.");
         Assert.IsFalse(BuildSession.Send(one, new PlaceBuildServiceCommand(BuildServiceKind.FoodVan, CurryVanCell, CurryVanTurns)).IsAccepted, "One van at Tier 1.");
 
-        var two = TierTwoWithFourStalls(generator: false);
+        var two = TierTwoWithFourStalls();
         CollectionAssert.AreEqual(new[] { "drinks", "drinks.2", "food", "food.2" },
             two.CaptureBuildPlacements().Where(item => Stalls.IsStall(item.Kind)).Select(item => item.Id).ToArray());
         Assert.IsFalse(BuildSession.Send(two, new PlaceBuildServiceCommand(BuildServiceKind.Bar, new(176, 122))).IsAccepted, "Two bars is the most.");
@@ -94,7 +99,7 @@ public sealed class MultiVendorTests
         var one = BuildSession.Planned();
         Assert.IsFalse(BuildSession.Send(one, new ChooseFoodTraderCommand(Curry.Id)).IsAccepted, "Korma Chameleon trade from Tier 2.");
 
-        var s = TierTwoWithFourStalls(generator: false);
+        var s = TierTwoWithFourStalls();
         Assert.AreEqual(FoodTraders.Default, s.TraderAt("food"));
         Assert.AreEqual(Curry, s.TraderAt("food.2"));
         var refused = BuildSession.Send(s, new ChooseFoodTraderCommand(FoodTraders.Default.Id, "food.2"));
@@ -105,7 +110,7 @@ public sealed class MultiVendorTests
         Assert.AreEqual(FoodTraders.Find("trader.pizza-the-action")!.PitchFeePennies + Curry.PitchFeePennies, s.PlannedPitchFeePennies, "Each van's trader pays to pitch.");
 
         // A van placed fresh takes a food no other van has.
-        var fresh = NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(20260922, 2));
+        var fresh = TierTwoOneOfEach(NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(20260922, 2)));
         BuildSession.Accept(fresh, new PlaceBuildServiceCommand(BuildServiceKind.FoodVan, CurryVanCell, CurryVanTurns));
         Assert.AreNotEqual(fresh.TraderAt("food").Product, fresh.TraderAt("food.2").Product);
     }
@@ -242,7 +247,7 @@ public sealed class MultiVendorTests
     [TestMethod]
     public void APickForAVanNotYetPlacedIsNeverSwitchedLater()
     {
-        var s = NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(20260922, 2));
+        var s = TierTwoOneOfEach(NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(20260922, 2)));
         // Curry for van 2 before it's placed; van 1 can't then take curry, so placing van 2 keeps it.
         BuildSession.Accept(s, new ChooseFoodTraderCommand(Curry.Id, "food.2"));
         var refused = BuildSession.Send(s, new ChooseFoodTraderCommand(Curry.Id));

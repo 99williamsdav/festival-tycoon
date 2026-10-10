@@ -78,11 +78,30 @@ public partial class Main
         _powerChipIcon!.Texture = GD.Load<Texture2D>(trouble ? "res://assets/ui/lwf_power_chip_zap_alert_v1.svg" : "res://assets/ui/lwf_power_chip_zap_v1.svg");
     }
 
-    /// <summary>The evening peak a plan would draw with this rig: the rig, every bar and van, and the festoon lights.</summary>
+    /// <summary>
+    /// The evening peak a plan would draw with this rig: the rig, every bar and van, and the festoon lights; with the
+    /// generators pooled, the Pond Stage's rig too, against the whole pool.
+    /// </summary>
     private PowerDraw PlannedPeakWith(SoundRig rig)
     {
         var stalls = _session.CaptureVendors().Count * PowerRules.StallDraw;
-        return new PowerDraw(PowerRules.RigDraw(rig), stalls, 0, PowerRules.LightsDraw, _session.GeneratorCapacity);
+        return new PowerDraw(PowerRules.RigDraw(rig), stalls, 0, PowerRules.LightsDraw, _session.CapturePower().Capacity)
+            { OtherStages = _session.PowerPooled ? PowerRules.RigDraw(rig) * (_session.Stages.Count - 1) : 0 };
+    }
+
+    /// <summary>"Stage 50 · Pond Stage 50 · bars 30 …": what draws what.</summary>
+    private string PowerParts(PowerDraw power) =>
+        $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)})" + (_session.PowerPooled ? $" · Pond Stage {power.OtherStages}" : "") +
+        $" · {(power.Bar > PowerRules.StallDraw ? "bars" : "bar")} {power.Bar} · {(power.Food > PowerRules.StallDraw ? "food vans" : "food van")} {power.Food} · lights {power.Lights}";
+
+    /// <summary>With the generators pooled, which machines make up the supply, and which are out of it.</summary>
+    private string PooledSupplyText()
+    {
+        if (!_session.PowerPooled || _session.CaptureEquipment() is not { } farm) return "";
+        var pond = _session.CaptureStageGenerator(FestivalStages.PondId);
+        string Part(string name, int capacity, bool inPool) => inPool ? $"{name} {capacity}" : $"{name} cut off";
+        return $"\nOne supply: {Part("farm generator", _session.GeneratorCapacity, farm.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal))}" +
+            (pond is null ? "" : $" + {Part("Pond generator", pond.Capacity, pond.Stage != EquipmentStage.Isolated)}");
     }
 
     private void BuildPowerSwitches(VBoxContainer parent)
@@ -131,8 +150,7 @@ public partial class Main
             _ => power.Over ? "Over capacity · strain building" : "Running within capacity",
         };
         return $"POWER {power.Total} / {power.Capacity} · {state}\n" +
-            $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)}) · {(power.Bar > PowerRules.StallDraw ? "bars" : "bar")} {power.Bar} · {(power.Food > PowerRules.StallDraw ? "food vans" : "food van")} {power.Food} · lights {power.Lights}" +
-            (_session.PreparedStatus == PreparationStatus.Preparing ? " (evening peak)" : "") +
+            PowerParts(power) + (_session.PreparedStatus == PreparationStatus.Preparing ? " (evening peak)" : "") + PooledSupplyText() +
             $"\nCondition {e.Condition / 100}%";
     }
 }

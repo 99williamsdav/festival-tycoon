@@ -3,9 +3,13 @@ namespace Festival.Simulation;
 public enum SoundRig { Basic, Standard, Pro }
 
 /// <summary>What each thing on the generator draws, against what the generator can supply.</summary>
+/// <param name="Stage">The trailer stage's rig.</param>
+/// <param name="Capacity">The farm generator's, or with the generators pooled, every generator still in the pool.</param>
 public sealed record PowerDraw(int Stage, int Bar, int Food, int Lights, int Capacity)
 {
-    public int Total => Stage + Bar + Food + Lights;
+    /// <summary>Every later stage's rig, when the generators are pooled.</summary>
+    public int OtherStages { get; init; }
+    public int Total => Stage + Bar + Food + Lights + OtherStages;
     public bool Over => Total > Capacity;
 }
 
@@ -60,9 +64,24 @@ public sealed partial class GameSession
         // Every bar and every van draws its own share; each switch covers all of its kind.
         int Stalls(Func<string, bool> kind, bool powered) => _immersion is null || live && !powered ? 0 : Vendors.Count(v => kind(v.Id)) * PowerRules.StallDraw;
         var lightsOn = !live || _preparation!.StartedTick >= 0 && CurrentTick >= _preparation.StartedTick + PowerRules.LightsOnTickFor(PreparedEditionDurationTicks);
-        return new(stage, Stalls(Festival.Simulation.Stalls.IsBar, e?.BarPowered ?? true), Stalls(Festival.Simulation.Stalls.IsVan, e?.FoodPowered ?? true),
+        var draw = new PowerDraw(stage, Stalls(Festival.Simulation.Stalls.IsBar, e?.BarPowered ?? true), Stalls(Festival.Simulation.Stalls.IsVan, e?.FoodPowered ?? true),
             lightsOn && (!live || (e?.LightsPowered ?? true)) ? PowerRules.LightsDraw : 0, GeneratorCapacity);
+        if (!PowerPooled) return draw;
+        // One supply: every stage's rig draws from it, and it holds every generator not cut off.
+        return draw with { OtherStages = Enumerable.Range(1, Stages.Count - 1).Sum(StageRigDraw),
+            Capacity = (FarmGeneratorInPool ? GeneratorCapacity : 0) + _stageGenerators!.Where(StageGeneratorInPool).Sum(g => g.Capacity) };
     }
+
+    /// <summary>
+    /// With the Pond Stage open, its generator and the farm diesel share one supply: everything draws from the pool, and
+    /// strain, the warning and the fault follow the pool's overage. A single stage keeps the farm diesel alone.
+    /// </summary>
+    public bool PowerPooled => PowerBudgetActive && _stageGenerators is { Length: > 0 };
+    /// <summary>A generator cut off (or the farm's failed) leaves the pool; what's left shares the rest.</summary>
+    private bool FarmGeneratorInPool => _equipment!.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal);
+    private static bool StageGeneratorInPool(StageGeneratorSnapshot generator) => generator.Stage != EquipmentStage.Isolated;
+    /// <summary>The overage that strains a generator: the pool's while it's in it, none once it's out (it eases).</summary>
+    private static int Overage(PowerDraw draw, bool inPool) => inPool ? draw.Total - draw.Capacity : -1;
 
     /// <summary>Whether a stall has power to serve: the bars or the food vans may be switched off to spare the generator.</summary>
     public bool StallPowered(string vendorId) => (!PowerBudgetActive || (Festival.Simulation.Stalls.IsBar(vendorId) ? _equipment!.BarPowered : _equipment!.FoodPowered)) &&
@@ -72,9 +91,11 @@ public sealed partial class GameSession
     private void AdvancePowerBudget(EquipmentSnapshot e)
     {
         var draw = CapturePower();
-        var over = draw.Total - draw.Capacity;
+        var over = Overage(draw, !PowerPooled || FarmGeneratorInPool);
         var strain = over > 0 ? Math.Min(PowerRules.StrainMaximum, e.Strain + over) : Math.Max(0, e.Strain - PowerRules.StrainRecoveryPerTick);
-        _equipment = e = e with { Strain = strain, Capacity = draw.Capacity, LoadPercent = draw.Total * 100 / draw.Capacity };
+        // The farm generator keeps its own capacity; its load is the pool's when pooled.
+        _equipment = e = e with { Strain = strain, Capacity = GeneratorCapacity,
+            LoadPercent = !PowerPooled ? draw.Total * 100 / draw.Capacity : draw.Capacity == 0 ? 300 : Math.Min(300, draw.Total * 100 / draw.Capacity) };
         switch (e.Stage)
         {
             case EquipmentStage.Normal or EquipmentStage.Resolved when strain >= PowerRules.StrainWarning:
@@ -100,7 +121,7 @@ public sealed partial class GameSession
     private bool PowerTransitionOnNextTick(EquipmentSnapshot e)
     {
         var draw = CapturePower();
-        var over = draw.Total - draw.Capacity;
+        var over = Overage(draw, !PowerPooled || FarmGeneratorInPool);
         var next = over > 0 ? Math.Min(PowerRules.StrainMaximum, e.Strain + over) : Math.Max(0, e.Strain - PowerRules.StrainRecoveryPerTick);
         return e.Stage is EquipmentStage.Normal or EquipmentStage.Resolved && next >= PowerRules.StrainWarning ||
             e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault && next == 0;
