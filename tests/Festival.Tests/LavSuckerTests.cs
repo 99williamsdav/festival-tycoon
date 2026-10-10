@@ -60,6 +60,29 @@ public sealed class LavSuckerTests
         var onTrack = route.TakeWhile(cell => grid.Get(cell).Surface == GroundSurface.VehicleTrack).Count();
         Assert.IsTrue(onTrack >= route.Length / 2, $"{onTrack} of {route.Length} cells on the track.");
         Assert.IsFalse(route.Skip(onTrack).Any(cell => grid.Get(cell).Surface == GroundSurface.VehicleTrack && cell != route[^1]), "Left the track once.");
+        AssertUpTheMiddle(route.Take(onTrack).ToArray(), "On the way in");
+
+        // And back down the middle on the way out.
+        for (var guard = 0; guard < 600 && s.CaptureLavSucker()!.Calls.Single().Stage != LavSuckerStage.Leaving; guard++) s.AdvanceWithoutSnapshot(80);
+        var home = s.CaptureLavSucker()!.Calls.Single().Route;
+        Assert.AreEqual(LavSuckerRules.Gate, home[^1], "Heading for the gate.");
+        var homeOnTrack = home.Reverse().TakeWhile(cell => grid.Get(cell).Surface == GroundSurface.VehicleTrack).Count();
+        AssertUpTheMiddle(home.Reverse().Take(homeOnTrack).ToArray(), "On the way out");
+    }
+
+    /// <summary>
+    /// A leg of track from the gate, gate first: within a cell of the centre line (x 127/128 on the 124–131 track)
+    /// until it turns off, then only the few cells of a straight run across to the verge.
+    /// </summary>
+    private static void AssertUpTheMiddle(GridCell[] fromGate, string leg)
+    {
+        static bool Middle(GridCell cell) => cell.X is >= 126 and <= 129;
+        var middle = fromGate.TakeWhile(Middle).Count();
+        Assert.IsTrue(middle >= fromGate.Length - 3, $"{leg}: {middle} of {fromGate.Length} track cells by the centre line: " +
+            string.Join(" ", fromGate.Select(c => $"{c.X},{c.Z}")));
+        var across = fromGate.Skip(middle).Select(c => c.X).ToArray();
+        Assert.IsTrue(across.Zip(across.Skip(1)).All(p => Math.Abs(p.Second - p.First) == 1 && Math.Sign(p.Second - p.First) == Math.Sign(across[^1] - across[0])),
+            $"{leg}: straight across to the verge.");
     }
 
     [TestMethod]
