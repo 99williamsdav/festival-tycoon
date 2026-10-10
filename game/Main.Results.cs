@@ -8,7 +8,7 @@ namespace Festival.Game;
 public partial class Main
 {
     private ResultsPaper? _resultsPaperView;
-    private ResultsPaper ResultsPaper => _resultsPaperView ??= new(this);
+    private ResultsPaper ResultsPaper => _resultsPaperView ??= new(this, PressPhotoForPaper);
 
     private void RefreshFestivalPaper()
     {
