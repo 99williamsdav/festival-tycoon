@@ -143,7 +143,7 @@ public sealed class StaffAutonomyTests
         var original = s.CaptureDisorder()!.Incidents.Single(); Assert.IsNotNull(original.HandlingAttempt);
         // Labelled existing closing transition, avoiding a fabricated 24000-tick survival claim.
         typeof(GameSession).GetMethod("FinishLivePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, []);
-        BuildSession.SetMainLive(s, s.CaptureLivePerformance()! with { EndedTick = s.CaptureProgramme()!.SlotEndTick });
+        BuildSession.EndMainSetAt(s, s.CaptureProgramme()!.SlotEndTick);
         typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s, (long)GameSession.PreparedDayTicks);
         typeof(GameSession).GetProperty(nameof(GameSession.Phase))!.SetValue(s, SessionPhase.Egress);
         Set(s, "PreparationView", s.CapturePreparation()! with { Status = PreparationStatus.Departing });

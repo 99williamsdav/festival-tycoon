@@ -9,6 +9,16 @@ public sealed record ActRelationship(string ActId, int Value);
 public sealed record PerformanceQuote(ulong GuestId, bool Fan, int Line);
 
 /// <summary>
+/// What a set's score is worked out from: whether it started, whether it was cut short, its peak and set-end crowds,
+/// the enjoyment of those who clapped it out, and what went wrong. The label, score and reasons all follow from these
+/// and the crowd the act expected (<see cref="GigRules.Judge"/>).
+/// </summary>
+public sealed record GigFacts(bool Started, bool CutShort, int PeakCrowd, int SetEndCrowd, int SetEndEnjoyment, string[] Hiccups)
+{
+    public int AverageEnjoyment => SetEndCrowd == 0 ? 0 : SetEndEnjoyment / SetEndCrowd;
+}
+
+/// <summary>
 /// One set, written down as it ends: when it was due and when it ran, its crowd, how it went, what went wrong, what
 /// a few of its crowd said, and how the act's relationship with you moved. The relationship before is the one the act
 /// came into this festival with; an act plays one set a festival.
@@ -16,7 +26,22 @@ public sealed record PerformanceQuote(ulong GuestId, bool Fan, int Line);
 public sealed record PerformanceRecord(string StageId, int Slot, string ActId,
     long ScheduledStartTick, long ScheduledEndTick, long StartedTick, long EndedTick,
     int PeakCrowd, int SetEndCrowd, int ExpectedCrowd, int AverageEnjoyment, string Reaction, string[] Hiccups,
-    ulong[] CrowdIds, PerformanceQuote[] Quotes, int RelationshipBefore, int Delta, int RelationshipAfter, string[] Reasons);
+    ulong[] CrowdIds, PerformanceQuote[] Quotes, int RelationshipBefore, int Delta, int RelationshipAfter, string[] Reasons,
+    bool CutShort, int SetEndEnjoyment)
+{
+    [System.Text.Json.Serialization.JsonIgnore]
+    public GigFacts Facts => new(StartedTick >= 0, CutShort, PeakCrowd, SetEndCrowd, SetEndEnjoyment, Hiccups);
+}
+
+/// <summary>
+/// A set from an earlier festival, kept as the facts it was scored on, so the relationships a later festival opens with
+/// can be worked out again from them rather than trusted.
+/// </summary>
+public sealed record CarriedGig(int Tier, string ActId, bool Started, bool CutShort, int PeakCrowd, int SetEndCrowd, int SetEndEnjoyment, string[] Hiccups)
+{
+    [System.Text.Json.Serialization.JsonIgnore]
+    public GigFacts Facts => new(Started, CutShort, PeakCrowd, SetEndCrowd, SetEndEnjoyment, Hiccups);
+}
 
 /// <summary>
 /// How a gig moves an act's relationship with you, and what that does to their fee. Every number is here.
@@ -70,13 +95,45 @@ public static class GigRules
         return Math.Max(1, guests * share / 100 / Math.Max(1, stages));
     }
 
+    /// <summary>Crowd and reaction points together at or above this read as a warm set rather than a polite one.</summary>
+    public const int WarmPoints = 6;
+
     /// <summary>
-    /// The reaction label for a set from its facts: hardly anyone there at any point is an empty field, and only a few
-    /// of its biggest crowd still there to clap at the end is a smattering.
+    /// How a set went overall, by the same crowd measure the score uses: never on stage, cut short, an empty field (a
+    /// quarter of the expected crowd or less), enthusiastic applause, a smattering (under half the expected crowd), and
+    /// otherwise warm or polite as the crowd and their enjoyment add up.
     /// </summary>
-    public static string ReactionOf(bool started, bool cutShort, int peak, int setEnd, int averageEnjoyment, bool enthusiastic, int expected) =>
-        !started ? NoShow : cutShort ? CutShort : peak * 4 < expected || setEnd == 0 && peak < 4 ? EmptyField : enthusiastic ? Enthusiastic :
-        setEnd * 4 < peak ? Smattering : averageEnjoyment >= 300 ? Warm : Polite;
+    public static string ReactionOf(GigFacts facts, int expected)
+    {
+        if (!facts.Started) return NoShow;
+        if (facts.CutShort) return CutShort;
+        if (3 * facts.PeakCrowd + facts.SetEndCrowd < expected) return EmptyField;
+        if (PerformanceApplauseMath.IsEnthusiastic(facts.SetEndCrowd, facts.SetEndEnjoyment)) return Enthusiastic;
+        var crowd = CrowdScore(facts.PeakCrowd, facts.SetEndCrowd, expected);
+        if (crowd < 0) return Smattering;
+        return crowd + ReactionScore(facts.SetEndCrowd, facts.AverageEnjoyment) >= WarmPoints ? Warm : Polite;
+    }
+
+    /// <summary>A set's label, score and reasons from its facts.</summary>
+    public static (string Reaction, int Delta, string[] Reasons) Judge(GigFacts facts, int expected)
+    {
+        var reaction = ReactionOf(facts, expected);
+        var (delta, reasons) = Score(reaction, facts.Hiccups, facts.PeakCrowd, facts.SetEndCrowd, expected, facts.AverageEnjoyment);
+        return (reaction, delta, reasons);
+    }
+
+    /// <summary>
+    /// Whether facts could come from a real set with this many guests: a crowd within the guests and its set-end part
+    /// within its peak, enjoyment within what a set can give, nothing but a collapse for a set that never started, nobody
+    /// clapping out a set cut short, boos only after a stop, and hiccups known, once each, in their order.
+    /// </summary>
+    public static bool Plausible(GigFacts facts, int guests) =>
+        facts.Hiccups is { } hiccups && hiccups.SequenceEqual(HiccupOrder.Where(hiccups.Contains)) && hiccups.Distinct().Count() == hiccups.Length &&
+        facts.SetEndCrowd >= 0 && facts.SetEndCrowd <= facts.PeakCrowd && facts.PeakCrowd <= guests &&
+        facts.SetEndEnjoyment >= 0 && facts.SetEndEnjoyment <= facts.SetEndCrowd * (GameSession.FestivalSlotDurationTicks / 80 * 30) &&
+        (facts.Started || !facts.CutShort && facts.PeakCrowd == 0 && hiccups.All(item => item == Collapse)) &&
+        (!facts.CutShort || facts.SetEndCrowd == 0) &&
+        (!hiccups.Contains(Boos) || hiccups.Contains(PowerCut) || hiccups.Contains(Stopped));
 
     public static int CrowdScore(int peak, int setEnd, int expected) =>
         Math.Clamp((3 * peak + setEnd) * CrowdPoints / 2 / Math.Max(1, expected) - CrowdPoints, -CrowdPoints, CrowdPoints);
@@ -147,7 +204,7 @@ public static class GigRules
     /// The hook for things that happen to a relationship between festivals (a falling-out in the press, a kind word from
     /// a friend of the band): nothing yet, so it hands the relationships on as they are.
     /// </summary>
-    public static ActRelationship[]? BetweenFestivals(ActRelationship[]? relationships, ulong seed, int nextTier) => relationships;
+    public static CarriedGig[]? BetweenFestivals(CarriedGig[]? history, ulong seed, int nextTier) => history;
 
     /// <summary>Relationships after a festival: those it opened with, moved by each of its sets.</summary>
     public static ActRelationship[]? After(ActRelationship[]? before, IEnumerable<PerformanceRecord> records)
@@ -311,6 +368,36 @@ public sealed partial class GameSession
         relationships?.FirstOrDefault(item => item.ActId == actId)?.Value ?? 0;
     /// <summary>Relationships as this festival will leave them, once its sets so far are counted.</summary>
     public ActRelationship[]? RelationshipsAfterFestival => GigRules.After(_preparation?.ActRelationships, PerformanceRecords);
+    /// <summary>Every set the campaign has played up to now, earlier festivals' and this one's, as the facts they were scored on.</summary>
+    private CarriedGig[]? RelationshipHistoryAfterFestival => _preparation is not { } p ? null :
+        (p.RelationshipHistory ?? []).Concat(PerformanceRecords.Select(record => new CarriedGig(p.Tier, record.ActId, record.StartedTick >= 0,
+            record.CutShort, record.PeakCrowd, record.SetEndCrowd, record.SetEndEnjoyment, record.Hiccups.ToArray()))).ToArray() is { Length: > 0 } all ? all : null;
+
+    /// <summary>How many stages a festival at this tier ran.</summary>
+    private static int StageCountAt(int tier, bool pondStageTrial) => FestivalStages.For(pondStageTrial || tier >= PondStageFromTier).Count;
+    /// <summary>The crowd an act expects at a festival of this tier.</summary>
+    private static int ExpectedCrowdAt(int tier, int stages, FestivalAct act) => GigRules.ExpectedCrowd(FestivalTickets.Sold(tier), stages, act.Popularity,
+        ActCatalogue.ExpectedPopularity(FestivalTickets.PricePennies(tier)));
+
+    /// <summary>Relationships worked out from the campaign's sets, each scored again from its facts in the order played.</summary>
+    private static ActRelationship[]? RelationshipsFrom(IEnumerable<CarriedGig>? history, bool pondStageTrial)
+    {
+        var values = new Dictionary<string, int>(StringComparer.Ordinal);
+        foreach (var gig in history ?? [])
+        {
+            var act = ActCatalogue.Find(gig.ActId)!;
+            var (_, delta, _) = GigRules.Judge(gig.Facts, ExpectedCrowdAt(gig.Tier, StageCountAt(gig.Tier, pondStageTrial), act));
+            values[gig.ActId] = GigRules.Apply(values.GetValueOrDefault(gig.ActId), delta);
+        }
+        return GigRules.Normalised(values);
+    }
+
+    /// <summary>The next festival's relationships and the sets they come from, as this festival leaves them.</summary>
+    private (CarriedGig[]? History, ActRelationship[]? Relationships) RelationshipsForNextFestival(int nextTier)
+    {
+        var history = GigRules.BetweenFestivals(RelationshipHistoryAfterFestival, CampaignSeed, nextTier);
+        return (history, RelationshipsFrom(history, _pondStageTrial));
+    }
 
     /// <summary>The fan test a quote uses: the same enthusiasm that earns a listener the bigger share of a set.</summary>
     private const int FanEnthusiasm = 60;
@@ -330,25 +417,23 @@ public sealed partial class GameSession
     private static PerformanceRecord MakePerformanceRecord(ulong seed, PreparationSnapshot p, int stageCount, FestivalStage def, int slot,
         FestivalAct act, LivePerformanceSnapshot live, Func<ulong, bool> fan)
     {
-        var started = live.StartedTick >= 0;
-        var cutShort = started && live.LastReaction is not ("set-finished-applause" or "set-finished-muted");
-        var setEnd = live.SetEndAudienceCount;
-        var average = setEnd == 0 ? 0 : live.SetEndEnjoymentTotal / setEnd;
-        var expected = GigRules.ExpectedCrowd(FestivalTickets.Sold(p.Tier), stageCount, act.Popularity,
-            ActCatalogue.ExpectedPopularity(FestivalTickets.PricePennies(p.Tier)));
-        var enthusiastic = PerformanceApplauseMath.IsEnthusiastic(setEnd, live.SetEndEnjoymentTotal);
-        var reaction = GigRules.ReactionOf(started, cutShort, live.PeakListeners, setEnd, average, enthusiastic, expected);
-        var hiccups = HiccupsOf(live);
-        var (delta, reasons) = GigRules.Score(reaction, hiccups, live.PeakListeners, setEnd, expected, average);
+        var facts = FactsOf(live);
+        var expected = ExpectedCrowdAt(p.Tier, stageCount, act);
+        var (reaction, delta, reasons) = GigRules.Judge(facts, expected);
         var before = RelationshipIn(p.ActRelationships, act.Id);
         // Whoever heard some of it; when nobody heard a note, whoever waited for it.
         var crowd = live.Listeners.Where(item => item.ListenedTicks > 0).Select(item => item.AgentId)
             .Concat(live.SetEndAudienceIds).Distinct().Order().ToArray();
         if (crowd.Length == 0) crowd = live.Listeners.Where(item => item.Place is not null).Select(item => item.AgentId).Order().ToArray();
         return new(def.Id, slot, act.Id, p.StartedTick + def.SlotStarts[slot], p.StartedTick + def.SlotEnds[slot], live.StartedTick, live.EndedTick,
-            live.PeakListeners, setEnd, expected, average, reaction, hiccups, crowd, GigQuotes.Pick(seed, def.Id, slot, reaction, crowd, fan),
-            before, delta, GigRules.Apply(before, delta), reasons);
+            facts.PeakCrowd, facts.SetEndCrowd, expected, facts.AverageEnjoyment, reaction, facts.Hiccups, crowd, GigQuotes.Pick(seed, def.Id, slot, reaction, crowd, fan),
+            before, delta, GigRules.Apply(before, delta), reasons, facts.CutShort, facts.SetEndEnjoyment);
     }
+
+    /// <summary>A finished live set's facts. It was cut short if it started but didn't play out to its slot's end.</summary>
+    private static GigFacts FactsOf(LivePerformanceSnapshot live) => new(live.StartedTick >= 0,
+        live.StartedTick >= 0 && live.LastReaction is not ("set-finished-applause" or "set-finished-muted"),
+        live.PeakListeners, live.SetEndAudienceCount, live.SetEndEnjoymentTotal, HiccupsOf(live));
 
     private static string[] HiccupsOf(LivePerformanceSnapshot live)
     {
@@ -363,10 +448,11 @@ public sealed partial class GameSession
     }
 
     /// <summary>
-    /// The saved records: each finished set of a booked programme recorded once and in full, no record for a set still to
-    /// come, the set now recorded once it has finished, and every record following from its own facts:
-    /// its act and times from the programme, its numbers within the guests, its score, reasons and quotes as the rules
-    /// give them, and its quotes from guests in its crowd.
+    /// The saved records: every finished set of a booked programme recorded once (each slot before a stage's current one,
+    /// and the current one once it has finished), none for a set still to come, and every record following from its own
+    /// facts: its act and times from the programme, plausible numbers, its label, score, reasons and quotes as the rules
+    /// give them, late exactly when it started late, and its quotes from guests in its crowd. The set just finished also
+    /// matches its live set.
     /// </summary>
     private static string? ValidatePersistedPerformanceRecords(SessionPersistenceSnapshot s)
     {
@@ -377,7 +463,7 @@ public sealed partial class GameSession
             if (s.Programme is not { } booked || s.LivePerformances is not { } sets) return null;
             for (var stage = 0; stage < sets.Length && stage < booked.Stages.Length; stage++)
                 if (sets[stage] is { } set && booked.Stages[stage].ActIds.Length > 0 &&
-                    set.Stage == LiveSetStage.Finished && set.EndedTick >= set.PlannedTick)
+                    (booked.Stages[stage].CurrentSlot > 0 || set.Stage == LiveSetStage.Finished && set.EndedTick >= set.PlannedTick))
                     return invalid;
             return null;
         }
@@ -394,8 +480,7 @@ public sealed partial class GameSession
             var live = lives[stage];
             var mine = records.Where(record => record.StageId == def.Id).Select(record => record.Slot).ToArray();
             var due = live is null || q.ActIds.Length != def.SlotCount ? 0 : q.CurrentSlot + (live.Stage == LiveSetStage.Finished && live.EndedTick >= live.PlannedTick ? 1 : 0);
-            // The set just finished is always recorded; an earlier one may not be, where a day was jumped ahead.
-            if (mine.Any(slot => slot >= due) || due > 0 && q.CurrentSlot + 1 == due && !mine.Contains(q.CurrentSlot)) return invalid;
+            if (!mine.Order().SequenceEqual(Enumerable.Range(0, due))) return invalid;
         }
         foreach (var record in records)
         {
@@ -405,19 +490,18 @@ public sealed partial class GameSession
             var q = programme.Stages[stage];
             if (ActCatalogue.Find(record.ActId) is not { } act || record.Slot < 0 || record.Slot >= def.SlotCount || q.ActIds[record.Slot] != record.ActId) return invalid;
             var fan = (ulong id) => guests.TryGetValue(id, out var guest) && Affinity(s.CampaignSeed, id, guest.ExpectedGenre, act) >= FanEnthusiasm;
-            var expected = GigRules.ExpectedCrowd(FestivalTickets.Sold(p.Tier), stages.Count, act.Popularity,
-                ActCatalogue.ExpectedPopularity(FestivalTickets.PricePennies(p.Tier)));
+            var expected = ExpectedCrowdAt(p.Tier, stages.Count, act);
             var started = record.StartedTick >= 0;
-            var (delta, reasons) = GigRules.Score(record.Reaction, record.Hiccups, record.PeakCrowd, record.SetEndCrowd, expected, record.AverageEnjoyment);
+            var facts = record.Facts;
+            if (!GigRules.Plausible(facts, guests.Count)) return invalid;
+            var (reaction, delta, reasons) = GigRules.Judge(facts, expected);
             var before = RelationshipIn(p.ActRelationships, act.Id);
             if (record.ScheduledStartTick != p.StartedTick + def.SlotStarts[record.Slot] || record.ScheduledEndTick != p.StartedTick + def.SlotEnds[record.Slot] ||
                 started && (record.StartedTick < record.ScheduledStartTick || record.StartedTick >= record.ScheduledEndTick) || record.StartedTick < -1 ||
                 record.EndedTick < record.ScheduledStartTick || record.EndedTick > s.CurrentTick ||
-                record.PeakCrowd < record.SetEndCrowd || record.SetEndCrowd < 0 || record.PeakCrowd > guests.Count || record.AverageEnjoyment < 0 ||
-                record.AverageEnjoyment > FestivalSlotDurationTicks / 80 * 30 || record.ExpectedCrowd != expected ||
-                !GigRules.Reactions.Contains(record.Reaction) || (record.Reaction == GigRules.NoShow) == started ||
-                !record.Hiccups.SequenceEqual(GigRules.HiccupOrder.Where(record.Hiccups.Contains)) || record.Hiccups.Distinct().Count() != record.Hiccups.Length ||
-                !started && record.Hiccups.Any(item => item is not GigRules.Collapse) ||
+                record.AverageEnjoyment != facts.AverageEnjoyment || record.ExpectedCrowd != expected || record.Reaction != reaction ||
+                record.Hiccups.Contains(GigRules.Late) != (started && record.StartedTick - record.ScheduledStartTick > GigRules.LateGraceTicks) ||
+                started && !record.CutShort && record.EndedTick != record.ScheduledEndTick ||
                 !record.CrowdIds.SequenceEqual(record.CrowdIds.Distinct().Order()) || record.CrowdIds.Any(id => !guests.ContainsKey(id)) ||
                 record.SetEndCrowd > record.CrowdIds.Length ||
                 !record.Quotes.SequenceEqual(GigQuotes.Pick(s.CampaignSeed, def.Id, record.Slot, record.Reaction, record.CrowdIds, fan)) ||
@@ -429,9 +513,10 @@ public sealed partial class GameSession
             if (live is not null && q.CurrentSlot == record.Slot)
             {
                 var setEnd = live.SetEndAudienceCount;
-                if (live.Stage != LiveSetStage.Finished || record.StartedTick != live.StartedTick ||
-                    record.PeakCrowd != live.PeakListeners || record.SetEndCrowd != setEnd ||
-                    record.AverageEnjoyment != (setEnd == 0 ? 0 : live.SetEndEnjoymentTotal / setEnd) || !record.Hiccups.SequenceEqual(HiccupsOf(live)))
+                if (live.Stage != LiveSetStage.Finished || record.StartedTick != live.StartedTick || record.EndedTick != live.EndedTick ||
+                    FactsOf(live) is var now && (record.CutShort != now.CutShort || record.PeakCrowd != now.PeakCrowd || record.SetEndCrowd != now.SetEndCrowd ||
+                        record.SetEndEnjoyment != now.SetEndEnjoyment || !record.Hiccups.SequenceEqual(now.Hiccups)) ||
+                    live.SetEndAudienceIds.Any(id => !record.CrowdIds.Contains(id)))
                     return invalid;
             }
         }
@@ -441,13 +526,25 @@ public sealed partial class GameSession
         return null;
     }
 
-    private static string? ValidatePersistedRelationships(PreparationSnapshot p)
+    /// <summary>
+    /// The relationships a festival opened with must be the ones its campaign's earlier sets give, scored again here from
+    /// their saved facts: each set from an earlier tier, plausible for that tier's guests, an act at most once a festival
+    /// and no more sets than that festival had slots.
+    /// </summary>
+    private static string? ValidatePersistedRelationships(PreparationSnapshot p, bool pondStageTrial)
     {
-        if (p.ActRelationships is not { } relationships) return null;
-        return relationships.Length == 0 || relationships.Any(item => item is null || item.ActId is null || ActCatalogue.Find(item.ActId) is null ||
-                item.Value is 0 or < GigRules.Lowest or > GigRules.Highest) ||
-            !relationships.Select(item => item.ActId).SequenceEqual(relationships.Select(item => item.ActId).Distinct().Order(StringComparer.Ordinal)) ||
-            p.Tier == 1 && p.CarriedIn is null
-            ? "Act relationships invalid." : null;
+        const string invalid = "Act relationships invalid.";
+        if (p.ActRelationships is { } relationships && relationships.Any(item => item is null || item.ActId is null)) return invalid;
+        if (p.RelationshipHistory is not { } history) return p.ActRelationships is null ? null : invalid;
+        if (history.Length == 0 || p.CarriedIn is null || history.Any(gig => gig is null || gig.ActId is null || ActCatalogue.Find(gig.ActId) is null ||
+                gig.Tier < 1 || gig.Tier >= p.Tier || !GigRules.Plausible(gig.Facts, FestivalTickets.Sold(gig.Tier))) ||
+            history.Zip(history.Skip(1)).Any(pair => pair.Second.Tier < pair.First.Tier))
+            return invalid;
+        foreach (var festival in history.GroupBy(gig => gig.Tier))
+            if (festival.Select(gig => gig.ActId).Distinct().Count() != festival.Count() ||
+                festival.Count() > FestivalStages.For(pondStageTrial || festival.Key >= PondStageFromTier).Sum(stage => stage.SlotCount))
+                return invalid;
+        var expected = RelationshipsFrom(history, pondStageTrial);
+        return (expected ?? []).SequenceEqual(p.ActRelationships ?? []) && (expected is null) == (p.ActRelationships is null) ? null : invalid;
     }
 }
