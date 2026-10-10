@@ -370,8 +370,8 @@ public partial class Main
         foreach (var cow in _session.CaptureCows()?.Loose ?? [])
             foreach (var id in Near(new Vector3(cow.XMillimetres / 1000f, 0, cow.ZMillimetres / 1000f), 3.5f).Where(id => !treated.Contains(id)))
                 remarks.Add(Hash(id, cow.Id.Aggregate(17L, (h, ch) => h * 31 + ch) & 0xffff) % 2 == 0
-                    ? new(id, "Oo a cow!", Mood.Happy, 2, "cow", 6, $"cow:{id}:{cow.Id}")
-                    : new(id, "Why the hell are there cows here?", Mood.Grumble, 2, "cow", 6, $"cow:{id}:{cow.Id}"));
+                    ? new(id, "Oo a cow!", Mood.Happy, 3, "cow", 6, $"cow:{id}:{cow.Id}")
+                    : new(id, "Why the hell are there cows here?", Mood.Grumble, 3, "cow", 6, $"cow:{id}:{cow.Id}"));
 
         // Fights and collapses draw a crowd; a rescue and a recovery are a relief.
         foreach (var fighter in disorder?.People.Where(f => f.Stage == DisorderStage.Fight) ?? [])
