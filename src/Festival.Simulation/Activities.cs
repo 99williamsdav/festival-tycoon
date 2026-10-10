@@ -69,9 +69,15 @@ public sealed partial class GameSession
     private ActivityKind CurrentActivity(Person person) =>
         person.Intent == MedicalIntent.SeekWater ? ActivityKind.Water :
         person.ToiletStage != ToiletVisitStage.None ? ActivityKind.Toilet :
-        person.VendorId is not null ? person.Order switch
-        { { } food when food.IsFood() => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater, _ => ActivityKind.Beer } :
+        person.VendorId is not null ? PurchaseKind(person.Order ?? ImmersionProduct.Beer) :
+        Sheltering(person.Id) ? ActivityKind.Shelter :
         ActivityKind.Watch;
+
+    private static ActivityKind PurchaseKind(ImmersionProduct product) => product switch
+    {
+        _ when product.IsFood() => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater,
+        ImmersionProduct.Poncho => ActivityKind.Poncho, _ => ActivityKind.Beer
+    };
 
     private bool IsStaffMember(ulong id) => _persons[id].NeedProfile == MedicalNeedProfile.Staff;
 
@@ -83,12 +89,37 @@ public sealed partial class GameSession
         try { options = ActivityOptions(id, current); }
         finally { _restScratch = null; }
         if (extra is not null) options.Add(extra);
-        // On-duty staff heat up an eighth as fast (see AdvanceMedical).
+        // On-duty staff heat up an eighth as fast (see AdvanceMedical). In the rain nobody heats up and thirst comes slower.
         var growth = RobotWorker(id) ? new NeedGrowth(0, 0, 0, 0) : new NeedGrowth(
             (20 + (HasPerk("thirsty-crowd") && person.NeedProfile == MedicalNeedProfile.Guest ? 2 : 0)) * (BringsOwnBottle(id) ? ByobThirstQuarters : 4) / 4,
             IsStaffMember(id) ? 2 : 20 * (200 + (IsGuest(id) ? GuestCharacterOf(id).HeatSensitivity : 0)) / 200, HungerPerSecond, 80 / ToiletNeedGainEveryTicks(id));
-        var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed);
-        return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options, CommittedPastHorizonTicks(id));
+        if (IsRainyFestival) growth = growth with { Thirst = growth.Thirst * (5 - WeatherRules.RainThirstSkipOf5) / 5, Heat = 0 };
+        var now = new NeedLevels(person.Thirst, person.HeatExposure, person.Hunger, person.ToiletNeed, WetnessOf(id));
+        return ActivityChooser.Rank(now, growth, MusicPerSecond(id), options, CommittedPastHorizonTicks(id), RainOutlookFor(id));
+    }
+
+    /// <summary>The rain as a guest's plan sees it, on a rainy day; null otherwise, and for staff and bands.</summary>
+    private RainOutlook? RainOutlookFor(ulong id)
+    {
+        if (!IsRainyFestival || !IsGuest(id) || DayTick < 0) return null;
+        var rain = RainNow;
+        // A dry spell's next shower lands inside the plan: they'd be out in it from then, at its strength.
+        var outlook = CaptureWeatherOutlook();
+        var showerAhead = rain == RainIntensity.Dry && outlook.ChangeTick >= 0 && outlook.ChangeTick - DayTick < ActivityChooser.HorizonTicks;
+        if (rain == RainIntensity.Dry && !showerAhead && WetnessOf(id) == 0) return null;
+        var strength = rain == RainIntensity.Dry ? showerAhead ? outlook.Next : RainIntensity.Dry : rain;
+        // A shower ahead is approximated by its strength over the whole plan, weighted by how much of it falls inside.
+        var rainTicks = rain != RainIntensity.Dry ? (int)Math.Min(int.MaxValue, RainTicksLeftInShower(DayTick)) : 0;
+        var soak = WeatherRules.SoakPerSecond(strength);
+        var exposed = WeatherRules.ExposedDiscomfort(strength);
+        if (showerAhead)
+        {
+            var within = (int)RainTicksWithin(DayTick, ActivityChooser.HorizonTicks);
+            soak = soak * within / ActivityChooser.HorizonTicks;
+            exposed = exposed * within / ActivityChooser.HorizonTicks;
+            rainTicks = ActivityChooser.HorizonTicks;
+        }
+        return new(soak, WeatherRules.DryUnderCoverPerSecond, WeatherRules.DryInTheOpenPerSecond, exposed, rainTicks, OwnsPoncho(id));
     }
 
     /// <summary>
@@ -148,7 +179,8 @@ public sealed partial class GameSession
     private static string ActivityLabel(ActivityKind kind, bool staff = false) => kind switch
     {
         ActivityKind.Watch => staff ? "post" : "music", ActivityKind.Water => "water", ActivityKind.Rest => "rest", ActivityKind.Food => "food",
-        ActivityKind.SoftDrink => "soft drink", ActivityKind.Beer => "beer", ActivityKind.Respond => "respond", ActivityKind.BarWater => "free water at the bar", _ => "toilet"
+        ActivityKind.SoftDrink => "soft drink", ActivityKind.Beer => "beer", ActivityKind.Respond => "respond", ActivityKind.BarWater => "free water at the bar",
+        ActivityKind.Shelter => "shelter from the rain", ActivityKind.Poncho => "a poncho", _ => "toilet"
     };
 
     /// <summary>
@@ -198,7 +230,8 @@ public sealed partial class GameSession
         {
             case ActivityKind.Water: LeaveWater(id, reason, reroute: returnToMusic); break;
             case ActivityKind.Toilet: ReleaseToiletPerson(id, returnToMusic); break;
-            case ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer or ActivityKind.BarWater: LeaveImmersionQueue(id, returnToMusic); break;
+            case ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer or ActivityKind.BarWater or ActivityKind.Poncho: LeaveImmersionQueue(id, returnToMusic); break;
+            case ActivityKind.Shelter: if (returnToMusic) ReturnToListening(id); break;
         }
     }
 
@@ -228,10 +261,14 @@ public sealed partial class GameSession
                 MutatePerson(id, item => { item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
                 ApplyAgentDestination(new(id), new(ToiletQueueCell(toilet, toilet.Queue.Length), "toilet.approach"));
                 break;
+            case ActivityKind.Shelter:
+                StartShelter(id, option.FacilityId!, reason);
+                break;
             default:
                 var vendor = Vendors.Single(item => item.Id == option.FacilityId);
                 var product = option.Kind switch
-                { ActivityKind.Food => TraderAt(vendor.Id).Product, ActivityKind.SoftDrink => ImmersionProduct.SoftDrink, ActivityKind.BarWater => ImmersionProduct.Water, _ => ImmersionProduct.Beer };
+                { ActivityKind.Food => TraderAt(vendor.Id).Product, ActivityKind.SoftDrink => ImmersionProduct.SoftDrink, ActivityKind.BarWater => ImmersionProduct.Water,
+                    ActivityKind.Poncho => ImmersionProduct.Poncho, _ => ImmersionProduct.Beer };
                 SetConsumption(_persons[id] with { VendorId = vendor.Id, Order = product, ShoppingDecisionTick = CurrentTick });
                 MutatePerson(id, item => { item.Reason = reason; item.NeedDecisionTick = CurrentTick; });
                 ApplyAgentDestination(new(id), new(ImmersionQueueCell(vendor, vendor.Queue.Length), "immersion.approach"));
@@ -263,6 +300,13 @@ public sealed partial class GameSession
                 .Where((stop, rank) => rank < 2 || stop.Kind == current && stop.Facility == currentFacility));
         foreach (var first in firsts)
         {
+            // Shelter is a stop of its own: they stay under cover until the shower passes, then walk back.
+            if (first.Kind == ActivityKind.Shelter)
+            {
+                var away = (long)first.CompleteTicks + Math.Max(0, RainTicksLeftInShower(DayTick) - first.CompleteTicks) + EstimateWalkTicks(id, first.Cell, music);
+                options.Add(new(first.Kind, first.Facility, first.CompleteTicks, (int)Math.Min(int.MaxValue, away)));
+                continue;
+            }
             options.Add(new(first.Kind, first.Facility, first.CompleteTicks, first.CompleteTicks + EstimateWalkTicks(id, first.Cell, music), first.Enjoyment, first.Cost)
                 { FoodRelief = first.FoodRelief });
             // The quickest of each kind; for something bought, of each stall, since two vans differ by more than the walk.
@@ -276,10 +320,11 @@ public sealed partial class GameSession
         return options;
     }
 
-    private static bool IsPurchase(ActivityKind kind) => kind is ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer or ActivityKind.BarWater;
+    private static bool IsPurchase(ActivityKind kind) => kind is ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer or ActivityKind.BarWater or ActivityKind.Poncho;
 
-    private static string? CurrentFacility(Person person) =>
-        person.Intent == MedicalIntent.SeekWater ? person.WaterPointId : person.ToiletStage != ToiletVisitStage.None ? person.ToiletId : person.VendorId;
+    private string? CurrentFacility(Person person) =>
+        person.Intent == MedicalIntent.SeekWater ? person.WaterPointId : person.ToiletStage != ToiletVisitStage.None ? person.ToiletId :
+        person.VendorId ?? ShelterCoverOf(person.Id);
 
     /// <summary>
     /// Candidate stops starting from <paramref name="from"/> at <paramref name="startTicks"/>.
@@ -304,6 +349,13 @@ public sealed partial class GameSession
             foreach (var tent in Marquees())
                 if (MarqueeRestSpotFor(id, tent.Id) is not null) Add(ActivityKind.Rest, tent.Id, tent.Cell, EstimateWalkTicks(id, from, tent.Cell) + restTicks);
         }
+        // Out of the rain while it falls: every cover with room, each at its nearest free place.
+        if (!fresh && IsGuest(id) && RainNow != RainIntensity.Dry && !OwnsPoncho(id) && person.Intent is MedicalIntent.WatchShow)
+        {
+            EnsureCoverCache();
+            foreach (var cover in _shelterSpots.Select(spot => spot.CoverId).Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
+                if (ShelterSpotFor(id, cover) is { } spot) Add(ActivityKind.Shelter, cover, spot, EstimateWalkTicks(id, from, spot));
+        }
         if (!fresh && current == ActivityKind.Toilet || ImmersionHandsAvailable(id) && person.Intent is MedicalIntent.WatchShow or MedicalIntent.SeekWater)
         {
             var visit = person.ToiletChoice ?? ChooseToiletVisit(person);
@@ -315,7 +367,7 @@ public sealed partial class GameSession
             // A van sells only its trader's food; another food would be a phantom option even for someone already queuing.
             var sellers = Vendors.Where(vendor => Sells(vendor.Id, product)).ToArray();
             if (sellers.Length == 0) continue;
-            var kind = product switch { _ when product.IsFood() => ActivityKind.Food, ImmersionProduct.SoftDrink => ActivityKind.SoftDrink, ImmersionProduct.Water => ActivityKind.BarWater, _ => ActivityKind.Beer };
+            var kind = PurchaseKind(product);
             var underWay = !fresh && current == kind;
             var eligible = ActivityPurchaseEligible(person, product);
             if (!underWay && !eligible) continue;
@@ -324,6 +376,8 @@ public sealed partial class GameSession
             {
                 ImmersionProduct.Beer => (3_000L + (StaffHas(id, StaffTrait.SneakyAlcoholic) ? AlcoholicBeerTaste : BeerTasteOf(person)) * 45) * PurchaseValueScale,
                 ImmersionProduct.SoftDrink => SoftTasteOf(person) * 35L * PurchaseValueScale,
+                // Dry for the rest of the day: the plan counts the rain it keeps off inside the look-ahead, this the rain after.
+                ImmersionProduct.Poncho => PonchoValueAfterHorizon(),
                 // Food's worth depends on the hunger it would sate when it's eaten: added per stall below.
                 _ => 0L
             } + (StaffHas(id, StaffTrait.Slacker) && product != ImmersionProduct.Water ? SlackerTreatValue : 0);
@@ -367,7 +421,19 @@ public sealed partial class GameSession
         (product == ImmersionProduct.Water || person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat) && !IsCurrentProgrammePerformer(person.Id) &&
         ImmersionHandsAvailable(person.Id) && ImmersionStock(product) > 0 &&
         _wallets[new(person.Id)].CashPennies >= ImmersionPriceFor(person.Id, product) &&
-        (product != ImmersionProduct.Beer || BeerAllowed(person));
+        (product != ImmersionProduct.Beer || BeerAllowed(person)) &&
+        (product != ImmersionProduct.Poncho || PonchoWanted(person.Id));
+
+    /// <summary>
+    /// A guest without one, on a rainy day, when it's raining or a shower is due soon: the chooser then weighs it, by
+    /// thrift, against sheltering or braving it.
+    /// </summary>
+    private bool PonchoWanted(ulong id) => IsRainyFestival && IsGuest(id) && !OwnsPoncho(id) && DayTick >= 0 &&
+        (RainNow != RainIntensity.Dry || RainTicksWithin(DayTick, WeatherRules.PonchoForecastTicks) > 0);
+
+    /// <summary>What a poncho is worth for the forecast rain beyond the plan's look-ahead.</summary>
+    private long PonchoValueAfterHorizon() =>
+        WeatherRules.PonchoValuePerRainSecond * RainTicksWithin(DayTick + ActivityChooser.HorizonTicks, WeatherRules.PonchoLookAheadTicks - ActivityChooser.HorizonTicks) / 80;
 
     private bool VendorHasRoom(ImmersionVendor vendor)
     {

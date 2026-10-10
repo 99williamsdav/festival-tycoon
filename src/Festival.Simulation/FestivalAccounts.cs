@@ -45,8 +45,21 @@ public sealed partial class GameSession
         ImmersionProduct.SoftDrink => "Soft drink",
         ImmersionProduct.Beer => "Beer",
         ImmersionProduct.Water => "Free water",
+        ImmersionProduct.Poncho => "Poncho",
         _ => throw new ArgumentOutOfRangeException(nameof(product))
     };
+    /// <summary>The straw and matting laid in Build, as facility lines.</summary>
+    private static IEnumerable<FestivalAccountsExpense> GroundCoverLines(PreparationSnapshot p)
+    {
+        if (p.StrawCells is { Length: > 0 } straw)
+        {
+            var bales = GroundCoverRules.BalesFor(straw.Length);
+            yield return new("Facilities", $"Straw laid × {bales} bale{(bales == 1 ? "" : "s")}", bales * (long)GroundCoverRules.BalePennies);
+        }
+        if (p.MatPanels is { Length: > 0 } mats)
+            yield return new("Facilities", $"Track matting × {mats.Length} panel{(mats.Length == 1 ? "" : "s")}", mats.Length * (long)GroundCoverRules.MatPanelPennies);
+    }
+
     private static string FacilityName(BuildServiceKind kind) => kind switch
     {
         BuildServiceKind.Bin => "Litter bin",
@@ -94,7 +107,8 @@ public sealed partial class GameSession
                     ? p.BuildPlacements.GroupBy(placement => placement.Kind).OrderBy(group => group.Key)
                         .Where(group => BuildServiceFeePennies(group.Key) > 0)
                         .Select(group => new FestivalAccountsExpense("Facilities",
-                            $"{FacilityName(group.Key)} × {group.Count()}", group.Count() * (long)BuildServiceFeePennies(group.Key))).ToArray()
+                            $"{FacilityName(group.Key)} × {group.Count()}", group.Count() * (long)BuildServiceFeePennies(group.Key)))
+                        .Concat(GroundCoverLines(p)).ToArray()
                     : [];
                 facilityDetailRecorded = facilities.Sum(line => line.AmountPennies) == buildCost;
                 if (facilityDetailRecorded) expenses.AddRange(facilities);
@@ -114,7 +128,9 @@ public sealed partial class GameSession
             var purchasedStock = p.Plan is { Committed: true } plan
                 ? new FestivalAccountsStock[] {
                     new("Soft drink", plan.SoftDrinks, ImmersionCost(ImmersionProduct.SoftDrink), plan.SoftDrinks * (long)ImmersionCost(ImmersionProduct.SoftDrink)),
-                    new("Beer", plan.Beers, ImmersionCost(ImmersionProduct.Beer), plan.Beers * (long)ImmersionCost(ImmersionProduct.Beer))
+                    new("Beer", plan.Beers, ImmersionCost(ImmersionProduct.Beer), plan.Beers * (long)ImmersionCost(ImmersionProduct.Beer)),
+                    new("Poncho", plan.Ponchos, ImmersionCost(ImmersionProduct.Poncho), plan.Ponchos * (long)ImmersionCost(ImmersionProduct.Poncho)),
+                    new("Straw bale", plan.StrawBales, GroundCoverRules.BalePennies, plan.StrawBales * (long)GroundCoverRules.BalePennies)
                 }.Where(line => line.Quantity > 0).ToArray() : [];
             var stockDetailRecorded = p.Plan is { Committed: true } && purchasedStock.Sum(line => line.AmountPennies) == stockCash;
             var capital = payments.Where(payment => payment.DebitAccount == LedgerAccountType.EquipmentAsset)

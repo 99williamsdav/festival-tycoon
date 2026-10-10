@@ -73,6 +73,7 @@ public sealed partial class GameSession
         SetUpSecurity(session, seed);
         SetUpProgramme(session, seed);
         if (session.PondStageOpen) SetUpPondStage(session);
+        SetUpWeather(session, seed, tier);
         return session;
     }
 

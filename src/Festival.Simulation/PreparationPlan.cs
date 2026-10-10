@@ -8,12 +8,26 @@ public sealed record PreparationPlan(int Version, string[] OfferIds, string[] Ac
     /// <summary>The traders chosen for vans after the first, in van order; absent when there are none.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public VanTrader[]? VanTraders { get; init; }
+    /// <summary>Ponchos for the bars to sell, on a rainy day.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int Ponchos { get; init; }
+    /// <summary>Straw bales in the store for stewards to spread on mud, on a rainy day.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int StrawBales { get; init; }
 }
 public sealed record RemovePreparationOfferCommand(string OfferId) : SessionCommand;
-/// <summary>The bar's stock: the food trader brings their own.</summary>
-public sealed record SetPreparationStockCommand(int SoftDrinks, int Beers) : SessionCommand;
+/// <summary>The bar's stock: the food trader brings their own. Ponchos and straw bales, when given, are the rain supplies.</summary>
+public sealed record SetPreparationStockCommand(int SoftDrinks, int Beers) : SessionCommand
+{
+    public int? Ponchos { get; init; }
+    public int? StrawBales { get; init; }
+}
 public sealed record PreparationSetupPayment(string Id, int Attempt, long Tick, int SoftDrinks, int Beers, long TotalPennies, LedgerEntry[] Entries)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int Ponchos { get; init; }
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int StrawBales { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public long BuildCostPennies { get; init; }
     /// <summary>The food trader's pitch fee, received at opening.</summary>
@@ -26,9 +40,10 @@ public sealed partial class GameSession
     private bool _committingPreparationPlan;
     public PreparationPlan? CapturePreparationPlan() => CapturePreparation()?.Plan;
     private static PreparationPlan EmptyPreparationPlan() => new(1, [], [], 0, 0, TraderId: FoodTraders.Default.Id);
-    private static int StockCost(int softDrinks, int beers) =>
-        checked(softDrinks * ImmersionCost(ImmersionProduct.SoftDrink) + beers * ImmersionCost(ImmersionProduct.Beer));
-    private static int PlannedStockCost(PreparationPlan plan) => StockCost(plan.SoftDrinks, plan.Beers);
+    private static int StockCost(int softDrinks, int beers, int ponchos = 0, int strawBales = 0) =>
+        checked(softDrinks * ImmersionCost(ImmersionProduct.SoftDrink) + beers * ImmersionCost(ImmersionProduct.Beer) +
+            ponchos * ImmersionCost(ImmersionProduct.Poncho) + strawBales * GroundCoverRules.BalePennies);
+    private static int PlannedStockCost(PreparationPlan plan) => StockCost(plan.SoftDrinks, plan.Beers, plan.Ponchos, plan.StrawBales);
     public long PreparationPlanCost => _preparation?.Plan is { } plan
         ? plan.OfferIds.Concat(plan.ActIds.Where(id => id != "")).Sum(id => (long)GetPreparationOffers().Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + BuildDraftCost : 0;
     /// <summary>What's left once the plan is paid for, counting the food trader's pitch fee coming in.</summary>
@@ -43,8 +58,11 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "An unpaid preparation plan is required.");
         if (command is RemovePreparationOfferCommand remove && !p.Plan.OfferIds.Contains(remove.OfferId))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "This purchase is not planned.");
-        if (command is SetPreparationStockCommand stock && (stock.SoftDrinks is < 0 or > 10000 || stock.Beers is < 0 or > 10000))
+        if (command is SetPreparationStockCommand stock && (stock.SoftDrinks is < 0 or > 10000 || stock.Beers is < 0 or > 10000 ||
+            stock.Ponchos is < 0 or > 10000 || stock.StrawBales is < 0 or > 10000))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Choose whole stock quantities from 0 to 10000.");
+        if (command is SetPreparationStockCommand rain && (rain.Ponchos > 0 || rain.StrawBales > 0) && WeatherRules.ForTier(p.Tier) != WeatherKind.Rain)
+            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Ponchos and straw are for a rainy festival.");
         return null;
     }
     private void ApplyPlanEdit(SessionCommand command)
@@ -53,7 +71,8 @@ public sealed partial class GameSession
         _preparation = p with { Plan = command switch
         {
             RemovePreparationOfferCommand remove => plan with { OfferIds = plan.OfferIds.Where(id => id != remove.OfferId).ToArray() },
-            SetPreparationStockCommand stock => plan with { SoftDrinks = stock.SoftDrinks, Beers = stock.Beers },
+            SetPreparationStockCommand stock => plan with { SoftDrinks = stock.SoftDrinks, Beers = stock.Beers,
+                Ponchos = stock.Ponchos ?? plan.Ponchos, StrawBales = stock.StrawBales ?? plan.StrawBales },
             _ => throw new InvalidOperationException("Unknown preparation edit.")
         } };
     }
@@ -76,7 +95,8 @@ public sealed partial class GameSession
             {
                 var owner = new EntityId(_preparation.FinanceOwnerId);
                 _festivalFinances[owner].CashPennies -= cost;
-                _immersion = _immersion! with { StockPurchased = true, SoftStock = plan.SoftDrinks, BeerStock = plan.Beers,
+                if (_weather is not null) SetWeather(_weather with { StrawBales = plan.StrawBales });
+                _immersion = _immersion! with { StockPurchased = true, SoftStock = plan.SoftDrinks, BeerStock = plan.Beers, PonchoStock = plan.Ponchos,
                     StockPurchase = new($"immersion-stock:{CampaignId.Value}:{_preparation.Attempt}", _preparation.Attempt, CurrentTick,
                         [new(owner, LedgerAccountType.CashAsset, -cost), new(owner, LedgerAccountType.InventoryAsset, cost)]) };
             }
@@ -91,7 +111,8 @@ public sealed partial class GameSession
                 new(financeOwner, LedgerAccountType.CashAsset, -buildCost) }).ToArray();
             if (pitchFee > 0) entries = entries.Concat(PitchFeeEntries(financeOwner, pitchFee)).ToArray();
             _preparation = p with { SetupPayments = p.SetupPayments!.Append(new($"setup:{CampaignId.Value}:{p.Attempt}", p.Attempt, CurrentTick,
-                plan.SoftDrinks, plan.Beers, PreparationPlanCost, entries) { BuildCostPennies = buildCost, PitchFeePennies = pitchFee }).ToArray() };
+                plan.SoftDrinks, plan.Beers, PreparationPlanCost, entries) { BuildCostPennies = buildCost, PitchFeePennies = pitchFee,
+                Ponchos = plan.Ponchos, StrawBales = plan.StrawBales }).ToArray() };
         }
         finally { _committingPreparationPlan = false; }
     }
@@ -105,7 +126,9 @@ public sealed partial class GameSession
             !plan.OfferIds.SequenceEqual(plan.OfferIds.Distinct().Order(StringComparer.Ordinal)) ||
             plan.ActIds.Length != 0 && plan.ActIds.Length != SavedStages(s).Count * 3 || plan.ActIds.Where(id => id != "").Distinct().Count() != plan.ActIds.Count(id => id != "") || plan.ActIds.Any(id => id != "" && (ActCatalogue.Find(id) is not { } act ||
                 !plan.Committed && ActCatalogue.StandingOf(new(p.Reputation, p.SceneCredibility), act) == ActStanding.Locked)) ||
-            plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 || FoodTraders.Find(plan.TraderId) is not { } firstTrader || firstTrader.FromTier > p.Tier ||
+            plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 || plan.Ponchos is < 0 or > 10000 || plan.StrawBales is < 0 or > 10000 ||
+            (plan.Ponchos > 0 || plan.StrawBales > 0) && WeatherRules.ForTier(p.Tier) != WeatherKind.Rain ||
+            FoodTraders.Find(plan.TraderId) is not { } firstTrader || firstTrader.FromTier > p.Tier ||
             plan.VanTraders is { } vanTraders && (vanTraders.Length == 0 || vanTraders.Any(item => item is null || !Stalls.IsVan(item.VanId) || item.VanId == Stalls.FirstVan ||
                 Stalls.Number(item.VanId) > BuildServiceLimit(BuildServiceKind.FoodVan, p.Tier) || FoodTraders.Find(item.TraderId) is not { } trader || trader.FromTier > p.Tier) ||
                 !vanTraders.Select(item => item.VanId).SequenceEqual(vanTraders.Select(item => item.VanId).Distinct().OrderBy(Stalls.Number)) ||
@@ -130,10 +153,11 @@ public sealed partial class GameSession
         foreach (var setup in p.SetupPayments)
         {
             if (setup.Id != $"setup:{s.CampaignId}:{setup.Attempt}" || setup.Attempt < 1 || setup.Attempt > p.Attempt || setup.Attempt != Array.IndexOf(p.SetupPayments, setup) + 1 ||
-                setup.Tick < 0 || setup.Tick > s.CurrentTick || setup.SoftDrinks is < 0 or > 10000 || setup.Beers is < 0 or > 10000 || setup.PitchFeePennies < 0)
+                setup.Tick < 0 || setup.Tick > s.CurrentTick || setup.SoftDrinks is < 0 or > 10000 || setup.Beers is < 0 or > 10000 || setup.PitchFeePennies < 0 ||
+                setup.Ponchos is < 0 or > 10000 || setup.StrawBales is < 0 or > 10000)
                 return "Setup payment identity, order or stock quantities invalid.";
             var owner = new EntityId(p.FinanceOwnerId);
-            var stockCost = StockCost(setup.SoftDrinks, setup.Beers);
+            var stockCost = StockCost(setup.SoftDrinks, setup.Beers, setup.Ponchos, setup.StrawBales);
             var payments = p.Payments.Where(payment => payment.Attempt == setup.Attempt).ToArray();
             var expected = payments.SelectMany(payment => new LedgerEntry[] { new(owner, payment.DebitAccount, payment.AmountPennies), new(owner, LedgerAccountType.CashAsset, -payment.AmountPennies) });
             if (stockCost > 0) expected = expected.Concat(new LedgerEntry[] { new(owner, LedgerAccountType.CashAsset, -stockCost), new(owner, LedgerAccountType.InventoryAsset, stockCost) });
@@ -142,7 +166,9 @@ public sealed partial class GameSession
                 new(owner, LedgerAccountType.CashAsset, -setup.BuildCostPennies) });
             if (setup.PitchFeePennies > 0) expected = expected.Concat(PitchFeeEntries(owner, setup.PitchFeePennies));
             if (setup.BuildCostPennies < 0 || !setup.Entries.SequenceEqual(expected) || setup.TotalPennies != payments.Sum(payment => (long)payment.AmountPennies) + stockCost + setup.BuildCostPennies || payments.Any(payment => payment.Tick != setup.Tick) ||
-                setup.Attempt == p.Attempt && (!plan.Committed || setup.PitchFeePennies != PlannedPitchFee(p) || setup.SoftDrinks != plan.SoftDrinks || setup.Beers != plan.Beers || setup.TotalPennies != plan.OfferIds.Concat(plan.ActIds).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + p.BuildPlacements.Sum(item => (long)BuildServiceFeePennies(item.Kind))))
+                setup.Attempt == p.Attempt && (!plan.Committed || setup.PitchFeePennies != PlannedPitchFee(p) || setup.SoftDrinks != plan.SoftDrinks || setup.Beers != plan.Beers ||
+                    setup.Ponchos != plan.Ponchos || setup.StrawBales != plan.StrawBales ||
+                    setup.TotalPennies != plan.OfferIds.Concat(plan.ActIds).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + BuildCostOf(p)))
                 return "Setup payment ledger or planned total does not reconcile.";
         }
         return null;

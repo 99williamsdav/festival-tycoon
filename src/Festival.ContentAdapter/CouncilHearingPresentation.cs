@@ -16,8 +16,19 @@ public static class CouncilHearingPresenter
             ProtectedPersonRole.Performer => "performer",
             _ => "person"
         };
+        // A medical death names its own cause in the record: drink, a wasp or fumes say so, rather than blaming the heat,
+        // which a rainy festival doesn't have.
         var (cause, sequence) = casualty.TransactionId switch
         {
+            var id when id.StartsWith("medical-death:", StringComparison.Ordinal) && casualty.Cause.Contains("sustained intoxication", StringComparison.Ordinal) =>
+                ("Too much to drink led to a collapse. Care did not prevent the fatal outcome.",
+                    "Heavy drinking → collapse → fatal intoxication"),
+            var id when id.StartsWith("medical-death:", StringComparison.Ordinal) && casualty.Cause.Contains("wasp sting", StringComparison.Ordinal) =>
+                ("A wasp sting brought on an allergic reaction. Care did not prevent the fatal outcome.",
+                    "Sting → allergic reaction → fatal collapse"),
+            var id when id.StartsWith("medical-death:", StringComparison.Ordinal) && casualty.Cause.Contains("poisoned by the fumes", StringComparison.Ordinal) =>
+                ("The fumes of a jammed, nearly full toilet overcame someone stuck inside. Care did not prevent the fatal outcome.",
+                    "Stuck inside → fumes → fatal collapse"),
             var id when id.StartsWith("medical-death:", StringComparison.Ordinal) =>
                 ("Heat and thirst led to a collapse. Care did not prevent the fatal outcome.",
                     "Distress → collapse → fatal heat illness"),

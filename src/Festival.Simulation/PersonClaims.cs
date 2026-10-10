@@ -39,6 +39,8 @@ public enum PersonClaim
     Cleanup = 1 << 19,
     /// <summary>A steward or maintenance worker assigned to a stuck toilet or broken tap.</summary>
     FaultWork = 1 << 20,
+    /// <summary>Walking to, or standing at, a place out of the rain.</summary>
+    Sheltering = 1 << 21,
 }
 
 public static class PersonClaims
@@ -54,7 +56,7 @@ public static class PersonClaims
         StaffJob | PersonClaim.WasteDisposal;
     /// <summary>Claims that move a listener away from their audience place.</summary>
     public const PersonClaim AwayFromAudience = PersonClaim.Shopping | PersonClaim.ToiletVisit | MedicalNavigation |
-        PersonClaim.Fighting | PersonClaim.BeingEscorted | PersonClaim.WasteDisposal | PersonClaim.Cleanup;
+        PersonClaim.Fighting | PersonClaim.BeingEscorted | PersonClaim.WasteDisposal | PersonClaim.Cleanup | PersonClaim.Sheltering;
     /// <summary>A staff response already owns this person, as worker or subject.</summary>
     public const PersonClaim ResponseAssigned = PersonClaim.InterventionWorker | PersonClaim.InterventionTarget |
         PersonClaim.MedicResponding | PersonClaim.MedicPatient | PersonClaim.StewardResponding | PersonClaim.StewardTarget;
@@ -91,6 +93,7 @@ public sealed partial class GameSession
         if (claims.HasFlag(PersonClaim.WasteDisposal) && WasteOwnsNavigation(id)) return true;
         if (claims.HasFlag(PersonClaim.Cleanup) && CleanupOwnsNavigation(id)) return true;
         if (claims.HasFlag(PersonClaim.FaultWork) && FaultWorkOwns(id)) return true;
+        if (claims.HasFlag(PersonClaim.Sheltering) && Sheltering(id)) return true;
         if (claims.HasFlag(PersonClaim.WaterPlace) && WaterPoints().Any(point => point.Queue.Contains(id))) return true;
         if ((claims & (PersonClaim.SeekingWater | PersonClaim.Resting | PersonClaim.AwaitingMedic | PersonClaim.Leaving |
                 PersonClaim.Collapsed)) != 0 && PersonIn(PersonView.Medical, id) is { } need &&

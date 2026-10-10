@@ -22,6 +22,17 @@ public sealed class CouncilHearingPresentationTests
         Assert.IsFalse(presented.Sequence.Contains("tick"));
     }
 
+    /// <summary>A drink death isn't put down to the heat: a rainy festival has none.</summary>
+    [TestMethod]
+    public void ADrinkDeathIsNotBlamedOnTheHeat()
+    {
+        var casualty = new CasualtySnapshot(1, 1, "Zoe Fenwick", ProtectedPersonRole.Guest,
+            "Zoe Fenwick died after sustained intoxication 9100/10000; visible intoxication warning tick 100, collapse tick 200", 6000, "medical-death:1:1");
+        var presented = CouncilHearingPresenter.From(casualty);
+        StringAssert.Contains(presented.Sequence, "intoxication");
+        Assert.IsFalse(presented.Cause.Contains("Heat") || presented.Sequence.Contains("heat"));
+    }
+
     [TestMethod]
     public void IdentityComesFromCasualtyAndNotConceptExample()
     {

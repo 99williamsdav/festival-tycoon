@@ -156,7 +156,7 @@ public sealed partial class GameSession
         var centre = TraversalGrid.CellCentre(spot);
         foreach (var other in others)
         {
-            if (RestNavigationIntent(other.IntentId) && other.Destination == spot &&
+            if ((RestNavigationIntent(other.IntentId) || other.IntentId == ShelterRules.Intent) && other.Destination == spot &&
                 other.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived) return true;
             // Someone else standing on it (a medic, say) holds it as surely as a rester does.
             long dx = other.XMillimetres - centre.XMillimetres, dz = other.ZMillimetres - centre.ZMillimetres;
@@ -632,20 +632,23 @@ public sealed partial class GameSession
         if (_medical is not { } m || _preparation is not { Status: PreparationStatus.Running } p) return;
         if (CurrentTick % 4 == 0)
         {
+            var rainy = IsRainyFestival;
             foreach (var item in PeopleIn(PersonView.Medical))
             {
                 // Guests outside the gate do not heat up or get thirsty yet.
                 if (item.NeedProfile == MedicalNeedProfile.Guest && !item.Admitted || GuestWaitingForRelease(item.Id)) continue;
                 if (RobotWorker(item.Id)) { MutatePerson(item.Id, person => { person.Thirst = 0; person.HeatExposure = 0; }); continue; }
-                // Guests and performers heat up at the same rate; on-duty staff far more slowly.
-                var heat = item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
+                // Guests and performers heat up at the same rate; on-duty staff far more slowly. Nobody does in the rain.
+                var heat = rainy ? 0 : item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
                 // A portaloo cubicle is a hot box in hot weather, for a normal visit and doubly so for someone stuck.
                 if (m.IsHot && item.ToiletStage == ToiletVisitStage.Using) heat += FaultRules.PortalooExtraHeat;
-                if (ExtraHeatThisTick(item.Id)) heat += 1; // Easy to overheat.
+                if (!rainy && ExtraHeatThisTick(item.Id)) heat += 1; // Easy to overheat.
                 // Out of the sun under a marquee, nobody heats up at all.
                 if (heat > 0 && InShade(item.Id)) heat = 0;
                 // A guest with their own bottle sips from it between taps, so misses one thirst step in four.
                 var thirst = BringsOwnBottle(item.Id) && CurrentTick % 16 == 0 ? 0 : 1;
+                // And thirst comes slower: two thirst steps in five are skipped.
+                if (rainy && CurrentTick / 4 % 5 < WeatherRules.RainThirstSkipOf5) thirst = 0;
                 MutatePerson(item.Id, person => { person.Thirst = Math.Min(10_000, person.Thirst + thirst); person.HeatExposure = Math.Min(10_000, person.HeatExposure + heat); });
             }
         }
@@ -797,7 +800,7 @@ public sealed partial class GameSession
             new TerrainCellOverride(new(cell.X, cell.Z), (GroundSurface)cell.Surface, cell.IsWalkable, cell.CostPermille, cell.ElevationMillimetres, cell.SlopePermille))) : null;
         if (s.Facilities?.Taps is not { } points || points.Any(point => point is null)) return "Saved facilities have no taps.";
         var extraTaps = points.Where(point => point.Id != "water.main").ToArray();
-        if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || !m.IsHot || m.Needs is null ||
+        if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || m.IsHot != (WeatherRules.ForTier(p.Tier) == WeatherKind.Heatwave) || m.Needs is null ||
             m.Evidence is null || m.Needs.Length != (s.Immersion is not null ? p.People.Length : FestivalTickets.Sold(p.Tier) + p.People.Count(item => item.Role == ProtectedPersonRole.Performer) + (s.Disorder is null ? 0 : 1) + p.AcceptedOffers.Count(id => id == "staff.extra-steward")) ||
             !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role is ProtectedPersonRole.Guest or ProtectedPersonRole.Performer ||
                 item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId)).Select(item => item.AgentId)) ||

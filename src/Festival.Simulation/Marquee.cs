@@ -101,7 +101,7 @@ public sealed partial class GameSession
 
     /// <summary>Someone resting, or on their way to rest, at one of this marquee's places.</summary>
     private bool RestingAtMarquee(NavigationAgentState agent, string marqueeId) =>
-        RestNavigationIntent(agent.IntentId) && agent.Destination is { } spot && agent.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived &&
+        (RestNavigationIntent(agent.IntentId) || agent.IntentId == ShelterRules.Intent) && agent.Destination is { } spot && agent.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived &&
         _marqueeRestSpots.TryGetValue(spot, out var owner) && owner == marqueeId;
 
     /// <summary>
@@ -124,7 +124,7 @@ public sealed partial class GameSession
         if (Marquees().FirstOrDefault(item => item.Id == marqueeId) is not { } tent || _traversalGrid is not { } grid) return null;
         var self = new EntityId(id);
         var agent = _navigationAgents[self];
-        if (RestingAtMarquee(agent, marqueeId)) return agent.Destination;
+        if (RestingAtMarquee(agent, marqueeId) && RestNavigationIntent(agent.IntentId)) return agent.Destination;
         var scratch = _restScratch is { } own && own.Self == id ? own : null;
         var others = scratch?.Others ?? _navigationAgents.Values.Where(other => other.Id != self && MovementOccupant(other.Id.Value)).ToArray();
         if (scratch is not null) scratch.Others = others;
@@ -183,7 +183,7 @@ public sealed partial class GameSession
         if (tents.Any(tent => MarqueeSolidCells(tent.Cell, tent.QuarterTurns).Any(cell => !solid.Contains(cell))))
             return "Marquee poles absent from saved traversal.";
         // Counted as the runtime cap counts: resters on their way or arrived, not collapsed and not gone home.
-        var active = (s.NavigationAgents ?? []).Where(agent => RestNavigationIntent(agent.IntentId) &&
+        var active = (s.NavigationAgents ?? []).Where(agent => (RestNavigationIntent(agent.IntentId) || agent.IntentId == ShelterRules.Intent) &&
             agent.Action is (int)AgentNavigationAction.Travelling or (int)AgentNavigationAction.Arrived &&
             s.Medical?.Needs.FirstOrDefault(need => need.AgentId == agent.Id)?.Stage is not (MedicalStage.Collapsed or MedicalStage.Critical or MedicalStage.Terminal) &&
             p.People.FirstOrDefault(person => person.AgentId == agent.Id)?.Departed != true).ToArray();

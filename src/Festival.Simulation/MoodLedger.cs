@@ -2,7 +2,7 @@ namespace Festival.Simulation;
 
 /// <summary>What moves a guest's satisfaction, as the crowd-mood breakdown names it.</summary>
 public enum MoodCause { Music, MusicCutOff, FoodAndDrink, FriendlyQueues, FreeWaterPerk, StaffNearby, MudAndPuddles, LitterAndWasps, ToiletSmell, BrokenTap, StuckInToilet,
-    Heat, Thirst, LongQueues }
+    Heat, Thirst, LongQueues, Rain }
 
 /// <summary>A cause's share of the crowd's recent mood change, in hundredths of a satisfaction percent per guest.</summary>
 public sealed record MoodChange(MoodCause Cause, long Change);
@@ -20,6 +20,9 @@ public sealed partial class GameSession
     private readonly long[] _moodBucketMinute = Enumerable.Repeat(-1L, MoodWindowMinutes).ToArray();
     /// <summary>Everything recorded since this session began, for checking that no change slips past the ledger.</summary>
     public long MoodRecordedTotal { get; private set; }
+    private readonly long[] _moodTotals = new long[Enum.GetValues<MoodCause>().Length];
+    /// <summary>Everything recorded for one cause since this session began, in satisfaction points summed over guests.</summary>
+    public long MoodTotal(MoodCause cause) => _moodTotals[(int)cause];
 
     /// <summary>Thirst (of 10,000) from which a guest feels it in their mood: 1 point a festival minute, rising to 5 near the top.</summary>
     public const int MoodThirstFrom = 6_000, MoodThirstStep = 1_000;
@@ -66,6 +69,7 @@ public sealed partial class GameSession
         }
         _moodBuckets[slot, (int)cause] += applied;
         MoodRecordedTotal += applied;
+        _moodTotals[(int)cause] += applied;
     }
 
     /// <summary>The causes behind the crowd's mood over the last <see cref="MoodWindowMinutes"/> festival minutes, biggest first.</summary>
