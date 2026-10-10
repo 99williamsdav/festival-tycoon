@@ -335,7 +335,7 @@ public sealed partial class GameSession
             {
                 stageState = LiveSetStage.Interrupted;
                 interrupted = CurrentTick;
-                reaction = (stage == 0 ? _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal : !StagePoweredAt(stage)) ? "silence" : "performer-unavailable";
+                reaction = (stage == 0 ? _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal || _equipment?.StageCut == true : !StagePoweredAt(stage)) ? "silence" : "performer-unavailable";
                 // The power's gone however it went (a cut cable reads as a performer away above); else someone left their mark.
                 if (!StagePoweredAt(stage)) powerCuts++; else stoppages++;
                 sequence++;

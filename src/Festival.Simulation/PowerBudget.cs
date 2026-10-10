@@ -54,7 +54,10 @@ public sealed partial class GameSession
     public bool PowerBudgetActive => _equipment?.Version == 3;
 
     /// <summary>What's drawing power now; before opening, the evening's planned peak with every stall and the lights on.</summary>
-    public PowerDraw CapturePower()
+    public PowerDraw CapturePower() => CapturePower(CurrentTick);
+
+    /// <summary>The draw as it stands at <paramref name="tick"/>: the predictors ask about the next tick, when the lights may come on.</summary>
+    private PowerDraw CapturePower(long tick)
     {
         var e = _equipment;
         var live = _preparation?.Status is PreparationStatus.Running or PreparationStatus.Departing or PreparationStatus.Failed or PreparationStatus.Finished;
@@ -63,29 +66,36 @@ public sealed partial class GameSession
             !live || _livePerformances[0]?.Stage == LiveSetStage.Live ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
         // Every bar and every van draws its own share; each switch covers all of its kind.
         int Stalls(Func<string, bool> kind, bool powered) => _immersion is null || live && !powered ? 0 : Vendors.Count(v => kind(v.Id)) * PowerRules.StallDraw;
-        var lightsOn = !live || _preparation!.StartedTick >= 0 && CurrentTick >= _preparation.StartedTick + PowerRules.LightsOnTickFor(PreparedEditionDurationTicks);
+        var lightsOn = !live || _preparation!.StartedTick >= 0 && tick >= _preparation.StartedTick + PowerRules.LightsOnTickFor(PreparedEditionDurationTicks);
         var draw = new PowerDraw(stage, Stalls(Festival.Simulation.Stalls.IsBar, e?.BarPowered ?? true), Stalls(Festival.Simulation.Stalls.IsVan, e?.FoodPowered ?? true),
             lightsOn && (!live || (e?.LightsPowered ?? true)) ? PowerRules.LightsDraw : 0, GeneratorCapacity);
         if (!PowerPooled) return draw;
-        // One supply: every stage's rig draws from it, and it holds every generator not cut off.
-        return draw with { OtherStages = Enumerable.Range(1, Stages.Count - 1).Sum(StageRigDraw),
-            Capacity = (FarmGeneratorInPool ? GeneratorCapacity : 0) + _stageGenerators!.Where(StageGeneratorInPool).Sum(g => g.Capacity) };
+        // One supply: every stage's rig draws from it, and it holds every generator still running.
+        return draw with { OtherStages = Enumerable.Range(1, Stages.Count - 1).Sum(StageRigDraw), Capacity = PooledCapacity };
     }
+
+    /// <summary>Every generator still running: cutting a stage takes off only its rig, never its generator's capacity.</summary>
+    private int PooledCapacity => (FarmGeneratorInPool ? GeneratorCapacity : 0) + _stageGenerators!.Where(StageGeneratorInPool).Sum(g => g.Capacity);
 
     /// <summary>
     /// With the Pond Stage open, its generator and the farm diesel share one supply: everything draws from the pool, and
     /// strain, the warning and the fault follow the pool's overage. A single stage keeps the farm diesel alone.
     /// </summary>
     public bool PowerPooled => PowerBudgetActive && _stageGenerators is { Length: > 0 };
-    /// <summary>A generator cut off (or the farm's failed) leaves the pool; what's left shares the rest.</summary>
-    private bool FarmGeneratorInPool => _equipment!.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal);
-    private static bool StageGeneratorInPool(StageGeneratorSnapshot generator) => generator.Stage != EquipmentStage.Isolated;
+    /// <summary>
+    /// Only a generator that has failed leaves the pool, and what's left shares the rest. Cutting a stage's power takes
+    /// its rig off the supply; its generator keeps running for everything else.
+    /// </summary>
+    private bool FarmGeneratorInPool => _equipment!.Stage != EquipmentStage.Terminal;
+    private static bool StageGeneratorInPool(StageGeneratorSnapshot generator) => generator.Stage != EquipmentStage.Terminal;
     /// <summary>The overage that strains a generator: the pool's while it's in it, none once it's out (it eases).</summary>
     private static int Overage(PowerDraw draw, bool inPool) => inPool ? draw.Total - draw.Capacity : -1;
 
     /// <summary>Whether a stall has power to serve: the bars or the food vans may be switched off to spare the generator.</summary>
     public bool StallPowered(string vendorId) => (!PowerBudgetActive || (Festival.Simulation.Stalls.IsBar(vendorId) ? _equipment!.BarPowered : _equipment!.FoodPowered)) &&
-        !CableCut(vendorId) && !CableCut("generator");
+        !CableCut(vendorId) && !CableCut("generator") &&
+        // With every generator in the pool gone, nothing has power.
+        !(PowerPooled && PooledCapacity == 0);
 
     /// <summary>One tick of the power budget: strain builds over capacity and eases under it, and drives the warning.</summary>
     private void AdvancePowerBudget(EquipmentSnapshot e)
@@ -101,7 +111,9 @@ public sealed partial class GameSession
             case EquipmentStage.Normal or EquipmentStage.Resolved when strain >= PowerRules.StrainWarning:
                 _equipment = e with { Stage = EquipmentStage.Warning, WarningTick = CurrentTick, WarningAcknowledged = false, Condition = Math.Min(e.Condition, 7_000),
                     Response = "No response" };
-                EquipmentEvent($"equipment:warning:{CurrentTick}", $"GENERATOR OVERLOAD: drawing {draw.Total} of {draw.Capacity}. Switch off the bar, food van or lights, cut the stage, or bring the load back under capacity before it faults.");
+                EquipmentEvent($"equipment:warning:{CurrentTick}", PowerPooled
+                    ? $"GENERATOR OVERLOAD: the pooled supply is drawing {draw.Total} of {draw.Capacity}. Switch off the bars, food vans or lights, or cut a stage's rig, before it faults."
+                    : $"GENERATOR OVERLOAD: drawing {draw.Total} of {draw.Capacity}. Switch off the bar, food van or lights, cut the stage, or bring the load back under capacity before it faults.");
                 break;
             case EquipmentStage.Warning or EquipmentStage.DangerousFault when strain == 0:
                 _equipment = e with { Stage = EquipmentStage.Resolved, Response = "Load back within capacity; the generator settled" };
@@ -109,7 +121,9 @@ public sealed partial class GameSession
                 break;
             case EquipmentStage.Warning when CurrentTick >= e.WarningTick + EquipmentDangerDelayTicks:
                 _equipment = e with { Stage = EquipmentStage.DangerousFault, Condition = 3_000 };
-                EquipmentEvent($"equipment:fault:{CurrentTick}", $"Dangerous generator fault: still drawing {draw.Total} of {draw.Capacity}. Shed load or cut the stage.");
+                EquipmentEvent($"equipment:fault:{CurrentTick}", PowerPooled
+                    ? $"Dangerous generator fault: the pooled supply is still drawing {draw.Total} of {draw.Capacity}. Switch off stalls or lights, or cut a stage's rig."
+                    : $"Dangerous generator fault: still drawing {draw.Total} of {draw.Capacity}. Shed load or cut the stage.");
                 break;
             case EquipmentStage.DangerousFault when CurrentTick >= e.WarningTick + EquipmentDeathDelayTicks && NearbyEquipmentPerson() is { } victim:
                 EquipmentDeath(e, victim);
@@ -120,7 +134,7 @@ public sealed partial class GameSession
     /// <summary>Whether next tick's strain crosses into the warning or eases to nothing, as AdvancePowerBudget will find.</summary>
     private bool PowerTransitionOnNextTick(EquipmentSnapshot e)
     {
-        var draw = CapturePower();
+        var draw = CapturePower(CurrentTick + 1);
         var over = Overage(draw, !PowerPooled || FarmGeneratorInPool);
         var next = over > 0 ? Math.Min(PowerRules.StrainMaximum, e.Strain + over) : Math.Max(0, e.Strain - PowerRules.StrainRecoveryPerTick);
         return e.Stage is EquipmentStage.Normal or EquipmentStage.Resolved && next >= PowerRules.StrainWarning ||
