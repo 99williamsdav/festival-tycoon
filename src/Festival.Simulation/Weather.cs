@@ -50,7 +50,7 @@ public static class WeatherRules
     /// <summary>Wetness from which a guest looks soaked.</summary>
     public const int SoakedFrom = 4_000;
     /// <summary>Satisfaction a guest loses each second out in the rain, before prissiness.</summary>
-    public static int RainLossPerSecond(RainIntensity rain) => rain switch { RainIntensity.Heavy => 1, RainIntensity.Downpour => 2, _ => 0 };
+    public static int RainLossPerSecond(RainIntensity rain) => rain switch { RainIntensity.Heavy => 2, RainIntensity.Downpour => 5, _ => 0 };
     /// <summary>And for being wet through, in or out of it: up to 2 more a second.</summary>
     public const int WetLossStep = 5_000;
     public static int WetLossPerSecond(int wetness) => wetness / WetLossStep;
@@ -61,8 +61,16 @@ public static class WeatherRules
     public const int RainThirstSkipOf5 = 2;
 
     /// <summary>The chooser's discomfort per second for being this wet, and for standing out in it.</summary>
-    public static long WetDiscomfort(int wetness) => wetness * 3L / 10;
-    public static long ExposedDiscomfort(RainIntensity rain) => rain switch { RainIntensity.Heavy => 800, RainIntensity.Downpour => 1_600, _ => 0 };
+    /// <remarks>
+    /// Set against the music a guest wants (2,000 a second with nothing on, about 3,000–5,600 for an act they're lukewarm
+    /// about, 5,200–6,800 for a fan's) and the music lost walking to cover and back: the lukewarm leave a heavy shower for
+    /// cover once it's set in, and nearly everyone leaves a downpour, except fans, who feel a quarter of it
+    /// (<see cref="FanKeenness"/>). Being wet hurts more the wetter they are. A poncho wearer never feels it.
+    /// </remarks>
+    public static long WetDiscomfort(int wetness) => (long)wetness * wetness / 40_000;
+    public static long ExposedDiscomfort(RainIntensity rain) => rain switch { RainIntensity.Heavy => 6_000, RainIntensity.Downpour => 14_000, _ => 0 };
+    /// <summary>Keenness on an act on now (0–100) from which a guest is a fan and puts up with the rain.</summary>
+    public const int FanKeenness = 80;
 
     /// <summary>A poncho: sold at the bars, worn all day. Priced like a pint, cheap to stock.</summary>
     public const int PonchoPricePennies = 300, PonchoCostPennies = 50;

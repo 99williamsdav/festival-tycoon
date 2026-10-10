@@ -338,6 +338,40 @@ public sealed class RainTests
         }
     }
 
+    /// <summary>
+    /// The user's rule: a poncho wearer never leaves a set for cover, a fan of the act on stays and suffers, the lukewarm go,
+    /// and everyone's back out once the shower passes.
+    /// </summary>
+    [TestMethod]
+    public void TheLukewarmShelterWhileFansAndPonchoWearersStay()
+    {
+        var s = Prepared(RainProbe.Counters.Marquee);
+        BuildSession.Accept(s, new SetPreparationStockCommand(40, 32) { Ponchos = 12 });
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        int sheltering = 0, fans = 0;
+        foreach (var spell in s.CaptureWeather()!.Spells.Take(3))
+        {
+            RunTo(s, spell.StartTick);
+            while (s.CurrentTick - Opened(s) < spell.EndTick && s.PreparedStatus == PreparationStatus.Running)
+            {
+                s.AdvanceWithoutSnapshot(80);
+                var acts = s.Stages.Where(stage => s.CaptureLivePerformance(stage.Id)?.Stage == LiveSetStage.Live && s.CaptureProgramme(stage.Id) is { CurrentSlot: >= 0 })
+                    .Select(stage => s.CaptureProgramme(stage.Id)!).Select(q => ActCatalogue.Find(q.ActIds[q.CurrentSlot])!).ToArray();
+                foreach (var agent in s.CaptureObservation().NavigationAgents.Where(agent => agent.IntentId == ShelterRules.Intent))
+                {
+                    Assert.IsFalse(s.OwnsPoncho(agent.Id.Value), "A poncho wearer never shelters.");
+                    sheltering++;
+                    if (acts.Any(act => s.FestivalAffinity(agent.Id.Value, act) >= WeatherRules.FanKeenness)) fans++;
+                }
+            }
+            // Half a minute after it stops, they've gone back to the music.
+            RunTo(s, spell.EndTick + 2_400);
+            Assert.AreEqual(0, s.CaptureObservation().NavigationAgents.Count(agent => agent.IntentId == ShelterRules.Intent), "Back out once the shower's passed.");
+        }
+        Assert.IsTrue(sheltering > 100, $"The lukewarm take cover: {sheltering} guest-seconds.");
+        Assert.IsTrue(fans * 20 <= sheltering, $"Fans stay at their set: {fans} of {sheltering} sheltering guest-seconds.");
+    }
+
     [TestMethod]
     public void AMidShowerSaveRoundTrips()
     {

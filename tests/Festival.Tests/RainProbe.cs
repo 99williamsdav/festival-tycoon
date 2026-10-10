@@ -19,9 +19,14 @@ public sealed class RainProbe
     public void ProbeRainyTierTwoDays()
     {
         var report = new StringBuilder();
-        report.AppendLine("counters,seed,downpour,status,death,stars,mood%,rainMood/guest,mudMood/guest,musicMood/guest,peakMud,closeMud,ponchos,sheltered,shelterSecs,peakMarquee,openCash,closeCash");
+        report.AppendLine("counters,seed,downpour,status,death,stars,mood%,rainMood/guest,mudMood/guest,musicMood/guest,peakMud,closeMud,ponchos,sheltered,shelterSecs,peakMarquee," +
+            "crowdDry,crowdHeavy,crowdDownpour,marqueeHeavy,marqueeDownpour,fans%sheltering,fans%listening,lingering,openCash,closeCash");
+        // The first seed after the usual three whose day has a downpour.
+        var day = GameSession.DayTicksFor(FestivalStages.For(true));
+        var downpourSeed = Enumerable.Range(0, 200).Select(i => 20260925UL + (ulong)i)
+            .First(seed => GameSession.RainForecast(seed, 2, day).Any(spell => spell.Intensity == RainIntensity.Downpour));
         foreach (var counters in Enum.GetValues<Counters>())
-        foreach (var seed in new ulong[] { 20260922, 20260923, 20260924 })
+        foreach (var seed in new ulong[] { 20260922, 20260923, 20260924, downpourSeed })
             report.AppendLine(Day(seed, counters));
         if (Environment.GetEnvironmentVariable("PROBE_OUT") is { Length: > 0 } path) File.WriteAllText(path, report.ToString());
         TestContext.WriteLine(report.ToString());
@@ -65,6 +70,11 @@ public sealed class RainProbe
         var shelterSeconds = 0; var peakMarquee = 0;
         var start = s.CurrentTick;
         var spread = false;
+        // Set crowds (listeners at their places on live sets) and the marquee, by the weather; fans among shelterers and listeners.
+        var crowd = new Dictionary<RainIntensity, (long Sum, int Samples)>();
+        var tent = new Dictionary<RainIntensity, (long Sum, int Samples)>();
+        long fanShelter = 0, shelterCount = 0, fanListen = 0, listenCount = 0;
+        var lingering = 0;
         while (s.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing && s.CurrentTick - start < 80_000)
         {
             s.AdvanceWithoutSnapshot(400);
@@ -72,7 +82,31 @@ public sealed class RainProbe
             var shelterers = s.CaptureObservation().NavigationAgents.Where(agent => agent.IntentId == ShelterRules.Intent).ToArray();
             foreach (var agent in shelterers) sheltered.Add(agent.Id.Value);
             shelterSeconds += shelterers.Length * 5;
-            peakMarquee = Math.Max(peakMarquee, s.CaptureShelterSpots().Select(spot => spot.CoverId).Where(id => id.StartsWith("marquee", StringComparison.Ordinal)).Distinct().Sum(s.ShelteringAt));
+            var inTent = s.CaptureShelterSpots().Select(spot => spot.CoverId).Where(id => id.StartsWith("marquee", StringComparison.Ordinal)).Distinct().Sum(s.ShelteringAt);
+            peakMarquee = Math.Max(peakMarquee, inTent);
+            if (s.PreparedStatus == PreparationStatus.Running)
+            {
+                var rain = s.RainNow;
+                var dayTick = s.CurrentTick - s.CapturePreparation()!.StartedTick;
+                var live = s.Stages.Select(stage => (Live: s.CaptureLivePerformance(stage.Id), Programme: s.CaptureProgramme(stage.Id)))
+                    .Where(item => item.Live?.Stage == LiveSetStage.Live && item.Programme is { CurrentSlot: >= 0 }).ToArray();
+                var acts = live.Select(item => ActCatalogue.Find(item.Programme!.ActIds[item.Programme.CurrentSlot])!).ToArray();
+                bool Fan(ulong id) => acts.Any(act => s.FestivalAffinity(id, act) >= 80);
+                if (live.Length > 0)
+                {
+                    var listening = live.SelectMany(item => item.Live!.Listeners.Where(l => l.AtPlace).Select(l => l.AgentId)).ToArray();
+                    var (sum, samples) = crowd.GetValueOrDefault(rain); crowd[rain] = (sum + listening.Length, samples + 1);
+                    if (rain != RainIntensity.Dry)
+                    {
+                        fanListen += listening.Count(Fan); listenCount += listening.Length;
+                        fanShelter += shelterers.Count(agent => Fan(agent.Id.Value)); shelterCount += shelterers.Length;
+                    }
+                }
+                var (tentSum, tentSamples) = tent.GetValueOrDefault(rain); tent[rain] = (tentSum + inTent, tentSamples + 1);
+                // Still sheltering half a minute after a shower has passed: they should be back at the stage.
+                if (rain == RainIntensity.Dry && s.CaptureWeather()!.Spells.Any(spell => dayTick - spell.EndTick is >= 2_400 and < 2_800))
+                    lingering = Math.Max(lingering, shelterers.Length);
+            }
             // An attentive player sends a steward out with a bale to the worst of the mud, once it's bad.
             if (counters == Counters.MarqueeStrawPonchos && s.PreparedStatus == PreparationStatus.Running && s.CaptureWeather()!.StrawBales > 0 && s.CaptureWeather()!.StrawJob is null)
             {
@@ -91,6 +125,9 @@ public sealed class RainProbe
         return string.Join(",", counters + (spread ? "+spread" : ""), seed, downpour ? "C" : "B", p.Status, death, p.Result?.Stars?.ToString() ?? "-", $"{mood:0.0}",
             s.MoodTotal(MoodCause.Rain) / guests, s.MoodTotal(MoodCause.MudAndPuddles) / guests, s.MoodTotal(MoodCause.Music) / guests, peakMud, MudCells(s), ponchos,
             sheltered.Count, shelterSeconds, peakMarquee,
+            Average(crowd, RainIntensity.Dry), Average(crowd, RainIntensity.Heavy), Average(crowd, RainIntensity.Downpour),
+            Average(tent, RainIntensity.Heavy), Average(tent, RainIntensity.Downpour),
+            shelterCount == 0 ? "-" : $"{100 * fanShelter / shelterCount}", listenCount == 0 ? "-" : $"{100 * fanListen / listenCount}", lingering,
             opening, s.CaptureSnapshot().FestivalFinances.Single().CashPennies);
     }
 
@@ -123,6 +160,9 @@ public sealed class RainProbe
         if (Environment.GetEnvironmentVariable("PROBE_OUT") is { Length: > 0 } path) File.WriteAllText(path, map.ToString());
         TestContext.WriteLine(map.ToString());
     }
+
+    private static string Average(Dictionary<RainIntensity, (long Sum, int Samples)> values, RainIntensity rain) =>
+        values.TryGetValue(rain, out var value) && value.Samples > 0 ? $"{(double)value.Sum / value.Samples:0.0}" : "-";
 
     internal static int MudCells(GameSession s)
     {

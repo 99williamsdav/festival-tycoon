@@ -35,9 +35,11 @@ public sealed record ActivityScore(ActivityOption Option, long Score);
 
 /// <summary>
 /// The rain as one person's plan sees it: how fast they soak out in it and dry out of it, what standing in it costs
-/// each second, and how long until this shower stops. <see cref="Poncho"/>: they already wear one.
+/// each second, and how long until this shower stops. <see cref="Poncho"/>: they already wear one. <see cref="FeltPercent"/>
+/// is how much of the misery they let count: a fan of the act on stage puts up with most of it.
 /// </summary>
-public readonly record struct RainOutlook(int SoakPerSecond, int DryCoveredPerSecond, int DryOpenPerSecond, long ExposedPerSecond, int RainTicks, bool Poncho);
+public readonly record struct RainOutlook(int SoakPerSecond, int DryCoveredPerSecond, int DryOpenPerSecond, long ExposedPerSecond, int RainTicks, bool Poncho,
+    int FeltPercent = 100);
 
 /// <summary>
 /// Scores single-stop activity plans over a fixed look-ahead. Each second of the horizon earns the
@@ -131,7 +133,7 @@ public static class ActivityChooser
                 var covered = r.Poncho || option.Kind is ActivityKind.Shelter or ActivityKind.Poncho && tick >= option.CompleteTicks;
                 var exposed = tick <= r.RainTicks && !covered;
                 wet = exposed ? Math.Min(10_000, wet + r.SoakPerSecond) : Math.Max(0, wet - (tick <= r.RainTicks ? r.DryCoveredPerSecond : r.DryOpenPerSecond));
-                rainy = WeatherRules.WetDiscomfort(wet) + (exposed ? r.ExposedPerSecond : 0);
+                rainy = (WeatherRules.WetDiscomfort(wet) + (exposed ? r.ExposedPerSecond : 0)) * r.FeltPercent / 100;
                 score -= rainy;
             }
             if (sample == Samples - 1)
