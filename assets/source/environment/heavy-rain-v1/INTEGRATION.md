@@ -71,6 +71,77 @@ c = mix(c, vec3(0.86, 0.90, 0.93), ring * puddle * 0.6);
 This is the "rings on the puddles" in `rain-B-puddles-zoom7.png`. The board also notes that the current puddle band
 looks frozen in the rain without them.
 
+## 3b. Puddle tint by ground state (addendum, 10 October 2026)
+
+Puddles on untouched grass keep the cool sky reflection. Where people walk they go brown, getting murkier as the ground
+churns from trampled to mud to swamp, which ties them to the mud around them. This is shader values only. It drops into
+`Main.Ground.cs`'s ground shader using the names already there: `w` (wear), `mud`, `sludge`, `pooled`, `ring`.
+
+**One value, `dirt` (0 to 1), from the ground the pool sits on:**
+
+```glsl
+float trod  = smoothstep(0.10, 0.75, w);              // flattened grass .. bare earth
+float churn = smoothstep(0.15, 0.36, mud);            // first mud .. churned
+float dirt  = max(max(trod * 0.35, churn * 0.65), sludge);   // grass 0, trampled 0.35, mud 0.65, swamp 1.0
+```
+
+**Gradient** (sRGB, through `lin()` as the shader already does):
+
+| dirt | Ground | Pool colour | Hex | Roughness | Specular |
+|---:|---|---|---|---:|---:|
+| 0.00 | Untouched grass | `vec3(0.42, 0.50, 0.54)`: cool grey-blue sky (today's pool colour) | `6b808a` | 0.08 | 0.70 |
+| 0.35 | Trampled (crowd, bar walk, track ruts) | `vec3(0.47, 0.45, 0.39)`: silty grey-brown | `787363` | 0.10 | 0.65 |
+| 0.65 | Mud | `vec3(0.45, 0.37, 0.27)`: murky brown | `735e45` | 0.14 | 0.60 |
+| 1.00 | Swamp | `vec3(0.40, 0.31, 0.21)`: darkest, nearly opaque sludge | `664f36` | 0.18 | 0.55 |
+
+**Replace** the existing `vec3 pool = mix(...)` line with:
+
+```glsl
+vec3 sky = lin(vec3(0.42, 0.50, 0.54)), silt = lin(vec3(0.47, 0.45, 0.39)), murk = lin(vec3(0.45, 0.37, 0.27)), bog = lin(vec3(0.40, 0.31, 0.21));
+vec3 pool = dirt < 0.35 ? mix(sky, silt, dirt / 0.35) : dirt < 0.65 ? mix(silt, murk, (dirt - 0.35) / 0.30) : mix(murk, bog, (dirt - 0.65) / 0.35);
+pool *= mix(1.0, 0.85 + 0.3 * texture(noise, p * 0.3).r, smoothstep(0.2, 0.6, dirt));   // silt swirls, only in brown water
+c = mix(c, pool, pooled);
+float rough = mix(0.97, mix(0.55, mix(0.08, 0.18, dirt), pooled), max(pooled, churned * 0.6));
+float spec  = mix(0.5, mix(0.70, 0.55, dirt), pooled);
+```
+
+The old sludge-only blend is covered by the last stop: swamp pools still end up as sludge brown, just darker, so they
+read murkier.
+
+**Keep brown pools reading as water:** they stay glossy (roughness 0.08 to 0.18, so they still catch the sky), and they
+get a darker wet rim where pool meets ground. Without the rim, a mud-coloured pool melts into the mud around it. Add
+this just before the pool mix:
+
+```glsl
+float rim = smoothstep(0.34, 0.42, water) * (1.0 - pooled);        // the band just outside the pool's edge
+c = mix(c, c * vec3(0.62, 0.58, 0.55), rim * smoothstep(0.2, 0.6, dirt));   // only round brown pools; clean grass puddles stay rimless
+```
+
+**Ripples:** rings on brown water take a little of the water's colour and are slightly fainter, so they don't look
+like blue-white circles on mud:
+
+```glsl
+vec3 ringc = mix(vec3(0.86, 0.90, 0.93), min(pool * 1.7, vec3(1.0)), dirt * 0.7);
+c = mix(c, ringc, ring * pooled * mix(0.6, 0.45, dirt));
+```
+
+**Sheen** (§4):
+- `wetness` darkens and glosses the ground before the puddle mix. Pools then replace the colour, so a pool is never
+  darkened twice.
+- For roughness, let the pool win where it pools: `ROUGHNESS = mix(sheen_roughness, rough, pooled)`. A brown pool
+  stays far shinier (0.10–0.18) than wet mud (about 0.55 with sheen), and only a little duller than a clean sky puddle (0.08).
+
+**Straw** (`rain-ground-v1`) is drawn after this in the shader, so straw laid in a puddle sits on top of the brown
+water, as it would.
+
+**Verification** (`verification/`, `render_puddle_tint.sh`, scene scripts in `verification/tools/`):
+
+| Render | Shows |
+|---|---|
+| `puddle-tint-stage-zoom9.png` (+ `-with-rain`) | In front of the stage: brown pools in the crowd's mud beside clean grey-blue puddles on the untouched grass just off it |
+| `puddle-tint-stage-zoom9-before.png` | The same view with today's single puddle colour, for comparison |
+| `puddle-tint-zoom24.png` (+ `-with-rain`) | Gameplay zoom: blue grass puddles, silty puddles in the track ruts, brown pools at the stage, bar and van queues |
+
 ## 4. Wet sheen (`wetness`)
 
 **Ground shader:** add `uniform float wetness;`, then darken and gloss:
