@@ -68,4 +68,68 @@ public sealed class EmptyBinTests
         }
         Assert.IsTrue(emptied, "A steward came and emptied it without being asked.");
     }
+
+    [TestMethod]
+    public void EmptyNowWaitsForTheFirstStewardToComeFreeAndSurvivesASave()
+    {
+        var s = BuildSession.WithoutBins(BuildSession.Ready(20261007));
+        BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(110, 140)));
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        BuildSession.WithoutFaults(s);
+        while (s.CaptureBins().Single().Pieces == 0 && s.CurrentTick < 40_000) s.AdvanceWithoutSnapshot(80);
+        var bin = s.CaptureBins().Single();
+        // Every steward out on a sweep: nobody is free to go now.
+        foreach (var steward in s.GetStewardResponses()) BuildSession.Accept(s, new CleanUpCommand(steward.WorkerId));
+        Assert.IsNull(s.BinEmptier(bin.Id, out var why), "All busy.");
+        Assert.IsTrue(s.BinEmptyQueueable(bin.Id, out _), why);
+        BuildSession.Accept(s, new EmptyBinCommand(bin.Id));
+        Assert.IsTrue(s.BinEmptyRequested(bin.Id), "The order waits.");
+        Assert.IsFalse(BuildSession.Send(s, new EmptyBinCommand(bin.Id)).IsAccepted, "Already waiting.");
+
+        // The waiting order survives a save, and the restored game carries on with it.
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        Assert.IsTrue(restored.Session!.BinEmptyRequested(bin.Id), "Still waiting after a load.");
+        Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, restored.Session.CaptureSnapshot().AuthoritativeHash);
+
+        // It can be cancelled, and asked for again.
+        BuildSession.Accept(s, new EmptyBinCommand(bin.Id, Cancel: true));
+        Assert.IsFalse(s.BinEmptyRequested(bin.Id), "Cancelled.");
+        Assert.IsFalse(BuildSession.Send(s, new EmptyBinCommand(bin.Id, Cancel: true)).IsAccepted, "Nothing left to cancel.");
+        s = restored.Session;
+
+        // The first steward to come free takes it, ahead of any routine sweep, and empties it.
+        var taken = false;
+        for (var guard = 0; guard < 12_000 && !taken; guard++)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            taken = s.CaptureLitter()!.Sweeps.Any(j => j.Remaining > 0 && j.Ordered && j.TargetId == bin.Id);
+        }
+        Assert.IsTrue(taken, "A steward took the waiting order once free.");
+        Assert.IsFalse(s.BinEmptyRequested(bin.Id), "No longer waiting once taken.");
+        var emptied = false;
+        for (var guard = 0; guard < 6_000 && !emptied; guard++)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            emptied = s.CaptureBins().Single().Pieces == 0;
+        }
+        Assert.IsTrue(emptied, "Emptied.");
+    }
+    [TestMethod]
+    public void AWaitingOrderIsServedTheSameWayOnReplay()
+    {
+        string Run()
+        {
+            var s = BuildSession.WithoutBins(BuildSession.Ready(20261007));
+            BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(110, 140)));
+            BuildSession.Accept(s, new StartPreparedEditionCommand());
+            BuildSession.WithoutFaults(s);
+            while (s.CaptureBins().Single().Pieces == 0 && s.CurrentTick < 40_000) s.AdvanceWithoutSnapshot(80);
+            foreach (var steward in s.GetStewardResponses()) BuildSession.Accept(s, new CleanUpCommand(steward.WorkerId));
+            BuildSession.Accept(s, new EmptyBinCommand("bin.1"));
+            s.AdvanceWithoutSnapshot(2_400);
+            return s.CaptureSnapshot().AuthoritativeHash;
+        }
+        Assert.AreEqual(Run(), Run());
+    }
 }

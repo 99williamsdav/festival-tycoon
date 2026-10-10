@@ -21,9 +21,17 @@ public sealed record CleanupSweep(ulong WorkerId, GridCell Centre, int RadiusCel
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool Ordered { get; init; }
 }
-/// <summary>Sends the nearest free steward to empty a bin now, rather than waiting for it to reach 90%.</summary>
-public sealed record EmptyBinCommand(string BinId) : SessionCommand;
-public sealed record LitterSnapshot(int Version, WastePiece[] Pieces, CleanupSweep[] Sweeps);
+/// <summary>
+/// Sends the nearest free steward to empty a bin now, rather than waiting for it to reach 90%. With every steward
+/// busy, the order waits for the first one to come free; <paramref name="Cancel"/> withdraws a waiting order.
+/// </summary>
+public sealed record EmptyBinCommand(string BinId, bool Cancel = false) : SessionCommand;
+public sealed record LitterSnapshot(int Version, WastePiece[] Pieces, CleanupSweep[] Sweeps)
+{
+    /// <summary>Bins the player has asked to be emptied while no steward was free, oldest first. Null when there are none.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public string[]? EmptyRequests { get; init; }
+}
 internal readonly record struct PersistedImmersionPurchaseLookup(ulong AgentId, ImmersionProduct Product, long Tick);
 public sealed record CleanUpCommand(ulong WorkerId) : SessionCommand;
 public sealed record BinReadModel(string Id, GridCell Cell, int QuarterTurns, int Pieces)
@@ -206,17 +214,69 @@ public sealed partial class GameSession
             if (StaffUnavailableReason(id) is not null || CleanupOwnsNavigation(id) || WasteOwnsNavigation(id) || LitterUrgent(id)) continue;
             if (ReachableBinSide(id, bin.Cell) is { } side) return (id, side);
         }
-        reason = "No steward is free to go.";
+        reason = NoStewardFree;
         return null;
     }
 
     private const int OrderedDurationTicks = LitterRules.ManualDurationTicks * 2;
 
-    private CommandResult? ValidateEmptyBin(EntityId? target, EmptyBinCommand command) =>
-        target is not null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Empty a bin by its id.") :
-        BinEmptier(command.BinId, out var reason) is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, reason!) : null;
+    /// <summary>Whether this bin is waiting for a steward to come free and empty it.</summary>
+    public bool BinEmptyRequested(string binId) => _litter?.EmptyRequests?.Contains(binId, StringComparer.Ordinal) == true;
 
-    private void ApplyEmptyBin(EmptyBinCommand command) => SendToEmptyBin(command.BinId, BinEmptier(command.BinId, out _)!.Value, "Steward sent to empty a bin");
+    /// <summary>
+    /// Whether "Empty now" would wait for a steward rather than send one: every steward is busy, but there are some and
+    /// the bin has something in it. Null reason when it can be queued.
+    /// </summary>
+    public bool BinEmptyQueueable(string binId, out string? reason)
+    {
+        if (BinEmptier(binId, out reason) is not null) { reason = null; return false; }
+        if (reason != NoStewardFree) return false;
+        if (GetStewardResponses().Count == 0) { reason = "No stewards hired."; return false; }
+        if (BinEmptyRequested(binId)) { reason = "Already waiting for a steward."; return false; }
+        reason = null; return true;
+    }
+
+    private const string NoStewardFree = "No steward is free to go.";
+
+    private CommandResult? ValidateEmptyBin(EntityId? target, EmptyBinCommand command)
+    {
+        if (target is not null) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Empty a bin by its id.");
+        if (command.Cancel) return BinEmptyRequested(command.BinId) ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Nothing to cancel.");
+        if (BinEmptier(command.BinId, out var reason) is not null) return null;
+        return BinEmptyQueueable(command.BinId, out var why) ? null : CommandResult.Rejected(CommandReasonCode.InvalidParameter, why ?? reason!);
+    }
+
+    private void ApplyEmptyBin(EmptyBinCommand command)
+    {
+        if (command.Cancel) { SetEmptyRequests(_litter!.EmptyRequests!.Where(id => id != command.BinId)); return; }
+        if (BinEmptier(command.BinId, out _) is { } pick) SendToEmptyBin(command.BinId, pick, "Steward sent to empty a bin");
+        else SetEmptyRequests((_litter!.EmptyRequests ?? []).Append(command.BinId));
+    }
+
+    private void SetEmptyRequests(IEnumerable<string> requests)
+    {
+        var list = requests.ToArray();
+        _litter = _litter! with { EmptyRequests = list.Length == 0 ? null : list };
+    }
+
+    /// <summary>
+    /// Waiting orders, oldest first, go to the first steward free to take them, before any routine sweep. An order
+    /// whose bin has emptied, or that a steward is already on, is done with.
+    /// </summary>
+    private void ServeEmptyRequests()
+    {
+        if (_litter?.EmptyRequests is not { } requests) return;
+        var waiting = new List<string>();
+        foreach (var binId in requests)
+        {
+            if (CaptureBins().FirstOrDefault(b => b.Id == binId) is not { Pieces: > 0 } || EmptyBinClaimed(binId)) continue;
+            if (BinEmptier(binId, out _) is { } pick) SendToEmptyBin(binId, pick, "Steward sent to empty a bin");
+            else waiting.Add(binId);
+        }
+        SetEmptyRequests(waiting);
+    }
+
+    private bool EmptyBinClaimed(string binId) => _litter!.Sweeps.Any(s => s.Remaining > 0 && s.TargetIsBin && s.TargetId == binId);
 
     private void SendToEmptyBin(string binId, (ulong Worker, GridCell Side) pick, string reason)
     {
@@ -356,7 +416,8 @@ public sealed partial class GameSession
             }
             if (!assigned) EndSweep(job, true);
         }
-        if (_preparation?.Status != PreparationStatus.Running) return;
+        if (_preparation?.Status != PreparationStatus.Running) { if (_litter.EmptyRequests is not null) SetEmptyRequests([]); return; }
+        ServeEmptyRequests();
         foreach (var worker in GetStewardResponses().OrderBy(s => s.WorkerId))
         {
             var id = worker.WorkerId;
@@ -369,6 +430,8 @@ public sealed partial class GameSession
         // A full bin out of reach of every post still gets emptied: the nearest free steward walks over, as for "Empty now".
         foreach (var bin in CaptureBins().Where(b => b.CanEmpty).OrderBy(b => b.Id, StringComparer.Ordinal))
             if (BinEmptier(bin.Id, out _) is { } pick) SendToEmptyBin(bin.Id, pick, "Steward off to empty a full bin");
+        // A waiting order a routine sweep has since picked up is served by it.
+        if (_litter.EmptyRequests is { } left && left.Any(EmptyBinClaimed)) SetEmptyRequests(left.Where(id => !EmptyBinClaimed(id)));
     }
     private void AdvanceLitter()
     {
@@ -449,7 +512,10 @@ public sealed partial class GameSession
                 j.RadiusCells != (j.Manual ? LitterRules.ManualRadiusCells : LitterRules.LocalRadiusCells) || j.ActionTick < -1 || j.ActionTick > s.CurrentTick ||
                 (j.TargetId is null) != (j.Approach is null) || j.TargetId is not null && (j.Remaining == 0 || (j.TargetIsBin ? !bins.ContainsKey(j.TargetId) : !(byId.GetValueOrDefault(j.TargetId)?.Location == WasteLocation.Ground)))) ||
             litter.Sweeps.Where(j => j.TargetId is not null).GroupBy(j => (j.TargetId, j.TargetIsBin)).Any(g => g.Count() > 1)) return "Litter cleanup ownership invalid.";
-        if (prep.Status == PreparationStatus.Preparing && (litter.Pieces.Length != 0 || litter.Sweeps.Length != 0)) return "Draft/retry must clear waste.";
+        if (prep.Status == PreparationStatus.Preparing && (litter.Pieces.Length != 0 || litter.Sweeps.Length != 0 || litter.EmptyRequests is not null)) return "Draft/retry must clear waste.";
+        if (litter.EmptyRequests is { } requests && (requests.Length == 0 || requests.Any(id => id is null || !bins.ContainsKey(id)) ||
+            requests.Distinct(StringComparer.Ordinal).Count() != requests.Length ||
+            requests.Any(id => litter.Sweeps.Any(j => j.Remaining > 0 && j.TargetIsBin && j.TargetId == id)))) return "Waiting bin orders invalid.";
         if (litter.Pieces.Any(w => w.Location == WasteLocation.Carried &&
             (prep.People.Single(p => p.AgentId == w.Carrier).Departed ||
              w.Approach is { } approach && (!BinSide(approach, w.BinId!) || !RouteAt(w.Carrier, approach) ||
