@@ -26,11 +26,13 @@ public partial class Main
     private double _pressPoll;
     private readonly Dictionary<(string Stage, int Slot), double> _pressLastShot = [];
     private (string Stage, int Slot, string ActId, int Crowd, bool Aerial)? _pressPending;
+    // A fresh viewport's first frame can come out without its sky, so a shot renders a couple of frames before it's read.
+    private int _pressFrames;
     private readonly List<(VisualInstance3D Node, uint Layers)> _pressHidden = [];
 
     private void ProcessPressPhoto(double delta)
     {
-        if (_pressPending is { } pending) { FinishPressShot(pending); return; }
+        if (_pressPending is { } pending) { if (--_pressFrames <= 0) FinishPressShot(pending); return; }
         if (_session.CapturePreparation() is not { } p) return;
         if (_pressPhotoDay != (_session, p.Attempt)) { _pressPhotos.Clear(); _pressLastShot.Clear(); _pressPhotoDay = (_session, p.Attempt); }
         // First person moves the labels between layers itself; the photographer waits.
@@ -74,6 +76,13 @@ public partial class Main
             var laterals = people.Select(point => (point - band).Dot(side)).Order().ToArray();
             var back = depths[(int)(depths.Length * 0.85f)] + 2.5f;
             eye = band + forward * Mathf.Max(back, 7) + side * (laterals[laterals.Length / 2] * 0.6f + 0.8f) + Vector3.Up * 1.8f;
+            // Not with someone's head filling the lens: step sideways until the near view towards the stage is clear.
+            foreach (var step in new[] { 0f, 0.8f, -0.8f, 1.6f, -1.6f, 2.4f })
+            {
+                var spot = eye + side * step;
+                if (!people.Any(point => (spot - point).Dot(forward) is var ahead && ahead > -0.6f && ahead < 2.5f &&
+                    Mathf.Abs((point - spot).Dot(side)) < 0.4f + ahead * 0.25f)) { eye = spot; break; }
+            }
         }
         eye = new Vector3(Mathf.Clamp(eye.X, -31, 31), eye.Y, Mathf.Clamp(eye.Z, -31, 31));
         var target = band + Vector3.Up * (deck + (aerial ? 0.4f : 1.0f));
@@ -90,6 +99,8 @@ public partial class Main
         // Fog softens the far countryside, as it does in first person; the main view keeps its own environment.
         var environment = (Godot.Environment)_environment.Duplicate();
         environment.FogEnabled = true; environment.FogDensity = 0.008f; environment.FogSkyAffect = 0; environment.FogLightColor = _environment.BackgroundColor;
+        // Seen low and across, wet ground mirrors the bright sky white; the overview never looks at it that way.
+        environment.ReflectedLightSource = Godot.Environment.ReflectionSource.Disabled;
         _pressCamera!.Environment = environment;
         _pressCamera.LookAtFromPosition(eye, target, Vector3.Up);
         // Wide enough for the stage and the heads in front of it.
@@ -100,7 +111,8 @@ public partial class Main
         // Names, speech and mood faces are for the overview: onto a layer only the main camera sees, for this one frame.
         foreach (var node in FindChildren("*", "VisualInstance3D", true, false).OfType<VisualInstance3D>())
             if (node is Label3D or Sprite3D && node.Layers == 1u && !IsGateLettering(node)) { _pressHidden.Add((node, node.Layers)); node.Layers = PressHiddenLayer; }
-        _pressViewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Once;
+        _pressViewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Always;
+        _pressFrames = 2;
         _pressPending = (live.StageId, slot, actId, crowd, aerial);
         return true;
     }
@@ -108,6 +120,7 @@ public partial class Main
     private void FinishPressShot((string Stage, int Slot, string ActId, int Crowd, bool Aerial) pending)
     {
         _pressPending = null;
+        if (_pressViewport is not null) _pressViewport.RenderTargetUpdateMode = SubViewport.UpdateMode.Disabled;
         foreach (var (node, layers) in _pressHidden)
             if (IsInstanceValid(node) && node.Layers == PressHiddenLayer) node.Layers = layers;
         _pressHidden.Clear();

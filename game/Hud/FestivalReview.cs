@@ -102,11 +102,12 @@ internal static class FestivalReview
             5 => "A near-perfect day out. If the organisers can do this again, book early.",
             4 => "A cracking day with a few rough edges. We’ll be back.",
             3 => "Pleasant enough, but the organisers have work to do before next time.",
-            2 => f.Rain ? "A disappointing day, and not only because of the rain. Punters went home grumbling." : "A disappointing day. Punters went home grumbling.",
+            2 => (f.Rain ? "A disappointing day, and not only because of the rain." : "A disappointing day.") +
+                (f.Grumbles.Length > 0 ? $" Punters went home grumbling about {List(f.Grumbles)}." : " Punters went home grumbling."),
             1 => "A day most punters will want to forget.",
             _ => "None to give. You can’t review a party nobody came to.",
         };
-        if (stars <= 3 && f.Grumbles.Length > 0) verdict += $" Punters grumbled most about {List(f.Grumbles)}.";
+        if (stars is 1 or 3 && f.Grumbles.Length > 0) verdict += $" Punters grumbled most about {List(f.Grumbles)}.";
         else if (stars >= 4 && f.Lifts.Length > 0) verdict += $" What sent them home happy: {List(f.Lifts)}.";
 
         // The pull quote: a happy punter on a good day, an unhappy one on a bad day.
@@ -114,13 +115,16 @@ internal static class FestivalReview
             .Concat(best is not null && best.Record.Quotes.Length > 0 ? [best] : []).FirstOrDefault();
         var pull = quoteSet is { } q && QuoteOf(q, f.Names, 0) is { } said ? said : ((string, string)?)null;
 
+        // Genres that moved alike share a line.
         string[] ups = ["{0} fans are already talking about it", "Word has reached the {0} crowd", "{0} fans are buzzing", "The {0} scene is taking notice"];
         string[] downs = ["{0} fans were unimpressed", "The {0} crowd is giving it a wide berth", "{0} fans won’t be rushing back"];
-        var buzz = f.Scenes.Where(move => move.After != move.Before).OrderByDescending(move => Math.Abs(move.After - move.Before)).Select((move, index) =>
+        var buzz = f.Scenes.Where(move => move.After != move.Before).GroupBy(move => move.After - move.Before).OrderByDescending(group => Math.Abs(group.Key))
+            .ThenByDescending(group => group.Key).Select((group, index) =>
         {
-            var change = move.After - move.Before;
+            var change = group.Key;
             var phrase = change > 0 ? ups[index % ups.Length] : downs[index % downs.Length];
-            var words = Capitalise(string.Format(phrase, phrase.StartsWith("{0}") ? move.Genre : move.Genre.ToLowerInvariant()));
+            var genres = List(group.Select(move => move.Genre.ToLowerInvariant()).ToArray());
+            var words = Capitalise(string.Format(phrase, genres));
             return (words, $"{(change > 0 ? "+" : "−")}{Math.Abs(change)}", change > 0);
         }).ToArray();
         var standing = f.Reputation is { } rep && rep.After != rep.Before
@@ -134,7 +138,7 @@ internal static class FestivalReview
     {
         var r = f.Result;
         var text = f.EarlierTragedy ? "The organisers reopened their gates after the tragedy that ended their previous weekend. " : "";
-        text += $"The {Ordinal(f.Tier)} {FestivalName} {(f.Tier == 1 ? "opened" : "returned to the farm")} " +
+        text += $"The {Ordinal(f.Tier)} {FestivalName} {(f.EarlierTragedy ? "went ahead" : f.Tier == 1 ? "opened" : "returned to the farm")} " +
             (f.Rain ? $"under grey skies, with {Count(f.Showers, "heavy shower")}{(f.Downpour ? " and one proper downpour" : "")} across the day. "
                 : "under a blazing sun, in the middle of a heatwave. ");
         if (f.Tier >= GameSession.PondStageFromTier && f.Sets.Any(set => set.Record.StageId == FestivalStages.PondId))
@@ -163,38 +167,44 @@ internal static class FestivalReview
             _ => ", before it was cut short.",
         };
         // The pull quote takes the first line on a good day; the body takes another.
-        if ((QuoteOf(best, f.Names, 1) ?? (f.Result.Stars <= 2 ? QuoteOf(best, f.Names, 0) : null)) is { } said) text += $" As {said.Who} put it: “{said.Line}”";
+        if ((QuoteOf(best, f.Names, 1) ?? (f.Result.Stars <= 2 ? QuoteOf(best, f.Names, 0) : null)) is { } said) text += $" As {said.Who}{(said.Who.Contains(',') ? "," : "")} put it: “{said.Line}”";
         if (lows.Count > 0) text += " " + string.Join(" ", lows.Select(low => low.Words));
         return text;
     }
 
-    /// <summary>The day's low points among the sets, worst first, at most two, never the best set's own triumph.</summary>
+    /// <summary>
+    /// The day's low points among the sets, worst first, at most two kinds; sets that went wrong the same way share a
+    /// sentence. The best set's own reaction is already told, so only its hiccups count.
+    /// </summary>
     private static IEnumerable<(ReviewSet Set, string Words)> Lows(IReadOnlyList<ReviewSet> sets, ReviewSet? best)
     {
-        var found = new List<(int Weight, ReviewSet Set, string Words)>();
+        var found = new List<(string Kind, int Weight, ReviewSet Set, string Words, Func<string, string>? Many)>();
         foreach (var set in sets)
         {
             var r = set.Record;
-            // The best set's own reaction is already told; only its hiccups count against it.
             var reaction = set == best ? GigRules.Polite : r.Reaction;
-            string? words = reaction switch
+            var boos = r.Hiccups.Contains(GigRules.Boos);
+            (string Kind, string Words, Func<string, string>? Many)? low = reaction switch
             {
-                GigRules.NoShow => $"{set.Act} never made it onto the {set.Stage}, leaving {Count(r.PeakCrowd, "punter")} waiting.",
-                GigRules.CutShort when r.Hiccups.Contains(GigRules.PowerCut) => $"The power went during {set.Act}’s set and it never recovered.",
-                GigRules.CutShort => $"{set.Act}’s set was cut short.",
-                _ when r.Hiccups.Contains(GigRules.PowerCut) => $"The power cut out during {set.Act}’s set{(r.Hiccups.Contains(GigRules.Boos) ? ", and the crowd booed the silence" : "")}.",
-                _ when r.Hiccups.Contains(GigRules.Collapse) => $"A member of {set.Act} collapsed during their set.",
-                GigRules.EmptyField => $"{set.Act} played to a near-empty field.",
-                _ when r.Hiccups.Contains(GigRules.Stopped) => $"{set.Act} stopped mid-set{(r.Hiccups.Contains(GigRules.Boos) ? " to boos" : "")}.",
-                GigRules.Smattering => $"Only a smattering turned out for {set.Act}.",
-                _ when r.Hiccups.Contains(GigRules.PoorSoundHiccup) => $"The sound for {set.Act} was muddy at best.",
-                _ when r.Hiccups.Contains(GigRules.Late) => $"{set.Act} were late on stage.",
+                GigRules.NoShow => ("no-show", $"{set.Act} never made it onto the {set.Stage}, leaving {Count(r.PeakCrowd, "punter")} waiting.", acts => $"{acts} never made it onto the stage."),
+                GigRules.CutShort when r.Hiccups.Contains(GigRules.PowerCut) => ("cut-power", $"The power went during {set.Act}’s set and it never recovered.", acts => $"The power went during sets by {acts}, and they never recovered."),
+                GigRules.CutShort => ("cut", $"{set.Act}’s set was cut short.", acts => $"Sets by {acts} were cut short."),
+                _ when r.Hiccups.Contains(GigRules.PowerCut) => ("power" + boos, $"The power cut out during {set.Act}’s set{(boos ? ", and the crowd booed the silence" : "")}.",
+                    acts => $"The power cut out during sets by {acts}{(boos ? ", and the crowd booed the silence" : "")}."),
+                _ when r.Hiccups.Contains(GigRules.Collapse) => ("collapse", $"A member of {set.Act} collapsed during their set.", acts => $"Band members from {acts} collapsed during their sets."),
+                GigRules.EmptyField => ("empty", $"{set.Act} played to a near-empty field.", acts => $"{acts} played to a near-empty field."),
+                _ when r.Hiccups.Contains(GigRules.Stopped) => ("stopped" + boos, $"{set.Act} stopped mid-set{(boos ? " to boos" : "")}.", acts => $"{acts} stopped mid-set{(boos ? " to boos" : "")}."),
+                GigRules.Smattering => ("smattering", $"Only a smattering turned out for {set.Act}.", acts => $"Only a smattering turned out for {acts}."),
+                _ when r.Hiccups.Contains(GigRules.PoorSoundHiccup) => ("sound", $"The sound for {set.Act} was muddy at best.", acts => $"The sound for {acts} was muddy at best."),
+                _ when r.Hiccups.Contains(GigRules.Late) => ("late", $"{set.Act} were late on stage.", acts => $"{acts} were late on stage."),
                 _ => null,
             };
-            if (words is null) continue;
-            found.Add((Rank(r.Reaction) * 10 + r.Hiccups.Length, set, words));
+            if (low is { } l) found.Add((l.Kind, Rank(r.Reaction) * 10 + r.Hiccups.Length, set, l.Words, l.Many));
         }
-        return found.OrderByDescending(item => item.Weight).ThenBy(item => item.Set.Record.ScheduledStartTick).Take(2).Select(item => (item.Set, item.Words));
+        return found.GroupBy(item => item.Kind).OrderByDescending(group => group.Max(item => item.Weight))
+            .ThenBy(group => group.Min(item => item.Set.Record.ScheduledStartTick)).Take(2)
+            .Select(group => group.Count() == 1 || group.First().Many is null ? (group.First().Set, group.First().Words)
+                : (group.First().Set, Capitalise(group.First().Many!(List(group.Select(item => item.Set.Act).ToArray())))));
     }
 
     private static string? Field(ReviewFacts f)
@@ -206,9 +216,10 @@ internal static class FestivalReview
             var causes = new List<string>();
             if (f.Distress && !f.Rain) causes.Add("the heat");
             if (f.WaspSting) causes.Add("a wasp sting");
-            if (f.Drink) causes.Add("one too many");
+            if (f.Drink) causes.Add("too much to drink");
             if (f.LooFumes) causes.Add("fumes from a jammed loo");
-            parts.Add($"First aiders treated {Count(r.MedicalCollapses.Value, "punter")} who collapsed" + (causes.Count > 0 ? $"; among the causes, {List(causes)}." : "."));
+            parts.Add($"First aiders were called to {Count(r.MedicalCollapses.Value, "punter")} who collapsed." +
+                (causes.Count > 0 ? $" The day’s first-aid cases included {List(causes)}." : ""));
         }
         else if (r.MedicalCollapses == 0 && !f.Rain && r.GuestCount > 0) parts.Add("Despite the heat, nobody needed carrying to first aid.");
         if (r.Fights > 0) parts.Add($"Stewards broke up {Count(r.Fights.Value, "scuffle")}.");
@@ -220,7 +231,7 @@ internal static class FestivalReview
         if (f.BrokenTaps > 0) parts.Add($"{Capitalise(Count(f.BrokenTaps, "water tap"))} broke.");
         if (f.GeneratorScare) parts.Add("The farm generator gave the organisers a scare.");
         if (f.Rain && f.Muddy) parts.Add("By the evening, much of the field had been churned to mud.");
-        if (r.BeersFinished > 0) parts.Add($"Punters got through {Count(r.BeersFinished.Value, "pint")} at the bar.");
+        if (r.BeersFinished > 0) parts.Add($"Punters got through {(r.BeersFinished < 5 ? "just " : "")}{Count(r.BeersFinished.Value, "pint")} at the bar.");
         var trouble = r.MedicalCollapses > 0 || r.Fights > 0 || f.CowsEscaped > 0 || f.StuckInLoo > 0 || f.BrokenTaps > 0 || f.GeneratorScare;
         if (!trouble && r.Fights == 0 && r.GuestCount > 0) parts.Insert(0, "Stewards reported a trouble-free day.");
         return parts.Count == 0 ? null : string.Join(" ", parts);
