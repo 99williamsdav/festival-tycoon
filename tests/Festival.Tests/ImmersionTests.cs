@@ -338,4 +338,32 @@ public sealed class ImmersionTests
         var response=new MedicResponse(s.CaptureMedical()!.MedicId,MedicalResponseStage.Treating,id,3500,"Existing injury treatment",3499);
         Assert.AreEqual(false,typeof(GameSession).GetMethod("IntoxicationCareOwns",BindingFlags.NonPublic|BindingFlags.Instance)!.Invoke(s,[response]),"Alcohol care must not clear an unresolved confrontation injury.");
     }
+
+    /// <summary>
+    /// Zoe Fenwick's day (seed 20260922, Tier 2, Robot Workers): the medic set off the tick she collapsed from drink and
+    /// reached her 1,082 ticks later, past the critical mark but well inside the 2,400-tick death deadline, and she died
+    /// sobering under care, because drink care took a fixed 1,600 ticks. Care now takes the medic's own treatment time (as
+    /// first aid for heat does), so a medic who reaches a drink collapse in time for heat first aid saves them.
+    /// </summary>
+    [TestMethod]
+    public void AMedicReachingADrinkCollapsePastTheCriticalMarkStillSavesThem()
+    {
+        var s=Open();var medical=s.CaptureMedical()!;var id=BuildSession.LastGuest(s);var worker=medical.MedicId;
+        // Collapsed 1,000 ticks ago (critical since 800 after), still heavily drunk; the medic is a few steps away.
+        const long Now=4000,Collapse=3000;
+        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,Now);
+        PositionFixture(s,id,new(120,125),"medical.intoxication-collapse");PositionFixture(s,worker,new(124,125),"medical.standby");
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Critical,Intent=MedicalIntent.Collapsed,WarningTick=1000,CollapseTick=Collapse,CriticalTick=Collapse+GameSession.MedicalCriticalDelayTicks }:n).ToArray() });
+        var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=9000,WarningTick=1000,CollapseTick=Collapse,SevereTicks=1600 }:p).ToArray() });
+        Assert.IsTrue(Send(s,new MedicalCommand(id,MedicalAction.DispatchMedic)).IsAccepted);
+        for(var ticks=0;ticks<2_000&&s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage!=MedicalResponseStage.Completed&&s.CaptureMedical()?.Fatal!=true;ticks++)s.AdvanceWithoutSnapshot(1);
+        Assert.IsFalse(s.CaptureMedical()!.Fatal,"Reached in time, sobering under care: no death.");
+        Assert.IsTrue(s.CurrentTick<Collapse+GameSession.MedicalDeathDelayTicks,$"Stabilised before the deadline (tick {s.CurrentTick}).");
+        Assert.AreEqual(MedicalStage.Clear,s.CaptureMedical()!.Needs.Single(n=>n.AgentId==id).Stage);
+        var care=s.CaptureMedical()!.Evidence.Last(e=>e.Id=="intoxication:treatment-complete");
+        var treatment=s.GetResponseStaff().Single(p=>p.AgentId==worker).TreatmentTicks;
+        StringAssert.Contains(care.Description,"ticks");
+        Assert.IsTrue(s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).Intoxication<7500,"Back under the heavy line.");
+        Console.WriteLine($"{care.Description} (medic's treatment {treatment} ticks)");
+    }
 }

@@ -152,8 +152,12 @@ public sealed class MultiVendorTests
         var food = options.Where(o => o.Kind == ActivityKind.Food && o.Then is null).ToArray();
         CollectionAssert.AreEquivalent(new[] { "food", "food.2" }, food.Select(o => o.FacilityId).ToArray(), "Both vans are on offer.");
         Assert.AreNotEqual(food[0].Cost, food[1].Cost, "Each at its own price.");
-        CollectionAssert.AreEquivalent(new[] { "drinks", "drinks.2" },
-            options.Where(o => o.Kind is ActivityKind.SoftDrink or ActivityKind.Beer && o.Then is null).Select(o => o.FacilityId).Distinct().ToArray(), "Both bars too.");
+        // Both bars too, bar one whose line is full just now (a full line isn't offered).
+        var room = typeof(GameSession).GetMethod("VendorHasRoom", flags)!;
+        var open = s.CaptureVendors().Where(v => v.Id is "drinks" or "drinks.2" && (bool)room.Invoke(s, [v])!).Select(v => v.Id).ToArray();
+        Assert.IsTrue(open.Length >= 1, "At least one bar has room.");
+        CollectionAssert.AreEquivalent(open,
+            options.Where(o => o.Kind is ActivityKind.SoftDrink or ActivityKind.Beer && o.Then is null).Select(o => o.FacilityId).Distinct().ToArray(), "Both bars too, where there's room.");
         // The further van takes longer to reach.
         var nearer = food.MinBy(o => o.CompleteTicks)!;
         var vendor = s.CaptureVendors().Single(v => v.Id == nearer.FacilityId);
