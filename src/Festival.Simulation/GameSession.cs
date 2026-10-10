@@ -329,6 +329,7 @@ public sealed partial class GameSession
             if (_preparation?.Status == PreparationStatus.Running) AdvanceDisorder();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceStaffInterventions();
             if (MedicalOperationsActive) { AdvanceImmersion(); AdvanceToilet(); ApplyHeatAndThirstMood(); }
+            // Must follow every source of a death that freezes the day, or a frozen save keeps a straw job or sweep it can't load.
             ReleaseFrozenStaffClaims();
             AdvanceStaffAutonomy();
             AdvanceLitter();
