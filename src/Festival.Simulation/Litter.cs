@@ -249,7 +249,12 @@ public sealed partial class GameSession
     private void ApplyEmptyBin(EmptyBinCommand command)
     {
         if (command.Cancel) { SetEmptyRequests(_litter!.EmptyRequests!.Where(id => id != command.BinId)); return; }
-        if (BinEmptier(command.BinId, out _) is { } pick) SendToEmptyBin(command.BinId, pick, "Steward sent to empty a bin");
+        if (BinEmptier(command.BinId, out _) is { } pick)
+        {
+            // A steward going now serves any order already waiting for this bin.
+            if (BinEmptyRequested(command.BinId)) SetEmptyRequests(_litter!.EmptyRequests!.Where(id => id != command.BinId));
+            SendToEmptyBin(command.BinId, pick, "Steward sent to empty a bin");
+        }
         else SetEmptyRequests((_litter!.EmptyRequests ?? []).Append(command.BinId));
     }
 
