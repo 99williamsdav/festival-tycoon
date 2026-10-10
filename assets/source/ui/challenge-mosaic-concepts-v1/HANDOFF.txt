@@ -1,0 +1,44 @@
+CHALLENGE MOSAIC CONCEPTS V1 — 2026-10-10
+STATUS: User selected and approved heatwave-b.png for Heatwave and heavy-rain-a.png for Heavy Rain on 2026-10-10, relayed by the established coordinator. Artwork unchanged. No UI/game integration or asset commit authorized by this feedback; standalone reveal screen awaits a separate brief.
+
+SELECTION RECORD
+Heatwave B — Sun and wilted leaves: selected/approved Heatwave master.
+Heavy Rain A — Rain across the festival: selected/approved Heavy Rain master.
+Heatwave A and C: user likes both but finds them too light for Heatwave. Preserve as possible FUTURE pleasant-weather festival artwork, not selected Heatwave art and not an approved or implemented new weather/challenge.
+Heavy Rain B and C: unselected alternatives, preserved.
+All original masters, boards and prompts remain unchanged. Original comparison captions reflect the pre-selection review stage; this handoff and SELECTION.json supersede their approval status.
+Selected master dimensions and SHA-256 hashes are recorded in SELECTION.json.
+
+MASTERS — each opaque PNG, 1536 x 1024 pixels (3:2)
+heatwave-a.png — Blazing fields: wide golden farmland festival and dominant sun.
+heatwave-b.png — Sun and wilted leaves: bold heat emblem, bowed foliage and parched earth.
+heatwave-c.png — Seeking shade: close attendee scene under sparse shade.
+heavy-rain-a.png — Rain across the festival: broad slanting sheets, festival and puddles.
+heavy-rain-b.png — Cloudburst and ripples: oversized graphic cloud, drops and ripples.
+heavy-rain-c.png — The soaked track: atmospheric approach through reflected bunting and wet fields.
+
+REVIEW
+comparison.html presents the six exact master files at their original proportions, with labels and full-resolution links. Use this for faithful selection.
+heatwave-comparison.png and heavy-rain-comparison.png are generated labelled boards, each 1536 x 1024. Their thumbnail framing/proportions vary from masters; presentation aids only, not runtime sources.
+All six masters visually inspected: text-free, no logos/UI, coherent ceramic tile/glaze/grout material, teal/turquoise/sage/golden-yellow/cream palette and no visible red/orange-red.
+Stage arches/trusses and incidental tents/attendees are illustration details, not asset redesigns or mandates for roofed stages. No new mechanics are specified.
+
+CROPPING
+Preferred: full 3:2 master.
+A centered 16:9 crop is x=0, y=80, width=1536, height=864 (ends y=944).
+This retains the main weather/festival story in each image. Decorative upper sun/cloud contours, tree foliage and low foreground may be trimmed. Heavy Rain B's upper cloud already touches the master edge; Heatwave C's sun is intentionally off-frame. For a completely intact sun in Heatwave A/B, prefer full 3:2, as the 16:9 crop trims the top of the sun motif slightly.
+Do not claim universal crop safety for narrower/square/portrait panels. Review selected artwork against actual layout before implementation. No text-safe overlay region is reserved: titles should be separate UI.
+
+PROVENANCE
+Mode: built-in image_gen, one call per distinct master (six total), then two comparison-board calls; no CLI/API fallback.
+Exact master prompts: PROMPTS.txt. Board prompts: COMPARISON-PROMPTS.txt.
+Style reference 1: references/something-in-the-water-mosaic-v1.png
+Original: C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/perk-mosaic-concept-v1/something-in-the-water-mosaic-v1.png
+Style reference 2: references/festival-tycoon-mosaic-logo-v2.png
+Original: C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/festival-tycoon-mosaic-logo-v2.png
+Reference prompt suite read in full and copied: references/perk-suite-PROMPTS.md
+Original: C:/Projects/festival-tycoon/assets/source/perks/mosaic-suite-v1/PROMPTS.md
+Additional existing-art visual check: C:/Projects/festival-tycoon/game/assets/ui/perks/beer-festival.png (not an additional imagegen reference).
+Original generated images retained in C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/.
+All deliverables copied into this folder. Prior stage/willow work preserved.
+

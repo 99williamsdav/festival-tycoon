@@ -1,5 +1,7 @@
 # Festival Tycoon — current design and implementation snapshot
 
+**10 October 2026 presentation addition:** the approved challenge reveal precedes each festival's perk draft and preparation: fixed Heatwave B at Tier 1, Heavy Rain A at Tier 2, repeated on same-tier retries and acknowledged in current-version saves. [Implementation/evidence](briefs/results/challenge-reveal.md). This adds no random challenge draw or progression/weather mechanics. Current Tier 2 progression and rain are already present in the subsequent implementation; older paragraphs below remain the dated September snapshot. Save namespace is r0-build-v59.
+
 **Dated 29 September 2026; repository baseline `3bd0f06`.** Start here for the present playable prototype. This is a routing and status snapshot, not a new feature commission or a claim that every R0 campaign tier is finished. Read the user-endorsed [design philosophies](DESIGN_PHILOSOPHIES.md) (30 September), [dated decisions](briefs/DECISIONS.md), [approved-design index](assets/source/DESIGN_INDEX.md), [prioritized backlog](briefs/BACKLOG.md) and the owning brief/result before changing a system.
 
 ## Authority and status

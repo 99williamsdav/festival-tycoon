@@ -24,6 +24,7 @@ public partial class Main
         SwitchToFestival(next);
         GD.Print($"POND_STAGE_TRIAL_STARTED id={_session.CampaignId.Value} seed={seed} status={_session.PreparedStatus}");
         StartMenu.Close();
+        RefreshChallengeReveal();
     }
 
     private void EnterFestival()
@@ -36,11 +37,13 @@ public partial class Main
             GD.Print($"NEW_CAMPAIGN_STARTED id={_session.CampaignId.Value} seed={seed} status={_session.PreparedStatus}");
         }
         StartMenu.Close();
+        RefreshChallengeReveal();
     }
 
     /// <summary>Hands the host a fresh festival in preparation (a new campaign or the next tier) and resets the views.</summary>
     private void SwitchToFestival(GameSession next)
     {
+        CloseChallengeReveal();
         Perks.CancelConfirmation();
         ClearSelection(); ResetImmersionHeldVisuals();
         foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();

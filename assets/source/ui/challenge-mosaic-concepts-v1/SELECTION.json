@@ -1,0 +1,32 @@
+{
+  "recorded_date": "2026-10-10",
+  "authority": "User selection relayed by established coordinator 01a07a8e-690e-7792-a604-650d0091a797 per WORKING-AGREEMENTS.md",
+  "approved": [
+    {
+      "file": "heatwave-b.png",
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\challenge-mosaic-concepts-v1\\heatwave-b.png",
+      "status": "selected_and_approved",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "80C4D3CD093129371D4113A6ED4046A32327A35213020843FDFEB1F35B362272"
+    },
+    {
+      "file": "heavy-rain-a.png",
+      "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\challenge-mosaic-concepts-v1\\heavy-rain-a.png",
+      "status": "selected_and_approved",
+      "width": 1536,
+      "height": 1024,
+      "sha256": "087F366338B1FCB68004A79168F5D279DCE130799EDA0E533DDC71D3D70C7678"
+    }
+  ],
+  "future_candidates": [
+    "heatwave-a.png",
+    "heatwave-c.png"
+  ],
+  "future_candidate_rationale": "User likes both, but they are too light for Heatwave. Preserve for possible future pleasant-weather festival artwork; no new weather/challenge approved or implemented.",
+  "unselected": [
+    "heavy-rain-b.png",
+    "heavy-rain-c.png"
+  ],
+  "scope": "Selection records only. Artwork and prompts unchanged. No new generation, UI/game integration or asset commit. Reveal screen awaits separate brief."
+}

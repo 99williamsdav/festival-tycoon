@@ -1,0 +1,151 @@
+# Built-in image generation prompts
+
+Two reference images, in order: ../perk-mosaic-concept-v1/something-in-the-water-mosaic-v1.png and ../festival-tycoon-mosaic-logo-v2.png. Original approved water concept retained unchanged. Each asset uses this common prompt followed by its subject below. One tool call per asset, no CLI/API fallback.
+
+Use case: stylized-concept. Asset: standalone text-free artwork for a small festival-tycoon perk card.
+Image 1 is the APPROVED WATER CARD style/composition anchor; image 2 is the approved LOGO style reference. Generate ONE artwork panel ONLY, not a complete card or sheet.
+Shared suite: straight-on flat handmade glazed ceramic mosaic with chunky, subtly irregular tesserae and warm ivory grout, matching the anchor's rich dark teal, turquoise, sage, golden yellow, warm cream. Clear bold simple subject silhouettes, mildly rustic cheerful British festival character. A thin single row golden tile border sits INSIDE image edges, evenly inset 3%; background is warm cream mosaic, subtle golden sun/ray accents and restrained sage/teal corner shapes. Consistent material/rendering with anchor, not vector clipart and not photoreal objects.
+Landscape aspect 3:2; complete scene within canvas, generous subject safety margin about 10%; subject large enough to read at 216x145 and still distinct as a 46px thumbnail. Avoid tiny detail/clutter. All four panel edges visible. Opaque, no external backdrop, tabletop or perspective tilt.
+No text, letters, numerals, watermark, rarity, price, combo hints, branding, red-cross emblem, star-of-life or emergency-service insignia. Text will be separate native UI. No additional perks. Subject: 
+
+## Extra Pair of Hands
+
+A pair of upright teal festival steward safety vests side by side, the nearer vest larger, simple cream reflective bands and a small golden addition-plus symbol between them. No people, no medical equipment. This means an additional steward hiring slot, not training.
+
+## Doctor's Orders
+
+One prominent dark teal medical carry bag with a large cream heart emblem, a second smaller matching bag behind, and a golden addition-plus symbol beside them. Clearly a medical hiring-capacity symbol. No red cross, no stewards or vest.
+
+## Another Round
+
+Two distinct upright dark teal outdoor standpipe taps side by side, one taller foreground and one slightly smaller behind, each spout clearly visible; one small golden addition-plus between them. Tiny turquoise drops only, no drinking cup and no tower. Additional free-water access, NOT beer or alcohol.
+
+## High Pressure
+
+One bold dark teal elevated cylindrical farm water tank on four clear sturdy legs, with a turquoise water-drop emblem on its tank and a short bold turquoise stream curving from an outlet pipe near its base. Entire tower visible including tank and feet. No extra taps, cup or plus symbol. Water flow infrastructure.
+
+## Smooth Operators
+
+One prominent teal steward reflective safety vest with broad cream reflective bands, centred over a simple golden training rosette with two short ribbons; three restrained turquoise motion strokes to one side imply faster trained movement. No plus symbol, no second vest, no medical bag. Training for stewards, not a new hiring slot.
+
+## First Responders
+
+One prominent dark teal medical carry bag with large cream heart emblem, a golden lightning bolt to its side and three turquoise motion strokes. Recognisably trained fast medical response. No red cross, no plus symbol, no second bag, no vest. Not a hiring-capacity image.
+
+## Something in the Water
+
+Adapt the exact approved anchor artwork in image1: dark teal tap at left pouring turquoise water into cream cup below right, golden sun rays upper right and teal/sage leaves low corners. Preserve this recognised composition and ceramic character. Output ONLY its artwork as a standalone panel; remove all title/effect/paper card portions. Extend cream tiled background at the sides as necessary for landscape 3:2, do not squash objects.
+
+## Thirsty Crowd
+
+Three simple dark teal festival guest bust silhouettes with clearly separated round heads, two smaller behind one foreground, and one large turquoise water droplet overhead; three small golden sun rays at upper right. No smiling faces, no tap, no cup, no medical symbol. More rapid thirst in a crowd, not satisfaction.
+
+
+## Batch 2 integration — 3 October 2026
+
+Six additional existing catalogue perks were generated once each and reviewed by the producer using the same two image references. The user requested asset integration and the coordinator authorized it. This records production and integration permission, not a separate user aesthetic endorsement. Full untouched package: ../mosaic-suite-batch2/; original prompt record follows, including its historical art-workspace reference paths.
+
+# Mosaic suite v1 — batch 2 prompts
+
+References in order:
+C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/perk-mosaic-concept-v1/something-in-the-water-mosaic-v1.png
+C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/festival-tycoon-mosaic-logo-v2.png
+
+## Shared prompt
+
+Use case: stylized-concept. Asset: standalone text-free artwork for a small festival-tycoon perk card.
+Image 1 is the APPROVED WATER CARD style/composition anchor; image 2 is the approved LOGO style reference. Generate ONE artwork panel ONLY, not a complete card or sheet.
+Shared suite: straight-on flat handmade glazed ceramic mosaic with chunky, subtly irregular tesserae and warm ivory grout, matching the anchor's rich dark teal, turquoise, sage, golden yellow, warm cream. Clear bold simple subject silhouettes, mildly rustic cheerful British festival character. A thin single row golden tile border sits INSIDE image edges, evenly inset 3%; background is warm cream mosaic, subtle golden sun/ray accents and restrained sage/teal corner shapes. Consistent material/rendering with anchor, not vector clipart and not photoreal objects.
+Landscape aspect 3:2, deliver PNG 1536x1024; complete scene within canvas, generous subject safety margin about 10%; subject large enough to read at 216x145 and still distinct as a 46px thumbnail. Avoid tiny detail/clutter. All four panel edges visible. Opaque, no external backdrop, tabletop or perspective tilt.
+No text, letters, numerals, watermark, rarity, price, combo hints, branding, red-cross emblem, star-of-life or emergency-service insignia. Text will be separate native UI. No additional perks.
+Palette discipline: deep teal, turquoise, sage, golden yellow and warm cream inside a golden tile border. NO RED anywhere, no orange-red. Amber only for beer in the gold family. Cola dark drink is deep teal-brown.
+Subject: 
+
+## Beer Festival
+
+Two frothy golden-amber pint glasses raised and clinking in a cheers at the centre: cream foam heads, with a few small splash tesserae; one glass slightly nearer and larger. Behind the glasses, a short string of three or four triangular bunting pennants (teal, golden yellow, cream) runs across the top. Warm gold sun rays; sage and teal leaves in the low corners. No people, hands, faces, bottles, kegs, tap handles, price tags, £ signs, numerals or text. No drunkenness cues. A celebratory drinks festival, not water.
+
+## Friendly Queues
+
+A short festival rope queue barrier across the lower middle: two dark teal posts with a sagging golden rope. Above it, two rounded cream speech bubbles side by side and overlapping slightly, each with a small turquoise tile inside (as if chatting). Small golden sun rays; sage leaves in the low corners. Warm and sociable. No faces, people, letters, symbols inside the bubbles, cups, money or numerals.
+
+## Bring Your Own Bottle
+
+A reusable teal water bottle with a cream cap and band, upright under one dark teal standpipe tap (the same tap design as the suite) at the left. A big, generous turquoise stream glugs from the spout into the bottle's neck, with a few large droplets. Golden sun rays upper right; sage leaves low. One tap only, no plus symbol, no cup, no people. Reads as a big bottle that lasts, filled slowly: the stream can be steady rather than gushing.
+
+## Cola Fiends
+
+A generic tall festival soft-drink cup: body cream with a teal band, lid domed, straw a bent golden straw. The dark teal-brown fizzy drink shows at the rim, with lots of round turquoise and cream bubble tiles rising around it. Golden sun rays; sage leaves low. No brand, logo, lettering, red, ribbon or wave stripe, bottle or can shape that resembles a real brand. No water tap.
+
+## Alcoholics
+
+A stack of three empty pint glasses: two at the base, one balanced on top. The stack is tipping slightly to one side. A little amber dregs and foam at the bottom of each glass. Three short golden wobble or motion lines beside the top glass hint at risk. Muted sun rays; sage leaves low. No people, faces, vomit, bottles, money or numerals. Light-hearted caution, not squalor.
+
+## Robot Workers
+
+A friendly simple robot, front-on and standing. Head a rounded rectangle with two round turquoise eye tiles; antenna a small one with a golden tip; wearing the suite's teal steward safety vest with cream reflective bands; holding a cream clipboard with blank golden lines in one hand. Golden sun rays; sage leaves low. No mouth or face expression beyond the eyes, no text on the clipboard, no plus symbol, no medical bag. One robot only.
+
+
+
+## Batch 2 requested revisions — 3 October 2026
+
+User feedback conveyed by producer: Beer Festival, Bring Your Own Bottle and Alcoholics approved. Friendly Queues smileys and Robot Workers empty hands requested; these revised masters are integrated. The new Cola Fiends concept below is a preview only, pending selection; canonical runtime Cola Fiends remains unchanged. Full revision record: ../mosaic-suite-batch2/revisions-v2/PROMPTS.md.
+
+# Batch 2 revisions — built-in image-generation skill
+
+Friendly Queues and Robot Workers are requested edits. Cola Fiends is a new replacement concept pending user selection. All other artwork and effect text are unchanged.
+
+## friendly-queues
+
+Use case: precise-object-edit. Image1 is the EDIT TARGET. Change ONLY the two turquoise blue circular dots inside the speech bubbles: turn each into a clearly legible happy smiley face with two tiny dark teal ceramic eye tiles and a curved dark teal smiling mouth, contained within the same existing turquoise circle. Keep precisely the same two speech bubbles, posts, sagging gold rope, foliage, sun rays, gold border, handmade ceramic mosaic tile material and all existing colours/composition. No other faces, people, text or objects. No red. Opaque landscape PNG1536x1024.
+
+## robot-workers
+
+Use case: precise-object-edit. Image1 is the EDIT TARGET. Remove ONLY the clipboard from the robot's right-side hand and the accompanying clipboard contents. Fill its former area with matching cream mosaic background, keeping the sun rays and foliage continuous. Give that now-empty robot arm a relaxed downward bend ending in the same simple curved claw hand as the other arm. Keep the robot's body, head, eyes, antenna, teal steward vest with cream reflective bands, legs, mosaic material, colours, sun rays, gold tile border, all remaining composition unchanged. No text, no mouth, no extra props, no red. Opaque landscape PNG1536x1024.
+
+## cola-fiends
+
+Use case: stylized-concept. Asset: standalone text-free artwork for a small festival-tycoon perk card.
+Image 1 is the APPROVED WATER CARD style/composition anchor; image 2 is the approved LOGO style reference. Generate ONE artwork panel ONLY, not a complete card or sheet.
+Shared suite: straight-on flat handmade glazed ceramic mosaic with chunky, subtly irregular tesserae and warm ivory grout, matching the anchor's rich dark teal, turquoise, sage, golden yellow, warm cream. Clear bold simple subject silhouettes, mildly rustic cheerful British festival character. A thin single row golden tile border sits INSIDE image edges, evenly inset 3%; background is warm cream mosaic, subtle golden sun/ray accents and restrained sage/teal corner shapes. Consistent material/rendering with anchor, not vector clipart and not photoreal objects.
+Landscape aspect 3:2, deliver PNG 1536x1024; complete scene within canvas, generous subject safety margin about 10%; subject large enough to read at 216x145 and still distinct as a 46px thumbnail. Avoid tiny detail/clutter. All four panel edges visible. Opaque, no external backdrop, tabletop or perspective tilt.
+No text, letters, numerals, watermark, rarity, price, combo hints, branding, red-cross emblem, star-of-life or emergency-service insignia. Text will be separate native UI. No additional perks.
+Palette discipline: deep teal, turquoise, sage, golden yellow and warm cream inside a golden tile border. NO RED anywhere, no orange-red. Amber only for beer in the gold family. Cola dark drink is deep teal-brown.
+Subject: NEW Cola Fiends concept, replacing the bubble-tea cup subject entirely. A single comically wide-eyed teal festival guest bust at the centre, hunched protectively over a generic cream takeaway cola cup with a broad solid teal band, FLAT lid and bent golden drinking straw. Both simple teal hands clasp this precious drink; guest eagerly sucks on its straw, eyes wide and slightly wired in a playful 'needs their cola fix' expression. Two used empty matching paper cups, one slightly crumpled, sit at lower left, indicating a persistent cola habit. A small cutaway/open edge of the main cup reveals DARK teal-brown cola with just a few tiny cream fizz tiles at its surface. Warm golden sun accents upper right, restrained sage and teal leaf corners. The joke is compulsive cola consumption / 'coke fiend', not bubble tea. Keep bold large simple silhouettes readable small, handmade chunky ceramic tesserae with cream grout. NO domed transparent lid, NO bubble-tea pearls, NO floating balls or bubble halo, NO bottles, NO real brands, logos or wave-stripe motif. NO drug paraphernalia or powder, no lettering/numbers, no red, no amber drink. One character only. Opaque landscape 3:2 PNG1536x1024.
+
+
+
+## Friendly Queues v3 — 3 October 2026
+
+User requested blue eyes and smile directly on cream bubbles, removing face backings. Robot Workers v2 is now user-approved and unchanged. Cola Fiends v3 is a new source-only preview pending selection. The complete supplied v3 prompt record follows.
+
+# Batch 2 revision v3 prompts
+
+Built-in image_gen edits. Friendly Queues replaces the previous smiley treatment at user request; Cola Fiends is a new abstract candidate for review. Robot Workers v2 is approved and unchanged. Both new masters are 1536 × 1024 PNGs.
+
+## friendly-queues
+
+Use case: precise-object-edit. Image1 is the edit target. Change ONLY the smiley symbols inside the two cream speech bubbles. REMOVE BOTH turquoise circular face backgrounds entirely and fill their former area with matching warm cream ceramic mosaic tesserae. In each bubble draw ONLY two small TURQUOISE BLUE eyes and a simple curved TURQUOISE BLUE smiling mouth, directly on the cream bubble interior. No circle, disc, ring, outline head or coloured face backing around these three facial marks. The eyes and smile themselves are blue, not dark teal. Keep their scale legible. Preserve everything else exactly: two overlapping cream bubbles with dark teal outlines, rope posts, sagging golden rope, foliage, sun rays, golden tile border, ceramic texture and palette. No text or red. Opaque landscape 1536x1024 PNG.
+
+## cola-fiends
+
+Use case: precise-object-edit. Image1 is the edit target for a text-free mosaic perk card called Cola Fiends. Keep the protective cola-clutching pose, main cola cup and two spent cups, golden sun rays, sage and teal foliage, gold border and chunky glazed ceramic mosaic material. Replace the entire detailed human character with a MUCH MORE ABSTRACT, graphic dark-teal guest silhouette, in the same central placement. A plain round/oval featureless head, a simple rounded torso and two simplified mitten-like hands curved protectively around the cola cup. No anatomical fingers or realistic skin. NO facial features at all: no eyes, nose, lips, teeth, cheeks, eyebrows, ears, hair or facial modelling. Slightly hunch the simple head towards the golden straw to suggest compulsive sipping / needing their cola fix. Make it read as an elegant playful symbolic icon rather than a cartoon portrait. Main cup: cream paper with teal band, dark teal-brown cola visible at rim, bent golden straw; spent cups at lower left indicate a cola habit. No bubble-tea pearls or floating bubbles, no drugs, no brands, no text, no red. Landscape3:2 opaque PNG1536x1024; all edges and border visible.
+
+
+
+## Cola Fiends v5 — approved 3 October 2026
+
+Selected v5 replaces the original runtime artwork; earlier candidates remain source alternatives. Approval: ../mosaic-suite-batch2/revisions-v5/APPROVAL.md. Effect remains: Guests prefer soft drinks to free water.
+
+# Cola Fiends v5 — alternative geometric close-up
+
+Built-in image_gen; prior v4 artwork used as a style reference. New candidate for user review, not a runtime replacement. Earlier concepts retained.
+
+## Prompt
+
+Use case: stylized-concept. Create ONE NEW alternative to image1 (style reference, not a scene to copy exactly). Text-free artwork for a festival-tycoon perk called Cola Fiends. Landscape3:2 PNG1536x1024.
+A cropped close-up of an ABSTRACT TEAL ADULT FACE leaning down towards a SINGLE STRAIGHT GOLDEN STRAW. Face seen at three-quarter angle rather than complete side profile. Use spare bold geometric planes: oval head, one angular triangular nose, two small cream eye slivers, tiny cream mouth notch. No large ear, no detailed hair, no realistic flesh, teeth, pupils or portrait anatomy. Expression slyly intent through the slightly lowered eye slivers and tilt. The face occupies left/centre; cream tiled negative space at right.
+The straight straw enters diagonally from the bottom-right edge and ends at the visually ambiguous small gap between underside of nose and upper lip. NO bend in the straw, no visible cup, drink, hands or torso. The composition should make the viewer briefly wonder whether the character is sipping cola or taking a 'coke' fix. This is suggestive visual wordplay only: no powder, drug substances, paraphernalia, instructions, labels or other props.
+Match image1's handmade glazed ceramic mosaic: chunky subtly irregular tesserae, warm ivory grout, rich deep teal/turquoise/sage/golden yellow/warm cream. Thin golden tile border fully visible on four sides, cream mosaic background, restrained sage leaf corners and a few golden rays. Clear simple icon-like abstraction, not uncanny cartoon human, not vector illustration. NO red, text, letters, numerals, logos or watermarks. Opaque straight-on flat mosaic panel. Keep complete face/straw relation safely inside the border, except bottom of straw intentionally goes offscreen.
+
+

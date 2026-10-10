@@ -23,6 +23,8 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public bool CommunityFavourClaimed { get; init; }
     public ulong? MaintenanceWorkerId { get; init; }
     public bool WaterTowerOwned { get; init; }
+    /// <summary>Presentation acknowledgement for this attempt, saved with normal session state.</summary>
+    public bool ChallengeAcknowledged { get; init; }
     public bool ExtraMedicSlotOwned { get; init; }
     public bool ExtraStewardSlotOwned { get; init; }
     public bool RespondersUpgraded { get; init; }
@@ -471,7 +473,7 @@ public sealed partial class GameSession
         _traversalGrid = null;
         PreparationView = p with
         {
-            Attempt = p.Attempt + 1, Status = PreparationStatus.Preparing, AcceptedOffers = [],
+            Attempt = p.Attempt + 1, Status = PreparationStatus.Preparing, AcceptedOffers = [], ChallengeAcknowledged = false,
             FinishedBeerIds = [], GuestMedicalCollapses = 0, Result = null,
             Rentals = [], WorkContracts = [], StartedTick = 0, StockConsumed = 0,
             People = baseline.PreparationView!.People

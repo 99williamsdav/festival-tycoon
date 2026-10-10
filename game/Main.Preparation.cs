@@ -211,6 +211,7 @@ public partial class Main
         RefreshHudWorkspace();
         Perks.Refresh();
         RefreshFestivalPaper();
+        RefreshChallengeReveal();
     }
 
 private void RebuildPreparationOffers()

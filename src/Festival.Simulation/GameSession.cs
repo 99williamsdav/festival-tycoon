@@ -118,6 +118,10 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyStartPreparedEdition();
                 break;
+            case AcknowledgeFestivalChallengeCommand:
+                affectedTarget = null;
+                _preparation = _preparation! with { ChallengeAcknowledged = true };
+                break;
             case CreateFixtureRecordCommand create:
                 affectedTarget = new EntityId(NextEntityId);
                 _fixtureRecords.Add(affectedTarget.Value, new FixtureRecordState
@@ -738,15 +742,16 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
 
         var lifecycleFrozen = ValidateLifecycleFrozenCommand(envelope.Command);
         if (lifecycleFrozen is not null) return lifecycleFrozen;
-        if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
+        if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand or AcknowledgeFestivalChallengeCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
+        if (_preparation is not null && envelope.Command is not (AcknowledgeFestivalChallengeCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
 
         return envelope.Command switch
         {
+            AcknowledgeFestivalChallengeCommand challenge => ValidateChallengeAcknowledgement(envelope.TargetId, challenge),
             RemovePreparationOfferCommand or SetPreparationStockCommand => ValidatePlanEdit(envelope.TargetId, envelope.Command),
             ChooseFoodTraderCommand trader => ValidateChooseFoodTrader(envelope.TargetId, trader),
             PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand => ValidateBuildCommand(envelope.TargetId, envelope.Command),

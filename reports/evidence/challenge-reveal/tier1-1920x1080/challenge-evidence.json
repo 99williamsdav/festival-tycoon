@@ -1,0 +1,16 @@
+{
+  "passed": true,
+  "tier": 1,
+  "challenge": "heatwave",
+  "artAspect": "3:2 uncropped",
+  "revealBeforePerks": true,
+  "pendingPerkPreserved": true,
+  "underlyingHudHidden": true,
+  "noSimulationOrCameraChange": true,
+  "continuation": true,
+  "menuResumeDoesNotRepeat": true,
+  "freshFestivalResets": true,
+  "acknowledgementRestores": true,
+  "keyboardFocus": true,
+  "caveat": "Scripted exported UI checks; no manual playthrough or controller hardware test. Existing tier weather simulation unchanged by reveal. Retry reset verified by simulation tests."
+}

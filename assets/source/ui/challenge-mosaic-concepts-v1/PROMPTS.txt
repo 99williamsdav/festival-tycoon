@@ -1,0 +1,62 @@
+MODE: Built-in image_gen, one generation per candidate. transparent_background=false.
+References in order: references/something-in-the-water-mosaic-v1.png; references/festival-tycoon-mosaic-logo-v2.png
+
+heatwave-a — Blazing fields
+Use case: stylized-concept.
+Asset type: text-free cinematic challenge reveal artwork for Festival Tycoon, concept candidate only.
+Input images: Image 1 is the approved water perk mosaic, Image 2 the approved festival mosaic logo. Both are STYLE AND CERAMIC MATERIAL references only. Do not copy their text, lettering, logo, card layout, frames or roofed stage.
+Make a full-bleed landscape 3:2 image, requested 1536x1024. A flat straight-on handmade ceramic mosaic mural filling the entire frame. Chunky irregular glazed tesserae, warm ivory grout, subtle raised bevels and beautiful tactile glaze highlights, rich crafted tilework. Broad readable silhouettes and flowing tile courses; rustic charming British rural festival character. Deep teal, turquoise, sage, pure golden yellow and warm cream ONLY; dark teal shadows. No red or orange-red hues.
+No border or card template. No text, letters, numbers, titles, logos, prices, UI or watermark anywhere. No tabletop, perspective view of a physical slab, photoreal sky, smooth painted surfaces or tiny generic pixels. No casualties, disasters or new game mechanics.
+All essential storytelling within central 80% width and central 80% height; peripheral scenery can crop for a centered 16:9 reveal. Opaque image.
+
+Scene direction: A panoramic farmland festival under a huge blazing golden sun. Sun in upper-middle with sweeping golden and cream heat rays filling the sky; flowing heat-shimmer tile bands over dry sage and straw-gold rolling fields. A small uncovered teal stage and a few simplified attendees, sparse bunting and festival tents occupy the middle distance, dwarfed by the oppressive sun. Foreground sweeping field furrows and a few drooping grass heads. Clear layered landscape, dominant sun, cinematic open space. Heatwave obvious, cheerful but dramatically hot. Keep complete sun disk inside crop-safe area.
+
+heatwave-b — Sun and wilted leaves
+Use case: stylized-concept.
+Asset type: text-free cinematic challenge reveal artwork for Festival Tycoon, concept candidate only.
+Input images: Image 1 is the approved water perk mosaic, Image 2 the approved festival mosaic logo. Both are STYLE AND CERAMIC MATERIAL references only. Do not copy their text, lettering, logo, card layout, frames or roofed stage.
+Make a full-bleed landscape 3:2 image, requested 1536x1024. A flat straight-on handmade ceramic mosaic mural filling the entire frame. Chunky irregular glazed tesserae, warm ivory grout, subtle raised bevels and beautiful tactile glaze highlights, rich crafted tilework. Broad readable silhouettes and flowing tile courses; rustic charming British rural festival character. Deep teal, turquoise, sage, pure golden yellow and warm cream ONLY; dark teal shadows. No red or orange-red hues.
+No border or card template. No text, letters, numbers, titles, logos, prices, UI or watermark anywhere. No tabletop, perspective view of a physical slab, photoreal sky, smooth painted surfaces or tiny generic pixels. No casualties, disasters or new game mechanics.
+All essential storytelling within central 80% width and central 80% height; peripheral scenery can crop for a centered 16:9 reveal. Opaque image.
+
+Scene direction: A bold large sun-and-heat emblem occupying most of the mural: an immense golden sun disk centered slightly high, dense long radiating cream and golden rays, three broad sinuous teal heat-shimmer ribbons rising through the lower half. Large wilting sage leaves bow inward from lower sides above stylized parched-earth tesserae. A tiny arc of festival bunting and an uncovered rural stage silhouette nestled at the base provide festival identity. Almost heraldic but full-bleed, no circular badge enclosure and no border. Symbolic, powerful, graphic heatwave; much closer and bolder than a landscape.
+
+heatwave-c — Seeking shade
+Use case: stylized-concept.
+Asset type: text-free cinematic challenge reveal artwork for Festival Tycoon, concept candidate only.
+Input images: Image 1 is the approved water perk mosaic, Image 2 the approved festival mosaic logo. Both are STYLE AND CERAMIC MATERIAL references only. Do not copy their text, lettering, logo, card layout, frames or roofed stage.
+Make a full-bleed landscape 3:2 image, requested 1536x1024. A flat straight-on handmade ceramic mosaic mural filling the entire frame. Chunky irregular glazed tesserae, warm ivory grout, subtle raised bevels and beautiful tactile glaze highlights, rich crafted tilework. Broad readable silhouettes and flowing tile courses; rustic charming British rural festival character. Deep teal, turquoise, sage, pure golden yellow and warm cream ONLY; dark teal shadows. No red or orange-red hues.
+No border or card template. No text, letters, numbers, titles, logos, prices, UI or watermark anywhere. No tabletop, perspective view of a physical slab, photoreal sky, smooth painted surfaces or tiny generic pixels. No casualties, disasters or new game mechanics.
+All essential storytelling within central 80% width and central 80% height; peripheral scenery can crop for a centered 16:9 reveal. Opaque image.
+
+Scene direction: An intimate atmospheric festival scene from attendee height in oppressive midday heat. A large drooping sage tree enters from left and throws one narrow deep-teal patch of shade, where a few simple cream/teal attendee silhouettes gather. Vast sun-bleached golden ground, shimmering serpentine heat bands, slack bunting strung through the middle, a tiny uncovered stage in the hazy distance at right. The sun itself is mostly beyond the upper edge: glaring cream-gold light and compressed teal shadows tell the heat story. Strong asymmetrical close composition, warm weary summer charm. No drinks or text signs; avoid introducing mechanics.
+
+heavy-rain-a — Rain across the festival
+Use case: stylized-concept.
+Asset type: text-free cinematic challenge reveal artwork for Festival Tycoon, concept candidate only.
+Input images: Image 1 is the approved water perk mosaic, Image 2 the approved festival mosaic logo. Both are STYLE AND CERAMIC MATERIAL references only. Do not copy their text, lettering, logo, card layout, frames or roofed stage.
+Make a full-bleed landscape 3:2 image, requested 1536x1024. A flat straight-on handmade ceramic mosaic mural filling the entire frame. Chunky irregular glazed tesserae, warm ivory grout, subtle raised bevels and beautiful tactile glaze highlights, rich crafted tilework. Broad readable silhouettes and flowing tile courses; rustic charming British rural festival character. Deep teal, turquoise, sage, pure golden yellow and warm cream ONLY; dark teal shadows. No red or orange-red hues.
+No border or card template. No text, letters, numbers, titles, logos, prices, UI or watermark anywhere. No tabletop, perspective view of a physical slab, photoreal sky, smooth painted surfaces or tiny generic pixels. No casualties, disasters or new game mechanics.
+All essential storytelling within central 80% width and central 80% height; peripheral scenery can crop for a centered 16:9 reveal. Opaque image.
+
+Scene direction: A wide dramatic panorama of a small rural festival beneath sweeping deep-teal storm clouds. Broad diagonal cream and turquoise rain strokes slash across the entire scene, visibly made of long ceramic tesserae. Small uncovered stage, tents, bunting and simplified attendees in middle distance; sage fields and large foreground turquoise puddles reflecting muted golden festival details. Wind-leaning grasses and flowing slopes give movement. Dominant slanting sheets of heavy rain, playful dramatic weather rather than destruction. Rich contrast, lively landscape.
+
+heavy-rain-b — Cloudburst and ripples
+Use case: stylized-concept.
+Asset type: text-free cinematic challenge reveal artwork for Festival Tycoon, concept candidate only.
+Input images: Image 1 is the approved water perk mosaic, Image 2 the approved festival mosaic logo. Both are STYLE AND CERAMIC MATERIAL references only. Do not copy their text, lettering, logo, card layout, frames or roofed stage.
+Make a full-bleed landscape 3:2 image, requested 1536x1024. A flat straight-on handmade ceramic mosaic mural filling the entire frame. Chunky irregular glazed tesserae, warm ivory grout, subtle raised bevels and beautiful tactile glaze highlights, rich crafted tilework. Broad readable silhouettes and flowing tile courses; rustic charming British rural festival character. Deep teal, turquoise, sage, pure golden yellow and warm cream ONLY; dark teal shadows. No red or orange-red hues.
+No border or card template. No text, letters, numbers, titles, logos, prices, UI or watermark anywhere. No tabletop, perspective view of a physical slab, photoreal sky, smooth painted surfaces or tiny generic pixels. No casualties, disasters or new game mechanics.
+All essential storytelling within central 80% width and central 80% height; peripheral scenery can crop for a centered 16:9 reveal. Opaque image.
+
+Scene direction: A bold symbolic weather composition, almost heraldic but not enclosed in a badge: a huge scalloped deep-teal cloud dominates upper-middle; many strong turquoise and cream rain streams and oversized raindrop forms fall into broad concentric puddle ripples across the lower half. Tiny sage festival tents and one string of muted golden bunting flank the water motif to root it in a rural festival. The cloud, rain and ripples occupy nearly all the image; chunky tile rhythm, high graphic readability, playful force. No lightning or flood disaster. A distinct close emblem-like full-bleed mural without a border.
+
+heavy-rain-c — The soaked track
+Use case: stylized-concept.
+Asset type: text-free cinematic challenge reveal artwork for Festival Tycoon, concept candidate only.
+Input images: Image 1 is the approved water perk mosaic, Image 2 the approved festival mosaic logo. Both are STYLE AND CERAMIC MATERIAL references only. Do not copy their text, lettering, logo, card layout, frames or roofed stage.
+Make a full-bleed landscape 3:2 image, requested 1536x1024. A flat straight-on handmade ceramic mosaic mural filling the entire frame. Chunky irregular glazed tesserae, warm ivory grout, subtle raised bevels and beautiful tactile glaze highlights, rich crafted tilework. Broad readable silhouettes and flowing tile courses; rustic charming British rural festival character. Deep teal, turquoise, sage, pure golden yellow and warm cream ONLY; dark teal shadows. No red or orange-red hues.
+No border or card template. No text, letters, numbers, titles, logos, prices, UI or watermark anywhere. No tabletop, perspective view of a physical slab, photoreal sky, smooth painted surfaces or tiny generic pixels. No casualties, disasters or new game mechanics.
+All essential storytelling within central 80% width and central 80% height; peripheral scenery can crop for a centered 16:9 reveal. Opaque image.
+
+Scene direction: An atmospheric low viewpoint along a rain-soaked rural festival track. A broad serpentine turquoise puddled path leads from foreground center toward a small distant uncovered teal stage between muted sage fields. Reflected golden bunting and silhouettes shimmer in wet ground. Dense dark-teal layered storm sky and fine but chunky visible slanting cream/turquoise tile rain. Wind-bent sage grass close in foreground; a few small attendees walking in the middle distance, no detailed faces. Moody saturated wet textures, quiet cinematic depth and beautiful broad puddle reflections; storm-heavy but charming, no catastrophe. Different composition from panoramic storm or cloud emblem.

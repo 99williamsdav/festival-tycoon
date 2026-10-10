@@ -84,7 +84,7 @@ public partial class Main
 
     private bool WorldInputOccluded(Vector2 screen)
     {
-        if (ResultsPaper.IsOpen || StartMenu.IsOpen || _hudStartConfirmation?.Visible == true || Hearing.IsOpen || HoverPopupActive) return true;
+        if (_challengeReveal.IsOpen || ResultsPaper.IsOpen || StartMenu.IsOpen || _hudStartConfirmation?.Visible == true || Hearing.IsOpen || HoverPopupActive) return true;
         if (Perks.Panel?.IsVisibleInTree() == true && Perks.Panel.GetGlobalRect().HasPoint(screen)) return true;
         if (Perks.EffectPopup?.IsVisibleInTree() == true && Perks.EffectPopup.GetGlobalRect().HasPoint(screen)) return true;
         if (Top.IsBuilt && HudBlocksPlacement(screen)) return true;

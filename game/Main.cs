@@ -40,7 +40,7 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v58", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v58");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v59", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v59");
 
     public override void _Ready()
     {
@@ -64,6 +64,8 @@ public partial class Main : Node, IHudHost
         else _rig.Frame(Vector3.Zero, 62);
         ResetFinanceFeedback();
         if (OS.GetCmdlineUserArgs().Length == 0 && _session.CaptureEquipment() is not null) BuildStartSplash();
+        _challengeFlowEnabled = OS.GetCmdlineUserArgs().Length == 0 || _startTier is not null || _pondStageTrialFlag || _challengeEvidenceOutput is not null;
+        RefreshChallengeReveal();
         var version = Engine.GetVersionInfo()["string"].AsString();
         GD.Print($"FESTIVAL_TYCOON_LAUNCHED build={ToolchainSmoke.BuildVersion} godot={version}");
         GD.Print($"FARM_SCENE_READY scenario={LowerWitteringFarmScenario.ScenarioId} objects={_visualRegistry.Count} hash={_session.CaptureSnapshot().AuthoritativeHash}");
@@ -74,6 +76,8 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        ProcessChallengeEvidence();
+        if (_challengeReveal.IsOpen) return;
         if (_genreAudioVerificationOutput is not null) return;
         if (!EyeViewActive) _rig.Process(delta);
         ProcessEyeView(delta);
@@ -113,7 +117,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Input(InputEvent inputEvent)
     {
-        if (StartMenu.IsOpen) return;
+        if (StartMenu.IsOpen || _challengeReveal.IsOpen) return;
         _rig.ObserveRelease(inputEvent);
     }
 
@@ -125,6 +129,7 @@ public partial class Main : Node, IHudHost
             if (inputEvent is InputEventKey { Pressed: true, Keycode: Key.Escape }) CloseFieldGuide();
             GetViewport().SetInputAsHandled(); return;
         }
+        if (_challengeReveal.IsOpen) { GetViewport().SetInputAsHandled(); return; }
         if (ResultsPaper.IsOpen || StartMenu.IsOpen) return;
         if (Perks.Panel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && Perks.Panel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
@@ -576,6 +581,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-willow" && i + 1 < args.Length) { _pondEvidenceOutput = args[++i]; _willowEvidence = true; }
             else if (args[i] == "--capture-grass" && i + 1 < args.Length) _grassEvidenceOutput = args[++i];
             else if (args[i] == "--capture-trees" && i + 1 < args.Length) _treeEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-challenge" && i + 1 < args.Length) _challengeEvidenceOutput = args[++i];
             else if (args[i] == "--verify-genre-audio" && i + 1 < args.Length) _genreAudioVerificationOutput = args[++i];
             else if (args[i] == "--capture-steward-cleanup" && i + 1 < args.Length)
                 _litterEvidenceOutput = _cleanupEvidenceOutput = args[++i];
@@ -604,7 +610,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v58");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v59");
 
 
 
