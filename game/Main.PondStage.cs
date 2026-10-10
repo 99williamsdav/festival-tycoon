@@ -173,8 +173,12 @@ public partial class Main
         if (_selectedPond == "generator")
         {
             _inspectorTitle.Text = "Pond Stage generator";
-            _inspectorBody.Text = generator is null ? "Runs the Pond Stage only." :
-                $"POWER {power?.Total ?? 0} / {generator.Capacity} · {PondGeneratorState(generator, power)}\n" +
+            // Pooled with the farm generator, it shows the whole supply: one load, one strain.
+            _inspectorBody.Text = generator is null ? "Runs the Pond Stage only." : _session.PowerPooled && power is not null
+                ? $"POWER {power.Total} / {power.Capacity} · {PondGeneratorState(generator, power)}\n" + PowerParts(power) +
+                    (_session.PreparedStatus == PreparationStatus.Preparing ? " (evening peak)" : "") + PooledSupplyText() +
+                    "\nHired with the stage; it shares the load with the farm generator."
+                : $"POWER {power?.Total ?? 0} / {generator.Capacity} · {PondGeneratorState(generator, power)}\n" +
                 $"Stage {power?.Stage ?? 0} ({PowerRules.RigName(_session.Rig)})" + (_session.PreparedStatus == PreparationStatus.Preparing ? " (evening peak)" : "") +
                 "\nHired with the stage; it runs the Pond Stage's rig and nothing else.";
         }

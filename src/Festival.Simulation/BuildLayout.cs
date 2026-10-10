@@ -70,13 +70,23 @@ public sealed partial class GameSession
     /// From Tier 2, the tier's second tap and third toilet join it: the tap beside the Pond Stage's crowd, east of the
     /// lane, so its listeners and band don't walk the width of the field for water; the toilet on
     /// the lane end of the row. Both keep clear of either stage, the rest area and the lane, with or without the pond.
+    /// A second bar stands back to back with the first, serving the Pond Stage's crowd, and a second van (curry, see
+    /// <see cref="DefaultSecondVanTrader"/>) faces that crowd from the south, each with a bin for its litter. With the
+    /// generators pooled the basic PA on both stages, four stalls and the lights draw exactly the 170 the pool holds.
     /// </remarks>
     public static BuildPlacement[] StandardBuildLayout(int tier = 1) => tier < 2 ? TierOneBuildLayout() :
     [
         .. TierOneBuildLayout(),
         new("water.extra-1", BuildServiceKind.WaterTap, new(159, 139), 0),
         new("toilet.extra-2", BuildServiceKind.Toilet, new(122, 121), 2),
+        new(Stalls.Id(BuildServiceKind.Bar, 2), BuildServiceKind.Bar, new(152, 146), 1),
+        new(Stalls.Id(BuildServiceKind.FoodVan, 2), BuildServiceKind.FoodVan, new(170, 128), 0),
+        new("bin.2", BuildServiceKind.Bin, new(156, 152), 0),
+        new("bin.3", BuildServiceKind.Bin, new(178, 134), 0),
     ];
+
+    /// <summary>The trader the default layout pitches at its second van, unless the player picked one for it already.</summary>
+    public const string DefaultSecondVanTrader = "trader.korma-chameleon";
 
     private static BuildPlacement[] TierOneBuildLayout() =>
     [
@@ -162,6 +172,11 @@ public sealed partial class GameSession
             UseDefaultBuildLayoutCommand => StandardBuildLayout(p.Tier).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(),
             _ => throw new InvalidOperationException("Unknown build edit.")
         } };
+        // The default's second van is the curry van, unless the player already picked its trader or van 1 has curry.
+        if (command is UseDefaultBuildLayoutCommand && _preparation.Plan is { } plan && _preparation.BuildPlacements.Any(item => item.Id == Stalls.Id(BuildServiceKind.FoodVan, 2)) &&
+            ChosenTraderId(plan, Stalls.Id(BuildServiceKind.FoodVan, 2)) is null && plan.TraderId != DefaultSecondVanTrader)
+            _preparation = _preparation with { Plan = plan with { VanTraders = (plan.VanTraders ?? []).Append(new(Stalls.Id(BuildServiceKind.FoodVan, 2), DefaultSecondVanTrader))
+                .OrderBy(item => Stalls.Number(item.VanId)).ToArray() } };
         SyncBuildPhysicalLayout();
     }
 

@@ -133,7 +133,7 @@ public sealed class MarqueeTests
 
         var two = NextFestivalTests.Drafted(GameSession.CreateDevelopmentFestival(20260922, 2));
         Assert.IsTrue(Place(two, ByTheCrowd).IsAccepted);
-        Assert.IsTrue(Place(two, new(166, 124)).IsAccepted);
+        Assert.IsTrue(Place(two, new(172, 116)).IsAccepted);
         CollectionAssert.AreEqual(new[] { "marquee.extra-1", "marquee.main" },
             two.CaptureBuildPlacements().Where(item => item.Kind == BuildServiceKind.Marquee).Select(item => item.Id).ToArray());
         Assert.IsFalse(Place(two, new(165, 118)).IsAccepted, "Tier 2 hires two.");

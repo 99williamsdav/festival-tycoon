@@ -139,14 +139,22 @@ public sealed partial class GameSession
         return engineer.MixingBonus - (PersonIn(PersonView.Consumption, id)?.Intoxication ?? 0) / 2_500;
     }
 
-    /// <summary>What a stage after the trailer's draws from its own generator now; before opening, its planned peak.</summary>
+    /// <summary>
+    /// The supply a stage after the trailer's draws on now (before opening, the planned peak): with the generators pooled,
+    /// the whole pool and everything on it.
+    /// </summary>
     public PowerDraw? CaptureStagePower(string stageId)
     {
         var stage = FestivalStages.IndexOf(Stages, stageId);
         if (stage <= 0 || StageGenerator(stage) is not { } generator) return null;
+        return PowerPooled ? CapturePower() : new(StageRigDraw(stage), 0, 0, 0, generator.Capacity);
+    }
+
+    /// <summary>A later stage's rig: its full draw while its set plays (or planned, before opening), standby between sets.</summary>
+    private int StageRigDraw(int stage)
+    {
         var live = _preparation?.Status is PreparationStatus.Running or PreparationStatus.Departing or PreparationStatus.Failed or PreparationStatus.Finished;
-        var rig = !StagePoweredAt(stage) ? 0 : !live || _livePerformances[stage]?.Stage == LiveSetStage.Live ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
-        return new(rig, 0, 0, 0, generator.Capacity);
+        return !StagePoweredAt(stage) ? 0 : !live || _livePerformances[stage]?.Stage == LiveSetStage.Live ? PowerRules.RigDraw(Rig) : PowerRules.RigStandbyDraw;
     }
 
     /// <summary>One tick of each second stage's generator: strain builds over capacity and eases under it, as the farm diesel's does.</summary>
@@ -157,7 +165,7 @@ public sealed partial class GameSession
         {
             var g = StageGenerator(stage)!;
             var draw = CaptureStagePower(g.StageId)!;
-            var over = draw.Total - draw.Capacity;
+            var over = Overage(draw, !PowerPooled || StageGeneratorInPool(g));
             var strain = over > 0 ? Math.Min(PowerRules.StrainMaximum, g.Strain + over) : Math.Max(0, g.Strain - PowerRules.StrainRecoveryPerTick);
             g = g with { Strain = strain };
             var name = Stages[stage].Name;
@@ -188,7 +196,7 @@ public sealed partial class GameSession
             {
                 var g = StageGenerator(stage)!;
                 var draw = CaptureStagePower(g.StageId)!;
-                var over = draw.Total - draw.Capacity;
+                var over = Overage(draw, !PowerPooled || StageGeneratorInPool(g));
                 var next = over > 0 ? Math.Min(PowerRules.StrainMaximum, g.Strain + over) : Math.Max(0, g.Strain - PowerRules.StrainRecoveryPerTick);
                 if (g.Stage is EquipmentStage.Normal or EquipmentStage.Resolved && next >= PowerRules.StrainWarning ||
                     g.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault && next == 0 ||

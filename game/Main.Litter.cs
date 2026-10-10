@@ -44,13 +44,15 @@ public partial class Main
     }
     private static uint WasteVisualSeed(string id)
     { var hash = 2166136261u; foreach (var ch in id) hash = unchecked((hash ^ ch) * 16777619); return hash; }
+    private const float FoodLitterLift = .02f;
     private static Transform3D GroundWasteTransform(WastePiece piece, Vector3 position)
     {
         var seed = WasteVisualSeed(piece.Id); var yaw = seed % 6283 / 1000f;
         var side = !piece.Product.IsFood() && seed % 3 != 0;
         var pose = side ? new Quaternion(Vector3.Right, Mathf.Pi / 2) : Quaternion.Identity;
         var basis = new Basis(new Quaternion(Vector3.Up, yaw) * pose);
-        var support = side ? piece.Product == ImmersionProduct.Beer ? .046f : .047f : 0;
+        // A food tray or plate sits up on the grass blades, so its floor (the smear, the crumbs) shows rather than its rim alone.
+        var support = side ? piece.Product == ImmersionProduct.Beer ? .046f : .047f : piece.Product.IsFood() ? FoodLitterLift : 0;
         return new(basis, position + new Vector3(0, support + .003f, 0));
     }
     private void SyncLitterWorld()

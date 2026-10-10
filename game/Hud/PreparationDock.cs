@@ -373,8 +373,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         _readinessTitle!.Text = missing.Length == 0 ? "Ready to open" : "Ready to open?";
         _readinessDetail!.Text = missing.Length == 0 ? "Everything required is in place" : $"{Count(missing.Length)} left before Start";
         var stocked = _hud.Session.CapturePreparationPlan() is not { SoftDrinks: 0, Beers: 0 };
-        // Shown only when the plan overloads the generator: every bar and van draws from it, so a second of each takes a
-        // basic day past the farm diesel.
+        // Shown only when the plan overloads the supply (the farm generator, pooled with the Pond Stage's when it's open):
+        // every bar and van draws from it.
         var power = _hud.Session.PowerBudgetActive && _hud.Session.CapturePower() is { Over: true } over ? over : null;
         var key = string.Join("|", requirements.Select(item => item.Id + ":" + item.Complete)) + "|stock:" + stocked + "|power:" + power?.Total + "/" + power?.Capacity;
         if (key == _readinessKey) return;
@@ -389,7 +389,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             "Optional, but the bar and food van will have nothing to sell."), advisory: true));
         if (power is not null)
             _readinessRows.AddChild(ReadinessRow(new PreparationStartRequirement("power", PreparationStartOwner.Overview, "Power", false,
-                $"The evening peak draws {power.Total} of the generator's {power.Capacity}, and each bar and food van draws {PowerRules.StallDraw}. Hire a bigger generator in Supplies, or switch things off when it strains."),
+                $"The evening peak draws {power.Total} of the {(_hud.Session.PowerPooled ? "pooled generators'" : "generator's")} {power.Capacity}, and each bar and food van draws {PowerRules.StallDraw}. Hire a bigger generator in Supplies, or switch things off when it strains."),
                 advisory: true, ("Power within capacity", "Generator over capacity")));
     }
 

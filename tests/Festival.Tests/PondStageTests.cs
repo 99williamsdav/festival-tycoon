@@ -209,9 +209,9 @@ public sealed class PondStageTests
     }
 
     [TestMethod]
-    public void TheProRigStrainsThePondGeneratorButNotTheFarms()
+    public void TheProRigOnBothStagesStrainsThePooledSupplyAndBothGeneratorsShowIt()
     {
-        // The pro rig on cheap acts. With the bar and food van switched off the farm's diesel carries it; the pond's 70 can't carry 80.
+        // The pro rig on cheap acts: both rigs, the bar, the van and the lights draw from the farm's 100 and the pond's 70.
         var s = BuildSession.PondDrafted();
         BuildSession.Accept(s, new SetProgrammeCommand(BuildSession.Acts));
         BuildSession.Accept(s, new SetProgrammeCommand(["act.two-men-harmonium", "act.dj-spreadsheet", "act.kerry-co-op"]) { StageId = FestivalStages.PondId });
@@ -219,23 +219,32 @@ public sealed class PondStageTests
         foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
         BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Sound)));
         BuildSession.Accept(s, new AcceptPreparationOfferCommand(PowerRules.ProRigOffer));
-        // Planned, the pond rig's peak is over its generator; the trailer's power plan doesn't count it.
-        Assert.AreEqual(new PowerDraw(PowerRules.ProRigDraw, 0, 0, 0, StageGeneratorRules.PondCapacity), s.CaptureStagePower(FestivalStages.PondId));
-        Assert.AreEqual(PowerRules.ProRigDraw, s.CapturePower().Stage);
+        // Planned, the evening peak is over the pool, and the pond's generator shows the same pooled supply.
+        var plan = s.CapturePower();
+        Assert.AreEqual(new PowerDraw(PowerRules.ProRigDraw, PowerRules.StallDraw, PowerRules.StallDraw, PowerRules.LightsDraw,
+            PowerRules.FarmDieselCapacity + StageGeneratorRules.PondCapacity) { OtherStages = PowerRules.ProRigDraw }, plan);
+        Assert.IsTrue(plan.Over);
+        Assert.AreEqual(plan, s.CaptureStagePower(FestivalStages.PondId));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
-        BuildSession.Accept(s, new EquipmentCommand(EquipmentAction.ToggleBarPower));
-        BuildSession.Accept(s, new EquipmentCommand(EquipmentAction.ToggleFoodPower));
         var start = s.CapturePreparation()!.StartedTick;
-        Assert.AreEqual(PowerRules.RigStandbyDraw, s.CaptureStagePower(FestivalStages.PondId)!.Stage, "Idle until its set plays.");
+        Assert.AreEqual(PowerRules.RigStandbyDraw, s.CapturePower().OtherStages, "Idle until its set plays.");
+        // Both sets playing with both stalls on: 190 of 170. Both generators carry the strain and warn together.
         s.AdvanceWithoutSnapshot((int)(start + Pond.SlotStarts[0] + 200 - s.CurrentTick));
         Assert.AreEqual(LiveSetStage.Live, s.CaptureLivePerformance(FestivalStages.PondId)!.Stage);
         var soundBefore = s.SoundScoreAt(FestivalStages.PondId);
         while (s.CaptureStageGenerator(FestivalStages.PondId)!.Stage != EquipmentStage.Warning && s.CurrentTick < start + Pond.SlotEnds[0])
             s.AdvanceWithoutSnapshot(40);
         Assert.AreEqual(EquipmentStage.Warning, s.CaptureStageGenerator(FestivalStages.PondId)!.Stage);
+        Assert.AreEqual(EquipmentStage.Warning, s.CaptureEquipment()!.Stage, "One supply, one overload.");
+        Assert.AreEqual(s.CaptureEquipment()!.Strain, s.CaptureStageGenerator(FestivalStages.PondId)!.Strain);
         Assert.AreEqual(soundBefore - PerformanceRules.StrainedSoundPenalty, s.SoundScoreAt(FestivalStages.PondId));
-        Assert.AreEqual(EquipmentStage.Resolved, s.CaptureEquipment()!.Stage);
+        // Switching the bar and van off brings it to 160: the pool eases and both settle.
+        BuildSession.Accept(s, new EquipmentCommand(EquipmentAction.ToggleBarPower));
+        BuildSession.Accept(s, new EquipmentCommand(EquipmentAction.ToggleFoodPower));
+        for (var i = 0; i < 40 && s.CaptureEquipment()!.Strain > 0; i++) s.AdvanceWithoutSnapshot(80);
         Assert.AreEqual(0, s.CaptureEquipment()!.Strain);
+        Assert.AreEqual(0, s.CaptureStageGenerator(FestivalStages.PondId)!.Strain);
+        Assert.AreEqual(EquipmentStage.Resolved, s.CaptureStageGenerator(FestivalStages.PondId)!.Stage);
         // Once the trailer's set ends its rig idles, whatever the pond's is doing.
         s.AdvanceWithoutSnapshot((int)(start + FestivalStages.Main.SlotEnds[0] + 80 - s.CurrentTick));
         Assert.AreEqual(LiveSetStage.Live, s.CaptureLivePerformance(FestivalStages.PondId)!.Stage);
