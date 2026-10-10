@@ -143,11 +143,12 @@ public sealed partial class GameSession
     /// The supply a stage after the trailer's draws on now (before opening, the planned peak): with the generators pooled,
     /// the whole pool and everything on it.
     /// </summary>
-    public PowerDraw? CaptureStagePower(string stageId)
+    public PowerDraw? CaptureStagePower(string stageId) => CaptureStagePower(stageId, CurrentTick);
+    private PowerDraw? CaptureStagePower(string stageId, long tick)
     {
         var stage = FestivalStages.IndexOf(Stages, stageId);
         if (stage <= 0 || StageGenerator(stage) is not { } generator) return null;
-        return PowerPooled ? CapturePower() : new(StageRigDraw(stage), 0, 0, 0, generator.Capacity);
+        return PowerPooled ? CapturePower(tick) : new(StageRigDraw(stage), 0, 0, 0, generator.Capacity);
     }
 
     /// <summary>A later stage's rig: its full draw while its set plays (or planned, before opening), standby between sets.</summary>
@@ -166,14 +167,17 @@ public sealed partial class GameSession
             var g = StageGenerator(stage)!;
             var draw = CaptureStagePower(g.StageId)!;
             var over = Overage(draw, !PowerPooled || StageGeneratorInPool(g));
-            var strain = over > 0 ? Math.Min(PowerRules.StrainMaximum, g.Strain + over) : Math.Max(0, g.Strain - PowerRules.StrainRecoveryPerTick);
+            // Pooled, the farm generator (advanced first) holds the one strain, and every generator in the pool takes it.
+            var strain = PowerPooled && FarmGeneratorInPool && StageGeneratorInPool(g) ? _equipment!.Strain
+                : over > 0 ? Math.Min(PowerRules.StrainMaximum, g.Strain + over) : Math.Max(0, g.Strain - PowerRules.StrainRecoveryPerTick);
             g = g with { Strain = strain };
             var name = Stages[stage].Name;
             switch (g.Stage)
             {
                 case EquipmentStage.Normal or EquipmentStage.Resolved when strain >= PowerRules.StrainWarning:
-                    g = g with { Stage = EquipmentStage.Warning, WarningTick = CurrentTick,
-                        Response = $"{name} generator overload: drawing {draw.Total} of {draw.Capacity}. Cut the stage or bring the load back under capacity before it faults." };
+                    g = g with { Stage = EquipmentStage.Warning, WarningTick = CurrentTick, Response = PowerPooled
+                        ? $"{name} generator overload: the pooled supply is drawing {draw.Total} of {draw.Capacity}. Switch off stalls or lights, or cut a stage's rig, before it faults."
+                        : $"{name} generator overload: drawing {draw.Total} of {draw.Capacity}. Cut the stage or bring the load back under capacity before it faults." };
                     break;
                 case EquipmentStage.Warning or EquipmentStage.DangerousFault when strain == 0:
                     g = g with { Stage = EquipmentStage.Resolved, Response = "Load back within capacity; the generator settled" };
@@ -195,7 +199,7 @@ public sealed partial class GameSession
             for (var stage = 1; stage < Stages.Count; stage++)
             {
                 var g = StageGenerator(stage)!;
-                var draw = CaptureStagePower(g.StageId)!;
+                var draw = CaptureStagePower(g.StageId, CurrentTick + 1)!;
                 var over = Overage(draw, !PowerPooled || StageGeneratorInPool(g));
                 var next = over > 0 ? Math.Min(PowerRules.StrainMaximum, g.Strain + over) : Math.Max(0, g.Strain - PowerRules.StrainRecoveryPerTick);
                 if (g.Stage is EquipmentStage.Normal or EquipmentStage.Resolved && next >= PowerRules.StrainWarning ||

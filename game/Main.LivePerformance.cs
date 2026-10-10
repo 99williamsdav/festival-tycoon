@@ -285,7 +285,7 @@ public partial class Main
             return _session.CaptureStageGenerator(stageId) is not { } generator ? 80 : generator.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? 0 :
                 generator.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? 120 : 80;
         return _session.CaptureEquipment() is { Version: 3 } budget
-            ? budget.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal ? 0 : budget.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? 120 : 80
+            ? budget.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal || budget.StageCut ? 0 : budget.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? 120 : 80
             : _session.CaptureEquipment()?.LoadPercent ?? 80;
     }
 

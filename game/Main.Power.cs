@@ -99,9 +99,10 @@ public partial class Main
     {
         if (!_session.PowerPooled || _session.CaptureEquipment() is not { } farm) return "";
         var pond = _session.CaptureStageGenerator(FestivalStages.PondId);
-        string Part(string name, int capacity, bool inPool) => inPool ? $"{name} {capacity}" : $"{name} cut off";
-        return $"\nOne supply: {Part("farm generator", _session.GeneratorCapacity, farm.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal))}" +
-            (pond is null ? "" : $" + {Part("Pond generator", pond.Capacity, pond.Stage != EquipmentStage.Isolated)}");
+        // A stage cut takes off only its rig; a generator leaves the supply only when it fails.
+        string Part(string name, int capacity, bool running) => running ? $"{name} {capacity}" : $"{name} failed";
+        return $"\nOne supply: {Part("farm generator", _session.GeneratorCapacity, farm.Stage != EquipmentStage.Terminal)}" +
+            (pond is null ? "" : $" + {Part("Pond generator", pond.Capacity, pond.Stage != EquipmentStage.Terminal)}");
     }
 
     private void BuildPowerSwitches(VBoxContainer parent)
@@ -149,6 +150,7 @@ public partial class Main
             EquipmentStage.Terminal => "Failed",
             _ => power.Over ? "Over capacity · strain building" : "Running within capacity",
         };
+        if (e.StageCut) state = "Trailer stage cut off · " + state;
         return $"POWER {power.Total} / {power.Capacity} · {state}\n" +
             PowerParts(power) + (_session.PreparedStatus == PreparationStatus.Preparing ? " (evening peak)" : "") + PooledSupplyText() +
             $"\nCondition {e.Condition / 100}%";

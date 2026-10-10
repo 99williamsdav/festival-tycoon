@@ -18,6 +18,12 @@ public sealed record EquipmentSnapshot(int Version, int XMillimetres, int ZMilli
     public bool BarPowered { get; init; } = true;
     public bool FoodPowered { get; init; } = true;
     public bool LightsPowered { get; init; } = true;
+    /// <summary>
+    /// With the generators pooled, the trailer stage's power is cut while the generator runs on for everything else (on a
+    /// single stage the cutoff is the Isolated stage instead).
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public bool StageCut { get; init; }
 }
 
 public sealed partial class GameSession
@@ -63,7 +69,7 @@ public sealed partial class GameSession
             if (command.Action == EquipmentAction.ShedLoad || command.Action != EquipmentAction.DispatchMaintenance && command.Action != EquipmentAction.Acknowledge &&
                 _preparation!.Status != PreparationStatus.Running || e.Stage == EquipmentStage.Terminal)
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Switch the bar, food van or lights off, or cut the stage, while the festival runs.");
-            if (command.Action == EquipmentAction.Isolate && e.Stage == EquipmentStage.Isolated)
+            if (command.Action == EquipmentAction.Isolate && (e.Stage == EquipmentStage.Isolated || e.StageCut))
                 return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The stage is already cut off.");
             if (command.Action is EquipmentAction.ToggleBarPower or EquipmentAction.ToggleFoodPower && _immersion is null)
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "There are no stalls on this generator.");
@@ -110,8 +116,10 @@ public sealed partial class GameSession
         }
         if (e.Version == 3)
         {
-            // Cutting the stage takes the rig off the generator; the stalls and lights stay on.
-            _equipment = e with { Stage = EquipmentStage.Isolated, Response = "Emergency cutoff: stage power isolated" };
+            // Cutting the stage takes the rig off the generator; the stalls and lights stay on. Pooled, the generator keeps
+            // running for the pool, strain and all, so the cut only ever lightens the load.
+            _equipment = PowerPooled ? e with { StageCut = true, Response = "Emergency cutoff: trailer stage power cut; the generator runs on for the pool" }
+                : e with { Stage = EquipmentStage.Isolated, Response = "Emergency cutoff: stage power isolated" };
             EquipmentEvent($"equipment:isolated:{CurrentTick}", _equipment.Response);
             return;
         }
@@ -156,6 +164,12 @@ public sealed partial class GameSession
             _equipment = e with { JobStage = MaintenanceStage.Completed, Stage = e.Version == 3 && e.Stage == EquipmentStage.Isolated ? EquipmentStage.Isolated : EquipmentStage.Resolved,
                 LoadPercent = e.Version == 3 ? e.LoadPercent : 80, Condition = 9_500, Strain = 0,
                 Response = e.Version == 3 ? "Physical repair completed; the generator is sound again" : "Physical repair completed and load balanced to 80%" };
+            // The pool's strain is one strain: a repair settles every generator in it, so they go on warning together.
+            if (PowerPooled)
+                for (var stage = 1; stage < Stages.Count; stage++)
+                    if (StageGenerator(stage) is { } g)
+                        SetStageGenerator(stage, g with { Strain = 0, Stage = g.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? EquipmentStage.Resolved : g.Stage,
+                            Response = g.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? "Settled with the farm generator's repair" : g.Response });
             EquipmentEvent("equipment:repair-complete", _equipment.Response);
             return;
         }
@@ -209,7 +223,9 @@ public sealed partial class GameSession
             budget && (e.Capacity is not (PowerRules.FarmDieselCapacity or PowerRules.HiredGeneratorCapacity) || e.Strain is < 0 or > PowerRules.StrainMaximum ||
                 e.Stage == EquipmentStage.Normal) ||
             e.Evidence is null || e.Evidence.Length < 1 || e.Evidence.Length > (budget ? 64 : 8) || e.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick || string.IsNullOrWhiteSpace(item.Id) || string.IsNullOrWhiteSpace(item.Description)) ||
-            e.Evidence.Select(item => item.Id).Distinct().Count() != e.Evidence.Length || !e.Evidence.Select(item => item.Tick).SequenceEqual(e.Evidence.Select(item => item.Tick).Order()) || string.IsNullOrWhiteSpace(e.Response))
+            e.Evidence.Select(item => item.Id).Distinct().Count() != e.Evidence.Length || !e.Evidence.Select(item => item.Tick).SequenceEqual(e.Evidence.Select(item => item.Tick).Order()) || string.IsNullOrWhiteSpace(e.Response) ||
+            // A cut that leaves the generator running only exists with a pooled supply, once the festival has opened.
+            e.StageCut && (!budget || s.StageGenerators is not { Length: > 0 } || p.Status == PreparationStatus.Preparing))
             return "Equipment identity, stage or evidence invalid.";
         if ((e.WorkerId is not null) != p.AcceptedOffers.Contains("maintenance.worker") ||
             e.WorkerId is { } worker && !p.People.Any(item => item.AgentId == worker && item.Name == "Morgan Finch" && item.Role == ProtectedPersonRole.Staff) ||

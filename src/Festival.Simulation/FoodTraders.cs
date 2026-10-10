@@ -14,10 +14,11 @@ namespace Festival.Simulation;
 /// <param name="PricePennies">What a portion costs a guest.</param>
 /// <param name="PortionCostPennies">What a portion they sell costs them to make. They bring what they need, so nothing's wasted.
 /// Not shown to the player.</param>
-/// <param name="AppealPennies">How much more than plain chips the average guest would happily pay for it. Thriftier guests
-/// weigh the price more and lean to cheap food, freer spenders to good food; quoted at the crowd's mean thrift. Guests
-/// weigh every second away from the music too, so a slower trader's appeal has to cover its wait as well as its price:
-/// pizza's and curry's do, and side by side with chips each takes a third to a half of the crowd.</param>
+/// <param name="AppealPennies">How much more than plain chips the average guest would happily pay for a chips portion's
+/// worth of hunger sated by it: a preference among the hungry, never a reason to eat (nobody's offered food until they're
+/// peckish, and a portion's appeal counts only for the hunger it would sate). Thriftier guests weigh the price more and
+/// lean to cheap food, freer spenders to good food; quoted at the crowd's mean thrift. Guests weigh every second away from
+/// the music too, so a slower trader's appeal has to cover its wait as well as its price.</param>
 /// <param name="FromTier">The first tier that can book them.</param>
 public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionProduct Product, string Art, string Blurb, int PitchFeePennies, int ServicePermille,
     int PricePennies, int PortionCostPennies, int AppealPennies, int EnjoymentPercent = 100, int FillingPercent = 100, int FromTier = 1)
@@ -60,10 +61,10 @@ public static class FoodTraders
     ];
 
     // Pizza's appeal and curry's numbers, named so the probe and DECISIONS.md can point at them. Pizza's covers its 6 s
-    // longer service: at 1,300 it takes about 45% beside chips (MultiVendorProbe).
-    internal const int PizzaAppealPennies = 1_300;
+    // longer service for the properly hungry: in play it takes about 43% of food sold beside chips (MultiVendorProbe).
+    internal const int PizzaAppealPennies = 1_200;
     internal const int CurryPitchFeePennies = 3_000, CurryServicePermille = 1_750, CurryPricePennies = 500, CurryPortionCostPennies = 90,
-        CurryAppealPennies = 450, CurryEnjoymentPercent = 130, CurryFillingPercent = 175;
+        CurryAppealPennies = 400, CurryEnjoymentPercent = 130, CurryFillingPercent = 175;
 
     public static FoodTrader Default => All[0];
     public static FoodTrader? Find(string? id) => All.FirstOrDefault(t => t.Id == id);

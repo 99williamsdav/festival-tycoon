@@ -10,7 +10,12 @@ public static class ImmersionProducts
     /// <summary>Sold at a food van by its trader, rather than at the festival's own bar.</summary>
     public static bool IsFood(this ImmersionProduct product) => product is ImmersionProduct.Chips or ImmersionProduct.Pizza or ImmersionProduct.Curry;
 }
-public sealed record ImmersionHeldItem(string TransactionId, ImmersionProduct Product, int ConsumedTicks);
+public sealed record ImmersionHeldItem(string TransactionId, ImmersionProduct Product, int ConsumedTicks)
+{
+    /// <summary>How much hunger this food has sated so far: its pleasure is in that, none once they're full.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int Relieved { get; init; }
+}
 public sealed record ImmersionPerson(ulong AgentId, int OpeningBudgetPennies, int Hunger, bool Abstains, int BeerTaste, int SoftTaste, int PriceReluctance,
     ImmersionHeldItem? Held = null, int Intoxication = 0, int PendingDose = 0, int FoodProtectionTicks = 0, long LastDecisionTick = -800,
     string? VendorId = null, ImmersionProduct? Order = null, long WarningTick = -1, int SevereTicks = 0)
@@ -239,19 +244,23 @@ public sealed partial class GameSession
                 // Food fills and pleases by what it is, whoever's van is pitched now.
                 var effect = held.Product switch { _ when held.Product.IsFood() => 5500 * FoodTraders.Selling(held.Product).FillingPercent / 100, ImmersionProduct.SoftDrink => 6000, ImmersionProduct.Water => 10_000, _ => 1500 };
                 var delta = elapsed*effect/duration-held.ConsumedTicks*effect/duration;
-                if (held.Product.IsFood()) { p.Hunger = Math.Max(0,p.Hunger-delta); p.FoodProtectionTicks = 4800; }
+                var relieved = held.Relieved;
+                if (held.Product.IsFood()) { var sated = Math.Min(delta, p.Hunger); p.Hunger -= sated; relieved += sated; p.FoodProtectionTicks = 4800; }
                 // Heat falls with the thirst actually relieved, as at a tap and as the activity chooser projects.
                 else if (InView(PersonView.Medical, p.Id)) MutatePerson(p.Id, n => { var removed = Math.Min(delta, n.Thirst); n.Thirst -= removed;
                     if (held.Product == ImmersionProduct.Water) n.HeatExposure = Math.Max(0, n.HeatExposure - removed / 4); });
                 else p.StaffThirst = Math.Max(0,p.StaffThirst-delta);
                 if (held.Product == ImmersionProduct.Beer) p.PendingDose = p.PendingDose + elapsed*2400/duration-held.ConsumedTicks*2400/duration;
                 var enjoyment = held.Product switch { _ when held.Product.IsFood() => FoodTraders.Selling(held.Product).EnjoymentPercent, ImmersionProduct.SoftDrink => 75, ImmersionProduct.Water => 0, _ => 150*BeerTasteOf(p)/100 };
-                var gain = elapsed*enjoyment/duration-held.ConsumedTicks*enjoyment/duration;
+                // Food pleases by the hunger it sates, at its trader's quality: a chips portion's worth of hunger sated is
+                // its enjoyment in full, and eating when full gives nothing. Drinks please over the drinking.
+                var gain = held.Product.IsFood() ? FoodSatisfaction(relieved, enjoyment) - FoodSatisfaction(held.Relieved, enjoyment)
+                    : elapsed*enjoyment/duration-held.ConsumedTicks*enjoyment/duration;
                 ChangeSatisfaction(p.Id, gain, MoodCause.FoodAndDrink);
                 if (elapsed == duration && held.Product == ImmersionProduct.Beer && _preparation.FinishedBeerIds is { } finished && PersonIn(PersonView.Roster, p.Id) is { Role: ProtectedPersonRole.Guest, Admitted: true })
                     _preparation = _preparation with { FinishedBeerIds = finished.Append(held.TransactionId).ToArray() };
                 if (elapsed == duration) RecordCompletedWaste(p.Id, held);
-                p.Held = elapsed == duration ? null : held with { ConsumedTicks = elapsed };
+                p.Held = elapsed == duration ? null : held with { ConsumedTicks = elapsed, Relieved = relieved };
             }
             if (p.Intoxication >= 7500 && p.IntoxicationWarningTick < 0) { p.IntoxicationWarningTick = CurrentTick; MedicalEvent("intoxication:warning", $"Person {p.Id}: heavy intoxication {p.Intoxication}; {(StaffHas(p.Id, StaffTrait.SneakyAlcoholic) ? "still getting served on the sly" : "no further beer served")}, water, rest and medic available."); }
             p.SevereTicks = p.Intoxication >= 8500 ? p.SevereTicks+1 : 0;
@@ -289,6 +298,8 @@ public sealed partial class GameSession
             else SetImmersionVendor(vendor);
         }
     }
+    /// <summary>The satisfaction from sating this much hunger with food of this quality (percent of chips').</summary>
+    public static int FoodSatisfaction(int relieved, int enjoymentPercent) => relieved * enjoymentPercent / ActivityChooser.FoodHungerRelief;
     private bool IntoxicationWarning(ulong id) => PersonIn(PersonView.Consumption, id) is { IntoxicationWarningTick: >=0 } p && (p.Intoxication>=7500 || p.IntoxicationCollapseTick>=0 || p.CareTicks>0);
     private bool ExistingMedicalHazardOwns(ulong id) => _medical is { } medical &&
         (PersonIn(PersonView.Medical, id)?.HealthStage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical ||
@@ -370,7 +381,7 @@ public sealed partial class GameSession
         if(m.People.Any(p=>p.StaffThirst is <0 or >10000 || p.CareTicks<0 || !Enum.IsDefined(p.PriorMedicalStage) || p.CollapseTick>s.CurrentTick || p.CollapseTick>=0 && (p.WarningTick<0 || p.CollapseTick<p.WarningTick+1599) || p.Order==ImmersionProduct.Beer && SavedBeerBarred(p, prep, hired, beerFestival)) || vendors.Any(v=>v.Queue.Length>10 || v.OwnerId is { } owner && (!m.People.Any(p=>p.AgentId==owner && p.Order is { } order && v.ServiceTicks<=ImmersionServiceDuration(order)) || s.NavigationAgents?.SingleOrDefault(n=>n.Id==owner) is not { Action:(int)AgentNavigationAction.Arrived } nav || nav.DestinationX!=ImmersionServiceCell(v).X || nav.DestinationZ!=ImmersionServiceCell(v).Z)))return "Immersion cause/role/physical service owner invalid.";
         if(prep.Status is PreparationStatus.Departing or PreparationStatus.Finished && (vendors.Any(v=>v.Queue.Length>0||v.OwnerId is not null)||m.People.Any(p=>p.VendorId is not null||prep.People.Single(n=>n.AgentId==p.AgentId).Departed&&p.Held is not null)))return "Immersion departure ownership invalid.";
         if (!m.People.Select(p=>p.AgentId).SequenceEqual(prep.People.Select(p=>p.AgentId)) || vendors.Any(v=>v.QuarterTurns is <0 or >3 || !new TraversalGrid().Contains(v.Cell) || v.ServiceTicks<0 || v.OwnerId is { } id && (v.Queue.Length==0 || v.Queue[0]!=id) || v.OwnerId is null && v.ServiceTicks!=0) || vendors.SelectMany(v=>v.Queue).Distinct().Count()!=vendors.Sum(v=>v.Queue.Length)) return "Immersion vendor identity/ownership invalid.";
-        foreach (var p in m.People) { var stable=NewImmersionPerson(s.CampaignSeed,prep.People.Single(n=>n.AgentId==p.AgentId)); if (p.OpeningBudgetPennies!=stable.OpeningBudgetPennies || p.Abstains!=stable.Abstains || p.BeerTaste!=stable.BeerTaste || p.SoftTaste!=stable.SoftTaste || p.PriceReluctance!=stable.PriceReluctance || p.Hunger is <0 or >10000 || p.Intoxication is <0 or >10000 || p.PendingDose is <0 or >2400 || p.FoodProtectionTicks is <0 or >4800 || p.HungerResidue is <0 or >79 || p.RecoveryResidue is <0 or >79 || p.AbsorptionResidue is <0 or >1 || p.LastDecisionTick>s.CurrentTick || p.WarningTick>s.CurrentTick || p.SevereTicks<0 || (p.VendorId is null)!=(p.Order is null) || p.VendorId is not null && !vendors.Any(v=>v.Id==p.VendorId) || p.Order is { } order && (!Enum.IsDefined(order) || !SavedSells(prep, p.VendorId!, order)) || p.Held is { } h && (!Enum.IsDefined(h.Product) || h.ConsumedTicks<0 || h.ConsumedTicks>=ImmersionConsumeTicks(h.Product) || p.VendorId is not null || !m.Purchases.Any(t=>t.Id==h.TransactionId && t.AgentId==p.AgentId && t.Product==h.Product)) || s.Wallets.Single(w=>w.OwnerId==p.AgentId).CashPennies!=p.OpeningBudgetPennies-m.Purchases.Where(t=>t.AgentId==p.AgentId).Sum(t=>t.PricePennies)) return "Immersion person, wallet or retained item invalid."; }
+        foreach (var p in m.People) { var stable=NewImmersionPerson(s.CampaignSeed,prep.People.Single(n=>n.AgentId==p.AgentId)); if (p.OpeningBudgetPennies!=stable.OpeningBudgetPennies || p.Abstains!=stable.Abstains || p.BeerTaste!=stable.BeerTaste || p.SoftTaste!=stable.SoftTaste || p.PriceReluctance!=stable.PriceReluctance || p.Hunger is <0 or >10000 || p.Intoxication is <0 or >10000 || p.PendingDose is <0 or >2400 || p.FoodProtectionTicks is <0 or >4800 || p.HungerResidue is <0 or >79 || p.RecoveryResidue is <0 or >79 || p.AbsorptionResidue is <0 or >1 || p.LastDecisionTick>s.CurrentTick || p.WarningTick>s.CurrentTick || p.SevereTicks<0 || (p.VendorId is null)!=(p.Order is null) || p.VendorId is not null && !vendors.Any(v=>v.Id==p.VendorId) || p.Order is { } order && (!Enum.IsDefined(order) || !SavedSells(prep, p.VendorId!, order)) || p.Held is { } h && (!Enum.IsDefined(h.Product) || h.ConsumedTicks<0 || h.Relieved is <0 or >10000 || !h.Product.IsFood() && h.Relieved!=0 || h.ConsumedTicks>=ImmersionConsumeTicks(h.Product) || p.VendorId is not null || !m.Purchases.Any(t=>t.Id==h.TransactionId && t.AgentId==p.AgentId && t.Product==h.Product)) || s.Wallets.Single(w=>w.OwnerId==p.AgentId).CashPennies!=p.OpeningBudgetPennies-m.Purchases.Where(t=>t.AgentId==p.AgentId).Sum(t=>t.PricePennies)) return "Immersion person, wallet or retained item invalid."; }
 if (m.Purchases.Select(p=>p.Id).Distinct().Count()!=m.Purchases.Length || m.Purchases.Any(p=>!Enum.IsDefined(p.Product) || !m.People.Any(n=>n.AgentId==p.AgentId) || p.PricePennies!=SavedPrice(p) || p.CostPennies!=ImmersionCost(p.Product) || p.Tick<0 || p.Tick>s.CurrentTick || p.Entries.Sum(e=>e.AmountPennies)!=0) || m.Purchases.Any(p=>p.VendorId is { } at && (Stalls.Number(at)<2 || !prep.BuildPlacements.Any(b=>b.Id==at) || !SavedSells(prep,at,p.Product)) || !vendors.Any(v=>v.Id==Stalls.Of(p)) || !SavedSells(prep,Stalls.Of(p),p.Product) || p.Product.IsFood() && prep.Plan is not { Committed: true }) || m.SoftStock!=(m.StockPurchased?prep.Plan?.SoftDrinks??40:0)-m.Purchases.Count(p=>p.Product==ImmersionProduct.SoftDrink) || m.BeerStock!=(m.StockPurchased?prep.Plan?.Beers??32:0)-m.Purchases.Count(p=>p.Product==ImmersionProduct.Beer) || Math.Min(m.SoftStock,m.BeerStock)<0 || vendors.Any(v=>v.Queue.Any(id=>!m.People.Any(p=>p.AgentId==id && p.VendorId==v.Id)))) return "Immersion stock/transactions/FIFO invalid.";
         return null;
     }

@@ -35,25 +35,101 @@ public sealed class PooledPowerTests
         }
     }
 
-    [TestMethod]
-    public void AGeneratorCutOffLeavesThePoolAndTheRestShareWhatsLeft()
+    private static readonly System.Reflection.BindingFlags Private = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+    private static T Field<T>(GameSession s, string name) => (T)typeof(GameSession).GetField(name, Private)!.GetValue(s)!;
+    private static void SetField(GameSession s, string name, object? value) => typeof(GameSession).GetField(name, Private)!.SetValue(s, value);
+
+    /// <summary>The Pond Stage trial at Tier 1 on the pro rig: both rigs, the bar, the van and the lights on the pool of 170.</summary>
+    private static GameSession ProRigOnBothStages()
     {
-        var s = NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(20260922, 2));
+        var s = BuildSession.PondDrafted();
+        BuildSession.Accept(s, new SetProgrammeCommand(BuildSession.Acts));
+        BuildSession.Accept(s, new SetProgrammeCommand(["act.two-men-harmonium", "act.dj-spreadsheet", "act.kerry-co-op"]) { StageId = FestivalStages.PondId });
+        BuildSession.Accept(s, new SetPreparationStockCommand(40, 32));
+        foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
+        BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Sound)));
+        BuildSession.Accept(s, new AcceptPreparationOfferCommand(PowerRules.ProRigOffer));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
-        s.AdvanceWithoutSnapshot(2_000);
+        return s;
+    }
+
+    /// <summary>Plays on until both sets are live and the pool is over: 80 + 80 + 30 = 190 of 170.</summary>
+    private static GameSession OverloadedOnBothStages()
+    {
+        var s = ProRigOnBothStages();
+        var start = s.CapturePreparation()!.StartedTick;
+        s.AdvanceWithoutSnapshot((int)(start + FestivalStages.Pond.SlotStarts[0] + 200 - s.CurrentTick));
+        Assert.IsTrue(s.CapturePower().Over, s.CapturePower().ToString());
+        return s;
+    }
+
+    [TestMethod]
+    public void CuttingAStageTakesOffOnlyItsRigSoItLightensTheOverload()
+    {
+        var s = OverloadedOnBothStages();
+        var before = s.CapturePower();
+        BuildSession.Accept(s, new EquipmentCommand(EquipmentAction.Isolate));
+        var after = s.CapturePower();
+        Assert.AreEqual(before.Capacity, after.Capacity, "The farm generator runs on for the pool.");
+        Assert.AreEqual(0, after.Stage, "Only the trailer's rig comes off.");
+        Assert.IsTrue(after.Total - after.Capacity < before.Total - before.Capacity, "The overage falls.");
+        Assert.IsTrue(s.CaptureEquipment()!.StageCut && !s.StagePowered);
+        Assert.AreNotEqual(EquipmentStage.Isolated, s.CaptureEquipment()!.Stage, "The generator itself isn't isolated: it can still warn, fault and hurt.");
+        Assert.IsFalse(BuildSession.Send(s, new EquipmentCommand(EquipmentAction.Isolate)).IsAccepted, "Already cut.");
+        // The Pond Stage's cut is the same: its rig off, its 70 still in the pool.
         BuildSession.Accept(s, new StageGeneratorCommand(FestivalStages.PondId, StageGeneratorAction.Isolate));
-        var draw = s.CapturePower();
-        Assert.AreEqual(PowerRules.FarmDieselCapacity, draw.Capacity, "The pond's 70 has gone.");
-        Assert.AreEqual(0, draw.OtherStages, "Its stage is cut off with it.");
-        // The four stalls and the trailer's rig now share the farm's 100: once the trailer's set is on, that's 110.
-        var strained = false;
-        for (var i = 0; i < 100 && !strained; i++)
-        {
-            s.AdvanceWithoutSnapshot(80);
-            strained = s.CaptureEquipment()!.Strain > 0;
-        }
-        Assert.IsTrue(strained, "The farm generator strains on what's left.");
-        Assert.AreEqual(0, s.CaptureStageGenerator(FestivalStages.PondId)!.Strain, "A generator out of the pool carries none of it.");
+        Assert.AreEqual(before.Capacity, s.CapturePower().Capacity);
+        Assert.AreEqual(0, s.CapturePower().OtherStages);
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        Assert.IsTrue(restored.Session!.CaptureEquipment()!.StageCut);
+    }
+
+    [TestMethod]
+    public void WithEveryGeneratorInThePoolGoneTheStallsStopServing()
+    {
+        var s = ProRigOnBothStages();
+        Assert.IsTrue(s.StallPowered("food") && s.StallPowered("drinks"));
+        SetField(s, "_equipment", s.CaptureEquipment()! with { Stage = EquipmentStage.Terminal });
+        Assert.IsTrue(s.StallPowered("food"), "The Pond generator still runs them.");
+        var generators = Field<StageGeneratorSnapshot[]>(s, "_stageGenerators");
+        SetField(s, "_stageGenerators", generators.Select(g => g with { Stage = EquipmentStage.Terminal }).ToArray());
+        Assert.AreEqual(0, s.CapturePower().Capacity);
+        Assert.IsFalse(s.StallPowered("food") || s.StallPowered("drinks"), "Nothing left to run them.");
+    }
+
+    [TestMethod]
+    public void ARepairSettlesEveryGeneratorInThePoolSoTheyGoOnWarningTogether()
+    {
+        var s = OverloadedOnBothStages();
+        while (s.CaptureEquipment()!.Stage != EquipmentStage.Warning) s.AdvanceWithoutSnapshot(40);
+        Assert.AreEqual(EquipmentStage.Warning, s.CaptureStageGenerator(FestivalStages.PondId)!.Stage);
+        // A repair finishing now (as if maintenance had been at it for its 20 seconds).
+        SetField(s, "_equipment", s.CaptureEquipment()! with { JobStage = MaintenanceStage.Repairing, RepairStartedTick = s.CurrentTick - 10_000 });
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(0, s.CaptureEquipment()!.Strain);
+        Assert.AreEqual(0, s.CaptureStageGenerator(FestivalStages.PondId)!.Strain);
+        Assert.AreEqual(EquipmentStage.Resolved, s.CaptureStageGenerator(FestivalStages.PondId)!.Stage);
+        s.AdvanceWithoutSnapshot(400);
+        Assert.IsTrue(s.CaptureEquipment()!.Strain > 0);
+        Assert.AreEqual(s.CaptureEquipment()!.Strain, s.CaptureStageGenerator(FestivalStages.PondId)!.Strain, "Still one strain.");
+    }
+
+    [TestMethod]
+    public void TheNextTickPredictorCountsTheLightsComingOn()
+    {
+        // Tier 1 on the standard rig with its set playing as the lights come on: 65 + 30 = 95 before, 105 after.
+        var s = BuildSession.Started(offers: "equipment.rent");
+        var lightsOn = s.CapturePreparation()!.StartedTick + PowerRules.LightsOnTickFor(s.PreparedEditionDurationTicks);
+        s.AdvanceWithoutSnapshot((int)(lightsOn - 1 - s.CurrentTick));
+        var live = Field<LivePerformanceSnapshot?[]>(s, "_livePerformances");
+        live[0] = live[0]! with { Stage = LiveSetStage.Live };
+        Assert.AreEqual(PowerRules.StandardRigDraw + 2 * PowerRules.StallDraw, s.CapturePower().Total);
+        // Five short of the warning: only the lights' 10 tip it over on the next tick.
+        SetField(s, "_equipment", s.CaptureEquipment()! with { Stage = EquipmentStage.Resolved, Strain = PowerRules.StrainWarning - 5 });
+        Assert.IsTrue(s.EquipmentBoundaryOnNextTick, "The boundary is next tick's, lights and all.");
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(EquipmentStage.Warning, s.CaptureEquipment()!.Stage);
     }
 
     [TestMethod]

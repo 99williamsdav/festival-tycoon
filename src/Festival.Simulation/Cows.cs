@@ -161,7 +161,7 @@ public sealed partial class GameSession
     public bool CableCut(string utility) => OpenFaults.Any(f => f.Kind == FacilityFaultKind.ChewedCable && f.FacilityId == "cable." + utility && f.Stage == FacilityFaultStage.Active);
 
     /// <summary>The stage has power: no emergency cut-off and the generator's lead intact.</summary>
-    public bool StagePowered => _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal) && !CableCut("generator");
+    public bool StagePowered => _equipment?.Stage is not (EquipmentStage.Isolated or EquipmentStage.Terminal) && _equipment?.StageCut != true && !CableCut("generator");
 
     private void AdvanceCows()
     {

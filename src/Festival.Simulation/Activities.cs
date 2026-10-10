@@ -24,11 +24,11 @@ public sealed partial class GameSession
     internal static long AppealValue(ImmersionProduct product) => FoodTraders.Selling(product).AppealPennies * MeanThriftWeightHalves * PurchaseValueScale / 2;
 
     /// <summary>
-    /// What a portion is worth to a guest of this thrift, over what it costs them, as the activity chooser weighs it: its
-    /// appeal against its price. Of two vans side by side, a guest leans to the one worth more.
+    /// What a portion is worth to a guest of this thrift and hunger, over what it costs them, as the activity chooser weighs
+    /// it: its appeal for the hunger it sates, against its price. Of two vans side by side, a guest leans to the one worth more.
     /// </summary>
-    public static long FoodWorth(ImmersionProduct product, int priceReluctance) =>
-        AppealValue(product) - ImmersionPrice(product) * ThriftWeight(priceReluctance) * PurchaseValueScale;
+    public static long FoodWorth(ImmersionProduct product, int priceReluctance, int hunger = ActivityChooser.FoodHungerRelief) =>
+        FoodValue(product, hunger, 0) - ImmersionPrice(product) * ThriftWeight(priceReluctance) * PurchaseValueScale;
     // Music's worth per second, as a share of an act's appeal, against need discomfort.
     public const long MusicValuePermille = 800;
     // How much better another tap or toilet of the same kind must score before a person swaps lines.
@@ -240,7 +240,8 @@ public sealed partial class GameSession
     }
 
     /// <summary>One place a plan could stop: when its relief lands, where it is, and what it's worth.</summary>
-    private readonly record struct StopCandidate(ActivityKind Kind, string Facility, GridCell Cell, int CompleteTicks, long Enjoyment, long Cost);
+    private readonly record struct StopCandidate(ActivityKind Kind, string Facility, GridCell Cell, int CompleteTicks, long Enjoyment, long Cost,
+        int FoodRelief = ActivityChooser.FoodHungerRelief);
 
     /// <summary>
     /// Every plan open to this person: staying put, one stop, or one stop then another of a different
@@ -262,14 +263,15 @@ public sealed partial class GameSession
                 .Where((stop, rank) => rank < 2 || stop.Kind == current && stop.Facility == currentFacility));
         foreach (var first in firsts)
         {
-            options.Add(new(first.Kind, first.Facility, first.CompleteTicks, first.CompleteTicks + EstimateWalkTicks(id, first.Cell, music), first.Enjoyment, first.Cost));
+            options.Add(new(first.Kind, first.Facility, first.CompleteTicks, first.CompleteTicks + EstimateWalkTicks(id, first.Cell, music), first.Enjoyment, first.Cost)
+                { FoodRelief = first.FoodRelief });
             // The quickest of each kind; for something bought, of each stall, since two vans differ by more than the walk.
             foreach (var second in StopCandidates(id, person, current, first.Cell, first.CompleteTicks, first.Kind)
                          .GroupBy(stop => (stop.Kind, Stall: IsPurchase(stop.Kind) ? stop.Facility : null))
                          .Select(group => group.OrderBy(stop => stop.CompleteTicks).ThenBy(stop => stop.Facility, StringComparer.Ordinal).First()))
                 options.Add(new ActivityOption(first.Kind, first.Facility, first.CompleteTicks,
                     second.CompleteTicks + EstimateWalkTicks(id, second.Cell, music), first.Enjoyment + second.Enjoyment, first.Cost + second.Cost)
-                    { Then = new(second.Kind, second.Facility, second.CompleteTicks) });
+                    { Then = new(second.Kind, second.Facility, second.CompleteTicks) { FoodRelief = second.FoodRelief }, FoodRelief = first.FoodRelief });
         }
         return options;
     }
@@ -288,9 +290,9 @@ public sealed partial class GameSession
     {
         var stops = new List<StopCandidate>();
         var fresh = after is not null;
-        void Add(ActivityKind kind, string facility, GridCell cell, int ticks, long enjoyment = 0, long cost = 0)
+        void Add(ActivityKind kind, string facility, GridCell cell, int ticks, long enjoyment = 0, long cost = 0, int foodRelief = ActivityChooser.FoodHungerRelief)
         {
-            if (ticks != int.MaxValue && kind != after) stops.Add(new(kind, facility, cell, startTicks + ticks, enjoyment, cost));
+            if (ticks != int.MaxValue && kind != after) stops.Add(new(kind, facility, cell, startTicks + ticks, enjoyment, cost, foodRelief));
         }
         if (_disorder?.WaterClosed != true)
             foreach (var point in WaterPoints()) Add(ActivityKind.Water, point.Id, point.Cell, LightWaterTicks(id, point, from, fresh));
@@ -322,24 +324,44 @@ public sealed partial class GameSession
             {
                 ImmersionProduct.Beer => (3_000L + (StaffHas(id, StaffTrait.SneakyAlcoholic) ? AlcoholicBeerTaste : BeerTasteOf(person)) * 45) * PurchaseValueScale,
                 ImmersionProduct.SoftDrink => SoftTasteOf(person) * 35L * PurchaseValueScale,
-                // Good food is worth paying for: weighed against its price at the same exchange rate.
-                _ when product.IsFood() => AppealValue(product),
+                // Food's worth depends on the hunger it would sate when it's eaten: added per stall below.
                 _ => 0L
             } + (StaffHas(id, StaffTrait.Slacker) && product != ImmersionProduct.Water ? SlackerTreatValue : 0);
             // Every stall that sells it, each by its own walk and queue: the one they're queuing at stays on offer, and any
             // other needs room and power.
             foreach (var vendor in sellers.Where(vendor => underWay && vendor.Id == person.VendorId ||
                          eligible && VendorHasRoom(vendor) && (product == ImmersionProduct.Water || StallPowered(vendor.Id))))
-                Add(kind, vendor.Id, vendor.Cell, LightVendorTicks(id, product, vendor, from, fresh), enjoyment, price);
+            {
+                var ticks = LightVendorTicks(id, product, vendor, from, fresh);
+                Add(kind, vendor.Id, vendor.Cell, ticks, enjoyment + (product.IsFood() && ticks != int.MaxValue ? FoodValue(product, person.Hunger, startTicks + ticks) : 0), price,
+                    product.IsFood() ? FoodRelief(product) : ActivityChooser.FoodHungerRelief);
+            }
         }
         return stops;
     }
+
+    /// <summary>The hunger a portion takes away: chips' portion, times its filling.</summary>
+    public static int FoodRelief(ImmersionProduct product) => ActivityChooser.FoodHungerRelief * FoodTraders.Selling(product).FillingPercent / 100;
+
+    /// <summary>
+    /// What a portion is worth to someone this hungry, eaten <paramref name="ticks"/> from now: its appeal for the hunger
+    /// it would sate then, against a chips portion's worth. A big portion is worth its size only to someone hungry enough
+    /// to finish it; past that, nothing extra.
+    /// </summary>
+    public static long FoodValue(ImmersionProduct product, int hunger, int ticks)
+    {
+        var then = Math.Min(10_000, hunger + (long)GuestHungerPerSecond * ticks / ActivityChooser.SampleTicks);
+        return AppealValue(product) * Math.Min(then, FoodRelief(product)) / ActivityChooser.FoodHungerRelief;
+    }
+    private const int GuestHungerPerSecond = 12;
 
     private bool ActivityPurchaseEligible(Person person, ImmersionProduct product) =>
         // The vendor's own rule, less what abandoning the current activity would clear.
         // Robot workers never stop for themselves, not even for a treat they pass on the way to their post.
         !RobotWorker(person.Id) &&
         person.Held is null && person.VendorId is null && person.Intent is MedicalIntent.WatchShow or MedicalIntent.SeekWater &&
+        // Food only once they're peckish: not hungry, it would sate nothing.
+        (!product.IsFood() || person.Hunger >= ActivityChooser.PeckishHunger) &&
         (product == ImmersionProduct.Water || person.Thirst < MedicalDistressThirst && person.HeatExposure < MedicalDistressHeat) && !IsCurrentProgrammePerformer(person.Id) &&
         ImmersionHandsAvailable(person.Id) && ImmersionStock(product) > 0 &&
         _wallets[new(person.Id)].CashPennies >= ImmersionPriceFor(person.Id, product) &&
