@@ -249,10 +249,22 @@ public partial class Main
             c = mix(c, lin(vec3(0.36, 0.28, 0.2)) * (0.8 + 0.35 * texture(noise, p * 0.7).r), churned);
             float pooled = smoothstep(0.42, 0.5, water);
             float sludge = smoothstep(0.6, 0.7, mud);
-            vec3 pool = mix(lin(vec3(0.42, 0.5, 0.54)), lin(vec3(0.5, 0.41, 0.29)) * (0.85 + 0.3 * texture(noise, p * 0.3).r), sludge);
+            // Wet through: darker, a touch cooler and glossy, before the pools, so a pool is never darkened twice.
+            vec3 sheen = mix(vec3(1.0), vec3(0.80, 0.83, 0.86), wetness);
+            c *= sheen;
+            // Puddle tint by the ground under it (heavy-rain INTEGRATION 3b): clean grey-blue on grass, silty where it's
+            // trampled, murky in mud, darkest in a swamp; brown pools keep a dark wet rim so they still read as water.
+            float trod = smoothstep(0.10, 0.75, w);
+            float churn = smoothstep(0.15, 0.36, mud);
+            float dirt = max(max(trod * 0.35, churn * 0.65), sludge);
+            float rim = smoothstep(0.34, 0.42, water) * (1.0 - pooled);
+            c = mix(c, c * vec3(0.62, 0.58, 0.55), rim * smoothstep(0.2, 0.6, dirt));
+            vec3 sky = lin(vec3(0.42, 0.50, 0.54)), silt = lin(vec3(0.47, 0.45, 0.39)), murk = lin(vec3(0.45, 0.37, 0.27)), bog = lin(vec3(0.40, 0.31, 0.21));
+            vec3 pool = dirt < 0.35 ? mix(sky, silt, dirt / 0.35) : dirt < 0.65 ? mix(silt, murk, (dirt - 0.35) / 0.30) : mix(murk, bog, (dirt - 0.65) / 0.35);
+            pool *= mix(1.0, 0.85 + 0.3 * texture(noise, p * 0.3).r, smoothstep(0.2, 0.6, dirt));
             c = mix(c, pool, pooled);
-            float rough = mix(0.97, mix(0.55, 0.12, pooled), max(pooled, churned * 0.6));
-            float spec = mix(0.5, 0.7, pooled);
+            float rough = mix(0.97, mix(0.55, mix(0.08, 0.18, dirt), pooled), max(pooled, churned * 0.6));
+            float spec = mix(0.5, mix(0.70, 0.55, dirt), pooled);
             // Rings on the puddles while it rains: one ripple slot per half-metre, fewer active in lighter rain.
             if (rain > 0.0 && pooled > 0.0) {
                 vec2 cellp = p / 0.5; vec2 cid = floor(cellp); vec2 uvc = fract(cellp);
@@ -260,10 +272,13 @@ public partial class Main
                 float t = fract(TIME * mix(1.2, 2.4, rain) + ph); float frame = floor(t * 16.0);
                 vec2 auv = (vec2(mod(frame, 4.0), floor(frame / 4.0)) + uvc) / 4.0;
                 float ring = texture(ripple_atlas, auv).a * step(ph, rain * 0.9);
-                c = mix(c, vec3(0.86, 0.90, 0.93), ring * pooled * 0.6);
+                // On brown water a ring takes a little of its colour and is fainter, not a blue-white circle on mud.
+                vec3 ringc = mix(vec3(0.86, 0.90, 0.93), min(pool * 1.7, vec3(1.0)), dirt * 0.7);
+                c = mix(c, ringc, ring * pooled * mix(0.6, 0.45, dirt));
             }
             // Straw over the mud, with a ragged, uneven edge, fresh gold going to trampled brown.
             vec2 sm = pasture ? vec2(0.0) : texture(straw_map, (p + 32.0) / 64.0).rg;
+            float strawn = 0.0;
             if (sm.r > 0.0) {
                 vec3 nb = texture(straw_breakup, p / 6.0).rgb;
                 float e = sm.r + (nb.r - 0.5) * 0.70 + (nb.g - 0.5) * 0.55 + (nb.b - 0.5) * 0.30;
@@ -274,15 +289,16 @@ public partial class Main
                 float a = max(max(laid, clump), strand) * st.a;
                 // A touch duller than the swatch, so it sits on the field rather than glowing on it.
                 vec3 straw = mix(vec3(dot(st.rgb, vec3(0.3, 0.59, 0.11))), st.rgb, 0.8) * 0.82;
-                c = mix(c, straw, a);
+                c = mix(c, straw * sheen, a);
+                strawn = a;
                 rough = mix(rough, 0.85, a * (1.0 - wetness * 0.5));
                 spec = mix(spec, 0.5, a);
             }
-            // Wet through: darker, a touch cooler, and glossy.
-            c *= mix(vec3(1.0), vec3(0.80, 0.83, 0.86), wetness);
             ALBEDO = c;
-            ROUGHNESS = mix(rough, 0.22, wetness * (1.0 - smoothstep(0.3, 0.6, sm.r) * 0.5));
-            SPECULAR = mix(spec, 0.5, wetness);
+            // The pool wins where it pools, so brown water stays far shinier than wet mud; straw laid over it doesn't shine.
+            float open_pool = pooled * (1.0 - strawn);
+            ROUGHNESS = mix(mix(rough, 0.22, wetness * (1.0 - smoothstep(0.3, 0.6, sm.r) * 0.5)), rough, open_pool);
+            SPECULAR = mix(mix(spec, 0.5, wetness), spec, open_pool);
         }
         """;
 }
