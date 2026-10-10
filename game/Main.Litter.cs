@@ -156,12 +156,12 @@ public partial class Main
         {
             if (_selectedAttendeeId is { } id)
             {
-                _preparationMessage = _host.Execute(new CleanUpCommand(id.Value), out var error) ? "Steward assigned a bounded cleanup sweep." : error!;
+                _preparationMessage = _host.Execute(new CleanUpCommand(id.Value), out var error) ? "Off to sweep up." : error!;
                 RefreshPreparationHud();
             }
         });
         parent.AddChild(_cleanupButton); _cleanupButton.Visible = false;
-        _cleanupButton.TooltipText = "Sweep near this steward's current post, then return. Arguments and fights take priority. Bins empty only at 90% or more.";
+        _cleanupButton.TooltipText = "Sweep round their post, then come back.";
         _spreadStrawButton = ButtonText("Spread straw", () =>
         {
             if (_selectedAttendeeId is not { } id) return;

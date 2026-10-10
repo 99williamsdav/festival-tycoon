@@ -261,31 +261,28 @@ public partial class Main
             var flow = _session.CommunityWaterShareActive ? tower ? "NORMAL" : "LOW" : tower ? "BOOSTED" : "NORMAL";
             _waterFlowIcon!.Texture = _waterFlowTextures[flow.ToLowerInvariant()];
             _waterFlowLabel!.Text = $"Flow: {flow.ToLowerInvariant()}" +
-                (_session.CommunityWaterShareActive ? "\nShared with the village, so slower" : "") + (tower ? "\nThe water tower speeds it up" : "");
+                (_session.CommunityWaterShareActive ? "\nShared with the village" : "");
             var waiting = point.Queue.Length + point.Overflow.Length;
             _inspectorBody.Text = (_session.FaultStatus(point.Id) is { } fault ? fault + "\n" : "") +
-                "Free to drink: no stock needed\n" +
-                (owner is null ? "Nobody drinking" : $"{owner} is drinking") + $" · {(waiting == 0 ? "no queue" : $"{waiting} queuing")}\n" +
-                "More taps mean shorter queues; each drink takes as long.";
+                (owner is null ? "Nobody drinking" : $"{owner} is drinking") + $" · {(waiting == 0 ? "no queue" : $"{waiting} queuing")}";
         }
         else if (facility == MedicalFacility.WaterTower)
         {
             _inspectorTitle.Text = "Water tower • owned";
-            _inspectorBody.Text = "Yours to keep.\nEvery tap runs faster, even when the water's shared with the village.";
+            _inspectorBody.Text = "Every tap runs faster.";
         }
         else
         {
             _inspectorTitle.Text = "First aid";
             string Patient(ulong? id) => id is { } patient ? PersonPresentationName(people.Single(item => item.AgentId == patient)) : "someone";
-            _inspectorBody.Text = (_session.PreparedStatus == PreparationStatus.Preparing ? "Your medic works from here once the gates open." :
+            _inspectorBody.Text = _session.PreparedStatus == PreparationStatus.Preparing ? "Your medic works from here." :
                 string.Join("\n", _session.GetMedicResponses().Select(job => $"{people.Single(item => item.AgentId == job.WorkerId).Name}: " + job.Stage switch
                 {
                     MedicalResponseStage.Travelling => $"on the way to {Patient(job.PatientId)}",
                     MedicalResponseStage.Treating => $"treating {Patient(job.PatientId)}",
                     MedicalResponseStage.Removing => $"bringing {Patient(job.PatientId)} in",
                     _ => "free to help",
-                }))) +
-                "\nOverheated guests cool off here. Select someone who's unwell to send a medic.";
+                }));
         }
     }
 
@@ -303,7 +300,7 @@ public partial class Main
         if (_session.CaptureMedical() is null) return;
         _selectedWaterMoveButton = ButtonText("Move", () => BeginWaterPlacementFor(_selectedWaterPointId));
         _selectedWaterMoveButton.Visible = false;
-        _selectedWaterMoveButton.TooltipText = "Choose a new grass site. Comma/period rotate the tap and its service access; Esc cancels.";
+        _selectedWaterMoveButton.TooltipText = "Comma/period rotate · Esc cancels.";
         detail.AddChild(_selectedWaterMoveButton);
         _firstAidMoveButton=ButtonText("Move",()=>BeginResponsePostPlacement(ResponseRole.Medic));_firstAidMoveButton.Visible=false;detail.AddChild(_firstAidMoveButton);
         _medicalActionInspector = new GridContainer { Columns = 2, Visible = false };
@@ -356,7 +353,7 @@ public partial class Main
             command = roleCommand;
         }
         _preparationMessage = _host.Execute(command, out var error)
-            ? "Medical action applied; next background save is within 30 unpaused seconds." : error!;
+            ? "A medic is on the way." : error!;
         RefreshPreparationHud();
     }
 

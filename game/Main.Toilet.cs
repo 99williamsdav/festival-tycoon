@@ -99,7 +99,7 @@ public partial class Main
             RefreshPreparationHud();
         });
         _toiletMoveButton.Visible = false;
-        _toiletMoveButton.TooltipText = "Move before opening. Comma/period rotate; right-click or Esc cancels.";
+        _toiletMoveButton.TooltipText = "Comma/period rotate · right-click or Esc cancels.";
         parent.AddChild(_toiletMoveButton);
         _toiletOccupantButton = ButtonText("", () =>
         {
@@ -142,7 +142,7 @@ public partial class Main
             _lavSuckerButton.Visible = _selectedToilet && _session.PreparedStatus == PreparationStatus.Running;
             var why = _selectedToiletId is { } lavId ? _session.LavSuckerUnavailable(lavId) : "";
             _lavSuckerButton.Disabled = why is not null;
-            _lavSuckerButton.TooltipText = why ?? "Pay Dav to drive in and suck it empty. It takes about a quarter of an hour.";
+            _lavSuckerButton.TooltipText = why ?? "Dav drives in and pumps it empty: about a quarter of an hour.";
         }
         var inside = _selectedToilet && _selectedToiletId is { } shownId ? ToiletOccupant(shownId) : null;
         _toiletOccupantButton!.Visible = inside is not null;
@@ -158,8 +158,7 @@ public partial class Main
             $"Occupied by {_session.CapturePreparation()!.People.Single(p => p.AgentId == occupant).Name}" : "Free")}" +
             $"\nTank {toilet.UsedMillilitres / 1000m:0.0}/{toilet.CapacityMillilitres / 1000m:0.0} L • {toilet.FullPercent}% full" +
             $"\nWees {toilet.WeeCount} • poos {toilet.PooCount} • queue {toilet.Queue.Length}" +
-            (_session.FaultStatus(toilet.Id) is { } fault ? "\n" + fault : "") +
-            "\nSmell rises as the tank fills.";
+            (_session.FaultStatus(toilet.Id) is { } fault ? "\n" + fault : "");
         _highlight.Position = selectedView.Body.Position + new Vector3(0, .08f, 0);
         _highlight.Scale = new Vector3(1.3f, 1, 1.5f); _highlight.Visible = true;
     }

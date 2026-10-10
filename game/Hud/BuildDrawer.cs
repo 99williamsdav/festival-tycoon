@@ -120,7 +120,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         var actions = new HBoxContainer(); actions.AddThemeConstantOverride("separation", Ui.Px(6)); box.AddChild(actions);
         _defaultsButton = Ui.Style(new Button { CustomMinimumSize = new Vector2(0, Ui.S(30)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-            TooltipText = "Restore standard service positions at normal draft cost; other preparation choices stay.",
+            TooltipText = "Put back the standard services.",
             MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Secondary, 12.5f);
         _defaultsButton.Pressed += ShowDefaults; actions.AddChild(_defaultsButton);
         box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(14)) });
@@ -278,7 +278,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         })
         {
             var button = ButtonText(caption, () => _actions.OpenCatalogue(kind));
-            button.TooltipText = $"Open the Build catalogue at {BuildName(kind)}; placement remains your choice.";
+            button.TooltipText = $"Show {BuildName(kind)} in Build";
             parent.AddChild(button);
             if (!_buildShortcutButtons.TryGetValue(kind, out var existing))
                 _buildShortcutButtons[kind] = existing = [];
@@ -429,9 +429,9 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
                 line.AddChild(new Control { CustomMinimumSize = new Vector2(Ui.S(46), 0) });
                 var name = Ui.Text($"{PlacedName(item)} · on the field", 12, Ui.InkMuted);
                 name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; name.VerticalAlignment = VerticalAlignment.Center; line.AddChild(name);
-                line.AddChild(SmallIcon("move", $"Move {BuildName(item.Kind)} without changing its draft cost.",
+                line.AddChild(SmallIcon("move", "Move",
                     () => _actions.BeginPlacement(item.Kind, item.Id)));
-                line.AddChild(SmallIcon("trash-2", $"Remove {BuildName(item.Kind)} from the unpaid draft; its fee comes off the total.",
+                line.AddChild(SmallIcon("trash-2", "Remove",
                     () => _actions.RemovePlacement(item.Id)));
             }
         }

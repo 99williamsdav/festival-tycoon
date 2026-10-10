@@ -209,8 +209,8 @@ public partial class Main
                 (listening is null ? "" : $"{placeActivity} · interest {listening.Enthusiasm}%\n") +
                 (disorder is null || disorder.Stage is DisorderStage.Calm or DisorderStage.Resolved ? "" : TroubleLine(disorder,
                     DisorderCuePlanner.CurrentOpponentId(_session.CaptureDisorder()!, disorder) is { } opponent ? preparation.People.SingleOrDefault(item => item.AgentId == opponent)?.Name ?? "one of the crew" : null) + "\n") +
-                (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} · {(!_session.IsPaused && _session.ImmersionConsumptionEligible(id.Value) ? "consuming" : "retained; consumption paused")}\n" : "") +
-                (immersion is null ? "" : $"Personal budget {FestivalCurrency.Format(_session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id.Value).CashPennies)}\n") +
+                (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)}\n" : "") +
+                (immersion is null ? "" : $"Budget {FestivalCurrency.Format(_session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id.Value).CashPennies)}\n") +
                 StaffInterventionTargetText(id.Value) +
                 (worker is null ? "" : ResponseStaffInspectorText(id.Value));
         }
