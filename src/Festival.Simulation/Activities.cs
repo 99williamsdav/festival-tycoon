@@ -128,9 +128,12 @@ public sealed partial class GameSession
     /// </summary>
     private int RainFeltPercent(ulong id)
     {
+        // The act on their own stage: the crowd they're in, or the band they're in. Only someone at neither weighs every act on.
+        var own = LiveListenerStage(id) is var listening and >= 0 ? listening : LivePerformerStage(id);
         var keenest = 0;
         for (var stage = 0; stage < Stages.Count; stage++)
-            if (_livePerformances[stage]?.Stage is LiveSetStage.Live && StageAct(stage) is { } act) keenest = Math.Max(keenest, FestivalAffinity(id, act));
+            if ((own < 0 || stage == own) && _livePerformances[stage]?.Stage is LiveSetStage.Live && StageAct(stage) is { } act)
+                keenest = Math.Max(keenest, FestivalAffinity(id, act));
         return keenest >= WeatherRules.FanKeenness ? 25 : 100;
     }
 
