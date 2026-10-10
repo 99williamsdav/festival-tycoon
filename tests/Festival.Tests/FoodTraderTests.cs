@@ -90,14 +90,17 @@ public sealed class FoodTraderTests
     }
 
     [TestMethod]
-    public void PizzasAppealPaysForItsPriceAndItsLongerWaitAndMattersMoreToFreerSpenders()
+    public void SideBySidePeckishGuestsTakeChipsAndHungryOnesPizza()
     {
-        // Its longer service at the music's worth for a well-liked act (5,000 a second): what the walk-and-queue chooser
-        // weighs. The split this gives side by side (about 45% pizza) is the probe's, not this sum's.
-        var wait = (GameSession.ImmersionServiceDuration(ImmersionProduct.Pizza) - GameSession.ImmersionServiceDuration(ImmersionProduct.Chips)) * 5_000L / 80;
-        Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 50) - wait > GameSession.FoodWorth(ImmersionProduct.Chips, 50), "Worth the wait to the average guest.");
-        var lead = Enumerable.Range(0, 101).Select(thrift => GameSession.FoodWorth(ImmersionProduct.Pizza, thrift) - GameSession.FoodWorth(ImmersionProduct.Chips, thrift)).ToArray();
-        Assert.IsTrue(lead.Zip(lead.Skip(1)).All(pair => pair.First >= pair.Second) && lead[0] > lead[100], "The thriftier the guest, the less pizza's worth over chips.");
+        // Two vans side by side with no queue (HungerTests.Prefers), every thrift. Peckish, chips; from a little hungrier,
+        // pizza, the freer spenders first. In play pizza's slower queue grows as it's chosen and balances this out: the
+        // probe has it at about 43% of food sold beside chips.
+        int Pizza(int hunger) => Enumerable.Range(0, 21).Count(step => HungerTests.Prefers(ImmersionProduct.Chips, ImmersionProduct.Pizza, hunger, step * 5) == ImmersionProduct.Pizza);
+        Assert.AreEqual(0, Pizza(ActivityChooser.PeckishHunger), "Peckish: chips for everyone.");
+        Assert.IsTrue(Pizza(3_500) is > 0 and < 21, $"A little hungrier, the crowd splits: {Pizza(3_500)} of 21 take pizza.");
+        Assert.IsTrue(Enumerable.Range(0, 21).Where(step => HungerTests.Prefers(ImmersionProduct.Chips, ImmersionProduct.Pizza, 3_500, step * 5) == ImmersionProduct.Pizza)
+            .All(step => step * 5 < 50), "The freer spenders are the ones who take it.");
+        Assert.AreEqual(21, Pizza(5_000), "Properly hungry: pizza.");
         Assert.IsTrue(GameSession.ImmersionPrice(ImmersionProduct.Pizza) > GameSession.ImmersionPrice(ImmersionProduct.Chips));
     }
 }

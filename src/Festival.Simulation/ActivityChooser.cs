@@ -10,7 +10,11 @@ public readonly record struct NeedLevels(int Thirst, int Heat, int Hunger, int T
 public readonly record struct NeedGrowth(int Thirst, int Heat, int Hunger, int Toilet);
 
 /// <summary>A later stop in a plan; <see cref="CompleteTicks"/> counts from now.</summary>
-public sealed record ActivityStop(ActivityKind Kind, string? FacilityId, int CompleteTicks);
+public sealed record ActivityStop(ActivityKind Kind, string? FacilityId, int CompleteTicks)
+{
+    /// <summary>The hunger a food stop takes away: its portion's filling.</summary>
+    public int FoodRelief { get; init; } = ActivityChooser.FoodHungerRelief;
+}
 
 /// <summary>
 /// One candidate plan. <see cref="CompleteTicks"/> is walk + wait + service from now, when the first
@@ -22,6 +26,8 @@ public sealed record ActivityStop(ActivityKind Kind, string? FacilityId, int Com
 public sealed record ActivityOption(ActivityKind Kind, string? FacilityId, int CompleteTicks, int AwayTicks, long Enjoyment = 0, long Cost = 0)
 {
     public ActivityStop? Then { get; init; }
+    /// <summary>The hunger a food stop takes away: its portion's filling.</summary>
+    public int FoodRelief { get; init; } = ActivityChooser.FoodHungerRelief;
 }
 
 public sealed record ActivityScore(ActivityOption Option, long Score);
@@ -42,7 +48,13 @@ public static class ActivityChooser
     public const int Samples = HorizonTicks / SampleTicks;
     public const int RestHeatTarget = 6_000;
     public const int ToiletAfterVisit = 1_000;
+    /// <summary>A portion of chips: how much hunger it takes away. Other food takes its filling's share of this.</summary>
     public const int FoodHungerRelief = 5_500;
+    /// <summary>
+    /// Peckish: hunger from which food is on offer at all. It's where hunger starts to hurt (see <see cref="HungerDiscomfort"/>);
+    /// below it a guest isn't hungry, so food would sate nothing and please nobody.
+    /// </summary>
+    public const int PeckishHunger = 3_000;
     public const int SoftDrinkThirstRelief = 6_000;
     public const int BeerThirstRelief = 1_500;
     public const int BeerToiletGain = 600;
@@ -64,11 +76,11 @@ public static class ActivityChooser
     public static bool InDistress(NeedLevels levels) => levels.Thirst >= GameSession.MedicalDistressThirst && levels.Heat >= GameSession.MedicalDistressHeat;
 
     /// <summary>The needs just after an activity's relief lands.</summary>
-    public static NeedLevels Relieve(ActivityKind kind, NeedLevels at) => kind switch
+    public static NeedLevels Relieve(ActivityKind kind, NeedLevels at, int foodRelief = FoodHungerRelief) => kind switch
     {
         ActivityKind.Water or ActivityKind.BarWater => at with { Thirst = 0, Heat = Math.Max(0, at.Heat - at.Thirst / 4) },
         ActivityKind.Rest => at with { Heat = Math.Min(at.Heat, RestHeatTarget) },
-        ActivityKind.Food => at with { Hunger = Math.Max(0, at.Hunger - FoodHungerRelief) },
+        ActivityKind.Food => at with { Hunger = Math.Max(0, at.Hunger - foodRelief) },
         ActivityKind.SoftDrink => at with { Thirst = Math.Max(0, at.Thirst - SoftDrinkThirstRelief) },
         ActivityKind.Beer => at with { Thirst = Math.Max(0, at.Thirst - BeerThirstRelief), Toilet = Math.Min(10_000, at.Toilet + BeerToiletGain) },
         ActivityKind.Toilet => at with { Toilet = Math.Min(at.Toilet, ToiletAfterVisit) },
@@ -93,9 +105,9 @@ public static class ActivityChooser
         long score = option.Enjoyment - option.Cost;
         // Relief lands at each stop in turn; a stop beyond the horizon never lands.
         var first = option.Kind != ActivityKind.Watch && option.CompleteTicks < HorizonTicks
-            ? Relieve(option.Kind, Grow(now, growth, option.CompleteTicks)) : (NeedLevels?)null;
+            ? Relieve(option.Kind, Grow(now, growth, option.CompleteTicks), option.FoodRelief) : (NeedLevels?)null;
         var second = first is { } afterFirst && option.Then is { } then && then.CompleteTicks < HorizonTicks
-            ? Relieve(then.Kind, Grow(afterFirst, growth, then.CompleteTicks - option.CompleteTicks)) : (NeedLevels?)null;
+            ? Relieve(then.Kind, Grow(afterFirst, growth, then.CompleteTicks - option.CompleteTicks), then.FoodRelief) : (NeedLevels?)null;
         for (var sample = 0; sample < Samples; sample++)
         {
             var tick = (sample + 1) * SampleTicks;
