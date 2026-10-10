@@ -10,11 +10,18 @@ public sealed class BandRelationshipTests
 {
     private static void Send(GameSession s, SessionCommand command) => BuildSession.Accept(s, command);
 
-    private static void SetRelationships(GameSession s, params ActRelationship[] relationships)
+    /// <summary>A Tier 1 set that went as well as one can: a full field clapping it out, enthusiastically.</summary>
+    private static CarriedGig Triumph(string actId) => new(1, actId, true, false, 25, 25, 25 * 1_000, []);
+    /// <summary>A Tier 1 set whose band never made it on, and one of them collapsed.</summary>
+    private static CarriedGig NoShow(string actId) => new(1, actId, false, false, 0, 0, 0, [GigRules.Collapse]);
+
+    /// <summary>Gives a Tier 2 festival a Tier 1 behind it: those sets, and the relationships they work out to.</summary>
+    private static void SetHistory(GameSession s, params CarriedGig[] history)
     {
         var field = typeof(GameSession).GetField("_preparation", BindingFlags.Instance | BindingFlags.NonPublic)!;
+        var from = typeof(GameSession).GetMethod("RelationshipsFrom", BindingFlags.Static | BindingFlags.NonPublic)!;
         var p = (PreparationSnapshot)field.GetValue(s)!;
-        field.SetValue(s, p with { ActRelationships = relationships.OrderBy(item => item.ActId, StringComparer.Ordinal).ToArray() });
+        field.SetValue(s, p with { RelationshipHistory = history, ActRelationships = (ActRelationship[]?)from.Invoke(null, [history, false]) });
     }
 
     /// <summary>A Tier 1 day played until its first set has ended and been written down.</summary>
@@ -23,6 +30,24 @@ public sealed class BandRelationshipTests
         var s = BuildSession.Started(seed);
         while (s.PerformanceRecords.Count == 0) s.AdvanceWithoutSnapshot(80);
         return s;
+    }
+
+    [TestMethod]
+    public void TheLabelReadsTheSetAsTheScoreDoes()
+    {
+        // A big peak that drifted off before the end: the score likes the crowd, and so does the label.
+        var drifted = new GigFacts(true, false, PeakCrowd: 19, SetEndCrowd: 1, SetEndEnjoyment: 200, []);
+        var (reaction, delta, reasons) = GigRules.Judge(drifted, expected: 16);
+        Assert.AreEqual(GigRules.Warm, reaction);
+        Assert.IsTrue(delta > 0);
+        CollectionAssert.Contains(reasons, "a big crowd");
+        Assert.AreEqual(GigRules.Polite, GigRules.Judge(drifted with { PeakCrowd = 11 }, 16).Reaction);
+        Assert.AreEqual(GigRules.Smattering, GigRules.Judge(drifted with { PeakCrowd = 7 }, 16).Reaction);
+        Assert.IsTrue(GigRules.Judge(drifted with { PeakCrowd = 7 }, 16).Delta <= 0, "A smattering never reads as a gain from the crowd.");
+        Assert.AreEqual(GigRules.EmptyField, GigRules.Judge(drifted with { PeakCrowd = 3 }, 16).Reaction);
+        Assert.AreEqual(GigRules.Enthusiastic, GigRules.Judge(new GigFacts(true, false, 20, 12, 12 * 500, []), 16).Reaction);
+        Assert.AreEqual(GigRules.CutShort, GigRules.Judge(new GigFacts(true, true, 20, 0, 0, [GigRules.PowerCut]), 16).Reaction);
+        Assert.AreEqual(GigRules.NoShow, GigRules.Judge(new GigFacts(false, false, 0, 0, 0, []), 16).Reaction);
     }
 
     [TestMethod]
@@ -97,10 +122,11 @@ public sealed class BandRelationshipTests
         var liked = acts[0];
         var disliked = acts[1];
         var basePlan = s.PreparationPlanCost;
-        SetRelationships(s, new(liked.Id, 100), new(disliked.Id, -100));
-        Assert.AreEqual(100, s.ActRelationship(liked.Id));
-        Assert.AreEqual(GigRules.Fee(ActCatalogue.Fee(s.Standing, liked), 100), s.ActFee(liked));
-        Assert.AreEqual(GigRules.Fee(ActCatalogue.Fee(s.Standing, disliked), -100), s.ActFee(disliked));
+        SetHistory(s, Triumph(liked.Id), NoShow(disliked.Id));
+        Assert.AreEqual(GigRules.BestGig, s.ActRelationship(liked.Id));
+        Assert.AreEqual(GigRules.WorstGig, s.ActRelationship(disliked.Id));
+        Assert.AreEqual(GigRules.Fee(ActCatalogue.Fee(s.Standing, liked), GigRules.BestGig), s.ActFee(liked));
+        Assert.AreEqual(GigRules.Fee(ActCatalogue.Fee(s.Standing, disliked), GigRules.WorstGig), s.ActFee(disliked));
         Assert.AreNotEqual(ActCatalogue.Fee(s.Standing, liked), s.ActFee(liked));
         Assert.AreEqual(s.ActFee(liked), s.GetPreparationOffers().Single(offer => offer.Id == liked.Id).PricePennies);
         Send(s, new SetProgrammeCommand([liked.Id, disliked.Id, acts[2].Id]));
@@ -118,17 +144,32 @@ public sealed class BandRelationshipTests
     }
 
     [TestMethod]
-    public void ARelationshipOutOfRangeOrAtTierOneIsRefusedOnRestore()
+    public void RelationshipsThatTheEarlierSetsDontGiveAreRefusedOnRestore()
     {
+        const string refused = "Act relationships invalid.";
         var s = BuildSession.Started();
         var saved = s.CapturePersistenceSnapshot();
         var tampered = saved with { Preparation = saved.Preparation! with { ActRelationships = [new("act.meadow-lanterns", 5)] } };
-        Assert.AreEqual("Act relationships invalid.", GameSession.Restore(tampered).Error, "Tier 1 has no festival before it.");
+        Assert.AreEqual(refused, GameSession.Restore(tampered).Error, "Tier 1 has no festival before it.");
         var tier2 = NextFestivalTests.Drafted(GameSession.CreateDevelopmentFestival(20260922, 2));
+        SetHistory(tier2, Triumph("act.meadow-lanterns"), NoShow("act.parish-ceilidh"));
         var two = tier2.CapturePersistenceSnapshot();
-        foreach (var bad in new ActRelationship[][] { [new("act.meadow-lanterns", 101)], [new("act.meadow-lanterns", 0)], [new("act.nobody", 4)],
-                     [new("act.parish-ceilidh", 4), new("act.meadow-lanterns", 4)] })
-            Assert.AreEqual("Act relationships invalid.", GameSession.Restore(two with { Preparation = two.Preparation! with { ActRelationships = bad } }).Error);
+        Assert.IsTrue(GameSession.Restore(two).IsSuccess, "Relationships that follow from their sets restore.");
+        var p = two.Preparation!;
+        // Every act in the catalogue at +100: no Tier 1 could have done that.
+        var everyone = ActCatalogue.All.Select(act => new ActRelationship(act.Id, 100)).OrderBy(item => item.ActId, StringComparer.Ordinal).ToArray();
+        Assert.AreEqual(refused, GameSession.Restore(two with { Preparation = p with { ActRelationships = everyone } }).Error);
+        Assert.AreEqual(refused, GameSession.Restore(two with { Preparation = p with { ActRelationships = everyone, RelationshipHistory = null } }).Error);
+        // Nor a history that a Tier 1 couldn't hold: more sets than slots, an act twice, a crowd bigger than the field.
+        var many = ActCatalogue.All.Take(4).Select(act => Triumph(act.Id)).ToArray();
+        foreach (var history in new CarriedGig[][] { many, [Triumph("act.meadow-lanterns"), Triumph("act.meadow-lanterns")],
+                     [Triumph("act.meadow-lanterns") with { PeakCrowd = 26, SetEndCrowd = 26 }], [Triumph("act.meadow-lanterns") with { Tier = 2 }] })
+        {
+            var forged = (ActRelationship[]?)typeof(GameSession).GetMethod("RelationshipsFrom", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [history, false]);
+            Assert.AreEqual(refused, GameSession.Restore(two with { Preparation = p with { RelationshipHistory = history, ActRelationships = forged } }).Error);
+        }
+        Assert.AreEqual(refused, GameSession.Restore(two with { Preparation = p with { ActRelationships = [new("act.meadow-lanterns", 24), new("act.parish-ceilidh", -30)] } }).Error,
+            "Off by one from what the sets give.");
     }
 
     [TestMethod]
@@ -223,6 +264,9 @@ public sealed class BandRelationshipTests
             [record with { PeakCrowd = record.PeakCrowd + 1 }],
             [record with { ActId = BuildSession.Acts[1] }],
             [record with { Hiccups = [GigRules.Boos] }],
+            [record with { Reaction = GigRules.Polite == record.Reaction ? GigRules.Warm : GigRules.Polite }],
+            [record with { SetEndEnjoyment = record.SetEndEnjoyment + 1 }],
+            [record with { CutShort = !record.CutShort }],
             [record with { RelationshipBefore = 5, RelationshipAfter = GigRules.Apply(5, record.Delta) }],
             [record, record with { Slot = 1 }],
         ];
@@ -230,6 +274,46 @@ public sealed class BandRelationshipTests
             Assert.AreEqual("Performance records invalid.", GameSession.Restore(saved with { PerformanceRecords = records }).Error);
         Assert.AreEqual("Performance records invalid.", GameSession.Restore(saved with { PerformanceRecords = null }).Error,
             "A finished set must have its record.");
+    }
+
+    [TestMethod]
+    public void ACutShortSetCannotBeRelabelledEnthusiastic()
+    {
+        var s = BuildSession.Started();
+        while (s.CaptureLivePerformance()!.Stage != LiveSetStage.Live) s.AdvanceWithoutSnapshot(80);
+        s.AdvanceWithoutSnapshot(2_400);
+        Send(s, new EquipmentCommand(EquipmentAction.Isolate));
+        while (s.PerformanceRecords.Count == 0) s.AdvanceWithoutSnapshot(80);
+        // Move on to the next set, so the cut-short one is no longer the live set it could be checked against.
+        while (s.CaptureProgramme()!.CurrentSlot == 0) s.AdvanceWithoutSnapshot(80);
+        var saved = s.CapturePersistenceSnapshot();
+        var record = saved.PerformanceRecords![0];
+        Assert.AreEqual(GigRules.CutShort, record.Reaction);
+        // Still cut short but labelled enthusiastic, with its score, relationship and reasons made to match.
+        var relabelled = record with { Reaction = GigRules.Enthusiastic };
+        var (relabelledDelta, relabelledReasons) = GigRules.Score(GigRules.Enthusiastic, record.Hiccups, record.PeakCrowd, record.SetEndCrowd, record.ExpectedCrowd, record.AverageEnjoyment);
+        relabelled = relabelled with { Delta = relabelledDelta, RelationshipAfter = GigRules.Apply(record.RelationshipBefore, relabelledDelta), Reasons = relabelledReasons };
+        Assert.AreEqual("Performance records invalid.", GameSession.Restore(saved with { PerformanceRecords = [relabelled, .. saved.PerformanceRecords[1..]] }).Error);
+        // Nor by saying it wasn't cut short: its own numbers don't make an enthusiastic set.
+        Assert.AreEqual("Performance records invalid.", GameSession.Restore(saved with { PerformanceRecords = [relabelled with { CutShort = false }, .. saved.PerformanceRecords[1..]] }).Error);
+    }
+
+    [TestMethod]
+    public void AMissedFirstSetIsRecordedAndItsRecordCannotBeDropped()
+    {
+        var s = BuildSession.Started();
+        // Labelled fixture: the clock jumps past the first set without its band ever getting on, as a day that ran away would.
+        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s, 16_000L);
+        typeof(GameSession).GetMethod("FinishLivePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, null);
+        BuildSession.SetMainProgramme(s, s.CaptureProgramme()! with { CurrentSlot = 1 });
+        typeof(GameSession).GetMethod("StartLivePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, null);
+        var record = s.PerformanceRecords.Single();
+        Assert.AreEqual(0, record.Slot);
+        Assert.AreEqual(GigRules.NoShow, record.Reaction);
+        Assert.AreEqual(GigRules.WorstGig, record.Delta, "Nobody heard a note and the band never came: the worst a gig gives.");
+        var saved = s.CapturePersistenceSnapshot();
+        Assert.IsTrue(GameSession.Restore(saved).IsSuccess, GameSession.Restore(saved).Error);
+        Assert.AreEqual("Performance records invalid.", GameSession.Restore(saved with { PerformanceRecords = null }).Error, "The missed set must be on record.");
     }
 
     [TestMethod]
@@ -268,11 +352,15 @@ public sealed class BandRelationshipTests
         Assert.AreEqual(3, records.Count);
         var restored = BuildSession.Restored(one);
         Assert.AreEqual(JsonSerializer.Serialize(records), JsonSerializer.Serialize(restored.PerformanceRecords), "The finished day's records restore.");
+        // Every set's record must be there: losing the first one is refused.
+        var saved = one.CapturePersistenceSnapshot();
+        Assert.AreEqual("Performance records invalid.", GameSession.Restore(saved with { PerformanceRecords = saved.PerformanceRecords!.Where(record => record.Slot != 0).ToArray() }).Error);
         var two = one.CreateNextFestival();
         Assert.AreEqual(0, two.PerformanceRecords.Count, "A new festival starts with no sets played.");
         foreach (var record in records)
         {
             Assert.AreEqual(record.RelationshipAfter, two.ActRelationship(record.ActId), record.ActId);
+            Assert.IsTrue(two.CapturePreparation()!.RelationshipHistory!.Any(gig => gig.Tier == 1 && gig.ActId == record.ActId), "The set comes forward as its facts.");
             var act = ActCatalogue.Find(record.ActId)!;
             Assert.AreEqual(GigRules.Fee(ActCatalogue.Fee(two.Standing, act), record.RelationshipAfter), two.ActFee(act));
             // An act you've history with, who'll play for you, is always on the offer.

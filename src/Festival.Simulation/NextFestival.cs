@@ -71,8 +71,9 @@ public sealed partial class GameSession
         var p = _preparation!;
         var next = CreateLaterFestival(CampaignSeed, CampaignId, p.Tier + 1, CarryOverFrom(p),
             new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray()), p.SeenActs, _campaignPlanning!, _pondStageTrial);
-        // Each act's relationship as this festival's sets left it.
-        next.PreparationView = next.PreparationView! with { ActRelationships = GigRules.BetweenFestivals(RelationshipsAfterFestival, CampaignSeed, p.Tier + 1) };
+        // Each act's relationship as this festival's sets left it, and the sets it was worked out from.
+        var (history, relationships) = RelationshipsForNextFestival(p.Tier + 1);
+        next.PreparationView = next.PreparationView! with { ActRelationships = relationships, RelationshipHistory = history };
         return next;
     }
 

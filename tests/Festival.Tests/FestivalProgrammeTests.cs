@@ -51,6 +51,8 @@ public sealed class FestivalProgrammeTests
             s.CaptureMedical()! with { Needs = s.CaptureMedical()!.Needs.Select(need => need.AgentId == performer ? need with { Intent = MedicalIntent.Rest, HeatExposure = 8000 } : need).ToArray() });
         typeof(GameSession).GetMethod("ApplyAgentDestination", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, [new EntityId(performer), new SetAgentDestinationCommand(GameSession.MedicalRestCell, "medical.rest"), false]);
         typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s, 16_000L);
+        // The first set is over before the second is called: it never got going, and is written down as missed.
+        typeof(GameSession).GetMethod("FinishLivePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, null);
         BuildSession.SetMainProgramme(s, s.CaptureProgramme()! with { CurrentSlot = 1 });
         typeof(GameSession).GetMethod("StartLivePerformance", BindingFlags.Instance | BindingFlags.NonPublic)!.Invoke(s, null);
         Assert.AreEqual("medical.rest", s.CaptureSnapshot().NavigationAgents.Single(agent => agent.Id.Value == performer).IntentId);

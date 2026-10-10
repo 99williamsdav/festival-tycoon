@@ -227,6 +227,20 @@ internal static class BuildSession
         field.SetValue(s, all with { Stages = [programme, .. all.Stages.Skip(1)] });
     }
 
+    /// <summary>
+    /// Labelled fixture: the main stage's finished set ends at a different tick, and so does its record, as a test that
+    /// closes the day by hand needs.
+    /// </summary>
+    public static void EndMainSetAt(GameSession s, long tick)
+    {
+        var live = s.CaptureLivePerformance()!;
+        SetMainLive(s, live with { EndedTick = tick });
+        var field = typeof(GameSession).GetField("_performanceRecords", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!;
+        var slot = s.CaptureProgramme()!.CurrentSlot;
+        if (field.GetValue(s) is PerformanceRecord[] records)
+            field.SetValue(s, records.Select(record => record.StageId == FestivalStages.MainId && record.Slot == slot ? record with { EndedTick = tick } : record).ToArray());
+    }
+
     /// <summary>A save with its main stage's running order or live set changed, for restore validation tests.</summary>
     public static SessionPersistenceSnapshot WithMainProgramme(SessionPersistenceSnapshot saved, Func<StageProgrammeSnapshot, StageProgrammeSnapshot> change) =>
         saved with { Programme = saved.Programme! with { Stages = [change(saved.Programme.Stages[0]), .. saved.Programme.Stages.Skip(1)] } };

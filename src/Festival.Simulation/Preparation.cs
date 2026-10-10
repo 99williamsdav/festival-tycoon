@@ -35,6 +35,9 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     /// <summary>Each act's relationship with you as this festival opened (non-zero only, by act); null when none.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public ActRelationship[]? ActRelationships { get; init; }
+    /// <summary>Every set the campaign played before this festival, as the facts the relationships above are worked out from.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CarriedGig[]? RelationshipHistory { get; init; }
     /// <summary>Standing before the completed festival changed it, for the results.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public FestivalStanding? StandingBefore { get; init; }
@@ -478,7 +481,7 @@ public sealed partial class GameSession
         if (p is null) return null;
         if (p.SeenActs is null || p.SeenActs.Any(id => ActCatalogue.Find(id) is null) || !p.SeenActs.SequenceEqual(p.SeenActs.Distinct().Order(StringComparer.Ordinal)))
             return "Seen acts invalid.";
-        if (ValidatePersistedRelationships(p) is { } relationshipIssue) return relationshipIssue;
+        if (ValidatePersistedRelationships(p, snapshot.PondStageTrial) is { } relationshipIssue) return relationshipIssue;
         if (p.Reputation is < 0 or > 100 || p.SceneCredibility is not { Length: FestivalGenre.Count } || p.SceneCredibility.Any(value => value is < 0 or > 100) ||
             p.StandingBefore is { } before && (before.Reputation is < 0 or > 100 || before.SceneCredibility is not { Length: FestivalGenre.Count } || before.SceneCredibility.Any(value => value is < 0 or > 100)))
             return "Festival reputation or scene credibility invalid.";
