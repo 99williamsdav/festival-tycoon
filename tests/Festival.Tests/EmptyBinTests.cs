@@ -116,6 +116,35 @@ public sealed class EmptyBinTests
         Assert.IsTrue(emptied, "Emptied.");
     }
     [TestMethod]
+    public void EmptyNowOnAWaitingBinBetweenLitterSecondsServesTheOrderAndStillSaves()
+    {
+        var s = BuildSession.WithoutBins(BuildSession.Ready(20261007));
+        BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(110, 140)));
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        BuildSession.WithoutFaults(s);
+        while (s.CaptureBins().Single().Pieces == 0 && s.CurrentTick < 40_000) s.AdvanceWithoutSnapshot(80);
+        var bin = s.CaptureBins().Single();
+        foreach (var steward in s.GetStewardResponses()) BuildSession.Accept(s, new CleanUpCommand(steward.WorkerId));
+        BuildSession.Accept(s, new EmptyBinCommand(bin.Id));
+        Assert.IsTrue(s.BinEmptyRequested(bin.Id), "Queued.");
+        // Off a litter second, so the queue isn't served before the player acts.
+        while (s.CurrentTick % LitterRules.SecondTicks == 0) s.AdvanceWithoutSnapshot(1);
+        // A steward comes free mid-second: their sweep ends.
+        var flags = System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic;
+        var endSweep = typeof(GameSession).GetMethod("EndSweep", flags)!;
+        foreach (var sweep in s.CaptureLitter()!.Sweeps.Where(j => j.Remaining > 0).ToArray()) endSweep.Invoke(s, [sweep, false]);
+        Assert.IsNotNull(s.BinEmptier(bin.Id, out var why), why);
+        Assert.IsTrue(s.BinEmptyRequested(bin.Id), "Still waiting: no litter second has passed.");
+        // The player clicks Empty now on it before the queue gets a look in.
+        BuildSession.Accept(s, new EmptyBinCommand(bin.Id));
+        Assert.IsFalse(s.BinEmptyRequested(bin.Id), "The steward going now serves the waiting order.");
+        Assert.IsTrue(s.CaptureLitter()!.Sweeps.Any(j => j.Remaining > 0 && j.Ordered && j.TargetId == bin.Id), "On their way.");
+        Assert.AreNotEqual(0, s.CurrentTick % LitterRules.SecondTicks, "Saved inside the window before the next litter second.");
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    [TestMethod]
     public void AWaitingOrderIsServedTheSameWayOnReplay()
     {
         string Run()
