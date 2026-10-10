@@ -119,7 +119,19 @@ public sealed partial class GameSession
             exposed = exposed * within / ActivityChooser.HorizonTicks;
             rainTicks = ActivityChooser.HorizonTicks;
         }
-        return new(soak, WeatherRules.DryUnderCoverPerSecond, WeatherRules.DryInTheOpenPerSecond, exposed, rainTicks, OwnsPoncho(id));
+        return new(soak, WeatherRules.DryUnderCoverPerSecond, WeatherRules.DryInTheOpenPerSecond, exposed, rainTicks, OwnsPoncho(id), RainFeltPercent(id));
+    }
+
+    /// <summary>
+    /// How much of the rain's misery a guest lets count against the music: a fan of an act on now (keenness 80 or more) stays
+    /// and suffers, feeling a quarter of it; anyone lukewarm feels it all.
+    /// </summary>
+    private int RainFeltPercent(ulong id)
+    {
+        var keenest = 0;
+        for (var stage = 0; stage < Stages.Count; stage++)
+            if (_livePerformances[stage]?.Stage is LiveSetStage.Live && StageAct(stage) is { } act) keenest = Math.Max(keenest, FestivalAffinity(id, act));
+        return keenest >= WeatherRules.FanKeenness ? 25 : 100;
     }
 
     /// <summary>
