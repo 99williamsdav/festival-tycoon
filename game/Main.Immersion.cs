@@ -145,7 +145,7 @@ private void BuildImmersionControls(VBoxContainer parent)
         _immersionStockButton = Ui.Style(new Button { Text = "Starter bundle · 40 / 32", CustomMinimumSize = new Vector2(0, Ui.S(28)),
             MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Secondary, 12.5f);
         _immersionStockButton.Pressed += () => CommitEquipmentAction(new SetPreparationStockCommand(40, 32));
-        _immersionStockButton.TooltipText = "40 soft drinks and 32 beers for the bar. Paid from festival funds once before opening; no in-day refill.";
+        _immersionStockButton.TooltipText = "40 soft drinks and 32 beers. No restocking during the day.";
         heading.AddChild(_immersionStockButton);
         _immersionSummary = Ui.Text("", 13, Ui.InkMuted); _immersionSummary.AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _immersionControls.AddChild(_immersionSummary);
@@ -260,11 +260,11 @@ private void BuildImmersionControls(VBoxContainer parent)
 
     private void BuildSuppliesPage(VBoxContainer page)
     {
-        page.AddChild(Ui.PageHeading("Supplies", "Optional. Stock sells at the bar; the food trader brings their own. Free water is always available."));
+        page.AddChild(Ui.PageHeading("Supplies", "Optional. The food trader brings their own."));
         page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(2)) });
         BuildImmersionControls(page);
         page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
-        page.AddChild(Ui.Section("Sound rig", "Basic PA included · hire a bigger rig for better sound"));
+        page.AddChild(Ui.Section("Sound rig", "Basic PA included"));
         _rigChoices = new GridContainer { Columns = 2 };
         _rigChoices.AddThemeConstantOverride("h_separation", Ui.Px(12)); page.AddChild(_rigChoices);
         page.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(4)) });
@@ -290,7 +290,7 @@ private void BuildImmersionControls(VBoxContainer parent)
             if (_selectedImmersionVendor is { } id) BeginImmersionPlacement(id);
         });
         _immersionMoveButton.Visible = false;
-        _immersionMoveButton.TooltipText = "Choose a new grass site before opening. Comma/period rotate; right-click or Esc cancels.";
+        _immersionMoveButton.TooltipText = "Comma/period rotate · right-click or Esc cancels.";
         parent.AddChild(_immersionMoveButton);
         _freeWaterButton = ButtonText("Free water at the bar", () =>
         {
@@ -325,7 +325,7 @@ private void BuildImmersionControls(VBoxContainer parent)
         if (_session.CapturePreparationPlan() is { } plan)
         {
             _immersionStockButton.Text = "Starter bundle · 40 / 32";
-            _immersionStockButton.TooltipText = "Plan 40 soft drinks and 32 beers. Unpaid until Start; revise quantities or remove freely.";
+            _immersionStockButton.TooltipText = "40 soft drinks and 32 beers.";
             var values = PlannedAmounts(plan);
             var costs = new[] { GameSession.ImmersionCost(ImmersionProduct.SoftDrink), GameSession.ImmersionCost(ImmersionProduct.Beer),
                 GameSession.ImmersionCost(ImmersionProduct.Poncho), GroundCoverRules.BalePennies };
@@ -341,7 +341,7 @@ private void BuildImmersionControls(VBoxContainer parent)
                 _stockRows[i].Line.Visible = i < 2 || rainy;
             }
             _stockClear!.Disabled = !preparing || values.Sum() == 0;
-            _stockPotential!.Text = $"Sells for up to {FestivalCurrency.Format(values.Select((value, i) => (long)value * sales[i]).Sum())} if every item goes. Staff don't buy beer.";
+            _stockPotential!.Text = $"Sells for up to {FestivalCurrency.Format(values.Select((value, i) => (long)value * sales[i]).Sum())} if every item goes.";
             _stockTotal!.Text = FestivalCurrency.Format(values.Select((value, i) => (long)value * costs[i]).Sum());
         }
         var menus = string.Join(" • ", _session.PlacedVans.DefaultIfEmpty(Stalls.FirstVan).Select(van => _session.TraderAt(van))
@@ -418,19 +418,19 @@ private void BuildImmersionControls(VBoxContainer parent)
             _freeWaterButton.Text = _session.FreeWaterOn ? "Stop free water" : $"Free water at the {(_session.CaptureVendors().Count(v => Stalls.IsBar(v.Id)) > 1 ? "bars" : "bar")} · {FestivalCurrency.Format(GameSession.FreeWaterChargePennies)}";
             _freeWaterButton.Disabled = _session.ValidateCommand(CampaignEnvelope(new SetFreeWaterCommand(!_session.FreeWaterOn))) is not null;
             _freeWaterButton.TooltipText = _session.FreeWaterOn
-                ? "Stop handing out water. No refund; switching it back on costs again."
-                : "Hand out free cups of water from the bar for the rest of the day. Thirsty guests will use it, especially if the taps are broken or busy, and the bar queue will grow.";
+                ? "No refund; turning it back on costs again."
+                : "Free cups of water for the rest of the day. The bar queue will grow.";
         }
         if (_selectedImmersionVendor is not { } id || _session.CaptureImmersion() is not { } state || !_immersionVendors.TryGetValue(id, out var body)) return;
         var vendor = _session.CaptureVendors().Single(v => v.Id == id);
         var trader = Stalls.IsVan(id) ? _session.TraderAt(id) : null;
-        _inspectorTitle.Text = trader is not null ? $"{trader.Name} • {trader.Menu.ToLowerInvariant()}" : $"{Stalls.Label(id).Replace("Bar", "Drinks stall")} • soft drinks & beer";
+        _inspectorTitle.Text = trader is not null ? $"{trader.Name} • {trader.Menu.ToLowerInvariant()}" : Stalls.Label(id).Replace("Bar", "Drinks stall");
         _inspectorBody.Text = $"Queue: {vendor.Queue.Length}\n" +
             (vendor.OwnerId is { } owner ? $"Serving {_session.CapturePreparation()!.People.Single(p => p.AgentId == owner).Name} • {vendor.ServiceTicks / 80m:0.0}s remaining\n" : "Counter ready\n") +
-            (trader is not null ? $"{trader.Menu} {FestivalCurrency.Format(_session.ImmersionListPrice(trader.Product))}\nTheir own food and takings; they pay {FestivalCurrency.Format(trader.PitchFeePennies)} to pitch." +
-                (trader.SlowService ? "\nSlower to serve: expect a queue." : "") : $"Soft {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.SoftDrink))} • {BarStock(state.SoftStock, true)}\nBeer {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} • {BarStock(state.BeerStock, false)}\nNo beer for staff or heavily intoxicated customers.") +
-            (_session.CaptureVendors().Count(v => Stalls.IsBar(v.Id)) > 1 && trader is null ? "\nThe bars share one order of stock." : "") +
-            "\nStaff & band: half price." + (trader is null && state.FreeWater ? "\nFREE WATER • cups for the thirsty" : "");
+            (trader is not null ? $"{trader.Menu} {FestivalCurrency.Format(_session.ImmersionListPrice(trader.Product))}\nPays {FestivalCurrency.Format(trader.PitchFeePennies)} to pitch" +
+                (trader.SlowService ? "\nSlow to serve" : "") : $"Soft {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.SoftDrink))} • {BarStock(state.SoftStock, true)}\nBeer {FestivalCurrency.Format(_session.ImmersionListPrice(ImmersionProduct.Beer))} • {BarStock(state.BeerStock, false)}") +
+            (_session.CaptureVendors().Count(v => Stalls.IsBar(v.Id)) > 1 && trader is null ? "\nStock shared by the bars" : "") +
+            (trader is null && state.FreeWater ? "\nFree water on" : "");
         _highlight.Position = body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new Vector3(trader is not null ? 3.5f : 2, 1, trader is not null ? 3.5f : 2); _highlight.Visible = true;
     }
     /// <summary>Stock on the counter, or before opening what's been ordered (it arrives at Start).</summary>

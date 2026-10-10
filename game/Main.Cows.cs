@@ -161,10 +161,10 @@ public partial class Main
         _inspectorTitle.Text = "A loose cow";
         var herder = cow.HerderId is { } h ? _session.CapturePreparation()!.People.Single(p => p.AgentId == h).Name : null;
         _inspectorBody.Text = herder is not null ? cow.Driving ? $"{herder} is walking it back to the gate." : $"{herder} is on the way to round it up." :
-            cow.Activity == CowActivity.Ambling ? "Ambling about the festival." : "Grazing. It might chew a power cable if it wanders behind the generator, the bar or the food van.";
+            cow.Activity == CowActivity.Ambling ? "Ambling about the festival." : "Grazing. It may chew a power cable.";
         var (_, reason) = _session.CowHerder(id);
         _herdCowButton!.Disabled = reason is not null;
-        _herdCowButton.TooltipText = reason ?? "Send the nearest free steward to drive it back through the gate.";
+        _herdCowButton.TooltipText = reason ?? "";
         _highlight.Position = view.Body.Position + new Vector3(0, .08f, 0);
         _highlight.Scale = new Vector3(1.6f, 1, 1.6f); _highlight.Visible = true;
     }

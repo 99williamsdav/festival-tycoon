@@ -204,16 +204,31 @@ public partial class Main
             var disorder = _session.CaptureDisorder()?.People.SingleOrDefault(item => item.AgentId == id.Value);
             var worker = _session.GetResponseStaff().SingleOrDefault(item => item.AgentId == id.Value);
             var activity = person.Departed ? "Left the festival" : need?.Intent == MedicalIntent.Collapsed ? "Collapsed · needs care" :
-                need is not null ? StewardWording(System.Text.RegularExpressions.Regex.Replace(need.Reason, @"\s+at tick \d+", "")) : performer?.OnStage == true ? "Performing on stage" : "Walking through the festival";
+                need is not null ? ActivityLine(need.Reason) : performer?.OnStage == true ? "Performing on stage" : "Walking through the festival";
             _inspectorBody.Text = $"{(person.Role == ProtectedPersonRole.Guest ? "Likes " + FestivalGenreName(person.ExpectedGenre) : "Festival crew")}\n{activity}\n" +
                 (listening is null ? "" : $"{placeActivity} · interest {listening.Enthusiasm}%\n") +
                 (disorder is null || disorder.Stage is DisorderStage.Calm or DisorderStage.Resolved ? "" : TroubleLine(disorder,
                     DisorderCuePlanner.CurrentOpponentId(_session.CaptureDisorder()!, disorder) is { } opponent ? preparation.People.SingleOrDefault(item => item.AgentId == opponent)?.Name ?? "one of the crew" : null) + "\n") +
-                (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)} · {(!_session.IsPaused && _session.ImmersionConsumptionEligible(id.Value) ? "consuming" : "retained; consumption paused")}\n" : "") +
-                (immersion is null ? "" : $"Personal budget {FestivalCurrency.Format(_session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id.Value).CashPennies)}\n") +
+                (immersion?.Held is { } held ? $"Holding {ImmersionProductName(held.Product)}\n" : "") +
+                (immersion is null ? "" : $"Budget {FestivalCurrency.Format(_session.CaptureSnapshot().Wallets.Single(w => w.OwnerId.Value == id.Value).CashPennies)}\n") +
                 StaffInterventionTargetText(id.Value) +
                 (worker is null ? "" : ResponseStaffInspectorText(id.Value));
         }
+    }
+
+    /// <summary>
+    /// What someone's doing, in a few words: the chooser's scores ("music 392 vs toilet 332 incl. travel/wait") and
+    /// tick stamps are for debugging, not the inspector.
+    /// </summary>
+    private string ActivityLine(string reason)
+    {
+        var line = System.Text.RegularExpressions.Regex.Replace(reason, @"\s+at tick \d+", "");
+        line = System.Text.RegularExpressions.Regex.Replace(line, @"\s+-?\d+(\s+vs\s.*)?$", "");
+        line = line.StartsWith("Watching band", StringComparison.Ordinal) ? "Watching the band"
+            : line.StartsWith("On duty", StringComparison.Ordinal) ? "On duty"
+            : line.StartsWith("Chose ", StringComparison.Ordinal) ? "Next: " + line["Chose ".Length..]
+            : line.StartsWith("Staying with ", StringComparison.Ordinal) ? "Carrying on: " + line["Staying with ".Length..] : line;
+        return StewardWording(line);
     }
 
     private void EnsureStageDrumKit()

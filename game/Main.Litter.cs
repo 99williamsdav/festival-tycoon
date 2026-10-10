@@ -143,7 +143,11 @@ public partial class Main
         _binEmptyButton = ButtonText("Empty now", () =>
         {
             if (_selectedBinId is not { } id) return;
-            _preparationMessage = _host.Execute(new EmptyBinCommand(id), out var error) ? "A steward is on their way to empty the bin." : error!;
+            // A waiting order is cancelled from the same button; otherwise a steward goes now, or the order waits for one.
+            var cancel = _session.BinEmptyRequested(id);
+            var queued = !cancel && _session.BinEmptier(id, out _) is null;
+            _preparationMessage = _host.Execute(new EmptyBinCommand(id, cancel), out var error)
+                ? cancel ? "Order cancelled." : queued ? "The next free steward will empty it." : "A steward is on their way to empty the bin." : error!;
             _binEmptierKey = default; RefreshPreparationHud(); RefreshBinInspector();
         });
         _binEmptyButton.Visible = false;
@@ -152,12 +156,12 @@ public partial class Main
         {
             if (_selectedAttendeeId is { } id)
             {
-                _preparationMessage = _host.Execute(new CleanUpCommand(id.Value), out var error) ? "Steward assigned a bounded cleanup sweep." : error!;
+                _preparationMessage = _host.Execute(new CleanUpCommand(id.Value), out var error) ? "Off to sweep up." : error!;
                 RefreshPreparationHud();
             }
         });
         parent.AddChild(_cleanupButton); _cleanupButton.Visible = false;
-        _cleanupButton.TooltipText = "Sweep near this steward's current post, then return. Arguments and fights take priority. Bins empty only at 90% or more.";
+        _cleanupButton.TooltipText = "Sweep round their post, then come back.";
         _spreadStrawButton = ButtonText("Spread straw", () =>
         {
             if (_selectedAttendeeId is not { } id) return;
@@ -195,17 +199,19 @@ public partial class Main
             if (_binEmptyButton.Visible && (_selectedBinId, _session.CurrentTick) != _binEmptierKey)
             {
                 _binEmptierKey = (_selectedBinId, _session.CurrentTick);
+                var waiting = _session.BinEmptyRequested(_selectedBinId!);
                 var ready = _session.BinEmptier(_selectedBinId!, out var why) is not null;
-                _binEmptyButton.Disabled = !ready;
-                _binEmptyButton.TooltipText = ready ? "Send the nearest free steward to empty this bin now." : why;
+                var queueable = !ready && !waiting && _session.BinEmptyQueueable(_selectedBinId!, out why);
+                _binEmptyButton.Text = waiting ? "Cancel emptying" : queueable ? "Empty when a steward is free" : "Empty now";
+                _binEmptyButton.Disabled = !ready && !waiting && !queueable;
+                _binEmptyButton.TooltipText = _binEmptyButton.Disabled ? why : "";
             }
         }
         if (_selectedBinId is not { } id || _session.CaptureBins().SingleOrDefault(b => b.Id == id) is not { } bin || !_binViews.TryGetValue(id, out var view)) return;
         RefreshContextPanelVisibility();
         _inspectorTitle.Text = "Litter bin";
-        _inspectorBody.Text = $"{bin.FullPercent}% full • {bin.Pieces}/{bin.Capacity} pieces\nExtra items: {bin.ExtraPieces}\n" +
-            (bin.Wasps ? "Full bin attracting wasps.\n" : "Open top general waste.\n") +
-            "Stewards empty during cleanup at 90% or more.";
+        _inspectorBody.Text = $"{bin.FullPercent}% full" + (bin.ExtraPieces > 0 ? $" • {bin.ExtraPieces} overflowing" : "") +
+            (bin.Wasps ? "\nWasps!" : "") + (_session.BinEmptyRequested(id) ? "\nWaiting for a steward…" : "");
         _highlight.Position = view.Body.Position + new Vector3(0, .08f, 0); _highlight.Scale = new(.55f, 1, .55f); _highlight.Visible = true;
     }
     private void RefreshCleanupAction()

@@ -194,6 +194,21 @@ public partial class Main
         var perks = _session.CapturePerks() is { } p ? (p.Ended ? p.FrozenEffects : p.Equipped) : [];
         var beerFestival = perks.Contains(PerkCatalogue.BeerFestival);
         var lives = _session.CaptureLivePerformances();
+        // At a bar: in its queue, being served there or walking off with a drink from it.
+        var barQueue = _session.CaptureVendors().Where(v => Stalls.IsBar(v.Id)).SelectMany(v => v.Queue).ToHashSet();
+        bool AtBar(ulong id) => barQueue.Contains(id) || consumers.TryGetValue(id, out var c) &&
+            (Stalls.IsBar(c.VendorId) || c.Held?.Product is ImmersionProduct.Beer or ImmersionProduct.SoftDrink);
+        // Litter underfoot, for a grumble about the mess: a few pieces close by, or mud.
+        var groundLitter = (_session.CaptureLitter()?.Pieces ?? []).Where(w => w.Location == WasteLocation.Ground)
+            .Select(w => new Vector3(w.XMillimetres / 1000f, 0, w.ZMillimetres / 1000f)).ToArray();
+        bool Messy(ulong id)
+        {
+            var at = At(id);
+            if (_session.GroundStateAt(TraversalGrid.WorldToCell((int)(at.X * 1000), (int)(at.Z * 1000))) is GroundState.Mud or GroundState.Swamp) return true;
+            var near = 0;
+            foreach (var piece in groundLitter) if (new Vector3(at.X, 0, at.Z).DistanceTo(piece) <= 6 && ++near >= LitterCuePlanner.LotsOfLitterPieces) return true;
+            return false;
+        }
 
         // Arrivals: a few seconds to say something as they come through the gate.
         foreach (var id in guests.Keys) if (_chatterAdmitted.Add(id)) _chatterArrived[id] = tick;
@@ -205,6 +220,8 @@ public partial class Main
             // Only an act still to come, for someone arriving late.
             var wanted = programme?.ActIds.Skip(Math.Max(0, programme.CurrentSlot)).Select(ActCatalogue.Find).FirstOrDefault(a => a?.Genre == guests[id].ExpectedGenre);
             var line = wanted is not null && Hash(id, 7) % 3 == 0 ? $"Can't wait for {wanted.Name}!"
+                // Nobody asks for the bar while they're already queuing at it, being served or holding a drink from it.
+                : AtBar(id) ? Pick(id, "We made it!", "This better be worth the journey")
                 : Pick(id, "We made it!", "Right, where's the bar?", "This better be worth the journey");
             remarks.Add(new(id, line, Mood.Happy, 2, "arrive", 4, $"arrive:{id}"));
         }
@@ -347,6 +364,15 @@ public partial class Main
                     ? new(id, "I'm allergic! Get it away!", Mood.Angry, 3, "wasps", 6)
                     : new(id, Pick(id, "Wasps! Get away!", "Watch out! Wasps!"), Mood.Grumble, 2, "wasps", 8));
 
+        // A loose cow up close: delight or disbelief, once for each guest and cow, and not from anyone with a medic on them.
+        var treated = medical?.Medics.Where(m => m.Stage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing)
+            .Select(m => m.PatientId).OfType<ulong>().ToHashSet() ?? [];
+        foreach (var cow in _session.CaptureCows()?.Loose ?? [])
+            foreach (var id in Near(new Vector3(cow.XMillimetres / 1000f, 0, cow.ZMillimetres / 1000f), 3.5f).Where(id => !treated.Contains(id)))
+                remarks.Add(Hash(id, cow.Id.Aggregate(17L, (h, ch) => h * 31 + ch) & 0xffff) % 2 == 0
+                    ? new(id, "Oo a cow!", Mood.Happy, 3, "cow", 6, $"cow:{id}:{cow.Id}")
+                    : new(id, "Why the hell are there cows here?", Mood.Grumble, 3, "cow", 6, $"cow:{id}:{cow.Id}"));
+
         // Fights and collapses draw a crowd; a rescue and a recovery are a relief.
         foreach (var fighter in disorder?.People.Where(f => f.Stage == DisorderStage.Fight) ?? [])
             foreach (var id in Near(At(fighter.AgentId), 10))
@@ -415,10 +441,10 @@ public partial class Main
             if (labels.Contains("Twat"))
                 remarks.Add(new(id, queued.ContainsKey(id) ? "Oi, move!" : listening ? "This band's crap" : "Out the way!", Mood.Grumble, 1, "twat", 15));
             if (labels.Contains("Princess"))
-                remarks.Add(new(id, Pick(id, "Ew, everything's dirty", "Is there a VIP area?"), Mood.Grumble, 1, "princess", 15));
+                remarks.Add(new(id, Messy(id) ? Pick(id, "Ew, everything's dirty", "Is there a VIP area?") : "Is there a VIP area?", Mood.Grumble, 1, "princess", 15));
             if (labels.Contains("Hippie") && listening)
                 remarks.Add(new(id, Pick(id, "Such good vibes, man", "Peace and love"), Mood.Happy, 1, "hippie", 15));
-            if (labels.Contains("Alcoholic") && consumers.TryGetValue(id, out var c) && c.Held is null)
+            if (labels.Contains("Alcoholic") && consumers.TryGetValue(id, out var c) && c.Held is null && !AtBar(id))
                 remarks.Add(new(id, "Another pint, I think", Mood.Neutral, 1, "alcoholic", 15));
             if (labels.Contains("Easy to overheat") && medical?.IsHot == true && needs.TryGetValue(id, out var hot) && hot.HeatExposure >= 4_000)
                 remarks.Add(HeatLine(id, "I need shade, now", "overheat", 12));

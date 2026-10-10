@@ -36,6 +36,8 @@ public static class LavSuckerRules
     public const int StinkPerSecond = 6, StinkReachMillimetres = 7_000;
     /// <summary>Extra cost of a grass cell to the lorry's route-finder, so it sticks to the farm track.</summary>
     public const int GrassCostPermille = 4_000;
+    /// <summary>Extra cost of a track cell for each cell it lies off the track's centre line, so the lorry drives up the middle.</summary>
+    public const int OffCentrePermille = 400;
     /// <summary>The cab's front is this far ahead of the lorry's middle; it stops for anyone within the stopping distance of it.</summary>
     public const int CabFrontMillimetres = 2_700, HalfWidthMillimetres = 1_200, StopDistanceMillimetres = 1_500;
     /// <summary>How long Dav waits for someone to move before he edges on anyway (10 s).</summary>
@@ -138,8 +140,17 @@ public sealed partial class GameSession
         if (_lavRoadCost is { } cached && ReferenceEquals(cached.Grid, grid)) return cached.Cost;
         var cost = new int[TraversalGrid.Width * TraversalGrid.Depth];
         for (var z = 0; z < TraversalGrid.Depth; z++)
+        {
+            // On the track, the middle is cheapest and each cell out toward a verge dearer, so he drives up the
+            // centre line and only drifts across when he turns off. Doubled coordinates keep an even-width track's
+            // two middle cells equal.
+            int min = int.MaxValue, max = int.MinValue;
             for (var x = 0; x < TraversalGrid.Width; x++)
-                if (grid.Get(new(x, z)).Surface != GroundSurface.VehicleTrack) cost[z * TraversalGrid.Width + x] = LavSuckerRules.GrassCostPermille;
+                if (grid.Get(new(x, z)).Surface == GroundSurface.VehicleTrack) { min = Math.Min(min, x); max = Math.Max(max, x); }
+            for (var x = 0; x < TraversalGrid.Width; x++)
+                cost[z * TraversalGrid.Width + x] = grid.Get(new(x, z)).Surface != GroundSurface.VehicleTrack ? LavSuckerRules.GrassCostPermille
+                    : Math.Max(0, Math.Abs(2 * x - (min + max)) - 1) / 2 * LavSuckerRules.OffCentrePermille;
+        }
         _lavRoadCost = (grid, cost);
         return cost;
     }

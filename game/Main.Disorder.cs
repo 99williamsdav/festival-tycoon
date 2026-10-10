@@ -208,7 +208,7 @@ public partial class Main
         if (_session.PreparedStatus == PreparationStatus.Preparing)
         {
             _inspectorTitle.Text = "Steward post";
-            _inspectorBody.Text = "Your steward works from here once the gates open.\nSelect a guest who's causing trouble to send them over.";
+            _inspectorBody.Text = "Your steward works from here.";
             return;
         }
         _inspectorTitle.Text = $"Steward post • {worker.Name}";
@@ -219,9 +219,7 @@ public partial class Main
             SecurityResponseStage.Confronting => $"Dealing with {target}",
             _ => "Free to help",
         };
-        _inspectorBody.Text = $"{status}\n" +
-            "Select a guest who's causing trouble to send the steward, or to have them walked out of the gate. " +
-            "Stewards have to walk there, and can't always calm things down.";
+        _inspectorBody.Text = status;
     }
 
     private void BuildDisorderControls(VBoxContainer box)
@@ -313,7 +311,7 @@ public partial class Main
             command = roleCommand;
         }
         if (_host.Execute(command, out var error))
-            _preparationMessage = "Disorder action applied; next background save is within 30 unpaused seconds.";
+            _preparationMessage = action == DisorderAction.DispatchSecurity ? "A steward is on the way." : "Done.";
         else _preparationMessage = StewardWording(error!);
         RefreshPreparationHud();
     }
@@ -330,8 +328,12 @@ public partial class Main
             var selected = _selectedAttendeeId?.Value;
             string? issue = "Select an affected guest.";
             if (selected is { } id) _session.SelectRoleResponse(ResponseRole.Steward, id, out issue);
+            // Only for someone causing trouble; when they are but no steward can go, the button stays with the reason.
+            var trouble = selected is { } who && d.People.Any(p => p.AgentId == who &&
+                p.Stage is DisorderStage.Complaint or DisorderStage.Agitated or DisorderStage.Argument or DisorderStage.Fight);
+            button.Visible = issue is null || trouble;
             button.Disabled = issue is not null;
-            button.TooltipText = StewardWording(issue ?? "Send nearest available suitable steward; physical arrival required.");
+            button.TooltipText = StewardWording(issue ?? "Send the nearest free steward.");
         }
     }
 

@@ -77,6 +77,9 @@ public partial class Main
         if (_generatorPickId != 0 && key == _generatorPickId)
             return _equipmentVisual is { } generator && generator.IsVisibleInTree() && !generator.IsQueuedForDeletion() ? collider : null;
         if (_medicalFacilityPicks.ContainsKey(key)) return collider;
+        // A loose cow, to send home, and the Pond Stage and its generator: picks with no registry of their own.
+        if (_cowPicks.ContainsKey(key)) return collider;
+        if (key != 0 && (key == _pondStagePickId || key == _pondGeneratorPickId)) return collider;
         if (_pickRegistry.TryGetValue(key,out var item))
             return _visualRegistry.TryGetValue(item.StableId,out var body) && body.IsVisibleInTree() && !body.IsQueuedForDeletion() ? collider : null;
         return null;
@@ -140,6 +143,7 @@ public partial class Main
                 else if (_marqueePickOwners.TryGetValue(key, out var marqueeId) && _marqueeViews.TryGetValue(marqueeId, out var marqueeView))
                 { point = marqueeView.Body.GlobalPosition; yaw = marqueeView.Body.Rotation.Y; scale = new Vector3(4.7f,.3f,3.45f); }
                 else if(key==_securityPostPickId){var post=_responsePostVisuals[ResponseRole.Steward];var geometry=BuildingHoverGeometry(post);yaw=post.Rotation.Y;point=post.ToGlobal(geometry.Centre);scale=geometry.Scale;}
+                else if (_cowPicks.ContainsKey(key)) { scale = new Vector3(1.6f,.3f,1.6f); }
                 else if(key==_pondStagePickId){point=PondStageOrigin;scale=new Vector3(5.2f,.3f,5.2f);}
                 else if(key==_pondGeneratorPickId && _pondGeneratorVisual is { } pondGenerator){var geometry=BuildingHoverGeometry(pondGenerator);point=pondGenerator.ToGlobal(geometry.Centre);scale=geometry.Scale;}
                 else if(key==_generatorPickId && _equipmentVisual is { } generator){var geometry=BuildingHoverGeometry(generator);yaw=generator.Rotation.Y;point=generator.ToGlobal(geometry.Centre);scale=geometry.Scale;}
