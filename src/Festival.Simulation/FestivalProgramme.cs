@@ -69,10 +69,11 @@ public sealed partial class GameSession
     public const int FestivalSlotDurationTicks = 9_600;
     /// <summary>This run's offer: acts who will play for the festival now, then a few just out of reach.</summary>
     // A second stage needs six acts, so its shortlist offers four more.
-    // Acts you've played with before and who'll play for you now are always offered too: they know your number.
+    // Acts who enjoyed playing for you before, and who'll play for you now, are always offered too: they know your number.
+    // Bands you've upset only turn up if the shortlist happens to draw them.
     public IReadOnlyList<FestivalAct> GetFestivalActs() => MainProgramme is not { } main ? [] :
         ActCatalogue.Offer(Standing, CampaignSeed, _preparation?.Tier ?? 1, (_preparation?.Plan?.ActIds ?? _programme!.Stages.SelectMany(q => q.ActIds))
-                .Concat((_preparation?.ActRelationships ?? []).Select(item => item.ActId).Where(ActWillPlay)),
+                .Concat((_preparation?.ActRelationships ?? []).Where(item => item.Value > 0).Select(item => item.ActId).Where(ActWillPlay)),
             ActCatalogue.ShortlistSize + (Stages.Count - 1) * 4);
     private static FestivalAct[] FestivalActs => ActCatalogue.All;
     /// <summary>The festival's reputation and scene credibility.</summary>

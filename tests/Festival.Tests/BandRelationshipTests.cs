@@ -343,6 +343,20 @@ public sealed class BandRelationshipTests
     }
 
     [TestMethod]
+    public void BandsWhoLikedPlayingForYouAreAlwaysOfferedButBandsYouUpsetAreNot()
+    {
+        var s = GameSession.CreateDevelopmentFestival(20260922, 2);
+        var drawn = s.GetFestivalActs().Select(act => act.Id).ToHashSet();
+        var outside = ActCatalogue.All.Where(act => !drawn.Contains(act.Id) && s.ActStandingOf(act) == ActStanding.Available)
+            .Select(act => act.Id).Order(StringComparer.Ordinal).Take(2).ToArray();
+        Assert.AreEqual(2, outside.Length, "Two playable acts the shortlist didn't draw.");
+        SetHistory(s, Triumph(outside[0]), NoShow(outside[1]));
+        var offered = s.GetFestivalActs().Select(act => act.Id).ToArray();
+        CollectionAssert.Contains(offered, outside[0], "A band that enjoyed the last festival comes back to you.");
+        CollectionAssert.DoesNotContain(offered, outside[1], "A band you let down only turns up if the shortlist happens to draw them.");
+    }
+
+    [TestMethod]
     public void TheRelationshipCarriesToTierTwoAndItsFeeThere()
     {
         var one = BuildSession.Started();
