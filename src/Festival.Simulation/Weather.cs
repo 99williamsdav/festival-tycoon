@@ -33,8 +33,8 @@ public static class WeatherRules
     /// <summary>The weather a survival tier is set in. Freeplay will pick one from its own seeded forecast.</summary>
     public static WeatherKind ForTier(int tier) => tier >= 2 ? WeatherKind.Rain : WeatherKind.Heatwave;
 
-    // Ticks at 80 a second; a festival minute is 240 ticks (the day is 160 festival minutes over eight real ones).
-    public const int FestivalMinuteTicks = 240;
+    // Ticks at 80 a second; a festival minute is 80 ticks, as on the HUD clock.
+    public const int FestivalMinuteTicks = 80;
     /// <summary>The first shower lands some time in the first set.</summary>
     public const int FirstShowerFromTicks = 3_600, FirstShowerToTicks = 8_000;
     public const int ShowerFromTicks = 2_000, ShowerToTicks = 4_400;
@@ -134,13 +134,17 @@ public sealed partial class GameSession
             spells.Add(new(at, Math.Min(end, at + length), RainIntensity.Heavy));
             at += length + Between(WeatherRules.DrySpellFromTicks, WeatherRules.DrySpellToTicks);
         }
-        // The downpour is drawn last, so it never moves the showers around it.
+        // The downpour is drawn last, so it never moves the showers around it: a burst in the middle of a heavy shower,
+        // which keeps its full length either side.
         if (spells.Count > 1 && random.NextUInt32() % WeatherRules.DownpourOneIn == 0)
         {
             var index = 1 + (int)(random.NextUInt32() % (uint)(spells.Count - 1));
             var shower = spells[index];
-            spells[index] = shower with { EndTick = Math.Min(end, shower.StartTick + Between(WeatherRules.DownpourFromTicks, WeatherRules.DownpourToTicks)),
-                Intensity = RainIntensity.Downpour };
+            var length = Math.Min(Between(WeatherRules.DownpourFromTicks, WeatherRules.DownpourToTicks), (int)(shower.EndTick - shower.StartTick) - 2);
+            var from = shower.StartTick + (shower.EndTick - shower.StartTick - length) / 2;
+            spells[index] = shower with { EndTick = from };
+            spells.Insert(index + 1, new(from, from + length, RainIntensity.Downpour));
+            spells.Insert(index + 2, new(from + length, shower.EndTick, RainIntensity.Heavy));
         }
         return spells.ToArray();
     }
@@ -184,11 +188,17 @@ public sealed partial class GameSession
         return total;
     }
 
-    /// <summary>Ticks until the rain stops, from now; 0 when it isn't raining.</summary>
+    /// <summary>Ticks until the rain stops, from now, a downpour and the rest of its shower included; 0 when it isn't raining.</summary>
     private long RainTicksLeftInShower(long dayTick)
     {
         if (_weather is not { Kind: WeatherKind.Rain } w) return 0;
-        foreach (var spell in w.Spells) if (dayTick >= spell.StartTick && dayTick < spell.EndTick) return spell.EndTick - dayTick;
+        for (var i = 0; i < w.Spells.Length; i++)
+        {
+            if (dayTick < w.Spells[i].StartTick || dayTick >= w.Spells[i].EndTick) continue;
+            var end = w.Spells[i].EndTick;
+            for (var j = i + 1; j < w.Spells.Length && w.Spells[j].StartTick == end; j++) end = w.Spells[j].EndTick;
+            return end - dayTick;
+        }
         return 0;
     }
 
@@ -199,12 +209,16 @@ public sealed partial class GameSession
         var now = Math.Max(0, DayTick);
         var current = RainAt(now);
         var downpour = w.Spells.Any(spell => spell.Intensity == RainIntensity.Downpour);
-        foreach (var spell in w.Spells)
+        // A downpour sits inside a shower: the spells either side of it are the same shower.
+        var showers = w.Spells.Where((spell, i) => i == 0 || w.Spells[i - 1].EndTick != spell.StartTick).Count();
+        for (var i = 0; i < w.Spells.Length; i++)
         {
-            if (now >= spell.StartTick && now < spell.EndTick) return new(w.Kind, current, spell.EndTick, RainIntensity.Dry, downpour, w.Spells.Length);
-            if (spell.StartTick > now) return new(w.Kind, current, spell.StartTick, spell.Intensity, downpour, w.Spells.Length);
+            var spell = w.Spells[i];
+            var next = i + 1 < w.Spells.Length && w.Spells[i + 1].StartTick == spell.EndTick ? w.Spells[i + 1].Intensity : RainIntensity.Dry;
+            if (now >= spell.StartTick && now < spell.EndTick) return new(w.Kind, current, spell.EndTick, next, downpour, showers);
+            if (spell.StartTick > now) return new(w.Kind, current, spell.StartTick, spell.Intensity, downpour, showers);
         }
-        return new(w.Kind, current, -1, RainIntensity.Dry, downpour, w.Spells.Length);
+        return new(w.Kind, current, -1, RainIntensity.Dry, downpour, showers);
     }
 
     /// <summary>How wet someone is, 0 to 10,000.</summary>
@@ -277,7 +291,7 @@ public sealed partial class GameSession
         var bought = p.Plan is { Committed: true } plan ? plan.StrawBales : 0;
         if (w.StrawBales < 0 || w.StrawBales > bought || w.StrawJob is not null && w.StrawBales >= bought) return "Straw store out of range.";
         if (s.Immersion?.People.Any(person => person.Held?.Product == ImmersionProduct.Poncho) == true) return "A poncho is worn, not held.";
-        return ValidatePersistedStrawJob(w, s, p);
+        return ValidatePersistedShelter(s, p) ?? ValidatePersistedStrawJob(w, s, p);
     }
 
     /// <summary>Someone out of the rain: under a cover, inside a portaloo, or on the trailer stage's deck.</summary>

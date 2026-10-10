@@ -34,12 +34,18 @@ public partial class Main
         if (_session?.CaptureWeather() is not { Kind: WeatherKind.Rain } weather || _session.CapturePreparation() is not { } p ||
             p.Status is PreparationStatus.Preparing) return 0;
         var day = _session.CurrentTick - p.StartedTick;
-        foreach (var spell in weather.Spells)
+        var spells = weather.Spells;
+        for (var i = 0; i < spells.Length; i++)
         {
-            if (day < spell.StartTick || day >= spell.EndTick) continue;
-            var target = spell.Intensity == RainIntensity.Downpour ? 1f : HeavyRain;
-            var ramp = Math.Min(1f, Math.Min(day - spell.StartTick, spell.EndTick - day) / (float)RainRampTicks);
-            return target * Mathf.SmoothStep(0, 1, ramp);
+            if (day < spells[i].StartTick || day >= spells[i].EndTick) continue;
+            // The whole shower eases in and out; a downpour inside it builds and fades over the same ramp.
+            long from = spells[i].StartTick, to = spells[i].EndTick;
+            for (var j = i - 1; j >= 0 && spells[j].EndTick == from; j--) from = spells[j].StartTick;
+            for (var j = i + 1; j < spells.Length && spells[j].StartTick == to; j++) to = spells[j].EndTick;
+            var ramp = Math.Min(1f, Math.Min(day - from, to - day) / (float)RainRampTicks);
+            var burst = spells[i].Intensity == RainIntensity.Downpour
+                ? Math.Min(1f, Math.Min(day - spells[i].StartTick, spells[i].EndTick - day) / (float)(RainRampTicks / 3)) : 0f;
+            return Mathf.Lerp(HeavyRain, 1f, Mathf.SmoothStep(0, 1, burst)) * Mathf.SmoothStep(0, 1, ramp);
         }
         return 0;
     }

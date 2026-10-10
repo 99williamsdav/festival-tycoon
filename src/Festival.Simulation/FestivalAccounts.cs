@@ -90,6 +90,9 @@ public sealed partial class GameSession
                     group.Sum(purchase => (long)purchase.CostPennies))).ToList();
             if (p.StockConsumed > 0)
                 costs.Add(new("Other recorded refreshments", p.StockConsumed, 60, p.StockConsumed * 60L));
+            // Bales are stock until a steward spreads one; then they're spent.
+            if (StrawSpreadCost(p, _weather) is > 0 and var spread)
+                costs.Add(new("Straw spread", (int)(spread / GroundCoverRules.BalePennies), GroundCoverRules.BalePennies, spread));
 
             var offers = GetPreparationOffers().ToDictionary(offer => offer.Id);
             var payments = p.Payments.Where(payment => payment.Attempt == p.Attempt).ToArray();

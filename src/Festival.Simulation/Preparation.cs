@@ -72,7 +72,7 @@ public sealed record CommitCommunityWaterShareCommand : SessionCommand;
 
 public sealed partial class GameSession
 {
-    // 160 festival minutes = eight live real minutes at the unchanged 80 ticks/s;
+    // 480 festival minutes (80 ticks each, as the HUD clock counts them) = eight live real minutes at 80 ticks/s;
     // preparation and pauses target the remaining two minutes, pending playtesting.
     public const int PreparedWeekendTicks = 38_400;
     /// <summary>
@@ -433,6 +433,8 @@ public sealed partial class GameSession
         {
             _preparation = p with { Status = PreparationStatus.Departing };
             Phase = SessionPhase.Egress;
+            // Nobody spreads straw on the way home.
+            EndStrawJob(false);
             StartImmersionDeparture();
         }
     }

@@ -249,7 +249,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
             text = outlook.Now switch { RainIntensity.Downpour => "Downpour", RainIntensity.Heavy => "Heavy showers", _ => outlook.ChangeTick >= 0 ? "Dry spell" : "Clearing" };
             var left = outlook.ChangeTick - now;
             when = outlook.ChangeTick < 0 ? "" : raining
-                ? left <= 1_600 ? $"dry in {FestivalClockText(left)}" : $"till {FestivalClockText(outlook.ChangeTick)}"
+                ? left <= 1_600 && outlook.Next == RainIntensity.Dry ? $"dry in {FestivalClockText(left)}" : $"till {FestivalClockText(outlook.ChangeTick)}"
                 : $"rain in {FestivalClockText(left)}";
             tip = raining ? "Out in it, guests soak and sulk. Under the marquee, a bar canopy or the first-aid porch, or in a poncho, they dry off."
                 : outlook.ChangeTick >= 0 ? (outlook.Next == RainIntensity.Downpour ? "A downpour is on its way." : "Another shower is on its way.") + " Straw and ponchos now save mud and moods later."

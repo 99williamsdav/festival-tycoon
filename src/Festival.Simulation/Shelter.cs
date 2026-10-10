@@ -32,46 +32,76 @@ public sealed partial class GameSession
 
     // Derived from the layout, so never saved: rebuilt whenever the placements change.
     private BuildPlacement[]? _coverCacheSource;
-    private readonly HashSet<GridCell> _coveredCells = [];
+    private GridCell[] _coveredCells = [];
+    private bool[]? _coveredGrid;
     private ShelterSpot[] _shelterSpots = [];
+
+    /// <summary>A layout's cover from the rain, and its sheltering places in order.</summary>
+    private static (GridCell[] Covered, ShelterSpot[] Spots) ShelterLayout(IEnumerable<BuildPlacement> placements)
+    {
+        var covered = new HashSet<GridCell>();
+        var spots = new List<ShelterSpot>();
+        foreach (var item in placements)
+        {
+            (IEnumerable<GridCell> cells, IEnumerable<GridCell> places) = item.Kind switch
+            {
+                BuildServiceKind.Marquee => (MarqueeShelterCells(item.Cell, item.QuarterTurns), MarqueeRestSpots(item.Cell, item.QuarterTurns)),
+                BuildServiceKind.Bar => (ShelterRules.BarCover.Select(offset => Turned(item.Cell, item.QuarterTurns, offset)),
+                    ShelterRules.BarSpots.Select(offset => Turned(item.Cell, item.QuarterTurns, offset))),
+                BuildServiceKind.FoodVan => (ShelterRules.VanCover.Select(offset => Turned(item.Cell, item.QuarterTurns, offset)),
+                    ShelterRules.VanSpots.Select(offset => Turned(item.Cell, item.QuarterTurns, offset))),
+                BuildServiceKind.FirstAid => (ShelterRules.FirstAidCover.Select(offset => Turned(item.Cell, item.QuarterTurns, offset)),
+                    ShelterRules.FirstAidSpots.Select(offset => Turned(item.Cell, item.QuarterTurns, offset))),
+                _ => ([], []),
+            };
+            covered.UnionWith(cells);
+            spots.AddRange(places.Select(cell => new ShelterSpot(cell, item.Id)));
+        }
+        return (covered.ToArray(), spots.ToArray());
+    }
 
     private void EnsureCoverCache()
     {
         var placements = _preparation?.BuildPlacements;
         if (ReferenceEquals(placements, _coverCacheSource)) return;
         _coverCacheSource = placements;
-        _coveredCells.Clear();
-        var spots = new List<ShelterSpot>();
-        foreach (var item in placements ?? [])
-        {
-            switch (item.Kind)
-            {
-                case BuildServiceKind.Marquee:
-                    _coveredCells.UnionWith(MarqueeShelterCells(item.Cell, item.QuarterTurns));
-                    spots.AddRange(MarqueeRestSpots(item.Cell, item.QuarterTurns).Select(cell => new ShelterSpot(cell, item.Id)));
-                    break;
-                case BuildServiceKind.Bar:
-                    _coveredCells.UnionWith(ShelterRules.BarCover.Select(offset => Turned(item.Cell, item.QuarterTurns, offset)));
-                    spots.AddRange(ShelterRules.BarSpots.Select(offset => new ShelterSpot(Turned(item.Cell, item.QuarterTurns, offset), item.Id)));
-                    break;
-                case BuildServiceKind.FoodVan:
-                    _coveredCells.UnionWith(ShelterRules.VanCover.Select(offset => Turned(item.Cell, item.QuarterTurns, offset)));
-                    spots.AddRange(ShelterRules.VanSpots.Select(offset => new ShelterSpot(Turned(item.Cell, item.QuarterTurns, offset), item.Id)));
-                    break;
-                case BuildServiceKind.FirstAid:
-                    _coveredCells.UnionWith(ShelterRules.FirstAidCover.Select(offset => Turned(item.Cell, item.QuarterTurns, offset)));
-                    spots.AddRange(ShelterRules.FirstAidSpots.Select(offset => new ShelterSpot(Turned(item.Cell, item.QuarterTurns, offset), item.Id)));
-                    break;
-            }
-        }
-        _shelterSpots = spots.ToArray();
+        (_coveredCells, _shelterSpots) = ShelterLayout(placements ?? []);
+        _coveredGrid = new bool[TraversalGrid.Width * TraversalGrid.Depth];
+        foreach (var cell in _coveredCells)
+            if (cell.X is >= 0 and < TraversalGrid.Width && cell.Z is >= 0 and < TraversalGrid.Depth) _coveredGrid[cell.Z * TraversalGrid.Width + cell.X] = true;
     }
 
     /// <summary>Whether this cell is out of the rain.</summary>
-    public bool CoveredCell(GridCell cell) { EnsureCoverCache(); return _coveredCells.Contains(cell); }
+    public bool CoveredCell(GridCell cell)
+    {
+        EnsureCoverCache();
+        return cell.X is >= 0 and < TraversalGrid.Width && cell.Z is >= 0 and < TraversalGrid.Depth && _coveredGrid![cell.Z * TraversalGrid.Width + cell.X];
+    }
 
     /// <summary>Every cell out of the rain, for the view.</summary>
     public IReadOnlyCollection<GridCell> CaptureCoveredCells() { EnsureCoverCache(); return _coveredCells.ToArray(); }
+
+    /// <summary>
+    /// Everyone saved as sheltering is bound for a real sheltering place of the saved layout, one to a place, and no more
+    /// at a marquee than its places allow (resters included, as the marquee's own check counts them).
+    /// </summary>
+    private static string? ValidatePersistedShelter(SessionPersistenceSnapshot s, PreparationSnapshot p)
+    {
+        var sheltering = (s.NavigationAgents ?? []).Where(agent => agent.IntentId == ShelterRules.Intent &&
+            agent.Action is (int)AgentNavigationAction.Travelling or (int)AgentNavigationAction.Arrived).ToArray();
+        if (sheltering.Length == 0) return null;
+        if (p.Status != PreparationStatus.Running || WeatherRules.ForTier(p.Tier) != WeatherKind.Rain) return "Sheltering outside a rainy festival day.";
+        var spots = ShelterLayout(p.BuildPlacements ?? []).Spots.Select(spot => spot.Cell).ToHashSet();
+        var places = new HashSet<GridCell>();
+        foreach (var agent in sheltering)
+        {
+            if (agent.DestinationX is not { } x || agent.DestinationZ is not { } z || !spots.Contains(new(x, z))) return "Someone shelters where there's no shelter.";
+            if (!places.Add(new(x, z))) return "Two people shelter at one place.";
+            if (p.People.FirstOrDefault(person => person.AgentId == agent.Id) is not { Role: ProtectedPersonRole.Guest, Admitted: true, Departed: false })
+                return "Only a guest on the field shelters.";
+        }
+        return null;
+    }
 
     private static bool ShelterNavigation(NavigationAgentState agent) =>
         agent.IntentId == ShelterRules.Intent && agent.Destination is not null && agent.Action is AgentNavigationAction.Travelling or AgentNavigationAction.Arrived;

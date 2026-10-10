@@ -79,9 +79,13 @@ public sealed partial class GameSession
     }
 
     /// <summary>Ground that can take straw or matting: open grass inside the site, clear of the stages and of anything built.</summary>
-    private static HashSet<GridCell> CoverBlocked(PreparationSnapshot p, IReadOnlyList<FestivalStage> stages, EquipmentSnapshot? equipment)
+    private static HashSet<GridCell> CoverBlocked(PreparationSnapshot p, IReadOnlyList<FestivalStage> stages, EquipmentSnapshot? equipment,
+        GroundCoverAction? laying = null)
     {
         var blocked = new HashSet<GridCell>();
+        // Straw and matting never stack: each is laid only where the other isn't, so nothing is paid for twice.
+        if (laying == GroundCoverAction.Straw) blocked.UnionWith((p.MatPanels ?? []).SelectMany(panel => panel.Cells()));
+        if (laying == GroundCoverAction.Matting) blocked.UnionWith((p.StrawCells ?? []).Select(CellAt));
         foreach (var item in p.BuildPlacements ?? []) blocked.UnionWith(BuildSolidCells(item));
         if (equipment is { } unit)
         {
@@ -161,15 +165,16 @@ public sealed partial class GameSession
         if (!Enum.IsDefined(command.Action) || !new TraversalGrid().Contains(command.From) || !new TraversalGrid().Contains(command.To))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown ground cover.");
         if (p.Tier < GroundCoverRules.FromTier) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Straw and matting come with Tier 2's wet weather.");
-        var blocked = CoverBlocked(p, Stages, _equipment);
+        var blocked = CoverBlocked(p, Stages, _equipment, command.Action);
+        var straw = (p.StrawCells ?? []).ToHashSet();
+        var matted = (p.MatPanels ?? []).SelectMany(panel => panel.Cells()).ToHashSet();
         return command.Action switch
         {
-            GroundCoverAction.Straw when StrawRun(command, blocked).All(cell => (p.StrawCells ?? []).Contains(cell)) =>
+            GroundCoverAction.Straw when StrawRun(command, blocked).All(straw.Contains) =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "No open grass there to lay straw on."),
             GroundCoverAction.Matting when MatRun(command, blocked, p.MatPanels ?? []).Length == 0 =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "No room there for track matting."),
-            GroundCoverAction.Lift when !LiftRun(command).Any(cell => (p.StrawCells ?? []).Contains(CellIndex(cell)) ||
-                    (p.MatPanels ?? []).Any(panel => panel.Cells().Contains(cell))) =>
+            GroundCoverAction.Lift when !LiftRun(command).Any(cell => straw.Contains(CellIndex(cell)) || matted.Contains(cell)) =>
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, "There's nothing laid there to lift."),
             _ => null,
         };
@@ -178,7 +183,7 @@ public sealed partial class GameSession
     private void ApplyGroundCover(GroundCoverCommand command)
     {
         var p = _preparation!;
-        var blocked = CoverBlocked(p, Stages, _equipment);
+        var blocked = CoverBlocked(p, Stages, _equipment, command.Action);
         var straw = (p.StrawCells ?? []).ToList();
         var mats = (p.MatPanels ?? []).ToList();
         switch (command.Action)
@@ -235,6 +240,8 @@ public sealed partial class GameSession
             return "Straw lies where it can't be laid.";
         var matCells = panels.SelectMany(panel => panel.Cells()).ToArray();
         if (matCells.Distinct().Count() != matCells.Length || matCells.Any(cell => !CoverGround(cell, blocked))) return "Track matting lies where it can't be laid.";
+        var strawSet = straw.ToHashSet();
+        if (matCells.Any(cell => strawSet.Contains(CellIndex(cell)))) return "Straw and matting lie on the same ground.";
         return null;
     }
 }

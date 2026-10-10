@@ -23,6 +23,10 @@ public static class StrawJobRules
 
 public sealed partial class GameSession
 {
+    /// <summary>What the bales taken out of the store cost: stock until then, an expense once spread.</summary>
+    internal static long StrawSpreadCost(PreparationSnapshot p, WeatherSnapshot? weather) =>
+        weather is null || p.Plan is not { Committed: true } plan ? 0 : Math.Max(0, plan.StrawBales - weather.StrawBales) * (long)GroundCoverRules.BalePennies;
+
     /// <summary>Whoever's spreading straw now; their route is the job's.</summary>
     private bool StrawOwnsNavigation(ulong id) => _weather?.StrawJob is { } job && job.WorkerId == id;
 

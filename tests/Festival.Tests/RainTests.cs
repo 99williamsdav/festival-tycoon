@@ -49,7 +49,13 @@ public sealed class RainTests
         {
             var spells = GameSession.RainForecast(seed, 2, day);
             Assert.IsTrue(spells.Length >= 4, "Showers through the afternoon and into dusk.");
-            Assert.IsTrue(spells.Zip(spells.Skip(1)).All(pair => pair.First.EndTick < pair.Second.StartTick), "Dry spells between showers.");
+            // A downpour is a burst inside a heavy shower, so it touches the heavy rain either side; showers otherwise have dry spells between.
+            Assert.IsTrue(spells.Zip(spells.Skip(1)).All(pair => pair.First.EndTick < pair.Second.StartTick ||
+                pair.First.EndTick == pair.Second.StartTick && (pair.First.Intensity == RainIntensity.Downpour || pair.Second.Intensity == RainIntensity.Downpour)),
+                "Dry spells between showers.");
+            if (Array.FindIndex(spells, spell => spell.Intensity == RainIntensity.Downpour) is var c and >= 0)
+                Assert.IsTrue(spells[c - 1].EndTick == spells[c].StartTick && spells[c + 1].StartTick == spells[c].EndTick &&
+                    spells[c - 1].Intensity == RainIntensity.Heavy && spells[c + 1].Intensity == RainIntensity.Heavy, "A downpour sits inside a heavy shower.");
             Assert.IsTrue(spells.All(spell => spell.StartTick >= WeatherRules.FirstShowerFromTicks && spell.EndTick <= day - GameSession.ClosingAfterLastSetTicks));
             var heavy = spells.Count(spell => spell.Intensity == RainIntensity.Heavy);
             Assert.IsTrue(heavy >= spells.Length - 1, "Heavy showers are the norm; at most one downpour a day.");
@@ -267,6 +273,69 @@ public sealed class RainTests
         Assert.AreEqual(GroundState.Grass, s.GroundStateAt(spot), "Straw firms up the mud.");
         var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    /// <summary>A death freezes the day while a steward is out with a bale: the job is dropped, so the save still loads.</summary>
+    [TestMethod]
+    public void AStrawJobEndsWhenADeathFreezesTheDay()
+    {
+        var s = Prepared();
+        BuildSession.Accept(s, new SetPreparationStockCommand(40, 32) { StrawBales = 2 });
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        BuildSession.WithoutFaults(s);
+        RunTo(s, 4_000);
+        var steward = s.GetStewardResponses().First().WorkerId;
+        BuildSession.Accept(s, new SpreadStrawCommand(steward, new GridCell(150, 154)));
+        s.AdvanceWithoutSnapshot(80);
+        Assert.IsNotNull(s.CaptureWeather()!.StrawJob);
+        // Someone dies, and the tick's freeze lets go of every staff job, as it does in the day's own order.
+        var guest = Guests(s).First(id => id != steward);
+        typeof(GameSession).GetMethod("ApplyMedicalDeath", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(s, [guest, s.CurrentTick, s.CurrentTick, s.CurrentTick]);
+        typeof(GameSession).GetMethod("ReleaseFrozenStaffClaims", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(s, []);
+        Assert.IsNull(s.CaptureWeather()!.StrawJob, "The bale is put down.");
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    /// <summary>The gates close mid-job: nobody spreads straw on the way home, and a save at once still loads.</summary>
+    [TestMethod]
+    public void AStrawJobEndsAsTheCrowdGoesHome()
+    {
+        var s = Prepared();
+        BuildSession.Accept(s, new SetPreparationStockCommand(40, 32) { StrawBales = 2 });
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        BuildSession.WithoutFaults(s);
+        RunTo(s, s.PreparedEditionDurationTicks - 400);
+        var steward = s.GetStewardResponses().First(job => s.CanSpreadStraw(job.WorkerId, out _)).WorkerId;
+        BuildSession.Accept(s, new SpreadStrawCommand(steward, new GridCell(180, 112)));
+        while (s.PreparedStatus == PreparationStatus.Running) s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(PreparationStatus.Departing, s.PreparedStatus);
+        Assert.IsNull(s.CaptureWeather()!.StrawJob, "The job ends as the gates close.");
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    [TestMethod]
+    public void WaspsKeepTheirHeadsDownInTheRain()
+    {
+        var s = Started();
+        var shower = FirstShower(s);
+        RunTo(s, shower.StartTick + 400);
+        Assert.AreNotEqual(RainIntensity.Dry, s.RainNow);
+        // A bin full to the brim, which in the dry would draw wasps at once.
+        var bin = s.CaptureBins().First();
+        var bought = s.CaptureImmersion()!.Purchases.First(purchase => purchase.Product != ImmersionProduct.Poncho);
+        var field = typeof(GameSession).GetField("_litter", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        var litter = (LitterSnapshot)field.GetValue(s)!;
+        field.SetValue(s, litter with { Pieces = litter.Pieces.Concat(Enumerable.Range(0, LitterRules.BinCapacity).Select(i =>
+            new WastePiece($"{bought.Id}:full{i}", bought.AgentId, bought.Product, bought.Tick, WasteLocation.Bin, 0, 0, bin.Id))).ToArray() });
+        Assert.IsTrue(s.CaptureBins().First(b => b.Id == bin.Id).Wasps);
+        for (var i = 0; i < 20 && s.RainNow != RainIntensity.Dry; i++)
+        {
+            s.AdvanceWithoutSnapshot(80);
+            if (s.RainNow == RainIntensity.Dry) break;
+            Assert.IsFalse(s.CaptureObservation().NavigationAgents.Any(agent => agent.IntentId == "litter.avoid-wasps"), "Nobody dodges wasps in the rain.");
+        }
     }
 
     [TestMethod]

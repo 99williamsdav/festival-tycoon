@@ -431,7 +431,7 @@ public sealed partial class GameSession
             if (prep.Tier < GroundCoverRules.FromTier) return "Straw lies on a festival without it.";
         }
         // Everything laid in Build is down from opening; stewards may have spread more.
-        if (prep.Status != PreparationStatus.Preparing && prep.StrawCells is { } planned && planned.Any(cell => !(g.StrawCells ?? []).Contains(cell)))
+        if (prep.Status != PreparationStatus.Preparing && prep.StrawCells is { } planned && !planned.ToHashSet().IsSubsetOf(g.StrawCells ?? []))
             return "Straw laid in Build is missing from the ground.";
         var people = (s.NavigationAgents ?? []).Select(a => a.Id).ToHashSet();
         for (var i = 0; i < g.MuddyBoots.Length; i++)

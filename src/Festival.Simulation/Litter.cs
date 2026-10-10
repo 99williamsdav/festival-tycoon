@@ -374,7 +374,8 @@ public sealed partial class GameSession
     {
         if (_litter is null || !MedicalOperationsActive || CurrentTick % LitterRules.SecondTicks != 0) return;
         AdvanceGoodyPickups(); AdvanceCarriedWaste(); AdvanceCleanup();
-        var wasps = CaptureBins().Where(b => b.Wasps).ToArray();
+        // Wasps keep their heads down in the rain.
+        var wasps = RainNow == RainIntensity.Dry ? CaptureBins().Where(b => b.Wasps).ToArray() : [];
         foreach (var p in PeopleIn(PersonView.Roster).Where(p => p.Admitted && !p.Departed))
         {
             var here = PersonCell(p.Id);
