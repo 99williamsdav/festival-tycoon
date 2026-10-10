@@ -31,7 +31,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
     }
 
     private sealed record SetCard(BookingDragButton Target, Label Caption, Label Title, Label Detail, Button Remove);
-    private sealed record ActRow(BookingDragButton Card, Label Detail, Label Fee, RatingBars Talent, Label TalentUnknown);
+    private sealed record ActRow(BookingDragButton Card, Label Detail, Label Fee, RatingBars Talent, Label TalentUnknown, Label Relation);
 
     private static readonly string[] ColumnTitles = ["Act", "Genre", "Fee", "Popular", "Ego", "Pro", "Talent"];
     private static readonly string[] SortWords = ["name", "genre", "fee", "popularity", "ego", "professionalism", "talent"];
@@ -64,6 +64,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
     private readonly (Label Value, ProgressBar Bar)[] _detailMetrics = new (Label, ProgressBar)[4];
     private Label? _detailFee;
     private Label? _detailLeft;
+    private Label? _detailRelation;
     private Button? _detailBook;
 
     public async void ScheduleLayout()
@@ -405,6 +406,9 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         var title = Ui.Text(act.Name, 14, Ui.Ink, Ui.BodyBold); title.ClipText = true; title.TextOverrunBehavior = TextServer.OverrunBehavior.TrimEllipsis;
         title.CustomMinimumSize = new Vector2(1, 0); title.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; title.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
         title.MouseFilter = Control.MouseFilterEnum.Ignore; name.AddChild(title);
+        // Their relationship with you, once they've played: a small tag, warm or sour.
+        var relation = Ui.Caps("", Ui.Ink, 9.5f); relation.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter; relation.Visible = false;
+        relation.MouseFilter = Control.MouseFilterEnum.Ignore; name.AddChild(relation);
         var detail = Ui.Text("", 11.5f, Ui.InkMuted, Ui.BodyBold); detail.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
         detail.MouseFilter = Control.MouseFilterEnum.Ignore; name.AddChild(detail);
         Cell(line, 0, name);
@@ -430,7 +434,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         card.MouseEntered += () => ShowExactScores(act);
         card.FocusExited += () => { if (_bookingMeaning is not null) _bookingMeaning.Text = BookingDefaultMeaning; };
         card.MouseExited += () => { if (!card.HasFocus() && _bookingMeaning is not null) _bookingMeaning.Text = BookingDefaultMeaning; };
-        _bookingRows.Add(id, new ActRow(card, detail, fee, talent, unknown));
+        _bookingRows.Add(id, new ActRow(card, detail, fee, talent, unknown, relation));
         return card;
     }
 
@@ -480,6 +484,8 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         var feeCaption = Ui.Caps("Fee", Ui.InkMuted); feeCaption.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; feeCaption.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; fee.AddChild(feeCaption);
         _detailFee = Ui.Heading("", 26); fee.AddChild(_detailFee);
         _detailLeft = Ui.Text("", 12.5f, Ui.InkMuted); _detailLeft.HorizontalAlignment = HorizontalAlignment.Right; _detail.AddChild(_detailLeft);
+        _detailRelation = Ui.Text("", 12.5f, Ui.InkMuted, Ui.BodyBold); _detailRelation.HorizontalAlignment = HorizontalAlignment.Right;
+        _detailRelation.AutowrapMode = TextServer.AutowrapMode.WordSmart; _detail.AddChild(_detailRelation);
         _detail.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
         _detailBook = Ui.Style(new Button { CustomMinimumSize = new Vector2(0, Ui.S(46)), MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Primary, 16, 8);
         _detailBook.AddThemeStyleboxOverride("disabled", Ui.Box(Ui.PaperRule, 8));
@@ -553,6 +559,15 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             row.Talent.Visible = seen; row.TalentUnknown.Visible = !seen;
             if (seen) row.Talent.Score = PerformanceRules.Talent(act);
             row.Fee.AddThemeColorOverride("font_color", standing == ActStanding.Stretch ? Ui.Link : Ui.Ink);
+            var relationship = session.ActRelationship(act.Id);
+            row.Relation.Visible = relationship != 0;
+            if (relationship != 0)
+            {
+                var (wash, ink) = RelationColours(relationship);
+                row.Relation.Text = RelationTag(relationship);
+                row.Relation.AddThemeColorOverride("font_color", ink);
+                row.Relation.AddThemeStyleboxOverride("normal", Ui.Box(wash, 4, padX: 6, padY: 2));
+            }
             row.Detail.Text = assigned >= 0 ? $"Booked · Set {assigned + 1}" : elsewhere is { } other ? $"{Main.StageTitle(other.Stage)} · Set {other.Slot + 1}" :
                 standing == ActStanding.Locked ? $"Needs reputation {session.ActReputationNeeded(act)}" :
                 standing == ActStanding.Stretch ? "Stretch booking · fee ×1.5" : ExpectsToHeadline(act) ? "Expects to headline" : "Available";
@@ -562,7 +577,8 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             row.Card.Disabled = BookingLocked || standing == ActStanding.Locked;
             row.Card.TooltipText = standing == ActStanding.Locked
                 ? $"{act.Name} won't play for the festival yet: they need a reputation of {session.ActReputationNeeded(act)} (yours is {session.Standing.Reputation})."
-                : ExactTooltip(act) + (standing == ActStanding.Stretch ? $"\nStretch booking: {FestivalCurrency.Format(session.ActFee(act))} instead of {FestivalCurrency.Format(act.PricePennies)}." : "");
+                : ExactTooltip(act) + (standing == ActStanding.Stretch ? $"\nStretch booking: {FestivalCurrency.Format(session.ActFee(act))} instead of {FestivalCurrency.Format(act.PricePennies)}." : "") +
+                    (relationship != 0 ? "\n" + RelationLine(relationship) : "");
             var selected = _bookingSelected == act.Id;
             var rest = selected ? Ui.Box(new Color("ebd9b0"), 6, GoldShadowInset, 2) : RowRule();
             foreach (var state in new[] { "normal", "disabled", "focus", "pressed" }) row.Card.AddThemeStyleboxOverride(state, rest);
@@ -673,6 +689,11 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             standing == ActStanding.Locked ? $"Needs a festival reputation of {_hud.Session.ActReputationNeeded(act)}" :
             (standing == ActStanding.Stretch ? $"Stretch booking (usually {FestivalCurrency.Format(act.PricePennies)}) · " : "") +
             $"{FestivalCurrency.Format(_hud.Session.PreparationRemainingCash - fee)} left after booking";
+        var relationship = _hud.Session.ActRelationship(act.Id);
+        _detailRelation!.Visible = relationship != 0;
+        var usual = ActCatalogue.Fee(_hud.Session.Standing, act);
+        _detailRelation.Text = RelationLine(relationship) + (usual != fee ? $" · usually {FestivalCurrency.Format(usual)}" : "");
+        _detailRelation.AddThemeColorOverride("font_color", RelationColours(relationship).Ink);
         _detailBook!.Disabled = BookingLocked || target is null || standing == ActStanding.Locked;
         _detailBook.Text = assigned >= 0 ? $"Booked · Set {assigned + 1}" : elsewhere is { } on ? $"On the {Main.StageTitle(on.Stage)}" : standing == ActStanding.Locked ? "Won't play for you yet" :
             target is { } slot ? $"Book for Set {slot + 1} · {FestivalCurrency.Format(fee)}" : "All sets filled · drop on a set";

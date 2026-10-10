@@ -7,8 +7,8 @@ using System.Linq;
 namespace Festival.Game;
 
 /// <summary>
-/// The morning after: the Lower Wittering Gazette's review and the festival accounts, on a sheet over
-/// a blurred view of the field, with Newspaper and Accounts tabs and Return to menu.
+/// The morning after: the Lower Wittering Gazette's review, the festival accounts and how every set went, on a sheet
+/// over a blurred view of the field, with Newspaper, Accounts and Performances tabs and Return to menu.
 /// </summary>
 internal sealed class ResultsPaper(IHudHost _hud)
 {
@@ -16,6 +16,10 @@ internal sealed class ResultsPaper(IHudHost _hud)
     private static readonly Color Ledger = new("f7f2e4");
     private static readonly Color Rule = new("e8dfc8");
     private static readonly Color Body = new("2e3833");
+    private static readonly Color Programme = new("f6f0e2");
+
+    /// <summary>The sheet's pages, one per tab.</summary>
+    public enum Page { Newspaper, Accounts, Performances }
 
     private CanvasLayer? _layer;
     private PanelContainer? _sheet;
@@ -23,9 +27,9 @@ internal sealed class ResultsPaper(IHudHost _hud)
     private VBoxContainer? _body;
     private Button? _newspaperTab;
     private Button? _accountsTab;
-    private bool _showingAccounts;
-    private int _newspaperScroll;
-    private int _accountsScroll;
+    private Button? _performancesTab;
+    private Page _page;
+    private readonly int[] _scrolls = new int[3];
     private ImageTexture? _field;
 
     public bool IsOpen => _layer is not null;
@@ -38,7 +42,7 @@ internal sealed class ResultsPaper(IHudHost _hud)
     /// </summary>
     public void Open(Node parent, Func<bool> returnToMenu, Func<bool>? nextFestival = null)
     {
-        _showingAccounts = false; _newspaperScroll = _accountsScroll = 0;
+        _page = Page.Newspaper; Array.Clear(_scrolls);
         // The field as it looks now becomes the backdrop and the front-page photograph.
         var image = parent.GetViewport().GetTexture().GetImage();
         _field = image is null || image.IsEmpty() ? null : ImageTexture.CreateFromImage(image);
@@ -69,9 +73,11 @@ internal sealed class ResultsPaper(IHudHost _hud)
 
         var tabs = new VBoxContainer { Position = new Vector2(sheetLeft + Ui.S(830), sheetTop + Ui.S(40)) };
         tabs.AddThemeConstantOverride("separation", Ui.Px(6)); root.AddChild(tabs);
-        _newspaperTab = Tab("Newspaper", "file-text", () => Show(false)); _newspaperTab.Name = "NewspaperTab"; _newspaperTab.TooltipText = "Public festival review";
-        _accountsTab = Tab("Accounts", "chart-column", () => Show(true)); _accountsTab.Name = "AccountsTab"; _accountsTab.TooltipText = "Income, expenditure and cash";
-        tabs.AddChild(_newspaperTab); tabs.AddChild(_accountsTab);
+        _newspaperTab = Tab("Newspaper", "file-text", () => ShowPage(Page.Newspaper)); _newspaperTab.Name = "NewspaperTab"; _newspaperTab.TooltipText = "Public festival review";
+        _accountsTab = Tab("Accounts", "chart-column", () => ShowPage(Page.Accounts)); _accountsTab.Name = "AccountsTab"; _accountsTab.TooltipText = "Income, expenditure and cash";
+        _performancesTab = Tab("Performances", "music", () => ShowPage(Page.Performances)); _performancesTab.Name = "PerformancesTab";
+        _performancesTab.TooltipText = "How every set went, and how the bands feel about you now";
+        tabs.AddChild(_newspaperTab); tabs.AddChild(_accountsTab); tabs.AddChild(_performancesTab);
 
         Button? menu = null;
         menu = Ui.Style(new Button { Text = "Return to menu", Name = "ReturnToMenu", MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Primary, 15, 8);
@@ -104,13 +110,13 @@ internal sealed class ResultsPaper(IHudHost _hud)
             next.Position = menu.Position - new Vector2(0, Ui.S(58));
             root.AddChild(next);
         }
-        Show(false, first: true);
+        ShowPage(Page.Newspaper, first: true);
     }
 
     private static Button Tab(string text, string icon, Action action)
     {
         var tab = new Button { Text = text, Icon = Ui.Icon(icon), Alignment = HorizontalAlignment.Left, MouseDefaultCursorShape = Control.CursorShape.PointingHand,
-            CustomMinimumSize = Ui.S(150, 46) };
+            CustomMinimumSize = Ui.S(170, 46) };
         tab.Pressed += action;
         tab.AddThemeFontOverride("font", Ui.BodyBold); tab.AddThemeFontSizeOverride("font_size", Ui.Px(15));
         tab.AddThemeConstantOverride("icon_max_width", Ui.Px(18)); tab.AddThemeConstantOverride("h_separation", Ui.Px(8));
@@ -126,7 +132,7 @@ internal sealed class ResultsPaper(IHudHost _hud)
         box.CornerRadiusTopRight = box.CornerRadiusBottomRight = Ui.Px(8);
         if (active) { box.ShadowColor = new Color(0, 0, 0, 0.35f); box.ShadowSize = Ui.Px(8); box.ShadowOffset = Ui.S(4, 6); }
         foreach (var state in new[] { "normal", "hover", "pressed", "focus", "disabled" }) tab.AddThemeStyleboxOverride(state, box);
-        tab.CustomMinimumSize = Ui.S(active ? 150 : 140, 46);
+        tab.CustomMinimumSize = Ui.S(active ? 170 : 160, 46);
         tab.Disabled = active;
     }
 
@@ -147,26 +153,33 @@ void fragment() {
 }";
     private static ShaderMaterial Shaded(string code) => new() { Shader = new Shader { Code = code } };
 
-    public void Show(bool accounts, bool first = false)
+    /// <summary>The newspaper, or the accounts.</summary>
+    public void Show(bool accounts, bool first = false) => ShowPage(accounts ? Page.Accounts : Page.Newspaper, first);
+
+    public void ShowPage(Page page, bool first = false)
     {
         if (_body is null || _scroll is null) return;
-        if (!first)
-        {
-            if (_showingAccounts) _accountsScroll = _scroll.ScrollVertical;
-            else _newspaperScroll = _scroll.ScrollVertical;
-        }
-        _showingAccounts = accounts;
+        if (!first) _scrolls[(int)_page] = _scroll.ScrollVertical;
+        _page = page;
         foreach (var child in _body.GetChildren()) { _body.RemoveChild(child); child.QueueFree(); }
-        var paper = accounts ? Ledger : Newsprint;
-        _sheet!.AddThemeStyleboxOverride("panel", Ui.Box(paper, 0, padX: accounts ? 30 : 34, padY: 22, shadow: 22, shadowAlpha: 0.55f));
-        if (accounts) RenderFestivalAccounts(_body);
-        else RenderFestivalNewspaper(_body);
-        StyleTab(_newspaperTab!, !accounts, Newsprint);
-        StyleTab(_accountsTab!, accounts, Ledger);
-        var position = accounts ? _accountsScroll : _newspaperScroll;
+        var paper = page switch { Page.Accounts => Ledger, Page.Performances => Programme, _ => Newsprint };
+        _sheet!.AddThemeStyleboxOverride("panel", Ui.Box(paper, 0, padX: page == Page.Newspaper ? 34 : 30, padY: 22, shadow: 22, shadowAlpha: 0.55f));
+        switch (page)
+        {
+            case Page.Accounts: RenderFestivalAccounts(_body); break;
+            case Page.Performances: RenderPerformances(_body); break;
+            default: RenderFestivalNewspaper(_body); break;
+        }
+        StyleTab(_newspaperTab!, page == Page.Newspaper, Newsprint);
+        StyleTab(_accountsTab!, page == Page.Accounts, Ledger);
+        StyleTab(_performancesTab!, page == Page.Performances, Programme);
+        var position = _scrolls[(int)page];
         _scroll.ScrollVertical = position;
         _scroll.SetDeferred("scroll_vertical", position);
     }
+
+    /// <summary>Scrolls the sheet, for a look further down the page.</summary>
+    public void ScrollTo(int position) { if (_scroll is not null) { _scroll.ScrollVertical = position; _scroll.SetDeferred("scroll_vertical", position); } }
 
     private static Control Gap(float mockup) => new() { CustomMinimumSize = new Vector2(0, Ui.S(mockup)), MouseFilter = Control.MouseFilterEnum.Ignore };
     private static ColorRect Line(Color colour, float thickness) => new() { Color = colour, CustomMinimumSize = new Vector2(0, Math.Max(1, Ui.S(thickness))), MouseFilter = Control.MouseFilterEnum.Ignore };
@@ -259,6 +272,103 @@ void fragment() {
         around.AddChild(Paragraph("Fights include encounters involving a guest; collapses count guest rescue deadlines. Fight knockouts are excluded.", 11.5f, Ui.InkMuted));
         body.AddChild(Gap(18)); body.AddChild(Line(new Color("c9bfa6"), 1)); body.AddChild(Gap(6));
         body.AddChild(Paragraph("Rating guide: below 20 / 40 / 60 / 80% earns 1 / 2 / 3 / 4 stars; 80% or above earns 5. Provisional thresholds.", 11.5f, Ui.InkMuted));
+    }
+
+    /// <summary>
+    /// How every set went, in timetable order across the stages: when it was due and ran, the crowd, how it went and
+    /// what went wrong, a few words from people who were there, and what it did for the band's relationship with you.
+    /// </summary>
+    private void RenderPerformances(VBoxContainer body)
+    {
+        var session = _hud.Session;
+        var records = session.PerformanceRecords
+            .OrderBy(record => record.ScheduledStartTick).ThenBy(record => FestivalStages.IndexOf(FestivalStages.All, record.StageId)).ToArray();
+        var names = session.CapturePreparation()?.People.ToDictionary(person => person.AgentId, person => person.Name) ?? new();
+        var opened = session.CapturePreparation()?.StartedTick ?? 0;
+
+        var top = new PanelContainer();
+        var underline = Ui.Box(new Color(0, 0, 0, 0), 0); underline.BorderColor = Ui.Ink; underline.BorderWidthBottom = Ui.Px(2); underline.ContentMarginBottom = Ui.S(8);
+        top.AddThemeStyleboxOverride("panel", underline); body.AddChild(top);
+        var heading = new HBoxContainer(); top.AddChild(heading);
+        var words = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; words.AddThemeConstantOverride("separation", Ui.Px(4)); heading.AddChild(words);
+        words.AddChild(Ui.Heading("Performances", 32));
+        words.AddChild(Ui.Text("Every set as it went · the crowd, the hiccups, the word in the field, and how the bands feel about you now", 13.5f, Ui.InkMuted));
+        var up = records.Count(record => record.Delta > 0);
+        var down = records.Count(record => record.Delta < 0);
+        var badge = Ui.Caps($"{up} warmer · {down} cooler", up >= down ? Ui.TealDeep : new Color("7a3312"));
+        badge.AddThemeStyleboxOverride("normal", Ui.Box(up >= down ? Ui.TealWash : Ui.AlertWash, 4, padX: 8, padY: 4));
+        badge.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; heading.AddChild(badge);
+        body.AddChild(Gap(12));
+        if (records.Length == 0) body.AddChild(Paragraph("No sets were played.", 15, Ui.InkMuted));
+        foreach (var record in records)
+        {
+            body.AddChild(PerformanceCard(record, names, opened));
+            body.AddChild(Gap(10));
+        }
+        body.AddChild(Paragraph("A band's relationship runs from −100 to +100 and carries from festival to festival. A friendly band's fee falls by half " +
+            "a percent a point, to half at +100; a sour one's rises a percent a point, to double at −100.", 11.5f, Ui.InkMuted));
+        body.AddChild(Gap(70));
+    }
+
+    private static Control PerformanceCard(PerformanceRecord record, IReadOnlyDictionary<ulong, string> names, long opened)
+    {
+        var act = ActCatalogue.Find(record.ActId);
+        var stage = FestivalStages.Find(record.StageId);
+        var card = new PanelContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill };
+        card.AddThemeStyleboxOverride("panel", Ui.Box(Colors.White, 6, new Color("e2d8bf"), 1, 16, 12));
+        var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(6)); card.AddChild(box);
+
+        // The act and its set on the left, the relationship on the right.
+        var head = new HBoxContainer(); head.AddThemeConstantOverride("separation", Ui.Px(12)); box.AddChild(head);
+        var title = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; title.AddThemeConstantOverride("separation", Ui.Px(2)); head.AddChild(title);
+        var due = $"{FestivalClockText(record.ScheduledStartTick - opened)}–{FestivalClockText(record.ScheduledEndTick - opened)}";
+        title.AddChild(Ui.Caps($"{(stage is null ? record.StageId : Main.StageTitle(stage))} · Set {record.Slot + 1} · {due}" +
+            (act is null ? "" : $" · {FestivalGenre.Name(act.Genre)}"), Ui.InkMuted, 9.5f));
+        var name = Ui.Heading(act?.Name ?? record.ActId, 22); name.AutowrapMode = TextServer.AutowrapMode.WordSmart; title.AddChild(name);
+        var (wash, ink) = RelationColours(record.Delta);
+        var change = new PanelContainer { SizeFlagsVertical = Control.SizeFlags.ShrinkBegin };
+        change.AddThemeStyleboxOverride("panel", Ui.Box(record.Delta == 0 ? new Color("efe8d6") : wash, 6, padX: 12, padY: 6)); head.AddChild(change);
+        var changeWords = new VBoxContainer(); changeWords.AddThemeConstantOverride("separation", 0); change.AddChild(changeWords);
+        var delta = Ui.Heading(record.Delta == 0 ? "No change" : Signed(record.Delta), 20, record.Delta == 0 ? Ui.Ink : ink);
+        delta.HorizontalAlignment = HorizontalAlignment.Right; changeWords.AddChild(delta);
+        var fee = Ui.Text($"Relationship {Signed(record.RelationshipBefore)} → {Signed(record.RelationshipAfter)} · fee next time {FeeChange(record.RelationshipAfter)}",
+            11.5f, record.Delta == 0 ? Ui.InkMuted : ink);
+        fee.HorizontalAlignment = HorizontalAlignment.Right; changeWords.AddChild(fee);
+
+        // How it went: the reaction, then whatever went wrong.
+        var went = new HFlowContainer(); went.AddThemeConstantOverride("h_separation", Ui.Px(6)); went.AddThemeConstantOverride("v_separation", Ui.Px(4)); box.AddChild(went);
+        var good = record.Reaction is GigRules.Enthusiastic or GigRules.Warm;
+        var bad = record.Reaction is GigRules.CutShort or GigRules.NoShow or GigRules.EmptyField;
+        went.AddChild(Chip(GigRules.ReactionWord(record.Reaction), good ? Ui.TealWash : bad ? Ui.AlertWash : new Color("efe8d6"),
+            good ? Ui.TealDeep : bad ? new Color("7a3312") : Ui.Ink));
+        foreach (var hiccup in record.Hiccups) went.AddChild(Chip(GigRules.HiccupWord(hiccup), new Color("f3e2cf"), new Color("7a3312")));
+        if (record.Hiccups.Length == 0 && record.Reaction != GigRules.NoShow) went.AddChild(Chip("No hiccups", new Color("efe8d6"), Ui.InkMuted));
+
+        var crowd = record.StartedTick < 0 ? $"Never started · {record.PeakCrowd} waited for them" :
+            $"Peak crowd {record.PeakCrowd} · {record.SetEndCrowd} still there at the end · about {record.ExpectedCrowd} expected";
+        var played = $"{FestivalClockText(record.StartedTick - opened)}–{FestivalClockText(record.EndedTick - opened)}";
+        if (record.StartedTick >= 0 && played != due) crowd += $" · played {played}";
+        box.AddChild(Paragraph(crowd, 13.5f, Body));
+
+        // A few words from people who were there.
+        foreach (var quote in record.Quotes)
+        {
+            var line = new HBoxContainer(); line.AddThemeConstantOverride("separation", Ui.Px(8)); box.AddChild(line);
+            line.AddChild(new ColorRect { Color = Ui.Gold, CustomMinimumSize = new Vector2(Ui.Px(3), 0), MouseFilter = Control.MouseFilterEnum.Ignore });
+            var said = Paragraph($"“{GigQuotes.Line(record.Reaction, quote)}” — {(names.TryGetValue(quote.GuestId, out var who) ? who : "a guest")}" +
+                (quote.Fan ? ", a fan" : ""), 14.5f, Ui.Ink, Ui.Slab);
+            line.AddChild(said);
+        }
+        if (record.Reasons.Length > 0)
+            box.AddChild(Paragraph("Why it moved: " + string.Join(", ", record.Reasons) + ".", 12, Ui.InkMuted));
+        return card;
+    }
+
+    private static Label Chip(string text, Color wash, Color ink)
+    {
+        var chip = Ui.Caps(text, ink, 9.5f);
+        chip.AddThemeStyleboxOverride("normal", Ui.Box(wash, 4, padX: 7, padY: 3));
+        return chip;
     }
 
     private static HBoxContainer MoneyRow(Container parent, string label, string quantity, string amount, bool total = false, bool showQuantity = true)

@@ -172,6 +172,17 @@ internal static class HudKit
     /// <summary>Elapsed festival time as mm:ss (80 ticks a second).</summary>
     internal static string FestivalClockText(long ticks) => $"{Math.Max(0, ticks) / 80 / 60:00}:{Math.Max(0, ticks) / 80 % 60:00}";
 
+    /// <summary>A band's relationship tag: "♥ +14" for one that likes you, "−8" for one that doesn't.</summary>
+    internal static string RelationTag(int relationship) => relationship > 0 ? $"♥ +{relationship}" : $"−{-relationship}";
+    /// <summary>What a relationship means for booking the band: "Relationship +14 · fee −3.5%".</summary>
+    internal static string RelationLine(int relationship) => $"Relationship {Signed(relationship)} · fee {FeeChange(relationship)}";
+    internal static string Signed(int value) => value > 0 ? $"+{value}" : value < 0 ? $"−{-value}" : "0";
+    /// <summary>The fee change a relationship brings, as a percentage: "−7%", "+30%" or "unchanged".</summary>
+    internal static string FeeChange(int relationship) => GigRules.FeePercent(relationship) is var percent && percent == 0 ? "unchanged" :
+        $"{(percent < 0 ? "−" : "+")}{Math.Abs(percent).ToString("0.##", System.Globalization.CultureInfo.InvariantCulture)}%";
+    /// <summary>Teal for a band that likes you, rust for one that doesn't.</summary>
+    internal static (Color Wash, Color Ink) RelationColours(int relationship) => relationship >= 0 ? (Ui.TealWash, Ui.TealDeep) : (Ui.AlertWash, new Color("7a3312"));
+
     internal static string BuildName(BuildServiceKind kind) => kind switch
     {
         BuildServiceKind.WaterTap => "Water tap",
