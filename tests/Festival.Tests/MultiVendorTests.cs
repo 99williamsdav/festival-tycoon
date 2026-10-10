@@ -140,24 +140,26 @@ public sealed class MultiVendorTests
     [TestMethod]
     public void AGuestWeighsBothVansAndBothBarsByWalkQueueAndValue()
     {
-        var s = Day().MidDay;
+        // A copy of mid-day, played on to a moment when every stall's line has room (a full line isn't offered).
+        var restored = GameSession.Restore(Day().MidDay.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        var s = restored.Session!;
+        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
+        var room = typeof(GameSession).GetMethod("VendorHasRoom", flags)!;
+        for (var step = 0; step < 40 && !s.CaptureVendors().All(v => (bool)room.Invoke(s, [v])!); step++) s.AdvanceWithoutSnapshot(80);
+        Assert.IsTrue(s.CaptureVendors().All(v => (bool)room.Invoke(s, [v])!), "Every stall's line had room within a few minutes.");
         var wallets = s.CaptureSnapshot().Wallets;
         var guest = s.CapturePreparation()!.People.First(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed &&
             s.CaptureImmersion()!.People.Single(c => c.AgentId == p.AgentId) is { VendorId: null, Held: null } &&
             wallets.Single(w => w.OwnerId.Value == p.AgentId).CashPennies >= 1_000 && s.CaptureCarriedWaste(p.AgentId) is null && !s.Teetotal(p.AgentId) &&
             s.CaptureMedical()!.Needs.Single(n => n.AgentId == p.AgentId).Intent == MedicalIntent.WatchShow).AgentId;
-        var flags = BindingFlags.Instance | BindingFlags.NonPublic;
         typeof(GameSession).GetMethod("MutatePerson", flags)!.Invoke(s, [guest, (Action<Person>)(p => { p.Hunger = 7_000; p.Thirst = 5_000; })]);
         var options = (List<ActivityOption>)typeof(GameSession).GetMethod("ActivityOptions", flags)!.Invoke(s, [guest, ActivityKind.Watch])!;
         var food = options.Where(o => o.Kind == ActivityKind.Food && o.Then is null).ToArray();
         CollectionAssert.AreEquivalent(new[] { "food", "food.2" }, food.Select(o => o.FacilityId).ToArray(), "Both vans are on offer.");
         Assert.AreNotEqual(food[0].Cost, food[1].Cost, "Each at its own price.");
-        // Both bars too, bar one whose line is full just now (a full line isn't offered).
-        var room = typeof(GameSession).GetMethod("VendorHasRoom", flags)!;
-        var open = s.CaptureVendors().Where(v => v.Id is "drinks" or "drinks.2" && (bool)room.Invoke(s, [v])!).Select(v => v.Id).ToArray();
-        Assert.IsTrue(open.Length >= 1, "At least one bar has room.");
-        CollectionAssert.AreEquivalent(open,
-            options.Where(o => o.Kind is ActivityKind.SoftDrink or ActivityKind.Beer && o.Then is null).Select(o => o.FacilityId).Distinct().ToArray(), "Both bars too, where there's room.");
+        CollectionAssert.AreEquivalent(new[] { "drinks", "drinks.2" },
+            options.Where(o => o.Kind is ActivityKind.SoftDrink or ActivityKind.Beer && o.Then is null).Select(o => o.FacilityId).Distinct().ToArray(), "Both bars too.");
         // The further van takes longer to reach.
         var nearer = food.MinBy(o => o.CompleteTicks)!;
         var vendor = s.CaptureVendors().Single(v => v.Id == nearer.FacilityId);

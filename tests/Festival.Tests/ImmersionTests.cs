@@ -366,4 +366,23 @@ public sealed class ImmersionTests
         Assert.IsTrue(s.CaptureImmersion()!.People.Single(p=>p.AgentId==id).Intoxication<7500,"Back under the heavy line.");
         Console.WriteLine($"{care.Description} (medic's treatment {treatment} ticks)");
     }
+
+    /// <summary>A medic sent again after an interrupted treatment gives the full care: the earlier care isn't credited.</summary>
+    [TestMethod]
+    public void DrinkCareCountsFromTheMedicsArrivalNotFromAnInterruptedTreatment()
+    {
+        var s=Open();var medical=s.CaptureMedical()!;var id=BuildSession.LastGuest(s);var worker=medical.MedicId;
+        const long Now=4000,Collapse=3800;
+        typeof(GameSession).GetProperty(nameof(GameSession.CurrentTick))!.SetValue(s,Now);
+        PositionFixture(s,id,new(120,125),"medical.intoxication-collapse");PositionFixture(s,worker,new(124,125),"medical.standby");
+        typeof(GameSession).GetProperty("MedicalView",BindingFlags.NonPublic|BindingFlags.Instance)!.SetValue(s,medical with { Needs=medical.Needs.Select(n=>n.AgentId==id?n with { Stage=MedicalStage.Collapsed,Intent=MedicalIntent.Collapsed,WarningTick=1000,CollapseTick=Collapse }:n).ToArray() });
+        // Just over the heavy line, with a long earlier treatment's care still on the count.
+        var m=s.CaptureImmersion()!;Set(s,m with { People=m.People.Select(p=>p.AgentId==id?p with { Intoxication=7600,WarningTick=1000,CollapseTick=Collapse,SevereTicks=1600,CareTicks=5000 }:p).ToArray() });
+        Assert.IsTrue(Send(s,new MedicalCommand(id,MedicalAction.DispatchMedic)).IsAccepted);
+        for(var ticks=0;ticks<2_000&&s.GetMedicResponses().Single(j=>j.WorkerId==worker).Stage!=MedicalResponseStage.Completed;ticks++)s.AdvanceWithoutSnapshot(1);
+        var evidence=s.CaptureMedical()!.Evidence;
+        var started=evidence.Last(e=>e.Id=="medical:treatment-start").Tick;var done=evidence.Last(e=>e.Id=="intoxication:treatment-complete").Tick;
+        var treatment=s.GetResponseStaff().Single(p=>p.AgentId==worker).TreatmentTicks;
+        Assert.IsTrue(done-started>=treatment-1,$"Care took {done-started} ticks of this medic's {treatment}.");
+    }
 }

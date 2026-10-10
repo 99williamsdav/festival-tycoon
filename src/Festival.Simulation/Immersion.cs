@@ -346,7 +346,9 @@ public sealed partial class GameSession
         // Existing heat/injury ownership keeps its own causal treatment path and deadlines.
         if(p.CareTicks==0 && p.IntoxicationCollapseTick<0)p=p with { PriorMedicalStage=need.HealthStage };
         // Only the physical treating owner calls this; neither dispatch nor water sobers.
-        var care=p.CareTicks+1; p=p with { CareTicks=care,Intoxication=Math.Max(0,p.Intoxication-4) }; SetConsumption(p);
+        // Care counts from this medic's arrival: a treatment that was interrupted (patient moved, medic called off or
+        // incapacitated) earns a medic sent again no credit for the care before.
+        var care=(job.StartedTick==CurrentTick?0:p.CareTicks)+1; p=p with { CareTicks=care,Intoxication=Math.Max(0,p.Intoxication-4) }; SetConsumption(p);
         // Care takes the medic's own treatment time, as first aid for heat does, and goes on until they're back under the
         // heavy line. It used to take a fixed 1,600 ticks while the collapse's 2,400-tick death clock ran on, so a medic
         // had to arrive within 800 ticks of a drink collapse (the heat window is 1,200 to 2,040): a patient reached in

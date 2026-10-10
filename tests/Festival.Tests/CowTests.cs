@@ -183,6 +183,48 @@ public sealed class CowTests
         Assert.IsTrue(worst.Ticks <= Moment, $"Two cows stood within {Close} mm of each other for {worst.Ticks} ticks ({worst.Pair}, {worst.Phase}).");
     }
 
+    /// <summary>
+    /// Two cows driven to the gate from either side meet on its approach, each in the other's way: the one earlier in the
+    /// herd goes on and the other follows, so both reach the field rather than standing off until their herds run out.
+    /// The cows are stepped on their own, with the herders' routes held, so only the cows' rule is under test.
+    /// </summary>
+    [TestMethod]
+    public void TwoCowsDrivenToTheGateFromEitherSideBothGetHome()
+    {
+        var s = WithoutFaults(Started());
+        s.AdvanceWithoutSnapshot(2_000);
+        var field = typeof(GameSession).GetField("_cows", Private)!;
+        var cows = (CowsSnapshot)field.GetValue(s)!;
+        var herders = new[] { s.GetStewardResponses().First().WorkerId, s.CaptureMedical()!.MedicId };
+        var agents = (System.Collections.IDictionary)typeof(GameSession).GetField("_navigationAgents", Private)!.GetValue(s)!;
+        foreach (var herder in herders) { var agent = agents[new EntityId(herder)]!; agent.GetType().GetProperty("IntentId")!.SetValue(agent, "cow.drive"); }
+        var grid = new TraversalGrid();
+        LooseCow Driven(string id, GridCell from, ulong herder)
+        {
+            var at = TraversalGrid.CellCentre(from);
+            var route = DeterministicPathfinder.FindPath(grid, from, CowRules.GateInside).Path.ToArray();
+            return new LooseCow(id, at.XMillimetres, at.ZMillimetres, CowActivity.Herded, route, 0, s.CurrentTick)
+                { HerderId = herder, HerdStartedTick = s.CurrentTick, Driving = true };
+        }
+        field.SetValue(s, cows with { Gate = PastureGateState.Broken, Escaped = 2,
+            Loose = [Driven("cow.1", new(176, 111), herders[0]), Driven("cow.2", new(176, 133), herders[1])] });
+        var advance = typeof(GameSession).GetMethod("AdvanceCows", Private)!;
+        var closest = long.MaxValue;
+        for (var step = 0; step < 6_000 && s.CaptureCows()!.Loose.Length > 0; step++)
+        {
+            advance.Invoke(s, []);
+            var loose = s.CaptureCows()!.Loose;
+            Assert.IsTrue(loose.All(c => c.HerderId is not null), "Neither herd gave up.");
+            if (loose.Length == 2)
+            {
+                long dx = loose[0].XMillimetres - loose[1].XMillimetres, dz = loose[0].ZMillimetres - loose[1].ZMillimetres;
+                closest = Math.Min(closest, (long)Math.Sqrt(dx * dx + dz * dz));
+            }
+        }
+        Assert.AreEqual(0, s.CaptureCows()!.Loose.Length, "Both cows are back in the field.");
+        Assert.IsTrue(closest < CowRules.SpacingMillimetres, $"They did meet on the approach (closest {closest} mm).");
+    }
+
     [TestMethod]
     public void PeopleWalkRoundACowRatherThanThroughIt()
     {
