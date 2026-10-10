@@ -105,7 +105,8 @@ public partial class Main
                     visible.Add((extras[i], ImmersionPosition(bin.Cell) + new Vector3(Mathf.Cos(angle) * radius, 0, Mathf.Sin(angle) * radius)));
                 }
             }
-            foreach (var product in Enum.GetValues<ImmersionProduct>())
+            // A poncho is worn home, never dropped.
+            foreach (var product in Enum.GetValues<ImmersionProduct>().Where(product => product != ImmersionProduct.Poncho))
             {
                 if (!_litterBatches.TryGetValue(product, out var batch)) _litterBatches[product] = batch = LitterBatch(LoadLitterMesh(LitterAsset(product)));
                 var group = visible.Where(v => v.Piece.Product == product).ToArray(); batch.Multimesh.InstanceCount = group.Length;
@@ -157,6 +158,30 @@ public partial class Main
         });
         parent.AddChild(_cleanupButton); _cleanupButton.Visible = false;
         _cleanupButton.TooltipText = "Sweep near this steward's current post, then return. Arguments and fights take priority. Bins empty only at 90% or more.";
+        _spreadStrawButton = ButtonText("Spread straw", () =>
+        {
+            if (_selectedAttendeeId is not { } id) return;
+            _strawPicker = id.Value;
+            _preparationMessage = "Click the muddy ground to spread a bale there · Esc cancels.";
+            RefreshPreparationHud();
+        });
+        parent.AddChild(_spreadStrawButton); _spreadStrawButton.Visible = false;
+    }
+
+    private Button? _spreadStrawButton;
+    // The worker waiting for a spot to spread a bale on, while the player picks it.
+    private ulong? _strawPicker;
+
+    /// <summary>A click on the field after Spread straw: the worker takes a bale there.</summary>
+    private bool HandleStrawPick(InputEventMouseButton mouse)
+    {
+        if (_strawPicker is not { } worker || !mouse.Pressed) return false;
+        _strawPicker = null;
+        if (mouse.ButtonIndex != MouseButton.Left || FieldCellAt(mouse.Position) is not { } cell) { _preparationMessage = ""; RefreshPreparationHud(); return true; }
+        _preparationMessage = _host.Execute(new SpreadStrawCommand(worker, cell), out var error)
+            ? $"Taking a bale out to the mud · {_session.CaptureWeather()?.StrawBales ?? 0} left in the store." : error!;
+        RefreshPreparationHud();
+        return true;
     }
     private void SelectBin(string id) { ClearSelection(); _selectedBinId = id; RefreshBinInspector(); }
     private void RefreshBinInspector()
@@ -190,5 +215,15 @@ public partial class Main
         _cleanupButton.Visible = id is not null && _session.GetStewardResponses().Any(s => s.WorkerId == id) && _session.PreparedStatus == PreparationStatus.Running;
         if (id is { } worker) _cleanupButton.Disabled = _session.ValidateCommand(new(new(_session.NextSubmissionSequence + 1), _session.CampaignId,
             _session.Phase, _session.CurrentTick, _session.NextSubmissionSequence, null, new CleanUpCommand(worker))) is not null;
+        if (_spreadStrawButton is null) return;
+        _spreadStrawButton.Visible = id is not null && _session.IsRainyFestival && _session.PreparedStatus == PreparationStatus.Running &&
+            (_session.GetStewardResponses().Any(s => s.WorkerId == id) || _session.CapturePreparation()?.MaintenanceWorkerId == id);
+        if (_spreadStrawButton.Visible && id is { } spreader)
+        {
+            var ready = _session.CanSpreadStraw(spreader, out var why);
+            _spreadStrawButton.Disabled = !ready;
+            _spreadStrawButton.Text = $"Spread straw · {_session.CaptureWeather()?.StrawBales ?? 0} bales";
+            _spreadStrawButton.TooltipText = ready ? "Take a bale from the store and spread it on the muddiest ground around a spot you pick: fresh straw firms up mud." : why;
+        }
     }
 }

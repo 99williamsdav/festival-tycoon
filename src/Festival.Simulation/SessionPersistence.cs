@@ -90,6 +90,9 @@ public sealed record SessionPersistenceSnapshot(
     public CowsSnapshot? Cows { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public LavSuckerSnapshot? LavSucker { get; init; }
+    /// <summary>A rainy festival's showers, wet people, straw store and straw spreading; null in a heatwave.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public WeatherSnapshot? Weather { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PerkSnapshot? Perks { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

@@ -98,7 +98,8 @@ public sealed partial class GameSession
     private void SetSweep(CleanupSweep sweep) => _litter = _litter! with
         { Sweeps = _litter.Sweeps.Where(s => s.WorkerId != sweep.WorkerId).Append(sweep).OrderBy(s => s.WorkerId).ToArray() };
     private bool WasteOwnsNavigation(ulong id) { EnsureWasteIndices(); return _carriedByPerson.ContainsKey(id) || _pickupByPerson.ContainsKey(id); }
-    private bool CleanupOwnsNavigation(ulong id) => _litter?.Sweeps.Any(s => s.WorkerId == id && s.Remaining > 0) == true;
+    // Spreading straw is cleanup work too: it holds the worker's route the same way.
+    private bool CleanupOwnsNavigation(ulong id) => _litter?.Sweeps.Any(s => s.WorkerId == id && s.Remaining > 0) == true || StrawOwnsNavigation(id);
     private void RecordCompletedWaste(ulong id, ImmersionHeldItem held)
     {
         _litter ??= EmptyLitter;
@@ -246,6 +247,7 @@ public sealed partial class GameSession
     private void InterruptCleanup(ulong id)
     {
         if (_litter?.Sweeps.SingleOrDefault(s => s.WorkerId == id && s.Remaining > 0) is { } sweep) EndSweep(sweep, false);
+        if (StrawOwnsNavigation(id)) EndStrawJob(false);
     }
 
     // Ground pieces are spatially indexed only when the authoritative piece array changes.

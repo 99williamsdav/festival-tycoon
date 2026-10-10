@@ -65,10 +65,15 @@ internal sealed partial class CrowdBodies
         var accessories = new List<(int Slot, string Hex)>();
         if (look.Cap)
         {
-            head.AddChild(Main.InstantiateAsset($"res://assets/characters/lwf_hat_cap_{sex}_v1.glb"));
+            var cap = Main.InstantiateAsset($"res://assets/characters/lwf_hat_cap_{sex}_v1.glb");
+            cap.SetMeta(HatMeta, true); head.AddChild(cap);
             accessories.AddRange([(0, crown), (1, visor), (2, crown)]);
         }
-        if (look.FlowerCrown) head.AddChild(Main.InstantiateAsset($"res://assets/characters/lwf_hat_flower_crown_{sex}_v1.glb"));
+        if (look.FlowerCrown)
+        {
+            var flowers = Main.InstantiateAsset($"res://assets/characters/lwf_hat_flower_crown_{sex}_v1.glb");
+            flowers.SetMeta(HatMeta, true); head.AddChild(flowers);
+        }
         if (look.Sunglasses)
         {
             head.AddChild(Main.InstantiateAsset($"res://assets/characters/lwf_sunglasses_{sex}_v1.glb"));

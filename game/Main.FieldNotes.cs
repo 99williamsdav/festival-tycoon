@@ -39,6 +39,7 @@ public partial class Main
         new("dusk", "dusk", "Lights", "The lights are coming on, and they want their share of the power too..."),
         new("queue", "queue", "Queue", "A long queue for food is a long time away from the music..."),
         new("cows", "cows", "Cows", "Cows have no interest in the music, but they'll happily wander off with your power if nobody walks them home..."),
+        new("rain", "rain", "Rain", "Here comes the rain again. Soaked guests sulk, and busy ground soon turns to mud..."),
     ];
 
     private HashSet<string>? _fieldNotesSeen;
@@ -72,6 +73,10 @@ public partial class Main
             // Loose cows: the pin over each, at about head height.
             "cows" => () => _session.CaptureCows()?.Loose is { Length: > 0 } loose
                 ? loose.Select(c => new Vector3(c.XMillimetres / 1000f, 2.2f, c.ZMillimetres / 1000f)).ToArray() : null,
+            // The first shower: the pin over someone getting wet out in it.
+            "rain" => () => _session.RainNow == RainIntensity.Dry ? null :
+                Person(_session.CapturePreparation()?.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed &&
+                    _session.WetnessOf(p.AgentId) > 0 && !_session.OwnsPoncho(p.AgentId)).Select(p => p.AgentId)),
             // A queue of four or more at a food van; the pin sits above its roof sign.
             "queue" => () => _session.CaptureVendors().FirstOrDefault(v => Stalls.IsVan(v.Id) && v.Queue.Length >= 4) is { } van
                 ? [ImmersionPosition(van.Cell) + Vector3.Up * 5.4f] : null,

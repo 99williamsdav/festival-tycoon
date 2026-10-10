@@ -55,6 +55,7 @@ internal sealed partial class CrowdBodies
             foreach (var name in LoopedClips)
                 if (player.HasAnimation(name)) player.GetAnimation(name).LoopMode = Animation.LoopModeEnum.Linear;
             player.SetMeta(WalkPlayerMeta, true);
+            AddRainClips(player, sex);
             player.Play("idle");
         }
         return body;
@@ -140,15 +141,17 @@ internal sealed partial class CrowdBodies
             _ => brisk ? "walk_brisk_carry" : "walk_carry",
         };
         if (!player.HasAnimation(clip)) clip = moving ? "walk" : "idle";
+        // Out in the rain with free hands (and no poncho): hunched, hands on the head, hurrying, or huddled under cover.
+        if (mode == "free" && dance is null && RainClip(root, player, moving) is { } wet && player.HasAnimation(wet)) clip = wet;
         if (player.CurrentAnimation != clip)
         {
-            player.Play(clip, customBlend: .3);
+            player.Play(clip, customBlend: clip.StartsWith("rain/", System.StringComparison.Ordinal) || player.CurrentAnimation.ToString().StartsWith("rain/", System.StringComparison.Ordinal) ? .25 : .3);
             // Start a dance part-way into the bar, so each person keeps their own place relative to the beat.
             if (dance is not null) player.Seek(root.GetMeta(DanceOffsetMeta).AsSingle() * (float)player.CurrentAnimationLength, true);
         }
         var sex = RigSex(root);
-        var walkingClip = clip.StartsWith("walk", System.StringComparison.Ordinal) || clip == "carry_litter";
-        var natural = clip == "walk_hurry" ? HurrySpeedAt1x : clip.Contains("brisk") ? BriskSpeedAt1x : WalkSpeedAt1x(sex);
+        var walkingClip = clip.StartsWith("walk", System.StringComparison.Ordinal) || clip == "carry_litter" || clip is "rain/rain_hands_head" or "rain/rain_hurry";
+        var natural = clip is "walk_hurry" or "rain/rain_hurry" ? HurrySpeedAt1x : clip.Contains("brisk") ? BriskSpeedAt1x : WalkSpeedAt1x(sex);
         player.SpeedScale = paused ? 0 : walkingClip ? Mathf.Clamp(metresPerSecond / natural, .05f, 8f) :
             dance is not null ? root.GetMeta(DanceSpeedMeta).AsSingle() : 1;
     }

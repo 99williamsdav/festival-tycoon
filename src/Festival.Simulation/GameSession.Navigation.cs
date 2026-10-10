@@ -243,7 +243,7 @@ public sealed partial class GameSession
     /// the exact cell, so those walkers wait instead.
     /// </summary>
     private static bool NearArrivalAllowed(string? intent) => intent is "performance.listen" or "performance.listen-local" or
-        "performance.listen-local-retreat" or "medical.return" or "medical.rest" or "disorder.water-closure-rest" or "litter.goody-pickup";
+        "performance.listen-local-retreat" or "medical.return" or "medical.rest" or "disorder.water-closure-rest" or "litter.goody-pickup" or ShelterRules.Intent or StrawJobRules.Intent;
 
     /// <summary>
     /// The distance to this walker's goal when it is close to it and the goal is held: someone (or a cow,

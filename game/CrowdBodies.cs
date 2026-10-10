@@ -98,12 +98,13 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
     private void ApplyGuestPalette(Node3D root, Node3D body)
     {
         var choice = new AttendeeColourChoice(root.GetMeta("GuestClothing").AsInt32(), root.GetMeta("GuestHair").AsInt32());
-        foreach (var mesh in body.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>())
+        // A rigged body carries the head's pieces (and a poncho) on its skeleton: they keep their own materials.
+        foreach (var mesh in body.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().Where(mesh => !WornOnTop(body, mesh)))
             for (var surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
                 if (mesh.Mesh.SurfaceGetMaterial(surface) is not StandardMaterial3D original)
                     throw new InvalidOperationException("Guest pose requires the original standard palette material.");
-                mesh.SetSurfaceOverrideMaterial(surface, GuestPaletteMaterial(original, choice));
+                mesh.SetSurfaceOverrideMaterial(surface, Soaked(root) ? SoakedPaletteMaterial(original, choice) : GuestPaletteMaterial(original, choice));
             }
     }
 
@@ -153,6 +154,7 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
         root.SetMeta("GuestPoseState", state);
         root.SetMeta(RigMeta, rigged);
         if (root.IsInsideTree()) SyncGuestHead(root);
+        if (root.HasMeta(PonchoMeta)) SyncPoncho(root);
     }
 
     /// <summary>The pose manifest's anchor for what's held: food on the tray anchor, drinks by cup.</summary>

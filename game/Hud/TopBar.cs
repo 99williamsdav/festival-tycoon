@@ -34,6 +34,9 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     private Label? _guests;
     private Label? _guestsOf;
     private Label? _weather;
+    private Label? _weatherWhen;
+    private TextureRect? _weatherIcon;
+    private string _weatherIconName = "sun";
     private Label? _mood;
     private ProgressBar? _moodBar;
     private TextureRect? _moodTrend;
@@ -92,7 +95,10 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
             MouseFilter = Control.MouseFilterEnum.Ignore };
         _moodBar.AddThemeStyleboxOverride("background", Ui.Box(Ui.BarDeep, 3));
         ((VBoxContainer)moodLine.GetParent()).AddChild(_moodBar);
-        _weather = Stat(row, "Weather", glyph: null, icon: "sun", divider: false).Value;
+        (_weather, var weatherLine) = Stat(row, "Weather", glyph: null, icon: "sun", divider: false);
+        // Chip B: the weather now, and a muted when it changes ("till 03:40", "rain in 0:45").
+        _weatherWhen = Ui.Text("", 14, Ui.BarMuted, Ui.Slab); weatherLine.AddChild(_weatherWhen);
+        _weatherIcon = weatherLine.GetParent().GetParent().FindChildren("*", "TextureRect", true, false).OfType<TextureRect>().FirstOrDefault();
         // Clock, guests and weather (with their dividers) step aside during the perk draft.
         var cashGroup = _cash.GetParent().GetParent().GetParent().GetParent<Control>();
         // Cash's divider, then clock, divider, guests, divider, mood, divider and weather.
@@ -215,6 +221,48 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _ => change.Cause.ToString(),
     };
 
+    /// <summary>
+    /// The weather chip: Hot in a heatwave; on a rainy day the shower now (heavy showers or a downpour) and when it stops,
+    /// or the dry spell and when the next one's due. Before opening it's the day's forecast.
+    /// </summary>
+    private void RefreshWeather(GameSession session, PreparationSnapshot p)
+    {
+        var outlook = session.CaptureWeatherOutlook();
+        string icon, text, when = "", tip;
+        if (outlook.Kind == WeatherKind.Heatwave)
+        {
+            (icon, text) = session.CaptureMedical() is { IsHot: true } ? ("sun", "Hot") : ("sun", "Fine");
+            tip = "A heatwave: guests heat up out in the sun and get thirsty. Water, shade and rest keep them going.";
+        }
+        else if (p.Status == PreparationStatus.Preparing)
+        {
+            icon = outlook.Downpour ? "cloud-downpour" : "cloud-heavy-showers"; text = "Showers";
+            when = outlook.ChangeTick >= 0 ? $"from {FestivalClockText(outlook.ChangeTick)}" : "";
+            tip = $"Forecast: {outlook.Showers} heavy showers with dry spells, from the first set into dusk" +
+                (outlook.Downpour ? ", and a downpour in one of them." : ".") + " Wet guests get miserable: put up a marquee, stock ponchos, lay straw or matting.";
+        }
+        else
+        {
+            var now = session.CurrentTick - p.StartedTick;
+            var raining = outlook.Now != RainIntensity.Dry;
+            icon = outlook.Now switch { RainIntensity.Downpour => "cloud-downpour", RainIntensity.Heavy => "cloud-heavy-showers", _ => "sun-dry-spell" };
+            text = outlook.Now switch { RainIntensity.Downpour => "Downpour", RainIntensity.Heavy => "Heavy showers", _ => outlook.ChangeTick >= 0 ? "Dry spell" : "Clearing" };
+            var left = outlook.ChangeTick - now;
+            when = outlook.ChangeTick < 0 ? "" : raining
+                ? left <= 1_600 ? $"dry in {FestivalClockText(left)}" : $"till {FestivalClockText(outlook.ChangeTick)}"
+                : $"rain in {FestivalClockText(left)}";
+            tip = raining ? "Out in it, guests soak and sulk. Under the marquee, a bar canopy or the first-aid porch, or in a poncho, they dry off."
+                : outlook.ChangeTick >= 0 ? (outlook.Next == RainIntensity.Downpour ? "A downpour is on its way." : "Another shower is on its way.") + " Straw and ponchos now save mud and moods later."
+                : "The rain's done for the day.";
+        }
+        _weather!.Text = text;
+        _weatherWhen!.Text = when;
+        _weatherWhen.Visible = when.Length > 0;
+        var group = _weather.GetParent().GetParent().GetParent<Control>();
+        group.TooltipText = tip;
+        if (_weatherIcon is not null && icon != _weatherIconName) { _weatherIcon.Texture = Ui.Icon(icon); _weatherIconName = icon; }
+    }
+
     private static (Label Value, HBoxContainer Line) Stat(HBoxContainer row, string caption, string? glyph, string? icon, bool divider)
     {
         var group = Group(row, divider);
@@ -288,7 +336,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         }
         _guests!.Text = session.OnSiteAttendeeCount.ToString();
         _guestsOf!.Text = $"/ {p.People.Count(person => person.Role == ProtectedPersonRole.Guest)}";
-        _weather!.Text = session.CaptureMedical() is { IsHot: true } ? "Hot" : "Unavailable";
+        RefreshWeather(session, p);
         var admitted = p.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted).ToArray();
         var mood = admitted.Length == 0 ? (int?)null : (int)admitted.Average(person => person.Satisfaction) / 100;
         _mood!.Text = mood is { } percent ? $"{percent}%" : "–";

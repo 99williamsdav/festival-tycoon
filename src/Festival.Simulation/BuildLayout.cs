@@ -61,7 +61,7 @@ public sealed partial class GameSession
     /// <summary>"One water tap is", "Two water taps are".</summary>
     private static string TapCount(int taps) => taps == 1 ? "One water tap is" : $"{(taps == 2 ? "Two" : taps.ToString())} water taps are";
     public IReadOnlyList<BuildPlacement> CaptureBuildPlacements() => _preparation?.BuildPlacements.ToArray() ?? [];
-    public long BuildDraftCost => _preparation?.BuildPlacements?.Sum(item => (long)BuildServiceFeePennies(item.Kind)) ?? 0;
+    public long BuildDraftCost => _preparation is { } p ? BuildCostOf(p) : 0;
     /// <summary>
     /// The suggested layout, taken from how the user actually lays out a Tier 1 field: two loos by the stage, a bin
     /// between stage and lane, chips and bar along the lane, first aid across it and the steward post by the gate.
@@ -156,7 +156,9 @@ public sealed partial class GameSession
         }
         else return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Unknown build edit.");
         var next = p.BuildPlacements.Where(item => item.Id != proposed.Id).Append(proposed).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
-        return ValidateBuildLayout(next, Stages, _equipment, p.WaterTowerOwned, p.Tier) is { } issue ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue) : null;
+        if (ValidateBuildLayout(next, Stages, _equipment, p.WaterTowerOwned, p.Tier) is { } issue) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
+        // Straw and matting are walked on, not built on.
+        return StandsOnCover(p, proposed) ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Lift the straw or matting there first.") : null;
     }
 
     private void ApplyBuildCommand(SessionCommand command)
@@ -172,6 +174,8 @@ public sealed partial class GameSession
             UseDefaultBuildLayoutCommand => StandardBuildLayout(p.Tier).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(),
             _ => throw new InvalidOperationException("Unknown build edit.")
         } };
+        // The default layout lands wherever it lands: any straw or matting under it is lifted.
+        if (command is UseDefaultBuildLayoutCommand) _preparation = ClearCoverUnderServices(_preparation);
         // The default's second van is the curry van, unless the player already picked its trader or van 1 has curry.
         if (command is UseDefaultBuildLayoutCommand && _preparation.Plan is { } plan && _preparation.BuildPlacements.Any(item => item.Id == Stalls.Id(BuildServiceKind.FoodVan, 2)) &&
             ChosenTraderId(plan, Stalls.Id(BuildServiceKind.FoodVan, 2)) is null && plan.TraderId != DefaultSecondVanTrader)

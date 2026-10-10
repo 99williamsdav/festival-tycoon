@@ -50,6 +50,7 @@ public partial class Main
             Width = 256, Height = 256, Seamless = true,
             Noise = new FastNoiseLite { Frequency = 0.02f, FractalOctaves = 3, Seed = 11 },
         });
+        SetUpStrawShader(_groundMaterial);
         return _groundMaterial;
     }
 
@@ -79,12 +80,19 @@ public partial class Main
         const int n = GroundMapCells, first = GroundRules.FieldFirstCell;
         const float wetScale = GroundRules.WetSpill * 2, mudScale = GroundRules.SwampMud * 1.5f;
         var wet = new float[n * n]; var mud = new float[n * n];
+        // In the rain, churned ground is drawn as mud from the moment it counts as mud, and a puddle as a puddle; the
+        // amounts alone are tuned for a broken tap's deep pool.
+        var rainy = _session.IsRainyFestival;
         for (var z = 0; z < n; z++)
         for (var x = 0; x < n; x++)
         {
             var cell = new GridCell(first + x, first + z);
             wet[z * n + x] = Math.Min(1f, _session.GroundWetAt(cell) / wetScale);
             mud[z * n + x] = Math.Min(1f, _session.GroundMudAt(cell) / mudScale);
+            if (!rainy) continue;
+            var state = _session.GroundStateAt(cell);
+            if (state is GroundState.Mud or GroundState.Swamp) mud[z * n + x] = Math.Max(mud[z * n + x], state == GroundState.Swamp ? .75f : .5f);
+            if (state is GroundState.Puddle or GroundState.Swamp) wet[z * n + x] = Math.Max(wet[z * n + x], .62f);
         }
         var pixels = new byte[n * n * 2];
         for (var z = 0; z < n; z++)
@@ -145,6 +153,15 @@ public partial class Main
         uniform sampler2D wet_map : filter_linear;
         uniform sampler2D noise : filter_linear, repeat_enable;
         uniform bool pasture = false;
+        // Rain (0 dry, 0.6 heavy showers, 1 a downpour) rings the puddles; wetness darkens and glosses everything.
+        uniform float rain = 0.0;
+        uniform float wetness = 0.0;
+        uniform sampler2D ripple_atlas : source_color, filter_linear_mipmap;
+        // Straw: R how much lies here (3 x 3 blurred), G how trampled it is.
+        uniform sampler2D straw_map : filter_linear;
+        uniform sampler2D straw_fresh : source_color, filter_linear_mipmap, repeat_enable;
+        uniform sampler2D straw_trampled : source_color, filter_linear_mipmap, repeat_enable;
+        uniform sampler2D straw_breakup : filter_linear_mipmap, repeat_enable;
         varying vec2 field;
 
         vec3 lin(vec3 srgb) { return pow(srgb, vec3(2.2)); }
@@ -234,9 +251,38 @@ public partial class Main
             float sludge = smoothstep(0.6, 0.7, mud);
             vec3 pool = mix(lin(vec3(0.42, 0.5, 0.54)), lin(vec3(0.5, 0.41, 0.29)) * (0.85 + 0.3 * texture(noise, p * 0.3).r), sludge);
             c = mix(c, pool, pooled);
+            float rough = mix(0.97, mix(0.55, 0.12, pooled), max(pooled, churned * 0.6));
+            float spec = mix(0.5, 0.7, pooled);
+            // Rings on the puddles while it rains: one ripple slot per half-metre, fewer active in lighter rain.
+            if (rain > 0.0 && pooled > 0.0) {
+                vec2 cellp = p / 0.5; vec2 cid = floor(cellp); vec2 uvc = fract(cellp);
+                float ph = hash(cid);
+                float t = fract(TIME * mix(1.2, 2.4, rain) + ph); float frame = floor(t * 16.0);
+                vec2 auv = (vec2(mod(frame, 4.0), floor(frame / 4.0)) + uvc) / 4.0;
+                float ring = texture(ripple_atlas, auv).a * step(ph, rain * 0.9);
+                c = mix(c, vec3(0.86, 0.90, 0.93), ring * pooled * 0.6);
+            }
+            // Straw over the mud, with a ragged, uneven edge, fresh gold going to trampled brown.
+            vec2 sm = pasture ? vec2(0.0) : texture(straw_map, (p + 32.0) / 64.0).rg;
+            if (sm.r > 0.0) {
+                vec3 nb = texture(straw_breakup, p / 6.0).rgb;
+                float e = sm.r + (nb.r - 0.5) * 0.70 + (nb.g - 0.5) * 0.55 + (nb.b - 0.5) * 0.30;
+                float laid = smoothstep(0.40, 0.52, e);
+                float clump = smoothstep(0.64, 0.70, nb.g) * smoothstep(0.04, 0.30, sm.r);
+                float strand = smoothstep(0.70, 0.74, nb.b) * smoothstep(0.10, 0.35, sm.r);
+                vec4 st = mix(texture(straw_fresh, p / 3.0), texture(straw_trampled, p / 3.0), sm.g);
+                float a = max(max(laid, clump), strand) * st.a;
+                // A touch duller than the swatch, so it sits on the field rather than glowing on it.
+                vec3 straw = mix(vec3(dot(st.rgb, vec3(0.3, 0.59, 0.11))), st.rgb, 0.8) * 0.82;
+                c = mix(c, straw, a);
+                rough = mix(rough, 0.85, a * (1.0 - wetness * 0.5));
+                spec = mix(spec, 0.5, a);
+            }
+            // Wet through: darker, a touch cooler, and glossy.
+            c *= mix(vec3(1.0), vec3(0.80, 0.83, 0.86), wetness);
             ALBEDO = c;
-            ROUGHNESS = mix(0.97, mix(0.55, 0.12, pooled), max(pooled, churned * 0.6));
-            SPECULAR = mix(0.5, 0.7, pooled);
+            ROUGHNESS = mix(rough, 0.22, wetness * (1.0 - smoothstep(0.3, 0.6, sm.r) * 0.5));
+            SPECULAR = mix(spec, 0.5, wetness);
         }
         """;
 }

@@ -43,6 +43,12 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public FestivalStanding? StandingBefore { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public BuildPlacement[] BuildPlacements { get; init; } = null!;
+    /// <summary>Straw laid in Build, as flat cell indices in ascending order; null when none.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public int[]? StrawCells { get; init; }
+    /// <summary>Track-mat panels laid in Build, by corner; null when none.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public MatPanel[]? MatPanels { get; init; }
     public StaffProfile[] StaffProfiles { get; init; } = [];
     [System.Text.Json.Serialization.JsonIgnore(Condition=System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PreparationPlan? Plan { get; init; }
@@ -358,6 +364,7 @@ public sealed partial class GameSession
                 ApplyAgentDestination(id, new(dutyCell, "edition.arrival"));
         }
         _preparation = p with { Status = PreparationStatus.Running, StartedTick = CurrentTick };
+        LayPlannedStraw();
         Phase = SessionPhase.Live;
         StartEquipmentLifecycle();
         StartLivePerformance();
@@ -454,6 +461,8 @@ public sealed partial class GameSession
         _equipment = baseline._equipment;
         _stageGenerators = baseline._stageGenerators;
         MedicalView = baseline.MedicalView;
+        // The same forecast again, everyone dry.
+        _weather = baseline._weather; _wetness.Clear(); _weatherVersion++;
         if (_medical is not null)
             SetTaps((MainTapStanding(p) ? new[] { OpeningMainTap() with { Cell = PrimaryWaterCell(p), QuarterTurns = PrimaryWaterQuarterTurns(p), GeometryVersion = PrimaryWaterGeometryVersion(p) } } : [])
                 .Concat(EffectiveWaterPlacements(p).Select(site =>
@@ -491,6 +500,7 @@ public sealed partial class GameSession
             return "Saved build layout is invalid.";
         if (ValidateBuildFacilities(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
         if (ValidatePersistedMarquees(p, snapshot) is { } marqueeIssue) return marqueeIssue;
+        if (ValidatePersistedGroundCover(p, snapshot) is { } coverIssue) return coverIssue;
         if (p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null)
             return "Lineup reaction identity requires the current saved programme and results plan.";
         if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > HighestTier || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||

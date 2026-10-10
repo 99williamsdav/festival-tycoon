@@ -85,6 +85,14 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyBuildCommand(envelope.Command);
                 break;
+            case GroundCoverCommand cover:
+                affectedTarget = null;
+                ApplyGroundCover(cover);
+                break;
+            case SpreadStrawCommand spread:
+                affectedTarget = new(spread.WorkerId);
+                ApplySpreadStraw(spread);
+                break;
             case PerkCommand perk:
                 affectedTarget = null;
                 ApplyPerkCommand(perk);
@@ -320,6 +328,7 @@ public sealed partial class GameSession
             ReleaseFrozenStaffClaims();
             AdvanceStaffAutonomy();
             AdvanceLitter();
+            AdvanceWeather();
             AdvanceGround();
             AdvanceFacilityFaults();
             AdvanceCows();
@@ -472,6 +481,7 @@ public sealed partial class GameSession
             Faults = CaptureFaults(),
             Cows = CaptureCows(),
             LavSucker = CaptureLavSucker(),
+            Weather = CaptureWeather(),
         };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
@@ -550,6 +560,7 @@ public sealed partial class GameSession
         session._cows = snapshot.Cows is null ? null : System.Text.Json.JsonSerializer.Deserialize<CowsSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Cows));
         session._lavSucker = snapshot.LavSucker is null ? null : System.Text.Json.JsonSerializer.Deserialize<LavSuckerSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.LavSucker));
         session.RestoreGround(snapshot.Ground);
+        session.RestoreWeather(snapshot.Weather);
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
         return SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");
@@ -632,6 +643,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (faultError is not null) return faultError;
         var groundError = ValidatePersistedGround(snapshot);
         if (groundError is not null) return groundError;
+        var weatherError = ValidatePersistedWeather(snapshot);
+        if (weatherError is not null) return weatherError;
         var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
             .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();
         if (ownedEntityIds.Distinct().Count() != ownedEntityIds.Length || ownedEntityIds.Any(id => id >= snapshot.NextEntityId))
@@ -727,7 +740,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
+        if (_preparation is not null && envelope.Command is not (RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -737,6 +750,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
             RemovePreparationOfferCommand or SetPreparationStockCommand => ValidatePlanEdit(envelope.TargetId, envelope.Command),
             ChooseFoodTraderCommand trader => ValidateChooseFoodTrader(envelope.TargetId, trader),
             PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand => ValidateBuildCommand(envelope.TargetId, envelope.Command),
+            GroundCoverCommand cover => ValidateGroundCover(envelope.TargetId, cover),
+            SpreadStrawCommand spread => ValidateSpreadStraw(envelope.TargetId, spread),
             PerkCommand perk => ValidatePerkCommand(envelope.TargetId, perk),
             EquipmentCommand equipment => ValidateEquipmentCommand(envelope.TargetId, equipment),
             StageGeneratorCommand generator => ValidateStageGeneratorCommand(envelope.TargetId, generator),

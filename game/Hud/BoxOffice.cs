@@ -249,6 +249,13 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         _sets!.Text = session.PondStageOpen ? "One day on the farm · two stages, six sets" : "One day on the farm · three sets";
         _nextLine!.Text = session.PondStageOpen ? "Next: build your site, book three acts for each stage and hire a sound engineer for each."
             : "Next: build your site, book three acts and hire a sound engineer.";
+        // The forecast, so the player can plan for it.
+        if (session.Weather == WeatherKind.Rain)
+        {
+            var outlook = session.CaptureWeatherOutlook();
+            _nextLine.Text = $"The forecast: {outlook.Showers} heavy showers from the first set into dusk" + (outlook.Downpour ? ", one a downpour" : "") +
+                ". Wet guests sulk and busy ground turns to mud: think marquees, ponchos at the bar, straw and matting.\n" + _nextLine.Text;
+        }
         var tickets = FestivalTickets.RevenuePennies(p.Tier);
         _ticketPrice!.Text = FestivalCurrency.Format(price);
         _sold!.Text = sold.ToString(); _soldOf!.Text = $"of {sold} sold";

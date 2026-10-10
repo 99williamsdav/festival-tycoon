@@ -318,6 +318,8 @@ private void RebuildPreparationOffers()
             .Where(item => item.Name == casualtyName).Select(item => (EntityId?)new EntityId(item.AgentId)).FirstOrDefault();
         var collapsed = _session.CaptureMedical()?.Needs.Where(item => item.Intent == MedicalIntent.Collapsed)
             .Select(item => new EntityId(item.AgentId)).ToHashSet() ?? [];
+        var rainy = _session.IsRainyFestival;
+        var rainNow = _session.RainNow;
         foreach (var agent in _session.CaptureObservation().NavigationAgents)
         {
             var position = _foundationPresentation.Sample(agent.Id, _host.Clock.InterpolationFraction);
@@ -351,6 +353,7 @@ private void RebuildPreparationOffers()
             var pace = _personPace.GetValueOrDefault(agent.Id) * .75f + moved * .25f;
             _personPace[agent.Id] = pace;
             SetCrowdDance(agent.Id, visual);
+            if (rainy) SetRainLook(agent, visual, renderedPosition, rainNow);
             Bodies.AnimateGuest(visual, pace, CharacterPresentationPaused);
             visual.Position = renderedPosition;
             if (agent.Id == casualtyId || collapsed.Contains(agent.Id))

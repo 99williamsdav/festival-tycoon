@@ -184,7 +184,7 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
             };
             if (offer.Category != "equipment") lines.Add((label, offer.PricePennies));
         }
-        var items = plan.SoftDrinks + plan.Beers;
+        var items = plan.SoftDrinks + plan.Beers + plan.Ponchos + plan.StrawBales;
         if (items > 0) lines.Add(($"Stock · {items} items", costs.Stock));
         foreach (var id in plan.OfferIds.Where(id => offers[id].Category == "equipment"))
             lines.Add((RigLabel(id), offers[id].PricePennies));

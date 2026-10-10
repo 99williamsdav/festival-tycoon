@@ -1,10 +1,11 @@
 namespace Festival.Simulation;
 
 /// <summary>Watch is the default: the music for guests and performers, the post for staff. Respond is a staff job.</summary>
-public enum ActivityKind { Watch, Water, Rest, Food, SoftDrink, Beer, Toilet, Respond, BarWater }
+/// <summary>Shelter is getting out of the rain under cover; Poncho is buying one at the bar.</summary>
+public enum ActivityKind { Watch, Water, Rest, Food, SoftDrink, Beer, Toilet, Respond, BarWater, Shelter, Poncho }
 
-/// <summary>Need levels on the shared 0–10,000 scale.</summary>
-public readonly record struct NeedLevels(int Thirst, int Heat, int Hunger, int Toilet);
+/// <summary>Need levels on the shared 0–10,000 scale. Wet is how soaked they are, on a rainy day.</summary>
+public readonly record struct NeedLevels(int Thirst, int Heat, int Hunger, int Toilet, int Wet = 0);
 
 /// <summary>Need growth per second (80 ticks).</summary>
 public readonly record struct NeedGrowth(int Thirst, int Heat, int Hunger, int Toilet);
@@ -31,6 +32,12 @@ public sealed record ActivityOption(ActivityKind Kind, string? FacilityId, int C
 }
 
 public sealed record ActivityScore(ActivityOption Option, long Score);
+
+/// <summary>
+/// The rain as one person's plan sees it: how fast they soak out in it and dry out of it, what standing in it costs
+/// each second, and how long until this shower stops. <see cref="Poncho"/>: they already wear one.
+/// </summary>
+public readonly record struct RainOutlook(int SoakPerSecond, int DryCoveredPerSecond, int DryOpenPerSecond, long ExposedPerSecond, int RainTicks, bool Poncho);
 
 /// <summary>
 /// Scores single-stop activity plans over a fixed look-ahead. Each second of the horizon earns the
@@ -100,7 +107,8 @@ public static class ActivityChooser
     /// long set drinks first rather than collapsing on stage. Ordinary discomfort there is left out, as it is for anyone
     /// else past the horizon.
     /// </summary>
-    public static long Score(NeedLevels now, NeedGrowth growth, IReadOnlyList<long> musicPerSecond, ActivityOption option, int committedTicks = 0)
+    public static long Score(NeedLevels now, NeedGrowth growth, IReadOnlyList<long> musicPerSecond, ActivityOption option, int committedTicks = 0,
+        RainOutlook? rain = null)
     {
         long score = option.Enjoyment - option.Cost;
         // Relief lands at each stop in turn; a stop beyond the horizon never lands.
@@ -108,6 +116,7 @@ public static class ActivityChooser
             ? Relieve(option.Kind, Grow(now, growth, option.CompleteTicks), option.FoodRelief) : (NeedLevels?)null;
         var second = first is { } afterFirst && option.Then is { } then && then.CompleteTicks < HorizonTicks
             ? Relieve(then.Kind, Grow(afterFirst, growth, then.CompleteTicks - option.CompleteTicks), then.FoodRelief) : (NeedLevels?)null;
+        var wet = now.Wet;
         for (var sample = 0; sample < Samples; sample++)
         {
             var tick = (sample + 1) * SampleTicks;
@@ -115,9 +124,19 @@ public static class ActivityChooser
                 : first is { } after && tick >= option.CompleteTicks ? Grow(after, growth, tick - option.CompleteTicks) : Grow(now, growth, tick);
             if (tick > option.AwayTicks) score += musicPerSecond[sample];
             score -= Discomfort(levels);
+            var rainy = 0L;
+            if (rain is { } r)
+            {
+                // Under cover once they reach it, or in the poncho once it's bought; in the open otherwise.
+                var covered = r.Poncho || option.Kind is ActivityKind.Shelter or ActivityKind.Poncho && tick >= option.CompleteTicks;
+                var exposed = tick <= r.RainTicks && !covered;
+                wet = exposed ? Math.Min(10_000, wet + r.SoakPerSecond) : Math.Max(0, wet - (tick <= r.RainTicks ? r.DryCoveredPerSecond : r.DryOpenPerSecond));
+                rainy = WeatherRules.WetDiscomfort(wet) + (exposed ? r.ExposedPerSecond : 0);
+                score -= rainy;
+            }
             if (sample == Samples - 1)
             {
-                score -= Discomfort(levels) * TailSeconds;
+                score -= (Discomfort(levels) + rainy) * TailSeconds;
                 for (var beyond = SampleTicks; beyond <= committedTicks; beyond += SampleTicks)
                     if (InDistress(Grow(levels, growth, beyond))) score -= DistressPerSecond;
             }
@@ -127,7 +146,7 @@ public static class ActivityChooser
 
     /// <summary>All options, best first; ties keep the caller's option order.</summary>
     public static ActivityScore[] Rank(NeedLevels now, NeedGrowth growth, IReadOnlyList<long> musicPerSecond, IReadOnlyList<ActivityOption> options,
-        int committedTicks = 0) =>
-        options.Select((option, index) => (Score: new ActivityScore(option, Score(now, growth, musicPerSecond, option, committedTicks)), index))
+        int committedTicks = 0, RainOutlook? rain = null) =>
+        options.Select((option, index) => (Score: new ActivityScore(option, Score(now, growth, musicPerSecond, option, committedTicks, rain)), index))
             .OrderByDescending(item => item.Score.Score).ThenBy(item => item.index).Select(item => item.Score).ToArray();
 }
