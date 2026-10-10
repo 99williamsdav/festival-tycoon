@@ -90,17 +90,14 @@ public sealed class FoodTraderTests
     }
 
     [TestMethod]
-    public void SideBySideBetterOffGuestsLeanToPizzaThriftyOnesToChipsAndPizzaIsTheMorePopular()
+    public void PizzasAppealPaysForItsPriceAndItsLongerWaitAndMattersMoreToFreerSpenders()
     {
-        int pizza = 0, chips = 0;
-        for (var thrift = 0; thrift <= 100; thrift++)
-        {
-            var lean = GameSession.FoodWorth(ImmersionProduct.Pizza, thrift).CompareTo(GameSession.FoodWorth(ImmersionProduct.Chips, thrift));
-            if (lean > 0) pizza++; else if (lean < 0) chips++;
-        }
-        Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 0) > GameSession.FoodWorth(ImmersionProduct.Chips, 0), "The well-off pay for good food.");
-        Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 100) < GameSession.FoodWorth(ImmersionProduct.Chips, 100), "The thrifty buy cheap.");
-        Assert.IsTrue(pizza > chips && chips >= 20, $"Pizza's the more popular, but not with everyone: {pizza} lean to pizza, {chips} to chips.");
+        // Its longer service at the music's worth for a well-liked act (5,000 a second): what the walk-and-queue chooser
+        // weighs. The split this gives side by side (about 45% pizza) is the probe's, not this sum's.
+        var wait = (GameSession.ImmersionServiceDuration(ImmersionProduct.Pizza) - GameSession.ImmersionServiceDuration(ImmersionProduct.Chips)) * 5_000L / 80;
+        Assert.IsTrue(GameSession.FoodWorth(ImmersionProduct.Pizza, 50) - wait > GameSession.FoodWorth(ImmersionProduct.Chips, 50), "Worth the wait to the average guest.");
+        var lead = Enumerable.Range(0, 101).Select(thrift => GameSession.FoodWorth(ImmersionProduct.Pizza, thrift) - GameSession.FoodWorth(ImmersionProduct.Chips, thrift)).ToArray();
+        Assert.IsTrue(lead.Zip(lead.Skip(1)).All(pair => pair.First >= pair.Second) && lead[0] > lead[100], "The thriftier the guest, the less pizza's worth over chips.");
         Assert.IsTrue(GameSession.ImmersionPrice(ImmersionProduct.Pizza) > GameSession.ImmersionPrice(ImmersionProduct.Chips));
     }
 }

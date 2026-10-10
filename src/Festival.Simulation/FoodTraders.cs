@@ -15,9 +15,9 @@ namespace Festival.Simulation;
 /// <param name="PortionCostPennies">What a portion they sell costs them to make. They bring what they need, so nothing's wasted.
 /// Not shown to the player.</param>
 /// <param name="AppealPennies">How much more than plain chips the average guest would happily pay for it. Thriftier guests
-/// weigh the price more and lean to cheap food, freer spenders to good food; quoted at the crowd's mean thrift, so with
-/// appeal matching the price difference two vans side by side would split the crowd evenly. Pizza's is a little more than
-/// that: side by side, it would take about three guests in four.</param>
+/// weigh the price more and lean to cheap food, freer spenders to good food; quoted at the crowd's mean thrift. Guests
+/// weigh every second away from the music too, so a slower trader's appeal has to cover its wait as well as its price:
+/// pizza's and curry's do, and side by side with chips each takes a third to a half of the crowd.</param>
 /// <param name="FromTier">The first tier that can book them.</param>
 public sealed record FoodTrader(string Id, string Name, string Menu, ImmersionProduct Product, string Art, string Blurb, int PitchFeePennies, int ServicePermille,
     int PricePennies, int PortionCostPennies, int AppealPennies, int EnjoymentPercent = 100, int FillingPercent = 100, int FromTier = 1)
@@ -51,7 +51,7 @@ public static class FoodTraders
     public static readonly FoodTrader[] All =
     [
         new("trader.chip-off-the-old-block", "Chip Off The Old Block", "Chips", ImmersionProduct.Chips, "chip_block", "Quick, cheap and cheerful.", 4_000, 1_000, 300, 40, 0),
-        new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 450, 60, 175,
+        new("trader.pizza-the-action", "Pizza the Action", "Pizza", ImmersionProduct.Pizza, "pizza", "Wood-fired pizza. Pays more to pitch, but slower to serve.", 6_000, 2_500, 450, 60, PizzaAppealPennies,
             EnjoymentPercent: 140, FillingPercent: 115),
         new("trader.korma-chameleon", "Korma Chameleon", "Curry", ImmersionProduct.Curry, "korma",
             "Curry and rice. Slow from the pot, but it fills them up for the money. Hold the line: it's worth the wait.",
@@ -59,7 +59,9 @@ public static class FoodTraders
             EnjoymentPercent: CurryEnjoymentPercent, FillingPercent: CurryFillingPercent, FromTier: 2),
     ];
 
-    // Curry's numbers, named so the probe and DECISIONS.md can point at them.
+    // Pizza's appeal and curry's numbers, named so the probe and DECISIONS.md can point at them. Pizza's covers its 6 s
+    // longer service: at 1,300 it takes about 45% beside chips (MultiVendorProbe).
+    internal const int PizzaAppealPennies = 1_300;
     internal const int CurryPitchFeePennies = 3_000, CurryServicePermille = 1_750, CurryPricePennies = 500, CurryPortionCostPennies = 90,
         CurryAppealPennies = 450, CurryEnjoymentPercent = 130, CurryFillingPercent = 175;
 

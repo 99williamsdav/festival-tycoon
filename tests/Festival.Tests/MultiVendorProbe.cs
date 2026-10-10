@@ -3,19 +3,19 @@ using Festival.Simulation;
 
 namespace Festival.Tests;
 
-// Not a check: whole Tier 2 days with one bar and one van (the default) against two of each, Korma Chameleon at the
-// second van. Run on its own: --filter "TestCategory=Probe&FullyQualifiedName~MultiVendorProbe". Writes to PROBE_OUT if
-// set, else the test output.
+// Not a check: whole days with one or two of each stall, and each cuisine beside chips. Run on its own:
+// --filter "TestCategory=Probe&FullyQualifiedName~MultiVendorProbe". Writes to PROBE_OUT if set, else the test output.
 [TestClass]
 public sealed class MultiVendorProbe
 {
     public TestContext TestContext { get; set; } = null!;
 
-    // Default: Tier 2's default layout and plan (one bar, one chip van, 40/32 stock). DefaultDoubleStock: the same with
-    // 80/64. FourStalls: plus a second bar and Korma Chameleon at a second van (MultiVendorTests' spots), 80/64 and the
-    // bigger generator; WithBins adds a bin by each; NoGenerator leaves the farm diesel. SecondBarOnly and CurryVanOnly add
-    // just one of them. CurryInsteadOfChips: the default layout with curry at its one van.
-    private enum Layout { Default, DefaultDoubleStock, FourStalls, FourStallsWithBins, FourStallsNoGenerator, SecondBarOnly, CurryVanOnly, CurryInsteadOfChips }
+    // Every Tier 2 layout fills the free second medic slot. Default: Tier 2's default layout and plan (two bars, chips and
+    // curry, a bin by each new stall; 40/32 stock), on the pooled generators. DefaultDoubleStock: the same with 80/64.
+    // OneOfEach: without the second bar, second van and their bins (Tier 2's old default), 80/64. NoBins: the default less
+    // its two new bins, 80/64. PizzaBesideChips: the default with pizza at the second van, 80/64; NextToChips moves that van
+    // beside the chip van. TierOneChips and TierOnePizza: Tier 1's default with each at its one van.
+    private enum Layout { Default, DefaultDoubleStock, OneOfEach, NoBins, PizzaBesideChips, PizzaNextToChips, TierOneChips, TierOnePizza }
 
     [TestCategory("Probe")]
     [TestCategory("Slow")]
@@ -33,23 +33,29 @@ public sealed class MultiVendorProbe
         var report = new StringBuilder();
         report.AppendLine("layout,seed,status,deaths,collapses,stars,mood%,hungerClose,thirstClose,hungryClose,genWarnings,closeCash," +
             "drinksMaxQ,drinksMeanQ,drinksSales,drinksTake,drinks2MaxQ,drinks2MeanQ,drinks2Sales,drinks2Take," +
-            "foodTrader,foodMaxQ,foodMeanQ,foodSold,foodProfit,food2Trader,food2MaxQ,food2MeanQ,food2Sold,food2Profit,soldOutTick,moodMusic,moodFood,moodQueues,moodThirst,moodHeat,moodLitter,moodOther");
+            "foodTrader,foodMaxQ,foodMeanQ,foodSold,foodProfit,food2Trader,food2MaxQ,food2MeanQ,food2Sold,food2Profit,soldOutTick,moodMusic,moodFood,moodQueues,moodThirst,moodHeat,moodLitter,moodOther,peakDraw,capacity");
         foreach (var row in rows) report.AppendLine(row);
         if (Environment.GetEnvironmentVariable("PROBE_OUT") is { Length: > 0 } path) File.WriteAllText(path, report.ToString());
         TestContext.WriteLine(report.ToString());
     }
 
+    private const string Pizza = "trader.pizza-the-action";
+
     private static string Day(Layout layout, ulong seed)
     {
-        var s = layout is not (Layout.Default or Layout.DefaultDoubleStock or Layout.CurryInsteadOfChips)
-            ? MultiVendorTests.TierTwoWithFourStalls(seed, generator: layout != Layout.FourStallsNoGenerator, secondBar: layout != Layout.CurryVanOnly, curryVan: layout != Layout.SecondBarOnly, bins: layout == Layout.FourStallsWithBins)
-            : NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(seed, 2));
-        if (layout is Layout.DefaultDoubleStock or Layout.CurryInsteadOfChips) BuildSession.Accept(s, new SetPreparationStockCommand(80, 64));
-        if (layout == Layout.CurryInsteadOfChips) BuildSession.Accept(s, new ChooseFoodTraderCommand(MultiVendorTests.Curry.Id));
+        var tierOne = layout is Layout.TierOneChips or Layout.TierOnePizza;
+        var s = tierOne ? NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(seed, 1))
+            : layout == Layout.Default ? NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(seed, 2))
+            : MultiVendorTests.TierTwoWithFourStalls(seed, bins: layout != Layout.NoBins);
+        if (layout == Layout.Default) BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Medic)));
+        if (layout == Layout.OneOfEach) MultiVendorTests.TierTwoOneOfEach(s);
+        if (layout is Layout.PizzaBesideChips or Layout.PizzaNextToChips) BuildSession.Accept(s, new ChooseFoodTraderCommand(Pizza, "food.2"));
+        if (layout == Layout.PizzaNextToChips) BuildSession.Accept(s, new MoveBuildServiceCommand("food.2", new(140, 176), 3));
+        if (layout == Layout.TierOnePizza) BuildSession.Accept(s, new ChooseFoodTraderCommand(Pizza));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         var ids = new[] { "drinks", "drinks.2", "food", "food.2" };
         var maxQ = ids.ToDictionary(id => id, _ => 0); var sumQ = ids.ToDictionary(id => id, _ => 0L);
-        var samples = 0; var warnings = 0; var lastStage = EquipmentStage.Normal; long soldOut = -1;
+        var samples = 0; var warnings = 0; var lastStage = EquipmentStage.Normal; long soldOut = -1; var peak = 0;
         double hunger = 0, thirst = 0; var hungry = 0;
         var moods = new long[Enum.GetValues<MoodCause>().Length];
         var start = s.CurrentTick;
@@ -71,6 +77,7 @@ public sealed class MultiVendorProbe
                 thirst = s.CaptureMedical()!.Needs.Where(n => guests.Contains(n.AgentId)).Select(n => (double)n.Thirst).DefaultIfEmpty().Average();
             }
             if (s.CaptureEquipment() is { } e && e.Stage != lastStage) { if (e.Stage == EquipmentStage.Warning) warnings++; lastStage = e.Stage; }
+            peak = Math.Max(peak, s.CapturePower().Total);
         }
         var prep = s.CapturePreparation()!;
         var purchases = s.CaptureImmersion()!.Purchases;
@@ -88,7 +95,7 @@ public sealed class MultiVendorProbe
             prep.Result?.Stars?.ToString() ?? "-", $"{mood:0.0}", $"{hunger:0}", $"{thirst:0}", hungry, warnings,
             s.CaptureSnapshot().FestivalFinances.Single().CashPennies, Bar("drinks"), Bar("drinks.2"), Van("food"), Van("food.2"), soldOut,
             Mood(MoodCause.Music), Mood(MoodCause.FoodAndDrink), Mood(MoodCause.LongQueues), Mood(MoodCause.Thirst), Mood(MoodCause.Heat), Mood(MoodCause.LitterAndWasps),
-            moods.Sum() - new[] { MoodCause.Music, MoodCause.FoodAndDrink, MoodCause.LongQueues, MoodCause.Thirst, MoodCause.Heat, MoodCause.LitterAndWasps }.Sum(c => moods[(int)c]));
+            moods.Sum() - new[] { MoodCause.Music, MoodCause.FoodAndDrink, MoodCause.LongQueues, MoodCause.Thirst, MoodCause.Heat, MoodCause.LitterAndWasps }.Sum(c => moods[(int)c]), peak, s.CapturePower().Capacity);
         long Mood(MoodCause cause) => moods[(int)cause];
     }
 }
