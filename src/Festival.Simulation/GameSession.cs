@@ -462,6 +462,7 @@ public sealed partial class GameSession
             Equipment = CaptureEquipment(),
             LivePerformances = CapturePersistedLivePerformances(),
             StageGenerators = _stageGenerators?.ToArray(),
+            PerformanceRecords = _performanceRecords is null ? null : System.Text.Json.JsonSerializer.Deserialize<PerformanceRecord[]>(PerformanceRecordsCanonicalJson!),
             PondStageTrial = _pondStageTrial,
             Medical = CaptureMedical(),
             Facilities = CaptureFacilities(),
@@ -535,6 +536,8 @@ public sealed partial class GameSession
         for (var stage = 0; stage < (snapshot.LivePerformances?.Length ?? 0); stage++)
             session._livePerformances[stage] = snapshot.LivePerformances![stage] is null ? null : System.Text.Json.JsonSerializer.Deserialize<LivePerformanceSnapshot>(
                 System.Text.Json.JsonSerializer.Serialize(snapshot.LivePerformances[stage]));
+        session._performanceRecords = snapshot.PerformanceRecords is null ? null : System.Text.Json.JsonSerializer.Deserialize<PerformanceRecord[]>(
+            System.Text.Json.JsonSerializer.Serialize(snapshot.PerformanceRecords));
         session.MedicalView = snapshot.Medical is null ? null : System.Text.Json.JsonSerializer.Deserialize<MedicalSnapshot>(
             System.Text.Json.JsonSerializer.Serialize(snapshot.Medical));
         session._facilities = snapshot.Facilities is null ? null : System.Text.Json.JsonSerializer.Deserialize<FacilitiesSnapshot>(
@@ -611,6 +614,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (stageGeneratorError is not null) return stageGeneratorError;
         var livePerformanceError = ValidatePersistedLivePerformances(snapshot);
         if (livePerformanceError is not null) return livePerformanceError;
+        var performanceRecordError = ValidatePersistedPerformanceRecords(snapshot);
+        if (performanceRecordError is not null) return performanceRecordError;
         var immersionError = ValidatePersistedImmersion(snapshot);
         if (immersionError is not null) return immersionError;
         var medicalError = ValidatePersistedMedical(snapshot.Medical, snapshot);

@@ -121,6 +121,9 @@ public sealed record SessionPersistenceSnapshot(
     public LivePerformanceSnapshot?[]? LivePerformances { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public StageGeneratorSnapshot[]? StageGenerators { get; init; }
+    /// <summary>Every set that has ended this festival, in the order they ended.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PerformanceRecord[]? PerformanceRecords { get; init; }
     /// <summary>The campaign tries the Pond Stage before Tier 2.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool PondStageTrial { get; init; }

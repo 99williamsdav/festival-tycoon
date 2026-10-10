@@ -132,9 +132,12 @@ public static class ActCatalogue
         return reach <= AvailableReach ? ActStanding.Available : reach <= StretchReach ? ActStanding.Stretch : ActStanding.Locked;
     }
 
-    /// <summary>The fee this festival pays: stretch bookings cost half as much again.</summary>
-    public static int Fee(FestivalStanding standing, FestivalAct act) =>
-        StandingOf(standing, act) == ActStanding.Stretch ? act.PricePennies * 3 / 2 : act.PricePennies;
+    /// <summary>
+    /// The fee this festival pays: stretch bookings cost half as much again, then the act's relationship with you moves
+    /// it (<see cref="GigRules.Fee"/>).
+    /// </summary>
+    public static int Fee(FestivalStanding standing, FestivalAct act, int relationship = 0) =>
+        GigRules.Fee(StandingOf(standing, act) == ActStanding.Stretch ? act.PricePennies * 3 / 2 : act.PricePennies, relationship);
 
     /// <summary>The overall reputation at which this act would take a stretch booking, scene credibility unchanged.</summary>
     public static int ReputationNeeded(FestivalStanding standing, FestivalAct act) =>

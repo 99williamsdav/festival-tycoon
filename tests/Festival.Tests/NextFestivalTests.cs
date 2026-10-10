@@ -415,6 +415,9 @@ public sealed class NextFestivalTests
             }
         Assert.AreEqual(2, s.CaptureWaterPoints().Count);
         Assert.AreEqual(3, s.CaptureToilets().Count);
+        // Tier 1's bands come back on the offer with their fees moved, so this day's line-up is its own; like the other
+        // Tier 2 day it fills the free second medic slot, without which a hot day can lose someone waiting for treatment.
+        BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Medic)));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
 
         // Queues may borrow empty audience ground, but never a stage's reserve.

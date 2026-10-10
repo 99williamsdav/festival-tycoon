@@ -62,15 +62,18 @@ public sealed partial class GameSession
 
     /// <summary>
     /// The "Next festival" step: a fresh Preparation at the next tier on the same farm and campaign. Cash, debt,
-    /// Council Favour, the spent water share, owned kit, reputation, scene credibility, seen acts and the festival's
-    /// name and colours come forward; perks, staff, bookings, stock and the build start fresh.
+    /// Council Favour, the spent water share, owned kit, reputation, scene credibility, seen acts, each act's relationship
+    /// with you (moved by its set here) and the festival's name and colours come forward; perks, staff, bookings, stock and the build start fresh.
     /// </summary>
     public GameSession CreateNextFestival()
     {
         if (!CanStartNextFestival) throw new InvalidOperationException("Only a completed festival below the highest tier can open the next one.");
         var p = _preparation!;
-        return CreateLaterFestival(CampaignSeed, CampaignId, p.Tier + 1, CarryOverFrom(p),
+        var next = CreateLaterFestival(CampaignSeed, CampaignId, p.Tier + 1, CarryOverFrom(p),
             new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray()), p.SeenActs, _campaignPlanning!, _pondStageTrial);
+        // Each act's relationship as this festival's sets left it.
+        next.PreparationView = next.PreparationView! with { ActRelationships = GigRules.BetweenFestivals(RelationshipsAfterFestival, CampaignSeed, p.Tier + 1) };
+        return next;
     }
 
     private static GameSession CreateLaterFestival(ulong seed, CampaignId campaignId, int tier, FestivalCarryOver carry,

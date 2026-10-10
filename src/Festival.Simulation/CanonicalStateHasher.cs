@@ -309,6 +309,12 @@ internal static class CanonicalStateHasher
             writer.Write(stageId);
             writer.Write(livePerformance);
         }
+        // Every set that has ended this festival, in the order they ended.
+        if (session.PerformanceRecordsCanonicalJson is { } records)
+        {
+            writer.Write("r0-performance-records-v1");
+            writer.Write(records);
+        }
         if (session.MedicalCanonicalJson is { } medical)
         {
             writer.Write(session.DisorderCanonicalJson is null ? "r0-medical-v5" : "r0-medical-v6");

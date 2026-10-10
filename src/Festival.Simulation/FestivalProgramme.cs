@@ -69,27 +69,30 @@ public sealed partial class GameSession
     public const int FestivalSlotDurationTicks = 9_600;
     /// <summary>This run's offer: acts who will play for the festival now, then a few just out of reach.</summary>
     // A second stage needs six acts, so its shortlist offers four more.
+    // Acts you've played with before and who'll play for you now are always offered too: they know your number.
     public IReadOnlyList<FestivalAct> GetFestivalActs() => MainProgramme is not { } main ? [] :
-        ActCatalogue.Offer(Standing, CampaignSeed, _preparation?.Tier ?? 1, _preparation?.Plan?.ActIds ?? _programme!.Stages.SelectMany(q => q.ActIds),
+        ActCatalogue.Offer(Standing, CampaignSeed, _preparation?.Tier ?? 1, (_preparation?.Plan?.ActIds ?? _programme!.Stages.SelectMany(q => q.ActIds))
+                .Concat((_preparation?.ActRelationships ?? []).Select(item => item.ActId).Where(ActWillPlay)),
             ActCatalogue.ShortlistSize + (Stages.Count - 1) * 4);
     private static FestivalAct[] FestivalActs => ActCatalogue.All;
     /// <summary>The festival's reputation and scene credibility.</summary>
     public FestivalStanding Standing => _preparation is { } p ? new(p.Reputation, p.SceneCredibility.ToArray()) : FestivalStanding.New;
     public ActStanding ActStandingOf(FestivalAct act) => ActCatalogue.StandingOf(Standing, act);
     /// <summary>What this festival pays the act, including the stretch-booking premium.</summary>
-    public int ActFee(FestivalAct act) => ActCatalogue.Fee(Standing, act);
+    public int ActFee(FestivalAct act) => ActCatalogue.Fee(Standing, act, ActRelationship(act.Id));
     public int ActReputationNeeded(FestivalAct act) => ActCatalogue.ReputationNeeded(Standing, act);
     public int TicketPricePennies => FestivalTickets.PricePennies(_preparation?.Tier ?? 1);
     /// <summary>The act popularity this ticket price leads guests to expect.</summary>
     public int ExpectedPopularity => ActCatalogue.ExpectedPopularity(TicketPricePennies);
     /// <summary>
     /// A rebuilt baseline priced as this preparation paid: its standing before any completed festival
-    /// changed it, so act fees (and stretch premiums) match the recorded payments.
+    /// changed it and the relationships it opened with, so act fees (and stretch premiums) match the recorded payments.
     /// </summary>
     private GameSession WithPaymentStanding(PreparationSnapshot p)
     {
         var standing = p.StandingBefore ?? new(p.Reputation, p.SceneCredibility);
-        PreparationView = PreparationView! with { Reputation = standing.Reputation, SceneCredibility = standing.SceneCredibility.ToArray() };
+        PreparationView = PreparationView! with { Reputation = standing.Reputation, SceneCredibility = standing.SceneCredibility.ToArray(),
+            ActRelationships = p.ActRelationships };
         return this;
     }
     private bool ActWillPlay(string id) => ActCatalogue.Find(id) is { } act && ActStandingOf(act) != ActStanding.Locked;
@@ -189,11 +192,10 @@ public sealed partial class GameSession
                 _livePerformances[stage]?.Stage != LiveSetStage.Finished) return true;
         return false;
     }
-    public int FestivalAffinity(ulong id, FestivalAct act)
-    {
-        var main = _persons[id].ExpectedGenre;
-        return main == act.Genre ? 80 + (int)(id % 21) : 15 + (int)((id * 37 + (ulong)act.Genre * 17 + CampaignSeed) % 56);
-    }
+    public int FestivalAffinity(ulong id, FestivalAct act) => Affinity(CampaignSeed, id, _persons[id].ExpectedGenre, act);
+    /// <summary>How keen a guest who came for <paramref name="expectedGenre"/> is on an act, 0–100.</summary>
+    internal static int Affinity(ulong seed, ulong id, int expectedGenre, FestivalAct act) =>
+        expectedGenre == act.Genre ? 80 + (int)(id % 21) : 15 + (int)((id * 37 + (ulong)act.Genre * 17 + seed) % 56);
     private CommandResult? ValidateProgramme(EntityId? target, SetProgrammeCommand command)
     {
         if (target is not null || MainProgramme is not { } main || _preparation is not { Status: PreparationStatus.Preparing } p)

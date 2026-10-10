@@ -27,6 +27,18 @@ public sealed record LivePerformanceSnapshot(int Version, string StageId, LiveSe
     public ulong[] SetEndAudienceIds { get; init; } = [];
     /// <summary>What the set-end audience who have since gone to another stage had enjoyed of the set.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int SetEndEnjoymentAway { get; init; }
+    /// <summary>The most listeners at their places at once while the set played.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int PeakListeners { get; init; }
+    /// <summary>How many times the set stopped for lost power, and for a band member leaving their mark.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int PowerCuts { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int Stoppages { get; init; }
+    /// <summary>How many times the crowd booed a silent stage.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int Boos { get; init; }
+    /// <summary>The sound reaching the crowd, summed once a second while the set played, and how many seconds that was.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long SoundTotal { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int SoundSamples { get; init; }
+    /// <summary>A band member went down for medical help while the set was due or playing.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool MemberCollapsed { get; init; }
     [JsonIgnore] public int SetEndAudienceCount => SetEndAudienceIds.Length;
     [JsonIgnore] public int SetEndEnjoymentTotal => SetEndEnjoymentAway +
         Listeners.Where(listener => SetEndAudienceIds.Contains(listener.AgentId)).Sum(listener => listener.EnjoymentEarned);
@@ -141,6 +153,7 @@ public sealed partial class GameSession
             CurrentTick < live.PlannedTick) return;
         if (!periodic && live.Stage == LiveSetStage.Finished && !waypointArrival) return;
         var performers = live.Performers.ToArray();
+        var collapsed = live.MemberCollapsed;
         for (var i = 0; i < performers.Length; i++)
         {
             var performer = performers[i];
@@ -149,6 +162,9 @@ public sealed partial class GameSession
             if (MedicalOwnsNavigation(performer.AgentId))
             {
                 performers[i] = performer with { OnStage = false, InstrumentAttached = false };
+                // Down and waiting for a medic, not just off for water or a sit-down.
+                if (live.Stage != LiveSetStage.Finished && CurrentTick >= live.PlannedTick - LiveSetStageEntryLeadTicks &&
+                    HasClaim(performer.AgentId, PersonClaim.Collapsed | PersonClaim.AwaitingMedic)) collapsed = true;
                 continue;
             }
             var agent = _navigationAgents[new(performer.AgentId)];
@@ -288,6 +304,16 @@ public sealed partial class GameSession
             listeners[i] = listener.AtPlace == atPlace ? listener : listener with { AtPlace = atPlace };
         }
         if (rewardedPeople is not null) foreach (var person in rewardedPeople) SetPresence(person);
+        // The set's own record: its biggest crowd, and the sound it was played through.
+        var peak = live.PeakListeners;
+        var soundTotal = live.SoundTotal;
+        var soundSamples = live.SoundSamples;
+        var atPlaces = 0;
+        foreach (var listener in listeners) if (listener.AtPlace) atPlaces++;
+        if (periodic && live.Stage == LiveSetStage.Live) { soundTotal += SoundScoreAt(stage); soundSamples++; }
+        var powerCuts = live.PowerCuts;
+        var stoppages = live.Stoppages;
+        var boos = live.Boos;
         var stageState = live.Stage;
         var started = live.StartedTick;
         var ended = live.EndedTick;
@@ -310,6 +336,8 @@ public sealed partial class GameSession
                 stageState = LiveSetStage.Interrupted;
                 interrupted = CurrentTick;
                 reaction = (stage == 0 ? _equipment?.Stage is EquipmentStage.Isolated or EquipmentStage.Terminal : !StagePoweredAt(stage)) ? "silence" : "performer-unavailable";
+                // The power's gone however it went (a cut cable reads as a performer away above); else someone left their mark.
+                if (!StagePoweredAt(stage)) powerCuts++; else stoppages++;
                 sequence++;
             }
             else if (powered && stageState == LiveSetStage.Interrupted)
@@ -328,6 +356,7 @@ public sealed partial class GameSession
                     RecordMood(item.Id, Math.Max(0, item.Satisfaction - 100) - item.Satisfaction, MoodCause.MusicCutOff);
                 foreach (var person in people) SetPresence(person);
                 reaction = disappointed.Count >= 5 ? "sustained-boo" : "sustained-muted";
+                if (reaction == "sustained-boo") boos++;
                 sequence++;
             }
             if (CurrentTick >= StageProgramme(stage)!.SlotEndTick)
@@ -354,7 +383,12 @@ public sealed partial class GameSession
             : item with { InstrumentAttached = item.OnStage }).ToArray();
         _livePerformances[stage] = live with { Stage = stageState, StartedTick = started, EndedTick = ended,
             InterruptedTick = interrupted, ReactionSequence = sequence, LastReaction = reaction,
-            Performers = performers, Listeners = listeners, SetEndAudienceIds = setEndAudienceIds };
+            Performers = performers, Listeners = listeners, SetEndAudienceIds = setEndAudienceIds,
+            // Counted on any tick the set was on, including the one it started and the one it ended.
+            PeakListeners = live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted || stageState is LiveSetStage.Live or LiveSetStage.Interrupted
+                ? Math.Max(peak, atPlaces) : peak, PowerCuts = powerCuts, Stoppages = stoppages, Boos = boos, SoundTotal = soundTotal, SoundSamples = soundSamples,
+            MemberCollapsed = collapsed };
+        if (stageState == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished) RecordPerformance(stage, _livePerformances[stage]!);
         // An act that played is known from then on: its talent shows in the booking table.
         if (stageState == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished && started >= 0 && StageAct(stage) is { } played &&
             _preparation is { } seen && !seen.SeenActs.Contains(played.Id))
@@ -377,8 +411,12 @@ public sealed partial class GameSession
     {
         for (var stage = 0; stage < _livePerformances.Length; stage++)
             if (_livePerformances[stage] is { } live && live.Stage != LiveSetStage.Finished)
+            {
                 _livePerformances[stage] = live with { Stage = LiveSetStage.Finished, EndedTick = CurrentTick,
                     Performers = live.Performers.Select(item => item with { OnStage = false, InstrumentAttached = false }).ToArray() };
+                // A set that wasn't due yet never happened, so there's nothing to write down.
+                if (CurrentTick >= live.PlannedTick) RecordPerformance(stage, _livePerformances[stage]!);
+            }
     }
 
     /// <summary>The stage whose current band this person is in; -1 for none.</summary>
@@ -521,7 +559,12 @@ public sealed partial class GameSession
         foreach (var live in present)
             if (live.SetEndAudienceIds.Any(id => !live.Listeners.Any(listener => listener.AgentId == id) && !listeners.Contains(id)) ||
                 live.SetEndEnjoymentAway < 0 || live.SetEndEnjoymentAway > 0 && live.SetEndAudienceIds.All(id => live.Listeners.Any(listener => listener.AgentId == id)) ||
-                live.SetEndEnjoymentAway > live.SetEndAudienceIds.Length * (FestivalSlotDurationTicks / 80 * 30))
+                live.SetEndEnjoymentAway > live.SetEndAudienceIds.Length * (FestivalSlotDurationTicks / 80 * 30) ||
+                // The set's own record: none of it before the set starts, and its numbers within the crowd and the set.
+                live.PeakListeners < live.SetEndAudienceIds.Length || live.PeakListeners > guests.Length ||
+                live.PowerCuts < 0 || live.Stoppages < 0 || live.Boos < 0 || live.Boos > live.PowerCuts + live.Stoppages ||
+                live.SoundSamples < 0 || live.SoundSamples > FestivalSlotDurationTicks / 80 + 1 || live.SoundTotal < 0 || live.SoundTotal > 100L * live.SoundSamples ||
+                live.StartedTick < 0 && (live.PeakListeners != 0 || live.PowerCuts + live.Stoppages + live.Boos + live.SoundSamples != 0))
                 return invalid;
         return null;
     }
