@@ -435,12 +435,14 @@ public sealed partial class GameSession
             Phase = SessionPhase.Egress;
             // Nobody spreads straw on the way home.
             EndStrawJob(false);
+            ReleaseStewardControl();
             StartImmersionDeparture();
         }
     }
 
     private void RetryPreparedWeekend()
     {
+        ReleaseStewardControl();
         _litter = EmptyLitter;
         _faults = EmptyFaults;
         _cows = EmptyCows;

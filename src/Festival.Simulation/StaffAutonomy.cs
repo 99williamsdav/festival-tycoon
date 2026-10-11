@@ -9,6 +9,7 @@ public sealed partial class GameSession
     {
         if (PersonIn(PersonView.Roster, id) is not { Admitted: true, Departed: false })
             return "Not physically on duty.";
+        if (IsPlayerSteward(id)) return "On shift under your control.";
         if (PersonCollapsed(id) || GetStewardResponses().Any(job => job.WorkerId == id && job.Incapacitated) || DisorderOwnsNavigation(id))
             return "Incapacitated or in an active confrontation.";
         if (HasClaim(id, PersonClaims.ResponseAssigned))

@@ -24,6 +24,9 @@ public sealed class SpatialNeighbourIndex
         bucket.Sort((left, right) => left.Id.CompareTo(right.Id));
     }
 
+    /// <summary>Every point, bucket by bucket in a fixed order.</summary>
+    public IEnumerable<(EntityId Id, int X, int Z)> Points => _buckets.Values.SelectMany(bucket => bucket);
+
     public IReadOnlyList<EntityId> Query(int xMillimetres, int zMillimetres, int radiusMillimetres)
     {
         ArgumentOutOfRangeException.ThrowIfNegative(radiusMillimetres);

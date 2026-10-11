@@ -93,6 +93,9 @@ public sealed record SessionPersistenceSnapshot(
     /// <summary>A rainy festival's showers, wet people, straw store and straw spreading; null in a heatwave.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public WeatherSnapshot? Weather { get; init; }
+    /// <summary>The steward shift prototype's player and input; null in an ordinary campaign.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public StewardShiftSnapshot? StewardShift { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public PerkSnapshot? Perks { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

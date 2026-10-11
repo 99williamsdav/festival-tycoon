@@ -48,7 +48,7 @@ public sealed partial class GameSession
     /// gone home and no death or Council ending, unlocks the next tier. A failed festival keeps the hearing and retry.
     /// </summary>
     public bool CanStartNextFestival => _preparation is { Status: PreparationStatus.Finished, Result: not null } p &&
-        p.Tier < HighestTier && !IsLifecycleEditionFrozen() && _campaignPlanning is not null;
+        p.Tier < HighestTier && !IsLifecycleEditionFrozen() && _campaignPlanning is not null && _stewardShift is null;
 
     /// <summary>What this completed festival would carry into the next one.</summary>
     public FestivalCarryOver? NextFestivalCarryOver => !CanStartNextFestival ? null : CarryOverFrom(_preparation!);

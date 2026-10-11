@@ -32,7 +32,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Staff interventions require a live edition.");
         var need = PersonIn(PersonView.Medical, command.GuestId);
         var worker = GetResponseStaff().SingleOrDefault(item => item.AgentId == command.WorkerId);
-        if (need is null || worker is null || command.GuestId == command.WorkerId)
+        if (need is null || worker is null || command.GuestId == command.WorkerId || IsPlayerSteward(command.WorkerId) || IsPlayerSteward(command.GuestId))
             return CommandResult.Rejected(CommandReasonCode.UnknownTarget, "Choose an affected person and a contracted responder.");
         if (PersonIn(PersonView.Roster, command.GuestId) is not { Admitted: true, Departed: false } ||
             PersonIn(PersonView.Roster, command.WorkerId) is not { Admitted: true, Departed: false } || PersonCollapsed(command.WorkerId))

@@ -259,6 +259,10 @@ public sealed partial class GameSession
                 affectedTarget = disorder.PersonId is { } personId ? new EntityId(personId) : null;
                 ApplyDisorderCommand(disorder);
                 break;
+            case SetPlayerMoveCommand move:
+                affectedTarget = new(_stewardShift!.PlayerId!.Value);
+                ApplyPlayerMove(move);
+                break;
 
             default:
                 return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported.");
@@ -315,6 +319,7 @@ public sealed partial class GameSession
             }
             var navigationStart = Stopwatch.GetTimestamp();
             ScaleDiagnosticProbe?.SetPhase(DiagnosticPhase.Navigation);
+            AdvancePlayerSteward();
             AdvanceNavigation(events);
             ScaleDiagnosticProbe?.AddNavigation(Stopwatch.GetTimestamp() - navigationStart);
             var queueStart = Stopwatch.GetTimestamp();
@@ -487,6 +492,7 @@ public sealed partial class GameSession
             Cows = CaptureCows(),
             LavSucker = CaptureLavSucker(),
             Weather = CaptureWeather(),
+            StewardShift = _stewardShift,
         };
 
     public static SessionRestoreResult Restore(SessionPersistenceSnapshot snapshot)
@@ -566,6 +572,7 @@ public sealed partial class GameSession
         session._lavSucker = snapshot.LavSucker is null ? null : System.Text.Json.JsonSerializer.Deserialize<LavSuckerSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.LavSucker));
         session.RestoreGround(snapshot.Ground);
         session.RestoreWeather(snapshot.Weather);
+        session._stewardShift = snapshot.StewardShift;
         var actualHash = CanonicalStateHasher.Compute(session);
         if (string.Equals(actualHash, snapshot.AuthoritativeHash, StringComparison.Ordinal)) return SessionRestoreResult.Success(session);
         return SessionRestoreResult.Failure($"Authoritative state hash mismatch after reconstruction: expected {snapshot.AuthoritativeHash}, got {actualHash}.");
@@ -650,6 +657,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (groundError is not null) return groundError;
         var weatherError = ValidatePersistedWeather(snapshot);
         if (weatherError is not null) return weatherError;
+        var shiftError = ValidatePersistedStewardShift(snapshot);
+        if (shiftError is not null) return shiftError;
         var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
             .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();
         if (ownedEntityIds.Distinct().Count() != ownedEntityIds.Length || ownedEntityIds.Any(id => id >= snapshot.NextEntityId))
@@ -745,7 +754,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand or AcknowledgeFestivalChallengeCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (AcknowledgeFestivalChallengeCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand))
+        if (_preparation is not null && envelope.Command is not (AcknowledgeFestivalChallengeCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or SetPlayerMoveCommand or StewardActionCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -769,6 +778,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
             HerdCowCommand herd => ValidateHerdCow(envelope.TargetId, herd),
             CallLavSuckerCommand lav => ValidateCallLavSucker(envelope.TargetId, lav),
             SetFreeWaterCommand freeWater => ValidateFreeWaterCommand(envelope.TargetId, freeWater),
+            SetPlayerMoveCommand move => ValidatePlayerMove(envelope.TargetId, move),
+            StewardActionCommand action => ValidateStewardAction(envelope.TargetId, action),
             SetProgrammeCommand programme => ValidateProgramme(envelope.TargetId, programme),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>

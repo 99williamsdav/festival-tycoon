@@ -391,7 +391,8 @@ public sealed partial class GameSession
     private ulong? FindDisorderOpponent(ulong actorId)
     {
         var actor = _navigationAgents[new(actorId)];
-        return PeopleIn(PersonView.Disorder).Where(item => item.Id != actorId &&
+        // Nobody picks a fight with the player's steward until the mechanics say how that goes.
+        return PeopleIn(PersonView.Disorder).Where(item => item.Id != actorId && !IsPlayerSteward(item.Id) &&
                 item.ConductStage is not (DisorderStage.Injured or DisorderStage.Fight) &&
                 !PeopleIn(PersonView.Disorder).Any(other => other.ConductStage == DisorderStage.Fight && other.OpponentId == item.Id) &&
                 PersonIn(PersonView.Roster, item.Id) is { Admitted: true, Departed: false })

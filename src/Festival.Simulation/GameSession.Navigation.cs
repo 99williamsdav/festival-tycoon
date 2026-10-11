@@ -63,6 +63,8 @@ public sealed partial class GameSession
 
     private void ApplyAgentDestination(EntityId agentId, SetAgentDestinationCommand command, bool avoidanceReplan = false)
     {
+        // Only the player moves the player's steward.
+        if (IsPlayerSteward(agentId.Value)) return;
         var agent = _navigationAgents[agentId];
         if (!command.IntentId.StartsWith("litter.", StringComparison.Ordinal))
         {
