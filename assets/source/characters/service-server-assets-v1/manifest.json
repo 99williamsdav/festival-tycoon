@@ -1,0 +1,645 @@
+{
+  "assets": {
+    "lwf_server_bar_male_v1": {
+      "sha256": "4b8ed304ee4d23a00778997dc8ed685d9cd8b3d4e14023a67e8b3472ffc82133",
+      "bytes": 294312,
+      "triangles": 1836,
+      "surfaces": 3,
+      "animations": [
+        "server_idle",
+        "server_turn",
+        "server_pickup",
+        "server_offer",
+        "server_retract",
+        "server_reset",
+        "server_offer_soft"
+      ],
+      "bones": 17,
+      "materials": 1,
+      "role": "bar",
+      "sex": "male",
+      "clips": {
+        "server_idle": {
+          "frames": 97,
+          "duration_s": 4.0,
+          "loop": true,
+          "godot_duration_s": 4.04166650772095
+        },
+        "server_turn": {
+          "frames": 9,
+          "duration_s": 0.3333333333333333,
+          "loop": false,
+          "godot_duration_s": 0.375
+        },
+        "server_pickup": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_offer": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_retract": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_reset": {
+          "frames": 25,
+          "duration_s": 1.0,
+          "loop": false,
+          "godot_duration_s": 1.04166662693024
+        },
+        "server_offer_soft": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        }
+      },
+      "body_geometry_sha256": "0bd9fd7111525b846e6e4bbad4df7f8a9498ccfce2597dc0abbf730d56a52e17",
+      "max_arm_reach_fraction": 0.8642405667044696,
+      "source_blend_sha256": "666e6de58020ed0922e619762978ed648cce94e24a5fdea0d529422977c3997f",
+      "socket": "LWF_RightHand_Cup",
+      "pickup_local_godot": [
+        0.19,
+        1.35,
+        -0.28
+      ],
+      "offer_local_godot": [
+        0.19,
+        1.365,
+        -0.44
+      ],
+      "vendor_root_position": [
+        0.35,
+        0,
+        0.3
+      ],
+      "vendor_yaw_rad": 3.141592653589793
+    },
+    "lwf_server_bar_female_v1": {
+      "sha256": "eaef46127217b28db9c4da96a306629c046e609b7e646e18ee7e860d83b6f895",
+      "bytes": 387276,
+      "triangles": 2652,
+      "surfaces": 3,
+      "animations": [
+        "server_idle",
+        "server_turn",
+        "server_pickup",
+        "server_offer",
+        "server_retract",
+        "server_reset",
+        "server_offer_soft"
+      ],
+      "bones": 17,
+      "materials": 1,
+      "role": "bar",
+      "sex": "female",
+      "clips": {
+        "server_idle": {
+          "frames": 97,
+          "duration_s": 4.0,
+          "loop": true,
+          "godot_duration_s": 4.04166650772095
+        },
+        "server_turn": {
+          "frames": 9,
+          "duration_s": 0.3333333333333333,
+          "loop": false,
+          "godot_duration_s": 0.375
+        },
+        "server_pickup": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_offer": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_retract": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_reset": {
+          "frames": 25,
+          "duration_s": 1.0,
+          "loop": false,
+          "godot_duration_s": 1.04166662693024
+        },
+        "server_offer_soft": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        }
+      },
+      "body_geometry_sha256": "9374268c46f00021e923d04e3c28a87eee99a4109cee223ae302328a55bded0a",
+      "max_arm_reach_fraction": 0.9357589725651089,
+      "source_blend_sha256": "d6dd0f776e601b1073688c4dee2f03bd7613a45d962a7de9ea004f225422832f",
+      "socket": "LWF_RightHand_Cup",
+      "pickup_local_godot": [
+        0.17,
+        1.35,
+        -0.28
+      ],
+      "offer_local_godot": [
+        0.17,
+        1.365,
+        -0.44
+      ],
+      "vendor_root_position": [
+        0.35,
+        0,
+        0.3
+      ],
+      "vendor_yaw_rad": 3.141592653589793
+    },
+    "lwf_server_food_male_v1": {
+      "sha256": "142d14414b781dcee00461da4d54cb26e26e314ff90db811bcf41ffaabf81b6d",
+      "bytes": 288712,
+      "triangles": 1883,
+      "surfaces": 4,
+      "animations": [
+        "server_idle",
+        "server_turn",
+        "server_pickup",
+        "server_offer",
+        "server_retract",
+        "server_reset"
+      ],
+      "bones": 17,
+      "materials": 1,
+      "role": "food",
+      "sex": "male",
+      "clips": {
+        "server_idle": {
+          "frames": 97,
+          "duration_s": 4.0,
+          "loop": true,
+          "godot_duration_s": 4.04166650772095
+        },
+        "server_turn": {
+          "frames": 9,
+          "duration_s": 0.3333333333333333,
+          "loop": false,
+          "godot_duration_s": 0.375
+        },
+        "server_pickup": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_offer": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_retract": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_reset": {
+          "frames": 25,
+          "duration_s": 1.0,
+          "loop": false,
+          "godot_duration_s": 1.04166662693024
+        }
+      },
+      "body_geometry_sha256": "0bd9fd7111525b846e6e4bbad4df7f8a9498ccfce2597dc0abbf730d56a52e17",
+      "max_arm_reach_fraction": 0.925140753421003,
+      "source_blend_sha256": "666e6de58020ed0922e619762978ed648cce94e24a5fdea0d529422977c3997f",
+      "socket": "LWF_RightHand_Food",
+      "pickup_local_godot": [
+        0.19,
+        1.1,
+        -0.28
+      ],
+      "offer_local_godot": [
+        0.19,
+        1.115,
+        -0.44
+      ],
+      "vendor_root_position": [
+        0,
+        0.47,
+        0.88
+      ],
+      "vendor_yaw_rad": 3.141592653589793
+    },
+    "lwf_server_food_female_v1": {
+      "sha256": "eda439344f845eca42a1ec959697e8c730a10efa62531b4a0116ebbbb4851821",
+      "bytes": 342428,
+      "triangles": 2363,
+      "surfaces": 4,
+      "animations": [
+        "server_idle",
+        "server_turn",
+        "server_pickup",
+        "server_offer",
+        "server_retract",
+        "server_reset"
+      ],
+      "bones": 17,
+      "materials": 1,
+      "role": "food",
+      "sex": "female",
+      "clips": {
+        "server_idle": {
+          "frames": 97,
+          "duration_s": 4.0,
+          "loop": true,
+          "godot_duration_s": 4.04166650772095
+        },
+        "server_turn": {
+          "frames": 9,
+          "duration_s": 0.3333333333333333,
+          "loop": false,
+          "godot_duration_s": 0.375
+        },
+        "server_pickup": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_offer": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_retract": {
+          "frames": 13,
+          "duration_s": 0.5,
+          "loop": false,
+          "godot_duration_s": 0.541666686534882
+        },
+        "server_reset": {
+          "frames": 25,
+          "duration_s": 1.0,
+          "loop": false,
+          "godot_duration_s": 1.04166662693024
+        }
+      },
+      "body_geometry_sha256": "9374268c46f00021e923d04e3c28a87eee99a4109cee223ae302328a55bded0a",
+      "max_arm_reach_fraction": 0.9114267291227893,
+      "source_blend_sha256": "d6dd0f776e601b1073688c4dee2f03bd7613a45d962a7de9ea004f225422832f",
+      "socket": "LWF_RightHand_Food",
+      "pickup_local_godot": [
+        0.17,
+        1.1,
+        -0.28
+      ],
+      "offer_local_godot": [
+        0.17,
+        1.115,
+        -0.44
+      ],
+      "vendor_root_position": [
+        0,
+        0.47,
+        0.88
+      ],
+      "vendor_yaw_rad": 3.141592653589793
+    },
+    "lwf_food_van_chassis_open_service_v1": {
+      "sha256": "3c690412de6b8ce72465e57764ca5902c2f04a5f6264f9448555450646032d72",
+      "bytes": 39052,
+      "triangles": 370,
+      "surfaces": 1,
+      "animations": [],
+      "bones": 0,
+      "materials": 1,
+      "source": "game/assets/environment/lwf_food_van_chassis_v1.glb",
+      "source_sha256": "40f67435b506b0e127588e518a53d04c69de224f09599354674cbfa95ddf36bb",
+      "removed_polygons": [
+        {
+          "polygon": 4,
+          "reason": "solid front wall",
+          "vertices_godot": [
+            [
+              0.0,
+              0.4300000071525574,
+              1.100000023841858
+            ],
+            [
+              0.0,
+              2.609999895095825,
+              1.100000023841858
+            ],
+            [
+              4.199999809265137,
+              2.609999895095825,
+              1.100000023841858
+            ]
+          ]
+        },
+        {
+          "polygon": 5,
+          "reason": "solid front wall",
+          "vertices_godot": [
+            [
+              0.0,
+              0.4300000071525574,
+              1.100000023841858
+            ],
+            [
+              4.199999809265137,
+              2.609999895095825,
+              1.100000023841858
+            ],
+            [
+              4.199999809265137,
+              0.4300000071525574,
+              1.100000023841858
+            ]
+          ]
+        },
+        {
+          "polygon": 36,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              0.8999999761581421,
+              1.2100000381469727,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              1.2100000381469727,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              1.2100000381469727,
+              1.0924999713897705
+            ]
+          ]
+        },
+        {
+          "polygon": 37,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              0.8999999761581421,
+              1.2100000381469727,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              1.2100000381469727,
+              1.0924999713897705
+            ],
+            [
+              0.8999999761581421,
+              1.2100000381469727,
+              1.0924999713897705
+            ]
+          ]
+        },
+        {
+          "polygon": 38,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              0.8999999761581421,
+              2.2300000190734863,
+              1.1375000476837158
+            ],
+            [
+              0.8999999761581421,
+              2.2300000190734863,
+              1.0924999713897705
+            ],
+            [
+              3.4000000953674316,
+              2.2300000190734863,
+              1.0924999713897705
+            ]
+          ]
+        },
+        {
+          "polygon": 39,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              0.8999999761581421,
+              2.2300000190734863,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              2.2300000190734863,
+              1.0924999713897705
+            ],
+            [
+              3.4000000953674316,
+              2.2300000190734863,
+              1.1375000476837158
+            ]
+          ]
+        },
+        {
+          "polygon": 40,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              0.8999999761581421,
+              1.2100000381469727,
+              1.1375000476837158
+            ],
+            [
+              0.8999999761581421,
+              2.2300000190734863,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              2.2300000190734863,
+              1.1375000476837158
+            ]
+          ]
+        },
+        {
+          "polygon": 41,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              0.8999999761581421,
+              1.2100000381469727,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              2.2300000190734863,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              1.2100000381469727,
+              1.1375000476837158
+            ]
+          ]
+        },
+        {
+          "polygon": 42,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              3.4000000953674316,
+              1.2100000381469727,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              2.2300000190734863,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              2.2300000190734863,
+              1.0924999713897705
+            ]
+          ]
+        },
+        {
+          "polygon": 43,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              3.4000000953674316,
+              1.2100000381469727,
+              1.1375000476837158
+            ],
+            [
+              3.4000000953674316,
+              2.2300000190734863,
+              1.0924999713897705
+            ],
+            [
+              3.4000000953674316,
+              1.2100000381469727,
+              1.0924999713897705
+            ]
+          ]
+        },
+        {
+          "polygon": 44,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              3.4000000953674316,
+              1.2100000381469727,
+              1.0924999713897705
+            ],
+            [
+              3.4000000953674316,
+              2.2300000190734863,
+              1.0924999713897705
+            ],
+            [
+              0.8999999761581421,
+              2.2300000190734863,
+              1.0924999713897705
+            ]
+          ]
+        },
+        {
+          "polygon": 45,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              3.4000000953674316,
+              1.2100000381469727,
+              1.0924999713897705
+            ],
+            [
+              0.8999999761581421,
+              2.2300000190734863,
+              1.0924999713897705
+            ],
+            [
+              0.8999999761581421,
+              1.2100000381469727,
+              1.0924999713897705
+            ]
+          ]
+        },
+        {
+          "polygon": 46,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              0.8999999761581421,
+              2.2300000190734863,
+              1.1375000476837158
+            ],
+            [
+              0.8999999761581421,
+              1.2100000381469727,
+              1.1375000476837158
+            ],
+            [
+              0.8999999761581421,
+              1.2100000381469727,
+              1.0924999713897705
+            ]
+          ]
+        },
+        {
+          "polygon": 47,
+          "reason": "dark hatch panel",
+          "vertices_godot": [
+            [
+              0.8999999761581421,
+              2.2300000190734863,
+              1.1375000476837158
+            ],
+            [
+              0.8999999761581421,
+              1.2100000381469727,
+              1.0924999713897705
+            ],
+            [
+              0.8999999761581421,
+              2.2300000190734863,
+              1.0924999713897705
+            ]
+          ]
+        }
+      ],
+      "replacement_front_rectangles": 4,
+      "opening_assembly_godot": {
+        "x": [
+          0.9,
+          3.4
+        ],
+        "y": [
+          1.21,
+          2.23
+        ],
+        "front_z": 1.1
+      },
+      "unchanged": "all other polygons, UVs, materials, origin, counter, chassis, roof, wheels, supports; fascia/sign modules remain separate"
+    }
+  },
+  "units": "metres",
+  "forward": "Godot -Z",
+  "fps": 24
+}

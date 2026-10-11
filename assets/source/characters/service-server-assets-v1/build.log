@@ -1,0 +1,84 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\references\male.blend"
+Info: Total files 4 | Changed 3 | Failed 0
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\references\female.blend"
+Info: Total files 4 | Changed 3 | Failed 0
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\references\male.blend"
+Info: Total files 4 | Changed 3 | Failed 0
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\references\female.blend"
+Info: Total files 4 | Changed 3 | Failed 0
+Info: Total files 0 | Changed 0 | Failed 0
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+20:42:10 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+20:42:10 | INFO: Starting glTF 2.0 export
+20:42:10 | INFO: Extracting primitive: LWF_Attendee_Body
+20:42:10 | INFO: Primitives created: 1
+20:42:10 | INFO: Extracting primitive: LWF_Hair_Default
+20:42:10 | INFO: Primitives created: 1
+20:42:10 | INFO: Extracting primitive: LWF_Server_Apron
+20:42:10 | INFO: Primitives created: 1
+20:42:10 | INFO: Finished glTF 2.0 export in 0.22279810905456543 s
+
+Info: Saved "lwf_server_bar_male_v1.blend"
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+20:42:11 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+20:42:11 | INFO: Starting glTF 2.0 export
+20:42:11 | INFO: Extracting primitive: LWF_Attendee_Body
+20:42:11 | INFO: Primitives created: 1
+20:42:11 | INFO: Extracting primitive: LWF_Hair_Default
+20:42:11 | INFO: Primitives created: 1
+20:42:11 | INFO: Extracting primitive: LWF_Server_Apron
+20:42:11 | INFO: Primitives created: 1
+20:42:11 | INFO: Finished glTF 2.0 export in 0.374222993850708 s
+
+Info: Saved "lwf_server_bar_female_v1.blend"
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+20:42:11 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+20:42:11 | INFO: Starting glTF 2.0 export
+20:42:11 | INFO: Extracting primitive: LWF_Attendee_Body
+20:42:11 | INFO: Primitives created: 1
+20:42:11 | INFO: Extracting primitive: LWF_Hair_Default.001
+20:42:11 | INFO: Primitives created: 1
+20:42:11 | INFO: Extracting primitive: LWF_Hat_Cap
+20:42:11 | INFO: Primitives created: 1
+20:42:11 | INFO: Extracting primitive: LWF_Server_Apron
+20:42:11 | INFO: Primitives created: 1
+20:42:12 | INFO: Finished glTF 2.0 export in 0.3242952823638916 s
+
+Info: Saved "lwf_server_food_male_v1.blend"
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+20:42:12 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+20:42:12 | INFO: Starting glTF 2.0 export
+20:42:12 | INFO: Extracting primitive: LWF_Attendee_Body
+20:42:12 | INFO: Primitives created: 1
+20:42:12 | INFO: Extracting primitive: LWF_Hair_Default.001
+20:42:12 | INFO: Primitives created: 1
+20:42:12 | INFO: Extracting primitive: LWF_Hat_Cap
+20:42:12 | INFO: Primitives created: 1
+20:42:12 | INFO: Extracting primitive: LWF_Server_Apron
+20:42:12 | INFO: Primitives created: 1
+20:42:12 | INFO: Finished glTF 2.0 export in 0.31844496726989746 s
+
+Info: Saved "lwf_server_food_female_v1.blend"
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+20:42:13 | INFO: Draco mesh compression is available, use library at C:\Program Files\Blender Foundation\Blender 4.1\4.1\python\lib\site-packages\extern_draco.dll
+20:42:13 | INFO: Starting glTF 2.0 export
+20:42:13 | INFO: Extracting primitive: FoodVanOpenedChassis
+20:42:13 | INFO: Primitives created: 1
+20:42:13 | INFO: Finished glTF 2.0 export in 0.0060498714447021484 s
+
+Info: Saved "lwf_food_van_chassis_open_service_v1.blend"
+SERVER BUILD COMPLETE
+
+Blender quit

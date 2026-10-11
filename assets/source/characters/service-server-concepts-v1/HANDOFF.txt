@@ -1,0 +1,56 @@
+SERVICE SERVER CONCEPTS V1 — 2026-10-10
+STATUS UPDATE 2026-10-10: User approved A for both roles and authorized build plus integration, including opening the food-van hatch, relayed by established coordinator. Original concept sheets/prompts preserved. The concept-stage restrictions below are historical; the approved asset build is delivered separately in ../service-server-assets-v1. Builder owns integration. This concept package itself contains no implementation.
+
+DELIVERABLES
+bar-outfit-options.png — A teal bib/cream tee (recommended); B canvas waist/sage shirt.
+food-outfit-options.png — A canvas bib/sage tee and cap (recommended); B teal bib/cream overshirt.
+bar-pose-study.png — idle, turn, pickup, offer, reset; upright beer/soft cup grip.
+food-pose-study.png — idle, turn, pickup, offer, reset; flat tray/palm support.
+food-pose-study-initial.png — preserved superseded initial sheet, not final review.
+review.html — original sheets at full resolution with captions.
+PROMPTS.txt and REVISION-PROMPT.txt — exact built-in imagegen prompts.
+asset-measurements.json and inspect_runtime.py — read-only inspection of existing game GLBs.
+REFERENCES.json — reference and current-asset paths/hashes.
+PROVENANCE-sha256.json — delivered file hashes.
+
+DESIGN RECOMMENDATION — CHOICES, NOT APPROVAL
+Bar A: cream short sleeve tee, deep teal thigh-length bib, one broad pocket, small mustard tab, charcoal trousers/shoes, existing hair. Upper apron remains readable above timber.
+Food A: sage tee and existing modest cap silhouette, light canvas bib, broad pocket and small teal tab, charcoal trousers/shoes. Related colour family but inverse light/dark balance gives each role a clear identity.
+Keep exactly the approved existing adult male/female bodies, facial style, body scale and bone layout. Outfit variants do not create gender mechanics. Reuse existing cap/under-cap hair in any approved build; the generated long-hair depiction is not a new hair asset. No children.
+Aprons should be static skinned/simple geometry, no cloth simulation. The mustard/teal detail may disappear at distant zoom; identity must survive through broad colour blocks.
+
+MEASURED CONTEXT — METRES, GODOT COORDINATES
+Read current game/assets GLBs, not only old proposal documents. Blender import coordinates converted X,Z,-Y. Per-component bounds in asset-measurements.json reflect split mesh vertices; rig helper Icosphere entries are import helpers, NOT body bounds.
+Body mesh rest bounds: male y0.00126..1.72790; female y0.00125..1.65767, before hair/cap. Keep scale1. Both rigs face local -Z, ground-centred. Vendors face local +Z, so an internally authored forward-facing server needs yaw PI relative to vendor unless its animation basis is explicitly changed.
+Bar front countertop: y1.10, x+-1.3845, z0.46875..0.95625; depth0.4875. Rear shelf top1.055. Sign y2.035..2.61 and front z1.04625..1.1175 can occlude server from raised cameras. Do not move canopy/sign to fake visibility.
+Food vendor assembly offset (-2.15,0,0); chassis authored in assembly coordinates. Counter assembly x0.79..3.51 -> vendor x-1.36..1.36; y1.235 top, z1.10..1.50. Counter depth0.40.
+Apparent dark hatch assembly x0.90..3.40 -> vendor x-1.25..1.25, y1.21..2.23, z1.0925..1.1375.
+IMPORTANT: current chassis has an uncut front wall at z1.10, x0..4.20, y0.43..2.61, AND a solid dark rectangular hatch panel. This is not an actual opening. Placing a server inside alone will not make them visible. Concept sheets depict a visibility overlay/cutaway only. A later brief must explicitly resolve this asset dependency while retaining the external design; no wall/hatch changes authorized or made here. Do not hide this with arbitrary root placement through the panel.
+Body floor plane at y0.43 and chassis base top y0.47 (base spans z+-0.95). Proposed foot support y0.47 uses that base height but is not a verified habitable interior. Male head top then about2.198 before hair/cap, close to apparent hatch top2.23. Keep head behind upper frame, test cap clearance/occlusion; do not scale the body down or pretend the full head fits through the aperture. Roof/body ceiling about2.57–2.61. No added support mesh is approved.
+Generated diagram callouts are schematic. Food outfit-sheet measurement arrows are not scale-accurate; the numeric bounds in this handoff are authoritative.
+
+POSE / ANCHOR INTENT — PROPOSED, NOT VALIDATED RIG TARGETS
+Keep both feet planted; tiny chest breathing and <=1cm weight shift, small intermittent head look. Do not root-slide to reach. Suggested turns: head10–20deg, chest5–10deg, no repeated waving.
+Pickup: turn/short reach to a nearby inside-counter item; avoid a full rear-shelf reach through torso. Right hand grips lower-mid cup with neutral wrist; cup remains upright. Tray rests on right upturned palm, left hand may steady rim during pickup. Fingers below tray, never in food.
+Offer: short controlled outward reach above countertop, keep elbow bent, shoulder down, torso lean modest (~3–6deg maximum concept intent). Never stretch to a distant queue anchor. Bring product to service edge, not all the way to an unchanged customer's mouth.
+Bar cup origin y >=1.195 gives 2cm bottom clearance above1.10 for existing -0.075m cup base; suggested working range1.20..1.30. Existing male idle cup origin1.142 / female1.090 would clip this counter if moved over it unchanged, so do not reuse idle_carry without a raised serve target.
+Food chip/curry origin y >=1.280 gives 2cm clearance for -0.025m tray underside above1.235; a higher target1.35..1.50 may be more natural on raised support. Pizza lowest mesh y-0.0388 requires origin>=1.2938 for same clearance. Solve actual arm reach before selecting targets; do not copy generated panel hand coordinates.
+Starting layout trials (vendor local, not final anchors): bar root z~0.20..0.25, y0; pickup cup z~0.55, offer z~0.90. Food root z~0.85..0.90, y0.47, pickup tray z~1.15, offer z~1.45. Root x and right-hand offset must be solved per body and counter center. Inspect torso/counter depth and knees for collision. If out of reach, shorten gesture to inside service edge rather than add walking/queue movement.
+Use existing LWF_RightHand_Cup and LWF_RightHand_Food nodes. Props attach at identity in their socket basis; avoid accidental 90deg tray/cup rotations after yaw. Both sockets are on RightHand, so cup/food grips need distinct hand/forearm orientation. Current 17-bone rig has no finger articulation: broad low-poly grip, no finger animation requirements.
+Existing product references: beer cup diameter0.092 height0.152; soft cup width0.094 total height0.217 with straw; chips tray0.183x0.123x0.06085; pizza plate diameter0.15 (slice extends beyond plate); curry tray0.192x0.136. Do not enlarge for readability. Existing food holders share Food socket. Food sheet illustrates chips; pizza/curry reuse their actual assets and their own underside-clearance check.
+Reset: one small cloth wipe of clear internal bar counter OR a short tray-stack alignment for food, no constant wiping loop. Decorative stacks/cloth in images are optional concept cues, not an inventory or stocking mechanic; no extra stall dressing is authorized. No need for complex preparation equipment.
+Concept images use repeated bodies to compare variants, not a request for two servers at every stall. One lightweight visual per active vendor is the intended future limit.
+
+TRANSACTION / LIFECYCLE CONTRACT FOR LATER IMPLEMENTATION
+Cosmetic presentation only. Existing simulation retains service, stock, prices, purchase decisions, queues and all ownership. No staff entity, hiring, needs, wages/cost or queue changes.
+Current presentation reads vendor.OwnerId / ServiceTicks and immersion Purchases. Later integrator must inspect the authoritative completed-purchase data and stable event identity; no polling array length alone across save/reload.
+Use service state only to anticipate turn/pickup; show offer/release at actual successful transaction. Failed/cancelled/out-of-stock service returns to idle without a fake handoff or sold item. Customer's existing held-item state stays authoritative; release/hide server duplicate and show customer's item at one coordinated event.
+Do not delay a sale to finish an animation. If simulation runs faster, trim/collapse cosmetic preamble and finish in bounded time. No accumulated backlog of visual transactions; latest/current presentation, bounded events per vendor.
+Idle indefinitely between real orders. Suggested artistic cadence: turn0.25–0.4s, pickup0.3–0.45s, offer0.3–0.5s, retract0.3–0.45s; these must fit existing service timing, not alter it. Optional sparse reset0.6–1.0s after some completed orders, interruptible by service.
+Freeze animation playback and all timers/blends during pause, terminal/results state and menu. Resume without advancing hidden time or replaying purchases. Destroy/rebuild cosmetic nodes cleanly with vendor lifecycle/save load; use one cached rig and shared clips/materials, no per-frame mesh rebuilds, new materials or unbounded geometry/event accumulation. Do not modify existing staff/band rigs globally.
+Later verification after explicit build approval: both bodies, each held product, four gameplay camera rotations at current/default and close zoom, canopy/hatch occlusion, arm/elbow/prop clearance at sampled clip times, feet planted, pause/menu/terminal freeze, fast-time burst and cancelled-sale behavior. No such runtime validation claimed for this concept package.
+
+VISUAL QA / LIMITS
+Sheets visually inspected: adult faceted identity retained; coordinated distinct workwear, upright drinks and palm-supported food in pose panels, current vendor silhouette recognisable. Generated context scale is indicative, not a Godot capture or measurement proof. Props/sign typography and small details may be stylised by generation; reuse actual assets, never rebuild from these drawings. Food context inset is secondary to level-tray pose4 and actual Food socket reference. Generated branding/slogans are presentation decoration, not proposed UI/logo assets.
+All game, staff/band and prior designer asset packages unchanged. Four initial imagegen calls plus one targeted sheet correction; no new 3D assets generated.
+

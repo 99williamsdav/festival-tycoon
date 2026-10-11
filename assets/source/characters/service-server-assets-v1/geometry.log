@@ -1,0 +1,81 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+{
+  "lwf_server_bar_male_v1": {
+    "collisions": 0,
+    "tilt": 0.08846932589537937,
+    "feet": 0,
+    "clearance": {
+      "lwf_beer_cup_v2": 0.1748246192932128,
+      "lwf_soft_drink_cup_v1": 0.1748246192932128
+    },
+    "frames": 183
+  },
+  "lwf_server_bar_female_v1": {
+    "collisions": 0,
+    "tilt": 0,
+    "feet": 0,
+    "clearance": {
+      "lwf_beer_cup_v2": 0.17500295639038077,
+      "lwf_soft_drink_cup_v1": 0.17500295639038077
+    },
+    "frames": 183
+  },
+  "lwf_server_food_male_v1": {
+    "collisions": 0,
+    "tilt": 0,
+    "feet": 0,
+    "clearance": {
+      "lwf_chips_tray_v1": 0.3099998378753661,
+      "lwf_pizza_plate_v1": 0.2961999320983886,
+      "lwf_curry_tray_v1": 0.3099998378753661
+    },
+    "frames": 170
+  },
+  "lwf_server_food_female_v1": {
+    "collisions": 0,
+    "tilt": 0,
+    "feet": 0,
+    "clearance": {
+      "lwf_chips_tray_v1": 0.30999995708465566,
+      "lwf_pizza_plate_v1": 0.2961999320983886,
+      "lwf_curry_tray_v1": 0.30999995708465566
+    },
+    "frames": 170
+  }
+}
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\source\lwf_server_bar_male_v1.blend"
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\source\lwf_server_bar_female_v1.blend"
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\source\lwf_server_food_male_v1.blend"
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\source\lwf_server_food_female_v1.blend"
+
+Blender quit

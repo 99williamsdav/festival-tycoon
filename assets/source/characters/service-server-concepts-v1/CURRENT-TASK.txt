@@ -1,0 +1,1 @@
+COMPLETE / APPROVED: A for bar and A for food, with user-authorized build and integration including opening hatch. Original concepts preserved. Asset implementation in sibling service-server-assets-v1; Builder owns game integration.

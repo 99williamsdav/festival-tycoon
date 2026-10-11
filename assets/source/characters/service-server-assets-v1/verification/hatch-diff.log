@@ -1,0 +1,10 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+{"original_triangles": 376, "new_triangles": 370, "unchanged_triangles_with_exact_positions_uv": 362, "removed_triangles": 14, "added_triangles": 8, "scope": "Only solid front face and dark hatch box removed; four front rectangles replace front around original hatch bounds."}
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+
+Blender quit

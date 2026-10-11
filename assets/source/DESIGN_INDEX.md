@@ -1,5 +1,7 @@
 # Approved design and source index
 
+11 October 2026: approved A/A [service-server concepts](characters/service-server-concepts-v1/) and [frozen production/source](characters/service-server-assets-v1/HANDOFF.txt) integrated as vendor-owned cosmetic rigs with transaction-linked handoff and the minimal opened food chassis. [Integration, release captures, tests and caveats](../../briefs/results/service-server-integration.md). Original assets and all economic/service rules retained.
+
 10 October 2026: [selected challenge mosaics](ui/challenge-mosaic-concepts-v1/SELECTION.json) integrated into the [fixed pre-preparation reveal](../../briefs/results/challenge-reveal.md): Tier 1 Heatwave B, Tier 2 Heavy Rain A, complete art with separate UI text. [Source/provenance](ui/challenge-mosaic-concepts-v1/INTEGRATION.md). Other candidates retained, Heatwave A/C for possible future pleasant weather only. Random challenge selection remains future work.
 
 **Audited 30 September 2026.** This is a locator, not a fresh approval. Each source handoff describes its status **when written**; use the current status column and owning result to see what happened later. Concept images are direction boards, not native in-game screenshots, literal prices or permission to create extra illustrated assets. Original files in the art workspace were copied, never moved or deleted. The art workspace root is `C:\Users\99wil\Documents\ChatGPT\Festival Tycoon`.

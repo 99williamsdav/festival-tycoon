@@ -1,0 +1,86 @@
+SERVICE SERVER ASSETS V1 — approved A/A build — 2026-10-10
+STATUS: ASSET PACKAGE FOR BUILDER INTEGRATION. User approved bar A, food A, build and integration including opening the food hatch, relayed by established coordinator 01a07a8e-690e-7792-a604-650d0091a797 under WORKING-AGREEMENTS.md. No further aesthetic gate required. Designer asset work is confined to this package; Builder owns game integration.
+
+RUNTIME DELIVERY (runtime/)
+lwf_server_bar_male_v1.glb — 1,836 triangles, 3 surfaces, 17 bones, 1 material.
+lwf_server_bar_female_v1.glb — 2,652 triangles, 3 surfaces, 17 bones, 1 material.
+lwf_server_food_male_v1.glb — 1,883 triangles, 4 surfaces, 17 bones, 1 material.
+lwf_server_food_female_v1.glb — 2,363 triangles, 4 surfaces, 17 bones, 1 material.
+lwf_food_van_chassis_open_service_v1.glb — 370 triangles, 1 surface, 1 material.
+Exact current file hashes and sizes: manifest.json. Two 128x8 role palette PNGs in textures/, embedded in GLBs and packed in sources.
+Matching editable .blend files in source/. build.py rebuilds all five exports from copied original male/female .blend inputs and existing project head/van assets. No imagegen geometry. Original character rigs, staff, band, props and original van are untouched.
+
+FIDELITY / MATERIAL CONTRACT
+Exact approved body mesh coordinates and existing 17-bone layout reused from assets/source/characters/rigged-test-v1/out. Source copies are references/male.blend and female.blend. Added economical skinned apron/bib/pocket/straps/tab overlay; existing hair/cap geometry, bound to Head.
+Bar: cream tee, teal bib, broad pocket, small mustard tab, existing hair. Food: sage tee/cap, canvas bib, broad pocket, teal tab, existing under-cap hair. Charcoal trousers/shoes.
+16-slot consolidated server palette is NOT the existing 12-slot guest palette contract. Do NOT run ApplyGuestPalette/role recolour over these meshes. Existing skin/face source colours were carried into this role palette. Head/hair already included: do NOT add another hair/cap via CrowdBodies head assembly.
+All meshes are skinned to one existing humanoid rig. Do not add a staff simulation actor. Instantiate as vendor-owned cosmetic Node3D; maintain scale1. Keep body root foot-centred, forward local Godot -Z. No cloth simulation, finger bones, navigation or embedded collider.
+
+PLACEMENT — VENDOR LOCAL GODOT
+Server body yaw PI so its -Z forward points to vendor +Z. This rotation is part of placement, NOT baked into runtime models.
+Bar root position: (0.35, 0.00, 0.30). Grounded at terrain/vendor base. Counter top1.10, inner edge z0.46875, outer z0.95625.
+Food root position: (0.00, 0.47, 0.88). Feet rest on existing chassis base at0.47. Use as sibling of ApprovedFoodVanAssembly, under shared vendor root. If parented to that assembly instead, add2.15 to x, since assembly has (-2.15,0,0) offset.
+Current source floor/base, counter, cap and arm clearances tested at these placements. Do not move server to hatch-front plane or scale it to fit. Root anchors are fixed; limbs animate locally.
+
+FOOD HATCH — MINIMAL, DISTINCT DERIVATIVE
+Replace ONLY the instantiated chassis resource with lwf_food_van_chassis_open_service_v1.glb. Keep original chassis file for provenance. Keep the same ApprovedFoodVanAssembly offset, livery replacement, fascia/name-panel/roof sign/kitchen dressing/menu placement and all service/queue/footprint logic. No raised flap or new awning.
+Current original chassis376tri -> derivative370tri. Exactly362 triangles retain exact position and UV signatures. Removed14 triangles: 2 covering the solid front wall plus12 of the dark closed hatch box. Added8 triangles: four coplanar rectangles reconstructing the front wall around the original apparent aperture. No other geometry changed. See verification/hatch-diff.json and manifest removed_polygons.
+Opening in assembly Godot coordinates: x0.9..3.4, y1.21..2.23, planez1.10. Vendor-relative openingx-1.25..1.25. Counter remains top1.235, z1.10..1.50. Exterior size, origin, supports, wheels, roof, towbar, side door and every other existing vertex/material/UV retained. Material name still LWF_FoodVan_MattePalette... so current livery substitution remains compatible.
+Original front panel was not a real hole. This derivative supplies the required aperture; no global mesh visibility trick or changed stall design. Head may be partly hidden by existing fascia/roof from the high camera; see visibility section.
+
+ACTUAL EXPORTED CLIPS (all four bodies, unless noted)
+server_idle: subtle chest shift/breath/gaze, feet fixed. Blender keyed interval4.0s; native Godot duration4.041667s.
+server_turn: glance/chest orientation toward service area and settle. Keyed0.333333s; native0.375s.
+server_pickup: lift hand first, then approach pickup position. Keyed0.5s; native0.541667s.
+server_offer: short controlled reach over counter, cup upright or tray level. Keyed0.5s; native0.541667s.
+server_retract: withdraw above counter, then lower empty hand. Keyed0.5s; native0.541667s.
+server_reset: brief empty-hand stock-adjustment sweep near pickup area, then settle. Keyed1.0s; native1.041667s.
+server_offer_soft: bar only, same tested upright grip/path as server_offer for existing soft cup. Keyed0.5s; native0.541667s.
+All listed clips are real baked 24fps skeletal animation, not planned. GLTF/native import includes a leading frame, hence use Animation.length at runtime rather than hardcoded keyed durations.
+Only server_idle should loop. Set loop mode explicitly in integration; other clips play once. Blend idle/turn to pickup and retract/reset back to idle ~0.12–0.18s, subject to measured clearance and transaction schedule. Snap/seek only when necessary for skipped-time catchup; no arm stretching.
+No cloth-wipe clip is delivered: reset is the brief permitted stock-adjustment alternative. No fake cooking/pouring, fingertip articulation, talking or new equipment. No body/garment physics.
+
+HAND / PROP CONTRACT
+Existing nodes LWF_RightHand_Cup and LWF_RightHand_Food are bone attachments under RightHand, imported and tested in Godot. Attach the existing appropriate GLB at identity, scale1; no extra rotation or grip offset.
+Bar: lwf_beer_cup_v2.glb or lwf_soft_drink_cup_v1.glb on Cup. Food: lwf_chips_tray_v1.glb, lwf_pizza_plate_v1.glb or lwf_curry_tray_v1.glb on Food. Existing product meshes unchanged and not duplicated into shipped server exports.
+Bar pickup socket actor-local: male(0.19,1.35,-0.28), female(0.17,1.35,-0.28); final offer(0.19 or0.17,1.365,-0.44).
+Food pickup socket actor-local: male(0.19,1.10,-0.28), female(0.17,1.10,-0.28); final offer(0.19 or0.17,1.115,-0.44).
+With placement yawPI, actor x becomes vendor -x, z becomes vendor +z. E.g. bar male final offer vendor(0.16,1.365,0.74); food male final offer(-0.19,1.585,1.32).
+Short reaches deliberately remain over the counter, not all the way to unchanged queue/customer positions. Customer held-item visibility is authoritative; use the transaction to transfer presentation, not literal hand-to-hand IK between actors.
+Do not show a held product during idle/turn or the early pickup approach: the low approach can intentionally be below the surface and has no item. Show at pickup completion/offer start; hide on successful handoff and throughout retract/reset. No embedded stock prop is assumed. Optional pickup stock representation must reuse existing props and be bounded; not required for this package.
+Native offer socket orientation stays within0.42degrees of upright/level across25 samples per clip. Body/prop geometry assertions do not claim detailed finger deformation; grip is the same simple shipped hand convention.
+
+TRANSACTION / PAUSE INTEGRATION OWNERSHIP (BUILDER)
+Pure cosmetic, one visual per applicable vendor. No needs/hiring/staff costs, service-rate changes, extra simulation actors, queue changes or new purchases.
+Existing vendor OwnerId/ServiceTicks can anticipate turn/pickup; authoritative successful purchase controls offer/release. Align the handoff moment with that purchase. If timing cannot fit, seek the offer pose at commit or shorten cosmetic preamble; never delay/create a purchase for animation. Failed/cancelled/out-of-stock service returns idle with no offered product.
+At actual handoff, hide server product and let existing customer held-product state appear; avoid duplicate item presentation. Bound to current/latest event, no unbounded animation/event backlog when fast-forwarded.
+Freeze animation playback AND phase/prop timers during pause, menus and terminal/results states. Resume without advancing hidden time/replaying prior purchases. Deduplicate stable transaction IDs and reset safely on save/load/vendor rebuild; do not use historical Purchases array count as an unsafely persistent trigger.
+Cache PackedScene/animations/materials; one small rig per active visible vendor, no per-frame geometry/material construction. Optional reset is sparse and interruptible, not a constant loop. Cull/suspend irrelevant hidden vendors as appropriate without altering simulation.
+Designer has not changed game code or committed assets. User already authorized integration; Builder should integrate and validate gameplay behavior rather than request another aesthetic gate.
+
+VERIFICATION
+verify_geometry.py sampled706 keyed frames across all four source rigs, including all clips. Zero body/apron/hair/cap triangle intersections against actual bar geometry or revised van. All sampled foot vertices stationary. No source prop tilt above0.09degrees.
+Visible held-item stage (pickup completion + offer) minimum counter clearance: bar >=0.1748m; food chips/curry >=0.3100m, pizza >=0.2962m. Food floor is raised, so the natural tray hold is higher than the countertop; arms remain bent. Maximum arm reach fractions: male bar0.86, female bar0.94, male food0.93, female food0.91; unreachable targets cause build failure rather than bone stretch.
+Godot4.7.2 import verified all4 rigs,17 bones each,6 food clips/7 bar clips, both socket names and all5 existing held products. 25 native samples per clip confirm stationary feet and correct upright/level sockets. Native final-offer prop clearances bar>=0.1897m, food chips/curry>=0.3250m, pizza>=0.3112m. Results: verification/godot-import-check.json. Native log clean with package-local log path.
+verify_hatch.py confirms minimal changed-triangle set and identical remaining positions/UVs. No current original runtime mesh was overwritten.
+Limits: collision sampling is keyed frames against static geometry, not continuous runtime blend/terrain physics; Builder must verify blends, correct vendor transform, all liveries/kitchen dressing and final customer positions in game. Runtime pause/menus/terminal, successful/failed transactions, fast-forward and save/load behavior belong to Builder and are not claimed implemented.
+
+ACTUAL MODEL REVIEW
+review.html links actual Blender model renders, not imagegen mockups. Outfit, counter-front and hand-side views; all four CameraRig orientations per body at exact38.853deg elevation; enlarged context and minimum/default zoom framing.
+*-context-0..3: enlarged inspection at game camera angles.
+*-game32-0..3: 32m horizontal framing at1280x720 = actual minimum Godot camera size18 (vertical). The filename is horizontal width, not camera size.
+*-default62-0..3: actual default Godot size62, which is110.222m horizontal at16:9. Verified with Godot projection in verification/godot/camera.gd.
+Orientation indices0 South45deg,1 West135deg,2 North225deg,3 East315deg. These are controlled asset-review renders with game-matched camera scale, not integrated game screenshots. Existing lighting may differ.
+Visibility: bar faces/arms are visible through the front at0/3 but sign/canopy partially occlude them; rear views hide portions naturally. Food torso/apron/serving arm are visible through opened hatch at0/3, but fascia/roof substantially obscure face/cap at high game elevation. Rear1/2 views hide server completely behind unchanged van shell. At default62, detail is tiny: colour blocks and motion are the readable cues, not tab/pocket/face detail. Do not raise/lower roof, add awning or distort body to bypass occlusion. Default and close zoom evidence are provided honestly.
+
+REPRODUCTION
+Blender4.1.1:
+  blender -b --python build.py
+  blender -b --python verify_geometry.py
+  blender -b --python verify_hatch.py
+  blender -b --python render_review.py
+  blender -b --python render_review.py -- --default-only
+  blender -b --python render_review.py -- --outfit-only
+Godot verification isolated project: verification/godot; copy current runtime exports into its assets plus existing product GLBs, --headless --editor --import, then --script check.gd with --log-file inside package.
+References and original-source hashes recorded separately; manifest.json hashes refer to final exports. PROVENANCE-sha256.json includes final delivery/source/review evidence (excluding generated Godot cache and backup .blend1 files).
+

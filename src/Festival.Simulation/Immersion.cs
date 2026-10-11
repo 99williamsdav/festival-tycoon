@@ -191,6 +191,10 @@ public sealed partial class GameSession
     private int ImmersionStock(ImmersionProduct product) => product switch { _ when product.IsFood() => _preparation!.Plan is { Committed: true } && PitchedVans(_preparation).Any(van => TraderAt(van).Product == product) ? int.MaxValue : 0, ImmersionProduct.SoftDrink => _immersion!.SoftStock,
         ImmersionProduct.Water => _immersion!.FreeWater ? int.MaxValue : 0, ImmersionProduct.Poncho => _immersion!.PonchoStock, _ => _immersion!.BeerStock };
     // Switching free water off stops new cups, but anyone already queuing for one is still served.
+    /// <summary>Read-only presentation eligibility, using the same checks as the authoritative sale.</summary>
+    public bool ImmersionOrderCanComplete(ulong id, ImmersionProduct product) =>
+        PersonIn(PersonView.Consumption, id) is { } person && person.Order == product && person.VendorId is not null &&
+        ImmersionOrderEligible(person, product);
     private bool ImmersionOrderEligible(Person p, ImmersionProduct product) => p.Held is null && ImmersionShoppingEligible(p.Id, product) &&
         (ImmersionStock(product) > 0 || product == ImmersionProduct.Water && p.VendorId is not null && p.Order == ImmersionProduct.Water) &&
         _wallets[new(p.Id)].CashPennies >= ImmersionPriceFor(p.Id, product) && (product != ImmersionProduct.Beer || BeerAllowed(p)) &&

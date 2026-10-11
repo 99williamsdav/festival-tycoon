@@ -1,0 +1,159 @@
+{
+  "passed": true,
+  "resolution": "(1280, 720)",
+  "checks": [
+    {
+      "name": "one-owned-server-per-pitched-vendor",
+      "passed": true
+    },
+    {
+      "name": "drinks-native-rig-and-placement",
+      "passed": true
+    },
+    {
+      "name": "drinks.2-native-rig-and-placement",
+      "passed": true
+    },
+    {
+      "name": "food-native-rig-and-placement",
+      "passed": true
+    },
+    {
+      "name": "food.2-native-rig-and-placement",
+      "passed": true
+    },
+    {
+      "name": "preparation-freeze",
+      "passed": true
+    },
+    {
+      "name": "terminal-Failed",
+      "passed": true
+    },
+    {
+      "name": "terminal-Finished",
+      "passed": true
+    },
+    {
+      "name": "pause",
+      "passed": true
+    },
+    {
+      "name": "start-menu",
+      "passed": true
+    },
+    {
+      "name": "vendor-hidden",
+      "passed": true
+    },
+    {
+      "name": "resume-empty-retract-185405022188",
+      "passed": true
+    },
+    {
+      "name": "resume-empty-retract-186545872904",
+      "passed": true
+    },
+    {
+      "name": "resume-empty-retract-186696867857",
+      "passed": true
+    },
+    {
+      "name": "resume-empty-retract-189750321210",
+      "passed": true
+    },
+    {
+      "name": "vendor-relocation-command",
+      "passed": true
+    },
+    {
+      "name": "relocation-follows-parent",
+      "passed": true
+    },
+    {
+      "name": "vendor-rotation-command",
+      "passed": true
+    },
+    {
+      "name": "rotation-follows-parent",
+      "passed": true
+    },
+    {
+      "name": "vendor-removal-command",
+      "passed": true
+    },
+    {
+      "name": "removed-rig-stowed-no-registry-orphan",
+      "passed": true
+    },
+    {
+      "name": "vendor-rebuild-baselines-history",
+      "passed": true
+    },
+    {
+      "name": "bar-male-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 1.862645149230957E-09,
+      "minPropClearance": 0.17482450008392325,
+      "maxPropTiltDegrees": 0.19705794751644135,
+      "passed": true
+    },
+    {
+      "name": "bar-female-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 0,
+      "minPropClearance": 0.17500283718109122,
+      "maxPropTiltDegrees": 0.4330768585205078,
+      "passed": true
+    },
+    {
+      "name": "food-male-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 1.862645149230957E-09,
+      "minPropClearance": 0.2962000513076781,
+      "maxPropTiltDegrees": 0.015261197462677956,
+      "passed": true
+    },
+    {
+      "name": "food-female-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 0,
+      "minPropClearance": 0.29612852573394766,
+      "maxPropTiltDegrees": 0.045326173305511475,
+      "passed": true
+    },
+    {
+      "name": "korma-female-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 0,
+      "minPropClearance": 0.29612852573394766,
+      "maxPropTiltDegrees": 0.045326173305511475,
+      "passed": true
+    },
+    {
+      "name": "pizza-male-runtime-blends",
+      "samples": 363,
+      "maxFootMotion": 1.862645149230957E-09,
+      "minPropClearance": 0.2962000513076781,
+      "maxPropTiltDegrees": 0.015261197462677956,
+      "passed": true
+    }
+  ],
+  "performance": [
+    {
+      "serversVisible": false,
+      "frames": 90,
+      "medianMs": 3.5156,
+      "p95Ms": 30.9671,
+      "drawCalls": 758
+    },
+    {
+      "serversVisible": true,
+      "frames": 90,
+      "medianMs": 3.9031,
+      "p95Ms": 33.2266,
+      "drawCalls": 818
+    }
+  ],
+  "caveat": "Staged integrated-game views and 30fps pose sequence, not live purchases or a manual playthrough. Whole-app vsync-off hidden/visible measurement, not isolated GPU cost. Simulation sales/failures/load tested separately. Existing roof/fascia occludes food heads and rear views."
+}

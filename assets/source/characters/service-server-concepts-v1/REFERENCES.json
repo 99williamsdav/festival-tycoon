@@ -1,0 +1,165 @@
+{
+  "mode": "built-in image_gen",
+  "inputs": [
+    {
+      "role": "imagegen_reference",
+      "copy": "references/male.png",
+      "path": "C:/Projects/festival-tycoon/assets/source/characters/attendee-poses-v2/review-male.png",
+      "sha256": "607A36A8D0D6008842D73322DBC1AD2C2FEA63AA5AC1085131A579C4DF0B9090"
+    },
+    {
+      "role": "imagegen_reference",
+      "copy": "references/female.png",
+      "path": "C:/Projects/festival-tycoon/assets/source/characters/attendee-poses-v2/review-female.png",
+      "sha256": "26F25C2891448E1F226C9030BD870A5C38DDFB04D38497C1D69D5FCB72F7E435"
+    },
+    {
+      "role": "imagegen_reference",
+      "copy": "references/bar-context.png",
+      "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/drinks-stall-prototype-v1/01-drinks-stall-preview.png",
+      "sha256": "E03895F3711C73B695F598F7FF41BC46CE7971E01A4E02C6C236C55F3E061584"
+    },
+    {
+      "role": "imagegen_reference",
+      "copy": "references/food-context.png",
+      "path": "C:/Projects/festival-tycoon/assets/source/environment/food-van-signs-v1/verification/both-vans-close-front.png",
+      "sha256": "75F3C70FD51F9726303B5E5567EA300EE887E88EF5285074E5362A7D1CB80146"
+    },
+    {
+      "role": "imagegen_reference",
+      "copy": "references/held-items.png",
+      "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/held-props-trio-lager-v2/01-held-props-trio-lager.png",
+      "sha256": "9C20EA3229B3F0B062C689D94C870EED83FBF62FE420B959118A8076D5F20AD0"
+    },
+    {
+      "role": "additional_food_socket_review",
+      "path": "C:/Projects/festival-tycoon/assets/source/props/pizza-props-v1/verification/held-on-rig-male-socket.png",
+      "sha256": "C0B1CC0122DC2EB8F9648FCDF38308E1D74D73DD2EEB8FF36EFD89B54BA1D849"
+    },
+    {
+      "role": "additional_food_socket_review",
+      "path": "C:/Projects/festival-tycoon/assets/source/props/curry-props-v1/verification/held-on-rig-female-socket.png",
+      "sha256": "79281BED1BC31F5D2BEEF940CAE8E8A01397CB118344C667BB6445F4DB1915FA"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/environment/lwf_drinks_stall_prototype_v1.glb",
+      "sha256": "33978BF56E9A1738D1AC3D8D23100C9986866CDEB74F732D114ADD2191F06F21"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/environment/lwf_food_van_chassis_v1.glb",
+      "sha256": "40F67435B506B0E127588E518A53D04C69DE224F09599354674CBFA95DDF36BB"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/environment/lwf_food_van_fascia_v1.glb",
+      "sha256": "92F906654D0F4BD7B8B13B718889F6E70D31B3B5FE9F9307D7DB522E31911F63"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/characters/lwf_attendee_male_rigged_test_v1.glb",
+      "sha256": "A1693F9C8DF2B3BD56810485B27D708BDB1ED61B439211410C9274F45F85F97D"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/characters/lwf_attendee_female_rigged_test_v1.glb",
+      "sha256": "90DD7FC2CED0F9AD7B68C2D79C3BF4CEA1E61E47267C62B88510539FC8A2755D"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/characters/lwf_hat_cap_male_v1.glb",
+      "sha256": "99E9F16D4A8DDCB0D1089116B517B61CA649E58CB1A9FF920E32705E493F5097"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/characters/lwf_hat_cap_female_v1.glb",
+      "sha256": "9C1CF0B181C2F83EECC7F8987A2013DFA0A870AB880B1BC142B1BF98FE61B59B"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/props/lwf_beer_cup_v2.glb",
+      "sha256": "E6FD2E115EEF76797B97A76759B57687C8ED0A25BACED7ACD805DF1DD25ADC8C"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/props/lwf_soft_drink_cup_v1.glb",
+      "sha256": "B0570C93EA5CBA3C7D297111E3C070D66AC4E0F6CD24EDEDE37C4E3B77FE9416"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/props/lwf_chips_tray_v1.glb",
+      "sha256": "0BB9EBB82A2B3558A450BEB84D9B8F89467C5B67E603A1C759C69CB0D95167A3"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/props/lwf_pizza_plate_v1.glb",
+      "sha256": "AC43C37ABD26E261A725CCF046039AE6A5483A45550CDF0C6B796403AE318D49"
+    },
+    {
+      "role": "existing_runtime_asset",
+      "path": "C:/Projects/festival-tycoon/game/assets/props/lwf_curry_tray_v1.glb",
+      "sha256": "6B1E9F792D497AB13B60866769F6D27480665D8E31885F5F547F3ED96BB62F49"
+    },
+    {
+      "role": "source_contract",
+      "path": "C:/Projects/festival-tycoon/game/Main.ImmersionAssets.cs",
+      "sha256": "22243AC957BC7F511BBE79075107F478A1DACD2C9C0A48E8C26E6FD93C0796E1"
+    },
+    {
+      "role": "source_contract",
+      "path": "C:/Projects/festival-tycoon/game/CrowdBodies.Walk.cs",
+      "sha256": "2AC174953B479F4E38A98A0C1AA3B5EF111D306009CF385F59C921F7F96A9E59"
+    },
+    {
+      "role": "source_contract",
+      "path": "C:/Projects/festival-tycoon/assets/source/characters/rigged-test-v1/README.md",
+      "sha256": "EE5D46201969CA65680C4049B182E5DEDE89E1B3CE61B6AB2793BAB026CA4E4D"
+    },
+    {
+      "role": "source_contract",
+      "path": "C:/Projects/festival-tycoon/assets/source/props/pizza-props-v1/out/pizza_props_report.json",
+      "sha256": "F304064ED167C3650AA6069A236ECF6375E93F6E06C555CF72E5BE06EB9BD532"
+    },
+    {
+      "role": "source_contract",
+      "path": "C:/Projects/festival-tycoon/assets/source/props/curry-props-v1/out/curry_props_report.json",
+      "sha256": "EFF451250EF9DD2D943E552BDEC29EAEDD4459B7AB675728E350E3E3483CFCD0"
+    }
+  ],
+  "outputs": [
+    {
+      "file": "bar-outfit-options.png",
+      "generatedSource": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-4139e69a-470b-40f8-b5cf-79f7d1430cbd.png",
+      "dimensions": [
+        1312,
+        1199
+      ]
+    },
+    {
+      "file": "food-outfit-options.png",
+      "generatedSource": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-5d496e67-17ae-4ef5-81b0-15f8113267d3.png",
+      "dimensions": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "file": "bar-pose-study.png",
+      "generatedSource": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-a8f481d8-eb86-4740-8be5-9a4046716440.png",
+      "dimensions": [
+        1536,
+        1024
+      ]
+    },
+    {
+      "file": "food-pose-study.png",
+      "generatedSource": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-f211cbd9-5a27-479d-a90f-a4866764391b.png",
+      "dimensions": [
+        1536,
+        1024
+      ]
+    }
+  ],
+  "note": "Initial food pose preserved; one targeted revision. Measurements obtained read-only in Blender, no new Blender assets."
+}

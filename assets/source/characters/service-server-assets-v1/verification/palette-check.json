@@ -1,0 +1,30 @@
+[
+  {
+    "role": "bar",
+    "unchanged_source_slots": [
+      0,
+      1,
+      2,
+      4,
+      6,
+      8,
+      10,
+      11
+    ],
+    "passed": true
+  },
+  {
+    "role": "food",
+    "unchanged_source_slots": [
+      0,
+      1,
+      2,
+      4,
+      6,
+      8,
+      10,
+      11
+    ],
+    "passed": true
+  }
+]

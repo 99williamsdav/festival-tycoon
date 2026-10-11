@@ -1,0 +1,74 @@
+[
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\asset-measurements.json",
+    "Hash": "594046C2DC9D2D9F7502BA8ED1A7060FA2E80520AC7F0BF535A58E773D5E1EF6"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\bar-outfit-options.png",
+    "Hash": "5AEAE30F8116D66F7C10743B574B7ABE1D3458777BA47425D02B9BA29C53E185"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\bar-pose-study.png",
+    "Hash": "FF02B5E688C603C687F6F0C46FE2DAF1B0670FB97E7C942FCE74E3615C560134"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\CURRENT-TASK.txt",
+    "Hash": "78035A9DE2C8A0ABABFBE87049DDEB1BC5A09D8AE4A9E3870D33A5B0783C16F5"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\food-outfit-options.png",
+    "Hash": "BBE8D75F54CDFF81AE9A01CFDC4DCD8388FE4B3E2A02FEE56C1B09E7F5AB12FB"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\food-pose-study-initial.png",
+    "Hash": "B01BFEFA5185CDD4F64F06641CD561A6EB2313D2906BD2D03FFB454188804DC4"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\food-pose-study.png",
+    "Hash": "FFA5A3569673003A1D76A06AE72CEC18EE31ED3C0B60545118686C3A5AAC880E"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\HANDOFF.txt",
+    "Hash": "0EF270F5A1E8F6B36C80A25AAE581AB2CD44E4042D0EB6E024F78EF534BFADE0"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\inspect_runtime.py",
+    "Hash": "B6E0F0C99BB7CFECBCEB3057F2BD5B2F56C220432276C5B02BF15A0C96E28969"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\PROMPTS.txt",
+    "Hash": "07976B8B2BD865FFA9C53F1BCF6C9D058AE6AA3177F1C13F32146D1BF4D4EAB5"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\REFERENCES.json",
+    "Hash": "CD609EE42541302C4359CC4365DAB0F00DDAC77BB1727031BEFE84E561B5944C"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\references\\bar-context.png",
+    "Hash": "E03895F3711C73B695F598F7FF41BC46CE7971E01A4E02C6C236C55F3E061584"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\references\\female.png",
+    "Hash": "26F25C2891448E1F226C9030BD870A5C38DDFB04D38497C1D69D5FCB72F7E435"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\references\\food-context.png",
+    "Hash": "75F3C70FD51F9726303B5E5567EA300EE887E88EF5285074E5362A7D1CB80146"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\references\\held-items.png",
+    "Hash": "9C20EA3229B3F0B062C689D94C870EED83FBF62FE420B959118A8076D5F20AD0"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\references\\male.png",
+    "Hash": "607A36A8D0D6008842D73322DBC1AD2C2FEA63AA5AC1085131A579C4DF0B9090"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\review.html",
+    "Hash": "97A2E210859E2A124830847E03FA3D96B2B8E942D18DECC325BAC42DA19EAFD6"
+  },
+  {
+    "Path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\service-server-concepts-v1\\REVISION-PROMPT.txt",
+    "Hash": "D226366CBD9843DCEF23BF2B732D04B1A4DA865929A06428B4FCC6C84CFD0D70"
+  }
+]

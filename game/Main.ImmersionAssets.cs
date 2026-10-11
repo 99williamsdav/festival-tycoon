@@ -21,7 +21,7 @@ public partial class Main
         // origins, hinge rotations and relative placement stay within this child.
         var assembly = new Node3D { Name = "ApprovedFoodVanAssembly", Position = new Vector3(-2.15f, 0, 0) };
         vendor.AddChild(assembly);
-        assembly.AddChild(InstantiateAsset("res://assets/environment/lwf_food_van_chassis_v1.glb"));
+        assembly.AddChild(InstantiateAsset("res://assets/environment/lwf_food_van_chassis_open_service_v1.glb"));
         // User requested removal of the overhead awning. The separate raised
         // serving flap is omitted; chassis aperture/counter and fascia remain.
         // Keep the archived flap asset unchanged for provenance.

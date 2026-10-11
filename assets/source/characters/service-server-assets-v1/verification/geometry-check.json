@@ -1,0 +1,44 @@
+{
+  "lwf_server_bar_male_v1": {
+    "collisions": [],
+    "max_socket_tilt_degrees": 0.08846932589537937,
+    "prop_min_counter_clearance_m": {
+      "lwf_beer_cup_v2": 0.1748246192932128,
+      "lwf_soft_drink_cup_v1": 0.1748246192932128
+    },
+    "max_foot_motion_m": 0,
+    "frames_checked": 183
+  },
+  "lwf_server_bar_female_v1": {
+    "collisions": [],
+    "max_socket_tilt_degrees": 0,
+    "prop_min_counter_clearance_m": {
+      "lwf_beer_cup_v2": 0.17500295639038077,
+      "lwf_soft_drink_cup_v1": 0.17500295639038077
+    },
+    "max_foot_motion_m": 0,
+    "frames_checked": 183
+  },
+  "lwf_server_food_male_v1": {
+    "collisions": [],
+    "max_socket_tilt_degrees": 0,
+    "prop_min_counter_clearance_m": {
+      "lwf_chips_tray_v1": 0.3099998378753661,
+      "lwf_pizza_plate_v1": 0.2961999320983886,
+      "lwf_curry_tray_v1": 0.3099998378753661
+    },
+    "max_foot_motion_m": 0,
+    "frames_checked": 170
+  },
+  "lwf_server_food_female_v1": {
+    "collisions": [],
+    "max_socket_tilt_degrees": 0,
+    "prop_min_counter_clearance_m": {
+      "lwf_chips_tray_v1": 0.30999995708465566,
+      "lwf_pizza_plate_v1": 0.2961999320983886,
+      "lwf_curry_tray_v1": 0.30999995708465566
+    },
+    "max_foot_motion_m": 0,
+    "frames_checked": 170
+  }
+}

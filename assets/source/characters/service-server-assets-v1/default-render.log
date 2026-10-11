@@ -1,0 +1,888 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\source\lwf_server_bar_male_v1.blend"
+Fra:13 Mem:19.05M (Peak 19.05M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:19.07M (Peak 19.07M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Sign
+Fra:13 Mem:21.17M (Peak 21.17M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Structure
+Fra:13 Mem:21.18M (Peak 21.18M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Counter
+Fra:13 Mem:21.24M (Peak 21.24M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Canopy
+Fra:13 Mem:21.42M (Peak 21.42M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:21.28M (Peak 21.42M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading drinks-sign
+Fra:13 Mem:21.28M (Peak 21.42M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_bar_palette_v1.png
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.01 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.01 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.01 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.01 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.12M (Peak 23.30M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.22M (Peak 23.30M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.01 | Mem:1.11M, Peak:1.11M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.01 | Mem:1.11M, Peak:1.11M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.01 | Mem:1.19M, Peak:1.19M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.01 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.01 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.39M (Peak 23.30M) | Time:00:00.01 | Mem:2.55M, Peak:2.55M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.47M, Peak:2.55M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.22M (Peak 87.22M) | Time:00:00.27 | Remaining:00:02.85 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.34M (Peak 157.53M) | Time:00:07.01 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.34M (Peak 157.53M) | Time:00:07.01 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\bar-male-default62-0.png'
+Time: 00:07.13 (Saving: 00:00.11)
+
+Fra:13 Mem:21.10M (Peak 21.10M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:21.14M (Peak 21.14M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_BeerCupV2
+Fra:13 Mem:21.20M (Peak 21.20M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Sign
+Fra:13 Mem:21.21M (Peak 21.21M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Structure
+Fra:13 Mem:21.30M (Peak 21.30M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Counter
+Fra:13 Mem:21.33M (Peak 21.33M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Canopy
+Fra:13 Mem:21.42M (Peak 21.42M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:21.28M (Peak 21.42M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading drinks-sign
+Fra:13 Mem:21.28M (Peak 21.42M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_bar_palette_v1.png
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.12M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.22M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.11M, Peak:1.11M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.11M, Peak:1.11M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.19M, Peak:1.19M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.00 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.39M (Peak 23.30M) | Time:00:00.00 | Mem:2.55M, Peak:2.55M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.00 | Mem:2.47M, Peak:2.55M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.00 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.00 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.00 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.22M (Peak 87.22M) | Time:00:00.25 | Remaining:00:02.75 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.34M (Peak 157.53M) | Time:00:05.43 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.34M (Peak 157.53M) | Time:00:05.43 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\bar-male-default62-1.png'
+Time: 00:05.53 (Saving: 00:00.09)
+
+Fra:13 Mem:21.10M (Peak 21.10M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:21.12M (Peak 21.12M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_BeerCupV2
+Fra:13 Mem:21.19M (Peak 21.19M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:21.30M (Peak 21.30M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Structure
+Fra:13 Mem:21.37M (Peak 21.37M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Counter
+Fra:13 Mem:21.44M (Peak 21.44M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Canopy
+Fra:13 Mem:21.42M (Peak 21.44M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:21.28M (Peak 21.44M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading drinks-sign
+Fra:13 Mem:21.28M (Peak 21.44M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_bar_palette_v1.png
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.12M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.22M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.11M, Peak:1.11M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.11M, Peak:1.11M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.19M, Peak:1.19M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.01 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.01 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.39M (Peak 23.30M) | Time:00:00.01 | Mem:2.55M, Peak:2.55M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.47M, Peak:2.55M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.22M (Peak 87.22M) | Time:00:00.26 | Remaining:00:02.84 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.34M (Peak 157.53M) | Time:00:05.63 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.34M (Peak 157.53M) | Time:00:05.63 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\bar-male-default62-2.png'
+Time: 00:05.75 (Saving: 00:00.11)
+
+Fra:13 Mem:21.10M (Peak 21.10M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:21.10M (Peak 21.10M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:21.19M (Peak 21.19M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Sign
+Fra:13 Mem:21.33M (Peak 21.33M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Structure
+Fra:13 Mem:21.33M (Peak 21.33M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Counter
+Fra:13 Mem:21.54M (Peak 21.54M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Canopy
+Fra:13 Mem:21.42M (Peak 21.54M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:21.28M (Peak 21.54M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading drinks-sign
+Fra:13 Mem:21.28M (Peak 21.54M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_bar_palette_v1.png
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:18.99M (Peak 23.30M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.08M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.12M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.22M (Peak 23.30M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.11M, Peak:1.11M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.11M, Peak:1.11M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.00 | Mem:1.19M, Peak:1.19M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.01 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.21M (Peak 23.30M) | Time:00:00.01 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.29M, Peak:1.38M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.47M, Peak:1.47M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.39M (Peak 23.30M) | Time:00:00.01 | Mem:1.55M, Peak:1.55M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.39M (Peak 23.30M) | Time:00:00.01 | Mem:2.55M, Peak:2.55M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.47M, Peak:2.55M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.40M (Peak 23.30M) | Time:00:00.01 | Mem:2.56M, Peak:2.56M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.22M (Peak 87.22M) | Time:00:00.28 | Remaining:00:02.99 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.34M (Peak 157.53M) | Time:00:05.41 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.34M (Peak 157.53M) | Time:00:05.41 | Mem:69.36M, Peak:69.36M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\bar-male-default62-3.png'
+Time: 00:05.52 (Saving: 00:00.11)
+
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\source\lwf_server_bar_female_v1.blend"
+Fra:13 Mem:21.25M (Peak 21.25M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:21.25M (Peak 21.25M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_BeerCupV2
+Fra:13 Mem:21.31M (Peak 21.31M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:21.37M (Peak 21.37M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Sign
+Fra:13 Mem:21.52M (Peak 21.52M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Structure
+Fra:13 Mem:21.63M (Peak 21.63M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Counter
+Fra:13 Mem:21.80M (Peak 21.80M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Canopy
+Fra:13 Mem:21.75M (Peak 21.80M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:21.56M (Peak 21.80M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading drinks-sign
+Fra:13 Mem:21.56M (Peak 21.80M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_bar_palette_v1.png
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.01 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.01 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.01 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.01 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.42M (Peak 23.58M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.55M (Peak 23.58M) | Time:00:00.01 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.14M, Peak:1.14M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.14M, Peak:1.14M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.25M, Peak:1.25M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.62M, Peak:2.70M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.61M (Peak 87.61M) | Time:00:00.26 | Remaining:00:02.75 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.74M (Peak 157.93M) | Time:00:05.42 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.74M (Peak 157.93M) | Time:00:05.42 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\bar-female-default62-0.png'
+Time: 00:05.53 (Saving: 00:00.10)
+
+Fra:13 Mem:21.33M (Peak 21.33M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:21.33M (Peak 21.33M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_BeerCupV2
+Fra:13 Mem:21.35M (Peak 21.35M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:21.42M (Peak 21.42M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Sign
+Fra:13 Mem:21.54M (Peak 21.54M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Structure
+Fra:13 Mem:21.66M (Peak 21.66M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Counter
+Fra:13 Mem:21.62M (Peak 21.66M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Canopy
+Fra:13 Mem:21.75M (Peak 21.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:21.56M (Peak 21.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading drinks-sign
+Fra:13 Mem:21.56M (Peak 21.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_bar_palette_v1.png
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.42M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.55M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.14M, Peak:1.14M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.14M, Peak:1.14M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.25M, Peak:1.25M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.62M, Peak:2.70M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.61M (Peak 87.61M) | Time:00:00.25 | Remaining:00:02.72 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.74M (Peak 157.93M) | Time:00:05.63 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.74M (Peak 157.93M) | Time:00:05.63 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\bar-female-default62-1.png'
+Time: 00:05.76 (Saving: 00:00.12)
+
+Fra:13 Mem:21.33M (Peak 21.33M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:21.33M (Peak 21.33M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:21.37M (Peak 21.37M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Sign
+Fra:13 Mem:21.43M (Peak 21.43M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Structure
+Fra:13 Mem:21.71M (Peak 21.71M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Counter
+Fra:13 Mem:21.71M (Peak 21.71M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Canopy
+Fra:13 Mem:21.75M (Peak 21.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:21.56M (Peak 21.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading drinks-sign
+Fra:13 Mem:21.56M (Peak 21.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_bar_palette_v1.png
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.42M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.55M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.14M, Peak:1.14M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.14M, Peak:1.14M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.25M, Peak:1.25M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.01 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.01 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.62M, Peak:2.70M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.61M (Peak 87.61M) | Time:00:00.26 | Remaining:00:02.77 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.74M (Peak 157.93M) | Time:00:05.73 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.74M (Peak 157.93M) | Time:00:05.73 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\bar-female-default62-2.png'
+Time: 00:05.84 (Saving: 00:00.09)
+
+Fra:13 Mem:21.33M (Peak 21.33M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:21.33M (Peak 21.33M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Hair_Default
+Fra:13 Mem:21.37M (Peak 21.37M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Sign
+Fra:13 Mem:21.46M (Peak 21.45M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Structure
+Fra:13 Mem:21.62M (Peak 21.62M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_DrinksStallV1_Canopy
+Fra:13 Mem:21.75M (Peak 21.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:21.56M (Peak 21.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading drinks-sign
+Fra:13 Mem:21.56M (Peak 21.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_bar_palette_v1.png
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.27M (Peak 23.58M) | Time:00:00.00 | Mem:1.00M, Peak:1.00M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.01M, Peak:1.01M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.36M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.42M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.55M (Peak 23.58M) | Time:00:00.00 | Mem:1.02M, Peak:1.02M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.14M, Peak:1.14M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.14M, Peak:1.14M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.25M, Peak:1.25M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.54M (Peak 23.58M) | Time:00:00.00 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.37M, Peak:1.48M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.62M, Peak:1.62M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.79M (Peak 23.58M) | Time:00:00.00 | Mem:1.70M, Peak:1.70M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.62M, Peak:2.70M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.79M (Peak 23.58M) | Time:00:00.01 | Mem:2.70M, Peak:2.70M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.61M (Peak 87.61M) | Time:00:00.27 | Remaining:00:02.90 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.74M (Peak 157.93M) | Time:00:05.64 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.74M (Peak 157.93M) | Time:00:05.64 | Mem:69.51M, Peak:69.51M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\bar-female-default62-3.png'
+Time: 00:05.76 (Saving: 00:00.12)
+
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\source\lwf_server_food_male_v1.blend"
+Fra:13 Mem:20.50M (Peak 20.50M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:20.50M (Peak 20.50M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Hat_Cap
+Fra:13 Mem:20.53M (Peak 20.53M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_Sign_Chips
+Fra:13 Mem:20.64M (Peak 20.64M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:20.68M (Peak 20.68M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_chassis_open_service_v1
+Fra:13 Mem:20.69M (Peak 20.69M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_NamePanel
+Fra:13 Mem:20.80M (Peak 20.80M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_fascia_v1
+Fra:13 Mem:20.84M (Peak 20.84M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:20.69M (Peak 20.84M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_sign_chips_v1
+Fra:13 Mem:20.69M (Peak 20.84M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_food_palette_v1.png
+Fra:13 Mem:20.69M (Peak 20.84M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading food_van_palette.001
+Fra:13 Mem:21.94M (Peak 21.94M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_name_panel_chip_block_v1
+Fra:13 Mem:19.36M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.50M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.86M, Peak:1.86M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.86M, Peak:1.86M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.94M, Peak:1.94M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_palette_chip_block_v1.png
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.19M, Peak:2.19M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.19M, Peak:2.19M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.74M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.19M, Peak:3.27M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.57M (Peak 87.57M) | Time:00:00.27 | Remaining:00:02.85 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.70M (Peak 157.89M) | Time:00:05.64 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.70M (Peak 157.89M) | Time:00:05.64 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\food-male-default62-0.png'
+Time: 00:05.75 (Saving: 00:00.10)
+
+Fra:13 Mem:20.55M (Peak 20.55M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:20.55M (Peak 20.55M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Server_Apron
+Fra:13 Mem:20.64M (Peak 20.64M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_ChipsTrayV1
+Fra:13 Mem:20.65M (Peak 20.65M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_Sign_Chips
+Fra:13 Mem:20.66M (Peak 20.66M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:20.80M (Peak 20.80M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_chassis_open_service_v1
+Fra:13 Mem:20.89M (Peak 20.89M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_NamePanel
+Fra:13 Mem:20.82M (Peak 20.89M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_fascia_v1
+Fra:13 Mem:20.84M (Peak 20.89M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:20.69M (Peak 20.89M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_sign_chips_v1
+Fra:13 Mem:20.69M (Peak 20.89M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_food_palette_v1.png
+Fra:13 Mem:20.69M (Peak 20.89M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_name_panel_chip_block_v1
+Fra:13 Mem:19.36M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.50M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.86M, Peak:1.86M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.86M, Peak:1.86M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.94M, Peak:1.94M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_palette_chip_block_v1.png
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.19M, Peak:2.19M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.19M, Peak:2.19M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.74M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.19M, Peak:3.27M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.57M (Peak 87.57M) | Time:00:00.28 | Remaining:00:02.93 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.70M (Peak 157.89M) | Time:00:05.54 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.70M (Peak 157.89M) | Time:00:05.54 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\food-male-default62-1.png'
+Time: 00:05.66 (Saving: 00:00.11)
+
+Fra:13 Mem:20.55M (Peak 20.55M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:20.55M (Peak 20.55M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Hat_Cap
+Fra:13 Mem:20.61M (Peak 20.61M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_ChipsTrayV1
+Fra:13 Mem:20.66M (Peak 20.66M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_Sign_Chips
+Fra:13 Mem:20.74M (Peak 20.74M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:20.83M (Peak 20.83M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_chassis_open_service_v1
+Fra:13 Mem:20.89M (Peak 20.89M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_NamePanel
+Fra:13 Mem:21.03M (Peak 21.03M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_fascia_v1
+Fra:13 Mem:20.84M (Peak 21.03M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:20.69M (Peak 21.03M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_sign_chips_v1
+Fra:13 Mem:20.69M (Peak 21.03M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading food_van_palette.001
+Fra:13 Mem:20.69M (Peak 21.03M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_name_panel_chip_block_v1
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.50M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.86M, Peak:1.86M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.86M, Peak:1.86M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.94M, Peak:1.94M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_palette_chip_block_v1.png
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.19M, Peak:2.19M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.19M, Peak:2.19M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.74M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.19M, Peak:3.27M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.57M (Peak 87.57M) | Time:00:00.30 | Remaining:00:03.19 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.70M (Peak 157.89M) | Time:00:05.71 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.70M (Peak 157.89M) | Time:00:05.71 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\food-male-default62-2.png'
+Time: 00:05.83 (Saving: 00:00.11)
+
+Fra:13 Mem:20.55M (Peak 20.55M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:20.55M (Peak 20.55M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Hat_Cap
+Fra:13 Mem:20.59M (Peak 20.59M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_ChipsTrayV1
+Fra:13 Mem:20.79M (Peak 20.79M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_Sign_Chips
+Fra:13 Mem:20.81M (Peak 20.82M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:20.88M (Peak 20.88M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_chassis_open_service_v1
+Fra:13 Mem:20.91M (Peak 20.91M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_fascia_v1
+Fra:13 Mem:21.07M (Peak 21.07M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_NamePanel
+Fra:13 Mem:20.84M (Peak 21.07M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:20.69M (Peak 21.07M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_sign_chips_v1
+Fra:13 Mem:20.69M (Peak 21.07M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_food_palette_v1.png
+Fra:13 Mem:20.69M (Peak 21.07M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_name_panel_chip_block_v1
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.37M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.46M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.50M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.86M, Peak:1.86M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.86M, Peak:1.86M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:1.94M, Peak:1.94M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.59M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.03M, Peak:2.11M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.18M, Peak:2.18M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_palette_chip_block_v1.png
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.19M, Peak:2.19M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.19M, Peak:2.19M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.74M (Peak 24.96M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.74M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.19M, Peak:3.27M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.75M (Peak 24.96M) | Time:00:00.01 | Mem:3.27M, Peak:3.27M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.57M (Peak 87.57M) | Time:00:00.28 | Remaining:00:03.02 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.70M (Peak 157.89M) | Time:00:05.71 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.70M (Peak 157.89M) | Time:00:05.71 | Mem:70.08M, Peak:70.08M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\food-male-default62-3.png'
+Time: 00:05.83 (Saving: 00:00.11)
+
+Read blend: "C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\source\lwf_server_food_female_v1.blend"
+Fra:13 Mem:20.62M (Peak 20.62M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:20.65M (Peak 20.65M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Hair_DefaultUnderCap
+Fra:13 Mem:20.67M (Peak 20.67M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Hat_Cap
+Fra:13 Mem:20.71M (Peak 20.71M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_Sign_Chips
+Fra:13 Mem:20.74M (Peak 20.74M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:20.96M (Peak 20.96M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_chassis_open_service_v1
+Fra:13 Mem:21.06M (Peak 21.06M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_NamePanel
+Fra:13 Mem:21.09M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_fascia_v1
+Fra:13 Mem:21.03M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:20.85M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_sign_chips_v1
+Fra:13 Mem:20.85M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_food_palette_v1.png
+Fra:13 Mem:20.85M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading food_van_palette.001
+Fra:13 Mem:20.85M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_name_panel_chip_block_v1
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.67M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.88M, Peak:1.88M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.88M, Peak:1.88M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.97M, Peak:1.97M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_palette_chip_block_v1.png
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.97M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.27M, Peak:3.35M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.80M (Peak 87.80M) | Time:00:00.28 | Remaining:00:02.95 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.92M (Peak 158.11M) | Time:00:05.73 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.92M (Peak 158.11M) | Time:00:05.73 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\food-female-default62-0.png'
+Time: 00:05.85 (Saving: 00:00.11)
+
+Fra:13 Mem:20.68M (Peak 20.68M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:20.70M (Peak 20.70M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Hat_Cap
+Fra:13 Mem:20.75M (Peak 20.75M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_ChipsTrayV1
+Fra:13 Mem:20.83M (Peak 20.83M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_Sign_Chips
+Fra:13 Mem:20.93M (Peak 20.93M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_chassis_open_service_v1
+Fra:13 Mem:21.22M (Peak 21.21M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_NamePanel
+Fra:13 Mem:21.29M (Peak 21.29M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_fascia_v1
+Fra:13 Mem:21.03M (Peak 21.29M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:20.85M (Peak 21.29M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_food_palette_v1.png
+Fra:13 Mem:20.85M (Peak 21.29M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_sign_chips_v1
+Fra:13 Mem:20.85M (Peak 21.29M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading food_van_palette.001
+Fra:13 Mem:22.10M (Peak 22.10M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_name_panel_chip_block_v1
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.67M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.88M, Peak:1.88M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.88M, Peak:1.88M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.97M, Peak:1.97M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_palette_chip_block_v1.png
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.97M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.27M, Peak:3.35M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.80M (Peak 87.80M) | Time:00:00.29 | Remaining:00:03.05 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.92M (Peak 158.11M) | Time:00:05.71 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.92M (Peak 158.11M) | Time:00:05.71 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\food-female-default62-1.png'
+Time: 00:05.83 (Saving: 00:00.11)
+
+Fra:13 Mem:20.68M (Peak 20.68M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:20.68M (Peak 20.68M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Server_Apron
+Fra:13 Mem:20.77M (Peak 20.77M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Hat_Cap
+Fra:13 Mem:20.78M (Peak 20.78M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:20.79M (Peak 20.79M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_Sign_Chips
+Fra:13 Mem:20.80M (Peak 20.80M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_chassis_open_service_v1
+Fra:13 Mem:20.94M (Peak 20.94M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_fascia_v1
+Fra:13 Mem:21.05M (Peak 21.05M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_NamePanel
+Fra:13 Mem:21.03M (Peak 21.05M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:20.85M (Peak 21.05M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_sign_chips_v1
+Fra:13 Mem:20.85M (Peak 21.05M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_server_food_palette_v1.png
+Fra:13 Mem:20.85M (Peak 21.05M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading food_van_palette.001
+Fra:13 Mem:20.85M (Peak 21.05M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_name_panel_chip_block_v1
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.67M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.88M, Peak:1.88M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.88M, Peak:1.88M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.97M, Peak:1.97M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_palette_chip_block_v1.png
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.97M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.27M, Peak:3.35M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.80M (Peak 87.80M) | Time:00:00.28 | Remaining:00:02.96 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.92M (Peak 158.11M) | Time:00:05.56 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.92M (Peak 158.11M) | Time:00:05.56 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\food-female-default62-2.png'
+Time: 00:05.67 (Saving: 00:00.11)
+
+Fra:13 Mem:20.68M (Peak 20.68M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Attendee_Body
+Fra:13 Mem:20.68M (Peak 20.68M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_Hat_Cap
+Fra:13 Mem:20.76M (Peak 20.76M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_Sign_Chips
+Fra:13 Mem:20.81M (Peak 20.81M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_ChipsTrayV1
+Fra:13 Mem:20.90M (Peak 20.90M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | Plane
+Fra:13 Mem:20.91M (Peak 20.91M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_chassis_open_service_v1
+Fra:13 Mem:21.03M (Peak 21.03M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | LWF_FoodVan_NamePanel
+Fra:13 Mem:21.09M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Synchronizing object | lwf_food_van_fascia_v1
+Fra:13 Mem:21.03M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Initializing
+Fra:13 Mem:20.85M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_sign_chips_v1
+Fra:13 Mem:20.85M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading food_van_palette.001
+Fra:13 Mem:20.85M (Peak 21.09M) | Time:00:00.00 | Mem:0.00M, Peak:0.00M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_name_panel_chip_block_v1
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Waiting for render to start
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Loading render kernels (may take a few minutes the first time)
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Scene
+Fra:13 Mem:19.53M (Peak 25.13M) | Time:00:00.00 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Shaders
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Procedurals
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Background
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Camera
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Meshes Flags
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.76M, Peak:1.76M | Scene, ViewLayer | Updating Objects | Copying Transformations to device
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Objects | Applying Static Transformations
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Particle Systems | Copying Particles to device
+Fra:13 Mem:19.62M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Meshes
+Fra:13 Mem:19.67M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Computing attributes
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.77M, Peak:1.77M | Scene, ViewLayer | Updating Mesh | Copying Attributes to device
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.88M, Peak:1.88M | Scene, ViewLayer | Updating Scene BVH | Building
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.88M, Peak:1.88M | Scene, ViewLayer | Updating Scene BVH | Building BVH
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:1.97M, Peak:1.97M | Scene, ViewLayer | Updating Scene BVH | Building BVH 0%
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Scene BVH | Copying BVH to device
+Fra:13 Mem:19.78M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Mesh | Computing normals
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.08M, Peak:2.17M | Scene, ViewLayer | Updating Mesh | Copying Mesh to device
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Objects Flags
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Primitive Offsets
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Images
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Images | Loading lwf_food_van_palette_chip_block_v1.png
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Camera Volume
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.27M, Peak:2.27M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights | Computing distribution
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Lights | Computing tree
+Fra:13 Mem:19.97M (Peak 25.13M) | Time:00:00.01 | Mem:2.35M, Peak:2.35M | Scene, ViewLayer | Updating Integrator
+Fra:13 Mem:20.97M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Film
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.27M, Peak:3.35M | Scene, ViewLayer | Updating Lookup Tables
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Baking
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Updating Device | Writing constant memory
+Fra:13 Mem:20.98M (Peak 25.13M) | Time:00:00.01 | Mem:3.35M, Peak:3.35M | Scene, ViewLayer | Sample 0/12
+Fra:13 Mem:87.80M (Peak 87.80M) | Time:00:00.26 | Remaining:00:02.82 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Sample 1/12
+Fra:13 Mem:115.92M (Peak 158.11M) | Time:00:05.74 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Sample 12/12
+Fra:13 Mem:115.92M (Peak 158.11M) | Time:00:05.74 | Mem:70.16M, Peak:70.16M | Scene, ViewLayer | Finished
+Saved: 'C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\service-server-assets-v1\review\food-female-default62-3.png'
+Time: 00:05.86 (Saving: 00:00.11)
+
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+RENDERS COMPLETE
+
+Blender quit

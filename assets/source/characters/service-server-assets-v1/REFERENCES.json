@@ -1,0 +1,86 @@
+[
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\build_rigged.py",
+    "sha256": "AAC77E7A9F94D6367001C1D84F1CA7A936238206A328074D960E0D8EE0A9F740"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\attendee-v6-draft\\build_attendee.py",
+    "sha256": "1F8F17A26A5661BA94C3DD87481FDDC8C124FAC227B8F138B9846BC287D94574"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\CameraRig.cs",
+    "sha256": "46CF912F6205C0F5B5CDC4700BABDC6639ECE958B9ACD4DD441A6873716D41D9"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\Main.ImmersionAssets.cs",
+    "sha256": "22243AC957BC7F511BBE79075107F478A1DACD2C9C0A48E8C26E6FD93C0796E1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\CrowdBodies.Walk.cs",
+    "sha256": "2AC174953B479F4E38A98A0C1AA3B5EF111D306009CF385F59C921F7F96A9E59"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\environment\\lwf_drinks_stall_prototype_v1.glb",
+    "sha256": "33978BF56E9A1738D1AC3D8D23100C9986866CDEB74F732D114ADD2191F06F21"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\environment\\lwf_food_van_chassis_v1.glb",
+    "sha256": "40F67435B506B0E127588E518A53D04C69DE224F09599354674CBFA95DDF36BB"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\environment\\lwf_food_van_fascia_v1.glb",
+    "sha256": "92F906654D0F4BD7B8B13B718889F6E70D31B3B5FE9F9307D7DB522E31911F63"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\props\\lwf_beer_cup_v2.glb",
+    "sha256": "E6FD2E115EEF76797B97A76759B57687C8ED0A25BACED7ACD805DF1DD25ADC8C"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\props\\lwf_chips_tray_v1.glb",
+    "sha256": "0BB9EBB82A2B3558A450BEB84D9B8F89467C5B67E603A1C759C69CB0D95167A3"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\props\\lwf_curry_tray_v1.glb",
+    "sha256": "6B1E9F792D497AB13B60866769F6D27480665D8E31885F5F547F3ED96BB62F49"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\props\\lwf_pizza_plate_v1.glb",
+    "sha256": "AC43C37ABD26E261A725CCF046039AE6A5483A45550CDF0C6B796403AE318D49"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\props\\lwf_soft_drink_cup_v1.glb",
+    "sha256": "B0570C93EA5CBA3C7D297111E3C070D66AC4E0F6CD24EDEDE37C4E3B77FE9416"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_attendee_male_rigged_test_v1.blend",
+    "sha256": "666E6DE58020ED0922E619762978ED648CCE94E24A5FDEA0D529422977C3997F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_hair_male_default_v1.glb",
+    "sha256": "66E002D3D812FC54F4FB80A2738EADFB2E5F5ACCA850A94367C1FD08E6DFF89D"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_hair_male_default_under_cap_v1.glb",
+    "sha256": "26F9D30AA5EE6A4BB1EA3BCD20A85F4629083140B397A268410617D3E387D702"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_hat_cap_male_v1.glb",
+    "sha256": "99E9F16D4A8DDCB0D1089116B517B61CA649E58CB1A9FF920E32705E493F5097"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_attendee_female_rigged_test_v1.blend",
+    "sha256": "D6DD0F776E601B1073688C4DEE2F03BD7613A45D962A7DE9EA004F225422832F"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_hair_female_default_v1.glb",
+    "sha256": "6FA6DC3F4F370EBE6FC6AA9983EEC26219B95F52EF1CDC810613B1ABB8A75FC2"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_hair_female_default_under_cap_v1.glb",
+    "sha256": "CE94F1D7CFCB92EC92FC64DC9A2AE931E1A33104B2DE212D7F0E224D0E7A7EA1"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_hat_cap_female_v1.glb",
+    "sha256": "9C1CF0B181C2F83EECC7F8987A2013DFA0A870AB880B1BC142B1BF98FE61B59B"
+  }
+]

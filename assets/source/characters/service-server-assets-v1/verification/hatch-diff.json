@@ -1,0 +1,8 @@
+{
+  "original_triangles": 376,
+  "new_triangles": 370,
+  "unchanged_triangles_with_exact_positions_uv": 362,
+  "removed_triangles": 14,
+  "added_triangles": 8,
+  "scope": "Only solid front face and dark hatch box removed; four front rectangles replace front around original hatch bounds."
+}
