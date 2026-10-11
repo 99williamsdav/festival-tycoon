@@ -637,6 +637,8 @@ public sealed partial class GameSession
             {
                 // Guests outside the gate do not heat up or get thirsty yet.
                 if (item.NeedProfile == MedicalNeedProfile.Guest && !item.Admitted || GuestWaitingForRelease(item.Id)) continue;
+                // The player's steward gets thirsty and hot at their own pace, and never collapses.
+                if (IsPlayerSteward(item.Id)) { AdvancePlayerNeeds(item.Id, m.IsHot, rainy); continue; }
                 if (RobotWorker(item.Id)) { MutatePerson(item.Id, person => { person.Thirst = 0; person.HeatExposure = 0; }); continue; }
                 // Guests and performers heat up at the same rate; on-duty staff far more slowly. Nobody does in the rain.
                 var heat = rainy ? 0 : item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;

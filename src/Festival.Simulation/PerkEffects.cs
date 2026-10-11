@@ -26,7 +26,7 @@ public sealed partial class GameSession
     private bool BringsOwnBottle(ulong id) => HasPerk(PerkCatalogue.BringYourOwnBottle) && IsGuest(id);
 
     /// <summary>A robot worker: staff, with Robot Workers, who never get thirsty, hot, hungry or need the loo.</summary>
-    // The player's steward has no needs yet either.
+    // The player's steward has no hunger or loo needs either; their thirst and heat are their own (AdvancePlayerNeeds).
     private bool RobotWorker(ulong id) => HasPerk(PerkCatalogue.RobotWorkers) && IsStaffMember(id) || IsPlayerSteward(id);
 
     /// <summary>Waiting guests chat and cheer up: in a tap, toilet or stall queue, but not once they're being served.</summary>

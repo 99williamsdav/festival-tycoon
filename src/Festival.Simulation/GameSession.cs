@@ -263,6 +263,10 @@ public sealed partial class GameSession
                 affectedTarget = new(_stewardShift!.PlayerId!.Value);
                 ApplyPlayerMove(move);
                 break;
+            case StewardActionCommand action:
+                affectedTarget = new(_stewardShift!.PlayerId!.Value);
+                ApplyStewardAction(action);
+                break;
 
             default:
                 return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported.");
@@ -276,6 +280,8 @@ public sealed partial class GameSession
             envelope.Command.GetType().Name,
             affectedTarget));
         NextSubmissionSequence++;
+        // A shift's radio and held action follow whatever the command changed.
+        SettleStewardShift();
         return CommandResult.Accepted(affectedTarget);
     }
 
@@ -333,6 +339,7 @@ public sealed partial class GameSession
             AdvanceMedical();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceDisorder();
             if (_preparation?.Status == PreparationStatus.Running) AdvanceStaffInterventions();
+            if (_preparation?.Status == PreparationStatus.Running) AdvanceStewardShift();
             if (MedicalOperationsActive) { AdvanceImmersion(); AdvanceToilet(); ApplyHeatAndThirstMood(); }
             // Must follow every source of a death that freezes the day, or a frozen save keeps a straw job or sweep it can't load.
             ReleaseFrozenStaffClaims();
@@ -345,6 +352,7 @@ public sealed partial class GameSession
             AdvanceLavSucker();
             FinalizeFestivalDeparture();
             if (_preparation?.Status is PreparationStatus.Departing or PreparationStatus.Finished) CleanupImmersionDeparture();
+            SettleStewardShift();
             if (_preparation?.Status is PreparationStatus.Failed or PreparationStatus.Finished) break;
         }
 

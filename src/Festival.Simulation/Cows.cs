@@ -366,6 +366,7 @@ public sealed partial class GameSession
     private LooseCow? AdvanceHerdedCow(LooseCow?[] herd, int index, ulong herder)
     {
         var cow = herd[index]!;
+        if (IsPlayerSteward(herder)) return AdvancePlayerHerdedCow(herd, index, herder);
         var nav = _navigationAgents[new(herder)];
         // Anything else that takes the steward's route (a fight, a collapse) lets the cow go back to grazing; so does a cow
         // the steward can't reach, or a herd that's run far too long.
@@ -454,7 +455,9 @@ public sealed partial class GameSession
                 cow.Activity == CowActivity.Grazing && cow.Route.Length != 0 || cow.Activity == CowActivity.Ambling && cow.RouteIndex >= cow.Route.Length ||
                 (cow.HerderId is null) == (cow.Activity == CowActivity.Herded) || cow.Driving && cow.HerderId is null ||
                 (cow.HerderId is null) != (cow.HerdStartedTick < 0) || cow.HerdStartedTick > s.CurrentTick ||
-                cow.HerderId is { } h && (!stewards.Contains(h) || s.NavigationAgents?.SingleOrDefault(n => n.Id == h)?.IntentId?.StartsWith("cow.", StringComparison.Ordinal) != true))
+                // The player's steward drives a cow on their own feet, not on a cow route.
+                cow.HerderId is { } h && (!stewards.Contains(h) || (h == s.StewardShift?.PlayerId ? !cow.Driving :
+                    s.NavigationAgents?.SingleOrDefault(n => n.Id == h)?.IntentId?.StartsWith("cow.", StringComparison.Ordinal) != true)))
                 return "Loose cow invalid.";
         }
         if (c.Loose.Where(cow => cow.HerderId is not null).GroupBy(cow => cow.HerderId).Any(g => g.Count() > 1)) return "One steward herds one cow.";

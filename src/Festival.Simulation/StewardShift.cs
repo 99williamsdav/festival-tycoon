@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace Festival.Simulation;
 
 /// <summary>
@@ -6,9 +8,28 @@ namespace Festival.Simulation;
 /// (closing hands them back to the crew so they walk home). The record being present marks the mode.
 /// Movement input holds until the next <see cref="SetPlayerMoveCommand"/>; facing is whole degrees. The remainders
 /// carry the part of a millimetre each axis didn't move last tick (−999 to 999 µm), so slow and diagonal walks keep pace.
+/// The rest is the shift's work: the action being held, the guest being walked out, the radio's calls and the score.
 /// </summary>
 public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int MoveX, int MoveZ, bool Run, int FacingDegrees,
-    int RemainderX = 0, int RemainderZ = 0);
+    int RemainderX = 0, int RemainderZ = 0)
+{
+    /// <summary>The action the player is holding the key on; null when their hands are free.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardActionProgress? Action { get; init; }
+    /// <summary>How the last action ended, for the HUD's word on it.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardActionOutcome? LastOutcome { get; init; }
+    /// <summary>The instigator the player just calmed or parted, who may be walked out until the offer lapses.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardEscortOffer? EscortOffer { get; init; }
+    /// <summary>The guest following the player to the gate.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ulong? EscortId { get; init; }
+    /// <summary>The radio's open calls, then the last few closed, oldest first.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardCall[]? Calls { get; init; }
+    /// <summary>Guests already given directions today, in the order they were.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ulong[]? Directed { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardShiftScore? Score { get; init; }
+    /// <summary>The crowd's average satisfaction (of 10,000) when the shift ended; null while it's on.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public int? ClosingMood { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public long? EndedTick { get; init; }
+}
 
 /// <summary>
 /// The player steward's movement input, held until the next one. The direction is world X/Z in permille
@@ -17,21 +38,68 @@ public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int Move
 /// </summary>
 public sealed record SetPlayerMoveCommand(int DirectionX, int DirectionZ, bool Run, int FacingDegrees) : SessionCommand;
 
-/// <summary>What the player steward can do to someone in reach. Placeholder: the mechanics pass fills this in.</summary>
-public enum StewardActionKind { Interact = 1 }
+/// <summary>
+/// What the player steward can do, by holding the action key on something in reach. <see cref="Release"/> lets go.
+/// The order is the order of preference when one target allows more than one.
+/// </summary>
+public enum StewardActionKind
+{
+    Release = 0,
+    BreakUp = 1, RadioMedic, StandBy, Calm, FreeLoo, Escort, HerdCow, Drink, EmptyBin, BodgeTap, Directions, SpreadStraw, PickLitter,
+}
+
+/// <summary>What a reach target is: someone, a facility, a piece of litter, a cow, or a patch of mud.</summary>
+public enum StewardTargetKind { Person = 1, Toilet, Tap, Bar, Bin, Litter, Cow, Mud }
 
 /// <summary>
-/// Hook for the player steward's interactions (calming, fights, loos, bins, radio). Validated so the
-/// shape is fixed, but always rejected until the mechanics exist. Target is a person from <see cref="GameSession.StewardReach"/>.
+/// Starts holding <paramref name="Action"/> on <paramref name="TargetId"/> (from <see cref="GameSession.StewardReach"/>,
+/// with the facing it was found at), or with <see cref="StewardActionKind.Release"/> lets go of whatever is held.
 /// </summary>
-public sealed record StewardActionCommand(StewardActionKind Action, ulong TargetId, int FacingDegrees) : SessionCommand;
+public sealed record StewardActionCommand(StewardActionKind Action, string TargetId, int FacingDegrees) : SessionCommand;
 
-/// <summary>Someone the player steward could act on: in reach and in front. Data only.</summary>
-public sealed record StewardReachTarget(ulong PersonId, string Name, ProtectedPersonRole Role, int DistanceMillimetres);
+/// <summary>Something the player steward could act on: in reach and in front, with the action they'd take, if any. Data only.</summary>
+public sealed record StewardReachTarget(string TargetId, StewardTargetKind Kind, string Name, StewardActionKind? Action, int DistanceMillimetres,
+    ulong? PersonId = null, ProtectedPersonRole Role = default);
+
+/// <summary>A held action: when the key went down and how long it must stay down.</summary>
+public sealed record StewardActionProgress(StewardActionKind Kind, string TargetId, long StartedTick, int DurationTicks);
+
+/// <summary>How an action ended: done (with how it went) or dropped. <paramref name="Text"/> is the line the HUD shows.</summary>
+public sealed record StewardActionOutcome(StewardActionKind Kind, string TargetId, bool Completed, bool Success, long Tick, string Text);
+
+public sealed record StewardEscortOffer(ulong GuestId, long UntilTick);
+
+/// <summary>The shift's tally, for the report card.</summary>
+public sealed record StewardShiftScore
+{
+    /// <summary>Calls that went out over the radio (or that the player got to first), and those the player answered.</summary>
+    public int Calls { get; init; }
+    public int Answered { get; init; }
+    /// <summary>Summed over answered calls: from the radio call (or the incident, if it never went out) to the player's action.</summary>
+    public long ResponseTicks { get; init; }
+    /// <summary>Urgent calls (fights, collapses) that went out over the radio and closed without the player.</summary>
+    public int UrgentMissed { get; init; }
+    /// <summary>Complaining, agitated or arguing guests calmed: fights prevented.</summary>
+    public int Calmed { get; init; }
+    public int CalmsFailed { get; init; }
+    public int FightsBrokenUp { get; init; }
+    public int BreakUpsFailed { get; init; }
+    public int Escorted { get; init; }
+    public int MedicRadioed { get; init; }
+    public int StoodBy { get; init; }
+    public int LoosFreed { get; init; }
+    public int TapsBodged { get; init; }
+    public int BinsEmptied { get; init; }
+    public int LitterPicked { get; init; }
+    public int StrawSpread { get; init; }
+    public int CowsHerded { get; init; }
+    public int Directions { get; init; }
+    public int Drinks { get; init; }
+}
 
 public static class StewardShiftRules
 {
-    public const int Version = 2;
+    public const int Version = 3;
     /// <summary>The hedged field, in grid cells: −32 m to +32 m both ways. The player steward stays inside it.</summary>
     public const int FieldMinCell = 64, FieldMaxCell = 191;
     /// <summary>Running pace against a steward's walk.</summary>
@@ -46,6 +114,77 @@ public static class StewardShiftRules
     /// <summary>cos 40°: the reach cone's half-width either side of facing.</summary>
     public const int ReachConeCosPermille = 766;
     public const string Intent = "steward-shift.player";
+    /// <summary>A guest being walked out by the player follows them on this route.</summary>
+    public const string EscortIntent = "steward-shift.escort";
+
+    /// <summary>
+    /// How long the key must be held for each action, in ticks (80 a second): the designer's suggested holds for calm,
+    /// break up, escort, help up (stand by) and pick up; freeing a jammed loo is two seconds, a third of the crew's.
+    /// </summary>
+    public static int DurationTicks(StewardActionKind kind) => kind switch
+    {
+        StewardActionKind.Calm => 128,
+        StewardActionKind.BreakUp => 176,
+        StewardActionKind.Escort => 96,
+        StewardActionKind.RadioMedic => 80,
+        StewardActionKind.StandBy => 200,
+        StewardActionKind.FreeLoo => 160,
+        StewardActionKind.BodgeTap => 480,
+        StewardActionKind.EmptyBin => 240,
+        StewardActionKind.PickLitter => 48,
+        StewardActionKind.SpreadStraw => 320,
+        StewardActionKind.HerdCow => 80,
+        StewardActionKind.Directions => 80,
+        StewardActionKind.Drink => 120,
+        _ => 0,
+    };
+    /// <summary>A held action carries on while its target stays this close: reach plus half a metre's give.</summary>
+    public const int HoldReachMillimetres = ReachMillimetres + 500;
+    /// <summary>Litter is picked up from a little nearer.</summary>
+    public const int LitterReachMillimetres = 2_000;
+    /// <summary>The patch of ground a bale is spread on: this far ahead of the player.</summary>
+    public const int MudAheadMillimetres = 1_000;
+
+    /// <summary>A failed calm winds them up this much.</summary>
+    public const int FailedCalmPressure = 1_500;
+    /// <summary>How long after a calm or a break-up the instigator may still be walked out.</summary>
+    public const int EscortOfferTicks = 2_400;
+    /// <summary>An escorted guest further than this from the player has slipped away.</summary>
+    public const int EscortLostMillimetres = 15_000;
+    /// <summary>Within this of the gate, with the guest close behind, the player hands them out of it.</summary>
+    public const int EscortGateMillimetres = 6_000, EscortCloseMillimetres = 5_000;
+    /// <summary>How far behind the player the escorted guest walks, and how often their route is refreshed.</summary>
+    public const int EscortFollowMillimetres = 1_200, EscortRefreshTicks = 20;
+    /// <summary>A driven cow walks on while the player keeps within this; it gives up on them beyond the second.</summary>
+    public const int HerdKeepUpMillimetres = 8_000, HerdLostMillimetres = 16_000;
+    /// <summary>A lost guest pointed the right way is this much happier (of 10,000).</summary>
+    public const int DirectionsSatisfaction = 150;
+
+    /// <summary>
+    /// The player's own thirst and heat, every four ticks: thirst always (half as fast in the rain), heat in a heatwave
+    /// out of the shade (running adds half again to both). Shade cools fast, and rain slowly.
+    /// </summary>
+    public const int ThirstPerStep = 1, HeatPerStep = 1, ShadeCoolPerStep = 5, RainCoolPerStep = 1;
+    /// <summary>A drink takes this much off thirst, and a little off heat.</summary>
+    public const int DrinkThirstRelief = 6_000, DrinkHeatRelief = 2_500;
+    /// <summary>From here thirst or heat shows on the HUD; from the next the player slows a little, and more from the last.</summary>
+    public const int NeedNoticeLevel = 4_000, NeedSlowLevel = 7_000, NeedSlowerLevel = 9_000;
+    public const int NeedSlowPermille = 900, NeedSlowerPermille = 800;
+
+    /// <summary>How long after an incident starts Control puts it out over the radio, in ticks.</summary>
+    public static int RadioDelayTicks(StewardCallKind kind) => kind switch
+    {
+        StewardCallKind.Fight => 160,
+        StewardCallKind.Collapse => 240,
+        StewardCallKind.Argument => 480,
+        StewardCallKind.StuckInLoo => 640,
+        StewardCallKind.BrokenTap => 320,
+        StewardCallKind.LooseCow => 160,
+        _ => 0,
+    };
+    public static bool Urgent(StewardCallKind kind) => kind is StewardCallKind.Fight or StewardCallKind.Collapse;
+    /// <summary>Closed calls kept for the radio strip after they close: this many, for this long.</summary>
+    public const int ClosedCallsKept = 6, ClosedCallTicks = 800;
 
     public static bool InField(GridCell cell) =>
         cell.X is >= FieldMinCell and <= FieldMaxCell && cell.Z is >= FieldMinCell and <= FieldMaxCell;
@@ -111,7 +250,7 @@ public sealed partial class GameSession
         MutatePerson(id, person => { person.Admitted = true; person.Intent = MedicalIntent.WatchShow; person.Reason = "Steward on shift"; });
         // Face the main stage.
         var (sx, sz) = TraversalGrid.CellCentre(Stages[0].PerformerMarks[0]);
-        _stewardShift = new(StewardShiftRules.Version, id, 0, 0, false, StewardShiftRules.FacingTowards(sx - x, sz - z));
+        _stewardShift = new(StewardShiftRules.Version, id, 0, 0, false, StewardShiftRules.FacingTowards(sx - x, sz - z)) { Calls = [], Score = new() };
     }
 
     private static void StopPlayerRoute(NavigationAgentState nav)
@@ -119,13 +258,6 @@ public sealed partial class GameSession
         nav.Action = AgentNavigationAction.Idle; nav.Destination = null; nav.Route = []; nav.RouteIndex = 0;
         nav.SegmentOriginXMillimetres = nav.XMillimetres; nav.SegmentOriginZMillimetres = nav.ZMillimetres;
         nav.SegmentProgressMicrometres = 0; nav.MovementRemainder = 0; nav.IntentId = StewardShiftRules.Intent;
-    }
-
-    /// <summary>Closing ends the shift: the crew's ordinary rules walk the steward home with everyone else.</summary>
-    private void ReleaseStewardControl()
-    {
-        if (_stewardShift?.PlayerId is null) return;
-        _stewardShift = _stewardShift with { PlayerId = null, MoveX = 0, MoveZ = 0, Run = false };
     }
 
     private CommandResult? ValidatePlayerMove(EntityId? target, SetPlayerMoveCommand command)
@@ -140,16 +272,6 @@ public sealed partial class GameSession
     private void ApplyPlayerMove(SetPlayerMoveCommand command) => _stewardShift = _stewardShift! with
         { MoveX = command.DirectionX, MoveZ = command.DirectionZ, Run = command.Run, FacingDegrees = command.FacingDegrees };
 
-    // Mechanics hook: interaction commands are validated here and applied in Execute once they exist.
-    private CommandResult? ValidateStewardAction(EntityId? target, StewardActionCommand command)
-    {
-        if (target is not null || _stewardShift?.PlayerId is null || _preparation?.Status != PreparationStatus.Running)
-            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Nobody is on shift.");
-        if (!Enum.IsDefined(command.Action) || command.FacingDegrees is < 0 or > 359 || !StewardReach(command.FacingDegrees).Any(item => item.PersonId == command.TargetId))
-            return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Nobody like that is in reach.");
-        return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Steward actions come with the mechanics pass.");
-    }
-
     /// <summary>
     /// One tick of the player's walk, before anyone else moves: at a steward's pace (faster running), slowed by
     /// rough or muddy ground, stopped by anything blocked in the grid, anyone standing there, loose cows and the
@@ -162,7 +284,8 @@ public sealed partial class GameSession
         var nav = _navigationAgents[new(id)];
         var cell = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
         var cost = (long)_traversalGrid.Get(cell).CostPermille * GroundSlowPermille(cell);
-        var micro = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000 * (shift.Run ? StewardShiftRules.RunPermille : 1000) / 1000;
+        var micro = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000 * (shift.Run ? StewardShiftRules.RunPermille : 1000) / 1000 *
+            PlayerNeedPacePermille(id) / 1000;
         var stepMicrometres = micro * 1_000_000 / Math.Max(1, cost);
         var length = Math.Max(1000, IntegerSquareRoot((long)shift.MoveX * shift.MoveX + (long)shift.MoveZ * shift.MoveZ));
         var ux = stepMicrometres * shift.MoveX / length + shift.RemainderX;
@@ -215,35 +338,17 @@ public sealed partial class GameSession
     }
 
     /// <summary>
-    /// People in reach and in front of the player steward, nearest first (then lowest id): everyone on site
-    /// but themselves. <paramref name="facingDegrees"/> previews another facing (the camera's); the saved one
-    /// otherwise. Data only. Mechanics hook: bins, loos and taps join this list later.
-    /// </summary>
-    public IReadOnlyList<StewardReachTarget> StewardReach(int? facingDegrees = null, int reachMillimetres = StewardShiftRules.ReachMillimetres)
-    {
-        if (_stewardShift is not { PlayerId: { } id } shift || !_navigationAgents.TryGetValue(new(id), out var me)) return [];
-        var (fx, fz) = StewardShiftRules.Facing(facingDegrees ?? shift.FacingDegrees);
-        var found = new List<StewardReachTarget>();
-        foreach (var person in PeopleIn(PersonView.Roster))
-        {
-            if (person.Id == id || !person.Admitted || person.Departed || GuestWaitingForRelease(person.Id) ||
-                !_navigationAgents.TryGetValue(new(person.Id), out var nav)) continue;
-            long dx = nav.XMillimetres - me.XMillimetres, dz = nav.ZMillimetres - me.ZMillimetres;
-            var distance = IntegerSquareRoot(dx * dx + dz * dz);
-            if (distance > reachMillimetres || fx * dx + fz * dz < StewardShiftRules.ReachConeCosPermille * distance) continue;
-            found.Add(new(person.Id, person.Name, person.Role, (int)distance));
-        }
-        return found.OrderBy(item => item.DistanceMillimetres).ThenBy(item => item.PersonId).ToArray();
-    }
-
-    /// <summary>
     /// Checked on the restored session, where the live rules can say it: a steward on shift holds no job, claim,
-    /// queue place, errand or carried thing, since nothing could have given them one.
+    /// queue place, errand or carried thing, since nothing could have given them one, but the cow they're driving
+    /// home; and the shift's own work is what the live rules allow (<see cref="StewardShiftWorkIssue"/>).
     /// </summary>
     private string? PlayerStewardWorkIssue()
     {
-        if (_stewardShift?.PlayerId is not { } id) return null;
-        if (CaptureClaims(id) is var claims and not PersonClaim.None) return $"The player steward holds other work ({claims}).";
+        if (_stewardShift?.PlayerId is not { } id) return StewardShiftWorkIssue();
+        var claims = CaptureClaims(id);
+        // Driving one cow home is theirs to do: it's held as fault work.
+        if (_cows?.Loose.Count(cow => cow.HerderId == id) == 1 && _cows.Loose.Single(cow => cow.HerderId == id).Driving) claims &= ~PersonClaim.FaultWork;
+        if (claims != PersonClaim.None) return $"The player steward holds other work ({claims}).";
         if (Vendors.Any(v => v.OwnerId == id || v.Queue.Contains(id)) ||
             EffectiveToilets(_facilities).Any(t => t.OwnerId == id || t.InterruptedOccupantId == id || t.Queue.Contains(id)) ||
             WaterPoints().Any(w => w.OwnerId == id || w.Queue.Contains(id) || w.Overflow.Contains(id)))
@@ -253,7 +358,7 @@ public sealed partial class GameSession
         if (me.Intent != MedicalIntent.WatchShow || me.Held is not null || me.VendorId is not null || me.Order is not null ||
             me.ToiletStage != ToiletVisitStage.None || me.WaterQueueSlot is not null || me.ConductStage != DisorderStage.Calm)
             return "The player steward is busy with something of their own.";
-        return null;
+        return StewardShiftWorkIssue();
     }
 
     private static string? ValidatePersistedStewardShift(SessionPersistenceSnapshot snapshot)
@@ -265,6 +370,7 @@ public sealed partial class GameSession
         if (snapshot.Preparation is not { } p || snapshot.Disorder is not { } d || snapshot.TraversalGrid is null || snapshot.NavigationAgents is null)
             return "A steward shift needs a festival with stewards.";
         if (!SavedPerkEffect(snapshot.Perks, StewardShiftPerk)) return "A steward shift needs the second steward's perk.";
+        if (ValidatePersistedStewardWork(shift, snapshot, p) is { } work) return work;
         if (shift.PlayerId is not { } id)
         {
             if (shift.MoveX != 0 || shift.MoveZ != 0 || shift.Run || shift.RemainderX != 0 || shift.RemainderZ != 0) return "A finished steward shift holds no movement.";

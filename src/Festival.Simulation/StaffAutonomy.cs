@@ -69,7 +69,7 @@ public sealed partial class GameSession
         foreach (var need in PeopleIn(PersonView.Medical).Where(need => EffectiveMedicalStage(need) is MedicalStage.Critical or MedicalStage.Collapsed)
                      .OrderBy(need => EffectiveMedicalStage(need) == MedicalStage.Critical ? 0 : 1)
                      .ThenBy(MedicalResponseDeadline).ThenBy(need => need.Id).ToArray())
-            if (!ResponseTargetClaimed(need.Id) && SelectRoleResponse(ResponseRole.Medic, need.Id,
+            if (!ResponseTargetClaimed(need.Id) && !CollapseAwaitsTheRadio(need.Id) && SelectRoleResponse(ResponseRole.Medic, need.Id,
                     worker => AcceptsAutomaticResponse(worker, need.Id,
                         EffectiveMedicalStage(need) == MedicalStage.Critical ? CriticalResponseValue : CollapsedResponseValue,
                         GetResponseStaff().Single(item => item.AgentId == worker).TreatmentTicks), out _) is MedicalCommand command)
