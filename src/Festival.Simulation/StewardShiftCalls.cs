@@ -15,6 +15,14 @@ public sealed record StewardCall(string Id, StewardCallKind Kind, string Subject
     [JsonIgnore] public bool Open => ClosedTick < 0;
     [JsonIgnore] public long HeardTick => OpenedTick + StewardShiftRules.RadioDelayTicks(Kind);
     [JsonIgnore] public bool Urgent => StewardShiftRules.Urgent(Kind);
+    /// <summary>
+    /// A hands-on day only: the hired crew member Control has on it (a steward, the medic, maintenance), kept as it was
+    /// when the call closed. A covered call isn't the player's: it shows as covered and, unless they answered it anyway,
+    /// is left out of their score.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ulong? CoveredBy { get; init; }
+    /// <summary>Answered by the player's steward working by themselves (the autopilot) rather than by the player's hands.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool Auto { get; init; }
 }
 
 /// <summary>
@@ -62,18 +70,25 @@ public sealed partial class GameSession
         var closing = calls.Any(call => call.Open && !liveIds.Contains(call.Id));
         var opening = live.Any(item => !openIds.Contains(item.Id));
         var expiring = calls.Any(call => !call.Open && call.ClosedTick < CurrentTick - StewardShiftRules.ClosedCallTicks);
-        if (!closing && !opening && !expiring) return;
+        // A hands-on day: who in the hired crew holds each open call follows the incidents too.
+        var covering = IsHandsOn && calls.Any(call => call.Open && liveIds.Contains(call.Id) && call.CoveredBy != CrewHolder(call));
+        if (!closing && !opening && !expiring && !covering) return;
         var score = shift.Score ?? new();
         var next = new List<StewardCall>();
         foreach (var call in calls)
         {
-            if (!call.Open || liveIds.Contains(call.Id)) { next.Add(call); continue; }
+            if (!call.Open) { next.Add(call); continue; }
+            if (liveIds.Contains(call.Id)) { next.Add(IsHandsOn ? call with { CoveredBy = CrewHolder(call) } : call); continue; }
             var closed = call with { ClosedTick = CurrentTick };
             score = Counted(score, closed, UrgentDealtWith(closed));
             next.Add(closed);
         }
         foreach (var (id, kind, subject) in live)
-            if (!openIds.Contains(id)) next.Add(new(id, kind, subject, CurrentTick));
+            if (!openIds.Contains(id))
+            {
+                StewardCall call = new(id, kind, subject, CurrentTick);
+                next.Add(IsHandsOn ? call with { CoveredBy = CrewHolder(call) } : call);
+            }
         _stewardShift = shift with { Calls = Pruned(next), Score = score };
     }
 
@@ -93,9 +108,12 @@ public sealed partial class GameSession
     {
         var answered = call.AnsweredTick >= 0;
         if (!answered && call.ClosedTick < call.HeardTick) return score;
+        // On a hands-on day Control gave it to the hired crew: not the player's call, unless they answered it anyway.
+        if (!answered && call.CoveredBy is not null) return score;
         return score with
         {
             Calls = score.Calls + 1, Answered = score.Answered + (answered ? 1 : 0),
+            AutoAnswered = score.AutoAnswered + (answered && call.Auto ? 1 : 0),
             ResponseTicks = score.ResponseTicks + (answered ? Math.Max(0, call.AnsweredTick - call.HeardTick) : 0),
             UrgentUnhandled = score.UrgentUnhandled + (!answered && call.Urgent && !dealtWith ? 1 : 0),
         };
@@ -153,7 +171,7 @@ public sealed partial class GameSession
         };
         if (kind == 0 || _stewardShift?.Calls is not { } calls || !calls.Any(call => call.Open && call.Kind == kind && call.Subject == subject && call.AnsweredTick < 0)) return;
         _stewardShift = _stewardShift with { Calls = calls.Select(call => call.Open && call.Kind == kind && call.Subject == subject && call.AnsweredTick < 0
-            ? call with { AnsweredTick = CurrentTick } : call).ToArray() };
+            ? call with { AnsweredTick = CurrentTick, Auto = held.Auto } : call).ToArray() };
     }
 
     /// <summary>
@@ -186,7 +204,44 @@ public sealed partial class GameSession
         if (_stewardShift is not { PlayerId: not null, Calls: { } calls }) return null;
         var open = calls.Where(call => call.Open).Select(call => (call.Id, call.Kind, call.Subject)).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
         var live = LiveStewardIncidents().OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
-        return open.SequenceEqual(live) ? null : "The steward shift's radio calls don't match what's going on.";
+        if (!open.SequenceEqual(live)) return "The steward shift's radio calls don't match what's going on.";
+        return calls.Any(call => call.Open && call.CoveredBy != (IsHandsOn ? CrewHolder(call) : null))
+            ? "The radio's covered calls don't match who in the crew is on them." : null;
+    }
+
+    /// <summary>
+    /// The hired crew member holding a call's incident now, never the player's own steward: the steward walking to or
+    /// handling a fight or argument (or who made the fight's one attempt), the medic on the way to or with a collapse,
+    /// whoever is freeing the loo or mending the tap, the steward off to empty the bin, the one herding the cow.
+    /// </summary>
+    private ulong? CrewHolder(StewardCall call)
+    {
+        var me = _stewardShift?.PlayerId;
+        ulong? Crew(ulong? id) => id is { } worker && worker != me ? worker : null;
+        ulong? Steward(ulong person) => Crew(GetStewardResponses().FirstOrDefault(job => job.TargetId == person && StewardBusy(job))?.WorkerId ??
+            CaptureStaffInterventions().FirstOrDefault(job => job.GuestId == person && InterventionBusy(job))?.WorkerId);
+        switch (call.Kind)
+        {
+            case StewardCallKind.Fight:
+            {
+                var parts = call.Id.Split(':');
+                if (parts.Length != 3 || !ulong.TryParse(parts[1], out var initiator) || !long.TryParse(parts[2], out var fightTick)) return null;
+                var origin = _disorder?.Incidents.LastOrDefault(item => item.InitiatorId == initiator && item.FightTick == fightTick);
+                if (origin?.HandlingAttempt is { } attempt) return Crew(attempt.WorkerId);
+                return Steward(initiator) ?? (origin is null ? null : Steward(origin.OpponentId));
+            }
+            case StewardCallKind.Argument:
+                return ulong.TryParse(call.Subject, out var arguing) ? Steward(arguing) : null;
+            case StewardCallKind.Collapse:
+                return ulong.TryParse(call.Subject, out var patient) ? Crew(GetMedicResponses().FirstOrDefault(medic => medic.PatientId == patient &&
+                    medic.Stage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing)?.WorkerId) : null;
+            case StewardCallKind.StuckInLoo or StewardCallKind.BrokenTap:
+                return Crew(OpenFaults.FirstOrDefault(fault => fault.Id == call.Id)?.WorkerId);
+            case StewardCallKind.FullBin:
+                return Crew(_litter?.Sweeps.FirstOrDefault(sweep => sweep.Remaining > 0 && sweep.TargetIsBin && sweep.TargetId == call.Subject)?.WorkerId);
+            default:
+                return Crew(_cows?.Loose.FirstOrDefault(cow => cow.Id == call.Subject)?.HerderId);
+        }
     }
 
     /// <summary>Where a call's incident is now: the person, the loo door, the tap, the bin or the cow. Null once it's gone.</summary>

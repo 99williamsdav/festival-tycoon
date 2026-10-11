@@ -8,16 +8,17 @@ namespace Festival.Game;
 
 /// <summary>
 /// Front of House, the hands-on campaign: the ordinary campaign with the player also on the ground as a steward.
-/// Tab swaps between the manager's view and first person on that steward while the day runs; first person rides the
-/// steward shift's controller and HUD (Main.StewardShift*.cs). In the manager's view the steward stands where they
-/// were left, marked YOU, and the radio's calls keep coming. Its saves keep to their own folder.
+/// V swaps between the manager's view and first person on that steward while the day runs; first person rides the
+/// steward shift's controller and HUD (Main.StewardShift*.cs). In the manager's view the steward, marked YOU, works by
+/// themselves (the sim's autopilot, <see cref="SetPlayerStewardControlCommand"/>), and the radio's calls keep coming.
+/// Its saves keep to their own folder.
 /// </summary>
 public partial class Main
 {
     public const string HandsOnModeName = "All-Rounder";
     public const string HandsOnStrapline = "Run it, and steward it yourself until you can afford the help.";
 
-    private string HandsOnSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v72-front-of-house");
+    private string HandsOnSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v73-front-of-house");
     private CanvasLayer? _handsOnHintLayer;
     private Label? _handsOnHint;
 
@@ -126,7 +127,7 @@ public partial class Main
         _newCampaignOnEnter = _campaignHostNewOnEnter;
         _campaignViewsStale = true;
     }
-    /// <summary>Tab: into first person on the player's steward, or back to the manager's view. The day keeps running either way.</summary>
+    /// <summary>V: into first person on the player's steward, or back to the manager's view. The day keeps running either way.</summary>
     private void ToggleHandsOnView()
     {
         if (!_session.IsHandsOn) return;
@@ -134,6 +135,8 @@ public partial class Main
         if (_session.PlayerStewardId is not { } id || !_attendeeVisuals.ContainsKey(new EntityId(id))) return;
         if (EyeViewActive) ExitEyeView();
         ClearSelection();
+        // The steward is the player's again, stopped where they were.
+        if (_session.CaptureStewardShift()?.Autopilot is not null) _host.Submit(new SetPlayerStewardControlCommand(false));
         // First person reads in real time.
         SetDaySpeed(RequestedSpeed.OneX);
         var paused = _session.IsPaused;
@@ -145,20 +148,26 @@ public partial class Main
         GD.Print($"HANDS_ON_VIEW first-person tick={_session.CurrentTick}");
     }
 
-    /// <summary>Back to the manager's view: the steward stops where they are, hands empty, and stands there.</summary>
+    /// <summary>Back to the manager's view: the steward lets go of whatever they held and carries on by themselves.</summary>
     private void LeaveHandsOnFirstPerson()
     {
         if (_shiftKeyDown) { _shiftKeyDown = false; ReleaseShiftAction(); }
-        if (_session.PlayerStewardId is not null && _session.CaptureStewardShift() is { } shift && (shift.MoveX != 0 || shift.MoveZ != 0 || shift.Run))
-            _host.Submit(new SetPlayerMoveCommand(0, 0, false, shift.FacingDegrees));
+        if (_session.PlayerStewardId is not null && _session.CaptureStewardShift() is { Autopilot: null })
+            _host.Submit(new SetPlayerStewardControlCommand(true));
         ExitStewardShiftView();
         RefreshPreparationHud();
         GD.Print($"HANDS_ON_VIEW manager tick={_session.CurrentTick}");
     }
 
-    /// <summary>The manager's view: a reminder of the key while the player's steward is on duty.</summary>
+    /// <summary>
+    /// The manager's view: a reminder of the key while the player's steward is on duty, with the calls that are theirs
+    /// (radioed, and nobody hired on them). The steward works by themselves whenever the player isn't in first person,
+    /// whatever left them otherwise (a save from first person, say).
+    /// </summary>
     private void ProcessHandsOnHint()
     {
+        if (_session.IsHandsOn && _session.PlayerStewardId is not null && _session.CaptureStewardShift() is { } own && (own.Autopilot is null) == !_shiftActive)
+            _host.Submit(new SetPlayerStewardControlCommand(!_shiftActive));
         var show = _session.IsHandsOn && !_shiftActive && _session.PlayerStewardId is not null && !StartMenu.IsOpen && !ResultsPaper.IsOpen;
         if (!show) { if (_handsOnHintLayer is not null) _handsOnHintLayer.Visible = false; return; }
         if (_handsOnHintLayer is null)
@@ -173,8 +182,9 @@ public partial class Main
             _handsOnHintLayer.AddChild(_handsOnHint);
         }
         _handsOnHintLayer.Visible = true;
-        var open = _session.CaptureStewardShift()?.Calls is { } calls ? Array.FindAll(calls, call => call.Open).Length : 0;
-        _handsOnHint!.Text = $"TAB · step into your boots{(open > 0 ? $"  ·  radio: {open} call{(open == 1 ? "" : "s")} open" : "")}";
+        var now = _session.CurrentTick;
+        var open = _session.CaptureStewardShift()?.Calls is { } calls ? Array.FindAll(calls, call => call.Open && call.CoveredBy is null && call.HeardTick <= now).Length : 0;
+        _handsOnHint!.Text = $"V · Walk the field{(open > 0 ? $"  ·  radio: {open} call{(open == 1 ? "" : "s")} yours" : "")}";
         var size = GetViewport().GetVisibleRect().Size;
         _handsOnHint.Position = new Vector2(0, size.Y - Ui.S(96));
         _handsOnHint.Size = new Vector2(size.X, Ui.S(24));

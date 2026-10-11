@@ -28,7 +28,7 @@ public partial class Main
     private CanvasLayer? _hudLayer;
 
     private bool StewardShiftActive => _shiftActive;
-    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v72-steward-shift");
+    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v73-steward-shift");
     private const float ShiftMouseRadians = 0.0024f;
 
     /// <summary>The title screen's way in: a fresh self-running festival at the picked tier, the player its second steward.</summary>
@@ -213,7 +213,7 @@ public partial class Main
                     if (_shiftMenu!.Visible) SetShiftMenu(null); else SetShiftMenu("Paused");
                     return true;
                 }
-                if (key.Keycode == Key.Tab && _session.IsHandsOn) { LeaveHandsOnFirstPerson(); return true; }
+                if (key.Keycode == Key.V && _session.IsHandsOn) { LeaveHandsOnFirstPerson(); return true; }
                 if ((key.Keycode == Key.P || key.Keycode == Key.Space && _session.IsHandsOn) && _session.PlayerStewardId is not null)
                 { _host.Submit(new SetPausedCommand(!_session.IsPaused)); return true; }
                 // First person reads in real time: 2× and 4× stay locked for now.

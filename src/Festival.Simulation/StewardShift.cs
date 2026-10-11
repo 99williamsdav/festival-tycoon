@@ -35,6 +35,11 @@ public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int Move
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardOnStage? OnStage { get; init; }
     /// <summary>Every set the player has invaded today, in the order they first did, with how many times; null before the first.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public InvadedSet[]? InvadedSets { get; init; }
+    /// <summary>
+    /// A hands-on day only: present while the player is in the manager's view and their steward works by itself
+    /// (<see cref="SetPlayerStewardControlCommand"/>); null while the player has them in first person, and always on the standalone shift.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardAutopilot? Autopilot { get; init; }
 }
 
 /// <summary>
@@ -68,7 +73,11 @@ public sealed record StewardReachTarget(string TargetId, StewardTargetKind Kind,
     ulong? PersonId = null, ProtectedPersonRole Role = default);
 
 /// <summary>A held action: when the key went down and how long it must stay down.</summary>
-public sealed record StewardActionProgress(StewardActionKind Kind, string TargetId, long StartedTick, int DurationTicks);
+public sealed record StewardActionProgress(StewardActionKind Kind, string TargetId, long StartedTick, int DurationTicks)
+{
+    /// <summary>Started by the autopilot: it takes longer (<see cref="StewardAutopilotRules.HoldTicks"/>) and calms and breaks up less well.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool Auto { get; init; }
+}
 
 /// <summary>How an action ended: done (with how it went) or dropped. <paramref name="Text"/> is the line the HUD shows.</summary>
 public sealed record StewardActionOutcome(StewardActionKind Kind, string TargetId, bool Completed, bool Success, long Tick, string Text);
@@ -113,6 +122,8 @@ public sealed record StewardShiftScore
     /// <summary>Times the player got up on a stage while its set played (or stayed up as one started), and the ticks they spent there.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int StageInvasions { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long StageTicks { get; init; }
+    /// <summary>Of <see cref="Answered"/>, those the player's steward answered working by themselves (a hands-on day's autopilot).</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int AutoAnswered { get; init; }
 }
 
 public static class StewardShiftRules
@@ -298,7 +309,9 @@ public sealed partial class GameSession
         MutatePerson(id, person => { person.Admitted = true; person.Intent = MedicalIntent.WatchShow; person.Reason = "Steward on shift"; });
         // Face the main stage.
         var (sx, sz) = TraversalGrid.CellCentre(Stages[0].PerformerMarks[0]);
-        _stewardShift = new(StewardShiftRules.Version, id, 0, 0, false, StewardShiftRules.FacingTowards(sx - x, sz - z)) { Calls = [], Score = new() };
+        // A hands-on day opens in the manager's view, so the player's steward starts out working by itself.
+        _stewardShift = new(StewardShiftRules.Version, id, 0, 0, false, StewardShiftRules.FacingTowards(sx - x, sz - z))
+            { Calls = [], Score = new(), Autopilot = _mode == CampaignMode.HandsOn ? new() : null };
     }
 
     private static void StopPlayerRoute(NavigationAgentState nav)
@@ -308,10 +321,12 @@ public sealed partial class GameSession
         nav.SegmentProgressMicrometres = 0; nav.MovementRemainder = 0; nav.IntentId = StewardShiftRules.Intent;
     }
 
-    private CommandResult? ValidatePlayerMove(EntityId? target, SetPlayerMoveCommand command)
+    private CommandResult? ValidatePlayerMove(EntityId? target, SetPlayerMoveCommand command, bool autopilot = false)
     {
         if (target is not null || _stewardShift?.PlayerId is null || _preparation?.Status != PreparationStatus.Running)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Nobody is on shift.");
+        if (!autopilot && _stewardShift.Autopilot is not null)
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Your steward is working by themselves: take them over first.");
         if (command.DirectionX is < -1000 or > 1000 || command.DirectionZ is < -1000 or > 1000 || command.FacingDegrees is < 0 or > 359)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Direction runs −1000 to 1000 each way and facing 0–359°.");
         return null;
@@ -428,6 +443,7 @@ public sealed partial class GameSession
         if (snapshot.Preparation is not { } p || snapshot.Disorder is not { } d || snapshot.TraversalGrid is null || snapshot.NavigationAgents is null)
             return "A steward shift needs a festival with stewards.";
         if (!SavedPerkEffect(snapshot.Perks, StewardShiftPerk)) return "A steward shift needs the second steward's perk.";
+        if (shift.Autopilot is not null) return "The standalone steward shift has no autopilot.";
         if (ValidatePersistedStewardWork(shift, snapshot, p) is { } work) return work;
         if (shift.PlayerId is not { } id)
         {

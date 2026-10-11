@@ -26,6 +26,14 @@ public partial class Main
         _lastPresentedPersonPositions[id] = position;
         var direction = position - previous;
         direction.Y = 0;
+        // The player's own steward faces where the sim has them facing, walking by themselves or under the player's hands.
+        if (_session.PlayerStewardId == id.Value && _session.CaptureStewardShift() is { } own)
+        {
+            var radians = Mathf.DegToRad(own.FacingDegrees);
+            visual.Rotation = new Vector3(0, Mathf.LerpAngle(visual.Rotation.Y, Mathf.Atan2(-Mathf.Sin(radians), -Mathf.Cos(radians)),
+                Mathf.Clamp((float)delta * 7f, 0f, 1f)), 0);
+            return;
+        }
         // All protected people face actual rendered travel. A desired path is not a visual heading.
         if (onStage is not null)
         {

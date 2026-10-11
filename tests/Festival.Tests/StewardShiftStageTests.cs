@@ -187,6 +187,8 @@ public sealed class StewardShiftStageTests
         BuildSession.Accept(s, new SetPreparationStockCommand(40, 32));
         foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
         BuildSession.Accept(s, new StartPreparedEditionCommand());
+        // In first person from the start: a hands-on day otherwise opens with the steward working by themselves.
+        BuildSession.Accept(s, new SetPlayerStewardControlCommand(false));
         return s;
     }
 

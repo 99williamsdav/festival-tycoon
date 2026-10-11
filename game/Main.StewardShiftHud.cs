@@ -117,7 +117,7 @@ public partial class Main
         _shiftClock.HorizontalAlignment = HorizontalAlignment.Center;
         _shiftClock.Position = new Vector2(0, Ui.S(64)); _shiftClock.Size = new Vector2(size.X, Ui.S(20));
         _shiftHud.AddChild(_shiftClock);
-        _shiftKeys = ShiftText(_session.IsHandsOn ? "WASD walk  ·  Shift run  ·  hold E to act  ·  Tab manager view  ·  Esc menu  ·  P pause"
+        _shiftKeys = ShiftText(_session.IsHandsOn ? "V · Manager view  ·  WASD walk  ·  Shift run  ·  hold E to act  ·  Esc menu  ·  P pause"
             : "WASD walk  ·  Shift run  ·  hold E to act  ·  Esc menu  ·  P pause", 11, new Color(1, 1, 1, .7f), outline: true);
         _shiftKeys.HorizontalAlignment = HorizontalAlignment.Right;
         _shiftKeys.Position = new Vector2(size.X - Ui.S(560) - Ui.Gutter, size.Y - Ui.S(40)); _shiftKeys.Size = new Vector2(Ui.S(560), Ui.S(24));
@@ -132,7 +132,7 @@ public partial class Main
         _shiftResume = ButtonText("Back on shift", () => SetShiftMenu(null));
         box.AddChild(_shiftResume);
         // In Front of House the way out is the manager's view; the day carries on.
-        box.AddChild(_session.IsHandsOn ? ButtonText("Manager view  (Tab)", LeaveHandsOnFirstPerson) : ButtonText("Return to menu", ReturnFromStewardShift));
+        box.AddChild(_session.IsHandsOn ? ButtonText("Manager view  (V)", LeaveHandsOnFirstPerson) : ButtonText("Return to menu", ReturnFromStewardShift));
         _shiftMenu.Size = new Vector2(Ui.S(320), 0);
         _shiftMenu.Position = new Vector2((size.X - Ui.S(320)) / 2, size.Y * .3f);
         _shiftHud.AddChild(_shiftMenu);
@@ -449,9 +449,15 @@ public partial class Main
         StewardCallKind.StuckInLoo => "Stuck in a loo", StewardCallKind.BrokenTap => "Broken tap", StewardCallKind.FullBin => "Full bin", _ => "Loose cow",
     };
 
-    private static string ClosedLine(StewardCall call, string place) => call.AnsweredTick >= 0
+    private string ClosedLine(StewardCall call, string place) => call.AnsweredTick >= 0
         ? $"Nice one: {CallNoun(call.Kind).ToLowerInvariant()} by {place}, sorted."
+        : call.CoveredBy is { } crew ? $"{CallNoun(call.Kind)} by {place}: {CrewFirstName(crew)} sorted it."
         : $"{CallNoun(call.Kind)} by {place}: the crew's dealt with it.";
+
+    /// <summary>A hands-on day: Control has given the call to someone hired, so it isn't the player's.</summary>
+    private string CoveredLine(StewardCall call, string place) => $"{CallNoun(call.Kind)} by {place}: {CrewFirstName(call.CoveredBy!.Value)}'s on it.";
+
+    private string CrewFirstName(ulong id) => _session.CapturePerson(id)?.Name is { Length: > 0 } name ? name.Split(' ')[0] : "The crew";
 
     // ---- Per frame -------------------------------------------------------------------------------------------
 
@@ -517,13 +523,16 @@ public partial class Main
             return _shiftCallPlaces[key] = _session.StewardLandmark(at.X, at.Z);
         }
         string Where(StewardCall call) => _session.StewardCallPoint(call) is { } at ? $"{Place(call)} · {Distance(at.X, at.Z) / 1000} m away" : Place(call);
-        var heard = calls.Where(call => call.Open && call.HeardTick <= now).ToArray();
+        // A hands-on day's calls Control gave to the hired crew aren't the player's: they show once, as covered.
+        var heard = calls.Where(call => call.Open && call.HeardTick <= now && call.CoveredBy is null).ToArray();
+        var covered = calls.Where(call => call.Open && call.HeardTick <= now && call.CoveredBy is not null).ToArray();
         var urgentNow = heard.Where(call => call.Urgent).OrderBy(call => call.HeardTick).FirstOrDefault();
         (string, string, StewardCall?, long) radio;
         if (urgentNow is not null) radio = (CallLine(urgentNow, Place(urgentNow)), Where(urgentNow), urgentNow, urgentNow.HeardTick);
         else
         {
             var events = heard.Select(call => (Tick: call.HeardTick, Message: CallLine(call, Place(call)), Where: Where(call), Call: (StewardCall?)call))
+                .Concat(covered.Select(call => (Tick: call.HeardTick, Message: CoveredLine(call, Place(call)), Where: "", Call: (StewardCall?)null)))
                 .Concat(calls.Where(call => !call.Open && (call.ClosedTick >= call.HeardTick || call.AnsweredTick >= 0))
                     .Select(call => (Tick: call.ClosedTick, Message: ClosedLine(call, Place(call)), Where: "", Call: (StewardCall?)null)))
                 .Append((Tick: _shiftRadioIntroTick, Message: _shiftRadioIntro, Where: "", Call: null))

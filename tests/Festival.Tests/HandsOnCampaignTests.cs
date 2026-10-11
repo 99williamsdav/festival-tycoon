@@ -45,6 +45,13 @@ public sealed class HandsOnCampaignTests
         return s;
     }
 
+    /// <summary>The player takes their steward over, as stepping into first person does.</summary>
+    private static GameSession Manual(GameSession s)
+    {
+        BuildSession.Accept(s, new SetPlayerStewardControlCommand(false));
+        return s;
+    }
+
     private static void RunToEnd(GameSession s)
     {
         for (var i = 0; i < 80 && s.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing; i++) s.AdvanceWithoutSnapshot(1_000);
@@ -98,6 +105,9 @@ public sealed class HandsOnCampaignTests
         Assert.AreEqual(classic.GetStewardResponses().Count, ready.GetStewardResponses().Count, "Every hired steward is still there.");
         Assert.IsFalse(ready.GetStewardResponses().Any(job => job.WorkerId == me), "The player is nobody's hire.");
         Assert.IsFalse(ready.GetResponseStaff().Any(profile => profile.AgentId == me));
+        Assert.IsNotNull(ready.CaptureStewardShift()!.Autopilot, "The day opens in the manager's view, the steward working by themselves.");
+        Assert.IsFalse(BuildSession.Send(ready, new SetPlayerMoveCommand(0, -1000, false, 180)).IsAccepted, "Not the player's to move until they take over.");
+        Manual(ready);
         BuildSession.Accept(ready, new SetPlayerMoveCommand(0, -1000, false, 180));
         ready.AdvanceWithoutSnapshot(80);
         Assert.AreEqual(GameSession.CreateHandsOnCampaign(Seed).CaptureSnapshot().AuthoritativeHash, GameSession.CreateHandsOnCampaign(Seed).CaptureSnapshot().AuthoritativeHash);
@@ -106,7 +116,7 @@ public sealed class HandsOnCampaignTests
     [TestMethod]
     public void TheModeCarriesThroughNextFestivalAndCallsMountUpUnanswered()
     {
-        var s = Started();
+        var s = Manual(Started());
         RunToEnd(s);
         Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus);
         var shift = s.CaptureStewardShift()!;
@@ -165,7 +175,7 @@ public sealed class HandsOnCampaignTests
     [TestMethod]
     public void AMidDaySaveRestoresWithThePlayerStewardAndReplaysTheSame()
     {
-        var s = Started();
+        var s = Manual(Started());
         BuildSession.Accept(s, new SetPlayerMoveCommand(707, -707, true, 135));
         s.AdvanceWithoutSnapshot(400);
         BuildSession.Accept(s, new SetPlayerMoveCommand(0, 0, false, 135));
@@ -206,6 +216,7 @@ public sealed class HandsOnCampaignTests
         AssertOnShift(s);
         Assert.AreEqual(2, s.GetStewardResponses().Count, "Both hired stewards, and the player besides.");
         Assert.IsFalse(s.GetStewardResponses().Any(job => job.WorkerId == s.PlayerStewardId));
+        Manual(s);
         BuildSession.Accept(s, new SetPlayerMoveCommand(0, -1000, true, 180));
         s.AdvanceWithoutSnapshot(600);
         BuildSession.Accept(s, new SetPlayerMoveCommand(0, 0, false, 180));
