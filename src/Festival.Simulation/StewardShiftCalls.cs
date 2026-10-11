@@ -69,7 +69,7 @@ public sealed partial class GameSession
         {
             if (!call.Open || liveIds.Contains(call.Id)) { next.Add(call); continue; }
             var closed = call with { ClosedTick = CurrentTick };
-            score = Counted(score, closed);
+            score = Counted(score, closed, UrgentDealtWith(closed));
             next.Add(closed);
         }
         foreach (var (id, kind, subject) in live)
@@ -85,8 +85,11 @@ public sealed partial class GameSession
         return calls.Where(call => call.Open || keep.Contains(call)).ToArray();
     }
 
-    /// <summary>A closed call counts once it went out over the radio, or the player got to it first; answered, with the time it took.</summary>
-    private static StewardShiftScore Counted(StewardShiftScore score, StewardCall call)
+    /// <summary>
+    /// A closed call counts once it went out over the radio, or the player got to it first; answered, with the time it
+    /// took. An urgent one left unanswered counts against the grade only when nobody dealt with it either.
+    /// </summary>
+    private static StewardShiftScore Counted(StewardShiftScore score, StewardCall call, bool dealtWith)
     {
         var answered = call.AnsweredTick >= 0;
         if (!answered && call.ClosedTick < call.HeardTick) return score;
@@ -94,13 +97,49 @@ public sealed partial class GameSession
         {
             Calls = score.Calls + 1, Answered = score.Answered + (answered ? 1 : 0),
             ResponseTicks = score.ResponseTicks + (answered ? Math.Max(0, call.AnsweredTick - call.HeardTick) : 0),
-            UrgentMissed = score.UrgentMissed + (!answered && call.Urgent ? 1 : 0),
+            UrgentUnhandled = score.UrgentUnhandled + (!answered && call.Urgent && !dealtWith ? 1 : 0),
         };
     }
 
-    /// <summary>Marks the open calls this action saw to as answered by the player.</summary>
+    /// <summary>
+    /// Whether someone dealt with an urgent call's incident, as it closes: for a fight, a steward (the crew's or the
+    /// player's) made the fight's one handling attempt, whatever came of it; for a collapse, the patient was treated or
+    /// taken out, or a medic is on the way or with them (a shift ending mid-response). A fight that ran on to an injury
+    /// untouched, or a collapse that ended in a death no medic was sent to, was nobody's. Other calls: always.
+    /// </summary>
+    private bool UrgentDealtWith(StewardCall call)
+    {
+        switch (call.Kind)
+        {
+            case StewardCallKind.Fight:
+            {
+                var parts = call.Id.Split(':');
+                if (parts.Length != 3 || !ulong.TryParse(parts[1], out var initiator) || !long.TryParse(parts[2], out var fightTick)) return false;
+                return _disorder?.Incidents.LastOrDefault(item => item.InitiatorId == initiator && item.FightTick == fightTick)?.HandlingAttempt is not null;
+            }
+            case StewardCallKind.Collapse:
+            {
+                if (!ulong.TryParse(call.Subject, out var patient)) return false;
+                return PersonIn(PersonView.Medical, patient)?.HealthStage is MedicalStage.Treated or MedicalStage.Removed ||
+                    GetMedicResponses().Any(medic => medic.PatientId == patient && medic.Stage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing);
+            }
+            default:
+                return true;
+        }
+    }
+
+    /// <summary>A medic is with the patient: treating them, taking them out, or arrived at their side.</summary>
+    private bool MedicReached(ulong patient) => GetMedicResponses().Any(medic => medic.PatientId == patient &&
+        (medic.Stage is MedicalResponseStage.Treating or MedicalResponseStage.Removing ||
+         medic.Stage == MedicalResponseStage.Travelling && MedicalTreatmentPositionValid(medic.WorkerId, patient)));
+
+    /// <summary>
+    /// Marks the open calls this action saw to as answered by the player. Standing by a collapsed guest answers their
+    /// call only before a medic has reached them; after that it's the medic's.
+    /// </summary>
     private void AnswerStewardCalls(StewardActionProgress held, ulong person, string facility)
     {
+        if (held.Kind == StewardActionKind.StandBy && MedicReached(person)) return;
         var (kind, subject) = held.Kind switch
         {
             StewardActionKind.Calm => (StewardCallKind.Argument, person.ToString()),
@@ -135,7 +174,7 @@ public sealed partial class GameSession
         {
             if (!call.Open) return call;
             var done = call with { ClosedTick = CurrentTick };
-            score = Counted(score, done);
+            score = Counted(score, done, UrgentDealtWith(done));
             return done;
         }).ToList();
         _stewardShift = _stewardShift with { Calls = Pruned(closed), Score = score };

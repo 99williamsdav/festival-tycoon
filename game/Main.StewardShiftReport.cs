@@ -29,7 +29,7 @@ void fragment() { COLOR = vec4(mix(textureLod(screen, SCREEN_UV, 2.6).rgb, vec3(
             StewardShiftGrade.Encore => "Textbook. First on every call and the crowd loved you for it. Same again next week?",
             StewardShiftGrade.Headliner => "Strong shift. You were where we needed you, most of the time.",
             StewardShiftGrade.CrowdPleaser => "Solid. A few calls slipped by, but nobody got hurt on your watch.",
-            StewardShiftGrade.BSide => report.UrgentMissed > 0 ? "An urgent one went unanswered. Keep the radio close." : "Steady, but too many calls went to the crew.",
+            StewardShiftGrade.BSide => report.UrgentUnhandled > 0 ? "An urgent call went out and nobody got to it. Keep the radio close." : "Steady, but too many calls went to the crew.",
             _ => "Quiet on the radio from you today. Answer the calls.",
         };
 
@@ -101,12 +101,15 @@ void fragment() { COLOR = vec4(mix(textureLod(screen, SCREEN_UV, 2.6).rgb, vec3(
             ("clock", "Average response", report.AverageResponseSeconds < 0 ? "—" : $"{report.AverageResponseSeconds / 60}:{report.AverageResponseSeconds % 60:00}"),
             ("shield", "Fights prevented", report.FightsPrevented.ToString()),
             ("triangle-alert", "Fights broken up", report.FightsBrokenUp.ToString()),
+            ("star", "Mood you added", $"+{report.MoodAdded / 100}"),
             ("users", "Crowd mood", $"{report.CrowdMoodPercent}%  (from {report.MoodFromPercent}%)"),
             ("trash-2", "Litter picked up", report.LitterPicked.ToString()),
         };
+        // Seven rows fit between the title rule and the fights bar at a 38-unit pitch (six were 44).
+        const int RowPitch = 38;
         for (var i = 0; i < stats.Length; i++)
         {
-            var y = Ui.S(108 + 44 * i);
+            var y = Ui.S(108 + RowPitch * i);
             var icon = Ui.IconRect(stats[i].Icon, 18, Ui.Teal); icon.Position = new Vector2(Ui.S(28), y + Ui.S(6)); sheet.AddChild(icon);
             Put(sheet, stats[i].Label, 15, Ui.Ink, Ui.Body, new Vector2(Ui.S(58), y + Ui.S(6)));
             Put(sheet, stats[i].Value, 20, Ui.Ink, Ui.Slab, new Vector2(Ui.S(200), y + Ui.S(1)), HorizontalAlignment.Right, Ui.S(248));
@@ -114,7 +117,7 @@ void fragment() { COLOR = vec4(mix(textureLod(screen, SCREEN_UV, 2.6).rgb, vec3(
         rules.Draw += () =>
         {
             rules.DrawRect(new Rect2(Ui.S(24), Ui.S(90), Ui.S(428), Ui.S(2)), Ui.Ink);
-            for (var i = 0; i < stats.Length; i++) rules.DrawRect(new Rect2(Ui.S(24), Ui.S(108 + 44 * i + 36), Ui.S(428), 1), Ui.PaperRule);
+            for (var i = 0; i < stats.Length; i++) rules.DrawRect(new Rect2(Ui.S(24), Ui.S(108 + RowPitch * i + RowPitch - 6), Ui.S(428), 1), Ui.PaperRule);
             // The fights split bar.
             var bar = new Rect2(Ui.S(24), Ui.S(412), Ui.S(428), Ui.S(14));
             var total = report.FightsPrevented + report.FightsBrokenUp;

@@ -27,6 +27,8 @@ public sealed partial class StewardShiftActionTests
         Assert.AreEqual(DisorderStage.Resolved, person.ConductStage);
         Assert.AreEqual(0, person.Pressure);
         Assert.AreEqual(1, Score(s).Calmed);
+        Assert.AreEqual(StewardShiftRules.MoodCredit(StewardActionKind.Calm), Score(s).MoodAdded, "A fight prevented is mood added.");
+        Assert.AreEqual(Score(s).MoodAdded, s.CaptureStewardShiftReport()!.MoodAdded);
         Assert.IsTrue(s.CaptureStewardShift()!.LastOutcome!.Success);
         Assert.AreEqual(guest, s.CaptureStewardShift()!.EscortOffer!.GuestId, "The one calmed may be walked out.");
         Restores(s, "after a calm");
@@ -322,6 +324,7 @@ public sealed partial class StewardShiftActionTests
         Assert.IsTrue(s.CapturePerson(guest)!.Satisfaction >= before + StewardShiftRules.DirectionsSatisfaction - 20, "A little happier for it.");
         CollectionAssert.Contains(s.CaptureStewardShift()!.Directed, guest);
         Assert.AreEqual(1, Score(s).Directions);
+        Assert.IsTrue(Score(s).MoodAdded is > 0 and <= StewardShiftRules.DirectionsSatisfaction, $"Directions add what they really added: {Score(s).MoodAdded}.");
         Assert.AreNotEqual(StewardActionKind.Directions, s.BestStewardAction(Who(guest)), "Once each.");
         Restores(s, "after directions");
     }
@@ -481,15 +484,17 @@ public sealed partial class StewardShiftActionTests
     [TestMethod]
     public void TheGradeScale()
     {
-        StewardShiftGrade Grade(int calls, int answered, int seconds, int prevented, int broken, int mood, int litter, int missed = 0) =>
-            StewardShiftGrading.Grade(StewardShiftGrading.Points(calls, answered, seconds, prevented, broken, mood, litter), false, missed);
-        Assert.AreEqual(100, StewardShiftGrading.Points(10, 10, 20, 3, 0, 10, 15));
-        Assert.AreEqual(StewardShiftGrade.Encore, Grade(10, 10, 20, 3, 0, 10, 15));
-        Assert.AreEqual(StewardShiftGrade.Headliner, Grade(10, 9, 45, 2, 1, 8, 10));
-        Assert.AreEqual(StewardShiftGrade.CrowdPleaser, Grade(10, 6, 90, 2, 1, 5, 6));
-        Assert.AreEqual(StewardShiftGrade.BSide, Grade(10, 4, 100, 1, 1, 4, 5));
+        StewardShiftGrade Grade(int calls, int answered, int seconds, int prevented, int broken, int mood, int litter, int unhandled = 0) =>
+            StewardShiftGrading.Grade(StewardShiftGrading.Points(calls, answered, seconds, prevented, broken, mood, litter), false, unhandled);
+        Assert.AreEqual(100, StewardShiftGrading.Points(10, 10, 20, 3, 0, 2_000, 15));
+        Assert.AreEqual(StewardShiftGrade.Encore, Grade(10, 10, 20, 3, 0, 2_000, 15));
+        Assert.AreEqual(StewardShiftGrade.Headliner, Grade(10, 9, 45, 2, 1, 1_600, 10));
+        Assert.AreEqual(StewardShiftGrade.CrowdPleaser, Grade(10, 6, 90, 2, 1, 1_000, 6));
+        Assert.AreEqual(StewardShiftGrade.BSide, Grade(10, 4, 100, 1, 1, 800, 5));
         Assert.AreEqual(StewardShiftGrade.OffKey, Grade(10, 0, -1, 0, 0, 0, 0), "Did nothing.");
-        Assert.AreEqual(StewardShiftGrade.BSide, Grade(10, 10, 20, 3, 0, 10, 15, missed: 1), "A missed urgent call caps it.");
+        Assert.AreEqual(StewardShiftGrade.BSide, Grade(10, 10, 20, 3, 0, 2_000, 15, unhandled: 1), "An urgent call nobody dealt with caps it.");
+        Assert.AreEqual(15, StewardShiftGrading.Points(0, 0, -1, 0, 0, StewardShiftRules.MoodForFullMarks * 2, 0) - StewardShiftGrading.Points(0, 0, -1, 0, 0, 0, 0),
+            "Mood added scores up to 15, and no more.");
         Assert.AreEqual(StewardShiftGrade.OffKey, StewardShiftGrading.Grade(100, true), "A death.");
         Assert.AreEqual("Encore!", StewardShiftGrading.Name(StewardShiftGrade.Encore));
         Assert.AreEqual("B-side", StewardShiftGrading.Name(StewardShiftGrade.BSide));
@@ -570,6 +575,8 @@ public sealed partial class StewardShiftActionTests
             ("a hold on a padded person id", shift with { Action = held with { TargetId = $"person:0{guest}" } }),
             ("a hold on a signed person id", shift with { Action = held with { TargetId = $"person:+{guest}" } }),
             ("stand-bys uncounted", shift with { StoodByFor = [guest] }),
+            ("mood added from nothing", shift with { Score = shift.Score! with { MoodAdded = 5_000 } }),
+            ("an unhandled urgent call that was answered", shift with { Score = shift.Score! with { UrgentUnhandled = shift.Score.Calls - shift.Score.Answered + 1 } }),
             ("an outcome from before the shift", shift with { LastOutcome = new(StewardActionKind.Calm, Who(guest), true, true, -5, "") }),
             ("an outcome of a novel", shift with { LastOutcome = new(StewardActionKind.Calm, Who(guest), true, true, s.CurrentTick, new string('x', 5_000)) }),
         };

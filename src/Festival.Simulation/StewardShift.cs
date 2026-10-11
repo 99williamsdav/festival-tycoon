@@ -79,8 +79,12 @@ public sealed record StewardShiftScore
     public int Answered { get; init; }
     /// <summary>Summed over answered calls: from the radio call (or the incident, if it never went out) to the player's action.</summary>
     public long ResponseTicks { get; init; }
-    /// <summary>Urgent calls (fights, collapses) that went out over the radio and closed without the player.</summary>
-    public int UrgentMissed { get; init; }
+    /// <summary>
+    /// Urgent calls (fights, collapses) that went out over the radio and closed with nobody dealing with them: a fight
+    /// no steward ever made the handling attempt on, a collapse no medic reached or was on the way to. One the crew
+    /// handled before the player got there is only unanswered.
+    /// </summary>
+    public int UrgentUnhandled { get; init; }
     /// <summary>Complaining, agitated or arguing guests calmed: fights prevented.</summary>
     public int Calmed { get; init; }
     public int CalmsFailed { get; init; }
@@ -97,6 +101,11 @@ public sealed record StewardShiftScore
     public int CowsHerded { get; init; }
     public int Directions { get; init; }
     public int Drinks { get; init; }
+    /// <summary>
+    /// The mood the player's own actions added, in satisfaction (of 10,000) summed over guests: what directions really
+    /// added, and for each other success the mood it spares the crowd (<see cref="StewardShiftRules.MoodCredit"/>).
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int MoodAdded { get; init; }
 }
 
 public static class StewardShiftRules
@@ -163,14 +172,43 @@ public static class StewardShiftRules
     public const int DirectionsSatisfaction = 150;
 
     /// <summary>
+    /// The mood each successful action is credited with on the report, in satisfaction summed over guests; directions
+    /// count what they really added instead (up to <see cref="DirectionsSatisfaction"/>). These are the harm each
+    /// spares the crowd: a fight prevented or stopped (the pair's and the onlookers' upset), a guest let out of a jammed
+    /// loo (their panic, a point or more a second), a tap mended (the next drinker's broken-tap upset, and the thirst),
+    /// a bin emptied (the wasps), a piece of litter (a point a second to anyone near it), a bale on the mud, a cow taken
+    /// home, a troublemaker seen out. Standing by, radioing the medic and drinking add none.
+    /// </summary>
+    public static int MoodCredit(StewardActionKind kind) => kind switch
+    {
+        StewardActionKind.Calm or StewardActionKind.BreakUp => 300,
+        StewardActionKind.FreeLoo => 200,
+        StewardActionKind.BodgeTap => 150,
+        StewardActionKind.EmptyBin or StewardActionKind.SpreadStraw or StewardActionKind.HerdCow => 100,
+        StewardActionKind.Escort => 50,
+        StewardActionKind.PickLitter => 20,
+        _ => 0,
+    };
+    /// <summary>Mood added for the report's full 15 points: about a good shift's worth (four calms, four directions, a bin, ten pieces of litter).</summary>
+    public const int MoodForFullMarks = 2_000;
+
+    /// <summary>The mood a score's fixed-credit successes add: everything but directions.</summary>
+    public static long CreditedMood(StewardShiftScore score) =>
+        (long)score.Calmed * MoodCredit(StewardActionKind.Calm) + (long)score.FightsBrokenUp * MoodCredit(StewardActionKind.BreakUp) +
+        (long)score.LoosFreed * MoodCredit(StewardActionKind.FreeLoo) + (long)score.TapsBodged * MoodCredit(StewardActionKind.BodgeTap) +
+        (long)score.BinsEmptied * MoodCredit(StewardActionKind.EmptyBin) + (long)score.StrawSpread * MoodCredit(StewardActionKind.SpreadStraw) +
+        (long)score.CowsHerded * MoodCredit(StewardActionKind.HerdCow) + (long)score.Escorted * MoodCredit(StewardActionKind.Escort) +
+        (long)score.LitterPicked * MoodCredit(StewardActionKind.PickLitter);
+
+    /// <summary>
     /// The player's own thirst and heat, every four ticks: thirst always (half as fast in the rain), heat in a heatwave
     /// out of the shade (running adds half again to both). Shade cools fast, and rain slowly.
     /// </summary>
     public const int ThirstPerStep = 1, HeatPerStep = 1, ShadeCoolPerStep = 5, RainCoolPerStep = 1;
     /// <summary>A drink takes this much off thirst, and a little off heat.</summary>
     public const int DrinkThirstRelief = 6_000, DrinkHeatRelief = 2_500;
-    /// <summary>From here thirst or heat shows on the HUD; from the next the player slows a little, and more from the last.</summary>
-    public const int NeedNoticeLevel = 4_000, NeedSlowLevel = 7_000, NeedSlowerLevel = 9_000;
+    /// <summary>From here the player slows a little, and more from the next.</summary>
+    public const int NeedSlowLevel = 7_000, NeedSlowerLevel = 9_000;
     public const int NeedSlowPermille = 900, NeedSlowerPermille = 800;
 
     /// <summary>How long after an incident starts Control puts it out over the radio, in ticks.</summary>

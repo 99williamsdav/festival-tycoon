@@ -49,7 +49,6 @@ public partial class Main
     // Needs: shown alpha per row (thirst, heat).
     private int _shiftThirst, _shiftHeat;
     private readonly float[] _shiftNeedAlpha = new float[2];
-    private readonly bool[] _shiftNeedOn = new bool[2];
 
     private static readonly Color HiVis = new("d8f126");
     private const float CompassHalfDegrees = 75, CompassClampDegrees = 72;
@@ -554,12 +553,12 @@ public partial class Main
         else { _shiftPin = null; _shiftPinShown = float.NaN; _shiftPinMetres = 0; }
         _shiftCompass!.QueueRedraw();
 
-        // Needs: shown from 30%, hidden again under 25%; fading in over 0.4 s and out over 0.6 s.
+        // Needs: both bars show from the start of the shift, empty until they fill; they fade in over 0.4 s and out over
+        // 0.6 s as the report comes up.
         if (shift.PlayerId is { } id && _session.CapturePerson(id) is { } self) { _shiftThirst = self.Thirst; _shiftHeat = self.HeatExposure; }
-        foreach (var (value, index) in new[] { (_shiftThirst, 0), (_shiftHeat, 1) })
+        foreach (var index in new[] { 0, 1 })
         {
-            if (value >= 3_000) _shiftNeedOn[index] = true; else if (value < 2_500) _shiftNeedOn[index] = false;
-            var on = _shiftNeedOn[index] && !StewardShiftReportShown;
+            var on = !StewardShiftReportShown;
             _shiftNeedAlpha[index] = Mathf.MoveToward(_shiftNeedAlpha[index], on ? 1 : 0, delta / (on ? .4f : .6f));
         }
         _shiftNeeds!.QueueRedraw();

@@ -331,7 +331,7 @@ public sealed partial class GameSession
         {
             MutatePerson(id, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.ConductStageTick = CurrentTick; item.CooldownUntilTick = CurrentTick + 800; });
             DisorderEvent("steward-shift:calmed", id, profile.AgentId, person.Pressure, "The player steward calmed them down");
-            Score(s => s with { Calmed = s.Calmed + 1 });
+            Score(s => s with { Calmed = s.Calmed + 1, MoodAdded = s.MoodAdded + StewardShiftRules.MoodCredit(StewardActionKind.Calm) });
             _stewardShift = _stewardShift! with { EscortOffer = new(id, CurrentTick + StewardShiftRules.EscortOfferTicks) };
             return (true, $"{person.Name} has calmed down.");
         }
@@ -378,7 +378,7 @@ public sealed partial class GameSession
             Score(s => s with { BreakUpsFailed = s.BreakUpsFailed + 1 });
             return (false, "They shook you off: the fight goes on.");
         }
-        Score(s => s with { FightsBrokenUp = s.FightsBrokenUp + 1 });
+        Score(s => s with { FightsBrokenUp = s.FightsBrokenUp + 1, MoodAdded = s.MoodAdded + StewardShiftRules.MoodCredit(StewardActionKind.BreakUp) });
         _stewardShift = _stewardShift! with { EscortOffer = new(origin.InitiatorId, CurrentTick + StewardShiftRules.EscortOfferTicks) };
         return (true, $"Broken up. {initiator.Name} started it.");
     }
@@ -418,14 +418,14 @@ public sealed partial class GameSession
     {
         var fault = ActiveFault(toiletId)!;
         ResolveFault(fault, FacilityFaultStage.Fixed);
-        Score(s => s with { LoosFreed = s.LoosFreed + 1 });
+        Score(s => s with { LoosFreed = s.LoosFreed + 1, MoodAdded = s.MoodAdded + StewardShiftRules.MoodCredit(StewardActionKind.FreeLoo) });
         return (true, $"Door's open: {_persons[fault.VictimId].Name} is free.");
     }
 
     private (bool, string) BodgeTheTap(string tapId)
     {
         ResolveFault(ActiveFault(tapId)!, FacilityFaultStage.Bodged);
-        Score(s => s with { TapsBodged = s.TapsBodged + 1 });
+        Score(s => s with { TapsBodged = s.TapsBodged + 1, MoodAdded = s.MoodAdded + StewardShiftRules.MoodCredit(StewardActionKind.BodgeTap) });
         return (true, "Bodged: it's running at half flow.");
     }
 
@@ -434,14 +434,14 @@ public sealed partial class GameSession
         _litter = _litter! with { Pieces = _litter.Pieces.Select(w => w.Location == WasteLocation.Bin && w.BinId == binId ?
             w with { Location = WasteLocation.Removed, BinId = null } : w).ToArray() };
         LitterVisualVersion++;
-        Score(s => s with { BinsEmptied = s.BinsEmptied + 1 });
+        Score(s => s with { BinsEmptied = s.BinsEmptied + 1, MoodAdded = s.MoodAdded + StewardShiftRules.MoodCredit(StewardActionKind.EmptyBin) });
         return (true, "Bin emptied.");
     }
 
     private (bool, string) PickUpLitter(string pieceId)
     {
         SetWaste(CaptureWaste(pieceId)! with { Location = WasteLocation.Removed });
-        Score(s => s with { LitterPicked = s.LitterPicked + 1 });
+        Score(s => s with { LitterPicked = s.LitterPicked + 1, MoodAdded = s.MoodAdded + StewardShiftRules.MoodCredit(StewardActionKind.PickLitter) });
         return (true, "Bagged it.");
     }
 
@@ -453,7 +453,7 @@ public sealed partial class GameSession
         var cells = StrawTargets(spot).Take(GroundCoverRules.CellsPerBale).ToArray();
         foreach (var cell in cells) SpreadStrawOn(cell);
         SetWeather(_weather! with { StrawBales = _weather.StrawBales - 1 });
-        Score(s => s with { StrawSpread = s.StrawSpread + 1 });
+        Score(s => s with { StrawSpread = s.StrawSpread + 1, MoodAdded = s.MoodAdded + StewardShiftRules.MoodCredit(StewardActionKind.SpreadStraw) });
         return (true, $"Straw down: {cells.Length * TraversalGrid.CellSizeMillimetres * TraversalGrid.CellSizeMillimetres / 1_000_000} m² firmed up.");
     }
 
@@ -471,9 +471,11 @@ public sealed partial class GameSession
 
     private (bool, string) GiveDirections(ulong id, string name)
     {
+        var before = _persons[id].Satisfaction;
         ChangeSatisfaction(id, StewardShiftRules.DirectionsSatisfaction, MoodCause.StaffNearby);
+        var added = _persons[id].Satisfaction - before;
         _stewardShift = _stewardShift! with { Directed = [.. _stewardShift.Directed ?? [], id] };
-        Score(s => s with { Directions = s.Directions + 1 });
+        Score(s => s with { Directions = s.Directions + 1, MoodAdded = s.MoodAdded + added });
         return (true, $"{name}: “Cheers!”");
     }
 
@@ -509,7 +511,7 @@ public sealed partial class GameSession
         {
             ApplyAgentDestination(new(guest), new(MedicalExitCell, "disorder.safe-egress"));
             DisorderEvent("disorder:egress", guest, me, 0, "Walked to the gate by the player steward; egress completes on arrival.");
-            Score(s => s with { Escorted = s.Escorted + 1 });
+            Score(s => s with { Escorted = s.Escorted + 1, MoodAdded = s.MoodAdded + StewardShiftRules.MoodCredit(StewardActionKind.Escort) });
             _stewardShift = _stewardShift with { EscortId = null, LastOutcome = new(StewardActionKind.Escort, $"person:{guest}", true, true, CurrentTick,
                 $"Seen out: {_persons[guest].Name} is leaving.") };
             return;
@@ -566,7 +568,7 @@ public sealed partial class GameSession
         }
         if (moved.RouteIndex < moved.Route.Length) return moved;
         MedicalEvent("cows:home", $"{cow.Id} was driven back into its field by the player steward.");
-        Score(s => s with { CowsHerded = s.CowsHerded + 1 });
+        Score(s => s with { CowsHerded = s.CowsHerded + 1, MoodAdded = s.MoodAdded + StewardShiftRules.MoodCredit(StewardActionKind.HerdCow) });
         _stewardShift = _stewardShift! with { LastOutcome = new(StewardActionKind.HerdCow, $"cow:{cow.Id}", true, true, CurrentTick, "Back in its field.") };
         return null;
     }
@@ -639,8 +641,9 @@ public sealed partial class GameSession
         if (shift.Score is not { } score || shift.Calls is not { } calls) return "Steward shift score or calls missing.";
         var counts = new long[] { score.Calls, score.Answered, score.Calmed, score.CalmsFailed, score.FightsBrokenUp, score.BreakUpsFailed, score.Escorted,
             score.MedicRadioed, score.StoodBy, score.LoosFreed, score.TapsBodged, score.BinsEmptied, score.LitterPicked, score.StrawSpread, score.CowsHerded,
-            score.Directions, score.Drinks, score.UrgentMissed };
-        if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.UrgentMissed > score.Calls - score.Answered || score.ResponseTicks < 0 ||
+            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded };
+        if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.UrgentUnhandled > score.Calls - score.Answered || score.ResponseTicks < 0 ||
+            score.MoodAdded < StewardShiftRules.CreditedMood(score) || score.MoodAdded > StewardShiftRules.CreditedMood(score) + (long)score.Directions * StewardShiftRules.DirectionsSatisfaction ||
             score.ResponseTicks > (long)score.Answered * Math.Max(1, s.CurrentTick))
             return "Steward shift score out of bounds.";
         var guests = p.People.Where(person => person.Role == ProtectedPersonRole.Guest).ToDictionary(person => person.AgentId);
