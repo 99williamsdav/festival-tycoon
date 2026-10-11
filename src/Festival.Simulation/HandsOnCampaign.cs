@@ -90,6 +90,7 @@ public sealed partial class GameSession
             return "Steward shift input is invalid.";
         if (snapshot.TraversalGrid is null || snapshot.NavigationAgents is null) return "A hands-on festival day needs the field.";
         if (ValidatePersistedStewardWork(shift, snapshot, p) is { } work) return work;
+        if (ValidatePersistedAutopilot(shift, snapshot) is { } autopilot) return autopilot;
         if (shift.PlayerId is null)
         {
             if (shift.MoveX != 0 || shift.MoveZ != 0 || shift.Run || shift.RemainderX != 0 || shift.RemainderZ != 0) return "A finished steward shift holds no movement.";

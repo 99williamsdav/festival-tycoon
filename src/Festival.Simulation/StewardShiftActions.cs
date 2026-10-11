@@ -215,10 +215,12 @@ public sealed partial class GameSession
 
     private bool PlayerWantsADrink(ulong me) => _persons[me] is var p && (p.Thirst >= 1_000 || p.HeatExposure >= 1_000);
 
-    private CommandResult? ValidateStewardAction(EntityId? target, StewardActionCommand command)
+    private CommandResult? ValidateStewardAction(EntityId? target, StewardActionCommand command, bool autopilot = false)
     {
         if (target is not null || _stewardShift?.PlayerId is null || _preparation?.Status != PreparationStatus.Running)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Nobody is on shift.");
+        if (!autopilot && _stewardShift.Autopilot is not null)
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Your steward is working by themselves: take them over first.");
         if (!Enum.IsDefined(command.Action) || command.FacingDegrees is < 0 or > 359 || command.TargetId is null)
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown action.");
         if (command.Action == StewardActionKind.Release)
@@ -230,12 +232,13 @@ public sealed partial class GameSession
         return null;
     }
 
-    private void ApplyStewardAction(StewardActionCommand command)
+    private void ApplyStewardAction(StewardActionCommand command, bool autopilot = false)
     {
         var shift = _stewardShift!;
         _stewardShift = command.Action == StewardActionKind.Release
             ? shift with { Action = null }
-            : shift with { Action = new(command.Action, command.TargetId, CurrentTick, StewardShiftRules.DurationTicks(command.Action)), FacingDegrees = command.FacingDegrees };
+            : shift with { Action = new(command.Action, command.TargetId, CurrentTick, autopilot ? StewardAutopilotRules.HoldTicks(command.Action) : StewardShiftRules.DurationTicks(command.Action))
+                { Auto = autopilot }, FacingDegrees = command.FacingDegrees };
         SettleStewardShift();
     }
 
@@ -301,6 +304,9 @@ public sealed partial class GameSession
         ulong.TryParse(rest, out var id);
         var name = StewardTargetPoint(held.TargetId)?.Name ?? "";
         var profile = PlayerStewardProfile(me);
+        // Working by themselves, the player's steward is no match for the player's own judgement.
+        if (held.Auto) profile = profile with { CalmingSkill = Math.Max(0, profile.CalmingSkill - StewardAutopilotRules.SkillPenalty),
+            ConfrontationSkill = Math.Max(0, profile.ConfrontationSkill - StewardAutopilotRules.SkillPenalty) };
         AnswerStewardCalls(held, id, rest);
         var (success, text) = held.Kind switch
         {
@@ -592,7 +598,7 @@ public sealed partial class GameSession
         var guests = PeopleIn(PersonView.Roster).Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted).ToArray();
         var mood = guests.Length == 0 ? 0 : (int)(guests.Sum(p => (long)p.Satisfaction) / guests.Length);
         _stewardShift = _stewardShift with { PlayerId = null, MoveX = 0, MoveZ = 0, Run = false, RemainderX = 0, RemainderZ = 0, Action = null,
-            EscortOffer = null, EscortId = null, ClosingMood = mood, EndedTick = CurrentTick };
+            EscortOffer = null, EscortId = null, ClosingMood = mood, EndedTick = CurrentTick, Autopilot = null };
     }
 
     /// <summary>
@@ -641,8 +647,8 @@ public sealed partial class GameSession
         if (shift.Score is not { } score || shift.Calls is not { } calls) return "Steward shift score or calls missing.";
         var counts = new long[] { score.Calls, score.Answered, score.Calmed, score.CalmsFailed, score.FightsBrokenUp, score.BreakUpsFailed, score.Escorted,
             score.MedicRadioed, score.StoodBy, score.LoosFreed, score.TapsBodged, score.BinsEmptied, score.LitterPicked, score.StrawSpread, score.CowsHerded,
-            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded };
-        if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.UrgentUnhandled > score.Calls - score.Answered || score.ResponseTicks < 0 ||
+            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded, score.AutoAnswered };
+        if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.AutoAnswered > score.Answered || score.UrgentUnhandled > score.Calls - score.Answered || score.ResponseTicks < 0 ||
             score.MoodAdded < StewardShiftRules.CreditedMood(score) || score.MoodAdded > StewardShiftRules.CreditedMood(score) + (long)score.Directions * StewardShiftRules.DirectionsSatisfaction ||
             score.ResponseTicks > (long)score.Answered * Math.Max(1, s.CurrentTick))
             return "Steward shift score out of bounds.";
@@ -652,7 +658,9 @@ public sealed partial class GameSession
         if (calls.Length > 512 || calls.Any(call => call is null || string.IsNullOrWhiteSpace(call.Id) || string.IsNullOrWhiteSpace(call.Subject) ||
                 !Enum.IsDefined(call.Kind) || call.OpenedTick < p.StartedTick || call.OpenedTick > s.CurrentTick ||
                 call.ClosedTick != -1 && (call.ClosedTick < call.OpenedTick || call.ClosedTick > s.CurrentTick) ||
-                call.AnsweredTick != -1 && (call.AnsweredTick < call.OpenedTick || call.AnsweredTick > (call.ClosedTick >= 0 ? call.ClosedTick : s.CurrentTick))) ||
+                call.AnsweredTick != -1 && (call.AnsweredTick < call.OpenedTick || call.AnsweredTick > (call.ClosedTick >= 0 ? call.ClosedTick : s.CurrentTick)) ||
+                call.Auto && call.AnsweredTick < 0 || call.CoveredBy is { } crew && (s.Mode != CampaignMode.HandsOn || crew == shift.PlayerId ||
+                    !p.People.Any(person => person.AgentId == crew && person.Role == ProtectedPersonRole.Staff && person.Name != HandsOnStewardName))) ||
             calls.Where(call => call.ClosedTick < 0).Select(call => call.Id).Distinct().Count() != calls.Count(call => call.ClosedTick < 0) ||
             calls.Select(call => (call.Id, call.OpenedTick)).Distinct().Count() != calls.Length ||
             calls.Count(call => call.ClosedTick >= 0) > StewardShiftRules.ClosedCallsKept || !on && calls.Any(call => call.ClosedTick < 0))
@@ -664,7 +672,8 @@ public sealed partial class GameSession
             (shift.StoodByFor?.Length ?? 0) != score.StoodBy)
             return "Steward shift stand-bys invalid.";
         if (shift.Action is { } held && (!on || held.Kind == StewardActionKind.Release || !Enum.IsDefined(held.Kind) || string.IsNullOrWhiteSpace(held.TargetId) ||
-                held.DurationTicks != StewardShiftRules.DurationTicks(held.Kind) || held.StartedTick > s.CurrentTick || held.StartedTick + held.DurationTicks <= s.CurrentTick))
+                held.DurationTicks != (held.Auto ? StewardAutopilotRules.HoldTicks(held.Kind) : StewardShiftRules.DurationTicks(held.Kind)) ||
+                held.Auto != (shift.Autopilot is not null) || held.StartedTick > s.CurrentTick || held.StartedTick + held.DurationTicks <= s.CurrentTick))
             return "Steward shift held action invalid.";
         if (shift.EscortId is { } escorted && (!on || !OnSite(escorted)) ||
             shift.EscortOffer is { } offer && (!on || !OnSite(offer.GuestId) || offer.UntilTick <= s.CurrentTick || offer.UntilTick > s.CurrentTick + StewardShiftRules.EscortOfferTicks))
