@@ -77,5 +77,27 @@
   "sha256": "3682cc8c85b86fe368ae2da60bdb32e8c0bff86a9f2ea314e7ba1d4f1a463f87",
   "place": "child of the eye camera at identity",
   "pose": "litter"
+ },
+ "lwf_fp_arm_right_siteplan_v1.glb": {
+  "root": "LWF_FPArm_Right_SitePlan_Root",
+  "nodes": {
+   "LWF_FPArm_Right_SitePlan": 320,
+   "LWF_FPPlan_Sheet": 2
+  },
+  "sheet_size_m": [
+   0.39,
+   0.3555
+  ],
+  "sheet_texture_px": [
+   1400,
+   1276
+  ],
+  "sheet_centre_camera_space": [
+   0.1087,
+   -0.0448,
+   -0.3974
+  ],
+  "place": "child of the eye camera at identity",
+  "sha256": "30116068231e67f37c7f9d057a57b1d5bd2d8ee32f5b72f28da760073290f55f"
  }
 }

@@ -20,6 +20,7 @@ radio; the build mirrors everything so the radio lands in the left hand.
 | `lwf_fp_arm_left_radio_v1.glb` | `LWF_FPArm_LeftRadio` | `LWF_FPArm_Left` (320): forearm, hi-vis wristband with reflective stripe, fist. `LWF_FPRadio` (140): handset, grille, antenna, gold knob, gold push-to-talk. `LWF_FPRadio_Screen` (12): the cyan screen, its own material. |
 | `lwf_fp_arm_right_calm_v1.glb` | `LWF_FPArm_Right_Calm_Root` | `LWF_FPArm_Right_Calm` (232): open palm raised, "steady now" |
 | `lwf_fp_arm_right_door_v1.glb` | `LWF_FPArm_Right_Door_Root` | `LWF_FPArm_Right_Door` (276): reaching straight out for a handle |
+| `lwf_fp_arm_right_siteplan_v1.glb` | `LWF_FPArm_Right_SitePlan_Root` | `LWF_FPArm_Right_SitePlan` (320): the right hand holding Control's laminated site plan on a landscape clipboard (raised). `LWF_FPPlan_Sheet` (2): the 0.39 × 0.355 m sheet; the game feeds it the plan texture. Built by `build_siteplan_arm.py`; spec in `assets/source/ui/site-map-v1/INTEGRATION.md`. |
 | `lwf_fp_arm_right_litter_v1.glb` | `LWF_FPArm_Right_Litter_Root` | `LWF_FPArm_Right_Litter` (276): reaching down. `LWF_FPLitterCup` (48): a crushed cup in the hand, hideable. |
 
 - **Space:** everything is authored in the **first-person camera's own space** (Godot: +X right, +Y up, −Z forward,
