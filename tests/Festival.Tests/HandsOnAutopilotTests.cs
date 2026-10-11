@@ -342,6 +342,46 @@ public sealed class HandsOnAutopilotTests
     }
 
     [TestMethod]
+    public void LeftUpOnAStageTheStewardComesDownAndNeverGoesBackUp()
+    {
+        var s = Started();
+        BuildSession.Accept(s, new SetPlayerStewardControlCommand(false));
+        s.AdvanceWithoutSnapshot(6_000);
+        bool OnStage() { var (x, z) = At(s, Me(s)); var cell = TraversalGrid.WorldToCell(x, z); return s.Stages.Any(stage => stage.Deck(cell) || stage.Stairs(cell)); }
+        // The player walks up the main stage's steps, then steps back into the manager's view up there.
+        var stage = s.Stages[0];
+        var foot = stage.AccessCells[1]; var stair = stage.StairCells[1];
+        var (fx, fz) = TraversalGrid.CellCentre(foot);
+        Teleport(s, fx, fz);
+        var dx = Math.Sign(stair.X - foot.X) * 1000; var dz = Math.Sign(stair.Z - foot.Z) * 1000;
+        BuildSession.Accept(s, new SetPlayerMoveCommand(dx, dz, false, StewardShiftRules.FacingTowards(dx, dz)));
+        s.AdvanceWithoutSnapshot(400);
+        BuildSession.Accept(s, new SetPlayerMoveCommand(0, 0, false, 0));
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(stage.Id, s.PlayerStageId, "Up on the deck.");
+        BuildSession.Accept(s, new SetPlayerStewardControlCommand(true));
+        for (var i = 0; i < 2_400 && OnStage(); i++) s.AdvanceWithoutSnapshot(1);
+        Assert.IsFalse(OnStage(), "Left to themselves, they come down the steps.");
+        Assert.IsNull(s.PlayerStageId);
+        BuildSession.Restored(s);
+        // Working the field from there on, with the stage in the way of the gate and the bars: never back up it.
+        for (var i = 0; i < 12_000; i++)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            Assert.IsFalse(OnStage(), $"Back up a stage at tick {s.CurrentTick}: {s.CaptureStewardShift()!.Autopilot?.TargetId}");
+        }
+        // The way round: from the foot of the steps to the far side of the deck, the autopilot's route keeps off it.
+        var avoid = (int[])Call(s, "StageAvoidance");
+        var deck = Enumerable.Range(0, TraversalGrid.Width).SelectMany(x => Enumerable.Range(0, TraversalGrid.Depth).Select(z => new GridCell(x, z))).Where(stage.Deck).ToArray();
+        var grid = s.TraversalGrid!;
+        var beyond = deck.Max(c => c.Z) + 3;
+        var far = Enumerable.Range(beyond, 12).SelectMany(z => Enumerable.Range(deck.Min(c => c.X), deck.Max(c => c.X) - deck.Min(c => c.X) + 1).Select(x => new GridCell(x, z)))
+            .First(c => grid.Get(c).IsWalkable && StewardShiftRules.InField(c));
+        var path = DeterministicPathfinder.FindPath(s.TraversalGrid!, foot, far, avoid);
+        Assert.IsTrue(path.Found && path.Path.All(cell => !stage.Deck(cell) && !stage.Stairs(cell)), "Routed round the stage.");
+    }
+
+    [TestMethod]
     public void LeftToThemselvesAllDayTheStewardAnswersSomeOfTheirCalls()
     {
         var s = Started();

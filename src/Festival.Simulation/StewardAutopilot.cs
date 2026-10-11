@@ -45,6 +45,12 @@ public static class StewardAutopilotRules
     public const int RouteTicks = 160, RouteCellsKept = 24, WaypointMillimetres = 400;
     /// <summary>It acts from this close (a little inside the player's reach); litter from nearer.</summary>
     public const int ActMillimetres = 2_000, LitterActMillimetres = 1_600;
+    /// <summary>
+    /// Stages: the deck and its steps cost this much more to route over (a hundredfold), so the way goes round; a step
+    /// that would put them on the steps from the ground (looked at this far ahead) isn't taken; left up there, they come
+    /// down by the nearest open ground, searched over at most this many cells.
+    /// </summary>
+    public const int StageExtraCostPermille = 100_000, StageLookAheadMillimetres = 600, ComeDownSearchCells = 2_000;
     /// <summary>Thirst or heat from which it goes for a drink first.</summary>
     public const int DrinkLevel = 6_000;
     /// <summary>With nothing on, it picks up litter this close.</summary>
@@ -80,6 +86,9 @@ public sealed partial class GameSession
         if (_stewardShift.Autopilot is not { } pilot) return;
         var nav = _navigationAgents[new(me)];
         if (_stewardShift.Action is not null) { AutopilotStop(); return; }
+        // Left up on a stage (the player stepped out of first person there): first, back down the steps.
+        var here = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
+        if (OnStageCells(Stages, here)) { AutopilotComeDown(pilot, nav, here); return; }
         // Driving a cow home: keep up a few metres behind it.
         if (_cows?.Loose.FirstOrDefault(cow => cow.HerderId == me && cow.Driving) is { } driven)
         {
@@ -125,10 +134,14 @@ public sealed partial class GameSession
         AutopilotStep(sx, sz);
     }
 
-    /// <summary>A walk (never a run) along (dx, dz), facing that way.</summary>
+    /// <summary>A walk (never a run) along (dx, dz), facing that way; never from the ground onto a stage's steps or deck.</summary>
     private void AutopilotStep(long dx, long dz)
     {
         var length = Math.Max(1, IntegerSquareRoot(dx * dx + dz * dz));
+        var nav = _navigationAgents[new(_stewardShift!.PlayerId!.Value)];
+        var ahead = TraversalGrid.WorldToCell(nav.XMillimetres + (int)(dx * StewardAutopilotRules.StageLookAheadMillimetres / length),
+            nav.ZMillimetres + (int)(dz * StewardAutopilotRules.StageLookAheadMillimetres / length));
+        if (OnStageCells(Stages, ahead) && !OnStageCells(Stages, TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres))) { AutopilotStop(); return; }
         var move = new SetPlayerMoveCommand((int)(dx * 1_000 / length), (int)(dz * 1_000 / length), false, StewardShiftRules.FacingTowards(dx, dz));
         var shift = _stewardShift!;
         if (shift.MoveX == move.DirectionX && shift.MoveZ == move.DirectionZ && !shift.Run && shift.FacingDegrees == move.FacingDegrees) return;
@@ -152,7 +165,7 @@ public sealed partial class GameSession
             if (here == goal) route = [goal];
             else
             {
-                var path = DeterministicPathfinder.FindPath(_traversalGrid!, here, goal);
+                var path = DeterministicPathfinder.FindPath(_traversalGrid!, here, goal, StageAvoidance());
                 if (!path.Found) return null;
                 route = path.Path.Where(cell => cell != here).Take(StewardAutopilotRules.RouteCellsKept).ToArray();
                 if (route.Length == 0) route = [goal];
@@ -168,6 +181,79 @@ public sealed partial class GameSession
             index++;
         }
         return pilot with { RouteIndex = index };
+    }
+
+    /// <summary>Extra cost on every stage's deck and steps, so the autopilot's way goes round a stage rather than over it.</summary>
+    private int[] StageAvoidance()
+    {
+        var key = string.Join("|", Stages.Select(stage => stage.Id));
+        if (_stageAvoidance is { } cached && _stageAvoidanceKey == key) return cached;
+        var costs = new int[TraversalGrid.Width * TraversalGrid.Depth];
+        for (var z = 0; z < TraversalGrid.Depth; z++)
+            for (var x = 0; x < TraversalGrid.Width; x++)
+                if (OnStageCells(Stages, new(x, z))) costs[z * TraversalGrid.Width + x] = StewardAutopilotRules.StageExtraCostPermille;
+        _stageAvoidanceKey = key;
+        return _stageAvoidance = costs;
+    }
+    // Derived from the stages alone (never saved): rebuilt when the stages differ.
+    private int[]? _stageAvoidance;
+    private string? _stageAvoidanceKey;
+
+    /// <summary>
+    /// Up on a stage's deck or steps: walk the shortest way off them (a bounded search over open cells, in a fixed order),
+    /// replanned every couple of seconds. Nothing else until they're down.
+    /// </summary>
+    private void AutopilotComeDown(StewardAutopilot pilot, NavigationAgentState nav, GridCell here)
+    {
+        if (pilot.TargetId is not null || pilot.Route is not { Length: > 0 } || pilot.RouteIndex >= pilot.Route.Length ||
+            CurrentTick - pilot.RoutedTick >= StewardAutopilotRules.RouteTicks)
+        {
+            if (WayOffTheStage(here) is not { } route) { _stewardShift = _stewardShift! with { Autopilot = new() }; AutopilotStop(); return; }
+            pilot = new() { Route = route, RoutedTick = CurrentTick };
+        }
+        var index = pilot.RouteIndex;
+        while (index < pilot.Route!.Length - 1)
+        {
+            var (cx, cz) = TraversalGrid.CellCentre(pilot.Route[index]);
+            long ax = cx - nav.XMillimetres, az = cz - nav.ZMillimetres;
+            if (ax * ax + az * az > (long)StewardAutopilotRules.WaypointMillimetres * StewardAutopilotRules.WaypointMillimetres) break;
+            index++;
+        }
+        _stewardShift = _stewardShift! with { Autopilot = pilot with { RouteIndex = index } };
+        var (wx, wz) = TraversalGrid.CellCentre(pilot.Route[index]);
+        long sx = wx - nav.XMillimetres, sz = wz - nav.ZMillimetres;
+        if (sx == 0 && sz == 0) { AutopilotStop(); return; }
+        var length = Math.Max(1, IntegerSquareRoot(sx * sx + sz * sz));
+        var move = new SetPlayerMoveCommand((int)(sx * 1_000 / length), (int)(sz * 1_000 / length), false, StewardShiftRules.FacingTowards(sx, sz));
+        if (ValidatePlayerMove(null, move, autopilot: true) is null) ApplyPlayerMove(move);
+    }
+
+    /// <summary>The cells from a stage's deck or steps to the nearest open ground in the field off them; null with none near.</summary>
+    private GridCell[]? WayOffTheStage(GridCell from)
+    {
+        var came = new Dictionary<GridCell, GridCell> { [from] = from };
+        var queue = new Queue<GridCell>();
+        queue.Enqueue(from);
+        while (queue.Count > 0 && came.Count < StewardAutopilotRules.ComeDownSearchCells)
+        {
+            var cell = queue.Dequeue();
+            if (cell != from && !OnStageCells(Stages, cell))
+            {
+                var path = new List<GridCell>();
+                for (var at = cell; at != from; at = came[at]) path.Add(at);
+                path.Reverse();
+                // A step or two on, clear of the bottom stair.
+                return path.Take(StewardAutopilotRules.RouteCellsKept).ToArray();
+            }
+            foreach (var (dx, dz) in new[] { (0, -1), (1, 0), (0, 1), (-1, 0) })
+            {
+                var next = new GridCell(cell.X + dx, cell.Z + dz);
+                if (came.ContainsKey(next) || !_traversalGrid!.Contains(next) || !_traversalGrid.Get(next).IsWalkable || !StewardShiftRules.InField(next)) continue;
+                came[next] = cell;
+                queue.Enqueue(next);
+            }
+        }
+        return null;
     }
 
     private static string CallTargetId(StewardCall call) => call.Kind switch
@@ -212,6 +298,8 @@ public sealed partial class GameSession
     private bool AutopilotStillWants(StewardAutopilot pilot)
     {
         if (CurrentTick - pilot.TakenTick > StewardAutopilotRules.GiveUpTicks) return false;
+        // Never up on a stage after anything: whatever it was, it's someone else's now.
+        if (pilot.TargetId is { } target && StewardTargetPoint(target) is { } point && OnStageCells(Stages, TraversalGrid.WorldToCell(point.X, point.Z))) return false;
         if (pilot.CallId is { } id && (_stewardShift!.Calls ?? []).FirstOrDefault(call => call.Open && call.Id == id) is { } call && CrewHolder(call) is not null) return false;
         return AutopilotAction(pilot) is not null;
     }
@@ -236,7 +324,8 @@ public sealed partial class GameSession
         var noticed = new List<(long Tick, string Id, StewardAutopilot Pilot)>();
         foreach (var call in _stewardShift!.Calls ?? [])
         {
-            if (!call.Open || call.AnsweredTick >= 0 || CrewHolder(call) is not null || StewardCallPoint(call) is not { } at) continue;
+            if (!call.Open || call.AnsweredTick >= 0 || CrewHolder(call) is not null || StewardCallPoint(call) is not { } at ||
+                OnStageCells(Stages, TraversalGrid.WorldToCell(at.X, at.Z))) continue;
             var near = Distance(at.X, at.Z) <= (long)StewardAutopilotRules.NoticeMillimetres * StewardAutopilotRules.NoticeMillimetres;
             var tick = (near ? call.OpenedTick : call.HeardTick) + StewardAutopilotRules.ReactTicks;
             var pilot = Take(CallTargetId(call), call.Id);
@@ -245,7 +334,8 @@ public sealed partial class GameSession
         if (noticed.Count > 0) return noticed.OrderBy(item => item.Tick).ThenBy(item => item.Id, StringComparer.Ordinal).First().Pilot;
         var here = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
         var litter = GroundNear(here, StewardAutopilotRules.LitterMillimetres / TraversalGrid.CellSizeMillimetres)
-            .Where(piece => StewardActionAvailable(StewardActionKind.PickLitter, $"litter:{piece.Id}"))
+            .Where(piece => !OnStageCells(Stages, TraversalGrid.WorldToCell(piece.XMillimetres, piece.ZMillimetres)) &&
+                StewardActionAvailable(StewardActionKind.PickLitter, $"litter:{piece.Id}"))
             .OrderBy(piece => Distance(piece.XMillimetres, piece.ZMillimetres)).ThenBy(piece => piece.Id, StringComparer.Ordinal).FirstOrDefault();
         return litter is null ? null : Take($"litter:{litter.Id}");
     }
@@ -284,7 +374,7 @@ public sealed partial class GameSession
         if (pilot.TargetId is { Length: 0 or > 64 } || pilot.CallId is { Length: 0 or > 64 } || pilot.CallId is not null && pilot.TargetId is null ||
             pilot.TakenTick < 0 || pilot.TakenTick > s.CurrentTick || pilot.RoutedTick < 0 || pilot.RoutedTick > s.CurrentTick ||
             pilot.Route is { } route && (route.Length is 0 or > StewardAutopilotRules.RouteCellsKept || pilot.RouteIndex < 0 || pilot.RouteIndex >= route.Length) ||
-            pilot.Route is null && (pilot.RouteIndex != 0 || pilot.RoutedTick != 0) || pilot.TargetId is null && pilot.Route is not null)
+            pilot.Route is null && (pilot.RouteIndex != 0 || pilot.RoutedTick != 0) || pilot.Route is { } way && way.Any(cell => !StewardShiftRules.InField(cell)))
             return "The steward's autopilot is invalid.";
         return null;
     }

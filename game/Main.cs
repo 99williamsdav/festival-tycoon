@@ -104,6 +104,7 @@ public partial class Main : Node, IHudHost
         ProcessStewardShiftInput();
         AdvancePreparationPresentation(delta);
         ProcessStewardShiftView();
+        ProcessStageInvasion();
         ProcessServiceServers(delta);
         ProcessServerEvidence();
         if (_pondEvidenceOutput is null) ProcessPond(delta);

@@ -29,7 +29,7 @@ All PNGs are drawn at 2×, so draw each at half its pixel size in mockup units.
 
 **Sheet:**
 - Inside the board at (22, 44), 476 × 634.
-- **Rotated −1.2°** about its own centre (`PivotOffset` = half its size).
+- **Rotated 1.2° clockwise** about its own centre: Godot `RotationDegrees = 1.2`, `PivotOffset` = half its size. (Corrected: this read "−1.2°" before.)
 - All sheet coordinates below are **sheet-local**, before the rotation. Put the sheet's contents in one `Control` and
   rotate that.
 
@@ -37,7 +37,7 @@ All PNGs are drawn at 2×, so draw each at half its pixel size in mockup units.
 sheet.
 
 **Stamp:**
-- The grade's PNG at **0.6** of its 300 × 120 mockup size, so **180 × 72 units**, rotated **+14°**.
+- The grade's PNG at **0.6** of its 300 × 120 mockup size, so **180 × 72 units**, rotated **14° counter-clockwise**, tilting up to the right: Godot `RotationDegrees = −14`. (Corrected: this read "+14°" before.)
 - Centred at board-local **(408, 114)**, the sheet's top-right corner, across the header rule.
 - Draw it above the sheet.
 - **On reveal:** start it at scale 1.6 and α 0 and "thump" it down to 0.6 and α 1 over 0.18 s, with ease-in back. Add a

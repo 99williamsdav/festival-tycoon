@@ -31,6 +31,8 @@ public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int Move
     /// <summary>The crowd's average satisfaction (of 10,000) when the shift ended; null while it's on.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public int? ClosingMood { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public long? EndedTick { get; init; }
+    /// <summary>The stage the player is up on, while they are (<see cref="StewardOnStage"/>).</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardOnStage? OnStage { get; init; }
     /// <summary>
     /// A hands-on day only: present while the player is in the manager's view and their steward works by itself
     /// (<see cref="SetPlayerStewardControlCommand"/>); null while the player has them in first person, and always on the standalone shift.
@@ -115,6 +117,9 @@ public sealed record StewardShiftScore
     /// added, and for each other success the mood it spares the crowd (<see cref="StewardShiftRules.MoodCredit"/>).
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int MoodAdded { get; init; }
+    /// <summary>Times the player got up on a stage while its set played (or stayed up as one started), and the ticks they spent there.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int StageInvasions { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long StageTicks { get; init; }
     /// <summary>Of <see cref="Answered"/>, those the player's steward answered working by themselves (a hands-on day's autopilot).</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int AutoAnswered { get; init; }
 }
@@ -390,6 +395,9 @@ public sealed partial class GameSession
                 Closer(other.XMillimetres, other.ZMillimetres, StewardShiftRules.PersonClearanceMillimetres)) return false;
         foreach (var (_, x, z) in obstacles.Points)
             if (Closer(x, z, StewardShiftRules.ObstacleClearanceMillimetres)) return false;
+        // Up on a stage, the drum kit on the drummer's mark is solid.
+        foreach (var (x, z) in DrumKits())
+            if (Closer(x, z, StageInvasionRules.DrumKitClearanceMillimetres)) return false;
         return true;
     }
 

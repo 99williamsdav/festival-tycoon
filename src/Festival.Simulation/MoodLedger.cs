@@ -2,7 +2,7 @@ namespace Festival.Simulation;
 
 /// <summary>What moves a guest's satisfaction, as the crowd-mood breakdown names it.</summary>
 public enum MoodCause { Music, MusicCutOff, FoodAndDrink, FriendlyQueues, FreeWaterPerk, StaffNearby, MudAndPuddles, LitterAndWasps, ToiletSmell, BrokenTap, StuckInToilet,
-    Heat, Thirst, LongQueues, Rain }
+    Heat, Thirst, LongQueues, Rain, StageInvader }
 
 /// <summary>A cause's share of the crowd's recent mood change, in hundredths of a satisfaction percent per guest.</summary>
 public sealed record MoodChange(MoodCause Cause, long Change);

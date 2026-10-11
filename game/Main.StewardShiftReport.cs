@@ -24,7 +24,9 @@ void fragment() { COLOR = vec4(mix(textureLod(screen, SCREEN_UV, 2.6).rgb, vec3(
 
     private static string ControlsNote(StewardShiftReport report) => report.Failed
         ? "We lost someone today. The day's stopped while it's looked into. Get some rest."
-        : report.Grade switch
+        : GradeNote(report) + (report.Score.StageInvasions > 0 ? " And stay off the stage, you're not on the bill." : "");
+
+    private static string GradeNote(StewardShiftReport report) => report.Grade switch
         {
             StewardShiftGrade.Encore => "Textbook. First on every call and the crowd loved you for it. Same again next week?",
             StewardShiftGrade.Headliner => "Strong shift. You were where we needed you, most of the time.",
@@ -72,7 +74,7 @@ void fragment() { COLOR = vec4(mix(textureLod(screen, SCREEN_UV, 2.6).rgb, vec3(
         board.AddChild(Art("lwf_report_clipboard_v1.png", Vector2.Zero, Ui.S(520, 694)));
         var sheet = new Control { Position = Ui.S(22, 44), Size = Ui.S(476, 634), MouseFilter = Control.MouseFilterEnum.Ignore };
         sheet.PivotOffset = sheet.Size / 2;
-        sheet.RotationDegrees = -1.2f;
+        sheet.RotationDegrees = 1.2f;
         sheet.AddChild(Art("lwf_report_sheet_v1.png", Vector2.Zero, Ui.S(476, 634)));
         board.AddChild(sheet);
         board.AddChild(Art("lwf_report_clip_v1.png", Ui.S(185, 2), Ui.S(150, 70)));
@@ -153,7 +155,7 @@ void fragment() { COLOR = vec4(mix(textureLod(screen, SCREEN_UV, 2.6).rgb, vec3(
         var stamp = Art($"lwf_report_stamp_{StampFile(report.Grade)}_v1.png", Vector2.Zero, Ui.S(300, 120));
         stamp.PivotOffset = stamp.Size / 2;
         stamp.Position = Ui.S(408, 114) - stamp.Size / 2;
-        stamp.RotationDegrees = 14;
+        stamp.RotationDegrees = -14;
         stamp.Scale = Vector2.One * 1.6f;
         stamp.Modulate = new Color(1, 1, 1, 0);
         board.AddChild(stamp);

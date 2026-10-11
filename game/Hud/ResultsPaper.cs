@@ -263,7 +263,8 @@ void fragment() {
                 MoodCause.FriendlyQueues => "the friendly queues", MoodCause.FreeWaterPerk => "the free water", MoodCause.StaffNearby => "the helpful staff",
                 MoodCause.MudAndPuddles => "the mud and puddles", MoodCause.LitterAndWasps => "the litter and wasps", MoodCause.ToiletSmell => "the smell from the loos",
                 MoodCause.BrokenTap => "broken taps", MoodCause.StuckInToilet => "getting stuck in the loos", MoodCause.Heat => "the heat",
-                MoodCause.Thirst => "going thirsty", MoodCause.LongQueues => "the queues", MoodCause.Rain => "the rain", _ => "",
+                MoodCause.Thirst => "going thirsty", MoodCause.LongQueues => "the queues", MoodCause.Rain => "the rain",
+                MoodCause.StageInvader => "a steward getting up on stage", _ => "",
             }).Where(words => words.Length > 0).ToArray();
     }
 

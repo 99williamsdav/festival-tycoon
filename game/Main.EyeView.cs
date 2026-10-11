@@ -112,7 +112,8 @@ public partial class Main
     {
         foreach (var label in FindChildren("*", "Label3D", true, false).OfType<Label3D>())
             // Moved to a layer the eye camera skips: other code toggles their visibility as people talk.
-            if (label.Layers != EyeHiddenLayer && !IsGateLettering(label)) { label.Layers = EyeHiddenLayer; _eyeHiddenLabels.Add(label); }
+            // Shouts at the player steward up on a stage are meant for their eyes (Main.StageInvasion.cs).
+            if (label.Layers != EyeHiddenLayer && !IsGateLettering(label) && !label.HasMeta(StageShoutMeta)) { label.Layers = EyeHiddenLayer; _eyeHiddenLabels.Add(label); }
     }
 
     // The gate sign and banner lettering belong to the world, so they stay.

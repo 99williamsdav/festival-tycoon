@@ -198,6 +198,8 @@ internal static class FestivalReview
                 _ when r.Hiccups.Contains(GigRules.Stopped) => ("stopped" + boos, $"{set.Act} stopped mid-set{(boos ? " to boos" : "")}.", acts => $"{acts} stopped mid-set{(boos ? " to boos" : "")}."),
                 GigRules.Smattering => ("smattering", $"Only a smattering turned out for {set.Act}.", acts => $"Only a smattering turned out for {acts}."),
                 _ when r.Hiccups.Contains(GigRules.PoorSoundHiccup) => ("sound", $"The sound for {set.Act} was muddy at best.", acts => $"The sound for {acts} was muddy at best."),
+                _ when r.Hiccups.Contains(GigRules.StageInvader) => ("invader", $"A steward wandered on stage in the middle of {set.Act}’s set.",
+                    acts => $"A steward wandered on stage during sets by {acts}."),
                 _ when r.Hiccups.Contains(GigRules.Late) => ("late", $"{set.Act} were late on stage.", acts => $"{acts} were late on stage."),
                 _ => null,
             };
