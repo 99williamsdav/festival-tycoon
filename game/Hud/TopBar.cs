@@ -218,6 +218,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         MoodCause.Heat => "Heat",
         MoodCause.Thirst => "Thirst",
         MoodCause.LongQueues => "Long queues",
+        MoodCause.StageInvader => "A steward on the stage",
         _ => change.Cause.ToString(),
     };
 

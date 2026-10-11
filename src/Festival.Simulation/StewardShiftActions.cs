@@ -277,6 +277,7 @@ public sealed partial class GameSession
         }
         AdvanceEscort(me);
         if (_stewardShift.EscortOffer is { } offer && offer.UntilTick <= CurrentTick) _stewardShift = _stewardShift with { EscortOffer = null };
+        AdvanceStageInvasion(me);
     }
 
     /// <summary>
@@ -523,6 +524,8 @@ public sealed partial class GameSession
     private void FollowThePlayer(ulong guest)
     {
         var me = _navigationAgents[new(_stewardShift!.PlayerId!.Value)]; var them = _navigationAgents[new(guest)];
+        // Nobody follows the player up a stage's steps: they wait at the bottom.
+        if (OnStageCells(Stages, TraversalGrid.WorldToCell(me.XMillimetres, me.ZMillimetres))) return;
         long dx = them.XMillimetres - me.XMillimetres, dz = them.ZMillimetres - me.ZMillimetres;
         var length = Math.Max(1, IntegerSquareRoot(dx * dx + dz * dz));
         if (length <= StewardShiftRules.EscortFollowMillimetres * 2 && them.Action is AgentNavigationAction.Arrived && them.IntentId == StewardShiftRules.EscortIntent) return;
@@ -592,7 +595,7 @@ public sealed partial class GameSession
         var guests = PeopleIn(PersonView.Roster).Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted).ToArray();
         var mood = guests.Length == 0 ? 0 : (int)(guests.Sum(p => (long)p.Satisfaction) / guests.Length);
         _stewardShift = _stewardShift with { PlayerId = null, MoveX = 0, MoveZ = 0, Run = false, RemainderX = 0, RemainderZ = 0, Action = null,
-            EscortOffer = null, EscortId = null, ClosingMood = mood, EndedTick = CurrentTick };
+            EscortOffer = null, EscortId = null, ClosingMood = mood, EndedTick = CurrentTick, OnStage = null };
     }
 
     /// <summary>
@@ -632,6 +635,7 @@ public sealed partial class GameSession
         if (shift.EscortId is { } guest && EscortProblem(guest) is { } lost) return $"The player steward's escort isn't following ({lost}).";
         if (shift.EscortOffer is { } offer && (!IsGuest(offer.GuestId) || offer.GuestId == shift.EscortId)) return "The player steward's escort offer is for nobody.";
         if (_cows?.Loose.Any(c => c.HerderId == me && !c.Driving) == true) return "The player steward drives a cow or doesn't.";
+        if (PlayerStageIssue(me) is { } stage) return stage;
         return StewardCallsIssue();
     }
 
@@ -641,10 +645,11 @@ public sealed partial class GameSession
         if (shift.Score is not { } score || shift.Calls is not { } calls) return "Steward shift score or calls missing.";
         var counts = new long[] { score.Calls, score.Answered, score.Calmed, score.CalmsFailed, score.FightsBrokenUp, score.BreakUpsFailed, score.Escorted,
             score.MedicRadioed, score.StoodBy, score.LoosFreed, score.TapsBodged, score.BinsEmptied, score.LitterPicked, score.StrawSpread, score.CowsHerded,
-            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded };
+            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded, score.StageInvasions };
         if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.UrgentUnhandled > score.Calls - score.Answered || score.ResponseTicks < 0 ||
             score.MoodAdded < StewardShiftRules.CreditedMood(score) || score.MoodAdded > StewardShiftRules.CreditedMood(score) + (long)score.Directions * StewardShiftRules.DirectionsSatisfaction ||
-            score.ResponseTicks > (long)score.Answered * Math.Max(1, s.CurrentTick))
+            score.ResponseTicks > (long)score.Answered * Math.Max(1, s.CurrentTick) ||
+            score.StageTicks < score.StageInvasions || score.StageTicks > s.CurrentTick || score.StageInvasions == 0 && score.StageTicks != 0)
             return "Steward shift score out of bounds.";
         var guests = p.People.Where(person => person.Role == ProtectedPersonRole.Guest).ToDictionary(person => person.AgentId);
         bool OnSite(ulong id) => guests.TryGetValue(id, out var guest) && guest.Admitted && !guest.Departed;
@@ -672,6 +677,10 @@ public sealed partial class GameSession
         if (shift.LastOutcome is { } last && (!Enum.IsDefined(last.Kind) || last.Tick < p.StartedTick || last.Tick > s.CurrentTick ||
                 string.IsNullOrWhiteSpace(last.TargetId) || last.TargetId.Length > 64 || last.Text is null || last.Text.Length > 200))
             return "Steward shift outcome invalid.";
+        if (!on && shift.OnStage is not null || shift.OnStage is { } stage && (FestivalStages.IndexOf(SavedStages(s), stage.StageId) < 0 ||
+                stage.SinceTick < p.StartedTick || stage.SinceTick > s.CurrentTick || stage.InvadedTick is { } invaded && (invaded < stage.SinceTick || invaded > s.CurrentTick) ||
+                stage.InvadedTick is not null && score.StageInvasions == 0))
+            return "Steward shift stage record invalid.";
         if (on != (shift.ClosingMood is null) || on != (shift.EndedTick is null) || shift.ClosingMood is < 0 or > 10_000 ||
             shift.EndedTick is { } ended && (ended < p.StartedTick || ended > s.CurrentTick))
             return "Steward shift close invalid.";

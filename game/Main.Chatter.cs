@@ -62,6 +62,7 @@ public partial class Main
         foreach (var label in _faultRemarkLabels.Values) Add(label);
         Add(_immersionRemark); Add(_litterRemarkLabel);
         foreach (var (label, _, _) in _chatter) Add(label);
+        foreach (var label in StageShoutLabels()) Add(label);
         return shown;
     }
 

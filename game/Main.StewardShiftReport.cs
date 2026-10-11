@@ -24,7 +24,9 @@ void fragment() { COLOR = vec4(mix(textureLod(screen, SCREEN_UV, 2.6).rgb, vec3(
 
     private static string ControlsNote(StewardShiftReport report) => report.Failed
         ? "We lost someone today. The day's stopped while it's looked into. Get some rest."
-        : report.Grade switch
+        : GradeNote(report) + (report.Score.StageInvasions > 0 ? " And stay off the stage, you're not on the bill." : "");
+
+    private static string GradeNote(StewardShiftReport report) => report.Grade switch
         {
             StewardShiftGrade.Encore => "Textbook. First on every call and the crowd loved you for it. Same again next week?",
             StewardShiftGrade.Headliner => "Strong shift. You were where we needed you, most of the time.",

@@ -53,7 +53,7 @@ public sealed record CarriedGig(int Tier, string ActId, bool Started, bool CutSh
 /// without a set-end crowd.</item>
 /// <item>Enthusiastic applause (<see cref="PerformanceApplauseMath.IsEnthusiastic"/>): +5.</item>
 /// <item>Hiccups: never made it on −20, cut short −4, late −4, power cut −6, stopped mid-set −3, boos −6,
-/// poor sound −4, a band member collapsed −4.</item>
+/// poor sound −4, a band member collapsed −4, the player steward got up on stage mid-set −3.</item>
 /// </list>
 /// <para>Fee: × (1 − relationship / 200) for a band that likes you, × (1 − relationship / 100) for one that doesn't, so
 /// half at +100 and double at −100, rounded to whole pounds.</para>
@@ -69,7 +69,7 @@ public static class GigRules
     public const int ReactionFloor = -5, ReactionCeiling = 10, ReactionZero = 200, ReactionStep = 30;
     public const int EnthusiasticPoints = 5;
     public const int NoShowPenalty = 20, CutShortPenalty = 4, LatePenalty = 4, PowerCutPenalty = 6, StoppedPenalty = 3,
-        BooPenalty = 6, PoorSoundPenalty = 4, CollapsePenalty = 4;
+        BooPenalty = 6, PoorSoundPenalty = 4, CollapsePenalty = 4, StageInvaderPenalty = 3;
     /// <summary>A set starting more than five seconds after its time counts as late.</summary>
     public const int LateGraceTicks = 400;
     /// <summary>Sound averaging under 40 across the set is poor, as the stage panel calls it.</summary>
@@ -81,8 +81,8 @@ public static class GigRules
     public static readonly string[] Reactions = [Enthusiastic, Warm, Polite, Smattering, EmptyField, CutShort, NoShow];
     // Hiccups, in the order they're listed.
     public const string Late = "late", PowerCut = "power-cut", Stopped = "stopped", Boos = "boos", PoorSoundHiccup = "sound-poor",
-        Collapse = "member-collapsed";
-    public static readonly string[] HiccupOrder = [Late, PowerCut, Stopped, Boos, PoorSoundHiccup, Collapse];
+        Collapse = "member-collapsed", StageInvader = "stage-invader";
+    public static readonly string[] HiccupOrder = [Late, PowerCut, Stopped, Boos, PoorSoundHiccup, Collapse, StageInvader];
 
     /// <summary>
     /// The crowd an act expects at a set: its stage's share of the guests, from 40% for a nobody, through 70% for an act
@@ -144,7 +144,7 @@ public static class GigRules
     public static int Penalty(string hiccup) => hiccup switch
     {
         Late => LatePenalty, PowerCut => PowerCutPenalty, Stopped => StoppedPenalty, Boos => BooPenalty,
-        PoorSoundHiccup => PoorSoundPenalty, Collapse => CollapsePenalty, _ => 0,
+        PoorSoundHiccup => PoorSoundPenalty, Collapse => CollapsePenalty, StageInvader => StageInvaderPenalty, _ => 0,
     };
 
     /// <summary>The gig's score and the reasons behind it, biggest first.</summary>
@@ -197,7 +197,7 @@ public static class GigRules
     public static string HiccupWord(string hiccup) => hiccup switch
     {
         Late => "Late on stage", PowerCut => "Power cut", Stopped => "Stopped mid-set", Boos => "Boos",
-        PoorSoundHiccup => "Poor sound", Collapse => "Band member collapsed", _ => hiccup,
+        PoorSoundHiccup => "Poor sound", Collapse => "Band member collapsed", StageInvader => "Stage invader", _ => hiccup,
     };
 
     /// <summary>
@@ -444,6 +444,7 @@ public sealed partial class GameSession
         if (live.Boos > 0) hiccups.Add(GigRules.Boos);
         if (live.SoundSamples > 0 && live.SoundTotal < (long)GigRules.PoorSound * live.SoundSamples) hiccups.Add(GigRules.PoorSoundHiccup);
         if (live.MemberCollapsed) hiccups.Add(GigRules.Collapse);
+        if (live.StageInvasions > 0) hiccups.Add(GigRules.StageInvader);
         return hiccups.ToArray();
     }
 

@@ -39,6 +39,8 @@ public sealed record LivePerformanceSnapshot(int Version, string StageId, LiveSe
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int SoundSamples { get; init; }
     /// <summary>A band member went down for medical help while the set was due or playing.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool MemberCollapsed { get; init; }
+    /// <summary>How many times the player steward got up on this stage while the set played: a stage invader.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int StageInvasions { get; init; }
     [JsonIgnore] public int SetEndAudienceCount => SetEndAudienceIds.Length;
     [JsonIgnore] public int SetEndEnjoymentTotal => SetEndEnjoymentAway +
         Listeners.Where(listener => SetEndAudienceIds.Contains(listener.AgentId)).Sum(listener => listener.EnjoymentEarned);
@@ -564,7 +566,9 @@ public sealed partial class GameSession
                 live.PeakListeners < live.SetEndAudienceIds.Length || live.PeakListeners > guests.Length ||
                 live.PowerCuts < 0 || live.Stoppages < 0 || live.Boos < 0 || live.Boos > live.PowerCuts + live.Stoppages ||
                 live.SoundSamples < 0 || live.SoundSamples > FestivalSlotDurationTicks / 80 + 1 || live.SoundTotal < 0 || live.SoundTotal > 100L * live.SoundSamples ||
-                live.StartedTick < 0 && (live.PeakListeners != 0 || live.PowerCuts + live.Stoppages + live.Boos + live.SoundSamples != 0))
+                live.StartedTick < 0 && (live.PeakListeners != 0 || live.PowerCuts + live.Stoppages + live.Boos + live.SoundSamples != 0) ||
+                // Only the player steward invades a stage, and only once its set has started.
+                live.StageInvasions < 0 || live.StageInvasions > 10_000 || live.StageInvasions > 0 && (live.StartedTick < 0 || snapshot.StewardShift is null))
                 return invalid;
         return null;
     }
