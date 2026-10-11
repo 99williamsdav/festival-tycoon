@@ -16,7 +16,7 @@ public partial class Main
     private StartMenu StartMenu => _startMenuView ??= new();
 
     private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide, TryPondStage, StartStewardShift,
-        SavedStewardShift() is { } saved ? () => ContinueStewardShift(saved) : null, StartHandsOnCampaign,
+        SavedStewardShift() is { } saved ? () => ContinueStewardShift(saved) : null, PickFrontOfHouse,
         SavedHandsOnCampaign() is { } handsOn ? () => ContinueHandsOnCampaign(handsOn) : null);
 
     /// <summary>A fresh trial campaign with the Pond Stage open from the start, before its tier.</summary>
@@ -32,7 +32,7 @@ public partial class Main
 
     private void EnterFestival()
     {
-        // Enter is the classic campaign: coming from Front of House, its own host and saves come back.
+        // Enter is the classic campaign: coming from Front of House or a shift, its own host and saves come back.
         LeaveHandsOnHost();
         if (_newCampaignOnEnter)
         {
@@ -41,6 +41,8 @@ public partial class Main
             SwitchToFestival(next);
             GD.Print($"NEW_CAMPAIGN_STARTED id={_session.CampaignId.Value} seed={seed} status={_session.PreparedStatus}");
         }
+        // The parked campaign carries on where it was left; the views still show the other one.
+        else if (_campaignViewsStale) SwitchToFestival(_session);
         StartMenu.Close();
         RefreshChallengeReveal();
     }
@@ -66,6 +68,7 @@ public partial class Main
         if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();
         RebuildPreparationOffers(); SelectHudTab("Programme"); RefreshPreparationHud();
         _newCampaignOnEnter = false;
+        _campaignViewsStale = false;
     }
 
     private GameSession CreateFreshBuildCampaign(out ulong seed, bool pondStageTrial = false)

@@ -34,7 +34,7 @@ public partial class Main
     /// <summary>The title screen's way in: a fresh self-running festival at the picked tier, the player its second steward.</summary>
     private void StartStewardShift(int tier)
     {
-        _campaignHost ??= _host;
+        ParkCampaignHost();
         if (_host is not null) _menuCampaignIds.Add(_session.CampaignId.Value);
         ulong seed;
         do seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
@@ -51,14 +51,15 @@ public partial class Main
     /// <summary>The title screen's Continue shift: back on the saved shift where it was left.</summary>
     private void ContinueStewardShift(GameSession saved)
     {
-        _campaignHost ??= _host;
-        BeginStewardShift(saved);
+        ParkCampaignHost();
+        // Still the shift's host: its own session is at least as new as anything it saved.
+        BeginStewardShift(_host.SaveDirectory == StewardShiftSaveDirectory && _session.IsStewardShift ? _session : saved);
         GD.Print($"STEWARD_SHIFT_CONTINUED id={_session.CampaignId.Value} tick={_session.CurrentTick} player={_session.PlayerStewardId}");
     }
 
     private void BeginStewardShift(GameSession shift)
     {
-        _host = new SessionHost(shift, StewardShiftSaveDirectory, _saveCompatibility);
+        _host = HostFor(StewardShiftSaveDirectory, shift);
         SwitchToFestival(shift);
         _host.Clock.RequestedSpeed = RequestedSpeed.OneX;
         StartMenu.Close();
@@ -97,14 +98,12 @@ public partial class Main
         if (_hudLayer is not null) _hudLayer.Visible = true;
     }
 
-    /// <summary>Back to the title: the shift's host and saves are left behind and the campaign's host returns.</summary>
+    /// <summary>Back to the title: the shift is saved and left behind, and the campaign's host returns as it was left.</summary>
     private void ReturnFromStewardShift()
     {
         _host.SaveMilestone("Shift", force: false);
         ExitStewardShiftView();
-        _host = _campaignHost!;
-        _campaignHost = null;
-        _newCampaignOnEnter = true;
+        LeaveHandsOnHost();
         BuildStartSplash();
     }
 

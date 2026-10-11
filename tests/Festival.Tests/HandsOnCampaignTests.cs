@@ -192,6 +192,35 @@ public sealed class HandsOnCampaignTests
     }
 
     [TestMethod]
+    public void ATierTwoHandsOnDayRestoresMidDayWithThePlayerStewardBesideTheExtraSteward()
+    {
+        // Tier 2 as the development route opens it, hands-on, planned as the shift plans itself: both stages, the
+        // perk's extra steward hired as well, the Pond Stage's engineer, a rainy day's straw.
+        var s = (GameSession)typeof(GameSession).GetMethod("CreateLaterFestivalIn", BindingFlags.NonPublic | BindingFlags.Static)!
+            .Invoke(null, [CampaignMode.HandsOn, Seed, new CampaignId(Seed), 2, GameSession.DevelopmentCarryOver(2), FestivalStanding.Established,
+                Array.Empty<string>(), null, false])!;
+        typeof(GameSession).GetMethod("PlanStewardShift", BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(s, []);
+        BuildSession.Accept(s, new StartPreparedEditionCommand());
+        Assert.AreEqual(2, s.CapturePreparation()!.Tier);
+        Assert.AreEqual(2, s.Stages.Count);
+        AssertOnShift(s);
+        Assert.AreEqual(2, s.GetStewardResponses().Count, "Both hired stewards, and the player besides.");
+        Assert.IsFalse(s.GetStewardResponses().Any(job => job.WorkerId == s.PlayerStewardId));
+        BuildSession.Accept(s, new SetPlayerMoveCommand(0, -1000, true, 180));
+        s.AdvanceWithoutSnapshot(600);
+        BuildSession.Accept(s, new SetPlayerMoveCommand(0, 0, false, 180));
+        s.AdvanceWithoutSnapshot(4_000);
+        var restored = BuildSession.Restored(s);
+        AssertOnShift(restored);
+        foreach (var session in new[] { s, restored })
+        {
+            BuildSession.Accept(session, new SetPlayerMoveCommand(1000, 0, false, 90));
+            session.AdvanceWithoutSnapshot(800);
+        }
+        Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, restored.CaptureSnapshot().AuthoritativeHash);
+    }
+
+    [TestMethod]
     public void TheStandaloneShiftStillWorks()
     {
         var s = GameSession.CreateStewardShift(Seed);

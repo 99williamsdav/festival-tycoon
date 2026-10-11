@@ -23,10 +23,44 @@ public partial class Main
 
     private bool HandsOnFirstPerson => _shiftActive && _session.IsHandsOn;
 
+    /// <summary>
+    /// The title screen's Front of House button. With a Front of House campaign already saved it asks first, since a new
+    /// one takes over the autosaves: start new, continue the saved one, or cancel.
+    /// </summary>
+    private void PickFrontOfHouse()
+    {
+        if (SavedHandsOnCampaign() is not { } saved) { StartHandsOnCampaign(); return; }
+        _handsOnConfirmLayer?.QueueFree();
+        _handsOnConfirmLayer = new CanvasLayer { Layer = 25, Name = "FrontOfHouseConfirm" };
+        AddChild(_handsOnConfirmLayer);
+        var dialog = new ConfirmationDialog { Title = "Start a new " + HandsOnModeName + "?",
+            DialogText = "Start a new " + HandsOnModeName + "? Your current one will be replaced.",
+            OkButtonText = "Start new", CancelButtonText = "Cancel", Theme = HudTheme() };
+        dialog.Theme.SetStylebox("panel", "AcceptDialog", HudStyle(HudInk, 16));
+        dialog.GetLabel().AddThemeColorOverride("font_color", HudPaper);
+        var resume = dialog.AddButton("Continue", false, "continue");
+        foreach (var button in new[] { dialog.GetOkButton(), dialog.GetCancelButton(), resume })
+        {
+            button.MouseDefaultCursorShape = Control.CursorShape.PointingHand;
+            foreach (var state in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color" })
+                button.AddThemeColorOverride(state, HudInk);
+            foreach (var state in new[] { "normal", "hover", "pressed", "focus" })
+                button.AddThemeStyleboxOverride(state, HudStyle(state == "hover" ? new Color("d3e8df") : HudPaper, 8));
+        }
+        void Close() { _handsOnConfirmLayer?.QueueFree(); _handsOnConfirmLayer = null; }
+        dialog.Confirmed += () => { Close(); StartHandsOnCampaign(); };
+        dialog.Canceled += Close;
+        dialog.CustomAction += action => { if (action == "continue") { Close(); ContinueHandsOnCampaign(saved); } };
+        _handsOnConfirmLayer.AddChild(dialog);
+        dialog.PopupCentered(new Vector2I(480, 170));
+    }
+
+    private CanvasLayer? _handsOnConfirmLayer;
+
     /// <summary>The title screen's Front of House: a fresh hands-on Tier 1 campaign on its own host and save folder.</summary>
     private void StartHandsOnCampaign()
     {
-        _campaignHost ??= _host;
+        ParkCampaignHost();
         if (_host is not null) _menuCampaignIds.Add(_session.CampaignId.Value);
         ulong seed;
         do seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
@@ -42,28 +76,56 @@ public partial class Main
 
     private void ContinueHandsOnCampaign(GameSession saved)
     {
-        _campaignHost ??= _host;
-        BeginHandsOn(saved);
+        ParkCampaignHost();
+        // Still the current host: its own session is at least as new as anything it saved.
+        BeginHandsOn(_host.SaveDirectory == HandsOnSaveDirectory && _session.IsHandsOn ? _session : saved);
         GD.Print($"HANDS_ON_CAMPAIGN_CONTINUED id={_session.CampaignId.Value} tick={_session.CurrentTick} status={_session.PreparedStatus}");
     }
 
     private void BeginHandsOn(GameSession session)
     {
-        _host = new SessionHost(session, HandsOnSaveDirectory, _saveCompatibility);
+        _host = HostFor(HandsOnSaveDirectory, session);
         SwitchToFestival(session);
         StartMenu.Close();
         RefreshChallengeReveal();
     }
 
-    /// <summary>Leaving a hands-on campaign for the classic one: the classic campaign's host comes back.</summary>
-    private void LeaveHandsOnHost()
+    /// <summary>
+    /// A host on <paramref name="directory"/>: the current one when it already saves there (after any write in flight
+    /// finishes), so two hosts never write the same folder; otherwise a new one.
+    /// </summary>
+    private SessionHost HostFor(string directory, GameSession session)
     {
-        if (_campaignHost is null || StewardShiftActive) return;
-        _host = _campaignHost;
-        _campaignHost = null;
-        _newCampaignOnEnter = true;
+        if (_host is null || _host.SaveDirectory != directory) return new SessionHost(session, directory, _saveCompatibility);
+        _host.SaveMilestone("Switch", force: false);
+        return _host;
     }
 
+    /// <summary>
+    /// The classic campaign's host is set aside while Front of House or a steward shift has the screen, with whether
+    /// its Enter would start a new campaign, so coming back resumes it exactly as it was left.
+    /// </summary>
+    private bool _campaignHostNewOnEnter;
+    private void ParkCampaignHost()
+    {
+        if (_campaignHost is not null) return;
+        _campaignHost = _host;
+        _campaignHostNewOnEnter = _newCampaignOnEnter;
+    }
+
+    /// <summary>Set when the classic host comes back while the world still shows another session; Enter rebuilds the views.</summary>
+    private bool _campaignViewsStale;
+
+    /// <summary>Back to the classic campaign's host, if it was parked: out of first person first, then its own Enter state.</summary>
+    private void LeaveHandsOnHost()
+    {
+        if (_campaignHost is null) return;
+        if (_shiftActive) ExitStewardShiftView();
+        _host = _campaignHost;
+        _campaignHost = null;
+        _newCampaignOnEnter = _campaignHostNewOnEnter;
+        _campaignViewsStale = true;
+    }
     /// <summary>Tab: into first person on the player's steward, or back to the manager's view. The day keeps running either way.</summary>
     private void ToggleHandsOnView()
     {
