@@ -101,7 +101,9 @@ public partial class Main : Node, IHudHost
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
         ProcessSurroundEvidence();
+        ProcessStewardShiftInput();
         AdvancePreparationPresentation(delta);
+        ProcessStewardShiftView();
         ProcessServiceServers(delta);
         ProcessServerEvidence();
         if (_pondEvidenceOutput is null) ProcessPond(delta);
@@ -111,16 +113,18 @@ public partial class Main : Node, IHudHost
         SeparateSpeech();
         FinalizeCleanupEvidenceFrame();
         RefreshContextPanelVisibility();
-        AdvanceFinanceFeedback(delta);
+        // Cash floating over the bars belongs to the overview, not a steward's eyes.
+        if (!StewardShiftActive) AdvanceFinanceFeedback(delta);
         _urgentAlertDisplay.Advance(delta); RenderUrgentAlerts();
         if (_preparationProfileOutput is not null) { ProcessBuildProfileSetup(); FinishPreparationProfileFrame(); }
-        UpdateHoverFeedback(GetViewport().GetMousePosition());
+        if (!StewardShiftActive) UpdateHoverFeedback(GetViewport().GetMousePosition());
         ProcessBuildDebugOverlay();
     }
 
     public override void _Input(InputEvent inputEvent)
     {
         if (StartMenu.IsOpen || _challengeReveal.IsOpen) return;
+        if (HandleStewardShiftInput(inputEvent)) { GetViewport().SetInputAsHandled(); return; }
         _rig.ObserveRelease(inputEvent);
     }
 

@@ -40,6 +40,7 @@ public partial class Main
     {
         if (_session.CaptureProgramme() is not null) _preparationMessage = "Choose three different acts and hire a sound engineer. Equipment and stock are optional.";
         var layer = new CanvasLayer(); AddChild(layer);
+        _hudLayer = layer;
         var size = GetViewport().GetVisibleRect().Size;
         Ui.Configure(size);
         var width = size.X; var height = size.Y;

@@ -118,13 +118,18 @@ public partial class Main
     // The gate sign and banner lettering belong to the world, so they stay.
     private static bool IsGateLettering(Node label) => label.GetParent() is Node3D parent && parent.Name == "LetteringArea";
 
-    private void PlaceEyeCamera(Node3D visual, float follow)
+    /// <summary>Eye height for this body: a little lower for the female bodies, at the grass for someone lying down.</summary>
+    private static float EyeHeight(Node3D visual)
     {
         var tall = visual.HasMeta("GuestPoseVariant") ? visual.GetMeta("GuestPoseVariant").AsString() :
             visual.HasMeta("RoleVariant") ? visual.GetMeta("RoleVariant").AsString() : "male";
-        var eye = tall == "female" ? 1.53f : 1.60f;
         // A collapsed person lies down: the view drops to the grass.
-        if (Mathf.Abs(visual.Rotation.X) > 1f) eye = 0.25f;
+        return Mathf.Abs(visual.Rotation.X) > 1f ? 0.25f : tall == "female" ? 1.53f : 1.60f;
+    }
+
+    private void PlaceEyeCamera(Node3D visual, float follow)
+    {
+        var eye = EyeHeight(visual);
         _eyeYaw = Mathf.LerpAngle(_eyeYaw, visual.Rotation.Y, follow);
         var target = visual.GlobalPosition + new Vector3(0, eye, 0);
         _eyeCamera!.GlobalPosition = _eyeCamera.GlobalPosition.Lerp(target, Mathf.Max(follow, .5f));
@@ -143,7 +148,8 @@ public partial class Main
             _session.CapturePreparation()?.People.FirstOrDefault(p => p.AgentId == id.Value)?.Departed == true)
         { ExitEyeView(); return; }
         SetEyeSelfLayer(visual, true); // Poses, kits and held things come and go.
-        PlaceEyeCamera(visual, Mathf.Clamp((float)delta * 4f, 0, 1));
+        // On shift the player steers the camera (Main.StewardShift); once it's over it rides their head home.
+        if (!StewardShiftActive || _session.PlayerStewardId is null) PlaceEyeCamera(visual, Mathf.Clamp((float)delta * 4f, 0, 1));
         _environment.FogLightColor = _environment.BackgroundColor;
         // New speech bubbles and names appear as the day goes on.
         _eyeLabelSweep -= delta;

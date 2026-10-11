@@ -12,7 +12,8 @@ public partial class Main
 
     private void RefreshFestivalPaper()
     {
-        if (_newCampaignOnEnter) return;
+        // A steward shift ends on its own panel; scoring comes later.
+        if (_newCampaignOnEnter || StewardShiftActive) return;
         if (_session.CompletedFestivalResult is null)
         {
             ResultsPaper.Close();
