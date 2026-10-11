@@ -45,6 +45,11 @@ public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int Move
     /// <see cref="StewardRadioRules.PlanWalkPermille"/>, can't run, and their hands and radio menu wait until it's down.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool PlanUp { get; init; }
+    /// <summary>
+    /// A hands-on day only: every call of the night once it closed, oldest first, if it went out over the radio or the
+    /// player answered it (the radio's <see cref="Calls"/> keep only the last few). The results paper's "Your shift" reads it.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardCall[]? Log { get; init; }
 }
 
 /// <summary>

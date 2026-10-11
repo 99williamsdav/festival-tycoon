@@ -18,9 +18,7 @@ public partial class Main
     public const string HandsOnModeName = "All-Rounder";
     public const string HandsOnStrapline = "Run it, and steward it yourself until you can afford the help.";
 
-    private string HandsOnSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v77-front-of-house");
-    private CanvasLayer? _handsOnHintLayer;
-    private Label? _handsOnHint;
+    private string HandsOnSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v78-front-of-house");
 
     private bool HandsOnFirstPerson => _shiftActive && _session.IsHandsOn;
 
@@ -133,6 +131,7 @@ public partial class Main
         if (!_session.IsHandsOn) return;
         if (HandsOnFirstPerson) { LeaveHandsOnFirstPerson(); return; }
         if (_session.PlayerStewardId is not { } id || !_attendeeVisuals.ContainsKey(new EntityId(id))) return;
+        FlashHandsOnCue();
         if (EyeViewActive) ExitEyeView();
         ClearSelection();
         // The steward is the player's again, stopped where they were.
@@ -152,6 +151,7 @@ public partial class Main
     private void LeaveHandsOnFirstPerson()
     {
         if (_shiftKeyDown) { _shiftKeyDown = false; ReleaseShiftAction(); }
+        FlashHandsOnCue();
         if (_session.PlayerStewardId is not null && _session.CaptureStewardShift() is { Autopilot: null })
             _host.Submit(new SetPlayerStewardControlCommand(true));
         ExitStewardShiftView();
@@ -160,33 +160,17 @@ public partial class Main
     }
 
     /// <summary>
-    /// The manager's view: a reminder of the key while the player's steward is on duty, with the calls that are theirs
-    /// (radioed, and nobody hired on them). The steward works by themselves whenever the player isn't in first person,
-    /// whatever left them otherwise (a save from first person, say).
+    /// The view cues and the YOU marker (Main.HandsOnCues.cs): in the manager's view, the "V · Walk the field" chip with
+    /// the calls that are theirs (radioed, and nobody hired on them); in first person, "V · Manager view". The steward
+    /// works by themselves whenever the player isn't in first person, whatever left them otherwise (a save from first person, say).
     /// </summary>
     private void ProcessHandsOnHint()
     {
         if (_session.IsHandsOn && _session.PlayerStewardId is not null && _session.CaptureStewardShift() is { } own && (own.Autopilot is null) == !_shiftActive)
             _host.Submit(new SetPlayerStewardControlCommand(!_shiftActive));
-        var show = _session.IsHandsOn && !_shiftActive && _session.PlayerStewardId is not null && !StartMenu.IsOpen && !ResultsPaper.IsOpen;
-        if (!show) { if (_handsOnHintLayer is not null) _handsOnHintLayer.Visible = false; return; }
-        if (_handsOnHintLayer is null)
-        {
-            _handsOnHintLayer = new CanvasLayer { Layer = 19, Name = "HandsOnHint" };
-            AddChild(_handsOnHintLayer);
-            _handsOnHint = new Label { Name = "HandsOnHintText", MouseFilter = Control.MouseFilterEnum.Ignore, HorizontalAlignment = HorizontalAlignment.Center };
-            _handsOnHint.AddThemeFontSizeOverride("font_size", Ui.Px(15));
-            _handsOnHint.AddThemeColorOverride("font_color", new Color("e8f23a"));
-            _handsOnHint.AddThemeColorOverride("font_outline_color", new Color(0, 0, 0, .8f));
-            _handsOnHint.AddThemeConstantOverride("outline_size", Ui.Px(5));
-            _handsOnHintLayer.AddChild(_handsOnHint);
-        }
-        _handsOnHintLayer.Visible = true;
+        var onDuty = _session.IsHandsOn && _session.PlayerStewardId is not null && !StartMenu.IsOpen && !ResultsPaper.IsOpen;
         var now = _session.CurrentTick;
         var open = _session.CaptureStewardShift()?.Calls is { } calls ? Array.FindAll(calls, call => call.Open && call.CoveredBy is null && call.HeardTick <= now).Length : 0;
-        _handsOnHint!.Text = $"V · Walk the field{(open > 0 ? $"  ·  radio: {open} call{(open == 1 ? "" : "s")} yours" : "")}";
-        var size = GetViewport().GetVisibleRect().Size;
-        _handsOnHint.Position = new Vector2(0, size.Y - Ui.S(96));
-        _handsOnHint.Size = new Vector2(size.X, Ui.S(24));
+        ProcessHandsOnCues(onDuty && !_shiftActive, onDuty && _shiftActive, open);
     }
 }

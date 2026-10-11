@@ -12,29 +12,73 @@ internal sealed class StartMenu
 
     public void Close() { _layer?.QueueFree(); _layer = null; }
 
+    // The designer's mode buttons (assets/source/ui/hands-on-v1/INTEGRATION.md §3A): 244 × 58, 16 apart.
+    private const float ModeWidth = 244, ModeHeight = 58;
+    private static readonly Color Cream = new("f3e8c9"), HiVis = new("e8f23a"), Strap = new("b4bfb2");
+
     private static Label ModeLine(string text)
     {
-        var line = new Label { Text = text, HorizontalAlignment = HorizontalAlignment.Center, CustomMinimumSize = new Vector2(250, 0),
+        var line = new Label { Text = text, HorizontalAlignment = HorizontalAlignment.Center, CustomMinimumSize = Ui.S(ModeWidth, 0),
             AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = Control.MouseFilterEnum.Ignore };
+        line.AddThemeFontOverride("font", Ui.Body);
         line.AddThemeFontSizeOverride("font_size", Ui.Px(13));
-        line.AddThemeColorOverride("font_color", new Color("cbbf9f"));
+        line.AddThemeColorOverride("font_color", Strap);
+        // Lines 19 apart.
+        line.AddThemeConstantOverride("line_spacing", Math.Max(0, Ui.Px(19) - (int)Ui.Body.GetHeight(Ui.Px(13))));
         return line;
     }
 
     private static VBoxContainer ModeColumn(Container modes)
     {
         var column = new VBoxContainer();
-        column.AddThemeConstantOverride("separation", Ui.Px(6));
+        // The strapline's first line is centred 72 below the button's top.
+        column.AddThemeConstantOverride("separation", Ui.Px(4));
         modes.AddChild(column);
         return column;
     }
 
-    private static Button ModeButton(string name, string text, string colour, string tip)
+    /// <summary>
+    /// A mode button: dark fill, a 2-unit edge (cream on the default choice, gold on hover), the icon 22 at +16 and the
+    /// label in semibold 18 at +48, both in the mode's colour; keyboard focus adds a gold ring 4 outside.
+    /// </summary>
+    private static Button ModeButton(string name, string text, string icon, Color colour, string tip, bool chosen = false, bool fresh = false)
     {
-        var button = new Button { Name = name, Text = text, CustomMinimumSize = new Vector2(250, 54), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
-            MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = tip };
-        button.AddThemeFontSizeOverride("font_size", 21);
-        button.AddThemeColorOverride("font_color", new Color(colour));
+        var button = new Button { Name = name, Text = text, Icon = Ui.Icon(icon), Alignment = HorizontalAlignment.Left, CustomMinimumSize = Ui.S(ModeWidth, ModeHeight),
+            SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter, MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = tip };
+        StyleBoxFlat Box(string fill, Color edge)
+        {
+            var box = Ui.Box(new Color(fill), 5, edge, 2);
+            box.ContentMarginLeft = Ui.S(16); box.ContentMarginRight = Ui.S(12);
+            return box;
+        }
+        button.AddThemeStyleboxOverride("normal", Box("15201f", chosen ? Cream : new Color("5d6a64")));
+        button.AddThemeStyleboxOverride("hover", Box("1d2b29", Ui.Gold));
+        button.AddThemeStyleboxOverride("pressed", Box("0f1716", Ui.Gold));
+        button.AddThemeStyleboxOverride("hover_pressed", Box("0f1716", Ui.Gold));
+        var focus = Ui.Box(new Color(0, 0, 0, 0), 8, new Color(Ui.Gold, .63f), 2);
+        focus.SetExpandMarginAll(Ui.S(4));
+        button.AddThemeStyleboxOverride("focus", focus);
+        button.AddThemeFontOverride("font", Ui.BodySemi);
+        button.AddThemeFontSizeOverride("font_size", Ui.Px(18));
+        foreach (var state in new[] { "font_color", "font_hover_color", "font_pressed_color", "font_focus_color", "font_hover_pressed_color",
+                     "icon_normal_color", "icon_hover_color", "icon_pressed_color", "icon_focus_color", "icon_hover_pressed_color" })
+            button.AddThemeColorOverride(state, colour);
+        button.AddThemeConstantOverride("icon_max_width", Ui.Px(22));
+        button.AddThemeConstantOverride("h_separation", Ui.Px(48 - 16 - 22));
+        if (fresh)
+        {
+            // The NEW tag: a 40 × 18 gold pill at (+198, −9).
+            var tag = new Control { Name = "NewTag", Position = Ui.S(198, -9), Size = Ui.S(40, 18), MouseFilter = Control.MouseFilterEnum.Ignore };
+            tag.Draw += () =>
+            {
+                tag.DrawStyleBox(Ui.Box(Ui.Gold, 9), new Rect2(Vector2.Zero, tag.Size));
+                var size = Ui.Px(10);
+                var width = Ui.BodyBold.GetStringSize("NEW", HorizontalAlignment.Left, -1, size).X;
+                tag.DrawString(Ui.BodyBold, new Vector2((tag.Size.X - width) / 2, (tag.Size.Y + Ui.BodyBold.GetAscent(size) - Ui.BodyBold.GetDescent(size)) / 2),
+                    "NEW", HorizontalAlignment.Left, -1, size, Ui.Bar);
+            };
+            button.AddChild(tag);
+        }
         return button;
     }
 
@@ -61,7 +105,7 @@ internal sealed class StartMenu
         centre.SetAnchorsPreset(Control.LayoutPreset.FullRect);
         backdrop.AddChild(centre);
         var content = new VBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
-        content.AddThemeConstantOverride("separation", 16);
+        content.AddThemeConstantOverride("separation", Ui.Px(13));
         centre.AddChild(content);
 
         var visible = parent.GetViewport().GetVisibleRect().Size;
@@ -79,15 +123,15 @@ internal sealed class StartMenu
         content.AddChild(logo);
         var subtitle = new Label { Text = "LOWER WITTERING FARM  •  YOUR WEEKEND STARTS HERE",
             HorizontalAlignment = HorizontalAlignment.Center };
-        subtitle.AddThemeFontSizeOverride("font_size", 18);
-        subtitle.AddThemeColorOverride("font_color", new Color("f3e8c9"));
+        subtitle.AddThemeFontSizeOverride("font_size", Ui.Px(14.5f));
+        subtitle.AddThemeColorOverride("font_color", Cream);
         content.AddChild(subtitle);
-        var button = ModeButton("EnterFestival", "MANAGEMENT ONLY", "f3e8c9",
-            "The campaign: plan, book and hire, then run the day from the manager's view.");
+        var button = ModeButton("EnterFestival", "MANAGEMENT ONLY", "map", Cream,
+            "The campaign: plan, book and hire, then run the day from the manager's view.", chosen: true);
         button.Pressed += enter;
         // The three ways to play side by side, each with its line underneath.
         var modes = new HBoxContainer { Name = "Modes", Alignment = BoxContainer.AlignmentMode.Center };
-        modes.AddThemeConstantOverride("separation", Ui.Px(18));
+        modes.AddThemeConstantOverride("separation", Ui.Px(16));
         content.AddChild(modes);
         var classic = ModeColumn(modes);
         classic.AddChild(button);
@@ -96,8 +140,8 @@ internal sealed class StartMenu
         {
             // The campaign with the player on the ground too, until they can afford stewards of their own.
             var hands = ModeColumn(modes);
-            var foh = ModeButton("FrontOfHouse", Main.HandsOnModeName.ToUpperInvariant(), "e8f23a",
-                "A new campaign where you manage the festival and work it as a steward too. Tab swaps views.");
+            var foh = ModeButton("FrontOfHouse", Main.HandsOnModeName.ToUpperInvariant(), "user", HiVis,
+                "A new campaign where you manage the festival and work it as a steward too. V swaps views.", fresh: true);
             foh.Pressed += frontOfHouse;
             hands.AddChild(foh);
             hands.AddChild(ModeLine(Main.HandsOnStrapline));
@@ -124,7 +168,7 @@ internal sealed class StartMenu
         {
             // One steward on the ground at a festival that runs itself. Its saves keep to their own folder.
             var steward = ModeColumn(modes);
-            var shift = ModeButton("StewardShift", "STEWARD ONLY", "e8f23a",
+            var shift = ModeButton("StewardShift", "STEWARD ONLY", "radio", HiVis,
                 "Work a festival day as one of its stewards, in first person. Kept apart from your campaigns.");
             steward.AddChild(shift);
             steward.AddChild(ModeLine("Pull on the hi-vis for a single shift."));
@@ -144,7 +188,7 @@ internal sealed class StartMenu
                 (2, "Tier 2 · Rain · two stages", "A wet day across both stages: mud, straw, and twice the ground to cover."),
             })
             {
-                var pick = new Button { Name = $"ShiftTier{tier}", Text = label, CustomMinimumSize = new Vector2(320, 44), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+                var pick = new Button { Name = $"ShiftTier{tier}", Text = label, CustomMinimumSize = Ui.S(256, 36), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
                     MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = tip };
                 pick.AddThemeFontSizeOverride("font_size", Ui.Px(16));
                 pick.Pressed += () => stewardShift(tier);

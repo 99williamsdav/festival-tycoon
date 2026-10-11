@@ -8,10 +8,10 @@ namespace Festival.Game;
 
 /// <summary>
 /// The morning after: the Wittering Echo's review, the festival accounts and how every set went, on a sheet
-/// over a blurred view of the field, with Newspaper, Accounts and Performances tabs and Return to menu.
-/// <paramref name="_photograph"/> gives the paper its photo of the day, when one was taken.
+/// over a blurred view of the field, with Newspaper, Accounts and Performances tabs (and, All-Rounder, Your shift)
+/// and Return to menu. <paramref name="_photograph"/> gives the paper its photo of the day, when one was taken.
 /// </summary>
-internal sealed class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _photograph)
+internal sealed partial class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _photograph)
 {
     private static readonly Color Newsprint = new("f4eede");
     private static readonly Color Ledger = new("f7f2e4");
@@ -23,7 +23,7 @@ internal sealed class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _photograph)
     private static readonly Color Wash = new("ece4cf");
 
     /// <summary>The sheet's pages, one per tab.</summary>
-    public enum Page { Newspaper, Accounts, Performances }
+    public enum Page { Newspaper, Accounts, Performances, YourShift }
 
     private CanvasLayer? _layer;
     private PanelContainer? _sheet;
@@ -32,8 +32,10 @@ internal sealed class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _photograph)
     private Button? _newspaperTab;
     private Button? _accountsTab;
     private Button? _performancesTab;
+    private Button? _yourShiftTab;
+    private Control? _yourShiftDot;
     private Page _page;
-    private readonly int[] _scrolls = new int[3];
+    private readonly int[] _scrolls = new int[4];
     private ImageTexture? _field;
     private PressPhoto? _photo;
     private ImageTexture? _photoTexture;
@@ -86,6 +88,8 @@ internal sealed class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _photograph)
         _performancesTab = Tab("Performances", "music", () => ShowPage(Page.Performances)); _performancesTab.Name = "PerformancesTab";
         _performancesTab.TooltipText = "How every set went, and how the bands feel about you now";
         tabs.AddChild(_newspaperTab); tabs.AddChild(_accountsTab); tabs.AddChild(_performancesTab);
+        _yourShiftTab = null; _yourShiftDot = null;
+        if (YourShiftReport() is { } shiftReport) AddYourShiftTab(tabs, shiftReport);
 
         Button? menu = null;
         menu = Ui.Style(new Button { Text = "Return to menu", Name = "ReturnToMenu", MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Primary, 15, 8);
@@ -173,17 +177,22 @@ void fragment() {
         if (!first) _scrolls[(int)_page] = _scroll.ScrollVertical;
         _page = page;
         foreach (var child in _body.GetChildren()) { _body.RemoveChild(child); child.QueueFree(); }
-        var paper = page switch { Page.Accounts => Ledger, Page.Performances => Programme, _ => Newsprint };
-        _sheet!.AddThemeStyleboxOverride("panel", Ui.Box(paper, 0, padX: page == Page.Newspaper ? 34 : 30, padY: 22, shadow: 22, shadowAlpha: 0.55f));
+        if (page == Page.YourShift && _yourShiftTab is null) page = _page = Page.Newspaper;
+        var paper = page switch { Page.Accounts => Ledger, Page.Performances or Page.YourShift => Programme, _ => Newsprint };
+        var panel = Ui.Box(paper, 0, padX: page == Page.Newspaper ? 34 : 30, padY: 22, shadow: 22, shadowAlpha: 0.55f);
+        if (page == Page.YourShift) panel.ContentMarginBottom = Ui.S(4);
+        _sheet!.AddThemeStyleboxOverride("panel", panel);
         switch (page)
         {
             case Page.Accounts: RenderFestivalAccounts(_body); break;
             case Page.Performances: RenderPerformances(_body); break;
+            case Page.YourShift: RenderYourShift(_body); break;
             default: RenderFestivalNewspaper(_body); break;
         }
         StyleTab(_newspaperTab!, page == Page.Newspaper, Newsprint);
         StyleTab(_accountsTab!, page == Page.Accounts, Ledger);
         StyleTab(_performancesTab!, page == Page.Performances, Programme);
+        if (_yourShiftTab is not null) StyleTab(_yourShiftTab, page == Page.YourShift, Programme);
         var position = _scrolls[(int)page];
         _scroll.ScrollVertical = position;
         _scroll.SetDeferred("scroll_vertical", position);
@@ -331,6 +340,8 @@ void fragment() {
         right.AddChild(Ui.Caps("The verdict", Ui.InkMuted, 9.5f));
         right.AddChild(Paragraph(review.Verdict, 14.5f, Ui.Ink, Ui.SlabBold));
         if (review.Buzz.Length > 0) right.AddChild(BuzzBox(review));
+        // All-Rounder: the organiser's own night makes page 2.
+        if (YourShiftReport() is { } shift) right.AddChild(PageTwo(shift));
 
         // A few numbers along the foot of the page.
         body.AddChild(Gap(16)); body.AddChild(Line(Ui.Ink, 1)); body.AddChild(Gap(8));
