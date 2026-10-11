@@ -85,7 +85,7 @@ public sealed partial class GameSession
         var (prefix, rest) = SplitTarget(target);
         switch (prefix)
         {
-            case "person" when ulong.TryParse(rest, out var id) && PersonIn(PersonView.Roster, id) is { Admitted: true, Departed: false } person &&
+            case "person" when ulong.TryParse(rest, out var id) && $"person:{id}" == target && PersonIn(PersonView.Roster, id) is { Admitted: true, Departed: false } person &&
                                  _navigationAgents.TryGetValue(new(id), out var nav):
                 return (StewardTargetKind.Person, person.Name, nav.XMillimetres, nav.ZMillimetres);
             case "toilet" when EffectiveToilets(_facilities).FirstOrDefault(t => t.Id == rest) is { } toilet:
@@ -161,7 +161,7 @@ public sealed partial class GameSession
             case StewardActionKind.RadioMedic:
                 return CollapsedHere(id) && !HasClaim(id, PersonClaim.MedicPatient) && SelectRoleResponse(ResponseRole.Medic, id, out _) is not null;
             case StewardActionKind.StandBy:
-                return CollapsedHere(id);
+                return CollapsedHere(id) && !(shift.StoodByFor ?? []).Contains(id);
             case StewardActionKind.Calm:
                 return PersonIn(PersonView.Disorder, id) is { ConductStage: DisorderStage.Complaint or DisorderStage.Agitated or DisorderStage.Argument } person &&
                     person.Intent != MedicalIntent.Leaving && !PersonCollapsed(id) && !InterventionOwnsTarget(id) && !StuckInToilet(id);
@@ -308,7 +308,7 @@ public sealed partial class GameSession
             StewardActionKind.BreakUp => PlayerBreakUp(id, profile, held),
             StewardActionKind.Escort => StartEscort(id),
             StewardActionKind.RadioMedic => RadioTheMedic(id),
-            StewardActionKind.StandBy => StandBy(name),
+            StewardActionKind.StandBy => StandBy(id, name),
             StewardActionKind.FreeLoo => FreeTheLoo(rest),
             StewardActionKind.BodgeTap => BodgeTheTap(rest),
             StewardActionKind.EmptyBin => EmptyTheBin(rest),
@@ -407,8 +407,9 @@ public sealed partial class GameSession
         return (true, $"Medic's on the way to {_persons[id].Name}.");
     }
 
-    private (bool, string) StandBy(string name)
+    private (bool, string) StandBy(ulong id, string name)
     {
+        _stewardShift = _stewardShift! with { StoodByFor = [.. _stewardShift.StoodByFor ?? [], id] };
         Score(s => s with { StoodBy = s.StoodBy + 1 });
         return (true, $"You kept the crowd back from {name}.");
     }
@@ -494,6 +495,8 @@ public sealed partial class GameSession
     private void AdvanceEscort(ulong me)
     {
         if (_stewardShift!.EscortId is not { } guest) return;
+        // Medical and disorder ran earlier this tick: a guest who's just collapsed or been hit isn't steered on.
+        if (EscortProblem(guest) is { } lost) { EndEscort(guest, lost, back: true); return; }
         var player = _navigationAgents[new(me)]; var them = _navigationAgents[new(guest)];
         long dx = them.XMillimetres - player.XMillimetres, dz = them.ZMillimetres - player.ZMillimetres;
         var apart = dx * dx + dz * dz;
@@ -654,13 +657,17 @@ public sealed partial class GameSession
         if (shift.Directed is { } directed && (directed.Distinct().Count() != directed.Length || directed.Any(id => !guests.ContainsKey(id))) ||
             (shift.Directed?.Length ?? 0) != score.Directions)
             return "Steward shift directions invalid.";
+        if (shift.StoodByFor is { } stood && (stood.Distinct().Count() != stood.Length || stood.Any(id => !guests.ContainsKey(id))) ||
+            (shift.StoodByFor?.Length ?? 0) != score.StoodBy)
+            return "Steward shift stand-bys invalid.";
         if (shift.Action is { } held && (!on || held.Kind == StewardActionKind.Release || !Enum.IsDefined(held.Kind) || string.IsNullOrWhiteSpace(held.TargetId) ||
                 held.DurationTicks != StewardShiftRules.DurationTicks(held.Kind) || held.StartedTick > s.CurrentTick || held.StartedTick + held.DurationTicks <= s.CurrentTick))
             return "Steward shift held action invalid.";
         if (shift.EscortId is { } escorted && (!on || !OnSite(escorted)) ||
             shift.EscortOffer is { } offer && (!on || !OnSite(offer.GuestId) || offer.UntilTick <= s.CurrentTick || offer.UntilTick > s.CurrentTick + StewardShiftRules.EscortOfferTicks))
             return "Steward shift escort invalid.";
-        if (shift.LastOutcome is { } last && (!Enum.IsDefined(last.Kind) || last.Tick > s.CurrentTick || last.Text is null))
+        if (shift.LastOutcome is { } last && (!Enum.IsDefined(last.Kind) || last.Tick < p.StartedTick || last.Tick > s.CurrentTick ||
+                string.IsNullOrWhiteSpace(last.TargetId) || last.TargetId.Length > 64 || last.Text is null || last.Text.Length > 200))
             return "Steward shift outcome invalid.";
         if (on != (shift.ClosingMood is null) || on != (shift.EndedTick is null) || shift.ClosingMood is < 0 or > 10_000 ||
             shift.EndedTick is { } ended && (ended < p.StartedTick || ended > s.CurrentTick))

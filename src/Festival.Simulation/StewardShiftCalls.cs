@@ -121,7 +121,9 @@ public sealed partial class GameSession
     /// On a shift the crew's medic hears of a collapse over the radio: they set off once Control has put the call out,
     /// unless the player radios it in first. Outside a shift, never.
     /// </summary>
+    /// <remarks>Bounded by the collapse itself, so a collapse that somehow made no call still gets the medic.</remarks>
     private bool CollapseAwaitsTheRadio(ulong id) => _stewardShift is { PlayerId: not null } shift &&
+        CurrentTick < _persons[id].HealthCollapseTick + StewardShiftRules.RadioDelayTicks(StewardCallKind.Collapse) &&
         !(shift.Calls ?? []).Any(call => call.Open && call.Kind == StewardCallKind.Collapse && call.Subject == id.ToString() && call.HeardTick <= CurrentTick);
 
     /// <summary>The shift is over: every call still open closes now and is scored.</summary>

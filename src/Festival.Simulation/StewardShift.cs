@@ -25,6 +25,8 @@ public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int Move
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardCall[]? Calls { get; init; }
     /// <summary>Guests already given directions today, in the order they were.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ulong[]? Directed { get; init; }
+    /// <summary>Collapsed guests the player has stood by today, once each.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ulong[]? StoodByFor { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardShiftScore? Score { get; init; }
     /// <summary>The crowd's average satisfaction (of 10,000) when the shift ended; null while it's on.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public int? ClosingMood { get; init; }

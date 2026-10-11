@@ -172,7 +172,43 @@ public sealed partial class StewardShiftActionTests
         Assert.AreEqual(StewardActionKind.StandBy, s.StewardReach(facing).Single(t => t.PersonId == guest).Action, "Then stand by.");
         Assert.IsTrue(Hold(s, StewardActionKind.StandBy, Who(guest)), Outcome(s));
         Assert.AreEqual(1, Score(s).StoodBy);
+        Assert.AreNotEqual(StewardActionKind.StandBy, s.StewardReach(facing).SingleOrDefault(t => t.PersonId == guest)?.Action, "Once per patient.");
         Restores(s, "standing by");
+    }
+
+    [TestMethod]
+    public void AGuestWhoCollapsesMidEscortIsLetGo()
+    {
+        var s = GameSession.CreateStewardShift(Seed);
+        s.AdvanceWithoutSnapshot(9_000);
+        var steward = At(s, s.GetStewardResponses()[0].WorkerId);
+        bool FarFromTheCrew(ulong id) { var at = At(s, id); long dx = at.X - steward.X, dz = at.Z - steward.Z; return dx * dx + dz * dz > 12_000L * 12_000; }
+        var initiator = StandingGuest(s, FarFromTheCrew);
+        var me = At(s, initiator);
+        var opponent = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.AgentId != initiator && p.Admitted && !p.Departed)
+            .Select(p => p.AgentId).OrderBy(id => { var at = At(s, id); return (long)(at.X - me.X) * (at.X - me.X) + (long)(at.Z - me.Z) * (at.Z - me.Z); }).First();
+        Agitate(s, initiator, DisorderStage.Argument, 4_500);
+        Call(s, "BeginDisorderFight", initiator, opponent, "test:fight");
+        var at = At(s, initiator);
+        StandBeside(s, at.X, at.Z);
+        Assert.IsTrue(Hold(s, StewardActionKind.BreakUp, Who(initiator), follow: true), Outcome(s));
+        s.AdvanceWithoutSnapshot(8);
+        Assert.IsTrue(Hold(s, StewardActionKind.Escort, Who(initiator), follow: true), Outcome(s));
+        Assert.AreEqual(initiator, s.CaptureStewardShift()!.EscortId);
+        // Collapse them just before a tick that re-routes the escort.
+        while ((s.CurrentTick + 1) % StewardShiftRules.EscortRefreshTicks != 0) s.AdvanceWithoutSnapshot(1);
+        var tick = s.CurrentTick;
+        // As the medical track does: rooted where they fell.
+        var fell = At(s, initiator);
+        Call(s, "ApplyAgentDestination", new EntityId(initiator), new SetAgentDestinationCommand(TraversalGrid.WorldToCell(fell.X, fell.Z), "medical.collapsed"), false);
+        Forge(s, initiator, p => p with { HealthStage = MedicalStage.Collapsed, Intent = MedicalIntent.Collapsed, HealthWarningTick = tick - 1, HealthCollapseTick = tick });
+        s.AdvanceWithoutSnapshot(1);
+        Assert.IsNull(s.CaptureStewardShift()!.EscortId, "The escort ends.");
+        Assert.AreEqual(0, Score(s).Escorted);
+        Assert.AreEqual(MedicalIntent.Collapsed, s.CapturePerson(initiator)!.Intent);
+        var nav = s.CaptureObservation().NavigationAgents.Single(item => item.Id.Value == initiator);
+        Assert.AreEqual("medical.collapsed", nav.IntentId, "Not steered on while collapsed.");
+        Restores(s, "after a collapse mid-escort");
     }
 
     [TestMethod]
@@ -531,6 +567,11 @@ public sealed partial class StewardShiftActionTests
             ("a guest walked out who isn't following", shift with { EscortId = guest }),
             ("an escort offer for ever", shift with { EscortOffer = new(guest, s.CurrentTick + 100_000) }),
             ("a mood at close while on", shift with { ClosingMood = 5_000 }),
+            ("a hold on a padded person id", shift with { Action = held with { TargetId = $"person:0{guest}" } }),
+            ("a hold on a signed person id", shift with { Action = held with { TargetId = $"person:+{guest}" } }),
+            ("stand-bys uncounted", shift with { StoodByFor = [guest] }),
+            ("an outcome from before the shift", shift with { LastOutcome = new(StewardActionKind.Calm, Who(guest), true, true, -5, "") }),
+            ("an outcome of a novel", shift with { LastOutcome = new(StewardActionKind.Calm, Who(guest), true, true, s.CurrentTick, new string('x', 5_000)) }),
         };
         var failures = new List<string>();
         foreach (var (why, forged) in cases)
