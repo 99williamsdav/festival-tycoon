@@ -673,7 +673,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (groundError is not null) return groundError;
         var weatherError = ValidatePersistedWeather(snapshot);
         if (weatherError is not null) return weatherError;
-        var shiftError = ValidatePersistedStewardShift(snapshot);
+        var shiftError = ValidatePersistedStewardShift(snapshot) ?? ValidatePersistedStageInvasions(snapshot);
         if (shiftError is not null) return shiftError;
         var ownedEntityIds = snapshot.FixtureRecords.Select(item => item.Id).Concat(snapshot.FestivalFinances.Select(item => item.OwnerId))
             .Concat(snapshot.OwnedStocks.Select(item => item.ServiceId)).Concat((snapshot.ServiceQueues ?? []).Select(item => item.Id)).ToArray();

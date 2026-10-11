@@ -12,6 +12,9 @@ public sealed record StewardOnStage(string StageId, long SinceTick)
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public long? InvadedTick { get; init; }
 }
 
+/// <summary>A set the player got up on stage during: its stage and slot, and how many times (each one counted on the score).</summary>
+public sealed record InvadedSet(string StageId, int Slot, int Count);
+
 /// <summary>
 /// A line shouted at the player steward up on a stage: by someone in its crowd or one of its band. Angry while the set
 /// plays, milder between sets. <paramref name="StartedTick"/> is when this shout began: one shout per speaker slot at a time.
@@ -45,6 +48,8 @@ public static class StageInvasionRules
     public const int LingerTicks = 1_200, LongTicks = 3_600;
     /// <summary>The drum kit on the drummer's mark: the player keeps this far from its middle.</summary>
     public const int DrumKitClearanceMillimetres = 900;
+    /// <summary>The band's marks: the player keeps this far from each, so a performer can always step onto theirs.</summary>
+    public const int MarkClearanceMillimetres = 600;
     /// <summary>The grade loses a point per 10 s on a stage during a set, at most 5.</summary>
     public const int GradeTicksPerPoint = 800, GradeMaxPenalty = 5;
 
@@ -107,6 +112,11 @@ public sealed partial class GameSession
             on = on with { InvadedTick = CurrentTick };
             _livePerformances[stage] = live! with { StageInvasions = live.StageInvasions + 1 };
             Score(s => s with { StageInvasions = s.StageInvasions + 1 });
+            var slot = StageProgramme(stage)!.CurrentSlot;
+            var sets = (_stewardShift!.InvadedSets ?? []).ToList();
+            var at = sets.FindIndex(item => item.StageId == id && item.Slot == slot);
+            if (at < 0) sets.Add(new(id, slot, 1)); else sets[at] = sets[at] with { Count = sets[at].Count + 1 };
+            _stewardShift = _stewardShift with { InvadedSets = sets.ToArray() };
             live = _livePerformances[stage];
         }
         _stewardShift = _stewardShift! with { OnStage = on };
@@ -192,6 +202,25 @@ public sealed partial class GameSession
         return value ^ (value >> 31);
     }
 
+    /// <summary>Every band mark on the open stages, world millimetres.</summary>
+    private IEnumerable<(int X, int Z)> BandMarks() => Stages.SelectMany(stage => stage.PerformerMarks).Select(TraversalGrid.CellCentre);
+
+    private static readonly string[] StairIntents = ["performance.visible-stairs", "performance.stage-entry", "performance.stage-exit-stair", "performance.stage-exit-access"];
+
+    /// <summary>A stage's steps while one of its band is walking on or off by them.</summary>
+    private bool StairsBusyAt(GridCell cell)
+    {
+        var stages = Stages;
+        for (var i = 0; i < stages.Count; i++)
+        {
+            if (!stages[i].Stairs(cell) || i >= _livePerformances.Length || _livePerformances[i] is not { } live) continue;
+            foreach (var performer in live.Performers)
+                if (_navigationAgents.TryGetValue(new(performer.AgentId), out var nav) && nav.Action == AgentNavigationAction.Travelling &&
+                    StairIntents.Contains(nav.IntentId)) return true;
+        }
+        return false;
+    }
+
     /// <summary>The drum kits on the stages' drummers' marks, world millimetres.</summary>
     private IEnumerable<(int X, int Z)> DrumKits() => Stages.Select(stage => TraversalGrid.CellCentre(stage.PerformerMarks[2]));
 
@@ -209,6 +238,12 @@ public sealed partial class GameSession
             if (dx * dx + dz * dz < (long)StageInvasionRules.DrumKitClearanceMillimetres * StageInvasionRules.DrumKitClearanceMillimetres)
                 return "The player steward is standing in a drum kit.";
         }
+        foreach (var (x, z) in BandMarks())
+        {
+            long dx = nav.XMillimetres - x, dz = nav.ZMillimetres - z;
+            if (dx * dx + dz * dz < (long)StageInvasionRules.MarkClearanceMillimetres * StageInvasionRules.MarkClearanceMillimetres)
+                return "The player steward is standing on a band member's mark.";
+        }
         var stage = DeckStageAt(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres));
         var on = _stewardShift!.OnStage;
         if (stage < 0) return on is null ? null : "The player steward's stage record is for a stage they aren't on.";
@@ -219,6 +254,48 @@ public sealed partial class GameSession
         var live = stage < _livePerformances.Length ? _livePerformances[stage] : null;
         if ((on.InvadedTick is not null) != SetPlaying(live) || on.InvadedTick is { } since && (live!.StageInvasions < 1 || since < live.StartedTick))
             return "The player steward's stage invasion doesn't match the set.";
+        // Every tick of an invasion counts, from the one it began on; a day frozen by a death stops a tick short.
+        if (on.InvadedTick is { } from && (_stewardShift.Score?.StageTicks ?? 0) < CurrentTick - from + (IsLifecycleEditionFrozen() ? 0 : 1))
+            return "The player steward's time on stage is short.";
+        return null;
+    }
+}
+
+public sealed partial class GameSession
+{
+    /// <summary>
+    /// Checked on every save, classic ones too: a "stage invader" hiccup or an invaded set only where there was a
+    /// player steward to do it. The shift's list of invaded sets is exactly the day's records that carry the hiccup
+    /// and the live sets that count an invasion, each live set's count matches its entry, and the entries' counts add
+    /// up to the score's. An earlier festival's carried sets may carry the hiccup only in a hands-on campaign, where
+    /// each day had the player on it; they are scored again from their facts like every carried set.
+    /// </summary>
+    private static string? ValidatePersistedStageInvasions(SessionPersistenceSnapshot s)
+    {
+        const string invalid = "Stage invasions invalid.";
+        if (s.Preparation?.RelationshipHistory?.Any(gig => gig?.Hiccups?.Contains(GigRules.StageInvader) == true) == true && s.Mode != CampaignMode.HandsOn)
+            return invalid;
+        var keys = new HashSet<(string, int)>();
+        foreach (var record in s.PerformanceRecords ?? [])
+            if (record?.Hiccups?.Contains(GigRules.StageInvader) == true) keys.Add((record.StageId, record.Slot));
+        var liveCounts = new Dictionary<(string, int), int>();
+        var lives = s.LivePerformances ?? [];
+        for (var i = 0; i < lives.Length; i++)
+            if (lives[i] is { StageInvasions: > 0 } live)
+            {
+                if (s.Programme?.Stages is not { } stages || i >= stages.Length || stages[i].CurrentSlot < 0) return invalid;
+                liveCounts[(live.StageId, stages[i].CurrentSlot)] = live.StageInvasions;
+                keys.Add((live.StageId, stages[i].CurrentSlot));
+            }
+        if (s.StewardShift is not { } shift) return keys.Count == 0 ? null : invalid;
+        var sets = shift.InvadedSets;
+        if (sets is { Length: 0 } || (sets ?? []).Any(item => item is null || item.StageId is null || item.Count < 1 || item.Slot < 0)) return invalid;
+        var listed = (sets ?? []).Select(item => (item.StageId, item.Slot)).ToArray();
+        if (listed.Distinct().Count() != listed.Length || !keys.SetEquals(listed)) return invalid;
+        if (liveCounts.Any(item => sets!.Single(set => (set.StageId, set.Slot) == item.Key).Count != item.Value)) return invalid;
+        // A standalone shift's retry has its day again without the player: its sets went with it, its score stays.
+        var stale = s.Mode != CampaignMode.HandsOn && s.Preparation is { Attempt: > 1 };
+        if (!stale && (sets ?? []).Sum(item => (long)item.Count) != (shift.Score?.StageInvasions ?? 0)) return invalid;
         return null;
     }
 }
