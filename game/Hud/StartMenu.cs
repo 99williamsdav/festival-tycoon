@@ -12,7 +12,7 @@ internal sealed class StartMenu
 
     public void Close() { _layer?.QueueFree(); _layer = null; }
 
-    public void Open(Node parent, Action enter, Action fieldGuide, Action? tryPondStage = null, Action? stewardShift = null,
+    public void Open(Node parent, Action enter, Action fieldGuide, Action? tryPondStage = null, Action<int>? stewardShift = null,
         Action? continueShift = null)
     {
         _layer = new CanvasLayer { Layer = 20 };
@@ -69,6 +69,10 @@ internal sealed class StartMenu
             pond.Pressed += tryPondStage;
             trials.AddChild(pond);
         }
+        // The shift picker, in place of the trials row while it's open.
+        var picker = new VBoxContainer { Name = "ShiftPicker", Visible = false, Alignment = BoxContainer.AlignmentMode.Center };
+        picker.AddThemeConstantOverride("separation", Ui.Px(8));
+        content.AddChild(picker);
         if (stewardShift is not null)
         {
             // A separate prototype: one steward on the ground at a festival that runs itself. Its saves keep to their own folder.
@@ -76,8 +80,28 @@ internal sealed class StartMenu
                 MouseDefaultCursorShape = Control.CursorShape.PointingHand,
                 TooltipText = "Work a festival day as one of its stewards, in first person. A prototype, kept apart from your campaign." };
             shift.AddThemeColorOverride("font_color", new Color("e8f23a")); shift.AddThemeFontSizeOverride("font_size", Ui.Px(16));
-            shift.Pressed += stewardShift;
+            // The logo shrinks while the picker is open, so its buttons fit under it.
+            shift.Pressed += () => { trials.Visible = false; picker.Visible = true; logo.CustomMinimumSize = new Vector2(side, side) * .62f; picker.GetChild<Button>(1).GrabFocus(); };
             trials.AddChild(shift);
+            var heading = new Label { Text = "PICK A SHIFT", HorizontalAlignment = HorizontalAlignment.Center };
+            heading.AddThemeFontSizeOverride("font_size", Ui.Px(13)); heading.AddThemeColorOverride("font_color", new Color("e8f23a"));
+            picker.AddChild(heading);
+            foreach (var (tier, label, tip) in new[]
+            {
+                (1, "Tier 1 · Heatwave · one stage", "A hot day by the trailer stage: keep the crowd watered, calm and in one piece."),
+                (2, "Tier 2 · Rain · two stages", "A wet day across both stages: mud, straw, and twice the ground to cover."),
+            })
+            {
+                var pick = new Button { Name = $"ShiftTier{tier}", Text = label, CustomMinimumSize = new Vector2(320, 44), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+                    MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = tip };
+                pick.AddThemeFontSizeOverride("font_size", Ui.Px(16));
+                pick.Pressed += () => stewardShift(tier);
+                picker.AddChild(pick);
+            }
+            var back = new Button { Name = "ShiftBack", Text = "Back", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter, MouseDefaultCursorShape = Control.CursorShape.PointingHand };
+            back.AddThemeColorOverride("font_color", new Color("f3e8c9")); back.AddThemeFontSizeOverride("font_size", Ui.Px(14));
+            back.Pressed += () => { picker.Visible = false; trials.Visible = true; logo.CustomMinimumSize = new Vector2(side, side); };
+            picker.AddChild(back);
         }
         if (continueShift is not null)
         {
