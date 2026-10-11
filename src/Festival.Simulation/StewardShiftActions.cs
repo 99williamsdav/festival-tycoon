@@ -226,6 +226,7 @@ public sealed partial class GameSession
         if (command.Action == StewardActionKind.Release)
             return _stewardShift.Action is null ? CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Nothing is held.") : null;
         if (_stewardShift.Action is not null) return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "Already holding an action.");
+        if (_stewardShift.PlanUp) return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Put the site plan away first.");
         if (!StewardActionAvailable(command.Action, command.TargetId) ||
             !StewardReach(command.FacingDegrees).Any(item => item.TargetId == command.TargetId))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Nothing like that is in reach.");
@@ -601,7 +602,7 @@ public sealed partial class GameSession
         var guests = PeopleIn(PersonView.Roster).Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted).ToArray();
         var mood = guests.Length == 0 ? 0 : (int)(guests.Sum(p => (long)p.Satisfaction) / guests.Length);
         _stewardShift = _stewardShift with { PlayerId = null, MoveX = 0, MoveZ = 0, Run = false, RemainderX = 0, RemainderZ = 0, Action = null,
-            EscortOffer = null, EscortId = null, ClosingMood = mood, EndedTick = CurrentTick, OnStage = null, Autopilot = null };
+            EscortOffer = null, EscortId = null, ClosingMood = mood, EndedTick = CurrentTick, OnStage = null, Autopilot = null, PlanUp = false };
     }
 
     /// <summary>
@@ -611,7 +612,7 @@ public sealed partial class GameSession
     private void AdvancePlayerNeeds(ulong me, bool hot, bool rainy)
     {
         var shift = _stewardShift!;
-        var running = shift.Run && (shift.MoveX != 0 || shift.MoveZ != 0);
+        var running = shift.Run && !shift.PlanUp && (shift.MoveX != 0 || shift.MoveZ != 0);
         var extra = running && CurrentTick / 4 % 2 == 0 ? 1 : 0;
         var thirst = rainy ? (CurrentTick / 4 % 2 == 0 ? StewardShiftRules.ThirstPerStep : 0) : StewardShiftRules.ThirstPerStep + extra;
         var heat = InShade(me) ? -StewardShiftRules.ShadeCoolPerStep : hot && !rainy ? StewardShiftRules.HeatPerStep + extra : -StewardShiftRules.RainCoolPerStep;
@@ -651,7 +652,7 @@ public sealed partial class GameSession
         if (shift.Score is not { } score || shift.Calls is not { } calls) return "Steward shift score or calls missing.";
         var counts = new long[] { score.Calls, score.Answered, score.Calmed, score.CalmsFailed, score.FightsBrokenUp, score.BreakUpsFailed, score.Escorted,
             score.MedicRadioed, score.StoodBy, score.LoosFreed, score.TapsBodged, score.BinsEmptied, score.LitterPicked, score.StrawSpread, score.CowsHerded,
-            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded, score.StageInvasions, score.AutoAnswered };
+            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded, score.StageInvasions, score.AutoAnswered, score.RadioJobs };
         if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.AutoAnswered > score.Answered || score.UrgentUnhandled > score.Calls - score.Answered || score.ResponseTicks < 0 ||
             score.MoodAdded < StewardShiftRules.CreditedMood(score) || score.MoodAdded > StewardShiftRules.CreditedMood(score) + (long)score.Directions * StewardShiftRules.DirectionsSatisfaction ||
             score.ResponseTicks > (long)score.Answered * Math.Max(1, s.CurrentTick) ||
@@ -690,6 +691,9 @@ public sealed partial class GameSession
                 stage.SinceTick < p.StartedTick || stage.SinceTick > s.CurrentTick || stage.InvadedTick is { } invaded && (invaded < stage.SinceTick || invaded > s.CurrentTick) ||
                 stage.InvadedTick is not null && score.StageInvasions == 0))
             return "Steward shift stage record invalid.";
+        // The plan is in the player's own hand: only while they have their steward, with nothing else held.
+        if (shift.PlanUp && (!on || shift.Autopilot is not null || shift.Action is not null))
+            return "Steward shift site plan invalid.";
         if (on != (shift.ClosingMood is null) || on != (shift.EndedTick is null) || shift.ClosingMood is < 0 or > 10_000 ||
             shift.EndedTick is { } ended && (ended < p.StartedTick || ended > s.CurrentTick))
             return "Steward shift close invalid.";

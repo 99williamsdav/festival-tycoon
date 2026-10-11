@@ -71,7 +71,7 @@ public sealed partial class GameSession
     private void ApplyPlayerStewardControl(SetPlayerStewardControlCommand command)
     {
         if (_stewardShift!.Action is { } held) DropStewardAction(held, command.Auto ? "Let go." : "You've taken over.");
-        _stewardShift = _stewardShift with { MoveX = 0, MoveZ = 0, Run = false, Autopilot = command.Auto ? new() : null };
+        _stewardShift = _stewardShift with { MoveX = 0, MoveZ = 0, Run = false, Autopilot = command.Auto ? new() : null, PlanUp = false };
     }
 
     /// <summary>

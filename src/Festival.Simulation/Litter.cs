@@ -201,7 +201,10 @@ public sealed partial class GameSession
     private void ApplyCleanUp(CleanUpCommand command) => BeginSweep(command.WorkerId, true);
 
     /// <summary>The steward who'd empty this bin now, and the side they'd stand at; null with the reason when nobody can.</summary>
-    public (ulong Worker, GridCell Side)? BinEmptier(string binId, out string? reason)
+    public (ulong Worker, GridCell Side)? BinEmptier(string binId, out string? reason) => BinEmptier(binId, null, out reason);
+
+    /// <summary>As <see cref="BinEmptier(string, out string?)"/>, only ever <paramref name="only"/> when given (a steward the player radios).</summary>
+    private (ulong Worker, GridCell Side)? BinEmptier(string binId, ulong? only, out string? reason)
     {
         reason = null;
         if (_preparation?.Status != PreparationStatus.Running || _litter is null) { reason = "Bins are emptied during the festival."; return null; }
@@ -211,6 +214,7 @@ public sealed partial class GameSession
         foreach (var worker in GetStewardResponses().OrderBy(s => CellDistanceSquared(PersonCell(s.WorkerId), bin.Cell)).ThenBy(s => s.WorkerId))
         {
             var id = worker.WorkerId;
+            if (only is { } chosen && id != chosen) continue;
             if (StaffUnavailableReason(id) is not null || CleanupOwnsNavigation(id) || WasteOwnsNavigation(id) || LitterUrgent(id)) continue;
             if (ReachableBinSide(id, bin.Cell) is { } side) return (id, side);
         }

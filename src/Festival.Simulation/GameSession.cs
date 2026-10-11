@@ -271,6 +271,14 @@ public sealed partial class GameSession
                 affectedTarget = new(_stewardShift!.PlayerId!.Value);
                 ApplyPlayerStewardControl(control);
                 break;
+            case StewardRadioCommand radio:
+                affectedTarget = new(_stewardShift!.PlayerId!.Value);
+                ApplyStewardRadio(radio);
+                break;
+            case SetSitePlanCommand plan:
+                affectedTarget = new(_stewardShift!.PlayerId!.Value);
+                ApplySitePlan(plan);
+                break;
 
             default:
                 return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Command type is not supported.");
@@ -770,7 +778,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand or AcknowledgeFestivalChallengeCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (AcknowledgeFestivalChallengeCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or SetPlayerMoveCommand or StewardActionCommand or SetPlayerStewardControlCommand))
+        if (_preparation is not null && envelope.Command is not (AcknowledgeFestivalChallengeCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or SetPlayerMoveCommand or StewardActionCommand or SetPlayerStewardControlCommand or StewardRadioCommand or SetSitePlanCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -797,6 +805,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
             SetPlayerMoveCommand move => ValidatePlayerMove(envelope.TargetId, move),
             StewardActionCommand action => ValidateStewardAction(envelope.TargetId, action),
             SetPlayerStewardControlCommand control => ValidatePlayerStewardControl(envelope.TargetId, control),
+            StewardRadioCommand radio => ValidateStewardRadio(envelope.TargetId, radio),
+            SetSitePlanCommand plan => ValidateSitePlan(envelope.TargetId, plan),
             SetProgrammeCommand programme => ValidateProgramme(envelope.TargetId, programme),
             AcceptPreparationOfferCommand or StartPreparedEditionCommand => ValidatePreparationCommand(envelope.TargetId, envelope.Command),
             CreateFixtureRecordCommand create when envelope.TargetId is not null || create.ExpiresAfterTicks <= 0 =>

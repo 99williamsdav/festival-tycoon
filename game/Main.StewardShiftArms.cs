@@ -26,7 +26,7 @@ public partial class Main
     private Vector3 _lastEye;
     private Vector2 _sway;
     // Talk raise: 0 down to 1 up; how long it holds up.
-    private float _talk, _talkHold;
+    private float _talk, _talkHold, _menuRaise;
     private bool _talkUrgent;
     // The right hand: which pose, how far in (0 rest, 1 in), what it's doing.
     private enum HandMove { Hidden, In, Holding, Pause, Out }
@@ -95,6 +95,7 @@ public partial class Main
             _actionHands[pose] = hand;
         }
         _litterCup = _actionHands["litter"].FindChild("LWF_FPLitterCup", true, false) as Node3D;
+        BuildSitePlanArm();
         _handMove = HandMove.Hidden; _handPose = _handNext = null; _handT = 0; _handHeldStart = -1;
         _talk = 0; _talkHold = 0; _sway = Vector2.Zero;
         _lastEye = _eyeCamera!.GlobalPosition;
@@ -152,6 +153,10 @@ public partial class Main
         if (_talkHold > 0) { _talkHold -= delta; _talk = Mathf.MoveToward(_talk, 1, delta / .25f); }
         else _talk = Mathf.MoveToward(_talk, 0, delta / .3f);
         var raise = new Vector3(0.03f, 0.05f, 0.04f) * EaseOut(_talk);
+        // Up a little further while the radio menu is open, eased in over 0.15 s.
+        _menuRaise = Mathf.MoveToward(_menuRaise, RadialMenuOpen ? 1 : 0, delta / .15f);
+        raise = raise.Lerp(new Vector3(0.07f, 0.08f, 0.06f), EaseOut(_menuRaise));
+        _armBob = bob;
         _radioArm.Position = bob + raise;
         _radioArm.RotationDegrees = new Vector3(_sway.Y, _sway.X, 0);
         if (_radioScreen is not null)

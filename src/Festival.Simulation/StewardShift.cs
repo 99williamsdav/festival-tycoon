@@ -40,6 +40,11 @@ public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int Move
     /// (<see cref="SetPlayerStewardControlCommand"/>); null while the player has them in first person, and always on the standalone shift.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardAutopilot? Autopilot { get; init; }
+    /// <summary>
+    /// The laminated site plan is up in the player's right hand (<see cref="SetSitePlanCommand"/>): they walk at
+    /// <see cref="StewardRadioRules.PlanWalkPermille"/>, can't run, and their hands and radio menu wait until it's down.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool PlanUp { get; init; }
 }
 
 /// <summary>
@@ -124,6 +129,8 @@ public sealed record StewardShiftScore
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long StageTicks { get; init; }
     /// <summary>Of <see cref="Answered"/>, those the player's steward answered working by themselves (a hands-on day's autopilot).</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int AutoAnswered { get; init; }
+    /// <summary>Jobs the player radioed out from first person (<see cref="StewardRadioCommand"/>): the medic, Henry or the crew sent.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int RadioJobs { get; init; }
 }
 
 public static class StewardShiftRules
@@ -347,7 +354,9 @@ public sealed partial class GameSession
         var nav = _navigationAgents[new(id)];
         var cell = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
         var cost = (long)_traversalGrid.Get(cell).CostPermille * GroundSlowPermille(cell);
-        var micro = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000 * (shift.Run ? StewardShiftRules.RunPermille : 1000) / 1000 *
+        // With the site plan up they walk slowly and can't run.
+        var pace = shift.PlanUp ? StewardRadioRules.PlanWalkPermille : shift.Run ? StewardShiftRules.RunPermille : 1000;
+        var micro = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000 * pace / 1000 *
             PlayerNeedPacePermille(id) / 1000;
         var stepMicrometres = micro * 1_000_000 / Math.Max(1, cost);
         var length = Math.Max(1000, IntegerSquareRoot((long)shift.MoveX * shift.MoveX + (long)shift.MoveZ * shift.MoveZ));

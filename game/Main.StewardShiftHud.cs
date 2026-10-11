@@ -74,6 +74,8 @@ public partial class Main
         _shiftCrosshair = _shiftCompass = _shiftNeeds = _shiftCard = _shiftRadioStrip = _shiftVignette = _shiftReport = null;
         _shiftMenu = null; _shiftResume = null;
         _shiftCallPlaces.Clear();
+        ClearSiteMap();
+        _radialControl = null;
         _shiftLastHeld = null; _shiftCancelledTick = -1; _shiftLastUrgentId = null; _shiftRadioShownTick = -1;
         _shiftPinShown = float.NaN;
     }
@@ -112,16 +114,18 @@ public partial class Main
         _shiftCard = Drawn("PromptCard", DrawShiftCard);
         _shiftNeeds = Drawn("Needs", DrawShiftNeeds);
         _shiftRadioStrip = Drawn("RadioStrip", DrawShiftRadio);
+        BuildSiteMap();
 
         _shiftClock = ShiftText("", 12, new Color(1, 1, 1, .85f), outline: true);
         _shiftClock.HorizontalAlignment = HorizontalAlignment.Center;
         _shiftClock.Position = new Vector2(0, Ui.S(64)); _shiftClock.Size = new Vector2(size.X, Ui.S(20));
         _shiftHud.AddChild(_shiftClock);
-        _shiftKeys = ShiftText(_session.IsHandsOn ? "V · Manager view  ·  WASD walk  ·  Shift run  ·  hold E to act  ·  Esc menu  ·  P pause"
-            : "WASD walk  ·  Shift run  ·  hold E to act  ·  Esc menu  ·  P pause", 11, new Color(1, 1, 1, .7f), outline: true);
+        _shiftKeys = ShiftText(_session.IsHandsOn ? "V · Manager view  ·  WASD walk  ·  Shift run  ·  hold E to act  ·  hold Q radio  ·  M map  ·  Esc menu  ·  P pause"
+            : "WASD walk  ·  Shift run  ·  hold E to act  ·  hold Q radio  ·  M map  ·  Esc menu  ·  P pause", 11, new Color(1, 1, 1, .7f), outline: true);
         _shiftKeys.HorizontalAlignment = HorizontalAlignment.Right;
-        _shiftKeys.Position = new Vector2(size.X - Ui.S(560) - Ui.Gutter, size.Y - Ui.S(40)); _shiftKeys.Size = new Vector2(Ui.S(560), Ui.S(24));
+        _shiftKeys.Position = new Vector2(size.X - Ui.S(700) - Ui.Gutter, size.Y - Ui.S(40)); _shiftKeys.Size = new Vector2(Ui.S(700), Ui.S(24));
         _shiftHud.AddChild(_shiftKeys);
+        BuildRadialMenu();
 
         _shiftMenu = new PanelContainer { Visible = false };
         _shiftMenu.AddThemeStyleboxOverride("panel", Ui.Sheet(24, 22));
@@ -507,7 +511,8 @@ public partial class Main
             _cardDetail = TargetDetail(first.TargetId, first.DistanceMillimetres);
         }
         else wanted = false;
-        if (StewardShiftReportShown) wanted = false;
+        // The plan in the right hand, or the radio menu up: the prompt waits.
+        if (StewardShiftReportShown || shift.PlanUp || RadialMenuOpen) wanted = false;
         // Fade in rising 6 over 0.12 s, out over 0.10 s.
         _cardAlpha = Mathf.MoveToward(_cardAlpha, wanted ? 1 : 0, delta / (wanted ? .12f : .10f));
         _cardRise = (1 - _cardAlpha) * Ui.S(6);
@@ -573,6 +578,10 @@ public partial class Main
             _shiftNeedAlpha[index] = Mathf.MoveToward(_shiftNeedAlpha[index], on ? 1 : 0, delta / (on ? .4f : .6f));
         }
         _shiftNeeds!.QueueRedraw();
+        // The clock steps down under the plan's hint while it's up.
+        if (_shiftClock is not null) _shiftClock.Position = new Vector2(0, Ui.S(shift.PlanUp ? 96 : 64));
+        UpdateSiteMap(delta, heard);
+        UpdateRadialMenu(delta, radio.Item3 is { Open: true } current ? current.Id : pinCall?.Id);
         AnimateStewardShiftArms(delta);
     }
 }

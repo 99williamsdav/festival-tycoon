@@ -422,10 +422,12 @@ public sealed partial class GameSession
         target is not null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Herd a cow by its id.") :
         CowHerder(command.CowId).Reason is { } reason ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, reason) : null;
 
-    private void ApplyHerdCow(HerdCowCommand command)
+    private void ApplyHerdCow(HerdCowCommand command) => SendToHerdCow(command.CowId, CowHerder(command.CowId).Steward);
+
+    /// <summary>The steward goes to fetch the cow and drive it home: the manager's order, or the player's radio naming them.</summary>
+    private void SendToHerdCow(string cowId, ulong steward)
     {
-        var (steward, _) = CowHerder(command.CowId);
-        var cow = _cows!.Loose.Single(c => c.Id == command.CowId);
+        var cow = _cows!.Loose.Single(c => c.Id == cowId);
         RecallWorker(steward, "Steward sent to herd a cow");
         _cows = _cows with { Loose = _cows.Loose.Select(c => c.Id == cow.Id ? c with { HerderId = steward, HerdStartedTick = CurrentTick, Activity = CowActivity.Herded, Route = [], RouteIndex = 0 } : c).ToArray() };
         ApplyAgentDestination(new(steward), new(WalkableNear(TraversalGrid.WorldToCell(cow.XMillimetres, cow.ZMillimetres)), "cow.fetch"));

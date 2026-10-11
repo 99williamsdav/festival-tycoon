@@ -94,6 +94,7 @@ public partial class Main
         if (EyeViewActive) ExitEyeView();
         ClearStewardShiftArms();
         ClearStewardShiftHud();
+        ResetRadialMenu();
         ResetFinanceFeedback();
         if (_hudLayer is not null) _hudLayer.Visible = true;
     }
@@ -129,7 +130,8 @@ public partial class Main
         {
             forward = (Input.IsKeyPressed(Key.W) ? 1 : 0) - (Input.IsKeyPressed(Key.S) ? 1 : 0);
             right = (Input.IsKeyPressed(Key.D) ? 1 : 0) - (Input.IsKeyPressed(Key.A) ? 1 : 0);
-            running = Input.IsKeyPressed(Key.Shift);
+            // No running with the radio menu or the site plan up.
+            running = Input.IsKeyPressed(Key.Shift) && !RadialMenuOpen && !SitePlanUp;
         }
         SendShiftInput(forward, right, running);
     }
@@ -161,7 +163,9 @@ public partial class Main
     /// <summary>The action key goes down: hold the best action on whatever's first in front, as the camera faces.</summary>
     private void PressShiftAction()
     {
-        if (_session.PlayerStewardId is null || _session.IsPaused) return;
+        if (_session.PlayerStewardId is null || _session.IsPaused || RadialMenuOpen) return;
+        // With the site plan up, E puts it away first.
+        LowerSitePlan();
         var facing = ShiftFacing;
         if (_session.StewardReach(facing).FirstOrDefault(item => item.Action is not null) is not { Action: { } action } target) return;
         _host.Submit(new StewardActionCommand(action, target.TargetId, facing));
@@ -192,11 +196,14 @@ public partial class Main
     private bool HandleStewardShiftInput(InputEvent inputEvent)
     {
         if (!_shiftActive) return false;
+        // The radio menu (hold Q) takes the mouse and its own keys while it's up.
+        if (HandleRadialInput(inputEvent)) return true;
         switch (inputEvent)
         {
             case InputEventMouseMotion motion when _shiftLooking:
-                _shiftYaw -= motion.Relative.X * ShiftMouseRadians;
-                _shiftPitch = Mathf.Clamp(_shiftPitch - motion.Relative.Y * ShiftMouseRadians, Mathf.DegToRad(-80), Mathf.DegToRad(75));
+                // Frozen while the radio menu's up, the look eases back in after it closes.
+                _shiftYaw -= motion.Relative.X * ShiftMouseRadians * RadialLookFactor;
+                _shiftPitch = Mathf.Clamp(_shiftPitch - motion.Relative.Y * ShiftMouseRadians * RadialLookFactor, Mathf.DegToRad(-80), Mathf.DegToRad(75));
                 SwayShiftArms(motion.Relative);
                 return true;
             case InputEventMouseButton { Pressed: true } when !_shiftLooking && _shiftMenu?.Visible == false && !StewardShiftReportShown:
@@ -214,6 +221,7 @@ public partial class Main
                     return true;
                 }
                 if (key.Keycode == Key.V && _session.IsHandsOn) { LeaveHandsOnFirstPerson(); return true; }
+                if (key.Keycode == Key.M && _shiftLooking) { ToggleSitePlan(); return true; }
                 if ((key.Keycode == Key.P || key.Keycode == Key.Space && _session.IsHandsOn) && _session.PlayerStewardId is not null)
                 { _host.Submit(new SetPausedCommand(!_session.IsPaused)); return true; }
                 // First person reads in real time: 2× and 4× stay locked for now.

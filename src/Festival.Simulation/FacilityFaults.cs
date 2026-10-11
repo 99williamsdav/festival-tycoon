@@ -297,11 +297,17 @@ public sealed partial class GameSession
                      .ThenBy(id => id))
         {
             if (FaultWorkCell(fault, id) is not { } cell) continue;
-            RecallWorker(id, "Called to a facility fault");
-            SetFault(fault with { WorkerId = id, WorkStartedTick = -1 });
-            ApplyAgentDestination(new(id), new(cell, FaultIntent(fault, id == maintenance)));
+            AssignFaultWorker(fault, id, cell);
             return;
         }
+    }
+
+    /// <summary>Sends a worker to a fault, to stand at <paramref name="cell"/>: the crew's own rule, or the player's radio naming them.</summary>
+    private void AssignFaultWorker(FacilityFault fault, ulong id, GridCell cell)
+    {
+        RecallWorker(id, "Called to a facility fault");
+        SetFault(fault with { WorkerId = id, WorkStartedTick = -1 });
+        ApplyAgentDestination(new(id), new(cell, FaultIntent(fault, id == _equipment?.WorkerId)));
     }
 
     /// <summary>A worker whose fault is over, however it ended, heads back rather than standing at the door or tap.</summary>
