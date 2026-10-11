@@ -204,12 +204,7 @@ internal sealed partial class CrowdBodies(Node _parent, Func<GameSession> _sessi
             root.SetMeta("RoleOutfit", PerformerOutfits.For(_session(), person.AgentId, _performerRole(person.AgentId, person.Name)) is { } outfit
                 ? $"{outfit.Tee},{outfit.Patch},{outfit.Trousers},{outfit.Hair}" : "");
         AddRoleHead(root, person, variant);
-        // Front of House: the player's own steward, marked so the manager's view can find them.
-        if (_session().HandsOnStewardId == person.AgentId)
-        {
-            root.AddChild(WorldText.Speech(new Label3D { Name = "HandsOnYou", Text = "YOU", Position = new Vector3(0, 2.1f, 0),
-                Billboard = BaseMaterial3D.BillboardModeEnum.Enabled, Modulate = new Color("e8f23a"), OutlineModulate = new Color(0, 0, 0, .9f) }, 40));
-        }
+        // All-Rounder: the player's own steward is marked YOU in the manager's view by Main.HandsOnCues.cs.
         if (role == "maintenance")
             root.AddChild(WorldText.Speech(new Label3D { Text = person.Name.Split(' ')[0].ToUpperInvariant() + "\nMAINTENANCE",
                 Position = new Vector3(0, 2.1f, 0), Billboard = BaseMaterial3D.BillboardModeEnum.Enabled }, 28));

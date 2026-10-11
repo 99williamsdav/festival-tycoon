@@ -660,16 +660,27 @@ public sealed partial class GameSession
         var guests = p.People.Where(person => person.Role == ProtectedPersonRole.Guest).ToDictionary(person => person.AgentId);
         bool OnSite(ulong id) => guests.TryGetValue(id, out var guest) && guest.Admitted && !guest.Departed;
         var on = shift.PlayerId is not null;
-        if (calls.Length > 512 || calls.Any(call => call is null || string.IsNullOrWhiteSpace(call.Id) || string.IsNullOrWhiteSpace(call.Subject) ||
-                !Enum.IsDefined(call.Kind) || call.OpenedTick < p.StartedTick || call.OpenedTick > s.CurrentTick ||
-                call.ClosedTick != -1 && (call.ClosedTick < call.OpenedTick || call.ClosedTick > s.CurrentTick) ||
-                call.AnsweredTick != -1 && (call.AnsweredTick < call.OpenedTick || call.AnsweredTick > (call.ClosedTick >= 0 ? call.ClosedTick : s.CurrentTick)) ||
-                call.Auto && call.AnsweredTick < 0 || call.CoveredBy is { } crew && (s.Mode != CampaignMode.HandsOn || crew == shift.PlayerId ||
-                    !p.People.Any(person => person.AgentId == crew && person.Role == ProtectedPersonRole.Staff && person.Name != HandsOnStewardName))) ||
+        var handsOn = s.Mode == CampaignMode.HandsOn;
+        bool BadCall(StewardCall call) => call is null || string.IsNullOrWhiteSpace(call.Id) || string.IsNullOrWhiteSpace(call.Subject) ||
+            !Enum.IsDefined(call.Kind) || call.OpenedTick < p.StartedTick || call.OpenedTick > s.CurrentTick ||
+            call.ClosedTick != -1 && (call.ClosedTick < call.OpenedTick || call.ClosedTick > s.CurrentTick) ||
+            call.AnsweredTick != -1 && (call.AnsweredTick < call.OpenedTick || call.AnsweredTick > (call.ClosedTick >= 0 ? call.ClosedTick : s.CurrentTick)) ||
+            call.Auto && call.AnsweredTick < 0 || call.CoveredBy is { } crew && (!handsOn || crew == shift.PlayerId ||
+                !p.People.Any(person => person.AgentId == crew && person.Role == ProtectedPersonRole.Staff && person.Name != HandsOnStewardName)) ||
+            call.Where is { } where && (!handsOn || where.Length is 0 or > 64);
+        if (calls.Length > 512 || calls.Any(BadCall) ||
             calls.Where(call => call.ClosedTick < 0).Select(call => call.Id).Distinct().Count() != calls.Count(call => call.ClosedTick < 0) ||
             calls.Select(call => (call.Id, call.OpenedTick)).Distinct().Count() != calls.Length ||
             calls.Count(call => call.ClosedTick >= 0) > StewardShiftRules.ClosedCallsKept || !on && calls.Any(call => call.ClosedTick < 0))
             return "Steward shift radio calls invalid.";
+        // A hands-on day's log of the night: closed calls that went out or were answered, in the order they closed,
+        // exactly the ones the score counted (those the crew covered and the player left to them aside).
+        var log = shift.Log ?? [];
+        if (shift.Log is not null && (!handsOn || log.Length is 0 or > 4_096 || log.Any(call => BadCall(call) || call.ClosedTick < 0 || !InStewardLog(call)) ||
+                log.Select(call => (call.Id, call.OpenedTick)).Distinct().Count() != log.Length || log.Zip(log.Skip(1)).Any(pair => pair.Second.ClosedTick < pair.First.ClosedTick)) ||
+            handsOn && (log.Count(call => call.AnsweredTick >= 0 || call.CoveredBy is null) != score.Calls || log.Count(call => call.AnsweredTick >= 0) != score.Answered ||
+                log.Count(call => call.Auto) != score.AutoAnswered))
+            return "Steward shift call log invalid.";
         if (shift.Directed is { } directed && (directed.Distinct().Count() != directed.Length || directed.Any(id => !guests.ContainsKey(id))) ||
             (shift.Directed?.Length ?? 0) != score.Directions)
             return "Steward shift directions invalid.";

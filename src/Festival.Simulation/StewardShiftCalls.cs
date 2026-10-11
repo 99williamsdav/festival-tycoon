@@ -23,6 +23,8 @@ public sealed record StewardCall(string Id, StewardCallKind Kind, string Subject
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ulong? CoveredBy { get; init; }
     /// <summary>Answered by the player's steward working by themselves (the autopilot) rather than by the player's hands.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool Auto { get; init; }
+    /// <summary>A hands-on day only: the landmark Control named as the call opened ("Bar 2", "the main stage"), for the results paper.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? Where { get; init; }
 }
 
 /// <summary>
@@ -74,6 +76,7 @@ public sealed partial class GameSession
         var covering = IsHandsOn && calls.Any(call => call.Open && liveIds.Contains(call.Id) && call.CoveredBy != CrewHolder(call));
         if (!closing && !opening && !expiring && !covering) return;
         var score = shift.Score ?? new();
+        var log = shift.Log;
         var next = new List<StewardCall>();
         foreach (var call in calls)
         {
@@ -81,16 +84,30 @@ public sealed partial class GameSession
             if (liveIds.Contains(call.Id)) { next.Add(IsHandsOn ? call with { CoveredBy = CrewHolder(call) } : call); continue; }
             var closed = call with { ClosedTick = CurrentTick };
             score = Counted(score, closed, UrgentDealtWith(closed));
+            log = Logged(log, closed);
             next.Add(closed);
         }
         foreach (var (id, kind, subject) in live)
             if (!openIds.Contains(id))
             {
                 StewardCall call = new(id, kind, subject, CurrentTick);
-                next.Add(IsHandsOn ? call with { CoveredBy = CrewHolder(call) } : call);
+                next.Add(IsHandsOn ? call with { CoveredBy = CrewHolder(call), Where = CallPlace(call) } : call);
             }
-        _stewardShift = shift with { Calls = Pruned(next), Score = score };
+        _stewardShift = shift with { Calls = Pruned(next), Score = score, Log = log };
     }
+
+    /// <summary>Where Control says a call is, by the nearest landmark; null once its incident has gone.</summary>
+    private string? CallPlace(StewardCall call) => StewardCallPoint(call) is { } point ? StewardLandmark(point.X, point.Z) : null;
+
+    /// <summary>
+    /// A hands-on day keeps every call of the night for the results paper: each closed call that went out over the
+    /// radio or that the player answered, in the order they closed. Exactly the calls the score counted, plus those
+    /// the hired crew covered and the player left to them.
+    /// </summary>
+    private StewardCall[]? Logged(StewardCall[]? log, StewardCall closed) =>
+        !IsHandsOn || !InStewardLog(closed) ? log : [.. log ?? [], closed];
+
+    private static bool InStewardLog(StewardCall closed) => closed.AnsweredTick >= 0 || closed.ClosedTick >= closed.HeardTick;
 
     /// <summary>The last few closed calls stay, briefly, for the radio strip.</summary>
     private StewardCall[] Pruned(List<StewardCall> calls)
@@ -188,14 +205,16 @@ public sealed partial class GameSession
     {
         if (_stewardShift?.Calls is not { } calls) return;
         var score = _stewardShift.Score ?? new();
+        var log = _stewardShift.Log;
         var closed = calls.Select(call =>
         {
             if (!call.Open) return call;
             var done = call with { ClosedTick = CurrentTick };
             score = Counted(score, done, UrgentDealtWith(done));
+            log = Logged(log, done);
             return done;
         }).ToList();
-        _stewardShift = _stewardShift with { Calls = Pruned(closed), Score = score };
+        _stewardShift = _stewardShift with { Calls = Pruned(closed), Score = score, Log = log };
     }
 
     /// <summary>Whether the saved open calls are exactly the live incidents.</summary>

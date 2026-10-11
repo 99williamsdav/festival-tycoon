@@ -16,7 +16,7 @@ public partial class Main
 uniform sampler2D screen : hint_screen_texture, filter_linear_mipmap;
 void fragment() { COLOR = vec4(mix(textureLod(screen, SCREEN_UV, 2.6).rgb, vec3(0.055, 0.122, 0.102), 0.55), 1.0); }";
 
-    private static string StampFile(StewardShiftGrade grade) => grade switch
+    internal static string StampFile(StewardShiftGrade grade) => grade switch
     {
         StewardShiftGrade.Encore => "encore", StewardShiftGrade.Headliner => "headliner", StewardShiftGrade.CrowdPleaser => "crowd_pleaser",
         StewardShiftGrade.BSide => "b_side", _ => "off_key",

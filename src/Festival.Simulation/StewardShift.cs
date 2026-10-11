@@ -40,6 +40,11 @@ public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int Move
     /// (<see cref="SetPlayerStewardControlCommand"/>); null while the player has them in first person, and always on the standalone shift.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardAutopilot? Autopilot { get; init; }
+    /// <summary>
+    /// A hands-on day only: every call of the night once it closed, oldest first, if it went out over the radio or the
+    /// player answered it (the radio's <see cref="Calls"/> keep only the last few). The results paper's "Your shift" reads it.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardCall[]? Log { get; init; }
 }
 
 /// <summary>
