@@ -491,6 +491,7 @@ public sealed partial class GameSession
             StageGenerators = _stageGenerators?.ToArray(),
             PerformanceRecords = _performanceRecords is null ? null : System.Text.Json.JsonSerializer.Deserialize<PerformanceRecord[]>(PerformanceRecordsCanonicalJson!),
             PondStageTrial = _pondStageTrial,
+            Mode = _mode,
             Medical = CaptureMedical(),
             Facilities = CaptureFacilities(),
             Disorder = CaptureDisorder(),
@@ -556,6 +557,7 @@ public sealed partial class GameSession
         session._perks = snapshot.Perks is null ? null : System.Text.Json.JsonSerializer.Deserialize<PerkSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Perks));
         session._equipment = snapshot.Equipment is null ? null : snapshot.Equipment with { Evidence = snapshot.Equipment.Evidence.ToArray() };
         session._pondStageTrial = snapshot.PondStageTrial;
+        session._mode = snapshot.Mode;
         session._stageGenerators = snapshot.StageGenerators?.ToArray();
         session._programme = snapshot.Programme is null ? null : System.Text.Json.JsonSerializer.Deserialize<ProgrammeSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Programme));
         session.ImmersionView = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));

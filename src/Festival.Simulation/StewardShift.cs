@@ -267,9 +267,10 @@ public sealed partial class GameSession
 {
     private StewardShiftSnapshot? _stewardShift;
 
-    /// <summary>The steward shift's state; null in an ordinary campaign.</summary>
+    /// <summary>The steward shift's state; null in an ordinary campaign, and in a hands-on one before the gates open.</summary>
     public StewardShiftSnapshot? CaptureStewardShift() => _stewardShift;
-    public bool IsStewardShift => _stewardShift is not null;
+    /// <summary>The standalone steward shift prototype (a hands-on campaign's day has the shift's state too, but isn't one).</summary>
+    public bool IsStewardShift => _stewardShift is not null && _mode == CampaignMode.Classic;
     /// <summary>The steward the player controls, while the shift is on.</summary>
     public ulong? PlayerStewardId => _stewardShift?.PlayerId;
     internal string? StewardShiftCanonicalJson => _stewardShift is null ? null : System.Text.Json.JsonSerializer.Serialize(_stewardShift);
@@ -403,6 +404,8 @@ public sealed partial class GameSession
 
     private static string? ValidatePersistedStewardShift(SessionPersistenceSnapshot snapshot)
     {
+        if (!Enum.IsDefined(snapshot.Mode)) return "Unknown campaign mode.";
+        if (snapshot.Mode == CampaignMode.HandsOn) return ValidatePersistedHandsOnShift(snapshot);
         if (snapshot.StewardShift is not { } shift) return null;
         if (shift.Version != StewardShiftRules.Version || shift.FacingDegrees is < 0 or > 359 ||
             shift.MoveX is < -1000 or > 1000 || shift.MoveZ is < -1000 or > 1000 || shift.RemainderX is < -999 or > 999 || shift.RemainderZ is < -999 or > 999)

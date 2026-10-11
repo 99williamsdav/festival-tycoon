@@ -37,9 +37,9 @@ public sealed partial class GameSession
     /// carried forward. The same seed, tier and guest count always give the same identities.
     /// </summary>
     private static GameSession CreateBuildCampaign(ulong seed, int tier, FestivalCarryOver? carry, CampaignId? campaignId, int? guests = null,
-        bool pondStageTrial = false)
+        bool pondStageTrial = false, CampaignMode mode = CampaignMode.Classic)
     {
-        var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial);
+        var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, mode);
         SetUpPerks(session, seed, tier);
         // From Tier 2 a second medic can be hired without a perk; hiring them still costs their wage.
         if (tier >= FreeExtraMedicFromTier) session._preparation = session._preparation! with { ExtraMedicSlotOwned = true };
@@ -51,9 +51,9 @@ public sealed partial class GameSession
 
     /// <summary>The campaign through its food-and-drink stage: the baseline a retried edition resets to.</summary>
     private static GameSession CreateFoodAndDrinkBaseline(ulong seed, int tier = 1, int? guests = null,
-        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false)
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignMode mode = CampaignMode.Classic)
     {
-        var session = CreateProgrammeBaseline(seed, tier, guests, carry, campaignId, pondStageTrial);
+        var session = CreateProgrammeBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, mode);
         SetUpFoodAndDrink(session, seed);
         return session;
     }
@@ -62,10 +62,11 @@ public sealed partial class GameSession
 
     /// <summary>The campaign through its programme stage: the saved roster's reference identities.</summary>
     private static GameSession CreateProgrammeBaseline(ulong seed, int tier = 1, int? guests = null,
-        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false)
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignMode mode = CampaignMode.Classic)
     {
         var session = CreateCampaign(seed, campaignId, tier, carry);
         session._pondStageTrial = pondStageTrial;
+        session._mode = mode;
         if (tier > 1) ReseedForTier(session, seed, tier);
         SetUpEdition(session, seed, tier, guests ?? FestivalTickets.Sold(tier), carry);
         SetUpStagePower(session);
@@ -74,6 +75,8 @@ public sealed partial class GameSession
         SetUpProgramme(session, seed);
         if (session.PondStageOpen) SetUpPondStage(session);
         SetUpWeather(session, seed, tier);
+        // Last, so a classic campaign's identities never move.
+        if (mode == CampaignMode.HandsOn) SetUpHandsOnSteward(session);
         return session;
     }
 

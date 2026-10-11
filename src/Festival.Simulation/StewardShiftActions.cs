@@ -300,7 +300,7 @@ public sealed partial class GameSession
         var rest = SplitTarget(held.TargetId).Key;
         ulong.TryParse(rest, out var id);
         var name = StewardTargetPoint(held.TargetId)?.Name ?? "";
-        var profile = GetResponseStaff().Single(item => item.AgentId == me);
+        var profile = PlayerStewardProfile(me);
         AnswerStewardCalls(held, id, rest);
         var (success, text) = held.Kind switch
         {

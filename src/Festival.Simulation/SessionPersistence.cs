@@ -133,6 +133,9 @@ public sealed record SessionPersistenceSnapshot(
     /// <summary>The campaign tries the Pond Stage before Tier 2.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool PondStageTrial { get; init; }
+    /// <summary>How the campaign is played; a classic campaign writes nothing, so its saves are as before.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public CampaignMode Mode { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public MedicalSnapshot? Medical { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

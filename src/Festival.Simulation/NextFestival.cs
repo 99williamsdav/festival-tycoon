@@ -48,7 +48,7 @@ public sealed partial class GameSession
     /// gone home and no death or Council ending, unlocks the next tier. A failed festival keeps the hearing and retry.
     /// </summary>
     public bool CanStartNextFestival => _preparation is { Status: PreparationStatus.Finished, Result: not null } p &&
-        p.Tier < HighestTier && !IsLifecycleEditionFrozen() && _campaignPlanning is not null && _stewardShift is null;
+        p.Tier < HighestTier && !IsLifecycleEditionFrozen() && _campaignPlanning is not null && (_stewardShift is null || _mode == CampaignMode.HandsOn);
 
     /// <summary>What this completed festival would carry into the next one.</summary>
     public FestivalCarryOver? NextFestivalCarryOver => !CanStartNextFestival ? null : CarryOverFrom(_preparation!);
@@ -69,7 +69,7 @@ public sealed partial class GameSession
     {
         if (!CanStartNextFestival) throw new InvalidOperationException("Only a completed festival below the highest tier can open the next one.");
         var p = _preparation!;
-        var next = CreateLaterFestival(CampaignSeed, CampaignId, p.Tier + 1, CarryOverFrom(p),
+        var next = CreateLaterFestivalIn(_mode, CampaignSeed, CampaignId, p.Tier + 1, CarryOverFrom(p),
             new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray()), p.SeenActs, _campaignPlanning!, _pondStageTrial);
         // Each act's relationship as this festival's sets left it, and the sets it was worked out from.
         var (history, relationships) = RelationshipsForNextFestival(p.Tier + 1);
@@ -78,10 +78,14 @@ public sealed partial class GameSession
     }
 
     private static GameSession CreateLaterFestival(ulong seed, CampaignId campaignId, int tier, FestivalCarryOver carry,
+        FestivalStanding standing, string[] seenActs, CampaignPlanningState? identity, bool pondStageTrial) =>
+        CreateLaterFestivalIn(CampaignMode.Classic, seed, campaignId, tier, carry, standing, seenActs, identity, pondStageTrial);
+
+    private static GameSession CreateLaterFestivalIn(CampaignMode mode, ulong seed, CampaignId campaignId, int tier, FestivalCarryOver carry,
         FestivalStanding standing, string[] seenActs, CampaignPlanningState? identity, bool pondStageTrial)
     {
-        // A Pond Stage trial campaign stays one at the next tier.
-        var next = CreateBuildCampaign(seed, tier, carry, campaignId, pondStageTrial: pondStageTrial);
+        // A Pond Stage trial campaign stays one at the next tier, and a hands-on campaign stays hands-on.
+        var next = CreateBuildCampaign(seed, tier, carry, campaignId, pondStageTrial: pondStageTrial, mode: mode);
         next.PreparationView = next.PreparationView! with { Reputation = standing.Reputation,
             SceneCredibility = standing.SceneCredibility.ToArray(), SeenActs = seenActs.ToArray() };
         if (identity is not null)

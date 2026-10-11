@@ -370,6 +370,7 @@ public sealed partial class GameSession
         Phase = SessionPhase.Live;
         StartEquipmentLifecycle();
         StartLivePerformance();
+        StartHandsOnShift();
     }
 
     /// <summary>
@@ -443,13 +444,15 @@ public sealed partial class GameSession
     private void RetryPreparedWeekend()
     {
         ReleaseStewardControl();
+        // A hands-on retry is the day again: the player's steward goes back on shift when the gates reopen.
+        if (_mode == CampaignMode.HandsOn) _stewardShift = null;
         _litter = EmptyLitter;
         _faults = EmptyFaults;
         _cows = EmptyCows;
         _lavSucker = EmptyLavSucker;
         ResetGround();
         var p = _preparation!;
-        var baseline = CreateFoodAndDrinkBaseline(CampaignSeed, p.Tier, pondStageTrial: _pondStageTrial);
+        var baseline = CreateFoodAndDrinkBaseline(CampaignSeed, p.Tier, pondStageTrial: _pondStageTrial, mode: _mode);
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;
         _ownedStocks[new(p.StockId)].Quantity = 40;
         _navigationAgents.Clear();
@@ -531,18 +534,20 @@ public sealed partial class GameSession
         var maintenance = snapshot.Equipment?.WorkerId is not null ? 1 : 0;
         var medic = snapshot.Medical is null ? 0 : 1;
         var security = snapshot.Disorder is null ? 0 : 1;
+        // A hands-on campaign's own steward, a crew member on every festival's roster.
+        var handsOn = snapshot.Mode == CampaignMode.HandsOn ? 1 : 0;
         // The Pond Stage's engineer slot stands on the roster whether or not anyone is hired into it.
         var extras = p.AcceptedOffers.Count(id => id.StartsWith("staff.extra-", StringComparison.Ordinal) && !id.StartsWith("staff.extra-sound.", StringComparison.Ordinal));
         var stages = SavedStages(snapshot);
         var stageEngineers = stages.Count - 1;
         var performerCount = snapshot.Programme is null ? 3 : 9 * stages.Count;
-        if (p.People.Length > MaxActivePeople || p.People.Length != FestivalTickets.Sold(p.Tier) + 1 + stageEngineers + performerCount + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != FestivalTickets.Sold(p.Tier) ||
-            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + stageEngineers + maintenance + medic + security + extras || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != performerCount ||
+        if (p.People.Length > MaxActivePeople || p.People.Length != FestivalTickets.Sold(p.Tier) + 1 + stageEngineers + performerCount + maintenance + medic + security + extras + handsOn || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != FestivalTickets.Sold(p.Tier) ||
+            p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + stageEngineers + maintenance + medic + security + extras + handsOn || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != performerCount ||
             p.People.Any(item => item.AgentId == 0 || item.AgentId >= snapshot.NextEntityId || string.IsNullOrWhiteSpace(item.Name) || item.ExpectedGenre < 0 || item.ExpectedGenre > (snapshot.Programme is null ? 1 : FestivalGenre.Count - 1) ||
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
             p.People.Select(item => item.AgentId).Distinct().Count() != p.People.Length)
             return "Fixed protected roster invalid.";
-        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed, p.Tier, pondStageTrial: snapshot.PondStageTrial).WithPaymentStanding(p);
+        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed, p.Tier, pondStageTrial: snapshot.PondStageTrial, mode: snapshot.Mode).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
         var candidates = SavedStaffCandidates(snapshot);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })
