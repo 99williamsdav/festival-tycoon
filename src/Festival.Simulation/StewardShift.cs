@@ -4,9 +4,11 @@ namespace Festival.Simulation;
 /// Prototype steward shift: the player is one steward on the ground while the festival runs itself.
 /// <paramref name="PlayerId"/> is the steward under the player's control, null once the shift is over
 /// (closing hands them back to the crew so they walk home). The record being present marks the mode.
-/// Movement input holds until the next <see cref="SetPlayerMoveCommand"/>; facing is whole degrees.
+/// Movement input holds until the next <see cref="SetPlayerMoveCommand"/>; facing is whole degrees. The remainders
+/// carry the part of a millimetre each axis didn't move last tick (−999 to 999 µm), so slow and diagonal walks keep pace.
 /// </summary>
-public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int MoveX, int MoveZ, bool Run, int FacingDegrees);
+public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int MoveX, int MoveZ, bool Run, int FacingDegrees,
+    int RemainderX = 0, int RemainderZ = 0);
 
 /// <summary>
 /// The player steward's movement input, held until the next one. The direction is world X/Z in permille
@@ -29,7 +31,7 @@ public sealed record StewardReachTarget(ulong PersonId, string Name, ProtectedPe
 
 public static class StewardShiftRules
 {
-    public const int Version = 1;
+    public const int Version = 2;
     /// <summary>The hedged field, in grid cells: −32 m to +32 m both ways. The player steward stays inside it.</summary>
     public const int FieldMinCell = 64, FieldMaxCell = 191;
     /// <summary>Running pace against a steward's walk.</summary>
@@ -38,6 +40,8 @@ public static class StewardShiftRules
     public const int PersonClearanceMillimetres = 450;
     /// <summary>How close loose cows and the tanker's body points may come to the player's centre.</summary>
     public const int ObstacleClearanceMillimetres = 650;
+    /// <summary>How far ahead of the player, along their step, the ground must be open: the view never presses into a wall.</summary>
+    public const int WallClearanceMillimetres = 250;
     public const int ReachMillimetres = 2_500;
     /// <summary>cos 40°: the reach cone's half-width either side of facing.</summary>
     public const int ReachConeCosPermille = 766;
@@ -46,8 +50,17 @@ public static class StewardShiftRules
     public static bool InField(GridCell cell) =>
         cell.X is >= FieldMinCell and <= FieldMaxCell && cell.Z is >= FieldMinCell and <= FieldMaxCell;
 
-    // Whole-degree sines in permille, rounded once so every platform agrees.
-    private static readonly int[] SinPermille = Enumerable.Range(0, 360).Select(d => (int)Math.Round(Math.Sin(d * Math.PI / 180) * 1000)).ToArray();
+    // Sines of 0–90° in permille, rounded to the nearest; the rest of the circle by symmetry. No floating point.
+    private static readonly int[] QuarterSinPermille =
+    [
+        0, 17, 35, 52, 70, 87, 105, 122, 139, 156, 174, 191, 208, 225, 242, 259, 276, 292, 309, 326, 342, 358, 375, 391, 407, 423,
+        438, 454, 469, 485, 500, 515, 530, 545, 559, 574, 588, 602, 616, 629, 643, 656, 669, 682, 695, 707, 719, 731, 743, 755, 766,
+        777, 788, 799, 809, 819, 829, 839, 848, 857, 866, 875, 883, 891, 899, 906, 914, 921, 927, 934, 940, 946, 951, 956, 961, 966,
+        970, 974, 978, 982, 985, 988, 990, 993, 995, 996, 998, 999, 999, 1000, 1000,
+    ];
+
+    private static int SinPermille(int d) => d <= 90 ? QuarterSinPermille[d] : d <= 180 ? QuarterSinPermille[180 - d] :
+        d <= 270 ? -QuarterSinPermille[d - 180] : -QuarterSinPermille[360 - d];
 
     /// <summary>The whole degree that points most nearly along (dx, dz), in integers; the lowest on a tie.</summary>
     public static int FacingTowards(long dx, long dz)
@@ -67,7 +80,7 @@ public static class StewardShiftRules
     public static (int X, int Z) Facing(int degrees)
     {
         var d = ((degrees % 360) + 360) % 360;
-        return (SinPermille[d], SinPermille[(d + 90) % 360]);
+        return (SinPermille(d), SinPermille((d + 90) % 360));
     }
 }
 
@@ -150,11 +163,13 @@ public sealed partial class GameSession
         var cell = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
         var cost = (long)_traversalGrid.Get(cell).CostPermille * GroundSlowPermille(cell);
         var micro = (long)RouteProgressMicrometresPerTick * nav.WalkingSpeedPermille / 1000 * (shift.Run ? StewardShiftRules.RunPermille : 1000) / 1000;
-        var stepMillimetres = micro * 1_000_000 / Math.Max(1, cost) / 1000;
+        var stepMicrometres = micro * 1_000_000 / Math.Max(1, cost);
         var length = Math.Max(1000, IntegerSquareRoot((long)shift.MoveX * shift.MoveX + (long)shift.MoveZ * shift.MoveZ));
-        var dx = (int)(stepMillimetres * shift.MoveX / length);
-        var dz = (int)(stepMillimetres * shift.MoveZ / length);
-        if (dx == 0 && dz == 0) return;
+        var ux = stepMicrometres * shift.MoveX / length + shift.RemainderX;
+        var uz = stepMicrometres * shift.MoveZ / length + shift.RemainderZ;
+        var dx = (int)(ux / 1000); var dz = (int)(uz / 1000);
+        int rx = (int)(ux - dx * 1000L), rz = (int)(uz - dz * 1000L);
+        if (dx == 0 && dz == 0) { _stewardShift = shift with { RemainderX = rx, RemainderZ = rz }; return; }
         var obstacles = new SpatialNeighbourIndex();
         AddCowOccupancy(obstacles);
         AddLavSuckerOccupancy(obstacles);
@@ -166,8 +181,11 @@ public sealed partial class GameSession
             if (!PlayerStepAllowed(id, nav.XMillimetres, nav.ZMillimetres, nav.XMillimetres + mx, nav.ZMillimetres + mz, obstacles)) continue;
             nav.XMillimetres += mx; nav.ZMillimetres += mz;
             nav.SegmentOriginXMillimetres = nav.XMillimetres; nav.SegmentOriginZMillimetres = nav.ZMillimetres;
+            // An axis that didn't move keeps no remainder.
+            _stewardShift = shift with { RemainderX = mx == 0 ? 0 : rx, RemainderZ = mz == 0 ? 0 : rz };
             return;
         }
+        _stewardShift = shift with { RemainderX = 0, RemainderZ = 0 };
     }
 
     private bool PlayerStepAllowed(ulong id, int fromX, int fromZ, int toX, int toZ, SpatialNeighbourIndex obstacles)
@@ -175,6 +193,12 @@ public sealed partial class GameSession
         var cell = TraversalGrid.WorldToCell(toX, toZ);
         if (!StewardShiftRules.InField(cell) || !_traversalGrid!.Get(cell).IsWalkable || CubicleClosedTo(id, cell) ||
             !TraversalSweep.IsWalkable(_traversalGrid, fromX, fromZ, toX, toZ)) return false;
+        // A little open ground ahead along the step, so the eyes stay out of walls and hedges.
+        long sx = toX - fromX, sz = toZ - fromZ;
+        var stepLength = Math.Max(1, IntegerSquareRoot(sx * sx + sz * sz));
+        var ahead = TraversalGrid.WorldToCell(toX + (int)(sx * StewardShiftRules.WallClearanceMillimetres / stepLength),
+            toZ + (int)(sz * StewardShiftRules.WallClearanceMillimetres / stepLength));
+        if (!StewardShiftRules.InField(ahead) || !_traversalGrid.Get(ahead).IsWalkable || CubicleClosedTo(id, ahead)) return false;
         // Someone already too close may be stepped away from, never further into.
         bool Closer(int x, int z, long radius)
         {
@@ -212,19 +236,47 @@ public sealed partial class GameSession
         return found.OrderBy(item => item.DistanceMillimetres).ThenBy(item => item.PersonId).ToArray();
     }
 
+    /// <summary>
+    /// Checked on the restored session, where the live rules can say it: a steward on shift holds no job, claim,
+    /// queue place, errand or carried thing, since nothing could have given them one.
+    /// </summary>
+    private string? PlayerStewardWorkIssue()
+    {
+        if (_stewardShift?.PlayerId is not { } id) return null;
+        if (CaptureClaims(id) is var claims and not PersonClaim.None) return $"The player steward holds other work ({claims}).";
+        if (Vendors.Any(v => v.OwnerId == id || v.Queue.Contains(id)) ||
+            EffectiveToilets(_facilities).Any(t => t.OwnerId == id || t.InterruptedOccupantId == id || t.Queue.Contains(id)) ||
+            WaterPoints().Any(w => w.OwnerId == id || w.Queue.Contains(id) || w.Overflow.Contains(id)))
+            return "The player steward stands in a queue.";
+        if (_equipment?.WorkerId == id || _preparation?.MaintenanceWorkerId == id) return "The player steward is the maintenance worker.";
+        var me = _persons[id];
+        if (me.Intent != MedicalIntent.WatchShow || me.Held is not null || me.VendorId is not null || me.Order is not null ||
+            me.ToiletStage != ToiletVisitStage.None || me.WaterQueueSlot is not null || me.ConductStage != DisorderStage.Calm)
+            return "The player steward is busy with something of their own.";
+        return null;
+    }
+
     private static string? ValidatePersistedStewardShift(SessionPersistenceSnapshot snapshot)
     {
         if (snapshot.StewardShift is not { } shift) return null;
         if (shift.Version != StewardShiftRules.Version || shift.FacingDegrees is < 0 or > 359 ||
-            shift.MoveX is < -1000 or > 1000 || shift.MoveZ is < -1000 or > 1000)
+            shift.MoveX is < -1000 or > 1000 || shift.MoveZ is < -1000 or > 1000 || shift.RemainderX is < -999 or > 999 || shift.RemainderZ is < -999 or > 999)
             return "Steward shift input is invalid.";
         if (snapshot.Preparation is not { } p || snapshot.Disorder is not { } d || snapshot.TraversalGrid is null || snapshot.NavigationAgents is null)
             return "A steward shift needs a festival with stewards.";
+        if (!SavedPerkEffect(snapshot.Perks, StewardShiftPerk)) return "A steward shift needs the second steward's perk.";
         if (shift.PlayerId is not { } id)
-            return shift.MoveX != 0 || shift.MoveZ != 0 || shift.Run ? "A finished steward shift holds no movement." : null;
-        if (p.Status != PreparationStatus.Running) return "Only a running festival has a steward on shift.";
-        if (!d.Stewards.Any(item => item.WorkerId == id) || p.People.SingleOrDefault(item => item.AgentId == id) is not { Role: ProtectedPersonRole.Staff, Admitted: true, Departed: false })
-            return "The player must be a steward on duty.";
+        {
+            if (shift.MoveX != 0 || shift.MoveZ != 0 || shift.Run || shift.RemainderX != 0 || shift.RemainderZ != 0) return "A finished steward shift holds no movement.";
+            // Closing, a death or a retry ends the shift; a first attempt still running has its steward on it.
+            return p.Status is PreparationStatus.Departing or PreparationStatus.Finished or PreparationStatus.Failed || p.Attempt > 1
+                ? null : "A running steward shift needs its steward.";
+        }
+        if (p.Status != PreparationStatus.Running || p.Attempt != 1) return "Only a running first attempt has a steward on shift.";
+        if (d.Stewards.Length != 2 || d.Stewards[1].WorkerId != id || p.People.SingleOrDefault(item => item.AgentId == id) is not { Role: ProtectedPersonRole.Staff, Admitted: true, Departed: false })
+            return "The player must be the second steward, on duty.";
+        if (d.Stewards[1] is not { Stage: SecurityResponseStage.None, TargetId: null, Incapacitated: false })
+            return "The player steward holds a steward response.";
         if (snapshot.NavigationAgents.SingleOrDefault(item => item.Id == id) is not { } nav || nav.Action != (int)AgentNavigationAction.Idle ||
             nav.Route.Length != 0 || nav.DestinationX is not null || nav.IntentId != StewardShiftRules.Intent)
             return "The player steward's navigation must be their own.";

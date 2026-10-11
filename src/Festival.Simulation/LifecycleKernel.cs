@@ -136,6 +136,13 @@ public sealed partial class GameSession
 
     private bool IsLifecycleEditionFrozen() => _lifecycle is not null && CurrentAttempt().Status != EditionAttemptStatus.Active;
 
+    /// <summary>The one way a first death fails the edition: frozen, rentals and contracts ended, any steward on shift handed back.</summary>
+    private void FailEdition(PreparationSnapshot p)
+    {
+        _preparation = p with { Status = PreparationStatus.Failed, Rentals = [], WorkContracts = [] };
+        ReleaseStewardControl();
+    }
+
     private CommandResult? ValidateLifecycleFrozenCommand(SessionCommand command)
     {
         if (!IsLifecycleEditionFrozen() || command is SpendCouncilFavourCommand or ConcedeCouncilHearingCommand) return null;

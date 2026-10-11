@@ -12,7 +12,8 @@ internal sealed class StartMenu
 
     public void Close() { _layer?.QueueFree(); _layer = null; }
 
-    public void Open(Node parent, Action enter, Action fieldGuide, Action? tryPondStage = null, Action? stewardShift = null)
+    public void Open(Node parent, Action enter, Action fieldGuide, Action? tryPondStage = null, Action? stewardShift = null,
+        Action? continueShift = null)
     {
         _layer = new CanvasLayer { Layer = 20 };
         parent.AddChild(_layer);
@@ -77,6 +78,15 @@ internal sealed class StartMenu
             shift.AddThemeColorOverride("font_color", new Color("e8f23a")); shift.AddThemeFontSizeOverride("font_size", Ui.Px(16));
             shift.Pressed += stewardShift;
             trials.AddChild(shift);
+        }
+        if (continueShift is not null)
+        {
+            // Only offered while a saved shift still has its steward on duty.
+            var resume = new Button { Name = "ContinueShift", Text = "Continue shift", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+                MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = "Back to your saved steward shift, where you left it." };
+            resume.AddThemeColorOverride("font_color", new Color("e8f23a")); resume.AddThemeFontSizeOverride("font_size", Ui.Px(16));
+            resume.Pressed += continueShift;
+            trials.AddChild(resume);
         }
         button.GrabFocus();
     }

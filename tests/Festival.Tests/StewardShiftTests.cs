@@ -92,6 +92,20 @@ public sealed class StewardShiftTests
         s.AdvanceWithoutSnapshot(200);
         Assert.AreEqual(stopped, At(s, Player(s)), "No input, no movement, and nobody else moves them.");
         Assert.AreEqual(CommandReasonCode.InvalidParameter, BuildSession.Send(s, new SetPlayerMoveCommand(1001, 0, false, 0)).ReasonCode);
+
+        // The part of a millimetre each axis misses is carried, so a diagonal keeps a straight walk's pace.
+        long Covered(int dx, int dz)
+        {
+            var g = GameSession.CreateStewardShift(Seed);
+            var from = At(g, Player(g));
+            Move(g, dx, dz);
+            g.AdvanceWithoutSnapshot(40);
+            var to = At(g, Player(g));
+            return (long)Math.Sqrt((double)(to.X - from.X) * (to.X - from.X) + (double)(to.Z - from.Z) * (to.Z - from.Z));
+        }
+        var straight = Covered(0, -1000);
+        var diagonal = Covered(-707, -707);
+        Assert.IsTrue(Math.Abs(straight - diagonal) <= 10, $"Straight {straight} mm, diagonal {diagonal} mm.");
         Assert.AreEqual(CommandReasonCode.InvalidParameter, BuildSession.Send(s, new SetPlayerMoveCommand(0, 0, false, 360)).ReasonCode);
     }
 
@@ -175,6 +189,9 @@ public sealed class StewardShiftTests
             var me = s.CapturePerson(id)!;
             Assert.IsTrue(me.Thirst == 0 && me.Hunger == 0 && me.ToiletNeed == 0 && me.HeatExposure == 0 && me.Intoxication == 0, "No needs on shift.");
             Assert.IsTrue(me.ConductStage == DisorderStage.Calm || me.ConductStage == default, "Nobody picks a fight with them.");
+            Assert.AreEqual(PersonClaim.None, s.CaptureClaims(id));
+            Assert.IsTrue(me.Intent == MedicalIntent.WatchShow && me.Held is null && me.VendorId is null, "No errand of their own.");
+            if (step % 100 == 50) Assert.IsTrue(GameSession.Restore(s.CapturePersistenceSnapshot()).IsSuccess, $"Tick {s.CurrentTick}: the shift's save wouldn't load.");
             crewWorked |= others.Any(other => !s.ResponseStaffStatus(other).StartsWith("Idle", StringComparison.Ordinal) &&
                 !s.ResponseStaffStatus(other).Contains("Not physically on duty", StringComparison.Ordinal));
             if (step % 50 == 0 && s.CapturePreparation()!.People.FirstOrDefault(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && !person.Departed) is { } guest)
@@ -222,6 +239,69 @@ public sealed class StewardShiftTests
     }
 
     [TestMethod]
+    public void ADeathEndsTheShiftAndItsSaveStillLoads()
+    {
+        var s = GameSession.CreateStewardShift(Seed);
+        s.AdvanceWithoutSnapshot(6_000);
+        var performer = s.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Performer && s.CapturePerson(person.AgentId)!.Admitted);
+        var tick = s.CurrentTick;
+        typeof(GameSession).GetMethod("UpdatePerson", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance)!.Invoke(s,
+            [performer.AgentId, (Func<Person, Person>)(p => p with
+            {
+                HealthStage = MedicalStage.Critical, Thirst = 10_000, HeatExposure = 10_000, Intent = MedicalIntent.Collapsed,
+                HealthWarningTick = tick - 4_000, HealthCollapseTick = tick - GameSession.MedicalDeathDelayTicks, HealthCriticalTick = tick - 1,
+            })]);
+        for (var i = 0; i < 6_000 && s.PreparedStatus == PreparationStatus.Running; i++) s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus);
+        Assert.IsTrue(s.IsStewardShift && s.PlayerStewardId is null, "A death ends the shift: the end panel shows.");
+        Assert.IsFalse(BuildSession.Send(s, new SetPlayerMoveCommand(1000, 0, false, 90)).IsAccepted);
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    [TestMethod]
+    public void RestoreRefusesAPlayerStewardHoldingAnyOtherWork()
+    {
+        const System.Reflection.BindingFlags Private = System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Instance;
+        GameSession Shift() { var s = GameSession.CreateStewardShift(Seed); s.AdvanceWithoutSnapshot(3_000); return s; }
+        void Person(GameSession s, Func<Person, Person> change) =>
+            typeof(GameSession).GetMethod("UpdatePerson", Private)!.Invoke(s, [Player(s), change]);
+        void Field(GameSession s, string name, Func<object, object> change)
+        {
+            var field = typeof(GameSession).GetField(name, Private)!;
+            field.SetValue(s, change(field.GetValue(s)!));
+        }
+        var forgeries = new (string Why, Action<GameSession> Forge)[]
+        {
+            ("an errand of their own", s => Person(s, p => p with { Intent = MedicalIntent.SeekWater })),
+            ("something in hand", s => Person(s, p => p with { Held = new ImmersionHeldItem("forged", ImmersionProduct.Beer, 0) })),
+            ("a place at the bar", s => Person(s, p => p with { VendorId = "drinks", Order = ImmersionProduct.Beer })),
+            ("the water queue", s => BuildSession.SetTap(s, BuildSession.MainTap(s) with { Queue = [.. BuildSession.MainTap(s).Queue, Player(s)] })),
+            ("the bar queue", s => { var bar = s.CaptureVendors().First(v => v.Id == "drinks"); BuildSession.SetVendor(s, bar with { Queue = [.. bar.Queue, Player(s)] }); }),
+            ("the loo queue", s => { var loo = s.CaptureToilets()[0]; BuildSession.SetToilet(s, loo with { Queue = [.. loo.Queue, Player(s)] }); }),
+            ("a sweep", s => Field(s, "_litter", l => ((LitterSnapshot)l) with { Sweeps = [.. ((LitterSnapshot)l).Sweeps,
+                new CleanupSweep(Player(s), new GridCell(120, 150), 2, 5, s.CurrentTick + 800, true)] })),
+            ("a bin to empty", s => Field(s, "_litter", l => ((LitterSnapshot)l) with { Sweeps = [.. ((LitterSnapshot)l).Sweeps,
+                new CleanupSweep(Player(s), new GridCell(120, 150), 1, 1, s.CurrentTick + 800, true, s.CaptureBins()[0].Id, true)] })),
+            ("a cow to herd", s => Field(s, "_cows", c => ((CowsSnapshot)c) with { Gate = PastureGateState.Broken, Escaped = 1,
+                Loose = [new LooseCow("cow.forged", 0, 0, CowActivity.Herded, [], 0, long.MaxValue) { HerderId = Player(s), HerdStartedTick = s.CurrentTick }] })),
+            ("a steward response", s => Field(s, "_disorder", d => ((DisorderSnapshot)d) with { Stewards = [((DisorderSnapshot)d).Stewards[0],
+                ((DisorderSnapshot)d).Stewards[1] with { Stage = SecurityResponseStage.Travelling, TargetId = BuildSession.LastGuest(s), StartedTick = s.CurrentTick, DispatchedTick = s.CurrentTick }] })),
+        };
+        var failures = new List<string>();
+        foreach (var (why, forge) in forgeries)
+        {
+            var s = Shift();
+            forge(s);
+            var result = GameSession.Restore(s.CapturePersistenceSnapshot());
+            if (result.IsSuccess) failures.Add($"Restored a player steward with {why}.");
+            // Each is refused somewhere; the shift's own check names the work even where another check would miss it.
+            if (typeof(GameSession).GetMethod("PlayerStewardWorkIssue", Private)!.Invoke(s, []) is null) failures.Add($"The shift check missed {why}.");
+        }
+        Assert.AreEqual(0, failures.Count, string.Join("\n", failures));
+    }
+
+    [TestMethod]
     public void RestoreRejectsAShiftThatCouldNotHappen()
     {
         var s = GameSession.CreateStewardShift(Seed);
@@ -236,9 +316,13 @@ public sealed class StewardShiftTests
         var cases = new (string Why, SessionPersistenceSnapshot Snapshot)[]
         {
             ("a medic", saved with { StewardShift = shift with { PlayerId = medic } }),
+            ("the main steward", saved with { StewardShift = shift with { PlayerId = s.GetStewardResponses()[0].WorkerId } }),
+            ("nobody on a running first day", saved with { StewardShift = shift with { PlayerId = null, MoveX = 0, MoveZ = 0, Run = false, RemainderX = 0, RemainderZ = 0 } }),
+            ("no second steward's perk", saved with { Perks = saved.Perks! with { Equipped = [] } }),
+            ("a remainder past a millimetre", saved with { StewardShift = shift with { RemainderX = 1_000 } }),
             ("a guest", saved with { StewardShift = shift with { PlayerId = guest } }),
             ("nobody", saved with { StewardShift = shift with { PlayerId = 999_999 } }),
-            ("a later version", saved with { StewardShift = shift with { Version = 2 } }),
+            ("a later version", saved with { StewardShift = shift with { Version = StewardShiftRules.Version + 1 } }),
             ("facing", saved with { StewardShift = shift with { FacingDegrees = 360 } }),
             ("input", saved with { StewardShift = shift with { MoveX = 1001 } }),
             ("input after the shift", saved with { StewardShift = shift with { PlayerId = null, MoveX = 1000 } }),
@@ -250,7 +334,8 @@ public sealed class StewardShiftTests
         {
             var result = GameSession.Restore(snapshot);
             Assert.IsFalse(result.IsSuccess, $"Restored a shift with {why}.");
-            StringAssert.Contains(result.Error, "steward", StringComparison.OrdinalIgnoreCase, why);
+            // Taking the perk away is caught by the perks' own check first.
+            if (!why.Contains("perk")) StringAssert.Contains(result.Error, "steward", StringComparison.OrdinalIgnoreCase, why);
         }
     }
 

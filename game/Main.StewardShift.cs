@@ -33,7 +33,7 @@ public partial class Main
     private CanvasLayer? _hudLayer;
 
     private bool StewardShiftActive => _shiftActive;
-    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v65-steward-shift");
+    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v66-steward-shift");
     private const float ShiftMouseRadians = 0.0024f;
 
     /// <summary>The title screen's way in: a fresh self-running festival with the player as its second steward.</summary>
@@ -45,13 +45,29 @@ public partial class Main
         do seed = BitConverter.ToUInt64(CryptographicRandom.GetBytes(sizeof(ulong)));
         while (seed == 0 || _menuCampaignIds.Contains(seed));
         _menuCampaignIds.Add(seed);
-        var shift = GameSession.CreateStewardShift(seed);
+        BeginStewardShift(GameSession.CreateStewardShift(seed));
+        GD.Print($"STEWARD_SHIFT_STARTED id={_session.CampaignId.Value} seed={seed} player={_session.PlayerStewardId}");
+    }
+
+    /// <summary>The newest valid shift save while its steward is still on shift; null when there's none to go back to.</summary>
+    private GameSession? SavedStewardShift() =>
+        AutosaveRotation.LoadNewestValid(StewardShiftSaveDirectory, _saveCompatibility).Session is { IsStewardShift: true, PlayerStewardId: not null } saved ? saved : null;
+
+    /// <summary>The title screen's Continue shift: back on the saved shift where it was left.</summary>
+    private void ContinueStewardShift(GameSession saved)
+    {
+        _campaignHost ??= _host;
+        BeginStewardShift(saved);
+        GD.Print($"STEWARD_SHIFT_CONTINUED id={_session.CampaignId.Value} tick={_session.CurrentTick} player={_session.PlayerStewardId}");
+    }
+
+    private void BeginStewardShift(GameSession shift)
+    {
         _host = new SessionHost(shift, StewardShiftSaveDirectory, _saveCompatibility);
         SwitchToFestival(shift);
         _host.Clock.RequestedSpeed = RequestedSpeed.OneX;
         StartMenu.Close();
         EnterStewardShiftView();
-        GD.Print($"STEWARD_SHIFT_STARTED id={_session.CampaignId.Value} seed={seed} player={_session.PlayerStewardId}");
     }
 
     private void EnterStewardShiftView()
@@ -252,15 +268,16 @@ public partial class Main
         var dx = length < .01f ? 0 : (int)Mathf.Round(x / length * 1000);
         var dz = length < .01f ? 0 : (int)Mathf.Round(z / length * 1000);
         var facing = ((int)Mathf.Round(Mathf.RadToDeg(_shiftYaw) + 180) % 360 + 360) % 360;
-        var keysChanged = (dx == 0 && dz == 0) != (_shiftSent.X == 0 && _shiftSent.Z == 0) || running != _shiftSent.Run || _shiftSent.Facing < 0;
-        var turned = Math.Abs(dx - _shiftSent.X) + Math.Abs(dz - _shiftSent.Z) > 40 || AngleGap(facing, _shiftSent.Facing) >= 4;
-        if (!keysChanged && !(turned && _session.CurrentTick - _shiftSentTick >= 6)) return;
+        var moving = dx != 0 || dz != 0;
+        var started = moving != (_shiftSent.X != 0 || _shiftSent.Z != 0) || running != _shiftSent.Run || _shiftSent.Facing < 0;
+        // Looking about on the spot sends nothing: the facing goes with the next step, and the prompt reads the camera.
+        // Steering while walking goes every few ticks; a new key (a reversal or a turn) at once.
+        var steer = Math.Abs(dx - _shiftSent.X) + Math.Abs(dz - _shiftSent.Z);
+        if (!started && !(moving && (steer > 600 || steer > 40 && _session.CurrentTick - _shiftSentTick >= 6))) return;
         if (!_host.Submit(new SetPlayerMoveCommand(dx, dz, running, facing)).IsAccepted) return;
         _shiftSent = (dx, dz, running, facing);
         _shiftSentTick = _session.CurrentTick;
     }
-
-    private static int AngleGap(int a, int b) { var d = Math.Abs(a - b) % 360; return d > 180 ? 360 - d : d; }
 
     /// <summary>After the sim ticks: the camera to the steward's interpolated head, then the HUD.</summary>
     private void ProcessStewardShiftView()
