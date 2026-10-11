@@ -207,6 +207,15 @@ public sealed partial class GameSession
 
     private static readonly string[] StairIntents = ["performance.visible-stairs", "performance.stage-entry", "performance.stage-exit-stair", "performance.stage-exit-access"];
 
+    /// <summary>
+    /// The player steward, to a band member walking their stage route (to the foot of the steps, up them, onto their
+    /// mark, and back down): they pass the player rather than wait, so nobody standing on the steps, at their foot or
+    /// on the deck can hold up or stop a set. Null for everyone else, and outside a shift.
+    /// </summary>
+    private EntityId? PlayerPassedBy(NavigationAgentState agent) =>
+        _stewardShift?.PlayerId is { } player && agent.IntentId is "performance.side-entry" or "performance.visible-stairs" or "performance.stage-entry" or
+            "performance.stage-exit-stair" or "performance.stage-exit-access" ? new EntityId(player) : null;
+
     /// <summary>A stage's steps while one of its band is walking on or off by them.</summary>
     private bool StairsBusyAt(GridCell cell)
     {

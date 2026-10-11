@@ -138,8 +138,10 @@ public sealed partial class GameSession
         }
         foreach (var agent in moving.OrderBy(item => item.Route.Count - item.RouteIndex).ThenBy(item => item.Id))
         {
+            // A band member on their way on or off stage never waits on the player steward (StewardShiftStage.cs).
+            var passing = PlayerPassedBy(agent);
             var proposalConflicts = !TraversalSweep.IsWalkable(_traversalGrid, backups[agent.Id].X, backups[agent.Id].Z, agent.XMillimetres, agent.ZMillimetres) ||
-                HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres) ||
+                (passing is { } through ? HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres, through) : HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres)) ||
                 HasConflict(priorMovingOccupancy, agent.XMillimetres, agent.ZMillimetres, agent.Id);
             // An arrival must be at its exact authoritative destination. Lateral yielding is
             // valid only in transit; otherwise service could begin from an offset position.
@@ -147,7 +149,7 @@ public sealed partial class GameSession
             {
                 var destination = agent.Destination;
                 var intent = agent.IntentId;
-                if (GoalHeld(agent, backups[agent.Id], occupied, goalLeaders) is { } goalDistance)
+                if (GoalHeld(agent, backups[agent.Id], occupied, goalLeaders, passing) is { } goalDistance)
                 {
                     // Sidestepping round someone standing on your own goal only bounces you back into
                     // them: the old knot of a walker shuffling against a stander. Stop instead. Where
@@ -254,14 +256,14 @@ public sealed partial class GameSession
     /// before this tick.
     /// </summary>
     private static long? GoalHeld(NavigationAgentState agent, MovementBackup before, SpatialNeighbourIndex occupied,
-        IReadOnlyDictionary<GridCell, (long DistanceSquared, EntityId Id)> goalLeaders)
+        IReadOnlyDictionary<GridCell, (long DistanceSquared, EntityId Id)> goalLeaders, EntityId? passing = null)
     {
         if (agent.Destination is not { } goal) return null;
         var centre = TraversalGrid.CellCentre(goal);
         long dx = centre.XMillimetres - before.X, dz = centre.ZMillimetres - before.Z;
         var distanceSquared = dx * dx + dz * dz;
         if (distanceSquared > (long)HeldGoalStopMillimetres * HeldGoalStopMillimetres) return null;
-        var standing = occupied.Query(centre.XMillimetres, centre.ZMillimetres, SeparationRadiusMillimetres - 1).Any(id => id != agent.Id);
+        var standing = occupied.Query(centre.XMillimetres, centre.ZMillimetres, SeparationRadiusMillimetres - 1).Any(id => id != agent.Id && id != passing);
         var sharedAhead = goalLeaders.TryGetValue(goal, out var leader) && leader.Id != agent.Id;
         return standing || sharedAhead ? IntegerSquareRoot(distanceSquared) : null;
     }
