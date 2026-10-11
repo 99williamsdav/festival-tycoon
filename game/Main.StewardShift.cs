@@ -28,7 +28,7 @@ public partial class Main
     private CanvasLayer? _hudLayer;
 
     private bool StewardShiftActive => _shiftActive;
-    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v70-steward-shift");
+    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v71-steward-shift");
     private const float ShiftMouseRadians = 0.0024f;
 
     /// <summary>The title screen's way in: a fresh self-running festival at the picked tier, the player its second steward.</summary>
@@ -180,7 +180,9 @@ public partial class Main
         if (EyeViewActive && _session.PlayerStewardId is { } id && _attendeeVisuals.TryGetValue(new EntityId(id), out var visual))
         {
             var at = _foundationPresentation.Sample(new EntityId(id), _host.Clock.InterpolationFraction);
-            _eyeCamera.GlobalPosition = new Vector3((float)(at.XMillimetres / 1000), EyeHeight(visual) + .04f, (float)(at.ZMillimetres / 1000));
+            // Up a stage's steps and on its deck, the eyes ride up with them.
+            var lift = PlayerStageLift((int)at.XMillimetres, (int)at.ZMillimetres);
+            _eyeCamera.GlobalPosition = new Vector3((float)(at.XMillimetres / 1000), EyeHeight(visual) + .04f + lift, (float)(at.ZMillimetres / 1000));
             _eyeCamera.Rotation = new Vector3(_shiftPitch, _shiftYaw, 0);
         }
         UpdateStewardShiftHud();

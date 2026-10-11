@@ -463,7 +463,7 @@ public partial class Main
         var day = _session.PreparedEditionDurationTicks;
         var elapsed = _session.CurrentTick - p.StartedTick;
         if (_shiftClock is not null)
-            _shiftClock.Text = (elapsed >= day ? "Closing time" : $"{FestivalClockText(elapsed)} / {FestivalClockText(day)}") + (_session.IsPaused ? "  ·  PAUSED" : "");
+            _shiftClock.Text = (elapsed >= day ? "Closing time" : $"{FestivalClockText(elapsed)} / {FestivalClockText(day)}") + (_session.PlayerStageId is not null ? "  ·  ON STAGE" : "") + (_session.IsPaused ? "  ·  PAUSED" : "");
         var shift = _session.CaptureStewardShift();
         if (shift is null) return;
         var now = _session.CurrentTick;
