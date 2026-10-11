@@ -62,7 +62,8 @@ public static class StewardShiftPress
     /// getting up on stage; first on the scene of a collapse; breaking up a fight; an urgent call nobody got to;
     /// calming rows before they turned; freeing someone from a jammed loo; taking a cow home; emptying a bin ("Boss
     /// mops up at Bar 2", where the first bin was) or picking up ten or more pieces of litter; mending a tap; giving
-    /// directions three or more times; every call missed; any call answered; a quiet night.
+    /// directions three or more times; every call of yours missed; any call answered; every call left to the crew
+    /// (<see cref="StewardShiftScore.Covered"/>); a quiet night.
     /// </summary>
     public static string Quote(StewardShiftReport report, IReadOnlyList<StewardNightCall> night)
     {
@@ -82,6 +83,7 @@ public static class StewardShiftPress
         if (s.Directions >= 3) return "Organiser plays tour guide on the field";
         if (report.Calls > 0 && report.Answered == 0) return "Organiser nowhere to be seen as the radio crackles";
         if (report.Answered > 0) return "Organiser mucks in with the stewards";
+        if (s.Covered > 0) return "Organiser leaves the radio to the crew";
         return "A quiet night on the radio for the organiser";
     }
 

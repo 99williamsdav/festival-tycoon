@@ -651,7 +651,7 @@ public sealed partial class GameSession
         if (shift.Score is not { } score || shift.Calls is not { } calls) return "Steward shift score or calls missing.";
         var counts = new long[] { score.Calls, score.Answered, score.Calmed, score.CalmsFailed, score.FightsBrokenUp, score.BreakUpsFailed, score.Escorted,
             score.MedicRadioed, score.StoodBy, score.LoosFreed, score.TapsBodged, score.BinsEmptied, score.LitterPicked, score.StrawSpread, score.CowsHerded,
-            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded, score.StageInvasions, score.AutoAnswered };
+            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded, score.StageInvasions, score.AutoAnswered, score.Covered };
         if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.AutoAnswered > score.Answered || score.UrgentUnhandled > score.Calls - score.Answered || score.ResponseTicks < 0 ||
             score.MoodAdded < StewardShiftRules.CreditedMood(score) || score.MoodAdded > StewardShiftRules.CreditedMood(score) + (long)score.Directions * StewardShiftRules.DirectionsSatisfaction ||
             score.ResponseTicks > (long)score.Answered * Math.Max(1, s.CurrentTick) ||
@@ -679,7 +679,7 @@ public sealed partial class GameSession
         if (shift.Log is not null && (!handsOn || log.Length is 0 or > 4_096 || log.Any(call => BadCall(call) || call.ClosedTick < 0 || !InStewardLog(call)) ||
                 log.Select(call => (call.Id, call.OpenedTick)).Distinct().Count() != log.Length || log.Zip(log.Skip(1)).Any(pair => pair.Second.ClosedTick < pair.First.ClosedTick)) ||
             handsOn && (log.Count(call => call.AnsweredTick >= 0 || call.CoveredBy is null) != score.Calls || log.Count(call => call.AnsweredTick >= 0) != score.Answered ||
-                log.Count(call => call.Auto) != score.AutoAnswered))
+                log.Count(call => call.Auto) != score.AutoAnswered || log.Count(call => call.AnsweredTick < 0 && call.CoveredBy is not null) != score.Covered))
             return "Steward shift call log invalid.";
         if (shift.Directed is { } directed && (directed.Distinct().Count() != directed.Length || directed.Any(id => !guests.ContainsKey(id))) ||
             (shift.Directed?.Length ?? 0) != score.Directions)

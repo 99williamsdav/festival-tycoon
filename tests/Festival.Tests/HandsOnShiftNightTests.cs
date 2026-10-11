@@ -48,6 +48,7 @@ public sealed class HandsOnShiftNightTests
         Assert.IsTrue(log.Length > (shift.Calls ?? []).Length, $"The log keeps more than the radio's last few: {log.Length}.");
         Assert.AreEqual(score.Calls, log.Count(c => c.AnsweredTick >= 0 || c.CoveredBy is null));
         Assert.AreEqual(score.Answered, log.Count(c => c.AnsweredTick >= 0));
+        Assert.AreEqual(score.Covered, log.Count(c => c.AnsweredTick < 0 && c.CoveredBy is not null));
         Assert.IsTrue(log.All(c => c.Where is { Length: > 0 }), "Control named a place for every call.");
 
         var night = s.StewardShiftNight();
@@ -103,6 +104,7 @@ public sealed class HandsOnShiftNightTests
         Assert.AreEqual("A quiet night on the radio for the organiser", StewardShiftPress.Quote(Report(quiet), []));
         Assert.AreEqual("Organiser nowhere to be seen as the radio crackles", StewardShiftPress.Quote(Report(quiet with { Calls = 3 }), []));
         Assert.AreEqual("Organiser mucks in with the stewards", StewardShiftPress.Quote(Report(quiet with { Calls = 3, Answered = 1 }), []));
+        Assert.AreEqual("Organiser leaves the radio to the crew", StewardShiftPress.Quote(Report(quiet with { Covered = 4 }), []));
 
         var bins = quiet with { Calls = 2, Answered = 1, BinsEmptied = 1 };
         Assert.AreEqual("Boss mops up at Bar 2", StewardShiftPress.Quote(Report(bins), [Night(StewardCallKind.FullBin, StewardCallResponder.Autopilot)]));

@@ -129,6 +129,8 @@ public sealed record StewardShiftScore
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long StageTicks { get; init; }
     /// <summary>Of <see cref="Answered"/>, those the player's steward answered working by themselves (a hands-on day's autopilot).</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int AutoAnswered { get; init; }
+    /// <summary>A hands-on day's calls Control gave to the hired crew that the player left to them: not in <see cref="Calls"/>.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int Covered { get; init; }
 }
 
 public static class StewardShiftRules
@@ -384,6 +386,8 @@ public sealed partial class GameSession
         var cell = TraversalGrid.WorldToCell(toX, toZ);
         if (!StewardShiftRules.InField(cell) || !_traversalGrid!.Get(cell).IsWalkable || CubicleClosedTo(id, cell) ||
             !TraversalSweep.IsWalkable(_traversalGrid, fromX, fromZ, toX, toZ)) return false;
+        // Working by themselves, the steward never steps from the ground onto a stage's steps or deck, sliding or turning.
+        if (_stewardShift?.Autopilot is not null && OnStageCells(Stages, cell) && !OnStageCells(Stages, TraversalGrid.WorldToCell(fromX, fromZ))) return false;
         // A little open ground ahead along the step, so the eyes stay out of walls and hedges.
         long sx = toX - fromX, sz = toZ - fromZ;
         var stepLength = Math.Max(1, IntegerSquareRoot(sx * sx + sz * sz));

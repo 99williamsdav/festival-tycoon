@@ -111,11 +111,14 @@ internal sealed partial class ResultsPaper
         page.AddChild(new ColorRect { Color = Ui.Ink, Position = At(260, 118), Size = new Vector2(Ui.S(756), Math.Max(1, Ui.S(2))), MouseFilter = Control.MouseFilterEnum.Ignore });
 
         // Four cards: calls, fights, mood you added, and Control's grade on the dark one.
+        // Calls the crew covered and you left to them aren't yours (Score.Covered); the fights line adds the day's own count.
         var average = report.AverageResponseSeconds < 0 ? "no calls answered" : $"avg response {report.AverageResponseSeconds / 60}:{report.AverageResponseSeconds % 60:00}";
+        if (report.Score.Covered > 0) average += $" · crew took {report.Score.Covered}";
+        var yours = report.FightsPrevented + report.FightsBrokenUp;
         var cards = new (string Caption, string Value, string Line, bool Dark)[]
         {
             ("Calls answered", $"{report.Answered} of {report.Calls}", average, false),
-            ("Fights", $"{report.FightsPrevented} · {report.FightsBrokenUp}", "prevented · broken up", false),
+            ("Fights", $"{report.FightsPrevented} · {report.FightsBrokenUp}", report.DayFights > yours ? $"prevented · broken up · {report.DayFights} in all" : "prevented · broken up", false),
             ("Mood you added", $"+{report.MoodAdded / 100}", $"{report.MoodFromPercent}% → {report.CrowdMoodPercent}% while on shift", false),
             ("Control's grade", StewardShiftGrading.Name(report.Grade), $"{(int)report.Grade + 1} of 5 · litter {report.LitterPicked}", true),
         };
