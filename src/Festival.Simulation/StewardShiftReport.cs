@@ -12,11 +12,16 @@ public enum StewardShiftGrade { OffKey, BSide, CrowdPleaser, Headliner, Encore }
 /// </summary>
 public sealed record StewardShiftReport(bool Over, bool Failed, int Calls, int Answered, int AverageResponseSeconds, int FightsPrevented,
     int FightsBrokenUp, int CrowdMoodPercent, int MoodFromPercent, int MoodAdded, int LitterPicked, int UrgentUnhandled, int Deaths, int Points,
-    StewardShiftGrade Grade, StewardShiftScore Score);
+    StewardShiftGrade Grade, StewardShiftScore Score)
+{
+    /// <summary>Fights anywhere on the site today, whoever dealt with them: with none the player did, the fights share is 0.</summary>
+    public int DayFights { get; init; }
+}
 
 /// <summary>
-/// The designer's suggested score, out of 100: calls answered (35), response time (20: full marks within 30 s, none
-/// from 3 minutes), fights prevented of all the player dealt with (20; full marks with none), the mood the player's own
+/// The designer's suggested score, out of 100: calls answered (35: with no calls of the player's own, none if the crew
+/// covered some and half if nobody had any), response time (20: full marks within 30 s, none from 3 minutes), fights
+/// prevented of all the player dealt with (20: with none dealt with, none if the day had fights, half if it had none), the mood the player's own
 /// actions added (15: <see cref="StewardShiftRules.MoodForFullMarks"/> for full marks), and litter picked up (10:
 /// fifteen pieces). Encore! from 90, Headliner 75, Crowd-pleaser 55, B-side 35, Off-key below. An urgent call (a fight
 /// or a collapse) that went out and closed with nobody dealing with it caps the grade at B-side; one the crew handled
@@ -26,11 +31,13 @@ public static class StewardShiftGrading
 {
     public const int EncorePoints = 90, HeadlinerPoints = 75, CrowdPleaserPoints = 55, BSidePoints = 35;
 
-    public static int Points(int calls, int answered, int averageSeconds, int prevented, int brokenUp, int moodAdded, int litter, long stageTicks = 0)
+    public static int Points(int calls, int answered, int averageSeconds, int prevented, int brokenUp, int moodAdded, int litter, long stageTicks = 0,
+        int covered = 0, int dayFights = 0)
     {
-        var share = calls == 0 ? 1.0 : (double)answered / calls;
+        // Standing still while the crew does everything earns nothing; a day with nothing to do is neither good nor bad.
+        var share = calls > 0 ? (double)answered / calls : covered > 0 ? 0 : 0.5;
         var response = answered == 0 || averageSeconds < 0 ? 0 : Math.Clamp((180 - averageSeconds) / 150.0, 0, 1);
-        var fights = prevented + brokenUp == 0 ? 1.0 : (double)prevented / (prevented + brokenUp);
+        var fights = prevented + brokenUp > 0 ? (double)prevented / (prevented + brokenUp) : dayFights > 0 ? 0 : 0.5;
         var mood = Math.Clamp(moodAdded / (double)StewardShiftRules.MoodForFullMarks, 0, 1);
         var tidy = Math.Min(1.0, litter / 15.0);
         // Time up on a stage mid-set costs a point per 10 s, at most 5: the crowd's mood it costs isn't scored anywhere else.
@@ -71,8 +78,11 @@ public sealed partial class GameSession
         var failed = _preparation?.Status == PreparationStatus.Failed;
         var deaths = _lifecycle is null ? 0 : _lifecycle.Casualties.Count(c => c.AttemptId == _lifecycle.CurrentAttemptId);
         var average = score.Answered == 0 ? -1 : (int)(score.ResponseTicks / score.Answered / 80);
-        var points = StewardShiftGrading.Points(score.Calls, score.Answered, average, score.Calmed, score.FightsBrokenUp, score.MoodAdded, score.LitterPicked, score.StageTicks);
+        var since = _preparation?.StartedTick ?? 0;
+        var fights = _disorder?.Incidents.Count(item => item.FightTick >= since) ?? 0;
+        var points = StewardShiftGrading.Points(score.Calls, score.Answered, average, score.Calmed, score.FightsBrokenUp, score.MoodAdded, score.LitterPicked, score.StageTicks,
+            score.Covered, fights);
         return new(shift.PlayerId is null, failed || deaths > 0, score.Calls, score.Answered, average, score.Calmed, score.FightsBrokenUp, mood / 100, from / 100,
-            score.MoodAdded, score.LitterPicked, score.UrgentUnhandled, deaths, points, StewardShiftGrading.Grade(points, failed || deaths > 0, score.UrgentUnhandled), score);
+            score.MoodAdded, score.LitterPicked, score.UrgentUnhandled, deaths, points, StewardShiftGrading.Grade(points, failed || deaths > 0, score.UrgentUnhandled), score) { DayFights = fights };
     }
 }

@@ -495,6 +495,13 @@ public sealed partial class StewardShiftActionTests
         Assert.AreEqual(StewardShiftGrade.BSide, Grade(10, 10, 20, 3, 0, 2_000, 15, unhandled: 1), "An urgent call nobody dealt with caps it.");
         Assert.AreEqual(15, StewardShiftGrading.Points(0, 0, -1, 0, 0, StewardShiftRules.MoodForFullMarks * 2, 0) - StewardShiftGrading.Points(0, 0, -1, 0, 0, 0, 0),
             "Mood added scores up to 15, and no more.");
+        // Nothing of the player's own: the crew covering everything earns nothing; a day with no calls and no fights is neutral.
+        Assert.AreEqual(0, StewardShiftGrading.Points(0, 0, -1, 0, 0, 0, 0, covered: 5, dayFights: 2), "Stood still while the crew did it all.");
+        Assert.AreEqual(StewardShiftGrade.OffKey, StewardShiftGrading.Grade(StewardShiftGrading.Points(0, 0, -1, 0, 0, 0, 0, covered: 5, dayFights: 2), false));
+        Assert.AreEqual(28, StewardShiftGrading.Points(0, 0, -1, 0, 0, 0, 0), "Half the calls share and half the fights share on a day with nothing on.");
+        Assert.AreEqual(StewardShiftGrading.Points(0, 0, -1, 0, 0, 0, 0) - 10, StewardShiftGrading.Points(0, 0, -1, 0, 0, 0, 0, dayFights: 1), "Fights happened and the player dealt with none.");
+        Assert.AreEqual(StewardShiftGrading.Points(4, 2, 30, 1, 1, 0, 0), StewardShiftGrading.Points(4, 2, 30, 1, 1, 0, 0, covered: 9, dayFights: 9),
+            "With calls and fights of the player's own, the crew's don't change the score.");
         Assert.AreEqual(StewardShiftGrade.OffKey, StewardShiftGrading.Grade(100, true), "A death.");
         Assert.AreEqual("Encore!", StewardShiftGrading.Name(StewardShiftGrade.Encore));
         Assert.AreEqual("B-side", StewardShiftGrading.Name(StewardShiftGrade.BSide));
