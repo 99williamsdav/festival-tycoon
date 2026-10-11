@@ -1,0 +1,81 @@
+{
+ "lwf_fp_arm_left_radio_v1.glb": {
+  "root": "LWF_FPArm_LeftRadio",
+  "nodes": {
+   "LWF_FPArm_Left": 320,
+   "LWF_FPRadio": 140,
+   "LWF_FPRadio_Screen": 12
+  },
+  "materials": [
+   "LWF_FP_HiVis",
+   "LWF_FP_Radio",
+   "LWF_FP_RadioGrille",
+   "LWF_FP_RadioKnob",
+   "LWF_FP_RadioScreen",
+   "LWF_FP_Reflective",
+   "LWF_FP_Skin"
+  ],
+  "sha256": "0107bb8882cedb1345645d0040f592dc88a450072b0286608d31c3990a8811b5",
+  "place": "child of the eye camera at identity (camera space: +X right, +Y up, -Z forward)",
+  "radio_centre": [
+   -0.185,
+   -0.115,
+   -0.4
+  ],
+  "camera_space": "Godot: +X right, +Y up, -Z forward",
+  "screen_centre": [
+   -0.173,
+   -0.0934,
+   -0.377
+  ],
+  "screen_size_m": [
+   0.034,
+   0.024
+  ]
+ },
+ "lwf_fp_arm_right_calm_v1.glb": {
+  "root": "LWF_FPArm_Right_Calm_Root",
+  "nodes": {
+   "LWF_FPArm_Right_Calm": 232
+  },
+  "materials": [
+   "LWF_FP_HiVis",
+   "LWF_FP_Reflective",
+   "LWF_FP_Skin"
+  ],
+  "sha256": "03037bfc03c0b6316f59c0807edfac4824b8949b8d88ae1fd7b5dbe4c3d7dd72",
+  "place": "child of the eye camera at identity",
+  "pose": "calm"
+ },
+ "lwf_fp_arm_right_door_v1.glb": {
+  "root": "LWF_FPArm_Right_Door_Root",
+  "nodes": {
+   "LWF_FPArm_Right_Door": 276
+  },
+  "materials": [
+   "LWF_FP_HiVis",
+   "LWF_FP_Reflective",
+   "LWF_FP_Skin"
+  ],
+  "sha256": "6fa2334e0163083bc4662a6de2dc276f58df516bb41976f95c8e5a4c0a082cc9",
+  "place": "child of the eye camera at identity",
+  "pose": "door"
+ },
+ "lwf_fp_arm_right_litter_v1.glb": {
+  "root": "LWF_FPArm_Right_Litter_Root",
+  "nodes": {
+   "LWF_FPArm_Right_Litter": 276,
+   "LWF_FPLitterCup": 48
+  },
+  "materials": [
+   "LWF_FP_Cup",
+   "LWF_FP_CupBand",
+   "LWF_FP_HiVis",
+   "LWF_FP_Reflective",
+   "LWF_FP_Skin"
+  ],
+  "sha256": "3682cc8c85b86fe368ae2da60bdb32e8c0bff86a9f2ea314e7ba1d4f1a463f87",
+  "place": "child of the eye camera at identity",
+  "pose": "litter"
+ }
+}
