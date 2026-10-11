@@ -351,6 +351,23 @@ public sealed class StewardShiftStageTests
         Assert.AreEqual(1, s.CaptureStewardShift()!.Score!.StageInvasions, "The set starting under them counts.");
         CollectionAssert.AreEqual(new[] { new InvadedSet(FestivalStages.MainId, 0, 1) }, s.CaptureStewardShift()!.InvadedSets);
         BuildSession.Restored(s);
+
+        // Standing still on a band member's stair waypoint, or at the foot of the steps, before they're called: they
+        // pass the player, and the set goes on, on time.
+        foreach (var spot in new[] { stage.StairCells[0], stage.AccessCells[0] })
+        {
+            var g = GameSession.CreateStewardShift(Seed);
+            RunUntil(g, () => g.CaptureLivePerformance() is { } live && g.CurrentTick >= live.PlannedTick - 2_400);
+            Stand(g, spot);
+            Assert.IsTrue(GameSession.Restore(g.CapturePersistenceSnapshot()).IsSuccess, "Standing there is somewhere the player can be.");
+            var due = g.CaptureLivePerformance()!.PlannedTick;
+            RunUntil(g, () => g.CurrentTick >= due + 1_000);
+            Assert.AreEqual(spot, CellOf(g, Player(g)), "They never moved.");
+            var played = g.CaptureLivePerformance()!;
+            Assert.AreEqual(LiveSetStage.Live, played.Stage, $"Held up by the player at {spot}: {played.LastReaction}.");
+            Assert.IsTrue(played.StartedTick - played.PlannedTick <= GigRules.LateGraceTicks, $"Started {played.StartedTick - played.PlannedTick} ticks late with the player at {spot}.");
+            BuildSession.Restored(g);
+        }
     }
 
     private static string? InvasionCheck(SessionPersistenceSnapshot saved) => (string?)typeof(GameSession)
