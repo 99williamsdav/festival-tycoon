@@ -14,8 +14,8 @@ namespace Festival.Game;
 /// </summary>
 public partial class Main
 {
-    public const string HandsOnModeName = "Front of House";
-    public const string HandsOnStrapline = "You're the steward on the gate until you can afford one.";
+    public const string HandsOnModeName = "All-Rounder";
+    public const string HandsOnStrapline = "Run it, and steward it yourself until you can afford the help.";
 
     private string HandsOnSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v70-front-of-house");
     private CanvasLayer? _handsOnHintLayer;
