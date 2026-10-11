@@ -187,7 +187,8 @@ public sealed class StewardShiftTests
             Assert.IsFalse(s.CaptureStaffInterventions().Any(item => item.WorkerId == id || item.GuestId == id));
             Assert.AreEqual("Unavailable · On shift under your control.", s.ResponseStaffStatus(id));
             var me = s.CapturePerson(id)!;
-            Assert.IsTrue(me.Thirst == 0 && me.Hunger == 0 && me.ToiletNeed == 0 && me.HeatExposure == 0 && me.Intoxication == 0, "No needs on shift.");
+            Assert.IsTrue(me.Hunger == 0 && me.ToiletNeed == 0 && me.Intoxication == 0, "No hunger, loo or drink on shift; thirst and heat are their own.");
+            Assert.AreEqual(MedicalStage.Clear, me.HealthStage, "However thirsty and hot, the player never collapses.");
             Assert.IsTrue(me.ConductStage == DisorderStage.Calm || me.ConductStage == default, "Nobody picks a fight with them.");
             Assert.AreEqual(PersonClaim.None, s.CaptureClaims(id));
             Assert.IsTrue(me.Intent == MedicalIntent.WatchShow && me.Held is null && me.VendorId is null, "No errand of their own.");
@@ -225,7 +226,7 @@ public sealed class StewardShiftTests
             var loaded = SaveFileAdapter.LoadSlot(directory, "middle", compatibility);
             Assert.IsTrue(loaded.IsSuccess, loaded.Error);
             var copy = loaded.Session!;
-            Assert.AreEqual(s.CaptureStewardShift(), copy.CaptureStewardShift());
+            Assert.AreEqual(System.Text.Json.JsonSerializer.Serialize(s.CaptureStewardShift()), System.Text.Json.JsonSerializer.Serialize(copy.CaptureStewardShift()));
             foreach (var game in new[] { s, copy })
             {
                 game.AdvanceWithoutSnapshot(200);
@@ -353,7 +354,7 @@ public sealed class StewardShiftTests
     }
 
     [TestMethod]
-    public void ReachFindsWhoIsInFrontAndActionsWaitForTheMechanics()
+    public void ReachFindsWhoIsInFrontBestActionFirst()
     {
         var s = GameSession.CreateStewardShift(Seed);
         var id = Player(s);
@@ -364,12 +365,16 @@ public sealed class StewardShiftTests
             .OrderBy(item => (long)(item.at.X - me.X) * (item.at.X - me.X) + (long)(item.at.Z - me.Z) * (item.at.Z - me.Z)).First();
         var facing = FacingTowards(nearest.at.X - me.X, nearest.at.Z - me.Z);
         var reach = s.StewardReach(facing, 100_000);
-        Assert.AreEqual(nearest.person.AgentId, reach[0].PersonId, "Nearest in front comes first.");
-        Assert.AreEqual(nearest.person.Name, reach[0].Name);
-        CollectionAssert.AreEqual(reach.Select(item => item.DistanceMillimetres).Order().ToArray(), reach.Select(item => item.DistanceMillimetres).ToArray());
+        var person = reach.Single(item => item.PersonId == nearest.person.AgentId);
+        Assert.AreEqual($"person:{nearest.person.AgentId}", person.TargetId);
+        Assert.AreEqual(nearest.person.Name, person.Name);
+        Assert.AreEqual(StewardTargetKind.Person, person.Kind);
+        // Something to do comes first, best action first; then nearest.
+        var keys = reach.Select(item => (Rank: item.Action is { } action ? (int)action : int.MaxValue, item.DistanceMillimetres)).ToArray();
+        CollectionAssert.AreEqual(keys.OrderBy(key => key.Rank).ThenBy(key => key.DistanceMillimetres).ToArray(), keys);
         Assert.IsFalse(s.StewardReach((facing + 180) % 360, 100_000).Any(item => item.PersonId == nearest.person.AgentId), "Not behind them.");
         Assert.IsFalse(reach.Any(item => item.PersonId == id));
-        var result = BuildSession.Send(s, new StewardActionCommand(StewardActionKind.Interact, nearest.person.AgentId, facing));
-        Assert.IsFalse(result.IsAccepted, "No mechanics yet.");
+        Assert.IsFalse(BuildSession.Send(s, new StewardActionCommand(StewardActionKind.Calm, "person:999999", facing)).IsAccepted, "Nobody like that.");
+        Assert.IsFalse(BuildSession.Send(s, new StewardActionCommand(StewardActionKind.Release, "", facing)).IsAccepted, "Nothing held to let go of.");
     }
 }
