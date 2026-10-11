@@ -21,7 +21,12 @@ public sealed record StewardAutopilot
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public GridCell[]? Route { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int RouteIndex { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long RoutedTick { get; init; }
+    /// <summary>What it has given up on lately (a call's id, or a target's when no call), each left alone until its tick; oldest first.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardGiveUp[]? GaveUp { get; init; }
 }
+
+/// <summary>A call (or target) the autopilot gave up on: it isn't taken on again before <paramref name="UntilTick"/>.</summary>
+public sealed record StewardGiveUp(string Key, long UntilTick);
 
 /// <summary>
 /// The autopilot's handicaps against a player doing the job: it hears of trouble late, sets off at a walk, takes the
@@ -42,6 +47,8 @@ public static class StewardAutopilotRules
     public const int SkillPenalty = 1_500;
     /// <summary>It gives up on anything it hasn't got to in a minute.</summary>
     public const int GiveUpTicks = 4_800;
+    /// <summary>What it gave up on (or found no way to) is left alone for 30 s; it remembers this many at once.</summary>
+    public const int GiveUpCooldownTicks = 2_400, GiveUpsKept = 8;
     public const int RouteTicks = 160, RouteCellsKept = 24, WaypointMillimetres = 400;
     /// <summary>It acts from this close (a little inside the player's reach); litter from nearer.</summary>
     public const int ActMillimetres = 2_000, LitterActMillimetres = 1_600;
@@ -50,7 +57,7 @@ public static class StewardAutopilotRules
     /// that would put them on the steps from the ground (looked at this far ahead) isn't taken; left up there, they come
     /// down by the nearest open ground, searched over at most this many cells.
     /// </summary>
-    public const int StageExtraCostPermille = 100_000, StageLookAheadMillimetres = 600, ComeDownSearchCells = 2_000;
+    public const int StageExtraCostPermille = 100_000, StageLookAheadMillimetres = 600, ComeDownSearchCells = 600;
     /// <summary>Thirst or heat from which it goes for a drink first.</summary>
     public const int DrinkLevel = 6_000;
     /// <summary>With nothing on, it picks up litter this close.</summary>
@@ -71,7 +78,10 @@ public sealed partial class GameSession
     private void ApplyPlayerStewardControl(SetPlayerStewardControlCommand command)
     {
         if (_stewardShift!.Action is { } held) DropStewardAction(held, command.Auto ? "Let go." : "You've taken over.");
-        _stewardShift = _stewardShift with { MoveX = 0, MoveZ = 0, Run = false, Autopilot = command.Auto ? new() : null };
+        // The autopilot never walks anyone out: a guest following the player goes back to the show, and the offer lapses.
+        if (command.Auto && _stewardShift.EscortId is { } guest) EndEscort(guest, "Left to themselves.", back: true);
+        _stewardShift = _stewardShift with { MoveX = 0, MoveZ = 0, Run = false, Autopilot = command.Auto ? new() : null,
+            EscortOffer = command.Auto ? null : _stewardShift.EscortOffer };
     }
 
     /// <summary>
@@ -84,6 +94,12 @@ public sealed partial class GameSession
         if (!IsHandsOn || _preparation?.Status != PreparationStatus.Running || _stewardShift is not { PlayerId: { } me } || _traversalGrid is null) return;
         RouteCallsToCrew();
         if (_stewardShift.Autopilot is not { } pilot) return;
+        if (pilot.GaveUp is { } gaveUp && gaveUp.Any(item => item.UntilTick <= CurrentTick))
+        {
+            var still = gaveUp.Where(item => item.UntilTick > CurrentTick).ToArray();
+            pilot = pilot with { GaveUp = still.Length == 0 ? null : still };
+            _stewardShift = _stewardShift with { Autopilot = pilot };
+        }
         var nav = _navigationAgents[new(me)];
         if (_stewardShift.Action is not null) { AutopilotStop(); return; }
         // Left up on a stage (the player stepped out of first person there): first, back down the steps.
@@ -96,11 +112,12 @@ public sealed partial class GameSession
             if (cx * cx + cz * cz <= 3_000L * 3_000) AutopilotStop(); else AutopilotStep(cx, cz);
             return;
         }
-        if (pilot.TargetId is not null && !AutopilotStillWants(pilot)) pilot = new();
-        if (pilot.TargetId is null && CurrentTick % StewardAutopilotRules.ThinkTicks == 0) pilot = ChooseAutopilotTarget(me, nav) ?? pilot;
+        if (pilot.TargetId is not null)
+            pilot = CurrentTick - pilot.TakenTick > StewardAutopilotRules.GiveUpTicks ? GiveUp(pilot) : AutopilotStillWants(pilot) ? pilot : Fresh(pilot);
+        if (pilot.TargetId is null && CurrentTick % StewardAutopilotRules.ThinkTicks == 0) pilot = ChooseAutopilotTarget(me, nav, pilot) ?? pilot;
         if (pilot.TargetId is not { } target || StewardTargetPoint(target) is not { } point)
         {
-            _stewardShift = _stewardShift with { Autopilot = new() };
+            _stewardShift = _stewardShift with { Autopilot = Fresh(pilot) };
             AutopilotStop();
             return;
         }
@@ -113,15 +130,16 @@ public sealed partial class GameSession
             if (AutopilotAction(pilot) is { } action && new StewardActionCommand(action, target, facing) is var command &&
                 ValidateStewardAction(null, command, autopilot: true) is null)
             {
-                _stewardShift = _stewardShift with { Autopilot = new() };
+                _stewardShift = _stewardShift with { Autopilot = Fresh(pilot) };
                 ApplyStewardAction(command, autopilot: true);
             }
             else _stewardShift = _stewardShift with { Autopilot = pilot };
             return;
         }
+        // No way there: given up on, so the next oldest gets a look.
         if (AutopilotRouted(pilot, nav, point.X, point.Z) is not { } routed)
         {
-            _stewardShift = _stewardShift with { Autopilot = new() };
+            _stewardShift = _stewardShift with { Autopilot = GiveUp(pilot) };
             AutopilotStop();
             return;
         }
@@ -205,12 +223,12 @@ public sealed partial class GameSession
     /// </summary>
     private void AutopilotComeDown(StewardAutopilot pilot, NavigationAgentState nav, GridCell here)
     {
-        if (pilot.TargetId is not null || pilot.Route is not { Length: > 0 } || pilot.RouteIndex >= pilot.Route.Length ||
-            CurrentTick - pilot.RoutedTick >= StewardAutopilotRules.RouteTicks)
-        {
-            if (WayOffTheStage(here) is not { } route) { _stewardShift = _stewardShift! with { Autopilot = new() }; AutopilotStop(); return; }
-            pilot = new() { Route = route, RoutedTick = CurrentTick };
-        }
+        var need = pilot.TargetId is not null || pilot.Route is not { Length: > 0 } || pilot.RouteIndex >= pilot.Route.Length;
+        // Looked for once a second (the way off may be held up by the band on the steps); a route in hand is walked meanwhile.
+        if ((need || CurrentTick - pilot.RoutedTick >= StewardAutopilotRules.RouteTicks) && CurrentTick % StewardAutopilotRules.ThinkTicks == 0 &&
+            WayOffTheStage(here, nav) is { } route)
+            pilot = Fresh(pilot) with { Route = route, RoutedTick = CurrentTick };
+        else if (need) { _stewardShift = _stewardShift! with { Autopilot = Fresh(pilot) }; AutopilotStop(); return; }
         var index = pilot.RouteIndex;
         while (index < pilot.Route!.Length - 1)
         {
@@ -229,8 +247,14 @@ public sealed partial class GameSession
     }
 
     /// <summary>The cells from a stage's deck or steps to the nearest open ground in the field off them; null with none near.</summary>
-    private GridCell[]? WayOffTheStage(GridCell from)
+    private GridCell[]? WayOffTheStage(GridCell from, NavigationAgentState nav)
     {
+        // Every step is one the player's own rules allow: the drum kit, the band's marks, steps closed while the band
+        // uses them, people, cows and the tanker, as they stand now.
+        var me = _stewardShift!.PlayerId!.Value;
+        var obstacles = new SpatialNeighbourIndex();
+        AddCowOccupancy(obstacles);
+        AddLavSuckerOccupancy(obstacles);
         var came = new Dictionary<GridCell, GridCell> { [from] = from };
         var queue = new Queue<GridCell>();
         queue.Enqueue(from);
@@ -249,6 +273,9 @@ public sealed partial class GameSession
             {
                 var next = new GridCell(cell.X + dx, cell.Z + dz);
                 if (came.ContainsKey(next) || !_traversalGrid!.Contains(next) || !_traversalGrid.Get(next).IsWalkable || !StewardShiftRules.InField(next)) continue;
+                var (fx, fz) = cell == from ? (nav.XMillimetres, nav.ZMillimetres) : TraversalGrid.CellCentre(cell);
+                var (tx, tz) = TraversalGrid.CellCentre(next);
+                if (!PlayerStepAllowed(me, fx, fz, tx, tz, obstacles)) continue;
                 came[next] = cell;
                 queue.Enqueue(next);
             }
@@ -295,9 +322,20 @@ public sealed partial class GameSession
     }
 
     /// <summary>Still worth going on with: not given up on, its call still open and nobody hired on it, and still something to do.</summary>
+    /// <summary>Nothing on, keeping only what it has given up on lately.</summary>
+    private static StewardAutopilot Fresh(StewardAutopilot pilot) => new() { GaveUp = pilot.GaveUp };
+
+    /// <summary>Gives up on its target (by its call, if it has one) for <see cref="StewardAutopilotRules.GiveUpCooldownTicks"/>.</summary>
+    private StewardAutopilot GiveUp(StewardAutopilot pilot)
+    {
+        if ((pilot.CallId ?? pilot.TargetId) is not { } key) return Fresh(pilot);
+        var list = (pilot.GaveUp ?? []).Where(item => item.Key != key).Append(new StewardGiveUp(key, CurrentTick + StewardAutopilotRules.GiveUpCooldownTicks))
+            .TakeLast(StewardAutopilotRules.GiveUpsKept).ToArray();
+        return new() { GaveUp = list };
+    }
+
     private bool AutopilotStillWants(StewardAutopilot pilot)
     {
-        if (CurrentTick - pilot.TakenTick > StewardAutopilotRules.GiveUpTicks) return false;
         // Never up on a stage after anything: whatever it was, it's someone else's now.
         if (pilot.TargetId is { } target && StewardTargetPoint(target) is { } point && OnStageCells(Stages, TraversalGrid.WorldToCell(point.X, point.Z))) return false;
         if (pilot.CallId is { } id && (_stewardShift!.Calls ?? []).FirstOrDefault(call => call.Open && call.Id == id) is { } call && CrewHolder(call) is not null) return false;
@@ -309,14 +347,16 @@ public sealed partial class GameSession
     /// on (heard over the radio, or seen close by, <see cref="StewardAutopilotRules.ReactTicks"/> ago), however far or
     /// whatever it is; otherwise litter near by. Null with nothing to do.
     /// </summary>
-    private StewardAutopilot? ChooseAutopilotTarget(ulong me, NavigationAgentState nav)
+    private StewardAutopilot? ChooseAutopilotTarget(ulong me, NavigationAgentState nav, StewardAutopilot current)
     {
         long Distance(int x, int z) { long dx = x - nav.XMillimetres, dz = z - nav.ZMillimetres; return dx * dx + dz * dz; }
-        StewardAutopilot Take(string target, string? call = null) => new() { TargetId = target, CallId = call, TakenTick = CurrentTick };
+        StewardAutopilot Take(string target, string? call = null) => Fresh(current) with { TargetId = target, CallId = call, TakenTick = CurrentTick };
+        // Anything it gave up on lately is left alone until its time's up.
+        var gaveUp = (current.GaveUp ?? []).Select(item => item.Key).ToHashSet(StringComparer.Ordinal);
         var self = _persons[me];
         if (Math.Max(self.Thirst, self.HeatExposure) >= StewardAutopilotRules.DrinkLevel)
         {
-            var drink = StewardFacilityTargets().Where(target => SplitTarget(target).Prefix is "tap" or "bar" && StewardActionAvailable(StewardActionKind.Drink, target))
+            var drink = StewardFacilityTargets().Where(target => SplitTarget(target).Prefix is "tap" or "bar" && !gaveUp.Contains(target) && StewardActionAvailable(StewardActionKind.Drink, target))
                 .Select(target => (Target: target, Point: StewardTargetPoint(target)!.Value))
                 .OrderBy(item => Distance(item.Point.X, item.Point.Z)).ThenBy(item => item.Target, StringComparer.Ordinal).Select(item => item.Target).FirstOrDefault();
             if (drink is not null) return Take(drink);
@@ -324,7 +364,7 @@ public sealed partial class GameSession
         var noticed = new List<(long Tick, string Id, StewardAutopilot Pilot)>();
         foreach (var call in _stewardShift!.Calls ?? [])
         {
-            if (!call.Open || call.AnsweredTick >= 0 || CrewHolder(call) is not null || StewardCallPoint(call) is not { } at ||
+            if (!call.Open || call.AnsweredTick >= 0 || gaveUp.Contains(call.Id) || CrewHolder(call) is not null || StewardCallPoint(call) is not { } at ||
                 OnStageCells(Stages, TraversalGrid.WorldToCell(at.X, at.Z))) continue;
             var near = Distance(at.X, at.Z) <= (long)StewardAutopilotRules.NoticeMillimetres * StewardAutopilotRules.NoticeMillimetres;
             var tick = (near ? call.OpenedTick : call.HeardTick) + StewardAutopilotRules.ReactTicks;
@@ -334,7 +374,7 @@ public sealed partial class GameSession
         if (noticed.Count > 0) return noticed.OrderBy(item => item.Tick).ThenBy(item => item.Id, StringComparer.Ordinal).First().Pilot;
         var here = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
         var litter = GroundNear(here, StewardAutopilotRules.LitterMillimetres / TraversalGrid.CellSizeMillimetres)
-            .Where(piece => !OnStageCells(Stages, TraversalGrid.WorldToCell(piece.XMillimetres, piece.ZMillimetres)) &&
+            .Where(piece => !gaveUp.Contains($"litter:{piece.Id}") && !OnStageCells(Stages, TraversalGrid.WorldToCell(piece.XMillimetres, piece.ZMillimetres)) &&
                 StewardActionAvailable(StewardActionKind.PickLitter, $"litter:{piece.Id}"))
             .OrderBy(piece => Distance(piece.XMillimetres, piece.ZMillimetres)).ThenBy(piece => piece.Id, StringComparer.Ordinal).FirstOrDefault();
         return litter is null ? null : Take($"litter:{litter.Id}");
@@ -374,7 +414,10 @@ public sealed partial class GameSession
         if (pilot.TargetId is { Length: 0 or > 64 } || pilot.CallId is { Length: 0 or > 64 } || pilot.CallId is not null && pilot.TargetId is null ||
             pilot.TakenTick < 0 || pilot.TakenTick > s.CurrentTick || pilot.RoutedTick < 0 || pilot.RoutedTick > s.CurrentTick ||
             pilot.Route is { } route && (route.Length is 0 or > StewardAutopilotRules.RouteCellsKept || pilot.RouteIndex < 0 || pilot.RouteIndex >= route.Length) ||
-            pilot.Route is null && (pilot.RouteIndex != 0 || pilot.RoutedTick != 0) || pilot.Route is { } way && way.Any(cell => !StewardShiftRules.InField(cell)))
+            pilot.Route is null && (pilot.RouteIndex != 0 || pilot.RoutedTick != 0) || pilot.Route is { } way && way.Any(cell => !StewardShiftRules.InField(cell)) ||
+            pilot.GaveUp is { } gaveUp && (gaveUp.Length is 0 or > StewardAutopilotRules.GiveUpsKept || gaveUp.Any(item => item is null || item.Key is null or { Length: 0 or > 64 } ||
+                item.UntilTick < s.CurrentTick || item.UntilTick > s.CurrentTick + StewardAutopilotRules.GiveUpCooldownTicks) ||
+                gaveUp.Select(item => item.Key).Distinct(StringComparer.Ordinal).Count() != gaveUp.Length))
             return "The steward's autopilot is invalid.";
         return null;
     }

@@ -316,7 +316,7 @@ public sealed class HandsOnAutopilotTests
             else
             {
                 Assert.AreEqual(s.GetStewardResponses()[0].WorkerId, closed.CoveredBy, "Covered by the hired steward.");
-                Assert.AreEqual(score, counted, "Not the player's call: neither unanswered nor an urgent call nobody dealt with.");
+                Assert.AreEqual(score with { Covered = score.Covered + 1 }, counted, "Not the player's call: neither unanswered nor an urgent call nobody dealt with, only counted as covered.");
                 Assert.AreEqual(0, s.CaptureStewardShiftReport()!.UrgentUnhandled, "No B-side cap from the crew's fight.");
             }
             BuildSession.Restored(s);
@@ -382,6 +382,77 @@ public sealed class HandsOnAutopilotTests
     }
 
     [TestMethod]
+    public void StandingStillInFirstPersonWithAFullCrewEarnsNothing()
+    {
+        var s = Started();
+        BuildSession.Accept(s, new SetPlayerStewardControlCommand(false));
+        for (var i = 0; i < 80 && s.PreparedStatus is PreparationStatus.Running; i++) s.AdvanceWithoutSnapshot(1_000);
+        var report = s.CaptureStewardShiftReport()!;
+        Assert.AreEqual(0, report.Answered);
+        Assert.IsTrue(report.Calls > 0 || report.Score.Covered > 0, "The day had calls.");
+        Assert.AreEqual(StewardShiftGrade.OffKey, report.Grade, $"points {report.Points}: calls {report.Calls}, covered {report.Score.Covered}, fights {report.DayFights}");
+    }
+
+    [TestMethod]
+    public void AGivenUpCallIsLeftAloneForAWhileAndTheGiveUpIsSaved()
+    {
+        var s = Started();
+        var loo = LooInUse(s);
+        var door = s.StewardTargetPoint($"toilet:{loo.Id}")!.Value;
+        BusyTheCrew(s, door.X, door.Z);
+        Jam(s, loo);
+        var call = Shift(s).Calls!.Single(c => c.Open && c.Kind == StewardCallKind.StuckInLoo);
+        Assert.IsNull(call.CoveredBy);
+        // Already a minute on it without getting there.
+        var field = typeof(GameSession).GetField("_stewardShift", Private)!;
+        field.SetValue(s, Shift(s) with { Autopilot = new() { TargetId = $"toilet:{loo.Id}", CallId = call.Id, TakenTick = s.CurrentTick - StewardAutopilotRules.GiveUpTicks - 1 } });
+        s.AdvanceWithoutSnapshot(1);
+        var gaveUp = Shift(s).Autopilot!.GaveUp!.Single();
+        Assert.AreEqual(call.Id, gaveUp.Key);
+        Assert.AreEqual(s.CurrentTick + StewardAutopilotRules.GiveUpCooldownTicks, gaveUp.UntilTick);
+        BuildSession.Restored(s);
+        var saved = s.CapturePersistenceSnapshot();
+        Assert.IsFalse(GameSession.Restore(saved with { StewardShift = saved.StewardShift! with { Autopilot = saved.StewardShift.Autopilot! with
+            { GaveUp = [gaveUp with { UntilTick = s.CurrentTick + StewardAutopilotRules.GiveUpCooldownTicks + 1 }] } } }).IsSuccess, "No longer than the cooldown.");
+        Assert.IsFalse(GameSession.Restore(saved with { StewardShift = saved.StewardShift! with { Autopilot = saved.StewardShift.Autopilot! with
+            { GaveUp = [gaveUp, gaveUp] } } }).IsSuccess, "Once each.");
+        // It doesn't go straight back to it, though it's the oldest call it knows of.
+        for (var i = 0; i < StewardAutopilotRules.GiveUpCooldownTicks - 10 && s.ActiveFault(loo.Id) is not null; i++)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            Assert.AreNotEqual(call.Id, Shift(s).Autopilot?.CallId, $"Back on it at tick {s.CurrentTick}.");
+        }
+    }
+
+    [TestMethod]
+    public void HandingOverEndsAWalkOutAndNeverLetsTheStewardOntoAStage()
+    {
+        var s = Started();
+        BuildSession.Accept(s, new SetPlayerStewardControlCommand(false));
+        s.AdvanceWithoutSnapshot(6_000);
+        var guest = StandingGuest(s);
+        var field = typeof(GameSession).GetField("_stewardShift", Private)!;
+        field.SetValue(s, Shift(s) with { EscortOffer = new(guest, s.CurrentTick + 100) });
+        BuildSession.Accept(s, new SetPlayerStewardControlCommand(true));
+        Assert.IsNull(Shift(s).EscortOffer, "The autopilot never walks anyone out.");
+        // From the foot of the steps, a step onto them is refused while they work by themselves, and allowed in the player's hands.
+        var stage = s.Stages[0];
+        var (fx, fz) = TraversalGrid.CellCentre(stage.AccessCells[1]);
+        var (tx, tz) = TraversalGrid.CellCentre(stage.StairCells[1]);
+        var step = typeof(GameSession).GetMethod("PlayerStepAllowed", Private)!;
+        bool OnStage(int x, int z) { var c = TraversalGrid.WorldToCell(x, z); return stage.Stairs(c) || stage.Deck(c); }
+        long lx = tx - fx, lz = tz - fz; var length = (long)Math.Sqrt(lx * lx + lz * lz);
+        var d = Enumerable.Range(1, (int)(length / 50)).Select(k => k * 50).First(k => OnStage(fx + (int)(lx * k / length), fz + (int)(lz * k / length)));
+        int ax = fx + (int)(lx * (d - 50) / length), az = fz + (int)(lz * (d - 50) / length), bx = fx + (int)(lx * d / length), bz = fz + (int)(lz * d / length);
+        Assert.IsFalse(OnStage(ax, az));
+        bool Allowed() => (bool)step.Invoke(s, [Me(s), ax, az, bx, bz, new SpatialNeighbourIndex()])!;
+        Assert.IsFalse(Allowed(), "Working by themselves: never a step from the ground onto the steps.");
+        BuildSession.Accept(s, new SetPlayerStewardControlCommand(false));
+        Assert.IsNull(Shift(s).Autopilot);
+        Assert.IsTrue(Allowed(), "In the player's hands the same step is fine.");
+    }
+
+    [TestMethod]
     public void LeftToThemselvesAllDayTheStewardAnswersSomeOfTheirCalls()
     {
         var s = Started();
@@ -392,10 +463,10 @@ public sealed class HandsOnAutopilotTests
         }
         var score = s.CaptureStewardShift()!.Score!;
         var report = s.CaptureStewardShiftReport()!;
-        Assert.IsTrue(score.Answered > 0 && score.AutoAnswered == score.Answered,
+        Assert.IsTrue(score.Answered > 0 && score.AutoAnswered == score.Answered && report.Grade < StewardShiftGrade.Headliner,
             $"calls {score.Calls} answered {score.Answered} auto {score.AutoAnswered} unhandled {score.UrgentUnhandled} calmed {score.Calmed}/{score.CalmsFailed} " +
             $"broken {score.FightsBrokenUp}/{score.BreakUpsFailed} loos {score.LoosFreed} taps {score.TapsBodged} bins {score.BinsEmptied} litter {score.LitterPicked} " +
-            $"cows {score.CowsHerded} drinks {score.Drinks} avg {report.AverageResponseSeconds}s points {report.Points} {report.Grade}");
+            $"cows {score.CowsHerded} drinks {score.Drinks} avg {report.AverageResponseSeconds}s points {report.Points} {report.Grade} covered {score.Covered} fights {report.DayFights}");
     }
 
     [TestMethod]

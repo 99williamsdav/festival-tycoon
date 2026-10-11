@@ -109,7 +109,7 @@ public sealed partial class GameSession
         var answered = call.AnsweredTick >= 0;
         if (!answered && call.ClosedTick < call.HeardTick) return score;
         // On a hands-on day Control gave it to the hired crew: not the player's call, unless they answered it anyway.
-        if (!answered && call.CoveredBy is not null) return score;
+        if (!answered && call.CoveredBy is not null) return score with { Covered = score.Covered + 1 };
         return score with
         {
             Calls = score.Calls + 1, Answered = score.Answered + (answered ? 1 : 0),

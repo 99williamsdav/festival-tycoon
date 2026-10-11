@@ -168,7 +168,7 @@ public sealed class StewardShiftStageTests
         Assert.AreEqual(StageInvasionRules.GradeMaxPenalty, StageInvasionRules.GradePenalty(score.StageTicks));
         var report = s.CaptureStewardShiftReport()!;
         Assert.AreEqual(StewardShiftGrading.Points(report.Calls, report.Answered, report.AverageResponseSeconds, report.FightsPrevented, report.FightsBrokenUp,
-            report.MoodAdded, report.LitterPicked) - StageInvasionRules.GradeMaxPenalty is var expected && expected < 0 ? 0 : expected, report.Points);
+            report.MoodAdded, report.LitterPicked, 0, report.Score.Covered, report.DayFights) - StageInvasionRules.GradeMaxPenalty is var expected && expected < 0 ? 0 : expected, report.Points);
     }
 
     private static GameSession HandsOnStarted()
