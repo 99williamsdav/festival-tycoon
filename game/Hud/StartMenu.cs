@@ -12,7 +12,7 @@ internal sealed class StartMenu
 
     public void Close() { _layer?.QueueFree(); _layer = null; }
 
-    public void Open(Node parent, Action enter, Action fieldGuide, Action? tryPondStage = null)
+    public void Open(Node parent, Action enter, Action fieldGuide, Action? tryPondStage = null, Action? stewardShift = null)
     {
         _layer = new CanvasLayer { Layer = 20 };
         parent.AddChild(_layer);
@@ -54,6 +54,10 @@ internal sealed class StartMenu
         guide.AddThemeColorOverride("font_color", new Color("f3e8c9")); guide.AddThemeFontSizeOverride("font_size", Ui.Px(16));
         guide.Pressed += fieldGuide;
         content.AddChild(guide);
+        // The trials share one row under the guide.
+        var trials = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
+        trials.AddThemeConstantOverride("separation", Ui.Px(28));
+        content.AddChild(trials);
         if (tryPondStage is not null)
         {
             // A new campaign with the second stage open from the start; like Enter on a finished day, it takes over the autosaves.
@@ -62,7 +66,17 @@ internal sealed class StartMenu
                 TooltipText = "Start a new trial festival with a second stage by the pond, before it would normally open." };
             pond.AddThemeColorOverride("font_color", new Color("9fd3c2")); pond.AddThemeFontSizeOverride("font_size", Ui.Px(16));
             pond.Pressed += tryPondStage;
-            content.AddChild(pond);
+            trials.AddChild(pond);
+        }
+        if (stewardShift is not null)
+        {
+            // A separate prototype: one steward on the ground at a festival that runs itself. Its saves keep to their own folder.
+            var shift = new Button { Name = "StewardShift", Text = "Steward shift · prototype", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+                MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+                TooltipText = "Work a festival day as one of its stewards, in first person. A prototype, kept apart from your campaign." };
+            shift.AddThemeColorOverride("font_color", new Color("e8f23a")); shift.AddThemeFontSizeOverride("font_size", Ui.Px(16));
+            shift.Pressed += stewardShift;
+            trials.AddChild(shift);
         }
         button.GrabFocus();
     }

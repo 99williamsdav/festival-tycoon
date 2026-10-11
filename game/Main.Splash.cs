@@ -15,7 +15,7 @@ public partial class Main
     private StartMenu? _startMenuView;
     private StartMenu StartMenu => _startMenuView ??= new();
 
-    private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide, TryPondStage);
+    private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide, TryPondStage, StartStewardShift);
 
     /// <summary>A fresh trial campaign with the Pond Stage open from the start, before its tier.</summary>
     private void TryPondStage()
