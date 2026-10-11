@@ -33,6 +33,8 @@ public sealed record StewardShiftSnapshot(int Version, ulong? PlayerId, int Move
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public long? EndedTick { get; init; }
     /// <summary>The stage the player is up on, while they are (<see cref="StewardOnStage"/>).</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public StewardOnStage? OnStage { get; init; }
+    /// <summary>Every set the player has invaded today, in the order they first did, with how many times; null before the first.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public InvadedSet[]? InvadedSets { get; init; }
 }
 
 /// <summary>
@@ -383,6 +385,11 @@ public sealed partial class GameSession
         // Up on a stage, the drum kit on the drummer's mark is solid.
         foreach (var (x, z) in DrumKits())
             if (Closer(x, z, StageInvasionRules.DrumKitClearanceMillimetres)) return false;
+        // The band's marks are theirs: a set can't start, or carries on stopped, without each of them on it.
+        foreach (var (x, z) in BandMarks())
+            if (Closer(x, z, StageInvasionRules.MarkClearanceMillimetres)) return false;
+        // Nobody steps onto a stage's flight while its band is on it, climbing or coming down.
+        if (StairsBusyAt(cell) && !StairsBusyAt(TraversalGrid.WorldToCell(fromX, fromZ))) return false;
         return true;
     }
 

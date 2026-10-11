@@ -446,6 +446,8 @@ public sealed partial class GameSession
         ReleaseStewardControl();
         // A hands-on retry is the day again: the player's steward goes back on shift when the gates reopen.
         if (_mode == CampaignMode.HandsOn) _stewardShift = null;
+        // The day's sets go with the retry, and so does the list of those the player invaded.
+        else if (_stewardShift is not null) _stewardShift = _stewardShift with { InvadedSets = null };
         _litter = EmptyLitter;
         _faults = EmptyFaults;
         _cows = EmptyCows;

@@ -649,7 +649,7 @@ public sealed partial class GameSession
         if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.UrgentUnhandled > score.Calls - score.Answered || score.ResponseTicks < 0 ||
             score.MoodAdded < StewardShiftRules.CreditedMood(score) || score.MoodAdded > StewardShiftRules.CreditedMood(score) + (long)score.Directions * StewardShiftRules.DirectionsSatisfaction ||
             score.ResponseTicks > (long)score.Answered * Math.Max(1, s.CurrentTick) ||
-            score.StageTicks < score.StageInvasions || score.StageTicks > s.CurrentTick || score.StageInvasions == 0 && score.StageTicks != 0)
+            score.StageTicks < score.StageInvasions || score.StageTicks > s.CurrentTick - p.StartedTick + 1 || score.StageInvasions == 0 && score.StageTicks != 0)
             return "Steward shift score out of bounds.";
         var guests = p.People.Where(person => person.Role == ProtectedPersonRole.Guest).ToDictionary(person => person.AgentId);
         bool OnSite(ulong id) => guests.TryGetValue(id, out var guest) && guest.Admitted && !guest.Departed;

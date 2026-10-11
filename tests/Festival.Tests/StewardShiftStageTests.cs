@@ -317,4 +317,121 @@ public sealed class StewardShiftStageTests
         Assert.AreEqual(95, StewardShiftGrading.Points(4, 4, 20, 2, 0, 2_000, 15, 80_000));
         Assert.AreEqual(0, StewardShiftGrading.Points(1, 0, -1, 0, 1, 0, 0, 80_000), "Never below nothing.");
     }
+
+    private static long Apart(GameSession s, GridCell mark)
+    {
+        var (x, z) = At(s, Player(s)); var (mx, mz) = TraversalGrid.CellCentre(mark);
+        return (long)Math.Sqrt((double)(x - mx) * (x - mx) + (double)(z - mz) * (z - mz));
+    }
+
+    [TestMethod]
+    public void StandingOnABandMarkCanNeitherStopNorHoldUpTheSet()
+    {
+        var s = GameSession.CreateStewardShift(Seed);
+        var stage = FestivalStages.Main;
+        var mark = stage.PerformerMarks[0];
+        // Up on the deck well before the set, then leaning on the lead's mark through its start.
+        RunUntil(s, () => s.CaptureLivePerformance() is { } live && s.CurrentTick >= live.PlannedTick - 1_600);
+        ClimbOnto(s, stage);
+        Assert.IsTrue(stage.Deck(CellOf(s, Player(s))));
+        var (x, z) = At(s, Player(s)); var (mx, mz) = TraversalGrid.CellCentre(mark);
+        Move(s, Math.Sign(mx - x) * 707, Math.Sign(mz - z) * 707);
+        var planned = s.CaptureLivePerformance()!.PlannedTick;
+        while (s.CurrentTick < planned + 2_000)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            Assert.IsTrue(Apart(s, mark) >= StageInvasionRules.MarkClearanceMillimetres, $"Tick {s.CurrentTick}: stood on the lead's mark ({Apart(s, mark)} mm).");
+            if (MainSet(s) == LiveSetStage.Live) { (x, z) = At(s, Player(s)); Move(s, Math.Sign(mx - x) * 707, Math.Sign(mz - z) * 707); }
+        }
+        var set = s.CaptureLivePerformance()!;
+        Assert.AreEqual(LiveSetStage.Live, set.Stage, set.LastReaction);
+        Assert.IsTrue(set.StartedTick - set.PlannedTick <= GigRules.LateGraceTicks, $"Started {set.StartedTick - set.PlannedTick} ticks late.");
+        Assert.AreEqual(0, set.Stoppages, "Never stopped by the steward on a mark.");
+        Assert.AreEqual(FestivalStages.MainId, s.PlayerStageId);
+        Assert.AreEqual(1, s.CaptureStewardShift()!.Score!.StageInvasions, "The set starting under them counts.");
+        CollectionAssert.AreEqual(new[] { new InvadedSet(FestivalStages.MainId, 0, 1) }, s.CaptureStewardShift()!.InvadedSets);
+        BuildSession.Restored(s);
+    }
+
+    private static string? InvasionCheck(SessionPersistenceSnapshot saved) => (string?)typeof(GameSession)
+        .GetMethod("ValidatePersistedStageInvasions", BindingFlags.NonPublic | BindingFlags.Static)!.Invoke(null, [saved]);
+
+    private static void Refused(SessionPersistenceSnapshot snapshot, string why, bool byInvasionCheck = true)
+    {
+        Assert.IsFalse(GameSession.Restore(snapshot).IsSuccess, $"Restored a save with {why}.");
+        if (byInvasionCheck) Assert.IsNotNull(InvasionCheck(snapshot), $"The invasion check missed {why}.");
+    }
+
+    [TestMethod]
+    public void TheRelationshipHitCannotBeEditedOutOrForgedIn()
+    {
+        var s = GameSession.CreateStewardShift(Seed);
+        RunUntil(s, () => MainSet(s) == LiveSetStage.Live);
+        ClimbOnto(s, FestivalStages.Main, 160);
+        s.AdvanceWithoutSnapshot(200);
+        // Mid-invasion: the tick bounds.
+        var during = s.CapturePersistenceSnapshot();
+        var shift = during.StewardShift!;
+        Refused(during with { StewardShift = shift with { Score = shift.Score! with { StageTicks = during.CurrentTick } } }, "more stage time than the day", false);
+        Refused(during with { StewardShift = shift with { Score = shift.Score! with { StageTicks = shift.Score.StageTicks - 1 } } }, "less stage time than the invasion", false);
+        Refused(during with { StewardShift = shift with { InvadedSets = null } }, "no invaded sets");
+        Refused(during with { StewardShift = shift with { InvadedSets = [new(FestivalStages.MainId, 0, 2)] } }, "a count the set doesn't have");
+        Refused(during with { StewardShift = shift with { InvadedSets = [new(FestivalStages.MainId, 1, 1)] } }, "the wrong slot");
+
+        // Back down, the set still on: the set's count and the shift's list must still agree.
+        Move(s, 0, -1000);
+        RunUntil(s, () => s.PlayerStageId is null && !OnStageCells(s, CellOf(s, Player(s))), 2_000);
+        Move(s, 0, 0);
+        var down = s.CapturePersistenceSnapshot();
+        Assert.IsTrue(GameSession.Restore(down).IsSuccess);
+        Refused(BuildSession.WithMainLive(down, live => live with { StageInvasions = 0 }), "the set's invasion zeroed");
+        Refused(BuildSession.WithMainLive(down, live => live with { StageInvasions = 0 }) with { StewardShift = down.StewardShift! with { InvadedSets = null } },
+            "the set's invasion and the list both cleared");
+
+        // The set over: its record carries the hiccup, and keeps it.
+        SessionPersistenceSnapshot Record(SessionPersistenceSnapshot saved, Func<PerformanceRecord, PerformanceRecord> change) =>
+            saved with { PerformanceRecords = [change(saved.PerformanceRecords![0]), .. saved.PerformanceRecords.Skip(1)] };
+        RunUntil(s, () => s.PerformanceRecords.Count > 0);
+        s.AdvanceWithoutSnapshot(1);
+        Refused(Record(s.CapturePersistenceSnapshot(), r => r with { Hiccups = r.Hiccups.Where(h => h != GigRules.StageInvader).ToArray() }),
+            "the hiccup deleted from the record of the set just finished", false);
+        // On to the next set, so only the record remembers it.
+        RunUntil(s, () => s.CaptureProgramme()!.CurrentSlot >= 1);
+        s.AdvanceWithoutSnapshot(1);
+        var after = s.CapturePersistenceSnapshot();
+        Assert.IsTrue(GameSession.Restore(after).IsSuccess);
+        CollectionAssert.Contains(after.PerformanceRecords![0].Hiccups, GigRules.StageInvader);
+        Refused(Record(after, r => r with { Hiccups = r.Hiccups.Where(h => h != GigRules.StageInvader).ToArray() }), "the hiccup deleted from the record");
+
+        // A classic campaign had nobody to do it: no hiccup in a record, nor in a carried set.
+        var classic = BuildSession.Started();
+        RunUntil(classic, () => classic.PerformanceRecords.Count > 0);
+        var plain = classic.CapturePersistenceSnapshot();
+        Assert.IsNull(InvasionCheck(plain));
+        Refused(Record(plain, r => r with { Hiccups = [.. r.Hiccups, GigRules.StageInvader] }), "a classic record with the hiccup");
+        var gig = new CarriedGig(1, BuildSession.Acts[0], true, false, 10, 10, 1_000, [GigRules.StageInvader]);
+        var carried = plain with { Preparation = plain.Preparation! with { RelationshipHistory = [gig] } };
+        Assert.IsNotNull(InvasionCheck(carried), "A classic carried set with the hiccup.");
+        Assert.IsNull(InvasionCheck(carried with { Mode = CampaignMode.HandsOn }), "A hands-on campaign's earlier day may have had one.");
+    }
+
+    [TestMethod]
+    public void AHandsOnInvasionCarriesIntoTheNextFestival()
+    {
+        var s = HandsOnStarted();
+        RunUntil(s, () => MainSet(s) == LiveSetStage.Live);
+        ClimbOnto(s, FestivalStages.Main, 160);
+        s.AdvanceWithoutSnapshot(200);
+        Move(s, 0, -1000);
+        RunUntil(s, () => !OnStageCells(s, CellOf(s, Player(s))), 2_000);
+        Move(s, 0, 0);
+        for (var i = 0; i < 80 && s.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing; i++) s.AdvanceWithoutSnapshot(1_000);
+        Assert.IsTrue(s.CanStartNextFestival, $"{s.PreparedStatus}");
+        var record = s.PerformanceRecords.Single(r => r.StageId == FestivalStages.MainId && r.Slot == 0);
+        var next = s.CreateNextFestival();
+        var history = next.CapturePreparation()!.RelationshipHistory!;
+        CollectionAssert.Contains(history.Single(g => g.ActId == record.ActId).Hiccups, GigRules.StageInvader);
+        Assert.AreEqual(record.RelationshipAfter, next.ActRelationship(record.ActId), "The hit is in the act's relationship next time.");
+        BuildSession.Restored(next);
+    }
 }
