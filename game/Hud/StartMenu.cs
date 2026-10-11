@@ -129,7 +129,9 @@ internal sealed class StartMenu
             steward.AddChild(shift);
             steward.AddChild(ModeLine("Pull on the hi-vis for a single shift."));
             // The logo shrinks while the picker is open, so its buttons fit under it.
-            shift.Pressed += () => { modes.Visible = false; guide.Visible = false; trials.Visible = false; picker.Visible = true;
+            var (guideShown, trialsShown) = (true, true);
+            shift.Pressed += () => { (guideShown, trialsShown) = (guide.Visible, trials.Visible);
+                modes.Visible = false; guide.Visible = false; trials.Visible = false; picker.Visible = true;
                 logo.CustomMinimumSize = new Vector2(side, side) * .62f; picker.GetChild<Button>(1).GrabFocus(); };
             if (continueShift is not null) steward.AddChild(Link("ContinueShift", "Continue shift", "e8f23a",
                 "Back to your saved steward shift, where you left it.", continueShift));
@@ -150,7 +152,7 @@ internal sealed class StartMenu
             }
             var back = new Button { Name = "ShiftBack", Text = "Back", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter, MouseDefaultCursorShape = Control.CursorShape.PointingHand };
             back.AddThemeColorOverride("font_color", new Color("f3e8c9")); back.AddThemeFontSizeOverride("font_size", Ui.Px(14));
-            back.Pressed += () => { picker.Visible = false; modes.Visible = true; guide.Visible = true; trials.Visible = true;
+            back.Pressed += () => { picker.Visible = false; modes.Visible = true; guide.Visible = guideShown; trials.Visible = trialsShown;
                 logo.CustomMinimumSize = new Vector2(side, side); shift.GrabFocus(); };
             picker.AddChild(back);
         }
