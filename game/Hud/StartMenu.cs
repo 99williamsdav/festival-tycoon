@@ -3,7 +3,7 @@ using System;
 
 namespace Festival.Game;
 
-/// <summary>The title screen: the festival logo, the Enter button, and a way into the Pond Stage trial.</summary>
+/// <summary>The title screen: the festival logo, the Enter button beside Front of House, and a way into the Pond Stage trial.</summary>
 internal sealed class StartMenu
 {
     private CanvasLayer? _layer;
@@ -12,8 +12,17 @@ internal sealed class StartMenu
 
     public void Close() { _layer?.QueueFree(); _layer = null; }
 
+    private static Label ModeLine(string text)
+    {
+        var line = new Label { Text = text, HorizontalAlignment = HorizontalAlignment.Center, CustomMinimumSize = new Vector2(280, 0),
+            AutowrapMode = TextServer.AutowrapMode.WordSmart, MouseFilter = Control.MouseFilterEnum.Ignore };
+        line.AddThemeFontSizeOverride("font_size", Ui.Px(13));
+        line.AddThemeColorOverride("font_color", new Color("cbbf9f"));
+        return line;
+    }
+
     public void Open(Node parent, Action enter, Action fieldGuide, Action? tryPondStage = null, Action<int>? stewardShift = null,
-        Action? continueShift = null)
+        Action? continueShift = null, Action? frontOfHouse = null, Action? continueFrontOfHouse = null)
     {
         _layer = new CanvasLayer { Layer = 20 };
         parent.AddChild(_layer);
@@ -31,6 +40,8 @@ internal sealed class StartMenu
 
         var visible = parent.GetViewport().GetVisibleRect().Size;
         var side = Mathf.Min(620f, Mathf.Min(visible.X * 0.55f, visible.Y * 0.69f));
+        // The modes' straplines take a line under the buttons.
+        if (frontOfHouse is not null) side *= .88f;
         var logo = new TextureRect
         {
             Texture = GD.Load<Texture2D>("res://assets/branding/festival-tycoon-mosaic-logo-v2.png"),
@@ -49,7 +60,39 @@ internal sealed class StartMenu
             SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter };
         button.AddThemeFontSizeOverride("font_size", 21);
         button.Pressed += enter;
-        content.AddChild(button);
+        if (frontOfHouse is null) content.AddChild(button);
+        else
+        {
+            // The two ways to play side by side: the manager's campaign, and Front of House with the player on the ground too.
+            var modes = new HBoxContainer { Name = "Modes", Alignment = BoxContainer.AlignmentMode.Center };
+            modes.AddThemeConstantOverride("separation", Ui.Px(18));
+            content.AddChild(modes);
+            var classic = new VBoxContainer();
+            classic.AddThemeConstantOverride("separation", Ui.Px(6));
+            modes.AddChild(classic);
+            classic.AddChild(button);
+            classic.AddChild(ModeLine("Run the festival from the office."));
+            var hands = new VBoxContainer();
+            hands.AddThemeConstantOverride("separation", Ui.Px(6));
+            modes.AddChild(hands);
+            var foh = new Button { Name = "FrontOfHouse", Text = Main.HandsOnModeName.ToUpperInvariant(), CustomMinimumSize = new Vector2(280, 54),
+                SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter, MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+                TooltipText = "A new campaign where you manage the festival and work it as a steward too. Tab swaps views." };
+            foh.AddThemeFontSizeOverride("font_size", 21);
+            foh.AddThemeColorOverride("font_color", new Color("e8f23a"));
+            foh.Pressed += frontOfHouse;
+            hands.AddChild(foh);
+            hands.AddChild(ModeLine(Main.HandsOnStrapline));
+            if (continueFrontOfHouse is not null)
+            {
+                var resume = new Button { Name = "ContinueFrontOfHouse", Text = "Continue " + Main.HandsOnModeName, Flat = true,
+                    SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter, MouseDefaultCursorShape = Control.CursorShape.PointingHand,
+                    TooltipText = "Back to your saved Front of House campaign." };
+                resume.AddThemeColorOverride("font_color", new Color("e8f23a")); resume.AddThemeFontSizeOverride("font_size", Ui.Px(14));
+                resume.Pressed += continueFrontOfHouse;
+                hands.AddChild(resume);
+            }
+        }
         var guide = new Button { Name = "FieldGuide", Text = "Field guide", Flat = true, SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
             MouseDefaultCursorShape = Control.CursorShape.PointingHand };
         guide.AddThemeColorOverride("font_color", new Color("f3e8c9")); guide.AddThemeFontSizeOverride("font_size", Ui.Px(16));

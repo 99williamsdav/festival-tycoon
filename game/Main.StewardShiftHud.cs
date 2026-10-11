@@ -117,9 +117,10 @@ public partial class Main
         _shiftClock.HorizontalAlignment = HorizontalAlignment.Center;
         _shiftClock.Position = new Vector2(0, Ui.S(64)); _shiftClock.Size = new Vector2(size.X, Ui.S(20));
         _shiftHud.AddChild(_shiftClock);
-        _shiftKeys = ShiftText("WASD walk  ·  Shift run  ·  hold E to act  ·  Esc menu  ·  P pause", 11, new Color(1, 1, 1, .7f), outline: true);
+        _shiftKeys = ShiftText(_session.IsHandsOn ? "WASD walk  ·  Shift run  ·  hold E to act  ·  Tab manager view  ·  Esc menu  ·  P pause"
+            : "WASD walk  ·  Shift run  ·  hold E to act  ·  Esc menu  ·  P pause", 11, new Color(1, 1, 1, .7f), outline: true);
         _shiftKeys.HorizontalAlignment = HorizontalAlignment.Right;
-        _shiftKeys.Position = new Vector2(size.X - Ui.S(460) - Ui.Gutter, size.Y - Ui.S(40)); _shiftKeys.Size = new Vector2(Ui.S(460), Ui.S(24));
+        _shiftKeys.Position = new Vector2(size.X - Ui.S(560) - Ui.Gutter, size.Y - Ui.S(40)); _shiftKeys.Size = new Vector2(Ui.S(560), Ui.S(24));
         _shiftHud.AddChild(_shiftKeys);
 
         _shiftMenu = new PanelContainer { Visible = false };
@@ -130,7 +131,8 @@ public partial class Main
         box.AddChild(_shiftMenuTitle);
         _shiftResume = ButtonText("Back on shift", () => SetShiftMenu(null));
         box.AddChild(_shiftResume);
-        box.AddChild(ButtonText("Return to menu", ReturnFromStewardShift));
+        // In Front of House the way out is the manager's view; the day carries on.
+        box.AddChild(_session.IsHandsOn ? ButtonText("Manager view  (Tab)", LeaveHandsOnFirstPerson) : ButtonText("Return to menu", ReturnFromStewardShift));
         _shiftMenu.Size = new Vector2(Ui.S(320), 0);
         _shiftMenu.Position = new Vector2((size.X - Ui.S(320)) / 2, size.Y * .3f);
         _shiftHud.AddChild(_shiftMenu);

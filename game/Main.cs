@@ -40,7 +40,7 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v69", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v69");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v70", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v70");
 
     public override void _Ready()
     {
@@ -118,6 +118,7 @@ public partial class Main : Node, IHudHost
         _urgentAlertDisplay.Advance(delta); RenderUrgentAlerts();
         if (_preparationProfileOutput is not null) { ProcessBuildProfileSetup(); FinishPreparationProfileFrame(); }
         if (!StewardShiftActive) UpdateHoverFeedback(GetViewport().GetMousePosition());
+        ProcessHandsOnHint();
         ProcessBuildDebugOverlay();
     }
 
@@ -125,6 +126,9 @@ public partial class Main : Node, IHudHost
     {
         if (StartMenu.IsOpen || _challengeReveal.IsOpen) return;
         if (HandleStewardShiftInput(inputEvent)) { GetViewport().SetInputAsHandled(); return; }
+        // Front of House: Tab steps into the player's steward's boots (first person hands it back above).
+        if (inputEvent is InputEventKey { Pressed: true, Echo: false, Keycode: Key.Tab } && _session.IsHandsOn && !ResultsPaper.IsOpen)
+        { ToggleHandsOnView(); GetViewport().SetInputAsHandled(); return; }
         _rig.ObserveRelease(inputEvent);
     }
 
@@ -618,7 +622,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v69");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v70");
 
 
 

@@ -28,7 +28,7 @@ public partial class Main
     private CanvasLayer? _hudLayer;
 
     private bool StewardShiftActive => _shiftActive;
-    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v69-steward-shift");
+    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v70-steward-shift");
     private const float ShiftMouseRadians = 0.0024f;
 
     /// <summary>The title screen's way in: a fresh self-running festival at the picked tier, the player its second steward.</summary>
@@ -79,7 +79,7 @@ public partial class Main
         _shiftKeyDown = false;
         BuildStewardShiftHud();
         BuildStewardShiftArms();
-        PushShiftRadio(_session.IsRainyFestival
+        PushShiftRadio(_session.IsHandsOn ? "Boots on, boss. Control's listening." : _session.IsRainyFestival
             ? "Second post. Wet one: straw's in the store."
             : "Second post. Hot one: keep drinking.");
         SetShiftMenu(null);
@@ -112,6 +112,12 @@ public partial class Main
     private void ProcessStewardShiftInput()
     {
         if (!_shiftActive) return;
+        if (_session.PlayerStewardId is null && _session.IsHandsOn)
+        {
+            // A hands-on day's close (or a death) goes back to the manager's view, where the paper or the hearing waits.
+            LeaveHandsOnFirstPerson();
+            return;
+        }
         if (_session.PlayerStewardId is null)
         {
             // Closing time (or a death) ends the shift: the report card takes the screen; the steward walks home with everyone else.
@@ -206,7 +212,9 @@ public partial class Main
                     if (_shiftMenu!.Visible) SetShiftMenu(null); else SetShiftMenu("Paused");
                     return true;
                 }
-                if (key.Keycode == Key.P && _session.PlayerStewardId is not null) { _host.Submit(new SetPausedCommand(!_session.IsPaused)); return true; }
+                if (key.Keycode == Key.Tab && _session.IsHandsOn) { LeaveHandsOnFirstPerson(); return true; }
+                if ((key.Keycode == Key.P || key.Keycode == Key.Space && _session.IsHandsOn) && _session.PlayerStewardId is not null)
+                { _host.Submit(new SetPausedCommand(!_session.IsPaused)); return true; }
                 // First person reads in real time: 2× and 4× stay locked for now.
                 return key.Keycode is Key.Key1 or Key.Key2 or Key.Key3 or Key.Space or Key.Q || _shiftLooking;
         }

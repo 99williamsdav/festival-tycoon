@@ -16,11 +16,13 @@ public partial class Main
     private StartMenu StartMenu => _startMenuView ??= new();
 
     private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide, TryPondStage, StartStewardShift,
-        SavedStewardShift() is { } saved ? () => ContinueStewardShift(saved) : null);
+        SavedStewardShift() is { } saved ? () => ContinueStewardShift(saved) : null, StartHandsOnCampaign,
+        SavedHandsOnCampaign() is { } handsOn ? () => ContinueHandsOnCampaign(handsOn) : null);
 
     /// <summary>A fresh trial campaign with the Pond Stage open from the start, before its tier.</summary>
     private void TryPondStage()
     {
+        LeaveHandsOnHost();
         var next = CreateFreshBuildCampaign(out var seed, pondStageTrial: true);
         SwitchToFestival(next);
         GD.Print($"POND_STAGE_TRIAL_STARTED id={_session.CampaignId.Value} seed={seed} status={_session.PreparedStatus}");
@@ -30,6 +32,8 @@ public partial class Main
 
     private void EnterFestival()
     {
+        // Enter is the classic campaign: coming from Front of House, its own host and saves come back.
+        LeaveHandsOnHost();
         if (_newCampaignOnEnter)
         {
             // Create only on Enter: merely viewing the menu must not touch a terminal save.
