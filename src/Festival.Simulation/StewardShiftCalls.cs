@@ -23,6 +23,12 @@ public sealed record StewardCall(string Id, StewardCallKind Kind, string Subject
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ulong? CoveredBy { get; init; }
     /// <summary>Answered by the player's steward working by themselves (the autopilot) rather than by the player's hands.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool Auto { get; init; }
+    /// <summary>
+    /// A hands-on day only: the player radioed the crew member covering it (<see cref="StewardRadioCommand"/>). It
+    /// stays the player's call and, left to that crew member, counts half (<see cref="StewardShiftScore.Dispatched"/>).
+    /// Held only while someone hired covers it.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool Radioed { get; init; }
     /// <summary>A hands-on day only: the landmark Control named as the call opened ("Bar 2", "the main stage"), for the results paper.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? Where { get; init; }
 }
@@ -81,7 +87,13 @@ public sealed partial class GameSession
         foreach (var call in calls)
         {
             if (!call.Open) { next.Add(call); continue; }
-            if (liveIds.Contains(call.Id)) { next.Add(IsHandsOn ? call with { CoveredBy = CrewHolder(call) } : call); continue; }
+            if (liveIds.Contains(call.Id))
+            {
+                // A radioed call stays radioed while someone hired is on it.
+                if (IsHandsOn && CrewHolder(call) is var holder) next.Add(call with { CoveredBy = holder, Radioed = call.Radioed && holder is not null });
+                else next.Add(call);
+                continue;
+            }
             var closed = call with { ClosedTick = CurrentTick };
             score = Counted(score, closed, UrgentDealtWith(closed));
             log = Logged(log, closed);
@@ -126,7 +138,12 @@ public sealed partial class GameSession
         var answered = call.AnsweredTick >= 0;
         if (!answered && call.ClosedTick < call.HeardTick) return score;
         // On a hands-on day Control gave it to the hired crew: not the player's call, unless they answered it anyway.
-        if (!answered && call.CoveredBy is not null) return score with { Covered = score.Covered + 1 };
+        if (!answered && call.CoveredBy is not null && !call.Radioed) return score with { Covered = score.Covered + 1 };
+        // The player radioed the crew onto it and left it to them: their call, half answered, with no response time;
+        // a fight counts among those they dealt with, with no credit for preventing or stopping it.
+        if (!answered && call.Radioed)
+            return score with { Calls = score.Calls + 1, Dispatched = score.Dispatched + 1,
+                FightsDispatched = score.FightsDispatched + (call.Kind == StewardCallKind.Fight ? 1 : 0) };
         return score with
         {
             Calls = score.Calls + 1, Answered = score.Answered + (answered ? 1 : 0),

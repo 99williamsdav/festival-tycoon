@@ -57,9 +57,15 @@ public sealed class StewardRadioTests
         Set("XMillimetres", x); Set("ZMillimetres", z); Set("SegmentOriginXMillimetres", x); Set("SegmentOriginZMillimetres", z);
     }
 
+    /// <summary>A calm guest standing in the field within 30 m of the player (in sight, for the radio), lowest id first.</summary>
     private static ulong StandingGuest(GameSession s, Func<ulong, bool>? also = null)
     {
         var agents = s.CaptureObservation().NavigationAgents.ToDictionary(a => a.Id.Value);
+        var me = agents[Me(s)];
+        also ??= _ => true;
+        var near = also;
+        also = id => near(id) && (long)(agents[id].XMillimetres - me.XMillimetres) * (agents[id].XMillimetres - me.XMillimetres) +
+            (long)(agents[id].ZMillimetres - me.ZMillimetres) * (agents[id].ZMillimetres - me.ZMillimetres) <= 30_000L * 30_000;
         return s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.Admitted && !p.Departed).Select(p => p.AgentId)
             .Where(id => agents[id].Action != AgentNavigationAction.Travelling && StewardShiftRules.InField(TraversalGrid.WorldToCell(agents[id].XMillimetres, agents[id].ZMillimetres)) &&
                 s.CapturePerson(id) is { ConductStage: DisorderStage.Calm, Intent: MedicalIntent.WatchShow, VendorId: null, ToiletStage: ToiletVisitStage.None, HealthStage: MedicalStage.Clear } &&
@@ -155,18 +161,20 @@ public sealed class StewardRadioTests
         Assert.AreEqual(guest, s.GetStewardResponses().Single(job => job.WorkerId == steward.WorkerId).TargetId);
         Assert.IsNotNull(s.StewardRadioCrew().Single(member => member.WorkerId == steward.WorkerId).Busy);
 
-        // Busy now: a loose cow isn't queued behind the job; it's refused, as busy.
-        typeof(GameSession).GetField("_cows", Private)!.SetValue(s, Call(s, "BreakGate", s.CaptureCows()!, s.CapturePreparation()!));
-        s.AdvanceWithoutSnapshot(1);
-        var cow = s.CaptureCows()!.Loose[0].Id;
+        // Busy now: a second row isn't queued behind the job; it's refused, as busy.
         Assert.AreEqual(1, s.StewardRadioCrew().Count(member => !member.Maintenance), "Tier 1 hires one steward.");
+        var other = StandingGuest(s, id => id != guest);
+        Argue(s, other);
         {
-            var busy = Radio(s, StewardRadioJob.Crew, $"cow:{cow}", steward.WorkerId);
+            var busy = Radio(s, StewardRadioJob.Crew, $"person:{other}", steward.WorkerId);
             Assert.IsFalse(busy.IsAccepted);
             Assert.AreEqual(CommandReasonCode.AlreadyCommitted, busy.ReasonCode);
         }
         Assert.AreEqual(1, Shift(s).Score!.RadioJobs);
+        s.AdvanceWithoutSnapshot(1);
         BuildSession.Restored(s);
+        typeof(GameSession).GetField("_cows", Private)!.SetValue(s, Call(s, "BreakGate", s.CaptureCows()!, s.CapturePreparation()!));
+        s.AdvanceWithoutSnapshot(StewardShiftRules.RadioDelayTicks(StewardCallKind.LooseCow) + 1);
 
         // Once free again, the cow: herded by the steward named, through the manager's herd order.
         for (var i = 0; i < 6_000 && s.StewardRadioCrew().Single(member => member.WorkerId == steward.WorkerId).Busy is not null; i++) s.AdvanceWithoutSnapshot(8);
@@ -194,6 +202,8 @@ public sealed class StewardRadioTests
         Assert.IsNotNull(loo);
         var steward = s.StewardRadioCrew().First(member => !member.Maintenance && member.Busy is null);
         Call(s, "AddFault", "stuck:test", FacilityFaultKind.StuckInToilet, loo.Id, loo.OwnerId!.Value);
+        var door = s.StewardTargetPoint($"toilet:{loo.Id}")!.Value;
+        Teleport(s, door.X, door.Z);
         var maintenance = s.StewardRadioCrew().FirstOrDefault(member => member.Maintenance);
         if (maintenance is not null)
             Assert.IsFalse(Radio(s, StewardRadioJob.Crew, $"toilet:{loo.Id}", maintenance.WorkerId).IsAccepted, "A jammed loo is a steward's.");
@@ -253,6 +263,127 @@ public sealed class StewardRadioTests
         BuildSession.Accept(s, new StewardRadioCommand(StewardRadioJob.Henry, $"toilet:{loo.Id}"));
         Assert.AreEqual(2, Shift(s).Score!.RadioJobs);
         BuildSession.Restored(s);
+    }
+
+    [TestMethod]
+    public void ACallControlHasntPutOutAndOutOfSightIsRefused()
+    {
+        var s = Started();
+        s.AdvanceWithoutSnapshot(9_000);
+        var crew = s.StewardRadioCrew().First(member => !member.Maintenance);
+        var guest = StandingGuest(s);
+        var at = At(s, guest);
+        Argue(s, guest);
+        s.AdvanceWithoutSnapshot(1);
+        var call = Shift(s).Calls!.Single(c => c.Open && c.Kind == StewardCallKind.Argument);
+        Assert.IsTrue(call.HeardTick > s.CurrentTick, "Not on the radio yet.");
+        // From the far side of the field: not heard, not in sight.
+        var far = new[] { (-30_000, -30_000), (30_000, -30_000), (-30_000, 30_000), (30_000, 30_000) }
+            .OrderByDescending(c => (long)(c.Item1 - at.X) * (c.Item1 - at.X) + (long)(c.Item2 - at.Z) * (c.Item2 - at.Z)).First();
+        var cell = Enumerable.Range(0, 20).SelectMany(d => new[] { TraversalGrid.WorldToCell(far.Item1 + Math.Sign(at.X - far.Item1) * d * 500, far.Item2 + Math.Sign(at.Z - far.Item2) * d * 500) })
+            .First(c => s.TraversalGrid!.Get(c).IsWalkable && StewardShiftRules.InField(c));
+        var (fx, fz) = TraversalGrid.CellCentre(cell);
+        Teleport(s, fx, fz);
+        Assert.IsTrue((long)(fx - at.X) * (fx - at.X) + (long)(fz - at.Z) * (fz - at.Z) > (long)StewardRadioRules.CrosshairMillimetres * StewardRadioRules.CrosshairMillimetres);
+        var hidden = Radio(s, StewardRadioJob.Crew, $"person:{guest}", crew.WorkerId);
+        Assert.IsFalse(hidden.IsAccepted);
+        Assert.AreEqual("Control hasn't heard of anything there.", hidden.Message);
+        Assert.IsNull(s.StewardRadioTarget(StewardRadioJob.Crew, 0, call.Id) is { } t && t == $"person:{guest}" && s.StewardRadioIssue(StewardRadioJob.Crew, t, crew.WorkerId) is null ? "offered" : null,
+            "The menu never offers it either.");
+        Collapse(s, guest);
+        Assert.AreEqual("Control hasn't heard of anything there.", Radio(s, StewardRadioJob.Medic, $"person:{guest}").Message);
+        Assert.AreEqual(0, Shift(s).Score!.RadioJobs);
+    }
+
+    [TestMethod]
+    public void ARadioedFightIsThePlayersCallAtHalfCreditAndDealtWithButNotPrevented()
+    {
+        var s = Started(faults: true);
+        s.AdvanceWithoutSnapshot(9_000);
+        var steward = s.StewardRadioCrew().First(member => !member.Maintenance && member.Busy is null);
+        // A fight 12–30 m from the steward, so they take a while to get there.
+        long Apart(ulong id) { var a = At(s, id); return (long)(a.X - steward.XMillimetres) * (a.X - steward.XMillimetres) + (long)(a.Z - steward.ZMillimetres) * (a.Z - steward.ZMillimetres); }
+        var initiator = StandingGuest(s, id => Apart(id) > 12_000L * 12_000);
+        var me = At(s, initiator);
+        var opponent = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && p.AgentId != initiator && p.Admitted && !p.Departed)
+            .Select(p => p.AgentId).OrderBy(id => { var at = At(s, id); return (long)(at.X - me.X) * (at.X - me.X) + (long)(at.Z - me.Z) * (at.Z - me.Z); }).First();
+        Argue(s, initiator);
+        Call(s, "BeginDisorderFight", initiator, opponent, "test:fight");
+        // The crew's own rules would send a steward on the next tick: the player radios first, in this one.
+        Call(s, "SettleStewardShift");
+        var call = Shift(s).Calls!.Single(c => c.Open && c.Kind == StewardCallKind.Fight);
+        var before = Shift(s).Score!;
+        BuildSession.Accept(s, new StewardRadioCommand(StewardRadioJob.Crew, $"person:{initiator}", steward.WorkerId));
+        var radioed = Shift(s).Calls!.Single(c => c.Id == call.Id);
+        Assert.IsTrue(radioed.Radioed);
+        Assert.AreEqual(steward.WorkerId, radioed.CoveredBy);
+        BuildSession.Restored(s);
+        for (var i = 0; i < 8_000 && Shift(s).Calls!.Single(c => c.Id == call.Id).Open; i++) s.AdvanceWithoutSnapshot(1);
+        var closed = Shift(s).Calls!.Single(c => c.Id == call.Id);
+        Assert.IsFalse(closed.Open);
+        Assert.IsTrue(closed.ClosedTick >= closed.HeardTick, "It went out on the radio before it ended.");
+        Assert.IsTrue(closed.Radioed && closed.AnsweredTick < 0);
+        var after = Shift(s).Score!;
+        Assert.AreEqual(before.Calls + 1, after.Calls, "Still the player's call.");
+        Assert.AreEqual(before.Dispatched + 1, after.Dispatched);
+        Assert.AreEqual(before.FightsDispatched + 1, after.FightsDispatched, "Dealt with, but neither prevented nor broken up.");
+        Assert.AreEqual(before.Covered, after.Covered, "Not one Control covered.");
+        Assert.AreEqual(before.Answered, after.Answered);
+        Assert.AreEqual(before.ResponseTicks, after.ResponseTicks, "No response time.");
+        var night = s.StewardShiftNight().Single(entry => entry.Kind == StewardCallKind.Fight && entry.Who == StewardCallResponder.Sent);
+        Assert.AreEqual(s.CapturePerson(steward.WorkerId)!.Name, night.Crew, "The paper reads \"sent\" them.");
+        var saved = BuildSession.Restored(s).CapturePersistenceSnapshot();
+        // Forged: a radioed call nobody covers, or the score out of step with the night's log.
+        var log = saved.StewardShift!.Log!;
+        var at = Array.FindIndex(log, c => c.Id == call.Id);
+        Assert.IsFalse(GameSession.Restore(saved with { StewardShift = saved.StewardShift with { Log = log.Select((c, i) => i == at ? c with { CoveredBy = null } : c).ToArray() } }).IsSuccess);
+        Assert.IsFalse(GameSession.Restore(saved with { StewardShift = saved.StewardShift with { Log = log.Select((c, i) => i == at ? c with { Radioed = false } : c).ToArray() } }).IsSuccess,
+            "A radioed call can't be passed off as one Control covered.");
+        Assert.IsFalse(GameSession.Restore(saved with { StewardShift = saved.StewardShift with { Score = saved.StewardShift.Score! with { Dispatched = after.Dispatched + 1, Calls = after.Calls + 1 } } }).IsSuccess);
+        Assert.IsFalse(GameSession.Restore(saved with { StewardShift = saved.StewardShift with { Score = saved.StewardShift.Score! with { FightsDispatched = after.Dispatched + 1 } } }).IsSuccess);
+        Assert.IsFalse(GameSession.Restore(saved with { StewardShift = saved.StewardShift with { Score = saved.StewardShift.Score! with { ResponseTicks = after.ResponseTicks + 80 } } }).IsSuccess,
+            "The response time is the answered calls' own.");
+        Assert.AreEqual("Steward shift call log invalid.", GameSession.Restore(saved with { StewardShift = saved.StewardShift with { Score = saved.StewardShift.Score! with {
+            UrgentUnhandled = log.Count(c => c.Urgent && c.AnsweredTick < 0 && c.CoveredBy is null) + 1 } } }).Error, "Only an urgent call nobody covered went unhandled.");
+        var tail = saved.StewardShift.Calls!.FirstOrDefault(c => c.ClosedTick >= c.HeardTick && c.AnsweredTick < 0);
+        if (tail is not null)
+            Assert.IsFalse(GameSession.Restore(saved with { StewardShift = saved.StewardShift with { Calls = saved.StewardShift.Calls!.Select(c => c == tail ? c with { Where = "the moon" } : c).ToArray() } }).IsSuccess,
+                "The strip's closed calls are the log's.");
+
+        // A long day: a log well past the old 4,096 entries still loads (it is bounded only by what the score can count).
+        var start = saved.Preparation!.StartedTick;
+        var filler = Enumerable.Range(0, 5_000).Select(i => new StewardCall($"bin:filler-{i}", StewardCallKind.FullBin, $"filler-{i}", start, start) { Where = "the field" }).ToArray();
+        var longDay = saved with { StewardShift = saved.StewardShift with { Log = [.. filler, .. log],
+            Score = saved.StewardShift.Score! with { Calls = after.Calls + filler.Length } } };
+        // The shift's own checks (a full restore would also want the forged state's hash).
+        string? Check(SessionPersistenceSnapshot snapshot) => (string?)typeof(GameSession).GetMethod("ValidatePersistedStewardWork", BindingFlags.NonPublic | BindingFlags.Static)!
+            .Invoke(null, [snapshot.StewardShift!, snapshot, snapshot.Preparation!]);
+        Assert.IsNull(Check(saved));
+        Assert.IsNull(Check(longDay), "5,000 calls in the log.");
+        Assert.AreEqual("Steward shift call log invalid.", Check(longDay with { StewardShift = longDay.StewardShift! with { Score = longDay.StewardShift.Score! with { Calls = after.Calls } } }));
+        var standalone = GameSession.CreateStewardShift(Seed);
+        standalone.AdvanceWithoutSnapshot(400);
+        var lone = standalone.CapturePersistenceSnapshot();
+        var forged = new StewardCall("bin:x", StewardCallKind.FullBin, "x", lone.CurrentTick - 10, lone.CurrentTick - 1) { Radioed = true };
+        Assert.IsFalse(GameSession.Restore(lone with { StewardShift = lone.StewardShift! with { Calls = [.. lone.StewardShift.Calls!, forged] } }).IsSuccess, "No radioed calls off a hands-on day.");
+    }
+
+    [TestMethod]
+    public void RadioedCallsCountHalfSoAnsweringOneAndRadioingTheRestIsNotFullMarks()
+    {
+        // One answered, one radioed to the crew: 0.75 of the calls share (26.25 of 35), where washing the radioed call
+        // out of the share gave the full 35.
+        Assert.AreEqual(65, StewardShiftGrading.Points(1, 1, 20, 0, 0, 0, 0));
+        Assert.AreEqual(56, StewardShiftGrading.Points(2, 1, 20, 0, 0, 0, 0, dispatched: 1));
+        Assert.AreEqual(StewardShiftGrading.Points(2, 1, 20, 0, 0, 0, 0), StewardShiftGrading.Points(2, 1, 20, 0, 0, 0, 0, dispatched: 0) , "Unradioed and missed: nothing.");
+        Assert.IsTrue(StewardShiftGrading.Points(2, 1, 20, 0, 0, 0, 0) < StewardShiftGrading.Points(2, 1, 20, 0, 0, 0, 0, dispatched: 1));
+        // Every call radioed out: half the share, no response marks.
+        Assert.AreEqual(28, StewardShiftGrading.Points(4, 0, -1, 0, 0, 0, 0, dispatched: 4));
+        // A fight radioed to the crew counts among those dealt with, uncredited, like one broken up: no better than doing it yourself.
+        Assert.AreEqual(StewardShiftGrading.Points(1, 1, 20, 1, 1, 0, 0), StewardShiftGrading.Points(1, 1, 20, 1, 0, 0, 0, fightsDispatched: 1));
+        Assert.AreEqual(55, StewardShiftGrading.Points(1, 1, 20, 0, 0, 0, 0, dayFights: 2, fightsDispatched: 1));
+        // Standing still with a full crew is still Off-key.
+        Assert.AreEqual(StewardShiftGrade.OffKey, StewardShiftGrading.Grade(StewardShiftGrading.Points(0, 0, -1, 0, 0, 0, 0, covered: 5, dayFights: 2), false));
     }
 
     [TestMethod]

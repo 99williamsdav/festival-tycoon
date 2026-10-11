@@ -32,12 +32,15 @@ public static class StewardShiftGrading
     public const int EncorePoints = 90, HeadlinerPoints = 75, CrowdPleaserPoints = 55, BSidePoints = 35;
 
     public static int Points(int calls, int answered, int averageSeconds, int prevented, int brokenUp, int moodAdded, int litter, long stageTicks = 0,
-        int covered = 0, int dayFights = 0)
+        int covered = 0, int dayFights = 0, int dispatched = 0, int fightsDispatched = 0)
     {
         // Standing still while the crew does everything earns nothing; a day with nothing to do is neither good nor bad.
-        var share = calls > 0 ? (double)answered / calls : covered > 0 ? 0 : 0.5;
+        // A call the player radioed the crew onto counts half.
+        var share = calls > 0 ? (answered + dispatched / 2.0) / calls : covered > 0 ? 0 : 0.5;
         var response = answered == 0 || averageSeconds < 0 ? 0 : Math.Clamp((180 - averageSeconds) / 150.0, 0, 1);
-        var fights = prevented + brokenUp > 0 ? (double)prevented / (prevented + brokenUp) : dayFights > 0 ? 0 : 0.5;
+        // A fight radioed to the crew was dealt with, but neither prevented nor stopped by the player: as one broken up.
+        var dealt = prevented + brokenUp + fightsDispatched;
+        var fights = dealt > 0 ? (double)prevented / dealt : dayFights > 0 ? 0 : 0.5;
         var mood = Math.Clamp(moodAdded / (double)StewardShiftRules.MoodForFullMarks, 0, 1);
         var tidy = Math.Min(1.0, litter / 15.0);
         // Time up on a stage mid-set costs a point per 10 s, at most 5: the crowd's mood it costs isn't scored anywhere else.
@@ -81,7 +84,7 @@ public sealed partial class GameSession
         var since = _preparation?.StartedTick ?? 0;
         var fights = _disorder?.Incidents.Count(item => item.FightTick >= since) ?? 0;
         var points = StewardShiftGrading.Points(score.Calls, score.Answered, average, score.Calmed, score.FightsBrokenUp, score.MoodAdded, score.LitterPicked, score.StageTicks,
-            score.Covered, fights);
+            score.Covered, fights, score.Dispatched, score.FightsDispatched);
         return new(shift.PlayerId is null, failed || deaths > 0, score.Calls, score.Answered, average, score.Calmed, score.FightsBrokenUp, mood / 100, from / 100,
             score.MoodAdded, score.LitterPicked, score.UrgentUnhandled, deaths, points, StewardShiftGrading.Grade(points, failed || deaths > 0, score.UrgentUnhandled), score) { DayFights = fights };
     }

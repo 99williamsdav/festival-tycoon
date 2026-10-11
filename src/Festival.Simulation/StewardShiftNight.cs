@@ -13,6 +13,8 @@ public enum StewardCallResponder
     Maintenance,
     /// <summary>Nobody: the player didn't answer it and nobody hired was on it.</summary>
     Missed,
+    /// <summary>A hired crew member the player radioed out (<see cref="StewardCall.Radioed"/>); <see cref="StewardNightCall.Crew"/> names them.</summary>
+    Sent,
 }
 
 /// <summary>
@@ -42,6 +44,8 @@ public sealed partial class GameSession
             var answered = call.AnsweredTick >= 0;
             var tick = answered ? Math.Min(call.HeardTick, call.AnsweredTick) : call.HeardTick;
             var (who, crew) = answered ? (call.Auto ? StewardCallResponder.Autopilot : StewardCallResponder.You, (string?)null)
+                : call is { Radioed: true, CoveredBy: { } sent } ? (StewardCallResponder.Sent,
+                    staff.FirstOrDefault(member => member.AgentId == sent)?.Role == ResponseRole.Medic ? "the medic" : _persons.TryGet(sent, out var radioed) ? radioed.Name : null)
                 : call.CoveredBy is { } id ? (id == maintenance ? StewardCallResponder.Maintenance :
                     staff.FirstOrDefault(member => member.AgentId == id)?.Role == ResponseRole.Medic ? StewardCallResponder.Medic : StewardCallResponder.Steward,
                     _persons.TryGet(id, out var person) ? person.Name : null)
@@ -81,6 +85,7 @@ public static class StewardShiftPress
         if (s.LitterPicked >= 10) return "Boss mops up after the crowd";
         if (s.TapsBodged > 0) return "Organiser mends a tap with a bit of string";
         if (s.Directions >= 3) return "Organiser plays tour guide on the field";
+        if (report.Calls > 0 && report.Answered == 0 && s.Dispatched > 0) return "Organiser runs the night from the radio";
         if (report.Calls > 0 && report.Answered == 0) return "Organiser nowhere to be seen as the radio crackles";
         if (report.Answered > 0) return "Organiser mucks in with the stewards";
         if (s.Covered > 0) return "Organiser leaves the radio to the crew";
@@ -100,8 +105,8 @@ public static class StewardShiftPress
         int Rank(StewardNightCall call) => (call.Who, call.Urgent) switch
         {
             (StewardCallResponder.Missed, true) => 0,
-            (StewardCallResponder.You or StewardCallResponder.Autopilot, true) => 1,
-            (StewardCallResponder.You or StewardCallResponder.Autopilot, false) => 2,
+            (StewardCallResponder.You or StewardCallResponder.Autopilot or StewardCallResponder.Sent, true) => 1,
+            (StewardCallResponder.You or StewardCallResponder.Autopilot or StewardCallResponder.Sent, false) => 2,
             (StewardCallResponder.Missed, false) => 3,
             _ => 4,
         };

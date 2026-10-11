@@ -184,6 +184,9 @@ public sealed partial class GameSession
         var (prefix, key) = SplitTarget(target);
         ulong.TryParse(key, out var id);
         if (job != StewardRadioJob.Crew && workerId is not null) return ("Only the crew are radioed by name.", false, null);
+        if (job == StewardRadioJob.Crew && !IsHandsOn) return ("Control runs the crew on this shift.", false, null);
+        // The medic and the crew go to what Control has put out, or to what the player can see from where they stand.
+        if (job != StewardRadioJob.Henry && !StewardRadioKnown(target)) return ("Control hasn't heard of anything there.", false, null);
         switch (job)
         {
             case StewardRadioJob.Medic:
@@ -256,6 +259,19 @@ public sealed partial class GameSession
         }
     }
 
+    /// <summary>
+    /// A target the player could know of: the subject of an open call Control has put out, or within sight (the
+    /// crosshair's 40 m) of the player.
+    /// </summary>
+    private bool StewardRadioKnown(string target)
+    {
+        if (_stewardShift is not { PlayerId: { } me } shift || !_navigationAgents.TryGetValue(new(me), out var nav)) return false;
+        if ((shift.Calls ?? []).Any(call => call.Open && call.HeardTick <= CurrentTick && CallTargetId(call) == target)) return true;
+        if (StewardTargetPoint(target) is not { } point) return false;
+        long dx = point.X - nav.XMillimetres, dz = point.Z - nav.ZMillimetres;
+        return dx * dx + dz * dz <= (long)StewardRadioRules.CrosshairMillimetres * StewardRadioRules.CrosshairMillimetres;
+    }
+
     private string CrewName(ulong id) => _persons.TryGet(id, out var person) ? person.Name.Split(' ')[0] : "Someone";
 
     private CommandResult? ValidateStewardRadio(EntityId? target, StewardRadioCommand command)
@@ -270,9 +286,18 @@ public sealed partial class GameSession
             ? CommandResult.Rejected(plan.Busy ? CommandReasonCode.AlreadyCommitted : CommandReasonCode.InvalidParameter, plan.Reason!) : null;
     }
 
+    /// <summary>
+    /// The job goes. It counts once someone actually went (a bin order left waiting for a free steward doesn't), and on a
+    /// hands-on day the call it answers is marked radioed, covered by whoever went.
+    /// </summary>
     private void ApplyStewardRadio(StewardRadioCommand command)
     {
-        StewardRadioPlan(command.Job, command.TargetId, command.WorkerId).Apply!();
+        var plan = StewardRadioPlan(command.Job, command.TargetId, command.WorkerId);
+        plan.Apply!();
+        if (plan.Busy) return;
         Score(s => s with { RadioJobs = s.RadioJobs + 1 });
+        if (!IsHandsOn || command.Job == StewardRadioJob.Henry || _stewardShift!.Calls is not { } calls) return;
+        _stewardShift = _stewardShift with { Calls = calls.Select(call => call.Open && call.AnsweredTick < 0 && CallTargetId(call) == command.TargetId &&
+            CrewHolder(call) is { } holder ? call with { CoveredBy = holder, Radioed = true } : call).ToArray() };
     }
 }

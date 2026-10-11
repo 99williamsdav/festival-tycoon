@@ -652,8 +652,8 @@ public sealed partial class GameSession
         if (shift.Score is not { } score || shift.Calls is not { } calls) return "Steward shift score or calls missing.";
         var counts = new long[] { score.Calls, score.Answered, score.Calmed, score.CalmsFailed, score.FightsBrokenUp, score.BreakUpsFailed, score.Escorted,
             score.MedicRadioed, score.StoodBy, score.LoosFreed, score.TapsBodged, score.BinsEmptied, score.LitterPicked, score.StrawSpread, score.CowsHerded,
-            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded, score.StageInvasions, score.AutoAnswered, score.Covered, score.RadioJobs };
-        if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.AutoAnswered > score.Answered || score.UrgentUnhandled > score.Calls - score.Answered || score.ResponseTicks < 0 ||
+            score.Directions, score.Drinks, score.UrgentUnhandled, score.MoodAdded, score.StageInvasions, score.AutoAnswered, score.Covered, score.RadioJobs, score.Dispatched, score.FightsDispatched };
+        if (counts.Any(count => count is < 0 or > 100_000) || score.Answered > score.Calls || score.AutoAnswered > score.Answered || score.UrgentUnhandled + score.Dispatched > score.Calls - score.Answered || score.FightsDispatched > score.Dispatched || score.ResponseTicks < 0 ||
             score.MoodAdded < StewardShiftRules.CreditedMood(score) || score.MoodAdded > StewardShiftRules.CreditedMood(score) + (long)score.Directions * StewardShiftRules.DirectionsSatisfaction ||
             score.ResponseTicks > (long)score.Answered * Math.Max(1, s.CurrentTick) ||
             score.StageTicks < score.StageInvasions || score.StageTicks > s.CurrentTick - p.StartedTick + 1 || score.StageInvasions == 0 && score.StageTicks != 0)
@@ -668,7 +668,8 @@ public sealed partial class GameSession
             call.AnsweredTick != -1 && (call.AnsweredTick < call.OpenedTick || call.AnsweredTick > (call.ClosedTick >= 0 ? call.ClosedTick : s.CurrentTick)) ||
             call.Auto && call.AnsweredTick < 0 || call.CoveredBy is { } crew && (!handsOn || crew == shift.PlayerId ||
                 !p.People.Any(person => person.AgentId == crew && person.Role == ProtectedPersonRole.Staff && person.Name != HandsOnStewardName)) ||
-            call.Where is { } where && (!handsOn || where.Length is 0 or > 64);
+            call.Where is { } where && (!handsOn || where.Length is 0 or > 64) ||
+            call.Radioed && (!handsOn || call.CoveredBy is null);
         if (calls.Length > 512 || calls.Any(BadCall) ||
             calls.Where(call => call.ClosedTick < 0).Select(call => call.Id).Distinct().Count() != calls.Count(call => call.ClosedTick < 0) ||
             calls.Select(call => (call.Id, call.OpenedTick)).Distinct().Count() != calls.Length ||
@@ -677,10 +678,19 @@ public sealed partial class GameSession
         // A hands-on day's log of the night: closed calls that went out or were answered, in the order they closed,
         // exactly the ones the score counted (those the crew covered and the player left to them aside).
         var log = shift.Log ?? [];
-        if (shift.Log is not null && (!handsOn || log.Length is 0 or > 4_096 || log.Any(call => BadCall(call) || call.ClosedTick < 0 || !InStewardLog(call)) ||
+        // As long as the score's own counts allow (calls and covered calls, each at most 100,000), so a long day never
+        // writes a save it can't load.
+        if (shift.Log is not null && (!handsOn || log.Length is 0 or > StewardShiftRules.LogMax || log.Any(call => BadCall(call) || call.ClosedTick < 0 || !InStewardLog(call)) ||
                 log.Select(call => (call.Id, call.OpenedTick)).Distinct().Count() != log.Length || log.Zip(log.Skip(1)).Any(pair => pair.Second.ClosedTick < pair.First.ClosedTick)) ||
-            handsOn && (log.Count(call => call.AnsweredTick >= 0 || call.CoveredBy is null) != score.Calls || log.Count(call => call.AnsweredTick >= 0) != score.Answered ||
-                log.Count(call => call.Auto) != score.AutoAnswered || log.Count(call => call.AnsweredTick < 0 && call.CoveredBy is not null) != score.Covered))
+            handsOn && (log.Count(call => call.AnsweredTick >= 0 || call.CoveredBy is null || call.Radioed) != score.Calls || log.Count(call => call.AnsweredTick >= 0) != score.Answered ||
+                log.Count(call => call.Auto) != score.AutoAnswered || log.Count(call => call.AnsweredTick < 0 && call.CoveredBy is not null && !call.Radioed) != score.Covered ||
+                log.Count(call => call.AnsweredTick < 0 && call.Radioed) != score.Dispatched ||
+                log.Count(call => call.AnsweredTick < 0 && call.Radioed && call.Kind == StewardCallKind.Fight) != score.FightsDispatched ||
+                // The response time is the answered calls' own; only an urgent call nobody answered or covered went unhandled.
+                log.Where(call => call.AnsweredTick >= 0).Sum(call => Math.Max(0, call.AnsweredTick - call.HeardTick)) != score.ResponseTicks ||
+                score.UrgentUnhandled > log.Count(call => call.Urgent && call.AnsweredTick < 0 && call.CoveredBy is null) ||
+                // The radio strip's closed calls that the night kept are in its log, as they closed.
+                calls.Any(call => call.ClosedTick >= 0 && InStewardLog(call) && !log.Contains(call))))
             return "Steward shift call log invalid.";
         if (shift.Directed is { } directed && (directed.Distinct().Count() != directed.Length || directed.Any(id => !guests.ContainsKey(id))) ||
             (shift.Directed?.Length ?? 0) != score.Directions)

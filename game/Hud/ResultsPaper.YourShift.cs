@@ -61,9 +61,11 @@ internal sealed partial class ResultsPaper
     {
         StewardCallResponder.You => ("you went", "user", Ui.Teal),
         StewardCallResponder.Autopilot => ("you (autopilot)", "user", Ui.Teal),
-        StewardCallResponder.Medic => ("sent the medic", "heart-pulse", Ui.Teal),
-        StewardCallResponder.Steward => ($"sent {FirstName(call.Crew, "a steward")}", "shield", Ui.Teal),
-        StewardCallResponder.Maintenance => ($"sent {FirstName(call.Crew, "maintenance")}", "wrench", Ui.Teal),
+        // A crew member the player radioed out: "sent Shaz", with the radio; one Control sent off its own bat says so.
+        StewardCallResponder.Sent => ($"sent {(call.Crew == "the medic" ? "the medic" : FirstName(call.Crew, "the crew"))}", "radio", Ui.Teal),
+        StewardCallResponder.Medic => ("Control sent the medic", "heart-pulse", Ui.Teal),
+        StewardCallResponder.Steward => ($"Control sent {FirstName(call.Crew, "a steward")}", "shield", Ui.Teal),
+        StewardCallResponder.Maintenance => ($"Control sent {FirstName(call.Crew, "maintenance")}", "wrench", Ui.Teal),
         _ => ("missed", "x", Ui.Alert),
     };
 

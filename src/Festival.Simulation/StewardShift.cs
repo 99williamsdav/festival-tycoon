@@ -138,11 +138,19 @@ public sealed record StewardShiftScore
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int Covered { get; init; }
     /// <summary>Jobs the player radioed out from first person (<see cref="StewardRadioCommand"/>): the medic, Henry or the crew sent.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int RadioJobs { get; init; }
+    /// <summary>
+    /// Of <see cref="Calls"/>, those the player radioed a crew member onto and left to them (<see cref="StewardCall.Radioed"/>):
+    /// half credit in the calls share, no response time. Of those, the fights: dealt with, neither prevented nor broken up.
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int Dispatched { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int FightsDispatched { get; init; }
 }
 
 public static class StewardShiftRules
 {
     public const int Version = 3;
+    /// <summary>The most calls a hands-on day's log holds: every call the score can count, and every one the crew covered.</summary>
+    public const int LogMax = 200_000;
     /// <summary>The hedged field, in grid cells: −32 m to +32 m both ways. The player steward stays inside it.</summary>
     public const int FieldMinCell = 64, FieldMaxCell = 191;
     /// <summary>Running pace against a steward's walk.</summary>
