@@ -48,8 +48,6 @@ public sealed record PerformanceRecord(string StageId, int Slot, string ActId,
     [JsonIgnore]
     public GigFacts Facts => new(StartedTick >= 0, CutShort, PeakCrowd, SetEndCrowd, SetEndEnjoyment, Hiccups)
         { WonOver = WonOverIds?.Length ?? 0, WalkedOff = WalkedOffIds?.Length ?? 0 };
-    /// <summary>What the set does to the act's popularity from the next festival on.</summary>
-    [JsonIgnore] public int PopularityChange => GigRules.PopularityChange(Facts);
 }
 
 /// <summary>
@@ -69,9 +67,9 @@ public sealed record CarriedGig(int Tier, string ActId, bool Started, bool CutSh
 /// <para>Score = crowd + reaction + enthusiasm − hiccups, held to −30..+25:</para>
 /// <list type="bullet">
 /// <item>Crowd: the set-end and peak crowds, weighted 65 to 35 (bands remember the applause at the end more than the
-/// crowd in the middle), against the crowd the act expects: −10 for nobody, 0 at half, +10 at the full expected crowd
-/// or more; less up to 5 more when fewer than half the peak crowd stayed to the end (none at half, all 5 when nobody
-/// did); a set cut short or missed is judged by its peak alone and never above 0.</item>
+/// crowd in the middle), each against what's normal: the peak against the crowd the act expects, the set-end crowd
+/// against the share of it a typical set keeps (20%). −10 for nobody, 0 for a typical set, +10 at twice typical or
+/// more; a set cut short or missed is judged by its peak alone and never above 0.</item>
 /// <item>Reaction: the set-end crowd's average enjoyment, −5 at nothing, 0 at 200, +10 at 500 or more; nothing
 /// without a set-end crowd.</item>
 /// <item>Enthusiastic applause (<see cref="PerformanceApplauseMath.IsEnthusiastic"/>): +5.</item>
@@ -80,8 +78,9 @@ public sealed record CarriedGig(int Tier, string ActId, bool Started, bool CutSh
 /// </list>
 /// <para>Fee: × (1 − relationship / 200) for a band that likes you, × (1 − relationship / 100) for one that doesn't, so
 /// half at +100 and double at −100, rounded to whole pounds.</para>
-/// <para>Popularity: +1 for every 5 newcomers won over, at most +3 a set; −1 when at least 8 newcomers walked off
-/// unimpressed and they're more than twice those won over. Held to 0..100, counted from the next festival.</para>
+/// <para>Popularity: +1 for every <see cref="NewcomersPerPoint"/> newcomers won over (2 for an obscure act, more the more
+/// popular it is), at most +3 a set; −1 when four times that many walked off unimpressed and they're more than twice
+/// those won over. Held to 0..100, counted from the next festival.</para>
 /// </summary>
 public static class GigRules
 {
@@ -93,8 +92,12 @@ public static class GigRules
     public const int CrowdPoints = 10;
     /// <summary>The crowd measure's weights, in twentieths: 35% the peak, 65% the set-end crowd.</summary>
     public const int PeakWeight = 7, SetEndWeight = 13;
-    /// <summary>The most a set loses for a crowd that drifted off: all of it when nobody stayed, none when half the peak did.</summary>
-    public const int DrainPoints = 5;
+    /// <summary>
+    /// The share of the expected crowd a typical set still has at its end, in percent: what an act takes as normal. Real
+    /// Tier 1 days end with 2–7 of a 15–22 peak (about 20% of the expected crowd), most of the rest off to the bar, the
+    /// toilets, shade or a better spot in the crowd as the set winds down. Revisit if the end-of-set drain changes.
+    /// </summary>
+    public const int TypicalRetentionPercent = 20;
     public const int ReactionFloor = -5, ReactionCeiling = 10, ReactionZero = 200, ReactionStep = 30;
     public const int EnthusiasticPoints = 5;
     public const int NoShowPenalty = 20, CutShortPenalty = 4, LatePenalty = 4, PowerCutPenalty = 6, StoppedPenalty = 3,
@@ -133,7 +136,9 @@ public static class GigRules
     public const int WonOverEnjoyment = ReactionZero;
     /// <summary>A newcomer walked off unimpressed after hearing at least 30 s of a set that played out, getting under 3 a second from it.</summary>
     public const int WalkOffHeardTicks = 2_400, UnimpressedPerSecond = 3;
-    public const int ListenersPerPopularity = 5, MostPopularityGain = 3, WalkOffsForLoss = 8;
+    public const int MostPopularityGain = 3;
+    /// <summary>A loss needs this many times a point's worth of newcomers walking off (8 for an obscure act).</summary>
+    public const int WalkOffsPerLoss = 4;
     public const int LeastPopularity = 0, MostPopularity = 100;
 
     /// <summary>A guest who wasn't a fan as the set began, in the set-end crowd, who'd had enough of it to count as a good reaction.</summary>
@@ -142,10 +147,23 @@ public static class GigRules
     public static bool IsWalkOff(int keenness, bool playedOut, bool atSetEnd, int listenedTicks, int enjoyment) =>
         keenness < FanKeenness && playedOut && !atSetEnd && listenedTicks >= WalkOffHeardTicks && enjoyment < UnimpressedPerSecond * (listenedTicks / 80);
 
-    /// <summary>How a set moves its act's popularity: +1 per 5 newcomers won over (at most +3), else −1 for a lot walking off.</summary>
-    public static int PopularityChange(GigFacts facts) =>
-        facts.WonOver >= ListenersPerPopularity ? Math.Min(MostPopularityGain, facts.WonOver / ListenersPerPopularity) :
-        facts.WalkedOff >= WalkOffsForLoss && facts.WalkedOff > 2 * facts.WonOver ? -1 : 0;
+    /// <summary>
+    /// Newcomers an act must win over for a point of popularity: 2 for an obscure act, rising with how popular it already
+    /// is (2 + (popularity − 20)² / 400): 2 up to 30, 3 at 40, 4 at 50, 6 at 60, 8 at 70, 11 at 80, 14 at 90, 18 at 100.
+    /// </summary>
+    public static int NewcomersPerPoint(int popularity) => 2 + Square(Math.Max(0, popularity - 20)) / 400;
+    private static int Square(int value) => value * value;
+
+    /// <summary>
+    /// How a set moves its act's popularity (<paramref name="popularity"/> as it played): +1 per <see cref="NewcomersPerPoint"/>
+    /// newcomers won over, at most +3; else −1 when four times that many walked off, and more than twice those won over.
+    /// </summary>
+    public static int PopularityChange(GigFacts facts, int popularity)
+    {
+        var need = NewcomersPerPoint(popularity);
+        return facts.WonOver >= need ? Math.Min(MostPopularityGain, facts.WonOver / need) :
+            facts.WalkedOff >= WalkOffsPerLoss * need && facts.WalkedOff > 2 * facts.WonOver ? -1 : 0;
+    }
 
     /// <summary>A popularity moved by a set, held to the catalogue's range.</summary>
     public static int ApplyPopularity(int popularity, int change) => Math.Clamp(popularity + change, LeastPopularity, MostPopularity);
@@ -159,7 +177,7 @@ public static class GigRules
     {
         if (!facts.Started) return NoShow;
         if (facts.CutShort) return CutShort;
-        if (PeakWeight * facts.PeakCrowd + SetEndWeight * facts.SetEndCrowd < 5 * expected) return EmptyField;
+        if (Weighted(facts.PeakCrowd, facts.SetEndCrowd) < 5L * Math.Max(1, expected) * TypicalRetentionPercent) return EmptyField;
         if (PerformanceApplauseMath.IsEnthusiastic(facts.SetEndCrowd, facts.SetEndEnjoyment)) return Enthusiastic;
         var crowd = CrowdScore(facts.PeakCrowd, facts.SetEndCrowd, expected);
         if (crowd < 0) return Smattering;
@@ -190,23 +208,25 @@ public static class GigRules
         (!hiccups.Contains(Boos) || hiccups.Contains(PowerCut) || hiccups.Contains(Stopped));
 
     /// <summary>
-    /// The crowd's points: (35% peak + 65% set-end) against the expected crowd, −10 at nobody, 0 at half, +10 at all of
-    /// it, less up to <see cref="DrainPoints"/> for a crowd that drifted off (fewer than half the peak at the end), rounded down.
+    /// The crowd's points, against what's normal: 35% the peak against the expected crowd, 65% the set-end crowd against
+    /// the typical end crowd (<see cref="TypicalRetentionPercent"/> of the expected one). A typical set (the expected crowd
+    /// at its peak, the usual share left at the end) scores 0; nobody −10; twice typical or better +10. Rounded down.
     /// </summary>
     public static int CrowdScore(int peak, int setEnd, int expected)
     {
-        if (peak <= 0) return -CrowdPoints;
         expected = Math.Max(1, expected);
-        // Both parts over 10 × expected × peak: the weighted crowd's points, less the drain's.
-        var over = 10L * expected * peak;
-        var points = (long)(PeakWeight * peak + SetEndWeight * setEnd) * CrowdPoints * peak - DrainPoints * 10L * expected * Math.Max(0, peak - 2 * setEnd);
-        return (int)Math.Clamp(FloorDiv(points, over) - CrowdPoints, -CrowdPoints, CrowdPoints);
+        // 10 × (7 × peak / expected + 13 × end / (expected × R / 100)) / 20, over a common denominator.
+        return (int)Math.Clamp(Weighted(peak, setEnd) / (2L * expected * TypicalRetentionPercent) - CrowdPoints, -CrowdPoints, CrowdPoints);
     }
 
-    /// <summary>Fewer than half the peak crowd stayed to the end.</summary>
-    public static bool DriftedOff(int peak, int setEnd) => 2 * setEnd < peak;
+    /// <summary>The weighted crowd, scaled: peak × 7 × R + end × 13 × 100. A typical set gives 20 × expected × R.</summary>
+    private static long Weighted(int peak, int setEnd) => (long)PeakWeight * peak * TypicalRetentionPercent + (long)SetEndWeight * setEnd * 100;
 
-    private static long FloorDiv(long a, long b) => a / b - (a % b != 0 && (a < 0) != (b < 0) ? 1 : 0);
+    /// <summary>A set cut short or missed: its peak against the expected crowd, never above 0 (nobody clapped it out).</summary>
+    public static int PeakOnlyScore(int peak, int expected) => Math.Min(0, Math.Max(-CrowdPoints, peak * CrowdPoints / Math.Max(1, expected) - CrowdPoints));
+
+    /// <summary>Fewer stayed to the end than a typical set keeps of its peak.</summary>
+    public static bool DriftedOff(int peak, int setEnd) => 100L * setEnd < (long)TypicalRetentionPercent * peak;
 
     public static int ReactionScore(int setEnd, int averageEnjoyment) => setEnd == 0 ? 0 :
         Math.Clamp((averageEnjoyment - ReactionZero) / ReactionStep, ReactionFloor, ReactionCeiling);
@@ -223,7 +243,7 @@ public static class GigRules
         var parts = new List<(int Points, string Reason)>();
         // A crowd that never got the whole set earns the act nothing; nobody clapped out a set cut short, so it's judged by
         // the crowd it had (its peak), not as a crowd that drifted off.
-        var crowd = reaction is CutShort or NoShow ? Math.Min(CrowdScore(peak, peak, expected), 0) : CrowdScore(peak, setEnd, expected);
+        var crowd = reaction is CutShort or NoShow ? PeakOnlyScore(peak, expected) : CrowdScore(peak, setEnd, expected);
         parts.Add((crowd, crowd >= CrowdPoints / 2 ? "a big crowd" : crowd > 0 ? "a fair crowd" :
             reaction is not (CutShort or NoShow) && DriftedOff(peak, setEnd) && 2 * peak >= expected ? "the crowd drifted off before the end" :
             crowd > -CrowdPoints / 2 ? "a thin crowd" : "hardly anyone there"));
@@ -469,7 +489,7 @@ public sealed partial class GameSession
             var act = ActCatalogue.WithPopularityShift(catalogue, shifts.GetValueOrDefault(gig.ActId));
             var (_, delta, _) = GigRules.Judge(gig.Facts, ExpectedCrowdAt(gig.Tier, StageCountAt(gig.Tier, pondStageTrial), act));
             values[gig.ActId] = GigRules.Apply(values.GetValueOrDefault(gig.ActId), delta);
-            shifts[gig.ActId] = GigRules.ApplyPopularity(act.Popularity, GigRules.PopularityChange(gig.Facts)) - catalogue.Popularity;
+            shifts[gig.ActId] = GigRules.ApplyPopularity(act.Popularity, GigRules.PopularityChange(gig.Facts, act.Popularity)) - catalogue.Popularity;
         }
         var popularity = shifts.Where(item => item.Value != 0).OrderBy(item => item.Key, StringComparer.Ordinal)
             .Select(item => new PopularityShift(item.Key, item.Value)).ToArray();
@@ -483,6 +503,10 @@ public sealed partial class GameSession
         var (relationships, popularity) = Replay(history, _pondStageTrial);
         return (history, relationships, popularity);
     }
+
+    /// <summary>What a set of this festival does to its act's popularity from the next festival on, at the popularity it played with.</summary>
+    public int PopularityChange(PerformanceRecord record) => ActCatalogue.Find(record.ActId) is { } act
+        ? GigRules.PopularityChange(record.Facts, CampaignAct(act).Popularity) : 0;
 
     /// <summary>How far each act's popularity has moved in this campaign, as this festival opened; null when none has.</summary>
     public IReadOnlyList<PopularityShift> PopularityShifts => _preparation?.ActPopularity ?? [];
