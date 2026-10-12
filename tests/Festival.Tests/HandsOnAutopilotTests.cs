@@ -19,9 +19,9 @@ public sealed class HandsOnAutopilotTests
     private static void Forge(GameSession s, ulong id, Func<Person, Person> change) => Call(s, "UpdatePerson", id, change);
 
     /// <summary>A hands-on (or classic) Tier 1, planned and crewed as the classic tests' campaign is.</summary>
-    private static GameSession Started(bool handsOn = true, bool faults = true)
+    private static GameSession Started(bool handsOn = true, bool faults = true, ulong seed = Seed)
     {
-        var s = handsOn ? GameSession.CreateHandsOnCampaign(Seed) : GameSession.CreateBuildCampaign(Seed);
+        var s = handsOn ? GameSession.CreateHandsOnCampaign(seed) : GameSession.CreateBuildCampaign(seed);
         var perks = s.CapturePerks()!;
         string[] quiet = ["extra-pair-of-hands", "doctors-orders"];
         for (var draws = 0; !perks.Hand.Any(quiet.Contains); draws++)
@@ -455,7 +455,9 @@ public sealed class HandsOnAutopilotTests
     [TestMethod]
     public void LeftToThemselvesAllDayTheStewardAnswersSomeOfTheirCalls()
     {
-        var s = Started();
+        // A day with calls left to the player that they answer on autopilot, and not all of them. Which days have such calls
+        // is chance (the default seed's day now has one, which the crew covers), so this names a day that does.
+        var s = Started(seed: 20260926);
         for (var i = 0; i < 80 && s.PreparedStatus is PreparationStatus.Running; i++)
         {
             s.AdvanceWithoutSnapshot(1_000);
