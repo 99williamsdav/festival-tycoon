@@ -13,6 +13,10 @@ namespace Festival.Game;
 /// </summary>
 internal sealed class StageCard(IHudHost _hud, Action _toggle)
 {
+    /// <summary>What drink on stage is costing the band, naming the worst of them.</summary>
+    private static string DrinkNote(SetPerformance performance) => performance.Drunkenness <= 0 ? "" :
+        $", −{performance.Drunkenness} because {performance.DrunkName ?? "one of them"} is drunk";
+
     private PanelContainer? _card;
     private Button? _reopen;
     private Label? _state;
@@ -167,7 +171,7 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
             static Color Ink(int score) => score < 40 ? Ui.Alert : score < 60 ? Ui.Link : Ui.TealDeep;
             _bandWord!.Text = performance.BandWord; _bandWord.AddThemeColorOverride("font_color", Ink(performance.Band));
             _soundWord!.Text = performance.SoundWord; _soundWord.AddThemeColorOverride("font_color", Ink(performance.Sound));
-            _play.TooltipText = $"Band {performance.Band}/100 (talent {performance.Talent}" + (performance.Drunkenness > 0 ? $", less {performance.Drunkenness} for drink on stage" : "") +
+            _play.TooltipText = $"Band {performance.Band}/100 (talent {performance.Talent}" + DrinkNote(performance) +
                 $")\nSound {performance.Sound}/100 ({PowerRules.RigName(session.Rig)}, the engineer's mixing, the generator)";
             _play.MouseFilter = Control.MouseFilterEnum.Pass;
         }
@@ -225,7 +229,7 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
             row.Play.AddThemeColorOverride("font_color", generator?.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Isolated ? Ui.Alert :
                 Ink(Math.Min(performance?.Band ?? 100, performance?.Sound ?? sound)));
             row.Play.TooltipText = performance is null ? $"Sound {sound}/100 ({PowerRules.RigName(session.Rig)}, this stage's engineer, its generator)" :
-                $"Band {performance.Band}/100 (talent {performance.Talent}" + (performance.Drunkenness > 0 ? $", less {performance.Drunkenness} for drink on stage" : "") +
+                $"Band {performance.Band}/100 (talent {performance.Talent}" + DrinkNote(performance) +
                 $")\nSound {performance.Sound}/100 ({PowerRules.RigName(session.Rig)}, this stage's engineer, its generator)";
         }
         _state!.Text = (finishedDay ? "Finished" : anyOn ? "Live" : "").ToUpperInvariant();

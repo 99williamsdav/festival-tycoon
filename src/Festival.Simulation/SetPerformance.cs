@@ -1,7 +1,8 @@
 namespace Festival.Simulation;
 
 /// <summary>How a set is going: the band (its talent, less any drink on stage) and the sound reaching the crowd.</summary>
-public sealed record SetPerformance(FestivalAct Act, int Talent, int Drunkenness, int Band, int Sound, int Overall)
+/// <param name="DrunkName">The drunkest band member, when drink is costing the set.</param>
+public sealed record SetPerformance(FestivalAct Act, int Talent, int Drunkenness, int Band, int Sound, int Overall, string? DrunkName = null)
 {
     public string BandWord => PerformanceRules.BandWord(Band);
     public string SoundWord => PerformanceRules.SoundWord(Sound);
@@ -51,8 +52,12 @@ public sealed partial class GameSession
         (_equipment?.Stage switch { EquipmentStage.Warning => PerformanceRules.StrainedSoundPenalty, EquipmentStage.DangerousFault => PerformanceRules.FaultSoundPenalty, _ => 0 }), 0, 100);
 
     /// <summary>The playing act's band members' drunkenness: the worst of them sets the tone.</summary>
-    private int StageDrunkenness(int stage) => StageProgramme(stage) is not { CurrentSlot: >= 0 } q ? 0 :
-        q.Performers.Where(p => p.SlotIndex == q.CurrentSlot).Select(p => PersonIn(PersonView.Consumption, p.AgentId)?.Intoxication ?? 0).DefaultIfEmpty(0).Max();
+    private int StageDrunkenness(int stage) => StageDrunkest(stage).Intoxication;
+
+    /// <summary>The playing act's drunkest band member (the first in line on a tie) and how drunk; nobody between sets.</summary>
+    private (ulong? Id, int Intoxication) StageDrunkest(int stage) => StageProgramme(stage) is not { CurrentSlot: >= 0 } q ? (null, 0) :
+        q.Performers.Where(p => p.SlotIndex == q.CurrentSlot).Select(p => ((ulong?)p.AgentId, PersonIn(PersonView.Consumption, p.AgentId)?.Intoxication ?? 0))
+            .Aggregate(((ulong?)null, 0), (worst, next) => next.Item2 > worst.Item2 ? next : worst);
 
     /// <summary>How the main stage's set is going, or nothing between sets.</summary>
     public SetPerformance? CurrentPerformance => StagePerformance(0);
@@ -62,10 +67,12 @@ public sealed partial class GameSession
     {
         if (StageAct(stage) is not { } act || _livePerformances[stage]?.Stage is not (LiveSetStage.Live or LiveSetStage.Interrupted)) return null;
         var talent = PerformanceRules.Talent(act);
-        var drunk = Math.Max(0, StageDrunkenness(stage) - PerformanceRules.SoberLimit) / PerformanceRules.DrunkStep;
+        var drunkest = StageDrunkest(stage);
+        var drunk = Math.Max(0, drunkest.Intoxication - PerformanceRules.SoberLimit) / PerformanceRules.DrunkStep;
         var band = Math.Clamp(talent - drunk, 0, 100);
         var sound = SoundScoreAt(stage);
-        return new(act, talent, drunk, band, sound, PerformanceRules.Overall(band, sound));
+        return new(act, talent, drunk, band, sound, PerformanceRules.Overall(band, sound),
+            drunk > 0 && drunkest.Id is { } id ? _persons[id].Name : null);
     }
 
     /// <summary>The act a performer plays in, for how professionally they treat the bar.</summary>
