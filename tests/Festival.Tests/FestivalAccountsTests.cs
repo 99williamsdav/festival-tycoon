@@ -105,5 +105,49 @@ public sealed class FestivalAccountsTests
         Assert.AreEqual(report.ClosingCashPennies - report.OpeningCashPennies, result.NetCashChangePennies);
         Assert.AreEqual(report.IncomePennies - report.SoldItemCostPennies - report.OperatingExpensesPennies, result.ProfitPennies);
         Assert.IsTrue(report.Reconciles, "Recorded setup, sales, stock and capital must reconcile to actual festival cash.");
+
+        // The stock table: each drink bought against sold, at every rate together.
+        Assert.AreEqual(2, report.StockLines.Length);
+        var soft = report.StockLines[0];
+        Assert.AreEqual(("Soft drink", 8, 480L, 2, 375L, 120L), (soft.Label, soft.Bought!.Value, soft.PaidPennies!.Value, soft.Sold, soft.TakenPennies, soft.SoldCostPennies));
+        Assert.AreEqual((6, 360L, 255L), (soft.LeftOver!.Value, soft.LeftOverCostPennies!.Value, soft.MarginPennies));
+        var beer = report.StockLines[1];
+        Assert.AreEqual(("Beer", 8, 960L, 2, 600L, 240L), (beer.Label, beer.Bought!.Value, beer.PaidPennies!.Value, beer.Sold, beer.TakenPennies, beer.SoldCostPennies));
+        Assert.AreEqual(report.StockPurchasesPennies, report.StockLines.Sum(line => line.PaidPennies!.Value), "Paid is the stock cash, line by line.");
+        Assert.AreEqual(report.SoldItemCostPennies, report.StockLines.Sum(line => line.SoldCostPennies), "Margin is struck after the operating result's cost of sales.");
+        Assert.AreEqual(report.Sales.Sum(sale => sale.AmountPennies), report.StockLines.Sum(line => line.TakenPennies), "Taken is every bar sale.");
+        Assert.AreEqual(0, report.WaterGivenAway);
+    }
+
+    [TestMethod]
+    public void WithoutAnItemisedOrderTheStockTableLeavesBoughtBlank()
+    {
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
+        var perk = session.CapturePerks()!;
+        Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
+        Accept(session, new UseDefaultBuildLayoutCommand());
+        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"]));
+        foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
+        Accept(session, new AcceptPreparationOfferCommand("equipment.rent"));
+        Accept(session, new SetPreparationStockCommand(8, 8));
+        Accept(session, new StartPreparedEditionCommand());
+        var guest = session.CapturePreparation()!.People.First(person => person.Role == ProtectedPersonRole.Guest);
+        var sell = typeof(GameSession).GetMethod("CompleteImmersionSale", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        sell.Invoke(session, [guest.AgentId, ImmersionProduct.Beer]);
+        sell.Invoke(session, [guest.AgentId, ImmersionProduct.Water]);
+        var preparation = session.CapturePreparation()!;
+        var make = typeof(GameSession).GetMethod("MakeFestivalResult", BindingFlags.NonPublic | BindingFlags.Static)!;
+        var result = (FestivalResult)make.Invoke(null, [preparation, session.CaptureImmersion(),
+            session.CaptureMedical(), session.CaptureDisorder(), session.CurrentTick, session.CaptureLavSucker(), session.CaptureWeather()])!;
+        // An older save whose order no longer adds up to the cash paid for stock.
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .SetValue(session, preparation with { Result = result, Plan = preparation.Plan! with { Beers = 9 } });
+        var report = session.CompletedFestivalAccounts!;
+        Assert.IsFalse(report.StockDetailRecorded);
+        var beer = report.StockLines.Single(line => line.Label == "Beer");
+        Assert.IsNull(beer.Bought); Assert.IsNull(beer.PaidPennies); Assert.IsNull(beer.LeftOver);
+        Assert.AreEqual((1, 400L, 280L), (beer.Sold, beer.TakenPennies, beer.MarginPennies));
+        Assert.IsFalse(report.StockLines.Any(line => line.Label == "Soft drink"), "Nothing known bought, nothing sold: no line.");
+        Assert.AreEqual(1, report.WaterGivenAway, "Free water is handed out, not stocked.");
     }
 }
