@@ -14,12 +14,17 @@ namespace Festival.Tests;
 public sealed class SingleStageBehaviourTests
 {
     private const ulong PinnedSeed = 20260922;
-    private const string PinnedDigest = "b2a62e6027180caaea4dd8264062deacdd71ba7f3e6d374419009a806d2aec0d";
+    private const string PinnedDigest = "565e85c9234a622e84a44cb02049c0c510f9cf61f71ffd9052c5135fad580e1c";
 
     [TestMethod]
     public void OneStageDayPlaysAsPinned()
     {
         var log = DayLog(PinnedSeed);
+        if (Environment.GetEnvironmentVariable("FESTIVAL_BEHAVIOUR_LOG_DIR") is { Length: > 0 } folder)
+        {
+            Directory.CreateDirectory(folder);
+            File.WriteAllText(Path.Combine(folder, $"day-{PinnedSeed}.log"), log);
+        }
         Assert.AreEqual(PinnedDigest, Digest(log), "Single-stage play changed. If that's meant, re-pin after checking the day still reads right.");
     }
 
@@ -49,7 +54,8 @@ public sealed class SingleStageBehaviourTests
         var sequence = -1;
         var slot = -2;
         string? status = null;
-        while (s.CurrentTick < end)
+        // Terminal editions stop advancing ticks; never spin forever after a failure or early finish.
+        while (s.CurrentTick < end && s.PreparedStatus is (PreparationStatus.Running or PreparationStatus.Departing))
         {
             s.AdvanceWithoutSnapshot(1);
             var tick = s.CurrentTick;

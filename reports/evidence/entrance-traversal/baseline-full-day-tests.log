@@ -1,0 +1,12 @@
+  Determining projects to restore...
+  Restored C:\Projects\festival-tycoon\artifacts\entrance-baseline\src\Festival.Persistence\Festival.Persistence.csproj (in 292 ms).
+  Restored C:\Projects\festival-tycoon\artifacts\entrance-baseline\src\Festival.Simulation\Festival.Simulation.csproj (in 292 ms).
+  Restored C:\Projects\festival-tycoon\artifacts\entrance-baseline\src\Festival.ContentAdapter\Festival.ContentAdapter.csproj (in 292 ms).
+  Restored C:\Projects\festival-tycoon\artifacts\entrance-baseline\tests\Festival.Tests\Festival.Tests.csproj (in 478 ms).
+  Festival.Simulation -> C:\Projects\festival-tycoon\artifacts\entrance-baseline\src\Festival.Simulation\bin\Debug\net8.0\Festival.Simulation.dll
+  Festival.ContentAdapter -> C:\Projects\festival-tycoon\artifacts\entrance-baseline\src\Festival.ContentAdapter\bin\Debug\net8.0\Festival.ContentAdapter.dll
+  Festival.Persistence -> C:\Projects\festival-tycoon\artifacts\entrance-baseline\src\Festival.Persistence\bin\Debug\net8.0\Festival.Persistence.dll
+  Festival.Tests -> C:\Projects\festival-tycoon\artifacts\entrance-baseline\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll
+  Run tests: 'C:\Projects\festival-tycoon\artifacts\entrance-baseline\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll' [net8.0|x64]
+  Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 39s 901ms - Festival.Tests.dll (net8.0|x64)
+  Tests succeeded: 'C:\Projects\festival-tycoon\artifacts\entrance-baseline\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll' [net8.0|x64]
