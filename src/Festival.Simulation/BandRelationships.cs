@@ -1,9 +1,16 @@
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace Festival.Simulation;
 
 /// <summary>How an act feels about playing for you: −100 to +100, 0 until they've played. Kept for the whole campaign.</summary>
 public sealed record ActRelationship(string ActId, int Value);
+
+/// <summary>
+/// How far an act's popularity has moved from its catalogue figure in this campaign, from the new listeners its sets won
+/// over (<see cref="GigRules.PopularityChange"/>). Worked out from the campaign's earlier sets, never changed mid-festival.
+/// </summary>
+public sealed record PopularityShift(string ActId, int Points);
 
 /// <summary>A guest from a set's crowd and the line they gave about it (see <see cref="GigQuotes"/>).</summary>
 public sealed record PerformanceQuote(ulong GuestId, bool Fan, int Line);
@@ -11,11 +18,16 @@ public sealed record PerformanceQuote(ulong GuestId, bool Fan, int Line);
 /// <summary>
 /// What a set's score is worked out from: whether it started, whether it was cut short, its peak and set-end crowds,
 /// the enjoyment of those who clapped it out, and what went wrong. The label, score and reasons all follow from these
-/// and the crowd the act expected (<see cref="GigRules.Judge"/>).
+/// and the crowd the act expected (<see cref="GigRules.Judge"/>). Newcomers won over and newcomers who walked off move
+/// the act's popularity (<see cref="GigRules.PopularityChange"/>), not the relationship.
 /// </summary>
 public sealed record GigFacts(bool Started, bool CutShort, int PeakCrowd, int SetEndCrowd, int SetEndEnjoyment, string[] Hiccups)
 {
     public int AverageEnjoyment => SetEndCrowd == 0 ? 0 : SetEndEnjoyment / SetEndCrowd;
+    /// <summary>Guests who weren't fans of the act, clapped the set out and enjoyed it (<see cref="GigRules.IsWonOver"/>).</summary>
+    public int WonOver { get; init; }
+    /// <summary>Guests who weren't fans, heard a fair bit, got little from it and left before the end (<see cref="GigRules.IsWalkOff"/>).</summary>
+    public int WalkedOff { get; init; }
 }
 
 /// <summary>
@@ -29,8 +41,15 @@ public sealed record PerformanceRecord(string StageId, int Slot, string ActId,
     ulong[] CrowdIds, PerformanceQuote[] Quotes, int RelationshipBefore, int Delta, int RelationshipAfter, string[] Reasons,
     bool CutShort, int SetEndEnjoyment)
 {
-    [System.Text.Json.Serialization.JsonIgnore]
-    public GigFacts Facts => new(StartedTick >= 0, CutShort, PeakCrowd, SetEndCrowd, SetEndEnjoyment, Hiccups);
+    /// <summary>The newcomers the set won over (see <see cref="GigFacts.WonOver"/>), sorted; null when none.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ulong[]? WonOverIds { get; init; }
+    /// <summary>The newcomers who walked off unimpressed (see <see cref="GigFacts.WalkedOff"/>), sorted; null when none.</summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public ulong[]? WalkedOffIds { get; init; }
+    [JsonIgnore]
+    public GigFacts Facts => new(StartedTick >= 0, CutShort, PeakCrowd, SetEndCrowd, SetEndEnjoyment, Hiccups)
+        { WonOver = WonOverIds?.Length ?? 0, WalkedOff = WalkedOffIds?.Length ?? 0 };
+    /// <summary>What the set does to the act's popularity from the next festival on.</summary>
+    [JsonIgnore] public int PopularityChange => GigRules.PopularityChange(Facts);
 }
 
 /// <summary>
@@ -39,16 +58,20 @@ public sealed record PerformanceRecord(string StageId, int Slot, string ActId,
 /// </summary>
 public sealed record CarriedGig(int Tier, string ActId, bool Started, bool CutShort, int PeakCrowd, int SetEndCrowd, int SetEndEnjoyment, string[] Hiccups)
 {
-    [System.Text.Json.Serialization.JsonIgnore]
-    public GigFacts Facts => new(Started, CutShort, PeakCrowd, SetEndCrowd, SetEndEnjoyment, Hiccups);
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int WonOver { get; init; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int WalkedOff { get; init; }
+    [JsonIgnore]
+    public GigFacts Facts => new(Started, CutShort, PeakCrowd, SetEndCrowd, SetEndEnjoyment, Hiccups) { WonOver = WonOver, WalkedOff = WalkedOff };
 }
 
 /// <summary>
 /// How a gig moves an act's relationship with you, and what that does to their fee. Every number is here.
 /// <para>Score = crowd + reaction + enthusiasm − hiccups, held to −30..+25:</para>
 /// <list type="bullet">
-/// <item>Crowd: the peak and set-end crowds, weighted three to one, against the crowd the act expects: −10 for
-/// nobody, 0 at half, +10 at the full expected crowd or more; never above 0 for a set cut short or missed.</item>
+/// <item>Crowd: the set-end and peak crowds, weighted 65 to 35 (bands remember the applause at the end more than the
+/// crowd in the middle), against the crowd the act expects: −10 for nobody, 0 at half, +10 at the full expected crowd
+/// or more; less up to 5 more when fewer than half the peak crowd stayed to the end (none at half, all 5 when nobody
+/// did); a set cut short or missed is judged by its peak alone and never above 0.</item>
 /// <item>Reaction: the set-end crowd's average enjoyment, −5 at nothing, 0 at 200, +10 at 500 or more; nothing
 /// without a set-end crowd.</item>
 /// <item>Enthusiastic applause (<see cref="PerformanceApplauseMath.IsEnthusiastic"/>): +5.</item>
@@ -57,6 +80,8 @@ public sealed record CarriedGig(int Tier, string ActId, bool Started, bool CutSh
 /// </list>
 /// <para>Fee: × (1 − relationship / 200) for a band that likes you, × (1 − relationship / 100) for one that doesn't, so
 /// half at +100 and double at −100, rounded to whole pounds.</para>
+/// <para>Popularity: +1 for every 5 newcomers won over, at most +3 a set; −1 when at least 8 newcomers walked off
+/// unimpressed and they're more than twice those won over. Held to 0..100, counted from the next festival.</para>
 /// </summary>
 public static class GigRules
 {
@@ -66,6 +91,10 @@ public static class GigRules
     public const int FeeDivisorLiked = 200, FeeDivisorDisliked = 100;
 
     public const int CrowdPoints = 10;
+    /// <summary>The crowd measure's weights, in twentieths: 35% the peak, 65% the set-end crowd.</summary>
+    public const int PeakWeight = 7, SetEndWeight = 13;
+    /// <summary>The most a set loses for a crowd that drifted off: all of it when nobody stayed, none when half the peak did.</summary>
+    public const int DrainPoints = 5;
     public const int ReactionFloor = -5, ReactionCeiling = 10, ReactionZero = 200, ReactionStep = 30;
     public const int EnthusiasticPoints = 5;
     public const int NoShowPenalty = 20, CutShortPenalty = 4, LatePenalty = 4, PowerCutPenalty = 6, StoppedPenalty = 3,
@@ -98,16 +127,39 @@ public static class GigRules
     /// <summary>Crowd and reaction points together at or above this read as a warm set rather than a polite one.</summary>
     public const int WarmPoints = 6;
 
+    /// <summary>A newcomer is a guest who wasn't a fan of the act as the set began: keenness under the fan mark (60).</summary>
+    public const int FanKeenness = 60;
+    /// <summary>A newcomer won over clapped the set out having had at least this much from it: the reaction score's zero.</summary>
+    public const int WonOverEnjoyment = ReactionZero;
+    /// <summary>A newcomer walked off unimpressed after hearing at least 30 s of a set that played out, getting under 3 a second from it.</summary>
+    public const int WalkOffHeardTicks = 2_400, UnimpressedPerSecond = 3;
+    public const int ListenersPerPopularity = 5, MostPopularityGain = 3, WalkOffsForLoss = 8;
+    public const int LeastPopularity = 0, MostPopularity = 100;
+
+    /// <summary>A guest who wasn't a fan as the set began, in the set-end crowd, who'd had enough of it to count as a good reaction.</summary>
+    public static bool IsWonOver(int keenness, bool atSetEnd, int enjoyment) => keenness < FanKeenness && atSetEnd && enjoyment >= WonOverEnjoyment;
+    /// <summary>A guest who wasn't a fan, heard 30 s or more of a set that played out, got little from it and wasn't there at the end.</summary>
+    public static bool IsWalkOff(int keenness, bool playedOut, bool atSetEnd, int listenedTicks, int enjoyment) =>
+        keenness < FanKeenness && playedOut && !atSetEnd && listenedTicks >= WalkOffHeardTicks && enjoyment < UnimpressedPerSecond * (listenedTicks / 80);
+
+    /// <summary>How a set moves its act's popularity: +1 per 5 newcomers won over (at most +3), else −1 for a lot walking off.</summary>
+    public static int PopularityChange(GigFacts facts) =>
+        facts.WonOver >= ListenersPerPopularity ? Math.Min(MostPopularityGain, facts.WonOver / ListenersPerPopularity) :
+        facts.WalkedOff >= WalkOffsForLoss && facts.WalkedOff > 2 * facts.WonOver ? -1 : 0;
+
+    /// <summary>A popularity moved by a set, held to the catalogue's range.</summary>
+    public static int ApplyPopularity(int popularity, int change) => Math.Clamp(popularity + change, LeastPopularity, MostPopularity);
+
     /// <summary>
-    /// How a set went overall, by the same crowd measure the score uses: never on stage, cut short, an empty field (a
-    /// quarter of the expected crowd or less), enthusiastic applause, a smattering (under half the expected crowd), and
+    /// How a set went overall, by the same crowd measure the score uses: never on stage, cut short, an empty field (the
+    /// weighted crowd under a quarter of the expected one), enthusiastic applause, a smattering (under half the expected crowd), and
     /// otherwise warm or polite as the crowd and their enjoyment add up.
     /// </summary>
     public static string ReactionOf(GigFacts facts, int expected)
     {
         if (!facts.Started) return NoShow;
         if (facts.CutShort) return CutShort;
-        if (3 * facts.PeakCrowd + facts.SetEndCrowd < expected) return EmptyField;
+        if (PeakWeight * facts.PeakCrowd + SetEndWeight * facts.SetEndCrowd < 5 * expected) return EmptyField;
         if (PerformanceApplauseMath.IsEnthusiastic(facts.SetEndCrowd, facts.SetEndEnjoyment)) return Enthusiastic;
         var crowd = CrowdScore(facts.PeakCrowd, facts.SetEndCrowd, expected);
         if (crowd < 0) return Smattering;
@@ -130,13 +182,31 @@ public static class GigRules
     public static bool Plausible(GigFacts facts, int guests) =>
         facts.Hiccups is { } hiccups && hiccups.SequenceEqual(HiccupOrder.Where(hiccups.Contains)) && hiccups.Distinct().Count() == hiccups.Length &&
         facts.SetEndCrowd >= 0 && facts.SetEndCrowd <= facts.PeakCrowd && facts.PeakCrowd <= guests &&
+        facts.WonOver >= 0 && facts.WonOver <= facts.SetEndCrowd && facts.WalkedOff >= 0 && facts.WalkedOff <= guests - facts.SetEndCrowd &&
+        (facts.WalkedOff == 0 || facts.Started && !facts.CutShort) &&
         facts.SetEndEnjoyment >= 0 && facts.SetEndEnjoyment <= facts.SetEndCrowd * (GameSession.FestivalSlotDurationTicks / 80 * 30) &&
         (facts.Started || !facts.CutShort && facts.PeakCrowd == 0 && hiccups.All(item => item == Collapse)) &&
         (!facts.CutShort || facts.SetEndCrowd == 0) &&
         (!hiccups.Contains(Boos) || hiccups.Contains(PowerCut) || hiccups.Contains(Stopped));
 
-    public static int CrowdScore(int peak, int setEnd, int expected) =>
-        Math.Clamp((3 * peak + setEnd) * CrowdPoints / 2 / Math.Max(1, expected) - CrowdPoints, -CrowdPoints, CrowdPoints);
+    /// <summary>
+    /// The crowd's points: (35% peak + 65% set-end) against the expected crowd, −10 at nobody, 0 at half, +10 at all of
+    /// it, less up to <see cref="DrainPoints"/> for a crowd that drifted off (fewer than half the peak at the end), rounded down.
+    /// </summary>
+    public static int CrowdScore(int peak, int setEnd, int expected)
+    {
+        if (peak <= 0) return -CrowdPoints;
+        expected = Math.Max(1, expected);
+        // Both parts over 10 × expected × peak: the weighted crowd's points, less the drain's.
+        var over = 10L * expected * peak;
+        var points = (long)(PeakWeight * peak + SetEndWeight * setEnd) * CrowdPoints * peak - DrainPoints * 10L * expected * Math.Max(0, peak - 2 * setEnd);
+        return (int)Math.Clamp(FloorDiv(points, over) - CrowdPoints, -CrowdPoints, CrowdPoints);
+    }
+
+    /// <summary>Fewer than half the peak crowd stayed to the end.</summary>
+    public static bool DriftedOff(int peak, int setEnd) => 2 * setEnd < peak;
+
+    private static long FloorDiv(long a, long b) => a / b - (a % b != 0 && (a < 0) != (b < 0) ? 1 : 0);
 
     public static int ReactionScore(int setEnd, int averageEnjoyment) => setEnd == 0 ? 0 :
         Math.Clamp((averageEnjoyment - ReactionZero) / ReactionStep, ReactionFloor, ReactionCeiling);
@@ -151,10 +221,12 @@ public static class GigRules
     public static (int Delta, string[] Reasons) Score(string reaction, string[] hiccups, int peak, int setEnd, int expected, int averageEnjoyment)
     {
         var parts = new List<(int Points, string Reason)>();
-        var crowd = CrowdScore(peak, setEnd, expected);
-        // A crowd that never got the whole set earns the act nothing.
-        if (reaction is CutShort or NoShow) crowd = Math.Min(crowd, 0);
-        parts.Add((crowd, crowd >= CrowdPoints / 2 ? "a big crowd" : crowd > 0 ? "a fair crowd" : crowd > -CrowdPoints / 2 ? "a thin crowd" : "hardly anyone there"));
+        // A crowd that never got the whole set earns the act nothing; nobody clapped out a set cut short, so it's judged by
+        // the crowd it had (its peak), not as a crowd that drifted off.
+        var crowd = reaction is CutShort or NoShow ? Math.Min(CrowdScore(peak, peak, expected), 0) : CrowdScore(peak, setEnd, expected);
+        parts.Add((crowd, crowd >= CrowdPoints / 2 ? "a big crowd" : crowd > 0 ? "a fair crowd" :
+            reaction is not (CutShort or NoShow) && DriftedOff(peak, setEnd) && 2 * peak >= expected ? "the crowd drifted off before the end" :
+            crowd > -CrowdPoints / 2 ? "a thin crowd" : "hardly anyone there"));
         var heard = ReactionScore(setEnd, averageEnjoyment);
         if (heard != 0) parts.Add((heard, heard > 0 ? "the crowd loved it" : "a flat crowd"));
         if (reaction == Enthusiastic) parts.Add((EnthusiasticPoints, "an enthusiastic send-off"));
@@ -371,7 +443,8 @@ public sealed partial class GameSession
     /// <summary>Every set the campaign has played up to now, earlier festivals' and this one's, as the facts they were scored on.</summary>
     private CarriedGig[]? RelationshipHistoryAfterFestival => _preparation is not { } p ? null :
         (p.RelationshipHistory ?? []).Concat(PerformanceRecords.Select(record => new CarriedGig(p.Tier, record.ActId, record.StartedTick >= 0,
-            record.CutShort, record.PeakCrowd, record.SetEndCrowd, record.SetEndEnjoyment, record.Hiccups.ToArray()))).ToArray() is { Length: > 0 } all ? all : null;
+            record.CutShort, record.PeakCrowd, record.SetEndCrowd, record.SetEndEnjoyment, record.Hiccups.ToArray())
+            { WonOver = record.WonOverIds?.Length ?? 0, WalkedOff = record.WalkedOffIds?.Length ?? 0 })).ToArray() is { Length: > 0 } all ? all : null;
 
     /// <summary>How many stages a festival at this tier ran.</summary>
     private static int StageCountAt(int tier, bool pondStageTrial) => FestivalStages.For(pondStageTrial || tier >= PondStageFromTier).Count;
@@ -380,24 +453,41 @@ public sealed partial class GameSession
         ActCatalogue.ExpectedPopularity(FestivalTickets.PricePennies(tier)));
 
     /// <summary>Relationships worked out from the campaign's sets, each scored again from its facts in the order played.</summary>
-    private static ActRelationship[]? RelationshipsFrom(IEnumerable<CarriedGig>? history, bool pondStageTrial)
+    private static ActRelationship[]? RelationshipsFrom(IEnumerable<CarriedGig>? history, bool pondStageTrial) => Replay(history, pondStageTrial).Relationships;
+
+    /// <summary>
+    /// Relationships and popularity worked out from the campaign's sets in the order played: each set is scored against
+    /// the crowd its act expected at the popularity it had then (moved only by earlier festivals' sets), then moves both.
+    /// </summary>
+    private static (ActRelationship[]? Relationships, PopularityShift[]? Popularity) Replay(IEnumerable<CarriedGig>? history, bool pondStageTrial)
     {
         var values = new Dictionary<string, int>(StringComparer.Ordinal);
+        var shifts = new Dictionary<string, int>(StringComparer.Ordinal);
         foreach (var gig in history ?? [])
         {
-            var act = ActCatalogue.Find(gig.ActId)!;
+            var catalogue = ActCatalogue.Find(gig.ActId)!;
+            var act = ActCatalogue.WithPopularityShift(catalogue, shifts.GetValueOrDefault(gig.ActId));
             var (_, delta, _) = GigRules.Judge(gig.Facts, ExpectedCrowdAt(gig.Tier, StageCountAt(gig.Tier, pondStageTrial), act));
             values[gig.ActId] = GigRules.Apply(values.GetValueOrDefault(gig.ActId), delta);
+            shifts[gig.ActId] = GigRules.ApplyPopularity(act.Popularity, GigRules.PopularityChange(gig.Facts)) - catalogue.Popularity;
         }
-        return GigRules.Normalised(values);
+        var popularity = shifts.Where(item => item.Value != 0).OrderBy(item => item.Key, StringComparer.Ordinal)
+            .Select(item => new PopularityShift(item.Key, item.Value)).ToArray();
+        return (GigRules.Normalised(values), popularity.Length == 0 ? null : popularity);
     }
 
-    /// <summary>The next festival's relationships and the sets they come from, as this festival leaves them.</summary>
-    private (CarriedGig[]? History, ActRelationship[]? Relationships) RelationshipsForNextFestival(int nextTier)
+    /// <summary>The next festival's relationships, popularity and the sets they come from, as this festival leaves them.</summary>
+    private (CarriedGig[]? History, ActRelationship[]? Relationships, PopularityShift[]? Popularity) RelationshipsForNextFestival(int nextTier)
     {
         var history = GigRules.BetweenFestivals(RelationshipHistoryAfterFestival, CampaignSeed, nextTier);
-        return (history, RelationshipsFrom(history, _pondStageTrial));
+        var (relationships, popularity) = Replay(history, _pondStageTrial);
+        return (history, relationships, popularity);
     }
+
+    /// <summary>How far each act's popularity has moved in this campaign, as this festival opened; null when none has.</summary>
+    public IReadOnlyList<PopularityShift> PopularityShifts => _preparation?.ActPopularity ?? [];
+    /// <summary>Popularity as this festival will leave it, once its sets so far are counted (for the results).</summary>
+    public PopularityShift[]? PopularityAfterFestival => _preparation is null ? null : Replay(RelationshipHistoryAfterFestival, _pondStageTrial).Popularity;
 
     /// <summary>The fan test a quote uses: the same enthusiasm that earns a listener the bigger share of a set.</summary>
     private const int FanEnthusiasm = 60;
@@ -410,14 +500,16 @@ public sealed partial class GameSession
         var slot = q.CurrentSlot;
         if (PerformanceRecords.Any(record => record.StageId == def.Id && record.Slot == slot)) return;
         _performanceRecords = [.. PerformanceRecords, MakePerformanceRecord(CampaignSeed, p, Stages.Count, def, slot, act, live,
-            id => FestivalAffinity(id, act) >= FanEnthusiasm)];
+            id => FestivalAffinity(id, act))];
     }
 
     /// <summary>The record for a finished set: its facts from the live set, then the score and quotes that follow from them.</summary>
     private static PerformanceRecord MakePerformanceRecord(ulong seed, PreparationSnapshot p, int stageCount, FestivalStage def, int slot,
-        FestivalAct act, LivePerformanceSnapshot live, Func<ulong, bool> fan)
+        FestivalAct act, LivePerformanceSnapshot live, Func<ulong, int> keenness)
     {
-        var facts = FactsOf(live);
+        bool fan(ulong id) => keenness(id) >= FanEnthusiasm;
+        var (wonOver, walkedOff) = NewcomersOf(live, keenness);
+        var facts = FactsOf(live) with { WonOver = wonOver?.Length ?? 0, WalkedOff = walkedOff?.Length ?? 0 };
         var expected = ExpectedCrowdAt(p.Tier, stageCount, act);
         var (reaction, delta, reasons) = GigRules.Judge(facts, expected);
         var before = RelationshipIn(p.ActRelationships, act.Id);
@@ -427,8 +519,25 @@ public sealed partial class GameSession
         if (crowd.Length == 0) crowd = live.Listeners.Where(item => item.Place is not null).Select(item => item.AgentId).Order().ToArray();
         return new(def.Id, slot, act.Id, p.StartedTick + def.SlotStarts[slot], p.StartedTick + def.SlotEnds[slot], live.StartedTick, live.EndedTick,
             facts.PeakCrowd, facts.SetEndCrowd, expected, facts.AverageEnjoyment, reaction, facts.Hiccups, crowd, GigQuotes.Pick(seed, def.Id, slot, reaction, crowd, fan),
-            before, delta, GigRules.Apply(before, delta), reasons, facts.CutShort, facts.SetEndEnjoyment);
+            before, delta, GigRules.Apply(before, delta), reasons, facts.CutShort, facts.SetEndEnjoyment) { WonOverIds = wonOver, WalkedOffIds = walkedOff };
     }
+
+    /// <summary>
+    /// The newcomers a finished set won over and those who walked off it unimpressed (<see cref="GigRules.IsWonOver"/>,
+    /// <see cref="GigRules.IsWalkOff"/>), from its listeners: a newcomer is a guest who wasn't a fan of the act (keenness
+    /// under 60, the same test that gives fans the bigger share of a set). Each sorted; null when none.
+    /// </summary>
+    private static (ulong[]? WonOver, ulong[]? WalkedOff) NewcomersOf(LivePerformanceSnapshot live, Func<ulong, int> keenness)
+    {
+        var playedOut = live.StartedTick >= 0 && !FactsOf(live).CutShort;
+        var won = live.Listeners.Where(item => IsWonOver(live, item, keenness)).Select(item => item.AgentId).Order().ToArray();
+        var walked = live.Listeners.Where(item => IsWalkOff(live, item, playedOut, keenness)).Select(item => item.AgentId).Order().ToArray();
+        return (won.Length == 0 ? null : won, walked.Length == 0 ? null : walked);
+    }
+    private static bool IsWonOver(LivePerformanceSnapshot live, LiveListener item, Func<ulong, int> keenness) =>
+        GigRules.IsWonOver(keenness(item.AgentId), live.SetEndAudienceIds.Contains(item.AgentId), item.EnjoymentEarned);
+    private static bool IsWalkOff(LivePerformanceSnapshot live, LiveListener item, bool playedOut, Func<ulong, int> keenness) =>
+        GigRules.IsWalkOff(keenness(item.AgentId), playedOut, live.SetEndAudienceIds.Contains(item.AgentId), item.ListenedTicks, item.EnjoymentEarned);
 
     /// <summary>A finished live set's facts. It was cut short if it started but didn't play out to its slot's end.</summary>
     private static GigFacts FactsOf(LivePerformanceSnapshot live) => new(live.StartedTick >= 0,
@@ -489,8 +598,17 @@ public sealed partial class GameSession
             if (stage < 0) return invalid;
             var def = stages[stage];
             var q = programme.Stages[stage];
-            if (ActCatalogue.Find(record.ActId) is not { } act || record.Slot < 0 || record.Slot >= def.SlotCount || q.ActIds[record.Slot] != record.ActId) return invalid;
-            var fan = (ulong id) => guests.TryGetValue(id, out var guest) && Affinity(s.CampaignSeed, id, guest.ExpectedGenre, act) >= FanEnthusiasm;
+            if (ActCatalogue.Find(record.ActId) is not { } catalogue || record.Slot < 0 || record.Slot >= def.SlotCount || q.ActIds[record.Slot] != record.ActId) return invalid;
+            // The act as this festival knew it: its popularity as the festival opened.
+            var act = ShiftedAct(p.ActPopularity, catalogue);
+            var keenness = (ulong id) => guests.TryGetValue(id, out var guest) ? Affinity(s.CampaignSeed, id, guest.ExpectedGenre, act) : 100;
+            var fan = (ulong id) => keenness(id) >= FanEnthusiasm;
+            // Newcomers are facts: sorted, from the set's own crowd, none a fan, nobody both won over and walked off.
+            bool Newcomers(ulong[]? ids) => ids is null || ids.Length > 0 && ids.SequenceEqual(ids.Distinct().Order()) &&
+                ids.All(id => record.CrowdIds.Contains(id) && !fan(id));
+            if (!Newcomers(record.WonOverIds) || !Newcomers(record.WalkedOffIds) ||
+                record.WonOverIds is { } wonIds && record.WalkedOffIds is { } walkedIds && wonIds.Intersect(walkedIds).Any())
+                return invalid;
             var expected = ExpectedCrowdAt(p.Tier, stages.Count, act);
             var started = record.StartedTick >= 0;
             var facts = record.Facts;
@@ -519,6 +637,15 @@ public sealed partial class GameSession
                         record.SetEndEnjoyment != now.SetEndEnjoyment || !record.Hiccups.SequenceEqual(now.Hiccups)) ||
                     live.SetEndAudienceIds.Any(id => !record.CrowdIds.Contains(id)))
                     return invalid;
+                // Its newcomers, worked out again from the listeners still with the set; one who has since gone to another
+                // stage can only have been won over from the set-end crowd, or walked off from outside it.
+                var playedOut = started && !record.CutShort;
+                var won = record.WonOverIds ?? [];
+                var walked = record.WalkedOffIds ?? [];
+                if (live.Listeners.Any(item => won.Contains(item.AgentId) != IsWonOver(live, item, keenness) ||
+                        walked.Contains(item.AgentId) != IsWalkOff(live, item, playedOut, keenness)) ||
+                    won.Any(id => !live.SetEndAudienceIds.Contains(id)) || walked.Any(id => live.SetEndAudienceIds.Contains(id)))
+                    return invalid;
             }
         }
         if (records.Select(record => (record.StageId, record.Slot)).Distinct().Count() != records.Length ||
@@ -536,7 +663,8 @@ public sealed partial class GameSession
     {
         const string invalid = "Act relationships invalid.";
         if (p.ActRelationships is { } relationships && relationships.Any(item => item is null || item.ActId is null)) return invalid;
-        if (p.RelationshipHistory is not { } history) return p.ActRelationships is null ? null : invalid;
+        if (p.ActPopularity is { } shifts && shifts.Any(item => item is null || item.ActId is null)) return invalid;
+        if (p.RelationshipHistory is not { } history) return p.ActRelationships is null && p.ActPopularity is null ? null : invalid;
         if (history.Length == 0 || p.CarriedIn is null || history.Any(gig => gig is null || gig.ActId is null || ActCatalogue.Find(gig.ActId) is null ||
                 gig.Tier < 1 || gig.Tier >= p.Tier || !GigRules.Plausible(gig.Facts, FestivalTickets.Sold(gig.Tier))) ||
             history.Zip(history.Skip(1)).Any(pair => pair.Second.Tier < pair.First.Tier))
@@ -545,7 +673,9 @@ public sealed partial class GameSession
             if (festival.Select(gig => gig.ActId).Distinct().Count() != festival.Count() ||
                 festival.Count() > FestivalStages.For(pondStageTrial || festival.Key >= PondStageFromTier).Sum(stage => stage.SlotCount))
                 return invalid;
-        var expected = RelationshipsFrom(history, pondStageTrial);
-        return (expected ?? []).SequenceEqual(p.ActRelationships ?? []) && (expected is null) == (p.ActRelationships is null) ? null : invalid;
+        // Relationships and popularity both follow from those sets, scored again here.
+        var (expected, popularity) = Replay(history, pondStageTrial);
+        return (expected ?? []).SequenceEqual(p.ActRelationships ?? []) && (expected is null) == (p.ActRelationships is null) &&
+            (popularity ?? []).SequenceEqual(p.ActPopularity ?? []) && (popularity is null) == (p.ActPopularity is null) ? null : invalid;
     }
 }

@@ -482,7 +482,9 @@ void fragment() {
             body.AddChild(Gap(10));
         }
         body.AddChild(Paragraph("A band's relationship runs from −100 to +100 and carries from festival to festival. A friendly band's fee falls by half " +
-            "a percent a point, to half at +100; a sour one's rises a percent a point, to double at −100.", 11.5f, Ui.InkMuted));
+            "a percent a point, to half at +100; a sour one's rises a percent a point, to double at −100. The crowd at the end counts for more than " +
+            "the biggest crowd. Every five newcomers a set wins over (guests who weren't fans going in, clapping it out) add a point of popularity " +
+            "from the next festival, up to three a set.", 11.5f, Ui.InkMuted));
         body.AddChild(Gap(70));
     }
 
@@ -525,6 +527,17 @@ void fragment() {
         var played = $"{FestivalClockText(record.StartedTick - opened)}–{FestivalClockText(record.EndedTick - opened)}";
         if (record.StartedTick >= 0 && played != due) crowd += $" · played {played}";
         box.AddChild(Paragraph(crowd, 13.5f, Body));
+        // Newcomers: guests who weren't fans going in, won over or walking off, and what that does to the act's popularity.
+        var wonOver = record.WonOverIds?.Length ?? 0;
+        var walkedOff = record.WalkedOffIds?.Length ?? 0;
+        if (wonOver > 0 || walkedOff > 0)
+        {
+            var newcomers = new List<string>();
+            if (wonOver > 0) newcomers.Add($"Won over {wonOver} new listener{(wonOver == 1 ? "" : "s")}");
+            if (walkedOff > 0) newcomers.Add($"{walkedOff} newcomer{(walkedOff == 1 ? "" : "s")} walked off unimpressed");
+            newcomers.Add(record.PopularityChange == 0 ? "popularity holds" : $"popularity {Signed(record.PopularityChange)}");
+            box.AddChild(Paragraph(string.Join(" · ", newcomers), 13.5f, record.PopularityChange > 0 ? Ui.TealDeep : record.PopularityChange < 0 ? new Color("7a3312") : Body));
+        }
 
         // A few words from people who were there.
         foreach (var quote in record.Quotes)
