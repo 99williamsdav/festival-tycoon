@@ -21,9 +21,10 @@ public sealed record FestivalAccountsStockLine(string Label, int? Bought, long? 
     /// <summary>False for straw, spread rather than sold, and for refreshments an older save counted without their takings.</summary>
     public bool ForSale { get; init; } = true;
     public int? LeftOver => Bought is { } bought ? Math.Max(0, bought - Sold) : null;
-    /// <summary>What the unsold ones cost. Stock doesn't carry to the next festival.</summary>
+    /// <summary>What the unsold ones cost. Stock doesn't carry to the next festival, so this is written off.</summary>
     public long? LeftOverCostPennies => LeftOver is { } left ? left * (long)UnitCostPennies : null;
-    /// <summary>What was taken less what the ones sold (or spread) cost: the operating result's view of this item.</summary>
+    /// <summary>What was taken less what the ones sold (or spread) cost. The unsold ones' write-off is a separate line,
+    /// <see cref="FestivalAccounts.StockWrittenOffPennies"/>, so it isn't counted twice.</summary>
     public long MarginPennies => TakenPennies - SoldCostPennies;
 }
 public sealed record FestivalAccounts(
@@ -50,7 +51,14 @@ public sealed record FestivalAccounts(
     public long IncomePennies => TicketSalesPennies + PitchFeePennies + Sales.Sum(line => line.AmountPennies);
     public long SoldItemCostPennies => SoldItemCosts.Sum(line => line.AmountPennies);
     public long OperatingExpensesPennies => OperatingExpenses.Sum(line => line.AmountPennies);
-    public long OperatingResultPennies => IncomePennies - SoldItemCostPennies - OperatingExpensesPennies;
+    /// <summary>
+    /// What the stock left over at the close cost: soft drinks, beer and ponchos unsold, straw bales unspread. Stock
+    /// doesn't carry to the next festival, so it's written off. Null when the save didn't record the order item by
+    /// item: the leftover can't be known, and nothing is guessed.
+    /// </summary>
+    public long? StockWrittenOffPennies => StockDetailRecorded ? StockLines.Sum(line => line.LeftOverCostPennies ?? 0) : null;
+    /// <summary>Income less operating spend, the cost of the stock used (sold or spread) and the stock written off.</summary>
+    public long OperatingResultPennies => IncomePennies - SoldItemCostPennies - (StockWrittenOffPennies ?? 0) - OperatingExpensesPennies;
     public long NetCashChangePennies => ClosingCashPennies - OpeningCashPennies;
 }
 
@@ -176,7 +184,10 @@ public sealed partial class GameSession
                 accounts.CapitalPurchasesPennies == result.CapitalPurchasesPennies &&
                 accounts.NetCashChangePennies == result.NetCashChangePennies &&
                 closing == accounts.OpeningCashPennies + accounts.IncomePennies - accounts.OperatingExpensesPennies -
-                    accounts.StockPurchasesPennies - accounts.CapitalPurchasesPennies;
+                    accounts.StockPurchasesPennies - accounts.CapitalPurchasesPennies &&
+                // Every item bought is either used (sold or spread) or written off: nothing paid for goes missing.
+                (!stockDetailRecorded || accounts.StockLines.Where(line => line.PaidPennies is not null)
+                    .Sum(line => line.SoldCostPennies + line.LeftOverCostPennies!.Value) == accounts.StockPurchasesPennies);
             return accounts with { Reconciles = reconciles };
         }
     }

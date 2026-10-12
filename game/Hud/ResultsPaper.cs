@@ -637,7 +637,8 @@ void fragment() {
         }
         Tile("Income", FestivalCurrency.Format(report.IncomePennies), $"{report.TicketsSold} tickets · {items} item{(items == 1 ? "" : "s")} sold", Ui.TealDeep);
         Tile("Operating spend", FestivalCurrency.Format(report.OperatingExpensesPennies), "Staff, acts and services", Ui.Ink);
-        Tile(report.OperatingResultPennies < 0 ? "Operating loss" : "Operating result", FestivalCurrency.Format(report.OperatingResultPennies), "After cost of items sold",
+        Tile(report.OperatingResultPennies < 0 ? "Operating loss" : "Operating result", FestivalCurrency.Format(report.OperatingResultPennies),
+            report.StockWrittenOffPennies is null ? "After cost of stock used" : "After stock used and written off",
             report.OperatingResultPennies < 0 ? Ui.Link : Ui.TealDeep);
         Tile("Closing cash", FestivalCurrency.Format(report.ClosingCashPennies),
             $"{(report.NetCashChangePennies < 0 ? "−" : "+")}{FestivalCurrency.Format(Math.Abs(report.NetCashChangePennies))} on the {FestivalCurrency.Format(report.OpeningCashPennies)} " +
@@ -710,7 +711,9 @@ void fragment() {
                 var label = $"{line.Label} · {FestivalCurrency.Format(line.UnitCostPennies)} each" + (line.Label == "Straw bale" ? " · spread, not sold" : "");
                 var left = line.LeftOver is not { } count ? "—" : count == 0 ? "0" : $"{count} · {FestivalCurrency.Format(line.LeftOverCostPennies!.Value)}";
                 StockRow(list, label, [line.Bought?.ToString() ?? "—", line.PaidPennies is { } paid ? FestivalCurrency.Format(paid) : "—",
-                    line.Sold.ToString(), line.ForSale ? FestivalCurrency.Format(line.TakenPennies) : "—", left, FestivalCurrency.Format(line.MarginPennies)]);
+                    line.Sold.ToString(), line.ForSale ? FestivalCurrency.Format(line.TakenPennies) : "—", left,
+                    // Straw is spread, not sold: its cell is what was used, not a loss on a sale.
+                    line.ForSale ? FestivalCurrency.Format(line.MarginPennies) : $"{FestivalCurrency.Format(line.SoldCostPennies)} used"]);
             }
             // An older save paid for its stock as one sum.
             if (report.StockPurchaseRecorded && !report.StockDetailRecorded)
@@ -722,6 +725,13 @@ void fragment() {
             FestivalCurrency.Format(report.StockLines.Sum(line => line.TakenPennies)),
             report.StockDetailRecorded ? FestivalCurrency.Format(report.StockLines.Sum(line => line.LeftOverCostPennies ?? 0)) : "—",
             FestivalCurrency.Format(report.StockLines.Sum(line => line.MarginPennies))], total: true);
+        // The leftover's cost, written off as its own line so the margin column doesn't count it twice; what's left
+        // is the stock's part of the operating result.
+        var writtenOff = report.StockWrittenOffPennies;
+        StockRow(body, "Stock written off · unsold, not carried over", ["", "", "", "", "", writtenOff is { } off ? FestivalCurrency.Format(-off) : "—"]);
+        if (writtenOff is { } written)
+            StockRow(body, "Stock result · margin less write-off", ["", "", "", "", "",
+                FestivalCurrency.Format(report.StockLines.Sum(line => line.MarginPennies) - written)], total: true);
         body.AddChild(Gap(4));
         if (report.WaterGivenAway > 0)
             body.AddChild(Paragraph($"Free water · {report.WaterGivenAway} cup{(report.WaterGivenAway == 1 ? "" : "s")} given away at the bar, with no stock to buy and no charge.", 12, Ui.Ink));
@@ -729,8 +739,12 @@ void fragment() {
         if (halfRate.Length > 0)
             body.AddChild(Paragraph($"Taken includes {halfRate.Sum(sale => sale.Quantity)} sold for {FestivalCurrency.Format(halfRate.Sum(sale => sale.AmountPennies))} " +
                 "at the 50% rate for staff and performers; discounted beer is performer-only.", 12, Ui.InkMuted));
-        body.AddChild(Paragraph($"Margin is what you took less what the items sold{(report.StockLines.Any(line => line.Label == "Straw bale" && line.Sold > 0) ? " or straw spread" : "")} cost you ({FestivalCurrency.Format(report.SoldItemCostPennies)} in all): " +
-            "that cost is what the operating result counts. Unsold stock isn't counted as a cost, and it doesn't carry to the next festival.", 12, Ui.InkMuted));
+        var straw = report.StockLines.Any(line => !line.ForSale && line.Sold > 0);
+        body.AddChild(Paragraph($"Margin is what you took less what the items sold{(straw ? " or straw spread" : "")} cost you " +
+            $"({FestivalCurrency.Format(report.SoldItemCostPennies)} in all{(straw ? ", the straw used included" : "")}). " +
+            (writtenOff is { } lost
+                ? $"Stock doesn't carry to the next festival, so unsold stock is written off: {FestivalCurrency.Format(lost)}. The operating result counts both."
+                : "This save didn't record the stock order item by item, so what was left over can't be known and nothing is written off."), 12, Ui.InkMuted));
         if (!report.StockPurchaseRecorded)
             body.AddChild(Paragraph("Stock purchases weren't recorded for this save, so bought, paid and left over are blank.", 12, Ui.InkMuted));
         else if (!report.StockDetailRecorded)

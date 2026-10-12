@@ -103,7 +103,11 @@ public sealed class FestivalAccountsTests
         Assert.AreEqual(0L, report.CapitalPurchasesPennies, "Rigs are hired, not bought, so nothing is capital.");
         Assert.AreEqual(report.OperatingExpensesPennies, result.ContractCostsPennies);
         Assert.AreEqual(report.ClosingCashPennies - report.OpeningCashPennies, result.NetCashChangePennies);
-        Assert.AreEqual(report.IncomePennies - report.SoldItemCostPennies - report.OperatingExpensesPennies, result.ProfitPennies);
+        Assert.AreEqual(report.IncomePennies - report.SoldItemCostPennies - report.OperatingExpensesPennies, result.ProfitPennies, "The saved result is the ledger's view, before the write-off.");
+        Assert.AreEqual(6 * 60L + 6 * 120L, report.StockWrittenOffPennies, "Six soft drinks and six beers left over, written off.");
+        Assert.AreEqual(report.IncomePennies - report.OperatingExpensesPennies - report.SoldItemCostPennies - report.StockWrittenOffPennies!.Value, report.OperatingResultPennies);
+        Assert.AreEqual(report.NetCashChangePennies + report.CapitalPurchasesPennies, report.OperatingResultPennies,
+            "With the leftover written off, the operating result is the cash change before capital.");
         Assert.IsTrue(report.Reconciles, "Recorded setup, sales, stock and capital must reconcile to actual festival cash.");
 
         // The stock table: each drink bought against sold, at every rate together.
@@ -146,8 +150,41 @@ public sealed class FestivalAccountsTests
         Assert.IsFalse(report.StockDetailRecorded);
         var beer = report.StockLines.Single(line => line.Label == "Beer");
         Assert.IsNull(beer.Bought); Assert.IsNull(beer.PaidPennies); Assert.IsNull(beer.LeftOver);
+        Assert.IsNull(report.StockWrittenOffPennies, "The leftover can't be known, so nothing is written off.");
+        Assert.AreEqual(report.IncomePennies - report.SoldItemCostPennies - report.OperatingExpensesPennies, report.OperatingResultPennies);
         Assert.AreEqual((1, 400L, 280L), (beer.Sold, beer.TakenPennies, beer.MarginPennies));
         Assert.IsFalse(report.StockLines.Any(line => line.Label == "Soft drink"), "Nothing known bought, nothing sold: no line.");
         Assert.AreEqual(1, report.WaterGivenAway, "Free water is handed out, not stocked.");
+    }
+    [TestMethod]
+    public void UnsoldStockIsWrittenOffInTheOperatingResult()
+    {
+        var session = GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established);
+        var perk = session.CapturePerks()!;
+        Accept(session, new ChoosePerkCommand(perk.DraftAttempt, perk.Cursor, perk.Hand[0]));
+        Accept(session, new UseDefaultBuildLayoutCommand());
+        Accept(session, new SetProgrammeCommand(["act.meadow-lanterns", "act.overdue-library-books", "act.glitter-rota"]));
+        foreach (var hire in BuildSession.Crew(session)) Accept(session, hire);
+        Accept(session, new AcceptPreparationOfferCommand("equipment.rent"));
+        Accept(session, new SetPreparationStockCommand(40, 0));
+        Accept(session, new StartPreparedEditionCommand());
+        var guests = session.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest).ToArray();
+        var sell = typeof(GameSession).GetMethod("CompleteImmersionSale", BindingFlags.NonPublic | BindingFlags.Instance)!;
+        for (var i = 0; i < 24; i++) sell.Invoke(session, [guests[i % guests.Length].AgentId, ImmersionProduct.SoftDrink]);
+        var preparation = session.CapturePreparation()!;
+        var make = typeof(GameSession).GetMethod("MakeFestivalResult", BindingFlags.NonPublic | BindingFlags.Static)!;
+        var result = (FestivalResult)make.Invoke(null, [preparation, session.CaptureImmersion(),
+            session.CaptureMedical(), session.CaptureDisorder(), session.CurrentTick, session.CaptureLavSucker(), session.CaptureWeather()])!;
+        typeof(GameSession).GetProperty("PreparationView", BindingFlags.NonPublic | BindingFlags.Instance)!
+            .SetValue(session, preparation with { Result = result });
+        var report = session.CompletedFestivalAccounts!;
+        var soft = report.StockLines.Single(line => line.Label == "Soft drink");
+        Assert.AreEqual((40, 24, 16, 960L), (soft.Bought!.Value, soft.Sold, soft.LeftOver!.Value, soft.LeftOverCostPennies!.Value));
+        Assert.AreEqual(960L, report.StockWrittenOffPennies, "Sixteen unsold soft drinks at 60p: £9.60 written off.");
+        Assert.AreEqual(24 * 60L, report.SoldItemCostPennies, "Cost of sales is still only what was sold.");
+        Assert.AreEqual(soft.TakenPennies - 24 * 60L, soft.MarginPennies, "Margin doesn't take the write-off as well.");
+        Assert.AreEqual(report.IncomePennies - report.OperatingExpensesPennies - report.SoldItemCostPennies - 960L, report.OperatingResultPennies);
+        Assert.AreEqual(report.NetCashChangePennies + report.CapitalPurchasesPennies, report.OperatingResultPennies);
+        Assert.IsTrue(report.Reconciles);
     }
 }

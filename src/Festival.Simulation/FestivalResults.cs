@@ -4,6 +4,8 @@ public sealed record FestivalResult(int Attempt, long Tick, int GuestCount, long
     long RevenuePennies, long ContractCostsPennies, long ConsumedStockCostsPennies,
     long CapitalPurchasesPennies, long NetCashChangePennies, int? BeersFinished, int? Fights, int? MedicalCollapses)
 {
+    /// <summary>The ledger's view: cost of stock used only. The accounts' operating result also writes off the stock
+    /// left over (<see cref="FestivalAccounts.StockWrittenOffPennies"/>); this saved record can't know the order.</summary>
     public long ProfitPennies => RevenuePennies - ContractCostsPennies - ConsumedStockCostsPennies;
     public int? Stars => Rating(SatisfactionTotal, GuestCount);
     public decimal? SatisfactionPercent => GuestCount == 0 ? null : SatisfactionTotal / (100m * GuestCount);
