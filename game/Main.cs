@@ -40,7 +40,7 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v79", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v79");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v80", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v80");
 
     public override void _Ready()
     {
@@ -64,7 +64,7 @@ public partial class Main : Node, IHudHost
         else _rig.Frame(Vector3.Zero, 62);
         ResetFinanceFeedback();
         if (OS.GetCmdlineUserArgs().Length == 0 && _session.CaptureEquipment() is not null) BuildStartSplash();
-        _challengeFlowEnabled = _serverEvidenceOutput is null && _nowPlayingEvidenceOutput is null && (OS.GetCmdlineUserArgs().Length == 0 || _startTier is not null || _pondStageTrialFlag || _challengeEvidenceOutput is not null);
+        _challengeFlowEnabled = _serverEvidenceOutput is null && _nowPlayingEvidenceOutput is null && _entranceEvidenceOutput is null && (OS.GetCmdlineUserArgs().Length == 0 || _startTier is not null || _pondStageTrialFlag || _challengeEvidenceOutput is not null);
         RefreshChallengeReveal();
         var version = Engine.GetVersionInfo()["string"].AsString();
         GD.Print($"FESTIVAL_TYCOON_LAUNCHED build={ToolchainSmoke.BuildVersion} godot={version}");
@@ -107,6 +107,7 @@ public partial class Main : Node, IHudHost
         ProcessStageInvasion();
         ProcessServiceServers(delta);
         ProcessServerEvidence();
+        ProcessEntranceEvidence();
         ProcessNowPlayingEvidence();
         if (_pondEvidenceOutput is null) ProcessPond(delta);
         ProcessPondEvidence();
@@ -309,8 +310,8 @@ public partial class Main : Node, IHudHost
         }
         RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(-8, 0, 32)));
         RegisterBreezeHedge(AddAsset("res://assets/environment/lwf_hedge_straight_4m_a_v1.glb", new Vector3(4, 0, 32)));
-        AddAsset("res://assets/environment/lwf_hedge_gate_end_v1.glb", new Vector3(-3, 0, 32));
-        var northRight = AddAsset("res://assets/environment/lwf_hedge_gate_end_v1.glb", new Vector3(3, 0, 32));
+        AddAsset("res://assets/environment/lwf_hedge_gate_end_v1.glb", new Vector3(-FarmGateGeometry.HedgeEndXMetres, 0, FarmGateGeometry.HedgeEndZMetres));
+        var northRight = AddAsset("res://assets/environment/lwf_hedge_gate_end_v1.glb", new Vector3(FarmGateGeometry.HedgeEndXMetres, 0, FarmGateGeometry.HedgeEndZMetres));
         northRight.RotationDegrees = new Vector3(0, 180, 0);
     }
 
@@ -354,8 +355,8 @@ public partial class Main : Node, IHudHost
         {
             _gateLeafCollider = new StaticBody3D
             {
-                Position = new Vector3(-1.65f, 0, 0),
-                RotationDegrees = new Vector3(0, 72, 0),
+                Position = new Vector3(FarmGateGeometry.LeafHingeXMetres, 0, 0),
+                RotationDegrees = new Vector3(0, FarmGateGeometry.LeafYawDegrees, 0),
             };
             body.AddChild(_gateLeafCollider);
             var leaf = InstantiateAsset("res://assets/environment/lwf_farm_gate_leaf_v1.glb");
@@ -595,6 +596,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-grass" && i + 1 < args.Length) _grassEvidenceOutput = args[++i];
             else if (args[i] == "--capture-trees" && i + 1 < args.Length) _treeEvidenceOutput = args[++i];
             else if (args[i] == "--capture-servers" && i + 1 < args.Length) _serverEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-entrance" && i + 1 < args.Length) _entranceEvidenceOutput = args[++i];
             else if (args[i] == "--capture-now-playing" && i + 1 < args.Length) { _nowPlayingEvidenceOutput = args[++i]; _startTier = 2; }
             else if (args[i] == "--capture-challenge" && i + 1 < args.Length) _challengeEvidenceOutput = args[++i];
             else if (args[i] == "--verify-genre-audio" && i + 1 < args.Length) _genreAudioVerificationOutput = args[++i];
@@ -625,7 +627,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v79");
+        ProjectSettings.GlobalizePath("user://saves/r0-build-v80");
 
 
 
