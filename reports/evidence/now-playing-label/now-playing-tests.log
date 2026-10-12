@@ -1,0 +1,7 @@
+  Festival.Simulation -> C:\Projects\festival-tycoon\src\Festival.Simulation\bin\GateCheck\net8.0\Festival.Simulation.dll
+  Festival.ContentAdapter -> C:\Projects\festival-tycoon\src\Festival.ContentAdapter\bin\GateCheck\net8.0\Festival.ContentAdapter.dll
+  Festival.Persistence -> C:\Projects\festival-tycoon\src\Festival.Persistence\bin\GateCheck\net8.0\Festival.Persistence.dll
+  Festival.Tests -> C:\Projects\festival-tycoon\tests\Festival.Tests\bin\GateCheck\net8.0\Festival.Tests.dll
+  Run tests: 'C:\Projects\festival-tycoon\tests\Festival.Tests\bin\GateCheck\net8.0\Festival.Tests.dll' [net8.0|x64]
+  Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 4s 639ms - Festival.Tests.dll (net8.0|x64)
+  Tests succeeded: 'C:\Projects\festival-tycoon\tests\Festival.Tests\bin\GateCheck\net8.0\Festival.Tests.dll' [net8.0|x64]

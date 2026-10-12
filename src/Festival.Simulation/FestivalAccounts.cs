@@ -10,6 +10,23 @@ public sealed record FestivalAccountsPitch(string Trader, long FeePennies);
 public sealed record FestivalAccountsCost(string Label, int Quantity, int UnitCostPennies, long AmountPennies);
 public sealed record FestivalAccountsExpense(string Category, string Label, long AmountPennies);
 public sealed record FestivalAccountsStock(string Label, int Quantity, int UnitCostPennies, long AmountPennies);
+/// <summary>
+/// One stocked item's night, bought against sold: how many were ordered and what they cost, how many went (sold at the
+/// bars, or for straw spread on the mud) and what they took, every rate together. <see cref="Bought"/> and
+/// <see cref="PaidPennies"/> are null when the save didn't record the order item by item.
+/// </summary>
+public sealed record FestivalAccountsStockLine(string Label, int? Bought, long? PaidPennies, int Sold, long TakenPennies,
+    long SoldCostPennies, int UnitCostPennies)
+{
+    /// <summary>False for straw, spread rather than sold, and for refreshments an older save counted without their takings.</summary>
+    public bool ForSale { get; init; } = true;
+    public int? LeftOver => Bought is { } bought ? Math.Max(0, bought - Sold) : null;
+    /// <summary>What the unsold ones cost. Stock doesn't carry to the next festival, so this is written off.</summary>
+    public long? LeftOverCostPennies => LeftOver is { } left ? left * (long)UnitCostPennies : null;
+    /// <summary>What was taken less what the ones sold (or spread) cost. The unsold ones' write-off is a separate line,
+    /// <see cref="FestivalAccounts.StockWrittenOffPennies"/>, so it isn't counted twice.</summary>
+    public long MarginPennies => TakenPennies - SoldCostPennies;
+}
 public sealed record FestivalAccounts(
     FestivalAccountsSale[] Sales, FestivalAccountsCost[] SoldItemCosts, FestivalAccountsExpense[] OperatingExpenses,
     FestivalAccountsStock[] PurchasedStock, int TicketsSold, int TicketPricePennies,
@@ -27,10 +44,21 @@ public sealed record FestivalAccounts(
     public long? CarriedInPennies { get; init; }
     /// <summary>The loan principal still owed at the close. Settlement is parked, so nothing has been repaid.</summary>
     public long DebtOwedPennies { get; init; }
+    /// <summary>Each stocked item, bought against sold; their cost of sales adds up to <see cref="SoldItemCostPennies"/>.</summary>
+    public FestivalAccountsStockLine[] StockLines { get; init; } = [];
+    /// <summary>Cups of free water handed out at the bars: no stock bought, no charge.</summary>
+    public int WaterGivenAway { get; init; }
     public long IncomePennies => TicketSalesPennies + PitchFeePennies + Sales.Sum(line => line.AmountPennies);
     public long SoldItemCostPennies => SoldItemCosts.Sum(line => line.AmountPennies);
     public long OperatingExpensesPennies => OperatingExpenses.Sum(line => line.AmountPennies);
-    public long OperatingResultPennies => IncomePennies - SoldItemCostPennies - OperatingExpensesPennies;
+    /// <summary>
+    /// What the stock left over at the close cost: soft drinks, beer and ponchos unsold, straw bales unspread. Stock
+    /// doesn't carry to the next festival, so it's written off. Null when the save didn't record the order item by
+    /// item: the leftover can't be known, and nothing is guessed.
+    /// </summary>
+    public long? StockWrittenOffPennies => StockDetailRecorded ? StockLines.Sum(line => line.LeftOverCostPennies ?? 0) : null;
+    /// <summary>Income less operating spend, the cost of the stock used (sold or spread) and the stock written off.</summary>
+    public long OperatingResultPennies => IncomePennies - SoldItemCostPennies - (StockWrittenOffPennies ?? 0) - OperatingExpensesPennies;
     public long NetCashChangePennies => ClosingCashPennies - OpeningCashPennies;
 }
 
@@ -136,6 +164,7 @@ public sealed partial class GameSession
                     new("Straw bale", plan.StrawBales, GroundCoverRules.BalePennies, plan.StrawBales * (long)GroundCoverRules.BalePennies)
                 }.Where(line => line.Quantity > 0).ToArray() : [];
             var stockDetailRecorded = p.Plan is { Committed: true } && purchasedStock.Sum(line => line.AmountPennies) == stockCash;
+            var stockLines = StockLines(p, _weather, purchases, stockDetailRecorded);
             var capital = payments.Where(payment => payment.DebitAccount == LedgerAccountType.EquipmentAsset)
                 .Sum(payment => (long)payment.AmountPennies);
             var closing = _festivalFinances[owner].CashPennies;
@@ -147,15 +176,49 @@ public sealed partial class GameSession
                 closing, stockCash, capital, stockRecorded, stockDetailRecorded, facilityDetailRecorded, false)
                 { PitchFeePennies = ReceivedPitchFee(p), PitchFeeTrader = p.Plan is { Committed: true } ? string.Join(" and ", PitchedVans(p).Select(van => TraderAt(p, van).Name)) : "",
                   PitchFees = p.Plan is { Committed: true } ? PitchedVans(p).Select(van => new FestivalAccountsPitch(TraderAt(p, van).Name, TraderAt(p, van).PitchFeePennies)).ToArray() : [],
-                  CarriedInPennies = p.CarriedIn?.CashPennies, DebtOwedPennies = _campaignPlanning?.Loan.OutstandingPrincipalPennies ?? 0 };
+                  CarriedInPennies = p.CarriedIn?.CashPennies, DebtOwedPennies = _campaignPlanning?.Loan.OutstandingPrincipalPennies ?? 0,
+                  StockLines = stockLines, WaterGivenAway = purchases.Count(purchase => purchase.Product == ImmersionProduct.Water) };
             var reconciles = accounts.IncomePennies == result.RevenuePennies &&
                 accounts.SoldItemCostPennies == result.ConsumedStockCostsPennies &&
                 accounts.OperatingExpensesPennies == result.ContractCostsPennies &&
                 accounts.CapitalPurchasesPennies == result.CapitalPurchasesPennies &&
                 accounts.NetCashChangePennies == result.NetCashChangePennies &&
                 closing == accounts.OpeningCashPennies + accounts.IncomePennies - accounts.OperatingExpensesPennies -
-                    accounts.StockPurchasesPennies - accounts.CapitalPurchasesPennies;
+                    accounts.StockPurchasesPennies - accounts.CapitalPurchasesPennies &&
+                // Every item bought is either used (sold or spread) or written off: nothing paid for goes missing.
+                (!stockDetailRecorded || accounts.StockLines.Where(line => line.PaidPennies is not null)
+                    .Sum(line => line.SoldCostPennies + line.LeftOverCostPennies!.Value) == accounts.StockPurchasesPennies);
             return accounts with { Reconciles = reconciles };
         }
+    }
+
+    /// <summary>
+    /// The stock table: each bar item ordered or sold, then the straw, then any refreshments an older save counted. The
+    /// order is known item by item only when it adds up to the cash paid; otherwise bought is left blank.
+    /// </summary>
+    private static FestivalAccountsStockLine[] StockLines(PreparationSnapshot p, WeatherSnapshot? weather, ImmersionPurchase[] purchases, bool orderKnown)
+    {
+        var plan = orderKnown ? p.Plan : null;
+        var lines = new List<FestivalAccountsStockLine>();
+        foreach (var product in Enum.GetValues<ImmersionProduct>().Where(product => !product.IsFood() && product != ImmersionProduct.Water))
+        {
+            int? bought = plan is null ? null : product switch
+            {
+                ImmersionProduct.SoftDrink => plan.SoftDrinks, ImmersionProduct.Beer => plan.Beers, ImmersionProduct.Poncho => plan.Ponchos, _ => 0
+            };
+            var sold = purchases.Where(purchase => purchase.Product == product).ToArray();
+            if (sold.Length == 0 && (bought ?? 0) == 0) continue;
+            var unit = ImmersionCost(product);
+            lines.Add(new(ProductName(product), bought, bought * (long)unit, sold.Length, sold.Sum(purchase => (long)purchase.PricePennies),
+                sold.Sum(purchase => (long)purchase.CostPennies), unit));
+        }
+        // Bales are stock until spread; nothing is taken for them, so their margin is what the spread ones cost.
+        var spread = StrawSpreadCost(p, weather);
+        if ((plan?.StrawBales ?? 0) > 0 || spread > 0)
+            lines.Add(new("Straw bale", plan?.StrawBales, plan?.StrawBales * (long)GroundCoverRules.BalePennies,
+                (int)(spread / GroundCoverRules.BalePennies), 0, spread, GroundCoverRules.BalePennies) { ForSale = false });
+        if (p.StockConsumed > 0)
+            lines.Add(new("Other recorded refreshments", null, null, p.StockConsumed, 0, p.StockConsumed * 60L, 60) { ForSale = false });
+        return [.. lines];
     }
 }

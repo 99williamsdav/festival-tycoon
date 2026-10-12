@@ -33,6 +33,8 @@ public sealed partial class GameSession
     public const long MusicValuePermille = 800;
     // How much better another tap or toilet of the same kind must score before a person swaps lines.
     public const long FacilitySwitchMargin = 30_000;
+    // Or how much sooner another queue of the same kind (tap, toilet, stall) must serve them: three seconds, about a wee.
+    public const int FacilitySwitchMarginTicks = 240;
     // A worker's worth per second at their post, in place of the music.
     public const long StaffPostPerSecond = 3_000;
     // What an automatic job is worth to the worker offered it, by urgency.
@@ -163,11 +165,10 @@ public sealed partial class GameSession
         var runnerUp = ranked.Length > 1 ? ranked[1] : null;
         var staff = IsStaffMember(id);
         var comparison = runnerUp is null ? "" : $" vs {PlanLabel(runnerUp.Option, staff)} {runnerUp.Score / 1_000}";
-        // Swapping one tap or toilet for another must be clearly better: near-equal lines would flip-flop.
         var currentFacility = CurrentFacility(person);
         if (best.Option.Kind == current && current != ActivityKind.Watch && best.Option.FacilityId != currentFacility &&
             ranked.FirstOrDefault(item => item.Option.Kind == current && item.Option.FacilityId == currentFacility) is { } held &&
-            best.Score - held.Score < FacilitySwitchMargin)
+            !SwitchesFacility(best, held))
             best = held;
         if (best.Option.Kind == current && (current == ActivityKind.Watch || best.Option.FacilityId == currentFacility))
         {
@@ -183,6 +184,17 @@ public sealed partial class GameSession
         AbandonActivity(id, current, best.Option.Kind == ActivityKind.Watch, why);
         StartActivity(id, best.Option, why);
     }
+
+    /// <summary>
+    /// Whether someone swaps the tap, toilet or stall they're on for another of the same kind that now plans better. It must
+    /// be clearly better, or near-equal lines would flip-flop: either a much better plan, or, for a queue, served a few
+    /// seconds sooner. Waiting costs little score while needs are low or the stage is quiet, so the score margin alone kept
+    /// people queuing beside an empty cubicle.
+    /// </summary>
+    public static bool SwitchesFacility(ActivityScore best, ActivityScore held) =>
+        best.Score - held.Score >= FacilitySwitchMargin ||
+        QueuedKind(held.Option.Kind) && best.Option.Kind == held.Option.Kind && best.Score > held.Score &&
+        (long)best.Option.CompleteTicks + FacilitySwitchMarginTicks <= held.Option.CompleteTicks;
 
     private static string PlanLabel(ActivityOption option, bool staff) => option.Then is { } then
         ? $"{StopLabel(option.Kind, option.FacilityId, staff)} then {StopLabel(then.Kind, then.FacilityId, staff)}" : StopLabel(option.Kind, option.FacilityId, staff);
@@ -334,6 +346,9 @@ public sealed partial class GameSession
         }
         return options;
     }
+
+    /// <summary>Activities served one at a time from a physical queue: a tap, a toilet or a stall.</summary>
+    private static bool QueuedKind(ActivityKind kind) => kind is ActivityKind.Water or ActivityKind.Toilet || IsPurchase(kind);
 
     private static bool IsPurchase(ActivityKind kind) => kind is ActivityKind.Food or ActivityKind.SoftDrink or ActivityKind.Beer or ActivityKind.BarWater or ActivityKind.Poncho;
 
@@ -497,8 +512,26 @@ public sealed partial class GameSession
             position >= 0 || !fresh && _persons[id].ToiletId == toilet.Id ||
                 toilet.Queue.Length < ToiletRules.MaximumQueue && ToiletQueueHasRoom(toilet, id),
             toilet.Queue.Select(member => new QueuedServiceChoice.Member(member, ToiletServiceDuration(_persons[member].ToiletChoice))).ToArray(),
-            toilet.OwnerId, ownerRemaining, []);
+            toilet.OwnerId, ownerRemaining, fresh ? [] : ToiletApproachersAhead(id, toilet, destination));
         return QueuedServiceChoice.EstimateTicks(id, candidate);
+    }
+
+    /// <summary>
+    /// Everyone else on their way to this toilet's queue, with when they'd reach its end: expected demand, never a held
+    /// place. Without them, a wave of people all saw the same short queue and picked the same cubicle while the one beside
+    /// it stood empty. Straight-line walks keep it cheap enough for every plan every second.
+    /// </summary>
+    private QueuedServiceChoice.Approacher[] ToiletApproachersAhead(ulong id, ToiletFacility toilet, GridCell end)
+    {
+        var heading = new List<QueuedServiceChoice.Approacher>();
+        foreach (var person in PeopleIn(PersonView.Consumption))
+        {
+            if (person.Id == id || person.ToiletId != toilet.Id || person.ToiletStage != ToiletVisitStage.Approaching) continue;
+            var nav = _navigationAgents[new(person.Id)];
+            var at = TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
+            heading.Add(new(person.Id, EstimateWalkTicks(person.Id, at, end), ToiletServiceDuration(person.ToiletChoice)));
+        }
+        return heading.ToArray();
     }
 
     private int LightVendorTicks(ulong id, ImmersionProduct product, ImmersionVendor vendor, GridCell here, bool fresh = false)

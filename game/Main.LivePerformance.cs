@@ -281,10 +281,12 @@ public partial class Main
         foreach (var light in _stageLights) AddChild(light);
         _stageWorldCue = BuildingName("TRAILER STAGE",new Vector3(-16,5.2f,11));
         AddChild(_stageWorldCue);
+        AttachNowPlayingLabel(FestivalStages.MainId, _stageWorldCue);
     }
 
     private void ResetLivePerformancePresentation()
     {
+        foreach (var label in _stageNowPlaying.Values) { label.Hide(); label.Text = ""; }
         ResetImmersionHeldVisuals();
         ResetImmersionCuePresentation();
         _performerInstruments.Clear();
@@ -328,6 +330,7 @@ public partial class Main
     private void AdvanceLivePerformancePresentation(double delta)
     {
         var lives = FramePerformances;
+        SyncStageNowPlaying();
         if (lives.Count == 0) return;
         EnsureStage();
         var roster = _session.CapturePreparation()!.People;
@@ -386,6 +389,7 @@ public partial class Main
             Audio.AdvanceStage(_session, live, power, ListenerPoint, delta);
         }
         _stageWorldCue!.Text = "TRAILER STAGE";
+        SyncStageNowPlaying();
     }
 
     private void ToggleStageMute()

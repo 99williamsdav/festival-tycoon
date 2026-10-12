@@ -52,6 +52,11 @@ public static class NavigationFixture
         BlockRectangle(cells, 31_500, 32_499, -32_500, 32_499);   // east
         BlockRectangle(cells, -32_500, -3_001, 31_500, 32_499);   // north, west of the gate
         BlockRectangle(cells, 3_000, 32_499, 31_500, 32_499);     // north, east of the gate
+        foreach (var cell in FarmGateGeometry.SolidCells().Concat(FarmGateGeometry.HedgeEndSolidCells()))
+        {
+            var surface = cells.TryGetValue(cell, out var existing) ? existing.Surface : GroundSurface.Grass;
+            cells[cell] = new TerrainCellOverride(cell, surface, false);
+        }
         // The garden gate in the west hedge, where the bands come in off the lane.
         foreach (var cell in cells.Keys.Where(Backstage.HedgeGate).ToArray()) cells.Remove(cell);
         // Backstage's crowd barriers (a thin line, but one nobody walks through) and its flight cases and crates.

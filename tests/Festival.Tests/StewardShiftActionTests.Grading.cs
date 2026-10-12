@@ -31,7 +31,7 @@ public sealed partial class StewardShiftActionTests
         s.AdvanceWithoutSnapshot(9_000);
         var crew = s.GetStewardResponses()[0].WorkerId;
         // Near the crew's steward and well away from the player, who stays put.
-        var initiator = StartFight(s, id => DistanceSquared(s, id, crew) < 12_000L * 12_000 && DistanceSquared(s, id, Player(s)) > 6_000L * 6_000);
+        var initiator = StartFight(s, id => DistanceSquared(s, id, crew) < 8_000L * 8_000 && DistanceSquared(s, id, Player(s)) > 6_000L * 6_000);
         var before = Score(s);
         s.AdvanceWithoutSnapshot(1);
         var call = s.CaptureStewardShift()!.Calls!.Single(c => c.Open && c.Kind == StewardCallKind.Fight && c.Subject == initiator.ToString());

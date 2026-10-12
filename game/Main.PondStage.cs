@@ -55,7 +55,8 @@ public partial class Main
         _pondStageLights = [new OmniLight3D { Position = new Vector3(-1.6f, 2.4f, 1.6f), OmniRange = 7, LightColor = new Color("ffd18a"), LightEnergy = 0 },
             new OmniLight3D { Position = new Vector3(1.6f, 2.4f, 1.6f), OmniRange = 7, LightColor = new Color("eaa8ff"), LightEnergy = 0 }];
         foreach (var light in _pondStageLights) _pondStage.AddChild(light);
-        _pondStage.AddChild(BuildingName("POND STAGE", new Vector3(0, 5.2f, 0)));
+        var heading = BuildingName("POND STAGE", new Vector3(0, 5.2f, 0));
+        _pondStage.AddChild(heading); AttachNowPlayingLabel(FestivalStages.PondId, heading);
     }
 
     /// <summary>Shows the Pond Stage while this festival runs it, keeps its generator and drums in step, and its chip.</summary>

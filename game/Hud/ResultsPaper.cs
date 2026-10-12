@@ -575,6 +575,26 @@ void fragment() {
         return row;
     }
 
+    /// <summary>Mockup widths of the stock table's figure columns: bought, paid, sold, taken, left over, margin.</summary>
+    private static readonly float[] StockColumns = [50, 62, 42, 62, 92, 66];
+
+    /// <summary>A stock table row: the item, then its figures right-aligned under <see cref="StockColumns"/>.</summary>
+    private static HBoxContainer StockRow(Container parent, string label, string[] cells, bool total = false, bool heading = false)
+    {
+        var row = new HBoxContainer(); row.AddThemeConstantOverride("separation", Ui.Px(8)); parent.AddChild(row);
+        var name = heading ? Ui.Caps(label, Ui.InkMuted, 9.5f) : Ui.Text(label, total ? 15 : 13.5f, Ui.Ink, total ? Ui.SlabBold : null);
+        name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; name.AutowrapMode = TextServer.AutowrapMode.WordSmart; row.AddChild(name);
+        for (var i = 0; i < cells.Length; i++)
+        {
+            // Money in bold, counts plain, as in the other tables.
+            var cell = heading ? Ui.Caps(cells[i], Ui.InkMuted, 9.5f)
+                : Ui.Text(cells[i], 13.5f, Ui.Ink, total || i is 1 or 3 or 5 ? Ui.BodyBold : null);
+            cell.HorizontalAlignment = HorizontalAlignment.Right; cell.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd;
+            cell.CustomMinimumSize = new Vector2(Ui.S(StockColumns[i]), 0); row.AddChild(cell);
+        }
+        return row;
+    }
+
     private static void RuledRows(VBoxContainer parent, Action<VBoxContainer> rows, bool lastHeavy = true)
     {
         var list = new VBoxContainer(); list.AddThemeConstantOverride("separation", 0); parent.AddChild(list);
@@ -615,7 +635,8 @@ void fragment() {
         badge.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; heading.AddChild(badge);
         body.AddChild(Gap(14));
 
-        var items = report.Sales.Sum(sale => sale.Quantity);
+        // Free water is given away, not sold.
+        var items = report.Sales.Where(sale => sale.Product != ImmersionProduct.Water).Sum(sale => sale.Quantity);
         var tiles = new HBoxContainer(); tiles.AddThemeConstantOverride("separation", Ui.Px(10)); body.AddChild(tiles);
         void Tile(string caption, string value, string note, Color ink, bool dark = false)
         {
@@ -629,7 +650,8 @@ void fragment() {
         }
         Tile("Income", FestivalCurrency.Format(report.IncomePennies), $"{report.TicketsSold} tickets · {items} item{(items == 1 ? "" : "s")} sold", Ui.TealDeep);
         Tile("Operating spend", FestivalCurrency.Format(report.OperatingExpensesPennies), "Staff, acts and services", Ui.Ink);
-        Tile(report.OperatingResultPennies < 0 ? "Operating loss" : "Operating result", FestivalCurrency.Format(report.OperatingResultPennies), "After cost of items sold",
+        Tile(report.OperatingResultPennies < 0 ? "Operating loss" : "Operating result", FestivalCurrency.Format(report.OperatingResultPennies),
+            report.StockWrittenOffPennies is null ? "After cost of stock used" : "After stock used and written off",
             report.OperatingResultPennies < 0 ? Ui.Link : Ui.TealDeep);
         Tile("Closing cash", FestivalCurrency.Format(report.ClosingCashPennies),
             $"{(report.NetCashChangePennies < 0 ? "−" : "+")}{FestivalCurrency.Format(Math.Abs(report.NetCashChangePennies))} on the {FestivalCurrency.Format(report.OpeningCashPennies)} " +
@@ -653,17 +675,16 @@ void fragment() {
                 foreach (var pitch in report.PitchFees) MoneyRow(list, $"Pitch fee · {pitch.Trader}", "1", FestivalCurrency.Format(pitch.FeePennies));
             else if (report.PitchFeePennies > 0)
                 MoneyRow(list, $"Pitch fee · {report.PitchFeeTrader}", "1", FestivalCurrency.Format(report.PitchFeePennies));
-            var bars = report.Sales.Select(sale => sale.Stall).Distinct().Count();
-            foreach (var sale in report.Sales)
-            {
-                var item = (bars > 1 ? $"{Stalls.Label(sale.Stall)} · " : "") + GameSession.ProductName(sale.Product);
-                var rate = sale.UnitPricePennies >= GameSession.ImmersionPrice(sale.Product) ? "full price" : "50% rate";
-                MoneyRow(list, $"{item} · {rate} {FestivalCurrency.Format(sale.UnitPricePennies)}", sale.Quantity.ToString(), FestivalCurrency.Format(sale.AmountPennies));
-            }
-            if (report.Sales.Length == 0) list.AddChild(Ui.Text("Nothing sold at the bar", 13.5f, Ui.InkMuted));
+            // A line for each bar; what each item took is in the stock table, and free water isn't a sale.
+            var stalls = report.Sales.GroupBy(sale => sale.Stall)
+                .Select(stall => (stall.Key, Sold: stall.Where(sale => sale.Product != ImmersionProduct.Water).Sum(sale => sale.Quantity), Taken: stall.Sum(sale => sale.AmountPennies)))
+                .Where(stall => stall.Sold > 0 || stall.Taken != 0).ToArray();
+            foreach (var stall in stalls)
+                MoneyRow(list, stalls.Length > 1 || Stalls.Number(stall.Key) > 1 ? $"Bar sales · Bar {Stalls.Number(stall.Key)}" : "Bar sales", stall.Sold.ToString(), FestivalCurrency.Format(stall.Taken));
+            if (stalls.Length == 0) list.AddChild(Ui.Text("Nothing sold at the bar", 13.5f, Ui.InkMuted));
         });
         MoneyRow(income, "Total income", (items + report.TicketsSold).ToString(), FestivalCurrency.Format(report.IncomePennies), true);
-        income.AddChild(Paragraph("50% rate applies to staff and performers; discounted beer is performer-only.", 11.5f, Ui.InkMuted));
+        income.AddChild(Paragraph("Bar sales by item, bought against sold, are in the stock table below.", 11.5f, Ui.InkMuted));
 
         var spending = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; spending.AddThemeConstantOverride("separation", 0); columns.AddChild(spending);
         spending.AddChild(ColumnHeading("Operating expenditure", "Paid"));
@@ -682,7 +703,7 @@ void fragment() {
         body.AddChild(Gap(12)); body.AddChild(Line(Ui.Ink, 1.5f)); body.AddChild(Gap(8));
         var chartHead = new HBoxContainer(); body.AddChild(chartHead);
         var chartTitle = Ui.Heading("Where the cash went", 19); chartTitle.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; chartHead.AddChild(chartTitle);
-        var chartNote = Ui.Text("Stock is a cash outflow; its cost counts as spend only when sold", 12, Ui.InkMuted); chartNote.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; chartHead.AddChild(chartNote);
+        var chartNote = Ui.Text(report.StockPurchaseRecorded ? "Stock is all you paid for it, sold or not: the Paid total below" : "Stock purchases weren't recorded for this save", 12, Ui.InkMuted); chartNote.SizeFlagsVertical = Control.SizeFlags.ShrinkEnd; chartHead.AddChild(chartNote);
         body.AddChild(Gap(6));
         var steps = new List<(string Label, long Change, bool Total)>
         {
@@ -693,23 +714,54 @@ void fragment() {
         steps.Add(("Closing", report.ClosingCashPennies, true));
         body.AddChild(new CashWaterfall { Steps = steps, CustomMinimumSize = new Vector2(0, Ui.S(128)) });
 
-        body.AddChild(Gap(14)); body.AddChild(ColumnHeading("Cost of items sold", "Qty · cost"));
+        // One table for the stock: what was bought and paid for, against what was sold and taken.
+        body.AddChild(Gap(14)); body.AddChild(ColumnHeading("Stock", "Bought and paid · sold and taken"));
+        StockRow(body, "Item", ["Bought", "Paid", "Sold", "Taken", "Left over", "Margin"], heading: true);
         RuledRows(body, list =>
         {
-            foreach (var cost in report.SoldItemCosts)
-                MoneyRow(list, $"{cost.Label} · {FestivalCurrency.Format(cost.UnitCostPennies)} each", cost.Quantity.ToString(), FestivalCurrency.Format(cost.AmountPennies));
-            if (report.SoldItemCosts.Length == 0) list.AddChild(Ui.Text("No consumed stock recorded", 13.5f, Ui.InkMuted));
+            foreach (var line in report.StockLines)
+            {
+                var label = $"{line.Label} · {FestivalCurrency.Format(line.UnitCostPennies)} each" + (line.Label == "Straw bale" ? " · spread, not sold" : "");
+                var left = line.LeftOver is not { } count ? "—" : count == 0 ? "0" : $"{count} · {FestivalCurrency.Format(line.LeftOverCostPennies!.Value)}";
+                StockRow(list, label, [line.Bought?.ToString() ?? "—", line.PaidPennies is { } paid ? FestivalCurrency.Format(paid) : "—",
+                    line.Sold.ToString(), line.ForSale ? FestivalCurrency.Format(line.TakenPennies) : "—", left,
+                    // Straw is spread, not sold: its cell is what was used, not a loss on a sale.
+                    line.ForSale ? FestivalCurrency.Format(line.MarginPennies) : $"{FestivalCurrency.Format(line.SoldCostPennies)} used"]);
+            }
+            // An older save paid for its stock as one sum.
+            if (report.StockPurchaseRecorded && !report.StockDetailRecorded)
+                StockRow(list, "Stock order · recorded total", ["—", FestivalCurrency.Format(report.StockPurchasesPennies), "", "", "—", ""]);
+            if (report.StockLines.Length == 0 && !(report.StockPurchaseRecorded && !report.StockDetailRecorded))
+                list.AddChild(Ui.Text("No stock bought or sold", 13.5f, Ui.InkMuted));
         });
-        MoneyRow(body, "Total cost of items sold", "", FestivalCurrency.Format(report.SoldItemCostPennies), true);
-        body.AddChild(Gap(14)); body.AddChild(ColumnHeading("Stock purchased · cash only", "Qty · paid"));
-        RuledRows(body, list =>
-        {
-            if (!report.StockPurchaseRecorded) list.AddChild(Ui.Text("Not recorded for this save", 13.5f, Ui.InkMuted));
-            else if (report.StockDetailRecorded)
-                foreach (var stock in report.PurchasedStock)
-                    MoneyRow(list, $"{stock.Label} · {FestivalCurrency.Format(stock.UnitCostPennies)} each", stock.Quantity.ToString(), FestivalCurrency.Format(stock.AmountPennies));
-            else MoneyRow(list, "Recorded stock purchase", "", FestivalCurrency.Format(report.StockPurchasesPennies));
-        }, lastHeavy: false);
+        StockRow(body, "Total", ["", report.StockPurchaseRecorded ? FestivalCurrency.Format(report.StockPurchasesPennies) : "—", "",
+            FestivalCurrency.Format(report.StockLines.Sum(line => line.TakenPennies)),
+            report.StockDetailRecorded ? FestivalCurrency.Format(report.StockLines.Sum(line => line.LeftOverCostPennies ?? 0)) : "—",
+            FestivalCurrency.Format(report.StockLines.Sum(line => line.MarginPennies))], total: true);
+        // The leftover's cost, written off as its own line so the margin column doesn't count it twice; what's left
+        // is the stock's part of the operating result.
+        var writtenOff = report.StockWrittenOffPennies;
+        StockRow(body, "Stock written off · unsold, not carried over", ["", "", "", "", "", writtenOff is { } off ? FestivalCurrency.Format(-off) : "—"]);
+        if (writtenOff is { } written)
+            StockRow(body, "Stock result · margin less write-off", ["", "", "", "", "",
+                FestivalCurrency.Format(report.StockLines.Sum(line => line.MarginPennies) - written)], total: true);
+        body.AddChild(Gap(4));
+        if (report.WaterGivenAway > 0)
+            body.AddChild(Paragraph($"Free water · {report.WaterGivenAway} cup{(report.WaterGivenAway == 1 ? "" : "s")} given away at the bar, with no stock to buy and no charge.", 12, Ui.Ink));
+        var halfRate = report.Sales.Where(sale => sale.Product != ImmersionProduct.Water && sale.UnitPricePennies < _hud.Session.ImmersionListPrice(sale.Product)).ToArray();
+        if (halfRate.Length > 0)
+            body.AddChild(Paragraph($"Taken includes {halfRate.Sum(sale => sale.Quantity)} sold for {FestivalCurrency.Format(halfRate.Sum(sale => sale.AmountPennies))} " +
+                "at the 50% rate for staff and performers; discounted beer is performer-only.", 12, Ui.InkMuted));
+        var straw = report.StockLines.Any(line => !line.ForSale && line.Sold > 0);
+        body.AddChild(Paragraph($"Margin is what you took less what the items sold{(straw ? " or straw spread" : "")} cost you " +
+            $"({FestivalCurrency.Format(report.SoldItemCostPennies)} in all{(straw ? ", the straw used included" : "")}). " +
+            (writtenOff is { } lost
+                ? $"Stock doesn't carry to the next festival, so unsold stock is written off: {FestivalCurrency.Format(lost)}. The operating result counts both."
+                : "This save didn't record the stock order item by item, so what was left over can't be known and nothing is written off."), 12, Ui.InkMuted));
+        if (!report.StockPurchaseRecorded)
+            body.AddChild(Paragraph("Stock purchases weren't recorded for this save, so bought, paid and left over are blank.", 12, Ui.InkMuted));
+        else if (!report.StockDetailRecorded)
+            body.AddChild(Paragraph("This save recorded the stock order as one total, so bought and left over are blank.", 12, Ui.InkMuted));
         body.AddChild(Gap(8));
         body.AddChild(Paragraph(report.Reconciles ? "Recorded income, expenditure and cash reconcile."
             : "Full cash reconciliation is unavailable for this save; no missing movement has been assumed.", 12.5f, Ui.InkMuted));

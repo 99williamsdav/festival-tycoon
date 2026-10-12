@@ -388,7 +388,7 @@ public sealed partial class GameSession
         {
             ProtectedPersonRole.Performer => BandStage(roster[index].Id).ArrivalStart(BandOrdinal(roster[index].Id)),
             ProtectedPersonRole.Staff => Backstage.DoorStart(ordinal),
-            _ => new(122 + index % 6 * 2, 190 + index / 6 * 2),
+            _ => FarmGateGeometry.GuestWaitingCell(new(122 + index % 6 * 2, 190 + index / 6 * 2)),
         };
     }
     // Physical presence includes collapsed guests until their recorded departure.
