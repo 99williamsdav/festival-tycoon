@@ -236,6 +236,11 @@ public sealed class RainTests
         Assert.AreEqual(wearing.Count, lines.Sum(line => line.Quantity), "Every poncho sold is a sale, at whichever bar.");
         Assert.AreEqual(wearing.Count * (long)WeatherRules.PonchoPricePennies, lines.Sum(line => line.AmountPennies));
         Assert.IsTrue(accounts.PurchasedStock.Any(stock => stock.Label == "Poncho" && stock.Quantity == 20));
+        var ponchos = accounts.StockLines.Single(line => line.Label == "Poncho");
+        Assert.AreEqual((20, 20L * WeatherRules.PonchoCostPennies, wearing.Count, 20 - wearing.Count),
+            (ponchos.Bought!.Value, ponchos.PaidPennies!.Value, ponchos.Sold, ponchos.LeftOver!.Value), "The stock table has the ponchos, bought against sold.");
+        Assert.AreEqual(lines.Sum(line => line.AmountPennies), ponchos.TakenPennies);
+        Assert.AreEqual(accounts.SoldItemCostPennies, accounts.StockLines.Sum(line => line.SoldCostPennies));
         Assert.IsTrue(accounts.Reconciles, "The accounts still balance.");
     }
 
