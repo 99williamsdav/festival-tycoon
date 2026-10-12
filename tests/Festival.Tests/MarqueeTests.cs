@@ -37,10 +37,11 @@ public sealed class MarqueeTests
     }
 
     /// <summary>A crewed Tier 1 day with guests on site, a marquee by the crowd if asked for, and no random faults.</summary>
-    private static GameSession Live(bool marquee)
+    private static GameSession Live(bool marquee, bool canopyBin = false)
     {
         var s = BuildSession.Ready();
         if (marquee) BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Marquee, ByTheCrowd));
+        if (canopyBin) BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(ByTheCrowd.X, ByTheCrowd.Z + 3)));
         BuildSession.Accept(s, new StartPreparedEditionCommand());
         BuildSession.WithoutFaults(s);
         s.AdvanceWithoutSnapshot(GameSession.FestivalSlotStarts[0] + 400);
@@ -102,9 +103,9 @@ public sealed class MarqueeTests
         var rest = s.CaptureRestCentre();
         Assert.IsFalse(Place(s, new(rest.X + 8, rest.Z)).IsAccepted, "Its pegs would stand in first aid's rest area.");
         Assert.IsFalse(Place(s, s.CaptureBuildPlacements().Single(item => item.Id == "drinks").Cell).IsAccepted);
-        // Nothing else goes up under it, not even a bin.
+        // Only bins can share canopy ground; poles and pegs still keep their berth.
         BuildSession.Accept(s, new PlaceBuildServiceCommand(BuildServiceKind.Marquee, ByTheCrowd));
-        Assert.IsFalse(BuildSession.Send(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(ByTheCrowd.X + 2, ByTheCrowd.Z + 2))).IsAccepted);
+        Assert.IsTrue(BuildSession.Send(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(ByTheCrowd.X, ByTheCrowd.Z + 4))).IsAccepted);
         Assert.IsFalse(BuildSession.Send(s, new PlaceBuildServiceCommand(BuildServiceKind.Bin, new(ByTheCrowd.X + 8, ByTheCrowd.Z + 6))).IsAccepted,
             "The guy-rope pegs are part of it too.");
 
@@ -200,9 +201,10 @@ public sealed class MarqueeTests
     }
 
     [TestMethod]
-    public void AFullMarqueeSendsTheNextHotGuestToFirstAid()
+    [DataRow(false)] [DataRow(true)]
+    public void AFullMarqueeSendsTheNextHotGuestToFirstAid(bool canopyBin)
     {
-        var s = Live(marquee: true);
+        var s = Live(marquee: true, canopyBin: canopyBin);
         // A Tier 1 crowd is small, so band members off stage make up the numbers.
         var guests = FreeGuests(s, bands: true);
         // A few more than it holds: a band member due on stage soon may go and play instead.
@@ -220,6 +222,7 @@ public sealed class MarqueeTests
             .Select(agent => agent.Destination).Distinct().Count(), "Each at a place of their own.");
         Assert.IsTrue(agents.Any(agent => resting.Contains(agent.Id.Value) && agent.Destination is { } spot && s.IsRestSpot(spot)),
             "Once it's full, the next goes to first aid.");
+        Assert.IsTrue(GameSession.Restore(s.CapturePersistenceSnapshot()).IsSuccess);
     }
 
     [TestMethod]

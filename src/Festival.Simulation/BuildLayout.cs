@@ -262,6 +262,12 @@ public sealed partial class GameSession
             for (var x = WaterTowerCell.X - 4; x <= WaterTowerCell.X + 4; x++)
                 for (var z = WaterTowerCell.Z - 4; z <= WaterTowerCell.Z + 4; z++) reserved.Add(new(x, z));
         var sharedAccess = new HashSet<GridCell>();
+        var occupants = new Dictionary<GridCell, List<BuildPlacement>>();
+        var tentSolids = placements.Where(item => item.Kind == BuildServiceKind.Marquee)
+            .ToDictionary(item => item.Id, item => MarqueeSolidCells(item.Cell, item.QuarterTurns).ToHashSet());
+        bool CanShare(BuildPlacement a, BuildPlacement b, GridCell cell) =>
+            a.Kind == BuildServiceKind.Bin && b.Kind == BuildServiceKind.Marquee && !tentSolids[b.Id].Contains(cell) ||
+            b.Kind == BuildServiceKind.Bin && a.Kind == BuildServiceKind.Marquee && !tentSolids[a.Id].Contains(cell);
         foreach (var item in placements)
         {
             var cells = BuildReservedCells(item).Distinct().ToArray();
@@ -278,7 +284,10 @@ public sealed partial class GameSession
                 if (access.Contains(cell) && sharedAccess.Contains(cell)) continue;
                 // The rest area moves with first aid, so say which one is in the way.
                 if (restArea.Contains(cell)) return "Keep clear of the ground in front of first aid, where overheated guests rest.";
-                if (!reserved.Add(cell)) return "Service footprint or access overlaps another placement.";
+                if (reserved.Contains(cell)) return "Service footprint or access overlaps another placement.";
+                if (!occupants.TryGetValue(cell, out var prior)) occupants[cell] = prior = [];
+                if (prior.Any(other => !CanShare(item, other, cell))) return "Service footprint or access overlaps another placement.";
+                prior.Add(item);
                 if (access.Contains(cell)) sharedAccess.Add(cell);
             }
         }
@@ -415,7 +424,7 @@ public sealed partial class GameSession
         return item.Kind switch
         {
             BuildServiceKind.Bin => Round(item.Cell).ToArray(),
-            // The whole tent, pegs included: its shade is open ground, but nothing else is built under it.
+            // Keep the full berth for other services; bins may share its non-solid canopy cells.
             BuildServiceKind.Marquee => MarqueeFootprintCells(item.Cell, item.QuarterTurns),
             BuildServiceKind.WaterTap => Round(item.Cell)
                 .Append(WaterServiceCell(item.Cell, item.QuarterTurns)).ToArray(),

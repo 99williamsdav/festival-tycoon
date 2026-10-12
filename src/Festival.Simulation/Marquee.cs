@@ -28,12 +28,13 @@ public static class MarqueeRules
     /// Where resting guests stand: shelter cells on a checkerboard (707 mm apart, so a walker can pass between two),
     /// nearest the middle first, poles left out.
     /// </summary>
-    public static readonly GridCell[] RestOffsets =
+    public static readonly GridCell[] RestCandidateOffsets =
         (from x in Enumerable.Range(-ShelterHalfWidthCells, ShelterHalfWidthCells * 2 + 1)
          from z in Enumerable.Range(-ShelterHalfDepthCells, ShelterHalfDepthCells * 2 + 1)
          where (x + z) % 2 == 0 && !SolidOffsets.Contains(new GridCell(x, z))
          orderby x * x + z * z, x, z
-         select new GridCell(x, z)).Take(RestCapacity).ToArray();
+         select new GridCell(x, z)).ToArray();
+    public static readonly GridCell[] RestOffsets = RestCandidateOffsets.Take(RestCapacity).ToArray();
 }
 
 public sealed partial class GameSession
@@ -59,8 +60,14 @@ public sealed partial class GameSession
     public static GridCell[] MarqueeShelterCells(GridCell centre, int quarterTurns) =>
         MarqueeRect(centre, quarterTurns, MarqueeRules.ShelterHalfWidthCells, MarqueeRules.ShelterHalfDepthCells);
 
-    public static GridCell[] MarqueeRestSpots(GridCell centre, int quarterTurns) =>
-        MarqueeRules.RestOffsets.Select(offset => MarqueeCell(centre, quarterTurns, offset)).ToArray();
+    public static GridCell[] MarqueeRestSpots(GridCell centre, int quarterTurns, IReadOnlyList<BuildPlacement>? placements = null)
+    {
+        if (placements is null || !placements.Any(item => item.Kind == BuildServiceKind.Bin))
+            return MarqueeRules.RestOffsets.Select(offset => MarqueeCell(centre, quarterTurns, offset)).ToArray();
+        var blocked = placements.Where(item => item.Kind == BuildServiceKind.Bin).SelectMany(item => BinSolidCells(item.Cell)).ToHashSet();
+        return MarqueeRules.RestCandidateOffsets.Select(offset => MarqueeCell(centre, quarterTurns, offset))
+            .Where(cell => !blocked.Contains(cell)).Take(MarqueeRules.RestCapacity).ToArray();
+    }
 
     private IEnumerable<BuildPlacement> Marquees() => (_preparation?.BuildPlacements ?? []).Where(item => item.Kind == BuildServiceKind.Marquee);
 
@@ -78,7 +85,7 @@ public sealed partial class GameSession
         foreach (var tent in Marquees())
         {
             _marqueeShade.UnionWith(MarqueeShelterCells(tent.Cell, tent.QuarterTurns));
-            foreach (var spot in MarqueeRestSpots(tent.Cell, tent.QuarterTurns)) _marqueeRestSpots[spot] = tent.Id;
+            foreach (var spot in MarqueeRestSpots(tent.Cell, tent.QuarterTurns, _preparation!.BuildPlacements)) _marqueeRestSpots[spot] = tent.Id;
         }
     }
 
@@ -129,7 +136,7 @@ public sealed partial class GameSession
         var others = scratch?.Others ?? _navigationAgents.Values.Where(other => other.Id != self && MovementOccupant(other.Id.Value)).ToArray();
         if (scratch is not null) scratch.Others = others;
         if (others.Count(other => RestingAtMarquee(other, marqueeId)) >= MarqueeRules.RestCapacity) return null;
-        foreach (var spot in MarqueeRestSpots(tent.Cell, tent.QuarterTurns))
+        foreach (var spot in MarqueeRestSpots(tent.Cell, tent.QuarterTurns, _preparation!.BuildPlacements))
         {
             if (!grid.Contains(spot) || !grid.Get(spot).IsWalkable || RestSpotTaken(spot, others)) continue;
             var queues = scratch?.Queues ?? AllQueueGround().Concat(EffectiveToilets(_facilities).SelectMany(toilet => toilet.QueueCells ?? [])).ToHashSet();
@@ -189,7 +196,7 @@ public sealed partial class GameSession
             p.People.FirstOrDefault(person => person.AgentId == agent.Id)?.Departed != true).ToArray();
         foreach (var tent in tents)
         {
-            var spots = MarqueeRestSpots(tent.Cell, tent.QuarterTurns).ToHashSet();
+            var spots = MarqueeRestSpots(tent.Cell, tent.QuarterTurns, p.BuildPlacements).ToHashSet();
             if (active.Count(agent => agent.DestinationX is { } x && agent.DestinationZ is { } z && spots.Contains(new(x, z))) > MarqueeRules.RestCapacity)
                 return "Marquee holds more resting guests than it has places.";
         }

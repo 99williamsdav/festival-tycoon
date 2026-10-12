@@ -39,13 +39,14 @@ public sealed partial class GameSession
     /// <summary>A layout's cover from the rain, and its sheltering places in order.</summary>
     private static (GridCell[] Covered, ShelterSpot[] Spots) ShelterLayout(IEnumerable<BuildPlacement> placements)
     {
+        var layout = placements as IReadOnlyList<BuildPlacement> ?? placements.ToArray();
         var covered = new HashSet<GridCell>();
         var spots = new List<ShelterSpot>();
-        foreach (var item in placements)
+        foreach (var item in layout)
         {
             (IEnumerable<GridCell> cells, IEnumerable<GridCell> places) = item.Kind switch
             {
-                BuildServiceKind.Marquee => (MarqueeShelterCells(item.Cell, item.QuarterTurns), MarqueeRestSpots(item.Cell, item.QuarterTurns)),
+                BuildServiceKind.Marquee => (MarqueeShelterCells(item.Cell, item.QuarterTurns), MarqueeRestSpots(item.Cell, item.QuarterTurns, layout)),
                 BuildServiceKind.Bar => (ShelterRules.BarCover.Select(offset => Turned(item.Cell, item.QuarterTurns, offset)),
                     ShelterRules.BarSpots.Select(offset => Turned(item.Cell, item.QuarterTurns, offset))),
                 BuildServiceKind.FoodVan => (ShelterRules.VanCover.Select(offset => Turned(item.Cell, item.QuarterTurns, offset)),
