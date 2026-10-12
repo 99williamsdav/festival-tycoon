@@ -64,7 +64,7 @@ public partial class Main : Node, IHudHost
         else _rig.Frame(Vector3.Zero, 62);
         ResetFinanceFeedback();
         if (OS.GetCmdlineUserArgs().Length == 0 && _session.CaptureEquipment() is not null) BuildStartSplash();
-        _challengeFlowEnabled = _serverEvidenceOutput is null && (OS.GetCmdlineUserArgs().Length == 0 || _startTier is not null || _pondStageTrialFlag || _challengeEvidenceOutput is not null);
+        _challengeFlowEnabled = _serverEvidenceOutput is null && _nowPlayingEvidenceOutput is null && (OS.GetCmdlineUserArgs().Length == 0 || _startTier is not null || _pondStageTrialFlag || _challengeEvidenceOutput is not null);
         RefreshChallengeReveal();
         var version = Engine.GetVersionInfo()["string"].AsString();
         GD.Print($"FESTIVAL_TYCOON_LAUNCHED build={ToolchainSmoke.BuildVersion} godot={version}");
@@ -107,6 +107,7 @@ public partial class Main : Node, IHudHost
         ProcessStageInvasion();
         ProcessServiceServers(delta);
         ProcessServerEvidence();
+        ProcessNowPlayingEvidence();
         if (_pondEvidenceOutput is null) ProcessPond(delta);
         ProcessPondEvidence();
         ProcessGrassEvidence();
@@ -594,6 +595,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-grass" && i + 1 < args.Length) _grassEvidenceOutput = args[++i];
             else if (args[i] == "--capture-trees" && i + 1 < args.Length) _treeEvidenceOutput = args[++i];
             else if (args[i] == "--capture-servers" && i + 1 < args.Length) _serverEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-now-playing" && i + 1 < args.Length) { _nowPlayingEvidenceOutput = args[++i]; _startTier = 2; }
             else if (args[i] == "--capture-challenge" && i + 1 < args.Length) _challengeEvidenceOutput = args[++i];
             else if (args[i] == "--verify-genre-audio" && i + 1 < args.Length) _genreAudioVerificationOutput = args[++i];
             else if (args[i] == "--capture-steward-cleanup" && i + 1 < args.Length)
