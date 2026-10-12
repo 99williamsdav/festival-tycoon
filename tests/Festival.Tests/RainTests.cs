@@ -241,6 +241,8 @@ public sealed class RainTests
             (ponchos.Bought!.Value, ponchos.PaidPennies!.Value, ponchos.Sold, ponchos.LeftOver!.Value), "The stock table has the ponchos, bought against sold.");
         Assert.AreEqual(lines.Sum(line => line.AmountPennies), ponchos.TakenPennies);
         Assert.AreEqual(accounts.SoldItemCostPennies, accounts.StockLines.Sum(line => line.SoldCostPennies));
+        Assert.AreEqual(accounts.StockLines.Sum(line => line.LeftOverCostPennies ?? 0), accounts.StockWrittenOffPennies, "Unsold ponchos are written off with the rest.");
+        Assert.AreEqual(accounts.NetCashChangePennies + accounts.CapitalPurchasesPennies, accounts.OperatingResultPennies);
         Assert.IsTrue(accounts.Reconciles, "The accounts still balance.");
     }
 
