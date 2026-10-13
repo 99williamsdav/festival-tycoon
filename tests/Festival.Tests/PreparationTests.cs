@@ -7,11 +7,11 @@ namespace Festival.Tests;
 public sealed class PreparationTests
 {
     private static readonly SaveCompatibility Compatibility = new("r0.01-tests", "test-content", "test-rules");
-    // Everyone walks out after the close. Since the 9 Oct default layout (eca424b) the medic stands by at the first-aid tent
-    // across the lane until the last guest is out, then walks off site: 3,163-3,560 ticks on eight seeds (13 Oct).
-    // WalkOutFinishesWithinBudget holds that to WalkOutTicks; the loops below only stop a stuck day running for ever.
-    private const int DepartureBudgetTicks = 6_000;
-    private const int WalkOutTicks = 4_000;
+    // Everyone walks out after the close, and the day finishes the tick after the last guest is off site (13 Oct): stewards
+    // and the medic stand by until then, and whoever is still on site goes with the results. The last guest is out
+    // 2,268-2,586 ticks after the close on the seeds below (it was everyone, 3,163-3,560, with the medic last).
+    // The loops below only stop a stuck day running for ever.
+    private const int DepartureBudgetTicks = 3_000;
 
     [TestCategory("Slow")]
     [TestMethod]
@@ -19,16 +19,29 @@ public sealed class PreparationTests
     [DataRow(20260922UL)]
     [DataRow(51UL)]
     [DataRow(99UL)]
-    public void WalkOutFinishesWithinBudget(ulong seed)
+    public void WalkOutFinishesWhenTheLastGuestIsOffSite(ulong seed)
     {
         var session = BuildSession.Planned(seed);
         Book(session);
         Assert.IsTrue(Execute(session, new StartPreparedEditionCommand()).IsAccepted);
         session.AdvanceWithoutSnapshot(GameSession.PreparedWeekendTicks);
-        var ticks = 0;
-        while (ticks < DepartureBudgetTicks && !session.PreparationBoundaryOnNextTick) { session.AdvanceWithoutSnapshot(1); ticks++; }
         Assert.AreEqual(PreparationStatus.Departing, session.PreparedStatus);
-        Assert.IsTrue(ticks <= WalkOutTicks, $"Everyone should be off site within {WalkOutTicks} ticks of the close; seed {seed} took {ticks}.");
+        var close = session.CurrentTick;
+        long lastGuestOut = -1;
+        while (session.CurrentTick - close < DepartureBudgetTicks && session.PreparedStatus == PreparationStatus.Departing)
+        {
+            session.AdvanceWithoutSnapshot(1);
+            if (session.PreparedStatus != PreparationStatus.Departing) break;
+            Assert.AreEqual(-1, lastGuestOut, "The day should finish on the tick after the last guest is off site.");
+            if (session.CapturePreparation()!.People.All(person => person.Role != ProtectedPersonRole.Guest || person.Departed))
+                lastGuestOut = session.CurrentTick;
+        }
+        Assert.AreEqual(PreparationStatus.Finished, session.PreparedStatus, $"Seed {seed} hadn't finished {DepartureBudgetTicks} ticks after the close.");
+        Assert.AreEqual(lastGuestOut + 1, session.CurrentTick);
+        Console.WriteLine($"Seed {seed}: last guest off site {lastGuestOut - close} ticks after the close, finished at {session.CurrentTick - close}.");
+        Assert.AreEqual(session.CurrentTick, session.CompletedFestivalResult!.Tick);
+        Assert.IsTrue(session.CapturePreparation()!.People.All(person => person.Departed), "A finished day has nobody left on site.");
+        Restore(session);
     }
     private static CommandResult Execute(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase, session.CurrentTick,

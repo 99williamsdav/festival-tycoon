@@ -16,6 +16,11 @@ public sealed partial class GameSession
             (PersonIn(PersonView.Disorder, need.Id) is { ConductStage: DisorderStage.Injured } injured && CurrentTick+1>=injured.InjuryTick+DisorderInjuryDeathTicks);
     });
     private bool IsImmersionMedic(ulong id) => GetMedicResponses().Any(job => job.WorkerId == id);
+    /// <summary>Stewards and medics stay on duty through the walk-out: the festival finishes when the last guest is off site.</summary>
+    /// <summary>The player's own steward (All-Rounder) counts: control goes back to the manager at the close, and they stand where they were.</summary>
+    private bool HoldsForGuests(ulong id) => IsImmersionMedic(id) || GetStewardResponses().Any(job => job.WorkerId == id) || id == HandsOnStewardId;
+    private ResponseRole HoldRole(ulong id) => IsImmersionMedic(id) ? ResponseRole.Medic : ResponseRole.Steward;
+    private bool GuestsRemainOnSite => PeopleIn(PersonView.Roster).Any(person => person.Role == ProtectedPersonRole.Guest && !person.Departed);
     private bool ImmersionDepartureJobOwns(ulong id) => PersonCollapsed(id) ||
         EffectiveToilets(_facilities).Any(toilet => toilet.OwnerId == id) ||
         HasClaim(id, PersonClaim.MedicResponding | PersonClaim.MedicPatient) ||
@@ -26,7 +31,7 @@ public sealed partial class GameSession
         var nav = _navigationAgents[new(id)];
         return !ImmersionDepartureJobOwns(id) && nav.Destination == PreparedStart(index) &&
             nav.IntentId == "edition.departure" &&
-            (!IsImmersionMedic(id) || PeopleIn(PersonView.Roster).All(person => person.Departed || IsImmersionMedic(person.Id)));
+            (!HoldsForGuests(id) || !GuestsRemainOnSite);
     }
     private void StartImmersionDeparture()
     {
@@ -36,8 +41,8 @@ public sealed partial class GameSession
             SetStewardResponse(job with { Stage = SecurityResponseStage.Completed, TargetId = null, Description = "Closing; physical departure" });
         SetTaps(Taps.Select(point => point with { Queue = [], Overflow = [], OwnerId = null, DrinkTicks = 0, QueueCells = [] }).ToArray());
         foreach (var need in PeopleIn(PersonView.Medical).Select(need => ImmersionDepartureJobOwns(need.Id) ? need with { WaterQueueSlot = null } :
-                need with { Intent = IsImmersionMedic(need.Id) ? MedicalIntent.WatchShow : MedicalIntent.Leaving,
-                    WaterQueueSlot = null, Reason = IsImmersionMedic(need.Id) ? "Medic remains available until other people physically exit" : "Closing; physically leaving while exposure continues" }).ToArray())
+                need with { Intent = HoldsForGuests(need.Id) ? MedicalIntent.WatchShow : MedicalIntent.Leaving,
+                    WaterQueueSlot = null, Reason = HoldsForGuests(need.Id) ? "On duty until the last guest is off site" : "Closing; physically leaving while exposure continues" }).ToArray())
             _persons.Set(need);
         AdvanceImmersionDepartureRoutes();
         CleanupImmersionDeparture();
@@ -46,16 +51,18 @@ public sealed partial class GameSession
     {
         if (!ImmersionDepartureActive) return;
         var p = _preparation!;
+        var guestsRemain = GuestsRemainOnSite;
         for (var index = 0; index < PeopleIn(PersonView.Roster).Length; index++)
         {
             var person = PeopleIn(PersonView.Roster)[index];
             if (person.Departed || ImmersionDepartureJobOwns(person.Id)) continue;
-            var holdMedic = IsImmersionMedic(person.Id) && PeopleIn(PersonView.Roster).Any(other => !other.Departed && !IsImmersionMedic(other.Id));
-            var cell = holdMedic ? StaffDutyCell(person.Id, ResponseRole.Medic) : PreparedStart(index);
-            var intent = holdMedic ? "medical.departure-standby" : "edition.departure";
+            var hold = guestsRemain && HoldsForGuests(person.Id);
+            var intent = !hold ? "edition.departure" : HoldRole(person.Id) == ResponseRole.Medic ? "medical.departure-standby" : "disorder.departure-standby";
             var nav = _navigationAgents[new(person.Id)];
+            var cell = !hold ? PreparedStart(index) : person.Id != HandsOnStewardId ? StaffDutyCell(person.Id, HoldRole(person.Id)) :
+                nav.IntentId == intent && nav.Destination is { } standing ? standing : TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
             if (nav.Destination != cell || nav.IntentId != intent) ApplyAgentDestination(new(person.Id), new(cell, intent));
-            MutatePerson(person.Id, need => { need.Intent = holdMedic ? MedicalIntent.WatchShow : MedicalIntent.Leaving; need.Reason = holdMedic ? "Medic available while protected people remain on site" : "Physically leaving; ingestion and exposure continue until exit"; });
+            MutatePerson(person.Id, need => { need.Intent = hold ? MedicalIntent.WatchShow : MedicalIntent.Leaving; need.Reason = hold ? "On duty while guests remain on site" : "Physically leaving; ingestion and exposure continue until exit"; });
         }
     }
     private void AdvanceImmersionDepartureMedicine()

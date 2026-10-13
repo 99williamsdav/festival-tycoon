@@ -28,7 +28,9 @@ public partial class Main
 
     private void ProcessLavSucker(double delta)
     {
-        var calls = _session.CaptureLavSucker()?.Calls.Where(c => c.Stage != LavSuckerStage.Gone).ToArray() ?? [];
+        // The day finishes when the last guest is off site; a tanker still on a job then goes with the crew, out of sight.
+        var calls = _session.PreparedStatus == PreparationStatus.Finished ? [] :
+            _session.CaptureLavSucker()?.Calls.Where(c => c.Stage != LavSuckerStage.Gone).ToArray() ?? [];
         foreach (var gone in _lavTrucks.Keys.Where(id => calls.All(c => c.Id != id)).ToArray())
         {
             _lavTrucks[gone].Hose?.QueueFree(); _lavTrucks[gone].Body.QueueFree(); _lavTrucks.Remove(gone);

@@ -47,7 +47,8 @@ public sealed partial class GameSession
     private void FinalizeFestivalDeparture()
     {
         if (_preparation is not { Status: PreparationStatus.Departing, FinishedBeerIds: not null } p || IsLifecycleEditionFrozen()) return;
-        var departedAtStart = PeopleIn(PersonView.Roster).All(person => person.Admitted && person.Departed);
+        // The day finishes when the last guest is off site; staff, performers and crew still here don't hold it open.
+        var guestsGoneAtStart = AllGuestsOffSite;
         // Hazards and paid ingestion have completed at this tick before physical exit is committed.
         var people = PeopleIn(PersonView.Roster).ToArray();
         for (var index = 0; index < people.Length; index++)
@@ -61,7 +62,8 @@ public sealed partial class GameSession
             }
         }
         foreach (var person in people) SetPresence(person);
-        if (!departedAtStart) return;
+        if (!guestsGoneAtStart) return;
+        SendRemainingWorkersHome();
         _preparation = p with { Status = PreparationStatus.Finished, Rentals = [], WorkContracts = [],
             Result = MakeFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick, _lavSucker, _weather) };
         if (_preparation.Result!.Stars is { } stars && BookedActIds(_programme) is { } played)
@@ -75,6 +77,20 @@ public sealed partial class GameSession
             lifecycle.FavourBalance++;
             lifecycle.CompletedOutcomeTransactionIds.Add($"community-water-favour:{CampaignId.Value}");
             _preparation = _preparation with { CommunityFavourClaimed = true };
+        }
+    }
+
+    /// <summary>
+    /// At the finish, whoever is still working (stewards and medics standing by, crew, a band packing up) goes off
+    /// with the results: their jobs end and they leave the site as the day closes, so a finished day has nobody on it.
+    /// </summary>
+    private void SendRemainingWorkersHome()
+    {
+        FinishStaffResponsesForDeparture();
+        foreach (var person in PeopleIn(PersonView.Roster).Where(person => !person.Departed).ToArray())
+        {
+            ReleaseWasteAtExit(person.Id);
+            SetPresence(person with { Departed = true });
         }
     }
 

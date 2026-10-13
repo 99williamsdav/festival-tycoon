@@ -28,7 +28,7 @@ public partial class Main
     private CanvasLayer? _hudLayer;
 
     private bool StewardShiftActive => _shiftActive;
-    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v86-steward-shift");
+    private string StewardShiftSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v87-steward-shift");
     private const float ShiftMouseRadians = 0.0024f;
 
     /// <summary>The title screen's way in: a fresh self-running festival at the picked tier, the player its second steward.</summary>
@@ -120,7 +120,7 @@ public partial class Main
         }
         if (_session.PlayerStewardId is null)
         {
-            // Closing time (or a death) ends the shift: the report card takes the screen; the steward walks home with everyone else.
+            // Closing time (or a death) ends the shift: the report card takes the screen; the steward stays on post until the last guest is out.
             if (!StewardShiftReportShown) ShowStewardShiftReport();
             return;
         }

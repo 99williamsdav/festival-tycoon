@@ -98,7 +98,9 @@ public sealed partial class GameSession
     internal string? PreparationCanonicalJson => PreparationView is not { } p ? null : System.Text.Json.JsonSerializer.Serialize(p);
     public bool PreparationBoundaryOnNextTick => !IsPaused && _preparation is { } p &&
         (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks - 1 && PeopleIn(PersonView.Roster).All(item => item.Admitted) ||
-         p.Status == PreparationStatus.Departing && PeopleIn(PersonView.Roster).All(item => item.Departed));
+         p.Status == PreparationStatus.Departing && AllGuestsOffSite);
+    /// <summary>The festival finishes when the last guest is off site: staff, performers and crew still on site don't hold it open.</summary>
+    private bool AllGuestsOffSite => PeopleIn(PersonView.Roster).All(item => item.Role != ProtectedPersonRole.Guest || item.Admitted && item.Departed);
 
     public PreparationInventoryBalance? GetPreparationInventoryBalance() => _preparation is not { } p ? null :
         new(40, p.Payments.Count(item => item.Attempt == p.Attempt && item.OfferId == "contract.stock") * 50,
