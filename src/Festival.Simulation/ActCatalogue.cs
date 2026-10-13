@@ -121,6 +121,24 @@ public static class ActCatalogue
 
     public static FestivalAct? Find(string id) => Array.Find(All, act => act.Id == id);
 
+    /// <summary>
+    /// An act with its popularity moved by <paramref name="points"/> (held to 0..100), its fee following the catalogue's
+    /// own rule (popularity × (0.6 + popularity / 100)) from its listed fee, to the nearest pound. The act itself at 0.
+    /// </summary>
+    public static FestivalAct WithPopularityShift(FestivalAct act, int points)
+    {
+        var popularity = GigRules.ApplyPopularity(act.Popularity, points);
+        if (popularity == act.Popularity) return act;
+        long Curve(int value) => (long)value * (60 + value);
+        var curve = Math.Max(1, Curve(act.Popularity));
+        var pounds = ((long)act.PricePennies * Curve(popularity) + curve * 50) / (curve * 100);
+        return act with { Popularity = popularity, PricePennies = (int)Math.Max(1, pounds) * 100 };
+    }
+
+    /// <summary>The catalogue with each act's popularity moved as this campaign has moved it.</summary>
+    public static FestivalAct[] WithShifts(IReadOnlyList<PopularityShift>? shifts) => shifts is not { Count: > 0 } ? All :
+        All.Select(act => WithPopularityShift(act, shifts.FirstOrDefault(item => item.ActId == act.Id)?.Points ?? 0)).ToArray();
+
     /// <summary>Reputation as this act sees it: your scene credibility in its genre helps, clashing scenes hurt.</summary>
     public static int EffectiveReputation(FestivalStanding standing, FestivalAct act) => Math.Clamp(
         standing.Reputation + standing.SceneCredibility[act.Genre] / 2 -
@@ -148,15 +166,17 @@ public static class ActCatalogue
     /// exists), then the five locked acts nearest to reach, shown greyed out. Seeded, so a retry or a
     /// reload offers the same acts; booked acts are always included.
     /// </summary>
-    public static FestivalAct[] Offer(FestivalStanding standing, ulong seed, int tier, IEnumerable<string> booked, int shortlistSize = ShortlistSize)
+    public static FestivalAct[] Offer(FestivalStanding standing, ulong seed, int tier, IEnumerable<string> booked, int shortlistSize = ShortlistSize,
+        IReadOnlyList<FestivalAct>? acts = null)
     {
+        var catalogue = acts ?? All;
         ulong Key(FestivalAct act)
         {
             var hash = 14695981039346656037UL ^ seed ^ ((ulong)tier << 48);
             foreach (var c in act.Id) hash = (hash ^ c) * 1099511628211UL;
             return hash;
         }
-        var shuffled = All.OrderBy(Key).ThenBy(act => act.Id, StringComparer.Ordinal).ToArray();
+        var shuffled = catalogue.OrderBy(Key).ThenBy(act => act.Id, StringComparer.Ordinal).ToArray();
         var reachable = shuffled.Where(act => StandingOf(standing, act) != ActStanding.Locked).ToArray();
         var offer = new List<FestivalAct>();
         for (var genre = 0; genre < FestivalGenre.Count; genre++)
@@ -167,7 +187,7 @@ public static class ActCatalogue
             if (!offer.Contains(act)) offer.Add(act);
         }
         foreach (var id in booked)
-            if (Find(id) is { } act && !offer.Contains(act)) offer.Add(act);
+            if (catalogue.FirstOrDefault(act => act.Id == id) is { } act && !offer.Contains(act)) offer.Add(act);
         var nearMisses = shuffled.Where(act => StandingOf(standing, act) == ActStanding.Locked)
             .OrderBy(act => act.Popularity - EffectiveReputation(standing, act)).ThenBy(Key).Take(OutOfReachShown);
         return offer.Concat(nearMisses).ToArray();

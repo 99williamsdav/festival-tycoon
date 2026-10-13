@@ -74,14 +74,32 @@ public sealed partial class GameSession
     public IReadOnlyList<FestivalAct> GetFestivalActs() => MainProgramme is not { } main ? [] :
         ActCatalogue.Offer(Standing, CampaignSeed, _preparation?.Tier ?? 1, (_preparation?.Plan?.ActIds ?? _programme!.Stages.SelectMany(q => q.ActIds))
                 .Concat((_preparation?.ActRelationships ?? []).Where(item => item.Value > 0).Select(item => item.ActId).Where(ActWillPlay)),
-            ActCatalogue.ShortlistSize + (Stages.Count - 1) * 4);
-    private static FestivalAct[] FestivalActs => ActCatalogue.All;
+            ActCatalogue.ShortlistSize + (Stages.Count - 1) * 4, FestivalActs);
+    // The catalogue as this campaign knows it, kept for the popularity shifts it was made from (which never change mid-festival).
+    private PopularityShift[]? _festivalActsShifts;
+    private FestivalAct[] _festivalActs = ActCatalogue.All;
+    /// <summary>The catalogue with each act's popularity (and so its fee and talent) as this festival opened with it.</summary>
+    private FestivalAct[] FestivalActs
+    {
+        get
+        {
+            var shifts = _preparation?.ActPopularity;
+            if (shifts is null) return ActCatalogue.All;
+            if (!ReferenceEquals(shifts, _festivalActsShifts)) { _festivalActs = ActCatalogue.WithShifts(shifts); _festivalActsShifts = shifts; }
+            return _festivalActs;
+        }
+    }
+    /// <summary>An act as this campaign knows it: its popularity moved by the newcomers its earlier sets won over.</summary>
+    public FestivalAct CampaignAct(FestivalAct act) => Array.Find(FestivalActs, item => item.Id == act.Id) ?? act;
+    /// <summary>An act from the catalogue with a campaign's popularity shifts applied.</summary>
+    internal static FestivalAct ShiftedAct(IReadOnlyList<PopularityShift>? shifts, FestivalAct act) =>
+        ActCatalogue.WithPopularityShift(act, shifts?.FirstOrDefault(item => item.ActId == act.Id)?.Points ?? 0);
     /// <summary>The festival's reputation and scene credibility.</summary>
     public FestivalStanding Standing => _preparation is { } p ? new(p.Reputation, p.SceneCredibility.ToArray()) : FestivalStanding.New;
-    public ActStanding ActStandingOf(FestivalAct act) => ActCatalogue.StandingOf(Standing, act);
+    public ActStanding ActStandingOf(FestivalAct act) => ActCatalogue.StandingOf(Standing, CampaignAct(act));
     /// <summary>What this festival pays the act, including the stretch-booking premium.</summary>
-    public int ActFee(FestivalAct act) => ActCatalogue.Fee(Standing, act, ActRelationship(act.Id));
-    public int ActReputationNeeded(FestivalAct act) => ActCatalogue.ReputationNeeded(Standing, act);
+    public int ActFee(FestivalAct act) => ActCatalogue.Fee(Standing, CampaignAct(act), ActRelationship(act.Id));
+    public int ActReputationNeeded(FestivalAct act) => ActCatalogue.ReputationNeeded(Standing, CampaignAct(act));
     public int TicketPricePennies => FestivalTickets.PricePennies(_preparation?.Tier ?? 1);
     /// <summary>The act popularity this ticket price leads guests to expect.</summary>
     public int ExpectedPopularity => ActCatalogue.ExpectedPopularity(TicketPricePennies);
@@ -93,7 +111,7 @@ public sealed partial class GameSession
     {
         var standing = p.StandingBefore ?? new(p.Reputation, p.SceneCredibility);
         PreparationView = PreparationView! with { Reputation = standing.Reputation, SceneCredibility = standing.SceneCredibility.ToArray(),
-            ActRelationships = p.ActRelationships };
+            ActRelationships = p.ActRelationships, ActPopularity = p.ActPopularity };
         return this;
     }
     private bool ActWillPlay(string id) => ActCatalogue.Find(id) is { } act && ActStandingOf(act) != ActStanding.Locked;
@@ -297,7 +315,7 @@ public sealed partial class GameSession
             if (q.StageId != def.Id || (stage == 0) != (q.EngineerId is null) ||
                 q.EngineerId is { } engineer && !p.People.Any(person => person.AgentId == engineer && person.Role == ProtectedPersonRole.Staff) ||
                 q.ActIds is null || q.Performers is null || q.Performers.Any(role => role is null) ||
-                q.ActIds.Length != 0 && q.ActIds.Length != def.SlotCount || q.ActIds.Distinct().Count() != q.ActIds.Length || q.ActIds.Any(id => !FestivalActs.Any(a => a.Id == id)) ||
+                q.ActIds.Length != 0 && q.ActIds.Length != def.SlotCount || q.ActIds.Distinct().Count() != q.ActIds.Length || q.ActIds.Any(id => ActCatalogue.Find(id) is null) ||
                 q.Performers.Length != def.SlotCount * band || q.CurrentSlot < -1 || q.CurrentSlot >= def.SlotCount || string.IsNullOrWhiteSpace(q.Status) ||
                 q.Performers.Where((role, index) => role.SlotIndex != index / band || role.RoleIndex != index % band).Any() ||
                 p.Status == PreparationStatus.Preparing && (q.CurrentSlot != -1 || q.SlotEndTick != -1) ||

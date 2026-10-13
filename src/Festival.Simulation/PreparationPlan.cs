@@ -125,7 +125,7 @@ public sealed partial class GameSession
         if (plan.Version != 1 || s.Immersion is null || s.Programme is null || s.Perks is null || plan.OfferIds is null || plan.ActIds is null ||
             !plan.OfferIds.SequenceEqual(plan.OfferIds.Distinct().Order(StringComparer.Ordinal)) ||
             plan.ActIds.Length != 0 && plan.ActIds.Length != SavedStages(s).Count * 3 || plan.ActIds.Where(id => id != "").Distinct().Count() != plan.ActIds.Count(id => id != "") || plan.ActIds.Any(id => id != "" && (ActCatalogue.Find(id) is not { } act ||
-                !plan.Committed && ActCatalogue.StandingOf(new(p.Reputation, p.SceneCredibility), act) == ActStanding.Locked)) ||
+                !plan.Committed && ActCatalogue.StandingOf(new(p.Reputation, p.SceneCredibility), ShiftedAct(p.ActPopularity, act)) == ActStanding.Locked)) ||
             plan.SoftDrinks is < 0 or > 10000 || plan.Beers is < 0 or > 10000 || plan.Ponchos is < 0 or > 10000 || plan.StrawBales is < 0 or > 10000 ||
             (plan.Ponchos > 0 || plan.StrawBales > 0) && WeatherRules.ForTier(p.Tier) != WeatherKind.Rain ||
             FoodTraders.Find(plan.TraderId) is not { } firstTrader || firstTrader.FromTier > p.Tier ||
