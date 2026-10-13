@@ -235,14 +235,15 @@ public sealed class WalkOutTests
         s.AdvanceWithoutSnapshot((int)(s.CapturePreparation()!.StartedTick + s.PreparedEditionDurationTicks - 4_800 - s.CurrentTick));
         foreach (var toilet in s.CaptureToilets().Where(t => s.LavSuckerUnavailable(t.Id) is null)) BuildSession.Accept(s, new CallLavSuckerCommand(toilet.Id));
         var close = RunToClose(s);
-        // Partway out, with someone in a loo line or at a tap on the way.
+        // Partway out, with someone in a loo line and someone at a tap on the way, both at once (on this seed they are, for
+        // 544 ticks of the walk-out, 14 Oct).
         GameSession? saved = null;
         while (s.PreparedStatus == PreparationStatus.Departing && saved is null)
         {
             s.AdvanceWithoutSnapshot(1);
             var people = s.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest && !person.Departed).Select(person => s.CapturePerson(person.AgentId)!).ToArray();
-            if (s.CurrentTick - close >= 400 && (people.Any(person => person.ToiletStage is ToiletVisitStage.Queued or ToiletVisitStage.Using) ||
-                people.Any(person => person.Intent is MedicalIntent.SeekWater or MedicalIntent.Drinking)))
+            if (s.CurrentTick - close >= 400 && people.Any(person => person.ToiletStage is ToiletVisitStage.Queued or ToiletVisitStage.Using) &&
+                people.Any(person => person.Intent is MedicalIntent.SeekWater or MedicalIntent.Drinking))
             {
                 var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
                 Assert.IsTrue(restored.IsSuccess, restored.Error);
@@ -250,7 +251,7 @@ public sealed class WalkOutTests
                 saved = restored.Session;
             }
         }
-        Assert.IsNotNull(saved, "The walk-out had someone at a loo or a tap on the way out.");
+        Assert.IsNotNull(saved, "The walk-out had people at a loo and a tap at once.");
         while (s.PreparedStatus == PreparationStatus.Departing) s.AdvanceWithoutSnapshot(1);
         while (saved.PreparedStatus == PreparationStatus.Departing) saved.AdvanceWithoutSnapshot(1);
         Assert.AreEqual(PreparationStatus.Finished, saved.PreparedStatus);
@@ -310,6 +311,104 @@ public sealed class WalkOutTests
         var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
         Assert.IsTrue(lostOut > 0 && lostOut - close < DepartureBudgetTicks, $"The guest left with no route should find it again and walk out; out at {lostOut - close}.");
+    }
+
+    private static void ForceNoRoute(GameSession s, ulong id)
+    {
+        var agents = (System.Collections.IDictionary)typeof(GameSession).GetField("_navigationAgents", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(s)!;
+        var nav = agents[new EntityId(id)]!;
+        nav.GetType().GetProperty("Action")!.SetValue(nav, AgentNavigationAction.NoRoute);
+        nav.GetType().GetProperty("Route")!.SetValue(nav, new List<GridCell>());
+        nav.GetType().GetProperty("RouteIndex")!.SetValue(nav, 0);
+    }
+
+    private static string? IntentOf(GameSession s, ulong id) => s.CaptureSnapshot().NavigationAgents.Single(n => n.Id.Value == id).IntentId;
+
+    /// <summary>
+    /// Reviewer (14 Oct): a guest leaving by way of a loo or a tap whose approach ends in no route was never handed back to
+    /// the walk home, and held the day open to the 8,000-tick limit. Now one left with no route on the way to a loo or a
+    /// tap gives it up on the next tick and heads for the gate, and so does one still on the way after
+    /// <see cref="GameSession.DepartureStopApproachTicks"/>; the walk-out finishes in bound and the save restores.
+    /// </summary>
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void AGuestWhoCantReachTheirLooOrTapOnTheWayOutGoesHomeInstead()
+    {
+        var s = Started("management-only", 20260922);
+        s.AdvanceWithoutSnapshot((int)(s.CapturePreparation()!.StartedTick + s.PreparedEditionDurationTicks - 4_800 - s.CurrentTick));
+        foreach (var toilet in s.CaptureToilets().Where(t => s.LavSuckerUnavailable(t.Id) is null)) BuildSession.Accept(s, new CallLavSuckerCommand(toilet.Id));
+        var close = RunToClose(s);
+        ulong? lostToLoo = null, lostToTap = null, slowToTap = null;
+        while (s.PreparedStatus == PreparationStatus.Departing)
+        {
+            Assert.IsTrue(s.CurrentTick - close < DepartureBudgetTicks, "The walk-out finishes in bound.");
+            s.AdvanceWithoutSnapshot(1);
+            var guests = s.CapturePreparation()!.People.Where(p => p.Role == ProtectedPersonRole.Guest && !p.Departed).Select(p => s.CapturePerson(p.AgentId)!).ToArray();
+            if (lostToLoo is null && guests.FirstOrDefault(p => p.ToiletStage == ToiletVisitStage.Approaching) is { } loo)
+            {
+                lostToLoo = loo.Id;
+                ForceNoRoute(s, loo.Id);
+                s.AdvanceWithoutSnapshot(1);
+                Assert.AreEqual(ToiletVisitStage.None, s.CapturePerson(loo.Id)!.ToiletStage, "No route to the loo: they give it up.");
+                Assert.AreEqual("edition.departure", IntentOf(s, loo.Id), "And head for the gate.");
+                Assert.IsFalse(s.CaptureToilets().Any(t => t.Queue.Contains(loo.Id) || t.OwnerId == loo.Id));
+            }
+            else if (guests.FirstOrDefault(p => p is { Intent: MedicalIntent.SeekWater, WaterQueueSlot: null } &&
+                         !s.CaptureWaterPoints().Any(w => w.Overflow.Contains(p.Id))) is { } tap && (lostToTap is null || slowToTap is null && tap.Id != lostToTap))
+            {
+                if (lostToTap is null)
+                {
+                    lostToTap = tap.Id;
+                    ForceNoRoute(s, tap.Id);
+                }
+                else
+                {
+                    // Still on the way after the limit (forced: real approaches take far less).
+                    slowToTap = tap.Id;
+                    Invoke(s, "UpdatePerson", tap.Id, (Func<Person, Person>)(p => p with { LastWaterChoiceReviewTick = s.CurrentTick - GameSession.DepartureStopApproachTicks + 1 }));
+                }
+                s.AdvanceWithoutSnapshot(1);
+                Assert.AreEqual(MedicalIntent.Leaving, s.CapturePerson(tap.Id)!.Intent, "They give up the tap.");
+                Assert.AreEqual("edition.departure", IntentOf(s, tap.Id), "And head for the gate.");
+            }
+        }
+        Assert.IsNotNull(lostToLoo, "Someone set off for a loo on the way out.");
+        Assert.IsNotNull(lostToTap, "Someone set off for a tap on the way out.");
+        Assert.IsNotNull(slowToTap, "A second guest set off for a tap on the way out.");
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus);
+        Assert.IsTrue(s.CurrentTick - close < DepartureBudgetTicks, $"Finished at +{s.CurrentTick - close}.");
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    /// <summary>
+    /// A quick drink on the way out ends after <see cref="GameSession.DepartureDrinkTicks"/>: the tick it ends on is a
+    /// medical boundary (flagged the tick before), and the tick before that is not flagged for it (14 Oct: it was one early).
+    /// </summary>
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void AQuickDrinkOnTheWayOutIsABoundaryOnTheTickItEnds()
+    {
+        var s = Started("management-only", 20260922);
+        var close = RunToClose(s);
+        var checkedDrinks = 0;
+        while (s.PreparedStatus == PreparationStatus.Departing && checkedDrinks < 2)
+        {
+            Assert.IsTrue(s.CurrentTick - close < DepartureBudgetTicks);
+            var drinking = s.CaptureWaterPoints().FirstOrDefault(w => w.OwnerId is { } id && s.CapturePerson(id)!.Thirst > 200 &&
+                w.DrinkTicks == GameSession.DepartureDrinkTicks - 2);
+            if (drinking is null) { s.AdvanceWithoutSnapshot(1); continue; }
+            var drinker = drinking.OwnerId!.Value;
+            // Two ticks out: the next tick isn't the end, so not flagged for this drink (nothing else is due either).
+            Assert.IsFalse(s.MedicalBoundaryOnNextTick, $"Flagged a tick early at +{s.CurrentTick - close}.");
+            s.AdvanceWithoutSnapshot(1);
+            Assert.AreEqual(drinker, s.CaptureWaterPoints().Single(w => w.Id == drinking.Id).OwnerId, "Still drinking.");
+            Assert.IsTrue(s.MedicalBoundaryOnNextTick, "The tick the drink ends is a boundary.");
+            s.AdvanceWithoutSnapshot(1);
+            Assert.AreNotEqual(drinker, s.CaptureWaterPoints().Single(w => w.Id == drinking.Id).OwnerId, "A quick one, then on they go.");
+            checkedDrinks++;
+        }
+        Assert.IsTrue(checkedDrinks >= 1, "Someone had a quick drink on the way out.");
     }
 
     [TestCategory("Slow")]

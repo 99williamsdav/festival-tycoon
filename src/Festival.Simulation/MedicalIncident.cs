@@ -277,7 +277,7 @@ public sealed partial class GameSession
     public bool MedicalBoundaryOnNextTick => ImmersionDepartureMedicalBoundaryOnNextTick || StaffMedicalBoundaryOnNextTick ||
         // The taps stay open through the walk-out: a drinker finishing there is a boundary as during the day.
         !IsPaused && _medical is not null && ImmersionDepartureActive && WaterPoints().Any(point => point.OwnerId is { } departingDrinker &&
-            (_persons[departingDrinker].Thirst <= EffectiveMedicalDrinkThirstPerTickFor(departingDrinker) || point.DrinkTicks + 2 >= DepartureDrinkTicks)) ||
+            (_persons[departingDrinker].Thirst <= EffectiveMedicalDrinkThirstPerTickFor(departingDrinker) || point.DrinkTicks + 1 >= DepartureDrinkTicks)) ||
         !IsPaused && _medical is { } m && _preparation is { Status: PreparationStatus.Running } &&
         (WaterPoints().Any(point => point.OwnerId is { } waterOwner &&
              _persons[waterOwner].Thirst <= EffectiveMedicalDrinkThirstPerTickFor(waterOwner)) ||

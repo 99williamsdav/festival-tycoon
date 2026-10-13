@@ -243,7 +243,38 @@ public sealed partial class GameSession
             if (stage == MedicalStage.Critical && CurrentTick >= collapse + MedicalDeathDelayTicks)
             { ApplyMedicalDeath(person.Id, warning, collapse, _persons[person.Id].HealthCriticalTick); return; }
         }
+        ReleaseStalledDepartureStops();
         AdvanceDepartureWater();
         AdvanceImmersionDepartureRoutes();
+    }
+
+    /// <summary>
+    /// The longest a guest leaving keeps heading for a loo or a tap before giving it up and going straight home:
+    /// 2,400 ticks, about twice the longest real approach (1,251 ticks over sixteen Tier 1 walk-outs and two Tier 2, 14 Oct).
+    /// </summary>
+    public const int DepartureStopApproachTicks = 2_400;
+
+    /// <summary>
+    /// A guest on their way out who can't reach the loo or tap they set off for (no route) or hasn't got there in
+    /// <see cref="DepartureStopApproachTicks"/> gives it up and walks home; otherwise nothing hands them back to the walk
+    /// home and they'd hold the day open until the walk-out's limit. Only the approach: once in a line, the line moves.
+    /// </summary>
+    private void ReleaseStalledDepartureStops()
+    {
+        foreach (var person in PeopleIn(PersonView.Consumption).Where(p => p.ToiletStage == ToiletVisitStage.Approaching).ToArray())
+            if (!_persons[person.Id].Departed && (_navigationAgents[new(person.Id)].Action == AgentNavigationAction.NoRoute ||
+                    CurrentTick - (person.LastToiletChoiceReviewTick ?? CurrentTick) >= DepartureStopApproachTicks))
+            {
+                ReleaseToiletPerson(person.Id, returnToListening: true);
+                MutatePerson(person.Id, need => need.Reason = "Couldn't get to the loo; heading home");
+            }
+        if (_medical is null) return;
+        foreach (var need in PeopleIn(PersonView.Medical).Where(need => need.Intent == MedicalIntent.SeekWater && need.WaterQueueSlot is null).ToArray())
+        {
+            if (_persons[need.Id].Departed || WaterPoints().Any(point => point.Overflow.Contains(need.Id))) continue;
+            if (_navigationAgents[new(need.Id)].Action == AgentNavigationAction.NoRoute ||
+                CurrentTick - need.LastWaterChoiceReviewTick >= DepartureStopApproachTicks)
+                LeaveWater(need.Id, "Couldn't get to the tap; heading home", reroute: true);
+        }
     }
 }
