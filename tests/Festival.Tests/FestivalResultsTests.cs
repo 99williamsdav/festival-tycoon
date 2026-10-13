@@ -115,10 +115,11 @@ public sealed class FestivalResultsTests
     public void LedgerOperatingProfitExcludesOpeningFundsAndCapital()
     {
         var s = Open(); Closing(s); s.AdvanceWithoutSnapshot(15000); var r = s.CompletedFestivalResult!;
-        Assert.AreEqual(12000L, r.CapitalPurchasesPennies);
+        // Rigs are hired, never bought, on the power budget (4 Oct), so a Tier 1 day books no capital purchase.
+        Assert.AreEqual(0L, r.CapitalPurchasesPennies);
         Assert.AreEqual(r.RevenuePennies - r.ContractCostsPennies - r.ConsumedStockCostsPennies, r.ProfitPennies);
-        // Opening funds are the £600 loan; the £200 of advance tickets is this festival's income.
-        Assert.AreEqual(s.CaptureSnapshot().FestivalFinances.Single().CashPennies - 60000L, r.NetCashChangePennies);
+        // Opening funds are the starter loan (£200 since 6 Oct); the advance tickets (£250 for 25) are this festival's income.
+        Assert.AreEqual(s.CaptureSnapshot().FestivalFinances.Single().CashPennies - CampaignDefaults.OpeningLoanPrincipalPennies, r.NetCashChangePennies);
         Assert.IsTrue(r.ContractCostsPennies > 0); Reload(s);
     }
     [TestCategory("Slow")]
