@@ -14,6 +14,7 @@ public partial class Main : IBuildActions
     void IBuildActions.BeginPlacement(BuildServiceKind kind, string? movingId) => BeginBuildPlacement(kind, movingId);
     void IBuildActions.RemovePlacement(string id) => RemoveBuildPlacement(id);
     void IBuildActions.ApplyDefaults() => ApplyBuildDefaults();
+    void IBuildActions.ApplyLastLayout() => ApplyLastFestivalLayout();
     void IBuildActions.CloseDrawer() { _buildDrawerOpen = false; RefreshHudWorkspace(); }
     void IBuildActions.OpenCatalogue(BuildServiceKind kind) => OpenBuildCatalogue(kind);
     void IBuildActions.OpenTab(string name) => SelectHudTab(name);
@@ -65,6 +66,20 @@ public partial class Main : IBuildActions
     private void ApplyBuildDefaults()
     {
         CommitEquipmentAction(new UseDefaultBuildLayoutCommand());
+        SyncBuildWorld(); Drawer.Refresh();
+    }
+
+    /// <summary>Copies last festival's layout and says how many of its services had to be left off.</summary>
+    private void ApplyLastFestivalLayout()
+    {
+        var fit = _session.LastFestivalLayoutFit();
+        CommitEquipmentAction(new UseLastFestivalLayoutCommand());
+        if (fit is { } copied && _session.CaptureBuildPlacements().Count == copied.Placed.Length)
+        {
+            _preparationMessage = $"Copied last festival's layout: {copied.Placed.Length} services placed" +
+                (copied.Skipped > 0 ? $", {copied.Skipped} left off where they no longer fit." : ".");
+            RefreshPreparationHud();
+        }
         SyncBuildWorld(); Drawer.Refresh();
     }
 

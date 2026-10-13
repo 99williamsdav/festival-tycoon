@@ -20,6 +20,8 @@ public partial class Main
     private readonly Dictionary<string, (Node3D Body, AnimationPlayer? Player, Vector3 Last)> _looseCows = [];
     private readonly Dictionary<ulong, string> _cowPicks = [];
     private readonly Dictionary<string, (Node3D Intact, Node3D Chewed, Node3D? Spark, Sprite3D Pin)> _cableViews = [];
+    /// <summary>Where each drawn lead runs from and to, so a stall that moves takes its lead with it.</summary>
+    private readonly Dictionary<string, (Vector3 From, Vector3 To)> _cableRuns = [];
     private string? _selectedCowId;
     private Button? _herdCowButton;
     private double _sparkClock;
@@ -106,26 +108,47 @@ public partial class Main
         if (_selectedCowId is not null) RefreshCowInspector();
     }
 
-    /// <summary>A lead from each utility to where its cable runs, swapped for a chewed one (sparking, with a pin) when cut.</summary>
+    /// <summary>
+    /// A lead from each utility to where its cable runs, swapped for a chewed one (sparking, with a pin) when cut. Each
+    /// lead follows its stall wherever it stands now (moved in Build, or a later festival's layout), and a stall no
+    /// longer on the field takes its lead with it.
+    /// </summary>
     private void ProcessCables(double delta)
     {
         if (_session.CaptureEquipment() is not { } equipment) return;
         _sparkClock += _session.IsPaused ? 0 : delta;
         var flash = _sparkClock % 1.0 < 0.1;
-        foreach (var (utility, spot) in _session.CableSpots())
+        var vendors = _session.CaptureVendors();
+        var spots = _session.CableSpots();
+        foreach (var gone in _cableViews.Keys.Where(utility => spots.All(spot => spot.Utility != utility)).ToArray())
         {
+            var (intact, chewed, _, pin) = _cableViews[gone];
+            intact.QueueFree(); chewed.QueueFree(); pin.QueueFree();
+            _cableViews.Remove(gone); _cableRuns.Remove(gone);
+        }
+        foreach (var (utility, spot) in spots)
+        {
+            Vector3 from;
+            if (utility == "generator") from = new Vector3(equipment.XMillimetres / 1000f, 0, equipment.ZMillimetres / 1000f);
+            else if (vendors.FirstOrDefault(v => v.Id == utility) is { } vendor) from = ImmersionPosition(vendor.Cell);
+            else continue;
+            var to = ImmersionPosition(spot);
             if (!_cableViews.TryGetValue(utility, out var view))
             {
-                var from = utility == "generator" ? new Vector3(equipment.XMillimetres / 1000f, 0, equipment.ZMillimetres / 1000f)
-                    : ImmersionPosition(_session.CaptureVendors().Single(v => v.Id == utility).Cell);
-                var to = ImmersionPosition(spot);
-                var yaw = Mathf.Atan2(-(to.Z - from.Z), to.X - from.X);
-                var intact = InstantiateAsset("res://assets/environment/lwf_power_lead_v1.glb"); intact.Position = from; intact.Rotation = new Vector3(0, yaw, 0); AddChild(intact);
-                var chewed = InstantiateAsset("res://assets/environment/lwf_power_lead_chewed_v1.glb"); chewed.Position = from; chewed.Rotation = new Vector3(0, yaw, 0); AddChild(chewed);
+                var intact = InstantiateAsset("res://assets/environment/lwf_power_lead_v1.glb"); AddChild(intact);
+                var chewed = InstantiateAsset("res://assets/environment/lwf_power_lead_chewed_v1.glb"); AddChild(chewed);
                 var pin = WorldSprite(GD.Load<Texture2D>("res://assets/ui/field-notes/pin_chewed_cable.png"), 4, new Vector2(0, 32));
-                pin.Position = from + new Vector3(0, 3.2f, 0); pin.Layers = EyeHiddenLayer; AddChild(pin);
+                pin.Layers = EyeHiddenLayer; AddChild(pin);
                 view = (intact, chewed, chewed.FindChild("LWF_Spark", true, false) as Node3D, pin);
                 _cableViews[utility] = view;
+            }
+            if (!_cableRuns.TryGetValue(utility, out var run) || run.From != from || run.To != to)
+            {
+                _cableRuns[utility] = (from, to);
+                var yaw = Mathf.Atan2(-(to.Z - from.Z), to.X - from.X);
+                view.Intact.Position = view.Chewed.Position = from;
+                view.Intact.Rotation = view.Chewed.Rotation = new Vector3(0, yaw, 0);
+                view.Pin.Position = from + new Vector3(0, 3.2f, 0);
             }
             var cut = _session.CableCut(utility);
             view.Intact.Visible = !cut; view.Chewed.Visible = cut; view.Pin.Visible = cut;

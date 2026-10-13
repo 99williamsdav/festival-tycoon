@@ -680,7 +680,7 @@ void fragment() {
                 .Select(stall => (stall.Key, Sold: stall.Where(sale => sale.Product != ImmersionProduct.Water).Sum(sale => sale.Quantity), Taken: stall.Sum(sale => sale.AmountPennies)))
                 .Where(stall => stall.Sold > 0 || stall.Taken != 0).ToArray();
             foreach (var stall in stalls)
-                MoneyRow(list, stalls.Length > 1 || Stalls.Number(stall.Key) > 1 ? $"Bar sales · Bar {Stalls.Number(stall.Key)}" : "Bar sales", stall.Sold.ToString(), FestivalCurrency.Format(stall.Taken));
+                MoneyRow(list, $"Bar sales · {_hud.Session.StallName(stall.Key)}", stall.Sold.ToString(), FestivalCurrency.Format(stall.Taken));
             if (stalls.Length == 0) list.AddChild(Ui.Text("Nothing sold at the bar", 13.5f, Ui.InkMuted));
         });
         MoneyRow(income, "Total income", (items + report.TicketsSold).ToString(), FestivalCurrency.Format(report.IncomePennies), true);

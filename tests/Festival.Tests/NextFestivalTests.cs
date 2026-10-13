@@ -49,7 +49,7 @@ public sealed class NextFestivalTests
     public void TierTwosDefaultLayoutPutsItsSecondTapByThePondAndStandsWithOrWithoutThePond()
     {
         var tap = GameSession.StandardBuildLayout(2).Single(item => item.Id == "water.extra-1");
-        Assert.AreEqual((new GridCell(159, 139), 0), (tap.Cell, tap.QuarterTurns));
+        Assert.AreEqual((new GridCell(148, 137), 0), (tap.Cell, tap.QuarterTurns));
         var validate = typeof(GameSession).GetMethod("ValidateBuildLayout", BindingFlags.NonPublic | BindingFlags.Static)!;
         foreach (var pond in new[] { false, true })
             Assert.IsNull(validate.Invoke(null, [GameSession.StandardBuildLayout(2), FestivalStages.For(pond), null, false, 2]), $"pond open: {pond}");
@@ -57,7 +57,7 @@ public sealed class NextFestivalTests
         Assert.IsFalse(GameSession.StandardBuildLayout(1).Any(item => item.Id is "water.extra-1" or "toilet.extra-2"));
         var s = Drafted(TierTwo());
         Assert.IsTrue(s.PondStageOpen);
-        Assert.AreEqual(new GridCell(159, 139), s.CaptureWaterPoints().Single(point => point.Id == "water.extra-1").Cell);
+        Assert.AreEqual(new GridCell(148, 137), s.CaptureWaterPoints().Single(point => point.Id == "water.extra-1").Cell);
     }
 
     [TestMethod]
@@ -208,11 +208,19 @@ public sealed class NextFestivalTests
         CollectionAssert.AreEqual(finished.SceneCredibility, p.SceneCredibility);
         CollectionAssert.AreEqual(finished.SeenActs, p.SeenActs);
         Assert.AreEqual(0, p.BuildPlacements.Length);
+        // Tier 1's layout comes forward to copy; on Tier 2's ground all of it still fits.
+        CollectionAssert.AreEqual(finished.BuildPlacements, p.PreviousLayout);
+        Assert.AreEqual((finished.BuildPlacements.Length, 0), (next.LastFestivalLayoutFit()!.Value.Placed.Length, next.LastFestivalLayoutFit()!.Value.Skipped));
         Assert.AreEqual(0, p.AcceptedOffers.Length + p.WorkContracts.Length + p.Payments.Length);
         Assert.IsTrue(next.CapturePerks()!.Pending);
         Assert.AreEqual(0, next.CapturePerks()!.Equipped.Length);
         Assert.IsNull(p.Result);
         BuildSession.Restored(next);
+        // Copied over Tier 2's default layout, once the perk's drafted.
+        var copied = Drafted(BuildSession.Restored(next));
+        BuildSession.Accept(copied, new UseLastFestivalLayoutCommand());
+        CollectionAssert.AreEqual(finished.BuildPlacements, copied.CaptureBuildPlacements().ToArray());
+        BuildSession.Restored(copied);
     }
 
     [TestMethod]

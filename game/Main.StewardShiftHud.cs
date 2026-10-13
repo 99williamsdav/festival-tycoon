@@ -421,7 +421,7 @@ public partial class Main
                     DisorderStage.Fight => "fighting", DisorderStage.Argument => "arguing", DisorderStage.Agitated => "agitated", DisorderStage.Complaint => "complaining",
                     _ when _session.CaptureStewardShift()?.EscortId == id => "following you to the gate",
                     _ when _session.CaptureStewardShift()?.EscortOffer?.GuestId == id => "calmed · walk them out",
-                    _ => person.VendorId is { } vendor ? $"looking for {Stalls.Label(vendor)}" : person.ToiletStage == ToiletVisitStage.Approaching ? "looking for the loos" :
+                    _ => person.VendorId is { } vendor ? $"looking for {_session.StallName(vendor)}" : person.ToiletStage == ToiletVisitStage.Approaching ? "looking for the loos" :
                         person.Intent == MedicalIntent.SeekWater ? "looking for water" : "",
                 };
             return state == "" ? $"{kind} · {metres}" : $"{kind} · {metres} · {state}";
