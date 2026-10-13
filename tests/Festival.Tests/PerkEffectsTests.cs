@@ -80,7 +80,10 @@ public sealed class PerkEffectsTests
     {
         var (before, after) = (Days(null), Days(PerkCatalogue.ColaFiends));
         Assert.IsTrue(after.Softs > before.Softs, $"Soft drinks {before.Softs} to {after.Softs}.");
-        // Within day-to-day noise: with trips held for the applause, the rush at the bars between sets sends a few to the tap instead.
+        // The swap itself: fewer tap visits for every soft drink bought. And, within day-to-day noise (the rush at the bars
+        // between sets sends a few to the tap), no more tap visits overall.
+        Assert.IsTrue((long)after.Taps * before.Softs < (long)before.Taps * after.Softs,
+            $"Fewer tap visits a soft drink: {before.Taps}/{before.Softs} to {after.Taps}/{after.Softs}.");
         Assert.IsTrue(after.Taps <= before.Taps * 115 / 100, $"No more tap visits: {before.Taps} to {after.Taps}.");
     }
 

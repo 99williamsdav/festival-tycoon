@@ -41,6 +41,8 @@ public sealed partial class GameSession
     public const long ApplauseValue = 10_000;
     // Needs at or above these go now: a trip for them is never put off until the applause.
     public const int UrgentThirst = 7_000, UrgentHeat = 7_000, UrgentToilet = 8_000;
+    // Hangry (DisorderHangryHunger): a guest that hungry never puts food off until the applause.
+    public const int UrgentHunger = DisorderHangryHunger;
     // A worker's worth per second at their post, in place of the music.
     public const long StaffPostPerSecond = 3_000;
     // What an automatic job is worth to the worker offered it, by urgency.
@@ -362,9 +364,12 @@ public sealed partial class GameSession
                     { Then = new(second.Kind, second.Facility, second.CompleteTicks) { FoodRelief = second.FoodRelief }, FoodRelief = first.FoodRelief });
         }
         // Or the same trip when the set they're watching ends: they clap it out and go in the gap.
+        // A hangry guest's food can't wait: they eat now rather than join the van rush between sets.
+        var hangry = person.Hunger >= UrgentHunger;
         if (current == ActivityKind.Watch && TicksToSetEnd(id) is var wait and > 0)
             foreach (var option in options.ToArray())
-                if (Deferrable(option.Kind) && option.CompleteTicks + wait < ActivityChooser.HorizonTicks)
+                if (Deferrable(option.Kind) && option.CompleteTicks + wait < ActivityChooser.HorizonTicks &&
+                    !(hangry && (option.Kind == ActivityKind.Food || option.Then?.Kind == ActivityKind.Food)))
                     options.Add(option with { CompleteTicks = option.CompleteTicks + wait, AwayTicks = option.AwayTicks + wait, LeaveTicks = wait,
                         Enjoyment = option.Enjoyment + ApplauseValue,
                         Then = option.Then is { } then ? then with { CompleteTicks = then.CompleteTicks + wait } : null });
