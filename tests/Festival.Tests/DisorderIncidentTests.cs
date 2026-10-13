@@ -132,9 +132,11 @@ public sealed class DisorderIncidentTests
             Assert.IsTrue(Send(session, new DisorderCommand(DisorderAction.RestoreMusic)).IsAccepted);
             session.AdvanceWithoutSnapshot(2_600);
             var d = session.CaptureDisorder()!;
-            Assert.IsFalse(d.Evidence.Any(item => item.Id == "disorder:fight"), $"seed={seed}");
-            Assert.AreEqual(0, d.Incidents.Length, $"seed={seed}");
-            Assert.IsFalse(d.Evidence.Any(item => item.Id.Contains("complaint")), $"seed={seed}");
+            // Since 6 Oct any long queue (food, bar, toilets) frays tempers too (QueueWait), so a countered day can still
+            // hear "Hurry up!" from the stalls; what must not happen is disorder from the music or water just countered.
+            Assert.AreEqual(0, d.Incidents.Count(item => item.Grievance is DisorderGrievance.MusicCutoff or DisorderGrievance.WaterWait), $"seed={seed}");
+            Assert.IsFalse(d.Evidence.Any(item => item.Id.Contains("complaint") &&
+                (item.Description.Contains($"cause {DisorderGrievance.MusicCutoff}") || item.Description.Contains($"cause {DisorderGrievance.WaterWait}"))), $"seed={seed}");
             Assert.AreEqual(0, session.CaptureLifecycleSnapshot()!.Casualties.Count, $"seed={seed}");
             Restored(session);
 
