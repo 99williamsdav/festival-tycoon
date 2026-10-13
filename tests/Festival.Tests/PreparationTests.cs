@@ -7,6 +7,9 @@ namespace Festival.Tests;
 public sealed class PreparationTests
 {
     private static readonly SaveCompatibility Compatibility = new("r0.01-tests", "test-content", "test-rules");
+    // Everyone walks out after the close. Since the 9 Oct default layout (eca424b) the medic stands by at the first-aid tent
+    // across the lane until the last guest is out, then walks off site: about 3,200 ticks on these days.
+    private const int DepartureBudgetTicks = 6_000;
     private static CommandResult Execute(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase, session.CurrentTick,
         session.NextSubmissionSequence, null, command));
@@ -76,7 +79,7 @@ public sealed class PreparationTests
             if (completion)
             {
                 session.AdvanceWithoutSnapshot(1);
-                for (var index = 0; index < 3_000 && !session.PreparationBoundaryOnNextTick; index++) session.AdvanceWithoutSnapshot(1);
+                for (var index = 0; index < DepartureBudgetTicks && !session.PreparationBoundaryOnNextTick; index++) session.AdvanceWithoutSnapshot(1);
                 Assert.AreEqual(PreparationStatus.Departing, session.PreparedStatus);
                 Assert.IsTrue(session.PreparationBoundaryOnNextTick);
             }
@@ -185,7 +188,7 @@ public sealed class PreparationTests
             Assert.AreEqual(synchronous.CurrentTick, asynchronous.CurrentTick);
             Assert.AreEqual(synchronous.CaptureSnapshot().AuthoritativeHash, asynchronous.CaptureSnapshot().AuthoritativeHash);
 
-            for (var index = 0; index < 3_000 && !synchronous.PreparationBoundaryOnNextTick; index++)
+            for (var index = 0; index < DepartureBudgetTicks && !synchronous.PreparationBoundaryOnNextTick; index++)
             {
                 AdvanceNormal(1);
                 AdvanceResponsive(1);
