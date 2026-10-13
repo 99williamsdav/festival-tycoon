@@ -369,6 +369,9 @@ public sealed class LitterTests
         Assert.IsTrue(s.CapturePerson(id)!.Departed); var waste = s.CaptureLitter()!.Pieces.Single();
         Assert.AreEqual(WasteLocation.Ground, waste.Location); Assert.AreEqual(TraversalGrid.CellCentre(exit), (waste.XMillimetres, waste.ZMillimetres));
         BuildSession.Restored(s);
+        // The finish acts on whether it was due as the tick began, which the tick loop reads before advancing.
+        var due = (bool)typeof(GameSession).GetProperty("FestivalFinishDue", BindingFlags.Instance | BindingFlags.NonPublic)!.GetValue(s)!;
+        typeof(GameSession).GetField("_finishDueAtTickStart", BindingFlags.Instance | BindingFlags.NonPublic)!.SetValue(s, due);
         SetTime(s, s.CurrentTick + 1); Invoke(s, "FinalizeFestivalDeparture");
         Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus); BuildSession.Restored(s);
         Assert.AreEqual(1000L, s.CompletedFestivalAccounts!.OperatingExpenses.Single(e => e.Label == "Litter bin × 1").AmountPennies);
