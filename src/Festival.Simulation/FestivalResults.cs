@@ -98,9 +98,16 @@ public sealed partial class GameSession
                 InterruptedOccupantId = Leaving(toilet.InterruptedOccupantId) ? null : toilet.InterruptedOccupantId,
                 DoorOpen = !Leaving(toilet.OwnerId) && toilet.DoorOpen,
                 ServiceTicks = Leaving(toilet.OwnerId) ? 0 : toilet.ServiceTicks }).ToArray());
+        // Nor a place at a tap: the lines empty and the drinking stops.
+        if (Taps.Any(tap => tap.Queue.Any(ids.Contains) || tap.Overflow.Any(ids.Contains) || Leaving(tap.OwnerId)))
+            SetTaps(Taps.Select(tap => tap with { Queue = tap.Queue.Where(id => !ids.Contains(id)).ToArray(),
+                Overflow = tap.Overflow.Where(id => !ids.Contains(id)).ToArray(),
+                OwnerId = Leaving(tap.OwnerId) ? null : tap.OwnerId, DrinkTicks = Leaving(tap.OwnerId) ? 0 : tap.DrinkTicks }).ToArray());
         foreach (var person in leaving)
         {
             ReleaseWasteAtExit(person.Id);
+            if (_medical is not null && (_persons[person.Id].WaterQueueSlot is not null || _persons[person.Id].Intent is MedicalIntent.SeekWater or MedicalIntent.Drinking))
+                MutatePerson(person.Id, need => { need.WaterQueueSlot = null; need.Intent = MedicalIntent.Leaving; need.Reason = "Sent home at the finish"; });
             if (person.ToiletStage != ToiletVisitStage.None || person.ToiletId is not null)
                 SetConsumption(_persons[person.Id] with { ToiletStage = ToiletVisitStage.None, ToiletChoice = null, ToiletId = null });
             SetPresence(_persons[person.Id] with { Departed = true });

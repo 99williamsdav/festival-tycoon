@@ -428,7 +428,7 @@ public sealed class StewardShiftStageTests
         var plain = classic.CapturePersistenceSnapshot();
         Assert.IsNull(InvasionCheck(plain));
         Refused(Record(plain, r => r with { Hiccups = [.. r.Hiccups, GigRules.StageInvader] }), "a classic record with the hiccup");
-        var gig = new CarriedGig(1, BuildSession.Acts[0], true, false, 10, 10, 1_000, [GigRules.StageInvader]);
+        var gig = new CarriedGig(1, BuildSession.Acts[0], true, false, 10, 10, 1_000, [GigRules.StageInvader]) { AverageCrowdTenths = 90 };
         var carried = plain with { Preparation = plain.Preparation! with { RelationshipHistory = [gig] } };
         Assert.IsNotNull(InvasionCheck(carried), "A classic carried set with the hiccup.");
         Assert.IsNull(InvasionCheck(carried with { Mode = CampaignMode.HandsOn }), "A hands-on campaign's earlier day may have had one.");

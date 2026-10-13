@@ -29,6 +29,11 @@ public sealed record LivePerformanceSnapshot(int Version, string StageId, LiveSe
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int SetEndEnjoymentAway { get; init; }
     /// <summary>The most listeners at their places at once while the set played.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int PeakListeners { get; init; }
+    /// <summary>
+    /// Listeners at their places, summed over every tick the set was on (the ticks the peak is counted on, from the one it
+    /// started to the one it ended): the set's average crowd is this over those ticks (<see cref="AverageCrowdTenths"/>).
+    /// </summary>
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public long ListenerTicks { get; init; }
     /// <summary>How many times the set stopped for lost power, and for a band member leaving their mark.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int PowerCuts { get; init; }
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int Stoppages { get; init; }
@@ -42,6 +47,10 @@ public sealed record LivePerformanceSnapshot(int Version, string StageId, LiveSe
     /// <summary>How many times the player steward got up on this stage while the set played: a stage invader.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public int StageInvasions { get; init; }
     [JsonIgnore] public int SetEndAudienceCount => SetEndAudienceIds.Length;
+    /// <summary>The ticks the set was on up to <paramref name="now"/> (or its end): from the tick it started to the tick it ended, both counted.</summary>
+    public long OnTicks(long now) => StartedTick < 0 ? 0 : Math.Max(0, (Stage == LiveSetStage.Finished ? EndedTick : now) - StartedTick + 1);
+    /// <summary>The time-weighted average crowd while the set was on, in tenths of a listener, rounded down; 0 if it never started.</summary>
+    public int AverageCrowdTenths(long now) => OnTicks(now) is var ticks and > 0 ? (int)(ListenerTicks * 10 / ticks) : 0;
     [JsonIgnore] public int SetEndEnjoymentTotal => SetEndEnjoymentAway +
         Listeners.Where(listener => SetEndAudienceIds.Contains(listener.AgentId)).Sum(listener => listener.EnjoymentEarned);
 }
@@ -308,6 +317,7 @@ public sealed partial class GameSession
         if (rewardedPeople is not null) foreach (var person in rewardedPeople) SetPresence(person);
         // The set's own record: its biggest crowd, and the sound it was played through.
         var peak = live.PeakListeners;
+        var listenerTicks = live.ListenerTicks;
         var soundTotal = live.SoundTotal;
         var soundSamples = live.SoundSamples;
         var atPlaces = 0;
@@ -388,7 +398,10 @@ public sealed partial class GameSession
             // Counted on any tick the set was on, including the one it started and the one it ended; never fewer than clapped it out.
             PeakListeners = Math.Max(setEndAudienceIds.Length,
                 live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted || stageState is LiveSetStage.Live or LiveSetStage.Interrupted
-                ? Math.Max(peak, atPlaces) : peak), PowerCuts = powerCuts, Stoppages = stoppages, Boos = boos, SoundTotal = soundTotal, SoundSamples = soundSamples,
+                ? Math.Max(peak, atPlaces) : peak),
+            // The average crowd is counted on the same ticks as the peak.
+            ListenerTicks = live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted || stageState is LiveSetStage.Live or LiveSetStage.Interrupted
+                ? listenerTicks + atPlaces : listenerTicks, PowerCuts = powerCuts, Stoppages = stoppages, Boos = boos, SoundTotal = soundTotal, SoundSamples = soundSamples,
             MemberCollapsed = collapsed };
         if (stageState == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished) RecordPerformance(stage, _livePerformances[stage]!);
         // An act that played is known from then on: its talent shows in the booking table.
@@ -584,6 +597,9 @@ public sealed partial class GameSession
                 live.SetEndEnjoymentAway > live.SetEndAudienceIds.Length * (FestivalSlotDurationTicks / 80 * 30) ||
                 // The set's own record: none of it before the set starts, and its numbers within the crowd and the set.
                 live.PeakListeners < live.SetEndAudienceIds.Length || live.PeakListeners > guests.Length ||
+                // Never more listener-ticks than the peak on every tick the set was on.
+                live.ListenerTicks < 0 || live.ListenerTicks > live.PeakListeners * live.OnTicks(snapshot.CurrentTick) ||
+                live.StartedTick < 0 && live.ListenerTicks != 0 ||
                 live.PowerCuts < 0 || live.Stoppages < 0 || live.Boos < 0 || live.Boos > live.PowerCuts + live.Stoppages ||
                 live.SoundSamples < 0 || live.SoundSamples > FestivalSlotDurationTicks / 80 + 1 || live.SoundTotal < 0 || live.SoundTotal > 100L * live.SoundSamples ||
                 live.StartedTick < 0 && (live.PeakListeners != 0 || live.PowerCuts + live.Stoppages + live.Boos + live.SoundSamples != 0) ||

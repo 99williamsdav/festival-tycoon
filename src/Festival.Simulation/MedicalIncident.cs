@@ -274,7 +274,11 @@ public sealed partial class GameSession
     /// <summary>The current read model. Snapshots are shared immutable values: never write into their arrays.</summary>
     public MedicalSnapshot? CaptureMedical() => MedicalView;
     internal string? MedicalCanonicalJson => MedicalView is not { } m ? null : System.Text.Json.JsonSerializer.Serialize(m);
-    public bool MedicalBoundaryOnNextTick => ImmersionDepartureMedicalBoundaryOnNextTick || StaffMedicalBoundaryOnNextTick || !IsPaused && _medical is { } m && _preparation is { Status: PreparationStatus.Running } &&
+    public bool MedicalBoundaryOnNextTick => ImmersionDepartureMedicalBoundaryOnNextTick || StaffMedicalBoundaryOnNextTick ||
+        // The taps stay open through the walk-out: a drinker finishing there is a boundary as during the day.
+        !IsPaused && _medical is not null && ImmersionDepartureActive && WaterPoints().Any(point => point.OwnerId is { } departingDrinker &&
+            (_persons[departingDrinker].Thirst <= EffectiveMedicalDrinkThirstPerTickFor(departingDrinker) || point.DrinkTicks + 2 >= DepartureDrinkTicks)) ||
+        !IsPaused && _medical is { } m && _preparation is { Status: PreparationStatus.Running } &&
         (WaterPoints().Any(point => point.OwnerId is { } waterOwner &&
              _persons[waterOwner].Thirst <= EffectiveMedicalDrinkThirstPerTickFor(waterOwner)) ||
          PeopleIn(PersonView.Medical).Any(item => item.NeedProfile != MedicalNeedProfile.Staff &&
@@ -663,39 +667,7 @@ public sealed partial class GameSession
         m = _medical!;
         AdmitWaterArrivals();
         m = _medical!;
-        foreach (var selected in WaterPoints())
-        {
-            var point = WaterPoints().Single(item => item.Id == selected.Id);
-            if (point.Queue.Length == 0) continue;
-            var first = point.Queue[0];
-            var atTap = _navigationAgents[new(first)] is { Action: AgentNavigationAction.Arrived, Destination: { } destination } && destination == WaterSlot(point, 0);
-            if (ActiveFault(point.Id) is not null) continue;
-            if (point.OwnerId is null && atTap)
-            {
-                if (TapBreaksOnUse(point, first)) { LeaveWater(first, "The tap broke as they used it", reroute: true); continue; }
-                SetWaterPoint(point with { OwnerId = first, DrinkTicks = 0 });
-                MutatePerson(first, item => { item.Intent = MedicalIntent.Drinking; item.Reason = $"Drinking at {point.Id} ({EffectiveMedicalDrinkThirstPerTickFor(first)} thirst/tick); thirst and heat improve continuously"; });
-                MedicalEvent("medical:drink-start", $"Person {first} started drinking at {point.Id} after physical arrival.");
-                point = WaterPoints().Single(item => item.Id == selected.Id);
-            }
-            // A bodged tap gives water on every other tick only.
-            if (point.OwnerId == first && atTap && TapBodged(point.Id) && CurrentTick % FaultRules.BodgedFlowDivisor != 0)
-                SetWaterPoint(point with { DrinkTicks = point.DrinkTicks + 1 });
-            else if (point.OwnerId == first && atTap)
-            {
-                MutatePerson(first, item => { item.Thirst = Math.Max(0, item.Thirst - EffectiveMedicalDrinkThirstPerTickFor(first)); item.HeatExposure = Math.Max(0, item.HeatExposure - EffectiveMedicalDrinkHeatPerTickFor(first)); });
-                SetWaterPoint(point with { DrinkTicks = point.DrinkTicks + 1 });
-                if (HasPerk("something-in-the-water") && PersonIn(PersonView.Roster, first) is { Role: ProtectedPersonRole.Guest })
-                    ChangeSatisfaction(first, 1, MoodCause.FreeWaterPerk);
-                if (_persons[first].Thirst == 0)
-                {
-                    var drankTicks = point.DrinkTicks + 1;
-                    LeaveWater(first, "Thirst reached zero after drinking", reroute: true);
-                    MutatePerson(first, item => { item.LastWaterTick = CurrentTick; item.Reason = "Drank free water until thirst reached zero"; });
-                    MedicalEvent("medical:water", $"Person {first} finished at {point.Id} after {drankTicks} ticks; thirst zero, no payment or stock transfer.");
-                }
-            }
-        }
+        AdvanceTaps();
         m = _medical!;
         foreach (var resting in PeopleIn(PersonView.Medical).Where(item => item.NeedProfile != MedicalNeedProfile.Staff && item.Intent == MedicalIntent.Rest).ToArray())
         {
@@ -764,6 +736,51 @@ public sealed partial class GameSession
             {
                 ApplyMedicalDeath(need.Id, need.HealthWarningTick, need.HealthCollapseTick, need.HealthCriticalTick);
                 return;
+            }
+        }
+    }
+
+    /// <summary>Each tap: whoever is at the front starts drinking and drinks until their thirst is gone; through the day and the walk-out.</summary>
+    private void AdvanceTaps()
+    {
+        foreach (var selected in WaterPoints())
+        {
+            var point = WaterPoints().Single(item => item.Id == selected.Id);
+            if (point.Queue.Length == 0) continue;
+            var first = point.Queue[0];
+            var atTap = _navigationAgents[new(first)] is { Action: AgentNavigationAction.Arrived, Destination: { } destination } && destination == WaterSlot(point, 0);
+            if (ActiveFault(point.Id) is not null) continue;
+            if (point.OwnerId is null && atTap)
+            {
+                if (TapBreaksOnUse(point, first)) { LeaveWater(first, "The tap broke as they used it", reroute: true); continue; }
+                SetWaterPoint(point with { OwnerId = first, DrinkTicks = 0 });
+                MutatePerson(first, item => { item.Intent = MedicalIntent.Drinking; item.Reason = $"Drinking at {point.Id} ({EffectiveMedicalDrinkThirstPerTickFor(first)} thirst/tick); thirst and heat improve continuously"; });
+                MedicalEvent("medical:drink-start", $"Person {first} started drinking at {point.Id} after physical arrival.");
+                point = WaterPoints().Single(item => item.Id == selected.Id);
+            }
+            // A bodged tap gives water on every other tick only.
+            if (point.OwnerId == first && atTap && TapBodged(point.Id) && CurrentTick % FaultRules.BodgedFlowDivisor != 0)
+                SetWaterPoint(point with { DrinkTicks = point.DrinkTicks + 1 });
+            else if (point.OwnerId == first && atTap)
+            {
+                MutatePerson(first, item => { item.Thirst = Math.Max(0, item.Thirst - EffectiveMedicalDrinkThirstPerTickFor(first)); item.HeatExposure = Math.Max(0, item.HeatExposure - EffectiveMedicalDrinkHeatPerTickFor(first)); });
+                SetWaterPoint(point with { DrinkTicks = point.DrinkTicks + 1 });
+                if (HasPerk("something-in-the-water") && PersonIn(PersonView.Roster, first) is { Role: ProtectedPersonRole.Guest })
+                    ChangeSatisfaction(first, 1, MoodCause.FreeWaterPerk);
+                // On the way home they don't drink their fill: a quick one, then off.
+                if (ImmersionDepartureActive && _persons[first].Thirst > 0 && point.DrinkTicks + 1 >= DepartureDrinkTicks)
+                {
+                    LeaveWater(first, "A quick drink on the way out", reroute: true);
+                    MutatePerson(first, item => { item.LastWaterTick = CurrentTick; item.Reason = "Had a quick drink of water on the way home"; });
+                    MedicalEvent("medical:water", $"Person {first} had a quick drink at {point.Id} on the way out after {point.DrinkTicks + 1} ticks; no payment or stock transfer.");
+                }
+                else if (_persons[first].Thirst == 0)
+                {
+                    var drankTicks = point.DrinkTicks + 1;
+                    LeaveWater(first, "Thirst reached zero after drinking", reroute: true);
+                    MutatePerson(first, item => { item.LastWaterTick = CurrentTick; item.Reason = "Drank free water until thirst reached zero"; });
+                    MedicalEvent("medical:water", $"Person {first} finished at {point.Id} after {drankTicks} ticks; thirst zero, no payment or stock transfer.");
+                }
             }
         }
     }

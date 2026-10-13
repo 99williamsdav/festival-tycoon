@@ -29,10 +29,53 @@ public sealed partial class GameSession
         (OnDeathClock(person.Id) || includePatients && HasClaim(person.Id, PersonClaim.MedicPatient)));
     /// <summary>Stewards and the medic are still needed while a guest or a casualty is on site.</summary>
     private bool StaffNeededOnSite => GuestsRemainOnSite || CasualtyOnSite(true);
+    /// <summary>
+    /// Something other than the walk home has this person: down, being seen to, or a loo or tap on the way out (from the
+    /// approach to walking away), which hands them back to the walk home when it's done.
+    /// </summary>
     private bool ImmersionDepartureJobOwns(ulong id) => PersonCollapsed(id) ||
         EffectiveToilets(_facilities).Any(toilet => toilet.OwnerId == id) ||
+        PersonIn(PersonView.Consumption, id) is { ToiletStage: not ToiletVisitStage.None } ||
+        HasClaim(id, PersonClaim.WaterPlace | PersonClaim.SeekingWater) || _persons[id].Intent == MedicalIntent.Drinking ||
         HasClaim(id, PersonClaim.MedicResponding | PersonClaim.MedicPatient) ||
         PersonIn(PersonView.Disorder, id)?.ConductStage == DisorderStage.Injured;
+
+    /// <summary>The walk-out: guests set off home over the first <see cref="DepartureLingerMaxTicks"/> after the close, not all at once.</summary>
+    public const int DepartureLingerMaxTicks = 800;
+    /// <summary>
+    /// How long after the close this guest lingers before setting off (chatting, a last look at the stage): a keyed roll,
+    /// squared so most go within the first few minutes and a few hang on to the end of the window. 0 to
+    /// <see cref="DepartureLingerMaxTicks"/>.
+    /// </summary>
+    public static int DepartureLingerTicks(ulong seed, ulong id)
+    {
+        var roll = (long)(GuestInitialRoll(seed, id, 0x4C494E474552UL) % 1_001);
+        return (int)(roll * roll * DepartureLingerMaxTicks / 1_000_000);
+    }
+    /// <summary>A guest's pace on the way home, in permille of their usual stroll: a keyed 900-1000, some tired after a long day.</summary>
+    public static int DeparturePacePermille(ulong seed, ulong id) => 900 + (int)(GuestInitialRoll(seed, id, 0x54495245445055UL) % 101);
+    /// <summary>
+    /// The chance, in percent, a guest leaving stops at a loo on the way: none under 3,000 need, rising to 30% at 6,000 (where
+    /// they'd go during the day anyway).
+    /// </summary>
+    public static int DepartureToiletChancePercent(int toiletNeed) => Math.Clamp((toiletNeed - 3_000) / 100, 0, 30);
+    /// <summary>Nobody stops for a loo or a tap on the way home with this many already in its line or heading for it: they go home.</summary>
+    public const int DepartureMostInLine = 2;
+    /// <summary>The chance, in percent, a guest leaving stops at a tap on the way: none under 3,500 thirst, rising to 30% at 6,500.</summary>
+    public static int DepartureWaterChancePercent(int thirst) => Math.Clamp((thirst - 3_500) / 100, 0, 30);
+    /// <summary>On the way home a drink at the tap is a quick one: four festival minutes at most, then on they go.</summary>
+    public const int DepartureDrinkTicks = 240;
+    /// <summary>
+    /// Where a guest stops on the way out, if anywhere, by need and a keyed roll for each: the loo first, then a tap. Their
+    /// needs don't grow once the music's over, so this is the same whenever it's asked until they've been.
+    /// </summary>
+    public static ActivityKind? DepartureStop(ulong seed, ulong id, int toiletNeed, int thirst) =>
+        (int)(GuestInitialRoll(seed, id, 0x44455054504F4FUL) % 100) < DepartureToiletChancePercent(toiletNeed) ? ActivityKind.Toilet :
+        (int)(GuestInitialRoll(seed, id, 0x44455054574154UL) % 100) < DepartureWaterChancePercent(thirst) ? ActivityKind.Water : null;
+    /// <summary>The planned close: when the walk-out starts, and what the lingering counts from.</summary>
+    private long DepartureCloseTick => _preparation!.StartedTick + PreparedEditionDurationTicks;
+    /// <summary>A guest still lingering after the close, not yet on their way.</summary>
+    private const string LingerIntent = "edition.linger";
     private bool ImmersionCanMarkDeparted(ulong id, int index)
     {
         if (!ImmersionDepartureActive) return true;
@@ -47,15 +90,90 @@ public sealed partial class GameSession
         ReleaseInterventionsForBoundary("Closing released ordinary staff interventions; physical medical responses remain active");
         foreach (var job in GetStewardResponses().Where(StewardBusy))
             SetStewardResponse(job with { Stage = SecurityResponseStage.Completed, TargetId = null, Description = "Closing; physical departure" });
-        SetTaps(Taps.Select(point => point with { Queue = [], Overflow = [], OwnerId = null, DrinkTicks = 0, QueueCells = [] }).ToArray());
-        foreach (var need in PeopleIn(PersonView.Medical).Select(need => ImmersionDepartureJobOwns(need.Id) ? need with { WaterQueueSlot = null } :
+        // Bars and vans shut at the close; loos and taps stay open for the walk-out. The front of each line keeps its place;
+        // anyone further back, or still on their way to it, gives up and heads home with everyone else.
+        foreach (var toilet in EffectiveToilets(_facilities).ToArray())
+            foreach (var id in toilet.Queue.Where((id, index) => id != toilet.OwnerId && index >= DepartureMostInLine)
+                         .Concat(PeopleIn(PersonView.Consumption).Where(p => p.ToiletId == toilet.Id && p.ToiletStage == ToiletVisitStage.Approaching).Select(p => p.Id)).ToArray())
+                ReleaseToiletPerson(id, false);
+        foreach (var point in WaterPoints().ToArray())
+            foreach (var id in point.Queue.Skip(DepartureMostInLine).Concat(point.Overflow).Concat(PeopleIn(PersonView.Medical)
+                         .Where(need => need.Intent == MedicalIntent.SeekWater && need.WaterPointId == point.Id && need.WaterQueueSlot is null).Select(need => need.Id))
+                         .Distinct().Reverse().ToArray())
+                LeaveWater(id, "Closing: too far back in the line, heading home", reroute: false);
+        foreach (var need in PeopleIn(PersonView.Medical).Where(need => !ImmersionDepartureJobOwns(need.Id)).Select(need =>
                 need with { Intent = HoldsForGuests(need.Id) ? MedicalIntent.WatchShow : MedicalIntent.Leaving,
                     WaterQueueSlot = null, Reason = HoldsForGuests(need.Id) ? "On duty until the last guest is off site" : "Closing; physically leaving while exposure continues" }).ToArray())
             _persons.Set(need);
-        AdvanceImmersionDepartureRoutes();
+        AdvanceImmersionDepartureRoutes(closing: true);
         CleanupImmersionDeparture();
     }
-    private void AdvanceImmersionDepartureRoutes()
+
+    /// <summary>
+    /// A lingering guest sets off: by way of a loo or a tap if their need and their roll say so and there's one to use,
+    /// else straight for the gate. Returns false while they stay put.
+    /// </summary>
+    private bool SetOffFromLinger(ulong id, int index)
+    {
+        var close = DepartureCloseTick;
+        var waited = CurrentTick - close;
+        // Finishing a drink holds them, but not past the end of the lingering window.
+        if (waited < DepartureLingerTicks(CampaignSeed, id) ||
+            PersonIn(PersonView.Consumption, id)?.Held is not null && waited < DepartureLingerMaxTicks) return false;
+        var stop = DepartureStop(CampaignSeed, id, _persons[id].ToiletNeed, _persons[id].Thirst);
+        if (stop == ActivityKind.Toilet && StartDepartureToilet(id)) return true;
+        if (stop == ActivityKind.Water && StartDepartureWater(id)) return true;
+        ApplyAgentDestination(new(id), new(PreparedStart(index), "edition.departure"));
+        return true;
+    }
+
+    /// <summary>The loo that would serve them soonest, if any will take them; they join its line as during the day.</summary>
+    private bool StartDepartureToilet(ulong id)
+    {
+        var person = _persons[id];
+        var kind = ChooseToiletVisit(person);
+        if (BestToiletFor(id, kind) is not { } toilet || toilet.IsFull || toilet.InterruptedOccupantId is not null ||
+            ToiletBeingEmptied(toilet.Id) || !toilet.CanAccept(kind) ||
+            toilet.Queue.Length + PeopleIn(PersonView.Consumption).Count(p => p.ToiletId == toilet.Id && p.ToiletStage == ToiletVisitStage.Approaching) >= DepartureMostInLine)
+            return false;
+        SetConsumption(person with { ToiletStage = ToiletVisitStage.Approaching, ToiletChoice = kind, ToiletId = toilet.Id, LastToiletChoiceReviewTick = CurrentTick });
+        MutatePerson(id, item => item.Reason = "A last trip to the loo on the way out");
+        ApplyAgentDestination(new(id), new(ToiletQueueCell(toilet, toilet.Queue.Length), "toilet.approach"));
+        return true;
+    }
+
+    /// <summary>A working tap with room in its line, the soonest to serve them; nobody is sent to a broken one.</summary>
+    private bool StartDepartureWater(ulong id)
+    {
+        if (_disorder?.WaterClosed == true || _medical is null) return false;
+        var working = WaterPoints().Where(point => ActiveFault(point.Id) is null).ToArray();
+        var decision = QueuedServiceChoice.Choose(id, null, working.Select(point => WaterChoiceCandidate(id, point)).ToArray());
+        if (decision is null) return false;
+        var tap = working.Single(point => point.Id == decision.Id);
+        if (tap.Queue.Length + tap.Overflow.Length + PeopleIn(PersonView.Medical).Count(need => need.Intent == MedicalIntent.SeekWater &&
+                need.WaterPointId == tap.Id && need.WaterQueueSlot is null && !tap.Overflow.Contains(need.Id)) >= DepartureMostInLine) return false;
+        SeekWater(id, "A last drink of water on the way out", decision.Id);
+        if (_persons[id].Intent == MedicalIntent.SeekWater) return true;
+        MutatePerson(id, item => item.Intent = MedicalIntent.Leaving);
+        return false;
+    }
+
+    /// <summary>
+    /// The taps through the walk-out: arrivals join the line, and whoever's at the front drinks until they've had enough,
+    /// then walks on home. A tap that's broken stays broken, so its line gives up and goes.
+    /// </summary>
+    private void AdvanceDepartureWater()
+    {
+        if (_medical is null) return;
+        foreach (var point in WaterPoints().Where(point => ActiveFault(point.Id) is not null).ToArray())
+            foreach (var id in point.Queue.Concat(point.Overflow).Concat(PeopleIn(PersonView.Medical)
+                         .Where(need => need.Intent == MedicalIntent.SeekWater && need.WaterPointId == point.Id).Select(need => need.Id)).Distinct().ToArray())
+                LeaveWater(id, "The tap is broken; heading home", reroute: true);
+        AdmitWaterArrivals();
+        AdvanceTaps();
+    }
+
+    private void AdvanceImmersionDepartureRoutes(bool closing = false)
     {
         if (!ImmersionDepartureActive) return;
         var p = _preparation!;
@@ -64,6 +182,21 @@ public sealed partial class GameSession
         {
             var person = PeopleIn(PersonView.Roster)[index];
             if (person.Departed || ImmersionDepartureJobOwns(person.Id)) continue;
+            // Guests don't all leave on the last note: each lingers a while where they are, then sets off.
+            if (person.Role == ProtectedPersonRole.Guest && (closing || _navigationAgents[new(person.Id)].IntentId == LingerIntent))
+            {
+                var at = _navigationAgents[new(person.Id)];
+                if (closing)
+                {
+                    // Someone on their way to their spot at the stage carries on there; anyone else stops where they are.
+                    var spot = at.IntentId?.StartsWith("performance.listen", StringComparison.Ordinal) == true && at.Destination is { } place
+                        ? place : TraversalGrid.WorldToCell(at.XMillimetres, at.ZMillimetres);
+                    ApplyAgentDestination(new(person.Id), new(spot, LingerIntent));
+                    MutatePerson(person.Id, need => { need.Intent = MedicalIntent.Leaving; need.Reason = "Lingering after the music; ingestion and exposure continue until exit"; });
+                }
+                if (!SetOffFromLinger(person.Id, index)) continue;
+                if (ImmersionDepartureJobOwns(person.Id)) continue;
+            }
             var hold = guestsRemain && HoldsForGuests(person.Id);
             var intent = !hold ? "edition.departure" : HoldRole(person.Id) == ResponseRole.Medic ? "medical.departure-standby" : "disorder.departure-standby";
             var nav = _navigationAgents[new(person.Id)];
@@ -110,6 +243,7 @@ public sealed partial class GameSession
             if (stage == MedicalStage.Critical && CurrentTick >= collapse + MedicalDeathDelayTicks)
             { ApplyMedicalDeath(person.Id, warning, collapse, _persons[person.Id].HealthCriticalTick); return; }
         }
+        AdvanceDepartureWater();
         AdvanceImmersionDepartureRoutes();
     }
 }

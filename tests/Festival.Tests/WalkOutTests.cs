@@ -10,7 +10,8 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class WalkOutTests
 {
-    private const int DepartureBudgetTicks = 3_000;
+    /// <summary>The walk-out runs about 2,500-4,000 ticks now guests drift off and stop on the way; well inside the 8,000-tick limit.</summary>
+    private const int DepartureBudgetTicks = 4_500;
 
     private static void Invoke(GameSession s, string name, params object[] args) =>
         typeof(GameSession).GetMethod(name, BindingFlags.NonPublic | BindingFlags.Instance)!.Invoke(s, args);
@@ -171,6 +172,91 @@ public sealed class WalkOutTests
         Assert.IsTrue(after.All(toilet => toilet.OwnerId is null && toilet.Queue.Length == 0));
         var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
         Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    /// <summary>
+    /// The user (13 Oct): "Feels a bit abrupt when everyone leaves after the music stops - we could maybe have people move out
+    /// slowly. Different speeds, some stopping on the way to the toilet or water." Guests linger a keyed while, walk home at
+    /// their own pace, some by way of a loo or a tap, and the last is off site 2,500-4,000 ticks after the close.
+    /// </summary>
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void GuestsDriftOutSomeByWayOfALooOrATapAndTheDayFinishesInBound()
+    {
+        var s = Started("management-only", 20260922);
+        // Dav empties the loos before the headliner, as a player would: a default day fills both, and a full loo takes nobody.
+        var walk = WalkOutProbe.Watch(s, callDav: true);
+        Assert.AreEqual(PreparationStatus.Finished, walk.Status);
+        Assert.IsTrue(walk.LastOut is >= 2_500 and <= 4_000, $"Last guest out at +{walk.LastOut}.");
+        Assert.AreEqual(walk.LastOut + 1, walk.Finished, "The day finishes the tick after the last guest is off site.");
+        // Staggered: not everyone sets off on the last note, and the last to go waited a good while.
+        Assert.IsTrue(walk.SetOffs.Count(tick => tick <= 1) < walk.Guests / 3, $"Set off at once: {walk.SetOffs.Count(tick => tick <= 1)} of {walk.Guests}.");
+        Assert.IsTrue(walk.SetOffs.Max() >= 500, $"Latest set-off +{walk.SetOffs.Max()}.");
+        Assert.IsTrue(walk.SetOffs.Distinct().Count() >= walk.Guests / 2, "Each in their own time.");
+        Assert.IsTrue(walk.HalfwayTick >= 1_000, $"Half the guests gone by +{walk.HalfwayTick}.");
+        // Some stop on the way: the loos and the taps stay open for the walk-out.
+        Assert.IsTrue(walk.LooStops >= 2, $"{walk.LooStops} stopped at a loo.");
+        Assert.IsTrue(walk.WaterStops >= 1, $"{walk.WaterStops} stopped for water.");
+        Assert.IsTrue(s.CapturePreparation()!.People.All(person => person.Departed));
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    [TestMethod]
+    public void LingeringPaceAndStopsAreKeyedAndBounded()
+    {
+        var lingers = Enumerable.Range(1, 400).Select(id => GameSession.DepartureLingerTicks(20260922, (ulong)id)).ToArray();
+        Assert.IsTrue(lingers.All(t => t is >= 0 and <= GameSession.DepartureLingerMaxTicks));
+        Assert.IsTrue(lingers.Average() is > 200 and < 340, $"Mean linger {lingers.Average():0}: most go early, a few late.");
+        Assert.IsTrue(lingers.Count(t => t > 600) is > 20 and < 120, "A few hang on to the end of the window.");
+        CollectionAssert.AreEqual(lingers, Enumerable.Range(1, 400).Select(id => GameSession.DepartureLingerTicks(20260922, (ulong)id)).ToArray(), "Keyed: the same every time.");
+        CollectionAssert.AreNotEqual(lingers, Enumerable.Range(1, 400).Select(id => GameSession.DepartureLingerTicks(20260923, (ulong)id)).ToArray(), "And by seed.");
+        var paces = Enumerable.Range(1, 400).Select(id => GameSession.DeparturePacePermille(20260922, (ulong)id)).ToArray();
+        Assert.IsTrue(paces.All(p => p is >= 900 and <= 1_000) && paces.Distinct().Count() > 80);
+        // Stops follow need: nobody comfortable stops, and the bursting mostly do.
+        Assert.AreEqual(0, GameSession.DepartureToiletChancePercent(3_000));
+        Assert.AreEqual(30, GameSession.DepartureToiletChancePercent(9_000));
+        Assert.AreEqual(0, GameSession.DepartureWaterChancePercent(3_000));
+        Assert.AreEqual(30, GameSession.DepartureWaterChancePercent(9_000));
+        var ids = Enumerable.Range(1, 400).Select(id => (ulong)id).ToArray();
+        Assert.IsTrue(ids.All(id => GameSession.DepartureStop(20260922, id, 1_000, 1_000) is null));
+        var bursting = ids.Count(id => GameSession.DepartureStop(20260922, id, 9_000, 1_000) == ActivityKind.Toilet);
+        Assert.IsTrue(bursting is > 80 and < 160, $"{bursting} of 400 bursting guests stop at a loo.");
+        var parched = ids.Count(id => GameSession.DepartureStop(20260922, id, 1_000, 9_000) == ActivityKind.Water);
+        Assert.IsTrue(parched is > 80 and < 160, $"{parched} of 400 parched guests stop for water.");
+    }
+
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void AWalkOutSavedHalfwayWithGuestsAtTheLoosAndTapsRestoresAndFinishesTheSame()
+    {
+        var s = Started("management-only", 20260922);
+        // Dav empties the loos before the headliner (a default day fills both, and a full loo takes nobody).
+        s.AdvanceWithoutSnapshot((int)(s.CapturePreparation()!.StartedTick + s.PreparedEditionDurationTicks - 4_800 - s.CurrentTick));
+        foreach (var toilet in s.CaptureToilets().Where(t => s.LavSuckerUnavailable(t.Id) is null)) BuildSession.Accept(s, new CallLavSuckerCommand(toilet.Id));
+        var close = RunToClose(s);
+        // Partway out, with someone in a loo line or at a tap on the way.
+        GameSession? saved = null;
+        while (s.PreparedStatus == PreparationStatus.Departing && saved is null)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            var people = s.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest && !person.Departed).Select(person => s.CapturePerson(person.AgentId)!).ToArray();
+            if (s.CurrentTick - close >= 400 && (people.Any(person => person.ToiletStage is ToiletVisitStage.Queued or ToiletVisitStage.Using) ||
+                people.Any(person => person.Intent is MedicalIntent.SeekWater or MedicalIntent.Drinking)))
+            {
+                var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+                Assert.IsTrue(restored.IsSuccess, restored.Error);
+                Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
+                saved = restored.Session;
+            }
+        }
+        Assert.IsNotNull(saved, "The walk-out had someone at a loo or a tap on the way out.");
+        while (s.PreparedStatus == PreparationStatus.Departing) s.AdvanceWithoutSnapshot(1);
+        while (saved.PreparedStatus == PreparationStatus.Departing) saved.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(PreparationStatus.Finished, saved.PreparedStatus);
+        Assert.AreEqual(s.CurrentTick, saved.CurrentTick);
+        Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, saved.CaptureSnapshot().AuthoritativeHash, "The restored walk-out plays out the same.");
+        Assert.IsTrue(s.CurrentTick - close < DepartureBudgetTicks);
     }
 
     [TestMethod]
