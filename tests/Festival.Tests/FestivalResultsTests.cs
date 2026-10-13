@@ -120,7 +120,21 @@ public sealed class FestivalResultsTests
         Assert.AreEqual(r.RevenuePennies - r.ContractCostsPennies - r.ConsumedStockCostsPennies, r.ProfitPennies);
         // Opening funds are the starter loan (£200 since 6 Oct); the advance tickets (£250 for 25) are this festival's income.
         Assert.AreEqual(s.CaptureSnapshot().FestivalFinances.Single().CashPennies - CampaignDefaults.OpeningLoanPrincipalPennies, r.NetCashChangePennies);
-        Assert.IsTrue(r.ContractCostsPennies > 0); Reload(s);
+        Assert.IsTrue(r.ContractCostsPennies > 0);
+        // Nothing at Tier 1 is still bought as capital (the rig is hire-only, the water tower is a perk, community water
+        // costs Favour, carried kit is not paid for again), so the exclusion is shown on the same finished day with one
+        // £120 equipment payment added to its ledger: the result books it as capital, the cash change falls by it, and
+        // the operating profit does not move.
+        var saved = s.CapturePersistenceSnapshot(); var p = saved.Preparation!;
+        var withCapital = p with { Payments = p.Payments.Append(p.Payments[0] with { Id = p.Payments.Length + 1, OfferId = "equipment.buy",
+            AmountPennies = 12_000, DebitAccount = LedgerAccountType.EquipmentAsset }).ToArray() };
+        var make = typeof(GameSession).GetMethod("MakeFestivalResult", System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!;
+        var c = (FestivalResult)make.Invoke(null, [withCapital, saved.Immersion, saved.Medical, saved.Disorder, r.Tick, saved.LavSucker, saved.Weather])!;
+        Assert.AreEqual(r, (FestivalResult)make.Invoke(null, [p, saved.Immersion, saved.Medical, saved.Disorder, r.Tick, saved.LavSucker, saved.Weather])!);
+        Assert.AreEqual(12_000L, c.CapitalPurchasesPennies);
+        Assert.AreEqual(r.ProfitPennies, c.ProfitPennies);
+        Assert.AreEqual(r.NetCashChangePennies - 12_000L, c.NetCashChangePennies);
+        Reload(s);
     }
     [TestCategory("Slow")]
     [TestMethod]
