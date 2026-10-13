@@ -8,8 +8,28 @@ public sealed class PreparationTests
 {
     private static readonly SaveCompatibility Compatibility = new("r0.01-tests", "test-content", "test-rules");
     // Everyone walks out after the close. Since the 9 Oct default layout (eca424b) the medic stands by at the first-aid tent
-    // across the lane until the last guest is out, then walks off site: about 3,200 ticks on these days.
+    // across the lane until the last guest is out, then walks off site: 3,163-3,560 ticks on eight seeds (13 Oct).
+    // WalkOutFinishesWithinBudget holds that to WalkOutTicks; the loops below only stop a stuck day running for ever.
     private const int DepartureBudgetTicks = 6_000;
+    private const int WalkOutTicks = 4_000;
+
+    [TestCategory("Slow")]
+    [TestMethod]
+    [DataRow(2UL)]
+    [DataRow(20260922UL)]
+    [DataRow(51UL)]
+    [DataRow(99UL)]
+    public void WalkOutFinishesWithinBudget(ulong seed)
+    {
+        var session = BuildSession.Planned(seed);
+        Book(session);
+        Assert.IsTrue(Execute(session, new StartPreparedEditionCommand()).IsAccepted);
+        session.AdvanceWithoutSnapshot(GameSession.PreparedWeekendTicks);
+        var ticks = 0;
+        while (ticks < DepartureBudgetTicks && !session.PreparationBoundaryOnNextTick) { session.AdvanceWithoutSnapshot(1); ticks++; }
+        Assert.AreEqual(PreparationStatus.Departing, session.PreparedStatus);
+        Assert.IsTrue(ticks <= WalkOutTicks, $"Everyone should be off site within {WalkOutTicks} ticks of the close; seed {seed} took {ticks}.");
+    }
     private static CommandResult Execute(GameSession session, SessionCommand command) => session.Execute(new(
         new CommandId(session.NextSubmissionSequence + 1), session.CampaignId, session.Phase, session.CurrentTick,
         session.NextSubmissionSequence, null, command));
