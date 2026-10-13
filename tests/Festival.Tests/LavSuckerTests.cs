@@ -114,6 +114,88 @@ public sealed class LavSuckerTests
         Assert.AreNotEqual((waiting.XMillimetres, waiting.ZMillimetres), (s.CaptureLavSucker()!.Calls.Single().XMillimetres, s.CaptureLavSucker()!.Calls.Single().ZMillimetres), "Edges on after ten seconds.");
     }
 
+    private static T Private<T>(GameSession s, string name, params object[] args) => (T)typeof(GameSession)
+        .GetMethod(name, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic | System.Reflection.BindingFlags.Static)!.Invoke(s, args)!;
+
+    /// <summary>
+    /// The user (13 Oct): Dav always went to the same spot by the loo, its door side, so a loo facing away from the track had
+    /// him drive round to park behind it. He now parks in whichever of its eight bays he fits in and is the shortest drive from
+    /// the gate (ties to the lower cell), and sucks from that side. Checked on the default layout's loos (doors facing the gate)
+    /// and with the main loo turned to face away from it.
+    /// </summary>
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public void DavParksOnTheNearSideOfEachLooWithHisHoseOnIt(bool turnedAway)
+    {
+        var s = Ready();
+        // Turned round where it stands: its door to the south, away from the gate at the north end of the track.
+        if (turnedAway)
+        {
+            var main = s.CapturePreparation()!.BuildPlacements.Single(item => item.Id == "toilet.main");
+            Accept(s, new MoveBuildServiceCommand("toilet.main", main.Cell, 0));
+        }
+        Accept(s, new StartPreparedEditionCommand());
+        s = WithoutFaults(s);
+        s.AdvanceWithoutSnapshot(2_000);
+        var grid = (TraversalGrid)typeof(GameSession).GetField("_traversalGrid", System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)!.GetValue(s)!;
+        var cost = Private<int[]>(s, "LavRoadCost", grid);
+        var facingAway = 0;
+        foreach (var toilet in s.CaptureToilets())
+        {
+            SetToilet(s, s.CaptureToilets().Single(t => t.Id == toilet.Id) with { WeeCount = toilet.WeeCount + 1 });
+            Assert.IsTrue(Send(s, new CallLavSuckerCommand(toilet.Id)).IsAccepted);
+            var call = s.CaptureLavSucker()!.Calls.Single(c => c.ToiletId == toilet.Id);
+            var bay = GameSession.LavSuckerBayCell(toilet, call.BaySide);
+            Assert.AreEqual(bay, call.Route[^1], $"{toilet.Id}: drives to its bay.");
+            Assert.IsTrue(Private<bool>(s, "LavSuckerBayFits", toilet, call.BaySide), $"{toilet.Id}: the lorry fits there.");
+            // No bay it fits in is a shorter drive from the gate.
+            long Drive(int side)
+            {
+                var path = DeterministicPathfinder.FindPath(grid, LavSuckerRules.Gate, GameSession.LavSuckerBayCell(toilet, side), cost);
+                return path.Found ? Private<long>(s, "DrivingDistance", (object)path.Path.ToArray()) : long.MaxValue;
+            }
+            var chosen = Drive(call.BaySide);
+            for (var side = 0; side < LavSuckerRules.BaySides; side++)
+                if (side != call.BaySide && Private<bool>(s, "LavSuckerBayFits", toilet, side))
+                    Assert.IsTrue(Drive(side) > chosen || Drive(side) == chosen && GameSession.LavSuckerBayCell(toilet, side).CompareTo(bay) > 0,
+                        $"{toilet.Id}: bay {side} ({Drive(side)} mm) beats bay {call.BaySide} ({chosen} mm).");
+            // A loo whose door faces away from the gate (to the south) is parked behind it, on the gate's side, not at its door.
+            var door = GameSession.RotateWaterOffset(new(0, -1), toilet.QuarterTurns);
+            if (door.Z < 0)
+            {
+                facingAway++;
+                Assert.IsTrue(bay.Z > toilet.Cell.Z, $"{toilet.Id} faces away from the gate: parked at {bay}, loo at {toilet.Cell}.");
+                Assert.IsTrue(GameSession.LavSuckerBayCell(toilet, 0).Z < toilet.Cell.Z, "Where it always used to park: the far, door side.");
+            }
+        }
+        Assert.AreEqual(turnedAway ? 1 : 0, facingAway, "The default layout's loos face the gate; the turned one doesn't.");
+        // Parked and pumping: the hose runs from the lorry's back end to the side of the loo facing it.
+        for (var guard = 0; guard < 600 && s.CaptureLavSucker()!.Calls.Any(c => c.Stage != LavSuckerStage.Pumping); guard++) s.AdvanceWithoutSnapshot(20);
+        foreach (var call in s.CaptureLavSucker()!.Calls)
+        {
+            Assert.AreEqual(LavSuckerStage.Pumping, call.Stage);
+            var toilet = s.CaptureToilets().Single(t => t.Id == call.ToiletId);
+            var (fromX, fromZ, toX, toZ) = s.LavSuckerHose(call)!.Value;
+            var loo = TraversalGrid.CellCentre(toilet.Cell);
+            var onLoo = TraversalGrid.WorldToCell(toX, toZ);
+            Assert.AreEqual(1, Math.Max(Math.Abs(onLoo.X - toilet.Cell.X), Math.Abs(onLoo.Z - toilet.Cell.Z)), "The hose ends on the loo's wall.");
+            Assert.IsTrue(Math.Sqrt(Math.Pow(fromX - toX, 2) + Math.Pow(fromZ - toZ, 2)) < 6_000, "Within the hose's reach.");
+            Assert.IsTrue(Math.Pow(toX - loo.XMillimetres, 2) + Math.Pow(toZ - loo.ZMillimetres, 2) < Math.Pow(fromX - loo.XMillimetres, 2) + Math.Pow(fromZ - loo.ZMillimetres, 2),
+                "It points from the lorry at the loo.");
+            Assert.AreEqual((TraversalGrid.CellCentre(call.Route[^1]).XMillimetres, TraversalGrid.CellCentre(call.Route[^1]).ZMillimetres), (call.XMillimetres, call.ZMillimetres));
+            // The turned loo's hose comes off its back wall, toward the gate, where the lorry stands.
+            if (GameSession.RotateWaterOffset(new(0, -1), toilet.QuarterTurns).Z < 0) Assert.IsTrue(onLoo.Z >= toilet.Cell.Z, $"Hose on {onLoo}, loo {toilet.Cell}.");
+        }
+        // Restore keeps it strict: a parked lorry in a bay its route doesn't end at, or a bay that doesn't exist, is refused.
+        var saved = s.CapturePersistenceSnapshot();
+        Assert.IsTrue(GameSession.Restore(saved).IsSuccess, GameSession.Restore(saved).Error);
+        var parked = saved.LavSucker!.Calls[0];
+        foreach (var side in new[] { parked.BaySide % 7 + 1, LavSuckerRules.BaySides, -1 })
+            Assert.AreEqual("Emptying service call invalid.", GameSession.Restore(saved with
+                { LavSucker = saved.LavSucker with { Calls = [parked with { BaySide = side }, .. saved.LavSucker.Calls[1..]] } }).Error, $"bay {side}");
+    }
+
     [TestMethod]
     public void AnEmptyLooNeedsNoCallAndDavWantsPayingUpFront()
     {

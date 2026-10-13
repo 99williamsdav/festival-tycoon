@@ -16,6 +16,12 @@ public sealed record LavSuckerCall(string Id, string ToiletId, long CalledTick, 
     /// <summary>How long the tanker has been held up by someone in front of it; it noses on regardless after a while.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public int BlockedTicks { get; init; }
+    /// <summary>
+    /// Which of the toilet's eight parking bays the tanker drives to (<see cref="GameSession.LavSuckerBayCell"/>): the art's
+    /// spot alongside the loo turned a quarter at a time (0-3), or the same on the loo's other flank (4-7).
+    /// </summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
+    public int BaySide { get; init; }
 }
 
 public sealed record LavSuckerSnapshot(int Version, LavSuckerCall[] Calls);
@@ -42,6 +48,10 @@ public static class LavSuckerRules
     public const int CabFrontMillimetres = 2_700, HalfWidthMillimetres = 1_200, StopDistanceMillimetres = 1_500;
     /// <summary>How long Dav waits for someone to move before he edges on anyway (10 s).</summary>
     public const int PatienceTicks = 800;
+    /// <summary>A loo has eight places a tanker can park: two flanks, each turned to any of its four sides.</summary>
+    public const int BaySides = 8;
+    /// <summary>The cells the parked lorry covers, either side of its middle: five along its length each way, two across.</summary>
+    public const int BodyAlongCells = 5, BodyAcrossCells = 2;
 }
 
 public sealed partial class GameSession
@@ -61,12 +71,100 @@ public sealed partial class GameSession
     /// <summary>Whether this toilet already has a tanker on the way or at work.</summary>
     public bool LavSuckerBooked(string toiletId) => _lavSucker?.Calls.Any(c => c.ToiletId == toiletId && c.Stage is LavSuckerStage.Arriving or LavSuckerStage.Pumping) == true;
 
-    /// <summary>Where the tanker parks for a toilet: alongside it, rear to the door side, where its hose reaches the door.</summary>
-    public static GridCell LavSuckerBayOffset(int quarterTurns) => RotateWaterOffset(new(-7, -2), quarterTurns);
-    private GridCell LavSuckerBay(ToiletFacility toilet)
+    /// <summary>
+    /// Where the tanker can park for a toilet, by bay (0-7): alongside it, 3.5 m out, its hose reaching across. Bay 0 is the
+    /// art's own spot (on the loo's left, rear toward the door side); bays 1-3 are that spot turned a quarter at a time round
+    /// the loo, and 4-7 the same on the loo's right flank, so the lorry can come up to any side and suck from there.
+    /// </summary>
+    public static GridCell LavSuckerBayCell(ToiletFacility toilet, int side)
     {
-        var back = LavSuckerBayOffset(toilet.QuarterTurns);
-        return WalkableNear(new(toilet.Cell.X + back.X, toilet.Cell.Z + back.Z));
+        var offset = RotateWaterOffset(RotateWaterOffset(new(side >= 4 ? 7 : -7, -2), side % 4), toilet.QuarterTurns);
+        return new(toilet.Cell.X + offset.X, toilet.Cell.Z + offset.Z);
+    }
+    /// <summary>The way a lorry parked in this bay faces, in the sim's quarter-turns: the toilet's own turn plus the bay's.</summary>
+    public static int LavSuckerBayTurns(ToiletFacility toilet, int side) => (toilet.QuarterTurns + side % 4) % 4;
+
+    /// <summary>
+    /// The ground a lorry parked in this bay covers: eleven cells along its length by five across, round the bay cell.
+    /// </summary>
+    public static IEnumerable<GridCell> LavSuckerBodyCells(ToiletFacility toilet, int side)
+    {
+        var centre = LavSuckerBayCell(toilet, side);
+        var turns = LavSuckerBayTurns(toilet, side);
+        for (var along = -LavSuckerRules.BodyAlongCells; along <= LavSuckerRules.BodyAlongCells; along++)
+            for (var across = -LavSuckerRules.BodyAcrossCells; across <= LavSuckerRules.BodyAcrossCells; across++)
+            {
+                var offset = RotateWaterOffset(new(across, along), turns);
+                yield return new(centre.X + offset.X, centre.Z + offset.Z);
+            }
+    }
+
+    /// <summary>
+    /// Whether the lorry fits in this bay: every cell under it open ground, and none of it on a loo's doorway, the apron in
+    /// front of a loo or anybody's queue (toilet, tap or stall), so it never blocks a door or a line.
+    /// </summary>
+    private bool LavSuckerBayFits(ToiletFacility toilet, int side)
+    {
+        if (_traversalGrid is not { } grid) return false;
+        var kept = new HashSet<GridCell>(EffectiveToilets(_facilities).SelectMany(t => ToiletAccessCells(t).Concat(t.QueueCells ?? [])));
+        foreach (var tap in Taps) kept.UnionWith(tap.QueueCells);
+        foreach (var vendor in Vendors) kept.UnionWith(vendor.QueueCells ?? []);
+        return LavSuckerBodyCells(toilet, side).All(cell => grid.Contains(cell) && grid.Get(cell).IsWalkable && !kept.Contains(cell));
+    }
+
+    /// <summary>
+    /// Where Dav parks for a toilet, and his route there: the bay he can reach that's the shortest drive from the gate (so the
+    /// near side of the loo, whichever way its door faces), ties to the lower cell; only bays the lorry fits in. If none fits,
+    /// the art's own spot or the nearest open ground to it, as before.
+    /// </summary>
+    private (int Side, GridCell[] Route) LavSuckerParking(ToiletFacility toilet)
+    {
+        var grid = _traversalGrid!;
+        var cost = LavRoadCost(grid);
+        (int Side, GridCell[] Route, long Distance)? best = null;
+        for (var side = 0; side < LavSuckerRules.BaySides; side++)
+        {
+            if (!LavSuckerBayFits(toilet, side)) continue;
+            var path = DeterministicPathfinder.FindPath(grid, LavSuckerRules.Gate, LavSuckerBayCell(toilet, side), cost);
+            if (!path.Found) continue;
+            var route = path.Path.ToArray();
+            var distance = DrivingDistance(route);
+            if (best is not { } current || distance < current.Distance ||
+                distance == current.Distance && route[^1].CompareTo(current.Route[^1]) < 0)
+                best = (side, route, distance);
+        }
+        if (best is { } chosen) return (chosen.Side, chosen.Route);
+        var fallback = WalkableNear(LavSuckerBayCell(toilet, 0));
+        var legacy = DeterministicPathfinder.FindPath(grid, LavSuckerRules.Gate, fallback, cost);
+        return (0, legacy.Found ? legacy.Path.ToArray() : [fallback]);
+    }
+
+    /// <summary>How far the lorry drives along a route from the gate, in millimetres, cell centre to cell centre.</summary>
+    private static long DrivingDistance(GridCell[] route)
+    {
+        long total = 0;
+        var from = LavSuckerRules.Gate;
+        foreach (var cell in route)
+        {
+            long dx = cell.X - from.X, dz = cell.Z - from.Z;
+            total += (long)Math.Round(Math.Sqrt(dx * dx + dz * dz) * TraversalGrid.CellSizeMillimetres);
+            from = cell;
+        }
+        return total;
+    }
+
+    /// <summary>
+    /// The hose while pumping, in millimetres: from the lorry's back end to the side of the loo facing it (the door for the
+    /// art's own bay; for another bay, that side turned with it). The art's hose is turned with the bay the same way.
+    /// </summary>
+    public (int FromX, int FromZ, int ToX, int ToZ)? LavSuckerHose(LavSuckerCall call)
+    {
+        if (call.Stage != LavSuckerStage.Pumping || EffectiveToilets(_facilities).FirstOrDefault(t => t.Id == call.ToiletId) is not { } toilet) return null;
+        var (hx, hz) = LavSuckerHeading(call);
+        var side = RotateWaterOffset(RotateWaterOffset(new(0, -1), call.BaySide % 4), toilet.QuarterTurns);
+        var loo = TraversalGrid.CellCentre(new(toilet.Cell.X + side.X, toilet.Cell.Z + side.Z));
+        return ((int)Math.Round(call.XMillimetres - hx * LavSuckerRules.CabFrontMillimetres), (int)Math.Round(call.ZMillimetres - hz * LavSuckerRules.CabFrontMillimetres),
+            loo.XMillimetres, loo.ZMillimetres);
     }
 
     public string? LavSuckerUnavailable(string toiletId)
@@ -89,9 +187,9 @@ public sealed partial class GameSession
         _festivalFinances[new(_preparation!.FinanceOwnerId)].CashPennies -= LavSuckerRules.FeePennies;
         var toilet = EffectiveToilets(_facilities).Single(t => t.Id == command.ToiletId);
         var gate = TraversalGrid.CellCentre(LavSuckerRules.Gate);
-        var path = DeterministicPathfinder.FindPath(_traversalGrid!, LavSuckerRules.Gate, LavSuckerBay(toilet), LavRoadCost(_traversalGrid!));
+        var (side, route) = LavSuckerParking(toilet);
         var call = new LavSuckerCall($"lav:{_preparation.Attempt}:{_lavSucker!.Calls.Length + 1}", toilet.Id, CurrentTick, LavSuckerStage.Arriving,
-            gate.XMillimetres, gate.ZMillimetres, path.Found ? path.Path.ToArray() : [LavSuckerBay(toilet)], 0, CurrentTick);
+            gate.XMillimetres, gate.ZMillimetres, route, 0, CurrentTick) { BaySide = side };
         _lavSucker = _lavSucker with { Calls = _lavSucker.Calls.Append(call).ToArray() };
         MedicalEvent("lav:called", $"Dav's Lav-Sucker called to empty {toilet.Id}.");
     }
@@ -165,7 +263,7 @@ public sealed partial class GameSession
             var length = Math.Sqrt(dx * dx + dz * dz);
             if (length >= 1) return (dx / length, dz / length);
         }
-        var turns = EffectiveToilets(_facilities).FirstOrDefault(t => t.Id == call.ToiletId)?.QuarterTurns ?? 0;
+        var turns = EffectiveToilets(_facilities).FirstOrDefault(t => t.Id == call.ToiletId) is { } toilet ? LavSuckerBayTurns(toilet, call.BaySide) : 0;
         var facing = RotateWaterOffset(new(0, 1), turns);
         return (facing.X, facing.Z);
     }
@@ -253,7 +351,12 @@ public sealed partial class GameSession
             if (toilet.EmptiedMillilitres != lav.Calls.Where(c => c.ToiletId == toilet.Id && c.Stage is LavSuckerStage.Leaving or LavSuckerStage.Gone).Sum(c => c.EmptiedMillilitres))
                 return "A toilet was emptied without a call.";
         foreach (var c in lav.Calls)
-            if (!Enum.IsDefined(c.Stage) || !toilets.ContainsKey(c.ToiletId) ||
+            if (!Enum.IsDefined(c.Stage) || !toilets.ContainsKey(c.ToiletId) || c.BaySide is < 0 or >= LavSuckerRules.BaySides ||
+                // Driving to or parked in its bay: the route ends there (or, with no bay the lorry fit, by the art's own spot).
+                c.Stage is LavSuckerStage.Arriving or LavSuckerStage.Pumping && c.Route is { Length: > 0 } &&
+                    c.Route[^1] != LavSuckerBayCell(toilets[c.ToiletId], c.BaySide) &&
+                    (c.BaySide != 0 || Math.Max(Math.Abs(c.Route[^1].X - LavSuckerBayCell(toilets[c.ToiletId], 0).X),
+                        Math.Abs(c.Route[^1].Z - LavSuckerBayCell(toilets[c.ToiletId], 0).Z)) > 4) ||
                 (c.Stage is LavSuckerStage.Leaving or LavSuckerStage.Gone ? c.EmptiedMillilitres <= 0 : c.EmptiedMillilitres != 0) ||
                 c.Stage == LavSuckerStage.Pumping && (toilets[c.ToiletId].OwnerId is not null || toilets[c.ToiletId].InterruptedOccupantId is not null) ||
                 c.Route.Length > 0 && c.RouteIndex == c.Route.Length && c.Stage is LavSuckerStage.Arriving or LavSuckerStage.Pumping &&

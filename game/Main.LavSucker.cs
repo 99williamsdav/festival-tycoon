@@ -11,8 +11,13 @@ public partial class Main
     private const string LavTruckAsset = "res://assets/environment/lwf_honey_wagon_v1.glb";
     private const string LavHoseAsset = "res://assets/environment/lwf_honey_wagon_hose_v1.glb";
     private const float LavWheelRadius = .42f, HoseBulgeEvery = 2f, HoseBulgeTakes = .6f, HoseBulgeScale = 1.9f;
-    // Where the art parks the tanker beside a loo (portaloo-local, metres), rear to the door so the hose reaches.
+    // Where the art parks the tanker beside a loo (portaloo-local, metres), rear to the door so the hose reaches: bay 0.
+    // The sim's other bays turn this round the loo a quarter at a time (1-3), or take the loo's other flank (4-7).
     private static readonly Vector3 LavParkedOffset = new(-3.4f, 0, -.9f);
+
+    /// <summary>A bay's turn round the loo and its flank, as a loo-local transform: the art's parked spot and hose, moved there.</summary>
+    private static Basis LavBayBasis(int side) =>
+        new Basis(Vector3.Up, side % 4 * Mathf.Pi / 2) * Basis.FromScale(new Vector3(side >= 4 ? -1 : 1, 1, 1));
 
     private sealed class LavTruckView
     {
@@ -57,9 +62,10 @@ public partial class Main
                 call.Stage == LavSuckerStage.Arriving && call.RouteIndex >= call.Route.Length);
             if (parked)
             {
-                // Snapped to the art's spot beside the loo, whichever way the loo's been turned.
-                view.Body.Position = toilet!.Position + toilet.Basis * LavParkedOffset;
-                view.Body.Rotation = new Vector3(0, toilet.Rotation.Y + Mathf.Pi, 0);
+                // Snapped to its bay beside the loo (the art's spot, turned round the loo or on its other flank), whichever
+                // way the loo's been turned; the lorry itself is never mirrored, only where it stands.
+                view.Body.Position = toilet!.Position + toilet.Basis * (LavBayBasis(call.BaySide) * LavParkedOffset);
+                view.Body.Rotation = new Vector3(0, toilet.Rotation.Y + Mathf.Pi + call.BaySide % 4 * Mathf.Pi / 2, 0);
             }
             else
             {
@@ -79,12 +85,12 @@ public partial class Main
                 var on = call.Stage != LavSuckerStage.Leaving && Mathf.Sin((float)view.Clock * 9f) > 0;
                 lamp.EmissionEnergyMultiplier = on ? 4f : .2f;
             }
-            ProcessLavHose(view, call.Stage == LavSuckerStage.Pumping ? toilet : null);
+            ProcessLavHose(view, call.Stage == LavSuckerStage.Pumping ? toilet : null, call.BaySide);
         }
     }
 
     /// <summary>The hose from tanker to door while pumping, a lump sliding down it from the loo every couple of seconds.</summary>
-    private void ProcessLavHose(LavTruckView view, Node3D? toilet)
+    private void ProcessLavHose(LavTruckView view, Node3D? toilet, int side)
     {
         if (toilet is null)
         {
@@ -98,6 +104,8 @@ public partial class Main
                 .OfType<Node3D>().Select(n => (n, n.Scale)).ToArray();
             view.Clock = 0;
         }
+        // From the loo to wherever the lorry stands: the art's hose, turned (or flipped) with the bay.
+        view.Hose.Transform = new Transform3D(LavBayBasis(side), Vector3.Zero);
         var phase = (float)(view.Clock % HoseBulgeEvery) / HoseBulgeTakes;
         // Travelling from the loo end (39) to the truck end (00); a soft bump about three segments wide.
         var centre = (1 - phase) * (view.Segments.Length + 4) - 2;
