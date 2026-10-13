@@ -242,6 +242,8 @@ public sealed class FoundationSceneTests
             after.NavigationAgents.Select(item => (item.Id, item.XMillimetres, item.ZMillimetres, item.Action)).ToArray());
         while (!FiftyAgentFoundationFixture.AllCompleted(one))
         {
+            // A stuck attendee fails here rather than hanging the run (as the hedge-walled exits did).
+            Assert.IsTrue(one.Session.CurrentTick < 30_000, "Persistent stacking/deadlock exceeded the fixture budget.");
             one.Session.AdvanceTicks(1);
             restored.Session!.AdvanceTicks(1);
         }

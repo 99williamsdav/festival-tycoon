@@ -21,7 +21,10 @@ public static class FiftyAgentFoundationFixture
         var slots = PickWalkable(grid, used, 50,
             x => 181 - 2 * (x / 10 % 2 == 0 ? x % 10 : 9 - x % 10),
             x => 118 + x / 10 * 2);
-        var exits = PickWalkable(grid, used, 50, x => 104 + x % 25 * 2, x => 188 + x / 25 * 2);
+        // Two rows of exits with open grass on both sides. They were at rows 188/190, but since the hedgerow blocks the walk
+        // map (3 Oct) row 191 is hedge, so someone bound for an exit further along that row could only pass a finished
+        // attendee by squeezing between them and the hedge, and waited there for ever.
+        var exits = PickWalkable(grid, used, 50, x => 104 + x % 25 * 2, x => 176 + x / 25 * 2);
         var command = new InitializeServiceQueueFixtureCommand(
             starts, slots, exits, terrain, Enumerable.Repeat(500L, AgentCount).ToArray(),
             AgentCount, 120, ServiceQueueFixture.DefaultPricePennies, ServiceDurationTicks, PhysicalArrivalAdmission: true);
