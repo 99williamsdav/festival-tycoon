@@ -45,7 +45,10 @@ $flagged = @(git -C $repoRoot status --porcelain -- '*.import' | Where-Object { 
 $edited = @(git -C $repoRoot diff --name-only -- '*.import')
 $lineEndingsOnly = @($flagged | Where-Object { $edited -notcontains $_ })
 if ($lineEndingsOnly.Count -gt 0) {
-    git -C $repoRoot checkout -- $lineEndingsOnly
+    # In batches: a fresh checkout's first import can flag hundreds, past the command-line limit.
+    for ($i = 0; $i -lt $lineEndingsOnly.Count; $i += 100) {
+        git -C $repoRoot checkout -- $lineEndingsOnly[$i..([Math]::Min($i + 99, $lineEndingsOnly.Count - 1))]
+    }
 }
 
 # Re-importing textures extracted from models logs a harmless condition in get_multiple_md5 while the
