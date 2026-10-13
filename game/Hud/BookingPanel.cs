@@ -221,7 +221,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         column.AddChild(_stageLine);
         // With two stages, a tab for each stage's running order in place of the line above.
         _stageTabs = new HBoxContainer { Visible = false }; _stageTabs.AddThemeConstantOverride("separation", Ui.Px(6)); column.AddChild(_stageTabs);
-        foreach (var stage in FestivalStages.All)
+        foreach (var stage in _hud.Session.BarnDiagnostic ? _hud.Session.Stages : FestivalStages.All)
         {
             var id = stage.Id;
             var tab = new Button { Text = Main.StageTitle(stage), ToggleMode = true, CustomMinimumSize = new Vector2(0, Ui.S(28)),

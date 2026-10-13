@@ -1,0 +1,83 @@
+{
+  "fade_materials": [
+    "Barn_Roof",
+    "Barn_WallFade",
+    "Barn_DoorFade",
+    "Barn_TrussFade"
+  ],
+  "alpha": 0.3,
+  "fade_seconds": 0.25,
+  "empty_hold_seconds": 1,
+  "restore_seconds": 0.5,
+  "trigger": "any relevant person inside actual interior OR selected",
+  "cull_mode": "BACK \u2014 preserve exported flag; do not apply marquee CULL_DISABLED override",
+  "shadow": "opaque shadow-only twins for fade nodes; preserve floor/frames/sign/people/kit opaque",
+  "default": "all exported surfaces opaque",
+  "node_material_mapping": {
+    "Barn_WallRear": [
+      "Barn_WallFade"
+    ],
+    "Barn_WallWest": [
+      "Barn_WallFade"
+    ],
+    "Barn_WallEast": [
+      "Barn_WallFade"
+    ],
+    "Barn_WallFront": [
+      "Barn_WallFade"
+    ],
+    "Barn_DoorsLeft": [
+      "Barn_DoorFade"
+    ],
+    "Barn_DoorsRight": [
+      "Barn_DoorFade"
+    ],
+    "Barn_Frame": [
+      "Barn_Frame"
+    ],
+    "Barn_Trusses": [
+      "Barn_TrussFade"
+    ],
+    "Barn_RoofFront": [
+      "Barn_Roof"
+    ],
+    "Barn_RoofRear": [
+      "Barn_Roof"
+    ],
+    "Barn_Floor": [
+      "Barn_Floor"
+    ],
+    "Barn_SignBacking": [
+      "Barn_Sign"
+    ],
+    "Barn_Name": [
+      "Barn_Name_Opaque"
+    ],
+    "Barn_ExitSign": [
+      "Barn_ExitSign_Opaque"
+    ],
+    "Barn_Lamp_0": [
+      "Barn_Lamps"
+    ],
+    "Barn_Lamp_1": [
+      "Barn_Lamps"
+    ],
+    "Barn_Lamp_2": [
+      "Barn_Lamps"
+    ],
+    "Barn_Lamp_3": [
+      "Barn_Lamps"
+    ],
+    "Barn_Lamp_4": [
+      "Barn_Lamps"
+    ]
+  },
+  "not_implemented_here": [
+    "occupancy",
+    "selection",
+    "shadow twin creation",
+    "timers",
+    "navigation",
+    "weather shelter"
+  ]
+}

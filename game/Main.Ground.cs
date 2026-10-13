@@ -173,6 +173,11 @@ public partial class Main
 
         void fragment() {
             vec2 p = field;
+            // The approved barn has a flush Y=0 floor. Ground overlays must not paint grass over it.
+            bool barn_floor = abs(p.x) <= 9.5429 && p.y >= -28.5733 && p.y <= -17.4267;
+            bool barn_threshold = p.y >= -17.4267 && p.y <= -16.35 &&
+                (abs(p.x) <= 3.9 || (p.x >= -8.65 && p.x <= -6.65));
+            if (barn_floor || barn_threshold) discard;
             float n1 = texture(noise, p * 0.035).r;
             float tint = texture(noise, p * 0.011 + vec2(0.61, 0.29)).r;
             // Approved Soft Pasture: world-space colour replaces the repeating per-face lime palette.

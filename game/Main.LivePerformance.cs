@@ -264,6 +264,7 @@ public partial class Main
     private static float BandHeight(FestivalStage stage, Vector3 position, bool raised)
     {
         if (!raised) return 0.04f;
+        if (stage.Id == BarnLayout.Stage.Id) return Mathf.Lerp(.04f,.9f,Mathf.Clamp((3.48f-(position.Z+23))/1.8f,0,1));
         if (stage.Id == FestivalStages.MainId) return 0.04f + Mathf.Clamp((position.Z - 5.72f) / 2.17f, 0f, 1f) * 1.15f;
         // Five 0.18 m treads, 0.36 m deep: this line runs through each tread's top.
         return Mathf.Lerp(0.04f, 0.9f, Mathf.Clamp((24.98f - position.X) / 1.8f, 0f, 1f));
@@ -383,7 +384,7 @@ public partial class Main
                     body.Position = new Vector3(body.Position.X, BandHeight(stage, body.Position, deckRoute || performer.OnStage), body.Position.Z);
             }
             var power = StageLoad(live.StageId);
-            var lights = stage.Id == FestivalStages.MainId ? _stageLights! : _pondStageLights;
+            var lights = stage.Id == FestivalStages.MainId ? _stageLights! : stage.Id == BarnLayout.Stage.Id ? _barnStageLights : _pondStageLights;
             foreach (var light in lights) light.LightEnergy = live.Stage == LiveSetStage.Live ?
                 power == 0 ? 0 : power == 80 ? 0.35f : 0.8f : 0;
             Audio.AdvanceStage(_session, live, power, ListenerPoint, delta);
