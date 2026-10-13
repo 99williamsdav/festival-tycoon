@@ -1,0 +1,1152 @@
+{
+  "individual": {
+    "male": {
+      "clips": {
+        "argue_gesture": {
+          "samples": 73,
+          "bounds_blender": [
+            [
+              -0.27008897066116333,
+              -0.11317078769207001,
+              0.0012614806182682514
+            ],
+            [
+              0.3603247404098511,
+              0.20951366424560547,
+              1.7278963327407837
+            ]
+          ],
+          "max_foot_motion_m": 2.1801702511905927e-08
+        },
+        "fight_enter": {
+          "samples": 29,
+          "bounds_blender": [
+            [
+              -0.27049094438552856,
+              -0.11260508745908737,
+              0.0012614806182682514
+            ],
+            [
+              0.27049094438552856,
+              0.4033316373825073,
+              1.7278963327407837
+            ]
+          ],
+          "max_foot_motion_m": 2.1801702511905927e-08
+        },
+        "fight_guard": {
+          "samples": 129,
+          "bounds_blender": [
+            [
+              -0.26687079668045044,
+              -0.11753316223621368,
+              0.0012614806182682514
+            ],
+            [
+              0.26687079668045044,
+              0.2684881389141083,
+              1.727968454360962
+            ]
+          ],
+          "max_foot_motion_m": 2.1801702511905927e-08
+        },
+        "fight_swing_l": {
+          "samples": 49,
+          "bounds_blender": [
+            [
+              -0.2668892741203308,
+              -0.11260508745908737,
+              0.0012614806182682514
+            ],
+            [
+              0.26692596077919006,
+              0.4436480402946472,
+              1.7278963327407837
+            ]
+          ],
+          "max_foot_motion_m": 2.1801702511905927e-08
+        },
+        "fight_swing_r": {
+          "samples": 49,
+          "bounds_blender": [
+            [
+              -0.26692596077919006,
+              -0.11260508745908737,
+              0.0012614806182682514
+            ],
+            [
+              0.2668892741203308,
+              0.4436480402946472,
+              1.7278963327407837
+            ]
+          ],
+          "max_foot_motion_m": 2.1801702511905927e-08
+        },
+        "fight_flinch": {
+          "samples": 41,
+          "bounds_blender": [
+            [
+              -0.26687172055244446,
+              -0.17252260446548462,
+              0.0012614806182682514
+            ],
+            [
+              0.26687172055244446,
+              0.2634848952293396,
+              1.7280045747756958
+            ]
+          ],
+          "max_foot_motion_m": 2.1801702511905927e-08
+        },
+        "fight_recover": {
+          "samples": 41,
+          "bounds_blender": [
+            [
+              -0.2668538987636566,
+              -0.13339689373970032,
+              0.0012614806182682514
+            ],
+            [
+              0.26689696311950684,
+              0.2634907066822052,
+              1.7280091047286987
+            ]
+          ],
+          "max_foot_motion_m": 2.1801702511905927e-08
+        },
+        "fight_stand_down": {
+          "samples": 33,
+          "bounds_blender": [
+            [
+              -0.2704954147338867,
+              -0.11260508745908737,
+              0.0012614806182682514
+            ],
+            [
+              0.2704954147338867,
+              0.4033873677253723,
+              1.7278963327407837
+            ]
+          ],
+          "max_foot_motion_m": 2.1801702511905927e-08
+        }
+      },
+      "self_intersections": [],
+      "max_foot_motion_m": 2.1801702511905927e-08
+    },
+    "female": {
+      "clips": {
+        "argue_gesture": {
+          "samples": 73,
+          "bounds_blender": [
+            [
+              -0.23538823425769806,
+              -0.11021799594163895,
+              0.0012522464385256171
+            ],
+            [
+              0.3271108567714691,
+              0.20268338918685913,
+              1.6576682329177856
+            ]
+          ],
+          "max_foot_motion_m": 3.204615886152769e-08
+        },
+        "fight_enter": {
+          "samples": 29,
+          "bounds_blender": [
+            [
+              -0.2390926629304886,
+              -0.10967539250850677,
+              0.0012522464385256171
+            ],
+            [
+              0.2390926629304886,
+              0.3878818154335022,
+              1.657668113708496
+            ]
+          ],
+          "max_foot_motion_m": 3.204615886152769e-08
+        },
+        "fight_guard": {
+          "samples": 129,
+          "bounds_blender": [
+            [
+              -0.23816604912281036,
+              -0.11434033513069153,
+              0.0012522464385256171
+            ],
+            [
+              0.23816604912281036,
+              0.25475186109542847,
+              1.6577290296554565
+            ]
+          ],
+          "max_foot_motion_m": 3.204615886152769e-08
+        },
+        "fight_swing_l": {
+          "samples": 49,
+          "bounds_blender": [
+            [
+              -0.23811814188957214,
+              -0.10967539250850677,
+              0.0012522464385256171
+            ],
+            [
+              0.23805950582027435,
+              0.4275819659233093,
+              1.657668113708496
+            ]
+          ],
+          "max_foot_motion_m": 3.204615886152769e-08
+        },
+        "fight_swing_r": {
+          "samples": 49,
+          "bounds_blender": [
+            [
+              -0.23805950582027435,
+              -0.10967539250850677,
+              0.0012522464385256171
+            ],
+            [
+              0.23811814188957214,
+              0.4275819659233093,
+              1.657668113708496
+            ]
+          ],
+          "max_foot_motion_m": 3.204615886152769e-08
+        },
+        "fight_flinch": {
+          "samples": 41,
+          "bounds_blender": [
+            [
+              -0.23814360797405243,
+              -0.16638784110546112,
+              0.0012522464385256171
+            ],
+            [
+              0.23814360797405243,
+              0.24978207051753998,
+              1.657753348350525
+            ]
+          ],
+          "max_foot_motion_m": 3.204615886152769e-08
+        },
+        "fight_recover": {
+          "samples": 41,
+          "bounds_blender": [
+            [
+              -0.2379344403743744,
+              -0.12936991453170776,
+              0.0012522464385256171
+            ],
+            [
+              0.2379344403743744,
+              0.24986042082309723,
+              1.6577574014663696
+            ]
+          ],
+          "max_foot_motion_m": 3.204615886152769e-08
+        },
+        "fight_stand_down": {
+          "samples": 33,
+          "bounds_blender": [
+            [
+              -0.23908932507038116,
+              -0.10967539250850677,
+              0.0012522464385256171
+            ],
+            [
+              0.23908932507038116,
+              0.3878324627876282,
+              1.657668113708496
+            ]
+          ],
+          "max_foot_motion_m": 3.204615886152769e-08
+        }
+      },
+      "self_intersections": [],
+      "max_foot_motion_m": 3.204615886152769e-08
+    }
+  },
+  "pairs": {
+    "male-male": {
+      "0.6": {
+        "samples": 361,
+        "collision_samples": 108,
+        "first_collisions": [
+          {
+            "sample": 14,
+            "a": [
+              "fight_swing_l",
+              0.2916666666666667
+            ],
+            "b": [
+              "fight_guard",
+              0
+            ],
+            "triangle_pairs": 9
+          },
+          {
+            "sample": 15,
+            "a": [
+              "fight_swing_l",
+              0.3125
+            ],
+            "b": [
+              "fight_guard",
+              0
+            ],
+            "triangle_pairs": 28
+          },
+          {
+            "sample": 16,
+            "a": [
+              "fight_swing_l",
+              0.3333333333333333
+            ],
+            "b": [
+              "fight_flinch",
+              0.01599999872000007
+            ],
+            "triangle_pairs": 40
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.2067747414112091
+      },
+      "0.65": {
+        "samples": 361,
+        "collision_samples": 62,
+        "first_collisions": [
+          {
+            "sample": 17,
+            "a": [
+              "fight_swing_l",
+              0.3541666666666667
+            ],
+            "b": [
+              "fight_flinch",
+              0.04099999672000028
+            ],
+            "triangle_pairs": 6
+          },
+          {
+            "sample": 18,
+            "a": [
+              "fight_swing_l",
+              0.375
+            ],
+            "b": [
+              "fight_flinch",
+              0.06599999472000041
+            ],
+            "triangle_pairs": 15
+          },
+          {
+            "sample": 19,
+            "a": [
+              "fight_swing_l",
+              0.3958333333333333
+            ],
+            "b": [
+              "fight_flinch",
+              0.09099999272000055
+            ],
+            "triangle_pairs": 19
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.15677472949028015
+      },
+      "0.7": {
+        "samples": 361,
+        "collision_samples": 21,
+        "first_collisions": [
+          {
+            "sample": 210,
+            "a": [
+              "fight_enter",
+              0.4375
+            ],
+            "b": [
+              "fight_enter",
+              0.4375
+            ],
+            "triangle_pairs": 12
+          },
+          {
+            "sample": 211,
+            "a": [
+              "fight_enter",
+              0.46875
+            ],
+            "b": [
+              "fight_enter",
+              0.46875
+            ],
+            "triangle_pairs": 95
+          },
+          {
+            "sample": 212,
+            "a": [
+              "fight_enter",
+              0.5
+            ],
+            "b": [
+              "fight_enter",
+              0.5
+            ],
+            "triangle_pairs": 130
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.10677474737167358
+      },
+      "0.75": {
+        "samples": 361,
+        "collision_samples": 16,
+        "first_collisions": [
+          {
+            "sample": 211,
+            "a": [
+              "fight_enter",
+              0.46875
+            ],
+            "b": [
+              "fight_enter",
+              0.46875
+            ],
+            "triangle_pairs": 10
+          },
+          {
+            "sample": 212,
+            "a": [
+              "fight_enter",
+              0.5
+            ],
+            "b": [
+              "fight_enter",
+              0.5
+            ],
+            "triangle_pairs": 16
+          },
+          {
+            "sample": 213,
+            "a": [
+              "fight_enter",
+              0.53125
+            ],
+            "b": [
+              "fight_enter",
+              0.53125
+            ],
+            "triangle_pairs": 20
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.05677473545074463
+      },
+      "0.8": {
+        "samples": 361,
+        "collision_samples": 4,
+        "first_collisions": [
+          {
+            "sample": 214,
+            "a": [
+              "fight_enter",
+              0.5625
+            ],
+            "b": [
+              "fight_enter",
+              0.5625
+            ],
+            "triangle_pairs": 10
+          },
+          {
+            "sample": 215,
+            "a": [
+              "fight_enter",
+              0.59375
+            ],
+            "b": [
+              "fight_enter",
+              0.59375
+            ],
+            "triangle_pairs": 8
+          },
+          {
+            "sample": 275,
+            "a": [
+              "fight_stand_down",
+              0.40625
+            ],
+            "b": [
+              "fight_stand_down",
+              0.40625
+            ],
+            "triangle_pairs": 8
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.006774723529815674
+      },
+      "0.85": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.043225258588790894
+      },
+      "0.9": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.09322527050971985
+      },
+      "0.95": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.14322525262832642
+      },
+      "1.0": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.19322526454925537
+      },
+      "1.15": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.34322524070739746
+      }
+    },
+    "male-female": {
+      "0.6": {
+        "samples": 361,
+        "collision_samples": 91,
+        "first_collisions": [
+          {
+            "sample": 15,
+            "a": [
+              "fight_swing_l",
+              0.3125
+            ],
+            "b": [
+              "fight_guard",
+              0
+            ],
+            "triangle_pairs": 13
+          },
+          {
+            "sample": 16,
+            "a": [
+              "fight_swing_l",
+              0.3333333333333333
+            ],
+            "b": [
+              "fight_flinch",
+              0.01599999872000007
+            ],
+            "triangle_pairs": 16
+          },
+          {
+            "sample": 17,
+            "a": [
+              "fight_swing_l",
+              0.3541666666666667
+            ],
+            "b": [
+              "fight_flinch",
+              0.04099999672000028
+            ],
+            "triangle_pairs": 22
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.19121983647346497
+      },
+      "0.65": {
+        "samples": 361,
+        "collision_samples": 41,
+        "first_collisions": [
+          {
+            "sample": 17,
+            "a": [
+              "fight_swing_l",
+              0.3541666666666667
+            ],
+            "b": [
+              "fight_flinch",
+              0.04099999672000028
+            ],
+            "triangle_pairs": 8
+          },
+          {
+            "sample": 18,
+            "a": [
+              "fight_swing_l",
+              0.375
+            ],
+            "b": [
+              "fight_flinch",
+              0.06599999472000041
+            ],
+            "triangle_pairs": 11
+          },
+          {
+            "sample": 19,
+            "a": [
+              "fight_swing_l",
+              0.3958333333333333
+            ],
+            "b": [
+              "fight_flinch",
+              0.09099999272000055
+            ],
+            "triangle_pairs": 13
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.141219824552536
+      },
+      "0.7": {
+        "samples": 361,
+        "collision_samples": 17,
+        "first_collisions": [
+          {
+            "sample": 211,
+            "a": [
+              "fight_enter",
+              0.46875
+            ],
+            "b": [
+              "fight_enter",
+              0.46875
+            ],
+            "triangle_pairs": 52
+          },
+          {
+            "sample": 212,
+            "a": [
+              "fight_enter",
+              0.5
+            ],
+            "b": [
+              "fight_enter",
+              0.5
+            ],
+            "triangle_pairs": 52
+          },
+          {
+            "sample": 213,
+            "a": [
+              "fight_enter",
+              0.53125
+            ],
+            "b": [
+              "fight_enter",
+              0.53125
+            ],
+            "triangle_pairs": 44
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.09121984243392944
+      },
+      "0.75": {
+        "samples": 361,
+        "collision_samples": 11,
+        "first_collisions": [
+          {
+            "sample": 212,
+            "a": [
+              "fight_enter",
+              0.5
+            ],
+            "b": [
+              "fight_enter",
+              0.5
+            ],
+            "triangle_pairs": 16
+          },
+          {
+            "sample": 213,
+            "a": [
+              "fight_enter",
+              0.53125
+            ],
+            "b": [
+              "fight_enter",
+              0.53125
+            ],
+            "triangle_pairs": 42
+          },
+          {
+            "sample": 214,
+            "a": [
+              "fight_enter",
+              0.5625
+            ],
+            "b": [
+              "fight_enter",
+              0.5625
+            ],
+            "triangle_pairs": 42
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.04121983051300049
+      },
+      "0.8": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.008780181407928467
+      },
+      "0.85": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.058780163526535034
+      },
+      "0.9": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.1087801456451416
+      },
+      "0.95": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.15878015756607056
+      },
+      "1.0": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.2087801694869995
+      },
+      "1.15": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.3587801456451416
+      }
+    },
+    "female-male": {
+      "0.6": {
+        "samples": 361,
+        "collision_samples": 91,
+        "first_collisions": [
+          {
+            "sample": 16,
+            "a": [
+              "fight_swing_l",
+              0.3333333333333333
+            ],
+            "b": [
+              "fight_flinch",
+              0.01599999872000007
+            ],
+            "triangle_pairs": 9
+          },
+          {
+            "sample": 17,
+            "a": [
+              "fight_swing_l",
+              0.3541666666666667
+            ],
+            "b": [
+              "fight_flinch",
+              0.04099999672000028
+            ],
+            "triangle_pairs": 12
+          },
+          {
+            "sample": 18,
+            "a": [
+              "fight_swing_l",
+              0.375
+            ],
+            "b": [
+              "fight_flinch",
+              0.06599999472000041
+            ],
+            "triangle_pairs": 12
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.19121983647346497
+      },
+      "0.65": {
+        "samples": 361,
+        "collision_samples": 41,
+        "first_collisions": [
+          {
+            "sample": 66,
+            "a": [
+              "fight_flinch",
+              0.04099999672000028
+            ],
+            "b": [
+              "fight_swing_l",
+              0.3541666666666667
+            ],
+            "triangle_pairs": 8
+          },
+          {
+            "sample": 67,
+            "a": [
+              "fight_flinch",
+              0.06599999472000041
+            ],
+            "b": [
+              "fight_swing_l",
+              0.375
+            ],
+            "triangle_pairs": 11
+          },
+          {
+            "sample": 68,
+            "a": [
+              "fight_flinch",
+              0.09099999272000055
+            ],
+            "b": [
+              "fight_swing_l",
+              0.3958333333333333
+            ],
+            "triangle_pairs": 13
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.141219824552536
+      },
+      "0.7": {
+        "samples": 361,
+        "collision_samples": 17,
+        "first_collisions": [
+          {
+            "sample": 211,
+            "a": [
+              "fight_enter",
+              0.46875
+            ],
+            "b": [
+              "fight_enter",
+              0.46875
+            ],
+            "triangle_pairs": 52
+          },
+          {
+            "sample": 212,
+            "a": [
+              "fight_enter",
+              0.5
+            ],
+            "b": [
+              "fight_enter",
+              0.5
+            ],
+            "triangle_pairs": 52
+          },
+          {
+            "sample": 213,
+            "a": [
+              "fight_enter",
+              0.53125
+            ],
+            "b": [
+              "fight_enter",
+              0.53125
+            ],
+            "triangle_pairs": 44
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.09121984243392944
+      },
+      "0.75": {
+        "samples": 361,
+        "collision_samples": 11,
+        "first_collisions": [
+          {
+            "sample": 212,
+            "a": [
+              "fight_enter",
+              0.5
+            ],
+            "b": [
+              "fight_enter",
+              0.5
+            ],
+            "triangle_pairs": 16
+          },
+          {
+            "sample": 213,
+            "a": [
+              "fight_enter",
+              0.53125
+            ],
+            "b": [
+              "fight_enter",
+              0.53125
+            ],
+            "triangle_pairs": 42
+          },
+          {
+            "sample": 214,
+            "a": [
+              "fight_enter",
+              0.5625
+            ],
+            "b": [
+              "fight_enter",
+              0.5625
+            ],
+            "triangle_pairs": 42
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.04121983051300049
+      },
+      "0.8": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.008780181407928467
+      },
+      "0.85": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.058780163526535034
+      },
+      "0.9": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.10878017544746399
+      },
+      "0.95": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.15878015756607056
+      },
+      "1.0": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.2087801694869995
+      },
+      "1.15": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.3587801456451416
+      }
+    },
+    "female-female": {
+      "0.6": {
+        "samples": 361,
+        "collision_samples": 84,
+        "first_collisions": [
+          {
+            "sample": 15,
+            "a": [
+              "fight_swing_l",
+              0.3125
+            ],
+            "b": [
+              "fight_guard",
+              0
+            ],
+            "triangle_pairs": 8
+          },
+          {
+            "sample": 16,
+            "a": [
+              "fight_swing_l",
+              0.3333333333333333
+            ],
+            "b": [
+              "fight_flinch",
+              0.01599999872000007
+            ],
+            "triangle_pairs": 23
+          },
+          {
+            "sample": 17,
+            "a": [
+              "fight_swing_l",
+              0.3541666666666667
+            ],
+            "b": [
+              "fight_flinch",
+              0.04099999672000028
+            ],
+            "triangle_pairs": 24
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.17576363682746887
+      },
+      "0.65": {
+        "samples": 361,
+        "collision_samples": 23,
+        "first_collisions": [
+          {
+            "sample": 210,
+            "a": [
+              "fight_enter",
+              0.4375
+            ],
+            "b": [
+              "fight_enter",
+              0.4375
+            ],
+            "triangle_pairs": 73
+          },
+          {
+            "sample": 211,
+            "a": [
+              "fight_enter",
+              0.46875
+            ],
+            "b": [
+              "fight_enter",
+              0.46875
+            ],
+            "triangle_pairs": 120
+          },
+          {
+            "sample": 212,
+            "a": [
+              "fight_enter",
+              0.5
+            ],
+            "b": [
+              "fight_enter",
+              0.5
+            ],
+            "triangle_pairs": 209
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.12576362490653992
+      },
+      "0.7": {
+        "samples": 361,
+        "collision_samples": 19,
+        "first_collisions": [
+          {
+            "sample": 211,
+            "a": [
+              "fight_enter",
+              0.46875
+            ],
+            "b": [
+              "fight_enter",
+              0.46875
+            ],
+            "triangle_pairs": 17
+          },
+          {
+            "sample": 212,
+            "a": [
+              "fight_enter",
+              0.5
+            ],
+            "b": [
+              "fight_enter",
+              0.5
+            ],
+            "triangle_pairs": 77
+          },
+          {
+            "sample": 213,
+            "a": [
+              "fight_enter",
+              0.53125
+            ],
+            "b": [
+              "fight_enter",
+              0.53125
+            ],
+            "triangle_pairs": 89
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.07576364278793335
+      },
+      "0.75": {
+        "samples": 361,
+        "collision_samples": 12,
+        "first_collisions": [
+          {
+            "sample": 212,
+            "a": [
+              "fight_enter",
+              0.5
+            ],
+            "b": [
+              "fight_enter",
+              0.5
+            ],
+            "triangle_pairs": 8
+          },
+          {
+            "sample": 213,
+            "a": [
+              "fight_enter",
+              0.53125
+            ],
+            "b": [
+              "fight_enter",
+              0.53125
+            ],
+            "triangle_pairs": 17
+          },
+          {
+            "sample": 214,
+            "a": [
+              "fight_enter",
+              0.5625
+            ],
+            "b": [
+              "fight_enter",
+              0.5625
+            ],
+            "triangle_pairs": 16
+          }
+        ],
+        "min_forward_envelope_gap_m": -0.025763630867004395
+      },
+      "0.8": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.02423638105392456
+      },
+      "0.85": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.07423636317253113
+      },
+      "0.9": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.1242363452911377
+      },
+      "0.95": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.17423635721206665
+      },
+      "1.0": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.2242363691329956
+      },
+      "1.15": {
+        "samples": 361,
+        "collision_samples": 0,
+        "first_collisions": [],
+        "min_forward_envelope_gap_m": 0.3742363452911377
+      }
+    }
+  },
+  "sample_step_frames": 0.25
+}

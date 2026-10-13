@@ -1,0 +1,1672 @@
+[
+  {
+    "fixture": "male-female",
+    "frame": 631,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.2333333333333333
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.2333333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-female",
+    "frame": 644,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.4333333333333333
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.4333333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-female",
+    "frame": 651,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.6666666666666666
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.6666666666666666
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-female",
+    "frame": 658,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.8999999999999999
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.8999999999999999
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-female",
+    "frame": 665,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 3,
+      "Seconds": 0.13333333333333333
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.13333333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_swing_r",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-male",
+    "frame": 731,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.16666666666666666
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.16666666666666666
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 14,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 14,
+        "Held": {
+          "TransactionId": "immersion:1:2",
+          "Product": 1,
+          "ConsumedTicks": 886
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 14,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-male",
+    "frame": 744,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.6
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.6
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 14,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 14,
+        "Held": {
+          "TransactionId": "immersion:1:2",
+          "Product": 1,
+          "ConsumedTicks": 886
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 14,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-male",
+    "frame": 751,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.8333333333333333
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.8333333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 14,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 14,
+        "Held": {
+          "TransactionId": "immersion:1:2",
+          "Product": 1,
+          "ConsumedTicks": 886
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 14,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-male",
+    "frame": 758,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 3,
+      "Seconds": 0.19999999999999998
+    },
+    "second": {
+      "Pose": 4,
+      "Seconds": 0.03999999999999998
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_swing_r",
+    "nativeSecond": "fisticuffs/fight_flinch",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 14,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 14,
+        "Held": {
+          "TransactionId": "immersion:1:2",
+          "Product": 1,
+          "ConsumedTicks": 886
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 14,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-male",
+    "frame": 765,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 3,
+      "Seconds": 0.4333333333333333
+    },
+    "second": {
+      "Pose": 4,
+      "Seconds": 0.2733333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_swing_r",
+    "nativeSecond": "fisticuffs/fight_flinch",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 14,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 14,
+        "Held": {
+          "TransactionId": "immersion:1:2",
+          "Product": 1,
+          "ConsumedTicks": 886
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 14,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-female",
+    "frame": 831,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.26666666666666666
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.26666666666666666
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 6,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 4,
+        "Held": null
+      },
+      {
+        "AgentId": 6,
+        "Held": {
+          "TransactionId": "immersion:1:12",
+          "Product": 2,
+          "ConsumedTicks": 1425
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 6,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-female",
+    "frame": 844,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.7
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.7
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 6,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 4,
+        "Held": null
+      },
+      {
+        "AgentId": 6,
+        "Held": {
+          "TransactionId": "immersion:1:12",
+          "Product": 2,
+          "ConsumedTicks": 1425
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 6,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-female",
+    "frame": 851,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.9333333333333332
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.9333333333333332
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 6,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 4,
+        "Held": null
+      },
+      {
+        "AgentId": 6,
+        "Held": {
+          "TransactionId": "immersion:1:12",
+          "Product": 2,
+          "ConsumedTicks": 1425
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 6,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-female",
+    "frame": 858,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 4,
+      "Seconds": 0.006666666666666654
+    },
+    "second": {
+      "Pose": 3,
+      "Seconds": 0.16666666666666666
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_flinch",
+    "nativeSecond": "fisticuffs/fight_swing_r",
+    "positions": [
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 6,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 4,
+        "Held": null
+      },
+      {
+        "AgentId": 6,
+        "Held": {
+          "TransactionId": "immersion:1:12",
+          "Product": 2,
+          "ConsumedTicks": 1425
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 6,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-female",
+    "frame": 865,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 4,
+      "Seconds": 0.23999999999999996
+    },
+    "second": {
+      "Pose": 3,
+      "Seconds": 0.39999999999999997
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_flinch",
+    "nativeSecond": "fisticuffs/fight_swing_r",
+    "positions": [
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 6,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 4,
+        "Held": null
+      },
+      {
+        "AgentId": 6,
+        "Held": {
+          "TransactionId": "immersion:1:12",
+          "Product": 2,
+          "ConsumedTicks": 1425
+        }
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 6,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-male",
+    "frame": 931,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.2333333333333333
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.2333333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 3,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-male",
+    "frame": 944,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.6666666666666666
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.6666666666666666
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 3,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-male",
+    "frame": 951,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.19999999999999998
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.19999999999999998
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 3,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-male",
+    "frame": 958,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.4333333333333333
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.4333333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 3,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "female-male",
+    "frame": 965,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.6666666666666666
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.6666666666666666
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 4,
+      "OpponentId": 3,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-female-north",
+    "frame": 1031,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.2333333333333333
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.2333333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9750,
+        "ZMillimetres": 25750
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9750,
+        "ZMillimetres": 26750
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-female-north",
+    "frame": 1044,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.6666666666666666
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.6666666666666666
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9750,
+        "ZMillimetres": 25750
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9750,
+        "ZMillimetres": 26750
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-female-north",
+    "frame": 1051,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.8999999999999999
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.8999999999999999
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9750,
+        "ZMillimetres": 25750
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9750,
+        "ZMillimetres": 26750
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-female-north",
+    "frame": 1058,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 3,
+      "Seconds": 0.13333333333333333
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.13333333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_swing_r",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9750,
+        "ZMillimetres": 25750
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9750,
+        "ZMillimetres": 26750
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "male-female-north",
+    "frame": 1065,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 3,
+      "Seconds": 0.36666666666666664
+    },
+    "second": {
+      "Pose": 4,
+      "Seconds": 0.20666666666666664
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_swing_r",
+    "nativeSecond": "fisticuffs/fight_flinch",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9750,
+        "ZMillimetres": 25750
+      },
+      {
+        "id": 4,
+        "XMillimetres": -9750,
+        "ZMillimetres": 26750
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 4,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 4,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "guest-steward",
+    "frame": 1131,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.49999999999999994
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.49999999999999994
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 33,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 33,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 33,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "guest-steward",
+    "frame": 1144,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 4,
+      "Seconds": 0.13999999999999999
+    },
+    "second": {
+      "Pose": 3,
+      "Seconds": 0.3
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_flinch",
+    "nativeSecond": "fisticuffs/fight_swing_r",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 33,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 33,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 33,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "guest-steward",
+    "frame": 1151,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 4,
+      "Seconds": 0.3733333333333333
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.5333333333333333
+    },
+    "turn": 1,
+    "nativeFirst": "fisticuffs/fight_flinch",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 33,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 33,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 33,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "guest-steward",
+    "frame": 1158,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.16666666666666666
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.16666666666666666
+    },
+    "turn": 2,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 33,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 33,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 33,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  },
+  {
+    "fixture": "guest-steward",
+    "frame": 1165,
+    "tick": 5420,
+    "gap": 1,
+    "moving": false,
+    "handler": null,
+    "first": {
+      "Pose": 1,
+      "Seconds": 0.39999999999999997
+    },
+    "second": {
+      "Pose": 1,
+      "Seconds": 0.39999999999999997
+    },
+    "turn": 2,
+    "nativeFirst": "fisticuffs/fight_guard",
+    "nativeSecond": "fisticuffs/fight_guard",
+    "positions": [
+      {
+        "id": 3,
+        "XMillimetres": -9250,
+        "ZMillimetres": 25250
+      },
+      {
+        "id": 33,
+        "XMillimetres": -8250,
+        "ZMillimetres": 25250
+      }
+    ],
+    "held": [
+      {
+        "AgentId": 3,
+        "Held": {
+          "TransactionId": "immersion:1:15",
+          "Product": 2,
+          "ConsumedTicks": 793
+        }
+      },
+      {
+        "AgentId": 33,
+        "Held": null
+      }
+    ],
+    "incident": {
+      "InitiatorId": 3,
+      "OpponentId": 33,
+      "Grievance": 1,
+      "Pressure": 8000,
+      "ArgumentTick": 5260,
+      "FightTick": 5260,
+      "InjuryTick": -1,
+      "VictimId": null
+    }
+  }
+]

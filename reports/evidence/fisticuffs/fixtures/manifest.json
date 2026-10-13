@@ -1,0 +1,65 @@
+[
+  {
+    "name": "male-female",
+    "a": 3,
+    "b": 4,
+    "steward": 33,
+    "startingTick": 5260,
+    "initialSpacingMetres": 2,
+    "caveat": "Controlled initial positions before Fight, not a natural encounter or gameplay teleport. Runtime closer movement uses production navigation."
+  },
+  {
+    "name": "male-male",
+    "a": 3,
+    "b": 14,
+    "steward": 33,
+    "startingTick": 5260,
+    "initialSpacingMetres": 2,
+    "caveat": "Controlled initial positions before Fight, not a natural encounter or gameplay teleport. Runtime closer movement uses production navigation."
+  },
+  {
+    "name": "female-female",
+    "a": 4,
+    "b": 6,
+    "steward": 33,
+    "startingTick": 5260,
+    "initialSpacingMetres": 2,
+    "caveat": "Controlled initial positions before Fight, not a natural encounter or gameplay teleport. Runtime closer movement uses production navigation."
+  },
+  {
+    "name": "female-male",
+    "a": 4,
+    "b": 3,
+    "steward": 33,
+    "startingTick": 5260,
+    "initialSpacingMetres": 2,
+    "caveat": "Controlled initial positions before Fight, not a natural encounter or gameplay teleport. Runtime closer movement uses production navigation."
+  },
+  {
+    "name": "male-female-north",
+    "a": 3,
+    "b": 4,
+    "steward": 33,
+    "startingTick": 5260,
+    "initialSpacingMetres": 2,
+    "caveat": "Controlled initial positions before Fight, not a natural encounter or gameplay teleport. Runtime closer movement uses production navigation."
+  },
+  {
+    "name": "handling",
+    "a": 3,
+    "b": 4,
+    "steward": 33,
+    "startingTick": 5260,
+    "initialSpacingMetres": 2,
+    "caveat": "Controlled initial positions before Fight, not a natural encounter or gameplay teleport. Runtime closer movement uses production navigation."
+  },
+  {
+    "name": "guest-steward",
+    "a": 3,
+    "b": 33,
+    "steward": 33,
+    "startingTick": 5260,
+    "initialSpacingMetres": 1.5,
+    "caveat": "Controlled initial positions before Fight, not a natural encounter or gameplay teleport. Runtime closer movement uses production navigation."
+  }
+]

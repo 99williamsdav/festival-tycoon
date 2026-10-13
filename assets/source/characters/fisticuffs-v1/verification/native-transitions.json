@@ -1,0 +1,62 @@
+{
+  "attendee-female": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000151608325893449,
+    "max_foot_motion": 0.00000000279396772384644,
+    "pause_pose_error": 0.0
+  },
+  "attendee-male": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000614672899246216,
+    "max_foot_motion": 0.0000000599601079898093,
+    "pause_pose_error": 0.0
+  },
+  "maintenance-female": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000151608325893449,
+    "max_foot_motion": 0.00000000279396772384644,
+    "pause_pose_error": 0.0
+  },
+  "maintenance-male": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000614672899246216,
+    "max_foot_motion": 0.0000000599601079898093,
+    "pause_pose_error": 0.0
+  },
+  "medic-female": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000151608325893449,
+    "max_foot_motion": 0.00000000279396772384644,
+    "pause_pose_error": 0.0
+  },
+  "medic-male": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000614672899246216,
+    "max_foot_motion": 0.0000000599601079898093,
+    "pause_pose_error": 0.0
+  },
+  "sound-female": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000151608325893449,
+    "max_foot_motion": 0.00000000279396772384644,
+    "pause_pose_error": 0.0
+  },
+  "sound-male": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000614672899246216,
+    "max_foot_motion": 0.0000000599601079898093,
+    "pause_pose_error": 0.0
+  },
+  "steward-female": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000151608325893449,
+    "max_foot_motion": 0.00000000279396772384644,
+    "pause_pose_error": 0.0
+  },
+  "steward-male": {
+    "interruptions": 12,
+    "max_final_hand_error": 0.0000000614672899246216,
+    "max_foot_motion": 0.0000000599601079898093,
+    "pause_pose_error": 0.0
+  }
+}

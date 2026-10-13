@@ -84,6 +84,7 @@ public sealed partial class GameSession
         {
             if (FightHandlingPositionValid(response, origin))
             {
+                StopConfrontationApproach(origin);
                 // This is the exact once-per-incident attempt boundary: actual arrival,
                 // not reservation/dispatch. Interruptions after this point consume it.
                 SetFightAttempt(origin, new(response.WorkerId, CurrentTick, -1, FightHandlingOutcome.Handling));

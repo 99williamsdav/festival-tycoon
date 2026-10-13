@@ -1,0 +1,85 @@
+{
+  "note": "Read-only inputs; current source snapshots hashed at delivery. Input attendee copies are retained locally. Review recolour only; runtime has no mesh/material copies.",
+  "files": {
+    "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\fisticuffs-animation-assets-v1\\references\\female.blend": {
+      "sha256": "d6dd0f776e601b1073688c4dee2f03bd7613a45d962a7de9ea004f225422832f",
+      "bytes": 4541260
+    },
+    "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\fisticuffs-animation-assets-v1\\references\\male.blend": {
+      "sha256": "666e6de58020ed0922e619762978ed648cce94e24a5fdea0d529422977c3997f",
+      "bytes": 4538884
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_attendee_female_rigged_test_v1.blend": {
+      "sha256": "d6dd0f776e601b1073688c4dee2f03bd7613a45d962a7de9ea004f225422832f",
+      "bytes": 4541260
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_attendee_male_rigged_test_v1.blend": {
+      "sha256": "666e6de58020ed0922e619762978ed648cce94e24a5fdea0d529422977c3997f",
+      "bytes": 4538884
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_maintenance_female_rigged_test_v1.blend": {
+      "sha256": "c1a72335f411e0472aab3db301ebfb8c2591301aa0eb6bdbbb82a1f51e86d085",
+      "bytes": 4742252
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_maintenance_male_rigged_test_v1.blend": {
+      "sha256": "444b124a0fcb7797c5d36745152ddf5c6131cce57dc0c7f2ba76b424bfc4e2fa",
+      "bytes": 4739748
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_medic_female_rigged_test_v1.blend": {
+      "sha256": "0200bd122aee01c4b114df7b0d5962f0e7591176cef8a5627c2fb4f459bbb965",
+      "bytes": 4760660
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_medic_male_rigged_test_v1.blend": {
+      "sha256": "0389e9ed93eb9ef1f7ce133292f99b419d918d91e11bbe419574106e9a2067fd",
+      "bytes": 4758492
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_sound_female_rigged_test_v1.blend": {
+      "sha256": "8ab7cd0f06af7652948fdcb2c40ba0bde6d6e1f0cc67a6ef1638f150a80ba277",
+      "bytes": 4663076
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_sound_male_rigged_test_v1.blend": {
+      "sha256": "a73ff93ba56a21039d366a11ccb569da5ce7327028a9318cd8686aff5caa2dd2",
+      "bytes": 4660964
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_steward_female_rigged_test_v1.blend": {
+      "sha256": "c771827d9a4e2da43694cde2d003604a634e5ffb1a497c9f2d6f867d8faeb40f",
+      "bytes": 4818548
+    },
+    "C:\\Projects\\festival-tycoon\\assets\\source\\characters\\rigged-test-v1\\out\\lwf_steward_male_rigged_test_v1.blend": {
+      "sha256": "2ed2bd0b241bd36787ad01ccfd16bb73e45db9d68e48b525aa69dcbcb6bed61a",
+      "bytes": 4816508
+    },
+    "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_hair_female_default_v1.glb": {
+      "sha256": "6fa6dc3f4f370ebe6fc6aa9983eec26219b95f52ef1cdc810613b1abb8a75fc2",
+      "bytes": 71220
+    },
+    "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\lwf_hair_male_default_v1.glb": {
+      "sha256": "66e002d3d812fc54f4fb80a2738eadfb2e5f5acca850a94367c1fd08e6dff89d",
+      "bytes": 14480
+    },
+    "C:\\Projects\\festival-tycoon\\game\\assets\\characters\\attendee_palette_v1_contract.json": {
+      "sha256": "cf4cc6153d20942c9fa500284477d3d964276147413de57f03db5cb499f92925",
+      "bytes": 2345
+    },
+    "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\fisticuffs-animation-concepts-v1\\01-paired-storyboard.png": {
+      "sha256": "6ca6941964c6c5f4e3dc290dd8cf98faca64b6249d6658ec5d006bf36b496410",
+      "bytes": 1600655
+    },
+    "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\fisticuffs-animation-concepts-v1\\02-alignment-initial.png": {
+      "sha256": "e5fb773d6da5e9d5bc0c7b8f09a8ca75be18ec84d4529c7a2e0b4d8c137d6fe6",
+      "bytes": 1638106
+    },
+    "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\fisticuffs-animation-concepts-v1\\02-alignment.png": {
+      "sha256": "fde93079a4c873f3d737eb30751102128021f0cfcb1fae3d1df88e4db52a9153",
+      "bytes": 1670907
+    },
+    "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\fisticuffs-animation-concepts-v1\\03-gameplay-initial.png": {
+      "sha256": "deff589020459c65e41fb6c0e5e5b06d4dc9a942e9787e91a7074123baab2088",
+      "bytes": 2205968
+    },
+    "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\fisticuffs-animation-concepts-v1\\03-gameplay.png": {
+      "sha256": "ab19d2cd83fa8240b1c39a5d210ff123c9d5cb70f00e3dade4cfe71145b4dd62",
+      "bytes": 2064856
+    }
+  }
+}

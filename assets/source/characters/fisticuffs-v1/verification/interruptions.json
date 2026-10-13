@@ -1,0 +1,16 @@
+{
+  "male": {
+    "samples": 629,
+    "self_collisions": [],
+    "max_foot_motion": 2.1801702511905927e-08,
+    "max_forward_extent": 0.435927152633667,
+    "stand_down_blend_seconds": 0.125
+  },
+  "female": {
+    "samples": 629,
+    "self_collisions": [],
+    "max_foot_motion": 3.204615886152769e-08,
+    "max_forward_extent": 0.4200649857521057,
+    "stand_down_blend_seconds": 0.125
+  }
+}

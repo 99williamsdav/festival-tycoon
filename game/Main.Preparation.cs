@@ -292,7 +292,8 @@ private void RebuildPreparationOffers()
     private void AdvancePreparationPresentation(double delta)
     {
         var workStarted = Stopwatch.GetTimestamp();
-        _host.Advance(delta, session => _foundationPresentation.Advance(session.CaptureObservation()));
+        if (_fisticuffsEvidenceOutput is null) _host.Advance(delta, session => _foundationPresentation.Advance(session.CaptureObservation()));
+        else _foundationPresentation.Reset(_session.CaptureObservation()); // Diagnostic owns its explicit simulation steps, never saves.
         SyncSaveStatus();
         var presentationStarted = Stopwatch.GetTimestamp();
         var characterDelta = CharacterPresentationPaused ? 0 : delta;
@@ -325,6 +326,7 @@ private void RebuildPreparationOffers()
         {
             var position = _foundationPresentation.Sample(agent.Id, _host.Clock.InterpolationFraction);
             var visual = _attendeeVisuals[agent.Id];
+            if (FisticuffsActorFrozen(agent.Id, visual)) continue;
             if (_session.GuestWaitingForRelease(agent.Id.Value))
             {
                 visual.Hide();
@@ -366,8 +368,9 @@ private void RebuildPreparationOffers()
             }
             // Upright again after a collapse, or after nodding along to a set.
             if (visual.Rotation.X != 0) visual.Rotation = new Vector3(0, visual.Rotation.Y, visual.Rotation.Z);
-            UpdatePersonFacing(agent.Id, visual, renderedPosition, agent.Action,
-                crowd.GetValueOrDefault(agent.Id), watching.Contains(agent.Id), onStage.GetValueOrDefault(agent.Id), characterDelta);
+            if (!CrowdBodies.FightOwned(visual))
+                UpdatePersonFacing(agent.Id, visual, renderedPosition, agent.Action,
+                    crowd.GetValueOrDefault(agent.Id), watching.Contains(agent.Id), onStage.GetValueOrDefault(agent.Id), characterDelta);
             // A dodgy knee hobbles: a dip and a sideways lurch on every other step.
             var hobble = agent.Action == AgentNavigationAction.Travelling && _session.StaffHas(agent.Id.Value, StaffTrait.DodgyKnee)
                 ? Mathf.Sin((float)_characterPresentationSeconds * 7f) : 0f;
@@ -376,6 +379,7 @@ private void RebuildPreparationOffers()
         }
         AdvanceLivePerformancePresentation(characterDelta);
         AdvanceImmersionPresentation(characterDelta);
+        AdvanceFisticuffsPresentation(characterDelta);
         AdvanceMedicalCuePresentation();
         AdvanceDisorderCuePresentation();
         AdvanceImmersionCuePresentation();
@@ -384,7 +388,7 @@ private void RebuildPreparationOffers()
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         EnsureStage(); Audio.AdvanceIncidents(_session, ListenerPoint);
         SyncPresentationPause();
-        _host.AdvanceSaves(delta);
+        if (_fisticuffsEvidenceOutput is null) _host.AdvanceSaves(delta);
         SyncSaveStatus();
         if (Engine.GetProcessFrames() % 15 == 0) RefreshPreparationHud();
         var captureStarted = Stopwatch.GetTimestamp();

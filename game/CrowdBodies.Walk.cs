@@ -118,6 +118,7 @@ internal sealed partial class CrowdBodies
     /// <summary>Plays a rigged guest's clip for what they're doing, at the pace they're really moving; paused, they hold still.</summary>
     public void AnimateGuest(Node3D root, float metresPerSecond, bool paused)
     {
+        if (FightOwned(root)) return; // Pair-owned manual clips outrank idle, rain and dance.
         if (!root.HasMeta(RigMeta) || !root.GetMeta(RigMeta).AsBool()) return;
         if (RigBody(root)?.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>().FirstOrDefault() is not { } player) return;
         var mode = root.HasMeta(RigModeMeta) ? root.GetMeta(RigModeMeta).AsString() : "free";

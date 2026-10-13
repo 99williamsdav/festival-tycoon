@@ -376,16 +376,18 @@ public sealed partial class GameSession
         MutatePerson(initiatorId, item => { item.ConductStage = DisorderStage.Fight; item.OpponentId = opponentId; item.ConductStageTick = CurrentTick; });
         if (!IsSteward(opponentId))
             MutatePerson(opponentId, item => { item.ConductStage = DisorderStage.Fight; item.OpponentId = initiatorId; item.ConductStageTick = CurrentTick; });
+        var closer = CloserConfrontationCells(initiatorId, opponentId);
         foreach (var id in new[] { initiatorId, opponentId })
         {
             LeaveWater(id, "Left the water line during confrontation", reroute: false);
             if (IsSteward(id)) continue;
             var nav = _navigationAgents[new(id)];
-            ApplyAgentDestination(new(id), new(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres),
+            var destination = closer is { } goal ? id == initiatorId ? goal.First : goal.Second : TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
+            ApplyAgentDestination(new(id), new(destination,
                 "disorder.confrontation"));
         }
         DisorderEvent(eventId, initiatorId, opponentId, origin.Pressure,
-            "Abstract confrontation after visible complaint, agitation and argument; both participants reserved in place.");
+            "Confrontation after visible complaint, agitation and argument; short legal approach where clear, otherwise participants reserved in place. Original deadlines unchanged.");
     }
 
     private ulong? FindDisorderOpponent(ulong actorId)

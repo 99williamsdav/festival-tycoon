@@ -1,0 +1,23 @@
+{
+  "caveat": "Two actors in a controlled native game fixture. CPU is the entire presentation call; wall frames include the whole game/render. Not an isolated GPU or full-live-crowd benchmark. 60 warmup \u002B 90 measured frames per condition; fixed 30Hz logical delta, vsync disabled, cached libraries, no capture writes.",
+  "baselineCpu": {
+    "samples": 90,
+    "meanMs": 4.130252222222222,
+    "p95Ms": 22.1495
+  },
+  "activeCpu": {
+    "samples": 90,
+    "meanMs": 4.169348888888889,
+    "p95Ms": 21.7806
+  },
+  "baselineWall": {
+    "samples": 90,
+    "meanMs": 6.420727777777778,
+    "p95Ms": 25.3186
+  },
+  "activeWall": {
+    "samples": 90,
+    "meanMs": 6.397680000000004,
+    "p95Ms": 24.917
+  }
+}

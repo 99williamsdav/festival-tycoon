@@ -468,6 +468,7 @@ private void BuildImmersionControls(VBoxContainer parent)
         foreach (var person in state.People)
             if (_attendeeVisuals.TryGetValue(new EntityId(person.AgentId), out var body))
             {
+                if (FisticuffsActorFrozen(new(person.AgentId), body)) continue;
                 var waste = _session.CaptureCarriedWaste(person.AgentId);
                 var hands = waste is null ? _session.ImmersionHandsAvailable(person.AgentId) : _session.WasteCarryEligible(person.AgentId);
                 var shown = person.Held ?? (waste is null ? null : new ImmersionHeldItem(waste.Id, waste.Product, 0));

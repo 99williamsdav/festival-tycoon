@@ -1,0 +1,83 @@
+{
+  "Head": "173accd985a3b9bf2a7f6d1e3504b81b32b5a133",
+  "FeatureBase": "e619803993ee28400188d682f656cb6f072e68a9",
+  "Date": "2026-10-13",
+  "Scope": [
+    {
+      "Path": "game/CrowdBodies.Walk.cs",
+      "SHA256": "8D1369E819513BC4D500CD9958FE42020920314FF53A1A4F5289580A3D5CC9F6"
+    },
+    {
+      "Path": "game/CrowdBodies.Fisticuffs.cs",
+      "SHA256": "B0360E55C4B1DE13AC96B9FC20359918A650DD9FB56C8CADA47CBC622B52B16C"
+    },
+    {
+      "Path": "game/Main.Disorder.cs",
+      "SHA256": "114FEB4BD80CF4E0204E877CF68B7D17FBCF1304FA84E2C9F385B21892E35A72"
+    },
+    {
+      "Path": "game/Main.Immersion.cs",
+      "SHA256": "109E8DC935D8243C7DC0DFAEE80EEB7EEB71C074A9F6F54CD8EDE61873FC1DCC"
+    },
+    {
+      "Path": "game/Main.Preparation.cs",
+      "SHA256": "01406ECA63739ADEE8EDADC5C4DF1D7D482F293DF81808F4D2F2B422316F2C7A"
+    },
+    {
+      "Path": "game/Main.cs",
+      "SHA256": "356CE4E9A5EE2D9CC8140608176043A0290E140525F32306F1F713AA7EBA82F2"
+    },
+    {
+      "Path": "game/Main.Fisticuffs.cs",
+      "SHA256": "C726191ACA1761485E45BBC0F95512614463030D58F268D9B00C652CD941E25A"
+    },
+    {
+      "Path": "game/Main.FisticuffsEvidence.cs",
+      "SHA256": "4F78E0BE079056D7A8E6E8CEA746662558A66B48E7B8210CB132BDF605677344"
+    },
+    {
+      "Path": "src/Festival.ContentAdapter/FightChoreography.cs",
+      "SHA256": "C9444D7235FA539CF7C32A20E15B0594ADCAED5C3F797350A457FA04B65D206B"
+    },
+    {
+      "Path": "src/Festival.ContentAdapter/FightPresentation.cs",
+      "SHA256": "2092DE0EC6AF15DE01BF246927343C7CE6443602A03314F17F0287A6E37720AB"
+    },
+    {
+      "Path": "src/Festival.Simulation/ConfrontationSpacing.cs",
+      "SHA256": "73B96EFABF217AA5F9F08163E06780F64E7BCF134809F0019F6CF567E8B84BC5"
+    },
+    {
+      "Path": "src/Festival.Simulation/DisorderIncident.cs",
+      "SHA256": "289413B23671425CDBDF8B83A86B6C86263754463AB01D42D3E620ABE2256100"
+    },
+    {
+      "Path": "src/Festival.Simulation/StaffFightHandling.cs",
+      "SHA256": "22895B17055A2C9A07D81D746EF3DE1A08098D57A7BD47C90E608CE36CA0E76E"
+    },
+    {
+      "Path": "tests/Festival.Tests/ConfrontationSpacingTests.cs",
+      "SHA256": "30514222103447F163ADA3647A19772BAB562B34F78E143378A27E13D94A0306"
+    },
+    {
+      "Path": "tests/Festival.Tests/FightChoreographyTests.cs",
+      "SHA256": "F621104480EB701CF6B1393157AB1A91B5F82252A575D9851A4BC6EA9FBA2811"
+    },
+    {
+      "Path": "tests/Festival.Tests/FightPresentationTests.cs",
+      "SHA256": "FC490BA38E4638BE5C1E399D59CAC4E40D1447FE1B0540942881ECC56D10E4FB"
+    },
+    {
+      "Path": "tests/Festival.Tests/FisticuffsEvidenceFixtureTests.cs",
+      "SHA256": "5997760DFB81D1FEC0C4CD95447C1A08C5C5BF3275D6C3AB96A50D020F6465EB"
+    },
+    {
+      "Path": "briefs/results/fisticuffs.md",
+      "SHA256": "084284B3A324E6A9BAFD4E1979030020EE19852728CC16AC9BA8FEAB0C6FA6CB"
+    }
+  ],
+  "Native": "reports/evidence/fisticuffs/source",
+  "Tests": "reports/evidence/fisticuffs/verification",
+  "Art": "assets/source/characters/fisticuffs-v1",
+  "Export": "Pending independent source acceptance"
+}

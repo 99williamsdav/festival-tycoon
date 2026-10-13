@@ -1,0 +1,31 @@
+# Fisticuffs integration — 13 October 2026
+
+Checkpoint: independent Astra Medium source/evidence review passed. Windows export and exported evidence remain pending; this is not a playtest handoff yet.
+
+The approved Designer male/female AnimationLibraries are attached to each existing actor's player. Bodies, clothing, palettes and attachments remain the existing game assets. Pair-owned manual playback replaces the previous visual pull, shake and roll. Actual reciprocal Fight states produce guard, alternating short punches and delayed flinches, separated by irregular holds and occasional omitted beats. Arguments use only the small argument gesture when hands are empty. Swings already include recovery; the optional standalone recovery clip is delivered but unused.
+
+Fight start can assign a short physical approach through the authoritative navigation grid: prefer 0.90–1.00 m root separation, with a clear fallback up to 1.25 m. Each actor moves at most one adjacent grid step, no more than 0.75 m, through a swept legal route. Occupants, reserved destinations, service/water queues and toilet door/exit clearance reject an approach. A common reachable steward attendance ring is required for guest pairs. Constrained encounters retain the original reservation and original deadlines; wide pairs hold guard, and very close or obstructed pairs keep hands lowered. There are no cosmetic position offsets, gameplay teleports, new combat rolls, damage events or changed injury/escalation/handling durations.
+
+Only actual physical handling (`HandlingAttempt=Handling` and the responding steward `Confronting`) cancels a pair's swing and lowers their hands. Dispatch/proximity alone does not. A failed/interrupted attempt resumes guard if the authoritative fight remains active. Guest-versus-steward fighting remains a distinct pair. Hidden participants freeze the whole pair; pause, menus, field guide, results and terminal states freeze acting/facing/props. Terminal state drains pending beats. Load/rebuild baselines a current fight in guard, with no historical punches or catch-up. Ending a fight releases playback to the latest generic activity. Paid held items retain simulation ownership, with the existing hands-busy visibility rule.
+
+Save namespace advances from v89 to v90 for the physical navigation change. Existing save files are untouched.
+
+## Validation
+
+- Game build: zero warnings/errors.
+- 34 focused authority/presentation checks pass: choreography, current authoritative pairs, legal approach and fallback, steward handling, timing and deterministic continuation, including the pinned day trace. The five choreography checks were rerun after the final handling-return adjustment.
+- 23 broader checks pass: disorder/cue planning, attendee pose, and all seven BuildRoute day/save/replay checks.
+- All 27 immersion checks pass: 25 in the normal sandbox and two save checks rerun with temporary-path access after Windows denied those paths. The initial denial and successful rerun logs are retained.
+- Opt-in exporter validates and round-trips seven controlled initial encounter snapshots. Fixtures place actors **before** Fight; production `BeginDisorderFight` and normal navigation perform the recorded approach. These are controlled native game fixtures, not naturally occurring gameplay or a manual playthrough.
+- Native source assertions cover all four guest body combinations, another world direction, guest/steward pairing, all four camera angles, native 17-bone/8-clip/51-track binding, foot rest restored after walking, opponent facing, full-loop pause/menu/hidden-parent freezing, resume without catch-up, guard on restore, terminal draining and an actual argument gesture. Normal minimum18/default62 camera views and explicitly enabled existing poncho attachments are captured. Arbitrary hats/ponchos/outfit combinations are not exhaustively tested; the Designer's outfit/native interruption checks are archived separately.
+- The before/after pinned log files are byte identical, SHA-256 `d1c3990756991ae116be0f4b7c23305d55025538d3e03a752c5a4a936bf0ac9f`. No re-pin.
+
+Source capture commands use the pinned Godot 4.7.2 Mono executable, `--path game --fixed-fps 30 --quit-after 1600 -- --capture-fisticuffs <output> --capture-size 1280x720`. Copy the seven snapshots and manifest to `<output>/fixtures` first. `--fisticuffs-checks-only` skips the movie frames for bounded native rechecks. This diagnostic never calls host advancement/autosave or opens player saves. Initial body placement, status-only terminal fixtures, held-authority pose inspection and attachment overrides are explicitly labelled.
+
+Final source evidence is in `reports/evidence/fisticuffs/source/`. Preliminary paired and handling movies show the source integration; their initial choreography predates the final 0.16 s flinch/guard-return and freeze refinements. The deliverable must use fresh **exported** capture, not those preliminary movies. The source poncho inspection emits the existing `SyncPoncho` scene-owner warning; it does not prevent the mesh attachment or fail a runtime check.
+
+The two-actor source profile holds authority, disables vsync, caches the libraries, warms 60 frames and measures 90 frames per condition without capture writes. Whole-presentation mean CPU is 4.13 ms baseline / 4.17 ms active; p95 22.15 / 21.78 ms. Whole-app mean wall frame is 6.42 / 6.40 ms. This small fixture comparison is not an isolated GPU or full-live-crowd benchmark; the periodic HUD work contributes to p95. Final exported figures remain pending.
+
+## Review and export
+
+Fresh independent GPT-6 Astra MEDIUM source/evidence review passed, recorded in `fisticuffs-independent-review.md`. Windows EXE plus adjacent data, exported movies/screenshots, hashes and bounded independent export verification pending. Preserve unrelated dirty imports, `packages.lock.json`, lead-outfit source and pre-existing UID files.

@@ -1,0 +1,42 @@
+FISTICUFFS ANIMATION ASSETS V1 — READY FOR BUILDER
+
+Approved asset commission completed on the existing adult male/female rigs. Eight clips per rig; existing body geometry, UVs, weights and palette retained. No actor root motion, mesh replacements, injury mechanics or game code changes. Review renders use actual posed assets on a controlled stage, not integrated game captures. The second adult uses the existing meadow-sage recolour for readability.
+
+RUNTIME DELIVERY
+Load runtime/lwf_attendee_male_fisticuffs_v1.tres or the female equivalent as a Godot AnimationLibrary. Cache one library per sex and add it as "fisticuffs" to the current body's AnimationPlayer. Keep its existing body, clothing, palette, hair and attachments. Bone paths match LWF_Attendee_Rig/Skeleton3D:Bone, with 17 existing bones and 51 component tracks per clip. These paths assume the current player root configuration.
+
+Use the native .tres libraries as the runtime deliverable. The mesh-free .glb files are supplementary interchange files. Godot strips constant channels on raw GLB import; without explicit rest tracks, a preceding walk can leave the legs in a walking pose. verification/godot/check.gd restores all missing bone position/rotation/scale tracks from the target rest pose before saving the delivered .tres. Native libraries contain no external resource dependencies or duplicated bodies/materials.
+
+CLIPS (24 fps source, first frame 0)
+argue_gesture: 0.750 s, low-hand argument gesture.
+fight_enter: 0.292 s, rest to guard.
+fight_guard: 1.333 s, only looping clip.
+fight_swing_l / fight_swing_r: 0.500 s each, anticipation, short swing and return to guard.
+fight_flinch: 0.417 s, restrained upper-body reaction.
+fight_recover: 0.417 s, optional subtle guard settle; swings already recover.
+fight_stand_down: 0.333 s, guard to original rest.
+Swing anticipation is frames 0–2; extension 2–5; retraction 5–12. Peak reach is frame 5 (0.208 s). Hands keep the existing mitten geometry. Elbows stay bent, with maximum shoulder-to-wrist reach below 85% of chain length.
+
+SPACING AND COORDINATION
+Recommend 0.90–1.00 m root-to-root, facing each other on level ground at scale 1. Previews show 0.90 m. Foot-centred origins, Godot -Z forward (Blender +Y). All four male/female combinations cleared sampled choreography at this range. At 0.85 m they also cleared, but with a thinner margin; 0.80 m produced male/male enter/stand-down collisions. Do not choose 0.80 m as a universal target. At 0.90 m the smallest sampled forward-envelope gap was 0.093 m in male/male.
+
+Builder owns actual positions, terrain and navigation. Replace the old 1.15 m visual target and remove the old positional shake; do not add its +/-0.09 m X and +/-0.055 m Z displacement to these clips. Bring authoritative actors together through valid movement, not a cosmetic teleport or root lunge. If spacing is obstructed, retain a wider guard/short air gesture rather than forcing reach. Validate terrain slope, crowd clearance and current outfit attachments in game.
+
+Use a cosmetic pair coordinator keyed by stable actor IDs and incident start tick. Only reciprocal active Fight should swing; an argument uses argue_gesture. Alternate one swing owner at a time, with varied guard holds around 0.55–1.10 s and occasional skipped beats. The review starts the receiver's flinch about 0.16 s after swing start. These are presentation timings, not simulation RNG, hit damage or new incident events.
+
+INTERRUPTION / EXISTING STATE CONTRACT
+On valid physical handling arrival (HandlingAttempt=Handling with response Confronting), cancel pending swings/reactions immediately and blend to fight_stand_down with a 0.125 s crossfade. Dispatch or generic proximity alone must not trigger this. Do not mark the incident resolved merely because arms lowered. If handling fails or is interrupted, restart guard only if the authoritative fight remains current. Distinguish a guest fighting a steward from a third party arriving to handle a pair.
+
+Pause both animation players AND pair phase, hold, reaction and facing timers for pause/menu/results/terminal states. Native SpeedScale=0 pose freezing is tested; integrated timer behavior remains Builder work. Clear pending beats on state exit, rebuild or load; no catch-up burst. Generic guest idle/rain/dance/carry animation must yield while this library owns playback, then restore the latest authoritative activity. Retain held-prop ownership and existing hands-busy visibility behavior; no weapons, drops or extra consumption.
+
+VALIDATION AND LIMITS
+verification/geometry.json: 888 quarter-frame individual samples and 14,440 paired samples across four body combinations and ten distances. Individual sampled forearm/hand versus torso/head/opposite forearm checks passed; foot motion was below 0.00000004 m. Paired checks establish the spacing recommendation, not a continuous collision guarantee.
+verification/outfits.json: 2,260 half-frame samples across attendee, steward, medic, maintenance and sound male/female rigs. Rest matrices match, with no sampled hand/forearm-body or default-hair intersections. Arbitrary hats/ponchos were not exhaustively checked.
+verification/interruptions.json: 1,258 source blend samples, including interruption from different swing/flinch/guard phases; sampled self-clearance and planted feet passed.
+verification/native-import.json: all eight clips bind on all ten current rig variants, including entry from walk. Every clip has 51 component tracks.
+verification/native-transitions.json: 120 native interruption cases across ten variants, planted feet, return to rest and zero-speed pause passed. Maximum native foot/final-hand error below 0.00000007 m.
+
+REVIEW / REPRODUCTION
+Open review.html or review/paired-motion.mp4. The gallery includes actual motion, four game camera azimuths, minimum/default zoom framing, spacing comparisons, same-sex pairs and a staged stand-down beside the existing steward body. The last image illustrates the pose, not implemented steward behavior.
+Blender 4.1.1: run build.py, verify_geometry.py, verify_outfits.py, verify_interruptions.py, render_review.py and render_variants.py with blender -b --python SCRIPT. Source references are copied in references/; outfit/hair checks use paths under C:/Projects/festival-tycoon.
+Godot 4.7.2: import verification/godot headlessly, then run check.gd followed by transitions.gd. Copy generated assets/lwf_attendee_*_fisticuffs_v1.tres into runtime/. Regeneration overwrites the build manifest; run finalize.py last to restore delivery metadata and checksums. No further art approval gate is required by this commission. Builder integration remains separate.

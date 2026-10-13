@@ -18,17 +18,10 @@ public partial class Main
     private Button? _securityPostWorkerButton;
     private readonly DisorderCuePlanner _disorderCuePlanner = new();
     private readonly Dictionary<ulong, Label3D> _disorderCueLabels = [];
-    private readonly HashSet<ulong> _fightShaking = [];
-    private readonly Dictionary<ulong, float> _preFightFacing = [];
 
     private void ResetDisorderCuePresentation()
     {
-        foreach (var id in _fightShaking)
-            if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual))
-                visual.Rotation = new Vector3(visual.Rotation.X,
-                    _preFightFacing.TryGetValue(id, out var priorYaw) ? priorYaw : visual.Rotation.Y, 0);
-        _fightShaking.Clear();
-        _preFightFacing.Clear();
+        ResetFisticuffsPresentation();
         foreach (var label in _disorderCueLabels.Values) label.QueueFree();
         _disorderCueLabels.Clear();
         var disorder = _session.CaptureDisorder();
@@ -51,7 +44,6 @@ public partial class Main
     private void AdvanceDisorderCuePresentation()
     {
         if (_session.CaptureDisorder() is not { } disorder) return;
-        AdvanceFightShakePresentation(disorder);
         foreach (var label in _disorderCueLabels.Values) label.Visible = false;
         var medical = _session.CaptureMedical();
         var cues = _disorderCuePlanner.Observe(disorder, medical, _session.CurrentTick);
@@ -79,62 +71,6 @@ public partial class Main
                 _ => MoodColour(AngryShouts.Contains(cue.Text) ? Mood.Angry : Mood.Grumble)
             };
             label.Visible = true;
-        }
-    }
-
-    private void AdvanceFightShakePresentation(DisorderSnapshot disorder)
-    {
-        var fighters = disorder.People.Where(person => person.Stage == DisorderStage.Fight).ToArray();
-        var fighting = fighters.Select(person => person.AgentId).ToHashSet();
-        foreach (var response in _session.GetStewardResponses())
-            if (fighters.Any(person => person.OpponentId == response.WorkerId)) fighting.Add(response.WorkerId);
-        foreach (var id in _fightShaking.Except(fighting))
-        {
-            if (_attendeeVisuals.TryGetValue(new EntityId(id), out var visual))
-            {
-                var moving = _session.CaptureObservation().NavigationAgents.Any(agent =>
-                    agent.Id.Value == id && agent.Action == AgentNavigationAction.Travelling);
-                visual.Rotation = new Vector3(visual.Rotation.X,
-                    !moving && _preFightFacing.TryGetValue(id, out var priorYaw) ? priorYaw : visual.Rotation.Y, 0);
-            }
-            _preFightFacing.Remove(id);
-        }
-        _fightShaking.Clear();
-        var anchors = fighting.Where(id => _attendeeVisuals.ContainsKey(new EntityId(id)))
-            .ToDictionary(id => id, id => _attendeeVisuals[new EntityId(id)].Position);
-        var time = (float)((_session.CurrentTick + _host.Clock.InterpolationFraction) / 80.0);
-        foreach (var id in fighting)
-        {
-            if (!_attendeeVisuals.TryGetValue(new EntityId(id), out var visual)) continue;
-            _preFightFacing.TryAdd(id, visual.Rotation.Y);
-            var person = fighters.FirstOrDefault(item => item.AgentId == id);
-            var counterpart = person?.OpponentId ?? fighters.FirstOrDefault(item => item.OpponentId == id)?.AgentId;
-            var fightTick = person?.StageTick ?? fighters.FirstOrDefault(item => item.OpponentId == id)?.StageTick ?? _session.CurrentTick;
-            if (counterpart is { } otherId && anchors.TryGetValue(id, out var anchor) &&
-                anchors.TryGetValue(otherId, out var other))
-            {
-                var toward = other - anchor;
-                toward.Y = 0;
-                var distance = toward.Length();
-                if (distance > .001f)
-                {
-                    var ease = Mathf.Clamp((float)((_session.CurrentTick - fightTick +
-                        _host.Clock.InterpolationFraction) / 48.0), 0f, 1f);
-                    var pull = Mathf.Min(.4f, Mathf.Max(0f, (distance - 1.15f) * .5f)) * ease;
-                    visual.Position += toward / distance * pull;
-                    // Presentation runs after UpdatePersonFacing: the live opponent wins over
-                    // travel/stage headings for both guest pairs and guest–steward fights.
-                    visual.Rotation = new Vector3(visual.Rotation.X,
-                        Mathf.Atan2(-toward.X, -toward.Z), visual.Rotation.Z);
-                }
-            }
-            var phase = time * Mathf.Tau * 5.5f + id * 0.83f;
-            // Presentation-only jostle and modest convergence; authoritative positions stay put.
-            visual.Position += new Vector3(Mathf.Sin(phase) * .09f, 0,
-                Mathf.Sin(phase * 1.3f) * .055f);
-            visual.Rotation = new Vector3(visual.Rotation.X, visual.Rotation.Y,
-                Mathf.Sin(phase * .75f) * .055f);
-            _fightShaking.Add(id);
         }
     }
 

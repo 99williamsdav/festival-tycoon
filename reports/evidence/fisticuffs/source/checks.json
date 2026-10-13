@@ -1,0 +1,694 @@
+[
+  {
+    "name": "male-female-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "male-female-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "male-female-preferred-spacing-or-safe-fallback",
+    "passed": true
+  },
+  {
+    "name": "male-female-native-library-17-bones-8-clips-51-tracks-3",
+    "passed": true
+  },
+  {
+    "name": "male-female-LeftFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "male-female-RightFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "male-female-face-opponent-3",
+    "passed": true
+  },
+  {
+    "name": "male-female-native-library-17-bones-8-clips-51-tracks-4",
+    "passed": true
+  },
+  {
+    "name": "male-female-LeftFoot-restored-after-walk-4",
+    "passed": true
+  },
+  {
+    "name": "male-female-RightFoot-restored-after-walk-4",
+    "passed": true
+  },
+  {
+    "name": "male-female-face-opponent-4",
+    "passed": true
+  },
+  {
+    "name": "pause-exact-pose-and-pending-beats",
+    "passed": true
+  },
+  {
+    "name": "start-menu-exact-pose-and-pending-beats",
+    "passed": true
+  },
+  {
+    "name": "hidden-parent-freezes-both-participants",
+    "passed": true
+  },
+  {
+    "name": "resume-no-catchup",
+    "passed": true
+  },
+  {
+    "name": "restored-active-fight-baselines-guard",
+    "passed": true
+  },
+  {
+    "name": "terminal-Failed-frozen-drained",
+    "passed": true
+  },
+  {
+    "name": "terminal-Finished-frozen-drained",
+    "passed": true
+  },
+  {
+    "name": "male-female-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "male-male-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "male-male-preferred-spacing-or-safe-fallback",
+    "passed": true
+  },
+  {
+    "name": "male-male-native-library-17-bones-8-clips-51-tracks-3",
+    "passed": true
+  },
+  {
+    "name": "male-male-LeftFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "male-male-RightFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "male-male-face-opponent-3",
+    "passed": true
+  },
+  {
+    "name": "male-male-native-library-17-bones-8-clips-51-tracks-14",
+    "passed": true
+  },
+  {
+    "name": "male-male-LeftFoot-restored-after-walk-14",
+    "passed": true
+  },
+  {
+    "name": "male-male-RightFoot-restored-after-walk-14",
+    "passed": true
+  },
+  {
+    "name": "male-male-face-opponent-14",
+    "passed": true
+  },
+  {
+    "name": "female-female-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "female-female-preferred-spacing-or-safe-fallback",
+    "passed": true
+  },
+  {
+    "name": "female-female-native-library-17-bones-8-clips-51-tracks-4",
+    "passed": true
+  },
+  {
+    "name": "female-female-LeftFoot-restored-after-walk-4",
+    "passed": true
+  },
+  {
+    "name": "female-female-RightFoot-restored-after-walk-4",
+    "passed": true
+  },
+  {
+    "name": "female-female-face-opponent-4",
+    "passed": true
+  },
+  {
+    "name": "female-female-native-library-17-bones-8-clips-51-tracks-6",
+    "passed": true
+  },
+  {
+    "name": "female-female-LeftFoot-restored-after-walk-6",
+    "passed": true
+  },
+  {
+    "name": "female-female-RightFoot-restored-after-walk-6",
+    "passed": true
+  },
+  {
+    "name": "female-female-face-opponent-6",
+    "passed": true
+  },
+  {
+    "name": "female-male-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "female-male-preferred-spacing-or-safe-fallback",
+    "passed": true
+  },
+  {
+    "name": "female-male-native-library-17-bones-8-clips-51-tracks-4",
+    "passed": true
+  },
+  {
+    "name": "female-male-LeftFoot-restored-after-walk-4",
+    "passed": true
+  },
+  {
+    "name": "female-male-RightFoot-restored-after-walk-4",
+    "passed": true
+  },
+  {
+    "name": "female-male-face-opponent-4",
+    "passed": true
+  },
+  {
+    "name": "female-male-native-library-17-bones-8-clips-51-tracks-3",
+    "passed": true
+  },
+  {
+    "name": "female-male-LeftFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "female-male-RightFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "female-male-face-opponent-3",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-preferred-spacing-or-safe-fallback",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-native-library-17-bones-8-clips-51-tracks-3",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-LeftFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-RightFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-face-opponent-3",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-native-library-17-bones-8-clips-51-tracks-4",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-LeftFoot-restored-after-walk-4",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-RightFoot-restored-after-walk-4",
+    "passed": true
+  },
+  {
+    "name": "male-female-north-face-opponent-4",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-preferred-spacing-or-safe-fallback",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-native-library-17-bones-8-clips-51-tracks-3",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-LeftFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-RightFoot-restored-after-walk-3",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-face-opponent-3",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-native-library-17-bones-8-clips-51-tracks-33",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-LeftFoot-restored-after-walk-33",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-RightFoot-restored-after-walk-33",
+    "passed": true
+  },
+  {
+    "name": "guest-steward-face-opponent-33",
+    "passed": true
+  },
+  {
+    "name": "male-female-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-300",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-301",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-302",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-303",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-304",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-305",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-306",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-307",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-308",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-309",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-310",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-311",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-312",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-313",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-314",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-315",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-316",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-317",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-318",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-319",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-320",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-321",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-322",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-323",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-324",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-325",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-326",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-327",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-328",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-329",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-330",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-331",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-332",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-333",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-334",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-335",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-336",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-337",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-338",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-339",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-340",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-341",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-342",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-343",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-344",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-345",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-346",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-347",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-348",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-349",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-350",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-351",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-352",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-353",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-354",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-355",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-356",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-357",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-358",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-359",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-360",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-361",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-362",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-363",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-364",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-365",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-366",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-367",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-368",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-369",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-370",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-371",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-372",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-373",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-374",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-375",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-376",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-377",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-378",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-379",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-380",
+    "passed": true
+  },
+  {
+    "name": "empty-handed-argument-native-gesture",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-381",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-382",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-383",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-384",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-385",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-386",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-387",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-388",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-389",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-390",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-391",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-392",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-393",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-394",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-395",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-396",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-397",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-398",
+    "passed": true
+  },
+  {
+    "name": "arguments-never-create-fight-view-399",
+    "passed": true
+  },
+  {
+    "name": "male-female-no-teleport-at-fight-start",
+    "passed": true
+  },
+  {
+    "name": "diagnostic-never-saves",
+    "passed": true
+  }
+]
