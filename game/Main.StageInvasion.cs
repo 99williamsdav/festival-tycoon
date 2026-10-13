@@ -21,6 +21,9 @@ public partial class Main
     private float PlayerStageLift(int xMillimetres, int zMillimetres)
     {
         var cell = TraversalGrid.WorldToCell(xMillimetres, zMillimetres);
+        // The fixed Barn deck exists even before its programme receives a campaign allocation.
+        if (BarnLayout.Deck(cell) || BarnLayout.Stairs(cell))
+            return BandHeight(BarnLayout.Stage,new Vector3(xMillimetres/1000f,0,zMillimetres/1000f),true)-.04f;
         foreach (var stage in _session.Stages)
             if (stage.Deck(cell) || stage.Stairs(cell))
                 // The band's own climb (Main.LivePerformance.cs), less the few centimetres every body stands off the grass.

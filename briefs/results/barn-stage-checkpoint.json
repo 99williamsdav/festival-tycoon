@@ -1,0 +1,544 @@
+{
+  "scope": "Approved Barn Stage integration; controlled programme only",
+  "baseCommit": "1c4fe53f03cae160e89cd97c903b30a7bffd96f5",
+  "sourceFiles": [
+    {
+      "path": "assets/source/environment/barn-stage-v1/anchors.json",
+      "sha256": "E2D3AA11BD9B4F2FF45C83FCCB7F4D830C63154733E894822895A31169489338"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/build.py",
+      "sha256": "52038F61C6A80387917B23F0BBE8F8ACC37B8B1DC15E765FD211AB36FA17D689"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/finalize.py",
+      "sha256": "C860E60DDD435A6CCD56183D71B55D3CDD9DC8A441D16611EC0F824F80CED876"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/HANDOFF.txt",
+      "sha256": "4141456072A0FC5F01A36EEA691BC514E6D898926CDFD38A4C0B770717B88448"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/manifest.json",
+      "sha256": "48ACBD35FBB33ED2ED9B10F77A638C932EE2520A084B23C32BF19B54E323B399"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/PROVENANCE-sha256.json",
+      "sha256": "00554326475F069A58AF6E4228837692F53F14B88BEE0FE62F58DA5C0E5D9F9E"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/references/02-end-on-hall-v2-gable-facing.png",
+      "sha256": "9C489DA145373BBC67E38711085A33A7C44A8B23569D22058FDE4ACD7A7E8C0B"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/references/HANDOFF.txt",
+      "sha256": "A25A32FF5A42964AD84AFAFC12DB8F497DE77922715F00597833074131DC171E"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/references/lwf_modular_riser_speaker_v1.glb",
+      "sha256": "2144D593A2AAA65D1823CBE360113D7CCE411DD6AB55D5B5A9915359BE63B2D0"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/references/lwf_modular_riser_stage_v1.glb",
+      "sha256": "3BA3B4FDFF84EC5C7CC1109E7AAA808503DB3AA1F1B54CBA90FF638D0E147759"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/references/original-large-barn.blend",
+      "sha256": "C49200BD39D5D8C11C363BD4E24C576B0CBE2650878E591383CEC6D7980AC7BA"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/references/original-large-barn.glb",
+      "sha256": "12ECBE1DC0A9A929B343AA77E6CABE9EA2501CF9C2868959EE3DF26EA60DBF24"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review_scene.py",
+      "sha256": "27B68B01BDCAB32E5A49ADE2DD40B5E74FF3ADB8EF488162971FFB0E5864CFD1"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review.html",
+      "sha256": "2699EF1D64A231AD5DF5C7C2A2715957E0322E999902559715691AFB61C48D7F"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/faded-0.png",
+      "sha256": "FB7FA95056EF77DDBAF2C674751821AF9160D60773D0ADE04ECB8EC2C918FF1D"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/faded-end.png",
+      "sha256": "96EFE0999A7BA8EC97E293F7FD756906A9885D9F182EA0AB5E6F9A399A2FECEE"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-0-zoom18.png",
+      "sha256": "BAF852237096E0AD9D1D246A58B822F2B214BE1EEB96581C755825F9F118372A"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-0-zoom62.png",
+      "sha256": "F747C0E6A58B02561B068B30BAC8A459D95405F97F3A93E0A4D319345EE6DCD3"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-0.png",
+      "sha256": "2DF838FD78489AC72F0B44F0C8B89985F1983A5B62F8B5B5678CD939D90543A9"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-1-zoom18.png",
+      "sha256": "25FC63B5FCC83628E47AD8BB3EDE8339E341B61B06ECB11ECA047FF786F065EB"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-1-zoom62.png",
+      "sha256": "3CD3B27F2C1531607C04BA3611B68687BA6AF0223AB39FEF622BFA01644BC653"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-1.png",
+      "sha256": "7A74F796CCA463EF980E1B39EE4A9573EDBCF706F3C84DD5E07A658366FD980A"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-2-zoom18.png",
+      "sha256": "9C7CEEF3EAD0212C820A2CBDBBDDB899A64140C4EF89C727FA0DDAA19722F3A8"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-2-zoom62.png",
+      "sha256": "42E7E4A801BD10529B92FFE532F3AAE1CC34F3D39ED93BD769DF799349122D96"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-2.png",
+      "sha256": "8D7BF943F89A89E538B1F9E7E999E97CBFF04E39A27D9675FAD2BAF074AA21EF"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-3-zoom18.png",
+      "sha256": "F4FAD2457A5A3AFA7A5D47FEF13047838201EE4287D420E112738A33DA03FEAE"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-3-zoom62.png",
+      "sha256": "8EEA927B09D6622BE9FA0602C6D560DE62AD16F922D7A181DE7EDCD582F266CC"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-faded-3.png",
+      "sha256": "586F700E55367024EF0195718FE84041B0105ED8FEEFA4C22B88E1F1D4E784A6"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-0-zoom18.png",
+      "sha256": "EF0F910E1A7072EEE8F2C074A1527929EF1E5B80DF19EDA364FE554CA15CD20B"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-0-zoom62.png",
+      "sha256": "2A81434516EEEB0A72566DB0CA5B2BD436C8C5E38E9E685B070F1C3CEB0F2B8C"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-0.png",
+      "sha256": "2E301DA0812BC2774A68CE7E45EE6EA21E4A2F936E9F513A9A5DC893603C5721"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-1-zoom18.png",
+      "sha256": "14EB681F524E6DC76DE6E2A6BEC48B68810C75C744406E244C7A1B09D36A3568"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-1-zoom62.png",
+      "sha256": "EE54A6053FEC227458242D7F8DEF524E1360527D8ABE25EA6F64A5766CE4D342"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-1.png",
+      "sha256": "4B88E58C045B15A6A568F0C520CA8932B22183E4D80EB61E1815DFC17D2CB40B"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-2-zoom18.png",
+      "sha256": "7963B5BCBEFB5FF3AB8C89DC89CADA7D825BC784944890A83B3839767A0C756E"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-2-zoom62.png",
+      "sha256": "8DCAACBD308134FDF8E20ECAC98A870006A220413BFE60A2133825DF47C4C53A"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-2.png",
+      "sha256": "BBE4AEC1465548810A7E15E204B1DB71477533337735D48C0DDC8FBA32150F4A"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-3-zoom18.png",
+      "sha256": "7B6B78CB320A7B6E2FC27A7197DAC4CDB4EC0D3C687B6F20CC9EA97311E5A100"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-3-zoom62.png",
+      "sha256": "06A9DCDEA51CBF5969A17B8AE26BAB1F2726DA9E4F6306087B188861A01268A5"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/native-solid-3.png",
+      "sha256": "8D445434C146A2EAAC2CAD31D6769FB7193CF1D987ED91E1BA793A0E88F98AA9"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/review/solid-0.png",
+      "sha256": "5E3F40E7A33C55D8B992D88ABBAF92AC031A693D2735B2814537A5870D3706AE"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/runtime/lwf_barn_stage_v1.glb",
+      "sha256": "8D690770EDD4A2FF4D039D5B43D50F3C0B0726AFE847E96A001628535E8B82B1"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/source/lwf_barn_stage_v1.blend",
+      "sha256": "4FDEFA66B77412422E8852014DD9B4632BDA00909AB4B78D6599700CB3C61086"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/verification/components.json",
+      "sha256": "0FDBDFE6F494BE4E162C4812576EE61367251FD9C7A28BF23E7A87AD31D88D33"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/verification/geometry.json",
+      "sha256": "E154E17AE07E7B238FDE63578263177C69D53967DFAAF7870136D6A14F0BB1E9"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/verification/native-import.json",
+      "sha256": "2760F1362726C6BC653455F02D333F1702FD8D2F51B2A524668C7A74CB021AFB"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/verify.py",
+      "sha256": "751ABF800C3811A27824B6ABE8FEF4B77D19C40DD83924ADB872C02741FA69BB"
+    },
+    {
+      "path": "assets/source/environment/barn-stage-v1/visibility-contract.json",
+      "sha256": "50224526F6F6A1B19732DFADA8997A884FA57E68B157F2873C97EE99FAD50B5A"
+    },
+    {
+      "path": "game/assets/environment/barn-stage-v1/lwf_barn_stage_v1_large_barn_v1_palette.png",
+      "sha256": "7E4C7A4B5839803428422F87FEEEE843F79D8DAC71EFDD868B27A4B44B386C1A"
+    },
+    {
+      "path": "game/assets/environment/barn-stage-v1/lwf_barn_stage_v1_large_barn_v1_palette.png.import",
+      "sha256": "0A3E36393D2DEA21C7E6723515E49A215A2EEE1C78DFBB9E72BDAC7C8BFE9376"
+    },
+    {
+      "path": "game/assets/environment/barn-stage-v1/lwf_barn_stage_v1.glb",
+      "sha256": "8D690770EDD4A2FF4D039D5B43D50F3C0B0726AFE847E96A001628535E8B82B1"
+    },
+    {
+      "path": "game/assets/environment/barn-stage-v1/lwf_barn_stage_v1.glb.import",
+      "sha256": "343F58B57E7F98C1AA47379AF267BAFC07C4A0DD768D788AB60B27F267FF1AED"
+    },
+    {
+      "path": "game/Hud/BookingPanel.cs",
+      "sha256": "E9A6B7511D7869EF0C8DE3C1D146B65EA1A41AA96CAC622AF08B37A6A458CC31"
+    },
+    {
+      "path": "game/Hud/StageCard.cs",
+      "sha256": "38D9C2BE080CA28868094D97B885310945465CACCB3954365E12A516E231AE27"
+    },
+    {
+      "path": "game/Main.AudienceArea.cs",
+      "sha256": "B2991EFFC24A04AB865DE06B184D7F32DA1763DC42C8A8500B116A10D8760BE3"
+    },
+    {
+      "path": "game/Main.BarnEvidence.cs",
+      "sha256": "3D9C4736FBFE7B5B7E4F0FDCC6259250E16BB4672CCECF4C9A5B377786D3C4D0"
+    },
+    {
+      "path": "game/Main.BarnEvidence.cs.uid",
+      "sha256": "EA9E7A91FE316BD1E8C6130DFEBDA6DBCCBFDCDCEA67675FBC2AA60471B8A446"
+    },
+    {
+      "path": "game/Main.BarnStage.cs",
+      "sha256": "0C30C54133F21510059B991232F3A1CDB88E14C38A1FF12CFA24F94C92E4D0DE"
+    },
+    {
+      "path": "game/Main.BarnStage.cs.uid",
+      "sha256": "D092E9ABFBA38234040B598C6200252A028DB1178E23449655A934277716BD86"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "D136A272D5AE7D833953DC2DF0A19CFE2D5FBEA4767F5A2262353AECA656769B"
+    },
+    {
+      "path": "game/Main.Ground.cs",
+      "sha256": "A4A905DA68C9BDBBB20F3AF920DC92BB7AA0ECC57733A9E031440128637323B7"
+    },
+    {
+      "path": "game/Main.LivePerformance.cs",
+      "sha256": "FDEB9A58AB6446EA25B70BFA558E143F8600333506726DA9A089AF50E67A4309"
+    },
+    {
+      "path": "game/Main.PondStage.cs",
+      "sha256": "CEEF27D90F60A736C569C71ED7ED42CB2CB24A54015818EA5F592FBA55DEF0B1"
+    },
+    {
+      "path": "game/Main.Preparation.cs",
+      "sha256": "385E3464146DFD3B58ACDE698BEA1B4B6327765196ABD7912DF30C1880026BA5"
+    },
+    {
+      "path": "game/Main.StageInvasion.cs",
+      "sha256": "411BF1F24CA8B6577DBEAC14413FB74087840D902D377E247EE6272B6E5996E3"
+    },
+    {
+      "path": "game/RoofFade.cs",
+      "sha256": "28B3DE0EBE20268B1670DE65CD158CFDA050FF51982AB55DC0D46105B985327D"
+    },
+    {
+      "path": "src/Festival.Simulation/BarnStage.cs",
+      "sha256": "9BE287562B9A7B15053606189491B1AE9861EFBFC79239F6B29906F0D042E459"
+    },
+    {
+      "path": "src/Festival.Simulation/FarmScene.cs",
+      "sha256": "67307510DB14817B9C41563C679DDCAE744FDC56D73511C41B715F7C44CD48FB"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalStage.cs",
+      "sha256": "66DB6C4960ED77C0310ED888E8515E80C70DFAFCA97BFF360ACA54D3D0F20A39"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/BarnStageFixture.cs",
+      "sha256": "09B0EDBF612A2C4607E61B68D7274A17AA8F7808D8F8D90C7C226BCA2FF4EEE7"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/NavigationFixture.cs",
+      "sha256": "A24323EF97C7277DBA864F620955029E78B251CC7F80FB6FA0082DC1272924C3"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.cs",
+      "sha256": "58EBBF45108F9275545B0146D29383DE3C09467B0034F07D6D8B1505A71B0BAA"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.Navigation.cs",
+      "sha256": "21A33F845D0EB7F20DBA25262C13366C5084EB6301504278B5EA1637DD0B244B"
+    },
+    {
+      "path": "src/Festival.Simulation/MultiStage.cs",
+      "sha256": "56D263B0AA2BF63AC93EDB6F87A37F046F495E9B22779290DB5CA1E5F6AF30E7"
+    },
+    {
+      "path": "src/Festival.Simulation/Shelter.cs",
+      "sha256": "F318F3CF14D807EE971D16780F74F0DA1CD6E2509A0D8D5DC5AA49F1A11094A0"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShift.cs",
+      "sha256": "987EF16FD221B765B758F6914EF7780D4F113BEAADA08CFA5D7B65DFB6797552"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftStage.cs",
+      "sha256": "AED86A05A00F6FB07E3534090BA82ED0C1F2EF71F753D9EA16BC7BDDC90CF46B"
+    },
+    {
+      "path": "src/Festival.Simulation/VendorQueueGrowth.cs",
+      "sha256": "04AA403FDF889AFFEA5363296B390FA7C2C87A7872EF12138F521BAC447EA3AB"
+    },
+    {
+      "path": "tests/Festival.Tests/BarnStageTests.cs",
+      "sha256": "A284173D6FB0068C1E48EBC23214F26F842A4C59A05AC4B8C33101C49B25F1F3"
+    },
+    {
+      "path": "tests/Festival.Tests/NavigationTests.cs",
+      "sha256": "F344D63931927B29AF8FC887CBF78CAD57E2276C7E6C5B7A49D5B80BDD2E24EF"
+    }
+  ],
+  "evidenceStatus": "Source native COMPLETE:54/54,24 camera/weather images,6 occupancy images,450 motion frames; export pending",
+  "sourceEvidence": "reports/evidence/barn-stage/source",
+  "testLogs": [
+    "barn-clearance-final",
+    "barn-tests-final",
+    "barn-focused-final",
+    "barn-regressions",
+    "barn-save-regressions",
+    "barn-staff-final",
+    "barn-autopilot-final",
+    "barn-game-build"
+  ],
+  "sourceReview": "pending fresh GPT-6 Astra MEDIUM",
+  "exportReview": "pending",
+  "sourceEvidenceFiles": [
+    {
+      "path": "reports/evidence/barn-stage/source/barn-motion.mp4",
+      "sha256": "6F556C4C3C5E6683EB9C5B18315940B03B0C0CE5B66468267F5A87E37F6EFC08"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/camera-contact-sheet.png",
+      "sha256": "1C60B692EB8DAA76E29917E78EE18DDED62DF7CBD15C29F542912D0AF3CD7BF7"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/checks.json",
+      "sha256": "E0681E7644CAC0ECA9081E041502CD72E9FDB62B8D8D31141A88BC0AEA02BA41"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/day-East-zoom18.png",
+      "sha256": "E9BAA938F76B1344763851593864AAB40A095CE0F11BD895A884B0EDB00A92EF"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/day-East-zoom62.png",
+      "sha256": "9AEDD2B16D5408E55AAF0A2B0B65E2DFCDFA1B53FE3ABC5314E9B2A4F5A8222F"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/day-North-zoom18.png",
+      "sha256": "CD21108F47A0A279AFD959E2B064E385B53EEACE0A52CF392785665137678F5B"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/day-North-zoom62.png",
+      "sha256": "9A3DD24B9BAB0151AC5691D057B90288B28A1223F0F4DCA943C5F11ADD0FE02D"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/day-South-zoom18.png",
+      "sha256": "C9FF4217E1B2784212EB99B6297A94236AC853EF3A1F216769F03FFC473BE37D"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/day-South-zoom62.png",
+      "sha256": "736F11524725349812906AD920754B3992CBE8F7082FA610299258A8E1CFFACE"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/day-West-zoom18.png",
+      "sha256": "A94EB287FF7DF86E5A4C683F5DAE855C0D2AF89C9328D82073EB23C2F38483E5"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/day-West-zoom62.png",
+      "sha256": "B26B5D321D05580A234A0FAA97FD516D614B3A0E28C54BBF4850A93A66131BAE"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/empty-opaque.png",
+      "sha256": "72C8276CDEB60E9053B7EF5506B13FD774581AAC24D479AA1EFCD148E8E70A7D"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/evidence-manifest.json",
+      "sha256": "97DE110B516FF5E4330497A0BA813A993B34C6DEE2631A60EBE43DB900971113"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/fade-and-picking.json",
+      "sha256": "A12198130D378406653E983357B4C62328694D00C3576C8B82B4350F7529F3C3"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/godot-native-log.txt",
+      "sha256": "442091059A57625E27578E023DC53DA102569D69A9901C5900F891AC8D8BFFB6"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/late-East-zoom18.png",
+      "sha256": "9AFA8B9B332FA3FF186B7C06128CDCFBC535E07BEB25128AA8B39FF6D8223A74"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/late-East-zoom62.png",
+      "sha256": "F3AC18831CBA9BB69934BBCE05D020EB9C5C50EC63C8F42B2180F927B94276E1"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/late-North-zoom18.png",
+      "sha256": "A0DF7763758486B80BF96BC6FB39EE89929DCEF615AE3002B76FE07BD8CF105D"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/late-North-zoom62.png",
+      "sha256": "4F92016686F17E6AFB33ABF300B548E58617083DA5AD72BB009E03EE69A1FFFD"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/late-South-zoom18.png",
+      "sha256": "11D32EC39307DBA928094FEB6EBAA131646DFFA9CBF441C3844C8798B0FFA62E"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/late-South-zoom62.png",
+      "sha256": "B47168C3A0BD9120EE8850EAF11D166CB786F4A41F82BAF148C0E7A05ED9AF99"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/late-West-zoom18.png",
+      "sha256": "8B26C7966077D783676B7313937FA298FEB34D025C93FA9FD6A8BC361E40BE9A"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/late-West-zoom62.png",
+      "sha256": "A58BB08C5C6B9A7820E7075F50CEBBC6DC6F6DF893EEE8424BF475748FF53765"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/lone-guest.png",
+      "sha256": "6746182B57291C57ED7D00C8E19394A1728EF1F61D1D430FDFAA25A007A0A4D6"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/lone-performer.png",
+      "sha256": "E1947EF04F754D35EA8877C1B6FD626EE549986E46594E1D1E9584B58EABC458"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/lone-staff.png",
+      "sha256": "C8060B04C235A29A667B47FEF4DA49B88DCF36F92957B76CAD0482B691082D4D"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/process-log.txt",
+      "sha256": "09114F38C8E28E2A01A2A2BF33B6CC0AD8E52C7A0CC1FB86BF077D0D59E0856B"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/rain-late-East-zoom18.png",
+      "sha256": "C04FD45D8D46E790719330BA4AF2A8B754B98682561A600A0E8EC579054FEE8A"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/rain-late-East-zoom62.png",
+      "sha256": "5FD382758BB5FDF8358E8DFEE1773C645F8FB9B728FF985F4B17034B70B1FF2F"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/rain-late-North-zoom18.png",
+      "sha256": "3394AC55A3907D76C52D9B47EE814E0C5776196C60B5306A9E66D32A08690871"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/rain-late-North-zoom62.png",
+      "sha256": "33EE2761FDC83329D35CA2211C0D77C1FD5F901831ACF9AFF4946E6256ACDFAF"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/rain-late-South-zoom18.png",
+      "sha256": "EDA76E3F4AF2C7B62D48DFE98E70426D7C2BDB335C68331B28B4F04F5E52B055"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/rain-late-South-zoom62.png",
+      "sha256": "F72E44B1D2979E1BBCBBD6A76F8436183B9AB8955081C3E2440433EE3574FA11"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/rain-late-West-zoom18.png",
+      "sha256": "6957DABB25FD27D52842031CFECA1E03CB99674D2A7084E6922E8185217AF8EC"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/rain-late-West-zoom62.png",
+      "sha256": "A21794D61CB90C9E12CE07C15AF8F286D8A3D2C035027FFA8B2B116C3C4B94DB"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/re-entry-translucent.png",
+      "sha256": "868D2766C017E88FF31B5136EBFEEFBEA3599CB115C81C4233A78627A87D0CA1"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/selected-empty-translucent.png",
+      "sha256": "7FF43F0A6C87CF63D6262710F19D7B908937207858268B23369E9A6AC111E082"
+    },
+    {
+      "path": "reports/evidence/barn-stage/source/trace.json",
+      "sha256": "71A78658715568F4C7889ACF187F38A2CC4CF832E4CBC48597A65B5434125124"
+    }
+  ],
+  "verificationFiles": [
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-autopilot-final.txt",
+      "sha256": "AFD857A56AF5D314D40955C95368F2AC3C697CF0B93101A933A16D38C9A050F9"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-clearance-final.txt",
+      "sha256": "7AB934E75F37E8545CF6814D97B94B54126634627BE03DECB2F90A40D0C8BF15"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-final-tests-detail.txt",
+      "sha256": "BB38C3228F4EDD7FA3E2BC46B8DE121CBD63D9855D139AED69BA31750866CB7B"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-final-tests.txt",
+      "sha256": "7811BBABCCC57F4E2639282ACD7DE23698ADD140E66C8D9E20DD3A67F1B0005B"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-focused-final.txt",
+      "sha256": "F134B5CFB4349A9D329143FD2C04AE358C31DBF5819BCC660D745A627F16463A"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-game-build.txt",
+      "sha256": "F3EB7B0D58DCBB806163F07903E1186A2DEFA75C29737663AFB75323E224359D"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-regressions.txt",
+      "sha256": "3250A9314D5952E6706E578693A0C4FBF7EF09D3209382444ACC5748E612AB89"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-repair-final.txt",
+      "sha256": "F2CF7D2DAFF783EF2CCE0B5674433F098FD0911FC6A56C668CB6E29EC1518894"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-reviewed-repairs.txt",
+      "sha256": "A9AC2D360A2CCB2FE07D7791609066AFBC94AAF942B5E8C042964666CF0B7031"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-save-regressions.txt",
+      "sha256": "435B0F0E73BE373B598587235E6E5C5F12D9C8D09D275A2D4365B0A654E803A7"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-staff-final.txt",
+      "sha256": "F384D004FF05DBDC8A85986E2BCA42BBBF2EC39F13C0E2F337812077605FE40F"
+    },
+    {
+      "path": "reports/evidence/barn-stage/verification/barn-tests-final.txt",
+      "sha256": "73871BE02193F0B3D8238A29DAF05193FF1A5DE76CE2236DC0822B3936E4BE77"
+    }
+  ]
+}

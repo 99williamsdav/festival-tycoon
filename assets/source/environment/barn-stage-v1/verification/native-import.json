@@ -1,0 +1,17 @@
+{
+  "engine": "4.7.2-stable (official)",
+  "materials": [
+    "Barn_WallFade",
+    "Barn_DoorFade",
+    "Barn_Frame",
+    "Barn_TrussFade",
+    "Barn_Roof",
+    "Barn_Floor",
+    "Barn_Sign",
+    "Barn_Name_Opaque",
+    "Barn_ExitSign_Opaque",
+    "Barn_Lamps"
+  ],
+  "mesh_count": 19,
+  "surfaces": 19
+}

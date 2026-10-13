@@ -1,0 +1,195 @@
+{
+  "checksPassed": 54,
+  "rawMotionFrames": 450,
+  "logicalFps": 30,
+  "seconds": 15,
+  "cameraImages": 24,
+  "occupancyImages": 6,
+  "files": [
+    {
+      "path": "barn-motion.mp4",
+      "bytes": 1103499,
+      "sha256": "D6B3A0109490AE1A1FF774C241FDF5D9E297133110AAF702820A4B7148048289"
+    },
+    {
+      "path": "camera-contact-sheet.png",
+      "bytes": 4266306,
+      "sha256": "F46208AF3FF23394C4CD0A6AC4ACC5FD9F79436F03A61F91A631433A877C0B8A"
+    },
+    {
+      "path": "checks.json",
+      "bytes": 4266,
+      "sha256": "E0681E7644CAC0ECA9081E041502CD72E9FDB62B8D8D31141A88BC0AEA02BA41"
+    },
+    {
+      "path": "day-East-zoom18.png",
+      "bytes": 775383,
+      "sha256": "BA971DBCEA0631C0DDFA717AFF84FFE32C6AB202685F6B1E3ABC49B379A42B59"
+    },
+    {
+      "path": "day-East-zoom62.png",
+      "bytes": 777973,
+      "sha256": "A6187B3D4CF1A4B52DDC2FA87A30518414FEF698A0F3B84C641598F97D232701"
+    },
+    {
+      "path": "day-North-zoom18.png",
+      "bytes": 814279,
+      "sha256": "781B30FF92AF07DCAD22B99BED6E32D02AE1C459DA5DC9B03149F34B71DB85F1"
+    },
+    {
+      "path": "day-North-zoom62.png",
+      "bytes": 800480,
+      "sha256": "37FFE2FC4C910214C65A0A46655AD525690530C81CDD9F4AB010ABD00337FC44"
+    },
+    {
+      "path": "day-South-zoom18.png",
+      "bytes": 824859,
+      "sha256": "57E0D2C4AD3766D95B2A86D46C23C6479DB03FBA8D7A46BA4D1C417E85437049"
+    },
+    {
+      "path": "day-South-zoom62.png",
+      "bytes": 783556,
+      "sha256": "63CD4AE6B1D4EF9BA2FA44B550C7858682316C28E043E366FDE8AA51589D608D"
+    },
+    {
+      "path": "day-West-zoom18.png",
+      "bytes": 765450,
+      "sha256": "320082E1FC2FC6680C34D7E9FE9DE37AD67D6F7DD61041C308769DEB3A9742B1"
+    },
+    {
+      "path": "day-West-zoom62.png",
+      "bytes": 898893,
+      "sha256": "7B63AEA24E5B53D1146359225022600AF8E9764F5051E4FF0EE000241D69BCDB"
+    },
+    {
+      "path": "empty-opaque.png",
+      "bytes": 586751,
+      "sha256": "72C8276CDEB60E9053B7EF5506B13FD774581AAC24D479AA1EFCD148E8E70A7D"
+    },
+    {
+      "path": "fade-and-picking.json",
+      "bytes": 56454,
+      "sha256": "B3917F6A651A5920E8BEF71C1C2D2EF7DCC99CAA6CEBD675A711810E9A96AF9A"
+    },
+    {
+      "path": "godot-native-log.txt",
+      "bytes": 747,
+      "sha256": "442091059A57625E27578E023DC53DA102569D69A9901C5900F891AC8D8BFFB6"
+    },
+    {
+      "path": "late-East-zoom18.png",
+      "bytes": 729215,
+      "sha256": "B092A7A893C67A606822EFE33B17D288657102BB8A3CED0A7223DE11F7124CB7"
+    },
+    {
+      "path": "late-East-zoom62.png",
+      "bytes": 735332,
+      "sha256": "48D313F9E633F49CF6D7DC5DCD2104E6556354D19E86C7760BF006A87D01ADF3"
+    },
+    {
+      "path": "late-North-zoom18.png",
+      "bytes": 761434,
+      "sha256": "6F073352AE508ADB63563108942CC863CA214CDFB7A8B6F1B6FC8F6FA30549A7"
+    },
+    {
+      "path": "late-North-zoom62.png",
+      "bytes": 711270,
+      "sha256": "DCF9748D99B281F92475113CEB5E7C8932C9041EFF285878753D9FD6E160C8E8"
+    },
+    {
+      "path": "late-South-zoom18.png",
+      "bytes": 781041,
+      "sha256": "5997F01FCA507F64E634AB54243D93F7A1D1A280D4F89A4E63EA13E8A138F1EB"
+    },
+    {
+      "path": "late-South-zoom62.png",
+      "bytes": 727916,
+      "sha256": "D3A82C80C1C56C5B44E1BD3E14ADB152E6E4A16D7232ADD66A1EDE8A7F01356E"
+    },
+    {
+      "path": "late-West-zoom18.png",
+      "bytes": 682178,
+      "sha256": "17D815CEE35B49BBD753DE560B86EE8197B2A7AFFAB3E5ACF6FA4E59F919657F"
+    },
+    {
+      "path": "late-West-zoom62.png",
+      "bytes": 807883,
+      "sha256": "5D433A242D37AF54EBD1CBB16A3BBC2FA00DC5737C01FB1BFFFA676624594D8E"
+    },
+    {
+      "path": "lone-guest.png",
+      "bytes": 784486,
+      "sha256": "D0FB72F19EDC1265DFEE6A18DA65509DFAC6DE5979A59A7B32991059E08E5EF5"
+    },
+    {
+      "path": "lone-performer.png",
+      "bytes": 786155,
+      "sha256": "F15A62E1773D821FDE8717E6DE1170A69A3F163C5C110D17528D1C17B4F34EF3"
+    },
+    {
+      "path": "lone-staff.png",
+      "bytes": 779627,
+      "sha256": "042CEB1DD063BE1FDB792CD1A5565AA7DF046AEA2A9D8960B64CE633570BAF35"
+    },
+    {
+      "path": "process-log.txt",
+      "bytes": 0,
+      "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+    },
+    {
+      "path": "rain-late-East-zoom18.png",
+      "bytes": 754307,
+      "sha256": "E93894286C89191506C24E049FB162A499202B4433D4A3293F5711E93B895EC1"
+    },
+    {
+      "path": "rain-late-East-zoom62.png",
+      "bytes": 779389,
+      "sha256": "5FC28BDB208D47EDE088E5837AF956E3BEC9DB4CBA3DF80624B92997EF341BDE"
+    },
+    {
+      "path": "rain-late-North-zoom18.png",
+      "bytes": 786704,
+      "sha256": "204750965BE972C7B92E4FC8E0A6A0E3BC9DA1D61F1DC724C7602F0EB28188CC"
+    },
+    {
+      "path": "rain-late-North-zoom62.png",
+      "bytes": 748312,
+      "sha256": "6B9601F5B5EDF9C326CC9B57A2C006439D5AAA99CC3B9FCF2CA97273F104FAC0"
+    },
+    {
+      "path": "rain-late-South-zoom18.png",
+      "bytes": 799601,
+      "sha256": "5F30E329C9ED0C758BF1063B7BCF770210F68F57C08A89BB566494B9571308D6"
+    },
+    {
+      "path": "rain-late-South-zoom62.png",
+      "bytes": 767841,
+      "sha256": "06411DBAB337D7EF56021E553501497F20E9DF3658309E75F13B6E4FAB8F0D85"
+    },
+    {
+      "path": "rain-late-West-zoom18.png",
+      "bytes": 730375,
+      "sha256": "D882492326FB3F78D631348C1ADD7CA5812FAD06AE614E9F7F43D2EACDB1C0F5"
+    },
+    {
+      "path": "rain-late-West-zoom62.png",
+      "bytes": 841810,
+      "sha256": "9D8395BA8EE61689CC6C67FE39900FCB178B51F3111BECB8B1321CF69BB90E29"
+    },
+    {
+      "path": "re-entry-translucent.png",
+      "bytes": 781384,
+      "sha256": "C32960F13555DDBDD8F187C0451AE1648B867AAF8B02F12D7A257973CC1B9D46"
+    },
+    {
+      "path": "selected-empty-translucent.png",
+      "bytes": 715243,
+      "sha256": "B19BF6112841B2F9444FB220CC745E59FBCA63AA9F0BF2EB60A39506098C7707"
+    },
+    {
+      "path": "trace.json",
+      "bytes": 588550,
+      "sha256": "71A78658715568F4C7889ACF187F38A2CC4CF832E4CBC48597A65B5434125124"
+    }
+  ]
+}

@@ -40,12 +40,13 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v91", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v91");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v92", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v92");
 
     public override void _Ready()
     {
         ConfigureCommandLine();
-        _host = new SessionHost(_preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
+        _host = new SessionHost(_barnEvidenceOutput is not null ? BarnStageFixture.Create(20260922) :
+            _preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
             _startTier is not null || _pondStageTrialFlag ? GameSession.CreateDevelopmentFestival(20260922, _startTier ?? 1, _pondStageTrialFlag) :
             _litterEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility);
@@ -76,6 +77,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if (_barnEvidenceOutput is not null) { ProcessBarnEvidence(delta); return; }
         if (_fisticuffsEvidenceOutput is not null) { ProcessFisticuffsEvidence(); return; }
         ProcessChallengeEvidence();
         if (_challengeReveal.IsOpen) { ProcessServiceServers(0); return; }
@@ -89,6 +91,7 @@ public partial class Main : Node, IHudHost
         ProcessGateSign(delta);
         ProcessStageSet(delta);
         ProcessPondStage(delta);
+        ProcessBarnStage(delta);
         ProcessMoments(delta);
         ProcessPressPhoto(delta);
         ProcessFieldNotes(delta);
@@ -99,6 +102,8 @@ public partial class Main : Node, IHudHost
         ProcessChatter(delta);
         ProcessGenerator(delta);
         ProcessVanSteam();
+        SyncWorldEffectsPause();
+        ProcessStrawMark(delta);
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
         ProcessSurroundEvidence();
@@ -291,6 +296,7 @@ public partial class Main : Node, IHudHost
         {
             var track = AddAsset("res://assets/environment/lwf_vehicle_track_straight_8x4m_v1.glb", new Vector3(0, 0.052f, z * 8));
             track.RotationDegrees = new Vector3(0, 90, 0);
+            if (z is -3 or -2) ClipTrackAtBarnFloor(track);
         }
     }
 
@@ -341,7 +347,7 @@ public partial class Main : Node, IHudHost
         {
             FarmObjectKind.Farmhouse => ("res://assets/environment/lwf_farmhouse_v1.glb", new Vector3(12.64f, 9.93f, 10.29f)),
             FarmObjectKind.SmallBarn => ("res://assets/environment/lwf_barn_v2.glb", new Vector3(14.65f, 7.1f, 10.06f)),
-            FarmObjectKind.LargeBarn => ("res://assets/environment/lwf_large_barn_v1.glb", new Vector3(20.93f, 11.14f, 13.42f)),
+            FarmObjectKind.LargeBarn => ("res://assets/environment/barn-stage-v1/lwf_barn_stage_v1.glb", new Vector3(20.93f, 11.14f, 13.42f)),
             // Turned round: the drawbar at the south end, the band stairs coming off the north end into backstage.
             FarmObjectKind.TrailerStage => ("res://assets/environment/lwf_trailer_stage_v3.glb", new Vector3(9.91f, 2.2f, 4.92f)),
             FarmObjectKind.ServicePoint => ("res://assets/environment/lwf_service_point_v2.glb", new Vector3(4.13f, 3.09f, 3.8f)),
@@ -351,7 +357,12 @@ public partial class Main : Node, IHudHost
         var body = new StaticBody3D { Position = new Vector3((float)item.XMetres, 0, (float)item.ZMetres) };
         body.RotationDegrees = new Vector3(0, item.YawQuarterTurns * 90, 0);
         AddChild(body);
-        body.AddChild(InstantiateAsset(path));
+        var farmModel = InstantiateAsset(path); body.AddChild(farmModel);
+        if (item.Kind == FarmObjectKind.LargeBarn)
+        {
+            BuildBarnStageWorld(body,farmModel);
+            _pickRegistry.Add(body.GetInstanceId(),item); _visualRegistry.Add(item.StableId,body); return;
+        }
         if (item.Kind == FarmObjectKind.Gate)
         {
             _gateLeafCollider = new StaticBody3D
@@ -600,6 +611,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-entrance" && i + 1 < args.Length) _entranceEvidenceOutput = args[++i];
             else if (args[i] == "--capture-now-playing" && i + 1 < args.Length) { _nowPlayingEvidenceOutput = args[++i]; _startTier = 2; }
             else if (args[i] == "--capture-fisticuffs" && i + 1 < args.Length) { _fisticuffsEvidenceOutput = args[++i]; _startTier = 1; }
+            else if (args[i] == "--capture-barn" && i + 1 < args.Length) _barnEvidenceOutput = args[++i];
             else if (args[i] == "--fisticuffs-checks-only") _fightEvidenceChecksOnly = true;
             else if (args[i] == "--capture-challenge" && i + 1 < args.Length) _challengeEvidenceOutput = args[++i];
             else if (args[i] == "--verify-genre-audio" && i + 1 < args.Length) _genreAudioVerificationOutput = args[++i];
@@ -630,7 +642,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
-        ProjectSettings.GlobalizePath("user://saves/r0-build-v91");
+        _barnEvidenceOutput is not null ? System.IO.Path.Combine(_barnEvidenceOutput,"unused-diagnostic-save") : ProjectSettings.GlobalizePath("user://saves/r0-build-v92");
 
 
 

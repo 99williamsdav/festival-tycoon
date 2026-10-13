@@ -156,6 +156,8 @@ public partial class Main
         // Rain (0 dry, 0.6 heavy showers, 1 a downpour) rings the puddles; wetness darkens and glosses everything.
         uniform float rain = 0.0;
         uniform float wetness = 0.0;
+        // Seconds of unpaused festival, so the puddle rings stop with everything else.
+        uniform float ripple_clock = 0.0;
         uniform sampler2D ripple_atlas : source_color, filter_linear_mipmap;
         // Straw: R how much lies here (3 x 3 blurred), G how trampled it is.
         uniform sampler2D straw_map : filter_linear;
@@ -171,6 +173,11 @@ public partial class Main
 
         void fragment() {
             vec2 p = field;
+            // The approved barn has a flush Y=0 floor. Ground overlays must not paint grass over it.
+            bool barn_floor = abs(p.x) <= 9.5429 && p.y >= -28.5733 && p.y <= -17.4267;
+            bool barn_threshold = p.y >= -17.4267 && p.y <= -16.35 &&
+                (abs(p.x) <= 3.9 || (p.x >= -8.65 && p.x <= -6.65));
+            if (barn_floor || barn_threshold) discard;
             float n1 = texture(noise, p * 0.035).r;
             float tint = texture(noise, p * 0.011 + vec2(0.61, 0.29)).r;
             // Approved Soft Pasture: world-space colour replaces the repeating per-face lime palette.
@@ -269,7 +276,7 @@ public partial class Main
             if (rain > 0.0 && pooled > 0.0) {
                 vec2 cellp = p / 0.5; vec2 cid = floor(cellp); vec2 uvc = fract(cellp);
                 float ph = hash(cid);
-                float t = fract(TIME * mix(1.2, 2.4, rain) + ph); float frame = floor(t * 16.0);
+                float t = fract(ripple_clock * mix(1.2, 2.4, rain) + ph); float frame = floor(t * 16.0);
                 vec2 auv = (vec2(mod(frame, 4.0), floor(frame / 4.0)) + uvc) / 4.0;
                 float ring = texture(ripple_atlas, auv).a * step(ph, rain * 0.9);
                 // On brown water a ring takes a little of its colour and is fainter, not a blue-white circle on mud.
