@@ -35,7 +35,7 @@ public sealed class ServiceQueueTests
     public void DelayedFrontGuestCannotBeServedRemotely()
     {
         var service = TraversalGrid.WorldToCell(29_000, -5_000);
-        var starts = new[] { new GridCell(5, 240), new GridCell(service.X - 3, service.Z), new GridCell(128, 180), new GridCell(126, 181), new GridCell(130, 182) };
+        var starts = new[] { new GridCell(5, 240), new GridCell(service.X - 3, service.Z), new GridCell(128, 180), new GridCell(128, 181), new GridCell(130, 182) };
         var fixture = ServiceQueueFixture.Create(starts: starts);
         fixture.Session.AdvanceTicks(100);
         var snapshot = fixture.Session.CaptureSnapshot();

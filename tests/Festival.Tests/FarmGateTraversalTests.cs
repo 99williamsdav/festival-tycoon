@@ -108,6 +108,43 @@ public sealed class FarmGateTraversalTests
         Assert.AreEqual(25, s.OnSiteAttendeeCount, "Entry remains live for the whole Tier 1 crowd.");
     }
 
+    [TestMethod]
+    [DataRow("tier-1")] [DataRow("pond-trial")] [DataRow("tier-2")]
+    public void NobodyStartsOrIsPostedOnTheGateOrHedgeEnds(string day)
+    {
+        // Every actor's start (guests in the waiting rows, staff at the farmhouse door, both stages' bands on the lane) and
+        // every staff post on the default layout is open ground, off the gate and hedge ends, with a way onto the field.
+        var s = day switch
+        {
+            "tier-1" => BuildSession.Started(),
+            "pond-trial" => BuildSession.PondStarted(),
+            _ => NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(20260922, 2)),
+        };
+        if (day == "tier-2") BuildSession.Accept(s, new StartPreparedEditionCommand());
+        Assert.AreEqual(PreparationStatus.Running, s.PreparedStatus);
+        var grid = s.TraversalGrid!;
+        var blocked = FarmGateGeometry.SolidCells().Concat(FarmGateGeometry.HedgeEndSolidCells()).ToHashSet();
+        var inside = TraversalGrid.WorldToCell(0, 25_000);
+        void Open(GridCell cell, string what)
+        {
+            Assert.IsFalse(blocked.Contains(cell), $"{what} at {cell} is on the gate or a hedge end.");
+            Assert.IsTrue(grid.Get(cell).IsWalkable, $"{what} at {cell} is not walkable.");
+            Assert.IsTrue(DeterministicPathfinder.FindPath(grid, cell, inside).Found && DeterministicPathfinder.FindPath(grid, inside, cell).Found,
+                $"{what} at {cell} has no way onto the field and back.");
+        }
+        var people = s.CapturePreparation()!.People;
+        Assert.IsTrue(people.Any(p => p.Role == ProtectedPersonRole.Performer) && people.Any(p => p.Role == ProtectedPersonRole.Staff));
+        foreach (var agent in s.CaptureSnapshot().NavigationAgents)
+        {
+            var role = people.Single(p => p.AgentId == agent.Id.Value).Role;
+            Open(TraversalGrid.WorldToCell(agent.XMillimetres, agent.ZMillimetres), $"{role} {agent.Id.Value}'s start");
+            if (agent.Destination is { } destination) Open(destination, $"{role} {agent.Id.Value}'s destination");
+            if (role == ProtectedPersonRole.Staff && s.StaffAssignedPost(agent.Id.Value) is { } post) Open(post, $"Staff {agent.Id.Value}'s post");
+        }
+        Open(GameSession.MedicalExitCell, "The medical exit");
+        Open(LavSuckerRules.Gate, "The lav-sucker's way in");
+    }
+
     private static void AssertGateSegmentClearance(IReadOnlyList<GridCell> route)
     {
         foreach (var (a, b) in route.Zip(route.Skip(1)))

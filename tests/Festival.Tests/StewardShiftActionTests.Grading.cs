@@ -33,9 +33,12 @@ public sealed partial class StewardShiftActionTests
         // Near the crew's steward and well away from the player, who stays put.
         var initiator = StartFight(s, id => DistanceSquared(s, id, crew) < 8_000L * 8_000 && DistanceSquared(s, id, Player(s)) > 6_000L * 6_000);
         var before = Score(s);
+        var beforeTick = s.CurrentTick;
         s.AdvanceWithoutSnapshot(1);
         var call = s.CaptureStewardShift()!.Calls!.Single(c => c.Open && c.Kind == StewardCallKind.Fight && c.Subject == initiator.ToString());
         for (var i = 0; i < 8_000 && s.CaptureStewardShift()!.Calls!.Any(c => c.Id == call.Id && c.Open); i++) s.AdvanceWithoutSnapshot(1);
+        // Any other call that happens to close meanwhile (an argument elsewhere on the site) is scored too.
+        var othersClosed = s.CaptureStewardShift()!.Calls!.Count(c => c.Id != call.Id && !c.Open && c.ClosedTick > beforeTick);
         var closed = s.CaptureStewardShift()!.Calls!.Single(c => c.Id == call.Id);
         Assert.IsFalse(closed.Open, "The fight ended.");
         Assert.IsTrue(closed.ClosedTick >= closed.HeardTick, "It went out over the radio.");
@@ -43,7 +46,7 @@ public sealed partial class StewardShiftActionTests
         Assert.IsNotNull(attempt, "The crew's steward made the handling attempt.");
         Assert.AreEqual(crew, attempt.WorkerId);
         var score = Score(s);
-        Assert.AreEqual(before.Calls + 1, score.Calls);
+        Assert.AreEqual(before.Calls + 1 + othersClosed, score.Calls, "The fight's call is scored once.");
         Assert.AreEqual(before.Answered, score.Answered, "The player didn't answer it: those points are lost.");
         Assert.AreEqual(before.UrgentUnhandled, score.UrgentUnhandled, "Somebody dealt with it: no cap.");
         Assert.AreEqual(StewardShiftGrade.Encore, StewardShiftGrading.Grade(100, false, score.UrgentUnhandled));
