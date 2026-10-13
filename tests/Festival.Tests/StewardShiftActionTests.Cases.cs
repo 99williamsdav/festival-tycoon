@@ -221,7 +221,7 @@ public sealed partial class StewardShiftActionTests
         for (var i = 0; i < 400 && loo is null; i++)
         {
             s.AdvanceWithoutSnapshot(40);
-            loo = s.CaptureToilets().FirstOrDefault(t => t.OwnerId is { } owner && s.CapturePerson(owner)!.ToiletStage == ToiletVisitStage.Using && s.ActiveFault(t.Id) is null);
+            loo = s.CaptureToilets().FirstOrDefault(t => t.OwnerId is { } owner && s.CapturePerson(owner)!.ToiletStage == ToiletVisitStage.Using && s.CapturePerson(owner)!.Role == ProtectedPersonRole.Guest && s.ActiveFault(t.Id) is null);
         }
         Assert.IsNotNull(loo);
         var victim = loo.OwnerId!.Value;

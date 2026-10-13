@@ -47,6 +47,8 @@ public sealed partial class StewardShiftActionTests
         Assert.AreEqual(crew, attempt.WorkerId);
         var score = Score(s);
         Assert.AreEqual(before.Calls + 1 + othersClosed, score.Calls, "The fight's call is scored once.");
+        // A night's log (kept on a hands-on day) holds the fight once.
+        if (s.CaptureStewardShift()!.Log is { } log) Assert.AreEqual(1, log.Count(c => c.Id == call.Id), "The fight is in the night's log once.");
         Assert.AreEqual(before.Answered, score.Answered, "The player didn't answer it: those points are lost.");
         Assert.AreEqual(before.UrgentUnhandled, score.UrgentUnhandled, "Somebody dealt with it: no cap.");
         Assert.AreEqual(StewardShiftGrade.Encore, StewardShiftGrading.Grade(100, false, score.UrgentUnhandled));

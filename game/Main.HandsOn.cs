@@ -18,7 +18,7 @@ public partial class Main
     public const string HandsOnModeName = "All-Rounder";
     public const string HandsOnStrapline = "Run it, and steward it yourself until you can afford the help.";
 
-    private string HandsOnSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v83-front-of-house");
+    private string HandsOnSaveDirectory => ProjectSettings.GlobalizePath("user://saves/r0-build-v85-front-of-house");
 
     private bool HandsOnFirstPerson => _shiftActive && _session.IsHandsOn;
 

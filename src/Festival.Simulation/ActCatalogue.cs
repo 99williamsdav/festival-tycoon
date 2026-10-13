@@ -127,7 +127,7 @@ public static class ActCatalogue
     /// </summary>
     public static FestivalAct WithPopularityShift(FestivalAct act, int points)
     {
-        var popularity = GigRules.ApplyPopularity(act.Popularity, points);
+        var popularity = GigRules.ApplyPopularity(act.Popularity, act.Popularity, points);
         if (popularity == act.Popularity) return act;
         long Curve(int value) => (long)value * (60 + value);
         var curve = Math.Max(1, Curve(act.Popularity));
