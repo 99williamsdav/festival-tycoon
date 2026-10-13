@@ -36,6 +36,38 @@ public sealed class BandRelationshipProbe
         File.WriteAllText(Path.Combine(folder, "gig-records.txt"), text.ToString());
     }
 
+    /// <summary>
+    /// Tier 2's crowds against the typical shares measured at Tier 1 (14 Oct): six default-layout Tier 2 days, both stages
+    /// programmed, each played set's expected, average, end and peak crowd, each as a share of expected, and its crowd score.
+    /// Set FESTIVAL_TIER2_CROWD_PROBE_DIR to run it.
+    /// </summary>
+    [TestMethod, TestCategory("Slow")]
+    public void WritesTierTwoCrowds()
+    {
+        var folder = Environment.GetEnvironmentVariable("FESTIVAL_TIER2_CROWD_PROBE_DIR");
+        if (string.IsNullOrEmpty(folder)) return;
+        Directory.CreateDirectory(folder);
+        var text = new StringBuilder();
+        text.AppendLine("seed,stage,set,act,pop,expected,average,end,peak,avg%,end%,peak%,crowd,reaction,delta");
+        foreach (var seed in new ulong[] { 20260922, 20260923, 20260924, 20260925, 20260926, 20261003 })
+        {
+            var s = NextFestivalTests.Ready(GameSession.CreateDevelopmentFestival(seed, 2));
+            BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Medic)));
+            BuildSession.Accept(s, new StartPreparedEditionCommand());
+            RunToEnd(s);
+            foreach (var r in s.PerformanceRecords)
+            {
+                var act = ActCatalogue.Find(r.ActId)!;
+                var e = Math.Max(1, r.ExpectedCrowd);
+                text.AppendLine(string.Join(",", seed, r.StageId, r.Slot + 1, act.Name.Replace(",", ""), act.Popularity, r.ExpectedCrowd,
+                    $"{r.AverageCrowdTenths / 10.0:0.0}", r.SetEndCrowd, r.PeakCrowd, r.AverageCrowdTenths * 10 / e, r.SetEndCrowd * 100 / e,
+                    r.PeakCrowd * 100 / e, GigRules.CrowdScore(r.PeakCrowd, r.AverageCrowdTenths, r.SetEndCrowd, r.ExpectedCrowd), r.Reaction, r.Delta));
+            }
+            text.AppendLine($"# seed {seed} status {s.PreparedStatus}");
+        }
+        File.WriteAllText(Path.Combine(folder, "tier2-crowds.csv"), text.ToString());
+    }
+
     internal static void RunToEnd(GameSession s)
     {
         for (var i = 0; i < 80 && s.PreparedStatus is PreparationStatus.Running or PreparationStatus.Departing; i++) s.AdvanceWithoutSnapshot(1_000);
