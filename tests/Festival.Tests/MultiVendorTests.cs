@@ -155,12 +155,19 @@ public sealed class MultiVendorTests
             s.CaptureMedical()!.Needs.Single(n => n.AgentId == p.AgentId).Intent == MedicalIntent.WatchShow).AgentId;
         typeof(GameSession).GetMethod("MutatePerson", flags)!.Invoke(s, [guest, (Action<Person>)(p => { p.Hunger = 7_000; p.Thirst = 5_000; })]);
         var options = (List<ActivityOption>)typeof(GameSession).GetMethod("ActivityOptions", flags)!.Invoke(s, [guest, ActivityKind.Watch])!;
-        // Going now (a trip put off until the applause is offered too, mid-set).
+        // Hangry at 7,000: food is only offered now, never put off until the applause.
+        Assert.IsFalse(options.Any(o => o.LeaveTicks > 0 && (o.Kind == ActivityKind.Food || o.Then?.Kind == ActivityKind.Food)), "A hangry guest's food never waits for the applause.");
         var food = options.Where(o => o.Kind == ActivityKind.Food && o.Then is null && o.LeaveTicks == 0).ToArray();
         CollectionAssert.AreEquivalent(new[] { "food", "food.2" }, food.Select(o => o.FacilityId).ToArray(), "Both vans are on offer.");
         Assert.AreNotEqual(food[0].Cost, food[1].Cost, "Each at its own price.");
         CollectionAssert.AreEquivalent(new[] { "drinks", "drinks.2" },
             options.Where(o => o.Kind is ActivityKind.SoftDrink or ActivityKind.Beer && o.Then is null).Select(o => o.FacilityId).Distinct().ToArray(), "Both bars too.");
+        // Peckish but not hangry, mid-set: each van is also offered for when the set ends.
+        typeof(GameSession).GetMethod("MutatePerson", flags)!.Invoke(s, [guest, (Action<Person>)(p => p.Hunger = 5_000)]);
+        var later = ((List<ActivityOption>)typeof(GameSession).GetMethod("ActivityOptions", flags)!.Invoke(s, [guest, ActivityKind.Watch])!)
+            .Where(o => o.Kind == ActivityKind.Food && o.Then is null && o.LeaveTicks > 0).Select(o => o.FacilityId).ToArray();
+        if (s.CaptureLivePerformance()!.Stage == LiveSetStage.Live && later.Length > 0)
+            CollectionAssert.AreEquivalent(new[] { "food", "food.2" }, later, "Both vans, for when the set ends.");
         // The further van takes longer to reach.
         var nearer = food.MinBy(o => o.CompleteTicks)!;
         var vendor = s.CaptureVendors().Single(v => v.Id == nearer.FacilityId);

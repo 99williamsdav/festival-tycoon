@@ -139,7 +139,7 @@ public sealed class FacilityFaultTests
         // another call (the door no longer stands in the way).
         var send = s.SelectRoleResponse(ResponseRole.Medic, victim, out var why);
         Assert.IsTrue(s.GetMedicResponses().Any(r => r.PatientId == victim) || send is not null ||
-            s.GetMedicResponses().All(r => r.PatientId is not null && r.PatientId != victim), $"A medic can reach them now: {why}");
+            s.GetMedicResponses().Count > 0 && s.GetMedicResponses().All(r => r.PatientId is not null && r.PatientId != victim), $"A medic can reach them now: {why}");
     }
 
     [TestMethod]

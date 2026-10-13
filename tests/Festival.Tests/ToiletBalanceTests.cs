@@ -71,7 +71,7 @@ public sealed class ToiletBalanceTests
         var outcomes = new string[seeds.Length];
         Parallel.For(0, seeds.Length, i => outcomes[i] = QueuesBalanceOnceALooFreesUp(seeds[i]));
         // Six of eight (2026-10-13): seed 11 never forms the queue (one guest waiting), and on 20261003 a queue of seven against
-        // two stays put, each guest's estimate putting the other loo less than three seconds sooner once two have moved.
+        // two stays put: the freed loo's queue can only grow two places there, both taken by those already walking over, so it reads as full.
         Assert.IsTrue(outcomes.Count(item => item == "balanced") >= 6,
             $"At least six of eight days balance: {string.Join(", ", seeds.Zip(outcomes, (seed, outcome) => $"{seed} {outcome}"))}.");
     }
