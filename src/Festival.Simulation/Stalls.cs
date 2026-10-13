@@ -56,19 +56,24 @@ public static class Stalls
 
 /// <summary>
 /// The names the player sees for bars and vans, worked out from the layout alone, so nothing about them is saved.
+/// Each stall has a list of names it would like, best first:
 /// <list type="bullet">
-/// <item>A bar within <see cref="NearStageCells"/> of a stage's audience ground or its deck and steps is named after it:
-/// "Trailer Stage Bar", "Pond Stage Bar" (the nearer stage if two are close, the first stage on a tie).</item>
-/// <item>Any other bar is named by its compass bearing from the middle of the festival ground: "East Bar". North is
-/// up the site map (-Z), east is +X.</item>
-/// <item>Several bars by one stage each take their bearing from the middle of that stage's crowd: "North Pond Stage
-/// Bar", "West Pond Stage Bar".</item>
-/// <item>Two names that would still be the same go to eight points ("North-East Bar"), and only then is a number
-/// added, in stall order ("East Bar", "East Bar 2").</item>
-/// <item>A van goes by its trader's name ("Korma Chameleon"), which no two vans share; one that somehow did would be
-/// named as a bar is, as "East Van".</item>
+/// <item>A van, its trader's name ("Korma Chameleon").</item>
+/// <item>A stall within <see cref="NearStageCells"/> of a stage's audience ground or its deck and steps, that stage's
+/// name: "Trailer Stage Bar", "Pond Stage Bar" (the nearer stage if two are close, the first stage on a tie); then the
+/// same with its bearing from the middle of that stage's crowd, on four points and then eight: "North Pond Stage Bar",
+/// "North-West Pond Stage Bar".</item>
+/// <item>Any other stall, its bearing from the middle of the festival ground on four points and then eight: "East Bar",
+/// "South-East Bar". North is up the site map (-Z), east is +X.</item>
+/// <item>Last, the last of those with a number: "South-East Bar 2".</item>
 /// </list>
-/// The bearing is from the field's middle rather than from the other bars, so placing or moving one bar never renames another.
+/// Names go out in stall order (bars, then vans, each by number), every stall taking the first name on its list that no
+/// stall before it has. So a stall's name depends only on where it and the stalls numbered before it stand, whatever
+/// order they're listed in: a newly placed bar, which takes the next number, never renames one already standing, and
+/// it's the newcomer that gets the finer name ("East Bar" stays; the new one is "South-East Bar", and a second bar by
+/// the Pond Stage is "North Pond Stage Bar" beside the plain "Pond Stage Bar"). Moving or removing a stall can rename
+/// only stalls numbered after it, when it takes or frees a name they wanted; and as a new stall takes the lowest free
+/// number, one placed after a removal can slot in before others and do the same.
 /// </summary>
 public static class StallNames
 {
@@ -81,26 +86,36 @@ public static class StallNames
     public static SortedDictionary<string, string> For(IEnumerable<(string Id, GridCell Cell)> stalls, IReadOnlyList<FestivalStage> stages,
         Func<string, string?>? traderName = null)
     {
-        var all = stalls.Where(stall => Stalls.Number(stall.Id) > 0).DistinctBy(stall => stall.Id)
-            .OrderBy(stall => Stalls.IsVan(stall.Id)).ThenBy(stall => Stalls.Number(stall.Id)).ToArray();
+        // In stall order; an id listed twice counts once, at the first of its cells (west, then north, first).
+        var all = stalls.Where(stall => Stalls.Number(stall.Id) > 0)
+            .OrderBy(stall => Stalls.IsVan(stall.Id)).ThenBy(stall => Stalls.Number(stall.Id)).ThenBy(stall => stall.Cell.X).ThenBy(stall => stall.Cell.Z)
+            .DistinctBy(stall => stall.Id).ToArray();
         var names = new SortedDictionary<string, string>(StringComparer.Ordinal);
-        foreach (var (name, stall) in ByPlace(all.Where(stall => Stalls.IsBar(stall.Id)).ToArray(), "Bar", stages)) names[stall.Id] = name;
-        var vans = all.Where(stall => Stalls.IsVan(stall.Id)).Select(stall => (Stall: stall, Trader: traderName?.Invoke(stall.Id))).ToArray();
-        var traded = vans.Where(van => !string.IsNullOrWhiteSpace(van.Trader) && vans.Count(other => other.Trader == van.Trader) == 1).ToArray();
-        foreach (var van in traded) names[van.Stall.Id] = van.Trader!;
-        foreach (var (name, stall) in ByPlace(vans.Except(traded).Select(van => van.Stall).ToArray(), "Van", stages)) names[stall.Id] = name;
-        // Never two the same, whatever the layout: a number after the first, in stall order.
-        foreach (var same in all.GroupBy(stall => names[stall.Id], StringComparer.Ordinal).Where(group => group.Count() > 1))
-            foreach (var (stall, index) in same.Select((stall, index) => (stall, index)).Skip(1))
-                names[stall.Id] = Unused($"{same.Key} {index + 1}", names);
+        var taken = new HashSet<string>(StringComparer.Ordinal);
+        foreach (var stall in all)
+        {
+            var trader = Stalls.IsVan(stall.Id) ? traderName?.Invoke(stall.Id) : null;
+            var wanted = (string.IsNullOrWhiteSpace(trader) ? [] : new[] { trader })
+                .Concat(ByPlace(stall.Cell, Stalls.IsVan(stall.Id) ? "Van" : "Bar", stages)).ToArray();
+            var name = wanted.FirstOrDefault(candidate => !taken.Contains(candidate));
+            // Never two the same, whatever the layout: a number on the last name it wanted.
+            for (var number = 2; name is null; number++)
+                if (!taken.Contains($"{wanted[^1]} {number}")) name = $"{wanted[^1]} {number}";
+            taken.Add(name);
+            names[stall.Id] = name;
+        }
         return names;
     }
 
-    private static string Unused(string name, SortedDictionary<string, string> names)
+    /// <summary>The names a stall's place gives it, best first: by a stage, or by its bearing from the field's middle.</summary>
+    private static IEnumerable<string> ByPlace(GridCell cell, string noun, IReadOnlyList<FestivalStage> stages)
     {
-        var candidate = name;
-        for (var extra = 2; names.ContainsValue(candidate); extra++) candidate = $"{name} ({extra})";
-        return candidate;
+        var stage = StageNear(cell, stages);
+        var rest = stage is null ? noun : $"{stage.ShortName} {noun}";
+        var from = stage?.AudienceCentre ?? FieldCentre;
+        if (stage is not null) yield return rest;
+        yield return $"{Bearing(cell, from, eight: false)} {rest}";
+        yield return $"{Bearing(cell, from, eight: true)} {rest}";
     }
 
     /// <summary>The stage a stall stands by, if any: the nearest within range of its crowd or the stage itself.</summary>
@@ -132,29 +147,6 @@ public static class StallNames
     private static int Distance(GridCell cell, (int MinX, int MaxX, int MinZ, int MaxZ) box) =>
         Math.Max(Math.Max(box.MinX - cell.X, cell.X - box.MaxX), Math.Max(Math.Max(box.MinZ - cell.Z, cell.Z - box.MaxZ), 0));
 
-    private static IEnumerable<(string Name, (string Id, GridCell Cell) Stall)> ByPlace((string Id, GridCell Cell)[] stalls, string noun,
-        IReadOnlyList<FestivalStage> stages)
-    {
-        var anchored = stalls.Select(stall => (Stall: stall, Stage: StageNear(stall.Cell, stages))).ToArray();
-        // By a stage: its name, and a bearing from the middle of its crowd when it has more than one.
-        foreach (var stage in stages)
-        {
-            var near = anchored.Where(item => item.Stage == stage).Select(item => item.Stall).ToArray();
-            if (near.Length == 1) yield return ($"{stage.ShortName} {noun}", near[0]);
-            else foreach (var named in Bearings(near, stage.AudienceCentre, $"{stage.ShortName} {noun}")) yield return named;
-        }
-        foreach (var named in Bearings(anchored.Where(item => item.Stage is null).Select(item => item.Stall).ToArray(), FieldCentre, noun))
-            yield return named;
-    }
-
-    /// <summary>Each stall's bearing from a point before the rest of its name: four points, eight where four would repeat.</summary>
-    private static IEnumerable<(string Name, (string Id, GridCell Cell) Stall)> Bearings((string Id, GridCell Cell)[] stalls, GridCell from, string rest)
-    {
-        var four = stalls.Select(stall => $"{Bearing(stall.Cell, from, eight: false)} {rest}").ToArray();
-        for (var index = 0; index < stalls.Length; index++)
-            yield return (four.Count(name => name == four[index]) > 1 ? $"{Bearing(stalls[index].Cell, from, eight: true)} {rest}" : four[index], stalls[index]);
-    }
-
     /// <summary>
     /// "North", "East", ..., from one cell to another, north being -Z. On four points the larger axis wins and an exact
     /// diagonal is named as one; on eight, a diagonal is anything within about 27° of one (neither axis twice the other).
@@ -174,18 +166,21 @@ public static class StallNames
 
 public sealed partial class GameSession
 {
-    private (ImmersionVendor[]? Vendors, PreparationSnapshot? Prep, bool Pond, SortedDictionary<string, string> Names) _stallNames;
+    private (ImmersionVendor[]? Vendors, PreparationSnapshot? Prep, IReadOnlyList<FestivalStage>? Stages, SortedDictionary<string, string> Names) _stallNames;
 
     /// <summary>Every bar's and van's name as the player sees it, from where they stand now (see <see cref="StallNames"/>).</summary>
     public IReadOnlyDictionary<string, string> StallNamesNow()
     {
+        // Names hang on the stalls, the plan (placements and van traders) and the stages they're named after.
+        var stages = Stages;
         if (_stallNames.Names is null || !ReferenceEquals(_stallNames.Vendors, Vendors) || !ReferenceEquals(_stallNames.Prep, _preparation) ||
-            _stallNames.Pond != PondStageOpen)
+            !ReferenceEquals(_stallNames.Stages, stages))
         {
             // What's standing, and anything placed that isn't yet.
-            var stalls = Vendors.Select(vendor => (vendor.Id, vendor.Cell))
-                .Concat((_preparation?.BuildPlacements ?? []).Where(item => Stalls.IsStall(item.Kind)).Select(item => (item.Id, item.Cell)));
-            _stallNames = (Vendors, _preparation, PondStageOpen, StallNames.For(stalls, Stages, id => TraderAt(id).Name));
+            var standing = Vendors.Select(vendor => (vendor.Id, vendor.Cell)).ToArray();
+            var stalls = standing.Concat((_preparation?.BuildPlacements ?? [])
+                .Where(item => Stalls.IsStall(item.Kind) && !standing.Any(vendor => vendor.Id == item.Id)).Select(item => (item.Id, item.Cell)));
+            _stallNames = (Vendors, _preparation, stages, StallNames.For(stalls, stages, id => TraderAt(id).Name));
         }
         return _stallNames.Names;
     }
