@@ -85,7 +85,7 @@ public partial class Main
         };
         var grow = new Curve { MinValue = 0, MaxValue = 3 };
         grow.AddPoint(new Vector2(0, 1)); grow.AddPoint(new Vector2(1, 2.9f));
-        return new CpuParticles3D
+        var steam = new CpuParticles3D
         {
             Name = VanSteamName, Emitting = false, Amount = 8, Lifetime = 1.9, Randomness = .3f,
             Mesh = new QuadMesh { Size = new Vector2(.12f, .12f) }, MaterialOverride = _vanSteamMaterial,
@@ -93,11 +93,13 @@ public partial class Main
             ScaleAmountCurve = grow,
             ColorRamp = new Gradient { Colors = [new Color(1, 1, 1, .45f), new Color(1, 1, 1, 0)], Offsets = [0, 1] },
         };
+        steam.AddToGroup(PausableWorldEffects);
+        return steam;
     }
 
     private readonly Dictionary<ulong, CpuParticles3D[]> _vanSteam = [];
 
-    /// <summary>Each frame: steam from a van's vents while it's serving or has a queue, and not while paused.</summary>
+    /// <summary>Each frame: steam from a van's vents while it's serving or has a queue; paused, the puffs hold where they are.</summary>
     private void ProcessVanSteam()
     {
         if (_session.CaptureImmersion() is null) return;
@@ -108,7 +110,8 @@ public partial class Main
             if (!Stalls.IsVan(vendor.Id) || !_immersionVendors.TryGetValue(vendor.Id, out var body) || !IsInstanceValid(body)) continue;
             if (!_vanSteam.TryGetValue(body.GetInstanceId(), out var vents))
                 _vanSteam[body.GetInstanceId()] = vents = body.FindChildren(VanSteamName, "", true, false).OfType<CpuParticles3D>().ToArray();
-            var busy = !_session.IsPaused && (vendor.Queue.Length > 0 || vendor.OwnerId is not null);
+            if (_session.IsPaused) continue;
+            var busy = vendor.Queue.Length > 0 || vendor.OwnerId is not null;
             foreach (var steam in vents) if (steam.Emitting != busy) steam.Emitting = busy;
         }
     }

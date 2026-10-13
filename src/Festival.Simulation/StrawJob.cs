@@ -107,6 +107,12 @@ public sealed partial class GameSession
         SetWeather(_weather with { StrawJob = job with { Spread = spread } });
     }
 
+    /// <summary>
+    /// Read-only, for the spot picker: the cells a bale spread around this spot would cover if it went down now, in the
+    /// order they'd be laid. Changes nothing.
+    /// </summary>
+    public GridCell[] StrawSpreadPreview(GridCell spot) => StrawTargets(spot).Take(GroundCoverRules.CellsPerBale).ToArray();
+
     /// <summary>Ground near the spot that needs straw: muddiest first, then wettest, then nearest; never fresh straw or matting.</summary>
     private IEnumerable<GridCell> StrawTargets(GridCell spot)
     {

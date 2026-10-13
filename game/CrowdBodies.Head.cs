@@ -57,7 +57,11 @@ internal sealed partial class CrowdBodies
             AttendeeHairStyle.Mohawk => $"lwf_hair_{sex}_mohawk_v1",
             _ => look.Cap ? $"lwf_hair_{sex}_default_under_cap_v1" : $"lwf_hair_{sex}_default_v1",
         };
-        if (hairFile is not null) hair.AddChild(Main.InstantiateAsset($"res://assets/characters/{hairFile}.glb"));
+        if (hairFile is not null)
+        {
+            var scalp = Main.InstantiateAsset($"res://assets/characters/{hairFile}.glb");
+            scalp.SetMeta(ScalpHairMeta, true); hair.AddChild(scalp);
+        }
         if (look.Beard && sex == "male") hair.AddChild(Main.InstantiateAsset("res://assets/characters/lwf_beard_male_v1.glb"));
         paintHair(hair);
         var (crown, visor) = AttendeeLooks.CapColours[look.CapColour];

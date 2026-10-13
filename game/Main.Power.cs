@@ -36,6 +36,7 @@ public partial class Main
         swell.AddPoint(new Vector2(0, 1)); swell.AddPoint(new Vector2(1, 2));
         var smoke = new CpuParticles3D
         {
+            Name = "GeneratorSmoke",
             Position = model == "hire_generator" ? new Vector3(-0.45f, 1.72f, -0.25f) : new Vector3(-0.32f, 1.35f, 0.25f),
             Amount = (int)(rate * 2) + 2, Lifetime = 1.5, Mesh = new SphereMesh { Radius = .12f, Height = .24f, RadialSegments = 6, Rings = 3 },
             Direction = Vector3.Up, Spread = 12, InitialVelocityMin = .5f, InitialVelocityMax = .7f, Gravity = Vector3.Zero,
@@ -43,6 +44,7 @@ public partial class Main
             ScaleAmountCurve = swell,
             MaterialOverride = new StandardMaterial3D { AlbedoColor = colour, ShadingMode = BaseMaterial3D.ShadingModeEnum.Unshaded },
         };
+        smoke.AddToGroup(PausableWorldEffects);
         visual.AddChild(smoke);
         return shaking;
     }

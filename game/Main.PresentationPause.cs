@@ -9,6 +9,19 @@ public partial class Main
         _session.PreparedStatus is not (Festival.Simulation.PreparationStatus.Running or Festival.Simulation.PreparationStatus.Departing);
     private double _characterPresentationSeconds;
 
+    /// <summary>
+    /// Particle effects that belong to the world (generator smoke, van steam): paused, every puff holds where it is,
+    /// as the rain, the hedges, the pond and the crowd do.
+    /// </summary>
+    private const string PausableWorldEffects = "PausableWorldEffects";
+
+    private void SyncWorldEffectsPause()
+    {
+        var speed = _session.IsPaused ? 0 : 1;
+        foreach (var node in GetTree().GetNodesInGroup(PausableWorldEffects))
+            if (node is CpuParticles3D particles && particles.SpeedScale != speed) particles.SpeedScale = speed;
+    }
+
     private void SyncPresentationPause()
     {
         var paused = CharacterPresentationPaused;
