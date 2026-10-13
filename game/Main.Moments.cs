@@ -114,7 +114,7 @@ public partial class Main
             else if (fault.Kind == FacilityFaultKind.ChewedCable)
             {
                 var utility = fault.FacilityId["cable.".Length..];
-                var name = utility == "generator" ? "the generator" : "the " + Stalls.Label(utility).ToLowerInvariant();
+                var name = utility == "generator" ? "the generator" : (Stalls.IsVan(utility) ? "" : "the ") + _session.StallName(utility);
                 var spot = _session.CableSpots().Where(s => s.Utility == utility).Select(s => s.Spot).DefaultIfEmpty(CowRules.GateInside).First();
                 yield return ($"cable:{fault.Id}", new("zap", $"A cow has chewed through {name}'s cable!", bad, LocateCell(spot)));
                 if (fault.Stage != FacilityFaultStage.Active)

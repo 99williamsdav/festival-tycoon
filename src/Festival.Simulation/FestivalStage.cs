@@ -9,6 +9,8 @@ public sealed class FestivalStage
 {
     public required string Id { get; init; }
     public required string Name { get; init; }
+    /// <summary>The stage as a bar or van by it is named: "Trailer Stage", "Pond Stage".</summary>
+    public required string ShortName { get; init; }
     /// <summary>Each set's start and end, in ticks after opening.</summary>
     public required IReadOnlyList<int> SlotStarts { get; init; }
     public required IReadOnlyList<int> SlotEnds { get; init; }
@@ -84,6 +86,7 @@ public static class FestivalStages
     {
         Id = MainId,
         Name = "Trailer stage",
+        ShortName = "Trailer Stage",
         SlotStarts = [4_800, 16_400, 28_000],
         SlotEnds = [13_200, 24_800, 37_600],
         PerformerMarks = [new(96, 150), new(94, 146), new(93, 152)],
@@ -119,6 +122,7 @@ public static class FestivalStages
     {
         Id = PondId,
         Name = "The Pond Stage",
+        ShortName = "Pond Stage",
         // Each set starts about halfway through the trailer's and runs full length, so the last ends after the
         // trailer's and the day runs on to close after it (DayTicksFor).
         SlotStarts = [9_000, 20_600, 32_800],
@@ -140,9 +144,9 @@ public static class FestivalStages
         Facing = (0, -1),
         Front = 154,
         Sightline = 168,
-        NearGround = (154, 183, 138, 157),
-        PlaceLimits = (156, 180, 141, 155),
-        MixingPlace = new(168, 138),
+        NearGround = (150, 187, 132, 157),
+        PlaceLimits = (152, 184, 135, 155),
+        MixingPlace = new(162, 133),
         Placement = new(PondRiser.OriginXMillimetres, PondRiser.OriginZMillimetres, 180, PondRiser.DeckHeightMillimetres),
     };
 
@@ -187,9 +191,11 @@ public static class FestivalStages
 
     private static IEnumerable<GridCell> PondListeningPlaces()
     {
-        // A smaller apron than the trailer's: six rows of eleven, out from the riser's front edge along -Z.
-        for (var band = 0; band < 6; band++)
-        for (var lane = -5; lane <= 5; lane++)
+        // The trailer's apron turned to face -Z: nine rows of fifteen out from the riser's front edge, the same 135
+        // places with the same stagger, on the open grass between the riser and the barns (the pond is behind the
+        // riser, the east hedge 8 cells past the last lane, the farm track 21 cells past the first).
+        for (var band = 0; band < 9; band++)
+        for (var lane = -7; lane <= 7; lane++)
         {
             var z = 154 - band * 2 - Math.Abs((lane * 7 + band * 11) % 3);
             var x = 168 + lane * 2 + Math.Abs((band * 5 + lane * 3) % 3) - 1;

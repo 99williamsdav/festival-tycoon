@@ -8,8 +8,8 @@ namespace Festival.Tests;
 public sealed class MultiVendorTests
 {
     // Tier 2's default spots: back to back with the first bar, serving the Pond Stage's crowd; and the curry van facing
-    // that crowd from the south.
-    internal static readonly GridCell SecondBarCell = new(152, 146), CurryVanCell = new(170, 128);
+    // that crowd from behind it (-Z, north on the site map).
+    internal static readonly GridCell SecondBarCell = new(147, 146), CurryVanCell = new(170, 124);
     internal const int SecondBarTurns = 1, CurryVanTurns = 0;
     internal static FoodTrader Curry => FoodTraders.Selling(ImmersionProduct.Curry);
     private static readonly string[] SecondStallsAndBins = ["drinks.2", "food.2", "bin.2", "bin.3"];

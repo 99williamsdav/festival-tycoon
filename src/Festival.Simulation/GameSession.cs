@@ -81,7 +81,7 @@ public sealed partial class GameSession
                 affectedTarget = null;
                 ApplyChooseFoodTrader(trader);
                 break;
-            case PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand:
+            case PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or UseLastFestivalLayoutCommand:
                 affectedTarget = null;
                 ApplyBuildCommand(envelope.Command);
                 break;
@@ -780,7 +780,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand or AcknowledgeFestivalChallengeCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (AcknowledgeFestivalChallengeCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or SetPlayerMoveCommand or StewardActionCommand or SetPlayerStewardControlCommand or StewardRadioCommand or SetSitePlanCommand))
+        if (_preparation is not null && envelope.Command is not (AcknowledgeFestivalChallengeCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or UseLastFestivalLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or SetPlayerMoveCommand or StewardActionCommand or SetPlayerStewardControlCommand or StewardRadioCommand or SetSitePlanCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
@@ -790,7 +790,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
             AcknowledgeFestivalChallengeCommand challenge => ValidateChallengeAcknowledgement(envelope.TargetId, challenge),
             RemovePreparationOfferCommand or SetPreparationStockCommand => ValidatePlanEdit(envelope.TargetId, envelope.Command),
             ChooseFoodTraderCommand trader => ValidateChooseFoodTrader(envelope.TargetId, trader),
-            PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand => ValidateBuildCommand(envelope.TargetId, envelope.Command),
+            PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or UseLastFestivalLayoutCommand => ValidateBuildCommand(envelope.TargetId, envelope.Command),
             GroundCoverCommand cover => ValidateGroundCover(envelope.TargetId, cover),
             SpreadStrawCommand spread => ValidateSpreadStraw(envelope.TargetId, spread),
             PerkCommand perk => ValidatePerkCommand(envelope.TargetId, perk),

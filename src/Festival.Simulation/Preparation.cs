@@ -48,6 +48,9 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     public FestivalStanding? StandingBefore { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public BuildPlacement[] BuildPlacements { get; init; } = null!;
+    /// <summary>What the previous festival placed, by id, for "Copy last festival's layout"; null at Tier 1 or when it placed nothing.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public BuildPlacement[]? PreviousLayout { get; init; }
     /// <summary>Straw laid in Build, as flat cell indices in ascending order; null when none.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public int[]? StrawCells { get; init; }
@@ -527,6 +530,7 @@ public sealed partial class GameSession
             ValidateBuildLayout(p.BuildPlacements, SavedStages(snapshot), snapshot.Equipment, p.WaterTowerOwned, p.Tier) is not null))
             return "Saved build layout is invalid.";
         if (ValidateBuildFacilities(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
+        if (ValidatePreviousLayout(p, snapshot.PondStageTrial) is { } previousLayoutIssue) return previousLayoutIssue;
         if (ValidatePersistedMarquees(p, snapshot) is { } marqueeIssue) return marqueeIssue;
         if (ValidatePersistedGroundCover(p, snapshot) is { } coverIssue) return coverIssue;
         if (p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null)

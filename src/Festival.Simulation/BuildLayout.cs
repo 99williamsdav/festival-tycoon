@@ -6,6 +6,8 @@ public sealed record PlaceBuildServiceCommand(BuildServiceKind Kind, GridCell Ce
 public sealed record MoveBuildServiceCommand(string Id, GridCell Cell, int QuarterTurns = 0) : SessionCommand;
 public sealed record RemoveBuildServiceCommand(string Id) : SessionCommand;
 public sealed record UseDefaultBuildLayoutCommand : SessionCommand;
+/// <summary>Lay out the services the previous festival placed, as far as this festival's ground and limits allow.</summary>
+public sealed record UseLastFestivalLayoutCommand : SessionCommand;
 /// <summary>How many of each service one festival at a tier may place. The tap count is before the Another Round perk's +1.</summary>
 public sealed record TierBuildLimits(int Taps, int Toilets, int FoodVans, int Bars, int FirstAid, int StewardPosts, int Marquees);
 
@@ -77,12 +79,12 @@ public sealed partial class GameSession
     public static BuildPlacement[] StandardBuildLayout(int tier = 1) => tier < 2 ? TierOneBuildLayout() :
     [
         .. TierOneBuildLayout(),
-        new("water.extra-1", BuildServiceKind.WaterTap, new(159, 139), 0),
+        new("water.extra-1", BuildServiceKind.WaterTap, new(148, 137), 0),
         new("toilet.extra-2", BuildServiceKind.Toilet, new(122, 121), 2),
-        new(Stalls.Id(BuildServiceKind.Bar, 2), BuildServiceKind.Bar, new(152, 146), 1),
-        new(Stalls.Id(BuildServiceKind.FoodVan, 2), BuildServiceKind.FoodVan, new(170, 128), 0),
-        new("bin.2", BuildServiceKind.Bin, new(156, 152), 0),
-        new("bin.3", BuildServiceKind.Bin, new(178, 134), 0),
+        new(Stalls.Id(BuildServiceKind.Bar, 2), BuildServiceKind.Bar, new(147, 146), 1),
+        new(Stalls.Id(BuildServiceKind.FoodVan, 2), BuildServiceKind.FoodVan, new(170, 124), 0),
+        new("bin.2", BuildServiceKind.Bin, new(147, 152), 0),
+        new("bin.3", BuildServiceKind.Bin, new(178, 128), 0),
     ];
 
     /// <summary>The trader the default layout pitches at its second van, unless the player picked one for it already.</summary>
@@ -99,6 +101,38 @@ public sealed partial class GameSession
         new("steward-post", BuildServiceKind.StewardPost, new(119, 171), 2),
         new("bin.1", BuildServiceKind.Bin, new(121, 148), 0),
     ];
+
+    /// <summary>
+    /// What "Copy last festival's layout" would lay out now: each service the previous festival placed, in id order,
+    /// where it stood, unless this festival's limit for its kind is already met or it no longer fits (the new tier's
+    /// stage and crowd, a reserved or blocked cell, or a route it would block), when it's skipped. Services the new
+    /// tier allows more of stay unplaced. Null when there's no previous festival to copy.
+    /// </summary>
+    public (BuildPlacement[] Placed, int Skipped)? LastFestivalLayoutFit()
+    {
+        if (_preparation is not { PreviousLayout: { } previous } p) return null;
+        var placed = new List<BuildPlacement>();
+        var skipped = 0;
+        foreach (var item in previous.OrderBy(item => item.Id, StringComparer.Ordinal))
+        {
+            var next = placed.Append(item).OrderBy(other => other.Id, StringComparer.Ordinal).ToArray();
+            if (placed.Count(other => other.Kind == item.Kind) >= ServiceLimit(item.Kind) ||
+                ValidateBuildLayout(next, Stages, _equipment, p.WaterTowerOwned, p.Tier) is not null) skipped++;
+            else placed = [.. next];
+        }
+        return (placed.ToArray(), skipped);
+    }
+
+    /// <summary>A carried previous layout must be one the festival before could have placed: sorted, and valid there.</summary>
+    private static string? ValidatePreviousLayout(PreparationSnapshot p, bool pondStageTrial)
+    {
+        if (p.PreviousLayout is not { } previous) return null;
+        var before = p.Tier - 1;
+        return p.CarriedIn is null || before < 1 || previous.Length == 0 ||
+            !previous.Select(item => item?.Id).SequenceEqual(previous.Select(item => item?.Id).Order(StringComparer.Ordinal)) ||
+            ValidateBuildLayout(previous, FestivalStages.For(pondStageTrial || before >= PondStageFromTier), null, false, before) is not null
+            ? "Last festival's layout is invalid." : null;
+    }
 
     private static string NextBuildId(BuildServiceKind kind, IReadOnlyList<BuildPlacement> placed)
     {
@@ -135,6 +169,9 @@ public sealed partial class GameSession
         if (command is RemoveBuildServiceCommand remove)
             return p.BuildPlacements.Any(item => item.Id == remove.Id) ? null :
                 CommandResult.Rejected(CommandReasonCode.UnknownTarget, "This service is not in the draft.");
+        if (command is UseLastFestivalLayoutCommand)
+            return p.PreviousLayout is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "There's no last festival's layout to copy.") :
+                LastFestivalLayoutFit()!.Value.Placed.Length == 0 ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "None of last festival's layout fits this field.") : null;
         if (command is UseDefaultBuildLayoutCommand)
             return ValidateBuildLayout(StandardBuildLayout(p.Tier), Stages, _equipment, p.WaterTowerOwned, p.Tier) is { } defaultsError ?
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, defaultsError) : null;
@@ -172,12 +209,13 @@ public sealed partial class GameSession
                 { Cell = move.Cell, QuarterTurns = move.QuarterTurns } : item).ToArray(),
             RemoveBuildServiceCommand remove => p.BuildPlacements.Where(item => item.Id != remove.Id).ToArray(),
             UseDefaultBuildLayoutCommand => StandardBuildLayout(p.Tier).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(),
+            UseLastFestivalLayoutCommand => LastFestivalLayoutFit()!.Value.Placed,
             _ => throw new InvalidOperationException("Unknown build edit.")
         } };
-        // The default layout lands wherever it lands: any straw or matting under it is lifted.
-        if (command is UseDefaultBuildLayoutCommand) _preparation = ClearCoverUnderServices(_preparation);
-        // The default's second van is the curry van, unless the player already picked its trader or van 1 has curry.
-        if (command is UseDefaultBuildLayoutCommand && _preparation.Plan is { } plan && _preparation.BuildPlacements.Any(item => item.Id == Stalls.Id(BuildServiceKind.FoodVan, 2)) &&
+        // A whole layout lands wherever it lands: any straw or matting under it is lifted.
+        if (command is UseDefaultBuildLayoutCommand or UseLastFestivalLayoutCommand) _preparation = ClearCoverUnderServices(_preparation);
+        // A whole layout's second van is the curry van, unless the player already picked its trader or van 1 has curry.
+        if (command is UseDefaultBuildLayoutCommand or UseLastFestivalLayoutCommand && _preparation.Plan is { } plan && _preparation.BuildPlacements.Any(item => item.Id == Stalls.Id(BuildServiceKind.FoodVan, 2)) &&
             ChosenTraderId(plan, Stalls.Id(BuildServiceKind.FoodVan, 2)) is null && plan.TraderId != DefaultSecondVanTrader)
             _preparation = _preparation with { Plan = plan with { VanTraders = (plan.VanTraders ?? []).Append(new(Stalls.Id(BuildServiceKind.FoodVan, 2), DefaultSecondVanTrader))
                 .OrderBy(item => Stalls.Number(item.VanId)).ToArray() } };

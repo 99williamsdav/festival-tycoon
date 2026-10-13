@@ -29,7 +29,7 @@ public sealed record StewardCall(string Id, StewardCallKind Kind, string Subject
     /// Held only while someone hired covers it.
     /// </summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)] public bool Radioed { get; init; }
-    /// <summary>A hands-on day only: the landmark Control named as the call opened ("Bar 2", "the main stage"), for the results paper.</summary>
+    /// <summary>A hands-on day only: the landmark Control named as the call opened ("East Bar", "the main stage"), for the results paper.</summary>
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] public string? Where { get; init; }
 }
 
@@ -299,7 +299,7 @@ public sealed partial class GameSession
     {
         var marks = new List<(string Name, GridCell Cell)>();
         foreach (var stage in Stages) marks.Add((stage.Id == FestivalStages.PondId ? "the Pond Stage" : "the main stage", stage.PerformerMarks[0]));
-        foreach (var vendor in Vendors) marks.Add((Stalls.Label(vendor.Id), vendor.Cell));
+        foreach (var vendor in Vendors) marks.Add((StallName(vendor.Id), vendor.Cell));
         foreach (var toilet in EffectiveToilets(_facilities)) marks.Add(("the loos", toilet.Cell));
         foreach (var tap in WaterPoints()) marks.Add(("the water", tap.Cell));
         marks.Add(("first aid", CaptureRestCentre()));

@@ -75,7 +75,7 @@ public static class BarnLayout
     }
     public static readonly FestivalStage Stage = new()
     {
-        Id = "stage.barn", Name = "Barn Stage",
+        Id = "stage.barn", Name = "Barn Stage", ShortName = "Barn Stage",
         // Explicit diagnostic programme input, borrowed from the existing second slot; not a campaign allocation.
         SlotStarts = [9_000,20_600,32_800], SlotEnds = [17_400,29_000,41_200],
         PerformerMarks = [Cell(5_700,-250),Cell(5_700,-2_750),Cell(7_050,-1_500)],
