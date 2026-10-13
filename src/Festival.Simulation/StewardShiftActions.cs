@@ -103,7 +103,7 @@ public sealed partial class GameSession
                 // The counter's front edge.
                 var front = RotateWaterOffset(new(0, 3), bar.QuarterTurns);
                 var (x, z) = TraversalGrid.CellCentre(new(bar.Cell.X + front.X, bar.Cell.Z + front.Z));
-                return (StewardTargetKind.Bar, Stalls.Label(bar.Id), x, z);
+                return (StewardTargetKind.Bar, StallName(bar.Id), x, z);
             }
             case "bin" when CaptureBins().FirstOrDefault(b => b.Id == rest) is { } bin:
             {

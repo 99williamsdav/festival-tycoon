@@ -64,7 +64,7 @@ public partial class Main
             AddChild(_buildContextMenu);
         }
         _buildContextId = item.Id;
-        var name = BuildDrawer.PlacedName(item);
+        var name = BuildDrawer.PlacedName(item, _session);
         _buildContextMenu.Clear();
         _buildContextMenu.AddSeparator(name);
         _buildContextMenu.AddIconItem(Ui.Icon("move"), $"Move {BuildName(item.Kind).ToLowerInvariant()}", 0);

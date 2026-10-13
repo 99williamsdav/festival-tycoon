@@ -12,6 +12,7 @@ internal interface IBuildActions
     void BeginPlacement(BuildServiceKind kind, string? movingId);
     void RemovePlacement(string id);
     void ApplyDefaults();
+    void ApplyLastLayout();
     void CloseDrawer();
     void OpenCatalogue(BuildServiceKind kind);
     void OpenTab(string name);
@@ -41,6 +42,9 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     private float _maxHeight;
     private Label? _servicesTotal;
     private Button? _defaultsButton;
+    private Button? _lastLayoutButton;
+    private bool _dialogCopiesLast;
+    private bool? _defaultsQuiet;
     private ConfirmationDialog? _buildDefaultsDialog;
     private readonly List<Button> _tabs = [];
     private readonly List<VBoxContainer> _tabPages = [];
@@ -118,10 +122,14 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             if (name == "Site") page.AddChild(GroundCoverEntry());
         }
         box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(10)) });
-        var actions = new HBoxContainer(); actions.AddThemeConstantOverride("separation", Ui.Px(6)); box.AddChild(actions);
-        _defaultsButton = Ui.Style(new Button { CustomMinimumSize = new Vector2(0, Ui.S(30)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
-            TooltipText = "Put back the standard services.",
-            MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Secondary, 12.5f);
+        // From Tier 2 the main action copies last festival's layout; the default layout stays as a smaller link under it.
+        var actions = new VBoxContainer(); actions.AddThemeConstantOverride("separation", Ui.Px(4)); box.AddChild(actions);
+        _lastLayoutButton = Ui.Style(new Button { CustomMinimumSize = new Vector2(0, Ui.S(30)), SizeFlagsHorizontal = Control.SizeFlags.ExpandFill,
+            Text = "Copy last festival's layout", TooltipText = "Put your services back where they stood at the last festival, wherever they still fit.",
+            MouseDefaultCursorShape = Control.CursorShape.PointingHand, Visible = false }, Ui.ButtonKind.Secondary, 12.5f);
+        _lastLayoutButton.Pressed += ShowLastLayout; actions.AddChild(_lastLayoutButton);
+        _defaultsButton = new Button { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill, TooltipText = "Put back the standard services.",
+            MouseDefaultCursorShape = Control.CursorShape.PointingHand };
         _defaultsButton.Pressed += ShowDefaults; actions.AddChild(_defaultsButton);
         box.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(14)) });
 
@@ -130,7 +138,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         _buildDefaultsDialog.GetLabel().AddThemeColorOverride("font_color", HudPaper);
         _buildDefaultsDialog.GetLabel().AutowrapMode = TextServer.AutowrapMode.WordSmart;
         _buildDefaultsDialog.GetLabel().CustomMinimumSize = new Vector2(440, 84);
-        _buildDefaultsDialog.Confirmed += _actions.ApplyDefaults;
+        _buildDefaultsDialog.Confirmed += () => { if (_dialogCopiesLast) _actions.ApplyLastLayout(); else _actions.ApplyDefaults(); };
         layer.AddChild(_buildDefaultsDialog);
         SelectTab(0);
         Refresh();
@@ -350,7 +358,17 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         var placements = _hud.Session.CaptureBuildPlacements();
         _servicesTotal!.Text = $"{placements.Count} placed · {FestivalCurrency.Format(_hud.Session.BuildDraftCost)} · nothing paid until Start";
         var standard = GameSession.StandardBuildLayout(_hud.Session.CapturePreparation()?.Tier ?? 1).Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
-        _defaultsButton!.Text = $"Default layout · {FestivalCurrency.Format(standard)}";
+        var lastLayout = _hud.Session.CapturePreparation()?.PreviousLayout;
+        _lastLayoutButton!.Visible = lastLayout is not null;
+        if (lastLayout is not null)
+            _lastLayoutButton.Text = $"Copy last festival's layout · {FestivalCurrency.Format(lastLayout.Sum(item => GameSession.BuildServiceFeePennies(item.Kind)))}";
+        _defaultsButton!.Text = lastLayout is null ? $"Default layout · {FestivalCurrency.Format(standard)}" : $"or use the default layout · {FestivalCurrency.Format(standard)}";
+        if (_defaultsQuiet != lastLayout is not null)
+        {
+            _defaultsQuiet = lastLayout is not null;
+            if (lastLayout is null) { Ui.Style(_defaultsButton, Ui.ButtonKind.Secondary, 12.5f); _defaultsButton.CustomMinimumSize = new Vector2(0, Ui.S(30)); }
+            else { Ui.Style(_defaultsButton, Ui.ButtonKind.Quiet, 11); _defaultsButton.CustomMinimumSize = new Vector2(0, Ui.S(22)); }
+        }
         for (var index = 0; index < Categories.Length; index++)
         {
             var (name, kinds) = Categories[index];
@@ -427,7 +445,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
                 var line = new HBoxContainer { CustomMinimumSize = new Vector2(0, Ui.S(28)) };
                 line.AddThemeConstantOverride("separation", Ui.Px(4)); row.Placed.AddChild(line);
                 line.AddChild(new Control { CustomMinimumSize = new Vector2(Ui.S(46), 0) });
-                var name = Ui.Text($"{PlacedName(item)} · on the field", 12, Ui.InkMuted);
+                var name = Ui.Text($"{PlacedName(item, _hud.Session)} · on the field", 12, Ui.InkMuted);
                 name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; name.VerticalAlignment = VerticalAlignment.Center; line.AddChild(name);
                 line.AddChild(SmallIcon("move", "Move",
                     () => _actions.BeginPlacement(item.Kind, item.Id)));
@@ -474,9 +492,10 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         ? "Shade in a heatwave: no heat builds up under it, and 15 can rest there. In the rain, 15 can shelter under it and dry off."
         : null;
 
-    /// <summary>"Toilet 2" rather than "toilet.extra-1".</summary>
-    internal static string PlacedName(BuildPlacement item)
+    /// <summary>"Toilet 2" rather than "toilet.extra-1"; a bar or van by its name on the field, "East Bar".</summary>
+    internal static string PlacedName(BuildPlacement item, GameSession session)
     {
+        if (Stalls.IsStall(item.Kind)) return session.StallName(item.Id);
         var suffix = item.Id.Split('.').Last();
         var number = Stalls.IsStall(item.Kind) ? Stalls.Number(item.Id).ToString() :
             suffix == "main" ? "1" : suffix.StartsWith("extra-", StringComparison.Ordinal) && int.TryParse(suffix[6..], out var extra)
@@ -492,8 +511,24 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             $"Complete setup {FestivalCurrency.Format(_hud.Session.PreparationPlanCost)} · Remaining {FestivalCurrency.Format(_hud.Session.PreparationRemainingCash)}";
     }
 
+    /// <summary>Asks before copying last festival's layout, saying what it costs and how many services won't fit this year.</summary>
+    private void ShowLastLayout()
+    {
+        if (_hud.Session.LastFestivalLayoutFit() is not { } fit) return;
+        var oldCost = _hud.Session.BuildDraftCost;
+        var newCost = fit.Placed.Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
+        _dialogCopiesLast = true;
+        _buildDefaultsDialog!.Title = "Copy last festival's layout?";
+        _buildDefaultsDialog.DialogText = $"Replace {_hud.Session.CaptureBuildPlacements().Count} placed services ({FestivalCurrency.Format(oldCost)}) with {fit.Placed.Length} from last festival's layout ({FestivalCurrency.Format(newCost)})?\n" +
+            (fit.Skipped > 0 ? $"{fit.Skipped} of last festival's services {(fit.Skipped == 1 ? "doesn't" : "don't")} fit this field and will be left off. " : "") +
+            "Anything new this tier is left for you to place.\nBookings, staff, equipment, stock and perks stay.";
+        _buildDefaultsDialog.PopupCentered(new Vector2I(510, 240));
+    }
+
     private void ShowDefaults()
     {
+        _dialogCopiesLast = false;
+        _buildDefaultsDialog!.Title = "Replace service layout?";
         var old = _hud.Session.CaptureBuildPlacements();
         var defaults = GameSession.StandardBuildLayout(_hud.Session.CapturePreparation()?.Tier ?? 1);
         var oldCost = _hud.Session.BuildDraftCost;

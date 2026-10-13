@@ -36,9 +36,9 @@ public sealed class PondStageTests
         foreach (var item in GameSession.StandardBuildLayout())
             Assert.IsFalse(GameSession.BuildFootprint(item).Any(cell => Pond.Reserve(cell) || Pond.InAudienceArea(cell)), item.Id);
         Assert.IsFalse(Pond.ListeningPlaces.Any(FestivalStages.Main.InAudienceArea) || Pond.ListeningPlaces.Any(Pond.Reserve));
-        // A smaller crowd than the trailer's, on ground every guest can reach from the main gate.
-        Assert.AreEqual(66, Pond.ListeningPlaces.Count);
-        Assert.IsTrue(Pond.ListeningPlaces.Count < FestivalStages.Main.ListeningPlaces.Count);
+        // As big a crowd as the trailer's, on ground every guest can reach from the main gate.
+        Assert.AreEqual(135, Pond.ListeningPlaces.Count);
+        Assert.AreEqual(FestivalStages.Main.ListeningPlaces.Count, Pond.ListeningPlaces.Count);
         foreach (var place in Pond.ListeningPlaces)
             Assert.IsTrue(DeterministicPathfinder.FindPath(grid, new(128, 189), place).Found, $"{place} can't be reached from the gate.");
         for (var role = 0; role < 3; role++)

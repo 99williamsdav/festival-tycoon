@@ -61,7 +61,8 @@ public sealed partial class GameSession
         p.OwnedEquipment.ToArray());
 
     /// <summary>
-    /// The "Next festival" step: a fresh Preparation at the next tier on the same farm and campaign. Cash, debt,
+    /// The "Next festival" step: a fresh Preparation at the next tier on the same farm and campaign. The layout placed here
+    /// comes forward to be copied (<see cref="LastFestivalLayoutFit"/>), but isn't placed. Cash, debt,
     /// Council Favour, the spent water share, owned kit, reputation, scene credibility, seen acts, each act's relationship
     /// with you and its popularity (both moved by its set here) and the festival's name and colours come forward; perks, staff, bookings, stock and the build start fresh.
     /// </summary>
@@ -74,7 +75,9 @@ public sealed partial class GameSession
         // Each act's relationship as this festival's sets left it, and the sets it was worked out from.
         // Popularity moves here too, from the newcomers each set won over, never during a festival.
         var (history, relationships, popularity) = RelationshipsForNextFestival(p.Tier + 1);
-        next.PreparationView = next.PreparationView! with { ActRelationships = relationships, RelationshipHistory = history, ActPopularity = popularity };
+        next.PreparationView = next.PreparationView! with { ActRelationships = relationships, RelationshipHistory = history, ActPopularity = popularity,
+            // What this festival placed, for the next one's "Copy last festival's layout".
+            PreviousLayout = p.BuildPlacements.Length == 0 ? null : p.BuildPlacements.OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };
         return next;
     }
 

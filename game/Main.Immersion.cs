@@ -348,7 +348,7 @@ private void BuildImmersionControls(VBoxContainer parent)
             .Select(trader => $"{trader.Menu} {FestivalCurrency.Format(GameSession.ImmersionPrice(trader.Product))}"));
         _immersionSummary!.Text = $"{menus} • soft {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.SoftDrink))} • beer {FestivalCurrency.Format(GameSession.ImmersionPrice(ImmersionProduct.Beer))}\nBar stock {state.SoftStock} soft/{state.BeerStock} beer • sales {state.Purchases.Length}\n" +
             "Free water remains available. Personal spending budgets vary; staff do not buy beer.\n" +
-            string.Join("\n", _session.CaptureVendors().Select(v => $"{(Stalls.IsVan(v.Id) ? Stalls.Label(v.Id) : Stalls.Label(v.Id).Replace("Bar", "Drinks stall"))}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}")) +
+            string.Join("\n", _session.CaptureVendors().Select(v => $"{_session.StallName(v.Id)}: queue {v.Queue.Length} • {(v.OwnerId is null ? "ready" : "serving")}")) +
             (_session.CaptureToilet() is { } toilet ? $"\nPortaloo: {toilet.FullPercent}% full • {(toilet.InterruptedOccupantId is not null ? "unavailable" : toilet.IsFull ? "full" : toilet.OwnerId is null ? "free" : "occupied")}" : "");
         if (_session.PreparedStatus == PreparationStatus.Departing) _immersionSummary.Text += "\nCOUNTERS CLOSED • on-site alcohol risk and medic response continue until physical exit.";
         if (ImmersionHeavyOnSiteCount() > 0) _immersionSummary.Text = "! HEAVY INTOXICATION • select affected people for medic care\n" + _immersionSummary.Text;
@@ -389,11 +389,13 @@ private void BuildImmersionControls(VBoxContainer parent)
                 if (trader is not null) body.SetMeta("TraderArt", trader.Art);
                 var size = van ? new Vector3(6, 2.8f, 3) : new Vector3(3.5f, 3.1f, 2.5f);
                 body.AddChild(new CollisionShape3D { Shape = new BoxShape3D { Size = size }, Position = new Vector3(van ? -.5f : 0, size.Y / 2, 0) });
-                var name=BuildingName(trader?.Menu.ToUpperInvariant() ?? (Stalls.Number(vendor.Id) > 1 ? $"BAR {Stalls.Number(vendor.Id)}" : "BAR"),new Vector3(0,van?5.3f:3.4f,0)); // a van's label clears its roof sign
+                var name=BuildingName(trader?.Menu.ToUpperInvariant() ?? "BAR",new Vector3(0,van?5.3f:3.4f,0)); // a van's label clears its roof sign
                 name.Name="VendorCategoryLabel";body.AddChild(name);
                 AddChild(body); _immersionVendors.Add(vendor.Id, body); _immersionVendorPicks.Add(body.GetInstanceId(), vendor.Id);
             }
             body.Position = ImmersionPosition(vendor.Cell); body.RotationDegrees = new Vector3(0, 90 * vendor.QuarterTurns, 0);
+            // A bar's sign is its name, which moves with the layout ("EAST BAR", "POND STAGE BAR").
+            if (!van && body.GetNodeOrNull<Label3D>("VendorCategoryLabel") is { } sign) sign.Text = _session.StallName(vendor.Id).ToUpperInvariant();
         }
     }
 
@@ -424,7 +426,7 @@ private void BuildImmersionControls(VBoxContainer parent)
         if (_selectedImmersionVendor is not { } id || _session.CaptureImmersion() is not { } state || !_immersionVendors.TryGetValue(id, out var body)) return;
         var vendor = _session.CaptureVendors().Single(v => v.Id == id);
         var trader = Stalls.IsVan(id) ? _session.TraderAt(id) : null;
-        _inspectorTitle.Text = trader is not null ? $"{trader.Name} • {trader.Menu.ToLowerInvariant()}" : Stalls.Label(id).Replace("Bar", "Drinks stall");
+        _inspectorTitle.Text = trader is not null ? $"{trader.Name} • {trader.Menu.ToLowerInvariant()}" : _session.StallName(id);
         _inspectorBody.Text = $"Queue: {vendor.Queue.Length}\n" +
             (vendor.OwnerId is { } owner ? $"Serving {_session.CapturePreparation()!.People.Single(p => p.AgentId == owner).Name} • {vendor.ServiceTicks / 80m:0.0}s remaining\n" : "Counter ready\n") +
             (trader is not null ? $"{trader.Menu} {FestivalCurrency.Format(_session.ImmersionListPrice(trader.Product))}\nPays {FestivalCurrency.Format(trader.PitchFeePennies)} to pitch" +
