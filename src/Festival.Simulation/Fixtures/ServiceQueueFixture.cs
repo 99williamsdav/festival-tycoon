@@ -21,7 +21,8 @@ public static class ServiceQueueFixture
         var service = TraversalGrid.WorldToCell((int)(serviceObject.XMetres * 1000), (int)(serviceObject.ZMetres * 1000));
         var queueSlots = slots ?? Enumerable.Range(0, 5).Select(index => new GridCell(service.X - index * 3, service.Z + index * 2)).ToArray();
         var gate = TraversalGrid.WorldToCell(0, 30_000);
-        var startCells = starts ?? Enumerable.Range(0, 5).Select(index => new GridCell(gate.X - 4 + index * 2, gate.Z - index)).ToArray();
+        // The first attendee stands just west of the gate's left post rather than inside it, now the post is solid.
+        var startCells = starts ?? Enumerable.Range(0, 5).Select(index => new GridCell(gate.X - (index == 0 ? 5 : 4) + index * 2, gate.Z - index)).ToArray();
         var exits = Enumerable.Range(0, 5).Select(index => new GridCell(gate.X - 4 + index * 2, gate.Z + 4 + index)).ToArray();
         var command = new InitializeServiceQueueFixtureCommand(
             startCells, queueSlots, exits, terrain ?? NavigationFixture.CreateLowerWitteringTerrain(),

@@ -229,6 +229,9 @@ public sealed class CowTests
     public void PeopleWalkRoundACowRatherThanThroughIt()
     {
         var s = WithCowsLoose();
+        // A little later, once a few guests have settled into listening places: with the gate leaf solid, the first
+        // arrivals take a beat longer round it, and at the gate's break only one guest had a place and nothing else on.
+        s.AdvanceWithoutSnapshot(1_200);
         var field = typeof(GameSession).GetField("_cows", Private)!;
         var cows = (CowsSnapshot)field.GetValue(s)!;
         // One cow grazing squarely on open ground, the others back in the field.

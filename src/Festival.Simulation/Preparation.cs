@@ -40,6 +40,9 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     /// <summary>Every set the campaign played before this festival, as the facts the relationships above are worked out from.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public CarriedGig[]? RelationshipHistory { get; init; }
+    /// <summary>How far each act's popularity has moved in this campaign as this festival opened (non-zero only, by act); null when none.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public PopularityShift[]? ActPopularity { get; init; }
     /// <summary>Standing before the completed festival changed it, for the results.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public FestivalStanding? StandingBefore { get; init; }

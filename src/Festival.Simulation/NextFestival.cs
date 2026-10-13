@@ -63,7 +63,7 @@ public sealed partial class GameSession
     /// <summary>
     /// The "Next festival" step: a fresh Preparation at the next tier on the same farm and campaign. Cash, debt,
     /// Council Favour, the spent water share, owned kit, reputation, scene credibility, seen acts, each act's relationship
-    /// with you (moved by its set here) and the festival's name and colours come forward; perks, staff, bookings, stock and the build start fresh.
+    /// with you and its popularity (both moved by its set here) and the festival's name and colours come forward; perks, staff, bookings, stock and the build start fresh.
     /// </summary>
     public GameSession CreateNextFestival()
     {
@@ -72,8 +72,9 @@ public sealed partial class GameSession
         var next = CreateLaterFestivalIn(_mode, CampaignSeed, CampaignId, p.Tier + 1, CarryOverFrom(p),
             new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray()), p.SeenActs, _campaignPlanning!, _pondStageTrial);
         // Each act's relationship as this festival's sets left it, and the sets it was worked out from.
-        var (history, relationships) = RelationshipsForNextFestival(p.Tier + 1);
-        next.PreparationView = next.PreparationView! with { ActRelationships = relationships, RelationshipHistory = history };
+        // Popularity moves here too, from the newcomers each set won over, never during a festival.
+        var (history, relationships, popularity) = RelationshipsForNextFestival(p.Tier + 1);
+        next.PreparationView = next.PreparationView! with { ActRelationships = relationships, RelationshipHistory = history, ActPopularity = popularity };
         return next;
     }
 

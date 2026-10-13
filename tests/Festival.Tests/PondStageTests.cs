@@ -399,7 +399,12 @@ public sealed class PondStageTests
             var changeover = start + Pond.SlotStarts[1] - GameSession.LiveSetStageEntryLeadTicks - 40;
             while (s.CurrentTick < start + ticks)
             {
+                // A day that ends early (a death fails the edition) stops ticking: say so rather than spin for ever.
+                var before = s.CurrentTick;
                 s.AdvanceWithoutSnapshot(1);
+                if (s.CurrentTick == before)
+                    throw new InvalidOperationException($"The pond trial day stopped at {before - start}: {s.PreparedStatus}, " +
+                        s.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.Cause);
                 var tick = s.CurrentTick - start;
                 var lives = s.Stages.Select(stage => s.CaptureLivePerformance(stage.Id)!).ToArray();
                 for (var index = 0; index < lives.Length; index++)

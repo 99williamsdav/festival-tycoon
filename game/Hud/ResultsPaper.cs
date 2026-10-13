@@ -478,15 +478,17 @@ void fragment() {
         if (records.Length == 0) body.AddChild(Paragraph("No sets were played.", 15, Ui.InkMuted));
         foreach (var record in records)
         {
-            body.AddChild(PerformanceCard(record, names, opened));
+            body.AddChild(PerformanceCard(record, names, opened, session.PopularityChange(record)));
             body.AddChild(Gap(10));
         }
         body.AddChild(Paragraph("A band's relationship runs from −100 to +100 and carries from festival to festival. A friendly band's fee falls by half " +
-            "a percent a point, to half at +100; a sour one's rises a percent a point, to double at −100.", 11.5f, Ui.InkMuted));
+            "a percent a point, to half at +100; a sour one's rises a percent a point, to double at −100. The crowd at the end counts for more than " +
+            "the biggest crowd, against what a set usually keeps. Newcomers a set wins over (guests who weren't fans going in, clapping it out) add " +
+            "popularity from the next festival, up to three points a set: two newcomers a point for an unknown act, many more for a famous one.", 11.5f, Ui.InkMuted));
         body.AddChild(Gap(70));
     }
 
-    private static Control PerformanceCard(PerformanceRecord record, IReadOnlyDictionary<ulong, string> names, long opened)
+    private static Control PerformanceCard(PerformanceRecord record, IReadOnlyDictionary<ulong, string> names, long opened, int popularityChange)
     {
         var act = ActCatalogue.Find(record.ActId);
         var stage = FestivalStages.Find(record.StageId);
@@ -525,6 +527,17 @@ void fragment() {
         var played = $"{FestivalClockText(record.StartedTick - opened)}–{FestivalClockText(record.EndedTick - opened)}";
         if (record.StartedTick >= 0 && played != due) crowd += $" · played {played}";
         box.AddChild(Paragraph(crowd, 13.5f, Body));
+        // Newcomers: guests who weren't fans going in, won over or walking off, and what that does to the act's popularity.
+        var wonOver = record.WonOverIds?.Length ?? 0;
+        var walkedOff = record.WalkedOffIds?.Length ?? 0;
+        if (wonOver > 0 || walkedOff > 0)
+        {
+            var newcomers = new List<string>();
+            if (wonOver > 0) newcomers.Add($"Won over {wonOver} new listener{(wonOver == 1 ? "" : "s")}");
+            if (walkedOff > 0) newcomers.Add($"{walkedOff} newcomer{(walkedOff == 1 ? "" : "s")} walked off unimpressed");
+            newcomers.Add(popularityChange == 0 ? "popularity holds" : $"popularity {Signed(popularityChange)}");
+            box.AddChild(Paragraph(string.Join(" · ", newcomers), 13.5f, popularityChange > 0 ? Ui.TealDeep : popularityChange < 0 ? new Color("7a3312") : Body));
+        }
 
         // A few words from people who were there.
         foreach (var quote in record.Quotes)
