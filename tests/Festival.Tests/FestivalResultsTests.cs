@@ -141,7 +141,7 @@ public sealed class FestivalResultsTests
     public void FinalSettlementSaveFailureDoesNotPublishAndOrdinaryDepartureDoesNotAutosave()
     {
         var s = Open(); Closing(s); Assert.IsFalse(s.PreparationBoundaryOnNextTick);
-        while (s.CapturePreparation()!.People.Any(person => !person.Departed)) s.AdvanceWithoutSnapshot(1);
+        while (s.CapturePreparation()!.People.Any(person => person.Role == ProtectedPersonRole.Guest && !person.Departed)) s.AdvanceWithoutSnapshot(1);
         Assert.IsNull(s.CompletedFestivalResult); Assert.IsTrue(s.PreparationBoundaryOnNextTick); s = Reload(s);
         var directory = Path.Combine(Path.GetTempPath(), "festival-terminal-" + Guid.NewGuid()); Directory.CreateDirectory(directory);
         try
