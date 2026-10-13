@@ -2,9 +2,9 @@ namespace Festival.Simulation;
 
 public sealed partial class GameSession
 {
-    // Conservative margin above the Designer's paired-mesh clearance floor; grid goals land near 1 m.
-    public const int ConfrontationPreferredMinMillimetres = 900, ConfrontationPreferredMaxMillimetres = 1000;
-    private const int ConfrontationApproachMaximumMillimetres = 750, ConfrontationFallbackMaxMillimetres = 1250;
+    // Revised paired geometry permits brief glove contact at the grid's 0.707 m diagonal.
+    public const int ConfrontationPreferredMinMillimetres = 700, ConfrontationPreferredMaxMillimetres = 800;
+    private const int ConfrontationApproachMaximumMillimetres = 1250, ConfrontationFallbackMaxMillimetres = 1250;
 
     private (GridCell First, GridCell Second)? CloserConfrontationCells(ulong firstId, ulong secondId)
     {
@@ -25,7 +25,7 @@ public sealed partial class GameSession
         {
             var cell = TraversalGrid.WorldToCell(actor.XMillimetres, actor.ZMillimetres);
             var result = new List<(GridCell, int, int, long)>();
-            for (var dz = -1; dz <= 1; dz++) for (var dx = -1; dx <= 1; dx++)
+            for (var dz = -2; dz <= 2; dz++) for (var dx = -2; dx <= 2; dx++)
             {
                 if (fixedPoint && (dx != 0 || dz != 0)) continue;
                 var candidate = new GridCell(cell.X + dx, cell.Z + dz);
@@ -35,7 +35,7 @@ public sealed partial class GameSession
                 // A short, direct, swept legal movement only; no long detour to make the acting look closer.
                 if (!TraversalSweep.IsWalkable(_traversalGrid!, actor.XMillimetres, actor.ZMillimetres, centre.Item1, centre.Item2)) continue;
                 var path = DeterministicPathfinder.FindPath(_traversalGrid!, cell, candidate, _groundRouteCost);
-                if (!path.Found || path.Path.Count > 2) continue;
+                if (!path.Found || path.Path.Count > 3) continue;
                 var safe = true;
                 for (var step = 0; step <= 8; step++)
                     safe &= Clear(actor.XMillimetres + (centre.Item1 - actor.XMillimetres) * step / 8, actor.ZMillimetres + (centre.Item2 - actor.ZMillimetres) * step / 8);

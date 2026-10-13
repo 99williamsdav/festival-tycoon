@@ -1,0 +1,9 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+INDIVIDUAL {"male": {"self_hits": 0, "feet": 2.1801702511905927e-08}, "female": {"self_hits": 0, "feet": 3.204615886152769e-08}}
+PAIRS {"male-male": {"0.65": [44, 64, 0.0002], "0.7": [0, 44, 0.0], "0.7071067811865476": [0, 28, 0.0003], "0.75": [0, 0, 0.0378], "0.8": [0, 0, 0.0877], "0.9": [0, 0, 0.1876], "1.0": [0, 0, 0.2876]}, "male-female": {"0.65": [32, 32, 0.0001], "0.7": [0, 0, 0.002], "0.7071067811865476": [0, 0, 0.009], "0.75": [0, 0, 0.0504], "0.8": [0, 0, 0.0996], "0.9": [0, 0, 0.198], "1.0": [0, 0, 0.2964]}, "female-male": {"0.65": [32, 32, 0.0], "0.7": [0, 0, 0.0022], "0.7071067811865476": [0, 0, 0.009], "0.75": [0, 0, 0.0506], "0.8": [0, 0, 0.0996], "0.9": [0, 0, 0.1981], "1.0": [0, 0, 0.2964]}, "female-female": {"0.65": [0, 60, 0.0001], "0.7": [0, 0, 0.0047], "0.7071067811865476": [0, 0, 0.0117], "0.75": [0, 0, 0.0543], "0.8": [0, 0, 0.1043], "0.9": [0, 0, 0.2043], "1.0": [0, 0, 0.3042]}}
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\fisticuffs-v2\source\lwf_attendee_male_fisticuffs_clips_v2.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\fisticuffs-v2\source\lwf_attendee_female_fisticuffs_clips_v2.blend"
+
+Blender quit

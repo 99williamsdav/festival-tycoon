@@ -12,6 +12,7 @@ public sealed class FightChoreography
     private double _seconds, _hold;
     private ulong _variation;
     private int _turn;
+    private int _burstLeft;
     private bool _secondSwings;
     private bool _handling;
     public FightPoseSample First { get; private set; }
@@ -24,6 +25,7 @@ public sealed class FightChoreography
     {
         _variation = unchecked(first * 11400714819323198485UL ^ second * 14029467366897019727UL ^ (ulong)incidentTick);
         _secondSwings = (_variation & 1) != 0;
+        _burstLeft = 3 + (int)(_variation % 3);
         _beat = restored ? Beat.Hold : Beat.Enter;
         _hold = NextHold();
         First = Second = new(restored ? FightPose.Guard : FightPose.Enter, 0);
@@ -32,7 +34,12 @@ public sealed class FightChoreography
     private double NextHold()
     {
         _variation = unchecked(_variation * 6364136223846793005UL + 1442695040888963407UL);
-        return .55 + (_variation >> 32) % 551 / 1000.0;
+        if (_burstLeft <= 0)
+        {
+            _burstLeft = 3 + (int)((_variation >> 32) % 3);
+            return .45 + (_variation >> 40) % 451 / 1000.0;
+        }
+        return .045 + (_variation >> 32) % 76 / 1000.0;
     }
 
     public void Advance(double delta, bool frozen, bool handling, bool swingsSafe, FightClipLengths lengths)
@@ -50,7 +57,7 @@ public sealed class FightChoreography
         {
             Beat.Enter => lengths.Enter,
             Beat.Hold => _hold,
-            Beat.Swing => Math.Max(lengths.Swing, .16 + lengths.Flinch),
+            Beat.Swing => Math.Max(lengths.Swing, .07 + lengths.Flinch),
             Beat.StandDown => lengths.StandDown,
             _ => double.PositiveInfinity
         };
@@ -65,7 +72,7 @@ public sealed class FightChoreography
                     if (swingsSafe && (_variation >> 40) % 5 != 0) _beat = Beat.Swing;
                     else _hold = NextHold();
                     break;
-                case Beat.Swing: _beat = Beat.Hold; _secondSwings = !_secondSwings; _turn++; _hold = NextHold(); break;
+                case Beat.Swing: _beat = Beat.Hold; _secondSwings = !_secondSwings; _turn++; _burstLeft--; _hold = NextHold(); break;
                 case Beat.StandDown: _beat = Beat.Attending; break;
             }
         }
@@ -82,7 +89,7 @@ public sealed class FightChoreography
         First = Second = both;
         if (_beat != Beat.Swing) return;
         var swing = _seconds < lengths.Swing ? new FightPoseSample((_turn & 1) == 0 ? FightPose.SwingLeft : FightPose.SwingRight, _seconds) : guard;
-        var flinch = _seconds >= .16 && _seconds < .16 + lengths.Flinch ? new FightPoseSample(FightPose.Flinch, _seconds - .16) : guard;
+        var flinch = _seconds >= .07 && _seconds < .07 + lengths.Flinch ? new FightPoseSample(FightPose.Flinch, _seconds - .07) : guard;
         First = _secondSwings ? flinch : swing; Second = _secondSwings ? swing : flinch;
     }
 }

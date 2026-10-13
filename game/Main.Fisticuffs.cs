@@ -63,15 +63,17 @@ public partial class Main
             }
             var lengths = new FightClipLengths(Math.Max(first.Enter, second.Enter), Math.Max(first.Guard, second.Guard),
                 Math.Max(first.Swing, second.Swing), Math.Max(first.Flinch, second.Flinch), Math.Max(first.StandDown, second.StandDown));
-            // Native paired tests clear all four body combinations from 0.90m; never stretch arms to contact.
-            var raiseHands = pair.DistanceMetres >= .9 && FisticuffsSpaceClear(pair.Key);
-            var safe = !pair.Moving && raiseHands && pair.DistanceMetres <= 1.4;
+            // Reach/contact only after actual positions and opposing facing are safe.
+            if (!pair.Moving && pair.Handler is null) { FaceFisticuffs(a, b.Position, delta); FaceFisticuffs(b, a.Position, delta); }
+            var toward = (b.Position - a.Position).Normalized();
+            var aligned = pair.Handler is not null || (-a.Transform.Basis.Z).Dot(toward) > .99 && b.Transform.Basis.Z.Dot(toward) > .99;
+            var raiseHands = pair.DistanceMetres >= .7 && aligned && FisticuffsSpaceClear(pair.Key);
+            var safe = !pair.Moving && raiseHands && pair.DistanceMetres <= .85;
             view.State.Advance(delta, false, pair.Handler is not null, safe, lengths);
             if (!pair.Moving)
             {
                 if (pair.Handler is { } handler && _attendeeVisuals.TryGetValue(new(handler), out var steward))
                 { FaceFisticuffs(a, steward.Position, delta); FaceFisticuffs(b, steward.Position, delta); }
-                else { FaceFisticuffs(a, b.Position, delta); FaceFisticuffs(b, a.Position, delta); }
                 // Legacy very-close encounters keep lowered hands rather than overlapping raised arms.
                 var low = new FightPoseSample(FightPose.StandDown, lengths.StandDown);
                 Bodies.ApplyFisticuffs(a, !raiseHands ? low : view.State.First, delta);

@@ -1,0 +1,542 @@
+{
+  "attendee-female": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.179232776165009,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809553623199,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811094138771296,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00521432748064399,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000339746475219727,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809672832489,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000331840536091477,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.222262799739838,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.00000000279396772384644
+  },
+  "attendee-male": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.185283422470093,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811591651290655,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00527362385764718,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000387751015296089,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000414506561355665,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.218901216983795,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.0000000599601079898093
+  },
+  "maintenance-female": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.179232776165009,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809553623199,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811094138771296,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00521432748064399,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000339746475219727,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809672832489,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000331840536091477,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.222262799739838,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.00000000279396772384644
+  },
+  "maintenance-male": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.185283422470093,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811591651290655,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00527362385764718,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000387751015296089,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000414506561355665,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.218901216983795,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.0000000599601079898093
+  },
+  "medic-female": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.179232776165009,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809553623199,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811094138771296,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00521432748064399,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000339746475219727,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809672832489,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000331840536091477,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.222262799739838,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.00000000279396772384644
+  },
+  "medic-male": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.185283422470093,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811591651290655,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00527362385764718,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000387751015296089,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000414506561355665,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.218901216983795,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.0000000599601079898093
+  },
+  "sound-female": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.179232776165009,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809553623199,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811094138771296,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00521432748064399,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000339746475219727,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809672832489,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000331840536091477,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.222262799739838,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.00000000279396772384644
+  },
+  "sound-male": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.185283422470093,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811591651290655,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00527362385764718,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000387751015296089,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000414506561355665,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.218901216983795,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.0000000599601079898093
+  },
+  "steward-female": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.179232776165009,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809553623199,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811094138771296,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00521432748064399,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000339746475219727,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.509809672832489,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000331840536091477,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.222262799739838,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.00000000279396772384644
+  },
+  "steward-male": {
+    "bones": 17,
+    "clips": {
+      "argue_gesture": {
+        "duration": 0.75,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.185283422470093,
+        "tracks": 51
+      },
+      "fight_enter": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_flinch": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00811591651290655,
+        "tracks": 51
+      },
+      "fight_guard": {
+        "duration": 1.33333337306976,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00527362385764718,
+        "tracks": 51
+      },
+      "fight_recover": {
+        "duration": 0.416666656732559,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.00000387751015296089,
+        "tracks": 51
+      },
+      "fight_stand_down": {
+        "duration": 0.20833332836628,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.535507440567017,
+        "tracks": 51
+      },
+      "fight_swing_l": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.000414506561355665,
+        "tracks": 51
+      },
+      "fight_swing_r": {
+        "duration": 0.25,
+        "first_path": "LWF_Attendee_Rig/Skeleton3D:Spine",
+        "right_hand_motion": 0.218901216983795,
+        "tracks": 51
+      }
+    },
+    "max_foot_motion": 0.0000000599601079898093
+  }
+}

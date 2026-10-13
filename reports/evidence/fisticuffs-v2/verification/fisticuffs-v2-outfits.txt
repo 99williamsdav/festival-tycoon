@@ -1,0 +1,107 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.00s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.01s
+{
+  "attendee-male": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.47804152965545654
+  },
+  "steward-male": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.47804152965545654
+  },
+  "medic-male": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.47804152965545654
+  },
+  "maintenance-male": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.47804152965545654
+  },
+  "sound-male": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.47804152965545654
+  },
+  "attendee-female": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.4739827513694763
+  },
+  "steward-female": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.4739827513694763
+  },
+  "medic-female": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.4739827513694763
+  },
+  "maintenance-female": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.4739827513694763
+  },
+  "sound-female": {
+    "samples": 182,
+    "self": 0,
+    "hair": 0,
+    "rest": 0,
+    "front": 0.4739827513694763
+  }
+}
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_attendee_male_rigged_test_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_steward_male_rigged_test_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_medic_male_rigged_test_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_maintenance_male_rigged_test_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_sound_male_rigged_test_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_attendee_female_rigged_test_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_steward_female_rigged_test_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_medic_female_rigged_test_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_maintenance_female_rigged_test_v1.blend"
+Read blend: "C:\Projects\festival-tycoon\assets\source\characters\rigged-test-v1\out\lwf_sound_female_rigged_test_v1.blend"
+
+Blender quit

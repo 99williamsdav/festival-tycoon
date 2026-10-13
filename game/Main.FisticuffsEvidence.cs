@@ -148,10 +148,17 @@ public partial class Main
             var canvas = new CanvasLayer { Layer = 90 }; AddChild(canvas);
             _fightEvidenceLabel = new Label { Position = new(20, 72) }; canvas.AddChild(_fightEvidenceLabel); _fightEvidenceLabel.AddThemeFontSizeOverride("font_size", 17);
             LoadFightEvidence("male-female");
+            _rig.Rotate(1); // Side-on to the preferred diagonal, so both bodies remain readable.
         }
         if (frame < 360)
         {
-            _fightEvidenceLabel.Text = "CONTROLLED GAME FIXTURE · production movement / animation\n" + $"male / female · tick {_session.CurrentTick} · real original fight deadline";
+            if (frame is 45 or 90 or 120 or 180 or 240)
+            {
+                if (frame == 120) _rig.Rotate(1);
+                _rig.Frame((FightEvidenceBody(_fightEvidenceA).Position + FightEvidenceBody(_fightEvidenceB).Position) / 2 + new Vector3(0, .6f, 0),
+                    frame is 45 or 180 ? 18 : frame is 90 or 240 ? 62 : 6);
+            }
+            _fightEvidenceLabel.Text = "CONTROLLED GAME FIXTURE · comic jab bursts / real movement\n" + $"male / female · tick {_session.CurrentTick} · camera size {_rig.Camera.Size} · visual acting only";
             StepFightEvidence(true); TraceFightEvidence();
             SaveFightEvidenceImage($"paired/{frame:D4}"); return;
         }
@@ -171,7 +178,7 @@ public partial class Main
             if (local == 60)
             {
                 var pair = FightPresentation.Read(_session).Single();
-                FightEvidenceCheck(names[index] + "-preferred-spacing-or-safe-fallback", !pair.Moving && pair.DistanceMetres >= .9 && pair.DistanceMetres <= 1.25);
+                FightEvidenceCheck(names[index] + "-preferred-contact-spacing", !pair.Moving && pair.DistanceMetres >= .7 && pair.DistanceMetres <= .8);
                 foreach (var id in new[] { _fightEvidenceA, _fightEvidenceB })
                 {
                     var body = FightEvidenceBody(id); var player = FightEvidencePlayer(body); var skeleton = FightEvidenceSkeleton(body);

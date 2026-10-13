@@ -1,0 +1,82 @@
+{
+  "attendee-male": {
+    "source_sha256": "666e6de58020ed0922e619762978ed648cce94e24a5fdea0d529422977c3997f",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.47804152965545654,
+    "rest_bone_error": 0
+  },
+  "steward-male": {
+    "source_sha256": "2ed2bd0b241bd36787ad01ccfd16bb73e45db9d68e48b525aa69dcbcb6bed61a",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.47804152965545654,
+    "rest_bone_error": 0
+  },
+  "medic-male": {
+    "source_sha256": "0389e9ed93eb9ef1f7ce133292f99b419d918d91e11bbe419574106e9a2067fd",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.47804152965545654,
+    "rest_bone_error": 0
+  },
+  "maintenance-male": {
+    "source_sha256": "444b124a0fcb7797c5d36745152ddf5c6131cce57dc0c7f2ba76b424bfc4e2fa",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.47804152965545654,
+    "rest_bone_error": 0
+  },
+  "sound-male": {
+    "source_sha256": "a73ff93ba56a21039d366a11ccb569da5ce7327028a9318cd8686aff5caa2dd2",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.47804152965545654,
+    "rest_bone_error": 0
+  },
+  "attendee-female": {
+    "source_sha256": "d6dd0f776e601b1073688c4dee2f03bd7613a45d962a7de9ea004f225422832f",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.4739827513694763,
+    "rest_bone_error": 0
+  },
+  "steward-female": {
+    "source_sha256": "c771827d9a4e2da43694cde2d003604a634e5ffb1a497c9f2d6f867d8faeb40f",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.4739827513694763,
+    "rest_bone_error": 0
+  },
+  "medic-female": {
+    "source_sha256": "0200bd122aee01c4b114df7b0d5962f0e7591176cef8a5627c2fb4f459bbb965",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.4739827513694763,
+    "rest_bone_error": 0
+  },
+  "maintenance-female": {
+    "source_sha256": "c1a72335f411e0472aab3db301ebfb8c2591301aa0eb6bdbbb82a1f51e86d085",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.4739827513694763,
+    "rest_bone_error": 0
+  },
+  "sound-female": {
+    "source_sha256": "8ab7cd0f06af7652948fdcb2c40ba0bde6d6e1f0cc67a6ef1638f150a80ba277",
+    "samples": 182,
+    "self_collisions": [],
+    "hand_hair_collisions": [],
+    "max_forward_extent": 0.4739827513694763,
+    "rest_bone_error": 0
+  }
+}

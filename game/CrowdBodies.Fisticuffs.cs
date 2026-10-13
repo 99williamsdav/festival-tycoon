@@ -21,7 +21,7 @@ internal sealed partial class CrowdBodies
     {
         if (!root.GetMeta(RigMeta, false).AsBool() || RigBody(root)?.FindChildren("*", "AnimationPlayer", true, false).OfType<AnimationPlayer>().FirstOrDefault() is not { } player) return null;
         var sex = RigSex(root);
-        var file = $"res://assets/characters/fisticuffs-v1/lwf_attendee_{sex}_fisticuffs_v1.tres";
+        var file = $"res://assets/characters/fisticuffs-v2/lwf_attendee_{sex}_fisticuffs_v2.tres";
         if (!ResourceLoader.Exists(file)) return null; // Pending/missing assets cannot claim a generic animation player.
         if (!_fightLibraries.TryGetValue(sex, out var library))
         {
@@ -54,7 +54,12 @@ internal sealed partial class CrowdBodies
         }
         player.SpeedScale = 1;
         var name = "fisticuffs/" + clip;
-        if (player.AssignedAnimation != name) player.Play(name, .125);
+        if (player.AssignedAnimation != name)
+        {
+            var quickJab = clip.StartsWith("fight_swing", StringComparison.Ordinal) || clip == "fight_flinch" ||
+                clip == "fight_guard" && player.AssignedAnimation.ToString().Contains("fight_swing", StringComparison.Ordinal);
+            player.Play(name, quickJab ? .035 : .125);
+        }
         player.Advance(Math.Max(0, delta));
         player.Seek(Math.Min(seconds, player.GetAnimation(name).Length), true);
         return true;

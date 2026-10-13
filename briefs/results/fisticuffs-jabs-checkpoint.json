@@ -1,0 +1,42 @@
+{
+  "Base": "c2e1e4acd628819ff3d03bcad5fdb6e41b5caf6b",
+  "Scope": [
+    {
+      "Path": "game/CrowdBodies.Fisticuffs.cs",
+      "SHA256": "B6736EAE3E6B63827C6967E095DFE79F1F998CBF716766067D727D7C14A81D15"
+    },
+    {
+      "Path": "game/Main.Fisticuffs.cs",
+      "SHA256": "05B86418C457FFBDE27A0252D38EF894E17F4973E315FD42EEAFEEF6768AB2F4"
+    },
+    {
+      "Path": "game/Main.FisticuffsEvidence.cs",
+      "SHA256": "A2FDFF4D85F76E607E3C356F2EB5AFD65C6A6E9AAFD939F48960B0CD7E81F157"
+    },
+    {
+      "Path": "game/Main.cs",
+      "SHA256": "0D5D70B023135D7FE43CDF55C0800F73BF71BD212ED85F0ECA3D2395A18A9392"
+    },
+    {
+      "Path": "src/Festival.Simulation/ConfrontationSpacing.cs",
+      "SHA256": "38A1362424FC46E175FB1D7F6911EDA7B232D82F2B6A10EAC43FCC3FDF289BCE"
+    },
+    {
+      "Path": "src/Festival.ContentAdapter/FightChoreography.cs",
+      "SHA256": "870F688F8716EAAAAEE91D29AF5C2B9CC8BFEFF85F87D61D83DA81B9ED57F84D"
+    },
+    {
+      "Path": "tests/Festival.Tests/ConfrontationSpacingTests.cs",
+      "SHA256": "82791A56235099E562C8119E817D3E488509C1E82D7885CE828B7F21201085BF"
+    },
+    {
+      "Path": "tests/Festival.Tests/FightChoreographyTests.cs",
+      "SHA256": "5426A0678D74BA41D5E610CD4F1F8401200A408BC05AF5D66FB62635289F6BA2"
+    }
+  ],
+  "Assets": "assets/source/characters/fisticuffs-v2",
+  "Runtime": "game/assets/characters/fisticuffs-v2",
+  "Evidence": "reports/evidence/fisticuffs-v2/source",
+  "Tests": "reports/evidence/fisticuffs-v2/verification",
+  "Criteria": "Closer apparent glove contact, bigger rapid comic jabs, irregular bursts/pauses; preserve physics/obstacles/queues/steward ownership, pause/handling/item contracts, all combat mechanics. Actual exported EXE still pending."
+}

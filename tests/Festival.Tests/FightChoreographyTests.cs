@@ -5,8 +5,24 @@ namespace Festival.Tests;
 [TestClass]
 public sealed class FightChoreographyTests
 {
-    private static readonly FightClipLengths Lengths = new(.28, 1.2, .48, .38, .3);
+    private static readonly FightClipLengths Lengths = new(.208333, 1.33333, .25, .208333, .208333);
     private static bool Swing(FightPose pose) => pose is FightPose.SwingLeft or FightPose.SwingRight;
+
+    [TestMethod]
+    public void ComedyBurstsHaveRapidJabsAndLongerIrregularPausesWithoutSimultaneousSwings()
+    {
+        var pair = new FightChoreography(12, 17, 800); var starts = new List<double>(); var lastTurn = -1;
+        for (var frame = 0; frame < 1800; frame++)
+        {
+            pair.Advance(1 / 60.0, false, false, true, Lengths);
+            Assert.IsFalse(Swing(pair.First.Pose) && Swing(pair.Second.Pose));
+            if ((Swing(pair.First.Pose) || Swing(pair.Second.Pose)) && pair.Turn != lastTurn)
+            { starts.Add(frame / 60.0); lastTurn = pair.Turn; }
+        }
+        var intervals = starts.Zip(starts.Skip(1), (a, b) => b - a).ToArray();
+        Assert.IsTrue(intervals.Min() < .45 && intervals.Max() > .70, "Rapid bursts with actual breathers, not a uniform loop.");
+        Assert.IsTrue(intervals.Distinct().Count() > 4);
+    }
 
     [TestMethod]
     public void PairAlternatesSingleSwingOwnersWithDelayedCounterpartReactions()

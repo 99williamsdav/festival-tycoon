@@ -44,12 +44,33 @@ public sealed class ConfrontationSpacingTests
             }
             previous = now;
         }
-        var finalGap = Gap(Nav(s, a), Nav(s, b)); Assert.IsTrue(finalGap >= 900L * 900 && finalGap <= 1000L * 1000);
+        var finalGap = Gap(Nav(s, a), Nav(s, b)); Assert.IsTrue(finalGap >= 700L * 700 && finalGap <= 800L * 800);
+        Assert.IsTrue(Gap(beforeA, Nav(s, a)) <= 1250L * 1250 && Gap(beforeB, Nav(s, b)) <= 1250L * 1250);
         Assert.AreEqual(tick, s.CaptureDisorder()!.Incidents.Single().FightTick);
         Assert.AreEqual("disorder.confrontation", Nav(s, a).IntentId); Assert.AreEqual("disorder.confrontation", Nav(s, b).IntentId);
         var restored = GameSession.Restore(s.CapturePersistenceSnapshot()); Assert.IsTrue(restored.IsSuccess, restored.Error);
         s.AdvanceWithoutSnapshot(400); restored.Session!.AdvanceWithoutSnapshot(400);
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, restored.Session.CaptureSnapshot().AuthoritativeHash);
+    }
+
+    [TestMethod]
+    public void GuestApproachesFixedStewardOnShortLegalDiagonalWithoutTakingItsNavigation()
+    {
+        var (s, a, b) = Fixture(3, 0); var steward = s.CaptureDisorder()!.SecurityId;
+        Position(s, a, new(108, 178)); Position(s, b, new(134, 178)); Position(s, steward, new(111, 178));
+        var disorder = s.CaptureDisorder()!;
+        typeof(GameSession).GetProperty("DisorderView", Instance)!.SetValue(s, disorder with { Stewards = disorder.Stewards.Select(p => p.WorkerId == steward
+            ? p with { Stage = SecurityResponseStage.Confronting, TargetId = a, StartedTick = s.CurrentTick } : p).ToArray() });
+        var before = Nav(s, steward); Begin(s, a, steward);
+        for (var i = 0; i < 140 && Nav(s, a).Action == AgentNavigationAction.Travelling; i++)
+        {
+            var prior = Nav(s, a); s.AdvanceWithoutSnapshot(1);
+            Assert.IsTrue(TraversalSweep.IsWalkable(s.TraversalGrid!, prior.XMillimetres, prior.ZMillimetres, Nav(s, a).XMillimetres, Nav(s, a).ZMillimetres));
+        }
+        Assert.AreEqual((before.XMillimetres, before.ZMillimetres, before.Action, before.IntentId),
+            (Nav(s, steward).XMillimetres, Nav(s, steward).ZMillimetres, Nav(s, steward).Action, Nav(s, steward).IntentId));
+        Assert.IsTrue(Gap(Nav(s, a), Nav(s, steward)) >= 700L * 700 && Gap(Nav(s, a), Nav(s, steward)) <= 800L * 800,
+            $"Gap={Math.Sqrt(Gap(Nav(s, a), Nav(s, steward)))}mm action={Nav(s, a).Action}");
     }
 
     [TestMethod]
