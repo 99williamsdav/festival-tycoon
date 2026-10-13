@@ -9,9 +9,9 @@ public sealed class PreparationTests
     private static readonly SaveCompatibility Compatibility = new("r0.01-tests", "test-content", "test-rules");
     // Everyone walks out after the close, and the day finishes the tick after the last guest is off site (13 Oct): stewards
     // and the medic stand by until then, and whoever is still on site goes with the results. The last guest is out
-    // 2,268-2,586 ticks after the close on the seeds below (it was everyone, 3,163-3,560, with the medic last).
-    // The loops below only stop a stuck day running for ever.
-    private const int DepartureBudgetTicks = 3_000;
+    // 2,600-3,800 ticks after the close on Tier 1 days now guests linger, amble and stop at loos and taps on the way (13 Oct;
+    // it was 2,268-2,586 when everyone set off at once). The loops below only stop a stuck day running for ever.
+    private const int DepartureBudgetTicks = 4_500;
 
     [TestCategory("Slow")]
     [TestMethod]
