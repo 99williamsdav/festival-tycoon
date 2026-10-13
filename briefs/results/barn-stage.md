@@ -39,6 +39,14 @@ Source/native verification is complete: **54/54 native checks passed**, with 24 
 
 The final recovery diagnostic observes a live tween transition and verifies first alpha rise occurs after at least 1000 wall milliseconds. This replaced a fixed-frame assumption that failed when renderer stalls correctly let the wall-clock hold expire earlier. Production timing was not changed. Failed/provisional development captures remain under ignored `artifacts` and are excluded from final evidence. The preparation review accepted preparation only.
 
-Actual exported-build acceptance remains pending. No accepted EXE handoff is claimed until its new addendum passes.
+Reviewed source commit: `99d2c8a9d9e0902051136f6dec463a990d73b146`.
 
-The final Windows delivery will contain the EXE and entire adjacent data directory, with no ZIP. The bounded exported-build addendum will refer to the copied delivered EXE and its actual capture, not a source-only run.
+The copied Windows EXE has now completed the same **54/54 native checks**, 24 camera/weather views, six occupancy views and 450-frame/15-second movie. Its actual first set also starts at tick 9000. The complete native log ends `BARN_EVIDENCE_COMPLETE` with no warning/error matches. The recorded executing process points to the copied delivery EXE. Its GUI launcher returned 0; the attached process wait exposed no numeric exit code, so this report does not claim a measured runtime exit code. The explicit completion marker and passing results establish capture completion.
+
+Delivery: `C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-barn-stage-2026-10-13/FestivalTycoon.exe`, SHA-256 `114E90F636029055D613018B306D3A318D34496057D74C2643EE7F3C2AA220D2`, 198,669,016 bytes. All 193 adjacent data files match the export copy, with no ZIP. Retain the entire `data_Festival.Game_windows_x86_64` directory beside the EXE. Full payload/evidence hashes are in `reports/evidence/barn-stage/exported-build-manifest.json`; actual copied-build evidence is under `reports/evidence/barn-stage/exported`.
+
+The exporter exited 0 and finished packaging, but emitted two `get_multiple_md5` / `f.is_null()` continuation messages during existing character texture reimports. Its retained log is distinct from the clean runtime log and is not described as error-free. The 80 accepted source hashes still match after export; unrelated dirty character imports, package lock, outfit and old UID work remain preserved.
+
+**Actual exported-build independent acceptance PASS**: `barn-stage-independent-export-review.md`. The reviewer independently matched all 194 payload files against both delivery and export, all 80 accepted source hashes, and all exported evidence hashes; verified 54/54 checks and actual movie/camera/occupancy evidence. No remaining blocking finding. This build is accepted for handoff within the approved physical integration and controlled-fixture scope.
+
+The bounded exported-build addendum refers to the copied delivered EXE and its actual capture. Normal Barn programme allocation remains outside this completed physical/fixture integration.
