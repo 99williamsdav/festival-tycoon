@@ -17,13 +17,13 @@ public sealed class BandRelationshipProbe
         if (string.IsNullOrEmpty(folder)) return;
         Directory.CreateDirectory(folder);
         var text = new StringBuilder();
-        foreach (var seed in new ulong[] { 20260922, 20260926, 20261003 })
+        foreach (var seed in new ulong[] { 20260922, 20260923, 20260924, 20260925, 20260926, 20261003 })
         {
             var s = BuildSession.Started(seed);
             RunToEnd(s);
             text.Append($"== Tier 1 seed {seed} status {s.PreparedStatus}\n");
             Write(text, s);
-            if (seed == 20260922 && s.CanStartNextFestival)
+            if (seed is 20260922 or 20260924 or 20260926 && s.CanStartNextFestival)
             {
                 var next = NextFestivalTests.Ready(s.CreateNextFestival());
                 BuildSession.Accept(next, new AcceptPreparationOfferCommand(BuildSession.ExtraId(next, StaffRole.Medic)));
@@ -48,7 +48,7 @@ public sealed class BandRelationshipProbe
         {
             var act = ActCatalogue.Find(r.ActId)!;
             text.Append($"{r.StageId} set {r.Slot + 1} {act.Name} (pop {act.Popularity}, talent {PerformanceRules.Talent(act)}): due {r.ScheduledStartTick}-{r.ScheduledEndTick} " +
-                $"ran {r.StartedTick}-{r.EndedTick} peak {r.PeakCrowd} end {r.SetEndCrowd} expected {r.ExpectedCrowd} enjoy {r.AverageEnjoyment} " +
+                $"ran {r.StartedTick}-{r.EndedTick} avg {r.AverageCrowdTenths / 10.0:0.0} peak {r.PeakCrowd} end {r.SetEndCrowd} expected {r.ExpectedCrowd} won {r.WonOverIds?.Length ?? 0} enjoy {r.AverageEnjoyment} " +
                 $"{r.Reaction} [{string.Join(",", r.Hiccups)}] rel {r.RelationshipBefore}{r.Delta:+0;-0;+0}={r.RelationshipAfter} ({string.Join("; ", r.Reasons)}) " +
                 $"crowd {r.CrowdIds.Length}\n");
             foreach (var quote in r.Quotes)

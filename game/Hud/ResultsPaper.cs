@@ -482,9 +482,9 @@ void fragment() {
             body.AddChild(Gap(10));
         }
         body.AddChild(Paragraph("A band's relationship runs from −100 to +100 and carries from festival to festival. A friendly band's fee falls by half " +
-            "a percent a point, to half at +100; a sour one's rises a percent a point, to double at −100. The crowd at the end counts for more than " +
-            "the biggest crowd, against what a set usually keeps. Newcomers a set wins over (guests who weren't fans going in, clapping it out) add " +
-            "popularity from the next festival, up to three points a set: two newcomers a point for an unknown act, many more for a famous one.", 11.5f, Ui.InkMuted));
+            "a percent a point, to half at +100; a sour one's rises a percent a point, to double at −100. A band judges its crowd mostly on the " +
+            "average across the whole set, then on who's there to clap it out, and a little on the biggest crowd, each against what a set usually has. Newcomers a set wins over (guests who weren't fans going in, heard a quarter of it or more and clapped it out) add " +
+            "popularity from the next festival, up to two points a set: two newcomers a point for an unknown act, many more for a famous one.", 11.5f, Ui.InkMuted));
         body.AddChild(Gap(70));
     }
 
@@ -523,7 +523,7 @@ void fragment() {
         if (record.Hiccups.Length == 0 && record.Reaction != GigRules.NoShow) went.AddChild(Chip("No hiccups", new Color("efe8d6"), Ui.InkMuted));
 
         var crowd = record.StartedTick < 0 ? $"Never started · {record.PeakCrowd} waited for them" :
-            $"Peak crowd {record.PeakCrowd} · {record.SetEndCrowd} still there at the end · about {record.ExpectedCrowd} expected";
+            $"Average crowd {(record.AverageCrowdTenths + 5) / 10} · peak {record.PeakCrowd} · {record.SetEndCrowd} at the end · about {record.ExpectedCrowd} expected";
         var played = $"{FestivalClockText(record.StartedTick - opened)}–{FestivalClockText(record.EndedTick - opened)}";
         if (record.StartedTick >= 0 && played != due) crowd += $" · played {played}";
         box.AddChild(Paragraph(crowd, 13.5f, Body));
