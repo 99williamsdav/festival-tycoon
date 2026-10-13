@@ -77,16 +77,20 @@ public sealed class HandsOnAutopilotTests
         for (var i = 0; i < 400 && loo is null; i++)
         {
             s.AdvanceWithoutSnapshot(40);
-            loo = s.CaptureToilets().FirstOrDefault(t => t.OwnerId is { } owner && s.CapturePerson(owner)!.ToiletStage == ToiletVisitStage.Using && s.ActiveFault(t.Id) is null);
+            loo = s.CaptureToilets().FirstOrDefault(t => t.OwnerId is { } owner && s.CapturePerson(owner)!.ToiletStage == ToiletVisitStage.Using && s.CapturePerson(owner)!.Role == ProtectedPersonRole.Guest && s.ActiveFault(t.Id) is null);
         }
-        Assert.IsNotNull(loo, "Someone used a loo.");
+        Assert.IsNotNull(loo, "A guest used a loo.");
         return loo;
     }
 
-    /// <summary>Jams a loo with whoever is in it, as a random fault would.</summary>
+    /// <summary>Jams a loo with the guest in it, as a random fault would (only guests jam).</summary>
     private static void Jam(GameSession s, ToiletFacility loo)
     {
-        Call(s, "AddFault", "stuck:test", FacilityFaultKind.StuckInToilet, loo.Id, loo.OwnerId!.Value);
+        // Whoever is in it now: a guest, once one is.
+        ulong? Guest() => s.CaptureToilets().Single(t => t.Id == loo.Id).OwnerId is { } owner &&
+            s.CapturePerson(owner) is { ToiletStage: ToiletVisitStage.Using, Role: ProtectedPersonRole.Guest } ? owner : null;
+        for (var i = 0; i < 400 && Guest() is null; i++) s.AdvanceWithoutSnapshot(8);
+        Call(s, "AddFault", "stuck:test", FacilityFaultKind.StuckInToilet, loo.Id, Guest()!.Value);
         s.AdvanceWithoutSnapshot(1);
     }
 
@@ -96,7 +100,9 @@ public sealed class HandsOnAutopilotTests
     /// </summary>
     private static void BusyTheCrew(GameSession s, int x, int z)
     {
-        var tap = s.CaptureWaterPoints().OrderByDescending(t =>
+        // A tap nobody is using: one breaks as a use ends. Between sets they can all be busy for a moment.
+        for (var i = 0; i < 400 && s.CaptureWaterPoints().All(t => t.OwnerId is not null); i++) s.AdvanceWithoutSnapshot(8);
+        var tap = s.CaptureWaterPoints().Where(t => t.OwnerId is null).OrderByDescending(t =>
             {
                 var c = TraversalGrid.CellCentre(t.Cell);
                 return (long)(c.XMillimetres - x) * (c.XMillimetres - x) + (long)(c.ZMillimetres - z) * (c.ZMillimetres - z);

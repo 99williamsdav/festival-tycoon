@@ -155,7 +155,8 @@ public sealed class MultiVendorTests
             s.CaptureMedical()!.Needs.Single(n => n.AgentId == p.AgentId).Intent == MedicalIntent.WatchShow).AgentId;
         typeof(GameSession).GetMethod("MutatePerson", flags)!.Invoke(s, [guest, (Action<Person>)(p => { p.Hunger = 7_000; p.Thirst = 5_000; })]);
         var options = (List<ActivityOption>)typeof(GameSession).GetMethod("ActivityOptions", flags)!.Invoke(s, [guest, ActivityKind.Watch])!;
-        var food = options.Where(o => o.Kind == ActivityKind.Food && o.Then is null).ToArray();
+        // Going now (a trip put off until the applause is offered too, mid-set).
+        var food = options.Where(o => o.Kind == ActivityKind.Food && o.Then is null && o.LeaveTicks == 0).ToArray();
         CollectionAssert.AreEquivalent(new[] { "food", "food.2" }, food.Select(o => o.FacilityId).ToArray(), "Both vans are on offer.");
         Assert.AreNotEqual(food[0].Cost, food[1].Cost, "Each at its own price.");
         CollectionAssert.AreEquivalent(new[] { "drinks", "drinks.2" },

@@ -42,22 +42,23 @@ public sealed class BandRelationshipTests
     [TestMethod]
     public void ACrowdThatDriftsOffMovesTheRelationshipLessThanOneThatStays()
     {
-        // Against what's normal: the expected crowd at the peak and a fifth of it left at the end scores nothing.
-        Assert.AreEqual(0, GigRules.CrowdScore(14, 3, 14), "A typical set reads as neutral.");
-        // The user's example: a peak of 15 against about 14 expected, 4 still there at the end: a little better than usual.
-        Assert.AreEqual(3, GigRules.CrowdScore(15, 4, 14), "35% × 15/14 + 65% × 4/2.8 = 1.30 of typical, so +3.");
+        // Against what's normal: guests now clap a set out, so the expected crowd there at the end is typical and scores nothing.
+        Assert.AreEqual(0, GigRules.CrowdScore(14, 14, 14), "A typical set reads as neutral.");
+        // The user's example: a peak of 15 against about 14 expected, 4 still there at the end.
+        Assert.AreEqual(-7, GigRules.CrowdScore(15, 4, 14), "35% × 15/14 + 65% × 4/14 = 0.56 of typical: 15 × (0.56 − 1) = −6.6, so −7.");
         var example = GigRules.Judge(new GigFacts(true, false, 15, 4, 4 * 250, []), 14);
-        CollectionAssert.DoesNotContain(example.Reasons, "a big crowd");
-        // The same peak drained to one: a smattering, and the crowd drifting off is why it went down.
+        Assert.AreEqual(GigRules.Smattering, example.Reaction);
+        CollectionAssert.Contains(example.Reasons, "the crowd drifted off before the end");
+        // Drained to one: worse still.
         var drained = new GigFacts(true, false, PeakCrowd: 15, SetEndCrowd: 1, SetEndEnjoyment: 250, []);
         var (reaction, delta, reasons) = GigRules.Judge(drained, expected: 14);
         Assert.AreEqual(GigRules.Smattering, reaction);
-        Assert.IsTrue(delta < 0, $"delta {delta}");
+        Assert.IsTrue(delta < example.Delta && example.Delta < 0, $"drained {delta}, example {example.Delta}");
         CollectionAssert.Contains(reasons, "the crowd drifted off before the end");
-        // The same peak held to the end: a big crowd, and a much better gig.
-        var (heldReaction, heldDelta, heldReasons) = GigRules.Judge(drained with { SetEndCrowd = 13, SetEndEnjoyment = 13 * 250 }, 14);
+        // A set that holds more than the expected crowd to the end: a big crowd, and a much better gig.
+        var (heldReaction, heldDelta, heldReasons) = GigRules.Judge(drained with { PeakCrowd = 20, SetEndCrowd = 19, SetEndEnjoyment = 19 * 250 }, 14);
         Assert.AreEqual(GigRules.Warm, heldReaction);
-        Assert.IsTrue(heldDelta > 0 && heldDelta > example.Delta && example.Delta > delta, $"held {heldDelta}, example {example.Delta}, drained {delta}");
+        Assert.IsTrue(heldDelta > 0, $"held {heldDelta}");
         CollectionAssert.Contains(heldReasons, "a big crowd");
         // The end counts for more than the peak: ten there throughout beats a peak of 14 with five left.
         Assert.IsTrue(GigRules.CrowdScore(10, 10, 14) > GigRules.CrowdScore(14, 5, 14));
@@ -70,10 +71,10 @@ public sealed class BandRelationshipTests
     [TestMethod]
     public void TheLabelReadsTheSetAsTheScoreDoes()
     {
-        var steady = new GigFacts(true, false, PeakCrowd: 16, SetEndCrowd: 4, SetEndEnjoyment: 4 * 200, []);
+        var steady = new GigFacts(true, false, PeakCrowd: 16, SetEndCrowd: 16, SetEndEnjoyment: 16 * 200, []);
         Assert.AreEqual(GigRules.Polite, GigRules.Judge(steady, 16).Reaction);
-        Assert.AreEqual(GigRules.Warm, GigRules.Judge(steady with { SetEndCrowd = 8, SetEndEnjoyment = 8 * 200 }, 16).Reaction);
-        var thin = steady with { PeakCrowd = 8, SetEndCrowd = 2, SetEndEnjoyment = 2 * 200 };
+        Assert.AreEqual(GigRules.Warm, GigRules.Judge(steady with { PeakCrowd = 24, SetEndCrowd = 22, SetEndEnjoyment = 22 * 200 }, 16).Reaction);
+        var thin = steady with { PeakCrowd = 8, SetEndCrowd = 4, SetEndEnjoyment = 4 * 200 };
         Assert.AreEqual(GigRules.Smattering, GigRules.Judge(thin, 16).Reaction);
         Assert.IsTrue(GigRules.Judge(thin, 16).Delta <= 0, "A smattering never reads as a gain from the crowd.");
         Assert.AreEqual(GigRules.Smattering, GigRules.Judge(steady with { PeakCrowd = 19, SetEndCrowd = 1, SetEndEnjoyment = 200 }, 16).Reaction,
@@ -87,7 +88,7 @@ public sealed class BandRelationshipTests
     [TestMethod]
     public void AGoodGigRaisesTheRelationshipAndABadOneLowersItBelowZero()
     {
-        var (good, goodReasons) = GigRules.Score(GigRules.Warm, [], peak: 20, setEnd: 16, expected: 18, averageEnjoyment: 420);
+        var (good, goodReasons) = GigRules.Score(GigRules.Warm, [], peak: 24, setEnd: 24, expected: 18, averageEnjoyment: 420);
         Assert.IsTrue(good > 0, $"good gig {good}");
         CollectionAssert.Contains(goodReasons, "a big crowd");
         var (bad, badReasons) = GigRules.Score(GigRules.CutShort, [GigRules.PowerCut, GigRules.Boos], peak: 15, setEnd: 0, expected: 18, averageEnjoyment: 0);
@@ -201,7 +202,7 @@ public sealed class BandRelationshipTests
         foreach (var history in new CarriedGig[][] { many, [Triumph("act.meadow-lanterns"), Triumph("act.meadow-lanterns")],
                      [Triumph("act.meadow-lanterns") with { PeakCrowd = 26, SetEndCrowd = 26 }], [Triumph("act.meadow-lanterns") with { Tier = 2 }] })
         {
-            var forged = (ActRelationship[]?)typeof(GameSession).GetMethod("RelationshipsFrom", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, [history, false]);
+            var (forged, _) = Replay(history);
             Assert.AreEqual(refused, GameSession.Restore(two with { Preparation = p with { RelationshipHistory = history, ActRelationships = forged } }).Error);
         }
         Assert.AreEqual(refused, GameSession.Restore(two with { Preparation = p with { ActRelationships = [new("act.meadow-lanterns", 24), new("act.parish-ceilidh", -30)] } }).Error,
@@ -226,12 +227,12 @@ public sealed class BandRelationshipTests
         }
         var record = s.PerformanceRecords.Single();
         Assert.IsTrue(most > 0);
-        Assert.AreEqual(most, record.PeakCrowd);
+        Assert.AreEqual(Math.Max(most, record.SetEndCrowd), record.PeakCrowd, "The most at their places, and never fewer than clapped it out.");
         Assert.IsTrue(record.PeakCrowd >= record.SetEndCrowd);
         // The record outlives the set: the next set starts its own count.
         while (s.CaptureProgramme()!.CurrentSlot == 0) s.AdvanceWithoutSnapshot(80);
         Assert.AreEqual(0, s.CaptureLivePerformance()!.PeakListeners);
-        Assert.AreEqual(most, s.PerformanceRecords[0].PeakCrowd);
+        Assert.AreEqual(record.PeakCrowd, s.PerformanceRecords[0].PeakCrowd);
     }
 
     [TestMethod]
@@ -400,8 +401,13 @@ public sealed class BandRelationshipTests
         Assert.AreEqual(-1, GigRules.PopularityChange(Set(1, 8), 10));
         Assert.AreEqual(1, GigRules.PopularityChange(Set(3, 12), 10), "Enough won over outweighs those who walked.");
         Assert.AreEqual(0, GigRules.PopularityChange(Set(0, 8), 90), "A famous act shrugs off a handful walking off.");
-        Assert.AreEqual(GigRules.MostPopularity, GigRules.ApplyPopularity(99, 3));
-        Assert.AreEqual(GigRules.LeastPopularity, GigRules.ApplyPopularity(0, -1));
+        Assert.AreEqual(GigRules.MostPopularity, GigRules.ApplyPopularity(97, 99, 3));
+        Assert.AreEqual(25, GigRules.ApplyPopularity(40, 25, -1), "Never more than 15 below the catalogue.");
+        Assert.AreEqual(GigRules.LeastPopularity, GigRules.ApplyPopularity(6, 1, -1), "Nor below 1.");
+        var unknown = ActCatalogue.All.MinBy(act => act.Popularity)!;
+        Assert.IsTrue(ActCatalogue.WithPopularityShift(unknown, -GigRules.MostPopularityLost).PricePennies >= 100, "Never a free act.");
+        Assert.AreEqual(unknown.Popularity - 1 < GigRules.MostPopularityLost ? GigRules.LeastPopularity : unknown.Popularity - GigRules.MostPopularityLost,
+            ActCatalogue.WithPopularityShift(unknown, -40).Popularity);
         // Who counts: not a fan going in (keenness under 60), clapped it out, and had at least 200 from it.
         Assert.IsTrue(GigRules.IsWonOver(59, true, 200));
         Assert.IsFalse(GigRules.IsWonOver(60, true, 900), "A fan already knew them.");
@@ -432,6 +438,37 @@ public sealed class BandRelationshipTests
         Assert.AreEqual(0, s.PopularityShifts.Count);
         Assert.IsTrue(s.GetFestivalActs().All(item => ReferenceEquals(item, ActCatalogue.Find(item.Id))));
         BuildSession.Restored(s);
+    }
+
+    [TestMethod]
+    public void ForgedNewcomersOnAnEarlierSetAreRefusedOnRestore()
+    {
+        const string invalid = "Performance records invalid.";
+        var s = AfterFirstSet();
+        // On to the next set, so the first is no longer the live set it could be checked against.
+        while (s.CaptureProgramme()!.CurrentSlot == 0) s.AdvanceWithoutSnapshot(80);
+        var saved = s.CapturePersistenceSnapshot();
+        Assert.IsTrue(GameSession.Restore(saved).IsSuccess);
+        var record = saved.PerformanceRecords![0];
+        var act = ActCatalogue.Find(record.ActId)!;
+        var setEnd = record.SetEndIds ?? [];
+        Assert.AreEqual(record.SetEndCrowd, setEnd.Length, "The record keeps who clapped it out.");
+        var outsider = record.CrowdIds.FirstOrDefault(id => s.FestivalAffinity(id, act) < 60 && !setEnd.Contains(id) && record.WalkedOffIds?.Contains(id) != true);
+        var forged = new List<PerformanceRecord> { record with { SetEndIds = [] } };
+        if (setEnd.Length > 0) forged.Add(record with { SetEndIds = null });
+        if (outsider != 0)
+        {
+            // Won over though they weren't there at the end, with or without claiming they were.
+            forged.Add(record with { WonOverIds = [.. (record.WonOverIds ?? []).Append(outsider).Order()] });
+            forged.Add(record with { WonOverIds = [.. (record.WonOverIds ?? []).Append(outsider).Order()], SetEndIds = [.. setEnd.Append(outsider).Order()] });
+        }
+        if (setEnd.Length > 0)
+        {
+            forged.Add(record with { WalkedOffIds = [.. (record.WalkedOffIds ?? []).Append(setEnd[0]).Order()] });
+            forged.Add(record with { SetEndIds = setEnd.Reverse().ToArray() is var backwards && setEnd.Length > 1 ? backwards : [setEnd[0], setEnd[0]] });
+        }
+        foreach (var item in forged)
+            Assert.AreEqual(invalid, GameSession.Restore(saved with { PerformanceRecords = [item, .. saved.PerformanceRecords[1..]] }).Error);
     }
 
     [TestMethod]
@@ -554,7 +591,7 @@ public sealed class BandRelationshipTests
             if (record.RelationshipAfter > 0 && two.ActStandingOf(act) != ActStanding.Locked)
                 Assert.IsTrue(two.GetFestivalActs().Contains(two.CampaignAct(act)), record.ActId);
             // Its popularity moved by the newcomers it won over, from this festival on.
-            Assert.AreEqual(GigRules.ApplyPopularity(act.Popularity, one.PopularityChange(record)), two.CampaignAct(act).Popularity, record.ActId);
+            Assert.AreEqual(GigRules.ApplyPopularity(act.Popularity, act.Popularity, one.PopularityChange(record)), two.CampaignAct(act).Popularity, record.ActId);
             Assert.AreEqual(act.Popularity, one.CampaignAct(act).Popularity, "Never mid-festival.");
         }
         Assert.IsTrue(records.Any(record => record.RelationshipAfter != 0), "A real day moves someone.");

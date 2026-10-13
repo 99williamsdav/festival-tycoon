@@ -26,6 +26,11 @@ public sealed record ActivityStop(ActivityKind Kind, string? FacilityId, int Com
 /// </summary>
 public sealed record ActivityOption(ActivityKind Kind, string? FacilityId, int CompleteTicks, int AwayTicks, long Enjoyment = 0, long Cost = 0)
 {
+    /// <summary>
+    /// When they set off, from now: 0 to go now; later for a trip put off until the set they're watching ends (they hear
+    /// the music until then). Times are all from now, so the trip's own stops are this much later than going now.
+    /// </summary>
+    public int LeaveTicks { get; init; }
     public ActivityStop? Then { get; init; }
     /// <summary>The hunger a food stop takes away: its portion's filling.</summary>
     public int FoodRelief { get; init; } = ActivityChooser.FoodHungerRelief;
@@ -124,7 +129,7 @@ public static class ActivityChooser
             var tick = (sample + 1) * SampleTicks;
             var levels = second is { } afterBoth && tick >= option.Then!.CompleteTicks ? Grow(afterBoth, growth, tick - option.Then.CompleteTicks)
                 : first is { } after && tick >= option.CompleteTicks ? Grow(after, growth, tick - option.CompleteTicks) : Grow(now, growth, tick);
-            if (tick > option.AwayTicks) score += musicPerSecond[sample];
+            if (tick <= option.LeaveTicks || tick > option.AwayTicks) score += musicPerSecond[sample];
             score -= Discomfort(levels);
             var rainy = 0L;
             if (rain is { } r)

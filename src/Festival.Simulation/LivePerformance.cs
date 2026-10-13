@@ -365,8 +365,7 @@ public sealed partial class GameSession
             {
                 var applauseEligible = live.Stage == LiveSetStage.Live && stageState == LiveSetStage.Live && powered && started >= 0;
                 if (applauseEligible)
-                    setEndAudienceIds = listeners.Where(listener => listener.AtPlace && listener.ListenedTicks > 0 &&
-                        !AudienceNavigationOwned(listener.AgentId)).Select(listener => listener.AgentId).ToArray();
+                    setEndAudienceIds = listeners.Where(InSetEndCrowd).Select(listener => listener.AgentId).ToArray();
                 stageState = LiveSetStage.Finished;
                 ended = CurrentTick;
                 reaction = setEndAudienceIds.Length > 0 ? "set-finished-applause" : applauseEligible ? "set-finished-muted" : "set-finished-interrupted";
@@ -386,9 +385,10 @@ public sealed partial class GameSession
         _livePerformances[stage] = live with { Stage = stageState, StartedTick = started, EndedTick = ended,
             InterruptedTick = interrupted, ReactionSequence = sequence, LastReaction = reaction,
             Performers = performers, Listeners = listeners, SetEndAudienceIds = setEndAudienceIds,
-            // Counted on any tick the set was on, including the one it started and the one it ended.
-            PeakListeners = live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted || stageState is LiveSetStage.Live or LiveSetStage.Interrupted
-                ? Math.Max(peak, atPlaces) : peak, PowerCuts = powerCuts, Stoppages = stoppages, Boos = boos, SoundTotal = soundTotal, SoundSamples = soundSamples,
+            // Counted on any tick the set was on, including the one it started and the one it ended; never fewer than clapped it out.
+            PeakListeners = Math.Max(setEndAudienceIds.Length,
+                live.Stage is LiveSetStage.Live or LiveSetStage.Interrupted || stageState is LiveSetStage.Live or LiveSetStage.Interrupted
+                ? Math.Max(peak, atPlaces) : peak), PowerCuts = powerCuts, Stoppages = stoppages, Boos = boos, SoundTotal = soundTotal, SoundSamples = soundSamples,
             MemberCollapsed = collapsed };
         if (stageState == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished) RecordPerformance(stage, _livePerformances[stage]!);
         // An act that played is known from then on: its talent shows in the booking table.
@@ -406,6 +406,26 @@ public sealed partial class GameSession
                 if (!performer.StairReached && !ProgrammeStageAccessOccupied(def, _navigationAgents[new(performer.AgentId)])) continue;
                 ApplyAgentDestination(new(performer.AgentId), new(performer.StairCell, "performance.stage-exit-stair"));
             }
+    }
+
+    /// <summary>How near their listening spot a listener can be at the set's end and still be clapping it out: two metres.</summary>
+    public const int SetEndNearMillimetres = 2_000;
+
+    /// <summary>
+    /// Whether a listener who heard some of the set is in its crowd as it ends: on their spot, within
+    /// <see cref="SetEndNearMillimetres"/> of it, or walking back to it to watch. Shuffling to a better spot or coming
+    /// back from the bar as the last song ends still counts as the crowd; someone a staff member is walking away doesn't.
+    /// </summary>
+    private bool InSetEndCrowd(LiveListener listener)
+    {
+        if (listener.ListenedTicks <= 0 || AudienceNavigationOwned(listener.AgentId)) return false;
+        if (listener.AtPlace) return true;
+        if (listener.Place is not { } place || PersonIn(PersonView.Roster, listener.AgentId) is not { Admitted: true, Departed: false }) return false;
+        var nav = _navigationAgents[new(listener.AgentId)];
+        var (x, z) = TraversalGrid.CellCentre(place);
+        long dx = nav.XMillimetres - x, dz = nav.ZMillimetres - z;
+        return dx * dx + dz * dz <= (long)SetEndNearMillimetres * SetEndNearMillimetres ||
+            nav.Destination == place && nav.IntentId?.StartsWith("performance.listen", StringComparison.Ordinal) == true;
     }
 
     /// <summary>Ends every stage's set at once, as a failed or abandoned day does.</summary>
