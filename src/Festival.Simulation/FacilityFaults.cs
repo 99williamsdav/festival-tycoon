@@ -164,7 +164,8 @@ public sealed partial class GameSession
         var id = $"stuck:{toilet.Id}:{visit}";
         // Only guests get jammed in: the crew carry the cubicle key. A jammed steward is a rescue nobody else can bring, and a
         // jammed medic leaves an injured steward waiting for first aid that can't come, so the day could only end in a death.
-        if (_faults is null or { Disabled: true } || !IsGuest(occupant) || _faults.Faults.Any(f => f.Id == id) ||
+        // Nothing new breaks once the music's over: nobody's left to mend it, and the day's faults are settled at the close.
+        if (_faults is null or { Disabled: true } || !IsGuest(occupant) || ImmersionDepartureActive || _faults.Faults.Any(f => f.Id == id) ||
             !FaultRules.Roll(CampaignSeed, toilet.Id, visit, (ulong)_preparation!.Attempt, FaultRules.ToiletStuckChancePer10k)) return false;
         AddFault(id, FacilityFaultKind.StuckInToilet, toilet.Id, occupant);
         MutatePerson(occupant, person => person.Reason = "Stuck in the toilet: the lock has jammed");
@@ -175,7 +176,7 @@ public sealed partial class GameSession
     /// <summary>Called as someone starts drinking. True when the tap breaks in their hands.</summary>
     private bool TapBreaksOnUse(WaterPointState point, ulong drinker)
     {
-        if (_faults is null or { Disabled: true } || !FaultRules.Roll(CampaignSeed, point.Id, CurrentTick, drinker, FaultRules.TapBreakChancePer10k)) return false;
+        if (_faults is null or { Disabled: true } || ImmersionDepartureActive || !FaultRules.Roll(CampaignSeed, point.Id, CurrentTick, drinker, FaultRules.TapBreakChancePer10k)) return false;
         AddFault($"broken:{point.Id}:{CurrentTick}", FacilityFaultKind.BrokenTap, point.Id, drinker);
         var loss = UnpleasantFor(drinker, FaultRules.BrokenTapSatisfactionLoss);
         ChangeSatisfaction(drinker, -loss, MoodCause.BrokenTap);

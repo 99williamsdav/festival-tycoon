@@ -233,7 +233,8 @@ public sealed partial class GameSession
                 toilet = GetToilet(toilet.Id);
             }
         }
-        var running = prep.Status == PreparationStatus.Running;
+        // Loos stay open through the walk-out: anyone in a line at the close keeps their place, and guests stop on the way home.
+        var running = prep.Status is PreparationStatus.Running or PreparationStatus.Departing;
         for (var personIndex = 0; personIndex < _persons.Count(PersonView.Consumption); personIndex++)
         {
             if (_persons.At(PersonView.Roster, personIndex).Departed) continue;

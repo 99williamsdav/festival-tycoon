@@ -12,7 +12,9 @@ public sealed partial class GameSession
     /// <summary>Someone's own pace: a guest's festival stroll, slowed further while carrying food or drink.</summary>
     private int PersonPacePermille(ulong id, bool includeCarrying = true) =>
         (_persons.TryGet(id, out var person) && person.Role == ProtectedPersonRole.Guest ? GuestPacePermille : 1_000) *
-        (includeCarrying && PersonIn(PersonView.Consumption, id)?.Held is not null ? CarryingPacePermille : 1_000) / 1_000;
+        (includeCarrying && PersonIn(PersonView.Consumption, id)?.Held is not null ? CarryingPacePermille : 1_000) / 1_000 *
+        // Heading home after the music, each guest at their own tired pace.
+        (person is { Role: ProtectedPersonRole.Guest, Intent: MedicalIntent.Leaving } && ImmersionDepartureActive ? DeparturePacePermille(CampaignSeed, id) : 1_000) / 1_000;
     private static readonly int[] WalkingSpeedPermillePattern = [850, 900, 950, 1_000, 1_050, 1_100, 1_150];
     // Prototype centre clearance: below the 500 mm queue-slot spacing, but large enough to
     // prevent sustained near-superposition while still allowing compressed single-file flow.
