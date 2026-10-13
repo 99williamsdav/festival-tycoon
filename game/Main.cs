@@ -99,6 +99,8 @@ public partial class Main : Node, IHudHost
         ProcessChatter(delta);
         ProcessGenerator(delta);
         ProcessVanSteam();
+        SyncWorldEffectsPause();
+        ProcessStrawMark(delta);
         ProcessLitterEvidence();
         ProcessCleanupEvidence();
         ProcessSurroundEvidence();

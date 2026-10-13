@@ -156,6 +156,8 @@ public partial class Main
         // Rain (0 dry, 0.6 heavy showers, 1 a downpour) rings the puddles; wetness darkens and glosses everything.
         uniform float rain = 0.0;
         uniform float wetness = 0.0;
+        // Seconds of unpaused festival, so the puddle rings stop with everything else.
+        uniform float ripple_clock = 0.0;
         uniform sampler2D ripple_atlas : source_color, filter_linear_mipmap;
         // Straw: R how much lies here (3 x 3 blurred), G how trampled it is.
         uniform sampler2D straw_map : filter_linear;
@@ -269,7 +271,7 @@ public partial class Main
             if (rain > 0.0 && pooled > 0.0) {
                 vec2 cellp = p / 0.5; vec2 cid = floor(cellp); vec2 uvc = fract(cellp);
                 float ph = hash(cid);
-                float t = fract(TIME * mix(1.2, 2.4, rain) + ph); float frame = floor(t * 16.0);
+                float t = fract(ripple_clock * mix(1.2, 2.4, rain) + ph); float frame = floor(t * 16.0);
                 vec2 auv = (vec2(mod(frame, 4.0), floor(frame / 4.0)) + uvc) / 4.0;
                 float ring = texture(ripple_atlas, auv).a * step(ph, rain * 0.9);
                 // On brown water a ring takes a little of its colour and is fainter, not a blue-white circle on mud.

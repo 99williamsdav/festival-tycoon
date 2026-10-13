@@ -1,0 +1,22 @@
+stages=2 readiness=
+rainy=True tier=2
+  t=80 rain=0.00 ponchos=0 201ms
+  t=8080 rain=0.19 ponchos=33 9007ms
+tick=9680 rain=0.60 ponchos=38 mud=GridCell { X = 157, Z = 139 }
+paused frames 30 vs 45 (1.5 s apart): 0 differing pixels; running frames 20 vs 23: 473773 differing pixels
+poncho wearers visible=38
+poncho wearers visible=39
+poncho wearers visible=40
+worker 58: 
+worker 0: Only a steward or the maintenance worker spreads straw.
+steward=58 mud=GridCell { X = 126, Z = 172 } bales=8
+hint: Spread a bale here · 6 m² of mud to cover · Esc cancels. mouse=(800, 449) target=(800.00024, 449.99988)
+ordered: Taking a bale out to the mud · 7 left in the store. job=StrawJob { WorkerId = 58, Spot = GridCell { X = 126, Z = 172 }, Stand = GridCell { X = 126, Z = 172 }, Spread = 0, StartedTick = -1, UntilTick = 15120 }
+frame 120 job=StrawJob { WorkerId = 58, Spot = GridCell { X = 126, Z = 172 }, Stand = GridCell { X = 126, Z = 172 }, Spread = 0, StartedTick = -1, UntilTick = 15120 }
+frame 160 job=StrawJob { WorkerId = 58, Spot = GridCell { X = 126, Z = 172 }, Stand = GridCell { X = 126, Z = 172 }, Spread = 8, StartedTick = 10560, UntilTick = 15120 }
+frame 200 job=
+frame 240 job=
+frame 280 job=
+frame 320 job=
+frame 360 job=
+done

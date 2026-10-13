@@ -179,6 +179,7 @@ public partial class Main
         {
             _groundMaterial.SetShaderParameter("rain", _rain);
             _groundMaterial.SetShaderParameter("wetness", _wetness);
+            _groundMaterial.SetShaderParameter("ripple_clock", (float)(_breezeSeconds % 3600));
         }
         ApplyPropSheen();
     }
