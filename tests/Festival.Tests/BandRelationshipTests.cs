@@ -384,17 +384,17 @@ public sealed class BandRelationshipTests
     public void NewcomersWonOverRaisePopularityWithinTheCap()
     {
         // Newcomers needed for a point: 2 for an obscure act, more the more popular it already is.
-        CollectionAssert.AreEqual(new[] { 2, 2, 2, 3, 4, 6, 8, 11, 14, 18 },
+        CollectionAssert.AreEqual(new[] { 2, 2, 2, 5, 8, 11, 14, 17, 20, 23 },
             new[] { 10, 20, 30, 40, 50, 60, 70, 80, 90, 100 }.Select(GigRules.NewcomersPerPoint).ToArray());
         GigFacts Set(int won, int walked = 0) => new(true, false, 25, 20, 20 * 300, []) { WonOver = won, WalkedOff = walked };
         Assert.AreEqual(0, GigRules.PopularityChange(Set(1), 10));
         Assert.AreEqual(1, GigRules.PopularityChange(Set(2), 10), "Two converts lift an obscure act.");
         Assert.AreEqual(2, GigRules.PopularityChange(Set(4), 10));
         Assert.AreEqual(GigRules.MostPopularityGain, GigRules.PopularityChange(Set(6), 10));
-        Assert.AreEqual(GigRules.MostPopularityGain, GigRules.PopularityChange(Set(20), 10), "Held to +3 a set.");
+        Assert.AreEqual(GigRules.MostPopularityGain, GigRules.PopularityChange(Set(20), 10), "Held to +2 a set.");
         Assert.AreEqual(0, GigRules.PopularityChange(Set(2), 90), "Two converts do nothing for a famous act.");
-        Assert.AreEqual(0, GigRules.PopularityChange(Set(13), 90));
-        Assert.AreEqual(1, GigRules.PopularityChange(Set(14), 90));
+        Assert.AreEqual(0, GigRules.PopularityChange(Set(19), 90));
+        Assert.AreEqual(1, GigRules.PopularityChange(Set(20), 90));
         // Losing a point takes four times a point's worth walking off, and many more than were won over.
         Assert.AreEqual(0, GigRules.PopularityChange(Set(0, 7), 10));
         Assert.AreEqual(-1, GigRules.PopularityChange(Set(0, 8), 10));
@@ -540,8 +540,8 @@ public sealed class BandRelationshipTests
         var two = tier2.CapturePersistenceSnapshot();
         Assert.IsTrue(GameSession.Restore(two).IsSuccess, GameSession.Restore(two).Error);
         var p = two.Preparation!;
-        CollectionAssert.AreEqual(new[] { new PopularityShift("act.meadow-lanterns", 3) }, p.ActPopularity);
-        foreach (var forged in new PopularityShift[]?[] { null, [new("act.meadow-lanterns", 4)], [new("act.meadow-lanterns", 3), new("act.parish-ceilidh", 1)], [] })
+        CollectionAssert.AreEqual(new[] { new PopularityShift("act.meadow-lanterns", 2) }, p.ActPopularity, "Fifteen won over, held to +2 a set.");
+        foreach (var forged in new PopularityShift[]?[] { null, [new("act.meadow-lanterns", 3)], [new("act.meadow-lanterns", 2), new("act.parish-ceilidh", 1)], [] })
             Assert.AreEqual(refused, GameSession.Restore(two with { Preparation = p with { ActPopularity = forged } }).Error);
         // Nor newcomers a set couldn't have had: more won over than clapped it out.
         var greedy = new CarriedGig[] { WonOver("act.meadow-lanterns", 19), Triumph("act.parish-ceilidh") };

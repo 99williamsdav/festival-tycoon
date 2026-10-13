@@ -81,7 +81,7 @@ public sealed record CarriedGig(int Tier, string ActId, bool Started, bool CutSh
 /// <para>Fee: × (1 − relationship / 200) for a band that likes you, × (1 − relationship / 100) for one that doesn't, so
 /// half at +100 and double at −100, rounded to whole pounds.</para>
 /// <para>Popularity: +1 for every <see cref="NewcomersPerPoint"/> newcomers won over (2 for an obscure act, more the more
-/// popular it is), at most +3 a set; −1 when four times that many walked off unimpressed and they're more than twice
+/// popular it is), at most +2 a set; −1 when four times that many walked off unimpressed and they're more than twice
 /// those won over. Held to 0..100, counted from the next festival.</para>
 /// </summary>
 public static class GigRules
@@ -140,7 +140,7 @@ public static class GigRules
     public const int WonOverEnjoyment = ReactionZero;
     /// <summary>A newcomer walked off unimpressed after hearing at least 30 s of a set that played out, getting under 3 a second from it.</summary>
     public const int WalkOffHeardTicks = 2_400, UnimpressedPerSecond = 3;
-    public const int MostPopularityGain = 3;
+    public const int MostPopularityGain = 2;
     /// <summary>A loss needs this many times a point's worth of newcomers walking off (8 for an obscure act).</summary>
     public const int WalkOffsPerLoss = 4;
     public const int LeastPopularity = 1, MostPopularity = 100;
@@ -155,14 +155,13 @@ public static class GigRules
 
     /// <summary>
     /// Newcomers an act must win over for a point of popularity: 2 for an obscure act, rising with how popular it already
-    /// is (2 + (popularity − 20)² / 400): 2 up to 30, 3 at 40, 4 at 50, 6 at 60, 8 at 70, 11 at 80, 14 at 90, 18 at 100.
+    /// is (2 + 3 × (popularity − 30) / 10): 2 up to 30, 5 at 40, 8 at 50, 11 at 60, 14 at 70, 17 at 80, 20 at 90, 23 at 100.
     /// </summary>
-    public static int NewcomersPerPoint(int popularity) => 2 + Square(Math.Max(0, popularity - 20)) / 400;
-    private static int Square(int value) => value * value;
+    public static int NewcomersPerPoint(int popularity) => 2 + 3 * Math.Max(0, popularity - 30) / 10;
 
     /// <summary>
     /// How a set moves its act's popularity (<paramref name="popularity"/> as it played): +1 per <see cref="NewcomersPerPoint"/>
-    /// newcomers won over, at most +3; else −1 when four times that many walked off, and more than twice those won over.
+    /// newcomers won over, at most +2; else −1 when four times that many walked off, and more than twice those won over.
     /// </summary>
     public static int PopularityChange(GigFacts facts, int popularity)
     {
