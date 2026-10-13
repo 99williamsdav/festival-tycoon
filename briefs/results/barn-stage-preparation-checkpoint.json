@@ -1,0 +1,91 @@
+{
+  "Status": "Preparation only; no runtime change or asset integration",
+  "Base": "4b70adf8927b172d9b71b0c7930bf372a024e246",
+  "Plan": "briefs/results/barn-stage-integration-plan.md",
+  "Sources": [
+    {
+      "Path": "src/Festival.Simulation/FarmScene.cs",
+      "SHA256": "9C32464B68A7D842BA6FCC966092C4881F2894CCB6C0DF25FC00674C972DBDB4"
+    },
+    {
+      "Path": "src/Festival.Simulation/Fixtures/NavigationFixture.cs",
+      "SHA256": "484B52D93D89DEFBF4B8EBBF9D5945EDB1DDEA520462AE3B2335D58FFAC025F7"
+    },
+    {
+      "Path": "src/Festival.Simulation/FestivalStage.cs",
+      "SHA256": "FF6EA9768485946C0F069B6D79682BE1B3C511B21BFF225E4B94402229D74D8E"
+    },
+    {
+      "Path": "src/Festival.Simulation/MultiStage.cs",
+      "SHA256": "026B8965223E8833A84E267D661F98E36F8220D00E670AAD175F5CCE87085117"
+    },
+    {
+      "Path": "src/Festival.Simulation/Shelter.cs",
+      "SHA256": "41E36ED277E26CD549171EC077D742937465034DEFD4A0241FAD83505FDF5F37"
+    },
+    {
+      "Path": "src/Festival.Simulation/Marquee.cs",
+      "SHA256": "35A1109830C97BF0E290C7EE1B0B5B367F9FF7BB1062F7B25A3B0328E7B006F3"
+    },
+    {
+      "Path": "src/Festival.Simulation/Weather.cs",
+      "SHA256": "955FA23BF6478379FAE98E20E7F24F2B25E8D01BC956970755A84E3B540671C2"
+    },
+    {
+      "Path": "game/Main.cs",
+      "SHA256": "0D5D70B023135D7FE43CDF55C0800F73BF71BD212ED85F0ECA3D2395A18A9392"
+    },
+    {
+      "Path": "game/Main.Hover.cs",
+      "SHA256": "9D4BAC69D785AD53E39D535C6A7D8BB51918BCCEB3CED50BFA8711D78C83B619"
+    },
+    {
+      "Path": "game/RoofFade.cs",
+      "SHA256": "37C5590B8C816D187832B7530B60831D0D0F1AD6A9B94C8E508E7835FD302E9B"
+    },
+    {
+      "Path": "game/Main.Marquee.cs",
+      "SHA256": "1AE37C6E1441495AEF57EFA4985047C4EB68B0E825BC7E950CC90B879203D697"
+    },
+    {
+      "Path": "game/Main.PondStage.cs",
+      "SHA256": "E9C7662085D39F1DABEBD279E7C5DD994F29DB01CA55A12BB1F5D4469C3148F6"
+    },
+    {
+      "Path": "game/Main.LivePerformance.cs",
+      "SHA256": "97392C4B2E0509BF15CED7E675AAA0B1477AC3B3FE81C73EC2DD589213C818C9"
+    },
+    {
+      "Path": "game/FestivalAudio.cs",
+      "SHA256": "21A91C0CD704BC5FF34B9F1B49CDB55D8AE2A45F68FBBA648794FF22E53AEE0E"
+    }
+  ],
+  "DesignInputs": [
+    {
+      "Path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/barn-stage-concepts-v1/HANDOFF.txt",
+      "SHA256": "A25A32FF5A42964AD84AFAFC12DB8F497DE77922715F00597833074131DC171E"
+    },
+    {
+      "Path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/barn-stage-concepts-v1/02-end-on-hall-v2-gable-facing.png",
+      "SHA256": "9C489DA145373BBC67E38711085A33A7C44A8B23569D22058FDE4ACD7A7E8C0B"
+    },
+    {
+      "Path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/barn-stage-concepts-v1/03-floor-plans.svg",
+      "SHA256": "9D3D6AF6B137251EF0F3148684BDD041E11B23F0CAEFAE6922B4A097C2B7A85D"
+    },
+    {
+      "Path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/barn-stage-concepts-v1/04-farm-context.svg",
+      "SHA256": "0B2D3A7ADB5C6C98B9EE09872AB4B5439704841A3428AC7854656505A85DB587"
+    },
+    {
+      "Path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/barn-stage-concepts-v1/05-camera-visibility.svg",
+      "SHA256": "FC39E5D4F7605FE585354A4AACADCD2F01BACC1FD699A67FDFD58DE7288D0EAB"
+    },
+    {
+      "Path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/barn-stage-concepts-v1/manifest.json",
+      "SHA256": "45ADA9F6586A6099FAD76A0A52426A1102736559AE6B75D18694C79233C5B161"
+    }
+  ],
+  "AssetHandoffReceived": false,
+  "Required": "Coordinator handoff of completed barn-stage-asset-v1 before integration. Preserve current normal stage allocation; fixture verification first."
+}
