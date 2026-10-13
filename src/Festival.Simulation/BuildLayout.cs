@@ -313,6 +313,11 @@ public sealed partial class GameSession
                 ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille))
             .Select(toilet => toilet with { QueueCells = [ToiletDoorstepCell(toilet)] }).ToArray();
 
+    /// <remarks>
+    /// Every check here must stay monotone in the placements: if a layout passes, any subset of it passes too. The
+    /// last festival's copy relies on that to bisect for the first clash. So no "must have" or "at least" rules here
+    /// (e.g. "toilets need a bin within N cells"); those belong in the start requirements.
+    /// </remarks>
     private static string? ValidateBuildLayout(IReadOnlyList<BuildPlacement> placements, IReadOnlyList<FestivalStage> stages,
         EquipmentSnapshot? equipment = null, bool waterTowerOwned = false, int tier = 1)
     {
