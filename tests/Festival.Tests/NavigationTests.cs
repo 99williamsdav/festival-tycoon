@@ -204,8 +204,10 @@ public sealed class NavigationTests
         var unobstructed = DeterministicPathfinder.FindPath(new TraversalGrid(), start, target);
         Assert.IsTrue(unobstructed.Found && unobstructed.Path.Any(IsBarn),
             "Without the rear barn, this north-to-south fixture must cross its actual footprint.");
-        Assert.IsFalse(session.TraversalGrid!.Get(TraversalGrid.WorldToCell(0, -23_000)).IsWalkable,
-            "The authoritative fixture must contain the new rear-field barn obstacle.");
+        Assert.IsTrue(session.TraversalGrid!.Get(TraversalGrid.WorldToCell(0, -23_000)).IsWalkable,
+            "Barn Stage's interior is open, but its north wall has no through-door.");
+        Assert.IsFalse(session.TraversalGrid.Get(TraversalGrid.WorldToCell(0, -29_000)).IsWalkable,
+            "The rear wall still prevents a north-to-south shortcut.");
         Assert.IsFalse(route.Any(IsBarn), "The authoritative route must avoid every blocked barn cell.");
         Assert.IsTrue(route.Any(cell => cell.Z >= barnMin.Z && cell.Z <= barnMax.Z &&
             (cell.X < barnMin.X || cell.X > barnMax.X)),
