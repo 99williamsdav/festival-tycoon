@@ -1,6 +1,6 @@
 # Fisticuffs integration — 13 October 2026
 
-Checkpoint: independent Astra Medium source/evidence review passed. Windows export and exported evidence remain pending; this is not a playtest handoff yet.
+Complete: implementation committed as `f6ae504`; independent Astra Medium source review and bounded actual-EXE export review both passed. The Windows playtest handoff is ready.
 
 The approved Designer male/female AnimationLibraries are attached to each existing actor's player. Bodies, clothing, palettes and attachments remain the existing game assets. Pair-owned manual playback replaces the previous visual pull, shake and roll. Actual reciprocal Fight states produce guard, alternating short punches and delayed flinches, separated by irregular holds and occasional omitted beats. Arguments use only the small argument gesture when hands are empty. Swings already include recovery; the optional standalone recovery clip is delivered but unused.
 
@@ -24,8 +24,20 @@ Source capture commands use the pinned Godot 4.7.2 Mono executable, `--path game
 
 Final source evidence is in `reports/evidence/fisticuffs/source/`. Preliminary paired and handling movies show the source integration; their initial choreography predates the final 0.16 s flinch/guard-return and freeze refinements. The deliverable must use fresh **exported** capture, not those preliminary movies. The source poncho inspection emits the existing `SyncPoncho` scene-owner warning; it does not prevent the mesh attachment or fail a runtime check.
 
-The two-actor source profile holds authority, disables vsync, caches the libraries, warms 60 frames and measures 90 frames per condition without capture writes. Whole-presentation mean CPU is 4.13 ms baseline / 4.17 ms active; p95 22.15 / 21.78 ms. Whole-app mean wall frame is 6.42 / 6.40 ms. This small fixture comparison is not an isolated GPU or full-live-crowd benchmark; the periodic HUD work contributes to p95. Final exported figures remain pending.
+The two-actor profile holds authority, disables vsync, caches the libraries, warms 60 frames and measures 90 frames per condition without capture writes. Source whole-presentation mean CPU is 4.13 ms baseline / 4.17 ms active. **Actual EXE:** mean CPU 3.28 / 3.36 ms, p95 17.59 / 18.46 ms; whole-app mean wall frame 5.32 / 5.46 ms, p95 20.75 / 21.22 ms. This small fixture comparison is not an isolated GPU or full-live-crowd benchmark; periodic HUD work contributes to p95.
 
 ## Review and export
 
-Fresh independent GPT-6 Astra MEDIUM source/evidence review passed, recorded in `fisticuffs-independent-review.md`. Windows EXE plus adjacent data, exported movies/screenshots, hashes and bounded independent export verification pending. Preserve unrelated dirty imports, `packages.lock.json`, lead-outfit source and pre-existing UID files.
+Fresh independent GPT-6 Astra MEDIUM source/evidence review passed, recorded in `fisticuffs-independent-review.md`. No gameplay/source changes followed that review. The historical checkpoint's report hash predates the subsequent review/export status updates; all 17 code/test hashes still match.
+
+The initial export script could not replace the earlier `artifacts/windows/FestivalTycoon.exe` because Windows denied access. A fresh output directory avoided touching that file. Export completed successfully; only the exporter's already-known temporary extracted-texture MD5 messages occurred. Its line-ending-only import rewrites were restored while all 25 substantive pre-existing import changes remain untouched.
+
+Delivered folder: `C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-fisticuffs-2026-10-13/`. It contains `FestivalTycoon.exe` (198,258,040 bytes; SHA-256 `a18be45441acf6b31cc6a012406eb1fc5b6278c538aae27775291ab22704bb30`) and `data_Festival.Game_windows_x86_64/` with 193 files. Every copied file matches the export; no ZIP. Keep the data folder beside the EXE.
+
+The **copied delivery EXE itself** ran the full capture and ended `FISTICUFFS_EVIDENCE_COMPLETE`, with zero runtime errors and all 174 native assertions passing (100 repeat the argument condition). Its packaged libraries bind correctly. Actual exported [paired motion](../../reports/evidence/fisticuffs/exported/paired-motion.mp4) and [steward response](../../reports/evidence/fisticuffs/exported/steward-handling.mp4) are silent 30-fps native frame captures, 12 s and 7 s respectively. PNGs, `checks.json`, materialized per-frame `trace.json`, `profile.json`, native log and executable/data/code hash manifest are beside them.
+
+Handling begins at tick 5360 in the controlled response fixture; both native clips become `fight_stand_down`. No trace sample swings while the handler is active. The held transaction and 793 consumed ticks remain unchanged through handling. The original 0.50 m steward attendance floor is retained; nearby third actors can lower hands for collision avoidance without entering the handling state. The pair itself reaches 1.00 m by normal navigation, with no fight-start position change. Constrained fallback and unchanged deadlines are established by the focused authority tests, not by claiming this open-field clip covers every site.
+
+Bounded independent export acceptance **passed**, recorded in [fisticuffs-independent-export-review.md](fisticuffs-independent-export-review.md). The reviewer independently rehashed the EXE, all 193 data files and all 17 code/test files, inspected actual exported frames and checked the handling trace and profiles. There are no blocking findings. The actual EXE capture log has no warnings or errors. No manual playthrough or exhaustive collision claim is made.
+
+Unrelated package lock, lead-outfit source, substantive import edits and pre-existing UID files remain outside the commits. The three new fisticuffs C# UIDs generated by the export are included with final evidence.

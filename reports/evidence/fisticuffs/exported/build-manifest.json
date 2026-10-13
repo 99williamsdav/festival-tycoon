@@ -1,0 +1,1052 @@
+{
+  "SourceCommit": "f6ae504fcaff6553843a21a14eea871ffc6865f7",
+  "ReviewedSourceCheckpoint": "briefs/results/fisticuffs-review-checkpoint.json",
+  "CodeHashesUnchanged": true,
+  "Code": [
+    {
+      "Path": "game/CrowdBodies.Walk.cs",
+      "SHA256": "8D1369E819513BC4D500CD9958FE42020920314FF53A1A4F5289580A3D5CC9F6"
+    },
+    {
+      "Path": "game/CrowdBodies.Fisticuffs.cs",
+      "SHA256": "B0360E55C4B1DE13AC96B9FC20359918A650DD9FB56C8CADA47CBC622B52B16C"
+    },
+    {
+      "Path": "game/Main.Disorder.cs",
+      "SHA256": "114FEB4BD80CF4E0204E877CF68B7D17FBCF1304FA84E2C9F385B21892E35A72"
+    },
+    {
+      "Path": "game/Main.Immersion.cs",
+      "SHA256": "109E8DC935D8243C7DC0DFAEE80EEB7EEB71C074A9F6F54CD8EDE61873FC1DCC"
+    },
+    {
+      "Path": "game/Main.Preparation.cs",
+      "SHA256": "01406ECA63739ADEE8EDADC5C4DF1D7D482F293DF81808F4D2F2B422316F2C7A"
+    },
+    {
+      "Path": "game/Main.cs",
+      "SHA256": "356CE4E9A5EE2D9CC8140608176043A0290E140525F32306F1F713AA7EBA82F2"
+    },
+    {
+      "Path": "game/Main.Fisticuffs.cs",
+      "SHA256": "C726191ACA1761485E45BBC0F95512614463030D58F268D9B00C652CD941E25A"
+    },
+    {
+      "Path": "game/Main.FisticuffsEvidence.cs",
+      "SHA256": "4F78E0BE079056D7A8E6E8CEA746662558A66B48E7B8210CB132BDF605677344"
+    },
+    {
+      "Path": "src/Festival.ContentAdapter/FightChoreography.cs",
+      "SHA256": "C9444D7235FA539CF7C32A20E15B0594ADCAED5C3F797350A457FA04B65D206B"
+    },
+    {
+      "Path": "src/Festival.ContentAdapter/FightPresentation.cs",
+      "SHA256": "2092DE0EC6AF15DE01BF246927343C7CE6443602A03314F17F0287A6E37720AB"
+    },
+    {
+      "Path": "src/Festival.Simulation/ConfrontationSpacing.cs",
+      "SHA256": "73B96EFABF217AA5F9F08163E06780F64E7BCF134809F0019F6CF567E8B84BC5"
+    },
+    {
+      "Path": "src/Festival.Simulation/DisorderIncident.cs",
+      "SHA256": "289413B23671425CDBDF8B83A86B6C86263754463AB01D42D3E620ABE2256100"
+    },
+    {
+      "Path": "src/Festival.Simulation/StaffFightHandling.cs",
+      "SHA256": "22895B17055A2C9A07D81D746EF3DE1A08098D57A7BD47C90E608CE36CA0E76E"
+    },
+    {
+      "Path": "tests/Festival.Tests/ConfrontationSpacingTests.cs",
+      "SHA256": "30514222103447F163ADA3647A19772BAB562B34F78E143378A27E13D94A0306"
+    },
+    {
+      "Path": "tests/Festival.Tests/FightChoreographyTests.cs",
+      "SHA256": "F621104480EB701CF6B1393157AB1A91B5F82252A575D9851A4BC6EA9FBA2811"
+    },
+    {
+      "Path": "tests/Festival.Tests/FightPresentationTests.cs",
+      "SHA256": "FC490BA38E4638BE5C1E399D59CAC4E40D1447FE1B0540942881ECC56D10E4FB"
+    },
+    {
+      "Path": "tests/Festival.Tests/FisticuffsEvidenceFixtureTests.cs",
+      "SHA256": "5997760DFB81D1FEC0C4CD95447C1A08C5C5BF3275D6C3AB96A50D020F6465EB"
+    }
+  ],
+  "Delivery": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-fisticuffs-2026-10-13",
+  "Executable": {
+    "Path": "FestivalTycoon.exe",
+    "Bytes": 198258040,
+    "SHA256": "A18BE45441ACF6B31CC6A012406EB1FC5B6278C538AAE27775291AB22704BB30"
+  },
+  "DataFileCount": 193,
+  "CopyHashesMatch": true,
+  "ZipFiles": 0,
+  "Data": [
+    {
+      "Path": "data_Festival.Game_windows_x86_64/clretwrc.dll",
+      "Bytes": 311048,
+      "SHA256": "C3205BF09A191E44D1213D766CBF00970D585AD3FDC406CD6AE2063AC77BF9FA"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/clrgc.dll",
+      "Bytes": 668432,
+      "SHA256": "9A89B2312CCBA49528EBF4F60C9DE8610A5B16AFB66AF9EED6335A465B5FC57B"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/clrjit.dll",
+      "Bytes": 1778440,
+      "SHA256": "0D93933EDE5F919BCFE353AB01873AC2247ED37E15FC56098216F228394771F3"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/coreclr.dll",
+      "Bytes": 4995344,
+      "SHA256": "D9FE4B48656DF2A73A1A761C5E6A8D564A6171249F9AC9E5AFEC79F4F76BF987"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/createdump.exe",
+      "Bytes": 72040,
+      "SHA256": "A83F25EB6D18178A9C7BB6461ACBA6E6E1BD30A4C359276788A36C1FCD9746BD"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.ContentAdapter.dll",
+      "Bytes": 70656,
+      "SHA256": "EB44DA420EEB48C04ABEA08EB8CFF47C7279DD1B5D9506A34EFEA3B72F92E192"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.ContentAdapter.pdb",
+      "Bytes": 26156,
+      "SHA256": "7CD9847CF4C2E7DA9695E7974EBAB44BD17320DE4040579C6FE529054490C854"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.Game.deps.json",
+      "Bytes": 29343,
+      "SHA256": "B6E34279A084388E01B80915C897F8EFB2D98743CBA1B992F53238CCCBAE1801"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.Game.dll",
+      "Bytes": 1431552,
+      "SHA256": "B95B2FD6D8C0020C71059488895F1A44740229C05030509AE5984B8A7BE2DA1E"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.Game.pdb",
+      "Bytes": 410284,
+      "SHA256": "7998DE5D24A08AC9C77578B6AB0D24380F01B1530E7884A09F6317D85F35E138"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.Game.runtimeconfig.json",
+      "Bytes": 372,
+      "SHA256": "8D7B26DBEF57BD0BE07215A7F9BEEAF4F386E1B5ECE330A1D0799F7A5D462414"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.Persistence.dll",
+      "Bytes": 58368,
+      "SHA256": "373EAB79ECE442511C4403EA5C5308D809D4D4200454D15A09CDFB1C7F2BBFCF"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.Persistence.pdb",
+      "Bytes": 26576,
+      "SHA256": "63AA96B2EFBAB76387E9FCDC3FA8298C11412DC805A68391387F698C952BEAD4"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.Simulation.dll",
+      "Bytes": 2105856,
+      "SHA256": "92B997A00CC52DE58D611EE7E316DA60D4E0D795D955FD652D4928DB66E10B4A"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Festival.Simulation.pdb",
+      "Bytes": 493332,
+      "SHA256": "CF77598955BE51B9D5266073B964EDD263FFDE8FE204736EEE382598001BBA94"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/GodotSharp.dll",
+      "Bytes": 5928960,
+      "SHA256": "2AFE2686AACFEFAC36DA6601B59AEB05E560F06E4970CD5036100ACD2CA4249D"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/hostfxr.dll",
+      "Bytes": 366856,
+      "SHA256": "73BFBA03FD339413D083DD5F04BE7E8D122ABC00340BE81ED4C40A601A6E00D9"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/hostpolicy.dll",
+      "Bytes": 407344,
+      "SHA256": "0EEBE37A299BED18215511FDABCC5BCEC364A30F33FD12DCA0850634775F23C1"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Microsoft.CSharp.dll",
+      "Bytes": 1005840,
+      "SHA256": "B6EF76BEDA2566489B99FE4CF94C03441F909307B041B2459DF149EBAF6C783D"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Microsoft.DiaSymReader.Native.amd64.dll",
+      "Bytes": 2195504,
+      "SHA256": "315A61C47C41B8D4C815F4274BB6584C1D24B4640C7EEDC354ED5B03A9A1361E"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Microsoft.VisualBasic.Core.dll",
+      "Bytes": 1247496,
+      "SHA256": "AEE000F9FD5E32E45653FC6E7A9E8B76F62F0A7A345C729F77FBA7E25DEC96FE"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Microsoft.VisualBasic.dll",
+      "Bytes": 17672,
+      "SHA256": "1AB8D76EA80F2A9BA4518965338D388DE31106E2ADC751B30DE0EF6235DF24E5"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Microsoft.Win32.Primitives.dll",
+      "Bytes": 15632,
+      "SHA256": "D2ECE2888E84009FA0D802B471A8A79A922CB76069A6DC083251AA258A9C3CE9"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/Microsoft.Win32.Registry.dll",
+      "Bytes": 121096,
+      "SHA256": "906B6D70E1630E7EB1D565F35EAB0A72A3851A5F8A4710FD8C4D5B24E788E361"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/mscordaccore_amd64_amd64_8.0.2325.60607.dll",
+      "Bytes": 1346440,
+      "SHA256": "B6927ADD9FF381597C378BB06D8F4C69C8ECDDB826A08B8FA51AC519F61991B9"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/mscordaccore.dll",
+      "Bytes": 1346440,
+      "SHA256": "B6927ADD9FF381597C378BB06D8F4C69C8ECDDB826A08B8FA51AC519F61991B9"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/mscordbi.dll",
+      "Bytes": 1234264,
+      "SHA256": "38D0D2652506173C5CA8F98CBA043051B7893B6E9F4E5FEA6C7FD43F14979F74"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/mscorlib.dll",
+      "Bytes": 59664,
+      "SHA256": "EE830FA1D8FFE5B142479BDC84300E7799287307C0813D9881C510079E14C87B"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/mscorrc.dll",
+      "Bytes": 136968,
+      "SHA256": "5ABD99BD6BB6CAC5944D8A1A553714BE0A2F9BC88A559D0A1F773C28ED969A85"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/msquic.dll",
+      "Bytes": 529480,
+      "SHA256": "B2B7FD2DC05B0009ACD3F0DE7BA443C660C87B1308774A5811FDB8873A76DE78"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/netstandard.dll",
+      "Bytes": 101136,
+      "SHA256": "77860A211F6948A9F558705B70321B55C5534804C165ECF9719DE45C02A0A9BE"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.AppContext.dll",
+      "Bytes": 15632,
+      "SHA256": "3C57A7696EB1D3C0EF92C788DB9D319045997F3D4E4ACD4BF19AF6C01493F3C5"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Buffers.dll",
+      "Bytes": 15664,
+      "SHA256": "BE0676A25A7D06671F9E875BB95FADFDC757BF1EF1371A804D869744F74EE2FA"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Collections.Concurrent.dll",
+      "Bytes": 276744,
+      "SHA256": "4E00A1B4696FEFC0384D1060B4330EE1321F221B9FA76D84958F954DA677D873"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Collections.dll",
+      "Bytes": 260408,
+      "SHA256": "574B3A1E5A3E33F0E03BA345F314B356BCB17B2E89563ADBBF7551FD6DBD30C7"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Collections.Immutable.dll",
+      "Bytes": 837944,
+      "SHA256": "61030351D8BC49E2345597F4A115A8B783B3FA7F3CF5949B16AC1708DEBF04C3"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Collections.NonGeneric.dll",
+      "Bytes": 104712,
+      "SHA256": "37045A5334BE120D61488FCD1D44E6751598E036C0CF6F5E4A5F62521D53AA22"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Collections.Specialized.dll",
+      "Bytes": 104712,
+      "SHA256": "1FDDF55A3F33A29C7AB165F961403669990043897D9F7933228F70B313500D1F"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ComponentModel.Annotations.dll",
+      "Bytes": 203016,
+      "SHA256": "956ECED688DE9D333CF8A32F73F98E406A99DDBAA964022E09014E53FA3E1866"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ComponentModel.DataAnnotations.dll",
+      "Bytes": 17160,
+      "SHA256": "26BD876A8E051C0C7BB0C51F98DC74411BB47E335B0D4073C5CA77D81ADDE626"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ComponentModel.dll",
+      "Bytes": 30992,
+      "SHA256": "6A6DFDB5BAE340BD3FFFBD00829E09B32AE2434E8FD175EF6B8365AE0E271AFE"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ComponentModel.EventBasedAsync.dll",
+      "Bytes": 47368,
+      "SHA256": "C98AA4D48A42F506CF4AE9262A423CA9D435896F3B1A08076DE0F9F2CF0D2768"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ComponentModel.Primitives.dll",
+      "Bytes": 80136,
+      "SHA256": "524178733A71605B671B566E2C5512191C2F84231972C7A9323CDB334A404201"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ComponentModel.TypeConverter.dll",
+      "Bytes": 747832,
+      "SHA256": "6306E085F156079D15A690D32FDD7F4461331E7E16EC077BDAF2B026A7172031"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Configuration.dll",
+      "Bytes": 19728,
+      "SHA256": "3656A85293E0C5C5E4D3B04D4676D593753659D6195DF0EC050F1F30E1D20170"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Console.dll",
+      "Bytes": 174344,
+      "SHA256": "D83AD195ADD85A6C963C54B8F79AFDAA30E08CF20649BC283D9500EFB0268BFD"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Core.dll",
+      "Bytes": 23856,
+      "SHA256": "A880CF276206421166FA0D9BCD3691A76393F8D94B41A6D691D838E198633399"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Data.Common.dll",
+      "Bytes": 2861360,
+      "SHA256": "7E11D026844835103CAA6FA6989C385E194D51B7B5095560DA289837D7730998"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Data.DataSetExtensions.dll",
+      "Bytes": 16184,
+      "SHA256": "4D7A0BFC59AE0CF7E36F46ADE0A2D84C5EF98FAD7D7139DF9CDE415F512BA9E0"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Data.dll",
+      "Bytes": 25360,
+      "SHA256": "0C96F38C58474722E22C64C39CBAEBFB42A828E60D3090F50FD33011DD834154"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.Contracts.dll",
+      "Bytes": 16648,
+      "SHA256": "234F1C40B7E000E756AB0D08649CF1DC6C1E36687EBD662563F9DFF54996F442"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.Debug.dll",
+      "Bytes": 16184,
+      "SHA256": "39B3C6D614EDFA9E46B94863BB8F41AA70FEF8D9DD1615C53672B3385D26E3B2"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.DiagnosticSource.dll",
+      "Bytes": 416056,
+      "SHA256": "4F732569917DEAB7D0A0C3004C9D366A1A877F0D16021B84A449DB828D3B8D02"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.FileVersionInfo.dll",
+      "Bytes": 47368,
+      "SHA256": "3E40792BF8D8188B6F067313C56C2E841CF229E38EF25A63E73CB472B2752888"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.Process.dll",
+      "Bytes": 338232,
+      "SHA256": "05D7F7BB7B30DA3DCCC19E95B395DDFBD662396E3390AB6AA6A0A387D228D7A7"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.StackTrace.dll",
+      "Bytes": 47408,
+      "SHA256": "58825391A0436A730F0AF7C187CD373226F067AC0F33D687F7C3FF1055A7C126"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.TextWriterTraceListener.dll",
+      "Bytes": 67848,
+      "SHA256": "4DEA35514E4BD5DFFA07595973E5FB7679E8D5102F248E64CD75328404F6491D"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.Tools.dll",
+      "Bytes": 15672,
+      "SHA256": "EFF8E57315881816CDAE2F1A224A9BCB130CD4D46A8A87E38A87BDDB59CB2C6E"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.TraceSource.dll",
+      "Bytes": 145672,
+      "SHA256": "5C80463B6CE0C340751454FCCFB93BF4EB124A8259DCACAE3724E17062096597"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Diagnostics.Tracing.dll",
+      "Bytes": 16696,
+      "SHA256": "CC825B68714341C3DDAF15A7F79826DFD03E47EF51DB2060792BDB47C92CD87D"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.dll",
+      "Bytes": 50440,
+      "SHA256": "6FCD9C995AC09E3EB12F1BDF56F240F22EE3C006B55D37FADA73EDD27AAD813C"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Drawing.dll",
+      "Bytes": 20744,
+      "SHA256": "88A9123A76F57AD0A605E826FBD9C470AEB44EE467A6451B3FCD4847F4E8ADF4"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Drawing.Primitives.dll",
+      "Bytes": 133384,
+      "SHA256": "CB17247E574E8EDF883565402118CB167752B927986EB5825C37408A619B3D28"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Dynamic.Runtime.dll",
+      "Bytes": 16656,
+      "SHA256": "567ECFD6E5E43E9EB44F35F2808EB0F13EC0A9BC4FCCB0A4237B8EBABA8DE5E8"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Formats.Asn1.dll",
+      "Bytes": 244016,
+      "SHA256": "B42AA6A93D16B0D91D1BA88F6DE358F36C0A1814F05191E701366958D5CA327A"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Formats.Tar.dll",
+      "Bytes": 272656,
+      "SHA256": "2A31CE39E5B73E78603AC18266E16FC0F4860452CA62764C8C235467E3AA20F9"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Globalization.Calendars.dll",
+      "Bytes": 16184,
+      "SHA256": "9CE5C35858662F5FBC3A3D2E376E9CEA5F98509912D6CFBC19C41BDB96BDDC45"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Globalization.dll",
+      "Bytes": 16184,
+      "SHA256": "086A52A8730A4BF14005333E87807158CF85BD1AD225B6381B776F1637AA39BB"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Globalization.Extensions.dll",
+      "Bytes": 15624,
+      "SHA256": "D2D62DDF0FFF53BFC2B0B5C72492771B09CF6E8D58654C860AE879323014CF3A"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.Compression.Brotli.dll",
+      "Bytes": 84272,
+      "SHA256": "E6A226695D956CFDB77BAB3787A2505432A3843AC52838778FCCB210CC349DC4"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.Compression.dll",
+      "Bytes": 264504,
+      "SHA256": "307003A75BD290F92AF0040F4F1A9F3AC16A4B02A9BA7D81B86FA9C2FD00E39F"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.Compression.FileSystem.dll",
+      "Bytes": 15672,
+      "SHA256": "8384E01608447BE802D24DF8F8E21BBFF0F6E44E841E5FDC517A90461E36E1B4"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.Compression.Native.dll",
+      "Bytes": 829192,
+      "SHA256": "028E90473E8606832EED202BFBE69B9D500D4730C31E2BA19ABBDA119D4CF6A3"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.Compression.ZipFile.dll",
+      "Bytes": 55568,
+      "SHA256": "02983396FB497C224C881FBAA45E365AD6CF2CFD67EFCFAE0C4D1A915EC318B6"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.dll",
+      "Bytes": 16136,
+      "SHA256": "26178E9F782CD1992284B94047EB0E24AD42282701487DA7891398D8EC563B1F"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.FileSystem.AccessControl.dll",
+      "Bytes": 104720,
+      "SHA256": "7A4184B7566B51188296CA5A6CE976638434129A592ABFBC3996626D8B8561FB"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.FileSystem.dll",
+      "Bytes": 16136,
+      "SHA256": "7C9E8B30E94D3CD6A227D49AF961A05123543C340C1F5FC4229652A3B9EBBD67"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.FileSystem.DriveInfo.dll",
+      "Bytes": 55608,
+      "SHA256": "EBE6FEFA39F00AA72959F6064B4B6AAB2C10F610454149EEFC3284D5C09DDA3C"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.FileSystem.Primitives.dll",
+      "Bytes": 15624,
+      "SHA256": "ED8B4826F56AA108A7E69DA642752867D5DDE6E4971DB5AEB058742F97BA8CF1"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.FileSystem.Watcher.dll",
+      "Bytes": 88336,
+      "SHA256": "3744E753164EEA0CA5C6138CA07F08CC7F01814082B6EB156B539DDE2FC63DD7"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.IsolatedStorage.dll",
+      "Bytes": 92424,
+      "SHA256": "B178D3F584CAA75674ABBAE04A16C1CDA0C6469BBA0B69C2E6A80D74A5043C68"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.MemoryMappedFiles.dll",
+      "Bytes": 84240,
+      "SHA256": "33B3B9BCA8D190E31C21F7882DC21F1F69C84E4B7462A27B61C43D6ED37F6187"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.Pipes.AccessControl.dll",
+      "Bytes": 16688,
+      "SHA256": "60C561C3DF39E0C79085B3FDF406ADA3BCA9B9ED8913A706FE3926E4C2DFAFD8"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.Pipes.dll",
+      "Bytes": 166192,
+      "SHA256": "99178E296D2C856C115761B5A92A89D7437904EB7C877EAF020B3C4DAE6831F6"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.IO.UnmanagedMemoryStream.dll",
+      "Bytes": 15632,
+      "SHA256": "5D57A6D72B0488B393889BD420622541A30FB317E5A809DA128F60197325C821"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Linq.dll",
+      "Bytes": 542984,
+      "SHA256": "01C516324F8D062F57E6A3A32CA48503CACABC8455C304B30C4A49ECC59F20DE"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Linq.Expressions.dll",
+      "Bytes": 3676472,
+      "SHA256": "5A7CF4403EA7ECEEAE34D18D5B496A024BCD05F697B7925B28D743ADA6953B54"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Linq.Parallel.dll",
+      "Bytes": 805168,
+      "SHA256": "27859E3D8B87519AEAC95417249D8044B612742415C75E88FB2CA737BB6D13A2"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Linq.Queryable.dll",
+      "Bytes": 174352,
+      "SHA256": "784B7A64F5A6C102AD1F3B209F814B28696856BF709E65A48ED2E162836303C2"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Memory.dll",
+      "Bytes": 157960,
+      "SHA256": "9A3C726A0FD415DF68B98C3D0A0B8B60D48AEDDE12AABD48B7825432F911A2C9"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.dll",
+      "Bytes": 17672,
+      "SHA256": "3623EE1E2447C006F642708354BCCE482FFA700346F76ADE44A2BBA64F85D656"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.Http.dll",
+      "Bytes": 1730832,
+      "SHA256": "6CDB4F0CDFBDF7D64FB472B9F3062E851975B057C6DDDDAD0D38F10995BAD553"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.Http.Json.dll",
+      "Bytes": 129296,
+      "SHA256": "CC07BA038061484A95C3EE8CEA483D1A06FF55E039B61107E423B7C33D9A4827"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.HttpListener.dll",
+      "Bytes": 551216,
+      "SHA256": "1F419683B26893C17B8059BC4428307FD2278C4961F463969D27F5975FB06FFE"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.Mail.dll",
+      "Bytes": 432440,
+      "SHA256": "5FB0C23C4BDA95312ABB012023C84D62F6660AAA897AA4777C4FB31917C25B84"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.NameResolution.dll",
+      "Bytes": 112912,
+      "SHA256": "5881EE04ED178CE55C2DA71CFB0B3ECFF81E72C7F7B17C560C49B5444DD5E4A5"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.NetworkInformation.dll",
+      "Bytes": 157960,
+      "SHA256": "F9A66AA3CF2B6DED39AAB8A82E9D52E7B525394A20BC14BC3C004BA8E783AC75"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.Ping.dll",
+      "Bytes": 96520,
+      "SHA256": "111F89AB42BA272B34F3B04816841FD4926B7027D693D49FAE6538B9E32CB7F3"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.Primitives.dll",
+      "Bytes": 231688,
+      "SHA256": "D9AC23BB9AA14949D746A433412C4D0E590A6519A93497EBB18941591B56C30E"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.Quic.dll",
+      "Bytes": 284976,
+      "SHA256": "9EE449FD5335D373E644F69A497706132C8C8754B6310627B8CD09DDD3A28A89"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.Requests.dll",
+      "Bytes": 346424,
+      "SHA256": "BB7AACD1AF148B6391BDE9735A4FF058A27A95FE7A6DBC9C0ADEBEC5667A34F1"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.Security.dll",
+      "Bytes": 669960,
+      "SHA256": "24BF5BEBAAA84BA724F1509544789AF0603D8216CAE4FE95C2C9EFA6192C4B87"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.ServicePoint.dll",
+      "Bytes": 47376,
+      "SHA256": "119C69088B2433C5D358D86B4EEA5125F95C74F3DD6E54999996EF39A2C98DB9"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.Sockets.dll",
+      "Bytes": 547080,
+      "SHA256": "760F3F4A0D4CA483D472038CB83B93361A9AA4209B4D5EF67C420F0F042B0D36"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.WebClient.dll",
+      "Bytes": 170256,
+      "SHA256": "33053252B3B595B2C8E1D6BE958BE27C364D52B7870B3843ED7E416A3B33CDEC"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.WebHeaderCollection.dll",
+      "Bytes": 67896,
+      "SHA256": "5071E5C10D341E3F9149B79D769FBCF610DC8E1DA04D25F8511010BEDB4856FA"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.WebProxy.dll",
+      "Bytes": 43272,
+      "SHA256": "EE9FE755A985AA303E7688019A40222E359685FEFB4BD2821E95A33A49E3BAE5"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.WebSockets.Client.dll",
+      "Bytes": 100624,
+      "SHA256": "C1335308F7E300A5A9D0CECF3488A7A298BDD4B4F87D0391E0F36DDF12BA0FAD"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Net.WebSockets.dll",
+      "Bytes": 190776,
+      "SHA256": "10CD00EEC456E7E1C1C91D643EE99F1190A7CCD5FC85C381A707C4127E02D7C0"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Numerics.dll",
+      "Bytes": 15624,
+      "SHA256": "D2234D5A2B1B6A4EE691AC1CA3FC19FA3C49D361E403B63C8BD0E80FC7C0408F"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Numerics.Vectors.dll",
+      "Bytes": 16136,
+      "SHA256": "2F8F3C01747FD96B6BFA43FD762B116FAA9C112BB8E643A381A8F5ADED6DED18"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ObjectModel.dll",
+      "Bytes": 80144,
+      "SHA256": "AE5EFE598E5507CA23E2A30C6A62971F11A5E13F4E7809D0A4DEEF0ED78E461B"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Private.CoreLib.dll",
+      "Bytes": 13175048,
+      "SHA256": "2E21E1AD264783854E394CE2AFDAFC330639AF9387A0557025627EB0426253AB"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Private.DataContractSerialization.dll",
+      "Bytes": 2083080,
+      "SHA256": "5269EF77A6451AADC4FD2DE40A1EBA92443F635B75DFBBD6B40CE71E6B819A92"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Private.Uri.dll",
+      "Bytes": 260400,
+      "SHA256": "F1E9986E588153EA3A7EDC490AE84246D4DC27D121ED4B34C4317F4A588CEAC7"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Private.Xml.dll",
+      "Bytes": 7997704,
+      "SHA256": "C2F9B13670B732DAE8167F37EF9A25179A2AAF3CBFB1E44CD4B0998B19A7A76B"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Private.Xml.Linq.dll",
+      "Bytes": 403728,
+      "SHA256": "4B46DB275527F991835969E07C1B0896002E528440681C7EC8AE6891F0C8D867"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Reflection.DispatchProxy.dll",
+      "Bytes": 76088,
+      "SHA256": "E58BFFDB839BB291507E3587E154F976F389A56F8DB4EA18EBD3C71B20060777"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Reflection.dll",
+      "Bytes": 16656,
+      "SHA256": "2D7FB4B0EE407FAB863041AB9D0487D4D79D335806E69D2B45720E0C5625FAD9"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Reflection.Emit.dll",
+      "Bytes": 129296,
+      "SHA256": "B8D065AA28DD8D30F77E9ACD0C85FFC22C3AADEC547B14B05216755506D5AA29"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Reflection.Emit.ILGeneration.dll",
+      "Bytes": 16144,
+      "SHA256": "BBD18E55E45A97891112ECD106E54C3FC4C9EBE9C11D9C541271CE9137BAF4AD"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Reflection.Emit.Lightweight.dll",
+      "Bytes": 16136,
+      "SHA256": "12139FA2B57410FEE7F253F74F597690FAA7F427BA2047DDF7D731866C98FA80"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Reflection.Extensions.dll",
+      "Bytes": 15624,
+      "SHA256": "01D6EB5CBE269D17D03D7933481656105D913A27C4794AD94C4488082667B4C3"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Reflection.Metadata.dll",
+      "Bytes": 1116424,
+      "SHA256": "22A16ED1180D0265654B211071E12BFB4EC41EDB4FC15366A354366D9E05DC6E"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Reflection.Primitives.dll",
+      "Bytes": 16136,
+      "SHA256": "6D8674021948DA6EA984F0D0C6C4D55DA1CBB725A16353708530775DDC931426"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Reflection.TypeExtensions.dll",
+      "Bytes": 43272,
+      "SHA256": "7163B2DAD8F6D553D4F50216F0D225E972A458671898CF2D33FBDC180D4856B7"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Resources.Reader.dll",
+      "Bytes": 15664,
+      "SHA256": "750496BF323B2AFBCCCB5DF85E03B44D5A4C3E2996110B7AEC395FEF8F5B1FE6"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Resources.ResourceManager.dll",
+      "Bytes": 16144,
+      "SHA256": "E774F34EF8177FF3E0D34195B507AC1609EBEB1A68DCD2072444FE348D900E9B"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Resources.Writer.dll",
+      "Bytes": 51504,
+      "SHA256": "E58CF2BF46E3D55084B4DD8279A0AF971CA503A4E2E1C46389B019E7D199019B"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.CompilerServices.Unsafe.dll",
+      "Bytes": 15624,
+      "SHA256": "74B3958F30F32A03EDF660D8C0DB50A4AC4A58937340ACDFC1AD8B796548CC2E"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.CompilerServices.VisualC.dll",
+      "Bytes": 31032,
+      "SHA256": "560DD7D4A61331120571B1779074119EFB25E5ED37858792474C713B8DFD8344"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.dll",
+      "Bytes": 43784,
+      "SHA256": "5578C98568873D24CB60DA7C8A4F45DCC9F99F9FBC67F4B22DA6E2877B6B72DF"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Extensions.dll",
+      "Bytes": 18192,
+      "SHA256": "F9EFEB423CF180B5F264EBBE91BABC8E5AC81151BE42706B0F498AD9079DDBF4"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Handles.dll",
+      "Bytes": 15632,
+      "SHA256": "08319F4C170D4A1CFF2C51D5BBE273AC4EF35EF1E0374DC49D5516EAC6AE6E1A"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.InteropServices.dll",
+      "Bytes": 96520,
+      "SHA256": "03426065BED16593440242FF29C625824A4E81C64BCCF176EDCA9497885D4F42"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.InteropServices.JavaScript.dll",
+      "Bytes": 51472,
+      "SHA256": "FCEBFBA163B6CDCB2A13D35D79184905670A0519618F1654BAFA45E1578A541C"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.InteropServices.RuntimeInformation.dll",
+      "Bytes": 15624,
+      "SHA256": "6446ECA5107EE6780F9F3A1123655CDBF0CCE2AC16E57B446EB575F4056480BA"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Intrinsics.dll",
+      "Bytes": 17168,
+      "SHA256": "A8125C44D7A91D6DDE6151CA1386E62DF165727DBA5D31A74D133EE0C82C307A"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Loader.dll",
+      "Bytes": 16136,
+      "SHA256": "B037644E6D16E5E4E59B50B6A4DB4C6F1C909B5FE075AD3085B19422CB42BE10"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Numerics.dll",
+      "Bytes": 329992,
+      "SHA256": "3BC03AF50D9C1781F4DCDF0AEA4BA03B35B992D90BDC95CDA93F154887A3AB2F"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Serialization.dll",
+      "Bytes": 17200,
+      "SHA256": "5454294BCA229B5065080BE78DBAA6F998C39E2FB19DEA9B5F9D105CA527090C"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Serialization.Formatters.dll",
+      "Bytes": 309552,
+      "SHA256": "7B7CEA8526ADB0FDDFD1A364B0EA40CA87F90D61AEBCD2320CD67140D702290A"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Serialization.Json.dll",
+      "Bytes": 16184,
+      "SHA256": "BE5C9572D7371D55B2DD3F31252724FD34056EA5E23DFC8E21E2B844A953B8BE"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Serialization.Primitives.dll",
+      "Bytes": 39176,
+      "SHA256": "F825FBB3D697A5185E34E982D4B4FAEED3853664939B1F412A19CC4FF8460130"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Runtime.Serialization.Xml.dll",
+      "Bytes": 17208,
+      "SHA256": "74AD7F63BED00F4B48EC8CF0CCA09BD9CC3B0F447E876ACAD8106704F0B7AD9F"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.AccessControl.dll",
+      "Bytes": 231688,
+      "SHA256": "739E91D855410508698AC22D28CEA253B5D8074774C5D47A5ADA8F2A4DCCD4CA"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Claims.dll",
+      "Bytes": 100616,
+      "SHA256": "89E029A71E629DDB9F7EB1E065447C7841C82BA7B73293B7C3921486DEB2E084"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Cryptography.Algorithms.dll",
+      "Bytes": 17672,
+      "SHA256": "F0C52F5DFCCFA4DC8FF80E3FEF34F8AD76F1EEE3C047C05CB69C2FEA47F1DBDD"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Cryptography.Cng.dll",
+      "Bytes": 16688,
+      "SHA256": "F8D571D4B19B7A1CD982578A369273A703398AEE943B560317926FE357BCAF8C"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Cryptography.Csp.dll",
+      "Bytes": 16176,
+      "SHA256": "23644551A83ED3360A9F08A8B3D3AF33FC96C44242E3979E9DBF4243F4FD6E4B"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Cryptography.dll",
+      "Bytes": 2050320,
+      "SHA256": "660F99A304DB5190C9280894C7DDD6030286B418EC2534B9B9A68FA2345CEC09"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Cryptography.Encoding.dll",
+      "Bytes": 16144,
+      "SHA256": "3183F17113457C4B8C6A2E66704C31B4C330D17CA9F30A00613A64645892FA20"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Cryptography.OpenSsl.dll",
+      "Bytes": 15672,
+      "SHA256": "7EE54E3BB92CD5E7545F46517AE5236FBEB104CE8C9C13DB940696C95E90F42C"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Cryptography.Primitives.dll",
+      "Bytes": 16136,
+      "SHA256": "49D73E54D25DF44F1B2FE0751A7B426B7CE4232BF3A3E9AD5C9AEB3CD6DA657A"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Cryptography.X509Certificates.dll",
+      "Bytes": 17168,
+      "SHA256": "04736180CD527F3BE693185412D382F5E65D660E7944856325CA5B6FD688C138"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.dll",
+      "Bytes": 18744,
+      "SHA256": "914E5C27CB9E262F490817AD9CC526C64868A3AD6FD527382CB01A0EACCE7290"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Principal.dll",
+      "Bytes": 15624,
+      "SHA256": "70CBAA9A4F4ACF51F12B55789D76915E9F7D731DE6EAE883736395E00D320207"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.Principal.Windows.dll",
+      "Bytes": 186632,
+      "SHA256": "F9C57103EFF6B1FF43F5BC1C36158C0DEEC9ACBAD7CA2932D23B202D689694B1"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Security.SecureString.dll",
+      "Bytes": 15664,
+      "SHA256": "A7A7D9440B450B3D9BEA61AA8C849EB3007A03869E9B6678BFDCFDF87F11B3EB"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ServiceModel.Web.dll",
+      "Bytes": 17200,
+      "SHA256": "166FD1E73D3519F23F4D6D710B67ED71A044CFCD8E5D71A635EADF419DEB4B43"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ServiceProcess.dll",
+      "Bytes": 16184,
+      "SHA256": "3FE5A40F7011F061FA029F11C2F87C691F6F1AB6F352BBE3B4E00981E705DB81"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Text.Encoding.CodePages.dll",
+      "Bytes": 862480,
+      "SHA256": "47FA02D3941ADA849EE130173BFD8D5B5A755F587553F637E6052DB96540E45D"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Text.Encoding.dll",
+      "Bytes": 16136,
+      "SHA256": "E7D772AAF45C56E2D67EEC8920FD65ADC1384BEA1698B30AF5A0AF28C02E9ACF"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Text.Encoding.Extensions.dll",
+      "Bytes": 16176,
+      "SHA256": "EE33C60BB5F87501C6BCDBFB68784FFC5F12D28E9860A313A9E1E95F61EF465D"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Text.Encodings.Web.dll",
+      "Bytes": 133432,
+      "SHA256": "822C0F89469672A0E49BA5521F04B69BBA29109AB8B94C93D8446F7D6DF05BD5"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Text.Json.dll",
+      "Bytes": 1501456,
+      "SHA256": "10AC33DB068EC8616C2B8A0D5D7623F91B323E2E3E5119462E566C7ECAEE9ED6"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Text.RegularExpressions.dll",
+      "Bytes": 1022216,
+      "SHA256": "9480C2BFCC6414858675182A54B885E03417B55D4B5E52AB5EDA58658A4FEBED"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.Channels.dll",
+      "Bytes": 133384,
+      "SHA256": "A5B18D1E26BCB25D38A776146346DE2C9ACCBCCD7997AD86880F37F28E8F3970"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.dll",
+      "Bytes": 84280,
+      "SHA256": "82C123CB14B69307BC6437E6CDB2B7D0AF7DF46FE843533837BA931976188C7C"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.Overlapped.dll",
+      "Bytes": 16136,
+      "SHA256": "A456991A45DCDE4A43BA2647A3460BD8AEE43CBDCB19B622FB63E93CC117DE5F"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.Tasks.Dataflow.dll",
+      "Bytes": 489744,
+      "SHA256": "A367ACED029E92D6878543BBA0F52F2A77E2F15D7823B78948AD947A98F03AB7"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.Tasks.dll",
+      "Bytes": 17160,
+      "SHA256": "563692084C1873C68797896F296D58F8F22928B3EB450B5E704E5FDE9743B215"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.Tasks.Extensions.dll",
+      "Bytes": 16144,
+      "SHA256": "29753563178E23F9CC8740380FA05382D5DB35DA3C61149919C3BAB57E28D8ED"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.Tasks.Parallel.dll",
+      "Bytes": 133384,
+      "SHA256": "D07588ADFC6123C2F3CC9291498DDA63C7499C1ABA407928F51D1B5D7E4DA042"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.Thread.dll",
+      "Bytes": 16136,
+      "SHA256": "E6FB545D4E6CF63F4F8F1E680F77EC6E699FE41A78F271B09606AFFB372BF1E3"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.ThreadPool.dll",
+      "Bytes": 16136,
+      "SHA256": "FBB0B6498AFEECC435A72963D191ECD09B3B9564F54C5CAD68699A0F44EA3F06"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Threading.Timer.dll",
+      "Bytes": 15624,
+      "SHA256": "B7B92A05494A0AF4782F08EE424A190F728EB363BCC7ABC42DC00D04A5EAEDB0"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Transactions.dll",
+      "Bytes": 16648,
+      "SHA256": "8B966C9B9EA3B2159C32BE9C4E232E33FFF8CB5EBE46429D9665648917DC7BB1"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Transactions.Local.dll",
+      "Bytes": 661768,
+      "SHA256": "26A6AB8C938AC3DCEEB22C55FE755A91049F4EDE6B53CEFE21D0685EF84B116F"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.ValueTuple.dll",
+      "Bytes": 15672,
+      "SHA256": "291127E83E5B27ED5C4E182773A6F611B5C17049FA79C9CC9A8CBD05F17718A5"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Web.dll",
+      "Bytes": 15624,
+      "SHA256": "F5A31742F45382DED8620B7BED2B87EA250B94C9A6DC0E2913527CDBCC1355A9"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Web.HttpUtility.dll",
+      "Bytes": 59664,
+      "SHA256": "25897019CA8CE9BBECB4A3E4126DB89D7DEDD6AB41331E1246D1EE67A9FD3E9A"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Windows.dll",
+      "Bytes": 16136,
+      "SHA256": "BE405E45BEBEB5D4EB088579BEC5C2D0AD7A2326239FB43C3A4C97E9BEC9E54A"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Xml.dll",
+      "Bytes": 23816,
+      "SHA256": "39641465B56D44277B02AA5AE0EF17C03EE2CB4964D0D4D3FCD5A2CC051DA42D"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Xml.Linq.dll",
+      "Bytes": 16184,
+      "SHA256": "DB7E5701DDAA2889EE49E54A332FCF28A1FB0145AE80D01DB90CF2F6FD5D0CD8"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Xml.ReaderWriter.dll",
+      "Bytes": 22280,
+      "SHA256": "86AB224E83736B171DFC5620473A53FE6EF14081EEEC011930A140197F70E921"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Xml.Serialization.dll",
+      "Bytes": 16648,
+      "SHA256": "A65C489FA3B39EEC4B96D3B8187C49A11716B36C13F6C67BEA18A9EDD79843B5"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Xml.XDocument.dll",
+      "Bytes": 16136,
+      "SHA256": "76DE8064BDEAA7BD742F3A4EFBBD088F50A812E74E77F0D482A8A9D91415A2DC"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Xml.XmlDocument.dll",
+      "Bytes": 16136,
+      "SHA256": "16E276750B32B8B8F20B836D54E68AA54B47CC43B5A3969392120D51C598FE8B"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Xml.XmlSerializer.dll",
+      "Bytes": 18192,
+      "SHA256": "DBDEED1630CDFA8B0840A76DEEF60D1575FF5388CE77FD32C0B0A3A98805D200"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Xml.XPath.dll",
+      "Bytes": 16136,
+      "SHA256": "85611016BDE06FB9D0F2113247822B085711A3C3D9197F64F378E6272EE93F07"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/System.Xml.XPath.XDocument.dll",
+      "Bytes": 30992,
+      "SHA256": "DB52A93589915B15DF970FAAFF64B32E574B2A1780C953893E56325D5B9FF787"
+    },
+    {
+      "Path": "data_Festival.Game_windows_x86_64/WindowsBase.dll",
+      "Bytes": 16696,
+      "SHA256": "F88FC58D283C9F9AB86B1D01BB37C3CA4190C7761B37162C2CF53A63F2DEED75"
+    }
+  ],
+  "Capture": "This copied EXE was run with --fixed-fps 30 --quit-after 1600 --capture-fisticuffs; native log ends FISTICUFFS_EVIDENCE_COMPLETE."
+}

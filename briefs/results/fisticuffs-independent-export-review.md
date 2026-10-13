@@ -1,0 +1,17 @@
+# Fisticuffs independent export addendum — 13 October 2026
+
+**PASS.** The bounded Windows export checkpoint is accepted for the commissioned handoff. No blocking export or integration finding identified. This addendum extends the independent source PASS; it does not claim a manual playthrough or exhaustive crowd/outfit collision coverage.
+
+Reviewed by the independent GPT-6 Astra MEDIUM reviewer against source commit `f6ae504fcaff6553843a21a14eea871ffc6865f7` and `reports/evidence/fisticuffs/exported/build-manifest.json`. Independently rehashed all 17 code/test files: zero mismatches against the source checkpoint. Independently rehashed the delivered EXE and all 193 adjacent data files: zero manifest mismatches, with exactly 193 data files present.
+
+Accepted delivery: `C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-fisticuffs-2026-10-13/FestivalTycoon.exe`, 198,258,040 bytes, SHA-256 `A18BE45441ACF6B31CC6A012406EB1FC5B6278C538AAE27775291AB22704BB30`. Its `data_Festival.Game_windows_x86_64` directory must remain beside it.
+
+Inspected actual exported before-arrival, arrival, lowered-hands, paired-swing, argument, guest/steward and poncho PNGs, and independently extracted two additional frames from the actual exported paired movie (retained under `verification/reviewer-export-swing-a.png` and `reviewer-export-swing-b.png`). Arrival and lowered-hands samples show no obvious torso/limb intersection at the close steward midpoint. The trace confirms 1.00 m between guests and 0.50 m from each to the steward. This is acceptance of the bounded native evidence, not a continuous mesh collision guarantee.
+
+The 600-record exported trace includes all 210 handling frames. Handling starts at tick 5360; all 60 sampled frames with an active handler assign `fisticuffs/fight_stand_down` to both actors, with zero swings. The original FightTick remains 5260. The guest's held transaction `immersion:1:15`, product 2 and consumed count 793 remain unchanged throughout the handling fixture. Conservative proximity clearance can lower hands before arrival without creating a Handling attempt; the final report correctly distinguishes that safety behavior from authoritative handling cancellation. Unchanged deadline/fallback semantics remain supported by the source-reviewed authority tests.
+
+The actual-EXE native log ends `FISTICUFFS_EVIDENCE_COMPLETE` and contains no ERROR or WARNING lines. All 174 recorded assertions pass, including library binding/restored feet, exact pause/menu/hidden-pair freeze, no catch-up, guard on restore, terminal draining and no diagnostic saves; 100 assertions repeat the argument-view condition. The exporter reaches completed savepack; known importer messages are distinct from runtime capture errors. I inspected the recorded EXE run and its evidence rather than relaunching the full harness.
+
+Independently probed the movies: paired motion is 360 frames/12 seconds and steward handling is 210 frames/7 seconds, both H.264 at 30 fps. The exported profile agrees with the report: whole-presentation CPU mean 3.28/3.36 ms and p95 17.59/18.46 ms, baseline/active; mean wall frame 5.32/5.46 ms. These are explicitly limited two-actor, held-authority measurements, not full-crowd or isolated GPU results. Preliminary source movies are not used as final export evidence.
+
+Only this review report and the two reviewer-extracted image files were added by the reviewer. Gameplay/source and unrelated working-tree changes were not modified.
