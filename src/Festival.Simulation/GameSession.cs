@@ -316,6 +316,7 @@ public sealed partial class GameSession
         var events = new List<SessionEvent>();
         for (var index = 0; index < count; index++)
         {
+            _finishDueAtTickStart = FestivalFinishDue;
             CurrentTick++;
             // A terminal hazard freezes before any other work at this tick.
             AdvanceEquipment();

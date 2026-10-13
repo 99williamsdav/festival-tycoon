@@ -16,11 +16,19 @@ public sealed partial class GameSession
             (PersonIn(PersonView.Disorder, need.Id) is { ConductStage: DisorderStage.Injured } injured && CurrentTick+1>=injured.InjuryTick+DisorderInjuryDeathTicks);
     });
     private bool IsImmersionMedic(ulong id) => GetMedicResponses().Any(job => job.WorkerId == id);
-    /// <summary>Stewards and medics stay on duty through the walk-out: the festival finishes when the last guest is off site.</summary>
-    /// <summary>The player's own steward (All-Rounder) counts: control goes back to the manager at the close, and they stand where they were.</summary>
+    /// <summary>
+    /// Stewards and medics stay on duty through the walk-out, until the festival can finish. The player's own steward
+    /// (All-Rounder) counts: control goes back to the manager at the close, and they stand where they were.
+    /// </summary>
     private bool HoldsForGuests(ulong id) => IsImmersionMedic(id) || GetStewardResponses().Any(job => job.WorkerId == id) || id == HandsOnStewardId;
     private ResponseRole HoldRole(ulong id) => IsImmersionMedic(id) ? ResponseRole.Medic : ResponseRole.Steward;
     private bool GuestsRemainOnSite => PeopleIn(PersonView.Roster).Any(person => person.Role == ProtectedPersonRole.Guest && !person.Departed);
+    /// <summary>Down on a death clock: collapsed, critical or fight-injured. Anyone like this, guest or not, holds the day open.</summary>
+    private bool OnDeathClock(ulong id) => PersonCollapsed(id) || PersonIn(PersonView.Disorder, id)?.ConductStage == DisorderStage.Injured;
+    private bool CasualtyOnSite(bool includePatients) => PeopleIn(PersonView.Roster).Any(person => !person.Departed &&
+        (OnDeathClock(person.Id) || includePatients && HasClaim(person.Id, PersonClaim.MedicPatient)));
+    /// <summary>Stewards and the medic are still needed while a guest or a casualty is on site.</summary>
+    private bool StaffNeededOnSite => GuestsRemainOnSite || CasualtyOnSite(true);
     private bool ImmersionDepartureJobOwns(ulong id) => PersonCollapsed(id) ||
         EffectiveToilets(_facilities).Any(toilet => toilet.OwnerId == id) ||
         HasClaim(id, PersonClaim.MedicResponding | PersonClaim.MedicPatient) ||
@@ -31,7 +39,7 @@ public sealed partial class GameSession
         var nav = _navigationAgents[new(id)];
         return !ImmersionDepartureJobOwns(id) && nav.Destination == PreparedStart(index) &&
             nav.IntentId == "edition.departure" &&
-            (!HoldsForGuests(id) || !GuestsRemainOnSite);
+            (!HoldsForGuests(id) || !StaffNeededOnSite);
     }
     private void StartImmersionDeparture()
     {
@@ -51,7 +59,7 @@ public sealed partial class GameSession
     {
         if (!ImmersionDepartureActive) return;
         var p = _preparation!;
-        var guestsRemain = GuestsRemainOnSite;
+        var guestsRemain = StaffNeededOnSite;
         for (var index = 0; index < PeopleIn(PersonView.Roster).Length; index++)
         {
             var person = PeopleIn(PersonView.Roster)[index];
@@ -61,7 +69,9 @@ public sealed partial class GameSession
             var nav = _navigationAgents[new(person.Id)];
             var cell = !hold ? PreparedStart(index) : person.Id != HandsOnStewardId ? StaffDutyCell(person.Id, HoldRole(person.Id)) :
                 nav.IntentId == intent && nav.Destination is { } standing ? standing : TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres);
-            if (nav.Destination != cell || nav.IntentId != intent) ApplyAgentDestination(new(person.Id), new(cell, intent));
+            // A walker left with no route tries again every festival minute, so nobody is stranded holding the day open.
+            if (nav.Destination != cell || nav.IntentId != intent || nav.Action == AgentNavigationAction.NoRoute && CurrentTick % 80 == 0)
+                ApplyAgentDestination(new(person.Id), new(cell, intent));
             MutatePerson(person.Id, need => { need.Intent = hold ? MedicalIntent.WatchShow : MedicalIntent.Leaving; need.Reason = hold ? "On duty while guests remain on site" : "Physically leaving; ingestion and exposure continue until exit"; });
         }
     }

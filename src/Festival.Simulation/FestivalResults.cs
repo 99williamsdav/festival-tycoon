@@ -47,8 +47,8 @@ public sealed partial class GameSession
     private void FinalizeFestivalDeparture()
     {
         if (_preparation is not { Status: PreparationStatus.Departing, FinishedBeerIds: not null } p || IsLifecycleEditionFrozen()) return;
-        // The day finishes when the last guest is off site; staff, performers and crew still here don't hold it open.
-        var guestsGoneAtStart = AllGuestsOffSite;
+        // The day finishes when the last guest is off site and nobody is down (see FestivalFinishDue), as it stood at the tick's start.
+        var finishDue = _finishDueAtTickStart;
         // Hazards and paid ingestion have completed at this tick before physical exit is committed.
         var people = PeopleIn(PersonView.Roster).ToArray();
         for (var index = 0; index < people.Length; index++)
@@ -62,7 +62,7 @@ public sealed partial class GameSession
             }
         }
         foreach (var person in people) SetPresence(person);
-        if (!guestsGoneAtStart) return;
+        if (!finishDue) return;
         SendRemainingWorkersHome();
         _preparation = p with { Status = PreparationStatus.Finished, Rentals = [], WorkContracts = [],
             Result = MakeFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick, _lavSucker, _weather) };
@@ -81,16 +81,29 @@ public sealed partial class GameSession
     }
 
     /// <summary>
-    /// At the finish, whoever is still working (stewards and medics standing by, crew, a band packing up) goes off
-    /// with the results: their jobs end and they leave the site as the day closes, so a finished day has nobody on it.
+    /// At the finish, whoever is still here (stewards and medics standing by, crew, a band packing up, and at the
+    /// walk-out's limit any guest still walking) goes off with the results: jobs end, loos are given up and they
+    /// leave the site as the day closes, so a finished day has nobody on it.
     /// </summary>
     private void SendRemainingWorkersHome()
     {
         FinishStaffResponsesForDeparture();
-        foreach (var person in PeopleIn(PersonView.Roster).Where(person => !person.Departed).ToArray())
+        var leaving = PeopleIn(PersonView.Roster).Where(person => !person.Departed).ToArray();
+        var ids = leaving.Select(person => person.Id).ToHashSet();
+        // Nobody left on site keeps a loo: an occupant steps out and the queue clears.
+        bool Leaving(ulong? id) => id is { } some && ids.Contains(some);
+        if (_immersion is not null && Toilets.Any(toilet => toilet.Queue.Any(ids.Contains) || Leaving(toilet.OwnerId) || Leaving(toilet.InterruptedOccupantId)))
+            SetToilets(Toilets.Select(toilet => toilet with { Queue = toilet.Queue.Where(id => !ids.Contains(id)).ToArray(),
+                OwnerId = Leaving(toilet.OwnerId) ? null : toilet.OwnerId,
+                InterruptedOccupantId = Leaving(toilet.InterruptedOccupantId) ? null : toilet.InterruptedOccupantId,
+                DoorOpen = !Leaving(toilet.OwnerId) && toilet.DoorOpen,
+                ServiceTicks = Leaving(toilet.OwnerId) ? 0 : toilet.ServiceTicks }).ToArray());
+        foreach (var person in leaving)
         {
             ReleaseWasteAtExit(person.Id);
-            SetPresence(person with { Departed = true });
+            if (person.ToiletStage != ToiletVisitStage.None || person.ToiletId is not null)
+                SetConsumption(_persons[person.Id] with { ToiletStage = ToiletVisitStage.None, ToiletChoice = null, ToiletId = null });
+            SetPresence(_persons[person.Id] with { Departed = true });
         }
     }
 

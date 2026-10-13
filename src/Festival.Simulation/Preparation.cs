@@ -98,9 +98,21 @@ public sealed partial class GameSession
     internal string? PreparationCanonicalJson => PreparationView is not { } p ? null : System.Text.Json.JsonSerializer.Serialize(p);
     public bool PreparationBoundaryOnNextTick => !IsPaused && _preparation is { } p &&
         (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks - 1 && PeopleIn(PersonView.Roster).All(item => item.Admitted) ||
-         p.Status == PreparationStatus.Departing && AllGuestsOffSite);
-    /// <summary>The festival finishes when the last guest is off site: staff, performers and crew still on site don't hold it open.</summary>
-    private bool AllGuestsOffSite => PeopleIn(PersonView.Roster).All(item => item.Role != ProtectedPersonRole.Guest || item.Admitted && item.Departed);
+         p.Status == PreparationStatus.Departing && FestivalFinishDue);
+    /// <summary>The walk-out's hard limit: this long after the planned close, whoever is still walking is sent home.</summary>
+    public const int DepartureCapTicks = 8_000;
+    /// <summary>
+    /// The festival finishes on the next tick when the last guest is off site and nobody is down: staff, performers
+    /// and crew still on site don't hold it open, but anyone collapsed, critical, injured or being seen to by the
+    /// medic does, as does a medical deadline falling due. At the walk-out's limit the guests still walking go too;
+    /// only someone on a death clock (which runs out) still holds it.
+    /// </summary>
+    private bool FestivalFinishDue => _preparation is { Status: PreparationStatus.Departing } p &&
+        !ImmersionDepartureMedicalBoundaryOnNextTick && !CasualtyOnSite(false) &&
+        (CurrentTick + 1 >= p.StartedTick + PreparedEditionDurationTicks + DepartureCapTicks ||
+         PeopleIn(PersonView.Roster).All(item => item.Role != ProtectedPersonRole.Guest || item.Admitted && item.Departed) && !CasualtyOnSite(true));
+    /// <summary><see cref="FestivalFinishDue"/> as it stood before this tick began, which the finish acts on.</summary>
+    private bool _finishDueAtTickStart;
 
     public PreparationInventoryBalance? GetPreparationInventoryBalance() => _preparation is not { } p ? null :
         new(40, p.Payments.Count(item => item.Attempt == p.Attempt && item.OfferId == "contract.stock") * 50,
@@ -595,6 +607,11 @@ public sealed partial class GameSession
                 stageEngineers > 0 && !p.AcceptedOffers.Any(id => offers[id].Category == "extra-sound")) ||
             p.Status == PreparationStatus.Finished && p.People.Any(item => !item.Departed))
             return "Preparation phase and protected-person progress disagree.";
+        // Nobody leaves the site, or is sent home at the finish, while down on a death clock.
+        var departed = p.People.Where(item => item.Departed).Select(item => item.AgentId).ToHashSet();
+        if (snapshot.Medical?.Needs?.Any(need => departed.Contains(need.AgentId) && need.Stage is MedicalStage.Collapsed or MedicalStage.Critical) == true ||
+            snapshot.Disorder?.People?.Any(person => departed.Contains(person.AgentId) && person.Stage == DisorderStage.Injured) == true)
+            return "A person off site is still collapsed, critical or injured.";
         var originalPeople = factory.CapturePreparation()!.People;
         if (maintenance == 1) originalPeople = originalPeople.Append(new EditionPerson(p.MaintenanceWorkerId!.Value, "Morgan Finch", ProtectedPersonRole.Staff, 0)).ToArray();
         StaffCandidate? Extra(ResponseRole role) => StaffCatalogue.Hired(candidates, p.AcceptedOffers, role == ResponseRole.Medic ? StaffRole.Medic : StaffRole.Steward, true);

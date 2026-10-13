@@ -104,6 +104,128 @@ public sealed class WalkOutTests
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
     }
 
+    /// <summary>Walks out until every guest is off site, on the tick before the day would finish.</summary>
+    private static void UntilTheLastGuestIsOut(GameSession s, long close)
+    {
+        while (GuestsOnSite(s))
+        {
+            Assert.IsTrue(s.CurrentTick - close < DepartureBudgetTicks);
+            s.AdvanceWithoutSnapshot(1);
+        }
+        Assert.AreEqual(PreparationStatus.Departing, s.PreparedStatus);
+        Assert.IsTrue(s.PreparationBoundaryOnNextTick, "With nobody down, the day finishes on the next tick.");
+    }
+
+    [TestCategory("Slow")]
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public void AStewardDownAtTheFinishHoldsTheDayOpenUntilTreatedOrDead(bool treated)
+    {
+        var s = Started("management-only", 2);
+        var close = RunToClose(s);
+        UntilTheLastGuestIsOut(s, close);
+        var steward = s.GetStewardResponses()[0].WorkerId;
+        var tick = s.CurrentTick;
+        // Down at their post as the last guest goes: with time for the medic to come, or past saving.
+        Invoke(s, "UpdatePerson", steward, (Func<Person, Person>)(need => treated
+            ? need with { HealthStage = MedicalStage.Collapsed, Intent = MedicalIntent.Collapsed, HealthWarningTick = tick, HealthCollapseTick = tick }
+            : need with { HealthStage = MedicalStage.Critical, Intent = MedicalIntent.Collapsed, HealthWarningTick = tick - 4_000,
+                HealthCollapseTick = tick - GameSession.MedicalDeathDelayTicks + 40, HealthCriticalTick = tick - 1 }));
+        Assert.IsFalse(s.PreparationBoundaryOnNextTick, "A steward down holds the day open.");
+        for (var step = 0; step < DepartureBudgetTicks && s.PreparedStatus == PreparationStatus.Departing; step++)
+        {
+            s.AdvanceWithoutSnapshot(1);
+            if (s.PreparedStatus == PreparationStatus.Finished) break;
+            Assert.IsFalse(s.CapturePreparation()!.People.Single(person => person.AgentId == steward).Departed);
+        }
+        if (treated)
+        {
+            Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus);
+            Assert.AreEqual(MedicalStage.Treated, s.CapturePerson(steward)!.HealthStage);
+            Assert.IsTrue(s.CurrentTick > tick + 80, "The day waited for the medic.");
+            var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+            Assert.IsTrue(restored.IsSuccess, restored.Error);
+        }
+        else
+        {
+            Assert.AreEqual(PreparationStatus.Failed, s.PreparedStatus, "A death on the way out fails the edition, as at any other time.");
+            Assert.IsNull(s.CompletedFestivalResult);
+        }
+    }
+
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void StaffInALooAtTheFinishGiveItUp()
+    {
+        var s = Started("management-only", 2);
+        var close = RunToClose(s);
+        UntilTheLastGuestIsOut(s, close);
+        var steward = s.GetStewardResponses()[0].WorkerId;
+        var medic = s.GetMedicResponses()[0].WorkerId;
+        var toilets = (ToiletFacility[])typeof(GameSession).GetProperty("Toilets", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(s)!;
+        Invoke(s, "SetToilets", (object)toilets.Select((toilet, index) => index == 0 ? toilet with { OwnerId = steward, DoorOpen = false, Queue = [medic] } : toilet).ToArray());
+        s.AdvanceWithoutSnapshot(1);
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus);
+        var after = (ToiletFacility[])typeof(GameSession).GetProperty("Toilets", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(s)!;
+        Assert.IsTrue(after.All(toilet => toilet.OwnerId is null && toilet.Queue.Length == 0));
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+    }
+
+    [TestMethod]
+    public void RestoreRefusesSomeoneOffSiteWhoIsStillDown()
+    {
+        var s = Started("management-only", 2);
+        s.AdvanceWithoutSnapshot(2_000);
+        var saved = s.CapturePersistenceSnapshot();
+        var guest = saved.Preparation!.People.First(person => person.Role == ProtectedPersonRole.Guest && person.Admitted).AgentId;
+        var forged = saved with
+        {
+            Preparation = saved.Preparation with { People = saved.Preparation.People.Select(person => person.AgentId == guest ? person with { Departed = true } : person).ToArray() },
+            Medical = saved.Medical! with { Needs = saved.Medical.Needs.Select(need => need.AgentId == guest ? need with { Stage = MedicalStage.Collapsed, CollapseTick = s.CurrentTick } : need).ToArray() },
+        };
+        var result = GameSession.Restore(forged);
+        Assert.IsFalse(result.IsSuccess);
+        Assert.AreEqual("A person off site is still collapsed, critical or injured.", result.Error);
+    }
+
+    [TestCategory("Slow")]
+    [TestMethod]
+    public void AGuestLeftWithNoRouteTriesAgainAndAStuckOneIsSentHomeAtTheLimit()
+    {
+        var s = Started("management-only", 2);
+        var close = RunToClose(s);
+        var guests = s.CapturePreparation()!.People.Where(person => person.Role == ProtectedPersonRole.Guest && !person.Departed).Select(person => person.AgentId).ToArray();
+        var (lost, stuck) = (guests[0], guests[^1]);
+        var agents = (System.Collections.IDictionary)typeof(GameSession).GetField("_navigationAgents", BindingFlags.NonPublic | BindingFlags.Instance)!.GetValue(s)!;
+        void NoRoute(ulong id)
+        {
+            var nav = agents[new EntityId(id)]!;
+            nav.GetType().GetProperty("Action")!.SetValue(nav, AgentNavigationAction.NoRoute);
+            nav.GetType().GetProperty("Route")!.SetValue(nav, new List<GridCell>());
+            nav.GetType().GetProperty("RouteIndex")!.SetValue(nav, 0);
+        }
+        // One guest loses their route once and must find it again; another keeps losing it every tick.
+        s.AdvanceWithoutSnapshot(1);
+        NoRoute(lost);
+        long lostOut = -1;
+        while (s.PreparedStatus == PreparationStatus.Departing && s.CurrentTick - close <= GameSession.DepartureCapTicks + 1)
+        {
+            NoRoute(stuck);
+            s.AdvanceWithoutSnapshot(1);
+            if (lostOut < 0 && s.CapturePreparation()!.People.Single(person => person.AgentId == lost).Departed) lostOut = s.CurrentTick;
+            if (s.PreparedStatus == PreparationStatus.Departing)
+                Assert.IsFalse(s.CapturePreparation()!.People.Single(person => person.AgentId == stuck).Departed);
+        }
+        Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus);
+        Assert.AreEqual(close + GameSession.DepartureCapTicks, s.CurrentTick, "The walk-out's limit sends the stuck guest home.");
+        Assert.AreEqual(FestivalTickets.Sold(1), s.CompletedFestivalResult!.GuestCount);
+        var restored = GameSession.Restore(s.CapturePersistenceSnapshot());
+        Assert.IsTrue(restored.IsSuccess, restored.Error);
+        Assert.IsTrue(lostOut > 0 && lostOut - close < DepartureBudgetTicks, $"The guest left with no route should find it again and walk out; out at {lostOut - close}.");
+    }
+
     [TestCategory("Slow")]
     [TestMethod]
     public void AGuestCollapsingOnTheWayOutHoldsTheDayOpenUntilTheyAreSeenTo()
