@@ -127,7 +127,8 @@ public sealed class FestivalProgrammeTests
         // About the stage schedule: no random toilet or tap faults reshuffling the day.
         s = Restore(BuildSession.WithoutFaults(s));
         var ids = s.CapturePreparation()!.People.Select(p => p.AgentId).ToArray();
-        Assert.AreEqual(maintenance ? 33 : 32, ids.Length);
+        // The Tier 1 crowd (25 since the 9 Oct ticket trial) plus the band, crew and staff.
+        Assert.AreEqual(FestivalTickets.Sold(1) + (maintenance ? 13 : 12), ids.Length);
         var played = new HashSet<int>();
         var restoredSlots = new HashSet<int>();
         var playedPeople = new HashSet<ulong>();

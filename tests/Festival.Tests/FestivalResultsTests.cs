@@ -62,7 +62,7 @@ public sealed class FestivalResultsTests
         s = Reload(s); s.AdvanceWithoutSnapshot(15000);
         Assert.AreEqual(PreparationStatus.Finished, s.PreparedStatus); Assert.IsNotNull(s.CompletedFestivalResult);
         Assert.IsNotNull(s.CompletedFestivalAccounts); Assert.IsTrue(s.CompletedFestivalAccounts.Reconciles);
-        Assert.AreEqual(20, s.CompletedFestivalResult.GuestCount); Assert.AreEqual(prior.People.Length, s.CapturePreparation()!.People.Length);
+        Assert.AreEqual(FestivalTickets.Sold(1), s.CompletedFestivalResult.GuestCount); Assert.AreEqual(prior.People.Length, s.CapturePreparation()!.People.Length);
         // The completed festival moves the established festival's standing toward its result.
         var finished = s.CapturePreparation()!;
         Assert.IsNotNull(finished.StandingBefore);
@@ -152,7 +152,7 @@ public sealed class FestivalResultsTests
         Closing(s); s.AdvanceWithoutSnapshot(15000); var final = s.CapturePreparation()!;
         Assert.AreEqual(finalEarly, final.People.Single(person => person.AgentId == guest.AgentId).Satisfaction);
         Assert.AreEqual(final.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted && person.Departed).Sum(person => (long)person.Satisfaction), s.CompletedFestivalResult!.SatisfactionTotal);
-        Assert.AreEqual(20, s.CompletedFestivalResult.GuestCount); Reload(s);
+        Assert.AreEqual(FestivalTickets.Sold(1), s.CompletedFestivalResult.GuestCount); Reload(s);
     }
     [TestCategory("Slow")]
     [TestMethod]
