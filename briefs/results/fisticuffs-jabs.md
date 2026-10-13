@@ -1,6 +1,6 @@
 # Closer comic fisticuffs — 13 October 2026
 
-Fresh independent Astra Medium source/geometry/evidence review passed. The original v1 delivery remains preserved. Actual Windows export and bounded independent export review remain pending.
+Fresh independent Astra Medium source/geometry/evidence review and actual exported-build acceptance **passed**. Source commit is `63ffc3e6cb8b34f58012b0a83f26dd69ffd22f76`. The original v1 delivery remains preserved. The new Windows EXE plus adjacent data folder is ready for playtest handoff.
 
 User feedback asked for closer fighters, longer reaching punches and comical fast jabs. The revision uses the original approved bodies, rest bones, skinning and palette, with new v2 animation libraries. Native right-hand excursion grows 49% male / 58% female (0.147→0.219 m and 0.141→0.222 m). Jab clips halve from 0.50 to 0.25 s, with a larger chest turn and small comic recoil. A single alternating jab owner delivers three-to-five-jab bursts, short varied holds, longer breathers and occasional omitted beats. There are no additional simulation hits, damage events or combat RNG draws.
 
@@ -20,4 +20,18 @@ Source evidence is in `reports/evidence/fisticuffs-v2/source`. Discarded prototy
 
 ## Independent review and export
 
-Fresh independent GPT-6 Astra MEDIUM source/evidence review **passed**, recorded in `fisticuffs-jabs-independent-review.md`. Actual Windows EXE plus adjacent data, fresh exported movies/screenshots/profile, hash verification and bounded independent export acceptance will follow. No ZIP or extra aesthetic/manual-playthrough approval gate. The source profile was taken during concurrent verification work and supports no performance comparison; the release profile will be captured without that concurrent work.
+Fresh independent GPT-6 Astra MEDIUM source/evidence review **passed**, recorded in [fisticuffs-jabs-independent-review.md](fisticuffs-jabs-independent-review.md). All eight reviewed code/test hashes and both runtime asset hashes remain unchanged. No ZIP or extra aesthetic/manual-playthrough approval gate.
+
+Delivered folder: `C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-fisticuffs-jabs-2026-10-13/`. Keep `FestivalTycoon.exe` beside its entire `data_Festival.Game_windows_x86_64` folder. EXE SHA-256 is `E55F3F76CC714345A012B6C6FB58A06C3BB8B54298876BBBB50DFCAB64FD7A5A`, 198,426,368 bytes. All 193 adjacent data files match the fresh export; there are zero ZIP files. The full delivery/code/asset hash manifest is `reports/evidence/fisticuffs-v2/export-manifest.json`.
+
+Export returned zero and completed savepack. Its log contains one already-known temporary extracted-texture MD5 `f.is_null()` continuation message. The full log is retained as `exported/export-log.txt`; the actual delivered EXE capture has no warnings/errors.
+
+The **copied delivery EXE** completed its fresh capture with `FISTICUFFS_EVIDENCE_COMPLETE`, zero runtime warnings/errors and 174 passing assertions (100 repeat the argument condition). Actual exported [paired motion](../../reports/evidence/fisticuffs-v2/exported/paired-motion.mp4) and [steward response](../../reports/evidence/fisticuffs-v2/exported/steward-handling.mp4) are silent 30-fps native frame captures, 12 s and 7 s. PNGs, checks, materialized trace, profile and native log are retained beside them. Minimum18 preserves the raised-arm silhouette; default62 is an overview with fist contact too small to judge, and end-on views naturally occlude one actor.
+
+Every tested body combination reaches 0.7071 m through normal movement. In the controlled response fixture, actual handling starts at tick 5400, both actors enter `fight_stand_down`, and no trace sample swings while a handler is active. The unchanged 160-tick attempt ends at 5560. The original FightTick remains 5260, and held transaction `immersion:1:15` with 793 consumed ticks remains unchanged through handling. Changed approach positions can change physical arrival time; handling duration, rules and deadlines were not altered.
+
+The source profile was potentially contended and supports no comparison. The fresh release profile ran with no concurrent build, tests, Blender verification or movie encoding: 60 warmup and 90 measured frames per condition, authority held, vsync off, cached libraries, no image writes. Whole-presentation CPU mean baseline/active is **3.474 / 3.432 ms**, p95 **18.447 / 17.837 ms**; whole-app wall-frame mean **5.598 / 5.454 ms**, p95 **21.396 / 20.823 ms**. The small difference establishes no speedup; this two-actor fixture is neither an isolated GPU benchmark nor full-live-crowd performance evidence.
+
+Bounded independent exported-build acceptance **passed**, recorded in [fisticuffs-jabs-independent-export-review.md](fisticuffs-jabs-independent-export-review.md). The reviewer independently rehashed the EXE, all 193 adjacent data files, eight code/test files and both native libraries, inspected sequential actual EXE motion and handling footage, and checked the traces and profile. No blocking findings. The separated cup visible in the handling camera predates this revision and is consistent with unchanged background litter.
+
+Unrelated package lock, lead-outfit source, 25 substantive import edits and pre-existing UID files remain outside the commits. Only export-generated line-ending import rewrites were restored.
