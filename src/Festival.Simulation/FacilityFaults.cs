@@ -162,7 +162,9 @@ public sealed partial class GameSession
         // The visit count is unchanged until they leave, so a freed occupant's own visit is not rolled again.
         var visit = toilet.WeeCount + toilet.PooCount;
         var id = $"stuck:{toilet.Id}:{visit}";
-        if (_faults is null or { Disabled: true } || _faults.Faults.Any(f => f.Id == id) ||
+        // Only guests get jammed in: the crew carry the cubicle key. A jammed steward is a rescue nobody else can bring, and a
+        // jammed medic leaves an injured steward waiting for first aid that can't come, so the day could only end in a death.
+        if (_faults is null or { Disabled: true } || !IsGuest(occupant) || _faults.Faults.Any(f => f.Id == id) ||
             !FaultRules.Roll(CampaignSeed, toilet.Id, visit, (ulong)_preparation!.Attempt, FaultRules.ToiletStuckChancePer10k)) return false;
         AddFault(id, FacilityFaultKind.StuckInToilet, toilet.Id, occupant);
         MutatePerson(occupant, person => person.Reason = "Stuck in the toilet: the lock has jammed");
