@@ -30,7 +30,12 @@ public static class SharedWorldFeasibilityFixture
         // One entrance region immediately inside the inherited north gate.
         var allStarts = PickWalkable(grid, used, AgentCount,
             index => 112 + index % 17 * 2, index => 184 + index / 17 * 2);
-        var serviceCells = new[] { new GridCell(186, 94), new GridCell(186, 118), new GridCell(186, 142) };
+        // Three counters on open grass, each with room for its 5 × 10 block of queue places. The first used to be anchored
+        // at 186,94, in the eight-cell corridor between a blocked area (x <= 182, z 83-105) and the blocked line at x 191-192,
+        // where its places packed into one or two files: whoever was called to the front could be standing behind people
+        // already in later places and never reach it. That queue hung once the entrance posts (5db23c7) moved one start
+        // cell and so changed the order people arrived in.
+        var serviceCells = new[] { new GridCell(186, 115), new GridCell(186, 137), new GridCell(186, 159) };
         var session = new GameSession(Seed, new CampaignId(Seed));
         var queueIds = new List<EntityId>();
         var offset = 0;
@@ -47,7 +52,10 @@ public static class SharedWorldFeasibilityFixture
                 index => anchor.Z - 9 + (index % 10) * 2);
             var exits = PickWalkable(grid, used, AgentCount,
                 index => 106 + index % 25 * 2,
-                index => 190 + destination * 5 + index / 25 * 2);
+                // Out on the lane beyond the north hedge (rows 191-192). The first destination's exits used to be rows
+                // 190/192, so its finished attendees stood in the gate passage itself and walled in everyone still
+                // walking out to the lane.
+                index => 195 + destination * 5 + index / 25 * 2);
             var command = new InitializeServiceQueueFixtureCommand(
                 starts, slots, exits, terrain, Enumerable.Repeat(500L, count).ToArray(),
                 AgentCount, 120, ServiceQueueFixture.DefaultPricePennies, ServiceDurationTicks,
