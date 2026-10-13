@@ -83,6 +83,11 @@ public sealed class FacilityFaultTests
         s.AdvanceWithoutSnapshot(800);
         Assert.AreNotEqual(victim, s.CaptureToilets().Single(t => t.Id == fault.FacilityId).OwnerId, "Out once freed.");
         AssertRestores(s);
+        // Only guests jam in a loo: the same rescue with a member of staff as its victim is refused.
+        var saved = s.CapturePersistenceSnapshot();
+        var staff = saved.Preparation!.People.First(p => p.Role == ProtectedPersonRole.Staff).AgentId;
+        var forged = saved with { Faults = saved.Faults! with { Faults = saved.Faults.Faults.Select(f => f.Id == fault.Id ? f with { VictimId = staff } : f).ToArray() } };
+        Assert.AreEqual("Facility fault identity, stage or worker invalid.", GameSession.Restore(forged).Error);
     }
 
     [TestMethod]
@@ -130,9 +135,11 @@ public sealed class FacilityFaultTests
         Assert.AreEqual((outside.XMillimetres, outside.ZMillimetres), (body.XMillimetres, body.ZMillimetres), "Lying just outside the door.");
         Assert.IsTrue(s.CaptureMedical()!.Needs.Single(n => n.AgentId == victim).Stage is MedicalStage.Collapsed or MedicalStage.Critical);
         AssertRestores(s);
-        // The automatic pass may already have sent one; otherwise one can be sent now.
-        Assert.IsTrue(s.GetMedicResponses().Any(r => r.PatientId == victim) || s.SelectRoleResponse(ResponseRole.Medic, victim, out _) is not null,
-            "A medic can reach them now.");
+        // The automatic pass may already have sent one; otherwise one can be sent now, unless every medic is already out on
+        // another call (the door no longer stands in the way).
+        var send = s.SelectRoleResponse(ResponseRole.Medic, victim, out var why);
+        Assert.IsTrue(s.GetMedicResponses().Any(r => r.PatientId == victim) || send is not null ||
+            s.GetMedicResponses().All(r => r.PatientId is not null && r.PatientId != victim), $"A medic can reach them now: {why}");
     }
 
     [TestMethod]

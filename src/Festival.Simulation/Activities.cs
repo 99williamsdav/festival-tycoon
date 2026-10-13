@@ -35,6 +35,12 @@ public sealed partial class GameSession
     public const long FacilitySwitchMargin = 30_000;
     // Or how much sooner another queue of the same kind (tap, toilet, stall) must serve them: three seconds, about a wee.
     public const int FacilitySwitchMarginTicks = 240;
+    // A queue that serves them that much sooner may plan up to this much worse (a point) and still win: two loos often score alike.
+    public const long FacilitySwitchTieScore = 1_000;
+    // What clapping a set out is worth to a guest, on top of the music: a trip that can wait, waits, unless going now is clearly better.
+    public const long ApplauseValue = 10_000;
+    // Needs at or above these go now: a trip for them is never put off until the applause.
+    public const int UrgentThirst = 7_000, UrgentHeat = 7_000, UrgentToilet = 8_000;
     // A worker's worth per second at their post, in place of the music.
     public const long StaffPostPerSecond = 3_000;
     // What an automatic job is worth to the worker offered it, by urgency.
@@ -162,14 +168,24 @@ public sealed partial class GameSession
         var current = CurrentActivity(person);
         var ranked = RankActivities(id, current);
         var best = ranked[0];
+        // A trip put off until the applause: keep watching, and plan again then.
+        if (best.Option.LeaveTicks > 0)
+        {
+            var later = ranked.FirstOrDefault(item => item.Option.LeaveTicks == 0 && item.Option.Kind != ActivityKind.Watch);
+            var waiting = $"Waiting for the applause, then {PlanLabel(best.Option, false)} {best.Score / 1_000}" +
+                (later is null ? "" : $" vs {PlanLabel(later.Option, false)} now {later.Score / 1_000}");
+            MutatePerson(id, item => { item.Reason = waiting; item.NeedDecisionTick = CurrentTick; });
+            return;
+        }
         var runnerUp = ranked.Length > 1 ? ranked[1] : null;
         var staff = IsStaffMember(id);
         var comparison = runnerUp is null ? "" : $" vs {PlanLabel(runnerUp.Option, staff)} {runnerUp.Score / 1_000}";
         var currentFacility = CurrentFacility(person);
-        if (best.Option.Kind == current && current != ActivityKind.Watch && best.Option.FacilityId != currentFacility &&
-            ranked.FirstOrDefault(item => item.Option.Kind == current && item.Option.FacilityId == currentFacility) is { } held &&
-            !SwitchesFacility(best, held))
-            best = held;
+        // Someone on a tap, toilet or stall weighs the best other one of its kind against it, whichever ranks first.
+        if (current != ActivityKind.Watch && best.Option.Kind == current &&
+            ranked.FirstOrDefault(item => item.Option.Kind == current && item.Option.FacilityId == currentFacility) is { } held)
+            best = ranked.FirstOrDefault(item => item.Option.Kind == current && item.Option.FacilityId != currentFacility) is { } other &&
+                SwitchesFacility(other, held) ? other : held;
         if (best.Option.Kind == current && (current == ActivityKind.Watch || best.Option.FacilityId == currentFacility))
         {
             var reason = current == ActivityKind.Watch
@@ -188,12 +204,12 @@ public sealed partial class GameSession
     /// <summary>
     /// Whether someone swaps the tap, toilet or stall they're on for another of the same kind that now plans better. It must
     /// be clearly better, or near-equal lines would flip-flop: either a much better plan, or, for a queue, served a few
-    /// seconds sooner. Waiting costs little score while needs are low or the stage is quiet, so the score margin alone kept
-    /// people queuing beside an empty cubicle.
+    /// seconds sooner by a plan no more than a point worse. Waiting costs little score while needs are low or the stage is
+    /// quiet, so two loos often plan alike, and the score margin alone kept people queuing beside an empty cubicle.
     /// </summary>
     public static bool SwitchesFacility(ActivityScore best, ActivityScore held) =>
         best.Score - held.Score >= FacilitySwitchMargin ||
-        QueuedKind(held.Option.Kind) && best.Option.Kind == held.Option.Kind && best.Score > held.Score &&
+        QueuedKind(held.Option.Kind) && best.Option.Kind == held.Option.Kind && best.Score + FacilitySwitchTieScore >= held.Score &&
         (long)best.Option.CompleteTicks + FacilitySwitchMarginTicks <= held.Option.CompleteTicks;
 
     private static string PlanLabel(ActivityOption option, bool staff) => option.Then is { } then
@@ -336,6 +352,7 @@ public sealed partial class GameSession
             }
             options.Add(new(first.Kind, first.Facility, first.CompleteTicks, first.CompleteTicks + EstimateWalkTicks(id, first.Cell, music), first.Enjoyment, first.Cost)
                 { FoodRelief = first.FoodRelief });
+
             // The quickest of each kind; for something bought, of each stall, since two vans differ by more than the walk.
             foreach (var second in StopCandidates(id, person, current, first.Cell, first.CompleteTicks, first.Kind)
                          .GroupBy(stop => (stop.Kind, Stall: IsPurchase(stop.Kind) ? stop.Facility : null))
@@ -344,7 +361,33 @@ public sealed partial class GameSession
                     second.CompleteTicks + EstimateWalkTicks(id, second.Cell, music), first.Enjoyment + second.Enjoyment, first.Cost + second.Cost)
                     { Then = new(second.Kind, second.Facility, second.CompleteTicks) { FoodRelief = second.FoodRelief }, FoodRelief = first.FoodRelief });
         }
+        // Or the same trip when the set they're watching ends: they clap it out and go in the gap.
+        if (current == ActivityKind.Watch && TicksToSetEnd(id) is var wait and > 0)
+            foreach (var option in options.ToArray())
+                if (Deferrable(option.Kind) && option.CompleteTicks + wait < ActivityChooser.HorizonTicks)
+                    options.Add(option with { CompleteTicks = option.CompleteTicks + wait, AwayTicks = option.AwayTicks + wait, LeaveTicks = wait,
+                        Enjoyment = option.Enjoyment + ApplauseValue,
+                        Then = option.Then is { } then ? then with { CompleteTicks = then.CompleteTicks + wait } : null });
         return options;
+    }
+
+    /// <summary>Trips that can wait for the applause: a drink, food, water, the toilet or a sit in the shade. Cover from rain and jobs can't.</summary>
+    private static bool Deferrable(ActivityKind kind) => kind is ActivityKind.Water or ActivityKind.Rest or ActivityKind.Food or ActivityKind.SoftDrink or
+        ActivityKind.Beer or ActivityKind.Toilet or ActivityKind.BarWater;
+
+    /// <summary>
+    /// How long until the set a guest is watching ends, when they could put a trip off until then: a guest in the crowd of
+    /// a set playing now whose end falls inside the plan's look-ahead, and none of whose needs is urgent (thirst or heat at
+    /// 7,000, the toilet at 8,000). 0 otherwise: an urgent need goes now, and between sets there's nothing to wait for.
+    /// </summary>
+    private int TicksToSetEnd(ulong id)
+    {
+        if (!IsGuest(id) || LiveListenerStage(id) is not (var stage and >= 0) || _livePerformances[stage]?.Stage != LiveSetStage.Live ||
+            StageProgramme(stage) is not { } q) return 0;
+        var person = _persons[id];
+        if (person.Thirst >= UrgentThirst || person.HeatExposure >= UrgentHeat || person.ToiletNeed >= UrgentToilet) return 0;
+        var left = q.SlotEndTick - CurrentTick;
+        return left > 0 && left < ActivityChooser.HorizonTicks ? (int)left : 0;
     }
 
     /// <summary>Activities served one at a time from a physical queue: a tap, a toilet or a stall.</summary>

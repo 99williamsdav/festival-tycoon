@@ -30,8 +30,9 @@ public static class PerformanceRules
     public static string BandWord(int band) => band switch { < 35 => "Ragged", < 55 => "Shaky", < 75 => "Solid", _ => "Tight" };
 
     /// <summary>
-    /// An act's talent, steady for the catalogue: its popularity plus a seeded swing of up to 35 either way, so fame
-    /// is a fair guide but not a promise.
+    /// An act's talent: its popularity plus a swing of up to 35 either way fixed by its id, so fame is a fair guide but
+    /// not a promise. Popularity is the campaign's (catalogue popularity moved by the newcomers its sets won over), so
+    /// talent moves point for point with it.
     /// </summary>
     public static int Talent(FestivalAct act)
     {

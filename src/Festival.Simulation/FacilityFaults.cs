@@ -382,7 +382,9 @@ public sealed partial class GameSession
                 (CowFault(f.Kind) ? f.VictimId != 0 || f.Stage == FacilityFaultStage.Bodged ||
                     !(f.Kind == FacilityFaultKind.BrokenGate ? f.FacilityId == "gate.pasture" : (f.FacilityId == "cable.generator" || f.FacilityId.StartsWith("cable.", StringComparison.Ordinal) && s.Facilities?.Vendors?.Any(v => v.Id == f.FacilityId["cable.".Length..]) == true))
                 : !prep.People.Any(p => p.AgentId == f.VictimId) ||
-                (f.Kind == FacilityFaultKind.StuckInToilet ? !toilets.ContainsKey(f.FacilityId) || f.Stage == FacilityFaultStage.Bodged : !taps.Contains(f.FacilityId))) ||
+                (f.Kind == FacilityFaultKind.StuckInToilet ? !toilets.ContainsKey(f.FacilityId) || f.Stage == FacilityFaultStage.Bodged ||
+                    // Only guests jam in a loo.
+                    prep.People.First(p => p.AgentId == f.VictimId).Role != ProtectedPersonRole.Guest : !taps.Contains(f.FacilityId))) ||
                 (f.Stage == FacilityFaultStage.Active) != (f.ResolvedTick < 0) || f.ResolvedTick >= 0 && (f.ResolvedTick < f.StartedTick || f.ResolvedTick > s.CurrentTick) ||
                 f.Stage == FacilityFaultStage.Fixed && (f.WorkerId is not null || f.WorkStartedTick != -1) ||
                 f.WorkerId is { } worker && (!RightWorker(f, worker) || !Working(worker) || Nav(worker)!.IntentId != ExpectedIntent(f, worker) ||

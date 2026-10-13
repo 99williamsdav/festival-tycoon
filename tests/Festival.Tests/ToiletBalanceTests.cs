@@ -60,17 +60,35 @@ public sealed class ToiletBalanceTests
     [TestMethod]
     public void PeopleQueuingMoveToALooThatFreesUpAndTheQueuesBalance()
     {
-        // Everyone queues at one loo while the other is full; then it's emptied. On the usual seed, since the solid gate
-        // leaf, the guest who'd even it up scores both loos alike and stays put; this day sets up the same rush.
-        var s = Day(20260923);
+        var outcome = QueuesBalanceOnceALooFreesUp(20260922);
+        Assert.AreEqual("balanced", outcome);
+    }
+
+    [TestMethod]
+    public void QueuesBalanceOnAlmostEveryDay()
+    {
+        var seeds = new ulong[] { 20260922, 20260923, 20260924, 20260926, 20261003, 7, 11, 12345 };
+        var outcomes = new string[seeds.Length];
+        Parallel.For(0, seeds.Length, i => outcomes[i] = QueuesBalanceOnceALooFreesUp(seeds[i]));
+        // Six of eight (2026-10-13): seed 11 never forms the queue (one guest waiting), and on 20261003 a queue of seven against
+        // two stays put, each guest's estimate putting the other loo less than three seconds sooner once two have moved.
+        Assert.IsTrue(outcomes.Count(item => item == "balanced") >= 6,
+            $"At least six of eight days balance: {string.Join(", ", seeds.Zip(outcomes, (seed, outcome) => $"{seed} {outcome}"))}.");
+    }
+
+    /// <summary>Everyone queues at one loo while the other is full; then it's emptied: within three seconds someone moves and the queues even up.</summary>
+    internal static string QueuesBalanceOnceALooFreesUp(ulong seed, int need = GameSession.UrgentToilet)
+    {
+        var s = Day(seed);
         var spare = s.CaptureToilets().Single(t => t.Id == "toilet.extra-1");
         SetToilet(s, spare with { WeeCount = spare.WeeCount + ToiletRules.CapacityMillilitres / ToiletRules.WeeMillilitres });
-        Rush(s, 6_800);
+        // Bursting: nobody puts it off until the applause.
+        Rush(s, need);
         s.AdvanceWithoutSnapshot(1_600);
         var main = s.CaptureToilets().Single(t => t.Id == "toilet.main");
-        Assert.IsTrue(Waiting(s, main) >= 3, $"The busy loo has a queue: {Waiting(s, main)}.");
+        if (Waiting(s, main) < 3) return $"no queue formed ({Waiting(s, main)})";
         spare = s.CaptureToilets().Single(t => t.Id == "toilet.extra-1");
-        Assert.AreEqual(0, spare.Queue.Length, "Nobody queues for a full loo.");
+        if (spare.Queue.Length != 0) return "someone queued for the full loo";
         SetToilet(s, spare with { EmptiedMillilitres = spare.UsedMillilitres + spare.EmptiedMillilitres });
         var queued = main.Queue.Where(id => id != main.OwnerId).ToHashSet();
         var moved = 0;
@@ -83,8 +101,10 @@ public sealed class ToiletBalanceTests
             moved = s.CaptureImmersion()!.People.Count(p => queued.Contains(p.AgentId) && p.ToiletId == "toilet.extra-1");
             balanced = moved > 0 && Math.Abs(Waiting(s, toilets[0]) - Waiting(s, toilets[1])) <= 1;
         }
-        Assert.IsTrue(moved > 0, "Someone already queuing for the busy loo moves to the emptied one.");
-        Assert.IsTrue(balanced, "Within three seconds the two queues are within one of each other.");
+        if (balanced) return "balanced";
+        var end = s.CaptureToilets();
+        return $"{(moved == 0 ? "nobody moved" : "moved but uneven")} ({Waiting(s, end[0])} vs {Waiting(s, end[1])}): " +
+            string.Join(" | ", end[0].Queue.Where(id => id != end[0].OwnerId).Select(id => s.CapturePerson(id)!.Reason));
     }
 
     [TestMethod]
@@ -96,7 +116,11 @@ public sealed class ToiletBalanceTests
             "Served three seconds sooner: swap, even for a plan barely better.");
         Assert.IsFalse(GameSession.SwitchesFacility(Plan("toilet.extra-1", 1_000 - GameSession.FacilitySwitchMarginTicks + 1, 101_000), held),
             "A second or two sooner isn't worth losing a place for.");
-        Assert.IsFalse(GameSession.SwitchesFacility(Plan("toilet.extra-1", 500, 100_000), held), "Sooner but no better a plan: stay.");
+        Assert.IsTrue(GameSession.SwitchesFacility(Plan("toilet.extra-1", 500, 100_000), held), "Sooner and planning alike: swap.");
+        Assert.IsTrue(GameSession.SwitchesFacility(Plan("toilet.extra-1", 500, 100_000 - GameSession.FacilitySwitchTieScore), held),
+            "Sooner and a point worse: still swap.");
+        Assert.IsFalse(GameSession.SwitchesFacility(Plan("toilet.extra-1", 500, 100_000 - GameSession.FacilitySwitchTieScore - 1), held),
+            "Sooner but clearly a worse plan: stay.");
         Assert.IsTrue(GameSession.SwitchesFacility(Plan("toilet.extra-1", 1_000, 100_000 + GameSession.FacilitySwitchMargin), held),
             "A much better plan still swaps.");
         var shelter = new ActivityScore(new(ActivityKind.Shelter, "marquee.a", 400, 400), 100_000);
