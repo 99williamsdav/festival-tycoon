@@ -1,0 +1,218 @@
+[
+  {
+    "name": "distinct-stage-and-generator",
+    "passed": true
+  },
+  {
+    "name": "normal-allocation-unchanged",
+    "passed": true
+  },
+  {
+    "name": "explicit-barn-fade-groups",
+    "passed": true
+  },
+  {
+    "name": "no-full-building-pick-box",
+    "passed": true
+  },
+  {
+    "name": "barn-backface-culling-retained",
+    "passed": true
+  },
+  {
+    "name": "floor-frame-signs-opaque",
+    "passed": true
+  },
+  {
+    "name": "shadow-twins-present",
+    "passed": true
+  },
+  {
+    "name": "per-instance-fade-isolation",
+    "passed": true
+  },
+  {
+    "name": "band-walked-up-and-plays",
+    "passed": true
+  },
+  {
+    "name": "audience-actually-reaches-indoor-listening",
+    "passed": true
+  },
+  {
+    "name": "band-west-facing-41",
+    "passed": true
+  },
+  {
+    "name": "band-deck-height-41",
+    "passed": true
+  },
+  {
+    "name": "band-west-facing-42",
+    "passed": true
+  },
+  {
+    "name": "band-deck-height-42",
+    "passed": true
+  },
+  {
+    "name": "band-west-facing-43",
+    "passed": true
+  },
+  {
+    "name": "band-deck-height-43",
+    "passed": true
+  },
+  {
+    "name": "pause-exact-band-pose",
+    "passed": true
+  },
+  {
+    "name": "menu-over-paused-host-exact-band-pose",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-day-South-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-day-West-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-day-North-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-day-East-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-day-South-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-day-West-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-day-North-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-day-East-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-late-South-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-late-West-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-late-North-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-late-East-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-late-South-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-late-West-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-late-North-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-late-East-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-rain-late-South-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-rain-late-West-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-rain-late-North-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-rain-late-East-18",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-rain-late-South-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-rain-late-West-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-rain-late-North-62",
+    "passed": true
+  },
+  {
+    "name": "visible-occupant-picking-rain-late-East-62",
+    "passed": true
+  },
+  {
+    "name": "empty-one-second-hold",
+    "passed": true
+  },
+  {
+    "name": "empty-restores-opaque",
+    "passed": true
+  },
+  {
+    "name": "selected-empty-reveals",
+    "passed": true
+  },
+  {
+    "name": "deselected-empty-hold",
+    "passed": true
+  },
+  {
+    "name": "deselected-restores-opaque",
+    "passed": true
+  },
+  {
+    "name": "lone-role-occupancy-1060",
+    "passed": true
+  },
+  {
+    "name": "lone-role-occupancy-1110",
+    "passed": true
+  },
+  {
+    "name": "lone-role-occupancy-1160",
+    "passed": true
+  },
+  {
+    "name": "empty-recovery-in-progress",
+    "passed": true
+  },
+  {
+    "name": "re-entry-reverses-recovery",
+    "passed": true
+  },
+  {
+    "name": "diagnostic-never-saves",
+    "passed": true
+  },
+  {
+    "name": "inside-shelter-outside-apron-uncovered",
+    "passed": true
+  }
+]

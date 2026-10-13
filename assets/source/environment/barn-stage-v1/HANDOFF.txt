@@ -1,0 +1,53 @@
+BARN STAGE ASSET V1 — BUILDER HANDOFF
+
+Approved B gable-end layout adapted from the current large barn. Ready for coordinator inspection and already-authorized Builder integration; no new aesthetic approval gate. No gameplay/repository asset replacement was performed. Original barn, Duck/Pond Stage and previous concept packages are preserved.
+
+DELIVERY
+runtime/lwf_barn_stage_v1.glb — adapted barn only. No copied people, instruments, riser or simulated occupancy is baked in.
+source/lwf_barn_stage_v1.blend — editable partitioned barn, original palette, applied source geometry.
+build.py — reproducible adaptation from references/original-large-barn.blend; original source and runtime snapshots retained.
+anchors.json — explicit Godot coordinates, openings, usable floor, circulation, listening candidate, stage/kit transforms, performer marks, stair treads, lamp and pick suggestions.
+manifest.json — mesh bounds, counts, material mapping; provenance hashes supplied separately.
+verification/geometry.json — tests on actual GLB reimport and reused stage assembly.
+verification/native-import.json — native Godot 4.7.2 decoding/material check.
+review.html — normal/translucent four-direction native views at 26, 18 and 62 orthographic size, plus Blender views.
+
+BUILT LAYOUT
+The barn remains at the current world origin (0,0,-23), yaw 0, scale 1. Exterior X/Z bounds are unchanged: +/-10.464286 by +/-6.706667; roof top 11.133333 m. A 0.10 m floor substrate extends below ground; its walking surface is exactly Y=0. Retains stone courses, slate, gable timber/vents, gutters, piers and roof silhouette. Adds a modest BARN STAGE board, EXIT sign and small interior lamp meshes. Roof/truss detail is retained, not permanently cut away.
+Replaced the old raised floor/entrance step with flush floor and thresholds. Main entry retains 7.8 m clear width. The new 2 m exit is on the same long front wall, X -8.65..-6.65, height 2.8 m. Its centre shifts left from the initial plan to -7.65. The parked left oak leaf is adapted into a compact pair of folded/stacked half-width leaves; this clears the exit while retaining the barn's oak-door character. The right parked leaf is retained. Neither short gable becomes an entrance. These practical adaptations remain inside the original external footprint.
+Interior floor X +/-9.5429, Z +/-5.5733. Reserve the front aisle X +/-9.3, Z 3.5..5.5 for movement. Listening candidate X -7..2.5, Z -3.8..2.5 is only a layout envelope, not capacity. Keep the 4 m farm track and external front dispersal area free. External apron is not indoor shelter.
+
+STAGE / BAND ORIENTATION — IMPORTANT
+Instantiate the EXISTING modular-riser-v1/lwf_modular_riser_stage_v1.glb at barn-local (6.2,0,-1.5), yaw -90 degrees. This makes its front face WEST (-X), down the barn's long axis, with the band backs toward the SHORT EAST GABLE. Do not face the band toward the long entrance wall.
+On that instance only, set RiserAccess local yaw to 180 degrees about its original shared origin. Do not rotate it about its mesh centre or change the source asset. Leave RiserCornerRails unchanged. The relocated stair clears those rails in the exported geometry test. Reuse the two existing speakers at riser-local (-2.42,.9,1.37) and (+2.42,.9,1.37), local yaw 0.
+Stage deck is Y=.9, X 4.2..8.2 / Z -4.5..1.5 in barn coordinates. Performer marks: lead (5.7,.9,-.25), bass (5.7,.9,-2.75), drummer (7.05,.9,-1.5). Current people and instrument kits face -Z in their own frame, so THEIR yaw is +90 degrees, unlike the riser's -90. Drum hardware uses +90 too. These match current BandYaw=stage yaw+180 semantics. Audience faces +X.
+Stair approach (7,0,3.65), toe (7,0,3.3), treads at Z 3.12/2.76/2.40/2.04/1.68 and Y .18/.36/.54/.72/.90, then top (7,.9,1.5), deck entry (7,.9,1.15). Clear the band's access reservation from listening places and queues. Do not reuse PondRiser's world/grid cells or the non-main BandHeight implementation unchanged: it currently assumes the pond stair direction. Builder owns actual routing, cell mapping, collision clearance and stage scheduling.
+
+VISIBILITY CONTRACT
+Nodes and exact material ResourceNames:
+- Barn_RoofFront / Barn_RoofRear: Barn_Roof — fade.
+- Barn_WallFront / Rear / East / West: Barn_WallFade — fade, including masonry/plinth/vent/gable details.
+- Barn_DoorsLeft / Barn_DoorsRight: Barn_DoorFade — fade.
+- Barn_Trusses: Barn_TrussFade — fade so overhead spans do not mask people.
+- Barn_Frame: Barn_Frame — opaque doorway/corner framing.
+- Barn_Floor: Barn_Floor — opaque.
+- Barn_SignBacking: Barn_Sign; Barn_Name: Barn_Name_Opaque; Barn_ExitSign: Barn_ExitSign_Opaque — opaque.
+- Barn_Lamp_0..4: Barn_Lamps — opaque.
+All surfaces ship opaque. The four fade groups are explicit; RoofFade currently matches only _Roof/_Canvas, so it needs a barn-specific selector extension for the other three names. Duplicate materials per instance. Do not fade the whole barn root or the floor/stage/people/sign.
+Use marquee-style occupied OR selected behavior: alpha .30 in .25 s, 1 s empty hold, .5 s return, restore opaque rendering at alpha 1. Count any person physically inside the actual barn interior, including a lone band member or staff, not only marquee Sheltering. Preserve full opaque shelter shadows with shadow-only twins; the visibility effect is not weather logic.
+EXPLICIT RENDER DIFFERENCE: preserve CULL_BACK on the barn fade surfaces. These are closed masonry/roof components with consistent normals, and exporting them enables back-face culling. The marquee helper currently forces CULL_DISABLED for thin canvas; copying that override increases overlapping translucent layers and makes the band harder to read. Tested native barn views use CULL_BACK with alpha .30, full geometry, and shadow twins. Retained layered slate/stone still causes visible lines/tint accumulation, particularly from the rear. This is shown honestly in the native review, not replaced with the clearer AI concept image. Native integration must check scene lighting, selection and people visibility in actual weather.
+Five warm-light mesh anchors are supplied; actual light nodes/energies belong to Builder. Native review uses warm omni lights at those anchors plus a stage fill for legibility. The gallery documents its setup. No occupancy controller is exported in the barn GLB.
+
+NAVIGATION / PICKING / SHELTER
+The current farm blocks the entire barn X -11..11, Z -30..-16 and uses a whole-building box for picking. Both need targeted integration changes. Open interior floor and the TWO long-side passages while retaining wall boundaries; use the actual footprint/anchors, not transparency as collision state. Replace whole-building picking with frame/edge targets so people beneath the shell stay selectable. Do not put a solid pick plane over the roof/floor that intercepts every guest click.
+Shelter must use explicit interior coverage, not the full entrance apron, opacity or current camera angle. Generator/equipment siting remains outside this asset delivery. Preserve neighbouring small barn, farmhouse and hedge, avoid the east/rear pinch points, and do not assume another field has opened. Final authoritative nav cells, capacity, price, tier, unlock order and weather balance are intentionally unassigned.
+
+VERIFICATION
+Actual GLB reimport: 136 doorway ray samples at heights .15/.8/1.65/2.15 m passed; 50 floor samples passed with maximum height error ~0.00000012 m. Four deck positions hit at .899..900 m; all five relocated stair treads match their intended height within .02 m. No stair-versus-corner-rail triangle intersections. The complete static figures and kit are review context only. These tests are geometric samples, not a simulation/pathfinding test.
+Native isolated Godot import: 19 meshes / 19 surfaces with expected 10 material names. No collision, navigation or animation controller is embedded. Final triangle count, file size and hashes are in manifest/provenance.
+Native OpenGL Compatibility renders use the exact four game yaw directions 45/135/225/315 and elevation atan(58/72). Size 26 frames the whole building; size 18 is the actual closest zoom and may crop roof edges; size 62 is default zoom and people are small. Frame focus is (0,3.5,0) for inspection. These are native isolated asset renders, not integrated game captures. Minimum/default zoom does not imply identical camera focus to a live session. Blender views are supplemental with corresponding culling/shadow logic.
+The current source materials and mesh geometry are retained where possible. Sparse frames remain solid. Source originals were copied/read only; no existing repo files were modified. The headless/editor and native renderer emitted a sandbox user:// shader-cache warning; rendering and native validation completed successfully.
+
+REPRODUCE / HANDOFF STATE
+Run Blender 4.1.1 with -b --python build.py, then verify.py. review_scene.py -- --quick generates supplemental views; native renders are generated by verification/godot/render.gd in the isolated Godot project after importing its copied assets. Native render script is review-only; do not integrate its artificial scene or people. Build does not export reused kit copies because they already exist in game; its per-instance transform contract is in anchors.json.
+Run finalize.py after any rebuild to refresh manifest delivery metadata, gallery and provenance. Source build overwrites its base manifest. Coordinator inspection remains required. Builder integration is already authorized; no new art approval is requested. No gameplay, tier, economy, existing Duck/Pond Stage replacement or unrelated task change was made.

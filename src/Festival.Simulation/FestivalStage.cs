@@ -158,7 +158,7 @@ public static class FestivalStages
     /// <summary>The stages a festival runs: the trailer, and the Pond Stage when it's open.</summary>
     public static IReadOnlyList<FestivalStage> For(bool pondOpen) => pondOpen ? All : MainOnly;
 
-    public static FestivalStage? Find(string id) => All.FirstOrDefault(stage => stage.Id == id);
+    public static FestivalStage? Find(string id) => id == BarnLayout.Stage.Id ? BarnLayout.Stage : All.FirstOrDefault(stage => stage.Id == id);
     /// <summary>A stage's place in the given stage list, or -1 when it isn't there.</summary>
     public static int IndexOf(IReadOnlyList<FestivalStage> stages, string id)
     {

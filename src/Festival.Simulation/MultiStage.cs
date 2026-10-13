@@ -84,7 +84,7 @@ public sealed partial class GameSession
         else ApplyAgentDestination(new(id), new(IdlePlace(index), "edition.arrival"));
     }
     /// <summary>The stages this festival runs, in stage order.</summary>
-    public IReadOnlyList<FestivalStage> Stages => FestivalStages.For(PondStageOpen);
+    public IReadOnlyList<FestivalStage> Stages => _diagnosticStages ?? FestivalStages.For(PondStageOpen);
     private static IReadOnlyList<FestivalStage> SavedStages(SessionPersistenceSnapshot s) =>
         FestivalStages.For(s.PondStageTrial || (s.Preparation?.Tier ?? 1) >= PondStageFromTier);
 

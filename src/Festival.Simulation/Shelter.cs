@@ -40,7 +40,7 @@ public sealed partial class GameSession
     private static (GridCell[] Covered, ShelterSpot[] Spots) ShelterLayout(IEnumerable<BuildPlacement> placements)
     {
         var layout = placements as IReadOnlyList<BuildPlacement> ?? placements.ToArray();
-        var covered = new HashSet<GridCell>();
+        var covered = new HashSet<GridCell>(BarnLayout.Coverage());
         var spots = new List<ShelterSpot>();
         foreach (var item in layout)
         {
@@ -64,7 +64,7 @@ public sealed partial class GameSession
     private void EnsureCoverCache()
     {
         var placements = _preparation?.BuildPlacements;
-        if (ReferenceEquals(placements, _coverCacheSource)) return;
+        if (_coveredGrid is not null && ReferenceEquals(placements, _coverCacheSource)) return;
         _coverCacheSource = placements;
         (_coveredCells, _shelterSpots) = ShelterLayout(placements ?? []);
         _coveredGrid = new bool[TraversalGrid.Width * TraversalGrid.Depth];

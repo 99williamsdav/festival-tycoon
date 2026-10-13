@@ -1,0 +1,6 @@
+{
+  "ProcessId": 32656,
+  "ExecutablePath": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-barn-stage-2026-10-13\\FestivalTycoon.exe",
+  "CommandLine": "\"C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-barn-stage-2026-10-13\\FestivalTycoon.exe\" --fixed-fps 30 --quit-after 1400 --log-file C:/Projects/festival-tycoon/artifacts/barn-exported/godot.log -- --capture-barn C:/Projects/festival-tycoon/artifacts/barn-exported --capture-size 1280x720",
+  "CreationDate": "2026-10-13T21:58:31.177397+01:00"
+}

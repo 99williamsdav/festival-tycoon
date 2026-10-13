@@ -462,7 +462,8 @@ public sealed partial class GameSession
         return navigation.XMillimetres == centre.XMillimetres && navigation.ZMillimetres == centre.ZMillimetres;
     }
 
-    public SessionPersistenceSnapshot CapturePersistenceSnapshot() => new(
+    public SessionPersistenceSnapshot CapturePersistenceSnapshot() => BarnDiagnostic
+        ? throw new InvalidOperationException("Controlled Barn stage fixtures cannot be saved as campaigns.") : new(
         CampaignId.Value,
         CampaignSeed,
         Pcg32Random.AlgorithmVersion,

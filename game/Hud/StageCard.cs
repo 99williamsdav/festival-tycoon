@@ -102,7 +102,7 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
             margin.AddThemeConstantOverride(side, Ui.Px(value));
         stack.AddChild(margin);
         _multi = new VBoxContainer(); _multi.AddThemeConstantOverride("separation", Ui.Px(2)); margin.AddChild(_multi);
-        foreach (var stage in FestivalStages.All)
+        foreach (var stage in _hud.Session.BarnDiagnostic ? _hud.Session.Stages : FestivalStages.All)
         {
             if (_rows.Count > 0) _multi.AddChild(new ColorRect { Color = Ui.PaperRule, CustomMinimumSize = new Vector2(0, 1) });
             var row = new VBoxContainer(); row.AddThemeConstantOverride("separation", 0); _multi.AddChild(row);

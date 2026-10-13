@@ -1,6 +1,7 @@
 using Festival.Simulation;
 using Godot;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Festival.Game;
 
@@ -11,7 +12,7 @@ public partial class Main
 
     private void ShowAudienceArea(bool show)
     {
-        foreach (var stage in FestivalStages.All)
+        foreach (var stage in FestivalStages.All.Concat(new[] { BarnLayout.Stage }))
         {
             var open = show && FestivalStages.IndexOf(_session.Stages, stage.Id) >= 0;
             if (!_audienceAreas.TryGetValue(stage.Id, out var area))

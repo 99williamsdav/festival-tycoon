@@ -30,7 +30,7 @@ internal sealed class RoofFade
     public float Alpha => _roofs.Count == 0 ? 1 : _roofs[0].AlbedoColor.A;
 
     /// <summary>Gives every roof surface under <paramref name="root"/> its own fading material and a shadow-only twin.</summary>
-    public static RoofFade Attach(Node3D root)
+    public static RoofFade Attach(Node3D root, System.Func<string,bool>? selector = null, bool twoSided = true)
     {
         var fade = new RoofFade(root);
         foreach (var node in root.FindChildren("*", "MeshInstance3D", true, false))
@@ -39,9 +39,9 @@ internal sealed class RoofFade
             var roofed = false;
             for (var surface = 0; surface < mesh.Mesh.GetSurfaceCount(); surface++)
             {
-                if (mesh.GetActiveMaterial(surface) is not StandardMaterial3D material || !IsRoof(material.ResourceName)) continue;
+                if (mesh.GetActiveMaterial(surface) is not StandardMaterial3D material || !(selector ?? IsRoof)(material.ResourceName)) continue;
                 var own = (StandardMaterial3D)material.Duplicate();
-                own.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
+                if (twoSided) own.CullMode = BaseMaterial3D.CullModeEnum.Disabled;
                 own.Transparency = BaseMaterial3D.TransparencyEnum.Disabled;
                 mesh.SetSurfaceOverrideMaterial(surface, own);
                 fade._roofs.Add(own);

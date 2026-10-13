@@ -1,0 +1,44 @@
+{
+  "coordinate_system": "Godot metres: +Y up, barn long entrance wall at +Z; all positions barn-local unless stated",
+  "world_placement": {"position": [0,0,-23], "yaw_degrees": 0, "scale": [1,1,1]},
+  "exterior_xz_bounds": [[-10.464286,-6.706667],[10.464286,6.706667]],
+  "floor_height": 0,
+  "floor_slab_bottom": -0.10,
+  "interior_floor_xz_bounds": [[-9.5429,-5.5733],[9.5429,5.5733]],
+  "shelter_interior_proposal_xz": [[-9.3,-5.5],[9.3,5.5]],
+  "main_entry": {"clear_x": [-3.9,3.9], "outside": [0,0,6.9], "threshold": [0,0,6.0], "inside": [0,0,4.6], "conservative_clear_height": 5.2},
+  "secondary_exit": {"clear_x": [-8.65,-6.65], "outside": [-7.65,0,6.9], "threshold": [-7.65,0,6.0], "inside": [-7.65,0,4.6], "clear_height": 2.8},
+  "clear_front_aisle_xz": [[-9.3,3.5],[9.3,5.5]],
+  "listening_area_candidate_xz": [[-7,-3.8],[2.5,2.5]],
+  "listening_facing": [1,0,0],
+  "band_facing": [-1,0,0],
+  "riser": {
+    "existing_asset": "res://assets/environment/modular-riser-v1/lwf_modular_riser_stage_v1.glb",
+    "position": [6.2,0,-1.5], "yaw_degrees": -90,
+    "child_override": {"node": "RiserAccess", "local_yaw_degrees": 180, "translation": [0,0,0], "scale": [1,1,1]},
+    "note": "Rotate the named mesh about the original shared deck origin; do not rotate about its bounding-box centre. Leave RiserCornerRails unchanged.",
+    "deck_bounds_barn_xz": [[4.2,-4.5],[8.2,1.5]], "deck_height": 0.9,
+    "speaker_asset": "res://assets/environment/modular-riser-v1/lwf_modular_riser_speaker_v1.glb",
+    "speaker_positions_riser_local": [[-2.42,0.9,1.37],[2.42,0.9,1.37]],
+    "speaker_yaw_riser_local": 0
+  },
+  "performers": {
+    "lead": [5.7,0.9,-0.25], "bass": [5.7,0.9,-2.75], "drummer": [7.05,0.9,-1.5],
+    "body_and_instrument_kit_yaw_degrees": 90,
+    "drum_hardware_position": [7.05,0.9,-1.5], "drum_hardware_yaw_degrees": 90,
+    "note": "Current character/instrument forward is -Z; current riser/speakers forward is +Z. Both transforms above face -X."
+  },
+  "band_access": {
+    "route_from_main_door": [[0,0,6.9],[0,0,4.6],[7,0,4.6],[7,0,3.65]],
+    "approach": [7,0,3.65], "toe": [7,0,3.3],
+    "tread_centres": [[7,0.18,3.12],[7,0.36,2.76],[7,0.54,2.4],[7,0.72,2.04],[7,0.9,1.68]],
+    "top": [7,0.9,1.5], "deck_entry": [7,0.9,1.15],
+    "reserve_xz": [[6.2,1.0],[8,4.8]],
+    "note": "Concept-derived visual route, geometry checked. Builder resolves authoritative cells, reservations and movement. Do not use PondRiser world cells."
+  },
+  "lighting_anchors": [[-8.6,3.4,-5.2],[0,3.4,-5.2],[8.6,3.4,-5.2],[-8.6,3.4,5.2],[8.6,3.4,5.2]],
+  "stage_fill_light_review_anchor": [6.2,4.5,-1.5],
+  "sign_anchor": [0,5.6,6.625],
+  "suggested_pick_frame_centres": [[-4.1,2.7,6.0],[4.1,2.7,6.0],[-8.75,1.4,5.9],[-6.55,1.4,5.9]],
+  "not_assigned": ["capacity","tier","price","unlock order","generator placement","final nav cells","rain balance"]
+}

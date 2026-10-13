@@ -62,7 +62,7 @@ public partial class Main
     /// <summary>Shows the Pond Stage while this festival runs it, keeps its generator and drums in step, and its chip.</summary>
     private void ProcessPondStage(double delta)
     {
-        var open = _session.PondStageOpen;
+        var open = _session.Stages.Any(stage => stage.Id == FestivalStages.PondId);
         if (open && _pondStage is null) BuildPondStageWorld();
         if (_pondStage is null) return;
         if (_pondStage.Visible != open)

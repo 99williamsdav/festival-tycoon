@@ -16,7 +16,8 @@ internal sealed partial class CrowdBodies
     /// <summary>What the rain is doing to someone, for their clip: nothing, out in it, under cover, or hurrying to cover.</summary>
     public enum RainMode { None, Out, Cover, Hurry }
 
-    private const string SoakedMeta = "GuestSoaked", RainModeMeta = "GuestRainMode", PonchoMeta = "GuestPoncho", HatMeta = "HatPiece";
+    private const string SoakedMeta = "GuestSoaked", RainModeMeta = "GuestRainMode", PonchoMeta = "GuestPoncho", HatMeta = "HatPiece",
+        ScalpHairMeta = "ScalpHair";
     private const string PonchoNode = "LWF_Poncho_Clear";
     private static readonly string[] RainClips = ["rain_hunched", "rain_huddle", "rain_hands_head", "rain_hurry"];
     private readonly Dictionary<string, AnimationLibrary> _rainLibraries = [];
@@ -64,7 +65,10 @@ internal sealed partial class CrowdBodies
         }
     }
 
-    /// <summary>Puts the poncho on the rigged body's skeleton, or takes it off; hats go under the hood.</summary>
+    /// <summary>
+    /// Puts the poncho on the rigged body's skeleton, or takes it off. Hair and hats go under the hood: the hood fits the
+    /// bald head, so anything on the scalp would show through it. A beard and sunglasses stay, they're on the face.
+    /// </summary>
     private void SyncPoncho(Node3D root)
     {
         var wanted = root.HasMeta(PonchoMeta) && root.GetMeta(PonchoMeta).AsBool();
@@ -82,8 +86,11 @@ internal sealed partial class CrowdBodies
             scene.QueueFree();
         }
         else if (!wanted && worn is not null) { skeleton!.RemoveChild(worn); worn.QueueFree(); }
+        // Only while the hood is really on: a still pose (eating, say) has no poncho, so its hair and hat show.
+        var hooded = skeleton?.GetNodeOrNull<MeshInstance3D>(PonchoNode) is not null;
         if (root.FindChild(HeadPieces, true, false) is Node3D head)
-            foreach (var hat in head.GetChildren().OfType<Node3D>().Where(piece => piece.HasMeta(HatMeta))) hat.Visible = !wanted;
+            foreach (var piece in head.FindChildren("*", "Node3D", true, false).OfType<Node3D>().Where(piece => piece.HasMeta(HatMeta) || piece.HasMeta(ScalpHairMeta)))
+                piece.Visible = !hooded;
     }
 
     /// <summary>Something worn over the body rather than part of it: the head's pieces riding the skeleton, or the poncho.</summary>
