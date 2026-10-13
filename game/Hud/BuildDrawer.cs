@@ -360,8 +360,9 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         var standard = GameSession.StandardBuildLayout(_hud.Session.CapturePreparation()?.Tier ?? 1).Sum(item => GameSession.BuildServiceFeePennies(item.Kind));
         var lastLayout = _hud.Session.CapturePreparation()?.PreviousLayout;
         _lastLayoutButton!.Visible = lastLayout is not null;
-        if (lastLayout is not null)
-            _lastLayoutButton.Text = $"Copy last festival's layout · {FestivalCurrency.Format(lastLayout.Sum(item => GameSession.BuildServiceFeePennies(item.Kind)))}";
+        // Priced as the confirmation is: only what still fits this field (worked out once and remembered).
+        if (lastLayout is not null && _hud.Session.LastFestivalLayoutFit() is { } fit)
+            _lastLayoutButton.Text = $"Copy last festival's layout · {FestivalCurrency.Format(fit.Placed.Sum(item => GameSession.BuildServiceFeePennies(item.Kind)))}";
         _defaultsButton!.Text = lastLayout is null ? $"Default layout · {FestivalCurrency.Format(standard)}" : $"or use the default layout · {FestivalCurrency.Format(standard)}";
         if (_defaultsQuiet != lastLayout is not null)
         {

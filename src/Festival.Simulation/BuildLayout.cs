@@ -103,25 +103,87 @@ public sealed partial class GameSession
     ];
 
     /// <summary>
-    /// What "Copy last festival's layout" would lay out now: each service the previous festival placed, in id order,
-    /// where it stood, unless this festival's limit for its kind is already met or it no longer fits (the new tier's
-    /// stage and crowd, a reserved or blocked cell, or a route it would block), when it's skipped. Services the new
-    /// tier allows more of stay unplaced. Null when there's no previous festival to copy.
+    /// What "Copy last festival's layout" would lay out now: each service the previous festival placed, where it stood,
+    /// unless this festival's limit for its kind is already met or it no longer fits (the new tier's stage and crowd, a
+    /// reserved or blocked cell, or a route it would block), when it's skipped. The first of each kind is tried before
+    /// the second, and so on (water.main, the first bar and bin.1 before water.extra-1, the second bar and bin.2), so
+    /// a lower limit or a clash leaves off extras rather than mains. Services the new tier allows more of stay unplaced.
+    /// Null when there's no previous festival to copy.
     /// </summary>
+    /// <remarks>
+    /// It depends only on the carried layout, the tier, the tap limit, the stages, the generator and the water tower,
+    /// never on what's placed now, so it's worked out once for those and remembered: the Build drawer's price, the
+    /// confirmation, the command's check and its apply (and the save coordinator's copy of the session) share it.
+    /// </remarks>
     public (BuildPlacement[] Placed, int Skipped)? LastFestivalLayoutFit()
     {
         if (_preparation is not { PreviousLayout: { } previous } p) return null;
+        var key = new LayoutFitKey(previous.ToArray(), p.Tier, ServiceLimit(BuildServiceKind.WaterTap), Stages,
+            _equipment is { } unit ? (unit.XMillimetres, unit.ZMillimetres) : null, p.WaterTowerOwned);
+        lock (LayoutFitLock)
+            if (_lastLayoutFit is { } cached && cached.Key.SameAs(key)) return (cached.Placed.ToArray(), cached.Skipped);
+        var fit = FitLayout(key, _equipment);
+        lock (LayoutFitLock) _lastLayoutFit = (key, fit.Placed, fit.Skipped);
+        return (fit.Placed.ToArray(), fit.Skipped);
+    }
+
+    private static (BuildPlacement[] Placed, int Skipped) FitLayout(LayoutFitKey key, EquipmentSnapshot? equipment)
+    {
+        int Limit(BuildServiceKind kind) => kind == BuildServiceKind.WaterTap ? key.TapLimit : BuildServiceLimit(kind, key.Tier);
+        string? Check(IEnumerable<BuildPlacement> layout) =>
+            ValidateBuildLayout(layout.OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(), key.Stages, equipment, key.WaterTowerOwned, key.Tier);
+        var ordered = key.Layout.OrderBy(OrdinalOfKind).ThenBy(item => item.Id, StringComparer.Ordinal).ToArray();
+        // The rule is one at a time, in that order: each is placed if its kind's limit has room and it fits beside those
+        // placed before it, else left off. A layout that fits whole fits in every part, so the same answer comes in far
+        // fewer checks: if everything left that the limits allow fits whole beside what's placed, it's all placed (most
+        // layouts settle in one check); if not, the longest run of it that fits, found by halving, is placed, and the
+        // service after that run is the one left off.
         var placed = new List<BuildPlacement>();
         var skipped = 0;
-        foreach (var item in previous.OrderBy(item => item.Id, StringComparer.Ordinal))
+        for (var index = 0; index < ordered.Length;)
         {
-            var next = placed.Append(item).OrderBy(other => other.Id, StringComparer.Ordinal).ToArray();
-            if (placed.Count(other => other.Kind == item.Kind) >= ServiceLimit(item.Kind) ||
-                ValidateBuildLayout(next, Stages, _equipment, p.WaterTowerOwned, p.Tier) is not null) skipped++;
-            else placed = [.. next];
+            // From here on, in order, those the limits leave room for beside what's placed and those before them.
+            var rest = new List<int>();
+            for (var at = index; at < ordered.Length; at++)
+                if (placed.Count(other => other.Kind == ordered[at].Kind) + rest.Count(other => ordered[other].Kind == ordered[at].Kind) < Limit(ordered[at].Kind))
+                    rest.Add(at);
+            IEnumerable<BuildPlacement> With(int count) => placed.Concat(rest.Take(count).Select(at => ordered[at]));
+            if (rest.Count == 0 || Check(With(rest.Count)) is null)
+            {
+                placed.AddRange(With(rest.Count).Skip(placed.Count).ToArray());
+                skipped += ordered.Length - index - rest.Count;
+                break;
+            }
+            // With(fits) fits (what's placed already does) and With(fails) doesn't.
+            var (fits, fails) = (0, rest.Count);
+            while (fails - fits > 1)
+            {
+                var middle = (fits + fails) / 2;
+                if (Check(With(middle)) is null) fits = middle; else fails = middle;
+            }
+            var leftOff = rest[fits];
+            placed.AddRange(With(fits).Skip(placed.Count).ToArray());
+            skipped += leftOff - index - fits + 1; // over its limit before it, and it
+            index = leftOff + 1;
         }
-        return (placed.ToArray(), skipped);
+        return (placed.OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(), skipped);
     }
+
+    /// <summary>A service's place among its kind: 1 for a main tap, toilet or marquee, the first bar or van, bin.1 and the one-off posts.</summary>
+    private static int OrdinalOfKind(BuildPlacement item) =>
+        Stalls.IsStall(item.Kind) ? Stalls.Number(item.Id) :
+        item.Id.LastIndexOf(".extra-", StringComparison.Ordinal) is var extra and >= 0 && int.TryParse(item.Id[(extra + 7)..], out var index) ? index + 1 :
+        item.Kind == BuildServiceKind.Bin && int.TryParse(item.Id[(item.Id.IndexOf('.') + 1)..], out var bin) ? bin : 1;
+
+    private sealed record LayoutFitKey(BuildPlacement[] Layout, int Tier, int TapLimit, IReadOnlyList<FestivalStage> Stages,
+        (long X, long Z)? Generator, bool WaterTowerOwned)
+    {
+        public bool SameAs(LayoutFitKey other) => Tier == other.Tier && TapLimit == other.TapLimit && WaterTowerOwned == other.WaterTowerOwned &&
+            Generator == other.Generator && Stages.SequenceEqual(other.Stages, ReferenceEqualityComparer.Instance) &&
+            Layout.SequenceEqual(other.Layout);
+    }
+    private static readonly object LayoutFitLock = new();
+    private static (LayoutFitKey Key, BuildPlacement[] Placed, int Skipped)? _lastLayoutFit;
 
     /// <summary>A carried previous layout must be one the festival before could have placed: sorted, and valid there.</summary>
     private static string? ValidatePreviousLayout(PreparationSnapshot p, bool pondStageTrial)
@@ -251,6 +313,11 @@ public sealed partial class GameSession
                 ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille))
             .Select(toilet => toilet with { QueueCells = [ToiletDoorstepCell(toilet)] }).ToArray();
 
+    /// <remarks>
+    /// Every check here must stay monotone in the placements: if a layout passes, any subset of it passes too. The
+    /// last festival's copy relies on that to bisect for the first clash. So no "must have" or "at least" rules here
+    /// (e.g. "toilets need a bin within N cells"); those belong in the start requirements.
+    /// </remarks>
     private static string? ValidateBuildLayout(IReadOnlyList<BuildPlacement> placements, IReadOnlyList<FestivalStage> stages,
         EquipmentSnapshot? equipment = null, bool waterTowerOwned = false, int tier = 1)
     {

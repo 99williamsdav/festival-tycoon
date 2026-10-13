@@ -23,8 +23,11 @@ public sealed partial class GameSession
     private void SetToilets(ToiletFacility[] toilets) => _facilities = (_facilities ?? NoFacilities) with { Toilets = toilets };
     private void SetVendors(ImmersionVendor[] vendors) => _facilities = (_facilities ?? NoFacilities) with { Vendors = vendors };
 
-    /// <summary>The toilet a campaign opens with before any Build layout exists.</summary>
-    private static ToiletFacility OpeningMainToilet() => new("toilet.main", new(172, 140), 0, [], null, false, 0, 0, 0,
+    /// <summary>
+    /// The toilet a campaign opens with before any Build layout exists: just north of the Pond Stage's crowd (which
+    /// starts at z 136), door to the north, so a session that plays without a Build layout never has it in that crowd.
+    /// </summary>
+    private static ToiletFacility OpeningMainToilet() => new("toilet.main", new(172, 132), 0, [], null, false, 0, 0, 0,
         ToiletRules.CapacityMillilitres, ToiletRules.ContainmentPermille);
 
     /// <summary>The tap a campaign opens with before any Build layout exists.</summary>
