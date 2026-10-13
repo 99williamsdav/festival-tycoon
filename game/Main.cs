@@ -65,7 +65,7 @@ public partial class Main : Node, IHudHost
         else _rig.Frame(Vector3.Zero, 62);
         ResetFinanceFeedback();
         if (OS.GetCmdlineUserArgs().Length == 0 && _session.CaptureEquipment() is not null) BuildStartSplash();
-        _challengeFlowEnabled = _fisticuffsEvidenceOutput is null && _serverEvidenceOutput is null && _nowPlayingEvidenceOutput is null && _entranceEvidenceOutput is null && (OS.GetCmdlineUserArgs().Length == 0 || _startTier is not null || _pondStageTrialFlag || _challengeEvidenceOutput is not null);
+        _challengeFlowEnabled = _fisticuffsEvidenceOutput is null && _serverEvidenceOutput is null && _nowPlayingEvidenceOutput is null && _lavHoseEvidenceOutput is null && _entranceEvidenceOutput is null && (OS.GetCmdlineUserArgs().Length == 0 || _startTier is not null || _pondStageTrialFlag || _challengeEvidenceOutput is not null);
         RefreshChallengeReveal();
         var version = Engine.GetVersionInfo()["string"].AsString();
         GD.Print($"FESTIVAL_TYCOON_LAUNCHED build={ToolchainSmoke.BuildVersion} godot={version}");
@@ -115,6 +115,7 @@ public partial class Main : Node, IHudHost
         ProcessServerEvidence();
         ProcessEntranceEvidence();
         ProcessNowPlayingEvidence();
+        ProcessLavHoseEvidence();
         if (_pondEvidenceOutput is null) ProcessPond(delta);
         ProcessPondEvidence();
         ProcessGrassEvidence();
@@ -611,6 +612,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-entrance" && i + 1 < args.Length) _entranceEvidenceOutput = args[++i];
             else if (args[i] == "--capture-now-playing" && i + 1 < args.Length) { _nowPlayingEvidenceOutput = args[++i]; _startTier = 2; }
             else if (args[i] == "--capture-fisticuffs" && i + 1 < args.Length) { _fisticuffsEvidenceOutput = args[++i]; _startTier = 1; }
+            else if (args[i] == "--capture-lav-hose" && i + 1 < args.Length) { _lavHoseEvidenceOutput = args[++i]; _startTier = 1; }
             else if (args[i] == "--capture-barn" && i + 1 < args.Length) _barnEvidenceOutput = args[++i];
             else if (args[i] == "--fisticuffs-checks-only") _fightEvidenceChecksOnly = true;
             else if (args[i] == "--capture-challenge" && i + 1 < args.Length) _challengeEvidenceOutput = args[++i];

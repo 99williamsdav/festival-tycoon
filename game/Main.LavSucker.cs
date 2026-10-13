@@ -19,6 +19,11 @@ public partial class Main
     private static Basis LavBayBasis(int side) =>
         new Basis(Vector3.Up, side % 4 * Mathf.Pi / 2) * Basis.FromScale(new Vector3(side >= 4 ? -1 : 1, 1, 1));
 
+    /// <summary>Where the lorry stands in a bay, and which way it faces: never mirrored itself, only where it stands.</summary>
+    private static (Vector3 Position, Vector3 Rotation) LavParkedPose(Node3D toilet, int side) =>
+        (toilet.Position + toilet.Basis * (LavBayBasis(side) * LavParkedOffset),
+         new Vector3(0, toilet.Rotation.Y + Mathf.Pi + side % 4 * Mathf.Pi / 2, 0));
+
     private sealed class LavTruckView
     {
         public required Node3D Body;
@@ -64,8 +69,7 @@ public partial class Main
             {
                 // Snapped to its bay beside the loo (the art's spot, turned round the loo or on its other flank), whichever
                 // way the loo's been turned; the lorry itself is never mirrored, only where it stands.
-                view.Body.Position = toilet!.Position + toilet.Basis * (LavBayBasis(call.BaySide) * LavParkedOffset);
-                view.Body.Rotation = new Vector3(0, toilet.Rotation.Y + Mathf.Pi + call.BaySide % 4 * Mathf.Pi / 2, 0);
+                (view.Body.Position, view.Body.Rotation) = LavParkedPose(toilet!, call.BaySide);
             }
             else
             {
