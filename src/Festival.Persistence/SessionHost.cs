@@ -11,7 +11,7 @@ namespace Festival.Persistence;
 ///
 /// There is one save policy. Changed state is written in the background at most every
 /// 30 unpaused seconds; festival start, failure, results and Council decisions are saved
-/// immediately, and a milestone command only takes effect once its save succeeds. A failed
+/// immediately. Accepted commands take effect even when writing their checkpoint fails. A failed
 /// save keeps play going and retries; any earlier valid slot stays intact.
 /// </summary>
 public sealed class SessionHost
@@ -26,12 +26,16 @@ public sealed class SessionHost
     private long _savingGeneration;
     private Task<SaveOperationResult>? _cadenceSave;
     private bool _cadenceDue;
+    private readonly Action<SaveFailurePoint>? _saveFailureInjector;
+    private bool _saveWarningDismissed;
 
-    public SessionHost(GameSession session, string saveDirectory, SaveCompatibility compatibility)
+    public SessionHost(GameSession session, string saveDirectory, SaveCompatibility compatibility,
+        Action<SaveFailurePoint>? saveFailureInjector = null)
     {
         Session = session;
         SaveDirectory = saveDirectory;
         Compatibility = compatibility;
+        _saveFailureInjector = saveFailureInjector;
         _generation = AutosaveRotation.NextGeneration(saveDirectory, compatibility);
     }
 
@@ -44,6 +48,9 @@ public sealed class SessionHost
     public string? Notice { get; private set; }
     /// <summary>Set while the latest save attempt failed; cleared by the next successful save.</summary>
     public string? SaveError { get; private set; }
+    public bool SaveWarningVisible => SaveError is not null && !_saveWarningDismissed;
+    /// <summary>Dismisses this failure episode; further failed attempts leave it dismissed until a save succeeds.</summary>
+    public void DismissSaveWarning() => _saveWarningDismissed = true;
 
     public string? TakeNotice() { var notice = Notice; Notice = null; return notice; }
 
@@ -70,16 +77,12 @@ public sealed class SessionHost
         return false;
     }
 
-    /// <summary>A command that only takes effect once its resulting state is durable.</summary>
+    /// <summary>Applies a command and attempts its checkpoint. Save failure never rolls back an accepted action.</summary>
     public bool ExecuteMilestone(SessionCommand command, string reason, out string? error)
     {
-        var before = Session.CapturePersistenceSnapshot();
         if (!Execute(command, out error)) return false;
-        if (SaveMilestone(reason)) return true;
-        Session = Restore(before, "Milestone rollback failed: ");
-        MarkChanged();
-        error = Notice;
-        return false;
+        SaveMilestone(reason);
+        return true;
     }
 
     /// <summary>Writes the current state now (after any background write finishes).</summary>
@@ -94,12 +97,12 @@ public sealed class SessionHost
         if (!force && _revision == _savedRevision) return true;
         var revision = _revision;
         SaveOperationResult result;
-        try { result = AutosaveRotation.SaveCaptured(SaveDirectory, Session.CapturePersistenceSnapshot(), Compatibility, DateTimeOffset.UtcNow, _generation); }
+        try { result = AutosaveRotation.SaveCaptured(SaveDirectory, Session.CapturePersistenceSnapshot(), Compatibility, DateTimeOffset.UtcNow, _generation, _saveFailureInjector); }
         catch (Exception exception) { result = SaveOperationResult.Failure(exception.Message); }
         if (!result.IsSuccess)
         {
             Notice = reason + " save failed; any earlier valid slot remains intact. " + result.Error;
-            SaveError = "The latest changes remain in play. Any earlier valid save remains intact. Select Retry save before leaving.";
+            SaveError = "Save failed. Keep playing or retry. Earlier valid saves remain intact; these changes are in memory.";
             return false;
         }
         _savedRevision = revision;
@@ -108,6 +111,7 @@ public sealed class SessionHost
         _cadenceDue = false;
         Notice = reason + " saved.";
         SaveError = null;
+        _saveWarningDismissed = false;
         return true;
     }
 
@@ -149,13 +153,20 @@ public sealed class SessionHost
         _savingRevision = _revision;
         _savingGeneration = _generation;
         var directory = SaveDirectory; var compatibility = Compatibility; var generation = _savingGeneration;
-        _cadenceSave = Task.Run(() => AutosaveRotation.SaveCaptured(directory, snapshot, compatibility, DateTimeOffset.UtcNow, generation));
+        _cadenceSave = Task.Run(() => AutosaveRotation.SaveCaptured(directory, snapshot, compatibility, DateTimeOffset.UtcNow, generation, _saveFailureInjector));
         _cadenceDue = false;
         Notice = "Saving changed campaign state in the background.";
     }
 
-    public SaveOperationResult SaveManual() =>
-        SaveFileAdapter.SaveSlot(SaveDirectory, ManualSlot, new SaveWriteRequest(Session, Compatibility, "manual", DateTimeOffset.UtcNow));
+    public SaveOperationResult SaveManual()
+    {
+        var result = SaveFileAdapter.SaveSlot(SaveDirectory, ManualSlot,
+            new SaveWriteRequest(Session, Compatibility, "manual", DateTimeOffset.UtcNow), _saveFailureInjector);
+        Notice = result.IsSuccess ? "Manual save complete." : "Manual save failed; changes remain in play. " + result.Error;
+        SaveError = result.IsSuccess ? null : "Save failed. Keep playing or retry. Earlier valid saves remain intact; these changes are in memory.";
+        if (result.IsSuccess) _saveWarningDismissed = false;
+        return result;
+    }
 
     /// <summary>Loads the manual slot, replacing the session only if it holds a prepared weekend.</summary>
     public bool LoadManual(out string? error)
@@ -173,7 +184,7 @@ public sealed class SessionHost
             return false;
         }
         Session = result.Session;
-        MarkChanged(); _autosave.Rebase(); SaveError = null; Clock.ResetBoundary();
+        MarkChanged(); _autosave.Rebase(); SaveError = null; _saveWarningDismissed = false; Clock.ResetBoundary();
         error = null;
         return true;
     }
@@ -185,6 +196,7 @@ public sealed class SessionHost
         _generation = AutosaveRotation.NextGeneration(SaveDirectory, Compatibility);
         _cadenceSave = null; _cadenceDue = false; _revision = 1; _savedRevision = 0;
         SaveError = null;
+        _saveWarningDismissed = false;
         _autosave.Rebase();
         Clock.ResetBoundary();
     }
@@ -204,11 +216,12 @@ public sealed class SessionHost
             _generation = Math.Max(_generation, _savingGeneration + 1);
             if (_savedRevision == _revision) Notice = "Background save complete.";
             SaveError = null;
+            _saveWarningDismissed = false;
         }
         else
         {
             Notice = "Background save failed; changes remain in play and will retry. " + result.Error;
-            SaveError = "The latest changes remain in play. Any earlier valid save remains intact. Retry now or keep playing for the next 30-second attempt.";
+            SaveError = "Save failed. Keep playing or retry. Earlier valid saves remain intact; these changes are in memory.";
         }
     }
 

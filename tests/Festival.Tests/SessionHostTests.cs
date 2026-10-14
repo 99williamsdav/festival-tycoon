@@ -59,7 +59,7 @@ public sealed class SessionHostTests
     }
 
     [TestMethod]
-    public void MilestoneThatCannotBeSavedDoesNotTakeEffect()
+    public void MilestoneThatCannotBeSavedStillStartsAndAdvancesAfterDismissal()
     {
         // A file where the save directory should be: every write fails.
         var blocked = Path.Combine(Path.GetTempPath(), "festival-host-blocked-" + Guid.NewGuid().ToString("N"));
@@ -68,13 +68,68 @@ public sealed class SessionHostTests
         {
             var host = new SessionHost(BuildSession.Ready(), blocked, Compatibility);
             var before = host.Session.CaptureSnapshot().AuthoritativeHash;
-            Assert.IsFalse(host.ExecuteMilestone(new StartPreparedEditionCommand(), "Festival start", out var error));
-            StringAssert.StartsWith(error, "Festival start save failed");
-            Assert.AreEqual(PreparationStatus.Preparing, host.Session.PreparedStatus);
-            Assert.AreEqual(before, host.Session.CaptureSnapshot().AuthoritativeHash);
+            Assert.IsTrue(host.ExecuteMilestone(new StartPreparedEditionCommand(), "Festival start", out var error));
+            Assert.IsNull(error);
+            StringAssert.StartsWith(host.Notice, "Festival start save failed");
+            Assert.AreEqual(PreparationStatus.Running, host.Session.PreparedStatus);
+            Assert.AreNotEqual(before, host.Session.CaptureSnapshot().AuthoritativeHash);
             Assert.IsNotNull(host.SaveError);
+            Assert.IsTrue(host.SaveWarningVisible);
+            host.DismissSaveWarning();
+            Assert.IsFalse(host.SaveWarningVisible);
+            Assert.IsFalse(host.SaveMilestone("Retry"));
+            Assert.IsFalse(host.SaveWarningVisible, "Repeated failure must not reopen the warning.");
+            Assert.IsTrue(host.Submit(new SetPausedCommand(false)).IsAccepted);
+            var tick = host.Session.CurrentTick;
+            Assert.AreEqual(8, host.Advance(0.1, _ => { }));
+            Assert.AreEqual(tick + 8, host.Session.CurrentTick);
         }
         finally { File.Delete(blocked); }
+    }
+
+    [TestMethod]
+    public void FailedReplacementPreservesEarlierSaveAndDismissalUntilRecovery()
+    {
+        var directory = TempDirectory();
+        var fail = false;
+        try
+        {
+            var host = new SessionHost(BuildSession.Ready(), directory, Compatibility,
+                _ => { if (fail) throw new IOException("Injected failure before replacement"); });
+            Assert.IsTrue(host.SaveManual().IsSuccess);
+            var path = SaveFileAdapter.ResolveSlotPath(directory, SessionHost.ManualSlot);
+            var earlier = File.ReadAllBytes(path);
+            var savedHash = host.Session.CaptureSnapshot().AuthoritativeHash;
+            fail = true;
+            Assert.IsTrue(host.Submit(new SetPreparationStockCommand(11, 12)).IsAccepted);
+            Assert.IsFalse(host.SaveManual().IsSuccess);
+            CollectionAssert.AreEqual(earlier, File.ReadAllBytes(path));
+            Assert.AreEqual(savedHash, SaveFileAdapter.LoadSlot(directory, SessionHost.ManualSlot, Compatibility).Session!.CaptureSnapshot().AuthoritativeHash);
+            Assert.IsTrue(host.SaveWarningVisible);
+            host.DismissSaveWarning();
+            Assert.IsTrue(host.ExecuteMilestone(new StartPreparedEditionCommand(), "Start", out var error), error);
+            Assert.IsFalse(host.SaveWarningVisible);
+            host.AdvanceSaves(31);
+            var timeout = System.Diagnostics.Stopwatch.StartNew();
+            while (host.Notice?.StartsWith("Background save failed", StringComparison.Ordinal) != true)
+            {
+                Assert.IsTrue(timeout.Elapsed < TimeSpan.FromSeconds(30), "Injected background failure did not complete.");
+                Thread.Sleep(20); host.AdvanceSaves(0);
+            }
+            Assert.IsFalse(host.SaveWarningVisible, "Background failure is the same dismissed episode.");
+            Assert.IsNotNull(host.SaveError);
+            fail = false;
+            Assert.IsTrue(host.SaveMilestone("Retry"));
+            Assert.IsNull(host.SaveError);
+            Assert.IsFalse(host.SaveWarningVisible);
+            var restored = AutosaveRotation.LoadNewestValid(directory, Compatibility);
+            Assert.IsTrue(restored.IsSuccess, restored.Error);
+            Assert.AreEqual(host.Session.CaptureSnapshot().AuthoritativeHash, restored.Session!.CaptureSnapshot().AuthoritativeHash);
+            fail = true;
+            Assert.IsFalse(host.SaveMilestone("New failure"));
+            Assert.IsTrue(host.SaveWarningVisible, "A failure after successful recovery starts a new episode.");
+        }
+        finally { Directory.Delete(directory, true); }
     }
 
     [TestMethod]

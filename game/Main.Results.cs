@@ -25,7 +25,7 @@ public partial class Main
         ResetFinanceFeedback();
         ResultsPaper.Open(this, () =>
         {
-            if (!SaveMilestone("Return to menu")) return false;
+            SaveMilestone("Return to menu");
             _newCampaignOnEnter = true; ResultsPaper.Close(); BuildStartSplash();
             return true;
         }, _session.CanStartNextFestival ? StartNextFestival : null);
@@ -34,7 +34,8 @@ public partial class Main
     /// <summary>The paper's "Next festival": save the completed festival, then open the next tier's preparation.</summary>
     private bool StartNextFestival()
     {
-        if (!_session.CanStartNextFestival || !SaveMilestone("Next festival")) return false;
+        if (!_session.CanStartNextFestival) return false;
+        SaveMilestone("Next festival");
         var next = _session.CreateNextFestival();
         ResultsPaper.Close();
         SwitchToFestival(next);

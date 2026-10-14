@@ -98,16 +98,17 @@ public partial class Main
         if (_buildGhostKind is not null) { _preparationMessage = "Finish or cancel placement before opening."; RefreshPreparationHud(); return; }
         if (!_host.ExecuteMilestone(new StartPreparedEditionCommand(), "Festival start", out var error))
         { SyncSaveStatus(); _preparationMessage = error ?? _preparationMessage; RefreshPreparationHud(); return; }
-        _host.TakeNotice();
         ResetLivePerformancePresentation();
         BuildAttendee(); _host.Clock.ResetBoundary(); _foundationPresentation.Reset(_session.CaptureObservation());
-        _preparationMessage = "Festival start saved. Everyone now walks into the field.";
+        _preparationMessage = "Festival started. Everyone now walks into the field.";
+        SyncSaveStatus();
         RefreshPreparationHud();
     }
 
     private void PreparationSave()
     {
         var result = _host.SaveManual();
+        SyncSaveStatus();
         _preparationMessage = result.IsSuccess ? FestivalCopy("Preparation / live weekend saved.") : result.Error!;
         RefreshPreparationHud();
     }

@@ -49,7 +49,8 @@ public partial class Main : Node, IHudHost
             _preparationProfileOutput is not null ? Festival.Simulation.Fixtures.BuildScaleFixture.Create(20260922, _profileGuests) :
             OS.GetCmdlineUserArgs().Length == 0 ? CreateFreshBuildCampaign(out _) :
             _startTier is not null || _pondStageTrialFlag ? GameSession.CreateDevelopmentFestival(20260922, _startTier ?? 1, _pondStageTrialFlag) :
-            _litterEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility);
+            _litterEvidenceOutput is not null || _genreAudioVerificationOutput is not null ? GameSession.CreateBuildCampaign(20260922, FestivalStanding.Established) : GameSession.CreateBuildCampaign(20260922), SaveDirectory, _saveCompatibility,
+            _saveWarningEvidenceOutput is null ? null : _ => { if (_saveWarningInjectFailure) throw new IOException("Injected native save failure before replacement"); });
         BuildWorld();
         if (DisplayServer.GetName() != "headless")
             DisplayServer.SetIcon(GD.Load<Texture2D>("res://assets/branding/festival-tycoon-stage-sun-icon-v3.png").GetImage());
@@ -77,6 +78,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if (_saveWarningEvidenceOutput is not null) { ProcessSaveWarningEvidence(); return; }
         if (_architectureEvidenceOutput is not null) { ProcessArchitectureEvidence(); return; }
         if (_barnCampaignEvidenceOutput is not null) { ProcessBarnCampaignEvidence(); return; }
         if (_developmentTierEvidenceOutput is not null) { ProcessDevelopmentTierEvidence(); return; }
@@ -621,6 +623,8 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-lav-hose" && i + 1 < args.Length) { _lavHoseEvidenceOutput = args[++i]; _startTier = 1; }
             else if (args[i] == "--capture-barn-campaign" && i + 1 < args.Length) _barnCampaignEvidenceOutput = args[++i];
             else if (args[i] == "--capture-survival-architecture" && i + 1 < args.Length) _architectureEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-save-warning" && i + 1 < args.Length)
+            { _saveWarningEvidenceOutput = args[++i]; _architectureEvidenceOutput = _saveWarningEvidenceOutput; }
             else if (args[i] == "--capture-development-tiers" && i + 1 < args.Length) _developmentTierEvidenceOutput = args[++i];
             else if (args[i] == "--capture-barn" && i + 1 < args.Length) _barnEvidenceOutput = args[++i];
             else if (args[i] == "--fisticuffs-checks-only") _fightEvidenceChecksOnly = true;
