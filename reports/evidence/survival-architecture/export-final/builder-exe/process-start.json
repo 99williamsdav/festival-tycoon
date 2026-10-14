@@ -1,0 +1,7 @@
+{
+  "processId": 37716,
+  "executablePath": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-survival-architecture-2026-10-14\\FestivalTycoon.exe",
+  "commandLine": "\"C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-survival-architecture-2026-10-14\\FestivalTycoon.exe\" --fixed-fps 30 --quit-after 250 --log-file C:\\Projects\\festival-tycoon\\reports\\evidence\\survival-architecture\\export-final\\builder-exe/native.log -- --capture-survival-architecture C:\\Projects\\festival-tycoon\\reports\\evidence\\survival-architecture\\export-final\\builder-exe --capture-size 1280x720",
+  "sourceCommit": "cea1bc0235984987e9981e9ff051fa33085f0e69",
+  "exeSha256": "A1EA69E2862015D18AD44EC2069C39E2A024C18C86B506FDBB81FB6103B16EE8"
+}

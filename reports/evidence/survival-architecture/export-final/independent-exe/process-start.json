@@ -1,0 +1,8 @@
+{
+  "pid": 18668,
+  "requestedExecutable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-survival-architecture-2026-10-14\\FestivalTycoon.exe",
+  "processPath": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-survival-architecture-2026-10-14\\FestivalTycoon.exe",
+  "arguments": "--fixed-fps 30 --quit-after 250 --log-file C:/Projects/festival-tycoon/reports/evidence/survival-architecture/export-final/independent-exe/native.log -- --capture-survival-architecture C:/Projects/festival-tycoon/reports/evidence/survival-architecture/export-final/independent-exe --capture-size 1280x720",
+  "startedUtc": "2026-10-14T17:34:48.9350324Z",
+  "cimError": "Access to a CIM resource was not available to the client."
+}

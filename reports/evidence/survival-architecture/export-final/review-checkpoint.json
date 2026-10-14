@@ -1,0 +1,71 @@
+{
+  "sourceCommit": "cea1bc0235984987e9981e9ff051fa33085f0e69",
+  "review": "PASS exact finalcopiedEXE",
+  "exeSha256": "A1EA69E2862015D18AD44EC2069C39E2A024C18C86B506FDBB81FB6103B16EE8",
+  "files": [
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/01-existing-control-menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/02-existing-rain-challenge.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/03-management-tier-two-live.png",
+      "sha256": "1C1BCE992F952518928820D1D8DEF9CC5DE0DD66E836B1839CBCEF845DEA6CEF"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/04-all-rounder-management.png",
+      "sha256": "849120EA61D97C8D40B66DB2F27FA6F481159926571CDA304655B03CE289A2A8"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/05-all-rounder-first-person.png",
+      "sha256": "8AFFD6F6130F89A40CF11B69A4C54FD11E696ADE2102C9AC2F287E8B414C4E3D"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/06-steward-only-tier-one.png",
+      "sha256": "9EC2B2491B70E4B209F74969D993025B1D0FC81D7C35DA7329AC04A74773BBDE"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/07-steward-only-tier-two.png",
+      "sha256": "BA46FE570F4ACA04F932A438C9C937A72639E1759C1A2F474C33C11BD6EFD75D"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/08-resumed-management.png",
+      "sha256": "839BC50A472066536B680B6BEF93AEDFA87A848C0D2F451FCEF78D19110AE75B"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/architecture-evidence.json",
+      "sha256": "7A797C72358AEB140E8C172E2D6F8197935DE86826BDF161790E7A6E5F565BC1"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/native.log",
+      "sha256": "5BD5D355A63DA77D6C694E839AF2C79FCFC97D55F7AD6E89CBEB0939B8D0888D"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/process-exit.json",
+      "sha256": "837A63AC4997492A2561FC2AE72B54B94D3CF4FFB597A0ED42BA6E17F2D16672"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/process-start.json",
+      "sha256": "3659BCA75692124513590168A09E50D32A22E7BA968A6165BE3E6E10EED7EF67"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/independent-exe/verification.json",
+      "sha256": "ADEB63B9B17C6E52ED1AD31FA313106018CCD3475F45FA20974CD3641E18656F"
+    },
+    {
+      "path": "briefs/results/survival-architecture-handoff.md",
+      "sha256": "4732D9981D524A7B619F990FB74400D8983726182AA34191755C6260B4F0E2F5"
+    },
+    {
+      "path": "briefs/results/survival-architecture-exported-exe-review.md",
+      "sha256": "DFE1E2F1EDE4BE3A4BDBF5679290385C82525310F80BB4AB004F0DBC88FF67EC"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/checkpoint.json",
+      "sha256": "BAD7684929A5BC6F20BDAB2054D9F58E6546067221B9458795FF58FA0B6BB7C7"
+    }
+  ]
+}

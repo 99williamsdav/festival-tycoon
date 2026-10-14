@@ -1,0 +1,10 @@
+{
+  "checkpointSha256": "BAD7684929A5BC6F20BDAB2054D9F58E6546067221B9458795FF58FA0B6BB7C7",
+  "pinnedCount": 62,
+  "pinnedFailures": [],
+  "payloadCount": 194,
+  "payloadBytes": 285120519.0,
+  "actualFileCount": 194,
+  "payloadFailures": [],
+  "head": "cea1bc0235984987e9981e9ff051fa33085f0e69"
+}

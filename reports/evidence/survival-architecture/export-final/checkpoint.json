@@ -1,0 +1,258 @@
+{
+  "sourceCommit": "cea1bc0235984987e9981e9ff051fa33085f0e69",
+  "scope": "Final accepted Survival architecture source and actual copied EXE proof; original candidate failure retained in previous export manifest",
+  "source": [
+    {
+      "path": "game/Main.ArchitectureEvidence.cs",
+      "sha256": "577E8848C9143ECE39FC041143ED27E4B7F5DD8D399BD2840BCCACB623328268"
+    },
+    {
+      "path": "game/Main.ArchitectureEvidence.cs.uid",
+      "sha256": "6EA3A4058461550EF6041C8E52C3439B74EBBEC185FFB215B6BD2F65B4E67200"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "B3E441DD29C64C2CC61EF908214F962EC8202D7C1FBA73A6BB11300BB73B6894"
+    },
+    {
+      "path": "game/Main.HandsOn.cs",
+      "sha256": "B67C313468828F5F37A77BA12FC05E27196E9D975F15C766C7987E37E14ABFBF"
+    },
+    {
+      "path": "game/Main.Preparation.cs",
+      "sha256": "81418DD74A76EA4B25C40819DC1B18E532BF8BEDB3DB5D58B904CA9E464D6411"
+    },
+    {
+      "path": "game/Main.StewardShift.cs",
+      "sha256": "5978275838D7F023A6EF7A8EB8B590396691859E713A0429A1BEEA337B8BEAF8"
+    },
+    {
+      "path": "src/Festival.Simulation/ActCatalogue.cs",
+      "sha256": "E521640A9B72C7E7D1B9B33A56D6786B83BF36A183A77F5B87201BFE6D39A9F4"
+    },
+    {
+      "path": "src/Festival.Simulation/BuildLayout.cs",
+      "sha256": "4A796A32B1F4A8E074B915DA07B6B4B9CE3939BFD8BFC808A1DF12B9E0BD8FBE"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignIdentity.cs",
+      "sha256": "29E4A45A8AECF8EA4939121F3EE165BE83329485DB70E533A466C0E77593B75C"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignPlanning.cs",
+      "sha256": "1B32A854D2E1C13BCA47471440F9F3D602FE7AC8814FA93EF8BAE5CC835CC666"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignPolicies.cs",
+      "sha256": "B246C73FCFDF06C43FF8E47DE532ABDE9A31A2F5E529A62270CC43F29B4E1422"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignRulesProfile.cs",
+      "sha256": "1A7F0E00C031D1BCD040751B588DF135333F67759B8D58FC918E36D019074C22"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignSetup.cs",
+      "sha256": "21A494093A91A83F4A65FD6BFC89E9848F3049F19E923218D249897AF6C921AB"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignState.cs",
+      "sha256": "3576C1B2B743A64B93D3A675150332CDE70DF979C46DA4717AD1363671FD0C06"
+    },
+    {
+      "path": "src/Festival.Simulation/CanonicalStateHasher.cs",
+      "sha256": "D0110B107DC3693D9EB791971E0EB41A19F14725DCB291DCE5E4824C2327C45A"
+    },
+    {
+      "path": "src/Festival.Simulation/Development/README.md",
+      "sha256": "1BAD612DDCC3E6A4FCE34328B76FE67E8DEFB1203C50227087E384983F238720"
+    },
+    {
+      "path": "src/Festival.Simulation/Development/recorded-tier-one-clear.json",
+      "sha256": "E373F339D6D5FC7D0EFE6E7EB25DB341033D4A1DECCBB81EFFF9E61C1406C090"
+    },
+    {
+      "path": "src/Festival.Simulation/DisorderIncident.cs",
+      "sha256": "410B87EF6384C117916C2B02CB4720732BBD5BE1A4343DFA1F1F2F11BE251CEA"
+    },
+    {
+      "path": "src/Festival.Simulation/EquipmentIncident.cs",
+      "sha256": "F737375B2403E5F64048DC1434A31C40CCD74E05AEAB3FEA1AC97840E9F2DAE1"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalChallenges.cs",
+      "sha256": "E59F3DCD3561512BDD1F1A21515E33AC53C2D57505E78D4B631D4D6911F082D0"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalProgramme.cs",
+      "sha256": "51BD310A8A60D5A944513628D319B79FFC99612E2E358900F9377B6FF7B754E7"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.cs",
+      "sha256": "28ACC262D7348DEA52DDE2C9C58BE955BE4D825448035BBC97B3A5CEC72BB93E"
+    },
+    {
+      "path": "src/Festival.Simulation/HandsOnCampaign.cs",
+      "sha256": "346B39D4BCA9D24714ED489A6206D5203E3DD50225F95EE8599F134D383B400C"
+    },
+    {
+      "path": "src/Festival.Simulation/Immersion.cs",
+      "sha256": "2C0E9F3C68ECF80660524A13DE42CCE39A03697491E9BF9DBD9F3591A1264CD0"
+    },
+    {
+      "path": "src/Festival.Simulation/ImmersionDeparture.cs",
+      "sha256": "59BBF3DF3DB737737C0A8EA51A60D6FB2FB0495F4E97638902C6F473F492529A"
+    },
+    {
+      "path": "src/Festival.Simulation/MedicalIncident.cs",
+      "sha256": "04F18981647B924B22EEB1C0F8D962B1A325B2945D8E9BF3EFCC2CA267710A09"
+    },
+    {
+      "path": "src/Festival.Simulation/MultiStage.cs",
+      "sha256": "0D4D0E824EF0E7383AA2B1FEF2DA39AA4E583C0361B1D2DA392314A6087BF794"
+    },
+    {
+      "path": "src/Festival.Simulation/NextFestival.cs",
+      "sha256": "18473BFC10604D12B3DC8F7F706C11BC6369C4D841CF749C86AD1DFA100FD908"
+    },
+    {
+      "path": "src/Festival.Simulation/PowerBudget.cs",
+      "sha256": "2194F34E5138D0993EA2932C28F7D2EAECD70F47675416429F98A1F66C4AB525"
+    },
+    {
+      "path": "src/Festival.Simulation/Preparation.cs",
+      "sha256": "1E43E8FD99A054652F1EE9A888F3377F73C9319411D28B60E22FDE4E0966F83D"
+    },
+    {
+      "path": "src/Festival.Simulation/PreparationPlan.cs",
+      "sha256": "E427429739A51CA01727575E5A795B1E10EE33A0DEB19A180299F9C69DAB61CD"
+    },
+    {
+      "path": "src/Festival.Simulation/SessionPersistence.cs",
+      "sha256": "4937C9DD06C927D042265A92F61FF78DFBBCB53FCB88761E06D35EBD26B11179"
+    },
+    {
+      "path": "src/Festival.Simulation/Shelter.cs",
+      "sha256": "5F644D63FB917F7FAD848161756CD3B35AC559D20D7A54B2227E5F80FF76A312"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffAutonomy.cs",
+      "sha256": "84BE37558DCDAC5E07089BBEBB3133F1A093ED25D70EA8FB9621196553655A11"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffFoundations.cs",
+      "sha256": "27BFE0BB4653DB6A8BA1FABB8C19E5AD7E22B05A8CA5E2B87BF09F41A9504AC5"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShift.cs",
+      "sha256": "40CA8AA534C0514A2AB1DDCE58FEB7D5B42934E70073C875CC964E2B9FC7C720"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftActions.cs",
+      "sha256": "3ABDCE68D29F118C2E978023B00E3F03263FA738ADBB3CF8821CC0B2A478A238"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftStage.cs",
+      "sha256": "07D4FB4C6B0355E1E37AF913ED775E442D100AA37320463A1EB5B15A521FA759"
+    },
+    {
+      "path": "src/Festival.Simulation/Weather.cs",
+      "sha256": "B6564F359B8125CE41386FA2ADF6205548081CBE7AD11AF67CAF44EAC6A5206F"
+    },
+    {
+      "path": "tests/Festival.Tests/CampaignIdentityTests.cs",
+      "sha256": "D388997223E3EC62688F091C51DDA943478C868774E136CDA405F6664041154A"
+    },
+    {
+      "path": "tests/Festival.Tests/CampaignPolicyTests.cs",
+      "sha256": "3DB10374DF014EE2B5BAC25A5C2FB3C7E8D8865073BFF95378470394E2A34108"
+    },
+    {
+      "path": "tests/Festival.Tests/IncidentConsequenceParityTests.cs",
+      "sha256": "A2A52559695B394E66CFD6523667D4222A5275644A68259E337FF19FA0735F5E"
+    },
+    {
+      "path": "tests/Festival.Tests/SaveRoundTripTests.cs",
+      "sha256": "DC2C252645E83D1F653A0311FA74D1DCFAE5C4F23D56810352AD86D8F0DFAC7A"
+    },
+    {
+      "path": "tests/Festival.Tests/SurvivalArchitectureParityTests.cs",
+      "sha256": "C33947522F63188C721B4593E7E0D7C5965FD0ABB2418A762919021369326418"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "reports/evidence/survival-architecture/export-final/delivery.json",
+      "sha256": "312CA80515FACC6A37FF243F0844CB582EA9EE3D0C6DC4AD946EC334ED071C5D"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/export.log",
+      "sha256": "784ACC1EFF004E143E6FC0558C2A488FD4501A41246309182E0D5F74F4B31F64"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/payload.json",
+      "sha256": "3BCE3013C4B95E7378DFF478D8472FC22D8F1337C9BDD9952927D5E348D9AF11"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/01-existing-control-menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/02-existing-rain-challenge.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/03-management-tier-two-live.png",
+      "sha256": "A96260B7FCC122E3182E196003D754E1263AC751E3ED6C164BBBA61F4DE40A23"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/04-all-rounder-management.png",
+      "sha256": "839B5964FD25FD6EC9C1AE866EE401ACE3B82A3B7C713C31A1935395B8619E22"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/05-all-rounder-first-person.png",
+      "sha256": "A9CD7201C76E82E08F7D9245686B372CAF84A5178F8D8CAB4D59CC8DF523F245"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/06-steward-only-tier-one.png",
+      "sha256": "78AA5D7A4BB69DEE052AA403D425EA002D13778B0E621C2D72ADB3991D31750B"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/07-steward-only-tier-two.png",
+      "sha256": "348B089F8D18CF5AE9324A63BD40B9F6BD126989F30AC615793DE92B242F7C41"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/08-resumed-management.png",
+      "sha256": "CCF9529EEDBC136166B7F2EF91AE3A7DDFE4BD8FA2931899E40470FB3A0F7F50"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/architecture-evidence.json",
+      "sha256": "00E6C1EBEEBE378C95228BA1EF17C8054AD7DD1630A63C5D0D242416C30BCD26"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/native.log",
+      "sha256": "02EF32DDBCB770CDAA2619683D548A53D576FA957FB605529F7D91793A7E0CF9"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/process-exit.json",
+      "sha256": "DB68204731BF92E1E16360003D129B15BBC421FDB1F2207416B316A380B66B4E"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export-final/builder-exe/process-start.json",
+      "sha256": "6F19E6D89C07EA2766CD848E60CDCCD4E6C2D2FC6927CBF59405900E9E8D952F"
+    }
+  ],
+  "baselines": [
+    {
+      "path": "reports/evidence/survival-architecture/baseline.json",
+      "sha256": "9F9A12D38DA6319CFA2D389C73324210EF357E5282EC67170D9D7402C08873FD"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/baseline-companion.json",
+      "sha256": "48FAAF6DA0EC84F6DA7FAE54DDC16DED77556ABA08AA86BD0A62400E54122934"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/incident-consequence-baseline.json",
+      "sha256": "A60B1A9FFDB220CC938BA12229BF5DBCF4228775F2812312E1D0451A9BFC545A"
+    }
+  ]
+}

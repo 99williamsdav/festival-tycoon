@@ -1,0 +1,11 @@
+{
+  "sourceCommit": "cea1bc0235984987e9981e9ff051fa33085f0e69",
+  "delivery": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-survival-architecture-2026-10-14",
+  "files": 194,
+  "bytes": 285120519.0,
+  "exeSha256": "A1EA69E2862015D18AD44EC2069C39E2A024C18C86B506FDBB81FB6103B16EE8",
+  "exportExitCode": 0,
+  "exportErrors": 7,
+  "exportWarnings": 0,
+  "provenance": "Export built accepted source bytes pinned by this commit; evidence-only trailing EOF warning delayed commit completion while export ran. No source bytes changed during export."
+}
