@@ -1,0 +1,638 @@
+{
+  "sourceCommit": "6fed0e2504f9166ad212755d75827d2fae3a928c",
+  "productionMutationStarted": false,
+  "scope": "Immutable current Survival state including identity/authoritative hash, ordered events and RNG before Classic",
+  "stateBoundaries": 63,
+  "returnedEventLists": 38,
+  "excludedSnapshotFields": [],
+  "source": [
+    {
+      "path": "src/Festival.Persistence/AutosaveRotation.cs",
+      "sha256": "2A30AF2B547671327A13E910A7B4E481D3309895941307EC1133E69EB4963130"
+    },
+    {
+      "path": "src/Festival.Persistence/DisorderCommandCoordinator.cs",
+      "sha256": "99210C64BFE95F5220A5A1EFD8A6E9D584D7DFF3B3C4FA68F3C7A6CA09967952"
+    },
+    {
+      "path": "src/Festival.Persistence/EquipmentCommandCoordinator.cs",
+      "sha256": "E16CC93613402F97C3BC33391D00932FF29125314E756D6DC74A99C6FA3381FA"
+    },
+    {
+      "path": "src/Festival.Persistence/MedicalCommandCoordinator.cs",
+      "sha256": "F751B332D3C52179CBFAAA7E0B54F43A05AFB59DD9541F356E322A9F02A7575B"
+    },
+    {
+      "path": "src/Festival.Persistence/PersistenceTiming.cs",
+      "sha256": "63AB6FB93C9F6610E89D74F95C321B183F3795A158EDAAC9AC795545F9F4F77F"
+    },
+    {
+      "path": "src/Festival.Persistence/PreparationAdvanceCoordinator.cs",
+      "sha256": "442680FED0E0C8AD54BB4C11825A79D92B720639194823EC7A2B5F4879FE739C"
+    },
+    {
+      "path": "src/Festival.Persistence/PreparationDraftSavePipeline.cs",
+      "sha256": "75B64A33C2C18F30E8D130A23D0DF9975AA03C58B4D141C1EEFFB8E64C526C69"
+    },
+    {
+      "path": "src/Festival.Persistence/SaveContracts.cs",
+      "sha256": "A042E13B1AC5FE2AD371A8B5ECC211B96DDCEA4217F204333AF35FCC718BF346"
+    },
+    {
+      "path": "src/Festival.Persistence/SaveFileAdapter.cs",
+      "sha256": "CAFBC3FD93626B90768E6E7D0C3F22690F3F172CAA1B450D661F9C49C32D2226"
+    },
+    {
+      "path": "src/Festival.Persistence/SessionHost.cs",
+      "sha256": "1218DBCE0FFB7270BC62A10BE5760D6985DD53E43233B94E9C93230A13D93EC4"
+    },
+    {
+      "path": "src/Festival.Simulation/ActCatalogue.cs",
+      "sha256": "E521640A9B72C7E7D1B9B33A56D6786B83BF36A183A77F5B87201BFE6D39A9F4"
+    },
+    {
+      "path": "src/Festival.Simulation/Activities.cs",
+      "sha256": "448950E6ED0D1ABD0C01B206CC2ACB50C7353FCBB6057B007C035DDA0F9E28E8"
+    },
+    {
+      "path": "src/Festival.Simulation/ActivityChooser.cs",
+      "sha256": "6FB630D84DD0F730911EF2E60C5143BE1337CE470C54E79E42CAB52C41E40ED6"
+    },
+    {
+      "path": "src/Festival.Simulation/AudienceFacingMath.cs",
+      "sha256": "1347342F912560CF3D041A6AEE32A0C222F6F427919C1B2A57937E43E93D2523"
+    },
+    {
+      "path": "src/Festival.Simulation/Backstage.cs",
+      "sha256": "10590517EF82109EFD492272B07ABFEB44EB00E306769ADA34D4503490CF0833"
+    },
+    {
+      "path": "src/Festival.Simulation/BandRelationships.cs",
+      "sha256": "1A9B9BF66507710DB9A63F8E8FF2624F87F17C803BC207415ED727701C34C993"
+    },
+    {
+      "path": "src/Festival.Simulation/BarnStage.cs",
+      "sha256": "110932CF21EF57E6D408C31C0E3A220E05DC4594F104575B462A23450C1DCFBB"
+    },
+    {
+      "path": "src/Festival.Simulation/BookingTableView.cs",
+      "sha256": "2AD0D9CF0DCFDDEAC0065EEC56F41FD1BE9A5C49965496BAE63AA3C4555304A7"
+    },
+    {
+      "path": "src/Festival.Simulation/BuildLayout.cs",
+      "sha256": "4A796A32B1F4A8E074B915DA07B6B4B9CE3939BFD8BFC808A1DF12B9E0BD8FBE"
+    },
+    {
+      "path": "src/Festival.Simulation/CameraControlMath.cs",
+      "sha256": "1AB3DF1DCE9FDA85F402C20600D9F8D850D1A94ECCF22D30F9B506D7C1598FB8"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignIdentity.cs",
+      "sha256": "29E4A45A8AECF8EA4939121F3EE165BE83329485DB70E533A466C0E77593B75C"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignPlanning.cs",
+      "sha256": "1B32A854D2E1C13BCA47471440F9F3D602FE7AC8814FA93EF8BAE5CC835CC666"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignPolicies.cs",
+      "sha256": "B246C73FCFDF06C43FF8E47DE532ABDE9A31A2F5E529A62270CC43F29B4E1422"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignRulesProfile.cs",
+      "sha256": "1A7F0E00C031D1BCD040751B588DF135333F67759B8D58FC918E36D019074C22"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignSetup.cs",
+      "sha256": "21A494093A91A83F4A65FD6BFC89E9848F3049F19E923218D249897AF6C921AB"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignState.cs",
+      "sha256": "3576C1B2B743A64B93D3A675150332CDE70DF979C46DA4717AD1363671FD0C06"
+    },
+    {
+      "path": "src/Festival.Simulation/CanonicalStateHasher.cs",
+      "sha256": "D0110B107DC3693D9EB791971E0EB41A19F14725DCB291DCE5E4824C2327C45A"
+    },
+    {
+      "path": "src/Festival.Simulation/CleanupPresentationQueries.cs",
+      "sha256": "D92ECBE34AB1DD41AE2BBB8F1173DB0F5DBC0676AB85CE5F8EED37B9D27A1683"
+    },
+    {
+      "path": "src/Festival.Simulation/Commands.cs",
+      "sha256": "2C5B4B1FA7F0B65D20C66B6E17BB286DDE3AE93CC89D3F3B0DA2DD6B8FFE0B35"
+    },
+    {
+      "path": "src/Festival.Simulation/ConfrontationSpacing.cs",
+      "sha256": "38A1362424FC46E175FB1D7F6911EDA7B232D82F2B6A10EAC43FCC3FDF289BCE"
+    },
+    {
+      "path": "src/Festival.Simulation/ContentCatalogue.cs",
+      "sha256": "125BB12565BFEA55F69619BFE25AC06963B957598D7DF29EE94382B6677AE54F"
+    },
+    {
+      "path": "src/Festival.Simulation/CouncilLesson.cs",
+      "sha256": "182AB12DD5423968C0CFE4513F7F238E7C316650CA54D05935049F67E412AF10"
+    },
+    {
+      "path": "src/Festival.Simulation/Cows.cs",
+      "sha256": "184594669F54A2121570F76A19B1DEC84286C40C1B3B3ACB43863876B4BEE376"
+    },
+    {
+      "path": "src/Festival.Simulation/DisorderCuePlanner.cs",
+      "sha256": "94EB99D389FEC21DD68B7E98A0368D7DADE23D7184D9948A58DF8983BBA629EA"
+    },
+    {
+      "path": "src/Festival.Simulation/DisorderIncident.cs",
+      "sha256": "410B87EF6384C117916C2B02CB4720732BBD5BE1A4343DFA1F1F2F11BE251CEA"
+    },
+    {
+      "path": "src/Festival.Simulation/EquipmentIncident.cs",
+      "sha256": "F737375B2403E5F64048DC1434A31C40CCD74E05AEAB3FEA1AC97840E9F2DAE1"
+    },
+    {
+      "path": "src/Festival.Simulation/Facilities.cs",
+      "sha256": "0297E493B232594F728B6ED92245836FE68D27CDCD5CCA67A836C375265935C8"
+    },
+    {
+      "path": "src/Festival.Simulation/FacilityFaults.cs",
+      "sha256": "A01AE6BA446D3F5442E8F487055C287B228E4D62BF2AEB5440F11635E4310AA4"
+    },
+    {
+      "path": "src/Festival.Simulation/FarmGateGeometry.cs",
+      "sha256": "11D51C93AB588324901D210DE1DB68628AC2CC626C1F61E690D424909ACC6444"
+    },
+    {
+      "path": "src/Festival.Simulation/FarmScene.cs",
+      "sha256": "67307510DB14817B9C41563C679DDCAE744FDC56D73511C41B715F7C44CD48FB"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalAccounts.cs",
+      "sha256": "A6E54BAC692B94B4636EF21B8338081120F51A2F5C8AE7888D286961AD29AFE6"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalChallenges.cs",
+      "sha256": "E59F3DCD3561512BDD1F1A21515E33AC53C2D57505E78D4B631D4D6911F082D0"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalPerformerIdentity.cs",
+      "sha256": "480FECE08BC42176C38E3AF3FB7910A9907D726F8CF05BD08FAB29CABF4971CA"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalProgramme.cs",
+      "sha256": "51BD310A8A60D5A944513628D319B79FFC99612E2E358900F9377B6FF7B754E7"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalResults.cs",
+      "sha256": "B0CCA5AA14160BD1D664F81DCABCEF619DA5A8CA19315F076C9DFA8C9718EE28"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalStage.cs",
+      "sha256": "A797C326D1A4C2A12C8C9B787A33367B1D070F0359C68BAFE8FD54CFA9E121A3"
+    },
+    {
+      "path": "src/Festival.Simulation/Finance.cs",
+      "sha256": "BB7F6C976E43688FCDC1A5A7D9A6B6FE01BC5A03D20A273E1EE469F902E2D7DB"
+    },
+    {
+      "path": "src/Festival.Simulation/FinanceFeedback.cs",
+      "sha256": "4DC00F9D51459CD8E9A6F87DD469A534FD2FD634DC4465E1F7118740532154F0"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/AtomicPurchaseFixture.cs",
+      "sha256": "DF82BF9CF7E626625CC22A7021DDD1780569CE9D0F483A1C17FE2B6745EC0265"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/BarnStageFixture.cs",
+      "sha256": "09B0EDBF612A2C4607E61B68D7274A17AA8F7808D8F8D90C7C226BCA2FF4EEE7"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/BuildScaleFixture.cs",
+      "sha256": "9BA4BE8092A6EC1A1DE1A21DA07C49256E73610CC6E30EE712222F7474AA3748"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/CrowdBenchmarkFixture.cs",
+      "sha256": "1EE845F645B0DD9C48BCFBD710B1A96E020A03E130CE1AE143E8DC49A09D41E7"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/DeterministicSessionFixture.cs",
+      "sha256": "418B7CD20E9AB26FE66F1C3583B942C1D4412147541199C739BD304201F11FB1"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/FiftyAgentFoundationFixture.cs",
+      "sha256": "73B47FE69BEAE7FA1F842CB8EC547C30730659B6CD764F2583F7BC33087900F1"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/NavigationFixture.cs",
+      "sha256": "BB74D5BD0DD51E6B8B623820B80C8D10D232795882AD021F6E2AF304F0870140"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/QueuedServiceChoiceFixture.cs",
+      "sha256": "149EAF9E992C1D268F7D40E51D82206B0204B950487E91CB621523C7C4EDD44B"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/ScaleDiagnosticFixture.cs",
+      "sha256": "653EB389D0870E38F5C004D1E89038F4EDB174CF803F5E48BF8B7A2E24E6BE17"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/ServiceQueueFixture.cs",
+      "sha256": "8E7A9B511FBACF3FE8E6AA6052FE8D7A8FD2AF035B5F88E7D2C9105B69A8F864"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/SharedWorldFeasibilityFixture.cs",
+      "sha256": "895C2772AAF41E53D535AAF840D06F83DEAB90854004B0C785A5C146C7EF95B0"
+    },
+    {
+      "path": "src/Festival.Simulation/FoodTraders.cs",
+      "sha256": "388B73D48D90FC1E82A6DD47DA603989B659B099E971DD62ADFBCF0E224B17CA"
+    },
+    {
+      "path": "src/Festival.Simulation/FoundationClock.cs",
+      "sha256": "824096025335BCA65B520B918F1DF767180CFE2A84F21BFCA8FB5E5E071F4931"
+    },
+    {
+      "path": "src/Festival.Simulation/FreeWater.cs",
+      "sha256": "437E50C09A65B29531D4C3BE6F42A2DB442A2DCA2F77555A041F505341AD1096"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.Navigation.cs",
+      "sha256": "6C273C97210377FE4CFBFA004BE011BF661759858DC9207E44B2036B33DD38D7"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.People.cs",
+      "sha256": "D23430228CA933E01659D0E0EB373554C50E0C683879BBC64D730214D381ABD5"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.cs",
+      "sha256": "28ACC262D7348DEA52DDE2C9C58BE955BE4D825448035BBC97B3A5CEC72BB93E"
+    },
+    {
+      "path": "src/Festival.Simulation/GoodyTwoShoes.cs",
+      "sha256": "441E0D95C2D9FEF51745AA844169ED5FF67EE856E8B48B918F545F1202DE9F69"
+    },
+    {
+      "path": "src/Festival.Simulation/Ground.cs",
+      "sha256": "B0C3898DE4FF44FC2FFFADB7AA2F042F8511E8DEA40C7D2B0CE5D8816E5175BD"
+    },
+    {
+      "path": "src/Festival.Simulation/GroundCover.cs",
+      "sha256": "5B0186CB9276F4A6DF996F6226AB71375C7B48957F444F0612DBB85261F1557B"
+    },
+    {
+      "path": "src/Festival.Simulation/GuestArrivalNeeds.cs",
+      "sha256": "2ED9B65C00B47D61E8218362CD7E1D039C488D97EAC0D4C573065C1CFA3E9A0A"
+    },
+    {
+      "path": "src/Festival.Simulation/GuestCharacter.cs",
+      "sha256": "C742E4E8FCE4EEB7685AAFA3B86C13C5D3D0EF20FD8C4D2DD201767ABFBD485A"
+    },
+    {
+      "path": "src/Festival.Simulation/HandsOnCampaign.cs",
+      "sha256": "346B39D4BCA9D24714ED489A6206D5203E3DD50225F95EE8599F134D383B400C"
+    },
+    {
+      "path": "src/Festival.Simulation/Identifiers.cs",
+      "sha256": "579528FB262FAE85BBC273AC55496946A4B31A43A251F019E9B94C7A6C479647"
+    },
+    {
+      "path": "src/Festival.Simulation/Immersion.cs",
+      "sha256": "2C0E9F3C68ECF80660524A13DE42CCE39A03697491E9BF9DBD9F3591A1264CD0"
+    },
+    {
+      "path": "src/Festival.Simulation/ImmersionDeparture.cs",
+      "sha256": "59BBF3DF3DB737737C0A8EA51A60D6FB2FB0495F4E97638902C6F473F492529A"
+    },
+    {
+      "path": "src/Festival.Simulation/IncidentAudioCueCursor.cs",
+      "sha256": "7FDC7C7A88BDAF5F32A0AB376C869B432F6BA6844FD63DDA4E154B986EAACF28"
+    },
+    {
+      "path": "src/Festival.Simulation/LavSucker.cs",
+      "sha256": "DBC6C2DBAB9907DAB31266B8187B01E6FC544C0A907A65CBC4144077612FAFFB"
+    },
+    {
+      "path": "src/Festival.Simulation/LifecycleKernel.cs",
+      "sha256": "2611AD6DAA2F1053CD453DC51026544F3192FFD0377CE68F7B38BAD9F5152031"
+    },
+    {
+      "path": "src/Festival.Simulation/LineupBooking.cs",
+      "sha256": "229018345276E26E596B255D79E9431079E0C793A48A364E843BE3D262DFB44A"
+    },
+    {
+      "path": "src/Festival.Simulation/Litter.cs",
+      "sha256": "FBC1E7A4AC1F04144124AEF8F4088D5DECE0C9AFD89D2E099F6614B41CC3B0DE"
+    },
+    {
+      "path": "src/Festival.Simulation/LitterRemarks.cs",
+      "sha256": "5B60B325E10490F115D08EFAE67379C12A63E3D94539EC8BB2E485CE770EB06C"
+    },
+    {
+      "path": "src/Festival.Simulation/LivePerformance.cs",
+      "sha256": "4D8145173666BBEA14B3788AFDCBBEA9812D47A95A8804A3CCCAF0FB181BB880"
+    },
+    {
+      "path": "src/Festival.Simulation/LooseQueueGeometry.cs",
+      "sha256": "6DEEF00D82F75B62081B9F748AFCB8F83E183C171B95879B3D49CAFD4B519318"
+    },
+    {
+      "path": "src/Festival.Simulation/Marquee.cs",
+      "sha256": "35A1109830C97BF0E290C7EE1B0B5B367F9FF7BB1062F7B25A3B0328E7B006F3"
+    },
+    {
+      "path": "src/Festival.Simulation/MedicalCuePlanner.cs",
+      "sha256": "5D11DE57B4D45F3F584C9085C5C4622E52A107DE0D30EEEB9B04CFC1D172DC0B"
+    },
+    {
+      "path": "src/Festival.Simulation/MedicalIncident.cs",
+      "sha256": "04F18981647B924B22EEB1C0F8D962B1A325B2945D8E9BF3EFCC2CA267710A09"
+    },
+    {
+      "path": "src/Festival.Simulation/MoodLedger.cs",
+      "sha256": "321C5F35A94249686C7ED99FFA87D76908B84288337D85101A91291B4CE68439"
+    },
+    {
+      "path": "src/Festival.Simulation/MultiStage.cs",
+      "sha256": "0D4D0E824EF0E7383AA2B1FEF2DA39AA4E583C0361B1D2DA392314A6087BF794"
+    },
+    {
+      "path": "src/Festival.Simulation/Navigation.cs",
+      "sha256": "8D0911E4D8245464889C778C2B88D8ACF43631DEA05584B06B5A4F8E5186203F"
+    },
+    {
+      "path": "src/Festival.Simulation/NavigationCommands.cs",
+      "sha256": "C9A1F98102AD3A489B16CFB859EB991345898D94D6D902925886C952E5E9FD7F"
+    },
+    {
+      "path": "src/Festival.Simulation/NextFestival.cs",
+      "sha256": "18473BFC10604D12B3DC8F7F706C11BC6369C4D841CF749C86AD1DFA100FD908"
+    },
+    {
+      "path": "src/Festival.Simulation/People.cs",
+      "sha256": "B1D95CF5AAFBC90C86E1FC34481578861ED66FC5E561E6A616E4FDD7E693C77E"
+    },
+    {
+      "path": "src/Festival.Simulation/PerformanceApplauseMath.cs",
+      "sha256": "5118F4F6B8BF4001497B4FAE3C3678F69805D460C12430C7B8DE3E3778A66941"
+    },
+    {
+      "path": "src/Festival.Simulation/PerkEffects.cs",
+      "sha256": "9468791B1DD4B50FA2AD7130EDBE1772488002847986D5EFD8F82BE0FBF301A5"
+    },
+    {
+      "path": "src/Festival.Simulation/Perks.cs",
+      "sha256": "B3C17D1524AE73E33AFF83B1BDAC47BFD0F4B058590AF3C54D82F20DE6589EB4"
+    },
+    {
+      "path": "src/Festival.Simulation/PersonClaims.cs",
+      "sha256": "812D42154536BD0B94C7FC3AB294760298C88E7EA0D07BE4620744577BB8AE5F"
+    },
+    {
+      "path": "src/Festival.Simulation/PowerBudget.cs",
+      "sha256": "2194F34E5138D0993EA2932C28F7D2EAECD70F47675416429F98A1F66C4AB525"
+    },
+    {
+      "path": "src/Festival.Simulation/Preparation.cs",
+      "sha256": "1E43E8FD99A054652F1EE9A888F3377F73C9319411D28B60E22FDE4E0966F83D"
+    },
+    {
+      "path": "src/Festival.Simulation/PreparationPlan.cs",
+      "sha256": "E427429739A51CA01727575E5A795B1E10EE33A0DEB19A180299F9C69DAB61CD"
+    },
+    {
+      "path": "src/Festival.Simulation/QueuedServiceChoice.cs",
+      "sha256": "8503A2146022FDDDC9FB6841522E08BAE8DA929D68D2487B315ACBAE175B5D11"
+    },
+    {
+      "path": "src/Festival.Simulation/RandomStreams.cs",
+      "sha256": "A1F7833673B1E297F8B26DA9221B0F4349893B687528F918A51976C5649D2F6E"
+    },
+    {
+      "path": "src/Festival.Simulation/RecordedDevelopmentStart.cs",
+      "sha256": "348070FCA666559BDC1AC093DE4EF4A2DEF34A0BC0AFD50EB8489EED33242B83"
+    },
+    {
+      "path": "src/Festival.Simulation/ResponsePostPlacement.cs",
+      "sha256": "7EE24C9BD80DE0963C5332366C4496D3B213D561AFB2C99A13DE790A58E6A61D"
+    },
+    {
+      "path": "src/Festival.Simulation/ScaleDiagnosticProbe.cs",
+      "sha256": "D0FAD3FD52627FAC68AAFA432EFB0A52EA63DA519A1350A3590F469B6BFD81A5"
+    },
+    {
+      "path": "src/Festival.Simulation/ServiceQueue.cs",
+      "sha256": "81B1206F1E96956CAD3F71D707F5A9270D0226D3EEBEE443ACBFECF6170D4128"
+    },
+    {
+      "path": "src/Festival.Simulation/SessionPersistence.cs",
+      "sha256": "4937C9DD06C927D042265A92F61FF78DFBBCB53FCB88761E06D35EBD26B11179"
+    },
+    {
+      "path": "src/Festival.Simulation/SessionState.cs",
+      "sha256": "FBCE89CBE4347307D542A349FDB1A18954101AB3FC3300F9AB4F89AFF00C00F5"
+    },
+    {
+      "path": "src/Festival.Simulation/SetPerformance.cs",
+      "sha256": "1E4D4E07DE19EC45A478632FCA2C3AE3FA03D6FA8078CFB0B80FD2DA05E0B627"
+    },
+    {
+      "path": "src/Festival.Simulation/Shelter.cs",
+      "sha256": "5F644D63FB917F7FAD848161756CD3B35AC559D20D7A54B2227E5F80FF76A312"
+    },
+    {
+      "path": "src/Festival.Simulation/SpatialNeighbourIndex.cs",
+      "sha256": "173EC1E16847EDA78FAA549D3BC28A79ED193C83C6CFF968B05B4BD097D05BE4"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffAutonomy.cs",
+      "sha256": "84BE37558DCDAC5E07089BBEBB3133F1A093ED25D70EA8FB9621196553655A11"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffCatalogue.cs",
+      "sha256": "DBDAF58FCC43A5890B1381CF83D0F13A9CA338DD0C689B6BE81EE0BCB7E2BF64"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffFightHandling.cs",
+      "sha256": "22895B17055A2C9A07D81D746EF3DE1A08098D57A7BD47C90E608CE36CA0E76E"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffFoundations.cs",
+      "sha256": "27BFE0BB4653DB6A8BA1FABB8C19E5AD7E22B05A8CA5E2B87BF09F41A9504AC5"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffHiring.cs",
+      "sha256": "52D639490CBC156DDA0DE16490BB930FCB6A9EFB6333723C729AF68C2021DE28"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffInterventions.cs",
+      "sha256": "632B6E172635A1C128176960C536C1D16415C98E407B33AA17E045307D07568B"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffTraits.cs",
+      "sha256": "59EE85BADDF66D06AF26B6ADF24514B44A22F7C12AE2EA9C2E5260D60AFA0A16"
+    },
+    {
+      "path": "src/Festival.Simulation/Stalls.cs",
+      "sha256": "88DF1AA014C3566CB7F988DC1A689B3D43F69683910CAB5993343BFFF874A393"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardAutopilot.cs",
+      "sha256": "866980535B8469F802EC4F5622E092CA076D45632AD7CB509711A422A5C270DF"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardRadio.cs",
+      "sha256": "0EF5207E5BDC90158F6730BCAA7E18C532B0D5E95BAAC9EB421121638F044FD0"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShift.cs",
+      "sha256": "40CA8AA534C0514A2AB1DDCE58FEB7D5B42934E70073C875CC964E2B9FC7C720"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftActions.cs",
+      "sha256": "3ABDCE68D29F118C2E978023B00E3F03263FA738ADBB3CF8821CC0B2A478A238"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftCalls.cs",
+      "sha256": "24764F5CDF45512EEE60EE488B090C88125F629805BD97FE9B0AFA60FA68F59A"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftNight.cs",
+      "sha256": "D42442E934E93271EA4139E75DCAE6DA1604D3736D1B17EF0EFCF3BA0716C95D"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftReport.cs",
+      "sha256": "F415C9103802D3DB6EF6271A205D07F5BC1A3483EE74503934A80BE7BC44813D"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftSetup.cs",
+      "sha256": "4A9F0BB6611DCCC8BF2C647C7DD3A52921135EC7F39AF51E77BE3B242008BFCA"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftStage.cs",
+      "sha256": "07D4FB4C6B0355E1E37AF913ED775E442D100AA37320463A1EB5B15A521FA759"
+    },
+    {
+      "path": "src/Festival.Simulation/StrawJob.cs",
+      "sha256": "937ECA3F60DF73C6F938FEB9041C908ECC9CB00E454449FEDA5D98BA87D0BB32"
+    },
+    {
+      "path": "src/Festival.Simulation/ToiletQueueGrowth.cs",
+      "sha256": "C0357F459E2D852EC8721031ED23E8F9FC831C5A4F0941F174918C0DB830152F"
+    },
+    {
+      "path": "src/Festival.Simulation/Toilets.cs",
+      "sha256": "90853A856D1847BC95C333388B7073D5DD86558A5AFEBB1043671D09B038FEEB"
+    },
+    {
+      "path": "src/Festival.Simulation/ToolchainSmoke.cs",
+      "sha256": "26E634C40E196A397776313A4B7A6D4F95EC753F352753E5097CF62C46B22EBD"
+    },
+    {
+      "path": "src/Festival.Simulation/TrafficProof/TrafficKernel.cs",
+      "sha256": "EA76FE5AE8BDDCBF8910C04A2E9239A598EFC5EC33A8185B009BDF0B3EA618A6"
+    },
+    {
+      "path": "src/Festival.Simulation/VendorQueueGrowth.cs",
+      "sha256": "04AA403FDF889AFFEA5363296B390FA7C2C87A7872EF12138F521BAC447EA3AB"
+    },
+    {
+      "path": "src/Festival.Simulation/WaterQueueGrowth.cs",
+      "sha256": "71C6FA2444ADC1051FF47A7A43CE6F35EDFB318FF9D055E18CCB2A3CD21738F8"
+    },
+    {
+      "path": "src/Festival.Simulation/Weather.cs",
+      "sha256": "B6564F359B8125CE41386FA2ADF6205548081CBE7AD11AF67CAF44EAC6A5206F"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "B3E441DD29C64C2CC61EF908214F962EC8202D7C1FBA73A6BB11300BB73B6894"
+    },
+    {
+      "path": "game/Main.HandsOn.cs",
+      "sha256": "B67C313468828F5F37A77BA12FC05E27196E9D975F15C766C7987E37E14ABFBF"
+    },
+    {
+      "path": "game/Main.StewardShift.cs",
+      "sha256": "5978275838D7F023A6EF7A8EB8B590396691859E713A0429A1BEEA337B8BEAF8"
+    },
+    {
+      "path": "game/Main.Splash.cs",
+      "sha256": "E501581DA2EB6F4853117A95D4CED2383D46E50F10AB9C50F378B9A1DA29F427"
+    },
+    {
+      "path": "game/Hud/StartMenu.cs",
+      "sha256": "C989482D65CE308F62AFD1BEE8739201BEB06E6500CB0EEF98A4EEE52D7C0883"
+    },
+    {
+      "path": "game/Main.Results.cs",
+      "sha256": "2B3B419345B546D4B983566A38331EB69818E645A2BCB340DDB251905357844C"
+    },
+    {
+      "path": "game/Hud/ResultsPaper.cs",
+      "sha256": "DAA717643C6B35175EFDED35915A7B1E0142F443CF3C3FAE3807DA668DB1FF79"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline-companion.json",
+      "sha256": "12E77C5DB21EB3D9A8E530DD493355F1DFEC82BEB21BC1C43A05F9E13BC1343E"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline-save-limitation.json",
+      "sha256": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/baseline.json",
+      "sha256": "272848B02CD14D14059EE903C82DE3D0EFCD4CE7DE54A0C5684FD2D2E668DC0A"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/incident-consequence-baseline.json",
+      "sha256": "278EB7215AAABD62AD08B6EC2E5EE9BB9A476B68BC15981F34758526C7B3F969"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before/incident-save-limitation.json",
+      "sha256": "4F53CDA18C2BAA0C0354BB5F9A3ECBE5ED12AB4D8E11BA873C2F11161202B945"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before-original-tests.txt",
+      "sha256": "6FF4E1DB4A873A0648670D1A10720BA267FD918199A323AA004F7655311171E3"
+    },
+    {
+      "path": "reports/evidence/classic-loop/survival-before-record.txt",
+      "sha256": "1D28239CB8F026EDE431150BC4AF0FD4F878789200E326CC0F78EC80A867AF54"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicSurvivalParityTests.cs",
+      "sha256": "2E2B2C0D5D90AA32857CE7E6EE7E1F3CE8C7098959716D478562B834A375A6A4"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicSurvivalIncidentParityTests.cs",
+      "sha256": "3F4279928EB3EE94FF22AE8314367571AB29645E5B5583E0BAF35298D2510DA7"
+    },
+    {
+      "path": "briefs/results/classic-loop-plan.md",
+      "sha256": "29BA075FF4063992CCA7B9195FD5494F36E112B1DEB0F61CF3ECE34D6760F431"
+    }
+  ],
+  "originalReferences": [
+    {
+      "path": "reports/evidence/survival-architecture/baseline.json",
+      "sha256": "9F9A12D38DA6319CFA2D389C73324210EF357E5282EC67170D9D7402C08873FD"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/baseline-companion.json",
+      "sha256": "48FAAF6DA0EC84F6DA7FAE54DDC16DED77556ABA08AA86BD0A62400E54122934"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/incident-consequence-baseline.json",
+      "sha256": "A60B1A9FFDB220CC938BA12229BF5DBCF4228775F2812312E1D0451A9BFC545A"
+    },
+    {
+      "path": "tests/Festival.Tests/SurvivalArchitectureParityTests.cs",
+      "sha256": "C33947522F63188C721B4593E7E0D7C5965FD0ABB2418A762919021369326418"
+    },
+    {
+      "path": "tests/Festival.Tests/IncidentConsequenceParityTests.cs",
+      "sha256": "A2A52559695B394E66CFD6523667D4222A5275644A68259E337FF19FA0735F5E"
+    }
+  ]
+}
