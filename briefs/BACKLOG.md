@@ -31,3 +31,9 @@ Updated **30 September 2026** against [current design](../CURRENT_DESIGN.md). Th
 ## 4 October 2026 — surrounding field expansion
 
 B-022 · approved future direction, not implemented: later tiers should unlock more usable surrounding fields. Define unlock conditions, playable bounds, placement/navigation and persistence in a separate bounded brief. Current concept-A countryside is decorative and does not grant usable land. See [decision](DECISIONS.md#4-october-2026--farm-surround-a-and-future-fields).
+
+## 14 October 2026 — Classic outdoor stage placement
+
+**B-023 · LATER · approved future direction, not implemented: movable/rentable outdoor stage placement for Classic.** Reputation unlocks stage options; the player chooses which to pay for. Guided onboarding is Trailer Stage → Barn Stage conversion, followed eventually by player-placed rented freestanding outdoor stages on suitable unlocked land. The duck-pond area is a likely third-stage choice in the current field, not a mandatory position; later usable land such as the cow field opens other choices. Survival allocations and positions remain fixed/curated.
+
+Future considerations for a separate bounded brief: stage footprint plus audience/backstage space, access, placement validation and useful defaults. Reputation thresholds, rental prices and land unlock conditions remain undecided. The approved model is rental, with no mandatory permanent stage purchase. This is outside the active architectural groundwork batch and authorizes no new mechanics now. See the [owning decision](DECISIONS.md#14-october-2026--classic-stage-options-and-rentals).

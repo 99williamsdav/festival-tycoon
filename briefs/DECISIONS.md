@@ -1,5 +1,15 @@
 # Dated product and prototype decisions
 
+## 14 October 2026 — Classic stage options and rentals
+
+**Approved future design; documentation only.** In the future Classic ruleset, reputation unlocks **stage options**. The player then chooses which available stages to pay for; unlocking an option does not automatically allocate or charge for it. This decision concerns campaign rules, separately from the player's management or steward control role.
+
+Initial onboarding is guided/on-rails: **Trailer Stage → Barn Stage conversion**. After that guided opening, freestanding outdoor stages are **rentable**, with eventual player placement within suitable unlocked land. The approved model is rental, with no mandatory permanent stage purchase. A third stage near the duck pond is a likely choice while the current field is the only usable land, **not a forced position**. Later unlocked land, such as the cow field, opens more placement options.
+
+**Survival stage allocations and positions remain fixed and curated.** This record does not implement Classic, movable stages, another playable stage/tier, rentals or land unlocks, and does not expand the architectural groundwork batch.
+
+Reputation thresholds, rental prices and land unlock conditions remain **undecided**. Stage footprint, audience area, backstage space, access, placement validation and useful placement defaults are future design considerations for [B-023 — movable/rentable outdoor stage placement for Classic](BACKLOG.md#14-october-2026--classic-outdoor-stage-placement). That item is **LATER**, requiring its own bounded brief before implementation.
+
 **Snapshot 30 September 2026.** This log points to the owning approval, brief and result; it does not replace them or authorize the next feature. A row marked implemented describes the current prototype, not a global acceptance or human-playtest pass. Older documents remain intact where a later decision supersedes them. Start at [current design](../CURRENT_DESIGN.md).
 
 | Date | Decision and state | Earlier text / boundary | Source |
