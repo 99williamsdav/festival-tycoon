@@ -521,7 +521,7 @@ public sealed partial class GameSession
         if (p is null) return null;
         if (p.SeenActs is null || p.SeenActs.Any(id => ActCatalogue.Find(id) is null) || !p.SeenActs.SequenceEqual(p.SeenActs.Distinct().Order(StringComparer.Ordinal)))
             return "Seen acts invalid.";
-        if (ValidatePersistedRelationships(p, snapshot.PondStageTrial) is { } relationshipIssue) return relationshipIssue;
+        if (ValidatePersistedRelationships(p, snapshot.PondStageTrial,SavedClassic(snapshot),snapshot.CampaignPlanning?.EditionNumber??p.Tier) is { } relationshipIssue) return relationshipIssue;
         if (p.Reputation is < 0 or > 100 || p.SceneCredibility is not { Length: FestivalGenre.Count } || p.SceneCredibility.Any(value => value is < 0 or > 100) ||
             p.StandingBefore is { } before && (before.Reputation is < 0 or > 100 || before.SceneCredibility is not { Length: FestivalGenre.Count } || before.SceneCredibility.Any(value => value is < 0 or > 100)))
             return "Festival reputation or scene credibility invalid.";
@@ -530,14 +530,14 @@ public sealed partial class GameSession
             ValidateBuildLayout(p.BuildPlacements, SavedStages(snapshot), snapshot.Equipment, p.WaterTowerOwned, p.Tier) is not null))
             return "Saved build layout is invalid.";
         if (ValidateBuildFacilities(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
-        if (ValidatePreviousLayout(p, snapshot.PondStageTrial) is { } previousLayoutIssue) return previousLayoutIssue;
+        if (ValidatePreviousLayout(p, snapshot.PondStageTrial,SavedClassic(snapshot)) is { } previousLayoutIssue) return previousLayoutIssue;
         if (ValidatePersistedMarquees(p, snapshot) is { } marqueeIssue) return marqueeIssue;
         if (ValidatePersistedGroundCover(p, snapshot) is { } coverIssue) return coverIssue;
         if (p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null)
             return "Lineup reaction identity requires the current saved programme and results plan.";
         if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > HighestTier || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
-            p.OfferSeed != (snapshot.CampaignSeed ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != OpeningCashFor(p.Tier, p.CarriedIn) || p.StockConsumed < 0 ||
-            (p.Tier == 1) != (p.CarriedIn is null) || p.CarriedIn is { } carry && (CarryIssue(carry, p.Tier) is not null ||
+            p.OfferSeed != (SavedFestivalSeed(snapshot) ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != OpeningCashFor(p.Tier, p.CarriedIn) || p.StockConsumed < 0 ||
+            !SavedClassic(snapshot)&&(p.Tier == 1) != (p.CarriedIn is null) || p.CarriedIn is { } carry && (!SavedClassic(snapshot)&&CarryIssue(carry, p.Tier) is not null ||
                 carry.CommunityWaterUsed && p.CommunityShareAttempt != 0) ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
             p.OwnedEquipment is null || p.Rentals is null || p.Contacts is null || p.WorkContracts is null || p.AcceptedOffers is null ||
@@ -570,7 +570,8 @@ public sealed partial class GameSession
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
             p.People.Select(item => item.AgentId).Distinct().Count() != p.People.Length)
             return "Fixed protected roster invalid.";
-        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed, p.Tier, pondStageTrial: snapshot.PondStageTrial, identity: snapshot.Identity).WithPaymentStanding(p);
+        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed, p.Tier, pondStageTrial: snapshot.PondStageTrial, identity: snapshot.Identity,
+            classicFestivalNumber:SavedClassic(snapshot)?snapshot.CampaignPlanning?.EditionNumber:null).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
         var candidates = SavedStaffCandidates(snapshot);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })

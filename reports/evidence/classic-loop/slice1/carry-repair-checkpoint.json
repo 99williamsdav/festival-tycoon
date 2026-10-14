@@ -1,0 +1,17 @@
+{
+  "scope": "Final related carry shape repair",
+  "files": [
+    {
+      "path": "src/Festival.Simulation/GameSession.cs",
+      "sha256": "9D9AB8AC5EFD406383EE1C2EA695E2E92A141E246BA02CD4EE4F932D48324CEC"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicCampaignTests.cs",
+      "sha256": "33424DAED7E6004B23D4DC1D581F25D4C2DCA53C9E87DA84CCF8024A34617A62"
+    },
+    {
+      "path": "briefs/results/classic-loop-core-implementation.md",
+      "sha256": "DEFBFFA8F1C7FDF7D95BDDA0071194E114EA418A1EF80573745B8413DA744599"
+    }
+  ]
+}

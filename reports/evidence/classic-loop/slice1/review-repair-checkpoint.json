@@ -1,0 +1,21 @@
+{
+  "scope": "Core independent findings repair",
+  "files": [
+    {
+      "path": "src/Festival.Simulation/ClassicCasualties.cs",
+      "sha256": "E085D4AD93CBAA578BA8D5BF6ADCB3AE062EDA8FA195F4557AC5A71F509F0E1E"
+    },
+    {
+      "path": "src/Festival.Simulation/EquipmentIncident.cs",
+      "sha256": "3E7EE1643FDB79E4031AE96E72EC8B4362A1CC8BE9010E6889FEE29439D6287D"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicCampaignTests.cs",
+      "sha256": "C6A9D38F8BBCDF6E08C4FA03BDD747ADA70F04B9E96242DC0BAF45E1D1A626E3"
+    },
+    {
+      "path": "briefs/results/classic-loop-core-implementation.md",
+      "sha256": "A6A31F2FE6F70EC02063B872E81CB7717C7D0F0DEEBB97EC1893AC713BD6D1B3"
+    }
+  ]
+}

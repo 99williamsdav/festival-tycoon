@@ -70,6 +70,7 @@ public sealed partial class GameSession
     public GameSession CreateNextFestival()
     {
         if (NextFestivalDefinition is not {} definition) throw new InvalidOperationException("Only a completed festival below the highest tier can open the next one.");
+        if(IsClassicCampaign)return CreateNextClassicFestival();
         var p = _preparation!;
         var next = CreateLaterFestivalFor(_identity, CampaignSeed, CampaignId, definition.Tier, CarryOverFrom(p),
             new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray()), p.SeenActs, _campaignPlanning!, _pondStageTrial);

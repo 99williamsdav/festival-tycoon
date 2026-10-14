@@ -150,6 +150,7 @@ public sealed partial class GameSession
     {
         foreach (var original in GetMedicResponses())
         {
+            if(IsClassicDeceased(original.WorkerId))continue;
             var job = original;
             if (MedicBusy(job) && PersonCollapsed(job.WorkerId))
             {

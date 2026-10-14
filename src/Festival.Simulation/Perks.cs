@@ -152,7 +152,7 @@ public sealed partial class GameSession
             (p.Pending ? prep.Status != PreparationStatus.Preparing || p.Hand.Length != 3 || p.Hand.Distinct().Count() != 3 || p.Hand.Any(p.Equipped.Contains) || prep.AcceptedOffers.Length != 0 : p.Hand.Length != 0))
             return "Perk version, catalogue, capacity, hand or attempt correspondence invalid.";
         // Reconstruct the bounded PCG cursor, without drawing another hand or touching gameplay streams.
-        var expected = RandomStreamFactory.Create(PerkSeed(s.CampaignSeed, prep.Tier), RandomStreamId.ArtistDecisions);
+        var expected = RandomStreamFactory.Create(PerkSeed(SavedFestivalSeed(s), prep.Tier), RandomStreamId.ArtistDecisions);
         if(p.DraftStartCursor >= p.Cursor) return "Perk draft start cursor invalid.";
         for (ulong i = 0; i < p.DraftStartCursor; i++) expected.NextUInt32();
         var cursor=p.DraftStartCursor;

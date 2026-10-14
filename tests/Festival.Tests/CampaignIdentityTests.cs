@@ -13,7 +13,7 @@ public sealed class CampaignIdentityTests
         Assert.AreEqual(CampaignIdentity.Management,management.Identity);Assert.AreEqual(CampaignIdentity.HandsOn,handsOn.Identity);Assert.AreEqual(CampaignIdentity.StewardOnly,shift.Identity);
         Assert.IsTrue(management.HasManagementCapability&&handsOn.HasManagementCapability);Assert.IsFalse(shift.HasManagementCapability);
         Assert.IsFalse(management.IsHandsOn||management.IsStewardShift);Assert.IsTrue(handsOn.IsHandsOn);Assert.IsTrue(shift.IsStewardShift);
-        Assert.AreEqual(1,Enum.GetValues<CampaignRuleset>().Length,"No Classic ruleset has been implemented.");
+        CollectionAssert.AreEqual(new[]{CampaignRuleset.Survival,CampaignRuleset.Classic},Enum.GetValues<CampaignRuleset>());
         foreach(var session in new[]{management,handsOn,shift})Assert.AreEqual(session.Identity,GameSession.Restore(session.CapturePersistenceSnapshot()).Session!.Identity);
     }
     [TestMethod]

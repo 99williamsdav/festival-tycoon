@@ -37,24 +37,25 @@ public sealed partial class GameSession
     /// carried forward. The same seed, tier and guest count always give the same identities.
     /// </summary>
     private static GameSession CreateBuildCampaign(ulong seed, int tier, FestivalCarryOver? carry, CampaignId? campaignId, int? guests = null,
-        bool pondStageTrial = false, CampaignIdentity? identity = null)
+        bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null)
     {
-        var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity);
-        SetUpPerks(session, seed, tier);
+        var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity, classicFestivalNumber);
+        SetUpPerks(session, session.FestivalSeed, tier);
         // From Tier 2 a second medic can be hired without a perk; hiring them still costs their wage.
         if (session.CurrentFestival.ExtraMedicSlot) session._preparation = session._preparation! with { ExtraMedicSlotOwned = true };
         SetUpEditablePlan(session);
         SetUpResults(session);
         SetUpBuild(session);
+        if(session.IsClassicCampaign)session._classicHistory=new([],[]);
         return session;
     }
 
     /// <summary>The campaign through its food-and-drink stage: the baseline a retried edition resets to.</summary>
     private static GameSession CreateFoodAndDrinkBaseline(ulong seed, int tier = 1, int? guests = null,
-        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null)
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null)
     {
-        var session = CreateProgrammeBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity);
-        SetUpFoodAndDrink(session, seed);
+        var session = CreateProgrammeBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity, classicFestivalNumber);
+        SetUpFoodAndDrink(session, session.FestivalSeed);
         return session;
     }
 
@@ -62,12 +63,20 @@ public sealed partial class GameSession
 
     /// <summary>The campaign through its programme stage: the saved roster's reference identities.</summary>
     private static GameSession CreateProgrammeBaseline(ulong seed, int tier = 1, int? guests = null,
-        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null)
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null, int? classicFestivalNumber = null)
     {
         var session = CreateCampaign(seed, campaignId, tier, carry);
         session._pondStageTrial = pondStageTrial;
         session._identity = identity ?? CampaignIdentity.Management;
-        if (tier > 1) ReseedForTier(session, seed, tier);
+        if(session.IsClassicCampaign)
+        {
+            session._campaignPlanning!.EditionNumber=classicFestivalNumber??1;
+            if(carry is not null)session._campaignPlanning.LedgerTransactions[0]=ClassicOpeningTransaction(
+                new(session._preparation?.FinanceOwnerId??session._campaignPlanning.FinanceOwnerId.Value),session.FestivalNumber-1,carry);
+            foreach(var id in session._randomStreams.Keys.ToArray())session._randomStreams[id]=RandomStreamFactory.Create(session.FestivalSeed,id);
+        }
+        else if (tier > 1) ReseedForTier(session, seed, tier);
+        seed=session.FestivalSeed;
         SetUpEdition(session, seed, tier, guests ?? CampaignRulesProfile.For(session.Identity.Ruleset).Festival(tier,pondStageTrial).Attendance, carry);
         SetUpStagePower(session);
         SetUpHotWeather(session);
@@ -109,7 +118,7 @@ public sealed partial class GameSession
             session._wallets.Add(new(person.AgentId), new WalletState { OwnerId = new(person.AgentId), CashPennies = 500 });
         session.PreparationView = new(1, tier, seed ^ ((ulong)tier * 0x9E3779B97F4A7C15UL), 1,
             PreparationStatus.Preparing, owner.Value, stock.Value, 0,
-            carry?.OwnedEquipment.ToArray() ?? [], [], [], [], [], people, [], 0, OpeningCashFor(tier, carry)) { CarriedIn = carry };
+            carry?.OwnedEquipment.ToArray() ?? [], [], [], [], [], people, [], 0, OpeningCashFor(tier, carry)) { CarriedIn = carry,ChallengeAcknowledged=session.IsClassicCampaign };
     }
 
     /// <summary>The trailer stage generator and its overload chain.</summary>

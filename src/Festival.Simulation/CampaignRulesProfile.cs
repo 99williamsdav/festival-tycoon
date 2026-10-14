@@ -28,17 +28,44 @@ public sealed record FestivalDefinition(int Tier,IReadOnlyList<FestivalStage> St
 internal abstract class CampaignRulesProfile
 {
     private static readonly CampaignRulesProfile Survival=new SurvivalRulesProfile();
+    private static readonly CampaignRulesProfile Classic=new ClassicRulesProfile();
     internal static CampaignRulesProfile For(CampaignRuleset ruleset)=>ruleset switch
-    {CampaignRuleset.Survival=>Survival,_=>throw new ArgumentOutOfRangeException(nameof(ruleset),"Ruleset is not implemented.")};
+    {CampaignRuleset.Survival=>Survival,CampaignRuleset.Classic=>Classic,_=>throw new ArgumentOutOfRangeException(nameof(ruleset),"Ruleset is not implemented.")};
     internal abstract FestivalDefinition Festival(int tier,bool pondTrial=false);
     internal abstract ICampaignProgressionPolicy Progression {get;}
     internal abstract IIncidentConsequencePolicy IncidentConsequences {get;}
     internal abstract IncidentTimingParameters Incidents {get;}
+    internal virtual int DisorderPressurePercent=>100;
     internal abstract int TicketPrice(int tier);
     internal abstract WeatherKind WeatherForTier(int tier);
     internal abstract FestivalChallenge? ChallengeForTier(int tier);
     internal abstract TierBuildLimits Limits(int tier);
     internal abstract int BuildFee(BuildServiceKind kind);
+}
+
+/// <summary>Approved provisional Classic values; stages, expansion and random forecasts remain later work.</summary>
+public static class ClassicBalance
+{
+    public const int DeathReputationPenalty=10,DisorderPressurePercent=50,IncidentWindowMultiplier=2;
+}
+
+internal sealed class ClassicRulesProfile:CampaignRulesProfile
+{
+    private static CampaignRulesProfile Existing=>For(CampaignRuleset.Survival);
+    internal override ICampaignProgressionPolicy Progression=>ClassicProgressionPolicy.Instance;
+    internal override IIncidentConsequencePolicy IncidentConsequences=>ClassicIncidentConsequencePolicy.Instance;
+    internal override IncidentTimingParameters Incidents {get;}=new(3200,1600,4800,4800,4800,7200,9600);
+    internal override int DisorderPressurePercent=>ClassicBalance.DisorderPressurePercent;
+    internal override FestivalDefinition Festival(int tier,bool pondTrial=false)
+    {
+        if(tier!=1||pondTrial)throw new ArgumentOutOfRangeException(nameof(tier),"Classic's first loop uses the inherited Trailer setup.");
+        return new(1,FestivalStages.For(1,false),SurvivalBalance.GuestsPerTier,TicketPrice(1),WeatherKind.Mild,null,Limits(1),false,false);
+    }
+    internal override int TicketPrice(int tier)=>Existing.TicketPrice(1);
+    internal override WeatherKind WeatherForTier(int tier)=>WeatherKind.Mild;
+    internal override FestivalChallenge? ChallengeForTier(int tier)=>null;
+    internal override TierBuildLimits Limits(int tier)=>Existing.Limits(1);
+    internal override int BuildFee(BuildServiceKind kind)=>Existing.BuildFee(kind);
 }
 
 internal sealed class SurvivalRulesProfile:CampaignRulesProfile

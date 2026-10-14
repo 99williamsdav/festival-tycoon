@@ -14,6 +14,6 @@ public sealed partial class GameSession
 {
     private CommandResult? ValidateChallengeAcknowledgement(EntityId? target, AcknowledgeFestivalChallengeCommand command) =>
         target is not null || _preparation is not { Status: PreparationStatus.Preparing } p ||
-        p.Tier != command.Tier || p.Attempt != command.Attempt || p.ChallengeAcknowledged || FestivalChallenges.ForTier(p.Tier) is null
+        p.Tier != command.Tier || p.Attempt != command.Attempt || p.ChallengeAcknowledged || CurrentFestival.Challenge is null
             ? CommandResult.Rejected(CommandReasonCode.WrongPhase, "This festival challenge is not awaiting acknowledgement.") : null;
 }

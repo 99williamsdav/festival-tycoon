@@ -3,7 +3,7 @@ using System.Text.Json;
 namespace Festival.Simulation;
 
 /// <summary>The weather a festival day is set in: Tier 1's heatwave, or Tier 2's heavy rain.</summary>
-public enum WeatherKind { Heatwave, Rain }
+public enum WeatherKind { Heatwave, Rain, Mild }
 
 /// <summary>How hard it's raining: B, heavy showers, is the norm; C, a downpour, is rare.</summary>
 public enum RainIntensity { Dry, Heavy, Downpour }
@@ -157,19 +157,21 @@ public sealed partial class GameSession
         return spells.ToArray();
     }
 
-    private static WeatherSnapshot? NewWeather(ulong seed, int tier, int dayTicks) => WeatherRules.ForTier(tier) switch
+    private static WeatherSnapshot? NewWeather(ulong seed, int tier, int dayTicks,CampaignRuleset ruleset=CampaignRuleset.Survival) => CampaignRulesProfile.For(ruleset).WeatherForTier(tier) switch
     {
         WeatherKind.Rain => new(1, WeatherKind.Rain, RainForecast(seed, tier, dayTicks), [], []),
+        WeatherKind.Mild => new(1,WeatherKind.Mild,[],[],[]),
         _ => null,
     };
 
     /// <summary>Sets the tier's weather up: rain from Tier 2, where nobody heats up and the bar sells ponchos.</summary>
     private static void SetUpWeather(GameSession session, ulong seed, int tier)
     {
-        session._weather = NewWeather(seed, tier, session.PreparedEditionDurationTicks);
+        session._weather = NewWeather(seed, tier, session.PreparedEditionDurationTicks,session.Identity.Ruleset);
         session._wetness.Clear();
         if (session._weather is not null) session.MedicalView = session.MedicalView! with { IsHot = false,
-            Evidence = [new("medical:rain", 0, "Heavy showers forecast; free water, a baseline medic and shelter are available before opening.")] };
+            Evidence = session.IsClassicCampaign?[new("medical:mild",0,"Mild and dry: fixed temporary Classic conditions, not a random forecast; ordinary medical and safety responses remain active.")]:
+                [new("medical:rain", 0, "Heavy showers forecast; free water, a baseline medic and shelter are available before opening.")] };
     }
 
     /// <summary>Ticks since the gates opened, or -1 before.</summary>
@@ -213,7 +215,7 @@ public sealed partial class GameSession
     /// <summary>The weather now and next, for the top bar; before opening, the day ahead from the gates.</summary>
     public WeatherOutlook CaptureWeatherOutlook()
     {
-        if (_weather is not { Kind: WeatherKind.Rain } w) return new(WeatherKind.Heatwave, RainIntensity.Dry, -1, RainIntensity.Dry, false, 0);
+        if (_weather is not { Kind: WeatherKind.Rain } w) return new(Weather, RainIntensity.Dry, -1, RainIntensity.Dry, false, 0);
         var now = Math.Max(0, DayTick);
         var current = RainAt(now);
         var downpour = w.Spells.Any(spell => spell.Intensity == RainIntensity.Downpour);
@@ -280,13 +282,14 @@ public sealed partial class GameSession
     private static string? ValidatePersistedWeather(SessionPersistenceSnapshot s)
     {
         if (s.Preparation is not { } p) return s.Weather is null ? null : "Weather without a festival.";
-        var kind = WeatherRules.ForTier(p.Tier);
+        var kind = CampaignRulesProfile.For(s.Identity!.Ruleset).WeatherForTier(p.Tier);
         if (kind == WeatherKind.Heatwave) return s.Weather is null ? null : "This festival has no rain.";
         if (s.Weather is not { } w) return "A rainy festival's weather is missing.";
         if (w.Version != 1 || w.Kind != kind || w.Spells is null || w.WetIds is null || w.Wetness is null || w.WetIds.Length != w.Wetness.Length ||
             w.Spells.Any(spell => spell is null)) return "Weather state shape invalid.";
+        if(kind==WeatherKind.Mild&&(w.Spells.Length!=0||w.WetIds.Length!=0||w.StrawBales!=0||w.StrawJob is not null))return "The fixed mild Classic festival must remain dry.";
         var day = DayTicksFor(SavedStages(s));
-        if (!w.Spells.SequenceEqual(RainForecast(s.CampaignSeed, p.Tier, day))) return "The showers differ from the day's forecast.";
+        if (!w.Spells.SequenceEqual(kind==WeatherKind.Mild?[]:RainForecast(s.CampaignSeed, p.Tier, day))) return "The showers differ from the day's forecast.";
         var roster = p.People.ToDictionary(person => person.AgentId);
         for (var i = 0; i < w.WetIds.Length; i++)
         {

@@ -168,10 +168,10 @@ public sealed partial class GameSession
     private static (LayoutFitKey Key, BuildPlacement[] Placed, int Skipped)? _lastLayoutFit;
 
     /// <summary>A carried previous layout must be one the festival before could have placed: sorted, and valid there.</summary>
-    private static string? ValidatePreviousLayout(PreparationSnapshot p, bool pondStageTrial)
+    private static string? ValidatePreviousLayout(PreparationSnapshot p, bool pondStageTrial,bool classic=false)
     {
         if (p.PreviousLayout is not { } previous) return null;
-        var before = p.Tier - 1;
+        var before = classic?1:p.Tier - 1;
         return p.CarriedIn is null || before < 1 || previous.Length == 0 ||
             !previous.Select(item => item?.Id).SequenceEqual(previous.Select(item => item?.Id).Order(StringComparer.Ordinal)) ||
             ValidateBuildLayout(previous, FestivalStages.For(before, pondStageTrial), null, false, before) is not null

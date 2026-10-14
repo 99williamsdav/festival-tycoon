@@ -135,10 +135,10 @@ internal sealed class CampaignPlanningState
     public FestivalPalette Palette { get; set; }
     public required string SiteId { get; init; }
     public ulong SiteSeed { get; init; }
-    public int EditionNumber { get; init; }
+    public int EditionNumber { get; set; }
     public int PlanningWeek { get; set; }
     public EntityId FinanceOwnerId { get; init; }
-    public required LoanSnapshot Loan { get; init; }
+    public required LoanSnapshot Loan { get; set; }
     public List<PlanningCommitmentSnapshot> Commitments { get; } = [];
     public List<PlanningLedgerTransactionSnapshot> LedgerTransactions { get; } = [];
     public List<WeeklyDigestSnapshot> WeeklyDigests { get; } = [];
@@ -343,7 +343,7 @@ public sealed partial class GameSession
         if (campaign is null) return null; // M0 v1 saves intentionally carry no M1 campaign extension.
         if (string.IsNullOrWhiteSpace(campaign.FestivalName) || campaign.FestivalName.Length > 48 || campaign.FestivalName.Any(char.IsControl) ||
             !Enum.IsDefined(typeof(FestivalPalette), campaign.Palette) || campaign.SiteId != CampaignDefaults.SiteId || campaign.SiteSeed == 0 ||
-            campaign.EditionNumber != (snapshot.Preparation?.Tier ?? 1) || campaign.PlanningWeek is < 0 or > 8 || campaign.FinanceOwnerId == 0 ||
+            (SavedClassic(snapshot)?campaign.EditionNumber<1:campaign.EditionNumber != (snapshot.Preparation?.Tier ?? 1)) || campaign.PlanningWeek is < 0 or > 8 || campaign.FinanceOwnerId == 0 ||
             !snapshot.FestivalFinances.Any(item => item.OwnerId == campaign.FinanceOwnerId))
             return "Campaign identity, inherited site, edition, week or finance owner is invalid.";
         if (snapshot.Preparation is null && (snapshot.Phase == (int)SessionPhase.Planning && campaign.PlanningWeek is < 1 or > 8 ||
@@ -381,10 +381,12 @@ public sealed partial class GameSession
             campaign.DismissedTipIds.Distinct(StringComparer.Ordinal).Count() != campaign.DismissedTipIds.Length)
             return "Dismissed campaign tip IDs must be nonempty, sorted and unique.";
         // A later festival opens on exactly what came forward: the carried cash, tickets and debt.
+        PlanningLedgerTransactionSnapshot Opening(EntityId owner,PreparationSnapshot p,FestivalCarryOver carry)=>SavedClassic(snapshot)
+            ?ClassicOpeningTransaction(owner,campaign.EditionNumber-1,carry):CarriedOpeningTransaction(owner,p.Tier,carry);
         if (snapshot.Preparation is { CarriedIn: { } carry } carried && (campaign.LoanOutstandingPrincipalPennies != carry.DebtPennies ||
-            campaign.LedgerTransactions.Length == 0 || campaign.LedgerTransactions[0].Reason != CarriedOpeningTransaction(new(campaign.FinanceOwnerId), carried.Tier, carry).Reason ||
+            campaign.LedgerTransactions.Length == 0 || campaign.LedgerTransactions[0].Reason != Opening(new(campaign.FinanceOwnerId),carried,carry).Reason ||
             !campaign.LedgerTransactions[0].Entries.Select(entry => new LedgerEntry(new(entry.OwnerId), (LedgerAccountType)entry.Account, entry.AmountPennies))
-                .SequenceEqual(CarriedOpeningTransaction(new(campaign.FinanceOwnerId), carried.Tier, carry).Entries)))
+                .SequenceEqual(Opening(new(campaign.FinanceOwnerId),carried,carry).Entries)))
             return "A later festival's loan or opening ledger does not match what was carried forward.";
         return null;
     }

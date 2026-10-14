@@ -497,6 +497,7 @@ public sealed partial class GameSession
             ServiceQueues = CapturePersistedServiceQueues(),
             CampaignPlanning = CapturePersistedCampaignPlanning(),
             Lifecycle = CapturePersistedLifecycle(),
+            ClassicHistory = CaptureClassicHistory(),
             Preparation = CapturePreparation(),
             Programme = CaptureProgrammes(),
             Perks = CapturePerks(),
@@ -573,6 +574,7 @@ public sealed partial class GameSession
         session._equipment = snapshot.Equipment is null ? null : snapshot.Equipment with { Evidence = snapshot.Equipment.Evidence.ToArray() };
         session._pondStageTrial = snapshot.PondStageTrial;
         session._identity = snapshot.Identity!;
+        session._classicHistory = snapshot.ClassicHistory is {} classicHistory?CloneClassicHistory(classicHistory):null;
         session._stageGenerators = snapshot.StageGenerators?.ToArray();
         session._programme = snapshot.Programme is null ? null : System.Text.Json.JsonSerializer.Deserialize<ProgrammeSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Programme));
         session.ImmersionView = snapshot.Immersion is null ? null : System.Text.Json.JsonSerializer.Deserialize<ImmersionSnapshot>(System.Text.Json.JsonSerializer.Serialize(snapshot.Immersion));
@@ -607,6 +609,9 @@ public sealed partial class GameSession
     private static string? ValidatePersistenceSnapshot(SessionPersistenceSnapshot snapshot)
     {
         if(CampaignIdentity.Issue(snapshot.Identity) is {} identityIssue)return identityIssue;
+        if(SavedClassic(snapshot)&&(snapshot.Preparation is not{Tier:1,Attempt:1}||snapshot.CampaignPlanning is not{EditionNumber:>=1}||
+            snapshot.ClassicHistory is not{CompletedFestivals:not null,DeathPenalties:not null}))return "Classic current festival identity or history is invalid.";
+        if(SavedClassic(snapshot)&&snapshot.Preparation?.CarriedIn is{OwnedEquipment:null})return "Classic carried equipment collections are invalid.";
 if (snapshot.Immersion is { } immersion && (immersion.People is null || immersion.Purchases is null || immersion.People.Any(p=>p is null) || immersion.Purchases.Any(p=>p is null || p.Entries is null || p.Entries.Any(e=>e is null) || !Enum.IsDefined(p.Product) || p.PricePennies<0 || p.PricePennies>ImmersionPrice(p.Product, beerFestival: true) || p.CostPennies!=ImmersionCost(p.Product)))) return "Immersion collections or transaction shape invalid.";
         if (!Enum.IsDefined(typeof(SessionPhase), snapshot.Phase)) return $"Unknown session phase {snapshot.Phase}.";
         if (!string.Equals(snapshot.RandomAlgorithmVersion, Pcg32Random.AlgorithmVersion, StringComparison.Ordinal))
@@ -645,7 +650,7 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (queueError is not null) return queueError;
         var campaignError = ValidatePersistedCampaignPlanning(snapshot.CampaignPlanning, snapshot);
         if (campaignError is not null) return campaignError;
-        var lifecycleError = ValidatePersistedLifecycle(snapshot.Lifecycle, snapshot.Preparation, snapshot.CampaignId);
+        var lifecycleError = SavedClassic(snapshot)?ValidateClassicLifecycle(snapshot):ValidatePersistedLifecycle(snapshot.Lifecycle, snapshot.Preparation, snapshot.CampaignId);
         if (lifecycleError is not null) return lifecycleError;
         var programmeError = ValidatePersistedProgramme(snapshot);
         if (programmeError is not null) return programmeError;
@@ -654,6 +659,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (preparationError is not null) return preparationError;
         var resultError = ValidateFestivalResult(snapshot);
         if (resultError is not null) return resultError;
+        var classicError=ValidateClassicHistory(snapshot);
+        if(classicError is not null)return classicError;
         var responsePostError = ValidatePersistedResponsePosts(snapshot);
         if(responsePostError is not null)return responsePostError;
         var perkError = ValidatePersistedPerks(snapshot);

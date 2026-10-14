@@ -61,7 +61,10 @@ public sealed partial class GameSession
         var nav = _navigationAgents.GetValueOrDefault(new(personId));
         var item = new DisorderEvidence(id, CurrentTick, personId, otherId,
             nav?.XMillimetres ?? 0, nav?.ZMillimetres ?? 0, pressure, description);
-        _disorder = _disorder! with { Evidence = _disorder.Evidence.Append(item).TakeLast(96).ToArray() };
+        var all=_disorder!.Evidence.Append(item).ToArray();
+        _disorder = _disorder with { Evidence = IsClassicCampaign
+            ? all.Where(e=>e.Id=="disorder:death").Concat(all.Where(e=>e.Id!="disorder:death").TakeLast(96)).OrderBy(e=>e.Tick).ToArray()
+            : all.TakeLast(96).ToArray() };
     }
 
     private CommandResult? ValidateDisorderCommand(EntityId? target, DisorderCommand command)
@@ -311,7 +314,7 @@ public sealed partial class GameSession
                 // A sustained strongest grievance reaches fight eligibility no
                 // earlier than 1,600 ticks (20 real seconds), without a timer gate.
                 rate = Math.Min(5, rate);
-                pressure = Math.Min(10_000, pressure + (rate + ImmersionAggression(person.Id,person.Temperament)) * 8);
+                pressure = Math.Min(10_000, pressure + (rate + ImmersionAggression(person.Id,person.Temperament)) * 8 * RuleProfile.DisorderPressurePercent / 100);
             }
             else pressure = Math.Max(0, pressure - 48);
             var stage = pressure >= DisorderArgumentPressure ? DisorderStage.Argument :
@@ -409,6 +412,7 @@ public sealed partial class GameSession
 
     private void AdvanceSecurityResponse(StewardResponse response)
     {
+        if(IsClassicDeceased(response.WorkerId))return;
         var d = _disorder!;
         var workerId = response.WorkerId;
         var profile = GetResponseStaff().Single(item => item.AgentId == workerId);
@@ -582,6 +586,7 @@ public sealed partial class GameSession
 
     private void ApplyDisorderDeath(ulong victimId)
     {
+        if (IsClassicDeceased(victimId)) return;
         var victim = _persons[victimId];
         var d = _disorder!;
         var origin = d.Incidents.Last(item => item.VictimId == victimId && item.InjuryTick >= 0);
@@ -622,7 +627,7 @@ public sealed partial class GameSession
                 // An untreated injury turns critical after the medical delay, like any collapse.
                 item.Stage == DisorderStage.Injured && (item.InjuryTick < 0 ||
                     medical.Needs.Single(need => need.AgentId == item.AgentId).Stage is not (MedicalStage.Collapsed or MedicalStage.Critical))) ||
-            d.Evidence.Length > 96 || d.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick ||
+            d.Evidence.Length > (SavedClassic(s)?96+MaxActivePeople:96) || d.Evidence.Any(item => item is null || item.Tick < 0 || item.Tick > s.CurrentTick ||
                 !p.People.Any(person => person.AgentId == item.PersonId) || string.IsNullOrWhiteSpace(item.Id) ||
                 string.IsNullOrWhiteSpace(item.Description) || item.Pressure is < 0 or > 10_000) ||
             d.Incidents.Any(item => item is null || !d.People.Any(person => person.AgentId == item.InitiatorId) ||
@@ -634,7 +639,7 @@ public sealed partial class GameSession
                 item.InjuryTick >= 0 != (item.VictimId is not null) ||
                 item.VictimId is { } injuredId && injuredId != item.InitiatorId && injuredId != item.OpponentId) ||
             !d.Evidence.Select(item => item.Tick).SequenceEqual(d.Evidence.Select(item => item.Tick).Order()) ||
-            d.Evidence.LastOrDefault()?.Id == "disorder:death" &&
+            !SavedClassic(s) && d.Evidence.LastOrDefault()?.Id == "disorder:death" &&
                 (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1))
             return "Disorder pressure, response ownership, evidence or protected-person state invalid.";
         return ValidatePersistedFightHandling(d, s);

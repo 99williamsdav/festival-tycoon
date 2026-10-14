@@ -1,0 +1,2422 @@
+[
+  {
+    "festival": 1,
+    "identity": {
+      "Ruleset": 1,
+      "ControlRole": 0,
+      "ManagementCapability": true
+    },
+    "opening": {
+      "CampaignId": {
+        "Value": 20260922
+      },
+      "Seed": 20260922,
+      "Identity": {
+        "Ruleset": 1,
+        "ControlRole": 0,
+        "ManagementCapability": true
+      },
+      "FestivalName": "The Lantern Acre",
+      "Palette": 0,
+      "SiteId": "site.lower-wittering-farm",
+      "SiteSeed": 5507752146908627278,
+      "CashPennies": 45000,
+      "Loan": {
+        "OpeningPrincipalPennies": 20000,
+        "OutstandingPrincipalPennies": 20000,
+        "PrincipalDueAtSettlementPennies": 12000,
+        "InterestDueAtSettlementPennies": 1600,
+        "RemainingEditions": 5,
+        "InterestBasisPoints": 800
+      },
+      "FavourBalance": 1,
+      "CommunityWaterShareUsed": false,
+      "Standing": {
+        "Reputation": 0,
+        "SceneCredibility": [
+          0,
+          0,
+          0,
+          0,
+          0,
+          0
+        ]
+      },
+      "SeenActs": [],
+      "ActRelationships": [],
+      "ActPopularity": [],
+      "EarlierGigs": [],
+      "OwnedEquipment": []
+    },
+    "closed": {
+      "CampaignId": {
+        "Value": 20260922
+      },
+      "Seed": 20260922,
+      "Identity": {
+        "Ruleset": 1,
+        "ControlRole": 0,
+        "ManagementCapability": true
+      },
+      "FestivalName": "The Lantern Acre",
+      "Palette": 0,
+      "SiteId": "site.lower-wittering-farm",
+      "SiteSeed": 5507752146908627278,
+      "CashPennies": 27640,
+      "Loan": {
+        "OpeningPrincipalPennies": 20000,
+        "OutstandingPrincipalPennies": 20000,
+        "PrincipalDueAtSettlementPennies": 12000,
+        "InterestDueAtSettlementPennies": 1600,
+        "RemainingEditions": 5,
+        "InterestBasisPoints": 800
+      },
+      "FavourBalance": 1,
+      "CommunityWaterShareUsed": false,
+      "Standing": {
+        "Reputation": 21,
+        "SceneCredibility": [
+          15,
+          0,
+          15,
+          15,
+          0,
+          0
+        ]
+      },
+      "SeenActs": [
+        "act.daisy-diaries",
+        "act.dj-spreadsheet",
+        "act.two-men-harmonium"
+      ],
+      "ActRelationships": [],
+      "ActPopularity": [],
+      "EarlierGigs": [],
+      "OwnedEquipment": []
+    },
+    "result": {
+      "Attempt": 1,
+      "Tick": 41274,
+      "GuestCount": 25,
+      "SatisfactionTotal": 103081,
+      "RevenuePennies": 40200,
+      "ContractCostsPennies": 29200,
+      "ConsumedStockCostsPennies": 3360,
+      "CapitalPurchasesPennies": 0,
+      "NetCashChangePennies": 7640,
+      "BeersFinished": 15,
+      "Fights": 0,
+      "MedicalCollapses": 0,
+      "AdmittedGuests": 25,
+      "ProfitPennies": 7640,
+      "Stars": 3,
+      "SatisfactionPercent": 41.2324
+    },
+    "standing": {
+      "Reputation": 21,
+      "SceneCredibility": [
+        15,
+        0,
+        15,
+        15,
+        0,
+        0
+      ]
+    },
+    "SeenActs": [
+      "act.daisy-diaries",
+      "act.dj-spreadsheet",
+      "act.two-men-harmonium"
+    ],
+    "OwnedEquipment": [],
+    "Rentals": [],
+    "WorkContracts": [],
+    "relationships": [
+      {
+        "ActId": "act.daisy-diaries",
+        "Value": 14
+      },
+      {
+        "ActId": "act.dj-spreadsheet",
+        "Value": 11
+      },
+      {
+        "ActId": "act.two-men-harmonium",
+        "Value": 11
+      }
+    ],
+    "popularity": [
+      {
+        "ActId": "act.daisy-diaries",
+        "Points": 2
+      },
+      {
+        "ActId": "act.dj-spreadsheet",
+        "Points": 1
+      },
+      {
+        "ActId": "act.two-men-harmonium",
+        "Points": 1
+      }
+    ],
+    "performanceRecords": [
+      {
+        "StageId": "stage.main",
+        "Slot": 0,
+        "ActId": "act.dj-spreadsheet",
+        "ScheduledStartTick": 4800,
+        "ScheduledEndTick": 13200,
+        "StartedTick": 4800,
+        "EndedTick": 13200,
+        "PeakCrowd": 24,
+        "SetEndCrowd": 24,
+        "ExpectedCrowd": 11,
+        "AverageEnjoyment": 240,
+        "Reaction": "warm",
+        "Hiccups": [],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 27,
+            "Fan": true,
+            "Line": 1
+          },
+          {
+            "GuestId": 8,
+            "Fan": false,
+            "Line": 3
+          }
+        ],
+        "RelationshipBefore": 0,
+        "Delta": 11,
+        "RelationshipAfter": 11,
+        "Reasons": [
+          "a big crowd",
+          "the crowd loved it"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 5774,
+        "SetEndIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "WonOverIds": [
+          16,
+          26
+        ],
+        "AverageCrowdTenths": 178
+      },
+      {
+        "StageId": "stage.main",
+        "Slot": 1,
+        "ActId": "act.two-men-harmonium",
+        "ScheduledStartTick": 16400,
+        "ScheduledEndTick": 24800,
+        "StartedTick": 16450,
+        "EndedTick": 24800,
+        "PeakCrowd": 23,
+        "SetEndCrowd": 21,
+        "ExpectedCrowd": 12,
+        "AverageEnjoyment": 234,
+        "Reaction": "warm",
+        "Hiccups": [],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 7,
+            "Fan": true,
+            "Line": 1
+          },
+          {
+            "GuestId": 18,
+            "Fan": false,
+            "Line": 1
+          }
+        ],
+        "RelationshipBefore": 0,
+        "Delta": 11,
+        "RelationshipAfter": 11,
+        "Reasons": [
+          "a big crowd",
+          "the crowd loved it"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 4933,
+        "SetEndIds": [
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          24,
+          25,
+          26,
+          27
+        ],
+        "WonOverIds": [
+          12,
+          13,
+          15
+        ],
+        "AverageCrowdTenths": 143
+      },
+      {
+        "StageId": "stage.main",
+        "Slot": 2,
+        "ActId": "act.daisy-diaries",
+        "ScheduledStartTick": 28000,
+        "ScheduledEndTick": 37600,
+        "StartedTick": 28085,
+        "EndedTick": 37600,
+        "PeakCrowd": 24,
+        "SetEndCrowd": 23,
+        "ExpectedCrowd": 14,
+        "AverageEnjoyment": 327,
+        "Reaction": "warm",
+        "Hiccups": [],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 26,
+            "Fan": true,
+            "Line": 0
+          },
+          {
+            "GuestId": 22,
+            "Fan": false,
+            "Line": 2
+          },
+          {
+            "GuestId": 12,
+            "Fan": true,
+            "Line": 2
+          }
+        ],
+        "RelationshipBefore": 0,
+        "Delta": 14,
+        "RelationshipAfter": 14,
+        "Reasons": [
+          "a big crowd",
+          "the crowd loved it"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 7541,
+        "SetEndIds": [
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "WonOverIds": [
+          3,
+          7,
+          8,
+          10,
+          13,
+          14,
+          16,
+          17,
+          21,
+          25,
+          27
+        ],
+        "WalkedOffIds": [
+          4,
+          15
+        ],
+        "AverageCrowdTenths": 214
+      }
+    ],
+    "authoritativeHash": "504568127b50a1bb0104262874beaeb4d09f46811be8a277c8bd3b4243e7baa4"
+  },
+  {
+    "festival": 2,
+    "identity": {
+      "Ruleset": 1,
+      "ControlRole": 0,
+      "ManagementCapability": true
+    },
+    "opening": {
+      "CampaignId": {
+        "Value": 20260922
+      },
+      "Seed": 20260922,
+      "Identity": {
+        "Ruleset": 1,
+        "ControlRole": 0,
+        "ManagementCapability": true
+      },
+      "FestivalName": "The Lantern Acre",
+      "Palette": 0,
+      "SiteId": "site.lower-wittering-farm",
+      "SiteSeed": 5507752146908627278,
+      "CashPennies": 52640,
+      "Loan": {
+        "OpeningPrincipalPennies": 20000,
+        "OutstandingPrincipalPennies": 20000,
+        "PrincipalDueAtSettlementPennies": 12000,
+        "InterestDueAtSettlementPennies": 1600,
+        "RemainingEditions": 5,
+        "InterestBasisPoints": 800
+      },
+      "FavourBalance": 1,
+      "CommunityWaterShareUsed": false,
+      "Standing": {
+        "Reputation": 21,
+        "SceneCredibility": [
+          15,
+          0,
+          15,
+          15,
+          0,
+          0
+        ]
+      },
+      "SeenActs": [
+        "act.daisy-diaries",
+        "act.dj-spreadsheet",
+        "act.two-men-harmonium"
+      ],
+      "ActRelationships": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Value": 14
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Value": 11
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Value": 11
+        }
+      ],
+      "ActPopularity": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Points": 2
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Points": 1
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Points": 1
+        }
+      ],
+      "EarlierGigs": [
+        {
+          "Tier": 1,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 24,
+          "SetEndEnjoyment": 5774,
+          "Hiccups": [],
+          "WonOver": 2,
+          "AverageCrowdTenths": 178
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4933,
+          "Hiccups": [],
+          "WonOver": 3,
+          "AverageCrowdTenths": 143
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 7541,
+          "Hiccups": [],
+          "WonOver": 11,
+          "WalkedOff": 2,
+          "AverageCrowdTenths": 214
+        }
+      ],
+      "OwnedEquipment": []
+    },
+    "closed": {
+      "CampaignId": {
+        "Value": 20260922
+      },
+      "Seed": 20260922,
+      "Identity": {
+        "Ruleset": 1,
+        "ControlRole": 0,
+        "ManagementCapability": true
+      },
+      "FestivalName": "The Lantern Acre",
+      "Palette": 0,
+      "SiteId": "site.lower-wittering-farm",
+      "SiteSeed": 5507752146908627278,
+      "CashPennies": 36980,
+      "Loan": {
+        "OpeningPrincipalPennies": 20000,
+        "OutstandingPrincipalPennies": 20000,
+        "PrincipalDueAtSettlementPennies": 12000,
+        "InterestDueAtSettlementPennies": 1600,
+        "RemainingEditions": 5,
+        "InterestBasisPoints": 800
+      },
+      "FavourBalance": 1,
+      "CommunityWaterShareUsed": false,
+      "Standing": {
+        "Reputation": 35,
+        "SceneCredibility": [
+          26,
+          0,
+          26,
+          26,
+          0,
+          0
+        ]
+      },
+      "SeenActs": [
+        "act.daisy-diaries",
+        "act.dj-spreadsheet",
+        "act.two-men-harmonium"
+      ],
+      "ActRelationships": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Value": 14
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Value": 11
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Value": 11
+        }
+      ],
+      "ActPopularity": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Points": 2
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Points": 1
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Points": 1
+        }
+      ],
+      "EarlierGigs": [
+        {
+          "Tier": 1,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 24,
+          "SetEndEnjoyment": 5774,
+          "Hiccups": [],
+          "WonOver": 2,
+          "AverageCrowdTenths": 178
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4933,
+          "Hiccups": [],
+          "WonOver": 3,
+          "AverageCrowdTenths": 143
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 7541,
+          "Hiccups": [],
+          "WonOver": 11,
+          "WalkedOff": 2,
+          "AverageCrowdTenths": 214
+        }
+      ],
+      "OwnedEquipment": []
+    },
+    "result": {
+      "Attempt": 1,
+      "Tick": 42321,
+      "GuestCount": 25,
+      "SatisfactionTotal": 103557,
+      "RevenuePennies": 39100,
+      "ContractCostsPennies": 26400,
+      "ConsumedStockCostsPennies": 3360,
+      "CapitalPurchasesPennies": 0,
+      "NetCashChangePennies": 9340,
+      "BeersFinished": 7,
+      "Fights": 0,
+      "MedicalCollapses": 0,
+      "AdmittedGuests": 25,
+      "ProfitPennies": 9340,
+      "Stars": 3,
+      "SatisfactionPercent": 41.4228
+    },
+    "standing": {
+      "Reputation": 35,
+      "SceneCredibility": [
+        26,
+        0,
+        26,
+        26,
+        0,
+        0
+      ]
+    },
+    "SeenActs": [
+      "act.daisy-diaries",
+      "act.dj-spreadsheet",
+      "act.two-men-harmonium"
+    ],
+    "OwnedEquipment": [],
+    "Rentals": [],
+    "WorkContracts": [],
+    "relationships": [
+      {
+        "ActId": "act.daisy-diaries",
+        "Value": 25
+      },
+      {
+        "ActId": "act.dj-spreadsheet",
+        "Value": 21
+      },
+      {
+        "ActId": "act.two-men-harmonium",
+        "Value": 19
+      }
+    ],
+    "popularity": [
+      {
+        "ActId": "act.daisy-diaries",
+        "Points": 2
+      },
+      {
+        "ActId": "act.dj-spreadsheet",
+        "Points": 1
+      },
+      {
+        "ActId": "act.two-men-harmonium",
+        "Points": 1
+      }
+    ],
+    "performanceRecords": [
+      {
+        "StageId": "stage.main",
+        "Slot": 0,
+        "ActId": "act.dj-spreadsheet",
+        "ScheduledStartTick": 4800,
+        "ScheduledEndTick": 13200,
+        "StartedTick": 4800,
+        "EndedTick": 13200,
+        "PeakCrowd": 25,
+        "SetEndCrowd": 23,
+        "ExpectedCrowd": 12,
+        "AverageEnjoyment": 184,
+        "Reaction": "warm",
+        "Hiccups": [],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 27,
+            "Fan": true,
+            "Line": 1
+          },
+          {
+            "GuestId": 8,
+            "Fan": false,
+            "Line": 3
+          }
+        ],
+        "RelationshipBefore": 11,
+        "Delta": 10,
+        "RelationshipAfter": 21,
+        "Reasons": [
+          "a big crowd"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 4244,
+        "SetEndIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          13,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "WalkedOffIds": [
+          14
+        ],
+        "AverageCrowdTenths": 185
+      },
+      {
+        "StageId": "stage.main",
+        "Slot": 1,
+        "ActId": "act.two-men-harmonium",
+        "ScheduledStartTick": 16400,
+        "ScheduledEndTick": 24800,
+        "StartedTick": 16450,
+        "EndedTick": 24800,
+        "PeakCrowd": 23,
+        "SetEndCrowd": 23,
+        "ExpectedCrowd": 12,
+        "AverageEnjoyment": 130,
+        "Reaction": "warm",
+        "Hiccups": [],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 7,
+            "Fan": true,
+            "Line": 1
+          },
+          {
+            "GuestId": 18,
+            "Fan": false,
+            "Line": 1
+          }
+        ],
+        "RelationshipBefore": 11,
+        "Delta": 8,
+        "RelationshipAfter": 19,
+        "Reasons": [
+          "a big crowd"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 2996,
+        "SetEndIds": [
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "WalkedOffIds": [
+          17
+        ],
+        "AverageCrowdTenths": 149
+      },
+      {
+        "StageId": "stage.main",
+        "Slot": 2,
+        "ActId": "act.daisy-diaries",
+        "ScheduledStartTick": 28000,
+        "ScheduledEndTick": 37600,
+        "StartedTick": 28085,
+        "EndedTick": 37600,
+        "PeakCrowd": 23,
+        "SetEndCrowd": 21,
+        "ExpectedCrowd": 15,
+        "AverageEnjoyment": 235,
+        "Reaction": "warm",
+        "Hiccups": [],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 26,
+            "Fan": true,
+            "Line": 0
+          },
+          {
+            "GuestId": 22,
+            "Fan": false,
+            "Line": 2
+          },
+          {
+            "GuestId": 12,
+            "Fan": true,
+            "Line": 2
+          }
+        ],
+        "RelationshipBefore": 14,
+        "Delta": 11,
+        "RelationshipAfter": 25,
+        "Reasons": [
+          "a big crowd",
+          "the crowd loved it"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 4938,
+        "SetEndIds": [
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          16,
+          17,
+          18,
+          19,
+          20,
+          22,
+          23,
+          24,
+          25,
+          26
+        ],
+        "WalkedOffIds": [
+          15,
+          21,
+          27
+        ],
+        "AverageCrowdTenths": 204
+      }
+    ],
+    "authoritativeHash": "2850287d0c5cc6335bb3b441056720ad56373d86c449895106a4b48b0c770db2"
+  },
+  {
+    "festival": 3,
+    "identity": {
+      "Ruleset": 1,
+      "ControlRole": 0,
+      "ManagementCapability": true
+    },
+    "opening": {
+      "CampaignId": {
+        "Value": 20260922
+      },
+      "Seed": 20260922,
+      "Identity": {
+        "Ruleset": 1,
+        "ControlRole": 0,
+        "ManagementCapability": true
+      },
+      "FestivalName": "The Lantern Acre",
+      "Palette": 0,
+      "SiteId": "site.lower-wittering-farm",
+      "SiteSeed": 5507752146908627278,
+      "CashPennies": 61980,
+      "Loan": {
+        "OpeningPrincipalPennies": 20000,
+        "OutstandingPrincipalPennies": 20000,
+        "PrincipalDueAtSettlementPennies": 12000,
+        "InterestDueAtSettlementPennies": 1600,
+        "RemainingEditions": 5,
+        "InterestBasisPoints": 800
+      },
+      "FavourBalance": 1,
+      "CommunityWaterShareUsed": false,
+      "Standing": {
+        "Reputation": 35,
+        "SceneCredibility": [
+          26,
+          0,
+          26,
+          26,
+          0,
+          0
+        ]
+      },
+      "SeenActs": [
+        "act.daisy-diaries",
+        "act.dj-spreadsheet",
+        "act.two-men-harmonium"
+      ],
+      "ActRelationships": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Value": 25
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Value": 21
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Value": 19
+        }
+      ],
+      "ActPopularity": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Points": 2
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Points": 1
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Points": 1
+        }
+      ],
+      "EarlierGigs": [
+        {
+          "Tier": 1,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 24,
+          "SetEndEnjoyment": 5774,
+          "Hiccups": [],
+          "WonOver": 2,
+          "AverageCrowdTenths": 178
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4933,
+          "Hiccups": [],
+          "WonOver": 3,
+          "AverageCrowdTenths": 143
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 7541,
+          "Hiccups": [],
+          "WonOver": 11,
+          "WalkedOff": 2,
+          "AverageCrowdTenths": 214
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 25,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 4244,
+          "Hiccups": [],
+          "WalkedOff": 1,
+          "AverageCrowdTenths": 185
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 2996,
+          "Hiccups": [],
+          "WalkedOff": 1,
+          "AverageCrowdTenths": 149
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4938,
+          "Hiccups": [],
+          "WalkedOff": 3,
+          "AverageCrowdTenths": 204
+        }
+      ],
+      "OwnedEquipment": []
+    },
+    "closed": {
+      "CampaignId": {
+        "Value": 20260922
+      },
+      "Seed": 20260922,
+      "Identity": {
+        "Ruleset": 1,
+        "ControlRole": 0,
+        "ManagementCapability": true
+      },
+      "FestivalName": "The Lantern Acre",
+      "Palette": 0,
+      "SiteId": "site.lower-wittering-farm",
+      "SiteSeed": 5507752146908627278,
+      "CashPennies": 47595,
+      "Loan": {
+        "OpeningPrincipalPennies": 20000,
+        "OutstandingPrincipalPennies": 20000,
+        "PrincipalDueAtSettlementPennies": 12000,
+        "InterestDueAtSettlementPennies": 1600,
+        "RemainingEditions": 5,
+        "InterestBasisPoints": 800
+      },
+      "FavourBalance": 1,
+      "CommunityWaterShareUsed": false,
+      "Standing": {
+        "Reputation": 37,
+        "SceneCredibility": [
+          30,
+          0,
+          30,
+          30,
+          0,
+          0
+        ]
+      },
+      "SeenActs": [
+        "act.daisy-diaries",
+        "act.dj-spreadsheet",
+        "act.two-men-harmonium"
+      ],
+      "ActRelationships": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Value": 25
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Value": 21
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Value": 19
+        }
+      ],
+      "ActPopularity": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Points": 2
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Points": 1
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Points": 1
+        }
+      ],
+      "EarlierGigs": [
+        {
+          "Tier": 1,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 24,
+          "SetEndEnjoyment": 5774,
+          "Hiccups": [],
+          "WonOver": 2,
+          "AverageCrowdTenths": 178
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4933,
+          "Hiccups": [],
+          "WonOver": 3,
+          "AverageCrowdTenths": 143
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 7541,
+          "Hiccups": [],
+          "WonOver": 11,
+          "WalkedOff": 2,
+          "AverageCrowdTenths": 214
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 25,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 4244,
+          "Hiccups": [],
+          "WalkedOff": 1,
+          "AverageCrowdTenths": 185
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 2996,
+          "Hiccups": [],
+          "WalkedOff": 1,
+          "AverageCrowdTenths": 149
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4938,
+          "Hiccups": [],
+          "WalkedOff": 3,
+          "AverageCrowdTenths": 204
+        }
+      ],
+      "OwnedEquipment": []
+    },
+    "result": {
+      "Attempt": 1,
+      "Tick": 42129,
+      "GuestCount": 25,
+      "SatisfactionTotal": 99765,
+      "RevenuePennies": 39775,
+      "ContractCostsPennies": 25800,
+      "ConsumedStockCostsPennies": 3360,
+      "CapitalPurchasesPennies": 0,
+      "NetCashChangePennies": 10615,
+      "BeersFinished": 11,
+      "Fights": 0,
+      "MedicalCollapses": 0,
+      "AdmittedGuests": 25,
+      "ProfitPennies": 10615,
+      "Stars": 2,
+      "SatisfactionPercent": 39.906
+    },
+    "standing": {
+      "Reputation": 37,
+      "SceneCredibility": [
+        30,
+        0,
+        30,
+        30,
+        0,
+        0
+      ]
+    },
+    "SeenActs": [
+      "act.daisy-diaries",
+      "act.dj-spreadsheet",
+      "act.two-men-harmonium"
+    ],
+    "OwnedEquipment": [],
+    "Rentals": [],
+    "WorkContracts": [],
+    "relationships": [
+      {
+        "ActId": "act.daisy-diaries",
+        "Value": 31
+      },
+      {
+        "ActId": "act.dj-spreadsheet",
+        "Value": 26
+      },
+      {
+        "ActId": "act.two-men-harmonium",
+        "Value": 25
+      }
+    ],
+    "popularity": [
+      {
+        "ActId": "act.daisy-diaries",
+        "Points": 2
+      },
+      {
+        "ActId": "act.dj-spreadsheet",
+        "Points": 1
+      },
+      {
+        "ActId": "act.two-men-harmonium",
+        "Points": 2
+      }
+    ],
+    "performanceRecords": [
+      {
+        "StageId": "stage.main",
+        "Slot": 0,
+        "ActId": "act.dj-spreadsheet",
+        "ScheduledStartTick": 4800,
+        "ScheduledEndTick": 13200,
+        "StartedTick": 4800,
+        "EndedTick": 13200,
+        "PeakCrowd": 24,
+        "SetEndCrowd": 24,
+        "ExpectedCrowd": 12,
+        "AverageEnjoyment": 157,
+        "Reaction": "warm",
+        "Hiccups": [
+          "sound-poor"
+        ],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 27,
+            "Fan": true,
+            "Line": 1
+          },
+          {
+            "GuestId": 8,
+            "Fan": false,
+            "Line": 3
+          }
+        ],
+        "RelationshipBefore": 21,
+        "Delta": 5,
+        "RelationshipAfter": 26,
+        "Reasons": [
+          "a big crowd"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 3775,
+        "SetEndIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "AverageCrowdTenths": 185
+      },
+      {
+        "StageId": "stage.main",
+        "Slot": 1,
+        "ActId": "act.two-men-harmonium",
+        "ScheduledStartTick": 16400,
+        "ScheduledEndTick": 24800,
+        "StartedTick": 16523,
+        "EndedTick": 24800,
+        "PeakCrowd": 24,
+        "SetEndCrowd": 20,
+        "ExpectedCrowd": 12,
+        "AverageEnjoyment": 209,
+        "Reaction": "warm",
+        "Hiccups": [
+          "sound-poor"
+        ],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 7,
+            "Fan": true,
+            "Line": 1
+          },
+          {
+            "GuestId": 18,
+            "Fan": true,
+            "Line": 1
+          }
+        ],
+        "RelationshipBefore": 19,
+        "Delta": 6,
+        "RelationshipAfter": 25,
+        "Reasons": [
+          "a big crowd"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 4194,
+        "SetEndIds": [
+          3,
+          5,
+          7,
+          8,
+          10,
+          11,
+          12,
+          13,
+          14,
+          16,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "WonOverIds": [
+          19,
+          20,
+          25
+        ],
+        "WalkedOffIds": [
+          9,
+          17
+        ],
+        "AverageCrowdTenths": 159
+      },
+      {
+        "StageId": "stage.main",
+        "Slot": 2,
+        "ActId": "act.daisy-diaries",
+        "ScheduledStartTick": 28000,
+        "ScheduledEndTick": 37600,
+        "StartedTick": 28018,
+        "EndedTick": 37600,
+        "PeakCrowd": 24,
+        "SetEndCrowd": 20,
+        "ExpectedCrowd": 15,
+        "AverageEnjoyment": 179,
+        "Reaction": "warm",
+        "Hiccups": [
+          "sound-poor"
+        ],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 26,
+            "Fan": true,
+            "Line": 0
+          },
+          {
+            "GuestId": 22,
+            "Fan": true,
+            "Line": 2
+          },
+          {
+            "GuestId": 12,
+            "Fan": false,
+            "Line": 2
+          }
+        ],
+        "RelationshipBefore": 25,
+        "Delta": 6,
+        "RelationshipAfter": 31,
+        "Reasons": [
+          "a big crowd"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 3591,
+        "SetEndIds": [
+          3,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          18,
+          19,
+          20,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "WalkedOffIds": [
+          15,
+          17,
+          21
+        ],
+        "AverageCrowdTenths": 197
+      }
+    ],
+    "authoritativeHash": "65a0ff78c1029689fcf15a79bbea51e1496c2edbf5333969edb9034a2d9c46c4"
+  },
+  {
+    "festival": 4,
+    "identity": {
+      "Ruleset": 1,
+      "ControlRole": 0,
+      "ManagementCapability": true
+    },
+    "opening": {
+      "CampaignId": {
+        "Value": 20260922
+      },
+      "Seed": 20260922,
+      "Identity": {
+        "Ruleset": 1,
+        "ControlRole": 0,
+        "ManagementCapability": true
+      },
+      "FestivalName": "The Lantern Acre",
+      "Palette": 0,
+      "SiteId": "site.lower-wittering-farm",
+      "SiteSeed": 5507752146908627278,
+      "CashPennies": 72595,
+      "Loan": {
+        "OpeningPrincipalPennies": 20000,
+        "OutstandingPrincipalPennies": 20000,
+        "PrincipalDueAtSettlementPennies": 12000,
+        "InterestDueAtSettlementPennies": 1600,
+        "RemainingEditions": 5,
+        "InterestBasisPoints": 800
+      },
+      "FavourBalance": 1,
+      "CommunityWaterShareUsed": false,
+      "Standing": {
+        "Reputation": 37,
+        "SceneCredibility": [
+          30,
+          0,
+          30,
+          30,
+          0,
+          0
+        ]
+      },
+      "SeenActs": [
+        "act.daisy-diaries",
+        "act.dj-spreadsheet",
+        "act.two-men-harmonium"
+      ],
+      "ActRelationships": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Value": 31
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Value": 26
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Value": 25
+        }
+      ],
+      "ActPopularity": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Points": 2
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Points": 1
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Points": 2
+        }
+      ],
+      "EarlierGigs": [
+        {
+          "Tier": 1,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 24,
+          "SetEndEnjoyment": 5774,
+          "Hiccups": [],
+          "WonOver": 2,
+          "AverageCrowdTenths": 178
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4933,
+          "Hiccups": [],
+          "WonOver": 3,
+          "AverageCrowdTenths": 143
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 7541,
+          "Hiccups": [],
+          "WonOver": 11,
+          "WalkedOff": 2,
+          "AverageCrowdTenths": 214
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 25,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 4244,
+          "Hiccups": [],
+          "WalkedOff": 1,
+          "AverageCrowdTenths": 185
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 2996,
+          "Hiccups": [],
+          "WalkedOff": 1,
+          "AverageCrowdTenths": 149
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4938,
+          "Hiccups": [],
+          "WalkedOff": 3,
+          "AverageCrowdTenths": 204
+        },
+        {
+          "Tier": 3,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 24,
+          "SetEndEnjoyment": 3775,
+          "Hiccups": [
+            "sound-poor"
+          ],
+          "AverageCrowdTenths": 185
+        },
+        {
+          "Tier": 3,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 20,
+          "SetEndEnjoyment": 4194,
+          "Hiccups": [
+            "sound-poor"
+          ],
+          "WonOver": 3,
+          "WalkedOff": 2,
+          "AverageCrowdTenths": 159
+        },
+        {
+          "Tier": 3,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 20,
+          "SetEndEnjoyment": 3591,
+          "Hiccups": [
+            "sound-poor"
+          ],
+          "WalkedOff": 3,
+          "AverageCrowdTenths": 197
+        }
+      ],
+      "OwnedEquipment": []
+    },
+    "closed": {
+      "CampaignId": {
+        "Value": 20260922
+      },
+      "Seed": 20260922,
+      "Identity": {
+        "Ruleset": 1,
+        "ControlRole": 0,
+        "ManagementCapability": true
+      },
+      "FestivalName": "The Lantern Acre",
+      "Palette": 0,
+      "SiteId": "site.lower-wittering-farm",
+      "SiteSeed": 5507752146908627278,
+      "CashPennies": 56535,
+      "Loan": {
+        "OpeningPrincipalPennies": 20000,
+        "OutstandingPrincipalPennies": 20000,
+        "PrincipalDueAtSettlementPennies": 12000,
+        "InterestDueAtSettlementPennies": 1600,
+        "RemainingEditions": 5,
+        "InterestBasisPoints": 800
+      },
+      "FavourBalance": 1,
+      "CommunityWaterShareUsed": false,
+      "Standing": {
+        "Reputation": 45,
+        "SceneCredibility": [
+          38,
+          0,
+          38,
+          38,
+          0,
+          0
+        ]
+      },
+      "SeenActs": [
+        "act.daisy-diaries",
+        "act.dj-spreadsheet",
+        "act.two-men-harmonium"
+      ],
+      "ActRelationships": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Value": 31
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Value": 26
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Value": 25
+        }
+      ],
+      "ActPopularity": [
+        {
+          "ActId": "act.daisy-diaries",
+          "Points": 2
+        },
+        {
+          "ActId": "act.dj-spreadsheet",
+          "Points": 1
+        },
+        {
+          "ActId": "act.two-men-harmonium",
+          "Points": 2
+        }
+      ],
+      "EarlierGigs": [
+        {
+          "Tier": 1,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 24,
+          "SetEndEnjoyment": 5774,
+          "Hiccups": [],
+          "WonOver": 2,
+          "AverageCrowdTenths": 178
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4933,
+          "Hiccups": [],
+          "WonOver": 3,
+          "AverageCrowdTenths": 143
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 7541,
+          "Hiccups": [],
+          "WonOver": 11,
+          "WalkedOff": 2,
+          "AverageCrowdTenths": 214
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 25,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 4244,
+          "Hiccups": [],
+          "WalkedOff": 1,
+          "AverageCrowdTenths": 185
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 23,
+          "SetEndEnjoyment": 2996,
+          "Hiccups": [],
+          "WalkedOff": 1,
+          "AverageCrowdTenths": 149
+        },
+        {
+          "Tier": 2,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 23,
+          "SetEndCrowd": 21,
+          "SetEndEnjoyment": 4938,
+          "Hiccups": [],
+          "WalkedOff": 3,
+          "AverageCrowdTenths": 204
+        },
+        {
+          "Tier": 3,
+          "ActId": "act.dj-spreadsheet",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 24,
+          "SetEndEnjoyment": 3775,
+          "Hiccups": [
+            "sound-poor"
+          ],
+          "AverageCrowdTenths": 185
+        },
+        {
+          "Tier": 3,
+          "ActId": "act.two-men-harmonium",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 20,
+          "SetEndEnjoyment": 4194,
+          "Hiccups": [
+            "sound-poor"
+          ],
+          "WonOver": 3,
+          "WalkedOff": 2,
+          "AverageCrowdTenths": 159
+        },
+        {
+          "Tier": 3,
+          "ActId": "act.daisy-diaries",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 24,
+          "SetEndCrowd": 20,
+          "SetEndEnjoyment": 3591,
+          "Hiccups": [
+            "sound-poor"
+          ],
+          "WalkedOff": 3,
+          "AverageCrowdTenths": 197
+        }
+      ],
+      "OwnedEquipment": []
+    },
+    "result": {
+      "Attempt": 1,
+      "Tick": 42356,
+      "GuestCount": 25,
+      "SatisfactionTotal": 103536,
+      "RevenuePennies": 39700,
+      "ContractCostsPennies": 27400,
+      "ConsumedStockCostsPennies": 3360,
+      "CapitalPurchasesPennies": 0,
+      "NetCashChangePennies": 8940,
+      "BeersFinished": 10,
+      "Fights": 0,
+      "MedicalCollapses": 0,
+      "AdmittedGuests": 25,
+      "ProfitPennies": 8940,
+      "Stars": 3,
+      "SatisfactionPercent": 41.4144
+    },
+    "standing": {
+      "Reputation": 45,
+      "SceneCredibility": [
+        38,
+        0,
+        38,
+        38,
+        0,
+        0
+      ]
+    },
+    "SeenActs": [
+      "act.daisy-diaries",
+      "act.dj-spreadsheet",
+      "act.two-men-harmonium"
+    ],
+    "OwnedEquipment": [],
+    "Rentals": [],
+    "WorkContracts": [],
+    "relationships": [
+      {
+        "ActId": "act.daisy-diaries",
+        "Value": 40
+      },
+      {
+        "ActId": "act.dj-spreadsheet",
+        "Value": 36
+      },
+      {
+        "ActId": "act.two-men-harmonium",
+        "Value": 34
+      }
+    ],
+    "popularity": [
+      {
+        "ActId": "act.daisy-diaries",
+        "Points": 2
+      },
+      {
+        "ActId": "act.dj-spreadsheet",
+        "Points": 1
+      },
+      {
+        "ActId": "act.two-men-harmonium",
+        "Points": 2
+      }
+    ],
+    "performanceRecords": [
+      {
+        "StageId": "stage.main",
+        "Slot": 0,
+        "ActId": "act.dj-spreadsheet",
+        "ScheduledStartTick": 4800,
+        "ScheduledEndTick": 13200,
+        "StartedTick": 4800,
+        "EndedTick": 13200,
+        "PeakCrowd": 24,
+        "SetEndCrowd": 20,
+        "ExpectedCrowd": 12,
+        "AverageEnjoyment": 202,
+        "Reaction": "warm",
+        "Hiccups": [],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 27,
+            "Fan": true,
+            "Line": 1
+          },
+          {
+            "GuestId": 8,
+            "Fan": false,
+            "Line": 3
+          }
+        ],
+        "RelationshipBefore": 26,
+        "Delta": 10,
+        "RelationshipAfter": 36,
+        "Reasons": [
+          "a big crowd"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 4046,
+        "SetEndIds": [
+          3,
+          5,
+          6,
+          7,
+          9,
+          10,
+          11,
+          12,
+          13,
+          15,
+          17,
+          18,
+          19,
+          20,
+          21,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "WalkedOffIds": [
+          8,
+          14,
+          16,
+          22
+        ],
+        "AverageCrowdTenths": 177
+      },
+      {
+        "StageId": "stage.main",
+        "Slot": 1,
+        "ActId": "act.two-men-harmonium",
+        "ScheduledStartTick": 16400,
+        "ScheduledEndTick": 24800,
+        "StartedTick": 16450,
+        "EndedTick": 24800,
+        "PeakCrowd": 21,
+        "SetEndCrowd": 21,
+        "ExpectedCrowd": 12,
+        "AverageEnjoyment": 156,
+        "Reaction": "warm",
+        "Hiccups": [],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 7,
+            "Fan": true,
+            "Line": 1
+          },
+          {
+            "GuestId": 18,
+            "Fan": false,
+            "Line": 1
+          }
+        ],
+        "RelationshipBefore": 25,
+        "Delta": 9,
+        "RelationshipAfter": 34,
+        "Reasons": [
+          "a big crowd"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 3287,
+        "SetEndIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          27
+        ],
+        "WonOverIds": [
+          20
+        ],
+        "WalkedOffIds": [
+          9,
+          17
+        ],
+        "AverageCrowdTenths": 144
+      },
+      {
+        "StageId": "stage.main",
+        "Slot": 2,
+        "ActId": "act.daisy-diaries",
+        "ScheduledStartTick": 28000,
+        "ScheduledEndTick": 37600,
+        "StartedTick": 28000,
+        "EndedTick": 37600,
+        "PeakCrowd": 24,
+        "SetEndCrowd": 22,
+        "ExpectedCrowd": 15,
+        "AverageEnjoyment": 167,
+        "Reaction": "warm",
+        "Hiccups": [],
+        "CrowdIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "Quotes": [
+          {
+            "GuestId": 26,
+            "Fan": true,
+            "Line": 0
+          },
+          {
+            "GuestId": 22,
+            "Fan": false,
+            "Line": 2
+          },
+          {
+            "GuestId": 12,
+            "Fan": false,
+            "Line": 2
+          }
+        ],
+        "RelationshipBefore": 31,
+        "Delta": 9,
+        "RelationshipAfter": 40,
+        "Reasons": [
+          "a big crowd"
+        ],
+        "CutShort": false,
+        "SetEndEnjoyment": 3689,
+        "SetEndIds": [
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          16,
+          17,
+          18,
+          19,
+          21,
+          22,
+          23,
+          25,
+          26,
+          27
+        ],
+        "WalkedOffIds": [
+          15,
+          24
+        ],
+        "AverageCrowdTenths": 200
+      }
+    ],
+    "authoritativeHash": "4125923ee75346e9d190f2834b404a912e2c9b08964ca37e9e5fff7c07d066e0"
+  }
+]

@@ -375,7 +375,7 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter,
                 "This person is in an active confrontation; first aid and egress follow its safe resolution.");
         var patientStage = IntoxicationWarning(command.GuestId) && need.HealthStage is MedicalStage.Clear or MedicalStage.Treated ? MedicalStage.Distress : need.HealthStage;
-        if (m.Fatal || patientStage is MedicalStage.Treated or MedicalStage.Removed or MedicalStage.Terminal)
+        if (m.Fatal&&!IsClassicCampaign || patientStage is MedicalStage.Treated or MedicalStage.Removed or MedicalStage.Terminal)
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "This medical incident has settled.");
         if (HasClaim(command.GuestId, PersonClaim.MedicPatient))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "A medic already owns this response; allow travel and treatment to finish.");
@@ -639,16 +639,18 @@ public sealed partial class GameSession
             var rainy = IsRainyFestival;
             foreach (var item in PeopleIn(PersonView.Medical))
             {
+                if(IsClassicDeceased(item.Id))continue;
                 // Guests outside the gate do not heat up or get thirsty yet.
                 if (item.NeedProfile == MedicalNeedProfile.Guest && !item.Admitted || GuestWaitingForRelease(item.Id)) continue;
                 // The player's steward gets thirsty and hot at their own pace, and never collapses.
                 if (IsPlayerSteward(item.Id)) { AdvancePlayerNeeds(item.Id, m.IsHot, rainy); continue; }
                 if (RobotWorker(item.Id)) { MutatePerson(item.Id, person => { person.Thirst = 0; person.HeatExposure = 0; }); continue; }
                 // Guests and performers heat up at the same rate; on-duty staff far more slowly. Nobody does in the rain.
-                var heat = rainy ? 0 : item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
+                var heating=Weather==WeatherKind.Heatwave;
+                var heat = !heating ? 0 : item.NeedProfile != MedicalNeedProfile.Staff ? 1 : CurrentTick % 32 == 0 ? 1 : 0;
                 // A portaloo cubicle is a hot box in hot weather, for a normal visit and doubly so for someone stuck.
                 if (m.IsHot && item.ToiletStage == ToiletVisitStage.Using) heat += FaultRules.PortalooExtraHeat;
-                if (!rainy && ExtraHeatThisTick(item.Id)) heat += 1; // Easy to overheat.
+                if (heating && ExtraHeatThisTick(item.Id)) heat += 1; // Easy to overheat.
                 // Out of the sun under a marquee, nobody heats up at all.
                 if (heat > 0 && InShade(item.Id)) heat = 0;
                 // A guest with their own bottle sips from it between taps, so misses one thirst step in four.
@@ -695,7 +697,7 @@ public sealed partial class GameSession
         {
             m = _medical!;
             var need = _persons[atRisk.Id];
-            if (need.HealthStage is MedicalStage.Treated or MedicalStage.Removed) continue;
+            if (need.HealthStage is MedicalStage.Treated or MedicalStage.Removed or MedicalStage.Terminal || IsClassicDeceased(need.Id)) continue;
             if (need.HealthStage == MedicalStage.Clear && need.Thirst >= MedicalDistressThirst && need.HeatExposure >= MedicalDistressHeat)
             {
                 MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Distress; item.HealthWarningTick = CurrentTick; });
@@ -787,6 +789,7 @@ public sealed partial class GameSession
 
     private void ApplyMedicalDeath(ulong victimId, long warningTick, long collapseTick, long criticalTick)
     {
+        if (IsClassicDeceased(victimId)) return;
         var m = _medical!;
         var victim = _persons[victimId];
         var cause = StungByWasp(victimId)
@@ -795,6 +798,8 @@ public sealed partial class GameSession
             ? $"{victim.Name} was poisoned by the fumes of a jammed, nearly full toilet; collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
             : PersonIn(PersonView.Consumption, victimId) is { IntoxicationCollapseTick: >=0 } alcohol
             ? $"{victim.Name} died after sustained intoxication {alcohol.Intoxication}/10000; visible intoxication warning tick {alcohol.IntoxicationWarningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
+            : IsClassicCampaign
+            ? $"In fixed mild conditions {victim.Name} died after untreated dehydration; thirst {_persons[victim.Id].Thirst}/10000; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}."
             : $"In fixed Hot conditions {victim.Name} dried up after thirst {_persons[victim.Id].Thirst}/10000 and heat exposure; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}.";
         _medical = m with { Fatal = true };
         MedicalEvent("medical:death", cause);
@@ -808,7 +813,7 @@ public sealed partial class GameSession
             new TerrainCellOverride(new(cell.X, cell.Z), (GroundSurface)cell.Surface, cell.IsWalkable, cell.CostPermille, cell.ElevationMillimetres, cell.SlopePermille))) : null;
         if (s.Facilities?.Taps is not { } points || points.Any(point => point is null)) return "Saved facilities have no taps.";
         var extraTaps = points.Where(point => point.Id != "water.main").ToArray();
-        if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || m.IsHot != (WeatherRules.ForTier(p.Tier) == WeatherKind.Heatwave) || m.Needs is null ||
+        if (s.Preparation is not { } p || m.Version != (s.Disorder is null ? 5 : 6) || m.IsHot != (CampaignRulesProfile.For(s.Identity!.Ruleset).WeatherForTier(p.Tier) == WeatherKind.Heatwave) || m.Needs is null ||
             m.Evidence is null || m.Needs.Length != (s.Immersion is not null ? p.People.Length : FestivalTickets.Sold(p.Tier) + p.People.Count(item => item.Role == ProtectedPersonRole.Performer) + (s.Disorder is null ? 0 : 1) + p.AcceptedOffers.Count(id => id == "staff.extra-steward")) ||
             !m.Needs.Select(item => item.AgentId).SequenceEqual(p.People.Where(item => item.Role is ProtectedPersonRole.Guest or ProtectedPersonRole.Performer ||
                 item.AgentId == s.Disorder?.SecurityId || s.Immersion is not null || p.StaffProfiles.Any(profile => profile.Role == ResponseRole.Steward && profile.AgentId == item.AgentId)).Select(item => item.AgentId)) ||
@@ -858,7 +863,7 @@ public sealed partial class GameSession
             medic.PatientId is { } responsePatient && !m.Needs.Any(item => item.AgentId == responsePatient) ||
             medic.Stage is MedicalResponseStage.Travelling or MedicalResponseStage.Treating or MedicalResponseStage.Removing && medic.PatientId is null ||
             !Enum.IsDefined(medic.Stage) ||
-            m.Fatal && (p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1) ||
+            m.Fatal && !SavedClassic(s)&&(p.Status != PreparationStatus.Failed || s.Lifecycle?.Casualties.Count(casualty => casualty.AttemptId == (ulong)p.Attempt) != 1) ||
             p.Status == PreparationStatus.Failed && !m.Fatal && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death" &&
             s.Equipment?.Stage != EquipmentStage.Terminal) // A generator death on the power budget fails the day too.
             return "Medical Hot state, queue ownership or causal stage invalid.";

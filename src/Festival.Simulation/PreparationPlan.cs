@@ -135,7 +135,8 @@ public sealed partial class GameSession
                 // No two vans' picks are the same food.
                 vanTraders.Select(item => item.TraderId).Append(plan.TraderId).Distinct().Count() != vanTraders.Length + 1) ||
             plan.Committed != (p.Status != PreparationStatus.Preparing)) return "Preparation plan header or quantities invalid.";
-        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, p.Tier, pondStageTrial: s.PondStageTrial, identity: s.Identity).WithPaymentStanding(p);
+        var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, p.Tier, pondStageTrial: s.PondStageTrial, identity: s.Identity,
+            classicFestivalNumber:SavedClassic(s)?s.CampaignPlanning?.EditionNumber:null).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers();
         if (plan.OfferIds.Any(id => !offers.Any(o => o.Id == id && o.Category is not ("act" or "contract"))) ||
             plan.OfferIds.Select(id => offers.Single(o => o.Id == id).Category).Distinct().Count() != plan.OfferIds.Length ||

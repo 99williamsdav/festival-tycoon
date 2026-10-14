@@ -113,7 +113,7 @@ public sealed partial class GameSession
         var performers = PeopleIn(PersonView.Roster).Where(item => item.Role == ProtectedPersonRole.Performer && q.Performers.Any(role => role.AgentId == item.Id && role.SlotIndex == q.CurrentSlot)).Select((item, index) =>
             new LivePerformer(item.Id, def.PerformerMarks[index], def.AccessCells[index], def.StairCells[index], false, false, false, false)).ToArray();
         foreach (var performer in performers)
-            if (!MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < q.SlotEndTick &&
+            if (!IsClassicDeceased(performer.AgentId) && !MedicalOwnsNavigation(performer.AgentId) && !InterventionOwnsTarget(performer.AgentId) && !InterventionOwnsWorker(performer.AgentId) && CurrentTick < q.SlotEndTick &&
                 !WaitingOnTheLane(performer.AgentId))
                 ApplyAgentDestination(new(performer.AgentId), new(performer.AccessCell, "performance.side-entry"));
         // The day's first sets: every guest starts in the trailer stage's crowd. Later sets keep the crowd each stage has.
@@ -168,6 +168,12 @@ public sealed partial class GameSession
         for (var i = 0; i < performers.Length; i++)
         {
             var performer = performers[i];
+            if (IsClassicDeceased(performer.AgentId))
+            {
+                performers[i] = performer with { OnStage=false, InstrumentAttached=false };
+                if(live.Stage!=LiveSetStage.Finished)collapsed=true;
+                continue;
+            }
             // Medical response owns an awaiting/collapsed performer's position.
             // Stage-entry timing must not pull the patient away mid-treatment.
             if (MedicalOwnsNavigation(performer.AgentId))
@@ -415,7 +421,7 @@ public sealed partial class GameSession
         if (stageState == LiveSetStage.Finished && live.Stage != LiveSetStage.Finished)
             foreach (var performer in performers)
             {
-                if (MedicalOwnsNavigation(performer.AgentId)) continue;
+                if (IsClassicDeceased(performer.AgentId) || MedicalOwnsNavigation(performer.AgentId)) continue;
                 if (!performer.StairReached && !ProgrammeStageAccessOccupied(def, _navigationAgents[new(performer.AgentId)])) continue;
                 ApplyAgentDestination(new(performer.AgentId), new(performer.StairCell, "performance.stage-exit-stair"));
             }

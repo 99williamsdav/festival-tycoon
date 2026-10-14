@@ -1,0 +1,126 @@
+{
+  "head": "cfc24719cbc552433d7cdd757a94c48b41b551ad",
+  "scope": "Classic core source review only; UI in progress separately",
+  "files": [
+    {
+      "path": "briefs/results/classic-loop-core-implementation.md",
+      "sha256": "9A0FE67682557BEDA5F612BC65245A6807A91E5BA3688BC221785909E76D430E"
+    },
+    {
+      "path": "src/Festival.Simulation/BandRelationships.cs",
+      "sha256": "74E04D52F87AD04DEF4AC4D4FAF43A2F9BF073A2F75C802CC51A021E238F5F16"
+    },
+    {
+      "path": "src/Festival.Simulation/BuildLayout.cs",
+      "sha256": "2C9E598DC0B0889096F57968A208D9FE6A30C1E78BD7DFF4DEEE9523100F59EF"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignIdentity.cs",
+      "sha256": "2D1170635C9C168E3B7A639AA1FB2B4E5F6B73A62835098CDAD039474ACDAFAE"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignPlanning.cs",
+      "sha256": "7CC466DE59DE7E8A7C1FD0D89A481CF37367B0FAF685102082544C06DC1E8644"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignPolicies.cs",
+      "sha256": "B683C52AC70E838F496FAAF3E065C479CA48DD9114E82CE793EECCAA3506C300"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignRulesProfile.cs",
+      "sha256": "BB24911A71964F21B077B38BBA0FCEA2D6F491DDEF37B07C66C08F4688BF8495"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignSetup.cs",
+      "sha256": "8F13FCEC1D3F9C5B1D459E18E67C00ED6C29CF04BAD65A9C550A5410281118A0"
+    },
+    {
+      "path": "src/Festival.Simulation/CanonicalStateHasher.cs",
+      "sha256": "0C18E40E26E75FA1748B342B9A86506963E8F6C83F2FDEAE7C23EA576703EB2E"
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicCampaign.cs",
+      "sha256": "EDE60A8F040F984CCD318276918B758960877651BB542A47E5B3FEE3C5947DC9"
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicCasualties.cs",
+      "sha256": "8FB5521A24807FBFFE7A828D872DB389725277D0D864B72C1E3EB0C2045A0E7A"
+    },
+    {
+      "path": "src/Festival.Simulation/DisorderIncident.cs",
+      "sha256": "103033E106649E4C393E6BAA3E60198AD7E19519AC3610F870B4B8B0F9651B4E"
+    },
+    {
+      "path": "src/Festival.Simulation/EquipmentIncident.cs",
+      "sha256": "F0F27F1626CD70325833C2D5924EBECCF1CDFB3EC7727FB683010247D8CC6690"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalChallenges.cs",
+      "sha256": "759FCBEFFDA7F33BF49CE981104D76BB79A5C3A713B839E38B04D31FCF13B036"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalProgramme.cs",
+      "sha256": "A11F9C79D0583F8CC78CF700E3431F727A89A9E8B7764F60F200F0EA329189DF"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalResults.cs",
+      "sha256": "6A88D77EFAC4F3EA1719D7E2214FC3F45F42582D92FA5745DA2AF865459FEB85"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.cs",
+      "sha256": "B5F98660CDE039B80207C11428858C7246972E930DC7754E1C225AF1D7E949D4"
+    },
+    {
+      "path": "src/Festival.Simulation/Immersion.cs",
+      "sha256": "139FF9C521C9B6DF5F7D1DDEFB6073ED039AC15173CDC7089576876EBB32A47C"
+    },
+    {
+      "path": "src/Festival.Simulation/LivePerformance.cs",
+      "sha256": "5B4747095E9B3B16C8C7802A79CC12F38FF181B8909ACFCBF6C6574DBDBAF22C"
+    },
+    {
+      "path": "src/Festival.Simulation/MedicalIncident.cs",
+      "sha256": "2F9936EFC28F88334535A9682870FAE51271A488109B9D454F937DDDABA7D9EA"
+    },
+    {
+      "path": "src/Festival.Simulation/NextFestival.cs",
+      "sha256": "08827DE9B9F1EBB877EC917830966698337314AAE99BD5E0A43FFDC1136034C6"
+    },
+    {
+      "path": "src/Festival.Simulation/Perks.cs",
+      "sha256": "E6C024F8E128FE8D9CBF04081FD63F01558CE9472B2B1145D10DD3BF01263659"
+    },
+    {
+      "path": "src/Festival.Simulation/Preparation.cs",
+      "sha256": "B033085CA901E02C42CB5AB0BAF2E7DE1D2BD0E79E03D49D37CF45A3AE0C820E"
+    },
+    {
+      "path": "src/Festival.Simulation/PreparationPlan.cs",
+      "sha256": "1B86184DB30C6AFB54413A9802DA3515BC8ACC91132EC0A3044A698B8BC10279"
+    },
+    {
+      "path": "src/Festival.Simulation/SessionPersistence.cs",
+      "sha256": "ECDC4EB33BD6C1A2E2AA9DCE6DB0E65AC78053A59C75DC36CA9FCEE2F1366521"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffFoundations.cs",
+      "sha256": "2C74AFE19603782B0F49A6B97105E7CDFFEDEC45716F96B6476EAC728B8CE580"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffInterventions.cs",
+      "sha256": "8ECF7476A0E1FC9559493F904E125CE63A9DEA3D09A727224CF58C3D61E92BDA"
+    },
+    {
+      "path": "src/Festival.Simulation/Weather.cs",
+      "sha256": "6ED657331F9A27031223F22BFD027ACC6C306AE1D0F7F030158B9EA653BDE83D"
+    },
+    {
+      "path": "tests/Festival.Tests/CampaignIdentityTests.cs",
+      "sha256": "CB59D55881F8A07C47016EA8977257B6A6958C9ECF5718DD4A6E94F9FF7A3AE1"
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicCampaignTests.cs",
+      "sha256": "1324D54B86BC84876F03CC974783AE7443626EA4D06284718F039DE74B9028F9"
+    }
+  ]
+}

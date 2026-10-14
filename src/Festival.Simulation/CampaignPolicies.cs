@@ -16,7 +16,15 @@ internal sealed class SurvivalProgressionPolicy:ICampaignProgressionPolicy
 
 internal enum FatalIncidentKind { Medical,Disorder,Equipment }
 internal readonly record struct FatalIncident(FatalIncidentKind Kind,Person Victim,string Cause);
-internal enum IncidentConsequence { CouncilFailure }
+internal sealed class ClassicProgressionPolicy:ICampaignProgressionPolicy
+{
+    internal static readonly ClassicProgressionPolicy Instance=new();
+    public FestivalDefinition? NextFestival(FestivalProgressionContext context)=>
+        context.Preparation is{Status:PreparationStatus.Finished,Result:not null}&&context.Campaign is{Identity.ManagementCapability:true}
+            ?context.Festival:null;
+}
+
+internal enum IncidentConsequence { CouncilFailure,ReputationAndContinue }
 internal interface IIncidentConsequencePolicy
 {IncidentConsequence Resolve(FatalIncident incident);}
 internal sealed class SurvivalIncidentConsequencePolicy:IIncidentConsequencePolicy
@@ -24,6 +32,12 @@ internal sealed class SurvivalIncidentConsequencePolicy:IIncidentConsequencePoli
     internal static readonly SurvivalIncidentConsequencePolicy Instance=new();
     private SurvivalIncidentConsequencePolicy(){}
     public IncidentConsequence Resolve(FatalIncident incident)=>Enum.IsDefined(incident.Kind)?IncidentConsequence.CouncilFailure:
+        throw new ArgumentOutOfRangeException(nameof(incident));
+}
+internal sealed class ClassicIncidentConsequencePolicy:IIncidentConsequencePolicy
+{
+    internal static readonly ClassicIncidentConsequencePolicy Instance=new();
+    public IncidentConsequence Resolve(FatalIncident incident)=>Enum.IsDefined(incident.Kind)?IncidentConsequence.ReputationAndContinue:
         throw new ArgumentOutOfRangeException(nameof(incident));
 }
 
@@ -36,6 +50,8 @@ public sealed partial class GameSession
         {
             case IncidentConsequence.CouncilFailure:
                 ApplyFatalCouncilFailure(incident);break;
+            case IncidentConsequence.ReputationAndContinue:
+                ApplyClassicFatalIncident(incident);break;
             default:throw new InvalidOperationException("Incident consequence is not implemented.");
         }
     }

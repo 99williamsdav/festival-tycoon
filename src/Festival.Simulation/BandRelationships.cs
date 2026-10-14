@@ -504,7 +504,7 @@ public sealed partial class GameSession
     public ActRelationship[]? RelationshipsAfterFestival => GigRules.After(_preparation?.ActRelationships, PerformanceRecords);
     /// <summary>Every set the campaign has played up to now, earlier festivals' and this one's, as the facts they were scored on.</summary>
     private CarriedGig[]? RelationshipHistoryAfterFestival => _preparation is not { } p ? null :
-        (p.RelationshipHistory ?? []).Concat(PerformanceRecords.Select(record => new CarriedGig(p.Tier, record.ActId, record.StartedTick >= 0,
+        (p.RelationshipHistory ?? []).Concat(PerformanceRecords.Select(record => new CarriedGig(IsClassicCampaign?FestivalNumber:p.Tier, record.ActId, record.StartedTick >= 0,
             record.CutShort, record.PeakCrowd, record.SetEndCrowd, record.SetEndEnjoyment, record.Hiccups.ToArray())
             { WonOver = record.WonOverIds?.Length ?? 0, WalkedOff = record.WalkedOffIds?.Length ?? 0, AverageCrowdTenths = record.AverageCrowdTenths })).ToArray() is { Length: > 0 } all ? all : null;
 
@@ -520,7 +520,7 @@ public sealed partial class GameSession
     /// Relationships and popularity worked out from the campaign's sets in the order played: each set is scored against
     /// the crowd its act expected at the popularity it had then (moved only by earlier festivals' sets), then moves both.
     /// </summary>
-    private static (ActRelationship[]? Relationships, PopularityShift[]? Popularity) Replay(IEnumerable<CarriedGig>? history, bool pondStageTrial)
+    private static (ActRelationship[]? Relationships, PopularityShift[]? Popularity) Replay(IEnumerable<CarriedGig>? history, bool pondStageTrial,bool classic=false)
     {
         var values = new Dictionary<string, int>(StringComparer.Ordinal);
         var shifts = new Dictionary<string, int>(StringComparer.Ordinal);
@@ -528,7 +528,8 @@ public sealed partial class GameSession
         {
             var catalogue = ActCatalogue.Find(gig.ActId)!;
             var act = ActCatalogue.WithPopularityShift(catalogue, shifts.GetValueOrDefault(gig.ActId));
-            var (_, delta, _) = GigRules.Judge(gig.Facts, ExpectedCrowdAt(gig.Tier, StageCountAt(gig.Tier, pondStageTrial), act));
+            var tier=classic?1:gig.Tier;
+            var (_, delta, _) = GigRules.Judge(gig.Facts, ExpectedCrowdAt(tier, StageCountAt(tier, pondStageTrial), act));
             values[gig.ActId] = GigRules.Apply(values.GetValueOrDefault(gig.ActId), delta);
             shifts[gig.ActId] = GigRules.ApplyPopularity(catalogue.Popularity, act.Popularity, GigRules.PopularityChange(gig.Facts, act.Popularity)) - catalogue.Popularity;
         }
@@ -541,7 +542,7 @@ public sealed partial class GameSession
     private (CarriedGig[]? History, ActRelationship[]? Relationships, PopularityShift[]? Popularity) RelationshipsForNextFestival(int nextTier)
     {
         var history = GigRules.BetweenFestivals(RelationshipHistoryAfterFestival, CampaignSeed, nextTier);
-        var (relationships, popularity) = Replay(history, _pondStageTrial);
+        var (relationships, popularity) = Replay(history, _pondStageTrial,IsClassicCampaign);
         return (history, relationships, popularity);
     }
 
@@ -552,7 +553,7 @@ public sealed partial class GameSession
     /// <summary>How far each act's popularity has moved in this campaign, as this festival opened; null when none has.</summary>
     public IReadOnlyList<PopularityShift> PopularityShifts => _preparation?.ActPopularity ?? [];
     /// <summary>Popularity as this festival will leave it, once its sets so far are counted (for the results).</summary>
-    public PopularityShift[]? PopularityAfterFestival => _preparation is null ? null : Replay(RelationshipHistoryAfterFestival, _pondStageTrial).Popularity;
+    public PopularityShift[]? PopularityAfterFestival => _preparation is null ? null : Replay(RelationshipHistoryAfterFestival, _pondStageTrial,IsClassicCampaign).Popularity;
 
     /// <summary>The fan test a quote uses: the same enthusiasm that earns a listener the bigger share of a set.</summary>
     private const int FanEnthusiasm = 60;
@@ -735,22 +736,22 @@ public sealed partial class GameSession
     /// their saved facts: each set from an earlier tier, plausible for that tier's guests, an act at most once a festival
     /// and no more sets than that festival had slots.
     /// </summary>
-    private static string? ValidatePersistedRelationships(PreparationSnapshot p, bool pondStageTrial)
+    private static string? ValidatePersistedRelationships(PreparationSnapshot p, bool pondStageTrial,bool classic=false,int? festivalNumber=null)
     {
         const string invalid = "Act relationships invalid.";
         if (p.ActRelationships is { } relationships && relationships.Any(item => item is null || item.ActId is null)) return invalid;
         if (p.ActPopularity is { } shifts && shifts.Any(item => item is null || item.ActId is null)) return invalid;
         if (p.RelationshipHistory is not { } history) return p.ActRelationships is null && p.ActPopularity is null ? null : invalid;
         if (history.Length == 0 || p.CarriedIn is null || history.Any(gig => gig is null || gig.ActId is null || ActCatalogue.Find(gig.ActId) is null ||
-                gig.Tier < 1 || gig.Tier >= p.Tier || !GigRules.Plausible(gig.Facts, FestivalTickets.Sold(gig.Tier))) ||
+                gig.Tier < 1 || gig.Tier >= (classic?festivalNumber??1:p.Tier) || !GigRules.Plausible(gig.Facts, FestivalTickets.Sold(classic?1:gig.Tier))) ||
             history.Zip(history.Skip(1)).Any(pair => pair.Second.Tier < pair.First.Tier))
             return invalid;
         foreach (var festival in history.GroupBy(gig => gig.Tier))
             if (festival.Select(gig => gig.ActId).Distinct().Count() != festival.Count() ||
-                festival.Count() > FestivalStages.For(festival.Key, pondStageTrial).Sum(stage => stage.SlotCount))
+                festival.Count() > FestivalStages.For(classic?1:festival.Key, pondStageTrial).Sum(stage => stage.SlotCount))
                 return invalid;
         // Relationships and popularity both follow from those sets, scored again here.
-        var (expected, popularity) = Replay(history, pondStageTrial);
+        var (expected, popularity) = Replay(history, pondStageTrial,classic);
         return (expected ?? []).SequenceEqual(p.ActRelationships ?? []) && (expected is null) == (p.ActRelationships is null) &&
             (popularity ?? []).SequenceEqual(p.ActPopularity ?? []) && (popularity is null) == (p.ActPopularity is null) ? null : invalid;
     }

@@ -278,7 +278,7 @@ public sealed partial class GameSession
         }
         if (q.CurrentSlot >= def.SlotCount - 1) { SetStageProgramme(stage, q with { Status = "Final set finished; performers remain on farm" }); return; }
         var due = p.StartedTick + def.SlotStarts[q.CurrentSlot + 1] - LiveSetStageEntryLeadTicks;
-        var clear = live.Performers.All(person => _navigationAgents[new(person.AgentId)] is { } nav && !ProgrammeStageAccessOccupied(def, nav));
+        var clear = live.Performers.All(person => IsClassicDeceased(person.AgentId) || _navigationAgents[new(person.AgentId)] is { } nav && !ProgrammeStageAccessOccupied(def, nav));
         SetStageProgramme(stage, q with { Status = clear ? "Scheduled changeover" : "Changeover: outgoing performers clearing stairs" });
         if (CurrentTick < due || !clear) return;
         SetStageProgramme(stage, StageProgramme(stage)! with { CurrentSlot = q.CurrentSlot + 1 });

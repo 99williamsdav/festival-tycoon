@@ -82,7 +82,8 @@ public sealed partial class GameSession
             return CommandResult.Rejected(CommandReasonCode.AlreadyCommitted, "The unit is already safe or terminal.");
         if (command.Action == EquipmentAction.Acknowledge && (e.WarningTick < 0 || e.WarningAcknowledged))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "No unseen overload warning.");
-        if (command.Action == EquipmentAction.DispatchMaintenance && (e.WorkerId is null || e.JobStage != MaintenanceStage.None || _preparation!.Status != PreparationStatus.Running || !_persons[e.WorkerId.Value].Admitted))
+        if (command.Action == EquipmentAction.DispatchMaintenance && (e.WorkerId is null || e.JobStage != MaintenanceStage.None || _preparation!.Status != PreparationStatus.Running || !_persons[e.WorkerId.Value].Admitted ||
+            IsClassicCampaign&&(_persons[e.WorkerId.Value].Departed||IsClassicDeceased(e.WorkerId.Value))))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Hire maintenance before opening and wait for their physical arrival. Only one repair job is available.");
         return null;
     }
@@ -191,6 +192,7 @@ public sealed partial class GameSession
     /// <summary>A dangerous fault kills someone standing by the unit: the day fails and the Council hearing opens.</summary>
     private void EquipmentDeath(EquipmentSnapshot e, Person victim)
     {
+        if (IsClassicDeceased(victim.Id)) return;
         var agent = _navigationAgents[new(victim.Id)];
         var cause = $"Generator overload killed {victim.Name} ({victim.Role}) at ({agent.XMillimetres},{agent.ZMillimetres}) near unit ({e.XMillimetres},{e.ZMillimetres}); load {e.LoadPercent}%; condition {e.Condition / 100}%; warning tick {e.WarningTick}, acknowledged {e.WarningAcknowledged}; response: {e.Response}; job {e.JobStage}.";
         _equipment = e with { Stage = EquipmentStage.Terminal };
@@ -221,7 +223,9 @@ public sealed partial class GameSession
             e.WarningTick < -1 || e.WarningTick > s.CurrentTick || e.WarningAcknowledged && e.WarningTick < 0 ||
             !budget && e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick != p.StartedTick + SavedIncidentTiming(s).EquipmentWarningDelayTicks ||
             budget && e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick < p.StartedTick ||
-            (e.Stage == EquipmentStage.Terminal) != (p.Status == PreparationStatus.Failed && s.Medical?.Fatal != true && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death") ||
+            (e.Stage == EquipmentStage.Terminal) != (SavedClassic(s)
+                ? s.ClassicHistory?.DeathPenalties.Any(d=>d.Kind=="equipment") == true
+                : p.Status == PreparationStatus.Failed && s.Medical?.Fatal != true && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death") ||
             p.Status != PreparationStatus.Preparing && s.Lifecycle is null)
             return "Equipment warning, response ownership or lifecycle invalid.";
         if (budget ? e.Evidence[0].Id != "equipment:load" || e.Evidence[0].Tick != 0 ||
@@ -241,7 +245,7 @@ public sealed partial class GameSession
         if (p.Status == PreparationStatus.Preparing && p.Attempt == 1 && s.Lifecycle is not null ||
             // Hired staff name their slots only at opening, so a retry's unfilled slots are the only names not yet protected.
             s.Lifecycle is { } lifecycle && (p.People.Any(person => !StaffCatalogue.IsVacancy(person.Name) && !lifecycle.ProtectedPeople.Any(item => item.PersonId == person.Name && item.Role == (int)person.Role)) ||
-                (lifecycle.Casualties.LastOrDefault()?.AttemptId == (ulong)p.Attempt) !=
+                !SavedClassic(s) && (lifecycle.Casualties.LastOrDefault()?.AttemptId == (ulong)p.Attempt) !=
                     (e.Stage == EquipmentStage.Terminal || s.Medical?.Fatal == true || s.Disorder?.Evidence.LastOrDefault()?.Id == "disorder:death")))
             return "Equipment lifecycle must protect the exact physical roster.";
         return null;
