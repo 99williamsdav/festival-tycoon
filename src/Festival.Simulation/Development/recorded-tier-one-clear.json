@@ -287,7 +287,7 @@
   ],
   "CompletedTransactionIds": [],
   "Transactions": [],
-  "AuthoritativeHash": "77ccbdd70073f55c075312cb6245c619730ee98a2cb414a0bb263801ef311d93",
+  "AuthoritativeHash": "43f057a92b964b15a3dd663391a2735f86c025a3589e16017150801843fb7a98",
   "Litter": {
     "Version": 1,
     "Pieces": [
@@ -79349,6 +79349,11 @@
       "AverageCrowdTenths": 99
     }
   ],
+  "Identity": {
+    "Ruleset": 0,
+    "ControlRole": 0,
+    "ManagementCapability": true
+  },
   "Medical": {
     "Version": 6,
     "IsHot": true,

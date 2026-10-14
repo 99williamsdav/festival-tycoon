@@ -1,0 +1,152 @@
+{
+  "baseline": "ef405549f5cb13edea59c4344b3875577abca0a0",
+  "scope": "Survival identity/control split and current configuration; explicit released-retry validation repair; no future Classic",
+  "source": [
+    {
+      "path": "game/Main.cs",
+      "sha256": "FF9B15CFB30A829902B0AA58052AD9FBCB25A0A17C95BC4997EF5789BD1BBE69"
+    },
+    {
+      "path": "game/Main.HandsOn.cs",
+      "sha256": "45F0C7592B899B7FAC72103B67E640C2E9E6A0AC4E156FF5C018F9F8BA937C22"
+    },
+    {
+      "path": "game/Main.StewardShift.cs",
+      "sha256": "4B175ED19AE555775264875A760190C280AC7240C573033CC75BB5285C9596F7"
+    },
+    {
+      "path": "src/Festival.Simulation/ActCatalogue.cs",
+      "sha256": "E521640A9B72C7E7D1B9B33A56D6786B83BF36A183A77F5B87201BFE6D39A9F4"
+    },
+    {
+      "path": "src/Festival.Simulation/BuildLayout.cs",
+      "sha256": "4A796A32B1F4A8E074B915DA07B6B4B9CE3939BFD8BFC808A1DF12B9E0BD8FBE"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignIdentity.cs",
+      "sha256": "29E4A45A8AECF8EA4939121F3EE165BE83329485DB70E533A466C0E77593B75C"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignPlanning.cs",
+      "sha256": "1B32A854D2E1C13BCA47471440F9F3D602FE7AC8814FA93EF8BAE5CC835CC666"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignRulesProfile.cs",
+      "sha256": "7D1215C62A22C84BE0C5B1DC8E366739796D2E38B599FD458EE9CFFA5AA72DB0"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignSetup.cs",
+      "sha256": "21A494093A91A83F4A65FD6BFC89E9848F3049F19E923218D249897AF6C921AB"
+    },
+    {
+      "path": "src/Festival.Simulation/CanonicalStateHasher.cs",
+      "sha256": "D0110B107DC3693D9EB791971E0EB41A19F14725DCB291DCE5E4824C2327C45A"
+    },
+    {
+      "path": "src/Festival.Simulation/Development/README.md",
+      "sha256": "1BAD612DDCC3E6A4FCE34328B76FE67E8DEFB1203C50227087E384983F238720"
+    },
+    {
+      "path": "src/Festival.Simulation/Development/recorded-tier-one-clear.json",
+      "sha256": "E373F339D6D5FC7D0EFE6E7EB25DB341033D4A1DECCBB81EFFF9E61C1406C090"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalChallenges.cs",
+      "sha256": "E59F3DCD3561512BDD1F1A21515E33AC53C2D57505E78D4B631D4D6911F082D0"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalProgramme.cs",
+      "sha256": "51BD310A8A60D5A944513628D319B79FFC99612E2E358900F9377B6FF7B754E7"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.cs",
+      "sha256": "28ACC262D7348DEA52DDE2C9C58BE955BE4D825448035BBC97B3A5CEC72BB93E"
+    },
+    {
+      "path": "src/Festival.Simulation/HandsOnCampaign.cs",
+      "sha256": "346B39D4BCA9D24714ED489A6206D5203E3DD50225F95EE8599F134D383B400C"
+    },
+    {
+      "path": "src/Festival.Simulation/Immersion.cs",
+      "sha256": "6F4B4AAF1BABE86D3936DB0F726EEAA404A547CAB2FAE3730399A1FF7F19AEF0"
+    },
+    {
+      "path": "src/Festival.Simulation/MultiStage.cs",
+      "sha256": "40AFF19A5B0D10A59C6F46295B44FC9BBB33C5154147EC22BF54D26E0E7F3C75"
+    },
+    {
+      "path": "src/Festival.Simulation/NextFestival.cs",
+      "sha256": "69AB6771FDA829CDA6E0DEE6E9B07D90183D9BAEB852112699D7FC749D129905"
+    },
+    {
+      "path": "src/Festival.Simulation/Preparation.cs",
+      "sha256": "1E43E8FD99A054652F1EE9A888F3377F73C9319411D28B60E22FDE4E0966F83D"
+    },
+    {
+      "path": "src/Festival.Simulation/PreparationPlan.cs",
+      "sha256": "E427429739A51CA01727575E5A795B1E10EE33A0DEB19A180299F9C69DAB61CD"
+    },
+    {
+      "path": "src/Festival.Simulation/SessionPersistence.cs",
+      "sha256": "4937C9DD06C927D042265A92F61FF78DFBBCB53FCB88761E06D35EBD26B11179"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShift.cs",
+      "sha256": "40CA8AA534C0514A2AB1DDCE58FEB7D5B42934E70073C875CC964E2B9FC7C720"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftActions.cs",
+      "sha256": "3ABDCE68D29F118C2E978023B00E3F03263FA738ADBB3CF8821CC0B2A478A238"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftStage.cs",
+      "sha256": "07D4FB4C6B0355E1E37AF913ED775E442D100AA37320463A1EB5B15A521FA759"
+    },
+    {
+      "path": "src/Festival.Simulation/Weather.cs",
+      "sha256": "B6564F359B8125CE41386FA2ADF6205548081CBE7AD11AF67CAF44EAC6A5206F"
+    },
+    {
+      "path": "tests/Festival.Tests/CampaignIdentityTests.cs",
+      "sha256": "D388997223E3EC62688F091C51DDA943478C868774E136CDA405F6664041154A"
+    },
+    {
+      "path": "tests/Festival.Tests/SaveRoundTripTests.cs",
+      "sha256": "DC2C252645E83D1F653A0311FA74D1DCFAE5C4F23D56810352AD86D8F0DFAC7A"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "reports/evidence/survival-architecture/slice1/bounded-repair.txt",
+      "sha256": "8E11F23B323C00CBB85823808A6943B8E2161D675BCE24E6D25788631C0225D4"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice1/final-model.txt",
+      "sha256": "42EE22F7A95D5198D76401071B2E893A5CB8A77D2C03B4F2E393EF388D6F3BE5"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice1/game-build.txt",
+      "sha256": "DB3BAD0C80B9DC7651214CC679D7B7664220D829BE5E7980428D072723F38EFE"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice1/negative-validation.txt",
+      "sha256": "E50F33E14C3C2F04C1ECB277BA29BD35E4D06A949EF1264AC4E913B9A880638A"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice1/parity.txt",
+      "sha256": "B7548BB09D63C99CCEB27D143D395F616B501FEA92DCFEF6874ADC86D1574700"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice1/regressions-initial.txt",
+      "sha256": "BBF7DB2DD9F29B5F41C793E8979CE1053A8C7CCEEE67EBAC55E5DEC1D99169C3"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/reference-identity-proof.json",
+      "sha256": "1FAE529246AAB0BA8F8B6775C87E77762E58E61BE8F03E4EA74AA8C6FDA9B2FD"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/reference-recorder.txt",
+      "sha256": "354E869909FA0938F3E6A92CFFB166226F77A86410EB954C23ED5CDD9907EC0B"
+    }
+  ]
+}

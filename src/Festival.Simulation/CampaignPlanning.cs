@@ -20,15 +20,15 @@ public static class CampaignDefaults
     public const string SiteId = "site.lower-wittering-farm";
     public const string BasicAdministrationCommitmentId = "commitment.basic-administration-cover";
     /// <summary>A tight Tier 1 budget: little more than a sensible setup costs.</summary>
-    public const long OpeningCashPennies = 45_000;
+    public const long OpeningCashPennies = SurvivalBalance.OpeningCashPennies;
     /// <summary>The opening budget less Tier 1's advance ticket sales.</summary>
-    public const long OpeningLoanPrincipalPennies = 20_000;
+    public const long OpeningLoanPrincipalPennies = SurvivalBalance.OpeningLoanPrincipalPennies;
     /// <summary>How far into the red the bank lets the festival go: spending can't be committed beyond it.</summary>
-    public const long OverdraftPennies = 10_000;
-    public const long EditionPrincipalPennies = 12_000;
-    public const int InterestBasisPoints = 800;
-    public const int LoanTermEditions = 5;
-    public const long BasicAdministrationPennies = 4_000;
+    public const long OverdraftPennies = SurvivalBalance.OverdraftPennies;
+    public const long EditionPrincipalPennies = SurvivalBalance.EditionPrincipalPennies;
+    public const int InterestBasisPoints = SurvivalBalance.InterestBasisPoints;
+    public const int LoanTermEditions = SurvivalBalance.LoanTermEditions;
+    public const long BasicAdministrationPennies = SurvivalBalance.BasicAdministrationPennies;
 
     private static readonly string[] FestivalNames =
     [

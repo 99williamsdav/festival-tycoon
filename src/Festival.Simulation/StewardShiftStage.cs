@@ -283,7 +283,7 @@ public sealed partial class GameSession
     private static string? ValidatePersistedStageInvasions(SessionPersistenceSnapshot s)
     {
         const string invalid = "Stage invasions invalid.";
-        if (s.Preparation?.RelationshipHistory?.Any(gig => gig?.Hiccups?.Contains(GigRules.StageInvader) == true) == true && s.Mode != CampaignMode.HandsOn)
+        if (s.Preparation?.RelationshipHistory?.Any(gig => gig?.Hiccups?.Contains(GigRules.StageInvader) == true) == true && s.Identity?.IsHandsOn != true)
             return invalid;
         var keys = new HashSet<(string, int)>();
         foreach (var record in s.PerformanceRecords ?? [])
@@ -304,7 +304,7 @@ public sealed partial class GameSession
         if (listed.Distinct().Count() != listed.Length || !keys.SetEquals(listed)) return invalid;
         if (liveCounts.Any(item => sets!.Single(set => (set.StageId, set.Slot) == item.Key).Count != item.Value)) return invalid;
         // A standalone shift's retry has its day again without the player: its sets went with it, its score stays.
-        var stale = s.Mode != CampaignMode.HandsOn && s.Preparation is { Attempt: > 1 };
+        var stale = s.Identity?.IsHandsOn != true && s.Preparation is { Attempt: > 1 };
         if (!stale && (sets ?? []).Sum(item => (long)item.Count) != (shift.Score?.StageInvasions ?? 0)) return invalid;
         return null;
     }

@@ -40,7 +40,7 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v98", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v98");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v99", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v99");
 
     public override void _Ready()
     {
@@ -653,7 +653,7 @@ public partial class Main : Node, IHudHost
     private string SaveDirectory =>
         _barnCampaignEvidenceOutput is not null ? System.IO.Path.Combine(_barnCampaignEvidenceOutput,"diagnostic-saves") :
         _developmentTierEvidenceOutput is not null ? System.IO.Path.Combine(_developmentTierEvidenceOutput,"diagnostic-saves") :
-        _barnEvidenceOutput is not null ? System.IO.Path.Combine(_barnEvidenceOutput,"unused-diagnostic-save") : ProjectSettings.GlobalizePath("user://saves/r0-build-v98");
+        _barnEvidenceOutput is not null ? System.IO.Path.Combine(_barnEvidenceOutput,"unused-diagnostic-save") : ProjectSettings.GlobalizePath("user://saves/r0-build-v99");
 
 
 

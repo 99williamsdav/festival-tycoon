@@ -1,0 +1,12 @@
+{
+  "oldSnapshotSha256": "B467B803242D98A2FB5570F3B995EA7A6F18B1A21EE16C2E5263DC13F445E4C8",
+  "newSnapshotSha256": "E373F339D6D5FC7D0EFE6E7EB25DB341033D4A1DECCBB81EFFF9E61C1406C090",
+  "oldAuthoritativeHash": "77ccbdd70073f55c075312cb6245c619730ee98a2cb414a0bb263801ef311d93",
+  "newAuthoritativeHash": "43f057a92b964b15a3dd663391a2735f86c025a3589e16017150801843fb7a98",
+  "changedRepresentationFields": [
+    "Identity",
+    "AuthoritativeHash"
+  ],
+  "allExistingBehaviorFieldsEqual": true,
+  "identityProjectionNote": "Persist only the three constructor identity fields; computed role helpers are ignored. All non-identity fields, including the new authoritative hash, match the normal command replay."
+}

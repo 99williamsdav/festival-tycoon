@@ -13,31 +13,13 @@ public sealed record TierBuildLimits(int Taps, int Toilets, int FoodVans, int Ba
 
 public sealed partial class GameSession
 {
-    private static readonly (BuildServiceKind Kind, int FeePennies)[] BuildCatalogue =
-    [
-        (BuildServiceKind.WaterTap, 1_500),
-        (BuildServiceKind.Toilet, 3_000),
-        (BuildServiceKind.FoodVan, 0), // the food trader pays the festival to pitch, instead (FoodTraders)
-        (BuildServiceKind.Bar, 5_000),
-        (BuildServiceKind.FirstAid, 3_500),
-        (BuildServiceKind.StewardPost, 2_500),
-        (BuildServiceKind.Bin, 1_000),
-        (BuildServiceKind.Marquee, MarqueeRules.FeePennies)
-    ];
-
     /// <summary>
     /// Build limits by tier: one more tap, toilet, marquee, bar and food van at Tier 2. Bins are unlimited.
     /// </summary>
-    private static readonly TierBuildLimits[] BuildLimitsByTier =
-    [
-        new(Taps: 1, Toilets: 2, FoodVans: 1, Bars: 1, FirstAid: 1, StewardPosts: 1, Marquees: 1),
-        new(Taps: 2, Toilets: 3, FoodVans: 2, Bars: 2, FirstAid: 1, StewardPosts: 1, Marquees: 2),
-    ];
-
-    public static TierBuildLimits BuildLimits(int tier) => BuildLimitsByTier[Math.Clamp(tier, 1, BuildLimitsByTier.Length) - 1];
+    public static TierBuildLimits BuildLimits(int tier) => CampaignRulesProfile.For(CampaignRuleset.Survival).Limits(tier);
 
     public static int BuildServiceFeePennies(BuildServiceKind kind) =>
-        BuildCatalogue.Single(item => item.Kind == kind).FeePennies;
+        CampaignRulesProfile.For(CampaignRuleset.Survival).BuildFee(kind);
     /// <summary>How many of a service this festival may place: the tier's limit, and one more tap with the Another Round perk.</summary>
     public int ServiceLimit(BuildServiceKind kind) =>
         BuildServiceLimit(kind, _preparation?.Tier ?? 1) - (kind == BuildServiceKind.WaterTap && !HasPerk("another-round") ? 1 : 0);
@@ -338,7 +320,7 @@ public sealed partial class GameSession
         if (placements.Any(item => item is null || !Enum.IsDefined(item.Kind) || item.QuarterTurns is < 0 or > 3 ||
             string.IsNullOrWhiteSpace(item.Id) || !IdentityMatchesKind(item)) ||
             placements.Select(item => item.Id).Distinct(StringComparer.Ordinal).Count() != placements.Count ||
-            BuildCatalogue.Any(entry => placements.Count(item => item.Kind == entry.Kind) > BuildServiceLimit(entry.Kind, tier)))
+            Enum.GetValues<BuildServiceKind>().Any(kind => placements.Count(item => item.Kind == kind) > BuildServiceLimit(kind, tier)))
             return "Build identities or service limits are invalid.";
         var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain(stages.Any(stage => stage.Id == FestivalStages.BarnId)));
         var reserved = new HashSet<GridCell>();

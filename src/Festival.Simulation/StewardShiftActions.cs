@@ -661,7 +661,7 @@ public sealed partial class GameSession
         var guests = p.People.Where(person => person.Role == ProtectedPersonRole.Guest).ToDictionary(person => person.AgentId);
         bool OnSite(ulong id) => guests.TryGetValue(id, out var guest) && guest.Admitted && !guest.Departed;
         var on = shift.PlayerId is not null;
-        var handsOn = s.Mode == CampaignMode.HandsOn;
+        var handsOn = s.Identity!.IsHandsOn;
         bool BadCall(StewardCall call) => call is null || string.IsNullOrWhiteSpace(call.Id) || string.IsNullOrWhiteSpace(call.Subject) ||
             !Enum.IsDefined(call.Kind) || call.OpenedTick < p.StartedTick || call.OpenedTick > s.CurrentTick ||
             call.ClosedTick != -1 && (call.ClosedTick < call.OpenedTick || call.ClosedTick > s.CurrentTick) ||

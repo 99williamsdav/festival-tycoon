@@ -37,12 +37,12 @@ public sealed partial class GameSession
     /// carried forward. The same seed, tier and guest count always give the same identities.
     /// </summary>
     private static GameSession CreateBuildCampaign(ulong seed, int tier, FestivalCarryOver? carry, CampaignId? campaignId, int? guests = null,
-        bool pondStageTrial = false, CampaignMode mode = CampaignMode.Classic)
+        bool pondStageTrial = false, CampaignIdentity? identity = null)
     {
-        var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, mode);
+        var session = CreateFoodAndDrinkBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity);
         SetUpPerks(session, seed, tier);
         // From Tier 2 a second medic can be hired without a perk; hiring them still costs their wage.
-        if (tier >= FreeExtraMedicFromTier) session._preparation = session._preparation! with { ExtraMedicSlotOwned = true };
+        if (session.CurrentFestival.ExtraMedicSlot) session._preparation = session._preparation! with { ExtraMedicSlotOwned = true };
         SetUpEditablePlan(session);
         SetUpResults(session);
         SetUpBuild(session);
@@ -51,9 +51,9 @@ public sealed partial class GameSession
 
     /// <summary>The campaign through its food-and-drink stage: the baseline a retried edition resets to.</summary>
     private static GameSession CreateFoodAndDrinkBaseline(ulong seed, int tier = 1, int? guests = null,
-        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignMode mode = CampaignMode.Classic)
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null)
     {
-        var session = CreateProgrammeBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, mode);
+        var session = CreateProgrammeBaseline(seed, tier, guests, carry, campaignId, pondStageTrial, identity);
         SetUpFoodAndDrink(session, seed);
         return session;
     }
@@ -62,13 +62,13 @@ public sealed partial class GameSession
 
     /// <summary>The campaign through its programme stage: the saved roster's reference identities.</summary>
     private static GameSession CreateProgrammeBaseline(ulong seed, int tier = 1, int? guests = null,
-        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignMode mode = CampaignMode.Classic)
+        FestivalCarryOver? carry = null, CampaignId? campaignId = null, bool pondStageTrial = false, CampaignIdentity? identity = null)
     {
         var session = CreateCampaign(seed, campaignId, tier, carry);
         session._pondStageTrial = pondStageTrial;
-        session._mode = mode;
+        session._identity = identity ?? CampaignIdentity.Management;
         if (tier > 1) ReseedForTier(session, seed, tier);
-        SetUpEdition(session, seed, tier, guests ?? FestivalTickets.Sold(tier), carry);
+        SetUpEdition(session, seed, tier, guests ?? CampaignRulesProfile.For(session.Identity.Ruleset).Festival(tier,pondStageTrial).Attendance, carry);
         SetUpStagePower(session);
         SetUpHotWeather(session);
         SetUpSecurity(session, seed);
@@ -76,7 +76,7 @@ public sealed partial class GameSession
         if (session.SecondStageOpen) SetUpSecondStage(session);
         SetUpWeather(session, seed, tier);
         // Last, so a classic campaign's identities never move.
-        if (mode == CampaignMode.HandsOn) SetUpHandsOnSteward(session);
+        if (session.IsHandsOn) SetUpHandsOnSteward(session);
         return session;
     }
 

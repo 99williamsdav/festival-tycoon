@@ -310,7 +310,7 @@ public sealed partial class GameSession
     /// <summary>The steward shift's state; null in an ordinary campaign, and in a hands-on one before the gates open.</summary>
     public StewardShiftSnapshot? CaptureStewardShift() => _stewardShift;
     /// <summary>The standalone steward shift prototype (a hands-on campaign's day has the shift's state too, but isn't one).</summary>
-    public bool IsStewardShift => _stewardShift is not null && _mode == CampaignMode.Classic;
+    public bool IsStewardShift => _stewardShift is not null && _identity.IsStewardOnly;
     /// <summary>The steward the player controls, while the shift is on.</summary>
     public ulong? PlayerStewardId => _stewardShift?.PlayerId;
     internal string? StewardShiftCanonicalJson => _stewardShift is null ? null : System.Text.Json.JsonSerializer.Serialize(_stewardShift);
@@ -321,6 +321,7 @@ public sealed partial class GameSession
     /// <summary>Hands one hired steward to the player: on duty where they stand, idle, nothing queued.</summary>
     private void TakeStewardControl(ulong id)
     {
+        if(!IsHandsOn)_identity=CampaignIdentity.StewardOnly;
         var nav = _navigationAgents[new(id)];
         // They start at their post rather than walking in from the farmhouse.
         var post = StaffDutyCell(id, ResponseRole.Steward);
@@ -333,7 +334,7 @@ public sealed partial class GameSession
         var (sx, sz) = TraversalGrid.CellCentre(Stages[0].PerformerMarks[0]);
         // A hands-on day opens in the manager's view, so the player's steward starts out working by itself.
         _stewardShift = new(StewardShiftRules.Version, id, 0, 0, false, StewardShiftRules.FacingTowards(sx - x, sz - z))
-            { Calls = [], Score = new(), Autopilot = _mode == CampaignMode.HandsOn ? new() : null };
+            { Calls = [], Score = new(), Autopilot = IsHandsOn ? new() : null };
     }
 
     private static void StopPlayerRoute(NavigationAgentState nav)
@@ -461,17 +462,33 @@ public sealed partial class GameSession
 
     private static string? ValidatePersistedStewardShift(SessionPersistenceSnapshot snapshot)
     {
-        if (!Enum.IsDefined(snapshot.Mode)) return "Unknown campaign mode.";
-        if (snapshot.Mode == CampaignMode.HandsOn) return ValidatePersistedHandsOnShift(snapshot);
-        if (snapshot.StewardShift is not { } shift) return null;
+        if (CampaignIdentity.Issue(snapshot.Identity) is {} identityIssue) return identityIssue;
+        if (snapshot.Identity!.IsHandsOn) return ValidatePersistedHandsOnShift(snapshot);
+        if (snapshot.StewardShift is not { } shift) return snapshot.Identity.IsStewardOnly?"A standalone steward campaign needs its shift record.":null;
+        if(!snapshot.Identity.IsStewardOnly)return "A standalone shift requires steward control without management capability.";
         if (shift.Version != StewardShiftRules.Version || shift.FacingDegrees is < 0 or > 359 ||
             shift.MoveX is < -1000 or > 1000 || shift.MoveZ is < -1000 or > 1000 || shift.RemainderX is < -999 or > 999 || shift.RemainderZ is < -999 or > 999)
             return "Steward shift input is invalid.";
-        if (snapshot.Preparation is not { } p || snapshot.Disorder is not { } d || snapshot.TraversalGrid is null || snapshot.NavigationAgents is null)
+        if (snapshot.Preparation is not { } p || snapshot.Disorder is not { } d)
             return "A steward shift needs a festival with stewards.";
         if (!SavedPerkEffect(snapshot.Perks, StewardShiftPerk)) return "A steward shift needs the second steward's perk.";
         if (shift.Autopilot is not null) return "The standalone steward shift has no autopilot.";
-        if (ValidatePersistedStewardWork(shift, snapshot, p) is { } work) return work;
+        var workPreparation=p;var workSnapshot=snapshot;
+        if(p.Attempt>1&&shift.PlayerId is null)
+        {
+            // Standalone control belongs only to its first attempt. Its retained closed log uses that clock.
+            if(snapshot.Lifecycle?.Casualties.FirstOrDefault() is not {AttemptId:1} firstDeath||shift.EndedTick!=firstDeath.Tick||
+                !snapshot.Lifecycle.Attempts.Any(a=>a.AttemptId==1&&a.Status==(int)EditionAttemptStatus.Failed)||
+                !snapshot.Lifecycle.Hearings.Any(h=>h.AttemptId==1&&h.Status==(int)HearingStatus.FavourSpent))
+                return "A retained standalone shift must belong to its first failed attempt.";
+            workPreparation=p with{StartedTick=0};
+            workSnapshot=snapshot with{CurrentTick=firstDeath.Tick};
+        }
+        if (ValidatePersistedStewardWork(shift, workSnapshot, workPreparation) is { } work) return work;
+        // Council retry keeps a released shift's score/log, but correctly clears its old live field.
+        if(p is {Status:PreparationStatus.Preparing,Attempt:>1}&&shift.PlayerId is null&&snapshot.TraversalGrid is null&&snapshot.NavigationAgents is null)
+            return shift.MoveX==0&&shift.MoveZ==0&&!shift.Run&&shift.RemainderX==0&&shift.RemainderZ==0?null:"A retried released shift holds no movement.";
+        if(snapshot.TraversalGrid is null||snapshot.NavigationAgents is null)return "A steward shift needs a festival with stewards.";
         if (shift.PlayerId is not { } id)
         {
             if (shift.MoveX != 0 || shift.MoveZ != 0 || shift.Run || shift.RemainderX != 0 || shift.RemainderZ != 0) return "A finished steward shift holds no movement.";

@@ -80,16 +80,16 @@ public sealed partial class GameSession
 {
     // 480 festival minutes (80 ticks each, as the HUD clock counts them) = eight live real minutes at 80 ticks/s;
     // preparation and pauses target the remaining two minutes, pending playtesting.
-    public const int PreparedWeekendTicks = 38_400;
+    public const int PreparedWeekendTicks = SurvivalBalance.PreparedDayTicks;
     /// <summary>
     /// The most people (guests, crew and band members) one festival may hold: Tier 2's 50 guests, six crew and two
     /// stages of nine band members fit with room to spare, and so would Tier 3's 75 guests.
     /// </summary>
-    public const int MaxActivePeople = 100;
+    public const int MaxActivePeople = SurvivalBalance.MaxActivePeople;
     /// <summary>The single-stage day: the trailer's last set ends at 37,600 and the gates close 800 ticks later.</summary>
-    public const int PreparedDayTicks = 38_400;
+    public const int PreparedDayTicks = SurvivalBalance.PreparedDayTicks;
     /// <summary>The ten festival minutes between the last set ending and closing time.</summary>
-    public const int ClosingAfterLastSetTicks = 800;
+    public const int ClosingAfterLastSetTicks = SurvivalBalance.ClosingAfterLastSetTicks;
     /// <summary>A day runs until the latest of its stages' last sets ends, then closes as a single-stage day does.</summary>
     public static int DayTicksFor(IReadOnlyList<FestivalStage> stages) => stages.Max(stage => stage.SlotEnds[^1]) + ClosingAfterLastSetTicks;
     /// <summary>This festival's day: 38,400 ticks on the trailer alone, longer with the Pond Stage's full third set.</summary>
@@ -103,7 +103,7 @@ public sealed partial class GameSession
         (p.Status == PreparationStatus.Running && CurrentTick - p.StartedTick >= PreparedEditionDurationTicks - 1 && PeopleIn(PersonView.Roster).All(item => item.Admitted) ||
          p.Status == PreparationStatus.Departing && FestivalFinishDue);
     /// <summary>The walk-out's hard limit: this long after the planned close, whoever is still walking is sent home.</summary>
-    public const int DepartureCapTicks = 8_000;
+    public const int DepartureCapTicks = SurvivalBalance.DepartureCapTicks;
     /// <summary>
     /// The festival finishes on the next tick when the last guest is off site and nobody is down: staff, performers
     /// and crew still on site don't hold it open, but anyone collapsed, critical, injured or being seen to by the
@@ -465,7 +465,7 @@ public sealed partial class GameSession
     {
         ReleaseStewardControl();
         // A hands-on retry is the day again: the player's steward goes back on shift when the gates reopen.
-        if (_mode == CampaignMode.HandsOn) _stewardShift = null;
+        if (IsHandsOn) _stewardShift = null;
         // The day's sets go with the retry, and so does the list of those the player invaded.
         else if (_stewardShift is not null) _stewardShift = _stewardShift with { InvadedSets = null };
         _litter = EmptyLitter;
@@ -474,7 +474,7 @@ public sealed partial class GameSession
         _lavSucker = EmptyLavSucker;
         ResetGround();
         var p = _preparation!;
-        var baseline = CreateFoodAndDrinkBaseline(CampaignSeed, p.Tier, pondStageTrial: _pondStageTrial, mode: _mode);
+        var baseline = CreateFoodAndDrinkBaseline(CampaignSeed, p.Tier, pondStageTrial: _pondStageTrial, identity: _identity);
         _festivalFinances[new(p.FinanceOwnerId)].CashPennies = p.OpeningCashPennies;
         _ownedStocks[new(p.StockId)].Quantity = 40;
         _navigationAgents.Clear();
@@ -558,7 +558,7 @@ public sealed partial class GameSession
         var medic = snapshot.Medical is null ? 0 : 1;
         var security = snapshot.Disorder is null ? 0 : 1;
         // A hands-on campaign's own steward, a crew member on every festival's roster.
-        var handsOn = snapshot.Mode == CampaignMode.HandsOn ? 1 : 0;
+        var handsOn = snapshot.Identity!.IsHandsOn ? 1 : 0;
         // The Pond Stage's engineer slot stands on the roster whether or not anyone is hired into it.
         var extras = p.AcceptedOffers.Count(id => id.StartsWith("staff.extra-", StringComparison.Ordinal) && !id.StartsWith("staff.extra-sound.", StringComparison.Ordinal));
         var stages = SavedStages(snapshot);
@@ -570,7 +570,7 @@ public sealed partial class GameSession
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
             p.People.Select(item => item.AgentId).Distinct().Count() != p.People.Length)
             return "Fixed protected roster invalid.";
-        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed, p.Tier, pondStageTrial: snapshot.PondStageTrial, mode: snapshot.Mode).WithPaymentStanding(p);
+        var factory = CreateProgrammeBaseline(snapshot.CampaignSeed, p.Tier, pondStageTrial: snapshot.PondStageTrial, identity: snapshot.Identity).WithPaymentStanding(p);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
         var candidates = SavedStaffCandidates(snapshot);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })

@@ -286,8 +286,11 @@ internal static class CanonicalStateHasher
         }
         // Written only for a trial campaign, so every other campaign hashes as before.
         if (session.PondStageTrial) writer.Write("pond-stage-trial-v1");
-        // Likewise only for a hands-on campaign.
-        if (session.Mode == CampaignMode.HandsOn) writer.Write("campaign-mode-hands-on-v1");
+        // Explicit identity representation changes hashes, not simulation behavior or RNG.
+        writer.Write("campaign-identity-v1");
+        writer.Write((int)session.Identity.Ruleset);
+        writer.Write((int)session.Identity.ControlRole);
+        writer.Write(session.Identity.ManagementCapability);
         if (session.PreparationCanonicalJson is { } preparation)
         {
             writer.Write("r0-preparation-v1");

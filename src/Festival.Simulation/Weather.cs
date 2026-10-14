@@ -31,7 +31,7 @@ public sealed record WeatherOutlook(WeatherKind Kind, RainIntensity Now, long Ch
 public static class WeatherRules
 {
     /// <summary>The weather a survival tier is set in. Freeplay will pick one from its own seeded forecast.</summary>
-    public static WeatherKind ForTier(int tier) => tier >= 2 ? WeatherKind.Rain : WeatherKind.Heatwave;
+    public static WeatherKind ForTier(int tier) => CampaignRulesProfile.For(CampaignRuleset.Survival).WeatherForTier(tier);
 
     // Ticks at 80 a second; a festival minute is 80 ticks, as on the HUD clock.
     public const int FestivalMinuteTicks = 80;

@@ -5,12 +5,7 @@ public sealed record FestivalChallenge(string Id, string Title, string Descripti
 
 public static class FestivalChallenges
 {
-    public static FestivalChallenge? ForTier(int tier) => tier switch
-    {
-        1 => new("heatwave", "Heatwave", "Guests build up heat and thirst. Water and shade help them cool down.", "heatwave-b.png", true),
-        2 => new("heavy-rain", "Heavy rain", "Heavy showers soak guests and turn the field muddy. Ponchos and shelter help keep people dry.", "heavy-rain-a.png", true),
-        _ => null
-    };
+    public static FestivalChallenge? ForTier(int tier) => CampaignRulesProfile.For(CampaignRuleset.Survival).ChallengeForTier(tier);
 }
 
 public sealed record AcknowledgeFestivalChallengeCommand(int Tier, int Attempt) : SessionCommand;

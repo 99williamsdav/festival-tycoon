@@ -223,7 +223,7 @@ public sealed class SaveRoundTripTests
     }
 
     [TestMethod]
-    public void CheckedInNonpersonalV1FixtureLoads()
+    public void CheckedInPreviousIdentitySchemaRequiresExplicitMigration()
     {
         var directory = AppContext.BaseDirectory;
         while (directory is not null && !File.Exists(Path.Combine(directory, "FestivalTycoon.sln")))
@@ -235,10 +235,8 @@ public sealed class SaveRoundTripTests
             "0.0.1-m0.05",
             "d7e7597670c2f9bc2552fa5df29f4afe294270e346643160e92feb1436bb1dd9",
             "m0-rules-v1"));
-        Assert.IsTrue(loaded.IsSuccess, loaded.Error);
-        Assert.IsTrue(loaded.Session!.IsPaused);
-        Assert.AreEqual(new TransactionId(1), loaded.Session.Transactions.Single().Id);
-        Assert.AreEqual("6bd820988de37a9c669dd4e5a71c26b3c781a5be1e77ab9e9f80f47fbabcff37", loaded.Session.CaptureSnapshot().AuthoritativeHash);
+        Assert.IsFalse(loaded.IsSuccess);
+        StringAssert.Contains(loaded.Error!,"Campaign identity is required");
     }
 
     [TestMethod]

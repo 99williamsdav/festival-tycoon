@@ -3,9 +3,9 @@ namespace Festival.Simulation;
 public sealed partial class GameSession
 {
     /// <summary>The highest tier with its parameters set; a festival there has no next festival yet.</summary>
-    public const int HighestTier = 2;
+    public const int HighestTier = SurvivalBalance.HighestTier;
     /// <summary>The tier from which a festival has a second medic slot without the Doctor's Orders perk (it isn't dealt there).</summary>
-    public const int FreeExtraMedicFromTier = 2;
+    public const int FreeExtraMedicFromTier = SurvivalBalance.FreeExtraMedicFromTier;
     /// <summary>The kit a festival can own and so carry forward: the bought sound rig.</summary>
     public static readonly string[] CarriableKit = ["sound-rig"];
     // Spending money a person brings (see NewImmersionPerson): a guest at most £25, crew and band £15.
@@ -48,7 +48,7 @@ public sealed partial class GameSession
     /// gone home and no death or Council ending, unlocks the next tier. A failed festival keeps the hearing and retry.
     /// </summary>
     public bool CanStartNextFestival => _preparation is { Status: PreparationStatus.Finished, Result: not null } p &&
-        p.Tier < HighestTier && !IsLifecycleEditionFrozen() && _campaignPlanning is not null && (_stewardShift is null || _mode == CampaignMode.HandsOn);
+        p.Tier < HighestTier && !IsLifecycleEditionFrozen() && _campaignPlanning is not null && (_stewardShift is null || IsHandsOn);
 
     /// <summary>What this completed festival would carry into the next one.</summary>
     public FestivalCarryOver? NextFestivalCarryOver => !CanStartNextFestival ? null : CarryOverFrom(_preparation!);
@@ -70,7 +70,7 @@ public sealed partial class GameSession
     {
         if (!CanStartNextFestival) throw new InvalidOperationException("Only a completed festival below the highest tier can open the next one.");
         var p = _preparation!;
-        var next = CreateLaterFestivalIn(_mode, CampaignSeed, CampaignId, p.Tier + 1, CarryOverFrom(p),
+        var next = CreateLaterFestivalFor(_identity, CampaignSeed, CampaignId, p.Tier + 1, CarryOverFrom(p),
             new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray()), p.SeenActs, _campaignPlanning!, _pondStageTrial);
         // Each act's relationship as this festival's sets left it, and the sets it was worked out from.
         // Popularity moves here too, from the newcomers each set won over, never during a festival.
@@ -83,13 +83,17 @@ public sealed partial class GameSession
 
     private static GameSession CreateLaterFestival(ulong seed, CampaignId campaignId, int tier, FestivalCarryOver carry,
         FestivalStanding standing, string[] seenActs, CampaignPlanningState? identity, bool pondStageTrial) =>
-        CreateLaterFestivalIn(CampaignMode.Classic, seed, campaignId, tier, carry, standing, seenActs, identity, pondStageTrial);
+        CreateLaterFestivalFor(CampaignIdentity.Management, seed, campaignId, tier, carry, standing, seenActs, identity, pondStageTrial);
 
     private static GameSession CreateLaterFestivalIn(CampaignMode mode, ulong seed, CampaignId campaignId, int tier, FestivalCarryOver carry,
+        FestivalStanding standing, string[] seenActs, CampaignPlanningState? identity, bool pondStageTrial) =>
+        CreateLaterFestivalFor(CampaignIdentity.FromLegacy(mode),seed,campaignId,tier,carry,standing,seenActs,identity,pondStageTrial);
+
+    private static GameSession CreateLaterFestivalFor(CampaignIdentity control, ulong seed, CampaignId campaignId, int tier, FestivalCarryOver carry,
         FestivalStanding standing, string[] seenActs, CampaignPlanningState? identity, bool pondStageTrial)
     {
         // Keep the legacy trial flag and mode; Tier 2's authoritative allocation always converts the Barn.
-        var next = CreateBuildCampaign(seed, tier, carry, campaignId, pondStageTrial: pondStageTrial, mode: mode);
+        var next = CreateBuildCampaign(seed, tier, carry, campaignId, pondStageTrial: pondStageTrial, identity: control);
         next.PreparationView = next.PreparationView! with { Reputation = standing.Reputation,
             SceneCredibility = standing.SceneCredibility.ToArray(), SeenActs = seenActs.ToArray() };
         if (identity is not null)

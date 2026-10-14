@@ -133,9 +133,12 @@ public sealed record SessionPersistenceSnapshot(
     /// <summary>The campaign tries the Pond Stage before Tier 2.</summary>
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
     public bool PondStageTrial { get; init; }
-    /// <summary>How the campaign is played; a classic campaign writes nothing, so its saves are as before.</summary>
-    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingDefault)]
-    public CampaignMode Mode { get; init; }
+    /// <summary>Explicit ruleset/control schema. Missing identities require deliberate migration.</summary>
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public CampaignIdentity? Identity { get; init; }
+    /// <summary>Source compatibility adapter for legacy control callers; it is not serialized.</summary>
+    [System.Text.Json.Serialization.JsonIgnore]
+    public CampaignMode Mode { get => (Identity??CampaignIdentity.Management).LegacyMode; init => Identity=CampaignIdentity.FromLegacy(value); }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
     public MedicalSnapshot? Medical { get; init; }
     [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]

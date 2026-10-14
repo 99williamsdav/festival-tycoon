@@ -1,9 +1,8 @@
 namespace Festival.Simulation;
 
 /// <summary>
-/// How a campaign is played, fixed when it's created and carried through every festival and retry. A classic
-/// campaign is the management game. A hands-on campaign is the same campaign with the player also on the ground
-/// as one of the stewards, in first person whenever they like.
+/// Legacy public control names. Classic denotes management Survival, not a Classic ruleset.
+/// New internal decisions use CampaignIdentity's ruleset, role and management capability.
 /// </summary>
 public enum CampaignMode
 {
@@ -22,12 +21,11 @@ public sealed partial class GameSession
     /// <summary>The player's own steward's name on the roster.</summary>
     public const string HandsOnStewardName = "You (steward)";
 
-    private CampaignMode _mode;
-    public CampaignMode Mode => _mode;
-    public bool IsHandsOn => _mode == CampaignMode.HandsOn;
+    public CampaignMode Mode => _identity.LegacyMode;
+    public bool IsHandsOn => _identity.IsHandsOn;
 
     /// <summary>The player's own steward in a hands-on campaign, on or off duty; null in a classic one.</summary>
-    public ulong? HandsOnStewardId => _mode != CampaignMode.HandsOn ? null : _handsOnStewardId ??=
+    public ulong? HandsOnStewardId => !IsHandsOn ? null : _handsOnStewardId ??=
         PeopleIn(PersonView.Roster).FirstOrDefault(person => person.Role == ProtectedPersonRole.Staff && person.Name == HandsOnStewardName)?.Id;
     // The roster's identities never change within a session, retries included.
     private ulong? _handsOnStewardId;
@@ -36,7 +34,7 @@ public sealed partial class GameSession
         p?.People.SingleOrDefault(person => person.Role == ProtectedPersonRole.Staff && person.Name == HandsOnStewardName)?.AgentId;
 
     /// <summary>A fresh Tier 1 hands-on campaign: the ordinary New Game route with the player also on the ground as a steward.</summary>
-    public static GameSession CreateHandsOnCampaign(ulong seed) => CreateBuildCampaign(seed, 1, null, null, mode: CampaignMode.HandsOn);
+    public static GameSession CreateHandsOnCampaign(ulong seed) => CreateBuildCampaign(seed, 1, null, null, identity: CampaignIdentity.HandsOn);
 
     /// <summary>
     /// The player's steward joins the roster as a crew member, after every other slot, so a classic campaign's
@@ -55,7 +53,7 @@ public sealed partial class GameSession
     /// <summary>The gates open: the player's own steward is on duty at the second steward's post, theirs to move.</summary>
     private void StartHandsOnShift()
     {
-        if (_mode != CampaignMode.HandsOn || HandsOnStewardId is not { } id) return;
+        if (!IsHandsOn || HandsOnStewardId is not { } id) return;
         TakeStewardControl(id);
     }
 
