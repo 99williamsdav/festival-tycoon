@@ -66,10 +66,10 @@ public sealed class DrinkProbe
             var acts = s.GetFestivalActs().Where(act => s.ActStandingOf(act) == ActStanding.Available)
                 .OrderBy(act => s.ActFee(act)).ThenBy(act => act.Id, StringComparer.Ordinal).Select(act => act.Id).ToArray();
             BuildSession.Accept(s, new SetProgrammeCommand(acts[..3]));
-            if (s.PondStageOpen) BuildSession.Accept(s, new SetProgrammeCommand(acts[3..6]) { StageId = FestivalStages.PondId });
+            if (s.SecondStageOpen) BuildSession.Accept(s, new SetProgrammeCommand(acts[3..6]) { StageId = s.Stages[1].Id });
             BuildSession.Accept(s, new SetPreparationStockCommand(40, Beer));
             foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
-            if (s.PondStageOpen) BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Sound)));
+            if (s.SecondStageOpen) BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Sound)));
             if (day.Medics == 2) BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Medic)));
         }
         BuildSession.Accept(s, new StartPreparedEditionCommand());

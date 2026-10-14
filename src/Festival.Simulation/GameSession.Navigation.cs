@@ -142,7 +142,7 @@ public sealed partial class GameSession
         {
             // A band member on their way on or off stage never waits on the player steward (StewardShiftStage.cs).
             var passing = PlayerPassedBy(agent);
-            var proposalConflicts = !BarnLayout.MovementSweepClear(backups[agent.Id].X,backups[agent.Id].Z,agent.XMillimetres,agent.ZMillimetres) ||
+            var proposalConflicts = !BarnLayout.MovementSweepClear(backups[agent.Id].X,backups[agent.Id].Z,agent.XMillimetres,agent.ZMillimetres,BarnStageOpen) ||
                 !TraversalSweep.IsWalkable(_traversalGrid, backups[agent.Id].X, backups[agent.Id].Z, agent.XMillimetres, agent.ZMillimetres) ||
                 (passing is { } through ? HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres, through) : HasConflict(occupied, agent.XMillimetres, agent.ZMillimetres)) ||
                 HasConflict(priorMovingOccupancy, agent.XMillimetres, agent.ZMillimetres, agent.Id);
@@ -309,7 +309,7 @@ public sealed partial class GameSession
             var z = agent.ZMillimetres + lateralZ * distance * side;
             var cell = TraversalGrid.WorldToCell(x, z);
             if (!_traversalGrid!.Contains(cell) || !_traversalGrid.Get(cell).IsWalkable || CubicleClosedTo(agent.Id.Value, cell) ||
-                !BarnLayout.MovementSweepClear(backup.X,backup.Z,x,z) ||
+                !BarnLayout.MovementSweepClear(backup.X,backup.Z,x,z,BarnStageOpen) ||
                 !TraversalSweep.IsWalkable(_traversalGrid, backup.X, backup.Z, x, z) || HasConflict(occupied, x, z)) continue;
             if (HasConflict(priorMovingOccupancy, x, z, agent.Id)) continue;
             agent.XMillimetres = x; agent.ZMillimetres = z;

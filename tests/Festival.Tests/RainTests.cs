@@ -361,7 +361,7 @@ public sealed class RainTests
             s.AdvanceWithoutSnapshot(400);
             FestivalAct? Playing(string stageId) => s.CaptureLivePerformance(stageId)?.Stage == LiveSetStage.Live && s.CaptureProgramme(stageId) is { CurrentSlot: >= 0 } q
                 ? ActCatalogue.Find(q.ActIds[q.CurrentSlot]) : null;
-            if (Playing(FestivalStages.MainId) is not { } trailer || Playing(FestivalStages.PondId) is not { } pond) continue;
+            if (Playing(FestivalStages.MainId) is not { } trailer || Playing(s.Stages[1].Id) is not { } pond) continue;
             foreach (var guest in Guests(s).Where(id => (int)listenerStage.Invoke(s, [id])! == 0))
             {
                 if (s.FestivalAffinity(guest, pond) >= WeatherRules.FanKeenness && s.FestivalAffinity(guest, trailer) < WeatherRules.FanKeenness)

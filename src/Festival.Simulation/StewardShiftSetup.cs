@@ -40,7 +40,7 @@ public sealed partial class GameSession
         var acts = GetFestivalActs().Where(act => ActStandingOf(act) == ActStanding.Available)
             .OrderBy(ActFee).ThenBy(act => act.Id, StringComparer.Ordinal).Select(act => act.Id).ToArray();
         RunSetupCommand(new SetProgrammeCommand(acts[..3]));
-        if (PondStageOpen) RunSetupCommand(new SetProgrammeCommand(acts[3..6]) { StageId = FestivalStages.PondId });
+        if (SecondStageOpen) RunSetupCommand(new SetProgrammeCommand(acts[3..6]) { StageId = Stages[1].Id });
         // A rainy day's store has bales for the mud; the crew's and the player's.
         RunSetupCommand(WeatherRules.ForTier(_preparation!.Tier) == WeatherKind.Rain ? new SetPreparationStockCommand(40, 32) { StrawBales = 8 } : new SetPreparationStockCommand(40, 32));
         // The steadiest hand in each role: no traits, then the standard grade.
@@ -48,7 +48,7 @@ public sealed partial class GameSession
             .OrderBy(c => c.Traits.Length > 0).ThenBy(c => c.Grade > 0).ThenBy(c => Math.Abs(c.Grade)).ThenBy(c => c.Id, StringComparer.Ordinal).ToArray()).ToArray();
         foreach (var role in picks) RunSetupCommand(new AcceptPreparationOfferCommand(role[0].Id));
         RunSetupCommand(new AcceptPreparationOfferCommand(picks.Single(role => role[0].Role == StaffRole.Steward)[1].ExtraOfferId));
-        if (PondStageOpen) RunSetupCommand(new AcceptPreparationOfferCommand(picks.Single(role => role[0].Role == StaffRole.Sound)[1].ExtraOfferId));
+        if (SecondStageOpen) RunSetupCommand(new AcceptPreparationOfferCommand(picks.Single(role => role[0].Role == StaffRole.Sound)[1].ExtraOfferId));
         if (ValidateCommand(SetupEnvelope(new AcceptPreparationOfferCommand("maintenance.worker"))) is null)
             RunSetupCommand(new AcceptPreparationOfferCommand("maintenance.worker"));
         // A marquee by the crowd, if the budget runs to it: shade in a heatwave, shelter in the rain.

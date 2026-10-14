@@ -79,6 +79,7 @@ public partial class Main
         if (_medicalFacilityPicks.ContainsKey(key)) return collider;
         // A loose cow, to send home, and the Pond Stage and its generator: picks with no registry of their own.
         if (_cowPicks.ContainsKey(key)) return collider;
+        if (key != 0 && key == _barnGeneratorPickId && _session.BarnStageOpen && _barnGenerator?.IsVisibleInTree() == true) return collider;
         if (key != 0 && (key == _pondStagePickId || key == _pondGeneratorPickId)) return collider;
         if (_pickRegistry.TryGetValue(key,out var item))
             return _visualRegistry.TryGetValue(item.StableId,out var body) && body.IsVisibleInTree() && !body.IsQueuedForDeletion() ? collider : null;

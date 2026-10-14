@@ -75,12 +75,13 @@ public sealed class RecordedDevelopmentStartTests
     public void TierTwoHasNormalUnlocksRainRevealAndAffordableTwoStagePreparation()
     {
         var s = GameSession.CreateRecordedTierTwoStart();
-        Assert.IsTrue(s.PondStageOpen);
+        Assert.IsTrue(s.BarnStageOpen);
+        Assert.IsFalse(s.PondStageOpen);
         Assert.IsTrue(s.IsRainyFestival);
         Assert.IsFalse(s.CapturePreparation()!.ChallengeAcknowledged);
         Assert.AreEqual("heavy-rain-a.png", FestivalChallenges.ForTier(2)!.Artwork);
         Assert.IsTrue(s.CapturePreparation()!.ExtraMedicSlotOwned);
-        CollectionAssert.AreEqual(new[] { "stage.main", "stage.pond" }, s.Stages.Select(a => a.Id).ToArray());
+        CollectionAssert.AreEqual(new[] { "stage.main", "stage.barn" }, s.Stages.Select(a => a.Id).ToArray());
         BuildSession.Accept(s, new AcknowledgeFestivalChallengeCommand(2, 1));
         NextFestivalTests.Ready(s);
         Assert.AreEqual(0, s.GetPreparationStartBlockers().Count);

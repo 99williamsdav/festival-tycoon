@@ -20,8 +20,8 @@ public static class BarnLayout
     public static bool StairSweepClear(int fromX,int fromZ,int toX,int toZ) =>
         !CrossesStairBox(fromX,fromZ,toX,toZ,6_000,6_650,1_485,3_385) &&
         !CrossesStairBox(fromX,fromZ,toX,toZ,7_100,8_000,1_255,3_585);
-    public static bool MovementSweepClear(int fromX,int fromZ,int toX,int toZ) =>
-        StairSweepClear(fromX,fromZ,toX,toZ) &&
+    public static bool MovementSweepClear(int fromX,int fromZ,int toX,int toZ,bool stageActive = true) =>
+        (!stageActive || StairSweepClear(fromX,fromZ,toX,toZ)) &&
         !CrossesStairBox(fromX,fromZ,toX,toZ,-11_000,-8_270,5_193,6_850) &&
         !CrossesStairBox(fromX,fromZ,toX,toZ,-7_050,-3_500,5_193,6_850) &&
         !CrossesStairBox(fromX,fromZ,toX,toZ,3_500,11_000,5_193,6_850);
@@ -43,14 +43,17 @@ public static class BarnLayout
         return p.X is >= -9_300 and <= 9_300 && p.Z is >= 3_500 and <= 7_250 ||
             p.X is >= 6_250 and <= 8_000 && p.Z is >= 1_000 and <= 4_800;
     }
-    public static bool Reserved(GridCell cell) { var p = Local(cell); return p.X is >= -9_500 and <= 9_500 && p.Z is >= -5_750 and <= 7_250; }
+    public static bool Reserved(GridCell cell) { var p = Local(cell); return p.X is >= -9_500 and <= 9_500 && p.Z is >= -5_750 and <= 7_250 || GeneratorReserve(cell); }
+    // Existing hire-set bounds x -1.73..2.061, z ±.73 m, plus moving capsule and separation clearance.
+    public static bool Generator(GridCell cell) { var p = TraversalGrid.CellCentre(cell); return p.XMillimetres >= GeneratorX-2_250 && p.XMillimetres <= GeneratorX+2_750 && p.ZMillimetres >= GeneratorZ-1_250 && p.ZMillimetres <= GeneratorZ+1_250; }
+    public static bool GeneratorReserve(GridCell cell) { var p = TraversalGrid.CellCentre(cell); return p.XMillimetres >= GeneratorX-2_750 && p.XMillimetres <= GeneratorX+3_250 && p.ZMillimetres >= GeneratorZ-1_750 && p.ZMillimetres <= GeneratorZ+1_750; }
     public static IEnumerable<GridCell> Coverage()
     {
         for (var z = 70; z <= 93; z++) for (var x = 108; x <= 147; x++)
         { var cell = new GridCell(x, z); if (Covered(cell)) yield return cell; }
     }
     /// <summary>Keep the old padded perimeter solid; open measured floor and the two front passages only.</summary>
-    public static IEnumerable<(GridCell Cell, bool Walkable)> Terrain()
+    public static IEnumerable<(GridCell Cell, bool Walkable)> Terrain(bool stageActive = true)
     {
         var lower = TraversalGrid.WorldToCell(-11_000, -30_000); var upper = TraversalGrid.WorldToCell(11_000, -16_000);
         for (var z = lower.Z; z <= upper.Z; z++) for (var x = lower.X; x <= upper.X; x++)
@@ -62,27 +65,27 @@ public static class BarnLayout
             var door = p.Z is >= 5_250 and <= 7_250 && (p.X is >= -3_500 and <= 3_500 || p.X is >= -8_250 and <= -7_250);
             var stageFootprint = p.X is >= 4_000 and <= 8_250 && p.Z is >= -4_750 and <= 1_500;
             var stairSides = p.X is >= 6_000 and <= 8_000 && p.Z is >= 1_500 and <= 3_250;
-            yield return (cell, (floor || door) && (!stageFootprint && !stairSides || Deck(cell) || Stairs(cell)));
+            yield return (cell, (floor || door) && (!stageActive || !stageFootprint && !stairSides || Deck(cell) || Stairs(cell)));
         }
     }
     public static IEnumerable<(GridCell Cell, bool Walkable)> StageCells()
     {
         // The fixed stage is already in Terrain; the fixture additionally has a real outside generator footprint.
         foreach (var item in Terrain()) yield return item;
-        var low = TraversalGrid.WorldToCell(GeneratorX-1_500, GeneratorZ-1_000);
-        var high = TraversalGrid.WorldToCell(GeneratorX+1_500, GeneratorZ+1_000);
-        for(var z=low.Z;z<=high.Z;z++) for(var x=low.X;x<=high.X;x++) yield return (new(x,z),false);
+        var low = TraversalGrid.WorldToCell(GeneratorX-2_250,GeneratorZ-1_250);
+        var high = TraversalGrid.WorldToCell(GeneratorX+2_750,GeneratorZ+1_250);
+        for(var z=low.Z;z<=high.Z;z++) for(var x=low.X;x<=high.X;x++) { var cell = new GridCell(x,z); if(Generator(cell)) yield return (cell,false); }
     }
     public static readonly FestivalStage Stage = new()
     {
         Id = "stage.barn", Name = "Barn Stage", ShortName = "Barn Stage",
-        // Explicit diagnostic programme input, borrowed from the existing second slot; not a campaign allocation.
+        // Tier 2 keeps the existing second-stage slot timings, roster and economics.
         SlotStarts = [9_000,20_600,32_800], SlotEnds = [17_400,29_000,41_200],
         PerformerMarks = [Cell(5_700,-250),Cell(5_700,-2_750),Cell(7_050,-1_500)],
         AccessCells = [Cell(6_750,3_750),Cell(7_250,3_750),Cell(6_750,4_750)],
         StairCells = [Cell(6_750,2_750),Cell(6_750,2_250),Cell(6_750,1_750)],
         Deck = Deck, Stairs = Stairs, Cells = StageCells,
-        Reserve = Reserved, ReserveBounds = (108,147,70,96), Access = cell => Deck(cell)||Stairs(cell)||Circulation(cell),
+        Reserve = Reserved, ReserveBounds = (108,148,70,104), Access = cell => Deck(cell)||Stairs(cell)||Circulation(cell),
         BackstagePlace = i => Cell(3_250,-4_750+i*1_000),
         ArrivalStart = i => new(52+i%2*2,112+i*3),
         ListeningPlaces = Listening(), AudienceBounds = FestivalStage.BoundsOf(Listening()),

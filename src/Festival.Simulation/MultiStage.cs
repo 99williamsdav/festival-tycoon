@@ -34,9 +34,11 @@ public sealed partial class GameSession
     private bool _pondStageTrial;
     /// <summary>Set when the campaign was created to try the Pond Stage before Tier 2.</summary>
     public bool PondStageTrial => _pondStageTrial;
-    /// <summary>The Pond Stage comes with Tier 2 (and its own generator); a trial campaign has it from the start.</summary>
-    public const int PondStageFromTier = 2;
-    public bool PondStageOpen => _pondStageTrial || (_preparation?.Tier ?? 1) >= PondStageFromTier;
+    /// <summary>Tier 2 opens the Barn Stage with the existing second-stage slots and generator.</summary>
+    public const int SecondStageFromTier = 2;
+    public bool SecondStageOpen => Stages.Count > 1;
+    public bool PondStageOpen => Stages.Any(stage => stage.Id == FestivalStages.PondId);
+    public bool BarnStageOpen => Stages.Any(stage => stage.Id == FestivalStages.BarnId);
 
     // ---- Bands off the lane ----
 
@@ -84,9 +86,9 @@ public sealed partial class GameSession
         else ApplyAgentDestination(new(id), new(IdlePlace(index), "edition.arrival"));
     }
     /// <summary>The stages this festival runs, in stage order.</summary>
-    public IReadOnlyList<FestivalStage> Stages => _diagnosticStages ?? FestivalStages.For(PondStageOpen);
+    public IReadOnlyList<FestivalStage> Stages => _diagnosticStages ?? FestivalStages.For(_preparation?.Tier ?? 1, _pondStageTrial);
     private static IReadOnlyList<FestivalStage> SavedStages(SessionPersistenceSnapshot s) =>
-        FestivalStages.For(s.PondStageTrial || (s.Preparation?.Tier ?? 1) >= PondStageFromTier);
+        FestivalStages.For(s.Preparation?.Tier ?? 1, s.PondStageTrial);
 
     // ---- Each stage's power and sound ----
 
@@ -105,6 +107,10 @@ public sealed partial class GameSession
     private static StageGeneratorSnapshot NewPondGenerator() => new(StageGeneratorRules.Version, FestivalStages.PondId,
         PondRiser.GeneratorXMillimetres, PondRiser.GeneratorZMillimetres, StageGeneratorRules.PondCapacity, 0, EquipmentStage.Resolved, -1,
         "Pond generator running within capacity");
+    private static StageGeneratorSnapshot NewSecondStageGenerator(FestivalStage stage) => stage.Id == FestivalStages.BarnId
+        ? NewPondGenerator() with { StageId = stage.Id, XMillimetres = BarnLayout.GeneratorX, ZMillimetres = BarnLayout.GeneratorZ,
+            Response = "Barn generator running within capacity" }
+        : NewPondGenerator();
 
     /// <summary>Whether a stage's rig has power: the trailer's from the farm generator, any other from its own.</summary>
     public bool StagePoweredAt(int stage) => stage == 0 ? StagePowered :
@@ -240,7 +246,8 @@ public sealed partial class GameSession
         {
             var g = generators[index];
             if (g is null || g.Version != StageGeneratorRules.Version || g.StageId != stages[index + 1].Id ||
-                g.XMillimetres != PondRiser.GeneratorXMillimetres || g.ZMillimetres != PondRiser.GeneratorZMillimetres ||
+                g.XMillimetres != (g.StageId == FestivalStages.BarnId ? BarnLayout.GeneratorX : PondRiser.GeneratorXMillimetres) ||
+                g.ZMillimetres != (g.StageId == FestivalStages.BarnId ? BarnLayout.GeneratorZ : PondRiser.GeneratorZMillimetres) ||
                 g.Capacity != StageGeneratorRules.PondCapacity || g.Strain is < 0 or > PowerRules.StrainMaximum || string.IsNullOrWhiteSpace(g.Response) ||
                 g.Stage is not (EquipmentStage.Resolved or EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Isolated) ||
                 g.WarningTick < -1 || g.WarningTick > s.CurrentTick ||

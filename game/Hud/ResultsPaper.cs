@@ -111,7 +111,7 @@ internal sealed partial class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _pho
                 TooltipText = $"Tier {tier}: {FestivalTickets.Sold(tier)} guests at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))}. " +
                     $"Brings {FestivalCurrency.Format(carry.CashPennies)} cash, {FestivalCurrency.Format(carry.DebtPennies)} of loan still owed, " +
                     "your reputation and owned kit. Perks, staff, bookings, stock and the build start fresh." +
-                    (tier >= GameSession.PondStageFromTier ? "\nWe've upgraded with a second stage, the Pond Stage, which comes with its own generator." : "") }, Ui.ButtonKind.Primary, 15, 8);
+                    (tier >= GameSession.SecondStageFromTier ? "\nThe Barn Stage opens under cover, with its own generator outside." : "") }, Ui.ButtonKind.Primary, 15, 8);
             next.Pressed += () =>
             {
                 if (nextFestival()) return;

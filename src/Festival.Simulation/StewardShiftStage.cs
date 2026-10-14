@@ -82,7 +82,7 @@ public sealed partial class GameSession
 
     /// <summary>On a stage's deck or its steps: where the camera rides up.</summary>
     public static bool OnStageCells(IReadOnlyList<FestivalStage> stages, GridCell cell) =>
-        BarnLayout.Deck(cell) || BarnLayout.Stairs(cell) || stages.Any(stage => stage.Deck(cell) || stage.Stairs(cell));
+        stages.Any(stage => stage.Deck(cell) || stage.Stairs(cell));
 
     /// <summary>The stage the player steward is up on now, if any.</summary>
     public string? PlayerStageId => _stewardShift?.OnStage?.StageId;

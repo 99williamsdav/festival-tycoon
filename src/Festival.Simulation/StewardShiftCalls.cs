@@ -298,7 +298,7 @@ public sealed partial class GameSession
     public string StewardLandmark(int x, int z)
     {
         var marks = new List<(string Name, GridCell Cell)>();
-        foreach (var stage in Stages) marks.Add((stage.Id == FestivalStages.PondId ? "the Pond Stage" : "the main stage", stage.PerformerMarks[0]));
+        foreach (var stage in Stages) marks.Add((stage.Id == FestivalStages.MainId ? "the main stage" : "the " + stage.ShortName, stage.PerformerMarks[0]));
         foreach (var vendor in Vendors) marks.Add((StallName(vendor.Id), vendor.Cell));
         foreach (var toilet in EffectiveToilets(_facilities)) marks.Add(("the loos", toilet.Cell));
         foreach (var tap in WaterPoints()) marks.Add(("the water", tap.Cell));

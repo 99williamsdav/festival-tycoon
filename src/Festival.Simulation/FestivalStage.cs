@@ -77,6 +77,7 @@ public static class FestivalStages
 {
     public const string MainId = "stage.main";
     public const string PondId = "stage.pond";
+    public const string BarnId = "stage.barn";
 
     private static readonly GridCell[] TrailerPlaces = TrailerListeningPlaces().ToArray();
     private static readonly GridCell[] PondPlaces = PondListeningPlaces().ToArray();
@@ -151,12 +152,16 @@ public static class FestivalStages
     };
 
     /// <summary>The whole catalogue, in stage order.</summary>
-    public static readonly IReadOnlyList<FestivalStage> All = [Main, Pond];
+    public static readonly IReadOnlyList<FestivalStage> All = [Main, BarnLayout.Stage, Pond];
+    private static readonly IReadOnlyList<FestivalStage> PondFestival = [Main, Pond];
+    private static readonly IReadOnlyList<FestivalStage> BarnFestival = [Main, BarnLayout.Stage];
     /// <summary>The trailer stage alone, as a festival without the Pond Stage plays.</summary>
     public static readonly IReadOnlyList<FestivalStage> MainOnly = [Main];
 
     /// <summary>The stages a festival runs: the trailer, and the Pond Stage when it's open.</summary>
-    public static IReadOnlyList<FestivalStage> For(bool pondOpen) => pondOpen ? All : MainOnly;
+    public static IReadOnlyList<FestivalStage> For(bool pondOpen) => pondOpen ? PondFestival : MainOnly;
+    /// <summary>Tier 2 converts the barn. The legacy Pond trial can still run at Tier 1, never alongside Barn.</summary>
+    public static IReadOnlyList<FestivalStage> For(int tier, bool pondTrial = false) => tier >= GameSession.SecondStageFromTier ? BarnFestival : For(pondTrial);
 
     public static FestivalStage? Find(string id) => id == BarnLayout.Stage.Id ? BarnLayout.Stage : All.FirstOrDefault(stage => stage.Id == id);
     /// <summary>A stage's place in the given stage list, or -1 when it isn't there.</summary>

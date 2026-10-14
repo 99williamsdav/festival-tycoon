@@ -106,8 +106,8 @@ public partial class Main
     {
         var pins = new List<Vector3>();
         if (_session.PowerBudgetActive && _session.CapturePower().Over && Generator() is { } farm) pins.AddRange(farm);
-        if (_session.CaptureStageGenerator(FestivalStages.PondId)?.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault)
-            pins.Add(PondGeneratorHome + new Vector3(0, 2.6f, 0));
+        foreach(var generator in _session.CaptureStageGenerators().Where(g => g.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault))
+            pins.Add(new Vector3(generator.XMillimetres/1000f,2.6f,generator.ZMillimetres/1000f));
         return pins.Count > 0 ? pins.ToArray() : null;
     }
 

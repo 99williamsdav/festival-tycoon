@@ -327,9 +327,9 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
                 _clockSets[i] = (GameSession.FestivalSlotStarts[i] / day, GameSession.FestivalSlotEnds[i] / day,
                     SetColour(acts.TryGetValue(programme!.ActIds[i], out var act) ? act.Genre : -1));
             _pondClockSets = null;
-            if (session.CaptureProgramme(FestivalStages.PondId) is { ActIds.Length: 3 } pond)
+            if (session.Stages.Count > 1 && session.CaptureProgramme(session.Stages[1].Id) is { ActIds.Length: 3 } pond)
             {
-                var stage = FestivalStages.Pond;
+                var stage = session.Stages[1];
                 _pondClockSets = Enumerable.Range(0, 3).Select(i => (stage.SlotStarts[i] / day, stage.SlotEnds[i] / day,
                     SetColour(acts.TryGetValue(pond.ActIds[i], out var act) ? act.Genre : -1))).ToArray();
             }

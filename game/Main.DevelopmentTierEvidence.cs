@@ -85,7 +85,7 @@ public partial class Main
             TierCheck("actual-carried-cash-and-debt", p.CarriedIn is { CashPennies: 35_335, DebtPennies: 20_000 } && p.OpeningCashPennies == 110_335);
             TierCheck("same-as-canonical-recorded-transition", _developmentTierFreshHash == GameSession.CreateRecordedTierTwoStart().CaptureSnapshot().AuthoritativeHash.ToString());
             TierCheck("knowledge-and-actual-relationships", p.SeenActs.Length == 3 && p.ActRelationships!.Select(r => r.Value).SequenceEqual(new[] { -1, 10, 1 }));
-            TierCheck("rain-and-normal-trailer-pond-allocation", _session.IsRainyFestival && _session.Stages.Select(s => s.Id).SequenceEqual(new[] { "stage.main", "stage.pond" }));
+            TierCheck("rain-and-normal-trailer-barn-allocation", _session.IsRainyFestival && _session.Stages.Select(s => s.Id).SequenceEqual(new[] { "stage.main", "stage.barn" }));
             TierCheck("fresh-preparation-before-draft", p.Status == PreparationStatus.Preparing && p.BuildPlacements.Length == 0 && _session.CapturePerks()!.Pending);
             _developmentTierPendingPerks = JsonSerializer.Serialize(_session.CapturePerks());
         }
@@ -119,7 +119,7 @@ public partial class Main
             var acts = _session.GetFestivalActs().Where(a => _session.ActStandingOf(a) == ActStanding.Available)
                 .OrderBy(_session.ActFee).ThenBy(a => a.Id, StringComparer.Ordinal).Select(a => a.Id).ToArray();
             TierSend(new SetProgrammeCommand(acts[..3]));
-            TierSend(new SetProgrammeCommand(acts[3..6]) { StageId = FestivalStages.PondId });
+            TierSend(new SetProgrammeCommand(acts[3..6]) { StageId = _session.Stages[1].Id });
             TierSend(new SetPreparationStockCommand(40, 32));
             var crew = _session.GetStaffCandidates().GroupBy(c => c.Role).Select(g => g.OrderBy(c => c.Traits.Length > 0)
                 .ThenBy(c => c.Grade > 0).ThenBy(c => Math.Abs(c.Grade)).ThenBy(c => c.Id, StringComparer.Ordinal).First()).ToArray();

@@ -287,7 +287,7 @@
   ],
   "CompletedTransactionIds": [],
   "Transactions": [],
-  "AuthoritativeHash": "1a86d3f0d25fc4c8aebb411adfc61c0ac8a52607fe09ca15358a15e9cc8ffecd",
+  "AuthoritativeHash": "77ccbdd70073f55c075312cb6245c619730ee98a2cb414a0bb263801ef311d93",
   "Litter": {
     "Version": 1,
     "Pieces": [
@@ -22239,7 +22239,7 @@
         "X": 136,
         "Z": 72,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22248,7 +22248,7 @@
         "X": 137,
         "Z": 72,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22257,7 +22257,7 @@
         "X": 138,
         "Z": 72,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22266,7 +22266,7 @@
         "X": 139,
         "Z": 72,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22275,7 +22275,7 @@
         "X": 140,
         "Z": 72,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22284,7 +22284,7 @@
         "X": 141,
         "Z": 72,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22293,7 +22293,7 @@
         "X": 142,
         "Z": 72,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22302,7 +22302,7 @@
         "X": 143,
         "Z": 72,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22311,7 +22311,7 @@
         "X": 144,
         "Z": 72,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22689,7 +22689,7 @@
         "X": 136,
         "Z": 73,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -22761,7 +22761,7 @@
         "X": 144,
         "Z": 73,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -23139,7 +23139,7 @@
         "X": 136,
         "Z": 74,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -23211,7 +23211,7 @@
         "X": 144,
         "Z": 74,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -23589,7 +23589,7 @@
         "X": 136,
         "Z": 75,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -23661,7 +23661,7 @@
         "X": 144,
         "Z": 75,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -24039,7 +24039,7 @@
         "X": 136,
         "Z": 76,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -24111,7 +24111,7 @@
         "X": 144,
         "Z": 76,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -24489,7 +24489,7 @@
         "X": 136,
         "Z": 77,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -24561,7 +24561,7 @@
         "X": 144,
         "Z": 77,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -24939,7 +24939,7 @@
         "X": 136,
         "Z": 78,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -25011,7 +25011,7 @@
         "X": 144,
         "Z": 78,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -25389,7 +25389,7 @@
         "X": 136,
         "Z": 79,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -25461,7 +25461,7 @@
         "X": 144,
         "Z": 79,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -25839,7 +25839,7 @@
         "X": 136,
         "Z": 80,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -25911,7 +25911,7 @@
         "X": 144,
         "Z": 80,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -26289,7 +26289,7 @@
         "X": 136,
         "Z": 81,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -26361,7 +26361,7 @@
         "X": 144,
         "Z": 81,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -26739,7 +26739,7 @@
         "X": 136,
         "Z": 82,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -26811,7 +26811,7 @@
         "X": 144,
         "Z": 82,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -27189,7 +27189,7 @@
         "X": 136,
         "Z": 83,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -27261,7 +27261,7 @@
         "X": 144,
         "Z": 83,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -27927,7 +27927,7 @@
         "X": 136,
         "Z": 84,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -27999,7 +27999,7 @@
         "X": 144,
         "Z": 84,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -28701,7 +28701,7 @@
         "X": 140,
         "Z": 85,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -28719,7 +28719,7 @@
         "X": 142,
         "Z": 85,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -28728,7 +28728,7 @@
         "X": 143,
         "Z": 85,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -29439,7 +29439,7 @@
         "X": 140,
         "Z": 86,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -29457,7 +29457,7 @@
         "X": 142,
         "Z": 86,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -29466,7 +29466,7 @@
         "X": 143,
         "Z": 86,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -30177,7 +30177,7 @@
         "X": 140,
         "Z": 87,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -30195,7 +30195,7 @@
         "X": 142,
         "Z": 87,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -30204,7 +30204,7 @@
         "X": 143,
         "Z": 87,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -30915,7 +30915,7 @@
         "X": 140,
         "Z": 88,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -30933,7 +30933,7 @@
         "X": 142,
         "Z": 88,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0
@@ -30942,7 +30942,7 @@
         "X": 143,
         "Z": 88,
         "Surface": 1,
-        "IsWalkable": false,
+        "IsWalkable": true,
         "CostPermille": 1000,
         "ElevationMillimetres": 0,
         "SlopePermille": 0

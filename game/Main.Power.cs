@@ -93,18 +93,18 @@ public partial class Main
 
     /// <summary>"Stage 50 · Pond Stage 50 · bars 30 …": what draws what.</summary>
     private string PowerParts(PowerDraw power) =>
-        $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)})" + (_session.PowerPooled ? $" · Pond Stage {power.OtherStages}" : "") +
+        $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)})" + (_session.PowerPooled ? $" · {_session.Stages[1].ShortName} {power.OtherStages}" : "") +
         $" · {(power.Bar > PowerRules.StallDraw ? "bars" : "bar")} {power.Bar} · {(power.Food > PowerRules.StallDraw ? "food vans" : "food van")} {power.Food} · lights {power.Lights}";
 
     /// <summary>With the generators pooled, which machines make up the supply, and which are out of it.</summary>
     private string PooledSupplyText()
     {
         if (!_session.PowerPooled || _session.CaptureEquipment() is not { } farm) return "";
-        var pond = _session.CaptureStageGenerator(FestivalStages.PondId);
+        var pond = _session.CaptureStageGenerators().FirstOrDefault();
         // A stage cut takes off only its rig; a generator leaves the supply only when it fails.
         string Part(string name, int capacity, bool running) => running ? $"{name} {capacity}" : $"{name} failed";
         return $"\nOne supply: {Part("farm generator", _session.GeneratorCapacity, farm.Stage != EquipmentStage.Terminal)}" +
-            (pond is null ? "" : $" + {Part("Pond generator", pond.Capacity, pond.Stage != EquipmentStage.Terminal)}");
+            (pond is null ? "" : $" + {Part(_session.Stages[1].ShortName + " generator", pond.Capacity, pond.Stage != EquipmentStage.Terminal)}");
     }
 
     private void BuildPowerSwitches(VBoxContainer parent)

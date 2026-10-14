@@ -30,7 +30,7 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
     private Label? _title;
     private Control? _single;
     private VBoxContainer? _multi;
-    private sealed record StageRow(string StageId, Label State, Label Act, Label Countdown, Label Detail, Label Play);
+    private sealed record StageRow(string StageId, Control Root, Label State, Label Act, Label Countdown, Label Detail, Label Play);
     private readonly System.Collections.Generic.List<StageRow> _rows = [];
 
     public Control? Panel => _card;
@@ -104,8 +104,8 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
         _multi = new VBoxContainer(); _multi.AddThemeConstantOverride("separation", Ui.Px(2)); margin.AddChild(_multi);
         foreach (var stage in _hud.Session.BarnDiagnostic ? _hud.Session.Stages : FestivalStages.All)
         {
-            if (_rows.Count > 0) _multi.AddChild(new ColorRect { Color = Ui.PaperRule, CustomMinimumSize = new Vector2(0, 1) });
             var row = new VBoxContainer(); row.AddThemeConstantOverride("separation", 0); _multi.AddChild(row);
+            if (_rows.Count > 0) row.AddChild(new ColorRect { Color = Ui.PaperRule, CustomMinimumSize = new Vector2(0, 1) });
             var top = new HBoxContainer(); row.AddChild(top);
             var name = Ui.Caps(Main.StageTitle(stage), Ui.InkMuted, 9.5f); name.SizeFlagsHorizontal = Control.SizeFlags.ExpandFill; top.AddChild(name);
             var state = Ui.Caps("", Ui.Gold, 9.5f); top.AddChild(state);
@@ -115,7 +115,7 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
             var countdown = Ui.Heading("", 17, Ui.Link); countdown.HorizontalAlignment = HorizontalAlignment.Right; middle.AddChild(countdown);
             var detail = Ui.Text("", 12, Ui.InkMuted); row.AddChild(detail);
             var play = Ui.Text("", 12, Ui.Ink, Ui.BodyBold); play.MouseFilter = Control.MouseFilterEnum.Pass; row.AddChild(play);
-            _rows.Add(new StageRow(stage.Id, state, act, countdown, detail, play));
+            _rows.Add(new StageRow(stage.Id, row, state, act, countdown, detail, play));
         }
     }
 
@@ -199,6 +199,8 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
         foreach (var row in _rows)
         {
             var id = row.StageId;
+            row.Root.Visible = session.Stages.Any(stage => stage.Id == id);
+            if (!row.Root.Visible) continue;
             var stage = FestivalStages.Find(id)!;
             var live = session.CaptureLivePerformance(id);
             var programme = session.CaptureProgramme(id);

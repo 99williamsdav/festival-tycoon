@@ -509,7 +509,7 @@ public sealed partial class GameSession
             { WonOver = record.WonOverIds?.Length ?? 0, WalkedOff = record.WalkedOffIds?.Length ?? 0, AverageCrowdTenths = record.AverageCrowdTenths })).ToArray() is { Length: > 0 } all ? all : null;
 
     /// <summary>How many stages a festival at this tier ran.</summary>
-    private static int StageCountAt(int tier, bool pondStageTrial) => FestivalStages.For(pondStageTrial || tier >= PondStageFromTier).Count;
+    private static int StageCountAt(int tier, bool pondStageTrial) => FestivalStages.For(tier, pondStageTrial).Count;
     /// <summary>The crowd an act expects at a festival of this tier.</summary>
     private static int ExpectedCrowdAt(int tier, int stages, FestivalAct act) => GigRules.ExpectedCrowd(FestivalTickets.Sold(tier), stages, act.Popularity,
         ActCatalogue.ExpectedPopularity(FestivalTickets.PricePennies(tier)));
@@ -747,7 +747,7 @@ public sealed partial class GameSession
             return invalid;
         foreach (var festival in history.GroupBy(gig => gig.Tier))
             if (festival.Select(gig => gig.ActId).Distinct().Count() != festival.Count() ||
-                festival.Count() > FestivalStages.For(pondStageTrial || festival.Key >= PondStageFromTier).Sum(stage => stage.SlotCount))
+                festival.Count() > FestivalStages.For(festival.Key, pondStageTrial).Sum(stage => stage.SlotCount))
                 return invalid;
         // Relationships and popularity both follow from those sets, scored again here.
         var (expected, popularity) = Replay(history, pondStageTrial);

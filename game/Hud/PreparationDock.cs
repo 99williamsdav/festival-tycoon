@@ -265,6 +265,8 @@ internal sealed class PreparationDock(IHudHost _hud, IPreparationNavigation _nav
         "programme" => ("Three acts booked", "Book three acts"),
         "staff" => ("Sound engineer hired", "Hire a sound engineer"),
         "programme.stage.pond" => ("Pond Stage acts booked", "Book three Pond Stage acts"),
+        "programme.stage.barn" => ("Barn Stage acts booked", "Book three Barn Stage acts"),
+        "staff.second" => (requirement.Label, "Hire the second stage's engineer"),
         "staff.pond" => ("Pond Stage engineer hired", "Hire a Pond Stage engineer"),
         "medic" => ("Medic hired", "Hire a medic"),
         "steward" => ("Steward hired", "Hire a steward"),

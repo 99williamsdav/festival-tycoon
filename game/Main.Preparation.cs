@@ -61,7 +61,7 @@ public partial class Main
             (_selectedToilet && _selectedToiletId is { } toiletId && _toiletViews.TryGetValue(toiletId, out var selectedToilet) && ContextVisualAvailable(selectedToilet.Body)) ||
             (_selectedSecurityPost && _session.CaptureDisorder() is not null && _securityPostPickId != 0) ||
             (_selectedGenerator && _session.CaptureEquipment() is not null && ContextVisualAvailable(_equipmentVisual)) ||
-            (_selectedPond is not null && _pondStage is { Visible: true }) ||
+            (_selectedPond is not null && _pondStage is { Visible: true }) || _selectedBarnGenerator ||
             (_selectedCowId is { } cowId && _looseCows.ContainsKey(cowId));
         if (Dock.Readiness is { } readiness)
             readiness.Visible = Dock.Visible && !((IPreparationNavigation)this).ReadinessCovered;
@@ -292,7 +292,7 @@ private void RebuildPreparationOffers()
     private void AdvancePreparationPresentation(double delta)
     {
         var workStarted = Stopwatch.GetTimestamp();
-        if (_fisticuffsEvidenceOutput is null && _barnEvidenceOutput is null) _host.Advance(delta, session => _foundationPresentation.Advance(session.CaptureObservation()));
+        if (_fisticuffsEvidenceOutput is null && _barnEvidenceOutput is null && _barnCampaignEvidenceOutput is null) _host.Advance(delta, session => _foundationPresentation.Advance(session.CaptureObservation()));
         else _foundationPresentation.Reset(_session.CaptureObservation()); // Diagnostic owns its explicit simulation steps, never saves.
         SyncSaveStatus();
         var presentationStarted = Stopwatch.GetTimestamp();
@@ -351,8 +351,8 @@ private void RebuildPreparationOffers()
             }
             var renderedPosition = new Vector3((float)(position.XMillimetres / 1000), 0.04f, (float)(position.ZMillimetres / 1000));
             var barnCell = TraversalGrid.WorldToCell((int)position.XMillimetres,(int)position.ZMillimetres);
-            if (BarnLayout.Deck(barnCell)) renderedPosition.Y=.9f;
-            else if (BarnLayout.Stairs(barnCell)) renderedPosition.Y=BandHeight(BarnLayout.Stage,renderedPosition,true);
+            if (_session.BarnStageOpen && BarnLayout.Deck(barnCell)) renderedPosition.Y=.9f;
+            else if (_session.BarnStageOpen && BarnLayout.Stairs(barnCell)) renderedPosition.Y=BandHeight(BarnLayout.Stage,renderedPosition,true);
             // How fast they're really moving, smoothed over a few frames, sets a walking guest's stride.
             var moved = _lastPresentedPersonPositions.TryGetValue(agent.Id, out var before) && characterDelta > 0
                 ? new Vector3(renderedPosition.X - before.X, 0, renderedPosition.Z - before.Z).Length() / (float)characterDelta : 0f;

@@ -69,7 +69,7 @@ public partial class Main
             _barnEvidenceLabel.AddThemeFontSizeOverride("font_size",16);
             _rig.Frame(new(0,3.5f,-23),26);_rig.Rotate(1);
             BarnCheck("distinct-stage-and-generator",_session.Stages[1].Id=="stage.barn" && _session.CaptureStageGenerator("stage.barn") is {XMillimetres:7_000,ZMillimetres:-13_500});
-            BarnCheck("normal-allocation-unchanged",FestivalStages.All.Count==2 && !FestivalStages.All.Any(s=>s.Id=="stage.barn"));
+            BarnCheck("normal-two-stage-allocation",FestivalStages.For(2).Count==2 && FestivalStages.For(2)[1].Id==FestivalStages.BarnId);
             BarnCheck("explicit-barn-fade-groups",_barnFade?.RoofCount==9);
             var barn=_visualRegistry["farm.large-barn"];
             BarnCheck("no-full-building-pick-box",barn.GetChildren().OfType<CollisionShape3D>().All(c=>c.Shape is BoxShape3D box && box.Size.X<.3f && box.Size.Z<.3f));
@@ -85,7 +85,7 @@ public partial class Main
         if(frame<450)
         {
             _barnTicks+=80;_session.AdvanceWithoutSnapshot(_barnTicks/30);_barnTicks%=30;
-            _barnEvidenceLabel.Text="CONTROLLED BARN FIXTURE · production navigation / real programme\nSeparate test slot, crew and outside generator; normal campaign allocation unchanged.";
+            _barnEvidenceLabel.Text="CONTROLLED BARN FIXTURE · production navigation / real programme\nExisting second-slot timings, paid crew and outside generator; campaign conversion opens at Tier 2.";
             ProcessDayCycle(1.0/30);ProcessRain();AdvancePreparationPresentation(1.0/30);ProcessBarnStage(1.0/30);
             var live=_session.CaptureLivePerformance("stage.barn")!;
             _barnTrace.Add(new{frame,tick=_session.CurrentTick,live.Stage,live.PlannedTick,live.StartedTick,occupants=_session.BarnOccupants,

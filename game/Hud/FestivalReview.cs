@@ -143,7 +143,9 @@ internal static class FestivalReview
         text += $"The {Ordinal(f.Tier)} {FestivalName} {(f.EarlierTragedy ? "went ahead" : f.Tier == 1 ? "opened" : "returned to the farm")} " +
             (f.Rain ? $"under grey skies, with {Count(f.Showers, "heavy shower")}{(f.Downpour ? " and one proper downpour" : "")} across the day. "
                 : f.Heat ? "under a blazing sun, in the middle of a heatwave. " : "under open skies. ");
-        if (f.Tier >= GameSession.PondStageFromTier && f.Sets.Any(set => set.Record.StageId == FestivalStages.PondId))
+        if (f.Sets.Any(set => set.Record.StageId == FestivalStages.BarnId))
+            text += "New this year was a second stage under cover in the farm barn. ";
+        else if (f.Sets.Any(set => set.Record.StageId == FestivalStages.PondId))
             text += "New this year was a second stage down by the farm pond. ";
         text += r.GuestCount == 0 ? $"All {f.Sold} tickets were sold, yet nobody turned up to use one." :
             r.GuestCount >= f.Sold ? $"All {f.Sold} ticket-holders made the trip" + (played > 0 ? $", and {Count(played, "act")} {(played == 1 ? "was" : "were")} there to play for them." : ".") :

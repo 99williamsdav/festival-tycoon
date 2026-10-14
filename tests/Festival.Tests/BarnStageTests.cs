@@ -50,9 +50,9 @@ public sealed class BarnStageTests
         Assert.ThrowsExactly<InvalidOperationException>(()=>fixture.CapturePersistenceSnapshot());
         CollectionAssert.AreEqual(new[]{FestivalStages.MainId},GameSession.CreateBuildCampaign(20260922).Stages.Select(s=>s.Id).ToArray());
         CollectionAssert.AreEqual(new[]{FestivalStages.MainId,FestivalStages.PondId},GameSession.CreateBuildCampaign(20260922,true).Stages.Select(s=>s.Id).ToArray());
-        CollectionAssert.AreEqual(new[]{FestivalStages.MainId,FestivalStages.PondId},GameSession.CreateDevelopmentFestival(20260922,2).Stages.Select(s=>s.Id).ToArray());
-        Assert.AreEqual(2,FestivalStages.All.Count);
-        Assert.IsTrue(GameSession.OnStageCells(FestivalStages.MainOnly,BarnLayout.Stage.PerformerMarks[0]),"Physical deck stays raised without activating a programme.");
+        CollectionAssert.AreEqual(new[]{FestivalStages.MainId,FestivalStages.BarnId},GameSession.CreateDevelopmentFestival(20260922,2).Stages.Select(s=>s.Id).ToArray());
+        Assert.AreEqual(3,FestivalStages.All.Count,"The catalogue retains Pond for its legacy trial/future use, while campaigns run at most two stages.");
+        Assert.IsFalse(GameSession.OnStageCells(FestivalStages.MainOnly,BarnLayout.Stage.PerformerMarks[0]),"An unconverted barn has no raised deck.");
     }
     [TestMethod]
     public void CuttingBarnPowerInterruptsOnlyItsOwnSet()
@@ -174,7 +174,7 @@ public sealed class BarnStageTests
     [TestMethod]
     public void HandsOnPlayerClimbsThePhysicalBarnStairAndCannotStepOffItsTread()
     {
-        var session=GameSession.CreateStewardShift(20260922,1);
+        var session=GameSession.CreateStewardShift(20260922,2);
         var stand=typeof(StewardShiftStageTests).GetMethod("Stand",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic)!;
         void Move(int x,int z)=>BuildSession.Accept(session,new SetPlayerMoveCommand(x,z,false,StewardShiftRules.FacingTowards(x==0&&z==0?1:x,z)));
         NavigationObservation At()=>session.CaptureObservation().NavigationAgents.Single(n=>n.Id.Value==session.PlayerStewardId);
@@ -186,7 +186,7 @@ public sealed class BarnStageTests
         Assert.IsTrue(At().XMillimetres>=6_650,"Manual input must stop before feet leave the tread top.");
         Move(1000,0);session.AdvanceWithoutSnapshot(40);Move(0,0);
         Assert.IsTrue(At().XMillimetres<7_100,"Manual input must stay clear of the high rail.");
-        CollectionAssert.AreEqual(new[]{FestivalStages.MainId},session.Stages.Select(s=>s.Id).ToArray());
+        CollectionAssert.AreEqual(new[]{FestivalStages.MainId,FestivalStages.BarnId},session.Stages.Select(s=>s.Id).ToArray());
     }
     [TestMethod]
     public void ContinuousStairClearanceRejectsRailAndTreadEdgeCrossings()

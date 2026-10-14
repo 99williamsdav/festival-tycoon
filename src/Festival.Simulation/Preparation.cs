@@ -184,8 +184,8 @@ public sealed partial class GameSession
         if (_disorder is not null) offers = offers.Concat(candidates.Where(c => c.Role != StaffRole.Sound).Select(c => new PreparationOffer(c.ExtraOfferId,
             StaffCatalogue.Category(c.Role, true), $"{c.Name} · extra {StaffCatalogue.RoleName(c.Role)}", c.WagePennies, 0, -1))).ToArray();
         // The Pond Stage's own engineer comes from the same sound market, as the extra sound slot.
-        if (PondStageOpen) offers = offers.Concat(candidates.Where(c => c.Role == StaffRole.Sound).Select(c => new PreparationOffer(c.ExtraOfferId,
-            StaffCatalogue.Category(c.Role, true), $"{c.Name} · Pond Stage {StaffCatalogue.RoleName(c.Role)}", c.WagePennies, 0, -1))).ToArray();
+        if (SecondStageOpen) offers = offers.Concat(candidates.Where(c => c.Role == StaffRole.Sound).Select(c => new PreparationOffer(c.ExtraOfferId,
+            StaffCatalogue.Category(c.Role, true), $"{c.Name} · {Stages[1].ShortName} {StaffCatalogue.RoleName(c.Role)}", c.WagePennies, 0, -1))).ToArray();
         offers = offers.Where(offer => offer.Category != "act").Concat(FestivalActs.Select(act => new PreparationOffer(act.Id, "act", act.Name, ActFee(act), 1000, act.Genre))).ToArray();
         return offers;
     }
@@ -216,9 +216,9 @@ public sealed partial class GameSession
         var hires = p.Plan?.OfferIds ?? p.WorkContracts;
         requirements.Add(new("staff", PreparationStartOwner.Staff, "Sound engineer hired",
             hires.Any(id => id.StartsWith("staff.sound.", StringComparison.Ordinal)), "Hire a sound engineer from the Staff tab before opening."));
-        if (PondStageOpen)
-            requirements.Add(new("staff.pond", PreparationStartOwner.Staff, "Pond Stage sound engineer hired",
-                hires.Any(id => id.StartsWith("staff.extra-sound.", StringComparison.Ordinal)), "Hire a second sound engineer for the Pond Stage from the Staff tab before opening."));
+        if (SecondStageOpen)
+            requirements.Add(new("staff.second", PreparationStartOwner.Staff, $"{Stages[1].ShortName} sound engineer hired",
+                hires.Any(id => id.StartsWith("staff.extra-sound.", StringComparison.Ordinal)), $"Hire a second sound engineer for the {Stages[1].ShortName} from the Staff tab before opening."));
         if (_medical is not null)
             requirements.Add(new("medic", PreparationStartOwner.Staff, "Medic hired",
                 hires.Any(id => id.StartsWith("staff.medic.", StringComparison.Ordinal)), "The licence needs a medic on site. Hire one from the Staff tab."));
@@ -253,7 +253,7 @@ public sealed partial class GameSession
             if (offer.Category is "extra-medic" or "extra-steward" &&
                 (!(offer.Category == "extra-medic" ? p.ExtraMedicSlotOwned : p.ExtraStewardSlotOwned) || PeopleIn(PersonView.Roster).Length >= MaxActivePeople))
                 return CommandResult.Rejected(CommandReasonCode.InvalidParameter, $"Requires the matching role slot and room below {MaxActivePeople} active people.");
-            if (StaffCatalogue.ForOffer(GetStaffCandidates(), offer.Id) is { } candidate && (candidate.Role != StaffRole.Sound || PondStageOpen))
+            if (StaffCatalogue.ForOffer(GetStaffCandidates(), offer.Id) is { } candidate && (candidate.Role != StaffRole.Sound || SecondStageOpen))
             {
                 var other = offer.Category.StartsWith("extra-", StringComparison.Ordinal) ? candidate.Id : candidate.ExtraOfferId;
                 if ((p.Plan is { Committed: false } held ? held.OfferIds : p.AcceptedOffers).Contains(other))
@@ -314,7 +314,7 @@ public sealed partial class GameSession
     {
         CommitPreparationPlan();
         var p = _preparation!;
-        _traversalGrid = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
+        _traversalGrid = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain(BarnStageOpen));
         if (_equipment is { } unit)
         {
             var terrain = _traversalGrid.Overrides.ToDictionary(item => item.Key, item => item.Value);

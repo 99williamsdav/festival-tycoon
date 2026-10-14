@@ -38,7 +38,8 @@ public static class StaffCatalogue
     /// <summary>The offer category for hiring into a role's main slot or its perk-granted second slot.</summary>
     public static string Category(StaffRole role, bool extra) => extra ? "extra-" + Key(role) : role == StaffRole.Sound ? "staff" : Key(role);
     public static bool IsWorkCategory(string category) => category is "staff" or "medic" or "steward" or "maintenance" or "extra-medic" or "extra-steward" or "extra-sound";
-    public static bool IsVacancy(string name) => name == PondSoundVacancy || Enum.GetValues<StaffRole>().Any(role => Vacancy(role) == name);
+    public static bool IsVacancy(string name) => name == PondSoundVacancy || name == "Barn Stage sound engineer (unhired)" || Enum.GetValues<StaffRole>().Any(role => Vacancy(role) == name);
+    public static string SecondSoundVacancy(FestivalStage stage) => stage.ShortName + " sound engineer (unhired)";
     /// <summary>The Pond Stage's own engineer slot, before anyone is hired into it (its offers are the sound extras).</summary>
     public const string PondSoundVacancy = "Pond Stage sound engineer (unhired)";
     public static string Vacancy(StaffRole role) => role switch { StaffRole.Sound => "Sound engineer (unhired)", StaffRole.Medic => "Medic (unhired)", _ => "Steward (unhired)" };

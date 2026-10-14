@@ -73,7 +73,7 @@ public sealed partial class GameSession
         SetUpHotWeather(session);
         SetUpSecurity(session, seed);
         SetUpProgramme(session, seed);
-        if (session.PondStageOpen) SetUpPondStage(session);
+        if (session.SecondStageOpen) SetUpSecondStage(session);
         SetUpWeather(session, seed, tier);
         // Last, so a classic campaign's identities never move.
         if (mode == CampaignMode.HandsOn) SetUpHandsOnSteward(session);
@@ -188,13 +188,13 @@ public sealed partial class GameSession
     }
 
     /// <summary>The Pond Stage: its sound engineer's slot, its nine band members and three sets, and its own generator.</summary>
-    private static void SetUpPondStage(GameSession session)
+    private static void SetUpSecondStage(GameSession session)
     {
         var p = session.PreparationView!;
         var people = p.People.ToList();
         var engineer = session.NextEntityId++;
         session._wallets.Add(new(engineer), new WalletState { OwnerId = new(engineer), CashPennies = 500 });
-        people.Add(new(engineer, StaffCatalogue.PondSoundVacancy, ProtectedPersonRole.Staff, 0));
+        people.Add(new(engineer, StaffCatalogue.SecondSoundVacancy(session.Stages[1]), ProtectedPersonRole.Staff, 0));
         var band = new List<ulong>();
         foreach (var name in PondBandNames)
         {
@@ -208,9 +208,9 @@ public sealed partial class GameSession
         session.PreparationView = p with { People = people.OrderBy(person => person.AgentId).ToArray() };
         session.MedicalView = session.MedicalView! with { Needs = session.MedicalView.Needs.OrderBy(need => need.AgentId).ToArray() };
         session._programme = session._programme! with { Stages = [.. session._programme.Stages,
-            new(FestivalStages.PondId, [], band.Select((id, i) => new ProgrammePerformer(id, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts") { EngineerId = engineer }] };
+            new(session.Stages[1].Id, [], band.Select((id, i) => new ProgrammePerformer(id, i / 3, i % 3)).ToArray(), -1, -1, "Choose three acts") { EngineerId = engineer }] };
         session._livePerformances = new LivePerformanceSnapshot?[session.Stages.Count];
-        if (session._equipment?.Version == 3) session._stageGenerators = [NewPondGenerator()];
+        if (session._equipment?.Version == 3) session._stageGenerators = [NewSecondStageGenerator(session.Stages[1])];
     }
 
     private static readonly string[] PondBandNames =

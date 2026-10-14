@@ -66,6 +66,7 @@ public partial class Main
         ResetFinanceFeedback(); ResetLivePerformancePresentation();
         ResetMedicalCuePresentation(); ResetDisorderCuePresentation();
         SyncExtraWaterWorld(); SyncResponsePosts(); SyncImmersionWorld();
+        ProcessPondStage(0); ProcessBarnStage(0);
         if (_session.CaptureObservation().NavigationAgents.Count > 0) BuildAttendee();
         RebuildPreparationOffers(); SelectHudTab("Programme"); RefreshPreparationHud();
         _newCampaignOnEnter = false;

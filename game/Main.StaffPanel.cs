@@ -29,7 +29,7 @@ public partial class Main
 
     private static readonly (string Key, StaffRole? Role, bool Extra, string Name)[] StaffSlots =
     [
-        ("sound", StaffRole.Sound, false, "Sound engineer"), ("extra-sound", StaffRole.Sound, true, "Pond Stage sound engineer"),
+        ("sound", StaffRole.Sound, false, "Sound engineer"), ("extra-sound", StaffRole.Sound, true, "Second stage sound engineer"),
         ("medic", StaffRole.Medic, false, "Medic"), ("steward", StaffRole.Steward, false, "Steward"),
         ("extra-medic", StaffRole.Medic, true, "Extra medic"), ("extra-steward", StaffRole.Steward, true, "Extra steward"), ("maintenance", null, false, "Maintenance"),
     ];
@@ -199,7 +199,7 @@ public partial class Main
         var key = StaffCatalogue.Key(c.Role);
         if (!hires.Any(id => id.StartsWith($"staff.{key}.", StringComparison.Ordinal))) return c.Id;
         // A second sound engineer runs the Pond Stage while it's open.
-        var extraOwned = c.Role == StaffRole.Medic ? p.ExtraMedicSlotOwned : c.Role == StaffRole.Steward ? p.ExtraStewardSlotOwned : _session.PondStageOpen;
+        var extraOwned = c.Role == StaffRole.Medic ? p.ExtraMedicSlotOwned : c.Role == StaffRole.Steward ? p.ExtraStewardSlotOwned : _session.SecondStageOpen;
         return extraOwned && !hires.Any(id => id.StartsWith($"staff.extra-{key}.", StringComparison.Ordinal)) ? c.ExtraOfferId : c.Id;
     }
 
@@ -232,7 +232,7 @@ public partial class Main
         if (!_staffPanelBuilt || _session.CapturePreparation() is not { } p) return;
         var candidates = _session.GetStaffCandidates();
         SyncStaffRows(candidates);
-        _staffCrewNote!.Text = _session.PondStageOpen ? "A sound engineer for each stage, a medic and a steward are required. Paid at Start."
+        _staffCrewNote!.Text = _session.SecondStageOpen ? "A sound engineer for each stage, a medic and a steward are required. Paid at Start."
             : "A sound engineer, a medic and a steward are required. Paid at Start.";
         var hires = StaffHires(p);
         var preparing = p.Status == PreparationStatus.Preparing;
@@ -240,7 +240,7 @@ public partial class Main
         foreach (var (key, role, extra, name) in StaffSlots)
         {
             var view = _staffSlots[key];
-            var owned = key switch { "extra-medic" => p.ExtraMedicSlotOwned, "extra-steward" => p.ExtraStewardSlotOwned, "extra-sound" => _session.PondStageOpen,
+            var owned = key switch { "extra-medic" => p.ExtraMedicSlotOwned, "extra-steward" => p.ExtraStewardSlotOwned, "extra-sound" => _session.SecondStageOpen,
                 "maintenance" => offers.ContainsKey("maintenance.worker"), _ => true };
             view.Card.Visible = owned;
             if (!owned) continue;
@@ -249,7 +249,8 @@ public partial class Main
             var required = !extra && key != "maintenance" || key == "extra-sound";
             // From Tier 2 the second medic slot comes with the tier, not a perk.
             var tierSlot = key == "extra-medic" && p.Tier >= GameSession.FreeExtraMedicFromTier;
-            view.Caption.Text = $"{name} · {(required ? "required" : tierSlot ? "optional" : extra ? "perk slot" : "optional")}".ToUpperInvariant();
+            var slotName = key == "extra-sound" ? _session.Stages[1].ShortName + " sound engineer" : name;
+            view.Caption.Text = $"{slotName} · {(required ? "required" : tierSlot ? "optional" : extra ? "perk slot" : "optional")}".ToUpperInvariant();
             var colour = StaffRoleColour(role);
             if (held is not null)
             {
@@ -278,7 +279,7 @@ public partial class Main
                 else
                 {
                     view.Title.Text = key == "extra-sound" ? "Hire a second sound engineer" : $"Hire a{(role == StaffRole.Sound ? "" : extra ? "nother" : "")} {StaffCatalogue.RoleName(role!.Value)}";
-                    view.Detail.Text = key == "extra-sound" ? "Mixes the Pond Stage · pick from the list" : required ? "Required before Start · pick from the list" : "Your perk adds this slot";
+                    view.Detail.Text = key == "extra-sound" ? $"Mixes the {_session.Stages[1].ShortName} · pick from the list" : required ? "Required before Start · pick from the list" : "Your perk adds this slot";
                     view.Action.Visible = false;
                 }
             }
@@ -298,7 +299,7 @@ public partial class Main
             row.Hire.Disabled = !preparing || main || second || issue is not null;
             row.Hire.TooltipText = main || second ? $"{c.Name} is on your crew; remove them from the slot on the left." :
                 issue ?? (replacedName is not null ? $"Hire {c.Name} in place of {replacedName}." :
-                    $"Hire {c.Name} as your {(target == c.ExtraOfferId ? c.Role == StaffRole.Sound ? "Pond Stage " : "extra " : "")}{StaffCatalogue.RoleName(c.Role)}.");
+                    $"Hire {c.Name} as your {(target == c.ExtraOfferId ? c.Role == StaffRole.Sound ? _session.Stages[1].ShortName + " " : "extra " : "")}{StaffCatalogue.RoleName(c.Role)}.");
             row.Row.Modulate = main || second ? new Color(1, 1, 1, 0.6f) : Colors.White;
         }
         var shown = candidates.Count(c => _staffRoleShown is null || c.Role == _staffRoleShown);

@@ -16,7 +16,7 @@ public sealed class PooledPowerTests
         Assert.AreEqual(PowerRules.BasicRigDraw, plan.OtherStages, "The Pond Stage's rig draws from the pool.");
         Assert.AreEqual(4 * PowerRules.StallDraw, plan.Bar + plan.Food, "Two bars and two vans in the default.");
         Assert.IsFalse(plan.Over, $"The default's evening peak, {plan.Total}, fits the pool's {plan.Capacity}.");
-        Assert.AreEqual(plan, s.CaptureStagePower(FestivalStages.PondId), "The Pond generator shows the same pooled supply.");
+        Assert.AreEqual(plan, s.CaptureStagePower(FestivalStages.BarnId), "The Barn generator shows the same unchanged pooled supply.");
         BuildSession.Accept(s, new AcceptPreparationOfferCommand(PowerRules.GeneratorOffer));
         Assert.AreEqual(PowerRules.HiredGeneratorCapacity + StageGeneratorRules.PondCapacity, s.CapturePower().Capacity);
     }
@@ -31,7 +31,7 @@ public sealed class PooledPowerTests
             s.AdvanceWithoutSnapshot(400);
             Assert.IsFalse(s.CapturePower().Over, $"Over at {s.CurrentTick}: {s.CapturePower()}");
             Assert.AreEqual(0, s.CaptureEquipment()!.Strain);
-            Assert.AreEqual(0, s.CaptureStageGenerator(FestivalStages.PondId)!.Strain);
+            Assert.AreEqual(0, s.CaptureStageGenerator(FestivalStages.BarnId)!.Strain);
         }
     }
 

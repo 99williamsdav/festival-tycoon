@@ -194,7 +194,7 @@ public sealed class BandRelationshipTests
         Assert.AreNotEqual(ActCatalogue.Fee(s.Standing, liked), s.ActFee(liked));
         Assert.AreEqual(s.ActFee(liked), s.GetPreparationOffers().Single(offer => offer.Id == liked.Id).PricePennies);
         Send(s, new SetProgrammeCommand([liked.Id, disliked.Id, acts[2].Id]));
-        Send(s, new SetProgrammeCommand(acts[3..6].Select(act => act.Id).ToArray()) { StageId = FestivalStages.PondId });
+        Send(s, new SetProgrammeCommand(acts[3..6].Select(act => act.Id).ToArray()) { StageId = s.Stages[1].Id });
         Assert.AreEqual(basePlan + new[] { liked, disliked }.Concat(acts[2..6]).Sum(act => (long)s.ActFee(act)), s.PreparationPlanCost);
         Send(s, new SetPreparationStockCommand(40, 32));
         foreach (var hire in BuildSession.Crew(s)) Send(s, hire);

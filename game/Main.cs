@@ -40,7 +40,7 @@ public partial class Main : Node, IHudHost
     private int? _startTier;
     /// <summary>--pond-stage-trial: a campaign that runs the Pond Stage, at Tier 1 or the --start-tier; never set in normal play.</summary>
     private bool _pondStageTrialFlag;
-    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v97", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v97");
+    private SaveCompatibility _saveCompatibility => new("0.0.1-r0-build-v98", LowerWitteringFarmScenario.ContentCompatibilityHash, "r0-build-v98");
 
     public override void _Ready()
     {
@@ -77,6 +77,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if (_barnCampaignEvidenceOutput is not null) { ProcessBarnCampaignEvidence(); return; }
         if (_developmentTierEvidenceOutput is not null) { ProcessDevelopmentTierEvidence(); return; }
         if (_barnEvidenceOutput is not null) { ProcessBarnEvidence(delta); return; }
         if (_fisticuffsEvidenceOutput is not null) { ProcessFisticuffsEvidence(); return; }
@@ -430,6 +431,7 @@ public partial class Main : Node, IHudHost
         if (collider is not null && _attendeePickRegistry.TryGetValue(collider.GetInstanceId(), out var attendeeId)) SelectAttendee(attendeeId);
         else if (collider is not null && TrySelectCow(collider)) { }
         else if (collider is not null && collider.GetInstanceId() == _generatorPickId) SelectGenerator();
+        else if (collider is not null && TrySelectBarnGenerator(collider)) { }
         else if (collider is not null && TrySelectPond(collider)) { }
         else if (collider is not null && _immersionVendorPicks.TryGetValue(collider.GetInstanceId(), out var vendorId)) SelectImmersionVendor(vendorId);
         // A double-click on an occupied toilet picks whoever is inside, as there's nothing else of them to click.
@@ -485,7 +487,7 @@ public partial class Main : Node, IHudHost
         _selectedToilet = false;
         ClearSecurityPostSelection();
         RefreshMedicalNeedBars(null);
-        _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _selectedWaterPointId = "water.main"; _selectedPond = null;
+        _selected = null; _selectedAttendeeId = null; _selectedMedicalFacility = null; _selectedWaterPointId = "water.main"; _selectedPond = null; _selectedBarnGenerator = false;
         _selectedCowId = null; if (_herdCowButton is not null) _herdCowButton.Visible = false;
         _highlight.Visible = false; _inspectorTitle.Text = "Nothing selected";
         RefreshStagePowerAction();
@@ -545,6 +547,7 @@ public partial class Main : Node, IHudHost
     {
         if (_session.CaptureEquipment() is null) return;
         BuildPondStageAction(parent);
+        BuildBarnStageAction(parent);
         _stagePowerButton = ButtonText("Shut off stage supply", () =>
             CommitEquipmentAction(new EquipmentCommand(EquipmentAction.Isolate)));
         _stagePowerButton.Visible = false;
@@ -555,6 +558,7 @@ public partial class Main : Node, IHudHost
     private void RefreshStagePowerAction()
     {
         RefreshPondCutButton();
+        RefreshBarnCutButton();
         if (_stagePowerButton is null) return;
         // Only once the festival is running: before then there's no supply to shut off.
         _stagePowerButton.Visible = (_selected?.Kind == FarmObjectKind.TrailerStage || _selectedGenerator) &&
@@ -614,6 +618,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-now-playing" && i + 1 < args.Length) { _nowPlayingEvidenceOutput = args[++i]; _startTier = 2; }
             else if (args[i] == "--capture-fisticuffs" && i + 1 < args.Length) { _fisticuffsEvidenceOutput = args[++i]; _startTier = 1; }
             else if (args[i] == "--capture-lav-hose" && i + 1 < args.Length) { _lavHoseEvidenceOutput = args[++i]; _startTier = 1; }
+            else if (args[i] == "--capture-barn-campaign" && i + 1 < args.Length) _barnCampaignEvidenceOutput = args[++i];
             else if (args[i] == "--capture-development-tiers" && i + 1 < args.Length) _developmentTierEvidenceOutput = args[++i];
             else if (args[i] == "--capture-barn" && i + 1 < args.Length) _barnEvidenceOutput = args[++i];
             else if (args[i] == "--fisticuffs-checks-only") _fightEvidenceChecksOnly = true;
@@ -646,8 +651,9 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
+        _barnCampaignEvidenceOutput is not null ? System.IO.Path.Combine(_barnCampaignEvidenceOutput,"diagnostic-saves") :
         _developmentTierEvidenceOutput is not null ? System.IO.Path.Combine(_developmentTierEvidenceOutput,"diagnostic-saves") :
-        _barnEvidenceOutput is not null ? System.IO.Path.Combine(_barnEvidenceOutput,"unused-diagnostic-save") : ProjectSettings.GlobalizePath("user://saves/r0-build-v97");
+        _barnEvidenceOutput is not null ? System.IO.Path.Combine(_barnEvidenceOutput,"unused-diagnostic-save") : ProjectSettings.GlobalizePath("user://saves/r0-build-v98");
 
 
 

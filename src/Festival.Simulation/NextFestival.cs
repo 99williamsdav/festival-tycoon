@@ -88,7 +88,7 @@ public sealed partial class GameSession
     private static GameSession CreateLaterFestivalIn(CampaignMode mode, ulong seed, CampaignId campaignId, int tier, FestivalCarryOver carry,
         FestivalStanding standing, string[] seenActs, CampaignPlanningState? identity, bool pondStageTrial)
     {
-        // A Pond Stage trial campaign stays one at the next tier, and a hands-on campaign stays hands-on.
+        // Keep the legacy trial flag and mode; Tier 2's authoritative allocation always converts the Barn.
         var next = CreateBuildCampaign(seed, tier, carry, campaignId, pondStageTrial: pondStageTrial, mode: mode);
         next.PreparationView = next.PreparationView! with { Reputation = standing.Reputation,
             SceneCredibility = standing.SceneCredibility.ToArray(), SeenActs = seenActs.ToArray() };

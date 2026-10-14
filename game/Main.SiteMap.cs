@@ -33,7 +33,7 @@ public partial class Main
     private readonly Dictionary<string, SiteSticker> _siteStickers = new(StringComparer.Ordinal);
     private readonly Dictionary<string, Texture2D> _siteArt = new(StringComparer.Ordinal);
     private int _siteTier = 1;
-    private bool _sitePond;
+    private bool _sitePond, _siteBarn;
     private float _planT, _planRefresh, _miniAlpha = 1;
     private Vector3 _armBob;
 
@@ -81,6 +81,7 @@ public partial class Main
         }
         _siteStands = stands.ToArray();
         _sitePond = _session.Stages.Any(stage => stage.Id == FestivalStages.PondId);
+        _siteBarn = _session.BarnStageOpen;
         _siteTier = _session.CapturePreparation()?.Tier ?? 1;
         var notes = new List<(string, float, float, bool)> { ("IN / OUT", 0 - 6.5f, 32 - 2f, false), ("keep the lane\nclear for Henry", -2 - 7.5f, -9, true) };
         if (_sitePond) notes.Add(("generator -\nno guests!", 14.25f + 12.75f, 18 - 7f, false));
@@ -271,6 +272,16 @@ public partial class Main
         PlanText(c, Ui.BodyBold, new Vector2(40, 34), "LOWER WITTERING FESTIVAL", 26, Ui.InkMuted);
         PlanText(c, Ui.SlabBold, new Vector2(40, 64), "Site plan", 54, Ui.Ink);
         PlanText(c, Ui.BodyBold, new Vector2(1360, 82), $"TIER {_siteTier} · STEWARDS' COPY", 22, Ui.Alert, "rt");
+        if (_siteBarn)
+        {
+            // The barn is north of the existing printed field crop: mark its edge rather than invent a new base map.
+            var at = PlanPoint(6.2f,-24.5f); at.Y = 150;
+            c.DrawLine(at,new Vector2(at.X,112),MarkerBlue,3);
+            PlanText(c,Ui.BodyBold,at+new Vector2(14,0),"BARN STAGE · under cover",21,MarkerBlue);
+            var generator = PlanPoint(BarnLayout.GeneratorX/1000f,BarnLayout.GeneratorZ/1000f);
+            c.DrawArc(generator,9,0,Mathf.Tau,24,MarkerBlue,2);
+            PlanText(c,Ui.BodyBold,generator+new Vector2(-32,-8),"generator outside",18,MarkerBlue,"rm");
+        }
 
         // Icons first, so the labels can keep clear of every one.
         var taken = new List<Rect2>();
@@ -386,6 +397,12 @@ public partial class Main
         {
             var s = Ui.S(units) * scale;
             c.DrawTextureRect(art, new Rect2(centre + local - new Vector2(s / 2, bottom ? s : s / 2), new Vector2(s, s)), false);
+        }
+        if (_siteBarn)
+        {
+            var local = MiniLocal(6.2f,-24.5f); if(local.Length()>Ui.S(75)) local=local.Normalized()*Ui.S(75);
+            c.DrawCircle(centre+local,Ui.S(8),Ui.Gold);
+            CentredText(c,Ui.BodyBold,centre+local,"B",10,Ui.Bar);
         }
         foreach (var stand in _siteStands)
         {

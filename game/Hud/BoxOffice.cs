@@ -238,17 +238,17 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         var p = session.CapturePreparation()!;
         var price = FestivalTickets.PricePennies(p.Tier);
         var sold = FestivalTickets.Sold(p.Tier);
-        var key = $"{session.CampaignSeed}:{p.Attempt}:{price}:{sold}:{session.PondStageOpen}";
+        var key = $"{session.CampaignSeed}:{p.Attempt}:{price}:{sold}:{string.Join(',', session.Stages.Select(stage => stage.Id))}";
         if (key == _key) return;
         _key = key;
         // A festival with the Pond Stage leads with its news: the second stage, with its own generator thrown in.
-        _upgrade!.Text = session.PondStageOpen ? "Big news: we've upgraded with a second stage, the Pond Stage, which comes with its own generator. Here's who's coming."
+        _upgrade!.Text = session.SecondStageOpen ? $"Big news: we've upgraded with a second stage, the {session.Stages[1].ShortName}, which comes with its own generator. Here's who's coming."
             : "Tickets went on sale in the spring. Here's who's coming, and what they think they've paid for.";
-        _upgrade.AddThemeColorOverride("font_color", session.PondStageOpen ? Ui.Gold : Ui.BarMuted);
-        _upgrade.AddThemeFontOverride("font", session.PondStageOpen ? Ui.BodyBold : Ui.Body);
-        _sets!.Text = session.PondStageOpen ? "One day on the farm · two stages, six sets" : "One day on the farm · three sets";
+        _upgrade.AddThemeColorOverride("font_color", session.SecondStageOpen ? Ui.Gold : Ui.BarMuted);
+        _upgrade.AddThemeFontOverride("font", session.SecondStageOpen ? Ui.BodyBold : Ui.Body);
+        _sets!.Text = session.SecondStageOpen ? "One day on the farm · two stages, six sets" : "One day on the farm · three sets";
         _ticketTier!.Text = $"ADMIT ONE · TIER {p.Tier}";
-        _nextLine!.Text = session.PondStageOpen ? "Next: build your site, book three acts for each stage and hire a sound engineer for each."
+        _nextLine!.Text = session.SecondStageOpen ? "Next: build your site, book three acts for each stage and hire a sound engineer for each."
             : "Next: build your site, book three acts and hire a sound engineer.";
         // The forecast, so the player can plan for it.
         if (session.Weather == WeatherKind.Rain)

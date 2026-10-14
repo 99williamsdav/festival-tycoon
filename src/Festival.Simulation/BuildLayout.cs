@@ -192,7 +192,7 @@ public sealed partial class GameSession
         var before = p.Tier - 1;
         return p.CarriedIn is null || before < 1 || previous.Length == 0 ||
             !previous.Select(item => item?.Id).SequenceEqual(previous.Select(item => item?.Id).Order(StringComparer.Ordinal)) ||
-            ValidateBuildLayout(previous, FestivalStages.For(pondStageTrial || before >= PondStageFromTier), null, false, before) is not null
+            ValidateBuildLayout(previous, FestivalStages.For(before, pondStageTrial), null, false, before) is not null
             ? "Last festival's layout is invalid." : null;
     }
 
@@ -340,7 +340,7 @@ public sealed partial class GameSession
             placements.Select(item => item.Id).Distinct(StringComparer.Ordinal).Count() != placements.Count ||
             BuildCatalogue.Any(entry => placements.Count(item => item.Kind == entry.Kind) > BuildServiceLimit(entry.Kind, tier)))
             return "Build identities or service limits are invalid.";
-        var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain());
+        var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain(stages.Any(stage => stage.Id == FestivalStages.BarnId)));
         var reserved = new HashSet<GridCell>();
         // The stage, its stairs and drawbar, and backstage behind the barriers.
         for (var x = 66; x <= 101; x++)
@@ -432,7 +432,7 @@ public sealed partial class GameSession
     private static bool BuildAccessClear(IReadOnlyList<BuildPlacement> placements, IReadOnlyList<FestivalStage> stages,
         EquipmentSnapshot? equipment, bool waterTowerOwned)
     {
-        var blocked = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain())
+        var blocked = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain(stages.Any(stage => stage.Id == FestivalStages.BarnId)))
             .Overrides.ToDictionary(pair => pair.Key, pair => pair.Value);
         void Block(GridCell cell) => blocked[cell] = new(cell, GroundSurface.Grass, false);
         foreach (var item in placements)

@@ -56,7 +56,7 @@ public sealed class NextFestivalTests
         // Tier 1's default is unchanged.
         Assert.IsFalse(GameSession.StandardBuildLayout(1).Any(item => item.Id is "water.extra-1" or "toilet.extra-2"));
         var s = Drafted(TierTwo());
-        Assert.IsTrue(s.PondStageOpen);
+        Assert.IsTrue(s.BarnStageOpen);
         Assert.AreEqual(new GridCell(148, 137), s.CaptureWaterPoints().Single(point => point.Id == "water.extra-1").Cell);
     }
 
@@ -389,25 +389,25 @@ public sealed class NextFestivalTests
         var acts = s.GetFestivalActs().Where(act => s.ActStandingOf(act) == ActStanding.Available)
             .OrderBy(act => s.ActFee(act)).ThenBy(act => act.Id, StringComparer.Ordinal).Select(act => act.Id).ToArray();
         BuildSession.Accept(s, new SetProgrammeCommand(acts[..3]));
-        if (s.PondStageOpen) BuildSession.Accept(s, new SetProgrammeCommand(acts[3..6]) { StageId = FestivalStages.PondId });
+        if (s.SecondStageOpen) BuildSession.Accept(s, new SetProgrammeCommand(acts[3..6]) { StageId = s.Stages[1].Id });
         BuildSession.Accept(s, new SetPreparationStockCommand(40, 32));
         foreach (var hire in BuildSession.Crew(s)) BuildSession.Accept(s, hire);
-        if (s.PondStageOpen) BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Sound)));
+        if (s.SecondStageOpen) BuildSession.Accept(s, new AcceptPreparationOfferCommand(BuildSession.ExtraId(s, StaffRole.Sound)));
         return s;
     }
 
     [TestMethod]
-    public void APondStageTrialKeepsThePondAtTierTwo()
+    public void APondStageTrialTransitionsToBarnAtTierTwo()
     {
         var one = BuildSession.PondStarted();
         RunToEnd(one);
         Assert.AreEqual(PreparationStatus.Finished, one.PreparedStatus, $"{one.CaptureLifecycleSnapshot()?.Casualties.LastOrDefault()?.Cause}");
         var s = one.CreateNextFestival();
-        Assert.IsTrue(s.PondStageTrial && s.PondStageOpen, "The trial carries across Next festival.");
+        Assert.IsTrue(s.PondStageTrial && s.BarnStageOpen && !s.PondStageOpen, "The legacy trial flag cannot add a Pond programme to Tier 2.");
         Assert.AreEqual(2, s.CapturePreparation()!.Tier);
-        Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 2, pondStageTrial: true).PondStageOpen);
+        Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 2, pondStageTrial: true).BarnStageOpen);
         Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 1, pondStageTrial: true).PondStageOpen);
-        Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 2).PondStageOpen, "Tier 2 comes with the Pond Stage anyway.");
+        Assert.IsTrue(GameSession.CreateDevelopmentFestival(20260922, 2).BarnStageOpen, "Tier 2 converts the barn.");
         Assert.IsFalse(GameSession.CreateDevelopmentFestival(20260922, 1).PondStageOpen);
 
         // The default layout still stands with the pond open, and Tier 2's extra tap and toilet keep off both stages.
