@@ -1,0 +1,9 @@
+{
+  "pid": 15028,
+  "requestedExecutable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-development-tiers-2026-10-14/FestivalTycoon.exe",
+  "observedExecutable": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-development-tiers-2026-10-14\\FestivalTycoon.exe",
+  "observedCommandLine": "\"C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-development-tiers-2026-10-14\\FestivalTycoon.exe\" --fixed-fps 30 --quit-after 220 --log-file C:/Projects/festival-tycoon/artifacts/development-tiers-copied-exe/native.log -- --capture-development-tiers C:/Projects/festival-tycoon/artifacts/development-tiers-copied-exe --capture-size 1280x720",
+  "startedUTC": "2026-10-14T07:20:16.2338716Z",
+  "completedWithin30Seconds": true,
+  "runtimeExitCode": 0
+}

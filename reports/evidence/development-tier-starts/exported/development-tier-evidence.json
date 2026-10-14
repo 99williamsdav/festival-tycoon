@@ -1,0 +1,158 @@
+{
+  "passed": true,
+  "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-development-tiers-2026-10-14/FestivalTycoon.exe",
+  "checks": [
+    {
+      "name": "isolated-save-directory",
+      "passed": true
+    },
+    {
+      "name": "trial-link-replaced",
+      "passed": true
+    },
+    {
+      "name": "tier-picker-focus",
+      "passed": true
+    },
+    {
+      "name": "only-two-development-tiers",
+      "passed": true
+    },
+    {
+      "name": "menu-did-not-mutate-session",
+      "passed": true
+    },
+    {
+      "name": "back-restores-footer-focus",
+      "passed": true
+    },
+    {
+      "name": "steward-picker-retained",
+      "passed": true
+    },
+    {
+      "name": "actual-carried-cash-and-debt",
+      "passed": true
+    },
+    {
+      "name": "same-as-canonical-recorded-transition",
+      "passed": true
+    },
+    {
+      "name": "knowledge-and-actual-relationships",
+      "passed": true
+    },
+    {
+      "name": "rain-and-normal-trailer-pond-allocation",
+      "passed": true
+    },
+    {
+      "name": "fresh-preparation-before-draft",
+      "passed": true
+    },
+    {
+      "name": "heavy-rain-art-before-perks",
+      "passed": true
+    },
+    {
+      "name": "modal-has-keyboard-focus-and-hides-hud",
+      "passed": true
+    },
+    {
+      "name": "reveal-did-not-change-authority",
+      "passed": true
+    },
+    {
+      "name": "reveal-menu-keeps-state",
+      "passed": true
+    },
+    {
+      "name": "management-resumes-pending-reveal",
+      "passed": true
+    },
+    {
+      "name": "continue-acknowledges-with-same-perk-draw",
+      "passed": true
+    },
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPreparationStockCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "ordinary-plan-affordable-and-ready",
+      "passed": true
+    },
+    {
+      "name": "manual-save",
+      "passed": true
+    },
+    {
+      "name": "actual-save-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "box-office-tier-label",
+      "passed": true
+    },
+    {
+      "name": "ordinary-menu-resume-preserves-plan",
+      "passed": true
+    },
+    {
+      "name": "tier-two-restart-resets-all-edits",
+      "passed": true
+    },
+    {
+      "name": "tier-one-is-a-real-fresh-campaign",
+      "passed": true
+    },
+    {
+      "name": "tier-one-heatwave-art",
+      "passed": true
+    },
+    {
+      "name": "fresh-tier-one-has-new-identity",
+      "passed": true
+    },
+    {
+      "name": "development-restores-management-host",
+      "passed": true
+    }
+  ],
+  "openingCashPennies": 110335,
+  "referenceSeed": 20260922,
+  "referenceStars": 2,
+  "caveat": "Scripted native buttons and normal preparation/save flow. No manual playthrough; Council failure/retry and ordinary progression exercised by simulation regressions."
+}

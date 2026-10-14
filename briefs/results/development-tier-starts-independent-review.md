@@ -23,6 +23,8 @@ Independently executed:
 
 **6 passed, 0 failed**, 17.8 seconds. Covers eligibility/canonical transition equality, financial reconciliation, learned/relationship carryover and resets, normal rain/unlocks/affordable opening, Council retry, and ordinary-command reference reproduction. An initial unsupported `--filter-class` invocation exited before running tests; the corrected invocation above passed.
 
+The runner resolved that relative results directory beneath `tests/Festival.Tests/reports/evidence/development-tier-starts/independent-tests`. The Builder subsequently moved the scoped log to the retained repository-root location `reports/evidence/development-tier-starts/independent-tests/Festival.Tests_net8.0_x64.log`; its presence there was verified during the export addendum.
+
 Also inspected supplied evidence: clean native build (zero warnings/errors); initial combined 24-case run with 22 passes and two sandbox save-access failures; successful two-case approved-access rerun; four further existing save/reset and Steward/All-Rounder cases passing in `mode-regressions.txt`. This represents 28 distinct passing cases across the reported runs, not 28 independently rerun cases.
 
 Reviewed all eight native source screenshots and the 37 passing scripted checks in `source/development-tier-evidence.json`. The menu and development picker are legible and unclipped at the captured 1280×720 size; the existing Steward selector remains available. Heavy Rain appears before the perk draft, Tier 1 displays Heatwave, and the Tier 2 box office correctly shows its tier, £353.35 carried cash, £750 receipts and £1,103.35 total. The programme image shows both stages and the actual learned talent/relationship indicators. No scoped visual defect found.

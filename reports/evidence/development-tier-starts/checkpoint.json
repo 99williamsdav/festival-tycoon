@@ -57,76 +57,196 @@
   ],
   "evidence": [
     {
-      "sha256": "051412EFEF9DB61F92EA33CDFEE33AC293C2D8653519939CE5F594FDD667B9EB",
-      "path": "reports/evidence/development-tier-starts/game-build.txt"
+      "path": "reports/evidence/development-tier-starts/exported-build-manifest.json",
+      "sha256": "E02783531051C6CC753EB745E4655EC438206732345799A38D51C17AC65224A0"
     },
     {
-      "sha256": "8E50BBEA3AB6F8EFBB2AC2E02CC0F19EC8C3C56C5A86970C228CAC98CD6234D8",
-      "path": "reports/evidence/development-tier-starts/mode-regressions.txt"
+      "path": "reports/evidence/development-tier-starts/exporter.log",
+      "sha256": "786F4BBBE4BE24F36E29B325C3BF9E1E118F7112E46F6C500FE57DBFB81C3AFF"
     },
     {
-      "sha256": "E168EB1E5EEE21F6A25BCE63D00DD72AF29FF07E565183C66DADCAB80C216E76",
-      "path": "reports/evidence/development-tier-starts/reference-commands.json"
+      "path": "reports/evidence/development-tier-starts/game-build.txt",
+      "sha256": "051412EFEF9DB61F92EA33CDFEE33AC293C2D8653519939CE5F594FDD667B9EB"
     },
     {
-      "sha256": "354E869909FA0938F3E6A92CFFB166226F77A86410EB954C23ED5CDD9907EC0B",
-      "path": "reports/evidence/development-tier-starts/reference-recorder.txt"
+      "path": "reports/evidence/development-tier-starts/mode-regressions.txt",
+      "sha256": "8E50BBEA3AB6F8EFBB2AC2E02CC0F19EC8C3C56C5A86970C228CAC98CD6234D8"
     },
     {
-      "sha256": "1BD03AA6A2FD1E45388A14EE0E9610A143328550D8E39F4AFB0680B6691F1511",
-      "path": "reports/evidence/development-tier-starts/reference-reproduction.json"
+      "path": "reports/evidence/development-tier-starts/reference-commands.json",
+      "sha256": "E168EB1E5EEE21F6A25BCE63D00DD72AF29FF07E565183C66DADCAB80C216E76"
     },
     {
-      "sha256": "3EB5A98C5DB6A84C534060A83E3619C472FF409118690179A435C308754E62B2",
-      "path": "reports/evidence/development-tier-starts/reference-tier-two.json"
+      "path": "reports/evidence/development-tier-starts/reference-recorder.txt",
+      "sha256": "354E869909FA0938F3E6A92CFFB166226F77A86410EB954C23ED5CDD9907EC0B"
     },
     {
-      "sha256": "55ACB07E044E5C838BD87C61B5A7A0490D49B88D0F25DC8178BE1BBFDC54F565",
-      "path": "reports/evidence/development-tier-starts/save-regressions.txt"
+      "path": "reports/evidence/development-tier-starts/reference-reproduction.json",
+      "sha256": "1BD03AA6A2FD1E45388A14EE0E9610A143328550D8E39F4AFB0680B6691F1511"
     },
     {
-      "sha256": "84C56D97D7300D8719A462791BCD68E885798B49E9F841D9F1D1288858469628",
-      "path": "reports/evidence/development-tier-starts/tests.txt"
+      "path": "reports/evidence/development-tier-starts/reference-tier-two.json",
+      "sha256": "3EB5A98C5DB6A84C534060A83E3619C472FF409118690179A435C308754E62B2"
     },
     {
-      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5",
-      "path": "reports/evidence/development-tier-starts/source/01-menu.png"
+      "path": "reports/evidence/development-tier-starts/save-regressions.txt",
+      "sha256": "55ACB07E044E5C838BD87C61B5A7A0490D49B88D0F25DC8178BE1BBFDC54F565"
     },
     {
-      "sha256": "A20EB6110B9A4126BAB7859AB44C26DA1200AE71802AD3A9491433A5ED5AAD6A",
-      "path": "reports/evidence/development-tier-starts/source/02-development-picker.png"
+      "path": "reports/evidence/development-tier-starts/tests.txt",
+      "sha256": "84C56D97D7300D8719A462791BCD68E885798B49E9F841D9F1D1288858469628"
     },
     {
-      "sha256": "C8411F675AF98079DB9AF8DC1C784175474D5000C7A4C6E81471CD269D979E52",
-      "path": "reports/evidence/development-tier-starts/source/03-steward-picker.png"
+      "path": "reports/evidence/development-tier-starts/exported/01-menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
     },
     {
-      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43",
-      "path": "reports/evidence/development-tier-starts/source/04-heavy-rain-reveal.png"
+      "path": "reports/evidence/development-tier-starts/exported/02-development-picker.png",
+      "sha256": "A20EB6110B9A4126BAB7859AB44C26DA1200AE71802AD3A9491433A5ED5AAD6A"
     },
     {
-      "sha256": "1B0CF04347C2FB2970E8E118AF39B485F7458D7381BF56647B300BDE60164C71",
-      "path": "reports/evidence/development-tier-starts/source/05-preparation-draft.png"
+      "path": "reports/evidence/development-tier-starts/exported/03-steward-picker.png",
+      "sha256": "C8411F675AF98079DB9AF8DC1C784175474D5000C7A4C6E81471CD269D979E52"
     },
     {
-      "sha256": "D226A7A1E7BEE32E19817878C1C4EE3B59DD4F6715915F049BB998DD488A04D9",
-      "path": "reports/evidence/development-tier-starts/source/06-tier-two-box-office.png"
+      "path": "reports/evidence/development-tier-starts/exported/04-heavy-rain-reveal.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
     },
     {
-      "sha256": "8D37DBA3B00A7603B626344B050AC14166EFB015E3A8FF70C8412FDCC9A0E747",
-      "path": "reports/evidence/development-tier-starts/source/07-two-stage-plan.png"
+      "path": "reports/evidence/development-tier-starts/exported/05-preparation-draft.png",
+      "sha256": "1B0CF04347C2FB2970E8E118AF39B485F7458D7381BF56647B300BDE60164C71"
     },
     {
-      "sha256": "4924E92101878C478724612B508DE840BEFDC0EB220684FD3F1F33A2ED3C03FB",
-      "path": "reports/evidence/development-tier-starts/source/08-fresh-tier-one-reveal.png"
+      "path": "reports/evidence/development-tier-starts/exported/06-tier-two-box-office.png",
+      "sha256": "D226A7A1E7BEE32E19817878C1C4EE3B59DD4F6715915F049BB998DD488A04D9"
     },
     {
-      "sha256": "FD76BEF7B781C08F6A985DD7AD9406D616A6986E963F4D34F2783429166DF615",
-      "path": "reports/evidence/development-tier-starts/source/development-tier-evidence.json"
+      "path": "reports/evidence/development-tier-starts/exported/07-two-stage-plan.png",
+      "sha256": "8D37DBA3B00A7603B626344B050AC14166EFB015E3A8FF70C8412FDCC9A0E747"
     },
     {
-      "sha256": "E6B84482134AF7E38D660B277C1FEB487CB89389B0D88D5334ABB1A3A890F6C1",
-      "path": "reports/evidence/development-tier-starts/source/native.log"
+      "path": "reports/evidence/development-tier-starts/exported/08-fresh-tier-one-reveal.png",
+      "sha256": "4924E92101878C478724612B508DE840BEFDC0EB220684FD3F1F33A2ED3C03FB"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/exported/development-tier-evidence.json",
+      "sha256": "1278DCA3B7EF673CC800B8C5570C17E73CBB3B5CE00AEB94E1D7083AEEFE9E6D"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/exported/native.log",
+      "sha256": "382E2475D1AE61F702730955021B4DED3FA915D3195CFC1711C7ECD05552F5FC"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/exported/process-proof.json",
+      "sha256": "5982D78206380B8EFE1E963EDA5444F1EBAA6A6BB4C201E380C51DBF08618FC4"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/01-menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/02-development-picker.png",
+      "sha256": "A20EB6110B9A4126BAB7859AB44C26DA1200AE71802AD3A9491433A5ED5AAD6A"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/03-steward-picker.png",
+      "sha256": "C8411F675AF98079DB9AF8DC1C784175474D5000C7A4C6E81471CD269D979E52"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/04-heavy-rain-reveal.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/05-preparation-draft.png",
+      "sha256": "1B0CF04347C2FB2970E8E118AF39B485F7458D7381BF56647B300BDE60164C71"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/06-tier-two-box-office.png",
+      "sha256": "D226A7A1E7BEE32E19817878C1C4EE3B59DD4F6715915F049BB998DD488A04D9"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/07-two-stage-plan.png",
+      "sha256": "8D37DBA3B00A7603B626344B050AC14166EFB015E3A8FF70C8412FDCC9A0E747"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/08-fresh-tier-one-reveal.png",
+      "sha256": "4924E92101878C478724612B508DE840BEFDC0EB220684FD3F1F33A2ED3C03FB"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/development-tier-evidence.json",
+      "sha256": "1278DCA3B7EF673CC800B8C5570C17E73CBB3B5CE00AEB94E1D7083AEEFE9E6D"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/hash-verification.json",
+      "sha256": "C00778C36F6B06F20E2BEF25A6CAA63FD02A07D3E01123F3917471D6150134C2"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/native.log",
+      "sha256": "3AF2611EB1B00A585D7000A8CD7578CBFC0DA80C9562FB25A637504F28A3CC94"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/process-proof.json",
+      "sha256": "B11B5DE0AD5269369369847D2096005F13C7A551BFC4E7D14BCA50DCE576E60C"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-exported/diagnostic-saves/manual-preparation.ftsave",
+      "sha256": "4A024B0480A6F2D5450A37FCB07D4D6CCCD58BFFCDB8266384BD57BA899C5EF5"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/independent-tests/Festival.Tests_net8.0_x64.log",
+      "sha256": "C5E6EE3A42F220C8A3B10FD4293113D547A389CF09C0D3D9F535EE0FAB1E9447"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/01-menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/02-development-picker.png",
+      "sha256": "A20EB6110B9A4126BAB7859AB44C26DA1200AE71802AD3A9491433A5ED5AAD6A"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/03-steward-picker.png",
+      "sha256": "C8411F675AF98079DB9AF8DC1C784175474D5000C7A4C6E81471CD269D979E52"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/04-heavy-rain-reveal.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/05-preparation-draft.png",
+      "sha256": "1B0CF04347C2FB2970E8E118AF39B485F7458D7381BF56647B300BDE60164C71"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/06-tier-two-box-office.png",
+      "sha256": "D226A7A1E7BEE32E19817878C1C4EE3B59DD4F6715915F049BB998DD488A04D9"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/07-two-stage-plan.png",
+      "sha256": "8D37DBA3B00A7603B626344B050AC14166EFB015E3A8FF70C8412FDCC9A0E747"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/08-fresh-tier-one-reveal.png",
+      "sha256": "4924E92101878C478724612B508DE840BEFDC0EB220684FD3F1F33A2ED3C03FB"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/development-tier-evidence.json",
+      "sha256": "FD76BEF7B781C08F6A985DD7AD9406D616A6986E963F4D34F2783429166DF615"
+    },
+    {
+      "path": "reports/evidence/development-tier-starts/source/native.log",
+      "sha256": "E6B84482134AF7E38D660B277C1FEB487CB89389B0D88D5334ABB1A3A890F6C1"
     }
-  ]
+  ],
+  "sourceCommit": "e4f4b69f81b1c85ce8dff0682df4997f02608ebc",
+  "reviewReports": [
+    {
+      "sha256": "9C5BA735BD839416EDED389E0606E123498508964948585B312B6AC2108D010C",
+      "path": "briefs/results/development-tier-starts-independent-review.md"
+    },
+    {
+      "sha256": "D0C90C1A6602F83665403E1138AC4BCEC39D19E196D970DD61F98473618A97F4",
+      "path": "briefs/results/development-tier-starts-exported-exe-review.md"
+    }
+  ],
+  "accepted": true
 }
