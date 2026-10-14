@@ -1,0 +1,28 @@
+{
+  "seed": 4174307606439419057,
+  "passed": true,
+  "traces": [
+    {
+      "x": 1000,
+      "z": 0,
+      "tick": 8000,
+      "endTick": 8080,
+      "beforeX": -11985,
+      "beforeZ": 12135,
+      "afterX": -11985,
+      "afterZ": 12135,
+      "moved": false
+    },
+    {
+      "x": -1000,
+      "z": 0,
+      "tick": 8080,
+      "endTick": 8160,
+      "beforeX": -11985,
+      "beforeZ": 12135,
+      "afterX": -14505,
+      "afterZ": 12135,
+      "moved": true
+    }
+  ]
+}

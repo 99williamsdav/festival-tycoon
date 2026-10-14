@@ -1,0 +1,3 @@
+C:\Projects\festival-tycoon\artifacts\survival-architecture-movement-repro\Program.cs(5,10): error CS7036: There is no argument given that corresponds to the required parameter 'Tier' of 'AcknowledgeFestivalChallengeCommand.AcknowledgeFestivalChallengeCommand(int, int)' [C:\Projects\festival-tycoon\artifacts\survival-architecture-movement-repro\Repro.csproj]
+
+The build failed. Fix the build errors and run again.

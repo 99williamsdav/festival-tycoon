@@ -1,0 +1,136 @@
+{
+  "baseline": "3be86091c72c713d1c40011b6645d2da714694aa",
+  "scope": "Diagnostic-only bounded normal steering repair and exact-seed reproduction; no simulation source changes",
+  "source": [
+    {
+      "path": "game/Main.ArchitectureEvidence.cs",
+      "sha256": "577E8848C9143ECE39FC041143ED27E4B7F5DD8D399BD2840BCCACB623328268"
+    },
+    {
+      "path": "game/Main.ArchitectureEvidence.cs.uid",
+      "sha256": "6EA3A4058461550EF6041C8E52C3439B74EBBEC185FFB215B6BD2F65B4E67200"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/game-build.txt",
+      "sha256": "46AB079CE720F12FB33308EC28EABB14408FAA636C70DEF72884EB3DE468615E"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source-launch.txt",
+      "sha256": "09AD91B8DD534B53E60F373E3DA08764F9ED10158D1871C0BDCEF3D2900FC43A"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/repro-initial-compile.txt",
+      "sha256": "FD72DEB26E3665D17104C97ACB6260C671B85441AE8D077FAC673F69C903FE30"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/repro-Program.cs",
+      "sha256": "5F37527377649C7295C2BBA719A4C1E49D18D7C1881B00D3848CC3F93560D2D2"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/repro-project.txt",
+      "sha256": "C5CF7693D47B1CE7BBED7FA7750AF369BCB51449DD4493D324BD3A968ED93A75"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/repro.txt",
+      "sha256": "AD69E78DF3EEA5D1B81263CFB40F4FAA9B8962C0779D9D0EED24D7CBA37B7229"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/reproduced-before-move.json",
+      "sha256": "690455230C7E2E451D952CDCE6662B8B4E915A8D32B5F521E9307314E74F0815"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/01-existing-control-menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/02-existing-rain-challenge.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/03-management-tier-two-live.png",
+      "sha256": "27AA3FA7010D239DCB985970109519847207AE9EA0FB74803680D2F017BB7791"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/04-all-rounder-management.png",
+      "sha256": "49FF87DE289C11305864A61022346B2EB6751EE0A308AA8EE41014E4B5E87F27"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/05-all-rounder-first-person.png",
+      "sha256": "48CA4A7DF31D06CB133AD70575C4F4B890AE5D4B727094AA1810A8EF18C6DAE2"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/06-steward-only-tier-one.png",
+      "sha256": "61DE30640271E002AC970FABE653F552BF1D94795FB3644A8419F20F5F9CBE81"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/07-steward-only-tier-two.png",
+      "sha256": "235ADE888D35D214A37686A138892EADEB5901811E3F0676AE4017B93BCD2D44"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/08-resumed-management.png",
+      "sha256": "A910F6934572B4F91D061BF344FB43BDA030BBA4F6C278CC0CDA386EB9860AFD"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/architecture-evidence.json",
+      "sha256": "54A0D0A2438C862108CEE851F88581B424027014931D8588E90FC95CD099A444"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/native.log",
+      "sha256": "9EE91E28EB022BB21EDD5DB5A9DB871AD161972A23A2FAA26C3B50BE60E26779"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/movement-repair/native-source/process.json",
+      "sha256": "AEE84197F0D8593DD652C7AEC34D0AC770F553EC014CAAEC9E3D7498334670E2"
+    },
+    {
+      "path": "briefs/results/survival-architecture-native-repair.md",
+      "sha256": "58C2BDD4AF98BA56C9807D896A5E3996EF9DACE1BAC68B1978196ECB85FD061E"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/payload.json",
+      "sha256": "D03CB598E15FD3A77E8DF8A5572EC5995DDEA1B0077E6AB01DF701E7E3D534EC"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/export.log",
+      "sha256": "85BCD0F8DA5A479A014FD1211E71890A3D02710644E3F5452A15573E4FF670F7"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/builder-exe/01-existing-control-menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/builder-exe/02-existing-rain-challenge.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/builder-exe/03-management-tier-two-live.png",
+      "sha256": "A7CF935272E7C21FFD29AD68C16DA66E988819CE674E6F2A2898A262368632F4"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/builder-exe/04-all-rounder-management.png",
+      "sha256": "4488D79DBBA119CC5B41CE5305D58748212E7B5D7DF8E8C61198595C73D3F1EE"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/builder-exe/failure-checks.json",
+      "sha256": "46AAA857AA988942D2A76D30C19940836AE45E860278DC1CCA30084425E53761"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/builder-exe/failure.txt",
+      "sha256": "FA0B20C63DDE18328710429132BBEFD24959B9A68738F80C8A61281319EF09F3"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/builder-exe/native.log",
+      "sha256": "B5610A53826F339C7AF217F6C66D57E14252E65D5C35B5D9A5BE9A3B47DC55B9"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/builder-exe/process-exit.json",
+      "sha256": "14049C9DA76DFC3E190E689759E5C98C952203EABC95BAD263F2D180988260B2"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/export/builder-exe/process-start.json",
+      "sha256": "CD46358412541ABF6A4E65D9CD6EFBB0C40D3A1DD81265DCC9228F80A640B8C0"
+    }
+  ]
+}

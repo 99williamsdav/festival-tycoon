@@ -1,0 +1,12 @@
+using Festival.Simulation;
+using System.Text.Json;
+var s=GameSession.CreateHandsOnCampaign(4174307606439419057);
+void Send(SessionCommand c){var r=s.Execute(new(new(s.NextSubmissionSequence+1),s.CampaignId,s.Phase,s.CurrentTick,s.NextSubmissionSequence,null,c));if(!r.IsAccepted)throw new Exception(c+": "+r.Message);}
+Send(new AcknowledgeFestivalChallengeCommand(1,1));var perk=s.CapturePerks()!;Send(new ChoosePerkCommand(perk.DraftAttempt,perk.Cursor,perk.Hand[0]));Send(new UseDefaultBuildLayoutCommand());
+var acts=s.GetFestivalActs().Where(a=>s.ActStandingOf(a)==ActStanding.Available).OrderBy(s.ActFee).ThenBy(a=>a.Id,StringComparer.Ordinal).Select(a=>a.Id).ToArray();Send(new SetProgrammeCommand(acts[..3]));Send(new SetPreparationStockCommand(40,32));
+var crew=s.GetStaffCandidates().GroupBy(c=>c.Role).Select(g=>g.OrderBy(c=>c.Traits.Length>0).ThenBy(c=>c.Grade>0).ThenBy(c=>Math.Abs(c.Grade)).ThenBy(c=>c.Id,StringComparer.Ordinal).First()).ToArray();foreach(var person in crew)Send(new AcceptPreparationOfferCommand(person.Id));Send(new StartPreparedEditionCommand());s.AdvanceWithoutSnapshot(8000);Send(new SetPausedCommand(true));Send(new SetPlayerStewardControlCommand(false));
+var outdir="reports/evidence/survival-architecture/movement-repair";Directory.CreateDirectory(outdir);File.WriteAllText(outdir+"/reproduced-before-move.json",JsonSerializer.Serialize(s.CapturePersistenceSnapshot()));
+var id=new EntityId(s.PlayerStewardId!.Value);var traces=new List<object>();Send(new SetPausedCommand(false));bool moved=false;
+foreach(var(x,z) in new[]{(1000,0),(-1000,0),(0,-1000),(0,1000),(707,-707),(-707,-707),(707,707),(-707,707)}){var before=s.CaptureObservation().NavigationAgents.First(n=>n.Id==id);var tick=s.CurrentTick;var facing=StewardShiftRules.FacingTowards(x,z);Send(new SetPlayerMoveCommand(x,z,false,facing));s.AdvanceWithoutSnapshot(80);Send(new SetPlayerMoveCommand(0,0,false,facing));var after=s.CaptureObservation().NavigationAgents.First(n=>n.Id==id);moved=before.XMillimetres!=after.XMillimetres||before.ZMillimetres!=after.ZMillimetres;traces.Add(new{x,z,tick,endTick=s.CurrentTick,beforeX=before.XMillimetres,beforeZ=before.ZMillimetres,afterX=after.XMillimetres,afterZ=after.ZMillimetres,moved});if(moved)break;}
+if(!moved)throw new Exception("No normal steering direction moved the steward.");Console.WriteLine(JsonSerializer.Serialize(new{seed=s.CampaignSeed,passed=moved,traces},new JsonSerializerOptions{WriteIndented=true}));
+

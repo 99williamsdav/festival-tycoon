@@ -1,0 +1,5 @@
+System.InvalidOperationException: Architecture native evidence failed: all-rounder-manual-manual-controller-moved
+   at Festival.Game.Main.ArchitectureCheck(String name, Boolean passed) in /_/game/Main.ArchitectureEvidence.cs:line 22
+   at Festival.Game.Main.ArchitectureWalk(String name) in /_/game/Main.ArchitectureEvidence.cs:line 70
+   at Festival.Game.Main.CaptureArchitectureEvidence() in /_/game/Main.ArchitectureEvidence.cs:line 117
+   at Festival.Game.Main.ProcessArchitectureEvidence() in /_/game/Main.ArchitectureEvidence.cs:line 75

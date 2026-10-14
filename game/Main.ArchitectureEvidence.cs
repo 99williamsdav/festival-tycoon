@@ -15,6 +15,7 @@ public partial class Main
     private string? _architectureEvidenceOutput;
     private int _architectureFrame;
     private readonly List<object> _architectureChecks = [];
+    private readonly List<object> _architectureMovement = [];
     private string _architectureParkedHash = "";
     private void ArchitectureCheck(string name, bool passed)
     {
@@ -63,11 +64,28 @@ public partial class Main
     {
         var id = new EntityId(_session.PlayerStewardId!.Value);
         var before = _session.CaptureObservation().NavigationAgents.First(a => a.Id == id);
+        ArchitectureCheck(name + "-running-manual-control", _session.PreparedStatus == PreparationStatus.Running && _shiftActive
+            && _session.CaptureStewardShift()!.Autopilot is null);
         ArchitectureSend(new SetPausedCommand(false));
-        ArchitectureSend(new SetPlayerMoveCommand(1000, 0, false, 90)); _session.AdvanceWithoutSnapshot(80);
-        ArchitectureSend(new SetPlayerMoveCommand(0, 0, false, 90)); ArchitectureSend(new SetPausedCommand(true));
+        // A fresh autopilot can stop beside a wall or person. Steer normally, without assuming east is clear.
+        foreach (var (x, z) in new[] { (1000, 0), (-1000, 0), (0, -1000), (0, 1000), (707, -707), (-707, -707), (707, 707), (-707, 707) })
+        {
+            var start = _session.CaptureObservation().NavigationAgents.First(a => a.Id == id); var tick = _session.CurrentTick;
+            var facing = StewardShiftRules.FacingTowards(x, z);
+            ArchitectureSend(new SetPlayerMoveCommand(x, z, false, facing)); _session.AdvanceWithoutSnapshot(80);
+            ArchitectureSend(new SetPlayerMoveCommand(0, 0, false, facing));
+            var end = _session.CaptureObservation().NavigationAgents.First(a => a.Id == id);
+            _architectureMovement.Add(new { name, seed = _session.CampaignSeed, directionX = x, directionZ = z,
+                startTick = tick, endTick = _session.CurrentTick, beforeX = start.XMillimetres, beforeZ = start.ZMillimetres,
+                afterX = end.XMillimetres, afterZ = end.ZMillimetres });
+            ArchitectureCheck(name + "-manual-tick-step", _session.CurrentTick == tick + 80 && _session.PreparedStatus == PreparationStatus.Running);
+            if (start.XMillimetres != end.XMillimetres || start.ZMillimetres != end.ZMillimetres) break;
+        }
+        ArchitectureSend(new SetPausedCommand(true));
         var after = _session.CaptureObservation().NavigationAgents.First(a => a.Id == id);
         ArchitectureCheck(name + "-manual-controller-moved", before.XMillimetres != after.XMillimetres || before.ZMillimetres != after.ZMillimetres);
+        var cell = TraversalGrid.WorldToCell(after.XMillimetres, after.ZMillimetres);
+        ArchitectureCheck(name + "-manual-position-on-open-field", _session.TraversalGrid!.Get(cell).IsWalkable && StewardShiftRules.InField(cell));
         _foundationPresentation.Reset(_session.CaptureObservation()); ArchitectureSave(name);
     }
     private void ProcessArchitectureEvidence()
@@ -78,6 +96,8 @@ public partial class Main
             Directory.CreateDirectory(_architectureEvidenceOutput!);
             File.WriteAllText(Path.Combine(_architectureEvidenceOutput!, "failure.txt"), error.ToString());
             File.WriteAllText(Path.Combine(_architectureEvidenceOutput!, "failure-checks.json"), JsonSerializer.Serialize(_architectureChecks));
+            File.WriteAllText(Path.Combine(_architectureEvidenceOutput!, "movement.json"), JsonSerializer.Serialize(_architectureMovement));
+            File.WriteAllText(Path.Combine(_architectureEvidenceOutput!, "failure-state.json"), JsonSerializer.Serialize(_session.CapturePersistenceSnapshot()));
             GD.PushError(error.ToString()); GetTree().Quit(2);
         }
     }
@@ -160,8 +180,8 @@ public partial class Main
             ArchitecturePicture("08-resumed-management");
             File.WriteAllText(Path.Combine(_architectureEvidenceOutput!, "architecture-evidence.json"), JsonSerializer.Serialize(new
             {
-                passed = true, executable = OS.GetExecutablePath(), checks = _architectureChecks,
-                caveat = "Scripted actual native menu handlers, normal preparation, view switching, 80-tick manual movement and real isolated save files; no manual full-day playthrough or performance claim."
+                passed = true, executable = OS.GetExecutablePath(), checks = _architectureChecks, movement = _architectureMovement,
+                caveat = "Scripted actual native menu handlers, normal preparation, view switching, bounded ordinary manual steering (up to eight 80-tick attempts) and real isolated save files; no manual full-day playthrough or performance claim."
             }, new JsonSerializerOptions { WriteIndented = true }));
             GD.Print("SURVIVAL_ARCHITECTURE_EVIDENCE_COMPLETE"); GetTree().Quit(); return;
         }
