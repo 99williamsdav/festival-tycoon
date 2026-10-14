@@ -83,7 +83,7 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
     private Label? _expectSummary;
     private VBoxContainer? _quotes;
     private string _key = "";
-    private Label? _upgrade, _nextLine, _sets;
+    private Label? _upgrade, _nextLine, _sets, _ticketTier;
 
     public bool Visible => _root?.Visible == true;
 
@@ -137,7 +137,7 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
             face.AddThemeConstantOverride(side, Ui.Px(value));
         row.AddChild(face);
         var words = new VBoxContainer(); words.AddThemeConstantOverride("separation", Ui.Px(4)); face.AddChild(words);
-        words.AddChild(Ui.Caps("Admit one · Tier 1", Ui.Link));
+        _ticketTier = Ui.Caps("Admit one · Tier 1", Ui.Link); words.AddChild(_ticketTier);
         var name = Ui.Heading("Lower Wittering Festival", 25); name.AutowrapMode = TextServer.AutowrapMode.WordSmart; words.AddChild(name);
         _sets = Ui.Text("One day on the farm · three sets", 13, Ui.InkMuted); words.AddChild(_sets);
         words.AddChild(new Control { CustomMinimumSize = new Vector2(0, Ui.S(8)) });
@@ -247,6 +247,7 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         _upgrade.AddThemeColorOverride("font_color", session.PondStageOpen ? Ui.Gold : Ui.BarMuted);
         _upgrade.AddThemeFontOverride("font", session.PondStageOpen ? Ui.BodyBold : Ui.Body);
         _sets!.Text = session.PondStageOpen ? "One day on the farm · two stages, six sets" : "One day on the farm · three sets";
+        _ticketTier!.Text = $"ADMIT ONE · TIER {p.Tier}";
         _nextLine!.Text = session.PondStageOpen ? "Next: build your site, book three acts for each stage and hire a sound engineer for each."
             : "Next: build your site, book three acts and hire a sound engineer.";
         // The forecast, so the player can plan for it.

@@ -1,0 +1,132 @@
+{
+  "baseline": "d40cad64559b28b39b23ceea3e1b0fa42d798df0",
+  "referenceApproved": "Coordinator and direct user: recorded eligible two-star clear",
+  "files": [
+    {
+      "path": "game/Hud/StartMenu.cs",
+      "sha256": "C989482D65CE308F62AFD1BEE8739201BEB06E6500CB0EEF98A4EEE52D7C0883"
+    },
+    {
+      "path": "game/Hud/BoxOffice.cs",
+      "sha256": "FE997E51F94540A4F95954BFD5FBE9DC76DE0215B6AC891FC9A67FC174B3C3A8"
+    },
+    {
+      "path": "game/Main.Splash.cs",
+      "sha256": "161E548A2D2DB44341ED36F478969B523B29C3AA62B8B538098D808C485DF8DE"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "B9E5393E3FF5F69927F7C3ED9D637C4AF8F677BE5A0E4D7BBC128C1556DCE6B4"
+    },
+    {
+      "path": "game/Main.DevelopmentTierEvidence.cs",
+      "sha256": "276DA488A006115AADD9830351538C1134540C8FEF5BC3A496C96A6E1F3AD83D"
+    },
+    {
+      "path": "src/Festival.Simulation/Festival.Simulation.csproj",
+      "sha256": "AF47DED50B8E702DE95D2823EAD5A37D1ED5E8319B377689EC868B67E1ACF995"
+    },
+    {
+      "path": "src/Festival.Simulation/RecordedDevelopmentStart.cs",
+      "sha256": "348070FCA666559BDC1AC093DE4EF4A2DEF34A0BC0AFD50EB8489EED33242B83"
+    },
+    {
+      "path": "src/Festival.Simulation/Development/recorded-tier-one-clear.json",
+      "sha256": "1802C92ADA0692E67553B0EC15E7374F9B1513952F895ACC8D31A07DE7D5567D"
+    },
+    {
+      "path": "src/Festival.Simulation/Development/README.md",
+      "sha256": "3916750BC38330244B8C514F5F4505282ED668AFBDB3F517186C81779BE18408"
+    },
+    {
+      "path": "tests/Festival.Tests/RecordedDevelopmentStartTests.cs",
+      "sha256": "C753362CDF64D80D2A80C4F9D3C6D515E2366832FAD1AF0882A251930AB5BEC3"
+    },
+    {
+      "path": "tools/DevelopmentTierReference/Program.cs",
+      "sha256": "193CCF4EF8E01095FEBDC9C780531ADF9DDDEDF38029FB277F2866435CCD27A3"
+    },
+    {
+      "path": "tools/DevelopmentTierReference/DevelopmentTierReference.csproj",
+      "sha256": "8373060F1F1F2879362FCB7B6077C9BEDC749002797E7C6AA6C2A3A0822F6B3F"
+    },
+    {
+      "path": "game/Main.DevelopmentTierEvidence.cs.uid",
+      "sha256": "B30223BC54EE9A366DE29752B81A971C755D825BEFAF927BA4556439F46D82A9"
+    }
+  ],
+  "evidence": [
+    {
+      "sha256": "051412EFEF9DB61F92EA33CDFEE33AC293C2D8653519939CE5F594FDD667B9EB",
+      "path": "reports/evidence/development-tier-starts/game-build.txt"
+    },
+    {
+      "sha256": "8E50BBEA3AB6F8EFBB2AC2E02CC0F19EC8C3C56C5A86970C228CAC98CD6234D8",
+      "path": "reports/evidence/development-tier-starts/mode-regressions.txt"
+    },
+    {
+      "sha256": "E168EB1E5EEE21F6A25BCE63D00DD72AF29FF07E565183C66DADCAB80C216E76",
+      "path": "reports/evidence/development-tier-starts/reference-commands.json"
+    },
+    {
+      "sha256": "354E869909FA0938F3E6A92CFFB166226F77A86410EB954C23ED5CDD9907EC0B",
+      "path": "reports/evidence/development-tier-starts/reference-recorder.txt"
+    },
+    {
+      "sha256": "1BD03AA6A2FD1E45388A14EE0E9610A143328550D8E39F4AFB0680B6691F1511",
+      "path": "reports/evidence/development-tier-starts/reference-reproduction.json"
+    },
+    {
+      "sha256": "3EB5A98C5DB6A84C534060A83E3619C472FF409118690179A435C308754E62B2",
+      "path": "reports/evidence/development-tier-starts/reference-tier-two.json"
+    },
+    {
+      "sha256": "55ACB07E044E5C838BD87C61B5A7A0490D49B88D0F25DC8178BE1BBFDC54F565",
+      "path": "reports/evidence/development-tier-starts/save-regressions.txt"
+    },
+    {
+      "sha256": "84C56D97D7300D8719A462791BCD68E885798B49E9F841D9F1D1288858469628",
+      "path": "reports/evidence/development-tier-starts/tests.txt"
+    },
+    {
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5",
+      "path": "reports/evidence/development-tier-starts/source/01-menu.png"
+    },
+    {
+      "sha256": "A20EB6110B9A4126BAB7859AB44C26DA1200AE71802AD3A9491433A5ED5AAD6A",
+      "path": "reports/evidence/development-tier-starts/source/02-development-picker.png"
+    },
+    {
+      "sha256": "C8411F675AF98079DB9AF8DC1C784175474D5000C7A4C6E81471CD269D979E52",
+      "path": "reports/evidence/development-tier-starts/source/03-steward-picker.png"
+    },
+    {
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43",
+      "path": "reports/evidence/development-tier-starts/source/04-heavy-rain-reveal.png"
+    },
+    {
+      "sha256": "1B0CF04347C2FB2970E8E118AF39B485F7458D7381BF56647B300BDE60164C71",
+      "path": "reports/evidence/development-tier-starts/source/05-preparation-draft.png"
+    },
+    {
+      "sha256": "D226A7A1E7BEE32E19817878C1C4EE3B59DD4F6715915F049BB998DD488A04D9",
+      "path": "reports/evidence/development-tier-starts/source/06-tier-two-box-office.png"
+    },
+    {
+      "sha256": "8D37DBA3B00A7603B626344B050AC14166EFB015E3A8FF70C8412FDCC9A0E747",
+      "path": "reports/evidence/development-tier-starts/source/07-two-stage-plan.png"
+    },
+    {
+      "sha256": "4924E92101878C478724612B508DE840BEFDC0EB220684FD3F1F33A2ED3C03FB",
+      "path": "reports/evidence/development-tier-starts/source/08-fresh-tier-one-reveal.png"
+    },
+    {
+      "sha256": "FD76BEF7B781C08F6A985DD7AD9406D616A6986E963F4D34F2783429166DF615",
+      "path": "reports/evidence/development-tier-starts/source/development-tier-evidence.json"
+    },
+    {
+      "sha256": "E6B84482134AF7E38D660B277C1FEB487CB89389B0D88D5334ABB1A3A890F6C1",
+      "path": "reports/evidence/development-tier-starts/source/native.log"
+    }
+  ]
+}

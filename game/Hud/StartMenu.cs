@@ -3,7 +3,7 @@ using System;
 
 namespace Festival.Game;
 
-/// <summary>The title screen: the festival logo, the three ways to play (Management Only, All-Rounder, Steward Only), and the Pond Stage trial.</summary>
+/// <summary>The title screen: the festival logo, the three ways to play, and development tier starts.</summary>
 internal sealed class StartMenu
 {
     private CanvasLayer? _layer;
@@ -91,7 +91,7 @@ internal sealed class StartMenu
         return link;
     }
 
-    public void Open(Node parent, Action enter, Action fieldGuide, Action? tryPondStage = null, Action<int>? stewardShift = null,
+    public void Open(Node parent, Action enter, Action fieldGuide, Action<int>? developmentTier = null, Action<int>? stewardShift = null,
         Action? continueShift = null, Action? frontOfHouse = null, Action? continueFrontOfHouse = null)
     {
         _layer = new CanvasLayer { Layer = 20 };
@@ -155,11 +155,42 @@ internal sealed class StartMenu
         // The trials share one row under the guide.
         var trials = new HBoxContainer { Alignment = BoxContainer.AlignmentMode.Center };
         trials.AddThemeConstantOverride("separation", Ui.Px(28));
-        if (tryPondStage is not null)
+        var developmentPicker = new VBoxContainer { Name = "DevelopmentPicker", Visible = false, Alignment = BoxContainer.AlignmentMode.Center };
+        developmentPicker.AddThemeConstantOverride("separation", Ui.Px(8));
+        if (developmentTier is not null)
         {
-            // A new campaign with the second stage open from the start; like Enter on a finished day, it takes over the autosaves.
-            trials.AddChild(Link("TryPondStage", "Try the Pond Stage · trial", "9fd3c2",
-                "Start a new trial festival with a second stage by the pond, before it would normally open.", tryPondStage));
+            var (guideShown, trialsShown) = (true, true);
+            Button? developmentLink = null;
+            developmentLink = Link("DevelopmentTiers", "Development · pick a tier", "9fd3c2",
+                "Start a fresh Tier 1 or prepare Tier 2 after a recorded Tier 1 clear. Uses the management campaign saves.", () =>
+                {
+                    (guideShown, trialsShown) = (guide.Visible, trials.Visible);
+                    modes.Visible = false; guide.Visible = false; trials.Visible = false; developmentPicker.Visible = true;
+                    logo.CustomMinimumSize = new Vector2(side, side) * .62f;
+                    developmentPicker.GetChild<Button>(1).GrabFocus();
+                });
+            trials.AddChild(developmentLink);
+            var heading = new Label { Text = "PICK A DEVELOPMENT TIER", HorizontalAlignment = HorizontalAlignment.Center };
+            heading.AddThemeFontSizeOverride("font_size", Ui.Px(13)); heading.AddThemeColorOverride("font_color", new Color("9fd3c2"));
+            developmentPicker.AddChild(heading);
+            foreach (var (tier, label, tip) in new[]
+            {
+                (1, "Tier 1 · Heatwave · fresh start", "A fresh management campaign with the usual starting money and no carried knowledge or relationships."),
+                (2, "Tier 2 · Heavy rain · carried start", "Prepare both stages after a recorded Tier 1 clear, with its actual cash, knowledge and relationships."),
+            })
+            {
+                var pick = new Button { Name = $"DevelopmentTier{tier}", Text = label, CustomMinimumSize = Ui.S(320, 36), SizeFlagsHorizontal = Control.SizeFlags.ShrinkCenter,
+                    MouseDefaultCursorShape = Control.CursorShape.PointingHand, TooltipText = tip };
+                pick.AddThemeFontSizeOverride("font_size", Ui.Px(16));
+                pick.Pressed += () => developmentTier(tier);
+                developmentPicker.AddChild(pick);
+            }
+            var back = Link("DevelopmentBack", "Back", "f3e8c9", "Back to the mode choices.", () =>
+            {
+                developmentPicker.Visible = false; modes.Visible = true; guide.Visible = guideShown; trials.Visible = trialsShown;
+                logo.CustomMinimumSize = new Vector2(side, side); developmentLink!.GrabFocus();
+            });
+            developmentPicker.AddChild(back);
         }
         // The shift picker, in place of the modes and trials while it's open.
         var picker = new VBoxContainer { Name = "ShiftPicker", Visible = false, Alignment = BoxContainer.AlignmentMode.Center };
@@ -203,6 +234,7 @@ internal sealed class StartMenu
         content.AddChild(guide);
         content.AddChild(trials);
         content.AddChild(picker);
+        content.AddChild(developmentPicker);
         button.GrabFocus();
     }
 }

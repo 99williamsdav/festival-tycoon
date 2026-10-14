@@ -15,17 +15,18 @@ public partial class Main
     private StartMenu? _startMenuView;
     private StartMenu StartMenu => _startMenuView ??= new();
 
-    private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide, TryPondStage, StartStewardShift,
+    private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide, StartDevelopmentTier, StartStewardShift,
         SavedStewardShift() is { } saved ? () => ContinueStewardShift(saved) : null, PickFrontOfHouse,
         SavedHandsOnCampaign() is { } handsOn ? () => ContinueHandsOnCampaign(handsOn) : null);
 
-    /// <summary>A fresh trial campaign with the Pond Stage open from the start, before its tier.</summary>
-    private void TryPondStage()
+    /// <summary>Development starts use ordinary preparation: fresh Tier 1 or the canonical transition from a recorded clear.</summary>
+    private void StartDevelopmentTier(int tier)
     {
+        if (tier is < 1 or > GameSession.HighestTier) throw new ArgumentOutOfRangeException(nameof(tier));
         LeaveHandsOnHost();
-        var next = CreateFreshBuildCampaign(out var seed, pondStageTrial: true);
+        var next = tier == 1 ? CreateFreshBuildCampaign(out _) : GameSession.CreateRecordedTierTwoStart();
         SwitchToFestival(next);
-        GD.Print($"POND_STAGE_TRIAL_STARTED id={_session.CampaignId.Value} seed={seed} status={_session.PreparedStatus}");
+        GD.Print($"DEVELOPMENT_TIER_STARTED id={_session.CampaignId.Value} seed={_session.CampaignSeed} tier={tier} status={_session.PreparedStatus}");
         StartMenu.Close();
         RefreshChallengeReveal();
     }

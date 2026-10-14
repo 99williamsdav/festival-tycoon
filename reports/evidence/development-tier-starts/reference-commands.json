@@ -1,0 +1,64 @@
+[
+  {
+    "type": "AcknowledgeFestivalChallengeCommand",
+    "data": {
+      "Tier": 1,
+      "Attempt": 1
+    }
+  },
+  {
+    "type": "ChoosePerkCommand",
+    "data": {
+      "PerkId": "smooth-operators",
+      "ReplaceId": null,
+      "DraftAttempt": 1,
+      "Cursor": 3
+    }
+  },
+  {
+    "type": "UseDefaultBuildLayoutCommand",
+    "data": {}
+  },
+  {
+    "type": "SetProgrammeCommand",
+    "data": {
+      "ActIds": [
+        "act.dj-spreadsheet",
+        "act.two-men-harmonium",
+        "act.daisy-diaries"
+      ],
+      "StageId": "stage.main"
+    }
+  },
+  {
+    "type": "SetPreparationStockCommand",
+    "data": {
+      "SoftDrinks": 40,
+      "Beers": 32,
+      "Ponchos": null,
+      "StrawBales": null
+    }
+  },
+  {
+    "type": "AcceptPreparationOfferCommand",
+    "data": {
+      "OfferId": "staff.sound.1"
+    }
+  },
+  {
+    "type": "AcceptPreparationOfferCommand",
+    "data": {
+      "OfferId": "staff.medic.6"
+    }
+  },
+  {
+    "type": "AcceptPreparationOfferCommand",
+    "data": {
+      "OfferId": "staff.steward.4"
+    }
+  },
+  {
+    "type": "StartPreparedEditionCommand",
+    "data": {}
+  }
+]

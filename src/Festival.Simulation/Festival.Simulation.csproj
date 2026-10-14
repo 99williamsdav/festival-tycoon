@@ -4,4 +4,7 @@
     <AssemblyName>Festival.Simulation</AssemblyName>
     <RootNamespace>Festival.Simulation</RootNamespace>
   </PropertyGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Development/recorded-tier-one-clear.json" LogicalName="Festival.Simulation.recorded-tier-one-clear.json" />
+  </ItemGroup>
 </Project>

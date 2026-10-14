@@ -77,6 +77,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if (_developmentTierEvidenceOutput is not null) { ProcessDevelopmentTierEvidence(); return; }
         if (_barnEvidenceOutput is not null) { ProcessBarnEvidence(delta); return; }
         if (_fisticuffsEvidenceOutput is not null) { ProcessFisticuffsEvidence(); return; }
         ProcessChallengeEvidence();
@@ -613,6 +614,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-now-playing" && i + 1 < args.Length) { _nowPlayingEvidenceOutput = args[++i]; _startTier = 2; }
             else if (args[i] == "--capture-fisticuffs" && i + 1 < args.Length) { _fisticuffsEvidenceOutput = args[++i]; _startTier = 1; }
             else if (args[i] == "--capture-lav-hose" && i + 1 < args.Length) { _lavHoseEvidenceOutput = args[++i]; _startTier = 1; }
+            else if (args[i] == "--capture-development-tiers" && i + 1 < args.Length) _developmentTierEvidenceOutput = args[++i];
             else if (args[i] == "--capture-barn" && i + 1 < args.Length) _barnEvidenceOutput = args[++i];
             else if (args[i] == "--fisticuffs-checks-only") _fightEvidenceChecksOnly = true;
             else if (args[i] == "--capture-challenge" && i + 1 < args.Length) _challengeEvidenceOutput = args[++i];
@@ -644,6 +646,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
+        _developmentTierEvidenceOutput is not null ? System.IO.Path.Combine(_developmentTierEvidenceOutput,"diagnostic-saves") :
         _barnEvidenceOutput is not null ? System.IO.Path.Combine(_barnEvidenceOutput,"unused-diagnostic-save") : ProjectSettings.GlobalizePath("user://saves/r0-build-v97");
 
 
