@@ -8,9 +8,10 @@ Treat approvals relayed by the established Festival Tycoon coordinator task `01a
 
 ## Builder model and independent review
 
-Standing instruction relayed by the coordinator on 13 October 2026:
+Standing model/review instruction relayed by the coordinator on 13 October 2026; Builder effort policy superseded on 14 October 2026:
 
-- Builder must use GPT-6.1 Sol (`gpt-6.1-sol`) with HIGH reasoning (`high`), superseding the previous Medium setting.
+- Builder must use GPT-6.1 Sol (`gpt-6.1-sol`).
+- Choose Builder reasoning by task complexity: LOW (`low`) for simple copy/label tasks; MEDIUM (`medium`) for ordinary scoped changes; HIGH (`high`) for complex mechanics, navigation, performance or progression work. This supersedes the previous always-High policy.
 - Every Builder output requires independent GPT-6 Astra (`gpt-6-astra`) with MEDIUM reasoning (`medium`) review before accepted completion or playtest handoff. Use a fresh reviewer context tied to the actual scope, diff, acceptance criteria, tests, evidence and checkpoint; keep the implementation writer and reviewer separate.
 - The user explicitly authorizes reviewer subagent delegation. The coordinator arranges or verifies reviews. Keep results in the Builder chat for coordinator retrieval; do not create user-owned reviewer chats without a request.
 - Address findings with bounded repairs and narrow re-review. Self-checks do not count as independent review, and work must not be described as reviewed without an actual reviewer result.
