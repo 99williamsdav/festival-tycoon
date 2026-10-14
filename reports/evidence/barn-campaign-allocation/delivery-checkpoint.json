@@ -1,0 +1,281 @@
+{
+  "sourceCommit": "1fb21b08f27d108e284ed1c214698b5b6d75a03d",
+  "sourceCheckpointSha256": "83888EA6E5AD476856067A7715B9649A51FC9B76E70785BFC578D0EBBE1D0F08",
+  "deliveryExeSha256": "6165F8DADDF6093BF9B1E63E31D0EB4286FEC13BB56A3198853ACFEB25CBD8B6",
+  "payloadFiles": 194,
+  "builderNativeChecks": 61,
+  "independentNativeChecks": 61,
+  "builderExitCode": 0,
+  "independentExitCode": 0,
+  "review": "GPT-6 Astra MEDIUM source and copied EXE PASS",
+  "files": [
+    {
+      "path": "briefs/results/barn-campaign-allocation-exported-exe-review.md",
+      "sha256": "9C4AF65BD5C13C25B16A692E7F96244985258DCB387E59593642A7AC7AEF7DCB"
+    },
+    {
+      "path": "briefs/results/barn-campaign-allocation-independent-review.md",
+      "sha256": "C5D4CEEE84A7DE9ED605EAAC29FD77999CFA9B8F6A12E1410CE3330A4BDC3136"
+    },
+    {
+      "path": "briefs/results/barn-campaign-allocation.md",
+      "sha256": "98D0202DF65A52EB21AF4F14B9398274C9D89A0EFD76C95237807A9B6F5E0EAB"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/checkpoint.json",
+      "sha256": "83888EA6E5AD476856067A7715B9649A51FC9B76E70785BFC578D0EBBE1D0F08"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/commands.json",
+      "sha256": "E168EB1E5EEE21F6A25BCE63D00DD72AF29FF07E565183C66DADCAB80C216E76"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/delivery-manifest.json",
+      "sha256": "C4533C642E6BF28F2DD15A940011CC0F2363EFDD65917221D3CA0E4687477376"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/delivery.json",
+      "sha256": "B2839FE33C4A273BF0038642A3AD5D8C884D2A3AC2053E939FC2F748030C4111"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/export-log.txt",
+      "sha256": "BA13A8A937715CACB7B9A6FA6583B3CEDA4BCA2DFFC74BFD34DD0C0ADBABCDF5"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/barn-campaign-motion.mp4",
+      "sha256": "10D29BBDCE572EC63A34BAEEF9D17A18B9A8BBA09EA3659F937D48CE197EBC19"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/checks.json",
+      "sha256": "E50B8187A8F82D915D281A2A0450D11C3955E0C83E2DC69C3FFA3B931DCF06CF"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/movie-probe.json",
+      "sha256": "1A1DAB118A2A03F8E4BC2223D21E3C02F17C9912107AE03A9141E10DA4B2C0EF"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/native.log",
+      "sha256": "112262E4F183B1AB8984D32A8A7CFE277DFAF4569CB8290D86ABFBA25DF19FF1"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/process-proof.json",
+      "sha256": "73296D37F1DC4695048457B53C35A101B2D01428426C1C6DE31063FE1A88F9FE"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/process-result.json",
+      "sha256": "A88783999AA35A56C9D0EA9638979EEE257C3CFFB16B4F17EA8FE683DA7B3771"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-one-East.png",
+      "sha256": "1EC4348618CA199C0D8224CA4D5CC1CA98F4011D8E7C9650FAEE1CA91389E857"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-one-heatwave.png",
+      "sha256": "4924E92101878C478724612B508DE840BEFDC0EB220684FD3F1F33A2ED3C03FB"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-one-North.png",
+      "sha256": "A0858FA3C06723A5DEC7B9EBF965CD198B3314B35162855B36B109DC4FF4403E"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-one-selected-interior.png",
+      "sha256": "4843644A503409957E0C7D4A613B9372234A2F7EFFEFFACD3478AD4B522B9E39"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-one-South.png",
+      "sha256": "3DC3A454E74D7CB2AC107060B452FA2CF7E7A404A17BEA255E99C5C0371C7FCE"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-one-West.png",
+      "sha256": "D5F9A2FEF961503DE9266E15838BA77EEE3BBC684DB084327D0EF2B618AFF8AD"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-two-barn-cut-trailer-live.png",
+      "sha256": "15F27F4C60C0D790B43B36531C092C2544F38BD667F6E839E5E309B4F35481C2"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-two-box-office.png",
+      "sha256": "2465F05D30F2538FC23D2D9A832EDA7C06FDA1A4BB6675CD7BCEDCC9E3ED4C95"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-two-generator-context.png",
+      "sha256": "307D8B052ADF7327A4A04824F1C291B8D9EE30E0616254A358601B92B55F15DE"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-two-heavy-rain.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-two-live-rain-East.png",
+      "sha256": "F63FE099629D72976D2E5BF9F098A88E365655DE4196DA78AECEE2E8A146B7C3"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-two-live-rain-North.png",
+      "sha256": "F40B7D9F383FCD4708CA0990AC26F9BEB97D5AB3E5D40551CDE5E53654F13899"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-two-live-rain-South.png",
+      "sha256": "5ECF83599B22E72E2B3AB75E7240598E4B73B8402ED93D86D050E757EFFB7F5B"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-two-live-rain-West.png",
+      "sha256": "AFF5B379D9A2B411742FCB8C45659B65D6EC14C3E6265A629B4DB191027FF12C"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/tier-two-programme.png",
+      "sha256": "1E3A2FE859AD01FECEF9E3C1004A37B7EFA245E8F08907DB63B997C47F714A2C"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/exported/trace.json",
+      "sha256": "A0F0F1163ED1F0B356ECFC0144676ED5757C20260008F85A5AC2DA922AC5B658"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/focused-tests.txt",
+      "sha256": "23D3E459B57511F63F9728977026C4BC4CCEB81CD34D72AF33A1479A16530A1D"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/game-build.txt",
+      "sha256": "F18C7BA754F314ACE8DCF9F65220BA0E929C446969EEC1B8FD807A65F7746708"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/identity-rerun.txt",
+      "sha256": "4E24AA40C1E35DC8F7BA73774D525B8FDDCF54D44800213DF23ACF91482A5737"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/independent-exported/checks.json",
+      "sha256": "E50B8187A8F82D915D281A2A0450D11C3955E0C83E2DC69C3FFA3B931DCF06CF"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/independent-exported/exit.txt",
+      "sha256": "CC258D839E50D5E0CF220528399D5C29A6BCC5C3A9EE2616A915627E0363D91D"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/independent-exported/manifest.json",
+      "sha256": "D4840D60F995C1D6ED5003FA213548AED4B86A6359B2F20493E49C5085678BE4"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/independent-exported/movie-first-frame.png",
+      "sha256": "658CB8C641C7E31723B8A6CCC3227E260D6FE1E9693C012BC1E9F7EEFE5C4A0D"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/independent-exported/native.log",
+      "sha256": "D106F47BBC7E6E4C8280ABA7851688E8BE54EEA346AF1405B110A83DF2559176"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/independent-exported/tier-two-barn-cut-trailer-live.png",
+      "sha256": "96CE2B9B040059EC05131086E04FE11374B2E94608174F2516B4D7789E37D544"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/independent-exported/tier-two-generator-context.png",
+      "sha256": "C8BF717E6C0F042E368015078AD9B750A0FD01273E86D21A53CD358EB031B741"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/independent-exported/trace.json",
+      "sha256": "A0F0F1163ED1F0B356ECFC0144676ED5757C20260008F85A5AC2DA922AC5B658"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/reference-recorder.txt",
+      "sha256": "354E869909FA0938F3E6A92CFFB166226F77A86410EB954C23ED5CDD9907EC0B"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/regressions-initial.txt",
+      "sha256": "E93BA46C225403CCCDB19EA7B67C8EEE37E1BA63239F4B0BC608AEECD9C78683"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/routes-and-fees.txt",
+      "sha256": "A8A2BC1BB048CFED518428EA3528D11E9DD247912B641032FD7F19B28D1A2A2F"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/barn-campaign-motion.mp4",
+      "sha256": "B933A8D555204007435A4EC79C482B977472C10ADE33C61672EE737A4271B057"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/checks.json",
+      "sha256": "AEC370E42AEE3689C925A4D6DBE752CFBE78B9390582D773833575C583EF19CA"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/movie-probe.json",
+      "sha256": "1A1DAB118A2A03F8E4BC2223D21E3C02F17C9912107AE03A9141E10DA4B2C0EF"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/native.log",
+      "sha256": "1F742366747C4C91D5A813AD611BD80A011F6963C875C18FA34833E576920408"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-East.png",
+      "sha256": "1EC4348618CA199C0D8224CA4D5CC1CA98F4011D8E7C9650FAEE1CA91389E857"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-heatwave.png",
+      "sha256": "4924E92101878C478724612B508DE840BEFDC0EB220684FD3F1F33A2ED3C03FB"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-North.png",
+      "sha256": "A0858FA3C06723A5DEC7B9EBF965CD198B3314B35162855B36B109DC4FF4403E"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-selected-interior.png",
+      "sha256": "26B7E7EDBE95F239E44C58E29565045911CED0F8024DB48E62584E32E2A6DF83"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-South.png",
+      "sha256": "3DC3A454E74D7CB2AC107060B452FA2CF7E7A404A17BEA255E99C5C0371C7FCE"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-West.png",
+      "sha256": "D5F9A2FEF961503DE9266E15838BA77EEE3BBC684DB084327D0EF2B618AFF8AD"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-barn-cut-trailer-live.png",
+      "sha256": "9584640DBD29AE84871761EDE399FA69C960BEEEDDD6DEB14BD2410864C71EAC"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-box-office.png",
+      "sha256": "07EF2D97944D9EC2376CBE055711DFC395EFF2E2E29A455B4D580667B0288127"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-generator-context.png",
+      "sha256": "A91347EF405C4880C2C57E2948D8A8EB6979756C402AB12FB18D8D067582D702"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-heavy-rain.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-live-rain-East.png",
+      "sha256": "43167CC551ABD857A557D7D413E6F3B0F561E2F662D43ADF92D354639E501370"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-live-rain-North.png",
+      "sha256": "E04FCD19BF18A7E39F58C13CE52916AA54A5524AC32C1FDCBE3B4D78D70A36F3"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-live-rain-South.png",
+      "sha256": "9C624C1660915FE13B2529DFF959B9ECF7884F0D2C0B33DCFA3A3865639CE84B"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-live-rain-West.png",
+      "sha256": "33CA1CF02B3C016867FA81660941BD2C6CECED54DEECC789D27DD01827454E03"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-programme.png",
+      "sha256": "1E3A2FE859AD01FECEF9E3C1004A37B7EFA245E8F08907DB63B997C47F714A2C"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/trace.json",
+      "sha256": "A0F0F1163ED1F0B356ECFC0144676ED5757C20260008F85A5AC2DA922AC5B658"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/tier-two-summary.json",
+      "sha256": "5282BD522454C38CCDBBB07C2DB45E037FEFE3433AB27D19838C85628294730B"
+    }
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "sourceCommit": "1fb21b08f27d108e284ed1c214698b5b6d75a03d",
+  "exportRoot": "C:\\Projects\\festival-tycoon\\artifacts\\windows-barn-campaign-2026-10-14",
+  "deliveryRoot": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-barn-campaign-2026-10-14",
+  "fileCount": 194,
+  "exe": {
+    "path": "FestivalTycoon.exe",
+    "bytes": 198669536,
+    "sha256": "6165F8DADDF6093BF9B1E63E31D0EB4286FEC13BB56A3198853ACFEB25CBD8B6"
+  },
+  "exportExitCode": 0
+}

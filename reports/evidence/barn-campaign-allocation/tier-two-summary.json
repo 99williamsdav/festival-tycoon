@@ -1,0 +1,84 @@
+{
+  "seed": 20260922,
+  "Tier": 2,
+  "OpeningCashPennies": 110335,
+  "CarriedIn": {
+    "FromTier": 1,
+    "CashPennies": 35335,
+    "DebtPennies": 20000,
+    "FavourBalance": 1,
+    "CommunityWaterUsed": false,
+    "OwnedEquipment": []
+  },
+  "Reputation": 14,
+  "SceneCredibility": [
+    10,
+    0,
+    10,
+    10,
+    0,
+    0
+  ],
+  "SeenActs": [
+    "act.daisy-diaries",
+    "act.dj-spreadsheet",
+    "act.two-men-harmonium"
+  ],
+  "ActRelationships": [
+    {
+      "ActId": "act.daisy-diaries",
+      "Value": -1
+    },
+    {
+      "ActId": "act.dj-spreadsheet",
+      "Value": 10
+    },
+    {
+      "ActId": "act.two-men-harmonium",
+      "Value": 1
+    }
+  ],
+  "RelationshipHistory": [
+    {
+      "Tier": 1,
+      "ActId": "act.dj-spreadsheet",
+      "Started": true,
+      "CutShort": false,
+      "PeakCrowd": 25,
+      "SetEndCrowd": 25,
+      "SetEndEnjoyment": 4622,
+      "Hiccups": [],
+      "AverageCrowdTenths": 189
+    },
+    {
+      "Tier": 1,
+      "ActId": "act.two-men-harmonium",
+      "Started": true,
+      "CutShort": false,
+      "PeakCrowd": 16,
+      "SetEndCrowd": 16,
+      "SetEndEnjoyment": 2056,
+      "Hiccups": [],
+      "WonOver": 1,
+      "WalkedOff": 2,
+      "AverageCrowdTenths": 94
+    },
+    {
+      "Tier": 1,
+      "ActId": "act.daisy-diaries",
+      "Started": true,
+      "CutShort": false,
+      "PeakCrowd": 17,
+      "SetEndCrowd": 17,
+      "SetEndEnjoyment": 1918,
+      "Hiccups": [],
+      "WalkedOff": 4,
+      "AverageCrowdTenths": 99
+    }
+  ],
+  "ActPopularity": null,
+  "stages": [
+    "stage.main",
+    "stage.barn"
+  ]
+}

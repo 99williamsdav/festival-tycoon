@@ -1,0 +1,251 @@
+{
+  "passed": true,
+  "executable": "C:/Projects/festival-tycoon/.tools/godot/4.7.2/editor/Godot_v4.7.2-stable_mono_win64.exe",
+  "checks": [
+    {
+      "name": "isolated-campaign-save-host",
+      "passed": true
+    },
+    {
+      "name": "fresh-tier-one-ordinary-barn",
+      "passed": true
+    },
+    {
+      "name": "ordinary-barn-dressing-hidden-South",
+      "passed": true
+    },
+    {
+      "name": "ordinary-shell-retained-South",
+      "passed": true
+    },
+    {
+      "name": "ordinary-barn-dressing-hidden-West",
+      "passed": true
+    },
+    {
+      "name": "ordinary-shell-retained-West",
+      "passed": true
+    },
+    {
+      "name": "ordinary-barn-dressing-hidden-North",
+      "passed": true
+    },
+    {
+      "name": "ordinary-shell-retained-North",
+      "passed": true
+    },
+    {
+      "name": "ordinary-barn-dressing-hidden-East",
+      "passed": true
+    },
+    {
+      "name": "ordinary-shell-retained-East",
+      "passed": true
+    },
+    {
+      "name": "ordinary-selection-reveals-without-conversion",
+      "passed": true
+    },
+    {
+      "name": "direct-tier-two-trailer-barn",
+      "passed": true
+    },
+    {
+      "name": "canonical-carry-unchanged",
+      "passed": true
+    },
+    {
+      "name": "rain-reveal-before-preparation",
+      "passed": true
+    },
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPreparationStockCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "normal-paid-two-stage-plan-ready",
+      "passed": true
+    },
+    {
+      "name": "command-StartPreparedEditionCommand",
+      "passed": true
+    },
+    {
+      "name": "reached-tick-8000",
+      "passed": true
+    },
+    {
+      "name": "actual-first-set-on-time",
+      "passed": true
+    },
+    {
+      "name": "reached-tick-15092",
+      "passed": true
+    },
+    {
+      "name": "actual-rain-during-covered-music",
+      "passed": true
+    },
+    {
+      "name": "real-audience-arrived-under-cover",
+      "passed": true
+    },
+    {
+      "name": "paid-engineer-reached-barn",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "conversion-visible-only-active-South",
+      "passed": true
+    },
+    {
+      "name": "outside-generator-position-South",
+      "passed": true
+    },
+    {
+      "name": "all-roles-on-actual-deck-South",
+      "passed": true
+    },
+    {
+      "name": "conversion-visible-only-active-West",
+      "passed": true
+    },
+    {
+      "name": "outside-generator-position-West",
+      "passed": true
+    },
+    {
+      "name": "all-roles-on-actual-deck-West",
+      "passed": true
+    },
+    {
+      "name": "conversion-visible-only-active-North",
+      "passed": true
+    },
+    {
+      "name": "outside-generator-position-North",
+      "passed": true
+    },
+    {
+      "name": "all-roles-on-actual-deck-North",
+      "passed": true
+    },
+    {
+      "name": "conversion-visible-only-active-East",
+      "passed": true
+    },
+    {
+      "name": "outside-generator-position-East",
+      "passed": true
+    },
+    {
+      "name": "all-roles-on-actual-deck-East",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "reached-tick-21000",
+      "passed": true
+    },
+    {
+      "name": "real-second-act-on-time",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "outside-generator-nearest-hit-pick",
+      "passed": true
+    },
+    {
+      "name": "contextual-barn-power-action",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "context-cut-only-barn",
+      "passed": true
+    },
+    {
+      "name": "barn-audio-stopped",
+      "passed": true
+    },
+    {
+      "name": "trailer-audio-kept-playing",
+      "passed": true
+    },
+    {
+      "name": "barn-now-playing-hidden-after-cut",
+      "passed": true
+    },
+    {
+      "name": "actual-live-cut-save-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "menu-hides-all-now-playing",
+      "passed": true
+    },
+    {
+      "name": "ordinary-menu-resume-keeps-state",
+      "passed": true
+    },
+    {
+      "name": "direct-restart-restores-reference",
+      "passed": true
+    },
+    {
+      "name": "tier-one-reset-removes-conversion-and-generator",
+      "passed": true
+    }
+  ],
+  "caveat": "Scripted actual campaign/menu/gameplay. Movie advances normal simulation at 80 ticks/s; four-angle views hold an actual naturally rainy live state. No actor, forecast or cash mutations. Council retry is covered by simulation regressions."
+}

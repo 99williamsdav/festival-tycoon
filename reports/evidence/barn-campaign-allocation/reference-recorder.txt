@@ -1,0 +1,216 @@
+{
+  "seed": 20260922,
+  "initial": 45000,
+  "PreparedStatus": 3,
+  "CurrentTick": 41767,
+  "CanStartNextFestival": true,
+  "result": {
+    "Attempt": 1,
+    "Tick": 41767,
+    "GuestCount": 25,
+    "SatisfactionTotal": 84043,
+    "RevenuePennies": 47775,
+    "ContractCostsPennies": 26200,
+    "ConsumedStockCostsPennies": 5760,
+    "CapitalPurchasesPennies": 0,
+    "NetCashChangePennies": 15335,
+    "BeersFinished": 24,
+    "Fights": 4,
+    "MedicalCollapses": 0,
+    "ProfitPennies": 15815,
+    "Stars": 2,
+    "SatisfactionPercent": 33.6172
+  },
+  "accounts": {
+    "Sales": [
+      {
+        "Product": 1,
+        "UnitPricePennies": 250,
+        "Quantity": 27,
+        "AmountPennies": 6750,
+        "Stall": "drinks"
+      },
+      {
+        "Product": 1,
+        "UnitPricePennies": 125,
+        "Quantity": 13,
+        "AmountPennies": 1625,
+        "Stall": "drinks"
+      },
+      {
+        "Product": 2,
+        "UnitPricePennies": 400,
+        "Quantity": 24,
+        "AmountPennies": 9600,
+        "Stall": "drinks"
+      },
+      {
+        "Product": 2,
+        "UnitPricePennies": 200,
+        "Quantity": 4,
+        "AmountPennies": 800,
+        "Stall": "drinks"
+      }
+    ],
+    "SoldItemCosts": [
+      {
+        "Label": "Soft drink",
+        "Quantity": 40,
+        "UnitCostPennies": 60,
+        "AmountPennies": 2400
+      },
+      {
+        "Label": "Beer",
+        "Quantity": 28,
+        "UnitCostPennies": 120,
+        "AmountPennies": 3360
+      }
+    ],
+    "OperatingExpenses": [
+      {
+        "Category": "Staff and rental",
+        "Label": "Lorraine Tuffin \u00B7 medic",
+        "AmountPennies": 1500
+      },
+      {
+        "Category": "Staff and rental",
+        "Label": "Terry Bunce \u00B7 sound engineer",
+        "AmountPennies": 2000
+      },
+      {
+        "Category": "Staff and rental",
+        "Label": "Kev Kettle \u00B7 steward",
+        "AmountPennies": 800
+      },
+      {
+        "Category": "Act bookings",
+        "Label": "DJ Spreadsheet",
+        "AmountPennies": 500
+      },
+      {
+        "Category": "Act bookings",
+        "Label": "Two Men and a Harmonium",
+        "AmountPennies": 500
+      },
+      {
+        "Category": "Act bookings",
+        "Label": "Daisy \u0026 the Diaries",
+        "AmountPennies": 1400
+      },
+      {
+        "Category": "Facilities",
+        "Label": "Water tap \u00D7 1",
+        "AmountPennies": 1500
+      },
+      {
+        "Category": "Facilities",
+        "Label": "Toilet \u00D7 2",
+        "AmountPennies": 6000
+      },
+      {
+        "Category": "Facilities",
+        "Label": "Bar \u00D7 1",
+        "AmountPennies": 5000
+      },
+      {
+        "Category": "Facilities",
+        "Label": "First aid \u00D7 1",
+        "AmountPennies": 3500
+      },
+      {
+        "Category": "Facilities",
+        "Label": "Steward post \u00D7 1",
+        "AmountPennies": 2500
+      },
+      {
+        "Category": "Facilities",
+        "Label": "Litter bin \u00D7 1",
+        "AmountPennies": 1000
+      }
+    ],
+    "PurchasedStock": [
+      {
+        "Label": "Soft drink",
+        "Quantity": 40,
+        "UnitCostPennies": 60,
+        "AmountPennies": 2400
+      },
+      {
+        "Label": "Beer",
+        "Quantity": 32,
+        "UnitCostPennies": 120,
+        "AmountPennies": 3840
+      }
+    ],
+    "TicketsSold": 25,
+    "TicketPricePennies": 1000,
+    "OpeningCashPennies": 20000,
+    "ClosingCashPennies": 35335,
+    "StockPurchasesPennies": 6240,
+    "CapitalPurchasesPennies": 0,
+    "StockPurchaseRecorded": true,
+    "StockDetailRecorded": true,
+    "FacilityDetailRecorded": true,
+    "Reconciles": true,
+    "TicketSalesPennies": 25000,
+    "PitchFeePennies": 4000,
+    "PitchFeeTrader": "Chip Off The Old Block",
+    "PitchFees": [
+      {
+        "Trader": "Chip Off The Old Block",
+        "FeePennies": 4000
+      }
+    ],
+    "CarriedInPennies": null,
+    "DebtOwedPennies": 20000,
+    "StockLines": [
+      {
+        "Label": "Soft drink",
+        "Bought": 40,
+        "PaidPennies": 2400,
+        "Sold": 40,
+        "TakenPennies": 8375,
+        "SoldCostPennies": 2400,
+        "UnitCostPennies": 60,
+        "ForSale": true,
+        "LeftOver": 0,
+        "LeftOverCostPennies": 0,
+        "MarginPennies": 5975
+      },
+      {
+        "Label": "Beer",
+        "Bought": 32,
+        "PaidPennies": 3840,
+        "Sold": 28,
+        "TakenPennies": 10400,
+        "SoldCostPennies": 3360,
+        "UnitCostPennies": 120,
+        "ForSale": true,
+        "LeftOver": 4,
+        "LeftOverCostPennies": 480,
+        "MarginPennies": 7040
+      }
+    ],
+    "WaterGivenAway": 0,
+    "IncomePennies": 47775,
+    "SoldItemCostPennies": 5760,
+    "OperatingExpensesPennies": 26200,
+    "StockWrittenOffPennies": 480,
+    "OperatingResultPennies": 15335,
+    "NetCashChangePennies": 15335
+  },
+  "Reputation": 14,
+  "SceneCredibility": [
+    10,
+    0,
+    10,
+    10,
+    0,
+    0
+  ],
+  "SeenActs": [
+    "act.daisy-diaries",
+    "act.dj-spreadsheet",
+    "act.two-men-harmonium"
+  ]
+}

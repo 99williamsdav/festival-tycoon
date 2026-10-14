@@ -1,0 +1,369 @@
+{
+  "baseline": "4dc12430f5096f42fcfb689e82f555dfd26b2070",
+  "scope": "Explicit user-approved Tier1 ordinary barn; Tier2 Trailer+Barn replacing Pond; existing outside generator anchor/full measured footprint; no third stage or new economics",
+  "files": [
+    {
+      "path": "game/assets/environment/barn-stage-v1/lwf_barn_stage_v1.glb",
+      "sha256": "8D690770EDD4A2FF4D039D5B43D50F3C0B0726AFE847E96A001628535E8B82B1"
+    },
+    {
+      "path": "game/assets/environment/modular-riser-v1/lwf_modular_riser_stage_v1.glb",
+      "sha256": "3BA3B4FDFF84EC5C7CC1109E7AAA808503DB3AA1F1B54CBA90FF638D0E147759"
+    },
+    {
+      "path": "game/assets/equipment/lwf_hire_generator_fault_v1.glb",
+      "sha256": "AC20823B5BBAC7835759D3485BD10D4324BDCBC33246D1107E18079B90880A10"
+    },
+    {
+      "path": "game/assets/equipment/lwf_hire_generator_isolated_v1.glb",
+      "sha256": "7023CD74C586AA2268DEE58689B4F32DE3BD844F3B46371851A7C653CA1DFFD6"
+    },
+    {
+      "path": "game/assets/equipment/lwf_hire_generator_normal_v1.glb",
+      "sha256": "9B36F1075B250CBD19F16C06440ADCFC8CAFB4FC34D9CFD08DEB1776B1051E92"
+    },
+    {
+      "path": "game/assets/equipment/lwf_hire_generator_overloaded_v1.glb",
+      "sha256": "2959B939B9D7ABAA660B8EB50E80DBE92B9C16520080F9B4B19046944E5523EB"
+    },
+    {
+      "path": "game/FestivalAudio.cs",
+      "sha256": "21A91C0CD704BC5FF34B9F1B49CDB55D8AE2A45F68FBBA648794FF22E53AEE0E"
+    },
+    {
+      "path": "game/Hud/BoxOffice.cs",
+      "sha256": "2C6FC5C5A033CA41E89BBA82D7528117DF76CDE5CB6CAB16062D636B1CEC9DF3"
+    },
+    {
+      "path": "game/Hud/FestivalReview.cs",
+      "sha256": "080C0B17B3A07E0DECF83C6C751CAED48B51C3C54441E2626D4906A1D01F019C"
+    },
+    {
+      "path": "game/Hud/PreparationDock.cs",
+      "sha256": "F9D41A00EBD5AF354FC4A6A74D5DE393D9566F610164765E2A7CAAACC1B1FD7D"
+    },
+    {
+      "path": "game/Hud/ResultsPaper.cs",
+      "sha256": "DAA717643C6B35175EFDED35915A7B1E0142F443CF3C3FAE3807DA668DB1FF79"
+    },
+    {
+      "path": "game/Hud/StageCard.cs",
+      "sha256": "25C0EDB84C222380E89F0576179A7D66F8F100C677957C998EB12631D46A76AA"
+    },
+    {
+      "path": "game/Hud/TopBar.cs",
+      "sha256": "E2B69073ECAB0BD0439767C0AFE9129045531386380A8AF82B4328E710F0D9B4"
+    },
+    {
+      "path": "game/Main.BarnCampaignEvidence.cs",
+      "sha256": "9B7811483537F288A9777D421F0C6831A848C601AB45E19BB60B54111DE724FE"
+    },
+    {
+      "path": "game/Main.BarnEvidence.cs",
+      "sha256": "6DA8E8E4DBCDD9BC6BF4C9AF9A9818388BE50524C5BADDB97C561C860AE0FE27"
+    },
+    {
+      "path": "game/Main.BarnStage.cs",
+      "sha256": "ED88A608FF9A23719B96340C7E5A7CFE7AFA87AABA24BE61C797047E6F5D5A86"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "16A8E5576674F44B665BDE07183922B75C4F4B5733C1774E99902588B030EDC1"
+    },
+    {
+      "path": "game/Main.DevelopmentTierEvidence.cs",
+      "sha256": "F0FC8951B2850CDF2E19F36EFCE309E458EBE41C85E0B3CBE548E978CB9E6448"
+    },
+    {
+      "path": "game/Main.FieldNotes.cs",
+      "sha256": "298755FB34BFC10EC075B57FF9E9ED5E4BFB7F2E2F7BC9E75DFCF6F55C7D0A63"
+    },
+    {
+      "path": "game/Main.HandsOn.cs",
+      "sha256": "5489D7A4CF4210C94872C58ED1A3041B659C956BC60AB4FB2D52199DAA096FCC"
+    },
+    {
+      "path": "game/Main.Hover.cs",
+      "sha256": "FE125EAB63B308A99E2B2A55B949361C6E9FB9E1A5A7B686749BD31031C2F156"
+    },
+    {
+      "path": "game/Main.LivePerformance.cs",
+      "sha256": "FDEB9A58AB6446EA25B70BFA558E143F8600333506726DA9A089AF50E67A4309"
+    },
+    {
+      "path": "game/Main.NowPlayingEvidence.cs",
+      "sha256": "E9B22E7008B682EFD3249D3CAAC36D36BD166DD48A95D6E319DB4AB86C1DA996"
+    },
+    {
+      "path": "game/Main.Power.cs",
+      "sha256": "A523D41EEE063210671ACEC0EF2B868C8FCF2C77CBC3ECA1C77F0EF266200AD1"
+    },
+    {
+      "path": "game/Main.Preparation.cs",
+      "sha256": "5E41342304D218A20DF33809619AD6A61C2AF248755B126A0960302B60829D51"
+    },
+    {
+      "path": "game/Main.SiteMap.cs",
+      "sha256": "D3BA99839AAD593E5515495B53B157EC3E27A8430978A9511D26A6EFEF9C0515"
+    },
+    {
+      "path": "game/Main.Splash.cs",
+      "sha256": "E501581DA2EB6F4853117A95D4CED2383D46E50F10AB9C50F378B9A1DA29F427"
+    },
+    {
+      "path": "game/Main.StaffPanel.cs",
+      "sha256": "D9460EC0A8A173E742AF25C05695392A8B4F908057DD9D453B019687057278E2"
+    },
+    {
+      "path": "game/Main.StageInvasion.cs",
+      "sha256": "A2D4C1188CA83EC4270BBD589D7CC1576986C5523AA46B449F3D53DF52174B42"
+    },
+    {
+      "path": "game/Main.StewardShift.cs",
+      "sha256": "D387633469A9E20695021A7F3D1967DBE4B2DDC2E5EAFB5D9B0C2AB88E8D963F"
+    },
+    {
+      "path": "game/RoofFade.cs",
+      "sha256": "28B3DE0EBE20268B1670DE65CD158CFDA050FF51982AB55DC0D46105B985327D"
+    },
+    {
+      "path": "src/Festival.Simulation/BandRelationships.cs",
+      "sha256": "1A9B9BF66507710DB9A63F8E8FF2624F87F17C803BC207415ED727701C34C993"
+    },
+    {
+      "path": "src/Festival.Simulation/BarnStage.cs",
+      "sha256": "110932CF21EF57E6D408C31C0E3A220E05DC4594F104575B462A23450C1DCFBB"
+    },
+    {
+      "path": "src/Festival.Simulation/BuildLayout.cs",
+      "sha256": "C2C2E8A2415969B8BCE685D8524712E8F332C47AAC18036C003C070B254D2B4C"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignSetup.cs",
+      "sha256": "F1BD7437AF05EA4DC7E9B2106A5C88B232D3E393FC0C2A2AE47843BBC78C1911"
+    },
+    {
+      "path": "src/Festival.Simulation/Development/README.md",
+      "sha256": "DDCE2544765A6815859564BD7D65364879B5868F6A218FECEE88DB87D8191A1F"
+    },
+    {
+      "path": "src/Festival.Simulation/Development/recorded-tier-one-clear.json",
+      "sha256": "B467B803242D98A2FB5570F3B995EA7A6F18B1A21EE16C2E5263DC13F445E4C8"
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalStage.cs",
+      "sha256": "A797C326D1A4C2A12C8C9B787A33367B1D070F0359C68BAFE8FD54CFA9E121A3"
+    },
+    {
+      "path": "src/Festival.Simulation/Fixtures/NavigationFixture.cs",
+      "sha256": "BB74D5BD0DD51E6B8B623820B80C8D10D232795882AD021F6E2AF304F0870140"
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.Navigation.cs",
+      "sha256": "6C273C97210377FE4CFBFA004BE011BF661759858DC9207E44B2036B33DD38D7"
+    },
+    {
+      "path": "src/Festival.Simulation/LivePerformance.cs",
+      "sha256": "4D8145173666BBEA14B3788AFDCBBEA9812D47A95A8804A3CCCAF0FB181BB880"
+    },
+    {
+      "path": "src/Festival.Simulation/MultiStage.cs",
+      "sha256": "C6A4461B783025E90B4D48A0D283630AD84E274B67F06C7550135409100B8335"
+    },
+    {
+      "path": "src/Festival.Simulation/NextFestival.cs",
+      "sha256": "60B2070005963A9BAA54638022C8084F21380B9F8F26682DD037ED6DF66267AD"
+    },
+    {
+      "path": "src/Festival.Simulation/PowerBudget.cs",
+      "sha256": "5041537592146E725528ADEF4039698959626A9A484F7F80A7F2959B433DA092"
+    },
+    {
+      "path": "src/Festival.Simulation/Preparation.cs",
+      "sha256": "15960C59557A0DCABE3A29E1CB1A22C6AF42FAAD859C4863C28B7062A4807429"
+    },
+    {
+      "path": "src/Festival.Simulation/RecordedDevelopmentStart.cs",
+      "sha256": "348070FCA666559BDC1AC093DE4EF4A2DEF34A0BC0AFD50EB8489EED33242B83"
+    },
+    {
+      "path": "src/Festival.Simulation/Shelter.cs",
+      "sha256": "F318F3CF14D807EE971D16780F74F0DA1CD6E2509A0D8D5DC5AA49F1A11094A0"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffCatalogue.cs",
+      "sha256": "DBDAF58FCC43A5890B1381CF83D0F13A9CA338DD0C689B6BE81EE0BCB7E2BF64"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShift.cs",
+      "sha256": "D254AD75707A1109DDC0AB98066968F3728F6D03AC126205C5E5E4E55DC76D57"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftCalls.cs",
+      "sha256": "24764F5CDF45512EEE60EE488B090C88125F629805BD97FE9B0AFA60FA68F59A"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftSetup.cs",
+      "sha256": "4A9F0BB6611DCCC8BF2C647C7DD3A52921135EC7F39AF51E77BE3B242008BFCA"
+    },
+    {
+      "path": "src/Festival.Simulation/StewardShiftStage.cs",
+      "sha256": "317D07EE16B54E9AAEE5EB9DF8EC6FF2ED96CC079C98DF5251DB67F87184C8B2"
+    },
+    {
+      "path": "tests/Festival.Tests/BandRelationshipTests.cs",
+      "sha256": "2CF03C0EF08FBBD8314D0079CBE904E8DF71CDE951BB4D104895887739B42954"
+    },
+    {
+      "path": "tests/Festival.Tests/BarnCampaignAllocationTests.cs",
+      "sha256": "7A4F3C7EC8CEF7C2B1D611F0D9DC73B3D116DEE9D273B0A44C63D0A7EE6794E3"
+    },
+    {
+      "path": "tests/Festival.Tests/BarnStageTests.cs",
+      "sha256": "90635845DF5CB047CD9A1D1E0D709EEE9A3F0FA6808216053503BC418D8E9A2D"
+    },
+    {
+      "path": "tests/Festival.Tests/DrinkProbe.cs",
+      "sha256": "1F24BE13B7CE9CC32F156B29F5F5F51EF8537DA6C5D2914B90775F327F3A06D1"
+    },
+    {
+      "path": "tests/Festival.Tests/NextFestivalTests.cs",
+      "sha256": "F55CBF16833031E3284788108DC2B3135A6D10890F36013A1BCF2405062FD9D9"
+    },
+    {
+      "path": "tests/Festival.Tests/PooledPowerTests.cs",
+      "sha256": "4E13D9490EBE2F325E9381DCE92FCF1E829411A65E540FC82CE039C8759907B6"
+    },
+    {
+      "path": "tests/Festival.Tests/RainTests.cs",
+      "sha256": "5A66014B6503F8895FD692EDB22127533D478F4999FCC436B474172CC2CCD65C"
+    },
+    {
+      "path": "tests/Festival.Tests/RecordedDevelopmentStartTests.cs",
+      "sha256": "9A68C3873165EC5C8F2788548952555935D0EE84B95DDFBDFB021EA288FC25AD"
+    },
+    {
+      "path": "game/Main.BarnCampaignEvidence.cs.uid",
+      "sha256": "F97A5685B0E2344BE75DB4F56B2203EEA628B9E5AE317D85E669AA793B31CE9E"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "reports/evidence/barn-campaign-allocation/commands.json",
+      "sha256": "E168EB1E5EEE21F6A25BCE63D00DD72AF29FF07E565183C66DADCAB80C216E76"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/focused-tests.txt",
+      "sha256": "23D3E459B57511F63F9728977026C4BC4CCEB81CD34D72AF33A1479A16530A1D"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/game-build.txt",
+      "sha256": "F18C7BA754F314ACE8DCF9F65220BA0E929C446969EEC1B8FD807A65F7746708"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/identity-rerun.txt",
+      "sha256": "4E24AA40C1E35DC8F7BA73774D525B8FDDCF54D44800213DF23ACF91482A5737"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/reference-recorder.txt",
+      "sha256": "354E869909FA0938F3E6A92CFFB166226F77A86410EB954C23ED5CDD9907EC0B"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/regressions-initial.txt",
+      "sha256": "E93BA46C225403CCCDB19EA7B67C8EEE37E1BA63239F4B0BC608AEECD9C78683"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/routes-and-fees.txt",
+      "sha256": "A8A2BC1BB048CFED518428EA3528D11E9DD247912B641032FD7F19B28D1A2A2F"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/tier-two-summary.json",
+      "sha256": "5282BD522454C38CCDBBB07C2DB45E037FEFE3433AB27D19838C85628294730B"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/barn-campaign-motion.mp4",
+      "sha256": "B933A8D555204007435A4EC79C482B977472C10ADE33C61672EE737A4271B057"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/checks.json",
+      "sha256": "AEC370E42AEE3689C925A4D6DBE752CFBE78B9390582D773833575C583EF19CA"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/movie-probe.json",
+      "sha256": "1A1DAB118A2A03F8E4BC2223D21E3C02F17C9912107AE03A9141E10DA4B2C0EF"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/native.log",
+      "sha256": "1F742366747C4C91D5A813AD611BD80A011F6963C875C18FA34833E576920408"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-East.png",
+      "sha256": "1EC4348618CA199C0D8224CA4D5CC1CA98F4011D8E7C9650FAEE1CA91389E857"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-heatwave.png",
+      "sha256": "4924E92101878C478724612B508DE840BEFDC0EB220684FD3F1F33A2ED3C03FB"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-North.png",
+      "sha256": "A0858FA3C06723A5DEC7B9EBF965CD198B3314B35162855B36B109DC4FF4403E"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-selected-interior.png",
+      "sha256": "26B7E7EDBE95F239E44C58E29565045911CED0F8024DB48E62584E32E2A6DF83"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-South.png",
+      "sha256": "3DC3A454E74D7CB2AC107060B452FA2CF7E7A404A17BEA255E99C5C0371C7FCE"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-one-West.png",
+      "sha256": "D5F9A2FEF961503DE9266E15838BA77EEE3BBC684DB084327D0EF2B618AFF8AD"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-barn-cut-trailer-live.png",
+      "sha256": "9584640DBD29AE84871761EDE399FA69C960BEEEDDD6DEB14BD2410864C71EAC"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-box-office.png",
+      "sha256": "07EF2D97944D9EC2376CBE055711DFC395EFF2E2E29A455B4D580667B0288127"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-generator-context.png",
+      "sha256": "A91347EF405C4880C2C57E2948D8A8EB6979756C402AB12FB18D8D067582D702"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-heavy-rain.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-live-rain-East.png",
+      "sha256": "43167CC551ABD857A557D7D413E6F3B0F561E2F662D43ADF92D354639E501370"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-live-rain-North.png",
+      "sha256": "E04FCD19BF18A7E39F58C13CE52916AA54A5524AC32C1FDCBE3B4D78D70A36F3"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-live-rain-South.png",
+      "sha256": "9C624C1660915FE13B2529DFF959B9ECF7884F0D2C0B33DCFA3A3865639CE84B"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-live-rain-West.png",
+      "sha256": "33CA1CF02B3C016867FA81660941BD2C6CECED54DEECC789D27DD01827454E03"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/tier-two-programme.png",
+      "sha256": "1E3A2FE859AD01FECEF9E3C1004A37B7EFA245E8F08907DB63B997C47F714A2C"
+    },
+    {
+      "path": "reports/evidence/barn-campaign-allocation/source/trace.json",
+      "sha256": "A0F0F1163ED1F0B356ECFC0144676ED5757C20260008F85A5AC2DA922AC5B658"
+    }
+  ],
+  "sourceCommit": "1fb21b08f27d108e284ed1c214698b5b6d75a03d"
+}

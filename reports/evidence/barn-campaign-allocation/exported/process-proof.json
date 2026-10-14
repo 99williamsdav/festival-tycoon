@@ -1,0 +1,5 @@
+{
+  "ProcessId": 9288,
+  "ExecutablePath": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-barn-campaign-2026-10-14\\FestivalTycoon.exe",
+  "CommandLine": "\"C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-barn-campaign-2026-10-14\\FestivalTycoon.exe\" --fixed-fps 30 --quit-after 840 --log-file \"C:/Projects/festival-tycoon/artifacts/barn-campaign-copied-exe/native.log\" -- --capture-barn-campaign \"C:/Projects/festival-tycoon/artifacts/barn-campaign-copied-exe\" --capture-size 1280x720"
+}

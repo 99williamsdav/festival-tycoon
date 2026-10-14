@@ -1,0 +1,37 @@
+[
+  {
+    "path": "checks.json",
+    "bytes": 5671,
+    "sha256": "E50B8187A8F82D915D281A2A0450D11C3955E0C83E2DC69C3FFA3B931DCF06CF"
+  },
+  {
+    "path": "exit.txt",
+    "bytes": 8,
+    "sha256": "CC258D839E50D5E0CF220528399D5C29A6BCC5C3A9EE2616A915627E0363D91D"
+  },
+  {
+    "path": "movie-first-frame.png",
+    "bytes": 918674,
+    "sha256": "658CB8C641C7E31723B8A6CCC3227E260D6FE1E9693C012BC1E9F7EEFE5C4A0D"
+  },
+  {
+    "path": "native.log",
+    "bytes": 1380,
+    "sha256": "D106F47BBC7E6E4C8280ABA7851688E8BE54EEA346AF1405B110A83DF2559176"
+  },
+  {
+    "path": "tier-two-barn-cut-trailer-live.png",
+    "bytes": 816697,
+    "sha256": "96CE2B9B040059EC05131086E04FE11374B2E94608174F2516B4D7789E37D544"
+  },
+  {
+    "path": "tier-two-generator-context.png",
+    "bytes": 808117,
+    "sha256": "C8BF717E6C0F042E368015078AD9B750A0FD01273E86D21A53CD358EB031B741"
+  },
+  {
+    "path": "trace.json",
+    "bytes": 577089,
+    "sha256": "A0F0F1163ED1F0B356ECFC0144676ED5757C20260008F85A5AC2DA922AC5B658"
+  }
+]
