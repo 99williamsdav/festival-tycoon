@@ -28,9 +28,9 @@ public sealed record EquipmentSnapshot(int Version, int XMillimetres, int ZMilli
 
 public sealed partial class GameSession
 {
-    public const int EquipmentWarningDelayTicks = 2_400;
-    public const int EquipmentDangerDelayTicks = 3_600;
-    public const int EquipmentDeathDelayTicks = 4_800;
+    public const int EquipmentWarningDelayTicks = SurvivalBalance.EquipmentWarningDelayTicks;
+    public const int EquipmentDangerDelayTicks = SurvivalBalance.EquipmentDangerDelayTicks;
+    public const int EquipmentDeathDelayTicks = SurvivalBalance.EquipmentDeathDelayTicks;
     public const int EquipmentRepairTicks = 1_600;
     public const int EquipmentHazardRadiusMillimetres = 4_000;
     public const int EquipmentXMillimetres = -20_250;
@@ -52,10 +52,10 @@ public sealed partial class GameSession
         (long)EquipmentHazardRadiusMillimetres * EquipmentHazardRadiusMillimetres);
 
     public bool EquipmentBoundaryOnNextTick => !IsPaused && (StageGeneratorBoundaryOnNextTick || _equipment is { } e && _preparation is { Status: PreparationStatus.Running } p &&
-        (e.Version != 3 && e.Stage == EquipmentStage.Normal && CurrentTick + 1 >= p.StartedTick + EquipmentWarningDelayTicks ||
+        (e.Version != 3 && e.Stage == EquipmentStage.Normal && CurrentTick + 1 >= p.StartedTick + RuleProfile.Incidents.EquipmentWarningDelayTicks ||
          e.Version == 3 && PowerTransitionOnNextTick(e) ||
-         e.Stage == EquipmentStage.Warning && CurrentTick + 1 >= e.WarningTick + EquipmentDangerDelayTicks ||
-         e.Stage == EquipmentStage.DangerousFault && CurrentTick + 1 >= e.WarningTick + EquipmentDeathDelayTicks && NearbyEquipmentPerson() is not null ||
+         e.Stage == EquipmentStage.Warning && CurrentTick + 1 >= e.WarningTick + RuleProfile.Incidents.EquipmentDangerDelayTicks ||
+         e.Stage == EquipmentStage.DangerousFault && CurrentTick + 1 >= e.WarningTick + RuleProfile.Incidents.EquipmentDeathDelayTicks && NearbyEquipmentPerson() is not null ||
          e.JobStage == MaintenanceStage.Travelling && _navigationAgents[new(e.WorkerId!.Value)].Action == AgentNavigationAction.Arrived ||
          e.JobStage == MaintenanceStage.Repairing && CurrentTick + 1 >= e.RepairStartedTick + EquipmentRepairTicks));
 
@@ -174,43 +174,28 @@ public sealed partial class GameSession
             return;
         }
         if (e.Version == 3) { AdvancePowerBudget(e); return; }
-        if (e.Stage == EquipmentStage.Normal && CurrentTick >= p.StartedTick + EquipmentWarningDelayTicks)
+        if (e.Stage == EquipmentStage.Normal && CurrentTick >= p.StartedTick + RuleProfile.Incidents.EquipmentWarningDelayTicks)
         {
             _equipment = e with { Stage = EquipmentStage.Warning, WarningTick = CurrentTick, Condition = 7_000 };
             EquipmentEvent("equipment:warning", "GENERATOR OVERLOAD: 120% load, condition 70%. Shed load, isolate or complete maintenance. Dangerous fault in 45 seconds; lethal eligibility no sooner than 60 seconds at 1×.");
         }
-        else if (e.Stage == EquipmentStage.Warning && CurrentTick >= e.WarningTick + EquipmentDangerDelayTicks)
+        else if (e.Stage == EquipmentStage.Warning && CurrentTick >= e.WarningTick + RuleProfile.Incidents.EquipmentDangerDelayTicks)
         {
             _equipment = e with { Stage = EquipmentStage.DangerousFault, Condition = 3_000 };
             EquipmentEvent("equipment:fault", "Dangerous generator fault: 120% load, condition 30%. Cutoff or shedding still prevents death. Unfinished maintenance is not protection.");
         }
-        else if (e.Stage == EquipmentStage.DangerousFault && CurrentTick >= e.WarningTick + EquipmentDeathDelayTicks && NearbyEquipmentPerson() is { } victim)
+        else if (e.Stage == EquipmentStage.DangerousFault && CurrentTick >= e.WarningTick + RuleProfile.Incidents.EquipmentDeathDelayTicks && NearbyEquipmentPerson() is { } victim)
             EquipmentDeath(e, victim);
     }
 
     /// <summary>A dangerous fault kills someone standing by the unit: the day fails and the Council hearing opens.</summary>
     private void EquipmentDeath(EquipmentSnapshot e, Person victim)
     {
-        var p = _preparation!;
-        {
-            var agent = _navigationAgents[new(victim.Id)];
-            var cause = $"Generator overload killed {victim.Name} ({victim.Role}) at ({agent.XMillimetres},{agent.ZMillimetres}) near unit ({e.XMillimetres},{e.ZMillimetres}); load {e.LoadPercent}%; condition {e.Condition / 100}%; warning tick {e.WarningTick}, acknowledged {e.WarningAcknowledged}; response: {e.Response}; job {e.JobStage}.";
-            _equipment = e with { Stage = EquipmentStage.Terminal };
-            EquipmentEvent("equipment:death", cause);
-            var lifecycle = _lifecycle!;
-            var attempt = CurrentAttempt();
-            var transaction = $"equipment-death:{CampaignId.Value}:{attempt.AttemptId}";
-            lifecycle.Casualties.Add(new(lifecycle.NextCasualtyId++, attempt.AttemptId, victim.Name, victim.Role, cause, CurrentTick, transaction));
-            lifecycle.CompletedOutcomeTransactionIds.Add(transaction);
-            ReplaceAttempt(attempt with { Status = EditionAttemptStatus.Failed, OutcomeTransactionId = transaction });
-            var hearing = $"equipment-hearing:{CampaignId.Value}:{attempt.AttemptId}";
-            lifecycle.Hearings.Add(new(lifecycle.NextHearingId++, attempt.AttemptId, HearingStatus.Open, hearing, null));
-            lifecycle.CompletedOutcomeTransactionIds.Add(hearing);
-            ResolveNoFavourHearing();
-        FailEdition(p);
-        ReleaseInterventionsForBoundary("First death froze the edition; intervention released");
-            FinishLivePerformance();
-        }
+        var agent = _navigationAgents[new(victim.Id)];
+        var cause = $"Generator overload killed {victim.Name} ({victim.Role}) at ({agent.XMillimetres},{agent.ZMillimetres}) near unit ({e.XMillimetres},{e.ZMillimetres}); load {e.LoadPercent}%; condition {e.Condition / 100}%; warning tick {e.WarningTick}, acknowledged {e.WarningAcknowledged}; response: {e.Response}; job {e.JobStage}.";
+        _equipment = e with { Stage = EquipmentStage.Terminal };
+        EquipmentEvent("equipment:death", cause);
+        ApplyIncidentConsequence(new(FatalIncidentKind.Equipment,victim,cause));
     }
 
     private static string? ValidatePersistedEquipment(EquipmentSnapshot? e, SessionPersistenceSnapshot s)
@@ -234,14 +219,14 @@ public sealed partial class GameSession
             e.JobStage != MaintenanceStage.None && (e.WorkerId is null || e.JobDispatchedTick < p.StartedTick || e.JobDispatchedTick > s.CurrentTick) ||
             e.JobStage is MaintenanceStage.Repairing or MaintenanceStage.Completed && (e.RepairStartedTick < e.JobDispatchedTick || e.RepairStartedTick > s.CurrentTick) ||
             e.WarningTick < -1 || e.WarningTick > s.CurrentTick || e.WarningAcknowledged && e.WarningTick < 0 ||
-            !budget && e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick != p.StartedTick + EquipmentWarningDelayTicks ||
+            !budget && e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick != p.StartedTick + SavedIncidentTiming(s).EquipmentWarningDelayTicks ||
             budget && e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.WarningTick < p.StartedTick ||
             (e.Stage == EquipmentStage.Terminal) != (p.Status == PreparationStatus.Failed && s.Medical?.Fatal != true && s.Disorder?.Evidence.LastOrDefault()?.Id != "disorder:death") ||
             p.Status != PreparationStatus.Preparing && s.Lifecycle is null)
             return "Equipment warning, response ownership or lifecycle invalid.";
         if (budget ? e.Evidence[0].Id != "equipment:load" || e.Evidence[0].Tick != 0 ||
-                e.Stage is EquipmentStage.DangerousFault or EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + EquipmentDangerDelayTicks ||
-                e.Stage == EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + EquipmentDeathDelayTicks ||
+                e.Stage is EquipmentStage.DangerousFault or EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + SavedIncidentTiming(s).EquipmentDangerDelayTicks ||
+                e.Stage == EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + SavedIncidentTiming(s).EquipmentDeathDelayTicks ||
                 e.JobStage == MaintenanceStage.Completed && (e.Condition != 9_500 && e.Stage is not (EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal) ||
                     s.CurrentTick < e.RepairStartedTick + EquipmentRepairTicks)
             : e.Evidence[0].Id != "equipment:load" || e.Evidence[0].Tick != 0 ||
@@ -250,8 +235,8 @@ public sealed partial class GameSession
             e.Stage is EquipmentStage.Normal or EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Terminal && e.LoadPercent != 120 ||
             e.Stage == EquipmentStage.Isolated && e.LoadPercent != 0 || e.Stage == EquipmentStage.Resolved && e.LoadPercent != 80 ||
             e.JobStage == MaintenanceStage.Completed && (e.Stage != EquipmentStage.Resolved || e.Condition != 9_500 || s.CurrentTick < e.RepairStartedTick + EquipmentRepairTicks) ||
-            e.Stage is EquipmentStage.DangerousFault or EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + EquipmentDangerDelayTicks ||
-            e.Stage == EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + EquipmentDeathDelayTicks)
+            e.Stage is EquipmentStage.DangerousFault or EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + SavedIncidentTiming(s).EquipmentDangerDelayTicks ||
+            e.Stage == EquipmentStage.Terminal && s.CurrentTick < e.WarningTick + SavedIncidentTiming(s).EquipmentDeathDelayTicks)
             return "Equipment causal stages do not reconcile.";
         if (p.Status == PreparationStatus.Preparing && p.Attempt == 1 && s.Lifecycle is not null ||
             // Hired staff name their slots only at opening, so a retry's unfilled slots are the only names not yet protected.

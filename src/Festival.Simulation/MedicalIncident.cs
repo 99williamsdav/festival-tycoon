@@ -56,9 +56,9 @@ public sealed partial class GameSession
     // Never below one, so even a slow drinker filling a bottle is cooled by the tap.
     public int EffectiveMedicalDrinkHeatPerTickFor(ulong agentId) => Math.Max(1, EffectiveMedicalDrinkThirstPerTickFor(agentId) / 4);
     public const int MedicalDecisionCooldownTicks = 240;   // 3 real seconds at 1×.
-    public const int MedicalCollapseDelayTicks = 1_600;   // 20 real seconds after distress.
-    public const int MedicalCriticalDelayTicks = 800;     // 10 real seconds after collapse.
-    public const int MedicalDeathDelayTicks = 2_400;      // 30 real seconds after collapse.
+    public const int MedicalCollapseDelayTicks = SurvivalBalance.MedicalCollapseDelayTicks;   // 20 real seconds after distress.
+    public const int MedicalCriticalDelayTicks = SurvivalBalance.MedicalCriticalDelayTicks;     // 10 real seconds after collapse.
+    public const int MedicalDeathDelayTicks = SurvivalBalance.MedicalDeathDelayTicks;      // 30 real seconds after collapse.
     public const int MedicalTreatmentTicks = 480;        // 6 real seconds after physical arrival.
     public const int MedicalDistressThirst = 9_000;
     public const int MedicalDistressHeat = 8_000;
@@ -283,9 +283,9 @@ public sealed partial class GameSession
              _persons[waterOwner].Thirst <= EffectiveMedicalDrinkThirstPerTickFor(waterOwner)) ||
          PeopleIn(PersonView.Medical).Any(item => item.NeedProfile != MedicalNeedProfile.Staff &&
              (item.HealthStage == MedicalStage.Clear && item.Thirst >= MedicalDistressThirst - 1 && item.HeatExposure >= MedicalDistressHeat - 1 ||
-              item.HealthStage == MedicalStage.Distress && CurrentTick + 1 >= item.HealthWarningTick + MedicalCollapseDelayTicks ||
-              item.HealthStage == MedicalStage.Collapsed && CurrentTick + 1 >= item.HealthCollapseTick + MedicalCriticalDelayTicks ||
-              item.HealthStage == MedicalStage.Critical && CurrentTick + 1 >= item.HealthCollapseTick + MedicalDeathDelayTicks)) ||
+              item.HealthStage == MedicalStage.Distress && CurrentTick + 1 >= item.HealthWarningTick + RuleProfile.Incidents.MedicalCollapseDelayTicks ||
+              item.HealthStage == MedicalStage.Collapsed && CurrentTick + 1 >= item.HealthCollapseTick + RuleProfile.Incidents.MedicalCriticalDelayTicks ||
+              item.HealthStage == MedicalStage.Critical && CurrentTick + 1 >= item.HealthCollapseTick + RuleProfile.Incidents.MedicalDeathDelayTicks)) ||
          m.Medics[0] is var medic && (medic.Stage == MedicalResponseStage.Travelling && _navigationAgents[new(medic.WorkerId)].Action == AgentNavigationAction.Arrived ||
          medic.Stage == MedicalResponseStage.Treating && (!IntoxicationCareOwns(medic) && CurrentTick + 1 >= medic.StartedTick + medic.TreatmentTicks || IntoxicationCareBoundary(medic))));
 
@@ -713,7 +713,7 @@ public sealed partial class GameSession
                 MedicalEvent("medical:prevented", $"{need.Name} ({need.Id}) relieved through water or rest.");
                 continue;
             }
-            if (need.HealthStage == MedicalStage.Distress && CurrentTick >= need.HealthWarningTick + MedicalCollapseDelayTicks)
+            if (need.HealthStage == MedicalStage.Distress && CurrentTick >= need.HealthWarningTick + RuleProfile.Incidents.MedicalCollapseDelayTicks)
             {
                 LeaveWater(need.Id, "Collapsed before drinking", reroute: false);
                 MedicalRelinquishPerformerStage(need.Id);
@@ -726,13 +726,13 @@ public sealed partial class GameSession
                 RecordGuestMedicalCollapse(need.Id);
             }
             need = _persons[atRisk.Id];
-            if (need.HealthStage == MedicalStage.Collapsed && CurrentTick >= need.HealthCollapseTick + MedicalCriticalDelayTicks)
+            if (need.HealthStage == MedicalStage.Collapsed && CurrentTick >= need.HealthCollapseTick + RuleProfile.Incidents.MedicalCriticalDelayTicks)
             {
                 MutatePerson(need.Id, item => { item.HealthStage = MedicalStage.Critical; item.HealthCriticalTick = CurrentTick; });
                 MedicalEvent("medical:critical", $"{need.Name} ({need.Id}) remains untreated after collapse; dispatch can still prevent death.");
             }
             need = _persons[atRisk.Id];
-            if (need.HealthStage == MedicalStage.Critical && CurrentTick >= need.HealthCollapseTick + MedicalDeathDelayTicks)
+            if (need.HealthStage == MedicalStage.Critical && CurrentTick >= need.HealthCollapseTick + RuleProfile.Incidents.MedicalDeathDelayTicks)
             {
                 ApplyMedicalDeath(need.Id, need.HealthWarningTick, need.HealthCollapseTick, need.HealthCriticalTick);
                 return;
@@ -787,7 +787,7 @@ public sealed partial class GameSession
 
     private void ApplyMedicalDeath(ulong victimId, long warningTick, long collapseTick, long criticalTick)
     {
-        var m = _medical!; var p = _preparation!;
+        var m = _medical!;
         var victim = _persons[victimId];
         var cause = StungByWasp(victimId)
             ? $"{victim.Name} died of an allergic reaction to a wasp sting; collapse tick {collapseTick}, critical tick {criticalTick}, untreated."
@@ -798,18 +798,7 @@ public sealed partial class GameSession
             : $"In fixed Hot conditions {victim.Name} dried up after thirst {_persons[victim.Id].Thirst}/10000 and heat exposure; distress tick {warningTick}, collapse tick {collapseTick}, critical tick {criticalTick}; {StaffResponseCausalSummary()}.";
         _medical = m with { Fatal = true };
         MedicalEvent("medical:death", cause);
-        var lifecycle = _lifecycle!; var attempt = CurrentAttempt();
-        var transaction = $"medical-death:{CampaignId.Value}:{attempt.AttemptId}";
-        lifecycle.Casualties.Add(new(lifecycle.NextCasualtyId++, attempt.AttemptId, victim.Name, victim.Role, cause, CurrentTick, transaction));
-        lifecycle.CompletedOutcomeTransactionIds.Add(transaction);
-        ReplaceAttempt(attempt with { Status = EditionAttemptStatus.Failed, OutcomeTransactionId = transaction });
-        var hearing = $"medical-hearing:{CampaignId.Value}:{attempt.AttemptId}";
-        lifecycle.Hearings.Add(new(lifecycle.NextHearingId++, attempt.AttemptId, HearingStatus.Open, hearing, null));
-        lifecycle.CompletedOutcomeTransactionIds.Add(hearing);
-        ResolveNoFavourHearing();
-        FailEdition(p);
-        ReleaseInterventionsForBoundary("First death froze the edition; intervention released");
-        FinishLivePerformance();
+        ApplyIncidentConsequence(new(FatalIncidentKind.Medical,victim,cause));
     }
 
     private static string? ValidatePersistedMedical(MedicalSnapshot? m, SessionPersistenceSnapshot s)

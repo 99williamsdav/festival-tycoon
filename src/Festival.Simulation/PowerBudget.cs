@@ -119,13 +119,13 @@ public sealed partial class GameSession
                 _equipment = e with { Stage = EquipmentStage.Resolved, Response = "Load back within capacity; the generator settled" };
                 EquipmentEvent($"equipment:settled:{CurrentTick}", _equipment.Response);
                 break;
-            case EquipmentStage.Warning when CurrentTick >= e.WarningTick + EquipmentDangerDelayTicks:
+            case EquipmentStage.Warning when CurrentTick >= e.WarningTick + RuleProfile.Incidents.EquipmentDangerDelayTicks:
                 _equipment = e with { Stage = EquipmentStage.DangerousFault, Condition = 3_000 };
                 EquipmentEvent($"equipment:fault:{CurrentTick}", PowerPooled
                     ? $"Dangerous generator fault: the pooled supply is still drawing {draw.Total} of {draw.Capacity}. Switch off stalls or lights, or cut a stage's rig."
                     : $"Dangerous generator fault: still drawing {draw.Total} of {draw.Capacity}. Shed load or cut the stage.");
                 break;
-            case EquipmentStage.DangerousFault when CurrentTick >= e.WarningTick + EquipmentDeathDelayTicks && NearbyEquipmentPerson() is { } victim:
+            case EquipmentStage.DangerousFault when CurrentTick >= e.WarningTick + RuleProfile.Incidents.EquipmentDeathDelayTicks && NearbyEquipmentPerson() is { } victim:
                 EquipmentDeath(e, victim);
                 break;
         }

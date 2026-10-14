@@ -1,0 +1,220 @@
+{
+  "baseline": "113179d950399dd3aa0bebeddac9c7ddeb5f8120",
+  "scope": "Survival progression/fatal-consequence/timing policies, derived campaign state, explicit frozen-rain restore repair, opt-in isolated native smoke",
+  "source": [
+    {
+      "path": "game/Main.HandsOn.cs",
+      "sha256": "B67C313468828F5F37A77BA12FC05E27196E9D975F15C766C7987E37E14ABFBF"
+    },
+    {
+      "path": "game/Main.Preparation.cs",
+      "sha256": "81418DD74A76EA4B25C40819DC1B18E532BF8BEDB3DB5D58B904CA9E464D6411"
+    },
+    {
+      "path": "game/Main.StewardShift.cs",
+      "sha256": "5978275838D7F023A6EF7A8EB8B590396691859E713A0429A1BEEA337B8BEAF8"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "B3E441DD29C64C2CC61EF908214F962EC8202D7C1FBA73A6BB11300BB73B6894"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignRulesProfile.cs",
+      "sha256": "1A7F0E00C031D1BCD040751B588DF135333F67759B8D58FC918E36D019074C22"
+    },
+    {
+      "path": "src/Festival.Simulation/DisorderIncident.cs",
+      "sha256": "410B87EF6384C117916C2B02CB4720732BBD5BE1A4343DFA1F1F2F11BE251CEA"
+    },
+    {
+      "path": "src/Festival.Simulation/EquipmentIncident.cs",
+      "sha256": "F737375B2403E5F64048DC1434A31C40CCD74E05AEAB3FEA1AC97840E9F2DAE1"
+    },
+    {
+      "path": "src/Festival.Simulation/Immersion.cs",
+      "sha256": "2C0E9F3C68ECF80660524A13DE42CCE39A03697491E9BF9DBD9F3591A1264CD0"
+    },
+    {
+      "path": "src/Festival.Simulation/ImmersionDeparture.cs",
+      "sha256": "59BBF3DF3DB737737C0A8EA51A60D6FB2FB0495F4E97638902C6F473F492529A"
+    },
+    {
+      "path": "src/Festival.Simulation/MedicalIncident.cs",
+      "sha256": "04F18981647B924B22EEB1C0F8D962B1A325B2945D8E9BF3EFCC2CA267710A09"
+    },
+    {
+      "path": "src/Festival.Simulation/MultiStage.cs",
+      "sha256": "0D4D0E824EF0E7383AA2B1FEF2DA39AA4E583C0361B1D2DA392314A6087BF794"
+    },
+    {
+      "path": "src/Festival.Simulation/NextFestival.cs",
+      "sha256": "18473BFC10604D12B3DC8F7F706C11BC6369C4D841CF749C86AD1DFA100FD908"
+    },
+    {
+      "path": "src/Festival.Simulation/PowerBudget.cs",
+      "sha256": "2194F34E5138D0993EA2932C28F7D2EAECD70F47675416429F98A1F66C4AB525"
+    },
+    {
+      "path": "src/Festival.Simulation/Shelter.cs",
+      "sha256": "5F644D63FB917F7FAD848161756CD3B35AC559D20D7A54B2227E5F80FF76A312"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffAutonomy.cs",
+      "sha256": "84BE37558DCDAC5E07089BBEBB3133F1A093ED25D70EA8FB9621196553655A11"
+    },
+    {
+      "path": "src/Festival.Simulation/StaffFoundations.cs",
+      "sha256": "27BFE0BB4653DB6A8BA1FABB8C19E5AD7E22B05A8CA5E2B87BF09F41A9504AC5"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignPolicies.cs",
+      "sha256": "B246C73FCFDF06C43FF8E47DE532ABDE9A31A2F5E529A62270CC43F29B4E1422"
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignState.cs",
+      "sha256": "3576C1B2B743A64B93D3A675150332CDE70DF979C46DA4717AD1363671FD0C06"
+    },
+    {
+      "path": "tests/Festival.Tests/CampaignPolicyTests.cs",
+      "sha256": "3DB10374DF014EE2B5BAC25A5C2FB3C7E8D8865073BFF95378470394E2A34108"
+    },
+    {
+      "path": "tests/Festival.Tests/IncidentConsequenceParityTests.cs",
+      "sha256": "A2A52559695B394E66CFD6523667D4222A5275644A68259E337FF19FA0735F5E"
+    },
+    {
+      "path": "game/Main.ArchitectureEvidence.cs",
+      "sha256": "13C6024506447CF9889858187FEDAE587F7FBED49D465C2E7A36F5DA9752538A"
+    }
+  ],
+  "evidence": [
+    {
+      "path": "reports/evidence/survival-architecture/slice2/game-build-final.txt",
+      "sha256": "4A65B25E417488FDF082FAE3E138875DE2889FD8D85E640464676E108FCCD5E5"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/game-build.txt",
+      "sha256": "6B0C1C14DD10736970A0D4ED745895728E197ABDE9D9125FEDBF33E77158FDD9"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final-launch.txt",
+      "sha256": "894CCCA77C320DA8CD83DED5B7624E50EEF59B259FF8D05F4290C7986E0FA439"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-launch.txt",
+      "sha256": "5510644AF4B8A2698545D2D955707E47CECED86CF0A02A276EC77C28D94464B9"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/parity.txt",
+      "sha256": "680361896F8F7128D6467CAA27B29233BFDEA8D4572CA611F468E13199063B78"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/regressions.txt",
+      "sha256": "2A3CEBBB8F7B9D8BA04A8383A34B46E2DC48A20ED57A3D9AB1CC8B700724A95D"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/01-existing-control-menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/02-existing-rain-challenge.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/03-management-tier-two-live.png",
+      "sha256": "33FCA7FBC63C12CED8F0CBEB266712E9FDF9CD15630CF5CB66301216608E7349"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/04-all-rounder-management.png",
+      "sha256": "F61370DD1AD3A4444193317F2A2405A6B06C47647B5442D5D583F1485360A17B"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/05-all-rounder-first-person.png",
+      "sha256": "8B2DD70DD30A025F4EF9B09B2F53225AB6592A181213E85965046CC66C23FE76"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/06-steward-only-tier-one.png",
+      "sha256": "7579798DAAF4D66768E9E50E309DDB1E5E728B6BB0335CA6989C3BE488D256E2"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/07-steward-only-tier-two.png",
+      "sha256": "2EE598E44CB42CB9F469D2095832D92B17F59871F9D2A1B32E3FB0584428683E"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/08-resumed-management.png",
+      "sha256": "2EA4390A0A011098BD60C8D58043DC752BCF094FB0C080426BB4DC0FD78B5F10"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/architecture-evidence.json",
+      "sha256": "29EA60C96077E78FE0C4872001892F5FFA55C0AB93198D2631DE6A71B50AEE9D"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source/native.log",
+      "sha256": "A83C30E0D9FF4B8F6B2FF0F1AFB3405C5CEA9D29B8058DADD1B843C8D31D7326"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/01-existing-control-menu.png",
+      "sha256": "C5CA605E76547495878A923755DAAFD3CFDAA5560537F34C4836539A201882F5"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/02-existing-rain-challenge.png",
+      "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/03-management-tier-two-live.png",
+      "sha256": "BD73A9140F0F1044D8F1DDAF7C2691497EAC3E67FAF683DBDAD0E1C426F4B5E6"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/04-all-rounder-management.png",
+      "sha256": "11A3D1FD902F4D1ADCCECF7CC5A8F507082D1FB61D59664F4F9533935AEB370C"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/05-all-rounder-first-person.png",
+      "sha256": "6910B68B27877A2FC4948664F9E93404327969B11CA751E0552657EA6B12BA16"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/06-steward-only-tier-one.png",
+      "sha256": "09C252969B4FAE47139C4C73C332A84D010F143A2DC796EB251D1CC35B795143"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/07-steward-only-tier-two.png",
+      "sha256": "364A2AA533231A3A0CF31A0EA5A2BFC7B6D3B43F29BBDF79FA62B28BC5558668"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/08-resumed-management.png",
+      "sha256": "B25058E4E389E4B78FEB85D0A9DB78CE8F4764E7DDFCA12B7893AA8B8124ADC7"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/architecture-evidence.json",
+      "sha256": "B3BF9E33FFD05AA61D4AF358C8C13356BFA2E33CDC8815D4974AED4126D86F1E"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/native.log",
+      "sha256": "6B0A50E950AD724C074E759A0B0C33817871965C8BA921D8BBA25013A67BFD17"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/slice2/native-source-final/process.json",
+      "sha256": "909A0834D03EC6EA10A60DD3D76B2609460E5954FF4EAB9461A21FC4B2B128EC"
+    },
+    {
+      "path": "briefs/results/survival-architecture-slice2.md",
+      "sha256": "C38F29656AEB24522E343C51FA57CD023268CA607DEA4FF4CDECF7582DF40ADB"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/incident-baseline-capture.txt",
+      "sha256": "16BB43C9EF1E9295D486FAC0FDAF680E624DD30BEA8A371A5F2A2577E393728A"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/incident-baseline-checkpoint.json",
+      "sha256": "D57CFB48F754D5248922393AD460DC10CD3123B998A208492C5CAFB52D0CEFD0"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/incident-consequence-baseline.json",
+      "sha256": "A60B1A9FFDB220CC938BA12229BF5DBCF4228775F2812312E1D0451A9BFC545A"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/incident-save-limitation.json",
+      "sha256": "0A587E842275FD9E14FFB53B6F28BAE07931C8E43140EDC7E50A5D6438D2D53C"
+    }
+  ]
+}

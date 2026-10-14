@@ -188,7 +188,7 @@ public sealed partial class GameSession
                 case EquipmentStage.Warning or EquipmentStage.DangerousFault when strain == 0:
                     g = g with { Stage = EquipmentStage.Resolved, Response = "Load back within capacity; the generator settled" };
                     break;
-                case EquipmentStage.Warning when CurrentTick >= g.WarningTick + EquipmentDangerDelayTicks:
+                case EquipmentStage.Warning when CurrentTick >= g.WarningTick + RuleProfile.Incidents.EquipmentDangerDelayTicks:
                     g = g with { Stage = EquipmentStage.DangerousFault, Response = $"Dangerous {name} generator fault: still drawing {draw.Total} of {draw.Capacity}." };
                     break;
             }
@@ -210,7 +210,7 @@ public sealed partial class GameSession
                 var next = over > 0 ? Math.Min(PowerRules.StrainMaximum, g.Strain + over) : Math.Max(0, g.Strain - PowerRules.StrainRecoveryPerTick);
                 if (g.Stage is EquipmentStage.Normal or EquipmentStage.Resolved && next >= PowerRules.StrainWarning ||
                     g.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault && next == 0 ||
-                    g.Stage == EquipmentStage.Warning && CurrentTick + 1 >= g.WarningTick + EquipmentDangerDelayTicks) return true;
+                    g.Stage == EquipmentStage.Warning && CurrentTick + 1 >= g.WarningTick + RuleProfile.Incidents.EquipmentDangerDelayTicks) return true;
             }
             return false;
         }
@@ -252,7 +252,7 @@ public sealed partial class GameSession
                 g.Stage is not (EquipmentStage.Resolved or EquipmentStage.Warning or EquipmentStage.DangerousFault or EquipmentStage.Isolated) ||
                 g.WarningTick < -1 || g.WarningTick > s.CurrentTick ||
                 g.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault && g.WarningTick < p.StartedTick ||
-                g.Stage == EquipmentStage.DangerousFault && s.CurrentTick < g.WarningTick + EquipmentDangerDelayTicks ||
+                g.Stage == EquipmentStage.DangerousFault && s.CurrentTick < g.WarningTick + SavedIncidentTiming(s).EquipmentDangerDelayTicks ||
                 p.Status == PreparationStatus.Preparing && (g.Stage != EquipmentStage.Resolved || g.Strain != 0 || g.WarningTick != -1) ||
                 // One supply, one strain: while the day runs, every generator in the pool carries the farm generator's.
                 p.Status == PreparationStatus.Running && s.Equipment is { Version: 3, Stage: not EquipmentStage.Terminal } farm &&

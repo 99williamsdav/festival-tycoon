@@ -1,0 +1,16 @@
+Independent reviewer run, 14 October 2026.
+Working directory: C:\Projects\festival-tycoon
+TEMP/TMP: C:\Projects\festival-tycoon\review-temp-slice2
+Command: dotnet test tests/Festival.Tests/Festival.Tests.csproj --no-restore -m:1 -p:UseSharedCompilation=false -nr:false -- --filter 'FullyQualifiedName~CampaignPolicyTests|FullyQualifiedName~IncidentConsequenceParityTests|FullyQualifiedName~SurvivalArchitectureParityTests'
+The following output was transcribed from the completed tool session 66097; it was not redirected at invocation.
+
+  Festival.Simulation -> C:\Projects\festival-tycoon\src\Festival.Simulation\bin\Debug\net8.0\Festival.Simulation.dll
+  Festival.ContentAdapter -> C:\Projects\festival-tycoon\src\Festival.ContentAdapter\bin\Debug\net8.0\Festival.ContentAdapter.dll
+  Festival.Persistence -> C:\Projects\festival-tycoon\src\Festival.Persistence\bin\Debug\net8.0\Festival.Persistence.dll
+  Festival.Tests -> C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll
+  Run tests: 'C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll' [net8.0|x64]
+  Passed! - Failed: 0, Passed: 5, Skipped: 0, Total: 5, Duration: 2m 27s 109ms - Festival.Tests.dll (net8.0|x64)
+  Tests succeeded: 'C:\Projects\festival-tycoon\tests\Festival.Tests\bin\Debug\net8.0\Festival.Tests.dll' [net8.0|x64]
+
+Final process exit code: 0.
+No recorder environment variables were set. Final diagnostic-only hint repair followed this run; simulation and tests were unchanged.

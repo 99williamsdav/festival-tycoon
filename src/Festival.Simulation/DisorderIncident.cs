@@ -45,7 +45,7 @@ public sealed partial class GameSession
     /// <summary>Patience in a queue against the water's and the toilet's: double for food, half as much again for the bar.</summary>
     public const int DisorderFoodPatiencePercent = 200, DisorderBarPatiencePercent = 150, FriendlyQueuePatiencePercent = 150;
     public const int DisorderFightDurationTicks = 800;   // 10 seconds of visible confrontation at 1×.
-    public const int DisorderInjuryDeathTicks = 2_400;
+    public const int DisorderInjuryDeathTicks = SurvivalBalance.DisorderInjuryDeathTicks;
     // Rotated open-sided visual post faces east toward the path. Its walkable
     // duty position sits in front; neither post nor approach closes the gate.
     public static readonly GridCell DisorderSecurityPostCell = new(114, 178); // (-6.75, 25.25) m.
@@ -195,11 +195,11 @@ public sealed partial class GameSession
 
     public bool DisorderBoundaryOnNextTick => !IsPaused && _disorder is { } d &&
         _preparation is { Status: PreparationStatus.Running } && PeopleIn(PersonView.Disorder).Any(item =>
-            item.ConductStage == DisorderStage.Injured && CurrentTick + 1 >= item.InjuryTick + DisorderInjuryDeathTicks &&
+            item.ConductStage == DisorderStage.Injured && CurrentTick + 1 >= item.InjuryTick + RuleProfile.Incidents.DisorderInjuryDeathTicks &&
             _persons[item.Id].HealthStage != MedicalStage.Treated) ||
         !IsPaused && _preparation is { Status: PreparationStatus.Running } && GetStewardResponses().Any(response => response.Incapacitated &&
         _persons[response.WorkerId] is { HealthStage: MedicalStage.Collapsed } securityNeed &&
-        CurrentTick + 1 >= securityNeed.HealthCollapseTick + DisorderInjuryDeathTicks);
+        CurrentTick + 1 >= securityNeed.HealthCollapseTick + RuleProfile.Incidents.DisorderInjuryDeathTicks);
 
     private void AdvanceDisorder()
     {
@@ -214,7 +214,7 @@ public sealed partial class GameSession
                 DisorderEvent("disorder:treated", injured.Id, injured.OpponentId, 0,
                     "Physical first aid completed after confrontation injury.");
             }
-            else if (CurrentTick >= injured.InjuryTick + DisorderInjuryDeathTicks)
+            else if (CurrentTick >= injured.InjuryTick + RuleProfile.Incidents.DisorderInjuryDeathTicks)
             {
                 ApplyDisorderDeath(injured.Id);
                 return;
@@ -230,7 +230,7 @@ public sealed partial class GameSession
                     Description = "Steward treated after confrontation" });
                 DisorderEvent("security:treated", response.WorkerId, response.TargetId, 0, "Steward treated after confrontation");
             }
-            else if (CurrentTick >= securityNeed.HealthCollapseTick + DisorderInjuryDeathTicks)
+            else if (CurrentTick >= securityNeed.HealthCollapseTick + RuleProfile.Incidents.DisorderInjuryDeathTicks)
             {
                 ApplyDisorderDeath(response.WorkerId);
                 return;
@@ -577,12 +577,11 @@ public sealed partial class GameSession
         foreach (var participant in new[] { fighter.Id, opponentId }.Where(id => id != victimId && !IsSteward(id)))
             MutatePerson(participant, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.CooldownUntilTick = CurrentTick + 800; });
         DisorderEvent("disorder:injury", fighter.Id, victimId, fighter.Pressure,
-            $"Generic serious injury to person {victimId}; security {d.Stewards[0].Stage}; first aid needed before tick {CurrentTick + DisorderInjuryDeathTicks}.");
+            $"Generic serious injury to person {victimId}; security {d.Stewards[0].Stage}; first aid needed before tick {CurrentTick + RuleProfile.Incidents.DisorderInjuryDeathTicks}.");
     }
 
     private void ApplyDisorderDeath(ulong victimId)
     {
-        var p = _preparation!;
         var victim = _persons[victimId];
         var d = _disorder!;
         var origin = d.Incidents.Last(item => item.VictimId == victimId && item.InjuryTick >= 0);
@@ -592,20 +591,7 @@ public sealed partial class GameSession
             $"{StaffResponseCausalSummary()}.";
         SetStewardResponse(d.Stewards[0] with { Description = cause });
         DisorderEvent("disorder:death", origin.InitiatorId, victimId, origin.Pressure, cause);
-        var lifecycle = _lifecycle!;
-        var attempt = CurrentAttempt();
-        var transaction = $"disorder-death:{CampaignId.Value}:{attempt.AttemptId}";
-        lifecycle.Casualties.Add(new(lifecycle.NextCasualtyId++, attempt.AttemptId, victim.Name, victim.Role,
-            cause, CurrentTick, transaction));
-        lifecycle.CompletedOutcomeTransactionIds.Add(transaction);
-        ReplaceAttempt(attempt with { Status = EditionAttemptStatus.Failed, OutcomeTransactionId = transaction });
-        var hearing = $"disorder-hearing:{CampaignId.Value}:{attempt.AttemptId}";
-        lifecycle.Hearings.Add(new(lifecycle.NextHearingId++, attempt.AttemptId, HearingStatus.Open, hearing, null));
-        lifecycle.CompletedOutcomeTransactionIds.Add(hearing);
-        ResolveNoFavourHearing();
-        FailEdition(p);
-        ReleaseInterventionsForBoundary("First death froze the edition; intervention released");
-        FinishLivePerformance();
+        ApplyIncidentConsequence(new(FatalIncidentKind.Disorder,victim,cause));
     }
 
     private static string? ValidatePersistedDisorder(DisorderSnapshot? d, SessionPersistenceSnapshot s)

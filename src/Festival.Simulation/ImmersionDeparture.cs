@@ -10,10 +10,10 @@ public sealed partial class GameSession
         var stage=need.HealthStage;
         var warning=need.HealthWarningTick;
         var collapse=need.HealthCollapseTick;
-        return stage==MedicalStage.Distress && CurrentTick+1>=warning+MedicalCollapseDelayTicks ||
-            stage==MedicalStage.Collapsed && CurrentTick+1>=collapse+MedicalCriticalDelayTicks ||
-            stage==MedicalStage.Critical && CurrentTick+1>=collapse+MedicalDeathDelayTicks ||
-            (PersonIn(PersonView.Disorder, need.Id) is { ConductStage: DisorderStage.Injured } injured && CurrentTick+1>=injured.InjuryTick+DisorderInjuryDeathTicks);
+        return stage==MedicalStage.Distress && CurrentTick+1>=warning+RuleProfile.Incidents.MedicalCollapseDelayTicks ||
+            stage==MedicalStage.Collapsed && CurrentTick+1>=collapse+RuleProfile.Incidents.MedicalCriticalDelayTicks ||
+            stage==MedicalStage.Critical && CurrentTick+1>=collapse+RuleProfile.Incidents.MedicalDeathDelayTicks ||
+            (PersonIn(PersonView.Disorder, need.Id) is { ConductStage: DisorderStage.Injured } injured && CurrentTick+1>=injured.InjuryTick+RuleProfile.Incidents.DisorderInjuryDeathTicks);
     });
     private bool IsImmersionMedic(ulong id) => GetMedicResponses().Any(job => job.WorkerId == id);
     /// <summary>
@@ -219,13 +219,13 @@ public sealed partial class GameSession
             {
                 if (need.HealthStage == MedicalStage.Treated)
                     MutatePerson(person.Id, item => { item.ConductStage = DisorderStage.Resolved; item.Pressure = 0; item.ConductStageTick = CurrentTick; item.CooldownUntilTick = CurrentTick + 800; });
-                else if (CurrentTick >= injury.InjuryTick + DisorderInjuryDeathTicks) { ApplyDisorderDeath(person.Id); return; }
+                else if (CurrentTick >= injury.InjuryTick + RuleProfile.Incidents.DisorderInjuryDeathTicks) { ApplyDisorderDeath(person.Id); return; }
                 continue;
             }
             var stage = need.HealthStage;
             var warning = need.HealthWarningTick;
             var collapse = need.HealthCollapseTick;
-            if (stage == MedicalStage.Distress && CurrentTick >= warning + MedicalCollapseDelayTicks)
+            if (stage == MedicalStage.Distress && CurrentTick >= warning + RuleProfile.Incidents.MedicalCollapseDelayTicks)
             {
                 var nav = _navigationAgents[new(person.Id)];
                 ApplyAgentDestination(new(person.Id), new(TraversalGrid.WorldToCell(nav.XMillimetres, nav.ZMillimetres), "medical.departure-collapse"));
@@ -234,13 +234,13 @@ public sealed partial class GameSession
                 RecordGuestMedicalCollapse(person.Id);
                 stage = MedicalStage.Collapsed; collapse = CurrentTick;
             }
-            if (stage == MedicalStage.Collapsed && CurrentTick >= collapse + MedicalCriticalDelayTicks)
+            if (stage == MedicalStage.Collapsed && CurrentTick >= collapse + RuleProfile.Incidents.MedicalCriticalDelayTicks)
             {
                 MutatePerson(person.Id, item => { item.HealthStage = MedicalStage.Critical; item.HealthCriticalTick = CurrentTick; });
                 MedicalEvent("medical:critical", $"Person {person.Id}: medical deadline continues until physical exit");
                 stage = MedicalStage.Critical;
             }
-            if (stage == MedicalStage.Critical && CurrentTick >= collapse + MedicalDeathDelayTicks)
+            if (stage == MedicalStage.Critical && CurrentTick >= collapse + RuleProfile.Incidents.MedicalDeathDelayTicks)
             { ApplyMedicalDeath(person.Id, warning, collapse, _persons[person.Id].HealthCriticalTick); return; }
         }
         ReleaseStalledDepartureStops();

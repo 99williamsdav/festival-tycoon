@@ -47,18 +47,19 @@ public sealed partial class GameSession
     /// Survival clearing rule (default, unconfirmed with the user): a festival that completes, with every guest
     /// gone home and no death or Council ending, unlocks the next tier. A failed festival keeps the hearing and retry.
     /// </summary>
-    public bool CanStartNextFestival => _preparation is { Status: PreparationStatus.Finished, Result: not null } p &&
-        p.Tier < HighestTier && !IsLifecycleEditionFrozen() && _campaignPlanning is not null && (_stewardShift is null || IsHandsOn);
+    private FestivalDefinition? NextFestivalDefinition=>RuleProfile.Progression.NextFestival(new(CurrentFestival,_preparation,
+        CapturePersistentCampaignState(),IsLifecycleEditionFrozen(),_pondStageTrial));
+    public bool CanStartNextFestival => NextFestivalDefinition is not null;
 
     /// <summary>What this completed festival would carry into the next one.</summary>
     public FestivalCarryOver? NextFestivalCarryOver => !CanStartNextFestival ? null : CarryOverFrom(_preparation!);
 
-    private FestivalCarryOver CarryOverFrom(PreparationSnapshot p) => new(p.Tier,
-        _festivalFinances[new(p.FinanceOwnerId)].CashPennies,
-        _campaignPlanning!.Loan.OutstandingPrincipalPennies,
-        _lifecycle?.FavourBalance ?? p.CarriedIn?.FavourBalance ?? 1,
-        p.CommunityShareAttempt != 0 || p.CarriedIn?.CommunityWaterUsed == true,
-        p.OwnedEquipment.ToArray());
+    private FestivalCarryOver CarryOverFrom(PreparationSnapshot p)
+    {
+        var campaign=CapturePersistentCampaignState()!;
+        return new(p.Tier,campaign.CashPennies,campaign.Loan.OutstandingPrincipalPennies,campaign.FavourBalance,
+            campaign.CommunityWaterShareUsed,campaign.OwnedEquipment.ToArray());
+    }
 
     /// <summary>
     /// The "Next festival" step: a fresh Preparation at the next tier on the same farm and campaign. The layout placed here
@@ -68,13 +69,13 @@ public sealed partial class GameSession
     /// </summary>
     public GameSession CreateNextFestival()
     {
-        if (!CanStartNextFestival) throw new InvalidOperationException("Only a completed festival below the highest tier can open the next one.");
+        if (NextFestivalDefinition is not {} definition) throw new InvalidOperationException("Only a completed festival below the highest tier can open the next one.");
         var p = _preparation!;
-        var next = CreateLaterFestivalFor(_identity, CampaignSeed, CampaignId, p.Tier + 1, CarryOverFrom(p),
+        var next = CreateLaterFestivalFor(_identity, CampaignSeed, CampaignId, definition.Tier, CarryOverFrom(p),
             new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray()), p.SeenActs, _campaignPlanning!, _pondStageTrial);
         // Each act's relationship as this festival's sets left it, and the sets it was worked out from.
         // Popularity moves here too, from the newcomers each set won over, never during a festival.
-        var (history, relationships, popularity) = RelationshipsForNextFestival(p.Tier + 1);
+        var (history, relationships, popularity) = RelationshipsForNextFestival(definition.Tier);
         next.PreparationView = next.PreparationView! with { ActRelationships = relationships, RelationshipHistory = history, ActPopularity = popularity,
             // What this festival placed, for the next one's "Copy last festival's layout".
             PreviousLayout = p.BuildPlacements.Length == 0 ? null : p.BuildPlacements.OrderBy(item => item.Id, StringComparer.Ordinal).ToArray() };

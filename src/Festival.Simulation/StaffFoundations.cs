@@ -192,7 +192,7 @@ public sealed partial class GameSession
             // Never rescue beyond a real causal deadline. Boundary-tick completion retains the existing ordering.
             var need = _persons[patientId];
             var deadline = _disorder?.Incidents.LastOrDefault(item => item.VictimId == patientId && item.InjuryTick >= 0) is { } injury
-                ? injury.InjuryTick + DisorderInjuryDeathTicks : need.HealthCollapseTick >= 0 ? need.HealthCollapseTick + MedicalDeathDelayTicks : long.MaxValue;
+                ? injury.InjuryTick + RuleProfile.Incidents.DisorderInjuryDeathTicks : need.HealthCollapseTick >= 0 ? need.HealthCollapseTick + RuleProfile.Incidents.MedicalDeathDelayTicks : long.MaxValue;
             if (CurrentTick > deadline) continue;
             MutatePerson(patientId, item => { item.Thirst = 2000; item.HeatExposure = 3000; item.Intent = MedicalIntent.WatchShow; item.HealthStage = MedicalStage.Treated; item.Reason = "Basic first aid completed after physical medic arrival"; });
             ReturnToListening(patientId);

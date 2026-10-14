@@ -77,6 +77,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if (_architectureEvidenceOutput is not null) { ProcessArchitectureEvidence(); return; }
         if (_barnCampaignEvidenceOutput is not null) { ProcessBarnCampaignEvidence(); return; }
         if (_developmentTierEvidenceOutput is not null) { ProcessDevelopmentTierEvidence(); return; }
         if (_barnEvidenceOutput is not null) { ProcessBarnEvidence(delta); return; }
@@ -619,6 +620,7 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-fisticuffs" && i + 1 < args.Length) { _fisticuffsEvidenceOutput = args[++i]; _startTier = 1; }
             else if (args[i] == "--capture-lav-hose" && i + 1 < args.Length) { _lavHoseEvidenceOutput = args[++i]; _startTier = 1; }
             else if (args[i] == "--capture-barn-campaign" && i + 1 < args.Length) _barnCampaignEvidenceOutput = args[++i];
+            else if (args[i] == "--capture-survival-architecture" && i + 1 < args.Length) _architectureEvidenceOutput = args[++i];
             else if (args[i] == "--capture-development-tiers" && i + 1 < args.Length) _developmentTierEvidenceOutput = args[++i];
             else if (args[i] == "--capture-barn" && i + 1 < args.Length) _barnEvidenceOutput = args[++i];
             else if (args[i] == "--fisticuffs-checks-only") _fightEvidenceChecksOnly = true;
@@ -651,6 +653,7 @@ public partial class Main : Node, IHudHost
     // Development layout revisions use a new save namespace. Old files remain
     // untouched and the compatibility header still rejects cross-layout loads.
     private string SaveDirectory =>
+        _architectureEvidenceOutput is not null ? System.IO.Path.Combine(_architectureEvidenceOutput,"management-saves") :
         _barnCampaignEvidenceOutput is not null ? System.IO.Path.Combine(_barnCampaignEvidenceOutput,"diagnostic-saves") :
         _developmentTierEvidenceOutput is not null ? System.IO.Path.Combine(_developmentTierEvidenceOutput,"diagnostic-saves") :
         _barnEvidenceOutput is not null ? System.IO.Path.Combine(_barnEvidenceOutput,"unused-diagnostic-save") : ProjectSettings.GlobalizePath("user://saves/r0-build-v99");

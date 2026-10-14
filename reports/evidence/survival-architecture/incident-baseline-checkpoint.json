@@ -1,0 +1,23 @@
+{
+  "baselineCommit": "113179d950399dd3aa0bebeddac9c7ddeb5f8120",
+  "policyMutationStarted": false,
+  "scope": "Equipment/disorder consequence boundary fixtures across both tiers and all3controls; death/Favourretry; natural-tick rainy medicalfatal save proof. Intentional triggers, not normalday/balance claims.",
+  "files": [
+    {
+      "path": "tests/Festival.Tests/IncidentConsequenceParityTests.cs",
+      "sha256": "A2A52559695B394E66CFD6523667D4222A5275644A68259E337FF19FA0735F5E"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/incident-consequence-baseline.json",
+      "sha256": "A60B1A9FFDB220CC938BA12229BF5DBCF4228775F2812312E1D0451A9BFC545A"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/incident-save-limitation.json",
+      "sha256": "0A587E842275FD9E14FFB53B6F28BAE07931C8E43140EDC7E50A5D6438D2D53C"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/incident-baseline-capture.txt",
+      "sha256": "16BB43C9EF1E9295D486FAC0FDAF680E624DD30BEA8A371A5F2A2577E393728A"
+    }
+  ]
+}

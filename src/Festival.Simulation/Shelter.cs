@@ -91,7 +91,11 @@ public sealed partial class GameSession
         var sheltering = (s.NavigationAgents ?? []).Where(agent => agent.IntentId == ShelterRules.Intent &&
             agent.Action is (int)AgentNavigationAction.Travelling or (int)AgentNavigationAction.Arrived).ToArray();
         if (sheltering.Length == 0) return null;
-        if (p.Status != PreparationStatus.Running || WeatherRules.ForTier(p.Tier) != WeatherKind.Rain) return "Sheltering outside a rainy festival day.";
+        var frozenFatal=p.Status==PreparationStatus.Failed&&s.Lifecycle is {} lifecycle&&lifecycle.CurrentAttemptId==(ulong)p.Attempt&&
+            lifecycle.Attempts.Any(a=>a.AttemptId==lifecycle.CurrentAttemptId&&a.Status==(int)EditionAttemptStatus.Failed)&&
+            lifecycle.Casualties.Count(c=>c.AttemptId==lifecycle.CurrentAttemptId)==1&&
+            lifecycle.Casualties.Any(c=>c.AttemptId==lifecycle.CurrentAttemptId&&c.Tick==s.CurrentTick);
+        if (p.Status != PreparationStatus.Running&&!frozenFatal || WeatherRules.ForTier(p.Tier) != WeatherKind.Rain) return "Sheltering outside a rainy festival day.";
         var spots = ShelterLayout(p.BuildPlacements ?? []).Spots.Select(spot => spot.Cell).ToHashSet();
         var places = new HashSet<GridCell>();
         foreach (var agent in sheltering)

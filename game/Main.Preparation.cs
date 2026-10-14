@@ -292,7 +292,7 @@ private void RebuildPreparationOffers()
     private void AdvancePreparationPresentation(double delta)
     {
         var workStarted = Stopwatch.GetTimestamp();
-        if (_fisticuffsEvidenceOutput is null && _barnEvidenceOutput is null && _barnCampaignEvidenceOutput is null) _host.Advance(delta, session => _foundationPresentation.Advance(session.CaptureObservation()));
+        if (_architectureEvidenceOutput is null && _fisticuffsEvidenceOutput is null && _barnEvidenceOutput is null && _barnCampaignEvidenceOutput is null) _host.Advance(delta, session => _foundationPresentation.Advance(session.CaptureObservation()));
         else _foundationPresentation.Reset(_session.CaptureObservation()); // Diagnostic owns its explicit simulation steps, never saves.
         SyncSaveStatus();
         var presentationStarted = Stopwatch.GetTimestamp();
@@ -391,7 +391,7 @@ private void RebuildPreparationOffers()
         if (_selectedAttendeeId is not null) RefreshAttendeeInspector();
         EnsureStage(); Audio.AdvanceIncidents(_session, ListenerPoint);
         SyncPresentationPause();
-        if (_fisticuffsEvidenceOutput is null && _barnEvidenceOutput is null) _host.AdvanceSaves(delta);
+        if (_architectureEvidenceOutput is null && _fisticuffsEvidenceOutput is null && _barnEvidenceOutput is null) _host.AdvanceSaves(delta);
         SyncSaveStatus();
         if (Engine.GetProcessFrames() % 15 == 0) RefreshPreparationHud();
         var captureStarted = Stopwatch.GetTimestamp();

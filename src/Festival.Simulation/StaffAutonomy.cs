@@ -60,7 +60,7 @@ public sealed partial class GameSession
     {
         var collapse = need.HealthCollapseTick;
         return _disorder?.Incidents.LastOrDefault(incident => incident.VictimId == need.Id && incident.InjuryTick >= 0) is { } injury
-            ? injury.InjuryTick + DisorderInjuryDeathTicks : collapse + MedicalDeathDelayTicks;
+            ? injury.InjuryTick + RuleProfile.Incidents.DisorderInjuryDeathTicks : collapse + RuleProfile.Incidents.MedicalDeathDelayTicks;
     }
 
     private void AdvanceStaffAutonomy()
