@@ -1,0 +1,35 @@
+{
+  "productionBaseline": "4b404379f04154240c59543daeea5d3d49fea2a3",
+  "productionMutated": false,
+  "captureNote": "Original21snapshot observations unchanged;17additional boundaries and38emitted-event sequences; standalone retry restore failure is historical provenance only. Later parity requires successful restore.",
+  "files": [
+    {
+      "path": "tests/Festival.Tests/SurvivalArchitectureParityTests.cs",
+      "sha256": "C33947522F63188C721B4593E7E0D7C5965FD0ABB2418A762919021369326418"
+    },
+    {
+      "path": "briefs/results/survival-architecture-plan.md",
+      "sha256": "E505B78C8E3533524FD02AB631309AD8ACAF4F3D02BADDE9F44EFED44B693450"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/baseline-capture.txt",
+      "sha256": "834F7B192B3342377340A34A56F742D5987A401DC49D511A933E27260F5E0F70"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/baseline-companion.json",
+      "sha256": "48FAAF6DA0EC84F6DA7FAE54DDC16DED77556ABA08AA86BD0A62400E54122934"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/baseline-save-limitation.json",
+      "sha256": "638C53A265B4977C0A7D8661BA1D5600F37963730606337393CDA8BD9D8388E8"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/baseline.json",
+      "sha256": "9F9A12D38DA6319CFA2D389C73324210EF357E5282EC67170D9D7402C08873FD"
+    },
+    {
+      "path": "reports/evidence/survival-architecture/companion-capture.txt",
+      "sha256": "AA499E15174F35932E1ADEF338757F3263F1EE0B60DAB9120BB9F749A52AC429"
+    }
+  ]
+}

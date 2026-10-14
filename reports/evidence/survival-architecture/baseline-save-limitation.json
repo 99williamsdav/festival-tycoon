@@ -1,0 +1,10 @@
+[
+  {
+    "name": "steward-1-retry",
+    "error": "A steward shift needs a festival with stewards."
+  },
+  {
+    "name": "steward-2-retry",
+    "error": "A steward shift needs a festival with stewards."
+  }
+]
