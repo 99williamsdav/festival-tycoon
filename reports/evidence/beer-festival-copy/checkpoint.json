@@ -1,0 +1,194 @@
+{
+  "scope": "Beer Festival display copy only, no mechanics/artwork/EXE change",
+  "baseCommit": "d778488b0a34654cfbfefdf272dad0d6328da1f5",
+  "exactCopy": "Charge 50% more for beer and everyone seems happy about it",
+  "changedFiles": [
+    {
+      "path": "src/Festival.Simulation/Perks.cs",
+      "sha256": "B3C17D1524AE73E33AFF83B1BDAC47BFD0F4B058590AF3C54D82F20DE6589EB4"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-v1/manifest.json",
+      "sha256": "F70C9C5231C2B4D9789F0C70EBF6C31D34332F994D82C39205C518959A5E3271"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/manifest.json",
+      "sha256": "B6430444D3D06E1ECAF47475A7052D8162985819F44A9CAFC2877788A19087C1"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/review.html",
+      "sha256": "66E6876A8AF86B5107FB195753DEB23B184DB1CD1DD40B9F21EAD9A2DCB5DFB0"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/cards/beer-festival-744x1074.png",
+      "sha256": "F8238D9ACBA9A7790F117E1EE787D1E56AE57EE9D5520B41BC2166CD846BA221"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/beer-festival-248x358.png",
+      "sha256": "BC0254FBA7E55FFF05108C9794EB5CF1B39373C4589AF46FAD76C4366AE04FE1"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/beer-festival-250x142.png",
+      "sha256": "55828B055C196DB4F790F7342EE59CACD4B537DBD051D5EEF6E55B035A53C93F"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/contact-sheet.png",
+      "sha256": "5145EF4D931EEB3751078EE956E37E5AE45EA719B066ED0C73D76E63247FF0CF"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/owned-size-sheet.png",
+      "sha256": "ABD6AE741230FC122D7D6B2FA43A4C2BC4B76941DC7333799A9F1F316B5A0397"
+    },
+    {
+      "path": "reports/evidence/beer-festival-copy/render-review.cjs",
+      "sha256": "A2EC26311DA1E01C848FDD4861005127184F12345E7245D59FBD5384D2C3C195"
+    },
+    {
+      "path": "reports/evidence/beer-festival-copy/preview-checks.json",
+      "sha256": "9AF551C4C42ADDC1B471E459FB4A9E6230F8260333971677F06C67F0B20AC6F2"
+    },
+    {
+      "path": "reports/evidence/beer-festival-copy/tests.txt",
+      "sha256": "F189804923D1480A35786EDEBD7F6CCFBDCCB630AE62AE9E5C2078E7DC33F9AD"
+    },
+    {
+      "path": "reports/evidence/beer-festival-copy/game-build.txt",
+      "sha256": "5A239181BBA99EBC0CBED810990B18FDCAD2B3665EB08501526CBB3D95041EF6"
+    }
+  ],
+  "protectedFiles": [
+    {
+      "path": "src/Festival.Simulation/PerkEffects.cs",
+      "sha256": "9468791B1DD4B50FA2AD7130EDBE1772488002847986D5EFD8F82BE0FBF301A5"
+    },
+    {
+      "path": "src/Festival.Simulation/Immersion.cs",
+      "sha256": "67E23BCF98699B2D4800E11D76B820F7818475DA96E26FEA4583EB7E91DC6587"
+    },
+    {
+      "path": "game/Hud/PerkPanel.cs",
+      "sha256": "BA2159D3CFB3E55A04F6DED86398E8053C7E02755603B8A640DD21C4F38DE831"
+    },
+    {
+      "path": "game/assets/ui/perks/beer-festival.png",
+      "sha256": "9727C99FE81B2D4EC75667A593E91A6F02924BFC7E6BE5C66F82462D11E09C65"
+    },
+    {
+      "path": "game/assets/ui/perks/beer-festival.svg",
+      "sha256": "6A56FA8DBCA46EB068FC71E13ED42D9B68F8E2F9D988A1A4FEDC3D6107D172C0"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-v1/PROMPTS.md",
+      "sha256": "5E54B6D71A1FCB47548F4CF53A82F7EBE104920FF697395810B5BC775126F545"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/PROMPTS.md",
+      "sha256": "1FA7C9F3EDE7C2FD826D83D5B53E4EC240F8276DB6EADA9F0035467022325E1F"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/build-review.cjs",
+      "sha256": "6F7AF215D8B0D0459E9096147C4A0A09ED9253CA2926810756F12A9F18344E31"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/artwork/beer-festival.png",
+      "sha256": "9727C99FE81B2D4EC75667A593E91A6F02924BFC7E6BE5C66F82462D11E09C65"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/cards/alcoholics-744x1074.png",
+      "sha256": "069DB03CE6586F0485124A324FECA1E6B272DF6CCC8D14A96BFA5EED66A03F2A"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/cards/bring-your-own-bottle-744x1074.png",
+      "sha256": "52C4C2CD9846DB42F039CD85197CEC4323B06703FC2960064DD91582BD6E150B"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/cards/cola-fiends-744x1074.png",
+      "sha256": "B806BED65B1A3DEC5B06541BC3900D86B224620B4CBC574F02D83D2C3E3C47BF"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/cards/friendly-queues-744x1074.png",
+      "sha256": "D81601B5F029CF5581D6FD3A8C1C0E1771C9A4E4875EDB528FD46CF9BDDBF204"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/cards/robot-workers-744x1074.png",
+      "sha256": "EAEFF2387E5D193FC98485ACED295E18CC2E5F78DBE335FD757693636C455650"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/alcoholics-248x358.png",
+      "sha256": "363986979E914227F9A7BB51C699149C6A26A3E5EC24FE5AE703ACD2D1DE3C6B"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/alcoholics-250x142.png",
+      "sha256": "03F074498911FB43F227FAA51A24DF06FE8B860D09102CB543110685A25849D6"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/bring-your-own-bottle-248x358.png",
+      "sha256": "BCD5DC9D2DD41D51F336009EACF6A80238D5BF0AA5F067A03847079E15265C33"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/bring-your-own-bottle-250x142.png",
+      "sha256": "F43904B42B4424A09A78FEE88D6FD245B17E97431FC619F23FB5D8C305C1450A"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/cola-fiends-248x358.png",
+      "sha256": "4ED6029F3C78377698C689F52ED1D1A8F973E68135B85AEC1A1E24E0AA414C38"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/cola-fiends-250x142.png",
+      "sha256": "4D30F4697EF9592396B4ADE70D1EB7373F852CC9CE211A32C8CF07D56026B879"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/friendly-queues-248x358.png",
+      "sha256": "05B44853F727B3017F9F1F19F9FA2A1D55CCB638448F337AD419EFD9BFBE4EF3"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/friendly-queues-250x142.png",
+      "sha256": "13546F847FC7BA4AC9214D57DA05BF5D10145A0795A585B846B2342C2C614FDE"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/robot-workers-248x358.png",
+      "sha256": "AA11BE611F48312A7E30CCC25C2E576B6BF365D4AE4EBE3279A5115D9B383887"
+    },
+    {
+      "path": "assets/source/perks/mosaic-suite-batch2/small/robot-workers-250x142.png",
+      "sha256": "D292F44BD7A308EF66DE7EC4435323C8E3D127C2CF10B1B892961274C184DF54"
+    }
+  ],
+  "manifestChecks": [
+    "Only Beer effect changed: assets/source/perks/mosaic-suite-v1/manifest.json",
+    "Only Beer effect changed: assets/source/perks/mosaic-suite-batch2/manifest.json"
+  ],
+  "designerMirror": [
+    {
+      "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/perk-mosaic-suite-batch2/manifest.json",
+      "sha256": "B6430444D3D06E1ECAF47475A7052D8162985819F44A9CAFC2877788A19087C1"
+    },
+    {
+      "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/perk-mosaic-suite-batch2/review.html",
+      "sha256": "66E6876A8AF86B5107FB195753DEB23B184DB1CD1DD40B9F21EAD9A2DCB5DFB0"
+    },
+    {
+      "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/perk-mosaic-suite-batch2/cards/beer-festival-744x1074.png",
+      "sha256": "F8238D9ACBA9A7790F117E1EE787D1E56AE57EE9D5520B41BC2166CD846BA221"
+    },
+    {
+      "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/perk-mosaic-suite-batch2/small/beer-festival-248x358.png",
+      "sha256": "BC0254FBA7E55FFF05108C9794EB5CF1B39373C4589AF46FAD76C4366AE04FE1"
+    },
+    {
+      "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/perk-mosaic-suite-batch2/small/beer-festival-250x142.png",
+      "sha256": "55828B055C196DB4F790F7342EE59CACD4B537DBD051D5EEF6E55B035A53C93F"
+    },
+    {
+      "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/perk-mosaic-suite-batch2/contact-sheet.png",
+      "sha256": "5145EF4D931EEB3751078EE956E37E5AE45EA719B066ED0C73D76E63247FF0CF"
+    },
+    {
+      "path": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/perk-mosaic-suite-batch2/owned-size-sheet.png",
+      "sha256": "ABD6AE741230FC122D7D6B2FA43A4C2BC4B76941DC7333799A9F1F316B5A0397"
+    }
+  ],
+  "tests": "3/3 passed",
+  "build": "0 warnings/errors",
+  "export": "No new Windows EXE; existing EXEs not updated"
+}

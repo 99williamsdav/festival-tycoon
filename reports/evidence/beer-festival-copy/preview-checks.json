@@ -1,0 +1,43 @@
+{
+  "expectedCopy": "Charge 50% more for beer and everyone seems happy about it",
+  "masterSha256": "9727c99fe81b2d4ec75667a593e91a6f02924bfc7e6be5c66f82462d11e09c65",
+  "checks": [
+    {
+      "id": "card-beer-festival",
+      "copy": "Charge 50% more for beer and everyone seems happy about it",
+      "width": 248,
+      "height": 358,
+      "textBottom": 322.59375,
+      "textFits": true
+    },
+    {
+      "id": "owned-beer-festival",
+      "copy": "Charge 50% more for beer and everyone seems happy about it",
+      "width": 250,
+      "height": 142,
+      "textBottom": 93.796875,
+      "textFits": true
+    }
+  ],
+  "previews": [
+    {
+      "file": "cards/beer-festival-744x1074.png",
+      "width": 744,
+      "height": 1074,
+      "sha256": "f8238d9acba9a7790f117e1ee787d1e56ae57ee9d5520b41bc2166cd846ba221"
+    },
+    {
+      "file": "small/beer-festival-248x358.png",
+      "width": 248,
+      "height": 358,
+      "sha256": "bc0254fba7e55fff05108c9794eb5cf1b39373c4589af46fad76c4366ae04fe1"
+    },
+    {
+      "file": "small/beer-festival-250x142.png",
+      "width": 250,
+      "height": 142,
+      "sha256": "55828b055c196db4f790f7342ee59cacd4b537dbd051d5eef6e55b035a53c93f"
+    }
+  ],
+  "note": "Existing HTML layout rendered with separate text. No artwork generation or running-game/EXE claim."
+}
