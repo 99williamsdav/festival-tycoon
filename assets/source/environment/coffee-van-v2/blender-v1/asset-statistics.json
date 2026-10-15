@@ -1,0 +1,40 @@
+{
+  "dimensions_m": {
+    "body_length": 4.55,
+    "width_without_mirrors": 2.03,
+    "closed_roof_height": 2.76,
+    "open_hatch_extent_y": -2.1
+  },
+  "triangles": 76290,
+  "mesh_objects": 364,
+  "material_count": 15,
+  "materials": [
+    "Amber lamps",
+    "Brushed steel",
+    "Charcoal fittings",
+    "Coffee beans",
+    "Deep teal enamel",
+    "Headlight silver",
+    "Interior shadows",
+    "Muted brass",
+    "Paper cups",
+    "Rear red lenses",
+    "Rubber",
+    "Sage cabinetry",
+    "Smoky cab glass",
+    "Warm cream enamel",
+    "Warm oak"
+  ],
+  "textures": 0,
+  "server_aisle": {
+    "clear_width_m": 0.84,
+    "usable_length_m": 1.48,
+    "floor_z_m": 0.715,
+    "suggested_feet_position_m": [
+      0.86,
+      -0.08,
+      0.715
+    ],
+    "note": "Standing zone behind counter, between equipment shelf ending X .23 and menu end. Worktop front Y .31 and counter rear Y -.89; reserve central .84m unobstructed width. Roof interior headroom approximately 2m."
+  }
+}

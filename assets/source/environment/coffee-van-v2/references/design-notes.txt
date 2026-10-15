@@ -1,0 +1,7 @@
+Design rationale and inspection
+
+Cream over deep teal gives a calm countryside identity; sage cabinetry, oak counter and thin brass trim add warmth. The raised hatch frames recognisable espresso equipment while leaving the centre visually open. Ordinary wheels, a short cab and simple panel seams provide a practical Blender starting point. Separate body, hatch, supports, counter, wheels and equipment into reusable meshes; simplify tyre tread and small hardware for game scale.
+
+Defects: the dominant view has a black front grille, but the small front view replaces it with a teal logo panel. Front branding therefore also changes. The rear/opposite-side view reads slightly taller and narrower than the dominant view. Interior standing-room depth and access are not demonstrated; a server fit needs checking in blockout. Fine material texture and tyre detail are more realistic than the requested low-poly target. These remain unresolved concept-sheet inconsistencies.
+
+One built-in generation; original preserved.

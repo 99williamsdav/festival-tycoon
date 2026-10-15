@@ -1,0 +1,23 @@
+{
+  "glb_header_valid": true,
+  "reimported_meshes": 364,
+  "exported_triangles": 76290,
+  "exported_materials": 15,
+  "images": 0,
+  "bounds_blender_m": {
+    "min": [
+      -2.4865000247955322,
+      -2.0990941524505615,
+      -0.0010000019101426005
+    ],
+    "max": [
+      2.43999981880188,
+      1.2092000246047974,
+      2.7981388568878174
+    ]
+  },
+  "nonfinite_vertices": 0,
+  "zero_area_triangles": 0,
+  "zero_area_objects": [],
+  "no_studio_nodes": true
+}

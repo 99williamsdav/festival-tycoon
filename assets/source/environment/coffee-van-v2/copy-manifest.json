@@ -1,0 +1,156 @@
+[
+  {
+    "path": "blender-v1/asset-statistics.json",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v1\\asset-statistics.json",
+    "bytes": 1020,
+    "sha256": "C133072E67005CFFE674A615DDB45F48A41959D82127195A995CAE8C875C5412",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v1/build.py",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v1\\build.py",
+    "bytes": 17657,
+    "sha256": "6250E2127FB4153BBD27891155AEA2AA2797840C44DB384E4A2FC259A482DDFD",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v1/clean-export.py",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v1\\clean-export.py",
+    "bytes": 1238,
+    "sha256": "4A055F533D3C16CE48B739CE6B7012A073FFD3165D32AA43B2F551D6C1DA7D9D",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v1/coffee-van.blend",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v1\\coffee-van.blend",
+    "bytes": 9470124,
+    "sha256": "DE31C5B152280C05D72AE4F6E83F455801DA90A0F625C4B2381F678EA7603A20",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v1/export-verification.json",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v1\\export-verification.json",
+    "bytes": 489,
+    "sha256": "707417D9B4D69FB77F74BFE0502038FC720B006BDFC5D56486F5E604675CDC9B",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v1/README.supplied.md",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v1\\README.md",
+    "bytes": 3765,
+    "sha256": "7E6750151229F300C857D681ABB762BD3F3DEDD0903D187F19E005074E2DCBEE",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/build.py",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\build.py",
+    "bytes": 6474,
+    "sha256": "378DC2DCC13FE20CFDA729488DBD172C6511B10C850C6DBDBF6C5BCCD20A31EC",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/check-machine-station.py",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\check-machine-station.py",
+    "bytes": 1777,
+    "sha256": "7BBA2A1BE8FB53CDC87B75902DCBC531AA2023A3B1FD6D8C9A12C8A37E91509D",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/coffee-van.blend",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\coffee-van.blend",
+    "bytes": 9336908,
+    "sha256": "5A9E6DCC8ADE7168A8D1A64BFAF512750805307AE97FA785C74E9DCC752B367E",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/coffee-van.glb",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\coffee-van.glb",
+    "bytes": 6384444,
+    "sha256": "C74ECE1D2C3C2739C4588C2005F2835BBFFB4F3C76DFD90F1129C373EFDF5973",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/export-verification.json",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\export-verification.json",
+    "bytes": 450,
+    "sha256": "C28DD8A43552B47D1405B076DD50207550D5140FC77FFAFFF8D18BF11DEA5F96",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/fit-review.json",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\fit-review.json",
+    "bytes": 3478,
+    "sha256": "321BCF7CA58AC17F63FA32290BB7B7CAA5D2B52C5AD2EDC9AF1DD1E60507CD4B",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/gameplay-four-angle-server.png",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\gameplay-four-angle-server.png",
+    "bytes": 1718958,
+    "sha256": "4DC450A5C33861BED7D5DA35E40337E68D634A0B03C146B2815417BF36A4D599",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/inspect-server.py",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\inspect-server.py",
+    "bytes": 809,
+    "sha256": "8728D4DDE06D039246A4A9319FF92AD462CF339D89352C6ABF0C4A8C767C4096",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/machine-reach-review.json",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\machine-reach-review.json",
+    "bytes": 495,
+    "sha256": "0C482F801042CD0CAD9B667368E279DEC748AB92FC02608962E87BC76A70F2E0",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/README.supplied.md",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\README.md",
+    "bytes": 5523,
+    "sha256": "B7108F54769860DD06A83E8FECBBAF9A48300C69468EBFAB5B10ADECAC8834AC",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/render-main-server.png",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\render-main-server.png",
+    "bytes": 1587954,
+    "sha256": "F952C9457E10C1306880296697209528770EF9DC6C6B4CC8EB13B7FBE8EDB0D1",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/render-main.png",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\render-main.png",
+    "bytes": 1579575,
+    "sha256": "29C42A93730E0FC826E8B52F3233BCBFFDD2305D04A3B09B6A9118D35B6C84B8",
+    "matchesOriginal": true
+  },
+  {
+    "path": "blender-v2/verify.py",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v2\\verify.py",
+    "bytes": 1658,
+    "sha256": "9C729F74E3D6AEB48B01FCDE73270911F695EE8CEAD88D50939A038D3239B620",
+    "matchesOriginal": true
+  },
+  {
+    "path": "references/authoritative-concept.png",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_sol\\coffee-van-concept.png",
+    "bytes": 1858573,
+    "sha256": "F03E4AF5FC0705405721F0A45682E2812FA5094850C2691F0FEA1093A0D51529",
+    "matchesOriginal": true
+  },
+  {
+    "path": "references/design-notes.txt",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_sol\\design-notes.txt",
+    "bytes": 1018,
+    "sha256": "9B03EADFC7867D70C5FFAB0CA1F5B1237BE4A62B287BCF220CE06229EFE1F821",
+    "matchesOriginal": true
+  },
+  {
+    "path": "references/prompt.txt",
+    "original": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_sol\\prompt.txt",
+    "bytes": 3292,
+    "sha256": "6C66AFCEC55B8A609DA6F1B33160BFAD232992D37A6C282F8096F557A4DB1E60",
+    "matchesOriginal": true
+  }
+]

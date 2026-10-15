@@ -1,0 +1,8 @@
+TBBmalloc: skip allocation functions replacement in ucrtbase.dll: unknown prologue for function _msize
+Data are loaded, start creating Blender stuff
+glTF import finished in 0.30s
+{"valid_glb": true, "meshes": 356, "triangles": 75234, "materials": 15, "images": 0, "skins": 0, "animations": 0, "zero_area_triangles": 0, "nonfinite_vertices": 0, "bounds_m": {"min": [-2.4865000247955322, -1.2599999904632568, -0.0010000019101426005], "max": [2.43999981880188, 1.2092000246047974, 2.759999990463257]}, "excluded_nodes": true}
+Blender 4.1.1 (hash e1743a0317bc built 2024-04-15 23:33:30)
+Read prefs: "C:\Users\99wil\AppData\Roaming\Blender Foundation\Blender\4.1\config\userpref.blend"
+
+Blender quit

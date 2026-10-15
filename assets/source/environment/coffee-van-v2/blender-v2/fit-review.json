@@ -1,0 +1,139 @@
+{
+  "source_v1": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\coffee-van-comparison-2026-10-15\\coffee_concept_astra\\blender-v1\\coffee-van.blend",
+  "server_source_current_game": "C:/Projects/festival-tycoon/game/assets/characters/service-servers-v1/lwf_server_food_male_v1.glb",
+  "server_sha256": "142d14414b781dcee00461da4d54cb26e26e314ff90db811bcf41ffaabf81b6d",
+  "removed_objects": [
+    "Hatch hinge",
+    "Hatch hinge.001",
+    "Hatch support chrome piston",
+    "Hatch support chrome piston.001",
+    "Hatch support gas cylinder",
+    "Hatch support gas cylinder.001",
+    "Open upward hatch",
+    "Sage hatch underside"
+  ],
+  "menu_shift_m": [
+    0,
+    -0.3,
+    0
+  ],
+  "menu_face_y_m": -1.008,
+  "server_root_feet_translation_m": [
+    0.86,
+    -0.52,
+    0.715
+  ],
+  "server_yaw_blender_deg": 180,
+  "server_scale": 1,
+  "server_offer_bounds": {
+    "min": [
+      0.5901568531990051,
+      -0.9547714591026306,
+      0.7162616848945618
+    ],
+    "max": [
+      1.129244327545166,
+      -0.3699999749660492,
+      2.4568967819213867
+    ]
+  },
+  "all_tested_frames_bounds": {
+    "min": [
+      0.5385628342628479,
+      -0.9547714591026306,
+      0.7162616848945618
+    ],
+    "max": [
+      1.1302443742752075,
+      -0.35329359769821167,
+      2.4569058418273926
+    ]
+  },
+  "clips": [
+    {
+      "clip": "server_idle",
+      "frames_checked": 97,
+      "surface_intersection_pairs_by_van_object": {}
+    },
+    {
+      "clip": "server_turn",
+      "frames_checked": 9,
+      "surface_intersection_pairs_by_van_object": {}
+    },
+    {
+      "clip": "server_pickup",
+      "frames_checked": 13,
+      "surface_intersection_pairs_by_van_object": {}
+    },
+    {
+      "clip": "server_offer",
+      "frames_checked": 13,
+      "surface_intersection_pairs_by_van_object": {}
+    },
+    {
+      "clip": "server_retract",
+      "frames_checked": 13,
+      "surface_intersection_pairs_by_van_object": {}
+    },
+    {
+      "clip": "server_reset",
+      "frames_checked": 25,
+      "surface_intersection_pairs_by_van_object": {}
+    }
+  ],
+  "socket_endpoints": [
+    {
+      "clip": "server_idle",
+      "position": [
+        0.6674448847770691,
+        -0.537473738193512,
+        1.46439528465271
+      ]
+    },
+    {
+      "clip": "server_turn",
+      "position": [
+        0.6674448847770691,
+        -0.537473738193512,
+        1.46439528465271
+      ]
+    },
+    {
+      "clip": "server_pickup",
+      "position": [
+        0.6700001358985901,
+        -0.8000001311302185,
+        1.8149998188018799
+      ]
+    },
+    {
+      "clip": "server_offer",
+      "position": [
+        0.6700000166893005,
+        -0.9599997997283936,
+        1.8300001621246338
+      ]
+    },
+    {
+      "clip": "server_retract",
+      "position": [
+        0.6700003147125244,
+        -0.6700001955032349,
+        1.7350002527236938
+      ]
+    },
+    {
+      "clip": "server_reset",
+      "position": [
+        0.6700000762939453,
+        -0.7650002837181091,
+        1.815000295639038
+      ]
+    }
+  ],
+  "triangles": 75234,
+  "materials": 15,
+  "textures_van": 0,
+  "camera_elevation_deg": 38.853374340353334,
+  "validation_limit": "Triangle surface intersection checks do not prove volume containment, accessibility or all possible motions. Existing clips sampled every frame, no IK retargeting or game integration."
+}

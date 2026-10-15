@@ -1,0 +1,17 @@
+{
+  "machine_station_root_m": [
+    0.32,
+    -0.52,
+    0.715
+  ],
+  "step_from_handoff_m": 0.54,
+  "idle_surface_intersections": {
+    "Grinder pedestal": 151,
+    "Grinder motor": 183,
+    "Bean hopper": 83,
+    "Coffee equipment shelf": 48
+  },
+  "shoulder_to_machine_controls_m": 0.6224252331703441,
+  "arm_plus_hand_bone_length_m": 0.6523246616125107,
+  "limit": "Static pose and straight-line reach envelope only. No machine operating animation or reach path validated."
+}
