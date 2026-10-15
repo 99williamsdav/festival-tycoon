@@ -1,0 +1,44 @@
+ALL SIX FORECAST MOSAICS APPROVED — FINAL BUILDER HANDOFF
+Explicit user approval authorizes full-suite integration now. No further art gate. Final HeavyRain is the darker v3, not v2. Designer did not regenerate art or implement runtime code.
+
+Pleasant
+Final master: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\masters\pleasant-fine.png
+Packaged file: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\approved-six-runtime\assets\pleasant-fine.png
+Target: res://assets/ui/forecast/pleasant-fine.png
+SHA256: 4a9bcb554f2407e921d233f91f08c4cdac0814d04c852402137c51e7225b8c41
+
+Mild
+Final master: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\masters\mild.png
+Packaged file: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\approved-six-runtime\assets\mild.png
+Target: res://assets/ui/forecast/mild.png
+SHA256: 2cd0697fbfb39d5ac88cdf8e9dc6cf8a573b848fcaa624283057bea7009ff0b2
+
+Cloudy
+Final master: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\masters\cloudy.png
+Packaged file: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\approved-six-runtime\assets\cloudy.png
+Target: res://assets/ui/forecast/cloudy.png
+SHA256: 3770bff03329b2a13f592e608ac663334f0f873ba2aaedabf15921809b2cbdab
+
+Showery
+Final master: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\masters\showery-mixed.png
+Packaged file: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\approved-six-runtime\assets\showery-mixed.png
+Target: res://assets/ui/forecast/showery-mixed.png
+SHA256: c62197fa53078b1a17267918315637e80dfa0bf812bd75571cee356b1e83469c
+
+Heatwave
+Final master: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\masters\heatwave-forecast-v2.png
+Packaged file: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\approved-six-runtime\assets\heatwave-forecast-v2.png
+Target: res://assets/ui/forecast/heatwave-forecast-v2.png
+SHA256: fa007190fde9f2fad533de277905cad7a0888399e68750863e3a80bbe783166c
+
+HeavyRain
+Final master: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\masters\heavy-rain-forecast-v3.png
+Packaged file: C:\Users\99wil\Documents\ChatGPT\Festival Tycoon\forecast-weather-mosaic-suite-v1\approved-six-runtime\assets\heavy-rain-forecast-v3.png
+Target: res://assets/ui/forecast/heavy-rain-forecast-v3.png
+SHA256: ea6b97814f9f7630afc0e4a37183af0f7c8608a967021f9b561e011cc1c70f7b
+
+All masters 1536x1024 PNG,3:2,text-free. Byte-identical copies verified.
+Native slot: ClassicForecastScreen TextureRect at logical(1012,37),size(216,144); 324x216 display at1080p. Preserve ExpandMode.IgnoreSize, KeepAspectCentered, MouseFilter.Ignore and existing canvas scaling. Use existing lossless PNG import convention and linear filtering; let Godot generate fresh import metadata. Select by actual ClassicWeatherKind enum using mapping above. No tint, extra border, cropping or stretching. Keep all labels as native text and all time labels through shared FestivalTimePresentation.
+Do not overwrite Survival challenge textures heatwave-b.png or heavy-rain-a.png: their originals and preserved package copies remain hash-verified unchanged. New pair is forecast-specific.
+Builder validation: all six conditions resolve correct textures, no missing assets, readability/aspect at720p/1080p, unchanged Survival challenge references. No changes to simulation, weather probabilities, forecast data, timeline or navigation required by this art handoff. Builder owns code/tests and applicable independent review.
+Exact prompts, source paths and previous versions preserved in parent package. Current gallery.html and gallery-final-720p.png/gallery-final-1080p.png show approved suite at actual display sizes. manifest-final.json records hashes and mapping.

@@ -1,0 +1,10 @@
+{
+  "pins": 49,
+  "pinFailures": 0,
+  "checks": 262,
+  "failed": 0,
+  "builderChecks": 262,
+  "builderFailed": 0,
+  "exitCode": "0",
+  "stderrBytes": 0
+}

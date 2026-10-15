@@ -1,0 +1,170 @@
+[
+  {
+    "condition": "Pleasant",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/pleasant-fine.png",
+    "hash": "4A9BCB554F2407E921D233F91F08C4CDAC0814D04C852402137C51E7225B8C41",
+    "pass": true
+  },
+  {
+    "condition": "Pleasant",
+    "path": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-720f6a8a-204c-46a3-97d8-55001e19f425.png",
+    "hash": "4A9BCB554F2407E921D233F91F08C4CDAC0814D04C852402137C51E7225B8C41",
+    "pass": true
+  },
+  {
+    "condition": "Pleasant",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/approved-six-runtime/assets/pleasant-fine.png",
+    "hash": "4A9BCB554F2407E921D233F91F08C4CDAC0814D04C852402137C51E7225B8C41",
+    "pass": true
+  },
+  {
+    "condition": "Pleasant",
+    "path": "game/assets/ui/forecast/pleasant-fine.png",
+    "hash": "4A9BCB554F2407E921D233F91F08C4CDAC0814D04C852402137C51E7225B8C41",
+    "pass": true
+  },
+  {
+    "condition": "Mild",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/mild.png",
+    "hash": "2CD0697FBFB39D5AC88CDF8E9DC6CF8A573B848FCAA624283057BEA7009FF0B2",
+    "pass": true
+  },
+  {
+    "condition": "Mild",
+    "path": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-fb5cfffd-b30c-4d78-a1c9-8e2a77155007.png",
+    "hash": "2CD0697FBFB39D5AC88CDF8E9DC6CF8A573B848FCAA624283057BEA7009FF0B2",
+    "pass": true
+  },
+  {
+    "condition": "Mild",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/approved-six-runtime/assets/mild.png",
+    "hash": "2CD0697FBFB39D5AC88CDF8E9DC6CF8A573B848FCAA624283057BEA7009FF0B2",
+    "pass": true
+  },
+  {
+    "condition": "Mild",
+    "path": "game/assets/ui/forecast/mild.png",
+    "hash": "2CD0697FBFB39D5AC88CDF8E9DC6CF8A573B848FCAA624283057BEA7009FF0B2",
+    "pass": true
+  },
+  {
+    "condition": "Cloudy",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/cloudy.png",
+    "hash": "3770BFF03329B2A13F592E608AC663334F0F873BA2AAEDABF15921809B2CBDAB",
+    "pass": true
+  },
+  {
+    "condition": "Cloudy",
+    "path": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-cc84edba-04aa-480b-a575-cad43b1901ab.png",
+    "hash": "3770BFF03329B2A13F592E608AC663334F0F873BA2AAEDABF15921809B2CBDAB",
+    "pass": true
+  },
+  {
+    "condition": "Cloudy",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/approved-six-runtime/assets/cloudy.png",
+    "hash": "3770BFF03329B2A13F592E608AC663334F0F873BA2AAEDABF15921809B2CBDAB",
+    "pass": true
+  },
+  {
+    "condition": "Cloudy",
+    "path": "game/assets/ui/forecast/cloudy.png",
+    "hash": "3770BFF03329B2A13F592E608AC663334F0F873BA2AAEDABF15921809B2CBDAB",
+    "pass": true
+  },
+  {
+    "condition": "Showery",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/showery-mixed.png",
+    "hash": "C62197FA53078B1A17267918315637E80DFA0BF812BD75571CEE356B1E83469C",
+    "pass": true
+  },
+  {
+    "condition": "Showery",
+    "path": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-e421f704-691e-4abd-98c4-b19ff81bc3ac.png",
+    "hash": "C62197FA53078B1A17267918315637E80DFA0BF812BD75571CEE356B1E83469C",
+    "pass": true
+  },
+  {
+    "condition": "Showery",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/approved-six-runtime/assets/showery-mixed.png",
+    "hash": "C62197FA53078B1A17267918315637E80DFA0BF812BD75571CEE356B1E83469C",
+    "pass": true
+  },
+  {
+    "condition": "Showery",
+    "path": "game/assets/ui/forecast/showery-mixed.png",
+    "hash": "C62197FA53078B1A17267918315637E80DFA0BF812BD75571CEE356B1E83469C",
+    "pass": true
+  },
+  {
+    "condition": "Heatwave",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/heatwave-forecast-v2.png",
+    "hash": "FA007190FDE9F2FAD533DE277905CAD7A0888399E68750863E3A80BBE783166C",
+    "pass": true
+  },
+  {
+    "condition": "Heatwave",
+    "path": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-dd3cdceb-6ab3-4acb-8b8d-d2afd7f56b46.png",
+    "hash": "FA007190FDE9F2FAD533DE277905CAD7A0888399E68750863E3A80BBE783166C",
+    "pass": true
+  },
+  {
+    "condition": "Heatwave",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/approved-six-runtime/assets/heatwave-forecast-v2.png",
+    "hash": "FA007190FDE9F2FAD533DE277905CAD7A0888399E68750863E3A80BBE783166C",
+    "pass": true
+  },
+  {
+    "condition": "Heatwave",
+    "path": "game/assets/ui/forecast/heatwave-forecast-v2.png",
+    "hash": "FA007190FDE9F2FAD533DE277905CAD7A0888399E68750863E3A80BBE783166C",
+    "pass": true
+  },
+  {
+    "condition": "HeavyRain",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/heavy-rain-forecast-v3.png",
+    "hash": "EA6B97814F9F7630AFC0E4A37183AF0F7C8608A967021F9B561E011CC1C70F7B",
+    "pass": true
+  },
+  {
+    "condition": "HeavyRain",
+    "path": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-6648caea-8769-43b2-9308-9e975c5242ea.png",
+    "hash": "EA6B97814F9F7630AFC0E4A37183AF0F7C8608A967021F9B561E011CC1C70F7B",
+    "pass": true
+  },
+  {
+    "condition": "HeavyRain",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/approved-six-runtime/assets/heavy-rain-forecast-v3.png",
+    "hash": "EA6B97814F9F7630AFC0E4A37183AF0F7C8608A967021F9B561E011CC1C70F7B",
+    "pass": true
+  },
+  {
+    "condition": "HeavyRain",
+    "path": "game/assets/ui/forecast/heavy-rain-forecast-v3.png",
+    "hash": "EA6B97814F9F7630AFC0E4A37183AF0F7C8608A967021F9B561E011CC1C70F7B",
+    "pass": true
+  },
+  {
+    "condition": "Heatwave",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/heatwave.png",
+    "hash": "80C4D3CD093129371D4113A6ED4046A32327A35213020843FDFEB1F35B362272",
+    "pass": true
+  },
+  {
+    "condition": "Heatwave",
+    "path": "C:/Projects/festival-tycoon/game/assets/ui/challenges/heatwave-b.png",
+    "hash": "80C4D3CD093129371D4113A6ED4046A32327A35213020843FDFEB1F35B362272",
+    "pass": true
+  },
+  {
+    "condition": "HeavyRain",
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/heavy-rain.png",
+    "hash": "087F366338B1FCB68004A79168F5D279DCE130799EDA0E533DDC71D3D70C7678",
+    "pass": true
+  },
+  {
+    "condition": "HeavyRain",
+    "path": "C:/Projects/festival-tycoon/game/assets/ui/challenges/heavy-rain-a.png",
+    "hash": "087F366338B1FCB68004A79168F5D279DCE130799EDA0E533DDC71D3D70C7678",
+    "pass": true
+  }
+]

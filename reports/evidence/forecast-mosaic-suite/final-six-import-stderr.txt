@@ -1,0 +1,16 @@
+WARNING: Missing .uid file for path "res://Main.LavHoseEvidence.cs". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1391)
+WARNING: Missing .uid file for path "res://Main.StrawMarker.cs". The file was re-created from cache.
+   at: _process_file_system (editor/file_system/editor_file_system.cpp:1391)
+ERROR: Condition "f.is_null()" is true. Continuing.
+   at: get_multiple_md5 (core/io/file_access.cpp:967)
+ERROR: Condition "f.is_null()" is true. Continuing.
+ERROR: Condition "f.is_null()" is true. Continuing.
+   at: get_multiple_md5 (core/io/file_access.cpp:967)
+ERROR: Condition "f.is_null()" is true. Continuing.
+   at: get_multiple_md5 (core/io/file_access.cpp:967)
+ERROR: Condition "f.is_null()" is true. Continuing.
+   at: get_multiple_md5 (core/io/file_access.cpp:967)
+   at: get_multiple_md5 (core/io/file_access.cpp:967)
+ERROR: Condition "f.is_null()" is true. Continuing.
+   at: get_multiple_md5 (core/io/file_access.cpp:967)

@@ -1,0 +1,33 @@
+FORECAST WEATHER MOSAIC SUITE v1 — ART REVIEW
+15 October 2026
+Status: four new pieces complete, awaiting art approval. No runtime integration performed. Ticket concepts and original forecast package preserved.
+
+REVIEW AT TRUE SLOT SIZE
+Open gallery.html at browser zoom100%. Default shows every master in a fixed216x144 CSS-pixel box, for720p; gallery.html?size=1080 shows324x216 boxes, for1080p. Images use object-fit:contain and centred positioning, equivalent to KeepAspectCentered. No stretching/cropping.
+gallery-720p.png is a fixed1280x720 browser screenshot at deviceScaleFactor1; gallery-1080p.png is1920x1080 at deviceScaleFactor1. These are true-size captures, not an enlarged contact sheet rescaled for export. Chat previews may fit to available width; open the HTML or image at100% for exact physical pixel comparison.
+display-checks.json records loaded/natural/display dimensions and confirms no page overflow.
+forecast-context-1280.png shows the new Showery master in the existing approved forecast layout at216x144. Context HTML is a copied visual design source with only image path, font paths and contain-fit adjusted. Timeline/copy/layout unchanged. This is an art context mockup, not an integrated game capture. Displayed times remain provisional; runtime labels must use the shared time presentation source.
+
+CONDITION MAPPING
+Confirmed actual enum in C:/Projects/festival-tycoon/src/Festival.Simulation/ClassicWeather.cs:
+Pleasant -> masters/pleasant-fine.png (gallery label Pleasant / Fine)
+Mild -> masters/mild.png
+Cloudy -> masters/cloudy.png
+Showery -> masters/showery-mixed.png (gallery label Showery / Mixed)
+Heatwave -> masters/heatwave.png, byte-identical copy of game/assets/ui/challenges/heatwave-b.png
+HeavyRain -> masters/heavy-rain.png, byte-identical copy of game/assets/ui/challenges/heavy-rain-a.png
+All six masters1536x1024 PNG,3:2. Exact dimensions/hashes/source paths and prompt mapping in manifest.json. No labels, temperatures, numbers or times are baked into new art.
+
+VISUAL REVIEW
+Pleasant: exposed sun, turquoise/cream open sky and healthy green fields. No heat haze, cracked soil or wilted foliage. Its gold area is smaller than Heatwave's and lacks heat-severity cues.
+Mild: light cloud covers much of the sun; dry scene, less exposed sunlight than Pleasant.
+Cloudy: broad cream/sage cloud bank, no sun or rain; dry overcast cue survives thumbnail size.
+Showery: sun plus cloud and three separated large teal drops, distinct from dry Mild and all-over Heavy Rain.
+New pieces share glazed tile material, warm grout, gold perimeter, sage/teal fields and large weather silhouettes. The two approved originals remain more detailed and unbordered; this difference is retained intentionally because those masters must remain unchanged. Heavy Rain's dense sky rain and Heatwave's sun/heat waves still read at216x144.
+All full masters and both size galleries inspected. No targeted repairs needed after the four first-pass calls. The forecast-context image retains clear contrast against dark green.
+
+PROVENANCE / SCOPE
+Built-in imagegen used, exactly one call per new condition, no fallback CLI. Exact submitted prompts are in prompts/pleasant-fine.txt, mild.txt, cloudy.txt, showery-mixed.txt. All calls used the same three references: original repo heatwave-b.png, original repo heavy-rain-a.png, and ../forecast-screen-concepts-v1/weather-mosaic.png. The latter is copied to references/approved-forecast-mosaic.png. References were style inputs, not edited targets.
+Original generated output paths retained in manifest.json; copies verified byte-identical. Approved repo masters also verified byte-identical. No regeneration of Heatwave/Heavy Rain, no new game mechanics, no game/repository writes, no scheduled monitor.
+After art approval Builder can map ClassicWeatherKind to these textures; keep runtime labels separate and preserve the existing forecast layout. Do not integrate before approval.
+

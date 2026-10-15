@@ -48,6 +48,10 @@ public partial class Main
                 }));
                 ArchitectureCheck("forecast-visible-sized-root-"+kind,_classicForecastLayer!.Visible&&_classicForecastLayer.GetChildren().OfType<Control>().First().Size==GetViewport().GetVisibleRect().Size);
                 ArchitectureCheck("forecast-real-button-rect-"+kind,FindChildren("ForecastContinue","Button",true,false).OfType<Button>().Single(b=>b.IsVisibleInTree()).GetGlobalRect().Size.X>200);
+                var art=FindChildren("ForecastWeatherArt","TextureRect",true,false).OfType<TextureRect>().Single(a=>a.IsVisibleInTree());
+                var expectedArt=new[]{"forecast/mild.png","forecast/pleasant-fine.png","forecast/cloudy.png","forecast/showery-mixed.png","forecast/heatwave-forecast-v2.png","forecast/heavy-rain-forecast-v3.png"}[index];
+                ArchitectureCheck("forecast-condition-art-"+kind,art.Texture is { } texture&&texture.ResourcePath=="res://assets/ui/"+expectedArt&&texture.GetSize()==new Vector2(1536,1024));
+                ArchitectureCheck("forecast-art-slot-and-fit-"+kind,art.Size==new Vector2(216,144)&&art.StretchMode==TextureRect.StretchModeEnum.KeepAspectCentered);
                 var details=FindChildren("ForecastWetWindows","RichTextLabel",true,false).OfType<RichTextLabel>().Single(l=>l.IsVisibleInTree());
                 File.WriteAllText(Path.Combine(_weatherEvidenceOutput!,prefix+"-wet-label.json"),JsonSerializer.Serialize(new{contentHeight=details.GetContentHeight(),size=details.Size.ToString(),rect=details.GetGlobalRect().ToString(),text=details.Text}));
                 ArchitectureCheck("all-wet-window-labels-fit-"+kind,details.GetContentHeight()<=details.Size.Y&&details.GetGlobalRect().End.X<GetViewport().GetVisibleRect().End.X);

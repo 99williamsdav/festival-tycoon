@@ -15,6 +15,16 @@ internal partial class ClassicForecastScreen : Control
     private ClassicForecast _forecast=null!;
     private WeatherSpell[] _spells=[];
     private long _day;
+    internal static string WeatherArtPath(ClassicWeatherKind kind) => kind switch
+    {
+        ClassicWeatherKind.Pleasant => "res://assets/ui/forecast/pleasant-fine.png",
+        ClassicWeatherKind.Mild => "res://assets/ui/forecast/mild.png",
+        ClassicWeatherKind.Cloudy => "res://assets/ui/forecast/cloudy.png",
+        ClassicWeatherKind.Showery => "res://assets/ui/forecast/showery-mixed.png",
+        ClassicWeatherKind.Heatwave => "res://assets/ui/forecast/heatwave-forecast-v2.png",
+        ClassicWeatherKind.HeavyRain => "res://assets/ui/forecast/heavy-rain-forecast-v3.png",
+        _ => "res://assets/ui/forecast/weather-mosaic.png"
+    };
     public void Build(GameSession session,Action proceed,Action menu)
     {
         _session=session;_forecast=session.CaptureClassicForecast()!;_spells=session.CaptureWeather()!.Spells;_day=session.PreparedEditionDurationTicks;
@@ -25,7 +35,7 @@ internal partial class ClassicForecastScreen : Control
         Text($"Festival {session.FestivalNumber} forecast",52,70,900,55,40,Ui.BarText,Ui.Slab);
         Text(_spells.Any(r=>r.Intensity==RainIntensity.Downpour)?"Heavy showers, with a downpour.":_forecast.Summary,52,124,920,35,24,Ui.BarText);
         Text($"{_forecast.Temperatures.Min(p=>p.Celsius)}–{_forecast.Temperatures.Max(p=>p.Celsius)}°C · "+(_spells.Length==0?"Dry throughout":_forecast.Conditions==ClassicWeatherKind.Showery?"Mostly dry":"Wet spells with dry breaks"),52,163,900,28,18,Ui.BarMuted);
-        var art=new TextureRect{ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,Texture=GD.Load<Texture2D>("res://assets/ui/forecast/weather-mosaic.png"),Position=new(1012,37),Size=new(216,144),MouseFilter=MouseFilterEnum.Ignore};_canvas.AddChild(art);
+        var art=new TextureRect{Name="ForecastWeatherArt",ExpandMode=TextureRect.ExpandModeEnum.IgnoreSize,StretchMode=TextureRect.StretchModeEnum.KeepAspectCentered,Texture=GD.Load<Texture2D>(WeatherArtPath(_forecast.Conditions)),Position=new(1012,37),Size=new(216,144),MouseFilter=MouseFilterEnum.Ignore};_canvas.AddChild(art);
         var chart=new ForecastPlot{Position=new(0,0),Size=new(1280,720),MouseFilter=MouseFilterEnum.Ignore};_canvas.AddChild(chart);chart.Configure(session);
         Text("Your festival day",79,229,500,34,26,Ui.Ink,Ui.Slab);
         Text("Festival clock · "+FestivalTimePresentation.Range(0,_day),820,233,381,28,16,Ui.InkMuted,align:HorizontalAlignment.Right);

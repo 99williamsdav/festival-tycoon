@@ -1,0 +1,6 @@
+Use case: stylized-concept.
+Asset: one standalone weather mosaic master for the Festival Tycoon forecast header, landscape 3:2, preferred 1536x1024 pixels. Must read clearly at 216x144.
+References: image 1 heatwave and image 2 heavy rain are approved palette/material references ONLY, not targets to edit or regenerate. Image 3 forecast accent is the simplicity and broad weather-shape reference.
+Style: handmade glazed ceramic tesserae, visible warm cream grout, teal/turquoise/sage green fields, restrained warm gold and ivory. Straight-on flat artwork filling the complete canvas. Large readable weather shapes; broad tiles; quiet low rolling lush farm field across bottom quarter; restrained tile border. Match the reference suite, reduce fine clutter. No people, stages or tiny festival props needed. No text, numbers, labels, logos, brands, lightning, snow or wind symbols. Keep all weather cues inside frame.
+
+Primary condition: Cloudy: soft overcast, dominant broad rounded ivory and muted sage-grey cloud bank filling upper sky, above green fields. No visible sun, no rays, absolutely no raindrops or rain streaks. Calm dry cloud cover, not a dark storm. Low-contrast lighting but strong enough cream cloud silhouette against desaturated turquoise to read at 216x144.

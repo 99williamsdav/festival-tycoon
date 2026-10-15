@@ -1,0 +1,15 @@
+FORECAST MOSAIC SUITE — REVISION 2 REVIEW
+Four existing new-suite masters (Pleasant, Mild, Cloudy, Showery) are USER APPROVED and authorized for immediate Builder integration. Their hashes are unchanged. Ready package: approved-four-runtime/HANDOFF.txt and assets/. No runtime code was changed by Designer.
+
+New forecast-only candidates awaiting user approval:
+masters/heatwave-forecast-v2.png — strong golden rays and three teal heat-shimmer marks, distinct from comfortable Fine; same gold border, cream grout and rolling fields.
+masters/heavy-rain-forecast-v2.png — dark teal cloud bank, no sun, sustained rain across sky, distinct from three-drop sunny Showery; no lightning or wind hazards.
+Both1536x1024 PNG,3:2,text-free. Built-in imagegen, one call each, no repairs. Exact prompts: prompts/heatwave-forecast-v2.txt and prompts/heavy-rain-forecast-v2.txt. All four approved masters supplied as style references. Generated-source paths and hashes recorded in manifest-v2.json and current manifest.json.
+
+Visually inspected both masters and all six together at216x144 and324x216. No clipping, cropping or stretching. gallery.html at100% browser zoom uses fixed CSS display sizes; gallery-v2-720p.png is1280x720 and gallery-v2-1080p.png is1920x1080, device scale1. All image dimension checks pass in display-checks.json. Chat may scale previews; use HTML/image at100% for exact pixel judgment.
+
+Original challenge copies masters/heatwave.png and masters/heavy-rain.png and their repo originals remain unchanged and hash-verified. They are preserved references, not the new forecast pair. Survival artwork must remain unchanged.
+Previous gallery/notes/manifest retained as *v1* files. Current gallery shows four approved assets and two pending candidates. Existing forecast context remains Showery; no forecast/timeline redesign. Ticket concept package untouched.
+Only the new pair awaits approval. Do not impose another approval gate on the four already-approved pieces.
+
+REVISION 3: User requested Heavy Rain be a slightly darker day. New masters/heavy-rain-forecast-v3.png replaces v2 in current gallery/manifest. Targeted built-in lighting edit preserves composition and gold border, tones sky to cool sage-grey, darkens cloud and field lighting. Exact prompt saved; prior version preserved. Approval status remains pending; other assets unchanged.

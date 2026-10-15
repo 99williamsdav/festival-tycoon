@@ -1,0 +1,18 @@
+APPROVED FOUR FORECAST MOSAICS — BUILDER HANDOFF
+User approved Pleasant/Fine, Mild, Cloudy and Showery. This authorizes integration now; no further build gate. Designer has not changed runtime code.
+The assets subfolder contains byte-identical approved PNGs. Source package: C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/forecast-weather-mosaic-suite-v1/approved-four-runtime
+Mapping (actual ClassicWeatherKind):
+Pleasant -> assets/pleasant-fine.png -> res://assets/ui/forecast/pleasant-fine.png
+SHA256 4a9bcb554f2407e921d233f91f08c4cdac0814d04c852402137c51e7225b8c41
+Mild -> assets/mild.png -> res://assets/ui/forecast/mild.png
+SHA256 2cd0697fbfb39d5ac88cdf8e9dc6cf8a573b848fcaa624283057bea7009ff0b2
+Cloudy -> assets/cloudy.png -> res://assets/ui/forecast/cloudy.png
+SHA256 3770bff03329b2a13f592e608ac663334f0f873ba2aaedabf15921809b2cbdab
+Showery -> assets/showery-mixed.png -> res://assets/ui/forecast/showery-mixed.png
+SHA256 c62197fa53078b1a17267918315637e80dfa0bf812bd75571cee356b1e83469c
+All1536x1024,3:2, text-free. Exact hashes also in manifest.json.
+Read actual game/Hud/ClassicForecastScreen.cs: current art is a TextureRect at logical(1012,37), size(216,144), ExpandMode.IgnoreSize, StretchMode.KeepAspectCentered, MouseFilter.Ignore. Preserve those settings and the existing canvas scaling; at1080p image display is324x216. Select texture by _forecast.Conditions for these four enum values only. Keep all labels native and shared time formatter unchanged. No tint, crop, stretch, extra borders or baked labels; border is already in each master. Use linear filtering and existing lossless PNG import convention; Godot creates fresh import metadata, do not transplant unrelated UIDs.
+Heatwave and HeavyRain replacements are NOT approved yet. Leave their existing behavior until approval; do not wire the new v2 candidates into runtime or replace Survival art. No changes to simulation, forecasts, probabilities, timeline or navigation.
+Verify each of four conditions selects its mapped asset, no missing texture, correct aspect at720p/1080p, and no Survival challenge references changed.
+Prompts and provenance remain in parent package; full six-condition gallery includes clearly marked unapproved pair. Builder owns runtime integration/testing and applicable review.
+SUPERSEDED: all six now approved. Use ../approved-six-runtime/HANDOFF.txt; previous pending-pair restriction no longer applies.

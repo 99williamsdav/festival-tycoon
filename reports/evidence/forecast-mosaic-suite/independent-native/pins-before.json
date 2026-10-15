@@ -1,0 +1,296 @@
+[
+  {
+    "path": "game/Hud/ClassicForecastScreen.cs",
+    "expected": "30805F6C8B7301FE60A0864A6D793FB749E02C2EC7158D27E483B21CD9591F17",
+    "actual": "30805F6C8B7301FE60A0864A6D793FB749E02C2EC7158D27E483B21CD9591F17",
+    "pass": true
+  },
+  {
+    "path": "game/Main.WeatherEvidence.cs",
+    "expected": "73DF20D4394E179F5035C38E34C92A88E8AF7268F32E1842D9EB655C070DEF0F",
+    "actual": "73DF20D4394E179F5035C38E34C92A88E8AF7268F32E1842D9EB655C070DEF0F",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/forecast/cloudy.png",
+    "expected": "3770BFF03329B2A13F592E608AC663334F0F873BA2AAEDABF15921809B2CBDAB",
+    "actual": "3770BFF03329B2A13F592E608AC663334F0F873BA2AAEDABF15921809B2CBDAB",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/forecast/cloudy.png.import",
+    "expected": "0957B5D4983A724B26C72263AB69F3A2885CE562B56D93426CF1833C452CC2BB",
+    "actual": "0957B5D4983A724B26C72263AB69F3A2885CE562B56D93426CF1833C452CC2BB",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/forecast/mild.png",
+    "expected": "2CD0697FBFB39D5AC88CDF8E9DC6CF8A573B848FCAA624283057BEA7009FF0B2",
+    "actual": "2CD0697FBFB39D5AC88CDF8E9DC6CF8A573B848FCAA624283057BEA7009FF0B2",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/forecast/mild.png.import",
+    "expected": "AF54D360ABF04EB36B697A7C105A39F04F9ADEF20A4E0E52670D46F11EC44B1C",
+    "actual": "AF54D360ABF04EB36B697A7C105A39F04F9ADEF20A4E0E52670D46F11EC44B1C",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/forecast/pleasant-fine.png",
+    "expected": "4A9BCB554F2407E921D233F91F08C4CDAC0814D04C852402137C51E7225B8C41",
+    "actual": "4A9BCB554F2407E921D233F91F08C4CDAC0814D04C852402137C51E7225B8C41",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/forecast/pleasant-fine.png.import",
+    "expected": "EF49D6BDF31BD69801F6D264E19581FC2AD27E849A9BFCBC5CD6D1A4128B7666",
+    "actual": "EF49D6BDF31BD69801F6D264E19581FC2AD27E849A9BFCBC5CD6D1A4128B7666",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/forecast/showery-mixed.png",
+    "expected": "C62197FA53078B1A17267918315637E80DFA0BF812BD75571CEE356B1E83469C",
+    "actual": "C62197FA53078B1A17267918315637E80DFA0BF812BD75571CEE356B1E83469C",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/forecast/showery-mixed.png.import",
+    "expected": "67AD04686CC04A5AEBB433013B3D7757F9D0784BBDF3B7F1BC3742739F12B118",
+    "actual": "67AD04686CC04A5AEBB433013B3D7757F9D0784BBDF3B7F1BC3742739F12B118",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/display-checks.json",
+    "expected": "B69A849A8C6A5C6625FA1D01E1F811FC117CC828A6EC9A4195F8BD1EE5947790",
+    "actual": "B69A849A8C6A5C6625FA1D01E1F811FC117CC828A6EC9A4195F8BD1EE5947790",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/forecast-context-1280.png",
+    "expected": "124C989BDAE690FF1FD39168521025A0CE1C654A723D5AF1C7183FC6B98A6F93",
+    "actual": "124C989BDAE690FF1FD39168521025A0CE1C654A723D5AF1C7183FC6B98A6F93",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/forecast-context.html",
+    "expected": "D62C404322E00494703E7B2A93A064B96A86E4001A3C691DF3DC4BF9C29E482D",
+    "actual": "D62C404322E00494703E7B2A93A064B96A86E4001A3C691DF3DC4BF9C29E482D",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/gallery-1080p.png",
+    "expected": "F448274D4CC0767950FA870E244ACFE43A25CF26314AC8DFECEB1E504287F85A",
+    "actual": "F448274D4CC0767950FA870E244ACFE43A25CF26314AC8DFECEB1E504287F85A",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/gallery-720p.png",
+    "expected": "B7402D66BBC3884B5F155B8D2352F224104361AE9528134E3A402A2ED644560A",
+    "actual": "B7402D66BBC3884B5F155B8D2352F224104361AE9528134E3A402A2ED644560A",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/gallery-v1-1080p.png",
+    "expected": "F448274D4CC0767950FA870E244ACFE43A25CF26314AC8DFECEB1E504287F85A",
+    "actual": "F448274D4CC0767950FA870E244ACFE43A25CF26314AC8DFECEB1E504287F85A",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/gallery-v1-720p.png",
+    "expected": "B7402D66BBC3884B5F155B8D2352F224104361AE9528134E3A402A2ED644560A",
+    "actual": "B7402D66BBC3884B5F155B8D2352F224104361AE9528134E3A402A2ED644560A",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/gallery-v1.html",
+    "expected": "D1D1B048546D0F2CFA1694F1984602FE43AA4114EBBF5C01B1C08000209B321D",
+    "actual": "D1D1B048546D0F2CFA1694F1984602FE43AA4114EBBF5C01B1C08000209B321D",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/gallery.html",
+    "expected": "D1D1B048546D0F2CFA1694F1984602FE43AA4114EBBF5C01B1C08000209B321D",
+    "actual": "D1D1B048546D0F2CFA1694F1984602FE43AA4114EBBF5C01B1C08000209B321D",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/manifest-v1.json",
+    "expected": "7CE2EAD304E132EC6F3B93D95C196ECCDDD92F5B33E5CF3873C9A501BF230104",
+    "actual": "7CE2EAD304E132EC6F3B93D95C196ECCDDD92F5B33E5CF3873C9A501BF230104",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/manifest.cjs",
+    "expected": "F8E5B267F9C04A94F8C92561870E61E93690F5449F9A60A8F25AA7F5B95D50B5",
+    "actual": "F8E5B267F9C04A94F8C92561870E61E93690F5449F9A60A8F25AA7F5B95D50B5",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/manifest.json",
+    "expected": "7CE2EAD304E132EC6F3B93D95C196ECCDDD92F5B33E5CF3873C9A501BF230104",
+    "actual": "7CE2EAD304E132EC6F3B93D95C196ECCDDD92F5B33E5CF3873C9A501BF230104",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/render.cjs",
+    "expected": "5BCBBBFE0F6AC4354071E133B905A80108171EAAA9028EB953EEB0398D365E71",
+    "actual": "5BCBBBFE0F6AC4354071E133B905A80108171EAAA9028EB953EEB0398D365E71",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/REVIEW-NOTES-v1.txt",
+    "expected": "5795B020464FFC7633F8A50714B67ACF2AAA44463CAA2A53169706DF5C6E2F6A",
+    "actual": "5795B020464FFC7633F8A50714B67ACF2AAA44463CAA2A53169706DF5C6E2F6A",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/REVIEW-NOTES.txt",
+    "expected": "5795B020464FFC7633F8A50714B67ACF2AAA44463CAA2A53169706DF5C6E2F6A",
+    "actual": "5795B020464FFC7633F8A50714B67ACF2AAA44463CAA2A53169706DF5C6E2F6A",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/cloudy.png",
+    "expected": "3770BFF03329B2A13F592E608AC663334F0F873BA2AAEDABF15921809B2CBDAB",
+    "actual": "3770BFF03329B2A13F592E608AC663334F0F873BA2AAEDABF15921809B2CBDAB",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/heatwave.png",
+    "expected": "80C4D3CD093129371D4113A6ED4046A32327A35213020843FDFEB1F35B362272",
+    "actual": "80C4D3CD093129371D4113A6ED4046A32327A35213020843FDFEB1F35B362272",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/heavy-rain.png",
+    "expected": "087F366338B1FCB68004A79168F5D279DCE130799EDA0E533DDC71D3D70C7678",
+    "actual": "087F366338B1FCB68004A79168F5D279DCE130799EDA0E533DDC71D3D70C7678",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/mild.png",
+    "expected": "2CD0697FBFB39D5AC88CDF8E9DC6CF8A573B848FCAA624283057BEA7009FF0B2",
+    "actual": "2CD0697FBFB39D5AC88CDF8E9DC6CF8A573B848FCAA624283057BEA7009FF0B2",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/pleasant-fine.png",
+    "expected": "4A9BCB554F2407E921D233F91F08C4CDAC0814D04C852402137C51E7225B8C41",
+    "actual": "4A9BCB554F2407E921D233F91F08C4CDAC0814D04C852402137C51E7225B8C41",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/masters/showery-mixed.png",
+    "expected": "C62197FA53078B1A17267918315637E80DFA0BF812BD75571CEE356B1E83469C",
+    "actual": "C62197FA53078B1A17267918315637E80DFA0BF812BD75571CEE356B1E83469C",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/prompts/cloudy.txt",
+    "expected": "0FB58E4C409B5F9AC4043A853B527A8726D4664096A9E5CE629AC4F54AD100A4",
+    "actual": "0FB58E4C409B5F9AC4043A853B527A8726D4664096A9E5CE629AC4F54AD100A4",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/prompts/heatwave-forecast-v2.txt",
+    "expected": "CD8AC034C65EC956491E91293026E9D8009FD33B594C4D51F96B98B49F63E31D",
+    "actual": "CD8AC034C65EC956491E91293026E9D8009FD33B594C4D51F96B98B49F63E31D",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/prompts/heavy-rain-forecast-v2.txt",
+    "expected": "EC90516DC4794D6F7265970734ADB3EE6D8A28973BA6969E861CD2A713B34AB4",
+    "actual": "EC90516DC4794D6F7265970734ADB3EE6D8A28973BA6969E861CD2A713B34AB4",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/prompts/mild.txt",
+    "expected": "790A84811E337F8EBE54BBE21A491386FD76BB861299C69DA30B2D3B7110D647",
+    "actual": "790A84811E337F8EBE54BBE21A491386FD76BB861299C69DA30B2D3B7110D647",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/prompts/pleasant-fine.txt",
+    "expected": "C3CA61642DD5E4B04715400AC1DB196560E113B8F5F8AC85F6F2D21F076D26F1",
+    "actual": "C3CA61642DD5E4B04715400AC1DB196560E113B8F5F8AC85F6F2D21F076D26F1",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/prompts/showery-mixed.txt",
+    "expected": "CA38F2AA4FCC4AAAF5872FCE1734739446DC5227210D22BCA6CB570C4BB995F2",
+    "actual": "CA38F2AA4FCC4AAAF5872FCE1734739446DC5227210D22BCA6CB570C4BB995F2",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/references/approved-forecast-mosaic.png",
+    "expected": "43B094BA0E1D1281C1C3BF4A1FA73480585C61F418B7F21495B785AFB88ECBFF",
+    "actual": "43B094BA0E1D1281C1C3BF4A1FA73480585C61F418B7F21495B785AFB88ECBFF",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/references/ClassicForecastScreen.cs",
+    "expected": "E1DFAA400FD463CF63291D9C00BB9B9B1A77B25E437CE0EB8FD2269AA9CB24EA",
+    "actual": "E1DFAA400FD463CF63291D9C00BB9B9B1A77B25E437CE0EB8FD2269AA9CB24EA",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/references/ClassicWeather.cs",
+    "expected": "BBD8BAF0D118FADEA266830F0F927A527D1F5E1664B2000A02DF0DDA0508A7E2",
+    "actual": "BBD8BAF0D118FADEA266830F0F927A527D1F5E1664B2000A02DF0DDA0508A7E2",
+    "pass": true
+  },
+  {
+    "path": "assets/source/ui/forecast-weather-mosaic-suite-v1/IMPLEMENTATION.md",
+    "expected": "072589A33F69C5BD0B97671A6F9C977D6133BFC9A262B1284B42CE314D3C47F8",
+    "actual": "072589A33F69C5BD0B97671A6F9C977D6133BFC9A262B1284B42CE314D3C47F8",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/challenges/heatwave-b.png",
+    "expected": "80C4D3CD093129371D4113A6ED4046A32327A35213020843FDFEB1F35B362272",
+    "actual": "80C4D3CD093129371D4113A6ED4046A32327A35213020843FDFEB1F35B362272",
+    "pass": true
+  },
+  {
+    "path": "game/assets/ui/challenges/heavy-rain-a.png",
+    "expected": "087F366338B1FCB68004A79168F5D279DCE130799EDA0E533DDC71D3D70C7678",
+    "actual": "087F366338B1FCB68004A79168F5D279DCE130799EDA0E533DDC71D3D70C7678",
+    "pass": true
+  },
+  {
+    "path": "src/Festival.Simulation/ClassicWeather.cs",
+    "expected": "BBD8BAF0D118FADEA266830F0F927A527D1F5E1664B2000A02DF0DDA0508A7E2",
+    "actual": "BBD8BAF0D118FADEA266830F0F927A527D1F5E1664B2000A02DF0DDA0508A7E2",
+    "pass": true
+  },
+  {
+    "path": "src/Festival.Simulation/ClassicBooking.cs",
+    "expected": "992247B74D9019F4125FFCE8925B1B02268056A58524140A4C3E07A65ADAC411",
+    "actual": "992247B74D9019F4125FFCE8925B1B02268056A58524140A4C3E07A65ADAC411",
+    "pass": true
+  },
+  {
+    "path": "src/Festival.Simulation/Cows.cs",
+    "expected": "184594669F54A2121570F76A19B1DEC84286C40C1B3B3ACB43863876B4BEE376",
+    "actual": "184594669F54A2121570F76A19B1DEC84286C40C1B3B3ACB43863876B4BEE376",
+    "pass": true
+  },
+  {
+    "path": "src/Festival.Simulation/GameSession.Navigation.cs",
+    "expected": "6C273C97210377FE4CFBFA004BE011BF661759858DC9207E44B2036B33DD38D7",
+    "actual": "6C273C97210377FE4CFBFA004BE011BF661759858DC9207E44B2036B33DD38D7",
+    "pass": true
+  },
+  {
+    "path": "src/Festival.Simulation/StewardAutopilot.cs",
+    "expected": "866980535B8469F802EC4F5622E092CA076D45632AD7CB509711A422A5C270DF",
+    "actual": "866980535B8469F802EC4F5622E092CA076D45632AD7CB509711A422A5C270DF",
+    "pass": true
+  },
+  {
+    "path": "game/Main.cs",
+    "expected": "0ADEC50A18A4CB0DCC590CC14EB2A0A4F3A54EC51FA62E3734948F585C72C75A",
+    "actual": "0ADEC50A18A4CB0DCC590CC14EB2A0A4F3A54EC51FA62E3734948F585C72C75A",
+    "pass": true
+  }
+]

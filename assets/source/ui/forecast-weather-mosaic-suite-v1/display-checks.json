@@ -1,0 +1,210 @@
+[
+  {
+    "file": "gallery.html",
+    "viewport": {
+      "w": 1280,
+      "h": 720
+    },
+    "images": [
+      {
+        "source": "masters/pleasant-fine.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          216,
+          144
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/mild.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          216,
+          144
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/cloudy.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          216,
+          144
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/showery-mixed.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          216,
+          144
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/heatwave-forecast-v2.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          216,
+          144
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/heavy-rain-forecast-v3.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          216,
+          144
+        ],
+        "fit": "contain"
+      }
+    ],
+    "overflow": {
+      "x": false,
+      "y": false
+    }
+  },
+  {
+    "file": "gallery.html?size=1080",
+    "viewport": {
+      "w": 1920,
+      "h": 1080
+    },
+    "images": [
+      {
+        "source": "masters/pleasant-fine.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          324,
+          216
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/mild.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          324,
+          216
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/cloudy.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          324,
+          216
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/showery-mixed.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          324,
+          216
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/heatwave-forecast-v2.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          324,
+          216
+        ],
+        "fit": "contain"
+      },
+      {
+        "source": "masters/heavy-rain-forecast-v3.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          324,
+          216
+        ],
+        "fit": "contain"
+      }
+    ],
+    "overflow": {
+      "x": false,
+      "y": false
+    }
+  },
+  {
+    "file": "forecast-context.html",
+    "viewport": {
+      "w": 1280,
+      "h": 720
+    },
+    "images": [
+      {
+        "source": "masters/showery-mixed.png",
+        "loaded": true,
+        "natural": [
+          1536,
+          1024
+        ],
+        "display": [
+          216,
+          144
+        ],
+        "fit": "contain"
+      }
+    ],
+    "overflow": {
+      "x": false,
+      "y": false
+    }
+  }
+]

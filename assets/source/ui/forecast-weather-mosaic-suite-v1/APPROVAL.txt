@@ -1,0 +1,4 @@
+ALL SIX FORECAST MOSAICS APPROVED — FINAL BUILDER HANDOFF
+Explicit user approval authorizes full-suite integration now. No further art gate. Final HeavyRain is the darker v3, not v2. Designer did not regenerate art or implement runtime code.
+
+Approval covers Pleasant, Mild, Cloudy, Showery, Heatwave forecast v2, HeavyRain darker forecast v3. Final paths/hashes in manifest-final.json.

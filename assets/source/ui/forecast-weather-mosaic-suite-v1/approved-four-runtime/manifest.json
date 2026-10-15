@@ -1,0 +1,37 @@
+{
+  "status": "Approved; start integration",
+  "mapping": [
+    {
+      "condition": "Pleasant",
+      "source": "assets/pleasant-fine.png",
+      "target": "res://assets/ui/forecast/pleasant-fine.png",
+      "sha256": "4a9bcb554f2407e921d233f91f08c4cdac0814d04c852402137c51e7225b8c41",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "condition": "Mild",
+      "source": "assets/mild.png",
+      "target": "res://assets/ui/forecast/mild.png",
+      "sha256": "2cd0697fbfb39d5ac88cdf8e9dc6cf8a573b848fcaa624283057bea7009ff0b2",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "condition": "Cloudy",
+      "source": "assets/cloudy.png",
+      "target": "res://assets/ui/forecast/cloudy.png",
+      "sha256": "3770bff03329b2a13f592e608ac663334f0f873ba2aaedabf15921809b2cbdab",
+      "width": 1536,
+      "height": 1024
+    },
+    {
+      "condition": "Showery",
+      "source": "assets/showery-mixed.png",
+      "target": "res://assets/ui/forecast/showery-mixed.png",
+      "sha256": "c62197fa53078b1a17267918315637e80dfa0bf812bd75571cee356b1e83469c",
+      "width": 1536,
+      "height": 1024
+    }
+  ]
+}

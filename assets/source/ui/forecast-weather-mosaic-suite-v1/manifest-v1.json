@@ -1,0 +1,147 @@
+{
+  "status": "Awaiting art approval; no runtime integration",
+  "assets": [
+    {
+      "condition": "Pleasant",
+      "file": "masters/pleasant-fine.png",
+      "origin": "new-built-in-imagegen",
+      "source": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-720f6a8a-204c-46a3-97d8-55001e19f425.png",
+      "sha256": "4a9bcb554f2407e921d233f91f08c4cdac0814d04c852402137c51e7225b8c41",
+      "sourceSha256": "4a9bcb554f2407e921d233f91f08c4cdac0814d04c852402137c51e7225b8c41",
+      "byteIdenticalToSource": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 3116966,
+      "prompt": "prompts/pleasant-fine.txt",
+      "display720": [
+        216,
+        144
+      ],
+      "display1080": [
+        324,
+        216
+      ],
+      "fit": "KeepAspectCentered / contain"
+    },
+    {
+      "condition": "Mild",
+      "file": "masters/mild.png",
+      "origin": "new-built-in-imagegen",
+      "source": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-fb5cfffd-b30c-4d78-a1c9-8e2a77155007.png",
+      "sha256": "2cd0697fbfb39d5ac88cdf8e9dc6cf8a573b848fcaa624283057bea7009ff0b2",
+      "sourceSha256": "2cd0697fbfb39d5ac88cdf8e9dc6cf8a573b848fcaa624283057bea7009ff0b2",
+      "byteIdenticalToSource": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2992366,
+      "prompt": "prompts/mild.txt",
+      "display720": [
+        216,
+        144
+      ],
+      "display1080": [
+        324,
+        216
+      ],
+      "fit": "KeepAspectCentered / contain"
+    },
+    {
+      "condition": "Cloudy",
+      "file": "masters/cloudy.png",
+      "origin": "new-built-in-imagegen",
+      "source": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-cc84edba-04aa-480b-a575-cad43b1901ab.png",
+      "sha256": "3770bff03329b2a13f592e608ac663334f0f873ba2aaedabf15921809b2cbdab",
+      "sourceSha256": "3770bff03329b2a13f592e608ac663334f0f873ba2aaedabf15921809b2cbdab",
+      "byteIdenticalToSource": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 3047169,
+      "prompt": "prompts/cloudy.txt",
+      "display720": [
+        216,
+        144
+      ],
+      "display1080": [
+        324,
+        216
+      ],
+      "fit": "KeepAspectCentered / contain"
+    },
+    {
+      "condition": "Showery",
+      "file": "masters/showery-mixed.png",
+      "origin": "new-built-in-imagegen",
+      "source": "C:/Users/99wil/.codex/generated_images/01a117eb-a13e-7133-95bd-4e70141e09d4/exec-e421f704-691e-4abd-98c4-b19ff81bc3ac.png",
+      "sha256": "c62197fa53078b1a17267918315637e80dfa0bf812bd75571cee356b1e83469c",
+      "sourceSha256": "c62197fa53078b1a17267918315637e80dfa0bf812bd75571cee356b1e83469c",
+      "byteIdenticalToSource": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 2959080,
+      "prompt": "prompts/showery-mixed.txt",
+      "display720": [
+        216,
+        144
+      ],
+      "display1080": [
+        324,
+        216
+      ],
+      "fit": "KeepAspectCentered / contain"
+    },
+    {
+      "condition": "Heatwave",
+      "file": "masters/heatwave.png",
+      "origin": "reused-approved-unchanged",
+      "source": "C:/Projects/festival-tycoon/game/assets/ui/challenges/heatwave-b.png",
+      "sha256": "80c4d3cd093129371d4113a6ed4046a32327a35213020843fdfeb1f35b362272",
+      "sourceSha256": "80c4d3cd093129371d4113a6ed4046a32327a35213020843fdfeb1f35b362272",
+      "byteIdenticalToSource": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 3150560,
+      "prompt": null,
+      "display720": [
+        216,
+        144
+      ],
+      "display1080": [
+        324,
+        216
+      ],
+      "fit": "KeepAspectCentered / contain"
+    },
+    {
+      "condition": "HeavyRain",
+      "file": "masters/heavy-rain.png",
+      "origin": "reused-approved-unchanged",
+      "source": "C:/Projects/festival-tycoon/game/assets/ui/challenges/heavy-rain-a.png",
+      "sha256": "087f366338b1fcb68004a79168f5d279dce130799eda0e533ddc71d3d70c7678",
+      "sourceSha256": "087f366338b1fcb68004a79168f5d279dce130799eda0e533ddc71d3d70c7678",
+      "byteIdenticalToSource": true,
+      "width": 1536,
+      "height": 1024,
+      "bytes": 3756759,
+      "prompt": null,
+      "display720": [
+        216,
+        144
+      ],
+      "display1080": [
+        324,
+        216
+      ],
+      "fit": "KeepAspectCentered / contain"
+    }
+  ],
+  "referenceInputs": [
+    "C:/Projects/festival-tycoon/game/assets/ui/challenges/heatwave-b.png",
+    "C:/Projects/festival-tycoon/game/assets/ui/challenges/heavy-rain-a.png",
+    "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/forecast-screen-concepts-v1/weather-mosaic.png"
+  ],
+  "generation": {
+    "tool": "built-in imagegen",
+    "newCalls": 4,
+    "repairCalls": 0
+  }
+}
