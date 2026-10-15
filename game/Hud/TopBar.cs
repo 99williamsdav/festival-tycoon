@@ -31,6 +31,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     private readonly (float Start, float End, Color Colour)[] _clockSets = new (float, float, Color)[3];
     // The Pond Stage's sets, a second thin row under the trailer's; null on a one-stage day.
     private (float Start, float End, Color Colour)[]? _pondClockSets;
+    private (float Start,float End,Color Colour)[]? _thirdClockSets;
     private Label? _guests;
     private Label? _guestsOf;
     private Label? _weather;
@@ -140,7 +141,15 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         var track = _clockTrack!; var size = track.Size;
         track.DrawStyleBox(Ui.Box(Ui.BarDeep, 6), new Rect2(Vector2.Zero, size));
         if (_clockFraction > 0) track.DrawStyleBox(Ui.Box(new Color(Ui.BarText, 0.28f), 6), new Rect2(Vector2.Zero, new Vector2(size.X * _clockFraction, size.Y)));
-        if (_pondClockSets is { } pond)
+        if(_thirdClockSets is {} third&&_pondClockSets is {} second)
+        {
+            var height=(size.Y-Ui.S(4))/3;
+            var rows=new[]{_clockSets,second,third};
+            for(var row=0;row<rows.Length;row++)
+            foreach(var(start,end,colour) in rows[row])
+                if(end>start)track.DrawStyleBox(Ui.Box(colour,2),new Rect2(size.X*start,Ui.S(2)+row*height,size.X*(end-start),height-Ui.S(.5f)));
+        }
+        else if (_pondClockSets is { } pond)
         {
             // Two stages: the trailer's sets along the top half, the Pond Stage's half-offset sets along the bottom.
             var half = (size.Y - Ui.S(4)) / 2;
@@ -339,14 +348,21 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
             _clockFraction = Math.Clamp((session.CurrentTick - p.StartedTick) / day, 0, 1);
             var acts = session.GetFestivalActs().ToDictionary(act => act.Id);
             for (var i = 0; i < 3; i++)
-                _clockSets[i] = (GameSession.FestivalSlotStarts[i] / day, GameSession.FestivalSlotEnds[i] / day,
+                _clockSets[i] = (session.Stages[0].SlotStarts[i] / day, session.Stages[0].SlotEnds[i] / day,
                     SetColour(acts.TryGetValue(programme!.ActIds[i], out var act) ? act.Genre : -1));
             _pondClockSets = null;
+            _thirdClockSets=null;
             if (session.Stages.Count > 1 && session.CaptureProgramme(session.Stages[1].Id) is { ActIds.Length: 3 } pond)
             {
                 var stage = session.Stages[1];
                 _pondClockSets = Enumerable.Range(0, 3).Select(i => (stage.SlotStarts[i] / day, stage.SlotEnds[i] / day,
                     SetColour(acts.TryGetValue(pond.ActIds[i], out var act) ? act.Genre : -1))).ToArray();
+            }
+            if(session.Stages.Count>2&&session.CaptureProgramme(session.Stages[2].Id) is {ActIds.Length:3} last)
+            {
+                var stage=session.Stages[2];
+                _thirdClockSets=Enumerable.Range(0,3).Select(i=>(stage.SlotStarts[i]/day,stage.SlotEnds[i]/day,
+                    SetColour(acts.TryGetValue(last.ActIds[i],out var act)?act.Genre:-1))).ToArray();
             }
             _clockTrack.QueueRedraw();
         }
@@ -380,7 +396,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _people.Visible &= !slim; _perks.Visible &= !slim; _alerts!.Visible = !slim;
         if (drafting) _phase.Text = "PREPARATION · PERK DRAFT";
         else if (Briefing) _phase.Text = "PREPARATION · BOX OFFICE";
-        if(session.IsClassicCampaign)_phase.Text=$"CLASSIC {session.FestivalNumber} · "+(preparing?"PREPARATION":p.Status==PreparationStatus.Departing?"DEPARTING":"LIVE");
+        if(session.IsClassicCampaign)_phase.Text=$"CLASSIC{(session.IsClassicDevelopment?" TEST":"")} {session.FestivalNumber} · "+(preparing?"PREPARATION":p.Status==PreparationStatus.Departing?"DEPARTING":"LIVE");
         _alertBadge!.Text = alertCount.ToString();
         _alertBadge.Visible = alertCount > 0;
         _alerts!.TooltipText = alertCount == 0 ? "No urgent alerts" : $"{alertCount} urgent alert{(alertCount == 1 ? "" : "s")} · show them";

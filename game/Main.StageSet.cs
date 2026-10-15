@@ -30,14 +30,15 @@ public partial class Main
         if (!_visualRegistry.TryGetValue("farm.trailer-stage", out var stage)) return;
         // A day stopped by a death stays as found: the band that was playing keeps its kit up.
         if (_session.PreparedStatus == PreparationStatus.Failed && _stageSet is not null && IsInstanceValid(_stageSet)) return;
-        var live = _session.CaptureLivePerformance();
+        var live = _session.CaptureLivePerformance(FestivalStages.MainId);
         var onStage = live?.Stage is LiveSetStage.Live or LiveSetStage.Interrupted;
-        var act = onStage ? _session.CurrentFestivalAct : _session.UpcomingFestivalAct ?? _session.CurrentFestivalAct;
+        var current=_session.CurrentStageAct(FestivalStages.MainId);
+        var act = onStage ? current : _session.UpcomingStageAct(FestivalStages.MainId) ?? current;
         // Once the day is over the last band's things stay where they were left.
         if (act is null && _session.PreparedStatus is PreparationStatus.Departing or PreparationStatus.Finished) return;
         // The drums stay the outgoing band's until their drummer has put the sticks down.
         var drummerStillPlaying = live?.Performers.Any(p => p.InstrumentAttached) == true;
-        SetStageDrumHardware(drummerStillPlaying ? _session.CurrentFestivalAct ?? act : act);
+        SetStageDrumHardware(drummerStillPlaying ? current ?? act : act);
         if (act?.Id == _stageSetActId && (act is null || _stageSet is not null && IsInstanceValid(_stageSet))) return;
         _stageSetActId = act?.Id;
         _stageSet?.QueueFree();

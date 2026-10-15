@@ -30,6 +30,7 @@ public partial class Main
     private static readonly (string Key, StaffRole? Role, bool Extra, string Name)[] StaffSlots =
     [
         ("sound", StaffRole.Sound, false, "Sound engineer"), ("extra-sound", StaffRole.Sound, true, "Second stage sound engineer"),
+        ("extra-sound-2",StaffRole.Sound,true,"Third stage sound engineer"),
         ("medic", StaffRole.Medic, false, "Medic"), ("steward", StaffRole.Steward, false, "Steward"),
         ("extra-medic", StaffRole.Medic, true, "Extra medic"), ("extra-steward", StaffRole.Steward, true, "Extra steward"), ("maintenance", null, false, "Maintenance"),
     ];
@@ -196,6 +197,13 @@ public partial class Main
     private string HireTarget(StaffCandidate c, PreparationSnapshot p)
     {
         var hires = StaffHires(p);
+        if(c.Role==StaffRole.Sound)
+            for(var stage=0;stage<_session.Stages.Count;stage++)
+            {
+                var target=GameSession.StageSoundOfferId(c,stage);
+                var category=stage==0?"staff":stage==1?"extra-sound":"extra-sound-2";
+                if(!hires.Any(id=>_session.GetPreparationOffers().Any(o=>o.Id==id&&o.Category==category)))return target;
+            }
         var key = StaffCatalogue.Key(c.Role);
         if (!hires.Any(id => id.StartsWith($"staff.{key}.", StringComparison.Ordinal))) return c.Id;
         // A second sound engineer runs the Pond Stage while it's open.
@@ -240,16 +248,18 @@ public partial class Main
         foreach (var (key, role, extra, name) in StaffSlots)
         {
             var view = _staffSlots[key];
-            var owned = key switch { "extra-medic" => p.ExtraMedicSlotOwned, "extra-steward" => p.ExtraStewardSlotOwned, "extra-sound" => _session.SecondStageOpen,
+            var owned = key switch { "extra-medic" => p.ExtraMedicSlotOwned, "extra-steward" => p.ExtraStewardSlotOwned, "extra-sound" => _session.SecondStageOpen,"extra-sound-2"=>_session.Stages.Count>2,
                 "maintenance" => offers.ContainsKey("maintenance.worker"), _ => true };
             view.Card.Visible = owned;
             if (!owned) continue;
             var held = hires.FirstOrDefault(id => key == "maintenance" ? id == "maintenance.worker" : id.StartsWith(SlotPrefix(key), StringComparison.Ordinal));
             var who = held is null ? null : StaffCatalogue.ForOffer(candidates, held);
-            var required = !extra && key != "maintenance" || key == "extra-sound";
+            var required = !extra && key != "maintenance" || key.StartsWith("extra-sound",StringComparison.Ordinal);
             // From Tier 2 the second medic slot comes with the tier, not a perk.
             var tierSlot = key == "extra-medic" && p.Tier >= GameSession.FreeExtraMedicFromTier;
-            var slotName = key == "extra-sound" ? _session.Stages[1].ShortName + " sound engineer" : name;
+            var soundStage=key=="extra-sound"?1:key=="extra-sound-2"?2:0;
+            var slotName = key.StartsWith("extra-sound",StringComparison.Ordinal) ? _session.Stages[soundStage].ShortName + " sound engineer" :
+                key=="sound"&&_session.IsClassicDevelopment?_session.Stages[0].ShortName+" sound engineer":name;
             view.Caption.Text = $"{slotName} · {(required ? "required" : tierSlot ? "optional" : extra ? "perk slot" : "optional")}".ToUpperInvariant();
             var colour = StaffRoleColour(role);
             if (held is not null)
@@ -278,8 +288,8 @@ public partial class Main
                 }
                 else
                 {
-                    view.Title.Text = key == "extra-sound" ? "Hire a second sound engineer" : $"Hire a{(role == StaffRole.Sound ? "" : extra ? "nother" : "")} {StaffCatalogue.RoleName(role!.Value)}";
-                    view.Detail.Text = key == "extra-sound" ? $"Mixes the {_session.Stages[1].ShortName} · pick from the list" : required ? "Required before Start · pick from the list" : "Your perk adds this slot";
+                    view.Title.Text = key.StartsWith("extra-sound",StringComparison.Ordinal) ? "Hire a sound engineer" : $"Hire a{(role == StaffRole.Sound ? "" : extra ? "nother" : "")} {StaffCatalogue.RoleName(role!.Value)}";
+                    view.Detail.Text = key.StartsWith("extra-sound",StringComparison.Ordinal) ? $"Mixes the {_session.Stages[soundStage].ShortName} · pick from the list" : required ? "Required before Start · pick from the list" : "Your perk adds this slot";
                     view.Action.Visible = false;
                 }
             }
@@ -288,7 +298,7 @@ public partial class Main
         {
             var row = _staffRows[c.Id];
             row.Row.Visible = _staffRoleShown is null || c.Role == _staffRoleShown;
-            var main = hires.Contains(c.Id); var second = hires.Contains(c.ExtraOfferId);
+            var main = hires.Contains(c.Id); var second = hires.Any(id=>id!=c.Id&&StaffCatalogue.CandidateIdForOffer(id)==c.Id);
             row.Status.Text = main || second ? "On your crew" : "";
             var target = HireTarget(c, p);
             // Once the festival is open the market is closed, so there is nothing to check.

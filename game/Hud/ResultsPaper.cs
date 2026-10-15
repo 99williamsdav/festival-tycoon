@@ -68,6 +68,7 @@ internal sealed partial class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _pho
         var title = new VBoxContainer { Position = Ui.S(36, 30) }; title.AddThemeConstantOverride("separation", Ui.Px(2)); root.AddChild(title);
         title.AddChild(Ui.Caps("The morning after", Ui.Gold));
         title.AddChild(Ui.Heading("Festival results", 26, Ui.BarText));
+        if(_hud.Session.IsClassicDevelopment)title.AddChild(Ui.Caps("DEVELOPMENT TEST",Ui.Gold));
 
         var sheetTop = Ui.S(30);
         var sheetHeight = Math.Min(Ui.S(660), size.Y - 2 * sheetTop);
@@ -254,7 +255,7 @@ void fragment() {
             session.CaptureLavSucker()?.Calls.Length ?? 0,
             session.CaptureEquipment()?.Evidence.Any(item => item.Id is "equipment:warning" or "equipment:fault") == true,
             tragedy, session.IsClassicCampaign
-                ?(session.CaptureClassicHistory()!.CompletedFestivals.LastOrDefault()?.ClosingStanding.Reputation??FestivalStanding.New.Reputation,p.Reputation)
+                ?(session.CaptureClassicBooking()!.InitialReputation,p.Reputation)
                 :p.StandingBefore is { } standing ? (standing.Reputation, p.Reputation) : null, scenes)
         {
             Lifts = Moods(session, up: true), Grumbles = Moods(session, up: false), Heat = heat,

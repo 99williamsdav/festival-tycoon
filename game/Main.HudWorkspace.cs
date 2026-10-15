@@ -185,6 +185,7 @@ public partial class Main
         if (_hudTabs is null) return;
         if (_session.IsClassicCampaign && _session.PreparedStatus == PreparationStatus.Preparing && name == "Programme")
         { _buildDrawerOpen = false; _classicProgrammeRequested = true; RefreshClassicTickets(); return; }
+        if(_session.IsClassicCampaign){_classicProgrammeRequested=false;CloseClassicBookingScreen();}
         _buildDrawerOpen = false; _hudWorkspaceOpen = true; _hudTabs.CurrentTab = Array.IndexOf(_hudPages.Keys.ToArray(), name); RefreshHudWorkspace();
     }
 
@@ -265,7 +266,7 @@ public partial class Main
         if (preparing && p.Plan is { } plan)
         {
             _preparationSummary.Text = $"Available {FestivalCurrency.Format(finance.CashPennies + _session.PlannedPitchFeePennies)}\nSetup cost {FestivalCurrency.Format(_session.PreparationPlanCost)} · remaining {FestivalCurrency.Format(_session.PreparationRemainingCash)}\n" +
-                $"{(_session.IsClassicCampaign ? "Bands paid" : "Unpaid lineup")}: {plan.ActIds.Count(id => id != "")}/{_session.Stages.Count * 3} acts\nPlanned hires: {string.Join(", ", plan.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}\nExpected protected people: {_session.ExpectedPreparedPeopleCount}/50\nOwned rig {p.OwnedEquipment.Length} · selected rig {(plan.OfferIds.SingleOrDefault(id => id.StartsWith("equipment.")) ?? "none")}\nFreely revise purchases. Existing site and perk property stays committed.";
+                $"{(_session.IsClassicCampaign ? "Bands paid" : "Unpaid lineup")}: {plan.ActIds.Count(id => id != "")}/{_session.Stages.Count * 3} acts\nPlanned hires: {string.Join(", ", plan.OfferIds.Where(id => id.StartsWith("staff.") || id == "maintenance.worker").Select(id => _session.GetPreparationOffers().Single(o => o.Id == id).Name))}\nExpected people: {_session.ExpectedPreparedPeopleCount}\nOwned rig {p.OwnedEquipment.Length} · selected rig {(plan.OfferIds.SingleOrDefault(id => id.StartsWith("equipment.")) ?? "none")}\nFreely revise purchases. Existing site and perk property stays committed.";
         }
         if (_medicalActionInspector is not null)
         {
@@ -275,7 +276,14 @@ public partial class Main
         RefreshHudAlerts();
         Drawer.Refresh();
         Dock.Refresh();
-        if (_mapControls is not null) _mapControls.Visible = Dock.Visible && !(_hudWorkspaceOpen && !_buildDrawerOpen && (HudProgrammeSelected() || HudPageSelected("Staff")));
+        if (_mapControls is not null)
+        {
+            _mapControls.Visible = Dock.Visible && !(_hudWorkspaceOpen && !_buildDrawerOpen && (HudProgrammeSelected() || HudPageSelected("Staff")));
+            var size=GetViewport().GetVisibleRect().Size;
+            _mapControls.Position=new(size.X-Ui.Gutter-Ui.S(148),size.Y-Ui.Dock-Ui.S(60));
+            if(Dock.Readiness is { } readiness&&readiness.IsVisibleInTree()&&readiness.GetGlobalRect().Intersects(_mapControls.GetGlobalRect()))
+                _mapControls.Position=new(readiness.GetGlobalRect().Position.X-Ui.Gutter-Ui.S(148),_mapControls.Position.Y);
+        }
     }
 
     private void RefreshHudPreparationReadiness()

@@ -176,7 +176,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         if (!first) block.AddChild(Rule());
         var line = new HBoxContainer { CustomMinimumSize = new Vector2(0, Ui.S(34)) };
         line.AddThemeConstantOverride("separation", Ui.Px(6)); block.AddChild(line);
-        var chevron = new Button { Icon = Ui.Icon("chevron-right"), ExpandIcon = true, Flat = true, CustomMinimumSize = Ui.S(16, 16),
+        var chevron = new Button { Name="BuildExpand"+kind,Icon = Ui.Icon("chevron-right"), ExpandIcon = true, Flat = true, CustomMinimumSize = Ui.S(16, 16),
             SizeFlagsVertical = Control.SizeFlags.ShrinkCenter, MouseDefaultCursorShape = Control.CursorShape.PointingHand,
             TooltipText = $"Show placed {BuildName(kind).ToLowerInvariant()}s to move or remove" };
         Tight(chevron, 12, flat: true);
@@ -333,6 +333,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
                 var navigation = new HBoxContainer();
                 var previous = ButtonText("Previous", () => { _traderPage--; RefreshTraderPicker(); });
                 var next = ButtonText("Next", () => { _traderPage++; RefreshTraderPicker(); });
+                previous.Name="BuildTradersPrevious";next.Name="BuildTradersNext";
                 previous.Disabled = _traderPage == 0; next.Disabled = _traderPage == pages - 1;
                 navigation.AddChild(previous);
                 navigation.AddChild(Ui.Caps($"Vans · page {_traderPage + 1}/{pages}", Ui.InkMuted, 9.5f));
@@ -464,6 +465,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
                 var navigation=new HBoxContainer();
                 var previous=ButtonText("Previous",()=>{_placedPages[kind]=page-1;Refresh();});
                 var next=ButtonText("Next",()=>{_placedPages[kind]=page+1;Refresh();});
+                previous.Name="BuildPlacedPrevious"+kind;next.Name="BuildPlacedNext"+kind;
                 previous.Disabled=page==0;next.Disabled=page==pages-1;
                 navigation.AddChild(previous);navigation.AddChild(Ui.Caps($"Page {page+1}/{pages}",Ui.InkMuted,9.5f));
                 navigation.AddChild(next);row.Placed.AddChild(navigation);

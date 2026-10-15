@@ -87,24 +87,23 @@ public partial class Main
     private PowerDraw PlannedPeakWith(SoundRig rig)
     {
         var stalls = _session.CaptureVendors().Count * PowerRules.StallDraw;
-        return new PowerDraw(PowerRules.RigDraw(rig), stalls, 0, PowerRules.LightsDraw, _session.CapturePower().Capacity)
-            { OtherStages = _session.PowerPooled ? PowerRules.RigDraw(rig) * (_session.Stages.Count - 1) : 0 };
+        return new PowerDraw(_session.Stages.Any(s=>s.Id==FestivalStages.MainId)?PowerRules.RigDraw(rig):0, stalls, 0, PowerRules.LightsDraw, _session.CapturePower().Capacity)
+            { OtherStages = _session.PowerPooled ? PowerRules.RigDraw(rig) * _session.Stages.Count(s=>s.Id!=FestivalStages.MainId) : 0 };
     }
 
     /// <summary>"Stage 50 · Pond Stage 50 · bars 30 …": what draws what.</summary>
     private string PowerParts(PowerDraw power) =>
-        $"Stage {power.Stage} ({PowerRules.RigName(_session.Rig)})" + (_session.PowerPooled ? $" · {_session.Stages[1].ShortName} {power.OtherStages}" : "") +
+        $"Trailer rig {power.Stage} ({PowerRules.RigName(_session.Rig)})" + (_session.PowerPooled ? $" · other stage rigs {power.OtherStages}" : "") +
         $" · {(power.Bar > PowerRules.StallDraw ? "bars" : "bar")} {power.Bar} · {(power.Food > PowerRules.StallDraw ? "food vans" : "food van")} {power.Food} · lights {power.Lights}";
 
     /// <summary>With the generators pooled, which machines make up the supply, and which are out of it.</summary>
     private string PooledSupplyText()
     {
         if (!_session.PowerPooled || _session.CaptureEquipment() is not { } farm) return "";
-        var pond = _session.CaptureStageGenerators().FirstOrDefault();
         // A stage cut takes off only its rig; a generator leaves the supply only when it fails.
         string Part(string name, int capacity, bool running) => running ? $"{name} {capacity}" : $"{name} failed";
         return $"\nOne supply: {Part("farm generator", _session.GeneratorCapacity, farm.Stage != EquipmentStage.Terminal)}" +
-            (pond is null ? "" : $" + {Part(_session.Stages[1].ShortName + " generator", pond.Capacity, pond.Stage != EquipmentStage.Terminal)}");
+            string.Concat(_session.CaptureStageGenerators().Select(g=>" + "+Part(FestivalStages.Find(g.StageId)!.ShortName+" generator",g.Capacity,g.Stage!=EquipmentStage.Terminal)));
     }
 
     private void BuildPowerSwitches(VBoxContainer parent)

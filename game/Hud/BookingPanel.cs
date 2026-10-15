@@ -28,7 +28,7 @@ internal sealed partial class BookingPanel(IHudHost _hud, Action _layoutWorkspac
     /// <summary>Forgets the previous campaign's selection, sort and filter.</summary>
     public void Reset()
     {
-        _bookingSelected = null; _stageId = FestivalStages.MainId; _bookingDurableMessage = "Select an act, then choose a set or Book. Dragging also works.";
+        _bookingSelected = null; _stageId = _hud.Session.PrimaryStageId; _bookingDurableMessage = "Select an act, then choose a set or Book. Dragging also works.";
         _bookingSort = BookingSortField.Price; _bookingDescending = false; _bookingGenre = null;
         _bookingGenreFilter?.Select(0);
     }
@@ -81,7 +81,7 @@ internal sealed partial class BookingPanel(IHudHost _hud, Action _layoutWorkspac
     }
     // The stage whose running order the sheet shows; the trailer's unless the Pond Stage tab is picked.
     private string _stageId = FestivalStages.MainId;
-    private FestivalStage Stage => FestivalStages.IndexOf(_hud.Session.Stages, _stageId) >= 0 ? FestivalStages.Find(_stageId)! : FestivalStages.Main;
+    private FestivalStage Stage => FestivalStages.IndexOf(_hud.Session.Stages, _stageId) >= 0 ? FestivalStages.Find(_stageId)! : _hud.Session.Stages[0];
     private string[] BookingIds => BookingIdsOf(Stage.Id);
     /// <summary>A stage's three planned (or paid) acts, "" for an empty set. The plan keeps every stage's sets in stage order.</summary>
     private string[] BookingIdsOf(string stageId)
@@ -166,7 +166,12 @@ internal sealed partial class BookingPanel(IHudHost _hud, Action _layoutWorkspac
         if (!preview.IsValid || preview.IsNoOp) { _bookingDurableMessage = preview.Message; Refresh(); return; }
         var priorHash = _hud.Session.CaptureSnapshot().AuthoritativeHash;
         if (_hud.Session.CaptureClassicBookingDetails()?.Phase == ClassicBookingPhase.SitePreparation)
-        { previewPaidEdit?.Invoke(preview.ActIds, slot); return; }
+        {
+            var stageIndex=FestivalStages.IndexOf(_hud.Session.Stages,Stage.Id);
+            var full=_hud.Session.CaptureClassicBookingDetails()!.Contracts.Select(a=>a.ActId).ToArray();
+            Array.Copy(preview.ActIds,0,full,stageIndex*3,3);
+            previewPaidEdit?.Invoke(full,stageIndex*3+slot);return;
+        }
         _hud.Commit(new SetProgrammeCommand(preview.ActIds) { StageId = Stage.Id });
         var changed = _hud.Session.CaptureSnapshot().AuthoritativeHash != priorHash;
         _bookingDurableMessage = changed ? preview.Message + (compactClassic ? " · Draft updated; nothing charged." : " · Unpaid plan updated; next timed save pending.") : _hud.Message;
@@ -305,8 +310,9 @@ internal sealed partial class BookingPanel(IHudHost _hud, Action _layoutWorkspac
     private void RefreshStage()
     {
         var stages = _hud.Session.Stages;
-        if (FestivalStages.IndexOf(stages, _stageId) < 0) _stageId = FestivalStages.MainId;
+        if (FestivalStages.IndexOf(stages, _stageId) < 0) _stageId = stages[0].Id;
         var stage = Stage;
+        _stageLine!.Text=$"{Main.StageTitle(stage)} · three sets";
         _stageLine!.Visible = stages.Count == 1;
         _stageTabs!.Visible = stages.Count > 1;
         foreach (var (id, tab) in _stageTabButtons)
@@ -317,7 +323,17 @@ internal sealed partial class BookingPanel(IHudHost _hud, Action _layoutWorkspac
             tab.Text = $"{Main.StageTitle(FestivalStages.Find(id)!)} · {filled}/3";
             Ui.Style(tab, id == stage.Id ? Ui.ButtonKind.Primary : Ui.ButtonKind.Secondary, 13);
         }
-        if (compactClassic) return;
+        if (compactClassic)
+        {
+            _stageTabs.Visible=false;
+            if(_compactStagePicker is {} picker)
+            {
+                picker.Visible=stages.Count>1;picker.Clear();
+                foreach(var active in stages)picker.AddItem($"{Main.StageTitle(active)} · {BookingIdsOf(active.Id).Count(id=>id!="")}/3");
+                picker.Select(FestivalStages.IndexOf(stages,_stageId));
+            }
+            return;
+        }
         if(_gateTime is not null)_gateTime.Text=BookingTime(0);
         for (var i = 0; i < 3; i++) _slotStartTimes[i].Text = BookingTime(stage.SlotStarts[i]);
         for (var i = 0; i < 2; i++) _changeovers[i].Text = $"Changeover · {(stage.SlotStarts[i + 1] - stage.SlotEnds[i]) / 80}s";

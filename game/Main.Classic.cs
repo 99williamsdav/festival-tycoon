@@ -10,10 +10,11 @@ namespace Festival.Game;
 public partial class Main
 {
     private SessionHost? _classicCampaignHost;
+    private SessionHost? _classicDevelopmentHost;
     private string ClassicSaveDirectory=>_architectureEvidenceOutput is not null
         ?System.IO.Path.Combine(_architectureEvidenceOutput,"classic-saves"):ProjectSettings.GlobalizePath("user://saves/r0-classic-v101");
     private GameSession? SavedClassicCampaign()=>_classicCampaignHost?.Session??
-        (AutosaveRotation.LoadNewestValid(ClassicSaveDirectory,_saveCompatibility).Session is{IsClassicCampaign:true} saved?saved:null);
+        (AutosaveRotation.LoadNewestValid(ClassicSaveDirectory,_saveCompatibility).Session is{IsClassicCampaign:true,IsClassicDevelopment:false} saved?saved:null);
 
     private void PickClassicCampaign()
     {
@@ -39,10 +40,11 @@ public partial class Main
     private void BeginClassicCampaign(GameSession session)
     {
         LeaveHandsOnHost();ParkCampaignHost();
-        _classicCampaignHost??=new SessionHost(session,ClassicSaveDirectory,_saveCompatibility);
-        _host=_classicCampaignHost;
+        if(session.IsClassicDevelopment)
+        {_classicDevelopmentHost??=new SessionHost(session,ClassicDevelopmentSaveDirectory,_saveCompatibility);_host=_classicDevelopmentHost;}
+        else{_classicCampaignHost??=new SessionHost(session,ClassicSaveDirectory,_saveCompatibility);_host=_classicCampaignHost;}
         SwitchToFestival(session);StartMenu.Close();RefreshChallengeReveal();
-        _preparationMessage=$"Classic · Festival {_session.FestivalNumber}. {_session.CaptureClassicForecast()!.Summary} Choose three acts and hire your crew.";
+        _preparationMessage=$"Classic{(_session.IsClassicDevelopment?" DEVELOPMENT TEST":"")} · Festival {_session.FestivalNumber}. {_session.CaptureClassicForecast()!.Summary} Choose three acts per open stage and hire your crew.";
         RefreshPreparationHud();
         GD.Print($"CLASSIC_CAMPAIGN_OPENED id={_session.CampaignId.Value} seed={_session.CampaignSeed} festival={_session.FestivalNumber} status={_session.PreparedStatus}");
     }

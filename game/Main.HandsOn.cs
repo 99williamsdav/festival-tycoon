@@ -108,7 +108,7 @@ public partial class Main
     private bool _campaignHostNewOnEnter;
     private void ParkCampaignHost()
     {
-        if(_session.IsClassicCampaign){_classicCampaignHost=_host;_host.SaveMilestone("Switch",force:false);return;}
+        if(_session.IsClassicCampaign){if(_session.IsClassicDevelopment)_classicDevelopmentHost=_host;else _classicCampaignHost=_host;_host.SaveMilestone("Switch",force:false);return;}
         if (_campaignHost is not null) return;
         _campaignHost = _host;
         _campaignHostNewOnEnter = _newCampaignOnEnter;
@@ -121,6 +121,7 @@ public partial class Main
     private void LeaveHandsOnHost()
     {
         if (_campaignHost is null) return;
+        if(_session.IsClassicCampaign)ParkCampaignHost();
         if (_shiftActive) ExitStewardShiftView();
         _host = _campaignHost;
         _campaignHost = null;

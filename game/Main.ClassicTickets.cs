@@ -96,7 +96,7 @@ public partial class Main
         var body = ClassicDialogBody(dialog, 660, 514);
         body.AddChild(Ui.Heading(ids[slot] == "" ? "Release this booking?" : "Change your programme?", 30));
         string NameOf(string id) => id == "" ? "Empty set" : ActCatalogue.Find(id)!.Name;
-        body.AddChild(ClassicWords($"Set {slot + 1} · {(slot == 2 ? "Headline" : "Support")}\n{NameOf(before.Contracts[slot].ActId)}  →  {NameOf(ids[slot])}"));
+        body.AddChild(ClassicWords($"{StageTitle(_session.Stages[slot/3])} · Set {slot % 3 + 1} · {(slot % 3 == 2 ? "Headline" : "Support")}\n{NameOf(before.Contracts[slot].ActId)}  →  {NameOf(ids[slot])}"));
         body.AddChild(new HSeparator());
         var impact = projected.HighestChange switch
         {
@@ -114,11 +114,11 @@ public partial class Main
             if (ReferenceEquals(expectedSession, _session) && expectedHash == _session.CaptureSnapshot().AuthoritativeHash)
             {
                 _host.ExecuteMilestone(command, "Classic programme change", out var error); _preparationMessage = error ?? "Programme changed; refunds recorded.";
-                _classicBookingScreen?.AcceptedEdit(slot); SyncSaveStatus(); RefreshPreparationHud();
+                _classicBookingScreen?.AcceptedEdit(slot%3); SyncSaveStatus(); RefreshPreparationHud();
             }
-            _classicBookingScreen?.FocusSet(slot);
+            _classicBookingScreen?.FocusSet(slot%3);
         };
-        dialog.Canceled += () => _classicBookingScreen?.FocusSet(slot);
+        dialog.Canceled += () => _classicBookingScreen?.FocusSet(slot%3);
         ShowClassicTicketDialog(dialog, 660, 514);
     }
     private void ConfirmClassicCancellation()

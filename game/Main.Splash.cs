@@ -18,7 +18,7 @@ public partial class Main
     private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide, StartDevelopmentTier, StartStewardShift,
         SavedStewardShift() is { } saved ? () => ContinueStewardShift(saved) : null, PickFrontOfHouse,
         SavedHandsOnCampaign() is { } handsOn ? () => ContinueHandsOnCampaign(handsOn) : null,
-        PickClassicCampaign,SavedClassicCampaign() is{} classic?()=>BeginClassicCampaign(classic):null);
+        PickClassicCampaign,SavedClassicCampaign() is{} classic?()=>BeginClassicCampaign(classic):null,ShowClassicDevelopmentPicker);
 
     /// <summary>Development starts use ordinary preparation: fresh Tier 1 or the canonical transition from a recorded clear.</summary>
     private void StartDevelopmentTier(int tier)

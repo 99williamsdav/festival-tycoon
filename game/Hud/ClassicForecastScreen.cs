@@ -31,7 +31,7 @@ internal partial class ClassicForecastScreen : Control
         MouseFilter=MouseFilterEnum.Stop;SetAnchorsPreset(LayoutPreset.TopLeft);Size=GetViewport().GetVisibleRect().Size;
         var background=new ColorRect{Color=Ui.BarDeep,MouseFilter=MouseFilterEnum.Stop};background.SetAnchorsPreset(LayoutPreset.FullRect);AddChild(background);
         AddChild(_canvas);_canvas.Size=new(1280,720);
-        Text("CLASSIC · LOWER WITTERING FARM",52,39,800,25,16,Ui.BarMuted);
+        Text($"CLASSIC{(session.IsClassicDevelopment?" DEVELOPMENT TEST":"")} · LOWER WITTERING FARM",52,39,800,25,16,Ui.BarMuted);
         Text($"Festival {session.FestivalNumber} forecast",52,70,900,55,40,Ui.BarText,Ui.Slab);
         Text(_spells.Any(r=>r.Intensity==RainIntensity.Downpour)?"Heavy showers, with a downpour.":_forecast.Summary,52,124,920,35,24,Ui.BarText);
         Text($"{_forecast.Temperatures.Min(p=>p.Celsius)}–{_forecast.Temperatures.Max(p=>p.Celsius)}°C · "+(_spells.Length==0?"Dry throughout":_forecast.Conditions==ClassicWeatherKind.Showery?"Mostly dry":"Wet spells with dry breaks"),52,163,900,28,18,Ui.BarMuted);
@@ -39,17 +39,29 @@ internal partial class ClassicForecastScreen : Control
         var chart=new ForecastPlot{Position=new(0,0),Size=new(1280,720),MouseFilter=MouseFilterEnum.Ignore};_canvas.AddChild(chart);chart.Configure(session);
         Text("Your festival day",79,229,500,34,26,Ui.Ink,Ui.Slab);
         Text("Festival clock · "+FestivalTimePresentation.Range(0,_day),820,233,381,28,16,Ui.InkMuted,align:HorizontalAlignment.Right);
-        Text("Programme",79,283,170,26,18,Ui.Ink,Ui.BodySemi);
+        Text("Programme",79,session.Stages.Count>1?250:283,170,26,18,Ui.Ink,Ui.BodySemi);
         Text("Temperature",79,378,170,26,18,Ui.Ink,Ui.BodySemi);Text("°C",79,405,170,23,16,Ui.InkMuted);
         Text("Rainfall",79,470,170,26,18,Ui.Ink,Ui.BodySemi);Text("Intensity",79,496,170,24,16,Ui.InkMuted);
         float X(long tick)=>270+914f*tick/_day;
         var stage=session.Stages[0];
-        Text("Arrivals",270,281,X(stage.SlotStarts[0])-270,29,18,Ui.Ink,Ui.BodySemi,HorizontalAlignment.Center);
-        foreach(var (start,i) in stage.SlotStarts.Select((start,i)=>(start,i)))
+        if(session.Stages.Count>1)
         {
-            var x=X(start);var width=X(stage.SlotEnds[i])-x;
-            Text($"Set {i+1}",x,281,width,29,18,Ui.Ink,Ui.BodySemi,HorizontalAlignment.Center);
-            Text(FestivalTimePresentation.Range(start,stage.SlotEnds[i]),x-12,316,width+24,25,16,Ui.InkMuted,align:HorizontalAlignment.Center);
+            foreach(var (active,row) in session.Stages.Select((active,row)=>(active,row)))
+            {
+                Text(Main.StageTitle(active),79,281+row*20,170,20,14,Ui.Ink);
+                foreach(var(start,slot) in active.SlotStarts.Select((start,slot)=>(start,slot)))
+                    Text($"Set {slot+1}",X(start),281+row*20,X(active.SlotEnds[slot])-X(start),20,14,Ui.Ink,align:HorizontalAlignment.Center);
+            }
+        }
+        else
+        {
+            Text("Arrivals",270,281,X(stage.SlotStarts[0])-270,29,18,Ui.Ink,Ui.BodySemi,HorizontalAlignment.Center);
+            foreach(var (start,i) in stage.SlotStarts.Select((start,i)=>(start,i)))
+            {
+                var x=X(start);var width=X(stage.SlotEnds[i])-x;
+                Text($"Set {i+1}",x,281,width,29,18,Ui.Ink,Ui.BodySemi,HorizontalAlignment.Center);
+                Text(FestivalTimePresentation.Range(start,stage.SlotEnds[i]),x-12,316,width+24,25,16,Ui.InkMuted,align:HorizontalAlignment.Center);
+            }
         }
         for(var i=0;i<5;i++)
         {
@@ -118,7 +130,13 @@ internal partial class ForecastPlot:Control
         DrawStyleBox(paper,new(48,211,1184,374));DrawLine(new(48,606),new(1232,606),Ui.BarLine);
         DrawRect(new(270,280,914,32),Ui.PaperRule);
         var stage=_session.Stages[0];
-        foreach(var (start,i) in stage.SlotStarts.Select((t,i)=>(t,i)))DrawRect(new(X(start),280,X(stage.SlotEnds[i])-X(start),32),Ui.TealWash);
+        if(_session.Stages.Count>1)
+        {
+            foreach(var(active,row) in _session.Stages.Select((active,row)=>(active,row)))
+            foreach(var(start,i) in active.SlotStarts.Select((start,i)=>(start,i)))
+                DrawRect(new(X(start),281+row*20,X(active.SlotEnds[i])-X(start),18),row%2==0?Ui.TealWash:Ui.GoldWash);
+        }
+        else foreach(var (start,i) in stage.SlotStarts.Select((t,i)=>(t,i)))DrawRect(new(X(start),280,X(stage.SlotEnds[i])-X(start),32),Ui.TealWash);
         DrawRect(new(270,465,914,40),Ui.PaperBright);DrawRect(new(270,465,914,40),Ui.TealLine,false);
         foreach(var spell in _session.CaptureWeather()!.Spells)
         {

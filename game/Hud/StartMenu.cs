@@ -93,7 +93,7 @@ internal sealed class StartMenu
 
     public void Open(Node parent, Action enter, Action fieldGuide, Action<int>? developmentTier = null, Action<int>? stewardShift = null,
         Action? continueShift = null, Action? frontOfHouse = null, Action? continueFrontOfHouse = null,
-        Action? classicCampaign=null,Action? continueClassic=null)
+        Action? classicCampaign=null,Action? continueClassic=null,Action? classicDevelopment=null)
     {
         _layer = new CanvasLayer { Layer = 20 };
         parent.AddChild(_layer);
@@ -196,6 +196,8 @@ internal sealed class StartMenu
                 pick.Pressed += () => developmentTier(tier);
                 developmentPicker.AddChild(pick);
             }
+            if(classicDevelopment is not null)developmentPicker.AddChild(Link("ClassicDevelopment","Classic · development test","9fd3c2",
+                "Synthetic reputation milestone, optional fixed stages and isolated diagnostic saves.",classicDevelopment));
             var back = Link("DevelopmentBack", "Back", "f3e8c9", "Back to the mode choices.", () =>
             {
                 developmentPicker.Visible = false; modes.Visible = true; guide.Visible = guideShown; trials.Visible = trialsShown;

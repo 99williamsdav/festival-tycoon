@@ -22,7 +22,7 @@ internal sealed partial class ClassicBookingScreen : Control
         var background = new ColorRect { Color = Ui.Bar, MouseFilter = MouseFilterEnum.Stop };
         AddChild(background); background.SetAnchorsAndOffsetsPreset(LayoutPreset.FullRect);
         var bar = new HBoxContainer { Position = Ui.S(28, 14), Size = Ui.S(1224, 44) }; AddChild(bar);
-        var title = Ui.Text($"LOWER WITTERING FARM\nCLASSIC · Festival {hud.Session.FestivalNumber}", 16, Ui.BarText, Ui.BodyBold);
+        var title = Ui.Text($"LOWER WITTERING FARM\nCLASSIC{(hud.Session.IsClassicDevelopment?" DEVELOPMENT TEST":"")} · Festival {hud.Session.FestivalNumber}", 16, Ui.BarText, Ui.BodyBold);
         title.SizeFlagsHorizontal = SizeFlags.ExpandFill; bar.AddChild(title);
         var phases = Ui.Text("1 · Band booking    →    2 · Site preparation", 18, Ui.BarText); bar.AddChild(phases);
         bar.AddChild(new Control { CustomMinimumSize = Ui.S(100, 0) });
@@ -106,6 +106,9 @@ internal sealed partial class ClassicBookingScreen : Control
             _range.Text = $"{g.Sales.MinimumSales}–{g.Sales.MaximumSales} tickets";
             _capacity.Text = $"Estimated sales · capacity {s.ClassicSiteCapacity}";
             _explanation.Text = "Reputation and popularity draw buyers. Higher prices reduce demand; audiences overlap.";
+            if(s.IsClassicDevelopment)_explanation.Text=s.CaptureClassicDevelopment()!.GuaranteeHundred?
+                "DIAGNOSTIC: 100 ticket-holders guaranteed. Sales and refunds still use real ticket money.":
+                "Normal demand at the test site's 100-attendee capacity. The strongest three acts share one overlapping audience.";
             _money.Text = $"Current balance  {FestivalCurrency.Format(cash)}\nBands on confirm  {FestivalCurrency.Format(g.BandFeesPennies)}\nLow-end sales  {FestivalCurrency.Format((long)g.Sales.MinimumSales * booking.TicketPricePennies)}\n" +
                 (g.ConservativeSetupCashPennies < 0 ? "Projected shortfall" : "Projected funds") + $"  {FestivalCurrency.Format(g.ConservativeSetupCashPennies)}\n" +
                 (g.Risky ? "Risk: little left for site prep. You can still confirm." : "Estimate only; actual sales may vary.");

@@ -143,13 +143,13 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
         var shown = session.PreparedStatus is not PreparationStatus.Preparing && live is not null;
         _card.Visible = shown && open;
         _reopen!.Visible = shown && !open;
-        _reopen.Text = session.Stages.Count > 1 ? "Stages" : "Trailer Stage";
+        _reopen.Text = session.Stages.Count > 1 ? "Stages" : Main.StageTitle(session.Stages[0]);
         if (!_card.Visible) return;
         _card.TooltipText = Summary!.Text;
         var multi = session.Stages.Count > 1;
         _single!.Visible = !multi;
         _multi!.GetParent<Control>().Visible = multi;
-        _title!.Text = multi ? "Stages" : "Trailer Stage";
+        _title!.Text = multi ? "Stages" : Main.StageTitle(session.Stages[0]);
         if (multi) { RefreshRows(session); return; }
         var programme = session.CaptureProgramme();
         var acts = session.GetFestivalActs().ToDictionary(act => act.Id);
@@ -161,7 +161,7 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
         _state.AddThemeColorOverride("font_color", onStage ? Ui.Warn : Ui.Gold);
         _name!.Text = finished ? "That's the festival" : act?.Name ?? "Awaiting booking";
         _detail!.Text = finished ? "Guests are heading home" : act is null ? "" :
-            $"{FestivalGenreName(act.Genre)} · Set {slot + 1}" + (slot >= 0 ? $" · {FestivalClockText(GameSession.FestivalSlotStarts[slot])}–{FestivalClockText(GameSession.FestivalSlotEnds[slot])}" : "");
+            $"{FestivalGenreName(act.Genre)} · Set {slot + 1}" + (slot >= 0 ? $" · {FestivalClockText(session.Stages[0].SlotStarts[slot])}–{FestivalClockText(session.Stages[0].SlotEnds[slot])}" : "");
         long? until = finished ? null : onStage ? programme?.SlotEndTick - session.CurrentTick : session.UpcomingFestivalTick >= 0 ? session.UpcomingFestivalTick - session.CurrentTick : null;
         _countdownCaption!.Text = until is null ? "" : onStage ? "ENDS IN" : "STARTS IN";
         var performance = onStage && session.PowerBudgetActive ? session.CurrentPerformance : null;

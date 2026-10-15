@@ -6,6 +6,7 @@ namespace Festival.Game;
 
 internal sealed partial class BookingPanel
 {
+    private OptionButton? _compactStagePicker;
     private void BuildCompactRunningOrder(HBoxContainer parent)
     {
         var column = new VBoxContainer { CustomMinimumSize = Ui.S(258, 0) };
@@ -13,6 +14,9 @@ internal sealed partial class BookingPanel
         column.AddChild(Ui.Heading("Running order", 24));
         _stageLine = Ui.Text("Trailer Stage · three sets", 16, Ui.InkMuted); column.AddChild(_stageLine);
         _stageTabs = new HBoxContainer(); column.AddChild(_stageTabs);
+        _compactStagePicker=new OptionButton{Name="ClassicStagePicker",CustomMinimumSize=Ui.S(258,36)};
+        _compactStagePicker.AddThemeFontSizeOverride("font_size",Ui.Px(16));column.AddChild(_compactStagePicker);
+        _compactStagePicker.ItemSelected+=index=>{_stageId=_hud.Session.Stages[(int)index].Id;_bookingSelected=null;Refresh();};
         _bookingLane = new Control { CustomMinimumSize = Ui.S(258, 274), MouseFilter = Control.MouseFilterEnum.Pass };
         column.AddChild(_bookingLane);
         for (var slot = 0; slot < 3; slot++)
@@ -25,7 +29,7 @@ internal sealed partial class BookingPanel
             target.AddChild(words); words.SetAnchorsAndOffsetsPreset(Control.LayoutPreset.FullRect);
             words.OffsetLeft = Ui.S(12); words.OffsetRight = -Ui.S(12); words.OffsetTop = Ui.S(8);
             var caption = Ui.Text("", 13, Ui.InkMuted); words.AddChild(caption);
-            var title = Ui.Heading("", 20); title.ClipText = true; words.AddChild(title);
+            var title = Ui.Heading("", 20); title.ClipText = true;title.TextOverrunBehavior=TextServer.OverrunBehavior.TrimEllipsis; words.AddChild(title);
             var detail = Ui.Text("", 15, Ui.Ink); words.AddChild(detail);
             var remove = Ui.Style(new Button { Name = "ClassicRemove" + (i + 1), Text = "Remove ×", Position = Ui.S(164, 57), Size = Ui.S(84, 28),
                 MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Quiet, 14);

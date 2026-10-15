@@ -78,6 +78,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if(_classicStressEvidenceOutput is not null){ProcessClassicStressEvidence(delta);return;}
         if(_cowHerdEvidenceOutput is not null){ProcessCowHerdEvidence();return;}
         if(_ticketEvidenceOutput is not null){ProcessTicketEvidence();return;}
         if(_weatherEvidenceOutput is not null){ProcessWeatherEvidence();return;}
@@ -635,6 +636,8 @@ public partial class Main : Node, IHudHost
             else if(args[i]=="--capture-classic-tickets"&&i+1<args.Length){_ticketEvidenceOutput=args[++i];_architectureEvidenceOutput=_ticketEvidenceOutput;}
             else if(args[i]=="--capture-classic-weather"&&i+1<args.Length){_weatherEvidenceOutput=args[++i];_architectureEvidenceOutput=_weatherEvidenceOutput;}
             else if(args[i]=="--capture-cow-herd"&&i+1<args.Length){_cowHerdEvidenceOutput=args[++i];_architectureEvidenceOutput=_cowHerdEvidenceOutput;}
+            else if(args[i]=="--capture-classic-stress"&&i+1<args.Length){_classicStressEvidenceOutput=args[++i];_architectureEvidenceOutput=_classicStressEvidenceOutput;}
+            else if(args[i]=="--classic-stress-profile"&&i+1<args.Length)_classicStressProfileKind=args[++i];
             else if (args[i] == "--capture-survival-architecture" && i + 1 < args.Length) _architectureEvidenceOutput = args[++i];
             else if (args[i] == "--capture-save-warning" && i + 1 < args.Length)
             { _saveWarningEvidenceOutput = args[++i]; _architectureEvidenceOutput = _saveWarningEvidenceOutput; }
