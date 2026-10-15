@@ -1,0 +1,98 @@
+[
+  {
+    "name": "command-ChoosePerkCommand",
+    "passed": true
+  },
+  {
+    "name": "command-UseDefaultBuildLayoutCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetProgrammeCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetProgrammeCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetPreparationStockCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "paid-normal-plan-ready",
+    "passed": true
+  },
+  {
+    "name": "earlier-manual-save-written",
+    "passed": true
+  },
+  {
+    "name": "warning-shown-after-real-save-failure",
+    "passed": true
+  },
+  {
+    "name": "earlier-slot-preserved",
+    "passed": true
+  },
+  {
+    "name": "DismissSaveWarning-pointer-inside-viewport",
+    "passed": true
+  },
+  {
+    "name": "x-dismisses-to-discreet-retry",
+    "passed": true
+  },
+  {
+    "name": "stage-selector-usable",
+    "passed": true
+  },
+  {
+    "name": "start-continues-through-save-failure",
+    "passed": true
+  },
+  {
+    "name": "live-ticks-continue",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "repeated-start-failure-stays-dismissed",
+    "passed": true
+  },
+  {
+    "name": "old-manual-still-loads",
+    "passed": true
+  },
+  {
+    "name": "RetryDismissedSave-pointer-inside-viewport",
+    "passed": true
+  },
+  {
+    "name": "retry-recovers-exact-current-session",
+    "passed": true
+  },
+  {
+    "name": "successful-retry-clears-status",
+    "passed": true
+  }
+]

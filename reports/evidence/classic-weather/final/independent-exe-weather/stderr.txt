@@ -1,0 +1,7 @@
+ERROR: System.InvalidOperationException: Handle is not initialized.
+   at Godot.Bridge.ScriptManagerBridge.SetGodotObjectPtr(IntPtr gcHandlePtr, IntPtr newPtr)
+   at: void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception) (:0)
+   C# backtrace (most recent call first):
+       [0] void Godot.GD.PushError(string)
+       [1] void Godot.NativeInterop.ExceptionUtils.LogException(System.Exception)
+       [2] void Godot.Bridge.ScriptManagerBridge.SetGodotObjectPtr(nint, nint)

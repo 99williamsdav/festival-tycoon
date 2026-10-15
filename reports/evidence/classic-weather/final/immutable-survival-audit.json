@@ -1,0 +1,14 @@
+{
+  "baseline": "0055f7414954db6f2e1960fd7628b6df19874a43",
+  "diffExit": 0,
+  "paths": [
+    "reports/evidence/classic-loop/survival-before",
+    "reports/evidence/classic-loop/survival-before-checkpoint.json",
+    "tests/Festival.Tests/ClassicSurvivalParityTests.cs",
+    "tests/Festival.Tests/ClassicSurvivalIncidentParityTests.cs",
+    "tests/Festival.Tests/SurvivalArchitectureParityTests.cs",
+    "tests/Festival.Tests/IncidentConsequenceParityTests.cs"
+  ],
+  "excludedFields": [],
+  "repinned": false
+}

@@ -1,0 +1,10 @@
+{
+  "track": "weather",
+  "checks": 243,
+  "failures": 0,
+  "exit": 0,
+  "pngs": 16,
+  "runtimeErrorsWarnings": 0,
+  "evidenceFile": "evidence.json",
+  "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-weather-2026-10-15/FestivalTycoon.exe"
+}

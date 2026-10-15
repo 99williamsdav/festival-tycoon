@@ -1,5 +1,10 @@
 # Dated product and prototype decisions
 
+## 15 October 2026 — Classic weather and forecast accepted
+
+The bounded implementation is complete with fresh independent core, native source/UI and actual copied Windows EXE approval. The [handoff](results/classic-weather-handoff.md) records source checkpoints, payload hash, provisional weights, exact persisted data, shared elapsed-time presentation, v100 Classic routing and verification limits. The [copied-EXE review](results/classic-weather-exe-independent-review.md) passes weather 243, Classic 101, Survival 63 and save warning 24 checks, each exit 0; all 37 captures were inspected. The immutable pre-Classic Survival references remain unchanged. The earlier await-brief design wording below is historical and superseded. Stage/economy expansion, new hazards/night and natural-balance/performance acceptance remain outside this scope.
+
+
 ## 15 October 2026 — Classic weather implementation and approval workflow
 
 The user clarified the standing workflow: approving a design starts its authorized implementation within scope; a redundant "build it" is unnecessary. Escalate new scope, material unresolved choices or permission denials, and retain independent review. [Working agreement](../docs/WORKING-AGREEMENTS.md#design-approval-starts-implementation).

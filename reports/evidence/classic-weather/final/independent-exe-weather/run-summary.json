@@ -1,0 +1,52 @@
+[
+  {
+    "track": "weather",
+    "checks": 243,
+    "failed": 0,
+    "exit": 0,
+    "png": 16,
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-weather-2026-10-15/FestivalTycoon.exe",
+    "stderrBytes": 496,
+    "logErrorWarningMatches": 2
+  },
+  {
+    "track": "classic",
+    "checks": 101,
+    "failed": 0,
+    "exit": 0,
+    "png": 9,
+    "executable": null,
+    "stderrBytes": 0,
+    "logErrorWarningMatches": 0
+  },
+  {
+    "track": "survival",
+    "checks": 63,
+    "failed": 0,
+    "exit": 0,
+    "png": 8,
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-weather-2026-10-15/FestivalTycoon.exe",
+    "stderrBytes": 0,
+    "logErrorWarningMatches": 0
+  },
+  {
+    "track": "warning",
+    "checks": 24,
+    "failed": 0,
+    "exit": 0,
+    "png": 4,
+    "executable": null,
+    "stderrBytes": 0,
+    "logErrorWarningMatches": 0
+  },
+  {
+    "track": "weather-repeat",
+    "checks": 243,
+    "failed": 0,
+    "exit": 0,
+    "png": 16,
+    "executable": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-weather-2026-10-15/FestivalTycoon.exe",
+    "stderrBytes": 0,
+    "logErrorWarningMatches": 0
+  }
+]

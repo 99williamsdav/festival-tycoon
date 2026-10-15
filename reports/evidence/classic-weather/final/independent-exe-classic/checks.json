@@ -1,0 +1,406 @@
+[
+  {
+    "name": "classic-menu-identity-own-save-host",
+    "passed": true
+  },
+  {
+    "name": "classic-preparation-and-trailer",
+    "passed": true
+  },
+  {
+    "name": "command-ChoosePerkCommand",
+    "passed": true
+  },
+  {
+    "name": "command-UseDefaultBuildLayoutCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetProgrammeCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetPreparationStockCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-normal-plan-ready",
+    "passed": true
+  },
+  {
+    "name": "classic-paid-opening",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-opening-save",
+    "passed": true
+  },
+  {
+    "name": "classic-live-1-file-roundtrip",
+    "passed": true
+  },
+  {
+    "name": "FestivalMenu-fully-inside-classic-viewport",
+    "passed": true
+  },
+  {
+    "name": "FestivalAlerts-fully-inside-classic-viewport",
+    "passed": true
+  },
+  {
+    "name": "FestivalMenu-pointer-inside-viewport",
+    "passed": true
+  },
+  {
+    "name": "classic-menu-pointer-opens",
+    "passed": true
+  },
+  {
+    "name": "FestivalMenu-pointer-inside-viewport",
+    "passed": true
+  },
+  {
+    "name": "classic-menu-pointer-closes",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-festival-finished",
+    "passed": true
+  },
+  {
+    "name": "classic-actual-results-save",
+    "passed": true
+  },
+  {
+    "name": "classic-finished-1-file-roundtrip",
+    "passed": true
+  },
+  {
+    "name": "classic-next-tooltip-no-fixed-tier-advance",
+    "passed": true
+  },
+  {
+    "name": "classic-next-canonical-carry",
+    "passed": true
+  },
+  {
+    "name": "classic-day-state-reset",
+    "passed": true
+  },
+  {
+    "name": "classic-preparation-and-trailer",
+    "passed": true
+  },
+  {
+    "name": "command-ChoosePerkCommand",
+    "passed": true
+  },
+  {
+    "name": "command-UseDefaultBuildLayoutCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetProgrammeCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetPreparationStockCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-normal-plan-ready",
+    "passed": true
+  },
+  {
+    "name": "classic-paid-opening",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-opening-save",
+    "passed": true
+  },
+  {
+    "name": "classic-live-2-file-roundtrip",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-festival-finished",
+    "passed": true
+  },
+  {
+    "name": "classic-actual-results-save",
+    "passed": true
+  },
+  {
+    "name": "classic-finished-2-file-roundtrip",
+    "passed": true
+  },
+  {
+    "name": "classic-next-tooltip-no-fixed-tier-advance",
+    "passed": true
+  },
+  {
+    "name": "classic-next-canonical-carry",
+    "passed": true
+  },
+  {
+    "name": "classic-day-state-reset",
+    "passed": true
+  },
+  {
+    "name": "classic-preparation-and-trailer",
+    "passed": true
+  },
+  {
+    "name": "command-ChoosePerkCommand",
+    "passed": true
+  },
+  {
+    "name": "command-UseDefaultBuildLayoutCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetProgrammeCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetPreparationStockCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-normal-plan-ready",
+    "passed": true
+  },
+  {
+    "name": "classic-paid-opening",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-opening-save",
+    "passed": true
+  },
+  {
+    "name": "classic-live-3-file-roundtrip",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-festival-finished",
+    "passed": true
+  },
+  {
+    "name": "classic-actual-results-save",
+    "passed": true
+  },
+  {
+    "name": "classic-finished-3-file-roundtrip",
+    "passed": true
+  },
+  {
+    "name": "classic-next-tooltip-no-fixed-tier-advance",
+    "passed": true
+  },
+  {
+    "name": "classic-next-canonical-carry",
+    "passed": true
+  },
+  {
+    "name": "classic-day-state-reset",
+    "passed": true
+  },
+  {
+    "name": "classic-preparation-and-trailer",
+    "passed": true
+  },
+  {
+    "name": "command-ChoosePerkCommand",
+    "passed": true
+  },
+  {
+    "name": "command-UseDefaultBuildLayoutCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetProgrammeCommand",
+    "passed": true
+  },
+  {
+    "name": "command-SetPreparationStockCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "command-AcceptPreparationOfferCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-normal-plan-ready",
+    "passed": true
+  },
+  {
+    "name": "classic-paid-opening",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-opening-save",
+    "passed": true
+  },
+  {
+    "name": "classic-live-4-file-roundtrip",
+    "passed": true
+  },
+  {
+    "name": "FestivalMenu-fully-inside-classic-viewport",
+    "passed": true
+  },
+  {
+    "name": "FestivalAlerts-fully-inside-classic-viewport",
+    "passed": true
+  },
+  {
+    "name": "survival-management-retained-separately",
+    "passed": true
+  },
+  {
+    "name": "parked-classic-resumes-exact-state",
+    "passed": true
+  },
+  {
+    "name": "manual-classic-save",
+    "passed": true
+  },
+  {
+    "name": "actual-manual-load-preserves-classic",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "injected-causal-death-continues-once",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "injected-causal-death-continues-once",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "two-causal-deaths-no-hearing-or-freeze",
+    "passed": true
+  },
+  {
+    "name": "injected-classic-deaths-live-file-roundtrip",
+    "passed": true
+  },
+  {
+    "name": "FestivalMenu-fully-inside-classic-viewport",
+    "passed": true
+  },
+  {
+    "name": "FestivalAlerts-fully-inside-classic-viewport",
+    "passed": true
+  },
+  {
+    "name": "command-SetPausedCommand",
+    "passed": true
+  },
+  {
+    "name": "classic-festival-finished",
+    "passed": true
+  },
+  {
+    "name": "classic-actual-results-save",
+    "passed": true
+  },
+  {
+    "name": "classic-finished-4-file-roundtrip",
+    "passed": true
+  },
+  {
+    "name": "deaths-truthful-results",
+    "passed": true
+  },
+  {
+    "name": "classic-new-campaign-resets-own-state",
+    "passed": true
+  }
+]

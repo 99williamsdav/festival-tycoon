@@ -1,0 +1,9 @@
+{
+  "payloadCount": 194,
+  "payloadBytes": 287487871.0,
+  "sourceCount": 2022,
+  "mismatches": [],
+  "exeHash": "F1DD73A79BBE81F395B509D37D5C7C31BE3DF79376442C4D5BC54B5A4165526F",
+  "exportLogMatches": true,
+  "entryVerification": "All same pins verified before any independent execution; tool output retained in review conversation"
+}
