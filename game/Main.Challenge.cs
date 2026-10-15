@@ -14,7 +14,7 @@ public partial class Main
     {
         if (!_challengeFlowEnabled || StartMenu.IsOpen) return;
         var p = _session.CapturePreparation();
-        if (p is not { Status: PreparationStatus.Preparing, ChallengeAcknowledged: false } || FestivalChallenges.ForTier(p.Tier) is not { } challenge)
+        if (p is not { Status: PreparationStatus.Preparing, ChallengeAcknowledged: false } || _session.CurrentFestival.Challenge is not { } challenge)
         { CloseChallengeReveal(); return; }
         if (_challengeReveal.IsOpen) return;
         CancelBuildPlacement(); ClearSelection();

@@ -1,0 +1,3 @@
+System.InvalidOperationException: Architecture native evidence failed: classic-menu-pointer-opens
+   at Festival.Game.Main.ArchitectureCheck(String name, Boolean passed) in /_/game/Main.ArchitectureEvidence.cs:line 23
+   at Festival.Game.Main.ProcessClassicEvidence() in /_/game/Main.ClassicEvidence.cs:line 111

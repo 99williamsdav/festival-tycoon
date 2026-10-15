@@ -238,7 +238,8 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         var p = session.CapturePreparation()!;
         var price = FestivalTickets.PricePennies(p.Tier);
         var sold = FestivalTickets.Sold(p.Tier);
-        var key = $"{session.CampaignSeed}:{p.Attempt}:{price}:{sold}:{string.Join(',', session.Stages.Select(stage => stage.Id))}";
+        var key = $"{session.CampaignSeed}:{p.Attempt}:{price}:{sold}:{string.Join(',', session.Stages.Select(stage => stage.Id))}"+
+            (session.IsClassicCampaign?$":classic:{session.FestivalNumber}":"");
         if (key == _key) return;
         _key = key;
         // A festival with the Pond Stage leads with its news: the second stage, with its own generator thrown in.
@@ -247,7 +248,7 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         _upgrade.AddThemeColorOverride("font_color", session.SecondStageOpen ? Ui.Gold : Ui.BarMuted);
         _upgrade.AddThemeFontOverride("font", session.SecondStageOpen ? Ui.BodyBold : Ui.Body);
         _sets!.Text = session.SecondStageOpen ? "One day on the farm · two stages, six sets" : "One day on the farm · three sets";
-        _ticketTier!.Text = $"ADMIT ONE · TIER {p.Tier}";
+        _ticketTier!.Text = session.IsClassicCampaign?$"ADMIT ONE · FESTIVAL {session.FestivalNumber}":$"ADMIT ONE · TIER {p.Tier}";
         _nextLine!.Text = session.SecondStageOpen ? "Next: build your site, book three acts for each stage and hire a sound engineer for each."
             : "Next: build your site, book three acts and hire a sound engineer.";
         // The forecast, so the player can plan for it.

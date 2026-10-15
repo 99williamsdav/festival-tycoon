@@ -1,5 +1,11 @@
 # Dated product and prototype decisions
 
+## 14 October 2026 — Minimal Classic loop and save failures
+
+The user approved the bounded first Classic management loop: repeat festivals on the inherited Trailer farm setup and carry actual campaign cash, debt, reputation, scene credibility, learned acts, relationships, popularity and existing property. Death remains a causal recorded loss, releases dead actors' work/claims and reduces reputation once by 10, stopping at zero, without a fine or Council ending. The day and living actors continue. Approved provisional starting values are fixed mild/dry weather using existing non-hot medical behavior, half disorder-pressure buildup and double medical/injury/generator incident windows. Survival retains its existing rules, controls and fixed stage progression. This is a minimal loop, not acceptance of general balance, expansion, land unlocks or random forecasts. [Core implementation and evidence](results/classic-loop-core-implementation.md).
+
+Separately, saving must not block play. A failed checkpoint keeps accepted actions in memory and preserves prior valid saves; an X dismisses the non-modal warning through repeated failures, with optional retry and truthful status. [Independent save-warning review](results/save-warning-independent-review.md). The final combined UI and copied EXE have separate review gates.
+
 ## 14 October 2026 — Classic stage options and rentals
 
 **Approved future design; documentation only.** In the future Classic ruleset, reputation unlocks **stage options**. The player then chooses which available stages to pay for; unlocking an option does not automatically allocate or charge for it. This decision concerns campaign rules, separately from the player's management or steward control role.

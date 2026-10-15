@@ -17,7 +17,8 @@ public partial class Main
 
     private void BuildStartSplash() => StartMenu.Open(this, EnterFestival, OpenFieldGuide, StartDevelopmentTier, StartStewardShift,
         SavedStewardShift() is { } saved ? () => ContinueStewardShift(saved) : null, PickFrontOfHouse,
-        SavedHandsOnCampaign() is { } handsOn ? () => ContinueHandsOnCampaign(handsOn) : null);
+        SavedHandsOnCampaign() is { } handsOn ? () => ContinueHandsOnCampaign(handsOn) : null,
+        PickClassicCampaign,SavedClassicCampaign() is{} classic?()=>BeginClassicCampaign(classic):null);
 
     /// <summary>Development starts use ordinary preparation: fresh Tier 1 or the canonical transition from a recorded clear.</summary>
     private void StartDevelopmentTier(int tier)
@@ -56,7 +57,7 @@ public partial class Main
         ClearSelection(); ResetImmersionHeldVisuals();
         foreach (var visual in _attendeeVisuals.Values) visual.QueueFree();
         _attendeeVisuals.Clear(); _attendeePickRegistry.Clear(); _selectedAttendeeId = null;
-        _host.StartNewCampaign(next);
+        if(!ReferenceEquals(_host.Session,next))_host.StartNewCampaign(next);
         SyncSaveStatus();
         _foundationPresentation.Reset(_session.CaptureObservation());
         Perks.Reset();

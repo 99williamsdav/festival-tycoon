@@ -120,6 +120,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
             _perks.AddThemeColorOverride(state, Ui.Gold);
         buttons.AddChild(_perks);
         _alerts = BarIconButton("bell", "Show current urgent alerts; press again for the next group. Select an alert to locate it.", _actions.ShowAlerts);
+        _alerts.Name="FestivalAlerts";
         buttons.AddChild(_alerts);
         _alertBadge = Ui.Text("", 11.5f, Colors.White, Ui.BodyBold);
         var badge = Ui.Box(Ui.Alert, 9); badge.SetBorderWidthAll(Ui.Px(2)); badge.BorderColor = Ui.Bar;
@@ -130,7 +131,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         // Placed from the bell's top-left: anchored to its right edge, it slid off when the bell took its size.
         _alertBadge.Position = new Vector2(Ui.S(44) - Ui.S(14), -Ui.S(6));
         _alerts.AddChild(_alertBadge);
-        buttons.AddChild(BarIconButton("menu", "Festival menu", _actions.ToggleMenu));
+        var menu=BarIconButton("menu", "Festival menu", _actions.ToggleMenu);menu.Name="FestivalMenu";buttons.AddChild(menu);
     }
 
     /// <summary>The live day as a track: elapsed time, each set in its genre's colour, and a playhead.</summary>
@@ -230,7 +231,12 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
     {
         var outlook = session.CaptureWeatherOutlook();
         string icon, text, when = "", tip;
-        if (outlook.Kind == WeatherKind.Heatwave)
+        if(outlook.Kind==WeatherKind.Mild)
+        {
+            icon="sun";text="Mild";
+            tip="Fixed mild, dry conditions for Classic. Water, first aid and ordinary safety responses still matter.";
+        }
+        else if (outlook.Kind == WeatherKind.Heatwave)
         {
             (icon, text) = session.CaptureMedical() is { IsHot: true } ? ("sun", "Hot") : ("sun", "Fine");
             tip = "A heatwave: guests heat up out in the sun and get thirsty. Water, shade and rest keep them going.";
@@ -303,6 +309,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         var session = _hud.Session;
         var preparing = p.Status == PreparationStatus.Preparing;
         var live = p.Status is PreparationStatus.Running;
+        _clockTrack!.CustomMinimumSize=new Vector2(Ui.S(session.IsClassicCampaign?192:240),Ui.S(12));
         _phase!.Text = (p.Status switch
         {
             PreparationStatus.Preparing => "Preparation · before opening",
@@ -365,6 +372,7 @@ internal sealed class TopBar(IHudHost _hud, ITopBarActions _actions)
         _people.Visible &= !slim; _perks.Visible &= !slim; _alerts!.Visible = !slim;
         if (drafting) _phase.Text = "PREPARATION · PERK DRAFT";
         else if (Briefing) _phase.Text = "PREPARATION · BOX OFFICE";
+        if(session.IsClassicCampaign)_phase.Text=$"CLASSIC {session.FestivalNumber} · "+(preparing?"PREPARATION":p.Status==PreparationStatus.Departing?"DEPARTING":"LIVE");
         _alertBadge!.Text = alertCount.ToString();
         _alertBadge.Visible = alertCount > 0;
         _alerts!.TooltipText = alertCount == 0 ? "No urgent alerts" : $"{alertCount} urgent alert{(alertCount == 1 ? "" : "s")} · show them";

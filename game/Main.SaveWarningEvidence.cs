@@ -20,10 +20,12 @@ public partial class Main
         var button = FindChildren(name, "Button", true, false).OfType<Button>().First(b => b.IsVisibleInTree());
         var point = button.GetGlobalRect().GetCenter();
         ArchitectureCheck(name + "-pointer-inside-viewport", !button.Disabled && GetViewport().GetVisibleRect().HasPoint(point));
-        Input.ParseInputEvent(new InputEventMouseMotion { Position = point, GlobalPosition = point });
-        Input.ParseInputEvent(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left,
-            Pressed = true, ButtonMask = MouseButtonMask.Left });
-        Input.ParseInputEvent(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = false });
+        // GetGlobalRect is in viewport coordinates; do not reinterpret it as window pixels under canvas stretch.
+        var viewport=GetViewport();
+        viewport.PushInput(new InputEventMouseMotion { Position = point, GlobalPosition = point },true);
+        viewport.PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left,
+            Pressed = true, ButtonMask = MouseButtonMask.Left },true);
+        viewport.PushInput(new InputEventMouseButton { Position = point, GlobalPosition = point, ButtonIndex = MouseButton.Left, Pressed = false },true);
     }
     private string SaveWarningManualPath => SaveFileAdapter.ResolveSlotPath(_host.SaveDirectory, SessionHost.ManualSlot);
     private void ProcessSaveWarningEvidence()

@@ -1,0 +1,17 @@
+{
+  "scope": "Bounded Classic HUD width and pointer repair",
+  "files": [
+    {
+      "path": "game/Hud/TopBar.cs",
+      "sha256": "7DE61A618E7E9836EAB697B879361A4A610C5777BCFA20114DB32D4E539473BC"
+    },
+    {
+      "path": "game/Main.ClassicEvidence.cs",
+      "sha256": "115330B120E6B94F6868CFEBCAD08D7921621D4CB895B1A6934DBB2F90BE6EBA"
+    },
+    {
+      "path": "briefs/results/classic-loop-ui-implementation.md",
+      "sha256": "4658782215BDA479BF8D2370D1E9938E68A0E7D78A1F1FD03C3AC9AA40275EDB"
+    }
+  ]
+}

@@ -92,7 +92,8 @@ internal sealed class StartMenu
     }
 
     public void Open(Node parent, Action enter, Action fieldGuide, Action<int>? developmentTier = null, Action<int>? stewardShift = null,
-        Action? continueShift = null, Action? frontOfHouse = null, Action? continueFrontOfHouse = null)
+        Action? continueShift = null, Action? frontOfHouse = null, Action? continueFrontOfHouse = null,
+        Action? classicCampaign=null,Action? continueClassic=null)
     {
         _layer = new CanvasLayer { Layer = 20 };
         parent.AddChild(_layer);
@@ -127,7 +128,7 @@ internal sealed class StartMenu
         subtitle.AddThemeColorOverride("font_color", Cream);
         content.AddChild(subtitle);
         var button = ModeButton("EnterFestival", "MANAGEMENT ONLY", "map", Cream,
-            "The campaign: plan, book and hire, then run the day from the manager's view.", chosen: true);
+            "The Survival campaign: plan, book and hire, then run the day from the manager's view.", chosen: true);
         button.Pressed += enter;
         // The three ways to play side by side, each with its line underneath.
         var modes = new HBoxContainer { Name = "Modes", Alignment = BoxContainer.AlignmentMode.Center };
@@ -135,13 +136,23 @@ internal sealed class StartMenu
         content.AddChild(modes);
         var classic = ModeColumn(modes);
         classic.AddChild(button);
-        classic.AddChild(ModeLine("Run the festival from the office."));
+        classic.AddChild(ModeLine("Survival · run the festival from the office."));
+        if(classicCampaign is not null)
+        {
+            var repeat=ModeColumn(modes);
+            var classicButton=ModeButton("ClassicCampaign","CLASSIC","map",Cream,
+                "Run repeated festivals on the farm. Cash, reputation and experience carry forward. Deaths harm reputation; the day continues.");
+            classicButton.Pressed+=classicCampaign;repeat.AddChild(classicButton);
+            repeat.AddChild(ModeLine("Build your reputation over repeated festivals."));
+            if(continueClassic is not null)repeat.AddChild(Link("ContinueClassic","Continue Classic","f3e8c9",
+                "Return to your Classic campaign.",continueClassic));
+        }
         if (frontOfHouse is not null)
         {
             // The campaign with the player on the ground too, until they can afford stewards of their own.
             var hands = ModeColumn(modes);
             var foh = ModeButton("FrontOfHouse", Main.HandsOnModeName.ToUpperInvariant(), "user", HiVis,
-                "A new campaign where you manage the festival and work it as a steward too. V swaps views.", fresh: true);
+                "A new Survival campaign where you manage the festival and work it as a steward too. V swaps views.", fresh: true);
             foh.Pressed += frontOfHouse;
             hands.AddChild(foh);
             hands.AddChild(ModeLine(Main.HandsOnStrapline));
@@ -200,7 +211,7 @@ internal sealed class StartMenu
             // One steward on the ground at a festival that runs itself. Its saves keep to their own folder.
             var steward = ModeColumn(modes);
             var shift = ModeButton("StewardShift", "STEWARD ONLY", "radio", HiVis,
-                "Work a festival day as one of its stewards, in first person. Kept apart from your campaigns.");
+                "Work a Survival festival day as one of its stewards, in first person. Kept apart from your campaigns.");
             steward.AddChild(shift);
             steward.AddChild(ModeLine("Pull on the hi-vis for a single shift."));
             // The logo shrinks while the picker is open, so its buttons fit under it.

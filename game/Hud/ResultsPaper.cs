@@ -105,13 +105,15 @@ internal sealed partial class ResultsPaper(IHudHost _hud, Func<PressPhoto?> _pho
         if (nextFestival is not null && _hud.Session.NextFestivalCarryOver is { } carry)
         {
             // Completing a festival unlocks the next tier: cash, debt, reputation and owned kit come forward.
-            var tier = carry.FromTier + 1;
+            var classic=_hud.Session.IsClassicCampaign;
+            var tier = classic?1:carry.FromTier + 1;
             Button? next = null;
             next = Ui.Style(new Button { Text = "Next festival", Name = "NextFestival", MouseDefaultCursorShape = Control.CursorShape.PointingHand,
-                TooltipText = $"Tier {tier}: {FestivalTickets.Sold(tier)} guests at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))}. " +
+                TooltipText = (classic?$"Classic · Festival {_hud.Session.FestivalNumber+1}: ":$"Tier {tier}: ")+
+                    $"{FestivalTickets.Sold(tier)} guests at {FestivalCurrency.Format(FestivalTickets.PricePennies(tier))}. " +
                     $"Brings {FestivalCurrency.Format(carry.CashPennies)} cash, {FestivalCurrency.Format(carry.DebtPennies)} of loan still owed, " +
                     "your reputation and owned kit. Perks, staff, bookings, stock and the build start fresh." +
-                    (tier >= GameSession.SecondStageFromTier ? "\nThe Barn Stage opens under cover, with its own generator outside." : "") }, Ui.ButtonKind.Primary, 15, 8);
+                    (!classic&&tier >= GameSession.SecondStageFromTier ? "\nThe Barn Stage opens under cover, with its own generator outside." : "") }, Ui.ButtonKind.Primary, 15, 8);
             next.Pressed += () =>
             {
                 if (nextFestival()) return;
@@ -251,9 +253,13 @@ void fragment() {
             faults.Count(fault => fault.Kind == FacilityFaultKind.StuckInToilet), faults.Count(fault => fault.Kind == FacilityFaultKind.BrokenTap),
             session.CaptureLavSucker()?.Calls.Length ?? 0,
             session.CaptureEquipment()?.Evidence.Any(item => item.Id is "equipment:warning" or "equipment:fault") == true,
-            tragedy, p.StandingBefore is { } standing ? (standing.Reputation, p.Reputation) : null, scenes)
+            tragedy, session.IsClassicCampaign
+                ?(session.CaptureClassicHistory()!.CompletedFestivals.LastOrDefault()?.ClosingStanding.Reputation??FestivalStanding.New.Reputation,p.Reputation)
+                :p.StandingBefore is { } standing ? (standing.Reputation, p.Reputation) : null, scenes)
         {
             Lifts = Moods(session, up: true), Grumbles = Moods(session, up: false), Heat = heat,
+            Classic=session.IsClassicCampaign,FestivalNumber=session.FestivalNumber,
+            DeathCauses=session.IsClassicCampaign?session.CaptureClassicHistory()!.DeathPenalties.Select(d=>d.Casualty.Cause).ToArray():[],
         };
     }
 
@@ -349,7 +355,7 @@ void fragment() {
         var numbers = new HBoxContainer(); numbers.AddThemeConstantOverride("separation", Ui.Px(8)); body.AddChild(numbers);
         foreach (var (value, singular, plural, tip) in new (int?, string, string, string)[]
         {
-            (result.GuestCount, "punter through the gate", "punters through the gate", $"{result.GuestCount} of {facts.Sold} ticket-holders came in."),
+            (facts.Classic?result.AdmittedGuests:result.GuestCount, "punter through the gate", "punters through the gate", $"{(facts.Classic?result.AdmittedGuests:result.GuestCount)} of {facts.Sold} ticket-holders came in."),
             (result.BeersFinished, "pint sunk", "pints sunk", "Beers bought and finished by guests."),
             (result.Fights, "scuffle", "scuffles", "Fights involving a guest; fight knockouts aren't counted."),
             (result.MedicalCollapses, "trip to first aid", "trips to first aid", "Guests who collapsed and needed help."),
@@ -412,7 +418,7 @@ void fragment() {
         var verdict = new PanelContainer { CustomMinimumSize = new Vector2(Ui.S(240), 0),
             TooltipText = result.SatisfactionPercent is { } percent
                 ? $"Guest satisfaction {percent:0.0}%. Below 20 / 40 / 60 / 80% earns 1 / 2 / 3 / 4 stars; 80% or above earns 5."
-                : "No guests came in, so there's nothing to rate." };
+                : result.AdmittedGuests>0 ? "No surviving guests could be rated; deaths are recorded separately." : "No guests came in, so there's nothing to rate." };
         verdict.AddThemeStyleboxOverride("panel", Ui.Box(Ui.Ink, 0, padX: 16, padY: 14));
         var box = new VBoxContainer(); box.AddThemeConstantOverride("separation", Ui.Px(8)); verdict.AddChild(box);
         box.AddChild(Ui.Caps("Our verdict", Ui.Gold));
@@ -420,6 +426,7 @@ void fragment() {
         for (var i = 0; i < 5; i++)
             stars.AddChild(Ui.IconRect("star", 24, i < (result.Stars ?? 0) ? Ui.Gold : new Color(Ui.Gold, 0.3f)));
         box.AddChild(Ui.Heading(result.Stars is { } count ? $"{count} out of 5" : "Unrated", 22, Newsprint));
+        if(result.Deaths>0)box.AddChild(Paragraph("Music rating from surviving guests. Deaths recorded separately.",12,Ui.BarMuted));
         if (review.PullQuote is { } quote)
         {
             box.AddChild(Line(new Color(Ui.Gold, 0.5f), 1));

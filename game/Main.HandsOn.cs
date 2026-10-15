@@ -108,6 +108,7 @@ public partial class Main
     private bool _campaignHostNewOnEnter;
     private void ParkCampaignHost()
     {
+        if(_session.IsClassicCampaign){_classicCampaignHost=_host;_host.SaveMilestone("Switch",force:false);return;}
         if (_campaignHost is not null) return;
         _campaignHost = _host;
         _campaignHostNewOnEnter = _newCampaignOnEnter;

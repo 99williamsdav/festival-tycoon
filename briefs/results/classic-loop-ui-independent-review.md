@@ -1,0 +1,37 @@
+# Classic native UI independent review
+
+Verdict: **approved for the scoped Classic source/native UI slice after bounded repairs.** P2 is closed and no actionable findings remain in this scope. Final copied EXE acceptance remains separate.
+
+Reviewed the scoped game C# diff against core commit 81ec8d8fd3548d960b015744cd8145db4c79bc48, the two new Classic partials, CURRENT_DESIGN.md, DECISIONS.md and the UI implementation report. All 18 SHA-256 pins in reports/evidence/classic-loop/slice2/review-checkpoint.json matched. Unrelated imports, package lock, outfit work and scratch probes were excluded. No implementation or immutable reference edits were made.
+
+## Finding
+
+**P2 — Classic live top bar pushes menu and alerts beyond the viewport.** The new `Mild and dry` display in game/Hud/TopBar.cs:235 expands an already fixed-minimum-width row. At the prescribed 1280×720 native capture, the bell is cut off at the right edge and the Festival menu is entirely outside the viewport. Independently reproduced in review-native/03-first-classic-live.png, 05-fourth-classic-live.png and 06-recorded-deaths-live-day-continues.png. The user cannot reach the ordinary menu control with the pointer from this live presentation. Keep the Classic weather truthful while allocating sufficient space for all trailing controls, for example a compact weather label with the full fixed mild/dry explanation in its tooltip. Add a bounds assertion for both the bell and menu, not merely handler invocation. The builder's existing rainy Survival capture also overflows; this finding requests a bounded repair of the newly introduced Classic presentation, not an unrelated HUD redesign.
+
+## Independent evidence
+
+Ran the compiled native game through --capture-classic-loop in a fresh isolated reports/evidence/classic-loop/slice2/review-native directory, with --fixed-fps 30 --quit-after 260 --capture-size 1280x720. Result: **91 checks passed, zero failed, exit 0**, eight PNGs and a state journal. Inspected all eight PNGs, including mode menu, initial perk screen (the file is named box-office), live first/fourth festivals, live death alert, causal details and ordinary/death results. The shader-cache folder warning did not prevent execution or capture.
+
+Four paid starts and three normal continuations used ordinary setup commands. The fourth festival's two deaths were explicitly injected overdue medical tracks; no cash, reputation or result values were edited. This establishes causal presentation and continued play, not natural-death balance or manual player QA. Results show 25 admitted versus 23 rated surviving guests, a serious death headline, no celebratory quote, and net reputation 36 to 31 after penalties and rating. The causal dialog is readable and scrollable; the live alert has a Details action.
+
+Source inspection supports retained Classic SessionHost identity, separate Classic save namespace, exact current-session continuation including in-memory changes, manual-load refresh, new campaign replacement limited to its host, and next-festival ordinal without forced Barn/Tier advancement. The same-session SwitchToFestival reference guard preserves the host warning episode and clock. Existing Survival entry callbacks remain connected to their previous routes. Save checkpoint failures still do not gate accepted start/next/menu actions; the previously reviewed dismissible warning implementation is unchanged.
+
+Read the builder's combined native Survival evidence (63 passing assertions) and save-warning evidence (24 passing assertions). Those were not independently rerun in this review; previous independent save-warning review remains the supporting review for X/Retry pointer behavior. The ownership documents correctly leave final UI/EXE acceptance pending, although their builder-run status paragraph can be brought up to date at acceptance.
+
+## Limits
+
+No build was run concurrently with coordinator tests. No export, copied executable, performance assessment, exhaustive resize or manual interaction session was reviewed. The Classic harness invokes most menu/next handlers or signals and directly opens the causal dialog; the final repair separately validates the live menu through pointer hit testing. Initial captures disabled normal window stretch; the final rerun below preserves ordinary project stretch. No new stage, land, rental placement, night, forecast, art or loan feature is implied by this review.
+
+## Bounded repair review
+
+Verified all three repair pins in review-repair-checkpoint.json and all 15 unchanged original pins. The repair uses a compact Mild label with the full fixed mild/dry tooltip and a Classic-only 192-unit clock track; Survival retains 240. New menu/bell names enable complete-rectangle checks. Inspected builder native-hud-repair captures at 1280×720: all controls fit and the menu is visibly open after pointer injection. Builder reports 101 passing assertions.
+
+Independently ran without --capture-size, preserving the project's ordinary canvas_items stretch and maximized window. Evidence is retained in review-native-repair-production. Its 1920×1080 first-live screenshot clearly shows the bell and menu wholly inside the viewport; both geometry assertions pass. The run then fails classic-menu-pointer-opens and exits 1, after 17 passing checks. The helper currently feeds Control.GetGlobalRect coordinates directly into Input.ParseInputEvent; with normal stretch these canvas coordinates require conversion before window input injection. This is a likely diagnostic coordinate-space issue rather than evidence that the visible product button fails. A corrected pointer diagnostic and rerun are needed before claiming ordinary-stretch pointer validation. No execution remains running. No production or baseline file was modified by this reviewer.
+
+## Final bounded rerun — approved
+
+Verified the cumulative original, HUD repair and pointer repair checkpoints: all 19 current file pins matched. The only additional code change is the opt-in SaveWarningClick helper using Viewport.PushInput with inLocalCoords=true for viewport-space mouse motion/press/release. It still exercises GUI hit testing and later-frame visible-state assertions; it does not directly emit the menu button signal or change ordinary input handling.
+
+Independent ordinary-stretch rerun in reports/evidence/classic-loop/slice2/review-native-pointer-production: **101 PASS, zero failed, exit 0, nine PNGs**. No --capture-size flag was supplied. Inspected the 1920×1080 menu-open, live death and final results captures. Both complete button rectangles fit at first/fourth/death live states, and injected pointer events open and close the menu successfully. The continued four-start/three-continuation, exact parked resume, manual load, causal deaths and fresh campaign checks all pass. The original P2 geometry finding and diagnostic coordinate limitation are closed. The unsuccessful intermediate run remains retained as review history.
+
+The final newspaper again distinguishes 25 admissions from 23 surviving guests rated, foregrounds the deaths and displays net opening-to-closing reputation (44 to 37 in this seeded run). No broad manual QA or balance claim follows from these deterministic harness checks and explicit death injections. All reviewer executions are finished. Only this report and isolated evidence were written by the reviewer; copied-EXE validation is still a separate gate.

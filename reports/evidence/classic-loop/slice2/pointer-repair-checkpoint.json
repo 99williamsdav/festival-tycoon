@@ -1,0 +1,13 @@
+{
+  "scope": "Diagnostic-only pointer coordinates under ordinary canvas stretch",
+  "files": [
+    {
+      "path": "game/Main.SaveWarningEvidence.cs",
+      "sha256": "0B273D32D3204CAE551ACFEB57B4DD8622E218A0EC93D19A4FCA4FFA23665556"
+    },
+    {
+      "path": "briefs/results/classic-loop-ui-implementation.md",
+      "sha256": "85B479AD3E23DB28423820C5656892DF22C756E6C34ADE327A48C5F4AF9894F6"
+    }
+  ]
+}

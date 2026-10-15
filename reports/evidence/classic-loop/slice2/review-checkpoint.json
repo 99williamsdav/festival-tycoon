@@ -1,0 +1,78 @@
+{
+  "head": "81ec8d8fd3548d960b015744cd8145db4c79bc48",
+  "files": [
+    {
+      "path": "briefs/DECISIONS.md",
+      "sha256": "0970425E68364B82D7B9C0B5D34015BADFA60492DEC7CDE2272A3BD376E60488"
+    },
+    {
+      "path": "briefs/results/classic-loop-ui-implementation.md",
+      "sha256": "CC747B1350BB9D2BD37F82586A9AB298F39E50BA86CA9ADD9FDFB8C1EB0CA5BB"
+    },
+    {
+      "path": "CURRENT_DESIGN.md",
+      "sha256": "BFD706BA037FAE48AAEB4594A829843E0663CE1264A1FDF9B7DC3EAB83AD05F0"
+    },
+    {
+      "path": "game/Hud/BoxOffice.cs",
+      "sha256": "391BD839BC2BF874822B1F282992C8F866086FB5C6657F773A92D273B9A058D3"
+    },
+    {
+      "path": "game/Hud/FestivalReview.cs",
+      "sha256": "A2E332FAA59F95F3184730E7AE96F4A80DE3FF58F0ED61DC7AB3DF633F5ABC60"
+    },
+    {
+      "path": "game/Hud/ResultsPaper.cs",
+      "sha256": "D3AB7383F86C6B7BC4E4619408F5C358CAB8886FF6D4CA2600880F1F35A48036"
+    },
+    {
+      "path": "game/Hud/StartMenu.cs",
+      "sha256": "3C21649C4FE91C9C5B2D61BB58B0A5CD27F05640DB0F9923A0864FD20187004D"
+    },
+    {
+      "path": "game/Hud/TopBar.cs",
+      "sha256": "6B60C4FC48C23FFAE456DD9ED245C27AD8FE11450C94AA009384789D2F018894"
+    },
+    {
+      "path": "game/Main.ArchitectureEvidence.cs",
+      "sha256": "D714B70014FDC1424B41703A8C3B59CEFF74AC7F67A9A2C3771FC55052917868"
+    },
+    {
+      "path": "game/Main.Challenge.cs",
+      "sha256": "17B20736EA208C2148517DB9D2B3C93CA03DE43AE7CA5CAFEA8E7EF37B5BA2D5"
+    },
+    {
+      "path": "game/Main.Classic.cs",
+      "sha256": "EF92572B350DCAD393852C3425C6783EAB51671BC6804C75288A26685589BC1C"
+    },
+    {
+      "path": "game/Main.ClassicEvidence.cs",
+      "sha256": "55A983F0797243CB42AAA8C31400151B5BC3184DC0A2725050954B2E0E68F60C"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "1728B49E81F034C510F60D6FB559EA0896DDF5724455225DCC90CBF2BAAA28FB"
+    },
+    {
+      "path": "game/Main.HandsOn.cs",
+      "sha256": "4AB75CDE49A1670FCD30E1FF0F813650DB444C1B09370283193B01F8CB38EEF4"
+    },
+    {
+      "path": "game/Main.HudWorkspace.cs",
+      "sha256": "42CF5B8DD4565532112E5E2786DC67886E1A85CD8AC1A4F58B14650A1E66D59C"
+    },
+    {
+      "path": "game/Main.Preparation.cs",
+      "sha256": "C9F3A192005532320004379B05577DD7789089EDD6DB515BAA9F5D4C136F8184"
+    },
+    {
+      "path": "game/Main.Results.cs",
+      "sha256": "84CB856FD7964E479D2245E2305271A1D0375813D500C4947F6BDD2F929606CB"
+    },
+    {
+      "path": "game/Main.Splash.cs",
+      "sha256": "A146AB323ADF69FAEE22F4B7EECAE789A366F06CF54A3DEC99C6B6D9D9D603D4"
+    }
+  ],
+  "scope": "Classic native menu/host/results; unchanged accepted core"
+}

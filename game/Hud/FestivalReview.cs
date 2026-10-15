@@ -23,6 +23,9 @@ internal sealed record ReviewFacts(FestivalResult Result, int Tier, int Sold, bo
     public string[] Grumbles { get; init; } = [];
     /// <summary>A heatwave day; neither this nor rain when the weather isn't known.</summary>
     public bool Heat { get; init; }
+    public bool Classic { get; init; }
+    public int FestivalNumber { get; init; }
+    public string[] DeathCauses { get; init; }=[];
 }
 
 /// <summary>The review as printed: headline, standfirst, body, verdict and scene buzz.</summary>
@@ -70,7 +73,8 @@ internal static class FestivalReview
 
         // The headline goes to the day's biggest story, good or bad.
         string headline;
-        if (stars is null) headline = Pick("The Sound of Silence", "Nobody Came to the Party", "Empty Field, Silent Night");
+        if(r.Deaths>0)headline=r.Deaths==1?"Death Overshadows Festival":"Deaths Overshadow Festival";
+        else if (stars is null) headline = Pick("The Sound of Silence", "Nobody Came to the Party", "Empty Field, Silent Night");
         else if (bad && powerCuts > 0) headline = Pick("Unplugged — and Not in a Good Way", "Lights Out at Lower Wittering", "Power Ballad, Minus the Power");
         else if (bad && played.Length == 0 && f.Sets.Count > 0) headline = Pick("No Show, No Glory", "The Band Played On? Not Quite");
         else if (bad && r.Fights >= 3) headline = Pick("Bad Vibrations as Tempers Flare", "Festival Hits a Bum Note as Fists Fly");
@@ -92,10 +96,11 @@ internal static class FestivalReview
         else if (f.CowsEscaped > 0) headline = Pick("Cows and Chords: A Mixed Day", "Moo-ving Parts: A Festival of Two Halves");
         else headline = Pick("A Bit of a Mixed Tape", "Festival Finds Its Rhythm — Eventually", "Middle of the Road, Middle of a Field");
 
-        var edition = Ordinal(f.Tier);
+        var edition = Ordinal(f.Classic?f.FestivalNumber:f.Tier);
         var standfirst = stars is null
             ? $"The tickets were sold and the bands were booked, but nobody came through the gate of the {edition} {FestivalName}."
             : $"{Capitalise(Count(r.GuestCount, "punter"))}, {Count(played.Length, "set")} and {Weather(f)}: our reviewer gives the {edition} {FestivalName} {Words(stars.Value)} out of five.";
+        if(r.Deaths>0)standfirst=$"{r.Deaths} {(r.Deaths==1?"person":"people")} died during the {edition} {FestivalName}. The festival continued; {r.GuestCount} surviving guests were rated.";
 
         var verdict = stars switch
         {
@@ -109,12 +114,18 @@ internal static class FestivalReview
         };
         if (stars is 1 or 3 && f.Grumbles.Length > 0) verdict += $" Punters grumbled most about {List(f.Grumbles)}.";
         else if (stars >= 4 && f.Lifts.Length > 0) verdict += $" What sent them home happy: {List(f.Lifts)}.";
+        if(r.Deaths>0)verdict="A serious loss of life. The music rating covers surviving guests; the deaths remain part of the festival's record.";
 
         // The pull quote: a happy punter on a good day, an unhappy one on a bad day.
         var quoteSet = (bad ? lows.Select(low => low.Set).Where(set => set.Record.Quotes.Length > 0) : Array.Empty<ReviewSet>())
             .Concat(best is not null && best.Record.Quotes.Length > 0 ? [best] : []).FirstOrDefault();
-        var pull = quoteSet is { } q && QuoteOf(q, f.Names, 0) is { } said ? said : ((string, string)?)null;
+        var pull = r.Deaths==0&&quoteSet is { } q && QuoteOf(q, f.Names, 0) is { } said ? said : ((string, string)?)null;
         var paragraphs = new List<string> { Day(f, played.Length), Music(f, best, lows, pull) };
+        if(r.Deaths>0)
+        {
+            paragraphs.Insert(0,$"{Count(r.Deaths,"death")} recorded. Each death reduced festival reputation by 10, stopping at zero. No fine was charged.");
+            paragraphs.AddRange(f.DeathCauses);
+        }
         if (Field(f) is { } field) paragraphs.Add(field);
 
         // Genres that moved alike share a line.
@@ -132,7 +143,7 @@ internal static class FestivalReview
         var standing = f.Reputation is { } rep && rep.After != rep.Before
             ? $"Festival reputation {(rep.After > rep.Before ? "up" : "down")}, {rep.Before} → {rep.After}" : null;
 
-        var issue = $"No. {4_800 + f.Tier * 7 + r.Attempt:#,0} · Monday · 60p";
+        var issue = $"No. {4_800 + (f.Classic?f.FestivalNumber:f.Tier) * 7 + r.Attempt:#,0} · Monday · 60p";
         return new(issue, headline, standfirst, $"By {Reporter}", paragraphs.ToArray(), verdict, pull, buzz, standing);
     }
 
@@ -140,16 +151,17 @@ internal static class FestivalReview
     {
         var r = f.Result;
         var text = f.EarlierTragedy ? "The organisers reopened their gates after the tragedy that ended their previous weekend. " : "";
-        text += $"The {Ordinal(f.Tier)} {FestivalName} {(f.EarlierTragedy ? "went ahead" : f.Tier == 1 ? "opened" : "returned to the farm")} " +
+        text += $"The {Ordinal(f.Classic?f.FestivalNumber:f.Tier)} {FestivalName} {(f.EarlierTragedy ? "went ahead" : (f.Classic?f.FestivalNumber:f.Tier) == 1 ? "opened" : "returned to the farm")} " +
             (f.Rain ? $"under grey skies, with {Count(f.Showers, "heavy shower")}{(f.Downpour ? " and one proper downpour" : "")} across the day. "
                 : f.Heat ? "under a blazing sun, in the middle of a heatwave. " : "under open skies. ");
         if (f.Sets.Any(set => set.Record.StageId == FestivalStages.BarnId))
             text += "New this year was a second stage under cover in the farm barn. ";
         else if (f.Sets.Any(set => set.Record.StageId == FestivalStages.PondId))
             text += "New this year was a second stage down by the farm pond. ";
-        text += r.GuestCount == 0 ? $"All {f.Sold} tickets were sold, yet nobody turned up to use one." :
-            r.GuestCount >= f.Sold ? $"All {f.Sold} ticket-holders made the trip" + (played > 0 ? $", and {Count(played, "act")} {(played == 1 ? "was" : "were")} there to play for them." : ".") :
-            $"{r.GuestCount} of the {f.Sold} ticket-holders made it through the gate.";
+        var admitted=f.Classic?r.AdmittedGuests:r.GuestCount;
+        text += admitted == 0 ? $"All {f.Sold} tickets were sold, yet nobody turned up to use one." :
+            admitted >= f.Sold ? $"All {f.Sold} ticket-holders made the trip" + (played > 0 ? $", and {Count(played, "act")} {(played == 1 ? "was" : "were")} there to play for them." : ".") :
+            $"{admitted} of the {f.Sold} ticket-holders made it through the gate.";
         return text;
     }
 

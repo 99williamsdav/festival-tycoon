@@ -108,7 +108,7 @@ public partial class Main
         {
             Directory.CreateDirectory(_architectureEvidenceOutput!); _challengeFlowEnabled = true; CloseChallengeReveal(); BuildStartSplash();
             ArchitectureCheck("management-save-isolated", _host.SaveDirectory == Path.Combine(_architectureEvidenceOutput!, "management-saves"));
-            ArchitectureCheck("only-survival-ruleset-implemented", Enum.GetValues<CampaignRuleset>().SequenceEqual(new[] { CampaignRuleset.Survival }));
+            ArchitectureCheck("survival-and-classic-rulesets-implemented", Enum.GetValues<CampaignRuleset>().SequenceEqual(new[] { CampaignRuleset.Survival,CampaignRuleset.Classic }));
         }
         if (frame == 8) { ArchitecturePicture("01-existing-control-menu"); ArchitecturePress("DevelopmentTiers"); }
         if (frame == 16)

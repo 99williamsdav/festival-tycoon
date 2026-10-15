@@ -150,7 +150,8 @@ public partial class Main
         var stockDescription = immersion is null ? $"stock {snapshot.OwnedStocks.Single(item => item.ServiceId.Value == p.StockId).Quantity}" :
             $"soft {immersion.SoftStock} • beer {immersion.BeerStock}";
         var day = _session.CaptureProgramme() is not null ? "FESTIVAL DAY" : new[] { "FRIDAY", "SATURDAY", "SUNDAY" }[Math.Min(2, (int)((_session.CurrentTick - p.StartedTick) / 12_800))];
-        _preparationSummary.Text = $"Tier {p.Tier} • {p.Status}{(_session.IsPaused ? " • PAUSED" : "")} • {day}\n" +
+        _preparationSummary.Text = (_session.IsClassicCampaign?$"Classic · Festival {_session.FestivalNumber}":$"Tier {p.Tier}")+
+            $" • {p.Status}{(_session.IsPaused ? " • PAUSED" : "")} • {day}\n" +
             $"{FestivalCurrency.Format(finance.CashPennies)} • {stockDescription}\n" +
             $"{FestivalTickets.Sold(p.Tier)} mandatory guests + {p.People.Count(item => item.Role == ProtectedPersonRole.Staff)} staff + {p.People.Count(item => item.Role == ProtectedPersonRole.Performer)} performers\n" +
             $"Owned rig: {p.OwnedEquipment.Length} • rental: {p.Rentals.Length} • known staff: {p.Contacts.Length}\n" +

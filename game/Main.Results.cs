@@ -40,7 +40,8 @@ public partial class Main
         ResultsPaper.Close();
         SwitchToFestival(next);
         var p = _session.CapturePreparation()!;
-        _preparationMessage = $"Tier {p.Tier}: {FestivalTickets.Sold(p.Tier)} guests at {FestivalCurrency.Format(FestivalTickets.PricePennies(p.Tier))}. " +
+        _preparationMessage = (_session.IsClassicCampaign?$"Classic · Festival {_session.FestivalNumber}: ":$"Tier {p.Tier}: ")+
+            $"{_session.CurrentFestival.Attendance} guests at {FestivalCurrency.Format(_session.CurrentFestival.TicketPricePennies)}. " +
             $"{FestivalCurrency.Format(p.CarriedIn!.CashPennies)} carried forward; {FestivalCurrency.Format(p.CarriedIn.DebtPennies)} of loan still owed.";
         RefreshPreparationHud();
         GD.Print($"NEXT_FESTIVAL_STARTED id={_session.CampaignId.Value} tier={p.Tier} cash={p.OpeningCashPennies} debt={p.CarriedIn.DebtPennies}");

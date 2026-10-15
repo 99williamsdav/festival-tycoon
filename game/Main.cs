@@ -78,6 +78,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if(_classicEvidenceOutput is not null){ProcessClassicEvidence();return;}
         if (_saveWarningEvidenceOutput is not null) { ProcessSaveWarningEvidence(); return; }
         if (_architectureEvidenceOutput is not null) { ProcessArchitectureEvidence(); return; }
         if (_barnCampaignEvidenceOutput is not null) { ProcessBarnCampaignEvidence(); return; }
@@ -625,6 +626,8 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-survival-architecture" && i + 1 < args.Length) _architectureEvidenceOutput = args[++i];
             else if (args[i] == "--capture-save-warning" && i + 1 < args.Length)
             { _saveWarningEvidenceOutput = args[++i]; _architectureEvidenceOutput = _saveWarningEvidenceOutput; }
+            else if(args[i]=="--capture-classic-loop"&&i+1<args.Length)
+            {_classicEvidenceOutput=args[++i];_architectureEvidenceOutput=_classicEvidenceOutput;}
             else if (args[i] == "--capture-development-tiers" && i + 1 < args.Length) _developmentTierEvidenceOutput = args[++i];
             else if (args[i] == "--capture-barn" && i + 1 < args.Length) _barnEvidenceOutput = args[++i];
             else if (args[i] == "--fisticuffs-checks-only") _fightEvidenceChecksOnly = true;

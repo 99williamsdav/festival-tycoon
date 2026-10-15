@@ -314,6 +314,8 @@ public partial class Main
             alerts.Add(new(id, text, priority)); _urgentAlertActions[id] = action;
         }
         var onSite = p.People.Where(person => person.Admitted && !person.Departed).Select(person => person.AgentId).ToHashSet();
+        if(_session.CaptureClassicHistory() is{DeathPenalties.Length:>0} history)
+            Add("classic-deaths",$"{history.DeathPenalties.Length} {(history.DeathPenalties.Length==1?"death":"deaths")} recorded · details",65,ShowClassicDeaths);
         if (_session.CaptureMedical() is { } medical)
             foreach (var need in medical.Needs.Where(n => onSite.Contains(n.AgentId) && n.Stage is MedicalStage.Distress or MedicalStage.Collapsed or MedicalStage.Critical))
             {
@@ -403,7 +405,7 @@ public partial class Main
         words.AddThemeConstantOverride("separation", 0); row.AddChild(words);
         var heading = Ui.Heading(title, 17); heading.ClipText = true; heading.MouseFilter = Control.MouseFilterEnum.Ignore; words.AddChild(heading);
         var who = Ui.Text(subject, 13, Ui.InkMuted); who.ClipText = true; who.MouseFilter = Control.MouseFilterEnum.Ignore; words.AddChild(who);
-        var button = Ui.IconButton("Locate", "crosshair", Ui.ButtonKind.Alert, locate, 13.5f);
+        var button = Ui.IconButton(alert.Id=="classic-deaths"?"Details":"Locate", "crosshair", Ui.ButtonKind.Alert, locate, 13.5f);
         button.CustomMinimumSize = new Vector2(0, Ui.S(34)); button.SizeFlagsVertical = Control.SizeFlags.ShrinkCenter;
         button.AddThemeConstantOverride("icon_max_width", Ui.Px(15));
         row.AddChild(button);
