@@ -1,0 +1,98 @@
+[
+  {
+    "source": "four-festivals-14.json",
+    "festival": 1,
+    "opening": 20000,
+    "closing": 23640,
+    "tickets": 18,
+    "ticketNet": 18000,
+    "bandsNet": 1900,
+    "cancelled": 0,
+    "reputation": 0,
+    "reconciles": true
+  },
+  {
+    "source": "four-festivals-14.json",
+    "festival": 2,
+    "opening": 23640,
+    "closing": 34030,
+    "tickets": 23,
+    "ticketNet": 23000,
+    "bandsNet": 1800,
+    "cancelled": 1,
+    "reputation": 16,
+    "reconciles": true
+  },
+  {
+    "source": "four-festivals-14.json",
+    "festival": 3,
+    "opening": 34030,
+    "closing": 44820,
+    "tickets": 23,
+    "ticketNet": 23000,
+    "bandsNet": 1800,
+    "cancelled": 0,
+    "reputation": 31,
+    "reconciles": true
+  },
+  {
+    "source": "four-festivals-14.json",
+    "festival": 4,
+    "opening": 44820,
+    "closing": 57335,
+    "tickets": 25,
+    "ticketNet": 25000,
+    "bandsNet": 1800,
+    "cancelled": 0,
+    "reputation": 41,
+    "reconciles": true
+  },
+  {
+    "source": "four-festivals-20260922.json",
+    "festival": 1,
+    "opening": 20000,
+    "closing": 26190,
+    "tickets": 19,
+    "ticketNet": 19000,
+    "bandsNet": 2400,
+    "cancelled": 0,
+    "reputation": 0,
+    "reconciles": true
+  },
+  {
+    "source": "four-festivals-20260922.json",
+    "festival": 2,
+    "opening": 26190,
+    "closing": 35530,
+    "tickets": 24,
+    "ticketNet": 24000,
+    "bandsNet": 3400,
+    "cancelled": 1,
+    "reputation": 9,
+    "reconciles": true
+  },
+  {
+    "source": "four-festivals-20260922.json",
+    "festival": 3,
+    "opening": 35530,
+    "closing": 46045,
+    "tickets": 25,
+    "ticketNet": 25000,
+    "bandsNet": 3300,
+    "cancelled": 0,
+    "reputation": 27,
+    "reconciles": true
+  },
+  {
+    "source": "four-festivals-20260922.json",
+    "festival": 4,
+    "opening": 46045,
+    "closing": 57210,
+    "tickets": 25,
+    "ticketNet": 25000,
+    "bandsNet": 3200,
+    "cancelled": 0,
+    "reputation": 39,
+    "reconciles": true
+  }
+]

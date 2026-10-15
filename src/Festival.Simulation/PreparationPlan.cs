@@ -45,7 +45,7 @@ public sealed partial class GameSession
             ponchos * ImmersionCost(ImmersionProduct.Poncho) + strawBales * GroundCoverRules.BalePennies);
     private static int PlannedStockCost(PreparationPlan plan) => StockCost(plan.SoftDrinks, plan.Beers, plan.Ponchos, plan.StrawBales);
     public long PreparationPlanCost => _preparation?.Plan is { } plan
-        ? plan.OfferIds.Concat(plan.ActIds.Where(id => id != "")).Sum(id => (long)GetPreparationOffers().Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + BuildDraftCost : 0;
+        ? plan.OfferIds.Concat(_preparation.ClassicBooking is null ? plan.ActIds.Where(id => id != "") : []).Sum(id => (long)GetPreparationOffers().Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + BuildDraftCost : 0;
     /// <summary>What's left once the plan is paid for, counting the food trader's pitch fee coming in.</summary>
     public long PreparationRemainingCash => _preparation is { } p ? _festivalFinances[new(p.FinanceOwnerId)].CashPennies -
         (p.Plan is { Committed: false } ? PreparationPlanCost - PlannedPitchFeePennies : 0) : 0;
@@ -82,7 +82,9 @@ public sealed partial class GameSession
         _committingPreparationPlan = true;
         try
         {
-            foreach (var id in plan.OfferIds.Concat(plan.ActIds)) ApplyPreparationOffer(new(id));
+            foreach (var id in plan.OfferIds.Concat(_preparation!.ClassicBooking is null ? plan.ActIds : [])) ApplyPreparationOffer(new(id));
+            if (_preparation!.ClassicBooking is not null)
+                _preparation = _preparation with { AcceptedOffers = _preparation.AcceptedOffers.Concat(plan.ActIds).Order(StringComparer.Ordinal).ToArray() };
             var buildCost = BuildDraftCost;
             if (buildCost > 0) _festivalFinances[new(_preparation!.FinanceOwnerId)].CashPennies -= buildCost;
             for (var stage = 0; stage < Stages.Count; stage++)
@@ -169,7 +171,7 @@ public sealed partial class GameSession
             if (setup.BuildCostPennies < 0 || !setup.Entries.SequenceEqual(expected) || setup.TotalPennies != payments.Sum(payment => (long)payment.AmountPennies) + stockCost + setup.BuildCostPennies || payments.Any(payment => payment.Tick != setup.Tick) ||
                 setup.Attempt == p.Attempt && (!plan.Committed || setup.PitchFeePennies != PlannedPitchFee(p) || setup.SoftDrinks != plan.SoftDrinks || setup.Beers != plan.Beers ||
                     setup.Ponchos != plan.Ponchos || setup.StrawBales != plan.StrawBales ||
-                    setup.TotalPennies != plan.OfferIds.Concat(plan.ActIds).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + BuildCostOf(p)))
+                    setup.TotalPennies != plan.OfferIds.Concat(p.ClassicBooking is null ? plan.ActIds : []).Sum(id => (long)offers.Single(o => o.Id == id).PricePennies) + PlannedStockCost(plan) + BuildCostOf(p)))
                 return "Setup payment ledger or planned total does not reconcile.";
         }
         return null;

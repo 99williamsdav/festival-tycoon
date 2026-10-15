@@ -73,6 +73,10 @@ public sealed partial class GameSession
         EntityId? affectedTarget;
         switch (envelope.Command)
         {
+            case ClassicBookingCommand booking:
+                affectedTarget = null;
+                ApplyClassicBookingCommand(booking);
+                break;
             case RemovePreparationOfferCommand or SetPreparationStockCommand:
                 affectedTarget = null;
                 ApplyPlanEdit(envelope.Command);
@@ -639,7 +643,11 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (!snapshot.AppliedCommands.Select(item => item.CommandId).Order().SequenceEqual(snapshot.AcceptedCommandIds))
             return "Accepted command IDs must exactly match applied commands.";
         if (snapshot.FixtureRecords.Any(item => item.Id == 0 || item.RemainingTicks < 0)) return "Fixture record identity/progress is invalid.";
-        if (snapshot.Wallets.Any(item => item.OwnerId == 0 || item.CashPennies < 0) || snapshot.FestivalFinances.Any(item => item.OwnerId == 0 || item.CashPennies < -CampaignDefaults.OverdraftPennies))
+        var bookingHeaderError = ValidateClassicBookingHeader(snapshot);
+        if (bookingHeaderError is not null) return bookingHeaderError;
+        if (snapshot.Wallets.Any(item => item.OwnerId == 0 || item.CashPennies < 0) || snapshot.FestivalFinances.Any(item => item.OwnerId == 0 ||
+            item.CashPennies < -CampaignDefaults.OverdraftPennies && !(SavedClassic(snapshot) && snapshot.Preparation is { Status: PreparationStatus.Preparing } preparing &&
+                item.OwnerId == preparing.FinanceOwnerId && SavedBookings(snapshot)?.Phase == ClassicBookingPhase.SitePreparation)))
             return "Wallet and festival cash owners must be present with nonnegative cash.";
         var festivalIds = snapshot.FestivalFinances.Select(item => item.OwnerId).ToHashSet();
         if (snapshot.OwnedStocks.Any(item => item.ServiceId == 0 || !festivalIds.Contains(item.OwnerId) || item.Quantity < 0 || item.UnitCostBasisPennies < 0))
@@ -661,6 +669,8 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (resultError is not null) return resultError;
         var classicError=ValidateClassicHistory(snapshot);
         if(classicError is not null)return classicError;
+        var classicQuoteError=ValidateClassicBookingQuotes(snapshot);
+        if(classicQuoteError is not null)return classicQuoteError;
         var responsePostError = ValidatePersistedResponsePosts(snapshot);
         if(responsePostError is not null)return responsePostError;
         var perkError = ValidatePersistedPerks(snapshot);
@@ -788,13 +798,19 @@ if (snapshot.Immersion is { } immersion && (immersion.People is null || immersio
         if (lifecycleFrozen is not null) return lifecycleFrozen;
         if (_perks?.Pending == true && envelope.Command is not (PerkCommand or SetPausedCommand or AcknowledgeFestivalChallengeCommand))
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose a festival perk before preparation.");
-        if (_preparation is not null && envelope.Command is not (AcknowledgeFestivalChallengeCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or UseLastFestivalLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or SetPlayerMoveCommand or StewardActionCommand or SetPlayerStewardControlCommand or StewardRadioCommand or SetSitePlanCommand))
+        if (IsClassicCampaign && ClassicBookings is { Phase: ClassicBookingPhase.Booking } && envelope.Command is not
+            (ClassicBookingCommand or SetProgrammeCommand or PerkCommand or SetPausedCommand or AcknowledgeFestivalChallengeCommand))
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Confirm the bands and ticket sales before site preparation.");
+        if (IsClassicCampaign && ClassicBookings is { Phase: ClassicBookingPhase.SitePreparation } && envelope.Command is SetProgrammeCommand)
+            return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Use rebooking to preview the paid contract change and ticket refunds.");
+        if (_preparation is not null && envelope.Command is not (ClassicBookingCommand or AcknowledgeFestivalChallengeCommand or RemovePreparationOfferCommand or SetPreparationStockCommand or ChooseFoodTraderCommand or PlaceBuildServiceCommand or MoveBuildServiceCommand or RemoveBuildServiceCommand or UseDefaultBuildLayoutCommand or UseLastFestivalLayoutCommand or GroundCoverCommand or SpreadStrawCommand or PerkCommand or SetProgrammeCommand or AcceptPreparationOfferCommand or StartPreparedEditionCommand or SetPausedCommand or EquipmentCommand or StageGeneratorCommand or MedicalCommand or DisorderCommand or StaffInterventionCommand or CleanUpCommand or EmptyBinCommand or HerdCowCommand or CallLavSuckerCommand or SetFreeWaterCommand or SpendCouncilFavourCommand or ConcedeCouncilHearingCommand or CommitCommunityWaterShareCommand or SetPlayerMoveCommand or StewardActionCommand or SetPlayerStewardControlCommand or StewardRadioCommand or SetSitePlanCommand))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Fixture and planning commands are unavailable in prepared editions.");
         if (_preparation?.Status is (PreparationStatus.Failed or PreparationStatus.Finished) && envelope.Command is not (SpendCouncilFavourCommand or ConcedeCouncilHearingCommand))
             return CommandResult.Rejected(CommandReasonCode.EditionFrozen, "The edition is settled.");
 
         return envelope.Command switch
         {
+            ClassicBookingCommand booking => ValidateClassicBookingCommand(envelope.TargetId, booking),
             AcknowledgeFestivalChallengeCommand challenge => ValidateChallengeAcknowledgement(envelope.TargetId, challenge),
             RemovePreparationOfferCommand or SetPreparationStockCommand => ValidatePlanEdit(envelope.TargetId, envelope.Command),
             ChooseFoodTraderCommand trader => ValidateChooseFoodTrader(envelope.TargetId, trader),

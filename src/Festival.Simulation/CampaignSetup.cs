@@ -46,7 +46,7 @@ public sealed partial class GameSession
         SetUpEditablePlan(session);
         SetUpResults(session);
         SetUpBuild(session);
-        if(session.IsClassicCampaign)session._classicHistory=new([],[]);
+        if(session.IsClassicCampaign){session._classicHistory=new([],[]);session.InitializeClassicBooking();}
         return session;
     }
 

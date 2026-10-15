@@ -63,7 +63,7 @@ public sealed class ClassicWeatherTests
     [DataRow(ClassicWeatherKind.Showery)] [DataRow(ClassicWeatherKind.HeavyRain)] [DataRow(ClassicWeatherKind.Heatwave)]
     public void ForecastMatchesLiveRainAndExistingHeatAndWetResponses(ClassicWeatherKind kind)
     {
-        var s=GameSession.CreateClassicCampaign(SeedFor(kind));NextFestivalTests.Ready(s);
+        var s=GameSession.CreateClassicCampaign(SeedFor(kind));ClassicCampaignTests.Prepare(s);
                 if(s.IsRainyFestival)
         {
             BuildSession.Accept(s,new SetPreparationStockCommand(24,16){Ponchos=6,StrawBales=2});

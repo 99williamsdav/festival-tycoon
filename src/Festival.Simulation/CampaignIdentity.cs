@@ -44,6 +44,9 @@ public sealed partial class GameSession
             {_definitionTrial=_pondStageTrial;_definitionRuleset=_identity.Ruleset;_festivalDefinition=CampaignRulesProfile.For(_identity.Ruleset).Festival(tier,_pondStageTrial);}
             if(IsClassicCampaign&&_weather is not null&&_festivalDefinition.Weather!=Weather)
                 _festivalDefinition=_festivalDefinition with{Weather=Weather};
+            if(IsClassicCampaign && ClassicBookings is { } booking &&
+                (_festivalDefinition.Attendance != booking.TicketHolders || _festivalDefinition.TicketPricePennies != booking.TicketPricePennies))
+                _festivalDefinition = _festivalDefinition with { Attendance = booking.TicketHolders, TicketPricePennies = booking.TicketPricePennies };
             return _festivalDefinition;
         }
     }

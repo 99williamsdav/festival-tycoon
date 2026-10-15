@@ -10,6 +10,27 @@ public sealed class ClassicBookingLedgerTests
     private static ClassicBookingView View(ClassicBookingSnapshot s) => ClassicBookingLedger.Evaluate(14, 1, s);
 
     [TestMethod]
+    public void ReleasedSlotsRefundPaidFeesAndCannotOpenUntilRefilled()
+    {
+        var state = ClassicBookingLedger.Confirm(14, 1, ClassicBookingLedger.Create(0), Bands);
+        var removed = new[] { Bands[0], ClassicAnnouncedAct.EmptySlot, ClassicAnnouncedAct.EmptySlot };
+        state = ClassicBookingLedger.Rebook(14, 1, state, removed);
+        var released = View(state);
+        Assert.AreEqual(2_000L, released.NetBandCostsPennies);
+        Assert.AreEqual(ClassicLineupChange.Substantial, released.HighestChange);
+        Assert.Throws<InvalidOperationException>(() => ClassicBookingLedger.Open(14, 1, state));
+        Assert.Throws<ArgumentException>(() => ClassicBookingLedger.Rebook(14, 1, state,
+            [Bands[0], ClassicAnnouncedAct.EmptySlot with { PaidFeePennies = 1 }, ClassicAnnouncedAct.EmptySlot]));
+        state = ClassicBookingLedger.Rebook(14, 1, state, Bands);
+        Assert.AreEqual(released.RefundedTickets, View(state).RefundedTickets);
+        Assert.AreEqual(9_000L, View(state).NetBandCostsPennies);
+        state = ClassicBookingLedger.Rebook(14, 1, state,
+            [ClassicAnnouncedAct.EmptySlot, ClassicAnnouncedAct.EmptySlot, ClassicAnnouncedAct.EmptySlot]);
+        Assert.AreEqual(0L, View(state).NetBandCostsPennies);
+        Assert.AreEqual(0L, View(ClassicBookingLedger.Cancel(14, 1, state)).CashChangePennies);
+    }
+
+    [TestMethod]
     public void ConfirmCreatesActualSalesAndBalancedBandChargesExactlyOnce()
     {
         var state = ClassicBookingLedger.Confirm(14, 1, ClassicBookingLedger.Create(0), Bands);

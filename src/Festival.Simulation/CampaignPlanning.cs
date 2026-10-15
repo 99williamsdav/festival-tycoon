@@ -382,7 +382,12 @@ public sealed partial class GameSession
             return "Dismissed campaign tip IDs must be nonempty, sorted and unique.";
         // A later festival opens on exactly what came forward: the carried cash, tickets and debt.
         PlanningLedgerTransactionSnapshot Opening(EntityId owner,PreparationSnapshot p,FestivalCarryOver carry)=>SavedClassic(snapshot)
-            ?ClassicOpeningTransaction(owner,campaign.EditionNumber-1,carry):CarriedOpeningTransaction(owner,p.Tier,carry);
+            ?ClassicPrebookingOpening(owner,carry):CarriedOpeningTransaction(owner,p.Tier,carry);
+        if (SavedClassic(snapshot) && snapshot.Preparation is { } classicPreparation &&
+            (campaign.LedgerTransactions.Length != 1 || campaign.LedgerTransactions[0].Reason != ClassicPrebookingOpening(new(campaign.FinanceOwnerId),classicPreparation.CarriedIn).Reason ||
+             !campaign.LedgerTransactions[0].Entries.Select(entry => new LedgerEntry(new(entry.OwnerId),(LedgerAccountType)entry.Account,entry.AmountPennies))
+                .SequenceEqual(ClassicPrebookingOpening(new(campaign.FinanceOwnerId),classicPreparation.CarriedIn).Entries)))
+            return "Classic opening ledger must contain actual loan/carry before ticket sales.";
         if (snapshot.Preparation is { CarriedIn: { } carry } carried && (campaign.LoanOutstandingPrincipalPennies != carry.DebtPennies ||
             campaign.LedgerTransactions.Length == 0 || campaign.LedgerTransactions[0].Reason != Opening(new(campaign.FinanceOwnerId),carried,carry).Reason ||
             !campaign.LedgerTransactions[0].Entries.Select(entry => new LedgerEntry(new(entry.OwnerId), (LedgerAccountType)entry.Account, entry.AmountPennies))

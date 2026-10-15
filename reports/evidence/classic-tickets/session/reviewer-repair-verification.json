@@ -1,0 +1,147 @@
+{
+  "checkedAt": "2026-10-15T13:44:53.5126300+01:00",
+  "files": [
+    {
+      "path": "game/Main.Classic.cs",
+      "expected": "561899304C5BD7A5AD503B68F95B82AC68FA828A7B9DBF497FCABBFA66FE507D",
+      "actual": "561899304C5BD7A5AD503B68F95B82AC68FA828A7B9DBF497FCABBFA66FE507D",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/BandRelationships.cs",
+      "expected": "852F85423EF9A5E4A62F876B5ACAE550703D8EEEC3894CE66F05132CE6F6BF92",
+      "actual": "852F85423EF9A5E4A62F876B5ACAE550703D8EEEC3894CE66F05132CE6F6BF92",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignIdentity.cs",
+      "expected": "29EC851F4E3D28FF40E7B21A6DC6FAC7F820C8670614693EC17C1FCBC506BE1F",
+      "actual": "29EC851F4E3D28FF40E7B21A6DC6FAC7F820C8670614693EC17C1FCBC506BE1F",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignPlanning.cs",
+      "expected": "9E4C69FC19B9A453C9CF652B7A77006F71B1CC1ED4317A0589F6439DDAC9E284",
+      "actual": "9E4C69FC19B9A453C9CF652B7A77006F71B1CC1ED4317A0589F6439DDAC9E284",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/CampaignSetup.cs",
+      "expected": "98A4521B2563D5B51878C7257203272E061F82D00F7F4466ECDF51436ED47A15",
+      "actual": "98A4521B2563D5B51878C7257203272E061F82D00F7F4466ECDF51436ED47A15",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicBooking.cs",
+      "expected": "0860757ABD35EAA5AA577F837DC41421AC53DA880D34492400AA4299B76CABBD",
+      "actual": "0860757ABD35EAA5AA577F837DC41421AC53DA880D34492400AA4299B76CABBD",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicBookingLedger.cs",
+      "expected": "048F11C2647BAF6D16013FCDA92DA4DCD5212F7944BB76C19082D6B00DEB295E",
+      "actual": "048F11C2647BAF6D16013FCDA92DA4DCD5212F7944BB76C19082D6B00DEB295E",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicBookingTerms.cs",
+      "expected": "C1C86808DD9E6ED3F8757949C949F8ACF6B722F1231BE47F33710CF358350C37",
+      "actual": "C1C86808DD9E6ED3F8757949C949F8ACF6B722F1231BE47F33710CF358350C37",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/ClassicCampaign.cs",
+      "expected": "EBFDB8EA7B3D5DB96153E19EAC1B7193CBCF4B2FD85593848046EB1D5E61CE76",
+      "actual": "EBFDB8EA7B3D5DB96153E19EAC1B7193CBCF4B2FD85593848046EB1D5E61CE76",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/DisorderIncident.cs",
+      "expected": "2941A8A99F633EAD1F7718ED522FCF85A09A2D5922014B436B6DAA686F118DF4",
+      "actual": "2941A8A99F633EAD1F7718ED522FCF85A09A2D5922014B436B6DAA686F118DF4",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalAccounts.cs",
+      "expected": "7C462ABD16926F276EDB273151CE9AE9AB672AC8013B0BC2289C570DBB23B48C",
+      "actual": "7C462ABD16926F276EDB273151CE9AE9AB672AC8013B0BC2289C570DBB23B48C",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/FestivalResults.cs",
+      "expected": "D4E31282993016D9067A286508323572BD6F96BF9B14FA2E1753E1DF552E6D01",
+      "actual": "D4E31282993016D9067A286508323572BD6F96BF9B14FA2E1753E1DF552E6D01",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/GameSession.cs",
+      "expected": "21C7AA3F0B03CB63B1F621F6ECC496457285632FD0151DCD5D3D40E520B7F3E3",
+      "actual": "21C7AA3F0B03CB63B1F621F6ECC496457285632FD0151DCD5D3D40E520B7F3E3",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/LineupBooking.cs",
+      "expected": "3D9EE66CA389045BC9B6AFAA8634AA02759DB35DF2BEC07CDC422A71FCC09EC5",
+      "actual": "3D9EE66CA389045BC9B6AFAA8634AA02759DB35DF2BEC07CDC422A71FCC09EC5",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/LivePerformance.cs",
+      "expected": "CBF966105B2895D10AF21198BAB26396B1942AABAF83909D23A6A1786DC24E60",
+      "actual": "CBF966105B2895D10AF21198BAB26396B1942AABAF83909D23A6A1786DC24E60",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/MedicalIncident.cs",
+      "expected": "6EAA383DA64E164E663563E150586CEFA69B93DA8014D216308B67CCF55517D4",
+      "actual": "6EAA383DA64E164E663563E150586CEFA69B93DA8014D216308B67CCF55517D4",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/Preparation.cs",
+      "expected": "DDB37DAD402668DB8D32164EFB118E793F678939A97FC704BD9328F0CFB61239",
+      "actual": "DDB37DAD402668DB8D32164EFB118E793F678939A97FC704BD9328F0CFB61239",
+      "matches": true
+    },
+    {
+      "path": "src/Festival.Simulation/PreparationPlan.cs",
+      "expected": "6F5417479996A82D504E0C5AD18B01E018D2D89259EDF791E8964744CA4E77D8",
+      "actual": "6F5417479996A82D504E0C5AD18B01E018D2D89259EDF791E8964744CA4E77D8",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicBookingIntegrationTests.cs",
+      "expected": "CB325A357913195701FA235D9F0E470520A6FA14093499F3D25DD24DD7943D0E",
+      "actual": "CB325A357913195701FA235D9F0E470520A6FA14093499F3D25DD24DD7943D0E",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicBookingLedgerTests.cs",
+      "expected": "5A7D1095A8FA37F0BF62BB33E2756239A343309FE7106C6D3CB92EF3FD3B05B3",
+      "actual": "5A7D1095A8FA37F0BF62BB33E2756239A343309FE7106C6D3CB92EF3FD3B05B3",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicCampaignTests.cs",
+      "expected": "3B8EB48A5F4F223903FA5EB3D697FBFC0C9FE4E6D3B4C03E880A4A63669D7B1E",
+      "actual": "3B8EB48A5F4F223903FA5EB3D697FBFC0C9FE4E6D3B4C03E880A4A63669D7B1E",
+      "matches": true
+    },
+    {
+      "path": "tests/Festival.Tests/ClassicWeatherTests.cs",
+      "expected": "96FC7E7CD48CF7E348CFE4230B36336F1496FF330A92E1FD06A75B6D8DB48C9B",
+      "actual": "96FC7E7CD48CF7E348CFE4230B36336F1496FF330A92E1FD06A75B6D8DB48C9B",
+      "matches": true
+    }
+  ],
+  "assemblies": [
+    {
+      "path": "src/Festival.Simulation/bin/Debug/net8.0/Festival.Simulation.dll",
+      "sha256": "2835D691D5C07AA40D6F4EF2076DA76C7603854C45C79846BC4ED6DD114CAE98"
+    },
+    {
+      "path": "tests/Festival.Tests/bin/Debug/net8.0/Festival.Tests.dll",
+      "sha256": "8B21AD5A2105DEE3BC5F58CBCADADE7651545929D492CDCFFCF713AD5F895E4A"
+    }
+  ]
+}

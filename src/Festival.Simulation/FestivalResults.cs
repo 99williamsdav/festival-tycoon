@@ -27,7 +27,8 @@ public sealed partial class GameSession
         MakeCampaignFestivalResult(p,immersion,medical,disorder,tick,lav,weather,false);
 
     private static FestivalResult MakeCampaignFestivalResult(PreparationSnapshot p, ImmersionSnapshot? immersion,
-        MedicalSnapshot? medical, DisorderSnapshot? disorder, long tick, LavSuckerSnapshot? lav, WeatherSnapshot? weather, bool classic)
+        MedicalSnapshot? medical, DisorderSnapshot? disorder, long tick, LavSuckerSnapshot? lav, WeatherSnapshot? weather, bool classic,
+        ClassicBookingView? booking = null)
     {
         var dead = classic ? medical?.Needs.Where(n=>n.Stage==MedicalStage.Terminal).Select(n=>n.AgentId).ToHashSet() ?? [] : [];
         var admitted = p.People.Where(person => person.Role == ProtectedPersonRole.Guest && person.Admitted).ToArray();
@@ -35,13 +36,14 @@ public sealed partial class GameSession
         var payments = p.Payments.Where(payment => payment.Attempt == p.Attempt).ToArray();
         var buildCost = p.SetupPayments?.SingleOrDefault(setup => setup.Attempt == p.Attempt)?.BuildCostPennies ?? 0;
         // Advance ticket sales are this festival's income too; they arrived as part of the opening budget.
-        var tickets = FestivalTickets.RevenuePennies(p.Tier);
+        var tickets = booking?.NetTicketReceiptsPennies ?? FestivalTickets.RevenuePennies(p.Tier);
+        var bands = booking?.NetBandCostsPennies ?? 0;
         return new(p.Attempt, tick, guests.Length, guests.Sum(person => (long)person.Satisfaction),
             tickets + FestivalTakings(immersion) + ReceivedPitchFee(p),
-            payments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense).Sum(payment => (long)payment.AmountPennies) + buildCost + FreeWaterSpend(immersion) + LavSuckerSpend(lav),
+            bands + payments.Where(payment => payment.DebitAccount == LedgerAccountType.AdministrationExpense).Sum(payment => (long)payment.AmountPennies) + buildCost + FreeWaterSpend(immersion) + LavSuckerSpend(lav),
             p.StockConsumed * 60L + (immersion?.Purchases.Sum(purchase => (long)purchase.CostPennies) ?? 0) + StrawSpreadCost(p, weather),
             payments.Where(payment => payment.DebitAccount == LedgerAccountType.EquipmentAsset).Sum(payment => (long)payment.AmountPennies),
-            tickets + FestivalTakings(immersion) + ReceivedPitchFee(p) - payments.Sum(payment => (long)payment.AmountPennies) - buildCost - FreeWaterSpend(immersion) - LavSuckerSpend(lav) -
+            tickets + FestivalTakings(immersion) + ReceivedPitchFee(p) - bands - payments.Sum(payment => (long)payment.AmountPennies) - buildCost - FreeWaterSpend(immersion) - LavSuckerSpend(lav) -
                 (immersion?.StockPurchase?.Entries.Where(entry => entry.Account == LedgerAccountType.CashAsset && entry.OwnerId.Value == p.FinanceOwnerId).Sum(entry => -entry.AmountPennies) ?? 0),
             p.FinishedBeerIds?.Length,
             p.FinishedBeerIds is null ? null : disorder?.Incidents.Count(incident => (classic?admitted:guests).Any(guest => guest.AgentId == incident.InitiatorId || guest.AgentId == incident.OpponentId)),
@@ -75,7 +77,7 @@ public sealed partial class GameSession
         if (!finishDue) return;
         SendRemainingWorkersHome();
         _preparation = p with { Status = PreparationStatus.Finished, Rentals = [], WorkContracts = [],
-            Result = MakeCampaignFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick, _lavSucker, _weather, IsClassicCampaign) };
+            Result = MakeCampaignFestivalResult(PreparationView!, ImmersionView, MedicalView, DisorderView, CurrentTick, _lavSucker, _weather, IsClassicCampaign, ClassicBookings) };
         if (_preparation.Result!.Stars is { } stars && BookedActIds(_programme) is { } played)
         {
             var before = new FestivalStanding(p.Reputation, p.SceneCredibility.ToArray());
@@ -145,7 +147,7 @@ public sealed partial class GameSession
         }
         else if (p.StandingBefore is not null) return "Standing change recorded without a completed festival.";
         if (p.Result is { } result && (result.Tick != s.CurrentTick || !SavedClassic(s)&&s.Lifecycle?.Casualties.Any(c => c.AttemptId == s.Lifecycle.CurrentAttemptId) == true ||
-            result != MakeCampaignFestivalResult(p, s.Immersion, s.Medical, s.Disorder, result.Tick, s.LavSucker, s.Weather, SavedClassic(s)))) return "Terminal festival report does not match final authoritative state.";
+            result != MakeCampaignFestivalResult(p, s.Immersion, s.Medical, s.Disorder, result.Tick, s.LavSucker, s.Weather, SavedClassic(s), SavedBookings(s)))) return "Terminal festival report does not match final authoritative state.";
         return null;
     }
 }

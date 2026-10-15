@@ -11,7 +11,7 @@ public partial class Main
 {
     private SessionHost? _classicCampaignHost;
     private string ClassicSaveDirectory=>_architectureEvidenceOutput is not null
-        ?System.IO.Path.Combine(_architectureEvidenceOutput,"classic-saves"):ProjectSettings.GlobalizePath("user://saves/r0-classic-v100");
+        ?System.IO.Path.Combine(_architectureEvidenceOutput,"classic-saves"):ProjectSettings.GlobalizePath("user://saves/r0-classic-v101");
     private GameSession? SavedClassicCampaign()=>_classicCampaignHost?.Session??
         (AutosaveRotation.LoadNewestValid(ClassicSaveDirectory,_saveCompatibility).Session is{IsClassicCampaign:true} saved?saved:null);
 

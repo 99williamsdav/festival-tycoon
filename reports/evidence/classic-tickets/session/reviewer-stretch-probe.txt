@@ -1,0 +1,67 @@
+Opening restore: True 
+{
+  "status": 3,
+  "result": {
+    "Attempt": 1,
+    "Tick": 41222,
+    "GuestCount": 22,
+    "SatisfactionTotal": 101252,
+    "RevenuePennies": 36050,
+    "ContractCostsPennies": 28000,
+    "ConsumedStockCostsPennies": 3360,
+    "CapitalPurchasesPennies": 0,
+    "NetCashChangePennies": 4690,
+    "BeersFinished": 8,
+    "Fights": 0,
+    "MedicalCollapses": 0,
+    "AdmittedGuests": 22,
+    "ProfitPennies": 4690,
+    "Stars": 3,
+    "SatisfactionPercent": 46.023636363636363636363636364
+  },
+  "opening": {
+    "Reputation": 0,
+    "SceneCredibility": [
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+    ]
+  },
+  "closing": {
+    "Reputation": 21,
+    "SceneCredibility": [
+      15,
+      15,
+      15,
+      0,
+      0,
+      0
+    ]
+  },
+  "quotes": [
+    {
+      "ActId": "act.bus-replacement",
+      "Genre": 1,
+      "Popularity": 6,
+      "PaidFeePennies": 400
+    },
+    {
+      "ActId": "act.two-men-harmonium",
+      "Genre": 0,
+      "Popularity": 8,
+      "PaidFeePennies": 500
+    },
+    {
+      "ActId": "act.glitter-rota",
+      "Genre": 2,
+      "Popularity": 34,
+      "PaidFeePennies": 4800
+    }
+  ],
+  "accountsReconcile": true,
+  "restoreSuccess": false,
+  "error": "Classic paid contract quote is invalid: Invalid, ineligible or mispriced act contracts."
+}

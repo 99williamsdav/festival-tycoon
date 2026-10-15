@@ -84,7 +84,7 @@ public static class ClassicBookingLedger
                 case ClassicBookingActionKind.Confirm:
                     if (phase != ClassicBookingPhase.Booking || action.TicketPricePennies is < 0 or > ClassicTicketDemand.MaximumTicketPricePennies)
                         throw new InvalidOperationException("Only an unannounced complete booking can resolve sales.");
-                    ValidateContracts(action.Contracts, reputation);
+                    ValidateContracts(action.Contracts, reputation, false);
                     announced = action.Contracts.ToArray(); contracts = announced.ToArray(); price = action.TicketPricePennies;
                     tickets = ClassicTicketDemand.Resolve(seed, number, new(state.Capacity, reputation, price, announced.Select(a => a.Popularity).ToArray()));
                     Add(ClassicBookingMoneyKind.Tickets, null, tickets, price);
@@ -93,18 +93,18 @@ public static class ClassicBookingLedger
                     break;
                 case ClassicBookingActionKind.Rebook:
                     if (phase != ClassicBookingPhase.SitePreparation) throw new InvalidOperationException("Only an announced festival can rebook before opening.");
-                    ValidateContracts(action.Contracts, reputation);
-                    foreach (var held in contracts)
+                    ValidateContracts(action.Contracts, reputation, true);
+                    foreach (var held in contracts.Where(a => a.ActId != ""))
                     {
                         var retained = action.Contracts.SingleOrDefault(a => a.ActId == held.ActId);
                         if (retained is not null && retained != held) throw new ArgumentException("A retained contract cannot change its paid quote.");
                         if (retained is null) Add(ClassicBookingMoneyKind.BandRelease, held.ActId, 1, held.PaidFeePennies);
                     }
-                    foreach (var added in action.Contracts.Where(a => !contracts.Any(held => held.ActId == a.ActId)))
+                    foreach (var added in action.Contracts.Where(a => a.ActId != "" && !contracts.Any(held => held.ActId == a.ActId)))
                         Add(ClassicBookingMoneyKind.BandFee, added.ActId, 1, added.PaidFeePennies);
                     contracts = action.Contracts.ToArray();
                     severity = ClassicBookingTerms.Assess(announced,
-                        contracts.Select(a => new FestivalAct(a.ActId, a.ActId, a.Genre, a.PaidFeePennies, a.Popularity)).ToArray(), severity);
+                        contracts.Select(a => a.ActId == "" ? null : new FestivalAct(a.ActId, a.ActId, a.Genre, a.PaidFeePennies, a.Popularity)).ToArray(), severity);
                     var target = ClassicBookingTerms.RefundTarget(tickets, severity);
                     if (target > refunded) Add(ClassicBookingMoneyKind.TicketRefund, null, target - refunded, price);
                     refunded = target;
@@ -112,14 +112,14 @@ public static class ClassicBookingLedger
                 case ClassicBookingActionKind.Cancel:
                     if (phase != ClassicBookingPhase.SitePreparation || action.Contracts.Length != 0)
                         throw new InvalidOperationException("Only an announced, unopened festival can be cancelled.");
-                    foreach (var held in contracts) Add(ClassicBookingMoneyKind.BandRelease, held.ActId, 1, held.PaidFeePennies);
+                    foreach (var held in contracts.Where(a => a.ActId != "")) Add(ClassicBookingMoneyKind.BandRelease, held.ActId, 1, held.PaidFeePennies);
                     if (tickets > refunded) Add(ClassicBookingMoneyKind.TicketRefund, null, tickets - refunded, price);
                     reputation = Math.Max(0, reputation - ClassicBookingTerms.CancellationReputationPenalty);
                     attempt++; phase = ClassicBookingPhase.Booking; tickets = refunded = 0;
                     announced = []; contracts = []; severity = ClassicLineupChange.None;
                     break;
                 case ClassicBookingActionKind.Open:
-                    if (phase != ClassicBookingPhase.SitePreparation || action.Contracts.Length != 0)
+                    if (phase != ClassicBookingPhase.SitePreparation || action.Contracts.Length != 0 || contracts.Any(a => a.ActId == ""))
                         throw new InvalidOperationException("Only confirmed site preparation can open.");
                     phase = ClassicBookingPhase.Opened;
                     break;
@@ -132,11 +132,13 @@ public static class ClassicBookingLedger
 
         void Add(ClassicBookingMoneyKind kind, string? act, int quantity, int unit) =>
             money.Add(new(money.Count + 1, attempt, kind, act, quantity, unit));
-        void ValidateContracts(ClassicAnnouncedAct[] quotes, int rep)
+        void ValidateContracts(ClassicAnnouncedAct[] quotes, int rep, bool allowEmpty)
         {
-            if (quotes.Length != 3 || quotes.Any(a => a is null || string.IsNullOrWhiteSpace(a.ActId) ||
-                a.Genre is < 0 or >= FestivalGenre.Count || a.Popularity is < 0 or > 100 || a.PaidFeePennies < 0) ||
-                quotes.Select(a => a.ActId).Distinct().Count() != 3 || validateQuotes is not null && !validateQuotes(rep, quotes))
+            var active = quotes.Where(a => a is not null && a.ActId != "").ToArray();
+            if (quotes.Length != 3 || quotes.Any(a => a is null ||
+                (a.ActId == "" ? !allowEmpty || a != ClassicAnnouncedAct.EmptySlot :
+                    string.IsNullOrWhiteSpace(a.ActId) || a.Genre is < 0 or >= FestivalGenre.Count || a.Popularity is < 0 or > 100 || a.PaidFeePennies < 0)) ||
+                active.Select(a => a.ActId).Distinct().Count() != active.Length || validateQuotes is not null && !validateQuotes(rep, active))
                 throw new ArgumentException("Invalid, ineligible or mispriced act contracts.");
         }
     }

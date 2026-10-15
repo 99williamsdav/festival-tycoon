@@ -1,0 +1,1618 @@
+{
+  "opening": -385,
+  "booking": {
+    "Phase": 1,
+    "Attempt": 1,
+    "Reputation": 0,
+    "TicketPricePennies": 10000,
+    "OriginalTickets": 0,
+    "RefundedTickets": 0,
+    "HighestChange": 0,
+    "Announced": [
+      {
+        "ActId": "act.pitchfork-uprising",
+        "Genre": 5,
+        "Popularity": 50,
+        "PaidFeePennies": 8250
+      },
+      {
+        "ActId": "act.overdue-library-books",
+        "Genre": 1,
+        "Popularity": 35,
+        "PaidFeePennies": 4950
+      },
+      {
+        "ActId": "act.tractor-pull",
+        "Genre": 5,
+        "Popularity": 30,
+        "PaidFeePennies": 2700
+      }
+    ],
+    "Contracts": [
+      {
+        "ActId": "act.pitchfork-uprising",
+        "Genre": 5,
+        "Popularity": 50,
+        "PaidFeePennies": 8250
+      },
+      {
+        "ActId": "act.overdue-library-books",
+        "Genre": 1,
+        "Popularity": 35,
+        "PaidFeePennies": 4950
+      },
+      {
+        "ActId": "act.tractor-pull",
+        "Genre": 5,
+        "Popularity": 30,
+        "PaidFeePennies": 2700
+      }
+    ],
+    "Money": [
+      {
+        "Sequence": 1,
+        "Attempt": 1,
+        "Kind": 0,
+        "ActId": null,
+        "Quantity": 0,
+        "UnitPennies": 10000,
+        "CashPennies": 0
+      },
+      {
+        "Sequence": 2,
+        "Attempt": 1,
+        "Kind": 1,
+        "ActId": "act.pitchfork-uprising",
+        "Quantity": 1,
+        "UnitPennies": 8250,
+        "CashPennies": -8250
+      },
+      {
+        "Sequence": 3,
+        "Attempt": 1,
+        "Kind": 1,
+        "ActId": "act.overdue-library-books",
+        "Quantity": 1,
+        "UnitPennies": 4950,
+        "CashPennies": -4950
+      },
+      {
+        "Sequence": 4,
+        "Attempt": 1,
+        "Kind": 1,
+        "ActId": "act.tractor-pull",
+        "Quantity": 1,
+        "UnitPennies": 2700,
+        "CashPennies": -2700
+      }
+    ],
+    "TicketHolders": 0,
+    "CashChangePennies": -15900,
+    "NetTicketReceiptsPennies": 0,
+    "NetBandCostsPennies": 15900,
+    "CancelledAttempts": 0,
+    "Disappointment": 0
+  },
+  "state": {
+    "CampaignId": 14,
+    "CampaignSeed": 14,
+    "RandomAlgorithmVersion": "pcg32-xsh-rr-v1",
+    "Phase": 4,
+    "CurrentTick": 0,
+    "IsPaused": false,
+    "NextEntityId": 40,
+    "NextSubmissionSequence": 4,
+    "FixtureRecords": [],
+    "AcceptedCommandIds": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "AppliedCommands": [
+      {
+        "CommandId": 1,
+        "Tick": 0,
+        "SubmissionSequence": 0,
+        "CommandType": "ChoosePerkCommand",
+        "TargetId": null
+      },
+      {
+        "CommandId": 2,
+        "Tick": 0,
+        "SubmissionSequence": 1,
+        "CommandType": "SetProgrammeCommand",
+        "TargetId": null
+      },
+      {
+        "CommandId": 3,
+        "Tick": 0,
+        "SubmissionSequence": 2,
+        "CommandType": "SetClassicTicketPriceCommand",
+        "TargetId": null
+      },
+      {
+        "CommandId": 4,
+        "Tick": 0,
+        "SubmissionSequence": 3,
+        "CommandType": "ConfirmClassicBookingsCommand",
+        "TargetId": null
+      }
+    ],
+    "RandomStreams": [
+      {
+        "StreamId": 1,
+        "State": 5516447822034366760,
+        "Increment": 13244341213957377209
+      },
+      {
+        "StreamId": 2,
+        "State": 5952903087965298172,
+        "Increment": 14709851791425908855
+      },
+      {
+        "StreamId": 3,
+        "State": 2402897129345521229,
+        "Increment": 3276836822966277551
+      },
+      {
+        "StreamId": 4,
+        "State": 15186800821923812324,
+        "Increment": 14297316914804239437
+      },
+      {
+        "StreamId": 5,
+        "State": 1956925734359198807,
+        "Increment": 14757552340362186343
+      },
+      {
+        "StreamId": 6,
+        "State": 4502851124398598022,
+        "Increment": 3599464006040039255
+      },
+      {
+        "StreamId": 100,
+        "State": 14339353839579772736,
+        "Increment": 16583946983576001401
+      }
+    ],
+    "Wallets": [
+      {
+        "OwnerId": 28,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 29,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 30,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 31,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 32,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 33,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 34,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 35,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 36,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 37,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 38,
+        "CashPennies": 1500
+      },
+      {
+        "OwnerId": 39,
+        "CashPennies": 1500
+      }
+    ],
+    "FestivalFinances": [
+      {
+        "OwnerId": 1,
+        "CashPennies": -16285
+      }
+    ],
+    "OwnedStocks": [
+      {
+        "ServiceId": 2,
+        "OwnerId": 1,
+        "Quantity": 40,
+        "UnitCostBasisPennies": 60
+      }
+    ],
+    "CompletedTransactionIds": [],
+    "Transactions": [],
+    "AuthoritativeHash": "4ddc9dfa6dda9209c4440cb181f82cd933227395ae77fc733c2101f54080fd26",
+    "ClassicHistory": {
+      "CompletedFestivals": [
+        {
+          "Number": 1,
+          "OpeningCashPennies": 20000,
+          "ClosingCashPennies": -385,
+          "Loan": {
+            "OpeningPrincipalPennies": 20000,
+            "OutstandingPrincipalPennies": 20000,
+            "PrincipalDueAtSettlementPennies": 12000,
+            "InterestDueAtSettlementPennies": 1600,
+            "RemainingEditions": 5,
+            "InterestBasisPoints": 800
+          },
+          "OpeningStanding": {
+            "Reputation": 0,
+            "SceneCredibility": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "ClosingStanding": {
+            "Reputation": 0,
+            "SceneCredibility": [
+              0,
+              0,
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "Result": {
+            "Attempt": 1,
+            "Tick": 38401,
+            "GuestCount": 0,
+            "SatisfactionTotal": 0,
+            "RevenuePennies": 7175,
+            "ContractCostsPennies": 24200,
+            "ConsumedStockCostsPennies": 1740,
+            "CapitalPurchasesPennies": 0,
+            "NetCashChangePennies": -20385,
+            "BeersFinished": 0,
+            "Fights": 0,
+            "MedicalCollapses": 0,
+            "ProfitPennies": -18765,
+            "Stars": null,
+            "SatisfactionPercent": null
+          },
+          "DeathPenalties": [],
+          "SeenActs": [
+            "act.bus-replacement",
+            "act.kerry-co-op",
+            "act.parish-ceilidh"
+          ],
+          "OwnedEquipment": [],
+          "Layout": [
+            {
+              "Id": "bin.1",
+              "Kind": 6,
+              "Cell": {
+                "X": 121,
+                "Z": 148
+              },
+              "QuarterTurns": 0
+            },
+            {
+              "Id": "drinks",
+              "Kind": 3,
+              "Cell": {
+                "X": 140,
+                "Z": 148
+              },
+              "QuarterTurns": 3
+            },
+            {
+              "Id": "first-aid",
+              "Kind": 4,
+              "Cell": {
+                "X": 139,
+                "Z": 120
+              },
+              "QuarterTurns": 0
+            },
+            {
+              "Id": "food",
+              "Kind": 2,
+              "Cell": {
+                "X": 140,
+                "Z": 162
+              },
+              "QuarterTurns": 3
+            },
+            {
+              "Id": "steward-post",
+              "Kind": 5,
+              "Cell": {
+                "X": 119,
+                "Z": 171
+              },
+              "QuarterTurns": 2
+            },
+            {
+              "Id": "toilet.extra-1",
+              "Kind": 1,
+              "Cell": {
+                "X": 112,
+                "Z": 121
+              },
+              "QuarterTurns": 2
+            },
+            {
+              "Id": "toilet.main",
+              "Kind": 1,
+              "Cell": {
+                "X": 117,
+                "Z": 121
+              },
+              "QuarterTurns": 2
+            },
+            {
+              "Id": "water.main",
+              "Kind": 0,
+              "Cell": {
+                "X": 103,
+                "Z": 128
+              },
+              "QuarterTurns": 1
+            }
+          ],
+          "Booking": {
+            "Version": 1,
+            "Capacity": 25,
+            "InitialReputation": 0,
+            "DraftTicketPricePennies": 10000,
+            "Actions": [
+              {
+                "Kind": 0,
+                "TicketPricePennies": 10000,
+                "Contracts": [
+                  {
+                    "ActId": "act.bus-replacement",
+                    "Genre": 1,
+                    "Popularity": 6,
+                    "PaidFeePennies": 400
+                  },
+                  {
+                    "ActId": "act.kerry-co-op",
+                    "Genre": 2,
+                    "Popularity": 9,
+                    "PaidFeePennies": 600
+                  },
+                  {
+                    "ActId": "act.parish-ceilidh",
+                    "Genre": 0,
+                    "Popularity": 12,
+                    "PaidFeePennies": 900
+                  }
+                ]
+              },
+              {
+                "Kind": 3,
+                "TicketPricePennies": 0,
+                "Contracts": []
+              }
+            ]
+          },
+          "StockPurchasesPennies": 3360
+        }
+      ],
+      "DeathPenalties": []
+    },
+    "Litter": {
+      "Version": 1,
+      "Pieces": [],
+      "Sweeps": []
+    },
+    "Ground": {
+      "Version": 1,
+      "Cells": [],
+      "Wear": [],
+      "WetCells": [],
+      "Wet": [],
+      "MudCells": [],
+      "Mud": [],
+      "MuddyBoots": [],
+      "MuddySteps": []
+    },
+    "Faults": {
+      "Version": 1,
+      "Faults": [],
+      "Disabled": false
+    },
+    "Cows": {
+      "Version": 1,
+      "Gate": 0,
+      "Loose": [],
+      "Escaped": 0
+    },
+    "LavSucker": {
+      "Version": 1,
+      "Calls": []
+    },
+    "Weather": {
+      "Version": 1,
+      "Kind": 0,
+      "Spells": [],
+      "WetIds": [],
+      "Wetness": [],
+      "ClassicForecast": {
+        "Version": 1,
+        "Conditions": 4,
+        "Temperatures": [
+          {
+            "Tick": 0,
+            "Celsius": 31
+          },
+          {
+            "Tick": 9600,
+            "Celsius": 33
+          },
+          {
+            "Tick": 19200,
+            "Celsius": 34
+          },
+          {
+            "Tick": 28800,
+            "Celsius": 32
+          },
+          {
+            "Tick": 38400,
+            "Celsius": 30
+          }
+        ],
+        "Weather": 0,
+        "Summary": "A hot, dry festival day.",
+        "PlanningAdvice": "Water, shade and rest for a hot day."
+      }
+    },
+    "Perks": {
+      "Version": 1,
+      "Equipped": [
+        "cola-fiends"
+      ],
+      "DraftAttempt": 1,
+      "Pending": false,
+      "RerollUsed": false,
+      "Hand": [],
+      "RandomState": 8779599814031142737,
+      "RandomIncrement": 10516715026864218019,
+      "Cursor": 3,
+      "Ended": false,
+      "FrozenEffects": [],
+      "DraftStartCursor": 0,
+      "StartingEquipped": [],
+      "DrawnHand": [
+        "cola-fiends",
+        "bring-your-own-bottle",
+        "high-pressure"
+      ],
+      "ChosenId": "cola-fiends",
+      "ReplacedId": null,
+      "Skipped": false
+    },
+    "Programme": {
+      "Version": 5,
+      "Stages": [
+        {
+          "StageId": "stage.main",
+          "ActIds": [],
+          "Performers": [
+            {
+              "AgentId": 29,
+              "SlotIndex": 0,
+              "RoleIndex": 0
+            },
+            {
+              "AgentId": 30,
+              "SlotIndex": 0,
+              "RoleIndex": 1
+            },
+            {
+              "AgentId": 31,
+              "SlotIndex": 0,
+              "RoleIndex": 2
+            },
+            {
+              "AgentId": 34,
+              "SlotIndex": 1,
+              "RoleIndex": 0
+            },
+            {
+              "AgentId": 35,
+              "SlotIndex": 1,
+              "RoleIndex": 1
+            },
+            {
+              "AgentId": 36,
+              "SlotIndex": 1,
+              "RoleIndex": 2
+            },
+            {
+              "AgentId": 37,
+              "SlotIndex": 2,
+              "RoleIndex": 0
+            },
+            {
+              "AgentId": 38,
+              "SlotIndex": 2,
+              "RoleIndex": 1
+            },
+            {
+              "AgentId": 39,
+              "SlotIndex": 2,
+              "RoleIndex": 2
+            }
+          ],
+          "CurrentSlot": -1,
+          "SlotEndTick": -1,
+          "Status": "Choose three acts"
+        }
+      ]
+    },
+    "Immersion": {
+      "Version": 3,
+      "StockPurchased": false,
+      "SoftStock": 0,
+      "BeerStock": 0,
+      "People": [
+        {
+          "AgentId": 28,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 3171,
+          "Abstains": true,
+          "BeerTaste": 85,
+          "SoftTaste": 92,
+          "PriceReluctance": 19,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 3817,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 29,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 3261,
+          "Abstains": false,
+          "BeerTaste": 80,
+          "SoftTaste": 68,
+          "PriceReluctance": 5,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 3475,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 30,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 2583,
+          "Abstains": false,
+          "BeerTaste": 33,
+          "SoftTaste": 88,
+          "PriceReluctance": 54,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 2140,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 31,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 3891,
+          "Abstains": true,
+          "BeerTaste": 99,
+          "SoftTaste": 54,
+          "PriceReluctance": 35,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 2116,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 32,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 3688,
+          "Abstains": true,
+          "BeerTaste": 30,
+          "SoftTaste": 33,
+          "PriceReluctance": 64,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 3558,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 33,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 4196,
+          "Abstains": false,
+          "BeerTaste": 20,
+          "SoftTaste": 87,
+          "PriceReluctance": 72,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 3438,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 34,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 4497,
+          "Abstains": true,
+          "BeerTaste": 20,
+          "SoftTaste": 24,
+          "PriceReluctance": 64,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 2344,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 35,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 2908,
+          "Abstains": true,
+          "BeerTaste": 26,
+          "SoftTaste": 33,
+          "PriceReluctance": 71,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 2773,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 36,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 3254,
+          "Abstains": false,
+          "BeerTaste": 93,
+          "SoftTaste": 92,
+          "PriceReluctance": 69,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 2647,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 37,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 2850,
+          "Abstains": true,
+          "BeerTaste": 53,
+          "SoftTaste": 97,
+          "PriceReluctance": 3,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 2150,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 38,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 3885,
+          "Abstains": false,
+          "BeerTaste": 60,
+          "SoftTaste": 82,
+          "PriceReluctance": 42,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 2323,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        },
+        {
+          "AgentId": 39,
+          "OpeningBudgetPennies": 1500,
+          "Hunger": 3883,
+          "Abstains": false,
+          "BeerTaste": 95,
+          "SoftTaste": 7,
+          "PriceReluctance": 100,
+          "Held": null,
+          "Intoxication": 0,
+          "PendingDose": 0,
+          "FoodProtectionTicks": 0,
+          "LastDecisionTick": -800,
+          "VendorId": null,
+          "Order": null,
+          "WarningTick": -1,
+          "SevereTicks": 0,
+          "HungerResidue": 0,
+          "RecoveryResidue": 0,
+          "AbsorptionResidue": 0,
+          "CollapseTick": -1,
+          "CareTicks": 0,
+          "PriorMedicalStage": 0,
+          "StaffThirst": 3000,
+          "ToiletNeed": 2047,
+          "ToiletVisits": 0,
+          "ToiletStage": 0,
+          "ToiletChoice": null
+        }
+      ],
+      "Purchases": [],
+      "StockPurchase": null,
+      "FreeWater": false,
+      "FreeWaterChargeTicks": []
+    },
+    "Facilities": {
+      "Version": 1,
+      "Taps": [],
+      "Toilets": [],
+      "Vendors": []
+    },
+    "CampaignPlanning": {
+      "FestivalName": "The Lantern Acre",
+      "Palette": 0,
+      "SiteId": "site.lower-wittering-farm",
+      "SiteSeed": 5507752146891139450,
+      "EditionNumber": 2,
+      "PlanningWeek": 8,
+      "FinanceOwnerId": 1,
+      "LoanOpeningPrincipalPennies": 20000,
+      "LoanOutstandingPrincipalPennies": 20000,
+      "LoanPrincipalDueAtSettlementPennies": 12000,
+      "LoanInterestDueAtSettlementPennies": 1600,
+      "LoanRemainingEditions": 5,
+      "LoanInterestBasisPoints": 800,
+      "Commitments": [
+        {
+          "Id": "commitment.basic-administration-cover",
+          "DisplayName": "Basic administration and cover",
+          "AmountPennies": 4000,
+          "DueOnAdvanceFromWeek": 8,
+          "Status": 1
+        }
+      ],
+      "LedgerTransactions": [
+        {
+          "Id": 1,
+          "Reason": "Carried forward before Festival booking",
+          "PlanningWeek": 8,
+          "Entries": [
+            {
+              "OwnerId": 1,
+              "Account": 1,
+              "AmountPennies": -385
+            },
+            {
+              "OwnerId": 1,
+              "Account": 6,
+              "AmountPennies": -20000
+            },
+            {
+              "OwnerId": 1,
+              "Account": 9,
+              "AmountPennies": 20385
+            }
+          ]
+        }
+      ],
+      "WeeklyDigests": [],
+      "DismissedTipIds": []
+    },
+    "Preparation": {
+      "Version": 2,
+      "Tier": 1,
+      "OfferSeed": 2125094537469681563,
+      "Attempt": 1,
+      "Status": 0,
+      "FinanceOwnerId": 1,
+      "StockId": 2,
+      "StartedTick": 0,
+      "OwnedEquipment": [],
+      "Rentals": [],
+      "Contacts": [],
+      "WorkContracts": [],
+      "AcceptedOffers": [],
+      "People": [
+        {
+          "AgentId": 28,
+          "Name": "Sound engineer (unhired)",
+          "Role": 2,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 29,
+          "Name": "Alex Reed",
+          "Role": 3,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 30,
+          "Name": "Blair Moss",
+          "Role": 3,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 31,
+          "Name": "Kit Rowan",
+          "Role": 3,
+          "ExpectedGenre": 1,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 32,
+          "Name": "Medic (unhired)",
+          "Role": 2,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 33,
+          "Name": "Steward (unhired)",
+          "Role": 2,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 34,
+          "Name": "Robin Shaw",
+          "Role": 3,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 35,
+          "Name": "Ellis Brook",
+          "Role": 3,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 36,
+          "Name": "Taylor Finch",
+          "Role": 3,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 37,
+          "Name": "Ash Dale",
+          "Role": 3,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 38,
+          "Name": "Rowan Lake",
+          "Role": 3,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        },
+        {
+          "AgentId": 39,
+          "Name": "Sky Morgan",
+          "Role": 3,
+          "ExpectedGenre": 0,
+          "Admitted": false,
+          "Departed": false,
+          "Satisfaction": 5000,
+          "MusicRisk": 0
+        }
+      ],
+      "Payments": [],
+      "StockConsumed": 0,
+      "OpeningCashPennies": -385,
+      "ClassicBooking": {
+        "Version": 1,
+        "Capacity": 25,
+        "InitialReputation": 0,
+        "DraftTicketPricePennies": 10000,
+        "Actions": [
+          {
+            "Kind": 0,
+            "TicketPricePennies": 10000,
+            "Contracts": [
+              {
+                "ActId": "act.pitchfork-uprising",
+                "Genre": 5,
+                "Popularity": 50,
+                "PaidFeePennies": 8250
+              },
+              {
+                "ActId": "act.overdue-library-books",
+                "Genre": 1,
+                "Popularity": 35,
+                "PaidFeePennies": 4950
+              },
+              {
+                "ActId": "act.tractor-pull",
+                "Genre": 5,
+                "Popularity": 30,
+                "PaidFeePennies": 2700
+              }
+            ]
+          }
+        ]
+      },
+      "CommunityShareAttempt": 0,
+      "CommunityFavourClaimed": false,
+      "MaintenanceWorkerId": null,
+      "WaterTowerOwned": false,
+      "ChallengeAcknowledged": true,
+      "ExtraMedicSlotOwned": false,
+      "ExtraStewardSlotOwned": false,
+      "RespondersUpgraded": false,
+      "Reputation": 0,
+      "SceneCredibility": [
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+      ],
+      "SeenActs": [
+        "act.bus-replacement",
+        "act.kerry-co-op",
+        "act.parish-ceilidh"
+      ],
+      "ActRelationships": [
+        {
+          "ActId": "act.bus-replacement",
+          "Value": -14
+        },
+        {
+          "ActId": "act.kerry-co-op",
+          "Value": -14
+        },
+        {
+          "ActId": "act.parish-ceilidh",
+          "Value": -14
+        }
+      ],
+      "RelationshipHistory": [
+        {
+          "Tier": 1,
+          "ActId": "act.bus-replacement",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 0,
+          "SetEndCrowd": 0,
+          "SetEndEnjoyment": 0,
+          "Hiccups": [
+            "sound-poor"
+          ]
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.kerry-co-op",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 0,
+          "SetEndCrowd": 0,
+          "SetEndEnjoyment": 0,
+          "Hiccups": [
+            "sound-poor"
+          ]
+        },
+        {
+          "Tier": 1,
+          "ActId": "act.parish-ceilidh",
+          "Started": true,
+          "CutShort": false,
+          "PeakCrowd": 0,
+          "SetEndCrowd": 0,
+          "SetEndEnjoyment": 0,
+          "Hiccups": [
+            "sound-poor"
+          ]
+        }
+      ],
+      "BuildPlacements": [],
+      "PreviousLayout": [
+        {
+          "Id": "bin.1",
+          "Kind": 6,
+          "Cell": {
+            "X": 121,
+            "Z": 148
+          },
+          "QuarterTurns": 0
+        },
+        {
+          "Id": "drinks",
+          "Kind": 3,
+          "Cell": {
+            "X": 140,
+            "Z": 148
+          },
+          "QuarterTurns": 3
+        },
+        {
+          "Id": "first-aid",
+          "Kind": 4,
+          "Cell": {
+            "X": 139,
+            "Z": 120
+          },
+          "QuarterTurns": 0
+        },
+        {
+          "Id": "food",
+          "Kind": 2,
+          "Cell": {
+            "X": 140,
+            "Z": 162
+          },
+          "QuarterTurns": 3
+        },
+        {
+          "Id": "steward-post",
+          "Kind": 5,
+          "Cell": {
+            "X": 119,
+            "Z": 171
+          },
+          "QuarterTurns": 2
+        },
+        {
+          "Id": "toilet.extra-1",
+          "Kind": 1,
+          "Cell": {
+            "X": 112,
+            "Z": 121
+          },
+          "QuarterTurns": 2
+        },
+        {
+          "Id": "toilet.main",
+          "Kind": 1,
+          "Cell": {
+            "X": 117,
+            "Z": 121
+          },
+          "QuarterTurns": 2
+        },
+        {
+          "Id": "water.main",
+          "Kind": 0,
+          "Cell": {
+            "X": 103,
+            "Z": 128
+          },
+          "QuarterTurns": 1
+        }
+      ],
+      "StaffProfiles": [],
+      "Plan": {
+        "Version": 1,
+        "OfferIds": [],
+        "ActIds": [
+          "act.pitchfork-uprising",
+          "act.overdue-library-books",
+          "act.tractor-pull"
+        ],
+        "SoftDrinks": 0,
+        "Beers": 0,
+        "Committed": false,
+        "TraderId": "trader.chip-off-the-old-block"
+      },
+      "SetupPayments": [],
+      "FinishedBeerIds": [],
+      "GuestMedicalCollapses": 0,
+      "CarriedIn": {
+        "FromTier": 1,
+        "CashPennies": -385,
+        "DebtPennies": 20000,
+        "FavourBalance": 1,
+        "CommunityWaterUsed": false,
+        "OwnedEquipment": []
+      }
+    },
+    "Equipment": {
+      "Version": 3,
+      "XMillimetres": -20250,
+      "ZMillimetres": 14500,
+      "LoadPercent": 80,
+      "Condition": 8000,
+      "Stage": 3,
+      "WarningTick": -1,
+      "WarningAcknowledged": false,
+      "Response": "Farm generator running within capacity",
+      "WorkerId": null,
+      "JobStage": 0,
+      "JobDispatchedTick": -1,
+      "RepairStartedTick": -1,
+      "Evidence": [
+        {
+          "Id": "equipment:load",
+          "Tick": 0,
+          "Description": "The farm\u0027s diesel supplies 100 power: the stage rig, bar, food van and, from dusk, the festoon lights draw from it."
+        }
+      ],
+      "Capacity": 100,
+      "Strain": 0,
+      "BarPowered": true,
+      "FoodPowered": true,
+      "LightsPowered": true
+    },
+    "Identity": {
+      "Ruleset": 1,
+      "ControlRole": 0,
+      "ManagementCapability": true
+    },
+    "Medical": {
+      "Version": 6,
+      "IsHot": true,
+      "Medics": [
+        {
+          "WorkerId": 32,
+          "Stage": 0,
+          "PatientId": null,
+          "StartedTick": -1,
+          "Description": "No response",
+          "DispatchedTick": -1,
+          "TreatmentTicks": 0
+        }
+      ],
+      "Needs": [
+        {
+          "AgentId": 28,
+          "Thirst": 3000,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Idle staff: food, soft drinks and free water available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 2,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 29,
+          "Thirst": 2500,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Performing; free water and first aid remain available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 1,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 30,
+          "Thirst": 2500,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Performing; free water and first aid remain available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 1,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 31,
+          "Thirst": 2500,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Performing; free water and first aid remain available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 1,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 32,
+          "Thirst": 3000,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Idle staff: food, soft drinks and free water available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 2,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 33,
+          "Thirst": 0,
+          "HeatExposure": 0,
+          "Intent": 0,
+          "Reason": "Security on duty",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 2,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 34,
+          "Thirst": 2500,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Awaiting set; water and rest available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 1,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 35,
+          "Thirst": 2500,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Awaiting set; water and rest available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 1,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 36,
+          "Thirst": 2500,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Awaiting set; water and rest available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 1,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 37,
+          "Thirst": 2500,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Awaiting set; water and rest available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 1,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 38,
+          "Thirst": 2500,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Awaiting set; water and rest available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 1,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        },
+        {
+          "AgentId": 39,
+          "Thirst": 2500,
+          "HeatExposure": 2500,
+          "Intent": 0,
+          "Reason": "Awaiting set; water and rest available",
+          "LastDecisionTick": -240,
+          "QueueSlot": null,
+          "LastWaterTick": -1,
+          "Profile": 1,
+          "Stage": 0,
+          "WarningTick": -1,
+          "CollapseTick": -1,
+          "CriticalTick": -1,
+          "WaterPointId": "water.main",
+          "LastWaterChoiceReviewTick": -160
+        }
+      ],
+      "Evidence": [
+        {
+          "Id": "medical:classic-weather",
+          "Tick": 0,
+          "Description": "A hot, dry festival day. Water, shade and rest for a hot day."
+        }
+      ],
+      "Fatal": false,
+      "StaffInterventions": []
+    },
+    "Disorder": {
+      "Version": 1,
+      "Stewards": [
+        {
+          "WorkerId": 33,
+          "Stage": 0,
+          "TargetId": null,
+          "StartedTick": -1,
+          "Incapacitated": false,
+          "Description": "Security available",
+          "DispatchedTick": -1
+        }
+      ],
+      "CalmingSkill": 5648,
+      "ConfrontationSkill": 6748,
+      "WaterClosed": false,
+      "People": [],
+      "Evidence": [],
+      "Incidents": []
+    }
+  }
+}

@@ -20,7 +20,8 @@ public sealed partial class GameSession
         if (BookedActIds(_programme) is not { } lineup) return 0;
         if (person.Role == ProtectedPersonRole.Guest)
             return GuestLineupAdjustment(lineup.Select(id => FestivalAffinity(person.Id, FestivalActs.Single(a => a.Id == id))).OrderDescending().Take(3).Sum()) +
-                ExpectationAdjustment((int)Math.Round(lineup.Average(id => FestivalActs.Single(a => a.Id == id).Popularity)), ExpectedPopularity);
+                ExpectationAdjustment((int)Math.Round(lineup.Average(id => FestivalActs.Single(a => a.Id == id).Popularity)), ExpectedPopularity) -
+                (IsClassicCampaign ? ClassicBookings?.Disappointment ?? 0 : 0);
         if (person.Role != ProtectedPersonRole.Performer) return 0;
         var programme = StageProgramme(PerformerStage(person.Id))!;
         var mapping = programme.Performers.Single(p => p.AgentId == person.Id);

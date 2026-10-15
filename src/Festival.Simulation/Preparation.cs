@@ -19,6 +19,8 @@ public sealed record PreparationSnapshot(int Version, int Tier, ulong OfferSeed,
     string[] OwnedEquipment, string[] Rentals, string[] Contacts, string[] WorkContracts, string[] AcceptedOffers,
     EditionPerson[] People, PreparationPayment[] Payments, int StockConsumed, long OpeningCashPennies)
 {
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public ClassicBookingSnapshot? ClassicBooking { get; init; }
     public int CommunityShareAttempt { get; init; }
     public bool CommunityFavourClaimed { get; init; }
     public ulong? MaintenanceWorkerId { get; init; }
@@ -196,6 +198,9 @@ public sealed partial class GameSession
     {
         if (_preparation is not { Status: PreparationStatus.Preparing } p) return [];
         var requirements = new List<PreparationStartRequirement>(7);
+        if (p.ClassicBooking is not null)
+            requirements.Add(new("ticket-sales", PreparationStartOwner.Programme, "Bands confirmed and tickets sold",
+                ClassicBookings!.Phase == ClassicBookingPhase.SitePreparation, "Confirm the bands and ticket sales before site preparation."));
         {
             requirements.Add(new("water", PreparationStartOwner.Overview, "Water tap",
                 p.BuildPlacements.Any(item => item.Kind == BuildServiceKind.WaterTap), "Place a water tap before opening."));
@@ -312,6 +317,8 @@ public sealed partial class GameSession
 
     private void ApplyStartPreparedEdition()
     {
+        if (_preparation!.ClassicBooking is { } booking)
+            _preparation = _preparation with { ClassicBooking = ClassicBookingLedger.Open(CampaignSeed, FestivalNumber, booking) };
         CommitPreparationPlan();
         var p = _preparation!;
         _traversalGrid = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain(BarnStageOpen));
@@ -521,7 +528,8 @@ public sealed partial class GameSession
         if (p is null) return null;
         if (p.SeenActs is null || p.SeenActs.Any(id => ActCatalogue.Find(id) is null) || !p.SeenActs.SequenceEqual(p.SeenActs.Distinct().Order(StringComparer.Ordinal)))
             return "Seen acts invalid.";
-        if (ValidatePersistedRelationships(p, snapshot.PondStageTrial,SavedClassic(snapshot),snapshot.CampaignPlanning?.EditionNumber??p.Tier) is { } relationshipIssue) return relationshipIssue;
+        if (ValidatePersistedRelationships(p, snapshot.PondStageTrial,SavedClassic(snapshot),snapshot.CampaignPlanning?.EditionNumber??p.Tier,
+            SavedClassic(snapshot)?snapshot:null) is { } relationshipIssue) return relationshipIssue;
         if (p.Reputation is < 0 or > 100 || p.SceneCredibility is not { Length: FestivalGenre.Count } || p.SceneCredibility.Any(value => value is < 0 or > 100) ||
             p.StandingBefore is { } before && (before.Reputation is < 0 or > 100 || before.SceneCredibility is not { Length: FestivalGenre.Count } || before.SceneCredibility.Any(value => value is < 0 or > 100)))
             return "Festival reputation or scene credibility invalid.";
@@ -536,7 +544,7 @@ public sealed partial class GameSession
         if (p.Plan is null || snapshot.Programme is null || p.FinishedBeerIds is null)
             return "Lineup reaction identity requires the current saved programme and results plan.";
         if (p.Version is not (1 or 2) || (p.Version == 2) != (p.Plan is not null) || p.Tier is < 1 or > HighestTier || p.Attempt < 1 || !Enum.IsDefined(p.Status) || p.StartedTick < 0 || p.StartedTick > snapshot.CurrentTick ||
-            p.OfferSeed != (SavedFestivalSeed(snapshot) ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != OpeningCashFor(p.Tier, p.CarriedIn) || p.StockConsumed < 0 ||
+            p.OfferSeed != (SavedFestivalSeed(snapshot) ^ ((ulong)p.Tier * 0x9E3779B97F4A7C15UL)) || p.OpeningCashPennies != SavedOpeningCash(snapshot) || p.StockConsumed < 0 ||
             !SavedClassic(snapshot)&&(p.Tier == 1) != (p.CarriedIn is null) || p.CarriedIn is { } carry && (!SavedClassic(snapshot)&&CarryIssue(carry, p.Tier) is not null ||
                 carry.CommunityWaterUsed && p.CommunityShareAttempt != 0) ||
             p.People is null || p.People.Any(item => item is null) || p.Payments is null || p.Payments.Any(item => item is null) ||
@@ -564,7 +572,7 @@ public sealed partial class GameSession
         var stages = SavedStages(snapshot);
         var stageEngineers = stages.Count - 1;
         var performerCount = snapshot.Programme is null ? 3 : 9 * stages.Count;
-        if (p.People.Length > MaxActivePeople || p.People.Length != FestivalTickets.Sold(p.Tier) + 1 + stageEngineers + performerCount + maintenance + medic + security + extras + handsOn || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != FestivalTickets.Sold(p.Tier) ||
+        if (p.People.Length > MaxActivePeople || p.People.Length != SavedGuestCount(snapshot) + 1 + stageEngineers + performerCount + maintenance + medic + security + extras + handsOn || p.People.Count(item => item.Role == ProtectedPersonRole.Guest) != SavedGuestCount(snapshot) ||
             p.People.Count(item => item.Role == ProtectedPersonRole.Staff) != 1 + stageEngineers + maintenance + medic + security + extras + handsOn || p.People.Count(item => item.Role == ProtectedPersonRole.Performer) != performerCount ||
             p.People.Any(item => item.AgentId == 0 || item.AgentId >= snapshot.NextEntityId || string.IsNullOrWhiteSpace(item.Name) || item.ExpectedGenre < 0 || item.ExpectedGenre > (snapshot.Programme is null ? 1 : FestivalGenre.Count - 1) ||
                 item.Satisfaction is < 0 or > 10_000 || item.MusicRisk is < 0 or > 3_000 || item.Departed && !item.Admitted) ||
@@ -572,6 +580,7 @@ public sealed partial class GameSession
             return "Fixed protected roster invalid.";
         var factory = CreateProgrammeBaseline(snapshot.CampaignSeed, p.Tier, pondStageTrial: snapshot.PondStageTrial, identity: snapshot.Identity,
             classicFestivalNumber:SavedClassic(snapshot)?snapshot.CampaignPlanning?.EditionNumber:null).WithPaymentStanding(p);
+        factory.FilterClassicReferenceRoster(snapshot);
         var offers = factory.GetPreparationOffers().ToDictionary(item => item.Id, StringComparer.Ordinal);
         var candidates = SavedStaffCandidates(snapshot);
         foreach (var list in new[] { p.OwnedEquipment, p.Rentals, p.Contacts, p.WorkContracts, p.AcceptedOffers })
@@ -587,7 +596,8 @@ public sealed partial class GameSession
             item.DebitAccount != (item.OfferId == "equipment.buy" ? LedgerAccountType.EquipmentAsset :
                 item.OfferId == "contract.stock" ? LedgerAccountType.InventoryAsset : LedgerAccountType.AdministrationExpense)).Any() ||
             p.Payments.Select(item => (item.Attempt, Category: offers[item.OfferId].Category == "act" && snapshot.Programme is not null ? item.OfferId : offers[item.OfferId].Category)).Distinct().Count() != p.Payments.Length ||
-            !p.AcceptedOffers.SequenceEqual(p.Payments.Where(item => item.Attempt == p.Attempt).Select(item => item.OfferId).Order(StringComparer.Ordinal)))
+            !p.AcceptedOffers.Where(id => p.ClassicBooking is null || !id.StartsWith("act.", StringComparison.Ordinal))
+                .SequenceEqual(p.Payments.Where(item => item.Attempt == p.Attempt).Select(item => item.OfferId).Order(StringComparer.Ordinal)))
             return "Preparation commitments do not reconcile.";
         var settled = p.Status is PreparationStatus.Failed or PreparationStatus.Finished;
         var carriedRig = p.CarriedIn?.OwnedEquipment.Contains("sound-rig") == true;
@@ -640,7 +650,7 @@ public sealed partial class GameSession
         var finance = snapshot.FestivalFinances.SingleOrDefault(item => item.OwnerId == p.FinanceOwnerId);
         var stock = snapshot.OwnedStocks.SingleOrDefault(item => item.ServiceId == p.StockId);
         if (finance is null || stock is null || stock.OwnerId != p.FinanceOwnerId || stock.UnitCostBasisPennies != 60 ||
-            finance.CashPennies != p.OpeningCashPennies - p.Payments.Where(item => item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? p.Plan is null ? StockCost(40, 32) : PlannedStockCost(p.Plan) : 0) - (p.Plan?.Committed == true ? p.SetupPayments?.LastOrDefault()?.BuildCostPennies ?? 0 : 0) + ReceivedPitchFee(p) + FestivalTakings(snapshot.Immersion) - FreeWaterSpend(snapshot.Immersion) - LavSuckerSpend(snapshot.LavSucker) ||
+            finance.CashPennies != p.OpeningCashPennies + SavedBookingCashChange(snapshot) - p.Payments.Where(item => item.Attempt == p.Attempt).Sum(item => (long)item.AmountPennies) - (snapshot.Immersion?.StockPurchased == true ? p.Plan is null ? StockCost(40, 32) : PlannedStockCost(p.Plan) : 0) - (p.Plan?.Committed == true ? p.SetupPayments?.LastOrDefault()?.BuildCostPennies ?? 0 : 0) + ReceivedPitchFee(p) + FestivalTakings(snapshot.Immersion) - FreeWaterSpend(snapshot.Immersion) - LavSuckerSpend(snapshot.LavSucker) ||
             stock.Quantity != 40 + 50 * p.Payments.Count(item => item.OfferId == "contract.stock" && item.Attempt == p.Attempt) - p.StockConsumed)
             return "Preparation cash or stock does not reconcile.";
         if (p.Status != PreparationStatus.Preparing &&

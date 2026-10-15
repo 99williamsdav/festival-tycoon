@@ -7,6 +7,7 @@ public sealed record FestivalAccountsSale(ImmersionProduct Product, int UnitPric
 }
 /// <summary>One food trader's pitch fee.</summary>
 public sealed record FestivalAccountsPitch(string Trader, long FeePennies);
+public sealed record FestivalAccountsTicketLine(int Attempt, string Description, int Quantity, int UnitPricePennies, long AmountPennies);
 public sealed record FestivalAccountsCost(string Label, int Quantity, int UnitCostPennies, long AmountPennies);
 public sealed record FestivalAccountsExpense(string Category, string Label, long AmountPennies);
 public sealed record FestivalAccountsStock(string Label, int Quantity, int UnitCostPennies, long AmountPennies);
@@ -34,7 +35,9 @@ public sealed record FestivalAccounts(
     bool StockPurchaseRecorded, bool StockDetailRecorded, bool FacilityDetailRecorded, bool Reconciles)
 {
     /// <summary>Advance ticket sales: received before preparation, as part of the opening budget.</summary>
-    public long TicketSalesPennies => (long)TicketsSold * TicketPricePennies;
+    public long TicketSalesPennies => TicketLines?.Sum(line => line.AmountPennies) ?? (long)TicketsSold * TicketPricePennies;
+    [System.Text.Json.Serialization.JsonIgnore(Condition = System.Text.Json.Serialization.JsonIgnoreCondition.WhenWritingNull)]
+    public FestivalAccountsTicketLine[]? TicketLines { get; init; }
     /// <summary>What the food traders paid to pitch, and who they were.</summary>
     public long PitchFeePennies { get; init; }
     public string PitchFeeTrader { get; init; } = "";
@@ -129,6 +132,12 @@ public sealed partial class GameSession
                     payment.OfferId.StartsWith("act.", StringComparison.Ordinal) ? "Act bookings" : "Staff and rental",
                     offers.TryGetValue(payment.OfferId, out var offer) ? offer.Name.Split('•')[0].Trim() : payment.OfferId,
                     payment.AmountPennies)).ToList();
+            var booking = ClassicBookings;
+            if (booking is not null)
+                expenses.AddRange(booking.Money.Where(item => item.Kind is ClassicBookingMoneyKind.BandFee or ClassicBookingMoneyKind.BandRelease)
+                    .Select(item => new FestivalAccountsExpense("Act bookings",
+                        (item.Kind == ClassicBookingMoneyKind.BandRelease ? "Released: " : "Booked: ") +
+                        (ActCatalogue.Find(item.ActId!)?.Name ?? item.ActId), -item.CashPennies)));
             var setup = p.SetupPayments?.SingleOrDefault(payment => payment.Attempt == p.Attempt);
             var buildCost = setup?.BuildCostPennies ?? 0;
             var facilityDetailRecorded = true;
@@ -172,12 +181,16 @@ public sealed partial class GameSession
             // opening budget is this festival's income.
             var tickets = FestivalTickets.RevenuePennies(p.Tier);
             var accounts = new FestivalAccounts(sales, costs.ToArray(), expenses.ToArray(), purchasedStock,
-                FestivalTickets.Sold(p.Tier), FestivalTickets.PricePennies(p.Tier), p.OpeningCashPennies - tickets,
+                booking?.OriginalTickets ?? FestivalTickets.Sold(p.Tier), booking?.TicketPricePennies ?? FestivalTickets.PricePennies(p.Tier),
+                booking is null ? p.OpeningCashPennies - tickets : p.OpeningCashPennies,
                 closing, stockCash, capital, stockRecorded, stockDetailRecorded, facilityDetailRecorded, false)
                 { PitchFeePennies = ReceivedPitchFee(p), PitchFeeTrader = p.Plan is { Committed: true } ? string.Join(" and ", PitchedVans(p).Select(van => TraderAt(p, van).Name)) : "",
                   PitchFees = p.Plan is { Committed: true } ? PitchedVans(p).Select(van => new FestivalAccountsPitch(TraderAt(p, van).Name, TraderAt(p, van).PitchFeePennies)).ToArray() : [],
                   CarriedInPennies = p.CarriedIn?.CashPennies, DebtOwedPennies = _campaignPlanning?.Loan.OutstandingPrincipalPennies ?? 0,
-                  StockLines = stockLines, WaterGivenAway = purchases.Count(purchase => purchase.Product == ImmersionProduct.Water) };
+                  StockLines = stockLines, WaterGivenAway = purchases.Count(purchase => purchase.Product == ImmersionProduct.Water),
+                  TicketLines = booking?.Money.Where(item => item.Kind is ClassicBookingMoneyKind.Tickets or ClassicBookingMoneyKind.TicketRefund)
+                    .Select(item => new FestivalAccountsTicketLine(item.Attempt,
+                        item.Kind == ClassicBookingMoneyKind.Tickets ? "Ticket sales" : "Ticket refunds", item.Quantity, item.UnitPennies, item.CashPennies)).ToArray() };
             var reconciles = accounts.IncomePennies == result.RevenuePennies &&
                 accounts.SoldItemCostPennies == result.ConsumedStockCostsPennies &&
                 accounts.OperatingExpensesPennies == result.ContractCostsPennies &&

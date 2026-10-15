@@ -22,14 +22,15 @@ public sealed class ClassicCampaignTests
         Assert.AreEqual(s.CaptureSnapshot().AuthoritativeHash,loaded.Session!.CaptureSnapshot().AuthoritativeHash);
         return loaded.Session;
     }
-    private static void Prepare(GameSession s,bool rentRig=false)
+    internal static void Prepare(GameSession s,bool rentRig=false)
     {
         var perk=s.CapturePerks()!;
         Accept(s,new ChoosePerkCommand(perk.DraftAttempt,perk.Cursor,perk.Hand[0]));
-        Accept(s,new UseDefaultBuildLayoutCommand());
         var acts=s.GetFestivalActs().Where(a=>s.ActStandingOf(a)==ActStanding.Available).OrderBy(s.ActFee)
             .ThenBy(a=>a.Id,StringComparer.Ordinal).Take(3).Select(a=>a.Id).ToArray();
         Accept(s,new SetProgrammeCommand(acts));
+        Accept(s,new ConfirmClassicBookingsCommand());
+        Accept(s,new UseDefaultBuildLayoutCommand());
         Accept(s,new SetPreparationStockCommand(24,16));
         foreach(var candidate in s.GetStaffCandidates().GroupBy(c=>c.Role).Select(g=>g.OrderBy(c=>c.Traits.Length>0)
             .ThenBy(c=>c.Grade>0).ThenBy(c=>Math.Abs(c.Grade)).ThenBy(c=>c.Id,StringComparer.Ordinal).First()))
@@ -59,7 +60,8 @@ public sealed class ClassicCampaignTests
         Assert.AreEqual(s.CaptureClassicForecast()!.Weather,s.CurrentFestival.Weather);
         Assert.IsNull(s.CurrentFestival.Challenge);
         Assert.AreEqual(1,s.Stages.Count);
-        Assert.AreEqual(25,s.CurrentFestival.Attendance);
+        Assert.AreEqual(0,s.CurrentFestival.Attendance);
+        Assert.AreEqual(25,s.ClassicSiteCapacity);
         Assert.AreEqual(new IncidentTimingParameters(3200,1600,4800,4800,4800,7200,9600),s.IncidentTiming);
         Assert.AreEqual(s.Weather==WeatherKind.Heatwave,s.CaptureMedical()!.IsHot);
         CollectionAssert.AreEqual(GameSession.ClassicWeatherForecast(s.CampaignSeed,1,s.PreparedEditionDurationTicks).Rain,s.CaptureWeather()!.Spells);
@@ -99,9 +101,9 @@ public sealed class ClassicCampaignTests
             evidence.Add(new { festival=number,identity=s.Identity,opening,closed,result,standing=new FestivalStanding(p.Reputation,p.SceneCredibility),
                 p.SeenActs,p.OwnedEquipment,p.Rentals,p.WorkContracts,relationships=s.RelationshipsAfterFestival,popularity=s.PopularityAfterFestival,
                 performanceRecords=s.PerformanceRecords,authoritativeHash=s.CaptureSnapshot().AuthoritativeHash });
-            Assert.AreEqual(opening.CashPennies+result.NetCashChangePennies-s.CurrentFestival.TicketReceiptsPennies,closed.CashPennies);
+            Assert.AreEqual(opening.CashPennies+result.NetCashChangePennies,closed.CashPennies);
             Assert.AreEqual(opening.Loan,closed.Loan);
-            Assert.AreEqual(25,result.AdmittedGuests);
+            Assert.AreEqual(s.CaptureClassicBookingDetails()!.TicketHolders,result.AdmittedGuests);
             Assert.AreEqual(result.Deaths,s.CaptureClassicHistory()!.DeathPenalties.Length);
             Assert.AreEqual(0,p.WorkContracts.Length);Assert.AreEqual(0,p.Rentals.Length);
             if(number==4)break;
@@ -110,7 +112,7 @@ public sealed class ClassicCampaignTests
             var next=s.CreateNextFestival();var carried=next.CapturePreparation()!;
             Assert.AreEqual(s.CampaignId,next.CampaignId);
             Assert.AreEqual(s.CampaignSeed,next.CampaignSeed);
-            Assert.AreEqual(closed.CashPennies+25000,next.CapturePersistentCampaignState()!.CashPennies);
+            Assert.AreEqual(closed.CashPennies,next.CapturePersistentCampaignState()!.CashPennies);
             Assert.AreEqual(closed.Loan,next.CapturePersistentCampaignState()!.Loan);
             Assert.AreEqual(p.Reputation,carried.Reputation);
             CollectionAssert.AreEqual(p.SceneCredibility,carried.SceneCredibility);
@@ -164,8 +166,8 @@ public sealed class ClassicCampaignTests
         }
         Finish(s);s=RoundTrip(s);
         Assert.AreEqual(4,s.CompletedFestivalResult!.Deaths);
-        Assert.AreEqual(23,s.CompletedFestivalResult.GuestCount);
-        Assert.AreEqual(25,s.CompletedFestivalResult.AdmittedGuests);
+        Assert.AreEqual(s.CaptureClassicBookingDetails()!.TicketHolders-2,s.CompletedFestivalResult.GuestCount);
+        Assert.AreEqual(s.CaptureClassicBookingDetails()!.TicketHolders,s.CompletedFestivalResult.AdmittedGuests);
         var next=RoundTrip(s.CreateNextFestival());
         Assert.AreEqual(4,next.CaptureClassicHistory()!.CompletedFestivals.Single().DeathPenalties.Length);
         Assert.AreEqual(0,next.CaptureClassicHistory()!.DeathPenalties.Length);
@@ -187,7 +189,7 @@ public sealed class ClassicCampaignTests
             Assert.IsTrue(s.IsClassicDeceased(guest.AgentId));
         }
         s=RoundTrip(s);Finish(s);s=RoundTrip(s);
-        Assert.AreEqual(25,s.CompletedFestivalResult!.Deaths);
+        Assert.AreEqual(guests.Length,s.CompletedFestivalResult!.Deaths);
         Assert.AreEqual(0,s.CompletedFestivalResult.GuestCount);
         Assert.IsNull(s.CompletedFestivalResult.Stars);
         Assert.AreEqual(0,s.CapturePreparation()!.Reputation);

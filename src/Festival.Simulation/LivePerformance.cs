@@ -629,7 +629,7 @@ public sealed partial class GameSession
             live.SetEndAudienceIds.Length > 0 && (programme is null || live.Stage != LiveSetStage.Finished || live.StartedTick < 0 ||
                 live.EndedTick != programme.SlotEndTick || live.InterruptedTick != -1 || live.LastReaction != "set-finished-applause") ||
             live.LastReaction == "set-finished-applause" && live.SetEndAudienceIds.Length == 0 ||
-            live.Listeners.Length > FestivalTickets.Sold(preparation.Tier) || live.PlannedTick < preparation.StartedTick ||
+            live.Listeners.Length > SavedGuestCount(snapshot) || live.PlannedTick < preparation.StartedTick ||
             live.Listeners.Any(item => item.JoinedTick is { } joined && (joined < preparation.StartedTick || joined > snapshot.CurrentTick)) ||
             live.StartedTick > snapshot.CurrentTick || live.EndedTick > snapshot.CurrentTick ||
             live.Performers.Select(item => item.AgentId).Distinct().Count() != band ||
