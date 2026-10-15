@@ -1,0 +1,26 @@
+# Classic development stress capability — implementation and verification
+
+The development menu now offers a separate Classic test campaign with optional Trailer, Barn and Pond stages. Its licence is a synthetic40/100 reputation milestone; it carries the actual seed20260922 normal Classic clear (£261.90 cash,14 earned reputation,three learned acts and their real relationships). Two independent options, guaranteed100 ticket-holders and a top-up to£1,500, start off. Use defaults for test explicitly opens all three stages, books nine distinct paid acts, and plans three distinct paid sound engineers, other crew, stock and a physically valid site. Ordinary site/crew/stock costs are charged at Start.
+
+The diagnostic journal, hash, history and isolated save host retain provenance. The cash grant is recorded once in festival2; cancellation, rebooking, save/resume and later festivals cannot repeat it. Ordinary demand retains the existing three-popularity formula, with the strongest three across an expanded diagnostic lineup. All seven nonempty stage subsets have independent source/test coverage; own generators and weather cover use physical venue identity even when Barn or Pond is first active.100 means attendees: the three-stage fixture has100 guests,27 performers and6 staff,133 people total.
+
+Classic construction instance quotas were removed in the separately accepted d54224f7 slice. Placement still checks costs, physical fit, routes and shelter. Numbered IDs are parsed directly; lists page actual placed objects. Repeated first-aid and steward posts have real geometry, destinations and world labels, while workers remain actual paid hires. Survival and Steward retain their original limits and immutable behavior. See classic-construction.md and its independent review.
+
+## Verification completed so far
+
+- Builder core44/44, including two complete festivals with100 attendees each:133 people admitted and departed,9 performance records,zero NoRoute agents, exact results and next-festival restore/cash carry.
+- Independent core47 distinct cases passed, including all subsets/options, contracts, provenance, observation neutrality and original immutable Survival parity. Two preexisting file-host tests initially failed writing sandbox temporary directories; the same compiled tests passed2/2 with approved temporary-directory access. All initial logs are retained.
+- Game build: zero warnings/errors. Second Godot asset import exit0 with empty stderr; the initial import's missing-UID warnings and get_multiple_md5 condition remain recorded.
+- Fresh independent UI source review found a nonprimary-stage dialog focus restoration issue. Both callbacks now map global contract slots to the local three-slot screen. The final copied-EXE cancel/focus assertion passed independently.
+- Superseded expanded native attempt reached contract/cancellation checks, then failed because a diagnostic save helper used a dotted stage ID as a slot name. The helper now replaces dots with hyphens. First attempt and logs remain intact.
+
+The expanded source native run passed58/58 with exit0 and empty stderr, including isolated saves,9-slot refunds/cancellation, Barn-only/Pond-only live power and cover,36 physical construction placements/paging/post cleanup,133-person full completion,9set results and exact next cash carry. It predates final focus/checklist/menu/next-image evidence repairs; final copied-EXE assertions cover those changes. Source420rendered frames and counts are retained. Images01 and10 in sourcefinal2 are superseded evidence and must not be used to claim menu/next-forecast visuals.
+
+The actual copied release EXE completed two90-second same-camera profiles: normal25attendees/37people and stress100attendees/133people/3stages, both exit0/empty stderr with valid cadence saves at ticks10402/10401. Per-scope p95/max, render CPU/GPU and hardware are in reports/evidence/classic-stress/performance.md. Large wall-frame stalls remain in both scenes; this is not a smooth-performance or continuous1× guarantee. The earlier45-second debug pilot failed its cadence assertion and remains retained.
+
+Product commits: constructiond54224f7, simulation7778dcac, UIbc2863d0. Candidate payload is194files/303,972,899bytes, EXESHA256664AF1F7FE486F6FC4EFA00D8E20CE4E9F46831C8BFFFA585068D28FF9A95F24. Export has0warnings/0ERRORlines. Checkpoint pins2062source inputs,194payloadfiles and428preservation entries (194previousherd payload,194priorr2payload,4olderEXEs,26originaldirtyinputs,10immutable references). Initial builder pin verification has0mismatches.
+
+Fresh independent actual copied-EXE review is ACCEPTED: all 619 checks passed across six runs, each exit 0 with empty stderr. All 19 stress key images plus three clip frames were inspected. The final completed save has all 133 people departed, nine records and zero NoRoute or queue/owner/vendor claims. All 2,684 product/preservation pins matched before and after. The exact payload is now accepted for scoped playtest handoff; see classic-stress-handoff.md and classic-stress-exe-independent-review.md. No fixture recording flags or immutable baseline changes are used. All26 unrelated input hashes and prior delivery pins are preserved. No ZIP, new automation or other-chat messages.
+
+
+

@@ -1,0 +1,50 @@
+[
+  {
+    "suite": "stress",
+    "checks": 61,
+    "failed": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngCount": 439
+  },
+  {
+    "suite": "classic-tickets",
+    "checks": 100,
+    "failed": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngCount": 12
+  },
+  {
+    "suite": "classic-loop",
+    "checks": 109,
+    "failed": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngCount": 9
+  },
+  {
+    "suite": "classic-weather",
+    "checks": 262,
+    "failed": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngCount": 22
+  },
+  {
+    "suite": "survival-architecture",
+    "checks": 63,
+    "failed": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngCount": 8
+  },
+  {
+    "suite": "save-warning",
+    "checks": 24,
+    "failed": 0,
+    "exit": 0,
+    "stderrBytes": 0,
+    "pngCount": 4
+  }
+]

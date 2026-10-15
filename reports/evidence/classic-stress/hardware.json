@@ -1,0 +1,26 @@
+{
+  "cpu": {
+    "Name": "12th Gen Intel(R) Core(TM) i7-12700H",
+    "NumberOfCores": 14,
+    "NumberOfLogicalProcessors": 20
+  },
+  "os": {
+    "Caption": "Microsoft Windows 11 Home",
+    "Version": "10.0.26200",
+    "BuildNumber": "26200",
+    "TotalVisibleMemorySize": 33217592
+  },
+  "gpu": [
+    {
+      "Name": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+      "DriverVersion": "32.0.16.1060",
+      "AdapterRAM": 4293918720
+    },
+    {
+      "Name": "Intel(R) Iris(R) Xe Graphics",
+      "DriverVersion": "32.0.101.7088",
+      "AdapterRAM": 2147479552
+    }
+  ],
+  "capturedAt": "2026-10-15T19:35:53.4204106+01:00"
+}

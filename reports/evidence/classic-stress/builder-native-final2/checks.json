@@ -1,0 +1,237 @@
+{
+  "executable": "C:/Projects/festival-tycoon/.tools/godot/4.7.2/editor/Godot_v4.7.2-stable_mono_win64.exe",
+  "checks": [
+    {
+      "name": "stress-ordinary-initial-save",
+      "passed": true
+    },
+    {
+      "name": "stress-diagnostic-options-off",
+      "passed": true
+    },
+    {
+      "name": "stress-defaults-three-stages-nine-paid-contracts",
+      "passed": true
+    },
+    {
+      "name": "stress-guaranteed-hundred-attendees",
+      "passed": true
+    },
+    {
+      "name": "stress-test-cash-grant-provenance",
+      "passed": true
+    },
+    {
+      "name": "stress-three-visible-engineer-slots",
+      "passed": true
+    },
+    {
+      "name": "stress-booking-has-three-stage-choices",
+      "passed": true
+    },
+    {
+      "name": "stress-booking-has-three-stage-choices",
+      "passed": true
+    },
+    {
+      "name": "development-preparation-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "stress-normal-save-files-unchanged",
+      "passed": true
+    },
+    {
+      "name": "stress-normal-host-unchanged",
+      "passed": true
+    },
+    {
+      "name": "stress-save-directory-isolated",
+      "passed": true
+    },
+    {
+      "name": "stress-pond-change-preview-does-not-mutate",
+      "passed": true
+    },
+    {
+      "name": "stress-pond-removal-updates-only-slot-nine",
+      "passed": true
+    },
+    {
+      "name": "stress-nine-slot-refund-real-holders",
+      "passed": true
+    },
+    {
+      "name": "pond-contract-refund-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "command-RebookClassicProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "stress-cancellation-keeps-diagnostic-provenance",
+      "passed": true
+    },
+    {
+      "name": "development-cancelled-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-ConfirmClassicBookingsCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "stress-stage.barn-only-live-with-own-crew",
+      "passed": true
+    },
+    {
+      "name": "stress-stage.barn-physical-weather-cover",
+      "passed": true
+    },
+    {
+      "name": "command-StageGeneratorCommand",
+      "passed": true
+    },
+    {
+      "name": "stress-stage.barn-own-generator-at-zero",
+      "passed": true
+    },
+    {
+      "name": "stage-barn-only-live-cut-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-ConfirmClassicBookingsCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "stress-stage.pond-only-live-with-own-crew",
+      "passed": true
+    },
+    {
+      "name": "stress-stage.pond-physical-weather-cover",
+      "passed": true
+    },
+    {
+      "name": "command-StageGeneratorCommand",
+      "passed": true
+    },
+    {
+      "name": "stress-stage.pond-own-generator-at-zero",
+      "passed": true
+    },
+    {
+      "name": "stage-pond-only-live-cut-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "large-construction-layout-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "stress-additional-response-visuals",
+      "passed": true
+    },
+    {
+      "name": "stress-all-added-rest-areas-real",
+      "passed": true
+    },
+    {
+      "name": "command-RemoveBuildServiceCommand",
+      "passed": true
+    },
+    {
+      "name": "stress-extra-post-removal-cleans-view-and-rest",
+      "passed": true
+    },
+    {
+      "name": "stress-explicit-reset-restores-reference",
+      "passed": true
+    },
+    {
+      "name": "stress-normal-save-still-byte-identical",
+      "passed": true
+    },
+    {
+      "name": "stress-paid-site-and-full-roster",
+      "passed": true
+    },
+    {
+      "name": "development-live-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "stress-all-three-stages-live",
+      "passed": true
+    },
+    {
+      "name": "stress-full-festival-finished",
+      "passed": true
+    },
+    {
+      "name": "stress-nine-set-results",
+      "passed": true
+    },
+    {
+      "name": "development-finished-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "stress-next-carries-real-cash-without-grant",
+      "passed": true
+    },
+    {
+      "name": "development-next-file-roundtrip",
+      "passed": true
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "exe": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-stress-2026-10-15/FestivalTycoon.exe",
+  "args": [
+    "--",
+    "--capture-survival-architecture",
+    "C:/Projects/festival-tycoon/reports/evidence/classic-stress/independent-exe/survival-architecture",
+    "--capture-size",
+    "1280x720"
+  ],
+  "pid": 17280,
+  "start": "2026-10-15T19:58:45.5202363+01:00",
+  "end": "2026-10-15T19:59:26.2176803+01:00",
+  "exit": 0
+}

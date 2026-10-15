@@ -1,0 +1,5 @@
+System.InvalidOperationException: Architecture native evidence failed: stress-profile-autosave-valid
+   at Festival.Game.Main.ArchitectureCheck(String name, Boolean passed) in /_/game/Main.ArchitectureEvidence.cs:line 23
+   at Festival.Game.Main.StressCheck(String name, Boolean passed) in /_/game/Main.ClassicStressEvidence.cs:line 32
+   at Festival.Game.Main.ProcessClassicStressProfile(Double delta) in /_/game/Main.ClassicStressEvidence.cs:line 279
+   at Festival.Game.Main.ProcessClassicStressEvidence(Double delta) in /_/game/Main.ClassicStressEvidence.cs:line 64

@@ -1,0 +1,14 @@
+{
+  "exe": "C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/playtest-classic-stress-2026-10-15/FestivalTycoon.exe",
+  "args": [
+    "--",
+    "--capture-classic-weather",
+    "C:/Projects/festival-tycoon/reports/evidence/classic-stress/independent-exe/classic-weather",
+    "--capture-size",
+    "1280x720"
+  ],
+  "pid": 34552,
+  "start": "2026-10-15T19:57:20.2306899+01:00",
+  "end": "2026-10-15T19:58:45.5176204+01:00",
+  "exit": 0
+}

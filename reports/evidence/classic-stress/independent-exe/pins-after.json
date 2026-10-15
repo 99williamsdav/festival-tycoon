@@ -1,0 +1,12 @@
+{
+  "time": "2026-10-15T20:02:23.1283128+01:00",
+  "checkpointHash": "09872F36C99FC8552B9E444A57B098798BE90407E0B346813F7800D6C551C2B8",
+  "payload": 194,
+  "actualFiles": 195,
+  "extraFiles": [
+    "README.txt"
+  ],
+  "source": 2062,
+  "preservation": 428,
+  "mismatches": []
+}

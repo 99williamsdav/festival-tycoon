@@ -1,0 +1,7 @@
+{
+  "exit": 0,
+  "warnings": 0,
+  "errorLines": 0,
+  "sha256": "C78D978B4A586DFDE2E2CB70893F57B2306DE9BD56552BF7E7943E3753F66C28",
+  "initialImport": "Initial import cache diagnostics retained in artifacts/classic-stress-import-{stdout,stderr}.txt; repeated final import exit0/empty stderr."
+}

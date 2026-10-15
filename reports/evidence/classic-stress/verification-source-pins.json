@@ -1,0 +1,26 @@
+[
+  {
+    "path": "tests/Festival.Tests/ClassicTicketDemandTests.cs",
+    "sha256": "F41212B7A2A6EFB478B368031DCFADCF347742D2A19A13E0F5580815FE2B9AB6"
+  },
+  {
+    "path": "tests/Festival.Tests/ClassicSurvivalParityTests.cs",
+    "sha256": "2E2B2C0D5D90AA32857CE7E6EE7E1F3CE8C7098959716D478562B834A375A6A4"
+  },
+  {
+    "path": "tests/Festival.Tests/ClassicDevelopmentTests.cs",
+    "sha256": "6C5D76AF9FE36B1678148C8D9A98F79879D97A9BDB03A4D81A1DD6A296D3F789"
+  },
+  {
+    "path": "tests/Festival.Tests/ClassicConstructionTests.cs",
+    "sha256": "C2BDB357E29FC225E5F813A4F0A0D44494F2A32BACFF948E1965C9131FD5C490"
+  },
+  {
+    "path": "tests/Festival.Tests/ClassicBookingTermsTests.cs",
+    "sha256": "76E3961A34BE862185C60618A133688647C9F261320D6AA3A4FE9D4211346687"
+  },
+  {
+    "path": "tests/Festival.Tests/ClassicBookingIntegrationTests.cs",
+    "sha256": "4D73498EB850002578D39D65FB019D9035F40DA1D90B690006614B74EC6CE563"
+  }
+]

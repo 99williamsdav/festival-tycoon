@@ -1,0 +1,94 @@
+[
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\classic-stress-handoff.md",
+    "sha256": "2EDCC121CAC1A390E2FB8E91DAB62877CA0859A3A6E1870F54A372ADF3B45C78"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\classic-stress.md",
+    "sha256": "C691245C9ACCC873084A9C0D090E22E8715C6DE42ED0C6C18921E4E83753610A"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\classic-construction.md",
+    "sha256": "85A87FEA5F05836C135A477CC7B6FC953A10632C543214FEF8AC70AB4D69FADE"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\classic-construction-independent-review.md",
+    "sha256": "D5C48932B0337FA53DA9AE9A64A20518175C3A048DA10EB4E963DF14C7BD0DF8"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\classic-development-core-independent-review.md",
+    "sha256": "57FDC04F3E36E3D9C69A33F3D8C30C5ABF45AD40D39E0945C31CE8F34026010B"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\classic-stress-ui-independent-review.md",
+    "sha256": "A629D7177BF9B1D5D5B9DB20DEB1BEA0EEE46869664FDF243DED8589A11EC3A7"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\classic-stress-exe-independent-review.md",
+    "sha256": "0FE675792DBAB2A27C33DA2F683CCCCFC994CFFEC92102F1F4EBD04245C33EC0"
+  },
+  {
+    "path": "C:\\Projects\\festival-tycoon\\briefs\\results\\classic-stress-architecture-review.md",
+    "sha256": "063210DF64C3BCB878261E29B5FC03E093D6270001416BCDF6219B4E79D5AE2D"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-stress-handoff.md",
+    "sha256": "2EDCC121CAC1A390E2FB8E91DAB62877CA0859A3A6E1870F54A372ADF3B45C78"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-stress.md",
+    "sha256": "C691245C9ACCC873084A9C0D090E22E8715C6DE42ED0C6C18921E4E83753610A"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-construction.md",
+    "sha256": "85A87FEA5F05836C135A477CC7B6FC953A10632C543214FEF8AC70AB4D69FADE"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-construction-independent-review.md",
+    "sha256": "D5C48932B0337FA53DA9AE9A64A20518175C3A048DA10EB4E963DF14C7BD0DF8"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-development-core-independent-review.md",
+    "sha256": "57FDC04F3E36E3D9C69A33F3D8C30C5ABF45AD40D39E0945C31CE8F34026010B"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-stress-ui-independent-review.md",
+    "sha256": "A629D7177BF9B1D5D5B9DB20DEB1BEA0EEE46869664FDF243DED8589A11EC3A7"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-stress-exe-independent-review.md",
+    "sha256": "0FE675792DBAB2A27C33DA2F683CCCCFC994CFFEC92102F1F4EBD04245C33EC0"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-stress-architecture-review.md",
+    "sha256": "063210DF64C3BCB878261E29B5FC03E093D6270001416BCDF6219B4E79D5AE2D"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\CURRENT-TASK.txt",
+    "sha256": "E94084F245424700418ADC0DF98B610074C80E001E546197F73F2A12B5DD1D37"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-stress-performance.md",
+    "sha256": "4F60676FD3E8ADF4CA23BC7602459C262AF736D13060BAC950C6AA9BACDA6E6C"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\classic-development-stress-2026-10-15.mp4",
+    "sha256": "042437F4F125DC916FD20E99296D3AB52D8269F9440786E34FF9B33E747E8744"
+  },
+  {
+    "path": "C:\\Users\\99wil\\Documents\\ChatGPT\\Festival Tycoon\\playtest-classic-stress-2026-10-15\\README.txt",
+    "sha256": "6B67E2E60849015928247EAADC89D71A8ACD2DC89FC64BE0B31B994B5C972191"
+  },
+  {
+    "path": "C:/Projects/festival-tycoon/reports/evidence/classic-stress/performance.md",
+    "sha256": "4F60676FD3E8ADF4CA23BC7602459C262AF736D13060BAC950C6AA9BACDA6E6C"
+  },
+  {
+    "path": "C:/Projects/festival-tycoon/reports/evidence/classic-stress/run-save-write-benchmark.ps1",
+    "sha256": "02FC35231026B5F8350BFA0058017B0A0F57480D1B065F6D5624A49E85FB8EBC"
+  },
+  {
+    "path": "C:/Projects/festival-tycoon/reports/evidence/classic-stress/verification-source-pins.json",
+    "sha256": "1AFFAE210BEE52411513A23A9FE31534720735314749867C73E66FD789CD2BA2"
+  }
+]

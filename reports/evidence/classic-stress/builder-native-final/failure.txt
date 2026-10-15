@@ -1,0 +1,6 @@
+System.ArgumentException: Slot ID must be 1-64 ASCII letters, digits, underscores or hyphens and start with a letter or digit. (Parameter 'slotId')
+   at Festival.Persistence.SaveFileAdapter.ResolveSlotPath(String directory, String slotId) in /_/src/Festival.Persistence/SaveFileAdapter.cs:line 25
+   at Festival.Persistence.SaveFileAdapter.SaveSlot(String directory, String slotId, SaveWriteRequest request, Action`1 failureInjector) in /_/src/Festival.Persistence/SaveFileAdapter.cs:line 38
+   at Festival.Game.Main.ArchitectureSave(String name) in /_/game/Main.ArchitectureEvidence.cs:line 33
+   at Festival.Game.Main.StressSingleStage(Int32 mask, String stageId) in /_/game/Main.ClassicStressEvidence.cs:line 231
+   at Festival.Game.Main.ProcessClassicStressEvidence(Double delta) in /_/game/Main.ClassicStressEvidence.cs:line 128

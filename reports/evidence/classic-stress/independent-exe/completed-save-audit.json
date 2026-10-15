@@ -1,0 +1,15 @@
+{
+  "save": "reports/evidence/classic-stress/independent-exe/stress/development-saves/development-finished.ftsave",
+  "sha256": "A158DDEECE0ED585BC04020E265B49EE0BE1DD8E978FCD9C9FE63001E57A0042",
+  "tick": 46517,
+  "people": 133,
+  "admitted": 133,
+  "departed": 133,
+  "noRoute": 0,
+  "performanceRecords": 9,
+  "facilities": 9,
+  "queueClaims": 0,
+  "overflowClaims": 0,
+  "ownerClaims": 0,
+  "personVendorClaims": 0
+}

@@ -1,0 +1,31 @@
+{
+  "diagnostic": "Offline production AutosaveRotation.SaveCaptured from actual copied release assemblies",
+  "inputSave": "C:/Projects/festival-tycoon/reports/evidence/classic-stress/builder-exe-profile-baseline/classic-saves/autosave-1.ftsave",
+  "inputSha256": "3A8E29992E0C82ACA9033209FF1A5C674AE7E246721929F5135F3CC199A80419",
+  "authoritativeHash": "16cbc922d17194a9537e75b8c3de1f4d3d929c9f62aa8e67a2930a00c099f7fa",
+  "simulationDllSha256": "B85F1E64829DCF4611C41BD29AB1E4D907F67E501EAA45AB07D474E79257F003",
+  "persistenceDllSha256": "D4B31A45CE27C7D989D4AB34CF2D7335D5C351BE30566132850A1592FF12943B",
+  "people": 37,
+  "attendees": 25,
+  "stages": 1,
+  "tick": 10402,
+  "warmupWrites": 3,
+  "samples": [
+    347.2796,
+    432.2622,
+    433.4268,
+    386.7261,
+    326.2624,
+    361.5921,
+    396.5136,
+    379.0955,
+    398.0226,
+    359.0895
+  ],
+  "count": 10,
+  "meanMs": 382.02703999999994,
+  "p95Ms": 433.4268,
+  "maximumMs": 433.4268,
+  "allThirteenSavedAndExactHashRestored": true,
+  "limitation": "Offline unchanged captured state, after three warmup writes. Includes production envelope, gzip/write-through flush, temporary/prior validation and slot replacement. Excludes foreground snapshot capture, concurrent game/render work and worker scheduling. Ten samples; nearest-rank p95 equals maximum. Not a frame-blocking duration."
+}

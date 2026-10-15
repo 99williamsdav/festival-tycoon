@@ -1,0 +1,1 @@
+{"people":37,"attendees":25,"stages":1,"count":10,"p95Ms":433.4268,"maximumMs":433.4268,"allThirteenSavedAndExactHashRestored":true}

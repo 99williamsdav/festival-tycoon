@@ -1,0 +1,95 @@
+{
+  "diagnostic": "Classic native production-method profile",
+  "kind": "baseline",
+  "debug": true,
+  "godot": "4.7.2-stable (official)",
+  "os": "Microsoft Windows 10.0.26200",
+  "cpuCount": 20,
+  "architecture": "X64",
+  "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+  "renderer": "gl_compatibility",
+  "resolution": "(1280, 720)",
+  "vsync": "Enabled",
+  "camera": "Frame (4,0,0), distance62",
+  "audioMuted": false,
+  "attendees": 25,
+  "performers": 9,
+  "staff": 3,
+  "people": 37,
+  "stages": 1,
+  "wallSeconds": 45.0036136,
+  "startTick": 8117,
+  "endTick": 9964,
+  "attainedSpeed": 0.5130143593624669,
+  "frameMs": {
+    "count": 360,
+    "mean": 125.68534888888892,
+    "p50": 21.39,
+    "p95": 528.225,
+    "p99": 759.6236,
+    "max": 780.4683
+  },
+  "simulationObservationMs": {
+    "count": 360,
+    "mean": 2.420045277777777,
+    "p50": 0.9528,
+    "p95": 8.7544,
+    "p99": 12.779,
+    "max": 13.6879
+  },
+  "presentationAudioHudMs": {
+    "count": 360,
+    "mean": 5.093381388888888,
+    "p50": 2.7128,
+    "p95": 25.4923,
+    "p99": 32.338,
+    "max": 34.4632
+  },
+  "autosaveSchedulingMs": {
+    "count": 360,
+    "mean": 0.0006302777777777797,
+    "p50": 0.0006,
+    "p95": 0.0009,
+    "p99": 0.0011,
+    "max": 0.0035
+  },
+  "simulationWork": [
+    {
+      "Name": "activity-choice",
+      "Calls": 1847,
+      "TotalMilliseconds": 333.6147,
+      "MaximumMilliseconds": 6.962,
+      "SampledCalls": 1847,
+      "P95Milliseconds": 0.6043
+    },
+    {
+      "Name": "consumption-and-vendor-queues",
+      "Calls": 1847,
+      "TotalMilliseconds": 151.3802,
+      "MaximumMilliseconds": 6.6632,
+      "SampledCalls": 1847,
+      "P95Milliseconds": 0.1446
+    },
+    {
+      "Name": "friendly-water-queues",
+      "Calls": 1847,
+      "TotalMilliseconds": 0.2583,
+      "MaximumMilliseconds": 0.0407,
+      "SampledCalls": 1847,
+      "P95Milliseconds": 0.0003
+    },
+    {
+      "Name": "owned-service-queues",
+      "Calls": 1847,
+      "TotalMilliseconds": 0.6916,
+      "MaximumMilliseconds": 0.0029,
+      "SampledCalls": 1847,
+      "P95Milliseconds": 0.0012
+    }
+  ],
+  "cadenceSaveValid": true,
+  "cadenceTick": 0,
+  "saveError": null,
+  "peakWorkingSetBytes": 726925312,
+  "limitation": "Scripted same-camera native run; normal production simulation, presentation/audio and autosave methods. Input and hover processing omitted. Wall-frame values include engine/OS scheduling; 3-second warmup excluded."
+}

@@ -1,0 +1,20 @@
+{
+  "time": "2026-10-15T20:06:20.0175428+01:00",
+  "disposition": "ACCEPTED final handoff metadata; scoped executable acceptance remains in force",
+  "metadataManifestSha256": "9FF520866379EF7105BD07DBD3E9BC1AC27E946566207DDA4381BF7BD44B656B",
+  "metadataPins": 23,
+  "metadataMismatches": 0,
+  "verificationTestPins": 6,
+  "verificationTestMismatches": 0,
+  "runtimePayloadPins": 194,
+  "sourcePins": 2062,
+  "preservationPins": 428,
+  "productMismatches": [],
+  "reportMirrorPairs": 8,
+  "performanceMirrorVerified": true,
+  "mirrorMismatches": [],
+  "clipSha256": "042437F4F125DC916FD20E99296D3AB52D8269F9440786E34FF9B33E747E8744",
+  "clipMatchesIndependentOriginal": true,
+  "wordingReview": "Read final handoff, implementation report, performance report, README and CURRENT-TASK prefix. Launch path and adjacent data requirement, optional stages, default-off independent choices, synthetic milestone and real carry, once-only grant,619check counts,494PNG count,scripted silent clip,profileweather covariates,wallstalls and separateofflinewrites are accurately bounded. No new product changes or native run.",
+  "reviewReportUnchanged": true
+}

@@ -1,0 +1,112 @@
+{
+  "diagnostic": "Classic native production-method profile",
+  "kind": "baseline",
+  "debug": false,
+  "godot": "4.7.2-stable (official)",
+  "os": "Microsoft Windows 10.0.26200",
+  "cpuCount": 20,
+  "architecture": "X64",
+  "gpu": "NVIDIA GeForce RTX 3050 Ti Laptop GPU",
+  "renderer": "gl_compatibility",
+  "resolution": "(1280, 720)",
+  "vsync": "Enabled",
+  "camera": "Frame (4,0,0), distance62",
+  "audioMuted": false,
+  "attendees": 25,
+  "performers": 9,
+  "staff": 3,
+  "people": 37,
+  "stages": 1,
+  "wallSeconds": 90.1681845,
+  "engineDeltaSeconds": 48.62609833333325,
+  "startTick": 8117,
+  "endTick": 11996,
+  "attainedSpeed": 0.5377451067565856,
+  "frameMs": {
+    "count": 762,
+    "mean": 118.64864540682413,
+    "p50": 21.8071,
+    "p95": 521.4233,
+    "p99": 719.1462,
+    "max": 764.7926
+  },
+  "simulationObservationMs": {
+    "count": 762,
+    "mean": 2.7200429133858246,
+    "p50": 1.0301,
+    "p95": 9.4233,
+    "p99": 14.9424,
+    "max": 21.3241
+  },
+  "presentationAudioHudMs": {
+    "count": 762,
+    "mean": 3.913332677165355,
+    "p50": 1.9533,
+    "p95": 20.6923,
+    "p99": 28.3789,
+    "max": 32.7558
+  },
+  "autosaveSchedulingMs": {
+    "count": 762,
+    "mean": 0.006027559055118114,
+    "p50": 0.0007,
+    "p95": 0.0011,
+    "p99": 0.0014,
+    "max": 4.0226
+  },
+  "viewportRenderCpuMs": {
+    "count": 762,
+    "mean": 2.2069343827290173,
+    "p50": 2.2170000228881834,
+    "p95": 2.5270000686645506,
+    "p99": 2.925999994277954,
+    "max": 10.906999893188477
+  },
+  "viewportRenderGpuMs": {
+    "count": 762,
+    "mean": 18.818510471366523,
+    "p50": 19.231000900268555,
+    "p95": 21.32699966430664,
+    "p99": 23.024999618530273,
+    "max": 26.3439998626709
+  },
+  "simulationWork": [
+    {
+      "Name": "activity-choice",
+      "Calls": 3879,
+      "TotalMilliseconds": 806.4836,
+      "MaximumMilliseconds": 9.7762,
+      "SampledCalls": 3879,
+      "P95Milliseconds": 0.6794
+    },
+    {
+      "Name": "consumption-and-vendor-queues",
+      "Calls": 3879,
+      "TotalMilliseconds": 294.6421,
+      "MaximumMilliseconds": 6.5629,
+      "SampledCalls": 3879,
+      "P95Milliseconds": 0.1595
+    },
+    {
+      "Name": "friendly-water-queues",
+      "Calls": 3879,
+      "TotalMilliseconds": 0.5836,
+      "MaximumMilliseconds": 0.0138,
+      "SampledCalls": 3879,
+      "P95Milliseconds": 0.0004
+    },
+    {
+      "Name": "owned-service-queues",
+      "Calls": 3879,
+      "TotalMilliseconds": 1.7403,
+      "MaximumMilliseconds": 0.0123,
+      "SampledCalls": 3879,
+      "P95Milliseconds": 0.0015
+    }
+  ],
+  "cadenceSaveValid": true,
+  "cadenceTick": 10402,
+  "saveError": null,
+  "peakWorkingSetBytes": 679280640,
+  "limitation": "Scripted same-camera native run; normal production simulation, presentation/audio and autosave methods. Input and hover processing omitted. Wall-frame values include engine/OS scheduling; 3-second warmup excluded."
+}

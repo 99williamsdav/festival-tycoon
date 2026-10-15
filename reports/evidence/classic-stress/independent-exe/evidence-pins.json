@@ -1,0 +1,3232 @@
+[
+  {
+    "path": "classic-development.mp4",
+    "bytes": 2049529,
+    "sha256": "042437F4F125DC916FD20E99296D3AB52D8269F9440786E34FF9B33E747E8744"
+  },
+  {
+    "path": "completed-save-audit.json",
+    "bytes": 436,
+    "sha256": "FC43EFE41968AFA6D4114EE449BD3D3CD3F33309EAF74D88A32BEA764AC2B344"
+  },
+  {
+    "path": "encode-execution.json",
+    "bytes": 46,
+    "sha256": "18AC1A683BC39A4212AAA82C815899AC22AB1C57E3C345E2CC87CC9268BA1CF7"
+  },
+  {
+    "path": "ffmpeg-stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "ffprobe.json",
+    "bytes": 369,
+    "sha256": "6824F1AE44AEDC3731AB1795227A6B5591574F5DC6535F882737F55835F0BEB0"
+  },
+  {
+    "path": "pins-after.json",
+    "bytes": 291,
+    "sha256": "A30A4C68DD4D4AC30C3ED946A4BC0BE8375E44955287A712C12FD694AA9952A6"
+  },
+  {
+    "path": "pins-before.json",
+    "bytes": 250,
+    "sha256": "32F42B1B8DCF5C68734CFAF9CC4CDBBAB6943FFDCBF497FCDD90BC13BFAC6E67"
+  },
+  {
+    "path": "save-write-baseline-log.txt",
+    "bytes": 134,
+    "sha256": "F6774D898CA55B3193F3D67AB86D2C62EF12170502CC2B8E6DDFAFADEECD599D"
+  },
+  {
+    "path": "save-write-stress-log.txt",
+    "bytes": 134,
+    "sha256": "FD6F11034779D21D6228960A65DAE48B9C3D9B1DF3BACED0862CFE395227D68C"
+  },
+  {
+    "path": "suite-summary.json",
+    "bytes": 837,
+    "sha256": "00B6BEF901628203B08D9F54DD0CC1CDE1534EAFAD4548E18F4F9B13CD3DCADB"
+  },
+  {
+    "path": "classic-loop\\01-native-mode-menu.png",
+    "bytes": 466952,
+    "sha256": "891B15AC28E4B9488E3FA4E97494A355E3A995FF4681A96249FA1BC7948A31C7"
+  },
+  {
+    "path": "classic-loop\\02-classic-box-office.png",
+    "bytes": 159182,
+    "sha256": "3707C764855A9376C87EF461F42633373633ED8B608B10B79B03CE78E0C4D61C"
+  },
+  {
+    "path": "classic-loop\\03-first-classic-live.png",
+    "bytes": 1008008,
+    "sha256": "414B2CBB56AED6F1C4F14F8EFB54D6AA907322BEAAF18237A796D38641D48942"
+  },
+  {
+    "path": "classic-loop\\03b-classic-menu-accessible.png",
+    "bytes": 976347,
+    "sha256": "7B0F56E949B7C7AAD5EBD71D4B4596A598594B64C322FD77C653954FAE0E1350"
+  },
+  {
+    "path": "classic-loop\\04-first-results-next-festival.png",
+    "bytes": 246025,
+    "sha256": "B2A7A731D6983243959E58A37309F1B865C144CA0A51810C6DE3C3EC3B77E529"
+  },
+  {
+    "path": "classic-loop\\05-fourth-classic-live.png",
+    "bytes": 1011783,
+    "sha256": "E995153FD983BE437FB697B6F25E87D64904CA3FA0D7A84501633F03E6D3A4ED"
+  },
+  {
+    "path": "classic-loop\\06-recorded-deaths-live-day-continues.png",
+    "bytes": 1002540,
+    "sha256": "78A0AFD6BA87E37D6AEC2090FCFCDEFDC108AB4969A3AF2EEEC385EB089CA4ED"
+  },
+  {
+    "path": "classic-loop\\06b-recorded-death-details.png",
+    "bytes": 708879,
+    "sha256": "2ACBB38F620285EFAE8ECE60DA634D1C57B4A7857CBE01B46A72AC9CA02AF203"
+  },
+  {
+    "path": "classic-loop\\07-deaths-reported-in-results.png",
+    "bytes": 252361,
+    "sha256": "C5B4151F1EE249F2F2B995599BB47CF4DEC80A236E03CEA551D7395481F2A668"
+  },
+  {
+    "path": "classic-loop\\checks.json",
+    "bytes": 8606,
+    "sha256": "8C00A605CDBD2EA583B21E3F83A2361A2A587D280102F28F444B05E1B36EAA14"
+  },
+  {
+    "path": "classic-loop\\execution.json",
+    "bytes": 445,
+    "sha256": "8F83ADF26AB02B93CA5B45EF937885472E668B0E0442C8B485D211274CB2C6DC"
+  },
+  {
+    "path": "classic-loop\\journal.json",
+    "bytes": 17868209,
+    "sha256": "2295A6B991A48A65934EFFBC1CED56752112BB78969CDF74A4D75A23E2CF05D8"
+  },
+  {
+    "path": "classic-loop\\stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "classic-loop\\stdout.txt",
+    "bytes": 2034,
+    "sha256": "75AB71318C659831D45A818751C814BC6788135B370BF12C3A85198245FB591E"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\autosave-0.ftsave",
+    "bytes": 31603,
+    "sha256": "BCEA90D5A0680E7910DCC5AEDB1DF56FF1BE39881A5B989E91E046A04EF3500D"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\autosave-0.ftsave.bak",
+    "bytes": 40234,
+    "sha256": "AA2D208CC80FE3134651B2B26461EEE0C9171DD51EEFDF37667A38900A2F575D"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\autosave-1.ftsave",
+    "bytes": 40846,
+    "sha256": "1946B88DAA218E9244C50FE98E5CD0A20CFF87B1DAAC004BE76D69868BB0A9E6"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\autosave-1.ftsave.bak",
+    "bytes": 49801,
+    "sha256": "8FBEF95E7723F394D025003C4520554E22B15D81DC1BCD451A50FDC590ED39AF"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\autosave-2.ftsave",
+    "bytes": 51618,
+    "sha256": "4E61AAA820BCF227283135280794AB8F31D52C78989DF8675D17D4B37B1A5CA0"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\autosave-2.ftsave.bak",
+    "bytes": 49801,
+    "sha256": "51EF47C851771080C004ED9B6AE44B7E607AA1F93B2973B0F6D46ECC591CF57E"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\classic-finished-1.ftsave",
+    "bytes": 44929,
+    "sha256": "3D574CAA3429BAD3E325AAEC1EAB4E3045A534ED42F172113A1548067E9FB739"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\classic-finished-2.ftsave",
+    "bytes": 48688,
+    "sha256": "CDD2A3171B593632103E7F8B7A604E66AD9E59010CF5AE1C1D232441B00DE4F6"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\classic-finished-3.ftsave",
+    "bytes": 49805,
+    "sha256": "EDC23DD698EC6C22816FC1A88A4135E6779477308E21BBC6D1F4636551C4EE50"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\classic-finished-4.ftsave",
+    "bytes": 51623,
+    "sha256": "5B5BE6D203FE3535D087D824DD94D41B8361D6E735288D1785BBF280A4EC6F31"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\classic-live-1.ftsave",
+    "bytes": 37146,
+    "sha256": "C7D7ADFE4C5E9BB40F38DADDC6B83193FBA73E9A91EA5CE9AF31B533D9D3EBD3"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\classic-live-2.ftsave",
+    "bytes": 39430,
+    "sha256": "0645BAE12C8FE0F9EE90A0D259E8DAA01013EEF5F616A67BBEE3CF09E67BF8A6"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\classic-live-3.ftsave",
+    "bytes": 40239,
+    "sha256": "88199207A8B5DD431C58695604DF2C8F813BC33BA3D43614F25BE3D3675E4707"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\classic-live-4.ftsave",
+    "bytes": 40849,
+    "sha256": "9AB12DE55561F8326D50CD97D66CBF87D9550A95F2A8AA0816B617BDF0C9E6B7"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\injected-classic-deaths-live.ftsave",
+    "bytes": 41581,
+    "sha256": "2160B682B65685DEC709DCB3C39C710A7FFE2E80070E392AFBD9536E29F4860A"
+  },
+  {
+    "path": "classic-loop\\classic-saves\\manual-preparation.ftsave",
+    "bytes": 40846,
+    "sha256": "CED990A4E826A05F921E17E8FC27E71A3C851DD26342E0059EDB082EDE82623D"
+  },
+  {
+    "path": "classic-tickets\\01-forecast-first.png",
+    "bytes": 159464,
+    "sha256": "24B3465192F6AD058E1A5E66E161CCBF1040F1A4BA4C9ECF6C4A9B174D407185"
+  },
+  {
+    "path": "classic-tickets\\02-empty-geometry.json",
+    "bytes": 2703,
+    "sha256": "B0E17166C32630CB3699B4136336E4B0F14A6F96AF8E3862625D136DCE31437E"
+  },
+  {
+    "path": "classic-tickets\\02-empty-sheet.json",
+    "bytes": 6488,
+    "sha256": "9EC1D4773FB10929C3BE3825960953CCEE0BAA0E26875D6AFF799B362F66F06E"
+  },
+  {
+    "path": "classic-tickets\\02-free-booking-draft.png",
+    "bytes": 147559,
+    "sha256": "094B8BFCE3958FAA57FA758963A55A9A7B01B8070AB0E8868A9CA69C3E6B6D79"
+  },
+  {
+    "path": "classic-tickets\\03-complete-sales-estimate.png",
+    "bytes": 151319,
+    "sha256": "1FA84E20D718577E55669BF7B552D7E714A9AE503798AC5E062EF34DCB67507F"
+  },
+  {
+    "path": "classic-tickets\\04-actual-sales-receipt.png",
+    "bytes": 270620,
+    "sha256": "CA3F3EA042F1D3BE406EC4BFFE776AFA7E4B0525EA2D688EEB842B1654434622"
+  },
+  {
+    "path": "classic-tickets\\05-release-consequence-preview.png",
+    "bytes": 151600,
+    "sha256": "FE1B243A547E0CCE4A40648489BCD48B488387DE32F69BCBC1B10077E4513DE2"
+  },
+  {
+    "path": "classic-tickets\\06-empty-paid-slot.png",
+    "bytes": 140369,
+    "sha256": "D1DF87C91F98EF6C146C01134DAB735521A0C95C719200A98C0A491A211C133D"
+  },
+  {
+    "path": "classic-tickets\\07-whole-cancellation-preview.png",
+    "bytes": 135248,
+    "sha256": "99B8E5BD9C2DF1AE4E748B0C4E7B8588F40591FCDBAC9900AB33578299788C17"
+  },
+  {
+    "path": "classic-tickets\\08-risk-geometry.json",
+    "bytes": 2934,
+    "sha256": "259048412256330C16F59D18283C81966D31D36599F0D1DB90893F905B6207FC"
+  },
+  {
+    "path": "classic-tickets\\08-risk-sheet.json",
+    "bytes": 6488,
+    "sha256": "036B324D794D12C7F47B3F931ABAAD114AB7B2339709AFB62038CBC14596CDAC"
+  },
+  {
+    "path": "classic-tickets\\08-risk-warning-can-confirm.png",
+    "bytes": 150329,
+    "sha256": "EB0768A3001B2A190CC62785C33B98CAC1C689D34C123E41421460AC44B0E2FE"
+  },
+  {
+    "path": "classic-tickets\\09-negative-balance-recovery.png",
+    "bytes": 140712,
+    "sha256": "D2C956A62C8E40AB381F032F39FE5E24E8D3D004265753B57420A95EE3CF207C"
+  },
+  {
+    "path": "classic-tickets\\10-zero-sales-newspaper.png",
+    "bytes": 224223,
+    "sha256": "C918F21688EEB450504DE23E298552BF83A5A56711F525E1BCCF883F8983AB98"
+  },
+  {
+    "path": "classic-tickets\\11-recovered-ticket-newspaper.png",
+    "bytes": 236310,
+    "sha256": "35D53B779424D0FC2D1F7717AD9934675C4613F45A3A3A44AE4E78A8FDCB68BD"
+  },
+  {
+    "path": "classic-tickets\\12-actual-ticket-accounts.png",
+    "bytes": 251320,
+    "sha256": "D0B8AC75D8A8AB1CCA6F51928F06FBAF365E87C307F9845693C747021518B002"
+  },
+  {
+    "path": "classic-tickets\\evidence.json",
+    "bytes": 4351074,
+    "sha256": "59498EC5E9CD856F1E47FAA4DEBC6A621C89150C91312DB17FA94ED5A9279BC0"
+  },
+  {
+    "path": "classic-tickets\\execution.json",
+    "bytes": 451,
+    "sha256": "89D649EB57B88CA2A515165E0A9E201159860907B8EBB184916820810C906A1D"
+  },
+  {
+    "path": "classic-tickets\\receipt-geometry.json",
+    "bytes": 50,
+    "sha256": "3F5F0866FEAF6EC8954CBB49BFC1C1193AEFF217BB54D139381ECC0622E51166"
+  },
+  {
+    "path": "classic-tickets\\stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "classic-tickets\\stdout.txt",
+    "bytes": 826,
+    "sha256": "76EB54617A9444CD318CA40CAD1D86C1B1CC507F3B32116133A814B9045F18D1"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\actual-negative-booking.ftsave",
+    "bytes": 4729,
+    "sha256": "80EB10404466C606E5CD65EE179143D9F7AA9BFD2773C9CA056B2D78660A8F67"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\autosave-0.ftsave",
+    "bytes": 49337,
+    "sha256": "8DDB05697B4DBD497ED11128B028D5233FF42608525DE39C68785CFDE51CCBBA"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\autosave-0.ftsave.bak",
+    "bytes": 6749,
+    "sha256": "E533413C0A867A0A8BF0FC64A70DC64D7322F7E18542A1A50CACA8CA86D5AAA3"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\autosave-1.ftsave",
+    "bytes": 6361,
+    "sha256": "F78F31B20716BBEB870D9428AE8E5E640A0B9334E9B0A7B3478B8348516EE437"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\autosave-1.ftsave.bak",
+    "bytes": 35488,
+    "sha256": "E95F9828CF0B0699016901459CC0E8A8B74E8D504B418903A85C3364974E4CCE"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\autosave-2.ftsave",
+    "bytes": 30599,
+    "sha256": "0DFB4E5119009AD4F8A5C2ECFF49DA8C3E717A077ABF90E2BA610C4FBA8205DB"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\autosave-2.ftsave.bak",
+    "bytes": 4728,
+    "sha256": "5C1A1B8D8A4A8BA5E2063BE766CE303D149A25AC17DC49FD09B148BD8164F1DA"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\classic-finished-1.ftsave",
+    "bytes": 35493,
+    "sha256": "0F6A1BD499874A20A402DF528FA8E5BAA3C4F94AF75097770246CABEF550F30D"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\classic-finished-2.ftsave",
+    "bytes": 49339,
+    "sha256": "D125827C489D605E54D7D22EEE1C2BCE6727F627FD4DAA99A2FB37E482DBFFFA"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\manual-preparation.ftsave",
+    "bytes": 5438,
+    "sha256": "A13BB48671EA0BF649404B8613106C9CC5F9F583651CA844AB0C0AF667CA17D8"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\manual-preparation.ftsave.bak",
+    "bytes": 6063,
+    "sha256": "C4F30AE390BAA83E7FAB203174CCADD1B951DE7FC8AA86762192DCC7A8959797"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\released-headline.ftsave",
+    "bytes": 4954,
+    "sha256": "4C2865ED351360130017EE4480AF1FCBBF9AC42068033294BEFD4F298FB243A6"
+  },
+  {
+    "path": "classic-tickets\\classic-saves\\ticket-draft.ftsave",
+    "bytes": 6066,
+    "sha256": "0C68416C832322EB8D93C463F50261F8473DBC63B716645646F628F7CFAC9057"
+  },
+  {
+    "path": "classic-weather\\01-Mild-forecast.png",
+    "bytes": 157584,
+    "sha256": "0357BA1FFD97A6A96C7688B9B19073F5EEB529DFD3F7FED5A71F6668AFC02654"
+  },
+  {
+    "path": "classic-weather\\01-Mild-geometry.json",
+    "bytes": 364,
+    "sha256": "2758A35F05D5C5E4FDC9CA3CBD823402C5210EBAE20F1D4BB4BF54F352842606"
+  },
+  {
+    "path": "classic-weather\\01-Mild-live.png",
+    "bytes": 1013952,
+    "sha256": "B06472BB1F6C71F4F17C250EE2F16546956F4C6E8245B311695F7882107963E4"
+  },
+  {
+    "path": "classic-weather\\01-Mild-menu-route.png",
+    "bytes": 841101,
+    "sha256": "A41615FD97170A87559774A603A8176EC0E2FF1AC4D89F97158EDB9507FA0604"
+  },
+  {
+    "path": "classic-weather\\01-Mild-reopen.json",
+    "bytes": 63,
+    "sha256": "1AE13FFBCA5E2264CC5FB2E806E69C8495F79743676671FB03B5C52BC43A7C68"
+  },
+  {
+    "path": "classic-weather\\01-Mild-wet-label.json",
+    "bytes": 118,
+    "sha256": "596498EACABD82B16F774B6B12690EA244CFFE6640A5B94711414D03B58AF5FE"
+  },
+  {
+    "path": "classic-weather\\02-Pleasant-forecast.png",
+    "bytes": 160796,
+    "sha256": "7159EEF1A09FA84DD2B47A693B298B0BDD2636F0AC43F94D4E4F82258C8E8E48"
+  },
+  {
+    "path": "classic-weather\\02-Pleasant-geometry.json",
+    "bytes": 364,
+    "sha256": "C316FE72B581CE74BC14D5941B7783BED16599486779ADCAA95FF9AC761F6322"
+  },
+  {
+    "path": "classic-weather\\02-Pleasant-live.png",
+    "bytes": 1011087,
+    "sha256": "0319239CA26A912F01F7405512600E0666455B0186A9084D1D3BE8C90D7A6AFF"
+  },
+  {
+    "path": "classic-weather\\02-Pleasant-menu-route.png",
+    "bytes": 842469,
+    "sha256": "1F3A4794E1F62ECD8B58AD7EF7938712B1B0642A1856CB508CC99EB5A248B2AE"
+  },
+  {
+    "path": "classic-weather\\02-Pleasant-reopen.json",
+    "bytes": 63,
+    "sha256": "1AE13FFBCA5E2264CC5FB2E806E69C8495F79743676671FB03B5C52BC43A7C68"
+  },
+  {
+    "path": "classic-weather\\02-Pleasant-wet-label.json",
+    "bytes": 118,
+    "sha256": "596498EACABD82B16F774B6B12690EA244CFFE6640A5B94711414D03B58AF5FE"
+  },
+  {
+    "path": "classic-weather\\03-Cloudy-forecast.png",
+    "bytes": 159182,
+    "sha256": "3707C764855A9376C87EF461F42633373633ED8B608B10B79B03CE78E0C4D61C"
+  },
+  {
+    "path": "classic-weather\\03-Cloudy-geometry.json",
+    "bytes": 364,
+    "sha256": "AC5C3730522EA6224A5ECACA16AF6E54254B7DD8286805E0E969F50831BDC84A"
+  },
+  {
+    "path": "classic-weather\\03-Cloudy-live.png",
+    "bytes": 970319,
+    "sha256": "8A525D2998870391E2956A2FCE3A9BB13D5A4A307ABC6683DA61D2BA575E47FF"
+  },
+  {
+    "path": "classic-weather\\03-Cloudy-menu-route.png",
+    "bytes": 849480,
+    "sha256": "19BB006CD16CDB8820F90E2BAAF1DA056B6A4EF4EF3E1BC7531D1187051862ED"
+  },
+  {
+    "path": "classic-weather\\03-Cloudy-reopen.json",
+    "bytes": 63,
+    "sha256": "1AE13FFBCA5E2264CC5FB2E806E69C8495F79743676671FB03B5C52BC43A7C68"
+  },
+  {
+    "path": "classic-weather\\03-Cloudy-wet-label.json",
+    "bytes": 118,
+    "sha256": "596498EACABD82B16F774B6B12690EA244CFFE6640A5B94711414D03B58AF5FE"
+  },
+  {
+    "path": "classic-weather\\04-Showery-forecast.png",
+    "bytes": 159464,
+    "sha256": "24B3465192F6AD058E1A5E66E161CCBF1040F1A4BA4C9ECF6C4A9B174D407185"
+  },
+  {
+    "path": "classic-weather\\04-Showery-geometry.json",
+    "bytes": 364,
+    "sha256": "E0C963903795E15E66A20091102E0E8C36C98CC52AB3EC86D958C77B99CBA312"
+  },
+  {
+    "path": "classic-weather\\04-Showery-live.png",
+    "bytes": 990947,
+    "sha256": "836DF59FEAE3B287B704FF82A5C624B32F4B0B2F1005E264FE1FDD48CBEFC19D"
+  },
+  {
+    "path": "classic-weather\\04-Showery-menu-route.png",
+    "bytes": 812334,
+    "sha256": "F3622FB4E71B3077DCD936205B925D7EA0AAE303125789D564988D93EC5ACA33"
+  },
+  {
+    "path": "classic-weather\\04-Showery-reopen.json",
+    "bytes": 63,
+    "sha256": "1AE13FFBCA5E2264CC5FB2E806E69C8495F79743676671FB03B5C52BC43A7C68"
+  },
+  {
+    "path": "classic-weather\\04-Showery-wet-label.json",
+    "bytes": 104,
+    "sha256": "A2E74C76BDC5362D933ACA40A21B4B9F8B9BDF462BC5516A6F7055673A55D6EB"
+  },
+  {
+    "path": "classic-weather\\05-Heatwave-forecast.png",
+    "bytes": 157809,
+    "sha256": "1226EAD4E0FC33958B0FD4EC339F5D9D4DF9A4E649B4F32532A9B8CF2E6862F7"
+  },
+  {
+    "path": "classic-weather\\05-Heatwave-geometry.json",
+    "bytes": 366,
+    "sha256": "DA19F570EE72F3F3FF1FCA044CFD7ED767DB3CFFA6D6F1EAEA9F168E6182EF08"
+  },
+  {
+    "path": "classic-weather\\05-Heatwave-live.png",
+    "bytes": 1010037,
+    "sha256": "A336FA09FE2FF100DFF14A8B9A46A15E8DC10FD912C83D320C9ED77F15F99F9A"
+  },
+  {
+    "path": "classic-weather\\05-Heatwave-menu-route.png",
+    "bytes": 823539,
+    "sha256": "49771807A2A48881472BE5CE6985286A55E56D6EED789CA8684774BA16585704"
+  },
+  {
+    "path": "classic-weather\\05-Heatwave-reopen.json",
+    "bytes": 63,
+    "sha256": "1AE13FFBCA5E2264CC5FB2E806E69C8495F79743676671FB03B5C52BC43A7C68"
+  },
+  {
+    "path": "classic-weather\\05-Heatwave-wet-label.json",
+    "bytes": 118,
+    "sha256": "596498EACABD82B16F774B6B12690EA244CFFE6640A5B94711414D03B58AF5FE"
+  },
+  {
+    "path": "classic-weather\\06-HeavyRain-forecast.png",
+    "bytes": 172254,
+    "sha256": "EB243E0097479BD440C9BE9E119C86F5FA9A8C1E2BC35AD0FD5F43897BD9C4DC"
+  },
+  {
+    "path": "classic-weather\\06-HeavyRain-geometry.json",
+    "bytes": 366,
+    "sha256": "FBF6D13F242C6F4E5CC466A253546C3C9D523595BB87463337505A4BB3BA48BB"
+  },
+  {
+    "path": "classic-weather\\06-HeavyRain-live.png",
+    "bytes": 995250,
+    "sha256": "B1D4D166408FB1A27103110C59DD977EC3052FF986672B01D4BCB23197A5125A"
+  },
+  {
+    "path": "classic-weather\\06-HeavyRain-menu-route.png",
+    "bytes": 849526,
+    "sha256": "3D8085EDB1A49BF760B715F9E9F14AA6FC0BF976350860FEFAE58BFE530923DE"
+  },
+  {
+    "path": "classic-weather\\06-HeavyRain-reopen.json",
+    "bytes": 63,
+    "sha256": "1AE13FFBCA5E2264CC5FB2E806E69C8495F79743676671FB03B5C52BC43A7C68"
+  },
+  {
+    "path": "classic-weather\\06-HeavyRain-wet-label.json",
+    "bytes": 243,
+    "sha256": "EC6A9C797D6E7BE25260A33A26A894506138AF870F6A79991B655547AA85F09D"
+  },
+  {
+    "path": "classic-weather\\07-natural-next-forecast.png",
+    "bytes": 157592,
+    "sha256": "33B5B82D1652567B6BE4D54FBEEDAFD3ACBE734B09B2E64BFC2D28EA21F5914E"
+  },
+  {
+    "path": "classic-weather\\08-diagnostic-shared-mapping-only.png",
+    "bytes": 158870,
+    "sha256": "89E6D5CF05E03E9416DF22EECC5B1B9FD1EDAA22B2502AC7C5A9EA489FBAB2E4"
+  },
+  {
+    "path": "classic-weather\\09-diagnostic-mapping-results.png",
+    "bytes": 262451,
+    "sha256": "902B340CA7A2BBCC4F352EA5215FDE668F8062BBB2DB408D5FBDA0C2D00C8107"
+  },
+  {
+    "path": "classic-weather\\10-ordinary-showers-reported.png",
+    "bytes": 240552,
+    "sha256": "3A2A6B6D8130A0E6148B8BB4C30B771F98E2C229547EE193C9D433F279502756"
+  },
+  {
+    "path": "classic-weather\\evidence.json",
+    "bytes": 14440742,
+    "sha256": "CDBCA24B30117675B01FCC30B4906263A5D526BBFFF0756A7F26C06ED9544566"
+  },
+  {
+    "path": "classic-weather\\execution.json",
+    "bytes": 451,
+    "sha256": "8CEA9CA7706A280A4331EB60B3A9BC7CC3CE4044FC82CAF9644F7EF469504BD1"
+  },
+  {
+    "path": "classic-weather\\stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "classic-weather\\stdout.txt",
+    "bytes": 2839,
+    "sha256": "FEF64DE11344BEC57C292BE1C8888C46BEF6C63387FB9E631D5331DFBD30B140"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\autosave-0.ftsave",
+    "bytes": 5979,
+    "sha256": "58F4A95BD9034AA5D60D5A6EEE98DB0BBC84751A4CD65FF376DAB01BFEED7BF6"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\autosave-0.ftsave.bak",
+    "bytes": 45407,
+    "sha256": "C4670E8840EC60B3E5035DA58274C74F0B2DFB15BD94BAAB14D734730321DB60"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\autosave-1.ftsave",
+    "bytes": 29814,
+    "sha256": "3B9C244052DC440B2FAE26E11B32FA367687CFA778024E797E299F86ECF28CE2"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\autosave-1.ftsave.bak",
+    "bytes": 5835,
+    "sha256": "A5F5DB8F9F320FABDA5982C1E2BBCB9C42C77DF7E6D6B261E45A3E19A287D233"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\autosave-2.ftsave",
+    "bytes": 29422,
+    "sha256": "4181BC819F1E2CF771C6E619822730E0B07D41CE4C345021D708DE0B1D6EF366"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\autosave-2.ftsave.bak",
+    "bytes": 29729,
+    "sha256": "27ABF523CB856CE96524D39FCFB73326E0186F265629C3F8805B78077B7EAAF8"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\classic-finished-1.ftsave",
+    "bytes": 45414,
+    "sha256": "7029C27A37C1AEF09494D7015EC61BDE4D36C14A408A03B271FBC5DBF55E3CC7"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\classic-finished-1.ftsave.bak",
+    "bytes": 47031,
+    "sha256": "39EE1357FAF02D326C1AF25023280B82410B1D5032F4E32ED1582DFF85EEA930"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\classic-finished-2.ftsave",
+    "bytes": 49323,
+    "sha256": "94059A018494DB0B5FDA3D3B42390285C5DA9E1DBC49C53BC5A41D5F8E2C8796"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-draft-Cloudy.ftsave",
+    "bytes": 5988,
+    "sha256": "051469BAA9BFF8D46D45C5B8EF047074763E44D0A1F6E7C8DF031428C6E7CF5A"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-draft-Heatwave.ftsave",
+    "bytes": 5784,
+    "sha256": "4D47CE53478A2A7D8061F971B8318876CC9212F83A845C312550FF0CFFBAF406"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-draft-HeavyRain.ftsave",
+    "bytes": 6123,
+    "sha256": "3DC2E82F214DBB9A0229C25B84BA850A1CEFBFD20E16091EEED01EC639FEF402"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-draft-Mild.ftsave",
+    "bytes": 6216,
+    "sha256": "94626A9198E97AA35DCA9CF64B833DF46867976552EEA3EC0217202AD985EA01"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-draft-Pleasant.ftsave",
+    "bytes": 6130,
+    "sha256": "170E837E256B13C190A187651DCE480CB70754D5C84A1ED14771DA55C537CA9F"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-draft-Showery.ftsave",
+    "bytes": 6115,
+    "sha256": "0688E3428EF276B83CEFF5599581D4A3F5C474F3AE236328930DF4025848D738"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-live-Cloudy.ftsave",
+    "bytes": 37958,
+    "sha256": "36164977809BF3E9A06312C0E8DD6C1AE0E81541BF329DBA857AAF2D02254B93"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-live-Heatwave.ftsave",
+    "bytes": 36782,
+    "sha256": "EF5B718DC232D33AF09C3F9BA9D22D6AA7661B71C85556BE85810776E6BE3DDD"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-live-HeavyRain.ftsave",
+    "bytes": 41316,
+    "sha256": "EF19E97E01CDADBBC78BF8158F2ECDF285750D3550AE35E4B8E9A013E5B7530A"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-live-Mild.ftsave",
+    "bytes": 38211,
+    "sha256": "09F292E81637699C2C2A6A82D83F5C3C3A38C218C7E2BAF8635143451C2D613E"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-live-Pleasant.ftsave",
+    "bytes": 37858,
+    "sha256": "9D35FD1CCC008271188F8C60168AA20B16D4AE4394F0B8D7CBED9C244552BC60"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\forecast-live-Showery.ftsave",
+    "bytes": 40148,
+    "sha256": "564E0AE422AFE8D684E7ABF990D591001AB5B682DA9DE13793B9A5175B860717"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\manual-preparation.ftsave",
+    "bytes": 6120,
+    "sha256": "59C5479F1105BB3EA25AFC17968CAF7AE6B60348A22F021D113B169F2EC5A5F0"
+  },
+  {
+    "path": "classic-weather\\classic-saves\\manual-preparation.ftsave.bak",
+    "bytes": 5780,
+    "sha256": "D3CFA697856DA6CC04D5DBD8247F5B83F9AC8F45E4650CE815EB5E6AC26826BC"
+  },
+  {
+    "path": "save-warning\\01-save-failure-dismissible.png",
+    "bytes": 216482,
+    "sha256": "95843C9CA11D3FDEB98A5386C1032A70CF66E99656AE6429094E1BD4E265E996"
+  },
+  {
+    "path": "save-warning\\02-dismissed-stage-selection.png",
+    "bytes": 213990,
+    "sha256": "5ACA8E09764E08F0A3E5C989C6FF5C25329E9DA8DB9246354F49F119B6C6AE8A"
+  },
+  {
+    "path": "save-warning\\03-live-despite-failed-save.png",
+    "bytes": 1009362,
+    "sha256": "DF7B64D8C562A219BBB6E965C85E4CE199BEFFAFF6A6870F780910A4723FD520"
+  },
+  {
+    "path": "save-warning\\04-recovered-save.png",
+    "bytes": 1005296,
+    "sha256": "C67E4A6D7C75787726E20AE6A8EAF98C51A475AFAC85EC36087AAE9C62F601A6"
+  },
+  {
+    "path": "save-warning\\checks.json",
+    "bytes": 1899,
+    "sha256": "B8F2E726F34E3EBECBB40BCD368D68971575D1535C27D6F405811D4F61257E8A"
+  },
+  {
+    "path": "save-warning\\execution.json",
+    "bytes": 445,
+    "sha256": "55FC4E31B3DF9845B4D72F910E634D445CE03A598BDA338433BC86F67501821C"
+  },
+  {
+    "path": "save-warning\\stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "save-warning\\stdout.txt",
+    "bytes": 654,
+    "sha256": "680B250DD2CFF9BF87DCED5D8DA1B8E8AE0C1A5BEB9F13A203D0EB55F092F535"
+  },
+  {
+    "path": "save-warning\\management-saves\\autosave-0.ftsave",
+    "bytes": 34786,
+    "sha256": "2C32A69A8BB57721F61639A594D561942A30AC3C3C68DA44A9A52944806F2443"
+  },
+  {
+    "path": "save-warning\\management-saves\\manual-preparation.ftsave",
+    "bytes": 9075,
+    "sha256": "5FC184E3FA157F44AC4FCB7AEE0D9951738697193A3F9CA9086E319CF739353B"
+  },
+  {
+    "path": "save-write-baseline\\summary.json",
+    "bytes": 1381,
+    "sha256": "C6F82346CD352B26C59ACEB7C5085C557C9EBE9711C7FDA0699229A36B8A5A08"
+  },
+  {
+    "path": "save-write-baseline\\rotation-saves\\autosave-0.ftsave",
+    "bytes": 42726,
+    "sha256": "61AF09B9B6AF929E3FC3F2AEE1FEBB05DE70D6969EF271EBC19A52496B2F2861"
+  },
+  {
+    "path": "save-write-baseline\\rotation-saves\\autosave-0.ftsave.bak",
+    "bytes": 42726,
+    "sha256": "3B3753F151620419A6466AB76DE89194270E4A5DA9CB6111F8603D54F9148D6B"
+  },
+  {
+    "path": "save-write-baseline\\rotation-saves\\autosave-1.ftsave",
+    "bytes": 42726,
+    "sha256": "3C1FA3F1C92C006791F65D73A6803312E9AA10348F608A15FF99147901067A07"
+  },
+  {
+    "path": "save-write-baseline\\rotation-saves\\autosave-1.ftsave.bak",
+    "bytes": 42727,
+    "sha256": "478E3BD626C244A450DB90FF75FD2498FFB6CC89A14A2C3444ED22FF2FE938BA"
+  },
+  {
+    "path": "save-write-baseline\\rotation-saves\\autosave-2.ftsave",
+    "bytes": 42727,
+    "sha256": "34CD62CCFA6DA9CE0E403315F3B0CE05936835A21392E443F869ACEA50F47679"
+  },
+  {
+    "path": "save-write-baseline\\rotation-saves\\autosave-2.ftsave.bak",
+    "bytes": 42729,
+    "sha256": "7838FB9CC13A5A8341804011EE2364547F4B307A0C9D8A9DCFA6E34B9FC85A8E"
+  },
+  {
+    "path": "save-write-stress\\summary.json",
+    "bytes": 1375,
+    "sha256": "AC92016FA7D0A42863B5D37ED2C44424EA2CA78A475A7F379B1CD1C492AB2280"
+  },
+  {
+    "path": "save-write-stress\\rotation-saves\\autosave-0.ftsave",
+    "bytes": 69660,
+    "sha256": "537B568A27860ED66150A73E18D1B1316A16D53AD14C1F68CDC2E4BE6075DBB4"
+  },
+  {
+    "path": "save-write-stress\\rotation-saves\\autosave-0.ftsave.bak",
+    "bytes": 69659,
+    "sha256": "B50ECC99CE5A2BB2005D44484093BC002D7DADEC09625B738F2DC4F53D16503B"
+  },
+  {
+    "path": "save-write-stress\\rotation-saves\\autosave-1.ftsave",
+    "bytes": 69661,
+    "sha256": "67EFA99AFB937F82F5F8FC7AC950D66B9C2849F007468D783F56F397DBC76CE8"
+  },
+  {
+    "path": "save-write-stress\\rotation-saves\\autosave-1.ftsave.bak",
+    "bytes": 69660,
+    "sha256": "C71B37D54F597AAE00A6FB8DE659D1E853535B0D6DB4E7624578C045FD94BFAF"
+  },
+  {
+    "path": "save-write-stress\\rotation-saves\\autosave-2.ftsave",
+    "bytes": 69660,
+    "sha256": "E2CEFA871199DC6047908CFD3BE32F926106949900904ACE386C7AB48C02E561"
+  },
+  {
+    "path": "save-write-stress\\rotation-saves\\autosave-2.ftsave.bak",
+    "bytes": 69660,
+    "sha256": "F5BDAAA09BFBECB27F6659E3B86F91681B9CDFB03381FC05D560F7600916AAA2"
+  },
+  {
+    "path": "stress\\01-development-menu.png",
+    "bytes": 208489,
+    "sha256": "AF5C50C74B7794626A004ABBFF7C239148B4B674105D2552BB79C7F5CF0E6FBD"
+  },
+  {
+    "path": "stress\\02-development-default-options.png",
+    "bytes": 75284,
+    "sha256": "1DF1BF96CB5844B42F9E4861B47300BF56360495FD7BF9386E1D0D1C1FED4665"
+  },
+  {
+    "path": "stress\\03-explicit-diagnostic-options.png",
+    "bytes": 75728,
+    "sha256": "B5AC6DA355E50500B03892BEE7C1BE3AD17CE38A3DE6AE4C83EFF17962A0491D"
+  },
+  {
+    "path": "stress\\04-three-stage-forecast.png",
+    "bytes": 163296,
+    "sha256": "5EB49D96E72FB07A790C184B88A975E5D59F16CEC917DC82D7FCF3F4830C4A96"
+  },
+  {
+    "path": "stress\\05-three-engineer-staff.png",
+    "bytes": 225190,
+    "sha256": "A6D6DEDC71A53D2BB9D72A5951E49737C733D532E23DFAD47AD1884A0BC0DE89"
+  },
+  {
+    "path": "stress\\06-trailer-bookings.png",
+    "bytes": 144404,
+    "sha256": "35284AE927BBE50BE53E26C9E2A0C8BC606528CC5F265D8C5F3C23EC835FA148"
+  },
+  {
+    "path": "stress\\07-barn-bookings.png",
+    "bytes": 143733,
+    "sha256": "B8C26F394A859B45A707A1F25D62A9DAB5F2EBF6A4090D60084CA8F78DA2E581"
+  },
+  {
+    "path": "stress\\08-pond-bookings.png",
+    "bytes": 144013,
+    "sha256": "5663EE5C0FE487D13834B54A3F9BF9A2165B33C69434E74048C8AA259A9FE217"
+  },
+  {
+    "path": "stress\\09-hundred-attendee-results.png",
+    "bytes": 358472,
+    "sha256": "8E0C4A12B24435B0B0066655A1508695F94BCBD41C38BC25335E34B2958BB66D"
+  },
+  {
+    "path": "stress\\10-next-test-festival.png",
+    "bytes": 165275,
+    "sha256": "57368C80B260455F936B5F98A883FDA5020BD397D67CD4E1F053E357C587607F"
+  },
+  {
+    "path": "stress\\11-pond-headliner-contract-preview.png",
+    "bytes": 152826,
+    "sha256": "D3F9E65945E3115931F680DC608016DA520FCC529AB0FAEE07E81B4FB2DEB752"
+  },
+  {
+    "path": "stress\\12-pond-empty-headliner.png",
+    "bytes": 144391,
+    "sha256": "D2D27C4A9B680488319DC0831FF1F77583C63C7D472D91B5794F23A4C70C56A0"
+  },
+  {
+    "path": "stress\\13-barn-only-own-generator-cut.png",
+    "bytes": 789587,
+    "sha256": "36442AF2B276300FCE2959A5908A3B9C975B6561639441EC9B5FEB6DB9E66F0C"
+  },
+  {
+    "path": "stress\\14-pond-only-own-generator-cut.png",
+    "bytes": 1030668,
+    "sha256": "EB0780635DC4BCFA352D26B8B72D6A798E8077C1D722C0401C36C7ADEAD23D3B"
+  },
+  {
+    "path": "stress\\15-food-traders-page-one.png",
+    "bytes": 627660,
+    "sha256": "9E882364841FEBA6FC68C12D894E06A6205B51C20E55777580F1A61DEEAB30FE"
+  },
+  {
+    "path": "stress\\16-food-traders-page-two.png",
+    "bytes": 622295,
+    "sha256": "0F256EA76662EC7EBF9381CC202C1CFFCC572140D11BB179FF5021E51A34B51A"
+  },
+  {
+    "path": "stress\\17-placed-bins-page-one.png",
+    "bytes": 611092,
+    "sha256": "82C51A8EDDB5980C9F4F8593035BA8AA9F02535DA2967371C87B4FC2EABA2DCB"
+  },
+  {
+    "path": "stress\\18-placed-bins-page-two.png",
+    "bytes": 620662,
+    "sha256": "29F0FC72C0A2AD4641468BD930803FFEECB3C812166C6F3E4148928452C489D4"
+  },
+  {
+    "path": "stress\\19-additional-buildings-world.png",
+    "bytes": 723557,
+    "sha256": "0EBA2F1F5B5F5BD7CFB3D8B7E6DC8B38B15F973FF96C8D6223B8D2B84AC35D6C"
+  },
+  {
+    "path": "stress\\checks.json",
+    "bytes": 5725,
+    "sha256": "9B0D97BD2F74FDEDE37290F480C62A490044134B33F40951CC22F30CD70FD43F"
+  },
+  {
+    "path": "stress\\clip-0000.png",
+    "bytes": 949672,
+    "sha256": "3CD8040074F4CCF029C0179E5CB84E86F8C709B8BF775DAB4A4ACE1648DB23AE"
+  },
+  {
+    "path": "stress\\clip-0001.png",
+    "bytes": 949994,
+    "sha256": "FF14A039C77B9381452DC9D38B741EEC8B4A5F5D59A73A576DE850AC91408934"
+  },
+  {
+    "path": "stress\\clip-0002.png",
+    "bytes": 949795,
+    "sha256": "CFF7337D47C77F50604F0B9D23D7CAA72A132427C537BF2003565353D60BCB95"
+  },
+  {
+    "path": "stress\\clip-0003.png",
+    "bytes": 950649,
+    "sha256": "E214C908BE85FDDFE4841CB9AC333F948A20BCBFA8F9CC6B8B1D337BD6CBEB9C"
+  },
+  {
+    "path": "stress\\clip-0004.png",
+    "bytes": 951053,
+    "sha256": "3EF1C2F7F0FB96E0654480BB3FE8463293D5FB05F1634FBAA671B75CE1502128"
+  },
+  {
+    "path": "stress\\clip-0005.png",
+    "bytes": 950128,
+    "sha256": "D5497FD04DDFA5F6834D8EC4BD2B30D12FCD05570E5EE94F6F7E5D4A273C8072"
+  },
+  {
+    "path": "stress\\clip-0006.png",
+    "bytes": 950039,
+    "sha256": "0FDBC21B2C912ABF87824BAE028753BAD48D93277B26A37D7A37E70E56FAD92F"
+  },
+  {
+    "path": "stress\\clip-0007.png",
+    "bytes": 950821,
+    "sha256": "AF54DE7DE16DE98B0FC1BF0DE577772B74E786FC544D28F0E6B320523F162757"
+  },
+  {
+    "path": "stress\\clip-0008.png",
+    "bytes": 951110,
+    "sha256": "F914B8B1B484F27C45BC00767695932BCB186AE8E057855F66A20FCB57B73662"
+  },
+  {
+    "path": "stress\\clip-0009.png",
+    "bytes": 951207,
+    "sha256": "7B124312861119F149EA0EF9FD383AC43C9E00E4F4646B4451217557C3AEA5CB"
+  },
+  {
+    "path": "stress\\clip-0010.png",
+    "bytes": 974951,
+    "sha256": "BFE1713F4B2034A87FC3AFF5273A3B44337CA77A4229BAC7F15D93968A30544E"
+  },
+  {
+    "path": "stress\\clip-0011.png",
+    "bytes": 974935,
+    "sha256": "A189466E25F3DEE712B599EA49F163C59730DC7D0C9F22D6610191CE7A6526A9"
+  },
+  {
+    "path": "stress\\clip-0012.png",
+    "bytes": 975728,
+    "sha256": "FBA265707BD69093A406085C49EF8332FD5C8BBFF7519DBAE3CC63D69FCEC63C"
+  },
+  {
+    "path": "stress\\clip-0013.png",
+    "bytes": 975102,
+    "sha256": "A691009224904FE2A2C0184F6D71A5FBD71C7FA1FC07B97E5AA79EA4B81D595F"
+  },
+  {
+    "path": "stress\\clip-0014.png",
+    "bytes": 975205,
+    "sha256": "5E796E58DEFAE80AFE42917232BEC7F055AB197B25B885A5BC5F2B77C807BB62"
+  },
+  {
+    "path": "stress\\clip-0015.png",
+    "bytes": 974685,
+    "sha256": "87D089230BE1A42CFF067E3B9C4609D96E0657ABFE497FE814248D88E56B5796"
+  },
+  {
+    "path": "stress\\clip-0016.png",
+    "bytes": 974526,
+    "sha256": "73E2113068EDA049679BCF9101C078812529C14FBC6B99163E0A84FAE2031C05"
+  },
+  {
+    "path": "stress\\clip-0017.png",
+    "bytes": 975071,
+    "sha256": "23625BBD29C6F5DFF571A8213D3CF141A5998E88B04215A63B43AA837FF956D9"
+  },
+  {
+    "path": "stress\\clip-0018.png",
+    "bytes": 974875,
+    "sha256": "11CCC3EE725E11128CECFBB3C7BADC9B72EEAD2730CBB4E7E6B8CCC18E1DAD1A"
+  },
+  {
+    "path": "stress\\clip-0019.png",
+    "bytes": 974495,
+    "sha256": "AD82757A79BD5A9A75E072E8F850C8E39B25EB0891AC7934FD6278B341CAEDC6"
+  },
+  {
+    "path": "stress\\clip-0020.png",
+    "bytes": 974409,
+    "sha256": "EE707D1B361B3059DDA022CA9AFA1677E43842B5AF7961EC2BD4004C435BA3AC"
+  },
+  {
+    "path": "stress\\clip-0021.png",
+    "bytes": 974457,
+    "sha256": "CF174CFA19D62ECC95F6EA721462BAC58E12E0D7E1179BD900FEA09AA1887BD9"
+  },
+  {
+    "path": "stress\\clip-0022.png",
+    "bytes": 974711,
+    "sha256": "9F1711211362F04DF02D944AD119F514F7A057528C6D77B71A3BC2ABE9B7A0FF"
+  },
+  {
+    "path": "stress\\clip-0023.png",
+    "bytes": 974179,
+    "sha256": "C0E2A195C6DCBE1925B5981696D49D7DD59AFFB451285455EB1DEBEC3F8A7E73"
+  },
+  {
+    "path": "stress\\clip-0024.png",
+    "bytes": 974658,
+    "sha256": "C9CBFACB819106D02593419D03EE0B606F0CA18AF5E2E68AD911DB7F66018AE6"
+  },
+  {
+    "path": "stress\\clip-0025.png",
+    "bytes": 974953,
+    "sha256": "4D3F2111C32F54BFC22FB5693FD5EEED00267B6F38DFE94225F937467A69FACC"
+  },
+  {
+    "path": "stress\\clip-0026.png",
+    "bytes": 974869,
+    "sha256": "94E4CBC28B20D3AEE4AD61D951E8B1A60EF59675AC5F0CBA5F3053D85FEA9BAF"
+  },
+  {
+    "path": "stress\\clip-0027.png",
+    "bytes": 974412,
+    "sha256": "211646166B073E4F83367D73F423D2CED968373E282214D897100578C71A3B7B"
+  },
+  {
+    "path": "stress\\clip-0028.png",
+    "bytes": 974289,
+    "sha256": "0A6F61687044BE51F01DC18EB340B9E8BB786CED5D55D4BA7142280CB38EA2AB"
+  },
+  {
+    "path": "stress\\clip-0029.png",
+    "bytes": 975517,
+    "sha256": "A3F070835ADEDC49137E79C57FBBED584E954B903F4C5AD181FDAB1C24E74F2D"
+  },
+  {
+    "path": "stress\\clip-0030.png",
+    "bytes": 975427,
+    "sha256": "81708D1A4A583FFFB36C945640BFB1DBDED030BC2A639C7EC99C700B4AEFAF03"
+  },
+  {
+    "path": "stress\\clip-0031.png",
+    "bytes": 974733,
+    "sha256": "F698CC319DB141003D1FC0CEC9C6776F88013EBF7F14FFB0268F5E037DC9F754"
+  },
+  {
+    "path": "stress\\clip-0032.png",
+    "bytes": 974925,
+    "sha256": "308862A60206E27F657F8D47F22B7FCAA71F3ED888C08241B733263E225C2095"
+  },
+  {
+    "path": "stress\\clip-0033.png",
+    "bytes": 974511,
+    "sha256": "02AF683A953AB5C02C2DB8F3C825280BC722A674EC7761F34F9D759A4E2EACF8"
+  },
+  {
+    "path": "stress\\clip-0034.png",
+    "bytes": 974393,
+    "sha256": "4E757778198B326DBE653E1A811D031474895ADA2AD991DDFDDBE42E1B63299B"
+  },
+  {
+    "path": "stress\\clip-0035.png",
+    "bytes": 974712,
+    "sha256": "A83B321F27BA715226F5F0FC405AF97F5E9F458B7F2CC4BBACC55732E6BF24F7"
+  },
+  {
+    "path": "stress\\clip-0036.png",
+    "bytes": 974351,
+    "sha256": "62FAE55DC62404A319594E494EA6C71698DCE6C156276CDCB0ED4A6B5AB2244D"
+  },
+  {
+    "path": "stress\\clip-0037.png",
+    "bytes": 974400,
+    "sha256": "3548728C4BE97F2CF08610673886FE4AF46052F5CC2011A9B1F70204F9D48630"
+  },
+  {
+    "path": "stress\\clip-0038.png",
+    "bytes": 973502,
+    "sha256": "4FDE3F03A9BC63160FF2F1996804560EBABFFD29A387FA1DE3F45F0D4606F897"
+  },
+  {
+    "path": "stress\\clip-0039.png",
+    "bytes": 970799,
+    "sha256": "3C9852394BB2659629D6464793B1FC419AEBF4DA175C9A27B6816D882301C38E"
+  },
+  {
+    "path": "stress\\clip-0040.png",
+    "bytes": 970527,
+    "sha256": "915A1ADBEE7F07C06003B9FBCA383EBD769D8DCF6712A60BE282ED321F7F2480"
+  },
+  {
+    "path": "stress\\clip-0041.png",
+    "bytes": 971079,
+    "sha256": "D5B192553A907BBCE4B9F78FBB7DA3B8C3B1595391CF0A79E4738C09F24C95F1"
+  },
+  {
+    "path": "stress\\clip-0042.png",
+    "bytes": 970967,
+    "sha256": "2975E5B12219651730909B02A92D065279FF65C68D9A2A8A860A4B27574481E8"
+  },
+  {
+    "path": "stress\\clip-0043.png",
+    "bytes": 970855,
+    "sha256": "F845FC5B8E4647C6F9CE19E01FC7ED33DE21FC5618E9EC9A7FDF76C1FE811146"
+  },
+  {
+    "path": "stress\\clip-0044.png",
+    "bytes": 971062,
+    "sha256": "1F9F086ADC5CEE2FEFCDFC07487D38BC3D059B3D733C6DC542A4505AFAE19DCA"
+  },
+  {
+    "path": "stress\\clip-0045.png",
+    "bytes": 972134,
+    "sha256": "8680C3F754467506A8B39A47B09AB1C3EC26822C5C9105FB4A29CE3691D56ED2"
+  },
+  {
+    "path": "stress\\clip-0046.png",
+    "bytes": 972349,
+    "sha256": "754BA828BFCBBD23DA55FE7547C8F3E4C33BEE86B83BC2137FCD339321EC4584"
+  },
+  {
+    "path": "stress\\clip-0047.png",
+    "bytes": 972078,
+    "sha256": "E9E82152EF89D321D4559007B9242C268533122C8F253CE878AAB92E279F5E89"
+  },
+  {
+    "path": "stress\\clip-0048.png",
+    "bytes": 971541,
+    "sha256": "543522A5D754C2BDFFA0AB3BD70FA750AE029DCFE6DA81B9A86E0720E326D2F5"
+  },
+  {
+    "path": "stress\\clip-0049.png",
+    "bytes": 971356,
+    "sha256": "3E85A0EAB803A7DA6FA5256583C3DA3B689EB86850643ACF90C50AFED3E79446"
+  },
+  {
+    "path": "stress\\clip-0050.png",
+    "bytes": 972136,
+    "sha256": "C2CABA1742949DBB82E38659F6BD49AB5ABF543FA3D7AA6534CD256A2E303E0C"
+  },
+  {
+    "path": "stress\\clip-0051.png",
+    "bytes": 972146,
+    "sha256": "02D6FCD5589561E774558574F328FAE7464D36C9CB731FB3280DB980AE98D162"
+  },
+  {
+    "path": "stress\\clip-0052.png",
+    "bytes": 972201,
+    "sha256": "F70F1095D238F5F4DEEF7E7914D9D14E4FD2D1071E0B25770BE3A13A48B2F154"
+  },
+  {
+    "path": "stress\\clip-0053.png",
+    "bytes": 971713,
+    "sha256": "AB33A8C01D5100187F28A2B19C16BE374BA398CD1C029C4C1E38BDC0BEE2EA02"
+  },
+  {
+    "path": "stress\\clip-0054.png",
+    "bytes": 971127,
+    "sha256": "32BEB254AF4AE380A3A91CDF47073C5937F517956A59303FE97F71BBF42A95BA"
+  },
+  {
+    "path": "stress\\clip-0055.png",
+    "bytes": 971856,
+    "sha256": "E845B2BE29E58A71E9AABA964B5BD008202DE26B433D2E5182D50C41831849CF"
+  },
+  {
+    "path": "stress\\clip-0056.png",
+    "bytes": 971799,
+    "sha256": "E61789238295DC5B0E1CC89D897E3EAD5C5D1CFF7EABB60BF41FFCB89407010A"
+  },
+  {
+    "path": "stress\\clip-0057.png",
+    "bytes": 972059,
+    "sha256": "92BEF049FD7B6518B68EC470BDD426E7C9E0B68F5AA361BB6D60839B85DC1DDA"
+  },
+  {
+    "path": "stress\\clip-0058.png",
+    "bytes": 971753,
+    "sha256": "27CF8EB5D48067D283572B119028C3655CF2169DB400D3B3588CC28C4DC27DA3"
+  },
+  {
+    "path": "stress\\clip-0059.png",
+    "bytes": 967220,
+    "sha256": "311DE354A03ECF7D7333CE503CFA8A81BC76A33F89C9F1A49A1292FFE967630A"
+  },
+  {
+    "path": "stress\\clip-0060.png",
+    "bytes": 967752,
+    "sha256": "8C36AB9724D8B9E90C1BA07A124E3341E6C7B947188D979E3995D119BB091C20"
+  },
+  {
+    "path": "stress\\clip-0061.png",
+    "bytes": 968031,
+    "sha256": "97016E281CAFEAA1AF97F9974A24EB19638550494F96AD4063C4355ECF592365"
+  },
+  {
+    "path": "stress\\clip-0062.png",
+    "bytes": 967975,
+    "sha256": "60E1CDEBD35E2367D9031AD9541A0379F2738A39AB169F147FFCB24CC8849AA1"
+  },
+  {
+    "path": "stress\\clip-0063.png",
+    "bytes": 967193,
+    "sha256": "24BF619531F00DDD82EF6D8E7004201A6AF556FC09B2FB1D90F3B42FCFD78DAC"
+  },
+  {
+    "path": "stress\\clip-0064.png",
+    "bytes": 967079,
+    "sha256": "6E29B8CC7CCD7588CE68EE418DFACD4EC6A2EB457CBF8B8ED8B9218067DCC44A"
+  },
+  {
+    "path": "stress\\clip-0065.png",
+    "bytes": 966598,
+    "sha256": "A0C22A04A481B3F95E83E38D97FF3A442251DE17181FA54F6DDACD924C7915BC"
+  },
+  {
+    "path": "stress\\clip-0066.png",
+    "bytes": 967024,
+    "sha256": "75D59F8C9C429E82FF8B9EF2BAD6BF8131948AABDC9719B21245C4E78B323A12"
+  },
+  {
+    "path": "stress\\clip-0067.png",
+    "bytes": 966718,
+    "sha256": "C2364C7FEB3DAAF834A1DA6B3B9D7F3E57D0886244039270D4E8115419368493"
+  },
+  {
+    "path": "stress\\clip-0068.png",
+    "bytes": 967338,
+    "sha256": "DC6772408509EC6E2F188D1EAB0025DD69B63BF858F69DEDC13F0397E2B5D836"
+  },
+  {
+    "path": "stress\\clip-0069.png",
+    "bytes": 966357,
+    "sha256": "54D3266B307956E63881D645E8361EC03E77BF25E79421970BA976F19969419B"
+  },
+  {
+    "path": "stress\\clip-0070.png",
+    "bytes": 967184,
+    "sha256": "5C1476DF3299C5D0DEAF4CA9AE8E35212165E511BE398D15B88E97A88BF45432"
+  },
+  {
+    "path": "stress\\clip-0071.png",
+    "bytes": 967696,
+    "sha256": "F2610A20A66C8EAB3055660D682BFAE9FED18BAAA37AF674F054C24DB345AA04"
+  },
+  {
+    "path": "stress\\clip-0072.png",
+    "bytes": 966643,
+    "sha256": "D53077E76C0376739C3A151775E6030A75A22DF1CAEF0E2F58FBD2CF33216DA3"
+  },
+  {
+    "path": "stress\\clip-0073.png",
+    "bytes": 966600,
+    "sha256": "BC99AF8A66A13B112BCA27509B3304F00AA22AE010EC4AEBDD789E0A857CA9A9"
+  },
+  {
+    "path": "stress\\clip-0074.png",
+    "bytes": 966760,
+    "sha256": "1D6307B06A979F962E52B4B7808A94808AC5C42E15F75967E9E47A0B4267DF7A"
+  },
+  {
+    "path": "stress\\clip-0075.png",
+    "bytes": 967145,
+    "sha256": "81398CE63B5B4636460F47348C2E8C7336BDE349A569E7A96A03ED3A40F9C299"
+  },
+  {
+    "path": "stress\\clip-0076.png",
+    "bytes": 966536,
+    "sha256": "76CD88F0AFC3255DC343EE5F5B044A7B431EB46FCF32C8C4E1C2EAC93CB8633D"
+  },
+  {
+    "path": "stress\\clip-0077.png",
+    "bytes": 966880,
+    "sha256": "07D19D05FD4812AD1D08B60060F4B8B227EA0DDBA8035CE35D36D86CD6791C8B"
+  },
+  {
+    "path": "stress\\clip-0078.png",
+    "bytes": 966550,
+    "sha256": "094B1828ED64A85EE8836AB310CDEE3951C9821DE679068EC702E8F75870CBEF"
+  },
+  {
+    "path": "stress\\clip-0079.png",
+    "bytes": 966554,
+    "sha256": "935418555FD1A267A538E550B7BF6CB2D7C66934FF0109306487E30F768187C9"
+  },
+  {
+    "path": "stress\\clip-0080.png",
+    "bytes": 966206,
+    "sha256": "A0FC8FA63DA76F4BFC672235361A013850072B6998A7EF1BEEC8087915C077FD"
+  },
+  {
+    "path": "stress\\clip-0081.png",
+    "bytes": 966702,
+    "sha256": "9425A102173424B29A5EEA5190C6F8B0CA604E6204175033C611F32408FC8012"
+  },
+  {
+    "path": "stress\\clip-0082.png",
+    "bytes": 966203,
+    "sha256": "81C5FC8E6E61F0D65EDB739507722615DDB44F58203488B1AB140B6A69904C2B"
+  },
+  {
+    "path": "stress\\clip-0083.png",
+    "bytes": 966998,
+    "sha256": "FC6E60BA05AEF62230F9D3A7CFCE244096FB98BA4891D0B9F1E4A530765EF2CD"
+  },
+  {
+    "path": "stress\\clip-0084.png",
+    "bytes": 965386,
+    "sha256": "485EA15DBCD70BD3956C36FE61A0047BD3E7C524BA8AE7E744C0568EF8240A2C"
+  },
+  {
+    "path": "stress\\clip-0085.png",
+    "bytes": 965594,
+    "sha256": "9856971E78516C839F849089D0046A2064A4E2FD12AC54F8894D8972D87E5063"
+  },
+  {
+    "path": "stress\\clip-0086.png",
+    "bytes": 966123,
+    "sha256": "121F7DDBAF7AACA3A1788A72FEC32BD6D8F34A5A3904BEB53CED5208E4D8604D"
+  },
+  {
+    "path": "stress\\clip-0087.png",
+    "bytes": 965131,
+    "sha256": "E79268AEA3DF7A5E8407C8EE80AC6AC285C1213BC9A19CF80133714D74625973"
+  },
+  {
+    "path": "stress\\clip-0088.png",
+    "bytes": 966039,
+    "sha256": "9021E3D537BC0147AB24CD771EF321A0905B1B2B7655C4F2C5AA04F698680B49"
+  },
+  {
+    "path": "stress\\clip-0089.png",
+    "bytes": 965933,
+    "sha256": "7FBA145EC4428E6F025D55FFAAB4D4E599014D5E0BC014300078CEB864B59F39"
+  },
+  {
+    "path": "stress\\clip-0090.png",
+    "bytes": 965728,
+    "sha256": "44622A0CDB9C938C420C03EA5199C8C05C5326B9AA45D863E75578800CA3C349"
+  },
+  {
+    "path": "stress\\clip-0091.png",
+    "bytes": 965437,
+    "sha256": "53E8AAC5D12C53D4E80A3353E502C0EB979A8F1057A8E6DD2383FA4C77C4194D"
+  },
+  {
+    "path": "stress\\clip-0092.png",
+    "bytes": 965551,
+    "sha256": "68105ADC9238523183276389415542566571817D937BEEC9096791C1DAF6D3EB"
+  },
+  {
+    "path": "stress\\clip-0093.png",
+    "bytes": 965725,
+    "sha256": "F21463EFAE58C1C2B13BBE15713931F00A14E9280A099AD09077D9DDD0E6F5B1"
+  },
+  {
+    "path": "stress\\clip-0094.png",
+    "bytes": 966295,
+    "sha256": "1AA8EB30EED2F7551D05AEEA4A9B156063D41C21E4D72321DBE7DFBE3FA89230"
+  },
+  {
+    "path": "stress\\clip-0095.png",
+    "bytes": 965593,
+    "sha256": "FB918B18182FA2654E804BFF9E9ABAA32F50F1B141E2ADDC8C2F7C91BCF62D7C"
+  },
+  {
+    "path": "stress\\clip-0096.png",
+    "bytes": 965701,
+    "sha256": "BD3A86270B1C6937E7B4349E2AE7235314D93B80A30C1DCC0AB38C1609CEA53A"
+  },
+  {
+    "path": "stress\\clip-0097.png",
+    "bytes": 966519,
+    "sha256": "7F9F1051A67BDA2B874364B76882990D4762EB5745D548F8853DB56DA85D9019"
+  },
+  {
+    "path": "stress\\clip-0098.png",
+    "bytes": 969125,
+    "sha256": "7ABD2004478945F00B6D3161030FB14673646C23262E9DE32E2DBD5868B7C3B9"
+  },
+  {
+    "path": "stress\\clip-0099.png",
+    "bytes": 969360,
+    "sha256": "DB56B16988BF4DE8D5BDF2CC77C616232ABB50A0E1C205AA1951F42B280D2D71"
+  },
+  {
+    "path": "stress\\clip-0100.png",
+    "bytes": 969798,
+    "sha256": "FF08FDD2D1F26989DCF9478CA696B18B58B8820F8F65F3AE165EA8FC8000F2EF"
+  },
+  {
+    "path": "stress\\clip-0101.png",
+    "bytes": 969089,
+    "sha256": "A3BB339A17A937640C9E7AFCBED858A34BDDEA87E50A060118B9F46A0ED678AA"
+  },
+  {
+    "path": "stress\\clip-0102.png",
+    "bytes": 969609,
+    "sha256": "7305329A0F01703F51EDE79D5BA56406DCD5452D3A31DF44BA56B4A1BB70030B"
+  },
+  {
+    "path": "stress\\clip-0103.png",
+    "bytes": 969794,
+    "sha256": "0CBC5DE68585AE0597E64588041B84B85254DBA14A9C4D18B3AB59301BDC38F2"
+  },
+  {
+    "path": "stress\\clip-0104.png",
+    "bytes": 969731,
+    "sha256": "4D24FCF2F27F4406D1FCB5D68B2E11B2D6FBC2DB6F1ECB8CFAC9F533891030DC"
+  },
+  {
+    "path": "stress\\clip-0105.png",
+    "bytes": 969875,
+    "sha256": "29EB87010882C8AB8254A9E8E880C8BA6999157DAFECFC7A67E6B3A84E59C36F"
+  },
+  {
+    "path": "stress\\clip-0106.png",
+    "bytes": 970128,
+    "sha256": "11D89EE5345B15882612700747371A8808C026611D4993D268D321CFE7A5F021"
+  },
+  {
+    "path": "stress\\clip-0107.png",
+    "bytes": 969336,
+    "sha256": "D705D82E7A804E76A58CDEB21FD9B1956EC601388771570384DD197005027ACE"
+  },
+  {
+    "path": "stress\\clip-0108.png",
+    "bytes": 970355,
+    "sha256": "769AF8EAD91B55F4CA2B4D83E8E5FF7C43CCC41F27BC19CB5364C9ADBDDE7B81"
+  },
+  {
+    "path": "stress\\clip-0109.png",
+    "bytes": 969957,
+    "sha256": "102209F325FF5607E9793712D4FFCB460984F50D07C2646C0FB64B734D22425A"
+  },
+  {
+    "path": "stress\\clip-0110.png",
+    "bytes": 970883,
+    "sha256": "C0E6467A04A0E66ABE2EFC76F0A947B168BCE382B63C0DD5F9F97CEB5FD6C063"
+  },
+  {
+    "path": "stress\\clip-0111.png",
+    "bytes": 970195,
+    "sha256": "EA236327E0ACAE93D73D903620447EC27B30FDDAF6AA8FCEAE960305B4291C97"
+  },
+  {
+    "path": "stress\\clip-0112.png",
+    "bytes": 970250,
+    "sha256": "A2288A488EBCFA47A68B97404FBD48E24E9D7931548A85C66756634EF990DBAE"
+  },
+  {
+    "path": "stress\\clip-0113.png",
+    "bytes": 970102,
+    "sha256": "37FE080B7278E41CBE926EADE88C73C2A95EC274AAD2FF12CF3267545AEB5786"
+  },
+  {
+    "path": "stress\\clip-0114.png",
+    "bytes": 969760,
+    "sha256": "2BC7D619F526A9CEA954EC0AE1A829B91937182060ABC2F7F64A5EA5E8CB800D"
+  },
+  {
+    "path": "stress\\clip-0115.png",
+    "bytes": 970720,
+    "sha256": "E56F41E5237AFFCEEAA73030DC08FCA9A764AAC044FFAA8565A169ED42CA135C"
+  },
+  {
+    "path": "stress\\clip-0116.png",
+    "bytes": 970660,
+    "sha256": "E84983F1B414B8BF311FC147E286DED5E61931C23312419D3AD8B5156B9B5BD9"
+  },
+  {
+    "path": "stress\\clip-0117.png",
+    "bytes": 970280,
+    "sha256": "F236CAC8B7F3810C5ABFE7A5D5ECD78541FFEAD429BE203D2AAEF37C2B24431C"
+  },
+  {
+    "path": "stress\\clip-0118.png",
+    "bytes": 969712,
+    "sha256": "A4B5053AB63E72D25987B8F42D91D9F1F268B5F5FA70C1FD8E892D47A9CD4E9C"
+  },
+  {
+    "path": "stress\\clip-0119.png",
+    "bytes": 970429,
+    "sha256": "567DC2D11C0540C5084102855ECBC27E45260E0946743C66276AEF4FCAB04F4C"
+  },
+  {
+    "path": "stress\\clip-0120.png",
+    "bytes": 970241,
+    "sha256": "698F505DBDBA67395A36ED11A4ABB65BBCD2DC8F61300AD5AB1DC53AB84828A1"
+  },
+  {
+    "path": "stress\\clip-0121.png",
+    "bytes": 969844,
+    "sha256": "C6144DF5678D51D909B606775882735ED790E211015C9EA98689637F163AF6F7"
+  },
+  {
+    "path": "stress\\clip-0122.png",
+    "bytes": 969840,
+    "sha256": "667B432ECA632FFDBEDB860E69AB1CA391AEF30CE657BCDEBBF9D7DEF13012F4"
+  },
+  {
+    "path": "stress\\clip-0123.png",
+    "bytes": 969362,
+    "sha256": "344F869272F7676DD3E058FA2B4DE15FA8D047046EECC9FB0591BFAFF697A357"
+  },
+  {
+    "path": "stress\\clip-0124.png",
+    "bytes": 969795,
+    "sha256": "0BFF218C18007CADC94117D4C5B26EF00326E138E0943E4837FF085DC9E7464D"
+  },
+  {
+    "path": "stress\\clip-0125.png",
+    "bytes": 970022,
+    "sha256": "CB43108D71D4BDF1D3C549F5F128C18AC025B12A21AAE759F82A1BB7CD59E1A1"
+  },
+  {
+    "path": "stress\\clip-0126.png",
+    "bytes": 969376,
+    "sha256": "A923D817D55046882FBCD459AFCD0AA3CAB3E499FB7BAA281A536F8273A8B85F"
+  },
+  {
+    "path": "stress\\clip-0127.png",
+    "bytes": 969716,
+    "sha256": "6111929F0DC7159D55D283E5EEF0F44A7DAED114F948DB255CB2953BF0C67107"
+  },
+  {
+    "path": "stress\\clip-0128.png",
+    "bytes": 969674,
+    "sha256": "6384276F8A6693A1D4B5B98D47E53AE340B87EF0D0DDE7508A99C4414E5B1D0C"
+  },
+  {
+    "path": "stress\\clip-0129.png",
+    "bytes": 969432,
+    "sha256": "E231FD488BFD084D3AD91BA02040644D608409629C0CF462009DF621A6D7A7EF"
+  },
+  {
+    "path": "stress\\clip-0130.png",
+    "bytes": 968655,
+    "sha256": "3BE6BFFE5131CB7E6F7EFDEB97CA3DB8C1035C3446CB6DDA8B9A5AD7138C70FE"
+  },
+  {
+    "path": "stress\\clip-0131.png",
+    "bytes": 968733,
+    "sha256": "E2FD74058EA5386FA342E24C649A48A2CB5017163BA1708760B12D4757ECF200"
+  },
+  {
+    "path": "stress\\clip-0132.png",
+    "bytes": 969113,
+    "sha256": "49BD879D4266F4E63689274F6E77C7A237E4A8864E837F5C7589549F9ACD0D14"
+  },
+  {
+    "path": "stress\\clip-0133.png",
+    "bytes": 968161,
+    "sha256": "B4B03E6A141D19464011F39B010DD319D204F05D2FF1D12E42C61EBB36F49316"
+  },
+  {
+    "path": "stress\\clip-0134.png",
+    "bytes": 968616,
+    "sha256": "064C860B7F17916E03BBC961EE04B905BB38CF160CC42B18726FB54CE68518F0"
+  },
+  {
+    "path": "stress\\clip-0135.png",
+    "bytes": 969142,
+    "sha256": "A917F06A27FA811C5A5AA98D138E701C8952E05B4B892920992DEE9E41A1453B"
+  },
+  {
+    "path": "stress\\clip-0136.png",
+    "bytes": 969071,
+    "sha256": "550BE01153F0D70FE68661C46498985146852CE752CD2C82D43B4D113F5C57DA"
+  },
+  {
+    "path": "stress\\clip-0137.png",
+    "bytes": 969051,
+    "sha256": "E7D74F7BBCAD82FD48A10E5442BB00298B3F2D769CDF58A458C4751986AE7B4E"
+  },
+  {
+    "path": "stress\\clip-0138.png",
+    "bytes": 969141,
+    "sha256": "6F1E1B2C06E369FCF363CB72DEB21836BB205470BC7AAD320088774D4F8A8378"
+  },
+  {
+    "path": "stress\\clip-0139.png",
+    "bytes": 969108,
+    "sha256": "17CDE9815C0BF350031F9AB91BAFC71AD02B383DA5045C8354FA16DAF0470CC9"
+  },
+  {
+    "path": "stress\\clip-0140.png",
+    "bytes": 770786,
+    "sha256": "B43BA23C59970D770D5CF56920D2C755200FD955F6787FADCE9521BBEBC173D3"
+  },
+  {
+    "path": "stress\\clip-0141.png",
+    "bytes": 770234,
+    "sha256": "3E07A683E84D5A7703F8D6F812404CCF83F2E97BB70A80E52BB74C8AE975A14D"
+  },
+  {
+    "path": "stress\\clip-0142.png",
+    "bytes": 770830,
+    "sha256": "5B35A043114E553A4C7370201214507320BFB51A5F85EA77717D9B93293B4599"
+  },
+  {
+    "path": "stress\\clip-0143.png",
+    "bytes": 770463,
+    "sha256": "309FB1ABC947DD333D4C16A610F77A381F8F63B2503DC576ECDEAE21E5C27FB4"
+  },
+  {
+    "path": "stress\\clip-0144.png",
+    "bytes": 770380,
+    "sha256": "CBB5F9A59D1F4142EEED16307EEEA59384EDB9A0EEE325E3D61C750C787CA6ED"
+  },
+  {
+    "path": "stress\\clip-0145.png",
+    "bytes": 770055,
+    "sha256": "2EC80FA7E802B9C6126E8A7F7A967134F800B97ED30B110111E215DF85394992"
+  },
+  {
+    "path": "stress\\clip-0146.png",
+    "bytes": 770413,
+    "sha256": "94449C7023635949AF3F12854ABEECBB543B422F286051786DA837C488E67A44"
+  },
+  {
+    "path": "stress\\clip-0147.png",
+    "bytes": 770565,
+    "sha256": "92F7ADB6BD2339D5410C06EDBE31D2C47A904B367E6D4B70F3381119D5B4205B"
+  },
+  {
+    "path": "stress\\clip-0148.png",
+    "bytes": 769732,
+    "sha256": "F501C97862D568D0450E4F7BF1F11FE249F333A2F921EF8136C1E9D080A31FEB"
+  },
+  {
+    "path": "stress\\clip-0149.png",
+    "bytes": 769477,
+    "sha256": "CD7C1122626611B93E9D35B7AA964B9183CFBB2B1335474E8C2002FE1F20BB21"
+  },
+  {
+    "path": "stress\\clip-0150.png",
+    "bytes": 769248,
+    "sha256": "33DEBFA80C78DE90EB9D76648924B557AF71A1D1A17EAB01D2544247E1030EFE"
+  },
+  {
+    "path": "stress\\clip-0151.png",
+    "bytes": 769777,
+    "sha256": "DA79FA9D6EE47F5987070B22A81EF67C2D84E13D46A243E207F5564BFC5750B4"
+  },
+  {
+    "path": "stress\\clip-0152.png",
+    "bytes": 770009,
+    "sha256": "FDD5705DDD5F7EBA30B8C84BB1ECCFAF78C2070B5C3DA23A59519C009747354A"
+  },
+  {
+    "path": "stress\\clip-0153.png",
+    "bytes": 769426,
+    "sha256": "031D6E42F2B3E15FA0F1515CD1713A0259412D9BDAB59342F4E51024032BC432"
+  },
+  {
+    "path": "stress\\clip-0154.png",
+    "bytes": 769698,
+    "sha256": "6AFCD705FC411EB07224B288806EC784F4248C2AEF17382EAFD0F8F464FAC8FF"
+  },
+  {
+    "path": "stress\\clip-0155.png",
+    "bytes": 770085,
+    "sha256": "891516DDF858A8DD691B92FAED286C0704DA51E1F87D24E66C0C1DE86F1707EB"
+  },
+  {
+    "path": "stress\\clip-0156.png",
+    "bytes": 770052,
+    "sha256": "D49AF0D9EC78C67D8F4149A0ECA11F5A4C9C024D6FCE71A7589A727405B4ECFB"
+  },
+  {
+    "path": "stress\\clip-0157.png",
+    "bytes": 770782,
+    "sha256": "871465E993621FEF05548ABDC43466252F86E4C3F3126EB0D34E4D4AA1BA8BC8"
+  },
+  {
+    "path": "stress\\clip-0158.png",
+    "bytes": 771042,
+    "sha256": "4B33012EF06933C2C48B3BBBF53B7A78E73214280A601A6848634BF1342FCC81"
+  },
+  {
+    "path": "stress\\clip-0159.png",
+    "bytes": 770483,
+    "sha256": "AD5219476F7807B2B920DFC99FED4DCD25A6CF46EFE7EC099454464A86025CEA"
+  },
+  {
+    "path": "stress\\clip-0160.png",
+    "bytes": 771151,
+    "sha256": "8C39D57DFCE5A04D371F28FCA87C38DB218B289315B8D22FB2C3F5A4CDC3577B"
+  },
+  {
+    "path": "stress\\clip-0161.png",
+    "bytes": 771501,
+    "sha256": "E28B92B438F405480EC6882905175212C997948A7F757D34270D01CBA223CC58"
+  },
+  {
+    "path": "stress\\clip-0162.png",
+    "bytes": 771806,
+    "sha256": "176DB53AEFF2331618492460E96B85BDE4C8B49987CCA59EA188050ECCC0C237"
+  },
+  {
+    "path": "stress\\clip-0163.png",
+    "bytes": 768537,
+    "sha256": "9E5233DEB43E195111A688AAC8B987C635F72A78C08156F2D8366EE25B55481E"
+  },
+  {
+    "path": "stress\\clip-0164.png",
+    "bytes": 768755,
+    "sha256": "78DDE24184C7627066D787B7D01465E59CDA58D52AE07A5CAB890006A1EF74FA"
+  },
+  {
+    "path": "stress\\clip-0165.png",
+    "bytes": 769441,
+    "sha256": "6A901B1578556F936C9D253C2A8DAB761E34354B0D9FF1D65F7ED13D2C8D9B47"
+  },
+  {
+    "path": "stress\\clip-0166.png",
+    "bytes": 769436,
+    "sha256": "4995F5516BF2D1D8CFD17AE578A4CB8F49C41E57EB33001C891DEC2E0E17809F"
+  },
+  {
+    "path": "stress\\clip-0167.png",
+    "bytes": 769330,
+    "sha256": "923027FBAB780FE8272C77D034D4EDC0064CC6EC25B22D7A3829AE60CA85FB7F"
+  },
+  {
+    "path": "stress\\clip-0168.png",
+    "bytes": 769494,
+    "sha256": "61B95FCC51D3551262F0065086A7427AD63D3918530981826CE278B17E6BE106"
+  },
+  {
+    "path": "stress\\clip-0169.png",
+    "bytes": 769862,
+    "sha256": "3584D36EA00FC4D34140516B7D93C94FC2F9FE8435A2AF4AF4551A4E9C1EAC77"
+  },
+  {
+    "path": "stress\\clip-0170.png",
+    "bytes": 769817,
+    "sha256": "B64C7C531628E929F96B23E7D613036AB247D35BE28F22E805704BA62A6F26EC"
+  },
+  {
+    "path": "stress\\clip-0171.png",
+    "bytes": 770049,
+    "sha256": "7CAD91A03338DBB2D6456B0D136F8952DF311B2A2404C53335185AFADB88A9D2"
+  },
+  {
+    "path": "stress\\clip-0172.png",
+    "bytes": 769277,
+    "sha256": "0947A8322158CEB880D762878B5A45ED37DAA499937BE8493B85511ABF7CB9DD"
+  },
+  {
+    "path": "stress\\clip-0173.png",
+    "bytes": 769298,
+    "sha256": "608CAAE675246405AA54089075B6A8BC95F7D83E6CC14DD962FD5E4AD1D83C99"
+  },
+  {
+    "path": "stress\\clip-0174.png",
+    "bytes": 769282,
+    "sha256": "152737DD57E152BCD1B790E59B6F9FDE80F30D1F56638F125C0D44350AA041E7"
+  },
+  {
+    "path": "stress\\clip-0175.png",
+    "bytes": 769308,
+    "sha256": "6E2487F841175ED4AE4486512287FBFA39DE9C0095632C4D33EA000543380968"
+  },
+  {
+    "path": "stress\\clip-0176.png",
+    "bytes": 769755,
+    "sha256": "B438FFA701397F0B9E7C7CACAE2881EA6E35D1B39122561099B2FD293DAA52F0"
+  },
+  {
+    "path": "stress\\clip-0177.png",
+    "bytes": 769936,
+    "sha256": "683A3A8C7A557642E22D779195DBA487BF12ABC308773B2589BEEF36763BAC03"
+  },
+  {
+    "path": "stress\\clip-0178.png",
+    "bytes": 770473,
+    "sha256": "954FD880E8D75C4C763B60DAA0DADC1BF9E2B7555C0B246FC5A11B959934D0BF"
+  },
+  {
+    "path": "stress\\clip-0179.png",
+    "bytes": 770491,
+    "sha256": "E25874AEFF0D19020A89B41AEFC6281F7CDB9FD6ED73DF5D3E221059BFCF69F0"
+  },
+  {
+    "path": "stress\\clip-0180.png",
+    "bytes": 770432,
+    "sha256": "84FAB53CC17A11090100EAE5F98F853BBFA756D96187A071D022B04F13F1C720"
+  },
+  {
+    "path": "stress\\clip-0181.png",
+    "bytes": 770277,
+    "sha256": "BC9DFF7C7D39C2E569EC25E7A2BD8D5EE982C94EA2592447A88232D7B88112F1"
+  },
+  {
+    "path": "stress\\clip-0182.png",
+    "bytes": 770708,
+    "sha256": "35E70FBF2B1FBB279AD1C983051E44604FBD49FD9585B77786AEF84606491D69"
+  },
+  {
+    "path": "stress\\clip-0183.png",
+    "bytes": 770263,
+    "sha256": "9A7359733A7BF1C4ECA86A32F8F927C117E60F13C339D8E98ADF7A7BDE994235"
+  },
+  {
+    "path": "stress\\clip-0184.png",
+    "bytes": 770030,
+    "sha256": "3A297E0A209EEC79C706134F1A43DD64A0C76311C18BC38FBA72423D91DA552C"
+  },
+  {
+    "path": "stress\\clip-0185.png",
+    "bytes": 770498,
+    "sha256": "F7BC13D29E619D243FEC7DBE99FB0E73543A8DEC95F34ABEA1D4C01B335EE22E"
+  },
+  {
+    "path": "stress\\clip-0186.png",
+    "bytes": 770623,
+    "sha256": "129437EFAF60F89B0323E93BC77B8D2EE9F94BEBD3268C5EE15EF022E0F2BC65"
+  },
+  {
+    "path": "stress\\clip-0187.png",
+    "bytes": 771183,
+    "sha256": "76A450B4E3E7BFFBCDAD3013E1DEAA7501FE97D9610CA28B4B719C0257BDF4D2"
+  },
+  {
+    "path": "stress\\clip-0188.png",
+    "bytes": 770908,
+    "sha256": "D745052F3FA4FD31F99ED0ADDBE153C435F7DDB3534D4125057D901E67B693D6"
+  },
+  {
+    "path": "stress\\clip-0189.png",
+    "bytes": 771083,
+    "sha256": "A5F0CF1FDF17E04169F62FF5C70F4B72D278B2E5899189BCBBDD9A6F7AFF2BB0"
+  },
+  {
+    "path": "stress\\clip-0190.png",
+    "bytes": 771607,
+    "sha256": "B29F62709CDA44DD90AFB963C402E35E6F4B182B7A98FDC279604E4911335BE7"
+  },
+  {
+    "path": "stress\\clip-0191.png",
+    "bytes": 770913,
+    "sha256": "BBA21A0563CBB2C3BE79619477D4492415C09F6A6A93925FC6BE280DCA03C43B"
+  },
+  {
+    "path": "stress\\clip-0192.png",
+    "bytes": 771481,
+    "sha256": "0F9433249A846B49192D5C465033154A7B01FCF729241168E526DDDF0B646A45"
+  },
+  {
+    "path": "stress\\clip-0193.png",
+    "bytes": 771484,
+    "sha256": "E7FFB955C966C5282C541E8099018AAC1E9585B04BA5FF4C9C9E84BBDEF12ABE"
+  },
+  {
+    "path": "stress\\clip-0194.png",
+    "bytes": 771116,
+    "sha256": "3A16F902D39CE20FBFBD0320FFDDCCB50945EE27048113B8B31F9A4D7B727D99"
+  },
+  {
+    "path": "stress\\clip-0195.png",
+    "bytes": 771077,
+    "sha256": "33451AB3DDDD1865B6BF6ACB6D0378AA4EB6333DE9B5393BE67E95281E9D04A7"
+  },
+  {
+    "path": "stress\\clip-0196.png",
+    "bytes": 771280,
+    "sha256": "52D9CC40A97301B6CFA72585FDB8E777DAB349175821C7967C32A29A2A6304CC"
+  },
+  {
+    "path": "stress\\clip-0197.png",
+    "bytes": 771062,
+    "sha256": "5BDE069263BEB744556DCDA91F5A07740630EC60C4916D5680B449683141031A"
+  },
+  {
+    "path": "stress\\clip-0198.png",
+    "bytes": 771923,
+    "sha256": "6CF6F0BD9D0F9C57822819B87F4DF2CDC41A03294ECE1072353B15F40FE4EB94"
+  },
+  {
+    "path": "stress\\clip-0199.png",
+    "bytes": 771705,
+    "sha256": "9F8EA1065E1BBD6143CBAF73882B739B217AF0296CDB09D189250A87297642BA"
+  },
+  {
+    "path": "stress\\clip-0200.png",
+    "bytes": 771667,
+    "sha256": "9081BEA4D63EDEB650B14F5704614D4BBB6C567458512D23B0F8D1A0B95DDC3D"
+  },
+  {
+    "path": "stress\\clip-0201.png",
+    "bytes": 771867,
+    "sha256": "4A1228D14EC1C879B6F00D10234A537D3B3D7B5AA0FB0F09E5BF335CD6A1A459"
+  },
+  {
+    "path": "stress\\clip-0202.png",
+    "bytes": 771463,
+    "sha256": "094C1BE997FCD948B22078E55BB9BF5C19A3ABE873E089AA4175E031A748931F"
+  },
+  {
+    "path": "stress\\clip-0203.png",
+    "bytes": 771491,
+    "sha256": "687087146556D29A20082D238B0456433BC56480DD2D6EB97898101DB47037A7"
+  },
+  {
+    "path": "stress\\clip-0204.png",
+    "bytes": 771932,
+    "sha256": "71FF01244A808435D219A46BE0EE2A53A9BB21B1FB1673C9BB557EE5674FA2A8"
+  },
+  {
+    "path": "stress\\clip-0205.png",
+    "bytes": 771405,
+    "sha256": "4A032EE3F0BA26E3717E8D32E4395BDACB89DE8A23A2F48B4F43B272444B138A"
+  },
+  {
+    "path": "stress\\clip-0206.png",
+    "bytes": 771719,
+    "sha256": "267E4C3FEE58BD6CBD8240D06741B70D9694BA8C78C990133883898CC746A670"
+  },
+  {
+    "path": "stress\\clip-0207.png",
+    "bytes": 771526,
+    "sha256": "9DF4CD05FABE8F4FE6F75457589108BFA0C6DEDEF52201754033526D1E9560DC"
+  },
+  {
+    "path": "stress\\clip-0208.png",
+    "bytes": 771884,
+    "sha256": "CE83EAD231D8F8EBFFC799A96A7DE100D030E451405CCD6F1938066589811488"
+  },
+  {
+    "path": "stress\\clip-0209.png",
+    "bytes": 772224,
+    "sha256": "B99FD721065983E793A98EA1A5EFCF4000DC55F63DC767F966522CE68627582D"
+  },
+  {
+    "path": "stress\\clip-0210.png",
+    "bytes": 772264,
+    "sha256": "D9B8C61B2DAF42C6F7987E94F4CE4ECDD1826CA6F17596E2C03D2F5528A8B020"
+  },
+  {
+    "path": "stress\\clip-0211.png",
+    "bytes": 772196,
+    "sha256": "CE84922CFBFF2B18C88DF028D6B9DF32626295A0BEE2169B184602477B1C33B1"
+  },
+  {
+    "path": "stress\\clip-0212.png",
+    "bytes": 772040,
+    "sha256": "E143E7D8DDA2CFB167D4D9F01DBA3A526301A82E37A258E06C4AA1F57177C35E"
+  },
+  {
+    "path": "stress\\clip-0213.png",
+    "bytes": 772251,
+    "sha256": "55C904F710314CA154A93DBDE6DE147F26D0E1561A1AE61D9EBA64D7C89A4E8B"
+  },
+  {
+    "path": "stress\\clip-0214.png",
+    "bytes": 772569,
+    "sha256": "61DB8E22FC97F97C0A368F6BBB31338CCEFAAB6859867BB137AF8A5B77280EA3"
+  },
+  {
+    "path": "stress\\clip-0215.png",
+    "bytes": 772746,
+    "sha256": "D14B1A0C2EDCAB57F5BE942F80330FAAE9B456291C257C626BAFB63A3EB6B6D8"
+  },
+  {
+    "path": "stress\\clip-0216.png",
+    "bytes": 772850,
+    "sha256": "28E283DD3B582FD60B84A3879A315E544D50C1785B78CF8E4C0808E87FBD1E2E"
+  },
+  {
+    "path": "stress\\clip-0217.png",
+    "bytes": 772716,
+    "sha256": "5803E79CDA77327A762A7B5199EB441803D27743FE35928D90B08745F386BDAB"
+  },
+  {
+    "path": "stress\\clip-0218.png",
+    "bytes": 773320,
+    "sha256": "F4B639AB262825BC8166F8331101A3AADF816535BFFBE237BB912A6EAA3CB3D6"
+  },
+  {
+    "path": "stress\\clip-0219.png",
+    "bytes": 773215,
+    "sha256": "49D1A0B7BD25397EEE7FA34D026F47B7965C9472673859BF8AFEE4DB9DFCF980"
+  },
+  {
+    "path": "stress\\clip-0220.png",
+    "bytes": 772701,
+    "sha256": "7D09F265EB3E21E46EF7B44A58C20079520370D0289F0232C484D84796AB176B"
+  },
+  {
+    "path": "stress\\clip-0221.png",
+    "bytes": 773089,
+    "sha256": "858F604633979242243D9989A53DDEC0386824FD9C4187E3FB822A41268B108C"
+  },
+  {
+    "path": "stress\\clip-0222.png",
+    "bytes": 773112,
+    "sha256": "B30F4DFD86F3C6DF90CEDB8D9916E34E47EC804C7E528D943E83B3E34139E217"
+  },
+  {
+    "path": "stress\\clip-0223.png",
+    "bytes": 773978,
+    "sha256": "A0C3AB855D8E0F7139377FA0FD0E67B63BC92DDF698826CF8AB3A8C0D3C6A08E"
+  },
+  {
+    "path": "stress\\clip-0224.png",
+    "bytes": 772998,
+    "sha256": "BF73BDB7BE775C0F98474ADD299396EDDF762D8FE46415E7FB430C9307AC02AE"
+  },
+  {
+    "path": "stress\\clip-0225.png",
+    "bytes": 773448,
+    "sha256": "8F9E67DE14E2DF32FFF148CBA01F3E58E13DBF5A954E45746AA17346DA077334"
+  },
+  {
+    "path": "stress\\clip-0226.png",
+    "bytes": 773047,
+    "sha256": "537615D48E947579311729A9779A4E02B8E1BC17AF531BE4A3E0A1C41ED0509C"
+  },
+  {
+    "path": "stress\\clip-0227.png",
+    "bytes": 773028,
+    "sha256": "01122DD76EFE3DA584AB6459FE3707A8551D8F4421212AFD8F9AAF0E7BBDA61A"
+  },
+  {
+    "path": "stress\\clip-0228.png",
+    "bytes": 773340,
+    "sha256": "CD5EFFDCFB4426DEBBB61008F41B78A76E8464521DD069FB212CF0399C63E24B"
+  },
+  {
+    "path": "stress\\clip-0229.png",
+    "bytes": 773184,
+    "sha256": "B9810DA753CBDE4E61DED57C36DFE4759B7981BA6B0F196C40F94B646058EE52"
+  },
+  {
+    "path": "stress\\clip-0230.png",
+    "bytes": 773203,
+    "sha256": "6BC971530817C81876A23A5E9997FFCF134E4DA1768BCB7F2B9932B3CEFDEFC2"
+  },
+  {
+    "path": "stress\\clip-0231.png",
+    "bytes": 773117,
+    "sha256": "A7FE9B35A3AA3D06F4E7303DEC47B3B65ED1853C42F196680E325DCBF672BB2D"
+  },
+  {
+    "path": "stress\\clip-0232.png",
+    "bytes": 772931,
+    "sha256": "DDE51F306D658CAB42AF7B909ADA34B0939395C9D8074A1D72A3BBEA0B2BCA3E"
+  },
+  {
+    "path": "stress\\clip-0233.png",
+    "bytes": 773082,
+    "sha256": "729CDA273A27EB417F21D8AC218D6DF3ABB47142E0513FBB850C19B67C529DFA"
+  },
+  {
+    "path": "stress\\clip-0234.png",
+    "bytes": 772904,
+    "sha256": "9E8894F995E4E9306B802FF75E5A1992B272E2BC17A4EC9F99EF57F41D764D3F"
+  },
+  {
+    "path": "stress\\clip-0235.png",
+    "bytes": 773138,
+    "sha256": "634BA351A2276C2E2EA052992900352FD3714CF1CB190F26A5352EC9743A00CF"
+  },
+  {
+    "path": "stress\\clip-0236.png",
+    "bytes": 773570,
+    "sha256": "C1344B8F684EEE5717C7403BD8A49852B62160F8D75B7FCB513D38A05111C7D8"
+  },
+  {
+    "path": "stress\\clip-0237.png",
+    "bytes": 773264,
+    "sha256": "FF520E18403DD4EF02D8F194BEB89F113DC313909851012A4EF2630794CE6FEE"
+  },
+  {
+    "path": "stress\\clip-0238.png",
+    "bytes": 773449,
+    "sha256": "61D526CBF9F0A80B2D619FD744A9C2AD4C9F977D1967AB035E61D2152E569B61"
+  },
+  {
+    "path": "stress\\clip-0239.png",
+    "bytes": 774469,
+    "sha256": "E565A2D32FC55F320B43191D4619FAD069E38D5BAED0C1BB0B57271C3955198E"
+  },
+  {
+    "path": "stress\\clip-0240.png",
+    "bytes": 774954,
+    "sha256": "8AA41D4CE22E43F6BF3654FFDFD3A4220961CEDCEBDBF11680EB2E22EB551F56"
+  },
+  {
+    "path": "stress\\clip-0241.png",
+    "bytes": 774791,
+    "sha256": "DD4B2A74540824DE1F8ABA7DAFDF46F00CC39B24F6C848AA01133828B5B9D402"
+  },
+  {
+    "path": "stress\\clip-0242.png",
+    "bytes": 775114,
+    "sha256": "5D1B03859D798673167C785A7D61BBB2355040EB7DA4D3D9099B6D947C785D21"
+  },
+  {
+    "path": "stress\\clip-0243.png",
+    "bytes": 775556,
+    "sha256": "F6A8D199CCD18DD4DB3671FE05772DCCD1CE12E2E636D516BA40338EA5C580FA"
+  },
+  {
+    "path": "stress\\clip-0244.png",
+    "bytes": 776064,
+    "sha256": "2C77EEA70453ABD3573C9A8061A06A6CDD03B789885459E32D2A2DB4C3EC1C12"
+  },
+  {
+    "path": "stress\\clip-0245.png",
+    "bytes": 776225,
+    "sha256": "AE6B0C679EE9BD65B552381D9710C334A253F9C5F32B1BE0DECE67A32F6C0BE2"
+  },
+  {
+    "path": "stress\\clip-0246.png",
+    "bytes": 776407,
+    "sha256": "77617CC628E1A1C0199FF873B4BD38E847A0F47C767857E0AE0879E26B710ED4"
+  },
+  {
+    "path": "stress\\clip-0247.png",
+    "bytes": 775950,
+    "sha256": "ECA52B5C77913E181D803AA0763D16CABDB16633730529EFB6E672B1A9AAEA9E"
+  },
+  {
+    "path": "stress\\clip-0248.png",
+    "bytes": 775679,
+    "sha256": "C616116814F45AFF55FBD2C5BF79F2B3BCA0D4AE8E9F8E5A44F02F22ED5190B2"
+  },
+  {
+    "path": "stress\\clip-0249.png",
+    "bytes": 776263,
+    "sha256": "DC8CDC97C0F2577353ECB95DB651638D90521143E64492CADCDB4CE42576545F"
+  },
+  {
+    "path": "stress\\clip-0250.png",
+    "bytes": 775395,
+    "sha256": "F97AAB29DA1CEF9A92B34C376F775123FA107A596245C39C96DAFB60A2ADE30E"
+  },
+  {
+    "path": "stress\\clip-0251.png",
+    "bytes": 775499,
+    "sha256": "4B19E50F9844BEA0CEB1706BA0BFBD097DD4B1C5ABD15F2706488A32CAC75012"
+  },
+  {
+    "path": "stress\\clip-0252.png",
+    "bytes": 776036,
+    "sha256": "47E6F08605B5ABD51B74570E709513E3022C44BD9008EF1EC55D2757418CE02E"
+  },
+  {
+    "path": "stress\\clip-0253.png",
+    "bytes": 775582,
+    "sha256": "90D8D3D75CEFB23C2C79129337FA72AA3E6E4B2099FB5B796EC8BAA093C95E54"
+  },
+  {
+    "path": "stress\\clip-0254.png",
+    "bytes": 775688,
+    "sha256": "04A184902015E1EF1DA8FE1BB8F9325C2F0C22A93B72D8E464BE68E6166BC210"
+  },
+  {
+    "path": "stress\\clip-0255.png",
+    "bytes": 776193,
+    "sha256": "7EFC4F83D9F5DEB072ADFBE4ECB367C18F48E8989E8DFCB4828C075F9507A05D"
+  },
+  {
+    "path": "stress\\clip-0256.png",
+    "bytes": 776389,
+    "sha256": "5D07CB4F857C59DF1D216496B3E4987E5A73A0AA7EE14BC1D0E580718E35A892"
+  },
+  {
+    "path": "stress\\clip-0257.png",
+    "bytes": 777163,
+    "sha256": "82F2161401EA4BBF34ECE9D223F8993C027B1EB26CDBB3D9C925B4C413708A99"
+  },
+  {
+    "path": "stress\\clip-0258.png",
+    "bytes": 777813,
+    "sha256": "0E1AF76A5E278721AA9D1F7E616564DCF4AB0F2A760AFF756C745A18BA082F42"
+  },
+  {
+    "path": "stress\\clip-0259.png",
+    "bytes": 777991,
+    "sha256": "EC610A83580BE280CE9E92244F0D4E99DBE9636D55BFCFF8FF3EC3D7F2119627"
+  },
+  {
+    "path": "stress\\clip-0260.png",
+    "bytes": 778288,
+    "sha256": "9E84F1C93AF5C077BA58D7C614764B77EF1667F10C67C133E399835CC382DF74"
+  },
+  {
+    "path": "stress\\clip-0261.png",
+    "bytes": 778837,
+    "sha256": "48097F0EC0131F26559F60944A6110218F5C37193A3EC5FEB890AC7C04135A24"
+  },
+  {
+    "path": "stress\\clip-0262.png",
+    "bytes": 779584,
+    "sha256": "90C929BFACE92F274F4FF43D436479ACD38B0A58CE156A3A52FD1CE06320336E"
+  },
+  {
+    "path": "stress\\clip-0263.png",
+    "bytes": 780235,
+    "sha256": "5E628AF9B30E2B3DBB18DD843FC98ABBE90E502B8965B24150790324B69F525D"
+  },
+  {
+    "path": "stress\\clip-0264.png",
+    "bytes": 780483,
+    "sha256": "69733130D2E3F769A7769CD985BFB0C17B8E096C91A7416721826A2546DDB9EB"
+  },
+  {
+    "path": "stress\\clip-0265.png",
+    "bytes": 781058,
+    "sha256": "A3E571B57D51C14CA07D439CA4655082BA54D30E30C9A676947BDB88B3F1B637"
+  },
+  {
+    "path": "stress\\clip-0266.png",
+    "bytes": 781800,
+    "sha256": "9FF12DFC2AC6D6C3F78E21B60F67880EC115FFDF3E108C7E75244EEBEF2E2658"
+  },
+  {
+    "path": "stress\\clip-0267.png",
+    "bytes": 781956,
+    "sha256": "E47CDA0617C75657039038CE0DC68BE6A03B6B7BD1F3AA76033CF29BBBE1CD12"
+  },
+  {
+    "path": "stress\\clip-0268.png",
+    "bytes": 782799,
+    "sha256": "0AF5A3959163B3BA44BF89CE13E5025A3AC9BE15C9B8497C066526DA8146105A"
+  },
+  {
+    "path": "stress\\clip-0269.png",
+    "bytes": 783525,
+    "sha256": "F20C14B8892E80817066E8E523B3DD7167523A3480CFDF831B9EB6BF1D42DA91"
+  },
+  {
+    "path": "stress\\clip-0270.png",
+    "bytes": 783456,
+    "sha256": "05816FA6D9E20BDDFD2406C4ACE04202EDD923508E1022F4AED1C6E8E2DAA30F"
+  },
+  {
+    "path": "stress\\clip-0271.png",
+    "bytes": 783588,
+    "sha256": "A3CE9E582D1AE74AA1ED358E4AA0B37125BEED57A6B8C371CFD6314F84A6A114"
+  },
+  {
+    "path": "stress\\clip-0272.png",
+    "bytes": 783922,
+    "sha256": "601872E89C476A0FC86E9DC3CDB0C23FFC4575113A28C34EC291201694F3F178"
+  },
+  {
+    "path": "stress\\clip-0273.png",
+    "bytes": 784504,
+    "sha256": "52590147FE6451BDACCBA50BBAD2AAAC5D7B1FCE6CC0DD0DFCD72716407DEAD0"
+  },
+  {
+    "path": "stress\\clip-0274.png",
+    "bytes": 785307,
+    "sha256": "494C41F9CCDA76B5E5C50CA68D1484A3A00B6A0EAFDB99F987088692E4CAFA33"
+  },
+  {
+    "path": "stress\\clip-0275.png",
+    "bytes": 785754,
+    "sha256": "CC7F00E4DAC55CC78AA560D746FCFF0BD12622720FE7498BED70AD75F7CB963E"
+  },
+  {
+    "path": "stress\\clip-0276.png",
+    "bytes": 786229,
+    "sha256": "AB83864A8CCC7B21F824CCD9E592471E24D0D9278926AB76313139027DB9866D"
+  },
+  {
+    "path": "stress\\clip-0277.png",
+    "bytes": 786699,
+    "sha256": "9A5F40694F773B3709342C5B944498FC3DE105C2A5F9CCBE21AEA1A3DEEC3168"
+  },
+  {
+    "path": "stress\\clip-0278.png",
+    "bytes": 787179,
+    "sha256": "611C8F554293A34698219C665853C42CBA2705FDB91BECAB22332C655E9CF04E"
+  },
+  {
+    "path": "stress\\clip-0279.png",
+    "bytes": 787945,
+    "sha256": "05E65C99E74559C2F0FCD626E5124D9F36C345FF7CD294A3BAF1BC122A94582A"
+  },
+  {
+    "path": "stress\\clip-0280.png",
+    "bytes": 986605,
+    "sha256": "929E4B945B257D18164367745F050FF6C9E9C5EADD6C6EADCFE2A403505082A8"
+  },
+  {
+    "path": "stress\\clip-0281.png",
+    "bytes": 987254,
+    "sha256": "4C1CDCA7A0F74F79EC9F39439AA3B07027E61FC39B9A25041AE1A12F12CA2CAD"
+  },
+  {
+    "path": "stress\\clip-0282.png",
+    "bytes": 987671,
+    "sha256": "C83E7A320882AC08A32FB4B72154ECABFF8D45329C91819D054490C34A06CA9D"
+  },
+  {
+    "path": "stress\\clip-0283.png",
+    "bytes": 986851,
+    "sha256": "F30E8E272F90574E12C783F6CD087B34DF30EB30D74BD1BFF0D0A2874E232FFB"
+  },
+  {
+    "path": "stress\\clip-0284.png",
+    "bytes": 987958,
+    "sha256": "0F6E21E639B60340EBB47C1B45113CDC9CE8926B402D9F82495918FAEE091AB3"
+  },
+  {
+    "path": "stress\\clip-0285.png",
+    "bytes": 989056,
+    "sha256": "85771C50FEB6A68EB7A7436E92D34CA1E71A3F02F3DFCE6442790C2CB0FAD8BA"
+  },
+  {
+    "path": "stress\\clip-0286.png",
+    "bytes": 988608,
+    "sha256": "69963F7DB5BA8CEEB807BE2726878E86E05D4978DEE13C06EC2BF623AE1BB0C1"
+  },
+  {
+    "path": "stress\\clip-0287.png",
+    "bytes": 988634,
+    "sha256": "E170427BB60ED32A6DA802DA4B60F16ABB56F0BF5BAA06379960FE71E4BF2455"
+  },
+  {
+    "path": "stress\\clip-0288.png",
+    "bytes": 988014,
+    "sha256": "80FEF4A97A10A238B5D0B597EE94D5ABB3C41C82B8886FB31F0C421D323BE77A"
+  },
+  {
+    "path": "stress\\clip-0289.png",
+    "bytes": 988229,
+    "sha256": "CD2E9170E34E429CCA51D166AA8FB71D7ADB18779C1DC5A204DF6BD62EAD800F"
+  },
+  {
+    "path": "stress\\clip-0290.png",
+    "bytes": 987890,
+    "sha256": "8BF6BB200CD325BF38DE62B3BCCC57FDB5A57F7A7825F915AAE963BF310559D4"
+  },
+  {
+    "path": "stress\\clip-0291.png",
+    "bytes": 988375,
+    "sha256": "7A9A1D1BD8BAF995D9C75FB9006D8EB1D93605EDC5869F446A0798A320FA46C3"
+  },
+  {
+    "path": "stress\\clip-0292.png",
+    "bytes": 988358,
+    "sha256": "59BBBA20FE60BAC4B836B169A0EAF74B96E86CE502016EEC53767D9887BA4F33"
+  },
+  {
+    "path": "stress\\clip-0293.png",
+    "bytes": 989447,
+    "sha256": "F24E5EBB30CC643A2F733757FB06A3ACA58DC7F2A06A4142C2348A7ED8441B6C"
+  },
+  {
+    "path": "stress\\clip-0294.png",
+    "bytes": 988277,
+    "sha256": "FFC246D9A0562BFB76875CDB02C641FAEAE017A7599285CA38D7235769554AB5"
+  },
+  {
+    "path": "stress\\clip-0295.png",
+    "bytes": 988391,
+    "sha256": "E5EDD0C89D59FA7C9F93597ED555DA7AF207C00858B1C261FB5EECDBC28173F8"
+  },
+  {
+    "path": "stress\\clip-0296.png",
+    "bytes": 989396,
+    "sha256": "9A568F1C52510C4316A7A4E9B8732D041F73A2F3E0692577DE6423C36F32280D"
+  },
+  {
+    "path": "stress\\clip-0297.png",
+    "bytes": 989329,
+    "sha256": "F76D5CD8816530000F89A59AAC5BA6F128F040C3910042728412E3A92B4F148B"
+  },
+  {
+    "path": "stress\\clip-0298.png",
+    "bytes": 989429,
+    "sha256": "27F879BBCC23F44754AA69948AF8D5AB113A2FCAF1FAA7F9D98B1C49FB2FAB1A"
+  },
+  {
+    "path": "stress\\clip-0299.png",
+    "bytes": 989176,
+    "sha256": "7A08AC72333DA48BA1A8C4D90D8F5CC6175EED938C62507FB5FCEDCCDBA5F06B"
+  },
+  {
+    "path": "stress\\clip-0300.png",
+    "bytes": 988741,
+    "sha256": "E9BB293F22F8F2576DEF2A1AFE4773C82782424A61DDF0AEACF7B16E5AF344DE"
+  },
+  {
+    "path": "stress\\clip-0301.png",
+    "bytes": 989914,
+    "sha256": "87097D109CA52D4E15B497CB73384806C6DCD43E016FCE316E45E62E417EC5A8"
+  },
+  {
+    "path": "stress\\clip-0302.png",
+    "bytes": 989450,
+    "sha256": "FCA3C33CD756668E47E42398FC810031CED6AA846033794F92FAFB7DCE9A1BDC"
+  },
+  {
+    "path": "stress\\clip-0303.png",
+    "bytes": 989447,
+    "sha256": "632223908565EFAD3897034D32E3F0B0C506E7E9C0D7B393B5C553CEC372A749"
+  },
+  {
+    "path": "stress\\clip-0304.png",
+    "bytes": 989421,
+    "sha256": "2A95F67CE5FA9684F0C76C6EE5EA1686ACBBEDF0630E291172A4A59D212D3E47"
+  },
+  {
+    "path": "stress\\clip-0305.png",
+    "bytes": 989663,
+    "sha256": "0A1DDC4BEA18A1048BBFCCE791146DD7072BB61F54FC2FA2DFE5673ABA298CAD"
+  },
+  {
+    "path": "stress\\clip-0306.png",
+    "bytes": 988565,
+    "sha256": "C82C7BC9A5CB73038C56A4AE2E009B4EC18DE58EBA8838CC1F38C43E75501937"
+  },
+  {
+    "path": "stress\\clip-0307.png",
+    "bytes": 988575,
+    "sha256": "7B7245BD7DF2F1CC9797AAC8C8C1E48387EBA9AE1F11E3584D6A7A25E4CD611A"
+  },
+  {
+    "path": "stress\\clip-0308.png",
+    "bytes": 989842,
+    "sha256": "CAA2B853EC73C9BB8E3249AED303ED41130111BD30FADF87781AAD4B16D1E3FF"
+  },
+  {
+    "path": "stress\\clip-0309.png",
+    "bytes": 990048,
+    "sha256": "B533E23477601836BACA244B9E810B03153C552F2E594B5872806D7A158A8F0B"
+  },
+  {
+    "path": "stress\\clip-0310.png",
+    "bytes": 989498,
+    "sha256": "FD592463BCBB8CDA1C28310E5779CA325E26191AF3D200CA84E66FC0219EA747"
+  },
+  {
+    "path": "stress\\clip-0311.png",
+    "bytes": 989641,
+    "sha256": "72D72B43D6194D4F0B030150E7326F62C733BC118747BFE576800C121930E29B"
+  },
+  {
+    "path": "stress\\clip-0312.png",
+    "bytes": 989846,
+    "sha256": "E81BE0CC554CFAFB161A5BF579F2EEC79F63D33A57224F9F5BAD15FED762D94B"
+  },
+  {
+    "path": "stress\\clip-0313.png",
+    "bytes": 989440,
+    "sha256": "36015BCF84FE9555142B2035D698A60B3200C2A3A739679F00E91652C6EF7ED5"
+  },
+  {
+    "path": "stress\\clip-0314.png",
+    "bytes": 990017,
+    "sha256": "0F2CEB8EE9DA45D940E8641E2E4F2FEADAD6F09438B7B8CF51A78075112715FB"
+  },
+  {
+    "path": "stress\\clip-0315.png",
+    "bytes": 989704,
+    "sha256": "3C5DC7E391C4303FDBB36CD86F272E31ED7FA5164ECD7E7D936315441089C1B2"
+  },
+  {
+    "path": "stress\\clip-0316.png",
+    "bytes": 988965,
+    "sha256": "1AE21A05DFB225ED059CEF631E3913B24012D9FD1FEB1FD7EDF07CDC3597897E"
+  },
+  {
+    "path": "stress\\clip-0317.png",
+    "bytes": 989553,
+    "sha256": "D9CE2F8AAC6C3C09EC6AEEA022867F81E3A20AF11B6A1A2C93499BB7788377B4"
+  },
+  {
+    "path": "stress\\clip-0318.png",
+    "bytes": 988740,
+    "sha256": "2A32DBF40A1A0463E76988AD2965846774B87977F59AAD3FDF08BE00F99C42F3"
+  },
+  {
+    "path": "stress\\clip-0319.png",
+    "bytes": 988862,
+    "sha256": "A44CD7CDD4AABBF245DD210A14A90874C95A4669E17E79BACCC005ACB30617AB"
+  },
+  {
+    "path": "stress\\clip-0320.png",
+    "bytes": 988906,
+    "sha256": "5A8E230B0248D6FF3E7C76D1E3B74779A4F6BA96E02B8324D384A355DB4A39D3"
+  },
+  {
+    "path": "stress\\clip-0321.png",
+    "bytes": 988583,
+    "sha256": "6FCDBB5E629A583BDBDDA39FE759BFC7A045392B742A81E7F5C22C421FD8110F"
+  },
+  {
+    "path": "stress\\clip-0322.png",
+    "bytes": 988476,
+    "sha256": "8FCED8D4D69CDE00033E15F66345BA676F1FDA0762A56CF3DE20E1BF67A06608"
+  },
+  {
+    "path": "stress\\clip-0323.png",
+    "bytes": 989323,
+    "sha256": "2372E21710CBCB1BC72734F2B87119BCB3A7D1C45079B3CCA1A1BB30EFC67FDA"
+  },
+  {
+    "path": "stress\\clip-0324.png",
+    "bytes": 988589,
+    "sha256": "4E6A4E8A2379D4F14172C9BDE7F429766EA920B7CE53F5295B7C3BA0B75E15E0"
+  },
+  {
+    "path": "stress\\clip-0325.png",
+    "bytes": 988213,
+    "sha256": "59B977ABB8D498288DF8FA073951287474762A1E263FE666BEAB74D6DE7A4AFA"
+  },
+  {
+    "path": "stress\\clip-0326.png",
+    "bytes": 988565,
+    "sha256": "85206E696F58E82DA0E273BBEC287C42F0D7B0F5C98E303C79999E8B0826EB23"
+  },
+  {
+    "path": "stress\\clip-0327.png",
+    "bytes": 989347,
+    "sha256": "CCF4DA9E337F15649FF753AF38AEDE44E3CF26921178A2BF2D2DB39170FDAD49"
+  },
+  {
+    "path": "stress\\clip-0328.png",
+    "bytes": 988594,
+    "sha256": "996A6F7293CEEB94A5EA3B23D67813515222D6EEB4FC28DB2BA882215B205DDA"
+  },
+  {
+    "path": "stress\\clip-0329.png",
+    "bytes": 990289,
+    "sha256": "697E18CE4F4EAC7289A8F836D066AA6B78A9DD2B347981D36A233E646F7EFAD6"
+  },
+  {
+    "path": "stress\\clip-0330.png",
+    "bytes": 990372,
+    "sha256": "A0FC2E8B6525E853B5D47F6E55BACEADE6B6440FEC7477928DF453A856B0300D"
+  },
+  {
+    "path": "stress\\clip-0331.png",
+    "bytes": 991534,
+    "sha256": "72681FBB3339A00BFE8231CA9E6AC607D1C26DF993015FD7C3080C45494D8AE5"
+  },
+  {
+    "path": "stress\\clip-0332.png",
+    "bytes": 995051,
+    "sha256": "9E913380210867502DF7A04ACB64F10B01E5E06E84EE5F65D2610262EDE11A30"
+  },
+  {
+    "path": "stress\\clip-0333.png",
+    "bytes": 995180,
+    "sha256": "ACD7E3F6C632B636D5D79F495108629B33E43187A48C068CAF9D5FE3BF037AC1"
+  },
+  {
+    "path": "stress\\clip-0334.png",
+    "bytes": 995816,
+    "sha256": "2B8F5EA295265731B1F277D35D593F8146CA234364A1C159AF5E6BB170ABB948"
+  },
+  {
+    "path": "stress\\clip-0335.png",
+    "bytes": 996724,
+    "sha256": "22058DFB416DA84E064D9FB7A73B3D431D1CD3B927CE7393C1E21E5B1C736C2C"
+  },
+  {
+    "path": "stress\\clip-0336.png",
+    "bytes": 996812,
+    "sha256": "093F53EE9BCDC44BF45D8A58C7D62F9B809730635A164F4B70D32113C15DDB51"
+  },
+  {
+    "path": "stress\\clip-0337.png",
+    "bytes": 997908,
+    "sha256": "DB58B2803BF16FD3649ACFFDCD5628E3AB6DC5B47DA2EB8A2B920D02A0D5B8FF"
+  },
+  {
+    "path": "stress\\clip-0338.png",
+    "bytes": 998978,
+    "sha256": "2E3820BFA87A5DF44D645A3ADB006E1EED64609A7DA50523412E7297E1DB0D2B"
+  },
+  {
+    "path": "stress\\clip-0339.png",
+    "bytes": 999539,
+    "sha256": "73AB67E2E5DB4F748E6EB4188C3BC97ED32EE05D6078AC4DABC39C8C5DE8295C"
+  },
+  {
+    "path": "stress\\clip-0340.png",
+    "bytes": 999844,
+    "sha256": "B29658681F7499300B110ACEA5547BE5E07BF8B5DFE2BBECE45D236693B78FA4"
+  },
+  {
+    "path": "stress\\clip-0341.png",
+    "bytes": 1000411,
+    "sha256": "ABC1F4B283A5B25E9A6CDD916AB59138185968FC87A3618BE0CB9573754F664E"
+  },
+  {
+    "path": "stress\\clip-0342.png",
+    "bytes": 1000157,
+    "sha256": "3459CF8DA4BCA752786E2352090E231682CD89B19B3B140E5D604128ADD20702"
+  },
+  {
+    "path": "stress\\clip-0343.png",
+    "bytes": 999177,
+    "sha256": "6BE58FCCE97AEAB3ED457B7641FB733A51939E63DC24F9DB04003A9957F95AE2"
+  },
+  {
+    "path": "stress\\clip-0344.png",
+    "bytes": 1001097,
+    "sha256": "908F371626B15497AA6FEC8639B21D186FF6BB73415312DA2380A44F2A3C60E6"
+  },
+  {
+    "path": "stress\\clip-0345.png",
+    "bytes": 1000625,
+    "sha256": "C6617F5B9D853E8C51CEF1D133108642EA983EB044391FB76F23D916BD06BF37"
+  },
+  {
+    "path": "stress\\clip-0346.png",
+    "bytes": 999735,
+    "sha256": "7C1B5644F35C4C6D52C90E6B3ACC5E25D5C6E89A5A7EFC4C95FF377FB8B4D6F0"
+  },
+  {
+    "path": "stress\\clip-0347.png",
+    "bytes": 999857,
+    "sha256": "7AE2618A0DBE920C539010D0F478E7D23671996B1518134103C3288EAD356C6F"
+  },
+  {
+    "path": "stress\\clip-0348.png",
+    "bytes": 999067,
+    "sha256": "493A990801141E7A9CCFCDC54024E6B1D3AD51B2383FE95C9AD3BD3B507D3E7F"
+  },
+  {
+    "path": "stress\\clip-0349.png",
+    "bytes": 999079,
+    "sha256": "D8A397177EC5969A88E8DEA7280219566CCE00844221D37C4FE2AD7C10291A0C"
+  },
+  {
+    "path": "stress\\clip-0350.png",
+    "bytes": 999520,
+    "sha256": "FFB25C6D008A0849A5862507483AA6F7362D63F7B2CE38876971DC83233630E0"
+  },
+  {
+    "path": "stress\\clip-0351.png",
+    "bytes": 998928,
+    "sha256": "431243D777477736A1CFA196DDC5C010EC5C371E27FE5D59F2B3DC54B7F14B02"
+  },
+  {
+    "path": "stress\\clip-0352.png",
+    "bytes": 1000394,
+    "sha256": "2A1A83D1A5B60DBCA3A2A964C0870E582AD17B6F2774D03E34F3BB5A7D6E119E"
+  },
+  {
+    "path": "stress\\clip-0353.png",
+    "bytes": 1000679,
+    "sha256": "C762FEB528521F1E4BEFDB36666A0D6A1CA70B78AE07E7D61A0C8BCD5F6C61D5"
+  },
+  {
+    "path": "stress\\clip-0354.png",
+    "bytes": 1000826,
+    "sha256": "179B1380B5FF77786392487DDFA50E70FFF3EF65CA8E9232152065F5CC110AD6"
+  },
+  {
+    "path": "stress\\clip-0355.png",
+    "bytes": 1000600,
+    "sha256": "800E0B8F6766696F61A92521CE186AC1A266B08311C3004B9892A031F5A410E5"
+  },
+  {
+    "path": "stress\\clip-0356.png",
+    "bytes": 1000352,
+    "sha256": "22C899D9ACCFBF0056056CA62DA424CC1143E1E3D6A262284E371BB728A159F5"
+  },
+  {
+    "path": "stress\\clip-0357.png",
+    "bytes": 1000081,
+    "sha256": "B7A38560205E732CCB9B29C262A9048A2FC6FF50B1079326130765CFF3D7C711"
+  },
+  {
+    "path": "stress\\clip-0358.png",
+    "bytes": 1000424,
+    "sha256": "016FA10F6FA0F7904379CAE5B7F6CEAC0B7EFEAF151F5B8A24E4AECCF7899C06"
+  },
+  {
+    "path": "stress\\clip-0359.png",
+    "bytes": 1001418,
+    "sha256": "A8ED34CD6B66C5AD45AE19D182E597E91249B10C912C69AB142E4B4780FE69A6"
+  },
+  {
+    "path": "stress\\clip-0360.png",
+    "bytes": 1002173,
+    "sha256": "3B9B3B217165F5DB4C1294B7C03D28DB2AEEFB72413848B974E71148E8D436AC"
+  },
+  {
+    "path": "stress\\clip-0361.png",
+    "bytes": 1002775,
+    "sha256": "06A6DB32D5F4896A35463047003942394095E16D6879B62B75A206823F1D48DF"
+  },
+  {
+    "path": "stress\\clip-0362.png",
+    "bytes": 1002499,
+    "sha256": "1AA783989682D137CB866C847ECF20F484033423CF0B87D49F59A24EFFCD521B"
+  },
+  {
+    "path": "stress\\clip-0363.png",
+    "bytes": 1001952,
+    "sha256": "855F2776D90DAA29737446930F337F79E2BAF2C70298A57DD91815AD69BE3B79"
+  },
+  {
+    "path": "stress\\clip-0364.png",
+    "bytes": 1002073,
+    "sha256": "C2C8454253FA02E6DB8B69DDF35AA0F07C562BCB536BBAB0B1B2FD0E19DD662C"
+  },
+  {
+    "path": "stress\\clip-0365.png",
+    "bytes": 1002516,
+    "sha256": "CB4A8645473214205792DD2F1B537399916EB36A89072EFC7653A13C59924850"
+  },
+  {
+    "path": "stress\\clip-0366.png",
+    "bytes": 1001405,
+    "sha256": "3A57F0B0EA60EFF3DCEA37DB6D90AD957788C9EF9B6920407D2A07B8785FB1A1"
+  },
+  {
+    "path": "stress\\clip-0367.png",
+    "bytes": 1003105,
+    "sha256": "602A4C3F5C01629BE6135E5E328E326C94D71C6666BD35B97EDD627F86A802A9"
+  },
+  {
+    "path": "stress\\clip-0368.png",
+    "bytes": 1002008,
+    "sha256": "96E420E335732F0ED232CB3F13E0A93B63ED8003559E450DCEE039766F86A674"
+  },
+  {
+    "path": "stress\\clip-0369.png",
+    "bytes": 1000454,
+    "sha256": "96D396C1B775FC3EA7557315C4FAF198309B5521B0A8C0464396279235046992"
+  },
+  {
+    "path": "stress\\clip-0370.png",
+    "bytes": 992052,
+    "sha256": "B91F8CDF7F4C9A68F8DF0ABE2F1CF8E5A6647543FACABF042AA9E5FF6A855B7F"
+  },
+  {
+    "path": "stress\\clip-0371.png",
+    "bytes": 991885,
+    "sha256": "A5CB28D06CA6EBF10DC2E600B2E11D4EFD6B33415D5E9C5D86BDD2B0F556C61F"
+  },
+  {
+    "path": "stress\\clip-0372.png",
+    "bytes": 991695,
+    "sha256": "C3AF6947974C8D15CAEF908466A14926BC08250257AF99B1F5B0342FAE33E4C8"
+  },
+  {
+    "path": "stress\\clip-0373.png",
+    "bytes": 992101,
+    "sha256": "3B7A22576B959A289568DEC1C35896E324040206505F466CF732F9017FA7496F"
+  },
+  {
+    "path": "stress\\clip-0374.png",
+    "bytes": 992833,
+    "sha256": "4CE1E8D1D26EECA3AC17CBF437B8A99E6FACB6C3BBE71ABB30DED952C8B053E2"
+  },
+  {
+    "path": "stress\\clip-0375.png",
+    "bytes": 992952,
+    "sha256": "AA6C6406C829C035EEEC32CB39B010DAE863B850260E6471E0A00D150C75E474"
+  },
+  {
+    "path": "stress\\clip-0376.png",
+    "bytes": 993917,
+    "sha256": "064133093B8D45733402A937D262A84E29B21C474BA8235683251A4E571EA568"
+  },
+  {
+    "path": "stress\\clip-0377.png",
+    "bytes": 992770,
+    "sha256": "D136C4F0FD989806B9755D7E7A3F7ECF5E8287D5EB3B3CBFB5109862A86BD323"
+  },
+  {
+    "path": "stress\\clip-0378.png",
+    "bytes": 993813,
+    "sha256": "193FD043C7F806FC441306A0187EB020904D36F595FB15C2C867E747B5FD333E"
+  },
+  {
+    "path": "stress\\clip-0379.png",
+    "bytes": 994357,
+    "sha256": "F1720507CB8A4C641A255C7925F646622733CD80521C462DC933E5CE6888DC66"
+  },
+  {
+    "path": "stress\\clip-0380.png",
+    "bytes": 992942,
+    "sha256": "6602EB89667CD659D984E15FD54255C958B3D3B5A6D571A0FBB686905ED4C670"
+  },
+  {
+    "path": "stress\\clip-0381.png",
+    "bytes": 992846,
+    "sha256": "B0D8672CAE6F3A4597B810C92957C2A85D68162988BC0767745E4BD61EBE2A62"
+  },
+  {
+    "path": "stress\\clip-0382.png",
+    "bytes": 993526,
+    "sha256": "43544087AD9487520EB748CCC3CF8D050E2F1F004B56C46FE3443460950410A8"
+  },
+  {
+    "path": "stress\\clip-0383.png",
+    "bytes": 992760,
+    "sha256": "EE070BE495933D8CEB8519B54A888FDF0F3B58B2DBD26DCBEB6F8685A741313A"
+  },
+  {
+    "path": "stress\\clip-0384.png",
+    "bytes": 993060,
+    "sha256": "C6AE3E4053D391DD4875429768C49D639B9E49E67BD1EF90FD99A358EAB9792E"
+  },
+  {
+    "path": "stress\\clip-0385.png",
+    "bytes": 993579,
+    "sha256": "AB4B63F922FB0BA77D5F9CF72C8A1F6DB86884E95C526A38DC0E3BE4CAD70DF6"
+  },
+  {
+    "path": "stress\\clip-0386.png",
+    "bytes": 993821,
+    "sha256": "6EC63756168714C348CD599DC4795183C961322CD3ED87570FB462D06368CBE6"
+  },
+  {
+    "path": "stress\\clip-0387.png",
+    "bytes": 992951,
+    "sha256": "198591C9AC262BB468D16DDDFCED5C77B31B25A5340A245C0CC15C842870C7F1"
+  },
+  {
+    "path": "stress\\clip-0388.png",
+    "bytes": 993454,
+    "sha256": "32FB8765513565C6CC950ACA6788FEFDDB16F61B046BB381DAF61CB05A97D5E9"
+  },
+  {
+    "path": "stress\\clip-0389.png",
+    "bytes": 991742,
+    "sha256": "7B90AA5029CEFBA386FD242F01ADE9B6BF82D854F5289F5269A385788D5D298A"
+  },
+  {
+    "path": "stress\\clip-0390.png",
+    "bytes": 992247,
+    "sha256": "B9605A1FEE901DA3BE9AF291783E33C333D2A47320F807B74B492223707E5927"
+  },
+  {
+    "path": "stress\\clip-0391.png",
+    "bytes": 992722,
+    "sha256": "14BAF0A52E4E715CCE3F6A7E8C39E083B4C6F122CF4BBA6C968610E462BE1D6F"
+  },
+  {
+    "path": "stress\\clip-0392.png",
+    "bytes": 992657,
+    "sha256": "7E845528C923076D2658B3EFA7AC27B4257F2EDB175BE934EFFB07EDE331D33B"
+  },
+  {
+    "path": "stress\\clip-0393.png",
+    "bytes": 992967,
+    "sha256": "70855C21A481CDA4D5E41B2618CA222533EBF929D5EBD3E433696937227F99A0"
+  },
+  {
+    "path": "stress\\clip-0394.png",
+    "bytes": 993226,
+    "sha256": "DC8561C1605325B1ACA1E2A8D0EBC4D6E4F0F294FA0526D3396ACCFD3EBE998B"
+  },
+  {
+    "path": "stress\\clip-0395.png",
+    "bytes": 992325,
+    "sha256": "3CCAEBDF5AD13219916B1706D2497BA761E82A39E742B62E1B78F86232D39412"
+  },
+  {
+    "path": "stress\\clip-0396.png",
+    "bytes": 992172,
+    "sha256": "3568A4DE920EE5F10B95DC3244BE785E2139622FCE72D3544BACA01C0E1E6BD6"
+  },
+  {
+    "path": "stress\\clip-0397.png",
+    "bytes": 992498,
+    "sha256": "2E57C25012AFD9880F070DD93CA58F6E1C64830A61E1EA157E572AF4822EB036"
+  },
+  {
+    "path": "stress\\clip-0398.png",
+    "bytes": 992044,
+    "sha256": "EEF8A7A21457F65370623D349F036CAC89D35950222E2E1A2929166E96A1FD41"
+  },
+  {
+    "path": "stress\\clip-0399.png",
+    "bytes": 991381,
+    "sha256": "27CB1A25FF460ECD6DD8E57351355E1CF9AAC9A7CEA5A192DB8E2CFD2D757242"
+  },
+  {
+    "path": "stress\\clip-0400.png",
+    "bytes": 992383,
+    "sha256": "41CA74ADCD7E6BF1A352ECA8080DCCA2FEBF3FB286210160509A72401D766C43"
+  },
+  {
+    "path": "stress\\clip-0401.png",
+    "bytes": 992106,
+    "sha256": "5FF6BD354ECF76571478508AAB1340957A18CFD84A6838866446F18131F34213"
+  },
+  {
+    "path": "stress\\clip-0402.png",
+    "bytes": 991891,
+    "sha256": "05C8262A3B6DCEBC0957D4878B2B5EF2266C29E5B44B631CF748D30F21FE5CE5"
+  },
+  {
+    "path": "stress\\clip-0403.png",
+    "bytes": 992284,
+    "sha256": "9A39CF67558ADBADEE34B5DD1A872F966BF233CFB18569CAC19B6AB13E889754"
+  },
+  {
+    "path": "stress\\clip-0404.png",
+    "bytes": 992732,
+    "sha256": "F14871B047EDBC24BBA92F48DF2BD676A33606F8D9AC82074A0DF13C9F6691C6"
+  },
+  {
+    "path": "stress\\clip-0405.png",
+    "bytes": 993105,
+    "sha256": "170066D8AF03C5640F19D8B6ACC8F84034D2F091E908B28B51C207A3318D1C51"
+  },
+  {
+    "path": "stress\\clip-0406.png",
+    "bytes": 992240,
+    "sha256": "17AAB08EDBE4847EA4CCDAFD5C00C5A02D4DCF51CD552918D16866EA593466EB"
+  },
+  {
+    "path": "stress\\clip-0407.png",
+    "bytes": 992179,
+    "sha256": "89F4497C4060F93F90CAB3EEF6E6A1B10E7B8BE226754DE84BABD9E96B2FBAEF"
+  },
+  {
+    "path": "stress\\clip-0408.png",
+    "bytes": 992460,
+    "sha256": "328E00760DA9CC9F61D3C72AEFC59E4CAC4A495E82717D908E7BD7A70419D444"
+  },
+  {
+    "path": "stress\\clip-0409.png",
+    "bytes": 993150,
+    "sha256": "7F3B5F1219D7E6C6E53E3486BEA090A2298750B2A8915C1AEEEC852281663DB1"
+  },
+  {
+    "path": "stress\\clip-0410.png",
+    "bytes": 992243,
+    "sha256": "30FF480477C76273E46528B0ADE852E3A751334023AE8F9C6FBB909006F4C93B"
+  },
+  {
+    "path": "stress\\clip-0411.png",
+    "bytes": 992829,
+    "sha256": "A5BAEF07F0697F0B58933F3DE3E733A38FB89EEE5CB61059E6DD5F61861F7EBC"
+  },
+  {
+    "path": "stress\\clip-0412.png",
+    "bytes": 991998,
+    "sha256": "7400D633EBAF51C7F710BA5F7A1CFE859420934D02357B669B250C5C2FBA6047"
+  },
+  {
+    "path": "stress\\clip-0413.png",
+    "bytes": 992034,
+    "sha256": "B5FAC693CA16104D37B4BA6F0431E1534976A875B0185ADEA57B0581A9FC146D"
+  },
+  {
+    "path": "stress\\clip-0414.png",
+    "bytes": 992229,
+    "sha256": "91E7E5A8AFB244E81E5288788A34A01B86A2F49072BDBF6B24044E80C5E516FC"
+  },
+  {
+    "path": "stress\\clip-0415.png",
+    "bytes": 993236,
+    "sha256": "DD294B19CE3DAB93D8E28867F60AF5FE6B55B66554C5870326CBD644A8297038"
+  },
+  {
+    "path": "stress\\clip-0416.png",
+    "bytes": 993775,
+    "sha256": "94D0300B8D3770D5FBADE7646D7C8CE1F7CAD796881CB8A48CBE59A76B2DCEC9"
+  },
+  {
+    "path": "stress\\clip-0417.png",
+    "bytes": 992068,
+    "sha256": "929405DB295D2E035CF1A252A8A97F691E801275B37AD71CC4B1549ACE31D905"
+  },
+  {
+    "path": "stress\\clip-0418.png",
+    "bytes": 992578,
+    "sha256": "72A507621AA136391AA94419F007F1D94793292042B48BF5557CD9B25C3BDEE1"
+  },
+  {
+    "path": "stress\\clip-0419.png",
+    "bytes": 993429,
+    "sha256": "4D4B372C30C9421C71126306D49AC0DD8FB18DA37FBA4B91DF8B5E4D479C26D9"
+  },
+  {
+    "path": "stress\\clip-counts.json",
+    "bytes": 240296,
+    "sha256": "9675D5CDC20E819C2D1380E301D64341EE19436F302E7418D10FE06BB5094B95"
+  },
+  {
+    "path": "stress\\execution.json",
+    "bytes": 441,
+    "sha256": "40F3AAD4A23ED16BD5ECF1CEF05BCF73B260769E1AE44745D7E4E2CF5688C1E8"
+  },
+  {
+    "path": "stress\\stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "stress\\stdout.txt",
+    "bytes": 1803,
+    "sha256": "100C1361870DCF879057BC002866601E7B9FA1345C3215CC15007D5E08933EDC"
+  },
+  {
+    "path": "stress\\classic-saves\\autosave-0.ftsave",
+    "bytes": 5960,
+    "sha256": "D498EBE757A9BC549FC32C04CFFEDF00D24BDB5837FA7EC181F579C113656BD7"
+  },
+  {
+    "path": "stress\\development-saves\\autosave-0.ftsave",
+    "bytes": 97030,
+    "sha256": "8F6D9E7B1A5F83F44C628C3621DA6A2DC50EE4DF5C68F05F548ECA6992E4D9F3"
+  },
+  {
+    "path": "stress\\development-saves\\autosave-0.ftsave.bak",
+    "bytes": 56991,
+    "sha256": "53660D39F0ED555883EFA931C68031E6650ED4FF293809F4E58D9929A8A810D5"
+  },
+  {
+    "path": "stress\\development-saves\\autosave-1.ftsave",
+    "bytes": 14158,
+    "sha256": "FD1F9916330BB610C84549BD09D19D8B7D8C238DCB9AAFDAE283F8DB38942E6E"
+  },
+  {
+    "path": "stress\\development-saves\\autosave-1.ftsave.bak",
+    "bytes": 57110,
+    "sha256": "FC161E36EE309EE3D0ACDA70F2CB67EC1461F4BB9C2FCF251C8B661305400A59"
+  },
+  {
+    "path": "stress\\development-saves\\autosave-2.ftsave",
+    "bytes": 41978,
+    "sha256": "BCB4ABB27C90B92E479E7B0EE8715E2646E29C87D29746F7BCF35BF5215088CC"
+  },
+  {
+    "path": "stress\\development-saves\\autosave-2.ftsave.bak",
+    "bytes": 37291,
+    "sha256": "DF139D0C5C240092DFD3BE88E972B480E126C5A0F3FADA8E9EBAD4412D505A8B"
+  },
+  {
+    "path": "stress\\development-saves\\development-cancelled.ftsave",
+    "bytes": 13400,
+    "sha256": "49FB3F099F6F0E21C40EB3C2CB510E077C709976DAC8C0ABFEE14954C6A98482"
+  },
+  {
+    "path": "stress\\development-saves\\development-finished.ftsave",
+    "bytes": 97035,
+    "sha256": "A158DDEECE0ED585BC04020E265B49EE0BE1DD8E978FCD9C9FE63001E57A0042"
+  },
+  {
+    "path": "stress\\development-saves\\development-live.ftsave",
+    "bytes": 69397,
+    "sha256": "5011B95483C88627232BDBA5C2E700EE994EBFCA28E6739A4969A8BFEDA7C28D"
+  },
+  {
+    "path": "stress\\development-saves\\development-next.ftsave",
+    "bytes": 13562,
+    "sha256": "74E5A4DAB3FA0C9A2ACBAAD6E8E96B64F4475981BE9EB74EC821060E6140DC3D"
+  },
+  {
+    "path": "stress\\development-saves\\development-preparation.ftsave",
+    "bytes": 13668,
+    "sha256": "63FC217F16693AC0765DA1A24599D7A3747C2B19EB7CF772C6E18D482093C523"
+  },
+  {
+    "path": "stress\\development-saves\\large-construction-layout.ftsave",
+    "bytes": 14159,
+    "sha256": "B8ACBCB5282C46A253BCC1528ECA778B8F44A61A84BDF889B8FC1829E719EF14"
+  },
+  {
+    "path": "stress\\development-saves\\pond-contract-refund.ftsave",
+    "bytes": 11305,
+    "sha256": "8E7AC42FF40860A19F65298F69098B45CCA4E6649D26AD57D07BA4D42B205D51"
+  },
+  {
+    "path": "stress\\development-saves\\stage-barn-only-live-cut.ftsave",
+    "bytes": 57115,
+    "sha256": "37F3785F356F2684A797841F6D621F99EA41E5719E7311C553161160273FFA55"
+  },
+  {
+    "path": "stress\\development-saves\\stage-pond-only-live-cut.ftsave",
+    "bytes": 56992,
+    "sha256": "53795AACD59D5DCF092FD76C9A7EC5734710AACF7CE61221645B7BF27F5ADA72"
+  },
+  {
+    "path": "stress\\development-saves\\press-photos\\20260922-t1-a1.png",
+    "bytes": 229908,
+    "sha256": "49F440FD058CED73B2C6E5D2297B1C48B07BB03C03D3B3BAEF2E3DC8FBE304D7"
+  },
+  {
+    "path": "stress\\development-saves\\press-photos\\20260922-t1-a1.txt",
+    "bytes": 34,
+    "sha256": "914ECB98D76986522A892120643FCC66F0165A30DDB7C2242B455CEF9407CC88"
+  },
+  {
+    "path": "survival-architecture\\01-existing-control-menu.png",
+    "bytes": 466952,
+    "sha256": "891B15AC28E4B9488E3FA4E97494A355E3A995FF4681A96249FA1BC7948A31C7"
+  },
+  {
+    "path": "survival-architecture\\02-existing-rain-challenge.png",
+    "bytes": 1347123,
+    "sha256": "32428DAE876EFC0231989C38C5B84157D3178C64382334FF36CEEE507B572B43"
+  },
+  {
+    "path": "survival-architecture\\03-management-tier-two-live.png",
+    "bytes": 846706,
+    "sha256": "F14DE16D8C4EA233726DF02B2A43BFB2CBCED8A6A0AFD049B467A1C94FCEBB62"
+  },
+  {
+    "path": "survival-architecture\\04-all-rounder-management.png",
+    "bytes": 716083,
+    "sha256": "9E7253099815178E05988953D71A4FF7AE57360B7D477D826E82DFE01E84661B"
+  },
+  {
+    "path": "survival-architecture\\05-all-rounder-first-person.png",
+    "bytes": 505178,
+    "sha256": "0AB69860A3ABABEFCE6C9575046B7BA1E47250EFD9677BA324F077F36DB89A70"
+  },
+  {
+    "path": "survival-architecture\\06-steward-only-tier-one.png",
+    "bytes": 494121,
+    "sha256": "4D136F6C68E60C292B9FF3D32EF64E00A520881D6C839038FC0C558E3AD45464"
+  },
+  {
+    "path": "survival-architecture\\07-steward-only-tier-two.png",
+    "bytes": 498524,
+    "sha256": "F8EB9D04BB02421B85556395F36AC629056322DA1A9A690EB6AAE7053AD5546C"
+  },
+  {
+    "path": "survival-architecture\\08-resumed-management.png",
+    "bytes": 840304,
+    "sha256": "4A5FDBD13C50ED17B718639C2D19C4183802E2994FCBE1280A542EF9788FD7D7"
+  },
+  {
+    "path": "survival-architecture\\architecture-evidence.json",
+    "bytes": 6852,
+    "sha256": "91131E6A3E8F0FD7120BFF30D87878FEE69E6BB012E1A08D7A3C39DC543C4719"
+  },
+  {
+    "path": "survival-architecture\\execution.json",
+    "bytes": 463,
+    "sha256": "DAA2D97D012C29A43C950138F6F909BC32FB63C0E079872494FB749BEA0F766B"
+  },
+  {
+    "path": "survival-architecture\\stderr.txt",
+    "bytes": 0,
+    "sha256": "E3B0C44298FC1C149AFBF4C8996FB92427AE41E4649B934CA495991B7852B855"
+  },
+  {
+    "path": "survival-architecture\\stdout.txt",
+    "bytes": 1406,
+    "sha256": "F1D39B8254656A2D22B098A292F6E629D9A18D034F9B62A7C4D16C9166E20DB6"
+  },
+  {
+    "path": "survival-architecture\\hands-on-saves\\all-rounder-manual.ftsave",
+    "bytes": 39802,
+    "sha256": "89FAD587F5AA6A61B035CD32617BFD2E98A91BA5B818BFA38875980791C171B0"
+  },
+  {
+    "path": "survival-architecture\\management-saves\\management-tier-two.ftsave",
+    "bytes": 57080,
+    "sha256": "EE8196BFDB8E99920F34378BF118E4C2FE6CA74C366557049F62FE261EE2247B"
+  },
+  {
+    "path": "survival-architecture\\management-saves\\resumed-management.ftsave",
+    "bytes": 57080,
+    "sha256": "6BC19E02235AC8010663E88B623ACE0B59EB51921876271C2DBE14D97E2A581C"
+  },
+  {
+    "path": "survival-architecture\\steward-saves\\autosave-0.ftsave",
+    "bytes": 31289,
+    "sha256": "57DF978376F684EC047CA7C45438E382ABF862D9F25832B7AF211B6A9421907A"
+  },
+  {
+    "path": "survival-architecture\\steward-saves\\autosave-1.ftsave",
+    "bytes": 36025,
+    "sha256": "AA6CEE3447F9D1A4FDE9A68B35D848C892777C1F4C9753C8B45B27FF24438FD0"
+  },
+  {
+    "path": "survival-architecture\\steward-saves\\steward-tier-one.ftsave",
+    "bytes": 31293,
+    "sha256": "2D773B0AD02E18AA5A042DF4DE37FE23E2580AEA4980B4627E3C646A8230A995"
+  },
+  {
+    "path": "survival-architecture\\steward-saves\\steward-tier-two.ftsave",
+    "bytes": 36027,
+    "sha256": "2F0AD0FE9A2EF7F10F996951A4EC169BD78C368C6AB0F6569E372C0D333D4958"
+  }
+]
