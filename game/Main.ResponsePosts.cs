@@ -11,6 +11,7 @@ public partial class Main
     private readonly Dictionary<ResponseRole,Node3D> _responsePostVisuals=[];
     private readonly Dictionary<ResponseRole,StaticBody3D> _responsePostPicks=[];
     private readonly Dictionary<ResponseRole,Label3D> _responsePostLabels=[];
+    private readonly Dictionary<string,(Node3D Body,Label3D Label)> _additionalPostViews=[];
     private Button? _firstAidMoveButton;
     private Button? _stewardMoveButton;
     private static string PostAsset(ResponseRole role)=>role==ResponseRole.Medic?"res://assets/environment/lwf_first_aid_point_v2.glb":"res://assets/environment/lwf_security_post_v1.glb";
@@ -32,8 +33,8 @@ public partial class Main
     {
         foreach(var role in _responsePostVisuals.Keys)
         {
-            var placed = _session.CaptureBuildPlacements().Any(item => item.Kind ==
-                (role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost));
+            var placed = _session.CaptureBuildPlacements().Any(item => item.Id ==
+                (role == ResponseRole.Medic ? "first-aid" : "steward-post"));
             _responsePostVisuals[role].Visible = placed;
             _responsePostPicks[role].CollisionLayer = placed ? 1u : 0u;
             _responsePostLabels[role].Visible = placed;
@@ -46,6 +47,23 @@ public partial class Main
             // Existing square tent proxy and post proxy sizes/eligibility are retained.
             _responsePostPicks[role].RotationDegrees=new(0,role==ResponseRole.Medic?0:(post.QuarterTurns-1)*90,0);
             _responsePostLabels[role].Position=point+new Vector3(0,role==ResponseRole.Medic?3.3f:3.7f,0);
+        }
+        var extras=_session.CaptureResponsePosts().Where(p=>p.Id.Contains(".extra-",StringComparison.Ordinal)).ToArray();
+        foreach(var gone in _additionalPostViews.Keys.Where(id=>!extras.Any(p=>p.Id==id)).ToArray())
+        {var view=_additionalPostViews[gone];view.Body.QueueFree();view.Label.QueueFree();_additionalPostViews.Remove(gone);}
+        foreach(var post in extras)
+        {
+            if(!_additionalPostViews.TryGetValue(post.Id,out var view))
+            {
+                view=(AddAsset(PostAsset(post.Role),Vector3.Zero),BuildingName("",Vector3.Zero,28));
+                AddChild(view.Label);_additionalPostViews[post.Id]=view;
+            }
+            var point=ImmersionPosition(post.Placement.Cell);
+            view.Body.Position=point;view.Body.RotationDegrees=new(0,post.Placement.QuarterTurns*90,0);
+            var placed=_session.CaptureBuildPlacements().Single(p=>p.Id==post.Id);
+            view.Label.Text=BuildDrawer.PlacedName(placed,_session).ToUpperInvariant()+
+                (post.AssignedWorkers==0?" · UNSTAFFED":"");
+            view.Label.Position=point+new Vector3(0,post.Role==ResponseRole.Medic?3.3f:3.7f,0);
         }
     }
     private void RefreshResponsePostMoveButtons()

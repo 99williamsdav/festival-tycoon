@@ -372,6 +372,7 @@ public sealed partial class GameSession
             foreach(var cell in ResponsePostFootprint(steward,ResponseRole.Steward))terrain[cell]=new(cell,GroundSurface.Grass,false);
             _traversalGrid=new TraversalGrid(terrain.Values);
         }
+        BlockAdditionalResponsePosts();
         BlockImmersionVendors();
         BlockToilet();
         BlockLitterBins();
@@ -535,7 +536,7 @@ public sealed partial class GameSession
             return "Festival reputation or scene credibility invalid.";
         if ((p.BuildPlacements is null || p.Plan is null ||
             !p.BuildPlacements.Select(item => item.Id).SequenceEqual(p.BuildPlacements.Select(item => item.Id).Order(StringComparer.Ordinal)) ||
-            ValidateBuildLayout(p.BuildPlacements, SavedStages(snapshot), snapshot.Equipment, p.WaterTowerOwned, p.Tier) is not null))
+            ValidateBuildLayout(p.BuildPlacements, SavedStages(snapshot), snapshot.Equipment, p.WaterTowerOwned, p.Tier, SavedClassic(snapshot)) is not null))
             return "Saved build layout is invalid.";
         if (ValidateBuildFacilities(p, snapshot) is { } buildMirrorIssue) return buildMirrorIssue;
         if (ValidatePreviousLayout(p, snapshot.PondStageTrial,SavedClassic(snapshot)) is { } previousLayoutIssue) return previousLayoutIssue;

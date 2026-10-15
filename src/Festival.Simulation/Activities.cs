@@ -424,7 +424,8 @@ public sealed partial class GameSession
         {
             // Rest cools as fast by first aid as in a marquee's shade, so the nearer one wins; a full marquee isn't offered.
             var restTicks = (person.HeatExposure - ActivityChooser.RestHeatTarget) / 8;
-            Add(ActivityKind.Rest, "rest", CaptureRestCentre(), EstimateWalkTicks(id, from, CaptureRestCentre()) + restTicks);
+            var aid=CaptureRestCentres().OrderBy(c=>EstimateWalkTicks(id,from,c)).First();
+            Add(ActivityKind.Rest, "rest", aid, EstimateWalkTicks(id, from, aid) + restTicks);
             foreach (var tent in Marquees())
                 if (MarqueeRestSpotFor(id, tent.Id) is not null) Add(ActivityKind.Rest, tent.Id, tent.Cell, EstimateWalkTicks(id, from, tent.Cell) + restTicks);
         }

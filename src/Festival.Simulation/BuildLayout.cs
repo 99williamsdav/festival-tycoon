@@ -22,6 +22,7 @@ public sealed partial class GameSession
         CampaignRulesProfile.For(CampaignRuleset.Survival).BuildFee(kind);
     /// <summary>How many of a service this festival may place: the tier's limit, and one more tap with the Another Round perk.</summary>
     public int ServiceLimit(BuildServiceKind kind) =>
+        IsClassicCampaign ? ClassicConstructionSafetyBound :
         BuildServiceLimit(kind, _preparation?.Tier ?? 1) - (kind == BuildServiceKind.WaterTap && !HasPerk("another-round") ? 1 : 0);
 
     /// <summary>The most of a service any festival at this tier may place (the tap's assumes the perk).</summary>
@@ -101,7 +102,7 @@ public sealed partial class GameSession
     {
         if (_preparation is not { PreviousLayout: { } previous } p) return null;
         var key = new LayoutFitKey(previous.ToArray(), p.Tier, ServiceLimit(BuildServiceKind.WaterTap), Stages,
-            _equipment is { } unit ? (unit.XMillimetres, unit.ZMillimetres) : null, p.WaterTowerOwned);
+            _equipment is { } unit ? (unit.XMillimetres, unit.ZMillimetres) : null, p.WaterTowerOwned, IsClassicCampaign);
         lock (LayoutFitLock)
             if (_lastLayoutFit is { } cached && cached.Key.SameAs(key)) return (cached.Placed.ToArray(), cached.Skipped);
         var fit = FitLayout(key, _equipment);
@@ -111,9 +112,9 @@ public sealed partial class GameSession
 
     private static (BuildPlacement[] Placed, int Skipped) FitLayout(LayoutFitKey key, EquipmentSnapshot? equipment)
     {
-        int Limit(BuildServiceKind kind) => kind == BuildServiceKind.WaterTap ? key.TapLimit : BuildServiceLimit(kind, key.Tier);
+        int Limit(BuildServiceKind kind) => kind == BuildServiceKind.WaterTap ? key.TapLimit : ConstructionLimit(kind, key.Tier, key.Classic);
         string? Check(IEnumerable<BuildPlacement> layout) =>
-            ValidateBuildLayout(layout.OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(), key.Stages, equipment, key.WaterTowerOwned, key.Tier);
+            ValidateBuildLayout(layout.OrderBy(item => item.Id, StringComparer.Ordinal).ToArray(), key.Stages, equipment, key.WaterTowerOwned, key.Tier, key.Classic);
         var ordered = key.Layout.OrderBy(OrdinalOfKind).ThenBy(item => item.Id, StringComparer.Ordinal).ToArray();
         // The rule is one at a time, in that order: each is placed if its kind's limit has room and it fits beside those
         // placed before it, else left off. A layout that fits whole fits in every part, so the same answer comes in far
@@ -158,9 +159,9 @@ public sealed partial class GameSession
         item.Kind == BuildServiceKind.Bin && int.TryParse(item.Id[(item.Id.IndexOf('.') + 1)..], out var bin) ? bin : 1;
 
     private sealed record LayoutFitKey(BuildPlacement[] Layout, int Tier, int TapLimit, IReadOnlyList<FestivalStage> Stages,
-        (long X, long Z)? Generator, bool WaterTowerOwned)
+        (long X, long Z)? Generator, bool WaterTowerOwned, bool Classic)
     {
-        public bool SameAs(LayoutFitKey other) => Tier == other.Tier && TapLimit == other.TapLimit && WaterTowerOwned == other.WaterTowerOwned &&
+        public bool SameAs(LayoutFitKey other) => Classic == other.Classic && Tier == other.Tier && TapLimit == other.TapLimit && WaterTowerOwned == other.WaterTowerOwned &&
             Generator == other.Generator && Stages.SequenceEqual(other.Stages, ReferenceEqualityComparer.Instance) &&
             Layout.SequenceEqual(other.Layout);
     }
@@ -174,7 +175,7 @@ public sealed partial class GameSession
         var before = classic?1:p.Tier - 1;
         return p.CarriedIn is null || before < 1 || previous.Length == 0 ||
             !previous.Select(item => item?.Id).SequenceEqual(previous.Select(item => item?.Id).Order(StringComparer.Ordinal)) ||
-            ValidateBuildLayout(previous, FestivalStages.For(before, pondStageTrial), null, false, before) is not null
+            ValidateBuildLayout(previous, FestivalStages.For(before, pondStageTrial), null, false, before, classic) is not null
             ? "Last festival's layout is invalid." : null;
     }
 
@@ -196,8 +197,7 @@ public sealed partial class GameSession
             for (var index = 1; ; index++)
                 if (!placed.Any(p => p.Id == "bin." + index)) return "bin." + index;
         }
-        if (kind is not (BuildServiceKind.WaterTap or BuildServiceKind.Toilet or BuildServiceKind.Marquee)) return prefix;
-        var first = prefix + ".main";
+        var first = kind is BuildServiceKind.FirstAid or BuildServiceKind.StewardPost ? prefix : prefix + ".main";
         if (!placed.Any(item => item.Id == first)) return first;
         for (var index = 1; ; index++)
         {
@@ -217,7 +217,7 @@ public sealed partial class GameSession
             return p.PreviousLayout is null ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "There's no last festival's layout to copy.") :
                 LastFestivalLayoutFit()!.Value.Placed.Length == 0 ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "None of last festival's layout fits this field.") : null;
         if (command is UseDefaultBuildLayoutCommand)
-            return ValidateBuildLayout(StandardBuildLayout(p.Tier), Stages, _equipment, p.WaterTowerOwned, p.Tier) is { } defaultsError ?
+            return ValidateBuildLayout(StandardBuildLayout(p.Tier), Stages, _equipment, p.WaterTowerOwned, p.Tier, IsClassicCampaign) is { } defaultsError ?
                 CommandResult.Rejected(CommandReasonCode.InvalidParameter, defaultsError) : null;
         BuildPlacement proposed;
         if (command is PlaceBuildServiceCommand place)
@@ -237,7 +237,7 @@ public sealed partial class GameSession
         }
         else return CommandResult.Rejected(CommandReasonCode.UnknownCommand, "Unknown build edit.");
         var next = p.BuildPlacements.Where(item => item.Id != proposed.Id).Append(proposed).OrderBy(item => item.Id, StringComparer.Ordinal).ToArray();
-        if (ValidateBuildLayout(next, Stages, _equipment, p.WaterTowerOwned, p.Tier) is { } issue) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
+        if (ValidateBuildLayout(next, Stages, _equipment, p.WaterTowerOwned, p.Tier, IsClassicCampaign) is { } issue) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue);
         // Straw and matting are walked on, not built on.
         return StandsOnCover(p, proposed) ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Lift the straw or matting there first.") : null;
     }
@@ -301,26 +301,26 @@ public sealed partial class GameSession
     /// (e.g. "toilets need a bin within N cells"); those belong in the start requirements.
     /// </remarks>
     private static string? ValidateBuildLayout(IReadOnlyList<BuildPlacement> placements, IReadOnlyList<FestivalStage> stages,
-        EquipmentSnapshot? equipment = null, bool waterTowerOwned = false, int tier = 1)
+        EquipmentSnapshot? equipment = null, bool waterTowerOwned = false, int tier = 1, bool classic = false)
     {
         // A main one, then numbered extras up to the tier's limit.
-        bool Numbered(BuildPlacement item, string prefix) => item.Id == prefix + ".main" ||
-            Enumerable.Range(1, BuildServiceLimit(item.Kind, tier) - 1).Any(index => item.Id == $"{prefix}.extra-{index}");
+        bool Numbered(BuildPlacement item, string prefix) => NumberedConstructionId(item.Id, prefix + ".main", prefix + ".extra-", ConstructionLimit(item.Kind, tier, classic));
         bool IdentityMatchesKind(BuildPlacement item) => item.Kind switch
         {
             BuildServiceKind.WaterTap => Numbered(item, "water"),
             BuildServiceKind.Toilet => Numbered(item, "toilet"),
             BuildServiceKind.Marquee => Numbered(item, "marquee"),
-            BuildServiceKind.FoodVan or BuildServiceKind.Bar => Stalls.Number(item.Id) is var number and > 0 && Stalls.KindOf(item.Id) == item.Kind && number <= BuildServiceLimit(item.Kind, tier),
-            BuildServiceKind.FirstAid => item.Id == "first-aid",
-            BuildServiceKind.StewardPost => item.Id == "steward-post",
+            BuildServiceKind.FoodVan or BuildServiceKind.Bar => Stalls.Number(item.Id) is var number and > 0 && Stalls.KindOf(item.Id) == item.Kind && number <= ConstructionLimit(item.Kind, tier, classic),
+            BuildServiceKind.FirstAid => NumberedConstructionId(item.Id, "first-aid", "first-aid.extra-", ConstructionLimit(item.Kind, tier, classic)),
+            BuildServiceKind.StewardPost => NumberedConstructionId(item.Id, "steward-post", "steward-post.extra-", ConstructionLimit(item.Kind, tier, classic)),
             BuildServiceKind.Bin => item.Id.StartsWith("bin.", StringComparison.Ordinal) && int.TryParse(item.Id[4..], out var number) && number > 0 && item.Id == "bin." + number,
             _ => false
         };
         if (placements.Any(item => item is null || !Enum.IsDefined(item.Kind) || item.QuarterTurns is < 0 or > 3 ||
             string.IsNullOrWhiteSpace(item.Id) || !IdentityMatchesKind(item)) ||
             placements.Select(item => item.Id).Distinct(StringComparer.Ordinal).Count() != placements.Count ||
-            Enum.GetValues<BuildServiceKind>().Any(kind => placements.Count(item => item.Kind == kind) > BuildServiceLimit(kind, tier)))
+            classic && placements.Count > ClassicConstructionSafetyBound ||
+            Enum.GetValues<BuildServiceKind>().Any(kind => placements.Count(item => item.Kind == kind) > ConstructionLimit(kind, tier, classic)))
             return "Build identities or service limits are invalid.";
         var terrain = new TraversalGrid(Fixtures.NavigationFixture.CreateLowerWitteringTerrain(stages.Any(stage => stage.Id == FestivalStages.BarnId)));
         var reserved = new HashSet<GridCell>();
@@ -334,9 +334,8 @@ public sealed partial class GameSession
                 for (var z = stage.ReserveBounds.MinZ; z <= stage.ReserveBounds.MaxZ; z++)
                     if (stage.Reserve(new(x, z))) reserved.Add(new(x, z));
         // The rest area out in front of first aid stays clear; it moves with first aid, and only exists once it's placed.
-        var restCentre = RestCentre(placements);
         var restArea = new HashSet<GridCell>();
-        if (placements.Any(item => item.Kind == BuildServiceKind.FirstAid))
+        foreach(var restCentre in FirstAidRestCentres(placements))
             for (var x = restCentre.X - 1; x <= restCentre.X + 1; x++)
             for (var z = restCentre.Z - 1; z <= restCentre.Z + 1; z++) { reserved.Add(new(x, z)); restArea.Add(new(x, z)); }
         if (equipment is { } unit)
@@ -458,7 +457,7 @@ public sealed partial class GameSession
         }
         foreach (var (cell, walkable) in stages.SelectMany(stage => stage.Cells())) blocked[cell] = new(cell, GroundSurface.Grass, walkable);
         var grid = new TraversalGrid(blocked.Values);
-        var destinations = placements.Any(item => item.Kind == BuildServiceKind.FirstAid) ? new List<GridCell> { RestCentre(placements) } : [];
+        var destinations = FirstAidRestCentres(placements).ToList();
         foreach (var item in placements)
         {
             switch (item.Kind)

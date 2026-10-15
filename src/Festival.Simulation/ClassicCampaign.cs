@@ -81,10 +81,11 @@ public sealed partial class GameSession
         var opening=CampaignDefaults.OpeningLoanPrincipalPennies;var standing=FestivalStanding.New;string[] owned=[],seen=[];
         foreach(var (r,index) in h.CompletedFestivals.Select((r,i)=>(r,i)))
         {
+            if(r.Layout is null||r.Layout.Any(b=>b is null))return "Classic closed-festival layout is invalid.";
             var booking=ClassicBookingLedger.Evaluate(s.CampaignSeed,r.Number,r.Booking!);
             if(r.Number!=index+1||r.Result is null||r.Result.Attempt!=1||r.OpeningCashPennies!=opening||
                 (decimal)r.ClosingCashPennies!=(decimal)r.OpeningCashPennies+r.Result.NetCashChangePennies||
-                r.ClosingCashPennies<LeastClosingCashPennies||r.ClosingCashPennies>MostClosingCashPennies(1,opening)+booking.NetTicketReceiptsPennies||r.Loan!=loan||
+                r.ClosingCashPennies<LeastClosingCashPennies||r.ClosingCashPennies>ClassicClosingCashBound(opening,r.Layout, r.Booking!.Capacity)+booking.NetTicketReceiptsPennies||r.Loan!=loan||
                 !ValidStanding(r.OpeningStanding)||!ValidStanding(r.ClosingStanding)||!StandingEqual(r.OpeningStanding,standing)||
                 r.Booking!.InitialReputation!=standing.Reputation||
                 r.StockPurchasesPennies is null or <0||r.StockPurchasesPennies<r.Result.ConsumedStockCostsPennies||
@@ -99,7 +100,7 @@ public sealed partial class GameSession
             if(r.Result.Tick<DayTicksFor(FestivalStages.For(1,false))||r.Result.SatisfactionTotal<0||r.Result.SatisfactionTotal>10000L*r.Result.GuestCount||
                 r.Result.RevenuePennies<booking.NetTicketReceiptsPennies||r.Result.ContractCostsPennies<booking.NetBandCostsPennies||r.Result.ConsumedStockCostsPennies<0||
                 r.Result.BeersFinished is null or <0||r.Result.Fights is null or <0||r.Result.MedicalCollapses is null or <0||
-                ValidateBuildLayout(r.Layout,FestivalStages.For(1,false),null,false,1) is not null)
+                ValidateBuildLayout(r.Layout,FestivalStages.For(1,false),null,false,1,true) is not null)
                 return "Classic closed-festival result or layout is invalid.";
             var gigs=(p.RelationshipHistory??[]).Where(g=>g.Tier==r.Number).ToArray();
             if(gigs.Length!=3||gigs.Any(g=>ActCatalogue.Find(g.ActId) is null)||

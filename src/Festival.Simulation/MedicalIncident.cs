@@ -111,7 +111,7 @@ public sealed partial class GameSession
         cell.X == centre.X + offset.X && cell.Z == centre.Z + offset.Z));
 
     /// <summary>Whether this cell is one of the rest area's spots, beside this festival's first aid.</summary>
-    public bool IsRestSpot(GridCell cell) => IsRestSpotAround(CaptureRestCentre(), cell);
+    public bool IsRestSpot(GridCell cell) => CaptureRestCentres().Any(centre=>IsRestSpotAround(centre, cell));
 
     private static bool RestNavigationIntent(string? intent) => intent is "medical.rest" or "disorder.water-closure-rest";
 
@@ -135,11 +135,12 @@ public sealed partial class GameSession
         foreach (var ring in RestSpotRings)
         {
             GridCell? best = null; var bestDistance = long.MaxValue;
+            foreach(var siteCentre in CaptureRestCentres())
             foreach (var offset in ring)
             {
-                var spot = new GridCell(restCentre.X + offset.X, restCentre.Z + offset.Z);
+                var spot = new GridCell(siteCentre.X + offset.X, siteCentre.Z + offset.Z);
                 if (_traversalGrid is not { } grid || !grid.Contains(spot) || !grid.Get(spot).IsWalkable || CubicleClosedTo(id, spot) ||
-                    posts.Contains(spot) || Taken(spot)) continue;
+                    posts.Contains(spot) || Taken(spot) || CaptureRestCentres().Count > 1 && !MedicalRouteExists(id,spot)) continue;
                 var centre = TraversalGrid.CellCentre(spot);
                 long dx = centre.XMillimetres - agent.XMillimetres, dz = centre.ZMillimetres - agent.ZMillimetres;
                 // Strictly nearer only, so equal distances keep the ring's fixed order.

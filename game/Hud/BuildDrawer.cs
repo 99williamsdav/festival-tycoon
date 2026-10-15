@@ -51,6 +51,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     private readonly HashSet<BuildServiceKind> _expanded = [];
     private readonly Dictionary<BuildServiceKind, CatalogueRow> _buildCatalogueRows = [];
     private readonly Dictionary<BuildServiceKind, List<Button>> _buildShortcutButtons = [];
+    private readonly Dictionary<BuildServiceKind,int> _placedPages = [];
+    private const int PlacementsPerPage = 12;
     private string _buildPlacedKey = "";
 
     public PanelContainer? Panel => _buildDrawer;
@@ -297,6 +299,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     private readonly List<(string Van, FoodTrader Trader, Button Button)> _traderButtons = [];
     private VBoxContainer? _traderBox;
     private string? _traderKey;
+    private int _traderPage;
+    private const int TraderVansPerPage = 4;
 
     /// <summary>The traders to choose from, a set for each van the tier allows: each pays the festival to pitch.</summary>
     private VBoxContainer TraderPicker()
@@ -308,22 +312,33 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     }
 
     /// <summary>
-    /// One picker per van. A trader another van already has, or one the tier can't book yet, is shown but can't be
-    /// picked, and says why.
+    /// Four van pickers per page. Unavailable traders remain visible and explain why.
     /// </summary>
     private void RefreshTraderPicker()
     {
         if (_traderBox is null) return;
         var session = _hud.Session;
-        var vans = Enumerable.Range(1, session.ServiceLimit(BuildServiceKind.FoodVan)).Select(number => Stalls.Id(BuildServiceKind.FoodVan, number)).ToArray();
+        var vans = session.FoodVanCatalogueIds.ToArray();
         var placed = session.PlacedVans;
-        var key = $"{session.CapturePreparation()?.Tier}:" + string.Join(",", vans.Select(van => van + (placed.Contains(van) ? "+" : "-")));
+        var pages = Math.Max(1, (vans.Length + TraderVansPerPage - 1) / TraderVansPerPage);
+        _traderPage = Math.Clamp(_traderPage, 0, pages - 1);
+        var key = $"{session.CapturePreparation()?.Tier}:{_traderPage}:" + string.Join(",", vans.Select(van => van + (placed.Contains(van) ? "+" : "-")));
         if (key != _traderKey)
         {
             _traderKey = key;
             foreach (var child in _traderBox.GetChildren()) { _traderBox.RemoveChild(child); child.QueueFree(); }
             _traderButtons.Clear();
-            foreach (var van in vans)
+            if (pages > 1)
+            {
+                var navigation = new HBoxContainer();
+                var previous = ButtonText("Previous", () => { _traderPage--; RefreshTraderPicker(); });
+                var next = ButtonText("Next", () => { _traderPage++; RefreshTraderPicker(); });
+                previous.Disabled = _traderPage == 0; next.Disabled = _traderPage == pages - 1;
+                navigation.AddChild(previous);
+                navigation.AddChild(Ui.Caps($"Vans · page {_traderPage + 1}/{pages}", Ui.InkMuted, 9.5f));
+                navigation.AddChild(next); _traderBox.AddChild(navigation);
+            }
+            foreach (var van in vans.Skip(_traderPage * TraderVansPerPage).Take(TraderVansPerPage))
             {
                 _traderBox.AddChild(Ui.Caps(vans.Length == 1 ? "Trader · they pay you to pitch"
                     : $"Van {Stalls.Number(van)} trader · {(placed.Contains(van) ? "pays you to pitch" : "if you place it")}", Ui.InkMuted, 9.5f));
@@ -390,8 +405,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
                 ? Stalls.Next(BuildServiceKind.FoodVan, placements.Select(item => item.Id)) : _hud.Session.PlacedVans[^1]);
             row.Price.Text = kind == BuildServiceKind.FoodVan ? $"+{FestivalCurrency.Format(nextVan.PitchFeePennies)}"
                 : FestivalCurrency.Format(GameSession.BuildServiceFeePennies(kind));
-            row.Count.Text = kind == BuildServiceKind.Bin ? $"{count}" : $"{count}/{limit}";
-            var dotCount = kind == BuildServiceKind.Bin ? 0 : limit;
+            row.Count.Text = _hud.Session.ConstructionQuantitiesUnrestricted ? $"{count} placed" : kind == BuildServiceKind.Bin ? $"{count}" : $"{count}/{limit}";
+            var dotCount = kind == BuildServiceKind.Bin || _hud.Session.ConstructionQuantitiesUnrestricted ? 0 : limit;
             if (row.Dots.GetChildCount() != dotCount)
             {
                 foreach (var child in row.Dots.GetChildren()) { row.Dots.RemoveChild(child); child.QueueFree(); }
@@ -433,7 +448,7 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             }
         }
         var key = string.Join("|", placements.Select(item => $"{item.Id}:{item.Cell.X}:{item.Cell.Z}:{item.QuarterTurns}")) +
-            "#" + string.Join(",", _expanded.Order());
+            "#" + string.Join(",", _expanded.Order()) + "#" + string.Join(",",_placedPages.OrderBy(p=>p.Key));
         if (key == _buildPlacedKey) return;
         _buildPlacedKey = key;
         foreach (var (kind, row) in _buildCatalogueRows)
@@ -441,7 +456,19 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
             foreach (var child in row.Placed.GetChildren()) { row.Placed.RemoveChild(child); child.QueueFree(); }
             row.Placed.Visible = _expanded.Contains(kind);
             if (!row.Placed.Visible) continue;
-            foreach (var item in placements.Where(item => item.Kind == kind))
+            var items=placements.Where(item=>item.Kind==kind).ToArray();
+            var pages=Math.Max(1,(items.Length+PlacementsPerPage-1)/PlacementsPerPage);
+            var page=Math.Clamp(_placedPages.GetValueOrDefault(kind),0,pages-1);_placedPages[kind]=page;
+            if(pages>1)
+            {
+                var navigation=new HBoxContainer();
+                var previous=ButtonText("Previous",()=>{_placedPages[kind]=page-1;Refresh();});
+                var next=ButtonText("Next",()=>{_placedPages[kind]=page+1;Refresh();});
+                previous.Disabled=page==0;next.Disabled=page==pages-1;
+                navigation.AddChild(previous);navigation.AddChild(Ui.Caps($"Page {page+1}/{pages}",Ui.InkMuted,9.5f));
+                navigation.AddChild(next);row.Placed.AddChild(navigation);
+            }
+            foreach (var item in items.Skip(page*PlacementsPerPage).Take(PlacementsPerPage))
             {
                 var line = new HBoxContainer { CustomMinimumSize = new Vector2(0, Ui.S(28)) };
                 line.AddThemeConstantOverride("separation", Ui.Px(4)); row.Placed.AddChild(line);
@@ -501,6 +528,8 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
         var number = Stalls.IsStall(item.Kind) ? Stalls.Number(item.Id).ToString() :
             suffix == "main" ? "1" : suffix.StartsWith("extra-", StringComparison.Ordinal) && int.TryParse(suffix[6..], out var extra)
             ? (extra + 1).ToString() : suffix;
+        if(session.IsClassicCampaign && item.Kind is BuildServiceKind.FirstAid or BuildServiceKind.StewardPost)
+            return BuildName(item.Kind)+(suffix.StartsWith("extra-",StringComparison.Ordinal)?$" {number}":"");
         return GameSession.BuildServiceLimit(item.Kind, GameSession.HighestTier) == 1 ? BuildName(item.Kind) : $"{BuildName(item.Kind)} {number}";
     }
 

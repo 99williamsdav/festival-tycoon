@@ -45,7 +45,7 @@ public sealed partial class GameSession
     private static ResponsePostPlacement? FirstAidPlacement(PreparationSnapshot? p) => PlacedPost(p, BuildServiceKind.FirstAid);
     private static ResponsePostPlacement? StewardPostPlacement(PreparationSnapshot? p) => PlacedPost(p, BuildServiceKind.StewardPost);
     private static ResponsePostPlacement? PlacedPost(PreparationSnapshot? p, BuildServiceKind kind) =>
-        p?.BuildPlacements?.FirstOrDefault(item => item.Kind == kind) is { } post ? new(post.Cell, post.QuarterTurns) : null;
+        p?.BuildPlacements?.Where(item => item.Kind == kind).OrderBy(OrdinalOfKind).FirstOrDefault() is { } post ? new(post.Cell, post.QuarterTurns) : null;
 
     /// <summary>The main tap is standing unless a Build layout exists that does not place it.</summary>
     private static bool MainTapStanding(PreparationSnapshot? p) => p?.BuildPlacements?.Any(item => item.Id == "water.main") != false;

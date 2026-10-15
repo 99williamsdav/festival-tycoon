@@ -103,7 +103,7 @@ public sealed partial class GameSession
         foreach (var van in vans)
         {
             var wanted = FoodTraders.Find(ChosenTraderId(p?.Plan, van));
-            var trader = wanted is not null && wanted.FromTier <= tier && !taken.Contains(wanted) ? wanted
+            var trader = wanted is not null && wanted.FromTier <= tier ? wanted
                 : FoodTraders.AtTier(tier).Where(t => !taken.Contains(t)).OrderBy(t => picked.Contains(t)).FirstOrDefault() ?? FoodTraders.Default;
             if (van == vanId) return trader;
             taken.Add(trader);
@@ -169,7 +169,7 @@ public sealed partial class GameSession
         trader.FromTier > (_preparation?.Tier ?? 1) ? $"{trader.Name} trade from Tier {trader.FromTier}."
         // Two vans selling the same food would just split one queue: one cuisine per van, for now. A pick for a van not yet
         // placed counts too, so placing it later never switches anyone's food.
-        : PitchedVans(_preparation).Where(van => van != vanId).Select(van => (VanId: van, Trader: TraderAt(van)))
+        : !IsClassicCampaign && PitchedVans(_preparation).Where(van => van != vanId).Select(van => (VanId: van, Trader: TraderAt(van)))
             .Concat(ChosenTraders(_preparation?.Plan).Where(item => item.VanId != vanId))
             .FirstOrDefault(item => item.Trader.Id == trader.Id) is { VanId: { } other }
             ? $"{trader.Name} are already at van {Stalls.Number(other)}: pick a different food, or change that van first."
@@ -180,7 +180,7 @@ public sealed partial class GameSession
         if (target is not null || _preparation is not { Status: PreparationStatus.Preparing, Plan: { Committed: false } } p)
             return CommandResult.Rejected(CommandReasonCode.WrongPhase, "Choose the food trader while preparing.");
         if (FoodTraders.Find(command.TraderId) is not { } trader) return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown food trader.");
-        if (!Stalls.IsVan(command.VanId) || Stalls.Number(command.VanId) > BuildServiceLimit(BuildServiceKind.FoodVan, p.Tier))
+        if (!Stalls.IsVan(command.VanId) || Stalls.Number(command.VanId) > ServiceLimit(BuildServiceKind.FoodVan))
             return CommandResult.Rejected(CommandReasonCode.InvalidParameter, "Unknown food van.");
         return TraderUnavailable(command.VanId, trader) is { } issue ? CommandResult.Rejected(CommandReasonCode.InvalidParameter, issue) : null;
     }

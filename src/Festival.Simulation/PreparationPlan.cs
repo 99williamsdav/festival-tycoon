@@ -132,10 +132,10 @@ public sealed partial class GameSession
             (plan.Ponchos > 0 || plan.StrawBales > 0) && SavedWeatherKind(s) != WeatherKind.Rain ||
             FoodTraders.Find(plan.TraderId) is not { } firstTrader || firstTrader.FromTier > p.Tier ||
             plan.VanTraders is { } vanTraders && (vanTraders.Length == 0 || vanTraders.Any(item => item is null || !Stalls.IsVan(item.VanId) || item.VanId == Stalls.FirstVan ||
-                Stalls.Number(item.VanId) > BuildServiceLimit(BuildServiceKind.FoodVan, p.Tier) || FoodTraders.Find(item.TraderId) is not { } trader || trader.FromTier > p.Tier) ||
+                Stalls.Number(item.VanId) > ConstructionLimit(BuildServiceKind.FoodVan, p.Tier, SavedClassic(s)) || FoodTraders.Find(item.TraderId) is not { } trader || trader.FromTier > p.Tier) ||
                 !vanTraders.Select(item => item.VanId).SequenceEqual(vanTraders.Select(item => item.VanId).Distinct().OrderBy(Stalls.Number)) ||
                 // No two vans' picks are the same food.
-                vanTraders.Select(item => item.TraderId).Append(plan.TraderId).Distinct().Count() != vanTraders.Length + 1) ||
+                !SavedClassic(s) && vanTraders.Select(item => item.TraderId).Append(plan.TraderId).Distinct().Count() != vanTraders.Length + 1) ||
             plan.Committed != (p.Status != PreparationStatus.Preparing)) return "Preparation plan header or quantities invalid.";
         var factory = CreateFoodAndDrinkBaseline(s.CampaignSeed, p.Tier, pondStageTrial: s.PondStageTrial, identity: s.Identity,
             classicFestivalNumber:SavedClassic(s)?s.CampaignPlanning?.EditionNumber:null).WithPaymentStanding(p);

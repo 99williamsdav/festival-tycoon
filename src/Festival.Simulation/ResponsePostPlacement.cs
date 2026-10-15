@@ -16,8 +16,10 @@ public sealed partial class GameSession
             var old = role == ResponseRole.Medic ? MedicalMedicCell : DisorderSecurityBaseCell;
             return hired ? new(old.X + 2, old.Z) : old;
         }
-        var post = ResponsePost(prep, role);
-        var offset = RotateWaterOffset(new(hired ? 2 : 0, role == ResponseRole.Medic ? 6 : 5), post.QuarterTurns);
+        var posts=PlacedResponsePosts(prep,role).ToArray();
+        var ownPost=hired && posts.Length>1;
+        var post = ownPost?PostPlacement(posts[1]):ResponsePost(prep, role);
+        var offset = RotateWaterOffset(new(hired && !ownPost ? 2 : 0, role == ResponseRole.Medic ? 6 : 5), post.QuarterTurns);
         return new(post.Cell.X + offset.X, post.Cell.Z + offset.Z);
     }
     public static GridCell[] ResponsePostFootprint(ResponsePostPlacement post, ResponseRole role)
@@ -27,8 +29,8 @@ public sealed partial class GameSession
             .Select(z => { var d = RotateWaterOffset(new(x, z), post.QuarterTurns); return new GridCell(post.Cell.X + d.X, post.Cell.Z + d.Z); })).ToArray();
     }
     private static IEnumerable<GridCell> ResponsePostReserved(PreparationSnapshot? p) => Enum.GetValues<ResponseRole>()
-        .SelectMany(role => ResponsePostFootprint(ResponsePost(p, role), role)
-            .Concat(new[] { ResponsePostHome(p, role), ResponsePostHome(p, role, true) }));
+        .SelectMany(role => (PlacedResponsePosts(p,role).Any()?PlacedResponsePosts(p,role).Select(PostPlacement):[ResponsePost(p,role)])
+            .SelectMany(post=>ResponsePostFootprint(post,role)).Concat(new[] { ResponsePostHome(p, role), ResponsePostHome(p, role, true) }));
 
     private static bool PlacementAccessClear(PreparationSnapshot p,EquipmentSnapshot? equipment,ImmersionSnapshot? immersion,MedicalSnapshot? medical,FacilitiesSnapshot? facilities)
     {
@@ -36,6 +38,7 @@ public sealed partial class GameSession
         void Block(GridCell centre,int rx,int rz){for(var x=centre.X-rx;x<=centre.X+rx;x++)for(var z=centre.Z-rz;z<=centre.Z+rz;z++){var c=new GridCell(x,z);blocked[c]=new(c,GroundSurface.Grass,false);}}
         Block(ResponsePost(p,ResponseRole.Medic).Cell,3,3);
         if(StewardPostPlacement(p) is {} steward)Block(steward.Cell,2,2);
+        foreach(var post in ExtraResponsePostPlacements(p)){var radius=post.Kind==BuildServiceKind.FirstAid?3:2;Block(post.Cell,radius,radius);}
         var points=new[]{new WaterPointState("water.main",PrimaryWaterCell(p),[],[],null,0){QuarterTurns=PrimaryWaterQuarterTurns(p),GeometryVersion=PrimaryWaterGeometryVersion(p)}}
             .Concat(EffectiveWaterPlacements(p).Select(w=>new WaterPointState(w.Id,w.Cell,[],[],null,0){QuarterTurns=w.QuarterTurns,GeometryVersion=w.GeometryVersion})).ToArray();
         foreach(var water in points)Block(water.Cell,WaterFootprintRadius(water),WaterFootprintRadius(water));
@@ -48,7 +51,7 @@ public sealed partial class GameSession
             foreach(var c in ToiletSolidCells(toilet))blocked[c]=new(c,GroundSurface.Grass,false);
         var grid=new TraversalGrid(blocked.Values);
         var access=Enum.GetValues<ResponseRole>().SelectMany(role=>new[]{ResponsePostHome(p,role),ResponsePostHome(p,role,true)})
-            .Append(RestCentre(p)).Concat(points.Select(WaterPointServiceCell)).Concat(vendors.Select(ImmersionServiceCell))
+            .Append(RestCentre(p)).Concat(FirstAidRestCentres(p.BuildPlacements)).Concat(points.Select(WaterPointServiceCell)).Concat(vendors.Select(ImmersionServiceCell))
             .Concat((immersion is null?[]:EffectiveToilets(facilities)).SelectMany(accessToilet => new[] { ToiletInsideCell(accessToilet), ToiletQueueCell(accessToilet,0), ToiletExitCell(accessToilet) }))
             .Concat(medical is null?[]:taps.Where(w=>w.Id!="water.main").SelectMany(w=>w.QueueCells));
         return access.All(c=>DeterministicPathfinder.FindPath(grid,MedicalExitCell,c).Found);
@@ -57,9 +60,9 @@ public sealed partial class GameSession
     {
         if(s.Preparation is not { } p)return null;
         foreach(var role in Enum.GetValues<ResponseRole>())
+        foreach(var post in PlacedResponsePosts(p,role))
         {
-            var placement=role==ResponseRole.Medic?FirstAidPlacement(p):StewardPostPlacement(p);
-            if(placement is null)continue;
+            var placement=PostPlacement(post);
             if(s.Medical is null || s.Disorder is null || placement.QuarterTurns is <0 or >3)return "Saved response post identity or orientation invalid.";
             if (!p.BuildPlacements.Any(item => item.Kind == (role == ResponseRole.Medic ? BuildServiceKind.FirstAid : BuildServiceKind.StewardPost) &&
                 item.Cell == placement.Cell && item.QuarterTurns == placement.QuarterTurns))
