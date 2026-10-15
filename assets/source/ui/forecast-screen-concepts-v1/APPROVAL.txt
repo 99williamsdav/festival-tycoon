@@ -1,0 +1,6 @@
+CONCEPT APPROVAL RECORD — 15 October 2026
+User explicitly approved the forecast screen designs, relayed by established coordinator chat 01a07a8e-690e-7792-a604-650d0091a797.
+Approved images and visual prototype remain unchanged.
+Required handoff addition: displayed times are placeholders until real-clock mapping is designed; all runtime time labels must consume a shared festival-time presentation formatter/model, with changes propagating everywhere festival times are shown. Reusable artwork/icons must be text-free. No forecast-local conversion, baked time labels, invented real-world start/end times, or changes to simulation timing.
+Updated HANDOFF.txt and review.html to record this approval and implementation contract. No runtime work performed.
+Implementation clarification: user approval authorizes START implementation; no redundant build gate. Builder owns code. Runtime-ready asset export and layout handoff are in runtime-ready/HANDOFF.txt.

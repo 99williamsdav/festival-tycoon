@@ -52,6 +52,8 @@ public partial class Main
     /// <summary>Hands the host a fresh festival in preparation (a new campaign or the next tier) and resets the views.</summary>
     private void SwitchToFestival(GameSession next)
     {
+        if(_session.IsClassicCampaign||next.IsClassicCampaign)ResetClassicWeatherPresentation();
+        CloseClassicForecast();_classicForecastAccepted=false;
         CloseChallengeReveal();
         Perks.CancelConfirmation();
         ClearSelection(); ResetImmersionHeldVisuals();

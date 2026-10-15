@@ -284,7 +284,7 @@ public partial class Main
         _disorderSummary.Text = $"DISORDER • {(d.WaterClosed ? "WATER CLOSED" : "WATER OPEN")}\n" +
             $"{name}{(notable is null ? "" : $" • {notable.Stage} • pressure {notable.Pressure / 100m:0}% • {notable.Grievance}")}\n" +
             string.Join("\n", _session.GetStewardResponses().Select(job => $"{_session.CapturePreparation()!.People.Single(item => item.AgentId == job.WorkerId).Name.Split(' ')[0]}: {(job.Incapacitated ? "INJURED • MEDIC NEEDED" : ActiveStaffInterventionSummary(job.WorkerId) ?? job.Stage.ToString())}")) + "\n" +
-            $"{(latest is null ? "No complaint" : StewardWording(latest.Description))}\n" +
+            $"{(latest is null ? "No complaint" : StewardWording(FestivalEvidenceText(_session,latest.Description)))}\n" +
             "Complaint and argument precede any confrontation. Select a person for staff help; attendees choose their taps. Essential water stays available.";
         foreach (var action in new[] { DisorderAction.RestoreMusic })
         {

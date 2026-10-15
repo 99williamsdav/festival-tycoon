@@ -15,6 +15,7 @@ namespace Festival.Game;
 internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Action<string> _setStatus)
 {
     private HBoxContainer? _root;
+    private Label? _gateTime;
     public Control? Root => _root;
     public bool IsBuilt => _bookingLane is not null;
     /// <summary>Sets filled and lineup cost, for the Start button's explanation.</summary>
@@ -97,7 +98,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         return null;
     }
     private bool BookingLocked => _hud.Session.PreparedStatus != PreparationStatus.Preparing;
-    private static string BookingTime(int ticks) => $"{ticks / 80 / 60:00}:{ticks / 80 % 60:00}";
+    private static string BookingTime(int ticks) => Festival.Presentation.FestivalTimePresentation.Timestamp(ticks);
     private string SlotTimes(int slot) => $"{BookingTime(Stage.SlotStarts[slot])}–{BookingTime(Stage.SlotEnds[slot])}";
     private static bool ExpectsToHeadline(FestivalAct act) => act.Ego >= 70;
 
@@ -243,7 +244,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
         // Blocks follow the mockup's running order rather than true scale, so each set has room for its card.
         var tops = new[] { 52f, 180f, 308f };
         var heights = new[] { 92f, 92f, 104f };
-        Time("00:00", -6);
+        _gateTime=Time(BookingTime(0), -6);
         var gates = new PanelContainer { Position = new Vector2(Ui.S(56), 0), Size = Ui.S(244, 48), MouseFilter = Control.MouseFilterEnum.Ignore };
         gates.AddThemeStyleboxOverride("panel", Ui.Box(new Color("efe3ca"), 6, padX: 12));
         var gatesText = Ui.Text("Gates open · guests arrive", 12.5f, Ui.InkMuted); gatesText.VerticalAlignment = VerticalAlignment.Center; gates.AddChild(gatesText);
@@ -311,6 +312,7 @@ internal sealed class BookingPanel(IHudHost _hud, Action _layoutWorkspace, Actio
             tab.Text = $"{Main.StageTitle(FestivalStages.Find(id)!)} · {filled}/3";
             Ui.Style(tab, id == stage.Id ? Ui.ButtonKind.Primary : Ui.ButtonKind.Secondary, 13);
         }
+        if(_gateTime is not null)_gateTime.Text=BookingTime(0);
         for (var i = 0; i < 3; i++) _slotStartTimes[i].Text = BookingTime(stage.SlotStarts[i]);
         for (var i = 0; i < 2; i++) _changeovers[i].Text = $"Changeover · {(stage.SlotStarts[i + 1] - stage.SlotEnds[i]) / 80}s";
         _lastEndTime!.Text = BookingTime(stage.SlotEnds[2]);

@@ -1,0 +1,21 @@
+{
+  "scope": "Diagnostic gate adaptation and implementation status metadata",
+  "files": [
+    {
+      "path": "game/Main.ClassicEvidence.cs",
+      "sha256": "771E9247EC09E0B952716E0F9614E5ADCB70EC097003D6A25CB8F01A1FC3FC04"
+    },
+    {
+      "path": "briefs/results/classic-weather-ui-implementation.md",
+      "sha256": "F81D4D9408534A1696B7E62C43BF91A2BEDA6E8DAE75DC05336C65157E25C34F"
+    },
+    {
+      "path": "CURRENT_DESIGN.md",
+      "sha256": "54D4FC4FD26895657FC572AA2D5C39C4E81A26CE5B235DEA2D84E50251F22C72"
+    },
+    {
+      "path": "briefs/DECISIONS.md",
+      "sha256": "DE707B7CE4BF141DF3003BE6EFFB996F6196AAF2278860FB2467D28EFECE9B02"
+    }
+  ]
+}

@@ -12,6 +12,7 @@ public partial class Main
     private bool _challengeFlowEnabled;
     private void RefreshChallengeReveal()
     {
+        if(_session.IsClassicCampaign){RefreshClassicForecast();return;}
         if (!_challengeFlowEnabled || StartMenu.IsOpen) return;
         var p = _session.CapturePreparation();
         if (p is not { Status: PreparationStatus.Preparing, ChallengeAcknowledged: false } || _session.CurrentFestival.Challenge is not { } challenge)

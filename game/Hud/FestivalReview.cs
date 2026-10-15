@@ -23,6 +23,7 @@ internal sealed record ReviewFacts(FestivalResult Result, int Tier, int Sold, bo
     public string[] Grumbles { get; init; } = [];
     /// <summary>A heatwave day; neither this nor rain when the weather isn't known.</summary>
     public bool Heat { get; init; }
+    public bool LightShowers { get; init; }
     public bool Classic { get; init; }
     public int FestivalNumber { get; init; }
     public string[] DeathCauses { get; init; }=[];
@@ -152,7 +153,7 @@ internal static class FestivalReview
         var r = f.Result;
         var text = f.EarlierTragedy ? "The organisers reopened their gates after the tragedy that ended their previous weekend. " : "";
         text += $"The {Ordinal(f.Classic?f.FestivalNumber:f.Tier)} {FestivalName} {(f.EarlierTragedy ? "went ahead" : (f.Classic?f.FestivalNumber:f.Tier) == 1 ? "opened" : "returned to the farm")} " +
-            (f.Rain ? $"under grey skies, with {Count(f.Showers, "heavy shower")}{(f.Downpour ? " and one proper downpour" : "")} across the day. "
+            (f.Rain ? $"under grey skies, with {Count(f.Showers, f.LightShowers?"shower":"heavy shower")}{(f.Downpour ? " and one proper downpour" : "")} across the day. "
                 : f.Heat ? "under a blazing sun, in the middle of a heatwave. " : "under open skies. ");
         if (f.Sets.Any(set => set.Record.StageId == FestivalStages.BarnId))
             text += "New this year was a second stage under cover in the farm barn. ";

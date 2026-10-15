@@ -78,6 +78,7 @@ public partial class Main : Node, IHudHost
 
     public override void _Process(double delta)
     {
+        if(_weatherEvidenceOutput is not null){ProcessWeatherEvidence();return;}
         if(_classicEvidenceOutput is not null){ProcessClassicEvidence();return;}
         if (_saveWarningEvidenceOutput is not null) { ProcessSaveWarningEvidence(); return; }
         if (_architectureEvidenceOutput is not null) { ProcessArchitectureEvidence(); return; }
@@ -86,7 +87,7 @@ public partial class Main : Node, IHudHost
         if (_barnEvidenceOutput is not null) { ProcessBarnEvidence(delta); return; }
         if (_fisticuffsEvidenceOutput is not null) { ProcessFisticuffsEvidence(); return; }
         ProcessChallengeEvidence();
-        if (_challengeReveal.IsOpen) { ProcessServiceServers(0); return; }
+        if (_challengeReveal.IsOpen||ClassicForecastOpen) { ProcessServiceServers(0); return; }
         if (_genreAudioVerificationOutput is not null) return;
         if (!EyeViewActive) _rig.Process(delta);
         ProcessEyeView(delta);
@@ -140,6 +141,11 @@ public partial class Main : Node, IHudHost
 
     public override void _Input(InputEvent inputEvent)
     {
+        if(ClassicForecastOpen)
+        {
+            if(inputEvent is InputEventKey{Pressed:true,Echo:false,Keycode:Key.Escape}){ClassicForecastMenu();GetViewport().SetInputAsHandled();}
+            return;
+        }
         if (StartMenu.IsOpen || _challengeReveal.IsOpen) return;
         if (HandleStewardShiftInput(inputEvent)) { GetViewport().SetInputAsHandled(); return; }
         // All-Rounder: V steps into the player's steward's boots (first person hands it back above).
@@ -156,7 +162,7 @@ public partial class Main : Node, IHudHost
             if (inputEvent is InputEventKey { Pressed: true, Keycode: Key.Escape }) CloseFieldGuide();
             GetViewport().SetInputAsHandled(); return;
         }
-        if (_challengeReveal.IsOpen) { GetViewport().SetInputAsHandled(); return; }
+        if (_challengeReveal.IsOpen||ClassicForecastOpen) { GetViewport().SetInputAsHandled(); return; }
         if (ResultsPaper.IsOpen || StartMenu.IsOpen) return;
         if (Perks.Panel?.Visible == true && inputEvent is InputEventMouseButton perkMouse && Perks.Panel.GetGlobalRect().HasPoint(perkMouse.Position))
         { GetViewport().SetInputAsHandled(); return; }
@@ -623,6 +629,8 @@ public partial class Main : Node, IHudHost
             else if (args[i] == "--capture-fisticuffs" && i + 1 < args.Length) { _fisticuffsEvidenceOutput = args[++i]; _startTier = 1; }
             else if (args[i] == "--capture-lav-hose" && i + 1 < args.Length) { _lavHoseEvidenceOutput = args[++i]; _startTier = 1; }
             else if (args[i] == "--capture-barn-campaign" && i + 1 < args.Length) _barnCampaignEvidenceOutput = args[++i];
+            else if(args[i]=="--weather-start-case"&&i+1<args.Length&&int.TryParse(args[++i],out var weatherCase))_weatherEvidenceFrame=48*Math.Clamp(weatherCase,0,5);
+            else if(args[i]=="--capture-classic-weather"&&i+1<args.Length){_weatherEvidenceOutput=args[++i];_architectureEvidenceOutput=_weatherEvidenceOutput;}
             else if (args[i] == "--capture-survival-architecture" && i + 1 < args.Length) _architectureEvidenceOutput = args[++i];
             else if (args[i] == "--capture-save-warning" && i + 1 < args.Length)
             { _saveWarningEvidenceOutput = args[++i]; _architectureEvidenceOutput = _saveWarningEvidenceOutput; }

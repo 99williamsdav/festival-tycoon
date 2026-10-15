@@ -1,0 +1,37 @@
+{
+  "scope": "Final bounded truthful copy, particle reset, complete casualty rendering and shared-time projection",
+  "files": [
+    {
+      "path": "game/Hud/BoxOffice.cs",
+      "sha256": "157A49F9403B0D9AC2083C004A5C90BE4B7D064E40D4925BB6199A0CB4FC231F"
+    },
+    {
+      "path": "game/Hud/TopBar.cs",
+      "sha256": "BC20F95CCF1E9A28E7F9508E8393F278E2E2C52B697584FE50E77D7F7FC89BAA"
+    },
+    {
+      "path": "game/Hud/FestivalReview.cs",
+      "sha256": "9049E6ABD7F74196E2FD58B33619923CF4EC8C2E9D8FC9F0F69941C0A89644DA"
+    },
+    {
+      "path": "game/Hud/ResultsPaper.cs",
+      "sha256": "88A14EABE063A551050CF5D560A78798428550198DB7906F43CB831F6305B06F"
+    },
+    {
+      "path": "game/Main.Weather.cs",
+      "sha256": "B841981866AF674240B4BE905C7CB0F59335B0324C8F23F8599B2B9B63DD073C"
+    },
+    {
+      "path": "game/Main.Splash.cs",
+      "sha256": "6E8C159A793089E7308A3F3CCDC2CF4CC83A2E181A31BAB33CB806A8BC7FDA03"
+    },
+    {
+      "path": "game/Main.WeatherEvidence.cs",
+      "sha256": "72FACB00353AECC57DFFA1358BC89D3B01004888987D41BC9363A7A6C4B8778A"
+    },
+    {
+      "path": "briefs/results/classic-weather-ui-implementation.md",
+      "sha256": "2958F7EABE919131F58F08EDCE496D1B749E42C8967D73132E3FAEB82E473B44"
+    }
+  ]
+}

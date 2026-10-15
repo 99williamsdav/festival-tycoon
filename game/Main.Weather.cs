@@ -45,11 +45,18 @@ public partial class Main
             var ramp = Math.Min(1f, Math.Min(day - from, to - day) / (float)RainRampTicks);
             var burst = spells[i].Intensity == RainIntensity.Downpour
                 ? Math.Min(1f, Math.Min(day - spells[i].StartTick, spells[i].EndTick - day) / (float)(RainRampTicks / 3)) : 0f;
-            return Mathf.Lerp(HeavyRain, 1f, Mathf.SmoothStep(0, 1, burst)) * Mathf.SmoothStep(0, 1, ramp);
+            return Mathf.Lerp(spells[i].Intensity==RainIntensity.Showers?.25f:HeavyRain, 1f, Mathf.SmoothStep(0, 1, burst)) * Mathf.SmoothStep(0, 1, ramp);
         }
         return 0;
     }
 
+    private void ResetClassicWeatherPresentation()
+    {
+        _rain=_wetness=0;_wetnessTick=-1;
+        foreach(var particles in new[]{_rainStreaks,_rainSplashes})
+            if(particles is not null){particles.Restart(keepSeed:true);particles.Emitting=false;}
+        if(_rainRig is not null)_rainRig.Visible=false;
+    }
     private void BuildRain()
     {
         _rainRig = new Node3D { Name = "Rain" };
@@ -149,6 +156,8 @@ public partial class Main
     {
         if (_rainRig is null || _rainStreaks is null || _rainSplashes is null || _streakMesh is null || _rainVeil is null || _veilMaterial is null) return;
         var raining = _rain > .01f;
+        if(_session.IsClassicCampaign)_rainRig.Visible=raining;
+        else _rainRig.Visible=true;
         _rainStreaks.Emitting = raining; _rainSplashes.Emitting = raining;
         _rainStreaks.SpeedScale = _rainSplashes.SpeedScale = _session.IsPaused ? 0 : 1;
         // A constant count on screen at any zoom: the emitter covers the camera's ground footprint, the amount stays put.

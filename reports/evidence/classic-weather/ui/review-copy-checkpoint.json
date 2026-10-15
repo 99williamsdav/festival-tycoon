@@ -1,0 +1,37 @@
+{
+  "scope": "Bounded truthful ordinary-weather copy and residual particle lifecycle repair",
+  "files": [
+    {
+      "path": "game/Hud/BoxOffice.cs",
+      "sha256": "157A49F9403B0D9AC2083C004A5C90BE4B7D064E40D4925BB6199A0CB4FC231F"
+    },
+    {
+      "path": "game/Hud/TopBar.cs",
+      "sha256": "BC20F95CCF1E9A28E7F9508E8393F278E2E2C52B697584FE50E77D7F7FC89BAA"
+    },
+    {
+      "path": "game/Hud/FestivalReview.cs",
+      "sha256": "9049E6ABD7F74196E2FD58B33619923CF4EC8C2E9D8FC9F0F69941C0A89644DA"
+    },
+    {
+      "path": "game/Hud/ResultsPaper.cs",
+      "sha256": "6183D2B12A03E4854EB139BD693965C954DE0B16675386AF8CE45B5735617137"
+    },
+    {
+      "path": "game/Main.Weather.cs",
+      "sha256": "B841981866AF674240B4BE905C7CB0F59335B0324C8F23F8599B2B9B63DD073C"
+    },
+    {
+      "path": "game/Main.Splash.cs",
+      "sha256": "6E8C159A793089E7308A3F3CCDC2CF4CC83A2E181A31BAB33CB806A8BC7FDA03"
+    },
+    {
+      "path": "game/Main.WeatherEvidence.cs",
+      "sha256": "E2CDDD04AD454AF0DE1086476268618863F00DB80C456ED5A0876365467F608E"
+    },
+    {
+      "path": "briefs/results/classic-weather-ui-implementation.md",
+      "sha256": "D95152897583D2DC24739A813F7F0634618B289E562DA232D3DF550880F06E75"
+    }
+  ]
+}

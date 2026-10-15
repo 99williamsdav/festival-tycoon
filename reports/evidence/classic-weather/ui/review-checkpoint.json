@@ -1,0 +1,158 @@
+{
+  "baseCommit": "9208ad8879b7e8637988e7f627ed95a140da4a6b",
+  "scope": "Approved Classic forecast native screen, shared time consumers, namespace and existing weather visual integration",
+  "files": [
+    {
+      "path": "assets/source/ui/forecast-screen-concepts-v1/01-ordinary-day-1280.png",
+      "sha256": "6C59AB5C55DC0E3184C73B365BC0418B861B5F15AEF962F6F4CBBDE0696E6201"
+    },
+    {
+      "path": "assets/source/ui/forecast-screen-concepts-v1/02-heavy-rain-1280.png",
+      "sha256": "31B7DDD4F890905FB54568B506D70B53099C3A81696E6D3D49407A06921E9CE6"
+    },
+    {
+      "path": "assets/source/ui/forecast-screen-concepts-v1/03-ordinary-day-1920.png",
+      "sha256": "4E85360C019B149EF4718C869BBD3C95001A591DC7769E988A3A4433AD574EB1"
+    },
+    {
+      "path": "assets/source/ui/forecast-screen-concepts-v1/APPROVAL.txt",
+      "sha256": "3D8E6B70336997F527DE0C0135F2AB7D3128BA9A1545DD650634FF8A004CCC7E"
+    },
+    {
+      "path": "assets/source/ui/forecast-screen-concepts-v1/HANDOFF.txt",
+      "sha256": "4135E955D75BCD39316BD3363AFB88B1FACB79A52A7BD32C470B141CCC35DFE6"
+    },
+    {
+      "path": "assets/source/ui/forecast-screen-concepts-v1/INTEGRATION.md",
+      "sha256": "545861E7ECEBD1635DD87A1B38CADB1158AC101CE4319FE2DD4DCD1B1A93E024"
+    },
+    {
+      "path": "assets/source/ui/forecast-screen-concepts-v1/review.html",
+      "sha256": "EEC9DF1A9C506BE4F16D5C840C8CEF38DF016F903E01DD6C68D6C6A8D9E227F4"
+    },
+    {
+      "path": "assets/source/ui/forecast-screen-concepts-v1/screen.html",
+      "sha256": "335DCD21AF4A379F98B029E1EFAC95CA1D4F54032C713AD5DCC786F4B7C54C44"
+    },
+    {
+      "path": "briefs/results/classic-weather-time-audit.md",
+      "sha256": "5B0C495636140B108DAD9FF56265B3BDCE268506A3ECBC65E7A0B6BEC2B173B5"
+    },
+    {
+      "path": "briefs/results/classic-weather-ui-implementation.md",
+      "sha256": "3514418DD9DAC73B5D5F1A52B64D1991916F83B33D3E4976E63EC0D50197CFD6"
+    },
+    {
+      "path": "game/assets/ui/forecast/weather-mosaic.png",
+      "sha256": "43B094BA0E1D1281C1C3BF4A1FA73480585C61F418B7F21495B785AFB88ECBFF"
+    },
+    {
+      "path": "game/assets/ui/forecast/weather-mosaic.png.import",
+      "sha256": "CA2CD00D11D27451859FE17A4AC88061C7A1B6DEAEAFE3537A017CD9413575C4"
+    },
+    {
+      "path": "game/CrowdBodies.Rain.cs",
+      "sha256": "F3D93D61A8D4CE4223217E17D7D1099716026D97AC8AF0B076E5DDB4BB45D08F"
+    },
+    {
+      "path": "game/Hud/BookingPanel.cs",
+      "sha256": "7BC172905DE0EDFA6B6C638FFA6BED39920705CFCA0A0EA6A626811F2D371420"
+    },
+    {
+      "path": "game/Hud/BoxOffice.cs",
+      "sha256": "A7AD4A72C4364D0C1DFCA34BA16F6214C9DC02BC1A052FFD12B8F581E19A0A6B"
+    },
+    {
+      "path": "game/Hud/BuildDrawer.cs",
+      "sha256": "7B2D5FE73DE45E5A8057157F43813DB0758B32D2331B01CE78E934085F282F82"
+    },
+    {
+      "path": "game/Hud/ClassicForecastScreen.cs",
+      "sha256": "E1DFAA400FD463CF63291D9C00BB9B9B1A77B25E437CE0EB8FD2269AA9CB24EA"
+    },
+    {
+      "path": "game/Hud/ClassicForecastScreen.cs.uid",
+      "sha256": "7F50458CBC263E49720163F0CC1C2F3E62E2012DCE3D09DAB8C62D05DD2B28BA"
+    },
+    {
+      "path": "game/Hud/HudKit.cs",
+      "sha256": "80BEFE51D9134919A81D9426E694128B0ABA9568A4BCF901FB958A0C5ABC02DD"
+    },
+    {
+      "path": "game/Hud/StageCard.cs",
+      "sha256": "27BB43B3B25570763E595DE67D228C2772A7DD730C900645FF196BF144A275D6"
+    },
+    {
+      "path": "game/Hud/TopBar.cs",
+      "sha256": "FD569588198B7796D99AF30451022DDD4E3999C04C56B5D165F44237F597C111"
+    },
+    {
+      "path": "game/Main.Challenge.cs",
+      "sha256": "91DB85023D97C45583F3B6E024B78C742EDE465D88FA5707DF6BD51C5149BB47"
+    },
+    {
+      "path": "game/Main.Classic.cs",
+      "sha256": "2BC427E8B184195043B7DADA4A89E7EA19CEABBF540C7235074A5CB6D9C69337"
+    },
+    {
+      "path": "game/Main.ClassicEvidence.cs",
+      "sha256": "91383C98DAE1DAF91007E2DE4CB494CEC0C78028A12B324F67307F4B8D18624A"
+    },
+    {
+      "path": "game/Main.cs",
+      "sha256": "6E1E9C4DFCAAF8D40826BBF6733B83C4757B49B09F965724FB1ACACE8D3FC30B"
+    },
+    {
+      "path": "game/Main.DayCycle.cs",
+      "sha256": "85896A406810B872510DDB1F622F83BE57544F0D23B01E5D3C65DD1679DFA9EB"
+    },
+    {
+      "path": "game/Main.Disorder.cs",
+      "sha256": "5107253A51359F18049DEF772FAD4002664C4550BC48090F036647212D75D835"
+    },
+    {
+      "path": "game/Main.Equipment.cs",
+      "sha256": "B9F11DFD3E11F3FDFDF7FF0D87C0F1605F0D36153D0E8EA0A2ADE1972A0A97CF"
+    },
+    {
+      "path": "game/Main.Forecast.cs",
+      "sha256": "509A15140AB6C5317EE543F8AB22996BF21E648D31F5EFD3D26304086E4F653E"
+    },
+    {
+      "path": "game/Main.Forecast.cs.uid",
+      "sha256": "836B46ABCD592CD5F302CD35E00FD416E7BD2456B02AC44745C1FDF5162860D1"
+    },
+    {
+      "path": "game/Main.HudWorkspace.cs",
+      "sha256": "6E69953C13688ED57E44588E9F8CBD9C01B771971180C60AEA8B2268609005B3"
+    },
+    {
+      "path": "game/Main.LivePerformance.cs",
+      "sha256": "ACD2FC2099EBD14067A21ADF7528EE963196FACAD996FE1BA4E88635A052D0E4"
+    },
+    {
+      "path": "game/Main.Results.cs",
+      "sha256": "423AC96A17E2B23C4D3EF2880237107C5FCCC190B965918C464EF95C92C12440"
+    },
+    {
+      "path": "game/Main.Splash.cs",
+      "sha256": "5AF490B6E967D6AE55940EEBEDFDCF2833C080A480685B1573CAAF2027E4DD68"
+    },
+    {
+      "path": "game/Main.StewardShiftHud.cs",
+      "sha256": "5AD5A0FECFE159A63F018E3C0730AA9D82FE9DC3FD9746DCFC17A2DEF0387BA1"
+    },
+    {
+      "path": "game/Main.Weather.cs",
+      "sha256": "DF8AFA5C89EB9D0EB45B5E40431DB941F228186B8153946ECCBAA6EA88E79A44"
+    },
+    {
+      "path": "game/Main.WeatherEvidence.cs",
+      "sha256": "DCC0D7BBB825BC70E104C2F30B4C388289ADF51B28752E43BE0C9BD19BFF5A87"
+    },
+    {
+      "path": "game/Main.WeatherEvidence.cs.uid",
+      "sha256": "30DDADD021599C4E84D955320F50F0548DF24FB9C7D1EABA9516AF2E4E88A8EB"
+    }
+  ]
+}

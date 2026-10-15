@@ -142,6 +142,8 @@ public partial class Main
         var menuScroll = new ScrollContainer { HorizontalScrollMode = ScrollContainer.ScrollMode.Disabled }; _hudMenu.AddChild(menuScroll);
         var menuBox = new VBoxContainer { SizeFlagsHorizontal = Control.SizeFlags.ExpandFill }; menuBox.AddThemeConstantOverride("separation", 6); menuScroll.AddChild(menuBox);
         menuBox.AddChild(HudLabel("Festival menu", 14)); menuBox.AddChild(ButtonText("Save", PreparationSave)); menuBox.AddChild(ButtonText("Load", PreparationLoad));
+        _forecastMenuButton=ButtonText("Weather forecast",()=>{_hudMenu!.Visible=false;ReopenClassicForecast();});
+        _forecastMenuButton.Name="ReopenForecast";menuBox.AddChild(_forecastMenuButton);
         _stageMuteButton = ButtonText("Mute audio", ToggleStageMute); menuBox.AddChild(_stageMuteButton);
         menuBox.AddChild(ButtonText("Field guide", () => { _hudMenu!.Visible = false; OpenFieldGuide(); }));
         menuBox.AddChild(ButtonText("Development diagnostics ▸", () => { _hudDevelopment = !_hudDevelopment; _hudDiagnostics!.Visible = _hudDevelopment; RefreshHudWorkspace(); if (_selectedAttendeeId is not null) RefreshAttendeeInspector(); }));
@@ -206,6 +208,7 @@ public partial class Main
     {
         if (!Top.IsBuilt || _session.CapturePreparation() is not { } p) return;
         var preparing = p.Status == PreparationStatus.Preparing;
+        if(_forecastMenuButton is not null)_forecastMenuButton.Visible=preparing&&_session.IsClassicCampaign;
         var placing = _buildGhostKind is not null;
         if (placing) _hudWorkspaceOpen = false;
         var finance = _session.CaptureSnapshot().FestivalFinances.Single(f => f.OwnerId.Value == p.FinanceOwnerId);

@@ -78,7 +78,7 @@ public partial class Main
             (e.Stage is EquipmentStage.Warning or EquipmentStage.DangerousFault ? $"GENERATOR OVERLOAD • {left / 80m:0.0}s to lethal eligibility at 1×\n" : e.Stage == EquipmentStage.Normal ? "Visible load exceeds capacity before any alarm.\n" : "Unit made safe; no further escalation.\n") +
             $"{e.Response}\nMaintenance: {e.JobStage}. Repair needs arrival + 20s.";
         if (e.Stage == EquipmentStage.Terminal)
-            _equipmentSummary.Text = "WEEKEND ENDED • COUNCIL HEARING\n" + StewardWording(_session.CaptureLifecycleSnapshot()!.Casualties.Last().Cause) +
+            _equipmentSummary.Text = "WEEKEND ENDED • COUNCIL HEARING\n" + StewardWording(FestivalEvidenceText(_session,_session.CaptureLifecycleSnapshot()!.Casualties.Last().Cause)) +
                 (_host.SaveError is not null ? "\nSave failed; use the visible Retry save control." : "\nThe failure checkpoint has been saved.");
         foreach (var (action, button) in _equipmentButtons)
             button.Disabled = _session.ValidateCommand(CampaignEnvelope(new EquipmentCommand(action))) is not null;

@@ -1,0 +1,321 @@
+{
+  "passed": true,
+  "executable": "C:/Projects/festival-tycoon/.tools/godot/4.7.2/editor/Godot_v4.7.2-stable_mono_win64.exe",
+  "checks": [
+    {
+      "name": "management-save-isolated",
+      "passed": true
+    },
+    {
+      "name": "survival-and-classic-rulesets-implemented",
+      "passed": true
+    },
+    {
+      "name": "recorded-management-tier-two",
+      "passed": true
+    },
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPreparationStockCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "normal-plan-ready",
+      "passed": true
+    },
+    {
+      "name": "command-StartPreparedEditionCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "management-tier-two-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-identity-and-isolated-save",
+      "passed": true
+    },
+    {
+      "name": "command-ChoosePerkCommand",
+      "passed": true
+    },
+    {
+      "name": "command-UseDefaultBuildLayoutCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetProgrammeCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPreparationStockCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "command-AcceptPreparationOfferCommand",
+      "passed": true
+    },
+    {
+      "name": "normal-plan-ready",
+      "passed": true
+    },
+    {
+      "name": "command-StartPreparedEditionCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-manager-autopilot",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-first-person-manual",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-manual-running-manual-control",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPlayerMoveCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPlayerMoveCommand",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-manual-manual-tick-step",
+      "passed": true
+    },
+    {
+      "name": "command-SetPlayerMoveCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPlayerMoveCommand",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-manual-manual-tick-step",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-manual-manual-controller-moved",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-manual-manual-position-on-open-field",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-manual-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "all-rounder-returned-autopilot",
+      "passed": true
+    },
+    {
+      "name": "parked-management-resumed-after-all-rounder",
+      "passed": true
+    },
+    {
+      "name": "steward-only-tier-one-identity-and-save",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-one-running-manual-control",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPlayerMoveCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPlayerMoveCommand",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-one-manual-tick-step",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-one-manual-controller-moved",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-one-manual-position-on-open-field",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-one-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "steward-only-tier-two-allocation",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-two-running-manual-control",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPlayerMoveCommand",
+      "passed": true
+    },
+    {
+      "name": "command-SetPlayerMoveCommand",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-two-manual-tick-step",
+      "passed": true
+    },
+    {
+      "name": "command-SetPausedCommand",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-two-manual-controller-moved",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-two-manual-position-on-open-field",
+      "passed": true
+    },
+    {
+      "name": "steward-tier-two-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "parked-management-resumed-after-steward",
+      "passed": true
+    },
+    {
+      "name": "resumed-management-file-roundtrip",
+      "passed": true
+    },
+    {
+      "name": "resumed-management-hides-steward-view-cues",
+      "passed": true
+    }
+  ],
+  "movement": [
+    {
+      "name": "all-rounder-manual",
+      "seed": 17223360919240736663,
+      "directionX": 1000,
+      "directionZ": 0,
+      "startTick": 8000,
+      "endTick": 8080,
+      "beforeX": -11424,
+      "beforeZ": 13165,
+      "afterX": -11424,
+      "afterZ": 13165
+    },
+    {
+      "name": "all-rounder-manual",
+      "seed": 17223360919240736663,
+      "directionX": -1000,
+      "directionZ": 0,
+      "startTick": 8080,
+      "endTick": 8160,
+      "beforeX": -11424,
+      "beforeZ": 13165,
+      "afterX": -13944,
+      "afterZ": 13165
+    },
+    {
+      "name": "steward-tier-one",
+      "seed": 14468693072817200385,
+      "directionX": 1000,
+      "directionZ": 0,
+      "startTick": 0,
+      "endTick": 80,
+      "beforeX": -5250,
+      "beforeZ": 19250,
+      "afterX": -2730,
+      "afterZ": 19250
+    },
+    {
+      "name": "steward-tier-two",
+      "seed": 11346533599161098013,
+      "directionX": 1000,
+      "directionZ": 0,
+      "startTick": 0,
+      "endTick": 80,
+      "beforeX": -5250,
+      "beforeZ": 19250,
+      "afterX": -3210,
+      "afterZ": 19250
+    }
+  ],
+  "caveat": "Scripted actual native menu handlers, normal preparation, view switching, bounded ordinary manual steering (up to eight 80-tick attempts) and real isolated save files; no manual full-day playthrough or performance claim."
+}

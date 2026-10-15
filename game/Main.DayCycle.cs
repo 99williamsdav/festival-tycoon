@@ -260,6 +260,13 @@ public partial class Main
             sky = sky.Lerp(HeatSky, heat); sun = sun.Lerp(HeatSun, heat); sunEnergy = Mathf.Lerp(sunEnergy, HeatSunEnergy, heat);
         }
         var clouds = CloudCoverage * Smooth(CloudsFrom, CloudsFull, day) * (1 - Smooth(CloudsFading, CloudsGone, day));
+        if(_session.CaptureClassicForecast() is{} forecast)
+        {
+            // Reuse the existing cloud shadows and sun; no new weather art or simulation effect.
+            clouds=forecast.Conditions switch{ClassicWeatherKind.Cloudy=>.65f,ClassicWeatherKind.HeavyRain=>.75f,
+                ClassicWeatherKind.Showery=>.4f,ClassicWeatherKind.Pleasant=>.1f,ClassicWeatherKind.Heatwave=>.05f,_=>.2f};
+            if(forecast.Conditions is ClassicWeatherKind.Cloudy or ClassicWeatherKind.HeavyRain)sunEnergy*=.85f;
+        }
         _cloudMaterial.SetShaderParameter("coverage", clouds);
         _cloudShadows.Visible = clouds > 0;
         _sun.RotationDegrees = new Vector3(-Mathf.Lerp(a.Elevation, b.Elevation, w), Mathf.Lerp(a.Yaw, b.Yaw, w), 0);

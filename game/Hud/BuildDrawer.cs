@@ -263,14 +263,14 @@ internal sealed class BuildDrawer(IHudHost _hud, IBuildActions _actions)
     {
         if (_coverSummary is null) return;
         var p = _hud.Session.CapturePreparation();
-        var open = (p?.Tier ?? 1) >= GroundCoverRules.FromTier;
+        var open = _hud.Session.GroundCoverAvailable;
         foreach (var button in _coverButtons)
         {
             button.Disabled = !open;
-            button.TooltipText = open ? "" : "Straw and matting come with Tier 2's wet weather.";
+            button.TooltipText = open ? "" : _hud.Session.IsClassicCampaign?"Straw and matting are available on wet festival days.":"Straw and matting come with Tier 2's wet weather.";
         }
         var straw = p?.StrawCells?.Length ?? 0; var panels = p?.MatPanels?.Length ?? 0;
-        _coverSummary.Text = !open ? "From Tier 2." : straw + panels == 0 ? "None laid." :
+        _coverSummary.Text = !open ? (_hud.Session.IsClassicCampaign?"For wet festival days.":"From Tier 2.") : straw + panels == 0 ? "None laid." :
             $"{(straw == 0 ? "" : $"Straw {straw / 2f:0} m² · {GroundCoverRules.BalesFor(straw)} bales")}{(straw > 0 && panels > 0 ? " · " : "")}" +
             $"{(panels == 0 ? "" : $"matting {panels} panels")} · {FestivalCurrency.Format(GameSession.GroundCoverCost(p))}";
     }

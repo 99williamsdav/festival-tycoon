@@ -1,0 +1,59 @@
+CLASSIC FORECAST SCREEN — DESIGN HANDOFF v1
+15 October 2026
+Status: concept APPROVED by the user, relayed by the established coordinator on 15 October 2026. Approved visual design remains intact. This handoff update does not implement runtime changes.
+
+RECOMMENDATION
+Use the ordinary-day composition as the primary direction. Keep the same layout for heavier rain. A small ceramic mosaic supplies Festival Tycoon's identity while the forecast timeline carries the practical information. This is a calm Classic planning screen, separate from Survival's challenge reveal.
+
+DELIVERABLES
+01-ordinary-day-1280.png — primary concept, 1280x720.
+02-heavy-rain-1280.png — same layout with heavier rain, 1280x720.
+03-ordinary-day-1920.png — primary concept scaled to 1920x1080.
+screen.html — local visual prototype; add ?rain for the wet variant.
+review.html — image gallery.
+weather-mosaic.png — generated decorative accent.
+prompts/weather-mosaic.txt — exact image-generation prompt.
+references/ — current UI captures, source excerpts and project fonts/licenses.
+These PNGs are rendered design mockups, not Godot screenshots.
+
+FLOW CONTRACT
+Place before Classic preparation, including preparation choices/perk draft. Continue to preparation enters the existing flow. Main menu returns to the mode/menu entry. Opening or leaving this screen must not advance the festival clock or reroll the saved forecast. Reopening shows the same forecast.
+Proposed keyboard/controller behavior: initial focus Continue; previous focus Main menu; Escape/back returns to menu; visible focus ring. The HTML buttons are visual controls only, without game navigation.
+Use the current festival number in the title; Festival 4 is an example.
+
+SIMULATION TIMING REFERENCE — DISPLAY LABELS ARE PLACEHOLDERS
+The inspected HudKit.FestivalClockText formats ticks at 80 ticks per displayed second, mm:ss. The labels below and in the approved mockups reflect that inspected elapsed-time display only. ALL displayed festival times remain placeholders until real-clock mapping is designed; they are not approved real-world start/end times.
+Current Classic single Trailer programme:
+Arrival phase: 0–4,800 ticks = 00:00–01:00.
+Set 1: 4,800–13,200 = 01:00–02:45.
+Set 2: 16,400–24,800 = 03:25–05:10.
+Set 3: 28,000–37,600 = 05:50–07:50.
+Closing ends after another 800 ticks: 38,400 = 08:00.
+The time axis preserves the gaps between sets. Source: FestivalStage.cs, CampaignRulesProfile.cs/SurvivalBalance, Preparation.cs and HudKit.cs. Implementation should derive the axis and programme from the current edition's actual stages and closing rule; do not hardcode the displayed duration or time labels for future configurations. Actual simulation ticks, set timing, weather intervals and closing rules remain untouched.
+
+SHARED TIME PRESENTATION — REQUIRED IMPLEMENTATION CONTRACT
+The forecast must consume the shared festival-time presentation formatter/model used everywhere festival times are shown. It must not own an elapsed-to-clock conversion or duplicate formatting rules. Feed authoritative simulation timestamps and edition duration into that shared source; obtain axis ticks, programme ranges, wet-window ranges, header duration and accessible time descriptions from it.
+Future real-clock mapping changes must propagate consistently to the forecast, HUD, programme and every other festival-time display through this shared source. Real-world start/end clock times are deliberately unspecified; do not invent them in this handoff or forecast implementation.
+Keep reusable timeline art, textures and icons text-free. Render every time label as runtime text, separately from artwork, via the shared formatter/model. The decorative weather-mosaic.png is already text-free. Approved screenshot PNGs are review references only and must not be shipped as baked screen backgrounds. screen.html contains static design-example labels and must not be copied as a production time-conversion implementation.
+Keep chart positions tied to authoritative simulation timing; presentation mapping changes labels, not simulation schedules. Reflow runtime labels as needed without changing the approved hierarchy. Implementation acceptance must verify that changing the shared presentation mapping updates all festival-time labels consistently, including accessibility text, while underlying simulation timestamps remain identical.
+WEATHER DATA AND HONESTY
+Forecast v1 should be accurate: summary, range, line, intervals and planning copy must all derive from the same saved authoritative forecast used by simulation. No uncertainty percentages.
+The mockup's temperatures and ordinary showers are ILLUSTRATIVE FUTURE DATA. Current Classic is fixed Mild. Weather.cs currently has Heatwave/Rain/Mild and Dry/Heavy/Downpour, with no Celsius series or ordinary-shower intensity. The concept does not claim those data are already implemented. Resolve that data contract before implementing the variable-weather concept; do not fabricate numeric readings from existing categorical weather.
+Temperature is a labelled °C line. Rainfall is a categorical intensity strip, not mm/h or chance of rain. Separate rows, labels and encodings prevent confusing the units.
+Ordinary sample: temperatures at 00:00/02:00/04:00/06:00/08:00 are 18/20/21/19/17°C; showers 03:25–04:10, otherwise dry.
+Wet sample: 16/17/16/14/13°C; heavy showers 01:00–02:45; downpour 05:50–06:30; otherwise dry.
+Linear connections between labelled temperature samples are visual examples, not a newly specified simulation rule.
+Planning copy stays within existing shelter, ponchos and matting language. No new weather types, consequences or mechanics are specified.
+
+LAYOUT AND ACCESSIBILITY
+1280x720 logical canvas. Header begins x52,y39; 216x144 decorative mosaic at right. Forecast card x48,y211,w1184,h374. Footer actions y625,h52. Time plot spans x270–1184. Programme and weather share the same proportional horizontal axis.
+Use project Source Sans 3 for body labels and Zilla Slab semibold for headings/temperature values. Essential labels are 16px or larger at 720p. Scale uniformly to 1080p; retain layout proportions. Smaller sizes are outside this concept's acceptance target.
+Use existing dark green, cream, gold and teal palette from Ui.cs. Explicit labels, hatch patterns and text distinguish rain states without colour alone. Keep exact wet-window times always visible. All information is available without hover. Decorative mosaic should have no accessibility name; expose a readable forecast summary and time/value information through the native UI accessibility layer.
+For narrow future intervals, keep time proportional and move labels to the always-visible detail row rather than squeezing text. At additional stage counts, revisit programme row density against the actual day duration.
+
+PROVENANCE AND VALIDATION
+Style references: current menu, Classic preparation card styling, Survival reveal for separation; source palette/font/timing/weather files copied in references.
+The ceramic accent was produced with the built-in image generator from classic-ui.png as a style reference. Remaining UI, text, graph and layout are authored HTML/CSS/SVG.
+Rendered in local headless Chrome using bundled Playwright and the project fonts. Visually inspected both 720p variants; 1080p is the same uniformly scaled design.
+No game/runtime/repository files were changed by this design package. No implementation or independent Builder review is claimed.
+

@@ -112,7 +112,7 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
 
         // Under the budget, so the expectations card can grow with longer quotes.
         var footer = new VBoxContainer(); footer.AddThemeConstantOverride("separation", Ui.Px(8));
-        var start = Ui.Style(new Button { Text = "Start planning", Icon = Ui.Icon("chevron-right"), IconAlignment = HorizontalAlignment.Right,
+        var start = Ui.Style(new Button { Name="StartPlanning",Text = "Start planning", Icon = Ui.Icon("chevron-right"), IconAlignment = HorizontalAlignment.Right,
             CustomMinimumSize = new Vector2(0, Ui.S(48)), MouseDefaultCursorShape = Control.CursorShape.PointingHand }, Ui.ButtonKind.Primary, 16, 8);
         start.Pressed += _startPlanning; footer.AddChild(start);
         var next = _nextLine = Ui.Text("Next: build your site, book three acts and hire a sound engineer.", 13, Ui.BarMuted);
@@ -252,7 +252,9 @@ internal sealed class BoxOffice(IHudHost _hud, Action _startPlanning)
         _nextLine!.Text = session.SecondStageOpen ? "Next: build your site, book three acts for each stage and hire a sound engineer for each."
             : "Next: build your site, book three acts and hire a sound engineer.";
         // The forecast, so the player can plan for it.
-        if (session.Weather == WeatherKind.Rain)
+        if(session.IsClassicCampaign&&session.CaptureClassicForecast() is{} forecast)
+            _nextLine.Text=forecast.Summary+" "+forecast.PlanningAdvice+"\n"+_nextLine.Text;
+        else if (session.Weather == WeatherKind.Rain)
         {
             var outlook = session.CaptureWeatherOutlook();
             _nextLine.Text = $"The forecast: {outlook.Showers} heavy showers from the first set into dusk" + (outlook.Downpour ? ", one a downpour" : "") +

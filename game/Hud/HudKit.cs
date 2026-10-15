@@ -170,7 +170,11 @@ internal static class HudKit
             .Replace("WEEKEND", "FESTIVAL", StringComparison.Ordinal);
 
     /// <summary>Elapsed festival time as mm:ss (80 ticks a second).</summary>
-    internal static string FestivalClockText(long ticks) => $"{Math.Max(0, ticks) / 80 / 60:00}:{Math.Max(0, ticks) / 80 % 60:00}";
+    internal static string FestivalClockText(long ticks) => Festival.Presentation.FestivalTimePresentation.Timestamp(ticks);
+    internal static string FestivalDurationText(long ticks,bool padded=true) => Festival.Presentation.FestivalTimePresentation.Duration(ticks,padded);
+    internal static string FestivalEvidenceText(GameSession session,string value) =>
+        System.Text.RegularExpressions.Regex.Replace(value,@"\btick (-?\d+)",match=>
+            long.TryParse(match.Groups[1].Value,out var tick)?"at "+FestivalClockText(tick-(session.CapturePreparation()?.StartedTick??0)):match.Value);
 
     /// <summary>A band's relationship tag: "♥ +14" for one that likes you, "−8" for one that doesn't.</summary>
     internal static string RelationTag(int relationship) => relationship > 0 ? $"♥ +{relationship}" : $"−{-relationship}";

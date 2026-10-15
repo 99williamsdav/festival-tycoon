@@ -33,10 +33,11 @@ public partial class Main
     {
         _classicEvidenceJournal.Add(new{name,fixture=name.StartsWith("injected",StringComparison.Ordinal),state=_session.CapturePersistenceSnapshot()});
     }
-    private void ClassicReady()
+    private void ClassicReady(bool start=true)
     {
+        if(ClassicForecastOpen)ArchitecturePress("ForecastContinue");
         ArchitectureCheck("classic-preparation-and-trailer",_session.IsClassicCampaign&&_session.PreparedStatus==PreparationStatus.Preparing&&
-            _session.CurrentFestival.Tier==1&&_session.Stages.Count==1&&_session.CurrentFestival.Weather==WeatherKind.Mild&&!_challengeReveal.IsOpen);
+            _session.CurrentFestival.Tier==1&&_session.Stages.Count==1&&_session.CurrentFestival.Weather==_session.CaptureClassicForecast()!.Weather&&!_challengeReveal.IsOpen);
         var perk=_session.CapturePerks()!;
         ArchitectureSend(new ChoosePerkCommand(perk.DraftAttempt,perk.Cursor,perk.Hand[0]));
         ArchitectureSend(new UseDefaultBuildLayoutCommand());
@@ -48,6 +49,7 @@ public partial class Main
             ArchitectureSend(new AcceptPreparationOfferCommand(person.Id));
         ArchitectureCheck("classic-normal-plan-ready",_session.GetPreparationStartBlockers().Count==0);
         ClassicObserve("normal-festival-"+_session.FestivalNumber+"-unpaid-plan");
+        if(!start){RefreshPreparationHud();return;}
         PreparationStart();
         ArchitectureCheck("classic-paid-opening",_session.PreparedStatus==PreparationStatus.Running&&_session.CapturePreparation()!.SetupPayments!.Length==1);
         _session.AdvanceWithoutSnapshot(8_000);ArchitectureSend(new SetPausedCommand(true));

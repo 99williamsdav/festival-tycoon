@@ -1,5 +1,13 @@
 # Dated product and prototype decisions
 
+## 15 October 2026 — Classic weather implementation and approval workflow
+
+The user clarified the standing workflow: approving a design starts its authorized implementation within scope; a redundant "build it" is unnecessary. Escalate new scope, material unresolved choices or permission denials, and retain independent review. [Working agreement](../docs/WORKING-AGREEMENTS.md#design-approval-starts-implementation).
+
+The established coordinator supplied the bounded Classic weather/forecast implementation brief, superseding the earlier await-brief sentence below. The user explicitly approved provisional weights of 35% mild, 25% pleasant, 20% cloudy, 15% showery, 3% heatwave and 2% heavy rain. Implement a separate seeded, saved per-festival temperature/rain schedule and accurate pre-preparation forecast using the approved design, reusing existing heat/thirst/wetness/rain/cover mechanics and visuals. Reads/menu/reopen/reload must not reroll or consume gameplay RNG; the next natural festival gets its ordinal's own keyed draw.
+
+Shared festival-time presentation below remains required, with current elapsed labels preserved and durations/countdowns/wall-clock dates distinct. No real-world opening/end times or simulation timing change. No wind/lightning/snow/night/new hazards, uncertainty mechanic, economy/stage/unlock expansion or monitoring automation is commissioned. Source core is reviewed; UI and actual copied-EXE acceptance remain separate. See [implementation plan/data contract](results/classic-weather-plan.md) and [core review](results/classic-weather-core-independent-review.md). Prior accepted Classic/save-warning delivery stays intact.
+
 ## 15 October 2026 — Classic forecast design and shared festival time presentation
 
 **Approved design and implementation constraint; implementation awaits the coordinator's bounded weather/forecast brief.** The user approved Designer's forecast-screen-concepts-v1 designs, as relayed by the established coordinator. The design package is in the art workspace at [forecast-screen-concepts-v1/HANDOFF.txt](<C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/forecast-screen-concepts-v1/HANDOFF.txt>). The Designer handoff now also records that approval and the shared-time contract. These are design mockups, not implemented Godot screens. Illustrative temperatures/weather remain future data requiring the bounded implementation's authoritative data contract.

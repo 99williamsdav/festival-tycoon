@@ -175,7 +175,7 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
                 $")\nSound {performance.Sound}/100 ({PowerRules.RigName(session.Rig)}, the engineer's mixing, the generator)";
             _play.MouseFilter = Control.MouseFilterEnum.Pass;
         }
-        _countdown!.Text = until is { } ticks ? $"{Math.Max(0, ticks) / 80 / 60}:{Math.Max(0, ticks) / 80 % 60:00}" : "";
+        _countdown!.Text = until is { } ticks ? FestivalDurationText(ticks,false) : "";
         for (var i = 0; i < 3; i++)
         {
             var genre = programme is not null && acts.TryGetValue(programme.ActIds[i], out var booked) ? booked.Genre : -1;
@@ -214,7 +214,7 @@ internal sealed class StageCard(IHudHost _hud, Action _toggle)
             row.State.AddThemeColorOverride("font_color", onStage ? Ui.Warn : Ui.Gold);
             row.Act.Text = done ? "Sets over" : act?.Name ?? "Awaiting booking";
             long? until = done ? null : onStage ? programme?.SlotEndTick - session.CurrentTick : next >= 0 ? next - session.CurrentTick : null;
-            row.Countdown.Text = until is { } ticks ? (onStage ? "ends " : "in ") + $"{Math.Max(0, ticks) / 80 / 60}:{Math.Max(0, ticks) / 80 % 60:00}" : "";
+            row.Countdown.Text = until is { } ticks ? (onStage ? "ends " : "in ") + FestivalDurationText(ticks,false) : "";
             var crowd = live?.Listeners.Count(item => item.AtPlace) ?? 0;
             row.Detail.Text = done ? $"{crowd} still about" : act is null ? "" :
                 $"{FestivalGenreName(act.Genre)} · Set {slot + 1}" + (slot >= 0 ? $" · {FestivalClockText(stage.SlotStarts[slot])}–{FestivalClockText(stage.SlotEnds[slot])}" : "") + $" · crowd {crowd}";

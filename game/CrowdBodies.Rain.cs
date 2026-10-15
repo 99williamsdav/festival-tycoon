@@ -79,6 +79,7 @@ internal sealed partial class CrowdBodies
         {
             var scene = Main.InstantiateAsset($"res://assets/characters/lwf_attendee_{RigSex(root)}_poncho_clear_v1.glb");
             var mesh = scene.FindChildren("*", "MeshInstance3D", true, false).OfType<MeshInstance3D>().First(item => item.Name == PonchoNode);
+            mesh.Owner=null; // The imported scene is freed after this mesh joins the live skeleton.
             mesh.GetParent().RemoveChild(mesh);
             skeleton.AddChild(mesh);
             mesh.Skeleton = "..";

@@ -320,7 +320,7 @@ public partial class Main
             var left = Math.Max(0, UrgentResponseTicks - (_session.CurrentTick - call.HeardTick));
             c.DrawRect(new Rect2(x0 + Ui.S(4), y1 - Ui.S(4), (w - Ui.S(8)) * left / UrgentResponseTicks, Ui.S(4)), Ui.PaperBright);
             var seconds = left / 80;
-            TextAt(c, Ui.BodyBold, new Vector2(x0, y0 + Ui.S(9)), $"{seconds / 60}:{seconds % 60:00}", 12, Ui.PaperBright, HorizontalAlignment.Right, w - Ui.S(14));
+            TextAt(c, Ui.BodyBold, new Vector2(x0, y0 + Ui.S(9)), FestivalDurationText(left,false), 12, Ui.PaperBright, HorizontalAlignment.Right, w - Ui.S(14));
         }
         if (_shiftQueued > 0)
         {
@@ -473,7 +473,7 @@ public partial class Main
         var day = _session.PreparedEditionDurationTicks;
         var elapsed = _session.CurrentTick - p.StartedTick;
         if (_shiftClock is not null)
-            _shiftClock.Text = (elapsed >= day ? "Closing time" : $"{FestivalClockText(elapsed)} / {FestivalClockText(day)}") + (_session.PlayerStageId is not null ? "  ·  ON STAGE" : "") + (_session.IsPaused ? "  ·  PAUSED" : "");
+            _shiftClock.Text = (elapsed >= day ? "Closing time" : $"{FestivalClockText(elapsed)} / {FestivalDurationText(day)}") + (_session.PlayerStageId is not null ? "  ·  ON STAGE" : "") + (_session.IsPaused ? "  ·  PAUSED" : "");
         var shift = _session.CaptureStewardShift();
         if (shift is null) return;
         var now = _session.CurrentTick;

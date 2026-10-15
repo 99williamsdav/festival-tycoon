@@ -11,7 +11,7 @@ public partial class Main
 {
     private SessionHost? _classicCampaignHost;
     private string ClassicSaveDirectory=>_architectureEvidenceOutput is not null
-        ?System.IO.Path.Combine(_architectureEvidenceOutput,"classic-saves"):ProjectSettings.GlobalizePath("user://saves/r0-classic-v99");
+        ?System.IO.Path.Combine(_architectureEvidenceOutput,"classic-saves"):ProjectSettings.GlobalizePath("user://saves/r0-classic-v100");
     private GameSession? SavedClassicCampaign()=>_classicCampaignHost?.Session??
         (AutosaveRotation.LoadNewestValid(ClassicSaveDirectory,_saveCompatibility).Session is{IsClassicCampaign:true} saved?saved:null);
 
@@ -42,7 +42,7 @@ public partial class Main
         _classicCampaignHost??=new SessionHost(session,ClassicSaveDirectory,_saveCompatibility);
         _host=_classicCampaignHost;
         SwitchToFestival(session);StartMenu.Close();RefreshChallengeReveal();
-        _preparationMessage=$"Classic · Festival {_session.FestivalNumber}. Mild and dry. Choose three acts and hire your crew.";
+        _preparationMessage=$"Classic · Festival {_session.FestivalNumber}. {_session.CaptureClassicForecast()!.Summary} Choose three acts and hire your crew.";
         RefreshPreparationHud();
         GD.Print($"CLASSIC_CAMPAIGN_OPENED id={_session.CampaignId.Value} seed={_session.CampaignSeed} festival={_session.FestivalNumber} status={_session.PreparedStatus}");
     }
@@ -51,7 +51,7 @@ public partial class Main
         var dialog=new AcceptDialog{Title=$"Deaths recorded · Festival {_session.FestivalNumber}",Theme=HudTheme()};
         dialog.Theme.SetStylebox("panel","AcceptDialog",HudStyle(HudPaper,16));
         var text=new RichTextLabel{CustomMinimumSize=new Vector2(600,240),BbcodeEnabled=false,ScrollActive=true,
-            Text=string.Join("\n\n",_session.CaptureClassicHistory()!.DeathPenalties.Select(d=>d.Casualty.Cause))+
+            Text=string.Join("\n\n",_session.CaptureClassicHistory()!.DeathPenalties.Select(d=>FestivalClockText(d.Casualty.Tick-(_session.CapturePreparation()?.StartedTick??0))+" · "+FestivalEvidenceText(_session,d.Casualty.Cause)))+
                 "\n\nEach death reduces reputation by 10, stopping at zero. No fine. The festival continues."};
         text.AddThemeColorOverride("default_color",HudInk);
         text.AddThemeFontOverride("normal_font",Ui.Body);

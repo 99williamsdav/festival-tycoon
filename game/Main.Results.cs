@@ -44,6 +44,7 @@ public partial class Main
             $"{_session.CurrentFestival.Attendance} guests at {FestivalCurrency.Format(_session.CurrentFestival.TicketPricePennies)}. " +
             $"{FestivalCurrency.Format(p.CarriedIn!.CashPennies)} carried forward; {FestivalCurrency.Format(p.CarriedIn.DebtPennies)} of loan still owed.";
         RefreshPreparationHud();
+        if(_session.IsClassicCampaign)RefreshClassicForecast();
         GD.Print($"NEXT_FESTIVAL_STARTED id={_session.CampaignId.Value} tier={p.Tier} cash={p.OpeningCashPennies} debt={p.CarriedIn.DebtPennies}");
         return true;
     }

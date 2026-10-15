@@ -259,7 +259,8 @@ void fragment() {
         {
             Lifts = Moods(session, up: true), Grumbles = Moods(session, up: false), Heat = heat,
             Classic=session.IsClassicCampaign,FestivalNumber=session.FestivalNumber,
-            DeathCauses=session.IsClassicCampaign?session.CaptureClassicHistory()!.DeathPenalties.Select(d=>d.Casualty.Cause).ToArray():[],
+            LightShowers=weather?.Spells.Any(spell=>spell.Intensity==RainIntensity.Showers)==true,
+            DeathCauses=session.IsClassicCampaign?session.CaptureClassicHistory()!.DeathPenalties.Select(d=>FestivalEvidenceText(session,d.Casualty.Cause)).ToArray():[],
         };
     }
 
@@ -341,7 +342,7 @@ void fragment() {
         if (review.Paragraphs.Length > 2)
         {
             right.AddChild(Ui.Caps("Around the field", Ui.InkMuted, 9.5f));
-            right.AddChild(Paragraph(review.Paragraphs[2], 14.5f, Ui.Ink));
+            foreach(var paragraph in review.Paragraphs.Skip(2))right.AddChild(Paragraph(paragraph,14.5f,Ui.Ink));
         }
         right.AddChild(Ui.Caps("The verdict", Ui.InkMuted, 9.5f));
         right.AddChild(Paragraph(review.Verdict, 14.5f, Ui.Ink, Ui.SlabBold));
