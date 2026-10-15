@@ -1,5 +1,17 @@
 # Dated product and prototype decisions
 
+## 15 October 2026 — Classic forecast design and shared festival time presentation
+
+**Approved design and implementation constraint; implementation awaits the coordinator's bounded weather/forecast brief.** The user approved Designer's forecast-screen-concepts-v1 designs, as relayed by the established coordinator. The design package is in the art workspace at [forecast-screen-concepts-v1/HANDOFF.txt](<C:/Users/99wil/Documents/ChatGPT/Festival Tycoon/forecast-screen-concepts-v1/HANDOFF.txt>). The Designer handoff now also records that approval and the shared-time contract. These are design mockups, not implemented Godot screens. Illustrative temperatures/weather remain future data requiring the bounded implementation's authoritative data contract.
+
+The eventual weather/forecast implementation must consolidate **all player-visible festival time formatting and mapping into one shared presentation source**. This includes the forecast timeline, live clock, programme/timetable slots, stage/band times and context/status/results timestamps wherever they represent festival time. Every such display must use the same formatter/model so a later elapsed-to-real-clock mapping can be changed once and appear consistently everywhere.
+
+Current displayed festival times remain **placeholders**. Do not choose a real-world festival start/end clock time now, and do not change simulation ticks, durations, arrival schedules or set timings. The shared presentation source must support the later mapping without making presentation labels authoritative simulation data.
+
+Distinguish festival-relative timestamps from durations/countdowns and from real-world timestamps (for example save creation dates). Do not blindly replace every numeric time format or reinterpret a remaining duration as a clock timestamp. Forecast label text is generated at runtime, not baked into artwork.
+
+Address this cross-cutting presentation requirement safely within the upcoming bounded forecast scope. This approval does not commission a separate broad time rewrite, variable-weather simulation or forecast implementation now. Await the coordinator's bounded brief unless implementation is explicitly authorized separately. The completed, independently approved [Classic/save-warning Windows delivery](results/classic-loop-handoff.md) remains accepted and unchanged; no historical task is reopened.
+
 ## 14 October 2026 — Minimal Classic loop and save failures
 
 The user approved the bounded first Classic management loop: repeat festivals on the inherited Trailer farm setup and carry actual campaign cash, debt, reputation, scene credibility, learned acts, relationships, popularity and existing property. Death remains a causal recorded loss, releases dead actors' work/claims and reduces reputation once by 10, stopping at zero, without a fine or Council ending. The day and living actors continue. Approved provisional starting values are fixed mild/dry weather using existing non-hot medical behavior, half disorder-pressure buildup and double medical/injury/generator incident windows. Survival retains its existing rules, controls and fixed stage progression. This is a minimal loop, not acceptance of general balance, expansion, land unlocks or random forecasts. [Core implementation and evidence](results/classic-loop-core-implementation.md).
